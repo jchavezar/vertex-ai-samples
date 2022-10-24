@@ -1,3 +1,3 @@
 ## 03 Tensorflow
 
-![](../images/03.png)
+<center><img src="../images/03.png"/></center>
