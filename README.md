@@ -1,2 +1,3 @@
-# vertex-ai-mlops
-# vertex-ai-mlops
+## Repo Architecture
+
+![](images/architecture.png)
