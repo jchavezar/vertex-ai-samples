@@ -1,5 +1,5 @@
 provider "google" {
-  version = "~> 3.46"
+  version = "~> 4.50.0"
   project = var.gcp_project_name
 }
 

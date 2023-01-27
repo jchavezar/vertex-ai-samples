@@ -63,7 +63,7 @@ variable "docker-image" {
     default = "gcr.io/jchavezar-demo/feast:v1"
 }
 
-variable "app_name" {
+variable "app" {
     type = string
     description = "Name of the application"
 }

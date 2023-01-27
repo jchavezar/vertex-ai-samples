@@ -3,27 +3,21 @@ resource "google_container_cluster" "feast_gke_cluster" {
   location   = var.region
   network    = var.network
   subnetwork = var.subnetwork
-
+  remove_default_node_pool = true
   initial_node_count = var.gke_node_count
-  node_config {
-    machine_type = var.gke_machine_type
-  }
-
-  ip_allocation_policy {
-  }
 }
-
-data "google_container_cluster" "feast_gke_cluster" {
+resource "google_container_node_pool" "primary_preemptible_nodes" {
+  name = "{var.name_prefix}-node-pool"
   location = var.region
-  name     = google_container_cluster.feast_gke_cluster.name
-  initial_node_count = 3
-
+  cluster = google_container_cluster.feast_gke_cluster.name
+  node_count = 1
   node_config {
+    preemptible =  true
     machine_type = var.gke_machine_type
     labels = {
-        app = var.app_name
+      app = var.app
     }
 
-    tags = ["app", var.app_name]
+    tags = ["app", var.app]
   }
 }

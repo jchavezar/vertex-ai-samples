@@ -1,5 +1,5 @@
   output "gke_cluster" {
-    value = var.cluster
+    value = google_container_cluster.feast_gke_cluster.name
   }
 
   output "endpoint" {
