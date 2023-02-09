@@ -1,6 +1,0 @@
-
-google-cloud-storage
-numpy
-pandas
-flask
-xgboost
