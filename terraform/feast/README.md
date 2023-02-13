@@ -3,8 +3,8 @@ The next script is to create the infrastructure behind [feature servers](https:/
 
 ## Prerequisites
 
-* *Install Google SDK please see [documentation](https://cloud.google.com/sdk/docs/install)
-* *Install docker, please see [documentation](https://docs.docker.com/engine/install/ubuntu/)
+* Install Google SDK please see [documentation](https://cloud.google.com/sdk/docs/install)
+* Install docker, please see [documentation](https://docs.docker.com/engine/install/ubuntu/)
 
 ## Building Docker Image
 
