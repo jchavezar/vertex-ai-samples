@@ -1,1 +1,1 @@
-<center><img src="../../images/01-pytorch-nn.png"/></center>
+![](../../images/arch-custom.png)

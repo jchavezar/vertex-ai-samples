@@ -1,1 +1,1 @@
-![](../../images/architecture-2.png)
+![](../../images/arch-tf.png)
