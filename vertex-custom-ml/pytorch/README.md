@@ -1,1 +1,1 @@
-![](../../images/arch-custom.png)
+![](../../images/arch-py.png)
