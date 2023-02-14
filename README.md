@@ -1,6 +1,6 @@
 ## Repo Architecture
 
-![](images/architecture-1.png)
+![](images/architecture.png)
 
 
 Enjoy
