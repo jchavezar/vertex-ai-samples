@@ -1,0 +1,1 @@
+![](../images/architecture-2.png)
