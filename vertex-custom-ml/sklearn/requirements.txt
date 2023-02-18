@@ -1,0 +1,5 @@
+ipykernel
+onnxruntime
+fastapi[all]
+numpy
+google-cloud-storage
