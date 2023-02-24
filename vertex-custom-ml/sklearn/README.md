@@ -4,7 +4,7 @@ How to?
 
 ## Create the Training Image and run run.py
 
--- go to [training folder](./training) and run the following command:
+- go to [training folder](./training) and run the following command:
 
 ***gcloud builds will generate a docker image and push it in the repo specified***
 
