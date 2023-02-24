@@ -14,6 +14,8 @@ gcloud builds submit -t gcr.io/{YOUR_PROJECT_ID}/sklearn-train .
 
 ## Create the Prediction Image and run run.py
 
+- go to prediction folder and run the following command:
+
 ```bash
 # %%
 gcloud builds submit -t gcr.io/{YOUR_PROJECT_ID}/ecommerce:fast-onnx .
