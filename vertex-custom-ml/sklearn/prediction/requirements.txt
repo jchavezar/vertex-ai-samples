@@ -1,4 +1,3 @@
-ipykernel
 onnxruntime
 fastapi[all]
 numpy
