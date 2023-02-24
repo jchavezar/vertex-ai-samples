@@ -1,32 +1,24 @@
-## Initialize aiplatform/Vertex
+How to?
 
-```python
-# %%
-from google.cloud import aiplatform as aip
-aip.init(project='jchavezar-demo', staging_bucket='gs://vtx-staging')
+**run.py** will have all the code required to do training on vertex and deploy a prediction container with the model generated.
+
+## Create the Training Image and run run.py
+
+- go to training folder and run the following command:
+
+***gcloud builds will generate a docker image and push it in the repo specified***
+
+```bash
+gcloud builds submit -t gcr.io/{YOUR_PROJECT_ID}/sklearn-train .
 ```
 
-## Upload Model to Vertex Model Registry
+## Create the Prediction Image and run run.py
 
-```python
+```bash
 # %%
-model = aip.Model.upload(
-    display_name='sklearn-ecommerce-1',
-    artifact_uri='gs://vtx-models/ecommerce/onnx',
-    serving_container_image_uri='gcr.io/jchavezar-demo/ecommerce:fast-onnx',
-    serving_container_predict_route='/predict',
-    serving_container_health_route='/health'
-)
+gcloud builds submit -t gcr.io/{YOUR_PROJECT_ID}/ecommerce:fast-onnx .
 ```
 
 ## Deploy for online predictions
 
-```python
-# %%
-model.deploy(
-    deployed_model_display_name='sklearn-ecommerce',
-    machine_type='n1-standard-2',
-    min_replica_count=1,
-    max_replica_count=1
-)
-```
+Happy coding!
