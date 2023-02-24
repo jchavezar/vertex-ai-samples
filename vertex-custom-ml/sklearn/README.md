@@ -4,9 +4,7 @@ How to?
 
 ## Create the Training Image and run run.py
 
--- go to training folder and run the following command:
-
-- [training folder](./training)
+-- go to [training folder](./training) and run the following command:
 
 ***gcloud builds will generate a docker image and push it in the repo specified***
 
@@ -16,7 +14,7 @@ gcloud builds submit -t gcr.io/{YOUR_PROJECT_ID}/sklearn-train .
 
 ## Create the Prediction Image and run run.py
 
-- go to prediction folder and run the following command:
+- go to [prediction folder](./prediction) and run the following command:
 
 ```bash
 # %%
