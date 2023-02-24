@@ -1,6 +1,6 @@
 How to?
 
-**run.py** will have all the code required to do training on vertex and deploy a prediction container with the model generated.
+**run.py** will have all the code required to do training on vertex and deploy a prediction container with the model generated, we first need to create the containers for training and prediction.
 
 ## Create the Training Image and run run.py
 
