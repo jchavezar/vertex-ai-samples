@@ -54,21 +54,53 @@ endpoint = model.deploy(
 )
 # %%
 ## Test
-0,1,0,1,google,organic,Organic Search,desktop,India
+data_dict = {
+    "latest_ecommerce_progress": [0],
+	"bounces": [1],
+	"time_on_site": [0],
+	"pageviews": [1],
+	"source": ["google"],
+	"medium": ["organic"],
+	"channel_grouping": ["Organic Search"],
+	"device_category": ["desktop"],
+	"country": ["India"]
+}
 
-!curl -X 'POST' http://localhost:7080/predict \                                                   
-  -H 'Content-Type: application/json' \
-  -d '{ "instances" : [{
-        "latest_ecommerce_progress": 0,
-        "bounces": 1,
-        "time_on_site": 0,
-        "pageviews": 1,
-        "source": "google",
-        "medium": "Organic Search",
-        "channel_grouping": "desktop",
-        "device_category": "India",
-        "country": "India",
-}]}'
+data_dict = {
+	"instances": [{
+		"latest_ecommerce_progress": 0,
+		"bounces": 1,
+		"time_on_site": 0,
+		"pageviews": 1,
+		"source": "google",
+		"medium": "organic",
+		"channel_grouping": "Organic Search",
+		"device_category": "desktop",
+		"country": "India"
+	}]
+}
+
+endpoint.predict(data_dict)
+
+#%%
+
+!(curl \
+-X POST \
+-H "Authorization: Bearer $(gcloud auth print-access-token)" \
+-H "Content-Type: application/json" \
+https://us-central1-aiplatform.googleapis.com/v1/projects/jchavezar-demo/locations/us-central1/endpoints/5619353240912003072:predict \
+-d '{"instances": [{ \
+		"latest_ecommerce_progress": 0, \
+		"bounces": 1, \
+		"time_on_site": 0, \
+		"pageviews": 1, \
+		"source": "google", \
+		"medium": "organic", \
+		"channel_grouping": "Organic Search", \
+		"device_category": "desktop", \
+		"country": "India" \
+	}] \
+}')
 
 ## Undeploy and Delete Components
 
