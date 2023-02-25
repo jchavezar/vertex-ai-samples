@@ -11,7 +11,7 @@ from google.cloud import storage
 # Variables
 MODEL_DIR = os.environ['AIP_STORAGE_URI']
 BUCKET_NAME = MODEL_DIR.split('/')[2]
-MODEL_SUF = '/'.join(MODEL_DIR.split('/')[2:])
+BUCKET_SUFFIX_NAME = '/'.join(MODEL_DIR.split('/')[3:])
 MODEL_PATH = "/tmp/ecommerce.onnx"
 AIP_HEALTH_ROUTE = os.environ['AIP_HEALTH_ROUTE']
 AIP_PREDICT_ROUTE = os.environ['AIP_PREDICT_ROUTE']
@@ -24,18 +24,18 @@ print('begin')
 for i in client.list_blobs(BUCKET_NAME, prefix=MODEL_DIR.split('/')[2]):
    print(i)
 print('finish')
-print(MODEL_SUF)
+print(BUCKET_SUFFIX_NAME)
 bucket = client.get_bucket(BUCKET_NAME)
-blob = bucket.blob(f'{MODEL_SUF}/ecommerce.onnx')
+blob = bucket.blob(f'{BUCKET_SUFFIX_NAME}/ecommerce.onnx')
 blob.download_to_filename(MODEL_PATH)
 
 # Variables
-MODEL_DIR = os.environ['AIP_STORAGE_URI']
-BUCKET_NAME = MODEL_DIR.split('/')[2]
-MODEL_SUF = '/'.join(MODEL_DIR.split('/')[2:])
-MODEL_PATH = "/tmp/ecommerce.onnx"
-AIP_HEALTH_ROUTE = os.environ['AIP_HEALTH_ROUTE']
-AIP_PREDICT_ROUTE = os.environ['AIP_PREDICT_ROUTE']
+#MODEL_DIR = os.environ['AIP_STORAGE_URI']
+#BUCKET_NAME = MODEL_DIR.split('/')[2]
+#MODEL_SUF = '/'.join(MODEL_DIR.split('/')[2:])
+#MODEL_PATH = "/tmp/ecommerce.onnx"
+#AIP_HEALTH_ROUTE = os.environ['AIP_HEALTH_ROUTE']
+#AIP_PREDICT_ROUTE = os.environ['AIP_PREDICT_ROUTE']
 
 print(AIP_HEALTH_ROUTE)
 

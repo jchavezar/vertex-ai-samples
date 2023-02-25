@@ -38,7 +38,7 @@ my_job.run()
 
 model = aip.Model.upload(
     display_name='sklearn-ecommerce-1',
-    artifact_uri=MODEL_URI,
+    artifact_uri=f'{MODEL_URI}/model',
     serving_container_image_uri=IMAGE_PREDICTION_URI,
     serving_container_predict_route='/predict',
     serving_container_health_route='/health'
@@ -53,6 +53,22 @@ endpoint = model.deploy(
     max_replica_count=1
 )
 # %%
+## Test
+0,1,0,1,google,organic,Organic Search,desktop,India
+
+!curl -X 'POST' http://localhost:7080/predict \                                                   
+  -H 'Content-Type: application/json' \
+  -d '{ "instances" : [{
+        "latest_ecommerce_progress": 0,
+        "bounces": 1,
+        "time_on_site": 0,
+        "pageviews": 1,
+        "source": "google",
+        "medium": "Organic Search",
+        "channel_grouping": "desktop",
+        "device_category": "India",
+        "country": "India",
+}]}'
 
 ## Undeploy and Delete Components
 
