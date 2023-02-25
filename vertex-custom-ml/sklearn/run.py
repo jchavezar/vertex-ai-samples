@@ -5,7 +5,7 @@ from google.cloud import aiplatform as aip
 
 # Variables
 
-IMAGE_TRAIN_URI = "gcr.io/jchavezar-demo/sklearn-train"
+IMAGE_TRAIN_URI = "gcr.io/jchavezar-demo/sklearn-train:latest"
 IMAGE_PREDICTION_URI = "gcr.io/jchavezar-demo/ecommerce:fast-onnx"
 MODEL_URI = "gs://vtx-models/ecommerce/sklearn"
 
@@ -32,7 +32,7 @@ my_job = aip.CustomJob(
     base_output_dir = MODEL_URI,
 )
 
-my_job.run(sync=False)
+my_job.run()
 # checkpoint
 #%%
 
