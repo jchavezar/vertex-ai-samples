@@ -95,6 +95,8 @@ if __name__ == "__main__":
 
     # Store model in Google Cloud Storage
     print(f'--- [INFO] Storing Model:{MODEL_FILENAME} has been started')
+    print(BUCKET_NAME)
+    print(BUCKET_SUFFIX_NAME)
     client = storage.Client()
     bucket = client.get_bucket(BUCKET_NAME)
     object = bucket.blob(f'{BUCKET_SUFFIX_NAME}/{MODEL_FILENAME}')
