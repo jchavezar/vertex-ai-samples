@@ -12,3 +12,5 @@ steps:
   - clone
 images: ['gcr.io/jchavezar-demo/sklearn-train']
 images: ['gcr.io/jchavezar-demo/ecommerce:fast-onnx']
+options:
+  logging: CLOUD_LOGGING_ONLY
