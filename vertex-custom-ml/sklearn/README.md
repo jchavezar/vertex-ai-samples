@@ -23,4 +23,12 @@ gcloud builds submit -t gcr.io/{YOUR_PROJECT_ID}/ecommerce:fast-onnx .
 
 ## Deploy for online predictions
 
+<table align="left">
+  <td>
+    <a href="https://colab.research.google.com/github/jchavezar/vertex-ai-samples/blob/main/vertex-custom-ml/pytorch/custom_jobs/pypackage_from_local_tabclass.ipynb">
+      <img src="https://cloud.google.com/ml-engine/images/colab-logo-32px.png" alt="Colab logo"> Run in Colab
+    </a>
+  </td>
+</table>
+
 Happy coding!
