@@ -33,7 +33,7 @@ if __name__ == "__main__":
     # Variables
     MODEL_DIR = args.model_dir
     BUCKET_NAME = MODEL_DIR.split('/')[2]
-    BUCKET_SUFFIX_NAME = '/'.join(MODEL_DIR.split('/')[2:])
+    BUCKET_SUFFIX_NAME = '/'.join(MODEL_DIR.split('/')[3:])
     MODEL_FILENAME = 'ecommerce.onnx'
     DATA_DIR = args.data_dir
     
@@ -95,11 +95,8 @@ if __name__ == "__main__":
 
     # Store model in Google Cloud Storage
     print(f'--- [INFO] Storing Model:{MODEL_FILENAME} has been started')
-    print(BUCKET_NAME)
-    print(BUCKET_SUFFIX_NAME)
-    print(f'{BUCKET_SUFFIX_NAME}/{MODEL_FILENAME}')
     client = storage.Client()
     bucket = client.get_bucket(BUCKET_NAME)
-    object = bucket.blob(f'{BUCKET_SUFFIX_NAME}/{MODEL_FILENAME}')
+    object = bucket.blob(f'{BUCKET_SUFFIX_NAME}{MODEL_FILENAME}')
     object.upload_from_filename('/tmp/ecommerce.onnx')
     print(f'--- [INFO] object has been stored in gs://{BUCKET_NAME}/{BUCKET_SUFFIX_NAME}')
