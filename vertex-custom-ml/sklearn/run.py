@@ -101,11 +101,3 @@ https://us-central1-aiplatform.googleapis.com/v1/projects/jchavezar-demo/locatio
 		"country": "India" \
 	}] \
 }')
-
-## Undeploy and Delete Components
-
-# %%
-endpoint.undeploy()
-
-# %%
-model.delete
