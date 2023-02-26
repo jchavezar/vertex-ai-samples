@@ -3,7 +3,7 @@
 # Libraries
 from google.cloud import aiplatform as aip
 
-# Variables
+# Variables (change these with your own values)
 
 IMAGE_TRAIN_URI = "gcr.io/jchavezar-demo/sklearn-train:latest"
 IMAGE_PREDICTION_URI = "gcr.io/jchavezar-demo/ecommerce:fast-onnx"
