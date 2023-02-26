@@ -1,4 +1,17 @@
-How to?
+## Key Features
+
+- In code
+
+* [**scikit-learn**](https://scikit-learn.org/stable/); free software machine learning library to transform, train and evaluate.
+* [**google-cloud-storage**](https://cloud.google.com/storage/docs/reference/libraries); RESTful online file storage web serving to store objects.
+* [**onnx**](https://onnx.ai/); is an open format built to represent machine learning models
+* [**FastAPI**](https://fastapi.tiangolo.com/); is a modern, fast (high-performance), web framework for building APIs with Python 3.7+.
+ 
+ - Out code
+
+ * [**vertex/aiplatform**](https://cloud.google.com/python/docs/reference/aiplatform/latest/google.cloud.aiplatform); a machine learning (ML) platform that lets you train and deploy ML models and AI applications.
+
+## How To Use 
 
 There are different ways to have training-predictions on Vertex; using containers, local-python-file, python distribution package, [run.py](./run.py) has all the steps to fire training and predictions using those different ways.
 
