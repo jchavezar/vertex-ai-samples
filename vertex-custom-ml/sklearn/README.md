@@ -21,7 +21,7 @@ gcloud builds submit -t gcr.io/{YOUR_PROJECT_ID}/sklearn-train .
 gcloud builds submit -t gcr.io/{YOUR_PROJECT_ID}/ecommerce:fast-onnx .
 ```
 
-## Run run.py 
+## Run [run.py](./run.py)
 
 ***Remember to change variables***
 
