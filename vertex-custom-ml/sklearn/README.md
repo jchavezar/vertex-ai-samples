@@ -1,3 +1,7 @@
+
+<a href="https://cloud.google.com/python/docs/reference/aiplatform/latest/google.cloud.aiplatform"><img src="https://img.shields.io/badge/aiplatform-1.22.0-blue"/></a>
+
+
 ## Key Features
 
 - In code
