@@ -6,7 +6,7 @@ There are different ways to have training-predictions on Vertex; using container
 
 - go to [training folder](./training) and run the following command:
 
-*gcloud builds will generate a docker image and push it in the repo specified*
+*snippet below creates a docker image and push it into the repository, remember to use {YOUR_PROJECT_ID}*
 
 ```bash
 gcloud builds submit -t gcr.io/{YOUR_PROJECT_ID}/sklearn-train .
