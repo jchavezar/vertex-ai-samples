@@ -1,12 +1,12 @@
 How to?
 
-**run.py** will have all the code required to do training on vertex and deploy a prediction container with the model generated, we first need to create the containers for training and prediction.
+There are different ways to have training-predictions on Vertex; using containers, local-python-file, python distribution package, **run.py** has all the steps to fire training and predictions, on different ways.
 
 ## Create the Training Image
 
 - go to [training folder](./training) and run the following command:
 
-***gcloud builds will generate a docker image and push it in the repo specified***
+*gcloud builds will generate a docker image and push it in the repo specified*
 
 ```bash
 gcloud builds submit -t gcr.io/{YOUR_PROJECT_ID}/sklearn-train .
@@ -17,13 +17,12 @@ gcloud builds submit -t gcr.io/{YOUR_PROJECT_ID}/sklearn-train .
 - go to [prediction folder](./prediction) and run the following command:
 
 ```bash
-# %%
 gcloud builds submit -t gcr.io/{YOUR_PROJECT_ID}/ecommerce:fast-onnx .
 ```
 
 ## Run [run.py](./run.py)
 
-***Remember to change variables***
+*Remember to change variables*
 
 ## or use Notebooks:
 
