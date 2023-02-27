@@ -149,3 +149,57 @@ endpoint = model.deploy(
 )
 
 # %%
+
+
+# Train Using Python Distribution Package
+#%%
+with open('./training/setup.py', 'w') as f:
+    f.write(
+'''
+from setuptools import setup
+from setuptools import find_packages
+REQUIRED_PACKAGES = ["protobuf==3.20.2","skl2onnx", "gcsfs"]
+setup(
+	name = 'trainer',
+    version = '0.1',
+    packages = find_packages(),
+    include_package_data = True,
+    description='Training Package')
+'''
+)
+
+!touch ./training/__init__.py
+# %%
+
+!tar cvf source.tar ./training
+!gzip source.tar -v
+!gsutil cp source.tar.gz {MODEL_URI}/packages/source.tar.gz
+
+!rm -fr ./training/__init__.py
+!rm -fr ./training/setup.py
+!rm -fr source*
+
+# %%
+
+worker_pool_specs=[
+    {
+        "machine_spec": {
+            "machine_type": "n1-standard-4"
+        },
+        "replica_count" : 1,
+        "python_package_spec": {
+            "executor_image_uri": "us-docker.pkg.dev/vertex-ai/training/scikit-learn-cpu.0-23:latest",
+            "package_uris": [MODEL_URI+'/packages/source.tar.gz'],
+            "python_module": "train"
+        }
+    }
+]
+
+my_job = aip.CustomJob(
+    display_name = "sklearn-customjob-train",
+    worker_pool_specs = worker_pool_specs,
+    base_output_dir = MODEL_URI,
+)
+
+my_job.run()
+# %%

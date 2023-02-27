@@ -2,12 +2,12 @@ steps:
 - name: 'gcr.io/cloud-builders/git'
   id: clone
   args: ['clone', 'https://github.com/jchavezar/vertex-ai-samples.git']
-- name: 'gcr.io/cloud-builders/docker'
-  args: ['build', '-t', 'gcr.io/jchavezar-demo/sklearn-train', './vertex-ai-samples/vertex-custom-ml/sklearn/training']
+- name: 'gcr.io/cloud-builders/gcloud'
+  args: ['builds', 'submit', '-t', 'gcr.io/jchavezar-demo/sklearn-train', './vertex-ai-samples/vertex-custom-ml/sklearn/training']
   waitFor:
   - clone
-- name: 'gcr.io/cloud-builders/docker'
-  args: ['build', '-t', 'gcr.io/jchavezar-demo/ecommerce:fast-onnx', './vertex-ai-samples/vertex-custom-ml/sklearn/prediction']
+- name: 'gcr.io/cloud-builders/gcloud'
+  args: ['builds', 'submit', '-t', 'gcr.io/jchavezar-demo/ecommerce:fast-onnx', './vertex-ai-samples/vertex-custom-ml/sklearn/prediction']
   waitFor:
   - clone
 images: ['gcr.io/jchavezar-demo/sklearn-train']
