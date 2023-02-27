@@ -17,7 +17,7 @@
 
 ## How To Use 
 
-There are different ways to have training-predictions on Vertex; using containers, local-python-file, python distribution package, [run.py](./run.py) has all the steps to fire training and predictions using those different ways.
+There are different ways to have training-predictions on Vertex; using containers, local-python-file, python distribution package, [run.py](./run.py) has all the steps to fire training and predictions using those different ways, some of them needs container images so let's build them first:
 
 ## Create the Training Image
 
