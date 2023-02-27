@@ -17,13 +17,13 @@
 
 ## How To Use 
 
-There are different ways to have training-predictions on Vertex; using containers, local-python-file, python distribution package, [run.py](./run.py) has all the steps to fire training and predictions using those different ways, some of them needs container images so let's build them first:
+There are different ways to have training-predictions on Vertex; using containers, local-python-file, python distribution package, [run.py](./run.py) has all the steps to fire training and predictions using those different ways, some of them need docker container images so let's build them first:
 
 ## Create the Training Image
 
 - go to [training folder](./training) and run the following command:
 
-*snippet below creates a docker image and push it into the repository, remember to use {YOUR_PROJECT_ID}*
+*the following snippet creates a docker image and push it into a repository, remember to use {YOUR_PROJECT_ID}*
 
 ```bash
 gcloud builds submit -t gcr.io/{YOUR_PROJECT_ID}/sklearn-train .
