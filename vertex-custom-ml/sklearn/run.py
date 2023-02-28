@@ -4,7 +4,7 @@
 from google.cloud import aiplatform as aip
 
 # Train Using custom containers
-
+# -------------------------------------------------------------------------------------------------------------------------------------------------
 ## Variables (change these with your own values)
 
 IMAGE_TRAIN_URI = "gcr.io/jchavezar-demo/sklearn-train:latest"
@@ -53,7 +53,7 @@ model = aip.Model.upload(
 ## Deploy Model for Online Predictions
 
 endpoint = model.deploy(
-    deployed_model_display_name='sklearn-ecommerce',
+    deployed_model_display_name='sklearn-ecommerce-1',
     machine_type='n1-standard-2',
     min_replica_count=1,
     max_replica_count=1
@@ -115,6 +115,8 @@ https://us-central1-aiplatform.googleapis.com/v1/projects/jchavezar-demo/locatio
 
 
 # Train Using local.script and pre-built container images
+# -------------------------------------------------------------------------------------------------------------------------------------------------
+
 #%%
 
 job = aip.CustomJob.from_local_script(
@@ -142,7 +144,7 @@ model = aip.Model.upload(
 ## Deploy Model for Online Predictions
 
 endpoint = model.deploy(
-    deployed_model_display_name='sklearn-ecommerce',
+    deployed_model_display_name='sklearn-ecommerce-2',
     machine_type='n1-standard-2',
     min_replica_count=1,
     max_replica_count=1
@@ -152,32 +154,21 @@ endpoint = model.deploy(
 
 
 # Train Using Python Distribution Package
+# -------------------------------------------------------------------------------------------------------------------------------------------------
+
 #%%
-with open('./training/setup.py', 'w') as f:
-    f.write(
-'''
-from setuptools import setup
-from setuptools import find_packages
-REQUIRED_PACKAGES = ["protobuf==3.20.2","skl2onnx", "gcsfs"]
-setup(
-	name = 'trainer',
-    version = '0.1',
-    packages = find_packages(),
-    include_package_data = True,
-    description='Training Package')
-'''
-)
+!rm -fr source
+!mkdir source
+!mkdir source/trainer/
+!touch source/trainer/__init__.py
+!cp training/train.py source/trainer/train.py
 
-!touch ./training/__init__.py
-# %%
+setup_py = "import setuptools\n\nsetuptools.setup(\n\n    install_requires=[\n\n        'skl2onnx',\n\n    ],\n\n    packages=setuptools.find_packages())"
+! echo "$setup_py" > source/setup.py
 
-!tar cvf source.tar ./training
-!gzip source.tar -v
-!gsutil cp source.tar.gz {MODEL_URI}/packages/source.tar.gz
-
-!rm -fr ./training/__init__.py
-!rm -fr ./training/setup.py
-!rm -fr source*
+!tar cvf source.tar source
+!gzip source.tar -f
+!gsutil cp ./source.tar.gz {MODEL_URI}/packages/source.tar.gz
 
 # %%
 
@@ -188,18 +179,37 @@ worker_pool_specs=[
         },
         "replica_count" : 1,
         "python_package_spec": {
-            "executor_image_uri": "us-docker.pkg.dev/vertex-ai/training/scikit-learn-cpu.0-23:latest",
+            "executor_image_uri": "us-docker.pkg.dev/vertex-ai/training/tf-cpu.2-4:latest",
             "package_uris": [MODEL_URI+'/packages/source.tar.gz'],
-            "python_module": "train"
+            "python_module": "trainer.train"
         }
     }
 ]
 
-my_job = aip.CustomJob(
+#%%
+my_trainingjob = aip.CustomJob(
     display_name = "sklearn-customjob-train",
     worker_pool_specs = worker_pool_specs,
     base_output_dir = MODEL_URI,
 )
 
-my_job.run()
-# %%
+my_trainingjob.run()
+
+## Upload Model
+
+model = aip.Model.upload(
+    display_name='sklearn-ecommerce-3',
+    artifact_uri=f'{MODEL_URI}/model',
+    serving_container_image_uri=IMAGE_PREDICTION_URI,
+    serving_container_predict_route='/predict',
+    serving_container_health_route='/health'
+)
+
+## Deploy Model for Online Predictions
+
+endpoint = model.deploy(
+    deployed_model_display_name='sklearn-ecommerce-3',
+    machine_type='n1-standard-2',
+    min_replica_count=1,
+    max_replica_count=1
+)
