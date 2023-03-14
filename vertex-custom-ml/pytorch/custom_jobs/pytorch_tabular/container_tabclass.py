@@ -120,6 +120,9 @@ ENTRYPOINT ["python", "train.py"]
 !docker build -t $TRAIN_IMAGE source/.
 !docker push $TRAIN_IMAGE
 
+# %%
+!rm -fr source
+
 #%%
 
 ## Using Vertex AI to Train Custom Model (managed service)
