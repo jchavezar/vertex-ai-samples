@@ -1,14 +1,17 @@
 ## This is not a notebook, I use vscode with python extension and run ipykernel with individual cells
+### Variables
 #%% 
 PROJECT_ID = 'jchavezar-demo'
 TRAIN_IMAGE = 'gcr.io/jchavezar-demo/pytorch-custom-random:v1'
 STAGING_BUCKET = 'gs://vtx-staging'
 
+### Create folder structure
 #%%
 
 !rm -fr source
 !mkdir source
 
+### Training File
 #%%
 %%writefile source/train.py
 from sklearn.datasets import make_classification
@@ -110,6 +113,7 @@ tabular_model = TabularModel(
 tabular_model.fit(train=train, validation=val)
 tabular_model.save_model('/gcs/vtx-models/pytorch/tabular_random')
 
+### Dockerfile for Image Build
 # %%
 %%writefile source/Dockerfile
 FROM python:3.10.10-slim-bullseye
@@ -121,10 +125,12 @@ RUN pip install pytorch_tabular[extra]
 
 ENTRYPOINT ["python", "train.py"]
 
+### Image Push into Google Cloud Repository
 # %%
 !docker build -t $TRAIN_IMAGE source/.
 !docker push $TRAIN_IMAGE
 
+### Clean, Delete Folder
 # %%
 !rm -fr source
 
@@ -159,23 +165,17 @@ my_job = aiplatform.CustomJob(
 
 my_job.run()
 
-## Testing locally
 # %%
 !gsutil cp -r gs://vtx-models/pytorch/tabular_random .
 !gsutil cp gs://vtx-datasets-public/synthetic_data/test.csv test.csv
 
-## Using a GCE VM with T4 and PyTorch libraries for Testing
+## Testing locally
+## Using a GCE VM with T4 and PyTorch libraries for Testing (vscode ssh to VM)
 # %%
 from pytorch_tabular import TabularModel
-
-loaded_model = TabularModel.load_from_checkpoint("tabular_random")
-
-
-# %%
 import pandas as pd
 
-test = pd.read_csv('/tmp/test.csv')
-
-# %%
-result = tabular_model.evaluate(test)
+loaded_model = TabularModel.load_from_checkpoint("tabular_random")
+test = pd.read_csv('test.csv')
+result = loaded_model.evaluate(test)
 # %%
