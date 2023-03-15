@@ -61,7 +61,7 @@ train, test = train_test_split(data, random_state=42)
 train, val = train_test_split(train, random_state=42)
 path = os.path.join('/gcs/vtx-datasets-public', 'synthetic_data')
 os.mkdir(path)
-test.to_csv(f'{path}/test.csv')
+test.to_csv(f'{path}/test.csv', index=False)
 
 from pytorch_tabular import TabularModel
 from pytorch_tabular.models import CategoryEmbeddingModelConfig
@@ -162,6 +162,7 @@ my_job.run()
 ## Testing locally
 # %%
 !gsutil cp -r gs://vtx-models/pytorch/tabular_random .
+!gsutil cp gs://vtx-datasets-public/synthetic_data/test.csv test.csv
 
 ## Using a GCE VM with T4 and PyTorch libraries for Testing
 # %%
@@ -170,4 +171,11 @@ from pytorch_tabular import TabularModel
 loaded_model = TabularModel.load_from_checkpoint("tabular_random")
 
 
+# %%
+import pandas as pd
+
+test = pd.read_csv('/tmp/test.csv')
+
+# %%
+result = tabular_model.evaluate(test)
 # %%
