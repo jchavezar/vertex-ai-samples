@@ -4,6 +4,8 @@ PROJECT_ID = 'jchavezar-demo'
 TRAIN_IMAGE = 'gcr.io/jchavezar-demo/pytorch-custom-random:v1'
 STAGING_BUCKET = 'gs://vtx-staging'
 
+#%%
+
 !rm -fr source
 !mkdir source
 
@@ -57,6 +59,9 @@ def print_metrics(y_true, y_pred, tag):
 data, cat_col_names, num_col_names = make_mixed_classification(n_samples=10000, n_features=20, n_categories=4)
 train, test = train_test_split(data, random_state=42)
 train, val = train_test_split(train, random_state=42)
+path = os.path.join('/gcs/vtx-datasets-public', 'synthetic_data')
+os.mkdir(path)
+test.to_csv(f'{path}/test.csv')
 
 from pytorch_tabular import TabularModel
 from pytorch_tabular.models import CategoryEmbeddingModelConfig
@@ -103,7 +108,7 @@ tabular_model = TabularModel(
 )
 
 tabular_model.fit(train=train, validation=val)
-tabular_model.save_model("/gcs/vtx-models/pytorch/tabular_random")
+tabular_model.save_model('/gcs/vtx-models/pytorch/tabular_random')
 
 # %%
 %%writefile source/Dockerfile
@@ -153,6 +158,16 @@ my_job = aiplatform.CustomJob(
 )
 
 my_job.run()
+
+## Testing locally
+# %%
+!gsutil cp -r gs://vtx-models/pytorch/tabular_random .
+
+## Using a GCE VM with T4 and PyTorch libraries for Testing
+# %%
+from pytorch_tabular import TabularModel
+
+loaded_model = TabularModel.load_from_checkpoint("tabular_random")
 
 
 # %%
