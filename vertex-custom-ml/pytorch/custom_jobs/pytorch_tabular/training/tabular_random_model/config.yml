@@ -1,0 +1,104 @@
+target:
+- target
+continuous_cols:
+- num_col_0
+- num_col_1
+- num_col_5
+- num_col_6
+- num_col_7
+- num_col_8
+- num_col_9
+- num_col_10
+- num_col_11
+- num_col_12
+- num_col_13
+- num_col_14
+- num_col_15
+- num_col_16
+- num_col_17
+- num_col_19
+categorical_cols:
+- cat_col_2
+- cat_col_3
+- cat_col_4
+- cat_col_18
+date_columns: []
+encode_date_columns: true
+validation_split: 0.2
+continuous_feature_transform: null
+normalize_continuous_features: true
+quantile_noise: 0
+num_workers: 0
+pin_memory: true
+handle_unknown_categories: true
+handle_missing_values: true
+task: classification
+head: LinearHead
+head_config:
+  layers: ''
+  activation: ReLU
+  dropout: 0.1
+  use_batch_norm: false
+  initialization: kaiming
+embedding_dims: null
+embedding_dropout: 0.0
+batch_norm_continuous_input: true
+learning_rate: 0.001
+loss: CrossEntropyLoss
+metrics:
+- accuracy
+metrics_params:
+- {}
+target_range: null
+seed: 42
+_module_src: models.category_embedding
+_model_name: CategoryEmbeddingModel
+_backbone_name: CategoryEmbeddingBackbone
+_config_name: CategoryEmbeddingModelConfig
+layers: 32-16
+activation: LeakyReLU
+use_batch_norm: false
+initialization: kaiming
+dropout: 0.1
+batch_size: 1024
+data_aware_init_batch_size: 2000
+fast_dev_run: false
+max_epochs: 100
+min_epochs: 1
+max_time: null
+gpus: null
+accelerator: auto
+devices: null
+devices_list: null
+accumulate_grad_batches: 1
+auto_lr_find: true
+auto_select_gpus: true
+check_val_every_n_epoch: 1
+gradient_clip_val: 0.0
+overfit_batches: 0.0
+deterministic: false
+profiler: null
+early_stopping: valid_loss
+early_stopping_min_delta: 0.001
+early_stopping_mode: min
+early_stopping_patience: 3
+early_stopping_kwargs: {}
+checkpoints: valid_loss
+checkpoints_path: saved_models
+checkpoints_every_n_epochs: 1
+checkpoints_name: null
+checkpoints_mode: min
+checkpoints_save_top_k: 1
+checkpoints_kwargs: {}
+load_best: true
+track_grad_norm: -1
+progress_bar: rich
+precision: 32
+trainer_kwargs: {}
+optimizer: Adam
+optimizer_params: {}
+lr_scheduler: null
+lr_scheduler_params: {}
+lr_scheduler_monitor_metric: valid_loss
+categorical_dim: 4
+enable_checkpointing: true
