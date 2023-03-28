@@ -1,19 +1,4 @@
-## This is not a notebook, I use vscode with python extension and run ipykernel with individual cells
-### Variables
-#%% 
-PROJECT_ID = 'jchavezar-demo'
-TRAIN_IMAGE = 'gcr.io/jchavezar-demo/pytorch-custom-random:v1'
-STAGING_BUCKET = 'gs://vtx-staging'
-
-### Create folder structure
 #%%
-
-!rm -fr source
-!mkdir source
-
-### Training File
-#%%
-%%writefile source/train.py
 from sklearn.datasets import make_classification
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score, f1_score
@@ -62,10 +47,9 @@ def print_metrics(y_true, y_pred, tag):
 data, cat_col_names, num_col_names = make_mixed_classification(n_samples=10000, n_features=20, n_categories=4)
 train, test = train_test_split(data, random_state=42)
 train, val = train_test_split(train, random_state=42)
-path = os.path.join('/gcs/vtx-datasets-public', 'synthetic_data')
-os.mkdir(path)
-test.to_csv(f'{path}/test.csv', index=False)
+test.to_csv('test.csv', index=False)
 
+#%%
 from pytorch_tabular import TabularModel
 from pytorch_tabular.models import CategoryEmbeddingModelConfig
 from pytorch_tabular.config import DataConfig, OptimizerConfig, TrainerConfig, ExperimentConfig
@@ -111,75 +95,42 @@ tabular_model = TabularModel(
 )
 
 tabular_model.fit(train=train, validation=val)
-tabular_model.save_model('/gcs/vtx-models/pytorch/tabular_random')
-
-### Dockerfile for Image Build
+tabular_model.save_model("saved_models")
 # %%
-%%writefile source/Dockerfile
-FROM python:3.10.10-slim-bullseye
 
-COPY . .
-
-RUN pip install torch==1.12.1+cu113 torchvision==0.13.1+cu113 torchaudio==0.12.1 --extra-index-url https://download.pytorch.org/whl/cu113 
-RUN pip install pytorch_tabular[extra]
-
-ENTRYPOINT ["python", "train.py"]
-
-### Image Push into Google Cloud Repository
-# %%
-!docker build -t $TRAIN_IMAGE source/.
-!docker push $TRAIN_IMAGE
-
-### Clean, Delete Folder
-# %%
-!rm -fr source
-
-#%%
-
-## Using Vertex AI to Train Custom Model (managed service)
-### Class used: aiplatform.CustomJob, version: 1.22.1
-from google.cloud import aiplatform
-
-aiplatform.init(project=PROJECT_ID, staging_bucket=STAGING_BUCKET)
-
-worker_pool_specs = [
-        {
-            "machine_spec": {
-                "machine_type": "n1-standard-4",
-                "accelerator_type": "NVIDIA_TESLA_T4",
-                "accelerator_count": 1,
-            },
-            "replica_count": 1,
-            "container_spec": {
-                "image_uri": TRAIN_IMAGE,
-                "command": [],
-                "args": [],
-            },
-        }
-    ]
-
-my_job = aiplatform.CustomJob(
-    display_name='pytorch_tabular_custom',
-    worker_pool_specs=worker_pool_specs,
-)
-
-my_job.run()
-
-# %%
-!gsutil cp -r gs://vtx-models/pytorch/tabular_random .
-!gsutil cp gs://vtx-datasets-public/synthetic_data/test.csv test.csv
-
-## Testing locally
-## Using a GCE VM with T4 and PyTorch libraries for Testing (vscode ssh to VM)
-# %%
-from pytorch_tabular import TabularModel
-import pandas as pd
-
-loaded_model = TabularModel.load_from_checkpoint("tabular_random")
-test = pd.read_csv('test.csv')
-result = loaded_model.evaluate(test)
+load_tab = tabular_model.load_model("saved_models")
+loaded_model = TabularModel.load_from_checkpoint("saved_models")
 
 # %%
 
-pred_df = loaded_model.predict(test.iloc[:,:-1])
+columns = ['num_col_0','cat_col_1','num_col_2','num_col_3','cat_col_4',
+'num_col_5','cat_col_6','num_col_7','num_col_8','cat_col_9','num_col_10',
+'num_col_11','num_col_12','num_col_13','num_col_14','num_col_15','num_col_16',
+'num_col_17','num_col_18','num_col_19']
+
+data = [[-0.13958516956070632,
+ 0.0,
+ -1.207159625169817,
+ 2.690513673649033,
+ 3.0,
+ -3.499027938224948,
+ 3.0,
+ 0.9539908208453985,
+ 0.4393174224127471,
+ 2.0,
+ 0.07209993596721286,
+ 0.6012383169168973,
+ 0.7183716353698506,
+ 0.16496191147994038,
+ -2.726836288836686,
+ 0.944248100479719,
+ 0.8211842730812101,
+ 0.36864743007076256,
+ -1.1991474011002978,
+ 0.12632291869729445]]
+
+test_df = pd.DataFrame(data, columns=columns)
+# %%
+
+loaded_model.predict(test_df)
 # %%
