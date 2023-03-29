@@ -51,39 +51,10 @@ tabular_model = TabularModel(
 )
 
 tabular_model.fit(train=train, validation=val)
-tabular_model.save_model('tabular_random_model')
+tabular_model.save_model('/tmp/tabular_random')
+
 # %%
+import pandas as pd
+test = pd.read_csv('test.csv')
+
 tabular_model.predict(test)
-# %%
-
-inst = [-0.13958516956070632,
- -1.3606400530352043,
- 0.0,
- 3.0,
- 3.0,
- -3.499027938224948,
- 1.5616820431786256,
- 0.9539908208453985,
- 0.4393174224127471,
- 1.243787826881755,
- 0.07209993596721286,
- 0.6012383169168973,
- 0.7183716353698507,
- 0.16496191147994038,
- -2.726836288836686,
- 0.944248100479719,
- 0.8211842730812101,
- 0.36864743007076256,
- 0.0,
- 0.12632291869729445]
-
-columns = ['num_col_0','num_col_1','cat_col_2','cat_col_3','cat_col_4','num_col_5',
-'num_col_6','num_col_7','num_col_8','num_col_9','num_col_10','num_col_11','num_col_12','num_col_13',
-'num_col_14','num_col_15','num_col_16','num_col_17','cat_col_18','num_col_19']
-
-data_pred = pd.DataFrame([inst],columns=columns)
-# %%
-tabular_model.predict(data_pred)
-
-
-# %%
