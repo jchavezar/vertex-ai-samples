@@ -305,7 +305,7 @@ deploymentSpec:
     exec-importer:
       importer:
         artifactUri:
-          constant: '{{channel:task=;name=model_uri;type=String;}}/model'
+          constant: gs://vtxdemos-models/nlp/model
         metadata:
           containerSpec:
             imageUri: '{{$.inputs.parameters[''metadata'']}}'
@@ -435,11 +435,9 @@ root:
           parameters:
             metadata:
               componentInputParameter: pred_image_uri
-            pipelinechannel--model_uri:
-              componentInputParameter: model_uri
             uri:
               runtimeValue:
-                constant: '{{$.inputs.parameters[''pipelinechannel--model_uri'']}}/model'
+                constant: gs://vtxdemos-models/nlp/model
         taskInfo:
           name: importer
       model-deploy:
@@ -461,6 +459,15 @@ root:
                 outputArtifactKey: model
                 producerTask: model-upload
           parameters:
+            dedicated_resources_machine_type:
+              runtimeValue:
+                constant: n1-standard-4
+            dedicated_resources_max_replica_count:
+              runtimeValue:
+                constant: 1.0
+            dedicated_resources_min_replica_count:
+              runtimeValue:
+                constant: 1.0
             deployed_model_display_name:
               runtimeValue:
                 constant: '{{$.inputs.parameters[''pipelinechannel--prefix_name'']}}-model-deployed'
