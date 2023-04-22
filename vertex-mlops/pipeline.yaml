@@ -1,0 +1,587 @@
+# PIPELINE DEFINITION
+# Name: bert-nlp-pipe
+# Inputs:
+#    prefix_name: str
+#    project_id: str
+# Outputs:
+#    evaluation-metrics: system.ClassificationMetrics
+components:
+  comp-custom-training-job:
+    executorLabel: exec-custom-training-job
+    inputDefinitions:
+      parameters:
+        base_output_directory:
+          defaultValue: ''
+          isOptional: true
+          parameterType: STRING
+        display_name:
+          parameterType: STRING
+        enable_web_access:
+          defaultValue: false
+          isOptional: true
+          parameterType: BOOLEAN
+        encryption_spec_key_name:
+          defaultValue: ''
+          isOptional: true
+          parameterType: STRING
+        labels:
+          defaultValue: {}
+          isOptional: true
+          parameterType: STRUCT
+        location:
+          defaultValue: us-central1
+          isOptional: true
+          parameterType: STRING
+        network:
+          defaultValue: ''
+          isOptional: true
+          parameterType: STRING
+        project:
+          parameterType: STRING
+        reserved_ip_ranges:
+          defaultValue: []
+          isOptional: true
+          parameterType: LIST
+        restart_job_on_worker_restart:
+          defaultValue: false
+          isOptional: true
+          parameterType: BOOLEAN
+        service_account:
+          defaultValue: ''
+          isOptional: true
+          parameterType: STRING
+        tensorboard:
+          defaultValue: ''
+          isOptional: true
+          parameterType: STRING
+        timeout:
+          defaultValue: 604800s
+          isOptional: true
+          parameterType: STRING
+        worker_pool_specs:
+          defaultValue: []
+          isOptional: true
+          parameterType: LIST
+    outputDefinitions:
+      parameters:
+        gcp_resources:
+          parameterType: STRING
+  comp-endpoint-create:
+    executorLabel: exec-endpoint-create
+    inputDefinitions:
+      parameters:
+        description:
+          defaultValue: ''
+          isOptional: true
+          parameterType: STRING
+        display_name:
+          parameterType: STRING
+        encryption_spec_key_name:
+          defaultValue: ''
+          isOptional: true
+          parameterType: STRING
+        labels:
+          defaultValue: {}
+          isOptional: true
+          parameterType: STRUCT
+        location:
+          defaultValue: us-central1
+          isOptional: true
+          parameterType: STRING
+        network:
+          defaultValue: ''
+          isOptional: true
+          parameterType: STRING
+        project:
+          parameterType: STRING
+    outputDefinitions:
+      artifacts:
+        endpoint:
+          artifactType:
+            schemaTitle: google.VertexEndpoint
+            schemaVersion: 0.0.1
+      parameters:
+        gcp_resources:
+          parameterType: STRING
+  comp-evaluation:
+    executorLabel: exec-evaluation
+    inputDefinitions:
+      parameters:
+        model_uri:
+          parameterType: STRING
+        project_id:
+          parameterType: STRING
+    outputDefinitions:
+      artifacts:
+        metrics:
+          artifactType:
+            schemaTitle: system.ClassificationMetrics
+            schemaVersion: 0.0.1
+  comp-importer:
+    executorLabel: exec-importer
+    inputDefinitions:
+      parameters:
+        uri:
+          parameterType: STRING
+    outputDefinitions:
+      artifacts:
+        artifact:
+          artifactType:
+            schemaTitle: google.UnmanagedContainerModel
+            schemaVersion: 0.0.1
+  comp-model-deploy:
+    executorLabel: exec-model-deploy
+    inputDefinitions:
+      artifacts:
+        endpoint:
+          artifactType:
+            schemaTitle: google.VertexEndpoint
+            schemaVersion: 0.0.1
+          isOptional: true
+        model:
+          artifactType:
+            schemaTitle: google.VertexModel
+            schemaVersion: 0.0.1
+      parameters:
+        automatic_resources_max_replica_count:
+          defaultValue: 0.0
+          isOptional: true
+          parameterType: NUMBER_INTEGER
+        automatic_resources_min_replica_count:
+          defaultValue: 0.0
+          isOptional: true
+          parameterType: NUMBER_INTEGER
+        dedicated_resources_accelerator_count:
+          defaultValue: 0.0
+          isOptional: true
+          parameterType: NUMBER_INTEGER
+        dedicated_resources_accelerator_type:
+          defaultValue: ''
+          isOptional: true
+          parameterType: STRING
+        dedicated_resources_machine_type:
+          defaultValue: ''
+          isOptional: true
+          parameterType: STRING
+        dedicated_resources_max_replica_count:
+          defaultValue: 0.0
+          isOptional: true
+          parameterType: NUMBER_INTEGER
+        dedicated_resources_min_replica_count:
+          defaultValue: 0.0
+          isOptional: true
+          parameterType: NUMBER_INTEGER
+        deployed_model_display_name:
+          defaultValue: ''
+          isOptional: true
+          parameterType: STRING
+        disable_container_logging:
+          defaultValue: false
+          isOptional: true
+          parameterType: BOOLEAN
+        enable_access_logging:
+          defaultValue: false
+          isOptional: true
+          parameterType: BOOLEAN
+        explanation_metadata:
+          defaultValue: {}
+          isOptional: true
+          parameterType: STRUCT
+        explanation_parameters:
+          defaultValue: {}
+          isOptional: true
+          parameterType: STRUCT
+        service_account:
+          defaultValue: ''
+          isOptional: true
+          parameterType: STRING
+        traffic_split:
+          defaultValue: {}
+          isOptional: true
+          parameterType: STRUCT
+    outputDefinitions:
+      parameters:
+        gcp_resources:
+          parameterType: STRING
+  comp-model-upload:
+    executorLabel: exec-model-upload
+    inputDefinitions:
+      artifacts:
+        parent_model:
+          artifactType:
+            schemaTitle: google.VertexModel
+            schemaVersion: 0.0.1
+          isOptional: true
+        unmanaged_container_model:
+          artifactType:
+            schemaTitle: google.UnmanagedContainerModel
+            schemaVersion: 0.0.1
+          isOptional: true
+      parameters:
+        description:
+          defaultValue: ''
+          isOptional: true
+          parameterType: STRING
+        display_name:
+          parameterType: STRING
+        encryption_spec_key_name:
+          defaultValue: ''
+          isOptional: true
+          parameterType: STRING
+        explanation_metadata:
+          defaultValue: {}
+          isOptional: true
+          parameterType: STRUCT
+        explanation_parameters:
+          defaultValue: {}
+          isOptional: true
+          parameterType: STRUCT
+        labels:
+          defaultValue: {}
+          isOptional: true
+          parameterType: STRUCT
+        location:
+          defaultValue: us-central1
+          isOptional: true
+          parameterType: STRING
+        project:
+          parameterType: STRING
+    outputDefinitions:
+      artifacts:
+        model:
+          artifactType:
+            schemaTitle: google.VertexModel
+            schemaVersion: 0.0.1
+      parameters:
+        gcp_resources:
+          parameterType: STRING
+deploymentSpec:
+  executors:
+    exec-custom-training-job:
+      container:
+        args:
+        - --type
+        - CustomJob
+        - --payload
+        - '{"Concat": ["{", "\"display_name\": \"", "{{$.inputs.parameters[''display_name'']}}",
+          "\"", ", \"job_spec\": {", "\"worker_pool_specs\": ", "{{$.inputs.parameters[''worker_pool_specs'']}}",
+          ", \"scheduling\": {", "\"timeout\": \"", "{{$.inputs.parameters[''timeout'']}}",
+          "\"", ", \"restart_job_on_worker_restart\": \"", "{{$.inputs.parameters[''restart_job_on_worker_restart'']}}",
+          "\"", "}", ", \"service_account\": \"", "{{$.inputs.parameters[''service_account'']}}",
+          "\"", ", \"tensorboard\": \"", "{{$.inputs.parameters[''tensorboard'']}}",
+          "\"", ", \"enable_web_access\": \"", "{{$.inputs.parameters[''enable_web_access'']}}",
+          "\"", ", \"network\": \"", "{{$.inputs.parameters[''network'']}}", "\"",
+          ", \"reserved_ip_ranges\": ", "{{$.inputs.parameters[''reserved_ip_ranges'']}}",
+          ", \"base_output_directory\": {", "\"output_uri_prefix\": \"", "{{$.inputs.parameters[''base_output_directory'']}}",
+          "\"", "}", "}", ", \"labels\": ", "{{$.inputs.parameters[''labels'']}}",
+          ", \"encryption_spec\": {\"kms_key_name\":\"", "{{$.inputs.parameters[''encryption_spec_key_name'']}}",
+          "\"}", "}"]}'
+        - --project
+        - '{{$.inputs.parameters[''project'']}}'
+        - --location
+        - '{{$.inputs.parameters[''location'']}}'
+        - --gcp_resources
+        - '{{$.outputs.parameters[''gcp_resources''].output_file}}'
+        command:
+        - python3
+        - -u
+        - -m
+        - google_cloud_pipeline_components.container.v1.custom_job.launcher
+        image: gcr.io/ml-pipeline/google-cloud-pipeline-components:2.0.0b1
+    exec-endpoint-create:
+      container:
+        args:
+        - --type
+        - CreateEndpoint
+        - --payload
+        - '{"Concat": ["{", "\"display_name\": \"", "{{$.inputs.parameters[''display_name'']}}",
+          "\"", ", \"description\": \"", "{{$.inputs.parameters[''description'']}}",
+          "\"", ", \"labels\": ", "{{$.inputs.parameters[''labels'']}}", ", \"encryption_spec\":
+          {\"kms_key_name\":\"", "{{$.inputs.parameters[''encryption_spec_key_name'']}}",
+          "\"}", ", \"network\": \"", "{{$.inputs.parameters[''network'']}}", "\"",
+          "}"]}'
+        - --project
+        - '{{$.inputs.parameters[''project'']}}'
+        - --location
+        - '{{$.inputs.parameters[''location'']}}'
+        - --gcp_resources
+        - '{{$.outputs.parameters[''gcp_resources''].output_file}}'
+        - --executor_input
+        - '{{$}}'
+        command:
+        - python3
+        - -u
+        - -m
+        - google_cloud_pipeline_components.container.v1.endpoint.create_endpoint.launcher
+        image: gcr.io/ml-pipeline/google-cloud-pipeline-components:2.0.0b1
+    exec-evaluation:
+      container:
+        args:
+        - --executor_input
+        - '{{$}}'
+        - --function_to_execute
+        - evaluation
+        command:
+        - sh
+        - -c
+        - "\nif ! [ -x \"$(command -v pip)\" ]; then\n    python3 -m ensurepip ||\
+          \ python3 -m ensurepip --user || apt-get install python3-pip\nfi\n\nPIP_DISABLE_PIP_VERSION_CHECK=1\
+          \ python3 -m pip install --quiet     --no-warn-script-location 'pandas'\
+          \ 'db-dtypes' 'google-cloud-bigquery' 'tensorflow' 'scikit-learn' 'kfp==2.0.0-beta.13'\
+          \ && \"$0\" \"$@\"\n"
+        - sh
+        - -ec
+        - 'program_path=$(mktemp -d)
+
+          printf "%s" "$0" > "$program_path/ephemeral_component.py"
+
+          python3 -m kfp.components.executor_main                         --component_module_path                         "$program_path/ephemeral_component.py"                         "$@"
+
+          '
+        - "\nimport kfp\nfrom kfp import dsl\nfrom kfp.dsl import *\nfrom typing import\
+          \ *\n\ndef evaluation(\n    project_id: str,\n    model_uri: str,\n    metrics:\
+          \ Output[ClassificationMetrics]\n):\n    import numpy as np\n    import\
+          \ tensorflow as tf\n    from google.cloud import bigquery\n    from sklearn.metrics\
+          \ import confusion_matrix\n\n    client = bigquery.Client(project=project_id)\n\
+          \n    ## Loading testing dataset from bigquery\n    sql = \"select * from\
+          \ `vtxdemos.public.train_nlp`\"\n    test_df = client.query(sql).to_dataframe()\n\
+          \    test_examples = np.array([i.encode('utf-8') for i in test_df['text']],\
+          \ dtype=\"object\")\n    test_labels = test_df['labels'].to_numpy(dtype=int)\n\
+          \n    ## Loading the model trained\n    model = tf.keras.models.load_model(f\"\
+          {model_uri}/model\")\n    predicted_labels = model.predict(test_examples)\n\
+          \    predicted_labels = [1 if i > 0.5 else 0 for i in predicted_labels]\n\
+          \    test_labels = test_labels.tolist()\n\n    metrics.log_confusion_matrix(\n\
+          \        ['positive', 'negative'],\n        confusion_matrix(test_labels,\
+          \ predicted_labels).tolist()\n    )\n\n"
+        image: python:3.7
+    exec-importer:
+      importer:
+        artifactUri:
+          constant: gs://vtxdemos-models/mlops/model
+        metadata:
+          containerSpec:
+            imageUri: us-docker.pkg.dev/vertex-ai/prediction/tf2-cpu.2-11:latest
+        typeSchema:
+          schemaTitle: google.UnmanagedContainerModel
+          schemaVersion: 0.0.1
+    exec-model-deploy:
+      container:
+        args:
+        - --type
+        - DeployModel
+        - --payload
+        - '{"Concat": ["{", "\"endpoint\": \"", "{{$.inputs.artifacts[''endpoint''].metadata[''resourceName'']}}",
+          "\"", ", \"traffic_split\": ", "{{$.inputs.parameters[''traffic_split'']}}",
+          ", \"deployed_model\": {", "\"model\": \"", "{{$.inputs.artifacts[''model''].metadata[''resourceName'']}}",
+          "\"", ", \"dedicated_resources\": {", "\"machine_spec\": {", "\"machine_type\":
+          \"", "{{$.inputs.parameters[''dedicated_resources_machine_type'']}}", "\"",
+          ", \"accelerator_type\": \"", "{{$.inputs.parameters[''dedicated_resources_accelerator_type'']}}",
+          "\"", ", \"accelerator_count\": ", "{{$.inputs.parameters[''dedicated_resources_accelerator_count'']}}",
+          "}", ", \"min_replica_count\": ", "{{$.inputs.parameters[''dedicated_resources_min_replica_count'']}}",
+          ", \"max_replica_count\": ", "{{$.inputs.parameters[''dedicated_resources_max_replica_count'']}}",
+          "}", ", \"automatic_resources\": {", "\"min_replica_count\": ", "{{$.inputs.parameters[''automatic_resources_min_replica_count'']}}",
+          ", \"max_replica_count\": ", "{{$.inputs.parameters[''automatic_resources_max_replica_count'']}}",
+          "}", ", \"service_account\": \"", "{{$.inputs.parameters[''service_account'']}}",
+          "\"", ", \"disable_container_logging\": ", "{{$.inputs.parameters[''disable_container_logging'']}}",
+          ", \"enable_access_logging\": ", "{{$.inputs.parameters[''enable_access_logging'']}}",
+          ", \"explanation_spec\": {", "\"parameters\": ", "{{$.inputs.parameters[''explanation_parameters'']}}",
+          ", \"metadata\": ", "{{$.inputs.parameters[''explanation_metadata'']}}",
+          "}", "}", "}"]}'
+        - --project
+        - ''
+        - --location
+        - ''
+        - --gcp_resources
+        - '{{$.outputs.parameters[''gcp_resources''].output_file}}'
+        command:
+        - python3
+        - -u
+        - -m
+        - google_cloud_pipeline_components.container.v1.endpoint.deploy_model.launcher
+        image: gcr.io/ml-pipeline/google-cloud-pipeline-components:2.0.0b1
+    exec-model-upload:
+      container:
+        args:
+        - --type
+        - UploadModel
+        - --payload
+        - '{"Concat": ["{", "\"display_name\": \"", "{{$.inputs.parameters[''display_name'']}}",
+          "\"", ", \"description\": \"", "{{$.inputs.parameters[''description'']}}",
+          "\"", ", \"explanation_spec\": {", "\"parameters\": ", "{{$.inputs.parameters[''explanation_parameters'']}}",
+          ", \"metadata\": ", "{{$.inputs.parameters[''explanation_metadata'']}}",
+          "}", ", \"encryption_spec\": {\"kms_key_name\":\"", "{{$.inputs.parameters[''encryption_spec_key_name'']}}",
+          "\"}", ", \"labels\": ", "{{$.inputs.parameters[''labels'']}}", "}"]}'
+        - --project
+        - '{{$.inputs.parameters[''project'']}}'
+        - --location
+        - '{{$.inputs.parameters[''location'']}}'
+        - --gcp_resources
+        - '{{$.outputs.parameters[''gcp_resources''].output_file}}'
+        - --executor_input
+        - '{{$}}'
+        - '{"IfPresent": {"InputName": "parent_model", "Then": {"Concat": ["--parent_model_name
+          ", "{{$.inputs.artifacts[''parent_model''].metadata[''resourceName'']}}"]}}}'
+        command:
+        - python3
+        - -u
+        - -m
+        - google_cloud_pipeline_components.container.v1.model.upload_model.launcher
+        image: gcr.io/ml-pipeline/google-cloud-pipeline-components:2.0.0b1
+pipelineInfo:
+  name: bert-nlp-pipe
+root:
+  dag:
+    outputs:
+      artifacts:
+        evaluation-metrics:
+          artifactSelectors:
+          - outputArtifactKey: metrics
+            producerSubtask: evaluation
+    tasks:
+      custom-training-job:
+        cachingOptions:
+          enableCache: true
+        componentRef:
+          name: comp-custom-training-job
+        inputs:
+          parameters:
+            base_output_directory:
+              runtimeValue:
+                constant: gs://vtxdemos-models/mlops
+            display_name:
+              runtimeValue:
+                constant: '{{$.inputs.parameters[''pipelinechannel--prefix_name'']}}-train'
+            pipelinechannel--prefix_name:
+              componentInputParameter: prefix_name
+            project:
+              componentInputParameter: project_id
+            worker_pool_specs:
+              runtimeValue:
+                constant:
+                - container_spec:
+                    image_uri: gcr.io/vtxdemos/tensorflow-gpu-nlp-pipe:v1
+                  machine_spec:
+                    accelerator_count: 1.0
+                    accelerator_type: NVIDIA_TESLA_T4
+                    machine_type: n1-standard-8
+                  replica_count: '1'
+        taskInfo:
+          name: custom-training-job
+      endpoint-create:
+        cachingOptions:
+          enableCache: true
+        componentRef:
+          name: comp-endpoint-create
+        inputs:
+          parameters:
+            display_name:
+              runtimeValue:
+                constant: '{{$.inputs.parameters[''pipelinechannel--prefix_name'']}}-endpoint'
+            pipelinechannel--prefix_name:
+              componentInputParameter: prefix_name
+            project:
+              componentInputParameter: project_id
+        taskInfo:
+          name: endpoint-create
+      evaluation:
+        cachingOptions:
+          enableCache: true
+        componentRef:
+          name: comp-evaluation
+        dependentTasks:
+        - custom-training-job
+        inputs:
+          parameters:
+            model_uri:
+              runtimeValue:
+                constant: gs://vtxdemos-models/mlops
+            project_id:
+              componentInputParameter: project_id
+        taskInfo:
+          name: evaluation
+      importer:
+        cachingOptions:
+          enableCache: true
+        componentRef:
+          name: comp-importer
+        dependentTasks:
+        - custom-training-job
+        inputs:
+          parameters:
+            uri:
+              runtimeValue:
+                constant: gs://vtxdemos-models/mlops/model
+        taskInfo:
+          name: importer
+      model-deploy:
+        cachingOptions:
+          enableCache: true
+        componentRef:
+          name: comp-model-deploy
+        dependentTasks:
+        - endpoint-create
+        - model-upload
+        inputs:
+          artifacts:
+            endpoint:
+              taskOutputArtifact:
+                outputArtifactKey: endpoint
+                producerTask: endpoint-create
+            model:
+              taskOutputArtifact:
+                outputArtifactKey: model
+                producerTask: model-upload
+          parameters:
+            dedicated_resources_machine_type:
+              runtimeValue:
+                constant: n1-standard-4
+            dedicated_resources_max_replica_count:
+              runtimeValue:
+                constant: 1.0
+            dedicated_resources_min_replica_count:
+              runtimeValue:
+                constant: 1.0
+            deployed_model_display_name:
+              runtimeValue:
+                constant: '{{$.inputs.parameters[''pipelinechannel--prefix_name'']}}-model-deployed'
+            pipelinechannel--prefix_name:
+              componentInputParameter: prefix_name
+        taskInfo:
+          name: model-deploy
+      model-upload:
+        cachingOptions:
+          enableCache: true
+        componentRef:
+          name: comp-model-upload
+        dependentTasks:
+        - importer
+        inputs:
+          artifacts:
+            unmanaged_container_model:
+              taskOutputArtifact:
+                outputArtifactKey: artifact
+                producerTask: importer
+          parameters:
+            display_name:
+              runtimeValue:
+                constant: '{{$.inputs.parameters[''pipelinechannel--prefix_name'']}}-model'
+            pipelinechannel--prefix_name:
+              componentInputParameter: prefix_name
+            project:
+              componentInputParameter: project_id
+        taskInfo:
+          name: model-upload
+  inputDefinitions:
+    parameters:
+      prefix_name:
+        parameterType: STRING
+      project_id:
+        parameterType: STRING
+  outputDefinitions:
+    artifacts:
+      evaluation-metrics:
+        artifactType:
+          schemaTitle: system.ClassificationMetrics
+          schemaVersion: 0.0.1
+schemaVersion: 2.1.0
+sdkVersion: kfp-2.0.0-beta.13
