@@ -54,13 +54,13 @@ def trigger_pipeline(
 
 
 if __name__ == "__main__":
-    #args = parse_args()
-    config = yaml.safe_load(open("../../training/config.yaml"))
+    args = parse_args()
+    config = yaml.safe_load(open(args.config_path))
 
     trigger_pipeline(
-        project="vtxdemos",
-        region="us-central1",
-        pipeline_path="../../training/pipeline.yaml",
+        project=args.project,
+        region=args.region,
+        pipeline_path=args.pipeline_path,
         pipeline_root=f"gs://vtxdemos-pipelines",
         pipeline_name=config['pipeline_name'],
         experiment_name=config.get('experiment_name', config['pipeline_name']),
@@ -69,6 +69,3 @@ if __name__ == "__main__":
         submit_pipeline_sync=True,
         enable_caching=True
     )
-    #%%
-    !ls ../../training
-# %%
