@@ -1,0 +1,162 @@
+# PIPELINE DEFINITION
+# Name: dummy-pipe
+components:
+  comp-deploy:
+    executorLabel: exec-deploy
+    inputDefinitions:
+      parameters:
+        data:
+          parameterType: NUMBER_INTEGER
+    outputDefinitions:
+      parameters:
+        Output:
+          parameterType: STRING
+  comp-preprocess:
+    executorLabel: exec-preprocess
+    inputDefinitions:
+      parameters:
+        data:
+          parameterType: STRING
+    outputDefinitions:
+      parameters:
+        Output:
+          parameterType: NUMBER_INTEGER
+  comp-training:
+    executorLabel: exec-training
+    inputDefinitions:
+      parameters:
+        data:
+          parameterType: NUMBER_INTEGER
+    outputDefinitions:
+      parameters:
+        Output:
+          parameterType: NUMBER_INTEGER
+deploymentSpec:
+  executors:
+    exec-deploy:
+      container:
+        args:
+        - --executor_input
+        - '{{$}}'
+        - --function_to_execute
+        - deploy
+        command:
+        - sh
+        - -c
+        - "\nif ! [ -x \"$(command -v pip)\" ]; then\n    python3 -m ensurepip ||\
+          \ python3 -m ensurepip --user || apt-get install python3-pip\nfi\n\nPIP_DISABLE_PIP_VERSION_CHECK=1\
+          \ python3 -m pip install --quiet     --no-warn-script-location 'kfp==2.0.0-beta.13'\
+          \ && \"$0\" \"$@\"\n"
+        - sh
+        - -ec
+        - 'program_path=$(mktemp -d)
+
+          printf "%s" "$0" > "$program_path/ephemeral_component.py"
+
+          python3 -m kfp.components.executor_main                         --component_module_path                         "$program_path/ephemeral_component.py"                         "$@"
+
+          '
+        - "\nimport kfp\nfrom kfp import dsl\nfrom kfp.dsl import *\nfrom typing import\
+          \ *\n\ndef deploy(data: int) -> str:\n    return(str(data))\n\n"
+        image: python:3.7
+    exec-preprocess:
+      container:
+        args:
+        - --executor_input
+        - '{{$}}'
+        - --function_to_execute
+        - preprocess
+        command:
+        - sh
+        - -c
+        - "\nif ! [ -x \"$(command -v pip)\" ]; then\n    python3 -m ensurepip ||\
+          \ python3 -m ensurepip --user || apt-get install python3-pip\nfi\n\nPIP_DISABLE_PIP_VERSION_CHECK=1\
+          \ python3 -m pip install --quiet     --no-warn-script-location 'kfp==2.0.0-beta.13'\
+          \ && \"$0\" \"$@\"\n"
+        - sh
+        - -ec
+        - 'program_path=$(mktemp -d)
+
+          printf "%s" "$0" > "$program_path/ephemeral_component.py"
+
+          python3 -m kfp.components.executor_main                         --component_module_path                         "$program_path/ephemeral_component.py"                         "$@"
+
+          '
+        - "\nimport kfp\nfrom kfp import dsl\nfrom kfp.dsl import *\nfrom typing import\
+          \ *\n\ndef preprocess(data: str) -> int:\n    return(int(data))\n\n"
+        image: python:3.7
+    exec-training:
+      container:
+        args:
+        - --executor_input
+        - '{{$}}'
+        - --function_to_execute
+        - training
+        command:
+        - sh
+        - -c
+        - "\nif ! [ -x \"$(command -v pip)\" ]; then\n    python3 -m ensurepip ||\
+          \ python3 -m ensurepip --user || apt-get install python3-pip\nfi\n\nPIP_DISABLE_PIP_VERSION_CHECK=1\
+          \ python3 -m pip install --quiet     --no-warn-script-location 'kfp==2.0.0-beta.13'\
+          \ && \"$0\" \"$@\"\n"
+        - sh
+        - -ec
+        - 'program_path=$(mktemp -d)
+
+          printf "%s" "$0" > "$program_path/ephemeral_component.py"
+
+          python3 -m kfp.components.executor_main                         --component_module_path                         "$program_path/ephemeral_component.py"                         "$@"
+
+          '
+        - "\nimport kfp\nfrom kfp import dsl\nfrom kfp.dsl import *\nfrom typing import\
+          \ *\n\ndef training(data: int) -> int:\n    return(data*234545632)\n\n"
+        image: python:3.7
+pipelineInfo:
+  name: dummy-pipe
+root:
+  dag:
+    tasks:
+      deploy:
+        cachingOptions:
+          enableCache: true
+        componentRef:
+          name: comp-deploy
+        dependentTasks:
+        - training
+        inputs:
+          parameters:
+            data:
+              taskOutputParameter:
+                outputParameterKey: Output
+                producerTask: training
+        taskInfo:
+          name: deploy
+      preprocess:
+        cachingOptions:
+          enableCache: true
+        componentRef:
+          name: comp-preprocess
+        inputs:
+          parameters:
+            data:
+              runtimeValue:
+                constant: '8'
+        taskInfo:
+          name: preprocess
+      training:
+        cachingOptions:
+          enableCache: true
+        componentRef:
+          name: comp-training
+        dependentTasks:
+        - preprocess
+        inputs:
+          parameters:
+            data:
+              taskOutputParameter:
+                outputParameterKey: Output
+                producerTask: preprocess
+        taskInfo:
+          name: training
+schemaVersion: 2.1.0
+sdkVersion: kfp-2.0.0-beta.13
