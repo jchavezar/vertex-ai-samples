@@ -1,0 +1,19 @@
+pipeline_name: bert-nlp-pipe
+experiment_name: bert-nlp-exp
+model_path: gs://vtxdemos-models/mlops
+pipeline_schedule: "1 * * * *"
+timezone: ""
+
+labels:
+  team: devops
+
+pred_image_uri: us-docker.pkg.dev/vertex-ai/prediction/tf2-cpu.2-11:latest
+
+worker_pool_specs:
+  - machine_spec:
+      machine_type: n1-standard-8
+      accelerator_type: NVIDIA_TESLA_T4
+      accelerator_count: 1
+    replica_count: "1"
+    container_spec:
+      image_uri: gcr.io/vtxdemos/tensorflow-gpu-nlp-pipe:v1
