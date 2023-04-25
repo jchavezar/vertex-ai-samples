@@ -8,8 +8,9 @@ df = pd.read_csv('gs://sockcop-datasets-public/mtsamples.csv', index_col=False)
 df = df[df!=df.isnull()][['description', 'medical_specialty']]
 df["medical_specialty"] = df["medical_specialty"].str.strip()
 df["medical_specialty"].value_counts()
+df["medical_specialty"].value_counts().plot(kind="bar")
 
-
+#%%
 columns = ["Radiology", "Neurology", "Gastroenterology"]
 df = df[df["medical_specialty"].isin(columns)]
 train = df.sample(frac=0.5).sample(n=20)
