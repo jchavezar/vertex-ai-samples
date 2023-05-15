@@ -1,0 +1,9 @@
+tensorflow
+pandas
+numpy
+gcsfs
+google-cloud-bigquery
+google-cloud-pipeline-components==2.0.0b1
+kfp==2.0.0b14
+google-cloud-aiplatform
+ipykernel
