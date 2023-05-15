@@ -1,0 +1,37 @@
+{
+    "Statement": [
+        {
+            "Action": [
+                "s3:ListBucket"
+            ],
+            "Effect": "Allow",
+            "Resource": [
+                "arn:aws:s3:::sockcop-datasets-public"
+            ],
+            "Sid": "BucketLevelAccess"
+        },
+        {
+            "Action": [
+                "s3:GetObject"
+            ],
+            "Effect": "Allow",
+            "Resource": [
+                "arn:aws:s3:::sockcop-datasets-public",
+                "arn:aws:s3:::sockcop-datasets-public/*"
+            ],
+            "Sid": "ObjectLevelGetAccess"
+        },
+        {
+            "Action": [
+                "s3:PutObject"
+            ],
+            "Effect": "Allow",
+            "Resource": [
+                "arn:aws:s3:::sockcop-datasets-public",
+                "arn:aws:s3:::sockcop-datasets-public/*"
+            ],
+            "Sid": "ObjectLevelPutAccess"
+        }
+    ],
+    "Version": "2012-10-17"
+}
