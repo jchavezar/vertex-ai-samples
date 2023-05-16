@@ -1,28 +1,3 @@
-#%%
-## Reading from BigQuery
-from google.cloud.bigquery import Client, QueryJobConfig
-client = Client(project="cloud-llm-preview4")
-
-query = """SELECT
-  IF(transactions IS NULL, 0, 1) AS label,
-  IFNULL(operatingSystem, "") AS os,
-  isMobile AS is_mobile,
-  IFNULL(country, "") AS country,
-  IFNULL(pageviews, 0) AS pageviews
-  FROM `cloud-llm-preview4.sockcop_dataset.website_analytics`"""
-job = client.query(query)
-df = job.to_dataframe()
-df.to_csv('dataset.csv', index=False)
-# %%
-
-## Copy to AWS
-import pandas as pd
-import boto3
-s3 = boto3.client('s3')
-
-s3.upload_file('dataset.csv', 'sockcop-datasets-public', 'dataset.csv')
-# %%
-
 ## BQ_Omni
 ## Follow steps as showed here: https://cloud.google.com/bigquery/docs/omni-aws-create-connection
 ## Create Policy and Role in AWS
@@ -37,7 +12,7 @@ s3.upload_file('dataset.csv', 'sockcop-datasets-public', 'dataset.csv')
 from google.cloud.bigquery import Client
 client = Client(project="vtxdemos")
 query = """
-SELECT * FROM `vtxdemos.bq_omni_demo.website_analytics`
+SELECT * FROM `vtxdemos.bq_omni_demo.train_dataset`
 """
 df = client.query(query).to_dataframe()
 
@@ -61,7 +36,7 @@ data_config = DataConfig(
 trainer_config = TrainerConfig(
     auto_lr_find=True, # Runs the LRFinder to automatically derive a learning rate
     batch_size=1024,
-    max_epochs=100,
+    max_epochs=20,
     accelerator="auto", # can be 'cpu','gpu', 'tpu', or 'ipu' 
 )
 optimizer_config = OptimizerConfig()
@@ -92,4 +67,13 @@ tabular_model = TabularModel(
 )
 
 tabular_model.fit(train=df)
+# %%
+
+eval_df = pd.read_csv("eval_dataset.csv")
+eval_df.head()
+# %%
+from sklearn.metrics import accuracy_score, f1_score
+result = tabular_model.evaluate(eval_df)
+
+tabular_model.predict(eval_df)
 # %%
