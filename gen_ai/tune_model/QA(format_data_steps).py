@@ -35,6 +35,7 @@ blob.upload_from_filename('asu-test-working2.jsonl')
 #%%
 from typing import Union
 import vertexai
+import pandas as pd
 from vertexai.preview.language_models import TextGenerationModel, TextEmbeddingModel
 
 def tuning(
@@ -60,5 +61,7 @@ model = tuning(
     training_data='gs://sockcop-datasets-public4/asu-test-working2.jsonl'
 )
 
+#%%
+model.predict("what's the dog name?")
 
 # %%

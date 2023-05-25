@@ -1,5 +1,5 @@
 # PIPELINE DEFINITION
-# Name: bert-nlp-pipe
+# Name: tfnnlm-nlp-pipe
 # Inputs:
 #    prefix_name: str
 #    project_id: str
@@ -428,7 +428,7 @@ deploymentSpec:
         - google_cloud_pipeline_components.container.v1.model.upload_model.launcher
         image: gcr.io/ml-pipeline/google-cloud-pipeline-components:2.0.0b1
 pipelineInfo:
-  name: bert-nlp-pipe
+  name: tfnnlm-nlp-pipe
 root:
   dag:
     outputs:
