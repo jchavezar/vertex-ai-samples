@@ -119,4 +119,4 @@ eval $(parse_yaml training/config.yaml)
 echo $worker_pool_specs_1_container_spec_image_uri
 
 docker build -t $worker_pool_specs_1_container_spec_image_uri build_docker_images/.
-docker push worker_pool_specs_1_container_spec_image_uri
+docker push $worker_pool_specs_1_container_spec_image_uri
