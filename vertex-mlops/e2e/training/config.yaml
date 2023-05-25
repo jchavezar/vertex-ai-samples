@@ -1,5 +1,5 @@
-pipeline_name: tf-nnlm-nlp-pipe
-experiment_name: tf-nnlm-nlp-exp
+pipeline_name: tfnnlm-nlp-pipe
+experiment_name: tfnnlm-nlp-exp
 model_path: gs://vtxdemos-models/mlops
 pipeline_schedule: "1 * * * *"
 timezone: ""

@@ -1,0 +1,161 @@
+{
+  "components": {
+    "comp-receiver": {
+      "executorLabel": "exec-receiver",
+      "inputDefinitions": {
+        "artifacts": {
+          "input1": {
+            "artifactType": {
+              "schemaTitle": "system.Artifact",
+              "schemaVersion": "0.0.1"
+            }
+          },
+          "input2": {
+            "artifactType": {
+              "schemaTitle": "system.Artifact",
+              "schemaVersion": "0.0.1"
+            }
+          }
+        }
+      },
+      "outputDefinitions": {
+        "parameters": {
+          "Output": {
+            "parameterType": "STRING"
+          }
+        }
+      }
+    },
+    "comp-testing": {
+      "executorLabel": "exec-testing",
+      "inputDefinitions": {
+        "parameters": {
+          "data": {
+            "parameterType": "STRING"
+          }
+        }
+      },
+      "outputDefinitions": {
+        "artifacts": {
+          "output1": {
+            "artifactType": {
+              "schemaTitle": "system.Artifact",
+              "schemaVersion": "0.0.1"
+            }
+          },
+          "output2": {
+            "artifactType": {
+              "schemaTitle": "system.Artifact",
+              "schemaVersion": "0.0.1"
+            }
+          }
+        }
+      }
+    }
+  },
+  "deploymentSpec": {
+    "executors": {
+      "exec-receiver": {
+        "container": {
+          "args": [
+            "--executor_input",
+            "{{$}}",
+            "--function_to_execute",
+            "receiver"
+          ],
+          "command": [
+            "sh",
+            "-c",
+            "\nif ! [ -x \"$(command -v pip)\" ]; then\n    python3 -m ensurepip || python3 -m ensurepip --user || apt-get install python3-pip\nfi\n\nPIP_DISABLE_PIP_VERSION_CHECK=1 python3 -m pip install --quiet     --no-warn-script-location 'pandas' 'kfp==2.0.0-beta.13' && \"$0\" \"$@\"\n",
+            "sh",
+            "-ec",
+            "program_path=$(mktemp -d)\nprintf \"%s\" \"$0\" > \"$program_path/ephemeral_component.py\"\npython3 -m kfp.components.executor_main                         --component_module_path                         \"$program_path/ephemeral_component.py\"                         \"$@\"\n",
+            "\nimport kfp\nfrom kfp import dsl\nfrom kfp.dsl import *\nfrom typing import *\n\ndef receiver(input1: Input[Artifact], input2: Input[Artifact]) -> str:\n    import pandas as pd\n\n    with open(input1.path,'r') as f:\n        x= f.read()\n\n    df = pd.read_csv(f\"{input2.path}.csv\")\n    print(df)\n    return x\n\n"
+          ],
+          "image": "python:3.7"
+        }
+      },
+      "exec-testing": {
+        "container": {
+          "args": [
+            "--executor_input",
+            "{{$}}",
+            "--function_to_execute",
+            "testing"
+          ],
+          "command": [
+            "sh",
+            "-c",
+            "\nif ! [ -x \"$(command -v pip)\" ]; then\n    python3 -m ensurepip || python3 -m ensurepip --user || apt-get install python3-pip\nfi\n\nPIP_DISABLE_PIP_VERSION_CHECK=1 python3 -m pip install --quiet     --no-warn-script-location 'pandas' 'kfp==2.0.0-beta.13' && \"$0\" \"$@\"\n",
+            "sh",
+            "-ec",
+            "program_path=$(mktemp -d)\nprintf \"%s\" \"$0\" > \"$program_path/ephemeral_component.py\"\npython3 -m kfp.components.executor_main                         --component_module_path                         \"$program_path/ephemeral_component.py\"                         \"$@\"\n",
+            "\nimport kfp\nfrom kfp import dsl\nfrom kfp.dsl import *\nfrom typing import *\n\ndef testing(data: str, output1: Output[Artifact], output2: Output[Artifact]):\n    import pandas as pd\n\n    df = pd.DataFrame({\"x\": range(10)})\n\n    with open(output1.path,'w') as f:\n        f.write(\"hello world\")\n\n    df.to_csv(f\"{output2.path}.csv\")\n\n"
+          ],
+          "image": "python:3.7"
+        }
+      }
+    }
+  },
+  "pipelineInfo": {
+    "name": "testing"
+  },
+  "root": {
+    "dag": {
+      "tasks": {
+        "receiver": {
+          "cachingOptions": {
+            "enableCache": true
+          },
+          "componentRef": {
+            "name": "comp-receiver"
+          },
+          "dependentTasks": [
+            "testing"
+          ],
+          "inputs": {
+            "artifacts": {
+              "input1": {
+                "taskOutputArtifact": {
+                  "outputArtifactKey": "output1",
+                  "producerTask": "testing"
+                }
+              },
+              "input2": {
+                "taskOutputArtifact": {
+                  "outputArtifactKey": "output2",
+                  "producerTask": "testing"
+                }
+              }
+            }
+          },
+          "taskInfo": {
+            "name": "receiver"
+          }
+        },
+        "testing": {
+          "cachingOptions": {
+            "enableCache": true
+          },
+          "componentRef": {
+            "name": "comp-testing"
+          },
+          "inputs": {
+            "parameters": {
+              "data": {
+                "runtimeValue": {
+                  "constant": "testing"
+                }
+              }
+            }
+          },
+          "taskInfo": {
+            "name": "testing"
+          }
+        }
+      }
+    }
+  },
+  "schemaVersion": "2.1.0",
+  "sdkVersion": "kfp-2.0.0-beta.13"
+}
