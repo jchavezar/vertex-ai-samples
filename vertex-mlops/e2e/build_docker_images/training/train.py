@@ -21,7 +21,7 @@ train_df = client.query(sql).to_dataframe()
 train_examples = np.array([i.encode('utf-8') for i in train_df['text']], dtype="object")
 train_labels = train_df['labels'].to_numpy(dtype=int)
 
-## Load pre-trained model (BERT)
+## Load TF pre-trained text embedding
 model = "https://tfhub.dev/google/nnlm-en-dim50/2"
 hub_layer = hub.KerasLayer(model, input_shape=[], dtype=tf.string, trainable=True)
 
