@@ -1,5 +1,5 @@
-pipeline_name: bert-nlp-pipe
-experiment_name: bert-nlp-exp
+pipeline_name: tf-nnlm-nlp-pipe
+experiment_name: tf-nnlm-nlp-exp
 model_path: gs://vtxdemos-models/mlops
 pipeline_schedule: "1 * * * *"
 timezone: ""
