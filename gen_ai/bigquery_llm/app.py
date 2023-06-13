@@ -1,0 +1,39 @@
+#%%
+import vertexai
+from utils.ai import LLM
+
+vertexai.init(project="vtxdemos", location="us-central1")
+
+## LLM Class definition
+llm = LLM(
+    bq_source="cloud-llm-preview4.sockcop_dataset.billing_latest", 
+    text_model="text-bison@001",)
+
+
+## Loading llm models and creating embeddings
+text_llm, embeddings = llm.LoadModels()
+df, nl_d, df_index = llm.LoadDataset()
+
+## Prompting
+#%%
+from langchain.prompts import PromptTemplate
+from langchain.chains.summarize import load_summarize_chain
+
+def ask_question(question, max_results=5, threshold=0.5):
+  # Based on the question, sarch for relevant articles
+  similar_docs = df_index.vectorstore.similarity_search_with_score(question, llm=llm, k=max_results)
+  filtered_docs = list(filter(lambda doc: doc[1] <= threshold, similar_docs))
+  context = "\n".join([doc.page_content for doc, score in filtered_docs])
+  prompt = f"""
+  {context}
+  Use the following pieces of context to answer the question, 
+  Use google cloud pricing from internet to explain,
+
+  Question: {question}
+  Answer:
+  """
+  return text_llm(prompt)
+# %%
+
+ask_question('how many line in your table do you have for AlloyDB on Apr?, show them')
+# %%
