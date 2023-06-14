@@ -11,7 +11,7 @@ from langchain.indexes import VectorstoreIndexCreator
 from langchain.embeddings import VertexAIEmbeddings
 
 class LLM:
-  def __init__(self, bq_source: str, text_model: str):
+  def __init__(self, text_model: str, bq_source: str=""):
     self.bq_source = bq_source
     self.text_model = text_model
   
@@ -66,14 +66,14 @@ class LLM:
   
     return self.llm, self.embeddings  
   
-  def LoadDataset(self) -> pd.DataFrame:
+  def LoadDatasetCreatingEmb(self) -> pd.DataFrame:
     client = Client(project=self.bq_source.split(".")[0])
-    query = f"""SELECT * FROM {self.bq_source}"""
+    query = f"""SELECT * FROM {self.bq_source} LIMIT 1000"""
     df = client.query(query).to_dataframe()
     
     data = []
     for index, rows in df.iterrows():
-      text = """On {0}, the service: {1}, located on region: {2}, had a consumption of: {3}.
+      text = """In the month {0}, the service solution called {1}, which is located in the region '{2}', had a consumption, revenue or cost of: {3}.
       """.format(
           rows['month'],
           rows['service'],
@@ -93,3 +93,19 @@ class LLM:
       }).from_loaders([df_loader])
     
     return df, nl_df, df_index
+  
+  def LoadBQToPandas(self) -> pd.DataFrame:
+    client = Client(project=self.bq_source.split(".")[0])
+    query = f"""SELECT * FROM {self.bq_source} LIMIT 1000"""
+    df = client.query(query).to_dataframe()
+    return df
+  
+  def SqlToBigqueryEngine(self):
+    from sqlalchemy.engine import create_engine
+    from langchain import SQLDatabase, SQLDatabaseChain
+    from sqlalchemy import MetaData
+
+    engine = create_engine(f"bigquery://{self.bq_source.split('.')[0]}/{self.bq_source.split('.')[1]}")    
+    from langchain import SQLDatabase, SQLDatabaseChain
+    db = SQLDatabase(engine=engine,metadata=MetaData(bind=engine),include_tables=[self.bq_source.split('.')[2]])
+    return SQLDatabaseChain.from_llm(self.llm, db, verbose=True)
