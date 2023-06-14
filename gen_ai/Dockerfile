@@ -17,23 +17,37 @@ RUN $CONDA_DIR/bin/conda create --name env311 python=3.11
 # Put conda in path so we can use conda activate
 ENV PATH=$CONDA_DIR/envs/env311/bin:$PATH
 
-RUN pip install google-cloud-language --upgrade && pip install ipykernel && \
-    pip install pandas --upgrade && pip install gcsfs && pip install gdown
+# Google Cloud
+RUN pip install google-cloud-language --upgrade && \
+    pip install pandas --upgrade && pip install gcsfs && pip install gdown && \
+    pip install absl-py==1.4.0 && \
+    pip install google-cloud-aiplatform==1.25.0 && \
+    pip install proto-plus==1.22.2 && \
+    pip install protobuf==4.23.0 && \
+    pip install google-cloud-core && \
+    pip install google-api-python-client && \
+    pip install sqlalchemy-bigquery && \
+    pip install db-dtypes
 
 RUN apt-get install apt-transport-https ca-certificates gnupg
 RUN echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | tee -a /etc/apt/sources.list.d/google-cloud-sdk.list
 RUN curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key --keyring /usr/share/keyrings/cloud.google.gpg add -
 RUN apt-get update && apt-get install google-cloud-cli
+RUN pip install ipykernel
+
+## Tensorflow
+RUN pip install tensorflow && \
+    pip install --upgrade tensorflow-hub && \
+    pip install matplotlib
 
 ## LangChain
-
-RUN pip install google-cloud-aiplatform==1.25.0 && \
-    pip install langchain && \
+RUN pip install langchain && \
     pip install datasets && \
-    pip install google-api-python-client && \
     pip install chromadb && \
     pip install pypdf && \
-    pip install faiss-cpu
+    pip install faiss-cpu && \
+    pip install SQLAlchemy==1.4.48 && \
+    pip install Flask
 
 RUN $CONDA_DIR/bin/conda create --name env39 python=3.9
 RUN $CONDA_DIR/bin/pip install scann
