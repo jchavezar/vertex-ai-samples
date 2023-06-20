@@ -66,3 +66,30 @@ display(images[0])
 
 
 # %%
+instances = [
+    {
+        "prompt": "A futuristic city with a robot helping humanity",
+        "image": image_to_base64(init_image),
+    },
+]
+
+response = endpoint.predict(instances=instances)
+images = [base64_to_image(image) for image in response.predictions]
+display(images[0])
+# %%
+instances = [
+    {
+        "prompt": "a store front that has the word ‘openai’ written on it. . . .",
+        "image": image_to_base64(init_image),
+    },
+]
+
+response = endpoint.predict(instances=instances)
+images = [base64_to_image(image) for image in response.predictions]
+display(images[0])
+
+
+
+
+
+# %%
