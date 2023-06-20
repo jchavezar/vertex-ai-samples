@@ -23,7 +23,7 @@ print(dataset)
 dataset["train"][0]
 # %%
 
-with open("dataset.jsonl", "w") as f:
+with open("tweet_dataset.jsonl", "w") as f:
     for i in dataset["train"]:
         line={"input_text": f'Classify the following text into one of the following classes: \n{classes} \nText:{i["Tweet text"]}', "output_text": i["text_label"]}
         f.write(json.dumps(line)+"\n")
