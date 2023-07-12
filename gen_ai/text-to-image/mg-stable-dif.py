@@ -1,18 +1,6 @@
 #%%
-import torch
-from diffusers import StableDiffusionPipeline
-
-model_id = "runwayml/stable-diffusion-v1-5"
-pipe = StableDiffusionPipeline.from_pretrained(model_id, torch_dtype=torch.float16)
-pipe = pipe.to("cuda")
-
-prompt = "a photo of an astronaut riding a horse on mars"
-
-results = pipe(prompt=prompt, image=init_image, strength=0.75, guidance_scale=7.5)
-images = results.images
-nsfw_detects = results.nsfw_content_detected
-display(images[0])
-print(nsfw_detects[0])
+#import torch
+#from diffusers import StableDiffusionPipeline
 
 
 ##############
@@ -53,11 +41,10 @@ instances = [
     },
 ]
 #%%
-
-aip.init(project="vtxdemos")
-aip.Endpoint.list(project="vtxdemos")[0].resource_name
-
-endpoint = aip.Endpoint(endpoint_name=aip.Endpoint.list(project="vtxdemos")[0].resource_name)
+PROJECT_ID = "cloud-llm-preview1"
+aip.init(project=PROJECT_ID)
+aip.Endpoint.list(project=PROJECT_ID)[0].resource_name
+endpoint = aip.Endpoint(endpoint_name="projects/801452371447/locations/us-central1/endpoints/1535793443631005696")
 
 #%%
 response = endpoint.predict(instances=instances)
@@ -88,8 +75,60 @@ response = endpoint.predict(instances=instances)
 images = [base64_to_image(image) for image in response.predictions]
 display(images[0])
 
+#%%
+instances = [
+    {
+        "prompt": "an armchair in the shape of an avocado. . . .",
+        "image": image_to_base64(init_image),
+    },
+]
+
+response = endpoint.predict(instances=instances)
+images = [base64_to_image(image) for image in response.predictions]
+display(images[0])
 
 
+# %%
+
+instances = [
+    {
+        "prompt": "Hackers may have possibly stolen roughly $320 million",
+        "image": image_to_base64(init_image),
+    },
+]
+
+response = endpoint.predict(instances=instances)
+images = [base64_to_image(image) for image in response.predictions]
+display(images[0])
+# %%
 
 
+#############################
+
+#%%
+PROJECT_ID = "cloud-llm-preview1"
+aip.init(project=PROJECT_ID)
+aip.Endpoint.list(project=PROJECT_ID)[0].resource_name
+endpoint = aip.Endpoint(endpoint_name="projects/801452371447/locations/us-central1/endpoints/1535793443631005696")
+
+with open('bedroom.jpg', 'rb') as image_file:
+    encoded_string = base64.b64encode(image_file.read())
+
+#%%
+
+instances = [
+    {
+        "prompt": "same image more futuristic",
+        "image": encoded_string.decode("utf-8"),
+    },
+]
+
+response = endpoint.predict(instances=instances)
+images = [base64_to_image(image) for image in response.predictions]
+display(images[0])
+    
+
+# %%
+images_ = image_to_base64(init_image)
+images_
 # %%

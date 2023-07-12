@@ -1,0 +1,103 @@
+# PIPELINE DEFINITION
+# Name: llm7b-lora
+# Inputs:
+#    source_uri: str
+components:
+  comp-data-peprocess:
+    executorLabel: exec-data-peprocess
+    inputDefinitions:
+      parameters:
+        output_uri:
+          parameterType: STRING
+        source_uri:
+          parameterType: STRING
+deploymentSpec:
+  executors:
+    exec-data-peprocess:
+      container:
+        args:
+        - --executor_input
+        - '{{$}}'
+        - --function_to_execute
+        - data_peprocess
+        command:
+        - sh
+        - -c
+        - "\nif ! [ -x \"$(command -v pip)\" ]; then\n    python3 -m ensurepip ||\
+          \ python3 -m ensurepip --user || apt-get install python3-pip\nfi\n\nPIP_DISABLE_PIP_VERSION_CHECK=1\
+          \ python3 -m pip install --quiet     --no-warn-script-location 'tensorflow'\
+          \ 'transformers' 'datasets' 'py7zr' 'kfp==2.0.0-beta.13' && \"$0\" \"$@\"\
+          \n"
+        - sh
+        - -ec
+        - 'program_path=$(mktemp -d)
+
+          printf "%s" "$0" > "$program_path/ephemeral_component.py"
+
+          python3 -m kfp.components.executor_main                         --component_module_path                         "$program_path/ephemeral_component.py"                         "$@"
+
+          '
+        - "\nimport kfp\nfrom kfp import dsl\nfrom kfp.dsl import *\nfrom typing import\
+          \ *\n\ndef data_peprocess(source_uri: str, output_uri: str):\n    from random\
+          \ import randint\n    from itertools import chain\n    from functools import\
+          \ partial\n    from transformers import AutoTokenizer\n    from datasets\
+          \ import load_dataset\n\n    dataset = load_dataset(\"samsum\")[\"train\"\
+          ]\n    model_id = \"bigscience/bloomz-7b1\"\n    tokenizer = AutoTokenizer.from_pretrained(model_id)\n\
+          \    tokenizer.model_max_length = 2048 # overwrite wrong value\n\n    prompt_template\
+          \ = f\"Summarize the chat dialogue:\\n{{dialogue}}\\n---\\nSummary:\\n{{summary}}{{eos_token}}\"\
+          \n    def template_dataset(sample):\n        sample[\"text\"] = prompt_template.format(dialogue=sample[\"\
+          dialogue\"],\n                                                summary=sample[\"\
+          summary\"],\n                                                eos_token=tokenizer.eos_token)\n\
+          \        return sample\n\n\n    # apply prompt template per sample\n   \
+          \ dataset = dataset.map(template_dataset, remove_columns=list(dataset.features))\n\
+          \n    print(dataset[randint(0, len(dataset))][\"text\"])\n\n    remainder\
+          \ = {\"input_ids\": [], \"attention_mask\": []}\n\n    def chunk(sample,\
+          \ chunk_length=2048):\n        # define global remainder variable to save\
+          \ remainder from batches to use in next batch\n        global remainder\n\
+          \        # Concatenate all texts and add remainder from previous batch\n\
+          \        concatenated_examples = {k: list(chain(*sample[k])) for k in sample.keys()}\n\
+          \        print(concatenated_examples)\n        concatenated_examples = {k:\
+          \ remainder[k] + concatenated_examples[k] for k in concatenated_examples.keys()}\n\
+          \        # get total number of tokens for batch\n        batch_total_length\
+          \ = len(concatenated_examples[list(sample.keys())[0]])\n\n        # get\
+          \ max number of chunks for batch\n        if batch_total_length >= chunk_length:\n\
+          \            batch_chunk_length = (batch_total_length // chunk_length) *\
+          \ chunk_length\n\n        # Split by chunks of max_len.\n        result\
+          \ = {\n            k: [t[i : i + chunk_length] for i in range(0, batch_chunk_length,\
+          \ chunk_length)]\n            for k, t in concatenated_examples.items()\n\
+          \        }\n        # add remainder to global variable for next batch\n\
+          \        remainder = {k: concatenated_examples[k][batch_chunk_length:] for\
+          \ k in concatenated_examples.keys()}\n        # prepare labels\n       \
+          \ result[\"labels\"] = result[\"input_ids\"].copy()\n        return result\n\
+          \n\n    # tokenize and chunk dataset\n    lm_dataset = dataset.map(\n  \
+          \      lambda sample: tokenizer(sample[\"text\"]), batched=True, remove_columns=list(dataset.features)\n\
+          \    ).map(\n        partial(chunk, chunk_length=2048),\n        batched=True,\n\
+          \    )\n\n    # Print total number of samples\n    print(f\"Total number\
+          \ of samples: {len(lm_dataset)}\")\n    print(source_uri.path)\n    print(output_uri.path)\n\
+          \n"
+        image: python:3.7
+pipelineInfo:
+  name: llm7b-lora
+root:
+  dag:
+    tasks:
+      data-peprocess:
+        cachingOptions:
+          enableCache: true
+        componentRef:
+          name: comp-data-peprocess
+        inputs:
+          parameters:
+            output_uri:
+              runtimeValue:
+                constant: gs://vtxdemos-datasets-public/llm7b_lora
+            source_uri:
+              componentInputParameter: source_uri
+        taskInfo:
+          name: data-peprocess
+  inputDefinitions:
+    parameters:
+      source_uri:
+        parameterType: STRING
+schemaVersion: 2.1.0
+sdkVersion: kfp-2.0.0-beta.13
