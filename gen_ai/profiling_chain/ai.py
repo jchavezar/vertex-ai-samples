@@ -9,30 +9,12 @@ class LLM:
         vertexai.init(project="vtxdemos", location="us-central1")
         self.model = TextGenerationModel.from_pretrained("text-bison")
         self.default_parameters = {
-            "temperature": 0.8,
+            "temperature": 0.2,
             "max_output_tokens": 256,
             "top_p": 0.8,
             "top_k": 40
         }
-        
-    #def get_attributes(self, text, params=None):
-    #    if params == None:
-    #        params = self.default_parameters
-    #    response = self.model.predict(
-    #        f"""You're a caregiver and want to get the attributes/skills that better describes you using the following text enclosed by <>:
-    #        
-    #    Text: <{text}>
-    #
-    #    Response Format as python list of adjectives (no more than 10 words) and if you have 2 words join them by '_':""",
-    #    **params  
-    #    )
-    #    print(text)
-    #    print("********************\n")
-    #    print(f"Response from Model: {response.text}")
-    #    return ast.literal_eval(response.text)
-    #         [{{'topic':\'topic 'name'\','question':\'question\','answer':\'answer as a python list\'}}]
-
-
+    
     def extract_topics(self, text):
         params = {
             "temperature": 0.2,
@@ -40,46 +22,85 @@ class LLM:
             "top_p": 0.8,
             "top_k": 20
             }
+        #print(text)
         response = self.model.predict(
-            """Create a list limited to 5 most important with the topics detected in the following text, then create questions you should ask to get similar topics, if you don't know the answer just say 'no info provided':
+            """Context: Following list have some example topics for a biographical summary:
+        - name
+        - education_level
+        - hobbies
+        - skills
+        - number_of_years_of_experience
+        - language
+        - ...
 
-        Output format in python list of dictionaries: [{{'topic':'<Name>', 'question':'<question>', 'answer':'<answer>'}}, ...]
+        Instructions: 
+        1 - From the following biographical summary create a list of up to 6 topics detected, the list above is an example do not take it as requisite, if there is no topic detected do not output it.
+        2 - Create questions you should ask to the topics detected, do not repeat similar questions, and remove questions with empty answers or NA.
+        3 - From the questions above create a brief summary as an answer do not exceed 6 words.
+        {text}
 
-        input: Education Level
-        output: Bachelors, Masters, High School
+        Only use the following format as output, do not use \"Summary\" in your output:
 
-        input: Languages
-        output: English, Mandarin, Spanish
-
-        input: Hobbies
-        output: Music, reading
-
-        input: Number of years of experience
-        output: 5, 10, 2
-
-        input: Passionate/love/enjoy
-        output: bonding, caring, playing
-
-        input: {text}
-        output:
-        """.format(text=text.replace("'","")),
+        Output format Python Dictionary: {{\"topic1\": {{\"question\": <question>, \"answer\": <answer>}}, \"<topic2>\": {{\"question\": <question>, \"answer\": <answer>}} }}""".format(text=text),
             **params
         )
-        response = response.text.replace("'", '"')
+        response = response.text.strip("`")
         response = re.sub(' +', ' ', response)
         response = re.sub('\n +', ' ', response)
-        print(response)
-        return eval(response)
+        response = re.sub('\s +', '', response)
+        response = re.sub(r'(.*[A-z])(")([A-z].*)', r'\1 \3', response)
+        response = re.sub(r"(.*[A-z])(')([A-z].*)", r"\1 \3", response)
+        #print(response)
+        return ast.literal_eval(response.strip())
     
-    def create_profile(self, text):
-        response = self.model.predict(
-    f"""You\'re a caregiver who needs to create a strong and convincent profile bios, use the following information to create one:
-    {text}
-    """,
-    **self.default_parameters
-    )
-        print("LLM Model Job Runing")
-        print(type(response.text))
-        print(response.text.replace("'", '"'))
-        return response.text
 
+    def create_profile(self, form, bio_strong_text):
+        response = self.model.predict(
+            f"""Context:
+        Write a biographical summary in the style of the provided example, using the provided data instead. Recreate the tone used in the example.
+
+        Provided data:
+        {form}
+
+        Example biographical summary:
+        {bio_strong_text}""",
+            **self.default_parameters
+        )
+        #print("LLM Model Job Runing")
+        return response.text
+    
+    def additional_questions(self, bios, old_questions):
+        params = {
+            "temperature": 0.8,
+            "max_output_tokens": 256,
+            "top_p": 0.8,
+            "top_k": 40
+        }
+        response = self.model.predict(
+            """Instruction:
+        From the following biographical summary:
+
+        Provided data:
+        {bios}
+        
+        Do the following:
+
+        Forbidden type questions: Do not create anything regarding rate, rates or pricing.
+
+        - Create 2 other questions you should ask to get a stronger biographical summary, do not create any question related to these: {old_questions}.
+        - Create synthetic answers for questions above.
+
+        Output Format Python Dictionary: {{\"<question1>\": \"<answer1>\", \"<question2>\": \"<answer2>\"}}
+        """.format(bios=bios, old_questions=old_questions),
+            **params
+        )
+        #print("LLM Model Job Runing - additional questions")
+        response = response.text.strip("`")
+        response = re.sub(' +', ' ', response)
+        response = re.sub('\n +', ' ', response)
+        response = re.sub('\s +', '', response)
+        response = re.sub(r'(.*[A-z])(")([A-z].*)', r'\1 \3', response)
+        response = re.sub(r"(.*[A-z])(')([A-z].*)", r"\1 \3", response)
+        return ast.literal_eval(response.strip())
+
+# %%
