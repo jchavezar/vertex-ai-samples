@@ -1,0 +1,1 @@
+![Alt text]("images/video_architecture.png")
