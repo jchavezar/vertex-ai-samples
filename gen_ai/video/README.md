@@ -1,1 +1,1 @@
-![Alt text]("images/video_architecture.png")
+![Alt text](images/video_architecture.png)
