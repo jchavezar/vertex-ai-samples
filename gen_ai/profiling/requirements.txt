@@ -1,0 +1,11 @@
+google-cloud-aiplatform
+google-cloud-firestore
+streamlit
+streamlit-authenticator
+pyyaml
+###
+#asyncio==3.4.3
+#asyncpg==0.27.0
+#cloud-sql-python-connector["asyncpg"]==1.2.3
+#pgvector==0.1.8 
+
