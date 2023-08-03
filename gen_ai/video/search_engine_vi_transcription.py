@@ -26,7 +26,7 @@ def getconn():
         "pg8000",
         user=database_user,
         password=database_password,
-        db=database_name
+        db="vi-llm"
     )
     return conn
 

@@ -13,7 +13,7 @@ from ai import multimodal as mm
 import streamlit as st
 from credentials import *
 from unidecode import unidecode
-
+from google_database import vector_db
 
 ##### Website Fonts and Title
 st.set_page_config(page_title="Sports World!", page_icon="🐍", layout="wide")
@@ -35,7 +35,6 @@ remote_css('https://fonts.googleapis.com/icon?family=Material+Icons')
 icon("search")
 selected = st.text_input("", "Search...")
 button_clicked = st.button("OK")
-matches = []
 text_search = selected
 text_search = unidecode(text_search.lower())
 
@@ -43,58 +42,12 @@ text_search = unidecode(text_search.lower())
 ##### Query from Database Using LLM and Match with Embeddings
 if text_search:
     qe = mm.get_embedding(text=text_search).text_embedding
-    async def main():
-        loop = asyncio.get_running_loop()
-        async with Connector(loop=loop) as connector:
-            # Create connection to Cloud SQL database.
-            conn: asyncpg.Connection = await connector.connect_async(
-                f"{project_id}:{region}:{instance_name}",  # Cloud SQL instance connection name
-                "asyncpg",
-                user=f"{database_user}",
-                password=f"{database_password}",
-                db=f"{database_name}",
-            )
 
-            await register_vector(conn)
-            similarity_threshold = 0.001
-            num_matches = 10
-
-            # Find similar products to the query using cosine similarity search
-            # over all vector embeddings. This new feature is provided by `pgvector`.
-            results = await conn.fetch(
-                """
-                                WITH vector_matches AS (
-                                  SELECT summary, frame_link, video_link, 1 - (embedding <=> $1) AS similarity
-                                  FROM video_embeddings
-                                  WHERE 1 - (embedding <=> $1) > $2
-                                  ORDER BY similarity DESC
-                                  LIMIT $3
-                                )
-                                SELECT * FROM vector_matches
-                                """,
-                qe,
-                similarity_threshold,
-                num_matches,
-            )
-
-            if len(results) == 0:
-                raise Exception("Did not find any results. Adjust the query parameters.")
-
-            for r in results:
-                # Collect the description for all the matched similar toy products.
-                matches.append(
-                    {
-                        "summary": r["summary"],
-                        "frame_link": r["frame_link"],
-                        "video_link": r["video_link"],
-                        "similarity": r["similarity"]
-                    }
-                )
-
-            await conn.close()
+    vdb = vector_db()
+    matches = asyncio.run(vdb.query(qe, database_name="video-frame-emb-2"))  # type: ignore
 
     # Run the SQL commands now.
-    asyncio.run(main())  # type: ignore
+    #asyncio.run(query())  # type: ignore
 
     # Show the results for similar products that matched the user query.
     matches = pd.DataFrame(matches)
