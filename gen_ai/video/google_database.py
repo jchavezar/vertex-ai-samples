@@ -123,7 +123,8 @@ class vector_db:
                         "summary": r["summary"],
                         "frame_link": r["frame_link"],
                         "video_link": r["video_link"],
-                        "embedding": r["embedding"]
+                        "embedding": r["embedding"],
+                        "similarity": r["similarity"]
                     }
                 )
 

@@ -24,7 +24,6 @@ from vertexai.preview.language_models import TextGenerationModel
 from google_database import vector_db
 
 #%%
-video = "../nba-interactions.mp4"
 
 # Video are segmented as frames per second images
 def video_preprocessing(video):
@@ -108,7 +107,7 @@ def video_preprocessing(video):
 # Insert Values on Cloud SQL Function
 async def insert_items():
     ##### Insert Items into DB Table
-    df = pd.read_csv("emb.csv")
+    df = pd.read_csv("emb2.csv")
     df2 = df.copy()
     df2["embedding"] = df2["embedding"].apply(lambda x: x.strip("][").split(","))
 
@@ -246,8 +245,8 @@ for video in list:
         _type.append(classification)
         _summary.append(summarization)
         _emb.append(mm.get_embedding(image=i).image_embedding)
-        _frame_link.append(f"https://storage.mtls.cloud.google.com/vtxdemos-fb-frames/{i.split('/')[-1]}")
-        _video_link.append(f"https://storage.mtls.cloud.google.com/vtxdemos-fb-videos/{video}")
+        _frame_link.append(f"https://storage.googleapis.com/vtxdemos-fb-frames/{i.split('/')[-1]}")
+        _video_link.append(f"https://storage.googleapis.com/vtxdemos-fb-videos/{video}")
 
 #%%
 _ = {
@@ -262,8 +261,8 @@ df = pd.DataFrame(_)
 
 #%%
 if "df" in locals():
-    df.to_csv("emb.csv", index=False)
-else: df=pd.read_csv("emb.csv")
+    df.to_csv("emb2.csv", index=False)
+else: df=pd.read_csv("emb2.csv")
 
 #%%
 database_name = "video-frame-emb-2"
