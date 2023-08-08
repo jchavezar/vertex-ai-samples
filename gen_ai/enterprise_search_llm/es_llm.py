@@ -1,4 +1,5 @@
 #%%
+!pip install langchain
 !pip install google-cloud-aiplatform
 !pip install google-cloud-discoveryengine
 
