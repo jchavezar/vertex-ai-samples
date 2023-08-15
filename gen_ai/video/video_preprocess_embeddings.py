@@ -1,37 +1,39 @@
 #%%
-# Importing all necessary libraries
-import pandas as pd
-import re
-import asyncio
-import asyncpg
-from google.cloud.sql.connector import Connector
-import numpy as np
-from pgvector.asyncpg import register_vector
-from credentials import *
-import os
-import sys
-sys.path.append("..")
-import numpy as np
-import pandas as pd
-from ai import multimodal as mm
+#region Librariess
 import cv2
 import os
-from google.cloud import storage
-from google.cloud import videointelligence as vi
-from typing import Optional, Sequence, cast
+import re
+import sys
 import vertexai
-from vertexai.preview.language_models import TextGenerationModel
+import numpy as np
+import pandas as pd
+from credentials import *
+from datetime import timedelta
+from google.cloud import storage
 from google_database import vector_db
+from typing import Optional, Sequence, cast
+from google.cloud import videointelligence as vi
+from vertexai.preview.language_models import TextGenerationModel
+sys.path.append("..")
+from ai import multimodal as mm
+#endregion
+
+#region Variables
+project_id="vtxdemos"
+region="us-central1"
+video_gcs_uri="vtxdemos-fb-videos"
+video_transcript_annotations_gcs="vtxdemos-fb-videos-json"
+fps_gcs_uri="vtxdemos-fb-snippets"
+database_name ="video-frame-emb-2"
+instance_name="pg15-pgvector-demo"
+database_user="emb-admin"
+database_password="adfsasdfadfadfadfdsfasdfadf"
+#endregion
 
 #%%
-
-# Video are segmented as frames per second images
+#region Video to FPS (Images)
 def video_preprocessing(video):
-    from datetime import timedelta
-    import cv2
-    import numpy as np
-    import os
-
+    
     prefix = video.split(".")[-2]
     # i.e if video of duration 30 seconds, saves 10 frame per second = 300 frames saved in total
     SAVING_FRAMES_PER_SECOND = 1
@@ -103,49 +105,9 @@ def video_preprocessing(video):
             count += 1
         return os.path.join(filename), prefix
     return main(video)
+#endregion
 
-# Insert Values on Cloud SQL Function
-async def insert_items():
-    ##### Insert Items into DB Table
-    df = pd.read_csv("emb2.csv")
-    df2 = df.copy()
-    df2["embedding"] = df2["embedding"].apply(lambda x: x.strip("][").split(","))
-
-    async def main():
-        loop = asyncio.get_running_loop()
-        async with Connector(loop=loop) as connector:
-            # Create connection to Cloud SQL database.
-            conn: asyncpg.Connection = await connector.connect_async(
-                f"{project_id}:{region}:{instance_name}",  # Cloud SQL instance connection name
-                "asyncpg",
-                user=f"{database_user}",
-                password=f"{database_password}",
-                db="video-frame-emb",
-            )
-
-            await conn.execute("CREATE EXTENSION IF NOT EXISTS vector")
-            await register_vector(conn)
-            # Create the `video_embeddings` table to store vector embeddings.
-
-            # Store all the generated embeddings back into the database.
-            for index, row in df2.iterrows():
-                print(np.array(row["embedding"]))
-                await conn.execute(
-                    "INSERT INTO video_embeddings (summary, frame_link, video_link, embedding) VALUES ($1, $2, $3, $4)",
-                    row["summary"],
-                    row["frame_link"],
-                    row["video_link"],
-                    np.array(row["embedding"]),
-                )
-
-            x = await conn.fetch("SELECT * FROM video_embeddings")
-            for i in x:
-               print("te")
-               print(i)
-            await conn.close()
-    await main()  # type: ignore
-
-### Using Video Intelligence API to get the transcription of the video (Speech-to-Text)
+#region Video Intelligence for Transcription
 def video_transcription(video_uri):
     print("Transcription job started...")
     file_name = video_uri.split('/')[-1].split('.'[0])
@@ -163,7 +125,7 @@ def video_transcription(video_uri):
     )
     request = vi.AnnotateVideoRequest(
         input_uri=video_uri,
-        output_uri=f"gs://vtxdemos-fb-videos-json/{file_name}.json",
+        output_uri=f"gs://{video_transcript_annotations_gcs}/{file_name}.json",
         features=features,
         video_context=context,
     )
@@ -175,8 +137,9 @@ def video_transcription(video_uri):
     transcript = ",".join(transcript)
     print("Transcription job done")
     return transcript
+#endregion
 
-### Using LLMs to create a summarization of video transcript
+#region Transcription Summarization and Classification (text-bison)
 def llm_sum_class(text):
     vertexai.init(project=project_id, location="us-central1")
     generation_model = TextGenerationModel.from_pretrained("text-bison")
@@ -188,9 +151,6 @@ def llm_sum_class(text):
             prompt_1, temperature=0.4, max_output_tokens=1024, top_k=40, top_p=0.8
         ).text
     prompt_2 = f'''Multi-choice problem: What is the category of the following?
-    - NBA
-    - MLS
-    - NFL
 
     Text: Scores off bench Vela scored one goal to go with one shot 
     The answer is: MLS
@@ -215,15 +175,19 @@ def llm_sum_class(text):
         ).text
     print(summarization)
     return summarization, classification
+#endregion
 
-### Storing video in Google Cloud Storage
-def saving_to_gcs(file):
+#region Storing Videos and FPS
+def saving_to_gcs(file, video=True):
     client = storage.Client(project=project_id)
-    client.bucket("vtxdemos-fb-videos").blob(file).upload_from_filename(file)
-    print("video saved on GCS job done")
+    if video:
+        client.bucket(video_gcs_uri).blob(file).upload_from_filename(file)
+        print("video saved on GCS job done")
+    else:
+        client.bucket(fps_gcs_uri).blob(file).upload_from_filename(file)
+#endregion
 
-
-
+#region Creating DB Structure
 _index=[]
 _type=[]
 _emb=[]
@@ -235,29 +199,28 @@ list = [i for i in os.listdir() if re.search("\.mp4$", i)]
 
 for video in list:
     saving_to_gcs(video)
-    transcription = video_transcription(f"gs://vtxdemos-fb-videos/{video}")
+    transcription = video_transcription(f"gs://{video_gcs_uri}/{video}")
     summarization, classification  = llm_sum_class(transcription)
     _dir, _prefix = video_preprocessing(video)
     _ = [os.path.join(_dir, _vid) for _vid in os.listdir(_dir)]
-#df = pd.read_csv("backup_2.csv")
-    for i in _:
+    for frame in _:       
         _index.append(_prefix)
         _type.append(classification)
         _summary.append(summarization)
-        _emb.append(mm.get_embedding(image=i).image_embedding)
-        _frame_link.append(f"https://storage.googleapis.com/vtxdemos-fb-frames/{i.split('/')[-1]}")
-        _video_link.append(f"https://storage.googleapis.com/vtxdemos-fb-videos/{video}")
+        _emb.append(mm.get_embedding(image=frame).image_embedding)
+        _frame_link.append(f"https://storage.googleapis.com/{fps_gcs_uri}/{frame.split('/')[-1]}")
+        _video_link.append(f"https://storage.googleapis.com/{video_gcs_uri}/{video}")
+        saving_to_gcs(frame, video=False)
 
-#%%
-_ = {
+df = pd.DataFrame({
     "index": _index,
     "sports_type": _type,
     "summary": _summary,
     "frame_link": _frame_link,
     "video_link": _video_link,
     "embedding": _emb
-}
-df = pd.DataFrame(_)
+})
+#endregion     
 
 #%%
 if "df" in locals():
@@ -265,11 +228,18 @@ if "df" in locals():
 else: df=pd.read_csv("emb2.csv")
 
 #%%
-database_name = "video-frame-emb-2"
+#region Database Create/Insert
 ### Remember to create a cloud sql database first: gcloud sql databases create $database_name --instance pg15-pgvector-demo
-
-vdb = vector_db()
+vdb = vector_db(
+    project_id=project_id,
+    region=region,
+    instance_name=instance_name,
+    database_user=database_user,
+    database_password=database_password
+)
 cdb = await vdb.create_database(database_name)
 await vdb.insert_item(df)
-
+#endregion
+# %%
+await vdb.delete(database_name)
 # %%

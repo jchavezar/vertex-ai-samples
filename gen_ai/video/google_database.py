@@ -3,10 +3,15 @@ import asyncpg
 from google.cloud.sql.connector import Connector
 import numpy as np
 from pgvector.asyncpg import register_vector
-from credentials import *
 
 class vector_db:
-    def __init__(self):
+    def __init__(self,
+                 project_id,
+                 region,
+                 instance_name,
+                 database_user,
+                 database_password
+                 ):
         self.project_id = project_id
         self.region = region
         self.instance_name = instance_name
@@ -28,10 +33,9 @@ class vector_db:
                 await conn.execute("CREATE EXTENSION IF NOT EXISTS vector")
                 await register_vector(conn)
 
-                await conn.execute("DROP TABLE IF EXISTS video_embeddings")
                 # Create the `video_embeddings` table.
                 await conn.execute(
-                    """CREATE TABLE video_embeddings(
+                    """CREATE TABLE IF NOT EXISTS video_embeddings(
                                         index VARCHAR(100),
                                         sports_type VARCHAR(10),
                                         summary VARCHAR(1000),
@@ -72,6 +76,7 @@ class vector_db:
                     row["video_link"],
                     row["embedding"],
                 )
+            print("Insert Items Done...")
             await conn.close()
     
     async def query(self, query, database_name=""):
@@ -131,4 +136,24 @@ class vector_db:
             await conn.close()
             return matches
 
-    # Run the SQL commands now.
+    async def delete(self, query, database_name=""):
+        matches=[]
+        if database_name=="":
+             database_name=self.database_name
+        loop = asyncio.get_running_loop()
+        async with Connector(loop=loop) as connector:
+            # Create connection to Cloud SQL database.
+            conn: asyncpg.Connection = await connector.connect_async(
+                f"{self.project_id}:{self.region}:{self.instance_name}",  # Cloud SQL instance connection name
+                "asyncpg",
+                user=f"{self.database_user}",
+                password=f"{self.database_password}",
+                db=f"{database_name}",
+            )
+
+            await register_vector(conn)
+            await conn.execute("CREATE EXTENSION IF NOT EXISTS vector")
+            await conn.execute("DROP TABLE IF EXISTS video_embeddings")
+
+            await conn.close()
+            return matches
