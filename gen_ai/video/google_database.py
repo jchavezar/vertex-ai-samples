@@ -50,8 +50,10 @@ class vector_db:
         if database_name=="":
              database_name=self.database_name
         else: pass
-        df2 = df.copy()
-        df2["embedding"] = df2["embedding"].apply(lambda x: np.array(x.strip("][").split(",")))
+        if type(df["embedding"][0]) == list:
+            df["embedding"] = df["embedding"].apply(lambda x: np.array(x))
+        else:
+            df["embedding"] = df["embedding"].apply(lambda x: np.array(x.strip("][").split(",")))
         loop = asyncio.get_running_loop()
         async with Connector(loop=loop) as connector:
             # Create connection to Cloud SQL database.
@@ -66,7 +68,7 @@ class vector_db:
             await conn.execute("CREATE EXTENSION IF NOT EXISTS vector")
             await register_vector(conn)
             # Store all the generated embeddings back into the database.
-            for index, row in df2.iterrows():
+            for index, row in df.iterrows():
                 await conn.execute(
                     "INSERT INTO video_embeddings (index, sports_type, summary, frame_link, video_link, embedding) VALUES ($1, $2, $3, $4, $5, $6)",
                     row["index"],
