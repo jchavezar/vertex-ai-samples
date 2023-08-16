@@ -7,7 +7,6 @@ import sys
 import vertexai
 import numpy as np
 import pandas as pd
-from credentials import *
 from datetime import timedelta
 from google.cloud import storage
 from google_database import vector_db
@@ -27,7 +26,7 @@ fps_gcs_uri="vtxdemos-fb-snippets"
 database_name ="video-frame-emb-2"
 instance_name="pg15-pgvector-demo"
 database_user="emb-admin"
-database_password="adfsasdfadfadfadfdsfasdfadf"
+database_password="Pumasunam1!"
 #endregion
 
 #%%
@@ -210,7 +209,7 @@ for video in list:
         _emb.append(mm.get_embedding(image=frame).image_embedding)
         _frame_link.append(f"https://storage.googleapis.com/{fps_gcs_uri}/{frame.split('/')[-1]}")
         _video_link.append(f"https://storage.googleapis.com/{video_gcs_uri}/{video}")
-        saving_to_gcs(frame, video=False)
+        saving_to_gcs(frame.split('/')[-1], video=False)
 
 df = pd.DataFrame({
     "index": _index,
@@ -241,5 +240,5 @@ cdb = await vdb.create_database(database_name)
 await vdb.insert_item(df)
 #endregion
 # %%
-await vdb.delete(database_name)
+#await vdb.delete(database_name)
 # %%
