@@ -23,10 +23,10 @@ region="us-central1"
 video_gcs_uri="vtxdemos-fb-videos"
 video_transcript_annotations_gcs="vtxdemos-fb-videos-json"
 fps_gcs_uri="vtxdemos-fb-snippets"
-database_name ="video-frame-emb-2"
+database_name ="video-frame-emb-4"
 instance_name="pg15-pgvector-demo"
 database_user="emb-admin"
-database_password="Pumasunam1!"
+database_password="asdfksalkfa'sfdsa!"
 #endregion
 
 #%%
@@ -219,12 +219,13 @@ df = pd.DataFrame({
     "video_link": _video_link,
     "embedding": _emb
 })
+dfbck = df.copy()
 #endregion     
 
 #%%
 if "df" in locals():
-    df.to_csv("emb2.csv", index=False)
-else: df=pd.read_csv("emb2.csv")
+    df.to_pickle("emb.pkl")
+else: df=pd.read_pickle("emb.pkl")
 
 #%%
 #region Database Create/Insert
@@ -242,3 +243,5 @@ await vdb.insert_item(df)
 # %%
 #await vdb.delete(database_name)
 
+
+# %%
