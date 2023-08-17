@@ -36,11 +36,11 @@ class vector_db:
                 # Create the `video_embeddings` table.
                 await conn.execute(
                     """CREATE TABLE IF NOT EXISTS video_embeddings(
-                                        index VARCHAR(100),
-                                        sports_type VARCHAR(10),
+                                        index VARCHAR(1000),
+                                        sports_type VARCHAR(1000),
                                         summary VARCHAR(1000),
-                                        frame_link VARCHAR(100),
-                                        video_link VARCHAR(100),
+                                        frame_link VARCHAR(1000),
+                                        video_link VARCHAR(1000),
                                         embedding vector(1408))"""
                 )
                 print("Create Table Done...")
@@ -52,8 +52,9 @@ class vector_db:
         else: pass
         if type(df["embedding"][0]) == list:
             df["embedding"] = df["embedding"].apply(lambda x: np.array(x))
-        else:
+        elif type(df["embedding"][0]) == str:
             df["embedding"] = df["embedding"].apply(lambda x: np.array(x.strip("][").split(",")))
+        else: pass
         loop = asyncio.get_running_loop()
         async with Connector(loop=loop) as connector:
             # Create connection to Cloud SQL database.
