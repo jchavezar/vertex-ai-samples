@@ -9,11 +9,13 @@ from ai import multimodal as mm
 from unidecode import unidecode
 from google_database import vector_db
 
-##### Website Fonts and Title
-st.set_page_config(page_title="Sports World!", page_icon="🐍", layout="wide")
-st.title("NBA Search Engine (PaLM Multimodal Embeddings)")
+database_name="video-frame-emb-4"
 
-st.write("Search Engine was built from 3 videos like: [\"5 Minutes Of The Best Warriors Moments This Season\"](https://www.youtube.com/watch?v=r_osdIa5hx8&pp=ygUUbmJhIGhpZ2hsaWdodHMgNSBtaW4%3D)")
+##### Website Fonts and Title
+st.set_page_config(page_title="Cooking World!", page_icon="🐍", layout="wide")
+st.title("Search Engine (PaLM Multimodal Embeddings)")
+
+st.write("Search Engine is Contextual ask things like: Onions on the table")
 def local_css(file_name):
     with open(file_name) as f:
         st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
@@ -28,7 +30,7 @@ local_css("style.css")
 remote_css('https://fonts.googleapis.com/icon?family=Material+Icons')
 
 icon("search")
-selected = st.text_input("", "A player jumping to score...")
+selected = st.text_input("", "Making a banana yogurt...")
 button_clicked = st.button("OK")
 text_search = selected
 text_search = unidecode(text_search.lower())
@@ -37,9 +39,13 @@ text_search = unidecode(text_search.lower())
 ##### Query from Database Using LLM and Match with Embeddings
 if text_search:
     qe = mm.get_embedding(text=text_search).text_embedding
-
-    vdb = vector_db()
-    matches = asyncio.run(vdb.query(qe, database_name="video-frame-emb-2"))  # type: ignore
+    vdb = vector_db(
+    project_id=project_id,
+    region=region,
+    instance_name=instance_name,
+    database_user=database_user,
+    database_password=database_password)
+    matches = asyncio.run(vdb.query(qe, database_name=database_name))  # type: ignore
 
 
     # Show the results for similar products that matched the user query.
