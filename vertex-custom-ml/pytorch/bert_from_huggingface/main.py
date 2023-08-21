@@ -1,4 +1,3 @@
-#%%
 import os
 from transformers import pipeline
 from huggingface_hub import login
@@ -9,7 +8,6 @@ app = FastAPI()
 
 unmasker = pipeline('fill-mask', model='bert-base-uncased')
 unmasker("Hello I'm a [MASK] model.")
-# %%
 
 @app.get(os.environ['AIP_HEALTH_ROUTE'], status_code=200)
 def health():

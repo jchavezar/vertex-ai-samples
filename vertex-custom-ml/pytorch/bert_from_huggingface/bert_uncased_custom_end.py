@@ -48,5 +48,3 @@ end=endpoint.deploy(
     model=model
 )
 #endregion
-
-# %%
