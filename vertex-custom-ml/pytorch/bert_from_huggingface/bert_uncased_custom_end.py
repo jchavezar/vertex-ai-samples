@@ -5,9 +5,11 @@ from google.cloud import aiplatform as aip
 
 #region Variables
 project_id="vtxdemos"
+pred_image="bert-base:v2"
 #endregion
 
-!gcloud builds submit -t gcr.io/vtxdemos/bert-base:v1 .
+!docker build -t gcr.io/vtxdemos/$pred_image .
+!docker push gcr.io/vtxdemos/$pred_image
 
 #%%
 #region Vertex AI Uploading and Deploying Model
@@ -15,12 +17,14 @@ aip.init(project=project_id)
 
 model=aip.Model.list(filter='labels.model_hg="model_hg_bert"')
 if not model:
+    print("Uploading Model")
     model=aip.Model.upload(
-        serving_container_image_uri=f"gcr.io/{project_id}/bert-base:v1",
+        display_name="hg_bert",
+        serving_container_image_uri=f"gcr.io/{project_id}/{pred_image}",
         serving_container_predict_route="/predict",
         serving_container_health_route="/health",
         serving_container_ports=[8080],
-        labels={"model_hg":"model_hg_bert"}
+        labels={"model_hg":"model_hg_bert"},
     )
 else: model=aip.Model(model_name=model[0].resource_name)
 
@@ -44,3 +48,5 @@ end=endpoint.deploy(
     model=model
 )
 #endregion
+
+# %%
