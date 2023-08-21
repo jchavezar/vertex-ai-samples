@@ -43,4 +43,3 @@ async def predict(request: Request):
     output=unmasker(body["instances"])
     return JSONResponse({"predictions": output})
 ```
-.
