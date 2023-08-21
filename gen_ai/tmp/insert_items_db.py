@@ -6,7 +6,7 @@ import numpy as np
 from pgvector.asyncpg import register_vector
 
 project_id = "vtxdemos"  # @param {type:"string"}
-database_password = "Pumasunam1!"  # @param {type:"string"}
+database_password = "adfadfadf"  # @param {type:"string"}
 region = "us-central1"  # @param {type:"string"}
 instance_name = "pg15-pgvector-demo"  # @param {type:"string"}
 database_name = "vi-llm"  # @param {type:"string"}
