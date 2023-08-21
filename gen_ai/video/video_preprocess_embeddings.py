@@ -15,6 +15,7 @@ from google.cloud import videointelligence as vi
 from vertexai.preview.language_models import TextGenerationModel
 sys.path.append("..")
 from ai import multimodal as mm
+from credentials import *
 #endregion
 
 #region Variables
@@ -23,13 +24,11 @@ region="us-central1"
 video_gcs_uri="vtxdemos-fb-videos"
 video_transcript_annotations_gcs="vtxdemos-fb-videos-json"
 fps_gcs_uri="vtxdemos-fb-snippets"
-database_name ="video-frame-emb-4"
-instance_name="pg15-pgvector-demo"
-database_user="emb-admin"
-database_password="asdfksalkfa'sfdsa!"
+snippets_gcs_uri="vtxdemos-fb-snippets"
+pickle_file_name="emb2.pkl"
+Linux=False
 #endregion
 
-#%%
 #region Video to FPS (Images)
 def video_preprocessing(video):
     
@@ -106,6 +105,33 @@ def video_preprocessing(video):
     return main(video)
 #endregion
 
+##region Snippets for Transcription
+def create_snippet(video):
+    video_cap = cv2.VideoCapture(video)
+
+    # Get the frame width and height
+    frame_width = int(video_cap.get(3))
+    frame_height = int(video_cap.get(4))
+
+    # Create a blank image to store the snippet
+    snippet = np.zeros((frame_height, frame_width, 3), dtype="uint8")
+
+    # Get the current frame
+    ret, frame = video_cap.read()
+
+    # If the frame was read successfully,
+    # then write it to the snippet image
+    snippet_name = f"{video.split('.')[0]}.jpg"
+    if ret:
+        cv2.imwrite(f"./tmp/{snippet_name}", frame)
+
+    # Release the video capture object
+    video_cap.release()
+
+    client.bucket(snippets_gcs_uri).blob(snippet_name).upload_from_filename(f"./tmp/{snippet_name}")
+    return(snippet_name)
+##end_region
+
 #region Video Intelligence for Transcription
 def video_transcription(video_uri):
     print("Transcription job started...")
@@ -132,42 +158,25 @@ def video_transcription(video_uri):
     print(f'Processing video "{video_uri}"...')
     operation = video_client.annotate_video(request)
     response = cast(vi.AnnotateVideoResponse, operation.result())
-    transcript = [n.transcript.strip() for i in response.annotation_results[0].speech_transcriptions for n in i.alternatives][:-2]
-    transcript = ",".join(transcript)
+    transcript_list = [n.transcript.strip() for i in response.annotation_results[0].speech_transcriptions for n in i.alternatives][:-2]
+    transcript = ",".join([item for item in transcript_list if item])
     print("Transcription job done")
-    return transcript
+    return transcript, transcript_list
 #endregion
 
 #region Transcription Summarization and Classification (text-bison)
 def llm_sum_class(text):
     vertexai.init(project=project_id, location="us-central1")
     generation_model = TextGenerationModel.from_pretrained("text-bison")
-
-    prompt_1 = """
-      You are a sports analyst, provide a brief summary (no more than 15 words) of the following, try to enrich the data with public resources:
-      """+text
+    prompt_1 = f"""
+      Provide a brief summary, no more than 20 words of the following text enclose by backticks:
+      ```{text}```
+      """
     summarization = generation_model.predict(
             prompt_1, temperature=0.4, max_output_tokens=1024, top_k=40, top_p=0.8
         ).text
-    prompt_2 = f'''Multi-choice problem: What is the category of the following?
-
-    Text: Scores off bench Vela scored one goal to go with one shot 
-    The answer is: MLS
-
-    Text: Up a man, Philadelphia managed to find a go-ahead goal in the 124th minute
-    The answer is: MLS
-
-    Text: Michael Jordan made a jump shot with 6 seconds left to give the Bulls a 99–98 lead.
-    The answer is: NBA
-
-    Text: the Nuggets escaped with a 94-89 win in Game 5 of the 2023 NBA Finals to claim their first championship
-    The answer is: NBA
-
-    Text: Dallas Cowboys wide receiver CeeDee Lamb makes a toe-tapping touchdown catch
-    The answer is: NFL
-
-    Text:  {summarization}
-    The answer is:
+    prompt_2 = f'''Multi-choice problem: What is the category in one word of the following text enclosed by backticks: 
+    ```{summarization}```
     '''
     classification = generation_model.predict(
             prompt_2, temperature=0.4, max_output_tokens=1024, top_k=40, top_p=0.8
@@ -177,55 +186,100 @@ def llm_sum_class(text):
 #endregion
 
 #region Storing Videos and FPS
-def saving_to_gcs(file, video=True):
+def saving_to_gcs(file, frame="", video=True):
     client = storage.Client(project=project_id)
     if video:
         client.bucket(video_gcs_uri).blob(file).upload_from_filename(file)
         print("video saved on GCS job done")
     else:
-        client.bucket(fps_gcs_uri).blob(file).upload_from_filename(file)
+        client.bucket(fps_gcs_uri).blob(file).upload_from_filename(frame)
 #endregion
 
-#region Creating DB Structure
-_index=[]
-_type=[]
-_emb=[]
-_frame_link=[]
-_video_link=[]
-_summary=[]
+#region Creating Vector Database Structure
+image_index=[] # (image) MultiModal embeddings from images
+image_type=[]
+image_ai_type=[]
+image_emb=[]
+image_frame_link=[]
+image_video_link=[]
+image_summary=[]
+
+text_index=[] # (text) MultiModal embeddings from transcription
+text_type=[]
+text_ai_type=[]
+text_emb=[]
+text_frame_link=[]
+text_video_link=[]
+text_summary=[]
 
 list = [i for i in os.listdir() if re.search("\.mp4$", i)]
 
 for video in list:
-    saving_to_gcs(video)
-    transcription = video_transcription(f"gs://{video_gcs_uri}/{video}")
-    summarization, classification  = llm_sum_class(transcription)
+    #saving_to_gcs(file=video)
+    transcript, transcript_list = video_transcription(f"gs://{video_gcs_uri}/{video}")
+    summarization, classification  = llm_sum_class(transcript)
     _dir, _prefix = video_preprocessing(video)
     _ = [os.path.join(_dir, _vid) for _vid in os.listdir(_dir)]
+    print(_)
     for frame in _:       
-        _index.append(_prefix)
-        _type.append(classification)
-        _summary.append(summarization)
-        _emb.append(mm.get_embedding(image=frame).image_embedding)
-        _frame_link.append(f"https://storage.googleapis.com/{fps_gcs_uri}/{frame.split('/')[-1]}")
-        _video_link.append(f"https://storage.googleapis.com/{video_gcs_uri}/{video}")
-        saving_to_gcs(frame.split('/')[-1], video=False)
-
-df = pd.DataFrame({
-    "index": _index,
-    "sports_type": _type,
-    "summary": _summary,
-    "frame_link": _frame_link,
-    "video_link": _video_link,
-    "embedding": _emb
+        image_index.append(_prefix)
+        image_ai_type.append("from_image")
+        image_type.append(classification)
+        image_summary.append(summarization)
+        image_emb.append(mm.get_embedding(image=frame).image_embedding)
+        if Linux:
+            image_frame_link.append(f"https://storage.googleapis.com/{fps_gcs_uri}/{frame.split('/')[-1]}")
+        else: 
+            f= frame.split('\\')[-1]
+            image_frame_link.append(f"https://storage.googleapis.com/{fps_gcs_uri}/{f}")
+        image_video_link.append(f"https://storage.googleapis.com/{video_gcs_uri}/{video}")
+        #if Linux:
+        #    saving_to_gcs(frame=frame, file=frame.split('/')[-1], video=False)
+        #else:
+        #    print("win") 
+        #    saving_to_gcs(frame=frame, file=frame.split('\\')[-1], video=False)
+    count=0
+    snippet_name=create_snippet(video)
+    for item in transcript_list:
+        count=count+1
+        print(count)
+        if item:
+            _summ, _class = llm_sum_class(item)
+            text_index.append(_prefix)
+            text_ai_type.append("from_transcription")
+            text_type.append(_class)
+            text_summary.append(_summ)
+            text_emb.append(mm.get_embedding(text=item).text_embedding)
+            text_frame_link.append(f"https://storage.googleapis.com/{snippets_gcs_uri}/{snippet_name}")
+            text_video_link.append(f"https://storage.googleapis.com/{video_gcs_uri}/{video}")
+#%%
+image_df = pd.DataFrame({
+    "index": image_index,
+    "ai_type": image_ai_type,
+    "class": image_type,
+    "summary": image_summary,
+    "frame_link": image_frame_link,
+    "video_link": image_video_link,
+    "embedding": image_emb
 })
-dfbck = df.copy()
+
+text_df = pd.DataFrame({
+    "index": text_index,
+    "ai_type": text_ai_type,
+    "class": text_type,
+    "summary": text_summary,
+    "frame_link": text_frame_link,
+    "video_link": text_video_link,
+    "embedding": text_emb
+})
+
+df_merged = pd.concat([image_df, text_df], ignore_index=True, sort=False)
 #endregion     
 
-#%%
-if "df" in locals():
-    df.to_pickle("emb.pkl")
-else: df=pd.read_pickle("emb.pkl")
+
+if "df_merged" in locals():
+    df_merged.to_pickle(pickle_file_name)
+else: df_merged=pd.read_pickle(pickle_file_name)
 
 #%%
 #region Database Create/Insert
@@ -238,10 +292,9 @@ vdb = vector_db(
     database_password=database_password
 )
 cdb = await vdb.create_database(database_name)
-await vdb.insert_item(df)
+#%%
+await vdb.insert_item(df_merged)
 #endregion
 # %%
 #await vdb.delete(database_name)
-
-
-# %%
+#await vdb.query_test("SELECT * FROM video_embeddings")
