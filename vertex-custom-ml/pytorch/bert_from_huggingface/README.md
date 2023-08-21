@@ -28,15 +28,11 @@ unmasker("Hello I'm a [MASK] model.")
 ## Webserver Config
 
 ```
-@app.get('/health_check')
+@app.get(os.environ['AIP_HEALTH_ROUTE'], status_code=200)
 def health():
-    return 200
-if os.environ.get('AIP_PREDICT_ROUTE') is not None:
-    method = os.environ['AIP_PREDICT_ROUTE']
-else:
-    method = '/predict'
+    return dict(status="healthy")
     
-@app.post(method)
+@app.post(os.environ['AIP_PREDICT_ROUTE'], status_code=200)
 async def predict(request: Request):
     print("----------------- PREDICTING -----------------")
     body = await request.json()
