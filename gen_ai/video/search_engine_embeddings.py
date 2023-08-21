@@ -9,13 +9,13 @@ from ai import multimodal as mm
 from unidecode import unidecode
 from google_database import vector_db
 
-database_name="video-frame-emb-4"
+database_name="video-frame-emb-2"
 
 ##### Website Fonts and Title
-st.set_page_config(page_title="Cooking World!", page_icon="🐍", layout="wide")
+st.set_page_config(page_title="Search World!", page_icon="🐍", layout="wide")
 st.title("Search Engine (PaLM Multimodal Embeddings)")
 
-st.write("Search Engine is Contextual ask things like: Onions on the table")
+st.write("Search Engine is Contextual ask things like: Soccer player scoring")
 def local_css(file_name):
     with open(file_name) as f:
         st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
@@ -30,7 +30,7 @@ local_css("style.css")
 remote_css('https://fonts.googleapis.com/icon?family=Material+Icons')
 
 icon("search")
-selected = st.text_input("", "Making a banana yogurt...")
+selected = st.text_input("", "Machester City goal...")
 button_clicked = st.button("OK")
 text_search = selected
 text_search = unidecode(text_search.lower())
@@ -51,6 +51,7 @@ if text_search:
     # Show the results for similar products that matched the user query.
     matches = pd.DataFrame(matches)
     matches.head(10)
+    st.write(matches)
 
 ##### Front End Search Engine (cards) using Streamlit
     N_cards_per_row = 3
@@ -62,7 +63,8 @@ if text_search:
                 cols = st.columns(N_cards_per_row, gap="large")
             # draw the card
             with cols[n_row%N_cards_per_row]:
-                st.markdown(f"**{row['sports_type'].strip()}**")
+                st.markdown(f"class - **{row['class'].strip()}**")
+                st.markdown(f"ai embeddings type - **{row['ai_type'].strip()}**")
                 st.markdown(f"**{row['summary'].strip()}**")
                 st.markdown(f"*{row['video_link'].strip()}*")
                 link=row['frame_link']
