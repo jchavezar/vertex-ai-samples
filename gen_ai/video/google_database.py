@@ -37,7 +37,8 @@ class vector_db:
                 await conn.execute(
                     """CREATE TABLE IF NOT EXISTS video_embeddings(
                                         index VARCHAR(1000),
-                                        sports_type VARCHAR(1000),
+                                        ai_type VARCHAR(1000),
+                                        class VARCHAR(1000),
                                         summary VARCHAR(1000),
                                         frame_link VARCHAR(1000),
                                         video_link VARCHAR(1000),
@@ -71,9 +72,10 @@ class vector_db:
             # Store all the generated embeddings back into the database.
             for index, row in df.iterrows():
                 await conn.execute(
-                    "INSERT INTO video_embeddings (index, sports_type, summary, frame_link, video_link, embedding) VALUES ($1, $2, $3, $4, $5, $6)",
+                    "INSERT INTO video_embeddings (index, ai_type, class, summary, frame_link, video_link, embedding) VALUES ($1, $2, $3, $4, $5, $6, $7)",
                     row["index"],
-                    row["sports_type"],
+                    row["ai_type"],
+                    row["class"],
                     row["summary"],
                     row["frame_link"],
                     row["video_link"],
@@ -106,7 +108,7 @@ class vector_db:
             results = await conn.fetch(
                 """
                                 WITH vector_matches AS (
-                                  SELECT index, sports_type, summary, frame_link, video_link, embedding, 1 - (embedding <=> $1) AS similarity
+                                  SELECT index, ai_type, class, summary, frame_link, video_link, embedding, 1 - (embedding <=> $1) AS similarity
                                   FROM video_embeddings
                                   WHERE 1 - (embedding <=> $1) > $2
                                   ORDER BY similarity DESC
@@ -127,7 +129,8 @@ class vector_db:
                 matches.append(
                     {
                         "index": r["index"],
-                        "sports_type": r["sports_type"],
+                        "ai_type": r["ai_type"],
+                        "class": r["class"],
                         "summary": r["summary"],
                         "frame_link": r["frame_link"],
                         "video_link": r["video_link"],
@@ -160,3 +163,24 @@ class vector_db:
 
             await conn.close()
             return matches
+    
+    async def query_test(self, query, database_name=""):
+        matches=[]
+        if database_name=="":
+             database_name=self.database_name
+        loop = asyncio.get_running_loop()
+        async with Connector(loop=loop) as connector:
+            # Create connection to Cloud SQL database.
+            conn: asyncpg.Connection = await connector.connect_async(
+                f"{self.project_id}:{self.region}:{self.instance_name}",  # Cloud SQL instance connection name
+                "asyncpg",
+                user=f"{self.database_user}",
+                password=f"{self.database_password}",
+                db=f"{database_name}",
+            )
+
+            await register_vector(conn)
+            results = await conn.fetch(f"{query}")
+
+            await conn.close()
+            return results
