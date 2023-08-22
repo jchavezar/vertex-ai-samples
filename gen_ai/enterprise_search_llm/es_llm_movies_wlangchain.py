@@ -1,5 +1,6 @@
 #%%
 #region Libraries
+import re
 import ast
 import json
 import vertexai
@@ -71,8 +72,8 @@ def support_llm(prompt):
     }
     model = TextGenerationModel.from_pretrained("text-bison")
     response = model.predict(
-            f"""By using following prompt only which contains entities like actor name and movie name 
-            your task is to create a list of entities:
+            f"""Your only task is extract entities, don't do anything else,
+            Tasl: create a list of entities like movie's name or actor's name from the following text:
             {prompt}
             
             Output should be in the following format: ['entity1', 'entity2']
@@ -81,7 +82,7 @@ def support_llm(prompt):
         **parameters
     )
     print(f"Response from Model: {response.text}")
-    return ast.literal_eval(response.text.strip())
+    return ast.literal_eval(re.findall(r"\[.*\]",response.text.strip())[0])
 #endregion
 
 ##region Front End (Streamlit)
@@ -93,7 +94,6 @@ if prompt:
     st.dataframe(_)
     response=llm(prompt, _)
     st.write(response)
-    #st.write(response)
 #endregion
 
 # %%
