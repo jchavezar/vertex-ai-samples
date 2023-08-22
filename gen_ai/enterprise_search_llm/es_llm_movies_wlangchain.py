@@ -71,18 +71,17 @@ def support_llm(prompt):
     }
     model = TextGenerationModel.from_pretrained("text-bison")
     response = model.predict(
-            f"""You have a movies dataset with original_title as the name of the movie,
-            give me the name or names of the movie from the following prompt:
+            f"""Your prompt is related to movies, your task is to extract the names of the movie from the following prompt:
             
             {prompt}
             
-            Output a list with plain text only like: ['movie1', 'movie2']
+            Output should be in the following format: ['movie1', 'movie2']
             
             """,
         **parameters
     )
     print(f"Response from Model: {response.text}")
-    return ast.literal_eval(response.text)
+    return ast.literal_eval(response.text.strip())
 #endregion
 
 ##region Front End (Streamlit)
