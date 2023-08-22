@@ -71,11 +71,11 @@ def support_llm(prompt):
     }
     model = TextGenerationModel.from_pretrained("text-bison")
     response = model.predict(
-            f"""Your prompt is related to movies, your task is to extract the names of the movie from the following prompt:
+            f"""The following dataset contains entities like actor name and movie name your task is to create a list of entities from the following text:
             
             {prompt}
             
-            Output should be in the following format: ['movie1', 'movie2']
+            Output should be in the following format: ['entity1', 'entity2']
             
             """,
         **parameters
