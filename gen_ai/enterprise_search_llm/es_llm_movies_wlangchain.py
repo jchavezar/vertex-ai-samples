@@ -76,7 +76,7 @@ def support_llm(prompt):
             Tasl: create a list of entities like movie's name or actor's name from the following text:
             {prompt}
             
-            Output should be in the following format: ['entity1', 'entity2']
+            Output should be in the following python list format: ['entity1', 'entity2']
             
             """,
         **parameters
