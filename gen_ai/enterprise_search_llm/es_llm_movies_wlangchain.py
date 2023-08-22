@@ -71,8 +71,8 @@ def support_llm(prompt):
     }
     model = TextGenerationModel.from_pretrained("text-bison")
     response = model.predict(
-            f"""The following dataset contains entities like actor name and movie name your task is to create a list of entities from the following text:
-            
+            f"""By using following prompt only which contains entities like actor name and movie name 
+            your task is to create a list of entities:
             {prompt}
             
             Output should be in the following format: ['entity1', 'entity2']
