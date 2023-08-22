@@ -1,5 +1,6 @@
 #%%
 #region Libraries
+import ast
 import json
 import vertexai
 import pandas as pd
@@ -48,7 +49,7 @@ def llm(prompt, df):
     }
     model = TextGenerationModel.from_pretrained("text-bison")
     response = model.predict(
-            f"""Use the following dataset as context: {df.to_json(orient="records")}
+            f"""Use the following dataset as context, for comparisons the higher the better: {df.to_json(orient="records")}
             
             {prompt}
             
@@ -63,35 +64,37 @@ def llm(prompt, df):
 def support_llm(prompt):
     vertexai.init(project="vtxdemos", location="us-central1")
     parameters = {
-            "max_output_tokens": 256,
+        "max_output_tokens": 256,
         "temperature": 0.2,
         "top_p": 0.8,
         "top_k": 40
     }
     model = TextGenerationModel.from_pretrained("text-bison")
     response = model.predict(
-            f"""You have a movies dataset with oritinal_title as the name of the movie,
-            give me the name of the movie from the following prompt:
+            f"""You have a movies dataset with original_title as the name of the movie,
+            give me the name or names of the movie from the following prompt:
             
             {prompt}
             
-            Output plain text with the name only:
+            Output a list with plain text only like: ['movie1', 'movie2']
             
             """,
         **parameters
     )
     print(f"Response from Model: {response.text}")
-    return response.text
+    return ast.literal_eval(response.text)
 #endregion
 
 ##region Front End (Streamlit)
 prompt=st.text_input(label="Search")
 if prompt:
     movie=support_llm(prompt)
-    df=search(movie)
-    st.dataframe(df)
-    response=llm(prompt, df)
+    _df=[search(i) for i in movie]
+    _=pd.concat(_df, ignore_index=True)
+    st.dataframe(_)
+    response=llm(prompt, _)
     st.write(response)
-##endregion
+    #st.write(response)
+#endregion
 
 # %%
