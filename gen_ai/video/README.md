@@ -1,17 +1,17 @@
 ![Alt text](images/video_architecture.png)
 
-#Steps:
+# Steps:
 
-##Requirements:
+## Requirements:
 - CloudSQL Database: 
     ```bash gcloud sql databases create $database_name --instance pg15-pgvector-demo``````
 - Google Cloud Storage Bucket: 
 ```bash gsutil mb [YOUR_BUCKET_NAME], create 4 buckets: video_gcs_uri, video_transcript_annotations_gcs, fps_gcs_uri, snippets_gcs_uri```
 - 3 main documents: *_preprocess_embeddings, front_search_engine (web server), credentials.py
 
-I'll clean variables settings but for now you will have to change credentials and *_preprocess_embeddings variables like project_id, region, video_gcs_uri etc
+*I'll clean variables settings but for now you will have to change credentials and *_preprocess_embeddings variables like project_id, region, video_gcs_uri etc*
 
-##Execution Instructions:
+## Execution Instructions:
 - Run what's inside of video_preprocess_embeddings for videos
 - [OPTIONAL] if you want to run documents as well run document_preprocess_embeddings
 
