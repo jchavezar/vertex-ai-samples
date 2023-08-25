@@ -235,29 +235,7 @@ for video in list:
             f= frame.split('\\')[-1]
             image_frame_link.append(f"https://storage.googleapis.com/{fps_gcs_uri}/{f}")
         image_video_link.append(f"https://storage.googleapis.com/{video_gcs_uri}/{video}")
-        #if Linux:
-        #    saving_to_gcs(frame=frame, file=frame.split('/')[-1], video=False)
-        #else:
-        #    print("win") 
-        #    saving_to_gcs(frame=frame, file=frame.split('\\')[-1], video=False)
-    #count=0
-    #snippet_name=create_snippet(video)
-    #for item in transcript_list:
-    #    count=count+1
-    #    print(count)
-    #    if item:
-    #        text_index.append(_prefix)
-    #        text_ai_type.append("from_transcription")
-    #        text_type.append(classification)
-    #        text_summary.append(summarization)
-    #        init_time=time.time()
-    #        text_emb.append(mm.get_embedding(text=item).text_embedding)
-    #        end_time=time.time()
-    #        text_frame_link.append(f"https://storage.googleapis.com/{snippets_gcs_uri}/{snippet_name}")
-    #        text_video_link.append(f"https://storage.googleapis.com/{video_gcs_uri}/{video}")
-    #        if end_time-init_time <= 0.5:
-    #            time.sleep(1)
-#%%
+        
 df_merged = pd.DataFrame({
     "index": image_index,
     "ai_type": image_ai_type,
@@ -267,21 +245,9 @@ df_merged = pd.DataFrame({
     "video_link": image_video_link,
     "embedding": image_emb
 })
-
-#text_df = pd.DataFrame({
-#    "index": text_index,
-#    "ai_type": text_ai_type,
-#    "class": text_type,
-#    "summary": text_summary,
-#    "frame_link": text_frame_link,
-#    "video_link": text_video_link,
-#    "embedding": text_emb
-#})
-
-#df_merged = pd.concat([image_df, text_df], ignore_index=True, sort=False)
 #endregion     
 
-
+# In case the windows has been closed [optional]
 if "df_merged" in locals():
     df_merged.to_pickle(pickle_file_name)
 else: df_merged=pd.read_pickle(pickle_file_name)

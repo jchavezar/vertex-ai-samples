@@ -6,7 +6,7 @@ COPY style.css .
 COPY ai /app/ai
 COPY credentials.py .
 COPY google_database.py .
-COPY search_engine_embeddings.py .
+COPY front_search_engine_embeddings.py .
 COPY requirements.txt .
 
 RUN pip install -r requirements.txt
