@@ -37,7 +37,7 @@ def llm_code_gen(
     1. Generate the SQL query for BigQuery by using project {project}, dataset {dataset} and table {table} from the following task:
     {prompt}
 
-    Output: 'SQL Query to Run'""",
+    Output GoogleSQL query: <query>""",
         **parameters
     )
     st.write(response.text)
