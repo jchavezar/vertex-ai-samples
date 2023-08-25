@@ -9,9 +9,9 @@
     gcloud sql databases create $database_name --instance pg15-pgvector-demo```
 
 - Google Cloud Storage Bucket *(create 4 buckets: video_gcs_uri, video_transcript_annotations_gcs, fps_gcs_uri, snippets_gcs_uri)*: 
-```bash 
-gsutil mb [YOUR_BUCKET_NAME]
-```
+    ```bash 
+    gsutil mb [YOUR_BUCKET_NAME]
+    ```
 - 3 main documents: *_preprocess_embeddings, front_search_engine (web server), credentials.py
 
 *I'll clean variables settings but for now you will have to change credentials and *_preprocess_embeddings variables like project_id, region, video_gcs_uri etc*
