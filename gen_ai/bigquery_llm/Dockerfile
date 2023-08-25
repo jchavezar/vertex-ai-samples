@@ -3,6 +3,7 @@ FROM python:3.10
 WORKDIR /app
 
 COPY bq_llm.py .
+COPY . .
 
 RUN pip install -r requirements.txt
 
