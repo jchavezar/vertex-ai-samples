@@ -14,7 +14,7 @@
     ```
 - 3 main documents: *_preprocess_embeddings, front_search_engine (web server), credentials.py
 
-*I'll clean variables settings but for now you will have to change credentials and *_preprocess_embeddings variables like project_id, region, video_gcs_uri etc*
+*I'll clean variables settings but for now you will have to change credentials and #_preprocess_embeddings variables like project_id, region, video_gcs_uri etc*
 
 ## Execution Instructions:
 - Run what's inside of video_preprocess_embeddings for videos
