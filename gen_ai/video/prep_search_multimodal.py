@@ -40,7 +40,7 @@ image_video_link=[]
 list = [i for i in os.listdir() if re.search("\.mp4$", i)]
 
 for video in list:
-    #saving_to_gcs(file=video)
+    store.saving_to_gcs(video)
     transcript, transcript_list = ai.video_transcription(f"gs://{var['video_gcs_uri']}/{video}") #Speech to Text / Captioning / Video Transcription
     summarization, classification  = ai.llm_sum_class(transcript) #text-bison to summarize and classify transcription
     _dir, _prefix = vi.preprocess(video) #Video Preprocessing: From video to Frames Per Second / images
@@ -59,6 +59,7 @@ for video in list:
             f= frame.split('\\')[-1]
             image_frame_link.append(f"https://storage.googleapis.com/{var['snippets_gcs_uri']}/{f}")
         image_video_link.append(f"https://storage.googleapis.com/{var['video_gcs_uri']}/{video}")
+        store.saving_to_gcs(frame,video=False)
 
 df_merged = pd.DataFrame({
     "index": image_index,
@@ -69,6 +70,7 @@ df_merged = pd.DataFrame({
     "video_link": image_video_link,
     "embedding": image_emb
 })
+#%%
 # This is needed in case the session has been closed.
 if "df_merged" in locals():
     df_merged.to_pickle(var['pickle_file_name'])
@@ -80,10 +82,12 @@ else: df_merged=pd.read_pickle(var['pickle_file_name'])
 #region Database Create/Insert
 ### Remember to create a cloud sql database first: gcloud sql databases create $database_name --instance pg15-pgvector-demo
 
-cdb = await database.create_database(var['database_name'])
-
+await database.create_database()
 await database.insert_item(df_merged)
-
-#await database.delete(var['database_name'])
+#%%
+await database.delete()
 await database.query_test("SELECT * FROM video_embeddings")
 #endregion
+
+
+# %%

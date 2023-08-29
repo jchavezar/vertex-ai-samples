@@ -4,12 +4,26 @@ import sys
 import asyncio
 import pandas as pd
 import streamlit as st
-from credentials import *
-from ai import multimodal as mm
 from unidecode import unidecode
-from google_database import vector_db
+from utils import credentials, variables, database
+from vertexai.preview.vision_models import MultiModalEmbeddingModel, Image
 
-database_name="video-frame-emb-2"
+var={
+    "project_id":variables.PROJECT_ID,
+    "region":variables.REGION,
+    "video_gcs_uri":variables.VIDEO_GCS_URI,
+    "pickle_file_name":variables.PICKLE_FILE_NAME,
+    "snippets_gcs_uri":variables.SNIPPETS_GCS_URI,
+    "video_transcript_annotations_gcs":variables.VIDEO_TRANSCRIPT_ANNOTATIONS_GCS,
+    "database_name":variables.DATABASE_NAME,
+    "instance_name":variables.INSTANCE_NAME,
+    "database_user":variables.DATABASE_USER,
+    "database_password":credentials.DATABASE_PASSWORD,
+    "linux":variables.LINUX,
+}
+
+database=database.Client(var)
+mm=MultiModalEmbeddingModel.from_pretrained("multimodalembedding@001")
 
 ##### Website Fonts and Title
 st.set_page_config(page_title="Search World!", page_icon="🐍", layout="wide")
@@ -38,19 +52,11 @@ text_search = unidecode(text_search.lower())
 
 ##### Query from Database Using LLM and Match with Embeddings
 if text_search:
-    qe = mm.get_embedding(text=text_search).text_embedding
-    vdb = vector_db(
-    project_id=project_id,
-    region=region,
-    instance_name=instance_name,
-    database_user=database_user,
-    database_password=database_password)
-    matches = asyncio.run(vdb.query(qe, database_name=database_name))  # type: ignore
-
+    qe = mm.get_embeddings(contextual_text=text_search).text_embedding
+    matches = asyncio.run(database.query(qe))
 
     # Show the results for similar products that matched the user query.
     matches = pd.DataFrame(matches)
-    matches.head(10)
     st.write(matches)
 
 ##### Front End Search Engine (cards) using Streamlit
