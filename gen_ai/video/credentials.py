@@ -1,5 +1,0 @@
-project_id="YOUR_PROJECT"
-database_password="YOUR_DB_CREDENTIALS"
-region="us-central1"
-instance_name="YOUR_INSTANCE_NAME"
-database_user="YOUR_DB_USER"
