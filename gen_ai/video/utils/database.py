@@ -1,15 +1,14 @@
 import asyncio
 import asyncpg
-from google.cloud.sql.connector import Connector
 import numpy as np
+from google.cloud.sql.connector import Connector
 from pgvector.asyncpg import register_vector
 
 class Client:
     def __init__(self,iterable=(), **kwargs) -> None:
         self.__dict__.update(iterable, **kwargs)
     
-    async def create_database(self, database_name):
-            self.database_name = database_name
+    async def create_database(self):
             loop = asyncio.get_running_loop()
             async with Connector(loop=loop) as connector:
                 # Create connection to Cloud SQL database.
@@ -37,10 +36,7 @@ class Client:
                 print("Create Table Done...")
                 await conn.close()
     
-    async def insert_item(self, df, database_name=""):
-        if database_name=="":
-             database_name=self.database_name
-        else: pass
+    async def insert_item(self, df):
         if type(df["embedding"][0]) == list:
             df["embedding"] = df["embedding"].apply(lambda x: np.array(x))
         elif type(df["embedding"][0]) == str:
@@ -54,7 +50,7 @@ class Client:
                 "asyncpg",
                 user=f"{self.database_user}",
                 password=f"{self.database_password}",
-                db=f"{database_name}",
+                db=f"{self.database_name}",
             )
 
             await conn.execute("CREATE EXTENSION IF NOT EXISTS vector")
@@ -74,10 +70,8 @@ class Client:
             print("Insert Items Done...")
             await conn.close()
     
-    async def query(self, query, database_name=""):
+    async def query(self, query):
         matches=[]
-        if database_name=="":
-             database_name=self.database_name
         loop = asyncio.get_running_loop()
         async with Connector(loop=loop) as connector:
             # Create connection to Cloud SQL database.
@@ -86,7 +80,7 @@ class Client:
                 "asyncpg",
                 user=f"{self.database_user}",
                 password=f"{self.database_password}",
-                db=f"{database_name}",
+                db=f"{self.database_name}",
             )
 
             await register_vector(conn)
@@ -132,10 +126,8 @@ class Client:
             await conn.close()
             return matches
 
-    async def delete(self, query, database_name=""):
+    async def delete(self):
         matches=[]
-        if database_name=="":
-             database_name=self.database_name
         loop = asyncio.get_running_loop()
         async with Connector(loop=loop) as connector:
             # Create connection to Cloud SQL database.
@@ -144,7 +136,7 @@ class Client:
                 "asyncpg",
                 user=f"{self.database_user}",
                 password=f"{self.database_password}",
-                db=f"{database_name}",
+                db=f"{self.database_name}",
             )
 
             await register_vector(conn)
@@ -154,10 +146,8 @@ class Client:
             await conn.close()
             return matches
     
-    async def query_test(self, query, database_name=""):
+    async def query_test(self, query):
         matches=[]
-        if database_name=="":
-             database_name=self.database_name
         loop = asyncio.get_running_loop()
         async with Connector(loop=loop) as connector:
             # Create connection to Cloud SQL database.
@@ -166,7 +156,7 @@ class Client:
                 "asyncpg",
                 user=f"{self.database_user}",
                 password=f"{self.database_password}",
-                db=f"{database_name}",
+                db=f"{self.database_name}",
             )
 
             await register_vector(conn)
