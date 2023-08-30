@@ -7,6 +7,6 @@ asyncio==3.4.3
 asyncpg==0.27.0 
 pgvector==0.1.8
 absl-py==1.4.0
-google-cloud-aiplatform==1.25.0
+google-cloud-aiplatform==1.31.1
 proto-plus==1.22.2
 protobuf==4.23.0
