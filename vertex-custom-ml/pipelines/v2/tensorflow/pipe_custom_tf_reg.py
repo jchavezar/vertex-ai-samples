@@ -48,7 +48,7 @@ def pipeline(
         base_output_directory=model_uri
     )
     importer_spec = dsl.importer(
-        artifact_uri=model_uri,
+        artifact_uri=model_uri+"/model",
         artifact_class=artifact_types.UnmanagedContainerModel,
         metadata={
           'containerSpec': { 'imageUri':
