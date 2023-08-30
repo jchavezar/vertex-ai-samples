@@ -27,8 +27,8 @@ worker_pool_specs=[{
   },
   "replicaCount": "1",
   "pythonPackageSpec":{
-      "executorImageUri": "us-docker.pkg.dev/vertex-ai/training/tf-cpu.2-12.py310:latest",
-      "packageUris": ["gs://vtxdemos-distfiles/trainer-0.1.tar.gz"],
+      "executorImageUri": prebuilt_image_train,
+      "packageUris": [dist_uri],
       "pythonModule": "trainer.task",
       }
 }]
