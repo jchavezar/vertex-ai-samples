@@ -4,7 +4,7 @@ WORKDIR /app
 
 COPY style.css .
 COPY utils/ /app/utils
-COPY front_search_engine_embeddings.py .
+COPY front_search_multimodal.py .
 COPY requirements.txt .
 
 RUN pip install -r requirements.txt
