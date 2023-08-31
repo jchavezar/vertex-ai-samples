@@ -30,7 +30,7 @@ def search(prompt) -> List[discoveryengine.SearchResponse.SearchResult]:
     )
     print(serving_config)
     request = discoveryengine.SearchRequest(
-        serving_config=serving_config, query=prompt)
+        serving_config=serving_config, query=prompt, page_size=5)
 
     response = client.search(request)
 
@@ -51,7 +51,7 @@ def search(prompt) -> List[discoveryengine.SearchResponse.SearchResult]:
 def llm(prompt, df):
     vertexai.init(project="vtxdemos", location="us-central1")
     parameters = {
-            "max_output_tokens": 256,
+        "max_output_tokens": 256,
         "temperature": 0.2,
         "top_p": 0.8,
         "top_k": 40
