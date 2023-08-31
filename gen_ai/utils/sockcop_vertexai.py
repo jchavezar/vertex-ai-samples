@@ -87,4 +87,4 @@ class Client:
         )
         response = chat.send_message(prompt, **parameters)
         return response.text
-    
+    #endregion
