@@ -39,8 +39,7 @@ if prompt := st.chat_input("What is up?"):
     # Display assistant response in chat message container
     with st.chat_message("assistant"):
         message_placeholder = st.empty()
-        messages = [{"role": m["role"], "content": m["content"]} for m in st.session_state.messages if m["role"] == "user"]
-        st.write(messages)
-        full_response = client.chat_bison(prompt=messages[-1]["content"], context=messages[-10:])
-        st.write(full_response)
-        
+        user_messages = [{"role": m["role"], "content": m["content"]} for m in st.session_state.messages if m["role"] == "user"]
+        full_response = client.chat_bison(prompt=user_messages[-1]["content"], context=st.session_state.messages)
+        message_placeholder.markdown(full_response)
+    st.session_state.messages.append({"role": "assistant", "content": full_response})
