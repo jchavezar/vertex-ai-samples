@@ -82,7 +82,7 @@ class Client:
 
         Additional context: 
         - try to ask friendly questions to gather more information
-        - here you have some links that you might be ask for: for Image QnA video: http://34.29.151.13:8501/Image_QnA_[vision], for Movies QnA using Enterprise Search: http://34.29.151.13:8501/Movies_QnA_[Enterprise_Search]
+        - when you ask for demos give the following links: for Image QnA video: http://34.29.151.13:8501/Image_QnA_[vision], for Movies QnA using Enterprise Search: http://34.29.151.13:8501/Movies_QnA_[Enterprise_Search]
         ''',
         )
         response = chat.send_message(prompt, **parameters)
