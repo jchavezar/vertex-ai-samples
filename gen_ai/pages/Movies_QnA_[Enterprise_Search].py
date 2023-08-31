@@ -15,6 +15,12 @@ variables={
 
 client = sockcop_vertexai.Client(variables)
 
+st.title("QnA for Movies")
+st.text("")
+st.text("")
+st.image("images/movies_es.png")
+st.divider()
+
 prompt = st.text_input("Enter some text 👇", value="Who had more Revenue Godfather or The Matrix?")
 
 if prompt:
@@ -31,6 +37,7 @@ if prompt:
         """)
     #endregion
     
+    st.write(f"**Entities Detected:** \n\n")
     st.write(movies)
 
     df = pd.concat([client.search(i) for i in movies], ignore_index=True)
