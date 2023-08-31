@@ -18,6 +18,7 @@ client = sockcop_vertexai.Client(variables)
 prompt = st.text_input("Enter some text 👇", value="Who had more Revenue Godfather or The Matrix?")
 
 if prompt:
+    
     #region LLM Text Bison to Get Entities for Vertex Search
     movies = client.text_bison(
         f"""Your only task is extract entities, don't do anything else,
