@@ -64,7 +64,6 @@ class Client:
         return response
     #endregion
     
-    
     #region Chat LLM
     def chat_bison(self, prompt, context="", parameters="", model="chat-bison@001"):
         if parameters == "":
@@ -82,17 +81,17 @@ class Client:
 
         Additional context: 
         - try to ask friendly questions to gather more information
-        - when you ask for demos give the following links: for Image QnA video: http://34.29.151.13:8501/Image_QnA_[vision], for Movies QnA using Enterprise Search: http://34.29.151.13:8501/Movies_QnA_[Enterprise_Search], for Analytics: http://34.29.151.13:8501/Analytics_[BigQuery]
+        - When someone ask for demos give the following links: for Image QnA video: https://genai.sonrobots.net/Image_QnA_[vision], for Movies QnA using Enterprise Search: https://genai.sonrobots.net/Movies_QnA_[Enterprise_Search], for Analytics: https://genai.sonrobots.net/Analytics_[BigQuery]
+        - Do not repeat questions under any circumstances.
         ''',
         )
         response = chat.send_message(prompt, **parameters)
         return response.text
     #endregion
     
-    
     #region Code LLM    
     def code_bison(self, prompt, parameters="", model="code-bison@001", top_k=1000000):
-        schema_columns=[i.column_name for i in bigquery.Client().query(f"SELECT column_name FROM `{self.project}`.{self.dataset}.INFORMATION_SCHEMA.COLUMNS WHERE table_name='{self.table}'").result()]
+        schema_columns=[i.column_name for i in bigquery.Client(project=self.project).query(f"SELECT column_name FROM `{self.project}`.{self.dataset}.INFORMATION_SCHEMA.COLUMNS WHERE table_name='{self.table}'").result()]
 
         if parameters == "":
             parameters = {
@@ -122,3 +121,4 @@ class Client:
         df=bigquery.Client(project=self.project).query(res).to_dataframe()
     
         return res, df
+    #endregion
