@@ -1,11 +1,15 @@
-FROM python:3.10
+FROM python:3.10.13
 
 WORKDIR /app
 
 COPY Main.py Main.py
 COPY utils/ utils
 COPY pages/ pages
+COPY images/ images
 COPY requirements.txt .
+
+RUN apt-get update
+RUN pip install --upgrade pip
 
 RUN pip install -r requirements.txt
 
