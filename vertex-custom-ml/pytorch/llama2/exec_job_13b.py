@@ -2,7 +2,7 @@
 from google.cloud.aiplatform import Model, Endpoint
 
 project="vtxdemos"
-deploy_image_uri="us-central1-docker.pkg.dev/vtxdemos/prediction/llama-2-13b-chat-gptq:v2.0"
+deploy_image_uri="us-central1-docker.pkg.dev/vtxdemos/prediction/llama-2-13b-chat-gptq:v1.0"
 artifact_uri="gs://vtxdemos-models/llama-2-13B-chat-gptq"
 
 !docker build -t $deploy_image_uri .
