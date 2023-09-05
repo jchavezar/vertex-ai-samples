@@ -86,7 +86,7 @@ class Client:
     #endregion
     
     #region Chat LLM
-    def chat_bison(self, prompt, context="", parameters="", model="chat-bison@001", toggle=False):
+    def chat_bison(self, prompt, news_context="", context="", parameters="", model="chat-bison@001"):
         if parameters == "":
             parameters = {
                 "max_output_tokens": 1024,
@@ -99,18 +99,12 @@ class Client:
         
         #st.write(self.search(prompt, news=True))
         
-        if toggle:
-
-            news_context=','.join(self.search(prompt, news=True)["snippets"])
-        else:
-            news_context=','.join(self.search("Bring all the latest news you can", news=True)["snippets"])
-        
         c_context=f'''You are a very friendly and funny chat, use the following session data as historic information for your conversations: {context},
-            use the following snippets as your only source of truth, do not make up or use old data: ```{news_context}```,
+            use the following news enclosed by backticks as your only source of truth, do not make up or use old data: ```{news_context}```,
             from time to times ask friendly questions to gather more information and do not repeat questions,
             When someone ask for demos give the following links: for Image QnA video: https://genai.sonrobots.net/Image_QnA_[vision], for Movies QnA using Enterprise Search: https://genai.sonrobots.net/Movies_QnA_,
         '''
-        st.write(c_context)
+        #st.write(c_context)
         chat = chat_model.start_chat(context=c_context)
         response = chat.send_message(prompt, **parameters)
         
