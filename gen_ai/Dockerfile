@@ -2,15 +2,17 @@ FROM python:3.10.13
 
 WORKDIR /app
 
+RUN mkdir .streamlit
 COPY Main.py Main.py
 COPY utils/ utils
 COPY pages/ pages
 COPY images/ images
 COPY requirements.txt .
+COPY .streamlit/config.toml .streamlit/config.toml
 
 RUN apt-get update
 RUN pip install --upgrade pip
-
+RUN pip install pandas --upgrade
 RUN pip install -r requirements.txt
 
 EXPOSE 8080

@@ -2,6 +2,7 @@
 #%%
 import sys
 import asyncio
+from k import *
 import pandas as pd
 import streamlit as st
 from unidecode import unidecode
@@ -28,6 +29,41 @@ mm=MultiModalEmbeddingModel.from_pretrained("multimodalembedding@001")
 ##### Website Fonts and Title
 st.set_page_config(page_title="Search World!", page_icon="🐍", layout="wide")
 st.title("Search Engine (PaLM Multimodal Embeddings)")
+
+button = f'''<script src="https://www.gstatic.com/dialogflow-console/fast/df-messenger/prod/v1/df-messenger.js"></script>
+<df-messenger
+  agent-id="{dialogflow_id}"
+  language-code="en">
+  <df-messenger-chat-bubble
+   chat-title="infobot"
+   bot-writing-text="..."
+   placeholder-text="Tell me something!">
+  </df-messenger-chat-bubble>
+</df-messenger>
+<style>
+  df-messenger {{
+    z-index: 999;
+    position: fixed;
+    bottom: 16px;
+    right: 16px;
+  }}
+</style>'''
+
+st.components.v1.html(button, height=700, width=1200)
+
+st.markdown(
+    """
+    <style>
+        iframe[width="1200"] {
+            position: fixed;
+            bottom: 60px;
+            right: 40px;
+        }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+
 
 st.write("Search Engine is Contextual ask things like: Soccer player scoring")
 def local_css(file_name):
