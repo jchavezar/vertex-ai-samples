@@ -4,6 +4,7 @@ import re
 import ast
 import json
 import vertexai
+import streamlit as st
 import pandas as pd
 from vertexai.language_models import TextGenerationModel, ChatModel, CodeGenerationModel
 from typing import List
@@ -18,29 +19,49 @@ class Client:
         vertexai.init(project=self.project, location=self.region)
 
     #region EnterpriseSearch
-    def search(self, prompt) -> List[discoveryengine.SearchResponse.SearchResult]:
+    def search(self, prompt, news=False) -> List[discoveryengine.SearchResponse.SearchResult]:
         # Create a client
         client = discoveryengine.SearchServiceClient()
-        serving_config = client.serving_config_path(
-            project=self.project,
-            location=self.location,
-            data_store=self.datastore,
-            serving_config="default_config",
-        )
-        print(serving_config)
+        if news:
+            serving_config = client.serving_config_path(
+                project=self.project,
+                location=self.location,
+                data_store="news_1687453492092",
+                serving_config="default_config",
+            )
+        else:
+            serving_config = client.serving_config_path(
+                project=self.project,
+                location=self.location,
+                data_store=self.datastore,
+                serving_config="default_config",
+            )
         request = discoveryengine.SearchRequest(
             serving_config=serving_config, query=prompt, page_size=5)
 
         response = client.search(request)
+        
+        if news:
+            
+            snippets=[]
+            links=[]
+            for result in response.results:
+                data=MessageToDict(result.document._pb)["derivedStructData"]
+                links.append(data["link"])
+                for i in data["snippets"]:
+                    snippets.append(i["snippet"])
+                
+            df=pd.DataFrame({"link": links, "snippets": snippets})
+        
+        else:
+            col=list(set([key for res in response.results for key in MessageToDict(res.document._pb)["structData"].keys()]))
+            _res=[MessageToDict(_.document._pb)["structData"] for _ in response.results]
+            for c in col:
+                for num,res in enumerate(_res):
+                    if c not in res.keys():
+                        _res[num][c]="None"
 
-        col=list(set([key for res in response.results for key in MessageToDict(res.document._pb)["structData"].keys()]))
-        _res=[MessageToDict(_.document._pb)["structData"] for _ in response.results]
-        for c in col:
-            for num,res in enumerate(_res):
-                if c not in res.keys():
-                    _res[num][c]="None"
-
-        df=pd.DataFrame(_res)
+            df=pd.DataFrame(_res)
 
         return df
     #endregion
@@ -65,27 +86,34 @@ class Client:
     #endregion
     
     #region Chat LLM
-    def chat_bison(self, prompt, context="", parameters="", model="chat-bison@001"):
+    def chat_bison(self, prompt, context="", parameters="", model="chat-bison@001", toggle=False):
         if parameters == "":
             parameters = {
                 "max_output_tokens": 1024,
-                "temperature": 0.2,
+                "temperature": 0.5,
                 "top_p": 0.8,
                 "top_k": 40
                 }
-        print(context)
         chat_model = ChatModel.from_pretrained(model)
+        
+        
+        #st.write(self.search(prompt, news=True))
+        
+        if toggle:
 
-        chat = chat_model.start_chat(
-            context=f'''You are a very friendly and funny chat, use the following data as context and historic information for your interactions: {context}
-
-        Additional context: 
-        - try to ask friendly questions to gather more information
-        - When someone ask for demos give the following links: for Image QnA video: https://genai.sonrobots.net/Image_QnA_[vision], for Movies QnA using Enterprise Search: https://genai.sonrobots.net/Movies_QnA_[Enterprise_Search], for Analytics: https://genai.sonrobots.net/Analytics_[BigQuery]
-        - Do not repeat questions under any circumstances.
-        ''',
-        )
+            news_context=','.join(self.search(prompt, news=True)["snippets"])
+        else:
+            news_context=','.join(self.search("Bring all the latest news you can", news=True)["snippets"])
+        
+        c_context=f'''You are a very friendly and funny chat, use the following session data as historic information for your conversations: {context},
+            use the following snippets as your only source of truth, do not make up or use old data: ```{news_context}```,
+            from time to times ask friendly questions to gather more information and do not repeat questions,
+            When someone ask for demos give the following links: for Image QnA video: https://genai.sonrobots.net/Image_QnA_[vision], for Movies QnA using Enterprise Search: https://genai.sonrobots.net/Movies_QnA_,
+        '''
+        st.write(c_context)
+        chat = chat_model.start_chat(context=c_context)
         response = chat.send_message(prompt, **parameters)
+        
         return response.text
     #endregion
     
