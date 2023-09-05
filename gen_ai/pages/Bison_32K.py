@@ -1,8 +1,7 @@
-import streamlit as st
 from k import *
-from vertexai.preview.vision_models import ImageQnAModel, Image
+import streamlit as st
 
-st.title("Image QnA")
+st.title("In Construction...")
 
 button = f'''<script src="https://www.gstatic.com/dialogflow-console/fast/df-messenger/prod/v1/df-messenger.js"></script>
 <df-messenger
@@ -37,21 +36,3 @@ st.markdown(
     """,
     unsafe_allow_html=True,
 )
-
-
-uploaded_file = st.file_uploader("Upload your image here...", type=['png', 'jpeg', 'jpg'])
-question=st.text_input(label="Ask something about the image...")
-
-if uploaded_file is not None:
-    st.image(uploaded_file)
-
-if question:
-    model = ImageQnAModel.from_pretrained("imagetext@001")
-    #image = Image.load_from_file("image.png")
-    answers = model.ask_question(
-        image=Image(uploaded_file.getvalue()),
-        question=question,
-        # Optional:
-        number_of_results=1,
-    )
-    st.write(answers)
