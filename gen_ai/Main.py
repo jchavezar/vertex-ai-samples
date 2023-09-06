@@ -22,6 +22,8 @@ colored_header(
     color_name="violet-70",
 )
 
+st.write("*Topology bellow represents the elements used by this website*")
+
 st.image("images/genai_demos.png")
 st.sidebar.success("Select a demo above.")
 
