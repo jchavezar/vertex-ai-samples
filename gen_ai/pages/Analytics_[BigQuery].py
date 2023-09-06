@@ -3,6 +3,7 @@ sys.path.append("utils")
 import numpy as np
 import sockcop_vertexai
 import streamlit as st
+from k import *
 
 variables={
     "project":"vtxdemos",
