@@ -1,7 +1,7 @@
 import os
 import warnings
 import argparse
-import preprocess
+from trainer import preprocess
 import tensorflow as tf
 warnings.filterwarnings('ignore')
 
@@ -42,7 +42,6 @@ if __name__ == "__main__":
         aws=args.aws,
         azure=args.azure
         )
-
 
     ################################### CREATE, COMPILE AND TRAIN MODEL #####################
 

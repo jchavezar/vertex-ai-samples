@@ -17,10 +17,11 @@ model = aiplatform.CustomJob(
             "replica_count": replica_count,
             "container_spec": {
                 "image_uri": custom_train_image_uri_gpu,
-                "args": ["python3", "train.py", "--dataset", dataset_uri]            
+                "args": ["python3", "-m", "trainer.train", "--dataset", dataset_uri]            
             },
         }
     ],
+    base_output_dir = model_uri,
     labels= {
         "ai-flex": "custom-train-gpu"
         }
