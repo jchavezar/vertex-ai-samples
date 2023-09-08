@@ -10,7 +10,7 @@ model = aiplatform.Model.upload(
 )
 
 endpoint = aiplatform.Endpoint.create(
-    display_name=display_name_job+"gpu", 
+    display_name=display_name_job+"-gpu", 
 )
 
 model.deploy(
