@@ -18,10 +18,12 @@ model = aiplatform.CustomJob(
             "python_package_spec": {
                 "executor_image_uri": prebuilt_train_image_uri_cpu,
                 "package_uris": [prebuilt_train_package_uri],
-                "python_module": "trainer.train"
+                "python_module": "trainer.train",
+                "args": ["--dataset", dataset_uri]
             },
         }
     ],
+    base_output_dir = model_uri,
     labels= {
         "ai-flex": "prebuilt-train-cpu"
         }
