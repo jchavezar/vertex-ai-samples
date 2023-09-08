@@ -17,7 +17,7 @@ model = aiplatform.CustomJob(
             "replica_count": replica_count,
             "container_spec": {
                 "image_uri": custom_train_image_uri_gpu,
-                "args": ["python", "train.py", "--dataset", dataset_uri]            
+                "args": ["python3", "train.py", "--dataset", dataset_uri]            
             },
         }
     ],

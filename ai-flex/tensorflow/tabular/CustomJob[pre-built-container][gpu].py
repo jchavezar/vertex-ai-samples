@@ -10,20 +10,20 @@ model = aiplatform.CustomJob(
     worker_pool_specs=[
         {
             "machine_spec": {
-                "machine_type": machine_type_cpu,
-                #"accelerator_type": accelerator_type,
-                #"accelerator_count": accelerator_count,
+                "machine_type": machine_type_gpu,
+                "accelerator_type": accelerator_type,
+                "accelerator_count": accelerator_count,
             },
             "replica_count": replica_count,
             "python_package_spec": {
-                "executor_image_uri": prebuilt_train_image_uri_cpu,
+                "executor_image_uri": prebuilt_train_image_uri_gpu,
                 "package_uris": [prebuilt_train_package_uri],
                 "python_module": "trainer.train"
             },
         }
     ],
     labels= {
-        "ai-flex": "prebuilt-train-cpu"
+        "ai-flex": "prebuilt-train-gpu"
         }
 )
 #endregion
