@@ -6,7 +6,7 @@ aiplatform.init(project=project_id, location=region, staging_bucket=staging_buck
 
 #region vertexai CustomJob
 model = aiplatform.CustomJob(
-    display_name=display_name_job+"-cpu",
+    display_name=display_name_job+"-gpu",
     worker_pool_specs=[
         {
             "machine_spec": {
@@ -18,10 +18,12 @@ model = aiplatform.CustomJob(
             "python_package_spec": {
                 "executor_image_uri": prebuilt_train_image_uri_gpu,
                 "package_uris": [prebuilt_train_package_uri],
-                "python_module": "trainer.train"
+                "python_module": "trainer.train",
+                "args": ["--dataset", dataset_uri]
             },
         }
     ],
+    base_output_dir = model_uri,
     labels= {
         "ai-flex": "prebuilt-train-gpu"
         }
