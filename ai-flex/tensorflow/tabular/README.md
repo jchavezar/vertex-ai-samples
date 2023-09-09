@@ -16,7 +16,7 @@ graph TB
         B -- "feature engineering" --> D[Categorical Encoding]
         C --> E[Concatenation]
         D --> E
-        E --> F(Neural Network)
+        E --> |training| F(Neural Network)
         id1{{aiplatform.CustomJob}}
     end
         F --> |model save| G[Google Cloud Storage]
