@@ -39,11 +39,6 @@ if __name__ == "__main__":
     df = pd.read_csv(args.dataset)
     train, test, val = np.split(df.sample(frac=1, random_state=42), [int(.6*len(df)), int(.8*len(df))]) 
 
-    #train = pd.read_csv('gs://vtx-datasets-public/pytorch_tabular/synthetic/train.csv')
-
-    #test = pd.read_csv('gs://vtx-datasets-public/pytorch_tabular/synthetic/test.csv')
-    #val = pd.read_csv('gs://vtx-datasets-public/pytorch_tabular/synthetic/val.csv')
-    
     ################################### FEATURE ENGINEERING #################################
 
     cat_col_names = [col for col in train.columns if 'cat' in col]
