@@ -16,7 +16,7 @@ endpoint = aiplatform.Endpoint.create(
 model.deploy(
     endpoint=endpoint, 
     traffic_split={"0": 100},
-    machine_type=machine_type_cpu,
+    machine_type=machine_type_gpu,
     accelerator_type=accelerator_type,
     accelerator_count=accelerator_count,
     min_replica_count=1, 
