@@ -1,4 +1,4 @@
-![](../../images/aip-flex.png)
+![](../../images/ai-flex-customjob.png)
 
 # Getting Started
 All the steps are modular/flexible thereforer order is not important, variables.py is the file for setting the values.
