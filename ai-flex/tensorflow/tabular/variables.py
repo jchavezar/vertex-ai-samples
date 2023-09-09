@@ -15,6 +15,8 @@ prebuilt_train_image_uri_gpu = "us-docker.pkg.dev/vertex-ai/training/tf-gpu.2-12
 prebuilt_train_package_uri = "gs://vtxdemos-dist/ai-flex-train/trainer-0.1.tar.gz"
 custom_predict_image_uri_cpu = "us-central1-docker.pkg.dev/vtxdemos/custom-predictions/tf-preprocess_cpu:1.0"
 custom_predict_image_uri_gpu = "us-central1-docker.pkg.dev/vtxdemos/custom-predictions/tf-preprocess_gpu:1.0"
+prebuilt_preidct_image_uri_cpu = "us-docker.pkg.dev/vertex-ai/prediction/tf2-cpu.2-12:latest"
+prebuilt_predict_image_uri_gpu = "us-docker.pkg.dev/vertex-ai/prediction/tf2-gpu.2-12:latest"
 
 # Data source and storage
 dataset_uri = "gs://vtxdemos-datasets-public/ecommerce/train.csv"
