@@ -1,4 +1,5 @@
 import os
+import numpy as np
 import tensorflow as tf
 from fastapi import Request, FastAPI
 
@@ -13,8 +14,10 @@ def read_root():
 @app.post(os.environ["AIP_PREDICT_ROUTE"], status_code=200)
 async def predict(request: Request):
     body = await request.json()
-    sample=body["instances"]
-    input_dict = {name: tf.convert_to_tensor([value]) for name, value in sample.items()}
-    predictions = model.predict(input_dict)
-    prob = tf.nn.sigmoid(predictions[0])
-    return {"predictions": f"Will buy on return probability: %.1f."  % (100 * prob)}
+    samples = body["instances"]
+    
+    pre = {k:v for i in samples for k,v in i.items()}
+    input_array= {name: tf.convert_to_tensor(value) for name, value in pre.items()}
+    predictions = model.predict(input_array)
+    prob = tf.nn.sigmoid(predictions)
+    return {"predictions": np.where(np.array(prob) > 0.5, 1,0).tolist()}

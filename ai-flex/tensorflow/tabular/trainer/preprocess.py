@@ -33,7 +33,7 @@ class Client:
         def df_to_dataset(dataframe):
             df = dataframe.copy()
             labels = df.pop('will_buy_on_return_visit')
-            df = {key: np.array(value)[:, None] for key, value in dataframe.items()}
+            df = {key: np.array(value)[:, None] for key, value in df.items()}
             ds = tf.data.Dataset.from_tensor_slices((dict(df), labels))
             ds = ds.batch(batch_size).prefetch(batch_size)
             return ds        
