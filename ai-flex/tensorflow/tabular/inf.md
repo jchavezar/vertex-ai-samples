@@ -1,12 +1,4 @@
 ```mermaid
-graph TD;
-    A-->B;
-    A-->C;
-    B-->D;
-```
-
-
-```mermaid
 flowchart LR
   subgraph TOP
     direction TB
@@ -22,3 +14,22 @@ flowchart LR
   A --> TOP --> B
   B1 --> B2
   ```
+
+
+
+
+
+```mermaid
+graph TB
+        A[Google Cloud Storage] ---> |train.csv| B[Tensor]
+    subgraph  ""
+        direction TB
+        B -- "feature engineering" --> C[Normalization]
+        B -- "feature engineering" --> D[Categorical Encoding]
+        C --> E[Concatenation]
+        D --> E
+        E --> F(Neural Network)
+        id1{{aiplatform.CustomJob}}
+    end
+        F --> |model save| G[Google Cloud Storage]
+```
