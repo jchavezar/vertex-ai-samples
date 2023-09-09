@@ -1,4 +1,5 @@
 #%%
+import os
 import argparse
 import numpy as np
 import pandas as pd
@@ -53,7 +54,7 @@ if __name__ == "__main__":
         auto_lr_find=True, # Runs the LRFinder to automatically derive a learning rate
         batch_size=1024,
         max_epochs=100,
-        accelerator="pytho", # can be 'cpu','gpu', 'tpu', or 'ipu' 
+        accelerator="auto", # can be 'cpu','gpu', 'tpu', or 'ipu' 
     )
     optimizer_config = OptimizerConfig()
 

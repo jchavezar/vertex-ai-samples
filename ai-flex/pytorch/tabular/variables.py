@@ -18,7 +18,7 @@ prebuilt_preidct_image_uri_cpu = "us-docker.pkg.dev/vertex-ai/prediction/pytorch
 prebuilt_predict_image_uri_gpu = "us-docker.pkg.dev/vertex-ai/prediction/pytorch-gpu.2-0:latest"
 
 # Data source and storage
-dataset_uri = "gs://vtxdemos-datasets-public/random/train.csv"
+dataset_uri = "gs://vtx-datasets-public/pytorch_tabular/synthetic/train.csv"
 model_uri = f"gs://vtxdemos-models/random/{_date}"
 
 # Machine Types
