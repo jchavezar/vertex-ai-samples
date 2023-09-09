@@ -52,6 +52,25 @@ python CustomJob[*][*].py
 
 ## Prediction
 
+Prediction code is under /inference which has 1 file "main.py", we ise fastapi + uvicorn as a web server to serve tensorflow model.
+
+```mermaid
+graph TB
+        A[Google Cloud Storage] ---> |gs://vtxdemos-models/ecommerce/09-08-23/model/*| B(Model Registry)
+    subgraph  Models
+        direction TB
+        B -- "model version" --> C(Deploy)
+        id1([aiplatform.Model.upload])
+    end
+    subgraph "Endpoints"
+        direction TB
+        E(Endpoint Create)
+        C --> |machine type, accelerator| D(Public Endpoint)
+        E --> |machine type, accelerator| D(Public Endpoint)
+        id2([aiplatform.Endpoint.create])
+    end
+```
+
 ### For custom containers
 #### Build & Push Images
 
