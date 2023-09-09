@@ -91,6 +91,42 @@ python CustomJob[*][*].py
 ```
 *\*\* are file types: custom-container/prebuilt, cp/gpu*
 
+## Request Format
+
+Format is correlated to upload component type: **custom-container** or **pre-built-container**
+
+### For Custom Container:
+
+As we can see in the *main.py* file, the code is expecting the following format:
+
+```
+{
+    "instances": [
+        {
+            "feature_column_name_1": ["value_row1", "value_row2"],
+            "feature_column_name_2": ["value_row1", "value_row2"]
+        }
+    ]
+}
+```
+
+### For Pre-built Container:
+
+REST accepts json files in the following format:
+
+```
+{
+    "instances": [
+        {
+            "feature_column_name_1": ["value_row1"],
+        },
+        {
+            "feature_column_name_2": ["value_row2"],
+        }
+    ]
+}
+```
+
 ## Comments
 
 We can also chain the calls/components like this and have them in 1 file:
