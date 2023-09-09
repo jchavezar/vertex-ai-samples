@@ -7,6 +7,21 @@ All the steps are modular/flexible thereforer order is not important, variables.
 
 Training code is under the folder */trainer*, this folder has 2 files: preprocess.py *"for feature engineering* and train.py *"for training"*.
 
+```mermaid
+graph TB
+        A[Google Cloud Storage] ---> |train.csv| B[Tensor]
+    subgraph  ""
+        direction TB
+        B -- "feature engineering" --> C[Normalization]
+        B -- "feature engineering" --> D[Categorical Encoding]
+        C --> E[Concatenation]
+        D --> E
+        E --> F(Neural Network)
+        id1{{aiplatform.CustomJob}}
+    end
+        F --> |model save| G[Google Cloud Storage]
+```
+
 ### For custom containers
 #### Build & Push Images
 
