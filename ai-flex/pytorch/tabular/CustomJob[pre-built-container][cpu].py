@@ -16,7 +16,7 @@ model = aiplatform.CustomJob(
             },
             "replica_count": replica_count,
             "python_package_spec": {
-                "executor_image_uri": prebuilt_train_image_uri_cpu,
+                "executor_image_uri": prebuilt_train_image_uri_cpu_gpu,
                 "package_uris": [prebuilt_train_package_uri],
                 "python_module": "trainer.train",
                 "args": ["--dataset", dataset_uri]
