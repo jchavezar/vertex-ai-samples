@@ -9,14 +9,16 @@ Training code is under the folder */trainer*, this folder has 2 files: preproces
 
 ```mermaid
 graph TB
-        A[Google Cloud Storage] ---> |train.csv| B[Tensor]
+        A[Google Cloud Storage] ---> |train.csv| X[train:pd.DataFrame]
     subgraph  ""
         direction TB
-        B -- "feature engineering" --> C[Normalization]
-        B -- "feature engineering" --> D[Categorical Encoding]
-        C --> E[Concatenation]
-        D --> E
-        E --> |training| F(Neural Network)
+        X(random split) --> Y
+        X(random split) --> Z
+        Y[train:pd.DataFrame] --> |dataset| F
+        Z[val:pd.DataFrame] --> |dataset| F
+        D[CategoryEmbeddingModelConfig] --> E[Model]
+        C[LinearHeadConfig] --> E[Model]
+        E --> |training: model.fit| F(Training)
         id1{{aiplatform.CustomJob}}
     end
         F --> |model save| G[Google Cloud Storage]
