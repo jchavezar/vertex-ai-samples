@@ -86,6 +86,6 @@ if __name__ == "__main__":
     )
 
     tabular_model.fit(train=train, validation=val)
-    model = os.enrviron["AIP_MODEL_DIR"]
+    model = os.environ["AIP_MODEL_DIR"]
     model = "/gcs/"+"/".join(model.split("/")[2:])
     tabular_model.save_model(model)
