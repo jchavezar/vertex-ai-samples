@@ -1,6 +1,7 @@
 #%%
 import re
 import ast
+import json
 import vertexai
 from vertexai.language_models import TextGenerationModel
 
@@ -55,7 +56,6 @@ class LLM:
     
 
     def create_profile(self, form, bio_strong_text):
-        import streamlit as st
         response = self.model.predict(
             f"""Context: 
             Your task is to generate a caregiver biographical profile by taking only the following data enclosed by backticks as your source of truth, copy the style only (not the data) from the example_bios enclosed by asterisks and add personality to it:
@@ -92,18 +92,9 @@ class LLM:
         - Create 2 other questions you should ask to get a stronger biographical summary, do not create any question related to these: {old_questions}.
         - Create synthetic answers for questions above.
 
-        Output JSON Format: {{"questions": [q1,q2], "answers": [a1,a2]}}
+        Output JSON Format: {{\"questions\": [\"q1\",\"q2\"], \"answers\": [\"a1\",\"a2\"]}}
+
         """.format(bios=bios, old_questions=old_questions),
             **params
         )
-        import streamlit as st
-        #print("LLM Model Job Runing - additional questions")
-        response = response.text.strip("`")
-        response = re.sub(' +', ' ', response)
-        response = re.sub('\n +', ' ', response)
-        response = re.sub('\s +', '', response)
-        response = re.sub(r'(.*[A-z])(")([A-z].*)', r'\1 \3', response)
-        response = re.sub(r"(.*[A-z])(')([A-z].*)", r"\1 \3", response)
-        return ast.literal_eval(response.strip())
-
-# %%
+        return json.loads(response.text)
