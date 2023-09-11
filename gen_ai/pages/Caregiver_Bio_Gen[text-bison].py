@@ -1,14 +1,13 @@
 #%%
 import random
-import yaml
-import itertools
-from ai import LLM
-from utils import q_a, random_strong_bios_pick
+import sys
+sys.path.append("utils")
+from caregiver_ai import LLM
+from caregiver_utils import q_a, random_strong_bios_pick
 import streamlit as st
 from collections import Counter
 from google.cloud import firestore
-from yaml.loader import SafeLoader
-import streamlit_authenticator as stauth
+\
 
 ai = LLM()
 db=firestore.Client(project="vtxdemos")
@@ -17,25 +16,25 @@ llm_response = ""
 
 ### Authentication
 
-with open('cred.yaml') as file:
-    st.session_state.config = yaml.load(file, Loader=SafeLoader)
-
-authenticator = stauth.Authenticate(
-    st.session_state.config['credentials'],
-    st.session_state.config['cookie']['name'],
-    st.session_state.config['cookie']['key'],
-    st.session_state.config['cookie']['expiry_days'],
-    st.session_state.config['preauthorized']
-)
-name, authentication_status, username = authenticator.login('Login', 'main')
-
-if authentication_status == False:
-    st.error("Username/password is incorrect")
-
-if authentication_status == None:
-    st.warning("Please enter your username and password")
-
-if authentication_status:
+#with open('cred.yaml') as file:
+#    st.session_state.config = yaml.load(file, Loader=SafeLoader)
+#
+#authenticator = stauth.Authenticate(
+#    st.session_state.config['credentials'],
+#    st.session_state.config['cookie']['name'],
+#    st.session_state.config['cookie']['key'],
+#    st.session_state.config['cookie']['expiry_days'],
+#    st.session_state.config['preauthorized']
+#)
+#name, authentication_status, username = authenticator.login('Login', 'main')
+#
+#if authentication_status == False:
+#    st.error("Username/password is incorrect")
+#
+#if authentication_status == None:
+#    st.warning("Please enter your username and password")
+#
+if True:
 
     st.title('Create your profile!')
     
