@@ -92,7 +92,7 @@ class LLM:
         - Create 2 other questions you should ask to get a stronger biographical summary, do not create any question related to these: {old_questions}.
         - Create synthetic answers for questions above.
 
-        Output JSON Format: 
+        Output JSON Format: {{"questions": [q1,q2], "answers": [a1,a2]}}
         """.format(bios=bios, old_questions=old_questions),
             **params
         )
