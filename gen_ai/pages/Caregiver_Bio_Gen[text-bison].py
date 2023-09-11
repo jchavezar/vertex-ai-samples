@@ -136,7 +136,8 @@ if True:
             return top5_q, st.session_state["random_answers"]
         
         top5_q, random_answers = setting_up_environment()
-
+        
+        st.write("**Input form:**")
         st.write(form)
         
         def clear_form():
@@ -159,16 +160,14 @@ if True:
                 #form["info4"] = st.text_input(top5_q[4], key=top5_q[4], placeholder=st.session_state["random_answers"][4])
                 submit_button = st.form_submit_button(label='Submit')
                 clear = st.form_submit_button(label="Clear", on_click=clear_form)
+            st.write("**Input form + questions from strong_bios:**")
             st.write(form)
             #st.write(f"Strong Bios Template Used:\n {bio_strong_text_template}")
             bio = ai.create_profile(form, bio_strong_text_template)
-            #st.write(bio)
 
             if all(x != "" for x in form.values()):
                 add_q = ai.additional_questions(bio, top5_q)
                 
-                st.write(add_q)
-
                 if "new_questions" not in st.session_state or "new_answers" not in st.session_state:
                     st.session_state["new_questions"] = add_q["questions"]
                     st.session_state["new_answers"] = add_q["answers"]
@@ -179,6 +178,7 @@ if True:
                     submit_button = st.form_submit_button(label='Submit')
                 if submit_button:
                     st.write("Creating new profile with new questions.... \n")
+                    st.write("**Input form + questions from strong_bios + generative questions:**")
                     st.write(form)
                     new_bio = ai.create_profile(form, bio_strong_text_template)
                     st.write(f"**Profile Template Random Picked**: {bio_strong_text_template}")

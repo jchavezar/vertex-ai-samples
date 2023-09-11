@@ -57,12 +57,12 @@ button = f'''<script src="https://www.gstatic.com/dialogflow-console/fast/df-mes
   }}
 </style>'''
 
-st.components.v1.html(button, height=700, width=1200)
+st.components.v1.html(button, height=700, width=350)
 
 st.markdown(
     """
     <style>
-        iframe[width="1200"] {
+        iframe[width="350"] {
             position: fixed;
             bottom: 60px;
             right: 40px;
