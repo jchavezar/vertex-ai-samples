@@ -7,7 +7,7 @@ from vertexai.language_models import TextGenerationModel
 class LLM:
     def __init__(self):
         vertexai.init(project="vtxdemos", location="us-central1")
-        self.model = TextGenerationModel.from_pretrained("text-bison")
+        self.model = TextGenerationModel.from_pretrained("text-bison@001")
         self.default_parameters = {
             "temperature": 0.2,
             "max_output_tokens": 256,
@@ -58,18 +58,13 @@ class LLM:
         import streamlit as st
         response = self.model.predict(
             f"""Context: 
-            You are a caregiver looking for creating a very friendly, funny and passionate biographical summary.
+            Your task is to generate a caregiver biographical profile by taking only the following data enclosed by backticks as your source of truth, copy the style only (not the data) from the example_bios enclosed by asterisks and add personality to it:
 
-            Instructions:
+        <data>: ```{form}```
 
-            Given the following care_bios_data enclosed by backticks, create a biographical summary in the style of the example_summary enclosed by asterisk.
-            Be as detailed as possible.
-
-        <care_bios_data>: ```{form}```
-
-        <example_summary>: ***{bio_strong_text}***
+        <example_bios>: ***{bio_strong_text}***
         
-        Output text paragraph:
+        Output text:
         """,
             **self.default_parameters
         )
@@ -110,5 +105,3 @@ class LLM:
         response = re.sub(r'(.*[A-z])(")([A-z].*)', r'\1 \3', response)
         response = re.sub(r"(.*[A-z])(')([A-z].*)", r"\1 \3", response)
         return ast.literal_eval(response.strip())
-
-# %%
