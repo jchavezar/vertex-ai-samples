@@ -36,7 +36,7 @@ llm_response = ""
 #
 if True:
 
-    st.title('Create your profile!')
+    st.title('Welcome caregive, this a place to create your profile!')
     
     with st.form(key='basic_info'):
         #@st.cache_data
@@ -156,8 +156,6 @@ if True:
                 form["info0"] = st.text_input(top5_q[0], key=top5_q[0], placeholder=st.session_state["random_answers"][0])
                 form["info1"] = st.text_input(top5_q[1], key=top5_q[1], placeholder=st.session_state["random_answers"][1])
                 form["info2"] = st.text_input(top5_q[2], key=top5_q[2], placeholder=st.session_state["random_answers"][2])
-                #form["info3"] = st.text_input(top5_q[3], key=top5_q[3], placeholder=st.session_state["random_answers"][3])
-                #form["info4"] = st.text_input(top5_q[4], key=top5_q[4], placeholder=st.session_state["random_answers"][4])
                 submit_button = st.form_submit_button(label='Submit')
                 clear = st.form_submit_button(label="Clear", on_click=clear_form)
             st.write("**Input form + questions from strong_bios:**")
