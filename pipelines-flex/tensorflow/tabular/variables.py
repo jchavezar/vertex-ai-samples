@@ -1,0 +1,13 @@
+pipeline_name="tensorfolow-ecommerce-mlops1"
+project_id="vtxdemos"
+region="us-central1"
+prefix="tf-ecommerce"
+training_machine_type="n1-standard-4"
+accelerator_type="NVIDIA_TESLA_T4"
+accelerator_count=1
+replica_count=1
+custom_train_image_uri_cpu="us-central1-docker.pkg.dev/vtxdemos/custom-trains/tf-pipe_preprocess_cpu:1.0"
+model_uri="gs://vtxdemos-models/ecommerce/pipe"
+package_path="pipeline.yaml"
+pipeline_root="gs://vtxdemos-staging"
+experiment_name="tf-ecommerce-pipelines-flex"
