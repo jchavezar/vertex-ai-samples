@@ -17,12 +17,12 @@ steps:
   #  waitFor: ['Build Training Docker Image']
 
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['build', '-t', 'gcr.io/vtxdemos/cloud-build:v1', '-f', 'vertex-ai-samples/pipelines-flex/tensorflow/tabular/Dockerfile_build', 'vertex-ai-samples/pipelines-flex/tensorflow/tabular/.']
+    args: ['build', '-t', 'gcr.io/vtxdemos/cloud-build:v2', '-f', 'vertex-ai-samples/pipelines-flex/tensorflow/tabular/Dockerfile_build', 'vertex-ai-samples/pipelines-flex/tensorflow/tabular/.']
     id: 'Build Cloud Build Docker Image'
     waitFor: ['Clone Repository']
 
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['push', 'gcr.io/vtxdemos/cloud-build:v1']
+    args: ['push', 'gcr.io/vtxdemos/cloud-build:v2']
     id: 'Push Cloud Build Docker Image'
     waitFor: ['Build Cloud Build Docker Image']
 
