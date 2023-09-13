@@ -5,5 +5,7 @@ RUN pip install google-cloud-aiplatform && \
     pip install google-cloud-pipeline-components && \
     pip install kfp
 
-COPY vertex-ai-samples/pipelines-flex/tensorflow/tabular/pipeline.py pipeline.py
-COPY vertex-ai-samples/pipelines-flex/tensorflow/tabular/variables.py variables.py
+RUN ls
+
+COPY pipeline.py pipeline.py
+COPY variables.py variables.py
