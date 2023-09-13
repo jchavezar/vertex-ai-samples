@@ -5,3 +5,4 @@ RUN pip install google-cloud-aiplatform && \
     google-cloud-pipeline-components kfp
 
 COPY pipeline.py pipeline.py
+COPY variables.py variables.py
