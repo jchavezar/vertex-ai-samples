@@ -1,0 +1,33 @@
+steps:
+  - name: 'gcr.io/cloud-builders/git'
+    args: ['clone', '--single-branch', '--branch',
+         'main', 'https://github.com/jchavezar/vertex-ai-samples.git',
+         '--depth', '1',
+         '--verbose']
+    id: 'Clone Repository'
+
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-t', 'us-central1-docker.pkg.dev/vtxdemos/custom-trains/tf-pipe_preprocess_cpu:1.0', '-f', 'vertex-ai-samples/pipelines-flex/tensorflow/tabular/Dockerfile_train_[cpu]', 'vertex-ai-samples/pipelines-flex/tensorflow/tabular/.']
+    id: 'Build Training Docker Image'
+    waitFor: ['Clone Repository']
+
+  #- name: 'gcr.io/cloud-builders/docker'
+  #  args: ['push', 'us-central1-docker.pkg.dev/vtxdemos/custom-trains/tf-pipe_preprocess_cpu:1.0']
+  #  id: 'Push Training Docker Image'
+  #  waitFor: ['Build Training Docker Image']
+
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-t', 'gcr.io/vtxdemos/cloud-build:v1', '-f', 'vertex-ai-samples/pipelines-flex/tensorflow/tabular/Dockerfile_build', 'vertex-ai-samples/pipelines-flex/tensorflow/tabular/.']
+    id: 'Build Cloud Build Docker Image'
+    waitFor: ['Clone Repository']
+
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'gcr.io/vtxdemos/cloud-build:v1']
+    id: 'Push Cloud Build Docker Image'
+    waitFor: ['Build Cloud Build Docker Image']
+
+  - name: 'gcr.io/vtxdemos/cloud-build:v1'
+    entrypoint: 'python'
+    args: ['pipeline.py']
+    id: 'Push Training Docker Image'
+    waitFor: ['Build Cloud Build Docker Image']
