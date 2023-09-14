@@ -5,7 +5,7 @@ from trainer import preprocess
 import tensorflow as tf
 warnings.filterwarnings('ignore')
 
-################################### ARGUMENTS #######################################
+################################### ARGUMENTS ########################################
 
 parser = argparse.ArgumentParser()
 parser.add_argument(
