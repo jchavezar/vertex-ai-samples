@@ -1,5 +1,7 @@
 FROM python:3.10-slim
 
+WORKDIR /app
+
 RUN pip install -U pip
 RUN pip install google-cloud-aiplatform && \
     pip install google-cloud-pipeline-components && \
@@ -7,5 +9,3 @@ RUN pip install google-cloud-aiplatform && \
 
 COPY pipeline.py pipeline.py
 COPY variables.py variables.py
-
-RUN ls
