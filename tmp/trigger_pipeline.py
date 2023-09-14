@@ -10,9 +10,8 @@ def trigger_pipeline(
         display_name=prefix+"-pipeline-job",
         template_path=package_path,
         pipeline_root=pipeline_root,
-        parameter_values={
-            "dataset_uri": "gs://vxtdemos-datasets-public/ecommerce/train.csv"
-            }
+        parameter_values={},
+        enable_caching=False
         )
         
     pipeline_job.submit(experiment=experiment_name)
