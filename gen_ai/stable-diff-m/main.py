@@ -23,6 +23,7 @@ print(BLOB_ID)
 
 storage_client = storage.Client(AIP_PROJECT_NUMBER)
 bucket = storage_client.bucket(BUCKET_ID)
+print(list(storage.Client(project="vtxdemos").bucket("vtxdemos-models").list_blobs()))
 blob = bucket.blob(BLOB_ID)
 blob.download_to_filename(MODEL_FILE_NAME)
             
