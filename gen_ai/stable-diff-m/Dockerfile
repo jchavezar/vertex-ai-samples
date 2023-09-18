@@ -10,7 +10,8 @@ RUN pip3 install torch torchvision torchaudio --index-url https://download.pytor
      pip install google-cloud-storage && \
      pip install google-cloud-storage diffusers["torch"]  && \
      pip install transformers && \ 
-     pip install omegaconf
+     pip install omegaconf && \
+     pip install xformers
 
 COPY main.py main.py
 
