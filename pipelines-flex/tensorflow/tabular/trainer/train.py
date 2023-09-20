@@ -43,6 +43,8 @@ if __name__ == "__main__":
         azure=args.azure
         )
 
+    print(encoded_features)
+
     ################################### CREATE, COMPILE AND TRAIN MODEL #####################
 
     all_features = tf.keras.layers.concatenate(encoded_features)
