@@ -45,8 +45,6 @@ if __name__ == "__main__":
 
     ################################### CREATE, COMPILE AND TRAIN MODEL #####################
     
-    print(encoded_features)
-
     all_features = tf.keras.layers.concatenate(encoded_features)
     x = tf.keras.layers.Dense(32, activation="relu")(all_features)
     x = tf.keras.layers.Dropout(0.5)(x)
