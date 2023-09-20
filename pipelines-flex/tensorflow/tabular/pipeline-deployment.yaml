@@ -29,7 +29,7 @@ steps:
   - name: 'us-central1-docker.pkg.dev/vtxdemos/builds/pipe-trigger:v2'
     entrypoint: 'python'
     args: ['/app/pipeline.py']
-    id: 'Push Training Docker Image'
+    id: 'Running Vertex Pipeline'
     waitFor: ['Push Cloud Build Docker Image']
   
 images: 
