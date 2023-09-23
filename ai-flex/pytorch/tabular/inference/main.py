@@ -2,12 +2,28 @@
 import json
 import os
 import pandas as pd
+from google.cloud import storage
 from fastapi import Request, FastAPI
 from pytorch_tabular import TabularModel
 from starlette.responses import JSONResponse
 
 app = FastAPI()
-loaded_model = TabularModel.load_from_checkpoint("tabular_random")
+
+storage_client = storage.Client(os.getenv("AIP_PROJECT_NUMBER"))
+bucket = storage_client.bucket(os.getenv("AIP_STORAGE_URI").split("/")[2])
+blobs = bucket.list_blobs(prefix=os.getenv("AIP_STORAGE_URI").split("/")[3])
+
+bucket = storage.Client().bucket(bucket)
+blob_names = list(bucket.list_blobs())
+
+os.mkdir("/model")
+for blob in blob_names:
+    filename = blob.name.split("/")[-1]
+    if filename == "":
+        continue
+    blob.download_to_filename(f"/model/{filename}")
+    
+loaded_model = TabularModel.load_from_checkpoint("/model")
 #%%
 @app.get('/health_check')
 def health():
