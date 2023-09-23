@@ -14,26 +14,6 @@ db=firestore.Client(project="vtxdemos")
 llm_response = ""
 
 
-### Authentication
-
-#with open('cred.yaml') as file:
-#    st.session_state.config = yaml.load(file, Loader=SafeLoader)
-#
-#authenticator = stauth.Authenticate(
-#    st.session_state.config['credentials'],
-#    st.session_state.config['cookie']['name'],
-#    st.session_state.config['cookie']['key'],
-#    st.session_state.config['cookie']['expiry_days'],
-#    st.session_state.config['preauthorized']
-#)
-#name, authentication_status, username = authenticator.login('Login', 'main')
-#
-#if authentication_status == False:
-#    st.error("Username/password is incorrect")
-#
-#if authentication_status == None:
-#    st.warning("Please enter your username and password")
-#
 if True:
 
     st.title('Welcome caregive, this a place to create your profile!')
@@ -120,73 +100,34 @@ if True:
     if True:
 
         form = base_info
-        #@st.cache_data
-        def setting_up_environment():
-            q_a_dict = q_a(base_info)
-            top5_q=list(q_a_dict.keys())
-
-            if "random_answers" not in st.session_state:
-                qa = {}
-                for n,v in enumerate(q_a_dict.values()):
-                    qa[n]=random.choice(v)
-                st.session_state["random_answers"] = qa
-            else: pass
-            #random_answers={}
-            
-            return top5_q, st.session_state["random_answers"]
+        bio_strong_text_template="""
+        I am a compassionate and experienced caregiver with over 5 years of experience providing top-notch care to seniors. 
+        I have a deep understanding of the unique needs of seniors, and I am passionate about helping them maintain their independence and quality of life.
+        """
+        bio = ai.create_profile(form, bio_strong_text_template)
         
-        top5_q, random_answers = setting_up_environment()
         
-        st.write("**Input form:**")
-        st.write(form)
-        
-        def clear_form():
-            st.session_state[top5_q[0]]=""
-            st.session_state[top5_q[1]]=""
-            st.session_state[top5_q[2]]=""
-        
-        def clear_form2():
-            st.session_state["newq1"]=""
-            st.session_state["newq2"]=""
-
-        bio_strong_text_template=random_strong_bios_pick()
-
         if all(x != "" for x in form.values()):
-            with st.form(key="bios_1_form"):
-                form["info0"] = st.text_input(top5_q[0], key=top5_q[0], placeholder=st.session_state["random_answers"][0])
-                form["info1"] = st.text_input(top5_q[1], key=top5_q[1], placeholder=st.session_state["random_answers"][1])
-                form["info2"] = st.text_input(top5_q[2], key=top5_q[2], placeholder=st.session_state["random_answers"][2])
+            add_q = ai.additional_questions(bio)
+
+            if "new_questions" not in st.session_state or "new_answers" not in st.session_state:
+                st.session_state["new_questions"] = add_q["questions"]
+                st.session_state["new_answers"] = add_q["answers"]
+            with st.form(key="bios_2_form"):
+                form["additional_question_1"] = st.text_input(st.session_state["new_questions"][0], key="newq1", placeholder=st.session_state["new_answers"][0])
+                form["additional_question_2"] = st.text_input(st.session_state["new_questions"][1], key="newq2", placeholder=st.session_state["new_answers"][1])
                 submit_button = st.form_submit_button(label='Submit')
-                clear = st.form_submit_button(label="Clear", on_click=clear_form)
-            st.write("**Input form + questions from strong_bios:**")
-            st.write(form)
-            #st.write(f"Strong Bios Template Used:\n {bio_strong_text_template}")
-            bio = ai.create_profile(form, bio_strong_text_template)
-
-            if all(x != "" for x in form.values()):
-                add_q = ai.additional_questions(bio, top5_q)
-                
-                if "new_questions" not in st.session_state or "new_answers" not in st.session_state:
-                    st.session_state["new_questions"] = add_q["questions"]
-                    st.session_state["new_answers"] = add_q["answers"]
-
-                with st.form(key="bios_2_form"):
-                    form["additional_question_1"] = st.text_input(st.session_state["new_questions"][0], key="newq1", placeholder=st.session_state["new_answers"][0])
-                    form["additional_question_2"] = st.text_input(st.session_state["new_questions"][1], key="newq2", placeholder=st.session_state["new_answers"][1])
-                    submit_button = st.form_submit_button(label='Submit')
-                if submit_button:
-                    st.write("Creating new profile with new questions.... \n")
-                    st.write("**Input form + questions from strong_bios + generative questions:**")
-                    st.write(form)
-                    new_bio = ai.create_profile(form, bio_strong_text_template)
+            if submit_button:
+                st.write("Creating new profile with new questions.... \n")
+                st.write("**Input form + questions from strong_bios + generative questions:**")
+                st.write(form)
+                new_bio = ai.create_profile(form, bio_strong_text_template)
+                st.write(f"**Profile Template Random Picked**: {bio_strong_text_template}")
+                st.write(f"**New profile**:\n {new_bio}")
+                def restart(): 
+                    ai.create_profile(form, random_strong_bios_pick())
                     st.write(f"**Profile Template Random Picked**: {bio_strong_text_template}")
                     st.write(f"**New profile**:\n {new_bio}")
-                    def restart(): 
-                        ai.create_profile(form, random_strong_bios_pick())
-                        st.write(f"**Profile Template Random Picked**: {bio_strong_text_template}")
-                        st.write(f"**New profile**:\n {new_bio}")
-                    st.button("Shuffle",on_click=restart)
-                    st.button("Clear", on_click=clear_form)
-
+                st.button("Shuffle",on_click=restart)
 
 # %%
