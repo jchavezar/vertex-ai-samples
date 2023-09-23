@@ -6,7 +6,7 @@ from google.cloud import aiplatform
 model = aiplatform.Model.upload(
     display_name=display_name_job, 
     artifact_uri=model_uri+"/model", 
-    serving_container_image_uri=prebuilt_preidct_image_uri_gpu
+    serving_container_image_uri=prebuilt_predict_image_uri_gpu
 )
 
 endpoint = aiplatform.Endpoint.create(

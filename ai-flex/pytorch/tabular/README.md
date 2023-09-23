@@ -84,9 +84,6 @@ Container Images Sizes:
 ```sh
 docker build -t us-central1-docker.pkg.dev/vtxdemos/custom-predictions/pytorch-random_cpu:1.0 -f Dockerfile_prediction_[cpu] .
 docker push us-central1-docker.pkg.dev/vtxdemos/custom-predictions/pytorch-random_cpu:1.0
-
-docker build -t us-central1-docker.pkg.dev/vtxdemos/custom-predictions/pytorch-random_gpu:1.0 -f Dockerfile_prediction_[gpu] .
-docker push us-central1-docker.pkg.dev/vtxdemos/custom-predictions/pytorch-random_gpu:1.0
 ```
 
 ## Run Upload Jobs
