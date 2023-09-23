@@ -5,7 +5,7 @@ _date=time.strftime("%x").replace("/", "-")
 project_id = "vtxdemos"
 region = "us-central1"
 staging_bucket = "gs://vtxdemos-staging/random"
-display_name_job = "tf-random-customjob"
+display_name_job = "pytorch-random-customjob"
 
 #Docker Images
 custom_train_image_uri_cpu = "us-central1-docker.pkg.dev/vtxdemos/custom-trains/pytorch-random_cpu:1.0"
