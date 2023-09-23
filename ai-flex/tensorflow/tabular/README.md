@@ -1,7 +1,7 @@
 ![](../../images/ai-flex-customjob.png)
 
 # Getting Started
-All the steps are modular/flexible thereforer order is not important, variables.py is the file for setting the values.
+All the steps are modular/flexible therefor order is not important, variables.py is the file for setting the values.
 
 ## Training
 
@@ -30,10 +30,10 @@ Container Images Sizes:
 - gpu = 12.3GB
 
 ```sh
-docker build -t us-central1-docker.pkg.dev/vtxdemos/custom-trains/tf-preprocess_cpu:1.0 -f Dockerfile\[CPU\] .
+docker build -t us-central1-docker.pkg.dev/vtxdemos/custom-trains/tf-preprocess_cpu:1.0 -f Dockerfile_train_[cpu] .
 docker push us-central1-docker.pkg.dev/vtxdemos/custom-trains/tf-preprocess_cpu:1.0
 
-docker build -t us-central1-docker.pkg.dev/vtxdemos/custom-trains/tf-preprocess_gpu:1.0 -f trainer/Dockerfile\[GPU\] .
+docker build -t us-central1-docker.pkg.dev/vtxdemos/custom-trains/tf-preprocess_gpu:1.0 -f Dockerfile_train_[gpu] .
 docker push us-central1-docker.pkg.dev/vtxdemos/custom-trains/tf-preprocess_gpu:1.0
 ```
 

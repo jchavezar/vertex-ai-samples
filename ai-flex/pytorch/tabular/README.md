@@ -1,11 +1,13 @@
 ![](../../images/ai-flex-customjob.png)
 
 # Getting Started
-All the steps are modular/flexible thereforer order is not important, variables.py is the file for setting the values.
+All the steps are modular/flexible therefore the order is not important, variables.py is the file for setting the values [change this file].
+
+Dataset is not real is synthethic, created from [CreateSyntheticDataset.py](https://github.com/jchavezar/vertex-ai-samples/blob/main/ai-flex/pytorch/tabular/CreateSyntheticDataset.py)
 
 ## Training
 
-Training code is under the folder */trainer*, this folder has 2 files: preprocess.py *"for feature engineering* and train.py *"for training"*.
+Training code is under the folder */trainer*, this folder has 1 file only: [train.py](https://github.com/jchavezar/vertex-ai-samples/blob/main/ai-flex/pytorch/tabular/trainer/train.py) *"for training"*.
 
 ```mermaid
 graph TB
@@ -32,10 +34,10 @@ Container Images Sizes:
 - gpu = 18.9GB
 
 ```sh
-docker build -t us-central1-docker.pkg.dev/vtxdemos/custom-trains/pytorch-random_cpu:1.0 -f Dockerfile\[CPU\] .
+docker build -t us-central1-docker.pkg.dev/vtxdemos/custom-trains/pytorch-random_cpu:1.0 -f Dockerfile_train_[cpu] .
 docker push us-central1-docker.pkg.dev/vtxdemos/custom-trains/pytorch-random_cpu:1.0
 
-docker build -t us-central1-docker.pkg.dev/vtxdemos/custom-trains/pytorch-random_gpu:1.0 -f trainer/Dockerfile\[GPU\] .
+docker build -t us-central1-docker.pkg.dev/vtxdemos/custom-trains/pytorch-random_gpu:1.0 -f Dockerfile_train_[gpu] .
 docker push us-central1-docker.pkg.dev/vtxdemos/custom-trains/pytorch-random_gpu:1.0
 ```
 
