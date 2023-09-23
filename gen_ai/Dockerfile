@@ -1,4 +1,4 @@
-FROM python:3.10.13
+FROM python:3.10-slim
 
 WORKDIR /app
 
@@ -9,6 +9,7 @@ COPY pages/ pages
 COPY images/ images
 COPY requirements.txt .
 COPY .streamlit/config.toml .streamlit/config.toml
+COPY k.py k.py
 
 RUN apt-get update
 RUN pip install --upgrade pip
