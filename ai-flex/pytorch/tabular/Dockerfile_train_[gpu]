@@ -7,8 +7,7 @@ RUN apt-get update -y && \
      apt-get install -y nvidia-container-toolkit-base
 
 RUN pip install --upgrade pip
-RUN pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118 && \
-    pip install pytorch_tabular[extra] && \
+RUN pip install pytorch_tabular[extra] && \
     pip install pandas gcsfs
 
 CMD ["python3", "-m", "trainer.train"]

@@ -4,8 +4,7 @@ WORKDIR /app
 COPY trainer/ trainer/
 
 RUN pip install --upgrade pip
-RUN pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu && \
-    pip install pytorch_tabular[extra] && \
+RUN pip install pytorch_tabular[extra] && \
     pip install pandas gcsfs
 
 CMD ["python", "-m", "trainer.train"]

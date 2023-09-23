@@ -10,11 +10,11 @@ import multiprocessing
 from PyPDF2 import PdfWriter, PdfReader
 from google.cloud import vision, storage
 sys.path.append("/home/atreides/vertex-ai-samples/gen_ai/utils")
-from vertexai.preview.language_models import TextGenerationModel
 from cloud_storage import upload_directory_with_transfer_manager, download_all_blobs_with_transfer_manager, reset_defaults
+from vertexai.preview.language_models import TextGenerationModel
 
 st.title("Welcome to Document as a Context...")
-st.markdown("**Instructions:** Upload any pdf document and ")
+st.markdown("**Instructions:** Upload any pdf document and ask something about it")
 
 #region infobot
 button = f'''<script src="https://www.gstatic.com/dialogflow-console/fast/df-messenger/prod/v1/df-messenger.js"></script>
