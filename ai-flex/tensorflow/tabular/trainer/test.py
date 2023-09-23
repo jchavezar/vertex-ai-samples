@@ -17,3 +17,20 @@ ds = tf.data.Dataset.from_tensor_slices((dict(df), labels))
 #%%
 ds = ds.batch(254).prefetch(254)
 # %%
+
+
+{
+    "instances" : [
+        {
+            "latest_ecommerce_progress": [0], 
+            "bounces": [0], 
+            "time_on_site": [103],
+            "pageviews": [3],
+            "source": ["youtube.com"],
+            "medium": ["referral"],
+            "channel_grouping": ["Social"],
+            "device_category": ["desktop"],
+            "country": ["Vietnam"]
+            }
+        ]
+    }
