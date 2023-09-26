@@ -14,6 +14,7 @@ variables={
 }
 
 st.title('Financial Brain')
+st.image("images/rag.png")
 
 client = discoveryengine.SearchServiceClient()
 serving_config = client.serving_config_path(
