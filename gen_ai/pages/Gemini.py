@@ -9,7 +9,7 @@ import vertexai
 import multiprocessing
 from PyPDF2 import PdfWriter, PdfReader
 from google.cloud import vision, storage
-sys.path.append("/home/atreides/vertex-ai-samples/gen_ai/utils")
+sys.path.append("utils")
 from cloud_storage import upload_directory_with_transfer_manager, download_all_blobs_with_transfer_manager, reset_defaults
 from vertexai.preview.language_models import TextGenerationModel
 
@@ -93,8 +93,8 @@ def vision_ocr(input_file: str):
 if os.path.exists(local_input_path):
   shutil.rmtree(local_input_path, ignore_errors=True)
   
-if os.path.exists(local_output_path+"/output"):
-  shutil.rmtree(local_output_path+"/output", ignore_errors=True)
+if os.path.exists(local_output_path):
+  shutil.rmtree(local_output_path, ignore_errors=True)
 
 os.mkdir(local_input_path)
 reset_defaults(bucket_name, )
@@ -141,9 +141,10 @@ if file_length != 0:
   #%%
   if not os.path.exists(local_output_path):
     os.makedirs(local_output_path)
-  download_all_blobs_with_transfer_manager(bucket_name, local_output_path.split("/")[1]+"/")
+  download_all_blobs_with_transfer_manager(bucket_name, "/tmp/")
   #endregion
-
+  
+  #%%)
   #region postprocess: reading out
   def read_outputs(file_path_name):
     with open(file_path_name, "r") as f:
@@ -165,7 +166,8 @@ if file_length != 0:
     pages[k] = read_outputs(v)
     my_bar.progress(n+1, text=progress_text)
   #endregion
-
+  
+  st.write(pages)
   #region text-bison-32k
   input=st.text_input(label="Do something with your document...", value="Give me a detailed summary of the document")
   st.markdown("*Gemini is reading out your document and following your instructions...*")
