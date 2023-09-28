@@ -185,7 +185,6 @@ if file_length != 0:
   {pages}
 
   Instructions: {input},
-  Please respond in the language the document is.
   ```""",
       **parameters
   )
