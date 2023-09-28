@@ -21,6 +21,7 @@ st.title("QnA for Movies")
 st.text("")
 st.text("")
 st.image("images/movies_es.png")
+st.markdown("[github repo](https://github.com/jchavezar/vertex-ai-samples/tree/main/gen_ai/pages/Movies_QnA_[Enterprise_Search].py)")
 st.divider()
 
 prompt = st.text_input("Enter some text 👇", value="Who had more Revenue Godfather or The Matrix?")

@@ -13,10 +13,10 @@ ai = LLM()
 db=firestore.Client(project="vtxdemos")
 llm_response = ""
 
-
 if True:
 
     st.title('Caregiver Bio Profile Create')
+    st.markdown("[github repo](https://github.com/jchavezar/vertex-ai-samples/tree/main/gen_ai/pages/Caregiver_Bio_Gen[text-bison].py)")
     
     with st.form(key='basic_info'):
         #@st.cache_data
