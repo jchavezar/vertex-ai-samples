@@ -6,6 +6,7 @@ from k import *
 import pandas as pd
 import streamlit as st
 from unidecode import unidecode
+from streamlit.components.v1 import html
 from utils.video import credentials, variables, database
 from vertexai.preview.vision_models import MultiModalEmbeddingModel, Image
 
@@ -24,9 +25,9 @@ var={
 }
 
 database=database.Client(var)
-mm=MultiModalEmbeddingModel.from_pretrained("multimodalembedding@001")
+mm = MultiModalEmbeddingModel.from_pretrained("multimodalembedding@001")
 
-##### Website Fonts and Title
+#region Website Fonts and Title
 st.set_page_config(page_title="Search World!", page_icon="🐍", layout="wide")
 st.title("Search Engine (PaLM Multimodal Embeddings)")
 
@@ -34,6 +35,8 @@ st.write("Search Engine is Contextual ask things like: Soccer player scoring")
 def local_css(file_name):
     with open(file_name) as f:
         st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
+
+st.markdown("[github repo](https://github.com/jchavezar/vertex-ai-samples/tree/main/gen_ai/video)", unsafe_allow_html=True)
 
 def remote_css(url):
     st.markdown(f'<link href="{url}" rel="stylesheet">', unsafe_allow_html=True)    
@@ -49,9 +52,9 @@ selected = st.text_input("", "Machester City goal...")
 button_clicked = st.button("OK")
 text_search = selected
 text_search = unidecode(text_search.lower())
+#endregion
 
-
-##### Query from Database Using LLM and Match with Embeddings
+#region Query from Database Using LLM and Match with Embeddings
 if text_search:
     qe = mm.get_embeddings(contextual_text=text_search).text_embedding
     matches = asyncio.run(database.query(qe))
@@ -80,6 +83,7 @@ if text_search:
                 st.markdown("authors_html" + clickable_image, unsafe_allow_html=True)
 
     st.write(matches["similarity"])
+#endregion
 
 button = f'''<script src="https://www.gstatic.com/dialogflow-console/fast/df-messenger/prod/v1/df-messenger.js"></script>
 <df-messenger

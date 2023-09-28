@@ -6,6 +6,7 @@ import sockcop_vertexai
 import pandas as pd
 import streamlit as st
 from k import *
+#endregion
 
 variables={
     "project":"vtxdemos",
