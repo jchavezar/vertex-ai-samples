@@ -60,7 +60,6 @@ if prompt := st.chat_input("What is up?"):
         st.write(on)
         if on:
             news_context = ",".join(client.search(prompt, web_type=True)["snippets"])
-            st.write(news_context)
             full_response = client.chat_bison(prompt=user_messages[-1]["content"], news_context=news_context, context=st.session_state.messages)
         else :
             news_context=[m for m in st.session_state.messages if m["role"] == "general_news"]

@@ -16,6 +16,7 @@ variables={
 
 st.title('Retrieval Augmented Generation (RAG) | Vertex Search')
 st.image("images/rag_vertexsearch.png")
+st.markdown("[github repo](https://github.com/jchavezar/vertex-ai-samples/tree/main/gen_ai/pages/Financial_RAG_[Vertex_Search].py)")
 
 settings = ["text-bison", "text-bison@001", "text-bison-32k"]
 
