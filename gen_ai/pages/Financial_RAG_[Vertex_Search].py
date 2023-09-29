@@ -18,12 +18,8 @@ st.title('Retrieval Augmented Generation (RAG) | Vertex Search')
 st.image("images/rag_vertexsearch.png")
 st.markdown("[github repo](https://github.com/jchavezar/vertex-ai-samples/tree/main/gen_ai/pages/Financial_RAG_[Vertex_Search].py)")
 
-settings = ["text-bison", "text-bison@001", "text-bison-32k"]
-
-def reset_value():
-    st.session_state.numk = 0
-
 #region Model Settings
+settings = ["text-bison", "text-bison@001", "text-bison-32k"]
 model = st.sidebar.selectbox("Choose a text model", settings)
 
 temperature = st.sidebar.select_slider("Temperature", [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1], value=0.2) 
@@ -40,7 +36,6 @@ parameters =  {
     "top_k": top_k
     }
 
-st.sidebar.button("Reset", on_click=reset_value)
 #endregion
 
 client = discoveryengine.SearchServiceClient()
@@ -53,22 +48,38 @@ serving_config = client.serving_config_path(
 
 def vertex_search(prompt):
     request = discoveryengine.SearchRequest(
-        serving_config=serving_config, query=prompt, page_size=10)
+        serving_config=serving_config, query=prompt, page_size=100)
+
+    content_search_spec = discoveryengine.SearchRequest.ContentSearchSpec(snippet_spec=discoveryengine.SearchRequest.ContentSearchSpec.SnippetSpec(
+            return_snippet=True),
+    summary_spec = discoveryengine.SearchRequest.ContentSearchSpec.SummarySpec(
+            summary_result_count=5, include_citations=True),
+    extractive_content_spec=discoveryengine.SearchRequest.ContentSearchSpec.ExtractiveContentSpec(
+            max_extractive_answer_count=5,
+            max_extractive_segment_count=5))
+
+    request = discoveryengine.SearchRequest(
+        serving_config=serving_config, query="Aplhabet revenue", page_size=100, content_search_spec=content_search_spec)                                                         
 
     response = client.search(request)
-
-    # %%
+    
     documents = [MessageToDict(i.document._pb) for i in response.results]
-    links = ["https://storage.mtls.cloud.google.com"+"/".join(i["derivedStructData"]["link"].split("/")[1:]) for i in documents]
-    context = [ans["content"] for i in documents for ans in i["derivedStructData"]["extractive_answers"]]
-    pages = [ans["pageNumber"] for i in documents for ans in i["derivedStructData"]["extractive_answers"]]
 
-    context = {
+    context = []
+    links = []
+    pages = []
+    for i in documents:
+        for ans in i["derivedStructData"]["extractive_answers"]:
+            context.append(ans["content"])
+            pages.append(ans["pageNumber"])
+            links.append("https://storage.mtls.cloud.google.com"+"/".join(i["derivedStructData"]["link"].split("/")[1:]))
+
+    ctx = {
         "context": context,
         "links" : links,
         "page_number": pages
         }
-
+    
     st.markdown("**Context extracted from Vertex Search:**")
     st.dataframe(pd.DataFrame(context))
     
