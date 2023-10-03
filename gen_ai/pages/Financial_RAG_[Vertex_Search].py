@@ -53,10 +53,10 @@ def vertex_search(prompt):
     content_search_spec = discoveryengine.SearchRequest.ContentSearchSpec(snippet_spec=discoveryengine.SearchRequest.ContentSearchSpec.SnippetSpec(
             return_snippet=True),
     summary_spec = discoveryengine.SearchRequest.ContentSearchSpec.SummarySpec(
-            summary_result_count=5, include_citations=True),
+            summary_result_count=1, include_citations=True),
     extractive_content_spec=discoveryengine.SearchRequest.ContentSearchSpec.ExtractiveContentSpec(
-            max_extractive_answer_count=5,
-            max_extractive_segment_count=5))
+            max_extractive_answer_count=1,
+            max_extractive_segment_count=1))
 
     request = discoveryengine.SearchRequest(
         serving_config=serving_config, query="Aplhabet revenue", page_size=100, content_search_spec=content_search_spec)                                                         
@@ -81,7 +81,7 @@ def vertex_search(prompt):
         }
     
     st.markdown("**Context extracted from Vertex Search:**")
-    st.dataframe(pd.DataFrame(context))
+    st.dataframe(pd.DataFrame(ctx))
     
     return context
 
@@ -95,6 +95,7 @@ def google_llm(prompt, context, model):
     prompt: {prompt}
 
     provide details about your findings and list some potential recommendations over.
+    provide how did you get your answers and your references.
     
     if the prompt asks for analytics or financial summary, bring it in json format: {{'company': \<company\>, 'fiscal year': \<fiscal year\>, .. }}
     
