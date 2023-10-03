@@ -33,6 +33,7 @@ emb_model = TextEmbeddingModel.from_pretrained("textembedding-gecko@001")
 
 st.title('Retrieval Augmented Generation (RAG) | docai+gecko-embeddings+text-bison')
 st.image("images/rag_emb.png")
+st.markdown("[github repo](https://github.com/jchavezar/vertex-ai-samples/blob/main/gen_ai/pages/readme/Financial_RAG_%5Bgecko-emb%5D.md)")
 
 #region Model Settings
 settings = ["text-bison", "text-bison@001", "text-bison-32k"]
