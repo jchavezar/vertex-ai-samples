@@ -1,3 +1,5 @@
+![](../../images/rag_emb.png)
+
 # Getting Started
 **Prerequisities:**
 - Install [Google Cloud SDK](https://cloud.google.com/sdk/docs/install)
