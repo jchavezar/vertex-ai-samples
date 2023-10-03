@@ -5,10 +5,11 @@ asyncio==3.4.3
 asyncpg==0.27.0 
 pgvector==0.1.8
 absl-py==1.4.0
-google-cloud-aiplatform==1.31.1
+#google-cloud-aiplatform==1.31.1
 google-cloud-discoveryengine==0.10.0
 google-cloud-bigquery==2.34.4
 google-cloud-vision
+google-cloud-documentai
 proto-plus==1.22.2
 protobuf==3.20.3
 db-dtypes==1.1.1
@@ -16,3 +17,5 @@ pandas==2.0.3
 unidecode
 firestore
 PyPDF2
+scann
+#shapely==2.0.1
