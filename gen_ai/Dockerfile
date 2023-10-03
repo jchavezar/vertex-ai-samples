@@ -7,6 +7,7 @@ COPY Main.py Main.py
 COPY utils/ utils
 COPY pages/ pages
 COPY images/ images
+COPY files/ files
 COPY requirements.txt .
 COPY .streamlit/config.toml .streamlit/config.toml
 COPY k.py k.py
