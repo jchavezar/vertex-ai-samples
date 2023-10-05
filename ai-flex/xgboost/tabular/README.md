@@ -31,11 +31,11 @@ Container Images Sizes:
 - gpu = 12.3GB
 
 ```sh
-docker build -t us-central1-docker.pkg.dev/vtxdemos/custom-trains/xg-wholesales_cpu:1.0 -f Dockerfile_train_[cpu] .
-docker push us-central1-docker.pkg.dev/vtxdemos/custom-trains/xg-wholesales_cpu:1.0
+docker build -t us-central1-docker.pkg.dev/vtxdemos/custom-trains/xg-synthetic_cpu:1.0 -f Dockerfile_train_[cpu] .
+docker push us-central1-docker.pkg.dev/vtxdemos/custom-trains/xg-synthetic_cpu:1.0
 
-docker build -t us-central1-docker.pkg.dev/vtxdemos/custom-trains/xg-wholesales_gpu:1.0 -f Dockerfile_train_[gpu] .
-docker push us-central1-docker.pkg.dev/vtxdemos/custom-trains/xg-wholesales_gpu:1.0
+docker build -t us-central1-docker.pkg.dev/vtxdemos/custom-trains/xg-synthetic_gpu:1.0 -f Dockerfile_train_[gpu] .
+docker push us-central1-docker.pkg.dev/vtxdemos/custom-trains/xg-synthetic_gpu:1.0
 ```
 
 ### For pre-built containers
@@ -79,11 +79,11 @@ Container Images Sizes:
 - cpu = 2.45GB
 
 ```sh
-docker build -t us-central1-docker.pkg.dev/vtxdemos/custom-predictions/xg-wholesales_cpu:1.0 -f Dockerfile_prediction_[cpu] .
-docker push us-central1-docker.pkg.dev/vtxdemos/custom-predictions/xg-wholesales_cpu:1.0
+docker build -t us-central1-docker.pkg.dev/vtxdemos/custom-predictions/xg-synthetic_cpu:1.0 -f Dockerfile_prediction_[cpu] .
+docker push us-central1-docker.pkg.dev/vtxdemos/custom-predictions/xg-synthetic_cpu:1.0
 
-docker build -t us-central1-docker.pkg.dev/vtxdemos/custom-predictions/xg-wholesales_gpu:1.0 -f Dockerfile_prediction_[gpu] .
-docker push us-central1-docker.pkg.dev/vtxdemos/custom-predictions/xg-wholesales_gpu:1.0
+docker build -t us-central1-docker.pkg.dev/vtxdemos/custom-predictions/xg-synthetic_gpu:1.0 -f Dockerfile_prediction_[gpu] .
+docker push us-central1-docker.pkg.dev/vtxdemos/custom-predictions/xg-synthetic_gpu:1.0
 ```
 
 ## Run Upload Jobs

@@ -31,6 +31,6 @@ async def predict(request: Request):
     samples = body["instances"]
     pre = {k:v for i in samples for k,v in i.items()}
     input_array= pd.DataFrame(pre)
-    print(input_array)
+    input_array=input_array.reindex(sorted(input_array.columns), axis=1)
     predictions = model.predict(input_array).tolist()
     return {"predictions": predictions}
