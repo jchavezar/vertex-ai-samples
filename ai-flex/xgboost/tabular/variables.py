@@ -20,7 +20,7 @@ custom_predict_image_uri_gpu = "us-central1-docker.pkg.dev/vtxdemos/custom-predi
 
 # Data source and storage
 dataset_dir = "vtxdemos.public.ctgan-synthetic"
-model_dir = f"gs://vtxdemos-models/wholesales/{_date}/"
+model_dir = f"gs://vtxdemos-models/wholesales/{_date}/model"
 best_model_uri_after_ht = f"gs://vtxdemos-models/wholesales/{_date}/1/model"
 
 # Machine Types
