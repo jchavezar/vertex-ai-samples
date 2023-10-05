@@ -1,1 +1,0 @@
-![](../../images/arch-py.png)
