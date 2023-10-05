@@ -1,0 +1,13 @@
+FROM python:3.10-slim
+
+WORKDIR /app
+COPY trainer/ trainer/
+
+RUN pip install --upgrade pip && \
+    pip install xgboost && \
+    pip install scikit-learn && \
+    pip install google-cloud-bigquery[bqstorage,pandas] && \
+    pip install cloudml-hypertune && \
+    pip install pandas
+
+CMD ["python", "-m", "trainer.train"]

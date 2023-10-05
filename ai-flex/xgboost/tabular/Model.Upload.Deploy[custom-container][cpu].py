@@ -5,7 +5,7 @@ from google.cloud import aiplatform
 #region Upload Model to Model Registry
 model = aiplatform.Model.upload(
     display_name=display_name_job, 
-    artifact_uri=best_model_uri_after_ht, 
+    artifact_uri=model_dir, 
     serving_container_image_uri=custom_predict_image_uri_cpu
 )
 
