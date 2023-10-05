@@ -38,11 +38,11 @@ def pipeline():
     #Import GCS Model
     
     unmanaged_model_importer = importer(
-        artifact_uri = model_uri,
+        artifact_uri = model_uri+"/model",
         artifact_class = artifact_types.UnmanagedContainerModel,
         metadata = {
             "containerSpec": { "imageUri":
-                prebuilt_predict_image_uri_cpu
+                custom_predict_image_uri_cpu
                 }
             }
         ).after(training_job)
