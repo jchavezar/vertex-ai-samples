@@ -65,6 +65,16 @@ graph TB
 
 ## Upload & Deploy
 
+Before anything prepare the images for prediction:
+
+```sh
+docker build -t us-central1-docker.pkg.dev/vtxdemos/custom-predictions/xg-pipe-synthetic_cpu:1.0 -f Dockerfile_prediction_[cpu] .
+docker push us-central1-docker.pkg.dev/vtxdemos/custom-predictions/xg-pipe-synthetic_cpu:1.0
+
+docker build -t us-central1-docker.pkg.dev/vtxdemos/custom-predictions/xg-pipe-synthetic_gpu:1.0 -f Dockerfile_prediction_[gpu] .
+docker push us-central1-docker.pkg.dev/vtxdemos/custom-predictions/xg-pipe-synthetic_gpu:1.0
+```
+
 Training process stores the model in Google Cloud Storage, the steps to upload it into [Model Registry](https://cloud.google.com/vertex-ai/docs/model-registry/introduction) and send it for deployment is as follows:
 
 ```mermaid
