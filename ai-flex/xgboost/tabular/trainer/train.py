@@ -21,6 +21,7 @@ def main(args):
 
     #Splitting dataframe
     X = train.iloc[:,:-1]
+    X = X.reindex(sorted(X.columns), axis=1)
     # Dependant variable
     y = train['target']
 
@@ -74,9 +75,11 @@ def main(args):
     if args.model_dir.startswith(gs_prefix):
         args.model_dir = args.model_dir.replace(gs_prefix, gcsfuse_prefix)
         dirpath = os.path.split(args.model_dir)[0]
+        print(dirpath)
         if not os.path.isdir(dirpath):
             os.makedirs(dirpath)
-    gcs_model_path = os.path.join(args.model_dir, 'model.json')    
+    gcs_model_path = os.path.join(args.model_dir, 'model.json')
+    print(gcs_model_path)    
     model_xgb.save_model(gcs_model_path)
     #endregion
     
