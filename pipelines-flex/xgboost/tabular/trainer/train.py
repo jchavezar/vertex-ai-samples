@@ -21,6 +21,7 @@ def main(args):
 
     #Splitting dataframe
     X = train.iloc[:,:-1]
+    X = X.reindex(sorted(X.columns), axis=1)
     # Dependant variable
     y = train['target']
 
