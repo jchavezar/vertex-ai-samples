@@ -170,7 +170,7 @@ if file_length != 0:
   st.write(pages)
   #region text-bison-32k
   input=st.text_input(label="Do something with your document...", value="Give me a detailed summary of the document")
-  st.markdown("*Gemini is reading out your document and following your instructions...*")
+  st.markdown("*Superbison is reading out your document and following your instructions...*")
   vertexai.init(project="vtxdemos", location="us-central1")
   parameters = {
       "max_output_tokens": 1024,

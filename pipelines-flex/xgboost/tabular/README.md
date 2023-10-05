@@ -20,15 +20,14 @@ Things that can change over the time:
 
 ## General Components in the Pipeline for this Example 
 
-- Data-preprocess: Feature engineering
-    - Normalization
-    - Categorical encoding
+- Data-loading: Using BigQuery **(this demo uses synthetic a dataset)**
+    - Transformation (optional)
 - Training:
-    - Neural Network
+    - xgboost
 - Prediction:
     - Deploy
 
-There are a few ways for feature engineering; 
+There are a few ways for feature engineering (optional); 
 1. It can be done **before** the training using any ETL like **dataflow/dataproc as individual component**.
 2. By using **custom python code**; *<ins>statistics values like the ***mean*** and standard ***deviation*** needs to remain (be stored) for inference.</ins>*
 3. Run feature engineering **along the training**. [SELECTED]
@@ -44,10 +43,22 @@ There are a few ways for feature engineering;
 5. **pipeline.py**: this is the file to create the pipeline the one that orchestrates everything.
 6. **pipeline-deployment.yaml**: this is the file with the steps for CI (continous integration) which triggers the CT (continous training) and CD (continous deployment).
 
-## Main pipeline components
-### Training
+# Main pipeline components
+## Training
 
-Training code is under the folder */trainer*, this folder has 2 files: preprocess.py *"for feature engineering* and train.py *"for training"*.
+Training code is under the folder */trainer*, this folder has 1 file: [train.py](https://github.com/jchavezar/vertex-ai-samples/blob/main/pipelines-flex/xgboost/tabular/trainer/train.py) *"for training"*.
+
+Before any training job prepare the images for prediction:
+
+```sh
+#cpu
+docker build -t us-central1-docker.pkg.dev/vtxdemos/custom-trains/xg-synthetic_cpu:1.0 -f Dockerfile_train_[cpu] .
+docker push us-central1-docker.pkg.dev/vtxdemos/custom-trains/xg-synthetic_cpu:1.0
+
+#gpu
+docker build -t us-central1-docker.pkg.dev/vtxdemos/custom-trains/xg-synthetic_gpu:1.0 -f Dockerfile_train_[gpu] . #coming soon
+docker push us-central1-docker.pkg.dev/vtxdemos/custom-trains/xg-synthetic_gpu:1.0 #coming soon
+```
 
 ```mermaid
 graph TB
@@ -68,11 +79,13 @@ graph TB
 Before anything prepare the images for prediction:
 
 ```sh
+#cpu
 docker build -t us-central1-docker.pkg.dev/vtxdemos/custom-predictions/xg-pipe-synthetic_cpu:1.0 -f Dockerfile_prediction_[cpu] .
 docker push us-central1-docker.pkg.dev/vtxdemos/custom-predictions/xg-pipe-synthetic_cpu:1.0
 
-docker build -t us-central1-docker.pkg.dev/vtxdemos/custom-predictions/xg-pipe-synthetic_gpu:1.0 -f Dockerfile_prediction_[gpu] .
-docker push us-central1-docker.pkg.dev/vtxdemos/custom-predictions/xg-pipe-synthetic_gpu:1.0
+#gpu
+docker build -t us-central1-docker.pkg.dev/vtxdemos/custom-predictions/xg-pipe-synthetic_gpu:1.0 -f Dockerfile_prediction_[gpu] . #coming soon
+docker push us-central1-docker.pkg.dev/vtxdemos/custom-predictions/xg-pipe-synthetic_gpu:1.0 #coming soon
 ```
 
 Training process stores the model in Google Cloud Storage, the steps to upload it into [Model Registry](https://cloud.google.com/vertex-ai/docs/model-registry/introduction) and send it for deployment is as follows:

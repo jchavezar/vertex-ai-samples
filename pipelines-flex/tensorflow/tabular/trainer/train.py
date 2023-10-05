@@ -42,7 +42,7 @@ if __name__ == "__main__":
         aws=args.aws,
         azure=args.azure
         )
-
+    
     print(encoded_features)
 
     ################################### CREATE, COMPILE AND TRAIN MODEL #####################

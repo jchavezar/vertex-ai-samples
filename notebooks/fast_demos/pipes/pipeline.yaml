@@ -1,0 +1,127 @@
+# PIPELINE DEFINITION
+# Name: kfp-lightw-pipe
+# Inputs:
+#    a: int
+#    b: int
+components:
+  comp-adding:
+    executorLabel: exec-adding
+    inputDefinitions:
+      parameters:
+        a:
+          parameterType: NUMBER_INTEGER
+        b:
+          parameterType: NUMBER_INTEGER
+    outputDefinitions:
+      parameters:
+        Output:
+          parameterType: STRING
+  comp-diff:
+    executorLabel: exec-diff
+    inputDefinitions:
+      parameters:
+        a:
+          parameterType: STRING
+        b:
+          parameterType: NUMBER_INTEGER
+    outputDefinitions:
+      parameters:
+        Output:
+          parameterType: NUMBER_INTEGER
+deploymentSpec:
+  executors:
+    exec-adding:
+      container:
+        args:
+        - --executor_input
+        - '{{$}}'
+        - --function_to_execute
+        - adding
+        command:
+        - sh
+        - -c
+        - "\nif ! [ -x \"$(command -v pip)\" ]; then\n    python3 -m ensurepip ||\
+          \ python3 -m ensurepip --user || apt-get install python3-pip\nfi\n\nPIP_DISABLE_PIP_VERSION_CHECK=1\
+          \ python3 -m pip install --quiet     --no-warn-script-location 'kfp==2.0.0-beta.13'\
+          \ && \"$0\" \"$@\"\n"
+        - sh
+        - -ec
+        - 'program_path=$(mktemp -d)
+
+          printf "%s" "$0" > "$program_path/ephemeral_component.py"
+
+          python3 -m kfp.components.executor_main                         --component_module_path                         "$program_path/ephemeral_component.py"                         "$@"
+
+          '
+        - "\nimport kfp\nfrom kfp import dsl\nfrom kfp.dsl import *\nfrom typing import\
+          \ *\n\ndef adding(a: int, b: int)->str:\n    return str(a+b)\n\n"
+        image: python:3.7
+    exec-diff:
+      container:
+        args:
+        - --executor_input
+        - '{{$}}'
+        - --function_to_execute
+        - diff
+        command:
+        - sh
+        - -c
+        - "\nif ! [ -x \"$(command -v pip)\" ]; then\n    python3 -m ensurepip ||\
+          \ python3 -m ensurepip --user || apt-get install python3-pip\nfi\n\nPIP_DISABLE_PIP_VERSION_CHECK=1\
+          \ python3 -m pip install --quiet     --no-warn-script-location 'kfp==2.0.0-beta.13'\
+          \ && \"$0\" \"$@\"\n"
+        - sh
+        - -ec
+        - 'program_path=$(mktemp -d)
+
+          printf "%s" "$0" > "$program_path/ephemeral_component.py"
+
+          python3 -m kfp.components.executor_main                         --component_module_path                         "$program_path/ephemeral_component.py"                         "$@"
+
+          '
+        - "\nimport kfp\nfrom kfp import dsl\nfrom kfp.dsl import *\nfrom typing import\
+          \ *\n\ndef diff(a: str, b: int)->int:\n    return int(a)-b\n\n"
+        image: python:3.7
+pipelineInfo:
+  name: kfp-lightw-pipe
+root:
+  dag:
+    tasks:
+      adding:
+        cachingOptions:
+          enableCache: true
+        componentRef:
+          name: comp-adding
+        inputs:
+          parameters:
+            a:
+              componentInputParameter: a
+            b:
+              componentInputParameter: b
+        taskInfo:
+          name: adding
+      diff:
+        cachingOptions:
+          enableCache: true
+        componentRef:
+          name: comp-diff
+        dependentTasks:
+        - adding
+        inputs:
+          parameters:
+            a:
+              taskOutputParameter:
+                outputParameterKey: Output
+                producerTask: adding
+            b:
+              componentInputParameter: b
+        taskInfo:
+          name: diff
+  inputDefinitions:
+    parameters:
+      a:
+        parameterType: NUMBER_INTEGER
+      b:
+        parameterType: NUMBER_INTEGER
+schemaVersion: 2.1.0
+sdkVersion: kfp-2.0.0-beta.13
