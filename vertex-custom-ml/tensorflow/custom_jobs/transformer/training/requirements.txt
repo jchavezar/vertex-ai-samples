@@ -1,7 +1,0 @@
-tensorflow==2.11.0
-tensorflow_hub
-tensorflow-datasets
-numpy
-pandas
-google-cloud-bigquery
-db-dtypes
