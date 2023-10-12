@@ -19,5 +19,5 @@ unidecode
 firestore
 PyPDF2
 scann
-#shapely==2.0.1
+cv2
 google-cloud-videointelligence
