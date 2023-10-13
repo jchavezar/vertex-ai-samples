@@ -17,7 +17,7 @@ from langchain.output_parsers import PydanticOutputParser
 #region Call Models and Prepare Data
 llm = VertexAI(model_name= "text-bison-32k" , max_output_tokens=8192, temperature=0.4)
 embeddings = VertexAIEmbeddings()
-df = pd.read_csv("faqsamples.csv")
+df = pd.read_csv("../tmp/generate_questions/faqsamples.csv")
 data = df.iloc[:,1:]
 
 context = ""
@@ -69,11 +69,12 @@ parser = PydanticOutputParser(pydantic_object=Response)
 prompt_template2 = PromptTemplate(
     input_variables = ["detected_intent"],
     template = """
-        Your task is to generate new different additional questions a user might have from the answers below in the data/context:
-        
-        data: {detected_intent}
-        
+        From this data context: {detected_intent}
+        Your task is to generate new 'DIFFERENT from data context' additional questions a user may have by using the answers from data context. \n        
         - Do not copy or repeat questions, use your creativity to desing new ones.
+        - Use the answers from detected_intent data context to answer your new questions, dont make up new answers.
+        - Do not copy the same questions from detected_intent data contex.
+        - If the question is similar or has the same context from detected_intent data contex disregard the new question and its answer.
         
         {format_instructions}           
     """,
@@ -104,7 +105,7 @@ print(response)
 
 #region Creating a CSV file
 import csv
-with open("faq_new_q.csv", "w") as f:
+with open("intent_detection_generate_new_questions_res.csv", "w") as f:
     #writer = csv.writer(f, delimiter=",", lineterminator="\n")
     data_f_res = []
     for i in response.new_intent:
@@ -112,3 +113,5 @@ with open("faq_new_q.csv", "w") as f:
             new_data = "'" + i.new_intent + "'" + "," + "'" + str(new) + "'" + "," + "'" + str(i.answer[num]) + "'"
             f.write(new_data + "\n")
 #endregion
+
+# %%
