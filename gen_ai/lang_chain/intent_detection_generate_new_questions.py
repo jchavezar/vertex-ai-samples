@@ -69,8 +69,8 @@ parser = PydanticOutputParser(pydantic_object=Response)
 prompt_template2 = PromptTemplate(
     input_variables = ["detected_intent"],
     template = """
-        From this data context: {detected_intent}
-        Your task is to generate new 'DIFFERENT from data context' additional questions a user may have by using the answers from data context. \n        
+        From this data context: {detected_intent} take questions and answers. \n
+        Given the answers from data context generate new not related questions to the original data context that can answers the answers from the data context. \n        
         - Do not copy or repeat questions, use your creativity to desing new ones.
         - Use the answers from detected_intent data context to answer your new questions, dont make up new answers.
         - Do not copy the same questions from detected_intent data contex.
