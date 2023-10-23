@@ -15,7 +15,7 @@ warnings.simplefilter(action='ignore', category=FutureWarning)
 def main(args):
     #region Preparing dataset
     #From bigquery dataset to pandas dataframe
-    dataset="vtxdemos.public.wholesale_customers_data"
+    #dataset = "vtxdemos.public.wholesale_customers_data"
     client = bigquery.Client(os.getenv("CLOUD_ML_PROJECT_ID", "vtxdemos"))
     train = client.query(f"SELECT * FROM `{args.dataset_dir}`").to_dataframe()
 
