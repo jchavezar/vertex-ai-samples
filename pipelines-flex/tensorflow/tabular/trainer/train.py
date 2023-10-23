@@ -43,6 +43,7 @@ if __name__ == "__main__":
         azure=args.azure
         )
     
+    print("test")
     print(encoded_features)
 
     ################################### CREATE, COMPILE AND TRAIN MODEL #####################
