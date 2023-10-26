@@ -1,5 +1,4 @@
 #%%
-import sys
 import vertexai
 import pandas as pd
 import streamlit as st
@@ -35,6 +34,25 @@ parameters =  {
     "top_p": top_p,
     "top_k": top_k
     }
+
+with st.sidebar:
+    st.markdown(
+        """
+        ---
+        Follow me on:
+
+        
+
+        ldap → [@jesusarguelles](https://moma.corp.google.com/person/jesusarguelles)
+
+
+        GitHub → [jchavezar](https://github.com/jchavezar)
+        
+        LinkedIn → [Jesus Chavez](https://www.linkedin.com/in/jchavezar)
+        
+        Medium -> [jchavezar](https://medium.com/@jchavezar)
+        """
+    )
 
 #endregion
 

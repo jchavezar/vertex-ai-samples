@@ -23,7 +23,25 @@ st.text("")
 st.image("images/movies_es.png")
 st.markdown("[github repo](https://github.com/jchavezar/vertex-ai-samples/tree/main/gen_ai/pages/Movies_QnA_[Enterprise_Search].py)")
 st.divider()
+with st.sidebar:
+    st.markdown(
+        """
+        ---
+        Follow me on:
 
+        
+
+        ldap → [@jesusarguelles](https://moma.corp.google.com/person/jesusarguelles)
+
+
+        GitHub → [jchavezar](https://github.com/jchavezar)
+        
+        LinkedIn → [Jesus Chavez](https://www.linkedin.com/in/jchavezar)
+        
+        Medium -> [jchavezar](https://medium.com/@jchavezar)
+        """
+    )
+    
 prompt = st.text_input("Enter some text 👇", value="Who had more Revenue Godfather or The Matrix?")
 
 if prompt:

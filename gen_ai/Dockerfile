@@ -17,8 +17,10 @@ RUN pip install --upgrade pip
 RUN pip install pandas --upgrade
 RUN pip install -r requirements.txt
 
+COPY google_analytics.html /usr/local/lib/python3.10/site-packages/streamlit/static/index.html
+
 EXPOSE 8080
 
 HEALTHCHECK CMD curl --fail http://localhost:8501/_stcore/health
 
-ENTRYPOINT ["streamlit", "run", "Main.py", "--server.port=8080", "--server.address=0.0.0.0"]
+CMD ["streamlit", "run", "Main.py", "--server.port=8080", "--server.address=0.0.0.0"]

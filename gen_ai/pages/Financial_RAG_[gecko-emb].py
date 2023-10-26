@@ -2,21 +2,16 @@
 #Vector DB Front End
 
 #region Import Libraries
-import io
 import base64
 import asyncio
 import vertexai
-import concurrent
-import numpy as np
+import asyncpg
 import pandas as pd 
 import streamlit as st
-from google.cloud import documentai
 from utils.video import credentials
 from pgvector.asyncpg import register_vector
-from google.cloud.documentai_v1 import Document
 from google.cloud.sql.connector import Connector
 from vertexai.language_models import TextGenerationModel, TextEmbeddingModel
-from vertexai.preview.vision_models import MultiModalEmbeddingModel, Image
 #enregion
 
 #region Set Values
@@ -53,6 +48,24 @@ parameters =  {
     "top_k": top_k
     }
 
+with st.sidebar:
+    st.markdown(
+        """
+        ---
+        Follow me on:
+
+        
+
+        ldap → [@jesusarguelles](https://moma.corp.google.com/person/jesusarguelles)
+
+
+        GitHub → [jchavezar](https://github.com/jchavezar)
+        
+        LinkedIn → [Jesus Chavez](https://www.linkedin.com/in/jchavezar)
+        
+        Medium -> [jchavezar](https://medium.com/@jchavezar)
+        """
+    )
 #endregion
 
 with open("files/20230203_alphabet_10K_removed.pdf", "rb") as pdf_file:
