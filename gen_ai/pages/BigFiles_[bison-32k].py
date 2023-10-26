@@ -6,7 +6,7 @@ from vertexai.preview.language_models import TextGenerationModel
 
 st.title("Using 35 Pages as Context for Text-Bison")
 st.write("Preprocessing handled before with DocumentAI API to OCR.")
-st.markdown("[processing code](https://github.com/jchavezar/vertex-ai-samples/tree/main/gen_ai/pages/preprocess)")
+st.markdown("[processing code](https://github.com/jchavezar/vertex-ai-samples/blob/main/gen_ai/pages/preprocess/preprocess_for_BigFiles_%5Bbison-32k%5D.py)")
 @st.cache_data
 def read_document():
     with open("../files/othello.json", "r") as f:
