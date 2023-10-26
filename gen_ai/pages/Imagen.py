@@ -2,6 +2,24 @@ from k import *
 import streamlit as st
 
 st.title("Under construction...")
+with st.sidebar:
+    st.markdown(
+        """
+        ---
+        Follow me on:
+
+        
+
+        ldap → [@jesusarguelles](https://moma.corp.google.com/person/jesusarguelles)
+
+
+        GitHub → [jchavezar](https://github.com/jchavezar)
+        
+        LinkedIn → [Jesus Chavez](https://www.linkedin.com/in/jchavezar)
+        
+        Medium -> [jchavezar](https://medium.com/@jchavezar)
+        """
+    )
 
 button = f'''<script src="https://www.gstatic.com/dialogflow-console/fast/df-messenger/prod/v1/df-messenger.js"></script>
 <df-messenger

@@ -1,7 +1,6 @@
 #%%
 #region Libraries
-import sys
-import asyncio
+\import asyncio
 import pandas as pd
 import streamlit as st
 from streamlit_chat import message
@@ -224,6 +223,24 @@ st.markdown("Here are some q examples:")
 st.markdown("- What is the deductible for my insurance? - I have a question about my billing account.")
 st.markdown("- I have a question about my billing account.")
 
+with st.sidebar:
+    st.markdown(
+        """
+        ---
+        Follow me on:
+
+        
+
+        ldap → [@jesusarguelles](https://moma.corp.google.com/person/jesusarguelles)
+
+
+        GitHub → [jchavezar](https://github.com/jchavezar)
+        
+        LinkedIn → [Jesus Chavez](https://www.linkedin.com/in/jchavezar)
+        
+        Medium -> [jchavezar](https://medium.com/@jchavezar)
+        """
+    )
 
 if 'something' not in st.session_state:
     st.session_state.something = ''

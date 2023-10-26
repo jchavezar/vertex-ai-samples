@@ -3,6 +3,24 @@ from k import *
 from vertexai.preview.vision_models import ImageQnAModel, Image
 
 st.title("Image QnA")
+with st.sidebar:
+    st.markdown(
+        """
+        ---
+        Follow me on:
+
+        
+
+        ldap → [@jesusarguelles](https://moma.corp.google.com/person/jesusarguelles)
+
+
+        GitHub → [jchavezar](https://github.com/jchavezar)
+        
+        LinkedIn → [Jesus Chavez](https://www.linkedin.com/in/jchavezar)
+        
+        Medium -> [jchavezar](https://medium.com/@jchavezar)
+        """
+    )
 
 uploaded_file = st.file_uploader("Upload your image here...", type=['png', 'jpeg', 'jpg'])
 question=st.text_input(label="Ask something about the image...")

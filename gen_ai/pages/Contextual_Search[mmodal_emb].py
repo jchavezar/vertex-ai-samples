@@ -1,14 +1,12 @@
 ##### Global Variables and Libraries
 #%%
-import sys
-import asyncio
 from k import *
+import asyncio
 import pandas as pd
 import streamlit as st
 from unidecode import unidecode
-from streamlit.components.v1 import html
 from utils.video import credentials, variables, database
-from vertexai.preview.vision_models import MultiModalEmbeddingModel, Image
+from vertexai.preview.vision_models import MultiModalEmbeddingModel
 
 var={
     "project_id":variables.PROJECT_ID,
@@ -30,6 +28,31 @@ mm = MultiModalEmbeddingModel.from_pretrained("multimodalembedding@001")
 #region Website Fonts and Title
 st.set_page_config(page_title="Search World!", page_icon="🐍", layout="wide")
 st.title("Search Engine (PaLM Multimodal Embeddings)")
+st.write("Query examples:")
+st.write("Show me Empire State building videos")
+st.write("Recorrido por la ciudad de Mexico")
+st.write("Ferrari car drifting")
+st.write("Dak Prescott running!")
+st.write("Nikola Jokic playing")
+st.write("Fanaticos celebrando con los pumas")
+with st.sidebar:
+    st.markdown(
+        """
+        ---
+        Follow me on:
+
+        
+
+        ldap → [@jesusarguelles](https://moma.corp.google.com/person/jesusarguelles)
+
+
+        GitHub → [jchavezar](https://github.com/jchavezar)
+        
+        LinkedIn → [Jesus Chavez](https://www.linkedin.com/in/jchavezar)
+        
+        Medium -> [jchavezar](https://medium.com/@jchavezar)
+        """
+    )
 
 st.write("Search Engine is Contextual ask things like: Soccer player scoring")
 def local_css(file_name):
@@ -48,7 +71,7 @@ local_css("utils/video/style.css")
 remote_css('https://fonts.googleapis.com/icon?family=Material+Icons')
 
 icon("search")
-selected = st.text_input("", "Machester City goal...")
+selected = st.text_input("", "Messi playing for Miami FC...")
 button_clicked = st.button("OK")
 text_search = selected
 text_search = unidecode(text_search.lower())
@@ -61,7 +84,6 @@ if text_search:
 
     # Show the results for similar products that matched the user query.
     matches = pd.DataFrame(matches)
-    st.write(matches)
 
 ##### Front End Search Engine (cards) using Streamlit
     N_cards_per_row = 3
@@ -82,6 +104,7 @@ if text_search:
                 clickable_image = f'<a href="{link}" target="_blank"> <img src="{image_link}" style="width:100%;"> </a>'
                 st.markdown("authors_html" + clickable_image, unsafe_allow_html=True)
 
+    st.write(matches)
     st.write(matches["similarity"])
 #endregion
 

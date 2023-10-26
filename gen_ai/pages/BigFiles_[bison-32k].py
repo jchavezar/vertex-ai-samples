@@ -5,17 +5,18 @@ import streamlit as st
 from vertexai.preview.language_models import TextGenerationModel
 
 st.title("Using 35 Pages as Context for Text-Bison")
-st.write("Preprocessing handled before with DocumentAI API to OCR.")
+st.image("images/big_files_text_bison_32k.png")
+st.write("PDF OCR was made before using text-bison, more instructions in the link:")
 st.markdown("[processing code](https://github.com/jchavezar/vertex-ai-samples/blob/main/gen_ai/pages/preprocess/preprocess_for_BigFiles_%5Bbison-32k%5D.py)")
 @st.cache_data
 def read_document():
-    with open("../files/othello.json", "r") as f:
+    with open("files/othello.json", "r") as f:
         documents = json.load(f)
     return documents
 
 documents = read_document()
 
-with open("../files/othello.pdf", "rb") as pdf_file:
+with open("files/othello.pdf", "rb") as pdf_file:
     encoded_pdf = pdf_file.read()
 #
 
@@ -24,8 +25,7 @@ pdf_display = F'<iframe src="data:application/pdf;base64,{base64_pdf}" width="70
 st.markdown(pdf_display, unsafe_allow_html=True)
 
 # %%
-#input = "Create a summary per page from the context, remember you have to fit 8000 tokens in your response"
-input= st.text_input(label="Do something with your document...", value="Create a summary per page from the context")
+input= st.text_input(label="Do something with your document...", value="Give me summary per page")
 st.markdown("*Bigboy LLM is reading out your 35 pages document and following your instructions...*")
 #
 #st.write(documents)
@@ -41,7 +41,12 @@ parameters = {
 #_documents = [v for k,v in documents.items()]
 model = TextGenerationModel.from_pretrained("text-bison-32k")
 response = model.predict(
-    f"""from the following context create a summary per page: {str(documents)}""",
+    f"""from the following context enclosed by backticks do the following instructions: 
+    
+    context: {str(documents)}
+    
+    instructions: {input}
+    """,
     **parameters
 )
 print(f"Response from Model: {response.text}")

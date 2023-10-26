@@ -1,11 +1,9 @@
 #%%
-import random
 import sys
 sys.path.append("utils")
 from caregiver_ai import LLM
-from caregiver_utils import q_a, random_strong_bios_pick
+from caregiver_utils import random_strong_bios_pick
 import streamlit as st
-from collections import Counter
 from google.cloud import firestore
 \
 
@@ -16,6 +14,24 @@ llm_response = ""
 if True:
 
     st.title('Caregiver Bio Profile Create')
+    with st.sidebar:
+        st.markdown(
+            """
+            ---
+            Follow me on:
+    
+            
+    
+            ldap → [@jesusarguelles](https://moma.corp.google.com/person/jesusarguelles)
+    
+    
+            GitHub → [jchavezar](https://github.com/jchavezar)
+            
+            LinkedIn → [Jesus Chavez](https://www.linkedin.com/in/jchavezar)
+            
+            Medium -> [jchavezar](https://medium.com/@jchavezar)
+            """
+        )
     st.markdown("[github repo](https://github.com/jchavezar/vertex-ai-samples/tree/main/gen_ai/pages/Caregiver_Bio_Gen[text-bison].py)")
     
     with st.form(key='basic_info'):
