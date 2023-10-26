@@ -15,7 +15,25 @@ variables={
 client = sockcop_vertexai.Client(variables)
 
 st.title("Analytics Code-b and BQ")
+with st.sidebar:
+    st.markdown(
+        """
+        ---
+        Follow me on:
 
+        
+
+        ldap → [@jesusarguelles](https://moma.corp.google.com/person/jesusarguelles)
+
+
+        GitHub → [jchavezar](https://github.com/jchavezar)
+        
+        LinkedIn → [Jesus Chavez](https://www.linkedin.com/in/jchavezar)
+        
+        Medium -> [jchavezar](https://medium.com/@jchavezar)
+        """
+    )
+    
 res, df = client.code_bison(st.text_input("Enter some text 👇", value="Show me the max capacity by grouping per latitude and longitude"))
 
 st.write("**Query From Code Bison:**")
