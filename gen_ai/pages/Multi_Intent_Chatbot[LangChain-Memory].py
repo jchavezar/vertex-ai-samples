@@ -1,6 +1,6 @@
 #%%
 #region Libraries
-\import asyncio
+import asyncio
 import pandas as pd
 import streamlit as st
 from streamlit_chat import message
