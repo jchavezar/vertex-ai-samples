@@ -31,7 +31,6 @@ st.markdown("*Bigboy LLM is reading out your 35 pages document and following you
 #st.write(documents)
 vertexai.init(project="vtxdemos", location="us-central1")
 parameters = {
-    "candidate_count": 1,
     "max_output_tokens": 8000,
     "temperature": 0.2,
     "top_p": 0.8,
