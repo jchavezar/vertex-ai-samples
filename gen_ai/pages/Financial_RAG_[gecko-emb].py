@@ -51,13 +51,9 @@ parameters =  {
 with st.sidebar:
     st.markdown(
         """
-        ---
         Follow me on:
 
-        
-
         ldap → [@jesusarguelles](https://moma.corp.google.com/person/jesusarguelles)
-
 
         GitHub → [jchavezar](https://github.com/jchavezar)
         
