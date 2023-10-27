@@ -204,7 +204,7 @@ def embeddings_search(prompt: str):
 
 #region Streamlit
 st.title("VertexAI-like Chatbot")
-
+st.image("images/multi_intent_langchain.png")
 st.markdown("Welcome to **sockcop**, a bot capable of interact, route petitions and keep everything on memory.")
 st.markdown("Here are some q examples:")
 st.markdown("- What is the deductible for my insurance? - I have a question about my billing account.")
@@ -213,13 +213,9 @@ st.markdown("- I have a question about my billing account.")
 with st.sidebar:
     st.markdown(
         """
-        ---
         Follow me on:
 
-        
-
         ldap → [@jesusarguelles](https://moma.corp.google.com/person/jesusarguelles)
-
 
         GitHub → [jchavezar](https://github.com/jchavezar)
         
