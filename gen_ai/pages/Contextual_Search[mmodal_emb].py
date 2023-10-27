@@ -28,23 +28,21 @@ mm = MultiModalEmbeddingModel.from_pretrained("multimodalembedding@001")
 #region Website Fonts and Title
 st.set_page_config(page_title="Search World!", page_icon="🐍", layout="wide")
 st.title("Search Engine (PaLM Multimodal Embeddings)")
-st.write("Query examples:")
-st.write("Show me Empire State building videos")
-st.write("Recorrido por la ciudad de Mexico")
-st.write("Ferrari car drifting")
-st.write("Dak Prescott running!")
-st.write("Nikola Jokic playing")
-st.write("Fanaticos celebrando con los pumas")
+st.markdown("Query examples:")
+st.markdown("""
+            - [eng] Show me Empire State building videos
+            - [spa] Recorrido por la ciudad de Mexico
+            - [eng] Ferrari car drifting
+            - [eng] Dak Prescott running!
+            - [eng] Nikola Jokic playing
+            - [spa] Fanaticos celebrando con los pumas
+            """)
 with st.sidebar:
     st.markdown(
         """
-        ---
-        Follow me on:
-
-        
+        Follow me on:  
 
         ldap → [@jesusarguelles](https://moma.corp.google.com/person/jesusarguelles)
-
 
         GitHub → [jchavezar](https://github.com/jchavezar)
         
