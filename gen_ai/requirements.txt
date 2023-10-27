@@ -19,5 +19,9 @@ unidecode
 firestore
 PyPDF2
 scann
-cv2
+opencv-python
 google-cloud-videointelligence
+streamlit_chat
+docarray
+langchain==0.0.311
+pgvector==0.1.8

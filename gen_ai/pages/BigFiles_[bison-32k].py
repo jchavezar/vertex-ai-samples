@@ -5,6 +5,20 @@ import streamlit as st
 from vertexai.preview.language_models import TextGenerationModel
 
 st.title("Using 35 Pages as Context for Text-Bison")
+with st.sidebar:
+    st.markdown(
+        """
+        Follow me on:
+
+        ldap → [@jesusarguelles](https://moma.corp.google.com/person/jesusarguelles)
+
+        GitHub → [jchavezar](https://github.com/jchavezar)
+        
+        LinkedIn → [Jesus Chavez](https://www.linkedin.com/in/jchavezar)
+        
+        Medium -> [jchavezar](https://medium.com/@jchavezar)
+        """
+    )
 st.image("images/big_files_text_bison_32k.png")
 st.write("PDF OCR was made before using text-bison, more instructions in the link:")
 st.markdown("[processing code](https://github.com/jchavezar/vertex-ai-samples/blob/main/gen_ai/pages/preprocess/preprocess_for_BigFiles_%5Bbison-32k%5D.py)")
