@@ -105,8 +105,8 @@ main_template = (
     "First of everything try to get the name of the human and his account to match subsequent conversations."
     "Here are the prior messages in this conversation:\n"
     "{chat_history}\n"
-    "This prompt is for general questions so be as creative as you can\n"
-    "Math information from other intents and by using prior messages.\n"
+    "This prompt is for general questions so be as funny and creative as you can\n"
+    "Match information from other intents and by using prior messages to get more context.\n"
     "Disregard the following context : {context}"
     "\n"
     "Here is a question: {input}\n"
@@ -167,23 +167,23 @@ update_address = (
 
 intent_models = [
     IntentModel(
-        intent="Everything not related to billing, insurance or profile inquiries.",
-        description="greetings, general questions not related to other intents, all other questions",
+        intent="main",
+        description="All quetsions, everything not related to billing, insurance or profile inquiries",
         prompt=main_template,
         default=True,
     ),
     IntentModel(
-        intent="questions about billing account",
+        intent="billing",
         description="the human has a question about billing, payments, balance, etc...",
         prompt=billing_template,
     ),
     IntentModel(
-        intent="needs support about insurance account",
-        description="the human has a query about insurance",
+        intent="support",
+        description="the human has a query about account support and insurance questions.",
         prompt=get_support,
     ),
     IntentModel(
-        intent="inquiries about profile only",
+        intent="profile",
         description="the human has a query about profile like address, name, account number, etc",
         prompt=update_address,
     ),
