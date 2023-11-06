@@ -8,7 +8,7 @@ This is onlt for prototyping and testing models I do not encourage to use these 
 
 References:
 
-- GPTQ-for-Llama: [link][https://github.com/qwopqwop200/GPTQ-for-LLaMa]
+- GPTQ-for-Llama: [link](https://github.com/qwopqwop200/GPTQ-for-LLaMa)
 - ExLlama: [link](https://github.com/turboderp/exllama)
 
 ## List of Models working with GPTQ and ExLlama
@@ -56,4 +56,52 @@ References:
 
 ## Files
 
-API Gateway is defined ()
+API Gateway is defined [here / main.py](https://github.com/jchavezar/vertex-ai-samples/blob/main/gen_ai/llama2-q%7Cvertex/main.py)
+
+Vertex Deploy Job is define [here / Model.Upload.Deploy[custom-container][gpu].py](https://github.com/jchavezar/vertex-ai-samples/blob/main/gen_ai/llama2-q%7Cvertex/Model.Upload.Deploy%5Bcustom-container%5D%5Bgpu%5D.py)
+
+Dockerfile [here](https://github.com/jchavezar/vertex-ai-samples/blob/main/gen_ai/llama2-q%7Cvertex/Dockerfile)
+
+## Instructions
+
+I have some models in my public Google Cloud Storage: *"gs://vtxdemos-models-public/llama2-q/llama-2-13b-gptq/"*
+But you can download them from HuggingFace and Store it in GCS. [reference | TheBloke/Llama-2-13B-GPTQ](https://huggingface.co/TheBloke/Llama-2-13B-GPTQ)
+
+1. Create Cloud Storage and Store Model Artifacts.
+```
+gsutil mb gs://[YOUR_UNIQUE_BUCKET_NAME]
+```
+
+2. Create Artifact Container Repository, [Instructions](https://cloud.google.com/artifact-registry/docs/repositories/create-repos#create-gcloud)
+```
+gcloud artifacts repositories create REPOSITORY \
+    --repository-format=docker \
+    --location=LOCATION \
+    --description="DESCRIPTION" \
+    --kms-key=KMS-KEY \
+    --immutable-tags \
+    --async
+```
+
+3. Change [variables.py file](https://github.com/jchavezar/vertex-ai-samples/blob/main/gen_ai/llama2-q%7Cvertex/variables.py) with your own variables.
+
+4. Change [Model.Upload.Deploy[custom-container][gpu].py](https://github.com/jchavezar/vertex-ai-samples/blob/main/gen_ai/llama2-q%7Cvertex/Model.Upload.Deploy%5Bcustom-container%5D%5Bgpu%5D.py) variables like:
+
+```
+artifact_uri = "gs://vtxdemos-models-public/llama2-q/llama-2-13b-gptq/"
+custom_predict_image_uri_gpu = f"us-central1-docker.pkg.dev/vtxdemos/custom-predictions/llama2:v1"
+```
+
+5. Build Container and Push
+
+example:
+```
+docker build -t us-central1-docker.pkg.dev/vtxdemos/custom-predictions/llama-2-13B-chat-gptq:v1 .
+docker push us-central1-docker.pkg.dev/vtxdemos/custom-predictions/llama-2-13B-chat-gptq:v1
+```
+
+6. Deploy
+
+```
+python Model.Upload.Deploy[custom-container][gpu].py
+```
