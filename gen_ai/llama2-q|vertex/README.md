@@ -105,3 +105,5 @@ docker push us-central1-docker.pkg.dev/vtxdemos/custom-predictions/llama-2-13B-c
 ```
 python Model.Upload.Deploy[custom-container][gpu].py
 ```
+
+![Vertex Llama2 Q](images/llama2-13b-vertex.png)
