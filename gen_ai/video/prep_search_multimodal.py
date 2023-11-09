@@ -2,6 +2,7 @@
 #region Libraries and Variables
 import os
 import re
+import vertexai
 import pandas as pd
 from PIL import Image
 from utils import ai, store, video, database, variables, credentials
@@ -20,6 +21,9 @@ var={
     "database_password":credentials.DATABASE_PASSWORD,
     "linux":variables.LINUX,
 }
+
+#%%
+vertexai.init(project=variables.PROJECT_ID, location=variables.REGION)
 
 ai=ai.Client(var)
 vi=video.Client(var)
@@ -82,11 +86,11 @@ else: df_merged=pd.read_pickle(var['pickle_file_name'])
 #region Database Create/Insert
 ### Remember to create a cloud sql database first: gcloud sql databases create $database_name --instance pg15-pgvector-demo
 
-await database.create_database()
-await database.insert_item(df_merged)
+#await database.create_database()
+#await database.insert_item(df_merged)
 #%%
-await database.delete()
-await database.query_test("SELECT * FROM video_embeddings")
+#await database.delete()
+await database.Client(var).query_test("SELECT * FROM video_embeddings")
 #endregion
 
 
