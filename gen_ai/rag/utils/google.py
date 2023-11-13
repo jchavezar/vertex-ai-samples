@@ -219,7 +219,7 @@ class Client:
     def llm_predict(self, prompt: str, context: json) -> str:
         
         response = self.model_text.predict(
-            f"""Give a detailed answer to the question using information from the provided contexts.:
+            f"""Give a detailed answer to the question using information from the provided contexts, do not make up any answer, if you dont know it just say it:
             {context}
             
             Question:
