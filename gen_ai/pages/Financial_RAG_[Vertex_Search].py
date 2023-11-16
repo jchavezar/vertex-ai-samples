@@ -61,19 +61,20 @@ serving_config = client.serving_config_path(
     )
 
 def vertex_search(prompt):
-    request = discoveryengine.SearchRequest(
-        serving_config=serving_config, query=prompt, page_size=100)
+    print(prompt)
+    #request = discoveryengine.SearchRequest(
+    #    serving_config=serving_config, query=prompt, page_size=100)
 
     content_search_spec = discoveryengine.SearchRequest.ContentSearchSpec(snippet_spec=discoveryengine.SearchRequest.ContentSearchSpec.SnippetSpec(
             return_snippet=True),
     summary_spec = discoveryengine.SearchRequest.ContentSearchSpec.SummarySpec(
-            summary_result_count=1, include_citations=True),
+            summary_result_count=2, include_citations=True),
     extractive_content_spec=discoveryengine.SearchRequest.ContentSearchSpec.ExtractiveContentSpec(
-            max_extractive_answer_count=1,
-            max_extractive_segment_count=1))
+            max_extractive_answer_count=5,
+            max_extractive_segment_count=10))
 
     request = discoveryengine.SearchRequest(
-        serving_config=serving_config, query="Aplhabet revenue", page_size=100, content_search_spec=content_search_spec)                                                         
+        serving_config=serving_config, query=prompt, page_size=2, content_search_spec=content_search_spec)                                                         
 
     response = client.search(request)
     
