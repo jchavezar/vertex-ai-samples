@@ -1,0 +1,17 @@
+# https://pypi.org/project/flask/
+Flask >= 2.2
+
+# https://pypi.org/project/gunicorn/
+gunicorn==20.1.0
+
+pandas
+gcsfs
+google-cloud-bigquery
+opencv-python-headless
+google-cloud-aiplatform==1.35.*
+google-cloud-videointelligence
+cloud-sql-python-connector
+asyncio==3.4.3 
+asyncpg==0.27.0 
+pgvector==0.1.8
+absl-py==1.4.0
