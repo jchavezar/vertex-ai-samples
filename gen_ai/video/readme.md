@@ -1,6 +1,8 @@
+![Alt text](images/video_architecture.png)
+
 # Overview:
 
-There are 2 main components: the **preprocessing** component that is in charge of creating fps (frames per second), transcription, embeddings and indexing, and the **front end** which is a streamlit webserve that does queries to the vector database in cloud sql.
+There are 2 important components: the **preprocessing** component that is in charge of creating fps (frames per second), transcription, embeddings and indexing, and the **front end** which is a streamlit webserve that does queries to the vector database in cloud sql.
 
 # Steps:
 
