@@ -1,0 +1,15 @@
+FROM python:3.10-slim
+ENV PYTHONUNBUFFERED True
+
+COPY requirements_preprocess.txt ./
+
+RUN apt-get update
+RUN apt-get install ffmpeg libsm6 libxext6  -y
+RUN pip install --upgrade pip
+RUN pip install -r requirements_preprocess.txt
+
+ENV APP_HOME /app
+WORKDIR $APP_HOME
+COPY . ./
+
+CMD exec gunicorn --bind :$PORT --workers 1 --threads 8 --timeout 0 main:app
