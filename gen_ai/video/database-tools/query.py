@@ -1,10 +1,12 @@
 #%%
 import asyncio
 import asyncpg
-from utils import variables, credentials
 from pgvector.asyncpg import register_vector
 from google.cloud.sql.connector import Connector
 from vertexai.preview.vision_models import MultiModalEmbeddingModel
+import sys
+sys.path.append("../front-end")
+from utils import variables, credentials
 
 var={
     "project_id":variables.PROJECT_ID,
@@ -71,6 +73,7 @@ async def query(query):
                         "similarity": r["similarity"]
                     }
                 )
+    print(matches)
     await conn.close()
     return matches
 

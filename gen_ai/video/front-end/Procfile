@@ -1,0 +1,1 @@
+web: streamlit run front_search_multimodal.py --server.port=8080 --server.address=0.0.0.0

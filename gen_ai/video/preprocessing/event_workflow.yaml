@@ -1,0 +1,19 @@
+main:
+  params: [event]
+  steps:
+    - log_event:
+        call: sys.log
+        args:
+          text: ${event}
+          severity: INFO
+    - extract_bucket_object:
+        assign:
+        - bucket: ${event.data.bucket}
+        - object: ${event.data.name}
+    - video_preprocess:
+        call: http.post
+        args:
+          url: https://vid-pre-job-oyntfgdwsq-uc.a.run.app
+          body:
+            data: ${event.data}
+        result: video_preprocess_result

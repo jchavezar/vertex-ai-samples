@@ -7,10 +7,14 @@ from google.cloud import storage
 class Client:
     def __init__(self, iterable=(), **kwargs) -> None:
         self.__dict__.update(iterable, **kwargs)
-    
-    def preprocess(self, video):
         
-        prefix = video.split(".")[-2]
+        self.storage_client = storage.Client(project=self.project_id)
+    
+    def preprocess(self, bucket_name, file_name):
+        
+        
+        self.storage_client.bucket(bucket_name).blob(file_name).download_to_filename(f"/tmp/{file_name}")
+        prefix = file_name.split(".")[-2]
         # i.e if video of duration 30 seconds, saves 10 frame per second = 300 frames saved in total
         SAVING_FRAMES_PER_SECOND = 1
 
@@ -37,13 +41,13 @@ class Client:
                 s.append(i)
             return s
 
-        filename, _ = os.path.splitext(video)
+        filename, _ = os.path.splitext(file_name)
         filename += "-opencv"
         # make a folder by the name of the video file
         if not os.path.isdir(filename):
             os.mkdir(filename)
         # read the video file    
-        cap = cv2.VideoCapture(video)
+        cap = cv2.VideoCapture(filename)
         # get the FPS of the video
         fps = cap.get(cv2.CAP_PROP_FPS)
         # if the SAVING_FRAMES_PER_SECOND is above video FPS, then set it to FPS (as maximum)
@@ -84,11 +88,11 @@ class Client:
         video_cap = cv2.VideoCapture(video)
 
         # Get the frame width and height
-        frame_width = int(video_cap.get(3))
-        frame_height = int(video_cap.get(4))
+        #frame_width = int(video_cap.get(3))
+        #frame_height = int(video_cap.get(4))
 
         # Create a blank image to store the snippet
-        snippet = np.zeros((frame_height, frame_width, 3), dtype="uint8")
+        #snippet = np.zeros((frame_height, frame_width, 3), dtype="uint8")
 
         # Get the current frame
         ret, frame = video_cap.read()
@@ -102,5 +106,5 @@ class Client:
         # Release the video capture object
         video_cap.release()
 
-        storage.Client(project=self.project_id).bucket(self.snippets_gcs_uri).blob(snippet_name).upload_from_filename(f"./tmp/{snippet_name}")
+        self.storage_client.bucket(self.snippets_gcs_uri).blob(snippet_name).upload_from_filename(f"./tmp/{snippet_name}")
         return snippet_name 

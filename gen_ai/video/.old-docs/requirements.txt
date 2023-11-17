@@ -10,3 +10,6 @@ absl-py==1.4.0
 google-cloud-aiplatform==1.31.1
 proto-plus==1.22.2
 protobuf==4.23.0
+google-cloud-bigquery
+db-dtypes
+opencv-python

@@ -1,0 +1,8 @@
+Flask==3.0.0
+gunicorn==20.1.0
+google-cloud-bigquery
+pandas
+google-cloud-aiplatform==1.35.*
+google-cloud-videointelligence
+pillow
+opencv-python
