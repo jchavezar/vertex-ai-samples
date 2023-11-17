@@ -23,8 +23,7 @@ var={
     "linux":variables.LINUX,
 }
 
-def preprocess(**kwargs):    
-    data = kwargs
+def preprocess(data):    
     aip = ai.Client(var)
         
     bucket_name = data["bucket"]
@@ -87,9 +86,11 @@ def preprocess(**kwargs):
 @app.post("/")
 def index():
     
-    data = request.get_json() # request from bucket video upload trigger
-    thread = threading.Thread(target=preprocess, kwargs=data)
-    thread.start()
+    req = request.get_json() # request from bucket video upload trigger
+    data = req["data"]
+    print(data)
+    preprocess(data)
+    print("Job Done!")
     #
     return {"message": "Accepted"}, 202
 
