@@ -111,3 +111,7 @@ cd ../front-end
 ```bash
 gcloud builds submit --pack ^--^image=gcr.io/{vtxdemos}/frontend--env=GOOGLE_PYTHON_VERSION="3.10.0"
 ```
+
+```bash
+gcloud run deploy {video-front} --image  {gcr.io/vtxdemos/frontend} --allow-unauthenticated
+```
