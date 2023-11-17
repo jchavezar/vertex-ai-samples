@@ -2,7 +2,7 @@
 
 # Overview:
 
-There are 2 important components: the **preprocessing** component that is in charge of creating fps (frames per second), transcription, embeddings and indexing, and the **front end** which is a streamlit webserve that does queries to the vector database in cloud sql.
+2 important components: **preprocessing**; it creates fps (frames per second), transcriptions, embeddings and indexing, and the **front end** which is a streamlit webserver to query the vector database in cloud sql.
 
 # Steps:
 
