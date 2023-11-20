@@ -16,7 +16,7 @@ from google.cloud import aiplatform
 from pgvector.asyncpg import register_vector
 from google.cloud.documentai_v1 import Document
 from google.cloud.sql.connector import Connector
-from vertexai.language_models import TextGenerationModel, TextEmbeddingModel
+from vertexai.preview.language_models import TextGenerationModel, TextEmbeddingModel
 #endregion
 
 class Client:
@@ -24,15 +24,7 @@ class Client:
         self.__dict__.update(iterable, **kwargs)
         aiplatform.init(project="vtxdemos")
         self.model_emb = TextEmbeddingModel.from_pretrained("textembedding-gecko@001")
-        self.model_text = TextGenerationModel.from_pretrained("text-bison")
-
-        self.text_bison_parameters = {
-            "candidate_count": 1,
-            "max_output_tokens": 2048,
-            "temperature": 0.2,
-            "top_p": 0.8,
-            "top_k": 40
-            }
+        self.model_text = TextGenerationModel.from_pretrained("text-bison-32k")
     
     def prepare_file(self, filename: str):
         pdfs = []
@@ -62,8 +54,17 @@ class Client:
           sleep_time = (p * (60/adjust_rate_limit)) - (time.time() - start)
           if sleep_time > 0: 
               time.sleep(sleep_time)
-          return docai_client.process_document(request = {"raw_document" : documentai.RawDocument(content=raw_document, mime_type = 'application/pdf'), "name" : self.docai_processor_id})
-
+          return docai_client.process_document(
+              request = documentai.ProcessRequest(
+              name = self.docai_processor_id,
+              raw_document = documentai.RawDocument(content=raw_document, mime_type = 'application/pdf'),
+              process_options = documentai.ProcessOptions(
+              from_start = 5,
+              ocr_config = documentai.OcrConfig(
+                  enable_symbol = True,
+                  enable_image_quality_scores = True,
+                  premium_features = documentai.OcrConfig.PremiumFeatures(
+                      compute_style_info = True)))))
         start = time.time()
         with concurrent.futures.ThreadPoolExecutor() as executor:
             futures = [
@@ -216,10 +217,21 @@ class Client:
         await conn.close()
         return matches
     
-    def llm_predict(self, prompt: str, context: json) -> str:
+    def llm_predict(self, prompt: str, context: json, parameters: dict) -> str:
         
         response = self.model_text.predict(
-            f"""Give a detailed answer to the question using information from the provided contexts, do not make up any answer, if you dont know it just say it:
+            f"""
+            You are an expert analyst on tax forms, your expertise is better on forms like 1065. 
+            From the following context respond the question:
+            - Do not make up answers, if you do not know it just say it.
+            - If you find more than 1 reference in the context, list them all.
+            - If you respond contain multiple answers, cite them all.
+            - Give a brief explanation of your conclusion.
+            - Be verbose at any time.
+            - If you asked for entities, make a description about it, rembember you are a tax expert so give all the context you can around.            
+            - If you asked for responses that requires mathematical operations do it by parsing each line and sum the digits liket 3.75 + 6.26 = 10.01 or 423+436=859
+            
+            Context:
             {context}
             
             Question:
@@ -227,7 +239,7 @@ class Client:
 
             Answer and Explanation:
             """,
-            **self.text_bison_parameters
+            **parameters
             )
         return response.text.replace("$","")
 

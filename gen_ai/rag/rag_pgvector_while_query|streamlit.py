@@ -1,11 +1,16 @@
 #%%
+import os
 import base64
 import time
 import asyncio
+from k import k
 import pandas as pd
 import streamlit as st 
 from utils import google
+from openai import OpenAI
 from utils.credentials import *
+
+os.environ["OPENAI_API_KEY"] = k
 
 variables = {
     "project_id": "vtxdemos",
@@ -14,7 +19,7 @@ variables = {
     "database_user": "emb-admin",
     "database_password": DATABASE_PASSWORD,
     "database_name": "rag-pgvector-langchain-1",
-    "docai_processor_id": "projects/254356041555/locations/us/processors/5f0b0deeb0a5d23b",
+    "docai_processor_id": "projects/254356041555/locations/us/processors/7e6b9d94d3bafa4f",
     "location": "us"
 }
 
@@ -79,13 +84,38 @@ def display_document(file):
     pdf_display = F'<iframe src="data:application/pdf;base64,{base64_pdf}" width="700" height="1000" type="application/pdf"></iframe>'
     st.markdown(pdf_display, unsafe_allow_html=True)
 
+def open_ai_chatpgt(prompt, context):
+    client = OpenAI(
+        # defaults to os.environ.get("OPENAI_API_KEY")
+        api_key=k,
+    )
+
+    completion = client.chat.completions.create(
+        messages=[
+            {
+                "role": "user",
+                "content": f"""
+
+                Prompt: {prompt}
+
+                Context: {context}
+
+                """,
+            }
+        ],
+        model="gpt-4",
+    )
+    return completion.choices[0].message.content
+
+
 def query(query):
     start = time.time()
     matches = asyncio.run(client.query(query))
     st.markdown(f"Vector DB Query Time: **{round(time.time() - start, 2)} sec**")
-    #st.write(f"Matches: {matches}")
-    response = client.llm_predict(query, context=pd.DataFrame(matches).to_json())
-    return str(response)
+    df = pd.DataFrame(matches)
+    google_response = client.llm_predict(query, context=pd.DataFrame(matches).to_json(), parameters=parameters)
+    open_ai_response = open_ai_chatpgt(query, context=pd.DataFrame(matches).to_json())
+    return str(google_response), str(open_ai_response), df
 
 #%%
 st.title("Tax Bot")
@@ -101,8 +131,12 @@ def main():
         text = st.text_input("Prompt")
     
         if text:
-            st.write(documents)    
-            st.write(query(text))
-
+            google_response, open_ai_response, df = query(text)
+            st.markdown("***Google:***")
+            st.write(google_response)
+            st.markdown("***OpenAI:***")
+            st.write(open_ai_response)
+            st.write(documents)
+            st.write(df)    
 
 if __name__ == '__main__': main() 
