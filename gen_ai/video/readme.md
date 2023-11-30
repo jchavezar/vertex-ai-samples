@@ -16,15 +16,16 @@ Change the variables on these files:
 - [variables.py](utils/variables.py)
 
 ## Component 1: Preprocess
+
 ### Create Google Cloud Storage Buckets:
 
-Create 4 buckets: video_gcs_uri, video_transcript_annotations_gcs, fps_gcs_uri, snippets_gcs_uri)*: 
+Create 4 buckets: video_gcs_uri, video_transcript_annotations_gcs, fps_gcs_uri, snippets_gcs_uri)\*:
 
-```bash 
-gsutil mb {video_gcs_uri_unique_name}
-gsutil mb {video_transcript_annotations_gcs_unique_name}
-gsutil mb {fps_gcs_uri_unique_name}
-gsutil mb {snippets_gcs_uri_unique_name}
+```bash
+gsutil mb -l {region} {video_gcs_uri_unique_name}
+gsutil mb -l {region} {video_transcript_annotations_gcs_unique_name}
+gsutil mb -l {region} {fps_gcs_uri_unique_name}
+gsutil mb -l {region} {snippets_gcs_uri_unique_name}
 ```
 
 ### Create a cloud sql database instance in Google Cloud.
@@ -46,7 +47,7 @@ gcloud sql databases create {database_name} --instance={instance_name}
 
 On this section I create a container using [packbuilds](https://buildpacks.io/docs/tools/pack/cli/pack_build/) and deploy it in a serverless function [Cloud Run](https://cloud.google.com/run?hl=en).
 
-*Do not forget to change your variables enclosed by curly brackets.*
+_Do not forget to change your variables enclosed by curly brackets._
 
 ```bash
 cd preprocessing
@@ -62,11 +63,12 @@ gcloud run deploy {video-pre-job} --cpu 8 --memory 32Gi --timeout 900 --image  {
 
 ### Create a Trigger Functin and Workflow
 
-The desitnation-run-service name "videoprep-job" needs to match with cloud run name. 
+The desitnation-run-service name "videoprep-job" needs to match with cloud run name.
 
 ```bash
 gcloud eventarc triggers create {video-preprocess}   --destination-run-service={video-pre-job} --destination-run-region={us-central1} --event-filters="type=google.cloud.storage.object.v1.finalized" --event-filters="bucket={vtxdemos-videos}"   --service-account={254356041555-compute@developer.gserviceaccount.com}
 ```
+
 [Google Cloud Workflows Documentation](https://cloud.google.com/workflows/docs)
 
 Change the value in the following file to add cloud run https endpoint which can be found during the gcloud run deploy or in [google cloud run console](https://console.cloud.google.com/run).
@@ -80,6 +82,7 @@ gcloud workflows deploy ${MY_WORKFLOW} --source=event_workflow.yaml
 In the following snippet the name of the cloud run endpoint is https://vid-pre-job-oyntfgdwsq-uc.a.run.app
 
 Example:
+
 ```yaml
 main:
   params: [event]
@@ -91,8 +94,8 @@ main:
           severity: INFO
     - extract_bucket_object:
         assign:
-        - bucket: ${event.data.bucket}
-        - object: ${event.data.name}
+          - bucket: ${event.data.bucket}
+          - object: ${event.data.name}
     - video_preprocess:
         call: http.post
         args:
