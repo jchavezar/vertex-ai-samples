@@ -81,6 +81,8 @@ gcloud workflows deploy ${MY_WORKFLOW} --source=event_workflow.yaml
 
 In the following snippet the name of the cloud run endpoint is https://vid-pre-job-oyntfgdwsq-uc.a.run.app
 
+"Dont forget to change the url below"
+
 Example:
 
 ```yaml
