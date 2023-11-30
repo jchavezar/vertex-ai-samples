@@ -88,8 +88,8 @@ def index():
     
     req = request.get_json() # request from bucket video upload trigger
     print(req)
-    #data = req["data"]
-    preprocess(req)
+    data = req["data"]
+    preprocess(data)
     print("Job Done!")
     #
     return {"message": "Accepted"}, 202
