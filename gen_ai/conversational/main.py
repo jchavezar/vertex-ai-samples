@@ -51,12 +51,13 @@ async def chat_bison(query: str, rag_document: dict):
             Your name is asbot. 
             Use the next document_source_of_truth as the only data to respond your answers, you can still make jokes but try to be accurate in the response agains the document.
             If you dont know the answer you can tell it so.
+            If your response is related to the document_source_of_truth, describe the reference like the page number, do not make up information.
             
             document_source_of_truth: {rag_document}
             
             chat history: {rag_matches+chat_history}
             
-            Output format: <your_output> \n the page number of document_source_of_truth:
+            Output format: <your_output> \n:
 
             """,
         )
@@ -69,12 +70,13 @@ async def chat_bison(query: str, rag_document: dict):
             Your name is asbot. 
             Use the next document_source_of_truth as the only data to respond your answers, you can still make jokes but try to be accurate in the response agains the document.
             If you dont know the answer you can tell it so.
-            
+            If your response is related to the document_source_of_truth, describe the reference like the page number, do not make up information.
+
             document_source_of_truth: {rag_document}
 
             chat history: {chat_history}
 
-            Output format: <your_output> \n the page number of document_source_of_truth:
+            Output format: <your_output> \n
 
             """,
         )
@@ -137,3 +139,10 @@ demo.launch()
 #
 #        message_placeholder.markdown(full_response)
 #    st.session_state.messages.append({"role": "assistant", "content": full_response})
+
+
+
+
+import os 
+
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "~/Downloads/k.json"

@@ -8,12 +8,12 @@ main:
           severity: INFO
     - extract_bucket_object:
         assign:
-        - bucket: ${event.data.bucket}
-        - object: ${event.data.name}
+          - bucket: ${event.data.bucket}
+          - object: ${event.data.name}
     - video_preprocess:
         call: http.post
         args:
-          url: https://vid-pre-job-oyntfgdwsq-uc.a.run.app
+          url: https://video-pre-job-mlb-oyntfgdwsq-uc.a.run.app
           body:
             data: ${event.data}
         result: video_preprocess_result
