@@ -3,7 +3,7 @@
 For intent detection temperature, top_k and top_p were lowered to raise the level of accuracy in the desired output, for chat bot based in intent detection chat-bison@latest was used.
 
 ```mermaid
-graph TB;
+graph TD;
     human -- "task: detect_intent" --> bot(bot: intent detected);
     id1[[intent_types:
     - aos_navigator
