@@ -32,3 +32,11 @@ graph TD;
 ```mermaid
 graph TD;
     human -- "task: detect_intent" --> bot(bot: intent detected);
+    id1[[intent_types:
+    - aos_navigator
+    - analytics_assets
+    - analytics_products
+    - analytics_campaigns
+    - default_intent
+    ]];
+```
