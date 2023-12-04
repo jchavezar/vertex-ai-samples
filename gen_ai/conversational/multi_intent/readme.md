@@ -17,10 +17,12 @@ graph TB
     bot -- "analytics_products" --> account_support(bot: account support)
     bot -- "analytics_campaigns" --> product_prices(bot: product prices)
     bot -- "aos_navigator" --> marketing_campaigns(bot: campaigns)
+```
 
-
-    
-
-    
-
+```mermaid
+graph TD;
+    A-->B;
+    A-->C;
+    B-->D;
+    C-->D;
 ```
