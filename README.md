@@ -8,5 +8,11 @@ When I created this repo I only knew how to use notebooks and during my learning
 
 ![](images/architecture2.0.png)
 
+## More Resources Like This Repository
+
+As part of this AI/ML community in Google there are other amazing efforts out there to prove the value of managed services, this is my personal repository only (I don't recommend it for production), but here you have one of the best repos I ever seen:
+
+- GitHub [The real AI/ML (vertex-ai-mlops)](https://github.com/statmike/vertex-ai-mlops) by [@statmike](https://github.com/statmike)
+
 
 Enjoy
