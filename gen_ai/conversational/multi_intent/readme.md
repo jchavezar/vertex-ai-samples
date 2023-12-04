@@ -4,9 +4,7 @@ For intent detection temperature, top_k and top_p were lowered to raise the leve
 
 ```mermaid
 graph TB
-    human:::foo -- "task: detect_intent" --> bot(bot: intent detected):::bar
-    classDef foo stroke:#f00
-    classDef bar stroke:#00f
+    human -- "task: detect_intent" --> bot(bot: intent detected)
     id1[[intent_types:
     - aos_navigator
     - analytics_assets
@@ -15,11 +13,11 @@ graph TB
     - default_intent
     ]]
 
-    bot -- "default_intent" --> greetings(bot: any topic):::foobar
-    bot -- "analytics_products" --> account_support(bot: account support):::foobar
-    bot -- "analytics_campaigns" --> product_prices(bot: product prices):::foobar
-    bot -- "aos_navigator" --> marketing_campaigns(bot: campaigns):::foobar
-    classDef foobar stroke:#0f0
+    bot -- "default_intent" --> greetings(bot: any topic)
+    bot -- "analytics_products" --> account_support(bot: account support)
+    bot -- "analytics_campaigns" --> product_prices(bot: product prices)
+    bot -- "aos_navigator" --> marketing_campaigns(bot: campaigns)
+
 
     
 
