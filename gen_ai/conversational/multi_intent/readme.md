@@ -26,3 +26,9 @@ graph TD;
     B-->D;
     C-->D;
 ```
+
+
+
+```mermaid
+graph TD;
+    human -- "task: detect_intent" --> bot(bot: intent detected);
