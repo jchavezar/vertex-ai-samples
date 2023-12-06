@@ -14,6 +14,7 @@ llm_response = ""
 if True:
 
     st.title('Caregiver Bio Profile Create')
+    st.write('Model: text-bison@002')
     with st.sidebar:
         st.markdown(
             """
