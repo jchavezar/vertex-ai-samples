@@ -12,21 +12,8 @@ from utils.credentials import *
 
 os.environ["OPENAI_API_KEY"] = k
 
-variables = {
-    "project_id": "vtxdemos",
-    "region": "us-central1",
-    "instance_name": "pg15-pgvector-demo",
-    "database_user": "emb-admin",
-    "database_password": DATABASE_PASSWORD,
-    "database_name": "rag-pgvector-langchain-1",
-    "docai_processor_id": "projects/254356041555/locations/us/processors/7e6b9d94d3bafa4f",
-    "location": "us"
-}
-
-client = google.Client(variables)
-
 #region Model Settings
-settings = ["text-bison", "text-bison@001", "text-bison-32k"]
+settings = ["text-bison", "text-bison@001", "text-bison@002", "text-bison-32k", "text-bison-32k@002"]
 model = st.sidebar.selectbox("Choose a text model", settings)
 
 temperature = st.sidebar.select_slider("Temperature", [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1], value=0.2) 
@@ -58,6 +45,19 @@ with st.sidebar:
         """
     )
 #endregion
+
+variables = {
+    "project_id": "vtxdemos",
+    "region": "us-central1",
+    "instance_name": "pg15-pgvector-demo",
+    "database_user": "emb-admin",
+    "database_password": DATABASE_PASSWORD,
+    "database_name": "rag-pgvector-langchain-1",
+    "docai_processor_id": "projects/254356041555/locations/us/processors/7e6b9d94d3bafa4f",
+    "location": "us",
+}
+
+client = google.Client(variables)
 
 async def db_functions(documents, query):
     await client.create_table()
@@ -121,14 +121,12 @@ def query(query):
     matches = asyncio.run(client.query(query))
     st.markdown(f"Vector DB Query Time: **{round(time.time() - start, 2)} sec**")
     df = pd.DataFrame(matches)
-    google_response = client.llm_predict(query, context=pd.DataFrame(matches).to_json(), parameters=parameters)
+    google_response = client.llm_predict(query, context=pd.DataFrame(matches).to_json(), model_id = model, parameters=parameters)
     open_ai_response = open_ai_chatpgt(query, context=pd.DataFrame(matches).to_json())
     return str(google_response), str(open_ai_response), df
 
 #%%
 st.title("Tax Bot")
-
-import streamlit as st 
 
 def main(): 
     #st.title("Chat with Your PDF") 
