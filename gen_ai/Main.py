@@ -24,6 +24,7 @@ colored_header(
 )
 
 st.write("*Topology below represents the elements used by this website*")
+st.write("**Model used: chat-bison@001**")
 
 st.image("images/genai_demos.png")
 st.sidebar.success("Select a demo above.")

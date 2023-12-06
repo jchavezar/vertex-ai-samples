@@ -67,7 +67,7 @@ class Client:
     #endregion
     
     #region Text LLM
-    def text_bison(self, prompt, parameters="", model="text-bison", entities=True):
+    def text_bison(self, prompt, parameters="", model="text-bison@002", entities=True):
         if parameters == "":
             parameters = {
                 "max_output_tokens": 1024,
@@ -112,7 +112,7 @@ class Client:
     #endregion
     
     #region Code LLM    
-    def code_bison(self, prompt, parameters="", model="code-bison@001", top_k=1000000):
+    def code_bison(self, prompt, parameters="", model="code-bison@002", top_k=1000000):
         schema_columns=[i.column_name for i in bigquery.Client(project=self.project).query(f"SELECT column_name FROM `{self.project}`.{self.dataset}.INFORMATION_SCHEMA.COLUMNS WHERE table_name='{self.table}'").result()]
 
         if parameters == "":
