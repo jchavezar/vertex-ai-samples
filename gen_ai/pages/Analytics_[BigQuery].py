@@ -32,7 +32,7 @@ with st.sidebar:
     
 res, df = client.code_bison(st.text_input("Enter some text 👇", value="Show me the max capacity by grouping per latitude and longitude"))
 
-st.write("**Query From Code Bison:**")
+st.write("**Query From code-bison@002:**")
 st.write(res)
 
 st.write("**Response Table:**")

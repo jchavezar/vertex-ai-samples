@@ -2,7 +2,7 @@ import json
 import base64
 import vertexai
 import streamlit as st
-from vertexai.preview.language_models import TextGenerationModel
+from vertexai.language_models import TextGenerationModel
 
 st.title("Using 35 Pages as Context for Text-Bison")
 with st.sidebar:
@@ -52,7 +52,7 @@ parameters = {
 }
 
 #_documents = [v for k,v in documents.items()]
-model = TextGenerationModel.from_pretrained("text-bison-32k")
+model = TextGenerationModel.from_pretrained("text-bison-32k@002")
 response = model.predict(
     f"""from the following context enclosed by backticks do the following instructions: 
     

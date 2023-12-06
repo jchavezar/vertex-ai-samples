@@ -31,7 +31,7 @@ st.image("images/rag_emb.png")
 st.markdown("[github repo](https://github.com/jchavezar/vertex-ai-samples/blob/main/gen_ai/pages/readme/Financial_RAG_%5Bgecko-emb%5D.md)")
 
 #region Model Settings
-settings = ["text-bison", "text-bison@001", "text-bison-32k"]
+settings = ["text-bison@001", "text-bison@002", "text-bison-32k@002"]
 model = st.sidebar.selectbox("Choose a text model", settings)
 
 temperature = st.sidebar.select_slider("Temperature", [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1], value=0.2) 
@@ -156,4 +156,5 @@ with st.form('my_form'):
         emb_prompt = emb_model.get_embeddings([text])[0].values
         df =  pd.DataFrame(asyncio.run(query(emb_prompt=emb_prompt, database_name=database_name)))
         st.dataframe(df)
+        st.write(f"Model id: {model}")
         st.info(google_llm(prompt=text, context=df.to_json(), model=model))

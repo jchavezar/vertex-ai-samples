@@ -18,6 +18,7 @@ variables={
 client = sockcop_vertexai.Client(variables)
 
 st.title("QnA for Movies")
+st.text("Model Id: text-bison@002")
 st.text("")
 st.text("")
 st.image("images/movies_es.png")

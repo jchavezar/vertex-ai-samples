@@ -8,7 +8,7 @@ from vertexai.language_models import TextGenerationModel
 class LLM:
     def __init__(self):
         vertexai.init(project="vtxdemos", location="us-central1")
-        self.model = TextGenerationModel.from_pretrained("text-bison@001")
+        self.model = TextGenerationModel.from_pretrained("text-bison@002")
         self.default_parameters = {
             "temperature": 0.2,
             "max_output_tokens": 256,
