@@ -10,6 +10,7 @@ import vertexai
 import concurrent
 import numpy as np
 import pandas as pd
+import streamlit as st
 from typing import Dict
 from google.cloud import documentai
 from google.cloud import aiplatform
@@ -24,7 +25,6 @@ class Client:
         self.__dict__.update(iterable, **kwargs)
         aiplatform.init(project="vtxdemos")
         self.model_emb = TextEmbeddingModel.from_pretrained("textembedding-gecko@001")
-        self.model_text = TextGenerationModel.from_pretrained("text-bison-32k")
     
     def prepare_file(self, filename: str):
         pdfs = []
@@ -226,9 +226,13 @@ class Client:
             - Be verbose.
             """
     
-    def llm_predict(self, prompt: str, context: json, parameters: dict) -> str:
+    def llm_predict(self, prompt: str, context: json, model_id: str, parameters: dict) -> str:
         
-        response = self.model_text.predict(
+        st.write(f"testing model: {model_id}")
+        
+        model_text = TextGenerationModel.from_pretrained(model_id)
+        
+        response = model_text.predict(
             f"""
 
             You are Tax Returns Preparer, friendly and helpful AI assistant that answers questions related to tax return documents.You are given texts from the forms and you give short and precise answers with the line number from the IRS form mentioned in current context.
