@@ -6,7 +6,6 @@ import time
 import asyncio
 from k import k
 import pandas as pd
-import streamlit as st 
 from utils import google
 from openai import OpenAI
 from utils.credentials import *
@@ -41,7 +40,7 @@ async def db_functions(documents, query):
 
 # %%
 # LLM prompt + context
-documents, ocr_time, embeddings_time = client.prepare_file("../documentai/1065.pdf")
+documents, ocr_time, embeddings_time = client.prepare_file("./documents/1065_1_pages.pdf")
 #st.write(f"Embeddings time: {round(embeddings_time, 2)} sec")
 start = time.time()
 
@@ -74,7 +73,7 @@ def open_ai_chatpgt(prompt, context):
 
 #%%
 responses = []
-with open("questions.csv", "r") as f:
+with open("./documents/1065_llm_questions.csv", "r") as f:
     reader = csv.reader(f)
     for n,row in enumerate(reader):
         if n%10 == 0:
@@ -83,9 +82,10 @@ with open("questions.csv", "r") as f:
         matches = pd.DataFrame(matches)
         responses.append({
             "query": row[0], 
-            "text-bison-32k": client.llm_predict(row[0], context=pd.DataFrame(matches).to_json(), parameters=parameters),
+            "text-bison-32k": client.llm_predict(row[0], context=pd.DataFrame(matches).to_json(), model_id="text-bison-32k@002", parameters=parameters),
             "chatgpt-4": open_ai_chatpgt(row[0], context=pd.DataFrame(matches).to_json())            
             })
+        print(responses)
         
 
 # %%

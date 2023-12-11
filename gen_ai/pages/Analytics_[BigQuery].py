@@ -3,6 +3,7 @@ sys.path.append("utils")
 import numpy as np
 import sockcop_vertexai
 import streamlit as st
+from google.cloud import bigquery
 from k import *
 
 variables={
@@ -12,6 +13,7 @@ variables={
     "table": "citibike_stations"
 }
 
+source_df = bigquery.Client(project=variables["project"]).query(f"SELECT * FROM `{variables['dataset']}.{variables['table']}` LIMIT 5").to_dataframe()
 client = sockcop_vertexai.Client(variables)
 
 st.title("Analytics Code-b and BQ")
@@ -30,6 +32,8 @@ with st.sidebar:
         """
     )
     
+st.write("Citibike Stations Datastore: ")
+st.dataframe(source_df)
 res, df = client.code_bison(st.text_input("Enter some text 👇", value="Show me the max capacity by grouping per latitude and longitude"))
 
 st.write("**Query From code-bison@002:**")
