@@ -66,18 +66,18 @@ if prompt := st.chat_input("What is up?"):
         st.markdown(prompt)
     
     if len(st.session_state.messages) == 1:
-        st.session_state.messages.append({"role": "general_news", "content": ",".join(client.search(prompt, web_type=True)["snippets"])})
+        st.session_state.messages.append({"role": "general_news", "content": ",".join(client.search("latest news", news=True)["snippets"])})
     
     # Display assistant response in chat message container
     with st.chat_message("assistant", avatar="🤖"):
         message_placeholder = st.empty()
         user_messages = [{"role": m["role"], "content": m["content"]} for m in st.session_state.messages if m["role"] == "user"]
         if on:
-            news_context = ",".join(client.search(prompt, web_type=True)["snippets"])
+            news_context = ",".join(client.search(prompt, news=True)["snippets"])
             full_response = client.chat_bison(prompt=user_messages[-1]["content"], news_context=news_context, context=st.session_state.messages)
         else :
-            news_context=[m for m in st.session_state.messages if m["role"] == "general_news"]
-            full_response = client.chat_bison(prompt=user_messages[-1]["content"], news_context=news_context, context=st.session_state.messages)
+            #news_context=[m for m in st.session_state.messages if m["role"] == "general_news"]
+            full_response = client.chat_bison(prompt=user_messages[-1]["content"], news_context="", context=st.session_state.messages)
             
 
         message_placeholder.markdown(full_response)
