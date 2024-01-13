@@ -75,7 +75,7 @@ if len(num_lat_long) != 0:
     st.write("**Data Map**")
     st.map(df, latitude="latitude", longitude="longitude", size=num_columns[0], color="color")
     
-re2, mod = client.llm(prompt, df.to_json(), model=model, parameters=parameters)
+re2, mod = client.llm(prompt, df.iloc[:10,:].to_json(), model=model, parameters=parameters)
 st.write(f"**Summarization from Text Large Language Model: {mod}:**")
 st.write(re2)
     
