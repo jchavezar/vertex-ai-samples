@@ -107,6 +107,7 @@ def google_llm(prompt, context, model):
         f"""you are a financial analyst from the following context respond the prompt below:
 
     context: {context}
+    
     prompt: {prompt}
 
     provide details about your findings and list some potential recommendations over.
