@@ -6,10 +6,11 @@ import json
 import vertexai
 import streamlit as st
 import pandas as pd
-from vertexai.language_models import TextGenerationModel, ChatModel, CodeGenerationModel
 from typing import List
 from google.cloud import discoveryengine, bigquery
 from google.protobuf.json_format import MessageToDict
+from vertexai.preview.generative_models import GenerativeModel
+from vertexai.language_models import TextGenerationModel, ChatModel, CodeGenerationModel
 #endregion
 
 class Client:
@@ -85,6 +86,38 @@ class Client:
         return response
     #endregion
     
+    #region Text LLM
+    def llm(self, prompt, context, model, parameters):
+        
+        prompt = f""" You are an anlyticts chatbot, respond the following question with the details provided in the context:
+        - be creative
+        
+        context:
+        {context}
+        
+        question:
+        {prompt}
+        
+        """
+        
+        if "text" in model:
+            _model = TextGenerationModel.from_pretrained(model)
+            response = _model.predict(prompt,**parameters)
+        elif model == "code-bison@002":
+            model = "text-bison@002"
+            _model = TextGenerationModel.from_pretrained(model)
+            response = _model.predict(prompt,**parameters)
+        elif model == "code-bison-32k@002":
+            model = "text-bison-32k@002"
+            _model = TextGenerationModel.from_pretrained(model)
+            response = _model.predict(prompt,**parameters)
+        else:
+            _model = GenerativeModel(model)
+            response = _model.generate_content([prompt],generation_config=parameters)  
+
+        return response.text, model
+    #endregion
+    
     #region Chat LLM
     def chat_bison(self, prompt, news_context="", context="", parameters="", model="chat-bison@001"):
         if parameters == "":
@@ -112,35 +145,37 @@ class Client:
     #endregion
     
     #region Code LLM    
-    def code_bison(self, prompt, parameters="", model="code-bison@002", top_k=1000000):
+    def code_bison(self, prompt, model, parameters, top_k=1000000):
         schema_columns=[i.column_name for i in bigquery.Client(project=self.project).query(f"SELECT column_name FROM `{self.project}`.{self.dataset}.INFORMATION_SCHEMA.COLUMNS WHERE table_name='{self.table}'").result()]
 
-        if parameters == "":
-            parameters = {
-                "max_output_tokens": 1024,
-                "temperature": 0.2,
-            }
-        model = CodeGenerationModel.from_pretrained(model)
-        response = model.predict(
-            prefix = f"""You are a GoogleSQL expert. Given an input question, first create a syntactically correct GoogleSQL query to run. This will be the SQLQuery. Then look at the results of the query. This will be SQLResults. Finally return the answer to the input question.
-        Unless the user specifies in the question a specific number of examples to obtain, query for at most {top_k} results using the LIMIT clause as per GoogleSQL. You can order the results to return the most informative data in the database.
-        When running SQLQuery across BigQuery you must only include BigQuery SQL code from SQLQuery.
-        Never query for all columns from a table. You must query only the columns that are needed to answer the question. Wrap each column name in backticks (`) to denote them as delimited identifiers.
-        Pay attention to use only the column names you can see in the tables below. Be careful to not query for columns that do not exist. Also, pay attention to which column is in which table.
+        prompt = f"""You are a GoogleSQL expert. Given an input question, first create a syntactically correct GoogleSQL query to run. This will be the SQLQuery. Then look at the results of the query. This will be SQLResults. Finally return the answer to the input question.
+        - Unless the user specifies in the question a specific number of examples to obtain, query for at most {top_k} results using the LIMIT clause as per GoogleSQL. You can order the results to return the most informative data in the database.
+        - When running SQLQuery across BigQuery you must only include BigQuery SQL code from SQLQuery.
+        - Never query for all columns from a table. You must query only the columns that are needed to answer the question. Wrap each column name in backticks (`) to denote them as delimited identifiers.
+        - Pay attention to use only the column names you can see in the tables below. Be careful to not query for columns that do not exist. Also, pay attention to which column is in which table.
+        - Do not generate fake responses, only respond with SQL query code.
         
-        Match the <prompt> below to this coulmn name schema: {schema_columns}
+        Match the <prompt> below to this column name schema: {schema_columns}
         
         Use the following project {self.project}, dataset {self.dataset} and {self.table} to create the query
         
         Question: {prompt}
         
-        Output: 'SQL Query to Run':
-        """,
-                **parameters
-            )
+        
+        Output: 'SQL Query (only) to Run':
+        """
+        
+        if "text" in model:
+            model = TextGenerationModel.from_pretrained(model)
+            response = model.predict(prompt, **parameters)
+        elif "code" in model:
+            model = CodeGenerationModel.from_pretrained(model)
+            response = model.predict(prefix=prompt, **parameters)
+        else:
+            model = GenerativeModel("gemini-pro")
+            response = model.generate_content([prompt],generation_config=parameters)        
+        
         res=re.sub('```', "", response.text.replace("SQLQuery:", "").replace("sql", ""))
-
-        df=bigquery.Client(project=self.project).query(res).to_dataframe()
     
-        return res, df
+        return res
     #endregion
