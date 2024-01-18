@@ -141,7 +141,7 @@ def google_llm(prompt, context, model):
 #    )
 
 with st.form('my_form'):
-  text = st.text_area('Enter text:', 'Cual es la fuerza política que se mantuvo al marge durante el debate del congreso?')
+  text = st.text_area('Enter text:', 'Cual es la fuerza política que se mantuvo al margen durante el debate del congreso?')
   submitted = st.form_submit_button('Submit')
   if submitted:
       context = vertex_search(text)
