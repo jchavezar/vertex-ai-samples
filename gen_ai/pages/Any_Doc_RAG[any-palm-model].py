@@ -50,7 +50,7 @@ variables = {
     "database_user": "emb-admin",
     "database_password": DATABASE_PASSWORD,
     "database_name": "rag-pgvector-langchain-1",
-    "docai_processor_id": "projects/254356041555/locations/us/processors/7e6b9d94d3bafa4f",
+    "docai_processor_id": "projects/254356041555/locations/us/processors/2fba46b6c23108b7",
     "location": "us",
 }
 

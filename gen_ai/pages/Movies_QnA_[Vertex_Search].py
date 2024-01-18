@@ -22,7 +22,7 @@ st.text("Model Id: text-bison@002")
 st.text("")
 st.text("")
 st.image("images/movies_es.png")
-st.markdown("[github repo](https://github.com/jchavezar/vertex-ai-samples/tree/main/gen_ai/pages/Movies_QnA_[Enterprise_Search].py)")
+st.markdown("[github repo](https://github.com/jchavezar/vertex-ai-samples/blob/main/gen_ai/pages/Movies_QnA_%5BVertex_Search%5D.py)")
 st.divider()
 with st.sidebar:
     st.markdown(
