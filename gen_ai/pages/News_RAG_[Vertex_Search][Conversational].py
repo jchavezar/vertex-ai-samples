@@ -14,9 +14,11 @@ variables={
     "datastore": "the-country_1705604735333"
 }
 
-st.title('Retrieval Augmented Generation (RAG) | Vertex Search')
-st.image("images/rag_news.png")
-st.markdown("[github repo](https://github.com/jchavezar/vertex-ai-samples/tree/main/gen_ai/pages/Financial_RAG_[Vertex_Search].py)")
+   
+with st.container():
+    st.title('Retrieval Augmented Generation (RAG) | Vertex Search')
+    st.image("images/rag_news.png")
+    st.markdown("[github repo](https://github.com/jchavezar/vertex-ai-samples/tree/main/gen_ai/pages/Financial_RAG_[Vertex_Search].py)")
 
 #region Model Settings
 settings = ["text-bison@002", "text-bison-32k@002", "gemini-pro"]
@@ -51,7 +53,6 @@ with st.sidebar:
         Medium -> [jchavezar](https://medium.com/@jchavezar)
         """
     )
-
 #endregion
 
 client = discoveryengine.SearchServiceClient()
@@ -64,9 +65,9 @@ serving_config = client.serving_config_path(
 
 def vertex_search(prompt):
     print(prompt)
-    #request = discoveryengine.SearchRequest(
-    #    serving_config=serving_config, query=prompt, page_size=100)
-
+    request = discoveryengine.SearchRequest(
+        serving_config=serving_config, query=prompt, page_size=100)
+ 
     content_search_spec = discoveryengine.SearchRequest.ContentSearchSpec(snippet_spec=discoveryengine.SearchRequest.ContentSearchSpec.SnippetSpec(
             return_snippet=True),
     summary_spec = discoveryengine.SearchRequest.ContentSearchSpec.SummarySpec(
@@ -74,12 +75,12 @@ def vertex_search(prompt):
     extractive_content_spec=discoveryengine.SearchRequest.ContentSearchSpec.ExtractiveContentSpec(
             max_extractive_answer_count=5,
             max_extractive_segment_count=10))
-
+ 
     request = discoveryengine.SearchRequest(
         serving_config=serving_config, query=prompt, page_size=2, content_search_spec=content_search_spec)                                                         
 
     response = client.search(request)
-    
+
     documents = [MessageToDict(i.document._pb) for i in response.results]
 
     context = []
@@ -96,29 +97,28 @@ def vertex_search(prompt):
         "links" : links,
         "numbero_pagina": pages
         }
-    
+
     st.markdown("**Contexto Extraído de Vertex Search:**")
     st.dataframe(pd.DataFrame(ctx))
-    
+    # 
     return ctx
 
 def google_llm(prompt, context, model):
-    
+  
     template_prompt = f"""Eres un analista de noticias, tus tareas son las siguientes:
     - El contexto contiene la siguiente estructura: contexto, links y numero_pagina.
-
     Del siguiente contexto encapsulado por comillas: ```{context}```
-    
+  
     Responde la siguiente pregunta: {prompt}
-    
+  
     Respuesta formato salto de linea: 
     Respuesta: <respuesta>, \n
     Explicación de la Respuesta: <explica como llegaste a la conclusion de tu respuesta> \n
     Referencia: {{ pagina: <indica el numero de pagina>, link:<el link de cloud storage> }}
     """
-    
+  
     if model != "gemini-pro":
-        
+      
         vertexai.init(project="vtxdemos", location="us-central1")
         model = TextGenerationModel.from_pretrained(model)
         response = model.predict(
@@ -126,26 +126,53 @@ def google_llm(prompt, context, model):
             ,
             **parameters
         )
-        
+      
     else:
         model = GenerativeModel("gemini-pro")
         response = model.generate_content(
             [template_prompt],
             generation_config=parameters,)
-        
+      
     return response.text.replace("$","")
 
-#model = st.radio(
-#        "Choose a shipping method",
-#        ("text-bison@001", "text-bison")
-#    )
+with st.container():
+    
+    col1, col2 = st.columns(2)
+    
+    if "model" not in st.session_state:
+        st.session_state["model"] = model
+        
+    if "messages" not in st.session_state:
+        st.session_state.messages = []
+        
+        
+    for message in st.session_state.messages:
+        with st.chat_message(message["role"]):
+            st.markdown(message["content"])
+            
+    if prompt := st.chat_input("Pregunta algo"):
+        st.session_state.messages.append({"role": "user", "content": prompt})
+        
+        with st.chat_message("user"):
+            st.markdown(prompt)
+            
+        with st.chat_message("assistant"):
+            full_response = ""
+            message_placeholder = st.empty()
+            
+            context = vertex_search(st.session_state.messages[-1]["content"])
+            response = google_llm(st.session_state.messages[-1]["content"], context, st.session_state["model"])
 
-with st.form('my_form'):
-  text = st.text_area('Enter text:', 'Cuál es la fuerza política que se mantuvo al margen durante el debate del congreso?')
-  submitted = st.form_submit_button('Submit')
-  if submitted:
-      context = vertex_search(text)
-      st.info(google_llm(text, context, model))
+            full_response += (response or "")
+            message_placeholder.markdown(full_response + "▌")
+        st.session_state.messages.append({"role": "assistant", "content": full_response})
+
+    #with st.form('my_form'):
+    #  text = st.text_area('Enter text:', 'Cuál es la fuerza política que se mantuvo al margen durante el debate del congreso?')
+    #  submitted = st.form_submit_button('Submit')
+    #  if submitted:
+    #      context = vertex_search(text)
+    #      st.info(google_llm(text, context, model))
 
 # %%
 
