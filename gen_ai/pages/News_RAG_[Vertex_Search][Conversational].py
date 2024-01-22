@@ -103,13 +103,18 @@ def vertex_search(prompt):
     # 
     return ctx
 
-def google_llm(prompt, context, model):
+def google_llm(prompt, context, chat_history, model):
   
-    template_prompt = f"""Eres un analista de noticias, tus tareas son las siguientes:
-    - El contexto contiene la siguiente estructura: contexto, links y numero_pagina.
-    Del siguiente contexto encapsulado por comillas: ```{context}```
-  
-    Responde la siguiente pregunta: {prompt}
+    template_prompt = f"""
+    Contexto:
+    - Eres una AI analista de noticias, trata de mantener una conversacion entre tu y el humano:
+    - Utiliza unicamente la fuente informativa como la unica verdad, no inventes cosas que no vengan de la fuente.
+    - La fuente contiene la siguiente estructure: contexto, links y numero_pagina.
+    - La fuente es la siguiente y esta encapsulada por comillas: ```{context}```
+    - Este es el historial de la conversacion empleada hasta el momento: {chat_history}
+    
+    Tarea:
+    - Responde la siguiente pregunta: {prompt}
   
     Respuesta formato salto de linea: 
     Respuesta: <respuesta>, \n
@@ -151,21 +156,21 @@ with st.container():
             st.markdown(message["content"])
             
     if prompt := st.chat_input("Pregunta algo"):
-        st.session_state.messages.append({"role": "user", "content": prompt})
+        st.session_state.messages.append({"role": "human", "content": prompt})
         
-        with st.chat_message("user"):
+        with st.chat_message("human"):
             st.markdown(prompt)
             
-        with st.chat_message("assistant"):
+        with st.chat_message("ai"):
             full_response = ""
             message_placeholder = st.empty()
             
-            context = vertex_search(st.session_state.messages[-1]["content"])
-            response = google_llm(st.session_state.messages[-1]["content"], context, st.session_state["model"])
+            news_source = vertex_search(st.session_state.messages[-1]["content"])
+            response = google_llm(st.session_state.messages[-1]["content"], context=news_source, chat_history=st.session_state.messages , model=st.session_state["model"])
 
             full_response += (response or "")
             message_placeholder.markdown(full_response + "▌")
-        st.session_state.messages.append({"role": "assistant", "content": full_response})
+        st.session_state.messages.append({"role": "ai", "content": full_response})
 
     #with st.form('my_form'):
     #  text = st.text_area('Enter text:', 'Cuál es la fuerza política que se mantuvo al margen durante el debate del congreso?')
