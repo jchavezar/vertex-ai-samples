@@ -7,6 +7,8 @@ from google.protobuf.json_format import MessageToDict
 from vertexai.language_models import TextGenerationModel
 from vertexai.preview.generative_models import GenerativeModel, Part
 
+news_source = ""
+
 variables={
     "project":"vtxdemos",
     "location":"global",
@@ -86,31 +88,47 @@ def vertex_search(prompt):
     context = []
     links = []
     pages = []
+    
     for i in documents:
         for ans in i["derivedStructData"]["extractive_answers"]:
             context.append(ans["content"])
             pages.append(ans["pageNumber"])
-            links.append("https://storage.mtls.cloud.google.com"+"/".join(i["derivedStructData"]["link"].split("/")[1:]))
+            links.append("https://storage.googleapis.com"+"/".join(i["derivedStructData"]["link"].split("/")[1:]))
 
     ctx = {
         "contexto": context,
         "links" : links,
-        "numero_pagina": pages
+        "pagina": pages
         }
+    
+    num = 0
+    ctx_ = {}
+    
+    for i in documents:
+        for ans in i["derivedStructData"]["extractive_answers"]:
+            num += 1
+            _link = "https://storage.googleapis.com"+"/".join(i["derivedStructData"]["link"].split("/")[1:])
+            _texto = ans["content"]
+            _pagina = ans["pageNumber"]
+            ctx_[f"contexto: {num}"]="texto: {}, fuente: {}, pagina: {}".format(_texto, _link, _pagina)
 
-    st.markdown("**Contexto Extraído de Vertex Search:**")
-    st.dataframe(pd.DataFrame(ctx))
-    # 
-    return ctx
+    #st.markdown("**Contexto Extraído de Vertex Search:**")
+    #st.dataframe(pd.DataFrame(ctx))
+ 
+    #st.write(ctx_)
+    
+    print(ctx_)
+    
+    return ctx_
 
 def google_llm(prompt, context, chat_history, model):
   
     template_prompt = f"""
     Contexto:
     - Eres una AI analista de noticias, trata de mantener una conversacion entre tu y el humano:
-    - Utiliza unicamente la fuente informativa como la unica verdad, no inventes cosas que no vengan de la fuente.
-    - La fuente contiene la siguiente estructure: contexto, links y numero_pagina.
-    - La fuente es la siguiente y esta encapsulada por comillas: ```{context}```
+    - Utiliza unicamente la fuente informativa como la unica verdad, no inventes cosas que no esten en la fuente.
+    - La fuente es la siguiente (y esta encapsulada por comillas: ```{context}```
+    - Del contexto extrae el link y la pagina para tu respuesta.
     - Este es el historial de la conversacion empleada hasta el momento: {chat_history}
     
     Tarea:
@@ -119,7 +137,7 @@ def google_llm(prompt, context, chat_history, model):
     Respuesta formato salto de linea: 
     Respuesta: <respuesta>, \n
     Explicación de la Respuesta: <explica como llegaste a la conclusion de tu respuesta> \n
-    Referencia: {{ pagina: <indica el numero de pagina>, link:<el link de cloud storage> }}
+    Referencia: {{ pagina: <pagina_num>, link:<el link de cloud storage> }}
     """
   
     if model != "gemini-pro":
@@ -141,9 +159,7 @@ def google_llm(prompt, context, chat_history, model):
     return response.text.replace("$","")
 
 with st.container():
-    
-    col1, col2 = st.columns(2)
-    
+        
     if "model" not in st.session_state:
         st.session_state["model"] = model
         
@@ -171,6 +187,13 @@ with st.container():
             full_response += (response or "")
             message_placeholder.markdown(full_response + "▌")
         st.session_state.messages.append({"role": "ai", "content": full_response})
+
+#if news_source == "":
+#    pass
+#else:
+#    with st.container():
+#        st.dataframe(pd.DataFrame(news_source))
+    
 
     #with st.form('my_form'):
     #  text = st.text_area('Enter text:', 'Cuál es la fuerza política que se mantuvo al margen durante el debate del congreso?')
