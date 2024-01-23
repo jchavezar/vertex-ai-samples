@@ -95,7 +95,7 @@ def vertex_search(prompt):
     ctx = {
         "contexto": context,
         "links" : links,
-        "numbero_pagina": pages
+        "numero_pagina": pages
         }
 
     st.markdown("**Contexto Extraído de Vertex Search:**")
