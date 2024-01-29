@@ -35,7 +35,50 @@ with st.expander("About the Application"):
              
              Source Code: [github repo](https://github.com/jchavezar/vertex-ai-samples/blob/main/gen_ai/pages/News_RAG_%5BVertex_Search%5D%5BConversational%5D.py)
              """)
-        
+
+prompt = """
+You run in a loop of Thought, Action, PAUSE, Observation.
+At the end of the loop you output an Answer
+Use Thought to describe your thoughts about the question you have been asked.
+Use Action to run one of the actions available to you - then return PAUSE.
+Observation will be the result of running those actions.
+
+Your available actions are:
+
+wikipedia:
+e.g. wikipedia: Python
+Returns a summary from searching Wikipedia.
+
+rag_search (for culture questions):
+e.g. rag_search: Python.
+Search vector database rag for that term.
+
+summarization:
+e.g. summarization: Python is a high-level, general-purpose programming language. Its design philosophy emphasizes code readability with the use of significant indentation. Python is dynamically typed and garbage-collected. It supports multiple programming paradigms, including structured, object-oriented and functional programming. Wikipedia
+Returns a summarization for the description.
+
+For culture questions prioritize to look at rag_search first for the rest use wikipedia.
+
+Example session:
+
+Question: What is the capital of France?
+Thought: I should look up France on Wikipedia
+Action: wikipedia: France
+PAUSE
+
+You will be called again with this:
+
+Observation: France is a country. The capital is Paris.
+
+You then output:
+
+Answer: The capital of France is Paris
+
+""".strip()
+
+
+with st.expander("How does the prompt looks like?"):
+    st.write(prompt)
 #endregion
 
 
@@ -124,46 +167,6 @@ class Chatbot:
         st.write(response.text)
         print(response.text)
         return response.text
-    
-prompt = """
-You run in a loop of Thought, Action, PAUSE, Observation.
-At the end of the loop you output an Answer
-Use Thought to describe your thoughts about the question you have been asked.
-Use Action to run one of the actions available to you - then return PAUSE.
-Observation will be the result of running those actions.
-
-Your available actions are:
-
-wikipedia:
-e.g. wikipedia: Python
-Returns a summary from searching Wikipedia.
-
-rag_search (for culture questions):
-e.g. rag_search: Python.
-Search vector database rag for that term.
-
-summarization:
-e.g. summarization: Python is a high-level, general-purpose programming language. Its design philosophy emphasizes code readability with the use of significant indentation. Python is dynamically typed and garbage-collected. It supports multiple programming paradigms, including structured, object-oriented and functional programming. Wikipedia
-Returns a summarization for the description.
-
-For culture questions prioritize to look at rag_search first for the rest use wikipedia.
-
-Example session:
-
-Question: What is the capital of France?
-Thought: I should look up France on Wikipedia
-Action: wikipedia: France
-PAUSE
-
-You will be called again with this:
-
-Observation: France is a country. The capital is Paris.
-
-You then output:
-
-Answer: The capital of France is Paris
-
-""".strip()
 
 #region Action Functions
 def wikipedia(q):
