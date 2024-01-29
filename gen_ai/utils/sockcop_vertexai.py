@@ -2,9 +2,7 @@
 #region Libraries
 import re
 import ast
-import json
 import vertexai
-import streamlit as st
 import pandas as pd
 from typing import List
 from google.cloud import discoveryengine, bigquery
@@ -128,16 +126,12 @@ class Client:
                 "top_k": 40
                 }
         chat_model = ChatModel.from_pretrained(model)
-        
-        
-        #st.write(self.search(prompt, news=True))
-        
+                
         c_context=f'''You are a very friendly and funny chat, use the following session data as historic information for your conversations: {context},
             use the following news enclosed by backticks as your only source of truth, do not make up or use old data: ```{news_context}```,
             from time to times ask friendly questions to gather more information and do not repeat questions,
             When someone ask for demos give the following links: for Image QnA video: https://genai.sonrobots.net/Image_QnA_[vision], for Movies QnA using Enterprise Search: https://genai.sonrobots.net/Movies_QnA_,
         '''
-        #st.write(c_context)
         chat = chat_model.start_chat(context=c_context)
         response = chat.send_message(prompt, **parameters)
         
@@ -179,3 +173,48 @@ class Client:
     
         return res
     #endregion
+    
+    #region Vertex Search
+    def vertex_search(self, prompt):
+        
+        self.vsearch_client = discoveryengine.SearchServiceClient()
+        self.vsearch_serving_config = self.vsearch_client.serving_config_path(
+            project=self.project,
+            location=self.location,
+            data_store=self.data_store,
+            serving_config="default_search",)
+        
+        request = discoveryengine.SearchRequest(
+            serving_config=self.vsearch_serving_config, query=prompt, page_size=100)
+    
+        content_search_spec = discoveryengine.SearchRequest.ContentSearchSpec(snippet_spec=discoveryengine.SearchRequest.ContentSearchSpec.SnippetSpec(
+                return_snippet=True),
+        summary_spec = discoveryengine.SearchRequest.ContentSearchSpec.SummarySpec(
+                summary_result_count=2, include_citations=True),
+        extractive_content_spec=discoveryengine.SearchRequest.ContentSearchSpec.ExtractiveContentSpec(
+                max_extractive_answer_count=2,
+                max_extractive_segment_count=2))
+    
+        request = discoveryengine.SearchRequest(
+            serving_config=self.vsearch_serving_config, query=prompt, page_size=2, content_search_spec=content_search_spec)                                                         
+
+        response = self.vsearch_client.search(request)
+
+        documents = [MessageToDict(i.document._pb) for i in response.results]
+
+        context = []
+        num = 0
+        ctx = {}
+
+        for i in documents:
+            for ans in i["derivedStructData"]["extractive_segments"]:
+                num += 1
+                link = "https://storage.googleapis.com"+"/".join(i["derivedStructData"]["link"].split("/")[1:])
+                context = ans["content"]
+                page = ans["pageNumber"]
+                ctx[f"context: {num}"]="text: {}, source: {}, page: {}".format(context, link, page)
+
+        return ctx
+    #endregion
+
+# %%
