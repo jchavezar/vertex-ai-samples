@@ -18,7 +18,6 @@ if model == "text-bison" or model == "text-bison@001":
 else:token_limit = st.sidebar.select_slider("Token Limit", range(1,8193), value=1024)
 top_k = st.sidebar.select_slider("Top-K", range(1, 41), value=40)
 top_p = st.sidebar.select_slider("Top-P", [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1], value=0.8) 
-passc = st.sidebar.text_input("Enter the passcode")
     
 parameters =  {
     "temperature": temperature,
@@ -54,63 +53,48 @@ variables = {
     "location": "us",
 }
 
-if p == passc:
-    print("correct")
-
-    client = sockcop_rag.Client(variables)
-
-    async def db_functions(documents, query):
-        await client.create_table()
-        await client.insert_documents_vdb(documents)    
-        return await client.query(query)
-
-    # %%
-    # LLM prompt + context
-
-    @st.cache_data
-    def prepare(file):
-        documents, ocr_time, embeddings_time = client.prepare_file(file)
-        #st.write(f"Embeddings time: {round(embeddings_time, 2)} sec")
-        start = time.time()
-        asyncio.run(client.create_table())
-        asyncio.run(client.insert_documents_vdb(documents))
-        st.write(f"OCR Time: **{round(ocr_time, 2)} sec**, Embeddings time: **{round(embeddings_time, 2)} sec**, Vector DB Inserting Time: **{round(time.time()-start, 2)} sec**")
-
-        #st.write(f"Vector DB Inserting Time: {round(time.time()-start, 2)} sec")
-        return documents
-
-    def display_document(file):
-        base64_pdf = base64.b64encode(file.read()).decode("utf-8")
-        pdf_display = F'<iframe src="data:application/pdf;base64,{base64_pdf}" width="700" height="1000" type="application/pdf"></iframe>'
-        st.markdown(pdf_display, unsafe_allow_html=True)
-
-
-    def query(query):
-        start = time.time()
-        matches = asyncio.run(client.query(query))
-        st.markdown(f"Vector DB Query Time: **{round(time.time() - start, 2)} sec**")
-        df = pd.DataFrame(matches)
-        google_response = client.llm_predict(query, context=pd.DataFrame(matches).to_json(), model_id = model, parameters=parameters)
-        return str(google_response), df
-
-    #%%
-    st.title("Tax Bot")
-
-    def main(): 
-        #st.title("Chat with Your PDF") 
-        pdf = st.file_uploader("Upload your PDF", type="pdf")
-        if pdf:
-            display_document(pdf)
-            documents = prepare(pdf)
-            text = st.text_input("Prompt")
-
-            if text:
-                google_response, df = query(text)
-                st.markdown("***Google:***")
-                st.write(google_response)
-                st.write(documents)
-                st.write(df)    
-
-    if __name__ == '__main__': main() 
-
-else: st.title("Add the passcode")
+client = sockcop_rag.Client(variables)
+async def db_functions(documents, query):
+    await client.create_table()
+    await client.insert_documents_vdb(documents)    
+    return await client.query(query)
+# %%
+# LLM prompt + context
+@st.cache_data
+def prepare(file):
+    documents, ocr_time, embeddings_time = client.prepare_file(file)
+    #st.write(f"Embeddings time: {round(embeddings_time, 2)} sec")
+    start = time.time()
+    asyncio.run(client.create_table())
+    asyncio.run(client.insert_documents_vdb(documents))
+    st.write(f"OCR Time: **{round(ocr_time, 2)} sec**, Embeddings time: **{round(embeddings_time, 2)} sec**, Vector DB Inserting Time: **{round(time.time()-start, 2)} sec**")
+    #st.write(f"Vector DB Inserting Time: {round(time.time()-start, 2)} sec")
+    return documents
+def display_document(file):
+    base64_pdf = base64.b64encode(file.read()).decode("utf-8")
+    pdf_display = F'<iframe src="data:application/pdf;base64,{base64_pdf}" width="700" height="1000" type="application/pdf"></iframe>'
+    st.markdown(pdf_display, unsafe_allow_html=True)
+def query(query):
+    start = time.time()
+    matches = asyncio.run(client.query(query))
+    st.markdown(f"Vector DB Query Time: **{round(time.time() - start, 2)} sec**")
+    df = pd.DataFrame(matches)
+    google_response = client.llm_predict(query, context=pd.DataFrame(matches).to_json(), model_id = model, parameters=parameters)
+    return str(google_response), df
+#%%
+st.title("Anytime RAG Bot")
+st.image("images/realtime_rag.png")
+def main(): 
+    #st.title("Chat with Your PDF") 
+    pdf = st.file_uploader("Upload your PDF", type="pdf")
+    if pdf:
+        display_document(pdf)
+        documents = prepare(pdf)
+        text = st.text_input("Prompt")
+        if text:
+            google_response, df = query(text)
+            st.markdown("***Google:***")
+            st.write(google_response)
+            st.write(documents)
+            st.write(df)    
+if __name__ == '__main__': main() 
