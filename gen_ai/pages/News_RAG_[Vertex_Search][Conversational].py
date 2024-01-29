@@ -190,7 +190,7 @@ with st.container():
                  - [La Unión Europea Trabaja con la Organización Marítima]( https://storage.googleapis.com/vtxdemos-vertex-search-dataset/el_pais/ue_pellets.pdf)
                  
                  Preguntas ejemplo:
-                 - Qué es la `Vox`?
+                 - Qué es `Vox`?
                  - Quién es el lider de la `Vox`?
                  - Cuál fué el término sustituído en el `artículo 49` durante la asamblea?
                  - Cuál fué la propuesta legislativa en la costa norte española?
