@@ -2,9 +2,9 @@
 #region Libraries
 import re
 import ast
-import vertexai
 import pandas as pd
 from typing import List
+from google.cloud import aiplatform
 from google.cloud import discoveryengine, bigquery
 from google.protobuf.json_format import MessageToDict
 from vertexai.preview.generative_models import GenerativeModel
@@ -15,7 +15,7 @@ class Client:
     def __init__(self,iterable=(), **kwargs) -> None:
         self.__dict__.update(iterable, **kwargs)
         
-        vertexai.init(project=self.project, location=self.region)
+        aiplatform.init(project=self.project, location=self.region)
 
     #region EnterpriseSearch
     def search(self, prompt, news=False) -> List[discoveryengine.SearchResponse.SearchResult]:

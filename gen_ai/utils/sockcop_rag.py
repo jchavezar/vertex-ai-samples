@@ -59,12 +59,7 @@ class Client:
               name = self.docai_processor_id,
               raw_document = documentai.RawDocument(content=raw_document, mime_type = 'application/pdf'),
               process_options = documentai.ProcessOptions(
-              from_start = 5,
-              ocr_config = documentai.OcrConfig(
-                  enable_symbol = True,
-                  enable_image_quality_scores = True,
-                  premium_features = documentai.OcrConfig.PremiumFeatures(
-                      compute_style_info = True)))))
+              from_start = 5)))
         start = time.time()
         with concurrent.futures.ThreadPoolExecutor() as executor:
             futures = [
@@ -107,6 +102,8 @@ class Client:
                     #pp = 0
                 embeddings.append({paragraph : self.model_emb.get_embeddings([paragraph])[0].values})
                 documents[page] = embeddings
+                if "Retirement" in paragraph:
+                    print(paragraph)
         print(f"Time checkpoint [embeddings]: {time.time()-start}")
         #endregion
         
