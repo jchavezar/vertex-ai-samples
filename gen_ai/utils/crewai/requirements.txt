@@ -1,0 +1,19 @@
+#crewai == 0.1.24
+unstructured == 0.10.25
+pyowm == 3.3.0
+tools == 0.1.9
+wikipedia == 1.4.0
+yfinance == 0.2.35
+sec-api == 1.0.17
+tiktoken == 0.5.2
+faiss-cpu == 1.7.4
+python-dotenv == 1.0.0
+langchain-community == 0.0.10
+langchain-core == 0.1.8
+google-cloud-aiplatform
+googlesearch-python
+streamlit
+langchain
+langchain_google_vertexai
+google-cloud-discoveryengine
+google-api-python-client
