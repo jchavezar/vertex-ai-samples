@@ -29,7 +29,7 @@ with st.expander("About the Application"):
              - For RAG (Vertex Search) the following document was used [Countries and their Culture](https://storage.googleapis.com/vtxdemos-vertex-search-dataset/countries_culture/countries_and_their_cultures.pdf): 
              
              Questions to ask?:
-             - Tell me more about the culture in China.
+             - Tell me more about the culture in LAOS.
              - What is the most populated city around the world?
              - What is Python?
              
