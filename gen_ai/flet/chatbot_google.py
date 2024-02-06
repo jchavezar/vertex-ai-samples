@@ -4,6 +4,7 @@ import flet as ft
 from vertexai.language_models import TextGenerationModel
 from vertexai.preview.generative_models import GenerativeModel, Part
 
+# Variables
 vertexai.init(project="vtxdemos", location="us-central1")
 bison_parameters = {
     "candidate_count": 1,
@@ -20,6 +21,7 @@ models_d = {
 
 models_l = [k for k,v in models_d.items()]
 
+# App/Website Style
 def main_style() -> dict:
     return {
       "width": 420,
@@ -29,6 +31,7 @@ def main_style() -> dict:
       "padding": 15   
     }
 
+# Main Conversation Panel
 class MainContentArea(ft.Container):
     def __init__(self) -> None:
         super().__init__(**main_style())
@@ -41,6 +44,7 @@ class MainContentArea(ft.Container):
         
         self.content = self.chat
 
+# User and Bot Message Over Main Conversation Panel
 class CreateMessage(ft.Column):
     def __init__(self, name: str, message: str) -> None:
         self.name: str = name
@@ -51,9 +55,10 @@ class CreateMessage(ft.Column):
 
 def main(page: ft.Page):
 
-    # Set your API keys and model names (adjust as needed)
     main_chat = MainContentArea()
     chat = main_chat.chat
+    
+    chat_history = []
 
     # Create dropdown for LLM selection
     llm_dropdown = ft.Dropdown(
@@ -76,6 +81,22 @@ def main(page: ft.Page):
     # Function to send user input to LLM and update response
     def send_message(message):
         
+        user_message = message.control.value
+        
+        prompt = f"""
+            You are an assistant and you name is sockcop, respond any question asked:
+            
+            chat_history:
+            {chat_history}
+            
+            ask:
+            {user_message}
+            
+            response:
+        """
+        
+        print(prompt)
+        
         def animate_text_output(name: str, prompt: str) -> None:
             word_list: list = []
             msg = CreateMessage(name, "")
@@ -89,10 +110,11 @@ def main(page: ft.Page):
         
         animate_text_output("Me", message.control.value)
         
+        # Library call for Gemini Pro
         if models_d[llm_dropdown.value] == "gemini-pro":
             model = GenerativeModel(models_d[llm_dropdown.value])
             responses = model.generate_content(
-                    message.control.value,
+                    prompt,
                     generation_config={
                         "max_output_tokens": 2048,
                         "temperature": 0.9,
@@ -102,14 +124,17 @@ def main(page: ft.Page):
                 )
             r = responses.candidates[0].content.parts[0].text
         
-        elif models_d[llm_dropdown.value] == "text-bison@002":
-            model = TextGenerationModel.from_pretrained("text-bison@002")
+        # Library call for Bison
+        elif models_d[llm_dropdown.value] == "text-bison@002" or models_d[llm_dropdown.value] == "text-bison-32k@002":
+            model = TextGenerationModel.from_pretrained(models_d[llm_dropdown.value])
             response = model.predict(
-                message.control.value,
+                prompt,
                 **bison_parameters)
             r = response.text
         
         animate_text_output(llm_dropdown.value, r)
+        
+        chat_history.append({"user": user_message, "robot(you)": r })
 
     # Create text input for user messages
     user_input = ft.TextField(
@@ -117,7 +142,7 @@ def main(page: ft.Page):
         border_color = "white",
         cursor_color = "white",
         label = "Type your message here...",
-        on_submit = send_message)
+        on_submit = lambda e: send_message(e))
 
     # Add controls to the page
     page.add(
