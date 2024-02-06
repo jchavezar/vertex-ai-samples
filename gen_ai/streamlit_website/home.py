@@ -43,9 +43,9 @@ def app():
     sub_1, sub_2, sub_3, sub = st.columns(4)
     with row_1_col1:
         st.markdown("""### Financial""")
-        st.markdown(""" + Document Q&A DIY [![Repo](https://badgen.net/badge/icon/GitHub?icon=github&label)](https://github.com/AvratanuBiswas/PubLit)""")
+        st.markdown(""" + Document Q&A DIY $~~$ [![Repo](https://badgen.net/badge/icon/GitHub?icon=github&label)](https://github.com/jchavezar/vertex-ai-samples/blob/main/gen_ai/streamlit_website/fin_rag_diy.py)""")
         annotated_text(("single-turn", "", "#008744"), " ", ("english", "", "#0057e7"), " ", ("DIY", "", "#d62d20"), " ", ("text", "", "#ffa700"))
-        st.markdown(""" + [Document Q&A]()  """)
+        st.markdown(""" + Document Q&A OOB $~~$ [![Repo](https://badgen.net/badge/icon/GitHub?icon=github&label)](https://github.com/jchavezar/vertex-ai-samples/blob/main/gen_ai/streamlit_website/fin_rag_oob.py)""")
         annotated_text(("single-turn", "", "#008744"), " ", ("english", "", "#0057e7"), " ", ("OOB", "", "#d62d20"), " ", ("text", "", "#ffa700"))
         st.text("")
         st.text("")
@@ -54,42 +54,40 @@ def app():
 
     with row_1_col2:
         st.markdown("""### News""")
-        st.markdown(""" + [Multiturn News Feed]()  """)
+        st.markdown(""" + Multiturn News Feed $~~$ [![Repo](https://badgen.net/badge/icon/GitHub?icon=github&label)](https://github.com/jchavezar/vertex-ai-samples/blob/main/gen_ai/streamlit_website/news_chatbot.py)""")
         annotated_text(("multi-turn", "", "#008744"), " ", ("multi-language", "", "#0057e7"), " ", ("OOB", "", "#d62d20"), " ", ("text", "", "#ffa700"))
-        st.markdown(""" + [Q&A (El Pais)]()  """)
+        st.markdown(""" + Q&A (El Pais) $~~$  [![Repo](https://badgen.net/badge/icon/GitHub?icon=github&label)](https://github.com/jchavezar/vertex-ai-samples/blob/main/gen_ai/streamlit_website/news_elpais_qa.py)""")
         annotated_text(("single-turn", "", "#008744"), " ", ("spanish", "", "#0057e7"), " ", ("OOB", "", "#d62d20"), " ", ("text", "", "#ffa700"))
-        st.markdown(""" + [Multiturn El Pais](https://genai.sonrobots.net/News_RAG_[Vertex_Search])  """)
+        st.markdown(""" + Multiturn (El Pais) $~~$ [![Repo](https://badgen.net/badge/icon/GitHub?icon=github&label)](https://github.com/jchavezar/vertex-ai-samples/blob/main/gen_ai/streamlit_website/news_conv_elpais_qa.py)""")
         annotated_text(("multi-turn", "", "#008744"), " ", ("spanish", "", "#0057e7"), " ", ("OOB", "", "#d62d20"), " ", ("text", "", "#ffa700"))
 
     row_2_col1, row_2_col2 = st.columns(2)
 
     with row_2_col1:
         st.markdown("""### Media & Ent""")
-        st.markdown("""+ [Video Contextual Search](https://genai.sonrobots.net/Financial_RAG_[gecko-emb])""")
+        st.markdown(""" + Video Search $~~$ [![Repo](https://badgen.net/badge/icon/GitHub?icon=github&label)](https://github.com/jchavezar/vertex-ai-samples/blob/main/gen_ai/streamlit_website/med_contex_search.py)""")
         annotated_text(("single-turn", "", "#008744"), " ", ("multi-language", "", "#0057e7"), " ", ("DIY", "", "#d62d20"), " ", ("multimodal", "", "#ffa700"))
-        st.markdown("""+ [Movies Q&A](https://genai.sonrobots.net/Movies_QnA_[Vertex_Search])""")
+        st.markdown(""" + Movies Q&A $~~$ [![Repo](https://badgen.net/badge/icon/GitHub?icon=github&label)](https://github.com/jchavezar/vertex-ai-samples/blob/main/gen_ai/streamlit_website/movies_qa.py)""")
         annotated_text(("single-turn", "", "#008744"), " ", ("english", "", "#0057e7"), " ", ("OOB", "", "#d62d20"), " ", ("text", "structured", "#ffa700"))
 
     with row_2_col2:
         st.markdown("""### Enterprise""")
-        st.markdown("""+ [Analytics Using BiQuery Q&A](https://genai.sonrobots.net/Analytics_[BigQuery])""")
+        st.markdown(""" + Analytics BQ Q&A $~~$ [![Repo](https://badgen.net/badge/icon/GitHub?icon=github&label)](https://github.com/jchavezar/vertex-ai-samples/blob/main/gen_ai/streamlit_website/analytics_bq.py)""")
         annotated_text(("single-turn", "", "#008744"), " ", ("multi-language", "", "#0057e7"), " ", ("DIY", "", "#d62d20"), " ", ("text", "structured", "#ffa700"))
-        st.markdown("""+ [Generate your Caregiver Bio](https://genai.sonrobots.net/Caregiver_Bio_Gen[text-bison])""")
+        st.markdown(""" + Caregiver Bio Gen $~~$ [![Repo](https://badgen.net/badge/icon/GitHub?icon=github&label)](https://github.com/jchavezar/vertex-ai-samples/blob/main/gen_ai/streamlit_website/ent_caregiver_bio.py)""")
         annotated_text(("single-turn", "", "#008744"), " ", ("english", "", "#0057e7"), " ", ("DIY", "", "#d62d20"), " ", ("text", "", "#ffa700"))
 
     row_3_col1, row_3_col2 = st.columns(2)
 
     with row_3_col1:
         st.markdown("""### Other""")
-        st.markdown("""+ [Culture Reasoning and Action](https://genai.sonrobots.net/Culture_ReAct[vsearch_unicorn])""")
+        st.markdown(""" + LLM ReAct Q&A $~~$ [![Repo](https://badgen.net/badge/icon/GitHub?icon=github&label)](https://github.com/jchavezar/vertex-ai-samples/blob/main/gen_ai/streamlit_website/culture_react.py)""")
         annotated_text(("single-turn", "", "#008744"), " ", ("multi-language", "", "#0057e7"), " ", ("OOB", "", "#d62d20"), " ", ("text", "", "#ffa700"))
-        st.markdown("""+ [CrewAI Internet + Internal Q&A](https://genai.sonrobots.net/Any_Question_ReAct[vsearch_crewai])""")
+        st.markdown(""" + CrewAI Q&A $~~$ [![Repo](https://badgen.net/badge/icon/GitHub?icon=github&label)](https://github.com/jchavezar/vertex-ai-samples/blob/main/gen_ai/streamlit_website/crewai_qa.py)""")
         annotated_text(("single-turn", "", "#008744"), " ", ("english", "", "#0057e7"), " ", ("OOB", "", "#d62d20"), " ", ("text", "", "#ffa700"))
-        st.markdown("""+ [Reading 35 Pages Q&A](https://genai.sonrobots.net/BigFiles_[bison-32k])""")
+        st.markdown(""" + Read 35 Pages Q&A $~~$ [![Repo](https://badgen.net/badge/icon/GitHub?icon=github&label)](https://github.com/jchavezar/vertex-ai-samples/blob/main/gen_ai/streamlit_website/reading_35_pages.py)""")
         annotated_text(("single-turn", "", "#008744"), " ", ("multi-language", "", "#0057e7"), " ", ("DIY", "", "#d62d20"), " ", ("text", "", "#ffa700"))
-        st.markdown("""+ [Any Document Q&A](https://genai.sonrobots.net/Any_Doc_RAG[any-palm-model])""")
+        st.markdown(""" + Ask your Document $~~$ [![Repo](https://badgen.net/badge/icon/GitHub?icon=github&label)](https://github.com/jchavezar/vertex-ai-samples/blob/main/gen_ai/streamlit_website/ask_your_doc.py)""")
         annotated_text(("single-turn", "", "#008744"), " ", ("multi-language", "", "#0057e7"), " ", ("DIY", "", "#d62d20"), " ", ("text", "", "#ffa700"))
-        st.markdown("""+ [Image Q&A](https://genai.sonrobots.net/Image_QnA_[vision]])""")
+        st.markdown(""" + Ask your Photo $~~$ [![Repo](https://badgen.net/badge/icon/GitHub?icon=github&label)](https://github.com/jchavezar/vertex-ai-samples/blob/main/gen_ai/streamlit_website/ask_your_image.py)""")
         annotated_text(("single-turn", "", "#008744"), " ", ("multi-language", "", "#0057e7"), " ", ("DIY", "", "#d62d20"), " ", ("image", "", "#ffa700"))
-        st.markdown("""+ [Image Q&A](https://genai.sonrobots.net/Image_QnA_Gemini_MultiModal_[vision])""")
-        annotated_text(("single-turn", "", "#008744"), " ", ("multi-language", "", "#0057e7"), " ", ("DIY", "", "#d62d20"), " ", ("multimodal", "", "#ffa700"))
