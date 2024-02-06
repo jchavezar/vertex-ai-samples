@@ -1,1 +1,1 @@
-![Diagram](images/genai_demos.png)
+![Diagram](streamlit_website/images/genai_demos.png)
