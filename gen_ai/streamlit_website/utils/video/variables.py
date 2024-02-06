@@ -1,0 +1,10 @@
+PROJECT_ID="vtxdemos"
+REGION="us-central1"
+SNIPPETS_GCS_URI="vtxdemos-fb-snippets"
+VIDEO_TRANSCRIPT_ANNOTATIONS_GCS="vtxdemos-fb-videos-json"
+VIDEO_GCS_URI="vtxdemos-fb-videos"
+PICKLE_FILE_NAME="emb2.pkl"
+LINUX=False
+INSTANCE_NAME="pg15-pgvector-demo"
+DATABASE_USER="emb-admin"
+DATABASE_NAME="video-frame-emb-6"
