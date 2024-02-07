@@ -2,6 +2,7 @@
 import vertexai
 import pandas as pd
 import streamlit as st
+from utils.links_references import *
 from google.cloud import discoveryengine
 from google.protobuf.json_format import MessageToDict
 from vertexai.language_models import TextGenerationModel
@@ -182,7 +183,8 @@ def app(model, parameters):
     with st.container():
         st.title('Generación Aumentada de Recuperación (inglés: RAG) | Vertex Search')
         st.image("images/rag_news.png")
-
+        st.markdown(f""" :green[repo:] [![Repo]({github_icon})]({news_conv_elpais_qa})""")
+        
         with st.expander("Acerca la Aplicación"):
             st.write("""
                      Se utilizaron los siguientes documentos para aumentar el contexto del modelo:
@@ -191,7 +193,7 @@ def app(model, parameters):
 
                      Preguntas ejemplo:
                      - Qué es `Vox`?
-                     - Quién es el lider de la `Vox`?
+                     - Quién es el lider de `Vox`?
                      - Cuál fué el término sustituído en el `artículo 49` durante la asamblea?
                      - Cuál fué la propuesta legislativa en la costa norte española?
                      - Por qué el comisario de Océanos, Pesca y Medio Ambiente, le llamó `catástrofe ecológica`?

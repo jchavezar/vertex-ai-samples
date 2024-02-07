@@ -1,30 +1,24 @@
 from crewai import Task
 from textwrap import dedent
+import streamlit as st
 
 class SearchAnalysisTask:
     """
     Search Analysis Task
     """
-    def search_analysis(self, agent, query): 
+    def search_analysis(self, agent, query):
+      
+        context = "Collect any financial information from 'Financial Internal Data Analyst' agent only and the rest from the Internet Scraping Agent (internet)"
+        st.markdown(f":blue[Agent Task 1: {context}]")
         return Task(description=dedent(f"""
-        Collect any financial information from rag_search/search_internal agent only and the rest from search_analyst/search_tool (internet) :
+        {context}:
         
-        The following text enclosed by backticks is the query.
+        The following text enclosed by backticks is the query task.
         
         ```{query}```
           
         Your final answer MUST be a report that includes a
         comprehensive summary of anything asked.
-      """),
-      agent=agent
-    )
-    def search_financial_internal(self, agent, query): 
-        return Task(description=dedent(f"""
-        Pay special attention to any information about economics/financial in the year asked.
-        Use this agent only if you feel the output from the search_analysis task/agent is not reliable.
-        
-        text:
-        ```{query}```
       """),
       agent=agent
     )

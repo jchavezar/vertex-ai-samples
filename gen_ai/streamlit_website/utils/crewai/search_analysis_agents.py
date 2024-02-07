@@ -36,9 +36,9 @@ class WebsiteAnalysisAgent():
             top_p = parameters["top_p"]
             top_k = parameters["top_k"]
             self.llm = VertexAI(model_name=model, temperature=temperature, max_output_tokens=max_output_tokens, top_p=top_p, top_k=top_k)
-            st.text(self.llm)
+            st.markdown(f":green[Model selected: {model}]")
             return Agent(
-                role='The Best Internet Search Surfer',
+                role='Internet Scraping Agent',
                 goal="""Scrap the internet and get details about the snippets found""",
                 backstory="""The most seasoned search surfer with a lot of expertise navigating through internet, that is working for a super important customer.""",
                 llms=self.llm,
@@ -49,7 +49,7 @@ class WebsiteAnalysisAgent():
                     )
       def search_internal(self):
           return Agent(
-              role="Financial Search Analyst with Internal Data",
+              role="Financial Internal Data Analyst",
               goal="Get all the information you can from rag internal documents about what is being asked in the financial, revenue and sales space for Amazon, Microsoft and Google",
               backstory="The most seasoned search analyst with lot of expertise in financial local reports.",
               llms=self.llm,

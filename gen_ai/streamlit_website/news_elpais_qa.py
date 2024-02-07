@@ -2,6 +2,7 @@
 import vertexai
 import pandas as pd
 import streamlit as st
+from utils.links_references import *
 from google.cloud import discoveryengine
 from google.protobuf.json_format import MessageToDict
 from vertexai.language_models import TextGenerationModel
@@ -17,7 +18,7 @@ variables={
 def app(model, parameters):
     st.title('Retrieval Augmented Generation (RAG) | Vertex Search')
     st.image("images/rag_news.png")
-    st.markdown("[github repo](https://github.com/jchavezar/vertex-ai-samples/tree/main/gen_ai/pages/Financial_RAG_[Vertex_Search].py)")
+    st.markdown(f""" :green[repo:] [![Repo]({github_icon})]({news_elpais_qa})""")
 
 
     with st.sidebar:
@@ -34,6 +35,21 @@ def app(model, parameters):
             Medium -> [jchavezar](https://medium.com/@jchavezar)
             """
         )
+        
+    with st.expander("Acerca la Aplicación"):
+        st.write("""
+                 Se utilizaron los siguientes documentos para aumentar el contexto del modelo:
+                 - [Vox Acentúa su Radicalismo y Vota Contra la Reforma Constitucional](https://storage.googleapis.com/vtxdemos-vertex-search-dataset/el_pais/vox_el_pais_jan_18.pdf)
+                 - [La Unión Europea Trabaja con la Organización Marítima]( https://storage.googleapis.com/vtxdemos-vertex-search-dataset/el_pais/ue_pellets.pdf
+                 Preguntas ejemplo:
+                 - Qué es `Vox`?
+                 - Quién es el lider de `Vox`?
+                 - Cuál fué el término sustituído en el `artículo 49` durante la asamblea?
+                 - Cuál fué la propuesta legislativa en la costa norte española?
+                 - Por qué el comisario de Océanos, Pesca y Medio Ambiente, le llamó `catástrofe ecológica`?
+                 - Quién es `Teresa Ribera`
+                 Código Fuente: [github repo](https://github.com/jchavezar/vertex-ai-samples/blob/main/gen_ai/pages/News_RAG_%5BVertex_Search%5D%5BConversational%5D.py)
+                 """)
 
     client = discoveryengine.SearchServiceClient()
     serving_config = client.serving_config_path(

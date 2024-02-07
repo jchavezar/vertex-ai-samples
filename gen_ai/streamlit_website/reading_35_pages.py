@@ -3,6 +3,7 @@ import base64
 import vertexai
 import streamlit as st
 from utils import sockcop_vertexai
+from utils.links_references import *
 from vertexai.language_models import TextGenerationModel
 
 variables={
@@ -32,7 +33,7 @@ def app(model, parameters):
         )
     st.image("images/big_files_text_bison_32k.png")
     st.write("PDF OCR was made before using text-bison, more instructions in the link:")
-    st.markdown("[processing code](https://github.com/jchavezar/vertex-ai-samples/blob/main/gen_ai/pages/preprocess/preprocess_for_BigFiles_%5Bbison-32k%5D.py)")
+    st.markdown(f""" :green[repo:] [![Repo]({github_icon})]({reading_35_pages})""")
     @st.cache_data
     def read_document():
         with open("files/othello.json", "r") as f:
