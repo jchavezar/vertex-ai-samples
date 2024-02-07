@@ -6,6 +6,7 @@ import sys
 import pandas as pd
 import streamlit as st
 from utils.k import *
+from utils.links_references import *
 from utils import sockcop_vertexai
 #endregion
 
@@ -24,8 +25,8 @@ def app(model, parameters):
     st.text("Model Id: text-bison@002")
     st.text("")
     st.text("")
-    st.image("images/movies_es.png")
-    st.markdown("[github repo](https://github.com/jchavezar/vertex-ai-samples/blob/main/gen_ai/pages/Movies_QnA_%5BVertex_Search%5D.py)")
+    st.image("images/movies_qa.png")
+    st.markdown(f""" :green[repo:] [![Repo]({github_icon})]({movies_qa})""")
     st.divider()
     with st.sidebar:
         st.markdown(

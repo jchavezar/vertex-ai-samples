@@ -8,6 +8,7 @@ import vertexai
 import asyncpg
 import pandas as pd 
 import streamlit as st
+from utils.links_references import *
 from utils.video import credentials
 from pgvector.asyncpg import register_vector
 from google.cloud.sql.connector import Connector
@@ -30,7 +31,7 @@ def app(model, parameters):
 
     st.title('Retrieval Augmented Generation (RAG) | docai+gecko-embeddings+text-bison')
     st.image("images/rag_emb.png")
-    st.markdown("[github repo](https://github.com/jchavezar/vertex-ai-samples/blob/main/gen_ai/pages/readme/Financial_RAG_%5Bgecko-emb%5D.md)")
+    st.markdown(f""" :green[repo:] [![Repo]({github_icon})]({fin_rag_diy})""")
 
     with st.sidebar:
         st.markdown(

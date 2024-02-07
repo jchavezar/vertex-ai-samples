@@ -20,20 +20,7 @@ variables={
     "datastore": "financial-internal-docs_1706730313453"
 }
 
-
-
-class SearchTools():
-    #@tool("Scrape website content")
-    #def scrape_website(query):
-    #    search = GoogleSearchAPIWrapper()
-    #    tool = Tool(
-    #        name="Google Search",
-    #        description="Search Google for recent results.",
-    #        func=search.run,
-    #    )
-    #    response = tool.run(query)
-    #    return str(response)
-    
+class SearchTools():    
     @tool("Search financial internal documents about Google, Amazon and Microsoft")
     def search_rag(query):
         """Useful to search through internal documents"""

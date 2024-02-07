@@ -4,6 +4,7 @@ from distutils.command import upload
 import vertexai
 from utils.k import *
 import streamlit as st
+from utils.links_references import *
 from vertexai.preview.vision_models import ImageQnAModel, Image
 from vertexai.preview.generative_models import GenerativeModel, Part
 
@@ -27,6 +28,7 @@ def app(model, parameters):
             Medium -> [jchavezar](https://medium.com/@jchavezar)
             """
         )
+    st.markdown(f""" :green[repo:] [![Repo]({github_icon})]({ask_your_image})""")
 
     uploaded_file = st.file_uploader("Upload your image here...", type=['png', 'jpeg', 'jpg'])
     question = st.text_input(label="Ask something about the image...")

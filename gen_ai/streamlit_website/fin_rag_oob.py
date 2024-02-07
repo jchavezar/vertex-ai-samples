@@ -2,6 +2,7 @@
 import vertexai
 import pandas as pd
 import streamlit as st
+from utils.links_references import *
 from google.cloud import discoveryengine
 from google.protobuf.json_format import MessageToDict
 from vertexai.preview.language_models import TextGenerationModel
@@ -17,8 +18,7 @@ variables={
 def app(model, parameters):
     st.title('Retrieval Augmented Generation (RAG) | Vertex Search')
     st.image("images/rag_vertexsearch.png")
-    st.markdown("[github repo](https://github.com/jchavezar/vertex-ai-samples/tree/main/gen_ai/pages/Financial_RAG_[Vertex_Search].py)")
-
+    st.markdown(f""" :green[repo:] [![Repo]({github_icon})]({fin_rag_oob})""")
 
     with st.sidebar:
         st.markdown(

@@ -4,6 +4,7 @@ import httpx
 import vertexai
 import streamlit as st
 from utils import sockcop_vertexai
+from utils.links_references import *
 from vertexai.language_models import TextGenerationModel
 from streamlit_extras.colored_header import colored_header
 from vertexai.preview.generative_models import GenerativeModel, Part
@@ -18,7 +19,8 @@ variables={
 
 def app(model, parameters):
     st.image("images/react_vsearch_1.png")
-
+    st.markdown(f""" :green[repo:] [![Repo]({github_icon})]({culture_react})""")
+    
     with st.expander("About the Application"):
         st.write("""
                  Content:

@@ -6,6 +6,7 @@ import pandas as pd
 import streamlit as st 
 from utils import sockcop_rag
 from utils import sockcop_vertexai
+from utils.links_references import *
 from utils.video.credentials import *
 
 variables = {
@@ -93,6 +94,7 @@ def app(model, parameters):
     #%%
     st.title("Anytime RAG Bot")
     st.image("images/realtime_rag.png")
+    st.markdown(f""" :green[repo:] [![Repo]({github_icon})]({ask_your_doc})""")
     #st.title("Chat with Your PDF") 
     pdf = st.file_uploader("Upload your PDF", type="pdf")
     if pdf:
