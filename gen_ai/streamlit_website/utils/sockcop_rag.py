@@ -71,13 +71,13 @@ class Client:
             ]
             for future in concurrent.futures.as_completed(futures):
               results.append(Document.to_dict(future.result().document)["text"])
-
+        
         def split_text_by_chunks(text, chunk_size):
             return [text[i:i + chunk_size] for i in range(0, len(text), chunk_size)]
 
         documents = {}
         for page, result in enumerate(results):
-            documents[str(page)] = split_text_by_chunks(result["text"], 750)
+            documents[str(page)] = split_text_by_chunks(result, 750)
         ocr_time = time.time()-start_job_time
         print(f"Time checkpoint [ocr]: {ocr_time}")
         #endregion
@@ -102,8 +102,6 @@ class Client:
                     #pp = 0
                 embeddings.append({paragraph : self.model_emb.get_embeddings([paragraph])[0].values})
                 documents[page] = embeddings
-                if "Retirement" in paragraph:
-                    print(paragraph)
         print(f"Time checkpoint [embeddings]: {time.time()-start}")
         #endregion
         

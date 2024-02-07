@@ -8,7 +8,7 @@ from typing import List
 from google.cloud import aiplatform
 from google.cloud import discoveryengine, bigquery
 from google.protobuf.json_format import MessageToDict
-from vertexai.preview.generative_models import GenerativeModel
+from vertexai.preview import generative_models
 from vertexai.language_models import TextGenerationModel, ChatModel, CodeGenerationModel
 #endregion
 
@@ -111,7 +111,7 @@ class Client:
             _model = TextGenerationModel.from_pretrained(model)
             response = _model.predict(prompt,**parameters)
         else:
-            _model = GenerativeModel(model)
+            _model = generative_models.GenerativeModel(model)
             response = _model.generate_content([prompt],generation_config=parameters)  
 
         return response.text, model
@@ -131,8 +131,18 @@ class Client:
             _model = TextGenerationModel.from_pretrained(model)
             response = _model.predict(prompt,**parameters)
         else:
-            _model = GenerativeModel(model)
-            response = _model.generate_content([prompt],generation_config=parameters)  
+            _model = generative_models.GenerativeModel(model)
+            response = _model.generate_content(
+                [prompt],
+                generation_config=parameters,
+                safety_settings={
+                    generative_models.HarmCategory.HARM_CATEGORY_HATE_SPEECH: generative_models.HarmBlockThreshold.BLOCK_NONE,
+                    generative_models.HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT: generative_models.HarmBlockThreshold.BLOCK_NONE,
+                    generative_models.HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT: generative_models.HarmBlockThreshold.BLOCK_NONE,
+                    generative_models.HarmCategory.HARM_CATEGORY_HARASSMENT: generative_models.HarmBlockThreshold.BLOCK_NONE,
+                    },
+                )
+            print(response)
 
         st.info("Model Used: {}".format(model))
         return response.text
@@ -148,7 +158,7 @@ class Client:
             response = chat.send_message(prompt, **parameters)
             
         else: 
-            model = GenerativeModel("gemini-pro")
+            model = generative_models.GenerativeModel("gemini-pro")
             chat = model.start_chat()
             response = chat.send_message(template_context+"Query: \n"+prompt, generation_config=parameters, safety_settings=[])
         
@@ -183,7 +193,7 @@ class Client:
             model = CodeGenerationModel.from_pretrained(model)
             response = model.predict(prefix=prompt, **parameters)
         else:
-            model = GenerativeModel("gemini-pro")
+            model = generative_models.GenerativeModel("gemini-pro")
             response = model.generate_content([prompt],generation_config=parameters)        
         
         res=re.sub('```', "", response.text.replace("SQLQuery:", "").replace("sql", ""))
