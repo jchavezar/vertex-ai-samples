@@ -1,11 +1,13 @@
 import streamlit as st
 from crewai import Crew
+from utils.links_references import *
 from utils.crewai.search_analysis_tasks import SearchAnalysisTask
 from utils.crewai.search_analysis_agents import WebsiteAnalysisAgent
 from streamlit_extras.colored_header import colored_header
 
 def app(model, parameters):
     st.image("images/react_vsearch_crewai.png")
+    st.markdown(f""" :green[repo:] [![Repo]({github_icon})]({crewai_qa})""")
     with st.sidebar:
         st.markdown(
             """
@@ -32,7 +34,6 @@ def app(model, parameters):
             research_analyst_agent = agents.search_analyst(model, parameters)
             research_rag_internal_agent = agents.search_internal()
             research_analyst_task = tasks.search_analysis(research_analyst_agent, query=prompt)
-            research_internal_task = tasks.search_financial_internal(research_rag_internal_agent, query=prompt)
 
             crew = Crew(
                 agents=[research_analyst_agent, research_rag_internal_agent],
@@ -50,7 +51,6 @@ def app(model, parameters):
 
     st.session_state["crew"] = st.text_input("Ask anything 👇")
     if st.session_state["crew"] != "":
-            print("jajajaj")
             crew = FinancialCrew()
             result = crew.run(st.session_state["crew"])
-            st.info(result.replace("$",""))
+            st.info(result)

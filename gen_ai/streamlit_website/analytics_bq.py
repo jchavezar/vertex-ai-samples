@@ -1,11 +1,11 @@
 import re
 import sys
-sys.path.append("utils")
 import numpy as np
-from utils import sockcop_vertexai
+from utils.k import *
 import streamlit as st
 from google.cloud import bigquery
-from utils.k import *
+from utils import sockcop_vertexai
+from utils.links_references import *
 
 variables={
     "project":"vtxdemos",
@@ -28,6 +28,7 @@ def app(model_text, parameters_text, model_code, parameters_code):
     
     st.title("Analytics Code-b and BQ")
     st.image("images/analytics.png")
+    st.markdown(f""" :green[repo:] [![Repo]({github_icon})]({analytics_bq})""")
     with st.sidebar:
         st.markdown(
             """
@@ -98,36 +99,3 @@ def app(model_text, parameters_text, model_code, parameters_code):
     
     st.write(f"**Summarization from Text Large Language Model: {model_text}:**")
     st.write(re2)
-        
-    #button = f'''<script src="https://www.gstatic.com/dialogflow-console/fast/df-messenger/prod/v1/df-messenger.js"></script>
-    #<df-messenger
-    #  agent-id="{dialogflow_id}"
-    #  language-code="en">
-    #  <df-messenger-chat-bubble
-    #   chat-title="infobot"
-    #   bot-writing-text="..."
-    #   placeholder-text="Tell me something!">
-    #  </df-messenger-chat-bubble>
-    #</df-messenger>
-    #<style>
-    #  df-messenger {{
-    #    z-index: 999;
-    #    position: fixed;
-    #    bottom: 16px;
-    #    right: 16px;
-    #  }}
-    #</style>'''
-    #
-    #st.components.v1.html(button, height=700, width=350)
-    #
-    #st.markdown(
-    #    """
-    #    <style>
-    #        iframe[width="350"] {
-    #            position: fixed;
-    #            bottom: 60px;
-    #            right: 40px;
-    #    </style>
-    #    """,
-    #    unsafe_allow_html=True,
-    #)

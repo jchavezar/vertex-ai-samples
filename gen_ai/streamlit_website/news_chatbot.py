@@ -1,5 +1,6 @@
 import streamlit as st
 from utils import sockcop_vertexai
+from utils.links_references import *
 import streamlit.components.v1 as components
 from streamlit_extras.colored_header import colored_header
 
@@ -17,6 +18,8 @@ def app(model, parameters):
     st.write("**Model used: chat-bison@001**")
 
     st.image("images/genai_demos.png")
+    st.markdown(f""" :green[repo:] [![Repo]({github_icon})]({movies_qa})""")
+    
     st.sidebar.success("Select a demo above.")
     with st.sidebar:
         st.markdown(

@@ -5,6 +5,7 @@ import asyncio
 import pandas as pd
 import streamlit as st
 from unidecode import unidecode
+from utils.links_references import *
 from utils.video import credentials, variables, database
 from vertexai.preview.vision_models import MultiModalEmbeddingModel
 
@@ -57,7 +58,7 @@ def app():
         with open(file_name) as f:
             st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
 
-    st.markdown("[github repo](https://github.com/jchavezar/vertex-ai-samples/tree/main/gen_ai/video)", unsafe_allow_html=True)
+    st.markdown(f""" :green[repo:] [![Repo]({github_icon})]({med_contex_search})""")
 
     def remote_css(url):
         st.markdown(f'<link href="{url}" rel="stylesheet">', unsafe_allow_html=True)    
