@@ -47,83 +47,39 @@ def app(model, parameters):
         )
     
         
-        prompt = st.text_input("Enter some text 👇", value="Who had more Revenue Godfather or The Matrix?")
+    prompt = st.text_input("Enter some text 👇", value="Who had more Revenue Godfather or The Matrix?")
+
+    if prompt:
     
-        if prompt:
+        #region LLM Text Bison to Get Entities for Vertex Search
+        template_prompt =f"""Your nly task is extract entities, do not do anything else,
+        Task: create a list of entities like movies name or actors name from the following text:
         
-            #region LLM Text Bison to Get Entities for Vertex Search
-            template_prompt =f"""Your nly task is extract entities, do not do anything else,
-            Task: create a list of entities like movies name or actors name from the following text:
-            
+        {prompt}
+        
+        Output should be in the following python list format: ['entity1', 'entity2']
+        
+        """
+        response = client.llm2(template_prompt, model, parameters)
+        print(response)
+        entities = ast.literal_eval(re.findall(r"\[.*\]", response.strip())[0])
+
+        st.write(f"**Entities Detected:** \n\n")
+        st.write(entities)
+
+        df = pd.concat([client.search(i) for i in entities], ignore_index=True)
+        st.dataframe(df)
+        #%%
+
+        #region LLM Text Bison to get Insights from Vertex Search Results
+        template_prompt = f"""Use the following dataset as context, for comparisons the higher the better: 
+            {df.to_json(orient="records")}
+
             {prompt}
-            
-            Output should be in the following python list format: ['entity1', 'entity2']
-            
+
             """
-            response = client.llm2(template_prompt, model, parameters)
-            print(response)
-            entities = ast.literal_eval(re.findall(r"\[.*\]", response.strip())[0])
-            #movies = client.text_bison(
-            #    f"""Your only task is extract entities, don't do anything else,
-            #    Task: create a list of entities like movie's name or actor's name from the following text:
-    #
-            #    {prompt}
-    #
-            #    Output should be in the following python list format: ['entity1', 'entity2']
-    #
-            #    """)
-            #endregion
-    
-            st.write(f"**Entities Detected:** \n\n")
-            st.write(entities)
-    
-            df = pd.concat([client.search(i) for i in entities], ignore_index=True)
-            st.dataframe(df)
-            #%%
-    
-            #region LLM Text Bison to get Insights from Vertex Search Results
-            template_prompt = f"""Use the following dataset as context, for comparisons the higher the better: 
-                {df.to_json(orient="records")}
-    
-                {prompt}
-    
-                """
-            response = client.llm2(template_prompt, model, parameters)
-            insights = response.replace("$", "\$")
-            
-            st.write(insights)
-            #endregion
-    
-        button = f'''<script src="https://www.gstatic.com/dialogflow-console/fast/df-messenger/prod/v1/df-messenger.js"></script>
-        <df-messenger
-          agent-id="{dialogflow_id}"
-          language-code="en">
-          <df-messenger-chat-bubble
-           chat-title="infobot"
-           bot-writing-text="..."
-           placeholder-text="Tell me something!">
-          </df-messenger-chat-bubble>
-        </df-messenger>
-        <style>
-          df-messenger {{
-            z-index: 999;
-            position: fixed;
-            bottom: 16px;
-            right: 16px;
-          }}
-        </style>'''
-    
-        st.components.v1.html(button, height=700, width=350)
-    
-        st.markdown(
-            """
-            <style>
-                iframe[width="350"] {
-                    position: fixed;
-                    bottom: 60px;
-                    right: 40px;
-                }
-            </style>
-            """,
-            unsafe_allow_html=True,
-        )
+        response = client.llm2(template_prompt, model, parameters)
+        insights = response.replace("$", "\$")
+        
+        st.write(insights)
+        #endregion
