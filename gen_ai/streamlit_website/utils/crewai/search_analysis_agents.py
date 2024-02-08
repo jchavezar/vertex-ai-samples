@@ -5,7 +5,7 @@ from utils.crewai.k import *
 import streamlit as st
 from crewai import Agent
 from langchain.tools import Tool
-from utils.crewai.search_tools import SearchTools
+from streamlit_website.utils.crewai_tax.RagTools import SearchTools
 from langchain_google_vertexai import VertexAI
 from langchain_community.utilities import GoogleSearchAPIWrapper
 
@@ -31,10 +31,14 @@ class WebsiteAnalysisAgent():
       def __init__(self):
           pass
       def search_analyst(self, model, parameters):
+            print(parameters)
+            print(parameters["temperature"])
+            print(type(parameters["temperature"]))
             temperature = parameters["temperature"]
             max_output_tokens = parameters["max_output_tokens"]
             top_p = parameters["top_p"]
             top_k = parameters["top_k"]
+            print(temperature, max_output_tokens, top_p, top_k)
             self.llm = VertexAI(model_name=model, temperature=temperature, max_output_tokens=max_output_tokens, top_p=top_p, top_k=top_k)
             st.markdown(f":green[Model selected: {model}]")
             return Agent(
@@ -47,7 +51,7 @@ class WebsiteAnalysisAgent():
                     search_tool,
                     ],
                     )
-      def search_internal(self):
+      def search_internal(self, filename):
           return Agent(
               role="Financial Internal Data Analyst",
               goal="Get all the information you can from rag internal documents about what is being asked in the financial, revenue and sales space for Amazon, Microsoft and Google",
@@ -55,6 +59,6 @@ class WebsiteAnalysisAgent():
               llms=self.llm,
               verbose=True,
               tools=[
-                    SearchTools.search_rag,
+                    SearchTools.search_rag(filename=filename),
                     ],
               )
