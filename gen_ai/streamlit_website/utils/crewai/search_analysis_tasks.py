@@ -4,11 +4,11 @@ import streamlit as st
 
 class SearchAnalysisTask:
     """
-    Search Analysis Task
+    Tax Analysis Task
     """
     def search_analysis(self, agent, query):
       
-        context = "Collect any financial information from 'Financial Internal Data Analyst' agent only and the rest from the Internet Scraping Agent (internet)"
+        context = "Collect any financial tax information from internal tax agent expert and everything else from internet)"
         st.markdown(f":blue[Agent Task 1: {context}]")
         return Task(description=dedent(f"""
         {context}:
