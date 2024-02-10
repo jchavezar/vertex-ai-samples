@@ -54,6 +54,11 @@ def preprocess(filename: str):
     docs = preprocess_client.run(filename=filename)
     return asyncio.run(vector_database_client.run(docs))
 
+def find_match(input, schema):
+    query = model_emb.get_embeddings([input])[0].values
+    result = asyncio.run(vector_database_client.query(query, schema))
+    return result
+
 parameters = {
         "max_output_tokens": 8000,
         "temperature": 0.1,
