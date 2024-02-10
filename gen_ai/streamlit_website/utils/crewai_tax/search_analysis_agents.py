@@ -5,7 +5,6 @@ from utils.crewai.k import *
 import streamlit as st
 from crewai import Agent
 from langchain.tools import Tool
-from utils.crewai_tax import RagTools
 from utils.crewai_tax.tools import sTools
 from langchain_google_vertexai import VertexAI
 from langchain_community.utilities import GoogleSearchAPIWrapper
