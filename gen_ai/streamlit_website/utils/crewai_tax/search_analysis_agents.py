@@ -7,6 +7,7 @@ from crewai import Agent
 from langchain.tools import Tool
 from utils.crewai_tax.tools import sTools
 from langchain_google_vertexai import VertexAI
+from langchain.chains.llm_math.base import LLMMathChain
 from langchain_community.utilities import GoogleSearchAPIWrapper
 from langchain_community.chat_models.vertexai import ChatVertexAI
 
@@ -26,6 +27,13 @@ search_tool = Tool(
     name="Google Search",
     description="Search Google for recent results.",
     func=search.run,
+)
+
+llm_math_chain = LLMMathChain.from_llm(llm=ChatVertexAI(model="gemini-pro"))
+math_tool = Tool(
+    name="Calculator",
+    func=llm_math_chain.run,
+    description="useful when you need to answer questions about math"
 )
 
 class WebsiteAnalysisAgent():
@@ -61,10 +69,10 @@ class WebsiteAnalysisAgent():
               
               """,
               backstory="The Best cleaning expert & mathematician like Caurl Gauss or Srinivasa Ramanujan.",
-              llms=VertexAI(model="text-unicorn@001", temperature=0),
+              llms=ChatVertexAI(model="text-unicorn@001", temperature=0),
               tools=[
                   sTools.clean_interpret,
-                  sTools.calculate
+                  math_tool
                   ],
               allow_delegation=False,
               verbose=True,

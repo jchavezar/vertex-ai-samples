@@ -2,8 +2,9 @@
 import io
 import time
 import PyPDF2
-from typing import List
 import concurrent
+import streamlit as st
+from typing import List
 from google.cloud import documentai
 from google.cloud.documentai_v1 import Document
 from vertexai.language_models import TextEmbeddingModel
@@ -23,7 +24,7 @@ class Client:
         pdfs = []
         docs = []
         pdf_data = PyPDF2.PdfReader(filename)
-        print(f"Number of pages: {len(pdf_data.pages)}")
+        st.markdown(f"Number of pages: {len(pdf_data.pages)}")
         for page in pdf_data.pages:
             writer = PyPDF2.PdfWriter()
             writer.add_page(page)
@@ -34,7 +35,7 @@ class Client:
         adjust_rate_limit = rate_limit_minute / 2
 
         
-        print("Reading the file, please wait...")
+        st.markdown(":blue[Reading the file, please wait...]")
         def docai_runner(p, start, raw_document):
 
           sleep_time = (p * (60/adjust_rate_limit)) - (time.time() - start)
@@ -57,12 +58,12 @@ class Client:
             ]
             for page, future in enumerate(concurrent.futures.as_completed(futures)):
                 docs.append(Document.to_dict(future.result().document)["text"])
-        print(f"Job Finished in: {time.time()-start} sec")
+        st.markdown("Job Finished in: {:.2f} sec".format(time.time()-start))
         return docs
     #endregion
         
     def split_docs(self, docs: List, chunk_size=500, chunk_overlap=20):
-        print("Split and Chunk Text, please wait.")
+        st.markdown(":blue[Split and Chunk Text, please wait...]")
         lang_docs = []
         start = time.time()
         text_splitter = RecursiveCharacterTextSplitter(chunk_size=chunk_size, chunk_overlap=chunk_overlap)
@@ -72,12 +73,12 @@ class Client:
             for lang_doc in _docs:
                 lang_doc.metadata["page_number"]=page
                 lang_docs.append(lang_doc)
-        print(f"Job Finished in: {time.time()-start} sec")
+        st.markdown("Job Finished in: {:.2f} sec".format(time.time()-start))
         return lang_docs
 
         
     def create_embeddings(self, documents: List):
-        print("Getting Embeddings Rep from Text, please wait.")
+        st.markdown(":blue[Getting Embeddings Rep from Text, please wait.]")
         start = time.time()
         pp = 0
         docs_with_emb = []
@@ -91,7 +92,7 @@ class Client:
             if sleep_time > 0:
                 time.sleep(sleep_time)
             docs_with_emb.append({f"page": str(content.metadata["page_number"]), f"content": content.page_content, "embedding": self.model_emb.get_embeddings([f"page: {content.metadata['page_number']}, {content.page_content}"])[0].values})
-        print(f"Job Finished in:: {time.time()-start}")
+        st.markdown("Job Finished in: {:.2f} sec".format(time.time()-start))
         return docs_with_emb
     
     def run(self, filename):
@@ -99,7 +100,7 @@ class Client:
         text = self.read_file(filename)
         docs = self.split_docs(text)
         docs_with_emb = self.create_embeddings(docs)
-        print(f"Total Preprocessing Time: {time.time()-start}")
+        st.markdown(":green[Total Preprocessing Time:] {:.2f}".format(time.time()-start))
         return docs_with_emb
         
 
