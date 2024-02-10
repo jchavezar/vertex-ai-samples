@@ -1,22 +1,13 @@
 #%%
 #region Import Libraries
 from functools import reduce
-import io
-import json
-import time
-import PyPDF2
 import asyncio
 import asyncpg
-import vertexai
-import concurrent
 import numpy as np
 import pandas as pd
 import streamlit as st
 from typing import Dict, List
-from google.cloud import documentai
-from google.cloud import aiplatform
 from pgvector.asyncpg import register_vector
-from google.cloud.documentai_v1 import Document
 from google.cloud.sql.connector import Connector
 from vertexai.preview.language_models import TextGenerationModel, TextEmbeddingModel
 #endregion
@@ -44,7 +35,7 @@ class Client:
             await conn.execute(
                 f"""CREATE TABLE text_embeddings({self.schema}, embedding vector(768))"""
             )
-            print("Create Table Done...")
+            #st.markdown(":blue[Create Table Done...]")
             await conn.close()
     #endregion
 
@@ -64,10 +55,9 @@ class Client:
             await register_vector(conn)
             # Store all the generated embeddings back into the database.
             for doc in self.documents:
-                print(doc["page"])
                 values = tuple(list(doc.values()))
                 await conn.copy_records_to_table('text_embeddings', records=[values])
-            print("Insert Items Done...")
+            #st.markdown(":blue[Insert Items Done...]")
             await conn.close()
     #endregion
     
@@ -86,7 +76,7 @@ class Client:
         emb_query = query
         await register_vector(conn)
         similarity_threshold = 0.001
-        num_matches = 10
+        num_matches = 5
         # Find similar products to the query using cosine similarity search
         # over all vector embeddings. This new feature is provided by `pgvector`.
         results = await conn.fetch(
@@ -108,14 +98,22 @@ class Client:
             raise Exception("Did not find any results. Adjust the query parameters.")
         
         keys_list = list([str(v) for v in schema_keys.split(",")])
-        data = " | ".join(keys_list) + " | " + "similarity_score"
+        #data = " | ".join(keys_list) + " | " + "similarity_score"
+        data = ""
+        lst = []
         
         for r in results:
             # Collect the description for all the matched similar toy products.
+            st.write(r["content"])
+            st.markdown(":green[*]"*80)
+            res = str([v for v in r.values()][1])
+            #delim = " | "
+            #res = reduce(lambda x,y: str(x) + delim + str(y), [v for k,v in r.items() if k != "embedding"])
             
-            delim = " | "
-            res = reduce(lambda x,y: str(x) + delim + str(y), [v for k,v in r.items() if k != "embedding"])
-            data += "\n" + res
+            #data += "\n" + res
+            data += res + "\n"
+            lst.append(res)
+        #st.dataframe(pd.DataFrame({"text": lst}))
 
         await conn.close()
         return data
