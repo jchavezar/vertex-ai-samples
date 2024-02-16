@@ -40,6 +40,45 @@ def app(model, parameters):
     Use Thought to describe your thoughts about the question you have been asked.
     Use Action to run one of the actions available to you - then return PAUSE.
     Observation will be the result of running those actions.
+    - If you have references in your context add them to your answer to explain where the response came from.
+
+    Your only available actions are:
+
+    wikipedia: Any information NOT related to culture.
+
+    rag_search: For ANY question about culture. 
+
+    summarization: For summarization if wikipedia and rag_search were used.
+    
+    DO NOT repeat actions.
+    
+    -For culture questions prioritize to look at rag_search first for the rest use wikipedia.
+    -Do not use any other action which is not wikipedia, rag_search or summarization.
+    -If you do not find the answer through the actions just say you do not know it.
+
+    ### EXAMPLES ###
+    User Question: What is the capital of France?
+    Bot Thought: I should look up France on Wikipedia
+    Bot Action: wikipedia: France
+    PAUSE (wait for external action)
+
+    You will be called again with this:
+
+    Observation: France is a country. The capital is Paris.
+
+    You then output:
+
+    Answer: The capital of France is Paris
+    
+    ### CURRENT CONVERSATION ###
+    """
+    
+    prompt = """
+    You run in a loop of Thought, Action, PAUSE, Observation.
+    At the end of the loop you output an Answer
+    Use Thought to describe your thoughts about the question you have been asked.
+    Use Action to run one of the actions available to you - then return PAUSE.
+    Observation will be the result of running those actions.
 
     Your only available actions are:
 
@@ -47,7 +86,7 @@ def app(model, parameters):
     e.g. wikipedia: Python
     Returns a summary from searching Wikipedia.
 
-    rag_search (for culture questions):
+    rag_search:
     e.g. rag_search: Python.
     Search vector database rag for that term.
 
@@ -55,8 +94,8 @@ def app(model, parameters):
     e.g. summarization: Python is a high-level, general-purpose programming language. Its design philosophy emphasizes code readability with the use of significant indentation. Python is dynamically typed and garbage-collected. It supports multiple programming paradigms, including structured, object-oriented and functional programming. Wikipedia
     Returns a summarization for the description.
 
-    -For culture questions prioritize to look at rag_search first for the rest use wikipedia.
-    -Do not use any other action which is not wikipedia, rag_search or summarization.
+    Additional Instructions:
+    -For culture/cultural questions use Action: rag_search ONLY, do not use wikipedia.
     -If you do not find the answer through the actions just say you do not know it.
 
     Example session:
@@ -72,17 +111,14 @@ def app(model, parameters):
 
     You then output:
 
-    Answer: The capital of France is Paris
-
-    """.strip()
-
+    Answer: The capital of France is Paris    
+    """
 
     with st.expander("How does the prompt looks like?"):
         st.write(prompt)
 
     _react_settings = ["text-unicorn@001"]
-    _summ_settings = ["gemini-pro", "text-bison-32k", "text-bison"]
-
+    
     #region Model Settings
     with st.sidebar:
         st.info("**Unicorn Start here ↓**", icon="🦄")
@@ -123,36 +159,57 @@ def app(model, parameters):
             self.messages = []
 
             if self.system:
-                self.messages.append("Context: {}".format(system))
+                self.messages.append(system)
 
         def __call__(self, message):
             self.messages.append(message)
+            print("".join(self.messages))
             result = self.execute()
+            print(result)
             self.messages.append(result)
             return result
 
         def execute(self):
-            #print(self.messages)
             response = unicorn_model.predict("\n".join(self.messages), **_react_parameters)
-            #st.write(response.text)
-            print(response.text)
-            st.write(response.text)
             return response.text
 
     #region Action Functions
     def wikipedia(q):
         info = {f"context_{n}":c for n,c in enumerate(httpx.get("https://en.wikipedia.org/w/api.php", params={"action": "query", "list": "search", "srsearch": q, "format": "json"}).json()["query"]["search"]) if n<5}
-        print(info)    
+        with st.expander(":red[Wikipedia Output:]"):
+            st.markdown(str(info))
         return str(info)
 
-    def rag(q):
-        re = client.vertex_search(q)
-        st.write(re)
+    def rag(question):
+        context = client.vertex_search(question)
+        with st.expander(":green[Vector DB Result:]"):
+            st.markdown(context)
+        
+        prompt_template = f"""
+        From the following context only extract a summary with references to answer the following question:
+        - Do not make up any question.
+        - Your respond should not contain more than 2 paragraphs.
+        
+        Context:
+        {context}
+        
+        Question:
+        {question}
+        
+        Answer detailed with references:
+        """
+        #with st.expander(":greenp[ag_result:]"):
+        #    st.write(re)
+        re = client.llm2(prompt_template, model, parameters)
+        
+        with st.expander(":green[rag_function return:]"):
+            st.markdown(re)
+        
         return re
 
     def summarization(prompt):
         prompt_template = "Give me a summarization of the following: {}".format(prompt)
-        return client.llm2(prompt_template, model, parameters)
+        return f"Answer: {client.llm2(prompt_template, model, parameters)}"
 
     known_actions = {
         "wikipedia": wikipedia,
@@ -161,6 +218,7 @@ def app(model, parameters):
     }
 
     action_re = re.compile('^Action: (\w+): (.*)$')
+    answer_re = re.compile('^Answer: (\w+): (.*)$')
     #endregion
 
     def query(question, max_turns=5):
@@ -169,20 +227,32 @@ def app(model, parameters):
         next_prompt = question
         while i < max_turns:
             i += 1
-            result = bot("Question: {}".format(next_prompt))
+            if i == 1:
+                result = bot(f"Question: \n{next_prompt}")
+            if i > 1:
+                result = bot(f"\n{next_prompt}")
+            print("*"*80)
+            print(result)
+            print("*"*80)
             actions = [action_re.match(a) for a in result.split('\n') if action_re.match(a)]
+            print(actions)
             if actions:
                 # There is an action to run
                 action, action_input = actions[0].groups()
                 if action not in known_actions:
+                    st.markdown(":green[Unknown action:] {}: {}".format(action, action_input))
                     raise Exception("Unknown action: {}: {}".format(action, action_input))
                 st.write(" -- running {} {}".format(action, action_input))
                 observation = known_actions[action](action_input)
-                #st.write("Observation:", observation)
+                print(observation)
                 next_prompt = "Observation: {}".format(observation)
+                if answer_re.match(result):
+                    st.info(result)
+                    return
             else:
+                st.info(result)
                 return
 
-    p = st.text_input(label="Ask something like 'Tell me more about UK culture'")
+    p = st.text_input(label="Ask something like 'Tell me more about LAOS culture'")
     if p != "":
         query(p)
