@@ -27,3 +27,4 @@ langchain==0.0.311
 pgvector==0.1.8
 httpx
 streamlit_option_menu
+numexpr
