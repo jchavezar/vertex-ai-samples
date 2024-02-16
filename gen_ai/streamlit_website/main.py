@@ -5,10 +5,10 @@ from streamlit_extras.colored_header import colored_header
 import home, fin_rag_diy, fin_rag_oob, news_elpais_qa, news_conv_elpais_qa,  news_chatbot, med_contex_search, movies_qa, analytics_bq, ent_caregiver_bio, culture_react, reading_35_pages, ask_your_doc, ask_your_image, ask_your_tax
 import crewai_qa
 
-st.set_page_config(page_title="Google Generative AI", page_icon=":tada:", layout="wide")
+st.set_page_config(page_title="Google Generative AI", page_icon=":tada:")
 #st.title("# Main")
 colored_header(
-    label="Google Generative AI 👋",
+    label="GenAI Demos 👋",
     description="Natural Language Demos Prototype",
     color_name="violet-70",
 )
@@ -69,10 +69,10 @@ class MultiApp:
                 menu_icon="building-fill",
                 default_index=0,
                 styles={
-                        "container": {"padding": "2!important","background-color":'black'},
-                        "icon": {"color": "white", "font-size": "23px"}, 
-                        "nav-link": {"color":"white","font-size": "20px", "text-align": "left", "margin":"0px", "--hover-color": "blue"},
-                        "nav-link-selected": {"background-color": "#02ab21"},}
+                        "container": {"padding": "2!important"},
+                        "icon": {"color": "blue", "font-size": "23px"}, 
+                        "nav-link": {"font-size": "20px", "text-align": "left", "margin":"0px", "--hover-color": "orange"},
+                        "nav-link-selected": {"color":"white","background-color": "#02ab21"},}
             )
             
         print(app)

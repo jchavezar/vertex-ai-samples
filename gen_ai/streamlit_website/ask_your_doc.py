@@ -65,7 +65,7 @@ def app(model, parameters):
     def query(query):    
         start = time.time()
         matches = asyncio.run(client.query(query))
-        st.markdown(f"Vector DB Query Time: **{round(time.time() - start, 2)} sec**")
+        st.markdown(f":green[Vector DB Query Time:] **{round(time.time() - start, 2)} sec**")
         df = pd.DataFrame(matches)
         
         prompt_template = f"""
@@ -103,7 +103,8 @@ def app(model, parameters):
         text = st.text_input("Prompt")
         if text:
             reponse, df = query(text)
-            st.markdown("***Google:***")
-            st.info(f"Response: {reponse}")
-            st.write(documents)
-            st.write(df)    
+            st.info(reponse)
+            with st.expander("logs/info"):
+                st.markdown("***Response:***")
+                st.write(documents)
+                st.write(df)    
