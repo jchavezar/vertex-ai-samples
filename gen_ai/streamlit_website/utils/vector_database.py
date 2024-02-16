@@ -104,15 +104,12 @@ class Client:
         
         for r in results:
             # Collect the description for all the matched similar toy products.
-            st.write(r["content"])
-            st.markdown(":green[*]"*80)
+
             res = str([v for v in r.values()][1])
-            #delim = " | "
-            #res = reduce(lambda x,y: str(x) + delim + str(y), [v for k,v in r.items() if k != "embedding"])
-            
-            #data += "\n" + res
             data += res + "\n"
             lst.append(res)
+        with st.expander(label="Vector Query Result"):
+            st.write(lst)
         #st.dataframe(pd.DataFrame({"text": lst}))
 
         await conn.close()

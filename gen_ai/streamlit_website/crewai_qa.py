@@ -32,11 +32,10 @@ def app(model, parameters):
             tasks = SearchAnalysisTask()
 
             research_analyst_agent = agents.search_analyst(model, parameters)
-            research_rag_internal_agent = agents.search_internal()
             research_analyst_task = tasks.search_analysis(research_analyst_agent, query=prompt)
 
             crew = Crew(
-                agents=[research_analyst_agent, research_rag_internal_agent],
+                agents=[research_analyst_agent],
                 tasks=[research_analyst_task],
                 verbose=True
             )
@@ -53,4 +52,4 @@ def app(model, parameters):
     if st.session_state["crew"] != "":
             crew = FinancialCrew()
             result = crew.run(st.session_state["crew"])
-            st.info(result)
+            st.info(result.replace("$", ""))

@@ -2,10 +2,11 @@ import streamlit as st
 from streamlit_option_menu import option_menu
 from utils.model_selection import ModelSelection
 from streamlit_extras.colored_header import colored_header
-import home, fin_rag_diy, fin_rag_oob, news_elpais_qa, news_conv_elpais_qa,  news_chatbot, med_contex_search, movies_qa, analytics_bq, ent_caregiver_bio, culture_react, crewai_qa, reading_35_pages, ask_your_doc, ask_your_image
+import home, fin_rag_diy, fin_rag_oob, news_elpais_qa, news_conv_elpais_qa,  news_chatbot, med_contex_search, movies_qa, analytics_bq, ent_caregiver_bio, culture_react, reading_35_pages, ask_your_doc, ask_your_image, ask_your_tax
+import crewai_qa
 
+st.set_page_config(page_title="Google Generative AI", page_icon=":tada:", layout="wide")
 #st.title("# Main")
-st.set_page_config(page_title="Google Generative AI", page_icon=":tada:")
 colored_header(
     label="Google Generative AI 👋",
     description="Natural Language Demos Prototype",
@@ -44,7 +45,8 @@ class MultiApp:
                     "CrewAI Q&A",
                     "Reading 35 Pages Q&A",
                     "Ask your Document",
-                    "Ask your Photo"
+                    "Ask your Photo", 
+                    "Ask your Tax"
                     ],
                 icons=[
                     "house",
@@ -61,7 +63,8 @@ class MultiApp:
                     "collection",
                     "book",
                     "file-earmark-pdf",
-                    "file-image"
+                    "file-image",
+                    "bank"
                     ],
                 menu_icon="building-fill",
                 default_index=0,
@@ -110,6 +113,8 @@ class MultiApp:
         if app == "CrewAI Q&A":
             model, parameters = md.get_parameters_text()
             crewai_qa.app(model, parameters)
+           #orch_model, comp_model, other_model, orch_params, comp_params, other_params = md.get_parameters_for_tax() 
+           #ask_your_tax.app(orch_model, comp_model, other_model, orch_params, comp_params, other_params)
         if app == "Reading 35 Pages Q&A":
             model, parameters = md.get_parameters_32k_models()
             reading_35_pages.app(model, parameters)
@@ -119,4 +124,7 @@ class MultiApp:
         if app == "Ask your Photo":
             model, parameters = md.get_parameters_images() 
             ask_your_image.app(model, parameters)
+        if app == "Ask your Tax":
+           orch_model, comp_model, other_model, orch_params, comp_params, other_params = md.get_parameters_for_tax() 
+           ask_your_tax.app(orch_model, comp_model, other_model, orch_params, comp_params, other_params)
     run()

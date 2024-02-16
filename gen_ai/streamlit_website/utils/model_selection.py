@@ -97,5 +97,49 @@ class ModelSelection:
             
             parameters = {"temperature": temperature, "max_output_tokens": token_limit, "top_p": top_p, "top_k": top_k}    
         
-        return model, parameters 
+        return model, parameters
     
+    def get_parameters_for_tax(self):
+        with st.sidebar:
+            st.info("**LLM Orchestrator ↓**", icon="🤖")
+            settings = ["gemini-pro", "gemini-ultra"]
+            orch_model = st.selectbox("Choose a model", settings, key="tax_model_1")
+            temperature = st.select_slider("Temperature", [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1], key="tax_temperature_1", value=0.2) 
+            token_limit = st.select_slider("Token Limit", range(1,8193), key="tax_token_1", value=5000)
+            top_k = st.select_slider("Top-K", range(1, 41), key="tax_topk", value=40)
+            top_p = st.select_slider("Top-P", [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1], key="tax_top_p_1", value=0.8) 
+            orch_params = {"temperature": temperature, "max_output_tokens": token_limit, "top_p": top_p, "tax_top_k_1": top_k}
+            st.divider()
+            
+        with st.sidebar:
+            st.info("**Complex Operations (Math Operations) ↓**", icon="✨")
+            settings = ["text-unicorn@001", "gemini-pro"]
+            comp_model = st.selectbox("Choose a text model",  settings, key="tax_model_2")
+
+            temperature = st.select_slider("Temperature", [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1], key="tax_temperature_2", value=0) 
+            if comp_model == "gemini-pro":
+                token_limit = st.select_slider("Token Limit", range(1,8193), key="tax_token_2", value=1024)
+            else:
+                token_limit = st.select_slider("Token Limit", range(1, 2049), key="tax_token_2", value=256)
+            top_k = st.select_slider("Top-K", range(1, 41), key="tax_top_k_2", value=40)
+            top_p = st.select_slider("Top-P", [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1], key="tax_top_p_2", value=0.8)
+            comp_params = {"temperature": temperature, "max_output_tokens": token_limit, "top_p": top_p, "tax_top_k_2": top_k}
+            st.divider()
+
+        with st.sidebar:
+            st.info("**Other Operations (Agents) ↓**", icon="✨")
+            settings = ["gemini-pro", "text-unicorn@001"]
+            other_model = st.selectbox("Choose a text model",  settings, key="tax_model_3")
+
+            temperature = st.select_slider("Temperature", [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1], key="tax_temperature_3", value=0) 
+            if other_model == "gemini-pro":
+                token_limit = st.select_slider("Token Limit", range(1,8193), key="tax_token_3", value=8000)
+            else:
+                token_limit = st.select_slider("Token Limit", range(1, 2049), key="tax_token_3", value=2000)
+            top_k = st.select_slider("Top-K", range(1, 41), key="text_top_k", value=40)
+            top_p = st.select_slider("Top-P", [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1], key="tax_top_p_3", value=0.8)
+            other_params = {"temperature": temperature, "max_output_tokens": token_limit, "top_p": top_p, "tax_top_k_3": top_k}
+            st.divider()
+            
+        
+        return orch_model, comp_model, other_model, orch_params, comp_params, other_params
