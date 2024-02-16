@@ -1,17 +1,9 @@
 
-import os
-import requests
 from utils.k import *
-from bs4 import BeautifulSoup
-from googlesearch import search
-from langchain.tools import tool
-from crewai import Agent, Task
-from google.cloud import discoveryengine
 import streamlit as st
+from langchain.tools import tool
+from google.cloud import discoveryengine
 from google.protobuf.json_format import MessageToDict
-from unstructured.partition.html import partition_html
-from langchain.tools import Tool
-from langchain_community.utilities import GoogleSearchAPIWrapper
 
 variables={
     "project":"vtxdemos",
@@ -21,8 +13,8 @@ variables={
 }
 
 class SearchTools():    
-    @tool("Search financial internal documents about Google, Amazon and Microsoft")
-    def search_rag(query):
+    @tool("internal_rag")
+    def internal_rag(query):
         """Useful to search through internal documents"""
 
         vsearch_client = discoveryengine.SearchServiceClient()
@@ -47,5 +39,6 @@ class SearchTools():
             for ans in i["derivedStructData"]["extractive_answers"]:
                 context.append(ans["content"])
         res = ''.join(context)
-        print(res)
+        with st.expander("internal_rag_context"):
+            st.markdown(res.replace("$", ""))
         return str(res)

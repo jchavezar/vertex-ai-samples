@@ -8,7 +8,7 @@ class SearchAnalysisTask:
     """
     def search_analysis(self, agent, query):
       
-        context = "Collect any financial tax information from internal tax agent expert and everything else from internet)"
+        context = "Collect any financial tax information from internal_rag tool and everything else from internet tool"
         st.markdown(f":blue[Agent Task 1: {context}]")
         return Task(description=dedent(f"""
         {context}:

@@ -6,18 +6,6 @@ from annotated_text import annotated_text
 
 def app():
     st.title('Content')
-    
-    #st.set_page_config(
-    #    page_title="Generative AI",
-    #    page_icon="👋",
-    #)
-#
-    #colored_header(
-    #    label=":blue[Google Cloud Generative AI] :sparkles: ",
-    #    description="Google LLM Demos",
-    #    color_name="red-80",
-    #)
-
     st.sidebar.success("Select a demo above.")
     with st.sidebar:
         st.markdown(
