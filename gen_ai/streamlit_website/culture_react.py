@@ -218,7 +218,7 @@ def app(model, parameters):
     }
 
     action_re = re.compile('^Action: (\w+): (.*)$')
-    answer_re = re.compile('^Answer: (\w+): (.*)$')
+    answer_re = re.compile('^Answer: (.*)$')
     #endregion
 
     def query(question, max_turns=5):
@@ -234,7 +234,19 @@ def app(model, parameters):
             print("*"*80)
             print(result)
             print("*"*80)
-            actions = [action_re.match(a) for a in result.split('\n') if action_re.match(a)]
+            actions = []
+            for a in result.split("\n"):
+                if action_re.match(a):
+                    actions.append(action_re.match(a))
+                elif answer_re.match(a):
+                    print("Answer found")
+                    st.write(result)
+                    return
+            # if answer_re.match(result):
+            #     print("ANSWERED")
+            #     st.info(result)
+            #     return
+            # actions = [action_re.match(a) for a in result.split('\n') if action_re.match(a)]
             print(actions)
             if actions:
                 # There is an action to run
@@ -244,11 +256,7 @@ def app(model, parameters):
                     raise Exception("Unknown action: {}: {}".format(action, action_input))
                 st.write(" -- running {} {}".format(action, action_input))
                 observation = known_actions[action](action_input)
-                print(observation)
                 next_prompt = "Observation: {}".format(observation)
-                if answer_re.match(result):
-                    st.info(result)
-                    return
             else:
                 st.info(result)
                 return
