@@ -2,7 +2,7 @@ import streamlit as st
 from streamlit_option_menu import option_menu
 from utils.model_selection import ModelSelection
 from streamlit_extras.colored_header import colored_header
-import home, fin_rag_diy, fin_rag_oob, news_elpais_qa, news_conv_elpais_qa,  news_chatbot, med_contex_search, movies_qa, analytics_bq, ent_caregiver_bio, culture_react, reading_35_pages, ask_your_doc, ask_your_image, ask_your_tax
+import home, fin_rag_diy, fin_rag_oob, news_elpais_qa, news_conv_elpais_qa,  news_chatbot, med_contex_search, movies_qa, analytics_bq, ent_caregiver_bio, culture_react, reading_35_pages, ask_your_doc, ask_your_image, ask_your_tax, ask_your_doc_functions
 import crewai_qa
 
 st.set_page_config(page_title="Google Generative AI", page_icon=":tada:")
@@ -46,7 +46,8 @@ class MultiApp:
                     "Reading 35 Pages Q&A",
                     "Ask your Document",
                     "Ask your Photo", 
-                    "Ask your Tax"
+                    "Ask your Tax",
+                    "Gemini Functions"
                     ],
                 icons=[
                     "house",
@@ -64,7 +65,8 @@ class MultiApp:
                     "book",
                     "file-earmark-pdf",
                     "file-image",
-                    "bank"
+                    "bank",
+                    "grid"
                     ],
                 menu_icon="building-fill",
                 default_index=0,
@@ -127,4 +129,6 @@ class MultiApp:
         if app == "Ask your Tax":
            orch_model, comp_model, other_model, orch_params, comp_params, other_params = md.get_parameters_for_tax() 
            ask_your_tax.app(orch_model, comp_model, other_model, orch_params, comp_params, other_params)
+        if app == "Gemini Functions":
+            ask_your_doc_functions.app()
     run()

@@ -1,6 +1,6 @@
 #%%
 import os
-from k import *
+from utils.k import *
 import gradio as gr
 from langchain.vectorstores import FAISS
 from langchain.embeddings.openai import OpenAIEmbeddings
