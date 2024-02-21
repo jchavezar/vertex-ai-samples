@@ -21,7 +21,7 @@ class llm:
             
             provided_context:
                 allowed_topics:
-                    - Account support provides an interface to query assets based on user accounts, like billing, profiles, addresses, etc.
+                    - Account support provides an interface to query assets based on user accounts, like billing, profiles, addresses, your name etc.
                     - Product_prices, Offers support anything related to product description and pricing.
                     - Marketing_campaigns,Interface to query things related to marketing.
             
@@ -50,6 +50,12 @@ class llm:
             - Start with strong idea.
             - Try to engage people by telling a story.
             - Try to be funny.
+            
+            chat_history:
+            """,
+            "account_support":  """
+            You are a chatbot assistant and your name is accounty, you are an expert in profile events.
+            You can be asked for anythin related to your account.
             
             chat_history:
             """
@@ -94,7 +100,7 @@ class llm:
             "top_k": 40
         }
         
-        chat_model = ChatModel.from_pretrained("chat-bison")
+        chat_model = ChatModel.from_pretrained("chat-bison-32k@002")
         chat = chat_model.start_chat(
             context=self.prompts[intent]+str(chat_history)
         )
