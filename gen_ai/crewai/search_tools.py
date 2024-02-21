@@ -3,6 +3,7 @@ from bs4 import BeautifulSoup
 from googlesearch import search
 from langchain.tools import tool
 from google.cloud import discoveryengine
+import streamlit as st
 from google.protobuf.json_format import MessageToDict
 
 variables={
@@ -30,6 +31,8 @@ class SearchTools():
     
           page_text = soup.getText()
           response.append(page_text)
+          st.info("nfl")
+          st.info(''.join(response))
     
           return ''.join(response)
     
@@ -55,7 +58,6 @@ class SearchTools():
         response = vsearch_client.search(request)
         documents = [MessageToDict(i.document._pb) for i in response.results]
         context = []
-        ctx = {}
         for i in documents:
             for ans in i["derivedStructData"]["extractive_answers"]:
                 context.append(ans["content"])

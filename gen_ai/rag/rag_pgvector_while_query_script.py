@@ -4,7 +4,7 @@ import os
 import base64
 import time
 import asyncio
-from k import k
+from utils.k import k
 import pandas as pd
 from utils import google
 from openai import OpenAI

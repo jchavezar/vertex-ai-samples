@@ -2,7 +2,6 @@
 import asyncio
 import vertexai
 import gradio as gr
-import streamlit as st
 from utils.credentials import *
 from utils import database
 from datetime import datetime, timezone

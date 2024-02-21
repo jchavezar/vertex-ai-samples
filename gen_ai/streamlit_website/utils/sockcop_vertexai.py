@@ -142,7 +142,6 @@ class Client:
                     generative_models.HarmCategory.HARM_CATEGORY_HARASSMENT: generative_models.HarmBlockThreshold.BLOCK_NONE,
                     },
                 )
-            print(response)
 
         st.info("Model Used: {}".format(model))
         return response.text

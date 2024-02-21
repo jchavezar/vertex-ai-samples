@@ -7,7 +7,7 @@ class ModelSelection:
     def get_parameters_text(self):
         with st.sidebar:
             st.info("**Gemini or Bison ↓**", icon="✨")
-            settings = ["text-bison@002", "text-bison-32k@002", "gemini-pro"]
+            settings = ["gemini-pro", "text-bison@002", "text-bison-32k@002"]
             model = st.selectbox("Choose a text model",  settings, key="text_model_1")
 
             temperature = st.select_slider("Temperature", [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1], key="model_2", value=0.2) 

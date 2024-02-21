@@ -19,3 +19,10 @@ class SearchAnalysisTask:
       """),
       agent=agent
     )
+    def search_financial_internal(self, agent, query): 
+        return Task(description=dedent(f"""
+        Collect any financial information related financial statements,income, outcome, layoffs numbers, etc.
+        Pay special attention to any information about economics in the year asked.
+      """),
+      agent=agent
+    )

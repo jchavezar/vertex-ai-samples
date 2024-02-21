@@ -3,7 +3,7 @@ import os
 import base64
 import time
 import asyncio
-from k import k
+from utils.k import k
 import pandas as pd
 import streamlit as st 
 from utils import google
