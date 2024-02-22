@@ -11,7 +11,7 @@ RUN pip install --upgrade pip
 RUN pip install -r requirements.txt
 RUN pip install -r utils/crewai/requirements.txt
 RUN pip install crewai --upgrade
-RUN pip install -U google-cloud-aiplatform
+RUN pip install -U google-cloud-aiplatform "shapely < 2.0.0"
 RUN pip install -U crewai
 COPY . .
 COPY libraries/crewai/utilities/logger.py /usr/local/lib/python3.10/site-packages/crewai/utilities/logger.py
