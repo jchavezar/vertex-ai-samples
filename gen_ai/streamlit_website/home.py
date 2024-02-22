@@ -5,7 +5,6 @@ from streamlit_extras.colored_header import colored_header
 from annotated_text import annotated_text
 
 def app():
-    st.title('Content')
     st.sidebar.success("Select a demo above.")
     with st.sidebar:
         st.markdown(
