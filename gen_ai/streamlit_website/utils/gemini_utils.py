@@ -1,8 +1,3 @@
-import json
-import requests
-import textwrap
-from typing import Tuple
-from google.cloud import aiplatform
 from vertexai.preview.generative_models import GenerativeModel, GenerationResponse
 from proto.marshal.collections import repeated
 from proto.marshal.collections import maps

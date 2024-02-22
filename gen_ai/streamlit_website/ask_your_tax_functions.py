@@ -31,11 +31,11 @@ model_emb = TextEmbeddingModel.from_pretrained("textembedding-gecko@001")
 
 #region Python Functions
 def math_operation_calculate(text: str):
-  """Operation using Eval."""
-  print("llm for math operation")
-  
-  responses = model.generate_content(
-    f"""
+    """Operation using Eval."""
+    print("llm for math operation")
+
+    responses = model.generate_content(
+        f"""
     your task is to interpret the following query and transform in a way readable by eval pyton function:
     - Your response should be the string argument inside of eval only.
     - Do not add either word python or backticks to the response.
@@ -47,31 +47,31 @@ def math_operation_calculate(text: str):
     Query: {text}
     
     Output:""",
-    generation_config={
-        "max_output_tokens": 2048,
-        "temperature": 0.9,
-        "top_p": 1
-    },
-    safety_settings={
-        generative_models.HarmCategory.HARM_CATEGORY_HATE_SPEECH: generative_models.HarmBlockThreshold.BLOCK_ONLY_HIGH,
-        generative_models.HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT: generative_models.HarmBlockThreshold.BLOCK_ONLY_HIGH,
-        generative_models.HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT: generative_models.HarmBlockThreshold.BLOCK_ONLY_HIGH,
-        generative_models.HarmCategory.HARM_CATEGORY_HARASSMENT: generative_models.HarmBlockThreshold.BLOCK_ONLY_HIGH,
-    },
-  )
-  print(responses.text)
-  
-  return f"The final answer is {eval(responses.text)}"
-    
-#return eval(responses.text)
+        generation_config={
+            "max_output_tokens": 2048,
+            "temperature": 0.9,
+            "top_p": 1
+        },
+        safety_settings={
+            generative_models.HarmCategory.HARM_CATEGORY_HATE_SPEECH: generative_models.HarmBlockThreshold.BLOCK_ONLY_HIGH,
+            generative_models.HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT: generative_models.HarmBlockThreshold.BLOCK_ONLY_HIGH,
+            generative_models.HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT: generative_models.HarmBlockThreshold.BLOCK_ONLY_HIGH,
+            generative_models.HarmCategory.HARM_CATEGORY_HARASSMENT: generative_models.HarmBlockThreshold.BLOCK_ONLY_HIGH,
+        },
+    )
+    print(responses.text)
+
+    return f"The final answer is {eval(responses.text)}"
+
+    #return eval(responses.text)
 
 def call_api(name: str, args: Tuple[str]) -> str:
-  """Check the incoming function name then call the appropriate API."""
-  print(name)
-  if name == "math_operation_calculate":
-    print(f"\nMath Operation Calculate Tool...")
-    text = args.get("values", None)
-    return math_operation_calculate(text=text)
+    """Check the incoming function name then call the appropriate API."""
+    print(name)
+    if name == "math_operation_calculate":
+        print(f"\nMath Operation Calculate Tool...")
+        text = args.get("values", None)
+        return math_operation_calculate(text=text)
 
 def get_llm_output(res: GenerationResponse) -> Tuple[str, str]:
     """Helper to parse response and return the text or function details."""
@@ -102,8 +102,8 @@ def get_llm_output(res: GenerationResponse) -> Tuple[str, str]:
     return action, output
 
 def summarize_api_result(text: str) -> str:
-  """Summarize the API result."""
-  prompt = """Summarize the result and provide 3 bullet points back to the user.
+    """Summarize the API result."""
+    prompt = """Summarize the result and provide 3 bullet points back to the user.
   Respond with something like:
   `Here's what I found:
   - result1
@@ -113,10 +113,10 @@ def summarize_api_result(text: str) -> str:
   result:
   `
   """
-  model = GenerativeModel("gemini-pro")
-  res = model.generate_content(prompt + text)
+    model = GenerativeModel("gemini-pro")
+    res = model.generate_content(prompt + text)
 
-  return res.text
+    return res.text
 #endregion
 
 #region RAG
@@ -129,20 +129,20 @@ def find_match(input, schema):
 #%%
 #region Function Calling Definition
 math_spec ={
-  "name": "math_operation_calculate",
-  "description": "Get the mathematical operation of numbers",
-  "parameters": {
-      "type": "object",
-      "properties": {
-          "values": {
-              "type": "string",
-              "description": "the numbers to evaluate"
-          },
-      },
-      "required": [
-          "values"
-      ]
-  }
+    "name": "math_operation_calculate",
+    "description": "Get the mathematical operation of numbers",
+    "parameters": {
+        "type": "object",
+        "properties": {
+            "values": {
+                "type": "string",
+                "description": "the numbers to evaluate"
+            },
+        },
+        "required": [
+            "values"
+        ]
+    }
 }
 
 all_tools = Tool.from_dict(
@@ -187,11 +187,11 @@ react_prompt_def = f"""Your name is Gemini and you are a helpful and polite AI
 #%%
 #region Main
 safety_settings = {
-        generative_models.HarmCategory.HARM_CATEGORY_HATE_SPEECH: generative_models.HarmBlockThreshold.BLOCK_NONE,
-        generative_models.HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT: generative_models.HarmBlockThreshold.BLOCK_NONE,
-        generative_models.HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT: generative_models.HarmBlockThreshold.BLOCK_NONE,
-        generative_models.HarmCategory.HARM_CATEGORY_HARASSMENT: generative_models.HarmBlockThreshold.BLOCK_NONE,
-    }
+    generative_models.HarmCategory.HARM_CATEGORY_HATE_SPEECH: generative_models.HarmBlockThreshold.BLOCK_NONE,
+    generative_models.HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT: generative_models.HarmBlockThreshold.BLOCK_NONE,
+    generative_models.HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT: generative_models.HarmBlockThreshold.BLOCK_NONE,
+    generative_models.HarmCategory.HARM_CATEGORY_HARASSMENT: generative_models.HarmBlockThreshold.BLOCK_NONE,
+}
 query = "What's the sum of 2 and 2?"
 init_prompt = react_prompt_def + f"\n ORIGNAL USER QUERY: {query}"
 fc_chat = model.start_chat()
