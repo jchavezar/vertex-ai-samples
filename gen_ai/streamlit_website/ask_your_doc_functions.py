@@ -8,6 +8,7 @@ from pathlib import Path
 from typing import Tuple
 from utils import vector_database
 from google.cloud import bigquery
+from utils.links_references import *
 from utils.video.credentials import *
 from utils import documents_preprocess
 from utils.gemini_utils import Functions
@@ -52,6 +53,7 @@ def app():
         
         with st.expander("Diagram:"):
             st.image("images/ask_your_doc_extensions.png")
+        st.markdown(f""" :green[repo:] [![Repo]({github_icon})]({ask_your_doc_functions})""")
 
         if 'area_key' not in st.session_state:
             st.session_state.area_key = 1
