@@ -63,7 +63,7 @@ def math_operation_calculate(text: str):
   
   return f"The final answer is {eval(responses.text)}"
     
-  #return eval(responses.text)
+#return eval(responses.text)
 
 def call_api(name: str, args: Tuple[str]) -> str:
   """Check the incoming function name then call the appropriate API."""
