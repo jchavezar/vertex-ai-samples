@@ -9,7 +9,7 @@ from langchain.chains.llm_math.base import LLMMathChain
 
 
 class sTools:
-    
+
     #region Context Clean Tool
     @tool("clean_interpret")
     def clean_interpret(context: str) -> str:
@@ -21,7 +21,7 @@ class sTools:
         Returns:
             str: items/description values or entities names.
         """
-        
+
         agent = Agent(
             role="Data Cleaning Expert",
             goal=dedent("Get keys like names, items, descriptions, numbers and values"),
@@ -31,8 +31,8 @@ class sTools:
             llm=VertexAI(model_name="text-unicorn@001", temperature=0)
         )
         task = Task(
-          agent=agent,
-          description=dedent(f"""
+            agent=agent,
+            description=dedent(f"""
         Interpret the Context and get key value pairs even though the data is a mess.
         This is a tax form therefore it is really important to detect items, descriptions, values and field keys like names, addresses, companies, checkboxes, etc...
         If you have both responses in checkboxes checked, just respond with 'there is no clear selection.'
@@ -49,19 +49,19 @@ class sTools:
         
         
         """),
-        expected_output=dedent("""
+            expected_output=dedent("""
         <key1>:<value1>
         <key2>:<value2>
         <key3>:<value3>
         ... etc
         
         """)
- 
-      )
+
+        )
         response = task.execute()
         return response
     #endreigon
-      
+
     #region Math Tool
     math_model = "text-unicorn@001"
     #st.markdown(f":blue[Model Used by Clean Agent for Math Operations:] {math_model}")

@@ -3,6 +3,15 @@
 # Getting Started
 All the steps are modular/flexible therefor order is not important, variables.py is the file for setting the values.
 
+# Note
+For some of the steps a docker repository is required:
+```sh
+gcloud artifacts repositories create custom-trains --repository-format=docker \
+--location=us-central1 --description="Docker repository"```
+
+gcloud artifacts repositories create custom-predictions --repository-format=docker \
+--location=us-central1 --description="Docker repository"```
+```
 ## Training
 
 Training code is under the folder */trainer*, this folder has 2 files: preprocess.py *"for feature engineering* and train.py *"for training"*.
@@ -30,18 +39,20 @@ Container Images Sizes:
 - gpu = 12.3GB
 
 ```sh
-docker build -t us-central1-docker.pkg.dev/vtxdemos/custom-trains/tf-preprocess_cpu:1.0 -f Dockerfile_train_[cpu] .
-docker push us-central1-docker.pkg.dev/vtxdemos/custom-trains/tf-preprocess_cpu:1.0
+docker build -t us-central1-docker.pkg.dev/jesusarguelles-sandbox/custom-trains/tf-preprocess_cpu:1.0 -f Dockerfile_train_[cpu] .
+docker push us-central1-docker.pkg.dev/jesusarguelles-sandbox/custom-trains/tf-preprocess_cpu:1.0
+```
 
-docker build -t us-central1-docker.pkg.dev/vtxdemos/custom-trains/tf-preprocess_gpu:1.0 -f Dockerfile_train_[gpu] .
-docker push us-central1-docker.pkg.dev/vtxdemos/custom-trains/tf-preprocess_gpu:1.0
+```sh
+docker build -t us-central1-docker.pkg.dev/jesusarguelles-sandbox/custom-trains/tf-preprocess_gpu:1.0 -f Dockerfile_train_[gpu] .
+docker push us-central1-docker.pkg.dev/jesusarguelles-sandbox/custom-trains/tf-preprocess_gpu:1.0
 ```
 
 ### For pre-built containers
 #### Build Eggs or Python Distribution Packages and Copy to GCS
 ```sh
 python setup.py sdist --formats=gztar
-gsutil cp dist/trainer-0.1.tar.gz gs://vtxdemos-dist/ai-flex-train/trainer-0.1.tar.gz
+gsutil cp dist/trainer-0.1.tar.gz gs://jesusarguelles-dist/ai-flex-train/trainer-0.1.tar.gz
 ```
 ### Run jobs
 
@@ -56,7 +67,7 @@ Prediction code is under /inference which has 1 file "main.py", we ise fastapi +
 
 ```mermaid
 graph TB
-        A[Google Cloud Storage] ---> |gs://vtxdemos-models/ecommerce/09-08-23/model/*| B(Model Registry)
+        A[Google Cloud Storage] ---> |gs://jesusarguelles-models/ecommerce/09-08-23/model/*| B(Model Registry)
     subgraph  Models
         direction TB
         B -- "model version" --> C(Deploy)
@@ -78,11 +89,13 @@ Container Images Sizes:
 - cpu = 2.45GB
 
 ```sh
-docker build -t us-central1-docker.pkg.dev/vtxdemos/custom-predictions/tf-preprocess_cpu:1.0 -f Dockerfile_prediction_[cpu] .
-docker push us-central1-docker.pkg.dev/vtxdemos/custom-predictions/tf-preprocess_cpu:1.0
+docker build -t us-central1-docker.pkg.dev/jesusarguelles-sandbox/custom-predictions/tf-preprocess_cpu:1.0 -f Dockerfile_prediction_[cpu] .
+docker push us-central1-docker.pkg.dev/jesusarguelles-sandbox/custom-predictions/tf-preprocess_cpu:1.0
+```
 
-docker build -t us-central1-docker.pkg.dev/vtxdemos/custom-predictions/tf-preprocess_gpu:1.0 -f Dockerfile_prediction_[gpu] .
-docker push us-central1-docker.pkg.dev/vtxdemos/custom-predictions/tf-preprocess_gpu:1.0
+```sh
+docker build -t us-central1-docker.pkg.dev/jesusarguelles-sandbox/custom-predictions/tf-preprocess_gpu:1.0 -f Dockerfile_prediction_[gpu] .
+docker push us-central1-docker.pkg.dev/jesusarguelles-sandbox/custom-predictions/tf-preprocess_gpu:1.0
 ```
 
 ## Run Upload Jobs

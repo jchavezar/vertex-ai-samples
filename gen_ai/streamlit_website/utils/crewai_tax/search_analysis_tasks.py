@@ -7,9 +7,9 @@ class SearchAnalysisTask:
     """
     Search Analysis Task
     """
-    
+
     def clean_tax(self, agent, query, context):
-      temp_prompt = f"""
+        temp_prompt = f"""
       You MUST clean_interpret tool always. If math operation is required use calculate tool, Do not try to resolve it by yourself.
       
       tools available:
@@ -25,12 +25,12 @@ class SearchAnalysisTask:
       {query}
       
       """
-      with st.expander("Search Analyst Task prompt:"):
-        st.info(temp_prompt)
-      return Task(description=dedent(temp_prompt),
-      agent=agent,
-    )
-  
+        with st.expander("Search Analyst Task prompt:"):
+            st.info(temp_prompt)
+        return Task(description=dedent(temp_prompt),
+                    agent=agent,
+                    )
+
     def summary_task(self, agent, query):
         general_context = f"""
         Review and synthesize the results from the
@@ -44,5 +44,5 @@ class SearchAnalysisTask:
         """
         #st.markdown(f":red[Agent Task 3]: {general_context}")
         return Task(description=dedent(general_context+detailed_context),
-      agent=agent
-    )
+                    agent=agent
+                    )

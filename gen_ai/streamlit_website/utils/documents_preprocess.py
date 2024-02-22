@@ -16,9 +16,9 @@ class Client:
         self.__dict__.update(iterable, **kwargs)
         self.docai_client = documentai.DocumentProcessorServiceClient(
             client_options = {"api_endpoint": f"{self.location}-documentai.googleapis.com"}
-            )
+        )
         self.model_emb = TextEmbeddingModel.from_pretrained("textembedding-gecko@001")
-        
+
     #region PDF Document Extraction of Multiple Pages    
     def read_file(self, filename: str):
         pdfs = []
@@ -29,24 +29,24 @@ class Client:
             writer = PyPDF2.PdfWriter()
             writer.add_page(page)
             with io.BytesIO() as bytes_stream:
-                pdfs.append(writer.write(bytes_stream)[1].getbuffer().tobytes())        
+                pdfs.append(writer.write(bytes_stream)[1].getbuffer().tobytes())
 
         rate_limit_minute = 120
         adjust_rate_limit = rate_limit_minute / 2
 
-        
+
         st.markdown(":blue[Reading the file, please wait...]")
         def docai_runner(p, start, raw_document):
 
-          sleep_time = (p * (60/adjust_rate_limit)) - (time.time() - start)
-          if sleep_time > 0: 
-              time.sleep(sleep_time)
-          return self.docai_client.process_document(
-              request = documentai.ProcessRequest(
-              name = self.docai_processor_id,
-              raw_document = documentai.RawDocument(content=raw_document, mime_type = 'application/pdf'),
-              process_options = documentai.ProcessOptions(
-              from_start = 5)))
+            sleep_time = (p * (60/adjust_rate_limit)) - (time.time() - start)
+            if sleep_time > 0:
+                time.sleep(sleep_time)
+            return self.docai_client.process_document(
+                request = documentai.ProcessRequest(
+                    name = self.docai_processor_id,
+                    raw_document = documentai.RawDocument(content=raw_document, mime_type = 'application/pdf'),
+                    process_options = documentai.ProcessOptions(
+                        from_start = 5)))
         start = time.time()
         with concurrent.futures.ThreadPoolExecutor() as executor:
             futures = [
@@ -61,7 +61,7 @@ class Client:
         st.markdown("Job Finished in: {:.2f} sec".format(time.time()-start))
         return docs
     #endregion
-        
+
     def split_docs(self, docs: List, chunk_size=500, chunk_overlap=20):
         st.markdown(":blue[Split and Chunk Text, please wait...]")
         lang_docs = []
@@ -76,16 +76,16 @@ class Client:
         st.markdown("Job Finished in: {:.2f} sec".format(time.time()-start))
         return lang_docs
 
-        
+
     def create_embeddings(self, documents: List):
         st.markdown(":blue[Getting Embeddings Rep from Text, please wait.]")
         start = time.time()
         pp = 0
         docs_with_emb = []
         for content in documents:
-            
+
             rate_limit_minute = 550
-            
+
             pp += 1
             #elapsed_time = time.time() - start
             sleep_time = (pp*(60/rate_limit_minute)) - (time.time()-start)
@@ -94,7 +94,7 @@ class Client:
             docs_with_emb.append({f"page": str(content.metadata["page_number"]), f"content": content.page_content, "embedding": self.model_emb.get_embeddings([f"page: {content.metadata['page_number']}, {content.page_content}"])[0].values})
         st.markdown("Job Finished in: {:.2f} sec".format(time.time()-start))
         return docs_with_emb
-    
+
     def run(self, filename):
         start = time.time()
         text = self.read_file(filename)
@@ -102,7 +102,7 @@ class Client:
         docs_with_emb = self.create_embeddings(docs)
         st.markdown(":green[Total Preprocessing Time:] {:.2f}".format(time.time()-start))
         return docs_with_emb
-        
+
 
 variables = {
     "project_id": "vtxdemos",

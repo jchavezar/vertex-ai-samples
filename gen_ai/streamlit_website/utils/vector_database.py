@@ -15,7 +15,7 @@ from vertexai.preview.language_models import TextGenerationModel, TextEmbeddingM
 class Client:
     def __init__(self, iterable=(), **kwargs) -> None:
         self.__dict__.update(iterable, **kwargs)
-            
+
     #region create table
     async def create_table(self):
         loop = asyncio.get_running_loop()
@@ -60,7 +60,7 @@ class Client:
             #st.markdown(":blue[Insert Items Done...]")
             await conn.close()
     #endregion
-    
+
     async def query(self, query, schema_keys):
         matches=[]
         loop = asyncio.get_running_loop()
@@ -96,12 +96,12 @@ class Client:
         )
         if len(results) == 0:
             raise Exception("Did not find any results. Adjust the query parameters.")
-        
+
         keys_list = list([str(v) for v in schema_keys.split(",")])
         #data = " | ".join(keys_list) + " | " + "similarity_score"
         data = ""
         lst = []
-        
+
         for r in results:
             # Collect the description for all the matched similar toy products.
 
@@ -114,15 +114,15 @@ class Client:
 
         await conn.close()
         return data
-    
+
     async def run(self, docs: List):
-        
+
         self.documents = docs
         self.schema_keys = ",".join([doc for doc in self.documents[0].keys() if doc != "embedding"])
         self.schema = ", ".join([f"{k} VARCHAR(10000)" for k,v in self.documents[0].items() if k != "embedding"])
-        
+
         await self.create_table()
         await self.insert_documents_vdb()
         return self.schema_keys
-        
+
 # %%

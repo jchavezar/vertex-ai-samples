@@ -20,4 +20,4 @@ async def predict(request: Request):
     input_array= {name: tf.convert_to_tensor(value) for name, value in pre.items()}
     predictions = model.predict(input_array)
     prob = tf.nn.sigmoid(predictions)
-    return {"predictions": np.where(np.array(prob) > 0.5, 1,0).tolist()}
+    return {"predictions": np.where(np.array(prob) > 0.5, 1, 0).tolist()}

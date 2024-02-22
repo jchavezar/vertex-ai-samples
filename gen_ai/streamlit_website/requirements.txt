@@ -8,7 +8,8 @@ absl-py==1.4.0
 #google-cloud-aiplatform==1.31.1
 #google-cloud-aiplatform
 google-cloud-discoveryengine==0.10.0
-google-cloud-bigquery==2.34.4
+#google-cloud-bigquery==2.34.4
+google-cloud-bigquery
 google-cloud-vision
 google-cloud-documentai
 proto-plus==1.22.2
@@ -24,6 +25,7 @@ google-cloud-videointelligence
 streamlit_chat
 docarray
 langchain
+langchain_google_vertexai
 pgvector==0.1.8
 httpx
 streamlit_option_menu
