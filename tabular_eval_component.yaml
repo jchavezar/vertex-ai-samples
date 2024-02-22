@@ -1,0 +1,220 @@
+# PIPELINE DEFINITION
+# Name: classification-model-eval-metrics
+# Inputs:
+#    api_endpoint: str
+#    location: str
+#    model: system.Artifact
+#    project: str
+#    thresholds_dict_str: str
+# Outputs:
+#    classification-model-eval-metrics-metrics: system.Metrics
+#    classification-model-eval-metrics-metricsc: system.ClassificationMetrics
+#    dep_decision: str
+#    metrics: system.Metrics
+#    metricsc: system.ClassificationMetrics
+components:
+  comp-classification-model-eval-metrics:
+    executorLabel: exec-classification-model-eval-metrics
+    inputDefinitions:
+      artifacts:
+        model:
+          artifactType:
+            schemaTitle: system.Artifact
+            schemaVersion: 0.0.1
+      parameters:
+        api_endpoint:
+          parameterType: STRING
+        location:
+          parameterType: STRING
+        project:
+          parameterType: STRING
+        thresholds_dict_str:
+          parameterType: STRING
+    outputDefinitions:
+      artifacts:
+        metrics:
+          artifactType:
+            schemaTitle: system.Metrics
+            schemaVersion: 0.0.1
+        metricsc:
+          artifactType:
+            schemaTitle: system.ClassificationMetrics
+            schemaVersion: 0.0.1
+      parameters:
+        dep_decision:
+          parameterType: STRING
+deploymentSpec:
+  executors:
+    exec-classification-model-eval-metrics:
+      container:
+        args:
+        - --executor_input
+        - '{{$}}'
+        - --function_to_execute
+        - classification_model_eval_metrics
+        command:
+        - sh
+        - -c
+        - "\nif ! [ -x \"$(command -v pip)\" ]; then\n    python3 -m ensurepip ||\
+          \ python3 -m ensurepip --user || apt-get install python3-pip\nfi\n\nPIP_DISABLE_PIP_VERSION_CHECK=1\
+          \ python3 -m pip install --quiet --no-warn-script-location 'kfp==2.7.0'\
+          \ '--no-deps' 'typing-extensions>=3.7.4,<5; python_version<\"3.9\"'  &&\
+          \  python3 -m pip install --quiet --no-warn-script-location 'google-cloud-aiplatform'\
+          \ && \"$0\" \"$@\"\n"
+        - sh
+        - -ec
+        - 'program_path=$(mktemp -d)
+
+
+          printf "%s" "$0" > "$program_path/ephemeral_component.py"
+
+          _KFP_RUNTIME=true python3 -m kfp.dsl.executor_main                         --component_module_path                         "$program_path/ephemeral_component.py"                         "$@"
+
+          '
+        - "\nimport kfp\nfrom kfp import dsl\nfrom kfp.dsl import *\nfrom typing import\
+          \ *\n\ndef classification_model_eval_metrics(\n        project: str,\n \
+          \       location: str,  # \"us-central1\",\n        api_endpoint: str, \
+          \ # \"us-central1-aiplatform.googleapis.com\",\n        thresholds_dict_str:\
+          \ str,\n        model: Input[Artifact],\n        metrics: Output[Metrics],\n\
+          \        metricsc: Output[ClassificationMetrics],\n) -> NamedTuple(\"Outputs\"\
+          , [(\"dep_decision\", str)]):  # Return parameter.\n\n    import json\n\
+          \    import logging\n\n    from google.cloud import aiplatform as aip\n\n\
+          \    # Fetch model eval info\n    def get_eval_info(client, model_name):\n\
+          \        from google.protobuf.json_format import MessageToDict\n\n     \
+          \   response = client.list_model_evaluations(parent=model_name)\n      \
+          \  metrics_list = []\n        metrics_string_list = []\n        for evaluation\
+          \ in response:\n            print(\"model_evaluation\")\n            print(\"\
+          \ name:\", evaluation.name)\n            print(\" metrics_schema_uri:\"\
+          , evaluation.metrics_schema_uri)\n            metrics = MessageToDict(evaluation._pb.metrics)\n\
+          \            for metric in metrics.keys():\n                logging.info(\"\
+          metric: %s, value: %s\", metric, metrics[metric])\n            metrics_str\
+          \ = json.dumps(metrics)\n            metrics_list.append(metrics)\n    \
+          \        metrics_string_list.append(metrics_str)\n\n        return (\n \
+          \           evaluation.name,\n            metrics_list,\n            metrics_string_list,\n\
+          \        )\n\n    # Use the given metrics threshold(s) to determine whether\
+          \ the model is\n    # accurate enough to deploy.\n    def classification_thresholds_check(metrics_dict,\
+          \ thresholds_dict):\n        for k, v in thresholds_dict.items():\n    \
+          \        logging.info(\"k {}, v {}\".format(k, v))\n            if k in\
+          \ [\"auRoc\", \"auPrc\"]:  # higher is better\n                if metrics_dict[k]\
+          \ < v:  # if under threshold, don't deploy\n                    logging.info(\"\
+          {} < {}; returning False\".format(metrics_dict[k], v))\n               \
+          \     return False\n        logging.info(\"threshold checks passed.\")\n\
+          \        return True\n\n    def log_metrics(metrics_list, metricsc):\n \
+          \       test_confusion_matrix = metrics_list[0][\"confusionMatrix\"]\n \
+          \       logging.info(\"rows: %s\", test_confusion_matrix[\"rows\"])\n\n\
+          \        # log the ROC curve\n        fpr = []\n        tpr = []\n     \
+          \   thresholds = []\n        for item in metrics_list[0][\"confidenceMetrics\"\
+          ]:\n            fpr.append(item.get(\"falsePositiveRate\", 0.0))\n     \
+          \       tpr.append(item.get(\"recall\", 0.0))\n            thresholds.append(item.get(\"\
+          confidenceThreshold\", 0.0))\n        print(f\"fpr: {fpr}\")\n        print(f\"\
+          tpr: {tpr}\")\n        print(f\"thresholds: {thresholds}\")\n        metricsc.log_roc_curve(fpr,\
+          \ tpr, thresholds)\n\n        # log the confusion matrix\n        annotations\
+          \ = []\n        for item in test_confusion_matrix[\"annotationSpecs\"]:\n\
+          \            annotations.append(item[\"displayName\"])\n        logging.info(\"\
+          confusion matrix annotations: %s\", annotations)\n        metricsc.log_confusion_matrix(\n\
+          \            annotations,\n            test_confusion_matrix[\"rows\"],\n\
+          \        )\n\n        # log textual metrics info as well\n        for metric\
+          \ in metrics_list[0].keys():\n            if metric != \"confidenceMetrics\"\
+          :\n                val_string = json.dumps(metrics_list[0][metric])\n  \
+          \              metrics.log_metric(metric, val_string)\n        # metrics.metadata[\"\
+          model_type\"] = \"AutoML Tabular classification\"\n\n    logging.getLogger().setLevel(logging.INFO)\n\
+          \    aip.init(project=project)\n    # extract the model resource name from\
+          \ the input Model Artifact\n    model_resource_path = model.metadata[\"\
+          resourceName\"]\n    logging.info(\"model path: %s\", model_resource_path)\n\
+          \n    client_options = {\"api_endpoint\": api_endpoint}\n    # Initialize\
+          \ client that will be used to create and send requests.\n    client = aip.gapic.ModelServiceClient(client_options=client_options)\n\
+          \    eval_name, metrics_list, metrics_str_list = get_eval_info(\n      \
+          \  client, model_resource_path\n    )\n    logging.info(\"got evaluation\
+          \ name: %s\", eval_name)\n    logging.info(\"got metrics list: %s\", metrics_list)\n\
+          \    log_metrics(metrics_list, metricsc)\n\n    thresholds_dict = json.loads(thresholds_dict_str)\n\
+          \    deploy = classification_thresholds_check(metrics_list[0], thresholds_dict)\n\
+          \    if deploy:\n        dep_decision = \"true\"\n    else:\n        dep_decision\
+          \ = \"false\"\n    logging.info(\"deployment decision is %s\", dep_decision)\n\
+          \n    return (dep_decision,)\n\n"
+        image: gcr.io/deeplearning-platform-release/tf2-cpu.2-3:latest
+pipelineInfo:
+  name: classification-model-eval-metrics
+root:
+  dag:
+    outputs:
+      artifacts:
+        classification-model-eval-metrics-metrics:
+          artifactSelectors:
+          - outputArtifactKey: metrics
+            producerSubtask: classification-model-eval-metrics
+        classification-model-eval-metrics-metricsc:
+          artifactSelectors:
+          - outputArtifactKey: metricsc
+            producerSubtask: classification-model-eval-metrics
+        metrics:
+          artifactSelectors:
+          - outputArtifactKey: metrics
+            producerSubtask: classification-model-eval-metrics
+        metricsc:
+          artifactSelectors:
+          - outputArtifactKey: metricsc
+            producerSubtask: classification-model-eval-metrics
+      parameters:
+        dep_decision:
+          valueFromParameter:
+            outputParameterKey: dep_decision
+            producerSubtask: classification-model-eval-metrics
+    tasks:
+      classification-model-eval-metrics:
+        cachingOptions:
+          enableCache: true
+        componentRef:
+          name: comp-classification-model-eval-metrics
+        inputs:
+          artifacts:
+            model:
+              componentInputArtifact: model
+          parameters:
+            api_endpoint:
+              componentInputParameter: api_endpoint
+            location:
+              componentInputParameter: location
+            project:
+              componentInputParameter: project
+            thresholds_dict_str:
+              componentInputParameter: thresholds_dict_str
+        taskInfo:
+          name: classification-model-eval-metrics
+  inputDefinitions:
+    artifacts:
+      model:
+        artifactType:
+          schemaTitle: system.Artifact
+          schemaVersion: 0.0.1
+    parameters:
+      api_endpoint:
+        parameterType: STRING
+      location:
+        parameterType: STRING
+      project:
+        parameterType: STRING
+      thresholds_dict_str:
+        parameterType: STRING
+  outputDefinitions:
+    artifacts:
+      classification-model-eval-metrics-metrics:
+        artifactType:
+          schemaTitle: system.Metrics
+          schemaVersion: 0.0.1
+      classification-model-eval-metrics-metricsc:
+        artifactType:
+          schemaTitle: system.ClassificationMetrics
+          schemaVersion: 0.0.1
+      metrics:
+        artifactType:
+          schemaTitle: system.Metrics
+          schemaVersion: 0.0.1
+      metricsc:
+        artifactType:
+          schemaTitle: system.ClassificationMetrics
+          schemaVersion: 0.0.1
+    parameters:
+      dep_decision:
+        parameterType: STRING
+schemaVersion: 2.1.0
+sdkVersion: kfp-2.7.0

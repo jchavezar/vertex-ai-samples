@@ -1,13 +1,18 @@
 #%%
+import os
 import time
-from kfp.v2 import dsl
+from kfp import dsl
 from kfp.dsl import pipeline
 from kfp import compiler
+from kfp.registry import RegistryClient
 from typing import NamedTuple
 from google.cloud import aiplatform
-from google_cloud_pipeline_components.v1 import dataset
+from google_cloud_pipeline_components.v1 import dataset, endpoint
 from google_cloud_pipeline_components.v1.automl import training_job
-from kfp.v2.dsl import component, Input, Output, Artifact, Metrics, ClassificationMetrics
+from kfp.dsl import component, Input, Output, Artifact, Metrics, ClassificationMetrics
+print(os.getcwd())
+# os.chdir("automl/tabular/")
+os.listdir(".")
 
 # Constants
 project_id = "vtxdemos"
@@ -17,7 +22,8 @@ prefix = "sockcop-experiment"
 bq_source = "bq://aju-dev-demos.beans.beans1"
 staging_bucket = pipeline_root
 display_name = 'automl-beans{}'.format(str(int(time.time())))
-
+api_endpoint  = f"{region}-aiplatform.googleapis.com"
+thresholds_dict_str: str = '{"auRoc": 0.95}'
 #%%
 # Create Evaluation Component
 @component(
@@ -137,82 +143,15 @@ def classification_model_eval_metrics(
     return (dep_decision,)
 
 
-# Define Pipeline
-@pipeline(name="automl-tab-beans-training-v2",
-          pipeline_root=PIPELINE_ROOT)
-def pipeline(
-        bq_source: str = "bq://aju-dev-demos.beans.beans1",
-        display_name: str = DISPLAY_NAME,
-        project: str = PROJECT_ID,
-        gcp_region: str = "us-central1",
-        api_endpoint: str = "us-central1-aiplatform.googleapis.com",
-        thresholds_dict_str: str = '{"auRoc": 0.95}',
-):
-    dataset_create_op = gcc_aip.TabularDataset.create(
-        project=project, display_name=display_name, bq_source=bq_source
-    )
-
-    training_op = gcc_aip.AutoMLTabularTrainingJob(
-        project=project,
-        display_name=display_name,
-        optimization_prediction_type="classification",
-        budget_milli_node_hours=1000,
-        column_transformations=[
-            {"numeric": {"column_name": "Area"}},
-            {"numeric": {"column_name": "Perimeter"}},
-            {"numeric": {"column_name": "MajorAxisLength"}},
-            {"numeric": {"column_name": "MinorAxisLength"}},
-            {"numeric": {"column_name": "AspectRation"}},
-            {"numeric": {"column_name": "Eccentricity"}},
-            {"numeric": {"column_name": "ConvexArea"}},
-            {"numeric": {"column_name": "EquivDiameter"}},
-            {"numeric": {"column_name": "Extent"}},
-            {"numeric": {"column_name": "Solidity"}},
-            {"numeric": {"column_name": "roundness"}},
-            {"numeric": {"column_name": "Compactness"}},
-            {"numeric": {"column_name": "ShapeFactor1"}},
-            {"numeric": {"column_name": "ShapeFactor2"}},
-            {"numeric": {"column_name": "ShapeFactor3"}},
-            {"numeric": {"column_name": "ShapeFactor4"}},
-            {"categorical": {"column_name": "Class"}},
-        ],
-        dataset=dataset_create_op.outputs["dataset"],
-        target_column="Class",
-    )
-    model_eval_task = classification_model_eval_metrics(
-        project,
-        gcp_region,
-        api_endpoint,
-        thresholds_dict_str,
-        training_op.outputs["model"],
-    )
-
-    with dsl.Condition(
-            model_eval_task.outputs["dep_decision"] == "true",
-            name="deploy_decision",
-    ):
-
-        endpoint_op = gcc_aip.EndpointCreateOp(
-            project=project,
-            location=gcp_region,
-            display_name="train-automl-beans",
-        )
-
-        gcc_aip.ModelDeployOp(
-            model=training_op.outputs["model"],
-            endpoint=endpoint_op.outputs["endpoint"],
-            dedicated_resources_min_replica_count=1,
-            dedicated_resources_max_replica_count=1,
-            dedicated_resources_machine_type="n1-standard-4",
-        )
-
-
 #%%
-@pipeline(name="automl-beans-v1")
+# Define Pipeline
+@dsl.pipeline(name="automl-beans-v1")
 def pipeline(
         project_id: str,
+        region: str,
         prefix: str,
-        bq_source: str
+        bq_source: str,
+        thresholds_dict_str: str,
 ):
     ds = dataset.TabularDatasetCreateOp(
             project=project_id,
@@ -247,31 +186,67 @@ def pipeline(
         target_column="Class",
     )
 
+    model_eval_task = classification_model_eval_metrics(
+        project=project_id,
+        location=region,
+        api_endpoint=api_endpoint,
+        thresholds_dict_str=thresholds_dict_str,
+        model=tf.outputs["model"],
+    )
 
+    with dsl.If(
+            model_eval_task.outputs["dep_decision"] == "true",
+            name="deploy_decision",
+    ):
+        endpoint_op = endpoint.EndpointCreateOp(
+            project=project_id,
+            location=region,
+            display_name="train-automl-beans",
+        )
+
+        endpoint.ModelDeployOp(
+            model=tf.outputs["model"],
+            endpoint=endpoint_op.outputs["endpoint"],
+            dedicated_resources_min_replica_count=1,
+            dedicated_resources_max_replica_count=1,
+            dedicated_resources_machine_type="n1-standard-4",
+        )
+
+
+# Compile the Pipeline (Download the config file)
 compiler.Compiler().compile(
-    pipeline_func=pipeline, package_path="beans_class_pipelines.yaml"
-)
+    pipeline_func=pipeline,
+    package_path='beans_class_pipelines.yaml')
+
+# Upload the Template
+client = RegistryClient(host=f"https://us-central1-kfp.pkg.dev/{project_id}/vtxdemos")
+
+templateName, versionName = client.upload_pipeline(
+    file_name="beans_class_pipelines.yaml",
+    tags=["v1", "latest"],
+    extra_headers={"description":"This is an example pipeline template."})
 
 #%%
 aiplatform.init(
-    experiment="automl-tab-beans-training-v1",
-    experiment_description="tabular automl classification",
+    #experiment="automl-tab-beans-training-v1",
+    #experiment_description="tabular automl classification",
     project=project_id,
     location=region,
     staging_bucket=staging_bucket,
 )
 
-
-
+#%%
 job = aiplatform.PipelineJob(
     display_name="automl-image-training-v2",
     template_path="beans_class_pipelines.yaml",
     pipeline_root=pipeline_root,
     parameter_values={
-        'project_id': project_id,
-        'prefix': prefix,
-        'bq_source': bq_source,
+        "project_id": project_id,
+        "region": region,
+        "prefix": prefix,
+        "bq_source": bq_source,
+        "thresholds_dict_str": thresholds_dict_str
     }
 )
 
-job.submit()
+job.submit(experiment="automl-tab-beans-training-v1")

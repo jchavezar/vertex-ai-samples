@@ -1,0 +1,1063 @@
+# PIPELINE DEFINITION
+# Name: automl-beans-v1
+# Inputs:
+#    bq_source: str
+#    prefix: str
+#    project_id: str
+#    region: str
+#    thresholds_dict_str: str
+# Outputs:
+#    classification-model-eval-metrics-metrics: system.Metrics
+#    classification-model-eval-metrics-metricsc: system.ClassificationMetrics
+components:
+  comp-automl-tabular-training-job:
+    executorLabel: exec-automl-tabular-training-job
+    inputDefinitions:
+      artifacts:
+        dataset:
+          artifactType:
+            schemaTitle: google.VertexDataset
+            schemaVersion: 0.0.1
+          description: The dataset within the same Project from which data will be
+            used to train the Model. The Dataset must use schema compatible with Model
+            being trained, and what is compatible should be described in the used
+            TrainingPipeline's [training_task_definition] [google.cloud.aiplatform.v1beta1.TrainingPipeline.training_task_definition].
+            For tabular Datasets, all their data is exported to training, to pick
+            and choose from.
+      parameters:
+        budget_milli_node_hours:
+          description: The train budget of creating this Model, expressed in milli
+            node hours i.e. 1,000 value in this field means 1 node hour. The training
+            cost of the model will not exceed this budget. The final cost will be
+            attempted to be close to the budget, though may end up being (even) noticeably
+            smaller - at the backend's discretion. This especially may happen when
+            further model training ceases to provide any improvements. If the budget
+            is set to a value known to be insufficient to train a Model for the given
+            training set, the training won't be attempted and will error. The minimum
+            value is 1000 and the maximum is 72000.
+          isOptional: true
+          parameterType: NUMBER_INTEGER
+        column_specs:
+          description: Alternative to column_transformations where the keys of the
+            dict are column names and their respective values are one of AutoMLTabularTrainingJob.column_data_types.
+            When creating transformation for BigQuery Struct column, the column should
+            be flattened using "." as the delimiter. Only columns with no child should
+            have a transformation. If an input column has no transformations on it,
+            such a column is ignored by the training, except for the targetColumn,
+            which should have no transformations defined on. Only one of column_transformations
+            or column_specs should be passed.
+          isOptional: true
+          parameterType: STRUCT
+        column_transformations:
+          description: Transformations to apply to the input columns (i.e. columns
+            other than the targetColumn). Each transformation may produce multiple
+            result values from the column's value, and all are used for training.
+            When creating transformation for BigQuery Struct column, the column should
+            be flattened using "." as the delimiter. Only columns with no child should
+            have a transformation. If an input column has no transformations on it,
+            such a column is ignored by the training, except for the targetColumn,
+            which should have no transformations defined on. Only one of column_transformations
+            or column_specs should be passed. Consider using column_specs as column_transformations
+            will be deprecated eventually.
+          isOptional: true
+          parameterType: LIST
+        disable_early_stopping:
+          defaultValue: false
+          description: If true, the entire budget is used. This disables the early
+            stopping feature. By default, the early stopping feature is enabled, which
+            means that training might stop before the entire training budget has been
+            used, if further training does no longer brings significant improvement
+            to the model.
+          isOptional: true
+          parameterType: BOOLEAN
+        display_name:
+          description: The user-defined name of this TrainingPipeline.
+          parameterType: STRING
+        export_evaluated_data_items:
+          defaultValue: false
+          description: Whether to export the test set predictions to a BigQuery table.
+            If False, then the export is not performed.
+          isOptional: true
+          parameterType: BOOLEAN
+        export_evaluated_data_items_bigquery_destination_uri:
+          description: 'URI of desired destination BigQuery table for exported test
+            set predictions. Expected format: `bq://<project_id>:<dataset_id>:<table>`
+            If not specified, then results are exported to the following auto-created
+            BigQuery table: `<project_id>:export_evaluated_examples_<model_name>_<yyyy_MM_dd''T''HH_mm_ss_SSS''Z''>.evaluated_examples`
+            Applies only if [export_evaluated_data_items] is True.'
+          isOptional: true
+          parameterType: STRING
+        export_evaluated_data_items_override_destination:
+          description: Whether to override the contents of [export_evaluated_data_items_bigquery_destination_uri],
+            if the table exists, for exported test set predictions. If False, and
+            the table exists, then the training job will fail. Applies only if [export_evaluated_data_items]
+            is True and [export_evaluated_data_items_bigquery_destination_uri] is
+            specified.
+          isOptional: true
+          parameterType: BOOLEAN
+        is_default_version:
+          description: When set to True, the newly uploaded model version will automatically
+            have alias "default" included. Subsequent uses of the model produced by
+            this job without a version specified will use this "default" version.
+            When set to False, the "default" alias will not be moved. Actions targeting
+            the model version produced by this job will need to specifically reference
+            this version by ID or alias. New model uploads, i.e. version 1, will always
+            be "default" aliased.
+          isOptional: true
+          parameterType: BOOLEAN
+        labels:
+          defaultValue: {}
+          description: The labels with user-defined metadata to organize TrainingPipelines.
+            Label keys and values can be no longer than 64 characters (Unicode codepoints),
+            can only contain lowercase letters, numeric characters, underscores and
+            dashes. International characters are allowed. See https://goo.gl/xmQnxf
+            for more information and examples of labels.
+          isOptional: true
+          parameterType: STRUCT
+        location:
+          defaultValue: us-central1
+          description: Optional location to retrieve dataset from.
+          isOptional: true
+          parameterType: STRING
+        model_display_name:
+          description: If the script produces a managed Vertex AI Model. The display
+            name of the Model. The name can be up to 128 characters long and can be
+            consist of any UTF-8 characters. If not provided upon creation, the job's
+            display_name is used.
+          isOptional: true
+          parameterType: STRING
+        model_encryption_spec_key_name:
+          description: 'The Cloud KMS resource identifier of the customer managed
+            encryption key used to protect the model. Has the form: `projects/my-project/locations/my-region/keyRings/my-kr/cryptoKeys/my-key`.
+            The key needs to be in the same region as where the compute resource is
+            created. If set, the trained Model will be secured by this key. Overrides
+            encryption_spec_key_name set in aiplatform.init.'
+          isOptional: true
+          parameterType: STRING
+        model_id:
+          description: The ID to use for the Model produced by this job, which will
+            become the final component of the model resource name. This value may
+            be up to 63 characters, and valid characters are `[a-z0-9_-]`. The first
+            character cannot be a number or hyphen.
+          isOptional: true
+          parameterType: STRING
+        model_labels:
+          description: The labels with user-defined metadata to organize your Models.
+            Label keys and values can be no longer than 64 characters (Unicode codepoints),
+            can only contain lowercase letters, numeric characters, underscores and
+            dashes. International characters are allowed. See https://goo.gl/xmQnxf
+            for more information and examples of labels.
+          isOptional: true
+          parameterType: STRUCT
+        model_version_aliases:
+          description: User provided version aliases so that the model version uploaded
+            by this job can be referenced via alias instead of auto-generated version
+            ID. A default version alias will be created for the first version of the
+            model. The format is [a-z][a-zA-Z0-9-]{0,126}[a-z0-9]
+          isOptional: true
+          parameterType: LIST
+        model_version_description:
+          description: The description of the model version being uploaded by this
+            job.
+          isOptional: true
+          parameterType: STRING
+        optimization_objective:
+          description: 'Objective function the Model is to be optimized towards. The
+            training task creates a Model that maximizes/minimizes the value of the
+            objective function over the validation set. The supported optimization
+            objectives depend on the prediction type, and in the case of classification
+            also the number of distinct values in the target column (two distint values
+            -> binary, 3 or more distinct values -> multi class). If the field is
+            not set, the default objective function is used. Classification: "maximize-au-roc"
+            (default) - Maximize the area under the receiver operating characteristic
+            (ROC) curve. "minimize-log-loss" - Minimize log loss. "maximize-au-prc"
+            - Maximize the area under the precision-recall curve. "maximize-precision-at-recall"
+            - Maximize precision for a specified recall value. "maximize-recall-at-precision"
+            - Maximize recall for a specified precision value. Classification (multi
+            class): "minimize-log-loss" (default) - Minimize log loss. Regression:
+            "minimize-rmse" (default) - Minimize root-mean-squared error (RMSE). "minimize-mae"
+            - Minimize mean-absolute error (MAE). "minimize-rmsle" - Minimize root-mean-squared
+            log error (RMSLE).'
+          isOptional: true
+          parameterType: STRING
+        optimization_objective_precision_value:
+          description: Required when maximize-recall-at-precision optimizationObjective
+            was picked, represents the precision value at which the optimization is
+            done. The minimum value is 0 and the maximum is 1.0.
+          isOptional: true
+          parameterType: NUMBER_DOUBLE
+        optimization_objective_recall_value:
+          description: Required when maximize-precision-at-recall optimizationObjective
+            was picked, represents the recall value at which the optimization is done.
+            The minimum value is 0 and the maximum is 1.0.
+          isOptional: true
+          parameterType: NUMBER_DOUBLE
+        optimization_prediction_type:
+          description: The type of prediction the Model is to produce. "classification"
+            - Predict one out of multiple target values is picked for each row. "regression"
+            - Predict a value based on its relation to other values. This type is
+            available only to columns that contain semantically numeric values, i.e.
+            integers or floating point number, even if stored as e.g. strings.
+          parameterType: STRING
+        parent_model:
+          description: The resource name or model ID of an existing model. The new
+            model uploaded by this job will be a version of `parent_model`. Only set
+            this field when training a new version of an existing model.
+          isOptional: true
+          parameterType: STRING
+        predefined_split_column_name:
+          description: The key is a name of one of the Dataset's data columns. The
+            value of the key (either the label's value or value in the column) must
+            be one of {`training`, `validation`, `test`}, and it defines to which
+            set the given piece of data is assigned. If for a piece of data the key
+            is not present or has an invalid value, that piece is ignored by the pipeline.
+            Supported only for tabular and time series Datasets.
+          isOptional: true
+          parameterType: STRING
+        project:
+          description: Project to retrieve dataset from.
+          parameterType: STRING
+        target_column:
+          description: The name of the column values of which the Model is to predict.
+          parameterType: STRING
+        test_fraction_split:
+          description: The fraction of the input data that is to be used to evaluate
+            the Model. This is ignored if Dataset is not provided.
+          isOptional: true
+          parameterType: NUMBER_DOUBLE
+        timestamp_split_column_name:
+          description: The key is a name of one of the Dataset's data columns. The
+            value of the key values of the key (the values in the column) must be
+            in RFC 3339 `date-time` format, where `time-offset` = `"Z"` (e.g. 1985-04-12T23:20:50.52Z).
+            If for a piece of data the key is not present or has an invalid value,
+            that piece is ignored by the pipeline. Supported only for tabular and
+            time series Datasets. This parameter must be used with training_fraction_split,
+            validation_fraction_split and test_fraction_split.
+          isOptional: true
+          parameterType: STRING
+        training_encryption_spec_key_name:
+          description: 'The Cloud KMS resource identifier of the customer managed
+            encryption key used to protect the training pipeline. Has the form: `projects/my-project/locations/my-region/keyRings/my-kr/cryptoKeys/my-key`.
+            The key needs to be in the same region as where the compute resource is
+            created. If set, this TrainingPipeline will be secured by this key. Note:
+            Model trained by this TrainingPipeline is also secured by this key if
+            `model_to_upload` is not set separately. Overrides encryption_spec_key_name
+            set in aiplatform.init.'
+          isOptional: true
+          parameterType: STRING
+        training_fraction_split:
+          description: The fraction of the input data that is to be used to train
+            the Model. This is ignored if Dataset is not provided.
+          isOptional: true
+          parameterType: NUMBER_DOUBLE
+        validation_fraction_split:
+          description: The fraction of the input data that is to be used to validate
+            the Model. This is ignored if Dataset is not provided.
+          isOptional: true
+          parameterType: NUMBER_DOUBLE
+        weight_column:
+          description: Name of the column that should be used as the weight column.
+            Higher values in this column give more importance to the row during Model
+            training. The column must have numeric values between 0 and 10000 inclusively,
+            and 0 value means that the row is ignored. If the weight column field
+            is not set, then all rows are assumed to have equal weight of 1.
+          isOptional: true
+          parameterType: STRING
+    outputDefinitions:
+      artifacts:
+        model:
+          artifactType:
+            schemaTitle: google.VertexModel
+            schemaVersion: 0.0.1
+          description: The trained Vertex AI Model resource or None if training did
+            not produce a Vertex AI Model.
+  comp-classification-model-eval-metrics:
+    executorLabel: exec-classification-model-eval-metrics
+    inputDefinitions:
+      artifacts:
+        model:
+          artifactType:
+            schemaTitle: system.Artifact
+            schemaVersion: 0.0.1
+      parameters:
+        api_endpoint:
+          parameterType: STRING
+        location:
+          parameterType: STRING
+        project:
+          parameterType: STRING
+        thresholds_dict_str:
+          parameterType: STRING
+    outputDefinitions:
+      artifacts:
+        metrics:
+          artifactType:
+            schemaTitle: system.Metrics
+            schemaVersion: 0.0.1
+        metricsc:
+          artifactType:
+            schemaTitle: system.ClassificationMetrics
+            schemaVersion: 0.0.1
+      parameters:
+        dep_decision:
+          parameterType: STRING
+  comp-condition-1:
+    dag:
+      tasks:
+        endpoint-create:
+          cachingOptions:
+            enableCache: true
+          componentRef:
+            name: comp-endpoint-create
+          inputs:
+            parameters:
+              display_name:
+                runtimeValue:
+                  constant: train-automl-beans
+              location:
+                componentInputParameter: pipelinechannel--region
+              project:
+                componentInputParameter: pipelinechannel--project_id
+          taskInfo:
+            name: endpoint-create
+        model-deploy:
+          cachingOptions:
+            enableCache: true
+          componentRef:
+            name: comp-model-deploy
+          dependentTasks:
+          - endpoint-create
+          inputs:
+            artifacts:
+              endpoint:
+                taskOutputArtifact:
+                  outputArtifactKey: endpoint
+                  producerTask: endpoint-create
+              model:
+                componentInputArtifact: pipelinechannel--automl-tabular-training-job-model
+            parameters:
+              dedicated_resources_machine_type:
+                runtimeValue:
+                  constant: n1-standard-4
+              dedicated_resources_max_replica_count:
+                runtimeValue:
+                  constant: 1.0
+              dedicated_resources_min_replica_count:
+                runtimeValue:
+                  constant: 1.0
+          taskInfo:
+            name: model-deploy
+    inputDefinitions:
+      artifacts:
+        pipelinechannel--automl-tabular-training-job-model:
+          artifactType:
+            schemaTitle: google.VertexModel
+            schemaVersion: 0.0.1
+      parameters:
+        pipelinechannel--classification-model-eval-metrics-dep_decision:
+          parameterType: STRING
+        pipelinechannel--project_id:
+          parameterType: STRING
+        pipelinechannel--region:
+          parameterType: STRING
+  comp-endpoint-create:
+    executorLabel: exec-endpoint-create
+    inputDefinitions:
+      parameters:
+        description:
+          defaultValue: ''
+          description: The description of the Endpoint.
+          isOptional: true
+          parameterType: STRING
+        display_name:
+          description: The user-defined name of the Endpoint. The name can be up to
+            128 characters long and can be consist of any UTF-8 characters.
+          parameterType: STRING
+        encryption_spec_key_name:
+          defaultValue: ''
+          description: 'Customer-managed encryption key spec for an Endpoint. If set,
+            this Endpoint and all of this Endoint''s sub-resources will be secured
+            by this key. Has the form: `projects/my-project/locations/my-location/keyRings/my-kr/cryptoKeys/my-key`.
+            The key needs to be in the same region as where the compute resource is
+            created.  If set, this Endpoint and all sub-resources of this Endpoint
+            will be secured by this key.'
+          isOptional: true
+          parameterType: STRING
+        labels:
+          defaultValue: {}
+          description: The labels with user-defined metadata to organize your Endpoints.  Label
+            keys and values can be no longer than 64 characters (Unicode codepoints),
+            can only contain lowercase letters, numeric characters, underscores and
+            dashes. International characters are allowed.  See https://goo.gl/xmQnxf
+            for more information and examples of labels.
+          isOptional: true
+          parameterType: STRUCT
+        location:
+          defaultValue: us-central1
+          description: Location to create the Endpoint. If not set, default to us-central1.
+          isOptional: true
+          parameterType: STRING
+        network:
+          defaultValue: ''
+          description: 'The full name of the Google Compute Engine network to which
+            the Endpoint should be peered. Private services access must already be
+            configured for the network. If left unspecified, the Endpoint is not peered
+            with any network. [Format](https://cloud.google.com/compute/docs/reference/rest/v1/networks/insert):
+            `projects/{project}/global/networks/{network}`. Where `{project}` is a
+            project number, as in `''12345''`, and `{network}` is network name.'
+          isOptional: true
+          parameterType: STRING
+        project:
+          defaultValue: '{{$.pipeline_google_cloud_project_id}}'
+          description: Project to create the Endpoint. Defaults to the project in
+            which the PipelineJob is run.
+          isOptional: true
+          parameterType: STRING
+    outputDefinitions:
+      artifacts:
+        endpoint:
+          artifactType:
+            schemaTitle: google.VertexEndpoint
+            schemaVersion: 0.0.1
+          description: Artifact tracking the created Endpoint.
+      parameters:
+        gcp_resources:
+          description: Serialized JSON of `gcp_resources` [proto](https://github.com/kubeflow/pipelines/tree/master/components/google-cloud/google_cloud_pipeline_components/proto)
+            which tracks the create Endpoint's long-running operation.
+          parameterType: STRING
+  comp-model-deploy:
+    executorLabel: exec-model-deploy
+    inputDefinitions:
+      artifacts:
+        endpoint:
+          artifactType:
+            schemaTitle: google.VertexEndpoint
+            schemaVersion: 0.0.1
+          description: The Endpoint to be deployed to.
+          isOptional: true
+        model:
+          artifactType:
+            schemaTitle: google.VertexModel
+            schemaVersion: 0.0.1
+          description: The model to be deployed.
+      parameters:
+        automatic_resources_max_replica_count:
+          defaultValue: 0.0
+          description: The maximum number of replicas this DeployedModel may be deployed
+            on when the traffic against it increases. If the requested value is too
+            large, the deployment will error, but if deployment succeeds then the
+            ability to scale the model to that many replicas is guaranteed (barring
+            service outages). If traffic against the DeployedModel increases beyond
+            what its replicas at maximum may handle, a portion of the traffic will
+            be dropped. If this value is not provided, a no upper bound for scaling
+            under heavy traffic will be assume, though Vertex AI may be unable to
+            scale beyond certain replica number.
+          isOptional: true
+          parameterType: NUMBER_INTEGER
+        automatic_resources_min_replica_count:
+          defaultValue: 0.0
+          description: The minimum number of replicas this DeployedModel will be always
+            deployed on. If traffic against it increases, it may dynamically be deployed
+            onto more replicas up to `automatic_resources_max_replica_count`, and
+            as traffic decreases, some of these extra replicas may be freed. If the
+            requested value is too large, the deployment will error.  This field is
+            required if `dedicated_resources_machine_type` is not specified.
+          isOptional: true
+          parameterType: NUMBER_INTEGER
+        dedicated_resources_accelerator_count:
+          defaultValue: 0.0
+          description: The number of accelerators to attach to a worker replica.
+          isOptional: true
+          parameterType: NUMBER_INTEGER
+        dedicated_resources_accelerator_type:
+          defaultValue: ''
+          description: Hardware accelerator type. Must also set accelerator_count
+            if used. See [available options](https://cloud.google.com/vertex-ai/docs/reference/rest/v1/MachineSpec#AcceleratorType).  This
+            field is required if `dedicated_resources_machine_type` is specified.
+          isOptional: true
+          parameterType: STRING
+        dedicated_resources_machine_type:
+          defaultValue: ''
+          description: The specification of a single machine used by the prediction.  This
+            field is required if `automatic_resources_min_replica_count` is not specified.  See
+            [more information](https://cloud.google.com/vertex-ai/docs/reference/rest/v1/projects.locations.endpoints#dedicatedresources).
+          isOptional: true
+          parameterType: STRING
+        dedicated_resources_max_replica_count:
+          defaultValue: 0.0
+          description: The maximum number of replicas this deployed model may the
+            larger value of min_replica_count or 1 will be used. If value provided
+            is smaller than min_replica_count, it will automatically be increased
+            to be min_replica_count. The maximum number of replicas this deployed
+            model may be deployed on when the traffic against it increases. If requested
+            value is too large, the deployment will error, but if deployment succeeds
+            then the ability to scale the model to that many replicas is guaranteed
+            (barring service outages). If traffic against the deployed model increases
+            beyond what its replicas at maximum may handle, a portion of the traffic
+            will be dropped. If this value is not provided, will use `dedicated_resources_min_replica_count`
+            as the default value.
+          isOptional: true
+          parameterType: NUMBER_INTEGER
+        dedicated_resources_min_replica_count:
+          defaultValue: 0.0
+          description: The minimum number of machine replicas this DeployedModel will
+            be always deployed on. This value must be greater than or equal to 1.
+            If traffic against the DeployedModel increases, it may dynamically be
+            deployed onto more replicas, and as traffic decreases, some of these extra
+            replicas may be freed.
+          isOptional: true
+          parameterType: NUMBER_INTEGER
+        deployed_model_display_name:
+          defaultValue: ''
+          description: The display name of the DeployedModel. If not provided upon
+            creation, the Model's display_name is used.
+          isOptional: true
+          parameterType: STRING
+        disable_container_logging:
+          defaultValue: false
+          description: For custom-trained Models and AutoML Tabular Models, the container
+            of the DeployedModel instances will send stderr and stdout streams to
+            Stackdriver Logging by default. Please note that the logs incur cost,
+            which are subject to Cloud Logging pricing.  User can disable container
+            logging by setting this flag to true.
+          isOptional: true
+          parameterType: BOOLEAN
+        enable_access_logging:
+          defaultValue: false
+          description: These logs are like standard server access logs, containing
+            information like timestamp and latency for each prediction request.  Note
+            that Stackdriver logs may incur a cost, especially if your project receives
+            prediction requests at a high queries per second rate (QPS). Estimate
+            your costs before enabling this option.
+          isOptional: true
+          parameterType: BOOLEAN
+        explanation_metadata:
+          defaultValue: {}
+          description: Metadata describing the Model's input and output for explanation.
+            See [more information](https://cloud.google.com/vertex-ai/docs/reference/rest/v1/ExplanationSpec#explanationmetadata).
+          isOptional: true
+          parameterType: STRUCT
+        explanation_parameters:
+          defaultValue: {}
+          description: Parameters that configure explaining information of the Model's
+            predictions. See [more information](https://cloud.google.com/vertex-ai/docs/reference/rest/v1/ExplanationSpec#explanationmetadata).
+          isOptional: true
+          parameterType: STRUCT
+        service_account:
+          defaultValue: ''
+          description: The service account that the DeployedModel's container runs
+            as. Specify the email address of the service account. If this service
+            account is not specified, the container runs as a service account that
+            doesn't have access to the resource project.  Users deploying the Model
+            must have the `iam.serviceAccounts.actAs` permission on this service account.
+          isOptional: true
+          parameterType: STRING
+        traffic_split:
+          defaultValue: {}
+          description: A map from a DeployedModel's ID to the percentage of this Endpoint's
+            traffic that should be forwarded to that DeployedModel.  If this field
+            is non-empty, then the Endpoint's trafficSplit will be overwritten with
+            it. To refer to the ID of the just being deployed Model, a "0" should
+            be used, and the actual ID of the new DeployedModel will be filled in
+            its place by this method. The traffic percentage values must add up to
+            100.  If this field is empty, then the Endpoint's trafficSplit is not
+            updated.
+          isOptional: true
+          parameterType: STRUCT
+    outputDefinitions:
+      parameters:
+        gcp_resources:
+          description: Serialized JSON of `gcp_resources` [proto](https://github.com/kubeflow/pipelines/tree/master/components/google-cloud/google_cloud_pipeline_components/proto)
+            which tracks the deploy Model's long-running operation.
+          parameterType: STRING
+  comp-tabular-dataset-create:
+    executorLabel: exec-tabular-dataset-create
+    inputDefinitions:
+      parameters:
+        bq_source:
+          description: BigQuery URI to the input table. For example, "bq://project.dataset.table_name".
+          isOptional: true
+          parameterType: STRING
+        display_name:
+          description: The user-defined name of the Dataset. The name can be up to
+            128 characters long and can be consist of any UTF-8 characters.
+          parameterType: STRING
+        encryption_spec_key_name:
+          description: 'The Cloud KMS resource identifier of the customer managed
+            encryption key used to protect the Dataset. Has the form: `projects/my-project/locations/my-region/keyRings/my-kr/cryptoKeys/my-key`.
+            The key needs to be in the same region as where the compute resource is
+            created. If set, this Dataset and all sub-resources of this Dataset will
+            be secured by this key. Overrides `encryption_spec_key_name` set in `aiplatform.init`.'
+          isOptional: true
+          parameterType: STRING
+        gcs_source:
+          description: Google Cloud Storage URI(-s) to the input file(s). May contain
+            wildcards. For more information on wildcards, see https://cloud.google.com/storage/docs/gsutil/addlhelp/WildcardNames.
+            For example, `"gs://bucket/file.csv"` or `["gs://bucket/file1.csv", "gs://bucket/file2.csv"]`.
+          isOptional: true
+          parameterType: STRING
+        labels:
+          defaultValue: {}
+          description: Labels with user-defined metadata to organize your Tensorboards.
+            Label keys and values can be no longer than 64 characters (Unicode codepoints),
+            can only contain lowercase letters, numeric characters, underscores and
+            dashes. International characters are allowed. No more than 64 user labels
+            can be associated with one Tensorboard (System labels are excluded). See
+            https://goo.gl/xmQnxf for more information and examples of labels. System
+            reserved label keys are prefixed with "aiplatform.googleapis.com/" and
+            are immutable.
+          isOptional: true
+          parameterType: STRUCT
+        location:
+          defaultValue: us-central1
+          description: Optional location to retrieve Dataset from.
+          isOptional: true
+          parameterType: STRING
+        project:
+          defaultValue: '{{$.pipeline_google_cloud_project_id}}'
+          description: Project to retrieve Dataset from. Defaults to the project in
+            which the PipelineJob is run.
+          isOptional: true
+          parameterType: STRING
+    outputDefinitions:
+      artifacts:
+        dataset:
+          artifactType:
+            schemaTitle: google.VertexDataset
+            schemaVersion: 0.0.1
+          description: Instantiated representation of the managed tabular Dataset
+            resource.
+deploymentSpec:
+  executors:
+    exec-automl-tabular-training-job:
+      container:
+        args:
+        - --init.project
+        - '{{$.inputs.parameters[''project'']}}'
+        - --init.location
+        - '{{$.inputs.parameters[''location'']}}'
+        - --init.display_name
+        - '{{$.inputs.parameters[''display_name'']}}'
+        - --init.optimization_prediction_type
+        - '{{$.inputs.parameters[''optimization_prediction_type'']}}'
+        - --method.dataset
+        - '{{$.inputs.artifacts[''dataset''].metadata[''resourceName'']}}'
+        - --method.target_column
+        - '{{$.inputs.parameters[''target_column'']}}'
+        - '{"IfPresent": {"InputName": "optimization_objective", "Then": ["--init.optimization_objective",
+          "{{$.inputs.parameters[''optimization_objective'']}}"]}}'
+        - '{"IfPresent": {"InputName": "column_specs", "Then": ["--init.column_specs",
+          "{{$.inputs.parameters[''column_specs'']}}"]}}'
+        - '{"IfPresent": {"InputName": "column_transformations", "Then": ["--init.column_transformations",
+          "{{$.inputs.parameters[''column_transformations'']}}"]}}'
+        - '{"IfPresent": {"InputName": "optimization_objective_recall_value", "Then":
+          ["--init.optimization_objective_recall_value", "{{$.inputs.parameters[''optimization_objective_recall_value'']}}"]}}'
+        - '{"IfPresent": {"InputName": "optimization_objective_precision_value", "Then":
+          ["--init.optimization_objective_precision_value", "{{$.inputs.parameters[''optimization_objective_precision_value'']}}"]}}'
+        - --init.labels
+        - '{{$.inputs.parameters[''labels'']}}'
+        - '{"IfPresent": {"InputName": "training_encryption_spec_key_name", "Then":
+          ["--init.training_encryption_spec_key_name", "{{$.inputs.parameters[''training_encryption_spec_key_name'']}}"]}}'
+        - '{"IfPresent": {"InputName": "model_encryption_spec_key_name", "Then": ["--init.model_encryption_spec_key_name",
+          "{{$.inputs.parameters[''model_encryption_spec_key_name'']}}"]}}'
+        - '{"IfPresent": {"InputName": "training_fraction_split", "Then": ["--method.training_fraction_split",
+          "{{$.inputs.parameters[''training_fraction_split'']}}"]}}'
+        - '{"IfPresent": {"InputName": "validation_fraction_split", "Then": ["--method.validation_fraction_split",
+          "{{$.inputs.parameters[''validation_fraction_split'']}}"]}}'
+        - '{"IfPresent": {"InputName": "test_fraction_split", "Then": ["--method.test_fraction_split",
+          "{{$.inputs.parameters[''test_fraction_split'']}}"]}}'
+        - '{"IfPresent": {"InputName": "predefined_split_column_name", "Then": ["--method.predefined_split_column_name",
+          "{{$.inputs.parameters[''predefined_split_column_name'']}}"]}}'
+        - '{"IfPresent": {"InputName": "timestamp_split_column_name", "Then": ["--method.timestamp_split_column_name",
+          "{{$.inputs.parameters[''timestamp_split_column_name'']}}"]}}'
+        - '{"IfPresent": {"InputName": "weight_column", "Then": ["--method.weight_column",
+          "{{$.inputs.parameters[''weight_column'']}}"]}}'
+        - '{"IfPresent": {"InputName": "budget_milli_node_hours", "Then": ["--method.budget_milli_node_hours",
+          "{{$.inputs.parameters[''budget_milli_node_hours'']}}"]}}'
+        - '{"IfPresent": {"InputName": "model_display_name", "Then": ["--method.model_display_name",
+          "{{$.inputs.parameters[''model_display_name'']}}"]}}'
+        - '{"IfPresent": {"InputName": "model_labels", "Then": ["--method.model_labels",
+          "{{$.inputs.parameters[''model_labels'']}}"]}}'
+        - '{"IfPresent": {"InputName": "model_id", "Then": ["--method.model_id", "{{$.inputs.parameters[''model_id'']}}"]}}'
+        - '{"IfPresent": {"InputName": "parent_model", "Then": ["--method.parent_model",
+          "{{$.inputs.parameters[''parent_model'']}}"]}}'
+        - '{"IfPresent": {"InputName": "is_default_version", "Then": ["--method.is_default_version",
+          "{{$.inputs.parameters[''is_default_version'']}}"]}}'
+        - '{"IfPresent": {"InputName": "model_version_aliases", "Then": ["--method.model_version_aliases",
+          "{{$.inputs.parameters[''model_version_aliases'']}}"]}}'
+        - '{"IfPresent": {"InputName": "model_version_description", "Then": ["--method.model_version_description",
+          "{{$.inputs.parameters[''model_version_description'']}}"]}}'
+        - --method.disable_early_stopping
+        - '{{$.inputs.parameters[''disable_early_stopping'']}}'
+        - --method.export_evaluated_data_items
+        - '{{$.inputs.parameters[''export_evaluated_data_items'']}}'
+        - '{"IfPresent": {"InputName": "export_evaluated_data_items_bigquery_destination_uri",
+          "Then": ["--method.export_evaluated_data_items_bigquery_destination_uri",
+          "{{$.inputs.parameters[''export_evaluated_data_items_bigquery_destination_uri'']}}"]}}'
+        - '{"IfPresent": {"InputName": "export_evaluated_data_items_override_destination",
+          "Then": ["--method.export_evaluated_data_items_override_destination", "{{$.inputs.parameters[''export_evaluated_data_items_override_destination'']}}"]}}'
+        - --executor_input
+        - '{{$}}'
+        - --resource_name_output_artifact_uri
+        - '{{$.outputs.artifacts[''model''].uri}}'
+        command:
+        - python3
+        - -m
+        - google_cloud_pipeline_components.container.v1.aiplatform.remote_runner
+        - --cls_name
+        - AutoMLTabularTrainingJob
+        - --method_name
+        - run
+        image: gcr.io/ml-pipeline/google-cloud-pipeline-components:2.10.0
+    exec-classification-model-eval-metrics:
+      container:
+        args:
+        - --executor_input
+        - '{{$}}'
+        - --function_to_execute
+        - classification_model_eval_metrics
+        command:
+        - sh
+        - -c
+        - "\nif ! [ -x \"$(command -v pip)\" ]; then\n    python3 -m ensurepip ||\
+          \ python3 -m ensurepip --user || apt-get install python3-pip\nfi\n\nPIP_DISABLE_PIP_VERSION_CHECK=1\
+          \ python3 -m pip install --quiet --no-warn-script-location 'kfp==2.7.0'\
+          \ '--no-deps' 'typing-extensions>=3.7.4,<5; python_version<\"3.9\"'  &&\
+          \  python3 -m pip install --quiet --no-warn-script-location 'google-cloud-aiplatform'\
+          \ && \"$0\" \"$@\"\n"
+        - sh
+        - -ec
+        - 'program_path=$(mktemp -d)
+
+
+          printf "%s" "$0" > "$program_path/ephemeral_component.py"
+
+          _KFP_RUNTIME=true python3 -m kfp.dsl.executor_main                         --component_module_path                         "$program_path/ephemeral_component.py"                         "$@"
+
+          '
+        - "\nimport kfp\nfrom kfp import dsl\nfrom kfp.dsl import *\nfrom typing import\
+          \ *\n\ndef classification_model_eval_metrics(\n        project: str,\n \
+          \       location: str,  # \"us-central1\",\n        api_endpoint: str, \
+          \ # \"us-central1-aiplatform.googleapis.com\",\n        thresholds_dict_str:\
+          \ str,\n        model: Input[Artifact],\n        metrics: Output[Metrics],\n\
+          \        metricsc: Output[ClassificationMetrics],\n) -> NamedTuple(\"Outputs\"\
+          , [(\"dep_decision\", str)]):  # Return parameter.\n\n    import json\n\
+          \    import logging\n\n    from google.cloud import aiplatform as aip\n\n\
+          \    # Fetch model eval info\n    def get_eval_info(client, model_name):\n\
+          \        from google.protobuf.json_format import MessageToDict\n\n     \
+          \   response = client.list_model_evaluations(parent=model_name)\n      \
+          \  metrics_list = []\n        metrics_string_list = []\n        for evaluation\
+          \ in response:\n            print(\"model_evaluation\")\n            print(\"\
+          \ name:\", evaluation.name)\n            print(\" metrics_schema_uri:\"\
+          , evaluation.metrics_schema_uri)\n            metrics = MessageToDict(evaluation._pb.metrics)\n\
+          \            for metric in metrics.keys():\n                logging.info(\"\
+          metric: %s, value: %s\", metric, metrics[metric])\n            metrics_str\
+          \ = json.dumps(metrics)\n            metrics_list.append(metrics)\n    \
+          \        metrics_string_list.append(metrics_str)\n\n        return (\n \
+          \           evaluation.name,\n            metrics_list,\n            metrics_string_list,\n\
+          \        )\n\n    # Use the given metrics threshold(s) to determine whether\
+          \ the model is\n    # accurate enough to deploy.\n    def classification_thresholds_check(metrics_dict,\
+          \ thresholds_dict):\n        for k, v in thresholds_dict.items():\n    \
+          \        logging.info(\"k {}, v {}\".format(k, v))\n            if k in\
+          \ [\"auRoc\", \"auPrc\"]:  # higher is better\n                if metrics_dict[k]\
+          \ < v:  # if under threshold, don't deploy\n                    logging.info(\"\
+          {} < {}; returning False\".format(metrics_dict[k], v))\n               \
+          \     return False\n        logging.info(\"threshold checks passed.\")\n\
+          \        return True\n\n    def log_metrics(metrics_list, metricsc):\n \
+          \       test_confusion_matrix = metrics_list[0][\"confusionMatrix\"]\n \
+          \       logging.info(\"rows: %s\", test_confusion_matrix[\"rows\"])\n\n\
+          \        # log the ROC curve\n        fpr = []\n        tpr = []\n     \
+          \   thresholds = []\n        for item in metrics_list[0][\"confidenceMetrics\"\
+          ]:\n            fpr.append(item.get(\"falsePositiveRate\", 0.0))\n     \
+          \       tpr.append(item.get(\"recall\", 0.0))\n            thresholds.append(item.get(\"\
+          confidenceThreshold\", 0.0))\n        print(f\"fpr: {fpr}\")\n        print(f\"\
+          tpr: {tpr}\")\n        print(f\"thresholds: {thresholds}\")\n        metricsc.log_roc_curve(fpr,\
+          \ tpr, thresholds)\n\n        # log the confusion matrix\n        annotations\
+          \ = []\n        for item in test_confusion_matrix[\"annotationSpecs\"]:\n\
+          \            annotations.append(item[\"displayName\"])\n        logging.info(\"\
+          confusion matrix annotations: %s\", annotations)\n        metricsc.log_confusion_matrix(\n\
+          \            annotations,\n            test_confusion_matrix[\"rows\"],\n\
+          \        )\n\n        # log textual metrics info as well\n        for metric\
+          \ in metrics_list[0].keys():\n            if metric != \"confidenceMetrics\"\
+          :\n                val_string = json.dumps(metrics_list[0][metric])\n  \
+          \              metrics.log_metric(metric, val_string)\n        # metrics.metadata[\"\
+          model_type\"] = \"AutoML Tabular classification\"\n\n    logging.getLogger().setLevel(logging.INFO)\n\
+          \    aip.init(project=project)\n    # extract the model resource name from\
+          \ the input Model Artifact\n    model_resource_path = model.metadata[\"\
+          resourceName\"]\n    logging.info(\"model path: %s\", model_resource_path)\n\
+          \n    client_options = {\"api_endpoint\": api_endpoint}\n    # Initialize\
+          \ client that will be used to create and send requests.\n    client = aip.gapic.ModelServiceClient(client_options=client_options)\n\
+          \    eval_name, metrics_list, metrics_str_list = get_eval_info(\n      \
+          \  client, model_resource_path\n    )\n    logging.info(\"got evaluation\
+          \ name: %s\", eval_name)\n    logging.info(\"got metrics list: %s\", metrics_list)\n\
+          \    log_metrics(metrics_list, metricsc)\n\n    thresholds_dict = json.loads(thresholds_dict_str)\n\
+          \    deploy = classification_thresholds_check(metrics_list[0], thresholds_dict)\n\
+          \    if deploy:\n        dep_decision = \"true\"\n    else:\n        dep_decision\
+          \ = \"false\"\n    logging.info(\"deployment decision is %s\", dep_decision)\n\
+          \n    return (dep_decision,)\n\n"
+        image: gcr.io/deeplearning-platform-release/tf2-cpu.2-3:latest
+    exec-endpoint-create:
+      container:
+        args:
+        - --type
+        - CreateEndpoint
+        - --payload
+        - '{"Concat": ["{", "\"display_name\": \"", "{{$.inputs.parameters[''display_name'']}}",
+          "\"", ", \"description\": \"", "{{$.inputs.parameters[''description'']}}",
+          "\"", ", \"labels\": ", "{{$.inputs.parameters[''labels'']}}", ", \"encryption_spec\":
+          {\"kms_key_name\":\"", "{{$.inputs.parameters[''encryption_spec_key_name'']}}",
+          "\"}", ", \"network\": \"", "{{$.inputs.parameters[''network'']}}", "\"",
+          "}"]}'
+        - --project
+        - '{{$.inputs.parameters[''project'']}}'
+        - --location
+        - '{{$.inputs.parameters[''location'']}}'
+        - --gcp_resources
+        - '{{$.outputs.parameters[''gcp_resources''].output_file}}'
+        - --executor_input
+        - '{{$}}'
+        command:
+        - python3
+        - -u
+        - -m
+        - google_cloud_pipeline_components.container.v1.endpoint.create_endpoint.launcher
+        image: gcr.io/ml-pipeline/google-cloud-pipeline-components:2.10.0
+    exec-model-deploy:
+      container:
+        args:
+        - --type
+        - DeployModel
+        - --payload
+        - '{"Concat": ["{", "\"endpoint\": \"", "{{$.inputs.artifacts[''endpoint''].metadata[''resourceName'']}}",
+          "\"", ", \"traffic_split\": ", "{{$.inputs.parameters[''traffic_split'']}}",
+          ", \"deployed_model\": {", "\"model\": \"", "{{$.inputs.artifacts[''model''].metadata[''resourceName'']}}",
+          "\"", ", \"dedicated_resources\": {", "\"machine_spec\": {", "\"machine_type\":
+          \"", "{{$.inputs.parameters[''dedicated_resources_machine_type'']}}", "\"",
+          ", \"accelerator_type\": \"", "{{$.inputs.parameters[''dedicated_resources_accelerator_type'']}}",
+          "\"", ", \"accelerator_count\": ", "{{$.inputs.parameters[''dedicated_resources_accelerator_count'']}}",
+          "}", ", \"min_replica_count\": ", "{{$.inputs.parameters[''dedicated_resources_min_replica_count'']}}",
+          ", \"max_replica_count\": ", "{{$.inputs.parameters[''dedicated_resources_max_replica_count'']}}",
+          "}", ", \"automatic_resources\": {", "\"min_replica_count\": ", "{{$.inputs.parameters[''automatic_resources_min_replica_count'']}}",
+          ", \"max_replica_count\": ", "{{$.inputs.parameters[''automatic_resources_max_replica_count'']}}",
+          "}", ", \"service_account\": \"", "{{$.inputs.parameters[''service_account'']}}",
+          "\"", ", \"disable_container_logging\": ", "{{$.inputs.parameters[''disable_container_logging'']}}",
+          ", \"enable_access_logging\": ", "{{$.inputs.parameters[''enable_access_logging'']}}",
+          ", \"explanation_spec\": {", "\"parameters\": ", "{{$.inputs.parameters[''explanation_parameters'']}}",
+          ", \"metadata\": ", "{{$.inputs.parameters[''explanation_metadata'']}}",
+          "}", "}", "}"]}'
+        - --project
+        - ''
+        - --location
+        - ''
+        - --gcp_resources
+        - '{{$.outputs.parameters[''gcp_resources''].output_file}}'
+        command:
+        - python3
+        - -u
+        - -m
+        - google_cloud_pipeline_components.container.v1.endpoint.deploy_model.launcher
+        image: gcr.io/ml-pipeline/google-cloud-pipeline-components:2.10.0
+    exec-tabular-dataset-create:
+      container:
+        args:
+        - --method.project
+        - '{{$.inputs.parameters[''project'']}}'
+        - --method.location
+        - '{{$.inputs.parameters[''location'']}}'
+        - --method.display_name
+        - '{{$.inputs.parameters[''display_name'']}}'
+        - '{"IfPresent": {"InputName": "gcs_source", "Then": ["--method.gcs_source",
+          "{{$.inputs.parameters[''gcs_source'']}}"]}}'
+        - '{"IfPresent": {"InputName": "bq_source", "Then": ["--method.bq_source",
+          "{{$.inputs.parameters[''bq_source'']}}"]}}'
+        - --method.labels
+        - '{{$.inputs.parameters[''labels'']}}'
+        - '{"IfPresent": {"InputName": "encryption_spec_key_name", "Then": ["--method.encryption_spec_key_name",
+          "{{$.inputs.parameters[''encryption_spec_key_name'']}}"]}}'
+        - --executor_input
+        - '{{$}}'
+        - --resource_name_output_artifact_uri
+        - '{{$.outputs.artifacts[''dataset''].uri}}'
+        command:
+        - python3
+        - -m
+        - google_cloud_pipeline_components.container.v1.aiplatform.remote_runner
+        - --cls_name
+        - TabularDataset
+        - --method_name
+        - create
+        image: gcr.io/ml-pipeline/google-cloud-pipeline-components:2.10.0
+pipelineInfo:
+  name: automl-beans-v1
+root:
+  dag:
+    outputs:
+      artifacts:
+        classification-model-eval-metrics-metrics:
+          artifactSelectors:
+          - outputArtifactKey: metrics
+            producerSubtask: classification-model-eval-metrics
+        classification-model-eval-metrics-metricsc:
+          artifactSelectors:
+          - outputArtifactKey: metricsc
+            producerSubtask: classification-model-eval-metrics
+    tasks:
+      automl-tabular-training-job:
+        cachingOptions:
+          enableCache: true
+        componentRef:
+          name: comp-automl-tabular-training-job
+        dependentTasks:
+        - tabular-dataset-create
+        inputs:
+          artifacts:
+            dataset:
+              taskOutputArtifact:
+                outputArtifactKey: dataset
+                producerTask: tabular-dataset-create
+          parameters:
+            column_transformations:
+              runtimeValue:
+                constant:
+                - numeric:
+                    column_name: Area
+                - numeric:
+                    column_name: Perimeter
+                - numeric:
+                    column_name: MajorAxisLength
+                - numeric:
+                    column_name: MinorAxisLength
+                - numeric:
+                    column_name: AspectRation
+                - numeric:
+                    column_name: Eccentricity
+                - numeric:
+                    column_name: ConvexArea
+                - numeric:
+                    column_name: EquivDiameter
+                - numeric:
+                    column_name: Extent
+                - numeric:
+                    column_name: Solidity
+                - numeric:
+                    column_name: roundness
+                - numeric:
+                    column_name: Compactness
+                - numeric:
+                    column_name: ShapeFactor1
+                - numeric:
+                    column_name: ShapeFactor2
+                - numeric:
+                    column_name: ShapeFactor3
+                - numeric:
+                    column_name: ShapeFactor4
+                - categorical:
+                    column_name: Class
+            display_name:
+              runtimeValue:
+                constant: '{{$.inputs.parameters[''pipelinechannel--prefix'']}}-transform'
+            optimization_prediction_type:
+              runtimeValue:
+                constant: classification
+            pipelinechannel--prefix:
+              componentInputParameter: prefix
+            project:
+              componentInputParameter: project_id
+            target_column:
+              runtimeValue:
+                constant: Class
+        taskInfo:
+          name: automl-tabular-training-job
+      classification-model-eval-metrics:
+        cachingOptions:
+          enableCache: true
+        componentRef:
+          name: comp-classification-model-eval-metrics
+        dependentTasks:
+        - automl-tabular-training-job
+        inputs:
+          artifacts:
+            model:
+              taskOutputArtifact:
+                outputArtifactKey: model
+                producerTask: automl-tabular-training-job
+          parameters:
+            api_endpoint:
+              runtimeValue:
+                constant: us-central1-aiplatform.googleapis.com
+            location:
+              componentInputParameter: region
+            project:
+              componentInputParameter: project_id
+            thresholds_dict_str:
+              componentInputParameter: thresholds_dict_str
+        taskInfo:
+          name: classification-model-eval-metrics
+      condition-1:
+        componentRef:
+          name: comp-condition-1
+        dependentTasks:
+        - automl-tabular-training-job
+        - classification-model-eval-metrics
+        inputs:
+          artifacts:
+            pipelinechannel--automl-tabular-training-job-model:
+              taskOutputArtifact:
+                outputArtifactKey: model
+                producerTask: automl-tabular-training-job
+          parameters:
+            pipelinechannel--classification-model-eval-metrics-dep_decision:
+              taskOutputParameter:
+                outputParameterKey: dep_decision
+                producerTask: classification-model-eval-metrics
+            pipelinechannel--project_id:
+              componentInputParameter: project_id
+            pipelinechannel--region:
+              componentInputParameter: region
+        taskInfo:
+          name: deploy_decision
+        triggerPolicy:
+          condition: inputs.parameter_values['pipelinechannel--classification-model-eval-metrics-dep_decision']
+            == 'true'
+      tabular-dataset-create:
+        cachingOptions:
+          enableCache: true
+        componentRef:
+          name: comp-tabular-dataset-create
+        inputs:
+          parameters:
+            bq_source:
+              componentInputParameter: bq_source
+            display_name:
+              runtimeValue:
+                constant: '{{$.inputs.parameters[''pipelinechannel--prefix'']}}-dataset'
+            pipelinechannel--prefix:
+              componentInputParameter: prefix
+            project:
+              componentInputParameter: project_id
+        taskInfo:
+          name: tabular-dataset-create
+  inputDefinitions:
+    parameters:
+      bq_source:
+        parameterType: STRING
+      prefix:
+        parameterType: STRING
+      project_id:
+        parameterType: STRING
+      region:
+        parameterType: STRING
+      thresholds_dict_str:
+        parameterType: STRING
+  outputDefinitions:
+    artifacts:
+      classification-model-eval-metrics-metrics:
+        artifactType:
+          schemaTitle: system.Metrics
+          schemaVersion: 0.0.1
+      classification-model-eval-metrics-metricsc:
+        artifactType:
+          schemaTitle: system.ClassificationMetrics
+          schemaVersion: 0.0.1
+schemaVersion: 2.1.0
+sdkVersion: kfp-2.7.0
