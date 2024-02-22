@@ -88,7 +88,7 @@ class Client:
     #region Text LLM
     def llm(self, prompt, context, model, parameters):
         
-        prompt = f""" You are an anlyticts chatbot, respond the following question with the details provided in the context:
+        prompt = f''' You are an anlyticts chatbot, respond the following question with the details provided in the context:
         - be creative
         
         context:
@@ -97,7 +97,7 @@ class Client:
         question:
         {prompt}
         
-        """
+        '''
         
         if "text" in model:
             _model = TextGenerationModel.from_pretrained(model)
@@ -118,6 +118,8 @@ class Client:
     #endregion
 
     def llm2(self, prompt, model, parameters):
+        print(prompt)
+        print(model)
     
         if "text" in model:
             _model = TextGenerationModel.from_pretrained(model)
@@ -133,7 +135,7 @@ class Client:
         else:
             _model = generative_models.GenerativeModel(model)
             response = _model.generate_content(
-                [prompt],
+                prompt,
                 generation_config=parameters,
                 safety_settings={
                     generative_models.HarmCategory.HARM_CATEGORY_HATE_SPEECH: generative_models.HarmBlockThreshold.BLOCK_NONE,
@@ -144,6 +146,7 @@ class Client:
                 )
 
         st.info("Model Used: {}".format(model))
+        print(response.text)
         return response.text
     #endregion
     
@@ -218,8 +221,8 @@ class Client:
         summary_spec = discoveryengine.SearchRequest.ContentSearchSpec.SummarySpec(
                 summary_result_count=2, include_citations=True),
         extractive_content_spec=discoveryengine.SearchRequest.ContentSearchSpec.ExtractiveContentSpec(
-                max_extractive_answer_count=2,
-                max_extractive_segment_count=2))
+                max_extractive_answer_count=3,
+                max_extractive_segment_count=3))
     
         request = discoveryengine.SearchRequest(
             serving_config=self.vsearch_serving_config, query=prompt, page_size=2, content_search_spec=content_search_spec)                                                         
@@ -230,7 +233,7 @@ class Client:
 
         context = []
         num = 0
-        ctx = {}
+        ctx = "number | context | source | page" + "\n"
 
         for i in documents:
             for ans in i["derivedStructData"]["extractive_segments"]:
@@ -238,7 +241,8 @@ class Client:
                 link = "https://storage.googleapis.com"+"/".join(i["derivedStructData"]["link"].split("/")[1:])
                 context = ans["content"]
                 page = ans["pageNumber"]
-                ctx[f"context: {num}"]="text: {}, source: {}, page: {}".format(context, link, page)
+                ctx += f"{num} | {context} | {link} | {page}" + "\n"
+                #ctx[f"context: {num}"]="text: {}, source: {}, page: {}".format(context, link, page)
 
         return ctx
     #endregion
