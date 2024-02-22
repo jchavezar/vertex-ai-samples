@@ -23,7 +23,7 @@ opencv-python
 google-cloud-videointelligence
 streamlit_chat
 docarray
-langchain==0.0.311
+langchain
 pgvector==0.1.8
 httpx
 streamlit_option_menu
