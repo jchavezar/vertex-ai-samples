@@ -39,7 +39,7 @@ def app():
     preprocess_client = documents_preprocess.Client(variables)
     vector_database_client = vector_database.Client(variables)
     #endregion
-    
+
     def streamlit_init():
         st.markdown("""
             The following demo has functions calling which is a way to connect the llm to either api calls, 
@@ -48,22 +48,22 @@ def app():
             [more information](https://cloud.google.com/vertex-ai/docs/generative-ai/multimodal/function-calling)
             
             """)
-    
+
         description = """Get internal information about building policies like trash collection, packages pickup, ammenities use and dogs animal polices"""
-        
+
         with st.expander("Diagram:"):
             st.image("images/ask_your_doc_extensions.png")
         st.markdown(f""" :green[repo:] [![Repo]({github_icon})]({ask_your_doc_functions})""")
 
         if 'area_key' not in st.session_state:
             st.session_state.area_key = 1
-            
+
         description_placeholder = st.empty()
         with description_placeholder.container():
             des = st.text_area(label="User or Provide a Description to detect the function to be called:",
-                            height=100,
-                            value=description, key=st.session_state.area_key)
-        
+                               height=100,
+                               value=description, key=st.session_state.area_key)
+
         # your chat code
         if st.button("Reset", type="primary"):
             # when chat complete
@@ -71,64 +71,64 @@ def app():
             description_placeholder.empty()
             with description_placeholder.container():
                 des = st.text_area(label="User",
-                                height=100,
-                                value=description,
-                                key=st.session_state.area_key)
+                                   height=100,
+                                   value=description,
+                                   key=st.session_state.area_key)
         return des
-        
-        
+
+
     des = streamlit_init()
 
-    #region Functions Calling definition                                               
+    #region Functions Calling definition
     taxes_info ={
-    "name": "get_taxes_info",
-    "description": "Get taxes information for users",
-    "parameters": {
-        "type": "object",
-        "properties": {
-            "name": {
-                "type": "string",
-                "description": "The full name, first and last name."
+        "name": "get_taxes_info",
+        "description": "Get taxes information for users",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "description": "The full name, first and last name."
+                },
             },
-        },
-        "required": [
-            "name"
-        ]
-    }
+            "required": [
+                "name"
+            ]
+        }
     }
 
     internal_info ={
-    "name": "get_internal_info",
-    "description": des,
-    "parameters": {
-        "type": "object",
-        "properties": {
-            "context": {
-                "type": "string",
-                "description": "Any contextual search query about the document indexed"
+        "name": "get_internal_info",
+        "description": des,
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "context": {
+                    "type": "string",
+                    "description": "Any contextual search query about the document indexed"
+                },
             },
-        },
-        "required": [
-            "context"
-        ]
-    }
+            "required": [
+                "context"
+            ]
+        }
     }
 
     citibike_info ={
-    "name": "get_citibike_info",
-    "description": "Get everything regarding citibikes like dock stations available, number of bikes availabe and disabled, capacity, per longitude and latitude, if you get a question about latitud and longiture refere to this function.",
-    "parameters": {
-        "type": "object",
-        "properties": {
-            "context": {
-                "type": "string",
-                "description": "extract exactly the query/context as it is, do not manipulate the input"
+        "name": "get_citibike_info",
+        "description": "Get everything regarding citibikes like dock stations available, number of bikes availabe and disabled, capacity, per longitude and latitude, if you get a question about latitud and longiture refere to this function.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "context": {
+                    "type": "string",
+                    "description": "extract exactly the query/context as it is, do not manipulate the input"
+                },
             },
-        },
-        "required": [
-            "context"
-        ]
-    }
+            "required": [
+                "context"
+            ]
+        }
     }
 
     all_tools = Tool.from_dict(
@@ -138,19 +138,19 @@ def app():
             ]
         }
     )
-    
+
     st.header("Functions Calling")
     col1, col2, col3 = st.columns(3)
-    
+
     with col1:
         st.write(taxes_info)
-        
+
     with col2:
         st.write(internal_info)
 
     with col3:
-        st.write(citibike_info)    
-    #endregion
+        st.write(citibike_info)
+        #endregion
 
     #region Python Functions for Function Callings
     def get_taxes_info(name:str) -> str:
@@ -203,7 +203,7 @@ def app():
         Question: {context}
         Output in SQL:
         """
-        
+
         safety_settings={
             generative_models.HarmCategory.HARM_CATEGORY_HATE_SPEECH: generative_models.HarmBlockThreshold.BLOCK_NONE,
             generative_models.HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT: generative_models.HarmBlockThreshold.BLOCK_NONE,
@@ -218,7 +218,7 @@ def app():
 
         with st.expander("sql query:"):
             st.write(response)
-        
+
         df = bq_client.query(response).to_dataframe()
         st.dataframe(df)
 
@@ -235,7 +235,7 @@ def app():
             st.map(df, latitude="latitude", longitude="longitude", size=num_columns[0], color="color")
 
         template_prompt = f"from the context enclosed by backticks ```{df.iloc[:10,:].to_json()}``` give me a detailed summary"
-        
+
         txt = gemini_model.generate_content([template_prompt])
 
         return txt
@@ -250,7 +250,7 @@ def app():
         
         Context: 
         {context}:
-        """  
+        """
         model = GenerativeModel("gemini-pro")
         res = model.generate_content(prompt)
         return res.text.replace("$", "")
@@ -281,7 +281,7 @@ def app():
             base64_pdf = base64.b64encode(file.read()).decode("utf-8")
             pdf_display = F'<iframe src="data:application/pdf;base64,{base64_pdf}" width="700" height="1000" type="application/pdf"></iframe>'
         st.markdown(pdf_display, unsafe_allow_html=True)
-        
+
     @st.cache_data
     def preprocess(filename: str):
         docs = preprocess_client.run(filename=filename)
@@ -291,28 +291,28 @@ def app():
 
     if "yourfile" not in st.session_state:
         st.session_state.yourfile = False
-    
+
     if "filepath" not in st.session_state:
         st.session_state.filepath = False
-    
+
     col1, col2 = st.columns([1,1])  # Adjust column ratios as needed
-    
+
     yourfile = None
 
     with col1:
         if st.button("Use Demo File", use_container_width=True):
             st.session_state.filepath = "../"
-    
+
     with col2:
         if st.button("Use your Own File", use_container_width=True):
             st.session_state.yourfile = True
-            
-    # import time        
+
+    # import time
     # def stream_data(res):
     #     for word in res.split():
     #         yield word + " "
     #         time.sleep(0.02)
-    
+
     def main(filename):
         with st.expander("pdf view"):
             display_document(filename)
@@ -335,14 +335,14 @@ def app():
                     args = f.get_function_args(res)
                     print(f"\nFUNCTION CALL: {name}({args})")
                     api_result = call_api(name, args, rag_schema=rag_schema)
-                    
+
                     if api_result:
                         st.write(api_result)
                         res = summarize_api_result(query=input_text, context=api_result)
                         st.info(res)
                     else:
                         st.info(summarize_api_result(query=input_text))
-     
+
     if st.session_state.yourfile:
         filename = st.file_uploader("Upload your PDF", type="pdf")
         if filename:

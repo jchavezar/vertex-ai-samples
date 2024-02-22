@@ -13,20 +13,20 @@ from langchain_community.chat_models.vertexai import ChatVertexAI
 import vertexai.preview.generative_models as generative_models
 
 safety_settings={
-generative_models.HarmCategory.HARM_CATEGORY_HATE_SPEECH: generative_models.HarmBlockThreshold.BLOCK_NONE,
-generative_models.HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT: generative_models.HarmBlockThreshold.BLOCK_NONE,
-generative_models.HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT: generative_models.HarmBlockThreshold.BLOCK_NONE,
-generative_models.HarmCategory.HARM_CATEGORY_HARASSMENT: generative_models.HarmBlockThreshold.BLOCK_NONE,
+    generative_models.HarmCategory.HARM_CATEGORY_HATE_SPEECH: generative_models.HarmBlockThreshold.BLOCK_NONE,
+    generative_models.HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT: generative_models.HarmBlockThreshold.BLOCK_NONE,
+    generative_models.HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT: generative_models.HarmBlockThreshold.BLOCK_NONE,
+    generative_models.HarmCategory.HARM_CATEGORY_HARASSMENT: generative_models.HarmBlockThreshold.BLOCK_NONE,
 }
 
 class WebsiteAnalysisAgent:
     def __init__(self, iterable=(), **kwargs) -> None:
-        self.__dict__.update(iterable, **kwargs)     
-        
+        self.__dict__.update(iterable, **kwargs)
+
     def cleaning_agent_expert(self):
         agent_llm = VertexAI(model_name=self.comp_model, temperature=self.comp_params["temperature"])
         st.markdown(f":blue[Model selected for Clean Agent:] {self.comp_model}")
-        
+
         #st.markdown(f":green[Model selected: {model}]")
         return Agent(
             role="Clean & Math Expert",
@@ -38,11 +38,11 @@ class WebsiteAnalysisAgent:
             tools=[
                 sTools.clean_interpret,
                 sTools.math_tool
-                ],
+            ],
             allow_delegation=False,
             verbose=True,
-            )
-    
+        )
+
     def summary_expert(self):
         model = "gemini-pro"
         #llm = VertexAI(model=self.other_model,temperature=self.other_params["temperature"])
@@ -54,4 +54,4 @@ class WebsiteAnalysisAgent:
             llm=VertexAI(model_name=self.other_model, temperature=self.other_params["temperature"]),
             allow_delegation=False,
             verbose=True,
-            )
+        )
