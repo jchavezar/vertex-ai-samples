@@ -9,9 +9,9 @@ from utils.crewai.search_tools import SearchTools
 from langchain_google_vertexai import VertexAI
 from langchain_community.utilities import GoogleSearchAPIWrapper
 
-variables={
-    "project":"vtxdemos",
-    "location":"global",
+variables= {
+    "project": "vtxdemos",
+    "location": "global",
     "region": "us-central1",
 }
 
