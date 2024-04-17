@@ -65,7 +65,7 @@ class UploadButton(Container):
         #self.page.overlay.append(self.mypick)
         self.bgcolor = "transparent"
         self.content = ElevatedButton(
-            bgcolor=colors.TRANSPARENT,
+            bgcolor=colors.TEAL,
             style=ButtonStyle(
                 shape=RoundedRectangleBorder(radius=10)
             ),
@@ -116,6 +116,7 @@ class UploadButton(Container):
         e.control.update()
 
 def main(page: Page):
+    background_color = colors.WHITE
     prog_bars: Dict[str, ProgressRing] = {}
     files = Ref[Column]()
     upload_button = Ref[ElevatedButton]()
@@ -128,7 +129,7 @@ def main(page: Page):
             for f in e.files:
                 prog = ProgressRing(value=0, bgcolor="#eeeeee", width=20, height=20)
                 prog_bars[f.name] = prog
-                files.current.controls.append(Row([prog, Text(f.name)]))
+                files.current.controls.append(Row([prog, Text(f.name, color=BLACK)]))
         page.update()
 
     def on_upload_progress(e: FilePickerUploadEvent):
@@ -174,14 +175,14 @@ def main(page: Page):
     #     "Roboto Mono": "RobotoMono-VariableFont_wght.ttf",
     # }
     # page.update()
-    page.bgcolor = BLACK
+    page.bgcolor = background_color
     #page.window_frameless = True
     LogBar = Container(
         width=0,
         content=Container(
             margin=50,
             width=200,
-            bgcolor="black",
+            bgcolor=colors.TEAL_50,
             content=ListView(
                 auto_scroll=True
             )
@@ -196,7 +197,7 @@ def main(page: Page):
                 right=border.BorderSide(1, BLACK),
                 top=border.BorderSide(1, BLACK)
             )
-            LogBar.bgcolor = BLACK
+            LogBar.bgcolor = colors.TEAL_50
             # LogBar.opacity = 0.2
             LogBar.width = 2048
             LogBar.margin = 10
@@ -217,6 +218,7 @@ def main(page: Page):
             )
             LogBar.bgcolor = ""
             LogBar.width = 0
+
             # LogBar.border = border.only(
             #     right=border.BorderSide(1, "black"),
             #     top=border.BorderSide(1, "black"),
@@ -248,7 +250,7 @@ def main(page: Page):
 
     FirstRowContents = Container(
         height=250,
-        bgcolor=BLACK,
+        bgcolor=background_color,
         border=border.only(
             left=border.BorderSide(1, BC),
             right=border.BorderSide(1, BC),
@@ -265,12 +267,16 @@ def main(page: Page):
                         controls=[
                             ElevatedButton(
                                 "Select files...",
+                                color=colors.WHITE,
+                                bgcolor=colors.TEAL,
                                 icon=icons.FOLDER_OPEN,
                                 on_click=lambda _: file_picker.pick_files(allow_multiple=True),
                             ),
                             Column(ref=files),
                             ElevatedButton(
                                 "Upload",
+                                color=colors.WHITE,
+                                bgcolor=colors.TEAL,
                                 ref=upload_button,
                                 icon=icons.UPLOAD,
                                 on_click=upload_files,
@@ -285,7 +291,18 @@ def main(page: Page):
                 # Right side of the second row.
                 Container(
                     expand=True,
-                    content=TimerFunction
+                    content=Row(
+                        controls=[
+                            TimerFunction,
+                            ElevatedButton(
+                                text="Clear Session",
+                                color=colors.WHITE,
+                                bgcolor=colors.RED_400,
+                                icon=icons.REFRESH,
+                                on_click=lambda e: page.session.clear()
+                            )
+                        ]
+                    )
                 )
             ]
         )
@@ -305,7 +322,7 @@ def main(page: Page):
                     controls=[
 
                         Text("vdb response:", color=colors.BLUE, bgcolor=BLACK),
-                        Container(content=Text(context, color=colors.WHITE))
+                        Container(content=Text(context, color=BLACK))
                     ]
                 )
             )
@@ -318,16 +335,18 @@ def main(page: Page):
 
         def animate_text_output(name: str, prompt: str) -> None:
             if name == "User":
-                bg_color = "#282a2d"
-                al_color = colors.WHITE
+                #bg_color = "#282a2d"
+                bg_color = colors.BLUE_GREY
+                al_color = colors.BLACK
             else:
-                bg_color = "#1a3059"
+                # bg_color = "#1a3059"
+                bg_color = colors.TEAL
                 al_color = colors.PINK
             word_list: list = []
             msg = Column(
                 controls=[
                     Container(
-                        margin=10,
+                        margin=20,
                         bgcolor=colors.TRANSPARENT,
                         content=Text(name, color=al_color, size=15)
                     ),
@@ -380,7 +399,9 @@ def main(page: Page):
         controls=[
             # ListView is where all the message will be displayed.
             Container(
-                bgcolor="#1a1c1e",
+                #bgcolor="#1a1c1e",
+                # bgcolor=colors.TEAL_50,
+                # opacity=0.4,
                 expand=True,
                 border=border.all(1,BC),
                 border_radius=5,
@@ -390,7 +411,7 @@ def main(page: Page):
             ),
             # Right Side Panel is for additional chatbot options
             Container(
-                margin=10,
+                margin=15,
                 height=50,
                 border=border.all(1, BC),
                 border_radius=15,
@@ -398,7 +419,8 @@ def main(page: Page):
                     hint_style=TextStyle(color=TEAL),
                     hint_text="Type Something",
                     border_color="transparent",
-                    selection_color="grey",
+                    selection_color="black",
+                    color="black",
                     on_submit=send_message
                 )
             )
@@ -406,7 +428,7 @@ def main(page: Page):
     )
 
     SecondRowContents = Container(
-        bgcolor="transparent",
+        bgcolor=background_color,
         expand=True,
         width=3000,
         content=Row(
@@ -417,7 +439,7 @@ def main(page: Page):
                     alignment=alignment.center,
                     padding=padding.only(left=20, right=20, top=30, bottom=10),
                     expand=True,
-                    bgcolor="black",
+                    bgcolor=background_color,
                     border=border.only(
                         left=border.BorderSide(1, BC),
                         right=border.BorderSide(1, BC),
@@ -428,7 +450,7 @@ def main(page: Page):
                 # RightSide
                 Container(
                     width=300,
-                    bgcolor="black",
+                    bgcolor=background_color,
                     border=border.only(
                         right=border.BorderSide(1, BC),
                         top=border.BorderSide(1, BC),
@@ -444,12 +466,13 @@ def main(page: Page):
 
     EndRow = Container(
         height=60,
-        bgcolor="black",
+        bgcolor=background_color,
         border=border.all(1, BC)
     )
 
     # MainLayout (All Frames)
     MainLayout = Container(
+        bgcolor=background_color,
         border=border.all(1, BLACK),
         expand=True,
         content=Row(
@@ -493,9 +516,6 @@ def main(page: Page):
                             content=None,
                             on_click=folding
                         ),
-                        # Container(
-                        #     bgcolor=BLACK
-                        # )
                     ]
                 ),
                 LogBar
@@ -506,14 +526,14 @@ def main(page: Page):
 
     page.title = "SignIn"
     page.vertical_alignment = MainAxisAlignment.CENTER
-    page.them = ThemeMode.DARK
+    #page.them = ThemeMode.DARK
     page.window_width = 400
     page.window_height = 400
     page.window_resizable = True
 
-    text_user: TextField = TextField(label="Username", text_align=TextAlign.CENTER, width=200)
-    password: TextField = TextField(label="Password", text_align=TextAlign.CENTER, width=200, password=True)
-    button_submit: ElevatedButton = ElevatedButton(text="Sing In", width=200, disabled=True)
+    text_user: TextField = TextField(label="Username", text_align=TextAlign.CENTER, color="black", width=200)
+    password: TextField = TextField(label="Password", text_align=TextAlign.CENTER, color="black", width=200, password=True)
+    button_submit: ElevatedButton = ElevatedButton(text="Sing In", width=200, disabled=True, bgcolor=colors.BLUE_100)
 
     def validate(e: ControlEvent) -> None:
         if text_user.value and password.value == "Chavez":
@@ -528,6 +548,14 @@ def main(page: Page):
 
     text_user.on_change = validate
     password.on_change = validate
+    button_signin: ElevatedButton = ElevatedButton(
+        text="Sign In",
+        width=200,
+#        color=colors.WHITE,
+        bgcolor=colors.BLUE,
+        on_click=submit
+
+    )
     button_submit.on_click = submit
 
     page.add(
@@ -537,7 +565,7 @@ def main(page: Page):
                     controls=[
                         text_user,
                         password,
-                        button_submit
+                        button_signin
                     ]
                 )
             ],
@@ -547,3 +575,4 @@ def main(page: Page):
     )
 
 app(target=main, view=AppView.WEB_BROWSER, port=8080, upload_dir=files_dir)
+
