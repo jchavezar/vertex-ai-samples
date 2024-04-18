@@ -30,6 +30,8 @@ variables = {
     "location": "us",
 }
 
+light_primary = colors.BLUE_300
+
 vertexai.init(project=variables["project_id"])
 model_emb = TextEmbeddingModel.from_pretrained("textembedding-gecko@001")
 vector_database_client = vector_database.Client(variables)
@@ -64,6 +66,7 @@ def extraction(image):
         including empty ones, ambiguous markings, or other symbols, should be treated as unchecked (false)
         - Do not miss any letter or word.
         - Do not make up any key value.
+        - Do not forget any value is very important for your tax analysis.
         
         Output in python dictionary:
         """
@@ -76,10 +79,11 @@ def extraction(image):
         including empty ones, ambiguous markings, or other symbols, should be treated as unchecked (false)
         - Do not miss any letter or word.
         - Do not make up any key value.
+        - Do not forget any value is very important for your tax analysis.
         
         Output in structured markdown:
         """
-
+    print("before gemini1.5")
     model = GenerativeModel("gemini-1.5-pro-preview-0409")
     gemini_response = model.generate_content(
         [image1, text1],
@@ -140,7 +144,7 @@ def run(filename, page):
 
     page.controls[0].content.controls[1].content.controls[1].content.controls[1] \
         .content.content.controls.append(Text("From files to image pages finished in: {:.2f} s".format(time.time()-start),
-                                              color=colors.WHITE, bgcolor=colors.TEAL))
+                                              color=colors.WHITE, bgcolor=light_primary))
     page.controls[0].content.controls[1].content.controls[1].content.controls[1].content.content.update()
     page.controls[0].content.controls[1].content.controls[1].content.controls[1] \
         .content.content.controls.append(Text("Gemini 1.5 Extraction please wait...", color=colors.BLACK, bgcolor=colors.GREY))
@@ -149,10 +153,11 @@ def run(filename, page):
     for p, image in enumerate(images):
         start_extraction = time.time()
         response = extraction(image)
+        print(response)
         doc.append(response)
     page.controls[0].content.controls[1].content.controls[1].content.controls[1] \
         .content.content.controls.append(Text("Extraction finished in: {:.2f} s".format(time.time()-start),
-                                              color=colors.WHITE, bgcolor=colors.TEAL))
+                                              color=colors.WHITE, bgcolor=light_primary))
     page.controls[0].content.controls[1].content.controls[1].content.controls[1].content.content.update()
     page.controls[0].content.controls[1].content.controls[1].content.controls[1] \
         .content.content.controls.append(Text("Using gecko for embeddings please wait...",  color=colors.BLACK, bgcolor=colors.GREY))
@@ -162,7 +167,7 @@ def run(filename, page):
     docs_with_emb = create_embeddings(lang_docs, list_docs)
     page.controls[0].content.controls[1].content.controls[1].content.controls[1] \
         .content.content.controls.append(Text("Embeddings finished in: {:.2f} s".format(time.time()-start),
-                                              color=colors.WHITE, bgcolor=colors.TEAL))
+                                              color=colors.WHITE, bgcolor=light_primary))
     page.controls[0].content.controls[1].content.controls[1].content.controls[1] \
         .content.content.controls.append(Text("Enjoy!", bgcolor="green"))
     page.controls[0].content.controls[1].content.controls[1].content.controls[1].content.content.update()
