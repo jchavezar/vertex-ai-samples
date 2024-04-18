@@ -2,42 +2,21 @@ import os
 import time
 import vertexai
 import asyncio
+import pandas as pd
 from utils import preprocess
 from utils.temp import *
 import utils.database as vector_database
+import scann
 from flet import *
+import numpy as np
 from vertexai.language_models import TextEmbeddingModel
 from vertexai.generative_models import GenerativeModel, Part
 from vertexai.preview.generative_models import HarmCategory, HarmBlockThreshold
 
-project_id = "vtxdemos"
-location = "us-central1"
+# Conversational Bot Defintion.
 files_dir = "myuploads"
-BC = "#45474a"
-TEAL = colors.TEAL
-BLACK = colors.BLACK
-HEIGHT = 280
-rag_schema = ""
-system_prompt = f"""
-            You like to be natural and act like a human, keep a conversational experience with the following 
-            elements:
-            - Use <User Query> as user questions/asks, etc. 
-            - Use <Context> as your source of truth.
-            - If you get the answer from the <Context> explain which part did you find it.
-            - If someone say by and close the conversation just return an empty string.
-            """
-conversational_generation_config = {
-    "max_output_tokens": 2048,
-    "temperature": 0.4,
-    "top_p": 0.4,
-    "top_k": 32,
-}
-conversational_safety_settings = {
-    HarmCategory.HARM_CATEGORY_HATE_SPEECH: HarmBlockThreshold.BLOCK_NONE,
-    HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT: HarmBlockThreshold.BLOCK_NONE,
-    HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT: HarmBlockThreshold.BLOCK_NONE,
-    HarmCategory.HARM_CATEGORY_HARASSMENT: HarmBlockThreshold.BLOCK_NONE,
-}
+conversational_bot_model = "gemini-1.0-pro-002"
+embeddings_model = "textembedding-gecko@001"
 
 variables = {
     "project_id": "vtxdemos",
@@ -51,76 +30,51 @@ variables = {
     "location": "us",
 }
 
-vertexai.init(project=project_id, location=location)
-conversational_model = GenerativeModel("gemini-1.0-pro-002", system_instruction=[system_prompt])
+rag_schema = ""
+system_prompt = f"""
+            You like to be natural and act like a human, keep a conversational experience with the following 
+            elements:
+            - Use <User Query> as user questions/asks, etc. 
+            - Use <Context> as your source of truth.
+            - If you get the answer from the <Context> explain which part did you find it.
+            - If someone say by and close the conversation just return an empty string.
+            """
+conversational_generation_config = {
+    "max_output_tokens": 2048,
+    "temperature": 0,
+    "top_p": 0.4,
+    "top_k": 32,
+}
+conversational_safety_settings = {
+    HarmCategory.HARM_CATEGORY_HATE_SPEECH: HarmBlockThreshold.BLOCK_NONE,
+    HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT: HarmBlockThreshold.BLOCK_NONE,
+    HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT: HarmBlockThreshold.BLOCK_NONE,
+    HarmCategory.HARM_CATEGORY_HARASSMENT: HarmBlockThreshold.BLOCK_NONE,
+}
+
+# Large Language Models Initialization
+vertexai.init(project=variables["project_id"], location=variables["region"])
+conversational_model = GenerativeModel(conversational_bot_model, system_instruction=[system_prompt])
 bot_chat = conversational_model.start_chat(response_validation=False)
-model_emb = TextEmbeddingModel.from_pretrained("textembedding-gecko@001")
+model_emb = TextEmbeddingModel.from_pretrained(embeddings_model)
+
+# Cloud SQL (pggvector) Database Initialization
 vector_database_client = vector_database.Client(variables)
 
-class UploadButton(Container):
-    def __init__(self, text, icon, page):
-        super(UploadButton, self).__init__()
-        self.page = page
-        self.mypick = FilePicker(on_result=self.upload_file)
-        #self.page.overlay.append(self.mypick)
-        self.bgcolor = "transparent"
-        self.content = ElevatedButton(
-            bgcolor=colors.TEAL,
-            style=ButtonStyle(
-                shape=RoundedRectangleBorder(radius=10)
-            ),
-            icon=icon,
-            text=text,
-            color="white",
-            on_hover=self.on_hover,
-            on_click=lambda x: self.mypick.pick_files()
-        )
-
-    def build(self):
-        self.page.overlay.append(self.mypick)
+# Document Preprocessing to fetch documents offline / Refer to manual_doc_preprocess.py
+df = pd.read_pickle("tax_vdb_latest.pkl")
 
 
-    def upload_file(self, e):
-        upload_list = []
-        if e.files is not None:
-            for f in self.mypick.result.files:
-                upload_list.append(
-                    FilePickerUploadFile(
-                        f.name,
-                        upload_url=self.page.get_upload_url(f.name, 600)
-                    )
-                )
-            self.pick.upload(upload_list)
-            for f in self.mypick.result.files:
-                rag, docs = preprocess.run(f.path, self.page)
-                global rag_schema
-                rag_schema = rag
-                for i in docs:
-                    self.page.controls[0].content.controls[4].content.content.controls.append(
-                        Column(
-                            controls=[
-                                Text("Text:", color=BLACK),
-                                Markdown(
-                                    i,
-                                    extension_set="gitHubWeb",
-                                )
-                            ]
-                        )
-                    )
-                self.page.controls[0].content.controls[4].update()
-            else:
-                pass
-
-    def on_hover(self, e):
-        e.control.border = border.all(1, "blue") if e.data == "true" else border.all(1, "black")
-        e.control.update()
-
+# Main function for the front end, Flet (flutter) is being used. -> https://flet.dev/
 def main(page: Page):
+    border_color = "#45474a"
+    light_primary = colors.BLUE_300
     background_color = colors.WHITE
     prog_bars: Dict[str, ProgressRing] = {}
     files = Ref[Column]()
     upload_button = Ref[ElevatedButton]()
 
+    # Function to upload a file.
     def file_picker_result(e: FilePickerResultEvent):
         upload_button.current.disabled = True if e.files is None else False
         prog_bars.clear()
@@ -129,7 +83,7 @@ def main(page: Page):
             for f in e.files:
                 prog = ProgressRing(value=0, bgcolor="#eeeeee", width=20, height=20)
                 prog_bars[f.name] = prog
-                files.current.controls.append(Row([prog, Text(f.name, color=BLACK)]))
+                files.current.controls.append(Row([prog, Text(f.name, color=colors.BLACK)]))
         page.update()
 
     def on_upload_progress(e: FilePickerUploadEvent):
@@ -170,91 +124,124 @@ def main(page: Page):
     # hide dialog in a overlay
     page.overlay.append(file_picker)
 
-    # chat = ChatClass()
-    # page.fonts = {
-    #     "Roboto Mono": "RobotoMono-VariableFont_wght.ttf",
-    # }
-    # page.update()
+    # LogBar is the container with the Document Extraction and Vector Query Result childs.
     page.bgcolor = background_color
-    #page.window_frameless = True
     LogBar = Container(
         width=0,
         content=Container(
             margin=50,
             width=200,
-            bgcolor=colors.TEAL_50,
+            bgcolor=colors.GREY_500,
             content=ListView(
                 auto_scroll=True
             )
         )
     )
 
+    # Function "folding" to show document extraction and vector database response during a query.
     def folding(e):
         if LogBar.width != 2048:
             # HeaderRow
             page.controls[0].content.controls[1].border = border.only(
-                left=border.BorderSide(1, BLACK),
-                right=border.BorderSide(1, BLACK),
-                top=border.BorderSide(1, BLACK)
+                left=border.BorderSide(1, colors.BLACK),
+                right=border.BorderSide(1, colors.BLACK),
+                top=border.BorderSide(1, colors.BLACK)
             )
-            LogBar.bgcolor = colors.TEAL_50
+            LogBar.bgcolor = colors.GREY_500
             # LogBar.opacity = 0.2
             LogBar.width = 2048
             LogBar.margin = 10
-            # LogBar.border = border.only(
-            #     right=border.BorderSide(1, TEAL),
-            #     top=border.BorderSide(1, TEAL),
-            #     bottom=border.BorderSide(1, TEAL)
-            # )
-            # LogBar.content.margin = 10
             LogBar.content.width = 1024
             LogBar.content.bgcolor = "transparent"
             LogBar.update()
         else:
             page.controls[0].content.controls[1].border = border.only(
-                left=border.BorderSide(1, BC),
-                right=border.BorderSide(1, BC),
-                top=border.BorderSide(1, BC)
+                left=border.BorderSide(1, border_color),
+                right=border.BorderSide(1, border_color),
+                top=border.BorderSide(1, border_color)
             )
             LogBar.bgcolor = ""
             LogBar.width = 0
-
-            # LogBar.border = border.only(
-            #     right=border.BorderSide(1, "black"),
-            #     top=border.BorderSide(1, "black"),
-            #     bottom=border.BorderSide(1, "black")
-            # )
             LogBar.update()
 
+    # Header Rows with "Upload Button" and preloaded files.
     HeaderRowContents = Container(
         height=70,
         width=2048,
-        bgcolor="black",
+        bgcolor=colors.BLACK,
         border=border.only(
-            left=border.BorderSide(1, BC),
-            right=border.BorderSide(1, BC),
-            top=border.BorderSide(1, BC)
+            left=border.BorderSide(1, border_color),
+            right=border.BorderSide(1, border_color),
+            top=border.BorderSide(1, border_color)
         ),
         alignment=alignment.center,
         content=Text("Demos!"),
     )
 
+    # Time widget to calculate the response time.
     TimerFunction = Row(
         alignment=alignment.center,
         controls=[
-            Text("Response Time:", color=BC),
-            Text("", color=colors.GREEN)
-
+            Text("Response Time:", color=colors.BLACK),
+            Text("", color=colors.WHITE, bgcolor=colors.GREEN)
         ]
     )
 
+    # Session Restart
+    crash_button: ElevatedButton = ElevatedButton(
+        text="Clear Session",
+        color=colors.BLACK,
+        bgcolor=colors.GREY,
+        icon=icons.REFRESH,
+        on_click=lambda e: page.session.clear()
+    )
+
+    # Dropdown to select the preprocessed document.
+    drop_down: Dropdown = Dropdown(
+        value="1040.pdf",
+        bgcolor=colors.WHITE,
+        color=colors.BLACK,
+        width=300,
+        options=[
+            dropdown.Option("1040.pdf"),
+            dropdown.Option("1065.pdf"),
+            dropdown.Option("1120.pdf"),
+            dropdown.Option("5471.pdf"),
+            dropdown.Option("k1_565.pdf"),
+            dropdown.Option("All")
+        ]
+    )
+
+    # Submit button for RAG in Memory using ScaNN -> https://github.com/google-research/google-research/tree/master/scann
+    def doc_internal_rag(e):
+        global filtered_df
+        global searcher
+        if drop_down.value != "All":
+            filtered_df = df.copy()
+            filtered_df = filtered_df[filtered_df["filename"] == drop_down.value]
+            filtered_df = filtered_df.reset_index(drop=True)
+
+            img = np.array([r["embeddings"] for i, r in filtered_df.iterrows()])
+            k = int(np.sqrt(df.shape[0]))
+            searcher = scann.scann_ops_pybind.builder(img, num_neighbors=3, distance_measure="squared_l2").tree(
+                num_leaves=k, num_leaves_to_search=1, training_sample_size=filtered_df.shape[0]).score_ah(
+                2, anisotropic_quantization_threshold=0.2).reorder(7).build()
+        else:
+            filded_df = df.copy()
+            img = np.array([r["embeddings"] for i, r in filtered_df.iterrows()])
+            k = int(np.sqrt(df.shape[0]))
+            searcher = scann.scann_ops_pybind.builder(img, num_neighbors=3, distance_measure="squared_l2").tree(
+                num_leaves=k, num_leaves_to_search=int(int(k/20)), training_sample_size=filtered_df.shape[0]).score_ah(
+                2, anisotropic_quantization_threshold=0.2).reorder(7).build()
+
+    # Header of the website
     FirstRowContents = Container(
         height=250,
         bgcolor=background_color,
         border=border.only(
-            left=border.BorderSide(1, BC),
-            right=border.BorderSide(1, BC),
-            top=border.BorderSide(1, BC)
+            left=border.BorderSide(1, border_color),
+            right=border.BorderSide(1, border_color),
+            top=border.BorderSide(1, border_color)
         ),
         # Icons / Inserts
         content=Row(
@@ -267,16 +254,16 @@ def main(page: Page):
                         controls=[
                             ElevatedButton(
                                 "Select files...",
-                                color=colors.WHITE,
-                                bgcolor=colors.TEAL,
+                                color=colors.BLACK,
+                                bgcolor=light_primary,
                                 icon=icons.FOLDER_OPEN,
                                 on_click=lambda _: file_picker.pick_files(allow_multiple=True),
                             ),
                             Column(ref=files),
                             ElevatedButton(
                                 "Upload",
-                                color=colors.WHITE,
-                                bgcolor=colors.TEAL,
+                                color=colors.BLACK,
+                                bgcolor=light_primary,
                                 ref=upload_button,
                                 icon=icons.UPLOAD,
                                 on_click=upload_files,
@@ -291,45 +278,91 @@ def main(page: Page):
                 # Right side of the second row.
                 Container(
                     expand=True,
-                    content=Row(
+                    content=Column(
+                        alignment=MainAxisAlignment.CENTER,
                         controls=[
-                            TimerFunction,
-                            ElevatedButton(
-                                text="Clear Session",
-                                color=colors.WHITE,
-                                bgcolor=colors.RED_400,
-                                icon=icons.REFRESH,
-                                on_click=lambda e: page.session.clear()
+                            Container(
+                                alignment=alignment.center,
+                                width=300,
+                                content=TimerFunction
+                            ),
+                            Container(
+                                alignment=alignment.center_left,
+                                width=300,
+                                content=crash_button
+                            ),
+                            Container(
+                                bgcolor="transparent",
+                                alignment=alignment.center_left,
+                                width=300,
+                                content=drop_down
+                            ),
+                            Container(
+                                content=ElevatedButton(
+                                    text="submit",
+                                    on_click=doc_internal_rag
+                                )
                             )
                         ]
                     )
-                )
+                ),
             ]
         )
     )
 
+    # Chatbot Display Container
     def send_message(e):
         q = e.control.value
         start_time = time.time()
         query = model_emb.get_embeddings([q])[0].values
         if rag_schema == "":
             context = ""
+            if "filtered_df" in globals():
+                neighbors, distances = searcher.search(query, final_num_neighbors=10)
+                vdb_df = filtered_df.loc[neighbors, :]
+                context = ""
+                for index, row in vdb_df.iterrows():
+                    head = "\n\n" + "###"*80 + "\n\n"
+                    sch = f"Page Number: {row['page_number']}, " \
+                          f"Chunk Number: {row['chunk_number']} "  \
+                          f"Extraction Duration Time: {row['extraction_time_in_seconds']} " \
+                          f"Filename: {row['filename']}\n\n"
+                    text = row["page_text"]
+                    context += head + sch + text + "###"*80 + "\n\n"
+                #context = ",".join([row["page_text"] for index, row in vdb_df.iterrows()])
+                LogBar.content.content.controls.append(
+                    Column(
+                        width=600,
+                        controls=[
+
+                            Text("vdb response:", color=colors.BLUE, bgcolor=colors.BLACK),
+                            Container(content=Markdown(
+                                context,
+                                code_style=TextStyle(color=colors.BLACK)
+                            )
+                            )
+                        ]
+                    )
+                )
+                LogBar.content.content.update()
+            else:
+                context = ""
         else:
             context = asyncio.run(vector_database_client.query(query, rag_schema))
-            page.controls[0].content.controls[4].content.content.controls.append(
+            LogBar.content.content.controls.append(
                 Column(
                     width=600,
                     controls=[
 
-                        Text("vdb response:", color=colors.BLUE, bgcolor=BLACK),
-                        Container(content=Text(context, color=BLACK))
+                        Text("vdb response:", color=colors.BLUE, bgcolor=colors.BLACK),
+                        Container(content=Text(context, color=colors.BLACK))
                     ]
                 )
             )
-            page.controls[0].content.controls[4].content.content.update()
+            LogBar.content.content.update()
         response_time = time.time() - start_time
         TimerFunction.controls[1].value = "{:.2f} sec".format(response_time)
-        FirstRowContents.content.controls[2].update()
+        TimerFunction.update()
 
 
 
@@ -340,7 +373,7 @@ def main(page: Page):
                 al_color = colors.BLACK
             else:
                 # bg_color = "#1a3059"
-                bg_color = colors.TEAL
+                bg_color = light_primary
                 al_color = colors.PINK
             word_list: list = []
             msg = Column(
@@ -378,10 +411,10 @@ def main(page: Page):
         start_time = time.time()
         if context:
             llm_response = bot_chat.send_message(
-                [f"<Context>:\n{context}\n\nUser Question:\n{q}\n\nResponse:"],
-                generation_config=conversational_generation_config,
-                safety_settings=conversational_safety_settings,
-            ).text
+                    [f"Context:\n{context}\n\nUser Question:\n{q}\n\nResponse:"],
+                    generation_config=conversational_generation_config,
+                    safety_settings=conversational_safety_settings,
+                ).text
 
         else:
             llm_response = bot_chat.send_message(
@@ -403,7 +436,7 @@ def main(page: Page):
                 # bgcolor=colors.TEAL_50,
                 # opacity=0.4,
                 expand=True,
-                border=border.all(1,BC),
+                border=border.all(1,border_color),
                 border_radius=5,
                 content=ListView(
                     auto_scroll=True
@@ -413,20 +446,21 @@ def main(page: Page):
             Container(
                 margin=15,
                 height=50,
-                border=border.all(1, BC),
+                border=border.all(1, border_color),
                 border_radius=15,
                 content=TextField(
-                    hint_style=TextStyle(color=TEAL),
+                    hint_style=TextStyle(color=light_primary),
                     hint_text="Type Something",
                     border_color="transparent",
-                    selection_color="black",
-                    color="black",
+                    selection_color=colors.BLACK,
+                    color=colors.BLACK,
                     on_submit=send_message
                 )
             )
         ]
     )
 
+    # Main Container for the Chat Space
     SecondRowContents = Container(
         bgcolor=background_color,
         expand=True,
@@ -441,9 +475,9 @@ def main(page: Page):
                     expand=True,
                     bgcolor=background_color,
                     border=border.only(
-                        left=border.BorderSide(1, BC),
-                        right=border.BorderSide(1, BC),
-                        top=border.BorderSide(1, BC)
+                        left=border.BorderSide(1, border_color),
+                        right=border.BorderSide(1, border_color),
+                        top=border.BorderSide(1, border_color)
                     ),
                     content=ChatSpace,
                 ),
@@ -452,8 +486,8 @@ def main(page: Page):
                     width=300,
                     bgcolor=background_color,
                     border=border.only(
-                        right=border.BorderSide(1, BC),
-                        top=border.BorderSide(1, BC),
+                        right=border.BorderSide(1, border_color),
+                        top=border.BorderSide(1, border_color),
                     ),
                     content=Container(
                         margin=20,
@@ -467,13 +501,12 @@ def main(page: Page):
     EndRow = Container(
         height=60,
         bgcolor=background_color,
-        border=border.all(1, BC)
+        border=border.all(1, border_color)
     )
 
     # MainLayout (All Frames)
     MainLayout = Container(
         bgcolor=background_color,
-        border=border.all(1, BLACK),
         expand=True,
         content=Row(
             spacing=0,
@@ -481,10 +514,8 @@ def main(page: Page):
             controls=[
                 # SideBar
                 Container(
-                    #width=256,
                     height=1024,
                     bgcolor="yellow",
-                    # bgcolor="blue"
                 ),
                 # ChatBar
                 Container(
@@ -503,15 +534,12 @@ def main(page: Page):
                 # LogBarWidget Dynamic.
                 Row(
                     controls=[
-                        # Container(
-                        #     bgcolor=colors.YELLOW
-                        # ),
                         Container(
-                            height=HEIGHT*0.35,
+                            height=280*0.35,
                             width=6,
-                            bgcolor=colors.TEAL,
+                            bgcolor=light_primary,
                             border_radius=30,
-                            border=border.all(1, colors.TEAL),
+                            border=border.all(1, light_primary),
                             animate=800,
                             content=None,
                             on_click=folding
@@ -524,19 +552,20 @@ def main(page: Page):
         )
     )
 
+    # Login Format
     page.title = "SignIn"
     page.vertical_alignment = MainAxisAlignment.CENTER
-    #page.them = ThemeMode.DARK
     page.window_width = 400
     page.window_height = 400
     page.window_resizable = True
 
-    text_user: TextField = TextField(label="Username", text_align=TextAlign.CENTER, color="black", width=200)
-    password: TextField = TextField(label="Password", text_align=TextAlign.CENTER, color="black", width=200, password=True)
+    # Login Input
+    text_user: TextField = TextField(label="Username", text_align=TextAlign.CENTER, color=colors.BLACK, width=200)
+    password: TextField = TextField(label="Password", text_align=TextAlign.CENTER, color=colors.BLACK, width=200, password=True)
     button_submit: ElevatedButton = ElevatedButton(text="Sing In", width=200, disabled=True, bgcolor=colors.BLUE_100)
 
     def validate(e: ControlEvent) -> None:
-        if text_user.value and password.value == "Chavez":
+        if text_user.value and password.value == "C":
             button_submit.disabled = False
         else:
             button_submit.disabled = True
@@ -544,6 +573,10 @@ def main(page: Page):
 
     def submit(e: ControlEvent) -> None:
         page.clean()
+        page.title = "Ask Your Doc"
+        page.window_width = 2048
+        page.window_height = 1024
+        page.window_resizable = True
         page.add(MainLayout)
 
     text_user.on_change = validate
@@ -551,13 +584,13 @@ def main(page: Page):
     button_signin: ElevatedButton = ElevatedButton(
         text="Sign In",
         width=200,
-#        color=colors.WHITE,
+        #        color=colors.WHITE,
         bgcolor=colors.BLUE,
         on_click=submit
 
     )
-    button_submit.on_click = submit
 
+    # Adding all the childs to the session.
     page.add(
         Row(
             controls=[
@@ -574,5 +607,5 @@ def main(page: Page):
         )
     )
 
-app(target=main, view=AppView.WEB_BROWSER, port=8080, upload_dir=files_dir)
+app(target=main, view=AppView.WEB_BROWSER, port=8000, upload_dir=files_dir)
 
