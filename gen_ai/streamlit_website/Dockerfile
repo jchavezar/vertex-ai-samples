@@ -13,6 +13,7 @@ RUN pip install -r utils/crewai/requirements.txt
 RUN pip install crewai --upgrade
 RUN pip install -U google-cloud-aiplatform "shapely < 2.0.0"
 RUN pip install -U crewai
+RUN apt-get install poppler-utils -y
 COPY . .
 COPY libraries/crewai/utilities/logger.py /usr/local/lib/python3.10/site-packages/crewai/utilities/logger.py
 COPY google_analytics.html /usr/local/lib/python3.10/site-packages/streamlit/static/index.html
