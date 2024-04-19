@@ -1,4 +1,5 @@
 streamlit==1.26.0
+#streamlit
 streamlit-extras
 cloud-sql-python-connector==1.2.3
 asyncio==3.4.3 
@@ -31,3 +32,4 @@ httpx
 streamlit_option_menu
 numexpr
 PyPDF2
+pdf2image

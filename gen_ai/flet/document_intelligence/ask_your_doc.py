@@ -1,4 +1,3 @@
-import os
 import time
 import vertexai
 import asyncio
@@ -10,7 +9,7 @@ import scann
 from flet import *
 import numpy as np
 from vertexai.language_models import TextEmbeddingModel
-from vertexai.generative_models import GenerativeModel, Part
+from vertexai.generative_models import GenerativeModel
 from vertexai.preview.generative_models import HarmCategory, HarmBlockThreshold
 
 # Conversational Bot Defintion.
@@ -104,7 +103,7 @@ def main(page: Page):
                 )
             file_picker.upload(uf)
             for f in file_picker.result.files:
-                rag, docs = preprocess.run(files_dir+"/"+f.name, page)
+                rag, docs = preprocess.run(files_dir + "/" + f.name, page)
                 global rag_schema
                 rag_schema = rag
                 for i in docs:
