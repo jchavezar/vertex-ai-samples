@@ -32,6 +32,13 @@ citibikes_dataset = "public"
 table = "citibike_stations"
 max_results_for_bq = 1000000
 
+safety_settings={
+    generative_models.HarmCategory.HARM_CATEGORY_HATE_SPEECH: generative_models.HarmBlockThreshold.BLOCK_NONE,
+    generative_models.HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT: generative_models.HarmBlockThreshold.BLOCK_NONE,
+    generative_models.HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT: generative_models.HarmBlockThreshold.BLOCK_NONE,
+    generative_models.HarmCategory.HARM_CATEGORY_HARASSMENT: generative_models.HarmBlockThreshold.BLOCK_NONE,
+}
+
 def app():
     #region Tools Init
     f = Functions()
@@ -164,7 +171,7 @@ def app():
         Person:
         {name}
         """
-        response = model.generate_content([prompt])
+        response = model.generate_content([prompt], safety_settings=safety_settings)
         return response.text
 
     # Using Cloud SQL Database to Query
@@ -204,12 +211,6 @@ def app():
         Output in SQL:
         """
 
-        safety_settings={
-            generative_models.HarmCategory.HARM_CATEGORY_HATE_SPEECH: generative_models.HarmBlockThreshold.BLOCK_NONE,
-            generative_models.HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT: generative_models.HarmBlockThreshold.BLOCK_NONE,
-            generative_models.HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT: generative_models.HarmBlockThreshold.BLOCK_NONE,
-            generative_models.HarmCategory.HARM_CATEGORY_HARASSMENT: generative_models.HarmBlockThreshold.BLOCK_NONE,
-        }
         response = gemini_model.generate_content([prompt], safety_settings=safety_settings)
         response = response.text
         response = re.sub('```', "", response.replace("SQLQuery:", "").replace("sql", ""))
@@ -236,7 +237,7 @@ def app():
 
         template_prompt = f"from the context enclosed by backticks ```{df.iloc[:10,:].to_json()}``` give me a detailed summary"
 
-        txt = gemini_model.generate_content([template_prompt])
+        txt = gemini_model.generate_content([template_prompt], safety_settings=safety_settings)
 
         return txt
 
@@ -252,7 +253,7 @@ def app():
         {context}:
         """
         model = GenerativeModel("gemini-pro")
-        res = model.generate_content(prompt)
+        res = model.generate_content(prompt, safety_settings=safety_settings)
         return res.text.replace("$", "")
 
     def call_api(name: str, args: Tuple[str], rag_schema:str = None) -> str:
@@ -330,6 +331,7 @@ def app():
                 fc_chat = model.start_chat()
                 res = fc_chat.send_message(input_text, tools=[all_tools])
                 text = f.get_text(res)
+                print(text)
                 if not text:
                     name = f.get_function_name(res)
                     args = f.get_function_args(res)
