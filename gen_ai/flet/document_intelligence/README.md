@@ -18,7 +18,7 @@ Access and utilize AI Studio, Agent Builder, and 130+ foundation models includin
 
 ### Diagram
 
-![images](images/ask_your_doc.py)
+![images](images/ask_your_doc.png)
 
 Gemini 1.5 does the extraction of the documents, each extraction takes about 30 seconds. On the other hand Gemini 1.0
 is a low latency model which response time is lless than a second which is convinient for Conversational tasks.
