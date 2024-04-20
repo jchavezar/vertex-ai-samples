@@ -18,7 +18,7 @@ Access and utilize AI Studio, Agent Builder, and 130+ foundation models includin
 
 ### Diagram
 
-![images]("https://github.com/jchavezar/vertex-ai-samples/blob/main/gen_ai/flet/document_intelligence/ask_your_doc.py")
+![images](document_intelligence/ask_your_doc.py)
 
 Gemini 1.5 does the extraction of the documents, each extraction takes about 30 seconds. On the other hand Gemini 1.0
 is a low latency model which response time is lless than a second which is convinient for Conversational tasks.
@@ -46,7 +46,7 @@ A google account project is required: [steps](https://cloud.google.com/resource-
 For the front end, flet (based on flutter) is used. I won't get into details here but here is
 an image with the variables definition to help you get started.
 
-![images]("https://github.com/jchavezar/vertex-ai-samples/blob/main/gen_ai/flet/document_intelligence/images/chatbot.png")
+![images](images/chatbot.png)
 
 ### Gemini 1.5 for Extraction
 
