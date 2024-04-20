@@ -70,7 +70,7 @@ def main(page: Page):
     light_primary = colors.BLUE_300
     background_color = colors.WHITE
     prog_bars: Dict[str, ProgressRing] = {}
-    files = Ref[Column]()
+    files = Ref[Row]()
     upload_button = Ref[ElevatedButton]()
 
     # Function to upload a file.
@@ -110,7 +110,7 @@ def main(page: Page):
                     page.controls[0].content.controls[4].content.content.controls.append(
                         Column(
                             controls=[
-                                Text("Text:", color=BLACK),
+                                Text("Text:", color=colors.BLACK),
                                 Markdown(
                                     i,
                                     extension_set="gitHubWeb",
@@ -163,36 +163,13 @@ def main(page: Page):
             LogBar.width = 0
             LogBar.update()
 
-    # Header Rows with "Upload Button" and preloaded files.
-    HeaderRowContents = Container(
-        height=70,
-        width=2048,
-        bgcolor=colors.BLACK,
-        border=border.only(
-            left=border.BorderSide(1, border_color),
-            right=border.BorderSide(1, border_color),
-            top=border.BorderSide(1, border_color)
-        ),
-        alignment=alignment.center,
-        content=Text("Demos!"),
-    )
-
     # Time widget to calculate the response time.
-    TimerFunction = Row(
+    TimerFunction = Column(
         alignment=alignment.center,
         controls=[
-            Text("Response Time:", color=colors.BLACK),
-            Text("", color=colors.WHITE, bgcolor=colors.GREEN)
+            Text("Response Time:", color=colors.GREY_900, weight=FontWeight.BOLD, size=16),
+            Text("", color=colors.WHITE, bgcolor="#B388FF", weight=FontWeight.BOLD, size=30)
         ]
-    )
-
-    # Session Restart
-    crash_button: ElevatedButton = ElevatedButton(
-        text="Clear Session",
-        color=colors.BLACK,
-        bgcolor=colors.GREY,
-        icon=icons.REFRESH,
-        on_click=lambda e: page.session.clear()
     )
 
     # Dropdown to select the preprocessed document.
@@ -200,7 +177,7 @@ def main(page: Page):
         value="1040.pdf",
         bgcolor=colors.WHITE,
         color=colors.BLACK,
-        width=300,
+        width=150,
         options=[
             dropdown.Option("1040.pdf"),
             dropdown.Option("1065.pdf"),
@@ -233,9 +210,16 @@ def main(page: Page):
                 num_leaves=k, num_leaves_to_search=int(int(k/20)), training_sample_size=filtered_df.shape[0]).score_ah(
                 2, anisotropic_quantization_threshold=0.2).reorder(7).build()
 
+    submit_button: ElevatedButton = ElevatedButton(
+        color="#FFFFFF",
+        bgcolor="#6200EE",
+        text="submit",
+        on_click=doc_internal_rag
+    )
+
     # Header of the website
     FirstRowContents = Container(
-        height=250,
+        height=150,
         bgcolor=background_color,
         border=border.only(
             left=border.BorderSide(1, border_color),
@@ -246,63 +230,55 @@ def main(page: Page):
         content=Row(
             controls=[
                 Container(
+                    alignment=alignment.center,
                     padding=padding.only(left=30),
                     expand=True,
-                    content=Column(
+                    content=Row(
                         alignment=MainAxisAlignment.CENTER,
                         controls=[
                             ElevatedButton(
                                 "Select files...",
-                                color=colors.BLACK,
-                                bgcolor=light_primary,
+                                color="#FFFFFF",
+                                bgcolor="#6200EE",
                                 icon=icons.FOLDER_OPEN,
                                 on_click=lambda _: file_picker.pick_files(allow_multiple=True),
                             ),
-                            Column(ref=files),
                             ElevatedButton(
                                 "Upload",
-                                color=colors.BLACK,
-                                bgcolor=light_primary,
+                                color="#FFFFFF",
+                                bgcolor="#6200EE",
                                 ref=upload_button,
                                 icon=icons.UPLOAD,
                                 on_click=upload_files,
                                 disabled=True,
                             ),
+                            Row(ref=files),
                         ]
                     )
                 ),
                 Container(
-                    expand=True
+                    padding=padding.only(top=30),
+                    alignment=alignment.center,
+                    expand=True,
+                    content=TimerFunction
                 ),
                 # Right side of the second row.
                 Container(
+                    alignment=alignment.center,
                     expand=True,
-                    content=Column(
-                        alignment=MainAxisAlignment.CENTER,
-                        controls=[
-                            Container(
-                                alignment=alignment.center,
-                                width=300,
-                                content=TimerFunction
-                            ),
-                            Container(
-                                alignment=alignment.center_left,
-                                width=300,
-                                content=crash_button
-                            ),
-                            Container(
-                                bgcolor="transparent",
-                                alignment=alignment.center_left,
-                                width=300,
-                                content=drop_down
-                            ),
-                            Container(
-                                content=ElevatedButton(
-                                    text="submit",
-                                    on_click=doc_internal_rag
-                                )
-                            )
-                        ]
+                    content=Container(
+                        bgcolor="transparent",
+                        padding=padding.only(left=15),
+                        alignment=alignment.center,
+                        width=250,
+                        content=Row(
+                            spacing=10,
+                            controls=[
+                                Text("Select a file:", color=colors.GREY_900),
+                                drop_down,
+                                submit_button
+                            ]
+                        )
                     )
                 ),
             ]
@@ -328,17 +304,17 @@ def main(page: Page):
                           f"Filename: {row['filename']}\n\n"
                     text = row["page_text"]
                     context += head + sch + text + "###"*80 + "\n\n"
-                #context = ",".join([row["page_text"] for index, row in vdb_df.iterrows()])
                 LogBar.content.content.controls.append(
                     Column(
                         width=600,
                         controls=[
 
                             Text("vdb response:", color=colors.BLUE, bgcolor=colors.BLACK),
-                            Container(content=Markdown(
-                                context,
-                                code_style=TextStyle(color=colors.BLACK)
-                            )
+                            Container(
+                                content=Markdown(
+                                    context,
+                                    code_style=TextStyle(color=colors.BLACK)
+                                )
                             )
                         ]
                     )
@@ -363,37 +339,35 @@ def main(page: Page):
         TimerFunction.controls[1].value = "{:.2f} sec".format(response_time)
         TimerFunction.update()
 
-
-
         def animate_text_output(name: str, prompt: str) -> None:
             if name == "User":
                 #bg_color = "#282a2d"
-                bg_color = colors.BLUE_GREY
-                al_color = colors.BLACK
+                bg_color = "#E0E0E0"
+                al_color = "#212121"
+                txt_color = "#212121"
             else:
                 # bg_color = "#1a3059"
-                bg_color = light_primary
-                al_color = colors.PINK
+                bg_color = "#757575"
+                al_color = "#FFFFFF"
+                txt_color = "FFFFFF"
             word_list: list = []
             msg = Column(
+                spacing=0,
                 controls=[
                     Container(
-                        margin=20,
+                        padding=padding.only(left=10, right=5, top=5, bottom=0),
+                        margin=margin.only(left=10, right=10, top=5, bottom=0),
                         bgcolor=colors.TRANSPARENT,
-                        content=Text(name, color=al_color, size=15)
+                        content=Text(name, color=al_color, size=15, weight=FontWeight.BOLD)
                     ),
                     Container(
-                        padding=padding.only(
-                            left=12,
-                            right=12,
-                            top=8,
-                            bottom=8,
-                        ),
+                        padding=padding.only(left=15, right=15, top=4, bottom=4),
+                        margin=margin.only(left=20, right=10, top=2, bottom=2),
                         border_radius=12,
-                        content=Text("", color=colors.WHITE, selectable=True),
+                        content=Text("", color=txt_color, selectable=True),
                         bgcolor=bg_color
                     ),
-                    Text("", color="white")
+                    Divider(color=colors.TRANSPARENT)
                 ]
             )
             ChatSpace.controls[0].content.controls.append(msg)
@@ -432,10 +406,10 @@ def main(page: Page):
             # ListView is where all the message will be displayed.
             Container(
                 #bgcolor="#1a1c1e",
-                # bgcolor=colors.TEAL_50,
-                # opacity=0.4,
+                #bgcolor="#F7F2FA",
+                margin=15,
                 expand=True,
-                border=border.all(1,border_color),
+                border=border.all(1, "#1D1B20"),
                 border_radius=5,
                 content=ListView(
                     auto_scroll=True
@@ -443,16 +417,17 @@ def main(page: Page):
             ),
             # Right Side Panel is for additional chatbot options
             Container(
+                bgcolor="#F5EFF7",
                 margin=15,
                 height=50,
-                border=border.all(1, border_color),
+                border=border.all(1, "#1D1B20"),
                 border_radius=15,
                 content=TextField(
-                    hint_style=TextStyle(color=light_primary),
+                    hint_style=TextStyle(color="#6750A4"),
                     hint_text="Type Something",
                     border_color="transparent",
-                    selection_color=colors.BLACK,
-                    color=colors.BLACK,
+                    selection_color="#ECE6F0",
+                    color="#49454F",
                     on_submit=send_message
                 )
             )
@@ -583,8 +558,8 @@ def main(page: Page):
     button_signin: ElevatedButton = ElevatedButton(
         text="Sign In",
         width=200,
-        #        color=colors.WHITE,
-        bgcolor=colors.BLUE,
+        color="#FFFFFF",
+        bgcolor="#625B71",
         on_click=submit
 
     )
