@@ -133,7 +133,7 @@ def run(filename, page):
     print(page)
     print(page.controls[0])
     page.controls[0].content.controls[1].content.controls[1].content.controls[1]\
-        .content.content.controls.append(Text("Processing your file, please wait...", color="black", bgcolor="grey"))
+        .content.content.controls.append(Text("Processing your file, please wait...", color="black", bgcolor="#E0E0E0"))
     page.controls[0].content.controls[1].content.controls[1].content.controls[1].content.content.update()
     doc = []
     start = time.time()
@@ -144,10 +144,10 @@ def run(filename, page):
 
     page.controls[0].content.controls[1].content.controls[1].content.controls[1] \
         .content.content.controls.append(Text("From files to image pages finished in: {:.2f} s".format(time.time()-start),
-                                              color=colors.WHITE, bgcolor=light_primary))
+                                              color=colors.WHITE, bgcolor="#7C4DFF"))
     page.controls[0].content.controls[1].content.controls[1].content.controls[1].content.content.update()
     page.controls[0].content.controls[1].content.controls[1].content.controls[1] \
-        .content.content.controls.append(Text("Gemini 1.5 Extraction please wait...", color=colors.BLACK, bgcolor=colors.GREY))
+        .content.content.controls.append(Text("Gemini 1.5 Extraction please wait...", color=colors.BLACK, bgcolor="#E0E0E0"))
     page.controls[0].content.controls[1].content.controls[1].content.controls[1].content.content.update()
     cp_time = time.time()
     for p, image in enumerate(images):
@@ -157,19 +157,19 @@ def run(filename, page):
         doc.append(response)
     page.controls[0].content.controls[1].content.controls[1].content.controls[1] \
         .content.content.controls.append(Text("Extraction finished in: {:.2f} s".format(time.time()-start),
-                                              color=colors.WHITE, bgcolor=light_primary))
+                                              color=colors.WHITE, bgcolor="#7C4DFF"))
     page.controls[0].content.controls[1].content.controls[1].content.controls[1].content.content.update()
     page.controls[0].content.controls[1].content.controls[1].content.controls[1] \
-        .content.content.controls.append(Text("Using gecko for embeddings please wait...",  color=colors.BLACK, bgcolor=colors.GREY))
+        .content.content.controls.append(Text("Using gecko for embeddings please wait...",  color=colors.BLACK, bgcolor="#E0E0E0"))
     page.controls[0].content.controls[1].content.controls[1].content.controls[1].content.content.update()
     cp_time = time.time()
     lang_docs, list_docs = split_docs(doc)
     docs_with_emb = create_embeddings(lang_docs, list_docs)
     page.controls[0].content.controls[1].content.controls[1].content.controls[1] \
         .content.content.controls.append(Text("Embeddings finished in: {:.2f} s".format(time.time()-start),
-                                              color=colors.WHITE, bgcolor=light_primary))
+                                              color=colors.WHITE, bgcolor="#7C4DFF"))
     page.controls[0].content.controls[1].content.controls[1].content.controls[1] \
-        .content.content.controls.append(Text("Enjoy!", bgcolor="green"))
+        .content.content.controls.append(Text("Enjoy!", bgcolor="#6200EA"))
     page.controls[0].content.controls[1].content.controls[1].content.controls[1].content.content.update()
     rag_schema = asyncio.run(vector_database_client.run(docs_with_emb))
     print(rag_schema)
