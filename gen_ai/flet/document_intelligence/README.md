@@ -128,6 +128,24 @@ During the demo 2 approaches we used:
 - Cloud SQL Pgvector to store documents for large storage cycles.
 - ScaNN to find the most similar items using memory.
 
+### Cloud SQL
+
+**Create the database instance**
+
+```bash
+gcloud sql instances create pg15-pgvector-demo \
+--database-version=POSTGRES_15 \
+--region=us-central1 \
+--zone=us-central1-f \
+--tier=db-perf-optimized-N-2 \
+--edition=ENTERPRISE_PLUS
+```
+
+**Create the database**
+```bash
+ gcloud sql databases create rag-pgvector-conversational-rag-2 --instance=pg15-pgvector-demo
+```
+
 This is how the configuration of scann looks like:
 
 ```python
