@@ -31,9 +31,11 @@ class AutonomousCrew:
 
 #%%
 
+
 def main(page: Page):
     page.horizontal_alignment = CrossAxisAlignment.CENTER
     page.vertical_alignment = MainAxisAlignment.CENTER
+    page.theme_mode = ThemeMode.LIGHT
 
     crew = AutonomousCrew()
 
@@ -45,7 +47,7 @@ def main(page: Page):
                     padding=10,
                     margin=10,
                     border_radius=15,
-                    bgcolor="#1a3059",
+                    bgcolor=colors.BLUE_50,
                     content=Text(e.control.value))
             ]
         )
@@ -65,16 +67,16 @@ def main(page: Page):
     header: Container = Container(
         width=500,
         height=100,
-        border=border.only(bottom=BorderSide(1, colors.GREY_500)),
+        border=border.only(bottom=BorderSide(1.5, colors.GREY_500)),
         content=Image(src="google-cloud.svg", scale=0.5, fit=ImageFit.CONTAIN),
     )
 
     display_message: Container = Container(
         height=950,
         margin=10,
-        border=border.all(1, colors.GREY_500),
+        border=border.all(1.5, colors.GREY_500),
         border_radius=5,
-        bgcolor="#45474a",
+        bgcolor=colors.GREY_100,
         content=ListView(
             spacing=10,
             padding=10,
@@ -84,16 +86,16 @@ def main(page: Page):
 
     text_input: Container = Container(
         margin=10,
-        border=border.all(1, colors.GREY_500),
+        border=border.all(1.5, colors.GREY_500),
         border_radius=5,
-        content=TextField(hint_text="Write something", on_submit=send_message),
+        content=TextField(hint_text="Write something", on_submit=send_message, border_color=colors.TRANSPARENT),
     )
 
     main_container: Container = Container(
-        bgcolor=colors.BLACK,
+        bgcolor=colors.WHITE,
         height=1200,
         width=500,
-        border=border.all(1, colors.GREY_500),
+        border=border.all(1.5, colors.GREY_500),
         border_radius=5,
         content=Column(
             controls=[
