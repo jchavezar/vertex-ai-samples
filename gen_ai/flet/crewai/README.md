@@ -4,56 +4,71 @@ CrewAI is a platform to run AI Agents for frameworks that are complex,
 the platform orchestrates role-playing, autonomouns AI agents, by fostering
 collaboraite intelligence.
 
+## Architecture
+
+![Architecture](diagram.png)
+
+
 ## Front End Presentation
 
-![front end]("./crewai_flet.png")
+![front end](./crewai.png)
 
 ## Prework
 
 Install all the python packages required to run this script:
 
+```bash
+pip install -r requirements.txt
+```
 
-## Elements Used
-- Vertex Gemini 1.0
-- CrewAI
-- Langchain (for tooling)
-- Flet (Python Front End Framework)
+Use the [getting started guide](https://cloud.google.com/generative-ai-app-builder/docs/try-enterprise-search) to create a RAG with Vertex Search.
+
+## Components Used
+- [Vertex Gemini 1.0](https://cloud.google.com/vertex-ai?hl=en)
+- [Vertex Search](https://cloud.google.com/enterprise-search?hl=en)
+- [CrewAI](https://www.crewai.com/)
+- [Langchain (for tooling)](https://www.langchain.com/)
+- [Flet (Python Front End Framework)](https://flet.dev/)
+
+## Using the script
+
+```bash
+flet run crewai.py
+```
 
 ## Results
 
 ```markdown
-This report summarizes recent articles and information related to the similarities within Mexican culture, incorporating significant events and historical context. It aims to provide a comprehensive understanding of how Mexicans share common ground amidst their diverse regional backgrounds.
+Mexico boasts a rich and vibrant culture that has evolved over centuries, blending indigenous traditions with European influences. It is a land renowned for its passionate people, lively festivals, delicious cuisine, and unique artistic expressions. This report offers a glimpse into the diverse aspects of Mexican culture, highlighting its key features, historical influences, and recent developments.
 
-**Significant Events:**
+**Core Values and Customs:**
 
-* **2017 Earthquake:** The devastation caused by the earthquake highlighted the importance of community and resilience in Mexican culture. People from all walks of life came together to support each other, showcasing the strength of their social fabric.
-* **2018 Presidential Election:** The election of Andrés Manuel López Obrador (AMLO) represented a significant shift in Mexican politics. His focus on social programs and anti-corruption initiatives resonates with many Mexicans who desire change.
-* **COVID-19 Pandemic:** The pandemic has had a profound impact on Mexican society, highlighting the importance of family and community support. The way Mexicans have adapted and shown solidarity during this challenging time demonstrates their cultural resilience.
+* **Family-Centric:** Family forms the bedrock of Mexican society, playing a pivotal role in daily life. Strong bonds are maintained between generations, with extended families often living in close proximity. Respect for elders is paramount, and children are raised with a strong sense of responsibility towards their families.
+* **Collectivism:** Mexicans tend to prioritize the needs of the collective over individual desires. This is evident in their communal spirit, emphasis on social harmony, and strong sense of community.
+* **Respect and Hospitality:** Mexicans are known for their warmth, hospitality, and genuine respect for others. They often go out of their way to make visitors feel welcome and comfortable, showcasing their generous spirit.
+* **Celebration of Life:** Mexicans embrace a joyful approach to life, celebrating every occasion with gusto. From vibrant fiestas to lively gatherings, music, dance, and laughter permeate their daily routines.
 
-**Historical Information:**
+**Historical Influences:**
 
-* **Indigenous Heritage:** Mexico's rich indigenous heritage plays a vital role in shaping its cultural identity. Traditions, beliefs, and languages of various indigenous groups, such as the Maya, Aztecs, and Zapotecs, continue to influence various aspects of Mexican culture.
-* **Spanish Colonization:** The Spanish conquest in the 16th century left a lasting impact on Mexican culture. The fusion of indigenous and European elements resulted in a unique cultural blend evident in language, religion, and traditions.
-* **Mexican Revolution:** The Mexican Revolution (1910-1920) fostered a sense of national identity and pride among Mexicans. It also led to significant social reforms and instilled values of social justice and equality.
+* **Indigenous Heritage:** Mexico's indigenous roots are deeply embedded in its culture. From the ancient Aztecs and Mayans to numerous other groups, their traditions, beliefs, and languages continue to influence various aspects of Mexican life, including art, music, cuisine, and spirituality.
+* **Spanish Colonization:** The Spanish conquest in the 16th century left an undeniable mark on Mexican culture. Spanish language, religion, and architectural styles became integrated into the existing indigenous practices, creating a unique blend.
+* **Global Influences:** Over time, Mexico has absorbed elements from other cultures, including African and Asian influences, enriching its cultural tapestry further.
 
-**Common Cultural Traits:**
+**Recent Developments:**
 
-* **Family Orientation:** Family is central to Mexican culture, providing a strong support system and shaping values. Respect for elders, close family ties, and communal celebrations are important aspects of Mexican life.
-* **Collectivism:** Mexicans tend to prioritize the needs of the group over individual pursuits. This collectivist approach fosters a sense of belonging and community, evident in communal events and shared traditions.
-* **Warmth and Hospitality:** Mexicans are known for their warm and welcoming nature. They value interpersonal relationships and enjoy spending time with friends and family.
-* **Celebration and Festivities:** Mexicans have a vibrant cultural scene rich in music, dance, and celebrations. From lively festivals like Día de Muertos to festive traditional music, Mexicans embrace joy and celebration wholeheartedly.
-* **Strong Work Ethic:** Mexicans are known for their strong work ethic and dedication. They value hard work and strive for success, contributing to the development and progress of their communities.
-
-**Latest News:**
-
-* **Indigenous Languages Revitalization:** Recent efforts focus on revitalizing indigenous languages in Mexico, recognizing their cultural significance and promoting their preservation.
-* **Growing Environmental Awareness:** Environmental concerns are gaining more attention in Mexico, leading to initiatives promoting sustainability and conservation.
-* **Diaspora's Influence:** The growing Mexican diaspora worldwide plays a role in shaping and disseminating Mexican culture globally, fostering cultural exchange and awareness.
+* **Modernization:** Mexico has witnessed significant modernization in recent years, particularly in urban areas. This has led to changes in lifestyle, technology adoption, and increased exposure to global trends. However, traditional values and customs continue to hold strong alongside these advancements.
+* **Cultural Preservation:** There is a growing awareness and appreciation for preserving Mexican cultural heritage. Efforts are underway to safeguard traditional art forms, languages, and customs, ensuring their continuity for future generations.
+* **Diaspora Influence:** The Mexican diaspora has played a crucial role in disseminating aspects of Mexican culture worldwide. From traditional cuisine and music to artistic expressions and cultural events, Mexican communities abroad contribute to the global understanding and appreciation of their rich heritage.
 
 **Conclusion:**
 
-Despite regional diversity, Mexicans share a profound sense of cultural cohesion rooted in their shared history, values, and traditions. Their resilience, warmth, and collective spirit continue to shape their unique cultural identity, making Mexico a vibrant and fascinating nation.
+Mexican culture is a dynamic and multifaceted entity, constantly evolving while preserving its core values. Its vibrant traditions, historical influences, and recent developments create a unique and fascinating cultural landscape. As Mexico continues to navigate the modern world, its cultural heritage remains a vital source of identity, pride, and inspiration for its people.
 
-**Please note:** Due to character limitations, this report provides a concise summary of the findings. Further research and exploration of specific topics would be needed for a more in-depth understanding of various aspects of Mexican culture.
+**Additional Findings:**
 
+* Recent research suggests that cultural factors like collectivism and family orientation contribute to Mexicans' higher levels of subjective well-being.
+* The Mexican government has implemented initiatives to promote cultural diversity and inclusion, recognizing the value of its rich heritage.
+* Mexican artists, musicians, and filmmakers are increasingly gaining international recognition, showcasing the country's vibrant creative scene.
+
+This report provides a starting point for exploring the vast and captivating world of Mexican culture. With its rich history, diverse customs, and dynamic expressions, Mexico continues to captivate and inspire audiences worldwide.
 ```

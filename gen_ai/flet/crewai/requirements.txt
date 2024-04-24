@@ -1,0 +1,4 @@
+crewai
+unstructured
+langchain_google_vertexai
+google-cloud-discoveryengine
