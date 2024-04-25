@@ -31,6 +31,7 @@ For this prototype Google Cloud SDK toolkit is required for services managment a
 
 ```bash
 pip install flet
+pip install scann
 pip install pandas
 pip install asyncio
 pip install asyncpg
@@ -43,7 +44,7 @@ pip install langchain # Optional.
 
 ### Google Cloud Project
 
-A google account project is required: [steps](https://cloud.google.com/resource-manager/docs/creating-managing-projects). 
+A Google account project is required: [steps](https://cloud.google.com/resource-manager/docs/creating-managing-projects). 
 
 ### Authentication
 
