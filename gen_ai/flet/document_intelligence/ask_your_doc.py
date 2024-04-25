@@ -4,7 +4,7 @@ import asyncio
 import pandas as pd
 from utils import preprocess
 from utils.temp import *
-import utils.database as vector_database
+# import utils.database as vector_database
 import scann
 from flet import *
 import numpy as np
@@ -58,7 +58,7 @@ bot_chat = conversational_model.start_chat(response_validation=False)
 model_emb = TextEmbeddingModel.from_pretrained(embeddings_model)
 
 # Cloud SQL (pggvector) Database Initialization
-vector_database_client = vector_database.Client(variables)
+# vector_database_client = vector_database.Client(variables)
 
 # Document Preprocessing to fetch documents offline / Refer to manual_doc_preprocess.py
 df = pd.read_pickle("tax_vdb_latest.pkl")
@@ -323,7 +323,8 @@ def main(page: Page):
             else:
                 context = ""
         else:
-            context = asyncio.run(vector_database_client.query(query, rag_schema))
+            #context = asyncio.run(vector_database_client.query(query, rag_schema))
+            context=""
             LogBar.content.content.controls.append(
                 Column(
                     width=600,
