@@ -23,6 +23,10 @@ Access and utilize AI Studio, Agent Builder, and 130+ foundation models includin
 Gemini 1.5 does the extraction of the documents, each extraction takes about 30 seconds. On the other hand Gemini 1.0
 is a low latency model which response time is lless than a second which is convinient for Conversational tasks.
 
+### Prework:
+For this prototype Google Cloud SDK toolkit is required for services managment and authentication.
+[Google Cloud SDK Install](https://cloud.google.com/sdk/docs/install)
+
 ### Install Libraries:
 
 ```bash
@@ -40,6 +44,20 @@ pip install langchain # Optional.
 ### Google Cloud Project
 
 A google account project is required: [steps](https://cloud.google.com/resource-manager/docs/creating-managing-projects). 
+
+### Authentication
+
+Run the following commands to authenticate the console:
+- gcoud login is for creating vector databases, etc.
+- gcloud auth application-default is for the code authentication (python file).
+
+```bash
+gcloud login
+```
+
+```bash
+gcloud auth application-default login 
+```
 
 ### Flet
 
