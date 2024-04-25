@@ -52,7 +52,7 @@ Run the following commands to authenticate the console:
 - gcloud auth application-default is for the code authentication (python file).
 
 ```bash
-gcloud login
+gcloud auth login
 ```
 
 ```bash
