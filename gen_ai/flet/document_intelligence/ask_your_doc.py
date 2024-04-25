@@ -1,3 +1,4 @@
+import os
 import time
 import vertexai
 import asyncio
@@ -12,22 +13,29 @@ from vertexai.language_models import TextEmbeddingModel
 from vertexai.generative_models import GenerativeModel
 from vertexai.preview.generative_models import HarmCategory, HarmBlockThreshold
 
+# Workaround to upload key required
+
+os.environ["FLET_SECRET_KEY"] = "dummy"
+
 # Conversational Bot Defintion.
 files_dir = "myuploads"
 conversational_bot_model = "gemini-1.0-pro-002"
 embeddings_model = "textembedding-gecko@001"
 
-variables = {
-    "project_id": "vtxdemos",
-    "project": "vtxdemos",
-    "region": "us-central1",
-    "instance_name": "pg15-pgvector-demo",
-    "database_user": "emb-admin",
-    "database_name": "ask_your_doc_tax_lang",
-    "database_password": DB,
-    "docai_processor_id": "projects/254356041555/locations/us/processors/2fba46b6c23108b7",
-    "location": "us",
-}
+project_id = "vtxdemos"
+region = "us-central1"
+
+# variables = {
+#     "project_id": "vtxdemos",
+#     "project": "vtxdemos",
+#     "region": "us-central1",
+#     "instance_name": "pg15-pgvector-demo",
+#     "database_user": "emb-admin",
+#     "database_name": "ask_your_doc_tax_lang",
+#     "database_password": DB,
+#     "docai_processor_id": "projects/254356041555/locations/us/processors/2fba46b6c23108b7",
+#     "location": "us",
+# }
 
 rag_schema = ""
 system_prompt = f"""
@@ -52,7 +60,7 @@ conversational_safety_settings = {
 }
 
 # Large Language Models Initialization
-vertexai.init(project=variables["project_id"], location=variables["region"])
+vertexai.init(project=project_id, location=region)
 conversational_model = GenerativeModel(conversational_bot_model, system_instruction=[system_prompt])
 bot_chat = conversational_model.start_chat(response_validation=False)
 model_emb = TextEmbeddingModel.from_pretrained(embeddings_model)
@@ -63,9 +71,10 @@ model_emb = TextEmbeddingModel.from_pretrained(embeddings_model)
 # Document Preprocessing to fetch documents offline / Refer to manual_doc_preprocess.py
 df = pd.read_pickle("tax_vdb_latest.pkl")
 
-
 # Main function for the front end, Flet (flutter) is being used. -> https://flet.dev/
 def main(page: Page):
+    buttons_color = "#F5EFF7"
+    buttons_text_color = "#6750A4"
     border_color = "#45474a"
     light_primary = colors.BLUE_300
     background_color = colors.WHITE
@@ -92,6 +101,8 @@ def main(page: Page):
     file_picker = FilePicker(on_result=file_picker_result, on_upload=on_upload_progress)
 
     def upload_files(e):
+        global stream_df
+        global searcher
         uf = []
         if file_picker.result is not None and file_picker.result.files is not None:
             for f in file_picker.result.files:
@@ -103,9 +114,8 @@ def main(page: Page):
                 )
             file_picker.upload(uf)
             for f in file_picker.result.files:
-                rag, docs = preprocess.run(files_dir + "/" + f.name, page)
-                global rag_schema
-                rag_schema = rag
+                searcher, docs = preprocess.run(files_dir + "/" + f.name, page)
+
                 for i in docs:
                     page.controls[0].content.controls[4].content.content.controls.append(
                         Column(
@@ -118,6 +128,7 @@ def main(page: Page):
                             ]
                         )
                     )
+                stream_df = pd.read_pickle("realtime_table.pkl")
                 page.controls[0].content.controls[4].update()
 
     # hide dialog in a overlay
@@ -190,6 +201,7 @@ def main(page: Page):
 
     # Submit button for RAG in Memory using ScaNN -> https://github.com/google-research/google-research/tree/master/scann
     def doc_internal_rag(e):
+        global cashed_documents
         global filtered_df
         global searcher
         if drop_down.value != "All":
@@ -202,6 +214,7 @@ def main(page: Page):
             searcher = scann.scann_ops_pybind.builder(img, num_neighbors=3, distance_measure="squared_l2").tree(
                 num_leaves=k, num_leaves_to_search=1, training_sample_size=filtered_df.shape[0]).score_ah(
                 2, anisotropic_quantization_threshold=0.2).reorder(7).build()
+            cashed_documents = True
         else:
             filded_df = df.copy()
             img = np.array([r["embeddings"] for i, r in filtered_df.iterrows()])
@@ -209,10 +222,13 @@ def main(page: Page):
             searcher = scann.scann_ops_pybind.builder(img, num_neighbors=3, distance_measure="squared_l2").tree(
                 num_leaves=k, num_leaves_to_search=int(int(k/20)), training_sample_size=filtered_df.shape[0]).score_ah(
                 2, anisotropic_quantization_threshold=0.2).reorder(7).build()
+            cashed_documents = True
 
     submit_button: ElevatedButton = ElevatedButton(
-        color="#FFFFFF",
-        bgcolor="#6200EE",
+        # color="#FFFFFF",
+        # bgcolor="#6200EE",
+        color=buttons_text_color,
+        bgcolor=buttons_color,
         text="submit",
         on_click=doc_internal_rag
     )
@@ -238,15 +254,19 @@ def main(page: Page):
                         controls=[
                             ElevatedButton(
                                 "Select files...",
-                                color="#FFFFFF",
-                                bgcolor="#6200EE",
+                                # color="#FFFFFF",
+                                # bgcolor="#6200EE",
+                                color=buttons_text_color,
+                                bgcolor=buttons_color,
                                 icon=icons.FOLDER_OPEN,
                                 on_click=lambda _: file_picker.pick_files(allow_multiple=True),
                             ),
                             ElevatedButton(
                                 "Upload",
-                                color="#FFFFFF",
-                                bgcolor="#6200EE",
+                                # color="#FFFFFF",
+                                # bgcolor="#6200EE",
+                                color=buttons_text_color,
+                                bgcolor=buttons_color,
                                 ref=upload_button,
                                 icon=icons.UPLOAD,
                                 on_click=upload_files,
@@ -267,16 +287,14 @@ def main(page: Page):
                     alignment=alignment.center,
                     expand=True,
                     content=Container(
-                        bgcolor="transparent",
                         padding=padding.only(left=15),
                         alignment=alignment.center,
-                        width=250,
                         content=Row(
-                            spacing=10,
+                            spacing=30,
                             controls=[
                                 Text("Select a file:", color=colors.GREY_900),
                                 drop_down,
-                                submit_button
+                                submit_button,
                             ]
                         )
                     )
@@ -290,7 +308,7 @@ def main(page: Page):
         q = e.control.value
         start_time = time.time()
         query = model_emb.get_embeddings([q])[0].values
-        if rag_schema == "":
+        if cashed_documents:
             context = ""
             if "filtered_df" in globals():
                 neighbors, distances = searcher.search(query, final_num_neighbors=10)
@@ -323,8 +341,16 @@ def main(page: Page):
             else:
                 context = ""
         else:
+            neighbors, distances = searcher.search(query)
+            stream_df["distance"] = 100.0
+            stream_df.loc[neighbors, "distance"] = distances.astype(float)
+
+            context = ""
+            for index, row in stream_df.loc[neighbors, :].iterrows():
+                context += "##Page Number: {page}\n##Content:\n{content}".format(page=row["page"], content=row["page_text"])
+                context += "\n\n" + "#"*80 + "\n\n"
+            # Keep stored in a CloudSQL pgvector [optional]
             #context = asyncio.run(vector_database_client.query(query, rag_schema))
-            context=""
             LogBar.content.content.controls.append(
                 Column(
                     width=600,
@@ -342,12 +368,10 @@ def main(page: Page):
 
         def animate_text_output(name: str, prompt: str) -> None:
             if name == "User":
-                #bg_color = "#282a2d"
                 bg_color = "#E0E0E0"
                 al_color = "#212121"
                 txt_color = "#212121"
             else:
-                # bg_color = "#1a3059"
                 bg_color = "#757575"
                 al_color = "#FFFFFF"
                 txt_color = "FFFFFF"
@@ -406,8 +430,6 @@ def main(page: Page):
         controls=[
             # ListView is where all the message will be displayed.
             Container(
-                #bgcolor="#1a1c1e",
-                #bgcolor="#F7F2FA",
                 margin=15,
                 expand=True,
                 border=border.all(1, "#1D1B20"),
@@ -466,7 +488,11 @@ def main(page: Page):
                     ),
                     content=Container(
                         margin=20,
-                        content=Column()
+                        content=Column(
+                            controls=[
+                                Text("Processing Logs", bgcolor=colors.GREY_50, color=colors.BLACK)
+                            ]
+                        )
                     )
                 )
             ]
@@ -510,13 +536,22 @@ def main(page: Page):
                 Row(
                     controls=[
                         Container(
-                            height=280*0.35,
-                            width=6,
-                            bgcolor=light_primary,
+                            margin=0,
+                            alignment=alignment.center,
+                            height=60,
+                            width=60,
+                            bgcolor=buttons_text_color,
                             border_radius=30,
-                            border=border.all(1, light_primary),
+                            #border=border.all(1, colors.PURPLE),
                             animate=800,
-                            content=None,
+                            content=Text("logs"),
+                            shadow=BoxShadow(
+                                spread_radius=1,
+                                blur_radius=15,
+                                color=colors.BLUE_GREY_300,
+                                offset=Offset(0, 0),
+                                blur_style=ShadowBlurStyle.OUTER,
+                            ),
                             on_click=folding
                         ),
                     ]
@@ -559,8 +594,8 @@ def main(page: Page):
     button_signin: ElevatedButton = ElevatedButton(
         text="Sign In",
         width=200,
-        color="#FFFFFF",
-        bgcolor="#625B71",
+        # color="#FFFFFF",
+        # bgcolor="#625B71",
         on_click=submit
 
     )
