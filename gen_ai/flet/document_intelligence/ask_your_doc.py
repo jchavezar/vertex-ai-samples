@@ -4,7 +4,7 @@ import vertexai
 import asyncio
 import pandas as pd
 from utils import preprocess
-from utils.temp import *
+#from utils.temp import *
 # import utils.database as vector_database
 import scann
 from flet import *
