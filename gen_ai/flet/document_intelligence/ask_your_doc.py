@@ -101,6 +101,7 @@ def main(page: Page):
     file_picker = FilePicker(on_result=file_picker_result, on_upload=on_upload_progress)
 
     def upload_files(e):
+        global cashed_documents
         global stream_df
         global searcher
         uf = []
@@ -129,6 +130,7 @@ def main(page: Page):
                         )
                     )
                 stream_df = pd.read_pickle("realtime_table.pkl")
+                cashed_documents = False
                 page.controls[0].content.controls[4].update()
 
     # hide dialog in a overlay
@@ -208,13 +210,12 @@ def main(page: Page):
             filtered_df = df.copy()
             filtered_df = filtered_df[filtered_df["filename"] == drop_down.value]
             filtered_df = filtered_df.reset_index(drop=True)
-
+            print("3"*80)
             img = np.array([r["embeddings"] for i, r in filtered_df.iterrows()])
             k = int(np.sqrt(df.shape[0]))
             searcher = scann.scann_ops_pybind.builder(img, num_neighbors=3, distance_measure="squared_l2").tree(
                 num_leaves=k, num_leaves_to_search=1, training_sample_size=filtered_df.shape[0]).score_ah(
                 2, anisotropic_quantization_threshold=0.2).reorder(7).build()
-            cashed_documents = True
         else:
             filded_df = df.copy()
             img = np.array([r["embeddings"] for i, r in filtered_df.iterrows()])
@@ -308,6 +309,7 @@ def main(page: Page):
         q = e.control.value
         start_time = time.time()
         query = model_emb.get_embeddings([q])[0].values
+        print(cashed_documents)
         if cashed_documents:
             context = ""
             if "filtered_df" in globals():
