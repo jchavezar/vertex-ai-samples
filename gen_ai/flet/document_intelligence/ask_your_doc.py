@@ -1,5 +1,7 @@
 import os
 import time
+from typing import Dict
+
 import vertexai
 # import asyncio
 import pandas as pd
@@ -114,23 +116,23 @@ def main(page: Page):
                     )
                 )
             file_picker.upload(uf)
+            cashed_documents = False
             for f in file_picker.result.files:
+                print(files_dir + "/" + f.name)
                 searcher, docs = preprocess.run(files_dir + "/" + f.name, page)
 
-                for i in docs:
-                    page.controls[0].content.controls[4].content.content.controls.append(
-                        Column(
-                            controls=[
-                                Text("Text:", color=colors.BLACK),
-                                Markdown(
-                                    i,
-                                    extension_set="gitHubWeb",
-                                )
-                            ]
-                        )
+                page.controls[0].content.controls[4].content.content.controls.append(
+                    Column(
+                        controls=[
+                            Text("Text:", color=colors.BLACK),
+                            Markdown(
+                                docs,
+                                extension_set="gitHubWeb",
+                            )
+                        ]
                     )
+                )
                 stream_df = pd.read_pickle("realtime_table.pkl")
-                cashed_documents = False
                 page.controls[0].content.controls[4].update()
 
     # hide dialog in a overlay
@@ -143,7 +145,7 @@ def main(page: Page):
         content=Container(
             margin=50,
             width=200,
-            bgcolor=colors.GREY_500,
+            bgcolor=colors.TRANSPARENT,
             content=ListView(
                 auto_scroll=True
             )
@@ -159,12 +161,12 @@ def main(page: Page):
                 right=border.BorderSide(1, colors.BLACK),
                 top=border.BorderSide(1, colors.BLACK)
             )
-            LogBar.bgcolor = colors.GREY_500
+            LogBar.bgcolor = colors.BLACK
             # LogBar.opacity = 0.2
             LogBar.width = 2048
             LogBar.margin = 10
             LogBar.content.width = 1024
-            LogBar.content.bgcolor = "transparent"
+            # LogBar.content.bgcolor = "transparent"
             LogBar.update()
         else:
             page.controls[0].content.controls[1].border = border.only(
@@ -172,7 +174,7 @@ def main(page: Page):
                 right=border.BorderSide(1, border_color),
                 top=border.BorderSide(1, border_color)
             )
-            LogBar.bgcolor = ""
+            # LogBar.bgcolor = ""
             LogBar.width = 0
             LogBar.update()
 
@@ -318,13 +320,7 @@ def main(page: Page):
                 vdb_df = filtered_df.loc[neighbors, :]
                 context = ""
                 for index, row in vdb_df.iterrows():
-                    head = "\n\n" + "###"*80 + "\n\n"
-                    sch = f"Page Number: {row['page_number']}, " \
-                          f"Chunk Number: {row['chunk_number']} "  \
-                          f"Extraction Duration Time: {row['extraction_time_in_seconds']} " \
-                          f"Filename: {row['filename']}\n\n"
-                    text = row["page_text"]
-                    context += head + sch + text + "###"*80 + "\n\n"
+                    context += "\n\n" + "###"*80 + "\n\n" + row["content"] + "###"*80 + "\n\n"
                 LogBar.content.content.controls.append(
                     Column(
                         width=600,
@@ -348,22 +344,58 @@ def main(page: Page):
             stream_df["distance"] = 100.0
             stream_df.loc[neighbors, "distance"] = distances.astype(float)
 
-            context = ""
-            for index, row in stream_df.loc[neighbors, :].iterrows():
-                context += "##Page Number: {page}\n##Content:\n{content}".format(page=row["page"], content=row["page_text"])
-                context += "\n\n" + "#"*80 + "\n\n"
-            # Keep stored in a CloudSQL pgvector [optional]
-            #context = asyncio.run(vector_database_client.query(query, rag_schema))
-            LogBar.content.content.controls.append(
-                Column(
-                    width=600,
-                    controls=[
+            table : DataTable = DataTable(
+                data_row_min_height=150,
+                bgcolor = colors.WHITE,
+                columns=[
+                    DataColumn(Text("chunk_text", color= colors.BLACK)),
+                    DataColumn(Text("distance", color=colors.BLACK)),
+                ],
+                rows=[]
+            )
 
-                        Text("vdb response:", color=colors.BLUE, bgcolor=colors.BLACK),
-                        Container(content=Text(context, color=colors.BLACK))
+            def open_dlg_modal(e):
+                page.dialog = digModal
+                digModal.open = True
+                page.update()
+
+            def close_dlg(e):
+                digModal.open = False
+                page.update()
+
+            context = []
+            for index, row in stream_df.loc[neighbors, :].iterrows():
+                digModal: AlertDialog = AlertDialog(
+                    modal=True,
+                    title=Text("Vector DB Chunk"),
+                    content=Text(row["content"]),
+                    actions=[
+                        TextButton("Close", on_click=close_dlg),
                     ]
                 )
-            )
+                table.rows.append(
+                    DataRow(
+                        cells=[
+                            DataCell(
+                                Column(
+                                    controls=[
+                                        ElevatedButton(
+                                            text=str(index),
+                                            on_click=open_dlg_modal,
+                                        ),
+                                    ],
+                            )),
+                            DataCell(
+                                Text(row["distance"], color=colors.BLACK)
+                            )
+                        ]
+                    )
+                )
+                if row["content"] not in context:
+                    context.append(row["content"])
+            context = "".join(context)
+
+            LogBar.content.content.controls.append(table)
             LogBar.content.content.update()
         response_time = time.time() - start_time
         TimerFunction.controls[1].value = "{:.2f} sec".format(response_time)
@@ -604,21 +636,22 @@ def main(page: Page):
     )
 
     # Adding all the childs to the session.
-    page.add(
-        Row(
-            controls=[
-                Column(
-                    controls=[
-                        text_user,
-                        password,
-                        button_signin
-                    ]
-                )
-            ],
-            spacing=20,
-            alignment=MainAxisAlignment.CENTER
-        )
-    )
+    # page.add(
+    #     Row(
+    #         controls=[
+    #             Column(
+    #                 controls=[
+    #                     text_user,
+    #                     password,
+    #                     button_signin
+    #                 ]
+    #             )
+    #         ],
+    #         spacing=20,
+    #         alignment=MainAxisAlignment.CENTER
+    #     )
+    # )
+    page.add(MainLayout)
 
 app(target=main, view=AppView.WEB_BROWSER, port=8000, upload_dir=files_dir)
 
