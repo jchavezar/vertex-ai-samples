@@ -33,13 +33,9 @@ For this prototype Google Cloud SDK toolkit is required for services managment a
 pip install flet
 pip install scann
 pip install pandas
-pip install asyncio
-pip install asyncpg
-pip install pgvector
 pip install pdf2image
+pip install langchain
 pip install google-cloud-aiplatform
-pip install cloud-sql-python-connector # Optional
-pip install langchain # Optional.
 ```
 
 ### Google Cloud Project
