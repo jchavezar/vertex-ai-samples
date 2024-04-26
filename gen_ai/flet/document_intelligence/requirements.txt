@@ -1,0 +1,6 @@
+flet
+scann
+pandas
+pdf2image
+google-cloud-aiplatform
+langchain
