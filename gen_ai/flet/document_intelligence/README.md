@@ -38,6 +38,10 @@ pip install langchain
 pip install google-cloud-aiplatform
 ```
 
+```bash
+apt-get install poppler-utils
+```
+
 ### Google Cloud Project
 
 A Google account project is required: [steps](https://cloud.google.com/resource-manager/docs/creating-managing-projects). 
