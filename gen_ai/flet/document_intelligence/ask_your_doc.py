@@ -216,6 +216,7 @@ def main(page: Page):
             searcher = scann.scann_ops_pybind.builder(img, num_neighbors=3, distance_measure="squared_l2").tree(
                 num_leaves=k, num_leaves_to_search=1, training_sample_size=filtered_df.shape[0]).score_ah(
                 2, anisotropic_quantization_threshold=0.2).reorder(7).build()
+            cashed_documents = True
         else:
             filded_df = df.copy()
             img = np.array([r["embeddings"] for i, r in filtered_df.iterrows()])
