@@ -3,7 +3,7 @@ import os
 import io
 import time
 import scann
-import asyncio
+# import asyncio
 import vertexai
 import numpy as np
 from flet import *
