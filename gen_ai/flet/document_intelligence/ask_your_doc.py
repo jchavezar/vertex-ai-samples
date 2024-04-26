@@ -1,7 +1,7 @@
 import os
 import time
 import vertexai
-import asyncio
+# import asyncio
 import pandas as pd
 from utils import preprocess
 #from utils.temp import *
