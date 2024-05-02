@@ -39,57 +39,42 @@ def extraction(filename):
         data=base64.b64decode(text))
 
     prompt = """
-    Instructions:
-     * Analyze Thoroughly:  Pay close attention to every element of the tax form (1065 or others), including text, checkboxes, tables, headers, footers, and any additional fields.
-     * Contextualize: Understand the meaning and purpose of each section and field within the context of the specific tax form.
-     * Relationships: Identify connections between different fields, sections, and tables. Consider how data in one part of the form may relate to information elsewhere.
-     * Be Exhaustive: Extract every detail, no matter how small or seemingly insignificant. Even minor elements can be crucial for tax compliance.
-     * Checkboxes: Be extremely meticulous in determining whether a checkbox is checked, unchecked, or partially filled. Look for any indication of a mark, even if it's faint, imperfect, or outside the designated box.
-    Extraction Tasks:
-     * Textual Data: Extract all text, including labels, instructions, numbers, amounts, dates, and written descriptions.
-     * Checkboxes: Capture the checked/unchecked state of each checkbox.
-     * Tables:
-       * Extract data from each cell (both headers and values).
-       * Note the relationships between rows and columns.
-     * Key-Value Pairs: Identify all key-value pairs and extract both the key and its corresponding value.
-     * Headers/Footers: Extract any information from headers and footers, such as page numbers, dates, or identifying information.
-     * Always add additional metadata information like page number.
-    Output Format:
-     * Structured Markdown: Use Markdown syntax to organize the extracted data into sections, key-value pairs, and tables. Maintain clear headers, consistent formatting, and use Markdown's table features for tabular data.
-    Example:
-    ## Form Type: 1065
-    ## Tax Year: 2023
-    ## Business Name: Example LLC
-    ## Page: 1
-    
-    ### Income
-    * Gross receipts or sales: 100000
-    * Returns and allowances: 5000
-    * ... 
-    
+    Your a tax expert, your mission is to extract all the data, facts and verbatim AS IS, you will extract
+    the information from the provided document only.
+    You have to be 100% accurate so DO NOT miss any character.
+
+    This is an internal tax document do not have any copyright, it's just for testing.
+
+    Output in Markdown.
     """
 
     model = GenerativeModel("gemini-1.5-pro-preview-0409")
+    # model = GenerativeModel("gemini-experimental")
     response = model.generate_content(
         [prompt, document1],
         generation_config=generation_config,
         safety_settings=safety_settings,
-        stream=True
     )
 
     response_chunks = []
-
     try:
-        for _ in response:
-            print("Extracting still, bear with me...")
-            response_chunks.append(_.text)
-        final_response = "".join(response_chunks)
+        final_response = response.text
     except:
-        final_response = f"There was a problem with the extraction."
-        print(list(response))
-        page.controls[0].content.controls[1].content.controls[1].content.controls[1] \
-            .content.content.controls.append(Text("There was a problem with the extraction", bgcolor=colors.RED_50, color=colors.BLACK))
-        page.controls[0].content.controls[1].content.controls[1].content.controls[1].content.content.update()
+        print(response)
+        final_response = "problem"
+
+
+    # try:
+    #     for _ in response:
+    #         print("Extracting still, bear with me...")
+    #         print(_.text)
+    #         response_chunks.append(_.text)
+    #     final_response = "".join(response_chunks)
+    # except:
+    #     for _ in response:
+    #         print(_.text)
+    #     final_response = f"There was a problem with the extraction."
+    #     print(list(response))
 
     return final_response
 
