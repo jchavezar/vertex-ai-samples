@@ -144,4 +144,4 @@ demo.launch()
 
 import os 
 
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "~/Downloads/k.json"
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "~/Downloads/k.py"
