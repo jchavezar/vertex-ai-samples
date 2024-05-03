@@ -88,10 +88,9 @@ def main(page: Page):
         animate_text_output("User", e.control.value)
         try:
             prompt = f"""
-            You are a tax expert, so your response needs to be acurate, consistent and brief 
-            when possible.
-            
-            Use the following file as a only/unique source of truth to answer the following question:
+            You are a tax expert, so your response needs to be acurate, concise and brief.
+            - Use the following file in base64 format as a only/unique source of truth.
+            - When the user asks for breakdown or summary do not forget any value/amount.
             
             User Question:
             {e.control.value}
