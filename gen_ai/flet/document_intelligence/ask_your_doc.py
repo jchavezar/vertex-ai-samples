@@ -85,18 +85,20 @@ def main(page: Page):
 
     def send_message(e):
 
-        prompt = f"""
+        animate_text_output("User", e.control.value)
+        try:
+            prompt = f"""
             You are a tax expert, so your response needs to be acurate, consistent and brief 
             when possible.
             
-            User Query:
+            Use the following file as a only/unique source of truth to answer the following question:
+            
+            User Question:
             {e.control.value}
             
             Response:
             """
 
-        animate_text_output("User", e.control.value)
-        try:
             with open(file_path_int, 'rb') as f:
                 text = base64.b64encode(f.read())
 
@@ -105,6 +107,14 @@ def main(page: Page):
                     data=base64.b64decode(text))
             prompt_list = [prompt, document1]
         except:
+            prompt = f"""
+            You are a very funny Gemini, respond the following question:
+                    
+            User Query:
+            {e.control.value}
+            
+            Response:
+            """
             prompt_list = [prompt]
 
         start = time.time()
