@@ -1,6 +1,5 @@
 import base64
 import time
-
 from flet import *
 from vertexai.generative_models import GenerativeModel, Part
 from vertexai.preview.generative_models import HarmCategory, HarmBlockThreshold
@@ -30,8 +29,8 @@ def main(page: Page):
     page.update()
 
     global_width = 600
-    file_path: Text = Text("", color=colors.BLUE_200, bgcolor=colors.BLACK, text_align=TextAlign.CENTER)
-    time_lat: Text = Text("", color=colors.WHITE, bgcolor=colors.BLUE)
+    file_path: Text = Text("", color=colors.BLUE_200, text_align=TextAlign.CENTER, style=TextStyle(weight="bold"))
+    time_lat: Text = Text("", color=colors.WHITE, bgcolor="#1a3059")
 
     def select_file(e: FilePickerResultEvent):
         page.add(filepicker)
@@ -49,13 +48,13 @@ def main(page: Page):
 
     def animate_text_output(name: str, prompt: str) -> None:
         if name == "User":
-            bg_color = "#E0E0E0"
+            bg_color = "#282a2d"
             al_color = "#212121"
-            txt_color = "#212121"
+            txt_color = "#e2e2e5"
         else:
-            bg_color = colors.BLACK
-            al_color = "#FFFFFF"
-            txt_color = colors.BLUE_300
+            bg_color = "#1a3059"
+            al_color = "#212121"
+            txt_color = "#e2e2e5"
         word_list: list = []
         msg = Column(
             spacing=0,
@@ -67,7 +66,7 @@ def main(page: Page):
                     content=Text(name, color=al_color, size=15, weight=FontWeight.BOLD)
                 ),
                 Container(
-                    padding=padding.only(left=15, right=15, top=4, bottom=0),
+                    padding=padding.only(left=15, right=15, top=4, bottom=1),
                     margin=margin.only(left=20, right=10, top=2, bottom=0),
                     border_radius=12,
                     content=Text("", color=txt_color, selectable=True),
@@ -129,7 +128,7 @@ def main(page: Page):
         height=100,
         border_radius=4,
         border=border.all(1, colors.GREY),
-        bgcolor=colors.BLACK38,
+        bgcolor=colors.GREY_100,
         width=global_width,
         content=Row(
             alignment=MainAxisAlignment.CENTER,
@@ -150,7 +149,7 @@ def main(page: Page):
         width=global_width,
         border_radius=4,
         border=border.all(1, colors.GREY),
-        bgcolor=colors.BLUE_GREY_200,
+        bgcolor=colors.WHITE,
         content=listView,
     )
 
