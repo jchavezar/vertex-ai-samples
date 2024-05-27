@@ -76,7 +76,7 @@ class _MyAppState extends State<MyApp> {
 
   // List? get jsonResponse => [];
   var jsonResponse = [];
-  static const apiKey = "AIzaSyAt8eVBqiv_aItQlO-IfMQ3kUnlfoCmSsM";
+  static const apiKey = "";
 
   Future<void> _pickImage() async {
     final ImagePicker picker = ImagePicker();
