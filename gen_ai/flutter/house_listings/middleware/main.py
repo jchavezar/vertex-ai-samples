@@ -183,13 +183,3 @@ async def image_conversion(file: UploadFile = File(...), text_data: Optional[str
     return parsed
 
 
-@app.get('/all')
-def return_catalog_full():
-    """
-
-    :param query: from flutter
-    """
-    parsed = json.loads(df.to_json(orient="records"))
-    return parsed
-
-
