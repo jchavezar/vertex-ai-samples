@@ -1,8 +1,7 @@
 #%%
 import io
 import ssl
-from typing import Tuple
-
+import time
 import filetype
 import vertexai
 from pytube import YouTube
@@ -48,7 +47,7 @@ chat = model.start_chat()
 
 def get_video_bytes_and_mimetype(youtube_url):
   yt = YouTube(youtube_url)
-  stream = yt.streams.get_highest_resolution()
+  stream = yt.streams.get_lowest_resolution()
 
   buffer = io.BytesIO()
   stream.stream_to_buffer(buffer)
@@ -64,19 +63,22 @@ def get_video_bytes_and_mimetype(youtube_url):
 def llm(prompt):
 
   response = chat.send_message(prompt)
-  function_call = response.candidates[0].function_calls[0]
 
-  if function_call.name == "youtube_search_tool":
-    link = function_call.args["link"]
-    video_bytes, mime_type = get_video_bytes_and_mimetype(link)
+  try:
+    function_call = response.candidates[0].function_calls[0]
 
+    if function_call.name == "youtube_search_tool":
+      link = function_call.args["link"]
+      video_bytes, mime_type = get_video_bytes_and_mimetype(link)
+      video1_1 = Part.from_data(mime_type=mime_type, data=video_bytes)
 
-  video1_1 = Part.from_data(mime_type=mime_type, data=video_bytes)
+      contents = [video1_1, prompt]
 
-  contents = [video1_1, prompt]
+      ll_model = GenerativeModel(model_name="gemini-1.5-flash-preview-0514")
+      response = ll_model.generate_content(contents)
 
-  ll_model = GenerativeModel(model_name="gemini-1.5-flash-preview-0514")
-  response = ll_model.generate_content(contents)
+  except:
+    return response.text
 
 
   response = chat.send_message(
@@ -94,7 +96,10 @@ def llm(prompt):
 
 
 def run(text: str = ""):
-  #youtube_url = 'https://www.youtube.com/shorts/6qf3D059sI0'
-  #video_bytes, mime_type = get_video_bytes_and_mimetype(youtube_url)
+  start_time = time.time()
+  print("Running...")
   response = llm(text)
-  return response
+  end_time = time.time()
+  job_time = end_time - start_time
+  print(f"Time taken: {job_time} seconds")
+  return response, round(job_time,2)

@@ -7,11 +7,11 @@
   </component>
   <component name="NewModuleRootManager" inherit-compiler-output="true">
     <exclude-output />
-    <content url="file://$MODULE_DIR$/gen_ai/flet/document_intelligence_tables" />
-    <orderEntry type="jdk" jdkName="Python 3.11 (vertex-ai-samples)" jdkType="Python SDK" />
+    <content url="file://$MODULE_DIR$">
+      <excludeFolder url="file://$MODULE_DIR$/laundering/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/laundering/build" />
+      <excludeFolder url="file://$MODULE_DIR$/laundering/.dart_tool" />
+    </content>
     <orderEntry type="sourceFolder" forTests="false" />
-  </component>
-  <component name="PyDocumentationSettings">
-    <option name="renderExternalDocumentation" value="true" />
   </component>
 </module>
