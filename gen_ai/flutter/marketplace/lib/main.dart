@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'config.dart';
 import 'dart:convert';
 // import 'next_page.dart';
 import 'dart:html' as html;
@@ -66,7 +65,7 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
-    const String apiKey = String.fromEnvironment('API_KEY', defaultValue: API_KEY);
+    const String apiKey = String.fromEnvironment('API_KEY', defaultValue: "YOUR_API_KEY");
     model = GenerativeModel(
       model: 'gemini-1.5-flash-latest',
       apiKey: apiKey,
