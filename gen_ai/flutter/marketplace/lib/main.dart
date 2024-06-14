@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'dart:convert';
 // import 'next_page.dart';
 import 'dart:html' as html;
@@ -78,21 +77,7 @@ class _MyAppState extends State<MyApp> {
 
   // List? get jsonResponse => [];
   var jsonResponse = [];
-  String ? apiKey = Platform.environment['API_KEY'];
-
-  late final GenerativeModel model;
-
-  @override
-  void initState() {
-    super.initState();
-    if (apiKey == null) {
-      throw ArgumentError("API_KEY is required."); // Or handle the error differently
-    }
-    model = GenerativeModel(
-      model: 'gemini-1.5-flash-latest',
-      apiKey: apiKey!,
-    );
-  }
+  static const apiKey = String.fromEnvironment('API_KEY');
 
   Future<void> _pickImage() async {
     final ImagePicker picker = ImagePicker();
@@ -187,7 +172,10 @@ class _MyAppState extends State<MyApp> {
   }
 
   final _textController = TextEditingController();
-
+  final model = GenerativeModel(
+    model: 'gemini-1.5-flash-latest',
+    apiKey: apiKey,
+  );
   late final content = "";
 
   Future<void> _sendMessage(prompt) async {
