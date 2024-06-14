@@ -1,0 +1,5 @@
+google-cloud-aiplatform
+pandas
+gcsfs
+fastapi
+uvicorn
