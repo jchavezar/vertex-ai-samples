@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'config.dart';
 import 'dart:convert';
 // import 'next_page.dart';
 import 'dart:html' as html;
@@ -49,24 +50,6 @@ class _MyAppState extends State<MyApp> {
   String text = "";
   String url = "";
   var _textInput = "";
-  var gridMap = [
-    {
-      "image_uri": "https://media.architecturaldigest.com/photos/61fc6aac9e1381243886999c/1:1/w_3679,h_3679,c_limit/Private%20Residence1207_1.jpg",
-      "location": "New York"
-    },
-    {
-      "image_uri": "https://cdn.thespaces.com/wp-content/uploads/2019/03/ART-DECO-HOME-FOR-SALE-Available-through-Belgium-Sothebys-International-Realty.jpg",
-      "location": "Abu Dhabi"
-    },
-    {
-      "image_uri": "https://images.seattletimes.com/wp-content/uploads/2015/11/c2cf3780-df36-11e4-9831-b297f2987e27.jpg?d=780x520",
-      "location": "Dubai"
-    },
-    {
-      "image_uri": "https://mir-s3-cdn-cf.behance.net/project_modules/fs/b8763e99526603.5ef4e13755a6e.jpg",
-      "location": "Mexico"
-    },
-  ];
   var gridMapScann = [];
   var gridMapAll = [];
   List chatMessages = [];
@@ -79,15 +62,13 @@ class _MyAppState extends State<MyApp> {
 
   // List? get jsonResponse => [];
   var jsonResponse = [];
-  // static const apiKey = String.fromEnvironment('API_KEY');
-  final apiKey = Platform.environment['API_KEY'] ?? 't';
 
   @override
   void initState() {
     super.initState();
     model = GenerativeModel(
       model: 'gemini-1.5-flash-latest',
-      apiKey: apiKey,
+      apiKey: API_KEY,
     );
   }
 
