@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:convert';
 // import 'next_page.dart';
 import 'dart:html' as html;
@@ -32,6 +33,7 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   VideoPlayerController? _controller;
   bool isVideoSelected = false;
+  late GenerativeModel model;
 
   @override
   void dispose() {
@@ -77,7 +79,17 @@ class _MyAppState extends State<MyApp> {
 
   // List? get jsonResponse => [];
   var jsonResponse = [];
-  static const apiKey = String.fromEnvironment('API_KEY');
+  // static const apiKey = String.fromEnvironment('API_KEY');
+  final apiKey = Platform.environment['API_KEY'] ?? 't';
+
+  @override
+  void initState() {
+    super.initState();
+    model = GenerativeModel(
+      model: 'gemini-1.5-flash-latest',
+      apiKey: apiKey,
+    );
+  }
 
   Future<void> _pickImage() async {
     final ImagePicker picker = ImagePicker();
@@ -172,10 +184,10 @@ class _MyAppState extends State<MyApp> {
   }
 
   final _textController = TextEditingController();
-  final model = GenerativeModel(
-    model: 'gemini-1.5-flash-latest',
-    apiKey: apiKey,
-  );
+  // final model = GenerativeModel(
+  //   model: 'gemini-1.5-flash-latest',
+  //   apiKey: apiKey,
+  // );
   late final content = "";
 
   Future<void> _sendMessage(prompt) async {
