@@ -66,9 +66,10 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
+    const String apiKey = String.fromEnvironment('API_KEY', defaultValue: API_KEY);
     model = GenerativeModel(
       model: 'gemini-1.5-flash-latest',
-      apiKey: API_KEY,
+      apiKey: apiKey,
     );
   }
 
