@@ -4,7 +4,7 @@ steps:
       'build',
       '-t',
       'us-central1-docker.pkg.dev/vtxdemos/cloud-run-source-deploy/house_listings:frontend',
-      '--build-arg=ENV=$_API_KEY',
+      '--build-arg=API_KEY=$_API_KEY',
       '.'
     ]
   - name: 'gcr.io/cloud-builders/docker'
