@@ -30,3 +30,17 @@ gcloud builds submit -t us-central1-docker.pkg.dev/vtxdemos/cloud-run-source-dep
 ```bash
 gcloud run deploy home-listings-middleware --image us-central1-docker.pkg.dev/vtxdemos/cloud-run-source-deploy/house_listings:middleware --region us-central1 --quiet --allow-unauthenticated
 ```
+## Step 2
+
+Build the front end and deploy to Cloud Run.
+
+*Change the region, project and **artifact registry repo**: {your_region}-docker.pkg.dev/{your_project}/{your-artifact-repository}/house_listings:middleware*
+
+```bash
+cd ..
+gcloud builds submit -t us-central1-docker.pkg.dev/vtxdemos/cloud-run-source-deploy/house_listings:frontend .
+```
+*Change your variables as before...*
+```bash
+gcloud run deploy home-listings-frontend --image us-central1-docker.pkg.dev/vtxdemos/cloud-run-source-deploy/house_frontend:middleware --region us-central1 --quiet --allow-unauthenticated
+```
