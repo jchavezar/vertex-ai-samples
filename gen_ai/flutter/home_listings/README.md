@@ -64,7 +64,7 @@ Build the front end and deploy to Cloud Run.
 
 ```bash
 
-gcloud builds submit --substitutions=API_KEY='AIzaSyB-yD0krWfMbFRGiPvenyjp8xPoSprstVI'
+gcloud builds submit --substitutions=API_KEY=''
 ```
 *Change your variables as before...*
 ```bash
