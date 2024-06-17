@@ -58,9 +58,11 @@ gcloud run deploy home-listings-middleware --image us-central1-docker.pkg.dev/vt
 ```
 ## Step 2
 
-Build the front end and deploy to Cloud Run.
+Build the front end and deploy to Cloud Run. 
 
-*Change the region, project and **artifact registry repo**: {your_region}-docker.pkg.dev/{your_project}/{your-artifact-repository}/house_listings:frontend*
+- The build file definition [cloudbuild.yaml](https://github.com/jchavezar/vertex-ai-samples/blob/main/gen_ai/flutter/home_listings/cloudbuild.yaml) is on the repo. 
+
+*Change API_KEY from [aistudio.google.com](aistudio.google.com) or google cloud project API Keys.*
 
 ```bash
 
