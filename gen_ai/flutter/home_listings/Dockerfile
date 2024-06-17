@@ -49,7 +49,7 @@ RUN flutter build web --dart-define API_KEY=${_API_KEY:-}
 FROM nginx:stable-alpine3.19-perl
 
 # Copy the built web app to the nginx html directory
-COPY --from=build-env /app/vertex-ai-samples/gen_ai/flutter/marketplace/build/web /usr/share/nginx/html
+COPY --from=build-env /app/vertex-ai-samples/gen_ai/flutter/home_listings/build/web /usr/share/nginx/html
 
 # Expose port 80
 EXPOSE 80

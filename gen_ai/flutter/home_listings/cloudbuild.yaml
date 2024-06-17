@@ -10,10 +10,10 @@ steps:
   - name: 'gcr.io/cloud-builders/docker'
     args: [
             'push',
-            'gcr.io/vtxdemos/cloud-run-source-deploy/house_listings:frontend',
+            'us-central1-docker.pkg.dev/vtxdemos/cloud-run-source-deploy/house_listings:frontend',
     ]
 images:
-  - 'gcr.io/vtxdemos/cloud-run-source-deploy/house_listings:frontend'
+  - 'us-central1-docker.pkg.dev/vtxdemos/cloud-run-source-deploy/house_listings:frontend'
 timeout: 1200s
 substitutions:
   _API_KEY: ''
