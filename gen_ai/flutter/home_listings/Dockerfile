@@ -5,7 +5,7 @@ FROM debian:latest AS build-env
 ARG API_KEY
 
 # Set the environment variable to be used in the flutter build
-ENV API_KEY=${API_KEY}
+ENV API_KEY=${_API_KEY}
 
 WORKDIR /app
 
@@ -43,7 +43,7 @@ RUN git clone --depth 1 https://github.com/jchavezar/vertex-ai-samples.git /app/
 WORKDIR /app/vertex-ai-samples/gen_ai/flutter/home_listings
 
 # Build the flutter web app
-RUN flutter build web --dart-define API_KEY=${API_KEY:-}
+RUN flutter build web --dart-define API_KEY=${_API_KEY:-}
 
 # Stage 2 - Use Nginx to serve the built app
 FROM nginx:stable-alpine3.19-perl
