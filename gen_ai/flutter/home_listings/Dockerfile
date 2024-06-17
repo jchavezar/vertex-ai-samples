@@ -40,7 +40,7 @@ RUN flutter upgrade
 RUN git clone --depth 1 https://github.com/jchavezar/vertex-ai-samples.git /app/vertex-ai-samples
 
 # Set the working directory
-WORKDIR /app/vertex-ai-samples/gen_ai/flutter/marketplace
+WORKDIR /app/vertex-ai-samples/gen_ai/flutter/home_listings
 
 # Build the flutter web app
 RUN flutter build web --dart-define API_KEY=${API_KEY:-}
