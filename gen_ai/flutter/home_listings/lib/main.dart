@@ -1,11 +1,9 @@
 import 'dart:convert';
 // import 'next_page.dart';
-import 'dart:typed_data';
 import 'dart:html' as html;
-import 'package:flutter/widgets.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:flutter/cupertino.dart';
 import 'package:video_player/video_player.dart';
 import 'package:http_parser/http_parser.dart';
 import 'package:image_picker/image_picker.dart';
@@ -66,7 +64,7 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
-    const String apiKey = String.fromEnvironment('API_KEY', defaultValue: 'YOUR_API_KEY');
+    const String apiKey = String.fromEnvironment('API_KEY', defaultValue: '');
     model = GenerativeModel(
       model: 'gemini-1.5-flash-latest',
       apiKey: apiKey,
@@ -76,12 +74,9 @@ class _MyAppState extends State<MyApp> {
   Future<void> _pickImage() async {
     final ImagePicker picker = ImagePicker();
     final XFile? imageFile = await picker.pickVideo(source: ImageSource.gallery);
-    // final tempDir = await getTemporaryDirectory();
-    // final tempFile = File('${tempDir.path}/temp_video.mp4');
 
     if (imageFile != null) {
       final Uint8List bytes = await imageFile.readAsBytes();
-      // _textInput = "blue house";
 
       final blob = html.Blob([bytes]);
       final url = html.Url.createObjectUrlFromBlob(blob);
@@ -127,19 +122,18 @@ class _MyAppState extends State<MyApp> {
             _context.add(response['description']);
           }
           var prompt = '''From the following context give me a catchy summary about the listings:
-          
+
           <rules>
           1. Detect the input $_textInput language and respond in that language.
           2. Use the same language in your _textInput (input).
           </rules>
-          
+
           <context>
           $_context
           </context>
-          
+
           Response as raw text<String>:''';
           _sendMessage(prompt);
-
           setState(() {
             gridMapScann = List<Map<String, dynamic>>.from(jsonResponse);
             logText = "Findings";
@@ -150,11 +144,15 @@ class _MyAppState extends State<MyApp> {
 
         } catch (e) {
           // Handle JSON parsing errors
-          print('Error parsing JSON: $e');
+          if (kDebugMode) {
+            print('Error parsing JSON: $e');
+          }
         }
       } else {
         // Handle non-200 status codes (e.g., errors)
-        print('Request failed with status: ${streamedResponse.statusCode}');
+        if (kDebugMode) {
+          print('Request failed with status: ${streamedResponse.statusCode}');
+        }
       }
       setState(() {
       });
@@ -269,27 +267,32 @@ class _MyAppState extends State<MyApp> {
                       ),
                     ),
                     onChanged: (value) async {
-                      _textInput = value.toString();
                       setState(() {
-
+                        _textInput = value.toString();
                       });
                     },
                     onSubmitted: (value) async {
                       _textInput = value.toString();
+                      setState(() {
+                        isVideoSelected = false;
+                      });
 
-                      var url = isVideoSelected
-                          ? 'https://home-listings-middleware-oyntfgdwsq-uc.a.run.app/image'
-                          : 'https://home-listings-middleware-oyntfgdwsq-uc.a.run.app/text';
+                      String url;
+                      if (_textInput.isNotEmpty) {
+                        url = 'https://home-listings-middleware-oyntfgdwsq-uc.a.run.app/text';
+                      } else {
+                        url =
+                        'https://home-listings-middleware-oyntfgdwsq-uc.a.run.app/text';
+                      }
 
                       var request = http.MultipartRequest('POST', Uri.parse(url));
 
-                      if (!isVideoSelected && _textInput.isNotEmpty) {
+                      if (_textInput.isNotEmpty) {
                         request.fields['text_data'] = _textInput;
                       }
 
 
                       var streamedResponse = await request.send();
-
 
                       if (streamedResponse.statusCode == 200) {
                         var response = await http.Response.fromStream(streamedResponse);
@@ -324,10 +327,14 @@ class _MyAppState extends State<MyApp> {
                           });
 
                         } catch (e) {
-                          print('Error parsing JSON: $e');
+                          if (kDebugMode) {
+                            print('Error parsing JSON: $e');
+                          }
                         }
                       } else {
-                        print('Request failed with status: ${streamedResponse.statusCode}');
+                        if (kDebugMode) {
+                          print('Request failed with status: ${streamedResponse.statusCode}');
+                        }
                       }
                     },
                   ),
@@ -367,23 +374,25 @@ class _MyAppState extends State<MyApp> {
                           ],
                         ),
                       ),
-                      ListView.builder(
-                        itemCount: chatMessages.length,
-                        itemBuilder: (BuildContext context, int index) {
-                          final message = chatMessages[index];
-                          return Container(
-                            padding: const EdgeInsets.all(8.0),
-                            margin: const EdgeInsets.symmetric(vertical:4.0),
-                            decoration: BoxDecoration(
-                              color: Colors.grey[200],
-                              borderRadius: BorderRadius.circular(12.0),
-                            ),
-                            child: Text(
-                              message,
-                              style: const TextStyle(fontSize: 18.0),
-                            ),
-                          );
-                        },
+                      Expanded(
+                        child: ListView.builder(
+                          itemCount: chatMessages.length,
+                          itemBuilder: (BuildContext context, int index) {
+                            final message = chatMessages[index];
+                            return Container(
+                              padding: const EdgeInsets.all(8.0),
+                              margin: const EdgeInsets.symmetric(vertical:4.0),
+                              decoration: BoxDecoration(
+                                color: Colors.grey[200],
+                                borderRadius: BorderRadius.circular(12.0),
+                              ),
+                              child: Text(
+                                message,
+                                style: const TextStyle(fontSize: 18.0),
+                              ),
+                            );
+                          },
+                        ),
                       ),
                       const SizedBox(height:10.0),
                       Container(
@@ -411,11 +420,11 @@ class _MyAppState extends State<MyApp> {
                           2. Do not combine languages, if you are asked in spanish respond in spanish, if you are asked in english respond in english.
 
                           </rules>
-                          
+
                           <Context>
                           $gridMapScann
                           </Context>
-                          
+
                           Question: $query""";
                             _sendMessage(prompt);
                           },
@@ -601,56 +610,6 @@ class _MyAppState extends State<MyApp> {
                           ),
                         ),
                         const SizedBox(height: 8.0),
-                        // Text.rich(
-                        //   textAlign: TextAlign.center,
-                        //   TextSpan(
-                        //     text: "Title: ",
-                        //     style: const TextStyle(color: Color(0xffFF5A5F), fontWeight: FontWeight.bold),
-                        //     children: <TextSpan>[
-                        //       TextSpan(
-                        //           text: "${gridMapScann.elementAt(index)["title"]}",
-                        //         style: const TextStyle(color: Colors.black, fontWeight: FontWeight.normal),
-                        //
-                        //       ),
-                        //     ],
-                        //   )
-                        // ),
-                        // Text.rich(
-                        //     TextSpan(
-                        //       text: "Rating: ",
-                        //       style: const TextStyle(color: Color(0xffFF5A5F), fontWeight: FontWeight.bold),
-                        //       children: <TextSpan>[
-                        //         TextSpan(
-                        //           text: "${gridMapScann.elementAt(index)["rating"]}",
-                        //           style: const TextStyle(color: Colors.black, fontWeight: FontWeight.normal),
-                        //         ),
-                        //       ],
-                        //     )
-                        // ),
-                        // Text.rich(
-                        //     TextSpan(
-                        //       text: "Location: ",
-                        //       style: const TextStyle(color: Color(0xffFF5A5F), fontWeight: FontWeight.bold),
-                        //       children: <TextSpan>[
-                        //         TextSpan(
-                        //           text: "${gridMapScann.elementAt(index)["location"]}",
-                        //           style: const TextStyle(color: Colors.black, fontWeight: FontWeight.normal),
-                        //         ),
-                        //       ],
-                        //     )
-                        // ),
-                        // Text.rich(
-                        //     TextSpan(
-                        //       text: "Host Guest: ",
-                        //       style: const TextStyle(color: Color(0xffFF5A5F), fontWeight: FontWeight.bold),
-                        //       children: <TextSpan>[
-                        //         TextSpan(
-                        //           text: "${gridMapScann.elementAt(index)["host_name"]}",
-                        //           style: const TextStyle(color: Colors.black, fontWeight: FontWeight.normal),
-                        //         ),
-                        //       ],
-                        //     )
-                        // ),,
                         Padding(
                           padding: const EdgeInsets.only(left: 6.0, right: 6.0),
                           child: Row(
