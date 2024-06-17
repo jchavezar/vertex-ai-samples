@@ -14,11 +14,36 @@ For help getting started with Flutter development, view the
 [online documentation](https://docs.flutter.dev/), which offers tutorials,
 samples, guidance on mobile development, and a full API reference.
 
+## Pre-requisites
+
+Because Flutter needs CORS to be enable at the back and where the images are stored,
+we need to enable in the bucket.
+
+```bash
+cat << EOF > cors.json
+[
+  {
+    "origin": ["*"],
+    "method": ["GET"],
+    "maxAgeSeconds": 3600
+  }
+]
+EOF
+```
+
+```bash
+gcloud storage buckets update gs://vtxdemos-vsearch-airbnb --cors-file=cors.json
+```
+
+cat << EOF > cors.json
+
+
 ## Step 1
 
 After cloning this repo build the middleware in your Google Cloud Project.
 
 *Change the region, project and **artifact registry repo**: {your_region}-docker.pkg.dev/{your_project}/{your-artifact-repository}/house_listings:middleware*
+
 ```bash
 cd middleware
 gcloud builds submit -t us-central1-docker.pkg.dev/vtxdemos/cloud-run-source-deploy/house_listings:middleware .
@@ -27,6 +52,7 @@ gcloud builds submit -t us-central1-docker.pkg.dev/vtxdemos/cloud-run-source-dep
 ### Deploy to Cloud Run
 
 *Change your variables as before...*
+
 ```bash
 gcloud run deploy home-listings-middleware --image us-central1-docker.pkg.dev/vtxdemos/cloud-run-source-deploy/house_listings:middleware --region us-central1 --quiet --allow-unauthenticated
 ```
@@ -34,13 +60,13 @@ gcloud run deploy home-listings-middleware --image us-central1-docker.pkg.dev/vt
 
 Build the front end and deploy to Cloud Run.
 
-*Change the region, project and **artifact registry repo**: {your_region}-docker.pkg.dev/{your_project}/{your-artifact-repository}/house_listings:middleware*
+*Change the region, project and **artifact registry repo**: {your_region}-docker.pkg.dev/{your_project}/{your-artifact-repository}/house_listings:frontend*
 
 ```bash
-cd ..
-gcloud builds submit -t us-central1-docker.pkg.dev/vtxdemos/cloud-run-source-deploy/house_listings:frontend .
+
+gcloud builds submit --substitutions=API_KEY='AIzaSyB-yD0krWfMbFRGiPvenyjp8xPoSprstVI'
 ```
 *Change your variables as before...*
 ```bash
-gcloud run deploy home-listings-frontend --image us-central1-docker.pkg.dev/vtxdemos/cloud-run-source-deploy/house_frontend:middleware --region us-central1 --quiet --allow-unauthenticated
+gcloud run deploy home-listings-frontend --image us-central1-docker.pkg.dev/vtxdemos/cloud-run-source-deploy/house_listings:frontend --port 80 --region us-central1 --quiet --allow-unauthenticated 
 ```
