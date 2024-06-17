@@ -31,6 +31,9 @@ cat << EOF > cors.json
 EOF
 ```
 
+## Diagram
+![](images/home_listings.png)
+
 ```bash
 gcloud storage buckets update gs://vtxdemos-vsearch-airbnb --cors-file=cors.json
 ```
