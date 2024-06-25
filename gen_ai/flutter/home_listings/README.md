@@ -16,6 +16,12 @@ samples, guidance on mobile development, and a full API reference.
 
 ## Pre-requisites
 
+Run all the preprocessing layers first by following instructions in this sequence:
+
+1. [1_processing.ipynb](./1_processing.ipynb)
+2. [2_img_text_indexes.ipynb](./2_img_text_indexes.ipynb)
+3. [3_combined_indexes.ipynb](./3_combined_indexes.ipynb)
+
 Because Flutter needs CORS to be enable at the back and where the images are stored,
 we need to enable in the bucket.
 
