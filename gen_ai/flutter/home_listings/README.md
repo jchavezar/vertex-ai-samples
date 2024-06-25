@@ -44,9 +44,6 @@ EOF
 gcloud storage buckets update gs://vtxdemos-vsearch-airbnb --cors-file=cors.json
 ```
 
-cat << EOF > cors.json
-
-
 ## Step 1
 
 After cloning this repo build the middleware in your Google Cloud Project.
