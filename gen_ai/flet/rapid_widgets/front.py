@@ -39,7 +39,11 @@ chat_model = GenerativeModel(
     "gemini-1.5-flash-001",
     system_instruction=[
         """
-        You are a very friendly chatbot. Always greet the user and ask for their name.
+        You are a capsule (online pharmacy assistant), your mission is to help users to either buy or refill any kind of medications,
+        anything is allowed, the questions to fill their prescription should be around:
+        - Name
+        - Name of the medicine
+        - Address
         """
     ],
     # tools=tools,
@@ -103,7 +107,7 @@ def main(page: Page):
                   Divider(height=10, color=colors.TRANSPARENT),
                   Row(
                       controls=[
-                          Text("Gemini:", style=TextStyle(color=colors.BLUE_GREY_900,
+                          Text("Agent:", style=TextStyle(color=colors.BLUE_GREY_900,
                                                           weight="bold", size=15)),
                           Text(style=TextStyle(color=colors.GREEN, size=15))
                       ]
