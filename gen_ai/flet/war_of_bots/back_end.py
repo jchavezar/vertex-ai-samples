@@ -39,23 +39,3 @@ def gemini(prompt:str):
   )
   response = model.generate_content([prompt])
   return response.text
-
-def battle_bots(topic: str, rounds=2):
-  conversation_history = [topic]
-  current_speaker = "GPT-4"  # Start with GPT-4
-
-  for _ in range(rounds):
-    print(f"\n{'-' * 20}")
-    print(f"{current_speaker} is thinking...")
-    time.sleep(2) # Simulate thinking time
-
-    if current_speaker == "GPT-4":
-      response = chat_gpt_4(" ".join(conversation_history[-1]))
-      print(f"{current_speaker}: {response}")
-      current_speaker = "Gemini"
-    else:
-      response = gemini(" ".join(conversation_history[-1]))
-      print(f"{current_speaker}: {response}")
-      current_speaker = "GPT-4"
-
-    conversation_history.append(response)
