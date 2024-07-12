@@ -3,18 +3,28 @@ steps:
     args: [
       'build',
       '-t',
-      'us-central1-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/house_listings_frontend',
+      'us-central1-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/house_listing_frontend',
       '--build-arg=API_KEY=$_API_KEY',
-      '--build-arg=MIDDLEWARE_ENDPOINT=_MIDDLEWARE_ENDPOINT',
+      '--build-arg=MIDDLEWARE_ENDPOINT=$_MIDDLEWARE_ENDPOINT',
       '.'
     ]
   - name: 'gcr.io/cloud-builders/docker'
     args: [
             'push',
-            'us-central1-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/house_listings_frontend',
+            'us-central1-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/house_listing_frontend',
     ]
+  - name: 'gcr.io/cloud-builders/gcloud'
+    entrypoint: 'bash'
+    args:
+    - '-c'
+    - |
+      gcloud run deploy home-listing-frontend \
+      --image us-central1-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/house_listing_frontend \
+      --region us-central1 \
+      --port  80 \
+      --allow-unauthenticated \
 images:
-  - 'us-central1-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/house_listings_frontend'
+  - 'us-central1-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/house_listing_frontend'
 timeout: 1200s
 substitutions:
   _API_KEY: ''

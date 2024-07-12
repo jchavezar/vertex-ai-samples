@@ -61,7 +61,7 @@ gcloud artifacts repositories create cloud-run-source-deploy --repository-format
     --location=us-central1 --description="Docker repository"
 ```
 
-*Change the region, project and **artifact registry repo**: {your_region}-docker.pkg.dev/{your_project}/{your-artifact-repository}/house_listings:middleware*
+### Build and Deploy the middleware in Cloud Run
 
 ```bash
 cd middleware
@@ -69,31 +69,21 @@ export PROJECT_ID=vtxdemos
 gcloud builds submit --substitutions _TEXT_INDEX_ENDPOINT=projects/254356041555/locations/us-central1/indexEndpoints/8572615084839272448,_TEXT_INDEX_ID=vs_abnb_deployed_image_text,_COMBINED_INDEX_ENDPOINT=projects/254356041555/locations/us-central1/indexEndpoints/2114453219189981184,_COMBINED_INDEX_ID=vs_abnb_deployed_image_text,_DATASET_BUCKET=vtxdemos-abnb-images
 ```
 
-### Deploy to Cloud Run
-
-*Change your variables as before...*
-
-```bash
-gcloud run deploy home-listings-middleware --image us-central1-docker.pkg.dev/vtxdemos/cloud-run-source-deploy/house_listings:middleware --region us-central1 --quiet --allow-unauthenticated
-```
-
 ***Important: "Save the cloud run middleware endpoint name"***
 - Go to Cloud Console > [Cloud Run](https://console.cloud.google.com/run), and look for the crun id (in this case home-listing-middleware), the endpoint should look like this: https://home-listing-middleware-oyntfgdwsq-uc.a.run.app
 
 ## Step 2
 
-Build the front end and deploy to Cloud Run. 
+Build and Deploy the frontend in Cloud Run. 
 
 - The build file definition [cloudbuild.yaml](https://github.com/jchavezar/vertex-ai-samples/blob/main/gen_ai/flutter/home_listings/cloudbuild.yaml) is in the repository. 
 
 - *Change API_KEY generated from [aistudio.google.com](aistudio.google.com) or google cloud project API Keys.*
 - *Change _MIDDLEWARE_ENDPOINT with the value saved from the previous step*
 
-```bash
+*e.g: gcloud builds submit --substitutions _API_KEY='adsdfdsfda3dsf-ddsf3',_MIDDLEWARE_ENDPOINT='https://home-listing-middleware-oyntfgdwsq-uc.a.run.app'*
 
-gcloud builds submit --substitutions API_KEY='',_MIDDLEWARE_ENDPOINT='https://home-listing-middleware-oyntfgdwsq-uc.a.run.app'
-```
-*Change your variables as before...*
 ```bash
-gcloud run deploy home-listings-frontend --image us-central1-docker.pkg.dev/vtxdemos/cloud-run-source-deploy/house_listings:frontend --port 80 --region us-central1 --quiet --allow-unauthenticated 
+gcloud builds submit --substitutions _API_KEY='{YOUR_API_KEY}',_MIDDLEWARE_ENDPOINT='{YOUR_MIDDLEWARE_ENDPOINT}'
 ```
+
