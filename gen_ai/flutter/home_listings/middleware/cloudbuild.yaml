@@ -1,0 +1,22 @@
+steps:
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['build', '-t', 'us-central1-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/home_listing_middleware', '.']
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['push', 'us-central1-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/home_listing_middleware']
+- name: 'gcr.io/cloud-builders/gcloud'
+  entrypoint: 'bash'
+  args:
+  - '-c'
+  - |
+    gcloud run deploy home-listing-middleware \
+    --image us-central1-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/home_listing_middleware \
+    --region us-central1 \
+    --platform managed \
+    --allow-unauthenticated \
+    --set-env-vars COMBINED_INDEX_ENDPOINT=$_COMBINED_INDEX_ENDPOINT,COMBINED_INDEX_ID=$_COMBINED_INDEX_ID,TEXT_INDEX_ENDPOINT=$_TEXT_INDEX_ENDPOINT,TEXT_INDEX_ID=$_TEXT_INDEX_ID,DATASET_BUCKET=$_DATASET_BUCKET,PROJECT_ID=$PROJECT_ID
+substitutions:
+  _COMBINED_INDEX_ENDPOINT: ''
+  _COMBINED_INDEX_ID: ''
+  _TEXT_INDEX_ENDPOINT: ''
+  _TEXT_INDEX_ID: ''
+  _DATASET_BUCKET: '' # Or your actual GCS path
