@@ -47,7 +47,7 @@ EOF
 ```
 
 ```bash
-gcloud storage buckets update gs://vtxdemos-abnb-images --cors-file=cors.json
+gcloud storage buckets update gs://{YOUR_BUCKET_ID} --cors-file=cors.json
 ```
 
 ## Step 1
@@ -65,8 +65,8 @@ gcloud artifacts repositories create cloud-run-source-deploy --repository-format
 
 ```bash
 cd middleware
-export PROJECT_ID=vtxdemos
-gcloud builds submit --substitutions _TEXT_INDEX_ENDPOINT=projects/254356041555/locations/us-central1/indexEndpoints/8572615084839272448,_TEXT_INDEX_ID=vs_abnb_deployed_image_text,_COMBINED_INDEX_ENDPOINT=projects/254356041555/locations/us-central1/indexEndpoints/2114453219189981184,_COMBINED_INDEX_ID=vs_abnb_deployed_image_text,_DATASET_BUCKET=vtxdemos-abnb-images
+export PROJECT_ID={YOUR_PROJECT_ID}
+gcloud build submit -- substitutions _TEXT_INDEX_ENDPOINT={YOUR_ENDPOINT},_TEXT_INDEX_ID={YOUR_VALUE},_COMBINED_INDEX_ENDPOINT={YOUR_VALUE},_COMBINED_INDEX_ID={YOUR_VALUE},_DATASET_BUCKET={YOUR_VALUE}
 ```
 
 ***Important: "Save the cloud run middleware endpoint name"***

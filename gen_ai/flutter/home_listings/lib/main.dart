@@ -39,11 +39,6 @@ class _MyAppState extends State<MyApp> {
     super.dispose();
   }
 
-  List<String> pictureList=[
-    "https://www.rocketmortgage.com/resources-cmsassets/RocketMortgage.com/Article_Images/Large_Images/Stock-Modern-House-In-Twilight-AdobeStock-368976934-copy.jpg",
-
-  ];
-
   String text = "";
   String url = "";
   var _textInput = "";
@@ -57,6 +52,7 @@ class _MyAppState extends State<MyApp> {
   bool _showRow = false;
   final List<dynamic> _context = [];
   late GenerativeModel model;
+  String middlewareLink = String.fromEnvironment('MIDDLEWARE_ENDPOINT', defaultValue: '');
 
   // List? get jsonResponse => [];
   var jsonResponse = [];
@@ -91,7 +87,7 @@ class _MyAppState extends State<MyApp> {
         _controller!.play();
       });
 
-      var request = http.MultipartRequest('POST', Uri.parse('https://home-listings-middleware-oyntfgdwsq-uc.a.run.app/image'));
+      var request = http.MultipartRequest('POST', Uri.parse('$middlewareLink/image'));
 
       request.files.add(
         http.MultipartFile.fromBytes(
@@ -189,9 +185,6 @@ class _MyAppState extends State<MyApp> {
                 Padding(
                   padding: const EdgeInsets.all(5.0),
                   child: Container(),
-                  // child: Image.network(
-                  //   "https://upload.wikimedia.org/wikipedia/commons/thumb/6/69/Airbnb_Logo_B%C3%A9lo.svg/1200px-Airbnb_Logo_B%C3%A9lo.svg.png",
-                  // ),
                 ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -279,10 +272,10 @@ class _MyAppState extends State<MyApp> {
 
                       String url;
                       if (_textInput.isNotEmpty) {
-                        url = 'https://home-listings-middleware-oyntfgdwsq-uc.a.run.app/text';
+                        url = '$middlewareLink/text';
                       } else {
                         url =
-                        'https://home-listings-middleware-oyntfgdwsq-uc.a.run.app/text';
+                        '$middlewareLink/text';
                       }
 
                       var request = http.MultipartRequest('POST', Uri.parse(url));
