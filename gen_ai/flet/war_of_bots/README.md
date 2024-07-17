@@ -51,10 +51,11 @@ The "War of Bots" aims to:
     - Obtain your OpenAI API key from [https://platform.openai.com/account/api-keys](https://platform.openai.com/account/api-keys)
     - Set up a Google Cloud project and enable the Vertex AI API. Get your credentials.
 2. **Environment Variables:**
-    - Create a `.env` file in the project's root directory and store your API keys:
+    - Modify a `variables.py` file with your own variables like open API keys:
       ```
       OPENAI_API_KEY=your-openai-api-key
-      GOOGLE_APPLICATION_CREDENTIALS=path/to/your/google_credentials.json
+      organization=your-open-api-organization
+      key=your-open-api-key
       ```
 
 ## Running the Application
