@@ -37,7 +37,7 @@ The "War of Bots" aims to:
 
 ## Installation and Setup
 
-1. **Clone the Repository:**  `git clone https://github.com/your-username/war-of-bots.git`
+1. **Clone the Repository:**  `git clone https://github.com/jchavezar/vertex-ai-samples.git`
 2. **Navigate to the Project Directory:** `cd war-of-bots`
 3. **Create a Virtual Environment (Recommended):** `python3 -m venv .venv`
 4. **Activate the Virtual Environment:**
