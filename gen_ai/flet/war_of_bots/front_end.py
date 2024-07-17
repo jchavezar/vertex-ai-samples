@@ -8,7 +8,7 @@ from flet import *
 example = ""
 
 # Flet Logging
-logging.basicConfig(level=logging.DEBUG)
+#logging.basicConfig(level=logging.DEBUG)
 
 
 def main(page: Page):
@@ -28,22 +28,39 @@ def main(page: Page):
     start_time = time.perf_counter()
     if chat_gpt:
       for character in text:
-        chat_gpt_response.value += character
+        bots_view.controls[-1].controls[2].value += character
+        # chat_gpt_response.value += character
         time.sleep(0.005)
         elapsed_time = time.perf_counter() - start_time
-        bots_view.controls[-2].controls[1].controls[0].value = "ChatGPT:"
-        bots_view.controls[-2].controls[1].controls[1].value = f"{elapsed_time:.2f} seconds"
+        bots_view.controls[-1].controls[1].controls[0].value = "ChatGPT:"
+        bots_view.controls[-1].controls[1].controls[1].value = f"{elapsed_time:.2f} seconds"
         duration.value = f"{elapsed_time:.2f} seconds"
         bots_view.update()
     else:
       for character in text:
-        gemini_response.value += character
+        bots_view.controls[-1].controls[2].value += character
+        # gemini_response.value += character
         time.sleep(0.005)
         elapsed_time = time.perf_counter() - start_time
         bots_view.controls[-1].controls[1].controls[0].value = "Gemini:"
         bots_view.controls[-1].controls[1].controls[1].value = f"{elapsed_time:.2f} seconds"
         duration.value = f"{elapsed_time:.2f} seconds"
         bots_view.update()
+
+
+  def open_grounding_dialog(e, justification, veracity, citations):
+    dlg = AlertDialog(
+        content=Column(
+            controls=[
+                Text(f"Justification: {justification}"),
+                Text(f"Veracity: {veracity}"),
+                Text(f"Citations: {citations}")
+            ]
+        )
+    )
+    page.overlay.append(dlg)
+    dlg.open = True
+    page.update()
 
 
   def chat_message(message):
@@ -65,48 +82,64 @@ def main(page: Page):
       time.sleep(0.005)
       view_container.update()
     view_container.content.controls[1].update()
-
-    bots_view.controls.append(
-        Column(
-            controls=[
-                Divider(height=10, color=colors.TRANSPARENT),
-                Row(
-                    controls=[
-                        Text(style=TextStyle(color=colors.BLUE_GREY_900,
-                                                       weight="bold", size=15)),
-                        Text(style=TextStyle(color=colors.GREEN, size=15))
-                    ]
-                ),
-                chat_gpt_response
-            ]
-        )
-    )
-
-    bots_view.controls.append(
-        Column(
-            controls=[
-                Divider(height=10, color=colors.TRANSPARENT),
-                Row(
-                    controls=[
-                        Text(style=TextStyle(color=colors.BLUE_GREY_900,
-                                                       weight="bold", size=15)),
-                        Text(style=TextStyle(color=colors.GREEN, size=15))
-                    ]
-                ),
-                gemini_response
-            ]
-        )
-    )
     conversation_history = [text]
     current_speaker = "GPT-4"  # Start with GPT-4
-    for _ in range(2):
+    for _ in range(4):
       if current_speaker == "GPT-4":
-        response = chat_gpt_4(" ".join(conversation_history[-1]))
+        bots_view.controls.append(
+            Column(
+                controls=[
+                    Divider(height=10, color=colors.TRANSPARENT),
+                    Row(
+                        controls=[
+                            Text(style=TextStyle(color=colors.BLUE_GREY_900,
+                                                 weight="bold", size=15)),
+                            Text(style=TextStyle(color=colors.GREEN, size=15)),
+                            VerticalDivider(width=10)
+                        ]
+                    ),
+                    Text("")
+                ]
+            )
+        )
+        response, justification, veracity, citations = chat_gpt_4(" ".join(conversation_history[-1]))
         typescript(response)
+        bots_view.controls[-1].controls[1].controls.append(
+            ElevatedButton(
+                "grounding",
+                on_click=lambda e, j=justification, v=veracity, c=citations: open_grounding_dialog(e, j, v, c),
+                style=ButtonStyle(color=colors.BLUE_GREY_900, bgcolor=colors.WHITE, shape=RoundedRectangleBorder(radius=2))
+            )
+        )
+        bots_view.controls[-1].controls[1].update()
         current_speaker = "Gemini"
       else:
-        response = gemini(" ".join(conversation_history[-1]))
+        bots_view.controls.append(
+            Column(
+                controls=[
+                    Divider(height=10, color=colors.TRANSPARENT),
+                    Row(
+                        controls=[
+                            Text(style=TextStyle(color=colors.BLUE_GREY_900,
+                                                 weight="bold", size=15)),
+                            Text(style=TextStyle(color=colors.GREEN, size=15)),
+                            VerticalDivider(width=10)
+                        ]
+                    ),
+                    Text("")
+                ]
+            )
+        )
+        response, justification, veracity, citations = gemini(" ".join(conversation_history[-1]))
         typescript(response, chat_gpt=False)
+        bots_view.controls[-1].controls[1].controls.append(
+            ElevatedButton(
+            "grounding",
+            on_click=lambda e, j=justification, v=veracity, c=citations: open_grounding_dialog(e, j, v, c),
+            style=ButtonStyle(color=colors.BLUE_GREY_900, bgcolor=colors.WHITE, shape=RoundedRectangleBorder(radius=2))
+            )
+        )
+        bots_view.controls[-1].controls[1].update()
         print(f"{current_speaker}: {response}")
         current_speaker = "GPT-4"
       conversation_history.append(response)
