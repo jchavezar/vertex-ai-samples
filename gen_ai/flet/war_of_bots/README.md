@@ -73,6 +73,9 @@ The "War of Bots" aims to:
 
 Contributions are welcome! Feel free to open issues, submit pull requests, or propose new features.
 
+## Author
+[Jesus Chavez](https://www.linkedin.com/in/jchavezar)
+
 ## License
 
 [Choose an appropriate license for your project (e.g., MIT, Apache-2.0)](https://choosealicense.com/) 
