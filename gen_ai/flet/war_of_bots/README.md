@@ -53,7 +53,6 @@ The "War of Bots" aims to:
 2. **Environment Variables:**
     - Modify a `variables.py` file with your own variables like open API keys:
       ```
-      OPENAI_API_KEY=your-openai-api-key
       organization=your-open-api-organization
       key=your-open-api-key
       ```
