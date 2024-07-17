@@ -38,7 +38,8 @@ The "War of Bots" aims to:
 ## Installation and Setup
 
 1. **Clone the Repository:**  `git clone https://github.com/jchavezar/vertex-ai-samples.git`
-2. **Navigate to the Project Directory:** `cd war-of-bots`
+2. **Navigate to the Project Directory:** `cd vertex-ai-samples/gen_ai/flet
+   /war_of_bots`
 3. **Create a Virtual Environment (Recommended):** `python3 -m venv .venv`
 4. **Activate the Virtual Environment:**
     - Linux/macOS: `source .venv/bin/activate`
@@ -51,7 +52,7 @@ The "War of Bots" aims to:
     - Obtain your OpenAI API key from [https://platform.openai.com/account/api-keys](https://platform.openai.com/account/api-keys)
     - Set up a Google Cloud project and enable the Vertex AI API. Get your credentials.
 2. **Environment Variables:**
-    - Modify a `variables.py` file with your own variables like open API keys:
+    - Modify `variables.py` file with your own variables like the open API key:
       ```
       organization=your-open-api-organization
       key=your-open-api-key
@@ -59,8 +60,8 @@ The "War of Bots" aims to:
 
 ## Running the Application
 
-1. **Start the Flet Application:** `flet run main.py` (or the name of your main Flet file).
-2. **Access in Browser:** Open your web browser and go to the URL provided by Flet (usually `http://localhost:8550`).
+1. **Start the Flet Application:** `flet run frond_end.py` (or the name of your main Flet file).
+2. **Access in Browser:**`flet run frond_end.py --web`, Open your web browser and go to the URL provided by Flet (usually `http://localhost:8550`).
 
 ## Usage
 
