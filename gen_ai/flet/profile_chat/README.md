@@ -2,8 +2,7 @@
 
 This repository contains a simple chat application powered by Google Vertex AI's Gemini and Flet.
 
-![hippo](chatbot_profile.gif)
-![hippo](chat_profile_2.gif)
+![hippo](chat_profile.gif)
 
 ### Prerequisites
 
@@ -56,7 +55,7 @@ Open [profile_search_preprocess](./profile_search_preprocess.ipynb) file and fol
 1. **Start the Flet application:**
 
    ```bash
-   flet run front_end.py
+   flet run main.py
    ```
 
 2. **Access the application:**
