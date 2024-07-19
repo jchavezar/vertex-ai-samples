@@ -36,6 +36,20 @@ text_index = aiplatform.MatchingEngineIndexEndpoint(
 app = FastAPI()
 
 app.df = pd.read_csv(f"gs://{datastore_bucket}/dataset/data.csv")
+url_columns = [
+    "Img_exterior_url_0",
+    "Img_exterior_url_1",
+    "Img_exterior_url_2",
+    "Img_exterior_url_3",
+    "Img_exterior_url_4",
+    "Img_interior_url_0",
+    "Img_interior_url_1",
+    "Img_interior_url_2",
+    "Img_interior_url_3",
+    "Img_interior_url_4",
+]
+app.df[url_columns] = app.df[url_columns].replace(r'gs://vtxdemos-abnb-images/',
+                                          'https://storage.googleapis.com/vtxdemos-abnb-images/', regex=True)
 
 origins = [
     "*"
@@ -70,6 +84,8 @@ async def image_conversion(text_data: Optional[str] = Form(None)):
 
   res = final_df.to_json(orient="records")
   parsed = json.loads(res)
+  print(parsed)
+
   return parsed
 
 
@@ -119,6 +135,7 @@ async def image_conversion(file: UploadFile = File(...),
 
   res = final_df.to_json(orient="records")
   parsed = json.loads(res)
+  print(parsed)
 
   return parsed
 
