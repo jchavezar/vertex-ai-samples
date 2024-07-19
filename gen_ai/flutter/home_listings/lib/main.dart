@@ -52,7 +52,7 @@ class _MyAppState extends State<MyApp> {
   bool _showRow = false;
   final List<dynamic> _context = [];
   late GenerativeModel model;
-  String middlewareLink = String.fromEnvironment('MIDDLEWARE_ENDPOINT', defaultValue: '');
+  static const String middlewareLink = String.fromEnvironment('MIDDLEWARE_ENDPOINT', defaultValue: 'https://home-listing-middleware-oyntfgdwsq-uc.a.run.app');
 
   // List? get jsonResponse => [];
   var jsonResponse = [];
@@ -556,6 +556,14 @@ class _MyAppState extends State<MyApp> {
                 ),
                 itemCount: gridMapScann.length,
                 itemBuilder: (_, index) {
+                  print("grid");
+                  print("${gridMapScann.elementAt(index)['Img_interior_url_0']}");
+                  print("${gridMapScann.elementAt(index)['location']}");
+                  print("${gridMapScann.elementAt(index)["price_per_night"]}");
+                  print("${gridMapScann.elementAt(index)["rating"]}");
+                  print("${gridMapScann.elementAt(index)["b_desc"]}");
+
+                  print(gridMapScann.elementAt(index)['Img_interior_url_0'].toString());
                   return Container(
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(17.0,),
@@ -573,10 +581,12 @@ class _MyAppState extends State<MyApp> {
                           ),
                           child: InkWell(
                             child: Image.network(
-                                "${gridMapScann.elementAt(index)["Img_interior_url_0"]}",
-                                height: 200,
-                                width: double.infinity,
-                                fit: BoxFit.cover
+                              gridMapScann.elementAt(index)['Img_interior_url_0'] != null
+                                  ? gridMapScann.elementAt(index)['Img_interior_url_0'].toString()
+                                  : 'https://via.placeholder.com/200', // Placeholder or error image
+                              height: 200,
+                              width: double.infinity,
+                              fit: BoxFit.cover,
                             ),
                             onTap: () {
                               Navigator.of(context).push(MaterialPageRoute(builder: (BuildContext context) {

@@ -66,7 +66,7 @@ gcloud artifacts repositories create cloud-run-source-deploy --repository-format
 ```bash
 cd middleware
 export PROJECT_ID={YOUR_PROJECT_ID}
-gcloud build submit -- substitutions _TEXT_INDEX_ENDPOINT={YOUR_ENDPOINT},_TEXT_INDEX_ID={YOUR_VALUE},_COMBINED_INDEX_ENDPOINT={YOUR_VALUE},_COMBINED_INDEX_ID={YOUR_VALUE},_DATASET_BUCKET={YOUR_VALUE}
+gcloud builds submit --substitutions _TEXT_INDEX_ENDPOINT={YOUR_ENDPOINT},_TEXT_INDEX_ID={YOUR_VALUE},_COMBINED_INDEX_ENDPOINT={YOUR_VALUE},_COMBINED_INDEX_ID={YOUR_VALUE},_DATASET_BUCKET={YOUR_VALUE}
 ```
 
 ***Important: "Save the cloud run middleware endpoint name"***
