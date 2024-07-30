@@ -1,0 +1,5 @@
+project_id = "your-project-id"
+location = "us-central1"
+organization = "your-org"
+key = "your-gpt-key"
+serperapi_key = "your-api-key"
