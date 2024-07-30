@@ -1,0 +1,4 @@
+flet
+anthropic[vertex]
+google-cloud-aiplatform
+youtube-transcript-api
