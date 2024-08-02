@@ -82,7 +82,7 @@ if __name__ == "__main__":
     print('compile pass')
     ################################## SETUP TENSORBOARD LOGS AND TRAIN #####################
 
-    print(os.environ['AIP_TENSORBOARD_LOG_DIR'])
+        print(os.environ['AIP_TENSORBOARD_LOG_DIR'])
     print('---------------------')
     print(os.environ['AIP_MODEL_DIR'])
 
