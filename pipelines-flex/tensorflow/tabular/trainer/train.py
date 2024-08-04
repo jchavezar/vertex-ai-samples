@@ -79,12 +79,6 @@ if __name__ == "__main__":
                       tf.keras.metrics.AUC(name='auc'),
                       tf.keras.metrics.AUC(name='prc', curve='PR'),
                   ])
-    print('compile pass')
-    ################################## SETUP TENSORBOARD LOGS AND TRAIN #####################
-
-    print(os.environ['AIP_TENSORBOARD_LOG_DIR'])
-    print('---------------------')
-    print(os.environ['AIP_MODEL_DIR'])
 
     #tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=os.environ['AIP_TENSORBOARD_LOG_DIR'], update_freq='batch')
     model.fit(train_ds, epochs=15, validation_data=val_ds)
