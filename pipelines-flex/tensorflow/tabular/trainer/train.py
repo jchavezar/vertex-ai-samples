@@ -86,7 +86,6 @@ if __name__ == "__main__":
     print("Recall:", recall)
     print("AUC:", auc)
     print("PRC:", prc)
-
     ################################### SAVE MODEL ##########################################
 
     model.save(os.environ['AIP_MODEL_DIR'])
