@@ -30,7 +30,7 @@ steps:
     entrypoint: 'python'
     args: ['/app/pipeline.py']
     id: 'Execute Vertex Pipeline'
-    waitFor: ['Push Pipeline Run Docker Image']
+    waitFor: ['Push Pipeline Run Docker Image', 'Push Training Docker Image']
   
 images: 
   - us-central1-docker.pkg.dev/vtxdemos/builds/pipe-trigger:v2
