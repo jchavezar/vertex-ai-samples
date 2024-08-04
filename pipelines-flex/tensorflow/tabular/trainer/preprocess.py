@@ -4,6 +4,7 @@ import numpy as np
 import pandas as pd
 import tensorflow as tf
 
+
 class Client:        
     def transform(self, 
                   dataset: str, 
@@ -23,11 +24,11 @@ class Client:
                     },
                 )
 
-        ### Shuffling and Splitting ###
+        # Shuffling and Splitting
         train_df, val_df, test_df = np.split(df.sample(frac=1, random_state=42), [int(.6*len(df)), int(.8*len(df))]) 
         
-        ################################### PREPROCESSING ######################################## Convert pandas dataframe to tensor data (from GCS to TF.data.Datainit_start = time.process_time(def df_to_dataset(dataframe)    df = dataframe.copy(    labels = df.pop('will_buy_on_return_visit'    df = {key: np.array(value)[:, None] for key, value in dataframe.items()    ds = tf.data.Dataset.from_tensor_slices((dict(df), labels)    ds = ds.batch(batch_size).prefetch(batch_size    return ds
-        
+        ################################### PREPROCESSING ########################################
+        print(train_df.head())
         ## Convert pandas dataframe to tensor data (from GCS to TF.data.Data)
         init_start = time.process_time()
         def df_to_dataset(dataframe):
@@ -38,7 +39,7 @@ class Client:
             ds = ds.batch(batch_size).prefetch(batch_size)
             return ds        
 
-        ## Normalization / Standarization
+        # Normalization / Standarization
         def get_normalization_layer(name, dataset):
             start = time.process_time()
             normalizer = tf.keras.layers.Normalization(axis=None)
@@ -92,7 +93,7 @@ class Client:
             all_inputs.append(categorical_col)
             encoded_features.append(encoded_categorical_col)
 
-        ## Integer values into integer indices.
+        # Integer values into integer indices.
         bounces_col = tf.keras.Input(shape=(1,), name=num_cat_columns, dtype='int64')
 
         encoding_layer = get_category_encoding_layer(name=num_cat_columns,

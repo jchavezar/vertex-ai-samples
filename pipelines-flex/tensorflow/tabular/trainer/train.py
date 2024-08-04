@@ -47,8 +47,8 @@ args = parser.parse_args()
 if __name__ == "__main__":
     ################################### FEATURE ENGINEERING #################################
 
-    aiplatform.init(experiment=args.experiment_name, project=os.environ["CLOUD_ML_PROJECT_ID"])
-    aiplatform.start_run(run=args.run_name)
+    # aiplatform.init(experiment=args.experiment_name, project=os.environ["CLOUD_ML_PROJECT_ID"])
+    # aiplatform.start_run(run=args.run_name)
 
     client = preprocess.Client()
     train_ds, val_ds, test_ds, encoded_features, all_inputs = client.transform(
@@ -82,7 +82,7 @@ if __name__ == "__main__":
     print('compile pass')
     ################################## SETUP TENSORBOARD LOGS AND TRAIN #####################
 
-        print(os.environ['AIP_TENSORBOARD_LOG_DIR'])
+    print(os.environ['AIP_TENSORBOARD_LOG_DIR'])
     print('---------------------')
     print(os.environ['AIP_MODEL_DIR'])
 
@@ -96,16 +96,16 @@ if __name__ == "__main__":
     print("AUC:", auc)
     print("PRC:", prc)
 
-    aiplatform.log_metrics(
-        {
-            "loss": loss,
-            "accuracy": accuracy,
-            "precision": precision,
-            "recall": recall,
-            "auc": auc,
-            "prc": prc,
-         }
-    )
+    # aiplatform.log_metrics(
+    #     {
+    #         "loss": loss,
+    #         "accuracy": accuracy,
+    #         "precision": precision,
+    #         "recall": recall,
+    #         "auc": auc,
+    #         "prc": prc,
+    #      }
+    # )
 
     ################################### SAVE MODEL ##########################################
 
