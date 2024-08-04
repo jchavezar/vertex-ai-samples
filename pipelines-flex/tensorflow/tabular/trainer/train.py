@@ -87,17 +87,6 @@ if __name__ == "__main__":
     print("AUC:", auc)
     print("PRC:", prc)
 
-    # aiplatform.log_metrics(
-    #     {
-    #         "loss": loss,
-    #         "accuracy": accuracy,
-    #         "precision": precision,
-    #         "recall": recall,
-    #         "auc": auc,
-    #         "prc": prc,
-    #      }
-    # )
-
     ################################### SAVE MODEL ##########################################
 
     model.save(os.environ['AIP_MODEL_DIR'])
