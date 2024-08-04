@@ -46,8 +46,7 @@ parser.add_argument(
 args = parser.parse_args()
 if __name__ == "__main__":
     ################################### FEATURE ENGINEERING #################################
-    # aiplatform.init(experiment=args.experiment_name, project=os.environ["CLOUD_ML_PROJECT_ID"])
-    # aiplatform.start_run(run=args.run_name)
+    print("version:", tf.__version__)
 
     client = preprocess.Client()
     train_ds, val_ds, test_ds, encoded_features, all_inputs = client.transform(
@@ -57,7 +56,6 @@ if __name__ == "__main__":
         azure=args.azure
         )
     
-    print("test")
     print(encoded_features)
 
     ################################### CREATE, COMPILE AND TRAIN MODEL #####################
