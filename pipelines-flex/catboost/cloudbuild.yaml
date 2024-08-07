@@ -1,0 +1,20 @@
+name: 'us-central1-docker.pkg.dev/${_PROJECT_ID}/custom-trains/catboost-train:1.0'
+steps:
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['build', '-t', 'us-central1-docker.pkg.dev/${_PROJECT_ID}/custom-trains/catboost-train:1.0', 'components/train/']
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['push', 'us-central1-docker.pkg.dev/${_PROJECT_ID}/custom-trains/catboost-train:1.0']
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['build', '-t', 'us-central1-docker.pkg.dev/${_PROJECT_ID}/custom-predictions/catboost-predict:1.0', 'components/inference/web_container/']
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['push', 'us-central1-docker.pkg.dev/${_PROJECT_ID}/custom-predictions/catboost-predict:1.0']
+  id: 'Prediction API Push'
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['build', '-t', 'us-central1-docker.pkg.dev/${_PROJECT_ID}/custom-predictions/catboost-kfp-predict:1.0', 'components/inference/kubeflow_component/']
+  id: 'Prediction API Build'
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['push', 'us-central1-docker.pkg.dev/${_PROJECT_ID}/custom-predictions/catboost-kfp-predict:1.0']
+  waitFor: ['Prediction API Push', 'Prediction API Build']
+
+substitutions:
+  _PROJECT_ID: 'vtxdemos'

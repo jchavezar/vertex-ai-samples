@@ -1,0 +1,15 @@
+inputs:
+- {name: project_id, type: String, description: "Dataset Source"}
+- {name: aip_storage_uri, type: Artifact, description: "Model Input File"}
+
+implementation:
+  container:
+    image: us-central1-docker.pkg.dev/vtxdemos/custom-predictions/catboost-kfp-predict:1.0
+    command: [
+      python3,
+      /app/deploy.py,
+      --project-id,
+      {inputValue: project_id},
+      --aip-storage-uri,
+      {inputPath: aip_storage_uri},
+    ]
