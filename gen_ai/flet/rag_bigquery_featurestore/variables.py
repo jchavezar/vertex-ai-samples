@@ -1,0 +1,7 @@
+project_id = "390227712642"
+location = "us"
+region = "us-central1"
+processor_id = "f90b8839eec90096"
+mime_type = "application/pdf"
+document_pdf = "/Users/jesusarguelles/Downloads/55361_18981101__128635168.pdf"
+fview = "projects/390227712642/locations/us-central1/featureOnlineStores/fs_hckn/featureViews/hacker_news_f_view"
