@@ -1,0 +1,5 @@
+project_id = "vtxdemos"
+region = "us-central1"
+model_id = "gemini-1.5-flash-001"
+anthropic_region = "europe-west1"  # or "us-east5"
+imagen_model_id = "imagen-3.0-fast-generate-001"

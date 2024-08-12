@@ -202,7 +202,13 @@ def main(page: Page):
   )
 
   # Add main window to the page
-  page.add(main_window)
+  page.add(
+      AppBar(
+          center_title=True,
+          title=Text("Gemimi + Python Functions")
+      ),
+      main_window
+  )
 
 # Run the app
 app(target=main)

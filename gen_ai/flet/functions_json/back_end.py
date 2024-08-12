@@ -1,16 +1,11 @@
 import json
 import base64
 import vertexai
+from variables import *
 from anthropic import AnthropicVertex
 from youtube_transcript_api import YouTubeTranscriptApi
 from vertexai.generative_models import GenerativeModel
 from vertexai.preview.vision_models import ImageGenerationModel
-
-project_id = "vtxdemos"
-region = "us-central1"
-model_id = "gemini-1.5-flash-001"
-anthropic_region = "europe-west1"  # or "us-east5"
-imagen_model_id = "imagen-3.0-fast-generate-preview-0611"
 
 vertexai.init(project=project_id, location="us-central1")
 
@@ -26,13 +21,13 @@ Follow these instructions:
    - **If the intent is related to 'youtube':**  
       - Extract and provide ONLY the YouTube link in the "youtube" field. 
       - I will then provide you with the transcript of that video.
-   - **If the intent is related to 'bananas':** 
+   - **If the intent is anything related to bananas:** 
       - Rephrase or enhance the user's prompt to be a clear and concise request for a banana-related tool. Place this modified prompt in the "bananas" field.  
       - I will then provide you with the output from that tool.
    - **If the intent is related to 'imagen':**  
       - Rephrase or enhance the user's prompt to get the best quality image generation.
       - I will then provide you with the output from that tool.
-3. **General Knowledge:** If the intent does not require using 'youtube' or 'bananas', provide a concise answer directly in the "answer" field.
+3. **General Knowledge:** If the intent does not require using 'youtube' or 'bananas/banana', provide a concise answer directly in the "answer" field.
 4. **Use the Provided Context:**  If you use the 'youtube' or 'bananas' tools, wait for me to provide additional information (the "context"). Use this context to formulate your final answer in the "answer" field. 
 
 always use "answer" to answer the question.
@@ -41,7 +36,7 @@ always use "answer" to answer the question.
 {
 "general": "<The user's prompt IF it doesn't fit the 'youtube' or 'bananas' intent, otherwise leave as an empty string>",
 "youtube": "<The extracted YouTube link, or an empty string>",
-"bananas": "<The modified/improved prompt for the banana tool, or an empty string>",
+"bananas": "<The modified/improved prompt for the banana tool, or an empty string, if you used this keep the original prompt here>",
 "imagen": "<The modified/improved prompt for the imagen tool, or an empty string>"
 "answer": "<Your direct answer to the prompt IF it's not related to tools, OR your answer based on the provided context>" 
 }
