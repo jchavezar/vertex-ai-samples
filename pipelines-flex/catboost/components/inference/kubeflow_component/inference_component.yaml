@@ -1,3 +1,6 @@
+name: Deploy/Inference
+description: This component deploys a model stored in Google Cloud Storage during the training step.
+
 inputs:
 - {name: project_id, type: String, description: "Dataset Source"}
 - {name: aip_storage_uri, type: Artifact, description: "Model Input File"}
