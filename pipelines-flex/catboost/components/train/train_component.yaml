@@ -1,0 +1,29 @@
+name: Training
+description: Training from a BigQuery Dataset using CatBoost.
+
+inputs:
+- {name: bq_dataset, type: String, description: "Dataset Source"}
+- {name: project_id, type: String, description: "Project ID"}
+- {name: experiment_name, type: String, description: "Experiment Name"}
+- {name: run_num, type: String, description: "Experiment Running number"}
+
+outputs:
+- {name: output_file, type: Artifact, description: "Output File"}
+
+implementation:
+  container:
+    image: us-central1-docker.pkg.dev/vtxdemos/custom-trains/catboost-train:1.0
+    command: [
+         python3,
+         /app/train.py,
+         --bq-dataset,
+         {inputValue: bq_dataset},
+         --project-id,
+         {inputValue: project_id},
+         --output-file,
+         {outputPath: output_file},
+         --experiment-name,
+         {inputValue: experiment_name},
+         --run-num,
+         {inputValue: run_num}
+    ]

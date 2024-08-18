@@ -5,12 +5,12 @@ The following guide explores different ways to create kubeflow components from t
 *Note: I'm working in an update to use jinja to modify all the variables at once.*
 
 ### Components Used
-- Kubeflow V2: Pipeline Orchestration Framework.
-- Vertex AI Pipelines: Managed Infrastructure Service for Kubeflow Orchestration.
-- Docker: Container Images.
-- Google Cloud Build.
-- Artifact Registry: Model Versioning.
-- Catboost: Machine Learning Model for tabular predictive tasks like regression, classification, etc...
+- [Kubeflow V2](https://www.kubeflow.org/docs/components/pipelines/): Pipeline Orchestration Framework.
+- [Vertex AI Pipelines](https://cloud.google.com/vertex-ai/docs/pipelines/build-pipeline): Managed Infrastructure Service for Kubeflow Orchestration.
+- [Docker](https://www.docker.com/): Container Images.
+- [Google Cloud Build](https://cloud.google.com/build/docs): CI/CD pipelines.
+- [Artifact Registry](https://cloud.google.com/artifact-registry/docs): Model Versioning.
+- [Catboost](https://catboost.ai/): Machine Learning Model for tabular predictive tasks like regression, classification, etc...
 
 ### Diagram
 ```mermaid

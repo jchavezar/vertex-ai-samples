@@ -1,5 +1,7 @@
 pandas
-uvicorn
+numpy==1.26.4
 catboost
+uvicorn
 fastapi==0.75.0
 google-cloud-storage
+
