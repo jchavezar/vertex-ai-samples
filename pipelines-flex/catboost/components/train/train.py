@@ -38,7 +38,7 @@ def train(bq_dataset, project_id, output_file, run_num):
   train_y, test_y, val_y  = [df['will_buy_on_return_visit'] for df in [train_df, test_df, val_df]]
   # Now, drop the unnecessary columns
   for df in [train_df, test_df, val_df]:
-    df.drop(['split_set', 'random_value'], axis=1, inplace=True)  # Exclude 'will_buy_on_return_visit'
+    df.drop(['split_set', 'random_value', 'will_buy_on_return_visit'], axis=1, inplace=True)
 
   # Assign the feature DataFrames
   train_x, test_x, val_x = train_df, test_df, val_df
