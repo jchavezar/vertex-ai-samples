@@ -1,0 +1,117 @@
+# PIPELINE DEFINITION
+# Name: catboost-ecommerce-pipeline
+# Inputs:
+#    bq_dataset: str
+#    experiment_name: str
+#    project_id: str
+#    run_num: str
+components:
+  comp-model-deploy:
+    executorLabel: exec-model-deploy
+    inputDefinitions:
+      artifacts:
+        aip_storage_uri:
+          artifactType:
+            schemaTitle: system.Artifact
+            schemaVersion: 0.0.1
+      parameters:
+        project_id:
+          parameterType: STRING
+  comp-training:
+    executorLabel: exec-training
+    inputDefinitions:
+      parameters:
+        bq_dataset:
+          parameterType: STRING
+        experiment_name:
+          parameterType: STRING
+        project_id:
+          parameterType: STRING
+        run_num:
+          parameterType: STRING
+    outputDefinitions:
+      artifacts:
+        output_file:
+          artifactType:
+            schemaTitle: system.Artifact
+            schemaVersion: 0.0.1
+deploymentSpec:
+  executors:
+    exec-model-deploy:
+      container:
+        command:
+        - python3
+        - /app/deploy.py
+        - --project-id
+        - '{{$.inputs.parameters[''project_id'']}}'
+        - --aip-storage-uri
+        - '{{$.inputs.artifacts[''aip_storage_uri''].path}}'
+        image: us-central1-docker.pkg.dev/vtxdemos/custom-predictions/catboost-kfp-predict:1.0
+    exec-training:
+      container:
+        command:
+        - python3
+        - /app/train.py
+        - --bq-dataset
+        - '{{$.inputs.parameters[''bq_dataset'']}}'
+        - --project-id
+        - '{{$.inputs.parameters[''project_id'']}}'
+        - --output-file
+        - '{{$.outputs.artifacts[''output_file''].path}}'
+        - --experiment-name
+        - '{{$.inputs.parameters[''experiment_name'']}}'
+        - --run-num
+        - '{{$.inputs.parameters[''run_num'']}}'
+        image: us-central1-docker.pkg.dev/vtxdemos/custom-trains/catboost-train:1.0
+pipelineInfo:
+  name: catboost-ecommerce-pipeline
+root:
+  dag:
+    tasks:
+      model-deploy:
+        cachingOptions:
+          enableCache: true
+        componentRef:
+          name: comp-model-deploy
+        dependentTasks:
+        - training
+        inputs:
+          artifacts:
+            aip_storage_uri:
+              taskOutputArtifact:
+                outputArtifactKey: output_file
+                producerTask: training
+          parameters:
+            project_id:
+              componentInputParameter: project_id
+        taskInfo:
+          name: model-deploy
+      training:
+        cachingOptions:
+          enableCache: true
+        componentRef:
+          name: comp-training
+        inputs:
+          parameters:
+            bq_dataset:
+              componentInputParameter: bq_dataset
+            experiment_name:
+              componentInputParameter: experiment_name
+            project_id:
+              componentInputParameter: project_id
+            run_num:
+              componentInputParameter: run_num
+        taskInfo:
+          name: training
+  inputDefinitions:
+    parameters:
+      bq_dataset:
+        parameterType: STRING
+      experiment_name:
+        parameterType: STRING
+      project_id:
+        parameterType: STRING
+      run_num:
+        parameterType: STRING
+schemaVersion: 2.1.0
+sdkVersion: kfp-2.8.0

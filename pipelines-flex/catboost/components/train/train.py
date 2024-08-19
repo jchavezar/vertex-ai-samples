@@ -1,13 +1,13 @@
 import argparse
-import logging
 import numpy as np
 from google.cloud import bigquery, aiplatform, storage
 from catboost import CatBoostClassifier, Pool, metrics, cv
+import catboost
 import os
 import tempfile
 
 def upload_to_gcs(local_file, gcs_path):
-  client = storage.Client()
+  client = storage.Client(project=args.project_id)
   bucket_name, blob_path = gcs_path.replace("/gcs/", "").split("/", 1)
   bucket = client.bucket(bucket_name)
   blob = bucket.blob(blob_path)
@@ -34,19 +34,18 @@ def train(bq_dataset, project_id, output_file, run_num):
     """
 
   df = bq_client.query(query).to_dataframe()
-  train_df = df[df['split_set'] == 'train'].copy()
-  test_df = df[df['split_set'] == 'test'].copy()
-  val_df = df[df['split_set'] == 'val'].copy()
-  train_df.drop(['split_set', 'random_value'], axis=1, inplace=True)
-  test_df.drop(['split_set', 'random_value'], axis=1, inplace=True)
-  val_df.drop(['split_set', 'random_value'], axis=1, inplace=True)
-  train_x = train_df.drop('will_buy_on_return_visit', axis=1)
-  train_y = train_df.will_buy_on_return_visit
-  test_x = test_df.drop('will_buy_on_return_visit', axis=1)
-  test_y = test_df.will_buy_on_return_visit
-  val_x = val_df.drop('will_buy_on_return_visit', axis=1)
-  val_y = val_df.will_buy_on_return_visit
+  train_df, test_df, val_df = [df[df['split_set'] == s].copy() for s in ['train', 'test', 'val']]
+  train_y, test_y, val_y  = [df['will_buy_on_return_visit'] for df in [train_df, test_df, val_df]]
+  # Now, drop the unnecessary columns
+  for df in [train_df, test_df, val_df]:
+    df.drop(['split_set', 'random_value'], axis=1, inplace=True)  # Exclude 'will_buy_on_return_visit'
+
+  # Assign the feature DataFrames
+  train_x, test_x, val_x = train_df, test_df, val_df
+
+  # Identify categorical features
   categorical_features_indices = np.where(train_x.dtypes != float)[0]
+  print("new")
 
   model = CatBoostClassifier(
       allow_writing_files=False,
@@ -78,14 +77,11 @@ def train(bq_dataset, project_id, output_file, run_num):
   aiplatform.start_run(run_num)
   aiplatform.log_params({"accuracy_score": str(accuracy_score), "std_score": str(std_score), "step": str(step)})
 
-  # Save the model to a temporary local file
-  with tempfile.TemporaryDirectory() as tmpdirname:
-    local_model_path = os.path.join(tmpdirname, "model.json")
-    model.save_model(local_model_path, format="json", export_parameters=None, pool=None)
-
-    # Upload the local file to GCS
-    gcs_output_path = os.path.join(output_file, "model.json")
-    upload_to_gcs(local_model_path, gcs_output_path)
+  # Upload the local file to GCS
+  local_model_path = os.path.join("/tmp", "model.json")
+  gcs_output_path = os.path.join(output_file, "model.json")
+  model.save_model(local_model_path, format="json")
+  upload_to_gcs(local_model_path, gcs_output_path)
 
 if __name__ == "__main__":
   parser = argparse.ArgumentParser(description='Catboost Training')
