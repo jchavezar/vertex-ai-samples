@@ -1,0 +1,101 @@
+will_buy_on_return_visit,latest_ecommerce_progress,bounces,time_on_site,pageviews,source,medium,channelGrouping,deviceCategory,country
+1,3,0,875,11,google,organic,Organic Search,desktop,United States
+1,5,0,386,14,google,organic,Organic Search,mobile,Canada
+1,2,0,374,4,google,organic,Organic Search,mobile,Canada
+0,0,0,115,4,google,organic,Organic Search,mobile,Australia
+1,2,0,176,6,google,organic,Organic Search,desktop,United States
+0,2,0,985,10,google,organic,Organic Search,mobile,United States
+0,0,0,16,2,google,cpc,Paid Search,mobile,United States
+0,0,0,31,5,google,organic,Organic Search,desktop,United States
+1,5,0,562,28,google,organic,Organic Search,desktop,United States
+0,0,0,210,7,google,organic,Organic Search,mobile,United States
+1,0,0,204,6,google,organic,Organic Search,desktop,United States
+1,0,0,547,2,google,organic,Organic Search,desktop,Romania
+1,4,0,336,27,google,organic,Organic Search,desktop,India
+0,0,0,174,4,google,organic,Organic Search,mobile,Australia
+1,3,0,187,14,google,organic,Organic Search,desktop,United States
+0,2,0,160,12,google,organic,Organic Search,tablet,Canada
+0,0,0,8,3,google,organic,Organic Search,desktop,Canada
+0,0,0,12,2,google,organic,Organic Search,mobile,(not set)
+1,4,0,478,39,google,organic,Organic Search,desktop,United States
+0,0,0,72,3,google,organic,Organic Search,desktop,United States
+1,3,0,267,17,google,organic,Organic Search,desktop,Mexico
+1,2,0,402,20,google,organic,Organic Search,desktop,United States
+1,5,0,949,43,google,organic,Organic Search,mobile,United States
+0,0,0,63,6,(direct),(none),Direct,mobile,United States
+1,3,0,16,2,(direct),(none),Direct,desktop,United States
+1,0,0,19,3,(direct),(none),Direct,desktop,United States
+0,5,0,594,25,(direct),(none),Direct,desktop,United States
+0,3,0,1381,8,(direct),(none),Direct,desktop,Israel
+1,6,0,1193,37,(direct),(none),Direct,desktop,United States
+1,5,0,401,18,(direct),(none),Direct,desktop,United States
+1,3,0,1402,10,(direct),(none),Direct,desktop,Germany
+1,6,0,496,15,(direct),(none),Direct,desktop,United States
+0,0,0,110,4,(direct),(none),Direct,mobile,United States
+0,5,0,168,13,(direct),(none),Direct,mobile,Czechia
+1,6,0,990,22,(direct),(none),Direct,desktop,United States
+1,6,0,418,22,(direct),(none),Direct,desktop,United States
+1,0,0,61,7,(direct),(none),Direct,desktop,United States
+1,0,0,85,5,(direct),(none),Direct,desktop,United States
+1,5,0,269,13,(direct),(none),Direct,desktop,United States
+0,0,0,19,2,(direct),(none),Direct,desktop,Russia
+1,6,0,1006,12,(direct),(none),Direct,desktop,United States
+1,2,0,63,6,(direct),(none),Direct,desktop,United States
+0,0,0,231,7,Partners,affiliate,Affiliates,desktop,United Kingdom
+0,0,0,140,3,Partners,affiliate,Affiliates,desktop,Romania
+0,0,0,85,2,youtube.com,referral,Social,desktop,Bulgaria
+0,0,0,55,2,youtube.com,referral,Social,desktop,Colombia
+0,0,0,56,2,youtube.com,referral,Social,desktop,Turkey
+0,0,0,6,2,youtube.com,referral,Social,desktop,Vietnam
+0,0,0,49,3,google.co.in,referral,Referral,mobile,India
+1,0,0,49,2,sites.google.com,referral,Referral,desktop,United States
+1,6,0,663,30,mall.googleplex.com,referral,Referral,desktop,United States
+1,2,0,368,17,mall.googleplex.com,referral,Referral,desktop,United States
+1,0,0,7,2,mall.googleplex.com,referral,Referral,desktop,United States
+1,0,0,596,10,mall.googleplex.com,referral,Referral,desktop,United States
+0,0,0,167,11,mall.googleplex.com,referral,Referral,desktop,United States
+1,0,0,104,3,mall.googleplex.com,referral,Referral,desktop,United States
+1,5,0,224,19,mall.googleplex.com,referral,Referral,desktop,United States
+1,0,0,476,7,mall.googleplex.com,referral,Referral,desktop,United States
+1,0,0,6,2,mall.googleplex.com,referral,Referral,desktop,United States
+1,0,0,938,2,mall.googleplex.com,referral,Referral,desktop,United States
+0,2,0,312,11,mall.googleplex.com,referral,Referral,desktop,United States
+1,2,0,402,8,mall.googleplex.com,referral,Referral,desktop,United States
+1,0,0,8,2,mall.googleplex.com,referral,Referral,desktop,United States
+1,3,0,128,7,mall.googleplex.com,referral,Referral,desktop,United States
+1,6,0,1621,43,mall.googleplex.com,referral,Referral,desktop,United States
+1,0,0,37,2,moma.corp.google.com,referral,Referral,desktop,United States
+1,3,0,97,6,moma.corp.google.com,referral,Referral,desktop,United States
+1,5,0,1082,12,gdeals.googleplex.com,referral,Referral,desktop,United States
+1,3,0,136,6,gdeals.googleplex.com,referral,Referral,desktop,United States
+0,0,1,0,1,dfa,cpm,Display,desktop,United States
+0,0,1,0,1,google,organic,Organic Search,tablet,Peru
+0,0,1,0,1,google,organic,Organic Search,desktop,Singapore
+0,0,1,0,1,google,organic,Organic Search,desktop,Slovakia
+0,0,1,0,1,google,organic,Organic Search,desktop,Taiwan
+0,0,1,0,1,google,organic,Organic Search,desktop,United States
+0,0,1,0,1,google,organic,Organic Search,desktop,Chile
+0,0,1,0,1,google,organic,Organic Search,mobile,Italy
+0,0,1,0,1,google,organic,Organic Search,desktop,United States
+0,0,1,0,1,google,organic,Organic Search,mobile,Germany
+1,0,1,0,1,google,organic,Organic Search,mobile,United States
+0,0,1,0,1,google,organic,Organic Search,desktop,Singapore
+0,0,1,0,1,google,organic,Organic Search,desktop,Denmark
+0,0,1,0,1,(direct),(none),Direct,desktop,United States
+0,0,1,0,1,(direct),(none),Direct,desktop,United States
+0,0,1,0,1,(direct),(none),Direct,mobile,Japan
+1,0,1,0,1,(direct),(none),Direct,desktop,United States
+0,0,1,0,1,quora.com,referral,Social,desktop,United States
+0,0,1,0,1,google.com,referral,Referral,desktop,United States
+0,0,1,0,1,youtube.com,referral,Social,desktop,Ukraine
+0,0,1,0,1,youtube.com,referral,Social,desktop,United Arab Emirates
+0,0,1,0,1,youtube.com,referral,Social,desktop,Kosovo
+0,0,1,0,1,youtube.com,referral,Social,tablet,United States
+0,0,1,0,1,youtube.com,referral,Social,desktop,Mexico
+0,0,1,0,1,youtube.com,referral,Social,desktop,Philippines
+0,0,1,0,1,youtube.com,referral,Social,desktop,Macedonia (FYROM)
+1,0,1,0,1,mall.googleplex.com,referral,Referral,desktop,United States
+0,0,1,0,1,analytics.google.com,referral,Referral,desktop,Germany
+1,0,1,0,1,moma.corp.google.com,referral,Referral,desktop,United States
+1,0,1,0,1,moma.corp.google.com,referral,Referral,desktop,United States
+1,0,1,0,1,moma.corp.google.com,referral,Referral,desktop,United States

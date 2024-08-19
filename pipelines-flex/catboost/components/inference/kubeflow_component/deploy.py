@@ -11,7 +11,7 @@ aiplatform.init(project=args.project_id, location="us-central1")
 model = aiplatform.Model.upload(
     display_name="catboost-inference",
     artifact_uri=args.aip_storage_uri,
-    serving_container_image_uri="us-central1-docker.pkg.dev/vtxdemos/custom-predictions/catboost-predict:1.0"
+    serving_container_image_uri="us-central1-docker.pkg.dev/vtxdemos/custom-predictions/catboost-predict:1.0",
 )
 
 endpoint = aiplatform.Endpoint.create(

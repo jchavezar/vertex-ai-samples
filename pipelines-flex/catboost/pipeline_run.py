@@ -50,7 +50,8 @@ job = aiplatform.PipelineJob(
         "project_id": "vtxdemos",
         "experiment_name": "catboost-ecommerce",
         "run_num": f"num-{identifier}",
-    }
+    },
+    enable_caching=False,
 )
 
 job.submit()

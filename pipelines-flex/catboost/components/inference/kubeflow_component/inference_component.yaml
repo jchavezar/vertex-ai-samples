@@ -1,4 +1,4 @@
-name: Deploy/Inference
+name: Model Deploy
 description: This component deploys a model stored in Google Cloud Storage during the training step.
 
 inputs:
