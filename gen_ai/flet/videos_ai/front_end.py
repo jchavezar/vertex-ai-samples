@@ -8,8 +8,6 @@ logging.basicConfig(level=logging.DEBUG)
 logging.getLogger("flet_core").setLevel(logging.INFO)
 
 def main(page: Page):
-  # heightscr = page.window.height
-  # widthscr = page.window.width
   page.spacing = 0
   page.padding = 0
   print(page.window.height)
@@ -99,12 +97,6 @@ def main(page: Page):
           expand=True,
           #scroll="auto"
       )
-  )
-
-  search_results_panel: Container = Container(
-      border=border.all(1, colors.BLUE),
-      alignment=alignment.center,
-      content=gridscreen
   )
 
   button_panel: Container = Container(
