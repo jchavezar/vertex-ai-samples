@@ -1,0 +1,7 @@
+jax
+scikit-learn
+pandas
+numpy==1.26.4
+uvicorn
+fastapi==0.75.0
+google-cloud-storage
