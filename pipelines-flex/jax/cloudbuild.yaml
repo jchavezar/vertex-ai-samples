@@ -1,0 +1,17 @@
+name: 'us-central1-docker.dev/${_PROJECT_ID}/custom-trains/jax-train:1.0'
+steps:
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['build', '-t', 'us-central1-docker.pkg.dev/${_PROJECT_ID}/custom-trains/jax-train:1.0', 'train/']
+  id: 'Train Build'
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['push', 'us-central1-docker.pkg.dev/${_PROJECT_ID}/custom-trains/jax-train:1.0']
+  waitFor: ['Train Build']
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['build', '-t', 'us-central1-docker.pkg.dev/${_PROJECT_ID}/custom-predictions/jax-prediction:2.0', 'prediction/']
+  id: 'Prediction Build'
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['push', 'us-central1-docker.pkg.dev/${_PROJECT_ID}/custom-predictions/jax-prediction:2.0']
+  waitFor: ['Prediction Build']
+
+substitutions:
+  _PROJECT_ID: 'vtxdemos'
