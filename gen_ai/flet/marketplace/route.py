@@ -1,6 +1,7 @@
 import flet as ft
 import first_page
 import second_page
+import search_results_page
 
 def main(page: ft.Page):
   page.title = "Multi-Page Flet App"
@@ -12,6 +13,8 @@ def main(page: ft.Page):
     page.views.append(first_page.view(page))
     if page.route == "/second":
       page.views.append(second_page.view(page))
+    elif page.route == "/search_results":
+      page.views.append(search_results_page.view(page))
     page.update()
 
   def view_pop(view):

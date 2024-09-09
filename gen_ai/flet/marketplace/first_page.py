@@ -1,17 +1,27 @@
+import time
+
 from flet import *
 import second_page
-from middleware import search
+from middleware import list_items, parallel_vector_search
 
 def view(page):
   def navigate_to_second_page(e):
     page.go("/second")
 
-  def add_stuff(e):
-    gridscreen.height = "",
-    gridscreen.expand = True,
-    x = search()
-    for i in x:
-      print(i["uri"])
+  def navigate_to_search_page(e):
+    link = e.control.data
+    page.session.link = link["uri"]
+    page.go("/search_results")
+
+  async def search(e):
+    grid_view.controls.clear()
+    # items = vector_search(e.control.value)
+    items = parallel_vector_search(e.control.value)
+    start_time = time.time()
+    # items = await page.asyncio_call(vector_search_wrapper, e.control.value, e.control.value)
+    print(time.time() - start_time)
+    for item in items:
+      # print(item["uri"])
       grid_view.controls.append(
           Column(
               alignment=MainAxisAlignment.CENTER,
@@ -23,13 +33,43 @@ def view(page):
                               height=120,
                               width=120,
                               content=Image(
-                                  src=i["uri"],
+                                  src=item["uri"],
                                   fit=ImageFit.COVER,
                               )
                           )
                       )
                   ),
-                  Text(i["title"])
+                  Text(item["title"])
+              ]
+          )
+      )
+    page.update()
+
+  def add_stuff(e):
+    grid_view.controls.clear()
+    gridscreen.height = "",
+    gridscreen.expand = True,
+    items = list_items()
+    for item in items:
+      print(item["uri"])
+      grid_view.controls.append(
+          Column(
+              alignment=MainAxisAlignment.CENTER,
+              controls=[
+                  Container(
+                      content=Card(
+                          elevation=20,
+                          content=Container(
+                              height=120,
+                              width=120,
+                              content=Image(
+                                  src=item["uri"],
+                                  fit=ImageFit.COVER,
+                              )
+                          )
+                      )
+                  ),
+                  Text(item["title"])
               ]
           )
       )
@@ -87,6 +127,8 @@ def view(page):
                                   hint_style=TextStyle(color=colors.GREY_500, font_family="Helvetica", weight=FontWeight.W_200),
                                   expand=True,
                                   border_color=colors.TRANSPARENT,
+                                  data={"uri": "test"},
+                                  on_submit=search
                               ),
                               Icon(
                                   name=icons.SEARCH,
