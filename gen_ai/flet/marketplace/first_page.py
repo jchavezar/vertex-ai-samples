@@ -12,6 +12,8 @@ def view(page):
     link = e.control.data
     page.session.link = link["uri"]
     page.session.title = link["title"]
+    page.session.subtitle = link["subtitle"]
+    page.session.summary = link["summary"]
     page.session.description = link["description"]
     page.session.materials = link["materials"]
     page.session.questions = link["questions"]
@@ -43,6 +45,8 @@ def view(page):
                       data={
                           "uri": item["uri"],
                           "title": item["title"],
+                          "subtitle": item["subtitle"],
+                          "summary": item["summary"],
                           "description": item["description"],
                           "materials": item["materials"],
                           "questions": item["questions"],
