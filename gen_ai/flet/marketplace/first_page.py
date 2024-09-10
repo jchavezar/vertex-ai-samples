@@ -11,17 +11,19 @@ def view(page):
   def navigate_to_search_page(e):
     link = e.control.data
     page.session.link = link["uri"]
+    page.session.title = link["title"]
+    page.session.description = link["description"]
+    page.session.materials = link["materials"]
+    page.session.questions = link["questions"]
+    page.session.content = link["content"]
     page.go("/search_results")
 
   async def search(e):
     grid_view.controls.clear()
     # items = vector_search(e.control.value)
     items = parallel_vector_search(e.control.value)
-    start_time = time.time()
     # items = await page.asyncio_call(vector_search_wrapper, e.control.value, e.control.value)
-    print(time.time() - start_time)
     for item in items:
-      # print(item["uri"])
       grid_view.controls.append(
           Column(
               alignment=MainAxisAlignment.CENTER,
@@ -37,7 +39,16 @@ def view(page):
                                   fit=ImageFit.COVER,
                               )
                           )
-                      )
+                      ),
+                      data={
+                          "uri": item["uri"],
+                          "title": item["title"],
+                          "description": item["description"],
+                          "materials": item["materials"],
+                          "questions": item["questions"],
+                          "content": item["content"]
+                      },
+                      on_click=navigate_to_search_page
                   ),
                   Text(item["title"])
               ]
@@ -144,15 +155,26 @@ def view(page):
                   #     content=main_layout
                   # ),
                   main_layout,
-                  ElevatedButton(
-                      on_click=add_stuff
+                  Container(
+                      margin=margin.only(left=50),
+                      height=100,
+                      content=Row(
+                          alignment=MainAxisAlignment.START,
+                          controls=[
+                              ElevatedButton(
+                                  "List Items",
+                                  on_click=add_stuff
+                              ),
+                              ElevatedButton(
+                                  "Solution Diagram",
+                                  on_click=navigate_to_second_page,
+                                  bgcolor=colors.BLUE,
+                                  color=colors.WHITE,
+                              )
+                          ]
+                      ),
                   ),
-                  ElevatedButton(
-                      "Go to Second Page",
-                      on_click=navigate_to_second_page,
-                      bgcolor=colors.BLUE,
-                      color=colors.WHITE,
-                  )
+
               ]
           )
       ]
