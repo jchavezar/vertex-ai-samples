@@ -139,7 +139,7 @@ def parallel_vector_search(input: str):
 
     # Perform an outer join to combine results, handling cases where
     # an item might have only text or image embeddings
-    combined_results = pd.merge(df_1, df_2, on=['title', 'public_cdn_link', 'content', 'description', 'materials', 'llm_questions', 'tags'], how='outer')
+    combined_results = pd.merge(df_1, df_2, on=['title', 'public_cdn_link', 'content', 'description', 'materials', 'llm_questions', 'tags', 'llm_title', "summary"], how='outer')
 
     # Fill missing values (in case an item has only one type of embedding)
     # combined_results['text_distance'] = combined_results['text_distance'].fillna(1)  # Maximum distance if no text embedding
@@ -156,7 +156,9 @@ def parallel_vector_search(input: str):
 
     response = [
         {
-            "title": row["title"],
+            "title": row["llm_title"],
+            "subtitle":  row["title"],
+            "summary":  row["summary"],
             "uri": row["public_cdn_link"],
             "content": row["content"],
             "description": row["description"],
@@ -169,7 +171,7 @@ def parallel_vector_search(input: str):
     return response
 
 def list_items():
-  return [{"title": row["ml_generate_text_llm_result"].strip() , "uri": row["public_cdn_link"]} for index, row in df.iterrows()]
+  return [{"title": row["llm_title"].strip() , "uri": row["public_cdn_link"]} for index, row in df.iterrows()]
 
 def gemini_chat(prompt: str, context: str, questions: List):
 
