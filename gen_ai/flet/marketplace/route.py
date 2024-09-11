@@ -6,6 +6,8 @@ import search_results_page
 def main(page: ft.Page):
   page.title = "Multi-Page Flet App"
   page.window.height = 700
+  page.bgcolor=colors.WHITE
+  page.update()
 
   def route_change(route):
     page.update()
