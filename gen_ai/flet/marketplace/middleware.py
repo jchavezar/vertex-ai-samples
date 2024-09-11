@@ -12,12 +12,12 @@ from vertexai.vision_models import MultiModalEmbeddingModel
 from vertexai.language_models import TextEmbeddingInput, TextEmbeddingModel
 
 project_id = "vtxdemos"
-bq_table = "demos_us.etsy-embeddings-full-2-title"
+bq_table = "demos_us.etsy-embeddings-full-latest"
 region = "us-central1"
 model_id = "gemini-1.5-flash-001"
 
 bq_client = bigquery.Client(project=project_id)
-df = bq_client.query(f"SELECT * FROM  `{bq_table}`").to_dataframe()
+df = bq_client.query(f"SELECT * EXCEPT(text_embedding, ml_generate_embedding_result) FROM  `{bq_table}`").to_dataframe()
 text_emb_model = TextEmbeddingModel.from_pretrained("text-embedding-004")
 image_emb_model = MultiModalEmbeddingModel.from_pretrained("multimodalembedding")
 
@@ -59,14 +59,14 @@ def response_process(result, multimodal: bool):
   neighbors = result["neighbors"]
 
   all_extracted_data = []
-  for item in neighbors:
+  for row in neighbors:
     extracted_data = {}
     if multimodal:
-      extracted_data['image_distance'] = item['distance']  # Extract distance
+      extracted_data['image_distance'] = row['distance']  # Extract distance
     else:
-      extracted_data['text_distance'] = item['distance']  # Extract distance
+      extracted_data['text_distance'] = row['distance']  # Extract distance
 
-    for feature in item['entity_key_values']['key_values']['features']:
+    for feature in row['entity_key_values']['key_values']['features']:
       name = feature['name']
       if name not in ['ml_generate_embedding_result', 'text_embedding']:
         if 'value' in feature:
@@ -138,10 +138,10 @@ def parallel_vector_search(input: str):
     df_2 = df_2.rename(columns={'distance_to_average_review': 'image_distance'})
 
     # Perform an outer join to combine results, handling cases where
-    # an item might have only text or image embeddings
+    # an row might have only text or image embeddings
     combined_results = pd.merge(df_1, df_2, on=['title', 'public_cdn_link', 'content', 'description', 'materials', 'llm_questions', 'tags', 'llm_title', "summary"], how='outer')
 
-    # Fill missing values (in case an item has only one type of embedding)
+    # Fill missing values (in case an row has only one type of embedding)
     # combined_results['text_distance'] = combined_results['text_distance'].fillna(1)  # Maximum distance if no text embedding
     # combined_results['image_distance'] = combined_results['image_distance'].fillna(1)  # Maximum distance if no image embedding
     combined_results['text_distance'] = combined_results['text_distance'].fillna(-1000)  # Large negative value if no text embedding
@@ -171,7 +171,57 @@ def parallel_vector_search(input: str):
     return response
 
 def list_items():
-  return [{"title": row["llm_title"].strip() , "uri": row["public_cdn_link"]} for index, row in df.iterrows()]
+  response = [
+      {
+          "title": row["llm_title"],
+          "subtitle":  row["title"],
+          "summary":  row["summary"],
+          "uri": row["public_cdn_link"],
+          "content": row["content"],
+          "description": row["description"],
+          "materials": row["materials"],
+          "tags": row["tags"],
+          "questions": row["llm_questions"]
+      } for index, row in df.iterrows()
+  ]
+
+  print(df.columns)
+
+  response = []
+  for index,row in df.iterrows():
+
+    print(row["uri"])
+    print(row["llm_title"])
+    print(row["summary"])
+    print(row["public_cdn_link"])
+    print(row["content"])
+    print(row["description"])
+    print(row["materials"])
+    print(row["tags"])
+    print(row["llm_questions"])
+    print(type(row["uri"]))
+    print(type(row["llm_title"]))
+    print(type(row["summary"]))
+    print(type(row["public_cdn_link"]))
+    print(type(row["content"]))
+    print(type(row["description"]))
+    print(type(row["materials"]))
+    print(type(row["tags"]))
+    print(type(row["llm_questions"]))
+    response.append(
+        {
+            "title": row["llm_title"] or "",
+            "subtitle":  row["title"] or "",
+            "summary":  row["summary"] or "",
+            "uri": row["public_cdn_link"] or "",
+            "content": row["content"] or "",
+            "description": row["description"] or "",
+            "materials": row["materials"] or "",
+            "tags": row["tags"] or "",
+            "questions": row["llm_questions"] or ""
+        }
+    )
+  return response
 
 def gemini_chat(prompt: str, context: str, questions: List):
 
