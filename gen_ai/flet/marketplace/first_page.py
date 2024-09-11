@@ -1,11 +1,10 @@
 import time
-
 from flet import *
 import second_page
 from middleware import list_items, parallel_vector_search
 
 def view(page):
-  page.bgcolor=colors.WHITE
+  page.bgcolor = colors.TRANSPARENT
   page.update()
   def navigate_to_second_page(e):
     page.go("/second")
