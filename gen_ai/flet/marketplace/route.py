@@ -1,12 +1,14 @@
-import flet as ft
+from flet import *
 import first_page
 import second_page
 import search_results_page
 
-def main(page: ft.Page):
+def main(page: Page):
   page.title = "Multi-Page Flet App"
   page.window.height = 700
-  page.bgcolor=colors.WHITE
+  page.bgcolor=colors.TRANSPARENT
+  page.theme = theme.Theme(color_scheme_seed=colors.GREY)
+  page.theme_mode = ThemeMode.LIGHT
   page.update()
 
   def route_change(route):
@@ -28,4 +30,4 @@ def main(page: ft.Page):
   page.on_view_pop = view_pop
   page.go(page.route)
 
-ft.app(target=main)
+app(target=main)

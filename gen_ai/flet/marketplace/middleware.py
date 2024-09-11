@@ -171,43 +171,26 @@ def parallel_vector_search(input: str):
     return response
 
 def list_items():
-  response = [
-      {
-          "title": row["llm_title"],
-          "subtitle":  row["title"],
-          "summary":  row["summary"],
-          "uri": row["public_cdn_link"],
-          "content": row["content"],
-          "description": row["description"],
-          "materials": row["materials"],
-          "tags": row["tags"],
-          "questions": row["llm_questions"]
-      } for index, row in df.iterrows()
-  ]
-
-  print(df.columns)
-
   response = []
   for index,row in df.iterrows():
-
-    print(row["uri"])
-    print(row["llm_title"])
-    print(row["summary"])
-    print(row["public_cdn_link"])
-    print(row["content"])
-    print(row["description"])
-    print(row["materials"])
-    print(row["tags"])
-    print(row["llm_questions"])
-    print(type(row["uri"]))
-    print(type(row["llm_title"]))
-    print(type(row["summary"]))
-    print(type(row["public_cdn_link"]))
-    print(type(row["content"]))
-    print(type(row["description"]))
-    print(type(row["materials"]))
-    print(type(row["tags"]))
-    print(type(row["llm_questions"]))
+    # print(row["uri"])
+    # print(row["llm_title"])
+    # print(row["summary"])
+    # print(row["public_cdn_link"])
+    # print(row["content"])
+    # print(row["description"])
+    # print(row["materials"])
+    # print(row["tags"])
+    # print(row["llm_questions"])
+    # print(type(row["uri"]))
+    # print(type(row["llm_title"]))
+    # print(type(row["summary"]))
+    # print(type(row["public_cdn_link"]))
+    # print(type(row["content"]))
+    # print(type(row["description"]))
+    # print(type(row["materials"]))
+    # print(type(row["tags"]))
+    # print(type(row["llm_questions"]))
     response.append(
         {
             "title": row["llm_title"] or "",
