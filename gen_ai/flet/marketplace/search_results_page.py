@@ -17,31 +17,51 @@ def view(page):
   price = f"${dollars:02d}.{cents:02d}"
 
   def etsymate(e):
-    re = gemini_chat(e.control.value, context=str(page.session.content), questions=questions)
+    re = gemini_chat(e.control.value, context=str(page.session.content), image_uri=page.session.private_uri, questions=questions)
     re=json.loads(re)
     conv.controls.clear()
-    conv.update()
-    conv.controls = [Text(re["response"])]
+    question.text = text_input.value
+    answer.text = re["response"]
     text_input.value=""
     text_input.focus()
-    conv.update()
+    if len(re["questions_to_ask"]) != 0:
+      conv.controls = (
+          [
+              ElevatedButton(
+                  text=label,
+                  color="black",
+                  bgcolor="#E3F2FD",
+                  style=ButtonStyle(
+                      shape=RoundedRectangleBorder(radius=25),
+                      padding=15,
+                  ),
+                  data=label,
+                  on_click=button_etsymate,
+              )
+              for label in re["questions_to_ask"]
+          ]+[Divider(height=20, color=colors.TRANSPARENT)])
+      text_input.value=""
+      text_input.focus()
+      llm_response.visible = True
+      llm_response.update()
+      conv.update()
 
   def button_etsymate(e):
     text_input.value = e.control.data
     text_input.update()
 
   def send_message(e):
-    re=gemini_chat(text_input.value, context=str(page.session.content), questions=questions)
-    print(type(re))
+    re=gemini_chat(text_input.value, context=str(page.session.content), image_uri=page.session.private_uri, questions=questions)
     re=json.loads(re)
     conv.controls.clear()
-    llm_response.content.value = re["response"]
-    llm_response.content.size = 14
-    llm_response.content.color = colors.DEEP_ORANGE_400
-    llm_response.content.update()
-    print(type(re))
-    print(re)
-    if len(re["questions_to_task"]) != 0:
+    question.text = text_input.value
+    answer.text = re["response"]
+    text_input.value=""
+    text_input.focus()
+    llm_response.visible = True
+    llm_response.update()
+
+    if len(re["questions_to_ask"]) != 0:
       conv.controls = (
           [
               ElevatedButton(
@@ -55,7 +75,7 @@ def view(page):
                 data=label,
                 on_click=button_etsymate,
               )
-              for label in re["questions_to_task"]
+              for label in re["questions_to_ask"]
           ]+[Divider(height=20, color=colors.TRANSPARENT)])
       text_input.value=""
       text_input.focus()
@@ -64,7 +84,7 @@ def view(page):
   panel = ExpansionPanelList(
       expand_icon_color=colors.DEEP_ORANGE_400,
       elevation=0,
-      divider_color=colors.RED,
+      divider_color=colors.DEEP_ORANGE_400,
       controls=[
           ExpansionPanel(
               header=ListTile(title=Text("Item Details", size=14)),
@@ -90,7 +110,6 @@ def view(page):
                   ResponsiveRow(
                       controls=[
                           Container(
-                              bgcolor=colors.YELLOW,
                               margin=margin.only(left=30, right=15, top=30),
                               #expand=6,
                               border_radius=12,
@@ -101,13 +120,12 @@ def view(page):
                               )
                           ),
                           text_panel:=Container(
-                              # height=window_height,
                               expand=True,
                               margin=margin.only(right=30, top=30),
                               padding=15,
                               # expand=6,
                               col={"sm": 6, "md": 6, "xl": 6},
-                              border=border.all(1,colors.GREY_400),
+                              #border=border.all(1,colors.GREY_400),
                               border_radius=12,
                               content=Column(
                                   alignment=MainAxisAlignment.CENTER,
@@ -116,7 +134,7 @@ def view(page):
                                   #scroll="auto",
                                   spacing=10,
                                   controls=[
-                                      Text(f"Low in stock, only {items_available} left", color=colors.RED, size=16, weight=FontWeight.BOLD),
+                                      Text(f"Low in stock, only {items_available} left", color=colors.DEEP_ORANGE_400, size=16, weight=FontWeight.BOLD),
                                       Text(price, weight=FontWeight.BOLD, size=20),
                                       Text(page.session.title.strip(), selectable=True, size=14),
                                       Text(page.session.subtitle.strip(), selectable=True, size=14),
@@ -144,33 +162,64 @@ def view(page):
                                                   Container(
                                                       height=30,
                                                       width=30,
-                                                      content=Image(src="https://gcpetsy.sonrobots.net/artifacts/google-gemini-icon.png", fit=ImageFit.CONTAIN),
+                                                      content=Image(src="https://gcpetsy.sonrobots.net/artifacts/etsymate.png", fit=ImageFit.CONTAIN),
                                                   ),
-                                                  Container(
-                                                      padding=5,
-                                                      height=60,
+                                                  # Container(
+                                                  #     padding=5,
+                                                  #     height=50,
+                                                  #     expand=True,
+                                                  #     border_radius=14,
+                                                  #     border=border.all(1, colors.GREY),
+                                                  #     content=Row(
+                                                  #         controls=[
+                                                  #             text_input:=TextField(
+                                                  #                 hint_text="Looking for specific info? Ask EtsyMate!",
+                                                  #                 hint_style=TextStyle(size=14),
+                                                  #                 expand=True,
+                                                  #                 border_color=colors.TRANSPARENT,
+                                                  #                 on_submit=etsymate
+                                                  #             ),
+                                                  #             IconButton(icon=icons.SEND, icon_color=colors.DEEP_ORANGE_400, on_click=send_message), # Modify
+                                                  #         ]
+                                                  #     )
+                                                  # ),
+                                                  text_input:=TextField(
+                                                      hint_text="Looking for specific info? Ask EtsyMate!",
+                                                      hint_style=TextStyle(size=14),
+                                                      multiline=True,
+                                                      min_lines=1,
+                                                      max_lines=10,
                                                       expand=True,
-                                                      border_radius=14,
-                                                      border=border.all(1, colors.GREY),
-                                                      content=Row(
-                                                          controls=[
-                                                              text_input:=TextField(
-                                                                  hint_text="Looking for specific info? Ask EtsyMate!",
-                                                                  hint_style=TextStyle(size=14),
-                                                                  expand=True,
-                                                                  border_color=colors.TRANSPARENT,
-                                                                  on_submit=etsymate
-                                                              ),
-                                                              IconButton(icon=icons.SEND, icon_color=colors.DEEP_ORANGE_400, on_click=send_message), # Modify
-                                                          ]
-                                                      )
+                                                      on_submit=etsymate,
+                                                      shift_enter=True,
                                                   ),
+                                                  IconButton(icon=icons.SEND, icon_color=colors.DEEP_ORANGE_400, on_click=send_message)
                                               ]
                                           )
                                       ),
                                       llm_response:=Container(
-                                          padding=padding.only(left=10, right=10, bottom=10),
-                                          content=Text()
+                                          visible=False,
+                                          padding=14,
+                                          border_radius=14,
+                                          border=border.all(1, colors.DEEP_ORANGE_400),
+                                          content=Column(
+                                              alignment=MainAxisAlignment.START,
+                                              spacing=8,
+                                              controls=[
+                                                  Text(
+                                                      spans=[
+                                                          TextSpan("Your Question: ", style=TextStyle(color=colors.GREY_800, weight=FontWeight.BOLD)),
+                                                          question:=TextSpan(),
+                                                      ]
+                                                  ),
+                                                  Text(
+                                                      spans=[
+                                                          TextSpan("EtsyMate:  ", style=TextStyle(color=colors.DEEP_ORANGE_400, weight=FontWeight.BOLD)),
+                                                          answer:=TextSpan(),
+                                                      ]
+                                                  ),
+                                              ]
+                                          )
                                       ),
                                       conv:=Row(
                                           wrap=True,
@@ -197,7 +246,7 @@ def view(page):
                   ),
               ]
           ),
-          ElevatedButton("Back", on_click=lambda _: page.go("/"))
+          ElevatedButton("Back", color=colors.DEEP_ORANGE_400, on_click=lambda _: page.go("/"))
       ]
   )
 
