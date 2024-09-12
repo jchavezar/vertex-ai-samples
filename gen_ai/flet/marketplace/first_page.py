@@ -12,6 +12,7 @@ def view(page):
   def navigate_to_search_page(e):
     link = e.control.data
     page.session.link = link["uri"]
+    page.session.private_uri = link["private_uri"]
     page.session.title = link["title"]
     page.session.subtitle = link["subtitle"]
     page.session.summary = link["summary"]
@@ -27,23 +28,6 @@ def view(page):
     items = parallel_vector_search(e.control.value)
     # items = await page.asyncio_call(vector_search_wrapper, e.control.value, e.control.value)
     for item in items:
-      print(item["uri"])
-      print(item["title"])
-      print(item["subtitle"])
-      print(item["summary"])
-      print(item["description"])
-      print(item["materials"])
-      print(item["questions"])
-      print(item["content"])
-      print(type(item["uri"]))
-      print(type(item["title"]))
-      print(type(item["subtitle"]))
-      print(type(item["summary"]))
-      print(type(item["description"]))
-      print(type(item["materials"]))
-      print(type(item["questions"]))
-      print(type(item["content"]))
-
       grid_view.controls.append(
           Column(
               alignment=MainAxisAlignment.CENTER,
@@ -62,6 +46,7 @@ def view(page):
                       ),
                       data={
                           "uri": item["uri"],
+                          "private_uri": item["private_uri"],
                           "title": item["title"],
                           "subtitle": item["subtitle"],
                           "summary": item["summary"],
