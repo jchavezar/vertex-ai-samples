@@ -17,11 +17,10 @@ def view(page):
   price = f"${dollars:02d}.{cents:02d}"
 
   def etsymate(e):
-    re = gemini_chat(e.control.value, context=str(page.session.content), image_uri=page.session.private_uri, questions=questions)
-    re=json.loads(re)
+    re = gemini_chat(user_query=e.control.value, context=str(page.session.content), image_uri=page.session.private_uri, questions=questions)
     conv.controls.clear()
     question.text = text_input.value
-    answer.text = re["response"]
+    answer.text = re["answer"]
     text_input.value=""
     text_input.focus()
     if len(re["questions_to_ask"]) != 0:
@@ -38,8 +37,26 @@ def view(page):
                   data=label,
                   on_click=button_etsymate,
               )
-              for label in re["questions_to_ask"]
-          ]+[Divider(height=20, color=colors.TRANSPARENT)])
+              for label in re["questions_to_ask"]["category_1"][:2]
+          ]
+          +
+          [
+          ElevatedButton(
+              text=label,
+              color="black",
+              bgcolor=colors.RED_100,
+              style=ButtonStyle(
+                  shape=RoundedRectangleBorder(radius=25),
+                  padding=15,
+              ),
+              data=label,
+              on_click=button_etsymate,
+          )
+          for label in re["questions_to_ask"]["category_2"][:2]
+      ]
+          +[Divider(height=20, color=colors.TRANSPARENT)])
+      log.value=f"Category Detected: {re['category_picked']}"
+      image_panel.update()
       text_input.value=""
       text_input.focus()
       llm_response.visible = True
@@ -51,17 +68,18 @@ def view(page):
     text_input.update()
 
   def send_message(e):
-    re=gemini_chat(text_input.value, context=str(page.session.content), image_uri=page.session.private_uri, questions=questions)
-    re=json.loads(re)
+    re=gemini_chat(user_query=text_input.value, context=str(page.session.content), image_uri=page.session.private_uri, questions=questions)
+    print(re)
     conv.controls.clear()
     question.text = text_input.value
-    answer.text = re["response"]
+    answer.text = re["answer"]
     text_input.value=""
     text_input.focus()
     llm_response.visible = True
     llm_response.update()
-
+    print(re)
     if len(re["questions_to_ask"]) != 0:
+      print("it worked")
       conv.controls = (
           [
               ElevatedButton(
@@ -75,8 +93,26 @@ def view(page):
                 data=label,
                 on_click=button_etsymate,
               )
-              for label in re["questions_to_ask"]
-          ]+[Divider(height=20, color=colors.TRANSPARENT)])
+              for label in re["questions_to_ask"]["category_1"][:2]
+          ]
+          +
+          [
+              ElevatedButton(
+                  text=label,
+                  color="black",
+                  bgcolor=colors.RED_100,
+                  style=ButtonStyle(
+                      shape=RoundedRectangleBorder(radius=25),
+                      padding=15,
+                  ),
+                  data=label,
+                  on_click=button_etsymate,
+              )
+              for label in re["questions_to_ask"]["category_2"][:2]
+          ]
+          +[Divider(height=20, color=colors.TRANSPARENT)])
+      log.value=f"Category Detected: {re['category_picked']}"
+      image_panel.update()
       text_input.value=""
       text_input.focus()
       conv.update()
@@ -99,6 +135,8 @@ def view(page):
       ]
   )
 
+  log: Text = Text()
+
   return View(
       "/search_results",
       [
@@ -109,14 +147,21 @@ def view(page):
               controls=[
                   ResponsiveRow(
                       controls=[
-                          Container(
+                          image_panel:=Container(
                               margin=margin.only(left=30, right=15, top=30),
                               #expand=6,
                               border_radius=12,
                               col={"sm": 6, "md": 6, "xl": 6},
-                              content=Image(
-                                  src=page.session.link,
-                                  fit=ImageFit.CONTAIN,
+                              content=Column(
+                                  controls=[
+                                      Image(
+                                          src=page.session.link,
+                                          fit=ImageFit.CONTAIN,
+                                      ),
+                                      Container(
+                                          content=log
+                                      )
+                                  ]
                               )
                           ),
                           text_panel:=Container(
@@ -184,7 +229,7 @@ def view(page):
                                                   #     )
                                                   # ),
                                                   text_input:=TextField(
-                                                      hint_text="Looking for specific info? Ask EtsyMate!",
+                                                      hint_text="Looking for specific info? Ask Chatsy!",
                                                       hint_style=TextStyle(size=14),
                                                       multiline=True,
                                                       min_lines=1,
@@ -214,7 +259,7 @@ def view(page):
                                                   ),
                                                   Text(
                                                       spans=[
-                                                          TextSpan("EtsyMate:  ", style=TextStyle(color=colors.DEEP_ORANGE_400, weight=FontWeight.BOLD)),
+                                                          TextSpan("Chatsy:  ", style=TextStyle(color=colors.DEEP_ORANGE_400, weight=FontWeight.BOLD)),
                                                           answer:=TextSpan(),
                                                       ]
                                                   ),
