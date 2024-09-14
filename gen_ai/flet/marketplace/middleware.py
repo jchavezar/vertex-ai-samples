@@ -1,3 +1,4 @@
+import json
 import time
 import asyncio
 from typing import List
@@ -7,11 +8,12 @@ import pandas as pd
 from google.cloud import bigquery
 from concurrent.futures import ThreadPoolExecutor
 
-from vertexai.generative_models import GenerationConfig
 from vertexai.resources.preview import feature_store
-from vertexai.generative_models import GenerativeModel, Part
+from vertexai.generative_models import GenerationConfig
+from vertexai.preview.generative_models import grounding
 from vertexai.vision_models import MultiModalEmbeddingModel
 from vertexai.language_models import TextEmbeddingInput, TextEmbeddingModel
+from vertexai.preview.generative_models import GenerativeModel, Part, Tool
 
 project_id = "vtxdemos"
 bq_table = "demos_us.etsy-embeddings-full-latest"
@@ -34,16 +36,43 @@ generation_config = {
     "response_mime_type": "application/json"
 }
 
+
 response_schema = {
     "type": "object",
     "properties": {
-        "response": {"type": "string"},
+        "answer": {"type": "string"},
         "questions_to_ask": {
-            "type": "array",
-            "items": {"type": "string"}
+            "type": "object",
+            "properties": {
+                "category_1": {
+                    "type": "array",
+                    "items": {"type": "string"}
+                },
+                "category_2": {
+                    "type": "array",
+                    "items": {"type": "string"}
+                }
+            }
+        },
+        "category_picked": {
+            "type": "object",
+            "properties": {
+                "local_context_rag": {
+                    "type": "boolean",
+                },
+                "google_search_ground": {
+                    "type": "boolean",
+                }
+            }
         }
     }
 }
+
+tools = [
+    Tool.from_google_search_retrieval(
+        google_search_retrieval=grounding.GoogleSearchRetrieval()
+    ),
+]
 
 output_json = """
     Output in JSON:
@@ -53,22 +82,82 @@ output_json = """
     }
 """
 
+system_instruction="""
+**You are Chatsy, a friendly and helpful assistant for Etsy customers.** Your primary goal is to provide satisfying answers based on the specific context of their questions. 
+
+**Tasks:**
+
+1. **Categorize:** Analyze each user question and determine if it's best answered using:
+    * **local_context_rag:** Information from the current listing or Etsy's internal data.
+    * **google_search_ground:**  Broader knowledge found on the internet. Questions should be associated with this product information but completely beyond the explicit product details, exploring potential applications, material properties, usage scenarios or to learn more about how the product can be used.
+      These questions should pique the customer's interest and encourage them to explore the product.
+      Should be very general questions for which you can search in Google Search to provide needed information
+
+2. **Respond:** 
+    * **Provide the answer:**  Use ONLY the appropriate source (local_context_rag or google_search_ground) to give a concise, accurate response. 
+    * **Suggest further questions:**  Offer 2 additional questions per each category the customer might be interested in, related to the topic or listing.
+    * **Provide the category you picked** Use boolean for local_context_rag or google_search_ground.
+
+**Rules:**
+* **Be friendly and casual:** Write like you're chatting with a friend, no need for formal explanations. 
+* **Honesty is key:**  If you don't know the answer, say so! 
+* **Question management:** 
+    * Start with the preloaded questions.
+    * After answering, remove the used question from the list.
+    * Generate 2 NEW questions (per each category) to help user to ask you.
+    * Base new questions on the context of the conversation. 
+
+**Let's help those Etsy shoppers find what they need and have a great experience!** 
+"""
+
+system_instruction="""
+**You are Chatsy, a friendly and helpful assistant for Etsy customers.** Your primary goal is to provide satisfying answers based on the specific context of their questions. 
+
+**Tasks:**
+
+1. **Categorize:** Analyze each user question and determine if it's best answered using:
+    * **local_context_rag:** Information from the current listing or Etsy's internal data (title, description, materials, tags, etc.).
+    * **google_search_ground:**  Broader knowledge found on the internet, related to the product but beyond the explicit listing details. 
+      Think about potential applications, material properties, comparisons to similar items, usage scenarios, care instructions, or historical/cultural context.
+      These questions should pique the customer's interest and encourage them to explore the product further.
+
+2. **Respond:** 
+    * **Provide the answer:** Use ONLY the appropriate source (local_context_rag or google_search_ground) to give a concise, accurate response. 
+    * **Suggest further questions:**  Offer 2 additional questions per each category (local_context_rag and google_search_ground) that the **user might want to ask** related to the topic or listing. 
+    * **Provide the category you picked:** Indicate whether you used "local_context_rag" or "google_search_ground" to answer the question.
+
+**Rules:**
+* **Be friendly and casual:** Write like you're chatting with a friend, no need for formal explanations. 
+* **Honesty is key:** If you don't know the answer based on the available information, say so politely and suggest potentially relevant questions the user might want to ask. 
+* **Question management:** 
+    * Start with the preloaded questions (if any).
+    * After answering a question, remove it from the list.
+    * Generate 2 NEW questions (per each category) that the user might find helpful.
+    * Base new questions on the context of the conversation and the product information. 
+
+**Extra reasoning thoughts:**
+* **Category Selection Accuracy:** If you recommend questions under category 2 and your next iteration you get that question you should follow categorization as it is; in this case google_search_ground.
+The same applies for the other categories.
+"""
+
+grounded_system_instruction = """
+You might be asked for something regarding the image/picture/frame, if thats the case use <image_file> and create
+a quick description then use that as a context for your grounding and respond the question.
+"""
+
 model = GenerativeModel(
     model_id,
-    system_instruction=["""
-    Your name is EtsyMate a mate for any Etsy's customer, you are a very friendly and capable agent which priority
-    is to satisfy customer answers based on specific context.
-    
-    Rules:
-    Respond friendly and naturally, there is no reason to explain your answer, you need to sell!
-    If the questions are related to the listing, use context only to answer the question, do not make up if you do not you gently say so.
-    There are preloaded questions which was previously recommended by the system, discard the used question and keep the others, try to generate new questions based on your response.
-    Always keep 4 questions.
-    
-    """]
+    #tools=tools,
+    system_instruction=[system_instruction]
+)
+grounded_model = GenerativeModel(
+    model_id,
+    tools=tools,
+    system_instruction=[grounded_system_instruction]
 )
 chat = model.start_chat()
 
+# RAG
 def response_process(result, multimodal: bool):
   neighbors = result["neighbors"]
 
@@ -95,6 +184,7 @@ def response_process(result, multimodal: bool):
 
   return dataframe
 
+# RAG
 def vector_search(prompt: str, multimodal=True):
   if multimodal:
     embeddings = image_emb_model.get_embeddings(
@@ -126,6 +216,7 @@ async def async_vector_search(input: str):
     loop = asyncio.get_running_loop()
     return await loop.run_in_executor(executor, vector_search, input)
 
+# RAG
 def parallel_vector_search(input: str):
   with ThreadPoolExecutor() as executor:
     start_time=time.time()
@@ -187,18 +278,34 @@ def list_items():
     )
   return response
 
-def gemini_chat(prompt: str, context: str, image_uri: str, questions: List):
+def gemini_chat(user_query: str, context: str, image_uri: str, questions: List):
 
+  print("entering gemini")
   prompt = f"""
-  Context:
+  local_context_rag:
   {context}
   
-  Preloaded Questions:
+  preloaded_questions:
   {questions}
   
   User/Customer prompt/Question:
-  {prompt}
+  {user_query}
   """
+  print(prompt)
+  print("just before")
   image = Part.from_uri(image_uri, "image/jpg")
-  re = chat.send_message([prompt, "Image of listing: ", image], generation_config=GenerationConfig(response_mime_type="application/json", response_schema=response_schema))
-  return re.text
+  print(image)
+  _ = chat.send_message([prompt, "Image of listing: ", image, "\n\nResponse: "], generation_config=GenerationConfig(response_mime_type="application/json", response_schema=response_schema))
+  res = json.loads(_.text)
+  if res["category_picked"]["local_context_rag"]:
+    print("local")
+    print(res)
+    return res
+  elif res["category_picked"]["google_search_ground"]:
+    print("google")
+    gem_res = grounded_model.generate_content(f"Query: {user_query}\nOptional Image: <image_file>{image}\nAnswer:")
+    print(gem_res)
+    _ = chat.send_message([f"Google Grounded Data:\n{gem_res.text}\n",prompt, "Image of listing: ", image, "\n\nResponse: "], generation_config=GenerationConfig(response_mime_type="application/json", response_schema=response_schema))
+    res = json.loads(_.text)
+    return res
+
