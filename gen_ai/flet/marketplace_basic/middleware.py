@@ -257,7 +257,7 @@ def list_items():
             "content": row["content"],
             "questions_cat1": row["questions_cat1"],
             "answers_cat1": row["answers_cat1"],
-            "questions_cat2": row["questions_cat1"],
+            "questions_cat2": row["questions_cat2"],
             "answers_cat2": row["answers_cat2"],
             "textual_questions": row["textual_questions"],
             "textual_answers": row["textual_answers"],
@@ -271,37 +271,33 @@ def list_items():
     )
   return response, df
 
-def gemini_chat(data: Dict, context: str, image_uri: str, questions: List):
+def gemini_chat(data: Dict):
 
-  user_query = data["question"]
-
-  if data["type"] == "questions_category_1":
-    print("cat1")
-    prompt = f"""
-    local_context_rag:
-    {context}
-    
-    preloaded_questions:
-    {questions}
-    
-    User/Customer prompt/Question:
-    {user_query}
-    """
+  # if data["type"] == "questions_category_1":
+  #   print("cat1")
+  #   prompt = f"""
+  #   local_context_rag:
+  #   {context}
+  #
+  #   User/Customer prompt/Question:
+  #   {user_query}
+  #   """
 
     # image = Part.from_uri(image_uri, "image/jpg")
-    _ = chat.send_message([prompt, "\n\nResponse: "])
-    res = _.text
-  elif data["type"] == "questions_category_2":
-    print("cat2")
-    gem_res = grounded_model.generate_content(f"Query: {user_query}\nAnswer:")
-    res = gem_res.text
-  else:
-    print("cat3")
-    _pre_re = requery_model.generate_content([f"Context:\n{context}\nQuestion:\n{user_query}\nResponse (concise_text only) as plain text:"])
-    pre_re = _pre_re.text
-    re = parallel_vector_search(pre_re)
+  #   _ = chat.send_message([prompt, "\n\nResponse: "])
+  #   res = _.text
+  # elif data["type"] == "questions_category_2":
+  #   print("cat2")
+  #   gem_res = grounded_model.generate_content(f"Query: {user_query}\nAnswer:")
+  #   res = gem_res.text
+  # else:
+  #   print("cat3")
+  #   _pre_re = requery_model.generate_content([f"Context:\n{context}\nQuestion:\n{user_query}\nResponse (concise_text only) as plain text:"])
+  #   pre_re = _pre_re.text
+  #   re = parallel_vector_search(pre_re)
 
-    _ = chat.send_message([f"Use the following new findings to answer this question: {user_query},\n Findings (new context):\n{str(re)}"])
-    res = _.text
+  # _ = chat.send_message([f"Use the following new findings to answer this question: {user_query},\n Findings (new context):\n{str(re)}"])
+  _ = chat.send_message(f"From the following context answer anything:\n\nContext{data['content']}\n\nQuestion: {data['question']}")
+  res = _.text
   return res
 

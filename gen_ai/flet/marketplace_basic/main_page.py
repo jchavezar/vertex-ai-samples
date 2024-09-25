@@ -5,16 +5,27 @@ all_items, df = list_items()
 
 def view(page):
   page.session.df = df
+
+  def go_home(e):
+    # Clear search results from session
+    page.session.search_results = None
+
+    # Reset page views and rebuild the main page
+    page.views.clear()
+    page.views.append(view(page))  # Re-add the main page view
+    page.go("/")
+
   def page_resize(e):
     input.width = page.width * 0.50
     page.update()
+
   def shadow(e):
     if e.data == "true":
       input.shadow = BoxShadow(
           spread_radius=0.2,
           blur_radius=2,
           color=colors.BLUE_GREY_300,
-          offset=Offset(0,0),
+          offset=Offset(0, 0),
           blur_style=ShadowBlurStyle.OUTER
       )
     else:
@@ -37,7 +48,7 @@ def view(page):
     page.session.summary = link["summary"]
     page.session.description = link["description"]
     page.session.materials = link["materials"]
-    #page.session.questions = link["questions"]
+    # page.session.questions = link["questions"]
     page.session.content = link["content"]
     page.session.questions_cat1 = link["questions_cat1"]
     page.session.answers_cat1 = link["answers_cat1"]
@@ -93,7 +104,7 @@ def view(page):
                           "summary": item["summary"],
                           "description": item["description"],
                           "materials": item["materials"],
-                          #"questions": item["questions"],
+                          # "questions": item["questions"],
                           "content": item["content"],
                           "questions_cat1": item["questions_cat1"],
                           "answers_cat1": item["answers_cat1"],
@@ -135,7 +146,7 @@ def view(page):
     grid_view.controls.clear()
     # gridscreen.height = ""
     # gridscreen.expand = True
-    #items, df = list_items()
+    # items, df = list_items()
 
     # Store list items results in page session
     page.session.search_results = all_items
@@ -165,7 +176,7 @@ def view(page):
                           "summary": item["summary"],
                           "description": item["description"],
                           "materials": item["materials"],
-                          #"questions": item["questions"],
+                          # "questions": item["questions"],
                           "content": item["content"],
                       },
                       # on_click=navigate_to_search_page,
@@ -176,7 +187,7 @@ def view(page):
       )
     page.update()
 
-  #second
+  # second
   grid_view: GridView = GridView(
       max_extent=200,
       spacing=60,
@@ -184,7 +195,7 @@ def view(page):
   )
 
   def go(e):
-    mp.controls[0]=second_main
+    mp.controls[0] = second_main
     input_field.value = e.control.value
     search(e.control.value)
     page.update()
@@ -222,7 +233,7 @@ def view(page):
       ]
   )
 
-  #second
+  # second
   gridscreen = Container(
       margin=margin.only(left=20),
       content=Column(
@@ -233,10 +244,10 @@ def view(page):
       ),
   )
 
-  #second
+  # second
   second_main_layout: ResponsiveRow = ResponsiveRow([gridscreen])
 
-  #second
+  # second
   input_field = TextField(
       prefix_icon=icons.SEARCH,
       height=28,
@@ -248,7 +259,7 @@ def view(page):
       on_submit=search
   )
 
-  #second
+  # second
   input_container = Container(
       width=page.width * 0.70,
       padding=10,
@@ -257,7 +268,7 @@ def view(page):
       content=input_field
   )
 
-  #second
+  # second
   second_main: Column = Column(
       controls=[
           Divider(height=10, color=colors.TRANSPARENT),
@@ -292,6 +303,11 @@ def view(page):
               content=Row(
                   controls=[
                       IconButton(
+                          icon=icons.HOME,
+                          on_click=go_home,
+                          icon_color=colors.DEEP_ORANGE_400,
+                      ),
+                      IconButton(
                           icon=icons.PHOTO_LIBRARY,
                           on_click=listitems,
                           icon_color=colors.DEEP_ORANGE_400,
@@ -314,7 +330,7 @@ def view(page):
       ]
   )
 
-  if hasattr(page.session, "search_results"):
+  if hasattr(page.session, "search_results") and page.session.search_results is not None:
     mp.controls[0] = second_main
     footer.visible = True
     input_field.value = page.session.query
@@ -345,7 +361,7 @@ def view(page):
                           "summary": item["summary"],
                           "description": item["description"],
                           "materials": item["materials"],
-                          #"questions": item["questions"],
+                          # "questions": item["questions"],
                           "content": item["content"],
                           "questions_cat1": item["questions_cat1"],
                           "answers_cat1": item["answers_cat1"],

@@ -8,6 +8,9 @@ from middleware import gemini_chat
 def view(page):
   page.bgcolor=colors.WHITE
   page.update()
+  print(page.session.questions_cat2)
+  print(page.session.answers_cat2)
+  print(page.session.link)
   # questions = json.loads(page.session.questions)
   questions_cat1 = json.loads(page.session.questions_cat1)
   answers_cat1 = json.loads(page.session.answers_cat1)
@@ -189,103 +192,53 @@ def view(page):
     if "image_uri" in e.control.data:
       response_image_panel.visible = True
       response_image_panel.content.controls=[
-          Container(
-              content=Image(
-                  src=image,
-                  width=120,
-                  height=120,
-                  fit=ImageFit.CONTAIN,
-                  border_radius=border_radius.all(10)
-              ),
-              data=page.session.df[page.session.df["public_cdn_link"] == image].to_dict(orient="records")[0],
-              on_click=navigate_to_search_page
-          ) for image in visual_image_uri
-      ]+[
-          Container(
-              content=Image(
-                  src=image,
-                  width=120,
-                  height=120,
-                  fit=ImageFit.CONTAIN,
-                  border_radius=border_radius.all(10)
-              ),
-              data=page.session.df[page.session.df["public_cdn_link"] == image].to_dict(orient="records")[0],
-              on_click=navigate_to_search_page
-          ) for image in textual_image_uri
-      ]
+                                                Container(
+                                                    content=Image(
+                                                        src=image,
+                                                        width=120,
+                                                        height=120,
+                                                        fit=ImageFit.CONTAIN,
+                                                        border_radius=border_radius.all(10)
+                                                    ),
+                                                    data=page.session.df[page.session.df["public_cdn_link"] == image].to_dict(orient="records")[0],
+                                                    on_click=navigate_to_search_page
+                                                ) for image in visual_image_uri
+                                            ]+[
+                                                Container(
+                                                    content=Image(
+                                                        src=image,
+                                                        width=120,
+                                                        height=120,
+                                                        fit=ImageFit.CONTAIN,
+                                                        border_radius=border_radius.all(10)
+                                                    ),
+                                                    data=page.session.df[page.session.df["public_cdn_link"] == image].to_dict(orient="records")[0],
+                                                    on_click=navigate_to_search_page
+                                                ) for image in textual_image_uri
+                                            ]
+      relevance_text.visible = True
       response_image_panel.update()
     text_input.focus()
     llm_response.visible = True
-    relevance_text.visible = True
     relevance_text.update()
     llm_response.update()
 
   def send_message(e):
-    data={"type": "category_1", "question": text_input.value}
+    # data={"type": "category_1", "question": text_input.value}
+    data={"content": page.session.content, "question": text_input.value}
     start_time = time.time()
-    re=gemini_chat(data=data, context=str(page.session.content), image_uri=page.session.private_uri, questions=str(questions))
+    re=gemini_chat(data=data)
     end_time = time.time() - start_time
     log.value=f"Total time: {end_time}"
     log.update()
     conv.controls.clear()
-    question.text = text_input.value
+    #question.text = text_input.value
     answer.text = re
     text_input.value=""
     text_input.focus()
     llm_response.visible = True
+    relevance_text.visible = False
     llm_response.update()
-    # if len(re["questions_to_ask"]) != 0:
-    #   conv.controls = (
-    #       [
-    #           ElevatedButton(
-    #               text=label,
-    #               color="black",
-    #               bgcolor="#E3F2FD",
-    #               style=ButtonStyle(
-    #                   shape=RoundedRectangleBorder(radius=25),
-    #                   padding=15,
-    #               ),
-    #             data=label,
-    #             on_click=button_etsymate,
-    #           )
-    #           for label in re["questions_to_ask"]["category_1"][:2]
-    #       ]
-    #       +
-    #       [
-    #           ElevatedButton(
-    #               text=label,
-    #               color="black",
-    #               bgcolor=colors.RED_100,
-    #               style=ButtonStyle(
-    #                   shape=RoundedRectangleBorder(radius=25),
-    #                   padding=15,
-    #               ),
-    #               data=label,
-    #               on_click=button_etsymate,
-    #           )
-    #           for label in re["questions_to_ask"]["category_2"][:2]
-    #       ]
-    #       +
-    #       [
-    #         ElevatedButton(
-    #             text=label,
-    #             color="black",
-    #             bgcolor=colors.YELLOW_50,
-    #             style=ButtonStyle(
-    #                 shape=RoundedRectangleBorder(radius=25),
-    #                 padding=15,
-    #             ),
-    #             data=label,
-    #             on_click=button_etsymate,
-    #         )
-    #       for label in re["questions_to_ask"]["category_3"][:2]
-    #       ]
-    #       +[Divider(height=20, color=colors.TRANSPARENT)])
-    #   log.value=f"Category Detected: {re['category_picked']}"
-    #   image_panel.update()
-    #   text_input.value=""
-    #   text_input.focus()
-    #   conv.update()
 
   panel = ExpansionPanelList(
       expand_icon_color=colors.DEEP_ORANGE_400,
@@ -295,11 +248,11 @@ def view(page):
           ExpansionPanel(
               header=ListTile(title=Text("Item Details", size=14)),
               content=Container(
-                content=Column(
-                    alignment=MainAxisAlignment.CENTER,
-                    horizontal_alignment=CrossAxisAlignment.CENTER,
-                    controls=[Text(line.strip(), selectable=True) for line in page.session.description.split('\\n')]
-                ),
+                  content=Column(
+                      alignment=MainAxisAlignment.CENTER,
+                      horizontal_alignment=CrossAxisAlignment.CENTER,
+                      controls=[Text(line.strip(), selectable=True) for line in page.session.description.split('\\n')]
+                  ),
               ),
           )
       ]
@@ -386,6 +339,7 @@ def view(page):
                                                       min_lines=1,
                                                       max_lines=10,
                                                       expand=True,
+                                                      data=page.session.content,
                                                       on_submit=send_message,
                                                       shift_enter=True,
                                                   ),
@@ -434,20 +388,20 @@ def view(page):
                                           wrap=True,
                                           scroll="auto",
                                           controls=[
-                                              ElevatedButton(
-                                                  text=question,
-                                                  color="black",
-                                                  bgcolor="#E3F2FD",
-                                                  style=ButtonStyle(
-                                                      shape=RoundedRectangleBorder(radius=25),
-                                                      padding=15,
-                                                  ),
-                                                  data={"type": "questions_category_1", "question": question, "answer": answer},
-                                                  on_click=button_message,
-                                              )
-                                              for question, answer in zip(questions_cat1, answers_cat1)
+                                                       ElevatedButton(
+                                                           text=question,
+                                                           color="black",
+                                                           bgcolor="#E3F2FD",
+                                                           style=ButtonStyle(
+                                                               shape=RoundedRectangleBorder(radius=25),
+                                                               padding=15,
+                                                           ),
+                                                           data={"type": "questions_category_1", "question": question, "answer": answer},
+                                                           on_click=button_message,
+                                                       )
+                                                       for question, answer in zip(questions_cat1, answers_cat1)
                                                    ]
-                                          +
+                                                   +
                                                    [
                                                        ElevatedButton(
                                                            text=question,
@@ -462,7 +416,7 @@ def view(page):
                                                        )
                                                        for question, answer in zip(questions_cat2, answers_cat2)
                                                    ]
-                                          +
+                                                   +
                                                    [
                                                        ElevatedButton(
                                                            text=question,
