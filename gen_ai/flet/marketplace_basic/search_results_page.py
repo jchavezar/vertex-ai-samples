@@ -5,7 +5,6 @@ from flet import *
 from middleware import gemini_chat
 
 
-
 def view(page):
   page.bgcolor=colors.WHITE
   page.update()
@@ -22,6 +21,129 @@ def view(page):
   textual_image_uri = json.loads(page.session.textual_image_uri)
   visual_tile = json.loads(page.session.visual_tile)
   visual_image_uri = json.loads(page.session.visual_image_uri)
+
+  def navigate_to_search_page(e):
+    link = e.control.data
+    page.session.link = link["public_cdn_link"]
+    page.session.private_uri = link["private_gcs_link"]
+    page.session.title = link["llm_title"]
+    page.session.price = link["price_usd"]
+    page.session.subtitle = link["title"]
+    page.session.summary = link["summary"]
+    page.session.description = link["description"]
+    page.session.materials = link["materials"]
+    page.session.content = link["content"]
+    page.session.questions_cat1 = link["questions_cat1"]
+    page.session.answers_cat1 = link["answers_cat1"]
+    page.session.questions_cat2 = link["questions_cat2"]
+    page.session.answers_cat2 = link["answers_cat2"]
+    page.session.textual_questions = link["textual_questions"]
+    page.session.textual_answers = link["textual_answers"]
+    page.session.visual_questions = link["visual_questions"]
+    page.session.visual_answers = link["visual_answers"]
+    page.session.textual_tile = link["textual_tile"]
+    page.session.textual_image_uri = link["textual_image_uri"]
+    page.session.visual_tile = link["visual_tile"]
+    page.session.visual_image_uri = link["visual_image_uri"]
+    update_search_results_view(page)
+    page.update()
+
+  def update_search_results_view(page):
+    # Update image
+    image_panel.content.controls[0].src = page.session.link
+
+    # Update text fields (adapt these based on your actual control indexing)
+    text_panel.content.controls[1].value = page.session.price # Price is at index 1
+    text_panel.content.controls[2].value = page.session.title
+    text_panel.content.controls[3].value = page.session.subtitle
+    text_panel.content.controls[4].spans[1].text = page.session.summary.strip() # Accessing TextSpan within Text control
+    text_panel.content.controls[5].spans[1].text = page.session.materials.strip()
+    panel.controls[0].content.content.controls = [Text(line.strip(), selectable=True) for line in page.session.description.split('\\n')]
+
+
+    # Update question buttons (conv control)
+    questions_cat1 = json.loads(page.session.questions_cat1)
+    answers_cat1 = json.loads(page.session.answers_cat1)
+    questions_cat2 = json.loads(page.session.questions_cat2)
+    answers_cat2 = json.loads(page.session.answers_cat2)
+    textual_questions = json.loads(page.session.textual_questions)
+    textual_answers = json.loads(page.session.textual_answers)
+    visual_questions = json.loads(page.session.visual_questions)
+    visual_answers = json.loads(page.session.visual_answers)
+    textual_tile = json.loads(page.session.textual_tile)
+    textual_image_uri = json.loads(page.session.textual_image_uri)
+    visual_tile = json.loads(page.session.visual_tile)
+    visual_image_uri = json.loads(page.session.visual_image_uri)
+
+    conv.controls.clear()
+
+    def create_buttons(questions, answers, bg_color, data_type):
+      return [
+          ElevatedButton(
+              text=question,
+              color="black",
+              bgcolor=bg_color,
+              style=ButtonStyle(
+                  shape=RoundedRectangleBorder(radius=25),
+                  padding=15,
+              ),
+              data={"type": data_type, "question": question, "answer": answer}, # Include tile and image_uri if needed
+              on_click=button_message,
+          )
+          for question, answer in zip(questions, answers)
+      ]
+
+    conv.controls.extend(create_buttons(questions_cat1, answers_cat1, "#E3F2FD", "questions_category_1"))
+    conv.controls.extend(create_buttons(questions_cat2, answers_cat2, colors.RED_100, "questions_category_2"))
+    conv.controls.extend(create_buttons(textual_questions, textual_answers, colors.YELLOW_50, "questions_category_3"))  # Add tile and image_uri to data if needed
+    conv.controls.extend(create_buttons(visual_questions, visual_answers, colors.YELLOW_50, "questions_category_3")) # Add tile and image_uri to data if needed
+
+
+    # Update the response image panel
+    response_image_panel.visible = len(textual_image_uri) > 0 or len(visual_image_uri) > 0
+    response_image_panel.content.controls.clear()
+
+    def create_image_containers(image_uris):
+      return [
+          Container(
+              content=Image(
+                  src=image,
+                  width=120,
+                  height=120,
+                  fit=ImageFit.CONTAIN,
+                  border_radius=border_radius.all(10)
+              ),
+              data=page.session.df[page.session.df["public_cdn_link"] == image].to_dict(orient="records")[0],
+              on_click=navigate_to_search_page
+          ) for image in image_uris
+      ]
+
+
+    response_image_panel.content.controls.extend(create_image_containers(textual_image_uri))
+    response_image_panel.content.controls.extend(create_image_containers(visual_image_uri))
+
+
+
+    page.update()
+
+
+  def find_matches(row):
+    return row["public_cdn_link"] in textual_image_uri or row["public_cdn_link"] in visual_image_uri
+
+  pivot_df = page.session.df[page.session.df.apply(find_matches, axis=1)]
+  cols_to_transform = [
+      'visual_questions',
+      'visual_answers',
+      'visual_tile',
+      'visual_image_uri',
+      'textual_questions',
+      'textual_answers',
+      'textual_tile',
+      'textual_image_uri'
+  ]
+
+  # for col in cols_to_transform:
+  #   pivot_df[col] = pivot_df[col].apply(json.loads)
 
   items_available = random.randint(1,8)
   dollars = random.randint(0,99)
@@ -51,7 +173,7 @@ def view(page):
       answer.text = e.control.data["answer"]
       answer.style = TextStyle(color=colors.GREY_800,  size=18)
       cat.content = Text(e.control.data["type"])
-      cat.bgcolor = colors.RED100
+      cat.bgcolor = colors.RED_100
       cat.border_radius = 14
       response_image_panel.visible = False
       llm_response.update()
@@ -67,20 +189,28 @@ def view(page):
     if "image_uri" in e.control.data:
       response_image_panel.visible = True
       response_image_panel.content.controls=[
-          Image(
-              src=image,
-              width=120,
-              height=120,
-              fit=ImageFit.CONTAIN,
-              border_radius=border_radius.all(10)
+          Container(
+              content=Image(
+                  src=image,
+                  width=120,
+                  height=120,
+                  fit=ImageFit.CONTAIN,
+                  border_radius=border_radius.all(10)
+              ),
+              data=page.session.df[page.session.df["public_cdn_link"] == image].to_dict(orient="records")[0],
+              on_click=navigate_to_search_page
           ) for image in visual_image_uri
       ]+[
-          Image(
-              src=image,
-              width=120,
-              height=120,
-              fit=ImageFit.CONTAIN,
-              border_radius=border_radius.all(10)
+          Container(
+              content=Image(
+                  src=image,
+                  width=120,
+                  height=120,
+                  fit=ImageFit.CONTAIN,
+                  border_radius=border_radius.all(10)
+              ),
+              data=page.session.df[page.session.df["public_cdn_link"] == image].to_dict(orient="records")[0],
+              on_click=navigate_to_search_page
           ) for image in textual_image_uri
       ]
       response_image_panel.update()
@@ -295,7 +425,7 @@ def view(page):
                                                   relevance_text:=Text("Here are some other relevant listings:", visible=False),
                                                   response_image_panel:=Container(
                                                       visible=False,
-                                                      content=Row(expand=1, wrap=False, scroll="always")
+                                                      content=Row(expand=1, wrap=False, scroll="always"),
                                                   ),
                                               ]
                                           )
@@ -346,6 +476,7 @@ def view(page):
                                                            on_click=button_message,
                                                        )
                                                        for question, answer, tile, image_uri in zip(textual_questions, textual_answers, textual_tile, textual_image_uri)
+                                                       # for index, row in pivot_df.iterrows() for question, answer, tile, image_uri in zip(row["textual_questions"], row["textual_answers"], row["textual_tile"], row["textual_image_uri"])
                                                    ]
                                                    +
                                                    [
@@ -361,6 +492,7 @@ def view(page):
                                                            on_click=button_message,
                                                        )
                                                        for question, answer, tile, image_uri in zip(visual_questions, visual_answers, visual_tile, visual_image_uri)
+                                                       # for index, row in pivot_df.iterrows() for question, answer, tile, image_uri in zip(row["visual_questions"], row["visual_answers"], row["visual_tile"], row["visual_image_uri"])
                                                    ]
                                                    +[Divider(height=20, color=colors.TRANSPARENT)]
                                       ),

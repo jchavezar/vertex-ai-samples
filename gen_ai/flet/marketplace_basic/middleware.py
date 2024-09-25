@@ -18,7 +18,7 @@ from vertexai.preview.generative_models import GenerativeModel, Part, Tool
 
 project_id = "vtxdemos"
 bq_table = "demos_us.etsy-embeddings-full-latest"
-bq_table = "demos_us.etsy-embeddings-full-version1-title"
+bq_table = "vtxdemos.demos_us.etsy-10k-full"
 region = "us-east1"
 model_id = "gemini-1.5-flash-001"
 
@@ -174,12 +174,6 @@ def parallel_vector_search(input: str):
     # df_1['questions_cat1'] = df_1['questions_cat1'].apply(json.dumps)
     # df_2['questions_cat1'] = df_2['questions_cat1'].apply(json.dumps)
 
-    print(df_1.columns)
-    print(df_2.columns)
-    print(df_1["questions_cat1"].iloc[0])
-    print(type(df_1["questions_cat1"].iloc[0]))
-    print(df_2["questions_cat1"].iloc[0])
-
     # Perform an outer join to combine results, handling cases where
     combined_results = pd.merge(df_1, df_2, on=[
         'title',
@@ -215,8 +209,6 @@ def parallel_vector_search(input: str):
 
     ranked_df = combined_results.sort_values('weighted_distance')
 
-    print(ranked_df["questions_cat1"].iloc[0])
-    print(ranked_df["answers_cat1"].iloc[0])
 
     response = [
         {
@@ -254,19 +246,30 @@ def list_items():
   for index,row in df.iterrows():
     response.append(
         {
-            "title": row["llm_title"] or "",
-            "subtitle":  row["title"] or "",
-            "price": row["price_usd"] or "",
-            "summary":  row["summary"] or "",
-            "uri": row["public_cdn_link"] or "",
-            "content": row["content"] or "",
-            "description": row["description"] or "",
-            "materials": row["materials"] or "",
-            "tags": row["tags"] or "",
-            #"questions": row["llm_questions"] or ""
-        }
+            "private_uri": row.get("private_uri", ""),  # Handle potential missing key
+            "title": row["llm_title"],
+            "subtitle": row["title"],
+            "price": row["price_usd"],
+            "summary": row["summary"],
+            "description": row["description"],
+            "materials": row["materials"],
+            "uri": row["public_cdn_link"],
+            "content": row["content"],
+            "questions_cat1": row["questions_cat1"],
+            "answers_cat1": row["answers_cat1"],
+            "questions_cat2": row["questions_cat1"],
+            "answers_cat2": row["answers_cat2"],
+            "textual_questions": row["textual_questions"],
+            "textual_answers": row["textual_answers"],
+            "visual_questions": row["visual_questions"],
+            "visual_answers": row["visual_answers"],
+            "textual_tile": row["textual_tile"],
+            "textual_image_uri": row["textual_image_uri"],
+            "visual_tile": row["visual_tile"],
+            "visual_image_uri": row["visual_image_uri"]
+         }
     )
-  return response
+  return response, df
 
 def gemini_chat(data: Dict, context: str, image_uri: str, questions: List):
 

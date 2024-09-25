@@ -1,7 +1,10 @@
 from flet import *
 from middleware import list_items, parallel_vector_search
 
+all_items, df = list_items()
+
 def view(page):
+  page.session.df = df
   def page_resize(e):
     input.width = page.width * 0.50
     page.update()
@@ -52,7 +55,6 @@ def view(page):
 
   async def search(e):
     if e.control.data == 1:
-      print("working?")
       mp.controls[0] = second_main
       footer.visible = True
       input_field.value = e.control.value
@@ -133,12 +135,12 @@ def view(page):
     grid_view.controls.clear()
     # gridscreen.height = ""
     # gridscreen.expand = True
-    items = list_items()
+    #items, df = list_items()
 
     # Store list items results in page session
-    page.session.search_results = items
+    page.session.search_results = all_items
 
-    for item in items:
+    for item in all_items:
       grid_view.controls.append(
           Column(
               alignment=MainAxisAlignment.CENTER,
