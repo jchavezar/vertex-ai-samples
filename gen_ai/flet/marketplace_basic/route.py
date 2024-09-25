@@ -1,6 +1,5 @@
 from flet import *
 import main_page
-import first_page
 import second_page
 import third_page
 import search_results_page
@@ -17,10 +16,7 @@ def main(page: Page):
     page.update()
     page.views.clear()
     page.views.append(main_page.view(page))
-    if page.route == "/first":
-      fp = first_page.view(page)
-      page.views.append(fp)
-    elif page.route == "/second":
+    if page.route == "/second":
       page.views.append(second_page.view(page))
     elif page.route == "/third":
       page.views.append(third_page.view(page))
