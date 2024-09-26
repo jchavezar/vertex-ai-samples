@@ -1,4 +1,6 @@
+import io
 import json
+import pickle
 import time
 import asyncio
 from typing import Dict
@@ -6,7 +8,7 @@ from typing import List
 
 import vertexai
 import pandas as pd
-from google.cloud import bigquery
+from google.cloud import bigquery, storage
 from concurrent.futures import ThreadPoolExecutor
 
 from vertexai.resources.preview import feature_store
@@ -21,6 +23,12 @@ bq_table = "demos_us.etsy-embeddings-full-latest"
 bq_table = "vtxdemos.demos_us.etsy-10k-full"
 region = "us-east1"
 model_id = "gemini-1.5-flash-001"
+bucket_id = "etsy-demo"
+dict_blob_name = "backup/queries.pkl"
+
+storage_client = storage.Client(project=project_id)
+bucket = storage_client.bucket(bucket_id)
+vertexai.init(project=project_id, location=region)
 
 bq_client = bigquery.Client(project=project_id)
 df = bq_client.query(f"SELECT * EXCEPT(text_embedding, ml_generate_embedding_result) FROM  `{bq_table}`").to_dataframe()
@@ -30,7 +38,6 @@ image_emb_model = MultiModalEmbeddingModel.from_pretrained("multimodalembedding"
 fv_multi = feature_store.FeatureView(name="projects/254356041555/locations/us-east1/featureOnlineStores/feature_store_marketplace/featureViews/etsy_view_image1")
 fv_text = feature_store.FeatureView(name="projects/254356041555/locations/us-east1/featureOnlineStores/feature_store_marketplace/featureViews/etsy_view_text1")
 
-vertexai.init(project=project_id, location=region)
 generation_config = {
     "max_output_tokens": 8192,
     "temperature": 1,
@@ -93,6 +100,12 @@ requery_model = GenerativeModel(
     model_id,
     system_instruction=[requery_instructions]
 )
+
+# Load Files
+def load_suggestion_list():
+  bytes = bucket.blob(dict_blob_name).download_as_bytes()
+  return pickle.loads(bytes)
+
 
 # RAG
 def response_process(result, multimodal: bool):

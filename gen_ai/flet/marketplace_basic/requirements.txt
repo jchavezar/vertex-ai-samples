@@ -1,0 +1,5 @@
+flet
+pandas
+db-dtypes
+google-cloud-storage
+google-cloud-aiplatform
