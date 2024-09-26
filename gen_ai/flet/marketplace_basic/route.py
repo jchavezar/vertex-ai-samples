@@ -5,7 +5,7 @@ import third_page
 import search_results_page
 
 def main(page: Page):
-  page.title = "Multi-Page Flet App"
+  page.title = "Welcome to Esty"
   page.window.height = 700
   page.bgcolor = colors.TRANSPARENT
   page.theme = theme.Theme(color_scheme_seed=colors.GREY)
@@ -13,7 +13,6 @@ def main(page: Page):
   page.update()
 
   def route_change(route):
-    page.update()
     page.views.clear()
     page.views.append(main_page.view(page))
     if page.route == "/second":
@@ -33,4 +32,4 @@ def main(page: Page):
   page.on_view_pop = view_pop
   page.go(page.route)
 
-app(target=main)
+app(target=main, port=8000, host="0.0.0.0")

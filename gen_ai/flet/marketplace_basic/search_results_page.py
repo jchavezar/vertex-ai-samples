@@ -8,9 +8,6 @@ from middleware import gemini_chat
 def view(page):
   page.bgcolor=colors.WHITE
   page.update()
-  print(page.session.questions_cat2)
-  print(page.session.answers_cat2)
-  print(page.session.link)
   # questions = json.loads(page.session.questions)
   questions_cat1 = json.loads(page.session.questions_cat1)
   answers_cat1 = json.loads(page.session.answers_cat1)
@@ -54,9 +51,11 @@ def view(page):
   def update_search_results_view(page):
     # Update image
     image_panel.content.controls[0].src = page.session.link
+    image_panel.content.controls[0].update()
 
     # Update text fields (adapt these based on your actual control indexing)
-    text_panel.content.controls[1].value = page.session.price # Price is at index 1
+    text_panel.content.controls[1].value = page.session.price
+    text_panel.content.controls[1].update()
     text_panel.content.controls[2].value = page.session.title
     text_panel.content.controls[3].value = page.session.subtitle
     text_panel.content.controls[4].spans[1].text = page.session.summary.strip() # Accessing TextSpan within Text control
@@ -120,14 +119,8 @@ def view(page):
               on_click=navigate_to_search_page
           ) for image in image_uris
       ]
-
-
     response_image_panel.content.controls.extend(create_image_containers(textual_image_uri))
     response_image_panel.content.controls.extend(create_image_containers(visual_image_uri))
-
-
-
-    page.update()
 
 
   def find_matches(row):
@@ -145,12 +138,7 @@ def view(page):
       'textual_image_uri'
   ]
 
-  # for col in cols_to_transform:
-  #   pivot_df[col] = pivot_df[col].apply(json.loads)
-
   items_available = random.randint(1,8)
-  dollars = random.randint(0,99)
-  cents = random.randint(0,99)
   price = f"$ {page.session.price}"
 
   def button_message(e):
@@ -167,26 +155,16 @@ def view(page):
     if e.control.data["type"] == "questions_category_1":
       answer.text = e.control.data["answer"]
       answer.style = TextStyle(color=colors.GREY_800,  size=18)
-      cat.content = Text(e.control.data["type"])
-      cat.bgcolor = "#E3F2FD"
-      cat.border_radius = 14
       response_image_panel.visible = False
       llm_response.update()
     elif e.control.data["type"] == "questions_category_2":
       answer.text = e.control.data["answer"]
       answer.style = TextStyle(color=colors.GREY_800,  size=18)
-      cat.content = Text(e.control.data["type"])
-      cat.bgcolor = colors.RED_100
-      cat.border_radius = 14
       response_image_panel.visible = False
       llm_response.update()
     elif e.control.data["type"] == "questions_category_3":
       answer.text = e.control.data["answer"]
       answer.style = TextStyle(color=colors.GREY_800, size=18)
-      cat.content = Text(e.control.data["type"])
-      cat.bgcolor = colors.YELLOW_50
-      cat.border_radius = 14
-      cat.update()
     else:
       answer.style = TextStyle(color=colors.BLACK)
     if "image_uri" in e.control.data:
@@ -360,21 +338,11 @@ def view(page):
                                               alignment=MainAxisAlignment.START,
                                               spacing=8,
                                               controls=[
-                                                  # Text(
-                                                  #     spans=[
-                                                  #         TextSpan("Your Question: ", style=TextStyle(color=colors.GREY_800, weight=FontWeight.BOLD)),
-                                                  #         question:=TextSpan(),
-                                                  #     ]
-                                                  # ),
                                                   Text(
                                                       spans=[
                                                           TextSpan("Chatsy:  ", style=TextStyle(color=colors.DEEP_ORANGE_400, weight=FontWeight.BOLD)),
                                                           answer:=TextSpan(style=TextStyle(size=20, color=colors.BLUE_700)),
                                                       ]
-                                                  ),
-                                                  cat:=Container(
-                                                      padding=padding.only(left=15, right=15),
-                                                      height=20
                                                   ),
                                                   relevance_text:=Text("Here are some other relevant listings:", visible=False),
                                                   response_image_panel:=Container(

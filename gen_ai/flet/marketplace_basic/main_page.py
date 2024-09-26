@@ -1,7 +1,10 @@
 from flet import *
-from middleware import list_items, parallel_vector_search
+from networkx.algorithms.bipartite.basic import color
+
+from middleware import list_items, parallel_vector_search, load_suggestion_list
 
 all_items, df = list_items()
+suggestion_list = load_suggestion_list()
 
 def view(page):
   page.session.df = df
@@ -62,6 +65,7 @@ def view(page):
     page.session.textual_image_uri = link["textual_image_uri"]
     page.session.visual_tile = link["visual_tile"]
     page.session.visual_image_uri = link["visual_image_uri"]
+    # page.update()
     page.go("/search_results")
 
   async def search(e):
@@ -200,6 +204,26 @@ def view(page):
     search(e.control.value)
     page.update()
 
+  def set_input(e):
+    input.content.value = e.control.data
+    input.update()
+
+  # first
+  def textbox_changed(string):
+    str_lower = string.control.value.lower()
+    list_view.controls = [
+        ListTile(
+            title=Text(word, size=20, color= colors.DEEP_ORANGE_400),
+            leading=Icon(icons.ARROW_FORWARD, color=colors.GREY_400),
+            on_click=set_input,
+            data=word,
+        ) for word
+        in suggestion_list if str_lower in word.lower()
+    ] if str_lower else []
+    page.update()
+
+  list_view = ListView(expand=1, spacing=2, padding=10)
+
   # first
   main_layout: Column = Column(
       horizontal_alignment=CrossAxisAlignment.CENTER,
@@ -226,9 +250,16 @@ def view(page):
                   content_padding=10,
                   border_color=colors.TRANSPARENT,
                   data=1,
-                  on_submit=search
+                  on_submit=search,
+                  on_change=textbox_changed
               ),
               on_hover=shadow
+          ),
+          Container(
+              width=page.width * 0.50,
+              height=page.height * 0.70,
+              padding=10,
+              content=list_view
           ),
       ]
   )
@@ -307,11 +338,11 @@ def view(page):
                           on_click=go_home,
                           icon_color=colors.DEEP_ORANGE_400,
                       ),
-                      IconButton(
-                          icon=icons.PHOTO_LIBRARY,
-                          on_click=listitems,
-                          icon_color=colors.DEEP_ORANGE_400,
-                      ),
+                      # IconButton(
+                      #     icon=icons.PHOTO_LIBRARY,
+                      #     on_click=listitems,
+                      #     icon_color=colors.DEEP_ORANGE_400,
+                      # ),
                       IconButton(
                           icon=icons.ARCHITECTURE,
                           on_click=navigate_to_second_page,
