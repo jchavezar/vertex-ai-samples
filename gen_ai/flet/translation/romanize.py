@@ -63,6 +63,7 @@ class ChatWidget(Container):
         )
 
     def send_message(self, e):
+        #self.content.scroll = ScrollMode.ALWAYS
         romanize_translation = client.romanize_text(
             parent=f"projects/{project_id}",
             contents=[e.control.value]
