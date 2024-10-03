@@ -3,20 +3,41 @@ import json
 import vertexai
 import pandas as pd
 from vertexai.resources.preview import feature_store
-from vertexai.generative_models import GenerationConfig, GenerativeModel
+from vertexai.generative_models import GenerationConfig, GenerativeModel, SafetySetting
 from vertexai.language_models import TextEmbeddingInput, TextEmbeddingModel
 
-model_name = "gemini-1.5-flash-002"
+model_name = "gemini-1.5-flash-001"
 embeddings_model_name = "text-embedding-004"
 project_id = "vtxdemos"
 location = "us-east1"
 
-model = GenerativeModel(model_name=model_name)
+model = GenerativeModel(
+    model_name=model_name,
+    generation_config={"temperature": 1.1}
+)
 vertexai.init(project=project_id, location=location)
 fv_text = feature_store.FeatureView(
-    name="projects/254356041555/locations/us-east1/featureOnlineStores/feature_store_marketplace/featureViews/etsy_view_text1")
+    name="projects/254356041555/locations/us-east1/featureOnlineStores/feature_store_marketplace/featureViews/etsy_view_text_v1_1")
 text_emb_model = TextEmbeddingModel.from_pretrained(embeddings_model_name)
 
+safety_settings = [
+    SafetySetting(
+        category=SafetySetting.HarmCategory.HARM_CATEGORY_HATE_SPEECH,
+        threshold=SafetySetting.HarmBlockThreshold.OFF
+    ),
+    SafetySetting(
+        category=SafetySetting.HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
+        threshold=SafetySetting.HarmBlockThreshold.OFF
+    ),
+    SafetySetting(
+        category=SafetySetting.HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
+        threshold=SafetySetting.HarmBlockThreshold.OFF
+    ),
+    SafetySetting(
+        category=SafetySetting.HarmCategory.HARM_CATEGORY_HARASSMENT,
+        threshold=SafetySetting.HarmBlockThreshold.OFF
+    ),
+]
 
 class Gemini:
     def __init__(self):
@@ -59,8 +80,9 @@ class Gemini:
             response = model.generate_content(
                 [self.prompt_template, "\n\n<Product Information>\n", listing_info],
                 generation_config=GenerationConfig(
-                    response_mime_type="application/json", response_schema=self.response_schema
+                    response_mime_type="application/json", response_schema=self.response_schema, temperature=1.1
                 ),
+                safety_settings=safety_settings
             )
             return response.text
         except:
@@ -109,13 +131,14 @@ class Gemini:
         re = self.generate_questions(content)
         if re != "error":
             question_cat3 = json.loads(re)["questions"]
-            for question in question_cat3:
+            for num, question in enumerate(question_cat3):
                 rephraser_contents_cat3 = [
                     self.rephraser_prompt_cat3,
                     question,
                     content,
                 ]
-                rephrased_query = model.generate_content(rephraser_contents_cat3).text
+                print(num)
+                rephrased_query = model.generate_content(rephraser_contents_cat3, safety_settings=safety_settings, generation_config={"temperature": 1.1}).text
                 self.search_for_item_information(rephrased_query)
                 recommendations.append({"rephraser_question": rephrased_query, "dataframe": self.dataframe})
         return recommendations
