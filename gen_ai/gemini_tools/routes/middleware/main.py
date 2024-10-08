@@ -13,7 +13,7 @@ text_emb_model = TextEmbeddingModel.from_pretrained(embeddings_model_name)
 class LocalEmbeddings:
   def __init__(self):
     # super().__init__()
-    self.dataframe = pd.read_pickle("final_df_v11_cdn.pkl")
+    self.dataframe = pd.read_pickle("gs://etsy-demo/artifacts/final_df_v11_cdn.pkl")
     self.matrix_len_x = self.dataframe.shape[0]
     self.matrix_len_y = len(self.dataframe.iloc[0]["embedding"])
     self.img = np.array([row["embedding"] for index, row in self.dataframe.iterrows()])
