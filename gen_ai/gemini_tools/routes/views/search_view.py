@@ -3,7 +3,10 @@ import json
 from flet import *
 from typing import Union
 from State import global_state, State
+from middleware.main import LocalEmbeddings
 from views.Router import Router, DataStrategyEnum
+
+le = LocalEmbeddings()
 
 def SearchView(page: Page, router_data: Union[Router, str, None] = None):
   def send_data(e: ControlEvent):
@@ -47,25 +50,10 @@ def SearchView(page: Page, router_data: Union[Router, str, None] = None):
       e.page.go("/info_widget")
 
   async def search(e):
-    items = [
-        {
-            "title": "masamba",
-            "description": "mambo"
-        },
-        {
-            "title": "masamb2",
-            "description": "mambo"
-        },
-        {
-            "title": "masamb2",
-            "description": "mambo"
-        },
-        {
-            "title": "masamb2",
-            "description": "mambo"
-        },
-    ]
-    for item in items:
+    grid_view.controls.clear()
+    df_retrieved = le.vector_search(e.control.value)
+
+    for index, row in df_retrieved.iterrows():
       grid_view.controls.append(
           Column(
               alignment=MainAxisAlignment.CENTER,
@@ -77,10 +65,27 @@ def SearchView(page: Page, router_data: Union[Router, str, None] = None):
                               bgcolor=colors.GREY_500,
                               height=150,
                               width=150,
-                              content=Text(item["title"]) # To Change
+                              content=Image(
+                                  src=row["public_cdn_link"],
+                                  fit=ImageFit.COVER,
+                              ),
                           )
                       ),
-                      data=item,
+                      data={
+                          "listing_id": row["listing_id"],
+                          "generated_titles": row["generated_titles"],
+                          "generated_descriptions": row["generated_descriptions"],
+                          "public_cdn_link": row["public_cdn_link"],
+                          "q_cat_1":  row["q_cat_1"],
+                          "a_cat_1":  row["a_cat_1"],
+                          "q_cat_2":  row["q_cat_2"],
+                          "a_cat_2":  row["a_cat_2"],
+                          "cat_3_questions": row["cat_3_questions"],
+                          "price_usd": row["price_usd"],
+                          # "materials": row["materials"],
+                          "title": row["title"],
+                          "description": row["description"],
+                      },
                       on_click=navigate_to_search_page
                   ),
                   Container(
@@ -91,7 +96,7 @@ def SearchView(page: Page, router_data: Union[Router, str, None] = None):
                           controls=[
                               Container(
                                   width=70,
-                                  content=Text(item["title"], overflow=TextOverflow.ELLIPSIS)
+                                  content=Text(row["generated_titles"], overflow=TextOverflow.ELLIPSIS)
                               ),
                               Container(
                                   content=Text("$12", size=12)
