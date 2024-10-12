@@ -11,6 +11,6 @@ def main(page: Page):
   page.add(
       router.body
   )
-  page.go('/')
+  page.go('/logo_widget')
 
 app(target=main, assets_dir="assets")

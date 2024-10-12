@@ -13,7 +13,7 @@ class Router:
     self.data_strategy = data_strategy
     self.data = dict()
     self.routes = {}
-    self.body = ft.Container()
+    self.body = ft.Container(expand=True)
     self.page = None
 
   def set_route(self, stub: str, view: Callable):

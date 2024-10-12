@@ -3,10 +3,11 @@ import json
 from flet import *
 from typing import Union
 from State import global_state, State
-from middleware.main import LocalEmbeddings
+from middleware.main import LocalEmbeddings, VaIS
 from views.Router import Router, DataStrategyEnum
 
-le = LocalEmbeddings()
+#le = LocalEmbeddings()
+vais = VaIS()
 
 def SearchView(page: Page, router_data: Union[Router, str, None] = None):
   def send_data(e: ControlEvent):
@@ -32,7 +33,7 @@ def SearchView(page: Page, router_data: Union[Router, str, None] = None):
                   expand=True
               ),
           ],
-          height=460,
+          height=page.height*.70,
       ),
   )
 
@@ -41,9 +42,7 @@ def SearchView(page: Page, router_data: Union[Router, str, None] = None):
   def navigate_to_search_page(e):
     if e.control.data == "":
       return
-    if router_data and router_data.data_strategy == DataStrategyEnum.QUERY:
-      e.page.go("/info_widget", data=json.dumps(e.control.data))
-    elif router_data and router_data.data_strategy == DataStrategyEnum.STATE:
+    if router_data and router_data.data_strategy == DataStrategyEnum.STATE:
       state = State("data", e.control.data)
       e.page.go("/info_widget")
     else:
@@ -51,7 +50,10 @@ def SearchView(page: Page, router_data: Union[Router, str, None] = None):
 
   async def search(e):
     grid_view.controls.clear()
-    df_retrieved = le.vector_search(e.control.value)
+    # df_retrieved = le.vector_search(e.control.value)
+    df_retrieved = vais.search(e.control.value)
+    state = State("text_input", e.control.value)
+    state = State("retrieved_dataset", df_retrieved)
 
     for index, row in df_retrieved.iterrows():
       grid_view.controls.append(
@@ -73,14 +75,14 @@ def SearchView(page: Page, router_data: Union[Router, str, None] = None):
                       ),
                       data={
                           "listing_id": row["listing_id"],
-                          "generated_titles": row["generated_titles"],
-                          "generated_descriptions": row["generated_descriptions"],
+                          "generated_title": row["generated_title"],
+                          "generated_description": row["generated_description"],
                           "public_cdn_link": row["public_cdn_link"],
                           "q_cat_1":  row["q_cat_1"],
                           "a_cat_1":  row["a_cat_1"],
                           "q_cat_2":  row["q_cat_2"],
                           "a_cat_2":  row["a_cat_2"],
-                          "cat_3_questions": row["cat_3_questions"],
+                          #"cat_3_questions": row["cat_3_questions"],
                           "price_usd": row["price_usd"],
                           # "materials": row["materials"],
                           "title": row["title"],
@@ -96,7 +98,7 @@ def SearchView(page: Page, router_data: Union[Router, str, None] = None):
                           controls=[
                               Container(
                                   width=70,
-                                  content=Text(row["generated_titles"], overflow=TextOverflow.ELLIPSIS)
+                                  content=Text(row["generated_title"], overflow=TextOverflow.ELLIPSIS)
                               ),
                               Container(
                                   content=Text("$12", size=12)
@@ -122,6 +124,26 @@ def SearchView(page: Page, router_data: Union[Router, str, None] = None):
       search_text_input_c.shadow = None
     search_text_input_c.update()
 
+  #suggestion_list = le.load_suggestion_list
+
+  # TextField Recommendations
+  def set_input(e):
+    input.content.value = e.control.data
+    input.update()
+
+  # TextField Recommendations
+  def textbox_changed(string):
+    str_lower = string.control.value.lower()
+    list_view.controls = [
+        ListTile(
+            title=Text(word, size=20, color= colors.DEEP_ORANGE_400),
+            leading=Icon(icons.ARROW_FORWARD, color=colors.GREY_400),
+            on_click=set_input,
+            data=word,
+        ) for word
+        in suggestion_list if str_lower in word.lower()
+    ] if str_lower else []
+    page.update()
 
   search_text_input_c: Container = Container(
       width=page.width * 0.50,
@@ -142,6 +164,70 @@ def SearchView(page: Page, router_data: Union[Router, str, None] = None):
       on_hover=shadow_hover
   )
 
+  def render():
+    grid_view.controls.clear()
+    for index, row in global_state.get_state_by_key("retrieved_dataset").get_state().iterrows():
+      grid_view.controls.append(
+          Column(
+              alignment=MainAxisAlignment.CENTER,
+              controls=[
+                  Container(
+                      content=Card(
+                          elevation=20,
+                          content=Container(
+                              bgcolor=colors.GREY_500,
+                              height=150,
+                              width=150,
+                              content=Image(
+                                  src=row["public_cdn_link"],
+                                  fit=ImageFit.COVER,
+                              ),
+                          )
+                      ),
+                      data={
+                          "listing_id": row["listing_id"],
+                          "generated_title": row["generated_title"],
+                          "generated_description": row["generated_description"],
+                          "public_cdn_link": row["public_cdn_link"],
+                          "q_cat_1":  row["q_cat_1"],
+                          "a_cat_1":  row["a_cat_1"],
+                          "q_cat_2":  row["q_cat_2"],
+                          "a_cat_2":  row["a_cat_2"],
+                          # "cat_3_questions": row["cat_3_questions"],
+                          "price_usd": row["price_usd"],
+                          "title": row["title"],
+                          "description": row["description"],
+                      },
+                      on_click=navigate_to_search_page
+                  ),
+                  Container(
+                      padding=padding.all(10),
+                      width=150,
+                      content=Row(
+                          alignment=MainAxisAlignment.SPACE_BETWEEN,
+                          controls=[
+                              Container(
+                                  width=70,
+                                  content=Text(row["generated_title"], overflow=TextOverflow.ELLIPSIS)
+                              ),
+                              Container(
+                                  content=Text("$12", size=12)
+                              )
+                          ]
+                      )
+                  )
+              ]
+          )
+      )
+      page.update()
+
+  try:
+    if global_state.get_state_by_key("text_input").get_state():
+      search_text_input_c.content.value = global_state.get_state_by_key("text_input").get_state()
+      page.update()
+  except AttributeError:
+    print("Error: 'text_input' key not found or does not have a 'get_state' method.")
+
   content = Container(
       # bgcolor=colors.RED,
       alignment=alignment.center,
@@ -156,5 +242,8 @@ def SearchView(page: Page, router_data: Union[Router, str, None] = None):
       )
   )
 
+  if router_data and router_data.data_strategy == DataStrategyEnum.STATE:
+    logo_input = global_state.get_state_by_key("text_input").get_state()
+    render()
 
   return content
