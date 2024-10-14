@@ -1,5 +1,6 @@
 flet
 pandas
+gcsfs
 db-dtypes
 google-cloud-storage
 google-cloud-bigquery
