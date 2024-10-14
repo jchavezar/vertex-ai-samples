@@ -82,7 +82,7 @@ def SearchView(page: Page, router_data: Union[Router, str, None] = None):
                           "a_cat_1":  row["a_cat_1"],
                           "q_cat_2":  row["q_cat_2"],
                           "a_cat_2":  row["a_cat_2"],
-                          #"cat_3_questions": row["cat_3_questions"],
+                          "cat_3_questions": row["cat_3_questions"],
                           "price_usd": row["price_usd"],
                           # "materials": row["materials"],
                           "title": row["title"],
@@ -193,7 +193,7 @@ def SearchView(page: Page, router_data: Union[Router, str, None] = None):
                           "a_cat_1":  row["a_cat_1"],
                           "q_cat_2":  row["q_cat_2"],
                           "a_cat_2":  row["a_cat_2"],
-                          # "cat_3_questions": row["cat_3_questions"],
+                          "cat_3_questions": row["cat_3_questions"],
                           "price_usd": row["price_usd"],
                           "title": row["title"],
                           "description": row["description"],
@@ -245,5 +245,23 @@ def SearchView(page: Page, router_data: Union[Router, str, None] = None):
   if router_data and router_data.data_strategy == DataStrategyEnum.STATE:
     logo_input = global_state.get_state_by_key("text_input").get_state()
     render()
+
+  bottom_app_footer = BottomAppBar(
+      bgcolor=colors.TRANSPARENT,
+      content=Row(
+          alignment=MainAxisAlignment.SPACE_BETWEEN,
+          controls=[
+              IconButton(
+                  icon=icons.ARROW_BACK_IOS_NEW,
+                  icon_color=colors.DEEP_ORANGE_400,
+                  on_click=lambda _: page.go("/logo_widget")
+              ),
+              Text("V1.1", size=18, color=colors.DEEP_ORANGE_400, weight=FontWeight.BOLD)
+          ]
+      )
+  )
+
+  page.bottom_appbar = bottom_app_footer
+  page.update()
 
   return content

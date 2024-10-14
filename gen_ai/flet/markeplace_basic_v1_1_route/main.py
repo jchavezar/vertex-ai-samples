@@ -13,4 +13,4 @@ def main(page: Page):
   )
   page.go('/logo_widget')
 
-app(target=main, assets_dir="assets")
+app(target=main, assets_dir="assets", port=8000, host="0.0.0.0")

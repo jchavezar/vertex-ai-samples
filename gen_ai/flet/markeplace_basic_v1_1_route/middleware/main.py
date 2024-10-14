@@ -2,6 +2,7 @@ import json
 import vertexai
 import numpy as np
 import pandas as pd
+from google.cloud import bigquery
 from google.cloud import discoveryengine_v1 as discoveryengine
 from vertexai.language_models import TextEmbeddingInput, TextEmbeddingModel
 
@@ -13,6 +14,8 @@ vertexai.init(project=project_id)
 client = discoveryengine.SearchServiceClient()
 text_emb_model = TextEmbeddingModel.from_pretrained(embeddings_model_name)
 serving_config = f"projects/{project_id}/locations/global/collections/default_collection/engines/{engine_id}/servingConfigs/default_config"
+listing_queries = pd.read_pickle("gs://vtxdemos-datasets-private/marketplace/queries_10k.pkl")
+listing_all = bigquery.Client().query("select * from `demos_us.etsy-v1_1_10k_v2`").to_dataframe()
 
 class VaIS:
   def __init__(self):
@@ -53,6 +56,7 @@ class VaIS:
         "public_gcs_link": [],
         "private_gcs_link": [],
         "description": [],
+        "cat_3_questions": [],
     }
 
     for page in response.pages:

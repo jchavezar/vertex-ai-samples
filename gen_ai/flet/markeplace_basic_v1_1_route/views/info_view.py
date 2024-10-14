@@ -2,8 +2,9 @@ import json
 import random
 from flet import *
 from typing import Union
+from State import global_state, State
 from views.Router import Router, DataStrategyEnum
-from State import global_state
+from middleware.main import listing_all
 
 items_available = random.randint(1,8)
 
@@ -112,7 +113,14 @@ def InfoView(page: Page, router: Union[Router, str, None] = None):
       ]
   )
 
+  def navigate_to_search_page(e):
+    print("yep")
+    state = State("data", e.control.data)
+    print(global_state.get_state_by_key("data").get_state())
+    page.go("/recommendations_widget")
+
   def create_image_containers(image_uris):
+    dataset = [listing_all[listing_all["public_cdn_link"]==image] for image in image_uris]
     return [
         Container(
             content=Image(
@@ -122,9 +130,22 @@ def InfoView(page: Page, router: Union[Router, str, None] = None):
                 fit=ImageFit.CONTAIN,
                 border_radius=border_radius.all(10)
             ),
-            data=image,
-            #on_click=navigate_to_search_page
-        ) for image in image_uris
+            data={
+                "listing_id": dataset[num]["listing_id"].values[0],
+                "generated_title": dataset[num]["generated_title"].values[0],
+                "generated_description": dataset[num]["generated_description"].values[0],
+                "public_cdn_link": dataset[num]["public_cdn_link"].values[0],
+                "q_cat_1":  dataset[num]["q_cat_1"].values[0],
+                "a_cat_1":  dataset[num]["a_cat_1"].values[0],
+                "q_cat_2":  dataset[num]["q_cat_2"].values[0],
+                "a_cat_2":  dataset[num]["a_cat_2"].values[0],
+                "cat_3_questions": dataset[num]["cat_3_questions"].values[0],
+                "price_usd": dataset[num]["price_usd"].values[0],
+                "title": dataset[num]["title"].values[0],
+                "description": dataset[num]["description"].values[0],
+            },
+            on_click=navigate_to_search_page
+        ) for num, image in enumerate(image_uris)
     ]
 
   def button_message(e):
@@ -132,8 +153,11 @@ def InfoView(page: Page, router: Union[Router, str, None] = None):
     if "image_urls" not in e.control.data:
       chatbot_response.content.controls[1].value = e.control.data["answer"].strip()
     else:
+      print("JAJAJA")
       chatbot_response.content.controls[1].value = e.control.data["answer"].strip()
       response_image_panel.content.controls.extend(create_image_containers(e.control.data["image_urls"]))
+      response_image_panel.visible = True
+      relevant_text.visible = True
     chatbot_response.visible = True
     right.update()
 
@@ -147,7 +171,7 @@ def InfoView(page: Page, router: Union[Router, str, None] = None):
       padding=18.0,
       content=Column(
           alignment=MainAxisAlignment.CENTER,
-          horizontal_alignment=CrossAxisAlignment.CENTER,
+          horizontal_alignment=CrossAxisAlignment.START,
           expand=True,
           # scroll=ScrollMode.ALWAYS,
           spacing=10,
@@ -202,20 +226,20 @@ def InfoView(page: Page, router: Union[Router, str, None] = None):
                     )
                     for question, answer in zip(data["q_cat_2"], data["a_cat_2"])
                   ]
-                  # +
-                  # [
-                  #     ElevatedButton(
-                  #         text=i["rephrased_question"].strip(),
-                  #         color="black",
-                  #         bgcolor=colors.YELLOW_50,
-                  #         style=ButtonStyle(
-                  #             shape=RoundedRectangleBorder(radius=25),
-                  #             padding=15,
-                  #         ),
-                  #         data={"question": i["rephrased_question"], "answer":  i["answer"], "image_urls": i["rec_image_urls"]},
-                  #         on_click=button_message
-                  #     ) for i in cat_3_q
-                  # ]
+                  +
+                  [
+                      ElevatedButton(
+                          text=json.loads(i)["rephrased_question"].strip(),
+                          color="black",
+                          bgcolor=colors.YELLOW_50,
+                          style=ButtonStyle(
+                              shape=RoundedRectangleBorder(radius=25),
+                              padding=15,
+                          ),
+                          data={"question": json.loads(i)["rephrased_question"], "answer":  json.loads(i)["answer"], "image_urls": json.loads(i)["public_cdn_link"]},
+                          on_click=button_message
+                      ) for i in data["cat_3_questions"]
+                  ]
               )
           ]
       )
@@ -228,13 +252,14 @@ def InfoView(page: Page, router: Union[Router, str, None] = None):
   bottom_app_footer = BottomAppBar(
       bgcolor=colors.TRANSPARENT,
       content=Row(
-          alignment=MainAxisAlignment.START,
+          alignment=MainAxisAlignment.SPACE_BETWEEN,
           controls=[
               IconButton(
                   icon=icons.ARROW_BACK_IOS_NEW,
                   icon_color=colors.DEEP_ORANGE_400,
                   on_click=lambda _: page.go("/")
-              )
+              ),
+              Text("V1.1", size=18, color=colors.DEEP_ORANGE_400, weight=FontWeight.BOLD)
           ]
       )
   )
