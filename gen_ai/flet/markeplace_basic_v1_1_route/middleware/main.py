@@ -15,7 +15,7 @@ client = discoveryengine.SearchServiceClient()
 text_emb_model = TextEmbeddingModel.from_pretrained(embeddings_model_name)
 serving_config = f"projects/{project_id}/locations/global/collections/default_collection/engines/{engine_id}/servingConfigs/default_config"
 listing_queries = pd.read_pickle("gs://vtxdemos-datasets-private/marketplace/queries_10k.pkl")
-listing_all = bigquery.Client().query("select * from `demos_us.etsy-v1_1_10k_v2`").to_dataframe()
+listing_all = bigquery.Client(project=project_id).query("select * from `demos_us.etsy-v1_1_10k_v2`").to_dataframe()
 
 class VaIS:
   def __init__(self):
