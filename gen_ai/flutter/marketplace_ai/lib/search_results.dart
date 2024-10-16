@@ -198,6 +198,7 @@ class _ListingIdState extends State<ListingId> {
                               onPressed: () {
                                 setState(() {
                                   response = widget.dataset["a_cat_1"][i];
+                                  images = [];
                                 });
                               },
                               style: ElevatedButton.styleFrom(
@@ -214,6 +215,7 @@ class _ListingIdState extends State<ListingId> {
                               onPressed: () {
                                 setState(() {
                                   response = widget.dataset["a_cat_2"][i];
+                                  images = [];
                                 });
                               },
                               style: ElevatedButton.styleFrom(
