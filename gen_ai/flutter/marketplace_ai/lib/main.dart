@@ -58,7 +58,7 @@ class _MyHomePageState extends State<MyHomePage> {
     var screenSize = MediaQuery.of(context).size;
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        backgroundColor: Colors.white,
       ),
       body: Center(
         child: Column(
