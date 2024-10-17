@@ -16,23 +16,20 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return const MaterialApp(
       title: 'Flutter Demo',
-      home: MyHomePage(title: 'Etsy'),
+      home: MyHomePage(),
         debugShowCheckedModeBanner: false
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
-
-  final String title;
+  const MyHomePage({super.key});
 
   @override
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
   Map<String, dynamic> dataset = {}; //
   bool isHovering = false;
   String inputMessage = "";
@@ -56,13 +53,12 @@ class _MyHomePageState extends State<MyHomePage> {
       // Handle error, e.g., show an error message to the user
     }
   }
+  @override
   Widget build(BuildContext context) {
     var screenSize = MediaQuery.of(context).size;
-    double screenHeight = MediaQuery.of(context).size.height;
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Text(widget.title),
       ),
       body: Center(
         child: Column(
@@ -227,7 +223,7 @@ class _MyHomePageState extends State<MyHomePage> {
                           ),
                         ),
                         Container(
-                          padding: EdgeInsets.only(left: 15, right: 15, top: 15),
+                          padding: const EdgeInsets.only(left: 15, right: 15, top: 15),
                           height:35,
                           // width: double.infinity,
                           child: Row(
@@ -242,7 +238,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                 width: 40,
                                 child: Text(
                       (dataset.containsKey('price_usd') ?
-                                    "\$"+dataset['price_usd'].elementAt(index).toString(): 'price').trim(),
+                                    "\$${dataset['price_usd'].elementAt(index)}": 'price').trim(),
                                     overflow: TextOverflow.ellipsis)
                               )
                             ],
