@@ -21,6 +21,7 @@ class MyApp extends StatelessWidget {
           appBarTheme: const AppBarTheme(
               backgroundColor: Colors.white //Example appBar color
           ),
+          scaffoldBackgroundColor: Colors.white,
         ),
       home: const MyHomePage(),
         debugShowCheckedModeBanner: false
