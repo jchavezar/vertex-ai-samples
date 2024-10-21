@@ -10,7 +10,8 @@ class ListingId extends StatefulWidget {
 
 class _ListingIdState extends State<ListingId> {
   String response = "";
-  var images;
+  bool _isExpanded = false;
+  List<dynamic> images = [];
 
   @override
   Widget build(BuildContext context) {
@@ -78,7 +79,7 @@ class _ListingIdState extends State<ListingId> {
         ),
         const SizedBox(height: spaceBetween),
         Text(
-          ("\$${widget.dataset["price_usd"]}" ?? "test").trim(),
+          ("\$${widget.dataset["price_usd"]}").trim(),
           style: const TextStyle(
             fontWeight: FontWeight.bold,
             fontSize: 26.0,
@@ -117,6 +118,27 @@ class _ListingIdState extends State<ListingId> {
           ),
         ),
         const SizedBox(height: spaceBetween),
+        ExpansionPanelList(
+          expansionCallback: (int index, bool _) {
+            setState(() {
+              _isExpanded = !_isExpanded;
+            });
+          },
+          children: [
+            ExpansionPanel(headerBuilder: (BuildContext context, bool isExpanded) {
+              return const ListTile(
+                title: Text("Original Description"),
+              );
+            },
+                body: ListTile(
+                  // title: Text("Item 1 child"),
+                  subtitle: Text(widget.dataset["description"]),
+                ),
+              isExpanded: _isExpanded,
+            )
+          ],
+        ),
+        const SizedBox(height: spaceBetween),
         SizedBox(
           width: screenWidth * 0.50, // Use constraints.maxWidth for mobile
           child: Container(
@@ -137,13 +159,13 @@ class _ListingIdState extends State<ListingId> {
                     ),
                   ),
                 ),
-                Expanded(
+                const Expanded(
                   child: TextField(
                     decoration: InputDecoration(
                       hintText: "Looking for specific info? Ask Chatsy!",
                       hintStyle: TextStyle(fontSize: 15.0),
                       border: InputBorder.none,
-                      contentPadding: const EdgeInsets.symmetric(
+                      contentPadding: EdgeInsets.symmetric(
                           vertical: 12.0, horizontal: 8.0),
                     ),
                   ),
@@ -157,7 +179,7 @@ class _ListingIdState extends State<ListingId> {
           ),
         ),
         const SizedBox(height: spaceBetween),
-        if (response != null && response.isNotEmpty)
+        if (response.isNotEmpty)
           Container(
             width: screenWidth * 0.50, // Use constraints.maxWidth for mobile
             padding: const EdgeInsets.all(15),
@@ -177,7 +199,7 @@ class _ListingIdState extends State<ListingId> {
                 ),
                 const SizedBox(height: 5.0),
                 Text(response, style: const TextStyle(fontSize: 15.0)),
-                if (images != null && images.isNotEmpty)
+                if (images.isNotEmpty)
                   Wrap(
                     spacing: 10.0,
                     runSpacing: 10.0,
@@ -201,6 +223,7 @@ class _ListingIdState extends State<ListingId> {
               for (var i = 0; i < (widget.dataset["q_cat_1"] ?? []).length; i++)
                 ElevatedButton(
                   onPressed: () {
+                    print(widget.dataset["a_cat_1"][i]);
                     setState(() {
                       response = widget.dataset["a_cat_1"][i];
                       images = [];

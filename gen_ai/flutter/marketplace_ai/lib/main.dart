@@ -94,10 +94,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         width: (screenSize.width /2)*.80,
                         child: TextField(
                           decoration: const InputDecoration(
-                            // prefixIcon: Icon(
-                            //     Icons.search,
-                            //   color: Colors.deepOrange,
-                            // ),
+                            hintText: "Search for anything",
                             border: InputBorder.none,
                               contentPadding: EdgeInsets.only(left: 15.0, right: 60)
                           ),
@@ -114,6 +111,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                 "title": responseBody["title"],
                                 "generated_title": responseBody["generated_title"],
                                 "generated_description": responseBody["generated_description"],
+                                "description": responseBody["description"],
                                 "price_usd": responseBody["price_usd"],
                                 "q_cat_1": responseBody["q_cat_1"],
                                 "a_cat_1": responseBody["a_cat_1"],
@@ -134,43 +132,41 @@ class _MyHomePageState extends State<MyHomePage> {
                     ),
                     Expanded(
                       flex: 1,
-                      child: Stack(
-                        alignment: Alignment.centerRight, // Align the stack to the right
-                        children: [
-                          AnimatedContainer(
-                            duration: const Duration(milliseconds: 200),
-                            width: isHovering ? (screenSize.width / 2) * 0.2 : 60,  // Width animates
-                            height: 60,
-                            decoration: BoxDecoration(
-                              borderRadius: isHovering
-                                  ? const BorderRadius.only(
-                                topRight: Radius.circular(32),
-                                bottomRight: Radius.circular(32),
-                              )
-                                  : BorderRadius.circular(32), // Full circle when not hovering
-                              color: isHovering
-                              ? const Color.fromRGBO(255, 87, 34, 0.5)
-                                  : const Color.fromRGBO(255, 87, 34, 1.0)
-                              ,
-                            ),
-                          ),
-                          const Positioned( // Positioned Icon
-                            right: 0,
-                            top: 0,
-                            bottom: 0,
-                            child: SizedBox(
-                              width: 60,
-                              height: 60,
-                              child: Center(
-                                child: Icon(
-                                  Icons.search,
-                                  color: Colors.white,
-                                  size: 30.0,
+                      child: LayoutBuilder(
+                        builder: (context, constraints) {
+                          print(constraints.maxWidth);
+                          return Stack(
+                            alignment: Alignment.centerRight, // Align the stack to the right
+                            children: [
+                              AnimatedContainer(
+                                duration: const Duration(milliseconds: 200),
+                                width: isHovering ? 50*0.8 : 50*0.8,  // Width animates
+                                height: isHovering ? 56 : 50*0.8,
+                                margin: isHovering ? const EdgeInsets.only(right: 0) : const EdgeInsets.only(right: 5),
+                                padding: isHovering ? const EdgeInsets.only(right: 10) : const EdgeInsets.only(left: 0),
+                                decoration: BoxDecoration(
+                                  borderRadius: isHovering
+                                      ? const BorderRadius.only(
+                                    topRight: Radius.circular(32),
+                                    bottomRight: Radius.circular(32),
+                                  )
+                                      : BorderRadius.circular(32), // Full circle when not hovering
+                                  color: isHovering
+                                  ? const Color.fromRGBO(255, 87, 34, 0.5)
+                                      : const Color.fromRGBO(255, 87, 34, 1.0)
+                                  ,
+                                ),
+                                child: const Center(
+                                  child: Icon(
+                                    Icons.search,
+                                    color: Colors.white,
+                                    size: 25.0,
+                                  ),
                                 ),
                               ),
-                            ),
-                          ),
-                        ],
+                            ],
+                          );
+                        }
                       ),
                     ),
                   ],
@@ -216,6 +212,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                     "public_cdn_link": dataset["public_cdn_link"].elementAt(index),
                                     "generated_title": dataset["generated_title"].elementAt(index),
                                     "generated_description": dataset["generated_description"].elementAt(index),
+                                    "description": dataset["description"].elementAt(index),
                                     "title": dataset["title"].elementAt(index),
                                     "price_usd": dataset["price_usd"].elementAt(index),
                                     "q_cat_1": dataset["q_cat_1"].elementAt(index),
