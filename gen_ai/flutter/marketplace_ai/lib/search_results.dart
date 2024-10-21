@@ -125,7 +125,7 @@ class _ListingIdState extends State<ListingId> {
             });
           },
           children: [
-            ExpansionPanel(headerBuilder: (BuildContext context, bool isExpanded) {
+            ExpansionPanel(backgroundColor: Colors.white, headerBuilder: (BuildContext context, bool isExpanded) {
               return const ListTile(
                 title: Text("Original Description"),
               );
