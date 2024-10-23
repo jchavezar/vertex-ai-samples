@@ -99,13 +99,14 @@ class _MyHomePageState extends State<MyHomePage> {
                               contentPadding: EdgeInsets.only(left: 15.0, right: 60)
                           ),
                           onSubmitted: (value) async {
-                            var request = http.MultipartRequest('POST', Uri.parse("https://marketplace-middleware-254356041555.us-central1.run.app/vais"));
+                            var request = http.MultipartRequest('POST', Uri.parse("http://localhost:8000/vais"), );
                             request.fields['text_data'] = value;
                             var streamedResponse = await request.send();
 
                             if (streamedResponse.statusCode == 200) {
                               var response = await http.Response.fromStream(streamedResponse);
                               Map<String, dynamic> responseBody = jsonDecode(response.body);
+                              print(responseBody.keys);
                               dataset = {
                                 "public_cdn_link": responseBody["public_cdn_link"],
                                 "title": responseBody["title"],
@@ -117,7 +118,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                 "a_cat_1": responseBody["a_cat_1"],
                                 "q_cat_2": responseBody["q_cat_2"],
                                 "a_cat_2": responseBody["a_cat_2"],
-                                "cat_3_questions": responseBody["cat_3_questions"],
+                                "questions_only_cat3": responseBody["questions_only_cat3"],
                               };
                             }
                             else {
@@ -212,14 +213,16 @@ class _MyHomePageState extends State<MyHomePage> {
                                     "public_cdn_link": dataset["public_cdn_link"].elementAt(index),
                                     "generated_title": dataset["generated_title"].elementAt(index),
                                     "generated_description": dataset["generated_description"].elementAt(index),
-                                    "description": dataset["description"].elementAt(index),
+                                    "description": (index >= 0 && index < dataset["description"].length)
+                                        ? dataset["description"].elementAt(index)
+                                        : "Description not available",
                                     "title": dataset["title"].elementAt(index),
                                     "price_usd": dataset["price_usd"].elementAt(index),
                                     "q_cat_1": dataset["q_cat_1"].elementAt(index),
                                     "a_cat_1": dataset["a_cat_1"].elementAt(index),
                                     "q_cat_2": dataset["q_cat_2"].elementAt(index),
                                     "a_cat_2": dataset["a_cat_2"].elementAt(index),
-                                    "cat_3_questions": dataset["cat_3_questions"].elementAt(index),
+                                    "questions_only_cat3": dataset["questions_only_cat3"].elementAt(index),
                                   }
                                 );
                               }));
