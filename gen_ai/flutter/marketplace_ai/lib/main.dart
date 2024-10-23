@@ -99,7 +99,7 @@ class _MyHomePageState extends State<MyHomePage> {
                               contentPadding: EdgeInsets.only(left: 15.0, right: 60)
                           ),
                           onSubmitted: (value) async {
-                            var request = http.MultipartRequest('POST', Uri.parse("https://markeplace-basic-254356041555.us-east1.run.app/vais"), );
+                            var request = http.MultipartRequest('POST', Uri.parse("https://marketplace-middleware-254356041555.us-central1.run.app/vais"), );
                             request.fields['text_data'] = value;
                             var streamedResponse = await request.send();
 
