@@ -1,4 +1,6 @@
 import 'dart:convert';
+
+import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 
 class ListingId extends StatefulWidget {
@@ -12,6 +14,39 @@ class _ListingIdState extends State<ListingId> {
   String response = "";
   bool _isExpanded = false;
   List<dynamic> images = [];
+  final TextEditingController _textController = TextEditingController();
+
+  @override
+  void dispose() {
+    _textController.dispose();
+    super.dispose();
+  }
+
+  void _clearTextField() {
+    setState(() {
+      _textController.clear();
+    });
+  }
+
+  void _insertText(String textToInsert) {
+    Future.delayed(Duration.zero, () {  // Ensure TextField is initialized
+      final currentText = _textController.text;
+      final textSelection = _textController.selection;
+
+      final start = textSelection.isValid ? textSelection.start : currentText.length;
+      final end = textSelection.isValid ? textSelection.end : currentText.length;
+
+      final newText = currentText.replaceRange(start, end, textToInsert);
+      final newCursorPosition = start + textToInsert.length;
+
+      setState(() {
+        _textController.text = newText;
+        _textController.selection = TextSelection.fromPosition(
+          TextPosition(offset: newCursorPosition),
+        );
+      });
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -159,9 +194,10 @@ class _ListingIdState extends State<ListingId> {
                     ),
                   ),
                 ),
-                const Expanded(
+                 Expanded(
                   child: TextField(
-                    decoration: InputDecoration(
+                    controller: _textController,
+                    decoration: const InputDecoration(
                       hintText: "Looking for specific info? Ask Chatsy!",
                       hintStyle: TextStyle(fontSize: 15.0),
                       border: InputBorder.none,
@@ -197,16 +233,21 @@ class _ListingIdState extends State<ListingId> {
                       color: Colors.deepOrange.shade400,
                       fontWeight: FontWeight.bold),
                 ),
-                const SizedBox(height: 5.0),
+                const SizedBox(height: 10.0),
                 Text(response, style: const TextStyle(fontSize: 15.0)),
+                const SizedBox(height:10.0),
                 if (images.isNotEmpty)
-                  Wrap(
-                    spacing: 10.0,
-                    runSpacing: 10.0,
-                    children: [
-                      for (var imageUrl in images)
-                        Image.network(imageUrl, width: 100, height: 100),
-                    ],
+                  Center(
+                    child: Wrap(
+                      alignment: WrapAlignment.center,
+                      runAlignment: WrapAlignment.center,
+                      spacing: 10.0,
+                      runSpacing: 10.0,
+                      children: [
+                        for (var imageUrl in images)
+                          Image.network(imageUrl, width: 100, height: 100),
+                      ],
+                    ),
                   ),
               ],
             ),
@@ -227,6 +268,8 @@ class _ListingIdState extends State<ListingId> {
                     setState(() {
                       response = widget.dataset["a_cat_1"][i];
                       images = [];
+                      _clearTextField();
+                      _insertText(widget.dataset["q_cat_1"][i]);
                     });
                   },
                   style: ElevatedButton.styleFrom(
@@ -236,7 +279,7 @@ class _ListingIdState extends State<ListingId> {
                         borderRadius: BorderRadius.circular(25)),
                     padding: const EdgeInsets.all(15),
                   ),
-                  child: Text(widget.dataset["q_cat_1"][i]),
+                  child: Text(widget.dataset["q_cat_1"][i].trim()),
                 ),
 
               for (var i = 0; i < (widget.dataset["q_cat_2"] ?? []).length; i++)
@@ -245,6 +288,8 @@ class _ListingIdState extends State<ListingId> {
                     setState(() {
                       response = widget.dataset["a_cat_2"][i];
                       images = [];
+                      _clearTextField();
+                      _insertText( widget.dataset["q_cat_2"][i]);
                     });
                   },
                   style: ElevatedButton.styleFrom(
@@ -254,21 +299,31 @@ class _ListingIdState extends State<ListingId> {
                         borderRadius: BorderRadius.circular(25)),
                     padding: const EdgeInsets.all(15),
                   ),
-                  child: Text(widget.dataset["q_cat_2"][i]),
+                  child: Text(widget.dataset["q_cat_2"][i].trim()),
                 ),
 
               for (var i = 0;
-              i < (widget.dataset["cat_3_questions"] ?? []).length;
+              i < (widget.dataset["questions_only_cat3"] ?? []).length;
               i++)
                 ElevatedButton(
-                  onPressed: () {
+                  onPressed: () async {
+                    var request = http.MultipartRequest('POST', Uri.parse("http://localhost:8000/vais"), );
+                    request.fields['text_data'] = widget.dataset["questions_only_cat3"][i];
+                    var streamedResponse = await request.send();
+
+                    if (streamedResponse.statusCode == 200) {
+                      var response = await http.Response.fromStream(streamedResponse);
+                      Map<String, dynamic> responseBody = jsonDecode(response.body);
+                      images = responseBody["public_cdn_link"];
+                    }
                     setState(() {
-                      response = (json.decode(
-                          widget.dataset["cat_3_questions"][i])["answer"])
-                          .trim();
-                      images = json.decode(
-                          widget.dataset["cat_3_questions"][i])[
-                      "public_cdn_link"];
+                      if (images.contains(widget.dataset["public_cdn_link"])) {
+                        images.remove(widget.dataset["public_cdn_link"]);
+                      };
+                      images = images.sublist(0, 5);
+                      response = "Here are the relevant results:";
+                      _clearTextField();
+                      _insertText( widget.dataset["questions_only_cat3"][i]);
                     });
                   },
                   style: ElevatedButton.styleFrom(
@@ -278,9 +333,8 @@ class _ListingIdState extends State<ListingId> {
                         borderRadius: BorderRadius.circular(25)),
                     padding: const EdgeInsets.all(15),
                   ),
-                  child: Text(json.decode(
-                      widget.dataset["cat_3_questions"][i])[
-                  "rephrased_question"]),
+                  child: Text(
+                      widget.dataset["questions_only_cat3"][i]),
                 ),
 
 
