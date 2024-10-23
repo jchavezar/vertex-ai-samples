@@ -40,7 +40,7 @@ class _MyHomePageState extends State<MyHomePage> {
   Map<String, dynamic> dataset = {}; //
   bool isHovering = false;
   String inputMessage = "";
-
+  bool showHomeLivingSection = true;
   Color x = Colors.deepOrange;
 
   @override
@@ -126,6 +126,7 @@ class _MyHomePageState extends State<MyHomePage> {
                             }
                             setState(() {
                               inputMessage = value;
+                              showHomeLivingSection = false;
                             });
                           },
                         ),
@@ -174,87 +175,231 @@ class _MyHomePageState extends State<MyHomePage> {
                 )
               )
             ),
-            Text(inputMessage),
+            const SizedBox(height:30),
             Expanded(
-              child: Container(
-                padding: const EdgeInsets.all(14.0),
-                // height:screenHeight*.80,
-                child: GridView.builder(
-                  shrinkWrap: true,
-                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 5,
-                      crossAxisSpacing: 20.0,
-                      mainAxisSpacing: 20.0,
-                      mainAxisExtent: 240,
+              child: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    if (showHomeLivingSection)
+                      const Center(
+                      child: Text("Home & Living", style: TextStyle(fontSize: 26.0)),
                     ),
-                    itemCount: dataset["public_cdn_link"] != null ? dataset["public_cdn_link"].length : 0,
-                    itemBuilder: (BuildContext context, int index) {
-                  return Container(
-                    // padding: EdgeInsets.all(10.0),
-                    decoration: BoxDecoration(
-                      // border: Border.all(color: Colors.grey),
-                        borderRadius: BorderRadius.circular(14.0)
-                    ),
-                    child: Column(
+                    if (showHomeLivingSection)
+                      const SizedBox(height: 10),
+                    if (showHomeLivingSection)
+                      const Text("Kitchen and dining, storage solutions, rugs, lighting, wall decor, and furniture—everything you need to make your home yours"),
+                    if (showHomeLivingSection)
+                      const SizedBox(height: 45),
+                    if (showHomeLivingSection)
+                      Wrap(
+                      spacing: 20.0,
                       children: [
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(16.0),
-                          child: InkWell(
-                            child: Image.network(
-                                dataset["public_cdn_link"].elementAt(index),
-                              height:200,
-                              width: double.infinity,
-                              fit: BoxFit.cover,
-                            ),
-                            onTap: (){
-                              Navigator.of(context).push(MaterialPageRoute(builder: (BuildContext context) {
-                                return ListingId(
-                                  dataset: {
-                                    "public_cdn_link": dataset["public_cdn_link"].elementAt(index),
-                                    "generated_title": dataset["generated_title"].elementAt(index),
-                                    "generated_description": dataset["generated_description"].elementAt(index),
-                                    "description": (index >= 0 && index < dataset["description"].length)
-                                        ? dataset["description"].elementAt(index)
-                                        : "Description not available",
-                                    "title": dataset["title"].elementAt(index),
-                                    "price_usd": dataset["price_usd"].elementAt(index),
-                                    "q_cat_1": dataset["q_cat_1"].elementAt(index),
-                                    "a_cat_1": dataset["a_cat_1"].elementAt(index),
-                                    "q_cat_2": dataset["q_cat_2"].elementAt(index),
-                                    "a_cat_2": dataset["a_cat_2"].elementAt(index),
-                                    "questions_only_cat3": dataset["questions_only_cat3"].elementAt(index),
-                                  }
-                                );
-                              }));
-                            }
-                          ),
+                        SizedBox(
+                          height:230,
+                            width:150,
+                            child: Column(
+                              children: [
+                                Container(
+                                  decoration: BoxDecoration(borderRadius: BorderRadius.circular(16.0)),
+                                  height: 200,
+                                  width: 150,
+                                  child: ClipRRect(
+                                      borderRadius: BorderRadius.circular(16.0),
+                                    child: Image.asset(
+                                        "home_decor.jpeg",
+                                      fit: BoxFit.fill
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(height:10),
+                                const SizedBox(
+                                  height: 20,
+                                    child: Center(child: Text("Home Decor", style: TextStyle(fontSize: 16),))
+                                )
+                              ],
+                            )
                         ),
-                        Container(
-                          padding: const EdgeInsets.only(left: 15, right: 15, top: 15),
-                          height:35,
-                          // width: double.infinity,
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Flexible(
-                                // width: 150,
-                                  child: Text(dataset["title"].elementAt(index),
-                                      overflow: TextOverflow.ellipsis),
-                              ),
-                              SizedBox(
-                                width: 40,
-                                child: Text(
-                      (dataset.containsKey('price_usd') ?
-                                    "\$${dataset['price_usd'].elementAt(index)}": 'price').trim(),
-                                    overflow: TextOverflow.ellipsis)
-                              )
-                            ],
-                          )
-                        )
+                        SizedBox(
+                          height:230,
+                            width:150,
+                            child: Column(
+                              children: [
+                                Container(
+                                  decoration: BoxDecoration(borderRadius: BorderRadius.circular(16.0)),
+                                  height: 200,
+                                  width: 150,
+                                  child: ClipRRect(
+                                      borderRadius: BorderRadius.circular(16.0),
+                                    child: Image.asset(
+                                        "lighting.jpeg",
+                                      fit: BoxFit.fill
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(height:10),
+                                const SizedBox(
+                                  height: 20,
+                                    child: Center(child: Text("Lighting", style: TextStyle(fontSize: 16),))
+                                )
+                              ],
+                            )
+                        ),
+                        SizedBox(
+                            height:230,
+                            width:150,
+                            child: Column(
+                              children: [
+                                Container(
+                                  decoration: BoxDecoration(borderRadius: BorderRadius.circular(16.0)),
+                                  height: 200,
+                                  width: 150,
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(16.0),
+                                    child: Image.asset(
+                                        "outdoor.jpeg",
+                                        fit: BoxFit.fill
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(height:10),
+                                const SizedBox(
+                                    height: 20,
+                                    child: Center(child: Text("Outdoor & Gardening", style: TextStyle(fontSize: 16),))
+                                )
+                              ],
+                            )
+                        ),
+                        SizedBox(
+                            height:230,
+                            width:150,
+                            child: Column(
+                              children: [
+                                Container(
+                                  decoration: BoxDecoration(borderRadius: BorderRadius.circular(16.0)),
+                                  height: 200,
+                                  width: 150,
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(16.0),
+                                    child: Image.asset(
+                                        "furniture.jpeg",
+                                        fit: BoxFit.fill
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(height:10),
+                                const SizedBox(
+                                    height: 20,
+                                    child: Center(child: Text("Furniture", style: TextStyle(fontSize: 16),))
+                                )
+                              ],
+                            )
+                        ),
+                        SizedBox(
+                            height:230,
+                            width:150,
+                            child: Column(
+                              children: [
+                                Container(
+                                  decoration: BoxDecoration(borderRadius: BorderRadius.circular(16.0)),
+                                  height: 200,
+                                  width: 150,
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(16.0),
+                                    child: Image.asset(
+                                        "storage.jpeg",
+                                        fit: BoxFit.fill
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(height:10),
+                                const SizedBox(
+                                    height: 20,
+                                    child: Center(child: Text("Storage & Organ", style: TextStyle(fontSize: 16),))
+                                )
+                              ],
+                            )
+                        ),
                       ],
                     ),
-                  );
-                }),
+                    const SizedBox(height: 35),
+                    GridView.builder(
+                      shrinkWrap: true,
+                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 5,
+                          crossAxisSpacing: 20.0,
+                          mainAxisSpacing: 20.0,
+                          mainAxisExtent: 240,
+                        ),
+                        itemCount: dataset["public_cdn_link"] != null ? dataset["public_cdn_link"].length : 0,
+                        itemBuilder: (BuildContext context, int index) {
+                      return Container(
+                        // padding: EdgeInsets.all(10.0),
+                        decoration: BoxDecoration(
+                          // border: Border.all(color: Colors.grey),
+                            borderRadius: BorderRadius.circular(14.0)
+                        ),
+                        child: Column(
+                          children: [
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(16.0),
+                              child: InkWell(
+                                child: Image.network(
+                                    dataset["public_cdn_link"].elementAt(index),
+                                  height:200,
+                                  width: double.infinity,
+                                  fit: BoxFit.cover,
+                                ),
+                                onTap: (){
+                                  Navigator.of(context).push(MaterialPageRoute(builder: (BuildContext context) {
+                                    return ListingId(
+                                      dataset: {
+                                        "public_cdn_link": dataset["public_cdn_link"].elementAt(index),
+                                        "generated_title": dataset["generated_title"].elementAt(index),
+                                        "generated_description": dataset["generated_description"].elementAt(index),
+                                        "description": (index >= 0 && index < dataset["description"].length)
+                                            ? dataset["description"].elementAt(index)
+                                            : "Description not available",
+                                        "title": dataset["title"].elementAt(index),
+                                        "price_usd": dataset["price_usd"].elementAt(index),
+                                        "q_cat_1": dataset["q_cat_1"].elementAt(index),
+                                        "a_cat_1": dataset["a_cat_1"].elementAt(index),
+                                        "q_cat_2": dataset["q_cat_2"].elementAt(index),
+                                        "a_cat_2": dataset["a_cat_2"].elementAt(index),
+                                        "questions_only_cat3": dataset["questions_only_cat3"].elementAt(index),
+                                      }
+                                    );
+                                  }));
+                                }
+                              ),
+                            ),
+                            Container(
+                              padding: const EdgeInsets.only(left: 15, right: 15, top: 15),
+                              height:35,
+                              // width: double.infinity,
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Flexible(
+                                    // width: 150,
+                                      child: Text(dataset["title"].elementAt(index),
+                                          overflow: TextOverflow.ellipsis),
+                                  ),
+                                  SizedBox(
+                                    width: 40,
+                                    child: Text(
+                          (dataset.containsKey('price_usd') ?
+                                        "\$${dataset['price_usd'].elementAt(index)}": 'price').trim(),
+                                        overflow: TextOverflow.ellipsis)
+                                  )
+                                ],
+                              )
+                            )
+                          ],
+                        ),
+                      );
+                    }),
+                  ],
+                ),
               ),
             )
           ],
