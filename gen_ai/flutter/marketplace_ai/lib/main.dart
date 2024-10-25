@@ -38,6 +38,7 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   Map<String, dynamic> dataset = {}; //
+  Map<String, dynamic> recDataset = {}; //
   bool isHovering = false;
   String inputMessage = "";
   bool showHomeLivingSection = true;
@@ -99,26 +100,26 @@ class _MyHomePageState extends State<MyHomePage> {
                               contentPadding: EdgeInsets.only(left: 15.0, right: 60)
                           ),
                           onSubmitted: (value) async {
-                            var request = http.MultipartRequest('POST', Uri.parse("https://marketplace-middleware-254356041555.us-central1.run.app/vais"), );
+                            var request = http.MultipartRequest('POST', Uri.parse("http://localhost:8000/vais"), );
                             request.fields['text_data'] = value;
                             var streamedResponse = await request.send();
 
                             if (streamedResponse.statusCode == 200) {
                               var response = await http.Response.fromStream(streamedResponse);
                               Map<String, dynamic> responseBody = jsonDecode(response.body);
-                              print(responseBody.keys);
                               dataset = {
                                 "public_cdn_link": responseBody["public_cdn_link"],
                                 "title": responseBody["title"],
                                 "generated_title": responseBody["generated_title"],
-                                "generated_description": responseBody["generated_description"],
+                                "generated_description": responseBody["llm_generated_description"],
                                 "description": responseBody["description"],
                                 "price_usd": responseBody["price_usd"],
-                                "q_cat_1": responseBody["q_cat_1"],
-                                "a_cat_1": responseBody["a_cat_1"],
-                                "q_cat_2": responseBody["q_cat_2"],
-                                "a_cat_2": responseBody["a_cat_2"],
+                                "q_cat_1": responseBody["questions_cat1"],
+                                "a_cat_1": responseBody["answers_cat1"],
+                                "q_cat_2": responseBody["questions_cat2"],
+                                "a_cat_2": responseBody["answers_cat1"],
                                 "questions_only_cat3": responseBody["questions_only_cat3"],
+                                "generated_rec": responseBody["generated_rec"],
                               };
                             }
                             else {
@@ -136,7 +137,6 @@ class _MyHomePageState extends State<MyHomePage> {
                       flex: 1,
                       child: LayoutBuilder(
                         builder: (context, constraints) {
-                          print(constraints.maxWidth);
                           return Stack(
                             alignment: Alignment.centerRight, // Align the stack to the right
                             children: [
@@ -188,216 +188,290 @@ class _MyHomePageState extends State<MyHomePage> {
                       const SizedBox(height: 10),
                     if (showHomeLivingSection)
                       const Text("Kitchen and dining, storage solutions, rugs, lighting, wall decor, and furniture—everything you need to make your home yours"),
-                    if (showHomeLivingSection)
-                      const SizedBox(height: 45),
-                    if (showHomeLivingSection)
-                      Wrap(
-                      spacing: 20.0,
-                      children: [
-                        SizedBox(
-                          height:230,
-                            width:150,
-                            child: Column(
-                              children: [
-                                Container(
-                                  decoration: BoxDecoration(borderRadius: BorderRadius.circular(16.0)),
-                                  height: 200,
-                                  width: 150,
-                                  child: ClipRRect(
-                                      borderRadius: BorderRadius.circular(16.0),
-                                    child: Image.asset(
-                                        "home_decor.jpeg",
-                                      fit: BoxFit.fill
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(height:10),
-                                const SizedBox(
-                                  height: 20,
-                                    child: Center(child: Text("Home Decor", style: TextStyle(fontSize: 16),))
-                                )
-                              ],
-                            )
-                        ),
-                        SizedBox(
-                          height:230,
-                            width:150,
-                            child: Column(
-                              children: [
-                                Container(
-                                  decoration: BoxDecoration(borderRadius: BorderRadius.circular(16.0)),
-                                  height: 200,
-                                  width: 150,
-                                  child: ClipRRect(
-                                      borderRadius: BorderRadius.circular(16.0),
-                                    child: Image.asset(
-                                        "lighting.jpeg",
-                                      fit: BoxFit.fill
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(height:10),
-                                const SizedBox(
-                                  height: 20,
-                                    child: Center(child: Text("Lighting", style: TextStyle(fontSize: 16),))
-                                )
-                              ],
-                            )
-                        ),
-                        SizedBox(
-                            height:230,
-                            width:150,
-                            child: Column(
-                              children: [
-                                Container(
-                                  decoration: BoxDecoration(borderRadius: BorderRadius.circular(16.0)),
-                                  height: 200,
-                                  width: 150,
-                                  child: ClipRRect(
-                                    borderRadius: BorderRadius.circular(16.0),
-                                    child: Image.asset(
-                                        "outdoor.jpeg",
-                                        fit: BoxFit.fill
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(height:10),
-                                const SizedBox(
-                                    height: 20,
-                                    child: Center(child: Text("Outdoor & Gardening", style: TextStyle(fontSize: 16),))
-                                )
-                              ],
-                            )
-                        ),
-                        SizedBox(
-                            height:230,
-                            width:150,
-                            child: Column(
-                              children: [
-                                Container(
-                                  decoration: BoxDecoration(borderRadius: BorderRadius.circular(16.0)),
-                                  height: 200,
-                                  width: 150,
-                                  child: ClipRRect(
-                                    borderRadius: BorderRadius.circular(16.0),
-                                    child: Image.asset(
-                                        "furniture.jpeg",
-                                        fit: BoxFit.fill
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(height:10),
-                                const SizedBox(
-                                    height: 20,
-                                    child: Center(child: Text("Furniture", style: TextStyle(fontSize: 16),))
-                                )
-                              ],
-                            )
-                        ),
-                        SizedBox(
-                            height:230,
-                            width:150,
-                            child: Column(
-                              children: [
-                                Container(
-                                  decoration: BoxDecoration(borderRadius: BorderRadius.circular(16.0)),
-                                  height: 200,
-                                  width: 150,
-                                  child: ClipRRect(
-                                    borderRadius: BorderRadius.circular(16.0),
-                                    child: Image.asset(
-                                        "storage.jpeg",
-                                        fit: BoxFit.fill
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(height:10),
-                                const SizedBox(
-                                    height: 20,
-                                    child: Center(child: Text("Storage & Organ", style: TextStyle(fontSize: 16),))
-                                )
-                              ],
-                            )
-                        ),
-                      ],
-                    ),
+                    // if (showHomeLivingSection)
+                    //   const SizedBox(height: 45),
+                    // if (showHomeLivingSection)
+                    //   Wrap(
+                    //   spacing: 20.0,
+                    //   children: [
+                    //     SizedBox(
+                    //       height:230,
+                    //         width:150,
+                    //         child: Column(
+                    //           children: [
+                    //             Container(
+                    //               decoration: BoxDecoration(borderRadius: BorderRadius.circular(16.0)),
+                    //               height: 200,
+                    //               width: 150,
+                    //               child: ClipRRect(
+                    //                   borderRadius: BorderRadius.circular(16.0),
+                    //                 child: Image.asset(
+                    //                     "home_decor.jpeg",
+                    //                   fit: BoxFit.fill
+                    //                 ),
+                    //               ),
+                    //             ),
+                    //             const SizedBox(height:10),
+                    //             const SizedBox(
+                    //               height: 20,
+                    //                 child: Center(child: Text("Home Decor", style: TextStyle(fontSize: 16),))
+                    //             )
+                    //           ],
+                    //         )
+                    //     ),
+                    //     SizedBox(
+                    //       height:230,
+                    //         width:150,
+                    //         child: Column(
+                    //           children: [
+                    //             Container(
+                    //               decoration: BoxDecoration(borderRadius: BorderRadius.circular(16.0)),
+                    //               height: 200,
+                    //               width: 150,
+                    //               child: ClipRRect(
+                    //                   borderRadius: BorderRadius.circular(16.0),
+                    //                 child: Image.asset(
+                    //                     "lighting.jpeg",
+                    //                   fit: BoxFit.fill
+                    //                 ),
+                    //               ),
+                    //             ),
+                    //             const SizedBox(height:10),
+                    //             const SizedBox(
+                    //               height: 20,
+                    //                 child: Center(child: Text("Lighting", style: TextStyle(fontSize: 16),))
+                    //             )
+                    //           ],
+                    //         )
+                    //     ),
+                    //     SizedBox(
+                    //         height:230,
+                    //         width:150,
+                    //         child: Column(
+                    //           children: [
+                    //             Container(
+                    //               decoration: BoxDecoration(borderRadius: BorderRadius.circular(16.0)),
+                    //               height: 200,
+                    //               width: 150,
+                    //               child: ClipRRect(
+                    //                 borderRadius: BorderRadius.circular(16.0),
+                    //                 child: Image.asset(
+                    //                     "outdoor.jpeg",
+                    //                     fit: BoxFit.fill
+                    //                 ),
+                    //               ),
+                    //             ),
+                    //             const SizedBox(height:10),
+                    //             const SizedBox(
+                    //                 height: 20,
+                    //                 child: Center(child: Text("Outdoor & Gardening", style: TextStyle(fontSize: 16),))
+                    //             )
+                    //           ],
+                    //         )
+                    //     ),
+                    //     SizedBox(
+                    //         height:230,
+                    //         width:150,
+                    //         child: Column(
+                    //           children: [
+                    //             Container(
+                    //               decoration: BoxDecoration(borderRadius: BorderRadius.circular(16.0)),
+                    //               height: 200,
+                    //               width: 150,
+                    //               child: ClipRRect(
+                    //                 borderRadius: BorderRadius.circular(16.0),
+                    //                 child: Image.asset(
+                    //                     "furniture.jpeg",
+                    //                     fit: BoxFit.fill
+                    //                 ),
+                    //               ),
+                    //             ),
+                    //             const SizedBox(height:10),
+                    //             const SizedBox(
+                    //                 height: 20,
+                    //                 child: Center(child: Text("Furniture", style: TextStyle(fontSize: 16),))
+                    //             )
+                    //           ],
+                    //         )
+                    //     ),
+                    //     SizedBox(
+                    //         height:230,
+                    //         width:150,
+                    //         child: Column(
+                    //           children: [
+                    //             Container(
+                    //               decoration: BoxDecoration(borderRadius: BorderRadius.circular(16.0)),
+                    //               height: 200,
+                    //               width: 150,
+                    //               child: ClipRRect(
+                    //                 borderRadius: BorderRadius.circular(16.0),
+                    //                 child: Image.asset(
+                    //                     "storage.jpeg",
+                    //                     fit: BoxFit.fill
+                    //                 ),
+                    //               ),
+                    //             ),
+                    //             const SizedBox(height:10),
+                    //             const SizedBox(
+                    //                 height: 20,
+                    //                 child: Center(child: Text("Storage & Organ", style: TextStyle(fontSize: 16),))
+                    //             )
+                    //           ],
+                    //         )
+                    //     ),
+                    //   ],
+                    // ),
                     const SizedBox(height: 35),
-                    GridView.builder(
-                      shrinkWrap: true,
-                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 5,
-                          crossAxisSpacing: 20.0,
-                          mainAxisSpacing: 20.0,
-                          mainAxisExtent: 240,
-                        ),
-                        itemCount: dataset["public_cdn_link"] != null ? dataset["public_cdn_link"].length : 0,
-                        itemBuilder: (BuildContext context, int index) {
-                      return Container(
-                        // padding: EdgeInsets.all(10.0),
-                        decoration: BoxDecoration(
-                          // border: Border.all(color: Colors.grey),
-                            borderRadius: BorderRadius.circular(14.0)
-                        ),
-                        child: Column(
-                          children: [
-                            ClipRRect(
-                              borderRadius: BorderRadius.circular(16.0),
-                              child: InkWell(
-                                child: Image.network(
-                                    dataset["public_cdn_link"].elementAt(index),
-                                  height:200,
-                                  width: double.infinity,
-                                  fit: BoxFit.cover,
-                                ),
-                                onTap: (){
-                                  Navigator.of(context).push(MaterialPageRoute(builder: (BuildContext context) {
-                                    return ListingId(
-                                      dataset: {
-                                        "public_cdn_link": dataset["public_cdn_link"].elementAt(index),
-                                        "generated_title": dataset["generated_title"].elementAt(index),
-                                        "generated_description": dataset["generated_description"].elementAt(index),
-                                        "description": (index >= 0 && index < dataset["description"].length)
-                                            ? dataset["description"].elementAt(index)
-                                            : "Description not available",
-                                        "title": dataset["title"].elementAt(index),
-                                        "price_usd": dataset["price_usd"].elementAt(index),
-                                        "q_cat_1": dataset["q_cat_1"].elementAt(index),
-                                        "a_cat_1": dataset["a_cat_1"].elementAt(index),
-                                        "q_cat_2": dataset["q_cat_2"].elementAt(index),
-                                        "a_cat_2": dataset["a_cat_2"].elementAt(index),
-                                        "questions_only_cat3": dataset["questions_only_cat3"].elementAt(index),
-                                      }
-                                    );
-                                  }));
-                                }
-                              ),
-                            ),
-                            Container(
-                              padding: const EdgeInsets.only(left: 15, right: 15, top: 15),
-                              height:35,
-                              // width: double.infinity,
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Flexible(
-                                    // width: 150,
-                                      child: Text(dataset["title"].elementAt(index),
-                                          overflow: TextOverflow.ellipsis),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 25.0, right: 25.0),
+                      child: GridView.builder(
+                        shrinkWrap: true,
+                          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 5,
+                            crossAxisSpacing: 20.0,
+                            mainAxisSpacing: 20.0,
+                            mainAxisExtent: 240,
+                          ),
+                          itemCount: dataset["public_cdn_link"] != null ? dataset["public_cdn_link"].length : 0,
+                          itemBuilder: (BuildContext context, int index) {
+                        return Container(
+                          // padding: EdgeInsets.all(10.0),
+                          decoration: BoxDecoration(
+                            // border: Border.all(color: Colors.grey),
+                              borderRadius: BorderRadius.circular(14.0)
+                          ),
+                          child: Column(
+                            children: [
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(16.0),
+                                child: InkWell(
+                                  child: Image.network(
+                                      dataset["public_cdn_link"].elementAt(index),
+                                    height:200,
+                                    width: double.infinity,
+                                    fit: BoxFit.cover,
                                   ),
-                                  SizedBox(
-                                    width: 40,
-                                    child: Text(
-                          (dataset.containsKey('price_usd') ?
-                                        "\$${dataset['price_usd'].elementAt(index)}": 'price').trim(),
-                                        overflow: TextOverflow.ellipsis)
-                                  )
-                                ],
+                                  onTap: () async {
+
+                                    List<String> columns = [
+                                      "listing_id",
+                                      "title",
+                                      "description",
+                                      "price_usd",
+                                      "tags",
+                                      "attributes",
+                                      "image_url",
+                                      "category_id",
+                                      "category_path",
+                                      "concatenated_product_info",
+                                      "public_gcs_link",
+                                      "private_gcs_link",
+                                      "public_cdn_link",
+                                      "generated_description",
+                                      "generated_title"
+                                    ];
+
+                                    Map<String, String> extractedData = {
+                                      for (var col in columns)
+                                        if (dataset.containsKey(col)) col: dataset[col].toString(),
+                                    };
+                                    var request = http.MultipartRequest('POST', Uri.parse("http://localhost:8000/vais"), );
+                                    request.fields['text_data'] = dataset["generated_rec"].elementAt(index);
+                                    var streamedResponse = await request.send();
+                                    if (streamedResponse.statusCode == 200) {
+                                      var response = await http.Response.fromStream(streamedResponse);
+                                      Map<String, dynamic> responseBody = jsonDecode(response.body);
+                                      recDataset = {
+                                        "public_cdn_link": responseBody["public_cdn_link"] ?? "", // Default to empty string
+                                        "title": responseBody["title"] ?? "", // Default to empty string
+                                        "generated_title": responseBody["generated_title"] ?? "", // Default to empty string
+                                        "generated_description": responseBody["llm_generated_description"] ?? "", // Default to empty string
+                                        "description": responseBody["description"] ?? "", // Default to empty string
+                                        "price_usd": responseBody["price_usd"] ?? 0.0, // Default to 0.0
+                                        "q_cat_1": responseBody["questions_cat1"] ?? [], // Default to empty list
+                                        "a_cat_1": responseBody["answers_cat1"] ?? [], // Default to empty list
+                                        "q_cat_2": responseBody["questions_cat2"] ?? [], // Default to empty list
+                                        "a_cat_2": responseBody["answers_cat1"] ?? [], // Default to empty list  (This seems like a typo, should probably be answers_cat2)
+                                        "questions_only_cat3": responseBody["questions_only_cat3"] ?? [], // Default to empty list
+                                      };
+                                    }
+                                    else {
+                                      recDataset = dataset;
+                                    }
+                                    setState(() {
+                                    });
+
+                                    Navigator.of(context).push(MaterialPageRoute(builder: (BuildContext context) {
+                                      print("llego");
+
+                                      // print("public_cdn_link: ${dataset["public_cdn_link"]?.elementAt(index)}");
+                                      // print("generated_title: ${dataset["generated_title"]?.elementAt(index)}");
+                                      // print("generated_description: ${dataset["llm_generated_description"]?.elementAt(index)}");
+                                      //
+                                      // if (index >= 0 && index < dataset["description"].length) {
+                                      //   print("description: ${dataset["description"].elementAt(index)}");
+                                      // } else {
+                                      //   print("description: Description not available");
+                                      // }
+                                      //
+                                      // print("title: ${dataset["title"]?.elementAt(index)}");
+                                      // print("price_usd: ${dataset["price_usd"]?.elementAt(index)}");
+                                      // print("q_cat_1: ${dataset["q_cat_1"]?.elementAt(index)}");
+                                      // print("a_cat_1: ${dataset["a_cat_1"]?.elementAt(index)}");
+                                      // print("q_cat_2: ${dataset["q_cat_2"]?.elementAt(index)}");
+                                      // print("a_cat_2: ${dataset["a_cat_2"]?.elementAt(index)}");
+                                      // print("questions_only_cat3: ${dataset["questions_only_cat3"]?.elementAt(index)}");
+                                      // // print("rec_data: $recDataset");
+
+                                      return ListingId(
+                                        dataset: {
+                                          "public_cdn_link": dataset["public_cdn_link"].elementAt(index),
+                                          "generated_title": dataset["generated_title"].elementAt(index),
+                                          "generated_description": dataset["generated_description"]?.elementAt(index) ?? "Description not available",
+                                          "description": (index >= 0 && index < dataset["description"].length)
+                                              ? dataset["description"].elementAt(index)
+                                              : "Description not available",
+                                          "title": dataset["title"].elementAt(index),
+                                          "price_usd": dataset["price_usd"].elementAt(index),
+                                          "q_cat_1": dataset["q_cat_1"].elementAt(index),
+                                          "a_cat_1": dataset["a_cat_1"].elementAt(index),
+                                          "q_cat_2": dataset["q_cat_2"].elementAt(index),
+                                          "a_cat_2": dataset["a_cat_2"].elementAt(index),
+                                          "questions_only_cat3": dataset["questions_only_cat3"].elementAt(index),
+                                          "rec_data": recDataset,
+                                        }
+                                      );
+                                    }));
+                                  }
+                                ),
+                              ),
+                              Container(
+                                padding: const EdgeInsets.only(left: 15, right: 15, top: 15),
+                                height:35,
+                                // width: double.infinity,
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Flexible(
+                                      // width: 150,
+                                        child: Text(dataset["title"].elementAt(index),
+                                            overflow: TextOverflow.ellipsis),
+                                    ),
+                                    SizedBox(
+                                      width: 40,
+                                      child: Text(
+                            (dataset.containsKey('price_usd') ?
+                                          "\$${dataset['price_usd'].elementAt(index)}": 'price').trim(),
+                                          overflow: TextOverflow.ellipsis)
+                                    )
+                                  ],
+                                )
                               )
-                            )
-                          ],
-                        ),
-                      );
-                    }),
+                            ],
+                          ),
+                        );
+                      }),
+                    ),
                   ],
                 ),
               ),

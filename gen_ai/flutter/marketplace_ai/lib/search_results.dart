@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 
@@ -14,6 +13,7 @@ class _ListingIdState extends State<ListingId> {
   String response = "";
   bool _isExpanded = false;
   List<dynamic> images = [];
+  List<dynamic> recImages = [];
   final TextEditingController _textController = TextEditingController();
 
   @override
@@ -98,7 +98,7 @@ class _ListingIdState extends State<ListingId> {
   Widget _buildContent(BuildContext context, BoxConstraints constraints) {
     double screenWidth = MediaQuery.of(context).size.width;
     const double spaceBetween = 25.0;
-
+    print(widget.dataset["generated_description"]);
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -252,9 +252,6 @@ class _ListingIdState extends State<ListingId> {
               ],
             ),
           ),
-
-
-
         Padding(
           padding: const EdgeInsets.all(16.0),
           child: Wrap(
@@ -264,7 +261,6 @@ class _ListingIdState extends State<ListingId> {
               for (var i = 0; i < (widget.dataset["q_cat_1"] ?? []).length; i++)
                 ElevatedButton(
                   onPressed: () {
-                    print(widget.dataset["a_cat_1"][i]);
                     setState(() {
                       response = widget.dataset["a_cat_1"][i];
                       images = [];
@@ -307,7 +303,7 @@ class _ListingIdState extends State<ListingId> {
               i++)
                 ElevatedButton(
                   onPressed: () async {
-                    var request = http.MultipartRequest('POST', Uri.parse("https://marketplace-middleware-254356041555.us-central1.run.app/vais"), );
+                    var request = http.MultipartRequest('POST', Uri.parse("http://localhost:8000/vais"), );
                     request.fields['text_data'] = widget.dataset["questions_only_cat3"][i];
                     var streamedResponse = await request.send();
 
@@ -320,7 +316,7 @@ class _ListingIdState extends State<ListingId> {
                       if (images.contains(widget.dataset["public_cdn_link"])) {
                         images.remove(widget.dataset["public_cdn_link"]);
                       };
-                      images = images.sublist(0, 5);
+                      images = images.sublist(0, 6);
                       response = "Here are the relevant results:";
                       _clearTextField();
                       _insertText( widget.dataset["questions_only_cat3"][i]);
@@ -340,6 +336,30 @@ class _ListingIdState extends State<ListingId> {
 
             ],
           ),
+        ),
+        const SizedBox(height: spaceBetween),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // if (images.isNotEmpty)
+             Text("You may also like...", style: TextStyle(fontSize: 20.0, color: Colors.deepOrange.shade400, fontWeight: FontWeight.bold)),
+            // if (images.isNotEmpty)
+              const SizedBox(height:20.0),
+            // if (images.isNotEmpty)
+              Center(
+                child: Wrap(
+                alignment: WrapAlignment.center,
+                runAlignment: WrapAlignment.center,
+                spacing: 10.0,
+                runSpacing: 10.0,
+                children: [
+                  for (var i = 0; i < 5; i++)
+                    if (widget.dataset["rec_data"]["public_cdn_link"].length > i)
+                      Image.network(widget.dataset["rec_data"]["public_cdn_link"][i], width: 100, height: 100)
+                ],
+              ),
+            ),
+          ],
         ),
 
       ],
