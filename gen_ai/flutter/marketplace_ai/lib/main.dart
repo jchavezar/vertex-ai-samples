@@ -43,6 +43,8 @@ class _MyHomePageState extends State<MyHomePage> {
   String inputMessage = "";
   bool showHomeLivingSection = true;
   Color x = Colors.deepOrange;
+  final TextEditingController _textEditingController = TextEditingController();
+
 
   @override
   void initState() {
@@ -61,9 +63,40 @@ class _MyHomePageState extends State<MyHomePage> {
       // Handle error, e.g., show an error message to the user
     }
   }
+
+  Future<Map<String, dynamic>> _ragSearch(String value) async {
+    var request = http.MultipartRequest('POST', Uri.parse("https://etsy-v12-mid-254356041555.us-central1.run.app/vais"), );
+    request.fields['text_data'] = value;
+    var streamedResponse = await request.send();
+
+    if (streamedResponse.statusCode == 200) {
+      var response = await http.Response.fromStream(streamedResponse);
+      Map<String, dynamic> responseBody = jsonDecode(response.body);
+      dataset = {
+        "public_cdn_link": responseBody["public_cdn_link"],
+        "title": responseBody["title"],
+        "generated_title": responseBody["generated_title"],
+        "generated_description": responseBody["llm_generated_description"],
+        "description": responseBody["description"],
+        "price_usd": responseBody["price_usd"],
+        "q_cat_1": responseBody["questions_cat1"],
+        "a_cat_1": responseBody["answers_cat1"],
+        "q_cat_2": responseBody["questions_cat2"],
+        "a_cat_2": responseBody["answers_cat1"],
+        "questions_only_cat3": responseBody["questions_only_cat3"],
+        "generated_rec": responseBody["generated_rec"],
+      };
+    }
+    else {
+      dataset = dataset;
+    }
+    return dataset;
+  }
+
   @override
   Widget build(BuildContext context) {
     var screenSize = MediaQuery.of(context).size;
+    bool isSmallScreen = screenSize.width < 600;
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white,
@@ -73,6 +106,7 @@ class _MyHomePageState extends State<MyHomePage> {
           children: [
             const SizedBox(height: 35),
             AnimatedContainer(
+              // padding: isSmallScreen ?
                 duration: const Duration(microseconds: 1),
               // padding: const EdgeInsets.all(8.0),
               height: 60,
@@ -94,37 +128,14 @@ class _MyHomePageState extends State<MyHomePage> {
                         padding: const EdgeInsets.only(left:15.0),
                         width: (screenSize.width /2)*.80,
                         child: TextField(
-                          decoration: const InputDecoration(
+                            controller: _textEditingController,
+                            decoration: const InputDecoration(
                             hintText: "Search for anything",
                             border: InputBorder.none,
                               contentPadding: EdgeInsets.only(left: 15.0, right: 60)
                           ),
                           onSubmitted: (value) async {
-                            var request = http.MultipartRequest('POST', Uri.parse("http://localhost:8000/vais"), );
-                            request.fields['text_data'] = value;
-                            var streamedResponse = await request.send();
-
-                            if (streamedResponse.statusCode == 200) {
-                              var response = await http.Response.fromStream(streamedResponse);
-                              Map<String, dynamic> responseBody = jsonDecode(response.body);
-                              dataset = {
-                                "public_cdn_link": responseBody["public_cdn_link"],
-                                "title": responseBody["title"],
-                                "generated_title": responseBody["generated_title"],
-                                "generated_description": responseBody["llm_generated_description"],
-                                "description": responseBody["description"],
-                                "price_usd": responseBody["price_usd"],
-                                "q_cat_1": responseBody["questions_cat1"],
-                                "a_cat_1": responseBody["answers_cat1"],
-                                "q_cat_2": responseBody["questions_cat2"],
-                                "a_cat_2": responseBody["answers_cat1"],
-                                "questions_only_cat3": responseBody["questions_only_cat3"],
-                                "generated_rec": responseBody["generated_rec"],
-                              };
-                            }
-                            else {
-                              dataset = dataset;
-                            }
+                            dataset = await _ragSearch(value);
                             setState(() {
                               inputMessage = value;
                               showHomeLivingSection = false;
@@ -140,31 +151,43 @@ class _MyHomePageState extends State<MyHomePage> {
                           return Stack(
                             alignment: Alignment.centerRight, // Align the stack to the right
                             children: [
-                              AnimatedContainer(
-                                duration: const Duration(milliseconds: 200),
-                                width: isHovering ? 50*0.8 : 50*0.8,  // Width animates
-                                height: isHovering ? 56 : 50*0.8,
-                                margin: isHovering ? const EdgeInsets.only(right: 0) : const EdgeInsets.only(right: 5),
-                                padding: isHovering ? const EdgeInsets.only(right: 10) : const EdgeInsets.only(left: 0),
-                                decoration: BoxDecoration(
-                                  borderRadius: isHovering
-                                      ? const BorderRadius.only(
-                                    topRight: Radius.circular(32),
-                                    bottomRight: Radius.circular(32),
-                                  )
-                                      : BorderRadius.circular(32), // Full circle when not hovering
-                                  color: isHovering
-                                  ? const Color.fromRGBO(255, 87, 34, 0.5)
-                                      : const Color.fromRGBO(255, 87, 34, 1.0)
-                                  ,
-                                ),
-                                child: const Center(
-                                  child: Icon(
-                                    Icons.search,
-                                    color: Colors.white,
-                                    size: 25.0,
+                              GestureDetector(
+                                child: MouseRegion(
+                                  cursor: SystemMouseCursors.click,
+                                  child: AnimatedContainer(
+                                    duration: const Duration(milliseconds: 200),
+                                    width: isHovering ? 50*0.8 : 50*0.8,  // Width animates
+                                    height: isHovering ? 56 : 50*0.8,
+                                    margin: isHovering ? const EdgeInsets.only(right: 0) : const EdgeInsets.only(right: 5),
+                                    padding: isHovering ? const EdgeInsets.only(right: 10) : const EdgeInsets.only(left: 0),
+                                    decoration: BoxDecoration(
+                                      borderRadius: isHovering
+                                          ? const BorderRadius.only(
+                                        topRight: Radius.circular(32),
+                                        bottomRight: Radius.circular(32),
+                                      )
+                                          : BorderRadius.circular(32), // Full circle when not hovering
+                                      color: isHovering
+                                      ? const Color.fromRGBO(255, 87, 34, 0.5)
+                                          : const Color.fromRGBO(255, 87, 34, 1.0)
+                                      ,
+                                    ),
+                                    child: Center(
+                                      child: Icon(
+                                        Icons.search,
+                                        color: Colors.white,
+                                        size: isSmallScreen ? 15.0 : 25.0,
+                                      ),
+                                    ),
                                   ),
                                 ),
+                                onTap: () async {
+                                  dataset = await _ragSearch(_textEditingController.text);
+                                  setState(() {
+                                    inputMessage = _textEditingController.text;
+                                    showHomeLivingSection = false;
+                                  });
+                                },
                               ),
                             ],
                           );
@@ -375,7 +398,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                       for (var col in columns)
                                         if (dataset.containsKey(col)) col: dataset[col].toString(),
                                     };
-                                    var request = http.MultipartRequest('POST', Uri.parse("http://localhost:8000/vais"), );
+                                    var request = http.MultipartRequest('POST', Uri.parse("https://etsy-v12-mid-254356041555.us-central1.run.app/vais"), );
                                     request.fields['text_data'] = dataset["generated_rec"].elementAt(index);
                                     var streamedResponse = await request.send();
                                     if (streamedResponse.statusCode == 200) {
@@ -402,27 +425,6 @@ class _MyHomePageState extends State<MyHomePage> {
                                     });
 
                                     Navigator.of(context).push(MaterialPageRoute(builder: (BuildContext context) {
-                                      print("llego");
-
-                                      // print("public_cdn_link: ${dataset["public_cdn_link"]?.elementAt(index)}");
-                                      // print("generated_title: ${dataset["generated_title"]?.elementAt(index)}");
-                                      // print("generated_description: ${dataset["llm_generated_description"]?.elementAt(index)}");
-                                      //
-                                      // if (index >= 0 && index < dataset["description"].length) {
-                                      //   print("description: ${dataset["description"].elementAt(index)}");
-                                      // } else {
-                                      //   print("description: Description not available");
-                                      // }
-                                      //
-                                      // print("title: ${dataset["title"]?.elementAt(index)}");
-                                      // print("price_usd: ${dataset["price_usd"]?.elementAt(index)}");
-                                      // print("q_cat_1: ${dataset["q_cat_1"]?.elementAt(index)}");
-                                      // print("a_cat_1: ${dataset["a_cat_1"]?.elementAt(index)}");
-                                      // print("q_cat_2: ${dataset["q_cat_2"]?.elementAt(index)}");
-                                      // print("a_cat_2: ${dataset["a_cat_2"]?.elementAt(index)}");
-                                      // print("questions_only_cat3: ${dataset["questions_only_cat3"]?.elementAt(index)}");
-                                      // // print("rec_data: $recDataset");
-
                                       return ListingId(
                                         dataset: {
                                           "public_cdn_link": dataset["public_cdn_link"].elementAt(index),
