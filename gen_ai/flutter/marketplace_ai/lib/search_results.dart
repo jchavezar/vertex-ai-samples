@@ -209,7 +209,7 @@ class _ListingIdState extends State<ListingId> {
                           vertical: 12.0, horizontal: 8.0),
                     ),
                     onSubmitted: (value) async {
-                      var request = http.MultipartRequest('POST', Uri.parse("http://localhost:8000/gemini"), );
+                      var request = http.MultipartRequest('POST', Uri.parse("https://marketplace-middleware-254356041555.us-central1.run.app/gemini"), );
                       request.fields['query'] = value;
                       request.fields['context'] = "Title: ${widget.dataset["title"]}, Description: ${widget.dataset["description"]}, Price: ${widget.dataset["price_usd"]}";
                       var streamedResponse = await request.send();
