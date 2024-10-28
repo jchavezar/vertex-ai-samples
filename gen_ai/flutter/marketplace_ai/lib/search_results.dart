@@ -353,58 +353,58 @@ class _ListingIdState extends State<ListingId> {
             ],
           ),
         ),
-        const SizedBox(height: spaceBetween),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // if (images.isNotEmpty)
-             Text("You may also like... [Beta]", style: TextStyle(fontSize: 20.0, color: Colors.deepOrange.shade400, fontWeight: FontWeight.bold)),
-            // if (images.isNotEmpty)
-              const SizedBox(height:20.0),
-            // if (images.isNotEmpty)
-              if (widget.dataset.containsKey("rec_data"))
-                Center(
-                child: Wrap(
-                alignment: WrapAlignment.center,
-                runAlignment: WrapAlignment.center,
-                spacing: 10.0,
-                runSpacing: 10.0,
-                children: [
-                  for (var i = 0; i < 5; i++)
-                    if (widget.dataset["rec_data"]["public_cdn_link"].length > i)
-                      if (widget.dataset["rec_data"]["public_cdn_link"][i] != widget.dataset["public_cdn_link"])
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(16.0),
-                          child: InkWell(
-                            // onTap: () {
-                            //   print("-----------");
-                            //   print(widget.dataset["rec_data"][i]);
-                            //   print("-----------");
-                            //   bugger(widget.dataset);
-                            //   final newDataset = widget.dataset;
-                            //   // Navigate to the same page with the new dataset
-                            //   Navigator.pushReplacement(
-                            //     context,
-                            //     MaterialPageRoute(
-                            //       builder: (context) => ListingId(
-                            //         dataset: newDataset, // Pass the new dataset here
-                            //       ),
-                            //     ),
-                            //   );
-                            // },
-                            child: Image.network(
-                                widget.dataset["rec_data"]["public_cdn_link"][i],
-                                height:100,
-                                width: 100,
-                                fit: BoxFit.cover,
-                            ),
-                          ),
-                        )
-                ],
-              ),
-            ),
-          ],
-        ),
+        // const SizedBox(height: spaceBetween),
+        // Column(
+        //   crossAxisAlignment: CrossAxisAlignment.start,
+        //   children: [
+        //     // if (images.isNotEmpty)
+        //      Text("You may also like... [Beta]", style: TextStyle(fontSize: 20.0, color: Colors.deepOrange.shade400, fontWeight: FontWeight.bold)),
+        //     // if (images.isNotEmpty)
+        //       const SizedBox(height:20.0),
+        //     // if (images.isNotEmpty)
+        //       if (widget.dataset.containsKey("rec_data"))
+        //         Center(
+        //         child: Wrap(
+        //         alignment: WrapAlignment.center,
+        //         runAlignment: WrapAlignment.center,
+        //         spacing: 10.0,
+        //         runSpacing: 10.0,
+        //         children: [
+        //           for (var i = 0; i < 5; i++)
+        //             if (widget.dataset["rec_data"]["public_cdn_link"].length > i)
+        //               if (widget.dataset["rec_data"]["public_cdn_link"][i] != widget.dataset["public_cdn_link"])
+        //                 ClipRRect(
+        //                   borderRadius: BorderRadius.circular(16.0),
+        //                   child: InkWell(
+        //                     // onTap: () {
+        //                     //   print("-----------");
+        //                     //   print(widget.dataset["rec_data"][i]);
+        //                     //   print("-----------");
+        //                     //   bugger(widget.dataset);
+        //                     //   final newDataset = widget.dataset;
+        //                     //   // Navigate to the same page with the new dataset
+        //                     //   Navigator.pushReplacement(
+        //                     //     context,
+        //                     //     MaterialPageRoute(
+        //                     //       builder: (context) => ListingId(
+        //                     //         dataset: newDataset, // Pass the new dataset here
+        //                     //       ),
+        //                     //     ),
+        //                     //   );
+        //                     // },
+        //                     child: Image.network(
+        //                         widget.dataset["rec_data"]["public_cdn_link"][i],
+        //                         height:100,
+        //                         width: 100,
+        //                         fit: BoxFit.cover,
+        //                     ),
+        //                   ),
+        //                 )
+        //         ],
+        //       ),
+        //     ),
+        //   ],
+        // ),
 
       ],
     );
