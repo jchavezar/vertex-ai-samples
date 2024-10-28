@@ -319,7 +319,7 @@ class _ListingIdState extends State<ListingId> {
               i++)
                 ElevatedButton(
                   onPressed: () async {
-                    var request = http.MultipartRequest('POST', Uri.parse("http://localhost:8000/vais"), );
+                    var request = http.MultipartRequest('POST', Uri.parse("https://etsy-v12-mid-REDACTED_PROJECT_NUMBER.us-central1.run.app/vais"), );
                     request.fields['text_data'] = widget.dataset["questions_only_cat3"][i];
                     var streamedResponse = await request.send();
 
