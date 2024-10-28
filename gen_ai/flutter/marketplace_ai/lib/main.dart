@@ -375,32 +375,32 @@ class _MyHomePageState extends State<MyHomePage> {
                                     width: double.infinity,
                                     fit: BoxFit.cover,
                                   ),
-                                  onTap: () async {
-                                    var request = http.MultipartRequest('POST', Uri.parse("https://etsy-v12-mid-254356041555.us-central1.run.app/vais"), );
-                                    request.fields['text_data'] = dataset["generated_rec"].elementAt(index);
-                                    var streamedResponse = await request.send();
-                                    if (streamedResponse.statusCode == 200) {
-                                      var response = await http.Response.fromStream(streamedResponse);
-                                      Map<String, dynamic> responseBody = jsonDecode(response.body);
-                                      recDataset = {
-                                        "public_cdn_link": responseBody["public_cdn_link"] ?? "", // Default to empty string
-                                        "title": responseBody["title"] ?? "", // Default to empty string
-                                        "generated_title": responseBody["generated_title"] ?? "", // Default to empty string
-                                        "generated_description": responseBody["llm_generated_description"] ?? "", // Default to empty string
-                                        "description": responseBody["description"] ?? "", // Default to empty string
-                                        "price_usd": responseBody["price_usd"] ?? 0.0, // Default to 0.0
-                                        "q_cat_1": responseBody["questions_cat1"] ?? [], // Default to empty list
-                                        "a_cat_1": responseBody["answers_cat1"] ?? [], // Default to empty list
-                                        "q_cat_2": responseBody["questions_cat2"] ?? [], // Default to empty list
-                                        "a_cat_2": responseBody["answers_cat1"] ?? [], // Default to empty list  (This seems like a typo, should probably be answers_cat2)
-                                        "questions_only_cat3": responseBody["questions_only_cat3"] ?? [], // Default to empty list
-                                      };
-                                    }
-                                    else {
-                                      recDataset = dataset;
-                                    }
-                                    setState(() {
-                                    });
+                                  onTap: () {
+                                    // var request = http.MultipartRequest('POST', Uri.parse("https://etsy-v12-mid-254356041555.us-central1.run.app/vais"), );
+                                    // request.fields['text_data'] = dataset["generated_rec"].elementAt(index);
+                                    // var streamedResponse = await request.send();
+                                    // if (streamedResponse.statusCode == 200) {
+                                    //   var response = await http.Response.fromStream(streamedResponse);
+                                    //   Map<String, dynamic> responseBody = jsonDecode(response.body);
+                                    //   recDataset = {
+                                    //     "public_cdn_link": responseBody["public_cdn_link"] ?? "", // Default to empty string
+                                    //     "title": responseBody["title"] ?? "", // Default to empty string
+                                    //     "generated_title": responseBody["generated_title"] ?? "", // Default to empty string
+                                    //     "generated_description": responseBody["llm_generated_description"] ?? "", // Default to empty string
+                                    //     "description": responseBody["description"] ?? "", // Default to empty string
+                                    //     "price_usd": responseBody["price_usd"] ?? 0.0, // Default to 0.0
+                                    //     "q_cat_1": responseBody["questions_cat1"] ?? [], // Default to empty list
+                                    //     "a_cat_1": responseBody["answers_cat1"] ?? [], // Default to empty list
+                                    //     "q_cat_2": responseBody["questions_cat2"] ?? [], // Default to empty list
+                                    //     "a_cat_2": responseBody["answers_cat1"] ?? [], // Default to empty list  (This seems like a typo, should probably be answers_cat2)
+                                    //     "questions_only_cat3": responseBody["questions_only_cat3"] ?? [], // Default to empty list
+                                    //   };
+                                    // }
+                                    // else {
+                                    //   recDataset = dataset;
+                                    // }
+                                    // setState(() {
+                                    // });
                                     Navigator.of(context).push(MaterialPageRoute(builder: (BuildContext context) {
                                       return ListingId(
                                         dataset: {
@@ -417,7 +417,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                           "q_cat_2": dataset["questions_cat2"].elementAt(index),
                                           "a_cat_2": dataset["answers_cat2"].elementAt(index),
                                           "questions_only_cat3": dataset["questions_only_cat3"].elementAt(index),
-                                          "rec_data": recDataset,
+                                          // "rec_data": recDataset,
                                         }
                                       );
                                     }));
