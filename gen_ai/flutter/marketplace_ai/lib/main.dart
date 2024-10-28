@@ -65,7 +65,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future<Map<String, dynamic>> _ragSearch(String value) async {
-    var request = http.MultipartRequest('POST', Uri.parse("https://etsy-v12-mid-254356041555.us-central1.run.app/vais"), );
+    var request = http.MultipartRequest('POST', Uri.parse("http://localhost:8000/vais"), );
     request.fields['text_data'] = value;
     var streamedResponse = await request.send();
 
@@ -83,6 +83,7 @@ class _MyHomePageState extends State<MyHomePage> {
         "answers_cat1": responseBody["answers_cat1"],
         "questions_cat2": responseBody["questions_cat2"],
         "answers_cat1": responseBody["answers_cat1"],
+        "answers_cat2": responseBody["answers_cat2"],
         "questions_only_cat3": responseBody["questions_only_cat3"],
         "generated_rec": responseBody["generated_rec"],
       };
@@ -375,7 +376,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                     fit: BoxFit.cover,
                                   ),
                                   onTap: () async {
-                                    var request = http.MultipartRequest('POST', Uri.parse("https://etsy-v12-mid-254356041555.us-central1.run.app/vais"), );
+                                    var request = http.MultipartRequest('POST', Uri.parse("http://localhost:8000/vais"), );
                                     request.fields['text_data'] = dataset["generated_rec"].elementAt(index);
                                     var streamedResponse = await request.send();
                                     if (streamedResponse.statusCode == 200) {
