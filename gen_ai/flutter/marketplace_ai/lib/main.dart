@@ -79,10 +79,10 @@ class _MyHomePageState extends State<MyHomePage> {
         "generated_description": responseBody["llm_generated_description"],
         "description": responseBody["description"],
         "price_usd": responseBody["price_usd"],
-        "q_cat_1": responseBody["questions_cat1"],
-        "a_cat_1": responseBody["answers_cat1"],
-        "q_cat_2": responseBody["questions_cat2"],
-        "a_cat_2": responseBody["answers_cat1"],
+        "questions_cat1": responseBody["questions_cat1"],
+        "answers_cat1": responseBody["answers_cat1"],
+        "questions_cat2": responseBody["questions_cat2"],
+        "answers_cat1": responseBody["answers_cat1"],
         "questions_only_cat3": responseBody["questions_only_cat3"],
         "generated_rec": responseBody["generated_rec"],
       };
@@ -375,29 +375,6 @@ class _MyHomePageState extends State<MyHomePage> {
                                     fit: BoxFit.cover,
                                   ),
                                   onTap: () async {
-
-                                    List<String> columns = [
-                                      "listing_id",
-                                      "title",
-                                      "description",
-                                      "price_usd",
-                                      "tags",
-                                      "attributes",
-                                      "image_url",
-                                      "category_id",
-                                      "category_path",
-                                      "concatenated_product_info",
-                                      "public_gcs_link",
-                                      "private_gcs_link",
-                                      "public_cdn_link",
-                                      "generated_description",
-                                      "generated_title"
-                                    ];
-
-                                    Map<String, String> extractedData = {
-                                      for (var col in columns)
-                                        if (dataset.containsKey(col)) col: dataset[col].toString(),
-                                    };
                                     var request = http.MultipartRequest('POST', Uri.parse("https://etsy-v12-mid-254356041555.us-central1.run.app/vais"), );
                                     request.fields['text_data'] = dataset["generated_rec"].elementAt(index);
                                     var streamedResponse = await request.send();
@@ -423,7 +400,6 @@ class _MyHomePageState extends State<MyHomePage> {
                                     }
                                     setState(() {
                                     });
-
                                     Navigator.of(context).push(MaterialPageRoute(builder: (BuildContext context) {
                                       return ListingId(
                                         dataset: {
@@ -435,10 +411,10 @@ class _MyHomePageState extends State<MyHomePage> {
                                               : "Description not available",
                                           "title": dataset["title"].elementAt(index),
                                           "price_usd": dataset["price_usd"].elementAt(index),
-                                          "q_cat_1": dataset["q_cat_1"].elementAt(index),
-                                          "a_cat_1": dataset["a_cat_1"].elementAt(index),
-                                          "q_cat_2": dataset["q_cat_2"].elementAt(index),
-                                          "a_cat_2": dataset["a_cat_2"].elementAt(index),
+                                          "q_cat_1": dataset["questions_cat1"].elementAt(index),
+                                          "a_cat_1": dataset["answers_cat1"].elementAt(index),
+                                          "q_cat_2": dataset["questions_cat2"].elementAt(index),
+                                          "a_cat_2": dataset["answers_cat2"].elementAt(index),
                                           "questions_only_cat3": dataset["questions_only_cat3"].elementAt(index),
                                           "rec_data": recDataset,
                                         }

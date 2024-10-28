@@ -22,6 +22,11 @@ class _ListingIdState extends State<ListingId> {
     super.dispose();
   }
 
+  void bugger(value) {
+    for (var item in value.keys)
+    print(item);
+  }
+
   void _clearTextField() {
     setState(() {
       _textController.clear();
@@ -98,7 +103,6 @@ class _ListingIdState extends State<ListingId> {
   Widget _buildContent(BuildContext context, BoxConstraints constraints) {
     double screenWidth = MediaQuery.of(context).size.width;
     const double spaceBetween = 25.0;
-    print(widget.dataset["generated_description"]);
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -204,6 +208,22 @@ class _ListingIdState extends State<ListingId> {
                       contentPadding: EdgeInsets.symmetric(
                           vertical: 12.0, horizontal: 8.0),
                     ),
+                    onSubmitted: (value) async {
+                      var request = http.MultipartRequest('POST', Uri.parse("http://localhost:8000/gemini"), );
+                      request.fields['query'] = value;
+                      request.fields['context'] = "Title: ${widget.dataset["title"]}, Description: ${widget.dataset["description"]}, Price: ${widget.dataset["price_usd"]}";
+                      var streamedResponse = await request.send();
+                      if (streamedResponse.statusCode == 200) {
+                        var response0 = await http.Response.fromStream(streamedResponse);
+                        Map<String, dynamic> responseBody = jsonDecode(response0.body);
+                        response = responseBody["response"];
+                      }
+                      else {
+                        response = "No response";
+                      }
+                      setState(() {
+                      });
+                    },
                   ),
                 ),
                 const Padding(
@@ -235,7 +255,8 @@ class _ListingIdState extends State<ListingId> {
                 ),
                 const SizedBox(height: 10.0),
                 Text(response, style: const TextStyle(fontSize: 15.0)),
-                const SizedBox(height:10.0),
+                if (images.isNotEmpty)
+                  const SizedBox(height:10.0),
                 if (images.isNotEmpty)
                   Center(
                     child: Wrap(
@@ -346,7 +367,8 @@ class _ListingIdState extends State<ListingId> {
             // if (images.isNotEmpty)
               const SizedBox(height:20.0),
             // if (images.isNotEmpty)
-              Center(
+              if (widget.dataset.containsKey("rec_data"))
+                Center(
                 child: Wrap(
                 alignment: WrapAlignment.center,
                 runAlignment: WrapAlignment.center,
@@ -355,7 +377,34 @@ class _ListingIdState extends State<ListingId> {
                 children: [
                   for (var i = 0; i < 5; i++)
                     if (widget.dataset["rec_data"]["public_cdn_link"].length > i)
-                      Image.network(widget.dataset["rec_data"]["public_cdn_link"][i], width: 100, height: 100)
+                      if (widget.dataset["rec_data"]["public_cdn_link"][i] != widget.dataset["public_cdn_link"])
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(16.0),
+                          child: InkWell(
+                            // onTap: () {
+                            //   print("-----------");
+                            //   print(widget.dataset["rec_data"][i]);
+                            //   print("-----------");
+                            //   bugger(widget.dataset);
+                            //   final newDataset = widget.dataset;
+                            //   // Navigate to the same page with the new dataset
+                            //   Navigator.pushReplacement(
+                            //     context,
+                            //     MaterialPageRoute(
+                            //       builder: (context) => ListingId(
+                            //         dataset: newDataset, // Pass the new dataset here
+                            //       ),
+                            //     ),
+                            //   );
+                            // },
+                            child: Image.network(
+                                widget.dataset["rec_data"]["public_cdn_link"][i],
+                                height:100,
+                                width: 100,
+                                fit: BoxFit.cover,
+                            ),
+                          ),
+                        )
                 ],
               ),
             ),
