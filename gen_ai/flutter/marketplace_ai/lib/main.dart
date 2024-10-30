@@ -65,7 +65,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future<Map<String, dynamic>> _ragSearch(String value) async {
-    var request = http.MultipartRequest('POST', Uri.parse("https://etsy-v12-mid-254356041555.us-central1.run.app/vais"), );
+    var request = http.MultipartRequest('POST', Uri.parse("https://etsy-v12-mid-254356041555.us-central1.run.app/vais?revision=etsy-v12-mid-00004-gkb/vais"), );
     request.fields['text_data'] = value;
     var streamedResponse = await request.send();
 
