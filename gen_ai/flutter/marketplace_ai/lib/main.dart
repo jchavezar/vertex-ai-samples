@@ -65,33 +65,45 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future<Map<String, dynamic>> _ragSearch(String value) async {
-    var request = http.MultipartRequest('POST', Uri.parse("https://etsy-v12-mid-254356041555.us-central1.run.app/vais?revision=etsy-v12-mid-00004-gkb/vais"), );
-    request.fields['text_data'] = value;
-    var streamedResponse = await request.send();
+    final url = Uri.parse("https://etsy-v12-mid-254356041555.us-central1.run.app/vais"); // Correct URL - removed revision
 
-    if (streamedResponse.statusCode == 200) {
-      var response = await http.Response.fromStream(streamedResponse);
-      Map<String, dynamic> responseBody = jsonDecode(response.body);
-      dataset = {
-        "public_cdn_link": responseBody["public_cdn_link"],
-        "title": responseBody["title"],
-        "generated_title": responseBody["generated_title"],
-        "generated_description": responseBody["llm_generated_description"],
-        "description": responseBody["description"],
-        "price_usd": responseBody["price_usd"],
-        "questions_cat1": responseBody["questions_cat1"],
-        "answers_cat1": responseBody["answers_cat1"],
-        "questions_cat2": responseBody["questions_cat2"],
-        "answers_cat1": responseBody["answers_cat1"],
-        "answers_cat2": responseBody["answers_cat2"],
-        "questions_only_cat3": responseBody["questions_only_cat3"],
-        "generated_rec": responseBody["generated_rec"],
-      };
+    try {
+      final response = await http.post(
+        url,
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded', // Or 'application/json' if your backend prefers JSON
+          'Origin': 'https://testing-testing-254356041555.us-central1.run.app', //  Replace with your app's origin.  This is likely crucial!
+        },
+        body: {
+          'text_data': value,
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final responseBody = jsonDecode(response.body);
+        dataset = { //removed redundancies and unneeded entries
+          "public_cdn_link": responseBody["public_cdn_link"],
+          "title": responseBody["title"],
+          "generated_title": responseBody["generated_title"],
+          "generated_description": responseBody["llm_generated_description"],
+          "description": responseBody["description"],
+          "price_usd": responseBody["price_usd"],
+          "questions_cat1": responseBody["questions_cat1"],
+          "answers_cat1": responseBody["answers_cat1"],
+          "questions_cat2": responseBody["questions_cat2"],
+          "answers_cat2": responseBody["answers_cat2"],
+          "questions_only_cat3": responseBody["questions_only_cat3"],
+          "generated_rec": responseBody["generated_rec"],
+        };
+        return dataset;
+      } else {
+        print('Request failed with status: ${response.statusCode}. Body: ${response.body}');
+        throw Exception('Failed to load data: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error during RAG search: $e');
+      rethrow; // Re-throw the exception to be handled higher up
     }
-    else {
-      dataset = dataset;
-    }
-    return dataset;
   }
 
   @override
