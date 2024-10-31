@@ -65,7 +65,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future<Map<String, dynamic>> _ragSearch(String value) async {
-    final url = Uri.parse("http://mid-pod-service:8000/vais"); // Correct URL - removed revision
+    final url = Uri.parse("http://back-service:8000/vais"); // Correct URL - removed revision
 
     try {
       final response = await http.post(
