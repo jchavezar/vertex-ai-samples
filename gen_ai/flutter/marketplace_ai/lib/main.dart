@@ -65,14 +65,13 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future<Map<String, dynamic>> _ragSearch(String value) async {
-    final url = Uri.parse("https://etsy-v12-mid-254356041555.us-central1.run.app/vais"); // Correct URL - removed revision
+    final url = Uri.parse("http://mid-pod-service:8000/vais"); // Correct URL - removed revision
 
     try {
       final response = await http.post(
         url,
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded', // Or 'application/json' if your backend prefers JSON
-          'Origin': 'https://testing-testing-254356041555.us-central1.run.app', //  Replace with your app's origin.  This is likely crucial!
         },
         body: {
           'text_data': value,
