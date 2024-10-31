@@ -52,7 +52,6 @@ serving_config = f"projects/{project_id}/locations/global/collections/default_co
 vertexai.init(project=project_id, location=region)
 client = discoveryengine.SearchServiceClient()
 
-
 @app.get("/healthz")
 async def healthz():
   return {"status": "ok"}
