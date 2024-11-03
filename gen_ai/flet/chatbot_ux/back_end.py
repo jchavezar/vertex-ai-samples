@@ -8,7 +8,7 @@ project_id = "jesusarguelles-sandbox"
 table_id = "jesusarguelles-sandbox.demos_us.tb_data_s"
 
 # Construct a BigQuery client object and Initialize Vertex AI Client.
-client = bigquery.Client()
+client = bigquery.Client(project=project_id)
 vertexai.init(project=project_id, location="us-central1")
 
 # Get table schema
@@ -103,7 +103,7 @@ model = GenerativeModel(
 
 # Function Definition
 def sql_query_api(query):
-    query_job = bigquery.Client(project=project_id).query(
+    query_job = client.query(
         query
     )
     api_response = query_job.result()
