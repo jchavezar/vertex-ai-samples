@@ -174,4 +174,4 @@ def main(page: ft.Page):
         page.update()
 
 
-ft.app(target=main)
+ft.app(target=main, port=8000, host="0.0.0.0")
