@@ -1,7 +1,5 @@
 import time
 import flet as ft
-import flet_fastapi
-from fastapi import FastAPI, Response
 from back_end import vertexai_conversation, preloaded_questions_recommendations
 
 preloaded_questions = preloaded_questions_recommendations()
@@ -50,7 +48,7 @@ class ChatBubble(ft.Row):
       time.sleep(0.05)  # Adjust typing speed here
       self.type_message()
 
-async def main(page: ft.Page):
+def main(page: ft.Page):
     page.title = "AI Chatbot"
     page.horizontal_alignment = ft.CrossAxisAlignment.CENTER
     page.vertical_alignment = ft.MainAxisAlignment.START
@@ -105,7 +103,7 @@ async def main(page: ft.Page):
       page.update()
 
     # Layout
-    await page.add_async(
+    page.add(
         ft.Container(
             padding=ft.padding.only(left=14.0, right=14.0, top=5.0, bottom=5.0),
             alignment=ft.alignment.center,
@@ -175,13 +173,5 @@ async def main(page: ft.Page):
 
         page.update()
 
-# ft.app(target=main, port=8000, host="0.0.0.0")
-app = flet_fastapi.FastAPI()
 
-# Add a /healthz route
-@app.get("/healthz")
-async def healthz():
-  return Response(status_code=200)
-
-app.mount("/", flet_fastapi.app(main))
-
+ft.app(target=main, port=8000, host="0.0.0.0", view=ft.WEB_BROWSER)
