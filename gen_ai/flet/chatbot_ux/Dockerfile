@@ -10,4 +10,4 @@ COPY . .
 
 EXPOSE 8000
 
-CMD ["python", "front_end.py"]
+CMD ["uvicorn", "front_end:app"]
