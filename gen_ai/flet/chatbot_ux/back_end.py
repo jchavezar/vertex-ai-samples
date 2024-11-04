@@ -4,8 +4,8 @@ import vertexai
 from google.cloud import bigquery
 from vertexai.generative_models import GenerativeModel, Part, FunctionDeclaration, Tool, GenerationConfig, ToolConfig
 
-project_id = "jesusarguelles-sandbox"
-table_id = "jesusarguelles-sandbox.demos_us.tb_data_s"
+project_id = "vtxdemos"
+table_id = "vtxdemos.demos_us.tb_data_s"
 
 # Construct a BigQuery client object and Initialize Vertex AI Client.
 client = bigquery.Client(project=project_id)
@@ -37,8 +37,8 @@ Detect the intent of the user's query and use the following tools:
 - Tool: <sql_query>: SQL Query about anything related to the data in the table, like business unit, marketing channel, channel spend, acquisition date, purchase date, etc...
 
 Example SQL Queries:
-- "What is the total purchase amount for Electronics?" -> `SELECT SUM(purchase_amount) AS total_purchase FROM jesusarguelles-sandbox.demos_us.tb_data_s WHERE business_unit = 'Electronics'`
-- "Average purchase amount per customer?" -> `SELECT AVG(purchase_amount) AS average_purchase FROM jesusarguelles-sandbox.demos_us.tb_data_s GROUP BY customer_id` 
+- "What is the total purchase amount for Electronics?" -> `SELECT SUM(purchase_amount) AS total_purchase FROM vtxdemos.demos_us.tb_data_s WHERE business_unit = 'Electronics'`
+- "Average purchase amount per customer?" -> `SELECT AVG(purchase_amount) AS average_purchase FROM vtxdemos.demos_us.tb_data_s GROUP BY customer_id` 
 
 '''
 
