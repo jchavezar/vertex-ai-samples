@@ -3,7 +3,7 @@ kind: Ingress
 metadata:
   name: etsy-l7lb-back
   annotations:
-    kubernetes.io/ingress.class: "gce"
+    ingressClassName: "gce"
     kubernetes.io/ingress.global-static-ip-name: "gke-etsy-ip-back"
     ingress.gcp.kubernetes.io/pre-shared-cert: "et-certificate"
   labels:
