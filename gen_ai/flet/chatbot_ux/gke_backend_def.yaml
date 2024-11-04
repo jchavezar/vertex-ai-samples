@@ -1,0 +1,10 @@
+apiVersion: cloud.google.com/v1
+kind: BackendConfig
+metadata:
+  name: sql-backend-config
+spec:
+  healthCheck:
+    checkIntervalSec: 60
+    port: 8081
+    type: HTTP
+    requestPath: /healthz

@@ -1,22 +1,22 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: etsy-l7lb-front
+  name: chatbot-sql-l7lb-back
   annotations:
-    ingressClassName: "gce"
-    kubernetes.io/ingress.global-static-ip-name: "gke-etsy-ip-front"
+    kubernetes.io/ingress.class: "gce"
+    kubernetes.io/ingress.global-static-ip-name: "gke-chatbot-sql-ip-back"
     ingress.gcp.kubernetes.io/pre-shared-cert: "et-certificate"
   labels:
-    app: front-etsy
+    app: chatbot-sql
 spec:
   rules:
-  - host: etsy.sonrobots.net
+  - host: gem-sql.sonrobots.net
     http:
       paths:
       - path: "/"
         pathType: Prefix
         backend:
           service:
-            name: front-service
+            name: chatbot-sql-service
             port:
-              number: 80
+              number: 8000

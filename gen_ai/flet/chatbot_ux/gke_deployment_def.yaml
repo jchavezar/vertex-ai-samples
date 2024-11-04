@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: chatbot-sql
+  labels:
+    app: chatbot-sql
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: chatbot-sql
+  template:
+    metadata:
+      labels:
+        app: chatbot-sql
+    spec:
+      serviceAccountName: gke-sa
+      containers:
+      - name: chatbot-sql
+        image: us-central1-docker.pkg.dev/vtxdemos/cloud-run-source-deploy/gemini_sql:v3
+        ports:
+        - containerPort: 8000
+        imagePullPolicy: "Always"
+      - name: nginx
+        image: nginx:latest
+        ports:
+        - containerPort: 8081
+        volumeMounts:
+          - name: nginx-config-volume
+            mountPath: /tmp/nginx.conf
+            subPath: nginx.conf
+        command: [ "/bin/sh", "-c", "cp /tmp/nginx.conf /etc/nginx/nginx.conf && nginx -g 'daemon off;'" ]
+      volumes:
+      - name: nginx-config-volume
+        configMap:
+          name: nginx-config
