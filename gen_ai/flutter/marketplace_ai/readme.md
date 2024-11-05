@@ -74,34 +74,56 @@ A Bigquery table with metadata like listings id, description and images were giv
 
 ![](./images/listing_table.png)
 
-Because this is a demo, we can't use the same images listed there because of the 
-Cross-Origin Resource Sharing permissions created by the image's owner. In the following notebook
-you will find, how to upload images into your own google cloud storage to create a CDN with [Google Cloud Load Balancer](https://cloud.google.com/load-balancing?hl=en)
-and render images really fast.
+This demo uses alternative images due to Cross-Origin Resource Sharing (CORS) permissions on the original images. 
+The following notebook shows you how to copy these images to your Google Cloud Storage and create a [Google Cloud Load Balancer](https://cloud.google.com/load-balancing?hl=en) 
+using Google Cloud Load Balancer for faster image rendering.
 
 Once the images are being loaded to [Google Cloud Storage](https://cloud.google.com/storage?hl=en), create a Load Balancer and Enable a CDN:
 
-1.1 Create a Load Balancer:
-- You can use Google Cloud Managed Certificates for the Load Balancer and has "https" enable, I personally
-used [Cloudflare](https://www.cloudflare.com/) because I already had my tracking system there.
-- Instructions to create a GLB are [here](https://cloud.google.com/load-balancing/docs/https/ext-https-lb-simple), the main instructions are; create a load balancer, attach your tls
-certificates and create a backend with the GCS bucket you used to store the images.
+After your images are stored in [Google Cloud Storage](https://cloud.google.com/storage?hl=en), 
+optimize their delivery with a Load Balancer and CDN:
+
+- **Create a Load Balancer**: In the Google Cloud Console, navigate to the "Network services" section and select "Load balancing." Create a new HTTP(S) Load Balancer with appropriate configurations for your needs.
+- **Enable CDN**:  Within your Load Balancer settings, enable "Cloud CDN." This integrates your load balancer with Google's global edge network, caching your images on servers closer to your users.
+
+### **Setting Up Your Load Balancer**
+
+To get started, head over to the Google Cloud Console and navigate to "Network services." 
+From there, select "Load balancing" and create a new HTTP(S) Load Balancer. 
+Make sure to configure it according to your specific requirements.
+
+[Create Load Balancer Details](https://cloud.google.com/load-balancing/docs/https/ext-https-lb-simple)
+
+> **[Important]** Before creating the LB, in your DNS settings, create an alias record that points your domain or subdomain 
+to the static IP address allocated for your load balancer. This ensures seamless traffic direction once the load balancer is active.
 
 ![](./images/loadbalancer.png)
 
-1.2 TLS Certificates (Cloudflare is optional):
-You can use Google Cloud Domain and Certificates Managed by GCP.
+#### *Key Considerations*:
+
+- **HTTPS**: Enable HTTPS to ensure secure communication. You can use Google Cloud Managed Certificates or integrate with an existing provider like [Cloudflare](https://www.cloudflare.com/).
+- **Backend Configuration**: Point your load balancer to the Google Cloud Storage bucket where you've stored your images. This connection allows the load balancer to distribute incoming traffic effectively.
+
+##### 1.1 Create a Load Balancer:
+
+In the Google Cloud Console, navigate to the "Network services" section and select "Load balancing." Create a new HTTP(S) Load Balancer with appropriate configurations for your needs.
+
+##### 1.2 TLS Certificates (Cloudflare is optional):
 
 ![](./images/cloudflare.png)
 
-***Important Note: Before creating your Load Balancer add the Alias of the static ip address for the load balancer in your
-DNS (again I used cloudflare)***
+> We can always use Google Cloud Domain and Certificates Managed by GCP.
 
 ![](./images/dns.png)
 
-3. Before UX/UI deployment we need to follow all the instructions in the notebook to create
-a new BigQuery table with all the preloaded questions and answers and the new image links
-from the cdn.
+3. Before UX/UI deployment we need to follow all the instructions in the notebook 
+to create a new BigQuery table with all the preloaded questions and answers and the new image links from the cdn.
+
+- Refer to the instructions provided in the notebook.
+- Create a new BigQuery table.
+- Populate the table with the following:
+  - Preloaded questions and answers
+  - Image links sourced from the CDN (Content Delivery Network)
 
 ![](./images/full_table.png)
 
