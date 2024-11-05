@@ -21,21 +21,10 @@ This application demonstrates a marketplace platform with an intelligent semanti
 
 [![Demo Marketplace](./images/marketplace1.gif)](https://youtu.be/aPdlyhKgJU8)
 
-**Architecture:**
+## Architecture
+### Components:
 
-CDN:
 ![](./images/cdn.png)
-
-## Additional
-Version 1 for Category 3 Retrieval (optional):
-
-*"Different solutions can be used for Embeddings Retrieval"*
-- There are many versions of this project, for the Search Engine and Category 3 Questions I did not use the most accurate in this version (the latest) because of priorities that needs to be accomplished before.
-However the first version came with a different retrieval strategy where I combined images and text, using different embeddings space and rank them:
-
-![Version 1](./images/1st_version.png)
-
-## Components
 
 1. **Frontend (Flutter):**
     - Provides a user interface for browsing and searching listings.
@@ -56,6 +45,15 @@ However the first version came with a different retrieval strategy where I combi
     - **Cloud CDN:**  Caches static content (images, etc.) for faster delivery.
     - **Global Load Balancer:** Distributes traffic across multiple regions for global availability.
     - **Cloud Storage:** Stores product images and other media assets.
+
+## Note 
+Version 1 for Category 3 Retrieval (optional):
+
+*"Different solutions can be used for Embeddings Retrieval"*
+- There are many versions of this project, for the Search Engine and Category 3 Questions I did not use the most accurate in this version (the latest) because of priorities that needs to be accomplished before.
+However the first version came with a different retrieval strategy where I combined images and text, using different embeddings space and rank them:
+
+![Version 1](./images/1st_version.png)
 
 **Getting Started:**
 
