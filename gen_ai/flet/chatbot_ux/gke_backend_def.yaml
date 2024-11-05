@@ -4,7 +4,7 @@ metadata:
   name: sql-backend-config
 spec:
   healthCheck:
-    checkIntervalSec: 60
+    checkIntervalSec: 500
     port: 8081
     type: HTTP
     requestPath: /healthz
