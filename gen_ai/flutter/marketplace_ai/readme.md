@@ -26,12 +26,16 @@ This application demonstrates a marketplace platform with an intelligent semanti
 CDN:
 ![](./images/cdn.png)
 
+## Additional
 Version 1 for Category 3 Retrieval (optional):
-- There were more than 1 version about this e2e solution, and this was the first trial that was most accurate retrieving similar listings by understanding graphics and metadata
-altogether, it was inspired by using FeatureStore Embeddings for Retrieval and Gemini to generate category 3 questions. **Because Similarity** and **Complementary** are 2 different monsters
-that needs more iterations and graph we decided to keep it simple for Demo purposes and just use Gemini to generate te questions on category 3 and retrieve from Vertex Search the most relevant listings.
 
-![](./images/1st_version.png)
+*"Different solutions can be used for Embeddings Retrieval"*
+- There are many versions of this project, for the Search Engine and Category 3 Questions I did not use the most accurate in this version (the latest) because of priorities that needs to be accomplished before.
+However the first version came with a different retrieval strategy where I combined images and text, using different embeddings space and rank them:
+
+![Version 1](./images/1st_version.png)
+
+## Components
 
 1. **Frontend (Flutter):**
     - Provides a user interface for browsing and searching listings.
