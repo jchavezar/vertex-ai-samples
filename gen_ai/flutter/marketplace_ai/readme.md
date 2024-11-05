@@ -19,7 +19,7 @@ This application demonstrates a marketplace platform with an intelligent semanti
 * **Modern Frontend:** Built with Flutter for a cross-platform, user-friendly interface.
 * **Powerful Backend:** Python-based backend interacts with Vertex AI Search and Gemini APIs.
 
-![](./images/marketplace1.gif)
+[![Demo Marketplace](./images/marketplace1.gif)](https://youtu.be/aPdlyhKgJU8)
 
 **Architecture:**
 
