@@ -1,0 +1,69 @@
+## Manual para la Redacción de una Nota Informativa (Veracruz, México)
+
+Este manual se basa en el "Manual de Prácticas para facilitar la redacción de la nota informativa impresa" de la Universidad Veracruzana y ofrece una guía práctica para periodistas en Veracruz, México.
+
+**I. La Nota Informativa:**
+
+* **Definición:** Género expositivo que informa oportunamente sobre un acontecimiento noticioso. Se integra información de una o varias fuentes en una secuencia lógica.
+* **Características:**
+    * Veraz: Transmite la realidad sin deformar.
+    * Oportuna: Se refiere a la actualidad inmediata.
+    * Objetiva: Evita opiniones o juicios del reportero.
+* **Estructura:**
+    * Entrada (lead): Primer párrafo, resume la noticia y capta la atención del lector. Responde a las 5W's (Quién, Qué, Cuándo, Dónde, Por qué).
+    * Cuerpo: Amplía, explica y refuerza la entrada. Detalles de menor importancia van en orden descendente.
+    * Remate: Último párrafo, datos menos relevantes pero concluyentes. Puede incluir información de contacto.
+
+**II. La Entrada (Lead):**
+
+* **Importancia:** Parte crucial de la nota, la más difícil de redactar. Debe ser atractiva y con gancho noticioso.
+* **Las 5W's:**
+    * **Quién:** Se usa cuando la persona involucrada es relevante.  Ejemplo: "La Gobernadora de Veracruz, Cuitláhuac García Jiménez, anunció..."
+    * **Qué:** Prioritario cuando el hecho es más importante que la persona involucrada. Ejemplo: "Un terremoto de magnitud 7.5 sacudió..."
+    * **Cuándo:** Relevante cuando el tiempo es un factor significativo. Ejemplo: "Esta mañana, un incendio consumió..."
+    * **Dónde:** Importante en situaciones inusuales. Ejemplo: "En el municipio de Xalapa, se registró un avistamiento..."
+    * **Por qué:** Explica las causas del suceso. Ejemplo: "Debido a las fuertes lluvias, se desbordó el río..."
+* **Recomendaciones (Vicente Leñero):**
+    * No escribir titulares. La noticia comienza con la entrada.
+    * Evitar lenguaje telegráfico.
+    * Nombres y cargos completos en la primera mención.
+    * Verbos en pasado, aunque algunos autores prefieren presente.
+    * Evitar "ha informado", "ha muerto", etc.
+    * No usar abreviaturas.
+
+**III. Tipos de Entrada:**
+
+* **Cita directa:**  Reproduce textualmente la declaración de alguien.  Ejemplo:  "“La seguridad es nuestra prioridad”, afirmó el alcalde."
+* **Cita indirecta:** Resume la declaración sin usar las palabras exactas.
+* **Datos simples:** Un elemento noticioso importante.
+* **Datos múltiples:** Tres o más datos relevantes. Usar punto y seguido para facilitar la lectura.
+* **Interpretación:** Resumen, enfoque y análisis del hecho.
+* **Enumeración:** Similar a datos múltiples, pero con una introducción ("ventana").
+* **Relieve:** Destaca un rasgo particular de una persona, lugar o hecho.
+* **Cápsula:**  Para noticias de gran impacto o hechos inesperados. Frases cortas y concisas.
+* **Interrogante:** Formula una pregunta para atraer al lector.
+
+**IV. El Cuerpo de la Nota:**
+
+* **Estructura:** Pirámide invertida. Información en orden decreciente de importancia. Desarrollar los datos de la entrada en párrafos cortos e independientes.
+
+**V. Fuentes de Información:**
+
+* **Regulares:** Consulta diaria (gobierno, congreso, policía, etc.).
+* **Específicas:** Expertos en un tema.
+* **Circunstanciales:** Congresos, reuniones.
+* **Documentales:** Archivos, bibliotecas, etc.  Asegurar la credibilidad de la fuente.
+
+**VI. Ejemplo de Estructura de Nota con Pirámide Invertida:**
+
+* **Titular:** Incendio en Mercado de Veracruz Deja Cientos de Damnificados
+* **Entrada:** Un voraz incendio consumió esta madrugada el Mercado Hidalgo en el puerto de Veracruz, dejando cientos de comerciantes damnificados y pérdidas millonarias.
+* **Párrafo 1:**  Se reportan al menos 10 personas heridas por inhalación de humo, quienes fueron trasladadas al Hospital Regional.
+* **Párrafo 2:** El fuego inició alrededor de las 3:00 am, aparentemente por un corto circuito en la zona de restaurantes.
+* **Párrafo 3:** Bomberos de Veracruz y Boca del Río trabajaron por horas para controlar las llamas.
+* **Párrafo 4:**  El Gobernador Cuitláhuac García Jiménez visitó el lugar y prometió apoyo a los afectados.
+* **Párrafo 5:**  Comerciantes afectados narraron la angustia de ver su patrimonio destruido.
+* **Remate:**  Autoridades investigan las causas exactas del siniestro. Se habilitarán albergues temporales para los damnificados.  Para donaciones, comunicarse al teléfono...
+
+
+Este manual proporciona las herramientas básicas para redactar una nota informativa clara, concisa y efectiva.  Recuerda que la práctica y la constante actualización son fundamentales para el desarrollo del oficio periodístico.
