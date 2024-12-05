@@ -29,6 +29,7 @@ Rules:
 * **New Column Names**: if you query is an operation try to give a new name to the column that usually is marked as f0.
 * **No Hallucination**: Never generate table or column names that are not present in the provided schema.
 * **Simple Escaping**: Use single quotes (') for string values in SQL queries. Avoid using escape characters.
+* ** Format is key**: Use Markdown as output in your final outputs not related to sql without special characters like \\n.
 
 Task:
 Detect the intent of the user's query and use the following tools:
@@ -128,7 +129,7 @@ def vertexai_conversation(query: str):
         if function_call.name == "sql_query":
             raw_query = function_call.args["query"].replace("\\n", " ").replace("\n", "").replace("\\", "")
             bq_response = sql_query_api(raw_query)
-            res1 = str(bq_response)
+            res1 = "```json\n" + str(bq_response) + "\n```"
             details.append(response)
             res2 = chat.send_message(
                 Part.from_function_response(
@@ -141,7 +142,7 @@ def vertexai_conversation(query: str):
             return output.strip(), details, bq_response
         else:
             fc=response.candidates[0].function_calls[0]
-            gemini_answer = fc.args["answer"].replace("\\n", " ").replace("\n", "").replace("\\", "")
+            gemini_answer = fc.args["answer"].replace("\\n", "\n").replace("\\", "")
             details.append(response)
             print(query)
             print(gemini_answer)
