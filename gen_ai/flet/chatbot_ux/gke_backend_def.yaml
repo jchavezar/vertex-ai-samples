@@ -3,8 +3,12 @@ kind: BackendConfig
 metadata:
   name: sql-backend-config
 spec:
+  sessionAffinity:
+    affinityType: "GENERATED_COOKIE"
+  connectionDraining:
+    drainingTimeoutSec: 300
   healthCheck:
-    checkIntervalSec: 500
-    port: 8081
+    checkIntervalSec: 300
+    port: 8080
     type: HTTP
     requestPath: /healthz

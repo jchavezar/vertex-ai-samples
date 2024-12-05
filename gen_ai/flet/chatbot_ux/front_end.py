@@ -53,6 +53,8 @@ def main(page: ft.Page):
     page.horizontal_alignment = ft.CrossAxisAlignment.CENTER
     page.vertical_alignment = ft.MainAxisAlignment.START
     page.theme_mode = ft.ThemeMode.LIGHT
+    log_window_height = 550
+    log_window_width = 350
 
     chat_history = ft.ListView(
         expand=True,
@@ -60,13 +62,48 @@ def main(page: ft.Page):
         spacing=20,
     )
 
+    logs_inner_container = ft.Column(
+        scroll=ft.ScrollMode.ALWAYS,
+        spacing=10,
+    )
+
+    dlg = ft.AlertDialog(
+        title=ft.Text("Table Data"),
+        actions=[ft.TextButton("Close", on_click=lambda e: page.close_dialog())],
+    )
+    page.add(dlg)
+
+    def open_dlg(e):
+      page.show_dialog(dlg)
+
+    table_button = ft.ElevatedButton(
+        "Table Results",
+        on_click=open_dlg,
+        disabled=True,
+    )
+
     # Logs window (wrapped in a Container)
     logs_window = ft.Container(
-        height=550,
-        width=350,
+        height=page.height*.80,
+        width=log_window_width,
         content=ft.Column(
             scroll=ft.ScrollMode.ALWAYS,
             spacing=10,
+            controls=[
+                ft.Container(
+                    height=page.height*.80*.75,
+                    width=log_window_width,
+                    bgcolor=ft.Colors.AMBER_50,
+                    content=logs_inner_container
+                ),
+                ft.Container(
+                    padding=30,
+                    height=page.height*.80*.20,
+                    width=log_window_width,
+                    bgcolor=ft.Colors.GREY_600,
+                    content=table_button
+                )
+            ]
         ),
         # bgcolor=ft.colors.BLUE_GREY_600,
         bgcolor="#293241",
@@ -157,19 +194,36 @@ def main(page: ft.Page):
         txt_field.value = ""
         page.update()
 
-        response, details = vertexai_conversation(user_message)
+        response, details, bq_response = vertexai_conversation(user_message)
+        if bq_response:
+          dlg.content=""
+          print(bq_response)
+          column_names = [ft.DataColumn(ft.Text(key)) for key in bq_response[0]]
+          data = [
+              ft.DataRow(
+                  cells=[ft.DataCell(ft.Text(v)) for k,v in row.items()]
+              )
+              for row in bq_response
+          ]
+          table = ft.DataTable(
+              columns=column_names,
+              rows=data
+          )
+          dlg.content = table
+          dlg.update()
         if details is None:
             details = ["Error", "Error"]
         chat_history.controls.append(ChatBubble(response.replace("\n","").strip(), False))
         logs = []
-        logs_window.content.controls.clear()
+        logs_inner_container.controls.clear()
+        table_button.disabled = False
         for num, item in enumerate(details):
             if num == 0:
               logs.append(ft.Text("Logs", size=16, color=ft.colors.WHITE, weight=ft.FontWeight.BOLD))
             logs.append(ft.Text(f"Iteration Number {num+1}", size=12, color=ft.colors.WHITE))
             logs.append(ft.Text(item, size=12, color=ft.colors.GREEN_300, selectable=True))
 
-        logs_window.content.controls = logs
+        logs_inner_container.controls = logs
 
         page.update()
 
