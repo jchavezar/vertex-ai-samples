@@ -107,7 +107,7 @@ def sql_query_api(query):
         query
     )
     api_response = query_job.result()
-    return str([dict(row) for row in api_response])
+    return [dict(row) for row in api_response]
 
 chat = model.start_chat()
 
@@ -122,15 +122,13 @@ def vertexai_conversation(query: str):
     except Exception as e:
         print(e)
         return f"There was a issue with the request: {e}", None
-    print("here1")
     if "function_call" in response.candidates[0].content.parts[0].to_dict():
-        print("function working")
         function_call = response.candidates[0].function_calls[0]
 
         if function_call.name == "sql_query":
-            print("sql_query function")
             raw_query = function_call.args["query"].replace("\\n", " ").replace("\n", "").replace("\\", "")
-            res1 = str(sql_query_api(raw_query))
+            bq_response = sql_query_api(raw_query)
+            res1 = str(bq_response)
             details.append(response)
             res2 = chat.send_message(
                 Part.from_function_response(
@@ -140,13 +138,15 @@ def vertexai_conversation(query: str):
             )
             details.append(res2)
             output = res2.candidates[0].function_calls[0].args["answer"]
-            return output.strip(), details
+            return output.strip(), details, bq_response
         else:
-            print("here")
             fc=response.candidates[0].function_calls[0]
             gemini_answer = fc.args["answer"].replace("\\n", " ").replace("\n", "").replace("\\", "")
             details.append(response)
-            return gemini_answer.strip(), details
+            print(query)
+            print(gemini_answer)
+            bq_response = None
+            return gemini_answer.strip(), details, bq_response
 
 
 # re, details = vertexai_conversation("how much was in sales for electronics in 2023?")
