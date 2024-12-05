@@ -29,7 +29,7 @@ Rules:
 * **New Column Names**: if you query is an operation try to give a new name to the column that usually is marked as f0.
 * **No Hallucination**: Never generate table or column names that are not present in the provided schema.
 * **Simple Escaping**: Use single quotes (') for string values in SQL queries. Avoid using escape characters.
-* ** Format is key**: Use Markdown as output in your final outputs not related to sql without special characters like \\n.
+* **Output Format is key**: Use plain text, and summary when tables are the output you don't need to generate the table, do not build the table as markdown.
 
 Task:
 Detect the intent of the user's query and use the following tools:
@@ -123,6 +123,7 @@ def vertexai_conversation(query: str):
     except Exception as e:
         print(e)
         return f"There was a issue with the request: {e}", None
+    print(response)
     if "function_call" in response.candidates[0].content.parts[0].to_dict():
         function_call = response.candidates[0].function_calls[0]
 
