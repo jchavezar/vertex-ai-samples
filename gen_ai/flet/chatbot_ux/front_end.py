@@ -19,31 +19,33 @@ class ChatBubble(ft.Row):
     # Set text color based on user or chatbot
     text_color = ft.Colors.WHITE if self.is_user else ft.Colors.BLACK
 
+    self.markdown_control = ft.Markdown(
+        self.current_text,
+        selectable=True,
+        md_style_sheet=ft.MarkdownStyleSheet(
+            p_text_style=ft.TextStyle(color=text_color),
+            h1_text_style=ft.TextStyle(color=text_color),
+            h2_text_style=ft.TextStyle(color=text_color),
+            h3_text_style=ft.TextStyle(color=text_color),
+            h4_text_style=ft.TextStyle(color=text_color),
+            h5_text_style=ft.TextStyle(color=text_color),
+            h6_text_style=ft.TextStyle(color=text_color),
+
+        )
+    )
+
     # Calculate the min width before creating the container
     min_width = self.calculate_min_width(self.text)
     print("text-------------------->")
     print(self.text)
     self.controls = [
         ft.AnimatedSwitcher(
-            duration=400,
-            transition=ft.AnimatedSwitcherTransition.SCALE,
-            switch_in_curve=ft.AnimationCurve.EASE_IN_CUBIC,
-            switch_out_curve=ft.AnimationCurve.EASE_OUT_CUBIC,
-            content=ft.Container(
-                content=ft.Markdown(
-                    self.text,
-                    selectable=True,
-                    md_style_sheet=ft.MarkdownStyleSheet(
-                        p_text_style=ft.TextStyle(color=text_color),
-                        h1_text_style=ft.TextStyle(color=text_color),
-                        h2_text_style=ft.TextStyle(color=text_color),
-                        h3_text_style=ft.TextStyle(color=text_color),
-                        h4_text_style=ft.TextStyle(color=text_color),
-                        h5_text_style=ft.TextStyle(color=text_color),
-                        h6_text_style=ft.TextStyle(color=text_color),
-
-                    )
-                ),
+                    duration=400,
+                    transition=ft.AnimatedSwitcherTransition.SCALE,
+                    switch_in_curve=ft.AnimationCurve.EASE_IN_CUBIC,
+                    switch_out_curve=ft.AnimationCurve.EASE_OUT_CUBIC,
+                    content=ft.Container(
+                        content=self.markdown_control,
                 padding=ft.padding.only(left=9, right=10, top=5, bottom=5),
                 border_radius=ft.border_radius.only(
                     top_left=10 if not self.is_user else 0,
@@ -64,8 +66,9 @@ class ChatBubble(ft.Row):
     # Animate the text typing effect
     if len(self.current_text) < len(self.text):
       self.current_text += self.text[len(self.current_text)]
+      self.markdown_control.value = self.current_text
       self.update()
-      time.sleep(0.05)  # Adjust typing speed here
+      time.sleep(0.004)  # Adjust typing speed here
       self.type_message()
 
   def calculate_min_width(self, text):
@@ -84,7 +87,6 @@ def main(page: ft.Page):
   page.horizontal_alignment = ft.CrossAxisAlignment.CENTER
   page.vertical_alignment = ft.MainAxisAlignment.START
   page.theme_mode = ft.ThemeMode.LIGHT
-  log_window_height = 550
   log_window_width = 350
 
   # Chat history container
@@ -252,6 +254,7 @@ def main(page: ft.Page):
     if details is None:
       details = ["Error", "Error"]
     # Chatbot response is rendered in a gray bubble with proper markdown formatting
+
     chat_history.controls.append(ChatBubble(response, False))
 
     # Logic to display the logs of what was performed in the back end
