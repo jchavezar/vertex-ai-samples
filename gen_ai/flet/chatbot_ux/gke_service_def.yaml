@@ -14,7 +14,7 @@ spec:
     protocol: TCP
     port: 8000
     targetPort: 8000
-  - name: health
-    protocol: TCP
-    port: 8081
-    targetPort: 8081
+#  - name: health
+#    protocol: TCP
+#    port: 8081
+#    targetPort: 8081
