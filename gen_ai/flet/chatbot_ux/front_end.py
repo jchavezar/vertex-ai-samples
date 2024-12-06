@@ -1,86 +1,59 @@
-import time
-import markdown
 import flet as ft
 from back_end import vertexai_conversation, preloaded_questions_recommendations
-import textwrap
 
 # Load the preloaded questions
 preloaded_questions = preloaded_questions_recommendations()
 
 class ChatBubble(ft.Row):
-  def __init__(self, text, is_user):
+  def __init__(self, text, page, is_user):
     super().__init__()
     self.is_user = is_user
     self.text = text
-    self.current_text = ""
-    self.expand = True
-    self.alignment = ft.MainAxisAlignment.END if is_user else ft.MainAxisAlignment.START
-
-    # Set text color based on user or chatbot
-    text_color = ft.Colors.WHITE if self.is_user else ft.Colors.BLACK
-
-    self.markdown_control = ft.Markdown(
-        self.current_text,
-        selectable=True,
-        md_style_sheet=ft.MarkdownStyleSheet(
-            p_text_style=ft.TextStyle(color=text_color),
-            h1_text_style=ft.TextStyle(color=text_color),
-            h2_text_style=ft.TextStyle(color=text_color),
-            h3_text_style=ft.TextStyle(color=text_color),
-            h4_text_style=ft.TextStyle(color=text_color),
-            h5_text_style=ft.TextStyle(color=text_color),
-            h6_text_style=ft.TextStyle(color=text_color),
-
-        )
+    self.alignment = (
+        ft.MainAxisAlignment.END if is_user else ft.MainAxisAlignment.START
     )
+    self.vertical_alignment = ft.CrossAxisAlignment.START
 
-    # Calculate the min width before creating the container
-    min_width = self.calculate_min_width(self.text)
-    print("text-------------------->")
-    print(self.text)
+    text_color = ft.Colors.WHITE if self.is_user else ft.Colors.BLACK
+    bg_color = "#087FFE" if self.is_user else ft.Colors.GREY_200
+
+    if self.is_user:
+      content = ft.Text(
+          self.text,
+          color=text_color,
+          no_wrap=False,  # allow wrapping
+      )
+    else:
+      content = ft.Markdown(  # Markdown directly in Container
+          self.text,
+          selectable=True,
+          extension_set=ft.MarkdownExtensionSet.GITHUB_FLAVORED,
+          md_style_sheet=ft.MarkdownStyleSheet(
+              p_text_style=ft.TextStyle(color=text_color),
+              h1_text_style=ft.TextStyle(color=text_color),
+              h2_text_style=ft.TextStyle(color=text_color),
+              h3_text_style=ft.TextStyle(color=text_color),
+              h4_text_style=ft.TextStyle(color=text_color),
+              h5_text_style=ft.TextStyle(color=text_color),
+              h6_text_style=ft.TextStyle(color=text_color),
+          ),
+          width=min(500, page.width * 0.6 - 20), # width constraint on Markdown
+      )
+
+
     self.controls = [
-        ft.AnimatedSwitcher(
-                    duration=400,
-                    transition=ft.AnimatedSwitcherTransition.SCALE,
-                    switch_in_curve=ft.AnimationCurve.EASE_IN_CUBIC,
-                    switch_out_curve=ft.AnimationCurve.EASE_OUT_CUBIC,
-                    content=ft.Container(
-                        content=self.markdown_control,
-                padding=ft.padding.only(left=9, right=10, top=5, bottom=5),
-                border_radius=ft.border_radius.only(
-                    top_left=10 if not self.is_user else 0,
-                    top_right =10 if self.is_user else 0,
-                    bottom_left =10,
-                    bottom_right=10,
-                ),
-                bgcolor="#087FFE" if self.is_user else ft.Colors.GREY_200,
-                width=min(min_width, 700),
-            )
+        ft.Container(
+            content=content,
+            padding=ft.padding.only(left=9, right=10, top=5, bottom=5),
+            border_radius=ft.border_radius.only(
+                top_left=10 if not self.is_user else 0,
+                top_right=10 if self.is_user else 0,
+                bottom_left=10,
+                bottom_right=10,
+            ),
+            bgcolor=bg_color,
         )
     ]
-
-  def did_mount(self):
-    self.type_message()
-
-  def type_message(self):
-    # Animate the text typing effect
-    if len(self.current_text) < len(self.text):
-      self.current_text += self.text[len(self.current_text)]
-      self.markdown_control.value = self.current_text
-      self.update()
-      time.sleep(0.004)  # Adjust typing speed here
-      self.type_message()
-
-  def calculate_min_width(self, text):
-    # Wrap the text to see how large it would be.
-    wrapped_text = textwrap.wrap(text, width = 70)
-    max_line_length = 0
-    for line in wrapped_text:
-      max_line_length = max(max_line_length, len(line))
-
-    # Simple estimation based on max line length
-    min_width = max_line_length * 9 + 20
-    return min_width
 
 def main(page: ft.Page):
   page.title = "AI Chatbot"
@@ -156,7 +129,7 @@ def main(page: ft.Page):
 
   # Send button
   send_button = ft.IconButton(
-      icon=ft.icons.SEND,
+      icon=ft.Icons("send"),
       icon_color="#087FFE",
       tooltip="Send",
       on_click=lambda e: send_message(e),
@@ -225,13 +198,14 @@ def main(page: ft.Page):
   def send_message(e):
     # Add user message to chat history
     user_message = txt_field.value
-    chat_history.controls.append(ChatBubble(user_message, True))
+    chat_history.controls.append(ChatBubble(user_message, page, True))
     txt_field.value = ""
     page.update()
 
     # Get response, details and big query result
     response, details, bq_response = vertexai_conversation(user_message)
-
+    response = response.replace("\\n", "\n")
+    page.update()
     # If there is a table result, format it for a flet data table and show it in the dialog
     if bq_response:
       dlg.content=""
@@ -255,7 +229,7 @@ def main(page: ft.Page):
       details = ["Error", "Error"]
     # Chatbot response is rendered in a gray bubble with proper markdown formatting
 
-    chat_history.controls.append(ChatBubble(response, False))
+    chat_history.controls.append(ChatBubble(response, page, False))
 
     # Logic to display the logs of what was performed in the back end
     logs = []
