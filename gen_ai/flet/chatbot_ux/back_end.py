@@ -121,9 +121,7 @@ def vertexai_conversation(query: str):
     try:
         response = chat.send_message(query)
     except Exception as e:
-        print(e)
         return f"There was a issue with the request: {e}", None
-    print(response)
     if "function_call" in response.candidates[0].content.parts[0].to_dict():
         function_call = response.candidates[0].function_calls[0]
 
@@ -145,8 +143,6 @@ def vertexai_conversation(query: str):
             fc=response.candidates[0].function_calls[0]
             gemini_answer = fc.args["answer"].replace("\\n", "\n").replace("\\", "")
             details.append(response)
-            print(query)
-            print(gemini_answer)
             bq_response = None
             return gemini_answer.strip(), details, bq_response
 
