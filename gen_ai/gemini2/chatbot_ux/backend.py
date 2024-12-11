@@ -7,7 +7,7 @@ from google.cloud import bigquery
 project_id = "vtxdemos"
 model_id = "gemini-2.0-flash-exp"
 bq_table = "vtxdemos.demos_us.tb_data_s"
-bg_schema = {'Field: acquisition_date, Type: DATE, Description: None',
+bq_schema = {'Field: acquisition_date, Type: DATE, Description: None',
              'Field: business_unit, Type: STRING, Description: None',
              'Field: channel_spend, Type: FLOAT, Description: None',
              'Field: customer_id, Type: INTEGER, Description: None',
@@ -32,7 +32,7 @@ You are an Agent assistant, a retail expert, that helps internal human agents to
 Rules:
 * **Table Query**: You have an Agent/Tool to gather any kind of information regarding users, purchases, etc (<sql_query>), use it.
 * **Use Provided Schema**:  Use the following schema for all SQL queries:
-    table: {bq_table} | schema: {bg_schema}
+    table: {bq_table} | schema: {bq_schema}
 
 Task:
 Respond the question using your agents if required.
