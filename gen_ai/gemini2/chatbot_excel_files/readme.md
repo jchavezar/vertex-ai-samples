@@ -75,3 +75,10 @@ def chat_message(prompt: str):
 
 # Example usage:
 chat_message("What is the price of Product X from the Products sheet?") # Example query
+```
+
+# Screenshot Demo
+
+![](agent1.png)
+![](agent2.png)
+![](agent3.png)
