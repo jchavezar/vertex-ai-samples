@@ -173,7 +173,7 @@ client = genai.Client(
 system_instructions_15 = """
 * **Instructions**
 Use the first and last name and the company from your search grounding to 
-GET the first name and last name, company and description of the role and the source url/link
+GET the first name and last name, company and description of the role.
 
 * **Rules**
 - Be concise and just bring the result.
@@ -183,7 +183,6 @@ GET the first name and last name, company and description of the role and the so
 - last name
 - company
 - description
-- source url/link
 """
 model = "gemini-2.0-flash-exp"
 
@@ -221,7 +220,7 @@ print(_re.text)
 import csv
 
 input_filepath = "./gemini2/vertex_search_grounding/sp_people_out_vais.csv"  # Replace with your input file path
-output_filepath = "./gemini2/vertex_search_grounding/sp_people_out_gsearch.csv"  # Replace with your output file path
+output_filepath = "./gemini2/vertex_search_grounding/sp_people_out_gsearch_2.csv"  # Replace with your output file path
 
 encodings_to_try = ['utf-8', 'latin-1', 'utf-16']  # Add more encodings if needed
 
@@ -242,7 +241,7 @@ with open(output_filepath, "w", newline='', encoding='utf-8') as outfile:
               res = gemini_search(name=row[1]+" "+row[2], company=row[3])
               print(res.text)
               print("-"*80)
-              writer.writerow(row + [res.text])
+              writer.writerow(row + [res.text] + [item.web.uri for item in _re.candidates[0].grounding_metadata.grounding_chunks])
             except UnicodeDecodeError as e:
               print(f"Error processing row {n + 2} with encoding : {encoding}")
               print(f"Problematic row content: {row}")
