@@ -38,8 +38,7 @@ This app relies on a dataset created using the [retail_processing.ipynb](./retai
 * **Dataset Persistence:** Finally, the complete dataset, including the image URIs, is saved as a pickle file (dataset_backup_final.pkl) in a designated GCS bucket (gs://vtxdemos-datasets-public/retail/).
 This pickled dataset is then loaded and used by the middleware.py script.
 
-
-![](./preprocessing.png)
+![](images/preprocessing.png)
 
 ## Installation
 
@@ -76,6 +75,14 @@ python route.py
 
 # Architecture
 The application follows a multi-page architecture using Flet. It interacts with Google Cloud's Vertex AI platform for vector search and Gemini for conversational AI.  The middleware.py file handles the interaction with the Vertex AI services.
+
+### First Section (Retrieval)
+
+![](images/architecture_v1.png)
+
+### Second Section (Chatbot)
+
+![](images/architecture_v2.png)
 
 # Code Overview
 <a id="first_pagepy"></a>  # `first_page.py`
