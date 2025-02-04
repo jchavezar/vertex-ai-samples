@@ -38,6 +38,7 @@ This app relies on a dataset created using the [retail_processing.ipynb](./retai
 * **Dataset Persistence:** Finally, the complete dataset, including the image URIs, is saved as a pickle file (dataset_backup_final.pkl) in a designated GCS bucket (gs://vtxdemos-datasets-public/retail/).
 This pickled dataset is then loaded and used by the middleware.py script.
 
+
 ![](./preprocessing.png)
 
 ## Installation
