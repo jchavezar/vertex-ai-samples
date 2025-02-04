@@ -19,12 +19,12 @@ This application demonstrates a marketplace platform with an intelligent semanti
 * **Modern Frontend:** Built with Flutter for a cross-platform, user-friendly interface.
 * **Powerful Backend:** Python-based backend interacts with Vertex AI Search and Gemini APIs.
 
-[![Demo Marketplace](./images/marketplace1.gif)](https://youtu.be/aPdlyhKgJU8)
+[![Demo Marketplace](images/marketplace1.gif)](https://youtu.be/aPdlyhKgJU8)
 
 ## Architecture
 ### Components:
 
-![](./images/cdn.png)
+![](images/cdn.png)
 
 1. **Frontend (Flutter):**
     - Provides a user interface for browsing and searching listings.
@@ -55,7 +55,7 @@ I did not use the most accurate in this version (the latest) because of prioriti
 However the first version came with a different retrieval strategy where I combined images and text, 
 using different embeddings space and rank them:
 
-![Version 1](./images/1st_version.png)
+![Version 1](images/1st_version.png)
 
 **Getting Started:**
 
@@ -72,7 +72,7 @@ before deploy the application into GKE.
 
 A Bigquery table with metadata like listings id, description and images were given to us:
 
-![](./images/listing_table.png)
+![](images/listing_table.png)
 
 This demo uses alternative images due to Cross-Origin Resource Sharing (CORS) permissions on the original images. 
 The following notebook shows you how to copy these images to your Google Cloud Storage and create a [Google Cloud Load Balancer](https://cloud.google.com/load-balancing?hl=en) 
@@ -97,7 +97,7 @@ Make sure to configure it according to your specific requirements.
 > **[Important]** Before creating the LB, in your DNS settings, create an alias record that points your domain or subdomain 
 to the static IP address allocated for your load balancer. This ensures seamless traffic direction once the load balancer is active.
 
-![](./images/loadbalancer.png)
+![](images/loadbalancer.png)
 
 #### *Key Considerations*:
 
@@ -110,11 +110,11 @@ In the Google Cloud Console, navigate to the "Network services" section and sele
 
 ##### 1.2 TLS Certificates (Cloudflare is optional):
 
-![](./images/cloudflare.png)
+![](images/cloudflare.png)
 
 > We can always use Google Cloud Domain and Certificates Managed by GCP.
 
-![](./images/dns.png)
+![](images/dns.png)
 
 3. Before UX/UI deployment we need to follow all the instructions in the notebook 
 to create a new BigQuery table with all the preloaded questions and answers and the new image links from the cdn.
@@ -125,14 +125,14 @@ to create a new BigQuery table with all the preloaded questions and answers and 
   - Preloaded questions and answers
   - Image links sourced from the CDN (Content Delivery Network)
 
-![](./images/full_table.png)
+![](images/full_table.png)
 
 4. From the table create an Agent Builder Vertex AI Search for the retrieval.
 - Create App > Select Search > Generic (name it) > Create Data Store > BigQuery (select your table)
 
-![](./images/agent1.png)
-![](./images/agent2.png)
-![](./images/agent3.png)
+![](images/agent1.png)
+![](images/agent2.png)
+![](images/agent3.png)
 
 5. **UX/UI Deploy:**
     - Configure GKE cluster (I used autopilot).
