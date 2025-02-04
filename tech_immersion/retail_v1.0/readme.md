@@ -34,8 +34,8 @@ This project demonstrates a multi-page web application built with Flet, integrat
 1. **Clone the repository:**
 
 ```bash
-git clone [https://github.com/YOUR_USERNAME/YOUR_REPOSITORY_NAME.git](https://github.com/YOUR_USERNAME/YOUR_REPOSITORY_NAME.git)
-cd YOUR_REPOSITORY_NAME
+git clone [https://github.com/jchavezar/vertex-ai-samples.git](https://github.com/jchavezar/vertex-ai-samples.git)
+cd tech_immersion/retail_v1.0
 ```
 
 2. **Install Dependencies:**
