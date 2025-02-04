@@ -1,0 +1,10 @@
+apiVersion: cloud.google.com/v1
+kind: BackendConfig
+metadata:
+  name: http-hc-config
+spec:
+  healthCheck:
+    checkIntervalSec: 60
+    port: 8000
+    type: HTTP
+    requestPath: /healthz
