@@ -1,7 +1,0 @@
-google-cloud-aiplatform
-google-cloud-discoveryengine
-pandas
-gcsfs
-fastapi
-uvicorn
-python-multipart
