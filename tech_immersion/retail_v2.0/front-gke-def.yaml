@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: flutter-front
+  labels:
+    app: front-etsy
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: front-etsy
+  template:
+    metadata:
+      labels:
+        app: front-etsy
+    spec:
+      containers:
+      - name: front-etsy
+        image: us-central1-docker.pkg.dev/vtxdemos/cloud-run-source-deploy/marketplace_front:v6
+        ports:
+        - containerPort: 80
+        imagePullPolicy: "Always"

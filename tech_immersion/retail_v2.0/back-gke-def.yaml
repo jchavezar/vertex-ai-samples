@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: python-back
+  labels:
+    app: middleware-etsy
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: middleware-etsy
+  template:
+    metadata:
+      labels:
+        app: middleware-etsy
+    spec:
+      serviceAccountName: gke-sa
+      containers:
+      - name: middleware-etsy
+        image: us-central1-docker.pkg.dev/vtxdemos/cloud-run-source-deploy/marketplace_middleware:v6
+        ports:
+        - containerPort: 8000
+        imagePullPolicy: "Always"
