@@ -1,4 +1,4 @@
-# Etsy Product Search with Gemini and Flet
+# Retail Product Search with Gemini and Flet
 
 This project demonstrates a multi-page web application built with Flet, integrating Gemini for product search and conversational AI capabilities.  It leverages vector search for efficient retrieval of relevant products and provides an interactive chat interface for users to ask questions about specific items.
 
