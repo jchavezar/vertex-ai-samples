@@ -1,0 +1,971 @@
+{
+    "answers_cat1": [
+        [
+            "6\u201dH x 7\u201dW",
+            "Yes, it has a drainage hole.",
+            "Clay Blue & White",
+            "Spain"
+        ],
+        [
+            "Green",
+            "Ceramic",
+            "Yes",
+            "Yes"
+        ],
+        [
+            "They are perfect for small plants like succulents and air plants.",
+            "Yes, you can request drainage holes to be drilled.",
+            "They are 4 inches wide and 2 inches deep.",
+            "They are made of pink glitter and green neon colors."
+        ],
+        [
+            "6 inches in diameter and 5 inches in height",
+            "Yes, the planter includes a 6 inch pot and a saucer.",
+            "Spot clean with soap and water",
+            "The pattern placement may vary on each planter due to the woven fabric."
+        ],
+        [
+            "Thin pottery",
+            "Yes, it has a drainage hole",
+            "3 7/8 inches wide, 3 3/8 inches in diameter, and 4 1/8 inches high",
+            "Both, it is suitable for indoor and outdoor use"
+        ],
+        [
+            "It's approximately 9.5 inches in diameter.",
+            "It's made of ceramic and glazed with a high gloss finish.",
+            "Yes, it has a drainage hole.",
+            "It's a vintage piece from the 1990s."
+        ],
+        [],
+        [
+            "It's handcrafted in Mexico!",
+            "It's made of clay & ceramic.",
+            "Approximately 4 inches tall, 12 inches long, and 8.5 inches wide.",
+            "The drainage hole is 3 inches by 4 inches.",
+            "It weighs about 2 pounds and 12.1 ounces.",
+            "It's multi-colored, but each piece is unique.",
+            "Yes, each piece has its own unique characteristics.",
+            "It's made in 2020 and 2023.",
+            "Blue and yellow are the primary and secondary colors.",
+            "It's not frost or freeze proof, so it's best to bring it indoors during winter.",
+            "Don't let it sit in water or get hit by sprinklers."
+        ],
+        [
+            "Yes, it includes a matching saucer.",
+            "The pot has a drainage hole for optimal plant health.",
+            "The pot is 4.5 inches tall and 5 inches wide.",
+            "It's perfect for small plants like succulents, cacti, bonsai, flowers, herbs, and small woody stem plants. "
+        ],
+        [
+            "It is a small planter, approximately 3.5 x 3.5 x 3.5 inches.",
+            "It is made completely from mold to kiln. Glazed inside and out.",
+            "It is hand-made in the USA and comes in a green-brown color.",
+            "Yes, it is suitable for both indoor and outdoor use."
+        ],
+        [
+            "It is a Shawnee planter.",
+            "The planter is gray with a pink interior.",
+            "It measures 7.25 inches high, 6.5 inches long, and 2.75 inches wide.",
+            "It is in excellent condition with no chips or cracks."
+        ],
+        [
+            "It's made from white clay and features purple glazes.",
+            "3.5 inches",
+            "It's unique because it's handmade and each one is different.",
+            "It's signed by the artist on the bottom with their first name, Annick."
+        ],
+        [
+            "It is brown.",
+            "It measures 13 x 6.25 x 2.5 inches.",
+            "It is a drip planter.",
+            "It has chips on it"
+        ],
+        [
+            "It has a cobalt blue stand.",
+            "It has a waterhole.",
+            "Yes, it is hand painted.",
+            "It is made in Mexico"
+        ],
+        [
+            "Great Condition. Beautiful Colors.",
+            "6 1/4\" x 6 1/4\" x 3.5\"",
+            "Royal Copley",
+            "1950's"
+        ],
+        [
+            "This pot is made with a deep blue rim and highlights, with an amber brown glaze",
+            "The pot is 3.5 inches tall and 5 inches wide, tapering to 3.5 inches at the bottom",
+            "It is hand-made, one-of-a-kind pottery",
+            "The pot is glazed in a rich, glossy amber brown"
+        ],
+        [
+            "It's 9.5 inches wide and 11.5 inches long.",
+            "It's 4.5 inches deep and 4.5 inches high.",
+            "The planter is handmade by the artist.",
+            "It was made in 2020 or 2024.",
+            "Yes, it includes a matching saucer."
+        ],
+        [
+            "6 3/4\u201d tall x 8 1/4\u201d x 8 1/4\u201d",
+            "1960,1969"
+        ],
+        [
+            "It's made from thin pottery and has a drainage hole.",
+            "You can use it indoors or outdoors.",
+            "It measures 7 1/4 inches in width, 5 1/2 inches in diameter, and 11 3/4 inches in height.",
+            "It weighs about 82 oz."
+        ],
+        [
+            "It's about 2.5 inches tall.",
+            "It's about 5 inches wide.",
+            "Yes, it has a drainage hole.",
+            "It's handmade in a variety of white, cream, and gray shades over reddish brown stoneware."
+        ]
+    ],
+    "questions_cat1": [
+        [
+            "What are the dimensions of the planter?",
+            "Does it have a drainage hole?",
+            "What colors is the planter?",
+            "Where is it handcrafted?"
+        ],
+        [
+            "What is the color of the planter?",
+            "What is the planter made of?",
+            "Does the planter have a drainage hole?",
+            "Does the planter come with a saucer?"
+        ],
+        [
+            "What kind of plants are these planters best for?",
+            "Can I get drainage holes drilled in the planter?",
+            "What are the dimensions of these planters?",
+            "What colors are these planters?"
+        ],
+        [
+            "What are the dimensions of this planter?",
+            "Does this planter come with a pot?",
+            "How do I clean this planter?",
+            "Will the pattern on the fabric be the same on each planter?"
+        ],
+        [
+            "What material is this planter made of?",
+            "Does this pot have a drainage hole?",
+            "What are the exact dimensions of the planter?",
+            "Can I use this planter inside or outside?"
+        ],
+        [
+            "What's the diameter of the planter's mouth?",
+            "What material is the planter made of?",
+            "Does it have a drainage hole?",
+            "When was this planter made?"
+        ],
+        [
+            "Is this planter suitable for outdoor use?",
+            "Does it have a drainage hole?",
+            "What are the dimensions of the planter?",
+            "What is the planter made of?"
+        ],
+        [
+            "Where is this planter handcrafted?",
+            "What is this planter made of?",
+            "What are the dimensions of the planter?",
+            "How big is the drainage hole?",
+            "How much does the planter weigh?",
+            "What colors are available in this planter?",
+            "Is there any variation between the pieces?",
+            "When was this planter made?",
+            "What are the main colors of this planter?",
+            "Is this planter frost or freeze proof?",
+            "What should I avoid doing with this planter?"
+        ],
+        [
+            "Does this planter come with a saucer?",
+            "Does it have drainage?",
+            "What are the dimensions of this planter?",
+            "What types of plants would this be suitable for?"
+        ],
+        [
+            "What are the planter's dimensions?",
+            "How is the planter made?",
+            "What is the planter's color and origin?",
+            "Can I use it inside or outside?"
+        ],
+        [
+            "Who made it?",
+            "What colors is it?",
+            "What are the dimensions?",
+            "Is it in good shape?"
+        ],
+        [
+            "What is this planter made of?",
+            "How tall is this planter?",
+            "Why is each planter unique?",
+            "What makes this planter special?"
+        ],
+        [
+            "What color is it?",
+            "What size is it?",
+            "What kind of planter is it?",
+            "Is it in perfect condition?"
+        ],
+        [
+            "What color is the stand?",
+            "Does this planter have a drainage hole?",
+            "Is this planter hand painted?",
+            "Where is this planter made?"
+        ],
+        [
+            "What is the condition of this planter?",
+            "What are the dimensions of the planter?",
+            "Who made this planter?",
+            "What era is this planter from?"
+        ],
+        [
+            "What colors are used on this planter?",
+            "What are the dimensions of the pot?",
+            "Is this a one-of-a-kind piece?",
+            "What kind of glaze is used on this planter?"
+        ],
+        [
+            "What are the dimensions of the planter?",
+            "What are the dimensions of the saucer?",
+            "Who made the planter?",
+            "When was this planter made?",
+            "Does it come with a drainage saucer?"
+        ],
+        [
+            "What are the dimensions of the planter?",
+            "When was this planter made?"
+        ],
+        [
+            "What's it made of? ",
+            "Where can I use it?",
+            "What are the dimensions? ",
+            "How much does it weigh?"
+        ],
+        [
+            "What's the size of this planter?",
+            "Does it have a drainage hole?",
+            "What colors does this planter come in?",
+            "What is this planter made of?"
+        ]
+    ],
+    "tags": [
+        "Barrel Planter, Brown, Blue, White, drainage hole, Handcrafted, Barrel Planter, drainage hole, Planters and pots, Clay planters, Birthday Gift, Gift for her, Gift for him, Plant Lovers",
+        "Barrel Planter, Drainage hole, Saucer Attached, Planters and Pots, Birthday Gift, Gift for her, Gift for him, Plant Lovers, Ceramic Planter",
+        "pink, neon, green, glitter, planter, plants, air plant, succulent, propagation",
+        "planter, southwestern, home decor, succulents, canvas planter, interior decor, minimalist, succulent, wedding decoration, wedding gifts, housewarming gifts, table decor, planter basket",
+        "Gifts, Gifts for Sister, Gifts for Wife, Personalized Gifts, Gifts for Girlfriend, Gifts for Her, Gifts for Mom, Gifts for Husband, Housewarming Gifts, Gifts for Dad, Gifts for Him, Gifts for Friends, Gifts for Couples",
+        "Asian elephant, Elephant decor, Leather decor, Leather wall art, Cowhide wall art, Cowhide art, Thailand art, Thailand elephant, Leather cut out, Elephant silhouette, Leather hide, Hide silhouette, Leather elephant, Asian elephant, Elephant decor, Leather decor, Leather wall art, Cowhide art, Thailand elephant, Leather cut out, Elephant silhouette, Leather hide, Hide silhouette, Leather elephant, Vintage cowhide, Thailand cowhide, Asian elephant, Elephant decor, Leather decor, Leather wall art, Thailand elephant, Leather cut out, Elephant silhouette, Leather hide, Hide silhouette, Leather elephant, Vintage cowhide, Thailand cowhide, Cowhide, Ceramic planter, Blue planter, Outdoor planter, Stoneware planter, Stoneware pot, Ceramic pot, Deep blue pot, Blue black pot, Palm leaf pot, Palm leaf planter, Vintage planter, Vintage pot, Vintage ceramics",
+        "Barrel planter, Drainage hole, Green planters, Planters And Pots, Birthday Gift, Gift for her, Gift for him, Plant Lovers, Clay Planters, Barrel planter, Drainage hole, Green planters, Planters And Pots, Birthday Gift, Gift for her, Gift for him, Plant Lovers",
+        "Barrel Planter, Handmade, Drainage Hole, Multi Colored, Handpainted",
+        "ceramic planter pot, with drainage hole, houseplant flower, pot for plant lover, modern planter pot, minimalist planter, indoor planter, succulent planter, gift for mom, 5 inch planter, blue planter, earthy decor, plant pots, ceramic planter pot, with drainage hole, houseplant flower, pot for plant lover, modern planter pot, minimalist planter, indoor planter, succulent planter, gift for mom, boho planter pot, home decor, hanging planter, 5 inch planter",
+        "Glazed, Indoor- Outdoor, Handmade, Made in the USA, Ceramic, Black, Planter, Gift for Her, Gift, Mothers Day, Garden, Green",
+        "Shawnee, MCM, Shawnee Pottery, MCM Pottery, MCM Oval Pot, MCM Ceramic, Shawnee Planter, Mid Century Planter, MCM Planter, Indoor Planter, Oval Planter, Ceramic, Shawnee, MCM, Mid Century, Oval, Vintage, Pottery, Planter, Atomic, Pink",
+        "Brown planter, Ceramic planter, carved planter, little ceramic pot, desk planter, ceramic gift for mom, little planter, herb planter, gift for new home, ceramic canister, small planter, small ceramic pot, cactus planter, Brown planter, Ceramic planter, carved planter, little ceramic pot, desk planter, little planter, herb planter, gift for new home, ceramic canister, small planter, small ceramic pot, carvings planter, sculptured planter",
+        "brown drip planter",
+        "Planter, giant planter, blue white planter, outside planter, round planter, Cobalt blue planter, hand painted planter, Cobalt blue stand, Entryway planter, matching planters, extra large pots, blue and white pot, big planter",
+        "royal copley, vintage royal copley, royal copley planter, indoor planter, indoor plant pot, finch on apple pot, finch, vintage, planter, indoor plants, vintage plant pot, finch on apple, mcm plant pot",
+        "Handmade, Pottery, Ceramics, One of a Kind, planter, pot, saucer, Unique, garden, plants, Amber, Blue, brown",
+        "planter, indoor planter, red planter, footed planter, home decor, Asian inspired plant, Asian planter, vintage planter",
+        "White Planter, Ceramic Planter, Small Planter, Pottery Planter, Succulent Planter, Small Flower Pot, Handmade Planter, Succulent Container, Flower Container, TrilliumFineArt, Wheel Thrown Planter, White Patio Decor, Ceramic Patio Decor"
+    ],
+    "generated_description": [
+        "Add a touch of Spanish charm to your home with this handcrafted clay planter.  Made from durable clay in a beautiful blue and white color combination, this planter is perfect for showcasing your favorite plants. It's the ideal size for indoor and outdoor gardening, adding a touch of sophistication to your home decor.",
+        "This Belinha Green Leaf Ceramic Planter Pot with attached saucer is perfect for indoor or outdoor gardening.  Made from high-quality ceramic, this stylish planter is both durable and beautiful. Featuring a drainage hole and attached saucer, it helps keep your plants healthy and your floors clean. It's the perfect gift for plant lovers, for birthdays or just because. ",
+        "These small, colorful planters are perfect for succulents, air plants, or starting seeds.  Made with a fun, modern aesthetic, they add a touch of whimsy to any indoor space. Each planter measures 4 inches in diameter and is 2 inches tall.  They are not equipped with drainage holes, but I can easily add them upon request.  Just send me a message with your order, and I will customize your planter to meet your needs!",
+        "Bring a touch of natural beauty to your home with our Medium Natural Canvas Sitting Planter. This stylish planter is perfect for displaying your favorite succulents, cacti, or herbs, adding a touch of greenery and a unique aesthetic to any room. Crafted from 100% cotton natural canvas, it's both durable and charming, and comes complete with a 6-inch planting pot and saucer. This planter also makes a thoughtful housewarming gift or a unique addition to your wedding d\u00e9cor.  Custom sizes and bulk discounts are available. Contact us to discuss your needs!",
+        "This charming 3 7/8 inch retro planter pot is perfect for adding a touch of vintage style to your home decor. Made from thin pottery, it's durable and suitable for both indoor and outdoor use. With a drainage hole, you can easily keep your plants healthy. This planter pot is a delightful addition to your succulent collection or a thoughtful gift for plant lovers.",
+        "This vintage handmade outdoor ceramic planter is a beautiful and functional piece for your garden or patio. Made with a deep blue black speckled ombre glaze and featuring a palm leaf design, this planter adds a touch of elegance to any outdoor space. It's glazed in a high gloss for durability and features a hole on the bottom for drainage. This planter measures 5\" tall with a 9.5\" diameter mouth and a 95 fluid ounce holding capacity. This planter is in excellent vintage condition with no chips or cracks.",
+        "Add a touch of earthy elegance to your home with this handcrafted green and brown clay planter. Perfect for both indoor and outdoor use, it features a drainage hole and a sturdy barrel design. Handcrafted in Vietnam, this planter is a beautiful and functional addition to any plant lover's collection. ",
+        "This stunning handmade Talavera ceramic planter pot is a vibrant addition to any garden or home. Handcrafted in Mexico, each piece showcases a unique blend of colors and patterns, making it a true work of art. The generous size provides ample space for your favorite plants, while the drainage hole ensures proper water flow. This planter is perfect for adding a touch of Mexican charm and character to your indoor or outdoor spaces.  Please note that Talavera pottery is not frost or freeze proof and should be taken indoors before the first frost.",
+        "Elevate your indoor greenery with this stylish 5-inch ceramic planter. Featuring a calming dusty blue hue, this pot is perfect for succulents, cacti, bonsai, and more. It includes a drainage hole and a matching saucer for a complete look, making it an ideal gift for plant lovers. This minimalist planter is both functional and beautiful, adding a touch of modern charm to any space.",
+        "Elevate your indoor or outdoor space with this handcrafted, glazed ceramic planter. Made in the USA, this small planter (3.5\" x 3.5\" x 3.5\") is a versatile addition to any home, from classic to contemporary. The green-brown glaze complements a wide array of color palettes, making it a beautiful and functional piece. Hand-crafted and kiln-fired, this unique planter is perfect for adding a touch of nature to your home. ",
+        "Add a touch of mid-century modern charm to your home with this stunning Shawnee oval planter. This unique piece features a groovy gray speckled exterior with a blush pink glazed interior. Perfect for showcasing your favorite plants or adding a pop of color to your bookshelf or countertop. This planter is in excellent condition with no chips or cracks. ",
+        "This handmade ceramic planter is a unique and charming addition to your home decor.  Hand-thrown on the wheel and carved with random lines, this planter is glazed in a light brown color that shifts to purple/blue in certain lighting conditions. The planter is left unglazed inside (except for the rim) and features a signature on the bottom.  It measures 3.5 inches tall and is perfect for small plants, herbs, or succulents.  This piece is a one-of-a-kind and is sure to brighten up any space.  It also makes a great gift for a new home, birthday, or any occasion. ",
+        "This unique, king brown drip planter is perfect for adding a rustic touch to your home. The planter is made from ceramic and is slightly chipped, making it a vintage treasure. It measures approximately 13 x 6.25 x 2.5 inches and has a unique, drip design. The planter is perfect for planting small plants, succulents, or air plants.",
+        "This extra large Talavera planter is a statement piece for your home!  It's hand-painted with beautiful cobalt blue and white details, making it a perfect addition to any coastal or tropical-themed space.  This planter would look great by your entryway, filled with lush greenery or even dried flowers.  At 17.5 inches tall and 15 inches wide, this planter is perfect for adding a touch of personality to any room.  It comes with a drain hole and a matching stand for easy placement.  This beautiful Talavera planter is handmade, making each one truly unique.",
+        "This vintage Royal Copley planter is a charming addition to any home. Featuring a delicate finch perched on an apple, this planter is a beautiful example of mid-century modern design.  The planter is in great condition with beautiful colors and measures 6 1/4\" x 6 1/4\" x 3.5\".  Perfect for indoor plants and adding a touch of vintage charm to your decor. ",
+        "This handmade round planter and saucer features beautiful butterflies and a stone texture, creating a unique and eye-catching design.  Glazed in a rich, glossy amber brown with deep blue accents, it adds a touch of color and elegance to your home or garden. Made from high-quality ceramic, it's perfect for displaying your favorite plants and adding a personal touch to your space. The planter is 3.5 inches tall and 5 inches wide, while the saucer is 4.75 inches in diameter, providing ample space for your greenery.  Each piece is handmade and one-of-a-kind, making it a truly special and treasured addition to your collection.",
+        "This handbuilt oval planter with its matching saucer is a beautiful addition to any home!  The planter is 9.5 inches wide by 11.5 inches long and 4.5 inches deep. It is perfect for displaying your favorite plants or flowers.",
+        "This stunning red ceramic footed planter with gold highlights and a medallion is the perfect touch of vintage charm for your home.  The intricate design and unique shape add a touch of elegance to any space.  This planter is 6 3/4\u201d tall and 8 1/4\u201d in diameter.  Bring a touch of Asian-inspired elegance to your home decor with this one-of-a-kind planter.  It makes a wonderful gift for plant lovers and collectors of vintage pottery.",
+        "Add a touch of natural beauty to your home with this charming 7 1/4 inch flower splash ink glaze planter pot. Crafted from thin pottery, this pot is perfect for showcasing your favorite succulents or small plants. It features a unique flower splash ink glaze design and a drainage hole for healthy plant growth.  Bring the outdoors in with this stylish and functional planter.",
+        "This handmade white ceramic planter adds a touch of rustic charm to your home or patio. Crafted with shades of white, cream, and gray over reddish brown stoneware, it's perfect for showcasing succulents or small plants. The planter features a drainage hole to keep your plants healthy and happy, making it ideal for both indoor and outdoor use. Simply place it on a saucer for indoor use to prevent water from leaking onto surfaces."
+    ],
+    "answers_cat2": [
+        [
+            "The clay used for the planter is handcrafted in Spain, known for its rich tradition of pottery. This craftsmanship ensures a unique character to each piece and adds to its artistic value.",
+            "The planter's size and drainage hole make it suitable for a variety of plants, both indoors and outdoors. You can consider adding a drainage saucer to prevent water from pooling and potentially harming your plant's roots.",
+            "The blue and white color scheme of the planter is a classic choice, blending effortlessly with various decor styles. It can be a beautiful addition to a minimalist, modern, or bohemian interior.",
+            "The handmade nature of the planter makes it a thoughtful and unique gift for plant lovers or anyone who appreciates handcrafted items. It's a perfect way to personalize a present and show your appreciation for their taste."
+        ],
+        [
+            "The drainage hole ensures that the plant roots don't sit in water, which can lead to root rot. This makes the planter suitable for a variety of plants.",
+            "Ceramic is a great material for planters because it's durable and can withstand the elements. It's also aesthetically pleasing and comes in a wide range of colors and finishes.",
+            "While the planter's dimensions and the weight of 3lbs 12.7oz are useful, it's helpful to consider the size of the plant you want to use in it to ensure a proper fit. Remember, plants grow!",
+            "The attached saucer is a great feature because it prevents water from dripping onto your floor or furniture. However, if you want to move the planter, you may need to consider the size and weight of the pot and the saucer combined."
+        ],
+        [
+            "These planters are perfect for showcasing small plants and adding a pop of color to your home decor. They're also great for terrariums or creating miniature garden displays.",
+            "The planters are made from a durable material that can withstand the weight of small plants. The lack of drainage holes makes them ideal for plants that don't require frequent watering, like succulents or air plants.",
+            "The color combinations are vibrant and trendy, adding a unique touch to your home decor. The glitter accents add a touch of sparkle and glamour.",
+            "The planters are perfect for anyone who wants to add a touch of greenery to their space. They're also ideal for those who are starting out with plant propagation or creating unique terrarium arrangements."
+        ],
+        [
+            "This planter is made from natural cotton canvas, which is a breathable material that allows air to circulate around the roots of your plants, helping them to thrive. Plus, the canvas is durable and can withstand moisture, making it a good choice for both indoor and outdoor use.",
+            "You can customize the size of the planter to fit your specific needs. This can be helpful if you have a large plant or if you want a more dramatic look in your space. The seller also offers bulk discounts, which could be useful for anyone looking to buy multiple planters for a wedding or other event.",
+            "The planter is available in a variety of colors, allowing you to choose one that complements your existing d\u00e9cor. There are also several styles available, including boho, southwestern, and coastal, which means you can find a planter that fits your personal aesthetic.",
+            "Yes, the planter is designed to be used indoors, but it can also be used outdoors as long as it is protected from the elements. However, it is important to note that the canvas material is susceptible to mildew and mold if exposed to excessive moisture. "
+        ],
+        [
+            "This pot's compact size makes it ideal for small succulents and cacti, adding a touch of greenery to any desk or shelf.  You could also use it for herbs or small flowers.",
+            "The drainage hole in this pot is essential for allowing excess water to drain, which helps prevent root rot and keeps your plants healthy. If you are concerned about overwatering, you may want to place a saucer beneath the pot to catch any drainage.",
+            "Pottery is a great choice for plant pots as it is durable and retains moisture well. The thin pottery construction allows for better air circulation around the roots, which is important for healthy plant growth.",
+            "The retro style of this planter pot is reminiscent of mid-century modern design. It's versatile and can complement a range of interior styles, adding a touch of vintage charm to your home decor. "
+        ],
+        [
+            "This planter's substantial holding capacity (95 fluid ounces) suggests it's perfect for larger plants or even a small herb garden.",
+            "The deep blue and black ombre glaze with the palm leaf design brings a unique and elegant touch to any outdoor space. It might be especially well-suited for tropical or coastal themes.",
+            "The planter's vintage origin adds character and a touch of history to any garden or patio. It's a great way to blend antique elements with modern decor.",
+            "Ceramic planters are known for their durability and ability to retain moisture, which can be helpful for plants that need consistent watering. However, since it's glazed, it's important to avoid exposing the planter to extreme temperature changes to prevent cracking."
+        ],
+        [
+            "This clay planter is handmade in Vietnam, and is a great choice for adding a touch of handcrafted beauty to your home decor.",
+            "It has a drainage hole to help prevent overwatering and promote healthy plant growth.",
+            "Clay is a natural material that can be porous, so it's best to keep the planter indoors or under cover when it is not in use.",
+            "A barrel planter is a timeless design that works well with a variety of plant styles and home decors, from modern to rustic."
+        ],
+        [
+            "Talavera pottery is known for its vibrant colors and intricate designs, which often depict floral motifs and geometric patterns. This planter would make a beautiful addition to any home or garden, and its handmade nature ensures that each piece is unique.  ",
+            "Talavera pottery is traditionally made in Mexico, and the techniques used have been passed down for generations. This planter is a testament to the artistry and craftsmanship of Mexican artisans. It's a great way to bring a touch of Mexican culture to your home.",
+            "The fact that it's handcrafted means it will have slight variations in color, shape, and design.  This adds to the unique charm of the planter and showcases the artistry of the maker. ",
+            "The planter has a drainage hole to help prevent overwatering, but it's not frost or freeze proof. This means it's best to bring the planter indoors during cold weather to protect it from damage. "
+        ],
+        [
+            "This ceramic planter has a drainage hole, which is important for maintaining healthy plants. The drainage hole prevents overwatering, which can lead to root rot.",
+            "The ceramic material of the planter is a classic choice for plant pots. It's durable, aesthetically pleasing, and helps regulate soil temperature.",
+            "The minimalist design of the planter complements a variety of interior styles, adding a touch of elegance without overwhelming the space.",
+            "Because of its 5-inch size, this planter is ideal for small plants like succulents, cacti, and herbs. It's also suitable for showcasing small bonsai trees."
+        ],
+        [
+            "This glazed ceramic planter is designed for indoor or outdoor use, so it can enhance your home decor or brighten up your garden.  Its versatile design complements a wide range of styles, making it a great choice for any space.",
+            "The planter is made from ceramic and glazed both inside and out. This ensures that the planter is durable and weather-resistant. Additionally, the glaze provides a smooth, easy-to-clean surface.",
+            "The planter's compact size makes it perfect for displaying small plants or succulents. You can also use it as a decorative element on a bookshelf or coffee table.",
+            "Handmade ceramic planters are often appreciated for their unique character and artistic value.  They're a wonderful way to bring a touch of handmade craftsmanship into your home or garden."
+        ],
+        [
+            "This speckled planter's design is characteristic of mid-century modern style, which is popular in contemporary interiors. The pink interior adds a touch of color and contrast. You could use it to display a succulent or small plant, or even use it as a decorative accent on a shelf or table.",
+            "Shawnee Pottery is known for its high quality ceramic pieces, and this planter is a great example. The glaze is durable and the planter is designed to last. It's a well-crafted piece that is sure to be a conversation starter.",
+            "The planter's mid-century design fits well into contemporary interior design trends. It could be a great statement piece in a modern living room or bedroom.",
+            "Mid-century modern pottery is a popular collectible, so this piece could be a great addition to your collection. The 'Shawnee, USA, 1026' mark indicates its age and authenticity, and the excellent condition adds to its value."
+        ],
+        [
+            "This planter is designed to be used indoors, and its size makes it perfect for a desk or tabletop. It's also a great option for smaller plants like succulents or herbs. ",
+            "The planter is made of white clay and glazed with a light brown color that turns slightly purple/blue in some spots when placed in direct light.  This makes it a unique and eye-catching piece that can add a touch of color to any space.",
+            "The planter is wheel-thrown and handmade, so each piece is unique and one-of-a-kind.  It's also signed by the artist on the bottom, making it a special piece to own.",
+            "This planter is inspired by a traditional style of pottery. The unique carvings and the glaze that changes color in different light make it a truly unique and artistic piece. "
+        ],
+        [
+            "While the planter has chipped spots, this could add to its rustic charm and unique character. It might be perfect for displaying succulents or other small plants that don't require a lot of space.",
+            "The unusual shape could be used to create interesting visual arrangements in a garden or home setting. It might work well in a contemporary or bohemian style.",
+            "The brown ceramic material can withstand outdoor elements and is ideal for displaying greenery. However, it's important to consider its weight and ensure it's stable on the desired surface.",
+            "While the listing describes it as \"odd-shaped\", the precise shape and size could be relevant to the type of plants it can accommodate. If you have specific plant needs, you might want to contact the seller to inquire about the shape's compatibility."
+        ],
+        [
+            "While the planter's description mentions it being \"hand painted\", it doesn't specify the exact techniques used.  I'm curious to know more about the artistry involved - is it a traditional Talavera technique, perhaps using specific brushes or glazes?  That would add another layer of appreciation for the piece.",
+            "As the planter has a waterhole, it seems designed for planting. What types of plants would be best suited for this extra-large size, especially considering its coastal and tropical home style? I'd love to see suggestions for plants that would thrive in this planter and complement its blue and white design.",
+            "The description mentions a \"Cobalt blue stand.\" I'm curious about the material of the stand. Is it made from the same Talavera pottery as the planter, or a different material like wood or metal? This would influence how the stand ages and how it interacts with the planter itself.",
+            "The planter is described as being \"extra large.\" What are the dimensions of the opening of the planter? This would help buyers visualize how large plants it can actually accommodate and how it would fit into their desired space."
+        ],
+        [
+            "This planter would look amazing with a succulent, air plant, or even a small fern. Consider using it on a windowsill to let in plenty of light!",
+            "The colors and design of this vintage planter are truly unique! It's a great piece to add a touch of mid-century modern style to your home decor.",
+            "Royal Copley is known for its high-quality ceramics. This planter should be sturdy and durable, making it perfect for displaying your favorite plants for years to come.",
+            "The finch on apple design is charming and timeless! It's a conversation starter and adds a touch of whimsy to any space. This planter is a wonderful example of the artistry and craftsmanship that defines mid-century design."
+        ],
+        [
+            "This planter is designed to be versatile, suitable for holding a variety of plants. Consider its dimensions, which allow for a good size plant.  Its drainage holes ensure proper aeration for plant health.",
+            "The handmade nature of this planter means each one has unique variations in color and texture. If you're looking for a truly one-of-a-kind piece, this planter fits the bill.",
+            "The high firing temperature of the pottery increases its durability and resistance to chipping or cracking.  You can enjoy this planter for a long time.",
+            "The amber brown and deep blue color scheme adds a touch of elegance to any space. Consider if these colors complement your current home d\u00e9cor or the plant you intend to use it for."
+        ],
+        [
+            "While the planter is oval, what other shapes does the seller offer?",
+            "Since it's handbuilt, each planter is unique, could you ask about slight variations in size?",
+            "Ceramic is quite durable.  What are your thoughts on its suitability for outdoor use?",
+            "The listing mentions 'matching saucer'.  Does this imply drainage holes are already in the planter itself?"
+        ],
+        [
+            "This planter is perfect for showcasing a variety of houseplants, from leafy ferns to vibrant succulents.  The classic footed design adds a touch of elegance and height to your indoor greenery.",
+            "The red ceramic material of the planter is not only visually appealing but also durable and heat-resistant, ensuring your plant's roots stay healthy and hydrated.",
+            "The gold accents and medallion on the planter add a touch of vintage charm and sophistication, making it a perfect addition to any mid-century modern or eclectic decor.",
+            "The red ceramic with gold accents is inspired by Asian decorative traditions and may be paired with plants like a bonsai or other Asian-inspired plants to create a thematic collection in your home."
+        ],
+        [
+            "This planter is made from thin pottery, so it's best for indoor use or in sheltered outdoor areas. The drainage hole helps with preventing overwatering, which is good for succulents! You might want to consider adding a saucer to catch the water, especially if you are placing it on a sensitive surface.",
+            "The ink glaze finish adds a unique, artistic touch to the planter.  Pottery planters can be quite versatile; you could consider using it for other types of plants, too. It's also a good size for displaying small floral arrangements. ",
+            "This planter was made in 2020, so it's a relatively new item! The 'flower splash' ink glaze is a popular trend in pottery, so if you're looking for a trendy and stylish planter, this is a good option.",
+            "The thin pottery makes it relatively lightweight, which is great if you're planning to move it around or hang it. However, be careful when handling it, especially on rough surfaces. It's made to be durable for indoor and outdoor use but still needs to be treated gently to prevent damage.  "
+        ],
+        [
+            "This planter is made from stoneware, a type of clay that is known for its durability and ability to withstand temperature changes. This makes it suitable for both indoor and outdoor use, though you'll want to protect it from harsh weather conditions if using it outdoors. It's also great for holding a variety of plants, from succulents to small flowers, and is perfect for adding a touch of natural beauty to your home or patio.",
+            "The planter features a drainage hole, which helps to prevent overwatering and keeps your plants healthy. It also has a rustic, handmade aesthetic that complements many styles of home decor. However, be aware that the planter is small, measuring just 2.5 inches in height and 5 inches in width. This makes it perfect for succulents and small plants, but not larger ones.",
+            "The fact that this planter is handmade adds a unique touch to it, and you can be sure that no two planters will be exactly alike. Additionally, because it's handmade, you can likely contact the seller to discuss custom requests or variations if desired.",
+            "Handmade ceramic planters are growing in popularity as people seek out unique and sustainable ways to decorate their homes. Many artists use traditional pottery techniques to create these planters, giving them a timeless appeal and unique character. Additionally, because they are often made from natural materials, they are biodegradable and eco-friendly."
+        ]
+    ],
+    "price_usd": [
+        28.0,
+        32.0,
+        15.0,
+        42.0,
+        6.99,
+        35.0,
+        28.0,
+        75.0,
+        23.0,
+        14.0,
+        35.5,
+        39.0,
+        18.0,
+        209.0,
+        28.0,
+        55.0,
+        110.0,
+        42.0,
+        25.99,
+        20.0
+    ],
+    "category_id": [
+        "1119",
+        "1119",
+        "6060",
+        "6060",
+        "6060",
+        "6061",
+        "1119",
+        "1119",
+        "6060",
+        "6060",
+        "6060",
+        "6060",
+        "1119",
+        "1119",
+        "6060",
+        "6060",
+        "6060",
+        "6060",
+        "6060",
+        "1119"
+    ],
+    "attributes": [
+        "itemweight: 80; issupply: 0; itemheight: 8; secondary color: Blue; primary color: Brown; itemweightunit: oz; isnotcustomizable: 1; whenmade: 2020,2023; itemwidth: 8; shouldautorenew: 1; source: soe; iswaitlistenabled: 0; ispersonalizable: 0; itemlength: 8; itemdimensionsunit: in; listingtype: physical; listing_source_detail: soe-esa; whomade: collective",
+        "iswaitlistenabled: 0; ispersonalizable: 0; itemdimensionsunit: in; issupply: 0; listing_source_detail: soe-esa; itemwidth: 9; primary color: Green; whenmade: 2020,2024; secondary color: Green; itemweight: 112; listingtype: physical; source: soe; isnotcustomizable: 1; itemheight: 9; whomade: collective; itemlength: 9; shouldautorenew: 1; itemweightunit: oz",
+        "itemweight: 4; itemheight: 2; itemdimensionsunit: in; itemweightunit: oz; isnotcustomizable: 1; itemwidth: 4; whomade: i_did; iswaitlistenabled: 0; secondary color: Green; itemlength: 4; whenmade: 2020,2022; width: 2; isnipsa: 0; height: 1.8; source: soe; listingtype: physical; listing_source_detail: soe-legacy; depth: 2; issupply: 0; shouldautorenew: 1; primary color: Pink",
+        "shouldautorenew: 1; recipient: Unisex Adults; itemweight: 7.5; primary color: Green; home style: Coastal & tropical; width: 6; itemwidth: 7; issupply: 0; whomade: i_did; itemheight: 5; iswaitlistenabled: 1; depth: 6; isnipsa: 0; secondary color: Red; isnotcustomizable: 1; itemweightunit: oz; itemlength: 7; ispersonalizable: 0; occasion: Housewarming; height: 4.5; itemdimensionsunit: in; whenmade: 2020,2020; style: boho, southwestern; listing_source_detail: web; source: web; listingtype: physical",
+        "issupply: 0; iswaitlistenabled: 0; itemwidth: 7; whenmade: 2020,2024; itemdimensionsunit: in; whomade: someone_else; itemlength: 7; shouldautorenew: 0; isnotcustomizable: 1; source: web; listingtype: physical; itemweightunit: oz; listing_source_detail: web; itemheight: 7; ispersonalizable: 0; itemweight: 30",
+        "iswaitlistenabled: 0; itemweightunit: oz; itemdimensionsunit: in; issupply: 0; listingtype: physical; itemweight: 64; itemwidth: 10; listing_source_detail: web; source: web; itemlength: 12; shouldautorenew: 1; isnotcustomizable: 1; whomade: someone_else; itemheight: 7; ispersonalizable: 0; whenmade: 1990,1999",
+        "primary color: Brown; itemheight: 9; source: soe; issupply: 0; ispersonalizable: 0; listing_source_detail: soe-esa; secondary color: Green; itemdimensionsunit: in; itemlength: 9; shouldautorenew: 1; listingtype: physical; whomade: collective; itemweightunit: oz; itemwidth: 9; itemweight: 80; isnotcustomizable: 1; whenmade: 2020,2023; iswaitlistenabled: 0",
+        "source: soe; ispersonalizable: 0; listing_source_detail: soe-esa; isnotcustomizable: 1; issupply: 0; iswaitlistenabled: 0; whomade: collective; primary color: Blue; secondary color: Yellow; itemweightunit: oz; whenmade: 2020,2023; itemdimensionsunit: in; shouldautorenew: 1; itemheight: 8; itemwidth: 8; listingtype: physical; itemweight: 64; itemlength: 12",
+        "primary color: Brown; itemheight: 8; shouldautorenew: 1; ispersonalizable: 0; itemdimensionsunit: in; height: 4.5; isnotcustomizable: 1; itemwidth: 8; channels: etsy.com,pattern; listing_source_detail: web; home style: Minimalist; whomade: someone_else; itemlength: 8; itemweightunit: oz; width: 5; itemweight: 24; issupply: 0; listingtype: physical; secondary color: White; iswaitlistenabled: 0; source: web; whenmade: 2020,2024",
+        "home style: Contemporary; itemheight: 8; whomade: collective; height: 3.5; depth: 3.5; itemlength: 8; width: 3.5; itemwidth: 8; itemdimensionsunit: in; listingtype: physical; shouldautorenew: 1; whenmade: 2020,2024; ispersonalizable: 0; source: web; iswaitlistenabled: 0; itemweightunit: oz; issupply: 0; itemweight: 12; isnotcustomizable: 1; listing_source_detail: web",
+        "itemdimensionsunit: in; whenmade: 1950,1959; shouldautorenew: 1; itemweight: 24; listingtype: physical; primary color: Gray; itemheight: 5.5; itemwidth: 7.5; itemweightunit: oz; isnotcustomizable: 1; listing_source_detail: web; secondary color: Pink; ispersonalizable: 0; issupply: 0; itemlength: 11; iswaitlistenabled: 0; whomade: someone_else; source: web",
+        "issupply: 0; ispersonalizable: 0; source: web; itemdimensionsunit: in; itemlength: 7.5; holiday: Christmas; itemwidth: 7.5; itemheight: 6.25; isnotcustomizable: 1; itemweightunit: oz; listingtype: physical; occasion: Birthday; listing_source_detail: web; shouldautorenew: 1; itemweight: 22; iswaitlistenabled: 0; whenmade: 2020,2021; whomade: i_did",
+        "itemlength: 16; itemwidth: 12; whomade: someone_else; itemweight: 48; whenmade: 0,2003; itemweightunit: oz; iswaitlistenabled: 0; issupply: 0; source: soe; listingtype: physical; itemdimensionsunit: in; itemheight: 8; shouldautorenew: 1; isnotcustomizable: 1; listing_source_detail: soe-legacy",
+        "recycled: No; source: soe; whomade: collective; whenmade: 2020,2023; ispersonalizable: 0; itemheight: 20; itemlength: 20; secondary color: White; itemwidth: 20; primary color: Blue; shouldautorenew: 1; issupply: 0; itemweightunit: oz; iswaitlistenabled: 0; listing_source_detail: soe-esa; home style: Coastal & tropical; isnotcustomizable: 1; itemdimensionsunit: in; itemweight: 400; listingtype: physical",
+        "itemwidth: 8; itemdimensionsunit: in; ispersonalizable: 0; itemweight: 31; isnotcustomizable: 1; itemweightunit: oz; itemheight: 6; whenmade: 1950,1959; source: web; iswaitlistenabled: 0; listingtype: physical; itemlength: 8; issupply: 0; whomade: someone_else; shouldautorenew: 1; listing_source_detail: web",
+        "itemweightunit: oz; ispersonalizable: 0; height: 3.5; isnotcustomizable: 1; primary color: Brown; whenmade: 2020,2024; width: 5; itemheight: 8; iswaitlistenabled: 0; whomade: i_did; itemdimensionsunit: in; secondary color: Blue; itemweight: 48; itemlength: 8; issupply: 0; source: web; itemwidth: 8; listingtype: physical; listing_source_detail: web; shouldautorenew: 1",
+        "width: 9.5; height: 11.5; ispersonalizable: 0; itemweight: 94; itemlength: 11.5; listingtype: physical; itemwidth: 9.5; whenmade: 2020,2024; itemheight: 4.5; issupply: 0; whomade: i_did; itemweightunit: oz; isnotcustomizable: 1; itemdimensionsunit: in; iswaitlistenabled: 0; depth: 4.5; shouldautorenew: 1; listing_source_detail: web; source: web",
+        "itemweight: 67; ispersonalizable: 0; whomade: someone_else; itemweightunit: oz; listing_source_detail: soe-esa; shouldautorenew: 1; source: soe; itemheight: 12; whenmade: 1960,1969; itemdimensionsunit: in; issupply: 0; listingtype: physical; itemwidth: 12; itemlength: 12",
+        "isnotcustomizable: 1; whenmade: 2020,2024; ispersonalizable: 0; itemweightunit: oz; source: web; itemheight: 10; itemdimensionsunit: in; itemweight: 82; itemlength: 14; whomade: someone_else; shouldautorenew: 1; listingtype: physical; issupply: 0; itemwidth: 10; iswaitlistenabled: 0; listing_source_detail: web",
+        "shouldautorenew: 1; itemweight: 16; itemlength: 6; isnotcustomizable: 1; whomade: i_did; itemheight: 6; issupply: 0; itemweightunit: oz; ispersonalizable: 0; source: web; whenmade: 2020,2022; itemdimensionsunit: in; listing_source_detail: web; iswaitlistenabled: 0; primary color: White; itemwidth: 6; listingtype: physical"
+    ],
+    "category_path": [
+        "home_and_living.outdoor_and_garden.planters_and_pots",
+        "home_and_living.outdoor_and_garden.planters_and_pots",
+        "home_and_living.outdoor_and_garden.planters_and_pots.indoor_planters",
+        "home_and_living.outdoor_and_garden.planters_and_pots.indoor_planters",
+        "home_and_living.outdoor_and_garden.planters_and_pots.indoor_planters",
+        "home_and_living.outdoor_and_garden.planters_and_pots.outdoor_planters",
+        "home_and_living.outdoor_and_garden.planters_and_pots",
+        "home_and_living.outdoor_and_garden.planters_and_pots",
+        "home_and_living.outdoor_and_garden.planters_and_pots.indoor_planters",
+        "home_and_living.outdoor_and_garden.planters_and_pots.indoor_planters",
+        "home_and_living.outdoor_and_garden.planters_and_pots.indoor_planters",
+        "home_and_living.outdoor_and_garden.planters_and_pots.indoor_planters",
+        "home_and_living.outdoor_and_garden.planters_and_pots",
+        "home_and_living.outdoor_and_garden.planters_and_pots",
+        "home_and_living.outdoor_and_garden.planters_and_pots.indoor_planters",
+        "home_and_living.outdoor_and_garden.planters_and_pots.indoor_planters",
+        "home_and_living.outdoor_and_garden.planters_and_pots.indoor_planters",
+        "home_and_living.outdoor_and_garden.planters_and_pots.indoor_planters",
+        "home_and_living.outdoor_and_garden.planters_and_pots.indoor_planters",
+        "home_and_living.outdoor_and_garden.planters_and_pots"
+    ],
+    "image_url": [
+        "https://img.etsystatic.com/il/fc46a0/6002278386/il_570xN.6002278386_59c3.jpg",
+        "https://img.etsystatic.com/il/a196a0/5845617273/il_570xN.5845617273_le9t.jpg",
+        "https://img.etsystatic.com/il/bb788c/3369285002/il_570xN.3369285002_opny.jpg",
+        "https://img.etsystatic.com/il/3ded45/2292088531/il_570xN.2292088531_o1ar.jpg",
+        "https://img.etsystatic.com/il/a78799/5984152608/il_570xN.5984152608_2om4.jpg",
+        "https://img.etsystatic.com/il/e753b4/5958465922/il_570xN.5958465922_gm9x.jpg",
+        "https://img.etsystatic.com/il/71ef5c/6260929926/il_570xN.6260929926_mglz.jpg",
+        "https://img.etsystatic.com/il/562444/4878319012/il_570xN.4878319012_33h5.jpg",
+        "https://img.etsystatic.com/il/790941/4035414052/il_570xN.4035414052_24tw.jpg",
+        "https://img.etsystatic.com/il/ca9e3a/5927245435/il_570xN.5927245435_aw37.jpg",
+        "https://img.etsystatic.com/il/b2db32/3993684102/il_570xN.3993684102_4roz.jpg",
+        "https://img.etsystatic.com/il/17a42d/2941923164/il_570xN.2941923164_lowl.jpg",
+        "https://img.etsystatic.com/il/8a4e1c/3968794967/il_570xN.3968794967_ckve.jpg",
+        "https://img.etsystatic.com/il/8ed0ae/5486388419/il_570xN.5486388419_mmo7.jpg",
+        "https://img.etsystatic.com/il/a972e2/5812281535/il_570xN.5812281535_9pd4.jpg",
+        "https://img.etsystatic.com/il/f5ca91/6032335073/il_570xN.6032335073_t2ij.jpg",
+        "https://img.etsystatic.com/il/7679cc/5923625862/il_570xN.5923625862_kv36.jpg",
+        "https://img.etsystatic.com/il/3ceaf1/6124930595/il_570xN.6124930595_dp6l.jpg",
+        "https://img.etsystatic.com/il/b4cb2b/5395268691/il_570xN.5395268691_6n2x.jpg",
+        "https://img.etsystatic.com/il/568d11/5305927454/il_570xN.5305927454_23yb.jpg"
+    ],
+    "title": [
+        "Reyes Blue/White Clay Planter Pot/Planters and Pots/Birthday Gift/Gift for her/Gift for him/ Plant Lovers",
+        "Belinha Green Leaf Ceramic Planter Pot with Saucer Attached/ Planters and Pots/ Birthday Gift/ Gift for her/ Gift for him/ Plant Lovers",
+        "Small Planter",
+        "Medium Natural Canvas Sitting Planter: Turquoise",
+        "3 7/8&quot;inches retro\u00a0plain\u00a0 flower planter pot succulent pot",
+        "Handmade Glazed Blue Black Ombre Outdoor Planter",
+        "Rayon Green/Brown Clay Planter Pot/Planters and pots/Birthday Gift/ Gift for her/ Gift for him/ Plant Lovers/Clay Planters",
+        "Jubilee Talavera Handmade Ceramic Multi Colored Planter Pot",
+        "5&quot; Blue Ceramic Plant Pot with Drainage and Saucer \u2022 5 inch Modern Planter Pot \u2022 Indoor Planter \u2022 Houseplant Flower Pot \u2022 Succulent Planter",
+        "Glazed Ceramic Planter. Made in the USA",
+        "Oval Shawnee MCM Speckled Pink Ceramic Planter",
+        "Brown planter, blue planter, Ceramic planter, carved planter, little ceramic planter",
+        "Brown ceramic planter as is",
+        "Talavera planter extra large blue and whiteI 17.5 \u201cX 15\u201d",
+        "1950&#39;s Vintage Royal Copley Finch on Apple Ceramic Planter",
+        "Rich Amber Brown and Deep Blue Butterfly and Stone Texture Planter Pot and Saucer, Handmade Glazed Pottery",
+        "Ceramic planter and matching drainage saucer",
+        "Red Ceramic Gold Footed Medallon Planter",
+        "7 1/4&quot;inches flower splash ink glaze planter pot succulent pot",
+        "White Ceramic Planter, Small Pottery Planter, Succulent Planter, Small Flower Pot, Handmade Planter, Succulent Container, TrilliumFineArt"
+    ],
+    "generated_title": [
+        "Handcrafted Blue & White Clay Planter Pot",
+        "Green Leaf Ceramic Planter Pot with Saucer - Indoor/Outdoor",
+        "Small Neon Pink and Green Planter for Succulents, Air Plants, and Propagations",
+        "Medium Natural Canvas Sitting Planter: Turquoise",
+        "3 7/8 Inch Retro Flower Planter Pot for Succulents - Vintage Style",
+        "Vintage Handmade Glazed Blue Black Ombre Outdoor Planter",
+        "Green & Brown Clay Barrel Planter - Handmade Vietnam",
+        "Handpainted Mexican Talavera Ceramic Planter Pot, Multicolored",
+        "5 Inch Blue Ceramic Planter Pot with Drainage & Saucer - Modern Minimalist Succulent Pot",
+        "Small Green-Brown Glazed Ceramic Planter - Handmade in USA",
+        "Mid-Century Modern Shawnee Oval Planter - Speckled Pink & Gray",
+        "Hand-Carved Brown & Purple Ceramic Planter, Small Planter, Desk Planter",
+        "Vintage Brown Ceramic Drip Planter with Character",
+        "Extra Large Talavera Planter - Cobalt Blue & White - 17.5\" Tall",
+        "Vintage Royal Copley Finch on Apple Ceramic Planter",
+        "Handmade Amber Brown & Blue Butterfly Planter Pot & Saucer",
+        "Handbuilt Oval Ceramic Planter with Matching Saucer",
+        "Vintage Red Ceramic Footed Planter with Gold Accents",
+        "7 1/4 Inch Flower Splash Ink Glaze Planter Pot for Succulents",
+        "White Ceramic Planter - Handmade Succulent Pot"
+    ],
+    "questions_cat2": [
+        [
+            "What are some plant recommendations for this size and style of planter?",
+            "Can you tell me more about the clay used in this planter and its potential for moisture retention?",
+            "How does the handmade nature of this planter impact its durability and longevity?",
+            "Are there any other colors or designs available within this collection?"
+        ],
+        [
+            "What types of plants would be best suited for this planter, considering the drainage hole and attached saucer?",
+            "Could you tell me more about the durability of ceramic in terms of weather resistance or potential for chipping?",
+            "Can you describe the best way to measure the plant's size and compare it to the planter's dimensions to ensure a good fit?",
+            "How easy is it to move this planter around, considering the weight and the saucer?"
+        ],
+        [
+            "What are some creative ways I can use these planters to enhance my home decor?",
+            "What kind of materials are these planters made from, and are they durable enough for small plants?",
+            "What are some other color options available for these planters, and how do the different color combinations complement each other?",
+            "Are these planters suitable for beginners in plant propagation or creating small terrariums?"
+        ],
+        [
+            "What are the benefits of using a natural canvas planter? Is it better for plant growth compared to other materials? ",
+            "Can I customize the size of the planter?  Also, are there any discounts available if I need multiple planters? ",
+            "What are the different colors and styles available?  Does the planter come in any other designs? ",
+            "Can this planter be used outdoors? Does it need any special care or maintenance? "
+        ],
+        [
+            "What kind of plants would this pot be best suited for?  I'm looking for something low-maintenance.",
+            "Does this pot come with a saucer for drainage?  I'd like to make sure it doesn't leak.",
+            "Is the pottery material prone to chipping or cracking? I'm looking for something durable.",
+            "What other styles or colors are available? I want to find something that will match my decor."
+        ],
+        [
+            "What kind of plants would be best suited for this planter, considering its size and drainage hole?",
+            "How does the ombre glaze and palm leaf design contribute to the overall aesthetic of the planter? Would it work well with different decor styles?",
+            "Given its vintage origin, are there any specific care instructions I should be aware of? How can I preserve its condition?",
+            "Are there any other colors or designs of this planter available? I'm looking for a specific aesthetic to match my garden."
+        ],
+        [
+            "What makes this planter unique compared to similar ones available on Etsy?",
+            "Can you tell me more about the process of crafting clay planters?",
+            "What are the advantages of using a clay planter versus a plastic one?",
+            "Would this planter be suitable for a specific type of plant, such as a succulent or a tropical plant?"
+        ],
+        [
+            "What are some creative ways to display this planter in my home or garden?",
+            "Can you tell me more about the history of Talavera pottery and how it's made?",
+            "What other colors or designs are available in this Talavera planter style?",
+            "Is the planter suitable for growing certain types of plants that may require special drainage or care? "
+        ],
+        [
+            "What makes this planter ideal for promoting healthy plant growth?",
+            "What are the benefits of choosing a ceramic planter like this one?",
+            "How does the minimalist design of this planter contribute to its overall appeal?",
+            "What types of plants are best suited for a 5-inch planter like this?"
+        ],
+        [
+            "What kind of plants would you recommend using with this planter?",
+            "Can you tell me more about the glaze used on this planter and its durability?",
+            "Is this planter suitable for use with artificial plants?",
+            "How does the handmade aspect of this planter contribute to its unique character?"
+        ],
+        [
+            "What other colors and patterns are available in this style of Shawnee pottery?",
+            "How would this planter look with a specific plant or flower arrangement?",
+            "What other mid-century modern home decor items complement this planter?",
+            "Is this planter a good investment piece?"
+        ],
+        [
+            "What kind of plants would look best in this planter?",
+            "How would the planter look in different light conditions?",
+            "What makes this planter unique compared to other planters on Etsy?",
+            "What are the origins of the carving style used on this planter?"
+        ],
+        [
+            "How would this planter complement different plant styles? Would it suit a succulent or a larger plant?",
+            "What are the specific dimensions of the planter's opening? This would be helpful in determining the size of the plant it can hold.",
+            "What are the advantages and disadvantages of ceramic planters? How do they compare to other materials?",
+            "Could you share any tips on caring for the planter and its plant considering the chipped spots?"
+        ],
+        [
+            "What are some of the unique painting techniques used to create the Talavera designs on this planter?",
+            "What type of plants would look best in this extra large planter, considering its coastal and tropical home style?",
+            "What is the stand made from, and how does the material complement the Talavera planter?",
+            "Could you please provide the dimensions of the opening of the planter to get a better sense of its planting capacity?"
+        ],
+        [
+            "What type of plants would you recommend for this planter? What are some creative ways to display it in my home?",
+            "What other items are popular in mid-century modern style? Can you suggest some other vintage items that would complement this planter?",
+            "Are there any specific care instructions for this planter? What kind of cleaning techniques are recommended for vintage ceramics?",
+            "What are some other designs or patterns that Royal Copley is known for? Are there any other interesting pieces I could find on Etsy?"
+        ],
+        [
+            "What type of plant would you recommend for this planter?",
+            "What makes this planter unique compared to other planters?",
+            "How durable is the planter, given the high firing temperature?",
+            "Does the color scheme of the planter complement other items in my home?"
+        ],
+        [
+            "What other shapes are available for this type of handbuilt ceramic planter?",
+            "Given the handbuilt nature, are there slight variations in size for each planter?",
+            "Is this ceramic planter suitable for outdoor use, considering potential weather exposure?",
+            "The listing mentions a matching saucer.  Does the planter itself have drainage holes?"
+        ],
+        [
+            "What kind of plants would look best in this planter?",
+            "Is this ceramic material suitable for holding plant roots?",
+            "What makes this planter unique or stand out?",
+            "What interior design styles would this planter complement?"
+        ],
+        [
+            "What are some creative ways to display plants in this planter to enhance its unique splash glaze? ",
+            "What are the benefits of using a pottery planter like this for succulents, as opposed to other materials like plastic? ",
+            "Since the planter was made in 2020, do you have other designs from that year or other similar pottery pieces that might complement it? ",
+            "How does the thin pottery construction impact the planter's overall durability and care requirements?"
+        ],
+        [
+            "What kind of clay is this planter made from and how does that impact its durability and suitability for different environments?",
+            "Does the planter's size make it a good choice for a variety of plants, or is it best suited for certain types?",
+            "Are there any ways to personalize this planter, like adding a unique glaze or design?",
+            "What are the benefits of choosing a handmade ceramic planter over mass-produced alternatives?"
+        ]
+    ],
+    "concatenated_product_info": [
+        "Product Title: Reyes Blue/White Clay Planter Pot/Planters and Pots/Birthday Gift/Gift for her/Gift for him/ Plant Lovers Product Description: Dimensions: 6\u201dH x 7\u201dW , Opening 6.25\u201d, weight 3lbs 6.8oz, Drainage hole, Handcrafted in Spain, Color : Clay Blue & White, Handcrafted design, Perfect for Indoor/Outdoor gardening, Don\u2019t forget to dress up your plants \ud83e\udeb4 Product Tags: Barrel Planter, Brown, Blue, White, drainage hole, Handcrafted, Barrel Planter, drainage hole, Planters and pots, Clay planters, Birthday Gift, Gift for her, Gift for him, Plant Lovers Product Attributes: itemweight: 80; issupply: 0; itemheight: 8; secondary color: Blue; primary color: Brown; itemweightunit: oz; isnotcustomizable: 1; whenmade: 2020,2023; itemwidth: 8; shouldautorenew: 1; source: soe; iswaitlistenabled: 0; ispersonalizable: 0; itemlength: 8; itemdimensionsunit: in; listingtype: physical; listing_source_detail: soe-esa; whomade: collective",
+        "Product Title: Belinha Green Leaf Ceramic Planter Pot with Saucer Attached/ Planters and Pots/ Birthday Gift/ Gift for her/ Gift for him/ Plant Lovers Product Description: Dimensions: 7.25\u201dH x 7.25\u201d W, Opening 6.5\u201d, weight 3lbs 12.7oz, Drainage hole, saucer attached to the planter, Color: Green , Made in China, Materials: Ceramic , Type: Barrel Planter, Perfect for Indoor/Outdoor gardening, Don\u2019t forget to dress up your plants \ud83e\udeb4 Product Tags: Barrel Planter, Drainage hole, Saucer Attached, Planters and Pots, Birthday Gift, Gift for her, Gift for him, Plant Lovers, Ceramic Planter Product Attributes: iswaitlistenabled: 0; ispersonalizable: 0; itemdimensionsunit: in; issupply: 0; listing_source_detail: soe-esa; itemwidth: 9; primary color: Green; whenmade: 2020,2024; secondary color: Green; itemweight: 112; listingtype: physical; source: soe; isnotcustomizable: 1; itemheight: 9; whomade: collective; itemlength: 9; shouldautorenew: 1; itemweightunit: oz",
+        "Product Title: Small Planter Product Description: These little planters are perfect for indoor plants like succulents and air plants. They work well if you are trying to propagate plants or are getting seeds started.\\n\\nThere are no drainage holes, but I can easily drill drainage holes upon request. Please message me when you make your purchase and advise how many holes you would like. Product Tags: pink, neon, green, glitter, planter, plants, air plant, succulent, propagation Product Attributes: itemweight: 4; itemheight: 2; itemdimensionsunit: in; itemweightunit: oz; isnotcustomizable: 1; itemwidth: 4; whomade: i_did; iswaitlistenabled: 0; secondary color: Green; itemlength: 4; whenmade: 2020,2022; width: 2; isnipsa: 0; height: 1.8; source: soe; listingtype: physical; listing_source_detail: soe-legacy; depth: 2; issupply: 0; shouldautorenew: 1; primary color: Pink",
+        "Product Title: Medium Natural Canvas Sitting Planter: Turquoise Product Description: This medium Canvas Sitting Planter is a great way to display your favorite plants while brightening up any space in the house. Decorate your bedroom, living room, entry way or bathroom with adorable succulents + cacti or arrange some herbs in your kitchen. These make wonderful housewarming gifts!\\n\\nFirst two photos are the product. The remaining photos are for reference. \\nThird images is a size comparison between the 4&quot; (small) and 6&quot; (large) planters.\\n\\nDetails:\\n- 100% cotton natural canvas exterior\\n- 100% woven exterior\\n- 6&quot; diameter x 5&quot; H\\n- Spot clean with soap + water\\n- Placement of woven fabric pattern will vary\\n- 6&quot; planting pot + saucer are included\\n\\nMore selections at our direct website: \\nwww.beingoodcompany.com/collections/planters\\n\\n**Custom sizes are available. Please convo to discuss!**\\n**Bulk discount is available for corporate gifts + wedding table decor/gifts! Please convo to inquire.** Product Tags: planter, southwestern, home decor, succulents, canvas planter, interior decor, minimalist, succulent, wedding decoration, wedding gifts, housewarming gifts, table decor, planter basket Product Attributes: shouldautorenew: 1; recipient: Unisex Adults; itemweight: 7.5; primary color: Green; home style: Coastal & tropical; width: 6; itemwidth: 7; issupply: 0; whomade: i_did; itemheight: 5; iswaitlistenabled: 1; depth: 6; isnipsa: 0; secondary color: Red; isnotcustomizable: 1; itemweightunit: oz; itemlength: 7; ispersonalizable: 0; occasion: Housewarming; height: 4.5; itemdimensionsunit: in; whenmade: 2020,2020; style: boho, southwestern; listing_source_detail: web; source: web; listingtype: physical",
+        "Product Title: 3 7/8&quot;inches retro\u00a0plain\u00a0 flower planter pot succulent pot Product Description: 3 7/8&quot;inches retro\u00a0plain\u00a0 flower planter pot succulent pot\\nMATERIALS\uff1athin pottery .\u00a0indoor and outdoor use with drainage hole\\nSize\uff1a3 7/8 inches width\uff0cdiameter 3 3/8 inches and high 4 1/8 inches Product Tags: Gifts, Gifts for Sister, Gifts for Wife, Personalized Gifts, Gifts for Girlfriend, Gifts for Her, Gifts for Mom, Gifts for Husband, Housewarming Gifts, Gifts for Dad, Gifts for Him, Gifts for Friends, Gifts for Couples Product Attributes: issupply: 0; iswaitlistenabled: 0; itemwidth: 7; whenmade: 2020,2024; itemdimensionsunit: in; whomade: someone_else; itemlength: 7; shouldautorenew: 0; isnotcustomizable: 1; source: web; listingtype: physical; itemweightunit: oz; listing_source_detail: web; itemheight: 7; ispersonalizable: 0; itemweight: 30",
+        "Product Title: Handmade Glazed Blue Black Ombre Outdoor Planter Product Description: -Vintage handmade outdoor ceramic planter with a hole on the bottom for drainage\\n-Deep blue black speckled ombre with a palm leaf design\\n-Glazed in a high gloss\\n-Planter measures 5&quot; tall with a 9.5&quot; diameter mouth and a 95 fluid ounce holding capacity\\n-Excellent vintage condition with no chips or cracks Product Tags: Asian elephant, Elephant decor, Leather decor, Leather wall art, Cowhide wall art, Cowhide art, Thailand art, Thailand elephant, Leather cut out, Elephant silhouette, Leather hide, Hide silhouette, Leather elephant, Asian elephant, Elephant decor, Leather decor, Leather wall art, Cowhide art, Thailand elephant, Leather cut out, Elephant silhouette, Leather hide, Hide silhouette, Leather elephant, Vintage cowhide, Thailand cowhide, Asian elephant, Elephant decor, Leather decor, Leather wall art, Thailand elephant, Leather cut out, Elephant silhouette, Leather hide, Hide silhouette, Leather elephant, Vintage cowhide, Thailand cowhide, Cowhide, Ceramic planter, Blue planter, Outdoor planter, Stoneware planter, Stoneware pot, Ceramic pot, Deep blue pot, Blue black pot, Palm leaf pot, Palm leaf planter, Vintage planter, Vintage pot, Vintage ceramics Product Attributes: iswaitlistenabled: 0; itemweightunit: oz; itemdimensionsunit: in; issupply: 0; listingtype: physical; itemweight: 64; itemwidth: 10; listing_source_detail: web; source: web; itemlength: 12; shouldautorenew: 1; isnotcustomizable: 1; whomade: someone_else; itemheight: 7; ispersonalizable: 0; whenmade: 1990,1999",
+        "Product Title: Rayon Green/Brown Clay Planter Pot/Planters and pots/Birthday Gift/ Gift for her/ Gift for him/ Plant Lovers/Clay Planters Product Description: Dimensions: 6.5\u201dH x 7\u201dW, Opening 6.25\u201d, weight 2lbs 6.2oz, Material: Clay, Drainage hole, Type: Barrel Planter, Handcrafted in Vietnam , Color: Green & brown , Perfect for indoor / Outdoor, Plant NOT included, Don\u2019t forget to dress up your plants \ud83e\udeb4 Product Tags: Barrel planter, Drainage hole, Green planters, Planters And Pots, Birthday Gift, Gift for her, Gift for him, Plant Lovers, Clay Planters, Barrel planter, Drainage hole, Green planters, Planters And Pots, Birthday Gift, Gift for her, Gift for him, Plant Lovers Product Attributes: primary color: Brown; itemheight: 9; source: soe; issupply: 0; ispersonalizable: 0; listing_source_detail: soe-esa; secondary color: Green; itemdimensionsunit: in; itemlength: 9; shouldautorenew: 1; listingtype: physical; whomade: collective; itemweightunit: oz; itemwidth: 9; itemweight: 80; isnotcustomizable: 1; whenmade: 2020,2023; iswaitlistenabled: 0",
+        "Product Title: Jubilee Talavera Handmade Ceramic Multi Colored Planter Pot Product Description: Dimensions: 4\u201dHx 12\u201dlong x 8.5\u201dW, opening 3\u201d x 4\u201d Drainage hole,Materials: Clay & Ceramic, weight 2lbs 12.1oz, This amazing flowerpot has a lot of color and makes any place look cheerful! , Make your garden look nice with this unique flowerpot! Handcrafted in Mexico , Color: Multi color, each piece varies slightly in color, shape and design. Occasionally, you will notice a small paint smudge, fingerprint or other &quot;imperfection&quot;. These are all signs of authenticity and character reminding us of the human hands that formed it. Talavera pottery is not frost or freeze proof and must be taken indoors before the first frost. Talavera pottery does not like to sit in water, get hit by your sprinklers or be in a greenhouse. Don\u2019t forget to dress up your plants \ud83e\udeb4 Product Tags: Barrel Planter, Handmade, Drainage Hole, Multi Colored, Handpainted Product Attributes: source: soe; ispersonalizable: 0; listing_source_detail: soe-esa; isnotcustomizable: 1; issupply: 0; iswaitlistenabled: 0; whomade: collective; primary color: Blue; secondary color: Yellow; itemweightunit: oz; whenmade: 2020,2023; itemdimensionsunit: in; shouldautorenew: 1; itemheight: 8; itemwidth: 8; listingtype: physical; itemweight: 64; itemlength: 12",
+        "Product Title: 5&quot; Blue Ceramic Plant Pot with Drainage and Saucer \u2022 5 inch Modern Planter Pot \u2022 Indoor Planter \u2022 Houseplant Flower Pot \u2022 Succulent Planter Product Description: With an earthy minimalist vibe, the dusty blue tones of this 5 inch ceramic pot immediately brings a feeling of relaxation to any home, and would also make a great gift for the plant lovers in your life! This ceramic plant pot has a drainage hole in the bottom and includes a matching saucer.\\n\\nPerfect for succulents, cacti, bonsai, flowers, herbs, and small woody stem plants. Your beautiful plant will totally vibe in its new home!\\n\\n\u2740 Plants not included and only shown as examples \u2740\\n\\n\\n\u00bb DETAILS\\n\\n\u2022 Planter Measurements: 4.5&quot; Height / 5&quot; Width  \\n\u2022 Drainage Hole: Yes\\n\u2022 Saucer Included: Yes\\n\u2022 Indoor/Outdoor Use\\n\u2022 Ceramic \\n\u2022 Plant is not included \\n\\n\\nNothing will ever be sent to you that we would not want to receive ourselves. We want you to absolutely love your new planter, which is also why we package each order carefully to ensure you receive it in perfect condition. \\n\\nIf you have any questions, start a conversation with us by finding the contact button on our shop page!\\n\\nFor more items visit\\nfloralvibesllc.etsy.com\\n\\nThanks for shopping with us! \u2600 Product Tags: ceramic planter pot, with drainage hole, houseplant flower, pot for plant lover, modern planter pot, minimalist planter, indoor planter, succulent planter, gift for mom, 5 inch planter, blue planter, earthy decor, plant pots, ceramic planter pot, with drainage hole, houseplant flower, pot for plant lover, modern planter pot, minimalist planter, indoor planter, succulent planter, gift for mom, boho planter pot, home decor, hanging planter, 5 inch planter Product Attributes: primary color: Brown; itemheight: 8; shouldautorenew: 1; ispersonalizable: 0; itemdimensionsunit: in; height: 4.5; isnotcustomizable: 1; itemwidth: 8; channels: etsy.com,pattern; listing_source_detail: web; home style: Minimalist; whomade: someone_else; itemlength: 8; itemweightunit: oz; width: 5; itemweight: 24; issupply: 0; listingtype: physical; secondary color: White; iswaitlistenabled: 0; source: web; whenmade: 2020,2024",
+        "Product Title: Glazed Ceramic Planter. Made in the USA Product Description: Green-Brown colored glazed planter   (small). Fits in a variety of design areas from classic to contemporary and beyond. This look complements nearly any color palette.  Made completely from mold to kiln. Glazed inside and out. Approximately 3.5 x 3.5 x 3.5 inches. Truly a one-of-a-kind item.  Made in the USA\\n\\nTo clean, we recommend hand washing.\\n\\nWe hope you enjoy browsing our Shop.  \\n\\nThank You for Supporting Small Businesses!!! \\n                      Candace & Rhonda Product Tags: Glazed, Indoor- Outdoor, Handmade, Made in the USA, Ceramic, Black, Planter, Gift for Her, Gift, Mothers Day, Garden, Green Product Attributes: home style: Contemporary; itemheight: 8; whomade: collective; height: 3.5; depth: 3.5; itemlength: 8; width: 3.5; itemwidth: 8; itemdimensionsunit: in; listingtype: physical; shouldautorenew: 1; whenmade: 2020,2024; ispersonalizable: 0; source: web; iswaitlistenabled: 0; itemweightunit: oz; issupply: 0; itemweight: 12; isnotcustomizable: 1; listing_source_detail: web",
+        "Product Title: Oval Shawnee MCM Speckled Pink Ceramic Planter Product Description: A groovy mid century gray speckled planter with a blush pink glazed interior. This planter can be used for plants or multi-purposed as bookcase or counter decor. This unique piece is marked Shawnee, USA, 1026\\n\\nExcellent condition, no chips or cracks.\\n\\nDimensions: 7.25&quot; H X 6.5&quot; L X 2.75&quot; W Product Tags: Shawnee, MCM, Shawnee Pottery, MCM Pottery, MCM Oval Pot, MCM Ceramic, Shawnee Planter, Mid Century Planter, MCM Planter, Indoor Planter, Oval Planter, Ceramic, Shawnee, MCM, Mid Century, Oval, Vintage, Pottery, Planter, Atomic, Pink Product Attributes: itemdimensionsunit: in; whenmade: 1950,1959; shouldautorenew: 1; itemweight: 24; listingtype: physical; primary color: Gray; itemheight: 5.5; itemwidth: 7.5; itemweightunit: oz; isnotcustomizable: 1; listing_source_detail: web; secondary color: Pink; ispersonalizable: 0; issupply: 0; itemlength: 11; iswaitlistenabled: 0; whomade: someone_else; source: web",
+        "Product Title: Brown planter, blue planter, Ceramic planter, carved planter, little ceramic planter Product Description: Brown planter, Ceramic planter, carved planter, little ceramic planter\\n\\nThis wheel thrown planter is made with white B-Mix clay and glazed with a light brown color that turns slightly purple/blue  in some spots when placed in direct light. The planter is carved with random lines.  The inside of the planter, apart from the rim, has been left unglazed.\\n\\nI took photos of this piece in different light conditions; the glazes really come to life in (sun)light. \\nEach piece is individually designed and handmade so every piece is a one of a kind and unique.  The piece you are purchasing is the exact same planter as in the pictures.  Because of the nature of handmade pottery, imperfections are possible in each piece.  \\n\\nThe bottom of the piece is left unglazed.   I sign each piece on the bottom, permanently marking the pottery with my first name \u201cAnnick.\u201d\\n\\nFeatures:\\nHandmade Item; wheel thrown\\nMaterials: white clay and purple glazes \\nThis piece is 3.5&quot; tall\\n\\nShells, plants and other accessories not included. Product Tags: Brown planter, Ceramic planter, carved planter, little ceramic pot, desk planter, ceramic gift for mom, little planter, herb planter, gift for new home, ceramic canister, small planter, small ceramic pot, cactus planter, Brown planter, Ceramic planter, carved planter, little ceramic pot, desk planter, little planter, herb planter, gift for new home, ceramic canister, small planter, small ceramic pot, carvings planter, sculptured planter Product Attributes: issupply: 0; ispersonalizable: 0; source: web; itemdimensionsunit: in; itemlength: 7.5; holiday: Christmas; itemwidth: 7.5; itemheight: 6.25; isnotcustomizable: 1; itemweightunit: oz; listingtype: physical; occasion: Birthday; listing_source_detail: web; shouldautorenew: 1; itemweight: 22; iswaitlistenabled: 0; whenmade: 2020,2021; whomade: i_did",
+        "Product Title: Brown ceramic planter as is Product Description: An odd shaped king brown drip planter\\n\\nDoes have multiple chipped spots\\n\\nMeasures \\n\\n13 x 6.25 x 2.5 inches Product Tags: brown drip planter Product Attributes: itemlength: 16; itemwidth: 12; whomade: someone_else; itemweight: 48; whenmade: 0,2003; itemweightunit: oz; iswaitlistenabled: 0; issupply: 0; source: soe; listingtype: physical; itemdimensionsunit: in; itemheight: 8; shouldautorenew: 1; isnotcustomizable: 1; listing_source_detail: soe-legacy",
+        "Product Title: Talavera planter extra large blue and whiteI 17.5 \u201cX 15\u201d Product Description: Talavera Giant planter with cobalt blue stand and blue and white brand new\\nThis planter would look good in front a door entryway\\n\\nMeasurements below:\\nHeight 17.5\u201d\\nWidth 15\u201d\\nHas waterhole\\nEach sold separately Product Tags: Planter, giant planter, blue white planter, outside planter, round planter, Cobalt blue planter, hand painted planter, Cobalt blue stand, Entryway planter, matching planters, extra large pots, blue and white pot, big planter Product Attributes: recycled: No; source: soe; whomade: collective; whenmade: 2020,2023; ispersonalizable: 0; itemheight: 20; itemlength: 20; secondary color: White; itemwidth: 20; primary color: Blue; shouldautorenew: 1; issupply: 0; itemweightunit: oz; iswaitlistenabled: 0; listing_source_detail: soe-esa; home style: Coastal & tropical; isnotcustomizable: 1; itemdimensionsunit: in; itemweight: 400; listingtype: physical",
+        "Product Title: 1950&#39;s Vintage Royal Copley Finch on Apple Ceramic Planter Product Description: 1950&#39;s Vintage Royal Copley Finch on Apple Ceramic Planter \\n\\nGreat Condition.  Beautiful Colors.\\n\\n6 1/4&quot; x 6 1/4&quot; x 3.5&quot; Product Tags: royal copley, vintage royal copley, royal copley planter, indoor planter, indoor plant pot, finch on apple pot, finch, vintage, planter, indoor plants, vintage plant pot, finch on apple, mcm plant pot Product Attributes: itemwidth: 8; itemdimensionsunit: in; ispersonalizable: 0; itemweight: 31; isnotcustomizable: 1; itemweightunit: oz; itemheight: 6; whenmade: 1950,1959; source: web; iswaitlistenabled: 0; listingtype: physical; itemlength: 8; issupply: 0; whomade: someone_else; shouldautorenew: 1; listing_source_detail: web",
+        "Product Title: Rich Amber Brown and Deep Blue Butterfly and Stone Texture Planter Pot and Saucer, Handmade Glazed Pottery Product Description: This handmade round planter and matching saucer has butterflies and stone texture around the pot and on the saucer. It is glazed in a rich, glossy amber brown with deep blue rim and highlights. The planter is 3.5 inches tall, 5 inches wide, tapering to 3.5 inches at the bottom with 4 drainage holes. The plate is 4.75 inches in diameter.\\n\\nIt was handmade by me in my home studio. Every piece is unique and one-of-a-kind. I do my best to take pictures from many angles and disclose all characteristics. There may be reflections in the pictures that are not actually there due to lighting used for photography. This is the actual item you will be receiving. \\n\\nAll glazes used are lead free and food safe. \\n\\nThis piece was handmade by me then turned over to a local community studio where it is fired to about 1850 F, glazed and decorated by me and fired again in an electric kiln to about 2200 F. Once the final firing is complete I polish the bottom of each piece to a baby soft finish and then handwash to remove the fine particles that won&#39;t come off in a dishwasher.\\n\\n*Plant not included Product Tags: Handmade, Pottery, Ceramics, One of a Kind, planter, pot, saucer, Unique, garden, plants, Amber, Blue, brown Product Attributes: itemweightunit: oz; ispersonalizable: 0; height: 3.5; isnotcustomizable: 1; primary color: Brown; whenmade: 2020,2024; width: 5; itemheight: 8; iswaitlistenabled: 0; whomade: i_did; itemdimensionsunit: in; secondary color: Blue; itemweight: 48; itemlength: 8; issupply: 0; source: web; itemwidth: 8; listingtype: physical; listing_source_detail: web; shouldautorenew: 1",
+        "Product Title: Ceramic planter and matching drainage saucer Product Description: Handbuilt oval planter with matching saucer Product Tags: None Product Attributes: width: 9.5; height: 11.5; ispersonalizable: 0; itemweight: 94; itemlength: 11.5; listingtype: physical; itemwidth: 9.5; whenmade: 2020,2024; itemheight: 4.5; issupply: 0; whomade: i_did; itemweightunit: oz; isnotcustomizable: 1; itemdimensionsunit: in; iswaitlistenabled: 0; depth: 4.5; shouldautorenew: 1; listing_source_detail: web; source: web",
+        "Product Title: Red Ceramic Gold Footed Medallon Planter Product Description: Beautiful red ceramic footed planter with gold highlights and a medallion.\\n\\nMeasurements are: 6 3/4\u201d tall x 8 1/4\u201d x 8 1/4\u201d \\n\\n***PLEASE READ DESCRIPTION***\\nMeasurements are a BIG part of your purchase, so please take the time to read the description along with the SIZE. All my non-5 star reviews are because of the size. So please take the time to read description. Thank you! Happy shopping! \\n\\nVintage is not new or perfect. This is NOT vintage like; this is vintage, and I wouldn\u2019t want it any other way. I do my best to describe each item to include any notable defects, so please do not hesitate to ask questions, because I might miss something. Also, please note that colors can appear different on your monitor and from exposure in the picture. I take pictures as close to natural light as possible.\\n\\nEven though I do my best to protect your purchase, things occasionally get broke or lost, so all purchases are insured. If item is damaged; I will need photos of the item and the box. Depending on the item; I may request it to be returned. If item is lost; you will have to contact your local postal service for item location or reimbursement. All items shipped have a tracking # and are insured. \\n\\nI try to be as quick as possible with shipping. If you have any time constraints, please contact me. \\n\\nIf you cannot leave a 5 Star review, please contact me and we may be able to resolve the issue. Reviews are very important and if for some reason you are dissatisfied with your item; please contact me immediately. \\n\\nThank you for looking!\\n\\n#2922 Product Tags: planter, indoor planter, red planter, footed planter, home decor, Asian inspired plant, Asian planter, vintage planter Product Attributes: itemweight: 67; ispersonalizable: 0; whomade: someone_else; itemweightunit: oz; listing_source_detail: soe-esa; shouldautorenew: 1; source: soe; itemheight: 12; whenmade: 1960,1969; itemdimensionsunit: in; issupply: 0; listingtype: physical; itemwidth: 12; itemlength: 12",
+        "Product Title: 7 1/4&quot;inches flower splash ink glaze planter pot succulent pot Product Description: 7 1/4&quot;inches flower splash ink glaze planter pot succulent pot\\nMATERIALS: thin pottery. indoor and outdoor use with drainage hole\\nSize\uff1a7 1/4 inches width\uff0cdiameter 5 1/2 inches and high 11 3/4 inches Product Tags: None Product Attributes: isnotcustomizable: 1; whenmade: 2020,2024; ispersonalizable: 0; itemweightunit: oz; source: web; itemheight: 10; itemdimensionsunit: in; itemweight: 82; itemlength: 14; whomade: someone_else; shouldautorenew: 1; listingtype: physical; issupply: 0; itemwidth: 10; iswaitlistenabled: 0; listing_source_detail: web",
+        "Product Title: White Ceramic Planter, Small Pottery Planter, Succulent Planter, Small Flower Pot, Handmade Planter, Succulent Container, TrilliumFineArt Product Description: A handmade white ceramic planter that features various shades of white, cream, and gray over reddish brown stoneware. Perfect for succulents and small plants. Features a center drainage hole to keep your plants happy and healthy! Ideal for small patio spaces. If using indoors, be sure to place on top of a saucer so excess water does not leak onto tabletops, etc.\\n\\nHeight: About 2.5 inches\\nWidth: About 5 inches Product Tags: White Planter, Ceramic Planter, Small Planter, Pottery Planter, Succulent Planter, Small Flower Pot, Handmade Planter, Succulent Container, Flower Container, TrilliumFineArt, Wheel Thrown Planter, White Patio Decor, Ceramic Patio Decor Product Attributes: shouldautorenew: 1; itemweight: 16; itemlength: 6; isnotcustomizable: 1; whomade: i_did; itemheight: 6; issupply: 0; itemweightunit: oz; ispersonalizable: 0; source: web; whenmade: 2020,2022; itemdimensionsunit: in; listing_source_detail: web; iswaitlistenabled: 0; primary color: White; itemwidth: 6; listingtype: physical"
+    ],
+    "listing_id": [
+        "1474406651",
+        "1686370271",
+        "1095160829",
+        "777135174",
+        "1715742962",
+        "1211537239",
+        "1555756082",
+        "1475606277",
+        "1274470915",
+        "1690649934",
+        "1263957047",
+        "967098140",
+        "1231744434",
+        "1582074116",
+        "1679037815",
+        "1056905902",
+        "1715985991",
+        "1751247103",
+        "1577994777",
+        "1313542635"
+    ],
+    "public_cdn_link": [
+        "https://gcpetsy.sonrobots.net/etsy-g-100k/il_570xN.6002278386_59c3.jpg",
+        "https://gcpetsy.sonrobots.net/etsy-g-100k/il_570xN.5845617273_le9t.jpg",
+        "https://gcpetsy.sonrobots.net/etsy-g-100k/il_570xN.3369285002_opny.jpg",
+        "https://gcpetsy.sonrobots.net/etsy-g-100k/il_570xN.2292088531_o1ar.jpg",
+        "https://gcpetsy.sonrobots.net/etsy-g-100k/il_570xN.5984152608_2om4.jpg",
+        "https://gcpetsy.sonrobots.net/etsy-g-100k/il_570xN.5958465922_gm9x.jpg",
+        "https://gcpetsy.sonrobots.net/etsy-g-100k/il_570xN.6260929926_mglz.jpg",
+        "https://gcpetsy.sonrobots.net/etsy-g-100k/il_570xN.4878319012_33h5.jpg",
+        "https://gcpetsy.sonrobots.net/etsy-g-100k/il_570xN.4035414052_24tw.jpg",
+        "https://gcpetsy.sonrobots.net/etsy-g-100k/il_570xN.5927245435_aw37.jpg",
+        "https://gcpetsy.sonrobots.net/etsy-g-100k/il_570xN.3993684102_4roz.jpg",
+        "https://gcpetsy.sonrobots.net/etsy-g-100k/il_570xN.2941923164_lowl.jpg",
+        "https://gcpetsy.sonrobots.net/etsy-g-100k/il_570xN.3968794967_ckve.jpg",
+        "https://gcpetsy.sonrobots.net/etsy-g-100k/il_570xN.5486388419_mmo7.jpg",
+        "https://gcpetsy.sonrobots.net/etsy-g-100k/il_570xN.5812281535_9pd4.jpg",
+        "https://gcpetsy.sonrobots.net/etsy-g-100k/il_570xN.6032335073_t2ij.jpg",
+        "https://gcpetsy.sonrobots.net/etsy-g-100k/il_570xN.5923625862_kv36.jpg",
+        "https://gcpetsy.sonrobots.net/etsy-g-100k/il_570xN.6124930595_dp6l.jpg",
+        "https://gcpetsy.sonrobots.net/etsy-g-100k/il_570xN.5395268691_6n2x.jpg",
+        "https://gcpetsy.sonrobots.net/etsy-g-100k/il_570xN.5305927454_23yb.jpg"
+    ],
+    "public_gcs_link": [
+        "https://storage.googleapis.com/vtxdemos-fstoresearch-datasets/etsy-g-100k/il_570xN.6002278386_59c3.jpg",
+        "https://storage.googleapis.com/vtxdemos-fstoresearch-datasets/etsy-g-100k/il_570xN.5845617273_le9t.jpg",
+        "https://storage.googleapis.com/vtxdemos-fstoresearch-datasets/etsy-g-100k/il_570xN.3369285002_opny.jpg",
+        "https://storage.googleapis.com/vtxdemos-fstoresearch-datasets/etsy-g-100k/il_570xN.2292088531_o1ar.jpg",
+        "https://storage.googleapis.com/vtxdemos-fstoresearch-datasets/etsy-g-100k/il_570xN.5984152608_2om4.jpg",
+        "https://storage.googleapis.com/vtxdemos-fstoresearch-datasets/etsy-g-100k/il_570xN.5958465922_gm9x.jpg",
+        "https://storage.googleapis.com/vtxdemos-fstoresearch-datasets/etsy-g-100k/il_570xN.6260929926_mglz.jpg",
+        "https://storage.googleapis.com/vtxdemos-fstoresearch-datasets/etsy-g-100k/il_570xN.4878319012_33h5.jpg",
+        "https://storage.googleapis.com/vtxdemos-fstoresearch-datasets/etsy-g-100k/il_570xN.4035414052_24tw.jpg",
+        "https://storage.googleapis.com/vtxdemos-fstoresearch-datasets/etsy-g-100k/il_570xN.5927245435_aw37.jpg",
+        "https://storage.googleapis.com/vtxdemos-fstoresearch-datasets/etsy-g-100k/il_570xN.3993684102_4roz.jpg",
+        "https://storage.googleapis.com/vtxdemos-fstoresearch-datasets/etsy-g-100k/il_570xN.2941923164_lowl.jpg",
+        "https://storage.googleapis.com/vtxdemos-fstoresearch-datasets/etsy-g-100k/il_570xN.3968794967_ckve.jpg",
+        "https://storage.googleapis.com/vtxdemos-fstoresearch-datasets/etsy-g-100k/il_570xN.5486388419_mmo7.jpg",
+        "https://storage.googleapis.com/vtxdemos-fstoresearch-datasets/etsy-g-100k/il_570xN.5812281535_9pd4.jpg",
+        "https://storage.googleapis.com/vtxdemos-fstoresearch-datasets/etsy-g-100k/il_570xN.6032335073_t2ij.jpg",
+        "https://storage.googleapis.com/vtxdemos-fstoresearch-datasets/etsy-g-100k/il_570xN.5923625862_kv36.jpg",
+        "https://storage.googleapis.com/vtxdemos-fstoresearch-datasets/etsy-g-100k/il_570xN.6124930595_dp6l.jpg",
+        "https://storage.googleapis.com/vtxdemos-fstoresearch-datasets/etsy-g-100k/il_570xN.5395268691_6n2x.jpg",
+        "https://storage.googleapis.com/vtxdemos-fstoresearch-datasets/etsy-g-100k/il_570xN.5305927454_23yb.jpg"
+    ],
+    "private_gcs_link": [
+        "gs://vtxdemos-fstoresearch-datasets/etsy-g-100k/il_570xN.6002278386_59c3.jpg",
+        "gs://vtxdemos-fstoresearch-datasets/etsy-g-100k/il_570xN.5845617273_le9t.jpg",
+        "gs://vtxdemos-fstoresearch-datasets/etsy-g-100k/il_570xN.3369285002_opny.jpg",
+        "gs://vtxdemos-fstoresearch-datasets/etsy-g-100k/il_570xN.2292088531_o1ar.jpg",
+        "gs://vtxdemos-fstoresearch-datasets/etsy-g-100k/il_570xN.5984152608_2om4.jpg",
+        "gs://vtxdemos-fstoresearch-datasets/etsy-g-100k/il_570xN.5958465922_gm9x.jpg",
+        "gs://vtxdemos-fstoresearch-datasets/etsy-g-100k/il_570xN.6260929926_mglz.jpg",
+        "gs://vtxdemos-fstoresearch-datasets/etsy-g-100k/il_570xN.4878319012_33h5.jpg",
+        "gs://vtxdemos-fstoresearch-datasets/etsy-g-100k/il_570xN.4035414052_24tw.jpg",
+        "gs://vtxdemos-fstoresearch-datasets/etsy-g-100k/il_570xN.5927245435_aw37.jpg",
+        "gs://vtxdemos-fstoresearch-datasets/etsy-g-100k/il_570xN.3993684102_4roz.jpg",
+        "gs://vtxdemos-fstoresearch-datasets/etsy-g-100k/il_570xN.2941923164_lowl.jpg",
+        "gs://vtxdemos-fstoresearch-datasets/etsy-g-100k/il_570xN.3968794967_ckve.jpg",
+        "gs://vtxdemos-fstoresearch-datasets/etsy-g-100k/il_570xN.5486388419_mmo7.jpg",
+        "gs://vtxdemos-fstoresearch-datasets/etsy-g-100k/il_570xN.5812281535_9pd4.jpg",
+        "gs://vtxdemos-fstoresearch-datasets/etsy-g-100k/il_570xN.6032335073_t2ij.jpg",
+        "gs://vtxdemos-fstoresearch-datasets/etsy-g-100k/il_570xN.5923625862_kv36.jpg",
+        "gs://vtxdemos-fstoresearch-datasets/etsy-g-100k/il_570xN.6124930595_dp6l.jpg",
+        "gs://vtxdemos-fstoresearch-datasets/etsy-g-100k/il_570xN.5395268691_6n2x.jpg",
+        "gs://vtxdemos-fstoresearch-datasets/etsy-g-100k/il_570xN.5305927454_23yb.jpg"
+    ],
+    "description": [],
+    "cat_3_questions": [],
+    "questions_only_cat3": [
+        [
+            "What plants would look best in this beautiful planter?",
+            "Do you need any tools or supplies for your new planter?",
+            "What kind of decor would complement this planter?",
+            "What other gifts would you like to include with this planter?"
+        ],
+        [
+            "What kind of plants would look best in this planter?",
+            "Do you need any tools for planting or caring for your plants?",
+            "What kind of d\u00e9cor would match the green color of this planter?",
+            "Are you looking for any other gift ideas for plant lovers?"
+        ],
+        [
+            "What kind of plants would look best in this planter?",
+            "Do you need any soil for your new plants?",
+            "What kind of tools would you need to care for these plants?",
+            "Are you looking for more planters to add to your collection?"
+        ],
+        [
+            "What plants would look best in this planter?",
+            "What other home decor items would complement this planter?",
+            "What other gifts would go well with this planter for a housewarming?",
+            "What other wedding decorations would pair well with this planter?"
+        ],
+        [
+            "What plants would look best in this planter?",
+            "What kind of decorative rocks or moss would be nice to use with this pot?",
+            "What kind of plant stand or shelf would go well with this pot?",
+            "What other home decor items would go well with this planter?"
+        ],
+        [
+            "What plants would look best in this planter?",
+            "What other outdoor decor would go well with this planter?",
+            "What other vintage items would you like to browse?",
+            "Are you looking for more ceramic planters in different styles or sizes?"
+        ],
+        [
+            "What plants would look beautiful in this planter?",
+            "What kind of decor would complement this planter?",
+            "What other plant accessories could I use to complete this look?",
+            "Are there other planters available that match the color or style of this one?"
+        ],
+        [
+            "What other plants would look great in this planter?",
+            "Are you looking for a matching set of planters to create a cohesive look?",
+            "Need a matching pot stand or saucer for this beautiful piece?",
+            "Looking for other colorful Mexican home decor pieces to complement your planter?"
+        ],
+        [
+            "What plants would look great in this pot?",
+            "Do you need a stand or hanger for your new planter?",
+            "What kind of tools would you need to care for your plants?",
+            "Are you looking for more home decor to go with the minimalist vibe?"
+        ],
+        [
+            "What flowers would look best in this planter?",
+            "What other decor pieces would complement this planter in a contemporary style?",
+            "What other items would make a great gift for a plant lover?",
+            "Would you like to see other handmade planters available in our shop?"
+        ],
+        [
+            "What other mid-century modern (MCM) home decor items would you like to browse?",
+            "What plants would look best in this planter?",
+            "Would you like to see other Shawnee pottery pieces?",
+            "Are you looking for more vintage home accents?"
+        ],
+        [
+            "What plants would look best in this planter?",
+            "What other decorative items could you display with this planter?",
+            "Are there any matching serving pieces available?",
+            "Are there any other planters available in a similar style?"
+        ],
+        [
+            "What plants would look best in this planter?",
+            "Do you need any potting soil to go with your new planter?",
+            "What kind of decor would you like to place around this planter?",
+            "What other planters or pots would you like to add to your collection?"
+        ],
+        [
+            "What plants would look best in this planter?",
+            "What other decor would match this planter's style?",
+            "Do you need matching planters for either side of your entryway?",
+            "What else would you like to decorate with a coastal and tropical theme?"
+        ],
+        [
+            "What other vintage items would match this planter?",
+            "What plants would look best in this vintage planter?",
+            "Are you looking for additional vintage planters for your home?",
+            "What kind of d\u00e9cor complements this vintage style?"
+        ],
+        [
+            "What other plants would look great in this planter?",
+            "What kind of succulent would match the blue and brown color scheme?",
+            "Are there any decorative items I could use to create a matching centerpiece with this planter?",
+            "Do you have other items in this style, like a vase or a teapot?"
+        ],
+        [
+            "What plants would look best in this planter?",
+            "What kind of flowers would complement the shape of this planter?",
+            "What else do you need to care for a plant in this planter?",
+            "What other handmade pottery would look nice with this planter?"
+        ],
+        [
+            "What kind of plant would look nice in this planter?",
+            "What other decor would go well with this Asian-inspired planter?",
+            "Do you have any matching planters?",
+            "What kind of potting soil would I need for this planter?"
+        ],
+        [
+            "What plants would look best in this planter pot?",
+            "What kind of succulents would thrive in this planter?",
+            "What other decor items would complement this planter?",
+            "Do you need a matching saucer for this planter?"
+        ],
+        [
+            "What other plants would look great in this planter?",
+            "Do you need a saucer to place under your planter to catch any water drainage?",
+            "Are you looking for a matching set of planters for a cohesive look?",
+            "What other home decor pieces could be used to complement this planter?"
+        ]
+    ],
+    "llm_generated_description": [
+        "Elevate your indoor or outdoor gardening with this stunning handcrafted clay planter. Made in Spain, this unique barrel planter features a beautiful blue and white design, measuring 6\"H x 7\"W with a 6.25\" opening.  Its generous size and drainage hole make it perfect for a variety of plants, while its handcrafted details add a touch of rustic charm. This planter is a thoughtful gift for plant lovers and makes a beautiful statement in any home. \n",
+        "Elevate your indoor or outdoor gardening with this stylish Belinha Green Leaf Ceramic Planter Pot.  Crafted from durable ceramic, this 7.25\" tall barrel planter features a convenient drainage hole and a matching saucer, ensuring your plants thrive while keeping your surfaces clean.  Its vibrant green color adds a touch of nature to any space, making it the perfect gift for plant lovers or a thoughtful birthday present. \n",
+        "These adorable small planters are the perfect size for indoor plants like succulents and air plants. They're also ideal for propagating plants or starting seeds. Made with a vibrant pink and green glitter finish, these planters add a touch of playful personality to any space.  While they don't have drainage holes, you can easily request them to be added at no extra cost. \n",
+        "Bring a touch of bohemian charm to your home with this medium natural canvas sitting planter in turquoise. Crafted from 100% cotton canvas, this planter features a unique woven exterior and a 6-inch diameter, making it perfect for showcasing your favorite succulents, cacti, or herbs. Its versatile design complements any room, from your bedroom to your kitchen, and even makes a thoughtful housewarming gift. The included 6-inch planting pot and saucer ensure easy care and drainage. \n",
+        "Add a touch of vintage charm to your home with this 3 7/8\" retro flower planter pot. Made from thin pottery, this pot is perfect for indoor or outdoor use and features a drainage hole for healthy plant growth. Its compact size (3 3/8\" diameter and 4 1/8\" high) makes it ideal for succulents, herbs, or small flowering plants. \n",
+        "This vintage handmade ceramic planter is a stunning addition to any outdoor space. Its deep blue black speckled ombre glaze with a palm leaf design is both elegant and unique. The high-gloss finish adds a touch of sophistication, while the generous 9.5\" diameter mouth and 95 fluid ounce holding capacity provide ample room for your favorite plants.  This planter is in excellent vintage condition with no chips or cracks, making it a beautiful and durable piece that will last for years to come. \n",
+        "Elevate your indoor or outdoor greenery with this handcrafted, green and brown clay barrel planter. Measuring 6.5\"H x 7\"W with a 6.25\" opening, this planter is perfect for showcasing your favorite plants. Its unique design and earthy tones add a touch of rustic charm to any space. Crafted in Vietnam with a drainage hole for healthy plant growth, this planter is a thoughtful gift for plant lovers and a stylish addition to your home d\u00e9cor. \n",
+        "This vibrant, handmade Talavera ceramic planter pot will add a touch of Mexican charm to your home or garden.  Measuring 4\" high, 12\" long, and 8.5\" wide, this multi-colored planter features a drainage hole and is perfect for showcasing your favorite plants. Handcrafted in Mexico, each piece is unique, with slight variations in color, shape, and design. These imperfections are a testament to the artistry and authenticity of this beautiful piece.  Bring a splash of color and character to your space with this stunning Talavera planter. \n",
+        "Bring a touch of serenity to your home with this beautiful 5-inch blue ceramic planter. Its dusty blue tones evoke a calming minimalist vibe, making it the perfect complement to any d\u00e9cor.  This pot features a drainage hole and a matching saucer, ensuring your plants thrive while keeping your surfaces clean.  Ideal for succulents, cacti, bonsai, flowers, herbs, and small woody stem plants, this planter is sure to elevate your plant's beauty. \n",
+        "Elevate your home d\u00e9cor with this handcrafted, green-brown glazed ceramic planter. Made entirely in the USA, this small planter (3.5\" x 3.5\" x 3.5\") boasts a versatile design that seamlessly blends with classic, contemporary, and eclectic styles. Its rich glaze complements any color palette, making it a perfect accent for your indoor or outdoor spaces. Each planter is unique, hand-crafted from mold to kiln, and glazed inside and out.  Add a touch of artisanal charm to your home with this beautiful, handmade piece. \n",
+        "Add a touch of retro charm to your home with this groovy mid-century modern oval planter from Shawnee. Featuring a speckled gray exterior and a blush pink glazed interior, this unique piece is perfect for showcasing your favorite plants or adding a pop of color to your bookcase or countertop.  Marked \"Shawnee, USA, 1026,\" this planter is in excellent condition with no chips or cracks. Measuring 7.25\" H x 6.5\" L x 2.75\" W, it's the perfect size for a variety of plants and decor. \n",
+        "This unique, wheel-thrown planter is handcrafted with white B-Mix clay and glazed with a light brown color that shifts to a subtle purple/blue hue in direct sunlight. The planter features random carved lines and an unglazed interior, except for the rim. Each piece is individually designed and handmade, making it a one-of-a-kind treasure. The planter measures 3.5\" tall and is signed on the bottom by the artist, Annick.  Imperfections may be present due to the handmade nature of the pottery. \n",
+        "This unique, king brown drip planter adds a touch of rustic charm to your home.  Its odd shape and brown ceramic finish create a captivating focal point, while the chipped spots tell a story of its past.  Measuring 13 x 6.25 x 2.5 inches, it's the perfect size for showcasing your favorite plants.  \n",
+        "Elevate your home decor with this stunning extra-large Talavera planter. Hand-painted in vibrant cobalt blue and white, this planter features a unique design and a matching stand, making it a captivating centerpiece for your entryway or any room.  Measuring 17.5\" tall and 15\" wide, this spacious planter is perfect for showcasing your favorite plants.  With its waterhole and durable construction, this planter is built to last and add a touch of Mexican charm to your space. \n",
+        "Add a touch of vintage charm to your home with this beautiful 1950s Royal Copley Finch on Apple ceramic planter.  This planter is in great condition with vibrant colors and features a charming finch perched on an apple.  Measuring 6 1/4\" x 6 1/4\" x 3.5\", it's the perfect size for a small indoor plant. \n",
+        "Add a touch of nature's beauty to your home with this handcrafted amber brown and deep blue planter pot and saucer. Featuring delicate butterfly and stone textures, this unique piece is glazed with a rich, glossy finish and a deep blue rim.  Handmade in a home studio, each piece is one-of-a-kind and measures 3.5 inches tall, 5 inches wide, and 3.5 inches at the bottom with 4 drainage holes. The matching saucer is 4.75 inches in diameter.  Made with lead-free and food-safe glazes, this planter is both beautiful and functional, adding a touch of elegance to any plant or flower. \n",
+        "This handbuilt oval ceramic planter and matching saucer is the perfect way to add a touch of elegance to your home.  Measuring 9.5 inches wide, 11.5 inches long, and 4.5 inches deep, this planter is ideal for showcasing your favorite plants. The matching saucer ensures that your plants are well-watered and that your furniture stays protected from spills. \n",
+        "Add a touch of vintage elegance to your home with this beautiful red ceramic footed planter. Featuring gold highlights and a medallion, this planter stands 6 3/4\" tall and measures 8 1/4\" in diameter, making it the perfect size for showcasing your favorite plants.  While vintage, this planter is in excellent condition and ready to add a unique touch to your decor. \n",
+        "Add a touch of vibrant artistry to your home with this stunning 7 1/4\" flower splash ink glaze planter pot. Crafted from thin pottery, this pot features a unique splash of color and a drainage hole for easy care. Perfect for succulents, herbs, or small flowering plants, this pot measures 7 1/4\" wide, 5 1/2\" in diameter, and 11 3/4\" high, making it an eye-catching addition to any indoor or outdoor space. \n",
+        "Add a touch of rustic elegance to your home or patio with this handmade white ceramic planter.  Crafted from stoneware with shades of white, cream, and gray, this charming planter is perfect for showcasing succulents, small plants, or even a single flower.  Its center drainage hole ensures your plants stay healthy and happy, while its compact size makes it ideal for small spaces.  \n"
+    ],
+    "generated_rec": [
+        "\"Planter pot, handmade, clay, blue and white, decorative, indoor/outdoor, gift, plant lovers, ceramic, barrel shape, drainage hole\" \n",
+        "Ceramic planter pot with saucer, green, barrel shape, for indoor/outdoor plants, gift for plant lovers, birthday gift,  made in China, decorative,  home decor,  plant pot with drainage hole. \n",
+        "Small planter for indoor plants, especially succulents and air plants. Features a pink and green color scheme with glitter accents. Ideal for plant propagation or starting seeds.  \n",
+        "## Search Query: \n\n**Canvas planter for succulents, boho home decor, minimalist style, housewarming gift, suitable for displaying plants in bedroom, living room, bathroom, or kitchen. Includes inner pot and saucer. Similar to southwestern, coastal, and tropical style.  ** \n",
+        "\"Small retro planter pot for succulents, houseplants, or terrariums. Ceramic flower pot with drainage hole, ideal for indoor or outdoor use.  Similar style to vintage, minimalist, farmhouse, or bohemian decor.\" \n",
+        "Find ceramic planters with a vintage aesthetic, featuring a blue and black ombre glaze and a palm leaf design.  Target audience: those who appreciate handcrafted, unique home decor items.  Suitable for outdoor use. \n",
+        "Clay planter pot, green and brown, handmade, barrel shape, drainage hole, for indoor or outdoor plants, gift for plant lovers, similar style to Vietnamese pottery. \n",
+        "## Search Query for Similar Items:\n\n**Handmade ceramic planter pot, Talavera style, multi-colored, vibrant colors, handcrafted in Mexico, suitable for indoor and outdoor use, unique design, each piece varies slightly.** \n",
+        "\"Ceramic planter pot with drainage hole, minimalist style, blue color, indoor planter, succulent planter, houseplant, gift for plant lovers, modern planter\" \n",
+        "Ceramic planter, glazed, handmade, USA made, small, contemporary style, green and brown, indoor outdoor, gift for her, garden decor, plant pot. \n",
+        "Mid-century modern ceramic planter, speckled gray with pink interior, Shawnee pottery, MCM planter, oval shape, vintage home decor, indoor planter, atomic style \n",
+        "Ceramic planter, handmade, wheel thrown, brown glaze, purple glaze, carved, small, desk planter, herb planter, gift for new home, unique, one-of-a-kind \n",
+        "\"Ceramic planter, drip planter, brown, imperfect, vintage, handmade, rustic, garden decor, outdoor decor, planter for plants, small planter\" \n",
+        "## Search Query for Similar Items: \n\n**Large Talavera planter, hand-painted, blue and white, cobalt blue stand, entryway decor, outdoor planter, coastal style, Mexican pottery, decorative pot** \n",
+        "Find vintage ceramic planters featuring a bird design, suitable for indoor plants, in a mid-century modern style. \n",
+        "Handmade ceramic planter pot and saucer with a rich amber brown glaze, deep blue accents, and a unique butterfly and stone texture design.  Suitable for indoor plants and home decor.  \n",
+        "Handcrafted ceramic planter with matching saucer, oval shape, handmade, contemporary style, for indoor plants, minimalist design,  mid-century modern aesthetic, functional and decorative. \n",
+        "Ceramic planter with gold accents, footed, red, Asian inspired, vintage style, home decor \n",
+        "Ceramic planter pot with a splash of ink glaze, suitable for indoor or outdoor use, featuring a drainage hole. Similar to a succulent pot with a modern aesthetic.  \n",
+        "Handmade ceramic planter for small plants, featuring a white glaze with subtle variations, ideal for succulents, small patio spaces, and indoor use. \n"
+    ]
+}
