@@ -122,7 +122,9 @@ The project uses the following Python packages:
 
 You'll need to install these using pip: 
 
-<mark>pip install flet pandas numpy google-cloud-aiplatform google-generativeai</mark>
+```bash
+pip install flet pandas numpy google-cloud-aiplatform google-generativeai
+```
 
 # Future Enhancements
 - Implement user authentication.
