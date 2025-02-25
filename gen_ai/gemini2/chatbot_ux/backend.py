@@ -5,7 +5,7 @@ from google.genai import types
 from google.cloud import bigquery
 
 project_id = "vtxdemos"
-model_id = "gemini-2.0-flash-exp"
+model_id = "gemini-2.0-flash-001"
 bq_table = "vtxdemos.demos_us.tb_data_s"
 bq_schema = {'Field: acquisition_date, Type: DATE, Description: None',
              'Field: business_unit, Type: STRING, Description: None',
@@ -59,7 +59,7 @@ def gemini(input: str):
       types.Content(
           role="user",
           parts=[
-              types.Part.from_text(input)
+              types.Part.from_text(text=input)
           ]
       )
   )
@@ -74,7 +74,7 @@ def gemini(input: str):
   content.append(
       types.Content(
           role="model",
-          parts=[types.Part.from_text(_response.text)]
+          parts=[types.Part.from_text(text=_response.text)]
       )
   )
   return _response.text, _response
