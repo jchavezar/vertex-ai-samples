@@ -77,12 +77,12 @@ def main(page: ft.Page):
   # Dialog to display table results
   dlg = ft.AlertDialog(
       title=ft.Text("Table Data"),
-      actions=[ft.TextButton("Close", on_click=lambda e: page.close_dialog())],
+      actions=[ft.TextButton("Close", on_click=lambda e: page.close())],
   )
   page.add(dlg)
 
   def open_dlg(e):
-    page.show_dialog(dlg)
+    page.open(dlg)
 
   # Button to show table results
   table_button = ft.ElevatedButton(
