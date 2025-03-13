@@ -229,7 +229,7 @@ def SearchView(page: Page, router_data: Union[Router, str, None] = None):
     print("Error: 'text_input' key not found or does not have a 'get_state' method.")
 
   content = Container(
-      # bgcolor=colors.RED,
+      # bgcolor=Colors.RED,
       alignment=alignment.center,
       margin=margin.only(top=30),
       content=Column(
