@@ -19,7 +19,7 @@ engine_id = "verano_1724170347575"
 
 client = discoveryengine.SearchServiceClient(client_options=None)
 serving_config = f"projects/{project_id}/locations/{vais_location}/collections/default_collection/engines/{engine_id}/servingConfigs/default_config"
-serving_config = f"projects/390227712642/locations/global/collections/default_collection/engines/verano_1724170347575/servingConfigs/default_search"
+serving_config = f"projects/254356041555/locations/global/collections/default_collection/engines/verano/servingConfigs/default_search"
 
 content_search_spec = discoveryengine.SearchRequest.ContentSearchSpec(
     snippet_spec=discoveryengine.SearchRequest.ContentSearchSpec.SnippetSpec(
@@ -59,9 +59,9 @@ chat_model = GenerativeModel(
 )
 chat = chat_model.start_chat()
 
-# Vertex Endpoint
-resource_name = aiplatform.Endpoint.list(filter='display_name=catboost-inference-ep')[0].resource_name
-endpoint = aiplatform.Endpoint(endpoint_name=resource_name)
+# # Vertex Endpoint
+# resource_name = aiplatform.Endpoint.list(filter='display_name=catboost-inference-ep')[0].resource_name
+# endpoint = aiplatform.Endpoint(endpoint_name=resource_name)
 
 def main(page: ft.Page):
   page.title = "Gemini Chatbot"

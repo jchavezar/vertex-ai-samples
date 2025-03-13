@@ -4,6 +4,7 @@ from back_end import vertexai_conversation, preloaded_questions_recommendations
 # Load the preloaded questions
 preloaded_questions = preloaded_questions_recommendations()
 
+
 class ChatBubble(ft.Row):
   def __init__(self, text, page, is_user):
     super().__init__()
@@ -37,9 +38,8 @@ class ChatBubble(ft.Row):
               h5_text_style=ft.TextStyle(color=text_color),
               h6_text_style=ft.TextStyle(color=text_color),
           ),
-          width=min(500, page.width * 0.6 - 20), # width constraint on Markdown
+          width=min(500, page.width * 0.6 - 20),  # width constraint on Markdown
       )
-
 
     self.controls = [
         ft.Container(
@@ -54,6 +54,7 @@ class ChatBubble(ft.Row):
             bgcolor=bg_color,
         )
     ]
+
 
 def main(page: ft.Page):
   page.title = "AI Chatbot"
@@ -75,17 +76,22 @@ def main(page: ft.Page):
       spacing=10,
   )
 
-  # Dialog to display table results
+  def handle_close(e):
+    page.close(dlg)
+
+    # Dialog to display table results
+
   dlg = ft.AlertDialog(
       title=ft.Text("Table Data"),
-      actions=[ft.TextButton("Close", on_click=lambda e: page.close_dialog())],
+      actions=[ft.TextButton("Close", on_click=handle_close)],
   )
   page.add(dlg)
 
   def open_dlg(e):
-    page.show_dialog(dlg)
+    page.open(dlg)
 
-  # Button to show table results
+    # Button to show table results
+
   table_button = ft.ElevatedButton(
       "Table Results",
       on_click=open_dlg,
@@ -94,20 +100,20 @@ def main(page: ft.Page):
 
   # Logs window container
   logs_window = ft.Container(
-      height=page.height*.80,
+      height=page.height * .80,
       width=log_window_width,
       content=ft.Column(
           scroll=ft.ScrollMode.ALWAYS,
           spacing=10,
           controls=[
               ft.Container(
-                  height=page.height*.80*.75,
+                  height=page.height * .80 * .75,
                   width=log_window_width,
                   content=logs_inner_container
               ),
               ft.Container(
                   padding=30,
-                  height=page.height*.80*.20,
+                  height=page.height * .80 * .20,
                   width=log_window_width,
                   content=table_button
               )
@@ -169,7 +175,10 @@ def main(page: ft.Page):
                                   content=ft.Row(
                                       scroll=ft.ScrollMode.ALWAYS,
                                       controls=[
-                                          ft.TextButton(item, on_click=button_message) for item in preloaded_questions["recommended_questions"]
+                                          ft.TextButton(item,
+                                                        on_click=button_message)
+                                          for item in preloaded_questions[
+                                            "recommended_questions"]
                                       ]
                                   )
                               ),
@@ -208,12 +217,12 @@ def main(page: ft.Page):
     page.update()
     # If there is a table result, format it for a flet data table and show it in the dialog
     if bq_response:
-      dlg.content=""
+      dlg.content = ""
       print(bq_response)
       column_names = [ft.DataColumn(ft.Text(key)) for key in bq_response[0]]
       data = [
           ft.DataRow(
-              cells=[ft.DataCell(ft.Text(v)) for k,v in row.items()]
+              cells=[ft.DataCell(ft.Text(v)) for k, v in row.items()]
           )
           for row in bq_response
       ]
@@ -237,12 +246,17 @@ def main(page: ft.Page):
     table_button.disabled = False
     for num, item in enumerate(details):
       if num == 0:
-        logs.append(ft.Text("Logs", size=16, color=ft.Colors.WHITE, weight=ft.FontWeight.BOLD))
-      logs.append(ft.Text(f"Iteration Number {num+1}", size=12, color=ft.Colors.WHITE))
-      logs.append(ft.Text(item, size=12, color=ft.Colors.GREEN_300, selectable=True))
+        logs.append(ft.Text("Logs", size=16, color=ft.Colors.WHITE,
+                            weight=ft.FontWeight.BOLD))
+      logs.append(
+          ft.Text(f"Iteration Number {num + 1}", size=12,
+                  color=ft.Colors.WHITE))
+      logs.append(
+          ft.Text(item, size=12, color=ft.Colors.GREEN_300, selectable=True))
 
     logs_inner_container.controls = logs
 
     page.update()
+
 
 ft.app(target=main, port=8000, host="0.0.0.0", view=ft.WEB_BROWSER)
