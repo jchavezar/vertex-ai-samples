@@ -74,10 +74,13 @@ def main(page: ft.Page):
       spacing=10,
   )
 
+  def handle_close(e):
+    page.close(dlg)
+
   # Dialog to display table results
   dlg = ft.AlertDialog(
       title=ft.Text("Table Data"),
-      actions=[ft.TextButton("Close", on_click=lambda e: page.close())],
+      actions=[ft.TextButton("Close", on_click=handle_close)],
   )
   page.add(dlg)
 
