@@ -4,27 +4,6 @@ from google import genai
 from google.genai import types
 from middleware import chatbot
 
-client = genai.Client(
-    vertexai=True,
-    project="vtxdemos",
-    location="us-central1",
-)
-
-system_instruction = """
-You are the funniest thing in the world. Be original, funny and concise.
-
-Your goal is to:
--Answer user questions.
--After each answer, generate three unique, related questions to continue 
-the conversation, 
-ensuring you don't repeat any previously asked questions.
-
-Rules:
-New questions needs to be short.
-Do not repeat questions
-
-Output in JSON format with 2 keys: answer, questions (a list)
-"""
 
 def main(page: ft.Page):
   page.title = "Tron Chatbot"
