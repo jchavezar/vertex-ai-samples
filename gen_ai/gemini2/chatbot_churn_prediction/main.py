@@ -104,7 +104,7 @@ def main(page: ft.Page):
           alignment=ft.MainAxisAlignment.END,
           controls=[
               ft.Text(
-                  "Cadent",
+                  "Churn Predictor",
                   color=ft.Colors.CYAN,
                   size=30,
                   weight=ft.FontWeight.BOLD
