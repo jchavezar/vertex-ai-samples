@@ -6,7 +6,7 @@ from google.genai import types
 
 project = "vtxdemos"
 region = "us-central1"
-file_url = "./gen_ai/gemini2/taxonomy_classification/google_product_taxonomy.txt"
+file_url = "google_product_taxonomy.txt"
 
 client = genai.Client(
     vertexai=True,
@@ -84,18 +84,23 @@ config = types.GenerateContentConfig(
     tools=tools
 )
 
-re = client.models.generate_content(
-    model="gemini-2.0-flash-001",
-    contents=[
-        types.Content(
-            role="user",
-            parts=[
-                msg,
-                document
-            ]
-        )
-    ],
-    config=config
-)
 
-re.text
+def chat_bot_master(text: str, image: bytes):
+    image = types.Part.from_bytes(data=image, mime_type="image/png")
+    additional_text = types.Part.from_text(text=f"The following will add additional information to the task: {text}")
+    re = client.models.generate_content(
+        model="gemini-2.0-flash-001",
+        contents=[
+            types.Content(
+                role="user",
+                parts=[
+                    msg,
+                    document,
+                    image,
+                    additional_text
+                ]
+            )
+        ],
+        config=config
+    )
+    return re.text
