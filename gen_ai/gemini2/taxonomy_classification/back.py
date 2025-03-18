@@ -14,49 +14,42 @@ client = genai.Client(
     location=region
 )
 
-system_instruction = """You have access to a strictly limited local file containing a partial Google Product Taxonomy. Your task is to classify either text or images into the EXACT matching category within this local file, if and only if a precise match exists.
+system_instruction = """
+You have a local file with product categories. Classify the input (text or image) using the MOST specific category from the local file.
 
-Process:
+1.  **Local File Priority:**
+    * Find an EXACT match in the local file.
+    * ALWAYS choose the MOST detailed (lowest level) category available.
+    * If a subcategory exists, use it instead of the parent category.
+    * Include the category number, full path, and hierarchy level.
+    * Example: `Taxonomy: 2580 - Clothing & Accessories > Clothing > Nightwear & Loungewear > Pyjamas Source: local_file`
 
-1. Strict Local File Matching:
-    * First and Foremost: Absolutely verify if the provided text or image exactly matches a category within the attached local file (Google Product Taxonomy).
-    * If and ONLY if a precise, identical match is found: Use that category. Include the complete category path, the numerical hierarchy level AND the category number from the local file in your response.
-    * For example: `Taxonomy: 2580 - Clothing & Accessories > Clothing > Nightwear & Loungewear > Pyjamas (Level 5) Source: local_file`
-    * If there is ANY deviation or ambiguity, DO NOT use the local file.
+2.  **Search Backup:**
+    * If NO exact local match, use Google Search to find a category.
+    * Create a logical taxonomy path.
+    * Source: `google_search`
 
-2. Google Search Grounding (If No Exact Match):
-    * ONLY if a precise match is NOT found in the local file, use Google Search to find relevant product categories.
-    * Create a new taxonomy path based on the search results.
-    * Ensure the taxonomy is logical and aligns with standard product classifications.
+3.  **Knowledge Fallback:**
+    * If NEITHER local file nor search works, use general knowledge.
+    * Create a reasonable taxonomy.
+    * Source: `base_knowledge`
 
-3. Knowledge Base Fallback (If Google Search Fails):
-    * ONLY if NEITHER the local file NOR Google Search provides a clear or accurate classification, use your general knowledge to create a reasonable product taxonomy.
+**Response Format:**
 
-Response Format:
-
-Provide your response in the following format:
-
-`Taxonomy: [Category Number] - [Full Category Path] (Level [Hierarchy Level])`
+`Taxonomy: [Category Number] - [Full Category Path]`
 `Source: [local_file, google_search, or base_knowledge]`
 
-Example:
+**Example:**
 
-Input: Image of a men's red pajamas.
+Input: Image of a jewelry set.
 
-Possible Output (if found in local file):
+Output (if in local file):
 
-`Taxonomy: 2580 - Clothing & Accessories > Clothing > Nightwear & Loungewear > Pyjamas (Level 5)`
+`Taxonomy: 6463 - Clothing & Accessories > Jewellery & Watches > Jewellery Sets`
 `Source: local_file`
+"""
 
-Possible Output (if not found in local file, but found via google search):
 
-`Taxonomy: Clothing > Men's Clothing > Nightwear > Loungewear`
-`Source: google_search`
-
-Possible Output (if neither local file nor google search provide an answer):
-
-`Taxonomy: Clothing > Pajamas`
-`Source: base_knowledge`"""
 
 message_to_classify = """
 PRODUCT_NAME: National Tree Co. 10' Kinswood Fir Pencil Tree
@@ -65,7 +58,6 @@ is pre-strung with 600 clear lights that remain lit even if a bulb burns out.
 """
 
 msg = types.Part.from_text(text=message_to_classify)
-
 
 with open(file_url, "rb") as f:
     doc = f.read()
@@ -84,8 +76,10 @@ config = types.GenerateContentConfig(
     tools=tools
 )
 
+tool_history = []
 
 def chat_bot_master(text: str, image: bytes):
+    start_prompt = types.Part.from_text(text="Google Product Taxonomy (local_file):\n")
     image = types.Part.from_bytes(data=image, mime_type="image/png")
     additional_text = types.Part.from_text(text=f"The following will add additional information to the task: {text}")
     re = client.models.generate_content(
@@ -94,13 +88,43 @@ def chat_bot_master(text: str, image: bytes):
             types.Content(
                 role="user",
                 parts=[
-                    msg,
+                    start_prompt,
                     document,
+                    # msg,
                     image,
-                    additional_text
+                    # additional_text
                 ]
             )
         ],
         config=config
     )
+    print(re)
+    return re.text
+
+
+chat_history = []
+
+
+def conversation_bot(text: str, image: bytes = None, chat_bot_response: str = None):
+    parts = [
+        types.Part.from_text(text=text)
+    ]
+
+    print(image)
+    print(chat_bot_response)
+    if image and chat_bot_response:
+        parts.append(types.Part.from_text(text="""Previous Tool History: \n the following are the system_instructions, images and response from a tool used
+        used them in case something is asked about that previous result.
+        """))
+        parts.append(types.Part.from_bytes(data=image, mime_type="image/png"))
+        parts.append(types.Part.from_text(text=f"Precious response from the Tool: {chat_bot_response}"))
+        parts.append(types.Part.from_text(text=f"Previous tool System Instructions: \n {system_instruction} \n end_ of Previous Tool History"))
+
+    chat_history.append(types.Content(role="user", parts=parts))
+
+    re = client.models.generate_content(
+        model="gemini-2.0-flash-001",
+        contents=chat_history,
+    )
+    chat_history.append(re.text)
     return re.text
