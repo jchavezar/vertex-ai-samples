@@ -2,19 +2,25 @@ import json
 import flet as ft
 from google import genai
 from google.genai import types
-from back import chat_bot_master
+from back import chat_bot_master, conversation_bot
 import base64
+
 
 def main(page: ft.Page):
     page.title = "Tron Chatbot"
     page.theme_mode = ft.ThemeMode.DARK  # For that Tron feel
+    page.session.set("uploaded_image", None)
+    page.session.set("image_response", None)
 
     chat_history = ft.Column(scroll=ft.ScrollMode.AUTO)
 
     def send_message(e):
         user_message = message_text.value
-        # response = chatbot(user_message)
-        response = "hi"
+        # Retrieve image and response from session
+        image = page.session.get("uploaded_image")
+        chatbot_response = page.session.get("image_response")
+
+        response = conversation_bot(user_message, image, chatbot_response)
         if user_message:
             chat_history.controls.append(
                 ft.Container(
@@ -35,7 +41,6 @@ def main(page: ft.Page):
                     border_radius=ft.border_radius.all(10.0),
                 )
             )
-
             chat_history.controls.append(
                 ft.Container(
                     content=ft.Text(
@@ -59,6 +64,10 @@ def main(page: ft.Page):
 
             message_text.value = ""
             page.update()
+
+            # Clear session data after use.
+            # page.session.set("uploaded_image", None)
+            # page.session.set("image_response", None)
         else:
             print("Empty Message")
 
@@ -89,6 +98,9 @@ def main(page: ft.Page):
                     image = image_file.read()
                     encoded_string = base64.b64encode(image).decode('utf-8')
                 response = chat_bot_master(message_text.value, image)
+                # Store image and response in page.session
+                page.session.set("uploaded_image", image)
+                page.session.set("image_response", response)
                 chat_history.controls.append(
                     ft.Container(
                         content=ft.Image(src_base64=encoded_string, fit=ft.ImageFit.CONTAIN, width=200, height=200),
@@ -119,6 +131,10 @@ def main(page: ft.Page):
                     )
                 )
                 page.update()
+        else:
+            pass
+            # page.session.set("uploaded_image", None)
+            # page.session.set("image_response", None)
 
     pick_files_dialog = ft.FilePicker(on_result=pick_files_result)
     page.overlay.append(pick_files_dialog)
