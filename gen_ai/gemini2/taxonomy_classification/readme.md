@@ -1,5 +1,7 @@
 # 🤖 Image Taxonomy Classificator - Tron Edition ⚡
 
+![](ux.png)
+
 Dive into the neon-lit world of product classification with this unique chatbot! This project combines the power of Google's Gemini API with a sleek Flet UI, all wrapped in a retro Tron aesthetic.
 
 ## 🚀 Features
