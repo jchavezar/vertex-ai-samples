@@ -108,3 +108,26 @@ def generate_content(file_location: str) -> json:
     except Exception as e:
         print(f"Error {e}")
         return "Error"
+
+
+chat_history = []
+
+def conversational_bot(prompt: str, history: str = None) -> str:
+    if history:
+        text=types.Part.from_text(text=prompt+f"Context:\n {history}")
+    else:
+        text=types.Part.from_text(text=prompt)
+
+    chat_history.append(types.Content(role="user", parts=[text]))
+    try:
+        chat_res = gem_client.models.generate_content(
+            model=model,
+            contents=chat_history,
+            config=types.GenerateContentConfig(
+                system_instruction="You are a bot with invoice parsing expertise, answer any question you have, if context is available use it"
+            )
+        )
+        chat_history.append(types.Content(role="model", parts=[types.Part.from_text(text=chat_res.text)]))
+        return chat_res.text
+    except Exception as e:
+        return f"Error: {e}"
