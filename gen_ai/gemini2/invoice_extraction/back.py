@@ -14,7 +14,7 @@ gem_client = genai.Client(
 )
 
 system_instruction = """
-You are an ocr expert, your mission is to extract every single value from the document.
+You are an ocr expert, your mission is to extract every single value from the document (DO NOT FORGET ANYTHING).
 """
 
 response_schema = {
@@ -86,6 +86,7 @@ response_schema = {
 }
 
 config = types.GenerateContentConfig(
+    temperature=0,
     system_instruction=system_instruction,
     response_mime_type="application/json",
     response_schema=response_schema

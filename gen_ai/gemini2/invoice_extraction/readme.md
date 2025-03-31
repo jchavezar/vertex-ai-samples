@@ -1,5 +1,7 @@
 This repository showcases a cutting-edge invoice extraction tool powered by Google's **Gemini 2.0** model. It provides a seamless user experience through a modern **Flet**-based graphical interface, allowing you to effortlessly extract information from invoices and engage in intelligent conversations about the extracted data.
 
+![](./invoice_extractor.png)
+
 ## ✨ Key Features
 
 *   **Intelligent Invoice Parsing**: Utilizes the power of **Gemini 2.0-flash-001** [1] to accurately extract every single value from your invoice documents [1].
