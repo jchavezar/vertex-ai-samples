@@ -57,8 +57,6 @@ const PromptArea: React.FC<PromptAreaProps> = ({
                     <FaPaperPlane />
                 </button>
             </div>
-            {/* Removed the loading/response display from here */}
-            {/* Optional: Add a small issue reporting button like in the original image */}
             {/* <div className="bg-gray-800 text-white px-4 py-1 text-xs flex items-center justify-end">
                  <button className="bg-red-600 hover:bg-red-700 text-white px-2 py-0.5 rounded text-xs flex items-center">
                      N <span className="ml-1 text-sm">✕</span> Issue X

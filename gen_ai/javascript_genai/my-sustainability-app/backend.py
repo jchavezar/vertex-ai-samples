@@ -187,22 +187,14 @@ def invoke_agent_workflow(request: InvokeRequest):
         session = session_service.get_session(
             app_name=APP_NAME, user_id=user_id, session_id=session_id
         )
-        if session:
-            logger.info(f"Updating existing session '{session_id}'")
-            session_service.update_session(
-                app_name=APP_NAME, user_id=user_id, session_id=session_id,
-                state_updater=lambda _: current_state
-            )
-            logger.info(f"Session state updated with query.")
-        else:
-            logger.info(f"Creating new session '{session_id}'")
-            session = session_service.create_session(
-                app_name=APP_NAME,
-                user_id=user_id,
-                session_id=session_id,
-                state=current_state
-            )
-            logger.info(f"Initial session state: {session.state}")
+        logger.info(f"Creating new session '{session_id}'")
+        session = session_service.create_session(
+            app_name=APP_NAME,
+            user_id=user_id,
+            session_id=session_id,
+            state=current_state
+        )
+        logger.info(f"Initial session state: {session.state}")
 
     except Exception as e:
         logger.error(f"Error during session management: {e}", exc_info=True)
