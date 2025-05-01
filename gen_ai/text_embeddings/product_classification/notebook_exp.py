@@ -1,6 +1,7 @@
 #%%
 import os
 import csv
+import json
 import numpy as np
 import pandas as pd
 from google import genai
@@ -24,6 +25,7 @@ client = genai.Client(
 
 bq_client = bigquery.Client(project=project)
 
+
 # Function to generate embeddings from text
 def generate_embeddings(text: str):
     response = client.models.embed_content(
@@ -43,11 +45,15 @@ def generate_embeddings(text: str):
 
 
 # Create an embeddings Database from unique names.
+print("Generating Embeddings for unique mapped names...")
 mapped_names = list(df["mapped_name"].unique())  # Unique Names for Mapped Name
-emb_mapped_names = [{name: generate_embeddings(name)} for name in mapped_names]
-database = np.array([list(d.values())[0] for d in emb_mapped_names])  # Numpy Array with Vectors
 
-np.save("database.npy", database)  # Store Locally
+emb_mapped_names = [{name: generate_embeddings(name)} for name in mapped_names]
+
+with open("database.json", "w") as f:  # Store Locally
+    json.dump(emb_mapped_names, f, indent=4)
+
+database = np.array([list(d.values())[0] for d in emb_mapped_names])  # Numpy Array with Vectors
 
 
 # Line by line text construct
@@ -69,6 +75,7 @@ def process_row(row):
     return similarity(text_to_embed)
 
 
+print("Generating Embeddings Done.")
 #%%
 # Generate embeddings for each row and their score (2150 products/rows).
 df[["emb_product", "emb_score"]] = df.apply(process_row, axis=1, result_type='expand')
@@ -91,6 +98,7 @@ config = types.GenerateContentConfig(
 )
 
 iteration_counter = 0
+
 
 def gen_ai_process_row(row):
     global iteration_counter
