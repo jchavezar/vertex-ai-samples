@@ -5,6 +5,8 @@ import json
 from google import genai
 from google.genai import types
 from google.cloud import storage
+
+# inline_run
 #%%
 project = "jesusarguelles-sandbox"
 region = "us-central1"
@@ -53,8 +55,9 @@ def generate_synthetic_data(prompt: str):
 
 # inline_run
 #%%
-user_prompt = """Generate the following FAQ synthetic data with the following columns: id, name, address, organization, 
-question, answer"""
+user_prompt = """Generate the following FAQ synthetic data with the following columns: question, answer, title, url.
+The synthetic data needs to be synthetic Q&A about pixel 9 pro and apple iphone 16, samsung galaxy 25, do 50 rows.
+"""
 
 response = generate_synthetic_data(user_prompt)
 print(response)
@@ -80,7 +83,7 @@ for i in range(num_rows):
 csv_data =csv_output.getvalue()
 csv_output.close()
 
-blob = bucket.blob("synthetic_data.csv")
+blob = bucket.blob("synthetic_data_mobile_3.csv")
 blob.upload_from_string(csv_data, content_type="text/csv")
 
 print("done")

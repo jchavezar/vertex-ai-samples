@@ -15,18 +15,12 @@ from flet import (
     Colors,
     margin,
     padding,
-    alignment,
+    ScrollMode,
     app,
     Theme,
     ThemeMode,
-    CrossAxisAlignment
+    CrossAxisAlignment,
 )
-import asyncio
-import os
-from google.genai import types
-from google.adk.agents import Agent
-from google.adk.runners import Runner
-from google.adk.sessions import InMemorySessionService
 
 client_options = ClientOptions(api_endpoint="us-central1-dialogflow.googleapis.com")
 
@@ -41,7 +35,7 @@ async def chatbot_send_message(prompt: str):
 
     project_id = "jesusarguelles-sandbox"
     location_id = "us-central1"
-    agent_id = "4d49e7a6-c054-4544-b36e-9e650791f4d8"
+    agent_id = "38a226e9-a7b8-48f5-b340-207b30ce5ad0"
     session_id = "my-unique-session-id-123"
 
     session_path = session_client.session_path(project_id, location_id, agent_id, session_id)
@@ -59,12 +53,35 @@ def main(page: Page):
     page.title = "Chat App"
     page.window_height = 700
     page.window_width = 500
-    page.theme = Theme(color_scheme_seed=Colors.GREEN)
+    page.theme = Theme(color_scheme_seed=Colors.YELLOW)
     page.theme_mode = ThemeMode.LIGHT
 
-    list_view: ListView = ListView(
+    chat_list_view: ListView = ListView(
         auto_scroll=True,
         expand=True
+    )
+
+    log_list_view = ListView(
+        auto_scroll=True,
+        expand=True
+    )
+
+    chat_area_container = Container(
+        content=chat_list_view,
+        expand=6,
+        border=border.all(1, Colors.with_opacity(0.5, Colors.GREY_300)),
+        border_radius=8.0,
+        padding=padding.all(5)
+    )
+
+    log_area_container = Container(
+        content=log_list_view,
+        expand=4,
+        bgcolor=Colors.with_opacity(0.05, Colors.BLACK),
+        border=border.all(1, Colors.GREY_400),
+        border_radius=8.0,
+        padding=padding.all(10),
+        margin=margin.only(top=5)
     )
 
     chat_history_container: Container = Container(
@@ -72,7 +89,12 @@ def main(page: Page):
         border_radius=12.0,
         border=border.all(1, Colors.GREY_300),
         padding=padding.all(5), # Reduced padding for chat history overall
-        content=list_view
+        content=Row(
+            controls=[
+                chat_area_container,
+                log_area_container
+            ]
+        )
     )
 
     message_input_field = TextField(
@@ -92,42 +114,65 @@ def main(page: Page):
         message_input_field.focus()
 
         # User message bubble - wrapped in a Row
-        list_view.controls.append(
+        chat_list_view.controls.append(
             Row(
                 controls=[
                     Container(
-                        content=Text(user_text, selectable=True),
+                        # theme=Theme(color_scheme_seed=Colors.PINK),
+                        content=Text(user_text, selectable=True, color=Colors.WHITE),
                         padding=padding.all(10), # Padding inside the bubble
                         margin=margin.symmetric(vertical=4, horizontal=8), # Margin around the bubble
                         border_radius=12.0,
-                        bgcolor=Colors.PINK_50,
+                        bgcolor=Colors.BLUE,
                     )
                 ],
                 alignment=MainAxisAlignment.START # Aligns bubble to the left
             )
         )
         message_input_field.update()
-        list_view.update()
+        chat_list_view.update()
         response_text = await chatbot_send_message(user_text)
         if response_text is None:
             response_text = "Sorry, an error occurred."
 
         # Bot message bubble - wrapped in a Row
-        list_view.controls.append(
+        chat_list_view.controls.append(
+                Row(
+                    controls=[
+                        Container(
+                            content=Text(
+                                str(response_text.query_result.response_messages[0].text.text[0]).strip().replace("\\",""),
+                                selectable=True,
+                                color=Colors.WHITE,
+                                expand=True,
+                            ),
+                            padding=padding.all(10),
+                            margin=margin.symmetric(vertical=4, horizontal=8),
+                            border_radius=12.0,
+                            bgcolor=Colors.GREY_500,
+                            expand=True,
+                        )
+                    ],
+                    # scroll=ScrollMode.ADAPTIVE,
+                    alignment=MainAxisAlignment.START # Aligns bubble to the left
+                )
+            )
+        chat_list_view.update()
+        log_list_view.controls.append(
             Row(
                 controls=[
                     Container(
-                        content=Text(str(response_text), selectable=True),
+                        content=Text(str(response_text), selectable=True, color=Colors.BLUE_ACCENT_100),
                         padding=padding.all(10),
                         margin=margin.symmetric(vertical=4, horizontal=8),
                         border_radius=12.0,
-                        bgcolor=Colors.BLUE_50,
+                        bgcolor=Colors.BLACK54,
                     )
                 ],
                 alignment=MainAxisAlignment.START # Aligns bubble to the left
             )
         )
-        list_view.update()
+        log_list_view.update()
 
     message_input_field.on_submit = send_message
 
@@ -148,7 +193,7 @@ def main(page: Page):
                 text_entry_area
             ],
             alignment=MainAxisAlignment.START,
-            horizontal_alignment="stretch"
+            horizontal_alignment=CrossAxisAlignment.START
         )
     )
 
