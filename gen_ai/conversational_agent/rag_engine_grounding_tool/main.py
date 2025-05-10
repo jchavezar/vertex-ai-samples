@@ -22,7 +22,17 @@ you are grounding with google search as one of your tools, any response needs to
 """
 
 tools = [
-    types.Tool(google_search=types.GoogleSearch()),
+    types.Tool(
+        retrieval=types.Retrieval(
+            vertex_rag_store=types.VertexRagStore(
+                rag_resources=[
+                    types.VertexRagStoreRagResource(
+                        rag_corpus="projects/jesusarguelles-sandbox/locations/us-central1/ragCorpora/2305843009213693952"
+                    )
+                ],
+            )
+        )
+    )
 ]
 
 generate_content_config = types.GenerateContentConfig(
@@ -49,14 +59,14 @@ def generate_response(prompt : str):
             contents=types.Content(role="user", parts=[types.Part.from_text(text=prompt)]),
             config=generate_content_config
         )
-        grounding = [i.web.uri for i in response.candidates[0].grounding_metadata.grounding_chunks]
+        grounding = [i.retrieved_context.uri for i in response.candidates[0].grounding_metadata.grounding_chunks]
         response = response.text
         return {"response": response, "citations": grounding}
-
     except Exception as e:
         print(f"Error: {e}")
         return e
-
+re = generate_response("what cafes do you have?")
+print(re)
 #%%
 class Response(BaseModel):
     response: str
@@ -66,7 +76,7 @@ class QueryRequest(BaseModel):
     prompt: str
 
 @app.post(
-    "/agent_1",
+    "/agent_2",
     response_model = Response,
     response_description = "Response from Gemini including citations"
 )
