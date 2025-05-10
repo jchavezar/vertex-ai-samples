@@ -4,7 +4,7 @@
 format to verify if can be used with Vertex AI Search DataStore Structure FAQ - CSV.
 
 ---
-### Generating Grounding Logic for Cloud Run
+### Generating Google Search Grounding Logic for Cloud Run
 
 ```mermaid
 flowchart BT
@@ -35,6 +35,39 @@ gcloud builds submit --project="jesusarguelles-sandbox" -t us-central1-docker.pk
 ```bash
 gcloud run deploy gsearch-grounding-tool \
 --image=us-central1-docker.pkg.dev/jesusarguelles-sandbox/conversational-agents-tools/gsearch-grounding-tool \
+--no-allow-unauthenticated \
+--port=8000 \
+--service-account=390227712642-compute@developer.gserviceaccount.com \
+--cpu=4 \
+--memory=8Gi \
+--region=us-central1 \
+--project=jesusarguelles-sandbox
+```
+
+---
+
+### Generating RAG Grounding Logic for Cloud Run
+
+```mermaid
+flowchart BT
+    A(gemini+rag_engine) -->|FastAPI + Uvicorn| cloud_run
+    cloud_run --> B(Tool) --> Conversational_Agent
+```
+
+[rag_engine_grounding_tool](./rag_engine_grounding_tool) folder contains all the elements to create a container for
+Google Cloud Run.
+
+1. Build and Push the Image into Google Docker Artifact Registry
+
+```bash
+gcloud builds submit --project="jesusarguelles-sandbox" -t us-central1-docker.pkg.dev/jesusarguelles-sandbox/conversational-agents-tools/rag_engine-grounding-tool:latest ./rag_engine_grounding_tool
+```
+
+2Deploy Image into Cloud Run
+
+```bash
+gcloud run deploy gsearch-grounding-tool \
+--image=us-central1-docker.pkg.dev/jesusarguelles-sandbox/conversational-agents-tools/rag_engine-grounding-tool \
 --no-allow-unauthenticated \
 --port=8000 \
 --service-account=390227712642-compute@developer.gserviceaccount.com \
