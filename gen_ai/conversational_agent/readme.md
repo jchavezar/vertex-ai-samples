@@ -63,7 +63,7 @@ Google Cloud Run.
 gcloud builds submit --project="jesusarguelles-sandbox" -t us-central1-docker.pkg.dev/jesusarguelles-sandbox/conversational-agents-tools/rag_engine-grounding-tool:latest ./rag_engine_grounding_tool
 ```
 
-2Deploy Image into Cloud Run
+2. Deploy Image into Cloud Run
 
 ```bash
 gcloud run deploy gsearch-grounding-tool \
