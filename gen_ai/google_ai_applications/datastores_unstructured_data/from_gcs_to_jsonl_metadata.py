@@ -23,6 +23,7 @@ st_client = storage.Client(
 bucket = st_client.bucket(bucket_name)
 blobs = bucket.list_blobs(prefix=bucket_folder)
 
+#%%
 # Gemini Config
 config = types.GenerateContentConfig(
     system_instruction="""
@@ -50,13 +51,13 @@ with open("dataset.jsonl", "w") as f:
             f.write(
                 json.dumps(
                     {
-                        "id": n,
+                        "id": str(n),
                         "structData": {
                             "title": generate(blob.name),
                             "category": ["gartner_document"],
                             "time_created": str(blob.time_created),
-                            "uri": f"gs://{bucket_name}/{blob.name}"
-                        }
+                        },
+                        "content": {"mimeType": "application/pdf", "uri": f"gs://{bucket_name}/{blob.name}"}
                     }
                 ) + "\n"
             )
