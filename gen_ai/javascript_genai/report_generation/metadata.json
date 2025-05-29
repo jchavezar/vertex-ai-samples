@@ -1,0 +1,6 @@
+{
+  "name": "win Spreadsheet to PDF Report Generator",
+  "description": "Upload a spreadsheet (CSV/Excel), get AI-powered insights, and generate a PDF report. Analyzes trends, revenues, and other key data points from your spreadsheet.",
+  "requestFramePermissions": [],
+  "prompt": ""
+}

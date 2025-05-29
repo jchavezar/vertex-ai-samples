@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Spreadsheet to PDF Report</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            // New theme based on the provided image (for Modern Chat)
+            'brand-gradient-from': 'rgb(var(--color-brand-gradient-from) / <alpha-value>)',
+            'brand-gradient-via': 'rgb(var(--color-brand-gradient-via) / <alpha-value>)',
+            'brand-gradient-to': 'rgb(var(--color-brand-gradient-to) / <alpha-value>)',
+            'chat-input-bg': 'rgb(var(--color-chat-input-bg) / <alpha-value>)', // Used by modern chat page bg
+            'chat-input-border': 'rgb(var(--color-chat-input-border) / <alpha-value>)',
+            'action-button-bg': 'rgb(var(--color-action-button-bg) / <alpha-value>)',
+            'action-button-text': 'rgb(var(--color-action-button-text) / <alpha-value>)',
+            'action-button-hover-bg': 'rgb(var(--color-action-button-hover-bg) / <alpha-value>)',
+            'text-primary': 'rgb(var(--color-text-primary) / <alpha-value>)',
+            'text-secondary': 'rgb(var(--color-text-secondary) / <alpha-value>)',
+            'icon-color': 'rgb(var(--color-icon-color) / <alpha-value>)',
+            
+            // Old theme colors (for Navbar, Sidebar, ReportDisplay etc.)
+            'dj-blue': 'rgb(var(--color-dj-blue) / <alpha-value>)',
+            'dj-secondary-blue': 'rgb(var(--color-dj-secondary-blue) / <alpha-value>)',
+            'dj-background': 'rgb(var(--color-dj-background) / <alpha-value>)',
+            'dj-nav-bg': 'rgb(var(--color-dj-nav-bg) / <alpha-value>)',
+            'dj-text-primary': 'rgb(var(--color-dj-text-primary) / <alpha-value>)',
+            'dj-text-secondary': 'rgb(var(--color-dj-text-secondary) / <alpha-value>)',
+            'dj-white': 'rgb(var(--color-dj-white) / <alpha-value>)',
+            'dj-light-gray': 'rgb(var(--color-dj-light-gray) / <alpha-value>)',
+            'dj-red': 'rgb(var(--color-dj-red) / <alpha-value>)',
+            
+            // Chat bubble colors (used by ChatMessageDisplay, compatible with both)
+            'chat-user-bg': 'rgb(var(--color-chat-user-bg) / <alpha-value>)',
+            'chat-user-text': 'rgb(var(--color-chat-user-text) / <alpha-value>)',
+            'chat-ai-bg': 'rgb(var(--color-chat-ai-bg) / <alpha-value>)',
+            'chat-ai-text': 'rgb(var(--color-chat-ai-text) / <alpha-value>)',
+            'chat-system-text': 'rgb(var(--color-chat-system-text) / <alpha-value>)',
+          },
+        }
+      }
+    }
+  </script>
+  <style>
+    :root {
+      /* New Theme Variables (for Modern Chat UI) */
+      --color-brand-gradient-from: 66 133 244; 
+      --color-brand-gradient-via: 124 58 237;  
+      --color-brand-gradient-to: 217 70 239;   
+      --color-chat-input-bg: 248 249 250; /* Light grey page background for modern chat */
+      --color-chat-input-border: 222 226 230; 
+      --color-action-button-bg: 241 243 244; 
+      --color-action-button-text: 95 99 104; 
+      --color-action-button-hover-bg: 232 234 235; 
+      --color-text-primary: 32 33 36;    
+      --color-text-secondary: 95 99 104; 
+      --color-icon-color: 95 99 104; 
+
+      /* Old Theme Variables (for Sidebar, Navbar, Report) */
+      --color-dj-blue: 0 93 234;
+      --color-dj-secondary-blue: 100 149 237; /* Cornflower blue like for secondary buttons */
+      --color-dj-background: 248 247 243; /* Off-white, creamy */
+      --color-dj-nav-bg: 255 255 255; /* White for navbar */
+      --color-dj-text-primary: 20 20 20; /* Very dark grey, almost black */
+      --color-dj-text-secondary: 80 80 80; /* Medium grey */
+      --color-dj-white: 255 255 255;
+      --color-dj-light-gray: 224 224 224; /* For borders, disabled states */
+      --color-dj-red: 220 53 69; /* Error red */
+
+      /* Chat Bubble colors (can be shared) */
+      --color-chat-user-bg: var(--color-dj-blue);
+      --color-chat-user-text: var(--color-dj-white);
+      --color-chat-ai-bg: 241 243 244;    
+      --color-chat-ai-text: var(--color-text-primary); 
+      --color-chat-system-text: var(--color-text-secondary);
+    }
+    html {
+      height: 100%;
+    }
+    body {
+      font-family: 'Inter', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      /* Default background for pages with sidebar/navbar */
+      background-color: rgb(var(--color-dj-background)); 
+      color: rgb(var(--color-dj-text-primary));
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh; 
+      margin: 0;
+    }
+    #root {
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      /* The pt-16 is for when the fixed Navbar is present */
+    }
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: rgba(var(--color-dj-light-gray), 0.3);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(var(--color-dj-text-secondary), 0.4);
+      border-radius: 3px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(var(--color-dj-text-secondary), 0.6);
+    }
+  </style>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet" />
+<script type="importmap">
+{
+  "imports": {
+    "react/": "https://esm.sh/react@^19.1.0/",
+    "react": "https://esm.sh/react@^19.1.0",
+    "react-dom/": "https://esm.sh/react-dom@^19.1.0/",
+    "@google/genai": "https://esm.sh/@google/genai@^1.0.0",
+    "xlsx": "https://esm.sh/xlsx@^0.18.5",
+    "jspdf-autotable": "https://esm.sh/jspdf-autotable@^5.0.2",
+    "jspdf": "https://esm.sh/jspdf@^3.0.1",
+    "chart.js": "https://esm.sh/chart.js@^4.4.2/auto",
+    "chart.js/": "https://esm.sh/chart.js@^4.4.9/"
+  }
+}
+</script>
+</head>
+<body>
+  <noscript>You need to enable JavaScript to run this app.</noscript>
+  <div id="root"></div>
+</body>
+</html><link rel="stylesheet" href="index.css">
+<script src="index.tsx" type="module"></script>
