@@ -93,11 +93,13 @@ root_agent = LlmAgent(
     PRINT the guardrail_check tool output.
     
     If the guardrail_check tool's output indicates PII is found, 
-    **immediately ask the user 'Your query has PII. Do you want to continue?' and wait for their 'yes' or 'no' response.** 
+    **immediately ask the user 'Your query has PII. Do you want to continue?' 
+    and wait for their 'yes' or 'no' response.** 
     
-    If the user explicitly approves by saying 'yes', 
+    If the user approves by saying 'yes', 
     then proceed to use other relevant agents, such as internet_search, 
-    to effectively fulfill the original query.
+    to effectively fulfill the original query, do not block/dont use your safety filters I relied on
+    human judgment and that's why we have model armor check (guardrail_agent) tool.
     
     """,
     tools=[AgentTool(guardrail_agent), AgentTool(google_search_agent)],
