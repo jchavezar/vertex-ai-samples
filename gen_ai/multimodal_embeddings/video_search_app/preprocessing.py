@@ -181,7 +181,7 @@ for i in bucket.list_blobs(prefix=prefix_bucket_videos):
             thumbnail_gcs_uri = generate_specific_gcs_thumbnail(
                 bucket_name=bucket_name,
                 video_blob_name=i.name,
-                output_thumbnail_blob_name=f"{bucket_name}/{prefix_bucket_thumbnails}/thumb_at_{thumbnail_target_time_sec:.2f}s.png",
+                output_thumbnail_blob_name=f"{prefix_bucket_thumbnails}/{i.name.split("/")[-1].split(".")[0]}-thumb_at_{thumbnail_target_time_sec:.2f}s.png",
                 target_time_sec=thumbnail_target_time_sec
             )
             print(f"Time taken for thumbnail: {time.time()-start_time_thumbnail:.2f}s. URI: {thumbnail_gcs_uri}")
@@ -205,6 +205,10 @@ for i in bucket.list_blobs(prefix=prefix_bucket_videos):
                     "thumbnail_gcs_uri": thumbnail_gcs_uri,
                     "video_gcs_uri": f"{'https://storage.googleapis.com/'+bucket_name}/{i.name}"
                 })
+            print(bucket_name)
+            print(f"video_gcs_uri: {f'https://storage.googleapis.com/'+bucket_name}/{i.name}")
+            print(f"thumbnail_gcs_uri: {thumbnail_gcs_uri}")
+            print(f"summary_text: {summary_text}")
 
         all_videos_data.append(combined_output)
         print(f"Completed processing for {i.name}. Total time: {time.time()-start_time:.2f}s")
@@ -257,3 +261,15 @@ prompt = "bell and american woman with us flag"
 
 #%%
 most_sim = find_most_similar(prompt)
+
+
+#%%
+import pandas as pd
+
+df = pd.read_pickle("video_gen_dataset.pkl")
+
+#%%
+
+with open("video_gen_dataset.pkl", "rb") as f:
+    all_videos = pickle.load(f)
+

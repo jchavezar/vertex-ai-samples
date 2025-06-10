@@ -8,13 +8,13 @@ from vertexai.vision_models import MultiModalEmbeddingModel
 project_id = "vtxdemos"
 region = "us-central1"
 model_emb = "multimodalembedding@001"
-bucket_name = "vtxdemos-datasets-public"
+# bucket_name = "vtxdemos-datasets-public"
 pickle_file_name = "video_gen_dataset.pkl"
 
 vertexai.init(project=project_id, location=region)
 
 storage_client = storage.Client(project_id)
-bucket = storage_client.bucket(bucket_name)
+# bucket = storage_client.bucket(bucket_name)
 emb_model = MultiModalEmbeddingModel.from_pretrained(model_emb)
 
 

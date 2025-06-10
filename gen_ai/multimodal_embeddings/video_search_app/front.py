@@ -8,7 +8,6 @@ def main(page: ft.Page):
     page.title = "Semantic Video Search"
     page.theme_mode = ft.ThemeMode.DARK
 
-    # --- Main Application Logic ---
     def perform_search(query, results_view, progress_bar):
         if not query:
             return
@@ -62,12 +61,9 @@ def main(page: ft.Page):
                 results_view.controls.append(thumbnail_card)
         page.update()
 
-
-    # --- Router: Builds the UI based on the current URL ---
     def route_change(route):
         page.views.clear()
 
-        # Search View (/)
         if page.route == "/":
             search_field = ft.TextField(
                 hint_text="Search for a video moment...",
@@ -97,7 +93,7 @@ def main(page: ft.Page):
                         ft.Row([
                             search_field,
                             ft.IconButton(
-                                icon=ft.icons.SEARCH,
+                                icon=ft.Icons.SEARCH,
                                 on_click=lambda e: perform_search(search_field.value, results_view, progress_bar),
                                 icon_size=30,
                                 tooltip="Search"
@@ -109,13 +105,11 @@ def main(page: ft.Page):
                 )
             )
 
-        # Watch View (/watch?video_uri=...)
         if page.route.startswith("/watch"):
             query_params = parse_qs(urlparse(page.route).query)
             video_uri = query_params.get("video_uri", [None])[0]
 
             if not video_uri:
-                # Fallback if URL is malformed
                 page.go("/")
                 return
 
@@ -130,19 +124,25 @@ def main(page: ft.Page):
                     route=page.route,
                     padding=0,
                     bgcolor="black",
+                    # FIX: Wrap the player and button in a Stack
                     controls=[
-                        player,
-                        ft.ElevatedButton(
-                            "Go Back",
-                            icon="arrow_back",
-                            on_click=lambda _: page.go("/"),
-                            style=ft.ButtonStyle(
-                                shape=ft.RoundedRectangleBorder(radius=5),
-                                color="white",
-                                bgcolor="black"
-                            ),
-                            top=15,
-                            left=15,
+                        ft.Stack(
+                            expand=True,
+                            controls=[
+                                player, # Layer 1: The video player
+                                ft.ElevatedButton( # Layer 2: The button, floated on top
+                                    "Go Back",
+                                    icon="arrow_back",
+                                    on_click=lambda _: page.go("/"),
+                                    style=ft.ButtonStyle(
+                                        shape=ft.RoundedRectangleBorder(radius=5),
+                                        color="white",
+                                        bgcolor="black45" # A semi-transparent background
+                                    ),
+                                    top=20,
+                                    left=20,
+                                )
+                            ]
                         )
                     ]
                 )
