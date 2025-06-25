@@ -12,18 +12,7 @@ app = reasoning_engines.AdkApp(
 )
 
 #%%
-session = app.create_session(user_id="u_123")
-for event in app.stream_query(
-        user_id="u_123",
-        session_id=session.id,
-        message="what you can do?",
-):
-    print(event)
-
-
-#%%
-# deploy
-
+# Deploy Agent Engine
 remote_app = agent_engines.create(
     agent_engine=app,
     requirements=[
@@ -33,10 +22,12 @@ remote_app = agent_engines.create(
 )
 
 #%%
-
-rm = agent_engines.get("projects/254356041555/locations/us-central1/reasoningEngines/6289954178785607680")
-
-agent_context = '{"message":{"role":"user","parts":[{"text":"what you can do?"}]},"events":[{"content":{"role":"user","parts":[{"text":"how were you built ?"}]},"author":"AgentSpace_root_agent"},{"content":{"role":"model","parts":[{"functionCall":{"name":"agentspaceak","args":{"question":"How were you built?"},"id":"14076651604820872102"}}]},"author":"AgentSpace_root_agent","id":"14076651604820872102"}]}'
-
-for response in rm.streaming_agent_run_with_events(request_json=agent_context):
-    print(response)
+# Update Agent Engine
+remote_app = agent_engines.get("projects/254356041555/locations/us-central1/reasoningEngines/3477033999027666944")
+remote_app.update(
+    agent_engine=app,
+    requirements=[
+        "google-cloud-aiplatform[adk,agent_engines]",
+    ],
+    extra_packages=["agent.py"]
+)
