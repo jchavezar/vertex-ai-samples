@@ -1,5 +1,4 @@
 #%%
-import logging
 from google.adk.agents import LlmAgent
 from google.adk.tools import load_artifacts
 
