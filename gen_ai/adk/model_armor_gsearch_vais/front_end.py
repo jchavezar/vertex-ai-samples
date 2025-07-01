@@ -43,7 +43,7 @@ def main(page: Page):
     user_message_color = Colors.BLUE_700
     gemini_message_color = Colors.PURPLE_700
 
-    def on_submit_message(e):
+    async def on_submit_message(e):
         user_input = e.control.value
         if not user_input:
             return
@@ -77,7 +77,7 @@ def main(page: Page):
         e.control.focus()
         page.update()
 
-        response = generate_content(submitted_input)
+        response = await generate_content(submitted_input)
         chat_list_view.controls.append(
             Row(
                 [
