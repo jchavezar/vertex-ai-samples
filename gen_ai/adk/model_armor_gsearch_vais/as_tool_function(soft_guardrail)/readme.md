@@ -8,7 +8,7 @@
 
 **ArmorChat** is a proof-of-concept application demonstrating a chat interface powered by Google's Gemini model, built with Python, Flet for the UI, and the Google Agent Development Kit (ADK). It uniquely integrates Google Cloud Model Armor for robust PII (Personally Identifiable Information) detection, ensuring user queries are scanned for sensitive data before being processed further. If PII is detected, the agent interactively asks the user for consent to proceed.
 
-![cloud_armor.png](./cloud_armor.png)
+![cloud_armor.png](cloud_armor.png)
 
 ## ✨ Overview
 
