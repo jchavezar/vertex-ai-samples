@@ -1,8 +1,12 @@
+
 import flet as ft
 import flet_video as fv
-from backend import find_most_similar
+from backend import find_most_similar, generate_chat_response
 import time
-from urllib.parse import urlparse, parse_qs
+from urllib.parse import urlparse, parse_qs, quote_plus
+from google import genai
+from google.genai import types
+
 
 def main(page: ft.Page):
     page.title = "Semantic Video Search"
@@ -16,7 +20,7 @@ def main(page: ft.Page):
         results_view.controls.clear()
         page.update()
 
-        search_results = find_most_similar(query, top_n=3)
+        search_results = find_most_similar(query, top_n=6)
         time.sleep(1)
 
         progress_bar.visible = False
@@ -27,13 +31,16 @@ def main(page: ft.Page):
             )
         else:
             for result in search_results:
+                video_uri = result['video_gcs_uri']
+                summary = result['summary_text']
+                encoded_summary = quote_plus(summary)
+
                 thumbnail_card = ft.Card(
                     elevation=4,
                     content=ft.Container(
                         width=280,
                         height=280,
-                        on_click=lambda e: page.go(f"/watch?video_uri={e.control.data}"),
-                        data=result['video_gcs_uri'],
+                        on_click=lambda _, v=video_uri, s=encoded_summary, offset=result['start_offset_sec']: page.go(f"/watch?video_uri={v}&summary_text={s}&start_offset={offset}"),
                         content=ft.Stack([
                             ft.Image(src=result['thumbnail_gcs_uri'], fit=ft.ImageFit.COVER),
                             ft.Container(
@@ -46,7 +53,7 @@ def main(page: ft.Page):
                                 content=ft.Column([
                                     ft.Container(expand=True),
                                     ft.Text(
-                                        result['summary_text'],
+                                        result['video_title'],
                                         weight=ft.FontWeight.BOLD,
                                         size=14,
                                         max_lines=3,
@@ -108,41 +115,132 @@ def main(page: ft.Page):
         if page.route.startswith("/watch"):
             query_params = parse_qs(urlparse(page.route).query)
             video_uri = query_params.get("video_uri", [None])[0]
+            summary_text = query_params.get("summary_text", [""])[0]
+            start_offset = float(query_params.get("start_offset", [0.0])[0])
 
             if not video_uri:
                 page.go("/")
                 return
 
+            def play_from_offset_click(e):
+                if start_offset > 0:
+                    player.seek(int(start_offset * 1000))
+                player.play()
+
             player = fv.Video(
-                expand=True,
                 playlist=[fv.VideoMedia(resource=video_uri)],
-                autoplay=True,
+                autoplay=False,
+            )
+
+            chat_history_view = ft.ListView(expand=True, spacing=10, auto_scroll=True)
+            new_message_field = ft.TextField(hint_text="Ask a question...", expand=True)
+
+            def send_message_click(e):
+                user_question = new_message_field.value
+                if not user_question:
+                    return
+                new_message_field.value = ""
+                chat_history_view.controls.append(ft.Text(f"You: {user_question}", weight=ft.FontWeight.BOLD))
+                chat_history_view.controls.append(ft.Text("Assistant: Thinking...", selectable=True))
+                page.update()
+                response = generate_chat_response(video_uri, user_question, chat_history_view, page)
+                if "Error" in response:
+                    if chat_history_view.controls:
+                        chat_history_view.controls[-1].value = response
+                        chat_history_view.controls[-1].color = "red"
+                    else:
+                        chat_history_view.controls.append(ft.Text(response, color="red"))
+                else:
+                    assistant_response = chat_history_view.controls[-1]
+                    assistant_response.value = "Assistant: "
+                    page.update()
+
+                    assistant_response.value = f"Assistant: {response}"
+                page.update()
+
+            new_message_field.on_submit = send_message_click
+
+            play_from_offset_button = ft.ElevatedButton(
+                "Play from relevant moment",
+                icon=ft.Icons.PLAY_CIRCLE_OUTLINE,
+                on_click=play_from_offset_click,
+                style=ft.ButtonStyle(
+                    shape=ft.RoundedRectangleBorder(radius=5),
+                    color="white",
+                    bgcolor="purple700"
+                )
+            )
+
+            content_column = ft.Column(
+                [
+                    ft.Container(
+                        content=player,
+                        aspect_ratio=16 / 9,
+                        bgcolor="black",
+                        alignment=ft.alignment.center
+                    ),
+                    ft.Container(
+                        padding=ft.padding.symmetric(horizontal=30),
+                        content=ft.Text(
+                            f'"{summary_text}"',
+                            italic=True,
+                            size=16,
+                            color="white70",
+                            text_align=ft.TextAlign.CENTER
+                        ),
+                    ),
+                    ft.Container(
+                        expand=True,
+                        padding=20,
+                        content=ft.Column(
+                            [
+                                ft.Row([
+                                    ft.Text("Chat about this video", size=20, weight=ft.FontWeight.BOLD),
+                                    play_from_offset_button
+                                ], alignment=ft.MainAxisAlignment.SPACE_BETWEEN),
+                                ft.Container(content=chat_history_view, expand=True,
+                                             border=ft.border.all(1, "#444444"), border_radius=8, padding=10),
+                                ft.Row(
+                                    [
+                                        new_message_field,
+                                        ft.IconButton(icon=ft.Icons.SEND, on_click=send_message_click,
+                                                      tooltip="Send message"),
+                                    ]
+                                )
+                            ],
+                            expand=True,
+                        )
+                    )
+                ],
+                expand=True,
+                spacing=20,
+            )
+
+            back_button = ft.ElevatedButton(
+                "Go Back",
+                icon="arrow_back",
+                on_click=lambda _: page.go("/"),
+                style=ft.ButtonStyle(
+                    shape=ft.RoundedRectangleBorder(radius=5),
+                    color="white",
+                    bgcolor="black45"
+                ),
+                top=20,
+                left=20,
             )
 
             page.views.append(
                 ft.View(
                     route=page.route,
                     padding=0,
-                    bgcolor="black",
-                    # FIX: Wrap the player and button in a Stack
+                    bgcolor="#141218",
                     controls=[
                         ft.Stack(
+                            [
+                                content_column,
+                                back_button,
+                            ],
                             expand=True,
-                            controls=[
-                                player, # Layer 1: The video player
-                                ft.ElevatedButton( # Layer 2: The button, floated on top
-                                    "Go Back",
-                                    icon="arrow_back",
-                                    on_click=lambda _: page.go("/"),
-                                    style=ft.ButtonStyle(
-                                        shape=ft.RoundedRectangleBorder(radius=5),
-                                        color="white",
-                                        bgcolor="black45" # A semi-transparent background
-                                    ),
-                                    top=20,
-                                    left=20,
-                                )
-                            ]
                         )
                     ]
                 )

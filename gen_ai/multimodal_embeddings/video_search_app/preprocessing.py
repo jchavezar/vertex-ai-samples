@@ -232,32 +232,45 @@ def cosine_similarity(vec1, vec2):
         return 0.0
     return dot_product / (norm_vec1 * norm_vec2)
 
-def find_most_similar(prompt: str):
+def find_most_similar(prompt: str, top_n: int = 5):
     prompt_result = emb_model.get_embeddings(contextual_text=prompt)
     prompt_embedding = np.array(prompt_result.text_embedding).reshape(1, -1)
 
-    existing_embeddings = np.array([emb["embedding"] for emb in combined_output["segmented_data"]])
+    all_segments = []
+    for video_data in all_videos_data:
+        all_segments.extend(video_data['segmented_data'])
+
+    existing_embeddings = np.array([emb["embedding"] for emb in all_segments if emb.get("embedding") is not None])
+
+    # Filter segments to match the embeddings that were actually used
+    valid_segments = [seg for seg in all_segments if seg.get("embedding") is not None]
 
     dot_products = np.dot(prompt_embedding, existing_embeddings.T)
     norm_prompt = np.linalg.norm(prompt_embedding)
     norm_segments = np.linalg.norm(existing_embeddings, axis=1)
 
     denominators = norm_prompt * norm_segments
-
     sim_scores = np.zeros_like(denominators, dtype=float)
     non_zero_mask = denominators != 0
     sim_scores[non_zero_mask] = dot_products[0, non_zero_mask] / denominators[non_zero_mask]
-    most_similar_idx = np.argmax(sim_scores)
-    most_similar_segment = combined_output["segmented_data"][most_similar_idx]
 
-    print(f"Prompt: '{prompt}'")
-    print(f"Most similar segment summary: '{most_similar_segment['summary_text']}'")
-    print(f"Similarity score: {sim_scores[most_similar_idx]:.4f}")
-    print(f"Thumbnail: {most_similar_segment['thumbnail_gcs_uri']}")
+    # Sort indices by similarity score in descending order
+    top_indices = np.argsort(sim_scores)[::-1]
 
-    return most_similar_segment
+    results = []
+    # Ensure we don't go out of bounds
+    for i in range(min(top_n, len(top_indices))):
+        idx = top_indices[i]
+        # Use the list of valid segments that corresponds to existing_embeddings
+        segment = valid_segments[idx].copy()
+        if 'embedding' in segment:
+            del segment['embedding']
+        results.append(segment)
 
-prompt = "bell and american woman with us flag"
+    return results
+
+
+prompt = "fighthing in a boxing ring"
 
 #%%
 most_sim = find_most_similar(prompt)
