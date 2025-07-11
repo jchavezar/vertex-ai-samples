@@ -1,3 +1,7 @@
+**[Deprecated]** For Curated Instructions Please Use [model_armor folder](../model_armor)
+
+
+
 # Model Armor Guardrail Implementations for GenAI Agents
 
 This project demonstrates two distinct approaches for integrating "Model Armor" as a safety guardrail within a Generative AI agent built using the Agent Development Kit (ADK). The primary goal is to detect and handle Personally Identifiable Information (PII) in user queries before they are processed by other tools or the core model.
