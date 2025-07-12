@@ -18,6 +18,7 @@ logger = logging.getLogger(__name__)
 
 project = os.getenv("GOOGLE_CLOUD_PROJECT")
 location = os.getenv("GOOGLE_CLOUD_LOCATION")
+template_model_id = os.getenv("TEMPLATE_MODEL_ARMOR_ID")
 
 client = modelarmor_v1.ModelArmorClient(transport="rest", client_options = {"api_endpoint" : "modelarmor.us.rep.googleapis.com"})
 
@@ -55,7 +56,7 @@ def model_armor_analyze(prompt: str):
 
     # noinspection PyTypeChecker
     request = modelarmor_v1.SanitizeUserPromptRequest(
-        name=f"projects/{project}/locations/us/templates/model-armor-demo",
+        name=f"projects/{project}/locations/us/templates/{template_model_id}",
         user_prompt_data=user_prompt_data,
     )
     response = client.sanitize_user_prompt(request=request)

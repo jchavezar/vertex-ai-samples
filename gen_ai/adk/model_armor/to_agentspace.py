@@ -17,6 +17,7 @@ location = os.getenv("GOOGLE_CLOUD_LOCATION")
 staging_bucket = os.getenv("STAGING_BUCKET")
 agent_display_name = os.getenv("AGENT_DISPLAY_NAME")
 agent_description = os.getenv("AGENT_DESCRIPTION")
+template_model_id = os.getenv("TEMPLATE_MODEL_ARMOR_ID")
 
 vertexai.init(project=project, staging_bucket=staging_bucket)
 
@@ -35,6 +36,7 @@ remote_app = agent_engines.create(
         "agent.py",
     ],
     env_vars={
+        "TEMPLATE_MODEL_ARMOR_ID":template_model_id
     }
 )
 

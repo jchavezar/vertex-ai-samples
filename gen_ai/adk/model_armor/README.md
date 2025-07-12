@@ -102,6 +102,16 @@ Check Sensitive data protection box and paste the endpoint from dlp inspect temp
 
 Save and Done.
 
+Take a note of the template_model_id which has the following format and store it in .env:
+
+```python
+name=f"projects/{project}/locations/us/templates/{template_model_id}"
+```
+
+> [!NOTE]
+> Pay attention to the region where DLP templates and Model Armor Template has been created under, that will define the
+> location in the template_model_id format.
+
 ## Create a [GCS](https://cloud.google.com/storage?hl=en) Bucket for Staging
 
 ```bash
