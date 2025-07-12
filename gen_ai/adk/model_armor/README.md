@@ -206,7 +206,7 @@ adk web
 
 Want to use your own UI? I've made a simple one with [Flet](https://flet.dev/) (powered by [Flutter](https://flutter.dev/)) that looks like this:
 
-![img_2.png](readme_artifacts/flet_1.png)
+![img.png](readme_artifacts/flet_1.png)
 
 I could've used the [agent.py](./agent.py) file as a backend to the [ui.py](./ui.py),
 but I wanted to keep this guide simple, the only difference between [backend.py](./backend.py)
@@ -254,18 +254,18 @@ async def generate_content(prompt: str):
 Run the following bash command inside /model_armor from your local machine.
 
 ```bash
-flet run ui.py
+flet run ui.py --web
 ```
 
 _Now Interact with the UI._
 
 **PII / Personal Sensitive Information**
 
-![flet_2.png](readme_artifacts/flet_2.png)
+![img_3.png](readme_artifacts/flet_2.png)
 
 **Jailbreak**
 
-![flet_3.png](readme_artifacts/flet_3.png)
+![img_4.png](readme_artifacts/flet_3.png)
 
 #### AgentSpace
 

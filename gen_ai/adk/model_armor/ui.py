@@ -6,7 +6,16 @@ def main(page: Page):
     page.window_width = 800
     page.window_height = 700
     page.horizontal_alignment = CrossAxisAlignment.CENTER
-    page.bgcolor = Colors.WHITE
+    # Changed page background to a very light blue-grey for contrast with white bubbles
+    page.bgcolor = Colors.BLUE_GREY_50
+
+    # Load custom font - Space Mono from Google Fonts for a futuristic feel
+    page.fonts = {
+        "Space Mono": "https://fonts.googleapis.com/css2?family=Space+Mono&display=swap",
+    }
+    # Apply the font to the page's default text style
+    page.theme = Theme(font_family="Space Mono")
+    page.update()
 
     hello_gradient = LinearGradient(
         begin=alignment.center_left,
@@ -19,6 +28,7 @@ def main(page: Page):
         size=36,
         weight=FontWeight.BOLD,
         text_align=TextAlign.CENTER,
+        font_family="Space Mono", # Apply the new font
     )
 
     hello_text_shader_mask = ShaderMask(
@@ -40,9 +50,6 @@ def main(page: Page):
         expand=True
     )
 
-    user_message_color = Colors.BLUE_700
-    gemini_message_color = Colors.PURPLE_700
-
     async def on_submit_message(e):
         user_input = e.control.value
         if not user_input:
@@ -52,23 +59,40 @@ def main(page: Page):
             main_content_area.content = chat_list_view
             main_content_area.alignment = alignment.top_center
 
+        # User's message with "User" label
         chat_list_view.controls.append(
-            Row(
+            Column(
                 [
-                    Container(
-                        content=Text(
-                            user_input,
-                            selectable=True,
-                            color=Colors.BLACK87,
-                            size=15,
-                        ),
-                        padding=padding.symmetric(horizontal=12, vertical=8),
-                        bgcolor=Colors.GREY_100,
-                        border_radius=border_radius.all(18),
-                        alignment=alignment.center_right,
+                    Text(
+                        "User",
+                        size=12,
+                        color=Colors.GREY_600,
+                        weight=FontWeight.BOLD,
+                        text_align=TextAlign.END,
+                        font_family="Space Mono", # Apply font
+                    ),
+                    Row(
+                        [
+                            Container(
+                                content=Text(
+                                    user_input,
+                                    selectable=True,
+                                    color=Colors.BLACK87, # Text color for better contrast on light bubble
+                                    size=15,
+                                    font_family="Space Mono", # Apply font
+                                ),
+                                padding=padding.symmetric(horizontal=12, vertical=8),
+                                bgcolor=Colors.BLUE_GREY_100, # Light blue-grey for user bubble
+                                border_radius=border_radius.all(18),
+                                alignment=alignment.center_right,
+                                border=border.all(1, Colors.GREY_300), # Subtle border
+                            )
+                        ],
+                        alignment=MainAxisAlignment.END,
                     )
                 ],
-                alignment=MainAxisAlignment.END,
+                horizontal_alignment=CrossAxisAlignment.END,
+                spacing=2,
             )
         )
 
@@ -78,26 +102,46 @@ def main(page: Page):
         page.update()
 
         response = await generate_content(submitted_input)
+
+        # Gemini's response with "Gemini" label
         chat_list_view.controls.append(
-            Row(
+            Column(
                 [
-                    Icon(
-                        Icons.STAR_HALF_OUTLINED,
-                        color=Colors.DEEP_PURPLE_ACCENT_100,
-                        size=20
-                    ),
                     Text(
-                        response,
-                        selectable=True,
-                        color=Colors.BLACK87,
-                        size=15,
-                        expand=True,
-                        no_wrap=False,
-                        max_lines=None,
-                        weight=FontWeight.NORMAL
+                        "Gemini",
+                        size=12,
+                        color=Colors.GREY_600,
+                        weight=FontWeight.BOLD,
+                        text_align=TextAlign.START,
+                        font_family="Space Mono", # Apply font
+                    ),
+                    Row(
+                        [
+                            Container(
+                                content=Text(
+                                    response,
+                                    selectable=True,
+                                    color=Colors.BLACK87, # Text color for better contrast on white bubble
+                                    size=15,
+                                    expand=True,
+                                    no_wrap=False,
+                                    max_lines=None,
+                                    weight=FontWeight.NORMAL,
+                                    font_family="Space Mono", # Apply font
+                                ),
+                                padding=padding.symmetric(horizontal=12, vertical=8),
+                                bgcolor=Colors.WHITE, # White for Gemini bubble
+                                border_radius=border_radius.all(18),
+                                alignment=alignment.center_left,
+                                expand=True,
+                                border=border.all(1, Colors.GREY_300), # Subtle border
+                            )
+                        ],
+                        alignment=MainAxisAlignment.START,
                     )
                 ],
-                alignment=MainAxisAlignment.START,
+                horizontal_alignment=CrossAxisAlignment.START,
+                spacing=2,
             )
         )
         page.update()
@@ -106,8 +150,8 @@ def main(page: Page):
         hint_text="Ask Gemini",
         border=InputBorder.NONE,
         expand=True,
-        text_style=TextStyle(color=Colors.BLACK87, size=16),
-        hint_style=TextStyle(color=Colors.BLACK45, size=16),
+        text_style=TextStyle(color=Colors.BLACK87, size=16, font_family="Space Mono"), # Apply font
+        hint_style=TextStyle(color=Colors.BLACK45, size=16, font_family="Space Mono"), # Apply font
         cursor_color=Colors.BLACK54,
         on_submit=on_submit_message,
     )
@@ -147,7 +191,7 @@ def main(page: Page):
                             tooltip="Add",
                         ),
                         TextButton(
-                            content=Row([Icon(Icons.SEARCH, size=18, color=Colors.BLACK54), Text("Search", color=Colors.BLACK54)]),
+                            content=Row([Icon(Icons.SEARCH, size=18, color=Colors.BLACK54), Text("Search", color=Colors.BLACK54, font_family="Space Mono")]), # Apply font
                             style=ButtonStyle(padding=padding.symmetric(horizontal=8)),
                         ),
                         IconButton(
