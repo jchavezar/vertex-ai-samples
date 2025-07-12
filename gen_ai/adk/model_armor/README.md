@@ -72,19 +72,19 @@ Create 2 Templates (Inspect and De-Identify):
 
 **Inspect Template:**
 
-![img_1.png](readme_artifacts/img_1.png)
+![dlp_1.png](readme_artifacts/dlp_1.png)
 
 Add infotypes like FIRST_NAME LAST_NAME:
 
-![img_2.png](readme_artifacts/img_2.png)
+![dlp_2.png](readme_artifacts/dlp_2.png)
 
-**De-Identify**
+**De-Identify Template**:
 
-![img.png](readme_artifacts/img.png)
+![dlp_3.png](readme_artifacts/dlp_3.png)
 
 De-Identify is a mechanism to obscure personal information detected. (For the demo I selected "Redact")
 
-![img.png](readme_artifacts/img3.png)
+![dlp_4.png](readme_artifacts/dlp_4.png)
 
 Steps to create a Model Armor:
 
