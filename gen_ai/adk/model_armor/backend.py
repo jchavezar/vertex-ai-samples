@@ -80,13 +80,15 @@ def guardrail_function(callback_context: CallbackContext, llm_request: LlmReques
     print(f"[Callback] Inspecting last user message: '{last_user_message}'")
 
     if pii_found and last_user_message.lower() != "yes":
-        callback_context.state["PII"] = False
         return LlmResponse(
             content=types.Content(
                 role="model",
                 parts=[types.Part(text="Please respond Yes/No to continue")]
             )
         )
+    elif pii_found and last_user_message.lower() == "yes":
+        callback_context.state["PII"] = False
+        return None
 
     jailbreak, sensitive_data = model_armor_analyze(last_user_message)
     if sensitive_data and sensitive_data.sdp_filter_result and sensitive_data.sdp_filter_result.deidentify_result:
