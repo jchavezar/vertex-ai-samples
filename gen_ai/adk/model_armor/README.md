@@ -28,6 +28,8 @@ sequenceDiagram
 
 ## Prerequisites:
 
+---
+
 Before creating the ADK Agent a Model Armor template and DLP is required.
 
 **[Model Armor](https://cloud.google.com/security-command-center/docs/model-armor-overview)** is a Google Cloud service that enhances the security and safety of AI applications by screening LLM prompts and responses for various risks, including prompt injection, jailbreaking, harmful content, malicious URLs, and sensitive data loss. It offers centralized management, supports multi-cloud and multi-model scenarios, and integrates with Security Command Center.
@@ -87,6 +89,9 @@ A strong user interface (UI) is vital for any company. ADK offers "[adk web](htt
 3. [AgentSpace](https://cloud.google.com/products/agentspace?hl=en) (an enterprise **search** solution with **advanced** features).
 
 ## Agent Builder
+
+---
+
 ### Git Clone
 
 ```bash
@@ -125,7 +130,9 @@ pip install google-cloud-modelarmor #tested with 0.2.5
 pip install flet #tested with 0.27.6
 ```
 
-### Running Locally (ADK Web)
+## ADK Web
+
+---
 
 Change .env values with your own variables (we will add more later)
 
@@ -161,6 +168,8 @@ adk web
 ![img_1.png](readme_artifacts/adk_web2.png)
 
 ## Flet
+
+---
 
 Want to use your own UI? I've made a simple one with [Flet](https://flet.dev/) (powered by [Flutter](https://flutter.dev/)) that looks like this:
 
@@ -226,6 +235,8 @@ _Now Interact with the UI._
 ![flet_3.png](readme_artifacts/flet_3.png)
 
 ## AgentSpace
+
+---
 
 ### Steps to create an Agentspace:
 
