@@ -1,11 +1,35 @@
+![logo](./readme_artifacts/github-header-image.png)
+
 # Model Armor Guardrail Implementations for GenAI Agents
 
-![cloud_armor.jpeg](readme_artifacts/cloud_armor.jpeg)
+[//]: # (![cloud_armor.jpeg]&#40;readme_artifacts/cloud_armor.jpeg&#41;)
+
+## Table of Contents
+
+<!-- TOC -->
+- [Why Model Armor?](#why-model-armor)
+- [General Workflow](#general-workflow)
+- [Getting Started](#getting-started)
+  - [Model Armor and DLP](#model-armor-and-data-loss-prevention)
+  - [Create Cloud Storage](#create-a-gcs-bucket-for-staging)
+  - [Agent Builder](#agent-builder)
+    - [Clone GitHub](#clone-github-repo)
+    - [Install Packages](#install-packages)
+    - [Authentication](#authentication)
+    - [ADK Web](#adk-web)
+    - [Flet (Your Own UI)](#flet-your-own-ui)
+    - [Agentspace](#agentspace)
+
+## Why Model Armor?
+
+Generative AI is powerful, but it also carries risks. Model Armor is crucial for building trust and ensuring the safe deployment of GenAI systems. It helps mitigate vulnerabilities, prevent misuse, and maintain responsible AI practices.
 
 This project demonstrates the integration of [Model Armor](https://cloud.google.com/security-command-center/docs/model-armor-overview) and ADK ([Agent Development Kit](https://google.github.io/adk-docs/))
 
 - We will be using before_model_callback function to use model armor before hitting LLM.
-- The code in this repo was programmed with 2 components:
+- The code in this repo was programmed with 2 components.
+
+## General Workflow
 
 Component 1: **Detect Personal Information**.
 ```mermaid
@@ -26,9 +50,9 @@ sequenceDiagram
     note left of Agent: End of Call
 ```
 
-## Prerequisites:
+## Getting Started
 
----
+### Model Armor and Data Loss Prevention:
 
 Before creating the ADK Agent a Model Armor template and DLP is required.
 
@@ -81,18 +105,16 @@ Save and Done.
 gsutil mb gs://[your-bucket-name(change me)]
 ```
 
-## Before Continue
+## Agent Builder
 
-A strong user interface (UI) is vital for any company. ADK offers "[adk web](https://google.github.io/adk-docs/evaluate/#1-adk-web-run-evaluations-via-the-web-ui)" for rapid UI prototyping. Our project utilizes three web interfaces: 
+A strong user interface (UI) is vital for any company. ADK offers "[adk web](https://google.github.io/adk-docs/evaluate/#1-adk-web-run-evaluations-via-the-web-ui)" for rapid UI prototyping. Our project utilizes three web interfaces:
 1. [ADK Web](https://google.github.io/adk-docs/evaluate/#1-adk-web-run-evaluations-via-the-web-ui), for **pre-production** Agent testing.
 2. [Flet](https://flet.dev/), for "simulating" **existing** frontends or specific preferences.
 3. [AgentSpace](https://cloud.google.com/products/agentspace?hl=en) (an enterprise **search** solution with **advanced** features).
 
-## Agent Builder
-
 ---
 
-### Git Clone
+### Clone GitHub Repo
 
 ```bash
 git clone https://github.com/jchavezar/vertex-ai-samples.git
@@ -118,7 +140,7 @@ git pull origin main
 cd gen_ai/adk/
 ```
 
-### Install libraries
+#### Install Packages
 I highly recommend to use a new virtual environment in python, I am using [uv](https://docs.astral.sh/uv/getting-started/installation/)
 because is really fast.
 
@@ -130,17 +152,13 @@ pip install google-cloud-modelarmor #tested with 0.2.5
 pip install flet #tested with 0.27.6
 ```
 
-## ADK Web
-
----
-
 Change .env values with your own variables (we will add more later)
 
 GOOGLE_CLOUD_PROJECT=vtxdemos  
 GOOGLE_CLOUD_LOCATION=us-central1  
 GOOGLE_GENAI_USE_VERTEXAI=True
 
-### Authentication
+#### Authentication
 _Make sure you are authenticated somehow with your Google Cloud Project_
 
 There are 2 options, either you create a service_account with **Vertex AI User** and **Model Armor User** Role and download the json key file
@@ -157,6 +175,8 @@ Or using [Google ADC](https://cloud.google.com/docs/authentication/provide-crede
 gcloud auth application-default login
 ```
 
+#### ADK Web
+
 _Run Adk Web_
 ```bash
 adk web
@@ -167,7 +187,7 @@ adk web
 ![img.png](readme_artifacts/adk_web1.png)
 ![img_1.png](readme_artifacts/adk_web2.png)
 
-## Flet
+#### Flet (Your Own UI)
 
 ---
 
@@ -234,11 +254,9 @@ _Now Interact with the UI._
 
 ![flet_3.png](readme_artifacts/flet_3.png)
 
-## AgentSpace
+#### AgentSpace
 
----
-
-### Steps to create an Agentspace:
+##### Steps to create an Agentspace:
 
 1. Go to [Google Cloud Console](https://console.cloud.google.com/) > [AI Applications](https://console.cloud.google.com/gen-app-builder/) > Click on "Create App"
 
