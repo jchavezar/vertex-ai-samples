@@ -10,6 +10,8 @@ The two subdirectories showcase different methods for implementing these PII gua
 
 ## Prerrequisites:
 
+---
+
 Before creating the ADK Agent a Model Armor template and DLP is required.
 
 **[Model Armor](https://cloud.google.com/security-command-center/docs/model-armor-overview)** is a Google Cloud service that enhances the security and safety of AI applications by screening LLM prompts and responses for various risks, including prompt injection, jailbreaking, harmful content, malicious URLs, and sensitive data loss. It offers centralized management, supports multi-cloud and multi-model scenarios, and integrates with Security Command Center.
