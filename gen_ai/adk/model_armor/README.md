@@ -91,11 +91,14 @@ Steps to create a Model Armor:
 Go to [Google Cloud Console](https://console.cloud.google.com/) > Security > [Model Armor](https://console.cloud.google.com/security/modelarmor) > Create Template
 Select and fill the gaps.
 
-![img.png](readme_artifacts/img4.png)
+![model_armor_1.png](readme_artifacts/model_armor_1.png)
 
 Check Sensitive data protection box and paste the endpoint from dlp inspect template and de-identify template:
 
-![img.png](readme_artifacts/img5.png)
+> [!NOTE]
+> Don't forget to change the template IDs with your own information.
+
+![model_armor_2.png](readme_artifacts/model_armor_2.png)
 
 Save and Done.
 
