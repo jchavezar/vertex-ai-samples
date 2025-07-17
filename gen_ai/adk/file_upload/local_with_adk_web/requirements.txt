@@ -1,0 +1,5 @@
+openpyxl
+tabulate
+google-genai
+pandas
+google-adk
