@@ -87,3 +87,7 @@ def generate_specific_gcs_thumbnail(
 #     "video_search_app/videos/gabby_thomas_gold.mp4",
 #     "video_search_app/thumbnail/gabby_thomas_gold.png",
 #     12)
+
+#%%
+import pandas as pd
+df = pd.read_pickle("./video_gen_dataset.pkl")
