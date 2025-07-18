@@ -1,12 +1,10 @@
-
+import time
+import random
 import flet as ft
 import flet_video as fv
-from backend import find_most_similar, generate_chat_response, all_videos_data
-import time
 from urllib.parse import urlparse, parse_qs, quote_plus
-from google import genai
-from google.genai import types
-import random
+from backend import find_most_similar, generate_chat_response, all_videos_data
+import base64
 
 
 def main(page: ft.Page):
@@ -41,6 +39,8 @@ def main(page: ft.Page):
 
         k = min(len(all_videos_data), 5)
         recommendations = random.sample(all_videos_data, k)
+        
+        recommendations_row = ft.Row(wrap=True, spacing=20, run_spacing=20)
 
         for video_data in recommendations:
             if not video_data.get('segmented_data'):
@@ -88,12 +88,15 @@ def main(page: ft.Page):
                     border_radius=ft.border_radius.all(8),
                 )
             )
-            results_view.controls.append(thumbnail_card)
+            recommendations_row.controls.append(thumbnail_card)
 
-        if not results_view.controls:
+        if not recommendations_row.controls:
             results_view.controls.append(
                 ft.Text("Could not load recommendations.", size=16, color="white54")
             )
+        else:
+            results_view.controls.append(ft.Text("Recommendations", size=20, weight=ft.FontWeight.BOLD))
+            results_view.controls.append(recommendations_row)
 
         page.update()
 
@@ -105,52 +108,97 @@ def main(page: ft.Page):
         results_view.controls.clear()
         page.update()
 
-        search_results = find_most_similar(query, top_n=6)
+        vertex_search_results, multimodal_results = find_most_similar(query, top_n=6)
         time.sleep(1)
 
         progress_bar.visible = False
 
-        if not search_results:
+        if not multimodal_results and not vertex_search_results:
             results_view.controls.append(
-                ft.Text("No matching video moments found.", size=16, color="white54")
+                ft.Text("No matching results found.", size=16, color="white54")
             )
         else:
-            for result in search_results:
-                video_uri = result['video_gcs_uri']
-                summary = result['summary_text']
-                encoded_summary = quote_plus(summary)
+            if multimodal_results:
+                results_view.controls.append(ft.Tezxt("Video Retrieval Results", size=20, weight=ft.FontWeight.BOLD))
+                multimodal_row = ft.Row(wrap=True, spacing=20, run_spacing=20)
+                for result in multimodal_results:
+                    video_uri = result['video_gcs_uri']
+                    summary = result['summary_text']
+                    encoded_summary = quote_plus(summary)
 
-                thumbnail_card = ft.Card(
-                    elevation=4,
-                    content=ft.Container(
-                        width=280,
-                        height=280,
-                        on_click=lambda _, v=video_uri, s=encoded_summary, offset=result['start_offset_sec']: page.go(f"/watch?video_uri={v}&summary_text={s}&start_offset={offset}"),
-                        content=ft.Stack([
-                            ft.Image(src=result['thumbnail_gcs_uri'], fit=ft.ImageFit.COVER),
-                            ft.Container(
-                                padding=10,
-                                gradient=ft.LinearGradient(
-                                    begin=ft.alignment.top_center,
-                                    end=ft.alignment.bottom_center,
-                                    colors=["transparent", "black"],
-                                ),
-                                content=ft.Column([
-                                    ft.Container(expand=True),
-                                    ft.Text(
-                                        result['video_title'],
-                                        weight=ft.FontWeight.BOLD,
-                                        size=14,
-                                        max_lines=3,
-                                        overflow=ft.TextOverflow.ELLIPSIS
+                    thumbnail_card = ft.Card(
+                        elevation=4,
+                        content=ft.Container(
+                            width=280,
+                            height=280,
+                            on_click=lambda _, v=video_uri, s=encoded_summary, offset=result['start_offset_sec']: page.go(f"/watch?video_uri={v}&summary_text={s}&start_offset={offset}"),
+                            content=ft.Stack([
+                                ft.Image(src=result['thumbnail_gcs_uri'], fit=ft.ImageFit.COVER),
+                                ft.Container(
+                                    padding=10,
+                                    gradient=ft.LinearGradient(
+                                        begin=ft.alignment.top_center,
+                                        end=ft.alignment.bottom_center,
+                                        colors=["transparent", "black"],
                                     ),
-                                ])
-                            )
-                        ]),
-                        border_radius=ft.border_radius.all(8),
+                                    content=ft.Column([
+                                        ft.Container(expand=True),
+                                        ft.Text(
+                                            result['video_title'],
+                                            weight=ft.FontWeight.BOLD,
+                                            size=14,
+                                            max_lines=3,
+                                            overflow=ft.TextOverflow.ELLIPSIS
+                                        ),
+                                    ])
+                                )
+                            ]),
+                            border_radius=ft.border_radius.all(8),
+                        )
                     )
-                )
-                results_view.controls.append(thumbnail_card)
+                    multimodal_row.controls.append(thumbnail_card)
+                results_view.controls.append(multimodal_row)
+
+            if multimodal_results and vertex_search_results:
+                results_view.controls.append(ft.Divider(height=1, color="grey"))
+
+            if vertex_search_results:
+                results_view.controls.append(ft.Text("Vertex AI Search Results", size=20, weight=ft.FontWeight.BOLD))
+                vertex_row = ft.Row(wrap=True, spacing=20, run_spacing=20)
+                for result in vertex_search_results:
+                    vertex_card = ft.Card(
+                        elevation=4,
+                        content=ft.Container(
+                            width=280,
+                            height=280,
+                            on_click=lambda _, url=result['link']: page.launch_url(url),
+                            content=ft.Stack([
+                                ft.Image(src_base64=base64.b64encode(result['decoded_data']).decode('utf-8'), fit=ft.ImageFit.COVER),
+                                ft.Container(
+                                    padding=10,
+                                    gradient=ft.LinearGradient(
+                                        begin=ft.alignment.top_center,
+                                        end=ft.alignment.bottom_center,
+                                        colors=["transparent", "black"],
+                                    ),
+                                    content=ft.Column([
+                                        ft.Container(expand=True),
+                                        ft.Text(
+                                            result['title'],
+                                            weight=ft.FontWeight.BOLD,
+                                            size=14,
+                                            max_lines=3,
+                                            overflow=ft.TextOverflow.ELLIPSIS
+                                        ),
+                                    ])
+                                )
+                            ]),
+                            border_radius=ft.border_radius.all(8),
+                        )
+                    )
+                    vertex_row.controls.append(vertex_card)
+                results_view.controls.append(vertex_row)
+
         page.update()
 
     def route_change(route):
@@ -169,13 +217,9 @@ def main(page: ft.Page):
                 on_submit=lambda e: perform_search(e.control.value, results_view, progress_bar)
             )
             progress_bar = ft.ProgressBar(visible=False, color="purple400", bgcolor="#222222")
-            results_view = ft.GridView(
+            results_view = ft.ListView(
                 expand=True,
-                runs_count=5,
-                max_extent=300,
-                child_aspect_ratio=1.0,
                 spacing=20,
-                run_spacing=20,
             )
 
             page.views.append(
@@ -307,7 +351,7 @@ def main(page: ft.Page):
                     ft.Container(
                         padding=ft.padding.symmetric(horizontal=30),
                         content=ft.Text(
-                            f'\'"{summary_text}"\'',
+                            f'"{summary_text}"',
                             italic=True,
                             size=16,
                             color="white70",
