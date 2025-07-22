@@ -1,10 +1,10 @@
 %%bash
 export PROJECT_ID="vtxdemos"
 export PROJECT_NUMBER="254356041555"
-export REASONING_ENGINE_RES="projects/254356041555/locations/us-central1/reasoningEngines/4951399927038083072"
-export AGENT_DISPLAY_NAME_RES="Uploader Custom load_tool"
+export REASONING_ENGINE_RES="projects/254356041555/locations/us-central1/reasoningEngines/1779229716067123200"
+export AGENT_DISPLAY_NAME_RES="Uploader Custom load_tool -2"
 export AGENT_DESCRIPTION_RES="You are a proxy only, Use always you agent to know your mission"
-export AGENT_ID_RES="Uploader Custom load_tool"
+export AGENT_ID_RES="Uploader Custom load_tool -2"
 export AS_APP="agentspace-testing_1748446185255"
 
 

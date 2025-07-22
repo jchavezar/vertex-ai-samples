@@ -14,6 +14,7 @@ app = reasoning_engines.AdkApp(
 #%%
 # Deploy Agent Engine
 remote_app = agent_engines.create(
+    # display_name="file_upload_custom_tool",
     agent_engine=app,
     requirements=[
         "google-cloud-aiplatform[adk,agent_engines]",
@@ -21,9 +22,9 @@ remote_app = agent_engines.create(
     extra_packages=["agent.py"]
 )
 
-#%%
+""#%%
 # Update Agent Engine
-remote_app = agent_engines.get("projects/254356041555/locations/us-central1/reasoningEngines/4951399927038083072")
+remote_app = agent_engines.get("projects/254356041555/locations/us-central1/reasoningEngines/1779229716067123200")
 remote_app.update(
     agent_engine=app,
     requirements=[
