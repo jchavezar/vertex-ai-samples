@@ -1,29 +1,51 @@
+import os
 import sys
-
+from google import genai
+from google.genai import types
 from google.adk.tools import ToolContext
 from google.adk.agents import LlmAgent
 
 
+client = genai.Client(
+    vertexai=True,
+    project=os.getenv("GOOGLE_CLOUD_PROJECT"),
+    location=os.getenv("GOOGLE_CLOUD_LOCATION")
+)
+
 async def document_analyze(tool_context: ToolContext):
+    from google import adk
+    print(adk.__version__, file=sys.stdout)
     artifacts = await tool_context.list_artifacts()
     print("#"*80, file=sys.stdout)
     print(artifacts, file=sys.stdout)
     if len(artifacts) > 0:
-        a1 = await tool_context.load_artifact(artifacts[-1])
-    else: return "document extraction has: The name of this app is Sockcop"
-    print("dir:........................")
-    print(dir(a1))
-    print(a1, file=sys.stdout)
-    print("#"*80, file=sys.stdout)
-    if 'inlineData' in a1:
-        print("data"*5, file=sys.stdout)
-        print("work", file=sys.stdout)
-        print(a1["inlineData"]["data"])
-        print("end")
-    else:
-        print(type(a1), file=sys.stdout)
-        print(str(dir(a1)), file=sys.stdout)
-    return f"document extraction has: {str(a1)}"
+        print(artifacts[-1])
+        a1 = await tool_context.load_artifact(filename=artifacts[-1])
+        if 'inlineData' in a1:
+            file = types.Part.from_bytes(
+                data=a1['inlineData']['data'],
+                mime_type=a1['inlineData']['mimeType'],
+            )
+            try:
+                re = client.models.generate_content(
+                    model="gemini-2.5-flash",
+                    config=types.GenerateContentConfig(
+                        thinking_config=types.ThinkingConfig(
+                            thinking_budget=0
+                        )
+                    ),
+                    contents=[
+                        types.Part.from_text(text="Describe the following document"),
+                        file
+                    ]
+                )
+                re = re.text
+            except Exception as e:
+                re = e
+            return re
+    else: return "No Documents Found"
+
+    return f"document extraction has: {str(artifacts)}"
 
 root_agent = LlmAgent(
     name="root_agent",
@@ -31,8 +53,8 @@ root_agent = LlmAgent(
     description="You are General Intelligence Assistant",
     instruction="""
     Always use the following workflow in sequence (do not skip any step):
-    1. Use your `document_analyze` tool to get some findings.
-    2. Respond any question using the output of your `document_analyze` tool.
+    1. Use your `document_analyze` tool to get the file content if No Documents Found just skip this step.
+    2. Respond any question.
     """,
     tools=[document_analyze]
 )
