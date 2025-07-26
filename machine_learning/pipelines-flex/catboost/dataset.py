@@ -28,4 +28,4 @@ job = aiplatform.CustomTrainingJob(
     container_uri='gcr.io/cloud-aiplatform/training/tf-cpu.2-2:latest',
     model_serving_container_image_uri='gcr.io/my-trainer/serving:1',
     model_serving_container_predict_route='predict',
-    model_serving_container_health_route='metadata, labels={'key': 'value'}, )
+    model_serving_container_health_route='metadata', labels={'key': 'value'}, )
