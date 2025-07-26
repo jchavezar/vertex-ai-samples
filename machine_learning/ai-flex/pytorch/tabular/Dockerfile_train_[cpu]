@@ -1,0 +1,10 @@
+FROM python:3.10-slim
+
+WORKDIR /app
+COPY trainer trainer/
+
+RUN pip install --upgrade pip
+RUN pip install pytorch_tabular[extra] && \
+    pip install pandas gcsfs
+
+CMD ["python", "-m", "trainer.train"]
