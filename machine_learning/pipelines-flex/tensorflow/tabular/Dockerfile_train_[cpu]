@@ -1,0 +1,13 @@
+FROM python:3.11.6
+
+WORKDIR /app
+COPY trainer trainer/
+
+RUN pip install --upgrade pip
+RUN pip install tensorflow==2.15.1 && \
+    pip install google-cloud-storage && \
+    pip install pandas && \
+    pip install gcsfs && \
+    pip install google-cloud-aiplatform
+
+CMD ["python", "-m", "trainer.train"]
