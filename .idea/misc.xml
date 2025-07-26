@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<project version="4">
-  <component name="Black">
-    <option name="sdkName" value="Python 3.12 (vertex-ai-samples)" />
-  </component>
-  <component name="ProjectRootManager" version="2" languageLevel="JDK_19" project-jdk-name="Python 3.13 (vertex-ai-samples/gen_ai)" project-jdk-type="Python SDK">
-    <output url="file://$PROJECT_DIR$/out" />
-  </component>
-</project>
