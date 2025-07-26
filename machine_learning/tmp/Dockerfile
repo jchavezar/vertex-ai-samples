@@ -1,7 +1,7 @@
 FROM pytorch/pytorch:1.12.1-cuda11.3-cudnn8-devel
 
 WORKDIR /app
-COPY inference/ .
+COPY inference .
 
 RUN pip install pytorch_tabular[extra]
 RUN pip install uvicorn fastapi
