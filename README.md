@@ -2,7 +2,7 @@
 
 <p align="left">
   <a href="https://github.com/jchavezar/vertex-ai-samples">
-    <img src="https://komarev.com/ghpvc/?username=macropower" alt="page views" />
+    <img src="https://komarev.com/ghpvc/?username=jchavezar" alt="page views" />
   </a>
 </p>
 
