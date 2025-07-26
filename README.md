@@ -1,4 +1,5 @@
-<h1 align="left" id="macropower-title">:wave: Hello there! I'm Jesus Chavez</h1>
+![Header](./artifacts/main-header.png)
+
 
 <p align="left">
   <a href="https://github.com/jchavezar/vertex-ai-samples">
@@ -6,15 +7,16 @@
   </a>
 </p>
 
-## Repo Architecture
+[![framework](https://img.shields.io/badge/framework-Flutter-9B59B6)](https://flutter.dev/)
+[![framework](https://img.shields.io/badge/framework-Flet-27AE60)](https://flet.dev/)
+[![language](https://img.shields.io/badge/language-Python-E74C3C)](https://www.python.org/)
+[![date](https://img.shields.io/badge/date-July-F39C12)](https://example.com/july)
 
-When I created this repo I only knew how to use notebooks and during my learning process I found out was easier to take micro-components and make it usable for creating more complex stuff like MLOps, so I moved all the root folder into [/notebooks](https://github.com/jchavezar/vertex-ai-samples/tree/main/notebooks)
+## Table of Contents
 
-*I'll keep this readme and my repo up to date "adding more stuff coming soon"*
-
-**Following Diagram explains the repo by itself:**
-
-![](images/architecture2.0.png)
+- [Generative AI](./gen_ai)
+- [Machine Learning](./machine_learning)
+- [Generative AI and Machine Learning](./ml_and_gen_ai)
 
 ## More Resources Like This Repository
 
