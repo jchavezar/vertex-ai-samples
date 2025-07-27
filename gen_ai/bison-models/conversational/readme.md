@@ -15,5 +15,5 @@ These are the most important components:
 
 ## Folder Structure
 
-1. [large_context](./large_context), components used: [documentai](https://cloud.google.com/document-ai), [cloudsql-ppgvector](https://cloud.google.com/blog/products/databases/using-pgvector-llms-and-langchain-with-google-cloud-databases), [gecko-embedings](https://cloud.google.com/vertex-ai/docs/generative-ai/embeddings/get-text-embeddings), [text-bison](https://cloud.google.com/vertex-ai/docs/generative-ai/model-reference/text), [gradio](https://www.gradio.app/).
-2. [multi_intent](./multi_intent), components used: [text-bison](https://cloud.google.com/vertex-ai/docs/generative-ai/model-reference/text), [gradio](https://www.gradio.app/).
+1. [large_context](large_context), components used: [documentai](https://cloud.google.com/document-ai), [cloudsql-ppgvector](https://cloud.google.com/blog/products/databases/using-pgvector-llms-and-langchain-with-google-cloud-databases), [gecko-embedings](https://cloud.google.com/vertex-ai/docs/generative-ai/embeddings/get-text-embeddings), [text-bison](https://cloud.google.com/vertex-ai/docs/generative-ai/model-reference/text), [gradio](https://www.gradio.app/).
+2. [multi_intent](multi_intent), components used: [text-bison](https://cloud.google.com/vertex-ai/docs/generative-ai/model-reference/text), [gradio](https://www.gradio.app/).
