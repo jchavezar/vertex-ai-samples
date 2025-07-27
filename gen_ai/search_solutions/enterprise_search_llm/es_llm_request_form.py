@@ -1,10 +1,3 @@
-#
-#region Install Packages
-!pip install langchain
-!pip install google-cloud-aiplatform
-!pip install google-cloud-discoveryengine
-#endregion
-
 #%%
 #region Libraries
 from langchain import PromptTemplate
