@@ -1,9 +1,4 @@
 #%%
-!pip install langchain
-!pip install google-cloud-aiplatform
-!pip install google-cloud-discoveryengine
-
-#%%
 #@title ### You will need to update these values
 VERTEX_API_PROJECT = 'vtxdemos' #@param {"type": "string"}
 VERTEX_API_LOCATION = 'us-central1' #@param {"type": "string"}
