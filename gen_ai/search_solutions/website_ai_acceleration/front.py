@@ -1,4 +1,5 @@
 import flet as ft
+from back import custom_search, send_message
 
 def main(page: ft.Page):
     page.title = "AP News Replica"
@@ -6,11 +7,8 @@ def main(page: ft.Page):
     page.window_height = 800
     page.scroll = ft.ScrollMode.ADAPTIVE
     page.bgcolor = ft.Colors.WHITE
-    # Set the page's horizontal alignment to center all its direct children
     page.horizontal_alignment = ft.CrossAxisAlignment.CENTER
 
-    # --- Header Section ---
-    # Inner Row for Header Content to control its width and spacing
     header_content_row = ft.Row(
         controls=[
             ft.Image(src="https://www.ap.org/assets/images/ap-logo.svg", width=50, height=30),
@@ -37,22 +35,43 @@ def main(page: ft.Page):
                 spacing=10
             )
         ],
-        alignment=ft.MainAxisAlignment.SPACE_BETWEEN, # Distribute items within this row's width
+        alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
         vertical_alignment=ft.CrossAxisAlignment.CENTER,
-        width=1100, # Set a specific width for this inner row, matching the main content width
+        width=1100,
     )
 
-    # Outer Container for Header, which itself will now be centered by the page.horizontal_alignment
     header = ft.Container(
-        content=header_content_row, # Contains the inner row (which is 1100 wide)
+        content=header_content_row,
         padding=ft.padding.all(10),
-        width=1100, # Set the header container's width to match the main content width for consistent alignment
+        width=1100,
         bgcolor=ft.Colors.WHITE,
-        # The alignment property for content centering within this container is no longer needed,
-        # as header_content_row already fills this width.
     )
 
-    # --- Search Bar ---
+    def on_question_submit(e, answer_container):
+        question = e.control.value
+        if question:
+            e.control.value = ""
+            e.control.disabled = True
+            answer_container.content = ft.Column(
+                [ft.ProgressRing(width=20, height=20)],
+                spacing=10,
+                horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+                alignment=ft.MainAxisAlignment.CENTER,
+                height=100
+            )
+            answer_container.visible = True
+            page.update()
+
+            answer = send_message(question)
+
+            answer_container.content = ft.Column(
+                [ft.Text(answer, color=ft.Colors.BLACK, selectable=True)],
+                spacing=10,
+                horizontal_alignment=ft.CrossAxisAlignment.START
+            )
+            e.control.disabled = False
+            page.update()
+
     def on_search_change(e):
         if e.control.value:
             main_content_container.visible = False
@@ -67,10 +86,147 @@ def main(page: ft.Page):
             _search_results_column.controls = []
         page.update()
 
+    def on_submit(e):
+        if e.control.value:
+            main_content_container.visible = False
+            search_results_container.visible = True
+            response_data = custom_search(e.control.value)
+
+            result_blocks = []
+            if "titles" in response_data and response_data["titles"]:
+                for i in range(len(response_data["titles"])):
+                    answer_container = ft.Container(
+                        content=ft.Column([]),
+                        width=400,
+                        padding=20,
+                        margin=ft.margin.only(bottom=20, right=20),
+                        border_radius=ft.border_radius.all(10),
+                        bgcolor="#f5f5f5",
+                        shadow=ft.BoxShadow(
+                            spread_radius=1,
+                            blur_radius=5,
+                            color=ft.Colors.BLACK12,
+                            offset=ft.Offset(0, 3),
+                        ),
+                        visible=False
+                    )
+
+                    block_content = []
+
+                    block_content.append(
+                        ft.Text(
+                            response_data["titles"][i],
+                            size=18,
+                            weight=ft.FontWeight.BOLD,
+                            color=ft.Colors.BLACK,
+                            max_lines=2,
+                            overflow=ft.TextOverflow.ELLIPSIS
+                        )
+                    )
+
+                    if i < len(response_data["snippets"]):
+                        block_content.append(
+                            ft.Text(
+                                response_data["snippets"][i],
+                                size=13,
+                                color=ft.Colors.GREY_700,
+                                max_lines=3,
+                                overflow=ft.TextOverflow.ELLIPSIS
+                            )
+                        )
+
+                    if i < len(response_data["thumbnails"]):
+                        image_with_container = ft.Container(
+                            content=ft.Image(
+                                src=response_data["thumbnails"][i],
+                                width=400,
+                                height=250,
+                                fit=ft.ImageFit.COVER,
+                                border_radius=ft.border_radius.all(5),
+                            ),
+                            width=400,
+                            height=250,
+                            border_radius=ft.border_radius.all(5),
+                            clip_behavior=ft.ClipBehavior.ANTI_ALIAS
+                        )
+
+                        block_content.append(
+                            ft.Container(
+                                content=image_with_container,
+                                alignment=ft.alignment.center,
+                                margin=ft.margin.only(top=10),
+                            )
+                        )
+
+                        block_content.append(
+                            ft.Container(
+                                content=ft.TextField(
+                                    hint_text="Ask a question about this content...",
+                                    hint_style=ft.TextStyle(color=ft.Colors.GREY_700),
+                                    text_style=ft.TextStyle(color=ft.Colors.BLACK),
+                                    width=400,
+                                    content_padding=ft.padding.only(left=10, right=10),
+                                    border_radius=5,
+                                    border_color=ft.Colors.GREY_300,
+                                    focused_border_color=ft.Colors.BLUE_ACCENT_700,
+                                    height=40,
+                                    text_size=14,
+                                    prefix_icon=ft.Icons.QUESTION_ANSWER,
+                                    on_submit=lambda e, ac=answer_container: on_question_submit(e, ac),
+                                ),
+                                alignment=ft.alignment.center,
+                                margin=ft.margin.only(top=10)
+                            )
+                        )
+
+                    content_container = ft.Container(
+                        content=ft.Column(
+                            block_content,
+                            spacing=5,
+                            horizontal_alignment=ft.CrossAxisAlignment.START
+                        ),
+                        padding=20,
+                        margin=ft.margin.only(bottom=20),
+                        width=600,
+                        border_radius=ft.border_radius.all(10),
+                        bgcolor=ft.Colors.WHITE,
+                        shadow=ft.BoxShadow(
+                            spread_radius=1,
+                            blur_radius=5,
+                            color=ft.Colors.BLACK12,
+                            offset=ft.Offset(0, 3),
+                        ),
+                    )
+
+                    result_row = ft.Row(
+                        controls=[
+                            answer_container,
+                            content_container,
+                        ],
+                        vertical_alignment=ft.CrossAxisAlignment.START,
+                        spacing=20,
+                    )
+
+                    centered_result_block = ft.Container(
+                        content=result_row,
+                        width=400 + 600 + 20,
+                    )
+                    result_blocks.append(centered_result_block)
+
+            _search_results_column.controls = result_blocks
+        else:
+            main_content_container.visible = True
+            search_results_container.visible = False
+            _search_results_column.controls = []
+        page.update()
+
     search_bar = ft.TextField(
         hint_text="Keyword Search...",
-        width=800, # Adjusted width to better fit within the 1100px content area
+        hint_style=ft.TextStyle(color=ft.Colors.GREY_700),
+        text_style=ft.TextStyle(color=ft.Colors.BLACK),
+        width=800,
         on_change=on_search_change,
+        on_submit=on_submit,
         content_padding=ft.padding.only(left=10, right=10),
         border_radius=5,
         border_color=ft.Colors.GREY_300,
@@ -80,20 +236,18 @@ def main(page: ft.Page):
         prefix_icon=ft.Icons.SEARCH
     )
 
-    # Container for search bar to be centered within the 1100px content band
     search_bar_container = ft.Container(
         content=search_bar,
-        alignment=ft.alignment.center, # Center the search bar within this container
+        alignment=ft.alignment.center,
         padding=ft.padding.only(bottom=20),
-        width=1100, # Make this container 1100px wide so it aligns with other content blocks
+        width=1100,
     )
 
-    # --- Search Results Container ---
-    _search_results_column = ft.Column(expand=True, horizontal_alignment=ft.CrossAxisAlignment.CENTER)
-    search_results_container = ft.Container(content=_search_results_column, visible=False, expand=True)
+    _search_results_column = ft.Column(horizontal_alignment=ft.CrossAxisAlignment.CENTER, spacing=15)
+    search_results_container = ft.Container(
+        content=_search_results_column, visible=False, expand=True, alignment=ft.alignment.top_center
+    )
 
-    # --- Main Content ---
-    # Left column (Main news)
     left_column_content = ft.Column(
         [
             ft.Text(
@@ -155,7 +309,6 @@ def main(page: ft.Page):
         width=700,
     )
 
-    # Right column (Side news)
     right_column_content = ft.Column(
         [
             ft.Text(
@@ -181,7 +334,6 @@ def main(page: ft.Page):
         width=400,
     )
 
-    # Center layout container for main content (already 1100 wide and its content centers)
     main_content_row = ft.Row(
         [left_column_content, ft.VerticalDivider(width=1), right_column_content],
         vertical_alignment=ft.CrossAxisAlignment.START,
@@ -196,20 +348,25 @@ def main(page: ft.Page):
     )
 
     _main_content_column = ft.Column([centered_content], horizontal_alignment=ft.CrossAxisAlignment.CENTER)
-    main_content_container = ft.Container(content=_main_content_column, visible=True, expand=True)
-
-    dynamic_content_area = ft.Container(
-        content=ft.Column([main_content_container, search_results_container], expand=True),
-        expand=True,
-        bgcolor=ft.Colors.WHITE,
-        alignment=ft.alignment.top_center # This will align the column within dynamic_content_area.
+    main_content_container = ft.Container(
+        content=_main_content_column, visible=True, expand=True, alignment=ft.alignment.top_center
     )
 
-    # Add everything to page
+    dynamic_content_area = ft.Container(
+        content=ft.Column(
+            [main_content_container, search_results_container],
+            expand=True,
+            horizontal_alignment=ft.CrossAxisAlignment.CENTER # Added this line
+        ),
+        expand=True,
+        bgcolor=ft.Colors.WHITE,
+        alignment=ft.alignment.top_center
+    )
+
     page.add(
         header,
         ft.Container(height=20),
-        search_bar_container, # Use the new search_bar_container for consistent alignment
+        search_bar_container,
         dynamic_content_area
     )
 
