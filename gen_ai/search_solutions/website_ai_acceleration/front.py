@@ -1,8 +1,6 @@
-
 import flet as ft
-import re  # Import regex for advanced text parsing
-from back import custom_search, send_message
-
+import re
+from back import custom_search, send_message, classify_and_summarize_news
 
 def main(page: ft.Page):
     page.title = "AP News Replica"
@@ -50,7 +48,6 @@ def main(page: ft.Page):
         bgcolor=ft.Colors.WHITE,
     )
 
-    # Helper function to parse and format the AI\'s response
     def format_answer_content(answer: str) -> list[ft.Control]:
         controls = []
         lines = answer.split('\n')
@@ -59,8 +56,6 @@ def main(page: ft.Page):
             if not line:
                 continue
 
-            # 1. Handle bullet points for "Explore Deeper" / "Other Perspectives": * **Title**: Description
-            # This regex captures the title inside ** ** and the description after the colon.
             match_complex_bullet = re.match(r'^\*\s*\*\*(.*?)\*\*:\s*(.*)$', line)
             if match_complex_bullet:
                 title_text = match_complex_bullet.group(1).strip()
@@ -68,22 +63,22 @@ def main(page: ft.Page):
                 controls.append(
                     ft.Row(
                         [
-                            ft.Icon(ft.Icons.CIRCLE, size=10, color=ft.Colors.BLACK), # Slightly larger icon
+                            ft.Icon(ft.Icons.CIRCLE, size=10, color=ft.Colors.BLACK),
                             ft.Text(
                                 spans=[
                                     ft.TextSpan(
                                         title_text,
-                                        ft.TextStyle(weight=ft.FontWeight.BOLD, color=ft.Colors.BLACK, size=16), # Increased size
+                                        ft.TextStyle(weight=ft.FontWeight.BOLD, color=ft.Colors.BLACK, size=16),
                                     ),
                                     ft.TextSpan(
                                         f": {description_text}",
-                                        ft.TextStyle(color=ft.Colors.BLACK, size=15), # Increased size
+                                        ft.TextStyle(color=ft.Colors.BLACK, size=15),
                                     )
                                 ],
                                 selectable=True,
                                 overflow=ft.TextOverflow.CLIP,
-                                max_lines=None, # Allow text to wrap
-                                expand=True # Allow text to expand within the row
+                                max_lines=None,
+                                expand=True
                             )
                         ],
                         vertical_alignment=ft.CrossAxisAlignment.START,
@@ -92,22 +87,21 @@ def main(page: ft.Page):
                 )
                 continue
 
-            # 2. Handle simple bullet points for "Get Trending": * Point
             match_simple_bullet = re.match(r'^\*\s*(.*)$', line)
             if match_simple_bullet:
                 bullet_text = match_simple_bullet.group(1).strip()
                 controls.append(
                     ft.Row(
                         [
-                            ft.Icon(ft.Icons.STAR, size=18, color=ft.Colors.AMBER_500), # Slightly larger icon
+                            ft.Icon(ft.Icons.STAR, size=18, color=ft.Colors.AMBER_500),
                             ft.Text(
                                 bullet_text,
                                 color=ft.Colors.BLACK,
                                 selectable=True,
                                 overflow=ft.TextOverflow.CLIP,
-                                max_lines=None, # Allow text to wrap
+                                max_lines=None,
                                 expand=True,
-                                size=15 # Increased size
+                                size=15
                             )
                         ],
                         vertical_alignment=ft.CrossAxisAlignment.START,
@@ -116,53 +110,97 @@ def main(page: ft.Page):
                 )
                 continue
 
-            # 3. Handle general bold text within paragraphs (e.g., in summaries or direct answers)
-            # This splits the line by occurrences of '**...**' and creates TextSpans for each part.
             if '**' in line:
                 parts = re.split(r'(\*\*.*?\*\*)', line)
                 text_spans = []
                 for part in parts:
                     if part.startswith('**') and part.endswith('**'):
-                        text_spans.append(ft.TextSpan(part[2:-2], ft.TextStyle(weight=ft.FontWeight.BOLD, color=ft.Colors.BLACK, size=16))) # Increased size
+                        text_spans.append(ft.TextSpan(part[2:-2], ft.TextStyle(weight=ft.FontWeight.BOLD, color=ft.Colors.BLACK, size=16)))
                     else:
-                        text_spans.append(ft.TextSpan(part, ft.TextStyle(color=ft.Colors.BLACK, size=15))) # Increased size
+                        text_spans.append(ft.TextSpan(part, ft.TextStyle(color=ft.Colors.BLACK, size=15)))
                 controls.append(
                     ft.Text(
                         spans=text_spans,
                         selectable=True,
-                        overflow=ft.TextOverflow.CLIP, # Allow text to clip if needed, but primarily wrap
-                        max_lines=None, # No fixed max lines for general paragraph text
+                        overflow=ft.TextOverflow.CLIP,
+                        max_lines=None,
                     )
                 )
                 continue
 
-            # 4. Default: regular text (for summaries or direct answers)
-            controls.append(ft.Text(line, color=ft.Colors.BLACK, selectable=True, size=15, overflow=ft.TextOverflow.CLIP, max_lines=None)) # Increased size
+            controls.append(ft.Text(line, color=ft.Colors.BLACK, selectable=True, size=15, overflow=ft.TextOverflow.CLIP, max_lines=None))
 
-        # If after parsing, no controls were added (e.g., empty or unparseable string),
-        # display the original raw text as a fallback.
         if not controls:
-            controls.append(ft.Text(answer, color=ft.Colors.BLACK, selectable=True, size=15)) # Increased size
+            controls.append(ft.Text(answer, color=ft.Colors.BLACK, selectable=True, size=15))
 
         return controls
 
-
-    # Helper function to update the answer container's content and visibility
     def update_answer_container(answer_container, content, is_loading=False):
+        inner_content_container = answer_container.content.controls[0]
+        ai_generated_overlay = answer_container.content.controls[1]
+
         if is_loading:
-            answer_container.content = ft.Column(
-                [ft.ProgressRing(width=20, height=20)],
-                spacing=10,
-                horizontal_alignment=ft.CrossAxisAlignment.CENTER,
-                alignment=ft.MainAxisAlignment.CENTER,
-                height=100
+            answer_container.gradient = None
+            answer_container.shadow = None
+            answer_container.opacity = 1.0
+            answer_container.bgcolor = ft.Colors.WHITE
+            answer_container.border = ft.border.all(1, ft.Colors.GREY_200)
+
+            inner_content_container.bgcolor = ft.Colors.WHITE
+            ai_generated_overlay.visible = False
+
+            loading_indicator = ft.ShaderMask(
+                blend_mode=ft.BlendMode.SRC_IN,
+                shader=ft.SweepGradient(
+                    center=ft.alignment.center,
+                    colors=[
+                        ft.Colors.CYAN_400, ft.Colors.BLUE_700,
+                        ft.Colors.LIGHT_GREEN_400, ft.Colors.GREEN_700,
+                        ft.Colors.PURPLE_400, ft.Colors.DEEP_PURPLE_700,
+                        ft.Colors.ORANGE_400, ft.Colors.DEEP_ORANGE_700,
+                        ft.Colors.CYAN_400,
+                    ],
+                ),
+                content=ft.ProgressRing(
+                    width=40,
+                    height=40,
+                    stroke_width=4,
+                    bgcolor=ft.Colors.TRANSPARENT
+                )
             )
+
+            inner_content_container.content = loading_indicator
+            inner_content_container.alignment = ft.alignment.center
+            inner_content_container.height = 150
+
         else:
-            # Use the new formatting function here
+            inner_content_container.height = None
+            inner_content_container.alignment = None
+            answer_container.border = None
+            answer_container.opacity = 1.0
+            answer_container.shadow = ft.BoxShadow(
+                spread_radius=1,
+                blur_radius=15,
+                color=ft.Colors.BLACK26,
+                offset=ft.Offset(0, 5),
+            )
+            answer_container.gradient = ft.LinearGradient(
+                begin=ft.alignment.top_left,
+                end=ft.alignment.bottom_right,
+                colors=[
+                    ft.Colors.CYAN_400, ft.Colors.BLUE_700,
+                    ft.Colors.LIGHT_GREEN_400, ft.Colors.GREEN_700,
+                    ft.Colors.PURPLE_400, ft.Colors.DEEP_PURPLE_700,
+                    ft.Colors.ORANGE_400, ft.Colors.DEEP_ORANGE_700,
+                ],
+                stops=[0.0, 0.15, 0.3, 0.45, 0.6, 0.75, 0.9, 1.0],
+            )
+            inner_content_container.bgcolor = "#f5f5f5"
+            ai_generated_overlay.visible = True
             formatted_controls = format_answer_content(content)
-            answer_container.content = ft.Column(
+            inner_content_container.content = ft.Column(
                 formatted_controls,
-                spacing=8, # Slightly reduced spacing between formatted items
+                spacing=8,
                 horizontal_alignment=ft.CrossAxisAlignment.START
             )
         answer_container.visible = True
@@ -170,27 +208,23 @@ def main(page: ft.Page):
 
     def on_get_trending_click(e, title, answer_container):
         update_answer_container(answer_container, None, is_loading=True)
-        # Prompt for what people are saying (grounding=True for search)
         answer = send_message(f"Give me 4 concise (no more than 7 words each) key bullet point of what people is saying about: {title}", grounding=True)
         update_answer_container(answer_container, answer)
 
     def on_get_summary_click(e, title, snippet, answer_container):
         update_answer_container(answer_container, None, is_loading=True)
-        # Prompt for summary using title and snippet (grounding=True for enhanced info)
         prompt = f"Provide a concise and precise summary (around 2-3 sentences) of the following news content, using external search if necessary:\nTitle: {title}\nSnippet: {snippet}"
-        answer = send_message(prompt, grounding=True) # Changed to grounding=True
+        answer = send_message(prompt, grounding=True)
         update_answer_container(answer_container, answer)
 
     def on_explore_deeper_click(e, title, answer_container):
         update_answer_container(answer_container, None, is_loading=True)
-        # Prompt for related articles (grounding=True for search)
         prompt = f"Suggest 3 related news articles to the topic of '{title}'. For each, provide a detailed summary of the article, formatted as a bulleted list, starting with '* **Title**: Description'."
         answer = send_message(prompt, grounding=True)
         update_answer_container(answer_container, answer)
 
     def on_see_other_perspectives_click(e, title, answer_container):
         update_answer_container(answer_container, None, is_loading=True)
-        # Prompt for alternative viewpoints (grounding=True for search)
         prompt = f"Find 3 alternative viewpoints or counter-arguments on the topic of '{title}'. For each, provide only its title and a very brief (1-sentence) description, formatted as a bulleted list, starting with '* **Title**: Description'."
         answer = send_message(prompt, grounding=True)
         update_answer_container(answer_container, answer)
@@ -201,10 +235,7 @@ def main(page: ft.Page):
             e.control.value = ""
             e.control.disabled = True
             update_answer_container(answer_container, None, is_loading=True)
-
-            # Keep grounding=False for direct Q&A about the content itself
             answer = send_message(question+"\n\nContext:\n"+context, grounding=False)
-
             update_answer_container(answer_container, answer)
             e.control.disabled = False
             page.update()
@@ -212,16 +243,89 @@ def main(page: ft.Page):
     def go_to_main_website(e):
         main_content_container.visible = True
         search_results_container.visible = False
+        ai_results_container.visible = False
         _search_results_column.controls.clear()
         search_bar.value = ""
+        page.update()
+
+    def on_ai_classify_click(e):
+        main_content_container.visible = False
+        search_results_container.visible = False
+        ai_results_container.visible = True
+
+        _ai_results_column.controls.clear()
+        _ai_results_column.controls.append(
+            ft.Column(
+                [ft.ProgressRing(width=20, height=20)],
+                spacing=10,
+                horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+                alignment=ft.MainAxisAlignment.CENTER,
+                height=100
+            )
+        )
+        page.update()
+
+        classified_data = classify_and_summarize_news()
+
+        _ai_results_column.controls.clear()
+
+        if "summary" in classified_data:
+            summary_card = ft.Container(
+                content=ft.Column([
+                    ft.Text("AI Summary", size=20, weight=ft.FontWeight.BOLD, color=ft.Colors.BLACK),
+                    ft.Text(classified_data["summary"], size=16, color=ft.Colors.BLACK)
+                ]),
+                padding=20,
+                margin=ft.margin.only(bottom=20),
+                width=1100,
+                border_radius=ft.border_radius.all(10),
+                bgcolor=ft.Colors.WHITE,
+                shadow=ft.BoxShadow(
+                    spread_radius=1,
+                    blur_radius=5,
+                    color=ft.Colors.BLACK12,
+                    offset=ft.Offset(0, 3),
+                ),
+            )
+            _ai_results_column.controls.append(summary_card)
+
+        if "categories" in classified_data:
+            for category, articles in classified_data["categories"].items():
+                article_cards = []
+                for article in articles:
+                    article_cards.append(
+                        ft.Container(
+                            content=ft.Column([
+                                ft.Text(article["title"], size=16, weight=ft.FontWeight.BOLD, color=ft.Colors.BLACK),
+                                ft.Text(article["snippet"], size=14, color=ft.Colors.GREY_700),
+                            ]),
+                            padding=15,
+                            margin=ft.margin.only(bottom=10),
+                            border_radius=ft.border_radius.all(8),
+                            bgcolor=ft.Colors.WHITE,
+                            shadow=ft.BoxShadow(
+                                spread_radius=1,
+                                blur_radius=5,
+                                color=ft.Colors.BLACK12,
+                                offset=ft.Offset(0, 3),
+                            ),
+                        )
+                    )
+
+                category_column = ft.Column([
+                    ft.Text(category, size=24, weight=ft.FontWeight.BOLD, color=ft.Colors.BLACK),
+                    ft.Column(article_cards, spacing=10)
+                ])
+                _ai_results_column.controls.append(category_column)
+
         page.update()
 
     def on_submit(e):
         if e.control.value:
             main_content_container.visible = False
             search_results_container.visible = True
+            ai_results_container.visible = False
 
-            # Clear previous results and show a loading indicator
             _search_results_column.controls.clear()
             _search_results_column.controls.append(
                 ft.Column(
@@ -236,25 +340,66 @@ def main(page: ft.Page):
 
             response_data = custom_search(e.control.value)
 
-            _search_results_column.controls.clear()  # Clear loading indicator
+            _search_results_column.controls.clear()
 
             result_blocks = []
             if "titles" in response_data and response_data["titles"]:
                 for i in range(len(response_data["titles"])):
-                    answer_container = ft.Container(
+                    inner_answer_container = ft.Container(
                         content=ft.Column([]),
+                        padding=ft.padding.all(20),
+                        bgcolor="#f5f5f5",
+                        border_radius=ft.border_radius.all(8),
+                    )
+
+                    ai_generated_overlay = ft.Container(
+                        content=ft.Row(
+                            [
+                                ft.Icon(ft.Icons.AUTO_AWESOME, size=12, color=ft.Colors.BLACK),
+                                ft.Text(
+                                    "AI Generated",
+                                    size=10,
+                                    color=ft.Colors.BLACK,
+                                    weight=ft.FontWeight.BOLD,
+                                ),
+                            ],
+                            spacing=5,
+                            vertical_alignment=ft.CrossAxisAlignment.CENTER,
+                        ),
+                        bgcolor=ft.Colors.AMBER_100,
+                        padding=ft.padding.symmetric(horizontal=6, vertical=3),
+                        border_radius=ft.border_radius.only(top_left=10, top_right=10, bottom_right=10),
+                    )
+
+                    answer_container = ft.Container(
                         width=400,
-                        padding=20,
                         margin=ft.margin.only(bottom=20, right=20),
                         border_radius=ft.border_radius.all(10),
-                        bgcolor="#f5f5f5",
+                        padding=ft.padding.all(3),
+                        gradient=ft.LinearGradient(
+                            begin=ft.alignment.top_left,
+                            end=ft.alignment.bottom_right,
+                            colors=[
+                                ft.Colors.CYAN_400, ft.Colors.BLUE_700,
+                                ft.Colors.LIGHT_GREEN_400, ft.Colors.GREEN_700,
+                                ft.Colors.PURPLE_400, ft.Colors.DEEP_PURPLE_700,
+                                ft.Colors.ORANGE_400, ft.Colors.DEEP_ORANGE_700,
+                            ],
+                            stops=[0.0, 0.15, 0.3, 0.45, 0.6, 0.75, 0.9, 1.0],
+                        ),
+                        content=ft.Stack(
+                            [
+                                inner_answer_container,
+                                ai_generated_overlay,
+                            ]
+                        ),
+                        visible=False,
                         shadow=ft.BoxShadow(
                             spread_radius=1,
-                            blur_radius=5,
-                            color=ft.Colors.BLACK12,
-                            offset=ft.Offset(0, 3),
+                            blur_radius=15,
+                            color=ft.Colors.BLACK26,
+                            offset=ft.Offset(0, 5),
                         ),
-                        visible=False
                     )
 
                     block_content = []
@@ -277,7 +422,7 @@ def main(page: ft.Page):
                         block_content.append(
                             ft.Text(
                                 current_snippet,
-                                size=15,  # Increased size for snippet
+                                size=15,
                                 color=ft.Colors.GREY_700,
                                 max_lines=3,
                                 overflow=ft.TextOverflow.ELLIPSIS
@@ -328,7 +473,6 @@ def main(page: ft.Page):
                             clip_behavior=ft.ClipBehavior.ANTI_ALIAS,
                         )
 
-                        # New "Get Summary" button
                         get_summary_button = ft.Container(
                             content=ft.ElevatedButton(
                                 content=ft.Row(
@@ -353,7 +497,7 @@ def main(page: ft.Page):
                             gradient=ft.LinearGradient(
                                 begin=ft.alignment.center_left,
                                 end=ft.alignment.center_right,
-                                colors=[ft.Colors.LIGHT_GREEN_400, ft.Colors.GREEN_700],  # Distinct color
+                                colors=[ft.Colors.LIGHT_GREEN_400, ft.Colors.GREEN_700],
                             ),
                             clip_behavior=ft.ClipBehavior.ANTI_ALIAS,
                         )
@@ -404,7 +548,17 @@ def main(page: ft.Page):
                             gradient=ft.LinearGradient(
                                 begin=ft.alignment.center_left,
                                 end=ft.alignment.center_right,
-                                colors=[ft.Colors.CYAN_400, ft.Colors.BLUE_700],
+                                colors=[
+                                    ft.Colors.CYAN_400,
+                                    ft.Colors.BLUE_700,
+                                    ft.Colors.LIGHT_GREEN_400,
+                                    ft.Colors.GREEN_700,
+                                    ft.Colors.PURPLE_400,
+                                    ft.Colors.DEEP_PURPLE_700,
+                                    ft.Colors.ORANGE_400,
+                                    ft.Colors.DEEP_ORANGE_700,
+                                ],
+                                tile_mode=ft.GradientTileMode.MIRROR,
                             ),
                             content=white_background_container,
                             clip_behavior=ft.ClipBehavior.ANTI_ALIAS,
@@ -418,7 +572,6 @@ def main(page: ft.Page):
 
                         block_content.append(centered_textfield_wrapper)
 
-                        # New row for "Explore Deeper" and "Other Perspectives" buttons
                         additional_ai_buttons_row = ft.Row(
                             [
                                 ft.Container(
@@ -437,7 +590,7 @@ def main(page: ft.Page):
                                     gradient=ft.LinearGradient(
                                         begin=ft.alignment.center_left,
                                         end=ft.alignment.center_right,
-                                        colors=[ft.Colors.PURPLE_400, ft.Colors.DEEP_PURPLE_700], # Distinct color
+                                        colors=[ft.Colors.PURPLE_400, ft.Colors.DEEP_PURPLE_700],
                                     ),
                                     clip_behavior=ft.ClipBehavior.ANTI_ALIAS,
                                 ),
@@ -457,7 +610,7 @@ def main(page: ft.Page):
                                     gradient=ft.LinearGradient(
                                         begin=ft.alignment.center_left,
                                         end=ft.alignment.center_right,
-                                        colors=[ft.Colors.ORANGE_400, ft.Colors.DEEP_ORANGE_700], # Distinct color
+                                        colors=[ft.Colors.ORANGE_400, ft.Colors.DEEP_ORANGE_700],
                                     ),
                                     clip_behavior=ft.ClipBehavior.ANTI_ALIAS,
                                 )
@@ -467,7 +620,6 @@ def main(page: ft.Page):
                             wrap=True,
                         )
                         block_content.append(ft.Container(content=additional_ai_buttons_row, margin=ft.margin.only(top=10)))
-
 
                     content_container = ft.Container(
                         content=ft.Column(
@@ -491,16 +643,14 @@ def main(page: ft.Page):
                     content_stack = ft.Stack(
                         controls=[
                             content_container,
-                            # Original "Get Trending" button
                             ft.Container(
                                 content=get_trending_button,
                                 top=130,
                                 right=0,
                             ),
-                            # New "Get Summary" button, positioned below "Get Trending"
                             ft.Container(
                                 content=get_summary_button,
-                                top=180, # Adjusted position to avoid overlap
+                                top=180,
                                 right=0,
                             )
                         ],
@@ -527,6 +677,7 @@ def main(page: ft.Page):
         else:
             main_content_container.visible = True
             search_results_container.visible = False
+            ai_results_container.visible = False
             _search_results_column.controls.clear()
         page.update()
 
@@ -555,11 +706,23 @@ def main(page: ft.Page):
         )
     )
 
+    ai_classify_button = ft.ElevatedButton(
+        "AI Classify",
+        icon=ft.Icons.AUTO_AWESOME,
+        on_click=on_ai_classify_click,
+        style=ft.ButtonStyle(
+            bgcolor=ft.Colors.DEEP_PURPLE_500,
+            color=ft.Colors.WHITE,
+            shape=ft.RoundedRectangleBorder(radius=5)
+        )
+    )
+
     search_bar_container = ft.Container(
         content=ft.Row(
             [
                 search_bar,
-                go_to_main_button
+                go_to_main_button,
+                ai_classify_button,
             ],
             spacing=10,
             vertical_alignment=ft.CrossAxisAlignment.CENTER,
@@ -573,6 +736,11 @@ def main(page: ft.Page):
     _search_results_column = ft.Column(expand=True, horizontal_alignment=ft.CrossAxisAlignment.CENTER, spacing=15)
     search_results_container = ft.Container(
         content=_search_results_column, visible=False, expand=True, alignment=ft.alignment.top_center
+    )
+
+    _ai_results_column = ft.Column(expand=True, horizontal_alignment=ft.CrossAxisAlignment.CENTER, spacing=15)
+    ai_results_container = ft.Container(
+        content=_ai_results_column, visible=False, expand=True, alignment=ft.alignment.top_center
     )
 
     left_column_content = ft.Column(
@@ -681,7 +849,7 @@ def main(page: ft.Page):
 
     dynamic_content_area = ft.Container(
         content=ft.Column(
-            [main_content_container, search_results_container],
+            [main_content_container, search_results_container, ai_results_container],
             expand=True,
             horizontal_alignment=ft.CrossAxisAlignment.CENTER
         ),
