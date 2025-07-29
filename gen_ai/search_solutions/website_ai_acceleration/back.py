@@ -17,6 +17,7 @@ chat_client = genai.Client(
     location=location
 )
 
+# noinspection PyTypeChecker
 content_search_spec = discoveryengine.SearchRequest.ContentSearchSpec(
     snippet_spec=discoveryengine.SearchRequest.ContentSearchSpec.SnippetSpec(
         return_snippet=True
@@ -28,6 +29,8 @@ snippets = []
 thumbnails = []
 images = []
 
+
+# noinspection PyTypeChecker
 def custom_search(prompt: str):
     titles.clear()
     snippets.clear()
@@ -96,42 +99,40 @@ def send_message(prompt: str, grounding: False):
         return f"Error: {e}"
 
 def classify_and_summarize_news():
-    # In a real application, you would fetch news from an API or database
-    # For this example, we'll use the data from the last search
     if not titles:
-        custom_search("latest news") # or some default query
+        custom_search("latest news")
 
     news_items = []
     for i in range(len(titles)):
-        news_items.append(f"Title: {titles[i]}\nSnippet: {snippets[i]}")
+        news_items.append({"title": titles[i], "snippet": snippets[i]})
 
-    news_text = "\n\n".join(news_items)
+    # Create a string of titles and snippets for the prompt
+    news_text = "\n".join([f"Title: {item['title']}\nSnippet: {item['snippet']}" for item in news_items])
 
-    prompt = f'''Please analyze the following list of news articles. Your task is to:
-1.  Group the articles into 3-5 distinct categories based on their content.
-2.  For each category, provide a short, descriptive name.
-3.  Write a concise, one-paragraph summary of all the news presented.
+    prompt = f'''
+    Analyze the following news articles:
+    {news_text}
 
-Here are the articles:
-{news_text}
+    1.  Group them into 3-5 distinct categories.
+    2.  Provide a short name for each category.
+    3.  Write a one-paragraph summary of all the news.
 
-Please format your response as a JSON object with two keys:
--   `summary`: A string containing the overall summary.
--   `categories`: A dictionary where each key is a category name and the value is a list of articles belonging to that category. Each article in the list should be an object with `title` and `snippet` keys.'''
+    Format the output as a JSON object with `summary` and `categories` keys.
+    The `categories` key should contain a dictionary where each key is a category name
+    and the value is a list of article objects, each with `title` and `snippet` keys.
+    '''
 
     response_text = send_message(prompt, grounding=True)
 
     try:
         import json
-        # Handle markdown code block
         if "```json" in response_text:
             response_text = response_text.split("```json")[1].split("```")[0]
         elif "```" in response_text:
-             response_text = response_text.split("```")[1].split("```")[0]
+            response_text = response_text.split("```")[1].split("```")[0]
         return json.loads(response_text)
     except (json.JSONDecodeError, IndexError):
-        # Handle cases where the response is not valid JSON
         return {
-            "summary": "Failed to parse the AI response.",
+            "summary": "Failed to parse AI response.",
             "categories": {}
         }

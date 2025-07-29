@@ -312,11 +312,24 @@ def main(page: ft.Page):
                         )
                     )
 
-                category_column = ft.Column([
-                    ft.Text(category, size=24, weight=ft.FontWeight.BOLD, color=ft.Colors.BLACK),
-                    ft.Column(article_cards, spacing=10)
-                ])
-                _ai_results_column.controls.append(category_column)
+                category_container = ft.Container(
+                    content=ft.Column([
+                        ft.Text(category, size=24, weight=ft.FontWeight.BOLD, color=ft.Colors.BLACK),
+                        ft.Column(article_cards, spacing=10)
+                    ], horizontal_alignment=ft.CrossAxisAlignment.START),
+                    padding=20,
+                    margin=ft.margin.only(bottom=20),
+                    width=1100,
+                    border_radius=ft.border_radius.all(10),
+                    bgcolor=ft.Colors.WHITE,
+                    shadow=ft.BoxShadow(
+                        spread_radius=1,
+                        blur_radius=5,
+                        color=ft.Colors.BLACK12,
+                        offset=ft.Offset(0, 3),
+                    ),
+                )
+                _ai_results_column.controls.append(category_container)
 
         page.update()
 
