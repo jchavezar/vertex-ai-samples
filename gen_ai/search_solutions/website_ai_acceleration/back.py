@@ -1,4 +1,3 @@
-#%%
 from google import genai
 from google.genai import types
 from google.cloud import discoveryengine_v1 as discoveryengine
@@ -17,7 +16,6 @@ chat_client = genai.Client(
     location=location
 )
 
-# noinspection PyTypeChecker
 content_search_spec = discoveryengine.SearchRequest.ContentSearchSpec(
     snippet_spec=discoveryengine.SearchRequest.ContentSearchSpec.SnippetSpec(
         return_snippet=True
@@ -30,7 +28,11 @@ thumbnails = []
 images = []
 
 def custom_search(prompt: str):
-    # noinspection PyTypeChecker
+    titles.clear()
+    snippets.clear()
+    thumbnails.clear()
+    images.clear()
+
     request = discoveryengine.SearchRequest(
         serving_config=serving_config,
         query=prompt,
@@ -57,11 +59,12 @@ def custom_search(prompt: str):
         for key,value in response.document.derived_struct_data.items():
             if key == "title":
                 titles.append(value)
-            if key == "snippets":
+            elif key == "snippets":
                 snippets.append(value[0]["snippet"])
-            if key == "pagemap":
-                thumbnails.append(value["cse_thumbnail"][0]["src"])
-                images.append(value["cse_image"][0]["src"])
+            elif key == "pagemap":
+                # Safely get thumbnail and image, providing empty string if not found
+                thumbnails.append(value.get("cse_thumbnail", [{}])[0].get("src", ""))
+                images.append(value.get("cse_image", [{}])[0].get("src", ""))
         results_count += 1
 
     response_json = {
@@ -73,7 +76,7 @@ def custom_search(prompt: str):
     print(time.time()-start_time)
     return  response_json
 
-def send_message(prompt: str):
+def send_message(prompt: str, grounding: False):
     try:
         response = chat_client.models.generate_content(
             model=model_id,
@@ -81,8 +84,9 @@ def send_message(prompt: str):
             config=types.GenerateContentConfig(
                 thinking_config=types.ThinkingConfig(
                     thinking_budget=0
-                )
-            )
+                ),
+                tools=[types.Tool(google_search=types.GoogleSearch())] if grounding else []
+            ),
         )
         print(response.text)
         return response.text
