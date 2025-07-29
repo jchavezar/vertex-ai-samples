@@ -1,3 +1,4 @@
+
 from google import genai
 from google.genai import types
 from google.cloud import discoveryengine_v1 as discoveryengine
@@ -93,3 +94,44 @@ def send_message(prompt: str, grounding: False):
     except Exception as e:
         print(e)
         return f"Error: {e}"
+
+def classify_and_summarize_news():
+    # In a real application, you would fetch news from an API or database
+    # For this example, we'll use the data from the last search
+    if not titles:
+        custom_search("latest news") # or some default query
+
+    news_items = []
+    for i in range(len(titles)):
+        news_items.append(f"Title: {titles[i]}\nSnippet: {snippets[i]}")
+
+    news_text = "\n\n".join(news_items)
+
+    prompt = f'''Please analyze the following list of news articles. Your task is to:
+1.  Group the articles into 3-5 distinct categories based on their content.
+2.  For each category, provide a short, descriptive name.
+3.  Write a concise, one-paragraph summary of all the news presented.
+
+Here are the articles:
+{news_text}
+
+Please format your response as a JSON object with two keys:
+-   `summary`: A string containing the overall summary.
+-   `categories`: A dictionary where each key is a category name and the value is a list of articles belonging to that category. Each article in the list should be an object with `title` and `snippet` keys.'''
+
+    response_text = send_message(prompt, grounding=True)
+
+    try:
+        import json
+        # Handle markdown code block
+        if "```json" in response_text:
+            response_text = response_text.split("```json")[1].split("```")[0]
+        elif "```" in response_text:
+             response_text = response_text.split("```")[1].split("```")[0]
+        return json.loads(response_text)
+    except (json.JSONDecodeError, IndexError):
+        # Handle cases where the response is not valid JSON
+        return {
+            "summary": "Failed to parse the AI response.",
+            "categories": {}
+        }
