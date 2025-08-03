@@ -4,14 +4,8 @@ import sys
 import pandas as pd
 from io import BytesIO
 from google.genai import types
-from google.adk.events import Event
-from typing import AsyncGenerator
-from google.adk.events import Event
-from typing_extensions import override
-from google.adk.agents import Agent, BaseAgent
+from google.adk.agents import Agent
 from google.adk.models import LlmRequest, LlmResponse
-from google.adk.tools import ToolContext
-from google.adk.agents.invocation_context import InvocationContext
 from google.adk.agents.callback_context import CallbackContext
 
 afc_limits = types.AutomaticFunctionCallingConfig(maximum_remote_calls=20)
@@ -36,20 +30,13 @@ async def extract_data_callback(
     # As an Artifact
     if len(artifacts_in_context) > 0:
         for artifact in artifacts_in_context:
-            print("uno", file=sys.stdout)
             _artifact = await callback_context.load_artifact(artifact)
-            print("dos", file=sys.stdout)
             if _artifact["inlineData"]["mimeType"] == "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet":
-                print("tres", file=sys.stdout)
                 decoded_data = base64.b64decode(_artifact["inlineData"]["data"])
                 excel_file_object = io.BytesIO(decoded_data)
-                print("cuatro", file=sys.stdout)
-                print(excel_file_object)
                 try:
                     df = pd.read_excel(excel_file_object)
-                    print("cinco", file=sys.stdout)
                     markdown_table = df.to_markdown(index=False)
-                    print("seis", file=sys.stdout)
                     print(markdown_table)
                     llm_request.contents[0].parts.append(types.Part.from_text(text=f"Document {artifact}: {markdown_table}"))
                 except Exception as excel_read_err:
