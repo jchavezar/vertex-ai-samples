@@ -13,7 +13,7 @@ def main(page: ft.Page):
 
     def toggle_theme(e):
         page.theme_mode = ft.ThemeMode.LIGHT if page.theme_mode == ft.ThemeMode.DARK else ft.ThemeMode.DARK
-        theme_icon_button.icon = ft.Icons.BRIGHTNESS_7 if page.theme_mode == ft.ThemeMode.DARK else ft.icons.BRIGHTNESS_4
+        theme_icon_button.icon = ft.Icons.BRIGHTNESS_7 if page.theme_mode == ft.ThemeMode.DARK else ft.Icons.BRIGHTNESS_4
         for view in page.views:
             if page.theme_mode == ft.ThemeMode.DARK:
                 view.bgcolor = "#141218"
@@ -119,7 +119,7 @@ def main(page: ft.Page):
             )
         else:
             if multimodal_results:
-                results_view.controls.append(ft.Tezxt("Video Retrieval Results", size=20, weight=ft.FontWeight.BOLD))
+                results_view.controls.append(ft.Text("Video Retrieval Results", size=20, weight=ft.FontWeight.BOLD))
                 multimodal_row = ft.Row(wrap=True, spacing=20, run_spacing=20)
                 for result in multimodal_results:
                     video_uri = result['video_gcs_uri']
@@ -204,7 +204,7 @@ def main(page: ft.Page):
     def route_change(route):
         page.views.clear()
 
-        theme_icon_button.icon = ft.icons.BRIGHTNESS_7 if page.theme_mode == ft.ThemeMode.DARK else ft.icons.BRIGHTNESS_4
+        theme_icon_button.icon = ft.Icons.BRIGHTNESS_7 if page.theme_mode == ft.ThemeMode.DARK else ft.Icons.BRIGHTNESS_4
 
         if page.route == "/":
             search_field = ft.TextField(
