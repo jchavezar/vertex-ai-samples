@@ -27,17 +27,27 @@ config = types.GenerateContentConfig(
     response_schema=list[BoundingBox],
 )
 
-async def image_analyze(tool_context: ToolContext):
+async def image_analyze(item_type_analysis: str, tool_context: ToolContext):
+    '''
+    Your mission is detected 2d bounding boxes of the type of object (item_type_analysis) provided.
+    The user needs to five you would type of object you would like to analyze,
+    no more than 25 objects can be analyzed.
+
+    :param item_type_analysis: type of object to analyze.
+    :param tool_context:
+    :return:
+    '''
+    print(item_type_analysis)
     llm_request = tool_context.user_content
     for part in llm_request.parts:
         if part.inline_data is not None:
 
-            prompt = "Detect the 2d bounding boxes of the image about cats only at most 25 objects (with `label` as cat description)"
+            # prompt = "Detect the 2d bounding boxes of the image about cats only at most 25 objects (with `label` as cat description)"
             try:
                 response = client.models.generate_content(
                     model=model_id,
                     contents=[
-                        prompt,
+                        item_type_analysis,
                         part
                     ],
                     config=config,
@@ -97,9 +107,22 @@ async def image_analyze(tool_context: ToolContext):
 root_agent = Agent(
     name="root_agent",
     model=model_id,
-    description="You are AGI",
+    description="You are an expert in image analysis, creating bounding boxes to detect objects.",
     instruction="""
-     Always use your tool `image_analyze` when you receive an image to get bounding boxes.
+    Ask the user what would they like to do to among these options:
+    
+    1. Analyze images.
+    2. General questions.
+    
+    If number 1:
+    - Ask the customer to upload and image and what they would like to analyze from it. 
+    - - You have to fulfill both before using your `image_analyze` tool.
+    - - If cart part damages, augment the item_type_analysis prompt needed by your tool to get a very accurate
+    and detail detections and labels for damages in cars.
+    
+    Else:
+        Just answer the questions.
+     
     """,
     tools=[image_analyze]
 )
