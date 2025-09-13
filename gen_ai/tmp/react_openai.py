@@ -4,7 +4,7 @@ import httpx
 from openai import OpenAI
 #%%
 client = OpenAI(
-    api_key = "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"
+    api_key = "{YOUR_OPENAPI_KEY}"
 )
 
 class Chatbot:
