@@ -87,3 +87,4 @@ Build and Deploy the frontend in Cloud Run.
 gcloud builds submit --substitutions _API_KEY='{YOUR_API_KEY}',_MIDDLEWARE_ENDPOINT='{YOUR_MIDDLEWARE_ENDPOINT}'
 ```
 
+
