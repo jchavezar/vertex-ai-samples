@@ -81,7 +81,7 @@ Build and Deploy the frontend in Cloud Run.
 - *Change API_KEY generated from [aistudio.google.com](aistudio.google.com) or google cloud project API Keys.*
 - *Change _MIDDLEWARE_ENDPOINT with the value saved from the previous step*
 
-*e.g: gcloud builds submit --substitutions _API_KEY='adsdfdsfda3dsf-ddsf3',_MIDDLEWARE_ENDPOINT='https://home-listing-middleware-oyntfgdwsq-uc.a.run.app'*
+*e.g: gcloud builds submit --substitutions _API_KEY='{YOUR_API_KEY}',_MIDDLEWARE_ENDPOINT='https://home-listing-middleware-oyntfgdwsq-uc.a.run.app'*
 
 ```bash
 gcloud builds submit --substitutions _API_KEY='{YOUR_API_KEY}',_MIDDLEWARE_ENDPOINT='{YOUR_MIDDLEWARE_ENDPOINT}'
