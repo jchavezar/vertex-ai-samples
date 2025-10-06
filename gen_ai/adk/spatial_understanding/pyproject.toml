@@ -1,0 +1,9 @@
+[tool.flet]
+org = "com.mycompany"
+product = "My Flet App"
+company = "My Company Inc."
+copyright = "Copyright (C) 2025 by My Company Inc."
+build_number = 1
+
+[tool.flet.macos]
+com.apple.security.files.user-selected.read-write = true
