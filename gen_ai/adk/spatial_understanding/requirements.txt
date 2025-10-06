@@ -1,0 +1,4 @@
+google-genai
+google-adk
+pydantic
+Pillow
