@@ -1,0 +1,4 @@
+pandas-gbq
+google-cloud-bigquery
+google-adk
+google-genai
