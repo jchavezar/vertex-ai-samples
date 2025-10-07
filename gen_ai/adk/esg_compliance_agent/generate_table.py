@@ -19,7 +19,10 @@ laptops, cell phones, monitors, keyboards, cameras, mouses, also switches, route
 think can increase the carbon in a big company with many employees, generate a list of products with the model and brand
 and specs.
 
-add apple products like iphones and macbooks, imacs etc, android like chromebooks and pixels.
+Do multiple iterations over internet to evaluate the most recent products released and their release date/year,
+for e.g. iphone 17 is available 2025 not in 2024, do not make mistakes, use your google search grounding tool.
+
+add apple products like iPhones and MacBook, iMacs etc, android like chromebooks and pixels.
 
 I need at least 40 different laptops models.
 """
