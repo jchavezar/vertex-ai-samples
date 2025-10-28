@@ -6,6 +6,8 @@ from agent import root_agent
 from vertexai import agent_engines
 from vertexai.agent_engines import AdkApp
 
+display_name = "ge_adk_vais_agent"
+
 local_agent = AdkApp(
     agent=root_agent,
     enable_tracing=True
@@ -39,11 +41,14 @@ deploy_agent = agent_engines.create(
 
 #%%
 # Remote Test (Optional)
+deploy_agent = [agent.resource_name for agent in agent_engines.list(filter=f'display_name="{display_name}"')]
+deploy_agent = agent_engines.get(deploy_agent[0])
+
 async def remote_send_message(prompt: str):
     session = await deploy_agent.async_create_session(user_id="jesus_c")
     async for event in deploy_agent.async_stream_query(
             user_id="jesus_c",
-            session_id=session["id"],
+            # session_id=session["id"],
             message=prompt,
     ):
         print(event)
