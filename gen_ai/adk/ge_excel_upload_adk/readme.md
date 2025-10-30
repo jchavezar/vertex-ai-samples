@@ -74,7 +74,7 @@ e.g.
 
 From now go to Gemini Enterprise and find the new agent.
 
-
+![img.png](screenshot_1.png)
 
 ## 💡 Key `uv` Commands
 
