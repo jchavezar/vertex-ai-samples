@@ -6,6 +6,13 @@ from markitdown import MarkItDown
 from google.adk.agents import Agent
 from google.adk.models import LlmRequest, LlmResponse
 from google.adk.agents.callback_context import CallbackContext
+import logging
+
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    stream=sys.stderr
+)
 
 afc_limits = types.AutomaticFunctionCallingConfig(maximum_remote_calls=20)
 content_config = types.GenerateContentConfig(
@@ -122,7 +129,9 @@ root_agent = Agent(
     model="gemini-2.5-flash",
     description="You are a AGI",
     instruction="""
-    Respond Any question.
+    You main task is to analyze or do whatever is being asked about a file (xlsx) that is being uploaded,
+    you have callback function that transforms the excel (xlsx) into markdown and store it in session as `processed_excel_markdown`
+    use that as a content of the file and answer any question about it. 
     """,
     before_model_callback=extract_data_callback,
 )
