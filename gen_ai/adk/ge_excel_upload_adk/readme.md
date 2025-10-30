@@ -71,6 +71,8 @@ For quick prototyping and local testing of the agent:
 adk web
 ```
 
+![img.png](screenshot_2.png)
+
 This command will start a local web server, and you can interact with your agent through the ADK developer UI.
 
 ### Deploying to Agent Engine
