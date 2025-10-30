@@ -53,7 +53,7 @@ ask_vertex_retrieval = VertexAiRagRetrieval(
 adk web
 ```
 
-![img_5.png](img_5.png)
+![img_5.png](screenshots/img_5.png)
 
 
 ### Deploying to Agent Engine
@@ -72,7 +72,7 @@ Once your Agent Engine is deployed, use `publish_to_ge.py` to make it available 
 
 After publishing, you can find and interact with your new agent in Gemini Enterprise.
 
-![img_6.png](img_6.png)
+![img_6.png](screenshots/img_6.png)
 
 ## 💡 Key `uv` Commands
 
