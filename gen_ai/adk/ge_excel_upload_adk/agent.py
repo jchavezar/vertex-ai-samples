@@ -27,7 +27,6 @@ async def extract_data_callback(
 ):
 
     processed_excel_markdown = callback_context.state.get("processed_excel_markdown")
-    print(processed_excel_markdown, file=sys.stdout)
     handled_excel_in_this_turn = False
 
     artifacts_in_context = await callback_context._invocation_context.artifact_service.list_artifact_keys(
@@ -35,7 +34,6 @@ async def extract_data_callback(
         user_id=callback_context._invocation_context.user_id,
         session_id=callback_context._invocation_context.session.id,
     )
-    print(f"Artifacts in context: {artifacts_in_context}", file=sys.stdout)
     callback_context.state["artifacts_in_context_names"] = artifacts_in_context
 
     if len(artifacts_in_context) > 0:
@@ -69,8 +67,11 @@ async def extract_data_callback(
                             for part_idx, part in enumerate(content.parts):
                                 if part.inline_data and part.inline_data.mime_type == "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet":
                                     if part.inline_data.display_name == artifact_key or (artifact_key in part.inline_data.display_name):
-                                        llm_request.contents[content_idx].parts[part_idx] = types.Part.from_text(text=f"Document {artifact_key}: {result.text_content}")
+                                        llm_request.contents[content_idx].parts[part_idx] = types.Part.from_text(text=f"Document {artifact_key}: This is the content of the uploaded Excel file:\n{result.text_content}")
                                         break
+                                else:
+                                    llm_request.contents[content_idx].parts.append(types.Part.from_text(text=f"Document {artifact_key}: This is the content of the uploaded Excel file:\n{result.text_content}"))
+                                    break
                             if handled_excel_in_this_turn:
                                 break
 
@@ -81,6 +82,8 @@ async def extract_data_callback(
                             parts=[types.Part.from_text(text=f"Error processing artifact {artifact_key}: {excel_read_err}")]
                         )
                     )
+            else:
+                print("Not an excel artifact", file=sys.stdout)
         if handled_excel_in_this_turn:
             return None
 
@@ -98,7 +101,7 @@ async def extract_data_callback(
                                 result = md.convert(decoded_data)
                                 callback_context.state["processed_excel_markdown"] = result.text_content
                                 handled_excel_in_this_turn = True
-                                llm_request.contents[content_num].parts[part_num] = types.Part.from_text(text=result.text_content)
+                                llm_request.contents[content_num].parts[part_num] = types.Part.from_text(text=f"This is the content of the uploaded Excel file:\n{result.text_content}")
                             except Exception as excel_read_err:
                                 return LlmResponse(
                                     content=types.Content(
