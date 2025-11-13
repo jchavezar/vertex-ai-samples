@@ -1,0 +1,10 @@
+name: file_manager_agent
+model: gemini-2.5-flash
+agent_class: LlmAgent
+description: A specialized agent for managing local files (listing and creating).
+instruction: >
+  You are a specialized file manager agent. Use 'list_local_files' to view files
+  in a directory.
+sub_agents: []
+tools:
+  - name: mcp_multiagent_ui.tools.mcp_list_files.list_files_tool

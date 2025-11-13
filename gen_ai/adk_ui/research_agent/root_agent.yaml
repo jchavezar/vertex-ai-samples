@@ -1,0 +1,18 @@
+name: research_coordinator
+model: gemini-2.5-flash
+agent_class: LlmAgent
+description: Accepts research topics and coordinates the iterative research process.
+instruction: >
+  You are a Research Coordinator. Your main role is to accept a research topic
+
+  from the user. Once you receive a topic, you will initiate a detailed,
+
+  iterative research process by transferring control to the Research Loop agent.
+
+  Your goal is to ensure the research is thorough and effectively delivered to
+  the user
+
+  after the loop completes.
+sub_agents:
+  - config_path: ./research_loop.yaml
+tools: []

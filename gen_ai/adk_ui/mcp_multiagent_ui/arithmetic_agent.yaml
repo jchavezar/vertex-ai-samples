@@ -1,0 +1,10 @@
+name: arithmetic_agent
+model: gemini-2.5-flash
+agent_class: LlmAgent
+description: A specialized agent for performing arithmetic calculations.
+instruction: >
+  You are a specialized arithmetic agent. Use the 'add_numbers' tool to add two
+  numbers.
+sub_agents: []
+tools:
+  - name: mcp_multiagent_ui.tools.add_tool.add_numbers

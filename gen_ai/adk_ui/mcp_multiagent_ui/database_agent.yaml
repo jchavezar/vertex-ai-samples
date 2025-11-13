@@ -1,0 +1,13 @@
+name: database_agent
+model: gemini-2.5-flash
+agent_class: LlmAgent
+description: A specialized agent for interacting with databases via the MCP Toolbox.
+instruction: >
+  You are a specialized database agent. Use the 'mcp_database_connector' tool to
+  query and interact with databases.
+
+  Ensure the MCP Toolbox server is running and configured with the correct
+  toolset.
+sub_agents: []
+tools:
+  - name: mcp_multiagent_ui.tools.mcp_list_files.list_files_tool
