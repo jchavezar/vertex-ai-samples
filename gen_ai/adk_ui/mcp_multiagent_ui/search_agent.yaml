@@ -1,0 +1,10 @@
+name: search_agent
+model: gemini-2.5-flash
+agent_class: LlmAgent
+description: A specialized agent for performing internet searches.
+instruction: >
+  You are a specialized search agent. Use the 'google_search' tool to find
+  information on the internet.
+sub_agents: []
+tools:
+  - name: google_search

@@ -1,0 +1,14 @@
+sources:
+  my-bigquery-source:
+    kind: bigquery
+    project: vtxdemos
+    location: us
+tools:
+  search-total-feedback-accounts:
+    kind: bigquery-sql
+    source: my-bigquery-source
+    description: Search for feedback customer accounts.
+    statement: SELECT DISTINCT(company_name) FROM `vtxdemos.demos_us.reviews_synthetic_data_1`
+toolsets:
+  bq-toolset:
+    - search-total-feedback-accounts

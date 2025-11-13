@@ -1,0 +1,22 @@
+name: orchestrator_agent
+model: gemini-2.5-flash
+agent_class: LlmAgent
+description: An agent designed to delegate tasks to specialized sub-agents for
+  internet search, arithmetic, file management, and database operations.
+instruction: >
+  You are an expert orchestrator. Your role is to understand the user's request
+  and delegate the task to the appropriate sub-agent.
+
+  - For internet search queries, delegate to the 'SearchAgent'.
+
+  - For arithmetic operations, delegate to the 'ArithmeticAgent'.
+
+  - For file system operations (list, create), delegate to the
+  'FilesManagerAgent'.
+
+sub_agents:
+  - config_path: ./search_agent.yaml
+  - config_path: ./arithmetic_agent.yaml
+#  - config_path: ./file_manager_agent.yaml
+  - config_path: ./file_manager_agent.yaml
+tools: []
