@@ -1,0 +1,124 @@
+openapi: 3.0.0
+info:
+  title: Confluence Cloud API
+  version: 2.0.0
+  description: A simplified spec for an AI Agent to search, list, and read Confluence pages.
+servers:
+  # Your specific Cloud ID URL
+  - url: https://api.atlassian.com/ex/confluence/164f1492-f51d-403a-9a73-ccbf9ab198ec/wiki
+
+paths:
+  # --- TOOL 1: SEARCH (Find pages by topic) ---
+  /rest/api/search:
+    get:
+      operationId: search_confluence
+      summary: Search for pages using CQL (Confluence Query Language). Use this when the user asks to "find", "search", or "look for" pages about a topic.
+      parameters:
+        - name: cql
+          in: query
+          required: true
+          schema:
+            type: string
+          description: The CQL query string (e.g. 'text ~ "project plan"' or 'type="page" AND title ~ "meeting"').
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 10
+      responses:
+        '200':
+          description: Successful search
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  results:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        content:
+                          type: object
+                          properties:
+                            id:
+                              type: string
+                            title:
+                              type: string
+                            type:
+                              type: string
+
+  # --- TOOL 2: LIST (Get recent or specific pages) ---
+  /api/v2/pages:
+    get:
+      operationId: list_pages
+      summary: List all pages or filter by title. Use this to find a specific page ID if you know the exact title.
+      parameters:
+        - name: title
+          in: query
+          schema:
+            type: string
+          description: Filter by exact page title.
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  results:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                        title:
+                          type: string
+
+  # --- TOOL 3: READ (Get the actual text for summary) ---
+  /api/v2/pages/{id}:
+    get:
+      operationId: get_page_content
+      summary: Read the full text content of a page. YOU MUST USE THIS to summarize a page.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The ID of the page to read (e.g. 5275649).
+        - name: body-format
+          in: query
+          schema:
+            type: string
+            default: storage
+            enum: [storage]
+          description: REQUIRED. Must be set to 'storage' to retrieve the HTML text.
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  title:
+                    type: string
+                  body:
+                    type: object
+                    properties:
+                      storage:
+                        type: object
+                        properties:
+                          value:
+                            type: string
+                            description: The raw HTML text of the page content.
