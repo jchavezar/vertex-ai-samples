@@ -1,0 +1,7 @@
+fastapi==0.118.3
+uvicorn==0.38.0
+requests==2.32.5
+mcp==1.22.0
+atlassian-python-api==4.0.7
+python-dotenv==1.2.1
+sse-starlette==3.0.3
