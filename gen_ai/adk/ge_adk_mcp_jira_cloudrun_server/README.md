@@ -68,14 +68,36 @@ graph TD
 
 ---
 
-## 🛠️ Step 1: Setup Authentication
+## 🛠️ Step 1: Setup Environment & Authentication
 
+This project uses **[uv](https://github.com/astral-sh/uv)** for fast Python package management.
+
+### 1. Install uv & Create Virtual Environment
+If you don't have `uv` installed:
+```bash
+pip install uv
+```
+
+Create and activate a virtual environment:
+```bash
+uv venv .venv
+source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+```
+
+### 2. Install Dependencies
+Install the required packages for both the server and the agent:
+```bash
+uv pip install -r jira_server/requirements.txt
+uv pip install -r adk_agent/requirements.txt
+```
+
+### 3. Generate Token & Configure .env
 Before running anything, you need a valid Atlassian OAuth 2.0 Token.
 
 1.  **Generate Token:**
     You can use the included helper script to generate a token (requires an Atlassian App configuration):
     ```bash
-    python3 utils/get_access_token.py
+    python utils/get_access_token.py
     ```
     *Follow the GUI instructions to authorize and copy the token.*
 
@@ -123,11 +145,10 @@ The MCP Server must be deployed to Cloud Run to be accessible by the Agent.
 
 ### (Optional) Test Locally First
 You can test the server locally before deploying.
-1.  Run the server: `python3 jira_server/server.py` (runs on port 8080).
+1.  Run the server: `python jira_server/server.py` (runs on port 8080).
 2.  Run the test client:
     ```bash
-    # Ensure dependencies are installed: pip install mcp python-dotenv
-    python3 utils/test_client.py
+    python utils/test_client.py
     ```
     *This verifies the server can talk to Jira using your .env token.*
 
@@ -153,7 +174,7 @@ Now configure and deploy the Agent that uses the MCP server.
 2.  **Test Agent Locally:**
     You can run the agent locally to verify it answers Jira questions correctly. It will use the token from your local `.env` file.
     ```bash
-    python3 adk_agent/agent.py
+    python adk_agent/agent.py
     ```
 
 3.  **Deploy to Agent Engine:**
@@ -164,9 +185,39 @@ Now configure and deploy the Agent that uses the MCP server.
     *   Run the script:
         ```bash
         cd adk_agent
-        python3 deploy_agent_engine.py
+        python deploy_agent_engine.py
         ```
 
+
+---
+
+## 🌐 Step 4: Integrate with Gemini Enterprise
+
+To allow Gemini to access Jira on behalf of users, you must configure authentication and add the Agent as a Tool.
+
+### 1. Configure OAuth Authentication
+Create an **Authorization Object** (OAuth Provider) in the Google Cloud Console (Vertex AI Search & Conversation -> Integration -> Auth).
+
+*   **Client ID / Secret:** Use your Atlassian App credentials (from `.env` or Console).
+*   **Authorization URI:**
+    ```text
+    https://auth.atlassian.com/authorize?audience=api.atlassian.com&client_id=YOUR_CLIENT_ID&scope=read%3Ajira-work%20read%3Ajira-user%20write%3Ajira-work%20offline_access&redirect_uri=https%3A%2F%2Fvertexaisearch.cloud.google.com%2Foauth-redirect&response_type=code&prompt=consent&state=GENERATED_UNIQUE_VALUE
+    ```
+    *(Replace `YOUR_CLIENT_ID` with your actual ID)*
+
+*   **Token URI:** `https://auth.atlassian.com/oauth/token`
+*   **Scopes:** `read:jira-work`, `read:jira-user`, `write:jira-work`, `offline_access`
+
+### 2. Add Agent Engine as a Tool
+Add your deployed Agent Engine as a generic **Tool** in your Gemini App.
+
+*   **Resource Name:** Use the Resource ID from your deployment output (e.g., `projects/254356041555/locations/us-central1/reasoningEngines/3398014297362661376`).
+*   **Agent Name:** `Jira Assistant`
+*   **Description:** "An intelligent assistant that searches, retrieves, and analyzes Jira issues and projects."
+*   **Tool Instructions:**
+    > "Always call the Agent Engine tool to answer queries about Jira issues, projects, or tasks. Pass the user's natural language query directly to the tool."
+
+---
 
 ## 🔐 Security Notes
 
