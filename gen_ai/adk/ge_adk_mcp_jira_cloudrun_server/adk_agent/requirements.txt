@@ -1,0 +1,5 @@
+google-adk==1.19.0
+google-genai==1.52.0
+mcp==1.22.0
+python-dotenv==1.2.1
+google-cloud-aiplatform==1.128.0
