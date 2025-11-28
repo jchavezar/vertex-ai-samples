@@ -73,10 +73,19 @@ graph TD
 This project uses **[uv](https://github.com/astral-sh/uv)** for fast Python package management.
 
 ### 1. Install uv & Create Virtual Environment
-If you don't have `uv` installed:
+This project uses **[uv](https://docs.astral.sh/uv/getting-started/installation/)** for fast Python package management.
+
+**macOS / Linux:**
 ```bash
-pip install uv
+curl -LsSf https://astral.sh/uv/install.sh | sh
 ```
+
+**Windows:**
+```powershell
+powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
+```
+
+*(Alternatively, if you have pip installed: `pip install uv`)*
 
 Create and activate a virtual environment:
 ```bash
