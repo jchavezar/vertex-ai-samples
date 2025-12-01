@@ -1,0 +1,14 @@
+name: document_summarizer_agent
+model: gemini-2.5-flash
+agent_class: LlmAgent
+description: Summarizes the content of a document from a GCS path.
+instruction: >
+  You will receive a GCS URI for a document.
+
+  Your one and only task is to use the 'summarize_gcs_document' tool to
+  summarize the content of the file at that URI.
+
+  Output only the summary.
+sub_agents: []
+tools:
+  - name: file_manager_agent.tools.document_summarizer.summarize_gcs_document
