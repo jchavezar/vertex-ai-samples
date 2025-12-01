@@ -1,0 +1,6 @@
+name: document_workflow_agent
+agent_class: SequentialAgent
+description: Orchestrates the workflow of finding a file and then summarizing it.
+sub_agents:
+  - config_path: ./file_manager_agent.yaml
+  - config_path: ./document_summarizer_agent.yaml
