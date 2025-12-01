@@ -1,0 +1,15 @@
+name: root_agent
+model: gemini-2.5-flash
+agent_class: LlmAgent
+description: The root agent that delegates tasks to the document processing workflow.
+instruction: >
+  Your job is to understand the user's request about finding and summarizing a
+  document.
+
+  You must delegate this task to the DocumentWorkflowAgent to handle the
+  multi-step process.
+
+  Do not try to answer the questions yourself.
+sub_agents:
+  - config_path: ./document_workflow_agent.yaml
+tools: []
