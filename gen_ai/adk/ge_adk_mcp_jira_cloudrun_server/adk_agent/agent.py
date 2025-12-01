@@ -30,6 +30,14 @@ def get_access_token(readonly_context: ReadonlyContext, auth_id: str) -> str | N
             # print(f"Key: {key}, Value: {value}  ")
             if key.startswith(auth_id) and isinstance(value, str) and len(value) > 20:
                 return value
+            else:
+                print("Local keys sending over...")
+                try:
+                    local_access_token = os.getenv("ATLASSIAN_OAUTH_TOKEN")
+                    return local_access_token
+                except Exception as e:
+                    print("Error: {e}")
+                    return None
 
     return None
 

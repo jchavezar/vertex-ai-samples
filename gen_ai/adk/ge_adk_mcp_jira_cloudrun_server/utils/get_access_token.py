@@ -21,7 +21,7 @@ if not all([CLIENT_ID, CLIENT_SECRET, REDIRECT_URI]):
     exit(1)
 
 # CORRECT SCOPES (Spaces only, no commas)
-SCOPES = "read:me read:jira-work read:jira-user write:jira-work manage:jira-project manage:jira-configuration offline_access"
+SCOPES = "read:jira-work read:jira-user write:jira-work offline_access"
 
 # --- COLORS ---
 BG_COLOR = "#ffffff"         # White background
