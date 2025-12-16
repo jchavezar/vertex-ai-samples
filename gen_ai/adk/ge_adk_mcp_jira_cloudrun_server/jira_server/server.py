@@ -170,7 +170,7 @@ async def list_tools() -> list[Tool]:
                 "type": "object",
                 "properties": {
                     "jql": {"type": "string", "description": "A Jira Query Language (JQL) expression"},
-                    "maxResults": {"type": "integer", "default": 15, "description": "Maximum number of issues to return per page. Default is 15."},
+                    "maxResults": {"type": "integer", "default": 30, "description": "Maximum number of issues to return per page. Default is 30."},
                     "startAt": {"type": "integer", "default": 0, "description": "Legacy pagination index."},
                     "nextPageToken": {"type": "string", "description": "The token to retrieve the next page of results."}
                 },
@@ -254,7 +254,7 @@ async def call_tool(name: str, arguments: dict) -> list[TextContent | ImageConte
 
         elif name == "searchJiraIssuesUsingJql":
             jql = arguments.get("jql")
-            max_results = arguments.get("maxResults", 15)
+            max_results = arguments.get("maxResults", 30)
             start_at = arguments.get("startAt", 0)
             next_page_token = arguments.get("nextPageToken")
             
