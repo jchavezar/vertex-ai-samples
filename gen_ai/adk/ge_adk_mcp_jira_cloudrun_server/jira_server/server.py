@@ -16,7 +16,7 @@ import logging
 # --- 0. Logging Setup ---
 # Use stdout for Cloud Run/Container environments
 logging.basicConfig(
-    level=logging.INFO,
+    level=logging.DEBUG,
     format="%(asctime)s [%(levelname)s] %(message)s",
     handlers=[
         logging.StreamHandler()
@@ -165,12 +165,14 @@ async def list_tools() -> list[Tool]:
         ),
         Tool(
             name="searchJiraIssuesUsingJql",
-            description="Search Jira issues using Jira Query Language (JQL).",
+            description="Search Jira issues using Jira Query Language (JQL). Supports pagination via nextPageToken.",
             inputSchema={
                 "type": "object",
                 "properties": {
                     "jql": {"type": "string", "description": "A Jira Query Language (JQL) expression"},
-                    "maxResults": {"type": "integer", "default": 50, "description": "Maximum number of issues to return"}
+                    "maxResults": {"type": "integer", "default": 15, "description": "Maximum number of issues to return per page. Default is 15."},
+                    "startAt": {"type": "integer", "default": 0, "description": "Legacy pagination index."},
+                    "nextPageToken": {"type": "string", "description": "The token to retrieve the next page of results."}
                 },
                 "required": ["jql"]
             }
@@ -252,24 +254,66 @@ async def call_tool(name: str, arguments: dict) -> list[TextContent | ImageConte
 
         elif name == "searchJiraIssuesUsingJql":
             jql = arguments.get("jql")
-            max_results = arguments.get("maxResults", 50)
-            data = jira.jql(jql, limit=max_results)
+            max_results = arguments.get("maxResults", 15)
+            start_at = arguments.get("startAt", 0)
+            next_page_token = arguments.get("nextPageToken")
+            
+            # Use GET /rest/api/3/search/jql (Modern endpoint)
+            full_url = f"{jira.url.rstrip('/')}/rest/api/3/search/jql"
+            
+            params = {
+                "jql": jql,
+                "maxResults": max_results,
+                "fields": "summary,status,created,issuetype,priority,assignee,reporter,updated"
+            }
+            
+            # Use token if available, otherwise fallback to startAt (legacy)
+            if next_page_token:
+                params["nextPageToken"] = next_page_token
+            elif start_at > 0:
+                params["startAt"] = start_at
+            
+            headers = {
+                "Authorization": f"Bearer {token}",
+                "Accept": "application/json"
+            }
 
-            if not isinstance(data, dict):
-                return [TextContent(type="text", text=f"API Error: Unexpected response from Jira. {str(data)}")]
+            try:
+                resp = requests.get(full_url, params=params, headers=headers)
+                
+                if resp.status_code != 200:
+                    logger.error(f"JQL Error {resp.status_code}: {resp.text}")
+                    return [TextContent(type="text", text=f"API Error {resp.status_code}: {resp.text}")]
+                
+                data = resp.json()
+                
+            except Exception as e:
+                logger.error(f"JQL Exception: {e}")
+                return [TextContent(type="text", text=f"API Exception: {str(e)}")]
 
             issues = data.get('issues', [])
+            returned_next_token = data.get('nextPageToken')
+            
+            logger.info(f"DEBUG: JQL Search - Count: {len(issues)}, NextToken: {returned_next_token is not None}")
 
             if not issues:
                 return [TextContent(type="text", text=f"No issues found for JQL: `{jql}`")]
 
-            total_issues = data.get('total', len(issues))
-            lines = [f"Found {len(issues)} of {total_issues} issues:"]
+            lines = [f"Showing {len(issues)} issues."]
+            
             for i in issues:
                 fields = i.get('fields', {})
                 status = fields.get('status', {}).get('name', 'Unknown')
                 summary = fields.get('summary', 'No Summary')
-                lines.append(f"[{i['key']}] {summary} ({status})")
+                created_date_raw = fields.get('created', '')
+                created_date = created_date_raw.split('T')[0] if created_date_raw else ""
+                lines.append(f"[{i['key']}] {summary} (Status: {status}, Created: {created_date})")
+
+            if returned_next_token:
+                lines.append(f"\n[SYSTEM NOTICE: There are more issues available. You MUST ask the user if they want to see the next batch. If they say YES, you MUST call this tool again with `nextPageToken='{returned_next_token}'`.]")
+            elif len(issues) == max_results:
+                 lines.append(f"\n[SYSTEM NOTICE: There might be more issues. Ask user. If yes, try calling with startAt={start_at + len(issues)} (legacy).]")
+
             return [TextContent(type="text", text="\n".join(lines))]
 
         elif name == "getJiraIssue":

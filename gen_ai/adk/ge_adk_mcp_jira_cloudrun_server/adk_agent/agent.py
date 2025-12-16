@@ -18,52 +18,24 @@ def explicit_logger(msg):
 
 def get_access_token(readonly_context: ReadonlyContext, auth_id: str) -> str | None:
     """Retrieves the OAuth access token from the Agentspace session state."""
-    # print("Context")
-    # print(readonly_context)
     if hasattr(readonly_context, "session") and hasattr(readonly_context.session, "state"):
         session_state = dict(readonly_context.session.state)
-        # print("There's a session state:")
-        # print(session_state)
-
-        # Check keys for exact match or prefix match (e.g. "auth-id_12345")
         for key, value in session_state.items():
-            # print(f"Key: {key}, Value: {value}  ")
             if key.startswith(auth_id) and isinstance(value, str) and len(value) > 20:
                 return value
-            else:
-                print("Local keys sending over...")
-                try:
-                    local_access_token = os.getenv("ATLASSIAN_OAUTH_TOKEN")
-                    return local_access_token
-                except Exception as e:
-                    print("Error: {e}")
-                    return None
-
-    return None
+    # Fallback for local testing
+    return os.getenv("ATLASSIAN_OAUTH_TOKEN")
 
 def mcp_header_provider(readonly_context: ReadonlyContext) -> dict[str, str]:
-    # 1. Retrieve token
     token = get_access_token(readonly_context, AGENTSPACE_AUTH_ID)
-    
-    if not token:
-        # Fallback to env for local testing if needed, but usually strictly from context
-        token = os.getenv("ATLASSIAN_OAUTH_TOKEN")
-
     if not token:
         print("[CRITICAL] Token is missing!", file=sys.stdout)
         return {}
-
-    # 2. CRITICAL: Strip whitespace.
-    # Python reads env vars with potential newlines; Node.js usually trims them.
     clean_token = token.strip()
-
-    # 3. DEBUG: Verify we have the "Working" Client ID (Start of token payload)
-    # This helps verify you aren't using the "Failing" Confluence token by mistake
     print(f"[DEBUG] Using Token Prefix: {clean_token[:6]}... (Length: {len(clean_token)})", file=sys.stdout)
-
     return {
         "Authorization": f"Bearer {clean_token}",
-        "Accept": "text/event-stream", # Required for SSE handshakes
+        "Accept": "text/event-stream",
         "Cache-Control": "no-cache"
     }
 
@@ -71,11 +43,31 @@ root_agent = Agent(
     name="root_agent",
     model="gemini-2.5-flash",
     description="You are a Jira assistant Agent.",
-    instruction="""
-        You are a Jira assistant Agent.
-        1. Use JQL (e.g. text ~ "colors").
-        2. Return key, summary, and status.
-        """,
+    instruction="""You are a helpful, friendly, and communicative Jira assistant. Your goal is to guide the user clearly through their data, explaining your steps.
+
+**Core Guidelines:**
+
+1.  **Friendly Project Check**: When the user asks for "all issues", DO NOT just list them immediately.
+    *   First, call `getVisibleJiraProjects`.
+    *   **If you find one project**: Tell the user, "I found one project named '[Project Name]'. I'll search for issues there." THEN perform the search.
+    *   **If you find multiple**: List them and ask, "I found multiple projects: [List]. Which one would you like to view?"
+    *   **Why?**: The user wants to know what you are doing. Be verbose and helpful.
+
+2.  **Format with Markdown**:
+    *   Always present lists of issues using Markdown bullet points for readability.
+    *   Example:
+        * `[KEY-1] Summary of the issue (Status: To Do)`
+        * `[KEY-2] Another issue (Status: Done)`
+
+3.  **Interactive Pagination**:
+    *   The search tool returns 15 results at a time.
+    *   **CRITICAL**: Check the tool output for the text `[SYSTEM NOTICE: There are more issues available...]`.
+    *   **If you see this notice**, you **MUST** end your response with a clear, friendly question on its own line:
+        "**That was the first 15. Would you like to see the next batch?**"
+    *   If you do *not* see the notice, assume you have listed all issues.
+
+4.  **Tone**: Be conversational. If you are searching, say "Searching now...". If you found nothing, say "I couldn't find any issues matching that." Don't be a robot; be a helpful assistant.
+""",
     generate_content_config=GenerateContentConfig(
         temperature=0.0,
     ),
@@ -104,6 +96,7 @@ runner = Runner(
 )
 
 async def main():
+    print("Initializing session...")
     session = await session_service.get_session(
         app_name=APP_NAME, user_id=USER_ID, session_id=SESSION_ID
     )
@@ -111,22 +104,51 @@ async def main():
         session = await session_service.create_session(
             app_name=APP_NAME, user_id=USER_ID, session_id=SESSION_ID
         )
+    print(f"Session initialized (ID: {SESSION_ID}). Ready to chat!")
+    print("Type 'exit' or 'quit' to end the conversation.\n")
 
-    user_content = Content(
-        role="user", parts=[Part(text="how many jira issues related to colors are there?, give me a summary and the issue number")]
-    )
+    while True:
+        try:
+            user_text = input("User: ")
+        except EOFError:
+            break
 
-    final_response_content = "No response"
-    async for event in runner.run_async(
-            user_id=USER_ID, session_id=SESSION_ID, new_message=user_content
-    ):
-        if event.is_final_response() and event.content and event.content.parts:
-            final_response_content = event.content.parts[0].text
+        if user_text.lower() in ("exit", "quit"):
+            print("Exiting...")
+            break
 
-    print(final_response_content)
+        if not user_text.strip():
+            continue
 
+        user_content = Content(
+            role="user", parts=[Part(text=user_text)]
+        )
+
+        print("Agent: ", end="", flush=True)
+        final_text = ""
+        try:
+            async for event in runner.run_async(
+                    user_id=USER_ID, session_id=SESSION_ID, new_message=user_content
+            ):
+                # Attempt to stream the response if parts are available immediately
+                # Note: The ADK runner behavior depends on the specific event types.
+                # Here we capture the final response to ensure we get the complete message.
+                if event.is_final_response() and event.content and event.content.parts:
+                     # Clear the "Agent: " prompt if we want to print the whole block, 
+                     # or just print the text. The previous code printed only final.
+                     # Let's print the final text.
+                     final_text = event.content.parts[0].text
+            
+            print(final_text)
+            print("-" * 20)
+            
+        except Exception as e:
+            print(f"\nError during execution: {e}")
 
 if __name__ == "__main__":
     import asyncio
-
-    asyncio.run(main())
+    # Ensure Windows compatibility for asyncio loop if needed, though we are on Darwin
+    try:
+        asyncio.run(main())
+    except KeyboardInterrupt:
+        print("\n\nUser interrupted. Exiting.")

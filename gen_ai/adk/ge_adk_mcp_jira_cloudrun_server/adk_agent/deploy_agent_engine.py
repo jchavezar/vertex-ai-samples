@@ -20,6 +20,10 @@ importlib.reload(agent)
 load_dotenv(override=True)
 
 # Initialize Vertex AI SDK
+vertexai.init(
+    project=os.getenv("GOOGLE_CLOUD_PROJECT"),
+    location=os.getenv("GOOGLE_CLOUD_LOCATION"),
+)
 client = vertexai.Client(
     project=os.getenv("GOOGLE_CLOUD_PROJECT"),
     location=os.getenv("GOOGLE_CLOUD_LOCATION"),
@@ -34,15 +38,48 @@ deployment_app = AdkApp(
 #%%
 # Create a new Agent Engine instance
 # Note: Use this block only for the first deployment.
-remote_app = client.agent_engines.create(
-    agent=deployment_app,
-    config={
-        "display_name": AGENT_ENGINE_NAME,
-        "staging_bucket": STAGING_BUCKET,
-        "requirements": "requirements.txt", # Refers to adk_agent/requirements.txt
-        "extra_packages": ["agent.py"],
-    }
-)
+# remote_app = client.agent_engines.create(
+#     agent=deployment_app,
+#     config={
+#         "display_name": AGENT_ENGINE_NAME,
+#         "staging_bucket": STAGING_BUCKET,
+#         "requirements": "requirements.txt", # Refers to adk_agent/requirements.txt
+#         "extra_packages": ["agent.py"],
+#     }
+# )
+
+# Automatic Deployment (Update or Create)
+print(f"Searching for existing Agent Engine: {AGENT_ENGINE_NAME}...")
+all_engines = list(client.agent_engines.list())
+target_engine = next((e for e in all_engines if e.display_name == AGENT_ENGINE_NAME), None)
+
+if target_engine:
+    print(f"Found existing engine: {target_engine.resource_name}. Updating...")
+    
+    remote_app = client.agent_engines.update(
+        name=target_engine.resource_name,
+        agent=deployment_app,
+        config={
+            "display_name": AGENT_ENGINE_NAME,
+            "staging_bucket": STAGING_BUCKET,
+            "requirements": "requirements.txt",
+            "extra_packages": ["agent.py"],
+        }
+    )
+    print(f"Update complete: {remote_app.resource_name}")
+else:
+    print("No existing engine found. Creating new one...")
+    remote_app = client.agent_engines.create(
+        agent=deployment_app,
+        config={
+            "display_name": AGENT_ENGINE_NAME,
+            "staging_bucket": STAGING_BUCKET,
+            "requirements": "requirements.txt", # Refers to adk_agent/requirements.txt
+            "extra_packages": ["agent.py"],
+        }
+    )
+    print(f"Creation complete: {remote_app.resource_name}")
+
 #%%
 # Update an existing Agent Engine instance
 # Note: Use the resource name (projects/.../locations/.../reasoningEngines/...) from the creation output
