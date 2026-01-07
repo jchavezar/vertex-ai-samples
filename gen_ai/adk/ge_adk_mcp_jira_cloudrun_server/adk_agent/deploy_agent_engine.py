@@ -11,7 +11,7 @@ import importlib
 
 # --- CONFIGURATION ---
 # The display name for the Agent Engine in Vertex AI
-AGENT_ENGINE_NAME = "ge_adk_mcp_crun_jira"
+AGENT_ENGINE_NAME = "ge_adk_mcp_crun_jira_jan_6"
 STAGING_BUCKET = "gs://vtxdemos-staging" # Ensure this bucket exists
 
 #%%
@@ -36,28 +36,16 @@ deployment_app = AdkApp(
 )
 
 #%%
-# Create a new Agent Engine instance
-# Note: Use this block only for the first deployment.
-# remote_app = client.agent_engines.create(
-#     agent=deployment_app,
-#     config={
-#         "display_name": AGENT_ENGINE_NAME,
-#         "staging_bucket": STAGING_BUCKET,
-#         "requirements": "requirements.txt", # Refers to adk_agent/requirements.txt
-#         "extra_packages": ["agent.py"],
-#     }
-# )
-
 # Automatic Deployment (Update or Create)
 print(f"Searching for existing Agent Engine: {AGENT_ENGINE_NAME}...")
 all_engines = list(client.agent_engines.list())
-target_engine = next((e for e in all_engines if e.display_name == AGENT_ENGINE_NAME), None)
+target_engine = next((e for e in all_engines if e.api_resource.display_name == AGENT_ENGINE_NAME), None)
 
 if target_engine:
-    print(f"Found existing engine: {target_engine.resource_name}. Updating...")
+    print(f"Found existing engine: {target_engine.api_resource.name}. Updating...")
     
     remote_app = client.agent_engines.update(
-        name=target_engine.resource_name,
+        name=target_engine.api_resource.name,
         agent=deployment_app,
         config={
             "display_name": AGENT_ENGINE_NAME,
@@ -66,7 +54,7 @@ if target_engine:
             "extra_packages": ["agent.py"],
         }
     )
-    print(f"Update complete: {remote_app.resource_name}")
+    print(f"Update complete: {remote_app.api_resource.name}")
 else:
     print("No existing engine found. Creating new one...")
     remote_app = client.agent_engines.create(
@@ -78,22 +66,7 @@ else:
             "extra_packages": ["agent.py"],
         }
     )
-    print(f"Creation complete: {remote_app.resource_name}")
-
-#%%
-# Update an existing Agent Engine instance
-# Note: Use the resource name (projects/.../locations/.../reasoningEngines/...) from the creation output
-# Replace the hardcoded name below with your actual Agent Engine ID.
-# remote_app = client.agent_engines.update(
-#     name="projects/254356041555/locations/us-central1/reasoningEngines/3398014297362661376",
-#     agent=deployment_app,
-#     config={
-#         "display_name": AGENT_ENGINE_NAME,
-#         "staging_bucket": STAGING_BUCKET,
-#         "requirements": "requirements.txt",
-#         "extra_packages": ["agent.py"],
-#     }
-# )
+    print(f"Creation complete: {remote_app.api_resource.name}")
 
 
 #%%
