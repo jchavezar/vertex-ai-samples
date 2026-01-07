@@ -40,7 +40,7 @@ def mcp_header_provider(readonly_context: ReadonlyContext) -> dict[str, str]:
 
 root_agent = Agent(
     name="root_agent",
-    model="gemini-3-flash-preview",
+    model="gemini-2.5-flash",
     description="You are a Jira assistant Agent.",
     instruction="""You are a helpful and proactive Jira Knowledge Assistant.
 
