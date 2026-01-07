@@ -1,6 +1,6 @@
-#%%
 import os
 import sys
+import asyncio
 from google.adk.agents import Agent
 from google.adk.sessions import InMemorySessionService
 from google.adk.runners import Runner
@@ -11,65 +11,59 @@ from dotenv import load_dotenv
 
 load_dotenv(verbose=True)
 
-AGENTSPACE_AUTH_ID = "jira-auth-mcp_1764305083858"
-
 def explicit_logger(msg):
     print(f"[MCP LOG] {msg}", file=sys.stdout)
 
-def get_access_token(readonly_context: ReadonlyContext, auth_id: str) -> str | None:
-    """Retrieves the OAuth access token from the Agentspace session state."""
+def get_access_token(readonly_context: ReadonlyContext) -> str | None:
+    """Dynamically retrieves the OAuth access token by scanning the session state."""
     if hasattr(readonly_context, "session") and hasattr(readonly_context.session, "state"):
         session_state = dict(readonly_context.session.state)
         for key, value in session_state.items():
-            if key.startswith(auth_id) and isinstance(value, str) and len(value) > 20:
+            if isinstance(value, str) and value.startswith("eyJ") and len(value) > 100:
                 return value
-    # Fallback for local testing
+            if isinstance(value, dict) and "access_token" in value:
+                token = value["access_token"]
+                if isinstance(token, str) and token.startswith("eyJ"):
+                    return token
     return os.getenv("ATLASSIAN_OAUTH_TOKEN")
 
 def mcp_header_provider(readonly_context: ReadonlyContext) -> dict[str, str]:
-    token = get_access_token(readonly_context, AGENTSPACE_AUTH_ID)
+    token = get_access_token(readonly_context)
     if not token:
-        print("[CRITICAL] Token is missing!", file=sys.stdout)
+        print("[CRITICAL] No Jira/Atlassian token found!", file=sys.stdout)
         return {}
-    clean_token = token.strip()
-    print(f"[DEBUG] Using Token Prefix: {clean_token[:6]}... (Length: {len(clean_token)})", file=sys.stdout)
     return {
-        "Authorization": f"Bearer {clean_token}",
+        "Authorization": f"Bearer {token.strip()}",
         "Accept": "text/event-stream",
         "Cache-Control": "no-cache"
     }
 
 root_agent = Agent(
     name="root_agent",
-    model="gemini-2.5-flash",
+    model="gemini-3-flash-preview",
     description="You are a Jira assistant Agent.",
-    instruction="""You are a helpful, friendly, and intelligent Jira Knowledge Assistant. Your goal is to help users find information and answer questions using data from Jira.
+    instruction="""You are a helpful and proactive Jira Knowledge Assistant.
 
-**Core Capabilities:**
+**Workflow Logic (Strict Rules):**
 
-1.  **Jira Grounding & Synthesis**:
-    *   **NEVER refuse** to answer technical or "how-to" questions related to the project's domain (e.g., vehicle repair, software bugs) by claiming you are "just a Jira assistant."
-    *   **Instead, SEARCH Jira** for keywords related to the user's question (e.g., "engine temperature", "overheating").
-    *   **Synthesize an answer** based on the descriptions, comments, and resolutions found in the Jira issues.
-    *   **Cite your sources**: Always reference the specific Jira Issue Keys (e.g., "[SMP-123]") that contained the information.
+1.  **Context Discovery**: If the user asks for issues, projects, or any data but hasn't specified a Project Key, you **MUST** first call `getVisibleJiraProjects`.
+    
+2.  **Handling Project Results**:
+    *   **IF ONLY ONE project is returned**: Do **NOT** ask the user for confirmation. Immediately proceed to satisfy the original request using that project key.
+    *   **IF MULTIPLE projects are returned**: List the names and keys of the projects and ask the user which one they would like to use.
+    *   **IF NO projects are returned**: Inform the user you don't have access to any Jira projects.
 
-2.  **Friendly Project Check**: When the user asks for "all issues" or a broad search:
-    *   First, call `getVisibleJiraProjects`.
-    *   If one project found, tell the user and proceed.
-    *   If multiple, ask the user to choose.
+3.  **JQL Searching**: 
+    *   When searching for keywords (e.g., "ducati"), use the `searchJiraIssuesUsingJql` tool.
+    *   Construct the JQL like this: `project = "PROJECT_KEY" AND text ~ "keyword"`.
+    *   Default to `maxResults: 5` unless the user specifies a different number.
 
-3.  **Format with Markdown**:
-    *   Always present lists of issues using Markdown bullet points.
-    *   Example: `* [KEY-1] Summary (Status: To Do)`
+4.  **Pagination**: 
+    *   If the tool output contains a `nextPageToken`, you **MUST** ask the user: "There are more issues available. Would you like to see the next batch?"
 
-4.  **Interactive Pagination**:
-    *   **Default Batch**: The tool returns 30 results by default.
-    *   **User Override**: If the user asks for a specific number (e.g., "give me 100"), pass that number as `maxResults`.
-    *   **CRITICAL**: Check the tool output for `[SYSTEM NOTICE: ... nextPageToken='...']`.
-    *   If you see this, you **MUST** ask: "**That was the first batch. Would you like to see the next set?**"
-    *   If the user says "Yes", call `searchJiraIssuesUsingJql` again using the provided `nextPageToken`.
-
-5.  **Tone**: Conversational, helpful, and proactive.
+5.  **Formatting**: 
+    *   Use Markdown bullet points for lists: `* [KEY-123] Summary (Status: Done)`.
+    *   Synthesize information from issue descriptions or comments if the user asks a "Why" or "How" question.
 """,
     generate_content_config=GenerateContentConfig(
         temperature=0.0,
@@ -133,24 +127,16 @@ async def main():
             async for event in runner.run_async(
                     user_id=USER_ID, session_id=SESSION_ID, new_message=user_content
             ):
-                # Attempt to stream the response if parts are available immediately
-                # Note: The ADK runner behavior depends on the specific event types.
-                # Here we capture the final response to ensure we get the complete message.
                 if event.is_final_response() and event.content and event.content.parts:
-                     # Clear the "Agent: " prompt if we want to print the whole block, 
-                     # or just print the text. The previous code printed only final.
-                     # Let's print the final text.
-                     final_text = event.content.parts[0].text
-            
+                    final_text = event.content.parts[0].text
+
             print(final_text)
             print("-" * 20)
-            
+
         except Exception as e:
             print(f"\nError during execution: {e}")
 
 if __name__ == "__main__":
-    import asyncio
-    # Ensure Windows compatibility for asyncio loop if needed, though we are on Darwin
     try:
         asyncio.run(main())
     except KeyboardInterrupt:
