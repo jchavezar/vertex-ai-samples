@@ -11,7 +11,7 @@ import importlib
 
 # --- CONFIGURATION ---
 # The display name for the Agent Engine in Vertex AI
-AGENT_ENGINE_NAME = "ge_adk_mcp_crun_jira_jan_6"
+AGENT_ENGINE_NAME = "ge_adk_mcp_crun_jira_jan_8"
 STAGING_BUCKET = "gs://vtxdemos-staging" # Ensure this bucket exists
 
 #%%
