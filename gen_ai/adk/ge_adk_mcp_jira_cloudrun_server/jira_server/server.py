@@ -10,11 +10,9 @@ from mcp.server import Server
 from mcp.server.sse import SseServerTransport
 from mcp.types import Tool, TextContent, ImageContent, EmbeddedResource
 from atlassian import Jira
-
 import logging
 
 # --- 0. Logging Setup ---
-# Use stdout for Cloud Run/Container environments
 logging.basicConfig(
     level=logging.DEBUG,
     format="%(asctime)s [%(levelname)s] %(message)s",
@@ -45,10 +43,7 @@ class AuthMiddleware(BaseHTTPMiddleware):
 # --- 3. Setup App & Server ---
 app = FastAPI(title="Jira Multi-Tenant MCP")
 app.add_middleware(AuthMiddleware)
-
 mcp_server = Server("jira-multi-tenant")
-
-# Store active transports: session_id -> SseServerTransport
 sessions = {}
 
 # --- 4. Helpers & Tools ---
@@ -60,7 +55,7 @@ def get_atlassian_resources(token: str):
     resp.raise_for_status()
     return resp.json()
 
-def get_jira_client() -> Jira:
+def get_jira_client() -> tuple[Jira, str]:
     token = user_token_var.get()
     if not token:
         raise ValueError("Authentication required. Please provide a Bearer token.")
@@ -72,325 +67,255 @@ def get_jira_client() -> Jira:
 
         # Default to the first site
         cloud_id = sites[0]['id']
+        site_url = sites[0]['url'].rstrip('/')
         api_url = f"https://api.atlassian.com/ex/jira/{cloud_id}"
 
-        return Jira(url=api_url, token=token, cloud=True)
+        return Jira(url=api_url, token=token, cloud=True), site_url
     except Exception as e:
         raise ValueError(f"Jira Connection Error: {str(e)}")
 
 @mcp_server.list_tools()
 async def list_tools() -> list[Tool]:
     return [
-        Tool(
-            name="atlassianUserInfo",
-            description="Get current user info from Atlassian",
-            inputSchema={"type": "object", "properties": {}}
-        ),
-        Tool(
-            name="getAccessibleAtlassianResources",
-            description="Get cloudid to construct API calls to Atlassian REST APIs",
-            inputSchema={"type": "object", "properties": {}}
-        ),
-        Tool(
-            name="getJiraIssue",
-            description="Get the details of a Jira issue by issue id or key.",
-            inputSchema={
-                "type": "object",
-                "properties": {
-                    "issueIdOrKey": {"type": "string", "description": "Issue id or key"}
-                },
-                "required": ["issueIdOrKey"]
-            }
-        ),
-        Tool(
-            name="getJiraIssueRemoteIssueLinks",
-            description="Get remote issue links (eg: Confluence links etc...) of an existing Jira issue id or key",
-            inputSchema={
-                "type": "object",
-                "properties": {
-                    "issueIdOrKey": {"type": "string", "description": "Issue id or key"}
-                },
-                "required": ["issueIdOrKey"]
-            }
-        ),
-        Tool(
-            name="getVisibleJiraProjects",
-            description="Get visible Jira projects.",
-            inputSchema={"type": "object", "properties": {}}
-        ),
-        Tool(
-            name="lookupJiraAccountId",
-            description="Lookup account ids of existing users in Jira based on the user's display name or email address.",
-            inputSchema={
-                "type": "object",
-                "properties": {
-                    "searchString": {"type": "string", "description": "Display name or email"}
-                },
-                "required": ["searchString"]
-            }
-        ),
-        Tool(
-            name="getTransitionsForJiraIssue",
-            description="Get available transitions for an existing Jira issue id or key.",
-            inputSchema={
-                "type": "object",
-                "properties": {
-                    "issueIdOrKey": {"type": "string", "description": "Issue id or key"}
-                },
-                "required": ["issueIdOrKey"]
-            }
-        ),
-        Tool(
-            name="getJiraProjectIssueTypesMetadata",
-            description="Get a page of issue type metadata for a specified project.",
-            inputSchema={
-                "type": "object",
-                "properties": {
-                    "projectIdOrKey": {"type": "string", "description": "Project ID or Key"}
-                },
-                "required": ["projectIdOrKey"]
-            }
-        ),
-        Tool(
-            name="getJiraIssueTypeMetaWithFields",
-            description="Get issue type metadata for a project and issue type, including fields.",
-            inputSchema={
-                "type": "object",
-                "properties": {
-                    "projectIdOrKey": {"type": "string", "description": "Project ID or Key"},
-                    "issueTypeId": {"type": "string", "description": "Issue Type ID"}
-                },
-                "required": ["projectIdOrKey", "issueTypeId"]
-            }
-        ),
-        Tool(
-            name="searchJiraIssuesUsingJql",
-            description="Search Jira issues using Jira Query Language (JQL). Supports pagination via nextPageToken.",
-            inputSchema={
-                "type": "object",
-                "properties": {
-                    "jql": {"type": "string", "description": "A Jira Query Language (JQL) expression"},
-                    "maxResults": {"type": "integer", "default": 30, "description": "Maximum number of issues to return per page. Default is 30."},
-                    "startAt": {"type": "integer", "default": 0, "description": "Legacy pagination index."},
-                    "nextPageToken": {"type": "string", "description": "The token to retrieve the next page of results."}
-                },
-                "required": ["jql"]
-            }
-        )
+        Tool(name="getVisibleJiraProjects", description="Get projects list.", inputSchema={"type": "object"}),
+        Tool(name="searchJiraIssuesUsingJql", description="Fetch issues. Call repeatedly with nextPageToken for full analysis.",
+             inputSchema={
+                 "type": "object",
+                 "properties": {
+                     "jql": {"type": "string"},
+                     "maxResults": {"type": "integer", "default": 50},
+                     "nextPageToken": {"type": "string"},
+                     "startAt": {"type": "integer", "default": 0}
+                 },
+                 "required": ["jql"]
+             }
+             ),
+        Tool(name="summarizeJiraIssues", description="Server-side aggregation for large datasets. Returns statistical counts (Status, Priority, Type) without returning raw issues.",
+             inputSchema={
+                 "type": "object",
+                 "properties": {
+                     "jql": {"type": "string"},
+                     "maxResults": {"type": "integer", "default": 1000}
+                 },
+                 "required": ["jql"]
+             }
+             ),
+        Tool(name="getJiraIssuesReport", description="Generates a detailed report of issues including ID, Duration (calculated), and Summary. Handles pagination internally to return all matching results up to maxResults. Supports 'nextPageToken' for fetching subsequent batches.",
+             inputSchema={
+                 "type": "object",
+                 "properties": {
+                     "jql": {"type": "string"},
+                     "maxResults": {"type": "integer", "default": 2000},
+                     "nextPageToken": {"type": "string"}
+                 },
+                 "required": ["jql"]
+             }
+             )
     ]
 
 @mcp_server.call_tool()
-async def call_tool(name: str, arguments: dict) -> list[TextContent | ImageContent | EmbeddedResource]:
-    token = user_token_var.get()
-
+async def call_tool(name: str, arguments: dict) -> list[TextContent]:
     try:
-        # Tools that don't strictly need the Jira client wrapper (or use it differently)
-        if name == "getAccessibleAtlassianResources":
-            if not token:
-                return [TextContent(type="text", text="Authentication required.")]
-            resources = get_atlassian_resources(token)
-            return [TextContent(type="text", text=str(resources))]
+        jira, site_url = get_jira_client()
+        token = user_token_var.get()
 
-        # For other tools, get the initialized Jira client
-        jira = get_jira_client()
-
-        if name == "atlassianUserInfo":
-            # Try global Atlassian profile first (often available with basic scopes)
-            resp = requests.get(
-                "https://api.atlassian.com/me",
-                headers={"Authorization": f"Bearer {token}"}
-            )
-            if resp.status_code == 200:
-                return [TextContent(type="text", text=str(resp.json()))]
-
-            # Fallback to Jira-specific profile
-            user_info = jira.myself()
-            return [TextContent(type="text", text=str(user_info))]
-
-        elif name == "getVisibleJiraProjects":
+        if name == "getVisibleJiraProjects":
             projects = jira.projects()
-            # Return a summarized list
-            summary = [f"{p['key']}: {p['name']} (ID: {p['id']})" for p in projects]
-            return [TextContent(type="text", text="\n".join(summary))]
+            return [TextContent(type="text", text="\n".join([f"{p['key']}: {p['name']}" for p in projects]))]
 
-        elif name == "lookupJiraAccountId":
-            query = arguments.get("searchString")
-            # Use direct API call to avoid library wrapper issues with deprecated params
-            users = jira.get("user/search", params={"query": query})
+        elif name == "getJiraIssuesReport":
+            jql = arguments.get("jql")
+            max_results = min(arguments.get("maxResults", 2000), 10000)
+            input_next_token = arguments.get("nextPageToken")
+            
+            all_issues = []
+            next_page_token = input_next_token
+            batch_size = 100
+            
+            from datetime import datetime
+            
+            while len(all_issues) < max_results:
+                kwargs = {
+                    "limit": min(batch_size, max_results - len(all_issues)),
+                    "fields": "summary,status,created,resolutiondate,description"
+                }
+                if next_page_token:
+                    kwargs["nextPageToken"] = next_page_token
 
-            if isinstance(users, dict):
-                return [TextContent(type="text", text=f"Unexpected response: {users}")]
+                data = jira.enhanced_jql(jql, **kwargs)
+                issues = data.get('issues', [])
+                
+                if not issues:
+                    # No more issues returned
+                    next_page_token = None
+                    break
+                    
+                all_issues.extend(issues)
+                next_page_token = data.get('nextPageToken')
+                
+                if not next_page_token:
+                    break
+            
+            # Generate Report
+            token_str = next_page_token if next_page_token else "NONE"
+            lines = [f"METADATA: Found={len(all_issues)}, NextToken={token_str}", ""]
+            
+            lines.append(f"**Jira Detailed Report** (Batch size: {len(all_issues)})")
+            lines.append(f"{ 'ID':<20} | {'Duration':<20} | {'Summary'}")
+            lines.append("-" * 100)
+            
+            for i in all_issues:
+                fields = i.get('fields', {})
+                key = i['key']
+                key_link = f"[{key}]({site_url}/browse/{key})"
+                summary = fields.get('summary', 'No Summary')
+                
+                created_str = fields.get('created')
+                resolved_str = fields.get('resolutiondate')
+                duration_str = "N/A"
+                
+                if created_str and resolved_str:
+                    try:
+                        c_dt = datetime.strptime(created_str[:19], "%Y-%m-%dT%H:%M:%S")
+                        r_dt = datetime.strptime(resolved_str[:19], "%Y-%m-%dT%H:%M:%S")
+                        diff = r_dt - c_dt
+                        
+                        total_seconds = int(diff.total_seconds())
+                        days, remainder = divmod(total_seconds, 86400)
+                        hours, remainder = divmod(remainder, 3600)
+                        minutes, seconds = divmod(remainder, 60)
+                        
+                        if days > 0:
+                            duration_str = f"{days}d {hours}h"
+                        elif hours > 0:
+                            duration_str = f"{hours}h {minutes}m"
+                        else:
+                            duration_str = f"{minutes}m {seconds}s"
+                    except Exception:
+                        duration_str = "Error"
 
-            if not users:
-                return [TextContent(type="text", text="No users found.")]
+                lines.append(f"{key_link:<20} | {duration_str:<20} | {summary[:50]}")
 
-            # If users is a string, it's an error message from the API
-            if isinstance(users, str):
-                return [TextContent(type="text", text=f"API Error: {users}")]
+            return [TextContent(type="text", text="\n".join(lines))]
+            
+        elif name == "summarizeJiraIssues":
+            jql = arguments.get("jql")
+            max_results = min(arguments.get("maxResults", 1000), 2000)
+            
+            all_issues = []
+            next_page_token = None
+            batch_size = 100
+            
+            while len(all_issues) < max_results:
+                kwargs = {
+                    "limit": min(batch_size, max_results - len(all_issues)),
+                    "fields": "status,priority,issuetype"
+                }
+                if next_page_token:
+                    kwargs["nextPageToken"] = next_page_token
 
-            summary = []
-            for u in users:
-                if isinstance(u, dict):
-                    summary.append(f"{u.get('displayName', 'Unknown')} (ID: {u.get('accountId', 'Unknown')})")
+                data = jira.enhanced_jql(jql, **kwargs)
+                issues = data.get('issues', [])
+                
+                if not issues:
+                    break
+                    
+                all_issues.extend(issues)
+                next_page_token = data.get('nextPageToken')
+                
+                if not next_page_token:
+                    break
 
-            return [TextContent(type="text", text="\n".join(summary))]
+            # Aggregate Data
+            stats = {
+                "total": len(all_issues),
+                "status": {},
+                "priority": {},
+                "issuetype": {}
+            }
 
-        elif name == "getTransitionsForJiraIssue":
-            key = arguments.get("issueIdOrKey")
-            # Direct API call
-            data = jira.get(f"issue/{key}/transitions")
+            for i in all_issues:
+                fields = i.get('fields', {})
+                s_name = fields.get('status', {}).get('name', 'Unknown')
+                stats["status"][s_name] = stats["status"].get(s_name, 0) + 1
+                p_name = fields.get('priority', {}).get('name', 'None')
+                stats["priority"][p_name] = stats["priority"].get(p_name, 0) + 1
+                t_name = fields.get('issuetype', {}).get('name', 'Unknown')
+                stats["issuetype"][t_name] = stats["issuetype"].get(t_name, 0) + 1
 
-            if isinstance(data, str):
-                 return [TextContent(type="text", text=f"API Error: {data}")]
+            # Format Report
+            report = [f"**Jira Summary Report** (Analyzed {stats['total']} issues)"]
+            
+            report.append("\n**By Status:**")
+            for k, v in sorted(stats["status"].items(), key=lambda x: x[1], reverse=True):
+                report.append(f"- {k}: {v}")
+                
+            report.append("\n**By Priority:**")
+            for k, v in sorted(stats["priority"].items(), key=lambda x: x[1], reverse=True):
+                report.append(f"- {k}: {v}")
+                
+            report.append("\n**By Type:**")
+            for k, v in sorted(stats["issuetype"].items(), key=lambda x: x[1], reverse=True):
+                report.append(f"- {k}: {v}")
 
-            # Expecting {"transitions": [...]}
-            transitions = data.get('transitions', []) if isinstance(data, dict) else []
-
-            if not transitions:
-                return [TextContent(type="text", text="No transitions available.")]
-
-            summary = [f"{t.get('name', 'Unknown')} (ID: {t.get('id', '?')}) -> {t.get('to', {}).get('name', 'Unknown')}" for t in transitions]
-            return [TextContent(type="text", text="\n".join(summary))]
+            return [TextContent(type="text", text="\n".join(report))]
 
         elif name == "searchJiraIssuesUsingJql":
             jql = arguments.get("jql")
-            max_results = arguments.get("maxResults", 30)
-            start_at = arguments.get("startAt", 0)
+            max_results = arguments.get("maxResults", 50)
+            kwargs = {
+                "limit": max_results,
+                "fields": "summary,status,created,issuetype,priority,resolutiondate,updated,description"
+            }
             next_page_token = arguments.get("nextPageToken")
-            
-            # Use GET /rest/api/3/search/jql (Modern endpoint)
-            full_url = f"{jira.url.rstrip('/')}/rest/api/3/search/jql"
-            
-            params = {
-                "jql": jql,
-                "maxResults": max_results,
-                "fields": "summary,status,created,issuetype,priority,assignee,reporter,updated"
-            }
-            
-            # Use token if available, otherwise fallback to startAt (legacy)
             if next_page_token:
-                params["nextPageToken"] = next_page_token
-            elif start_at > 0:
-                params["startAt"] = start_at
+                kwargs["nextPageToken"] = next_page_token
             
-            headers = {
-                "Authorization": f"Bearer {token}",
-                "Accept": "application/json"
-            }
-
-            try:
-                resp = requests.get(full_url, params=params, headers=headers)
-                
-                if resp.status_code != 200:
-                    logger.error(f"JQL Error {resp.status_code}: {resp.text}")
-                    return [TextContent(type="text", text=f"API Error {resp.status_code}: {resp.text}")]
-                
-                data = resp.json()
-                
-            except Exception as e:
-                logger.error(f"JQL Exception: {e}")
-                return [TextContent(type="text", text=f"API Exception: {str(e)}")]
-
+            data = jira.enhanced_jql(jql, **kwargs)
             issues = data.get('issues', [])
-            returned_next_token = data.get('nextPageToken')
-            
-            logger.info(f"DEBUG: JQL Search - Count: {len(issues)}, NextToken: {returned_next_token is not None}")
+            resp_next_token = data.get('nextPageToken')
+            has_more = bool(resp_next_token)
 
             if not issues:
-                return [TextContent(type="text", text=f"No issues found for JQL: `{jql}`")]
+                return [TextContent(type="text", text="No results found.")]
 
-            lines = [f"Showing {len(issues)} issues."]
+            res = [f"METADATA: PageCount={len(issues)}, HasMore={has_more}, NextToken={resp_next_token or 'NONE'}\n"]
             
+            def extract_adf(node):
+                try:
+                    if isinstance(node, dict):
+                        if "text" in node: return str(node.get("text", ""))
+                        if "content" in node and isinstance(node["content"], list):
+                            return " ".join(extract_adf(n) for n in node["content"])
+                    return ""
+                except: return ""
+
             for i in issues:
-                fields = i.get('fields', {})
-                status = fields.get('status', {}).get('name', 'Unknown')
-                summary = fields.get('summary', 'No Summary')
-                created_date_raw = fields.get('created', '')
-                created_date = created_date_raw.split('T')[0] if created_date_raw else ""
-                lines.append(f"[{i['key']}] {summary} (Status: {status}, Created: {created_date})")
+                f = i.get('fields', {})
+                created = f.get('created', '')[:19]
+                resolution_date = f.get('resolutiondate', '')[:19] if f.get('resolutiondate') else 'N/A'
+                updated = f.get('updated', '')[:19]
+                
+                desc_raw = f.get('description', '') or ""
+                desc_text = desc_raw if isinstance(desc_raw, str) else extract_adf(desc_raw)
+                desc_trunc = desc_text[:500].replace('\n', ' ') + "..." if len(desc_text) > 500 else desc_text.replace('\n', ' ')
+                
+                res.append(f"ISSUE: Key={i['key']} | Status={f.get('status',{}).get('name')} | Created={created} | ResolutionDate={resolution_date} | Updated={updated} | Summary={f.get('summary')} | Desc={desc_trunc} | URL={site_url}/browse/{i['key']}")
 
-            if returned_next_token:
-                lines.append(f"\n[SYSTEM NOTICE: There are more issues available. You MUST ask the user if they want to see the next batch. If they say YES, you MUST call this tool again with `nextPageToken='{returned_next_token}'`.]")
-            elif len(issues) == max_results:
-                 lines.append(f"\n[SYSTEM NOTICE: There might be more issues. Ask user. If yes, try calling with startAt={start_at + len(issues)} (legacy).]")
+            return [TextContent(type="text", text="\n".join(res))]
 
-            return [TextContent(type="text", text="\n".join(lines))]
-
-        elif name == "getJiraIssue":
-            key = arguments.get("issueIdOrKey")
-            issue = jira.issue(key)
-            return [TextContent(type="text", text=str(issue))]
-
-        elif name == "getJiraIssueRemoteIssueLinks":
-            key = arguments.get("issueIdOrKey")
-            try:
-                links = jira.get_issue_remote_links(key)
-            except AttributeError:
-                links = jira.get(f"issue/{key}/remotelink")
-            return [TextContent(type="text", text=str(links))]
-
-        elif name == "getJiraProjectIssueTypesMetadata":
-            key = arguments.get("projectIdOrKey")
-            # Use direct API call for createmeta
-            meta = jira.get(f"/rest/api/3/issue/createmeta?projectKeys={key}&expand=projects.issuetypes.fields")
-
-            projects = meta.get('projects', [])
-            if not projects:
-                return [TextContent(type="text", text=f"No metadata found for project {key}")]
-
-            p_data = projects[0]
-            issuetypes = p_data.get('issuetypes', [])
-
-            summary = [f"Project: {p_data.get('name')}"]
-            for it in issuetypes:
-                summary.append(f"- {it.get('name')} (ID: {it.get('id')}) - {it.get('description', 'No desc')}")
-
-            return [TextContent(type="text", text="\n".join(summary))]
-
-        elif name == "getJiraIssueTypeMetaWithFields":
-            key = arguments.get("projectIdOrKey")
-            type_id = arguments.get("issueTypeId")
-
-            # Use direct API call for createmeta
-            meta = jira.get(f"/rest/api/3/issue/createmeta?projectKeys={key}&issueTypeIds={type_id}&expand=projects.issuetypes.fields")
-
-            projects = meta.get('projects', [])
-            if not projects:
-                return [TextContent(type="text", text=f"No metadata found for project {key}")]
-
-            issuetypes = projects[0].get('issuetypes', [])
-            if not issuetypes:
-                 return [TextContent(type="text", text=f"Issue type {type_id} not found in project {key}")]
-
-            target_type = issuetypes[0]
-            fields = target_type.get('fields', {})
-
-            field_list = [f"{k}: {v.get('name')} (Required: {v.get('required')})" for k, v in fields.items()]
-
-            result = f"Fields for {target_type.get('name')}:\n" + "\n".join(field_list)
-            return [TextContent(type="text", text=result)]
-
-        raise ValueError(f"Tool {name} not found")
-
+        raise ValueError("Unknown tool")
     except Exception as e:
-        error_msg = str(e)
-        # Try to extract detailed server response if available
-        if hasattr(e, 'response') and e.response is not None:
-            try:
-                error_msg += f"\nServer Response: {e.response.text}"
-            except:
-                pass
-        return [TextContent(type="text", text=f"Error: {error_msg}")]
-
+        logger.error(f"Tool Error: {e}")
+        return [TextContent(type="text", text=f"Error: {str(e)}")]
 
 # --- 5. Correct SSE Implementation ---
-
 from starlette.responses import Response as StarletteResponse
 
 class ASGIResponse(StarletteResponse):
     def __init__(self, app):
         self.app = app
-        self.background = None
+        self.background = None # Required by Starlette
         self.body = b""
         self.status_code = 200
 
@@ -399,67 +324,22 @@ class ASGIResponse(StarletteResponse):
 
 @app.get("/sse")
 async def handle_sse(request: Request):
-    """
-    Establish an SSE connection.
-    Creates a session-specific transport and runs the server loop.
-    """
     session_id = str(uuid.uuid4())
-    logger.info(f"New SSE connection starting. Session ID: {session_id}")
-
-    # The endpoint URL must include the session_id so POST requests can find the right transport
-    endpoint_url = f"/messages/{session_id}"
-
-    try:
-        transport = SseServerTransport(endpoint_url)
-        sessions[session_id] = transport
-    except Exception as e:
-        logger.error(f"Error creating SseServerTransport: {e}", exc_info=True)
-        raise e
-
-    async def sse_asgi_handler(scope, receive, send):
-        try:
-            logger.debug(f"Session {session_id}: Starting transport.connect_sse")
-            async with transport.connect_sse(scope, receive, send) as (read_stream, write_stream):
-                logger.info(f"Session {session_id}: Transport connected. Running MCP server loop.")
-                await mcp_server.run(
-                    read_stream,
-                    write_stream,
-                    mcp_server.create_initialization_options()
-                )
-                logger.info(f"Session {session_id}: MCP server loop finished.")
-        except Exception as e:
-            logger.error(f"Session {session_id} closed with error: {e}", exc_info=True)
-        finally:
-            if session_id in sessions:
-                del sessions[session_id]
-            logger.info(f"Session {session_id} cleaned up.")
-
-    return ASGIResponse(sse_asgi_handler)
+    logger.info(f"New SSE Session (Rev 13): {session_id}")
+    transport = SseServerTransport(f"/messages/{session_id}")
+    sessions[session_id] = transport
+    async def sse_handler(scope, receive, send):
+        async with transport.connect_sse(scope, receive, send) as (read, write):
+            await mcp_server.run(read, write, mcp_server.create_initialization_options())
+    return ASGIResponse(sse_handler)
 
 @app.post("/messages/{session_id}")
 async def handle_messages(request: Request, session_id: str):
-    """
-    Handle incoming JSON-RPC messages (POST).
-    Route them to the correct transport based on session_id.
-    """
-    logger.debug(f"Handling POST /messages/{session_id}")
-
-    if not session_id or session_id not in sessions:
-        logger.error(f"Session {session_id} not found in active sessions: {list(sessions.keys())}")
-        raise HTTPException(status_code=404, detail="Session not found or expired")
-
-    transport = sessions[session_id]
-
-    # Return an ASGIResponse that delegates to the transport's handler
-    # This avoids FastAPI/Starlette trying to send its own response
-    try:
-        logger.debug(f"Delegating to transport.handle_post_message for session {session_id}")
-        return ASGIResponse(transport.handle_post_message)
-    except Exception as e:
-        logger.error(f"Error preparing ASGIResponse: {e}", exc_info=True)
-        raise e
+    if session_id not in sessions:
+        raise HTTPException(status_code=404, detail="Session expired")
+    return ASGIResponse(sessions[session_id].handle_post_message)
 
 if __name__ == "__main__":
-    # For local testing and Cloud Run
     port = int(os.environ.get("PORT", 8080))
     uvicorn.run(app, host="0.0.0.0", port=port)
+# Revision Trigger Thu Jan  8 13:44:22 EST 2026
