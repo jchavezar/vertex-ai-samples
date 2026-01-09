@@ -9,7 +9,8 @@ from pydantic import BaseModel
 from PIL import Image, ImageColor, ImageDraw, ImageFont
 from google.adk.tools.tool_context import ToolContext
 
-model_id = "gemini-2.5-flash"
+model_id = "projects/vtxdemos/locations/global/publishers/google/models/gemini-3-pro-preview"
+# model_id = "gemini-2.5-flash"
 
 client = genai.Client(
     vertexai=True,
@@ -29,6 +30,15 @@ config = types.GenerateContentConfig(
     response_schema=list[BoundingBox],
 )
 
+def pad_to_square(image_bytes):
+    im = Image.open(io.BytesIO(image_bytes)).convert("RGB")
+    max_dim = max(im.size)
+    new_im = Image.new("RGB", (max_dim, max_dim), (0, 0, 0))
+    new_im.paste(im, ((max_dim - im.width) // 2, (max_dim - im.height) // 2))
+    buf = io.BytesIO()
+    new_im.save(buf, format="JPEG")
+    return buf.getvalue()
+
 async def prepare_image_for_analysis(tool_context: ToolContext):
     """
     Prepares an image for analysis. It first checks the user's current message for an image and saves it.
@@ -39,9 +49,10 @@ async def prepare_image_for_analysis(tool_context: ToolContext):
     for p in tool_context.user_content.parts:
         if p.inline_data and "image" in p.inline_data.mime_type:
             try:
+                processed_data = pad_to_square(p.inline_data.data)
                 await tool_context.save_artifact(
                     filename="user_uploaded_image.jpeg",
-                    artifact=types.Part.from_bytes(data=p.inline_data.data, mime_type=p.inline_data.mime_type)
+                    artifact=types.Part.from_bytes(data=processed_data, mime_type="image/jpeg")
                 )
                 return "Image prepared successfully and is ready for analysis."
             except Exception as e:
@@ -61,9 +72,20 @@ async def prepare_image_for_analysis(tool_context: ToolContext):
         if image_artifacts:
             latest_artifact_name = image_artifacts[-1].filename
             loaded_artifact = await tool_context.load_artifact(filename=latest_artifact_name)
+            
+            # Extract data from loaded artifact, handling different potential structures if necessary
+            # Assuming loaded_artifact is a Part object with inline_data
+            if loaded_artifact.inline_data:
+                 data_to_process = loaded_artifact.inline_data.data
+            else:
+                 # Fallback or error if data isn't easily accessible (though Part usually has it)
+                 return f"Error: Could not retrieve data from {latest_artifact_name}"
+
+            processed_data = pad_to_square(data_to_process)
+
             await tool_context.save_artifact(
                 filename="user_uploaded_image.jpeg",
-                artifact=loaded_artifact
+                artifact=types.Part.from_bytes(data=processed_data, mime_type="image/jpeg")
             )
             return f"Found a previously uploaded image ('{latest_artifact_name}'). It is now ready for analysis."
     except Exception as e:
@@ -116,16 +138,34 @@ async def image_analyze(item_type_analysis: str, tool_context: ToolContext):
                 outline=color,
                 width=4,
             )
-            if bbox.label:
-                draw.text(
-                    (abs_x_min + 8, abs_y_min + 6),
-                    bbox.label,
-                    fill=color,
-                    font=font,
-                )
+            # Text drawing removed from here to be placed in sidebar
+
+        # Create a new image with a sidebar for the legend
+        sidebar_width = 400
+        new_width = width + sidebar_width
+        combined_image = Image.new("RGB", (new_width, height), (255, 255, 255))
+        combined_image.paste(im, (0, 0))
+        
+        sidebar_draw = ImageDraw.Draw(combined_image)
+        
+        # dynamic font size for the list, but strictly legible
+        list_font_size = max(20, int(height / 40)) 
+        try:
+            list_font = ImageFont.truetype("Arial.ttf", size=list_font_size)
+        except OSError:
+            list_font = ImageFont.load_default()
+
+        sidebar_draw.text((width + 10, 10), "Detected Objects:", fill="black", font=list_font)
+
+        current_y = 10 + list_font_size * 2
+        for i, bbox in enumerate(response.parsed):
+            color = colors[i % len(colors)]
+            label_text = f"{i+1}. {bbox.label}"
+            sidebar_draw.text((width + 10, current_y), label_text, fill=color, font=list_font)
+            current_y += int(list_font_size * 1.5)
+
         output_image_stream = io.BytesIO()
-        im = im.convert("RGB")
-        im.save(output_image_stream, format="JPEG")
+        combined_image.save(output_image_stream, format="JPEG")
         output_image_bytes = output_image_stream.getvalue()
 
         await tool_context.save_artifact(
