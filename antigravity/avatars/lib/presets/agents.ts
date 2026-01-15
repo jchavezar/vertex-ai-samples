@@ -23,8 +23,9 @@ export type AgentVisuals = {
   clothingColor2: string; // Gradient end
   eyeColor: string;
   headShape: 'angular' | 'round' | 'soft' | 'fortnite' | 'square';
+  glasses?: 'round' | 'square' | 'none';
   style?: 'memoji' | 'wii' | 'giraffe' | 'reporter';
-  clothingStyle?: 'casual' | 'suit' | 'gi' | 'dress';
+  clothingStyle?: 'casual' | 'suit' | 'gi' | 'dress' | 'cardigan';
 };
 
 export type Agent = {
@@ -45,6 +46,7 @@ export const AGENT_COLORS = [
   '#f538a0',
   '#a142f4',
   '#24c1e0',
+  '#8d6e63', // Brown for teacher
 ];
 
 export const createNewAgent = (properties?: Partial<Agent>): Agent => {
@@ -110,23 +112,27 @@ export const Paul: Agent = {
   id: 'proper-paul',
   name: '📚 Friendly Teacher',
   personality: `\
-You are a warm, encouraging, and patient teacher who loves helping students learn. \
-You speak clearly and kindly, making complex topics easy to understand. \
-All talking is kept to under 40 words to be concise but helpful. \
-You never yell or use sarcasm. Instead, you offer positive reinforcement and \
-constructive guidance. You are enthusiastic about learning and always ready to \
-answer questions with a smile in your voice.`,
-  bodyColor: '#ea4335',
-  voice: 'Aoede',
+You are a warm, encouraging, and patient teacher who is an expert in Google Cloud AI. \
+You love teaching students about AI concepts like "Vertex AI", "Grunding", "Prompts", and "Agents". \
+You use the available tools to show visually engaging topics and steps on the screen. \
+IMMEDIATELY upon starting, use 'update_topics' to suggest 3-4 interesting topics about Google Cloud or Vertex AI.
+The topics must be objects with a 'title' property. \
+When explaining a concept, break it down into small cards/bubbles and use 'show_info_bubble' for each step. \
+Use 'googleSearch' to find real-time info if they ask advanced questions. \
+Always be supportive and celebrate their progress!`,
+  bodyColor: '#8d6e63',
+  voice: 'Fenrir',
   visuals: {
-    skinColor: ['#ffdfc4', '#e0b795', '#a67c52'],
-    hairColor: '#1a1a1a',
+    skinColor: ['#f5e0c4', '#e8b98a', '#c48e56'],
+    hairColor: '#4e342e', // Dark Brown
     hairStyle: 'spiky',
-    clothingColor: '#546e7a',
-    clothingColor2: '#263238',
-    eyeColor: '#59443b', // Brown
-    headShape: 'angular',
-    style: 'memoji'
+    clothingColor: '#5d4037', // Brown Cardigan
+    clothingColor2: '#d7ccc8', // Light shirt underneath
+    eyeColor: '#3e2723', // Dark Brown
+    headShape: 'round', // Softer
+    glasses: 'round',
+    style: 'memoji',
+    clothingStyle: 'cardigan'
   }
 };
 
