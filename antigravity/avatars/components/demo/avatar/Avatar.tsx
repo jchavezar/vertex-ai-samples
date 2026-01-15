@@ -266,8 +266,44 @@ export default function Avatar() {
         ctx.lineTo(centerX + neckW * 1.2, neckTopY + headScale * 0.4);
         ctx.lineTo(centerX + neckW * 0.2, neckTopY + headScale * 0.3);
         ctx.stroke();
+      } else if (viz.clothingStyle === 'cardigan') {
+        // Cardigan Style
+        ctx.fillStyle = viz.clothingColor; // Cardigan color
+        ctx.beginPath();
+        // Shoulders
+        ctx.moveTo(centerX - width * 0.45, height);
+        ctx.quadraticCurveTo(centerX - width * 0.4, shoulderY + 20, centerX, shoulderY);
+        ctx.quadraticCurveTo(centerX + width * 0.4, shoulderY + 20, centerX + width * 0.45, height);
+        ctx.fill();
+
+        // Shirt underneath (V-neck)
+        ctx.fillStyle = viz.clothingColor2;
+        ctx.beginPath();
+        ctx.moveTo(centerX - headScale * 0.25, shoulderY + 10);
+        ctx.lineTo(centerX, shoulderY + headScale * 0.7);
+        ctx.lineTo(centerX + headScale * 0.25, shoulderY + 10);
+        ctx.closePath();
+        ctx.fill();
+
+        // Buttons
+        ctx.fillStyle = dimColor(viz.clothingColor, 0.6);
+        for (let i = 0; i < 3; i++) {
+          ctx.beginPath();
+          ctx.arc(centerX, shoulderY + headScale * (0.8 + i * 0.25), 4, 0, Math.PI * 2);
+          ctx.fill();
+        }
+
+        // Collar/Opening trim
+        ctx.strokeStyle = dimColor(viz.clothingColor, 0.8);
+        ctx.lineWidth = 5;
+        ctx.beginPath();
+        ctx.moveTo(centerX - headScale * 0.25, shoulderY + 10);
+        ctx.lineTo(centerX, shoulderY + headScale * 0.8);
+        ctx.lineTo(centerX + headScale * 0.25, shoulderY + 10);
+        ctx.stroke();
+
     } else {
-          // Casual Jacket/Shirt
+        // Casual Jacket/Shirt
           const jacketGrad = ctx.createLinearGradient(centerX, shoulderY, centerX, height);
           jacketGrad.addColorStop(0, viz.clothingColor);
           jacketGrad.addColorStop(1, dimColor(viz.clothingColor, 0.7));
@@ -796,9 +832,15 @@ export default function Avatar() {
           const snoutW = r * 0.55 * snoutScale;
           const snoutH = r * 0.45 * snoutScale;
 
+
           // Draw snout connection (bridge)
           // Ideally blending, but simpler overlap works for current style
-          
+
+
+
+
+
+
           // Snout Main Shape
           ctx.fillStyle = '#ffecd2'; // Lighter muzzle color
           ctx.beginPath();
@@ -1094,6 +1136,50 @@ export default function Avatar() {
       ctx.restore();
 
       // 7. HAIR (Front)
+
+        // --- GLASSES (If enabled) ---
+        if (viz.glasses === 'round') {
+          ctx.save();
+          // Scale glasses based on 'r' (head radius) which is defined in this block
+          // r is available here
+          const gScale = r * 0.012; // Adjust scale for this coordinate system (usually 'r' is head radius ~100)
+          // actually 'r' is huge here usually? no, 'r = headScale'
+
+          const glSize = r * 0.6; // total width?
+          const glY = -r * 0.1;
+
+          ctx.strokeStyle = '#333';
+          ctx.lineWidth = r * 0.08;
+
+          const lx = -r * 0.35;
+          const rx = r * 0.35;
+          const rad = r * 0.28;
+
+          // Lenses
+          ctx.beginPath();
+          ctx.arc(lx, glY, rad, 0, Math.PI * 2);
+          ctx.stroke();
+          ctx.beginPath();
+          ctx.arc(rx, glY, rad, 0, Math.PI * 2);
+          ctx.stroke();
+
+          // Bridge
+          ctx.beginPath();
+          ctx.moveTo(lx + rad, glY);
+          ctx.quadraticCurveTo(0, glY - rad * 0.5, rx - rad, glY);
+          ctx.stroke();
+
+          // Reflections
+          ctx.fillStyle = 'rgba(255,255,255,0.2)';
+          ctx.beginPath();
+          ctx.arc(lx, glY, rad * 0.9, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.beginPath();
+          ctx.arc(rx, glY, rad * 0.9, 0, Math.PI * 2);
+          ctx.fill();
+
+          ctx.restore();
+        }
 
       // 7. HAIR (Front)
       if (viz.headShape === 'square') {
