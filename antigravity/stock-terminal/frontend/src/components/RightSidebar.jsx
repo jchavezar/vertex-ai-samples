@@ -12,7 +12,7 @@ import html2canvas from 'html2canvas';
 import { saveAs } from 'file-saver';
 import AgentGraph from './AgentGraph';
 
-const RightSidebar = ({ dashboardData, chartOverride, setChartOverride, onUpdateWidget }) => {
+const RightSidebar = ({ dashboardData, chartOverride, setChartOverride, onUpdateWidget, isOpen, width }) => {
   const [aiSummary, setAiSummary] = useState(null);
   const [summaryLoading, setSummaryLoading] = useState(false);
   const { connected, connect, disconnect, volume, client, setConfig } = useLiveAPI();
@@ -76,7 +76,8 @@ const RightSidebar = ({ dashboardData, chartOverride, setChartOverride, onUpdate
   }, [client]);
 
   // Chat State
-  const [selectedModel, setSelectedModel] = useState('gemini-2.5-flash');
+  const [selectedModel, setSelectedModel] = useState('gemini-2.5-flash-lite');
+  const [selectedComplexModel, setSelectedComplexModel] = useState('gemini-3-flash-preview');
   const [messages, setMessages] = useState([
     { role: 'assistant', text: 'How can FactSet help?' }
   ]);
@@ -93,7 +94,11 @@ const RightSidebar = ({ dashboardData, chartOverride, setChartOverride, onUpdate
   const [factsetExpiry, setFactsetExpiry] = useState(null);
   const [timeRemaining, setTimeRemaining] = useState(null);
   const [showAuthModal, setShowAuthModal] = useState(false);
+  const [authUrl, setAuthUrl] = useState('');
   const [authInput, setAuthInput] = useState('');
+  const [hasRefreshToken, setHasRefreshToken] = useState(false);
+  const [showAdvancedAuth, setShowAdvancedAuth] = useState(false);
+  const [manualRefreshToken, setManualRefreshToken] = useState('');
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -125,16 +130,21 @@ const RightSidebar = ({ dashboardData, chartOverride, setChartOverride, onUpdate
 
     // Create a temporary container for the export text content
     const exportContainer = document.createElement('div');
-    exportContainer.style.position = 'absolute';
-    exportContainer.style.top = '-9999px';
+    exportContainer.style.position = 'fixed'; // Changed from absolute
+    exportContainer.style.top = '0';          // On screen
     exportContainer.style.left = '0';
-    exportContainer.style.width = '800px'; // A4-ish width
+    exportContainer.style.zIndex = '-9999';   // Hidden behind everything
+    exportContainer.style.width = '800px'; 
     exportContainer.style.backgroundColor = '#ffffff';
     exportContainer.style.padding = '40px';
     exportContainer.style.boxSizing = 'border-box';
     document.body.appendChild(exportContainer);
 
-    try {
+    // Give the DOM a moment to calculate layout
+    setTimeout(async () => {
+      try {
+        // ... (rest of content generation)
+
       // 1. Header
       const header = document.createElement('div');
       header.style.marginBottom = '30px';
@@ -198,14 +208,56 @@ const RightSidebar = ({ dashboardData, chartOverride, setChartOverride, onUpdate
       chatSection.appendChild(chatContent);
       exportContainer.appendChild(chatSection);
 
-      // 3. Trace Logs
+        // Helper for JSON formatting
+        const deepParseJSON = (obj) => {
+          if (typeof obj === 'string') {
+            const trimmed = obj.trim();
+            if (trimmed.startsWith('{') || trimmed.startsWith('[')) {
+              try {
+                return deepParseJSON(JSON.parse(trimmed));
+              } catch (e) { return obj; }
+            }
+          }
+          if (Array.isArray(obj)) {
+            return obj.map(deepParseJSON);
+          }
+          if (obj !== null && typeof obj === 'object') {
+            const newObj = {};
+            for (const key in obj) {
+              newObj[key] = deepParseJSON(obj[key]);
+            }
+            return newObj;
+          }
+          return obj;
+        };
+
+        // 3. Agent Configuration
+        if (agentConfig) {
+          const configSection = document.createElement('div');
+          configSection.style.marginBottom = '40px';
+          configSection.innerHTML = '<h2 style="color: #333; font-family: sans-serif; border-bottom: 1px solid #eee; padding-bottom: 8px;">Agent Configuration</h2>';
+
+          const configContent = document.createElement('div');
+          configContent.style.fontFamily = 'monospace';
+          configContent.style.fontSize = '11px';
+          configContent.style.background = '#f8f9fa'; // Light gray
+          configContent.style.padding = '15px';
+          configContent.style.borderRadius = '8px';
+          configContent.style.whiteSpace = 'pre-wrap';
+          configContent.innerText = JSON.stringify(agentConfig, null, 2);
+
+          configSection.appendChild(configContent);
+          exportContainer.appendChild(configSection);
+        }
+
+        // 4. Trace Logs
       if (traceLogs.length > 0) {
         const traceSection = document.createElement('div');
         traceSection.innerHTML = '<h2 style="color: #333; font-family: sans-serif; border-bottom: 1px solid #eee; padding-bottom: 8px;">Trace Logs</h2>';
 
         const traceContent = document.createElement('div');
         traceContent.style.fontFamily = 'monospace';
-        traceContent.style.fontSize = '11px';
+        traceContent.style.fontSize = '10px'; // Smaller font for logs
         traceContent.style.background = '#fafafa';
         traceContent.style.padding = '15px';
         traceContent.style.borderRadius = '8px';
@@ -218,18 +270,29 @@ const RightSidebar = ({ dashboardData, chartOverride, setChartOverride, onUpdate
           item.style.paddingBottom = '8px';
 
           let color = '#333';
-          if (log.type === 'tool_call') color = '#0056b3';
+          if (log.type === 'tool_call') color = '#6f42c1';
           if (log.type === 'tool_result') color = '#28a745';
           if (log.type === 'error') color = '#dc3545';
+          if (log.type === 'user') color = '#004b87';
+
+          // Robust JSON Formatting
+          let logContent = '';
+          if (log.args) {
+            const parsedArgs = deepParseJSON(log.args);
+            logContent = `Args:\n${JSON.stringify(parsedArgs, null, 2)}`;
+          } else if (log.result) {
+            const parsedResult = deepParseJSON(log.result);
+            logContent = `Result:\n${JSON.stringify(parsedResult, null, 2)}`;
+          } else {
+            logContent = log.content || '';
+          }
 
           item.innerHTML = `
              <div style="display:flex; justify-content:space-between; color:${color}; font-weight:bold; margin-bottom:4px;">
                <span>${log.type.toUpperCase()} ${log.tool ? `(${log.tool})` : ''}</span>
                <span style="color:#999; font-weight:normal;">${log.timestamp}</span>
              </div>
-             <div style="color:#555; white-space:pre-wrap; word-break:break-word;">
-                ${log.content || (log.args ? JSON.stringify(log.args, null, 2) : '') || (log.result ? JSON.stringify(log.result, null, 2) : '')}
-             </div>
+             <div style="color:#555; white-space:pre-wrap; word-break:break-word;">${logContent}</div>
              ${log.duration ? `<div style="font-size:10px; color:#888; margin-top:2px;">Duration: ${log.duration}</div>` : ''}
            `;
           traceContent.appendChild(item);
@@ -294,6 +357,7 @@ const RightSidebar = ({ dashboardData, chartOverride, setChartOverride, onUpdate
         document.body.removeChild(exportContainer);
       }
     }
+    }, 100);
   };
 
   // UI State
@@ -354,10 +418,24 @@ const RightSidebar = ({ dashboardData, chartOverride, setChartOverride, onUpdate
       const response = await fetch('http://localhost:8001/auth/factset/status');
       const data = await response.json();
       setIsFactSetConnected(data.connected);
+      setHasRefreshToken(!!data.has_refresh_token);
 
-      if (data.connected && data.expires_in) {
-        const expiryDate = new Date(Date.now() + data.expires_in * 1000);
-        setFactsetExpiry(expiryDate);
+      if (data.connected) {
+        if (data.expires_in !== undefined && data.expires_in !== null) {
+          const expiryDate = new Date(Date.now() + data.expires_in * 1000);
+          setFactsetExpiry(expiryDate);
+
+          // Initial calculation to avoid "null" flash
+          const seconds = Math.max(0, Math.floor((expiryDate.getTime() - Date.now()) / 1000));
+          const m = Math.floor(seconds / 60);
+          const s = seconds % 60;
+          setTimeRemaining(`${m}:${s.toString().padStart(2, '0')}`);
+        } else {
+          // Connected but no expiry (maybe persistent)
+          setFactsetExpiry(null);
+          // Don't clear timeRemaining if it's already "00:00" from a previous tick
+          if (timeRemaining !== "00:00") setTimeRemaining(null);
+        }
       } else {
         setFactsetExpiry(null);
         setTimeRemaining(null);
@@ -394,9 +472,12 @@ const RightSidebar = ({ dashboardData, chartOverride, setChartOverride, onUpdate
     return () => clearInterval(timerId);
   }, [factsetExpiry, isFactSetConnected]);
 
-  // Initial Data Fetch
+  // Initial Data Fetch & Polling
   useEffect(() => {
     checkFactSetStatus();
+
+    // Poll status every 30 seconds to keep timer in sync and session alive
+    const statusInterval = setInterval(checkFactSetStatus, 30000);
 
     const fetchConfig = async () => {
       try {
@@ -408,6 +489,8 @@ const RightSidebar = ({ dashboardData, chartOverride, setChartOverride, onUpdate
       }
     };
     fetchConfig();
+
+    return () => clearInterval(statusInterval);
   }, []);
 
   // Thinking Timer Logic
@@ -496,7 +579,8 @@ const RightSidebar = ({ dashboardData, chartOverride, setChartOverride, onUpdate
           image: currentImage,
           video_url: currentVideo,
           session_id: "default_chat",
-          model: selectedModel
+          model: selectedModel,
+          complex_model: selectedComplexModel
         })
       });
 
@@ -527,11 +611,22 @@ const RightSidebar = ({ dashboardData, chartOverride, setChartOverride, onUpdate
             if (event.type === 'topology') {
               if (event.data) {
                 setTopology(event.data);
-                // Switch to graph tab automatically on exciting new query? Maybe excessive.
-                // But if user asks "show me the plan", we could.
               }
             } else if (event.type === 'text') {
               accumulatedText += event.content;
+
+              // NEW: STREAMING CHART PARSING ([CHART]{...}[/CHART])
+              const chartRegex = /\[CHART\]([\s\S]*?)\[\/CHART\]/g;
+              let chartMatch;
+              while ((chartMatch = chartRegex.exec(accumulatedText)) !== null) {
+                try {
+                  const chartData = JSON.parse(chartMatch[1]);
+                  if (setChartOverride) setChartOverride(chartData);
+                } catch (e) {
+                  // Ignore parse errors while still streaming
+                }
+              }
+
               if (accumulatedText.includes('[CHART_RECOMMENDED]')) {
                 accumulatedText = accumulatedText.replace('[CHART_RECOMMENDED]', '');
                 recommendChart = true;
@@ -540,8 +635,8 @@ const RightSidebar = ({ dashboardData, chartOverride, setChartOverride, onUpdate
                 const newMsgs = [...prev];
                 const lastMsg = newMsgs[newMsgs.length - 1] || {};
 
-                // STREAMING WIDGET PARSING
-                const widgetRegex = /\[WIDGET:(\w+)\]([\s\S]*?)\[\/WIDGET\]/g;
+                // STREAMING WIDGET PARSING - Flexible closing tag
+                const widgetRegex = /\[WIDGET:(\w+)\]([\s\S]*?)\[\/WIDGET(:\w+)?\]/g;
                 let match;
                 while ((match = widgetRegex.exec(accumulatedText)) !== null) {
                   const section = match[1];
@@ -551,11 +646,18 @@ const RightSidebar = ({ dashboardData, chartOverride, setChartOverride, onUpdate
                   }
                 }
 
+                // Detect source and update sources list
+                const sources = new Set(lastMsg.sources || []);
+                const agentName = event.sourceAgent?.toLowerCase() || '';
+                if (agentName.includes('factset')) sources.add('FactSet');
+                if (agentName.includes('google_search') || agentName.includes('search_agent')) sources.add('Google Search');
+
                 newMsgs[newMsgs.length - 1] = {
-                  ...lastMsg, // Preserve existing props like toolsUsed/sources
+                  ...lastMsg, // Preserve existing props like toolsUsed
                   role: 'assistant',
                   text: accumulatedText,
-                  recommendChart: recommendChart || lastMsg.recommendChart
+                  recommendChart: recommendChart || lastMsg.recommendChart,
+                  sources: Array.from(sources)
                 };
                 return newMsgs;
               });
@@ -916,25 +1018,100 @@ const RightSidebar = ({ dashboardData, chartOverride, setChartOverride, onUpdate
     e.target.value = '';
   };
 
-  const handleCreateChart = async () => {
+
+  const handleCreateChart = async (tableProps = null) => {
+    if (tableProps) {
+      try {
+        const getText = (children) => {
+          return React.Children.toArray(children).map(child => {
+            if (typeof child === 'string' || typeof child === 'number') return child;
+            if (child.props && child.props.children) return getText(child.props.children);
+            return '';
+          }).join('').trim();
+        };
+
+        const thead = tableProps.children?.find(c => c.type === 'thead');
+        const tbody = tableProps.children?.find(c => c.type === 'tbody');
+
+        if (thead && tbody) {
+          const headers = React.Children.toArray(thead.props.children)[0].props.children.map(th => getText(th.props.children));
+          const rows = React.Children.toArray(tbody.props.children).map(tr =>
+            React.Children.toArray(tr.props.children).map(td => getText(td.props.children))
+          );
+
+          // Find context from conversation
+          const lastUserMsg = [...messages].reverse().find(m => m.role === 'user')?.text || "";
+
+          // Use the Backend Curator for intelligent plotting
+          const response = await fetch('http://localhost:8001/curate-chart', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ headers, rows, context: lastUserMsg })
+          });
+
+          if (response.ok) {
+            const chartConfig = await response.json();
+            setChartOverride(chartConfig);
+            return;
+          }
+        }
+      } catch (e) {
+        console.error("Chart curation failed, falling back to LLM chat:", e);
+      }
+    }
     handleSendChat("Please visualize the data discussed above.");
   };
 
   const handleConnectFactSet = async () => {
+    // Open window immediately to satisfy popup blockers
+    const authWindow = window.open('', '_blank');
+    if (authWindow) {
+      authWindow.document.write('<div style="font-family: sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh;">Loading FactSet Authentication...</div>');
+    }
+
     try {
       const res = await fetch('http://localhost:8001/auth/factset/url');
       const data = await res.json();
-      if (data.auth_url) {
-        window.open(data.auth_url, '_blank');
+      if (data.auth_url && authWindow) {
+        setAuthUrl(data.auth_url);
+        authWindow.location.href = data.auth_url;
         setShowAuthModal(true);
+      } else {
+        if (authWindow) authWindow.close();
+        alert("Failed to generate authentication URL.");
       }
     } catch (e) {
       console.error("Failed to get auth url:", e);
+      if (authWindow) authWindow.close();
     }
   };
 
   const handleAuthSubmit = async () => {
     try {
+      if (showAdvancedAuth) {
+        if (!manualRefreshToken.trim()) {
+          alert("Please provide a Refresh Token.");
+          return;
+        }
+        const res = await fetch('http://localhost:8001/auth/factset/manual', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ refresh_token: manualRefreshToken, session_id: "default_chat" })
+        });
+        if (res.ok) {
+          setIsFactSetConnected(true);
+          setShowAuthModal(false);
+          setManualRefreshToken('');
+          const msg = "Successfully connected to FactSet using Manual Refresh Token! session is now persistent.";
+          setMessages(prev => [...prev, { role: 'assistant', text: msg }]);
+          addTraceLog('system', msg);
+        } else {
+          const data = await res.json();
+          alert("Manual Authentication failed: " + (data.detail || "Unknown error"));
+        }
+        return;
+      }
+
       const res = await fetch('http://localhost:8001/auth/factset/callback', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -1029,145 +1206,147 @@ const RightSidebar = ({ dashboardData, chartOverride, setChartOverride, onUpdate
           /* Standard Sidebar Header - Simplified */
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', minWidth: 0, flex: 1, paddingBottom: '4px' }}>
 
-              {/* Row 1: Session Actions */}
-              <div style={{ display: 'flex', gap: '4px', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
-                <div style={{ display: 'flex', gap: '4px' }}>
+              {/* Row 1: Session Actions - Professional Dashboard Grid */}
+
+
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px', gap: '8px', padding: '0 2px' }}>
+                <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
                   <button
                     onClick={handleDownloadPDF}
                     title="Download Session as PDF"
                     style={{
-                      padding: '4px 8px',
+                      padding: '6px',
+                      background: '#f8fafc',
+                      border: '1px solid #e2e8f0',
                       borderRadius: '6px',
-                      border: '1px solid #ddd',
-                      background: '#fff',
-                      color: '#5f6368',
+                      color: '#64748b',
                       cursor: 'pointer',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      gap: '4px',
-                      fontSize: '11px',
-                      fontWeight: 500,
-                      boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
-                      whiteSpace: 'nowrap'
+                      transition: 'all 0.2s',
+                      boxShadow: '0 1px 2px rgba(0,0,0,0.05)'
                     }}
                   >
                     <Download size={14} />
-                    <span>Save PDF</span>
                   </button>
+                  <span style={{ fontSize: '10px', fontWeight: '800', color: '#334155', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Terminal</span>
                 </div>
 
-                <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
-                  <button
-                    onClick={connected ? disconnect : () => connect()}
+                <button
+                  onClick={handleConnectFactSet}
+                  style={{
+                    fontSize: '10px',
+                    padding: '5px 12px',
+                    borderRadius: '6px',
+                    border: timeRemaining === "00:00" ? '1px solid #f59e0b' : (isFactSetConnected ? '1px solid #10b981' : '1px solid #3b82f6'),
+                    background: timeRemaining === "00:00" ? '#fef3c7' : (isFactSetConnected ? '#ecfdf5' : '#3b82f6'),
+                    color: timeRemaining === "00:00" ? '#b45309' : (isFactSetConnected ? '#059669' : 'white'),
+                    cursor: (isFactSetConnected && timeRemaining !== "00:00") ? 'default' : 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    fontWeight: '600',
+                    boxShadow: '0 1px 2px rgba(0,0,0,0.1)'
+                  }}
+                >
+                  {isFactSetConnected ? (
+                    <>
+                      <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#10b981', boxShadow: '0 0 4px rgba(16, 185, 129, 0.6)' }}></div>
+                      <span>{timeRemaining ? timeRemaining : 'Connected'}</span>
+                    </>
+                  ) : (
+                    <>
+                      <Cloud size={12} />
+                      <span>Connect</span>
+                    </>
+                  )}
+                </button>
+              </div>
+
+              {/* Row 2: Config (Dual Models - Compact Grid) */}
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: '1fr 1fr',
+                gap: '8px',
+                padding: '8px',
+                background: '#f8fafc',
+                borderRadius: '8px',
+                border: '1px solid #e2e8f0',
+                marginBottom: '4px'
+              }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
+                  <label style={{ fontSize: '8px', fontWeight: '800', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.025em' }}>Basic</label>
+                  <select
+                    value={selectedModel}
+                    onChange={(e) => setSelectedModel(e.target.value)}
                     style={{
+                      width: '100%',
+                      background: 'white',
                       fontSize: '10px',
-                      padding: '4px 8px',
+                      color: '#1e293b',
+                      border: '1px solid #cbd5e1',
                       borderRadius: '4px',
-                      border: connected ? '1px solid #dc3545' : '1px solid #004b87',
-                      background: connected ? '#fff5f5' : 'transparent',
-                      color: connected ? '#dc3545' : '#004b87',
+                      padding: '4px 6px',
+                      outline: 'none',
                       cursor: 'pointer',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '4px',
-                      whiteSpace: 'nowrap'
+                      appearance: 'none',
+                      backgroundImage: 'url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%2364748b\' stroke-width=\'2\' stroke-linecap=\'round\' stroke-linejoin=\'round\'%3E%3Cpolyline points=\'6 9 12 15 18 9\'%3E%3C/polyline%3E%3C/svg%3E")',
+                      backgroundRepeat: 'no-repeat',
+                      backgroundPosition: 'right 4px center',
+                      backgroundSize: '10px'
                     }}
                   >
-                    {connected ? <MicOff size={10} /> : <Mic size={10} />}
-                    {connected ? 'End Live' : 'Go Live'}
-                    {connected && (
-                      <div style={{
-                        width: '30px',
-                        height: '8px',
-                        background: '#eee',
-                        borderRadius: '2px',
-                        overflow: 'hidden',
-                        display: 'flex',
-                        alignItems: 'flex-end',
-                        marginLeft: '4px'
-                      }}>
-                        <div style={{ width: '100%', height: '50%', background: '#dc3545' }}></div>
-                      </div>
-                    )}
-                  </button>
+                    <option value="gemini-2.5-flash-lite">2.5 Lite</option>
+                    <option value="gemini-2.5-flash">2.5 Flash</option>
+                    <option value="gemini-2.5-pro">2.5 Pro</option>
+                    <option value="gemini-3-flash-preview">3.0 Flash</option>
+                    <option value="gemini-3-pro-preview">3.0 Pro</option>
+                  </select>
+                </div>
 
-
-                  <button
-                    onClick={handleConnectFactSet}
-                    disabled={isFactSetConnected && timeRemaining !== "00:00"}
-                    title={
-                      timeRemaining === "00:00" ? "Time is up - Click to Reconnect" :
-                        (isFactSetConnected ? `Connected (Expires in ${timeRemaining})` : "Connect FactSet")
-                    }
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
+                  <label style={{ fontSize: '8px', fontWeight: '800', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.025em' }}>Complex</label>
+                  <select
+                    value={selectedComplexModel}
+                    onChange={(e) => setSelectedComplexModel(e.target.value)}
                     style={{
+                      width: '100%',
+                      background: 'white',
                       fontSize: '10px',
-                      padding: '4px 8px',
+                      color: '#7c3aed',
+                      border: '1px solid #cbd5e1',
                       borderRadius: '4px',
-                      border: timeRemaining === "00:00" ? '1px solid #ffc107' : (isFactSetConnected ? '1px solid #28a745' : '1px solid #004b87'),
-                      background: timeRemaining === "00:00" ? '#fff3cd' : (isFactSetConnected ? '#e6ffea' : 'transparent'),
-                      color: timeRemaining === "00:00" ? '#856404' : (isFactSetConnected ? '#28a745' : '#004b87'),
-                      cursor: (isFactSetConnected && timeRemaining !== "00:00") ? 'default' : 'pointer',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      gap: '4px',
-                      whiteSpace: 'nowrap',
-                      minWidth: '85px'
+                      padding: '4px 6px',
+                      outline: 'none',
+                      cursor: 'pointer',
+                      appearance: 'none',
+                      backgroundImage: 'url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%237c3aed\' stroke-width=\'2\' stroke-linecap=\'round\' stroke-linejoin=\'round\'%3E%3Cpolyline points=\'6 9 12 15 18 9\'%3E%3C/polyline%3E%3C/svg%3E")',
+                      backgroundRepeat: 'no-repeat',
+                      backgroundPosition: 'right 4px center',
+                      backgroundSize: '10px'
                     }}
                   >
-                    <div style={{
-                      width: '6px',
-                      height: '6px',
-                      borderRadius: '50%',
-                      background: timeRemaining === "00:00" ? '#ffc107' : (isFactSetConnected ? '#28a745' : 'transparent'),
-                      border: isFactSetConnected ? 'none' : '2px solid #004b87',
-                      flexShrink: 0
-                    }}></div>
-                    <span>
-                      {timeRemaining === "00:00"
-                        ? 'Reconnect'
-                        : (isFactSetConnected
-                          ? (timeRemaining ? `Connected (${timeRemaining})` : 'Connected')
-                          : 'Connect')
-                      }
-                    </span>
-                  </button>
+                    <option value="gemini-2.5-flash">2.5 Flash</option>
+                    <option value="gemini-3-flash-preview">3.0 Flash</option>
+                    <option value="gemini-3-pro-preview">3.0 Pro</option>
+                  </select>
                 </div>
               </div>
 
-              {/* Row 2: Config (Model + Maximize) */}
-              <div style={{ display: 'flex', gap: '4px', alignItems: 'center', width: '100%' }}>
-                <select
-                  value={selectedModel}
-                  onChange={(e) => setSelectedModel(e.target.value)}
+              {/* Row 3: Utility (Maximize) */}
+              <div style={{ display: 'flex', justifyContent: 'flex-end', width: '100%', marginTop: '4px' }}>
+                <button
+                  title="Maximize Chat and Workflow View"
+                  onClick={() => setIsChatMaximized(true)}
                   style={{
-                    background: '#f0f2f5',
-                    fontSize: '11px',
+                    padding: '4px',
                     color: '#004b87',
-                    border: '1px solid #d1d5db',
                     borderRadius: '4px',
-                    padding: '4px 6px',
-                    cursor: 'pointer',
-                    flex: 1,
-                    minWidth: 0,
-                    textOverflow: 'ellipsis',
-                    whiteSpace: 'nowrap',
-                    overflow: 'hidden'
+                    hover: { background: '#f0f4f8' }
                   }}
                 >
-                  <option value="gemini-2.5-flash">Gemini 2.5 Flash</option>
-                  <option value="gemini-2.5-pro">Gemini 2.5 Pro</option>
-                  <option value="gemini-3-flash-preview">Gemini 3 Flash Preview</option>
-                  <option value="gemini-3-pro-preview">Gemini 3 Pro Preview</option>
-                </select>
-
-                <button
-                  onClick={() => setIsChatMaximized(!isChatMaximized)}
-                  style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4, display: 'flex' }}
-                  title={isChatMaximized ? "Restore" : "Maximize Chat"}
-                >
-                  {isChatMaximized ? <Minimize2 size={16} color="#666" /> : <Maximize2 size={14} color="#666" />}
+                  <Maximize2 size={12} />
                 </button>
               </div>
           </div>
@@ -1203,7 +1382,85 @@ const RightSidebar = ({ dashboardData, chartOverride, setChartOverride, onUpdate
                           <img src={msg.image} alt="Uploaded" style={{ maxWidth: '100%', borderRadius: '8px', border: '1px solid #ddd' }} />
                         </div>
                       )}
-                      <ReactMarkdown remarkPlugins={[remarkGfm]}>{msg.text}</ReactMarkdown>
+                        <div style={{ position: 'relative' }}>
+                          <ReactMarkdown
+                            remarkPlugins={[remarkGfm]}
+                            components={{
+                              table: ({ node, ...props }) => (
+                                <div style={{ position: 'relative', margin: '16px 0' }}>
+                                  <table {...props} />
+                                  <div style={{
+                                    position: 'absolute',
+                                    top: '-8px',
+                                    right: '-8px',
+                                    zIndex: 10
+                                  }}>
+                                    <button
+                                      onClick={() => handleCreateChart(props)}
+                                      style={{
+                                        background: 'linear-gradient(135deg, #7c3aed 0%, #3b82f6 100%)',
+                                        color: 'white',
+                                        border: 'none',
+                                        borderRadius: '50%',
+                                        width: '32px',
+                                        height: '32px',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        cursor: 'pointer',
+                                        boxShadow: '0 4px 12px rgba(124, 58, 237, 0.4)',
+                                        transition: 'transform 0.2s'
+                                      }}
+                                      onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.1)'}
+                                      onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                                      title="AI Generate Chart"
+                                    >
+                                      <Sparkles size={16} />
+                                    </button>
+                                  </div>
+                                </div>
+                              )
+                            }}
+                          >
+                            {msg.text}
+                          </ReactMarkdown>
+                        </div>
+
+                        {/* Maximized View Chart Suggestions */}
+                        {msg.role === 'assistant' && msg.recommendChart && (
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '16px', padding: '16px', background: 'rgba(124, 58, 237, 0.05)', borderRadius: '12px', border: '1px solid rgba(124, 58, 237, 0.1)' }}>
+                            <div style={{ fontSize: '13px', fontWeight: 600, color: '#4c1d95', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                              <Sparkles size={14} style={{ color: '#7c3aed' }} />
+                              Recommended Visualizations:
+                            </div>
+                            <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                              <button
+                                onClick={() => handleSendChat("Generate a Line Chart for this data.")}
+                                style={{ padding: '8px 16px', borderRadius: '20px', background: 'white', border: '1px solid #7c3aed', color: '#7c3aed', fontSize: '12px', fontWeight: 600, cursor: 'pointer', transition: 'all 0.2s' }}
+                                onMouseEnter={(e) => e.currentTarget.style.background = '#f5f3ff'}
+                                onMouseLeave={(e) => e.currentTarget.style.background = 'white'}
+                              >
+                                Line Chart
+                              </button>
+                              <button
+                                onClick={() => handleSendChat("Generate a Bar Chart for this data.")}
+                                style={{ padding: '8px 16px', borderRadius: '20px', background: 'white', border: '1px solid #3b82f6', color: '#3b82f6', fontSize: '12px', fontWeight: 600, cursor: 'pointer', transition: 'all 0.2s' }}
+                                onMouseEnter={(e) => e.currentTarget.style.background = '#eff6ff'}
+                                onMouseLeave={(e) => e.currentTarget.style.background = 'white'}
+                              >
+                                Bar Chart
+                              </button>
+                              <button
+                                onClick={() => handleSendChat("Display as Comparison Chart.")}
+                                style={{ padding: '8px 16px', borderRadius: '20px', background: '#f0f9ff', border: '1px solid #0369a1', color: '#0369a1', fontSize: '12px', fontWeight: 600, cursor: 'pointer', transition: 'all 0.2s' }}
+                                onMouseEnter={(e) => e.currentTarget.style.background = '#e0f2fe'}
+                                onMouseLeave={(e) => e.currentTarget.style.background = '#f0f9ff'}
+                              >
+                                Multi-Ticker Compare
+                              </button>
+                            </div>
+                          </div>
+                        )}
                         {msg.latency && (
                           <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '4px' }}>
                             <span style={{
@@ -1350,13 +1607,27 @@ const RightSidebar = ({ dashboardData, chartOverride, setChartOverride, onUpdate
                       )}
                     </div>
 
-                    <input
-                      type="text"
+                    <textarea
                       placeholder={isFactSetConnected ? "Ask FactSet anything..." : "How can FactSet help?"}
                       value={chatInput}
                       onChange={(e) => setChatInput(e.target.value)}
-                      onKeyDown={(e) => e.key === 'Enter' && handleSendChat()}
-                      style={{ border: 'none', background: 'transparent', flex: 1, fontSize: '14px', outline: 'none' }}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' && !e.shiftKey) {
+                          e.preventDefault();
+                          handleSendChat();
+                        }
+                      }}
+                      rows={Math.min(Math.max(chatInput.split('\n').length, 1), 10)}
+                      style={{
+                        border: 'none',
+                        background: 'transparent',
+                        flex: 1,
+                        fontSize: '14px',
+                        outline: 'none',
+                        resize: 'none',
+                        paddingTop: '4px',
+                        fontFamily: 'inherit'
+                      }}
                     />
                     <input
                       type="file"
@@ -1649,7 +1920,80 @@ const RightSidebar = ({ dashboardData, chartOverride, setChartOverride, onUpdate
                       <img src={msg.image} alt="Uploaded" style={{ maxWidth: '100%', borderRadius: '6px', border: '1px solid #ddd' }} />
                     </div>
                   )}
-                  <ReactMarkdown remarkPlugins={[remarkGfm]}>{msg.text}</ReactMarkdown>
+                  <div style={{ position: 'relative' }}>
+                    <ReactMarkdown
+                      remarkPlugins={[remarkGfm]}
+                      components={{
+                        table: ({ node, ...props }) => (
+                          <div style={{ position: 'relative', margin: '16px 0' }}>
+                            <table {...props} />
+                            <div style={{
+                              position: 'absolute',
+                              top: '-8px',
+                              right: '-8px',
+                              zIndex: 10
+                            }}>
+                              <button
+                                onClick={() => handleCreateChart(props)}
+                                style={{
+                                  background: 'linear-gradient(135deg, #7c3aed 0%, #3b82f6 100%)',
+                                  color: 'white',
+                                  border: 'none',
+                                  borderRadius: '50%',
+                                  width: '28px',
+                                  height: '28px',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  cursor: 'pointer',
+                                  boxShadow: '0 4px 12px rgba(124, 58, 237, 0.3)',
+                                  transition: 'transform 0.2s'
+                                }}
+                                onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.1)'}
+                                onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                                title="AI Generate Chart"
+                              >
+                                <Sparkles size={14} />
+                              </button>
+                            </div>
+                          </div>
+                        )
+                      }}
+                    >
+                      {msg.text}
+                    </ReactMarkdown>
+                  </div>
+
+                  {/* Enhanced Chart Options if recommended */}
+                  {msg.role === 'assistant' && msg.recommendChart && (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '12px', padding: '12px', background: '#f8fafc', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
+                      <div style={{ fontSize: '11px', fontWeight: 600, color: '#475569', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <Sparkles size={12} style={{ color: '#7c3aed' }} />
+                        Visualize this data:
+                      </div>
+                      <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                        <button
+                          onClick={() => handleSendChat("Generate a Line Chart for this data.")}
+                          style={{ padding: '6px 12px', borderRadius: '16px', background: 'white', border: '1px solid #7c3aed', color: '#7c3aed', fontSize: '11px', fontWeight: 600, cursor: 'pointer' }}
+                        >
+                          Show Line Chart
+                        </button>
+                        <button
+                          onClick={() => handleSendChat("Generate a Bar Chart for this data.")}
+                          style={{ padding: '6px 12px', borderRadius: '16px', background: 'white', border: '1px solid #3b82f6', color: '#3b82f6', fontSize: '11px', fontWeight: 600, cursor: 'pointer' }}
+                        >
+                          Show Bar Chart
+                        </button>
+                        <button
+                          onClick={() => handleSendChat("Display as Comparison Chart.")}
+                          style={{ padding: '6px 12px', borderRadius: '16px', background: '#f0f9ff', border: '1px solid #0369a1', color: '#0369a1', fontSize: '11px', fontWeight: 600, cursor: 'pointer' }}
+                        >
+                          Multi-Series Compare
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
                   {/* Source Badges for Standard View */}
                   {msg.sources && msg.sources.length > 0 && (
                     <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap', marginTop: '6px' }}>
@@ -1673,18 +2017,26 @@ const RightSidebar = ({ dashboardData, chartOverride, setChartOverride, onUpdate
                     <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', marginTop: '4px', gap: '6px' }}>
                       {/* Tool Usage Badges */}
                       {msg.toolsUsed && msg.toolsUsed.map((tool) => {
-                        // Generate a consistent color for the tool
-                        let hash = 0;
-                        for (let i = 0; i < tool.length; i++) {
-                          hash = tool.charCodeAt(i) + ((hash << 5) - hash);
+                        // Special Case: Google Search should be a specific darker green
+                        const isSearch = tool === 'perform_google_search';
+
+                        // Generate a consistent color for other tools
+                        let colorHex = '#6c757d';
+                        if (isSearch) {
+                          colorHex = '#a3e635'; // Lime-ish green, but let's make it darker/more professional
+                        } else {
+                          let hash = 0;
+                          for (let i = 0; i < tool.length; i++) {
+                            hash = tool.charCodeAt(i) + ((hash << 5) - hash);
+                          }
+                          const c = (hash & 0x00FFFFFF).toString(16).toUpperCase();
+                          colorHex = '#' + '00000'.substring(0, 6 - c.length) + c;
                         }
-                        const c = (hash & 0x00FFFFFF).toString(16).toUpperCase();
-                        const colorHex = '#' + '00000'.substring(0, 6 - c.length) + c;
 
                         return (
                           <span key={tool} style={{
                             fontSize: '9px',
-                            background: colorHex,
+                            background: isSearch ? '#166534' : colorHex, // Dark green for search
                             color: '#fff',
                             padding: '2px 6px',
                             borderRadius: '12px', // Fully rounded/oval
@@ -1698,7 +2050,7 @@ const RightSidebar = ({ dashboardData, chartOverride, setChartOverride, onUpdate
                       })}
 
                       {/* Fallback Badge for Pure Knowledge */}
-                      {(!msg.toolsUsed || msg.toolsUsed.length === 0) && (
+                      {(!msg.toolsUsed || msg.toolsUsed.length === 0) && (!msg.sources || msg.sources.length === 0) && (
                         <span style={{
                           fontSize: '9px',
                           background: '#6c757d', // Neutral grey for internal knowledge
@@ -1831,13 +2183,27 @@ const RightSidebar = ({ dashboardData, chartOverride, setChartOverride, onUpdate
                 )}
               </div>
 
-              <input
-                type="text"
+                <textarea
                 placeholder={isFactSetConnected ? "Ask FactSet anything..." : "How can FactSet help?"}
                 value={chatInput}
                 onChange={(e) => setChatInput(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && handleSendChat()}
-                style={{ border: 'none', background: 'transparent', flex: 1, fontSize: '13px', outline: 'none' }}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                      e.preventDefault();
+                      handleSendChat();
+                    }
+                  }}
+                  rows={Math.min(Math.max(chatInput.split('\n').length, 1), 6)}
+                  style={{
+                    border: 'none',
+                    background: 'transparent',
+                    flex: 1,
+                    fontSize: '13px',
+                    outline: 'none',
+                    resize: 'none',
+                    paddingTop: '2px',
+                    fontFamily: 'inherit'
+                  }}
               />
               <input
                 type="file"
@@ -1894,16 +2260,78 @@ const RightSidebar = ({ dashboardData, chartOverride, setChartOverride, onUpdate
               display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '20px'
             }}>
               <h3>Authenticate with FactSet</h3>
-              <p>Please enter the redirect URL:</p>
-              <input
-                type="text"
-                value={authInput}
-                onChange={(e) => setAuthInput(e.target.value)}
-                style={{ width: '100%', padding: '8px', marginBottom: '12px', border: '1px solid #ccc' }}
-              />
+              <p style={{ fontSize: '11px', color: '#666', marginBottom: '16px', textAlign: 'center' }}>
+                A new window should have opened. Log in to FactSet and click 'Allow'.<br />
+                If it didn't open, <strong><a href={authUrl} target="_blank" rel="noreferrer" style={{ color: '#004b87', textDecoration: 'underline' }}>click here to open manually</a></strong>.
+              </p>
+
+              <div style={{ width: '100%', marginBottom: '16px' }}>
+                <div
+                  onClick={() => setShowAdvancedAuth(!showAdvancedAuth)}
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: '8px',
+                    cursor: 'pointer', fontSize: '12px', color: '#666', marginBottom: '8px'
+                  }}
+                >
+                  <div style={{
+                    width: '32px', height: '16px', background: showAdvancedAuth ? '#28a745' : '#ccc',
+                    borderRadius: '8px', position: 'relative', transition: 'background 0.2s'
+                  }}>
+                    <div style={{
+                      width: '12px', height: '12px', background: '#fff', borderRadius: '50%',
+                      position: 'absolute', top: '2px', left: showAdvancedAuth ? '18px' : '2px',
+                      transition: 'left 0.2s'
+                    }} />
+                  </div>
+                  <span>Advanced: Manual Refresh Token</span>
+                </div>
+
+                {!showAdvancedAuth ? (
+                  <>
+                    <p style={{ fontSize: '12px', marginBottom: '8px' }}>Please enter the redirect URL:</p>
+                    <input
+                      type="text"
+                      placeholder="Paste redirect URL here..."
+                      value={authInput}
+                      onChange={(e) => setAuthInput(e.target.value)}
+                      style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }}
+                    />
+                  </>
+                ) : (
+                  <>
+                    <p style={{ fontSize: '12px', marginBottom: '8px' }}>Paste long-lived Refresh Token:</p>
+                    <textarea
+                      placeholder="Paste Refresh Token here..."
+                      value={manualRefreshToken}
+                      onChange={(e) => setManualRefreshToken(e.target.value)}
+                      style={{
+                        width: '100%', padding: '8px', border: '1px solid #ccc',
+                        borderRadius: '4px', height: '80px', fontSize: '11px', fontFamily: 'monospace'
+                      }}
+                    />
+                    <p style={{ fontSize: '10px', color: '#888', marginTop: '4px' }}>
+                      This token will be used to keep your session alive indefinitely.
+                    </p>
+                  </>
+                )}
+              </div>
+
               <div style={{ display: 'flex', gap: '8px' }}>
-                <button onClick={() => setShowAuthModal(false)}>Cancel</button>
-                <button onClick={handleAuthSubmit} style={{ background: '#004b87', color: '#fff' }}>Connect</button>
+                <button
+                  onClick={() => setShowAuthModal(false)}
+                  style={{ padding: '6px 16px', borderRadius: '4px', border: '1px solid #ddd', background: '#fff', cursor: 'pointer' }}
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleAuthSubmit}
+                  style={{
+                    padding: '6px 16px', borderRadius: '4px', border: 'none',
+                    background: '#004b87', color: '#fff', cursor: 'pointer', fontWeight: 600
+                  }}
+                >
+                  Connect
+                </button>
               </div>
             </div>
           )
@@ -1920,15 +2348,17 @@ const RightSidebar = ({ dashboardData, chartOverride, setChartOverride, onUpdate
           animation: blink 1.5s linear infinite;
         }
         .right-sidebar {
-          width: 450px;
+          width: ${isOpen ? `${width}px` : '0'};
+          padding: ${isOpen ? '16px' : '0'};
+          opacity: ${isOpen ? '1' : '0'};
           background: #fff;
-          border-left: 1px solid var(--border-light);
+          border-left: ${isOpen ? '1px solid var(--border-light)' : 'none'};
           display: flex;
           flex-direction: column;
-          padding: 16px;
-          transition: width 0.3s ease, position 0ms;
+          transition: width 0.1s ease-out, padding 0.3s ease, opacity 0.2s ease, border-left 0.3s ease;
           height: 100vh; /* Ensure full height to enable internal scrolling */
           overflow: hidden; /* Prevent sidebar itself from scroll, let content handle it */
+          pointer-events: ${isOpen ? 'auto' : 'none'};
         }
         .right-sidebar.maximized {
             position: fixed;
@@ -1967,19 +2397,20 @@ const RightSidebar = ({ dashboardData, chartOverride, setChartOverride, onUpdate
         
         .chat-input-container {
           display: flex;
-          align-items: center;
+          align-items: flex-end; /* Align to bottom for multiline */
           gap: 8px;
           padding: 8px 12px;
           background: #f8f9fa;
           border-radius: 20px;
           border: 1px solid #e9ecef;
         }
-        .chat-input-container input {
+        .chat-input-container input, .chat-input-container textarea {
           border: none;
           background: transparent;
           flex: 1;
           font-size: 12px;
           outline: none;
+          font-family: inherit;
         }
         .summary-section {
           margin-bottom: 16px;
