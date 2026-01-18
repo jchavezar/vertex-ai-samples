@@ -16,6 +16,39 @@ function App() {
   const [activeView, setActiveView] = useState('Snapshot');
   const [chartOverride, setChartOverride] = useState(null);
   const [widgetOverrides, setWidgetOverrides] = useState({}); // { [section]: { content, loading } }
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isRightSidebarOpen, setIsRightSidebarOpen] = useState(true);
+  const [rightSidebarWidth, setRightSidebarWidth] = useState(450);
+  const [isResizing, setIsResizing] = useState(false);
+
+  const startResizing = React.useCallback((mouseDownEvent) => {
+    setIsResizing(true);
+  }, []);
+
+  const stopResizing = React.useCallback(() => {
+    setIsResizing(false);
+  }, []);
+
+  const resize = React.useCallback(
+    (mouseMoveEvent) => {
+      if (isResizing) {
+        const newWidth = window.innerWidth - mouseMoveEvent.clientX;
+        if (newWidth > 200 && newWidth < 800) {
+          setRightSidebarWidth(newWidth);
+        }
+      }
+    },
+    [isResizing]
+  );
+
+  useEffect(() => {
+    window.addEventListener("mousemove", resize);
+    window.addEventListener("mouseup", stopResizing);
+    return () => {
+      window.removeEventListener("mousemove", resize);
+      window.removeEventListener("mouseup", stopResizing);
+    };
+  }, [resize, stopResizing]);
 
   // DEBUG: Expose for testing
   useEffect(() => {
@@ -50,20 +83,61 @@ function App() {
 
   const handleGenerateWidget = (section) => {
     handleUpdateWidget(section, null, true); // Set loading
-    const activeTicker = chartOverride?.ticker || ticker;
+
+    // Extract tickers from chart context if available
+    let tickersToAnalyze = ticker;
+    if (chartOverride && chartOverride.series && chartOverride.series.length > 0) {
+      tickersToAnalyze = chartOverride.series.map(s => s.ticker).join(', ');
+    } else if (chartOverride && chartOverride.ticker) {
+      tickersToAnalyze = chartOverride.ticker;
+    }
+
     if (window.triggerAgent) {
       window.triggerAgent(
-        `Generate ${section} analysis for ${activeTicker}. IMPORTANT: Wrap the response in [WIDGET:${section}]...[/WIDGET] tags.`,
+        `Generate ${section} analysis for ${tickersToAnalyze}. IMPORTANT: Wrap the response in [WIDGET:${section}]...[/WIDGET] tags.`,
         { preserveChart: true, expectedWidget: section }
       );
     }
   };
 
+
+
   return (
     <div className="app-container">
-      <Sidebar setTicker={setTicker} activeView={activeView} setActiveView={setActiveView} />
+      {isSidebarOpen && (
+        <Sidebar setTicker={setTicker} activeView={activeView} setActiveView={setActiveView} />
+      )}
+
+      <div
+        className="sidebar-toggle-strip"
+        onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+        title={isSidebarOpen ? "Collapse Sidebar" : "Expand Sidebar"}
+        style={{
+          width: '12px',
+          background: '#f8f9fa',
+          borderRight: '1px solid var(--border)',
+          borderLeft: isSidebarOpen ? 'none' : '1px solid var(--border)', // Ensure border when closed
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          cursor: 'pointer',
+          zIndex: 10,
+          position: 'relative',
+          transition: 'background 0.2s'
+        }}
+        onMouseEnter={(e) => e.currentTarget.style.background = '#eef1f4'}
+        onMouseLeave={(e) => e.currentTarget.style.background = '#f8f9fa'}
+      >
+        <div style={{
+          height: '24px',
+          width: '4px',
+          background: '#d1d9e0',
+          borderRadius: '2px'
+        }} />
+      </div>
 
       <main className="main-content">
+
         <DashboardHeader ticker={ticker} externalData={tickerData} loading={loading} />
 
         <div className="content-scrollable">
@@ -115,11 +189,40 @@ function App() {
         </div>
       </main>
 
+      <div
+        className="sidebar-toggle-strip right"
+        onMouseDown={startResizing}
+        title="Resize Chat"
+        style={{
+          width: '12px',
+          background: isResizing ? '#eef1f4' : '#f8f9fa',
+          borderLeft: '1px solid var(--border)',
+          borderRight: '1px solid var(--border)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          cursor: 'col-resize',
+          zIndex: 10,
+          position: 'relative',
+          transition: 'background 0.2s',
+          userSelect: 'none'
+        }}
+      >
+        <div style={{
+          height: '24px',
+          width: '4px',
+          background: '#d1d9e0',
+          borderRadius: '2px'
+        }} />
+      </div>
+
       <RightSidebar
         dashboardData={tickerData}
         chartOverride={chartOverride}
         setChartOverride={setChartOverride}
         onUpdateWidget={handleUpdateWidget}
+        isOpen={isRightSidebarOpen}
+        width={rightSidebarWidth}
       />
     </div>
   );

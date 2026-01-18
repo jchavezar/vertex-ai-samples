@@ -184,6 +184,7 @@ const PerformanceChart = ({ ticker, externalData, defaultData }) => {
                     seriesConfig.map(s => (
                       <Line
                         key={s.key}
+                        name={s.ticker}
                         type="monotone"
                         dataKey={s.key}
                         stroke={s.color}
@@ -233,16 +234,27 @@ const PerformanceChart = ({ ticker, externalData, defaultData }) => {
         <tbody>
             {isMultiSeries ? (
               seriesConfig.map(s => {
-                // Calculate simple return from first to last point in history
-                const first = s.history[0]?.close || 0;
-                const last = s.history[s.history.length - 1]?.close || 0;
-                const pct = first ? ((last - first) / first * 100).toFixed(2) : '0.00';
+                // Determine if history looks like absolute prices or already returns
+                const closes = s.history.map(p => p.close);
+                const maxVal = Math.max(...closes);
+                const minVal = Math.min(...closes);
+                const isLikelyReturn = maxVal < 10 && minVal > -10; // Basic heuristic: percentage returns are small
+
+                let pct;
+                if (isLikelyReturn) {
+                  // If they are returns, just use the last value as the period return
+                  pct = (s.history[s.history.length - 1]?.close || 0).toFixed(2);
+                } else {
+                  // Calculate return from first to last point in history (Price Mode)
+                  const first = s.history[0]?.close || 0;
+                  const last = s.history[s.history.length - 1]?.close || 0;
+                  pct = first ? ((last - first) / first * 100).toFixed(2) : '0.00';
+                }
+
                 return (
                   <tr key={s.key}>
                     <td style={{ color: s.color, fontWeight: 'bold' }}>{s.ticker}</td>
-                    {/* We don't have strict 1M/3M buckets in this simple history view, so we'll just show the Period Return in YTD/1M columns or similar for now. 
-                            Ideally we'd calculate properly. Let's just put the period return in '1M%' for demo purposes since we usually fetch 1M. */}
-                    <td className={pct >= 0 ? "text-up" : "text-down"}>{pct}</td>
+                    <td className={Number(pct) >= 0 ? "text-up" : "text-down"}>{pct}</td>
                     <td>-</td>
                     <td>-</td>
                     <td>-</td>

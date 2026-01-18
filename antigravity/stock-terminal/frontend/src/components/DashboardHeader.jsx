@@ -42,7 +42,9 @@ const DashboardHeader = ({ ticker, externalData, loading }) => {
         <div className="market-cap">
           <span className="label">Mkt Cap:</span>
           <span className="value">
-            {displayData?.marketCap ? `${(displayData.marketCap / 1e9).toFixed(2)}B` : '--'}
+            {displayData?.marketCap && !isNaN(displayData.marketCap)
+              ? `${(Number(displayData.marketCap) / 1e9).toFixed(2)}B`
+              : '--'}
           </span>
         </div>
       </div>

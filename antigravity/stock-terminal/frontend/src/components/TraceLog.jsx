@@ -106,53 +106,56 @@ const TraceLog = ({ logs = [], isMaximized = false }) => {
   );
 };
 
+const deepParseJSON = (obj) => {
+  if (typeof obj === 'string') {
+    const trimmed = obj.trim();
+    if (trimmed.startsWith('{') || trimmed.startsWith('[')) {
+      try {
+        return deepParseJSON(JSON.parse(trimmed));
+      } catch (e) { return obj; }
+    }
+  }
+  if (Array.isArray(obj)) {
+    return obj.map(deepParseJSON);
+  }
+  if (obj !== null && typeof obj === 'object') {
+    const newObj = {};
+    for (const key in obj) {
+      newObj[key] = deepParseJSON(obj[key]);
+    }
+    return newObj;
+  }
+  return obj;
+};
+
 const renderContent = (log, isMaximized) => {
   switch (log.type) {
     case 'user':
       return <div style={{ fontWeight: 600 }}>{log.content}</div>;
     case 'assistant':
-      // Assuming assistant logs might be markdown chunks
       return <ReactMarkdown remarkPlugins={[remarkGfm]}>{log.content}</ReactMarkdown>;
     case 'tool_call':
+      let argsDisplay = '';
+      try {
+        argsDisplay = JSON.stringify(deepParseJSON(log.args), null, 2);
+      } catch (e) {
+        argsDisplay = String(log.args);
+      }
       return (
         <div>
           <div><strong>Executing:</strong> {log.tool}</div>
           <div className="code-snippet">
-            <pre>{typeof log.args === 'string' ? log.args : JSON.stringify(log.args, null, 2)}</pre>
+            <pre>{argsDisplay}</pre>
           </div>
         </div>
       );
     case 'tool_result':
-      // Intelligent Formatting for MCP Results
-      const deepParseJSON = (obj) => {
-        if (typeof obj === 'string') {
-          const trimmed = obj.trim();
-          if (trimmed.startsWith('{') || trimmed.startsWith('[')) {
-            try {
-              return deepParseJSON(JSON.parse(trimmed));
-            } catch (e) { return obj; }
-          }
-        }
-        if (Array.isArray(obj)) {
-          return obj.map(deepParseJSON);
-        }
-        if (obj !== null && typeof obj === 'object') {
-          const newObj = {};
-          for (const key in obj) {
-            newObj[key] = deepParseJSON(obj[key]);
-          }
-          return newObj;
-        }
-        return obj;
-      };
-
       let resultDisplay = '';
       try {
         resultDisplay = JSON.stringify(deepParseJSON(log.result), null, 2);
       } catch (e) {
         resultDisplay = String(log.result);
       }
-
       return (
         <div>
           <div><strong>Result from:</strong> {log.tool} {log.duration ? <span style={{ fontSize: '10px', color: '#888', marginLeft: '8px', fontWeight: 'normal' }}>({typeof log.duration === 'number' ? log.duration.toFixed(3) + 's' : log.duration})</span> : null}</div>

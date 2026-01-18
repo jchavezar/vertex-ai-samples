@@ -35,7 +35,7 @@ const SummaryPanel = ({ ticker, externalData }) => {
 
       <style jsx="true">{`
         .profile-card {
-          min-height: 400px;
+          height: 100%;
           display: flex;
           flex-direction: column;
         }
@@ -44,6 +44,10 @@ const SummaryPanel = ({ ticker, externalData }) => {
           color: var(--text-secondary);
           line-height: 1.4;
           margin-bottom: 20px;
+          display: -webkit-box;
+          -webkit-line-clamp: 5;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
         }
         .profile-details {
           display: flex;

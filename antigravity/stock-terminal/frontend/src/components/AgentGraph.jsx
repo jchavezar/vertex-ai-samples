@@ -53,9 +53,23 @@ const AgentNode = ({ data }) => {
           <Icon size={18} />
         </div>
         <div>
-// AgentNode label
           <div style={{ fontSize: '12px', fontWeight: 'bold', color: '#333', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }} title={data.label}>{data.label}</div>
-          <div style={{ fontSize: '10px', color: '#666' }}>{data.type}</div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+            <div style={{ fontSize: '9px', color: '#666' }}>{data.type}</div>
+            {data.model && (
+              <div style={{
+                fontSize: '8px',
+                background: '#eee',
+                padding: '1px 4px',
+                borderRadius: '3px',
+                color: '#444',
+                fontWeight: 600,
+                border: '1px solid #ddd'
+              }}>
+                {data.model}
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
@@ -219,7 +233,7 @@ const AgentGraph = ({ topology, activeNodeId }) => {
   }, [activeNodeId, topology]); // Re-run when activeNodeId changes
 
   return (
-    <div style={{ width: '100%', height: '100%', background: '#f8f9fa' }}>
+    <div id="printable-agent-graph" style={{ width: '100%', height: '100%', background: '#f8f9fa' }}>
       <ReactFlow
         nodes={nodes}
         edges={edges}
