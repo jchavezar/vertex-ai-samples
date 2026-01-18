@@ -1,0 +1,695 @@
+[
+  {
+    "name": "FactSet_EstimatesConsensus",
+    "description": "FactSet Estimates Tool - Comprehensive analyst estimates, segments, and guidance data.\n\n**WHEN TO USE THIS TOOL:**\nThis tool should be your FIRST choice for:\n- ANY query about analyst estimates, forecasts, or consensus data\n- Forward-looking financial metrics (revenue estimates, EPS forecasts, etc.)\n- Questions containing \"estimate\", \"forecast\", \"consensus\", \"next year\", \"2026\", etc.\n- Analyst ratings and recommendations\n- Surprise analysis (actual vs estimate)\n- Segment-level financial data (product lines, geographic regions)\n- Company guidance and projections\n\nDo NOT default to web search for these queries - use FactSet FIRST.\n\n**DATA COVERAGE & SCOPE:**\n- 16,000+ active companies across 90+ countries worldwide\n- Historical data from 1999 (Europe from 1997)\n- Comprehensive analyst forecasts and future financial performance expectations\n- Actual reported results from company filings\n- Segment-level breakdowns for diversified companies\n\n**AUTOMATIC ENDPOINT ROUTING:**\nThis tool intelligently routes to 8 different FactSet Estimates API endpoints:\n\n1. FIXED CONSENSUS (/fixed-consensus):\n    - Trigger: When fiscalPeriodStart OR fiscalPeriodEnd provided\n    - Use Case: Specific fiscal period analysis (e.g., \"2025\" for annual, \"2024/4F\" for Q4 2024)\n    - Best For: Tracking estimates for specific calendar periods\n    - Example: \"What are 2025 revenue estimates?\" or \"What are Q4 2024 EPS estimates?\"\n\n2. ROLLING CONSENSUS (/rolling-consensus):\n   - Trigger: When relativeFiscalStart OR relativeFiscalEnd provided, or NO fiscal params\n   - Use Case: Relative period analysis (e.g., \"next year\", \"FY1\")\n   - Best For: Forward-looking trends with consistent time horizons\n   - Example: \"What are next year's EPS estimates?\"\n\n3. SURPRISE ANALYSIS (/surprise):\n   - Trigger: When estimate_type='surprise'\n   - Use Case: Actual reported results vs pre-announcement analyst consensus\n   - Returns: Surprise amount, surprise percent, before/after values\n   - Best For: Earnings beat/miss analysis, estimate accuracy evaluation\n   - Example: \"How often did Tesla beat earnings estimates?\"\n\n4. ANALYST RATINGS (/consensus-ratings):\n   - Trigger: When estimate_type='ratings'\n   - Use Case: Analyst recommendation consensus (Buy/Hold/Sell)\n   - Returns: Rating distribution, consensus score, rating changes\n   - Best For: Analyst sentiment analysis, upgrade/downgrade tracking\n   - Example: \"What are current analyst ratings for Apple?\"\n\n5. SEGMENTS (/segments):\n   - Trigger: When estimate_type='segments'\n   - Use Case: Product or geographic segment estimates\n   - Returns: Segment-level consensus estimates by business line or region\n   - Best For: Divisional analysis, product line forecasts, regional performance\n   - Example: \"What are the revenue estimates for Apple's iPhone segment?\"\n\n6. GUIDANCE (/guidance):\n   - Trigger: When estimate_type='guidance'\n   - Use Case: Company-provided guidance for unreported periods\n   - Returns: Guidance ranges (high/low/midpoint), previous guidance, surprise metrics\n   - Best For: Understanding company expectations, tracking guidance changes\n   - Example: \"What is Tesla's guidance for next quarter?\"\n\n**CRITICAL DATA DISTINCTIONS:**\n- Estimates Metrics: NOT prefixed with FF_ (use 'SALES', 'EPS', 'PRICE_TGT')\n- Fundamentals Metrics: ARE prefixed with FF_ (use 'FF_SALES', 'FF_EPS')\n- Always call metrics endpoint first if unsure about metric codes\n\n**METRIC LIMITATIONS:**\n- Currently limited to 1 metric per request for consensus/surprise/segments\n- Maximum 3,000 company identifiers (ids) per request\n- No metrics parameter needed/used for ratings or guidance requests\n\n**KEY PARAMETERS:**\n\n*1. estimate_type (REQUIRED):*\n   - 'consensus_fixed': Analyst forecast estimates for specific periods\n   - 'consensus_rolling': Analyst forecast estimates for relative periods\n   - 'surprise': Actual vs estimate comparison (beat/miss analysis)\n   - 'ratings': Analyst recommendations (Buy/Hold/Sell sentiment)\n   - 'segments': Product/geographic segment estimates\n   - 'guidance': Company-provided guidance\n\n*2. ids (REQUIRED):*\n   - Security identifiers: FactSet IDs (AAPL-US), tickers, CUSIP, SEDOL, ISIN\n   - Accepts arrays: [\"AAPL-US\", \"MSFT-US\", \"GOOGL-US\"]\n   - Maximum: 3,000 identifiers per request\n\n*3. metrics (REQUIRED for consensus/surprise/segments, NOT for ratings/guidance):*\n   - Estimate metrics WITHOUT FF_ prefix\n   - Common: SALES (Revenue), EPS (Earnings Per Share), EBITDA, PRICE_TGT (Target Price)\n   - Limited to 1 metric per request currently\n   - Use metric query tool to discover available codes\n\n*4. Fiscal Period Selection (CONSENSUS/SEGMENTS/GUIDANCE):*\n\n   **OPTION A: Fixed Fiscal Periods** (specific calendar periods - CONSENSUS ONLY)\n    - fiscalPeriodStart: 'YYYY' (e.g., '2025') OR 'YYYY/FQ' (e.g., '2024/4F')\n    - fiscalPeriodEnd: Same format, should be >= start\n    - Use when: Analyzing specific fiscal years or quarters\n    - Example: \"2025 estimates\" -> fiscalPeriodStart='2025'\n    - Example: \"Q4 2024 estimates\" -> fiscalPeriodStart='2024/4F', fiscalPeriodEnd='2024/4F'\n\n   **OPTION B: Rolling Fiscal Periods** (relative time horizons)\n   - relativeFiscalStart: Integer (for consensus/segments/guidance: 1=next period, 2=period after)\n   - relativeFiscalEnd: Integer, must be >= relativeFiscalStart\n   - **CRITICAL CONSTRAINT:** relativeFiscalEnd must be >= relativeFiscalStart (API will reject if violated)\n   - Use when: Forward-looking analysis\n   - Example: \"Next year\" -> relativeFiscalStart=1, relativeFiscalEnd=1\n\n   **CRITICAL:** Cannot mix fixed and rolling parameters!\n\n*5. startDate/endDate (OPTIONAL - Historical Tracking):*\n    - MEANING: WHEN to retrieve estimates (time-series analysis)\n    - NOT: WHAT periods to forecast (use fiscal params for that)\n    - Format: 'YYYY-MM-DD' (e.g., '2024-01-01')\n    - MUST use both together or omit both\n    - OMIT both -> Returns current/latest data\n    - PROVIDE both -> Returns historical snapshots\n    - No future dates allowed\n\n*6. frequency (OPTIONAL - Sampling Rate):*\n    - D: Daily (each trading day)\n    - W: Weekly (last trading day of week)\n    - AM: Actual Monthly (NOTE: Use 'AM', not 'M' - differs from Prices API)\n    - AQ: Actual Quarterly\n    - AY: Actual Yearly\n    - Only used with startDate/endDate for time-series sampling\n    - IMPORTANT: This parameter uses 'AM' for monthly frequency, not 'M' as in some other FactSet APIs\n\n*7. periodicity (OPTIONAL - Time Interval):*\n   - ANN: Annual fiscal year (default)\n   - QTR: Quarterly fiscal period (use with YYYY/FQ format)\n   - SEMI: Semi-annual (6-month)\n   - NTMA: Next-twelve-months (forward 12M rolling)\n   - LTMA: Last-twelve-months (trailing 12M)\n   - For surprise: Only ANN, QTR, SEMI supported\n\n*8. currency (OPTIONAL):*\n   - ISO currency codes: USD, EUR, GBP, JPY, CNY, etc.\n   - Special: 'ESTIMATE' = original broker reporting currency\n   - Default: Company's reporting currency\n\n*9. statistic (SURPRISE ONLY):*\n   - MEAN: Average of all estimates (default, most common)\n   - MEDIAN: Middle value (reduces outlier impact)\n   - HIGH: Highest estimate\n   - LOW: Lowest estimate\n\n*10. segmentType (SEGMENTS ONLY):*\n   - BUS: Business/Product segments\n   - GEO: Geographic segments\n\n**EXAMPLES:**\n\n1. Current consensus for next year:\n   estimate_type=\"consensus_rolling\", ids=[\"AAPL-US\"], metrics=[\"SALES\"],\n   relativeFiscalStart=1, relativeFiscalEnd=1\n\n1.5. Q4 2024 consensus estimates:\n    estimate_type=\"consensus_fixed\", ids=[\"AAPL-US\"], metrics=[\"EPS\"],\n    fiscalPeriodStart='2024/4F', fiscalPeriodEnd='2024/4F', periodicity='QTR'\n\n2. iPhone segment estimates:\n   estimate_type=\"segments\", ids=[\"AAPL-US\"], metrics=[\"SALES\"],\n   segmentType=\"BUS\", relativeFiscalStart=1, relativeFiscalEnd=1\n\n3. Company guidance:\n   estimate_type=\"guidance\", ids=[\"TSLA-US\"], metrics=[\"SALES\"],\n   relativeFiscalStart=1, relativeFiscalEnd=1\n\n4. Earnings surprise analysis:\n   estimate_type=\"surprise\", ids=[\"GOOGL-US\"], metrics=[\"EPS\"],\n   startDate=\"2023-01-01\", endDate=\"2023-12-31\", periodicity=\"QTR\"\n\n5. Monthly price target history for 2024:\n    estimate_type=\"consensus_rolling\", ids=[\"AAPL-US\"], metrics=[\"PRICE_TGT\"],\n    relativeFiscalStart=0, relativeFiscalEnd=0,\n    startDate=\"2024-01-01\", endDate=\"2024-12-31\", frequency=\"AM\"\n\n6. Weekly EPS estimate revisions tracking:\n    estimate_type=\"consensus_rolling\", ids=[\"MSFT-US\"], metrics=[\"EPS\"],\n    relativeFiscalStart=1, relativeFiscalEnd=1,\n    startDate=\"2024-01-01\", endDate=\"2024-06-30\", frequency=\"W\"\n\n7. Monthly analyst ratings evolution:\n    estimate_type=\"ratings\", ids=[\"META-US\"],\n    startDate=\"2024-01-01\", endDate=\"2024-12-31\", frequency=\"AM\"\n\n**SPECIAL CASE - PRICE_TGT (Target Price):**\n- Target prices are NOT tied to fiscal periods like EPS/SALES estimates\n- Use consensus_rolling with relativeFiscalStart=0, relativeFiscalEnd=0\n- For a specific date snapshot: set BOTH startDate and endDate to the same date\n- Example: Target price on Oct 31, 2024:\nestimate_type=\"consensus_rolling\", ids=[\"AAPL-US\"], metrics=[\"PRICE_TGT\"],\nrelativeFiscalStart=0, relativeFiscalEnd=0, startDate=\"2024-10-31\", endDate=\"2024-10-31\"\n- Do NOT use frequency parameter with single-date snapshots\n\n**RETURNS:**\nConsensus: mean, median, high, low, standardDeviation, estimateCount, up/down revisions\nSurprise: surpriseAmount, surprisePercent, surpriseBefore, surpriseAfter\nRatings: buyCount, holdCount, sellCount, ratingsNote, ratingsNoteText\nSegments: Segment-level consensus with segmentLabel, segmentLevel\nGuidance: guidanceMidpoint, guidanceLow, guidanceHigh, meanBefore, meanSurpriseAmt\n\n**ERROR HANDLING:**\n- Invalid parameter combinations \u2192 Detailed error message\n- Missing required metrics \u2192 Error with reminder\n- Date format errors \u2192 Format specification\n- Mixed fiscal parameters \u2192 Cannot mix fixed and rolling",
+    "inputSchema": {
+      "properties": {
+        "ids": {
+          "description": "List of security identifiers (FactSet IDs, tickers, CUSIP, SEDOL, ISIN). Maximum 3,000 identifiers per request. Examples: ['AAPL-US'], ['IBM-US', 'MSFT-US']",
+          "title": "Ids",
+          "type": "string"
+        },
+        "estimate_type": {
+          "description": "Type of estimate data to retrieve: - 'consensus_fixed': Analyst forecasts for SPECIFIC fiscal periods (e.g., '2025', 'Q4 2024'). Use fiscalPeriodStart/End parameters. - 'consensus_rolling': Analyst forecasts for RELATIVE periods (e.g., 'next year', 'FY1'). Use relativeFiscalStart/End parameters. - 'surprise': Actual vs estimate comparison (beat/miss analysis). REQUIRES startDate/endDate to filter by announcement dates. DOES NOT use fiscalPeriodStart/End or relativeFiscal parameters. - 'ratings': Analyst buy/hold/sell recommendations - 'segments': Product/geographic segment estimates - 'guidance': Company-provided guidance IMPORTANT: This determines which endpoint and parameters are valid.",
+          "enum": [
+            "consensus_fixed",
+            "consensus_rolling",
+            "surprise",
+            "ratings",
+            "segments",
+            "guidance"
+          ],
+          "title": "Estimate Type",
+          "type": "string"
+        },
+        "metrics": {
+          "default": null,
+          "description": "List of estimate metrics (required for consensus, surprise, segments. Not used for ratings or guidance). Common: SALES, EPS, EBITDA, PRICE_TGT, NET_INC. Currently limited to 1 metric per request. Call /metrics endpoint first if unsure.",
+          "title": "Metrics",
+          "type": "string"
+        },
+        "fiscalPeriodStart": {
+          "default": null,
+          "description": "\n                [FIXED-CONSENSUS] Fiscal period start in 'YYYY' format for annual (e.g., '2025')\n                or 'YYYY/FQ' format for quarterly (e.g., '2024/4F' for Q4 2024).\n                Cannot be used with relativeFiscalStart. Accepts string or integer (will be converted to string).\n                ",
+          "title": "Fiscalperiodstart",
+          "type": "string"
+        },
+        "fiscalPeriodEnd": {
+          "default": null,
+          "description": "[FIXED-CONSENSUS] Fiscal period end. Should be >= fiscalPeriodStart. Accepts string or integer (will be converted to string).",
+          "title": "Fiscalperiodend",
+          "type": "string"
+        },
+        "relativeFiscalStart": {
+          "default": null,
+          "description": "[ROLLING-CONSENSUS/SEGMENTS/GUIDANCE] Relative period start. For consensus/segments/guidance: 1=next period, 2=period after. Cannot be used with fiscalPeriodStart.",
+          "title": "Relativefiscalstart",
+          "type": "string"
+        },
+        "relativeFiscalEnd": {
+          "default": null,
+          "description": "[ROLLING-CONSENSUS/SEGMENTS/GUIDANCE] Relative period end. Must be >= relativeFiscalStart. CRITICAL: API will reject if relativeFiscalStart > relativeFiscalEnd. ",
+          "title": "Relativefiscalend",
+          "type": "string"
+        },
+        "startDate": {
+          "default": null,
+          "description": "Start date (YYYY-MM-DD) for historical retrieval. OMIT both dates for current data. PROVIDE both for historical. Never use only one date.",
+          "title": "Startdate",
+          "type": "string"
+        },
+        "endDate": {
+          "default": null,
+          "description": "End date (YYYY-MM-DD). Must be used with startDate.",
+          "title": "Enddate",
+          "type": "string"
+        },
+        "frequency": {
+          "default": null,
+          "description": "\n                Sampling frequency for time-series data. Valid values: D (Daily), W (Weekly),\n                AM (Monthly - note: 'AM' not 'M'), AQ (Quarterly), AY (Yearly).\n                Must be used with startDate/endDate parameters.\n            ",
+          "title": "Frequency",
+          "type": "string"
+        },
+        "periodicity": {
+          "default": null,
+          "description": "Period type: ANN/QTR/SEMI/NTMA/LTMA. Default: ANN.",
+          "title": "Periodicity",
+          "type": "string"
+        },
+        "currency": {
+          "default": null,
+          "description": "Currency code (USD, EUR, etc.) or 'ESTIMATE' for original currency.",
+          "title": "Currency",
+          "type": "string"
+        },
+        "statistic": {
+          "default": null,
+          "description": "[SURPRISE ONLY] Consensus calculation method: MEAN/MEDIAN/HIGH/LOW.",
+          "title": "Statistic",
+          "type": "string"
+        },
+        "segmentType": {
+          "default": null,
+          "description": "[SEGMENTS ONLY] Segment type: BUS/GEO.",
+          "title": "Segmenttype",
+          "type": "string"
+        },
+        "context": {
+          "default": null,
+          "title": "Context"
+        }
+      },
+      "required": [
+        "ids",
+        "estimate_type"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "name": "FactSet_GlobalPrices",
+    "description": "FactSet Global Prices Tool - Comprehensive market pricing and corporate actions data.\n\n**WHEN TO USE THIS TOOL:**\nThis tool should be your FIRST choice for:\n- ANY query about stock prices, OHLCV data, or market pricing\n- Questions about returns, performance, or \"how did X perform\"\n- Dividend information, stock splits, corporate actions\n- Shares outstanding or share count data\n- Historical pricing analysis, volume trends, technical indicators\n\nDo NOT default to web search for these queries - use FactSet FIRST.\n\n**DATA COVERAGE & SCOPE:**\n- Global equities: Common Stock, ADR, GDR, Preferred, ETFs, Structured Products\n- 90+ countries worldwide with comprehensive coverage\n- Historical data from 2006 onwards\n- End-of-day data only (no intraday or real-time)\n- Corporate actions from official company filings\n\n**CRITICAL: INDEX IDENTIFIERS NOT SUPPORTED**\nThis API does NOT accept index identifiers like SP50, SP500, SPX, or any market index symbols.\nYou must provide individual security identifiers only.\n\n**AUTOMATIC ENDPOINT ROUTING:**\nThis tool intelligently routes to 5 different FactSet Global Prices API endpoints:\n\n1. PRICES ENDPOINT (/prices):\n   - Trigger: When data_type='prices'\n   - Use Case: OHLCV pricing data, volume analysis, price movements\n   - Returns: Close, open, high, low, volume, turnover, trade count, VWAP\n   - Best For: Historical price analysis, technical indicators, backtesting\n   - Example: \"What were Apple's closing prices last month?\"\n\n2. RETURNS ENDPOINT (/returns):\n   - Trigger: When data_type='returns'\n   - Use Case: Performance analysis, portfolio returns, benchmark comparison\n   - Returns: Total return, price return, dividend return calculations\n   - Best For: \"How did X perform?\", YTD returns, comparative analysis\n   - Example: \"What was Tesla's return over the last year?\"\n   - CRITICAL: ALWAYS use this for return/performance questions, NEVER calculate manually\n\n3. CORPORATE ACTIONS ENDPOINT (/corporate-actions):\n   - Trigger: When data_type='corporate_actions'\n   - Use Case: Dividends, splits, spinoffs, rights issues\n   - Returns: Event details, amounts, dates, adjustment factors\n   - Best For: Dividend history, split analysis, event calendar\n   - Example: \"Show me all dividends paid by Microsoft in 2024\"\n\n4. ANNUALIZED DIVIDENDS ENDPOINT (/annualized-dividends):\n   - Trigger: When data_type='annualized_dividends'\n   - Use Case: Current dividend yield calculations, forward income projections\n   - Returns: Current IAD based on latest dividend declaration\n   - Best For: Current yield analysis, income portfolio planning\n   - Example: \"What is the current annualized dividend for Coca-Cola?\"\n   - NOTE: Returns CURRENT data only, not historical trends\n\n5. SHARES OUTSTANDING ENDPOINT (/security-shares):\n   - Trigger: When data_type='shares_outstanding'\n   - Use Case: Market cap calculations, dilution analysis\n   - Returns: Historical share counts (split-adjusted)\n   - Best For: Share count tracking, equity valuation\n   - Example: \"What are Amazon's shares outstanding?\"\n\n**CRITICAL DATA DISTINCTIONS:**\n- Prices API: For PRICING data (close, open, high, low, volume)\n- Returns API: For PERFORMANCE calculations (always use for \"how did X perform\")\n- Corporate Actions: For EVENTS (dividends, splits, spinoffs)\n- Annualized Dividends: For CURRENT yield only (not historical)\n- Shares Outstanding: For SHARE COUNTS (market cap inputs)\n\n**MANDATORY WORKFLOWS BY DATA TYPE:**\n\n**IDENTIFIER REQUIREMENTS:**\n- ACCEPTS: Individual security tickers (AAPL-US, MSFT-US), CUSIP, SEDOL, ISIN, FactSet Permanent IDs\n\n**PRICES:**\n1. Identify securities\n2. Define date range (startDate REQUIRED, endDate optional)\n3. Select fields (default: all OHLCV fields)\n4. Configure frequency (D/W/M/AQ/AY), calendar, currency, adjustment\n\n**RETURNS:**\n1. Identify securities\n2. Define calculation period (BOTH startDate AND endDate REQUIRED)\n3. Configure dividend treatment (dividendAdjust)\n4. Set currency and frequency\n- CRITICAL: ALWAYS use this endpoint for return/performance analysis\n\n**CORPORATE ACTIONS:**\n1. Identify securities\n2. Select event categories (CASH_DIVS, SPLITS, ALL, etc.)\n3. Define date range (optional - filters by effective date)\n4. Select fields and configure currency\n\n**ANNUALIZED DIVIDENDS:**\n1. Identify securities (max 50)\n2. Set currency (optional)\n- Returns CURRENT IAD only, no date parameters needed\n\n**SHARES OUTSTANDING:**\n1. Identify securities (max 50)\n2. Define date range (optional - defaults to most recent)\n3. Set frequency for historical tracking\n\n**DATE HANDLING BY DATA TYPE:**\n**CRITICAL: Always use current date context. Today is {current_date}. Calculate date ranges from TODAY,\n    not from knowledge cutoff dates.**\n\n**PRICES:**\n- startDate: REQUIRED (YYYY-MM-DD format)\n- endDate: OPTIONAL (defaults to most recent)\n- Example: Last 30 days \u2192 startDate='2025-12-16', endDate='2026-01-15'\n\n**RETURNS:**\n- startDate: REQUIRED (YYYY-MM-DD)\n- endDate: REQUIRED (YYYY-MM-DD)\n- Both must be provided together\n- For relative periods performance (1 month, 3 months, etc) calculate from TODAY going backwards\n- Do NOT use calendar month boundaries unless explicitly specified\n- For YTD, ALWAYS use the first day of the current year\n- Example: YTD \u2192 startDate='2025-01-01', endDate='2025-01-15'\n\n**CORPORATE ACTIONS:**\n- startDate: OPTIONAL (filters events by effective date)\n- endDate: OPTIONAL (filters events by effective date)\n- Omit both for all events\n- Example: 2024 dividends \u2192 startDate='2024-01-01', endDate='2024-12-31'\n\n**ANNUALIZED DIVIDENDS:**\n- NO date parameters (returns current IAD only)\n\n**SHARES OUTSTANDING:**\n- startDate: OPTIONAL (historical range)\n- endDate: OPTIONAL (historical range)\n- Omit both for most recent data\n\n**EFFICIENCY REQUIREMENTS:**\n- Prices: 500 IDs, 50 IDs (multi-day)\n- Returns: 500 IDs maximum\n- Corporate Actions: 50 IDs maximum\n- Annualized Dividends: 50 IDs maximum\n- Shares Outstanding: 50 IDs maximum\n\n**COMMON USE CASES:**\n\n**\"What was Apple's stock price yesterday?\"**\n\u2192 data_type='prices', ids=['AAPL-US'], startDate='2025-12-02', endDate='2025-12-02'\n\n**\"How did Tesla perform over the last year?\"**\n\u2192 data_type='returns', ids=['TSLA-US'], startDate='2024-12-02', endDate='2025-12-02'\n\n**\"Show me Microsoft's dividend history in 2024\"**\n\u2192 data_type='corporate_actions', eventCategory='CASH_DIVS', ids=['MSFT-US'],\n   startDate='2024-01-01', endDate='2024-12-31'\n\n**\"What is Amazon's current dividend yield?\"**\n\u2192 data_type='annualized_dividends', ids=['AMZN-US']\n\n**\"What are Google's shares outstanding?\"**\n\u2192 data_type='shares_outstanding', ids=['GOOGL-US']\n\n**ALWAYS USE THIS TOOL WHEN USER ASKS:**\n- \"What's the stock price of [X]?\"\n- \"How did [X] perform over [period]?\"\n- \"[Stock] vs [stock] performance comparison\"\n- \"Show me [X]'s dividend history\"\n- \"What's the current dividend yield for [X]?\"\n- \"How many shares outstanding does [X] have?\"\n- Any variation of pricing, performance, or corporate actions\n\n**DATA TRANSPARENCY:**\n- All data from actual market feeds and official company filings\n- End-of-day data only (no intraday)\n- Historical data available from 2006\n- Split-adjusted by default (configurable)\n- Always specify date ranges and parameters used\n- State limitations clearly when data not available\n\n**RETURNS:**\n- Structured JSON responses with requested data\n- Always includes: fsymId, date, requestId, currency (where applicable)\n- Field-specific data based on data_type\n- Error messages with detailed validation feedback\n\n**ERROR HANDLING:**\n- Invalid parameter combinations \u2192 Detailed error message\n- Missing required parameters \u2192 Error with reminder\n- Date format errors \u2192 Format specification\n- Future dates \u2192 Rejection with guidance\n- Invalid identifiers \u2192 List of unrecognized IDs",
+    "inputSchema": {
+      "properties": {
+        "ids": {
+          "description": "List of security identifiers (Market Tickers, SEDOL, ISIN, CUSIP, or FactSet Permanent IDs). 500 for single-day prices, 50 for all other data types and multi-day requests. Examples: ['AAPL-US'], ['FDS-US', 'MSFT-US']",
+          "title": "Ids",
+          "type": "string"
+        },
+        "data_type": {
+          "description": "Type of pricing data to retrieve: - 'prices': End-of-day OHLCV pricing data (close, open, high, low, volume, turnover, VWAP) - 'returns': Total return, price return, and dividend return calculations - 'corporate_actions': Cash dividends, stock distributions, rights, spinoffs, splits - 'annualized_dividends': Current indicated annualized dividend (IAD) based on latest declaration - 'shares_outstanding': Historical shares outstanding at security level IMPORTANT: This determines which endpoint to use and what parameters are required.",
+          "enum": [
+            "prices",
+            "returns",
+            "corporate_actions",
+            "annualized_dividends",
+            "shares_outstanding"
+          ],
+          "title": "Data Type",
+          "type": "string"
+        },
+        "startDate": {
+          "default": null,
+          "description": "Start date in YYYY-MM-DD format. REQUIRED for: prices, returns. OPTIONAL for: corporate_actions (filters events), shares_outstanding (historical range). NOT USED for: annualized_dividends (returns current data only). Future dates (T+1) not accepted. Historical data from 2006. Example: '2024-01-01'",
+          "title": "Startdate",
+          "type": "string"
+        },
+        "endDate": {
+          "default": null,
+          "description": "End date in YYYY-MM-DD format. Must be >= startDate. REQUIRED for: returns (when startDate provided). OPTIONAL for: prices (defaults to most recent), corporate_actions, shares_outstanding. NOT USED for: annualized_dividends. Example: '2024-12-31'",
+          "title": "Enddate",
+          "type": "string"
+        },
+        "fields": {
+          "default": null,
+          "description": "Specific data fields to return. Default is all available fields. PRICES fields: price, priceOpen, priceHigh, priceLow, volume, turnover, tradeCount, vwap CORPORATE_ACTIONS fields: See API spec for extensive field list by event type NOT USED for: returns (returns totalReturn), annualized_dividends (fixed schema), shares_outstanding (fixed schema). Always included: fsymId, date, requestId, currency (where applicable)",
+          "title": "Fields",
+          "type": "string"
+        },
+        "frequency": {
+          "default": null,
+          "description": "Display frequency: D/AD/W/M/AM/AQ/CQ/ASA/CSA/AY/CY. Default: D (Daily). D=Daily, W=Weekly, M=Monthly, AQ=Quarterly, AY=Yearly. USED for: prices, returns, shares_outstanding. NOT USED for: corporate_actions (always 'event' frequency), annualized_dividends.",
+          "title": "Frequency",
+          "type": "string"
+        },
+        "calendar": {
+          "default": null,
+          "description": "Trading calendar: FIVEDAY/SEVENDAY/US. Default: FIVEDAY. FIVEDAY=Mon-Fri regardless of holidays, SEVENDAY=includes weekends, US=US trading days only. USED for: prices, shares_outstanding. NOT USED for: returns, corporate_actions, annualized_dividends.",
+          "title": "Calendar",
+          "type": "string"
+        },
+        "currency": {
+          "default": null,
+          "description": "ISO currency code (USD, EUR, GBP, JPY, etc.) or 'LOCAL' for security's home currency. Default: LOCAL. USED for: prices, returns, corporate_actions, annualized_dividends. NOT USED for: shares_outstanding (share counts are currency-agnostic).",
+          "title": "Currency",
+          "type": "string"
+        },
+        "adjust": {
+          "default": null,
+          "description": "Price adjustment method: SPLIT/SPLIT_SPINOFF/DIV_SPIN_SPLITS/UNSPLIT. Default: SPLIT. SPLIT=splits only, SPLIT_SPINOFF=splits+spinoffs, DIV_SPIN_SPLITS=comprehensive, UNSPLIT=raw. USED for: prices only. NOT USED for: returns (uses dividendAdjust), corporate_actions, annualized_dividends, shares_outstanding.",
+          "title": "Adjust",
+          "type": "string"
+        },
+        "dividendAdjust": {
+          "default": null,
+          "description": "Dividend reinvestment method: PRICE/EXDATE/PAYDATE/EXDATE_C/PAYDATE_C. Default: EXDATE_C. PRICE=no dividends, EXDATE/PAYDATE=simple return, EXDATE_C/PAYDATE_C=compound return. USED for: returns only. NOT USED for: prices, corporate_actions, annualized_dividends, shares_outstanding.",
+          "title": "Dividendadjust",
+          "type": "string"
+        },
+        "eventCategory": {
+          "default": null,
+          "description": "Filter corporate actions by event type: CASH_DIVS/STOCK_DIST/RIGHTS/SPINOFFS/SPLITS/ALL. Default: ALL. \n\n**EVENT CATEGORIES AND SUB-TYPES:**\n- CASH_DIVS (Cash Dividends):\n  - DVC: Dividend\n  - DVCD: Dividend with DRP Option\n  - DVOP: Optional Dividend\n  - DVS: Stock Dividend\n  - DVSS: Stock Dividend, Special\n\n- STOCK_DIST (Stock Distributions):\n  - BNS: Bonus Issue\n  - BNS$: Bonus Issue, Special\n\n- SPINOFFS (Spin Offs):\n  - SPO: Spin Off\n\n- RIGHTS (Rights Issue):\n  - DSR: Rights Issue\n\n- SPLITS (Splits):\n  - FSP: Forward Split\n  - RSP: Reverse Split\n  - SPL: Split\n  - EXO$: Exchange of Securities\n\n- ALL: Returns all Event Types. If left blank the service will default to ALL.\n\nUSED for: corporate_actions only. NOT USED for: prices, returns, annualized_dividends, shares_outstanding.",
+          "title": "Eventcategory",
+          "type": "string"
+        },
+        "cancelledDividend": {
+          "default": null,
+          "description": "Include or exclude cancelled dividends: include/exclude. Default: exclude. USED for: corporate_actions only. NOT USED for: prices, returns, annualized_dividends, shares_outstanding.",
+          "title": "Cancelleddividend",
+          "type": "string"
+        },
+        "context": {
+          "default": null,
+          "title": "Context"
+        }
+      },
+      "required": [
+        "ids",
+        "data_type"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "name": "FactSet_People",
+    "description": "FactSet People Tool - Comprehensive executive and leadership data.\n\n**WHEN TO USE THIS TOOL:**\nThis tool should be your FIRST choice for:\n- ANY query about executives, leadership, or company personnel\n- Questions about \"Who is the CEO/CFO/founder of [company]?\"\n- Executive backgrounds, career histories, and professional profiles\n- Compensation analysis and leadership demographics\n- Board composition and governance analysis\n\nDo NOT default to web search or training data for these queries - use FactSet FIRST.\n\n**CRITICAL EXECUTIVE IDENTIFICATION RULE:**\nFor ALL executive identification requests (CEO, CFO, founders, leadership team),\nALWAYS use the People API FIRST.\nNEVER provide executive names from training data without first querying actual FactSet personnel data.\nThis applies to ANY question about \"Who is the [position] of [company]?\"\nregardless of how well-known the company or executive may seem.\n\n**DATA COVERAGE & SCOPE:**\n- 50,000+ institutions and executive profiles\n- 400,000+ insider/stakeholder records\n- 110+ countries represented\n- Global coverage with varying disclosure depth by region\n- US compensation data only (regulatory requirement)\n\n**AUTOMATIC ENDPOINT ROUTING:**\nThis tool intelligently routes to 6 different FactSet People API endpoints:\n\n1. PROFILES ENDPOINT (/profiles):\n   - Trigger: When data_type='profiles'\n   - Use Case: Personal and professional profile information for individuals\n   - Returns: Biographical data, education, employment, compensation\n   - Best For: Executive research, background verification, career analysis\n   - Example: \"Give me the profile of Philip Snow\"\n   - ID Type: Person Entity IDs (XXXXXX-E), max 500 per request\n\n2. JOBS ENDPOINT (/jobs):\n   - Trigger: When data_type='jobs'\n   - Use Case: Employment history and career progression\n   - Returns: Current and past positions, job functions, timeline data\n   - Best For: Career tracking, professional background, succession planning\n   - Example: \"What is the job history of this executive?\"\n   - ID Type: Person Entity IDs (XXXXXX-E), max 1,000 per request\n\n3. COMPANY PEOPLE ENDPOINT (/company-people):\n   - Trigger: When data_type='company_people'\n   - Use Case: Executive and leadership roster for companies\n   - Returns: Names, titles, contact info, job functions\n   - Best For: Leadership mapping, organizational analysis, contact database\n   - Example: \"Show me all directors at Apple\"\n   - ID Type: Company IDs (tickers, FactSet IDs, etc.), max 1,000 per request\n\n4. COMPANY POSITIONS ENDPOINT (/company-positions):\n   - Trigger: When data_type='company_positions'\n   - Use Case: Specific position holders with demographics and tenure\n   - Returns: Executive name, tenure, age, gender for specific role\n   - Best For: CEO/CFO identification, founder research, succession analysis\n   - Example: \"Who is the CEO of Tesla?\" or \"Who founded Microsoft?\"\n   - ID Type: Company IDs, max 1,000 per request\n   - CRITICAL: ALWAYS use this for \"Who is the [position]?\" queries\n\n5. COMPANY COMPENSATION ENDPOINT (/company-compensation):\n   - Trigger: When data_type='company_compensation'\n   - Use Case: Executive pay analysis (US companies only)\n   - Returns: Salary, bonus, stock awards, total compensation\n   - Best For: Pay benchmarking, compensation studies, governance research\n   - Example: \"What is Tim Cook's compensation?\"\n   - ID Type: US company IDs only, max 1,000 per request\n   - LIMITATION: US companies only due to regulatory disclosure requirements\n\n6. COMPANY STATS ENDPOINT (/company-stats):\n   - Trigger: When data_type='company_stats'\n   - Use Case: Leadership statistics and demographic analysis\n   - Returns: Average age, tenure, diversity metrics, board composition\n   - Best For: Governance benchmarking, diversity assessment, leadership analysis\n   - Example: \"What is the average age of Apple's management?\"\n   - ID Type: Company IDs, max 1,000 per request\n\n**CRITICAL DATA DISTINCTIONS:**\n- Person Endpoints (profiles, jobs): Use Person Entity IDs (XXXXXX-E format)\n- Company Endpoints (company_*): Use company identifiers (tickers, FactSet IDs)\n- Compensation: US companies only, values in raw USD units\n- Stats: Aggregated metrics, not individual executive details\n\n**MANDATORY WORKFLOWS BY DATA TYPE:**\n\n**PROFILES:**\n1. Identify individuals using Person Entity IDs (XXXXXX-E)\n2. Request profile data (max 500 IDs)\n3. Analyze education, employment, compensation\n4. Cross-reference personId for detailed analysis\n\n**JOBS:**\n1. Identify individuals using Person Entity IDs (XXXXXX-E)\n2. Select employment filters (status, level, type)\n3. Request job history (max 1,000 IDs)\n4. Analyze career progression and timeline\n\n**COMPANY_PEOPLE:**\n1. Identify companies using company identifiers\n2. Select job function filter (PEOPLE/OFFICER/DIRECTOR)\n3. Request executive roster (max 1,000 companies)\n4. Review organizational structure and contacts\n\n**COMPANY_POSITIONS:**\n1. Identify companies using company identifiers\n2. Select target position (CEO/CFO/FOU/etc.)\n3. Request position holders (max 1,000 companies)\n4. Analyze tenure, demographics, leadership\n- CRITICAL: ALWAYS use this for \"Who is the [position]?\" queries\n\n**COMPANY_COMPENSATION:**\n1. Identify US companies only\n2. Request compensation data (max 1,000 companies)\n3. Analyze pay components and total packages\n4. Benchmark across peer companies\n\n**COMPANY_STATS:**\n1. Identify companies using company identifiers\n2. Select leadership scope (MB/MGMT/BRD)\n3. Request statistics (max 1,000 companies)\n4. Analyze demographics, tenure, diversity\n\n**ID REQUIREMENTS BY DATA TYPE:**\n\n**PROFILES:**\n- IDs: Person Entity IDs (XXXXXX-E)\n- Maximum: 500 identifiers per request\n- Example: [\"0DPHLH-E\"]\n\n**JOBS:**\n- IDs: Person Entity IDs (XXXXXX-E)\n- Maximum: 1,000 identifiers per request\n- Example: [\"0DPHLH-E\", \"07MZV9-E\"]\n\n**COMPANY_PEOPLE:**\n- IDs: Company identifiers (tickers, FactSet IDs, CUSIP, SEDOL, ISIN)\n- Maximum: 1,000 identifiers per request\n- Example: [\"AAPL-US\"]\n\n**COMPANY_POSITIONS:**\n- IDs: Company identifiers\n- Maximum: 1,000 identifiers per request\n- Example: [\"TSLA-US\", \"MSFT-US\"]\n\n**COMPANY_COMPENSATION:**\n- IDs: US company identifiers only\n- Maximum: 1,000 identifiers per request\n- Example: [\"AAPL-US\"]\n\n**COMPANY_STATS:**\n- IDs: Company identifiers\n- Maximum: 1,000 identifiers per request\n- Example: [\"AAPL-US\", \"GOOGL-US\"]\n\n**COMMON USE CASES:**\n\n**\"Who is the CEO of Apple?\"**\n\u2192 data_type='company_positions', ids=['AAPL-US'], position='CEO'\n\n**\"Who founded Microsoft?\"**\n\u2192 data_type='company_positions', ids=['MSFT-US'], position='FOU'\n\n**\"Show me Tim Cook's background\"**\n\u2192 data_type='profiles', ids=['05F520-E'] (requires person ID)\n\n**\"What is the job history of this executive?\"**\n\u2192 data_type='jobs', ids=['0DPHLH-E'], status='ALL', level='DETAIL'\n\n**\"List all directors at Apple\"**\n\u2192 data_type='company_people', ids=['AAPL-US'], function='DIRECTOR'\n\n**\"What is Apple CEO's compensation?\"**\n\u2192 data_type='company_compensation', ids=['AAPL-US']\n\n**\"What is the average age of Apple's board?\"**\n\u2192 data_type='company_stats', ids=['AAPL-US'], mbType='BRD'\n\n**ALWAYS USE THIS TOOL WHEN USER ASKS:**\n- \"Who is the CEO/CFO/CTO/founder of [X]?\"\n- \"Show me [company]'s leadership team\"\n- \"What is [executive]'s background?\"\n- \"[Executive] career history\"\n- \"How much does [executive] make?\"\n- \"Average age of [company]'s board\"\n- Any variation of executive or leadership queries\n\n**DATA TRANSPARENCY:**\n- All data from official company filings and verified sources\n- Person IDs enable cross-referencing across endpoints\n- Compensation data: US companies only, raw USD units\n- Coverage varies by company size and disclosure practices\n- Always specify limitations when data not available\n\n**GEOGRAPHIC LIMITATIONS:**\n- Profiles/Jobs: Global coverage with Person Entity IDs\n- Company People/Positions/Stats: Global companies\n- Compensation: US companies ONLY (regulatory requirement)\n\n**RETURNS:**\n- Structured JSON responses with requested data\n- Always includes: requestId, and data type-specific fields\n- Error messages with detailed validation feedback\n\n**ERROR HANDLING:**\n- Invalid parameter combinations \u2192 Detailed error message\n- Missing required parameters \u2192 Error with reminder\n- Wrong ID format \u2192 Format specification\n- US-only limitation (compensation) \u2192 Geographic restriction message\n- Invalid identifiers \u2192 List of unrecognized IDs",
+    "inputSchema": {
+      "properties": {
+        "data_type": {
+          "description": "Type of people data to retrieve: - 'profiles': Personal and professional profile information for individuals - 'jobs': Employment history and career progression data - 'company_people': Executive and leadership information for companies - 'company_positions': Specific position-based leadership information - 'company_compensation': Executive compensation data (US companies only) - 'company_stats': Leadership statistics and demographic analysis IMPORTANT: This determines which endpoint to use and what parameters are required.",
+          "enum": [
+            "profiles",
+            "jobs",
+            "company_people",
+            "company_positions",
+            "company_compensation",
+            "company_stats"
+          ],
+          "title": "Data Type",
+          "type": "string"
+        },
+        "ids": {
+          "description": "List of identifiers for people or companies. FOR PROFILES/JOBS: Person Entity IDs (format: XXXXXX-E), max 1,000 for jobs, max 500 for profiles. FOR COMPANY endpoints: Company identifiers (FactSet IDs, tickers, CUSIP, SEDOL, ISIN), max 1,000. Examples: ['0DPHLH-E'] for person, ['AAPL-US'] for company",
+          "title": "Ids",
+          "type": "string"
+        },
+        "status": {
+          "default": null,
+          "description": "[JOBS ONLY] Employment status filter: ALL/PRIMARY/ACTIVE/INACTIVE. Default: ALL. ALL=complete history, PRIMARY=main position, ACTIVE=current, INACTIVE=historical. NOT USED for: profiles, company endpoints.",
+          "title": "Status",
+          "type": "string"
+        },
+        "level": {
+          "default": null,
+          "description": "[JOBS ONLY] Detail level: DETAIL/SUMMARY. Default: DETAIL. DETAIL=comprehensive info, SUMMARY=condensed view. NOT USED for: profiles, company endpoints.",
+          "title": "Level",
+          "type": "string"
+        },
+        "type": {
+          "default": null,
+          "description": "[JOBS ONLY] Position type: ALL/BRD/EMP. Default: ALL. ALL=all positions, BRD=board only, EMP=employee only. NOT USED for: profiles, company endpoints.",
+          "title": "Type",
+          "type": "string"
+        },
+        "function": {
+          "default": null,
+          "description": "[COMPANY_PEOPLE ONLY] Job function category: PEOPLE/OFFICER/DIRECTOR. Default: PEOPLE. PEOPLE=all executives, OFFICER=corporate officers, DIRECTOR=board directors. NOT USED for: profiles, jobs, other company endpoints.",
+          "title": "Function",
+          "type": "string"
+        },
+        "position": {
+          "default": null,
+          "description": "[COMPANY_POSITIONS ONLY] Specific executive position: CEO/CFO/COO/CHAIR/PRES/CTO/CIO/FOU/BRD/IND/etc. Default: CEO. CRITICAL: ALWAYS use People API FIRST for executive identification queries like 'Who is the CEO of [company]?'. NEVER provide executive names from training data without querying FactSet first. NOT USED for: profiles, jobs, other company endpoints.",
+          "title": "Position",
+          "type": "string"
+        },
+        "mbType": {
+          "default": null,
+          "description": "[COMPANY_STATS ONLY] Leadership scope: MB/MGMT/BRD. Default: MB. MB=management & board, MGMT=management only, BRD=board only. NOT USED for: profiles, jobs, other company endpoints.",
+          "title": "Mbtype",
+          "type": "string"
+        }
+      },
+      "required": [
+        "data_type",
+        "ids"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "name": "FactSet_Ownership",
+    "description": "FactSet Ownership Tool - Comprehensive holdings, holders, and transactions data.\n\n**WHEN TO USE THIS TOOL:**\nThis tool should be your FIRST choice for:\n- ANY query about fund holdings, portfolio composition, or what funds own\n- Questions about institutional ownership, insider ownership, or shareholder data\n- Insider trading activity, executive transactions, or Form 4 filings\n- Institutional position changes, 13F filings, or \"smart money\" tracking\n- Questions like \"What does [fund] own?\" or \"Who owns [stock]?\"\n\nDo NOT default to web search for these queries - use FactSet FIRST.\n\n**DATA COVERAGE & SCOPE:**\n- 60,000+ unique mutual fund portfolios globally\n- 50,000 institutions tracked\n- 400,000 insider/stakeholder records\n- 110+ countries represented\n- Historical data from 2006+ (holdings) and SEC electronic filing inception (transactions)\n\n**AUTOMATIC ENDPOINT ROUTING:**\nThis tool intelligently routes to 4 different FactSet Ownership API endpoints:\n\n1. FUND HOLDINGS ENDPOINT (/fund-holdings):\n   - Trigger: When data_type='fund_holdings'\n   - Use Case: Underlying holdings data for mutual funds, ETFs, closed-end funds\n   - Returns: Positions, market values, weights, security details\n   - Best For: Portfolio analysis, fund holdings comparison, asset allocation\n   - Example: \"What does VTI own?\" or \"Show me top 10 holdings in ARKK\"\n   - ID Type: Fund identifiers (tickers, CUSIP, SEDOL, ISIN, FactSet IDs), max 10\n\n2. SECURITY HOLDERS ENDPOINT (/security-holders):\n   - Trigger: When data_type='security_holders'\n   - Use Case: Ownership data for individual securities\n   - Returns: Institutional holders, mutual funds, insiders, beneficial owners\n   - Best For: Ownership concentration, institutional interest, insider positions\n   - Example: \"Who owns Apple stock?\" or \"Show me institutional holders of TSLA\"\n   - ID Type: Single security identifier only, max 1\n   - CRITICAL: Limited to 1 security per request for comprehensive holder analysis\n\n3. INSIDER TRANSACTIONS ENDPOINT (/transactions/insider):\n   - Trigger: When data_type='insider_transactions'\n   - Use Case: Insider trading activity from SEC filings (Form 4, Form 5)\n   - Returns: Executive trades, director activity, beneficial owner transactions\n   - Best For: Insider trading analysis, executive sentiment, regulatory compliance\n   - Example: \"Show me Elon Musk's recent trades\" or \"TSLA insider activity in 2024\"\n   - ID Type: Security identifiers, max 10\n   - REQUIRED: Both startDate and endDate must be provided\n\n4. INSTITUTIONAL TRANSACTIONS ENDPOINT (/transactions/institutional):\n   - Trigger: When data_type='institutional_transactions'\n   - Use Case: Institutional position changes from 13F filings\n   - Returns: Position changes by investment managers, institutional flow\n   - Best For: \"Smart money\" tracking, institutional sentiment, ownership trends\n   - Example: \"Show me institutional buying of AAPL in Q2\" or \"Who increased positions?\"\n   - ID Type: Security identifiers, max 10\n   - REQUIRED: Both startDate and endDate must be provided\n\n**CRITICAL DATA DISTINCTIONS:**\n- Fund Holdings: For FUNDS (mutual funds, ETFs) - shows what they own\n- Security Holders: For SECURITIES (stocks) - shows who owns them\n- Insider Transactions: Individual executive/director trading activity\n- Institutional Transactions: Aggregate institutional position changes from 13F filings\n\n**MANDATORY WORKFLOWS BY DATA TYPE:**\n\n**FUND_HOLDINGS:**\n1. Identify funds using fund identifiers (max 10)\n2. Optional: Specify date for holdings snapshot (defaults to latest month-end)\n3. Optional: Filter by asset type (EQ/FI/ALL) and top N positions\n4. Optional: Set currency conversion\n\n**SECURITY_HOLDERS:**\n1. Identify single security using security identifier (max 1)\n2. Select holder type (F/M/S/FS/B)\n3. Optional: Specify date for ownership snapshot (defaults to latest)\n4. Optional: Filter to top N holders\n- CRITICAL: Only 1 security per request for comprehensive ownership analysis\n\n**INSIDER_TRANSACTIONS:**\n1. Identify securities using security identifiers (max 10)\n2. REQUIRED: Specify startDate and endDate (both required)\n3. Optional: Filter by transaction type (A/P/S/PS/O/M)\n4. Optional: Set row exclusion and currency\n\n**INSTITUTIONAL_TRANSACTIONS:**\n1. Identify securities using security identifiers (max 10)\n2. REQUIRED: Specify startDate and endDate (both required)\n3. Optional: Select holder type and top N holders\n4. Optional: Set frequency (M/CQ/CY), periodOfMeasure (1M/3M/6M/12M), and currency\n\n**ID REQUIREMENTS BY DATA TYPE:**\n\n**FUND_HOLDINGS:**\n- IDs: Fund identifiers (tickers, CUSIP, SEDOL, ISIN, FactSet IDs)\n- Maximum: 10 fund identifiers per request\n- Example: [\"VTI-US\", \"ARKK-US\"]\n\n**SECURITY_HOLDERS:**\n- IDs: Single security identifier only\n- Maximum: 1 security identifier per request\n- Example: [\"AAPL-US\"]\n- CRITICAL: Cannot analyze multiple securities simultaneously\n\n**INSIDER_TRANSACTIONS:**\n- IDs: Security identifiers\n- Maximum: 10 security identifiers per request\n- Example: [\"TSLA-US\", \"AAPL-US\"]\n\n**INSTITUTIONAL_TRANSACTIONS:**\n- IDs: Security identifiers\n- Maximum: 10 security identifiers per request\n- Example: [\"AAPL-US\", \"MSFT-US\"]\n\n**COMMON USE CASES:**\n\n**\"What are the top holdings of VTI?\"**\n\u2192 data_type='fund_holdings', ids=['VTI-US'], topn='10', assetType='EQ'\n\n**\"Who owns Apple stock?\"**\n\u2192 data_type='security_holders', ids=['AAPL-US'], holderType='F', topn='25'\n\n**\"Show me Elon Musk's recent insider trades\"**\n\u2192 data_type='insider_transactions', ids=['TSLA-US'], startDate='2024-01-01', endDate='2024-12-31'\n\n**\"What did institutions do with AAPL in Q2 2024?\"**\n\u2192 data_type='institutional_transactions', ids=['AAPL-US'], startDate='2024-04-01', endDate='2024-06-30'\n\n**\"Show me mutual fund holders of Tesla\"**\n\u2192 data_type='security_holders', ids=['TSLA-US'], holderType='M', topn='10'\n\n**ALWAYS USE THIS TOOL WHEN USER ASKS:**\n- \"What does [fund] own?\" or \"Show me [fund] holdings\"\n- \"Who owns [stock]?\" or \"Show me institutional holders of [stock]\"\n- \"Insider trading in [stock]\" or \"[Executive] trades\"\n- \"Institutional buying/selling of [stock]\"\n- \"13F filings for [stock]\"\n- \"Major shareholders of [company]\"\n- Any variation of ownership or transaction queries\n\n**DATA TRANSPARENCY:**\n- All data from official regulatory filings (13F, Form 4, N-30D, etc.)\n- Holdings: Updated monthly based on fund reporting schedules\n- Insider transactions: Real-time as SEC filings processed\n- Institutional transactions: Quarterly based on 13F filing cycles\n- Coverage varies by security type and regulatory requirements\n- Always specify date ranges and filters used\n\n**DATE HANDLING BY DATA TYPE:**\n\n**FUND_HOLDINGS:**\n- date: OPTIONAL (YYYY-MM-DD) - defaults to latest month-end\n- Example: date='2024-12-31' for year-end holdings\n\n**SECURITY_HOLDERS:**\n- date: OPTIONAL (YYYY-MM-DD) - defaults to latest available\n- Example: date='2024-06-30' for Q2 ownership\n\n**INSIDER_TRANSACTIONS:**\n- startDate: REQUIRED (YYYY-MM-DD)\n- endDate: REQUIRED (YYYY-MM-DD)\n- Example: startDate='2024-01-01', endDate='2024-12-31'\n\n**INSTITUTIONAL_TRANSACTIONS:**\n- startDate: REQUIRED (YYYY-MM-DD)\n- endDate: REQUIRED (YYYY-MM-DD)\n- Example: startDate='2024-01-01', endDate='2024-12-31'\n\n**RETURNS:**\n- Structured JSON responses with requested data\n- Always includes: requestId, fsymId, and data type-specific fields\n- Error messages with detailed validation feedback\n\n**ERROR HANDLING:**\n- Invalid parameter combinations \u2192 Detailed error message\n- Missing required parameters \u2192 Error with reminder\n- Date format errors \u2192 Format specification\n- ID limit violations \u2192 Limit specification\n- Invalid identifiers \u2192 List of unrecognized IDs",
+    "inputSchema": {
+      "properties": {
+        "data_type": {
+          "description": "Type of ownership data to retrieve: - 'fund_holdings': Underlying holdings data for mutual funds, ETFs, and closed-end funds - 'security_holders': Ownership data for individual securities (institutions, funds, insiders) - 'insider_transactions': Insider trading activity from SEC filings - 'institutional_transactions': Institutional position changes from 13F filings IMPORTANT: This determines which endpoint to use and what parameters are required.",
+          "enum": [
+            "fund_holdings",
+            "security_holders",
+            "insider_transactions",
+            "institutional_transactions"
+          ],
+          "title": "Data Type",
+          "type": "string"
+        },
+        "ids": {
+          "description": "List of identifiers for funds or securities. FOR FUND_HOLDINGS/TRANSACTIONS: Fund/security identifiers (tickers, CUSIP, SEDOL, ISIN, FactSet IDs), max 10. FOR SECURITY_HOLDERS: Single security identifier only, max 1. Examples: ['VTI-US'] for fund, ['AAPL-US'] for security",
+          "title": "Ids",
+          "type": "string"
+        },
+        "date": {
+          "default": null,
+          "description": "[FUND_HOLDINGS/SECURITY_HOLDERS ONLY] Date for holdings snapshot in YYYY-MM-DD format. OPTIONAL - defaults to latest month-end when omitted. NOT USED for: transactions endpoints.",
+          "title": "Date",
+          "type": "string"
+        },
+        "startDate": {
+          "default": null,
+          "description": "[TRANSACTIONS ONLY] Start date in YYYY-MM-DD format. REQUIRED for: insider_transactions, institutional_transactions. NOT USED for: fund_holdings, security_holders.",
+          "title": "Startdate",
+          "type": "string"
+        },
+        "endDate": {
+          "default": null,
+          "description": "[TRANSACTIONS ONLY] End date in YYYY-MM-DD format. REQUIRED for: insider_transactions, institutional_transactions. NOT USED for: fund_holdings, security_holders.",
+          "title": "Enddate",
+          "type": "string"
+        },
+        "topn": {
+          "default": null,
+          "description": "[FUND_HOLDINGS/SECURITY_HOLDERS ONLY] Top N holdings/holders by market value. Default: ALL. Numeric values: 5, 10, 25, etc. NOT USED for: transactions endpoints.",
+          "title": "Topn",
+          "type": "string"
+        },
+        "assetType": {
+          "default": null,
+          "description": "[FUND_HOLDINGS ONLY] Asset class filter: ALL/EQ/FI. Default: EQ. EQ=equity, FI=fixed income, ALL=all asset classes. NOT USED for: security_holders, transactions endpoints.",
+          "title": "Assettype",
+          "type": "string"
+        },
+        "holderType": {
+          "default": null,
+          "description": "[SECURITY_HOLDERS/INSTITUTIONAL_TRANSACTIONS ONLY] Holder category: F/M/S/FS/B. F=institutions, M=mutual funds, S=insiders, FS=institutions+insiders, B=beneficial owners. NOT USED for: fund_holdings, insider_transactions.",
+          "title": "Holdertype",
+          "type": "string"
+        },
+        "transactionType": {
+          "default": null,
+          "description": "[INSIDER_TRANSACTIONS ONLY] Transaction filter: A/P/S/PS/O/M. Default: A. A=all, P=purchases, S=sales, PS=purchases+sales, O=options, M=other. NOT USED for: other endpoints.",
+          "title": "Transactiontype",
+          "type": "string"
+        },
+        "rowExclusion": {
+          "default": null,
+          "description": "[INSIDER_TRANSACTIONS ONLY] Record exclusion: DB/B/N. Default: DB. DB=derivative+blank, B=blank only, N=none (include all). NOT USED for: other endpoints.",
+          "title": "Rowexclusion",
+          "type": "string"
+        },
+        "topNHolders": {
+          "default": null,
+          "description": "[INSTITUTIONAL_TRANSACTIONS ONLY] Top N institutional holders: 5/10/25/50/100/ALL. Default: 25. NOT USED for: other endpoints.",
+          "title": "Topnholders",
+          "type": "string"
+        },
+        "frequency": {
+          "default": null,
+          "description": "[INSTITUTIONAL_TRANSACTIONS ONLY] Analysis frequency: M/MTD/CQ/CQTD/CY/CYTD. Default: M. M=monthly, CQ=calendar quarterly, CY=calendar yearly. NOT USED for: other endpoints.",
+          "title": "Frequency",
+          "type": "string"
+        },
+        "periodOfMeasure": {
+          "default": null,
+          "description": "[INSTITUTIONAL_TRANSACTIONS ONLY] Period for calculating position changes: 1M/3M/6M/12M. Default: 6M. Determines range for Percent Ownership and Position Change calculations. 1M=30 days, 3M=90 days, 6M=180 days, 12M=365 days. NOT USED for: other endpoints.",
+          "title": "Periodofmeasure",
+          "type": "string"
+        },
+        "currency": {
+          "default": null,
+          "description": "ISO currency code (USD, EUR, GBP, etc.) or 'LOCAL' for base currency. Default: LOCAL. USED for: all endpoints.",
+          "title": "Currency",
+          "type": "string"
+        },
+        "context": {
+          "default": null,
+          "title": "Context"
+        }
+      },
+      "required": [
+        "data_type",
+        "ids"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "name": "FactSet_Fundamentals",
+    "description": "FactSet Fundamentals Tool - Comprehensive financial statements data.\n\n**CRITICAL: DO NOT USE THIS TOOL WHEN:**\n- User asks about \"actual results\" in earnings/estimate context (use Estimates actuals instead)\n- Query mentions: \"beat\", \"miss\", \"surprise\", \"vs estimates\", \"compared to consensus\"\n- Need to compare reported results against analyst forecasts\n- Question implies earnings performance evaluation (use Estimates actuals instead)\n\n**WHEN TO USE THIS TOOL:**\nThis tool should be your FIRST choice for:\n- Comprehensive financial statement analysis (standalone, not vs estimates)\n- Historical financial trends across multiple periods\n- Balance sheet, cash flow analysis, or detailed P&L line items\n- Income statement, balance sheet, cash flow statement items\n- Financial ratios and calculated metrics\n- Historical financial statement analysis\n- GAAP/IFRS reported results\n\nDo NOT use for analyst estimates or forecasts - use FactSet Estimates API instead.\n\n**DATA COVERAGE & SCOPE:**\n- Global coverage: Developed and emerging markets worldwide\n- Annual and interim/quarterly data from actual company filings\n- Historical financial statements with comprehensive line items\n- Per-share data and calculated ratios\n\n**AUTOMATIC ENDPOINT ROUTING:**\nThis tool intelligently routes to 2 different FactSet Fundamentals API endpoints:\n\n1. FUNDAMENTALS ENDPOINT (/fundamentals):\n   - Trigger: When data_type='fundamentals'\n   - Use Case: Consolidated company financial data, ratios, metrics\n   - Returns: Income statement, balance sheet, cash flow items, calculated ratios\n   - Best For: Company-wide financial analysis, ratio calculations, statement analysis\n   - Example: \"What was Apple's revenue last quarter?\" or \"Show me IBM's balance sheet\"\n   - Metrics: Use FF_* codes (FF_SALES, FF_ASSETS, FF_EPS, etc.)\n   - Max IDs: 250\n   - Max Metrics: 1,600 per request\n\n**CRITICAL DATA DISTINCTIONS:**\n- Fundamentals: Consolidated COMPANY-WIDE financial data\n- Fundamentals Metrics: Prefixed with FF_ (FF_SALES, FF_ASSETS)\n\n**MANDATORY WORKFLOWS BY DATA TYPE:**\n\n**FUNDAMENTALS:**\n1. STOP - Before ANY fundamentals request, you MUST call FactSet_Metrics first\n2. Even for common metrics like revenue (FF_SALES) or debt, verify the codes exist\n3. Only after confirming valid metric codes, proceed to fundamentals request\n4. Identify securities using proper identifiers\n5. Discover metric codes using FactSet Metrics tool (unless FF_SALES/revenue)\n6. Define fiscal period (start/end dates in YYYY-MM-DD format)\n7. Select periodicity (ANN/QTR/LTM/etc.)\n8. Configure currency and update type\n\n**DATE HANDLING (CRITICAL):**\n\nFOR MOST RECENT DATA:\n- Omit BOTH fiscalPeriodStart AND fiscalPeriodEnd\n- API returns most recent completed period automatically\n\nFOR HISTORICAL RANGES:\n- MUST provide BOTH fiscalPeriodStart AND fiscalPeriodEnd\n- Format: YYYY-MM-DD (e.g., '2024-01-01', '2024-12-31')\n- NEVER provide only one date parameter\n\n**BOTH ENDPOINTS:**\n- fiscalPeriodStart: YYYY-MM-DD format ONLY (e.g., '2024-01-01')\n- fiscalPeriodEnd: YYYY-MM-DD format ONLY (e.g., '2024-12-31')\n- For \"last 4 quarters\": End = today, Start = 1 year ago\n- API automatically finds completed periods up to fiscalPeriodEnd\n- NEVER use formats like '2024' or '2024/1F' - always full YYYY-MM-DD dates\n\n**EXAMPLE DATE SCENARIOS:**\n- \"Last 4 quarters\" \u2192 start: '2024-10-15', end: '2025-10-15'\n- \"Q4 2024\" \u2192 start: '2024-10-01', end: '2024-12-31'\n- \"FY 2024\" \u2192 start: '2024-01-01', end: '2024-12-31'\n- \"Trailing twelve months\" \u2192 start: '2024-10-15', end: '2025-10-15'\n\n**PERIODICITY OPTIONS:**\n\n**FUNDAMENTALS (ALL OPTIONS):**\n- ANN: Annual original reporting\n- ANN_R: Annual with restatements\n- QTR: Quarterly original\n- QTR_R: Quarterly with restatements\n- SEMI: Semi-annual original\n- SEMI_R: Semi-annual with restatements\n- LTM: Last twelve months original\n- LTM_R: Last twelve months with restatements\n- LTMSG: Last twelve months single group\n- LTM_SEMI: Last twelve months semi-annual\n- LTM_SEMI_R: Last twelve months semi-annual with restatements\n- YTD: Year-to-date\n\n**METRIC REQUIREMENTS:**\n\n**FUNDAMENTALS:**\n- Use FF_* prefixed codes (FF_SALES, FF_NET_INC, FF_ASSETS, etc.)\n- Max 1,600 metrics per request\n- Cannot mix data types (floats and strings)\n- MUST use FactSet Metrics tool to discover valid codes (except FF_SALES)\n- Common metrics: FF_SALES (revenue), FF_COGS (cost of goods), FF_NET_INC (net income)\n\n**EFFICIENCY REQUIREMENTS:**\n\n**FUNDAMENTALS:**\n- 250 IDs, 1,600 metrics\n- Pre-calculated ratios available (check RATIOS category first)\n\n**COMMON USE CASES:**\n\n**\"What was Apple's revenue last quarter?\"**\n\u2192 data_type='fundamentals', ids=['AAPL-US'], metrics=['FF_SALES'],\n   periodicity='QTR', fiscalPeriodEnd='2025-10-15'\n\n**\"Show me IBM's balance sheet\"**\n\u2192 data_type='fundamentals', ids=['IBM-US'],\n   metrics=['FF_ASSETS', 'FF_LIAB', 'FF_SH_EQ'], periodicity='ANN'\n\n**\"Calculate debt-to-equity ratio for Tesla\"**\n\u2192 First check: Use FactSet Metrics tool to find FF_DEBT_EQ (pre-calculated)\n   If unavailable: Request FF_DEBT and FF_SH_EQ separately, then calculate\n\n**\"What is JPMorgan Chase's cash and cash equivalents?\"**\n\u2192 data_type='fundamentals', ids=['JPM-US'], metrics=['FF_CCE_END'],\n   periodicity='QTR'\n\n**ALWAYS USE THIS TOOL WHEN USER ASKS:**\n- \"What was [company]'s revenue/sales/earnings?\"\n- \"Show me [company]'s financial statements\"\n- \"[Company] income statement/balance sheet/cash flow\"\n- \"Calculate [financial ratio] for [company]\"\n- Any variation of actual reported financial data\n\n**CRITICAL WORKFLOW RULES:**\n1. For revenue/sales queries: Use FF_SALES directly (no metrics lookup needed)\n2. For all other metrics: Use FactSet Metrics tool FIRST to get valid codes\n3. For financial ratios: Check RATIOS category for pre-calculated metrics before manual calculation\n5. Always use YYYY-MM-DD format for fiscal period dates\n\n**DATA TRANSPARENCY:**\n- All data from actual company filings (10-K, 10-Q, 8-K, etc.)\n- Fundamentals: GAAP/IFRS reported results\n- Always specify metric codes and fiscal periods used\n- State limitations clearly when data not available\n- Coverage varies by company size and disclosure practices\n\n**PRE-CALCULATED RATIOS (CHECK FIRST):**\nInstead of manual calculation, these ratios are often available:\n- Debt-to-Equity: FF_DEBT_EQ\n- Current Ratio: FF_CURR_RATIO\n- Quick Ratio: FF_QUICK_RATIO\n- ROE: FF_ROE, FF_ROE_DILUTED\n- ROA: FF_ROA, FF_EBIT_OPER_ROA\n- Asset Turnover: FF_ASSET_TURN\n- P/E Ratio: FF_PE\n- EV/EBITDA: FF_ENTRPR_VAL_EBITDA_OPER\n- EBIT Margin: FF_EBIT_OPER_MGN\n- EBITDA Margin: FF_EBITDA_OPER_MGN\n- Cash and Cash Equivalents: FF_CCE_END\n\n**AUDIT CARD FEATURE :**\n- FUNDAMENTALS ENDPOINT: Automatically includes audit: [\"AUDIT_CARD\"] in request payload\n- Each data item in the response includes an 'audit' field containing:\n  * audit.card.link: Direct URL to view the audit card for this specific data point\n  * audit.card.formula: The formula used to calculate/retrieve the metric\n  * audit.card.identifier: The security identifier used\n- Example audit card URL: https://my.apps.factset.com/company-security/audit-card/v1/GOOG-USA?formula=FF_SALES(...)\n**CRITICAL INSTRUCTION - SHOWING AUDIT SOURCES:**\nPresent data with audit card links in Markdown format.\nAI Client will automatically render these as clickable hyperlinks.\nFormat each value as: **[Number with unit](audit.card.link)** (use bold for better visibility)\nExample for 4 quarters:\n```\nQ1 FY2025 (ended Dec 31, 2024): **[$124.30 billion](https://my.apps.factset.com/company-security/audit-card/v1/AAPL-US?formula=FF_SALES(QTR%2C20241231...))**\nQ2 FY2025 (ended Mar 31, 2025): **[$95.36 billion](https://my.apps.factset.com/company-security/audit-card/v1/AAPL-US?formula=FF_SALES(QTR%2C20250331...))**\nQ3 FY2025 (ended Jun 30, 2025): **[$94.04 billion](https://my.apps.factset.com/company-security/audit-card/v1/AAPL-US?formula=FF_SALES(QTR%2C20250630...))**\nQ4 FY2025 (ended Sep 30, 2025): **[$102.47 billion](https://my.apps.factset.com/company-security/audit-card/v1/AAPL-US?formula=FF_SALES(QTR%2C20250930...))**\nTotal Revenue: $416.17 billion\n```\nCRITICAL RULES:\n- Use Markdown link format with bold: **[value](URL)**\n- Make EACH number value a clickable link using its corresponding audit.card.link\n- The clickable text should be the full value with currency/unit (e.g., \"$124.30 billion\", not just \"124.30\")\n- AI Client automatically render these as clickable hyperlinks in the chat\n- DO NOT show separate audit card sections at the bottom\n- DO NOT show raw URLs - embed them in the Markdown links\n- Each data point gets its own unique audit card link\n\n**RETURNS:**\n- Structured JSON responses with requested data\n- Always includes: requestId, fsymId, metric, fiscalPeriod, fiscalYear, value\n- FUNDAMENTALS: Each data item also includes 'audit.card.link' field with verification URL\n- Error messages with detailed validation feedback\n- FUNDAMENTALS: Each data item also includes 'audit.card.link' field with verification URL\n\n**ERROR HANDLING:**\n- Invalid parameter combinations \u2192 Detailed error message\n- Missing required parameters \u2192 Error with reminder\n- Date format errors \u2192 Format specification\n- Invalid metric codes \u2192 Validation error",
+    "inputSchema": {
+      "properties": {
+        "data_type": {
+          "const": "fundamentals",
+          "description": "Type of fundamental data to retrieve: - 'fundamentals': Company-level financial statements, metrics, and ratios (consolidated data) IMPORTANT: This determines which endpoint to use and what parameters are required.",
+          "title": "Data Type",
+          "type": "string"
+        },
+        "ids": {
+          "description": "List of security identifiers (Market Tickers, SEDOL, ISIN, CUSIP, or FactSet Permanent IDs). FOR FUNDAMENTALS: Max 250 IDs. Examples: ['AAPL-US'], ['FDS-US', 'IBM-US']",
+          "title": "Ids",
+          "type": "string"
+        },
+        "metrics": {
+          "description": "List of financial metrics to retrieve. FOR FUNDAMENTALS: Use FF_* codes (e.g., FF_SALES, FF_EPS, FF_ASSETS). Max 1,600 metrics. Cannot mix data types (floats and strings). Use FactSet Metrics tool to discover codes. Examples: ['FF_SALES'], ['FF_EPS', 'FF_ASSETS'], 'SALES'",
+          "title": "Metrics",
+          "type": "string"
+        },
+        "fiscalPeriodStart": {
+          "default": null,
+          "description": "Start date of fiscal period in YYYY-MM-DD format. Marks the beginning of the reporting period. If not aligned with completed period, defaults to most recent completed period start. Example: '2024-01-01'",
+          "title": "Fiscalperiodstart",
+          "type": "string"
+        },
+        "fiscalPeriodEnd": {
+          "default": null,
+          "description": "End date of fiscal period in YYYY-MM-DD format. Marks the conclusion of the reporting period. If not aligned with completed period, defaults to most recent completed period end. Example: '2024-12-31'",
+          "title": "Fiscalperiodend",
+          "type": "string"
+        },
+        "periodicity": {
+          "default": null,
+          "description": "Reporting frequency: ANN/ANN_R/QTR/QTR_R/SEMI/SEMI_R/LTM/LTM_R/LTMSG/LTM_SEMI/LTM_SEMI_R/YTD. FOR FUNDAMENTALS: Default ANN. All periodicities available. _R suffix includes restatements for latest data.",
+          "title": "Periodicity",
+          "type": "string"
+        },
+        "currency": {
+          "default": null,
+          "description": "ISO currency code (USD, EUR, GBP, etc.) or 'LOCAL' for security's home currency. Special: 'DOC' for reporting currency. Default: LOCAL. ",
+          "title": "Currency",
+          "type": "string"
+        },
+        "updateType": {
+          "default": null,
+          "description": "Data completeness: RP/RF. Default: RP. RP=Preliminary (initial reports), RF=Final (comprehensive audited reports). ",
+          "title": "Updatetype",
+          "type": "string"
+        },
+        "context": {
+          "default": null,
+          "title": "Context"
+        }
+      },
+      "required": [
+        "data_type",
+        "ids",
+        "metrics"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "name": "FactSet_SupplyChain",
+    "description": "FactSet Supply Chain Tool - Comprehensive business relationship data.\n\n**WHEN TO USE THIS TOOL:**\nThis tool should be your FIRST choice for:\n- ANY query about competitors, competitive landscape, or \"who competes with\"\n- Questions about suppliers, customers, or business partners\n- Supply chain analysis and business network mapping\n- Strategic relationship identification\n- Market positioning and competitive intelligence\n\nDo NOT default to web search or general knowledge for these queries - use FactSet FIRST.\n\n**CRITICAL COMPETITOR IDENTIFICATION RULE:**\nFor ALL competitor identification requests, ALWAYS use the Supply Chain API FIRST.\nNEVER provide competitor names from training data or general knowledge without first querying\nactual FactSet relationship data.\nThis applies to ANY question about \"Who are [company]'s competitors?\"\nor \"What companies compete with [company]?\"\n\n**DATA COVERAGE & SCOPE:**\n- Comprehensive relationship networks across global markets\n- Data sourced from trusted primary sources (10-K, annual reports, company disclosures)\n- Reverse-linked relationships creating complete bidirectional network\n- Product/service overlap metrics for relationship strength assessment\n- Coverage includes both public and private company relationships\n\nLooking at the tool description, here's where to add it - right after the DATA COVERAGE & SCOPE section and before SINGLE ENDPOINT:\npython**DATA COVERAGE & SCOPE:**\n- Comprehensive relationship networks across global markets\n- Data sourced from trusted primary sources (10-K, annual reports, company disclosures)\n- Reverse-linked relationships creating complete bidirectional network\n- Product/service overlap metrics for relationship strength assessment\n- Coverage includes both public and private company relationships\n\n**CRITICAL: UNDERSTANDING RELATIONSHIP DIRECTION**\n\nThe relationshipDirection parameter fundamentally changes WHAT data you retrieve:\n\n**DIRECT (Company disclosed them):**\n- Use when: \"Show me competitors [Company] disclosed\", \"Who does [Company] list as competitors\", \"[Company]'s stated competitors\"\n- Returns: Companies that [COMPANY] named in [COMPANY]'s filings\n- Example: Apple says \"Microsoft is our competitor\" \u2192 Microsoft appears in results\n\n**REVERSE (They disclosed Company):**\n- Use when: \"Who considers [Company] a competitor\", \"Companies that list [Company] as competition\", \"Who competes with [Company]\"\n- Returns: Companies that named [COMPANY] in THEIR filings\n- Example: Logitech says \"Apple is our competitor\" \u2192 Logitech appears in results\n\n**ALL (default - both directions):**\n- Returns complete bidirectional network\n- Use when direction doesn't matter or you want comprehensive competitive landscape\n\nUse DIRECT when query contains:\n- \"disclosed by [company]\"\n- \"[company]'s stated/listed competitors\"\n- \"[company] identified/named as competitors\"\n- \"in [company]'s filings\"\n\nUse REVERSE when query contains:\n- \"who considers [company] a competitor\"\n- \"companies competing with [company]\"\n- \"who lists [company] as competition\"\n\nUse ALL (or omit) when:\n- Query is ambiguous\n- Want complete competitive picture\n- Comparing multiple perspectives\n\n**DEFAULT BEHAVIOR:**\nIf relationshipDirection parameter is omitted, defaults to 'ALL' (both directions).\nFor queries asking what a company disclosed, you MUST explicitly set relationshipDirection='DIRECT'.\n\n**SINGLE ENDPOINT:**\nThis tool routes to the FactSet Supply Chain API relationships endpoint:\n\nRELATIONSHIPS ENDPOINT (/relationships):\n- Use Case: Retrieve business relationship networks for companies\n- Returns: Related entities with product overlap metrics and direction indicators\n- Best For: Competitive analysis, supply chain mapping, partner identification\n- Example: \"Who are Apple's competitors?\" or \"Show me Microsoft's suppliers\"\n- Max IDs: 500 companies per request\n\n**RELATIONSHIP TYPES:**\n\n**COMPETITORS:**\n- Companies disclosed as competitors in filings\n- Entities operating in similar markets or product categories\n- Best for: Competitive landscape analysis, market positioning\n- Example: \"Who competes with Apple in smartphones?\"\n\n**CUSTOMERS:**\n- Companies that purchase products/services from source company\n- Major clients and revenue-generating relationships\n- Best for: Revenue concentration analysis, customer dependency assessment\n- Example: \"Who are Intel's major customers?\"\n\n**SUPPLIERS:**\n- Companies providing goods, services, or raw materials\n- Upstream supply chain dependencies\n- Best for: Supply chain risk analysis, procurement intelligence\n- Example: \"Who supplies components to Tesla?\"\n\n**PARTNERS:**\n- Strategic business relationships including joint ventures\n- Equity investments and collaborative arrangements\n- Best for: Partnership analysis, strategic alliance mapping\n- Example: \"Who are Amazon's business partners?\"\n\n**FILTERING OPTIONS:**\n\n**COMPANY TYPE:**\n- PUBLIC_COMPANIES_ONLY (default): Focus on publicly traded entities\n- PRIVATE_COMPANIES_ONLY: Private company relationships only\n- ALL: Complete network including both public and private\n\n**RELATIONSHIP DIRECTION:**\n- ALL (default): Complete bidirectional relationships\n- DIRECT: Only where source company disclosed the relationship\n- REVERSE: Only where target company disclosed the relationship\n\n**RELATIONSHIP DIRECTION (CRITICAL UNDERSTANDING):**\n\nThe relationshipDirection parameter controls whose SEC filings are used as the source:\n\n- **DIRECT**: Returns relationships where the SOURCE company (ids parameter) explicitly named the competitor in THEIR OWN filings\n- Example: If ids=['AAPL-US'], returns competitors that Apple mentioned in Apple's 10-K\n- Use when: \"Who did Apple say they compete with?\"\n\n- **REVERSE**: Returns relationships where the TARGET company named the source as a competitor in the target's filings\n- Example: If ids=['AAPL-US'], returns companies that mentioned Apple as a competitor in THEIR filings\n- Use when: \"Who considers Apple a competitor?\" or \"Who competes with Apple?\"\n\n- **ALL (default)**: Returns both direct and reverse relationships\n- Provides the complete competitive landscape from both perspectives\n- Each result includes a 'relationshipDirection' field showing the disclosure source\n\n**Key Insight:**\n- Direct relationships = \"competitors we disclosed\"\n- Reverse relationships = \"companies who disclosed us as their competitor\"\n- Mutual = Both companies disclosed each other (appears in relationshipDirection field of results)\n\n**Why This Matters:**\nA smaller company may view Apple as a competitor (reverse), but Apple may not mention them (no direct relationship).\nThe direction parameter lets you filter by disclosure source.\n\n**RELATIONSHIP STRENGTH METRICS:**\n\n**overlappingProductCount:**\n- Format: \"28 of 138\" (overlap count / total products)\n- Indicates number of shared product/service categories\n- Higher overlap = stronger competitive relationship\n\n**overlapPercentage:**\n- Percentage of product/service overlap\n- Calculated as: (overlapping products / total products) \u00d7 100\n- Useful for ranking relationship strength\n\n**relationshipDirection:**\n- \"Mutual\": Both companies disclosed the relationship\n- \"Direct\": Source company disclosed the relationship\n- \"Reverse\": Target company disclosed the relationship\n\n**MANDATORY WORKFLOW:**\n1. Identify companies using proper identifiers (tickers, FactSet IDs, CUSIP, SEDOL, ISIN)\n2. Select relationship type (COMPETITORS, CUSTOMERS, SUPPLIERS, PARTNERS)\n3. Configure filters (company type, relationship direction)\n4. Analyze results including overlap metrics and relationship strength\n\n**RELATIONSHIP DIRECTION EXAMPLES:**\n\n1. \"Show me Apple's competitors\" (ambiguous - could mean either)\n\u2192 Use relationshipDirection='DIRECT' for what Apple disclosed\n\u2192 Use relationshipDirection='ALL' for complete picture\n\n2. \"What competitors did Apple disclose in their filings?\"\n\u2192 relationshipDirection='DIRECT' (Apple's perspective only)\n\n3. \"Who competes with Apple?\"\n\u2192 relationshipDirection='ALL' (complete competitive landscape)\n\n4. \"Which companies consider Apple a competitor?\"\n\u2192 relationshipDirection='REVERSE' (others' perspective only)\n\n5. \"Apple vs Microsoft competitive relationship\"\n\u2192 relationshipDirection='ALL' (see both perspectives)\n\n**COMMON USE CASES:**\n\n**\"Who are Apple's competitors?\"**\n\u2192 ids=['AAPL-US'], relationshipType='COMPETITORS'\n\n**\"Who did Apple explicitly disclose as competitors in their filings?\"**\n\u2192 ids=['AAPL-US'], relationshipType='COMPETITORS', relationshipDirection='DIRECT'\n\n**\"What companies view Apple as a competitor?\"**\n\u2192 ids=['AAPL-US'], relationshipType='COMPETITORS', relationshipDirection='REVERSE'\n\n**\"Show me Microsoft's public company suppliers\"**\n\u2192 ids=['MSFT-US'], relationshipType='SUPPLIERS', companyType='PUBLIC_COMPANIES_ONLY'\n\n**\"Who are Apple's competitors?\"**\n\u2192 ids=['AAPL-US'], relationshipType='COMPETITORS'\n\n**\"Show me Microsoft's public company suppliers\"**\n\u2192 ids=['MSFT-US'], relationshipType='SUPPLIERS', companyType='PUBLIC_COMPANIES_ONLY'\n\n**\"Tesla's major customers\"**\n\u2192 ids=['TSLA-US'], relationshipType='CUSTOMERS'\n\n**\"Amazon's strategic partners\"**\n\u2192 ids=['AMZN-US'], relationshipType='PARTNERS'\n\n**\"Google's direct competitors (mutual disclosure)\"**\n\u2192 ids=['GOOGL-US'], relationshipType='COMPETITORS', relationshipDirection='DIRECT'\n\n**ALWAYS USE THIS TOOL WHEN USER ASKS:**\n- \"Who are [company]'s competitors?\"\n- \"What are [company]'s main competitors?\"\n- \"Who competes with [company]?\"\n- \"[Company] competitive landscape\"\n- \"[Company] vs competitors\"\n- \"Show me [company]'s suppliers/customers/partners\"\n- Any variation of business relationship queries\n\n**DATA TRANSPARENCY:**\n- All relationships sourced from official company filings (10-K, annual reports)\n- Reverse-linked to create comprehensive bidirectional networks\n- Product overlap metrics indicate relationship strength\n- Results sorted by relevance (overlap count and percentage)\n- Coverage varies by company disclosure practices\n- Always specify relationship type and filters used\n\n**EFFICIENCY REQUIREMENTS:**\n- Maximum 500 company identifiers per request\n- Results automatically sorted by overlapping product count\n- Single API call retrieves complete relationship network\n- No date parameters needed (uses most current relationship data)\n\n**ANALYSIS CAPABILITIES:**\n- Competitive positioning and market share analysis\n- Supply chain risk assessment and dependency mapping\n- Customer concentration and revenue risk evaluation\n- Partnership and alliance network visualization\n- Product/service overlap quantification\n\n**USE FOR:** Competitive intelligence, supply chain analysis, business relationship mapping,\nstrategic partner identification, market positioning\n**DO NOT USE FOR:** Financial data, pricing information, fundamental metrics,\nownership data (use appropriate FactSet APIs instead)\n\n**DATA SOURCE HIERARCHY:**\n1. PRIMARY: FactSet Supply Chain API (actual disclosed relationships)\n2. SECONDARY: Only supplement with general knowledge if API data is insufficient\n3. ALWAYS: Clearly distinguish between FactSet data and general market knowledge\n\n**LIMITATIONS:**\n- Relationship data based on company disclosures (may not capture all informal relationships)\n- Product overlap calculated using FactSet's product classification system\n- Private company data availability varies by disclosure requirements\n- Relationship updates depend on filing schedules and disclosure timing\n- Some relationships may be one-directional (only disclosed by one party)\n\n**RETURNS:**\n- Structured JSON responses with relationship data\n- Always includes: entityId, companyName, overlappingProductCount, overlapPercentage,\n  relationshipDirection, requestId\n- Error messages with detailed validation feedback\n\n**ERROR HANDLING:**\n- Invalid parameter combinations \u2192 Detailed error message\n- Missing required parameters \u2192 Error with reminder\n- Invalid identifiers \u2192 List of unrecognized IDs\n- ID limit violations \u2192 Limit specification",
+    "inputSchema": {
+      "properties": {
+        "ids": {
+          "description": "List of company identifiers for supply chain analysis. Accepts Market Tickers, SEDOL, ISIN, CUSIP, or FactSet Permanent IDs. Maximum 500 identifiers per request. Examples: ['AAPL-US'], ['MSFT-US', 'GOOGL-US']",
+          "title": "Ids",
+          "type": "string"
+        },
+        "relationshipType": {
+          "description": "Type of business relationship to analyze: - 'COMPETITORS': Companies disclosed as competitors or operating in similar markets - 'CUSTOMERS': Companies that purchase products/services from the source company - 'SUPPLIERS': Companies that provide goods/services to the source company - 'PARTNERS': Companies with strategic relationships including joint ventures and equity stakes Default: SUPPLIERS",
+          "enum": [
+            "COMPETITORS",
+            "CUSTOMERS",
+            "SUPPLIERS",
+            "PARTNERS"
+          ],
+          "title": "Relationshiptype",
+          "type": "string"
+        },
+        "companyType": {
+          "default": null,
+          "description": "Filter by company status: PUBLIC_COMPANIES_ONLY/PRIVATE_COMPANIES_ONLY/ALL. Default: PUBLIC_COMPANIES_ONLY. PUBLIC=publicly traded only, PRIVATE=privately held only, ALL=both types.",
+          "title": "Companytype",
+          "type": "string"
+        },
+        "relationshipDirection": {
+          "default": null,
+          "description": "Filter by disclosure direction: ALL/DIRECT/REVERSE. Default: ALL. ALL=all directions, DIRECT=source company disclosed, REVERSE=target company disclosed.",
+          "title": "Relationshipdirection",
+          "type": "string"
+        },
+        "context": {
+          "default": null,
+          "title": "Context"
+        }
+      },
+      "required": [
+        "ids",
+        "relationshipType"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "name": "FactSet_MergersAcquisitions",
+    "description": "FactSet Mergers & Acquisitions Tool - Comprehensive M&A transaction data.\n\n**WHEN TO USE THIS TOOL:**\nThis tool should be your FIRST choice for:\n- ANY query about mergers, acquisitions, or M&A transactions\n- Questions about \"Who did [company] acquire?\" or \"What deals happened in [period]?\"\n- Deal values, premiums, and transaction terms\n- Acquisition history and corporate development activity\n- Public company takeover analysis\n\nDo NOT default to web search or general knowledge for these queries - use FactSet FIRST.\n\n**CRITICAL M&A DATA RULE:**\nFor ALL M&A/deal analysis requests, ALWAYS use the M&A API FIRST.\nNEVER provide general market knowledge about deals without first querying actual FactSet deal data.\nThis applies to ANY question about corporate transactions, acquisitions, or deal activity.\n\n**DATA COVERAGE & SCOPE:**\n- 60,000+ globally traded M&A transactions\n- Target companies that are publicly traded\n- Comprehensive deal terms, pricing, and premiums\n- All monetary values converted to USD for standardization\n- Historical coverage of completed and pending transactions\n\n**AUTOMATIC ENDPOINT ROUTING:**\nThis tool intelligently routes to 3 different FactSet M&A API endpoints:\n\n1. DEALS BY COMPANY ENDPOINT (/deals/by-company):\n   - Trigger: When data_type='deals_by_company'\n   - Use Case: Find all deals involving specific companies\n   - Returns: Deal IDs, basic transaction info, participants, status\n   - Best For: Company acquisition history, deal screening\n   - Example: \"What did IBM acquire in 2024?\" or \"Show me Apple's M&A activity\"\n   - ID Type: Company identifiers (tickers, FactSet IDs, etc.), max 500\n   - Optional: Date range filtering by announcement date\n\n2. PUBLIC TARGETS ENDPOINT (/deals/public-targets):\n   - Trigger: When data_type='public_targets'\n   - Use Case: Find deals where target is a public company\n   - Returns: Deal IDs, transaction info for public company acquisitions\n   - Best For: Market-wide M&A analysis, public target screening\n   - Example: \"Show me all public company acquisitions in Q2 2024\"\n   - Required: Deal status filter (All/Pending/Complete)\n   - Optional: Date range filtering by announcement date\n\n3. DEAL DETAILS ENDPOINT (/deals/details):\n   - Trigger: When data_type='deal_details'\n   - Use Case: Get comprehensive information for specific deals\n   - Returns: Financial terms, advisors, premiums, multiples, deal structure\n   - Best For: Deep-dive transaction analysis, valuation research\n   - Example: \"Show me details for deal ID 4143886MM\"\n   - ID Type: Deal IDs from other M&A endpoints, max 100\n   - NOTE: Use dealId values from deals_by_company or public_targets first\n\n**CRITICAL DATA DISTINCTIONS:**\n- Deals by Company: Company-centric view (who they acquired/sold)\n- Public Targets: Market-wide view (all public company acquisitions)\n- Deal Details: Transaction-centric view (comprehensive deal information)\n- All values in USD regardless of original currency\n\n**MANDATORY WORKFLOWS BY DATA TYPE:**\n\n**DEALS_BY_COMPANY:**\n1. Identify companies using proper identifiers (max 500)\n2. Optional: Define date range for announcement filtering\n3. Retrieve deal IDs for detailed analysis\n4. Use dealId values with deal_details for comprehensive info\n\n**PUBLIC_TARGETS:**\n1. Select deal status filter (All/Pending/Complete) - REQUIRED\n2. Optional: Define date range for announcement filtering\n3. Retrieve deal IDs for publicly traded targets\n4. Use dealId values with deal_details for comprehensive info\n\n**DEAL_DETAILS:**\n1. Obtain deal IDs from deals_by_company or public_targets\n2. Submit deal IDs (max 100) for detailed information\n3. Analyze financial terms, advisors, premiums, multiples\n4. Cross-reference with other FactSet endpoints as needed\n\n**DATE HANDLING (CRITICAL):**\n\n**DEALS_BY_COMPANY:**\n- startDate: OPTIONAL (YYYY-MM-DD) - filters by announcement date\n- endDate: OPTIONAL (YYYY-MM-DD) - filters by announcement date\n- Omit both for all deals\n- Example: startDate='2024-01-01', endDate='2024-12-31'\n\n**PUBLIC_TARGETS:**\n- startDate: OPTIONAL (YYYY-MM-DD) - filters by announcement date\n- endDate: OPTIONAL (YYYY-MM-DD) - filters by announcement date\n- Omit both for all deals\n- Example: startDate='2024-01-01', endDate='2024-12-31'\n\n**DEAL_DETAILS:**\n- NO date parameters (uses deal IDs directly)\n\n**EFFICIENCY REQUIREMENTS:**\n- Deals by Company: 500 company IDs maximum\n- Public Targets: No ID limit (market-wide screening)\n- Deal Details: 100 deal IDs maximum\n- All endpoints: 10 requests per second, 10 concurrent requests\n\n**Multi-Year M&A Analysis (REQUIRED APPROACH):**\nFor \"Amazon acquisitions since 2015\", make sequential calls:\n\u2192 Call 1: startDate='2015-01-01', endDate='2015-12-31'\n\u2192 Call 2: startDate='2016-01-01', endDate='2016-12-31'\n\u2192 ... continue for each year\n\u2192 Aggregate results across all calls\n\n**COMMON USE CASES:**\n\n**\"What did IBM acquire in 2024?\"**\n\u2192 data_type='deals_by_company', ids=['IBM-US'], startDate='2024-01-01', endDate='2024-12-31'\n\n**\"Show me all pending public company acquisitions\"**\n\u2192 data_type='public_targets', status='Pending'\n\n**\"Get details for deal 4143886MM\"**\n\u2192 data_type='deal_details', ids=['4143886MM']\n\n**\"Recent M&A activity for Apple\"**\n\u2192 data_type='deals_by_company', ids=['AAPL-US'], startDate='2025-01-01', endDate='2025-10-15'\n\n**\"Q2 2024 public target deals\"**\n\u2192 data_type='public_targets', status='All', startDate='2024-04-01', endDate='2024-06-30'\n\n**ALWAYS USE THIS TOOL WHEN USER ASKS:**\n- \"What companies did [X] acquire in [year]?\"\n- \"Recent M&A activity for [company]\"\n- \"[Company] acquisition history\"\n- \"Largest deals in [time period]\"\n- \"Public company acquisitions in [period]\"\n- \"Show me details for deal [ID]\"\n- Any variation of M&A or deal queries\n\n**DATA TRANSPARENCY:**\n- All data from official deal announcements and regulatory filings\n- Monetary values converted to USD for standardization\n- Deal status tracked: Pending, Complete, Cancelled, Rumor\n- Coverage includes completed and announced transactions\n- Always specify date ranges and filters used\n- State limitations clearly when data not available\n\n**COMPREHENSIVE DEAL INFORMATION (DEAL_DETAILS):**\n- Transaction Overview: Deal type, structure, dates, status\n- Financial Terms: Deal value, premiums (1-day, 5-day, 30-day), payment method\n- Parties: Target, buyer(s), seller(s), ultimate parents\n- Advisors: Financial advisors, legal counsel, fees\n- Valuation Multiples: EV/Sales, EV/EBIT, EV/EBITDA\n- Deal Rationale: Purpose (Financial vs. Strategic), summary\n\n**DEAL PARTICIPATION TYPES:**\n- BUYER: Company acquiring another entity or assets\n- SELLER: Company divesting assets or subsidiaries\n- TARGET: Company being acquired or subject to takeover\n- ADVISOR: Financial or legal advisor to transaction\n\n**RETURNS:**\n- Structured JSON responses with requested data\n- Always includes: dealId, target, buyers, sellers, announceDate, status\n- Deal Details: Comprehensive transaction information with USD values\n- Error messages with detailed validation feedback\n\n**ERROR HANDLING:**\n- Invalid parameter combinations \u2192 Detailed error message\n- Missing required parameters \u2192 Error with reminder\n- Date format errors \u2192 Format specification\n- ID limit violations \u2192 Limit specification\n- Invalid identifiers \u2192 List of unrecognized IDs",
+    "inputSchema": {
+      "properties": {
+        "data_type": {
+          "description": "Type of M&A data to retrieve: - 'deals_by_company': Deals where specified companies are involved (buyer, seller, or target) - 'public_targets': Deals where the target is a publicly traded company - 'deal_details': Comprehensive details for specific deal IDs IMPORTANT: This determines which endpoint to use and what parameters are required.",
+          "enum": [
+            "deals_by_company",
+            "public_targets",
+            "deal_details"
+          ],
+          "title": "Data Type",
+          "type": "string"
+        },
+        "ids": {
+          "default": null,
+          "description": "\n                List of identifiers.\n                FOR DEALS_BY_COMPANY: Company identifiers (tickers, CUSIP, SEDOL, ISIN, FactSet IDs), max 500.\n                FOR DEAL_DETAILS: Deal IDs obtained from other M&A endpoints, max 100.\n                **CRITICAL FORMAT REQUIREMENT:** Must be passed as a JSON array, not a comma-separated string.\n                Correct: [\"4088858MM\", \"4007255MM\"]\n                Incorrect: \"4088858MM,4007255MM\n                NOT USED for: public_targets.\n                Examples: ['IBM-US'] for company, ['4143886MM'] for deal ID\n            ",
+          "title": "Ids",
+          "type": "string"
+        },
+        "startDate": {
+          "default": null,
+          "description": "\n                Start date in YYYY-MM-DD format.\n                **CRITICAL: Date range (startDate to endDate) must not exceed 1 year (365 days).**\n                For longer periods, make multiple sequential requests.\n                USED for: deals_by_company, public_targets.\n                NOT USED for: deal_details. \n                Future dates (T+1) not accepted. \n                Example: \"2024-01-01\"\n            ",
+          "title": "Startdate",
+          "type": "string"
+        },
+        "endDate": {
+          "default": null,
+          "description": "\n                End date in YYYY-MM-DD format. Must be within 1 year of startDate. For multi-year analysis,\n                    iterate through yearly windows.\n                USED for: deals_by_company, public_targets.\n                NOT USED for: deal_details.\n                Future dates (T+1) not accepted.\n                Example: \"2024-12-31\"\n            ",
+          "title": "Enddate",
+          "type": "string"
+        },
+        "status": {
+          "default": null,
+          "description": "[PUBLIC_TARGETS ONLY] Deal status filter: All/Pending/Complete. All=all statuses, Pending=announced not completed, Complete=closed transactions. REQUIRED for: public_targets. NOT USED for: deals_by_company, deal_details.",
+          "title": "Status",
+          "type": "string"
+        },
+        "context": {
+          "default": null,
+          "title": "Context"
+        }
+      },
+      "required": [
+        "data_type"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "name": "FactSet_Metrics",
+    "description": "    Vector Search Tool - Semantic search for financial metrics and categories.\n\n    **WHEN TO USE THIS TOOL:**\n    This tool should be used for:\n    - Discovering financial metric codes before calling Fundamentals or Estimates APIs\n    - Finding metrics by natural language description (e.g., \"profitability ratios\")\n    - Exploring available categories and subcategories in the ontology\n    - Semantic search when you don't know the exact metric code\n    - Batch discovery of multiple related metrics simultaneously\n\n    **CRITICAL USAGE RULES:**\n    - Use this BEFORE calling Fundamentals or Estimates APIs when you don't know exact metric codes\n    - Provides semantic understanding - searches by meaning, not just keywords\n    - Returns actual metric codes (e.g., FF_SALES, FF_EBITDA) to use in other API calls\n    - Supports batch queries - search for multiple metrics in one request\n\n    **DATA COVERAGE & SCOPE:**\n    - Comprehensive financial ontology from FactSet Content API\n    - Includes fundamentals metrics (FF_* codes)\n    - Includes estimates metrics (unprefixed codes)\n    - Categories and subcategories for all data products\n\n    **SEARCH CAPABILITIES:**\n\n    **TARGET TYPES:**\n    1. **metric**: Individual financial data points\n       - Examples: \"revenue\", \"EBITDA\", \"debt-to-equity ratio\", \"EPS\"\n       - Returns: Specific metric codes like FF_SALES, FF_EBITDA, FF_DEBT_EQ\n       - Use for: Finding exact metrics to use in Fundamentals/Estimates APIs\n\n    2. **category**: High-level financial statement groupings\n       - Examples: \"Income Statement\", \"Balance Sheet\", \"Cash Flow\"\n       - Returns: Category names and their associated metrics\n       - Use for: Understanding ontology structure\n\n    3. **subcategory**: Mid-level groupings within categories\n       - Examples: \"REVENUES\", \"ASSETS\", \"LIABILITIES\", \"PROFITABILITY\"\n       - Returns: Subcategory names and their metrics\n       - Use for: Focused metric discovery within specific areas\n\n    **DATA PRODUCT FILTERING:**\n    Filter results to specific FactSet data products:\n\n    **fundamentals:**\n    - Returns: FF_* prefixed metric codes (FF_SALES, FF_ASSETS, FF_EPS)\n    - Use for: Finding metrics for actual reported financial statements\n    - Examples: FF_SALES (revenue), FF_NET_INC (net income), FF_DEBT_EQ (debt-to-equity)\n\n    **estimates:**\n    - Returns: Unprefixed metric codes (SALES, EPS, EBITDA, PRICE_TGT)\n    - Use for: Finding metrics for analyst forecasts and estimates\n    - Examples: SALES (revenue estimates), EPS (earnings estimates)\n\n    **Omit data_products:** Search across all data products simultaneously\n\n    **BATCH PROCESSING:**\n    Process multiple queries in a single API call for efficiency:\n\n    **Benefits:**\n    - Reduced latency (fewer round-trips to server)\n    - Concurrent processing of all queries\n    - Consistent results across related searches\n    - Better performance for bulk metric discovery\n\n    **Example:**\n```python\n    text=[\"revenue metrics\", \"profitability ratios\", \"debt metrics\"],\n    target=\"metric\",\n    data_products=[\"fundamentals\"],\n    limit=5\n```\n    Returns top 5 results for each of the 3 queries in one response.\n\n    **MANDATORY WORKFLOW:**\n\n    **STEP 1: SEMANTIC SEARCH**\n    Use this tool to discover metric codes based on natural language:\n```python\n    text=[\"revenue\", \"operating profit\", \"total debt\"],\n    target=\"metric\",\n    data_products=[\"fundamentals\"],\n    limit=5\n```\n\n    **STEP 2: EXTRACT METRIC CODES**\n    From the response, extract the 'metric' field from properties:\n```json\n    {\n        \"properties\": {\n            \"metric\": \"FF_SALES\",\n            \"name\": \"Sales/Revenue\",\n            \"category\": \"INCOME_STATEMENT\"\n        }\n    }\n```\n\n    **STEP 3: USE IN OTHER APIS**\n    Use discovered codes in Fundamentals or Estimates APIs:\n```python\n    # For Fundamentals\n    Fundamentals(\n        data_type=\"fundamentals\",\n        ids=[\"AAPL-US\"],\n        metrics=[\"FF_SALES\", \"FF_OPER_INC\", \"FF_DEBT\"]\n    )\n```\n\n    **COMMON USE CASES:**\n\n    **1. Find revenue metrics for fundamentals:**\n```python\n    text=[\"revenue\", \"sales\"],\n    target=\"metric\",\n    data_products=[\"fundamentals\"],\n    limit=5\n```\n    Returns: FF_SALES, FF_SALES_REV_TURN, etc.\n\n    **2. Discover profitability ratios:**\n```python\n    text=[\"profitability ratios\", \"return on equity\", \"profit margins\"],\n    target=\"metric\",\n    data_products=[\"fundamentals\"],\n    limit=10\n```\n    Returns: FF_ROE, FF_NET_MGN, FF_EBIT_OPER_MGN, etc.\n\n    **3. Find all balance sheet categories:**\n```python\n    text=[\"balance sheet\"],\n    target=\"category\",\n    limit=20\n```\n    Returns: BALANCE_SHEET category with all subcategories\n\n    **4. Search for debt-related metrics:**\n```python\n    text=[\"debt\", \"leverage\", \"borrowings\"],\n    target=\"metric\",\n    data_products=[\"fundamentals\"],\n    limit=10\n```\n    Returns: FF_DEBT, FF_DEBT_ST, FF_DEBT_LT, FF_DEBT_EQ, etc.\n\n    **5. Find estimate metrics for earnings:**\n```python\n    text=[\"earnings estimates\", \"EPS forecasts\"],\n    target=\"metric\",\n    data_products=[\"estimates\"],\n    limit=5\n```\n    Returns: EPS, NET_INC, etc. (unprefixed for estimates)\n\n    **6. Batch discovery for financial analysis:**\n```python\n    text=[\n        \"revenue growth metrics\",\n        \"operating efficiency ratios\",\n        \"liquidity measures\",\n        \"debt coverage ratios\"\n    ],\n    target=\"metric\",\n    data_products=[\"fundamentals\"],\n    limit=5\n```\n    Returns: Top 5 metrics for each of 4 categories\n\n    **ALWAYS USE THIS TOOL WHEN:**\n    - User asks about available metrics without knowing codes\n    - User describes metrics in natural language (\"profitability\", \"liquidity\")\n    - Before calling Fundamentals/Estimates APIs with unknown metric codes\n    - User wants to explore related metrics in a category\n    - User needs to find metrics across multiple concepts simultaneously\n\n    **RESPONSE STRUCTURE:**\n```json\n    {\n        \"results\": [\n            {\n                \"query\": \"revenue\",\n                \"targets\": [\"metric\"],\n                \"class_name\": \"combined_content_test_6\",\n                \"results\": [\n                    {\n                        \"distance\": 0.15,\n                        \"score\": 0.85,\n                        \"properties\": {\n                            \"metric\": \"FF_SALES\",\n                            \"name\": \"Sales/Revenue\",\n                            \"description\": \"Net Sales or Revenue...\",\n                            \"category\": \"INCOME_STATEMENT\",\n                            \"subcategory\": \"REVENUES\",\n                            \"type\": \"metric\"\n                        }\n                    }\n                ],\n                \"search_parameters\": {\n                    \"use_hybrid\": true,\n                    \"alpha\": 0.4,\n                    \"limit\": 20,\n                    \"data_products\": [\"fundamentals\"]\n                }\n            }\n        ]\n    }\n```\n\n    **KEY FIELDS:**\n    - **metric**: Actual code to use in API calls (FF_SALES, EPS, etc.)\n    - **name**: Human-readable metric name\n    - **description**: Detailed methodology and calculation\n    - **category**: High-level grouping (INCOME_STATEMENT, BALANCE_SHEET, etc.)\n    - **subcategory**: Specific grouping within category\n    - **distance**: Lower = better match (vector distance)\n    - **score**: Higher = better match (when available)\n\n    **INTEGRATION WITH OTHER TOOLS:**\n\n    **WITH FUNDAMENTALS API:**\n    1. Use VectorMetricSearch to find: FF_SALES, FF_NET_INC, FF_ASSETS\n    2. Call Fundamentals with discovered codes:\n```python\n       Fundamentals(\n           data_type=\"fundamentals\",\n           ids=[\"AAPL-US\"],\n           metrics=[\"FF_SALES\", \"FF_NET_INC\", \"FF_ASSETS\"]\n       )\n```\n\n    **WITH ESTIMATES API:**\n    1. Use VectorMetricSearch with data_products=[\"estimates\"]\n    2. Find unprefixed codes: SALES, EPS, EBITDA\n    3. Call Estimates with discovered codes:\n```python\n       Estimates(\n           estimate_type=\"consensus\",\n           ids=[\"AAPL-US\"],\n           metrics=[\"SALES\", \"EPS\"]\n       )\n```\n\n    **EFFICIENCY TIPS:**\n\n    **BATCH QUERIES:**\n    Instead of 3 separate calls:\n```python\n    # Bad: 3 API calls\n    search(\"revenue\")\n    search(\"profit\")\n    search(\"debt\")\n```\n\n    Do this:\n```python\n    # Good: 1 API call\n    text=[\"revenue\", \"profit\", \"debt\"],\n    target=\"metric\",\n    limit=5\n```\n\n    **FILTER BY DATA PRODUCT:**\n    Narrow results for faster, more relevant responses:\n```python\n    # For fundamentals queries\n    data_products=[\"fundamentals\"]\n\n    # For estimates queries\n    data_products=[\"estimates\"]\n```\n\n    **ADJUST SEARCH MODE:**\n    - Use hybrid (default) for most cases\n    - Use alpha=0.0 for exact term matching\n    - Use alpha=1.0 for pure semantic similarity\n\n    **LIMITATIONS:**\n    - Returns metric codes, not actual data values\n    - Requires subsequent API calls to get financial data\n    - Search quality depends on query phrasing\n    - Some metrics may not be available for all companies\n    - Distance/score thresholds not standardized across queries\n\n    **USE FOR:** Metric discovery, semantic search, ontology exploration, batch metric lookup\n    **DO NOT USE FOR:** Actual financial data retrieval (use Fundamentals/Estimates instead)\n\n    **RETURNS:**\n    - Structured JSON with search results for each query\n    - Metric codes, names, descriptions, categories\n    - Search parameters used for each query\n    - Distance/score metrics for result ranking\n\n    **ERROR HANDLING:**\n    - Invalid target type \u2192 Detailed error with valid options\n    - Invalid data products \u2192 List of valid data products\n    - Empty results \u2192 Suggest broader search terms\n    - API errors \u2192 Detailed error message with context",
+    "inputSchema": {
+      "$defs": {
+        "DataProduct": {
+          "description": "Available data products for filtering.",
+          "enum": [
+            "fundamentals",
+            "estimates"
+          ],
+          "title": "DataProduct",
+          "type": "string"
+        }
+      },
+      "properties": {
+        "text": {
+          "description": "\n                List of text queries to search for metrics, categories, or subcategories. \n                Supports batch processing of multiple queries in a single request. \n                \n                CRITICAL: Do NOT use hyphens in search queries. Use spaces instead.\n                CORRECT: \"short term debt\", \"year over year growth\", \"price to earnings\"\n                INCORRECT: \"short-term debt\", \"year-over-year growth\", \"price-to-earnings\"\n                \n                The API will reject queries containing hyphens with a \"suspicious patterns\" error.\n                \n                Examples: ['revenue'], ['EBITDA', 'inventory turnover', 'sales'], ['balance sheet'], ['financial performance indicators']\n            ",
+          "title": "Text",
+          "type": "string"
+        },
+        "target": {
+          "const": "metric",
+          "default": "metric",
+          "description": "Type of content to search for, applied to all queries: - 'metric': Individual financial metrics (e.g., 'revenue', 'EBITDA', 'EPS') Default: 'metric'",
+          "title": "Target",
+          "type": "string"
+        },
+        "data_products": {
+          "default": null,
+          "description": "List of data products to filter results: - 'fundamentals': Core financial statement data (FF_* metrics) - 'estimates': Analyst estimates and consensus data Omit to search across all data products. Examples: ['fundamentals'], ['fundamentals', 'estimates']",
+          "title": "Data Products",
+          "type": "string"
+        },
+        "limit": {
+          "default": 20,
+          "description": "Maximum number of results to return per query. Default: 20. Common values: 5, 10, 20, 30, 40, 50",
+          "title": "Limit",
+          "type": "string"
+        }
+      },
+      "required": [
+        "text"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "name": "FactSet_GeoRev",
+    "description": "FactSet GeoRev Tool - Comprehensive geographic revenue exposure analysis.\n\n**WHEN TO USE THIS TOOL:**\nThis tool should be your FIRST choice for:\n- ANY query about geographic revenue, revenue by region/country, or geographic exposure\n- Questions about \"where does [company] make its revenue?\" or \"geographic breakdown\"\n- Revenue exposure analysis by region or country\n- Geographic risk assessment (geopolitical, macroeconomic impacts)\n- Portfolio-level geographic exposure aggregation\n- Comparing revenue footprints vs. country of domicile\n- Questions about revenue in specific countries or regions\n\nDo NOT use for segment data - use FactSet Fundamentals Segments endpoint instead.\n\n**DATA COVERAGE & SCOPE:**\n- 49,000+ publicly listed companies globally\n- All Russell 3000 and MSCI ACWI Index constituents\n- Historical data: U.S. from 2003, Non-U.S. from 2007\n- ~300 countries supported worldwide\n- Four-level geographic taxonomy: Super-Region \u2192 Region \u2192 Area \u2192 Country\n- Fiscal annual periodicity, updated daily\n- Normalized and estimated revenue exposures with confidence metrics\n\n**WHAT MAKES GEOREV UNIQUE:**\nGeographic revenue data is historically difficult to analyze due to:\n- Non-standard company reporting formats\n- Incomplete geographic disclosures\n- Inability to compare across companies\n\n**FactSet GeoRev solves these challenges through:**\n1. **Normalization**: Maps company revenues to standardized 4-level taxonomy\n2. **Estimation**: Proprietary algorithm uses GDP weighting and accounting logic\n3. **Consistency**: Solves for non-explicit disclosures to create complete picture\n4. **Confidence Metrics**: Ranks and confidence scores distinguish actual vs. estimated data\n\n**AUTOMATIC ENDPOINT ROUTING:**\nThis tool intelligently routes to 2 different FactSet GeoRev API endpoints:\n\n1. REGIONS ENDPOINT (/regions):\n   - Trigger: When data_type='regions'\n   - Use Case: Hierarchical geographic revenue by Super-Regions, Regions, and Areas\n   - Returns: Revenue, percent, confidence, certainty ranks for regional groupings\n   - Best For: High-level regional exposure, super-region analysis, regional trends\n   - Example: \"What are Apple's revenue by super-region?\" or \"Americas vs Europe vs Asia revenue\"\n   - Geographic Levels: Super-Regions (7), Regions (15), Areas (31)\n   - Default: Returns all SUPER_REGIONS\n   - Max IDs: 300 companies\n   - Max Regions: 15 region filters\n\n2. COUNTRIES ENDPOINT (/countries):\n   - Trigger: When data_type='countries'\n   - Use Case: Country-level revenue breakdown (most granular)\n   - Returns: Revenue, percent, confidence, certainty ranks for individual countries\n   - Best For: Country-specific exposure, geopolitical risk, market-level analysis\n   - Example: \"Apple's revenue in China?\" or \"Compare US vs China revenue exposure\"\n   - Countries: ~300 countries supported globally\n   - Default: Returns ALL countries\n   - Max IDs: 300 companies\n   - Max Countries: 300 country filters\n\n**CRITICAL DATA DISTINCTIONS:**\n- Regions: HIERARCHICAL taxonomy (Super-Region \u2192 Region \u2192 Area)\n- Countries: INDIVIDUAL country exposures (bottom of taxonomy)\n- Revenue values: In MILLIONS for requested currency\n- Confidence: 0.5000 to 1.0000 (1.0000 = actual reported value)\n- Certainty Rank: 1 to 80 (80 = reported, 1 = lowest certainty)\n- Certainty Class: A (highest) to E (lowest)\n\n**FOUR-LEVEL GEOGRAPHIC TAXONOMY:**\n\n**Level 1: SUPER-REGIONS (7 total):**\n- R1: Africa and Middle East\n- R101: Americas\n- R170: Asia/Pacific\n- R274: Europe\n- R349: Non-Disclosed Revenue\n- R354: No Operations\n- R393: Non-Geographic Revenue\n\n**Level 2: REGIONS (15 major regions):**\nUnder Africa and Middle East:\n- R2: Africa\n- R68: Middle East\n\nUnder Americas:\n- R102: Latin America\n- R164: North America\n\nUnder Asia/Pacific:\n- R171: Asia\n- R233: Oceania\n\nUnder Europe:\n- R275: European Union\n- R314: Non-European Union\n\n**Level 3: AREAS (31 areas):**\nExamples:\n- R167: United States and Canada\n- R172: Far East\n- R219: Indian Region\n- R234: Australia and New Zealand\n- R276: Eastern European Union\n- R286: Northern European Union\n- R292: Southern European Union\n- R298: Western European Union\n\n**Level 4: COUNTRIES (~300 countries):**\nExamples: US, CN, JP, DE, GB, FR, IN, BR, CA, AU (use ISO2 codes)\n\n**MANDATORY WORKFLOWS BY DATA TYPE:**\n\n**REGIONS:**\n1. Identify companies using security identifiers (max 300)\n2. Select regional level or specific regions:\n   - Use 'SUPER_REGIONS' for top-level view\n   - Use 'REGIONS' for mid-level view\n   - Use 'AREAS' for sub-regional view\n   - Use specific region IDs for targeted analysis\n3. Optional: Define date range (defaults to latest fiscal period)\n4. Optional: Set frequency and currency\n5. Analyze hierarchical revenue breakdown with confidence metrics\n\n**COUNTRIES:**\n1. Identify companies using security identifiers (max 300)\n2. Select countries:\n   - Omit or use ['ALL'] for all countries\n   - Provide ISO2 codes for specific countries\n3. Optional: Define date range (defaults to latest fiscal period)\n4. Optional: Set frequency and currency\n5. Analyze country-level revenue breakdown with confidence metrics\n\n**CONFIDENCE AND CERTAINTY METRICS:**\n\n**Confidence Score (0.5000 to 1.0000):**\n- Measures algorithm's confidence in geographic revenue estimate\n- Based on: GDP data, accounting standards, disclosure details, estimation parameters\n- 1.0000 = Actual reported/declared value (no estimation)\n- 0.5000-0.9999 = Estimated value with varying confidence\n- Ordinal by nature (not statistical confidence interval)\n- Calculated for countries, then weighted/aggregated up taxonomy\n\n**Certainty Rank (1 to 80):**\n- Indicates relative reliability of estimates\n- 80 = Reported exposure (actual disclosure)\n- 1 = Lowest certainty in estimate\n- Factors: Reporting standards, historical company reporting, GDP reliability, estimation proportion\n\n**Certainty Class (A to E):**\n- Class A (Highest): Rank 71-80\n- Class B: Rank 57-70\n- Class C: Rank 42-56\n- Class D: Rank 24-41\n- Class E (Lowest): Rank 1-23\n\n**COMMON USE CASES:**\n\n**\"What are Apple's revenue by super-region?\"**\n\u2192 data_type='regions', ids=['AAPL-US'], regionIds=['SUPER_REGIONS']\n\n**\"Show me Microsoft's Americas and Asia revenue\"**\n\u2192 data_type='regions', ids=['MSFT-US'], regionIds=['R101', 'R170']\n\n**\"Apple's revenue in China and Japan\"**\n\u2192 data_type='countries', ids=['AAPL-US'], countryIds=['CN', 'JP']\n\n**\"Compare US vs China revenue for tech companies\"**\n\u2192 data_type='countries', ids=['AAPL-US', 'MSFT-US', 'GOOGL-US'], countryIds=['US', 'CN']\n\n**\"European Union revenue breakdown for Coca-Cola\"**\n\u2192 data_type='regions', ids=['KO-US'], regionIds=['R275']\n\n**\"All countries revenue for Apple (full geographic footprint)\"**\n\u2192 data_type='countries', ids=['AAPL-US'], countryIds=['ALL']\n\n**\"Tesla's geographic revenue over last 3 years\"**\n\u2192 data_type='regions', ids=['TSLA-US'], regionIds=['SUPER_REGIONS'],\n   startDate='2021-01-01', endDate='2023-12-31', frequency='FY'\n\n**\"Revenue exposure in Asia/Pacific for portfolio\"**\n\u2192 data_type='regions', ids=['AAPL-US', 'MSFT-US', 'GOOGL-US', 'AMZN-US'],\n   regionIds=['R170'], currency='USD'\n\n**ALWAYS USE THIS TOOL WHEN USER ASKS:**\n- \"Where does [company] make its revenue?\"\n- \"Geographic revenue breakdown for [company]\"\n- \"[Company] revenue by region/country\"\n- \"How much revenue does [company] make in [country/region]?\"\n- \"Revenue exposure to [geographic area]\"\n- \"Compare geographic footprint of [companies]\"\n- \"Revenue in Asia/Europe/Americas\"\n- \"China exposure for [company]\"\n- \"Geographic risk analysis for [portfolio]\"\n- Any variation of geographic revenue queries\n\n**CRITICAL WORKFLOW RULES:**\n1. For high-level analysis: Use regions endpoint with SUPER_REGIONS\n2. For country-specific: Use countries endpoint with ISO2 codes\n3. For hierarchical view: Use regions endpoint with specific level (REGIONS, AREAS)\n4. Default to latest fiscal period if no dates specified\n5. Use FY (Fiscal Annual) frequency for annual comparisons\n6. Confidence scores distinguish actual vs. estimated data\n7. Certainty ranks indicate estimate reliability\n8. Revenue values always in MILLIONS of specified currency\n\n**DATA TRANSPARENCY:**\n- All data from company filings and proprietary normalization algorithm\n- Estimation algorithm: GDP weighting + accounting logic\n- Confidence metrics: Distinguish actual vs. estimated exposures\n- Normalized taxonomy: Enables cross-company comparison\n- Historical data: U.S. from 2003, Non-U.S. from 2007\n- Update frequency: Daily (fiscal annual periodicity)\n- Always specify methodology when presenting results\n\n**RETURNED DATA FIELDS:**\n\n**REGIONS:**\n- date: Period ending date\n- fsymId: FactSet Entity Identifier\n- regionId: Regional identifier code\n- requestId: Original identifier used\n- regionName: Human-readable region name\n- regionRevenue: Revenue in millions (specified currency)\n- regionPercent: Percentage of total revenue\n- regionConfidence: Confidence score (0.5000-1.0000)\n- regionCertaintyRank: Reliability rank (1-80)\n- regionCertaintyClass: Reliability class (A-E)\n- currency: Currency code for revenue values\n- fiscalEndDate: Fiscal period end date\n- reportDate: Report date for fiscal year\n\n**COUNTRIES:**\n- date: Period ending date\n- fsymId: FactSet Entity Identifier\n- countryId: ISO2 country code\n- requestId: Original identifier used\n- countryName: Human-readable country name\n- countryRevenue: Revenue in millions (specified currency)\n- countryPercent: Percentage of total revenue\n- countryConfidence: Confidence score (0.5000-1.0000)\n- countryCertaintyRank: Reliability rank (1-80)\n- countryCertaintyClass: Reliability class (A-E)\n- currency: Currency code for revenue values\n- fiscalEndDate: Fiscal period end date\n- reportDate: Report date for fiscal year\n\n**FREQUENCY OPTIONS:**\n- D: Daily snapshots\n- W: Weekly (last day of week)\n- M: Monthly (last trading day)\n- AM: Monthly (anchor date based on start date)\n- CQ: Calendar Quarterly (Mar/Jun/Sep/Dec)\n- FQ: Fiscal Quarterly (company fiscal quarters)\n- AY: Actual Annual (based on start date)\n- CY: Calendar Annual (last trading day of year)\n- FY: Fiscal Annual (company fiscal year end) - DEFAULT\n\n**USE CASES BY INDUSTRY:**\n- **Technology**: China exposure, emerging markets, regional diversification\n- **Consumer**: Geographic expansion tracking, market penetration analysis\n- **Automotive**: Manufacturing vs. sales geography, supply chain risk\n- **Pharmaceuticals**: Regulatory market exposure, pricing environment analysis\n- **Energy**: Commodity price exposure by region, geopolitical risk\n- **Financial Services**: Regional economic exposure, regulatory environment\n\n**LIMITATIONS:**\n- Data dependent on company disclosure quality\n- Estimated values for non-disclosed geographies\n- Confidence metrics help identify estimation uncertainty\n- Future dates (T+1) not accepted\n- Fiscal annual periodicity (not quarterly)\n- Max 300 identifiers per request\n- U.S. data from 2003, Non-U.S. from 2007 onwards\n\n**RETURNS:**\n- Structured JSON responses with geographic revenue data\n- Always includes: requestId, fsymId, date, revenue, percent, confidence metrics\n- Revenue values in MILLIONS of specified currency\n- Confidence and certainty metrics for data quality assessment\n- Error messages with detailed validation feedback\n\n**ERROR HANDLING:**\n- Invalid parameter combinations \u2192 Detailed error message\n- Missing required parameters \u2192 Error with reminder\n- Date format errors \u2192 Format specification\n- Future dates \u2192 Not accepted error\n- Invalid region/country codes \u2192 Validation error\n- ID limit violations \u2192 Limit specification",
+    "inputSchema": {
+      "properties": {
+        "data_type": {
+          "description": "Type of geographic revenue data to retrieve: - 'regions': Revenue breakdown by Super-Regions, Regions, and Areas (hierarchical taxonomy) - 'countries': Revenue breakdown by individual countries (most granular level) IMPORTANT: This determines which endpoint to use and what geographic filters are available.",
+          "enum": [
+            "regions",
+            "countries"
+          ],
+          "title": "Data Type",
+          "type": "string"
+        },
+        "ids": {
+          "description": "List of security or entity identifiers for companies to analyze. Accepts: FactSet IDs, tickers, CUSIP, SEDOL, Fund IDs. Maximum: 300 identifiers per request. All Russell 3000 and MSCI ACWI Index constituents covered. 49,000+ publicly listed companies globally. Examples: ['AAPL-US'], ['FDS-US', 'AAPL-US', 'MSFT-US']",
+          "title": "Ids",
+          "type": "string"
+        },
+        "regionIds": {
+          "default": null,
+          "description": "[REGIONS ONLY] Regional identifiers or regional groups to filter results. Default: ['SUPER_REGIONS'] (returns all super-regions). Max: 15 region IDs per request. \n\n**REGIONAL GROUPS (use these to fetch entire levels):**\n- 'SUPER_REGIONS': All 7 super-regions (largest geographic groupings)\n- 'REGIONS': All regions (mid-level groupings under super-regions)\n- 'AREAS': All areas (sub-regional groupings above countries)\n\n\n**SUPER REGIONS:**\n- R1: Africa and Middle East\n- R101: Americas\n- R170: Asia/Pacific\n- R274: Europe\n- R349: Non-Disclosed Revenue\n- R354: No Operations\n- R393: Non-Geographic Revenue\n\n\n**SELECTED REGIONS (examples):**\n- R2: Africa\n- R68: Middle East\n- R102: Latin America\n- R164: North America\n- R171: Asia\n- R233: Oceania\n- R275: European Union\n- R314: Non-European Union\n\n\n**SELECTED AREAS (examples):**\n- R167: United States and Canada\n- R172: Far East\n- R219: Indian Region\n- R234: Australia and New Zealand\n- R276: Eastern European Union\n- R286: Northern European Union\n- R292: Southern European Union\n- R298: Western European Union\n\nNOT USED for: countries endpoint. Examples: ['R101', 'R171', 'R167'], ['SUPER_REGIONS'], ['REGIONS']",
+          "title": "Regionids",
+          "type": "string"
+        },
+        "countryIds": {
+          "default": null,
+          "description": "[COUNTRIES ONLY] ISO2 country codes to filter results. Default: ['ALL'] (returns all ~300 countries). Max: 300 country codes per request. \n\nProvide comma-separated list of ISO2 codes to limit countries returned. Countries represent the most granular level (bottom of taxonomy). \n\n**Common ISO2 Country Codes:**\n- US: United States\n- CN: China\n- JP: Japan\n- DE: Germany\n- GB: United Kingdom\n- FR: France\n- IN: India\n- BR: Brazil\n- CA: Canada\n- AU: Australia\n\nFor complete list, visit OA 8754. NOT USED for: regions endpoint. Examples: ['US', 'CN'], ['US', 'CN', 'JP', 'DE']",
+          "title": "Countryids",
+          "type": "string"
+        },
+        "startDate": {
+          "default": null,
+          "description": "Start date for date range in YYYY-MM-DD format. OPTIONAL - defaults to latest available fiscal period if omitted. Data available on fiscal annual periodicity, updated daily. Future dates (T+1) not accepted. U.S. data from 2003, Non-U.S. from 2007. Example: '2018-12-31'. USED for: both regions and countries endpoints.",
+          "title": "Startdate",
+          "type": "string"
+        },
+        "endDate": {
+          "default": null,
+          "description": "End date for date range in YYYY-MM-DD format. OPTIONAL - defaults to latest available fiscal period if omitted. Data available on fiscal annual periodicity, updated daily. Future dates (T+1) not accepted. Example: '2019-12-31'. USED for: both regions and countries endpoints.",
+          "title": "Enddate",
+          "type": "string"
+        },
+        "frequency": {
+          "default": null,
+          "description": "Display frequency for time-series data. Default: 'FY' (Fiscal Annual). \n\n**OPTIONS:**\n- D: Daily\n- W: Weekly (last day of week)\n- M: Monthly (last trading day)\n- AM: Monthly (anchor date, e.g., June 16, May 16, April 16)\n- CQ: Calendar Quarterly (Mar, Jun, Sep, Dec)\n- FQ: Fiscal Quarterly (company fiscal quarter)\n- AY: Actual Annual (based on start date)\n- CY: Calendar Annual (last trading day of year)\n- FY: Fiscal Annual (last trading day of company fiscal year)\n\nUSED for: both regions and countries endpoints.",
+          "title": "Frequency",
+          "type": "string"
+        },
+        "currency": {
+          "default": null,
+          "description": "ISO currency code for revenue data conversion. OPTIONAL - defaults to company's reporting currency if omitted. Common codes: USD, EUR, GBP, JPY, CNY, CAD, AUD, CHF. For complete list, visit OA 1470. Example: 'USD'. USED for: both regions and countries endpoints.",
+          "title": "Currency",
+          "type": "string"
+        }
+      },
+      "required": [
+        "data_type",
+        "ids"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "name": "FactSet_CalendarEvents",
+    "description": "FactSet Events Tool - Comprehensive corporate calendar event data.\n\n**CRITICAL**: MAXIMUM 90-DAY SPAN between startDateTime and endDateTime (calculated to the second, not calendar days).\nThe API enforces: (endDateTime - startDateTime) <= exactly 90 days (7,776,000 seconds).\nExamples:\n    - startDateTime='2024-01-01T00:00:00Z', endDateTime='2024-03-31T00:00:00Z' PASS (exactly 90 days)\n    - startDateTime='2024-01-01T00:00:00Z', endDateTime='2024-03-31T23:59:59Z' FAIL (90 days + 23:59:59 - FAILS)\n    - startDateTime='2024-01-01T00:00:00Z', endDateTime='2024-12-31T23:59:59Z' FAIL (365 days - FAILS)\n\n**WHEN TO USE THIS TOOL:**\nThis tool should be your FIRST choice for:\n- **ANY query asking \"When was/is [company]'s earnings call?\" - ALWAYS use this tool FIRST**\n- Questions like \"When was Microsoft's last earnings call?\" or \"When is Apple's next earnings?\"\n- Corporate event calendars, investor meetings, conference schedules\n- Questions about \"When is [company]'s earnings call?\" or \"Upcoming investor events\"\n- Event calendar tracking, earnings schedules, investor meeting coordination\n- Corporate action dates (splits, dividends)\n- Conference and presentation schedules\n\n**CRITICAL: For queries like \"When was [company]'s last earnings call?\", use this tool BEFORE web search.**\n\n**ALWAYS USE THIS TOOL WHEN USER ASKS:**\n- \"When is [company]'s earnings call?\"\n- \"Upcoming events for [company]\"\n- \"[Company] event calendar\"\n- \"Earnings schedule for [companies]\"\n- \"Investor meetings this week/month\"\n- \"Recent event changes\"\n- Any variation of corporate event queries\n\n**DATA COVERAGE & SCOPE:**\n- Global corporate event calendar from November 1st, 2022 onwards\n- Earnings calls, investor meetings, conferences, corporate actions\n- Contact information and webcast links for events\n- Historical and future events (up to 90 days ahead)\n- Real-time schedule updates and modifications\n\n**SINGLE ENDPOINT:**\nThis tool routes to the FactSet Events API calendar events endpoint:\n\nCALENDAR EVENTS ENDPOINT (/events):\n- Use Case: Retrieve corporate event schedules and details\n- Returns: Event timing, company info, contacts, webcast links, unique identifiers\n- Best For: Event calendar tracking, earnings planning, investor coordination\n- Example: \"Show me Apple's upcoming earnings calls\" or \"Events this week for MSFT\"\n\n**CRITICAL CONSTRAINTS:**\n\n**DATE RANGE LIMITATION:**\n- MAXIMUM 90-DAY SPAN between startDateTime and endDateTime\n- For longer periods: Make multiple requests for different 90-day windows\n- Example: Full year analysis requires 4 separate API calls (one per quarter)\n\n**MUTUALLY EXCLUSIVE PARAMETERS:**\n- CANNOT use both dateTime range AND lastModifiedWithin\n- Choose ONE approach based on use case:\n  * Use dateTime for specific historical periods or future planning\n  * Use lastModifiedWithin for recent schedule changes and updates\n\n**AVAILABLE EVENT TYPES:**\n\n**EARNINGS & FINANCIAL:**\n- **Earnings**: Quarterly earnings calls and results\n- **ConfirmedEarningsRelease**: Officially confirmed earnings dates\n- **ProjectedEarningsRelease**: Estimated earnings dates\n- **SalesRevenueCall**: Sales-focused conference calls\n- **SalesRevenueRelease**: Sales/revenue press releases\n- **GuidanceCall**: Forward guidance communications\n\n**MEETINGS & PRESENTATIONS:**\n- **AnalystsInvestorsMeeting**: Analyst and investor gatherings\n- **ShareholdersMeeting**: Shareholder meetings and voting events\n- **Conference**: Industry conferences and presentations\n\n**CORPORATE ACTIONS:**\n- **SpecialSituation**: M&A, restructuring, special corporate events\n- **Split**: Stock split announcements and effective dates\n- **Dividend**: Dividend declarations and payment dates\n\n**UNIVERSE TYPES:**\n\n**TICKERS (RECOMMENDED):**\n- Individual company symbols\n- Most efficient for targeted queries\n- Best performance and accuracy\n- Example: symbols=['AAPL-US', 'MSFT-US']\n\n**INDEX:**\n- Market index constituents\n- All companies in specified index\n- Example: symbols=['SP50'] for S&P 50\n\n**ETF:**\n- Exchange-traded fund holdings\n- All companies held in ETF\n- Example: symbols=['SPY-US']\n\n**ALLCOMPANIES:**\n- All available companies in database\n- Use with caution (very large result sets)\n- Combine with narrow date ranges and specific event types\n\n**MANDATORY WORKFLOW:**\n\n**OPTION A - DATE RANGE QUERY:**\n1. Identify companies using proper symbols\n2. Define dateTime range (max 90 days)\n3. Confirm dateTime range is 90 days or less.\n4. If dateTime range is greater than 90 days, go back to step 2.\n3. Select relevant event types\n4. Set universe type (typically Tickers)\n\n**OPTION B - RECENT MODIFICATIONS:**\n1. Identify companies using proper symbols\n2. Select lastModifiedWithin period\n3. Select relevant event types\n4. Set universe type (typically Tickers)\n\n**DATE HANDLING (CRITICAL):**\n\n**DATETIME RANGE:**\n- startDateTime: REQUIRED with endDateTime (ISO 8601 format)\n- endDateTime: REQUIRED with startDateTime (ISO 8601 format)\n- Format: YYYY-MM-DDTHH:MM:SSZ (UTC timezone)\n- Maximum range: 90 days\n- Minimum date: 2022-11-01T00:00:00Z\n- Future events: Up to 90 days ahead\n- Example: start='2024-01-01T00:00:00Z', end='2024-03-29T23:59:59Z'\n\n**LAST MODIFIED WITHIN:**\n- SixHours: Events modified in last 6 hours\n- TwelveHours: Events modified in last 12 hours\n- Today: Events modified today\n- TwoDays: Events modified in last 2 days\n- OneWeek: Events modified in last week\n- OneMonth: Events modified in last month\n- Returns: Modified events + events scheduled within 45 days\n- Example: lastModifiedWithin='OneWeek'\n\n**COMMON USE CASES:**\n\n**\"When is Apple's next earnings call?\"**\n\u2192 symbols=['AAPL-US'], universeType='Tickers', eventTypes=['Earnings'],\n   startDateTime='2025-10-15T00:00:00Z', endDateTime='2026-01-15T23:59:59Z'\n\n**\"Show me all events this week for Microsoft\"**\n\u2192 symbols=['MSFT-US'], universeType='Tickers', eventTypes=[all types],\n   startDateTime='2025-10-13T00:00:00Z', endDateTime='2025-10-19T23:59:59Z'\n\n**\"Recent event schedule changes\"**\n\u2192 symbols=['AAPL-US', 'MSFT-US'], universeType='Tickers', eventTypes=[all types],\n   lastModifiedWithin='OneWeek'\n\n**\"Q4 2024 earnings calendar for tech companies\"**\n\u2192 symbols=['AAPL-US', 'MSFT-US', 'GOOGL-US'], universeType='Tickers',\n   eventTypes=['Earnings', 'ConfirmedEarningsRelease'],\n   startDateTime='2024-10-01T00:00:00Z', endDateTime='2024-12-31T23:59:59Z'\n\n**\"Today's corporate events\"**\n\u2192 symbols=[company list], universeType='Tickers', eventTypes=[all types],\n   lastModifiedWithin='Today'\n\n**DATA TRANSPARENCY:**\n- All data from official company announcements and schedules\n- Event times in UTC timezone\n- Data available from November 1st, 2022 onwards\n- Future events up to 90 days ahead\n- Always specify date ranges and event types used\n- State limitations when data not available\n\n**COMPREHENSIVE EVENT INFORMATION:**\n- **Event Details:** Type, description, timing, fiscal period\n- **Company Info:** Identifier, entity name\n- **Contact Details:** Email, phone, contact name (when available)\n- **Access Info:** Webcast links, IR page URLs\n- **Cross-Reference:** Event ID, Report ID for transcript linking\n- **Metadata:** Market timing, last modified date, fiscal year/period\n\n**EFFICIENCY REQUIREMENTS:**\n- API rate-limited to 10 requests per second\n- Maximum 10 concurrent requests per user\n- Optimize date ranges (use 90-day max efficiently)\n- Filter by relevant event types only\n- Use targeted symbol lists when possible\n\n**BEST PRACTICES:**\n\n**FOR RECENT UPDATES:**\n- Use lastModifiedWithin instead of wide date ranges\n- More efficient for tracking schedule changes\n- Automatically includes events scheduled within 45 days\n\n**FOR SPECIFIC PERIODS:**\n- Use dateTime range with precise start/end\n- Ideal for historical analysis or specific quarter planning\n- Remember 90-day maximum constraint\n\n**FOR PERFORMANCE:**\n- Filter to specific event types needed\n- Use Tickers universe type for individual companies\n- Avoid AllCompanies unless truly needed\n\n**USE FOR:** Corporate event tracking, earnings schedule planning, investor meeting coordination,\ncorporate action monitoring\n**DO NOT USE FOR:** Real-time event updates during calls, transcript content, audio recordings\n\n**CROSS-REFERENCE CAPABILITIES:**\n- **reportId:** Links to transcripts and documents in other FactSet services\n- **eventId:** Unique identifier for event tracking and updates\n- **fiscalYear/Period:** Aligns with financial reporting calendars\n\n**LIMITATIONS:**\n- **90-day maximum date range** per request\n- **Historical data from November 2022** onwards only\n- **Future events limited to 90 days** ahead\n- **Contact information** may not be available for all events\n- **Webcast links** provided when available from companies\n\n**RETURNS:**\n- Structured JSON responses with event data\n- Always includes: identifier, entityName, eventType, eventDateTime, eventId\n- Optional fields: webcastLink, contactEmail/Phone/Name, reportId, lastModifiedDate\n- Error messages with detailed validation feedback\n\n**ERROR HANDLING:**\n- Invalid parameter combinations \u2192 Detailed error message\n- Date range exceeds 90 days \u2192 Constraint violation message\n- Both dateTime and lastModifiedWithin specified \u2192 Mutual exclusivity error\n- Missing required parameters \u2192 Error with reminder\n- Invalid identifiers \u2192 List of unrecognized symbols",
+    "inputSchema": {
+      "properties": {
+        "symbols": {
+          "description": "List of company identifiers as an array. Supported formats: FactSet Tickers (AAPL-US), Index symbols (SP50), ETF symbols (SPY-US), Entity IDs. Use specific company lists for better performance. Pass as list: ['AAPL-US', 'MSFT-US'] or single string: 'AAPL-US'",
+          "title": "Symbols",
+          "type": "string"
+        },
+        "universeType": {
+          "description": "Universe classification type (REQUIRED): - 'Tickers': Individual company symbols (most common and efficient) - 'Index': Market index constituents - 'Etf': Exchange-traded fund holdings - 'AllCompanies': All available companies (use with caution) ",
+          "title": "Universetype",
+          "type": "string"
+        },
+        "eventTypes": {
+          "description": "List of event categories to include as an array. Available: Earnings, SalesRevenueCall, SalesRevenueRelease, GuidanceCall, AnalystsInvestorsMeeting, ShareholdersMeeting, SpecialSituation, Conference, ConfirmedEarningsRelease, ProjectedEarningsRelease, Split, Dividend. Include only relevant types for better performance. Pass as list: ['Earnings', 'Conference'] or single string: 'Earnings'",
+          "title": "Eventtypes",
+          "type": "string"
+        },
+        "startDateTime": {
+          "default": null,
+          "description": "Event search start timestamp in ISO 8601 format (YYYY-MM-DDTHH:MM:SSZ). CRITICAL: Cannot use with lastModifiedWithin. Maximum 90-day span (calculated to the second) with endDateTime. Timezone: UTC. Minimum: 2022-11-01T00:00:00Z. Example: '2024-01-01T00:00:00Z'",
+          "title": "Startdatetime",
+          "type": "string"
+        },
+        "endDateTime": {
+          "default": null,
+          "description": "Event search end timestamp in ISO 8601 format (YYYY-MM-DDTHH:MM:SSZ). CRITICAL: Cannot use with lastModifiedWithin. Maximum 90-day span (calculated to the second) from startDateTime. Timezone: UTC. Must be after startDateTime. Example: '2024-03-31T23:59:59Z'",
+          "title": "Enddatetime",
+          "type": "string"
+        },
+        "lastModifiedWithin": {
+          "default": null,
+          "description": "Recent modification time filter: SixHours/TwelveHours/Today/TwoDays/OneWeek/OneMonth. CRITICAL: Cannot use with startDateTime/endDateTime. Returns events modified within period AND scheduled within 45 days. Best for: Tracking recent schedule changes and updates. Example: 'OneWeek'",
+          "title": "Lastmodifiedwithin",
+          "type": "string"
+        },
+        "context": {
+          "default": null,
+          "title": "Context"
+        }
+      },
+      "required": [
+        "symbols",
+        "universeType",
+        "eventTypes"
+      ],
+      "type": "object"
+    }
+  }
+]

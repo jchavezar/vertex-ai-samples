@@ -20,7 +20,7 @@
   --red-bg: #ffebe9;
 
   --header-height: 48px;
-  --sidebar-width: 220px;
+  --sidebar-width: 280px;
   --sub-sidebar-width: 200px;
 }
 
@@ -206,6 +206,8 @@ button {
   padding: 16px 16px 16px 24px;
   /* Left padding for timeline */
   background: #fff;
+  max-height: 320px;
+    overflow-y: auto;
 }
 
 /* Maximized Overrides */

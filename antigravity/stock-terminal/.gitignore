@@ -1,42 +1,67 @@
-# Python-generated files
-__pycache__/
-*.py[oc]
-build/
-dist/
-wheels/
-*.egg-info
-.pytest_cache/
+# Secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.dsv
+secrets.json
 
-# Virtual environments
+# FactSet
+factset_tokens.json
+factset_context.md
+
+# Python
+__pycache__/
+*.pyc
 .venv/
 venv/
 env/
+.env/
+build/
+dist/
+*.egg-info/
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
 
-# Environment variables
-.env
-.env.local
-.env.*
-!.env.example
-
-# Frontend dependencies and artifacts
+# Node.js
 node_modules/
-frontend/dist/
-frontend/build/
-
-# Logs
-*.log
-backend.log
-frontend.log
-
-# OS-specific files
+.next/
+dist/
+build/
+coverage/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
 .DS_Store
-Thumbs.db
 
-# Large backups and archives
-*.zip
-_backup*
-stock_terminal_backup*
+# Logs and Temporary Files
+*.log
+*.log.*
+stream_dump*.txt
+*.tmp
+*.temp
+debug_*.py
+check_*.py
+inspect_*.py
+test_*.py
+discovery_output.json
+get_factset_tools_schema.py
+discover_schema.py
 
-# IDE settings
+# IDEs
 .idea/
 .vscode/
+*.swp
+*.swo
+
+# Backups
+_backup_*/
+backup*/
+checkpoints_*/
+tmp-*/
+*.zip
+*.tar.gz
+

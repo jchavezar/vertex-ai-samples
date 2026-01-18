@@ -6,14 +6,26 @@ import KeyStats from './components/KeyStats';
 import AgentInsights from './components/AgentInsights';
 import SummaryPanel from './components/SummaryPanel';
 import RightSidebar from './components/RightSidebar';
+import AiActionButtons from './components/AiActionButtons';
+import WidgetSlot from './components/WidgetSlot';
 
 function App() {
   const [ticker, setTicker] = useState('FDS'); // Default to FactSet
   const [tickerData, setTickerData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [activeView, setActiveView] = useState('Snapshot');
+  const [chartOverride, setChartOverride] = useState(null);
+  const [widgetOverrides, setWidgetOverrides] = useState({}); // { [section]: { content, loading } }
+
+  // DEBUG: Expose for testing
+  useEffect(() => {
+    window.setChartOverride = setChartOverride;
+    return () => { delete window.setChartOverride; };
+  }, []);
 
   useEffect(() => {
+    setChartOverride(null); // Reset override on ticker change
+    setWidgetOverrides({}); // Reset widgets
     const fetchTickerInfo = async () => {
       setLoading(true);
       try {
@@ -29,6 +41,24 @@ function App() {
     fetchTickerInfo();
   }, [ticker]);
 
+  const handleUpdateWidget = (section, content, isLoading = false) => {
+    setWidgetOverrides(prev => ({
+      ...prev,
+      [section]: { content, loading: isLoading }
+    }));
+  };
+
+  const handleGenerateWidget = (section) => {
+    handleUpdateWidget(section, null, true); // Set loading
+    const activeTicker = chartOverride?.ticker || ticker;
+    if (window.triggerAgent) {
+      window.triggerAgent(
+        `Generate ${section} analysis for ${activeTicker}. IMPORTANT: Wrap the response in [WIDGET:${section}]...[/WIDGET] tags.`,
+        { preserveChart: true, expectedWidget: section }
+      );
+    }
+  };
+
   return (
     <div className="app-container">
       <Sidebar setTicker={setTicker} activeView={activeView} setActiveView={setActiveView} />
@@ -39,29 +69,42 @@ function App() {
         <div className="content-scrollable">
           {activeView === 'Snapshot' ? (
             <div className="grid-layout">
-              <div style={{ gridColumn: 'span 12' }}>
-                <AgentInsights ticker={ticker} />
+              {!chartOverride && (
+                <div style={{ gridColumn: 'span 12' }}>
+                  <AgentInsights ticker={ticker} />
+                </div>
+              )}
+
+              <div style={{ gridColumn: chartOverride ? 'span 8' : 'span 8' }}>
+                <PerformanceChart
+                  ticker={chartOverride?.ticker || ticker}
+                  externalData={chartOverride}
+                  defaultData={tickerData}
+                />
               </div>
 
-              <div style={{ gridColumn: 'span 8' }}>
-                <PerformanceChart ticker={ticker} externalData={tickerData} />
-              </div>
               <div style={{ gridColumn: 'span 4' }}>
-                <SummaryPanel ticker={ticker} externalData={tickerData} />
+                <WidgetSlot
+                  section="Profile"
+                  sectionKey="Profile"
+                  override={widgetOverrides['Profile']}
+                  isAiMode={!!chartOverride}
+                  onGenerate={handleGenerateWidget}
+                  originalComponent={<SummaryPanel ticker={ticker} externalData={tickerData} />}
+                />
               </div>
 
-              <div style={{ gridColumn: 'span 3' }}>
-                <KeyStats section="Trading" ticker={ticker} externalData={tickerData} />
-              </div>
-              <div style={{ gridColumn: 'span 3' }}>
-                <KeyStats section="Valuation" ticker={ticker} externalData={tickerData} />
-              </div>
-              <div style={{ gridColumn: 'span 3' }}>
-                <KeyStats section="Dividends" ticker={ticker} externalData={tickerData} />
-              </div>
-              <div style={{ gridColumn: 'span 3' }}>
-                <KeyStats section="Estimates" ticker={ticker} externalData={tickerData} />
-              </div>
+              {['Trading', 'Valuation', 'Dividends', 'Estimates'].map(section => (
+                <div style={{ gridColumn: 'span 3' }} key={section}>
+                  <WidgetSlot
+                    section={section}
+                    override={widgetOverrides[section]}
+                    isAiMode={!!chartOverride}
+                    onGenerate={handleGenerateWidget}
+                    originalComponent={<KeyStats section={section} ticker={ticker} externalData={tickerData} />}
+                  />
+                </div>
+              ))}
             </div>
           ) : (
             <div style={{ padding: '40px', textAlign: 'center', color: '#666' }}>
@@ -72,7 +115,12 @@ function App() {
         </div>
       </main>
 
-      <RightSidebar dashboardData={tickerData} />
+      <RightSidebar
+        dashboardData={tickerData}
+        chartOverride={chartOverride}
+        setChartOverride={setChartOverride}
+        onUpdateWidget={handleUpdateWidget}
+      />
     </div>
   );
 }
