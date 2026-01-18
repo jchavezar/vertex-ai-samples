@@ -86,6 +86,7 @@ const TraceLog = ({ logs = [], isMaximized = false }) => {
         .trace-type-badge.tool_call { background: #6f42c1; }
         .trace-type-badge.tool_result { background: #28a745; }
         .trace-type-badge.error { background: #dc3545; }
+        .trace-type-badge.debug { background: #17a2b8; }
 
         .trace-content {
             color: #333;
@@ -154,7 +155,7 @@ const renderContent = (log, isMaximized) => {
 
       return (
         <div>
-          <div><strong>Result from:</strong> {log.tool}</div>
+          <div><strong>Result from:</strong> {log.tool} {log.duration ? <span style={{ fontSize: '10px', color: '#888', marginLeft: '8px', fontWeight: 'normal' }}>({typeof log.duration === 'number' ? log.duration.toFixed(3) + 's' : log.duration})</span> : null}</div>
           <div className="code-snippet">
             <pre style={{ maxHeight: isMaximized ? '600px' : '300px', overflowY: 'auto', fontSize: '10px' }}>{resultDisplay}</pre>
           </div>

@@ -36,7 +36,7 @@ const DashboardHeader = ({ ticker, externalData, loading }) => {
           </div>
           <div className={`price-change ${(displayData?.change || 0) >= 0 ? 'positive' : 'negative'}`}>
             {(displayData?.change || 0) >= 0 ? <TrendingUp size={16} /> : <TrendingDown size={16} />}
-            {displayData?.change ? `${displayData.change.toFixed(2)}%` : '0.00%'}
+            {displayData?.change !== undefined && displayData?.change !== null ? `${Number(displayData.change).toFixed(2)}%` : '0.00%'}
           </div>
         </div>
         <div className="market-cap">
