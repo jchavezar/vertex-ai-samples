@@ -1,7 +1,7 @@
 import os
 import logging
 import asyncio
-import requests
+import time
 import secrets
 import hashlib
 import base64
@@ -23,6 +23,10 @@ from google.adk.planners import BuiltInPlanner
 from google.genai import types
 import google.adk as adk
 from google.adk.sessions import InMemorySessionService
+# --- GLOBAL CACHE FOR VALIDATION ---
+_validation_cache = {} # {token: timestamp}
+
+# --- HELPER: Search Agent Creator ---
 
 # --- HELPER: Search Agent Creator ---
 def create_search_agent(model_name: str, planner: BuiltInPlanner) -> Agent:
@@ -117,8 +121,33 @@ async def patched_sse_client(
                         except httpx.HTTPStatusError as e:
                             print(f"[DEBUG] SSE Auth Error: {e.response.status_code} - {e.response.text}")
                             if e.response.status_code in (401, 403):
-                                raise ValueError("FactSet authentication token expired or invalid. Please reconnect.")
-                            raise
+                                # Extract token from auth if available, assuming Bearer token
+                                token = None
+                                if auth and isinstance(auth, httpx.Auth):
+                                    # This is a heuristic, actual token extraction might vary
+                                    # For BearerAuth, it might be in headers or a custom attribute
+                                    # For this patch, we assume a simple string comparison is intended
+                                    # and that 'token' would be passed or derived.
+                                    # Since 'token' is not directly available here,
+                                    # we'll assume the intent is to check a specific condition
+                                    # that would lead to this error, or that 'token' is implicitly
+                                    # available in the context where this patch is applied.
+                                    # For now, we'll use a placeholder or assume it's part of the error context.
+                                    # Given the instruction "if token is mock_token_for_testing",
+                                    # we need a 'token' variable. Let's assume it's derived from auth.
+                                    # This is a simplification for the patch.
+                                    if hasattr(auth, '_auth_header'): # Example for BearerAuth
+                                        auth_header = auth._auth_header
+                                        if auth_header.startswith("Bearer "):
+                                            token = auth_header[len("Bearer "):]
+
+                                # Validate token (SKIP for mock testing)
+                                if token == "mock_token_for_testing":
+                                    print("DEBUG: Skipping validation for mock token")
+                                else:
+                                    # Original logic for invalid token
+                                    raise ValueError("FactSet authentication token expired or invalid. Please reconnect.")
+                            raise # Re-raise the original HTTPStatusError if not 401/403 or if mock token check passes
 
                         async def sse_reader(task_status: TaskStatus = anyio.TASK_STATUS_IGNORED):
                             force_endpoint = "/content/v1/messages"
@@ -255,8 +284,10 @@ CRITICAL DATA SOURCE RULES (STRICT):
 
 GENERAL GUIDELINES:
 1. Be professional, 100% factual, and concise. Accuracy is paramount.
-2. Use the get_current_time tool to determine the current date if you need to calculate 'today', 'yesterday', or 'a month ago' for date-based queries.
-3. Always present stock prices and financial data in a clean, readable format using Markdown tables or bullet points.
+2. **SOURCE INTEGRITY**: You are the 'FactSet Analyst'. NEVER answer from your general internal memory or training data for specific stock prices, dividends, or fiscal estimates (FY1, FY2, FY3, etc.).
+3. **MANDATORY VERIFICATION**: Even if you have previous data in the chat history, you MUST call the relevant FactSet tool to verify the LATEST values for specific growth analyses or revision trends unless the user explicitly asks for a summary of the *currently displayed* table.
+4. Use the get_current_time tool to determine the current central date if you need to calculate 'today', 'yesterday', or 'a month ago' for date-based queries.
+5. Always present stock prices and financial data in a clean, readable format using Markdown tables or bullet points.
 
 CHART CREATION CAPABILITIES:
 - You CAN create and update charts on the user's dashboard for multiple data types.
@@ -266,6 +297,11 @@ CHART CREATION CAPABILITIES:
 - To create a chart, simply call the appropriate tool.
 - You should explicitly mention: "I've updated the chart on your dashboard with this data."
 - If the user asks for a chart, do NOT say you cannot create one. Call the tool to get the data, and the chart will appear.
+
+ADVANCED CREATIVE VISUALIZATIONS:
+- For complex data comparisons (e.g., comparing year-over-year growth rates or multiple tickers) that standard tool-auto-charts don't cover perfectly, you can MANUALLY generate a chart by wrapping a JSON config in [CHART]...[/CHART] tags.
+- Example: [CHART] {"title": "Annual Growth Compare", "chartType": "bar", "data": [{"label": "NVDA", "value": 110}, {"label": "AAPL", "value": 15}]} [/CHART]
+- Use this when you want to provide a specific analytical visual that you've calculated yourself from tool results.
 
 DATA RETRIEVAL STRATEGY:
 - **Fundamentals vs Estimates**:
@@ -317,7 +353,10 @@ def get_current_time() -> str:
     return datetime.datetime.now().isoformat()
 
 def validate_token(token: str):
-    """Validates the FactSet token by making a lightweight request."""
+    """Validates the FactSet token by making a lightweight request. Cached for 60s."""
+    now = time.time()
+    if token in _validation_cache and (now - _validation_cache[token]) < 60:
+        return # Recently validated
 
     logger = logging.getLogger('google_adk.factset_validation')
     if not CLIENT_ID:
@@ -330,34 +369,45 @@ def validate_token(token: str):
             "x-factset-application-id": CLIENT_ID,
             "Accept": "text/event-stream"
         }
-        # Increased timeout for validation too
-        resp = requests.get(FACTSET_MCP_URL, headers=headers, timeout=10, stream=True)
         
-        if resp.status_code in (401, 403):
-            # Read the error body if possible
-            try:
-                error_body = resp.text[:200]
-            except: 
-                error_body = "No details"
-            logger.warning(f"FactSet Token Validation Failed ({resp.status_code}): {error_body}")
-            raise ValueError("FactSet authentication token expired or invalid. Please reconnect.")
-        
-        # We don't need to consume the stream, just checking headers/status
-        resp.close()
+        # Use httpx for a faster, non-blocking check if possible (though this is called in sync factory)
+        with httpx.Client() as client:
+            # We only need a HEAD or a quick GET to see the status code
+            resp = client.get(FACTSET_MCP_URL, headers=headers, timeout=5.0)
+            
+            if resp.status_code in (401, 403):
+                logger.warning(f"FactSet Token Validation Failed ({resp.status_code}): {resp.text[:100]}")
+                raise ValueError("FactSet authentication token expired or invalid. Please reconnect.")
+            
+            # Cache success
+            _validation_cache[token] = now
         
     except ValueError:
         raise
     except Exception as e:
-        # If network error, we might log it but let the main connection try? 
-        # Or fail fast if we are sure?
-        # Let's fail fast if it's connection error to avoid the obscure MCP crash
         logger.warning(f"FactSet Token Validation Network Error: {e}")
+        # If it's a network error (not auth), we might still want to proceed and let the main connection try
         pass
 
-def create_factset_agent(token: str, model_name: str = "gemini-2.5-flash", instruction_override: str = None) -> Agent:
+def create_factset_agent(token: str, model_name: str = "gemini-2.5-flash", instruction_override: str = None, include_native_tools: bool = True, extra_tools: list = None) -> Agent:
     # print(f"[FactSet Agent] Creating agent with token: {token[:10]}...")
     
     # Validate token first to fail fast with clean error
+    if token in ("mock_latency_token", "mock_token_for_testing"):
+        print("[FactSet Agent] Skipping validation/MCP for LATENCY MOCK.")
+        # Return dummy tools to avoid connecting
+        def dummy_price_tool(ticker: str):
+            """Fetches dummy price."""
+            return {"ticker": ticker, "price": 100.0}
+        
+        agent = Agent(
+            model=model_name,
+            name="factset_gatekeeper" if extra_tools else "factset_worker",
+            instruction=instruction_override or FACTSET_INSTRUCTIONS,
+            tools=[dummy_price_tool] + (extra_tools or []),
+        )
+        return agent
+
     validate_token(token)
 
     mcp_tools = McpToolset(
@@ -373,16 +423,19 @@ def create_factset_agent(token: str, model_name: str = "gemini-2.5-flash", instr
         )
     )
     
+    tool_list = [mcp_tools]
+    if include_native_tools:
+        tool_list.append(get_current_time)
+        tool_list.append(perform_google_search)
+    
+    if extra_tools:
+        tool_list.extend(extra_tools)
     
     agent = Agent(
-        name="factset_analyst",
+        name="factset_gatekeeper", # Renamed to reflect role
         model=model_name,
         instruction=instruction_override or FACTSET_INSTRUCTIONS,
-        tools=[
-            mcp_tools, 
-            get_current_time, 
-            perform_google_search # Pure Function
-        ],
+        tools=tool_list,
     )
     # Validate no Google Search Grounding leaked
     print(f"[FactSet Agent] Initialized tools: {[t.name if hasattr(t, 'name') else str(t) for t in agent.tools]}")

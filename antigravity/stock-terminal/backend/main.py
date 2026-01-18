@@ -2,6 +2,7 @@ import os
 import json
 import asyncio
 import time
+import traceback
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -15,22 +16,19 @@ from pydantic import BaseModel
 from typing import List, Optional, AsyncGenerator
 
 import google.adk as adk
-from google.adk.agents import Agent
+from google.adk.agents import Agent, ParallelAgent, SequentialAgent
 from google.adk.sessions import InMemorySessionService
 from google.genai.types import Content, Part
-from dotenv import load_dotenv
 
 # Import the new FactSet Agent factory
-# Import the new FactSet Agent factory
-from factset_agent import create_factset_agent, google_search, perform_google_search
-
-load_dotenv()
+from factset_agent import create_factset_agent, google_search, perform_google_search, FACTSET_INSTRUCTIONS
 
 # Setup ADK components
 session_service = InMemorySessionService()
 
 # Token Persistence
 TOKEN_FILE = "factset_tokens.json"
+factset_tokens = {} # Initialize global
 
 def load_tokens():
     if os.path.exists(TOKEN_FILE):
@@ -48,7 +46,84 @@ def save_tokens(tokens):
     except Exception as e:
         print(f"Error saving tokens: {e}")
 
-factset_tokens = load_tokens() 
+def refresh_factset_token(session_id: str):
+    """Refreshes the FactSet token using the stored refresh_token."""
+    data = factset_tokens.get(session_id)
+    if not data or "refresh_token" not in data:
+        return None
+
+    print(f"Refreshing FactSet token for session: {session_id}")
+    
+    auth_str = f"{FS_CLIENT_ID}:{FS_CLIENT_SECRET}"
+    b64_auth = base64.b64encode(auth_str.encode()).decode()
+    
+    headers = {
+        "Authorization": f"Basic {b64_auth}",
+        "Content-Type": "application/x-www-form-urlencoded"
+    }
+    payload = {
+        "grant_type": "refresh_token",
+        "refresh_token": data["refresh_token"]
+    }
+
+    try:
+        response = requests.post(FS_TOKEN_URL, data=payload, headers=headers, timeout=10)
+        if response.status_code == 200:
+            new_tokens = response.json()
+            access_token = new_tokens.get("access_token")
+            refresh_token = new_tokens.get("refresh_token") or data["refresh_token"]
+            expires_in = new_tokens.get("expires_in", 900)
+            
+            factset_tokens[session_id] = {
+                "token": access_token,
+                "refresh_token": refresh_token,
+                "expires_at": time.time() + expires_in,
+                "created_at": time.time()
+            }
+            save_tokens(factset_tokens)
+            print(f"Successfully refreshed token for {session_id}")
+            return access_token
+        else:
+            print(f"Token Refresh Failed for {session_id}: {response.text}")
+            return None
+    except Exception as e:
+        print(f"Error refreshing token for {session_id}: {e}")
+        return None
+
+def get_valid_factset_token(session_id: str):
+    """Returns a valid FactSet token, refreshing if necessary (5 min buffer)."""
+    # Reload from disk for tests/consistency if file changed externally
+    global factset_tokens
+    factset_tokens = load_tokens()
+    
+    data = factset_tokens.get(session_id)
+    if not data:
+        return None
+    
+    token = data.get("token")
+    expires_at = data.get("expires_at", 0)
+    
+    if expires_at:
+        rem = expires_at - time.time()
+        print(f"Token for {session_id} expires in {rem:.0f}s")
+    else:
+        print(f"Token for {session_id} has no expiration set.")
+
+    # Refresh if expired or expiring in the next 5 minutes
+    if not expires_at or time.time() > (expires_at - 300):
+        if data.get("refresh_token"):  # Check if non-empty
+            refreshed = refresh_factset_token(session_id)
+            if refreshed:
+                return refreshed
+        else:
+            print(f"Token for {session_id} is expired but has no refresh_token.")
+            # If definitely expired, return None to trigger reconnect prompt
+            if expires_at and time.time() > expires_at:
+                return None
+            
+    return token
+
+factset_tokens = load_tokens()
 
 # FactSet Config
 FS_CLIENT_ID = os.getenv("FS_CLIENT_ID")
@@ -107,7 +182,7 @@ def get_stock_snapshot(symbol: str) -> dict:
         print(f"Error fetching yfinance data for {symbol}: {e}")
         return {"error": str(e)}
 
-def create_summary_agent(model_name: str = "gemini-2.0-flash-exp"):
+def create_summary_agent(model_name: str = "gemini-2.5-flash-lite"):
     return Agent(
         name="terminal_summarizer",
         model=model_name,
@@ -154,6 +229,16 @@ def generate_topology(agent):
     nodes = []
     edges = []
     
+    def find_model(a):
+        if hasattr(a, 'model') and a.model:
+            return a.model
+        if hasattr(a, 'sub_agents') and a.sub_agents:
+            # Try to find model in first sub-agent
+            for sub in a.sub_agents:
+                m = find_model(sub)
+                if m: return m
+        return 'default'
+
     def traverse(current_agent, parent_id=None):
         agent_id = getattr(current_agent, 'name', 'unknown_agent')
         
@@ -164,7 +249,7 @@ def generate_topology(agent):
             "data": {
                 "label": agent_id,
                 "type": getattr(current_agent, 'agent_type', 'Agent') if hasattr(current_agent, 'agent_type') else current_agent.__class__.__name__,
-                # "tools": [] # Tools are now separate nodes
+                "model": find_model(current_agent)
             }
         }
         
@@ -250,7 +335,64 @@ async def perform_general_search_only(query: str) -> str:
 
     return await perform_google_search(query)
 
-def create_chat_agent(model_name: str = "gemini-2.5-flash"):
+def create_chat_agent(model_name: str = "gemini-2.5-flash-lite"):
+    return Agent(
+        model=model_name,
+        name="terminal_assistant",
+        instruction=CHAT_INSTRUCTIONS,
+        tools=[get_current_time, perform_google_search],
+    )
+
+def create_data_analyst_agent(token: str, model_name: str = "gemini-2.5-flash-lite", ticker: str = None, section: str = "Financial") -> Agent:
+    """Specialized worker for high-speed financial data extraction for widgets."""
+    from factset_agent import create_factset_agent
+    instruction = (
+        f"You are a high-speed Data Analyst worker for: {ticker or 'the requested company'}.\n"
+        f"Your task is to fetch specific {section} data points from FactSet to populate a dashboard widget.\n"
+        "INSTRUCTIONS:\n"
+        f"1. Focus ONLY on {section} metrics.\n"
+        "2. FORMAT: Start with a 1-2 sentence high-level summary paragraph. Then provide a detailed Markdown Table with the raw data.\n"
+        "3. CRITICAL: If fetching PRICES via GlobalPrices, you MUST fetch a HISTORY (e.g., last 30 days). "
+        "Example: if today is 2025-01-17, set 'startDate' to '2024-12-17' and 'endDate' to '2025-01-17'. "
+        "Do NOT set them to the same day. This is REQUIRED for charts to work.\n"
+        f"4. RETURN data specifically for {ticker}. Provide raw numbers for tool calls, but summarize the findings in text."
+    )
+    agent = create_factset_agent(
+        token=token,
+        model_name=model_name,
+        instruction_override=instruction,
+        include_native_tools=True # Allow get_current_time for date logic
+    )
+    if ticker:
+        agent.name = f"analyst_{ticker.replace('-US', '').replace(' ', '_')}"
+    return agent
+
+def create_parallel_data_analyst_workflow(token: str, tickers: list, section: str, model_name: str = "gemini-3-flash-preview") -> Agent:
+    """Creates a parallel workflow where multiple analysts fetch data simultaneously."""
+    workers = [create_data_analyst_agent(token, model_name, t, section) for t in tickers]
+    
+    sanitized_section = section.replace(" ", "_").replace("-", "_")
+    parallel_agent = ParallelAgent(
+        name=f"parallel_{sanitized_section}_fetcher",
+        sub_agents=workers
+    )
+    
+    aggregator_instruction = (
+        f"Synthesize the financial data for {', '.join(tickers)} regarding {section}.\n"
+        "Provide a concise, professional comparison or structured list.\n"
+        f"IMPORTANT: YOU MUST WRAP YOUR ENTIRE RESPONSE IN [WIDGET:{section}]...[/WIDGET] tags."
+    )
+    aggregator = Agent(
+        name="widget_aggregator",
+        model=model_name,
+        instruction=aggregator_instruction,
+        tools=[] # Aggregator doesn't need tools
+    )
+    
+    return SequentialAgent(
+        name=f"{sanitized_section}_widget_workflow",
+        sub_agents=[parallel_agent, aggregator]
+    )
     """
     Creates the default 'Chat' agent (unauthenticated).
     """
@@ -284,9 +426,20 @@ class ChatRequest(BaseModel):
     video_url: Optional[str] = None
     session_id: str = "default_chat"
     model: str = "gemini-2.5-flash"
+    complex_model: str = "gemini-3-flash-preview"
+
+class ChartCurationRequest(BaseModel):
+    headers: List[str]
+    rows: List[List[str]]
+    context: Optional[str] = None
+    session_id: str = "default_chat"
 
 class AuthCallbackRequest(BaseModel):
     redirect_url: str
+    session_id: str = "default_chat"
+
+class ManualAuthRequest(BaseModel):
+    refresh_token: str
     session_id: str = "default_chat"
 
 # --- AUTH ENDPOINTS ---
@@ -299,7 +452,8 @@ def get_factset_auth_url():
         "client_id": FS_CLIENT_ID,
         "redirect_uri": FS_REDIRECT_URI,
         "scope": "mcp",
-        "state": "stock_terminal_auth"
+        "state": "stock_terminal_auth",
+        "prompt": "consent"
     }
     auth_url = requests.Request('GET', FS_AUTH_URL, params=params).prepare().url
     return {"auth_url": auth_url}
@@ -340,9 +494,14 @@ def factset_callback(req: AuthCallbackRequest):
         if response.status_code == 200:
             tokens = response.json()
             access_token = tokens.get("access_token")
-            # Store token with timestamp
+            refresh_token = tokens.get("refresh_token")
+            expires_in = tokens.get("expires_in", 900) # Default 15 min
+            
+            # Store token with timestamp and refresh info
             factset_tokens[req.session_id] = {
                 "token": access_token,
+                "refresh_token": refresh_token,
+                "expires_at": time.time() + expires_in,
                 "created_at": time.time()
             }
             save_tokens(factset_tokens)
@@ -355,37 +514,46 @@ def factset_callback(req: AuthCallbackRequest):
         print(f"Auth Error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
+@app.post("/auth/factset/manual")
+def factset_manual_auth(req: ManualAuthRequest):
+    """Manually stores a long-lived refresh token."""
+    print(f"Storing manual refresh token for session: {req.session_id}")
+    
+    # We immediately try to get an access token to verify it works
+    factset_tokens[req.session_id] = {
+        "token": "pending", # Temporary
+        "refresh_token": req.refresh_token,
+        "expires_at": 0,    # Will be updated by refresh
+        "created_at": time.time()
+    }
+    
+    access_token = refresh_factset_token(req.session_id)
+    if access_token:
+        return {"status": "success", "message": "Manual Refresh Token connected successfully!"}
+    else:
+        # Cleanup if failed
+        factset_tokens.pop(req.session_id, None)
+        save_tokens(factset_tokens)
+        raise HTTPException(status_code=400, detail="Failed to verify manual refresh token. Please check it is valid.")
+
 @app.get("/auth/factset/status")
 def get_factset_status(session_id: str = "default_chat"):
+    token = get_valid_factset_token(session_id)
+    if not token:
+        return {"connected": False}
+    
     data = factset_tokens.get(session_id)
-    if not data:
-        return {"connected": False}
+    created_at = data.get("created_at") if isinstance(data, dict) else None
+    expires_at = data.get("expires_at", 0) if isinstance(data, dict) else 0
+    has_refresh = bool(data.get("refresh_token")) if isinstance(data, dict) else False
     
-    # Handle both legacy (string) and new (dict) formats
-    token = None
-    created_at = None
+    time_remaining = expires_at - time.time() if expires_at else 900
     
-    if isinstance(data, dict):
-        token = data.get("token")
-        created_at = data.get("created_at")
-    else:
-        token = data
-        
-    # Validate token validity
-    try:
-        from factset_agent import validate_token
-        validate_token(token)
-    except Exception as e:
-        print(f"Token validation failed for session {session_id}: {e}")
-        # Invalid token, remove it
-        factset_tokens.pop(session_id, None)
-        save_tokens(factset_tokens)
-        return {"connected": False}
-
     return {
         "connected": True, 
         "created_at": created_at,
-        "expires_in": 900 - (time.time() - (created_at or time.time())) # 15 min = 900s
+        "expires_in": max(0, int(time_remaining)),
+        "has_refresh_token": has_refresh
     }
 
 @app.get("/agent-config")
@@ -426,7 +594,8 @@ async def get_ticker_info(ticker: str):
 
 @app.post("/summarize")
 async def summarize(req: SummaryRequest):
-    agent = create_summary_agent(model_name=req.model)
+    # Always use lite for widget/dashboard summaries as requested
+    agent = create_summary_agent(model_name="gemini-2.5-flash-lite")
     runner = adk.Runner(app_name="stock_terminal", agent=agent, session_service=session_service)
 
     prompt = f"Please summarize the following dashboard data:\n{json.dumps(req.dashboard_data, indent=2)}"
@@ -448,6 +617,81 @@ async def summarize(req: SummaryRequest):
 
     return {"summary": "".join(responses)}
 
+@app.post("/curate-chart")
+async def curate_chart(req: ChartCurationRequest):
+    """Uses an LLM to intelligently decide how to plot table data."""
+    table_json = json.dumps({"headers": req.headers, "rows": req.rows})
+    context_str = f"\nUSER CONTEXT/GOAL: {req.context}" if req.context else ""
+    
+    prompt = f"""
+    Analyze the following table data and determine the BEST way to visualize it.
+    {context_str}
+    
+    TABLE DATA:
+    {table_json}
+    
+    GOAL:
+    1. Identify the X-axis (usually the first column if it's dates or categories).
+    2. Identify the meaningful data series to plot.
+    3. IMPORTANT: DO NOT plot meta-columns like 'Fiscal Year', 'Index', or 'Rating' as series on the same Y-axis if they have a vastly different scale than the primary metric (e.g. don't plot Year 2025 next to EPS 7.35).
+    4. If the data is Time Series (Date/Time on X-axis), return 'chartType': 'line'.
+    5. If the data compares values across categories, return 'chartType': 'bar' or 'pie'.
+    
+    RESPONSE FORMAT:
+    Return ONLY a JSON object with this exact structure:
+    {{
+      "title": "Descriptive Title",
+      "chartType": "line" | "bar" | "pie",
+      "series": [ // ONLY for line charts
+        {{
+          "ticker": "Series Name",
+          "history": [ {{ "date": "...", "close": number }} ]
+        }}
+      ],
+      "data": [ // ONLY for bar/pie charts
+        {{ "label": "...", "value": number }}
+      ]
+    }}
+    
+    Rules:
+    - Values MUST be numbers (strip $, %, commas).
+    - If chartType is 'line', use 'series'. Ensure 'history' points have 'date' and 'close'.
+    - If chartType is 'bar' or 'pie', use 'data'. Ensure points have 'label' and 'value'.
+    """
+
+    agent = Agent(
+        model="gemini-2.5-flash-lite", 
+        name="chart_curator",
+        instruction="You are a data visualization architect. Return ONLY valid JSON."
+    )
+    
+    runner = adk.Runner(app_name="stock_terminal", agent=agent, session_service=session_service)
+    new_message = Content(parts=[Part(text=prompt)])
+    
+    responses = []
+    try:
+        async for event in runner.run_async(user_id="user_1", session_id=f"curate_{time.time()}", new_message=new_message):
+            if event.content and hasattr(event.content, "parts"):
+                for part in event.content.parts:
+                    if part.text:
+                        responses.append(part.text)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+    full_text = "".join(responses)
+    # Extract JSON if model added markdown blocks
+    if "```json" in full_text:
+        full_text = full_text.split("```json")[1].split("```")[0].strip()
+    elif "```" in full_text:
+        full_text = full_text.split("```")[1].split("```")[0].strip()
+    
+    try:
+        chart_config = json.loads(full_text)
+        return chart_config
+    except Exception as e:
+        print(f"Failed to parse curator JSON: {full_text}")
+        raise HTTPException(status_code=500, detail="Invalid curator response")
+
 from fastapi.responses import StreamingResponse
 
 @app.post("/chat")
@@ -457,153 +701,102 @@ async def chat(req: ChatRequest):
         raise ValueError("FactSet authentication token expired or invalid. Please reconnect.")
 
     try:
-        # Check if we have a FactSet token for this session
-        token_data = factset_tokens.get(req.session_id)
-        factset_token = None
-        
-        if token_data:
-            if isinstance(token_data, dict):
-                factset_token = token_data.get("token")
-            else:
-                factset_token = token_data
+        factset_token = get_valid_factset_token(req.session_id)
         agent = None
         
-        if factset_token:
-            print(f"DEBUG: Analyzing query for parallelism: {req.message}")
-            try:
-                # 1. Router Step: Check for multiple tickers
-                # We do this with a lightweight call or regex. For simplicity and robustness, let's use a quick LLM check.
-                # Note: In a PROD environment, we might want to optimize this latency.
-                
-                # Check if we should use Parallel execution
-                # We will define a quick router if we suspect multiple tickers
-                # Simple heuristic: "compare" or multiple commas/concepts
-                
-                is_multi_stock = False
-                tickers = []
-                
-                # Basic Heuristic to save 1 LLM call:
-                if "compare" in req.message.lower() or "," in req.message or "vs" in req.message.lower():
-                    print(f"DEBUG: Intent looks like multi-stock comparison. Running Router...")
-                    
-                    # 1. Router Step: Extract tickers using a lightweight agent
-                    router_instruction = """
-                    Extract stock tickers or company names from the user query.
-                    Map company names to their most common US tickers (e.g. "Apple" -> "AAPL-US", "Microsoft" -> "MSFT-US").
-                    Return ONLY a JSON list of strings, e.g. ["AAPL-US", "MSFT-US"].
-                    If one or none, return empty list [].
-                    """
-                    
-                    try:
-                        # Quick synchronous call using the same model
-                        import google.genai as genai
-                        # We use the ADK's model wrapper or just standard genai if available, 
-                        # but ADK Agent is easier. However, we need to run it.
-                        # Since we are inside an async function, we can run a quick agent?
-                        # Actually, creating an Agent and running it is heavy. 
-                        # Let's just use the regex improvement as a fallback for speed, 
-                        # BUT the user wants "creative queries".
-                        # Let's use a smarter regex that allows longer names, and then map them?
-                        # Or just pass the NAMES to the worker agent and let IT figure out the ticker?
-                        
-                        # Let's improve the Regex to allow proper names and use that.
-                        # Using an LLM router adds latency.
-                        
-                        import re
-                        # Match words that start with capital letter, length 3-15 (e.g. Apple, Microsoft)
-                        # OR all caps tickers.
-                        potential_words = re.findall(r'\b[A-Z][a-zA-Z0-9-]{2,15}\b', req.message)
-                        
-                        COMMON_WORDS = {
-                            'The', 'And', 'For', 'Are', 'Was', 'Who', 'How', 'Why', 'Yes', 'Not', 'Now', 'But', 
-                            'Get', 'Set', 'Hey', 'Can', 'Use', 'See', 'Did', 'New', 'Big', 'Out', 'Top', 'Low', 
-                            'Buy', 'Put', 'Call', 'Chart', 'Data', 'Show', 'Compare', 'Please', 'Visualise', 'Visualize',
-                            'Historic', 'History', 'Figures', 'Last', 'Years', 'Months', 'Days', 'Figures'
-                        }
-                        
-                        tickers = [w for w in potential_words if w.upper() not in [cw.upper() for cw in COMMON_WORDS]]
-                        
-                        # De-duplicate
-                        tickers = list(set(tickers))
-                        
-                        if len(tickers) >= 2:
-                            print(f"DEBUG: Detected Multi-Stock Parallel Intent: {tickers}")
-                            from google.adk.agents import ParallelAgent, SequentialAgent
-                            
-                            # Limit to 3 to avoid rate limits
-                            target_tickers = tickers[:3]
-                            
-                            parallel_workers = []
-                            for t in target_tickers:
-                                # Specialized Instruction
-                                worker_instruction = f"""
-                                You are a specialized worker fetching data for: {t}.
-                                You have access to FactSet tools.
-                                1. Search for the ticker symbol for "{t}" if needed (guess it if obvious like 'Apple' -> 'AAPL-US').
-                                2. Use `FactSet_GlobalPrices` to get its history.
-                                3. Return the data clearly.
-                                """
-                                worker = create_factset_agent(token=factset_token, model_name=req.model, instruction_override=worker_instruction)
-                                worker.name = f"fetcher_{t}"
-                                parallel_workers.append(worker)
-                                
-                            parallel_agent = ParallelAgent(
-                                name="multi_stock_fetcher",
-                                sub_agents=parallel_workers
-                            )
-                            
-                            # We need a summarizer 
-                            summarizer = create_factset_agent(token=factset_token, model_name=req.model)
-                            summarizer.name = "summary_analyst"
-                            from factset_agent import FACTSET_INSTRUCTIONS
-                            summarizer.instruction = FACTSET_INSTRUCTIONS + "\n\nCONTEXT: You are summarizing data fetched by parallel workers. The chart has been updated by them. Explain the comparison."
-                            
-                            agent = SequentialAgent(
-                                name="parallel_stock_workflow",
-                                sub_agents=[parallel_agent, summarizer]
-                            )
-                        else:
-                             # Fallback to single agent if regex failed to find >1
-                             agent = create_factset_agent(token=factset_token, model_name=req.model)
-
-                    except Exception as e:
-                        print(f"DEBUG: Router failed: {e}. Falling back to standard.")
-                        agent = create_factset_agent(token=factset_token, model_name=req.model)
-                else:
-                    # Standard Single Agent if no "compare" keyword
-                    agent = create_factset_agent(token=factset_token, model_name=req.model)
-
+        # SPECIAL ROUTING: Widget Generation (Case-insensitive catch)
+        msg_lower = req.message.lower()
+        if "generate" in msg_lower and "analysis for" in msg_lower and factset_token:
+             # Extract section and tickers
+             import re
+             section_match = re.search(r"Generate (.+?) analysis", req.message)
+            # Relaxed regex to handle optional period or end of string
+             tickers_match = re.search(r"analysis for ([^.]+)", req.message)
+             
+             section = section_match.group(1) if section_match else "Financial"
+             tickers_str = tickers_match.group(1).strip() if tickers_match else ""
+             # Remove trailing "IMPORTANT" etc if present
+             if "IMPORTANT" in tickers_str:
+                 tickers_str = tickers_str.split("IMPORTANT")[0].strip()
+             
+             tickers_list = [t.strip() for t in tickers_str.split(',') if t.strip()]
+             
+             print(f"DEBUG: Widget Route Matched. Section: {section}, Tickers: {tickers_list}")
+             
+             if len(tickers_list) > 1:
+                 print(f"DEBUG: Routing to PARALLEL WORKFLOW for {section} ({', '.join(tickers_list)})")
+                 agent = create_parallel_data_analyst_workflow(token=factset_token, tickers=tickers_list, section=section, model_name=req.model)
+             else:
+                 single_ticker = tickers_list[0] if tickers_list else None
+                 print(f"DEBUG: Routing to SPECIALIZED DATA ANALYST for {section} ({single_ticker})")
+                 
+                 # Ensure single analyst wraps in tags
+                 agent = create_data_analyst_agent(token=factset_token, ticker=single_ticker, model_name="gemini-2.5-flash-lite")
+                # Add the tag instruction to single analyst as well (it was in the previous version)
+                 agent.instruction += f"\nIMPORTANT: YOU MUST WRAP YOUR ENTIRE RESPONSE IN [WIDGET:{section}]...[/WIDGET] tags."
         
-            except Exception as e:
-                print(f"DEBUG: Router block failed: {e}")
-        
-        if not agent:
+        elif factset_token:
+
+            # GATEKEEPER PATTERN IMPLEMENTATION
+            # Instead of auto-routing, we give the Agent a TOOL to spawn the parallel workflow.
+            
+            async def run_parallel_comparison(tickers_str: str, metric_focus: str = "Price Performance") -> str:
+                # Spawns a parallel team of analysts to compare multiple stocks.
+                # Use this tool ONLY after clarifying which stocks and what metrics the user wants.
+                
+                # Return the sentinel
+                return f"SWITCH_TO_PARALLEL_WORKFLOW:{tickers_str}:{metric_focus}"
+
+            # Create Gatekeeper
+            gatekeeper_instruction = (
+                "You are the specialized FactSet Gatekeeper analyst.\n\n"
+                "When a user asks to COMPARE 2 or more stocks:\n"
+                "1. If metrics (e.g. Price, Revenue, Valuation) are CLEARLY specified, use `run_parallel_comparison` IMMEDIATELY.\n"
+                "2. ONLY if metrics are vague or missing, ask: 'What specific metrics would you like to compare? (e.g. Price Performance, Revenue Growth, Valuation)'\n"
+                "DO NOT ask for metrics if the user already provided them in their query.\n"
+                "DO NOT attempt to fetch data yourself for multi-stock comparisons. Use the tool to delegate."
+            )
+            
+            agent = create_factset_agent(
+                token=factset_token, 
+                model_name=req.model,
+                instruction_override=gatekeeper_instruction + "\n" + FACTSET_INSTRUCTIONS, # Combine generic + specific
+                extra_tools=[run_parallel_comparison]
+            )
+            
+            # End of Gatekeeper Setup
+
+        else:
              print(f"DEBUG: Using Standard Chat Agent for session {req.session_id}")
              agent = create_chat_agent(model_name=req.model)
         
         print(f"DEBUG: FINAL AGENT: {agent.name}")
+
         # Safe debug logging for agent tools
         req_tools = getattr(agent, 'tools', [])
         if req_tools:
-            tool_names = [getattr(t, 'name', str(t)) for t in req_tools]
-            print(f"DEBUG: FINAL TOOLS: {tool_names}")
+            tool_names = [t.name if hasattr(t, 'name') else str(t) for t in req_tools]
+            print(f"DEBUG: Agent Tools: {tool_names}")
         else:
             print(f"DEBUG: FINAL TOOLS: [] (Composite Agent or No Tools)")
 
         runner = adk.Runner(app_name="stock_terminal", agent=agent, session_service=session_service)
+
+        # Generate topology for visualization
+        topo = generate_topology(agent)
     
-    except ValueError as e:
-        # Handle initialization errors (like invalid tokens) gracefully
-        error_msg = str(e)
-        async def error_generator():
-            yield json.dumps({"type": "error", "content": error_msg}) + "\n"
-        return StreamingResponse(error_generator(), media_type="application/x-ndjson")
     except Exception as e:
-        error_msg = str(e)
+        print(f"Initialization Error: {e}")
+        traceback.print_exc()
+        # Capture error message string to avoid "free variable" issues in closure
+        err_str = str(e)
         async def error_generator():
-            yield json.dumps({"type": "error", "content": f"Initialization failed: {error_msg}"}) + "\n"
+             yield json.dumps({"type": "error", "content": f"Init failed: {err_str}"}) + "\n"
         return StreamingResponse(error_generator(), media_type="application/x-ndjson")
 
+    # Move imports to top if possible, or keep here
+    from google.genai.types import Content, Part
+    
     parts = [Part(text=req.message)]
     if req.image:
         try:
@@ -632,7 +825,7 @@ async def chat(req: ChatRequest):
         except Exception as e:
             print(f"Error adding video URL: {e}")
 
-    new_message = Content(parts=parts)
+    new_message = Content(role="user", parts=parts)
 
     session = await session_service.get_session(session_id=req.session_id, app_name=runner.app_name, user_id="user_1")
     if not session:
@@ -643,7 +836,7 @@ async def chat(req: ChatRequest):
     # Check if session history is getting too long. 
     # ADK Session history is typically a list of Content objects.
     # We want to preserve the System Prompt (usually distinct or first) but truncate the middle.
-    MAX_HISTORY = 15
+    MAX_HISTORY = 6
     if hasattr(session, 'history') and len(session.history) > MAX_HISTORY:
         print(f"DEBUG: Truncating session history from {len(session.history)} to {MAX_HISTORY}")
         # Keep the most recent messages. ADK usually handles system instruction separately via Agent definition.
@@ -651,63 +844,195 @@ async def chat(req: ChatRequest):
         session.history = session.history[-MAX_HISTORY:]
 
     async def event_generator():
-        # 1. Emit Topology Event IMMEDIATELY
-        if agent:
-            try:
-                topology = generate_topology(agent)
-                print(f"DEBUG: Emitting topology: {len(topology['nodes'])} nodes")
-                yield json.dumps({"type": "topology", "data": topology}) + "\n"
-            except Exception as e:
-                print(f"Error generating topology: {e}")
+        # Helper to parse events consistently across ADK versions
+        def parse_event(event, start_times):
+            source = event.step if hasattr(event, "step") and event.step else event
+            results = []
+            source_agent = getattr(source, 'author', None) or getattr(event, 'author', None)
 
-        tool_start_times = {}
-        try:
-            async for event in runner.run_async(user_id="user_1", session_id=req.session_id, new_message=new_message):
-                if hasattr(event, "step") and event.step: pass
-                if event.content and hasattr(event.content, "parts"):
-                    for part in event.content.parts:
-                        if part.text:
-                            yield json.dumps({"type": "text", "content": part.text}) + "\n"
-                        if hasattr(part, "function_call") and part.function_call:
-                            call = part.function_call
-                            tool_start_times[call.name] = time.time()
-                            yield json.dumps({"type": "tool_call", "tool": call.name, "args": call.args}) + "\n"
-                        if hasattr(part, "function_response") and part.function_response:
-                            resp = part.function_response
-                            duration = 0
-                            if resp.name in tool_start_times:
-                                duration = time.time() - tool_start_times.pop(resp.name)
-                            result_content = resp.response
+            # Case A: Parts-based Content (Newer ADK)
+            content_obj = getattr(source, "model_content", None) or getattr(source, "content", None)
+            if not content_obj and hasattr(source, "parts"): content_obj = source
+            elif not content_obj and hasattr(event, "content") and event.content: content_obj = event.content
 
-                            # PATCH: Fix double-serialization of dicts as Python strings (single quotes)
-                            # This happens when ADK or MCP returns a stringified dict
-                            if isinstance(result_content, str):
-                                stripped = result_content.strip()
-                                if (stripped.startswith("{") and stripped.endswith("}")) or (stripped.startswith("[") and stripped.endswith("]")):
-                                    try:
-                                        import ast
-                                        # Try to parse as valid structure
-                                        try:
-                                            result_content = json.loads(result_content)
-                                        except:
-                                            result_content = ast.literal_eval(result_content)
-                                    except:
-                                        pass
-                            
-                            # Ensure result is serializable; if not, fall back to string
-                            if not isinstance(result_content, (dict, list, str, int, float, bool, type(None))):
-                                result_content = str(result_content)
-                            
-                            yield json.dumps({"type": "tool_result", "tool": resp.name, "result": result_content, "duration": duration}) + "\n"
+            if content_obj and hasattr(content_obj, "parts") and content_obj.parts:
+                for part in content_obj.parts:
+                    if hasattr(part, "text") and part.text:
+                        results.append({"type": "text", "content": part.text, "sourceAgent": source_agent})
+                    elif hasattr(part, "function_call") and part.function_call:
+                        call = part.function_call
+                        start_times[call.name] = time.time()
+                        args = call.args if isinstance(call.args, dict) else getattr(call.args, "__dict__", {})
+                        results.append({"type": "tool_call", "tool": call.name, "args": args, "sourceAgent": source_agent})
+                    elif hasattr(part, "function_response") and part.function_response:
+                        resp = part.function_response
+                        duration = time.time() - start_times.pop(resp.name, time.time())
+                        results.append({"type": "tool_result", "tool": resp.name, "result": resp.response, "duration": duration, "sourceAgent": source_agent})
+
+            # Case B: Traditional Tool Call
+            if hasattr(source, "tool_code") and source.tool_code:
+                call = source.tool_code
+                if not any(r.get("type") == "tool_call" and r.get("tool") == call.name for r in results):
+                    start_times[call.name] = time.time()
+                    results.append({"type": "tool_call", "tool": call.name, "args": call.args, "sourceAgent": source_agent})
                 
-                if hasattr(event, "usage_metadata") and event.usage_metadata:
-                    yield json.dumps({"type": "usage", "prompt_tokens": event.usage_metadata.prompt_token_count, "candidates_tokens": event.usage_metadata.candidates_token_count, "total_tokens": event.usage_metadata.total_token_count}) + "\n"
+            # Case C: Traditional Tool Result
+            if hasattr(source, "tool_result") and source.tool_result:
+                resp = source.tool_result
+                if not any(r.get("type") == "tool_result" and r.get("tool") == resp.name for r in results):
+                    duration = time.time() - start_times.pop(resp.name, time.time())
+                    results.append({"type": "tool_result", "tool": resp.name, "result": resp.response, "duration": duration, "sourceAgent": source_agent})
+            
+            # PATCH: Handle double-serialization in results
+            for res in results:
+                if res["type"] == "tool_result" and isinstance(res["result"], str):
+                    s = res["result"].strip()
+                    if (s.startswith("{") and s.endswith("}")) or (s.startswith("[") and s.endswith("]")):
+                        try:
+                            res["result"] = json.loads(s)
+                        except:
+                            try:
+                                import ast
+                                res["result"] = ast.literal_eval(s)
+                            except: pass
 
+            return results
+
+        # 1. Emit Topology Event IMMEDIATELY
+        yield json.dumps({"type": "topology", "data": topo}) + "\n"
+        
+        current_runner = runner
+        tool_start_times = {}
+        full_content_buffer = ""
+        switch_directive = None
+
+        try:
+            try:
+                import httpx
+                async for event in current_runner.run_async(user_id="user_1", session_id=req.session_id, new_message=new_message):
+                    # 1. Yield Usage
+                    if hasattr(event, "usage_metadata") and event.usage_metadata:
+                        yield json.dumps({
+                            "type": "usage", 
+                            "prompt_tokens": event.usage_metadata.prompt_token_count or 0, 
+                            "candidates_tokens": event.usage_metadata.candidates_token_count or 0, 
+                            "total_tokens": event.usage_metadata.total_token_count or 0
+                        }) + "\n"
+
+                    # 2. Parse and Yield Event Data
+                    try:
+                        data_list = parse_event(event, tool_start_times)
+                        
+                        for data in data_list:
+                            # Update buffer if text
+                            if data["type"] == "text":
+                                full_content_buffer += data["content"]
+                            
+                            # Check for Sentinel in tool result
+                            if data["type"] == "tool_result":
+                                res_val = data["result"]
+                                if isinstance(res_val, dict) and "result" in res_val:
+                                    res_val = res_val["result"]
+                                
+                                res_str = str(res_val)
+                                if "SWITCH_TO_PARALLEL_WORKFLOW:" in res_str:
+                                    print(f"DEBUG: Detected switch directive: {res_str}")
+                                    switch_directive = res_str
+
+                            yield json.dumps(data) + "\n"
+                    except Exception as e2:
+                        print(f"Error processing event: {e2}")
+
+            # End of first run.
+            except ImportError:
+                 pass
+            
+            # 2. Check for Switch Directive
+            if switch_directive:
+                print(f"[Main] Switching to Parallel Workflow based on directive: {switch_directive}")
+                _, tickers_str, metric_focus = switch_directive.split(":", 2)
+                metric_focus = metric_focus.strip().replace("'", "").replace('"', "")
+                
+                # Construct the Parallel Agent (Copied logic from earlier)
+                # Parse tickers
+                raw_list = [t.strip() for t in tickers_str.split(',')]
+                target_tickers = raw_list[:4]
+                
+                parallel_workers = []
+                for t in target_tickers:
+                    worker = create_data_analyst_agent(
+                        token=factset_token,
+                        model_name=req.complex_model, # Use the COMPLEX model selected by user
+                        ticker=t,
+                        section=metric_focus
+                    )
+                    parallel_workers.append(worker)
+                   
+                sanitized_section = metric_focus.replace(" ", "_")
+                parallel_agent = ParallelAgent(
+                    name=f"parallel_{sanitized_section}_fetcher",
+                    sub_agents=parallel_workers
+                )
+                
+                sum_instr = (
+                    f"Summarize comparison of {tickers_str}. Focus: {metric_focus}.\n"
+                    "Synthesize findings. No tools."
+                )
+                summarizer = Agent(
+                    name="summary_analyst",
+                    model=req.complex_model, # Use COMPLEX for final synthesis
+                    tools=[],
+                    instruction=sum_instr
+                )
+               
+                workflow_agent = SequentialAgent(
+                    name=f"{sanitized_section}_widget_workflow",
+                    sub_agents=[parallel_agent, summarizer]
+                )
+               
+                # Create NEW Runner for the workflow
+                new_topo = generate_topology(workflow_agent)
+                print(f"[Main] Yielding NEW Topology with {len(new_topo['nodes'])} nodes")
+                yield json.dumps({"type": "topology", "data": new_topo}) + "\n"
+                
+                workflow_runner = adk.Runner(app_name="stock_terminal_parallel", agent=workflow_agent, session_service=session_service)
+                # Ensure session exists but don't fail if it does
+                if not await session_service.get_session(session_id=req.session_id, app_name="stock_terminal_parallel", user_id="user_1"):
+                    await session_service.create_session(session_id=req.session_id, app_name="stock_terminal_parallel", user_id="user_1")
+               
+                workflow_tool_start_times = {}
+                workflow_buffer = ""
+
+                # Run the workflow with a dummy trigger message
+                trigger_msg = Content(role="user", parts=[Part(text=f"Proceed with fetching data for {tickers_str} focusing on {metric_focus}")])
+                
+                async for event in workflow_runner.run_async(user_id="user_1", session_id=req.session_id, new_message=trigger_msg):
+                    # 1. Yield Usage
+                    if hasattr(event, "usage_metadata") and event.usage_metadata:
+                        yield json.dumps({
+                            "type": "usage", 
+                            "prompt_tokens": event.usage_metadata.prompt_token_count or 0, 
+                            "candidates_tokens": event.usage_metadata.candidates_token_count or 0, 
+                            "total_tokens": event.usage_metadata.total_token_count or 0
+                        }) + "\n"
+
+                    # 2. Parse and Yield Event Data
+                    try:
+                        data_list = parse_event(event, workflow_tool_start_times)
+                        for data in data_list:
+                            if data["type"] == "text":
+                                workflow_buffer += data["content"]
+                            yield json.dumps(data) + "\n"
+                    except Exception as e3:
+                        print(f"Error processing workflow event: {e3}")
+
+
+        except ImportError:
+             pass
+             
         except Exception as e:
-            print(f"Chat error: {e}")
-            import traceback
+            print(f"Stream error: {e}")
             traceback.print_exc()
-            error_msg = str(e)
             
             # Recursive function to find the root cause
             def get_root_cause(exc):
@@ -732,6 +1057,11 @@ async def chat(req: ChatRequest):
                     if found: return found
                     
                 return None
+            
+            # Check for httpx.ReadError (via string check if class not imported or generic)
+            if "httpx.ReadError" in str(type(e)) or "ReadError" in str(e):
+                 yield json.dumps({"type": "error", "content": "Network Error: The AI service closed the connection (ReadError)."}) + "\n"
+                 return
 
             root_msg = get_root_cause(e)
             if root_msg:
@@ -739,6 +1069,8 @@ async def chat(req: ChatRequest):
             elif hasattr(e, "exceptions") and e.exceptions:
                  # Fallback for generic ExceptionGroup
                 error_msg = str(e.exceptions[0])
+            else:
+                error_msg = str(e)
 
             yield json.dumps({"type": "error", "content": error_msg}) + "\n"
 
