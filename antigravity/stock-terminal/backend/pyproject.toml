@@ -15,4 +15,5 @@ dependencies = [
     "requests>=2.32.5",
     "uvicorn>=0.40.0",
     "yfinance>=1.0",
+    "googlesearch-python>=1.2.3",
 ]
