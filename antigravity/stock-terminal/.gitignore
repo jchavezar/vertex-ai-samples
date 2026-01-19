@@ -9,9 +9,10 @@ secrets.json
 
 # FactSet
 factset_tokens.json
-factset_context.md
+# factset_context.md  <-- Removed from ignore to allow tracking
 
 # Python
+.python-version
 __pycache__/
 *.pyc
 .venv/
