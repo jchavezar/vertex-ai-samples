@@ -1,0 +1,42 @@
+# Common
+.DS_Store
+*.log
+.env
+.env.*
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+ENV/
+env/
+build/
+dist/
+*.spec
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Node/Next.js
+node_modules/
+.next/
+out/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# PDF & Generated Artifacts
+*.pdf
+backend/static/*.jpg
+backend/static/*.jpeg
+backend/static/*.png
+frontend/public/static/
+
+# IDEs
+.idea/
+.vscode/
+*.swp
+*.swo

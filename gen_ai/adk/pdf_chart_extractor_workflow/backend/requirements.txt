@@ -1,0 +1,10 @@
+fastapi
+uvicorn
+python-multipart
+google-adk
+google-genai
+pillow
+pymupdf
+google-cloud-storage
+google-cloud-bigquery
+pydantic
