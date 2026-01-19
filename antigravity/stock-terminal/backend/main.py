@@ -19,6 +19,7 @@ import google.adk as adk
 from google.adk.agents import Agent, ParallelAgent, SequentialAgent
 from google.adk.sessions import InMemorySessionService
 from google.genai.types import Content, Part
+import httpx
 
 # Import the new FactSet Agent factory
 from factset_agent import create_factset_agent, google_search, perform_google_search, FACTSET_INSTRUCTIONS
@@ -46,7 +47,7 @@ def save_tokens(tokens):
     except Exception as e:
         print(f"Error saving tokens: {e}")
 
-def refresh_factset_token(session_id: str):
+async def refresh_factset_token(session_id: str):
     """Refreshes the FactSet token using the stored refresh_token."""
     data = factset_tokens.get(session_id)
     if not data or "refresh_token" not in data:
@@ -67,30 +68,31 @@ def refresh_factset_token(session_id: str):
     }
 
     try:
-        response = requests.post(FS_TOKEN_URL, data=payload, headers=headers, timeout=10)
-        if response.status_code == 200:
-            new_tokens = response.json()
-            access_token = new_tokens.get("access_token")
-            refresh_token = new_tokens.get("refresh_token") or data["refresh_token"]
-            expires_in = new_tokens.get("expires_in", 900)
-            
-            factset_tokens[session_id] = {
-                "token": access_token,
-                "refresh_token": refresh_token,
-                "expires_at": time.time() + expires_in,
-                "created_at": time.time()
-            }
-            save_tokens(factset_tokens)
-            print(f"Successfully refreshed token for {session_id}")
-            return access_token
-        else:
-            print(f"Token Refresh Failed for {session_id}: {response.text}")
-            return None
+        async with httpx.AsyncClient() as client:
+            response = await client.post(FS_TOKEN_URL, data=payload, headers=headers, timeout=10.0)
+            if response.status_code == 200:
+                new_tokens = response.json()
+                access_token = new_tokens.get("access_token")
+                refresh_token = new_tokens.get("refresh_token") or data["refresh_token"]
+                expires_in = new_tokens.get("expires_in", 900)
+                
+                factset_tokens[session_id] = {
+                    "token": access_token,
+                    "refresh_token": refresh_token,
+                    "expires_at": time.time() + expires_in,
+                    "created_at": time.time()
+                }
+                save_tokens(factset_tokens)
+                print(f"Successfully refreshed token for {session_id}")
+                return access_token
+            else:
+                print(f"Token Refresh Failed for {session_id}: {response.text}")
+                return None
     except Exception as e:
         print(f"Error refreshing token for {session_id}: {e}")
         return None
 
-def get_valid_factset_token(session_id: str):
+async def get_valid_factset_token(session_id: str):
     """Returns a valid FactSet token, refreshing if necessary (5 min buffer)."""
     # Reload from disk for tests/consistency if file changed externally
     global factset_tokens
@@ -99,25 +101,17 @@ def get_valid_factset_token(session_id: str):
     data = factset_tokens.get(session_id)
     if not data:
         return None
-    
+
     token = data.get("token")
     expires_at = data.get("expires_at", 0)
     
-    if expires_at:
-        rem = expires_at - time.time()
-        print(f"Token for {session_id} expires in {rem:.0f}s")
-    else:
-        print(f"Token for {session_id} has no expiration set.")
-
     # Refresh if expired or expiring in the next 5 minutes
     if not expires_at or time.time() > (expires_at - 300):
-        if data.get("refresh_token"):  # Check if non-empty
-            refreshed = refresh_factset_token(session_id)
-            if refreshed:
-                return refreshed
+        if data.get("refresh_token") and data["refresh_token"] != "pending":
+            refreshed = await refresh_factset_token(session_id)
+            return refreshed
         else:
-            print(f"Token for {session_id} is expired but has no refresh_token.")
-            # If definitely expired, return None to trigger reconnect prompt
+            print(f"Token for {session_id} is expired or invalid, and no refresh_token is available.")
             if expires_at and time.time() > expires_at:
                 return None
             
@@ -393,17 +387,6 @@ def create_parallel_data_analyst_workflow(token: str, tickers: list, section: st
         name=f"{sanitized_section}_widget_workflow",
         sub_agents=[parallel_agent, aggregator]
     )
-    """
-    Creates the default 'Chat' agent (unauthenticated).
-    """
-    return Agent(
-        model=model_name,
-        name="StockTerminal_Chat",
-        instruction=CHAT_INSTRUCTIONS,
-        tools=[get_current_time, perform_general_search_only],
-        # server=None 
-
-    )
 
 app = FastAPI()
 
@@ -434,6 +417,12 @@ class ChartCurationRequest(BaseModel):
     context: Optional[str] = None
     session_id: str = "default_chat"
 
+class WidgetRequest(BaseModel):
+    tickers: List[str]
+    section: str
+    session_id: str = "default_chat"
+    model: str = "gemini-2.5-flash"
+
 class AuthCallbackRequest(BaseModel):
     redirect_url: str
     session_id: str = "default_chat"
@@ -459,7 +448,7 @@ def get_factset_auth_url():
     return {"auth_url": auth_url}
 
 @app.post("/auth/factset/callback")
-def factset_callback(req: AuthCallbackRequest):
+async def factset_callback(req: AuthCallbackRequest):
     """Exchanges the redirect URL code for an access token."""
     url = req.redirect_url
     print(f"Receiving callback URL: {url}")
@@ -490,32 +479,33 @@ def factset_callback(req: AuthCallbackRequest):
             "redirect_uri": FS_REDIRECT_URI
         }
 
-        response = requests.post(FS_TOKEN_URL, data=data, headers=headers)
-        if response.status_code == 200:
-            tokens = response.json()
-            access_token = tokens.get("access_token")
-            refresh_token = tokens.get("refresh_token")
-            expires_in = tokens.get("expires_in", 900) # Default 15 min
-            
-            # Store token with timestamp and refresh info
-            factset_tokens[req.session_id] = {
-                "token": access_token,
-                "refresh_token": refresh_token,
-                "expires_at": time.time() + expires_in,
-                "created_at": time.time()
-            }
-            save_tokens(factset_tokens)
-            return {"status": "success", "message": "FactSet Connected successfully!"}
-        else:
-            print(f"Token Exchange Failed: {response.text}")
-            raise HTTPException(status_code=400, detail=f"Token exchange failed: {response.text}")
+        async with httpx.AsyncClient() as client:
+            response = await client.post(FS_TOKEN_URL, data=data, headers=headers)
+            if response.status_code == 200:
+                tokens = response.json()
+                access_token = tokens.get("access_token")
+                refresh_token = tokens.get("refresh_token")
+                expires_in = tokens.get("expires_in", 900) # Default 15 min
+                
+                # Store token with timestamp and refresh info
+                factset_tokens[req.session_id] = {
+                    "token": access_token,
+                    "refresh_token": refresh_token,
+                    "expires_at": time.time() + expires_in,
+                    "created_at": time.time()
+                }
+                save_tokens(factset_tokens)
+                return {"status": "success", "message": "FactSet Connected successfully!"}
+            else:
+                print(f"Token Exchange Failed: {response.text}")
+                raise HTTPException(status_code=400, detail=f"Token exchange failed: {response.text}")
 
     except Exception as e:
         print(f"Auth Error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/auth/factset/manual")
-def factset_manual_auth(req: ManualAuthRequest):
+async def factset_manual_auth(req: ManualAuthRequest):
     """Manually stores a long-lived refresh token."""
     print(f"Storing manual refresh token for session: {req.session_id}")
     
@@ -527,7 +517,7 @@ def factset_manual_auth(req: ManualAuthRequest):
         "created_at": time.time()
     }
     
-    access_token = refresh_factset_token(req.session_id)
+    access_token = await refresh_factset_token(req.session_id)
     if access_token:
         return {"status": "success", "message": "Manual Refresh Token connected successfully!"}
     else:
@@ -537,8 +527,8 @@ def factset_manual_auth(req: ManualAuthRequest):
         raise HTTPException(status_code=400, detail="Failed to verify manual refresh token. Please check it is valid.")
 
 @app.get("/auth/factset/status")
-def get_factset_status(session_id: str = "default_chat"):
-    token = get_valid_factset_token(session_id)
+async def get_factset_status(session_id: str = "default_chat"):
+    token = await get_valid_factset_token(session_id)
     if not token:
         return {"connected": False}
     
@@ -692,6 +682,70 @@ async def curate_chart(req: ChartCurationRequest):
         print(f"Failed to parse curator JSON: {full_text}")
         raise HTTPException(status_code=500, detail="Invalid curator response")
 
+@app.post("/generate-widget")
+async def generate_widget_endpoint(req: WidgetRequest):
+    """
+    Dedicated endpoint for asynchronous widget generation.
+    Returns a JSON response with the analysis content.
+    """
+    try:
+        # ALWAYS use the base session_id to retrieve the auth token
+        factset_token = await get_valid_factset_token(req.session_id)
+        if not factset_token:
+            raise HTTPException(status_code=401, detail="FactSet not connected")
+
+        # Create the appropriate agent (Parallel or Single)
+        if len(req.tickers) > 1:
+            agent = create_parallel_data_analyst_workflow(
+                token=factset_token, 
+                tickers=req.tickers, 
+                section=req.section, 
+                model_name=req.model
+            )
+        else:
+            ticker = req.tickers[0] if req.tickers else "selected company"
+            agent = create_data_analyst_agent(
+                token=factset_token, 
+                ticker=ticker, 
+                model_name=req.model, # Use the requested model
+                section=req.section
+            )
+            agent.instruction += f"\nIMPORTANT: YOU MUST WRAP YOUR ENTIRE RESPONSE IN [WIDGET:{req.section}]...[/WIDGET] tags."
+
+        runner = adk.Runner(app_name="stock_terminal_widgets", agent=agent, session_service=session_service)
+        
+        # Use a section-specific session ID to avoid history pollution between parallel widgets
+        widget_session_id = f"{req.session_id}_{req.section.replace(' ', '_')}"
+        
+        # Ensure session exists
+        if not await session_service.get_session(session_id=widget_session_id, app_name=runner.app_name, user_id="widget_user"):
+            await session_service.create_session(session_id=widget_session_id, app_name=runner.app_name, user_id="widget_user")
+
+        prompt = f"Generate {req.section} analysis for {', '.join(req.tickers)}."
+        new_message = Content(role="user", parts=[Part(text=prompt)])
+        
+        full_text = ""
+        async for event in runner.run_async(user_id="widget_user", session_id=widget_session_id, new_message=new_message):
+            if event.content and hasattr(event.content, "parts"):
+                for part in event.content.parts:
+                    if part.text:
+                        full_text += part.text
+        
+        # Extract content between tags if present
+        import re
+        tag_pattern = rf"\[WIDGET:{re.escape(req.section)}\]([\s\S]*?)\[/WIDGET\]"
+        match = re.search(tag_pattern, full_text)
+        content = match.group(1).strip() if match else full_text.strip()
+
+        return {"section": req.section, "content": content}
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"Widget Generation Error: {e}")
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=str(e))
+
 from fastapi.responses import StreamingResponse
 
 @app.post("/chat")
@@ -701,7 +755,7 @@ async def chat(req: ChatRequest):
         raise ValueError("FactSet authentication token expired or invalid. Please reconnect.")
 
     try:
-        factset_token = get_valid_factset_token(req.session_id)
+        factset_token = await get_valid_factset_token(req.session_id)
         agent = None
         
         # SPECIAL ROUTING: Widget Generation (Case-insensitive catch)
@@ -728,11 +782,8 @@ async def chat(req: ChatRequest):
                  agent = create_parallel_data_analyst_workflow(token=factset_token, tickers=tickers_list, section=section, model_name=req.model)
              else:
                  single_ticker = tickers_list[0] if tickers_list else None
-                 print(f"DEBUG: Routing to SPECIALIZED DATA ANALYST for {section} ({single_ticker})")
-                 
-                 # Ensure single analyst wraps in tags
-                 agent = create_data_analyst_agent(token=factset_token, ticker=single_ticker, model_name="gemini-2.5-flash-lite")
-                # Add the tag instruction to single analyst as well (it was in the previous version)
+                 # Ensure single analyst uses the requested model and wraps in tags
+                 agent = create_data_analyst_agent(token=factset_token, ticker=single_ticker, model_name=req.model, section=section)
                  agent.instruction += f"\nIMPORTANT: YOU MUST WRAP YOUR ENTIRE RESPONSE IN [WIDGET:{section}]...[/WIDGET] tags."
         
         elif factset_token:
@@ -756,6 +807,10 @@ async def chat(req: ChatRequest):
                 "DO NOT ask for metrics if the user already provided them in their query.\n"
                 "DO NOT attempt to fetch data yourself for multi-stock comparisons. Use the tool to delegate."
             )
+
+            # If the user is explicitly asking to visualize, we force the CHART tag logic
+            if "visualize" in msg_lower or "chart" in msg_lower or "plot" in msg_lower:
+                gatekeeper_instruction += "\nCRITICAL: The user wants to see a chart. You MUST use the [CHART] tag protocol to visualize the numbers discussed or recently fetched. Do NOT just summarize in text."
             
             agent = create_factset_agent(
                 token=factset_token, 

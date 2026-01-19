@@ -81,22 +81,44 @@ function App() {
     }));
   };
 
-  const handleGenerateWidget = (section) => {
-    handleUpdateWidget(section, null, true); // Set loading
+  const handleGenerateWidget = async (section) => {
+    handleUpdateWidget(section, null, true); // Set loading status for this specific widget
 
-    // Extract tickers from chart context if available
-    let tickersToAnalyze = ticker;
+    // Extract tickers from chart context if available to provide multi-company analysis
+    let tickersToAnalyze = [ticker];
     if (chartOverride && chartOverride.series && chartOverride.series.length > 0) {
-      tickersToAnalyze = chartOverride.series.map(s => s.ticker).join(', ');
+      tickersToAnalyze = chartOverride.series.map(s => s.ticker);
     } else if (chartOverride && chartOverride.ticker) {
-      tickersToAnalyze = chartOverride.ticker;
+      tickersToAnalyze = [chartOverride.ticker];
     }
 
-    if (window.triggerAgent) {
-      window.triggerAgent(
-        `Generate ${section} analysis for ${tickersToAnalyze}. IMPORTANT: Wrap the response in [WIDGET:${section}]...[/WIDGET] tags.`,
-        { preserveChart: true, expectedWidget: section }
-      );
+    try {
+      console.log(`[App] Triggering async widget analysis for ${section}...`);
+
+      const response = await fetch('http://localhost:8001/generate-widget', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          tickers: tickersToAnalyze,
+          section: section,
+          session_id: "default_chat",
+          model: "gemini-2.5-flash" // Default to flash for speed
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`Widget fetch failed with status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log(`[App] Received analysis for ${section}:`, data);
+
+      // Update the widget with actual content and clear loading state
+      handleUpdateWidget(section, data.content, false);
+
+    } catch (err) {
+      console.error(`[App] Failed to generate widget ${section}:`, err);
+      handleUpdateWidget(section, `Error: Failed to fetch ${section} analysis.`, false);
     }
   };
 
