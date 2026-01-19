@@ -296,12 +296,29 @@ CHART CREATION CAPABILITIES:
 - **Revenue by Region/Country**: Call `FactSet_GeoRev`. The system will render a **Pie Chart** of revenue distribution.
 - To create a chart, simply call the appropriate tool.
 - You should explicitly mention: "I've updated the chart on your dashboard with this data."
-- If the user asks for a chart, do NOT say you cannot create one. Call the tool to get the data, and the chart will appear.
+"""
 
+async def plot_financial_data(title: str, chart_type: str, data_json: str) -> str:
+    """
+    PROACTIVELY plots a custom chart on the user's dashboard.
+    Use this when you have already fetched data and want to visualize it for the user.
+    Args:
+        title: The chart title.
+        chart_type: 'line', 'bar', or 'pie'.
+        data_json: A JSON string suitable for the chart.
+          - For 'line', use: [{"ticker": "Name", "history": [{"date": "...", "close": number}, ...]}]
+          - For 'bar' or 'pie', use: [{"label": "...", "value": number}, ...]
+    """
+    # This tool sends a sentinel to the frontend via the [CHART] protocol automatically
+    return f"[CHART] {data_json} [/CHART] I've plotted the {title} as a {chart_type} chart for you."
+
+FACTSET_INSTRUCTIONS += """
 ADVANCED CREATIVE VISUALIZATIONS:
 - For complex data comparisons (e.g., comparing year-over-year growth rates or multiple tickers) that standard tool-auto-charts don't cover perfectly, you can MANUALLY generate a chart by wrapping a JSON config in [CHART]...[/CHART] tags.
 - Example: [CHART] {"title": "Annual Growth Compare", "chartType": "bar", "data": [{"label": "NVDA", "value": 110}, {"label": "AAPL", "value": 15}]} [/CHART]
 - Use this when you want to provide a specific analytical visual that you've calculated yourself from tool results.
+- **MANDATORY VISUAL RESPONSE**: If the user asks you to 'visualize', 'chart', or 'plot' data you've already provided, DO NOT reply with text saying "I already provided it". You MUST immediately output the [CHART] tag with the data they want to see. This is how you update the user's dashboard.
+- **PROACTIVE CHARTING**: Whenever you provide a Table with more than 3 data points, you SHOULD proactively include a [CHART] tag summarizing the main trend to give the user an immediate visual insight on their dashboard.
 
 DATA RETRIEVAL STRATEGY:
 - **Fundamentals vs Estimates**:
@@ -427,6 +444,7 @@ def create_factset_agent(token: str, model_name: str = "gemini-2.5-flash", instr
     if include_native_tools:
         tool_list.append(get_current_time)
         tool_list.append(perform_google_search)
+        tool_list.append(plot_financial_data)
     
     if extra_tools:
         tool_list.extend(extra_tools)

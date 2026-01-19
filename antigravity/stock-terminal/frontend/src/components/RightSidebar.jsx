@@ -1021,42 +1021,136 @@ const RightSidebar = ({ dashboardData, chartOverride, setChartOverride, onUpdate
 
   const handleCreateChart = async (tableProps = null) => {
     if (tableProps) {
+      console.log("[handleCreateChart] Triggered with props:", tableProps);
       try {
         const getText = (children) => {
+          if (!children) return '';
           return React.Children.toArray(children).map(child => {
             if (typeof child === 'string' || typeof child === 'number') return child;
             if (child.props && child.props.children) return getText(child.props.children);
+            if (Array.isArray(child)) return getText(child);
             return '';
           }).join('').trim();
         };
 
-        const thead = tableProps.children?.find(c => c.type === 'thead');
-        const tbody = tableProps.children?.find(c => c.type === 'tbody');
+        const findComp = (children, type) => {
+          const arr = React.Children.toArray(children);
+          return arr.find(c => c && c.type === type);
+        };
+
+        const thead = findComp(tableProps.children, 'thead');
+        const tbody = findComp(tableProps.children, 'tbody');
 
         if (thead && tbody) {
-          const headers = React.Children.toArray(thead.props.children)[0].props.children.map(th => getText(th.props.children));
-          const rows = React.Children.toArray(tbody.props.children).map(tr =>
-            React.Children.toArray(tr.props.children).map(td => getText(td.props.children))
-          );
+          const headRow = React.Children.toArray(thead.props.children).find(c => c && c.type === 'tr');
+          if (!headRow) throw new Error("Could not find table header row");
 
-          // Find context from conversation
-          const lastUserMsg = [...messages].reverse().find(m => m.role === 'user')?.text || "";
+          const headers = React.Children.toArray(headRow.props.children)
+            .filter(c => c && c.type === 'th')
+            .map(th => getText(th.props.children));
 
-          // Use the Backend Curator for intelligent plotting
+          const rows = React.Children.toArray(tbody.props.children)
+            .filter(c => c && c.type === 'tr')
+            .map(tr =>
+              React.Children.toArray(tr.props.children)
+                .filter(c => c && c.type === 'td')
+                .map(td => getText(td.props.children))
+            );
+
+          console.log("[handleCreateChart] Extracted headers:", headers);
+          console.log("[handleCreateChart] Extracted rows count:", rows.length);
+
+          // --- INSTANT DIRECT PLOT LOGIC (Bypass LLM for standard plottable data) ---
+          try {
+            const isNumeric = (str) => {
+              if (str === null || str === undefined || str === '') return false;
+              let cleaned = String(str).replace(/[$,%\s]/g, '');
+              if (cleaned.startsWith('(') && cleaned.endsWith(')')) cleaned = '-' + cleaned.slice(1, -1);
+              return cleaned !== '' && !isNaN(parseFloat(cleaned)) && isFinite(cleaned);
+            };
+            const parseNum = (str) => {
+              let cleaned = String(str).replace(/[$,%\s]/g, '');
+              if (cleaned.startsWith('(') && cleaned.endsWith(')')) cleaned = '-' + cleaned.slice(1, -1);
+              return parseFloat(cleaned);
+            };
+
+            // Detect label column: usually the first non-numeric column
+            let labelColIdx = 0;
+            for (let i = 0; i < headers.length; i++) {
+              const columnValues = rows.map(r => r[i]);
+              const numericCount = columnValues.filter(isNumeric).length;
+              if (numericCount < rows.length * 0.5) {
+                labelColIdx = i;
+                break;
+              }
+            }
+
+            // Detect metric columns: excluding label column
+            const numericColIndices = headers.map((h, i) => {
+              if (i === labelColIdx) return -1;
+              const numericCount = rows.filter(r => isNumeric(r[i])).length;
+              return numericCount > rows.length * 0.8 ? i : -1;
+            }).filter(idx => idx !== -1);
+
+            if (numericColIndices.length > 0 && rows.length >= 2) {
+              const labelHeader = headers[labelColIdx].toLowerCase();
+              const isTimeSeries = labelHeader.includes('date') || labelHeader.includes('year') || labelHeader.includes('period') || labelHeader.includes('time');
+              const title = numericColIndices.length === 1 ? headers[numericColIndices[0]] : "Table Data Chart";
+
+              // Simple heuristic: Line for many points or time series, Bar otherwise
+              const chartType = (isTimeSeries || rows.length > 12) ? 'line' : 'bar';
+
+              if (chartType === 'line') {
+                const series = numericColIndices.map(colIdx => ({
+                  ticker: headers[colIdx],
+                  history: rows.map(r => ({
+                    date: r[labelColIdx],
+                    close: parseNum(r[colIdx])
+                  })).filter(pt => pt.date && !isNaN(pt.close))
+                }));
+                setChartOverride({ chartType: 'line', title, series });
+                addTraceLog('system', `Fast direct chart generated (Line): ${title}`);
+                return; // SUCCESS! Bypassed LLM
+              } else {
+                const data = rows.map(r => ({
+                  label: r[labelColIdx],
+                  value: parseNum(r[numericColIndices[0]])
+                })).filter(pt => pt.label && !isNaN(pt.value));
+                setChartOverride({ chartType: 'bar', title, data });
+                addTraceLog('system', `Fast direct chart generated (Bar): ${title}`);
+                return; // SUCCESS! Bypassed LLM
+              }
+            }
+          } catch (fastErr) {
+            console.warn("[handleCreateChart] Direct plotting attempt failed:", fastErr);
+          }
+          // --- END DIRECT PLOT LOGIC ---
+
+          // Use the Backend Curator for intelligent plotting (Fallback)
           const response = await fetch('http://localhost:8001/curate-chart', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ headers, rows, context: lastUserMsg })
+            body: JSON.stringify({
+              headers,
+              rows,
+              context: [...messages].reverse().find(m => m.role === 'user')?.text || ""
+            })
           });
 
           if (response.ok) {
             const chartConfig = await response.json();
+            console.log("[handleCreateChart] Curation success:", chartConfig);
             setChartOverride(chartConfig);
             return;
+          } else {
+            const errBody = await response.text();
+            console.error("[handleCreateChart] Curation backend error:", errBody);
           }
+        } else {
+          console.warn("[handleCreateChart] Missing head or body in props.children");
         }
       } catch (e) {
-        console.error("Chart curation failed, falling back to LLM chat:", e);
+        console.error("Chart curation failed:", e);
       }
     }
     handleSendChat("Please visualize the data discussed above.");
