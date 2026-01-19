@@ -16,62 +16,81 @@ const WidgetSlot = ({
   if (override && (override.loading || override.content)) {
     if (override.loading) {
       return (
-        <div className="card" style={{
+        <div className="card ai-glow" style={{
           minHeight: '200px', 
-          display:'flex', 
-          alignItems:'center', 
-          justifyContent:'center',
+          display: 'flex', 
           flexDirection: 'column',
-          gap: '12px'
+          padding: '16px'
         }}>
-           <Loader className="animate-spin" color="#004b87" size={24} />
-           <span style={{color:'#004b87', fontSize:'13px', fontWeight: 500}}>
-             Generative AI is analyzing {section}...
-           </span>
+          <div className="section-title" style={{ marginBottom: '16px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <Sparkles size={14} className="icon-pulse" />
+              <span style={{ fontWeight: 600 }}>{section} Analysis</span>
+            </div>
+            <Loader className="animate-spin" size={12} color="#8c959f" />
+          </div>
+
+          <div className="widget-loading-box shimmer-bg" style={{ width: '90%' }} />
+          <div className="widget-loading-box shimmer-bg" style={{ width: '100%' }} />
+          <div className="widget-loading-box shimmer-bg" style={{ width: '85%' }} />
+          <div className="widget-loading-box shimmer-bg" style={{ width: '95%', marginTop: '12px' }} />
+          <div className="widget-loading-box shimmer-bg" style={{ width: '70%' }} />
+
+          <div style={{
+            marginTop: 'auto',
+            fontSize: '10px',
+            color: '#57606a',
+            fontStyle: 'italic',
+            textAlign: 'center'
+          }}>
+            Powering up Gemini analysts...
+          </div>
         </div>
       );
     }
 
     // Extract only the first paragraph or block of text for the concise summary
-    // This helps avoid showing raw tables in the small terminal widget slots
     const getConciseSummary = (content) => {
       if (!content) return "";
-      const lines = content.split('\n');
+      // Remove the specific widget tags if they leaked into the content
+      const cleanContent = content.replace(/\[\/?WIDGET:[^\]]+\]/g, '').trim();
+      const lines = cleanContent.split('\n');
       const paragraph = [];
       for (const line of lines) {
         const trimmed = line.trim();
         if (!trimmed) {
-          if (paragraph.length > 0) break; // End of first paragraph
+          if (paragraph.length > 0) break;
           continue;
         }
-        if (trimmed.startsWith('|') || trimmed.startsWith('-')) continue; // Skip table starts
+        if (trimmed.startsWith('|') || trimmed.startsWith('-')) continue;
         paragraph.push(line);
-        if (paragraph.length > 3) break; // Limit to few lines
+        if (paragraph.length > 3) break;
       }
       return paragraph.join('\n');
     };
 
-    const summaryContent = getConciseSummary(override.content) || override.content.substring(0, 150) + '...';
-    const isLongContent = override.content && override.content.length > 350;
+    const cleanFullContent = override.content.replace(/\[\/?WIDGET:[^\]]+\]/g, '').trim();
+    const summaryContent = getConciseSummary(cleanFullContent) || cleanFullContent.substring(0, 150) + '...';
+    const isLongContent = cleanFullContent.length > 350;
 
     return (
       <>
         <div
-          className="card widget-clickable"
+          className="card widget-clickable ai-glow"
           onClick={() => setIsModalOpen(true)}
           style={{ minHeight: '200px', maxHeight: '300px', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}
         >
-          <div className="section-title" style={{ justifyContent: 'space-between', gap: '8px' }}>
+          <div className="section-title" style={{ justifyContent: 'space-between', gap: '8px', marginBottom: '8px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <Sparkles size={14} color="#004b87" />
-              {section} (AI Analysis)
+              <Sparkles size={12} color="#004b87" />
+              <span style={{ fontWeight: 700, fontSize: '11px' }}>{section} Analysis</span>
             </div>
             <div className="widget-expand-indicator">
               <Maximize2 size={10} />
-              <span>Full View</span>
+              <span>Full Analysis</span>
             </div>
           </div>
-          <div className="markdown-body" style={{ fontSize: '11px', lineHeight: '1.5', color: '#333' }}>
+          <div className="markdown-body concise-summary" style={{ fontSize: '11px', lineHeight: '1.4', color: '#333' }}>
             <ReactMarkdown remarkPlugins={[remarkGfm]}>{summaryContent}</ReactMarkdown>
           </div>
           {isLongContent && (
@@ -103,7 +122,7 @@ const WidgetSlot = ({
                 </button>
               </div>
               <div className="widget-modal-body markdown-body">
-                <ReactMarkdown remarkPlugins={[remarkGfm]}>{override.content}</ReactMarkdown>
+                <ReactMarkdown remarkPlugins={[remarkGfm]}>{cleanFullContent}</ReactMarkdown>
               </div>
             </div>
           </div>

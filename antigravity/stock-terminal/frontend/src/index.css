@@ -520,3 +520,35 @@ button {
 .markdown-body tr:hover td {
   background: #f8faff;
 }
+/* Shimmer effect for premium loading */
+@keyframes shimmer {
+  0% {
+    background-position: -468px 0;
+  }
+
+  100% {
+    background-position: 468px 0;
+  }
+}
+
+.shimmer-bg {
+  animation: shimmer 1.5s infinite linear;
+  background: linear-gradient(to right, #f6f7f8 8%, #edeef1 18%, #f6f7f8 33%);
+  background-size: 800px 104px;
+}
+
+.widget-loading-box {
+  height: 12px;
+  border-radius: 4px;
+  margin-bottom: 8px;
+  width: 100%;
+}
+
+.ai-glow {
+  box-shadow: 0 0 15px rgba(0, 75, 135, 0.1);
+  border: 1px solid rgba(0, 75, 135, 0.2) !important;
+}
+
+.concise-summary p {
+  margin-bottom: 0 !important;
+}
