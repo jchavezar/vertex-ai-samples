@@ -18,13 +18,21 @@ import {
 } from 'recharts';
 
 const PerformanceChart = ({ ticker, externalData, defaultData }) => {
-  // Determine if we are in Multi-Series Mode
   const isMultiSeries = externalData?.series && externalData.series.length > 0;
 
-  // Prepare data.
-  // If Multi-Series: We need to "pivot" the data so XAxis matches. 
-  // Assumption: Series share broadly similar dates. We'll use the dates from the first series as master keys.
-  // Or better: Collect all unique dates and map prices.
+  const formatXAxis = (tickItem) => {
+    if (!tickItem || typeof tickItem !== 'string') return tickItem;
+    const match = tickItem.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    if (match) {
+      const year = match[1].slice(-2);
+      const month = parseInt(match[2], 10);
+      if (month <= 3) return `Q1 '${year}`;
+      if (month <= 6) return `Q2 '${year}`;
+      if (month <= 9) return `Q3 '${year}`;
+      return `Q4 '${year}`;
+    }
+    return tickItem;
+  };
 
   let chartData = [];
   let seriesConfig = [];
@@ -167,6 +175,7 @@ const PerformanceChart = ({ ticker, externalData, defaultData }) => {
               tickLine={false}
               axisLine={false}
               tick={{ fill: '#8c959f' }}
+                    tickFormatter={formatXAxis}
             />
             <YAxis
                     domain={['auto', 'auto']}
@@ -224,48 +233,52 @@ const PerformanceChart = ({ ticker, externalData, defaultData }) => {
         <thead>
           <tr>
             <th></th>
-            <th>1M%</th>
-            <th>3M%</th>
-            <th>6M%</th>
-            <th>YTD%</th>
-            <th>1Y%</th>
+              {isMultiSeries && chartData.length > 0 && chartData.length <= 8 ? (
+                chartData.map(d => <th key={d.time}>{formatXAxis(d.time)}</th>)
+              ) : (
+                <>
+                    <th>1M%</th>
+                    <th>3M%</th>
+                    <th>6M%</th>
+                    <th>YTD%</th>
+                    <th>1Y%</th>
+                </>
+              )}
           </tr>
         </thead>
         <tbody>
             {isMultiSeries ? (
               seriesConfig.map(s => {
-                // Determine if history looks like absolute prices or already returns
                 const closes = s.history.map(p => p.close);
-                const maxVal = Math.max(...closes);
-                const minVal = Math.min(...closes);
-                const isLikelyReturn = maxVal < 10 && minVal > -10; // Basic heuristic: percentage returns are small
-
-                let pct;
-                if (isLikelyReturn) {
-                  // If they are returns, just use the last value as the period return
-                  pct = (s.history[s.history.length - 1]?.close || 0).toFixed(2);
-                } else {
-                  // Calculate return from first to last point in history (Price Mode)
-                  const first = s.history[0]?.close || 0;
-                  const last = s.history[s.history.length - 1]?.close || 0;
-                  pct = first ? ((last - first) / first * 100).toFixed(2) : '0.00';
-                }
+                const first = s.history[0]?.close || 0;
+                const last = s.history[s.history.length - 1]?.close || 0;
+                const pct = first ? ((last - first) / first * 100).toFixed(2) : '0.00';
 
                 return (
                   <tr key={s.key}>
                     <td style={{ color: s.color, fontWeight: 'bold' }}>{s.ticker}</td>
-                    <td className={Number(pct) >= 0 ? "text-up" : "text-down"}>{pct}</td>
-                    <td>-</td>
-                    <td>-</td>
-                    <td>-</td>
-                    <td>-</td>
+                    {isMultiSeries && chartData.length > 0 && chartData.length <= 8 ? (
+                      chartData.map(d => {
+                        const val = d[s.key];
+                        return <td key={d.time} style={{ fontSize: '10px' }}>
+                          {val ? (val > 10 ? `$${val.toFixed(2)}` : `${val.toFixed(2)}%`) : '-'}
+                        </td>;
+                      })
+                    ) : (
+                      <>
+                          <td className={Number(pct) >= 0 ? "text-up" : "text-down"}>{pct}</td>
+                          <td>-</td>
+                          <td>-</td>
+                          <td>-</td>
+                          <td>-</td>
+                      </>
+                    )}
                   </tr>
                 );
               })
             ) : (
                 <tr>
                   <td>{ticker || "Unknown"}</td>
-                  {/* Logic for single ticker return if we have it */}
                   <td className="text-down">-</td>
                   <td className="text-up">-</td>
                   <td className="text-down">-</td>

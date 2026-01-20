@@ -27,31 +27,31 @@ const AiActionButtons = ({ ticker }) => {
             justifyContent: 'center',
             gap: '10px',
             padding: '16px',
-            backgroundColor: '#ffffff',
-            border: '1px solid #e0e0e0',
+            backgroundColor: 'var(--bg-card)',
+            border: '1px solid var(--border)',
             borderRadius: '12px',
             cursor: 'pointer',
             fontSize: '14px',
             fontWeight: '600',
-            color: '#004b87',
+            color: 'var(--brand)',
             transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
-            boxShadow: '0 2px 4px rgba(0,0,0,0.05)'
+            boxShadow: 'var(--glass-shadow)',
+            backdropFilter: 'var(--card-blur)'
           }}
           onMouseEnter={(e) => {
              e.currentTarget.style.transform = 'translateY(-2px)';
              e.currentTarget.style.boxShadow = '0 8px 16px rgba(0,75,135,0.15)';
-             e.currentTarget.style.borderColor = '#004b87';
-             e.currentTarget.style.backgroundColor = '#f8fbbd'; // FactSet-ish highlight? Or subtle blue? Let's go subtle blue.
-             e.currentTarget.style.backgroundColor = '#f0f7ff';
+            e.currentTarget.style.borderColor = 'var(--brand)';
+            e.currentTarget.style.backgroundColor = 'var(--brand-light)';
           }}
           onMouseLeave={(e) => {
              e.currentTarget.style.transform = 'translateY(0)';
-             e.currentTarget.style.boxShadow = '0 2px 4px rgba(0,0,0,0.05)';
-             e.currentTarget.style.borderColor = '#e0e0e0';
-             e.currentTarget.style.backgroundColor = '#ffffff';
+            e.currentTarget.style.boxShadow = 'var(--glass-shadow)';
+            e.currentTarget.style.borderColor = 'var(--border)';
+            e.currentTarget.style.backgroundColor = 'var(--bg-card)';
           }}
         >
-          <Sparkles size={18} color="#004b87" />
+          <Sparkles size={18} />
           <span>Generate {action} via AI</span>
         </button>
       ))}

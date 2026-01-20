@@ -32,7 +32,8 @@ This document contains the discovered schemas and usage patterns for the FactSet
     -   `shares_outstanding`: Historical share counts.
 -   **`ids`**: List of tickers (e.g., `['AAPL-US']`).
 -   **`startDate` / `endDate`**: Required for `prices` and `returns`.
--   **`frequency`**: `D` (Daily), `W` (Weekly), `M` (Monthly), `AY` (Yearly).
+-   **`frequency`**: `D` (Daily), `W` (Weekly), `M` (Monthly), `AQ` (Actual Quarterly), `AY` (Actual Yearly).
+    -   *Note: Use `AQ` for quarterly price history requests.*
 -   **`adjust`**: `SPLIT` (default), `UNSPLIT`.
 
 ### `FactSet_Fundamentals`

@@ -57,17 +57,18 @@ const AgentInsights = ({ ticker }) => {
 
       <style jsx="true">{`
         .insights-container {
-          background: linear-gradient(to bottom, #fcfdff, #ffffff);
-          border: 1px solid #cce0ff;
+          background: rgba(59, 130, 246, 0.03);
+          border: 1px solid rgba(59, 130, 246, 0.3);
+          box-shadow: 0 0 20px rgba(59, 130, 246, 0.1);
         }
         .insights-grid {
           display: grid;
           grid-template-columns: repeat(4, 1fr);
-          gap: 16px;
+          gap: 20px;
         }
         .insight-card {
-          padding-right: 16px;
-          border-right: 1px solid var(--border-light);
+          padding-right: 20px;
+          border-right: 1px solid var(--border);
         }
         .insight-card:last-child {
           border-right: none;
@@ -75,42 +76,48 @@ const AgentInsights = ({ ticker }) => {
         .insight-header {
           display: flex;
           justify-content: space-between;
-          font-size: 10px;
+          font-size: 11px;
           color: var(--text-muted);
           margin-bottom: 8px;
         }
-        .insight-type { font-weight: 700; color: var(--text-secondary); }
+        .insight-type { font-weight: 700; color: var(--brand); text-transform: uppercase; letter-spacing: 0.5px; }
         .insight-headline {
-          font-size: 13px;
-          color: #004b87;
+          font-size: 14px;
+          color: var(--text-primary);
           margin-bottom: 8px;
-          line-height: 1.3;
+          line-height: 1.4;
+          font-weight: 700;
         }
         .insight-summary {
-          font-size: 11px;
+          font-size: 13px;
           color: var(--text-secondary);
         }
         .suggestions {
-          background: #f8fbff;
-          padding: 12px;
-          border-radius: 4px;
-          border: 1px dashed #cce0ff;
+          background: rgba(59, 130, 246, 0.05);
+          padding: 16px;
+          border-radius: 12px;
+          border: 1px dashed rgba(59, 130, 246, 0.3);
         }
         .suggestion-title {
-          font-weight: 700;
-          font-size: 10px;
-          color: #004b87;
-          margin-bottom: 8px;
+          font-weight: 800;
+          font-size: 11px;
+          color: var(--brand);
+          margin-bottom: 12px;
+          text-transform: uppercase;
         }
         .suggestion-list {
           list-style: none;
         }
         .suggestion-list li {
-          font-size: 11px;
-          color: #004b87;
-          margin-bottom: 4px;
-          text-decoration: underline;
+          font-size: 12px;
+          color: var(--text-secondary);
+          margin-bottom: 8px;
           cursor: pointer;
+          transition: color 0.2s;
+        }
+        .suggestion-list li:hover {
+          color: var(--brand);
+          text-decoration: underline;
         }
       `}</style>
     </div>
