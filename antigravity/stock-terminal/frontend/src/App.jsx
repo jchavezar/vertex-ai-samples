@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Terminal } from 'lucide-react';
 import Sidebar from './components/Sidebar';
 import DashboardHeader from './components/DashboardHeader';
 import PerformanceChart from './components/PerformanceChart';
@@ -8,6 +9,7 @@ import SummaryPanel from './components/SummaryPanel';
 import RightSidebar from './components/RightSidebar';
 import AiActionButtons from './components/AiActionButtons';
 import WidgetSlot from './components/WidgetSlot';
+import FinancialsView from './components/FinancialsView';
 
 function App() {
   const [ticker, setTicker] = useState('FDS'); // Default to FactSet
@@ -20,6 +22,17 @@ function App() {
   const [isRightSidebarOpen, setIsRightSidebarOpen] = useState(true);
   const [rightSidebarWidth, setRightSidebarWidth] = useState(450);
   const [isResizing, setIsResizing] = useState(false);
+  const [theme, setTheme] = useState('light'); // default needs to be light
+
+  useEffect(() => {
+    document.body.className = theme === 'dark' ? 'dark-theme' : 'light-theme';
+  }, [theme]);
+
+  const toggleTheme = () => setTheme(prev => prev === 'light' ? 'dark' : 'light');
+
+  // Model selection state (lifted from RightSidebar)
+  const [selectedModel, setSelectedModel] = useState('gemini-2.5-flash-lite');
+  const [selectedComplexModel, setSelectedComplexModel] = useState('gemini-3-flash-preview');
 
   const startResizing = React.useCallback((mouseDownEvent) => {
     setIsResizing(true);
@@ -44,9 +57,15 @@ function App() {
   useEffect(() => {
     window.addEventListener("mousemove", resize);
     window.addEventListener("mouseup", stopResizing);
+
+    // Allow components to trigger sidebar toggle
+    const handleToggle = () => setIsRightSidebarOpen(prev => !prev);
+    window.addEventListener('toggle-right-sidebar', handleToggle);
+
     return () => {
       window.removeEventListener("mousemove", resize);
       window.removeEventListener("mouseup", stopResizing);
+      window.removeEventListener('toggle-right-sidebar', handleToggle);
     };
   }, [resize, stopResizing]);
 
@@ -59,6 +78,7 @@ function App() {
   useEffect(() => {
     setChartOverride(null); // Reset override on ticker change
     setWidgetOverrides({}); // Reset widgets
+    setTickerData(null);    // CLEAR previous data immediately to prevent lag/mismatch
     const fetchTickerInfo = async () => {
       setLoading(true);
       try {
@@ -74,15 +94,19 @@ function App() {
     fetchTickerInfo();
   }, [ticker]);
 
-  const handleUpdateWidget = (section, content, isLoading = false) => {
+  const handleUpdateWidget = (section, content, isLoading = false, usedModel = null) => {
     setWidgetOverrides(prev => ({
       ...prev,
-      [section]: { content, loading: isLoading }
+      [section]: {
+        content,
+        loading: isLoading,
+        model: usedModel || (prev[section]?.model)
+      }
     }));
   };
 
   const handleGenerateWidget = async (section) => {
-    handleUpdateWidget(section, null, true); // Set loading status for this specific widget
+    handleUpdateWidget(section, null, true, selectedModel); // Set loading status and track intended model
 
     // Extract tickers from chart context if available to provide multi-company analysis
     let tickersToAnalyze = [ticker];
@@ -102,7 +126,7 @@ function App() {
           tickers: tickersToAnalyze,
           section: section,
           session_id: "default_chat",
-          model: "gemini-2.5-flash" // Default to flash for speed
+          model: selectedModel
         })
       });
 
@@ -114,7 +138,7 @@ function App() {
       console.log(`[App] Received analysis for ${section}:`, data);
 
       // Update the widget with actual content and clear loading state
-      handleUpdateWidget(section, data.content, false);
+      handleUpdateWidget(section, data.content, false, selectedModel);
 
     } catch (err) {
       console.error(`[App] Failed to generate widget ${section}:`, err);
@@ -127,7 +151,7 @@ function App() {
   return (
     <div className="app-container">
       {isSidebarOpen && (
-        <Sidebar setTicker={setTicker} activeView={activeView} setActiveView={setActiveView} />
+        <Sidebar setTicker={setTicker} activeView={activeView} setActiveView={setActiveView} theme={theme} />
       )}
 
       <div
@@ -160,7 +184,13 @@ function App() {
 
       <main className="main-content">
 
-        <DashboardHeader ticker={ticker} externalData={tickerData} loading={loading} />
+        <DashboardHeader
+          ticker={ticker}
+          externalData={tickerData}
+          loading={loading}
+          theme={theme}
+          onToggleTheme={toggleTheme}
+        />
 
         <div className="content-scrollable">
           {activeView === 'Snapshot' ? (
@@ -202,10 +232,28 @@ function App() {
                 </div>
               ))}
             </div>
+          ) : activeView.includes('Income Statement') || activeView.includes('Financials') || activeView === 'Balance Sheet' || activeView === 'Cash Flow' ? (
+            <FinancialsView ticker={ticker} />
           ) : (
-            <div style={{ padding: '40px', textAlign: 'center', color: '#666' }}>
-              <h2>{activeView} View</h2>
-              <p>This section is currently under development. Please check back later or use the Snapshot view.</p>
+                <div style={{ padding: '80px 40px', textAlign: 'center', color: 'var(--text-muted)' }}>
+                  <div style={{ marginBottom: '24px', opacity: 0.5 }}>
+                    <Terminal size={48} style={{ margin: '0 auto' }} />
+                  </div>
+                  <h2 style={{ color: 'var(--text-primary)', marginBottom: '12px' }}>{activeView} Analysis</h2>
+                  <p>This module is currently being optimized by the Agentic engine.</p>
+                  <button
+                    onClick={() => setActiveView('Snapshot')}
+                    style={{
+                      marginTop: '24px',
+                      padding: '10px 20px',
+                      background: 'var(--brand-gradient)',
+                      borderRadius: '8px',
+                      color: '#fff',
+                      fontWeight: 600
+                    }}
+                  >
+                    Return to Snapshot
+                  </button>
             </div>
           )}
         </div>
@@ -245,6 +293,10 @@ function App() {
         onUpdateWidget={handleUpdateWidget}
         isOpen={isRightSidebarOpen}
         width={rightSidebarWidth}
+        selectedModel={selectedModel}
+        setSelectedModel={setSelectedModel}
+        selectedComplexModel={selectedComplexModel}
+        setSelectedComplexModel={setSelectedComplexModel}
       />
     </div>
   );

@@ -65,10 +65,10 @@ const ReasoningStep = ({ step, isLast, thinkingTime }) => {
 
   const getColor = () => {
     switch (step.type) {
-      case 'call': return '#004b87';
-      case 'result': return '#28a745';
-      case 'error': return '#dc3545';
-      default: return '#6c757d';
+      case 'call': return 'var(--brand)';
+      case 'result': return 'var(--green)';
+      case 'error': return 'var(--red)';
+      default: return 'var(--text-muted)';
     }
   };
 

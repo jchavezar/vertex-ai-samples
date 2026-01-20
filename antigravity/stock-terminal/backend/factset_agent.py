@@ -249,7 +249,37 @@ async def patched_get_tools(self, readonly_context=None):
         for tool in tools:
             if hasattr(tool, "_mcp_tool"):
                 if tool._mcp_tool.name:
-                   pass # print(f"[DEBUG] Found Tool: {tool._mcp_tool.name}")
+                    # Specific Schema Hardening for GlobalPrices
+                    if tool._mcp_tool.name == "FactSet_GlobalPrices":
+                        # 1. Update Schema (for LLM visibility)
+                        props = tool._mcp_tool.inputSchema.get("properties", {})
+                        if "frequency" in props:
+                            props["frequency"]["description"] = (
+                                "Display frequency: D (Daily), W (Weekly), M (Monthly), "
+                                "AQ (Actual Quarterly - REQUIRED for quarterly stock prices), "
+                                "AY (Actual Yearly - REQUIRED for yearly stock prices). "
+                                "CRITICAL: Do NOT use 'FQ' or 'FY' for stock prices; they will fail. "
+                                "Use 'AQ' or 'AY' instead."
+                            )
+                        
+                        # 2. Runtime Interception (Absolute Safeguard)
+                        original_impl = tool._run_async_impl
+                        async def patched_run_async_impl(*args, **kwargs):
+                            # The 'args' dict is passed as a keyword argument 'args'
+                            if 'args' in kwargs:
+                                inner_args = kwargs['args']
+                                if 'frequency' in inner_args:
+                                    freq = str(inner_args['frequency']).upper()
+                                    if freq == 'FY':
+                                        print(f"[PATCH] Normalizing frequency 'FY' -> 'AY' for GlobalPrices call")
+                                        inner_args['frequency'] = 'AY'
+                                    elif freq == 'FQ':
+                                        print(f"[PATCH] Normalizing frequency 'FQ' -> 'AQ' for GlobalPrices call")
+                                        inner_args['frequency'] = 'AQ'
+                            return await original_impl(*args, **kwargs)
+                        tool._run_async_impl = patched_run_async_impl
+
+                    pass # print(f"[DEBUG] Found Tool: {tool._mcp_tool.name}")
                 if tool._mcp_tool.inputSchema:
                     sanitize_schema(tool._mcp_tool.inputSchema)
         return tools
@@ -296,6 +326,17 @@ CHART CREATION CAPABILITIES:
 - **Revenue by Region/Country**: Call `FactSet_GeoRev`. The system will render a **Pie Chart** of revenue distribution.
 - To create a chart, simply call the appropriate tool.
 - You should explicitly mention: "I've updated the chart on your dashboard with this data."
+
+CRITICAL PARAMETER RULES:
+1. **FactSet_GlobalPrices (STOCK PRICES)**:
+   - For Quarterly data: YOU MUST USE `frequency='AQ'`.
+   - For Yearly data: YOU MUST USE `frequency='AY'`.
+   - **NEVER** use `FQ` or `FY` with this tool.
+2. **FactSet_GeoRev (REVENUE BY REGION)**:
+   - For Quarterly data: YOU MUST USE `frequency='FQ'`.
+   - For Yearly data: YOU MUST USE `frequency='FY'`.
+3. **FactSet_CalendarEvents**:
+   - For earnings calls/events: YOU MUST USE `universeType='Tickers'`.
 """
 
 async def plot_financial_data(title: str, chart_type: str, data_json: str) -> str:
@@ -333,12 +374,18 @@ DATA RETRIEVAL STRATEGY:
   - Do NOT use `consensus_rolling` unless `consensus_fixed` fails.
   - If `consensus_fixed` fails, verify the company's fiscal calendar (e.g. via `get_current_time` or logic) and retry with `consensus_rolling` and a negative `relativeFiscalStart` (e.g. -1 for last year, -2 for 2 years ago).
 
-DATA FRESHNESS INSTRUCTION:
+DATA FRESHNESS & MISSING DATA INTELLIGENCE:
 - The user requires the MOST RECENT data available.
 - If a tool returns data that seems stale (e.g., from June 2024 when today is later), you MUST:
   1. Check tool arguments for 'date', 'startDate', 'endDate', or pagination parameters.
   2. Call the tool again with updated parameters to fetch the LATEST data.
   3. REPEAT this process (loop) until you have the most current information.
+
+- **INTELLIGENT FALLBACK FOR MISSING DATA**:
+  - If you call a tool for a specific date (e.g., today's price or a holiday) and it returns NO DATA or an empty results list:
+    1. **DO NOT** just tell the user the data is missing or "check the ticker".
+    2. **PROACTIVELY** try to find the last known value by expanding the search range (e.g., look back 7 days from the requested date).
+    3. **RESPONSE FORMAT**: "I'm sorry, I don't have data for [Requested Date]. However, the last recorded value I have is [Value] from [Last Available Date]."
 
 Creates source-aware responses:
 - If you use FactSet tools, the system will tag your response with a "FactSet" indicator.
