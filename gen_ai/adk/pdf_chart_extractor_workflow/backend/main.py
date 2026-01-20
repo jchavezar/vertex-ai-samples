@@ -1,4 +1,18 @@
 import os
+import asyncio
+from contextlib import asynccontextmanager
+
+# --- Configuration: Restore Vertex AI (Global) ---
+# Mimic the User's working GCE VM setup exactly
+os.environ["GOOGLE_GENAI_USE_VERTEXAI"] = "True"
+os.environ["GOOGLE_CLOUD_PROJECT"] = "vtxdemos"
+os.environ["GOOGLE_CLOUD_LOCATION"] = "global"
+
+print(f"--- STARTUP ENV CHECK ---")
+print(f"GOOGLE_GENAI_USE_VERTEXAI: {os.environ.get('GOOGLE_GENAI_USE_VERTEXAI')}")
+print(f"GOOGLE_CLOUD_LOCATION: {os.environ.get('GOOGLE_CLOUD_LOCATION')}")
+print(f"-------------------------")
+
 import uuid
 import json
 import base64
@@ -13,6 +27,9 @@ from agent_logic import create_page_extractor_agent, create_evaluator_agent, Pdf
 from google.adk.runners import Runner
 from google.adk.sessions import InMemorySessionService
 from google.genai import types
+
+# Import debug script
+# import debug_vertex
 
 app = FastAPI(title="PDF Chart Extractor API")
 
@@ -112,9 +129,24 @@ async def extract_pdf(
             print(f"Error processing page {page_num}: {e}")
             return [], [], None, None
 
-    # Run all pages in parallel
+    # Run all pages in parallel with concurrency limit
     print(f"Starting parallel processing for {len(images)} pages...")
-    tasks = [process_page(i, img) for i, img in enumerate(images)]
+    
+    # Dynamic Semaphore Limit based on Model
+    # Gemini 3 Pro Preview might have strict quotas.
+    # Gemini 3 Flash and others are production-ready with higher limits.
+    limit = 200
+    if "gemini-3-pro" in extractor_model.lower():
+        limit = 8
+        
+    print(f"Applying concurrency limit: {limit} (Model: {extractor_model})")
+    sem = asyncio.Semaphore(limit) 
+
+    async def process_page_with_limit(i, img):
+        async with sem:
+            return await process_page(i, img)
+
+    tasks = [process_page_with_limit(i, img) for i, img in enumerate(images)]
     results = await asyncio.gather(*tasks)
 
     # Aggregate results

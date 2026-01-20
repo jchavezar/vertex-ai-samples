@@ -26,10 +26,10 @@ function cn(...inputs: ClassValue[]) {
 }
 
 const MODELS = [
-  { id: "projects/vtxdemos/locations/global/publishers/google/models/gemini-3-pro-preview", label: "Gemini 3 Pro" },
-  { id: "projects/vtxdemos/locations/global/publishers/google/models/gemini-3-flash-preview", label: "Gemini 3 Flash" },
-  { id: "gemini-2.5-pro", label: "Gemini 2.5 Pro" },
+  { id: "projects/vtxdemos/locations/global/publishers/google/models/gemini-3-pro-preview", label: "Gemini 3 Pro (Global)" },
+  { id: "projects/vtxdemos/locations/global/publishers/google/models/gemini-3-flash-preview", label: "Gemini 3 Flash (Global)" },
   { id: "gemini-2.5-flash", label: "Gemini 2.5 Flash" },
+  { id: "gemini-2.5-pro", label: "Gemini 2.5 Pro" },
 ];
 
 export default function Home() {
@@ -37,8 +37,8 @@ export default function Home() {
   const [isUploading, setIsUploading] = useState(false);
   const [results, setResults] = useState<any>(null);
   const [activePageIndex, setActivePageIndex] = useState(0);
-  const [extractorModel, setExtractorModel] = useState(MODELS[1].id); // Default Gemini 3 Flash
-  const [supportingModel, setSupportingModel] = useState(MODELS[1].id);
+  const [extractorModel, setExtractorModel] = useState(MODELS[0].id); // Default Gemini 3 Pro
+  const [supportingModel, setSupportingModel] = useState(MODELS[0].id);
   const [showWorkflow, setShowWorkflow] = useState(false);
   const [timer, setTimer] = useState(0);
   const [lastJobTime, setLastJobTime] = useState<number | null>(null);
@@ -74,7 +74,7 @@ export default function Home() {
     formData.append('supporting_model', supportingModel);
 
     try {
-      const response = await fetch('http://localhost:8000/extract', {
+      const response = await fetch('/extract', {
         method: 'POST',
         body: formData,
       });
@@ -86,7 +86,7 @@ export default function Home() {
       setActivePageIndex(0);
     } catch (error) {
       console.error('Error:', error);
-      alert('Failed to process PDF. Make sure the backend is running at localhost:8000');
+      alert('Failed to process PDF. Make sure the backend is accessible.');
     } finally {
       setIsUploading(false);
     }
@@ -392,11 +392,18 @@ export default function Home() {
                   </div>
 
                   <div className="rounded-2xl overflow-hidden border border-gray-700 bg-black/40 backdrop-blur-sm p-4">
-                    <img
-                      src={`http://localhost:8000${results.annotated_images[activePageIndex]}`}
-                      alt="Annotated Result"
-                      className="w-full h-auto object-contain rounded-lg shadow-2xl"
-                    />
+                    {results.annotated_images && results.annotated_images.length > 0 ? (
+                      <img
+                        src={`${results.annotated_images[activePageIndex]}`}
+                        alt="Annotated Result"
+                        className="w-full h-auto object-contain rounded-lg shadow-2xl"
+                      />
+                    ) : (
+                      <div className="flex flex-col items-center justify-center py-12 text-gray-500">
+                        <ImageIcon className="w-12 h-12 mb-2 opacity-50" />
+                        <p>No visualizations generated for this page.</p>
+                      </div>
+                    )}
                   </div>
                 </div>
 
