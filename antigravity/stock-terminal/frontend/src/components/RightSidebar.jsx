@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Sparkles, MessageSquare, ChevronDown, ChevronUp, ChevronRight, Maximize2, Minimize2, Terminal, AlertCircle, CheckCircle, X, Plus, Upload, Link, Cloud, HardDrive, Youtube, Mic, MicOff, Activity, Download } from 'lucide-react';
+import { Sparkles, MessageSquare, ChevronDown, ChevronUp, ChevronRight, Maximize2, Minimize2, Terminal, AlertCircle, CheckCircle, X, Plus, Upload, Link, Cloud, HardDrive, Youtube, Mic, MicOff, Activity, Download, Bot } from 'lucide-react';
 import { useLiveAPI } from '../contexts/LiveAPIContext';
 import { AudioRecorder } from '../lib/audio-recorder';
 import ReasoningChain from './ReasoningChain';
@@ -12,7 +12,18 @@ import html2canvas from 'html2canvas';
 import { saveAs } from 'file-saver';
 import AgentGraph from './AgentGraph';
 
-const RightSidebar = ({ dashboardData, chartOverride, setChartOverride, onUpdateWidget, isOpen, width }) => {
+const RightSidebar = ({
+  dashboardData,
+  chartOverride,
+  setChartOverride,
+  onUpdateWidget,
+  isOpen,
+  width,
+  selectedModel,
+  setSelectedModel,
+  selectedComplexModel,
+  setSelectedComplexModel
+}) => {
   const [aiSummary, setAiSummary] = useState(null);
   const [summaryLoading, setSummaryLoading] = useState(false);
   const { connected, connect, disconnect, volume, client, setConfig } = useLiveAPI();
@@ -76,8 +87,7 @@ const RightSidebar = ({ dashboardData, chartOverride, setChartOverride, onUpdate
   }, [client]);
 
   // Chat State
-  const [selectedModel, setSelectedModel] = useState('gemini-2.5-flash-lite');
-  const [selectedComplexModel, setSelectedComplexModel] = useState('gemini-3-flash-preview');
+
   const [messages, setMessages] = useState([
     { role: 'assistant', text: 'How can FactSet help?' }
   ]);
@@ -619,7 +629,19 @@ const RightSidebar = ({ dashboardData, chartOverride, setChartOverride, onUpdate
             if (!window.__DEBUG_EVENTS) window.__DEBUG_EVENTS = [];
             window.__DEBUG_EVENTS.push(event);
 
-            if (event.type === 'topology') {
+            if (event.type === 'model_info') {
+              setMessages(prev => {
+                const newMsgs = [...prev];
+                const last = newMsgs[newMsgs.length - 1];
+                if (last && last.role === 'assistant') {
+                  newMsgs[newMsgs.length - 1] = {
+                    ...last,
+                    models: event.models
+                  };
+                }
+                return newMsgs;
+              });
+            } else if (event.type === 'topology') {
               if (event.data) {
                 setTopology(event.data);
               }
@@ -1293,18 +1315,21 @@ const RightSidebar = ({ dashboardData, chartOverride, setChartOverride, onUpdate
               <button
                 onClick={() => setIsChatMaximized(false)}
                 style={{
-                  marginLeft: 'auto',
                   background: 'none',
                   border: 'none',
                   cursor: 'pointer',
                   padding: '8px',
                   display: 'flex',
                   alignItems: 'center',
-                  color: '#666'
+                  color: '#004b87',
+                  borderRadius: '50%',
+                  transition: 'background 0.2s'
                 }}
-                title="Minimize"
+                onMouseEnter={(e) => e.currentTarget.style.background = '#f0f7ff'}
+                onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+                title="Restore Sidebar"
               >
-                <Minimize2 size={20} />
+                <Minimize2 size={18} />
               </button>
             </div>
           </div>
@@ -1337,6 +1362,37 @@ const RightSidebar = ({ dashboardData, chartOverride, setChartOverride, onUpdate
                     <Download size={14} />
                   </button>
                   <span style={{ fontSize: '10px', fontWeight: '800', color: '#334155', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Terminal</span>
+                </div>
+
+                <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
+                  <button
+                    onClick={() => setIsChatMaximized(true)}
+                    title="Maximize Workspace"
+                    style={{
+                      padding: '6px',
+                      background: '#f8fafc',
+                      border: '1px solid #e2e8f0',
+                      borderRadius: '4px',
+                      color: '#64748b',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center'
+                    }}
+                  >
+                    <Maximize2 size={12} />
+                  </button>
+                  <button
+                    onClick={() => window.dispatchEvent(new CustomEvent('toggle-right-sidebar'))}
+                    title="Close Sidebar"
+                    style={{
+                      padding: '4px',
+                      color: '#64748b',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    <X size={14} />
+                  </button>
                 </div>
 
                 <button
@@ -1440,21 +1496,7 @@ const RightSidebar = ({ dashboardData, chartOverride, setChartOverride, onUpdate
                 </div>
               </div>
 
-              {/* Row 3: Utility (Maximize) */}
-              <div style={{ display: 'flex', justifyContent: 'flex-end', width: '100%', marginTop: '4px' }}>
-                <button
-                  title="Maximize Chat and Workflow View"
-                  onClick={() => setIsChatMaximized(true)}
-                  style={{
-                    padding: '4px',
-                    color: '#004b87',
-                    borderRadius: '4px',
-                    hover: { background: '#f0f4f8' }
-                  }}
-                >
-                  <Maximize2 size={12} />
-                </button>
-              </div>
+
           </div>
         )}
       </div>
@@ -1477,9 +1519,9 @@ const RightSidebar = ({ dashboardData, chartOverride, setChartOverride, onUpdate
                       maxWidth: '70%',
                       marginBottom: '12px',
                       alignSelf: msg.role === 'user' ? 'flex-end' : 'flex-start',
-                      background: msg.role === 'user' ? '#e6f0ff' : '#f0f2f5',
-                      color: msg.role === 'user' ? '#004b87' : 'var(--text-primary)',
-                      border: msg.role === 'user' ? '1px solid #cce0ff' : '1px solid #e6ebf1',
+                        background: msg.role === 'user' ? 'var(--bg-msg-user)' : 'var(--bg-msg-assistant)',
+                        color: msg.role === 'user' ? 'var(--text-msg-user)' : 'var(--text-msg-assistant)',
+                        border: msg.role === 'user' ? '1px solid var(--border-msg-user)' : '1px solid var(--border-msg-assistant)',
                       wordBreak: 'break-word',
                         overflow: 'visible',
                     }}>
@@ -1596,6 +1638,20 @@ const RightSidebar = ({ dashboardData, chartOverride, setChartOverride, onUpdate
                                 {source}
                               </span>
                             ))}
+                            {/* Model Badge */}
+                            {msg.role === 'assistant' && msg.models && msg.models.length > 0 && (
+                              <span style={{
+                                fontSize: '10px',
+                                padding: '2px 8px',
+                                borderRadius: '12px',
+                                fontWeight: 600,
+                                background: '#f3e8ff',
+                                color: '#7e22ce',
+                                border: '1px solid #e9d5ff',
+                              }}>
+                                {msg.models.length > 1 ? 'Multiple Models' : msg.models[0]}
+                              </span>
+                            )}
                           </div>
                         )}
                         {!chartOverride && msg.role === 'assistant' && idx === messages.length - 1 && (
@@ -1771,12 +1827,14 @@ const RightSidebar = ({ dashboardData, chartOverride, setChartOverride, onUpdate
             )}
             {maximizedTab === 'workflow' && (
               <div style={{ flex: 1, overflowY: 'auto', padding: '20px', background: '#fafafa' }}>
-                <ReasoningChain
-                  steps={reasoningSteps}
-                  isExpanded={true}
-                  onToggleExpand={() => { }}
-                  thinkingTime={thinkingTime}
-                />
+                <div style={{ maxWidth: '1000px', margin: '0 auto' }}>
+                  <ReasoningChain
+                    steps={reasoningSteps}
+                    isExpanded={isReasoningExpanded}
+                    onToggleExpand={() => setIsReasoningExpanded(!isReasoningExpanded)}
+                    thinkingTime={thinkingTime}
+                  />
+                </div>
               </div>
             )}
             {maximizedTab === 'graph' && (
@@ -1914,15 +1972,18 @@ const RightSidebar = ({ dashboardData, chartOverride, setChartOverride, onUpdate
               <div
                 className="reasoning-header"
                 onClick={() => setIsPerformanceExpanded(!isPerformanceExpanded)}
+                  style={{ cursor: 'pointer' }}
               >
                 <div className="reasoning-title">
                   <Sparkles size={14} className="icon-pulse" />
                   <span>Stock Performance & Summary</span>
                 </div>
-                {isPerformanceExpanded ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
-              </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    {isPerformanceExpanded ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
+                  </div>
+                </div>
               {isPerformanceExpanded && (
-                <div className="reasoning-body" style={{ padding: '12px' }}>
+                  <div className="reasoning-body" style={{ padding: '12px', maxHeight: '300px', overflowY: 'auto' }}>
                   {summaryLoading ? (
                     <p className="small">Generating AI Summary...</p>
                   ) : aiSummary ? (
@@ -1930,6 +1991,10 @@ const RightSidebar = ({ dashboardData, chartOverride, setChartOverride, onUpdate
                       <div className="markdown-content">
                         <ReactMarkdown remarkPlugins={[remarkGfm]}>{aiSummary}</ReactMarkdown>
                       </div>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '10px', color: '#8c959f', marginTop: '8px', justifyContent: 'flex-end', fontWeight: 500 }}>
+                            <Bot size={12} />
+                            Analyzed with {selectedModel}
+                          </div>
                     </div>
                   ) : (
                     <p className="small">Select a ticker to generate real-time AI insights.</p>
@@ -2013,9 +2078,9 @@ const RightSidebar = ({ dashboardData, chartOverride, setChartOverride, onUpdate
                   borderRadius: '12px',
                   maxWidth: '92%',
                   alignSelf: msg.role === 'user' ? 'flex-end' : 'flex-start',
-                  background: msg.role === 'user' ? '#e6f0ff' : '#f0f2f5',
-                  color: msg.role === 'user' ? '#004b87' : 'var(--text-primary)',
-                  border: msg.role === 'user' ? '1px solid #cce0ff' : '1px solid #e6ebf1',
+                  background: msg.role === 'user' ? 'var(--bg-msg-user)' : 'var(--bg-msg-assistant)',
+                  color: msg.role === 'user' ? 'var(--text-msg-user)' : 'var(--text-msg-assistant)',
+                  border: msg.role === 'user' ? '1px solid var(--border-msg-user)' : '1px solid var(--border-msg-assistant)',
                   wordBreak: 'break-word',
                   overflow: 'visible',
                   boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
@@ -2101,21 +2166,45 @@ const RightSidebar = ({ dashboardData, chartOverride, setChartOverride, onUpdate
                   )}
 
                   {/* Source Badges for Standard View */}
-                  {msg.sources && msg.sources.length > 0 && (
+                  {((msg.sources && msg.sources.length > 0) || (msg.role === 'assistant' && msg.models && msg.models.length > 0)) && (
                     <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap', marginTop: '6px' }}>
-                      {msg.sources.map(source => (
-                        <span key={source} style={{
+                      {msg.sources && msg.sources.map(source => {
+                        const isFactset = source === 'FactSet';
+                        const isSearch = source.includes('Search');
+                        return (
+                          <span key={source} style={{
+                            fontSize: '9px',
+                            padding: '2px 6px',
+                            borderRadius: '10px',
+                            fontWeight: 700,
+                            background: isFactset ? 'var(--bg-badge-factset)' : (isSearch ? 'var(--bg-badge-search)' : 'var(--border-light)'),
+                            color: isFactset ? 'var(--text-badge-factset)' : (isSearch ? 'var(--text-badge-search)' : 'var(--text-secondary)'),
+                            border: '1px solid currentColor',
+                            opacity: 0.9
+                          }}>
+                            {source}
+                          </span>
+                        );
+                      })}
+                      {/* Model Badge */}
+                      {msg.role === 'assistant' && msg.models && msg.models.length > 0 && (
+                        <span style={{
                           fontSize: '9px',
                           padding: '2px 6px',
                           borderRadius: '10px',
-                          fontWeight: 600,
-                          background: source === 'FactSet' ? '#e1f5fe' : '#e8f5e9',
-                          color: source === 'FactSet' ? '#01579b' : '#2e7d32',
-                          border: source === 'FactSet' ? '1px solid #b3e5fc' : '1px solid #c8e6c9',
+                          fontWeight: 700,
+                          background: 'var(--bg-badge-model)',
+                          color: 'var(--text-badge-model)',
+                          border: '1px solid currentColor',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '4px',
+                          opacity: 0.9
                         }}>
-                          {source}
+                          <Sparkles size={8} />
+                          Agent Engine: {msg.models.length > 1 ? 'Multi-Agent System' : msg.models[0]}
                         </span>
-                      ))}
+                      )}
                     </div>
                   )}
 
@@ -2472,16 +2561,19 @@ const RightSidebar = ({ dashboardData, chartOverride, setChartOverride, onUpdate
         }
         .right-sidebar {
           width: ${isOpen ? `${width}px` : '0'};
-          padding: ${isOpen ? '16px' : '0'};
+          padding: ${isOpen ? '20px' : '0'};
           opacity: ${isOpen ? '1' : '0'};
-          background: #fff;
-          border-left: ${isOpen ? '1px solid var(--border-light)' : 'none'};
+          background: var(--bg-popover);
+          backdrop-filter: blur(24px);
+          -webkit-backdrop-filter: blur(24px);
+          border-left: ${isOpen ? '1px solid var(--border)' : 'none'};
           display: flex;
           flex-direction: column;
           transition: width 0.1s ease-out, padding 0.3s ease, opacity 0.2s ease, border-left 0.3s ease;
-          height: 100vh; /* Ensure full height to enable internal scrolling */
-          overflow: hidden; /* Prevent sidebar itself from scroll, let content handle it */
+          height: 100vh;
+          overflow: hidden;
           pointer-events: ${isOpen ? 'auto' : 'none'};
+          z-index: 60;
         }
         .right-sidebar.maximized {
             position: fixed;
@@ -2491,100 +2583,121 @@ const RightSidebar = ({ dashboardData, chartOverride, setChartOverride, onUpdate
             height: 100vh;
             z-index: 1000;
             border-left: none;
-            padding: 24px;
+            padding: 40px;
+            background: var(--bg-app);
         }
 
         .right-sidebar-header {
           display: flex;
           justify-content: space-between;
           align-items: center;
-          margin-bottom: 16px;
+          margin-bottom: 24px;
         }
         .tab {
           background: none;
           border: none;
-          padding: 4px 0;
-          font-size: 11px;
-          font-weight: 600;
-          color: #888;
+          padding: 8px 0;
+          font-size: 13px;
+          font-weight: 700;
+          color: var(--text-muted);
           cursor: pointer;
           border-bottom: 2px solid transparent;
           display: flex;
           align-items: center;
-          gap: 6px;
+          gap: 8px;
+          transition: all 0.2s;
         }
         .tab.active {
-          color: #004b87;
-          border-bottom-color: #004b87;
+          color: var(--brand);
+          border-bottom-color: var(--brand);
         }
         
         .chat-input-container {
           display: flex;
-          align-items: flex-end; /* Align to bottom for multiline */
-          gap: 8px;
-          padding: 8px 12px;
-          background: #f8f9fa;
-          border-radius: 20px;
-          border: 1px solid #e9ecef;
+          align-items: flex-end;
+          gap: 12px;
+          padding: 12px 16px;
+          background: var(--border-light);
+          border-radius: 16px;
+          border: 1px solid var(--border);
+          transition: border-color 0.2s, background 0.2s;
+        }
+        .chat-input-container:focus-within {
+          border-color: var(--brand);
+          background: var(--bg-card);
         }
         .chat-input-container input, .chat-input-container textarea {
           border: none;
           background: transparent;
           flex: 1;
-          font-size: 12px;
+          font-size: 14px;
           outline: none;
           font-family: inherit;
+          color: var(--text-primary);
+        }
+        .chat-input-container textarea::placeholder {
+          color: var(--text-muted);
         }
         .summary-section {
-          margin-bottom: 16px;
+          margin-bottom: 20px;
         }
         .summary-section h3 {
-          font-size: 12px;
-          font-weight: 700;
-          color: #495057;
-          margin-bottom: 4px;
+          font-size: 14px;
+          font-weight: 800;
+          color: var(--text-primary);
+          margin-bottom: 8px;
         }
         .summary-section p, .summary-section li {
-          font-size: 11px;
-          color: #666;
-          line-height: 1.4;
+          font-size: 13px;
+          color: var(--text-secondary);
+          line-height: 1.6;
         }
         .insights-list {
-          padding-left: 16px;
+          padding-left: 20px;
           margin: 0;
         }
         .link {
-          color: #004b87;
-          text-decoration: underline;
+          color: var(--brand);
+          text-decoration: none;
           cursor: pointer;
+          font-weight: 600;
         }
-        .small { font-size: 10px; color: #888; }
+        .link:hover {
+          text-decoration: underline;
+        }
+        .small { font-size: 11px; color: var(--text-muted); }
         
-        .markdown-content p { margin-bottom: 8px; }
-        .markdown-content ul { padding-left: 16px; margin-bottom: 8px; }
+        .markdown-content p { margin-bottom: 12px; }
+        .markdown-content ul { padding-left: 20px; margin-bottom: 12px; }
         
         /* Table Styles for Chat */
         .msg table {
           border-collapse: collapse;
           width: 100%;
-          margin: 8px 0;
-          font-size: 10px;
+          margin: 16px 0;
+          font-size: 12px;
           display: block;
           overflow-x: auto;
+          background: rgba(255, 255, 255, 0.02);
+          border-radius: 8px;
+          border: 1px solid var(--border);
         }
         .msg th, .msg td {
-          border: 1px solid #e9ecef;
-          padding: 6px 8px;
+          border: 1px solid var(--border);
+          padding: 10px 12px;
           text-align: left;
-          min-width: 80px;
+          min-width: 100px;
         }
         .msg th {
-          background-color: #f8f9fa;
-          font-weight: 700;
-          color: #004b87;
+          background-color: rgba(255, 255, 255, 0.05);
+          font-weight: 800;
+          color: var(--brand);
         }
         .msg tr:nth-child(even) {
-          background-color: #fafbfc;
+          background-color: rgba(255, 255, 255, 0.01);
+        }
+        .msg tr:hover {
+          background-color: rgba(255, 255, 255, 0.03);
         }
       `}</style>
     </aside >

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Sparkles, Loader, Maximize2, X } from 'lucide-react';
+import { Sparkles, Loader, Maximize2, X, Bot } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 
@@ -82,8 +82,18 @@ const WidgetSlot = ({
         >
           <div className="section-title" style={{ justifyContent: 'space-between', gap: '8px', marginBottom: '8px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <Sparkles size={12} color="#004b87" />
-              <span style={{ fontWeight: 700, fontSize: '11px' }}>{section} Analysis</span>
+              <div style={{ display: 'flex', flexDirection: 'column' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <Sparkles size={12} color="#004b87" />
+                  <span style={{ fontWeight: 700, fontSize: '11px' }}>{section} Analysis</span>
+                </div>
+                {override.model && (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '9px', color: '#8c959f', marginLeft: '20px', fontWeight: 500 }}>
+                    <Bot size={10} />
+                    {override.model}
+                  </div>
+                )}
+              </div>
             </div>
             <div className="widget-expand-indicator">
               <Maximize2 size={10} />

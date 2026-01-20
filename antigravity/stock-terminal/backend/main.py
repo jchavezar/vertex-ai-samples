@@ -350,7 +350,8 @@ def create_data_analyst_agent(token: str, model_name: str = "gemini-2.5-flash-li
         "3. CRITICAL: If fetching PRICES via GlobalPrices, you MUST fetch a HISTORY (e.g., last 30 days). "
         "Example: if today is 2025-01-17, set 'startDate' to '2024-12-17' and 'endDate' to '2025-01-17'. "
         "Do NOT set them to the same day. This is REQUIRED for charts to work.\n"
-        f"4. RETURN data specifically for {ticker}. Provide raw numbers for tool calls, but summarize the findings in text."
+        f"4. RETURN data specifically for {ticker}. Provide raw numbers for tool calls, but summarize the findings in text.\n"
+        "5. **INTELLIGENT FALLBACK**: If a tool returns NO DATA for a requested date, PROACTIVELY try to find the last available value by widening the date range (e.g. look back 7 days). Explain to the user: 'I don't have data for [Date], but the last available value is [Value] from [Last Date].'"
     )
     agent = create_factset_agent(
         token=token,
@@ -621,8 +622,8 @@ async def get_ticker_info(ticker: str):
 
 @app.post("/summarize")
 async def summarize(req: SummaryRequest):
-    # Always use lite for widget/dashboard summaries as requested
-    agent = create_summary_agent(model_name="gemini-2.5-flash-lite")
+    # Use the requested model if provided, otherwise default to lite
+    agent = create_summary_agent(model_name=req.model or "gemini-2.5-flash-lite")
     runner = adk.Runner(app_name="stock_terminal", agent=agent, session_service=session_service)
 
     prompt = f"Please summarize the following dashboard data:\n{json.dumps(req.dashboard_data, indent=2)}"
@@ -993,6 +994,36 @@ async def chat(req: ChatRequest):
         # 1. Emit Topology Event IMMEDIATELY
         yield json.dumps({"type": "topology", "data": topo}) + "\n"
         
+        # 2. Emit Model Info
+        agent_models = []
+        def get_model(obj):
+            if hasattr(obj, "model"): return obj.model
+            if hasattr(obj, "_model"): return obj._model
+            return None
+
+        m = get_model(agent)
+        if m: agent_models.append(m)
+        
+        if hasattr(agent, "sub_agents"):
+            for sa in agent.sub_agents:
+                sm = get_model(sa)
+                if sm: agent_models.append(sm)
+        
+        # Normalize models (extract name if it's a Model object)
+        normalized_models = []
+        for am in agent_models:
+            if isinstance(am, str):
+                normalized_models.append(am)
+            elif hasattr(am, "name"):
+                normalized_models.append(am.name)
+            elif hasattr(am, "model_id"):
+                normalized_models.append(am.model_id)
+            else:
+                normalized_models.append(str(am))
+
+        unique_models = list(set(filter(None, normalized_models)))
+        yield json.dumps({"type": "model_info", "models": unique_models}) + "\n"
+
         current_runner = runner
         tool_start_times = {}
         full_content_buffer = ""
@@ -1087,6 +1118,15 @@ async def chat(req: ChatRequest):
                 print(f"[Main] Yielding NEW Topology with {len(new_topo['nodes'])} nodes")
                 yield json.dumps({"type": "topology", "data": new_topo}) + "\n"
                 
+                # Emit NEW Model Info for workflow
+                workflow_models = []
+                if hasattr(workflow_agent, "model"): workflow_models.append(workflow_agent.model)
+                if hasattr(workflow_agent, "sub_agents"):
+                    for sa in workflow_agent.sub_agents:
+                        if hasattr(sa, "model"): workflow_models.append(sa.model)
+                unique_workflow_models = list(set(filter(None, workflow_models)))
+                yield json.dumps({"type": "model_info", "models": unique_workflow_models}) + "\n"
+
                 workflow_runner = adk.Runner(app_name="stock_terminal_parallel", agent=workflow_agent, session_service=session_service)
                 # Ensure session exists but don't fail if it does
                 if not await session_service.get_session(session_id=req.session_id, app_name="stock_terminal_parallel", user_id="user_1"):

@@ -66,7 +66,7 @@
         },
         "frequency": {
           "default": null,
-          "description": "\n                Sampling frequency for time-series data. Valid values: D (Daily), W (Weekly),\n                AM (Monthly - note: 'AM' not 'M'), AQ (Quarterly), AY (Yearly).\n                Must be used with startDate/endDate parameters.\n            ",
+          "description": "Sampling frequency for time-series data. Valid: D, W, AM (Monthly), AQ (Actual Quarterly), AY (Actual Yearly). CRITICAL: Use 'AQ' or 'AY'. Do NOT use 'FQ' or 'FY'.",
           "title": "Frequency",
           "type": "string"
         },
@@ -148,7 +148,7 @@
         },
         "frequency": {
           "default": null,
-          "description": "Display frequency: D/AD/W/M/AM/AQ/CQ/ASA/CSA/AY/CY. Default: D (Daily). D=Daily, W=Weekly, M=Monthly, AQ=Quarterly, AY=Yearly. USED for: prices, returns, shares_outstanding. NOT USED for: corporate_actions (always 'event' frequency), annualized_dividends.",
+          "description": "Display frequency: D, W, M, AQ (Actual Quarterly), AY (Actual Yearly), AM (Actual Monthly). Default: D (Daily). CRITICAL: For GlobalPrices, you MUST use 'AQ' for quarterly and 'AY' for yearly. Do NOT use 'FQ' or 'FY' as they will result in a 400 Bad Request.",
           "title": "Frequency",
           "type": "string"
         },
