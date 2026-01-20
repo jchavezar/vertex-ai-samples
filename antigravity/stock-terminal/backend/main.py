@@ -10,8 +10,9 @@ import yfinance as yf
 import requests
 import base64
 from urllib.parse import urlparse, parse_qs
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import RedirectResponse, HTMLResponse
 from pydantic import BaseModel
 from typing import List, Optional, AsyncGenerator
 
@@ -434,71 +435,107 @@ class ManualAuthRequest(BaseModel):
 # --- AUTH ENDPOINTS ---
 
 @app.get("/auth/factset/url")
-def get_factset_auth_url():
+def get_factset_auth_url(session_id: str = "default_chat"):
     """Returns the URL for the user to authenticate with FactSet."""
     params = {
         "response_type": "code",
         "client_id": FS_CLIENT_ID,
         "redirect_uri": FS_REDIRECT_URI,
         "scope": "mcp",
-        "state": "stock_terminal_auth",
+        "state": session_id,
         "prompt": "consent"
     }
     auth_url = requests.Request('GET', FS_AUTH_URL, params=params).prepare().url
     return {"auth_url": auth_url}
 
-@app.post("/auth/factset/callback")
-async def factset_callback(req: AuthCallbackRequest):
-    """Exchanges the redirect URL code for an access token."""
-    url = req.redirect_url
-    print(f"Receiving callback URL: {url}")
+async def exchange_factset_code_for_token(code: str, session_id: str):
+    """Internal helper to exchange an auth code for tokens."""
+    auth_str = f"{FS_CLIENT_ID}:{FS_CLIENT_SECRET}"
+    b64_auth = base64.b64encode(auth_str.encode()).decode()
+    
+    headers = {
+        "Authorization": f"Basic {b64_auth}",
+        "Content-Type": "application/x-www-form-urlencoded"
+    }
+    data = {
+        "grant_type": "authorization_code",
+        "code": code,
+        "redirect_uri": FS_REDIRECT_URI
+    }
 
-    # Extract Code
+    async with httpx.AsyncClient() as client:
+        response = await client.post(FS_TOKEN_URL, data=data, headers=headers)
+        if response.status_code == 200:
+            tokens = response.json()
+            access_token = tokens.get("access_token")
+            refresh_token = tokens.get("refresh_token")
+            expires_in = tokens.get("expires_in", 900)
+            
+            factset_tokens[session_id] = {
+                "token": access_token,
+                "refresh_token": refresh_token,
+                "expires_at": time.time() + expires_in,
+                "created_at": time.time()
+            }
+            save_tokens(factset_tokens)
+            return True, tokens
+        else:
+            print(f"Token Exchange Failed: {response.text}")
+            return False, response.text
+
+@app.get("/auth/factset/callback")
+async def factset_callback_get(code: str, state: Optional[str] = "default_chat"):
+    """Automatic callback handler that closes the popup after success."""
+    success, result = await exchange_factset_code_for_token(code, state)
+    
+    # Return HTML that closes the popup window
+    if success:
+        return HTMLResponse("""
+            <html>
+                <body style="font-family: sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; background: #f0f7ff;">
+                    <div style="background: white; padding: 40px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); text-align: center;">
+                        <h2 style="color: #004b87;">Authentication Successful!</h2>
+                        <p style="color: #666;">You can close this window now. The terminal will automatically update.</p>
+                        <script>
+                            setTimeout(() => { window.close(); }, 2000);
+                        </script>
+                    </div>
+                </body>
+            </html>
+        """)
+    else:
+        return HTMLResponse(f"""
+            <html>
+                <body style="font-family: sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; background: #fff5f5;">
+                    <div style="background: white; padding: 40px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); text-align: center;">
+                        <h2 style="color: #c53030;">Authentication Failed</h2>
+                        <p style="color: #666;">Error: {result}</p>
+                    </div>
+                </body>
+            </html>
+        """)
+
+@app.post("/auth/factset/callback")
+async def factset_callback_post(req: AuthCallbackRequest):
+    """Exchanges the redirect URL code for an access token (Manual/POST mode)."""
+    url = req.redirect_url
+    print(f"Receiving callback URL (POST): {url}")
+
     try:
         if "code=" in url:
             parsed = urlparse(url)
             code = parse_qs(parsed.query).get('code', [None])[0]
         else:
-            # Maybe the user pasted just the code?
             code = url if not url.startswith("http") else None
         
         if not code:
             raise HTTPException(status_code=400, detail="Could not extract authorization code from URL.")
 
-        # Exchange for Token
-        auth_str = f"{FS_CLIENT_ID}:{FS_CLIENT_SECRET}"
-        b64_auth = base64.b64encode(auth_str.encode()).decode()
-        
-        headers = {
-            "Authorization": f"Basic {b64_auth}",
-            "Content-Type": "application/x-www-form-urlencoded"
-        }
-        data = {
-            "grant_type": "authorization_code",
-            "code": code,
-            "redirect_uri": FS_REDIRECT_URI
-        }
-
-        async with httpx.AsyncClient() as client:
-            response = await client.post(FS_TOKEN_URL, data=data, headers=headers)
-            if response.status_code == 200:
-                tokens = response.json()
-                access_token = tokens.get("access_token")
-                refresh_token = tokens.get("refresh_token")
-                expires_in = tokens.get("expires_in", 900) # Default 15 min
-                
-                # Store token with timestamp and refresh info
-                factset_tokens[req.session_id] = {
-                    "token": access_token,
-                    "refresh_token": refresh_token,
-                    "expires_at": time.time() + expires_in,
-                    "created_at": time.time()
-                }
-                save_tokens(factset_tokens)
-                return {"status": "success", "message": "FactSet Connected successfully!"}
-            else:
-                print(f"Token Exchange Failed: {response.text}")
-                raise HTTPException(status_code=400, detail=f"Token exchange failed: {response.text}")
+        success, result = await exchange_factset_code_for_token(code, req.session_id)
+        if success:
+            return {"status": "success", "message": "FactSet Connected successfully!"}
+        else:
+            raise HTTPException(status_code=400, detail=f"Token exchange failed: {result}")
 
     except Exception as e:
         print(f"Auth Error: {e}")

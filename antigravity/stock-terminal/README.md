@@ -1,48 +1,98 @@
-# Stock Terminal Project
+# 🚀 Stock Terminal Next-Gen
 
-This project contains a financial stock terminal application with a Python FastAPI backend and a React (Vite) frontend.
+> **Empowering Financial Intelligence with Google ADK & Gemini.**
 
-## Project Structure
+A professional-grade financial stock terminal that bridges the gap between raw market data and actionable AI insights. Featuring a glassmorphic React interface and a high-performance Agentic backend, this terminal provides real-time snapshots, deep-dive analyst workflows, and an intelligent chat assistant.
 
-- `backend/`: Python FastAPI application using `uv` for dependency management.
-- `frontend/`: React application using Vite.
+---
 
-## Prerequisites
+## ✨ Key Features
+- **🧠 Agentic Orchestration**: Uses the "Gatekeeper Pattern" to route requests between real-time data providers and general knowledge tools.
+- **⚡ Automatic OAuth**: Seamless FactSet authentication with a self-closing handshake window. No manual URL pasting required.
+- **📊 Interactive Visualization**: Dynamic charts curate data on-the-fly using LLM-driven curation.
+- **🔌 FactSet Integration**: Professional MCP toolset integration for high-fidelity financial data.
+- **💬 Conversational Analyst**: A chat assistant that doesn't just talk—it executes complex workflows.
 
-- [uv](https://github.com/astral-sh/uv) (for Python backend)
-- [Node.js](https://nodejs.org/) & npm (for Frontend)
+---
 
-## Getting Started
+## 🗺 System Architecture
 
-You need to run both the backend and frontend terminals simultaneously.
+```mermaid
+graph TD
+    User((User)) -->|Search / Chat| Frontend[Vite + React UI]
+    Frontend -->|API Request| Backend[FastAPI + Google ADK]
+    
+    subgraph "Agentic Heart (ADK)"
+        Backend --> Runner[ADK Runner]
+        Runner --> Gatekeeper{Gatekeeper Agent}
+        
+        Gatekeeper -->|General Info| Search[Google Search Agent]
+        Gatekeeper -->|Market Data| YF[yfinance Tool]
+        Gatekeeper -->|Deep Financials| FactSet[FactSet MCP Service]
+    end
 
-### 1. Backend Setup
-
-Navigate to the backend directory and run the server:
-
-```bash
-cd backend
-uv sync
-uv run main.py
+    FactSet -->|Real-time Data| Runner
+    Search -->|News/Profiles| Runner
+    YF -->|Snapshots| Runner
+    
+    Runner -->|Synthesized Result| Frontend
 ```
 
-The backend API will start at `http://localhost:8001`.
+---
 
-### 2. Frontend Setup
+## 🚀 Quick Start
 
-Open a new terminal, navigate to the frontend directory, and start the development server:
+### 📦 Prerequisites
+- **Python 3.13+** with `uv`
+- **Node.js 20+**
 
-```bash
-cd frontend
-npm install
-npm run dev
-```
+### 🛠 Replication Steps
 
-The frontend will start at `http://localhost:5173` (or similar) and connect to the backend at port 8001.
+1. **Clone & Environment Setup**
+   ```bash
+   git clone <repo-url>
+   cd stock-terminal
+   ```
 
-## Features
+2. **Backend Services**
+   ```bash
+   cd backend
+   # Configure your .env with GOOGLE_CLOUD_PROJECT and FactSet keys
+   uv sync
+   uv run uvicorn main:app --port 8001
+   ```
 
-- **Real-time Stock Data**: Fetches data using `yfinance`.
-- **AI Summaries**: Uses Google Gemini to summarize dashboard data.
-- **FactSet Integration**: Optional integration with FactSet for professional data (requires auth).
-- **Interactive Chat**: AI-powered chat assistant for financial questions.
+3. **Frontend Application**
+   ```bash
+   cd frontend
+   npm install
+   npm run dev
+   ```
+
+---
+
+## 📸 Gallery
+
+### 🏛 Main Dashboard
+![Dashboard](./screenshots/dashboard.png)
+
+### 📈 Deep Analysis (AAPL)
+![Analysis](./screenshots/analysis.png)
+
+### 💬 Intelligent Assistant
+![Chat](./screenshots/chat.png)
+
+---
+
+## 🛠 Tech Stack
+
+| Layer | Technologies |
+| :--- | :--- |
+| **Frontend** | React 19, Vite, Tailwind CSS, Recharts, Lucide |
+| **Backend** | FastAPI, Python 3.13, Uvicorn |
+| **AI Engine** | Google Agent Development Kit (ADK), Gemini 2.0/3.0 |
+| **Data** | FactSet MCP, yfinance, Google Search |
+
+---
+
+Built with ❤️ by the Antigravity Team.
