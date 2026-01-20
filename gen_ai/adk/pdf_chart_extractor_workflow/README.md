@@ -5,7 +5,7 @@
 [![FastAPI](https://img.shields.io/badge/FastAPI-005571?style=for-the-badge&logo=fastapi)](https://fastapi.tiangolo.com/)
 [![Next.js](https://img.shields.io/badge/Next.js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white)](https://nextjs.org/)
 
-**ChartVision Pro** is a high-performance agentic workflow designed to transform unstructured PDF documents into structured, actionable intelligence. Leveraging **Google Gemini 3 Pro** and the **Google Agent Development Kit (ADK)**, it automates the identification, extraction, and synthesis of charts, tables, and complex diagrams with extreme precision.
+**ChartVision Pro** is a high-performance agentic workflow designed to transform unstructured PDF documents into structured, actionable intelligence. Leveraging **Google Gemini 3 Pro** (Global) and the **Google Agent Development Kit (ADK)**, it automates the identification, extraction, and synthesis of charts, tables, and complex diagrams with extreme precision.
 
 ![Dashboard Preview](screenshots/dashboard.png)
 
@@ -13,21 +13,19 @@
 
 ## ✨ Key Features
 
-- **🚀 Parallel Agentic Execution**: Spawns independent extraction agents for every PDF page, significantly reducing processing latency.
-- **🎨 Modern Multimodal Extraction**: Utilizes Gemini 3's deep reasoning to identify axes, legends, and data points within visual elements.
-- **📍 Real-time Bounding Boxes**: Generates pixel-perfect visual annotations with a custom "Modern Pill" UI for superior readability.
-- **💾 Full-Stack Persistence**:
-  - **BigQuery**: Automated "Tidy Data" flattening for instant analytics.
-  - **Cloud Storage**: Secure artifact preservation in GCS buckets.
-- **⏱️ Live Performance Benchmarking**: Real-time second-by-second execution timer and last-job duration metrics.
-- **💎 Glassmorphism UX**: A premium Next.js dashboard featuring smooth animations, interactive model selection, and responsive data views.
+- **🚀 Parallel Agentic Execution**: Spawns independent extraction agents for every PDF page.
+- **🌍 Gemini 3.0 Support**: Fully configured for Gemini 3 Pro/Flash in the Global region via Vertex AI.
+- **⚡ High-Throughput Engine**: Supports up to 200 concurrent page extractions for Flash models.
+- **🎨 Modern Multimodal Extraction**: Utilizes Gemini's deep reasoning to identify axes, legends, and data points.
+- **📍 Real-time Bounding Boxes**: Generates pixel-perfect visual annotations.
+- **💎 Glassmorphism UX**: A premium Next.js dashboard.
+- **🔒 Secure Enterprise Access**: Identity-Aware Proxy (IAP) ready.
 
 ---
 
 ## 🏗️ System Architecture
 
-![Workflow Architecture](screenshots/workflow.png)
-
+### 1. Logical Agentic Workflow
 ```mermaid
 graph TD
     A[PDF Upload] --> B[Logical Page Splitting]
@@ -43,35 +41,57 @@ graph TD
     E --> F[Visual Annotation Engine]
     
     subgraph "Persistence Layer"
-    F --> G[GCS Image Storage]
-    F --> H[BigQuery Table Sync]
+        F --> G[GCS Image Storage]
+        F --> H[BigQuery Table Sync]
     end
     
     G & H --> I[Interactive React Dashboard]
 ```
 
+### 2. Cloud Infrastructure
+```mermaid
+graph TD
+    User((User)) -->|HTTPS / Custom Domain| GLB[Global External Load Balancer]
+    GLB -->|Auth Check| IAP[Identity-Aware Proxy]
+    
+    subgraph "Google Cloud Run"
+        IAP -->|Authorized| FE[Frontend Service<br/>Next.js]
+        IAP -->|Authorized| BE[Backend Service<br/>FastAPI]
+    end
+    
+    FE -->|API Calls /extract| BE
+    
+    BE -->|1. Split PDF| B[Logical Page Splitting]
+    B --> C{Parallel Extraction Pipeline}
+    
+    subgraph "Agent Orchestration"
+        C --> D1[Page 1 Agent]
+        C --> D2[Page 2 Agent]
+        C --> Dn[Page n Agent]
+        D1 & D2 & Dn -.->|Vertex AI (Global)| Gemini[Gemini 3 Pro / Flash]
+    end
+```
+
 ---
 
-## 🛠️ Technology Stack
+## 🛠️ Configuration
 
-| Component | Technology |
-| :--- | :--- |
-| **Model** | Google Gemini 3 Pro (Preview) |
-| **Orchestration** | Google Agent Development Kit (ADK) |
-| **Backend** | Python 3.12, FastAPI, PyMuPDF |
-| **Frontend** | Next.js 15+, Tailwind CSS, Framer Motion |
-| **Persistence** | Google BigQuery, Google Cloud Storage |
+To use **Gemini 3.0** on Vertex AI, the following environment variables are required (and pre-configured in this repo):
+
+```env
+GOOGLE_GENAI_USE_VERTEXAI=True
+GOOGLE_CLOUD_PROJECT=your-project-id
+GOOGLE_CLOUD_LOCATION=global
+```
+
+**Note:** Gemini 3 Pro/Flash Preview models require the `global` location and the full resource path format:
+`projects/{project}/locations/global/publishers/google/models/gemini-3-pro-preview`
 
 ---
 
 ## 🚀 Quick Start
 
-### 1. Prerequisites
-- Python 3.12+
-- Node.js 18+
-- Google Cloud Project with Vertex AI enabled
-
-### 2. Backend Setup
+### 1. Backend Setup
 ```bash
 cd backend
 # Install dependencies
@@ -81,7 +101,7 @@ python3 main.py
 ```
 *Backend runs on `http://localhost:8000`*
 
-### 3. Frontend Setup
+### 2. Frontend Setup
 ```bash
 cd frontend
 # Install dependencies
@@ -93,25 +113,28 @@ npm run dev
 
 ---
 
-## ⚙️ Model Configuration
+## ☁️ Cloud Deployment
 
-![Model Selection Options](screenshots/models.png)
+This repository is ready for Google Cloud Run.
 
-The application allows dynamic model switching for different stages of the workflow:
-- **Project Default**: `projects/vtxdemos/locations/global/publishers/google/models/gemini-3-flash-preview`
-- **Recommended for Extraction**: `gemini-3-pro-preview` for deep visual reasoning.
+### 1. Backend Deployment
+```bash
+gcloud run deploy pdf-extractor-backend \
+    --source backend \
+    --region us-central1 \
+    --memory 4Gi \
+    --cpu 2 \
+    --set-env-vars="GOOGLE_CLOUD_PROJECT=your-project,GOOGLE_CLOUD_LOCATION=global,GOOGLE_GENAI_USE_VERTEXAI=True"
+```
 
----
+### 2. Frontend Deployment
+```bash
+gcloud run deploy pdf-extractor-frontend \
+    --source frontend \
+    --region us-central1
+```
 
-## 📜 BigQuery Schema
-Data is flattened into a "Tidy" format for immediate SQL analysis:
-- `page`: Integer
-- `type`: CHART | TABLE
-- `element_id`: Unique Identifier
-- `description`: Detailed AI Summary
-- `confidence`: Extraction Score
-- `column_name`: Table Header
-- `cell_value`: Extracted Data
+*Note: Ensure your Service Account has access to Vertex AI.*
 
 ---
 

@@ -1,42 +1,51 @@
-# Common
-.DS_Store
-*.log
-.env
-.env.*
-
 # Python
 __pycache__/
 *.py[cod]
 *$py.class
-.venv/
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual Environment
+.venv
 venv/
 ENV/
 env/
-build/
-dist/
-*.spec
-.pytest_cache/
-.coverage
-htmlcov/
 
-# Node/Next.js
+# Environment Variables
+.env
+.env.local
+.env.*.local
+
+# Node.js
 node_modules/
+npm-debug.log
+yarn-error.log
 .next/
-out/
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-.pnpm-debug.log*
+dist/
+.DS_Store
 
-# PDF & Generated Artifacts
-*.pdf
-backend/static/*.jpg
-backend/static/*.jpeg
-backend/static/*.png
-frontend/public/static/
+# Google Cloud
+.gcloudignore
 
-# IDEs
-.idea/
-.vscode/
-*.swp
-*.swo
+# Project Specific
+backend/static/
+backend/test_venv/
+frontend/out/
+screenshots/
