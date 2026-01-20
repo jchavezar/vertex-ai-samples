@@ -476,8 +476,9 @@ const RightSidebar = ({ dashboardData, chartOverride, setChartOverride, onUpdate
   useEffect(() => {
     checkFactSetStatus();
 
-    // Poll status every 30 seconds to keep timer in sync and session alive
-    const statusInterval = setInterval(checkFactSetStatus, 30000);
+    // Poll status frequently when not connected or authenticating to catch the redirect quickly
+    // Poll less frequently (30s) when already connected
+    const statusInterval = setInterval(checkFactSetStatus, isFactSetConnected ? 30000 : 3000);
 
     const fetchConfig = async () => {
       try {
@@ -491,7 +492,17 @@ const RightSidebar = ({ dashboardData, chartOverride, setChartOverride, onUpdate
     fetchConfig();
 
     return () => clearInterval(statusInterval);
-  }, []);
+  }, [isFactSetConnected]); // Re-run effect when connection status changes to adjust interval
+
+  // Auto-close modal when connected
+  useEffect(() => {
+    if (isFactSetConnected && showAuthModal) {
+      setShowAuthModal(false);
+      const msg = "FactSet connection detected! I can now access real-time market data.";
+      setMessages(prev => [...prev, { role: 'assistant', text: msg }]);
+      addTraceLog('system', msg);
+    }
+  }, [isFactSetConnected, showAuthModal]);
 
   // Thinking Timer Logic
   useEffect(() => {
@@ -1164,7 +1175,8 @@ const RightSidebar = ({ dashboardData, chartOverride, setChartOverride, onUpdate
     }
 
     try {
-      const res = await fetch('http://localhost:8001/auth/factset/url');
+      // Pass session_id to ensure the backend maps the code correctly
+      const res = await fetch('http://localhost:8001/auth/factset/url?session_id=default_chat');
       const data = await res.json();
       if (data.auth_url && authWindow) {
         setAuthUrl(data.auth_url);
@@ -2350,25 +2362,32 @@ const RightSidebar = ({ dashboardData, chartOverride, setChartOverride, onUpdate
           showAuthModal && (
             <div style={{
               position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
-              background: 'rgba(255,255,255,0.95)', zIndex: 100,
-              display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '20px'
+              background: 'rgba(255,255,255,0.98)', zIndex: 100,
+              display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '30px',
+              borderRadius: '12px'
             }}>
-              <h3>Authenticate with FactSet</h3>
-              <p style={{ fontSize: '11px', color: '#666', marginBottom: '16px', textAlign: 'center' }}>
-                A new window should have opened. Log in to FactSet and click 'Allow'.<br />
-                If it didn't open, <strong><a href={authUrl} target="_blank" rel="noreferrer" style={{ color: '#004b87', textDecoration: 'underline' }}>click here to open manually</a></strong>.
+              <div style={{
+                width: '48px', height: '48px', borderRadius: '50%', border: '3px solid #f0f7ff',
+                borderTopColor: '#004b87', animation: 'spin 1s linear infinite', marginBottom: '20px'
+              }} />
+
+              <h3 style={{ color: '#004b87', marginBottom: '8px' }}>Authenticating with FactSet</h3>
+              <p style={{ fontSize: '13px', color: '#4b5563', marginBottom: '24px', textAlign: 'center', lineHeight: '1.6' }}>
+                Please complete the login in the new window.<br />
+                <span className="blinking" style={{ fontWeight: 600, color: '#004b87' }}>Waiting for secure handshake...</span>
               </p>
 
-              <div style={{ width: '100%', marginBottom: '16px' }}>
+              <div style={{ width: '100%', maxWidth: '300px', marginBottom: '24px' }}>
                 <div
                   onClick={() => setShowAdvancedAuth(!showAdvancedAuth)}
                   style={{
                     display: 'flex', alignItems: 'center', gap: '8px',
-                    cursor: 'pointer', fontSize: '12px', color: '#666', marginBottom: '8px'
+                    cursor: 'pointer', fontSize: '12px', color: '#666', marginBottom: '12px',
+                    padding: '8px', borderRadius: '6px', background: '#f8fafc', border: '1px solid #e2e8f0'
                   }}
                 >
                   <div style={{
-                    width: '32px', height: '16px', background: showAdvancedAuth ? '#28a745' : '#ccc',
+                    width: '32px', height: '16px', background: showAdvancedAuth ? '#10b981' : '#cbd5e1',
                     borderRadius: '8px', position: 'relative', transition: 'background 0.2s'
                   }}>
                     <div style={{
@@ -2377,55 +2396,57 @@ const RightSidebar = ({ dashboardData, chartOverride, setChartOverride, onUpdate
                       transition: 'left 0.2s'
                     }} />
                   </div>
-                  <span>Advanced: Manual Refresh Token</span>
+                  <span>Troubleshoot / Manual Entry</span>
                 </div>
 
-                {!showAdvancedAuth ? (
-                  <>
-                    <p style={{ fontSize: '12px', marginBottom: '8px' }}>Please enter the redirect URL:</p>
-                    <input
-                      type="text"
-                      placeholder="Paste redirect URL here..."
-                      value={authInput}
-                      onChange={(e) => setAuthInput(e.target.value)}
-                      style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }}
-                    />
-                  </>
-                ) : (
-                  <>
-                    <p style={{ fontSize: '12px', marginBottom: '8px' }}>Paste long-lived Refresh Token:</p>
+                {showAdvancedAuth && (
+                  <div style={{ animation: 'fadeIn 0.3s ease-in-out' }}>
+                    <p style={{ fontSize: '11px', color: '#64748b', marginBottom: '8px' }}>Manual Paste (Backup):</p>
                     <textarea
-                      placeholder="Paste Refresh Token here..."
-                      value={manualRefreshToken}
-                      onChange={(e) => setManualRefreshToken(e.target.value)}
+                      placeholder="Paste redirect URL or Refresh Token here..."
+                      value={manualRefreshToken || authInput}
+                      onChange={(e) => {
+                        if (e.target.value.includes('code=')) setAuthInput(e.target.value);
+                        else setManualRefreshToken(e.target.value);
+                      }}
                       style={{
-                        width: '100%', padding: '8px', border: '1px solid #ccc',
-                        borderRadius: '4px', height: '80px', fontSize: '11px', fontFamily: 'monospace'
+                        width: '100%', padding: '10px', border: '1px solid #e2e8f0',
+                        borderRadius: '6px', height: '60px', fontSize: '11px', fontFamily: 'monospace',
+                        background: '#fff', marginBottom: '12px'
                       }}
                     />
-                    <p style={{ fontSize: '10px', color: '#888', marginTop: '4px' }}>
-                      This token will be used to keep your session alive indefinitely.
-                    </p>
-                  </>
+                    <button
+                      onClick={handleAuthSubmit}
+                      style={{
+                        width: '100%', padding: '8px', borderRadius: '6px', border: 'none',
+                        background: '#004b87', color: '#fff', cursor: 'pointer', fontWeight: 600, fontSize: '12px'
+                      }}
+                    >
+                      Process Manual Token
+                    </button>
+                  </div>
                 )}
               </div>
 
-              <div style={{ display: 'flex', gap: '8px' }}>
+              <div style={{ display: 'flex', gap: '12px' }}>
                 <button
                   onClick={() => setShowAuthModal(false)}
-                  style={{ padding: '6px 16px', borderRadius: '4px', border: '1px solid #ddd', background: '#fff', cursor: 'pointer' }}
+                  style={{ padding: '8px 20px', borderRadius: '6px', border: '1px solid #e2e8f0', background: '#fff', cursor: 'pointer', color: '#64748b', fontSize: '13px' }}
                 >
                   Cancel
                 </button>
-                <button
-                  onClick={handleAuthSubmit}
-                  style={{
-                    padding: '6px 16px', borderRadius: '4px', border: 'none',
-                    background: '#004b87', color: '#fff', cursor: 'pointer', fontWeight: 600
+                <a
+                  href={authUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  style={{ 
+                    padding: '8px 20px', borderRadius: '6px', border: 'none',
+                    background: '#f8fafc', color: '#004b87', cursor: 'pointer',
+                    fontWeight: 600, fontSize: '13px', textDecoration: 'none'
                   }}
                 >
-                  Connect
-                </button>
+                  Re-open Window
+                </a>
               </div>
             </div>
           )
@@ -2437,6 +2458,14 @@ const RightSidebar = ({ dashboardData, chartOverride, setChartOverride, onUpdate
           0% { opacity: 1; }
           50% { opacity: 0.4; }
           100% { opacity: 1; }
+        }
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+        @keyframes fadeIn {
+          from { opacity: 0; transform: translateY(-5px); }
+          to { opacity: 1; transform: translateY(0); }
         }
         .blinking {
           animation: blink 1.5s linear infinite;

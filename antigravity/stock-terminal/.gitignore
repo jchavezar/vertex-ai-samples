@@ -1,15 +1,15 @@
-# Secrets
+# FactSet & Secret Data
 .env
 .env.*
-!.env.example
-*.pem
-*.key
-*.dsv
-secrets.json
-
-# FactSet
 factset_tokens.json
-# factset_context.md  <-- Removed from ignore to allow tracking
+
+# AGPK Guides & Documentation (Internal)
+ADK_COMPLEX_EXAMPLES.md
+ADK_EXAMPLES.md
+ADK_WORKFLOW_PATTERNS.md
+GEMINI.md
+Gemini_Live_API_Guide.md
+# factset_context.md  <-- Tracked to provide tool context to agents
 
 # Python
 .python-version
@@ -66,3 +66,6 @@ tmp-*/
 *.zip
 *.tar.gz
 
+
+# Local Intelligence
+.guides/
