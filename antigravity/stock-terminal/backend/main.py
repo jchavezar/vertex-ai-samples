@@ -27,6 +27,7 @@ import httpx
 
 # Import the new FactSet Agent factory
 from factset_agent import create_factset_agent, google_search, perform_google_search, FACTSET_INSTRUCTIONS
+from report_agent import create_report_orchestrator
 
 # Setup ADK components
 session_service = InMemorySessionService()
@@ -64,8 +65,8 @@ def save_tokens(tokens):
 
 def handle_simple_greeting(message: str) -> bool:
     """Detects if a message is a simple greeting that doesn't need data tools."""
-    greetings = {"hi", "hello", "hey", "hola", "greetings", "good morning", "good afternoon", "good evening", "hi bro", "hey bro", "what's up"}
-    msg = message.lower().strip().strip("!").strip(".")
+    greetings = {"hi", "hello", "hey", "hola", "greetings", "good morning", "good afternoon", "good evening", "hi bro", "hey bro", "what's up", "how are you", "how are you doing", "how's it going", "how is it going", "hey how are you man"}
+    msg = message.lower().strip().strip("!").strip(".").strip("?")
     return msg in greetings
 
 async def refresh_factset_token(session_id: str):
@@ -362,7 +363,32 @@ def generate_topology(agent):
                 
                 # Special handling for FactSet/MCP tools which might have complex repr
                 if t.__class__.__name__ == 'McpToolset':
-                    tool_name = "FactSet_MCP"
+                    # Expand known FactSet tools for visualization so they can be highlighted
+                    fs_tools = [
+                        "FactSet_GlobalPrices", "FactSet_Fundamentals", "FactSet_EstimatesConsensus",
+                        "FactSet_People", "FactSet_Ownership", "FactSet_SupplyChain",
+                        "FactSet_MergersAcquisitions", "FactSet_GeoRev", "FactSet_CalendarEvents", "FactSet_Metrics"
+                    ]
+                    for fst in fs_tools:
+                        fst_node_id = f"{agent_id}_{fst}"
+                        nodes.append({
+                            "id": fst_node_id,
+                            "type": "tool",
+                            "data": {
+                                "label": fst, 
+                                "parentAgent": agent_id,
+                                "description": "FactSet Financial Data Tool"
+                            }
+                        })
+                        edges.append({
+                            "id": f"e_{agent_id}_{fst_node_id}",
+                            "source": agent_id,
+                            "target": fst_node_id,
+                            "animated": True,
+                            "style": {"strokeDasharray": "5,5"}
+                        })
+                    continue # Skip generic node
+
                 elif raw_name:
                     tool_name = raw_name
                 else:
@@ -513,6 +539,13 @@ class OverviewRequest(BaseModel):
     query: str
     contexts: List[str]
 
+class ReportRequest(BaseModel):
+    ticker: str
+    templateId: str
+    session_id: str = "default_chat"
+    model: str = "gemini-2.5-flash"
+    use_mock_data: bool = False
+
 @app.post("/search/generative-overview")
 async def stream_search_overview(req: OverviewRequest):
     """
@@ -573,6 +606,127 @@ async def stream_search_overview(req: OverviewRequest):
             yield json.dumps({"error": str(e)}) + "\n"
 
     return StreamingResponse(generate_with_agent(), media_type="application/x-ndjson")
+
+
+
+@app.post("/generate-report")
+async def generate_report(req: ReportRequest):
+    """
+    Generates a full investment report using the specialized Report Orchestrator (ParallelAgent).
+    Streams NDJSON events:
+    - {"type": "status", "message": "..."}
+    - {"type": "complete", "data": {...}}
+    - {"type": "error", "message": "..."}
+    """
+    async def generate_stream():
+        session_id = req.session_id
+        
+        # Determine Token Strategy
+        if req.use_mock_data:
+            print(f"[Report] Mock Mode requested for {req.ticker}")
+            token = "mock_token_for_testing"
+        else:
+            token = await get_valid_factset_token(session_id)
+            
+            # Auto-fallback to mock if auth fails to improve User Experience
+            if not token:
+                print(f"[Report] Auth failed for {req.ticker}, falling back to Mock Mode.")
+                yield json.dumps({"type": "status", "message": "Authentication unavailable. Switching to Demo/Mock Mode...", "agent": "Orchestrator"}) + "\n"
+                token = "mock_token_for_testing"
+
+        if not token:
+            yield json.dumps({"type": "error", "message": "FactSet token invalid or expired."}) + "\n"
+            return
+
+        try:
+            # Create specialized orchestrator
+            agent = create_report_orchestrator(token, req.model, req.ticker, req.templateId)
+            
+            # Reuse existing session or create new one?
+            report_session_id = f"report_{secrets.token_hex(4)}"
+            await session_service.create_session(session_id=report_session_id, user_id="report_user", app_name="stock_terminal")
+            
+            runner = adk.Runner(app_name="stock_terminal", agent=agent, session_service=session_service)
+            
+            # Prompt is simple, the agents have the heavy lifting instructions
+            prompt = f"Analyze {req.ticker}."
+            
+            final_text = ""
+            msg = Content(role="user", parts=[Part(text=prompt)])
+            
+            yield json.dumps({"type": "status", "message": f"Initializing Parallel Agents for {req.ticker}..."}) + "\n"
+            
+            async for event in runner.run_async(user_id="report_user", session_id=report_session_id, new_message=msg):
+                 # Detect Activity
+                 if event.content and event.content.parts:
+                     for part in event.content.parts:
+                         if part.text:
+                             final_text += part.text
+                             # Can we detect if this is the final JSON?
+                             # The Synthesizer is the one outputting text. The others mostly output tool calls or internal thoughts (if not silent).
+                             # We'll just accumulate everything.
+                         
+                         if hasattr(part, "function_call") and part.function_call:
+                             tool_name = part.function_call.name
+                             # Clean up name for UI
+                             friendly_name = tool_name.replace("FactSet_", "").replace("_", " ")
+                             if "google_search" in tool_name:
+                                 yield json.dumps({"type": "status", "message": "Researching Market Trends...", "agent": "MarketResearcher"}) + "\n"
+                             elif "FactSet" in tool_name:
+                                 yield json.dumps({"type": "status", "message": f"Fetching {friendly_name}...", "agent": "DataExtractor"}) + "\n"
+                             else:
+                                 yield json.dumps({"type": "status", "message": f"Using {friendly_name}...", "agent": "Orchestrator"}) + "\n"
+                
+            # Parse the Final JSON Component Feed
+            # The synthesizer wraps everything in ```json ... ``` usually
+            clean_text = final_text.strip()
+            
+            components = []
+            
+            # Extract JSON block
+            import re
+            json_match = re.search(r'\{.*\}', clean_text, re.DOTALL)
+            
+            # Try to resolve code fences first if present
+            if "```json" in clean_text:
+                try:
+                    start = clean_text.find("```json") + 7
+                    end = clean_text.rfind("```")
+                    if end > start:
+                        clean_text = clean_text[start:end].strip()
+                except: pass
+
+            try:
+                if json_match:
+                    # Prefer regex match if fences failed or weren't strict
+                    # But if fences worked, clean_text is already good.
+                    # Let's try parsing clean_text first.
+                    parsed = json.loads(clean_text)
+                    if "components" in parsed:
+                        components = parsed["components"]
+                    else:
+                        # Fallback if structure is slightly off
+                        components = [{"type": "text", "title": "Analysis", "content": clean_text}]
+                else:
+                     components = [{"type": "text", "title": "Analysis", "content": clean_text}]
+            except:
+                # If parsing fails, just dump the text
+                components = [{"type": "text", "title": "Raw Output", "content": clean_text}]
+
+            result_data = {
+                "title": f"{req.ticker} Report",
+                "ticker": req.ticker,
+                "date": get_current_time().split('T')[0],
+                "components": components # New Structure
+            }
+            
+            yield json.dumps({"type": "complete", "data": result_data}) + "\n"
+
+        except Exception as e:
+            traceback.print_exc()
+            yield json.dumps({"type": "error", "message": str(e)}) + "\n"
+
+    return StreamingResponse(generate_stream(), media_type="application/x-ndjson")
 
 class SummaryRequest(BaseModel):
     dashboard_data: dict
@@ -1028,9 +1182,11 @@ async def chat(req: ChatRequest):
                  
                  if "generate" in msg_lower and "analysis for" in msg_lower:
                       if len(tickers_list) > 1:
+                          print(f"DEBUGGING: Creating Parallel Workflow for {tickers_list}")
                           agent = create_parallel_data_analyst_workflow(token=factset_token, tickers=tickers_list, section=section, model_name=req.model)
                       else:
                           single_ticker = tickers_list[0] if tickers_list else None
+                          print(f"DEBUGGING: Creating Data Analyst for {single_ticker}")
                           agent = create_data_analyst_agent(token=factset_token, ticker=single_ticker, model_name=req.model, section=section)
                           agent.instruction += f"\nIMPORTANT: YOU MUST WRAP YOUR ENTIRE RESPONSE IN [WIDGET:{section}]...[/WIDGET] tags."
                  
@@ -1054,12 +1210,14 @@ async def chat(req: ChatRequest):
                     if "visualize" in msg_lower or "chart" in msg_lower or "plot" in msg_lower:
                         gatekeeper_instruction += "\nCRITICAL: The user wants a chart. You MUST use the [CHART] tag protocol to visualize the numbers discussed or recently fetched. Do NOT just summarize in text."
                     
+                    t_create_agent = time.time()
                     agent = create_factset_agent(
                         token=factset_token, 
                         model_name=req.model,
                         instruction_override=gatekeeper_instruction + "\n" + FACTSET_INSTRUCTIONS,
                         extra_tools=[run_parallel_comparison]
                     )
+                    print(f"DEBUG: create_factset_agent took {time.time() - t_create_agent:.4f}s")
              else:
                   agent = create_chat_agent(model_name=req.model)
         
@@ -1282,7 +1440,14 @@ async def chat(req: ChatRequest):
         try:
             try:
                 import httpx
+                t_first_event = time.time()
+                first_event_logged = False
+                
                 async for event in current_runner.run_async(user_id="user_1", session_id=req.session_id, new_message=new_message):
+                    if not first_event_logged:
+                        print(f"DEBUG: First Event received at {time.time() - t_first_event:.4f}s from execution start")
+                        first_event_logged = True
+                        
                     # 1. Yield Usage
                     if hasattr(event, "usage_metadata") and event.usage_metadata:
                         yield json.dumps({

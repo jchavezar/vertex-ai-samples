@@ -70,7 +70,8 @@ const DashboardHeader = ({ ticker, externalData, loading, theme, onToggleTheme }
       <style jsx="true">{`
         .dashboard-header {
           background: var(--bg-card);
-          backdrop-filter: blur(12px);
+          backdrop-filter: var(--card-blur);
+          -webkit-backdrop-filter: var(--card-blur);
           border-bottom: 1px solid var(--border);
           padding: 10px 24px;
           display: flex;
@@ -91,10 +92,10 @@ const DashboardHeader = ({ ticker, externalData, loading, theme, onToggleTheme }
           display: flex;
           align-items: center;
           justify-content: center;
-          border-radius: 8px;
+          border-radius: 999px; /* Pill/Circle */
           font-weight: 900;
           font-size: 16px;
-          box-shadow: 0 4px 12px ${theme === 'dark' ? 'rgba(59, 130, 246, 0.4)' : 'rgba(0, 75, 135, 0.2)'};
+          box-shadow: 0 4px 12px ${theme === 'dark' ? 'rgba(62, 166, 255, 0.4)' : 'rgba(0, 75, 135, 0.2)'};
         }
         .company-brand {
           font-size: 18px;
@@ -109,56 +110,59 @@ const DashboardHeader = ({ ticker, externalData, loading, theme, onToggleTheme }
         }
         .ticker-badge {
           font-size: 10px;
-          background: var(--border-light);
-          padding: 2px 6px;
-          border-radius: 4px;
+          background: rgba(255, 255, 255, 0.05);
+          padding: 2px 12px;
+          border-radius: 999px; /* Pill */
           color: var(--text-secondary);
           font-weight: 700;
-          border: 1px solid var(--border);
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          border-top: 1px solid rgba(255, 255, 255, 0.15);
         }
         .market-status {
           display: flex;
           align-items: center;
-          gap: 6px;
+          gap: 8px;
           font-size: 9px;
-          font-weight: 700;
+          font-weight: 800;
           text-transform: uppercase;
           color: var(--green);
-          margin-top: 4px;
+          margin-top: 6px;
+          letter-spacing: 0.5px;
         }
         .status-dot {
-          width: 6px;
-          height: 6px;
+          width: 8px;
+          height: 8px;
           background: var(--green);
           border-radius: 50%;
-          box-shadow: 0 0 8px var(--green);
+          box-shadow: 0 0 12px var(--green);
           animation: status-pulse 2s infinite;
         }
         @keyframes status-pulse {
-          0% { opacity: 1; }
-          50% { opacity: 0.4; }
-          100% { opacity: 1; }
+          0% { opacity: 1; transform: scale(1); }
+          50% { opacity: 0.4; transform: scale(0.9); }
+          100% { opacity: 1; transform: scale(1); }
         }
         .header-center {
           display: flex;
           align-items: center;
-          gap: 24px;
+          gap: 32px;
           border-left: 1px solid var(--border);
-          padding-left: 24px;
+          padding-left: 32px;
         }
         .current-price {
-          font-size: 20px;
+          font-size: 22px;
           font-weight: 900;
           color: var(--text-primary);
           line-height: 1;
+          letter-spacing: -0.5px;
         }
         .price-change {
           display: flex;
           align-items: center;
-          gap: 4px;
-          font-size: 12px;
-          font-weight: 800;
-          margin-top: 2px;
+          gap: 6px;
+          font-size: 13px;
+          font-weight: 900;
+          margin-top: 4px;
         }
         .price-change.positive { color: var(--green); }
         .price-change.negative { color: var(--red); }
@@ -166,13 +170,14 @@ const DashboardHeader = ({ ticker, externalData, loading, theme, onToggleTheme }
         .stat-group {
           display: flex;
           flex-direction: column;
+          gap: 2px;
         }
         .stat-label {
           font-size: 9px;
           color: var(--text-muted);
           text-transform: uppercase;
-          font-weight: 700;
-          letter-spacing: 0.5px;
+          font-weight: 800;
+          letter-spacing: 1px;
         }
         .stat-value {
           font-size: 13px;
@@ -183,38 +188,49 @@ const DashboardHeader = ({ ticker, externalData, loading, theme, onToggleTheme }
         .header-actions {
           margin-left: auto;
           display: flex;
-          gap: 4px;
+          gap: 8px;
         }
         .action-icon-btn {
-          width: 32px;
-          height: 32px;
+          width: 36px;
+          height: 36px;
           display: flex;
           align-items: center;
           justify-content: center;
-          border-radius: 6px;
-          background: var(--bg-app);
-          border: 1px solid var(--border);
+          border-radius: 999px; /* Pill */
+          background: rgba(255, 255, 255, 0.05);
+          border: 1px solid rgba(255, 255, 255, 0.08);
+          border-top: 1px solid rgba(255, 255, 255, 0.12);
           color: var(--text-secondary);
-          transition: all 0.2s;
+          transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
         }
         .action-icon-btn:hover {
-          background: var(--brand);
-          color: #fff;
-          border-color: var(--brand);
-          transform: translateY(-1px);
+          background: rgba(255, 255, 255, 0.12);
+          color: var(--text-primary);
+          border-color: rgba(255, 255, 255, 0.2);
+          transform: translateY(-2px);
+          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
         }
         .theme-toggle {
-          background: var(--brand-light);
+          background: rgba(62, 166, 255, 0.1);
           color: var(--brand);
-          border-color: var(--brand);
-          font-weight: 700;
-          padding: 0 12px;
-          height: 32px;
-          font-size: 10px;
+          border: 1px solid rgba(62, 166, 255, 0.2);
+          border-top: 1px solid rgba(62, 166, 255, 0.3);
+          font-weight: 800;
+          padding: 0 20px;
+          height: 36px;
+          font-size: 11px;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
           display: flex;
           align-items: center;
-          gap: 6px;
-          border-radius: 6px;
+          gap: 8px;
+          border-radius: 999px; /* Pill */
+          transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .theme-toggle:hover {
+          background: rgba(62, 166, 255, 0.2);
+          transform: translateY(-2px);
+          box-shadow: 0 4px 20px rgba(62, 166, 255, 0.2);
         }
       `}</style>
     </header>

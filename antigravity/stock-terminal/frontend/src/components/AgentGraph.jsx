@@ -35,36 +35,44 @@ const AgentNode = ({ data }) => {
 
   return (
     <div style={{
-      padding: '10px 16px',
-      borderRadius: '8px',
-      background: bgColor,
-      border: `2px solid ${borderColor}`,
-      minWidth: '180px',
-      boxShadow: isActive ? `0 0 12px ${color}40` : '0 2px 4px rgba(0,0,0,0.05)',
-      transition: 'all 0.3s ease'
+      padding: '12px 20px',
+      borderRadius: '24px',
+      background: 'var(--bg-card)',
+      backdropFilter: 'var(--card-blur)',
+      border: `2px solid ${isActive ? borderColor : 'var(--border)'}`,
+      minWidth: '200px',
+      boxShadow: isActive ? `0 0 20px ${color}60` : 'var(--glass-shadow)',
+      transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+      position: 'relative',
+      overflow: 'hidden'
     }}>
+      <div style={{
+        position: 'absolute', top: 0, left: 0, right: 0, height: '4px', background: color, opacity: 0.6
+      }} />
       <Handle type="target" position={Position.Top} style={{ background: '#555' }} />
       <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: data.tools?.length > 0 ? '8px' : '0' }}>
         <div style={{
-          width: '32px', height: '32px', borderRadius: '6px',
-          background: `${color}15`, display: 'flex', alignItems: 'center', justifyContent: 'center',
-          color: color
+          width: '36px', height: '36px', borderRadius: '50%',
+          background: `${color}25`, display: 'flex', alignItems: 'center', justifyContent: 'center',
+          color: color,
+          boxShadow: `0 0 10px ${color}40`
         }}>
-          <Icon size={18} />
+          <Icon size={20} />
         </div>
         <div>
-          <div style={{ fontSize: '12px', fontWeight: 'bold', color: '#333', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }} title={data.label}>{data.label}</div>
+          <div style={{ fontSize: '13px', fontWeight: '800', color: 'var(--text-primary)', wordBreak: 'break-word' }} title={data.label}>{data.label}</div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-            <div style={{ fontSize: '9px', color: '#666' }}>{data.type}</div>
+            <div style={{ fontSize: '10px', color: 'var(--text-secondary)', fontWeight: 600 }}>{data.type}</div>
             {data.model && (
               <div style={{
                 fontSize: '8px',
-                background: '#eee',
-                padding: '1px 4px',
-                borderRadius: '3px',
-                color: '#444',
-                fontWeight: 600,
-                border: '1px solid #ddd'
+                background: 'rgba(255, 255, 255, 0.05)',
+                padding: '1px 6px',
+                borderRadius: '999px',
+                color: 'var(--text-secondary)',
+                fontWeight: 800,
+                border: '1px solid var(--border)',
+                textTransform: 'uppercase'
               }}>
                 {data.model}
               </div>
@@ -72,6 +80,13 @@ const AgentNode = ({ data }) => {
           </div>
         </div>
       </div>
+
+      {/* Latency / Duration Display */}
+      {data.duration !== undefined && (
+        <div style={{ position: 'absolute', top: '-10px', right: '-10px', background: '#7c3aed', color: 'white', fontSize: '9px', padding: '2px 6px', borderRadius: '10px', fontWeight: 'bold', boxShadow: '0 2px 4px rgba(0,0,0,0.1)', zIndex: 10 }}>
+          {data.duration < 0.01 ? '< 0.01s' : `${data.duration.toFixed(2)}s`}
+        </div>
+      )}
 
       {/* Tools Badge */}
       {data.tools && data.tools.length > 0 && (
@@ -87,6 +102,22 @@ const AgentNode = ({ data }) => {
         </div>
       )}
 
+      {/* Thinking state for agents */}
+      {isActive && data.type !== 'tool' && (
+        <div style={{ fontSize: '10px', color: color, fontStyle: 'italic', marginTop: '8px', textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
+          <div className="icon-pulse"><Bot size={12} /></div>
+          <span>Reasoning...</span>
+        </div>
+      )}
+
+      {/* Status Indicators */}
+      {!isActive && data.isVisited && (
+        <div style={{ position: 'absolute', bottom: '8px', right: '12px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+          <div style={{ fontSize: '8px', color: 'var(--green)', fontWeight: 800, textTransform: 'uppercase', opacity: 0.8 }}>Complete</div>
+          <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'var(--green)' }} />
+        </div>
+      )}
+
       <Handle type="source" position={Position.Bottom} style={{ background: '#555' }} />
     </div>
   );
@@ -94,31 +125,90 @@ const AgentNode = ({ data }) => {
 
 const ToolNode = ({ data }) => {
   const isActive = data.isActive;
+  const duration = data.duration;
+
+  // Color code latency
+  let latencyColor = 'var(--brand-light)';
+  let latencyTextColor = 'var(--brand)';
+  let latencyBorder = 'var(--brand)';
+
+  if (duration > 5.0) {
+    latencyColor = '#fef2f2'; // Red-ish
+    latencyTextColor = '#dc3545';
+    latencyBorder = '#dc3545';
+  } else if (duration > 2.0) {
+    latencyColor = '#fff3cd'; // Yellow-ish
+    latencyTextColor = '#ffc107';
+    latencyBorder = '#ffc107';
+  } else if (duration < 0.5) {
+    latencyColor = '#d1e7dd'; // Green-ish
+    latencyTextColor = '#198754';
+    latencyBorder = '#198754';
+  }
 
   return (
     <div style={{
-      padding: '6px 12px',
-      borderRadius: '20px',
-      background: isActive ? '#e6fffa' : '#fff',
-      border: isActive ? '2px solid #20c997' : '1px solid #777', // Green border when active
-      minWidth: '120px',
-      boxShadow: isActive ? '0 0 8px rgba(32, 201, 151, 0.4)' : '0 1px 2px rgba(0,0,0,0.1)',
+      padding: '10px 16px',
+      borderRadius: '12px',
+      background: 'var(--bg-card)',
+      backdropFilter: 'var(--card-blur)',
+      border: isActive ? '2px solid var(--green)' : '1px solid var(--border)',
+      minWidth: '160px',
+      boxShadow: isActive ? '0 0 15px var(--green-bg)' : 'var(--glass-shadow)',
       display: 'flex',
       alignItems: 'center',
-      gap: '6px',
-      transition: 'all 0.3s ease',
-      maxWidth: '200px' // Ensure it doesn't grow indefinitely
-    }}>
+      gap: '12px',
+      transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+      maxWidth: '350px',
+      position: 'relative'
+    }}
+      title={isActive ? "Executing now..." : (data.isVisited ? `Execution complete (${duration?.toFixed(2)}s)` : "")}
+    >
       <Handle type="target" position={Position.Top} style={{ background: '#555' }} />
       <div style={{
-        width: '20px', height: '20px', borderRadius: '50%',
-        background: isActive ? '#20c997' : '#eee', display: 'flex', alignItems: 'center', justifyContent: 'center',
-        color: isActive ? '#fff' : '#666',
-        flexShrink: 0 // Prevent icon from shrinking
+        width: '32px', height: '32px', borderRadius: '50%',
+        background: isActive ? 'var(--green)' : (data.isVisited ? 'var(--green-bg)' : 'var(--border-light)'),
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        color: isActive ? '#fff' : (data.isVisited ? 'var(--green)' : 'var(--text-muted)'),
+        flexShrink: 0,
+        boxShadow: isActive ? '0 0 10px var(--green-light)' : 'none'
       }}>
-        <Zap size={10} />
+        {isActive ? <Zap size={16} className="icon-pulse" /> : (data.isVisited ? <Database size={16} /> : <Zap size={16} />)}
       </div>
-      <span style={{ fontSize: '11px', fontWeight: 600, color: '#333', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }} title={data.label}>{data.label}</span>
+
+      <div style={{ display: 'flex', flexDirection: 'column', overflow: 'hidden', flex: 1 }}>
+        <span style={{
+          fontSize: '13px',
+          fontWeight: 600,
+          color: 'var(--text-primary)',
+          whiteSpace: 'nowrap',
+          overflow: 'hidden',
+          textOverflow: 'ellipsis'
+        }} title={data.label}>
+          {data.label}
+        </span>
+        {/* Optional: Add description if available and space permits, or just keep it clean */}
+      </div>
+
+      {/* Latency Display for Tools (Prominent Badge) */}
+      {duration !== undefined && (
+        <div style={{ 
+          position: 'absolute',
+          bottom: '-10px',
+          right: '-4px',
+          fontSize: '10px',
+          background: latencyColor,
+          padding: '2px 8px',
+          borderRadius: '12px',
+          color: latencyTextColor,
+          fontWeight: 800,
+          border: `1px solid ${latencyBorder}`,
+          boxShadow: '0 2px 5px rgba(0,0,0,0.05)',
+          zIndex: 10
+        }}>
+          {duration < 0.01 ? '< 0.01s' : `${duration.toFixed(2)}s`}
+        </div>
+      )}
     </div>
   );
 };
@@ -143,10 +233,12 @@ const getLayoutedElements = (nodes, edges, direction = 'TB') => {
   nodes.forEach((node) => {
     // Dynamic dimensions for layout to prevent overlap
     const labelLength = node.data.label ? node.data.label.length : 10;
-    const baseWidth = node.type === 'tool' ? 140 : 220;
+
+    // INCREASED WIDTHS for better readability
+    const baseWidth = node.type === 'tool' ? 180 : 240; 
     // Allow wider nodes if label is long, but cap it
-    const width = Math.min(Math.max(baseWidth, labelLength * 8), 300);
-    const height = node.type === 'tool' ? 50 : 100;
+    const width = Math.min(Math.max(baseWidth, labelLength * 9), 350);
+    const height = node.type === 'tool' ? 60 : 100;
     dagreGraph.setNode(node.id, { width, height });
   });
 
@@ -166,7 +258,7 @@ const getLayoutedElements = (nodes, edges, direction = 'TB') => {
         x: nodeWithPosition.x - nodeWithPosition.width / 2,
         y: nodeWithPosition.y - nodeWithPosition.height / 2,
       },
-      style: { width: nodeWithPosition.width, maxWidth: 300 } // Pass width to style
+      style: { width: nodeWithPosition.width, maxWidth: 350 } // Pass width to style
     };
   });
 
@@ -174,7 +266,7 @@ const getLayoutedElements = (nodes, edges, direction = 'TB') => {
   return { nodes: newNodes, edges };
 };
 
-const AgentGraph = ({ topology, activeNodeId }) => {
+const AgentGraph = ({ topology, activeNodeId, executionPath = [], nodeDurations = {} }) => {
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
 
@@ -191,21 +283,51 @@ const AgentGraph = ({ topology, activeNodeId }) => {
     setEdges(layoutedEdges);
   }, [topology, setNodes, setEdges]);
 
-  // Update Active State
   useEffect(() => {
-    // Logic: Highlight if ID matches OR if label matches (for robustness)
-    // Also highlight incoming edge if active.
+    if (!nodes.length) return;
 
-    const activeId = activeNodeId;
+    // Build a map for edge lookup
+    const sourceMap = {};
+    edges.forEach(e => {
+      if (!sourceMap[e.target]) sourceMap[e.target] = [];
+      sourceMap[e.target].push(e.source);
+    });
+
+    const getAncestors = (nodeId, visited = new Set()) => {
+      if (!nodeId || visited.has(nodeId)) return visited;
+      visited.add(nodeId);
+      const parents = sourceMap[nodeId] || [];
+      parents.forEach(p => getAncestors(p, visited));
+      return visited;
+    };
+
+    // Determine all nodes that should be highlighted
+    const highlightedNodes = new Set();
+    const activeAncestors = getAncestors(activeNodeId);
+    activeAncestors.forEach(id => highlightedNodes.add(id));
+
+    executionPath.forEach(pathId => {
+      // Find actual node ID in the graph that matches pathId
+      const targetNode = nodes.find(n => n.id === pathId || n.id.endsWith(`_${pathId}`) || n.data.label === pathId);
+      if (targetNode) {
+        const ancestors = getAncestors(targetNode.id);
+        ancestors.forEach(id => highlightedNodes.add(id));
+      }
+    });
 
     setNodes((nds) =>
       nds.map((node) => {
-        const isMatch = (node.id === activeId || node.id.endsWith(`_${activeId}`) || node.data.label === activeId);
+        const isCurrent = (node.id === activeNodeId || node.id.endsWith(`_${activeNodeId}`) || node.data.label === activeNodeId);
+        const isVisited = executionPath.some(pathId => node.id === pathId || node.id.endsWith(`_${pathId}`) || node.data.label === pathId);
+        const isPartOfPath = highlightedNodes.has(node.id);
+
         return {
           ...node,
           data: {
             ...node.data,
-            isActive: isMatch
+            isActive: isCurrent,
+            isVisited: isVisited || isPartOfPath,
+            duration: nodeDurations[node.id] || nodeDurations[node.data.label] || node.data.duration
           }
         };
       })
@@ -213,27 +335,26 @@ const AgentGraph = ({ topology, activeNodeId }) => {
 
     setEdges((eds) =>
       eds.map((edge) => {
-        // Highlight edge if TARGET is active
-        const targetNode = nodes.find(n => n.id === edge.target);
-        // This logic is tricky because 'nodes' inside setEdges might be stale if we don't depend on it.
-        // Better to perform matching logic here based on activeId.
-        const isTargetActive = (edge.target === activeId || edge.target.endsWith(`_${activeId}`));
+        // Highlight edge if TARGET is active or visited as an ancestor
+        const isTargetHighlighted = highlightedNodes.has(edge.target);
+        const isTargetCurrent = (edge.target === activeNodeId || edge.target.endsWith(`_${activeNodeId}`));
 
         return {
           ...edge,
-          animated: isTargetActive, // Animate flow
+          animated: isTargetHighlighted,
           style: {
             ...edge.style,
-            stroke: isTargetActive ? '#20c997' : '#b1b1b7',
-            strokeWidth: isTargetActive ? 2 : 1
+            stroke: isTargetCurrent ? '#20c997' : (isTargetHighlighted ? '#198754' : '#b1b1b7'),
+            strokeWidth: isTargetHighlighted ? 2 : 1,
+            opacity: isTargetHighlighted ? 1 : 0.5
           }
         };
       })
     );
-  }, [activeNodeId, topology]); // Re-run when activeNodeId changes
+  }, [activeNodeId, executionPath, nodeDurations, edges.length]); 
 
   return (
-    <div id="printable-agent-graph" style={{ width: '100%', height: '100%', background: '#f8f9fa' }}>
+    <div id="printable-agent-graph" style={{ width: '100%', height: '100%', background: 'transparent' }}>
       <ReactFlow
         nodes={nodes}
         edges={edges}
