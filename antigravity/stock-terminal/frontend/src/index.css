@@ -49,47 +49,47 @@
   }
   
   body.dark-theme {
-    --bg-app: #0a0c10;
-    --bg-card: rgba(30, 34, 45, 0.7);
-    --bg-popover: rgba(20, 24, 33, 0.95);
-    --border: rgba(255, 255, 255, 0.08);
-    --border-hover: rgba(255, 255, 255, 0.15);
-    --border-light: rgba(255, 255, 255, 0.04);
+    --bg-app: #050505;
+      --bg-card: rgba(18, 18, 18, 0.4);
+      --bg-popover: rgba(10, 10, 10, 0.7);
+      --border: rgba(255, 255, 255, 0.04);
+      --border-hover: rgba(255, 255, 255, 0.08);
+      --border-light: rgba(255, 255, 255, 0.02);
   
-    --text-primary: #ffffff;
-    --text-secondary: #94a3b8;
-    --text-muted: #64748b;
+    --text-primary: #f1f1f1;
+      --text-secondary: #888888;
+      --text-muted: #606060;
   
-    --brand: #3b82f6;
-    --brand-gradient: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-    --brand-light: rgba(59, 130, 246, 0.1);
+    --brand: #3ea6ff;
+      --brand-gradient: linear-gradient(135deg, #3ea6ff 0%, #0056b3 100%);
+      --brand-light: rgba(62, 166, 255, 0.12);
   
-    --green: #10b981;
-    --green-bg: rgba(16, 185, 129, 0.1);
-    --red: #ef4444;
-    --red-bg: rgba(239, 68, 68, 0.1);
+    --green: #2ba640;
+      --green-bg: rgba(43, 166, 64, 0.1);
+      --red: #ff4e45;
+      --red-bg: rgba(255, 78, 69, 0.1);
   
-    --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-    --card-blur: blur(12px);
+    --glass-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.9);
+      --card-blur: blur(32px) saturate(210%);
   
-    --bg-msg-user: rgba(59, 130, 246, 0.3);
+    --bg-msg-user: rgba(62, 166, 255, 0.15);
     --text-msg-user: #ffffff;
-    --border-msg-user: rgba(59, 130, 246, 0.5);
-    --bg-msg-assistant: rgba(255, 255, 255, 0.12);
-    --text-msg-assistant: #ffffff;
-    --border-msg-assistant: rgba(255, 255, 255, 0.2);
+    --border-msg-user: rgba(62, 166, 255, 0.25);
+      --bg-msg-assistant: rgba(255, 255, 255, 0.04);
+      --text-msg-assistant: #f1f1f1;
+      --border-msg-assistant: rgba(255, 255, 255, 0.1);
   
-    --bg-badge-factset: rgba(1, 87, 155, 0.3);
-    --text-badge-factset: #81d4fa;
-    --bg-badge-model: rgba(126, 34, 206, 0.3);
-    --text-badge-model: #e9d5ff;
-    --bg-badge-search: rgba(46, 125, 50, 0.3);
-    --text-badge-search: #a5d6a7;
+    --bg-badge-factset: rgba(255, 255, 255, 0.06);
+      --text-badge-factset: #3ea6ff;
+      --bg-badge-model: rgba(187, 134, 252, 0.1);
+      --text-badge-model: #bb86fc;
+      --bg-badge-search: rgba(255, 255, 255, 0.06);
+      --text-badge-search: #2ba640;
   
-    --reason-bg: rgba(30, 34, 45, 0.6);
-    --reason-header-bg: rgba(255, 255, 255, 0.05);
-    --reason-border: rgba(255, 255, 255, 0.12);
-}
+    --reason-bg: rgba(15, 15, 15, 0.4);
+      --reason-header-bg: rgba(255, 255, 255, 0.02);
+      --reason-border: rgba(255, 255, 255, 0.06);
+    }
 
 * {
   box-sizing: border-box;
@@ -101,15 +101,15 @@ body {
   font-family: var(--font-sans);
   background-color: var(--bg-app);
   background-image:
-      radial-gradient(at 0% 0%, var(--brand-light) 0px, transparent 50%),
-      radial-gradient(at 100% 100%, var(--brand-light) 0px, transparent 50%);
+    radial-gradient(at 15% 15%, rgba(62, 166, 255, 0.04) 0px, transparent 40%),
+      radial-gradient(at 85% 85%, rgba(187, 134, 252, 0.02) 0px, transparent 40%);
   color: var(--text-primary);
   font-size: 13px;
-    line-height: 1.6;
+  line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   height: 100vh;
-    overflow: hidden;
-    transition: background-color 0.3s ease, color 0.3s ease;
+  overflow: hidden;
+  transition: background-color 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 h1,
@@ -125,6 +125,21 @@ button {
   cursor: pointer;
   border: none;
   background: none;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: 999px;
+    /* Force pill shape globally */
+  }
+  
+  body.dark-theme button {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: var(--text-primary);
+  }
+  
+  body.dark-theme button:hover {
+    background: rgba(255, 255, 255, 0.12);
+    border-color: rgba(255, 255, 255, 0.2);
+    transform: translateY(-1px);
 }
 
 .app-container {
@@ -155,16 +170,19 @@ button {
 .card {
   background: var(--bg-card);
   backdrop-filter: var(--card-blur);
-    -webkit-backdrop-filter: var(--card-blur);
+  -webkit-backdrop-filter: var(--card-blur);
     border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    padding: 20px;
     box-shadow: var(--glass-shadow);
-    transition: transform 0.2s ease, border-color 0.2s ease;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   }
   
   .card:hover {
     border-color: var(--border-hover);
+  border-top-color: rgba(255, 255, 255, 0.15);
+    box-shadow: 0 12px 48px rgba(0, 0, 0, 0.5);
 }
 
 .section-title {
@@ -364,7 +382,7 @@ button {
   padding: 0.2em 0.4em;
   margin: 0;
   font-size: 85%;
-  background-color: var(--border-light);
+  background-color: rgba(255, 255, 255, 0.06);
   border-radius: 6px;
   font-family: var(--font-mono);
 }
@@ -440,9 +458,9 @@ button {
 .step-details {
   margin-top: 6px;
   font-size: 10px;
-  background: var(--border-light);
-  border-radius: 4px;
-  padding: 8px;
+  background: rgba(255, 255, 255, 0.02);
+    border-radius: 12px;
+    padding: 12px;
   border: 1px solid var(--border);
   overflow-x: hidden;
 }

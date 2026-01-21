@@ -29,7 +29,7 @@ const AiActionButtons = ({ ticker }) => {
             padding: '16px',
             backgroundColor: 'var(--bg-card)',
             border: '1px solid var(--border)',
-            borderRadius: '12px',
+            borderRadius: '24px',
             cursor: 'pointer',
             fontSize: '14px',
             fontWeight: '600',

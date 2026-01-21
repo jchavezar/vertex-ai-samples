@@ -94,7 +94,7 @@ export function useLiveApi({
     };
 
     const onLog = (log: any) => {
-      console.log('LiveClient Log:', log);
+      // console.log('LiveClient Log:', log);
     };
 
     const onError = (err: any) => {

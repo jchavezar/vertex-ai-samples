@@ -11,6 +11,7 @@ import AiActionButtons from './components/AiActionButtons';
 import WidgetSlot from './components/WidgetSlot';
 import FinancialsView from './components/FinancialsView';
 import AdvancedSearchView from './components/AdvancedSearchView';
+import ReportsGenerator from './components/ReportsGenerator';
 
 function App() {
   const [ticker, setTicker] = useState('FDS'); // Default to FactSet
@@ -24,6 +25,17 @@ function App() {
   const [rightSidebarWidth, setRightSidebarWidth] = useState(450);
   const [isResizing, setIsResizing] = useState(false);
   const [theme, setTheme] = useState('light'); // default needs to be light
+  const [isGeneratingReport, setIsGeneratingReport] = useState(false);
+  const [reportSteps, setReportSteps] = useState([]);
+  const [reportStatus, setReportStatus] = useState('');
+  // Report Persistence State
+  const [reportTicker, setReportTicker] = useState('');
+  const [reportTemplate, setReportTemplate] = useState(null);
+  const [reportData, setReportData] = useState(null);
+  const [reportProgress, setReportProgress] = useState(0);
+  const [reportProgressStep, setReportProgressStep] = useState('');
+  const [reportStepsCompleted, setReportStepsCompleted] = useState([]);
+
 
   useEffect(() => {
     document.body.className = theme === 'dark' ? 'dark-theme' : 'light-theme';
@@ -193,6 +205,7 @@ function App() {
           onToggleTheme={toggleTheme}
         />
 
+
         <div className="content-scrollable">
           {activeView === 'Snapshot' ? (
             <div className="grid-layout">
@@ -210,33 +223,69 @@ function App() {
                 />
               </div>
 
-              <div style={{ gridColumn: 'span 4' }}>
-                <WidgetSlot
-                  section="Profile"
-                  sectionKey="Profile"
-                  override={widgetOverrides['Profile']}
-                  isAiMode={!!chartOverride}
-                  onGenerate={handleGenerateWidget}
-                  originalComponent={<SummaryPanel ticker={ticker} externalData={tickerData} />}
-                />
-              </div>
+              {/* Compute active tickers for context-aware buttons */}
+              {(() => {
+                let tickersToAnalyze = [ticker];
+                if (chartOverride && chartOverride.series && chartOverride.series.length > 0) {
+                  tickersToAnalyze = chartOverride.series.map(s => s.ticker);
+                } else if (chartOverride && chartOverride.ticker) {
+                  tickersToAnalyze = [chartOverride.ticker];
+                }
 
-              {['Trading', 'Valuation', 'Dividends', 'Estimates'].map(section => (
-                <div style={{ gridColumn: 'span 3' }} key={section}>
-                  <WidgetSlot
-                    section={section}
-                    override={widgetOverrides[section]}
-                    isAiMode={!!chartOverride}
-                    onGenerate={handleGenerateWidget}
-                    originalComponent={<KeyStats section={section} ticker={ticker} externalData={tickerData} />}
-                  />
-                </div>
-              ))}
+                return (
+                  <>
+                     <div style={{ gridColumn: 'span 4' }}>
+                       <WidgetSlot
+                         section="Profile"
+                         sectionKey="Profile"
+                         override={widgetOverrides['Profile']}
+                         isAiMode={!!chartOverride}
+                         onGenerate={handleGenerateWidget}
+                         tickers={tickersToAnalyze}
+                         originalComponent={<SummaryPanel ticker={ticker} externalData={tickerData} />}
+                       />
+                     </div>
+
+                     {['Trading', 'Valuation', 'Dividends', 'Estimates'].map(section => (
+                       <div style={{ gridColumn: 'span 3' }} key={section}>
+                         <WidgetSlot
+                           section={section}
+                           override={widgetOverrides[section]}
+                           isAiMode={!!chartOverride}
+                           onGenerate={handleGenerateWidget}
+                            tickers={tickersToAnalyze}
+                            originalComponent={<KeyStats section={section} ticker={ticker} externalData={tickerData} />}
+                          />
+                        </div>
+                      ))}
+                  </>
+                );
+              })()}
             </div>
           ) : activeView.includes('Income Statement') || activeView.includes('Financials') || activeView === 'Balance Sheet' || activeView === 'Cash Flow' ? (
             <FinancialsView ticker={ticker} />
             ) : activeView === 'Advanced Search' ? (
               <AdvancedSearchView />
+              ) : activeView === 'Reports Generator' ? (
+                <ReportsGenerator
+                  setIsGeneratingReport={setIsGeneratingReport}
+                  setReportSteps={setReportSteps}
+                  setReportStatus={setReportStatus}
+                  // Persistence Props
+                  ticker={reportTicker}
+                  setTicker={setReportTicker}
+                  selectedTemplate={reportTemplate}
+                  setSelectedTemplate={setReportTemplate}
+                  reportData={reportData}
+                  setReportData={setReportData}
+                  progress={reportProgress}
+                  setProgress={setReportProgress}
+                  progressStep={reportProgressStep}
+                  setProgressStep={setReportProgressStep}
+                  stepsCompleted={reportStepsCompleted}
+                  setStepsCompleted={setReportStepsCompleted}
+                  isGenerating={isGeneratingReport}
+                />
           ) : (
                 <div style={{ padding: '80px 40px', textAlign: 'center', color: 'var(--text-muted)' }}>
                   <div style={{ marginBottom: '24px', opacity: 0.5 }}>
@@ -300,7 +349,13 @@ function App() {
         setSelectedModel={setSelectedModel}
         selectedComplexModel={selectedComplexModel}
         setSelectedComplexModel={setSelectedComplexModel}
+        isGeneratingReport={isGeneratingReport}
+        reportSteps={reportSteps}
+        reportStatus={reportStatus}
       />
+
+
+
     </div>
   );
 }

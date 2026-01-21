@@ -2509,10 +2509,9 @@ const RightSidebar = ({
                         </div>
                       </div>
                     </div>
-                  </div>
-                ) : (
-                  <>
-                    <div className="chat-messages-area" style={{ flex: 1, overflowY: 'auto', padding: '0 12px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                    ) : (
+                    <>
+                      <div className="chat-messages-area" style={{ flex: 1, overflowY: 'auto', padding: '0 12px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
                         {messages.map((msg, idx) => (
                 <div key={idx} className={`msg ${msg.role}`} style={{
                   fontSize: '13px',
@@ -2723,16 +2722,19 @@ const RightSidebar = ({
               {chatLoading && (
                 <div className="small blinking" style={{
                   fontStyle: 'italic',
-                            color: 'var(--fg-muted)',
+                  color: 'var(--text-muted)',
                   display: 'flex',
                   alignItems: 'center',
                   gap: '8px',
                   padding: '8px 12px',
                   fontSize: '12px',
+                  background: '#fdfdfd',
+                  borderRadius: '8px',
+                            border: '1px dashed var(--border)',
+                            color: 'var(--fg-muted)',
                             background: 'rgba(255, 255, 255, 0.02)',
                             borderRadius: '12px',
-                            border: '1px dashed var(--border)',
-                  alignSelf: 'flex-start'
+                            alignSelf: 'flex-start'
                           }} >
                             {messages[messages.length - 1]?.text ? 'Assistant is working...' : 'Assistant is thinking...'}
                   <span>({(thinkingTime / 1000).toFixed(2)}s)</span>
@@ -2883,17 +2885,16 @@ const RightSidebar = ({
           </>
         )
         }
-              </div>
 
         {
           showAuthModal && (
             <div style={{
               position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
-                    background: 'var(--bg-card)', zIndex: 100,
-                    backdropFilter: 'blur(40px)',
+                          background: 'var(--bg-card)', zIndex: 100,
+                          backdropFilter: 'blur(40px)',
               display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '30px',
-                    borderRadius: '12px',
-                    border: '1px solid var(--border)'
+                          borderRadius: '12px',
+                          border: '1px solid var(--border)'
             }}>
               <div style={{
                 width: '48px', height: '48px', borderRadius: '50%', border: '3px solid #f0f7ff',
@@ -2960,16 +2961,16 @@ const RightSidebar = ({
               <div style={{ display: 'flex', gap: '12px' }}>
                 <button
                   onClick={() => setShowAuthModal(false)}
-                        style={{
-                          padding: '8px 20px',
-                          borderRadius: '999px',
-                          border: '1px solid var(--border)',
-                          background: 'rgba(255,255,255,0.05)',
-                          cursor: 'pointer',
-                          color: 'var(--text-secondary)',
-                          fontSize: '13px',
-                          fontWeight: '700'
-                        }}
+                              style={{
+                                padding: '8px 20px',
+                                borderRadius: '999px',
+                                border: '1px solid var(--border)',
+                                background: 'rgba(255,255,255,0.05)',
+                                cursor: 'pointer',
+                                color: 'var(--text-secondary)',
+                                fontSize: '13px',
+                                fontWeight: '700'
+                              }}
                 >
                   Cancel
                 </button>
@@ -2984,47 +2985,49 @@ const RightSidebar = ({
                     boxShadow: '0 4px 12px var(--brand-light)'
                   }}
                 >
-                        Authorize Now
+                              Authorize Now
                 </a>
               </div>
             </div>
           )
         }
+                    {/* Global Thinking Indicator for Maximized View (Visible in all tabs) */}
+                    {
+                      isChatMaximized && chatLoading && (
+                        <div
+                          className="glass-thinking-indicator"
+                          style={{
+                            position: 'fixed',
+                            bottom: '100px',
+                            right: '40px',
+                            zIndex: 10001,
+                            background: 'var(--bg-card)',
+                            backdropFilter: 'var(--card-blur)',
+                            padding: '12px 24px',
+                            borderRadius: '999px',
+                            border: '1px solid var(--brand)',
+                            boxShadow: '0 0 20px var(--brand-light)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '12px',
+                            animation: 'fadeIn 0.3s ease-out'
+                          }}
+                        >
+                          <div className="icon-pulse" style={{ color: 'var(--brand)' }}>
+                            <Sparkles size={18} />
+                          </div>
+                          <div style={{ color: 'var(--text-primary)', fontSize: '13px', fontWeight: 600 }}>
+                            Assistant is thinking... <span style={{ color: 'var(--brand)', marginLeft: '4px' }}>({(thinkingTime / 1000).toFixed(2)}s)</span>
+                          </div>
+                        </div>
+                      )
+                    }
+                  </div>
 
-          </>
-        )}
-        {/* Global Thinking Indicator for Maximized View (Visible in all tabs) */}
-        {
-          isChatMaximized && chatLoading && (
-            <div
-              className="glass-thinking-indicator"
-              style={{
-                position: 'fixed',
-                bottom: '100px',
-                right: '40px',
-                zIndex: 10001,
-                background: 'var(--bg-card)',
-                backdropFilter: 'var(--card-blur)',
-                padding: '12px 24px',
-                borderRadius: '999px',
-                border: '1px solid var(--brand)',
-                boxShadow: '0 0 20px var(--brand-light)',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '12px',
-                animation: 'fadeIn 0.3s ease-out'
-              }}
-            >
-              <div className="icon-pulse" style={{ color: 'var(--brand)' }}>
-                <Sparkles size={18} />
-              </div>
-              <div style={{ color: 'var(--text-primary)', fontSize: '13px', fontWeight: 600 }}>
-                Assistant is thinking... <span style={{ color: 'var(--brand)', marginLeft: '4px' }}>({(thinkingTime / 1000).toFixed(2)}s)</span>
-              </div>
-            </div>
-          )
-        }
-      </div>
+
+
+            </>
+          )}
       <style jsx="true">{`
         @keyframes blink {
           0% { opacity: 1; }

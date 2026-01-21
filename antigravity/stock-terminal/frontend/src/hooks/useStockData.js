@@ -28,7 +28,7 @@ export const useStockData = (ticker) => {
           change: change > 0 ? `+${change}` : change,
           changePercent: change > 0 ? `+${changePercent}%` : `${changePercent}%`,
           isUp: change > 0,
-          lastUpdated: new Date().toLocaleTimeString(),
+          lastUpdated: Math.floor(Date.now() / 1000),
           marketCap: "11,102.43M"
         });
         setLoading(false);
