@@ -697,19 +697,33 @@ async def generate_report(req: ReportRequest):
                 except: pass
 
             try:
+                # 1. Try direct parsing first (cleanest)
                 if json_match:
-                    # Prefer regex match if fences failed or weren't strict
-                    # But if fences worked, clean_text is already good.
-                    # Let's try parsing clean_text first.
-                    parsed = json.loads(clean_text)
-                    if "components" in parsed:
-                        components = parsed["components"]
-                    else:
-                        # Fallback if structure is slightly off
-                        components = [{"type": "text", "title": "Analysis", "content": clean_text}]
+                     # Prefer the regex match if strictly cleaner, or if direct parse failed previously
+                     # But let's try strict parse of full text first? 
+                     # Actually, if we found a match, using the match is safer IF the match is correct.
+                     # Regex `\{.*\}` with DOTALL is greedy, might capture too much if multiple blocks?
+                     # Let's trust the match if direct parse fails.
+                     try:
+                         parsed = json.loads(clean_text)
+                     except:
+                         print("[Report] Direct parse failed, trying regex match...")
+                         parsed = json.loads(json_match.group(0))
+                         
+                     if "components" in parsed:
+                         components = parsed["components"]
+                     else:
+                         # Fallback if structure is slightly off
+                         components = [{"type": "text", "title": "Analysis", "content": clean_text}]
                 else:
-                     components = [{"type": "text", "title": "Analysis", "content": clean_text}]
-            except:
+                     # No match, try parsing widely just in case, or fallback
+                     parsed = json.loads(clean_text)
+                     if "components" in parsed:
+                         components = parsed["components"]
+                     else:
+                         components = [{"type": "text", "title": "Analysis", "content": clean_text}]
+            except Exception as e:
+                print(f"[Report] JSON parse failed: {e}")
                 # If parsing fails, just dump the text
                 components = [{"type": "text", "title": "Raw Output", "content": clean_text}]
 
