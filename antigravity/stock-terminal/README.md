@@ -1,4 +1,4 @@
-# 🚀 Stock Terminal Next-Gen
+# 🚀 Stock Terminal Next-Gen (Dark Mode)
 
 > **Empowering Financial Intelligence with Google ADK & Gemini.**
 
@@ -13,92 +13,179 @@ A professional-grade financial stock terminal that bridges the gap between raw m
 - **🔌 FactSet Integration**: Professional MCP toolset integration for high-fidelity financial data.
 - **💬 Conversational Analyst**: A chat assistant that doesn't just talk—it executes complex workflows.
 - **🔎 Vertex AI Search**: Integrated Enterprise search engine for retrieving financial documents and insights.
+- **🌑 Dark Mode**: Native dark theme support for low-light environments.
 
 ---
 
-## 🗺 System Architecture
+## 📸 Gallery (Dark Mode)
+
+### 🏛 Main Dashboard
+![Dashboard](./screenshots/dashboard_dark.png)
+
+### 📑 Report Generator ("Company Primer")
+![Reports](./screenshots/reports_dark.png)
+
+### 💬 Intelligent Assistant
+![Chat](./screenshots/chat_dark.png)
+
+---
+
+## 🗺 Application Architecture
+
+### 1. High-Level System Flow
+The terminal uses a React Frontend communicating with a FastAPI backend via HTTP/SSE. The backend leverages the **Google Agent Development Kit (ADK)** to orchestrate complex workflows.
 
 ```mermaid
 graph TD
-    User((User)) -->|Search / Chat| Frontend[Vite + React UI]
-    Frontend -->|API Request| Backend[FastAPI + Google ADK]
+    classDef frontend fill:#1e1e1e,stroke:#3ea6ff,stroke-width:2px,color:#fff;
+    classDef backend fill:#2d2d2d,stroke:#bb86fc,stroke-width:2px,color:#fff;
+    classDef external fill:#000,stroke:#fff,stroke-width:1px,stroke-dasharray: 5 5,color:#fff;
+
+    User((User)) -->|Interacts| Frontend[React UI / Vite]:::frontend
+    Frontend -->|REST / SSE| Backend[FastAPI Server]:::backend
     
-    subgraph "Agentic Heart (ADK)"
-        Backend --> Runner[ADK Runner]
-        Runner --> Gatekeeper{Gatekeeper Agent}
+    subgraph "Agentic Core (Google ADK)"
+        Backend -->|Dispatch| Runner[ADK Runner]:::backend
+        Runner -->|Route| Router{Intent Router}:::backend
         
-        Gatekeeper -->|General Info| Search[Google Search Agent]
-        Gatekeeper -->|Market Data| YF[yfinance Tool]
-        Gatekeeper -->|Deep Financials| FactSet[FactSet MCP Service]
+        Router -->|General Q| Chat[Conversational Agent]:::backend
+        Router -->|Market Data| Data[Data Extractor]:::backend
+        Router -->|Deep Dive| Report[Report Orchestrator]:::backend
     end
 
-    FactSet -->|Real-time Data| Runner
-    Search -->|News/Profiles| Runner
-    YF -->|Snapshots| Runner
+    Data -->|Tool Calls| FactSet[FactSet API]:::external
+    Report -->|Search| Google[Google Search]:::external
+    Report -->|Synthesis| Gemini[Gemini Pro Model]:::external
+```
+
+### 2. Report Generation Workflow (Sequential & Parallel)
+A specialized "Swarm" architecture handles deep-dive report generation.
+
+```mermaid
+sequenceDiagram
+    participant User
+    participant Orch as Report Orchestrator
+    participant Res as Market Researcher
+    participant Data as Data Extractor
+    participant Synth as Synthesizer
+    participant UI as Frontend
+
+    User->>UI: "Generate Company Primer for GOOGL"
+    UI->>Orch: POST /generate-report
+    Orch->>UI: SSE: "Initializing Agents..."
     
-    Runner -->|Synthesized Result| Frontend
+    par Parallel Extraction
+        Orch->>Res: "Research qualitative factors..."
+        Res->>Res: Search News, Mgmt, SWOT
+        Orch->>Data: "Fetch hard numbers..."
+        Data->>Data: FactSet Prices, Sales, Segments
+    end
+    
+    Res-->>Orch: Qualitative Findings
+    Data-->>Orch: Quantitative Data Blocks (JSON)
+    
+    Orch->>Synth: "Synthesize Report"
+    note over Synth: Merges Text + Data Blocks<br/>Format: JSON Component Feed
+    Synth-->>Orch: Final Report JSON
+    Orch->>UI: SSE: Complete
+    UI->>User: Renders Charts & Text
+```
+
+### 3. FactSet Data Agent (Tool Selection)
+How the agent decides which FactSet tool to use.
+
+```mermaid
+flowchart LR
+    classDef decision fill:#333,stroke:#ff9800,stroke-width:2px;
+    classDef tool fill:#1a1a1a,stroke:#4caf50,color:#fff;
+    
+    Input["User: 'What is the PE ratio of NVDA?'"] --> Router{Tool Selection}:::decision
+    
+    Router -->|Prices?| GlobalPrices[FactSet_GlobalPrices]:::tool
+    Router -->|Financials?| Fundamentals[FactSet_Fundamentals]:::tool
+    Router -->|Estimates?| Consensus[FactSet_Estimates]:::tool
+    Router -->|Competitors?| Peers[FactSet_Competitors]:::tool
+    
+    GlobalPrices --> Output[JSON Response]
+    Fundamentals --> Output
+    Consensus --> Output
 ```
 
 ---
 
-## 🚀 Quick Start
+## 🚀 Deployment & Replication
 
 ### 📦 Prerequisites
-- **Python 3.13+** with `uv`
-- **Node.js 20+**
+- **Python 3.10+** (Recommend 3.12/3.13)
+- **Node.js 18+**
+- **FactSet API Credentials** (Client ID & Private Key)
+- **Google Cloud Project** (Vertex AI API Enabled)
 
 ### 🛠 Replication Steps
 
-1. **Clone & Environment Setup**
-   ```bash
-   git clone <repo-url>
-   cd stock-terminal
-   ```
-
-2. **Backend Services**
-   ```bash
-   cd backend
-   # Configure your .env (see below)
-   uv sync
-   uv run uvicorn main:app --port 8001
-   ```
-
-3. **Frontend Application**
-   ```bash
-   cd frontend
-   npm install
-   npm run dev
-   ```
-
-### ⚙️ Environment Variables (.env)
-Create a `.env` file in the root directory to configure the services.
-
-```ini
-# FactSet Configuration
-FS_CLIENT_ID=your_factset_client_id
-FS_CLIENT_SECRET=your_factset_client_secret
-FS_REDIRECT_URI=https://vertexaisearch.cloud.google.com/oauth-redirect
-
-# Vertex AI Search Configuration
-VAIS_PROJECT_ID=254356041555
-VAIS_LOCATION=global
-VAIS_COLLECTION=default_collection
-VAIS_ENGINE=factset
-VAIS_SERVING_CONFIG=default_search
+#### 1. Clone the Repository
+```bash
+git clone https://github.com/google-gemini/stock-terminal.git
+cd stock-terminal
 ```
 
----
+#### 2. Backend Setup (FastAPI + ADK)
+We use `uv` for blazing fast Python package management.
 
-## 📸 Gallery
+```bash
+cd backend
 
-### 🏛 Main Dashboard
-![Dashboard](./screenshots/dashboard.png)
+# 1. Create virtual environment
+python3 -m venv .venv
+source .venv/bin/activate
 
-### 📈 Deep Analysis (AAPL)
-![Analysis](./screenshots/analysis.png)
+# 2. Install dependencies
+uv sync
+# OR
+pip install -r requirements.txt
 
-### 💬 Intelligent Assistant
-![Chat](./screenshots/chat.png)
+# 3. Configure Environment
+cp .env.example .env
+# EDIT .env with your FactSet and Google Cloud credentials
+```
+
+#### 3. Frontend Setup (React + Vite)
+```bash
+cd frontend
+
+# 1. Install Node modules
+npm install
+
+# 2. Start Development Server
+npm run dev
+```
+
+#### 4. Run the Application
+Open two terminal tabs:
+
+**Tab 1 (Backend):**
+```bash
+cd backend
+source .venv/bin/activate
+uvicorn main:app --reload --port 8001
+```
+
+**Tab 2 (Frontend):**
+```bash
+cd frontend
+npm run dev
+```
+
+Access the app at `http://localhost:5173`.
+
+### ⚙️ Environment Variables Reference
+| Variable | Description |
+| :--- | :--- |
+| `FS_CLIENT_ID` | FactSet Machine Account User ID |
+| `FS_CLIENT_SECRET` | FactSet Machine Account Private Key |
+| `FS_REDIRECT_URI` | Valid OAuth Redirect URI |
+| `VAIS_PROJECT_ID` | Google Cloud Project ID |
+| `VAIS_LOCATION` | Vertex AI Search Location (e.g. global) |
 
 ---
 
@@ -106,11 +193,11 @@ VAIS_SERVING_CONFIG=default_search
 
 | Layer | Technologies |
 | :--- | :--- |
-| **Frontend** | React 19, Vite, Tailwind CSS, Recharts, Lucide |
-| **Backend** | FastAPI, Python 3.13, Uvicorn |
-| **AI Engine** | Google Agent Development Kit (ADK), Gemini 2.0/3.0 |
+| **Frontend** | React 19, Vite, Tailwind CSS, Recharts, Lucide, Framer Motion |
+| **Backend** | FastAPI, Python 3.13, Google ADK, Uvicorn |
+| **AI Engine** | Gemini 1.5 Pro / 2.0 Flash |
 | **Data** | FactSet MCP, yfinance, Google Search |
 
 ---
 
-Built with ❤️ by the Antigravity Team.
+Built with ❤️ by the **Antigravity Team**.
