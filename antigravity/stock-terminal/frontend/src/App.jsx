@@ -10,6 +10,7 @@ import RightSidebar from './components/RightSidebar';
 import AiActionButtons from './components/AiActionButtons';
 import WidgetSlot from './components/WidgetSlot';
 import FinancialsView from './components/FinancialsView';
+import AdvancedSearchView from './components/AdvancedSearchView';
 
 function App() {
   const [ticker, setTicker] = useState('FDS'); // Default to FactSet
@@ -31,7 +32,7 @@ function App() {
   const toggleTheme = () => setTheme(prev => prev === 'light' ? 'dark' : 'light');
 
   // Model selection state (lifted from RightSidebar)
-  const [selectedModel, setSelectedModel] = useState('gemini-2.5-flash-lite');
+  const [selectedModel, setSelectedModel] = useState('gemini-3-flash-preview');
   const [selectedComplexModel, setSelectedComplexModel] = useState('gemini-3-flash-preview');
 
   const startResizing = React.useCallback((mouseDownEvent) => {
@@ -160,7 +161,7 @@ function App() {
         title={isSidebarOpen ? "Collapse Sidebar" : "Expand Sidebar"}
         style={{
           width: '12px',
-          background: '#f8f9fa',
+          background: 'var(--bg-app)',
           borderRight: '1px solid var(--border)',
           borderLeft: isSidebarOpen ? 'none' : '1px solid var(--border)', // Ensure border when closed
           display: 'flex',
@@ -169,16 +170,16 @@ function App() {
           cursor: 'pointer',
           zIndex: 10,
           position: 'relative',
-          transition: 'background 0.2s'
+          transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)'
         }}
-        onMouseEnter={(e) => e.currentTarget.style.background = '#eef1f4'}
-        onMouseLeave={(e) => e.currentTarget.style.background = '#f8f9fa'}
+        onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}
+        onMouseLeave={(e) => e.currentTarget.style.background = 'var(--bg-app)'}
       >
         <div style={{
           height: '24px',
           width: '4px',
-          background: '#d1d9e0',
-          borderRadius: '2px'
+          background: 'rgba(255,255,255,0.1)',
+          borderRadius: '999px'
         }} />
       </div>
 
@@ -234,6 +235,8 @@ function App() {
             </div>
           ) : activeView.includes('Income Statement') || activeView.includes('Financials') || activeView === 'Balance Sheet' || activeView === 'Cash Flow' ? (
             <FinancialsView ticker={ticker} />
+            ) : activeView === 'Advanced Search' ? (
+              <AdvancedSearchView />
           ) : (
                 <div style={{ padding: '80px 40px', textAlign: 'center', color: 'var(--text-muted)' }}>
                   <div style={{ marginBottom: '24px', opacity: 0.5 }}>
@@ -265,24 +268,24 @@ function App() {
         title="Resize Chat"
         style={{
           width: '12px',
-          background: isResizing ? '#eef1f4' : '#f8f9fa',
-          borderLeft: '1px solid var(--border)',
-          borderRight: '1px solid var(--border)',
+          background: isResizing ? 'rgba(255,255,255,0.08)' : 'var(--bg-app)',
+          borderLeft: '1px solid rgba(255,255,255,0.05)',
+          borderRight: '1px solid rgba(255,255,255,0.05)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
           cursor: 'col-resize',
           zIndex: 10,
           position: 'relative',
-          transition: 'background 0.2s',
+          transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
           userSelect: 'none'
         }}
       >
         <div style={{
           height: '24px',
           width: '4px',
-          background: '#d1d9e0',
-          borderRadius: '2px'
+          background: 'rgba(255,255,255,0.1)',
+          borderRadius: '999px'
         }} />
       </div>
 

@@ -2,6 +2,7 @@ import os
 import json
 import asyncio
 import time
+import secrets
 import traceback
 from dotenv import load_dotenv
 
@@ -14,7 +15,9 @@ from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import RedirectResponse, HTMLResponse
 from pydantic import BaseModel
-from typing import List, Optional, AsyncGenerator
+from typing import List, Optional, AsyncGenerator, Dict, Any
+import google.auth
+from google.auth.transport.requests import Request
 
 import google.adk as adk
 from google.adk.agents import Agent, ParallelAgent, SequentialAgent
@@ -31,22 +34,39 @@ session_service = InMemorySessionService()
 # Token Persistence
 TOKEN_FILE = "factset_tokens.json"
 factset_tokens = {} # Initialize global
+_cached_tokens = None # In-memory cache
 
 def load_tokens():
+    """Loads tokens from disk or memory cache."""
+    global _cached_tokens
+    if _cached_tokens is not None:
+        return _cached_tokens
+        
     if os.path.exists(TOKEN_FILE):
         try:
             with open(TOKEN_FILE, 'r') as f:
-                return json.load(f)
+                _cached_tokens = json.load(f)
+                return _cached_tokens
         except:
-            return {}
-    return {}
+            pass
+    _cached_tokens = {}
+    return _cached_tokens
 
 def save_tokens(tokens):
+    """Saves tokens to disk and updates memory cache."""
+    global _cached_tokens
+    _cached_tokens = tokens
     try:
         with open(TOKEN_FILE, 'w') as f:
             json.dump(tokens, f)
     except Exception as e:
         print(f"Error saving tokens: {e}")
+
+def handle_simple_greeting(message: str) -> bool:
+    """Detects if a message is a simple greeting that doesn't need data tools."""
+    greetings = {"hi", "hello", "hey", "hola", "greetings", "good morning", "good afternoon", "good evening", "hi bro", "hey bro", "what's up"}
+    msg = message.lower().strip().strip("!").strip(".")
+    return msg in greetings
 
 async def refresh_factset_token(session_id: str):
     """Refreshes the FactSet token using the stored refresh_token."""
@@ -94,14 +114,16 @@ async def refresh_factset_token(session_id: str):
         return None
 
 async def get_valid_factset_token(session_id: str):
-    """Returns a valid FactSet token, refreshing if necessary (5 min buffer)."""
-    # Reload from disk for tests/consistency if file changed externally
+    # Fast in-memory check first
     global factset_tokens
-    factset_tokens = load_tokens()
-    
     data = factset_tokens.get(session_id)
+    
     if not data:
-        return None
+        # Avoid redundant disk I/O if possible
+        factset_tokens = load_tokens()
+        data = factset_tokens.get(session_id)
+        if not data:
+            return None
 
     token = data.get("token")
     expires_at = data.get("expires_at", 0)
@@ -109,7 +131,9 @@ async def get_valid_factset_token(session_id: str):
     # Refresh if expired or expiring in the next 5 minutes
     if not expires_at or time.time() > (expires_at - 300):
         if data.get("refresh_token") and data["refresh_token"] != "pending":
+            start_refresh = time.time()
             refreshed = await refresh_factset_token(session_id)
+            print(f"DEBUG: get_valid_factset_token (REFRESH) took {time.time() - start_refresh:.4f}s")
             return refreshed
         else:
             print(f"Token for {session_id} is expired or invalid, and no refresh_token is available.")
@@ -187,6 +211,68 @@ def create_summary_agent(model_name: str = "gemini-2.5-flash-lite"):
         Your goal is to provide a concise, professional summary of the key findings.
         """
     )
+
+# --- VERTEX AI SEARCH CLIENT ---
+PROJECT_ID = os.getenv("VAIS_PROJECT_ID", "254356041555")
+LOCATION = os.getenv("VAIS_LOCATION", "global")
+COLLECTION = os.getenv("VAIS_COLLECTION", "default_collection")
+ENGINE = os.getenv("VAIS_ENGINE", "factset")
+SERVING_CONFIG = os.getenv("VAIS_SERVING_CONFIG", "default_search")
+VAIS_API_URL = f"https://discoveryengine.googleapis.com/v1alpha/projects/{PROJECT_ID}/locations/{LOCATION}/collections/{COLLECTION}/engines/{ENGINE}/servingConfigs/{SERVING_CONFIG}:search"
+
+class VertexSearchClient:
+    def __init__(self):
+        self.credentials, self.project = google.auth.default()
+        self._token = None
+        self._token_expiry = 0
+        self._client = httpx.AsyncClient(timeout=30.0)
+
+    async def get_token(self) -> str:
+        now = time.time()
+        if not self._token or not self.credentials.valid or now > self._token_expiry:
+            print("[VAIS] Refreshing Google Auth Token (Async Thread)...")
+            t0 = time.time()
+            import anyio
+            await anyio.to_thread.run_sync(self.credentials.refresh, Request())
+            self._token = self.credentials.token
+            self._token_expiry = now + 3000 # 50 min buffer
+            print(f"[VAIS] Token refresh took {time.time() - t0:.4f}s")
+        return self._token
+
+    async def search(self, query: str, page_size: int = 10, offset: int = 0) -> Dict[str, Any]:
+        token = await self.get_token()
+        headers = {
+            "Authorization": f"Bearer {token}",
+            "Content-Type": "application/json"
+        }
+        
+        payload = {
+            "query": query,
+            "pageSize": page_size,
+            "offset": offset,
+            "queryExpansionSpec": {"condition": "AUTO"},
+            "spellCorrectionSpec": {"mode": "AUTO"},
+            "userInfo": {"timeZone": "UTC"}
+        }
+
+        t0 = time.time()
+        try:
+            response = await self._client.post(VAIS_API_URL, headers=headers, json=payload)
+            response.raise_for_status()
+            print(f"[VAIS] Search for '{query}' took {time.time() - t0:.4f}s")
+            return response.json()
+        except Exception as e:
+            print(f"[VAIS] Search Failed after {time.time() - t0:.4f}s: {e}")
+            raise
+
+vais_client = VertexSearchClient()
+
+class SearchRequest(BaseModel):
+    query: str
+    pageSize: Optional[int] = 10
+    offset: Optional[int] = 0
+
+
 
 # --- AGENT INSTRUCTIONS ---
 
@@ -284,10 +370,23 @@ def generate_topology(agent):
 
                 tool_node_id = f"{agent_id}_{tool_name}"
                 
+                # Fetch description if available
+                description = ""
+                if hasattr(t, 'description') and t.description:
+                    description = t.description
+                elif hasattr(t, '__doc__') and t.__doc__:
+                    description = t.__doc__.strip()
+                elif hasattr(t, 'func') and hasattr(t.func, '__doc__') and t.func.__doc__:
+                    description = t.func.__doc__.strip()
+
                 nodes.append({
                     "id": tool_node_id,
                     "type": "tool",
-                    "data": {"label": tool_name, "parentAgent": agent_id}
+                    "data": {
+                        "label": tool_name, 
+                        "parentAgent": agent_id,
+                        "description": description
+                    }
                 })
                 edges.append({
                     "id": f"e_{agent_id}_{tool_node_id}",
@@ -330,7 +429,7 @@ async def perform_general_search_only(query: str) -> str:
 
     return await perform_google_search(query)
 
-def create_chat_agent(model_name: str = "gemini-2.5-flash-lite"):
+def create_chat_agent(model_name: str = "gemini-2.5-flash"):
     return Agent(
         model=model_name,
         name="terminal_assistant",
@@ -338,7 +437,7 @@ def create_chat_agent(model_name: str = "gemini-2.5-flash-lite"):
         tools=[get_current_time, perform_google_search],
     )
 
-def create_data_analyst_agent(token: str, model_name: str = "gemini-2.5-flash-lite", ticker: str = None, section: str = "Financial") -> Agent:
+def create_data_analyst_agent(token: str, model_name: str = "gemini-2.5-flash", ticker: str = None, section: str = "Financial") -> Agent:
     """Specialized worker for high-speed financial data extraction for widgets."""
     from factset_agent import create_factset_agent
     instruction = (
@@ -399,6 +498,81 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+@app.post("/search")
+async def search_vais(req: SearchRequest):
+    try:
+        # Fast retrieval only - no summarySpec
+        results = await vais_client.search(req.query, req.pageSize, req.offset)
+        return results
+    except Exception as e:
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=str(e))
+
+class OverviewRequest(BaseModel):
+    query: str
+    contexts: List[str]
+
+@app.post("/search/generative-overview")
+async def stream_search_overview(req: OverviewRequest):
+    """
+    Streams a generative overview using a dedicated Google ADK Agent (Gemini 2.5 Flash Lite).
+    """
+    async def generate_with_agent():
+        try:
+            # Construct context from search results
+            context_str = "\n\n".join([f"Source {i+1}: {ctx}" for i, ctx in enumerate(req.contexts)])
+            
+            prompt = f"""
+            You are a senior financial analyst assistant. 
+            User Query: "{req.query}"
+
+            Based ONLY on the provided search snippets below, write a concise, high-level executive summary (max 3-4 sentences).
+            - Focus on the most important facts.
+            - If the snippets don't answer the query, say so politely.
+            
+            AFTER the summary, provide 2-3 short, relevant follow-up questions that would help scope the search or dig deeper.
+            
+            Format:
+            [Summary text...]
+
+            **Follow-up Questions:**
+            - [Question 1]
+            - [Question 2]
+            
+            Contexts:
+            {context_str}
+            """
+            
+            # Create a dedicated agent for this request
+            # We use the ADK Agent as requested by the user
+            overview_agent = Agent(
+                name="search_overview_worker",
+                model="gemini-2.5-flash-lite",
+                instruction="You are a helpful financial analyst. You synthesize search results into concise summaries.",
+                tools=[] # No tools needed, just synthesis
+            )
+            
+            # Create a temporary session for isolation
+            temp_session_id = f"overview_{secrets.token_hex(4)}"
+            await session_service.create_session(session_id=temp_session_id, user_id="overview_worker", app_name="stock_terminal_search")
+            
+            # Create runner
+            runner = adk.Runner(app_name="stock_terminal_search", agent=overview_agent, session_service=session_service)
+            msg = Content(role="user", parts=[Part(text=prompt)])
+            
+            # Stream response
+            async for event in runner.run_async(user_id="overview_worker", session_id=temp_session_id, new_message=msg):
+                if event.content and event.content.parts:
+                    for part in event.content.parts:
+                        if part.text:
+                            yield json.dumps({"text": part.text}) + "\n"
+                            
+        except Exception as e:
+            traceback.print_exc()
+            yield json.dumps({"error": str(e)}) + "\n"
+
+    return StreamingResponse(generate_with_agent(), media_type="application/x-ndjson")
 
 class SummaryRequest(BaseModel):
     dashboard_data: dict
@@ -611,7 +785,29 @@ def get_agent_config():
         }
     }
 
-# --- MAIN ENDPOINTS ---
+def normalize_model_name(name: str) -> str:
+    """Maps UI model labels to valid API model IDs."""
+    if not name: return "gemini-2.5-flash-lite"
+    n = name.lower()
+    
+    # Handle "3.0 Flash" -> Fallback to 2.0 Flash Exp or keep if valid environment
+    # Assuming 2.0 Flash Exp is the intended 'bleeding edge' equivalent for now
+    if "3.0" in n and "flash" in n: return "gemini-2.0-flash-exp"
+    if "2.0" in n and "flash" in n: return "gemini-2.0-flash-exp"
+    
+    if "2.5" in n and "lite" in n: return "gemini-2.5-flash-lite"
+    if "2.5" in n and "flash" in n: return "gemini-2.5-flash"
+    
+    # Handle just "Flash" or "Pro"
+    if n == "flash": return "gemini-2.5-flash"
+    if n == "pro": return "gemini-1.5-pro"
+    
+    # If it contains spaces, it's likely a UI label that missed mapping -> default to 2.5 Flash
+    if " " in name: 
+        print(f"[Warning] Unknown model label '{name}', defaulting to gemini-2.5-flash")
+        return "gemini-2.5-flash"
+        
+    return name
 
 @app.get("/ticker-info/{ticker}")
 async def get_ticker_info(ticker: str):
@@ -788,82 +984,87 @@ from fastapi.responses import StreamingResponse
 
 @app.post("/chat")
 async def chat(req: ChatRequest):
+    start_time = time.time()
     # Simulation hook for verification
     if req.message == "SIMULATE_AUTH_ERROR":
         raise ValueError("FactSet authentication token expired or invalid. Please reconnect.")
 
     try:
-        factset_token = await get_valid_factset_token(req.session_id)
-        agent = None
-        
-        # SPECIAL ROUTING: Widget Generation (Case-insensitive catch)
+        # FAST PATH: Check for simple greetings
         msg_lower = req.message.lower()
-        if "generate" in msg_lower and "analysis for" in msg_lower and factset_token:
-             # Extract section and tickers
-             import re
-             section_match = re.search(r"Generate (.+?) analysis", req.message)
-            # Relaxed regex to handle optional period or end of string
-             tickers_match = re.search(r"analysis for ([^.]+)", req.message)
-             
-             section = section_match.group(1) if section_match else "Financial"
-             tickers_str = tickers_match.group(1).strip() if tickers_match else ""
-             # Remove trailing "IMPORTANT" etc if present
-             if "IMPORTANT" in tickers_str:
-                 tickers_str = tickers_str.split("IMPORTANT")[0].strip()
-             
-             tickers_list = [t.strip() for t in tickers_str.split(',') if t.strip()]
-             
-             print(f"DEBUG: Widget Route Matched. Section: {section}, Tickers: {tickers_list}")
-             
-             if len(tickers_list) > 1:
-                 print(f"DEBUG: Routing to PARALLEL WORKFLOW for {section} ({', '.join(tickers_list)})")
-                 agent = create_parallel_data_analyst_workflow(token=factset_token, tickers=tickers_list, section=section, model_name=req.model)
-             else:
-                 single_ticker = tickers_list[0] if tickers_list else None
-                 # Ensure single analyst uses the requested model and wraps in tags
-                 agent = create_data_analyst_agent(token=factset_token, ticker=single_ticker, model_name=req.model, section=section)
-                 agent.instruction += f"\nIMPORTANT: YOU MUST WRAP YOUR ENTIRE RESPONSE IN [WIDGET:{section}]...[/WIDGET] tags."
+        is_greeting = handle_simple_greeting(req.message)
         
-        elif factset_token:
-
-            # GATEKEEPER PATTERN IMPLEMENTATION
-            # Instead of auto-routing, we give the Agent a TOOL to spawn the parallel workflow.
-            
-            async def run_parallel_comparison(tickers_str: str, metric_focus: str = "Price Performance") -> str:
-                # Spawns a parallel team of analysts to compare multiple stocks.
-                # Use this tool ONLY after clarifying which stocks and what metrics the user wants.
-                
-                # Return the sentinel
-                return f"SWITCH_TO_PARALLEL_WORKFLOW:{tickers_str}:{metric_focus}"
-
-            # Create Gatekeeper
-            gatekeeper_instruction = (
-                "You are the specialized FactSet Gatekeeper analyst.\n\n"
-                "When a user asks to COMPARE 2 or more stocks:\n"
-                "1. If metrics (e.g. Price, Revenue, Valuation) are CLEARLY specified, use `run_parallel_comparison` IMMEDIATELY.\n"
-                "2. ONLY if metrics are vague or missing, ask: 'What specific metrics would you like to compare? (e.g. Price Performance, Revenue Growth, Valuation)'\n"
-                "DO NOT ask for metrics if the user already provided them in their query.\n"
-                "DO NOT attempt to fetch data yourself for multi-stock comparisons. Use the tool to delegate."
-            )
-
-            # If the user is explicitly asking to visualize, we force the CHART tag logic
-            if "visualize" in msg_lower or "chart" in msg_lower or "plot" in msg_lower:
-                gatekeeper_instruction += "\nCRITICAL: The user wants to see a chart. You MUST use the [CHART] tag protocol to visualize the numbers discussed or recently fetched. Do NOT just summarize in text."
-            
-            agent = create_factset_agent(
-                token=factset_token, 
-                model_name=req.model,
-                instruction_override=gatekeeper_instruction + "\n" + FACTSET_INSTRUCTIONS, # Combine generic + specific
-                extra_tools=[run_parallel_comparison]
-            )
-            
-            # End of Gatekeeper Setup
-
-        else:
-             print(f"DEBUG: Using Standard Chat Agent for session {req.session_id}")
+        agent = None
+        factset_token = None
+        
+        # Determine Routing Path
+        if is_greeting:
+             print(f"DEBUG: [FAST PATH] Greeting detected. Skipping FactSet Auth.")
              agent = create_chat_agent(model_name=req.model)
+             agent.instruction = (
+                 "You are the FactSet Terminal Analyst. "
+                 "Greeting the user warmly and concisely. "
+                 "Suggest that you can help with financial data."
+             )
+             agent.name = "factset_analyst"
         
-        print(f"DEBUG: FINAL AGENT: {agent.name}")
+        else:
+             t0 = time.time()
+             factset_token = await get_valid_factset_token(req.session_id)
+             print(f"DEBUG: Auth Check took {time.time() - t0:.4f}s")
+
+             if factset_token:
+                 # Extract section and tickers
+                 import re
+                 section_match = re.search(r"Generate (.+?) analysis", req.message)
+                 tickers_match = re.search(r"analysis for ([^.]+)", req.message)
+                 
+                 section = section_match.group(1) if section_match else "Financial"
+                 tickers_str = tickers_match.group(1).strip() if tickers_match else ""
+                 if "IMPORTANT" in tickers_str:
+                     tickers_str = tickers_str.split("IMPORTANT")[0].strip()
+                 
+                 tickers_list = [t.strip() for t in tickers_str.split(",") if t.strip()]
+                 
+                 if "generate" in msg_lower and "analysis for" in msg_lower:
+                      if len(tickers_list) > 1:
+                          agent = create_parallel_data_analyst_workflow(token=factset_token, tickers=tickers_list, section=section, model_name=req.model)
+                      else:
+                          single_ticker = tickers_list[0] if tickers_list else None
+                          agent = create_data_analyst_agent(token=factset_token, ticker=single_ticker, model_name=req.model, section=section)
+                          agent.instruction += f"\nIMPORTANT: YOU MUST WRAP YOUR ENTIRE RESPONSE IN [WIDGET:{section}]...[/WIDGET] tags."
+                 
+                 else:
+                    async def run_parallel_comparison(tickers_str: str, metric_focus: str = "Price Performance") -> str:
+                        return f"SWITCH_TO_PARALLEL_WORKFLOW:{tickers_str}:{metric_focus}"
+
+                    gatekeeper_instruction = (
+                        "You are the specialized FactSet Gatekeeper analyst.\n\n"
+                        "EFFICIENCY PROTOCOL:\n"
+                        "1. For SINGLE stock queries (e.g., 'Tell me about FDS'), be SURGICAL. "
+                        "Start by fetching Fundamentals and Price data. Do NOT call Estimates, Metrics, or People tools immediately.\n"
+                        "2. Synthesize a high-quality summary from initial data before deciding if more tools are needed.\n"
+                        "3. Aim for high signal-to-noise ratio. Avoid redundant tool calls.\n\n"
+                        "When a user asks to COMPARE stocks (e.g. 'Compare X and Y'):\n"
+                        "1. **CONSULTATIVE MODE**: Do NOT fetch data immediately if the query is broad.\n"
+                        "2. **ASK**: 'Would you like to compare Price Performance, Valuation, or News?'\n"
+                        "3. **ONLY** run `run_parallel_comparison` if the user specifies the metric OR says 'Full/Detailed Analysis'."
+                    )
+                    
+                    if "visualize" in msg_lower or "chart" in msg_lower or "plot" in msg_lower:
+                        gatekeeper_instruction += "\nCRITICAL: The user wants a chart. You MUST use the [CHART] tag protocol to visualize the numbers discussed or recently fetched. Do NOT just summarize in text."
+                    
+                    agent = create_factset_agent(
+                        token=factset_token, 
+                        model_name=req.model,
+                        instruction_override=gatekeeper_instruction + "\n" + FACTSET_INSTRUCTIONS,
+                        extra_tools=[run_parallel_comparison]
+                    )
+             else:
+                  agent = create_chat_agent(model_name=req.model)
+        
+        init_time = time.time() - start_time
+        print(f"DEBUG: FINAL AGENT: {agent.name} (Init: {init_time:.2f}s)")
 
         # Safe debug logging for agent tools
         req_tools = getattr(agent, 'tools', [])
@@ -876,7 +1077,12 @@ async def chat(req: ChatRequest):
         runner = adk.Runner(app_name="stock_terminal", agent=agent, session_service=session_service)
 
         # Generate topology for visualization
+        t_topo = time.time()
         topo = generate_topology(agent)
+        print(f"DEBUG: Topology Generation took {time.time() - t_topo:.4f}s")
+        
+        print(f"DEBUG: Request Ready for Runner at {time.time() - start_time:.4f}s total")
+    
     
     except Exception as e:
         print(f"Initialization Error: {e}")
@@ -935,6 +1141,47 @@ async def chat(req: ChatRequest):
         # Keep the most recent messages. ADK usually handles system instruction separately via Agent definition.
         # So we can safely just slice the history.
         session.history = session.history[-MAX_HISTORY:]
+
+    # Recursive function to find the root cause
+    def get_root_cause(exc):
+        exc_str = str(exc)
+        
+        # 1. Check for specific known messages
+        if "FactSet authentication token expired" in exc_str:
+            return exc_str
+        
+        # 2. Check for HTTP 401/403
+        if hasattr(exc, "response") and hasattr(exc.response, "status_code"):
+            if exc.response.status_code in (401, 403):
+                return "FactSet authentication token expired or invalid. Please reconnect."
+
+        # 3. Check for Network Errors
+        if "ReadError" in exc_str or "anyio.EndOfStream" in exc_str or "ConnectionResetError" in exc_str:
+            return "Network Error: The FactSet service closed the connection (ReadError). This often happens during high-concurrency parallel tasks. Please try again."
+
+        # 4. Unwrap ExceptionGroups/BaseExceptionGroups (anyio/asyncio)
+        if hasattr(exc, "exceptions") and exc.exceptions:
+            # Recursive search for a known error in the group
+            for sub_exc in exc.exceptions:
+                found = get_root_cause(sub_exc)
+                # If we found something more specific than the generic group message, return it
+                if found and "TaskGroup" not in found and "sub-exception" not in found:
+                    return found
+            # If no specific known error found, return the root cause of the first sub-exception
+            return get_root_cause(exc.exceptions[0])
+        
+        # 5. Unwrap direct causes (chained exceptions)
+        if hasattr(exc, "__cause__") and exc.__cause__:
+            return get_root_cause(exc.__cause__)
+            
+        if hasattr(exc, "__context__") and exc.__context__:
+            return get_root_cause(exc.__context__)
+        
+        # 6. Fallback to string but avoid generic TaskGroup message
+        if "unhandled errors in a TaskGroup" in exc_str and hasattr(exc, "exceptions") and exc.exceptions:
+             return get_root_cause(exc.exceptions[0])
+
+        return exc_str
 
     async def event_generator():
         # Helper to parse events consistently across ADK versions
@@ -995,23 +1242,26 @@ async def chat(req: ChatRequest):
         yield json.dumps({"type": "topology", "data": topo}) + "\n"
         
         # 2. Emit Model Info
-        agent_models = []
-        def get_model(obj):
-            if hasattr(obj, "model"): return obj.model
-            if hasattr(obj, "_model"): return obj._model
-            return None
+        def extract_models_recursive(agent_obj):
+            models_found = []
+            # Check current agent
+            if hasattr(agent_obj, "model") and agent_obj.model:
+                models_found.append(agent_obj.model)
+            elif hasattr(agent_obj, "_model") and agent_obj._model:
+                models_found.append(agent_obj._model)
+            
+            # Recurse children
+            if hasattr(agent_obj, "sub_agents") and agent_obj.sub_agents:
+                for sub in agent_obj.sub_agents:
+                    models_found.extend(extract_models_recursive(sub))
+            
+            return models_found
 
-        m = get_model(agent)
-        if m: agent_models.append(m)
+        all_models = extract_models_recursive(agent)
         
-        if hasattr(agent, "sub_agents"):
-            for sa in agent.sub_agents:
-                sm = get_model(sa)
-                if sm: agent_models.append(sm)
-        
-        # Normalize models (extract name if it's a Model object)
+        # Normalize models
         normalized_models = []
-        for am in agent_models:
+        for am in all_models:
             if isinstance(am, str):
                 normalized_models.append(am)
             elif hasattr(am, "name"):
@@ -1072,137 +1322,119 @@ async def chat(req: ChatRequest):
             
             # 2. Check for Switch Directive
             if switch_directive:
-                print(f"[Main] Switching to Parallel Workflow based on directive: {switch_directive}")
-                _, tickers_str, metric_focus = switch_directive.split(":", 2)
-                metric_focus = metric_focus.strip().replace("'", "").replace('"', "")
-                
-                # Construct the Parallel Agent (Copied logic from earlier)
-                # Parse tickers
-                raw_list = [t.strip() for t in tickers_str.split(',')]
-                target_tickers = raw_list[:4]
-                
-                parallel_workers = []
-                for t in target_tickers:
-                    worker = create_data_analyst_agent(
-                        token=factset_token,
-                        model_name=req.complex_model, # Use the COMPLEX model selected by user
-                        ticker=t,
-                        section=metric_focus
+                try:
+                    print(f"[Main] Switching to Parallel Workflow based on directive: {switch_directive}")
+                    yield json.dumps({"type": "text", "content": "\n\n_Starting Parallel Workflow..._\n"}) + "\n"
+                    _, tickers_str, metric_focus = switch_directive.split(":", 2)
+                    metric_focus = metric_focus.strip().replace("'", "").replace('"', "")
+                    
+                    # Construct the Parallel Agent (Copied logic from earlier)
+                    # Parse tickers
+                    raw_list = [t.strip() for t in tickers_str.split(',')]
+                    target_tickers = raw_list[:4]
+                    
+                    # Normalize model name
+                    complex_model_id = normalize_model_name(req.complex_model)
+                    print(f"[Main] Using normalized complex model: {complex_model_id} (from '{req.complex_model}')")
+    
+                    parallel_workers = []
+                    for t in target_tickers:
+                        worker = create_data_analyst_agent(
+                            token=factset_token,
+                            model_name=complex_model_id, # Use NORMALIZED model
+                            ticker=t,
+                            section=metric_focus
+                        )
+                        parallel_workers.append(worker)
+                       
+                    sanitized_section = metric_focus.replace(" ", "_")
+                    parallel_agent = ParallelAgent(
+                        name=f"parallel_{sanitized_section}_fetcher",
+                        sub_agents=parallel_workers
                     )
-                    parallel_workers.append(worker)
+                    
+                    sum_instr = (
+                        f"Summarize comparison of {tickers_str}. Focus: {metric_focus}.\n"
+                        "Synthesize findings. No tools."
+                    )
+                    summarizer = Agent(
+                        name="summary_analyst",
+                        model=complex_model_id, # Use NORMALIZED model
+                        tools=[],
+                        instruction=sum_instr
+                    )
                    
-                sanitized_section = metric_focus.replace(" ", "_")
-                parallel_agent = ParallelAgent(
-                    name=f"parallel_{sanitized_section}_fetcher",
-                    sub_agents=parallel_workers
-                )
-                
-                sum_instr = (
-                    f"Summarize comparison of {tickers_str}. Focus: {metric_focus}.\n"
-                    "Synthesize findings. No tools."
-                )
-                summarizer = Agent(
-                    name="summary_analyst",
-                    model=req.complex_model, # Use COMPLEX for final synthesis
-                    tools=[],
-                    instruction=sum_instr
-                )
-               
-                workflow_agent = SequentialAgent(
-                    name=f"{sanitized_section}_widget_workflow",
-                    sub_agents=[parallel_agent, summarizer]
-                )
-               
-                # Create NEW Runner for the workflow
-                new_topo = generate_topology(workflow_agent)
-                print(f"[Main] Yielding NEW Topology with {len(new_topo['nodes'])} nodes")
-                yield json.dumps({"type": "topology", "data": new_topo}) + "\n"
-                
-                # Emit NEW Model Info for workflow
-                workflow_models = []
-                if hasattr(workflow_agent, "model"): workflow_models.append(workflow_agent.model)
-                if hasattr(workflow_agent, "sub_agents"):
-                    for sa in workflow_agent.sub_agents:
-                        if hasattr(sa, "model"): workflow_models.append(sa.model)
-                unique_workflow_models = list(set(filter(None, workflow_models)))
-                yield json.dumps({"type": "model_info", "models": unique_workflow_models}) + "\n"
+                    workflow_agent = SequentialAgent(
+                        name=f"{sanitized_section}_widget_workflow",
+                        sub_agents=[parallel_agent, summarizer]
+                    )
+                   
+                    # Create NEW Runner for the workflow
+                    new_topo = generate_topology(workflow_agent)
+                    print(f"[Main] Yielding NEW Topology with {len(new_topo['nodes'])} nodes")
+                    yield json.dumps({"type": "topology", "data": new_topo}) + "\n"
+                    
+                    # Emit NEW Model Info for workflow
+                    workflow_models = []
+                    if hasattr(workflow_agent, "model"): workflow_models.append(workflow_agent.model)
+                    if hasattr(workflow_agent, "sub_agents"):
+                        for sa in workflow_agent.sub_agents:
+                            if hasattr(sa, "model"): workflow_models.append(sa.model)
+                    unique_workflow_models = list(set(filter(None, workflow_models)))
+                    yield json.dumps({"type": "model_info", "models": unique_workflow_models}) + "\n"
+    
+                    workflow_runner = adk.Runner(app_name="stock_terminal_parallel", agent=workflow_agent, session_service=session_service)
+                    # Ensure session exists but don't fail if it does
+                    if not await session_service.get_session(session_id=req.session_id, app_name="stock_terminal_parallel", user_id="user_1"):
+                        await session_service.create_session(session_id=req.session_id, app_name="stock_terminal_parallel", user_id="user_1")
+                   
+                    workflow_tool_start_times = {}
+                    workflow_buffer = ""
+    
+                    # Run the workflow with a dummy trigger message
+                    trigger_msg = Content(role="user", parts=[Part(text=f"Proceed with fetching data for {tickers_str} focusing on {metric_focus}")])
+                    
+                    async for event in workflow_runner.run_async(user_id="user_1", session_id=req.session_id, new_message=trigger_msg):
+                        # 1. Yield Usage
+                        if hasattr(event, "usage_metadata") and event.usage_metadata:
+                            yield json.dumps({
+                                "type": "usage", 
+                                "prompt_tokens": event.usage_metadata.prompt_token_count or 0, 
+                                "candidates_tokens": event.usage_metadata.candidates_token_count or 0, 
+                                "total_tokens": event.usage_metadata.total_token_count or 0
+                            }) + "\n"
+    
+                        # 2. Parse and Yield Event Data
+                        try:
+                            data_list = parse_event(event, workflow_tool_start_times)
+                            for data in data_list:
+                                if data["type"] == "text":
+                                    workflow_buffer += data["content"]
+                                yield json.dumps(data) + "\n"
+                        except Exception as e3:
+                            print(f"Error processing workflow event: {e3}")
+                            traceback.print_exc()
 
-                workflow_runner = adk.Runner(app_name="stock_terminal_parallel", agent=workflow_agent, session_service=session_service)
-                # Ensure session exists but don't fail if it does
-                if not await session_service.get_session(session_id=req.session_id, app_name="stock_terminal_parallel", user_id="user_1"):
-                    await session_service.create_session(session_id=req.session_id, app_name="stock_terminal_parallel", user_id="user_1")
-               
-                workflow_tool_start_times = {}
-                workflow_buffer = ""
+                except Exception as e_switch:
+                    print(f"[Main] Error in Parallel Switch: {e_switch}")
+                    traceback.print_exc()
+                    
+                    root_msg = get_root_cause(e_switch)
+                    error_msg = f"Parallel Workflow Failed: {root_msg}" if root_msg else f"Parallel Workflow Failed: {str(e_switch)}"
+                    
+                    yield json.dumps({"type": "error", "content": error_msg}) + "\n"
+    
 
-                # Run the workflow with a dummy trigger message
-                trigger_msg = Content(role="user", parts=[Part(text=f"Proceed with fetching data for {tickers_str} focusing on {metric_focus}")])
-                
-                async for event in workflow_runner.run_async(user_id="user_1", session_id=req.session_id, new_message=trigger_msg):
-                    # 1. Yield Usage
-                    if hasattr(event, "usage_metadata") and event.usage_metadata:
-                        yield json.dumps({
-                            "type": "usage", 
-                            "prompt_tokens": event.usage_metadata.prompt_token_count or 0, 
-                            "candidates_tokens": event.usage_metadata.candidates_token_count or 0, 
-                            "total_tokens": event.usage_metadata.total_token_count or 0
-                        }) + "\n"
-
-                    # 2. Parse and Yield Event Data
-                    try:
-                        data_list = parse_event(event, workflow_tool_start_times)
-                        for data in data_list:
-                            if data["type"] == "text":
-                                workflow_buffer += data["content"]
-                            yield json.dumps(data) + "\n"
-                    except Exception as e3:
-                        print(f"Error processing workflow event: {e3}")
-
-
-        except ImportError:
-             pass
-             
         except Exception as e:
             print(f"Stream error: {e}")
             traceback.print_exc()
             
-            # Recursive function to find the root cause
-            def get_root_cause(exc):
-                # Check for our specific ValueError from factset_agent.py
-                if "FactSet authentication token expired" in str(exc):
-                    return str(exc)
-                
-                # Check for HTTPStatusError (401)
-                if hasattr(exc, "response") and hasattr(exc.response, "status_code"):
-                    if exc.response.status_code in (401, 403):
-                        return "FactSet authentication token expired or invalid. Please reconnect."
-
-                # Unwrap ExceptionGroups (anyio)
-                if hasattr(exc, "exceptions") and exc.exceptions:
-                    for sub_exc in exc.exceptions:
-                        found = get_root_cause(sub_exc)
-                        if found: return found
-                
-                # Unwrap direct causes (chained exceptions)
-                if exc.__cause__:
-                    found = get_root_cause(exc.__cause__)
-                    if found: return found
-                    
-                return None
+            error_msg = get_root_cause(e) or str(e)
             
             # Check for httpx.ReadError (via string check if class not imported or generic)
             if "httpx.ReadError" in str(type(e)) or "ReadError" in str(e):
                  yield json.dumps({"type": "error", "content": "Network Error: The AI service closed the connection (ReadError)."}) + "\n"
                  return
-
-            root_msg = get_root_cause(e)
-            if root_msg:
-                error_msg = root_msg
-            elif hasattr(e, "exceptions") and e.exceptions:
-                 # Fallback for generic ExceptionGroup
-                error_msg = str(e.exceptions[0])
-            else:
-                error_msg = str(e)
 
             yield json.dumps({"type": "error", "content": error_msg}) + "\n"
 

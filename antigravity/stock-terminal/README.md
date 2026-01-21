@@ -12,6 +12,7 @@ A professional-grade financial stock terminal that bridges the gap between raw m
 - **📊 Interactive Visualization**: Dynamic charts curate data on-the-fly using LLM-driven curation.
 - **🔌 FactSet Integration**: Professional MCP toolset integration for high-fidelity financial data.
 - **💬 Conversational Analyst**: A chat assistant that doesn't just talk—it executes complex workflows.
+- **🔎 Vertex AI Search**: Integrated Enterprise search engine for retrieving financial documents and insights.
 
 ---
 
@@ -57,7 +58,7 @@ graph TD
 2. **Backend Services**
    ```bash
    cd backend
-   # Configure your .env with GOOGLE_CLOUD_PROJECT and FactSet keys
+   # Configure your .env (see below)
    uv sync
    uv run uvicorn main:app --port 8001
    ```
@@ -68,6 +69,23 @@ graph TD
    npm install
    npm run dev
    ```
+
+### ⚙️ Environment Variables (.env)
+Create a `.env` file in the root directory to configure the services.
+
+```ini
+# FactSet Configuration
+FS_CLIENT_ID=your_factset_client_id
+FS_CLIENT_SECRET=your_factset_client_secret
+FS_REDIRECT_URI=https://vertexaisearch.cloud.google.com/oauth-redirect
+
+# Vertex AI Search Configuration
+VAIS_PROJECT_ID=254356041555
+VAIS_LOCATION=global
+VAIS_COLLECTION=default_collection
+VAIS_ENGINE=factset
+VAIS_SERVING_CONFIG=default_search
+```
 
 ---
 
