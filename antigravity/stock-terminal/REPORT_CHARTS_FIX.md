@@ -35,3 +35,29 @@ You are a Quantitative Data Analyst.
 4.  Click **Generate Report**.
 5.  Wait ~60s.
 6.  **Success**: Charts ("Sales History", "Revenue Segments") appear visually.
+
+## Update: 'Raw Output' JSON Fix (2026-01-21)
+
+### Issue
+Occasionally, the Report Generator would display a large block of **"Raw Output"** text containing the JSON instead of rendering the report components.
+
+### Root Cause
+The agents sometimes returned "chatty" responses (e.g., "Here is the report: { ... }"). The backend's `json.loads(clean_text)` would fail on this extra text. Although a regex search for the JSON block existed, the code **ignored the regex match** and attempted to parse the full dirty text again, triggering the fallback.
+
+### Solution (`backend/main.py`)
+Updated the JSON extraction logic in `generate_report` to correctly prioritize the **regex match** when direct parsing fails.
+
+```python
+# Fixed Logic
+if json_match:
+    try:
+        parsed = json.loads(clean_text)
+    except:
+        # CORRECTLY use the matched group
+        parsed = json.loads(json_match.group(0))
+```
+
+### Verification
+- **Verified**: 2026-01-21
+- **Test**: End-to-end report generation with `MSFT`.
+- **Result**: Report rendered correctly with no "Raw Output" fallback.
