@@ -9,6 +9,7 @@ import {
   PieChart,
   Globe,
   Search,
+  Sparkles,
   MoreHorizontal
 } from 'lucide-react';
 
@@ -22,6 +23,8 @@ const Sidebar = ({ setTicker, activeView, setActiveView }) => {
   };
 
   const menuItems = [
+    { label: 'Advanced Search', icon: Sparkles, isNew: true },
+    { label: 'Reports Generator', icon: FileText, isNew: true },
     { label: 'Snapshot', icon: LayoutDashboard },
     { label: 'Entity Structure', icon: Users },
     { label: 'Event Calendar', icon: TrendingUp },
@@ -73,6 +76,19 @@ const Sidebar = ({ setTicker, activeView, setActiveView }) => {
             >
               <item.icon size={16} />
               <span>{item.label}</span>
+              {item.isNew && (
+                <span style={{
+                  fontSize: '8px',
+                  background: 'var(--brand-gradient)',
+                  padding: '1px 6px',
+                  borderRadius: '999px',
+                  color: '#fff',
+                  fontWeight: 900,
+                  marginLeft: 'auto',
+                  boxShadow: '0 0 10px rgba(62, 166, 255, 0.4)',
+                  animation: 'pulse 2s infinite'
+                }}>NEW</span>
+              )}
             </div>
           ))}
         </div>
@@ -122,15 +138,17 @@ const Sidebar = ({ setTicker, activeView, setActiveView }) => {
         .search-bar-sidebar {
           display: flex;
           align-items: center;
-          background: var(--border-light);
-          border: 1px solid var(--border);
-          padding: 8px 12px;
-          border-radius: 8px;
-          transition: border-color 0.2s, background 0.2s;
+          background: rgba(255, 255, 255, 0.03);
+          border: 1px solid rgba(255, 255, 255, 0.08);
+          border-top: 1px solid rgba(255, 255, 255, 0.12);
+          padding: 8px 16px;
+          border-radius: 999px; /* Pill shape */
+          transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
         }
         .search-bar-sidebar:focus-within {
-          border-color: var(--brand);
-          background: var(--bg-card);
+          border-color: rgba(62, 166, 255, 0.4);
+          background: rgba(255, 255, 255, 0.06);
+          box-shadow: 0 0 16px rgba(62, 166, 255, 0.1);
         }
         .search-icon {
           color: var(--text-muted);
@@ -147,14 +165,15 @@ const Sidebar = ({ setTicker, activeView, setActiveView }) => {
         }
         .clear-btn {
           color: var(--text-muted);
-          padding: 2px;
+          padding: 4px;
           display: flex;
           align-items: center;
           justify-content: center;
-          border-radius: 4px;
+          border-radius: 999px;
+          background: rgba(255, 255, 255, 0.05);
         }
         .clear-btn:hover {
-          background: var(--border);
+          background: rgba(255, 255, 255, 0.15);
           color: var(--text-primary);
         }
         .sidebar-scroll {
@@ -177,34 +196,28 @@ const Sidebar = ({ setTicker, activeView, setActiveView }) => {
         .sidebar-item {
           display: flex;
           align-items: center;
-          padding: 8px 16px;
+          padding: 10px 16px;
+          margin: 4px 12px;
           cursor: pointer;
           color: var(--text-secondary);
           gap: 12px;
-          transition: all 0.2s ease;
+          border-radius: 999px; /* Pill */
+          transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
           position: relative;
         }
         .sidebar-item:hover {
           color: var(--text-primary);
-          background: var(--border-light);
+          background: rgba(255, 255, 255, 0.05);
+          transform: translateX(4px);
         }
         .sidebar-item.active {
           color: var(--brand);
-          background: var(--brand-light);
-          font-weight: 600;
-        }
-        .sidebar-item.active::after {
-          content: '';
-          position: absolute;
-          left: 0;
-          top: 8px;
-          bottom: 8px;
-          width: 3px;
-          background: var(--brand);
-          border-radius: 0 4px 4px 0;
+          background: rgba(62, 166, 255, 0.1);
+          font-weight: 800;
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
         }
         .sidebar-item.mini {
-          padding: 6px 16px 6px 44px;
+          padding: 8px 16px 8px 44px;
           font-size: 12px;
         }
       `}</style>

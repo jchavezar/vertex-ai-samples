@@ -38,10 +38,10 @@ const TraceLog = ({ logs = [], isMaximized = false }) => {
 
       <style jsx="true">{`
         .trace-log-container {
-            padding: 16px;
-            font-family: 'Consolas', 'Monaco', monospace; /* Monospace for tech feel */
+            padding: 24px;
+            font-family: var(--font-mono);
             font-size: 11px;
-            background: #fafafa;
+            background: transparent;
             min-height: 100%;
         }
         .trace-empty-state {
@@ -51,55 +51,63 @@ const TraceLog = ({ logs = [], isMaximized = false }) => {
             justify-content: center;
             height: 100%;
             color: var(--text-muted);
-            gap: 12px;
+            gap: 16px;
+            opacity: 0.5;
         }
         .trace-entry {
-            margin-bottom: 16px;
-            border-left: 2px solid #ccc;
-            padding-left: 12px;
+            margin-bottom: 24px;
+            border-left: 2px solid var(--border);
+            padding-left: 20px;
             padding-bottom: 8px;
+            transition: border-color 0.3s;
         }
-        .trace-entry.user { border-left-color: #004b87; }
-        .trace-entry.assistant { border-left-color: #6c757d; }
-        .trace-entry.tool_call { border-left-color: #6f42c1; }
-        .trace-entry.tool_result { border-left-color: #28a745; }
-        .trace-entry.error { border-left-color: #dc3545; }
+        .trace-entry.user { border-left-color: var(--brand); }
+        .trace-entry.assistant { border-left-color: var(--text-muted); }
+        .trace-entry.tool_call { border-left-color: #bb86fc; }
+        .trace-entry.tool_result { border-left-color: var(--green); }
+        .trace-entry.error { border-left-color: var(--red); }
 
         .trace-meta {
             display: flex;
-            gap: 8px;
+            gap: 10px;
             align-items: center;
-            margin-bottom: 4px;
-            opacity: 0.8;
+            margin-bottom: 8px;
         }
-        .trace-time { color: #888; font-size: 10px; }
+        .trace-time { 
+            color: var(--text-muted); 
+            font-size: 10px; 
+            font-weight: 600;
+        }
         .trace-type-badge {
             text-transform: uppercase;
-            font-weight: 700;
+            font-weight: 800;
             font-size: 9px;
-            padding: 1px 4px;
-            border-radius: 3px;
+            padding: 2px 8px;
+            border-radius: 999px;
             color: #fff;
+            letter-spacing: 0.5px;
         }
-        .trace-type-badge.user { background: #004b87; }
-        .trace-type-badge.assistant { background: #6c757d; }
-        .trace-type-badge.tool_call { background: #6f42c1; }
-        .trace-type-badge.tool_result { background: #28a745; }
-        .trace-type-badge.error { background: #dc3545; }
-        .trace-type-badge.debug { background: #17a2b8; }
+        .trace-type-badge.user { background: var(--brand); }
+        .trace-type-badge.assistant { background: var(--text-muted); }
+        .trace-type-badge.tool_call { background: #bb86fc; }
+        .trace-type-badge.tool_result { background: var(--green); }
+        .trace-type-badge.error { background: var(--red); }
+        .trace-type-badge.debug { background: #3ea6ff; }
+        .trace-type-badge.system { background: rgba(255,255,255,0.1); color: var(--text-secondary); }
 
         .trace-content {
-            color: #333;
-            line-height: 1.5;
-            word-wrap: break-word; /* Ensure long JSON doesn't overflow */
+            color: var(--text-primary);
+            line-height: 1.6;
+            word-wrap: break-word;
         }
         .code-snippet {
-            background: #f1f3f5;
-            padding: 8px;
-            border-radius: 4px;
+            background: rgba(255, 255, 255, 0.03);
+            padding: 12px;
+            border-radius: 12px;
             overflow-x: auto;
-            border: 1px solid #e9ecef;
-            margin-top: 4px;
+            border: 1px solid var(--border);
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            margin-top: 8px;
         }
       `}</style>
     </div>
@@ -158,18 +166,18 @@ const renderContent = (log, isMaximized) => {
       }
       return (
         <div>
-          <div><strong>Result from:</strong> {log.tool} {log.duration ? <span style={{ fontSize: '10px', color: '#888', marginLeft: '8px', fontWeight: 'normal' }}>({typeof log.duration === 'number' ? log.duration.toFixed(3) + 's' : log.duration})</span> : null}</div>
+          <div><strong>Result from:</strong> {log.tool} {log.duration ? <span style={{ fontSize: '10px', color: 'var(--text-muted)', marginLeft: '8px', fontWeight: 'normal' }}>({typeof log.duration === 'number' ? log.duration.toFixed(3) + 's' : log.duration})</span> : null}</div>
           <div className="code-snippet">
             <pre style={{ maxHeight: isMaximized ? '600px' : '300px', overflowY: 'auto', fontSize: '10px' }}>{resultDisplay}</pre>
           </div>
         </div>
       );
     case 'usage':
-      return <div style={{ color: '#05603A', fontWeight: 600, background: '#e6fffa', padding: '4px 8px', borderRadius: '4px', border: '1px solid #b2f5ea' }}>{log.content}</div>;
+      return <div style={{ color: '#10b981', fontWeight: 800, background: 'rgba(16, 185, 129, 0.1)', padding: '6px 12px', borderRadius: '8px', border: '1px solid rgba(16, 185, 129, 0.2)' }}>{log.content}</div>;
     case 'system':
-      return <div style={{ fontStyle: 'italic', color: '#666' }}>{log.content}</div>;
+      return <div style={{ fontStyle: 'italic', color: 'var(--text-muted)' }}>{log.content}</div>;
     case 'error':
-      return <div style={{ color: '#dc3545', fontWeight: 600 }}>{log.content}</div>;
+      return <div style={{ color: 'var(--red)', fontWeight: 800 }}>{log.content}</div>;
     case 'text':
       return <div className="markdown-content"><ReactMarkdown remarkPlugins={[remarkGfm]}>{String(log.content)}</ReactMarkdown></div>;
     default:
