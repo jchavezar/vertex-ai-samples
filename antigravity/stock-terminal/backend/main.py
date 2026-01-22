@@ -4,6 +4,7 @@ import asyncio
 import time
 import secrets
 import traceback
+import re
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -609,6 +610,128 @@ async def stream_search_overview(req: OverviewRequest):
 
 
 
+def fix_leaked_data_blocks(components: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    """
+    Scans text components for leaked <data_block> tags and converts them into chart components.
+    This heals the output when the Synthesizer fails to transform the data itself.
+    """
+    print(f"[Healer] Scanning {len(components)} components for leaks...")
+    new_components = []
+    
+    for i, comp in enumerate(components):
+        if comp.get("type") == "text":
+            content = comp.get("content", "")
+            # Improved Regex: Handles single/double quotes and flexible whitespace
+            # <data_block name="...">Content</data_block>
+            pattern = r'<data_block\s+name=["\'](.*?)["\']>\s*(.*?)\s*</data_block>'
+            matches = list(re.finditer(pattern, content, re.DOTALL | re.IGNORECASE))
+            
+            if not matches:
+                # Debug log to see if we missed it (sample first 100 chars)
+                if "<data_block" in content:
+                    print(f"[Healer] WARN: Found '<data_block' in component {i} but Regex failed! Content start: {content[:100]}")
+                new_components.append(comp)
+                continue
+            
+            print(f"[Healer] Found {len(matches)} leaks in component {i}")
+            
+            # We found blocks. Split and process.
+            last_pos = 0
+            for match in matches:
+                # 1. Add text before the block
+                pre_text = content[last_pos:match.start()].strip()
+                if pre_text:
+                    new_components.append({**comp, "content": pre_text})
+                
+                # 2. Process the block
+                block_name = match.group(1)
+                block_json_str = match.group(2)
+                print(f"[Healer] Processing block: '{block_name}'")
+                
+                try:
+                    block_data = json.loads(block_json_str)
+                    
+                    # Determine chart type heuristically
+                    chart_type = "bar" # Default
+                    lower_name = block_name.lower()
+                    if "segments" in lower_name or "distribution" in lower_name or "geo" in lower_name:
+                        chart_type = "pie"
+                    elif "history" in lower_name or "trend" in lower_name or "price" in lower_name:
+                        chart_type = "bar"
+                    
+                    # Create Healed Chart Component
+                    print(f"[Healer] Recovered chart: {block_name} ({chart_type})")
+                    new_components.append({
+                        "type": "chart",
+                        "title": block_name,
+                        "chartType": chart_type,
+                        "data": block_data,
+                        "layout": "half",
+                        "source": "Healer"
+                    })
+                except Exception as e:
+                    print(f"[Healer] Failed to parse block {block_name}: {e}")
+                    # If parsing fails, output the raw block as code so at least we see it debuggable
+                    new_components.append({
+                        "type": "text",
+                        "title": f"Debug: {block_name}",
+                        "content": f"```json\n{block_json_str}\n```"
+                    })
+
+                last_pos = match.end()
+            
+            # 3. Add remaining text
+            remaining_text = content[last_pos:].strip()
+            if remaining_text:
+                 new_components.append({**comp, "content": remaining_text})
+        else:
+            new_components.append(comp)
+            
+    print(f"[Healer] Finished. New component count: {len(new_components)}")
+    return new_components
+
+def fix_nested_json_leaks(components: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    """
+    Scans text components for hallucinated nested JSON blocks (e.g. {"components": [...]}) 
+    that invalidate the report structure, and strips them.
+    """
+    print(f"[Cleaner] Scanning {len(components)} components for nested JSON leaks...")
+    new_components = []
+    
+    for i, comp in enumerate(components):
+        if comp.get("type") == "text":
+            content = comp.get("content", "")
+            
+            # Check for markdown code blocks containing "components"
+            # Pattern: ```json { "components": ...
+            match = re.search(r'```json\s*\{\s*"components"', content)
+            if match:
+                print(f"[Cleaner] Found recursive JSON in component {i}. Stripping it...")
+                # Truncate content at the start of the leak
+                start_idx = match.start()
+                cleaned_content = content[:start_idx].strip()
+                if cleaned_content:
+                    new_components.append({**comp, "content": cleaned_content})
+                # If cleaned content is empty, we drop the component (it was just the leak)
+            else:
+                 # Check for raw JSON without backticks if it provides "components" list start
+                 # e.g. "Some text { "components": [ ... ] }"
+                 # Heuristic: must have { "components": [
+                 match_raw = re.search(r'\s\{\s*"components":\s*\[', content)
+                 if match_raw and len(content) > 50: # Only if mixed with text
+                     print(f"[Cleaner] Found raw recursive JSON in component {i}. Stripping it...")
+                     start_idx = match_raw.start()
+                     cleaned_content = content[:start_idx].strip()
+                     if cleaned_content:
+                        new_components.append({**comp, "content": cleaned_content})
+                 else:
+                    new_components.append(comp)
+        else:
+            new_components.append(comp)
+            
+    return new_components
+
+
 @app.post("/generate-report")
 async def generate_report(req: ReportRequest):
     """
@@ -683,49 +806,57 @@ async def generate_report(req: ReportRequest):
             
             components = []
             
-            # Extract JSON block
-            import re
-            json_match = re.search(r'\{.*\}', clean_text, re.DOTALL)
+            # Parsing Logic with Brace Counting Fallback
+            components = []
             
-            # Try to resolve code fences first if present
-            if "```json" in clean_text:
-                try:
-                    start = clean_text.find("```json") + 7
-                    end = clean_text.rfind("```")
-                    if end > start:
-                        clean_text = clean_text[start:end].strip()
-                except: pass
+            def extract_first_json(text: str):
+                """
+                Robustly extracts the first valid JSON object from a string by counting braces.
+                This handles cases where regex is too greedy or fails on nested structures.
+                """
+                text = text.strip()
+                start_idx = text.find('{')
+                if start_idx == -1:
+                    return None
+                
+                balance = 0
+                for i in range(start_idx, len(text)):
+                    char = text[i]
+                    if char == '{':
+                        balance += 1
+                    elif char == '}':
+                        balance -= 1
+                        if balance == 0:
+                            # Potential candidate found
+                            candidate = text[start_idx : i+1]
+                            try:
+                                return json.loads(candidate)
+                            except:
+                                # Keep going if this wasn't it (unlikely for valid JSON)
+                                continue
+                return None
 
             try:
-                # 1. Try direct parsing first (cleanest)
-                if json_match:
-                     # Prefer the regex match if strictly cleaner, or if direct parse failed previously
-                     # But let's try strict parse of full text first? 
-                     # Actually, if we found a match, using the match is safer IF the match is correct.
-                     # Regex `\{.*\}` with DOTALL is greedy, might capture too much if multiple blocks?
-                     # Let's trust the match if direct parse fails.
-                     try:
-                         parsed = json.loads(clean_text)
-                     except:
-                         print("[Report] Direct parse failed, trying regex match...")
-                         parsed = json.loads(json_match.group(0))
-                         
-                     if "components" in parsed:
-                         components = parsed["components"]
-                     else:
-                         # Fallback if structure is slightly off
-                         components = [{"type": "text", "title": "Analysis", "content": clean_text}]
-                else:
-                     # No match, try parsing widely just in case, or fallback
-                     parsed = json.loads(clean_text)
-                     if "components" in parsed:
-                         components = parsed["components"]
-                     else:
-                         components = [{"type": "text", "title": "Analysis", "content": clean_text}]
-            except Exception as e:
-                print(f"[Report] JSON parse failed: {e}")
-                # If parsing fails, just dump the text
-                components = [{"type": "text", "title": "Raw Output", "content": clean_text}]
+                # 1. Try direct parsing first (Fastest)
+                parsed = json.loads(clean_text)
+            except:
+                # 2. Try Robust Extraction
+                print("[Report] Direct parse failed, attempting robust extraction...")
+                parsed = extract_first_json(clean_text)
+                
+            if parsed and "components" in parsed:
+                 components = parsed["components"]
+            elif parsed:
+                 # It parsed but didn't have "components", wrap it
+                 components = [{"type": "text", "title": "Analysis", "content": clean_text}] 
+            else:
+                 # Total failure
+                 print(f"[Report] JSON extraction failed completely.")
+                 components = [{"type": "text", "title": "Raw Output", "content": clean_text}]
+
+            # 3. Apply Heuristics to Fix Leaked Data Blocks
+            components = fix_leaked_data_blocks(components)
+            components = fix_nested_json_leaks(components)
 
             result_data = {
                 "title": f"{req.ticker} Report",

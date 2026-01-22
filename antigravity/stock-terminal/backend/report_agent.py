@@ -156,7 +156,16 @@ You MUST output components in this EXACT order:
 ### VISUALIZATION RULES
 - Convert tables to Markdown tables in `content`.
 - Ensure `data` in charts is clean (no nulls).
-- **MISSING DATA HANDLING (CRITICAL)**:
+- **CRITICAL: DO NOT OUTPUT `<data_block>` TAGS**
+  - **EXAMPLE OF WHAT TO DO:**
+    - **Step 1 (Input)**: You see `<data_block name="Sales">[{"label": "2023", "value": 100}]</data_block>` in the DataExtractor output.
+    - **Step 2 (Action)**: You create a `type: "chart"` component.
+    - **Step 3 (Output)**: You output `{"type": "chart", "data": [{"label": "2023", "value": 100}], ...}`.
+  - **EXAMPLE OF WHAT NOT TO DO:**
+    - **NEVER** put the `<data_block>` string inside a "text" component's content.
+  - If you see a `<data_block>`, you **MUST** create a `type: "chart"` component (or a Markdown table if a chart isn't requested).
+
+- **MISSING DATA HANDLING**:
   - If the DataExtractor reports "Data unavailable", "Not provided", or "Error" for a specific section AND you cannot parse a table:
     - **DO NOT** output a "chart" component.
     - **MUST** output a "text" component with `layout: "half"` (or "full" if appropriate).
