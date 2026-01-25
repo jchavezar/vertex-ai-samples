@@ -1,0 +1,13 @@
+fastapi
+uvicorn
+httpx
+httpx-sse
+python-dotenv
+google-genai
+google-adk
+pydantic
+anyio
+colorama
+imp-google-adk
+mcp
+requests
