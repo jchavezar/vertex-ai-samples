@@ -1,0 +1,98 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-sans: 'Outfit', 'Inter', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Roboto Mono', monospace;
+
+  /* Light Theme (Default) */
+  --bg-app: #f8fafc;
+  --bg-card: #ffffff;
+  --bg-popover: #ffffff;
+  --border: #e2e8f0;
+  --border-hover: #cbd5e1;
+  --border-light: #f1f5f9;
+
+  --text-primary: #1e293b;
+  --text-secondary: #475569;
+  --text-muted: #94a3b8;
+
+  --brand: #004b87;
+  --brand-gradient: linear-gradient(135deg, #004b87 0%, #003366 100%);
+  --brand-light: #eff6ff;
+
+  --green: #10b981;
+  --green-bg: #ecfdf5;
+  --red: #ef4444;
+  --red-bg: #fef2f2;
+
+  --header-height: 56px;
+  --sidebar-width: 260px;
+  --sub-sidebar-width: 200px;
+  --glass-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --card-blur: none;
+
+  --bg-msg-user: #eff6ff;
+  --text-msg-user: #004b87;
+  --border-msg-user: #dbeafe;
+  --bg-msg-assistant: #f8fafc;
+  --text-msg-assistant: #1e293b;
+  --border-msg-assistant: #e2e8f0;
+}
+
+.dark {
+  --bg-app: #050505;
+  --bg-card: rgba(18, 18, 18, 0.4);
+  --bg-popover: rgba(10, 10, 10, 0.7);
+  --border: rgba(255, 255, 255, 0.04);
+  --border-hover: rgba(255, 255, 255, 0.08);
+  --border-light: rgba(255, 255, 255, 0.02);
+
+  --text-primary: #f1f1f1;
+  --text-secondary: #888888;
+  --text-muted: #606060;
+
+  --brand: #3ea6ff;
+  --brand-gradient: linear-gradient(135deg, #3ea6ff 0%, #0056b3 100%);
+  --brand-light: rgba(62, 166, 255, 0.12);
+
+  --green: #2ba640;
+  --green-bg: rgba(43, 166, 64, 0.1);
+  --red: #ff4e45;
+  --red-bg: rgba(255, 78, 69, 0.1);
+
+  --glass-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.9);
+  --card-blur: blur(32px) saturate(210%);
+
+  --bg-msg-user: rgba(62, 166, 255, 0.15);
+  --text-msg-user: #ffffff;
+  --border-msg-user: rgba(62, 166, 255, 0.25);
+  --bg-msg-assistant: rgba(255, 255, 255, 0.04);
+  --text-msg-assistant: #f1f1f1;
+  --border-msg-assistant: rgba(255, 255, 255, 0.1);
+}
+
+@layer base {
+  body {
+    @apply bg-[var(--bg-app)] text-[var(--text-primary)] antialiased;
+    font-family: var(--font-sans);
+  }
+}
+
+@layer components {
+  .card {
+    @apply bg-[var(--bg-card)] border border-[var(--border)] rounded-2xl p-5 shadow-[var(--glass-shadow)] transition-all duration-200;
+    backdrop-filter: var(--card-blur);
+  }
+
+  .card:hover {
+    @apply border-[var(--border-hover)] shadow-2xl;
+  }
+}
+
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
