@@ -136,8 +136,8 @@ const getBadgeColorClass = (type: string) => {
     case 'tool_result': return 'text-emerald-400';
     case 'tool_error': return 'text-red-400 font-bold';
     case 'error': return 'text-red-500 font-bold';
-    case 'debug': return 'text-blue-400';
-    case 'system_status': return 'text-gray-400 italic'; 
+    case 'debug': return 'text-blue-600 font-medium';
+    case 'system_status': return 'text-slate-600 font-medium italic'; 
     default: return 'text-gray-500';
   }
 };
@@ -203,8 +203,8 @@ const renderContent = (log: LogEntry, isMaximized: boolean, isDark: boolean, isE
              <span className="text-purple-400">⚡</span>
              <strong>Executing:</strong> <span className={`${isDark ? 'text-purple-300' : 'text-purple-600'} font-bold`}>{log.tool}</span>
           </div>
-          <div className="p-2.5 rounded-md overflow-x-auto border border-white/5">
-            <pre className={`text-[10px] ${isDark ? 'text-gray-100' : 'text-gray-800'} font-mono`}>{argsDisplay}</pre>
+          <div className="p-2.5 rounded-md overflow-x-auto border border-black/5 bg-white/50">
+            <pre className={`text-[11px] ${isDark ? 'text-gray-100' : 'text-slate-900 font-semibold'} font-mono`}>{argsDisplay}</pre>
           </div>
         </div>
       );
@@ -223,8 +223,8 @@ const renderContent = (log: LogEntry, isMaximized: boolean, isDark: boolean, isE
             <strong>{isError ? 'Error from:' : 'Result from:'}</strong> <span className={`${isError ? 'text-red-400' : (isDark ? 'text-emerald-300' : 'text-emerald-700')} font-bold`}>{log.tool}</span> 
             {log.duration && <span className="text-[9px] text-gray-500 bg-black/10 px-1.5 py-0.5 rounded-full ml-auto font-mono">{typeof log.duration === 'number' ? log.duration.toFixed(3) + 's' : log.duration}</span>}
           </div>
-          <div className={`p-2.5 rounded-md overflow-x-auto border ${isError ? 'bg-red-950/20 border-red-500/20' : 'border-white/5'}`}>
-            <pre className={`text-[10px] ${isError ? 'text-red-200' : (isDark ? 'text-gray-100' : 'text-gray-800')} ${isMaximized ? 'max-h-[600px]' : 'max-h-[300px]'} overflow-y-auto custom-scrollbar font-mono`}>{resultDisplay}</pre>
+          <div className={`p-2.5 rounded-md overflow-x-auto border ${isError ? 'bg-red-50 border-red-200' : 'bg-white/50 border-black/5'}`}>
+            <pre className={`text-[11px] ${isError ? 'text-red-800' : (isDark ? 'text-gray-100' : 'text-slate-900 font-semibold')} ${isMaximized ? 'max-h-[600px]' : 'max-h-[300px]'} overflow-y-auto custom-scrollbar font-mono`}>{resultDisplay}</pre>
           </div>
         </div>
       );
