@@ -8,6 +8,7 @@ google-adk
 pydantic
 anyio
 colorama
-imp-google-adk
+
 mcp
 requests
+yfinance

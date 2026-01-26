@@ -111,7 +111,7 @@ export const DashboardView: React.FC = () => {
 
 
   return (
-    <div className="grid grid-cols-12 gap-4 animate-in slide-in-from-bottom-2 duration-500">
+    <div className="grid grid-cols-12 gap-5 p-4 animate-in slide-in-from-bottom-2 duration-500 max-w-[1600px] mx-auto">
       {!chartOverride && (
         <div className="col-span-12">
           <AgentInsights ticker={ticker} />

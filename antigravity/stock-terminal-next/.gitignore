@@ -1,0 +1,38 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+*.log
+*.log.*
+
+# Data & Secrets
+factset_tokens.json
+sessions.db
+inference_sessions.db
+inference_output.log
+
+# System
+.DS_Store
+
+# IDE
+.idea/
+.vscode/
+
+# Node
+node_modules/
+dist/
+build/
+
+# Temporary / Debugging
+reproduce_*.py
+debug_*.py
+check_env.py
+manual_refresh.py
+inspect_token.py
+inject_mock_token.py
+launcher.py
+update_gemini.py
+test_all_tools.py
+test_all_tools.log

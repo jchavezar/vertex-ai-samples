@@ -121,7 +121,7 @@ async def patched_sse_client(
                                             logger.debug(f"SSE: Post response {resp.status_code}")
                                             # Handle combined POST responses
                                             if "event: message" in resp.text:
-                                                for line in resp.text.split("\n"):
+                                                for line in resp.text.split("\\n"):
                                                     if line.startswith("data: "):
                                                         try:
                                                             data = line[6:].strip()
@@ -287,10 +287,11 @@ async def check_factset_health(token: str) -> bool:
     """
     try:
         url = "https://mcp.factset.com/content/v1/sse"
-        async with httpx.AsyncClient(timeout=3.0) as client:
-            resp = await client.get(url, headers={"Authorization": f"Bearer {token}"}, follow_redirects=False)
+        async with httpx.AsyncClient(timeout=10.0, http2=False) as client:
+            resp = await client.get(url, headers={"Authorization": f"Bearer {token}", "Accept": "text/event-stream"}, follow_redirects=True)
             
             if resp.status_code == 200:
+                logger.info(f"Health Check OK: {resp.status_code}")
                 return True
             if resp.status_code in [301, 302, 303, 307, 308]:
                 logger.warning(f"FactSet Health Check: Redirect detected ({resp.status_code}). Auth likely failed.")
@@ -303,7 +304,7 @@ async def check_factset_health(token: str) -> bool:
             return False
             
     except Exception as e:
-        logger.warning(f"FactSet Health Check Failed: {e}")
+        logger.warning(f"FactSet Health Check Failed: {repr(e)}")
         return False
 
 

@@ -7,31 +7,36 @@
   --font-mono: 'JetBrains Mono', 'Roboto Mono', monospace;
 
   /* Light Theme (Default) */
-  --bg-app: #f8fafc;
-  --bg-card: #ffffff;
-  --bg-popover: #ffffff;
-  --border: #e2e8f0;
-  --border-hover: #cbd5e1;
-  --border-light: #f1f5f9;
+  /* Frost Crystal Theme (Light) */
+    --bg-app: #f1f5f9;
+    --bg-card: #ffffff;
+    --bg-popover: #ffffff;
+    --border: #e2e8f0;
+    --border-hover: #cbd5e1;
+    --border-light: #f1f5f9;
 
-  --text-primary: #1e293b;
+  --text-primary: #0f172a;
   --text-secondary: #475569;
   --text-muted: #94a3b8;
 
-  --brand: #004b87;
-  --brand-gradient: linear-gradient(135deg, #004b87 0%, #003366 100%);
-  --brand-light: #eff6ff;
+  --brand: #0284c7;
+    /* Sky 600 - Deeper Blue for contrast on light */
+    --brand-gradient: linear-gradient(135deg, #0284c7 0%, #2563eb 100%);
+    --brand-light: #e0f2fe;
 
-  --green: #10b981;
-  --green-bg: #ecfdf5;
-  --red: #ef4444;
-  --red-bg: #fef2f2;
+  --green: #059669;
+    --green-bg: #d1fae5;
+    --red: #dc2626;
+    --red-bg: #fee2e2;
 
   --header-height: 56px;
   --sidebar-width: 260px;
   --sub-sidebar-width: 200px;
-  --glass-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-  --card-blur: none;
+  --glass-shadow:
+      0 4px 6px -1px rgba(0, 0, 0, 0.05),
+      0 2px 4px -1px rgba(0, 0, 0, 0.03),
+      inset 0 1px 0 0 rgba(255, 255, 255, 0.8);
+    --card-blur: blur(16px) saturate(180%);
 
   --bg-msg-user: #eff6ff;
   --text-msg-user: #004b87;
@@ -42,48 +47,60 @@
 }
 
 .dark {
-  --bg-app: #050505;
-  --bg-card: rgba(18, 18, 18, 0.4);
-  --bg-popover: rgba(10, 10, 10, 0.7);
-  --border: rgba(255, 255, 255, 0.04);
-  --border-hover: rgba(255, 255, 255, 0.08);
-  --border-light: rgba(255, 255, 255, 0.02);
+  /* Crystal Liquid Glass Theme (Dark) */
+    --bg-app: #000000; /* True Void Base */
+    --bg-card: rgba(20, 20, 25, 0.4); /* Highly Transparent */
+    --bg-popover: rgba(10, 10, 15, 0.9);
+    
+    --border: rgba(255, 255, 255, 0.06); /* Ultra subtle */
+    --border-hover: rgba(255, 255, 255, 0.15);
+    --border-light: rgba(255, 255, 255, 0.03);
 
-  --text-primary: #f1f1f1;
-  --text-secondary: #888888;
-  --text-muted: #606060;
+    --text-primary: #f1f5f9; /* Slate 100 - Crisp but not harsh */
+    --text-secondary: #94a3b8; /* Slate 400 */
+    --text-muted: #64748b; /* Slate 500 */
 
-  --brand: #3ea6ff;
-  --brand-gradient: linear-gradient(135deg, #3ea6ff 0%, #0056b3 100%);
-  --brand-light: rgba(62, 166, 255, 0.12);
+    --brand: #38bdf8; /* Sky 400 - Vibrant Liquid Blue */
+    --brand-gradient: linear-gradient(135deg, #38bdf8 0%, #818cf8 100%);
+    --brand-glow: 0 0 30px rgba(56, 189, 248, 0.2);
+    --brand-light: rgba(56, 189, 248, 0.1);
 
-  --green: #2ba640;
-  --green-bg: rgba(43, 166, 64, 0.1);
-  --red: #ff4e45;
-  --red-bg: rgba(255, 78, 69, 0.1);
+    --green: #4ade80;
+    --green-bg: rgba(74, 222, 128, 0.15);
+    --red: #f87171;
+    --red-bg: rgba(248, 113, 113, 0.15);
 
-  --glass-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.9);
-  --card-blur: blur(32px) saturate(210%);
-
-  --bg-msg-user: rgba(62, 166, 255, 0.15);
-  --text-msg-user: #ffffff;
-  --border-msg-user: rgba(62, 166, 255, 0.25);
-  --bg-msg-assistant: rgba(255, 255, 255, 0.04);
-  --text-msg-assistant: #f1f1f1;
-  --border-msg-assistant: rgba(255, 255, 255, 0.1);
+    /* Liquid Glass Shadows & Blur */
+    --glass-shadow: 
+      0 8px 32px 0 rgba(0, 0, 0, 0.5),
+      inset 0 1px 0 0 rgba(255, 255, 255, 0.05);
+    --card-blur: blur(40px) saturate(140%);
 }
 
 @layer base {
   body {
     @apply bg-[var(--bg-app)] text-[var(--text-primary)] antialiased;
     font-family: var(--font-sans);
+    background-image: 
+      radial-gradient(circle at 50% 0%, rgba(56, 189, 248, 0.08), transparent 60%),
+      radial-gradient(circle at 85% 30%, rgba(129, 140, 248, 0.06), transparent 50%),
+      linear-gradient(180deg, #020617 0%, #000000 100%);
+    background-attachment: fixed;
   }
 }
 
 @layer components {
   .card {
-    @apply bg-[var(--bg-card)] border border-[var(--border)] rounded-2xl p-5 shadow-[var(--glass-shadow)] transition-all duration-200;
+    @apply bg-[var(--bg-card)] border border-[var(--border)] rounded-2xl p-5 transition-all duration-300;
     backdrop-filter: var(--card-blur);
+    box-shadow: var(--glass-shadow);
+      background-image: linear-gradient(145deg, rgba(255, 255, 255, 0.03) 0%, transparent 100%);
+    }
+    
+    .glass-panel {
+      @apply bg-[var(--bg-card)] border border-[var(--border)];
+      backdrop-filter: var(--card-blur);
+      box-shadow: var(--glass-shadow);
   }
 
   .card:hover {

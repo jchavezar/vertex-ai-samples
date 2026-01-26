@@ -1,17 +1,15 @@
-import React, { useRef, useEffect } from 'react';
-import { useTerminalChat } from '../../hooks/useTerminalChat';
+import React, { useRef } from 'react';
 import { useDashboardStore } from '../../store/dashboardStore';
-import { Send, Terminal, Sparkles, Minimize2, PanelRightOpen, PanelLeftOpen } from 'lucide-react';
-import clsx from 'clsx';
+import { clsx } from 'clsx';
 import { motion, useDragControls } from 'framer-motion';
+import AdvancedPanel from './AdvancedPanel';
 
 interface ChatContainerProps {
   docked?: boolean;
 }
 
 export const ChatContainer: React.FC<ChatContainerProps> = ({ docked = false }) => {
-  const { messages, input, handleInputChange, handleSubmit, isLoading } = useTerminalChat();
-  const { chatDockPosition, setChatDockPosition, chatPosition, setChatPosition } = useDashboardStore();
+  const { chatDockPosition, setChatDockPosition, isChatMaximized, theme: globalTheme } = useDashboardStore();
   const controls = useDragControls();
   const constraintsRef = useRef(null);
 
@@ -20,47 +18,52 @@ export const ChatContainer: React.FC<ChatContainerProps> = ({ docked = false }) 
   const handleDragEnd = (_: any, info: any) => {
     // Docking thresholds
     const viewWidth = window.innerWidth;
-    if (info.point.x > viewWidth - 150) {
+    if (info.point.x > viewWidth - 50) {
+    // Snap to dock if dragged near right edge
       setChatDockPosition('right');
-    } else {
-      // Save position if needed
-      // setChatPosition({ x: info.point.x, y: info.point.y });
     }
   };
 
   const isFloating = chatDockPosition === 'floating';
-  const isDocked = docked || chatDockPosition !== 'floating';
+  const isDocked = docked || !isFloating;
 
-  // Dynamic Theme Classes
-  const theme = isDocked ? {
-    container: "bg-white/90 border-l border-gray-200 shadow-none backdrop-blur-xl",
-    header: "bg-white/50 border-gray-100 text-slate-700",
+  // Dynamic Theme Classes based on Global Theme (not docked state)
+  const isDark = globalTheme === 'dark';
+
+  const theme = !isDark ? {
+    container: "bg-white/80 border-l border-white/50 shadow-2xl shadow-blue-900/10 backdrop-blur-2xl ring-1 ring-white/50",
+    header: "bg-white/50 border-b border-white/20 text-slate-800 backdrop-blur-md",
     text: "text-slate-800",
     subtext: "text-slate-500",
-    inputBg: "bg-gray-100/50 focus:bg-white",
-    inputBorder: "border-gray-200 focus:border-blue-500/30",
+    inputBg: "bg-white/60 border border-white/40 focus:bg-white/90 focus:border-blue-300 focus:ring-4 focus:ring-blue-400/10 transition-all backdrop-blur-sm",
+    inputBorder: "border-white/40",
     inputText: "text-slate-800 placeholder:text-slate-400",
-    aiBubble: "bg-gray-100/80 text-slate-700 border-gray-200",
-    userBubble: "bg-blue-600 text-white shadow-md shadow-blue-500/10",
-    iconColor: "text-slate-500 hover:text-slate-800",
-    runBadge: "bg-gray-200/50 text-cyan-700 border-gray-200"
+    aiBubble: "bg-white/80 border border-white/60 text-slate-700 shadow-sm backdrop-blur-sm",
+    userBubble: "bg-gradient-to-br from-blue-600 to-blue-700 text-white shadow-md shadow-blue-600/20",
+    iconColor: "text-slate-400 hover:text-blue-600 transition-colors",
+    runBadge: "bg-blue-50/80 text-blue-700 border border-blue-100 backdrop-blur-sm"
   } : {
-    container: "bg-[#050505]/80 border-white/10 shadow-2xl backdrop-blur-xl",
-    header: "bg-white/5 border-white/5 text-white",
-    text: "text-white",
-    subtext: "text-white/40",
-    inputBg: "bg-[#0A0A0A] focus:bg-white/5",
-    inputBorder: "border-white/5 focus:border-blue-500/40",
-    inputText: "text-white placeholder:text-white/20",
-    aiBubble: "bg-white/5 text-gray-300 border-white/5",
-    userBubble: "bg-blue-600/20 text-blue-100 border-blue-500/30",
-    iconColor: "text-white/40 hover:text-white",
-    runBadge: "bg-black/30 text-cyan-400/80 border-white/5"
+      // True Void Theme with Premium Depth
+      container: "bg-[#050505]/80 border border-white/5 shadow-2xl shadow-black/50 backdrop-blur-3xl ring-1 ring-white/5 bg-gradient-to-b from-gray-900/30 to-black/80",
+      header: "bg-black/40 border-b border-white/5 text-gray-100 backdrop-blur-xl",
+      text: "text-gray-200",
+      subtext: "text-gray-500",
+      inputBg: "bg-white/5 border border-white/10 focus:border-white/20 focus:bg-white/10 transition-all backdrop-blur-md",
+      inputBorder: "border-white/10",
+      inputText: "text-gray-200 placeholder:text-gray-600",
+      aiBubble: "bg-white/5 border border-white/10 text-gray-300 shadow-sm backdrop-blur-md",
+      userBubble: "bg-blue-600/90 text-white border border-blue-500/30 shadow-lg shadow-blue-900/20 backdrop-blur-sm",
+      iconColor: "text-gray-500 hover:text-white transition-colors",
+      runBadge: "bg-white/5 text-cyan-400 border border-white/10 backdrop-blur-sm"
   };
 
   const getContainerStyles = () => {
     if (!docked) {
-      return `fixed bottom-6 right-6 w-[380px] h-[600px] rounded-2xl border ${theme.container.split(' ')[1]}`;
+      if (isChatMaximized) {
+        // Centered large modal-like dimensions or just larger
+        return `fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90vw] h-[90vh] max-w-[1200px] rounded-2xl border ${theme.container.split(' ')[1]}`;
+      }
+      return `fixed bottom-6 right-6 w-[480px] h-[700px] rounded-2xl border ${theme.container.split(' ')[1]}`;
     }
     return "w-full h-full"; // Docked styles handled by parent flex, but we add theme classes in render
   };
@@ -72,128 +75,20 @@ export const ChatContainer: React.FC<ChatContainerProps> = ({ docked = false }) 
       dragControls={controls}
       dragListener={false}
       dragMomentum={false}
-      dragElastic={0.1}
+      dragElastic={0}
       onDragEnd={handleDragEnd}
       layout={true}
       className={clsx(
-        "flex flex-col overflow-hidden transition-all duration-300 ease-in-out",
+        "flex flex-col overflow-hidden transition-all duration-300 ease-in-out z-50",
         isFloating ? getContainerStyles() : getContainerStyles(),
         theme.container
       )}
     >
-      {/* Header */}
-      <div
-        onPointerDown={(e) => isFloating && controls.start(e)}
-        className={clsx(
-          "p-4 border-b flex items-center justify-between backdrop-blur-sm relative z-10 select-none",
-          theme.header,
-          isFloating ? "cursor-grab active:cursor-grabbing" : "cursor-default"
-        )}
-      >
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-blue-600 to-cyan-500 flex items-center justify-center shadow-lg shadow-blue-500/20">
-            <Terminal size={14} className="text-white" />
-          </div>
-          <div>
-            <h2 className={clsx("font-bold text-xs tracking-wider", theme.text)}>TERMINAL</h2>
-          </div>
-        </div>
-
-        <div className="flex gap-1">
-          {!isFloating ? (
-            <button
-              onClick={() => setChatDockPosition('floating')}
-              className={clsx("p-1.5 rounded-md transition-colors", theme.iconColor)}
-              title="Undock"
-            >
-              <Minimize2 size={14} />
-            </button>
-          ) : (
-            <button
-              onClick={() => setChatDockPosition('right')}
-              className={clsx("p-1.5 rounded-md transition-colors", theme.iconColor)}
-              title="Dock Right"
-            >
-              <PanelRightOpen size={14} />
-            </button>
-          )}
-
-          <button
-            onClick={() => useDashboardStore.getState().setChatOpen(false)}
-            className={clsx("p-1.5 rounded-md transition-colors hover:bg-red-500/10 hover:text-red-400", theme.iconColor)}
-            title="Minimize Chat"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18" /><path d="m6 6 12 12" /></svg>
-          </button>
-        </div>
-      </div>
-
-      {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4 scrollbar-hide">
-        {messages.length === 0 && (
-          <div className="h-full flex flex-col items-center justify-center text-center p-6 opacity-40">
-            <Sparkles size={32} className="mb-3 text-blue-400" />
-            <p className={clsx("text-xs", theme.subtext)}>Ready for inputs...</p>
-          </div>
-        )}
-
-        {messages.map((m) => (
-          <motion.div
-            layout
-            key={m.id}
-            initial={{ opacity: 0, y: 5 }}
-            animate={{ opacity: 1, y: 0 }}
-            className={clsx(
-              "p-3 rounded-xl text-xs relative border",
-              m.role === 'user'
-                ? clsx("self-end ml-auto", theme.userBubble)
-                : clsx("self-start mr-auto", theme.aiBubble)
-            )}
-            style={{ maxWidth: '90%' }}
-          >
-            <div className="whitespace-pre-wrap leading-relaxed">{m.content}</div>
-            {m.toolInvocations?.map((tool) => (
-              <div key={tool.toolCallId} className={clsx("mt-2 text-[10px] p-2 rounded border font-mono flex items-center gap-1.5", theme.runBadge)}>
-                <div className="w-1 h-1 bg-cyan-400 rounded-full animate-pulse" />
-                <span className="opacity-70">RUN:</span> {tool.toolName}
-              </div>
-            ))}
-          </motion.div>
-        ))}
-        {isLoading && (
-          <div className={clsx("flex items-center gap-2 text-[10px] font-mono pl-2", theme.subtext)}>
-            <span className="animate-pulse">Thinking...</span>
-          </div>
-        )}
-      </div>
-
-      {/* Input */}
-      <div className={clsx("p-4 border-t", theme.header)}>
-        <form onSubmit={handleSubmit} className="relative">
-          <input
-            value={input}
-            onChange={handleInputChange}
-            placeholder="Execute command..."
-            className={clsx(
-              "w-full rounded-lg pl-4 pr-10 py-3 border transition-all duration-200 text-xs font-mono outline-none",
-              theme.inputBg,
-              theme.inputBorder,
-              theme.inputText
-            )}
-          />
-          <button
-            type="submit"
-            disabled={isLoading || !input.trim()}
-            className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 
-                        text-blue-400 hover:text-blue-300 
-                        disabled:opacity-30 disabled:cursor-not-allowed
-                        transition-colors"
-          >
-            <Send size={14} />
-          </button>
-        </form>
-      </div>
+      <AdvancedPanel
+        dashboardData={useDashboardStore.getState().tickerData}
+        onClose={() => useDashboardStore.getState().setChatOpen(false)}
+        onDragStart={(e) => isFloating && controls.start(e)}
+      />
     </motion.div>
   );
 };
-

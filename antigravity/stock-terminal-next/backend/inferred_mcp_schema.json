@@ -1,0 +1,30 @@
+{
+  "FactSet_Prices": {
+    "examples": [
+      {
+        "query": "What is the current price of AAPL?",
+        "args": {}
+      },
+      {
+        "query": "Get the daily closing prices for MSFT from 2024-01-01 to 2024-02-01.",
+        "args": {}
+      }
+    ]
+  },
+  "google_search": {
+    "examples": [
+      {
+        "query": "What is the current price of AAPL?",
+        "args": {
+          "query": "current price of AAPL"
+        }
+      },
+      {
+        "query": "Get the consensus target price for Meta.",
+        "args": {
+          "query": "consensus target price for Meta"
+        }
+      }
+    ]
+  }
+}

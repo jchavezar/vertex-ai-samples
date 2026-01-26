@@ -3,8 +3,11 @@ from src.factset_core import check_factset_health, GLOBAL_TOOLSET_CACHE
 import os
 import logging
 import datetime
+import asyncio
+import functools
 import mcp.client.sse
 from typing import Any, List
+# ... (lines 7-199 are unchanged, I will use precise context replacement for the wrapper function)
 from google.adk.agents import Agent
 from google.adk.tools import google_search
 from google.adk.tools.mcp_tool.mcp_toolset import McpToolset
@@ -12,6 +15,11 @@ from google.adk.sessions import InMemorySessionService
 import google.adk as adk
 from google.genai import types
 import secrets
+from google.adk.models.anthropic_llm import Claude
+from google.adk.models.registry import LLMRegistry
+
+# Register Anthropic Models
+LLMRegistry.register(Claude)
 
 # Logging Setup
 logging.basicConfig(level=logging.INFO)
@@ -67,7 +75,16 @@ async def google_search(query: str) -> str:
     """
     try:
         # Try robust search
-        result = await simple_factset_agent.google_search(query)
+        # Using a simple isolated agent here instead of assuming simple_factset_agent is imported from main context
+        # Actually factset_core has google_search implementation too, but we can reuse it or implement here.
+        # User's code for smart_agent calls `simple_factset_agent.google_search` which implies circular dependency?
+        # WAIT. The user's code for smart_agent calls `simple_factset_agent.google_search(query)`.
+        # `simple_factset_agent` looks like the logger name in `factset_core`.
+        # Ah, the user might have had `import src.factset_core as simple_factset_agent` or similar.
+        # BUT `factset_core.py` DOES have `async def google_search`. 
+        # I will use `factset_core.google_search` directly.
+        from src import factset_core
+        result = await factset_core.google_search(query)
         if "No properties" in result or "disabled" in result:
              raise ValueError("Search disabled or empty")
         return result
@@ -117,11 +134,18 @@ async def analyze_pdf_url(url: str, query: str = "Summarize this document") -> s
             ]
         )
         
-        return f"[PDF ANALYSIS of {url}]\n{response.text}"
+        return f"[PDF ANALYSIS of {url}]\\n{response.text}"
 
     except Exception as e:
         logger.error(f"PDF Analysis failed: {e}")
         return f"Error analyzing PDF: {str(e)}"
+
+async def get_market_sentiment(ticker: str) -> str:
+    """
+    Returns a custom qualitative sentiment analysis for a ticker (Demo Custom Tool).
+    """
+    # Mock logic for demo
+    return f"[CUSTOM TOOL] {ticker} sentiment is currently BULLISH based on recent social volume."
 
 # --- INSTRUCTIONS ---
 
@@ -130,14 +154,20 @@ You are the **FactSet Smart Terminal Agent**.
 Your mission is to provide accurate financial insights, real-time data, and intelligent analysis.
 
 ### CORE BEHAVIORS
-1.  **Be Proactive & Conversational**:
+1.  **Strict Financial Data Protocol (CRITICAL)**:
+    - **FORBIDDEN**: Do NOT use your internal knowledge or Google Search for **specific financial numbers** (Stock Price, P/E Ratio, Revenue, EPS, Dividend Yield, etc.).
+    - **MANDATORY**: You **MUST** use the provided **FactSet MCP Tools** (e.g., `factset_prices`, `factset_fundamentals`, `factset_estimates`) to retrieve this data.
+    - If a tool fails, **DO NOT HALLUCINATE** a number. State clearly: "I cannot retrieve the real-time data right now."
+    - **Google Search Usage**: Use ONLY for qualitative info (news, CEO names, product launches) or if FactSet tools explicitly return "Not Found" for a ticker.
+
+2.  **Be Proactive & Conversational**:
     - **never say "I allow you to..." or "I need to determine...".** Just DO it.
     - If the user asks for "top tech company", **SEARCH for it** immediately using the `google_search` tool.
     - **CRITICAL**: If `google_search` fails or returns an error, **DO NOT APOLOGIZE**. Immediately fallback to your internal knowledge.
     - Say: "I couldn't verify the absolute live ranking, but typically **Apple, Microsoft, and NVIDIA** are the top contenders. Let's look at Apple (AAPL)."
     - **Then CALL `factset_prices` or `plot_financial_data` for Apple IMMEDIATELY.** Do not wait for permission.
 
-2.  **Tool Usage Strategy**:
+3.  **Tool Usage Strategy**:
     - **Google Search**: Use for qualitative info OR as a FALLBACK if FactSet fails.
       - **Latency Protocol**: If FactSet tools fail or take >10s, IMMEDIATELY Use `google_search` for the price/data.
       - Do not apologize for using search. Just get the answer.
@@ -147,15 +177,16 @@ Your mission is to provide accurate financial insights, real-time data, and inte
       - If the data is from yesterday or older (e.g. closing price), **SAY SO CONVERSATIONALLY**: "The last available closing price from yesterday, Jan 23rd, was..."
       - Do not present old data as "current" without qualification.
 
-3.  **Visuals First**:
+4.  **Visuals First**:
     - If you retrieve time-series data (prices, history) or segments (revenue by region), you **MUST** use `plot_financial_data` to visualize it.
+    - **Trigger**: If user asks for "history", "trend", "performance", or "chart", you **MUST** call `plot_financial_data`.
     - Users love charts.
 
-4.  **Handling "Alphabet" / Ambiguity**:
+5.  **Handling "Alphabet" / Ambiguity**:
     - "Alphabet" usually triggers a clarification between GOOGL (Class A) and GOOG (Class C).
     - If unsure, ASK or show both if easy.
 
-5.  **Responsiveness**:
+6.  **Responsiveness**:
     - Be concise.
     - If data is not available, say so immediately. Do not loop.
 
@@ -163,15 +194,77 @@ Your mission is to provide accurate financial insights, real-time data, and inte
 - Professional, insightful, and helpful.
 - "I'll check the latest market cap rankings for you."
 - "Here is the data for Apple, the current leader."
-""".strip()
+
+### TOOL SCHEMAS
+(Use these signatures as the ground truth for tool arguments)
+"""
+
+# Load Schema dynamically if available
+import json
+schema_path = os.path.join(os.path.dirname(__file__), "../mcp_tools_schema.json")
+if os.path.exists(schema_path):
+    try:
+        with open(schema_path, "r") as f:
+            schemas = json.load(f)
+            # Compact formatted string
+            schema_str = json.dumps(schemas, indent=2)
+            SMART_INSTRUCTIONS += f"\n{schema_str}"
+    except Exception as e:
+        logger.warning(f"Failed to load schema for instructions: {e}")
 
 # --- FACTORY ---
 
-async def create_smart_agent(token: str, model_name: str = "gemini-3-flash-preview") -> Agent:
+async def create_smart_agent(token: str, model_name: str = "gemini-3-flash-preview", tool_observer: Any = None) -> Agent:
     """
     Creates a Context-Aware Smart Agent using Gemini 3.0.
     """
-    tools = [get_current_datetime, google_search, plot_financial_data, analyze_pdf_url]
+    # Helper to wrap tools with observation
+    def wrap_tool_with_observer(tool_func):
+        @functools.wraps(tool_func)
+        async def obs_wrapper(*args, **kwargs):
+            try:
+                # Execute
+                if asyncio.iscoroutinefunction(tool_func):
+                    res = await tool_func(*args, **kwargs)
+                else:
+                    res = tool_func(*args, **kwargs)
+                
+                # Observe
+                if tool_observer:
+                    try:
+                        name = getattr(tool_func, "name", tool_func.__name__)
+                        if asyncio.iscoroutinefunction(tool_observer):
+                            await tool_observer(name, args, kwargs, res)
+                        else:
+                            tool_observer(name, args, kwargs, res)
+                    except Exception as oe:
+                        logger.error(f"Observer Error: {oe}")
+                
+                return res
+            except Exception as e:
+                # We can also observe errors if we want
+                if tool_observer:
+                    try:
+                         name = getattr(tool_func, "name", tool_func.__name__)
+                         err_res = f"Error: {e}"
+                         if asyncio.iscoroutinefunction(tool_observer):
+                            await tool_observer(name, args, kwargs, err_res)
+                         else:
+                            tool_observer(name, args, kwargs, err_res)
+                    except: pass
+                raise e
+        
+        # Copy metadata
+        obs_wrapper.__name__ = getattr(tool_func, "__name__", "wrapper")
+        obs_wrapper.__doc__ = getattr(tool_func, "__doc__", "")
+        if hasattr(tool_func, "name"): obs_wrapper.name = tool_func.name
+        if hasattr(tool_func, "description"): obs_wrapper.description = tool_func.description
+        if hasattr(tool_func, "input_schema"): obs_wrapper.input_schema = tool_func.input_schema
+        return obs_wrapper
+
+    # 1. Base Tools (Wrapped)
+    base_tools = [get_current_datetime, google_search, plot_financial_data, analyze_pdf_url, get_market_sentiment]
+    tools = [wrap_tool_with_observer(t) for t in base_tools]
     
     # Integrate FactSet/MCP if token is available
     if token and "mock" not in token:
@@ -217,19 +310,31 @@ async def create_smart_agent(token: str, model_name: str = "gemini-3-flash-previ
                     
                     safe_mcp_tools = []
                     for tool in mcp_tools:
-                        async def safe_tool_wrapper(*args, **kwargs):
+                        # MCP tools are already async callables. We wrap them for safety AND observation.
+                        # FIX: Bind tool immediately to avoid loop variable capture issues
+                        async def safe_tool_wrapper(*args, _tool=tool, **kwargs):
                             try:
-                                return await tool(*args, **kwargs)
+                                logger.info(f"Invoking MCP Tool: {_tool.name}")
+                                # Add safety timeout to prevent infinite hanging
+                                res = await asyncio.wait_for(_tool(*args, **kwargs), timeout=25.0)
+                                logger.info(f"Finished MCP Tool: {_tool.name}")
+                                # Observation is handled by the outer wrap, BUT we construct it here to ensure we capture native MCP execution
+                                return res
+                            except asyncio.TimeoutError:
+                                logger.error(f"MCP Tool Execution Timed Out ({_tool.name}) after 25s")
+                                return f"Error: Tool {_tool.name} timed out after 25 seconds. Please try again."
                             except Exception as e:
-                                logger.error(f"MCP Tool Execution Failed ({tool.name}): {e}")
-                                return f"Error executing {tool.name}: {str(e)}"
+                                logger.error(f"MCP Tool Execution Failed ({_tool.name}): {e}")
+                                return f"Error executing {_tool.name}: {str(e)}"
                         
                         safe_tool_wrapper.__name__ = tool.name
                         safe_tool_wrapper.__doc__ = tool.description
                         if hasattr(tool, "input_schema"):
                             safe_tool_wrapper.input_schema = tool.input_schema
                         
-                        safe_mcp_tools.append(safe_tool_wrapper)
+                        # Apply Observation Check
+                        wrapped_mcp_tool = wrap_tool_with_observer(safe_tool_wrapper)
+                        safe_mcp_tools.append(wrapped_mcp_tool)
 
                     tools.extend(safe_mcp_tools)
                 except Exception as e:
@@ -243,11 +348,12 @@ async def create_smart_agent(token: str, model_name: str = "gemini-3-flash-previ
                         error_tool.__name__ = tool_name
                         return error_tool
 
+                    # Fallbacks also need wrapping
                     fallback_tools = [
-                        create_error_tool("factset_global_prices"),
-                        create_error_tool("factset_fundamentals"),
-                        create_error_tool("factset_estimates"),
-                        create_error_tool("FactSet_Prices")
+                        wrap_tool_with_observer(create_error_tool("factset_global_prices")),
+                        wrap_tool_with_observer(create_error_tool("factset_fundamentals")),
+                        wrap_tool_with_observer(create_error_tool("factset_estimates")),
+                        wrap_tool_with_observer(create_error_tool("FactSet_Prices"))
                     ]
                     tools.extend(fallback_tools)
                     if token in GLOBAL_TOOLSET_CACHE: del GLOBAL_TOOLSET_CACHE[token]
@@ -262,7 +368,7 @@ async def create_smart_agent(token: str, model_name: str = "gemini-3-flash-previ
         def FactSet_GlobalPrices(ticker: str, startDate: str = None, endDate: str = None, frequency: str = "D"):
              return {"ticker": ticker, "history": [{"date": "2025-01-21", "close": 150.0}, {"date": "2025-01-22", "close": 152.0}]}
         
-        tools.extend([FactSet_Prices, FactSet_GlobalPrices])
+        tools.extend([wrap_tool_with_observer(FactSet_Prices), wrap_tool_with_observer(FactSet_GlobalPrices)])
 
     return Agent(
         name="factset_analyst", 

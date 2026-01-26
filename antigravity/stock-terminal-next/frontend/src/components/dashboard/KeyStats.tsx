@@ -35,15 +35,15 @@ export const KeyStats: React.FC<KeyStatsProps> = ({ section, ticker, externalDat
   const currentData = data[section] || [];
 
   return (
-    <div className="card p-3 h-full">
-      <div className="flex items-center justify-between mb-3 text-[13px] uppercase tracking-wide text-[var(--text-secondary)]">
+    <div className="card h-full hover:shadow-lg hover:border-blue-500/30 transition-all duration-300">
+      <div className="text-[12px] font-bold text-[var(--text-secondary)] tracking-widest uppercase mb-4">
         {section}
       </div>
-      <div className="flex flex-col gap-1.5">
+      <div className="flex flex-col gap-3">
         {currentData.map((item, idx) => (
-          <div key={idx} className="flex justify-between items-center text-[11px] pb-0.5 border-b border-dotted border-[var(--border-light)] last:border-b-0">
-            <span className="text-[var(--text-muted)]">{item.label}</span>
-            <span className="font-semibold text-[var(--text-primary)]">{item.value}</span>
+          <div key={idx} className="flex justify-between items-center text-[11px] border-b border-[var(--border)] pb-2 last:border-0 last:pb-0">
+            <span className="text-[var(--text-muted)] font-medium">{item.label}</span>
+            <span className="font-bold text-[var(--text-primary)] text-right">{item.value}</span>
           </div>
         ))}
       </div>

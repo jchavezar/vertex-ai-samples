@@ -64,9 +64,28 @@ interface DashboardState {
   setChatPosition: (pos: { x: number; y: number }) => void;
   isChatOpen: boolean;
   setChatOpen: (isOpen: boolean) => void;
+  isChatMaximized: boolean;
+  toggleChatMaximized: () => void;
+  chatSidebarWidth: number;
+  setChatSidebarWidth: (width: number) => void;
+  isGraphOverlayOpen: boolean;
+  setGraphOverlayOpen: (isOpen: boolean) => void;
 
   currentView: 'dashboard' | 'advanced_search';
   setCurrentView: (view: 'dashboard' | 'advanced_search') => void;
+
+  // Shared Chat State
+  topology: any | null; // Using any for now to avoid circular dependency with AgentGraph types
+  setTopology: (topology: any | null) => void;
+
+  nodeDurations: Record<string, number>;
+  setNodeDurations: (durations: Record<string, number>) => void;
+
+  nodeMetrics: Record<string, Record<string, any>>;
+  setNodeMetrics: (metrics: Record<string, Record<string, any>>) => void;
+
+  executionPath: string[];
+  setExecutionPath: (path: string[]) => void;
 }
 
 export const useDashboardStore = create<DashboardState>((set) => ({
@@ -112,7 +131,27 @@ export const useDashboardStore = create<DashboardState>((set) => ({
   setChatPosition: (pos) => set({ chatPosition: pos }),
   isChatOpen: true,
   setChatOpen: (isOpen) => set({ isChatOpen: isOpen }),
+  isChatMaximized: false,
+  toggleChatMaximized: () => set((state) => ({ isChatMaximized: !state.isChatMaximized })),
+  chatSidebarWidth: 450,
+  setChatSidebarWidth: (width) => set({ chatSidebarWidth: width }),
+  isGraphOverlayOpen: false,
+  setGraphOverlayOpen: (isOpen) => set({ isGraphOverlayOpen: isOpen }),
 
   currentView: 'dashboard',
   setCurrentView: (view: 'dashboard' | 'advanced_search') => set({ currentView: view }),
+
+  topology: null,
+  setTopology: (topology) => set({ topology }),
+
+  activeNodeId: null, // Add activeNodeId for shared state if needed, though mostly derived
+
+  nodeDurations: {},
+  setNodeDurations: (durations) => set({ nodeDurations: durations }),
+
+  nodeMetrics: {},
+  setNodeMetrics: (metrics) => set({ nodeMetrics: metrics }),
+
+  executionPath: [],
+  setExecutionPath: (path) => set({ executionPath: path }),
 }));
