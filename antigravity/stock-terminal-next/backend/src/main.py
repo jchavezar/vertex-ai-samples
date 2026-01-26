@@ -648,13 +648,13 @@ async def generative_overview_endpoint(req: OverviewRequest):
                         "pdf_suggestion": result.get("pdf_suggestion")
                     }
                 }
-                yield json.dumps(payload) + "\\n"
+                yield json.dumps(payload) + "\n"
             else:
-                yield json.dumps({"error": "Failed to generate structured overview"}) + "\\n"
+                yield json.dumps({"error": "Failed to generate structured overview"}) + "\n"
 
         except Exception as e:
             print(f"Overview Error: {e}")
-            yield json.dumps({"error": str(e)}) + "\\n"
+            yield json.dumps({"error": str(e)}) + "\n"
 
     return StreamingResponse(generate_stream(), media_type="application/x-ndjson")
 
@@ -773,14 +773,14 @@ async def analyze_pdf_endpoint(req: AnalyzePdfRequest):
         async def event_generator():
              try:
                  async for event in runner.run_async(user_id="user_1", session_id=temp_session_id, new_message=msg):
-                    if event.content and event.content.parts:
+                     if event.content and event.content.parts:
                         for part in event.content.parts:
                             if part.text:
                                  # print(f"Chunk: {part.text[:20]}...")
-                                 yield json.dumps({"text": part.text}) + "\\n"
+                                 yield json.dumps({"text": part.text}) + "\n"
              except Exception as stream_e:
                  print(f"Stream Loop Error: {stream_e}")
-                 yield json.dumps({"text": f"\\n\\n**Error during streaming**: {str(stream_e)}"}) + "\\n"
+                 yield json.dumps({"text": f"\n\n**Error during streaming**: {str(stream_e)}"}) + "\n"
                              
     
         return StreamingResponse(event_generator(), media_type="application/x-ndjson")
@@ -790,7 +790,7 @@ async def analyze_pdf_endpoint(req: AnalyzePdfRequest):
         error_msg = str(e)
         # Return a stream with specific error format that frontend expects
         async def error_stream():
-            yield json.dumps({"text": f"\\n\\n**Error Analysis Failed**: {error_msg}"}) + "\\n"
+            yield json.dumps({"text": f"\n\n**Error Analysis Failed**: {error_msg}"}) + "\n"
         return StreamingResponse(error_stream(), media_type="application/x-ndjson")
 
 @app.get("/health")
