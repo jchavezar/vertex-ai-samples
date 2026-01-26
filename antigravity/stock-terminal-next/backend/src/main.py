@@ -118,13 +118,28 @@ async def refresh_factset_token(session_id: str):
 async def get_valid_factset_token(session_id: str):
     tokens = load_tokens()
     data = tokens.get(session_id)
-    if not data: return None
     
-    # Check if expired or expiring in next 60s
-    if time.time() > (data.get("expires_at", 0) - 60):
-        print("Token expired or expiring soon. Attempting refresh...")
-        return await refresh_factset_token(session_id)
-        
+    # Fallback to shared 'default_chat' token if specific session has none
+    # This enables the "Login Once, Use Everywhere" behavior
+    if not data and session_id != "default_chat":
+        print(f"No token for {session_id}, falling back to 'default_chat'...")
+        data = tokens.get("default_chat")
+
+    if not data:
+        print(f"No FactSet token found for {session_id} (or default).")
+        return None
+
+    # Check expiry
+    if time.time() > data.get("expires_at", 0):
+        print(f"Token expired for {session_id if tokens.get(session_id) else 'default_chat'}. Attempting refresh...")
+        # Try refresh
+        target_session = session_id if tokens.get(session_id) else "default_chat"
+        new_data = await refresh_factset_token(target_session)
+        if new_data:
+            return new_data.get("access_token")
+        else:
+            return None
+            
     return data.get("token")
 
 # --- ENDPOINTS ---

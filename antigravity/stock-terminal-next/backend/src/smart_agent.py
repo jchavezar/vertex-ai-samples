@@ -363,12 +363,16 @@ async def create_smart_agent(token: str, model_name: str = "gemini-3-flash-previ
 
     # Mock Mode Fallback
     if not token or "mock" in token:
-        logger.info("Smart Agent: Enabling MOCK tools")
-        def FactSet_Prices(ticker: str): return {"ticker": ticker, "price": 150.0, "currency": "USD", "time": get_current_datetime()}
-        def FactSet_GlobalPrices(ticker: str, startDate: str = None, endDate: str = None, frequency: str = "D"):
-             return {"ticker": ticker, "history": [{"date": "2025-01-21", "close": 150.0}, {"date": "2025-01-22", "close": 152.0}]}
+        logger.info("Smart Agent: Enabling MOCK tools (backed by Yahoo Finance if available)")
+        from src import mock_data
         
-        tools.extend([wrap_tool_with_observer(FactSet_Prices), wrap_tool_with_observer(FactSet_GlobalPrices)])
+        def factset_prices(ticker: str): 
+            return mock_data.get_mock_price_response(ticker)
+            
+        def factset_global_prices(ticker: str, startDate: str = None, endDate: str = None, frequency: str = "D"):
+             return mock_data.get_mock_history_response(ticker)
+        
+        tools.extend([wrap_tool_with_observer(factset_prices), wrap_tool_with_observer(factset_global_prices)])
 
     return Agent(
         name="factset_analyst", 

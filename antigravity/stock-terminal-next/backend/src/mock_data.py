@@ -29,7 +29,9 @@ def generate_mock_history(ticker: str, days: int = 30) -> List[Dict[str, Any]]:
 def get_mock_price_response(ticker: str) -> Dict[str, Any]:
     """Fetches REAL price from Yahoo Finance, falls back to mock if fails."""
     try:
-        t = yf.Ticker(ticker)
+        # Sanitize ticker for yfinance (FactSet uses Ticker-US, yfinance uses Ticker)
+        yf_ticker = ticker.replace("-US", "").replace("-USA", "")
+        t = yf.Ticker(yf_ticker)
         # fast_info is often faster/more reliable for current price than .info
         price = t.fast_info.last_price
         if price is None:
@@ -68,7 +70,9 @@ def get_mock_price_response(ticker: str) -> Dict[str, Any]:
 def get_mock_history_response(ticker: str, start_date=None, end_date=None) -> Dict[str, Any]:
     """Fetches REAL history from Yahoo Finance."""
     try:
-        t = yf.Ticker(ticker)
+        # Sanitize ticker for yfinance
+        yf_ticker = ticker.replace("-US", "").replace("-USA", "")
+        t = yf.Ticker(yf_ticker)
         # default to 3mo if not specified, or reasonable range
         # yfinance history handles strings like "1mo", "3mo", "1y"
         # but our interface might pass specific dates.
