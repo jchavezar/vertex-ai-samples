@@ -609,7 +609,7 @@ async def generative_overview_endpoint(req: OverviewRequest):
             # Single Agent with Structured Output
             overview_agent = Agent(
                 name="overview_agent",
-                model="gemini-2.5-flash-lite",
+                model="gemini-2.0-flash-exp",
                 instruction="You are a strict financial analyst engine. Output must be structured, concise, and dense.",
                 output_schema=AIOverview,
                 output_key="overview_result"
@@ -742,7 +742,7 @@ async def analyze_pdf_endpoint(req: AnalyzePdfRequest):
         
         analysis_agent = Agent(
             name="pdf_analyst",
-            model="gemini-2.5-flash-lite",
+            model="gemini-2.0-flash-exp",
             instruction=(
                 "You are an expert financial analyst engine. Your goal is to answer the user's question "
                 "with extreme precision using ONLY the provided PDF document.\\n"
