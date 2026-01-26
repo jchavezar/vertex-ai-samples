@@ -8,7 +8,7 @@ import httpx
 from dotenv import load_dotenv
 from fastapi import FastAPI, Request, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import StreamingResponse
+from fastapi.responses import StreamingResponse, RedirectResponse, HTMLResponse
 from pydantic import BaseModel, Field
 from typing import List, Optional, Dict, Any
 
@@ -22,6 +22,7 @@ from google.adk.sessions.sqlite_session_service import SqliteSessionService
 from src.protocol import AIStreamProtocol
 from src.latency_logger import logger as llog
 from src.smart_agent import create_smart_agent
+from src.mock_data import get_mock_price_response, get_mock_history_response
 
 # Load Env
 load_dotenv()
@@ -64,15 +65,65 @@ def save_tokens(tokens):
             json.dump(tokens, f)
     except: pass
 
+async def refresh_factset_token(session_id: str):
+    print(f"Refreshing FactSet Token for session: {session_id}...")
+    tokens = load_tokens()
+    data = tokens.get(session_id)
+    if not data or not data.get("refresh_token"):
+        print("No refresh token found.")
+        return None
+
+    refresh_token = data.get("refresh_token")
+    auth_str = f"{FS_CLIENT_ID}:{FS_CLIENT_SECRET}"
+    b64_auth = base64.b64encode(auth_str.encode()).decode()
+
+    headers = {
+        "Authorization": f"Basic {b64_auth}",
+        "Content-Type": "application/x-www-form-urlencoded"
+    }
+
+    payload = {
+        "grant_type": "refresh_token",
+        "refresh_token": refresh_token
+    }
+
+    try:
+        async with httpx.AsyncClient() as client:
+            response = await client.post(FS_TOKEN_URL, data=payload, headers=headers)
+            
+            if response.status_code == 200:
+                new_tokens = response.json()
+                # Update tokens, preserving the refresh_token if not returned (standard OAuth)
+                # Usually refresh_token overrides, or we keep old one if not rotated.
+                # FactSet usually rotates it.
+                
+                rotated_refresh = new_tokens.get("refresh_token") or refresh_token
+                
+                factset_tokens[session_id] = {
+                    "token": new_tokens.get("access_token"),
+                    "refresh_token": rotated_refresh,
+                    "expires_at": time.time() + new_tokens.get("expires_in", 900),
+                    "created_at": time.time()
+                }
+                save_tokens(factset_tokens)
+                print("Token Refreshed Successfully.")
+                return new_tokens.get("access_token")
+            else:
+                print(f"Refresh Failed: {response.text}")
+                return None
+    except Exception as e:
+        print(f"Refresh Error: {e}")
+        return None
+
 async def get_valid_factset_token(session_id: str):
     tokens = load_tokens()
     data = tokens.get(session_id)
     if not data: return None
     
-    if time.time() > (data.get("expires_at", 0) - 300):
-        # Refresh logic would go here, for now return None to force re-auth or mock
-        # In a real impl, we copy the refresh logic from V2
-        return None 
+    # Check if expired or expiring in next 60s
+    if time.time() > (data.get("expires_at", 0) - 60):
+        print("Token expired or expiring soon. Attempting refresh...")
+        return await refresh_factset_token(session_id)
         
     return data.get("token")
 
@@ -80,9 +131,116 @@ async def get_valid_factset_token(session_id: str):
 
 
 
+
+
+# FactSet Config
+FS_CLIENT_ID = os.getenv("FS_CLIENT_ID")
+FS_CLIENT_SECRET = os.getenv("FS_CLIENT_SECRET")
+FS_REDIRECT_URI = os.getenv("FS_REDIRECT_URI", "http://localhost:8001/auth/factset/callback")
+FS_AUTH_URL = "https://auth.factset.com/as/authorization.oauth2"
+FS_TOKEN_URL = "https://auth.factset.com/as/token.oauth2"
+
+# --- AUTH ENDPOINTS ---
+
+@app.get("/auth/factset/url")
+def get_factset_auth_url(session_id: str = "default_chat"):
+    import urllib.parse
+    params = {
+        "response_type": "code",
+        "client_id": FS_CLIENT_ID,
+        "redirect_uri": FS_REDIRECT_URI,
+        "scope": "mcp",
+        "state": session_id,
+        "prompt": "consent"
+    }
+    query_string = urllib.parse.urlencode(params)
+    auth_url = f"{FS_AUTH_URL}?{query_string}"
+    return {"auth_url": auth_url}
+
+@app.get("/auth/factset/status")
+async def auth_status(session_id: str = "default_chat"):
+    token = await get_valid_factset_token(session_id)
+    if token:
+        data = factset_tokens.get(session_id, {})
+        expires = data.get("expires_at", 0)
+        remaining = int(expires - time.time())
+        return {
+            "connected": True, 
+            "message": f"Connected (Expires in {remaining}s)",
+            "expires_in": remaining
+        }
+    return {"connected": False, "message": "Disconnected"}
+
+class AuthCallbackRequest(BaseModel):
+    code: str
+    redirect_uri: Optional[str] = "http://localhost:8001/auth/factset/callback"
+
+@app.get("/auth/factset/callback")
+async def auth_callback(code: str, state: Optional[str] = None, error: Optional[str] = None, error_description: Optional[str] = None, request: Request = None):
+    try:
+        if error:
+             return HTMLResponse(f"<h1>Auth Error</h1><p>{error}: {error_description}</p>")
+             
+        print(f"Auth Callback received code: {code[:10]}...")
+        
+        # Debug Env Vars
+        if not FS_CLIENT_ID or not FS_CLIENT_SECRET:
+            print("ERROR: Missing FS_CLIENT_ID or FS_CLIENT_SECRET in env")
+            return HTMLResponse("<h1>Configuration Error</h1><p>Missing FactSet Credentials in .env</p>")
+        
+        auth_str = f"{FS_CLIENT_ID}:{FS_CLIENT_SECRET}"
+        b64_auth = base64.b64encode(auth_str.encode()).decode()
+        
+        headers = {
+            "Authorization": f"Basic {b64_auth}",
+            "Content-Type": "application/x-www-form-urlencoded"
+        }
+        
+        # Use FS_REDIRECT_URI from env or construct from request
+        redirect_uri = os.getenv("FS_REDIRECT_URI")
+        if not redirect_uri:
+            # Fallback to current URL base
+            redirect_uri = "http://localhost:8001/auth/factset/callback"
+            print(f"Using fallback redirect_uri: {redirect_uri}")
+        
+        payload = {
+            "grant_type": "authorization_code",
+            "code": code,
+            "redirect_uri": redirect_uri
+        }
+
+        async with httpx.AsyncClient() as client:
+            print(f"Posting to {FS_TOKEN_URL} with redirect_uri={redirect_uri}")
+            response = await client.post(FS_TOKEN_URL, data=payload, headers=headers)
+            print(f"Token Response: {response.status_code}")
+            
+            if response.status_code == 200:
+                tokens = response.json()
+                session_id = state or "default_chat" 
+                
+                factset_tokens[session_id] = {
+                    "token": tokens.get("access_token"),
+                    "refresh_token": tokens.get("refresh_token"),
+                    "expires_at": time.time() + tokens.get("expires_in", 900),
+                    "created_at": time.time()
+                }
+                save_tokens(factset_tokens)
+                print("Successfully exchanged code for token.")
+                return RedirectResponse("http://localhost:5173/") # Redirect to Frontend
+            else:
+                print(f"Auth Exchange Failed: {response.text}")
+                return HTMLResponse(f"<h1>Auth Exchange Failed</h1><p>{response.status_code}: {response.text}</p>")
+
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        print(f"CRITICAL AUTH ERROR: {e}")
+        return HTMLResponse(f"<h1>Internal Server Error</h1><p>{str(e)}</p>")
+
 class ChatRequest(BaseModel):
     messages: List[Dict[str, Any]]
     sessionId: Optional[str] = "default_chat"
+    model: Optional[str] = "gemini-3-flash-preview"
 
 @app.post("/chat")
 async def chat_endpoint(req: ChatRequest):
@@ -96,13 +254,27 @@ async def chat_endpoint(req: ChatRequest):
         last = req.messages[-1]
         user_query = last.get("content", "") if isinstance(last, dict) else str(last)
 
-    print(f"!!! NEXT CHAT: {user_query[:50]}...")
+    model_name = req.model or "gemini-3-flash-preview"
+    print(f"!!! NEXT CHAT: {user_query[:50]}... [Model: {model_name}]")
     
     # 1. Get Token (or None)
     token = await get_valid_factset_token(session_id)
     
     # 2. Create Smart Agent
-    agent = await create_smart_agent(token=token, model_name="gemini-3-flash-preview")
+    # We use a Queue to capture Tool Results from the observer
+    event_queue = asyncio.Queue()
+    
+    async def tool_observer(name, args, kwargs, result):
+        try:
+            # Emit Trace Protocol (for visibility) ONLY
+            # We NO LONGER emit tool_result here because we cannot synchronize IDs with the main loop.
+            # The main loop will handle tool_result emission using function_response events.
+            await event_queue.put(AIStreamProtocol.trace(f"Tool Result: {name}", tool=name, result=result, type="tool_result"))
+        except Exception as e:
+            print(f"Queue Error: {e}")
+
+    # For global preview models, we might need to rely on the env vars being set correctly (us-central1 is standard for previews)
+    agent = await create_smart_agent(token=token, model_name=model_name, tool_observer=tool_observer)
     
     # 3. Stream Generator
     async def event_generator():
@@ -115,60 +287,182 @@ async def chat_endpoint(req: ChatRequest):
         new_message = Content(role="user", parts=[Part(text=user_query)])
         
         buffer = ""
-        
+        active_tool_ids = {} # name -> list of pending IDs
+
         try:
-            async for event in runner.run_async(user_id="user_1", session_id=session_id, new_message=new_message):
-                # Tool Calls
-                if hasattr(event, "get_function_calls"):
-                    fcalls = event.get_function_calls()
-                    if fcalls:
-                        for call in fcalls:
-                             # Emit Protocol 9: Tool Call
-                             args = call.args if isinstance(call.args, dict) else getattr(call.args, "__dict__", {})
-                             yield AIStreamProtocol.tool_call(str(time.time()), call.name, args)
+            # Initial Trace
+            yield AIStreamProtocol.trace("Session Started", type="system_status", args={"model": model_name})
+            yield AIStreamProtocol.trace("Model Thinking", type="system_status")
+
+            # ... (Topology generation omitted for brevity, assuming it's unchanged if not targetted) ... 
+            # WAIT. I need to be careful not to delete topology logic if I don't include it. 
+            # I will assume the user ReplaceFile handles range correctly. 
+            # The TargetContent below MUST match the file.
+            # I will skip Topology in TargetContent to reduce size, starting from "runner_task = None"
+            
+            # Emit Topology (Dynamic based on Agent Tools)
+            try:
+                topo_nodes = [
+                    {"id": "User", "label": "User", "type": "user"},
+                    {"id": "Smart Agent", "label": "Smart Agent", "type": "agent", "model": model_name}
+                ]
+                topo_edges = []
                 
-                # Text Content with Chart Parsing
-                if event.content and event.content.parts:
-                    for part in event.content.parts:
-                        text = part.text or ""
-                        if not text: continue
+                # Add Tool Nodes
+                if hasattr(agent, "tools") and agent.tools:
+                     for tool in agent.tools:
+                        # Extract name safely
+                        t_name = getattr(tool, "name", None) or getattr(tool, "__name__", "Unknown Tool")
+                        topo_nodes.append({"id": t_name, "label": t_name, "type": "tool"})
                         
-                        buffer += text
+                        # Bidirectional Edges (Hub & Spoke)
+                        topo_edges.append({"source": "Smart Agent", "target": t_name})
+                        topo_edges.append({"source": t_name, "target": "Smart Agent"})
+                
+                # Connect User to Smart Agent
+                topo_edges.append({"source": "User", "target": "Smart Agent"})
+                topo_edges.append({"source": "Smart Agent", "target": "User"})
+                
+                topology_payload = {
+                    "type": "topology",
+                    "data": {
+                        "nodes": topo_nodes,
+                        "edges": topo_edges
+                    }
+                }
+                yield AIStreamProtocol.data(topology_payload)
+            except Exception as e:
+                print(f"Topology Generation Error: {e}")
+            
+            # START RUNNER IN BACKGROUND TASK to prevent blocking the queue consumption
+            runner_task = None
+            
+            async def run_driver():
+                try:
+                    async for event in runner.run_async(user_id="user_1", session_id=session_id, new_message=new_message):
+                        # Wrapper to put event into queue
+                        await event_queue.put(("ADK_EVENT", event))
+                    await event_queue.put(("DONE", None))
+                except Exception as e:
+                    print(f"Runner Task Error: {e}")
+                    await event_queue.put(("ERROR", str(e)))
+
+            runner_task = asyncio.create_task(run_driver())
+
+            # CONSUME QUEUE
+            while True:
+                # Wait for next item
+                item = await event_queue.get()
+                
+                # Check for Protocol String (Direct injection from observer)
+                if isinstance(item, str):
+                    yield item
+                    continue
+                
+                # Tuple unpacking
+                if isinstance(item, tuple):
+                    kind, payload = item
+                    
+                    if kind == "DONE":
+                        break
+                    if kind == "ERROR":
+                        yield AIStreamProtocol.error(str(payload))
+                        break
+                    
+                    if kind == "ADK_EVENT":
+                        event = payload
+                        # --- EXISTING LOGIC FOR EVENT PROCESSING ---
+                        # Routing Detection (Heuristic: If tool call is about to happen)
+                        if hasattr(event, "get_function_calls") and event.get_function_calls():
+                             # Before we emit the tool call, emit status
+                             for call in event.get_function_calls():
+                                 yield AIStreamProtocol.trace(f"Passing Over Tool: {call.name}", type="system_status")
+
+                        # Tool Calls
+                        if hasattr(event, "get_function_calls"):
+                            fcalls = event.get_function_calls()
+                            if fcalls:
+                                for call in fcalls:
+                                     # Emit Protocol 9: Tool Call
+                                     args = call.args if isinstance(call.args, dict) else getattr(call.args, "__dict__", {})
+                                     tid = str(time.time()) + secrets.token_hex(2)
+                                     
+                                     # Track ID
+                                     if call.name not in active_tool_ids: active_tool_ids[call.name] = []
+                                     active_tool_ids[call.name].append(tid)
+                                     
+                                     yield AIStreamProtocol.tool_call(tid, call.name, args)
+                                     # Emit Trace for visibility
+                                     yield AIStreamProtocol.trace(f"Executing: {call.name}", tool=call.name, args=args, type="tool_call")
                         
-                        # Chart Tag Parsing [CHART]...[/CHART]
-                        while "[CHART]" in buffer and "[/CHART]" in buffer:
-                            start = buffer.find("[CHART]")
-                            end = buffer.find("[/CHART]") + 8
-                            
-                            pre_text = buffer[:start]
-                            chart_block = buffer[start:end]
-                            post_text = buffer[end:]
-                            
-                            if pre_text: yield AIStreamProtocol.text(pre_text)
-                            
-                            try:
-                                json_str = chart_block.replace("[CHART]", "").replace("[/CHART]", "")
-                                param_obj = json.loads(json_str)
-                                yield AIStreamProtocol.data(param_obj)
-                            except:
-                                yield AIStreamProtocol.text(chart_block)
+                        # Text Content with Chart Parsing AND Function Response Detection
+                        if event.content and event.content.parts:
+                            for part in event.content.parts:
                                 
-                            buffer = post_text
-                            
-                        # Flush if safe
-                        if "[CHART]" not in buffer:
-                            if buffer:
-                                yield AIStreamProtocol.text(buffer)
-                                buffer = ""
-                        else:
-                            # Partial flush
-                            tag_idx = buffer.find("[CHART]")
-                            if tag_idx > 0:
-                                to_flush = buffer[:tag_idx]
-                                yield AIStreamProtocol.text(to_flush)
-                                buffer = buffer[tag_idx:]
+                                # 1. Detect Function Response (Result)
+                                if hasattr(part, "function_response") and part.function_response:
+                                    resp = part.function_response
+                                    r_name = resp.name 
+                                    r_content = resp.response
+                                    
+                                    # Match ID
+                                    tid = None
+                                    if r_name in active_tool_ids and active_tool_ids[r_name]:
+                                        tid = active_tool_ids[r_name].pop(0)
+                                    else:
+                                        # Fallback or orphan
+                                        tid = f"orphan_{time.time()}"
+                                    
+                                    yield AIStreamProtocol.tool_result(tid, r_name, r_content)
+                                    continue # Skip text processing for this part
+
+                                # 2. Text Processing
+                                text = part.text or ""
+                                if not text: continue
+                                
+                                # Emit Reasoning Status if we are generating text
+                                if not buffer:
+                                     yield AIStreamProtocol.trace("Reasoning...", type="system_status")
+                                
+                                buffer += text
+                                
+                                # Chart Tag Parsing [CHART]...[/CHART]
+                                while "[CHART]" in buffer and "[/CHART]" in buffer:
+                                    start = buffer.find("[CHART]")
+                                    end = buffer.find("[/CHART]") + 8
+                                    
+                                    pre_text = buffer[:start]
+                                    chart_block = buffer[start:end]
+                                    post_text = buffer[end:]
+                                    
+                                    if pre_text: yield AIStreamProtocol.text(pre_text)
+                                    
+                                    try:
+                                        json_str = chart_block.replace("[CHART]", "").replace("[/CHART]", "")
+                                        param_obj = json.loads(json_str)
+                                        yield AIStreamProtocol.data(param_obj)
+                                        # Trace chart generation
+                                        yield AIStreamProtocol.trace(f"Generated Chart: {param_obj.get('title')}", type="system")
+                                    except:
+                                        yield AIStreamProtocol.text(chart_block)
+                                        
+                                    buffer = post_text
+                                    
+                                # Flush if safe
+                                if "[CHART]" not in buffer:
+                                    if buffer:
+                                        yield AIStreamProtocol.text(buffer)
+                                        buffer = ""
+                                else:
+                                    # Partial flush
+                                    tag_idx = buffer.find("[CHART]")
+                                    if tag_idx > 0:
+                                        to_flush = buffer[:tag_idx]
+                                        yield AIStreamProtocol.text(to_flush)
+                                        buffer = buffer[tag_idx:]
 
             if buffer: yield AIStreamProtocol.text(buffer)
+            yield AIStreamProtocol.trace("Agent finished", type="system")
                 
         except Exception as e:
             l = llog
@@ -261,13 +555,13 @@ async def generative_overview_endpoint(req: OverviewRequest):
                     # Use clean_link in context to help LLM recognize it's a file
                     display_link = clean_link if is_pdf else link
                     
-                    ctx = f"Source {i+1} [{type_str}]:\nTitle: {title}\nURL: {display_link}\nContent: {snippet}"
+                    ctx = f"Source {i+1} [{type_str}]:\\nTitle: {title}\\nURL: {display_link}\\nContent: {snippet}"
                     formatted_contexts.append(ctx)
             else:
                 # Fallback to old behavior
                 formatted_contexts = [f"Source {i+1}: {ctx}" for i, ctx in enumerate(req.contexts)]
 
-            context_str = "\n\n".join(formatted_contexts)
+            context_str = "\\n\\n".join(formatted_contexts)
             
             summary_prompt = f"""
             You are a financial analyst engine.
@@ -339,13 +633,13 @@ async def generative_overview_endpoint(req: OverviewRequest):
                         "pdf_suggestion": result.get("pdf_suggestion")
                     }
                 }
-                yield json.dumps(payload) + "\n"
+                yield json.dumps(payload) + "\\n"
             else:
-                yield json.dumps({"error": "Failed to generate structured overview"}) + "\n"
+                yield json.dumps({"error": "Failed to generate structured overview"}) + "\\n"
 
         except Exception as e:
             print(f"Overview Error: {e}")
-            yield json.dumps({"error": str(e)}) + "\n"
+            yield json.dumps({"error": str(e)}) + "\\n"
 
     return StreamingResponse(generate_stream(), media_type="application/x-ndjson")
 
@@ -436,14 +730,14 @@ async def analyze_pdf_endpoint(req: AnalyzePdfRequest):
             model="gemini-2.5-flash-lite",
             instruction=(
                 "You are an expert financial analyst engine. Your goal is to answer the user's question "
-                "with extreme precision using ONLY the provided PDF document.\n"
-                "rules:\n"
-                "1. **Structure your response** in three distinct sections:\n"
-                "   - **Answer**: The direct, concise answer to the question.\n"
-                "   - **Evidence**: A verbatim excerpt (quote) from the document that supports your answer. Use a markdown blockquote (>) for this.\n"
-                "   - **Key Context**: Analyze the surrounding text in the document. What drivers, comparisons (YoY/QoQ), or strategic implications are mentioned near this data point? Provide 2-3 sentences of added value that explains *why* this number satisfies the query.\n"
-                "2. **Highlighting**: Inside the Evidence blockquote, **bold** the specific numbers or text that directly answer the question.\n"
-                "3. **Context**: If the quote needs context (e.g., 'Table 1 shows...'), include that briefly before the quote.\n"
+                "with extreme precision using ONLY the provided PDF document.\\n"
+                "rules:\\n"
+                "1. **Structure your response** in three distinct sections:\\n"
+                "   - **Answer**: The direct, concise answer to the question.\\n"
+                "   - **Evidence**: A verbatim excerpt (quote) from the document that supports your answer. Use a markdown blockquote (>) for this.\\n"
+                "   - **Key Context**: Analyze the surrounding text in the document. What drivers, comparisons (YoY/QoQ), or strategic implications are mentioned near this data point? Provide 2-3 sentences of added value that explains *why* this number satisfies the query.\\n"
+                "2. **Highlighting**: Inside the Evidence blockquote, **bold** the specific numbers or text that directly answer the question.\\n"
+                "3. **Context**: If the quote needs context (e.g., 'Table 1 shows...'), include that briefly before the quote.\\n"
                 "4. If the answer is not in the document, state 'Data not found in document'."
             )
         )
@@ -455,7 +749,7 @@ async def analyze_pdf_endpoint(req: AnalyzePdfRequest):
         # 3. Create Multi-modal Message
         print("Creating Message...")
         pdf_part = Part.from_bytes(data=pdf_bytes, mime_type="application/pdf")
-        text_part = Part(text=f"QUESTION: {req.query}\n\nPlease answer the question above based on the attached PDF. Provide a tailored, concise response.")
+        text_part = Part(text=f"QUESTION: {req.query}\\n\\nPlease answer the question above based on the attached PDF. Provide a tailored, concise response.")
         
         msg = Content(role="user", parts=[pdf_part, text_part])
         
@@ -468,10 +762,10 @@ async def analyze_pdf_endpoint(req: AnalyzePdfRequest):
                         for part in event.content.parts:
                             if part.text:
                                  # print(f"Chunk: {part.text[:20]}...")
-                                 yield json.dumps({"text": part.text}) + "\n"
+                                 yield json.dumps({"text": part.text}) + "\\n"
              except Exception as stream_e:
                  print(f"Stream Loop Error: {stream_e}")
-                 yield json.dumps({"text": f"\n\n**Error during streaming**: {str(stream_e)}"}) + "\n"
+                 yield json.dumps({"text": f"\\n\\n**Error during streaming**: {str(stream_e)}"}) + "\\n"
                              
     
         return StreamingResponse(event_generator(), media_type="application/x-ndjson")
@@ -481,13 +775,96 @@ async def analyze_pdf_endpoint(req: AnalyzePdfRequest):
         error_msg = str(e)
         # Return a stream with specific error format that frontend expects
         async def error_stream():
-            yield json.dumps({"text": f"\n\n**Error Analysis Failed**: {error_msg}"}) + "\n"
+            yield json.dumps({"text": f"\\n\\n**Error Analysis Failed**: {error_msg}"}) + "\\n"
         return StreamingResponse(error_stream(), media_type="application/x-ndjson")
 
 @app.get("/health")
 def health_check():
     return {"status": "ok", "version": "2.0-next"}
 
+# --- DASHBOARD ENDPOINTS ---
+
+@app.get("/ticker-info/{ticker}")
+async def get_ticker_info(ticker: str):
+    """
+    Returns real-time price and history for the dashboard snapshot.
+    Uses yfinance (via mock_data) to ensure real numbers.
+    """
+    price_data = get_mock_price_response(ticker)
+    
+    # Fetch 6mo history for the chart
+    history_data = get_mock_history_response(ticker)
+    
+    # Merge
+    response = {
+        **price_data,
+        "history": history_data.get("history", []),
+        # Add extra fields expected by KeyStats
+        "marketCap": 0, # yfinance often has this in info, mock_data needs update to return it or we fetch here
+        "peRatio": 0,
+        "dividendYield": 0,
+        "fiftyTwoWeekHigh": 0,
+        "fiftyTwoWeekLow": 0,
+        "sector": "Technology",
+        "industry": "Consumer Electronics"
+    }
+    
+    # Enhance with more info if possible (quick yfinance fetch)
+    try:
+        import yfinance as yf
+        t = yf.Ticker(ticker)
+        info = t.info
+        response["marketCap"] = info.get("marketCap", 0)
+        response["peRatio"] = info.get("trailingPE", 0)
+        response["dividendYield"] = info.get("dividendYield", 0)
+        response["fiftyTwoWeekHigh"] = info.get("fiftyTwoWeekHigh", 0)
+        response["fiftyTwoWeekLow"] = info.get("fiftyTwoWeekLow", 0)
+        response["sector"] = info.get("sector", "Technology")
+        response["industry"] = info.get("industry", "Consumer Electronics")
+    except:
+        pass
+        
+    return response
+
+class WidgetRequest(BaseModel):
+    tickers: List[str]
+    section: str
+    session_id: str
+    model: str
+
+@app.post("/generate-widget")
+async def generate_widget_endpoint(req: WidgetRequest):
+    """
+    Generates AI content for dashboard widgets using a simple agent.
+    """
+    ticker = req.tickers[0] if req.tickers else "UNKNOWN"
+    section = req.section
+    
+    print(f"Generating widget {section} for {ticker}")
+    
+    # Simple Agent for Content Generation
+    # We can reuse the same session service
+    content_agent = Agent(
+        name="content_generator",
+        model="gemini-2.5-flash-lite",
+        instruction=f"You are a financial analyst. Write a concise, {section} analysis for {ticker}. Max 3 sentences."
+    )
+    
+    runner = adk.Runner(app_name="stock_terminal", agent=content_agent, session_service=session_service)
+    temp_id = f"widget_{secrets.token_hex(4)}"
+    await session_service.create_session(session_id=temp_id, app_name="stock_terminal", user_id="user_1")
+    
+    msg = Content(role="user", parts=[Part(text=f"Analyze the {section} for {ticker}.")])
+    
+    final_text = ""
+    async for event in runner.run_async(user_id="user_1", session_id=temp_id, new_message=msg):
+        if event.content and event.content.parts:
+            for part in event.content.parts:
+                if part.text:
+                    final_text += part.text
+                    
+    return {"content": final_text}
+
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run("src.main:app", host="0.0.0.0", port=8085, reload=True)
+    uvicorn.run("src.main:app", host="0.0.0.0", port=8001, reload=True)

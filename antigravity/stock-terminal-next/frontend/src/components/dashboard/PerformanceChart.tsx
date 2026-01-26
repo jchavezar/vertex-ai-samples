@@ -1,6 +1,5 @@
 import React from 'react';
 import {
-  LineChart,
   Line,
   XAxis,
   YAxis,
@@ -105,11 +104,39 @@ export const PerformanceChart: React.FC<PerformanceChartProps> = ({ ticker, exte
         { time: '10:00', price: 289.20, sp500: 288.00 },
       ];
     } else if (activeData && Array.isArray(activeData)) {
-      chartData = activeData.map((d: any) => ({
-        time: d.date || d.label || d.time,
-        price: d.close || d.value || d.price,
-        sp500: (d.close || d.value || d.price) * 0.98
-      }));
+      // Normalize to % change if S&P 500 data is present (Real Data Mode)
+      // Check if we have real S&P 500 data
+      const hasRealSp500 = activeData.some((d: any) => d.sp500_close !== undefined);
+
+      let basePrice = activeData[0]?.close || activeData[0]?.value || activeData[0]?.price || 1;
+      let baseSp500 = activeData[0]?.sp500_close || 1;
+
+      // If we are showing real comparison, we normalize to 0% start
+      // If just price, we show price.
+      // But user requested "Performance" which usually implies comparison.
+      // Let's assume if we have sp500 data, we do % comparison.
+
+      chartData = activeData.map((d: any) => {
+        const rawPrice = d.close || d.value || d.price;
+        const rawSp500 = d.sp500_close;
+
+        let priceVal = rawPrice;
+        let sp500Val = null;
+
+        if (hasRealSp500 && rawSp500) {
+          // Normalized
+          priceVal = ((rawPrice - basePrice) / basePrice) * 100;
+          sp500Val = ((rawSp500 - baseSp500) / baseSp500) * 100;
+        }
+
+        return {
+          time: d.date || d.label || d.time,
+          price: priceVal,
+          sp500: sp500Val,
+          isNormalized: hasRealSp500,
+          originalPrice: rawPrice
+        };
+      });
     } else {
       console.warn("PerformanceChart: activeData is not an array", activeData);
       chartData = [
@@ -124,44 +151,49 @@ export const PerformanceChart: React.FC<PerformanceChartProps> = ({ ticker, exte
     ];
   }
 
+  const isNormalized = chartData.length > 0 && chartData[0].isNormalized;
+
   return (
-    <div className="card min-h-[400px]">
-      <div className="flex items-center justify-between mb-3 text-[13px] uppercase tracking-wide text-[var(--text-secondary)]">
-        <span>{externalData?.title || "Performance"} <span className="text-[var(--brand)] cursor-pointer">→</span></span>
-        <div className="flex gap-2">
+    <div className="card h-full min-h-[400px] flex flex-col transition-all duration-300 hover:shadow-xl hover:border-blue-500/20">
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center gap-1 text-[12px] font-bold text-[var(--text-secondary)] tracking-widest uppercase">
+          PERFORMANCE <span className="text-[#3b82f6] cursor-pointer">→</span>
+        </div>
+        <div className="flex bg-[var(--bg-app)] rounded-lg p-0.5 border border-[var(--border)]">
           {['1D', '1M', '6M', 'YTD'].map(period => (
-            <span
+            <button
               key={period}
-              className={`text-[10px] px-1.5 py-0.5 rounded cursor-pointer transition-colors ${(externalData ? '1M' : '1D') === period
-                  ? 'bg-blue-500/15 text-[var(--brand)] font-extrabold border border-blue-500/20'
-                  : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
+              className={`text-[10px] px-3 py-1 rounded-md font-semibold transition-all ${(externalData ? '1M' : '1D') === period
+                ? 'bg-white text-[#3b82f6] shadow-sm'
+                : 'text-[#64748b] hover:text-[#0f172a]'
                 }`}
             >
               {period}
-            </span>
+            </button>
           ))}
         </div>
       </div>
 
-      <div className="flex gap-4 mb-3 text-[10px] text-[var(--text-secondary)]">
+      <div className="flex gap-4 mb-4 text-[11px] font-medium">
         {isMultiSeries && Array.isArray(seriesConfig) ? (
           seriesConfig.map(s => (
-            <div key={s.key} className="flex items-center gap-1">
+            <div key={s.key} className="flex items-center gap-2">
               <span className="w-2 h-2 rounded-full" style={{ background: s.color }}></span>
-              {s.ticker}
+              <span className="text-[var(--text-secondary)]">{s.ticker}</span>
             </div>
           ))
         ) : (
           <>
-            <div className="flex items-center gap-1">
-              <span className="w-2 h-2 rounded-full bg-[#3ea6ff]"></span>
-              {externalData?.ticker || ticker || "Unknown"}
+              <div className="flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-[#3b82f6]"></span>
+                <span className="text-[var(--text-secondary)]">{externalData?.ticker || ticker || "Unknown"}</span>
             </div>
-            {!externalData && (
-              <div className="flex items-center gap-1">
-                <span className="w-2 h-2 rounded-full bg-[#6ab04c]"></span>
-                S&P 500
-              </div>
+              {/* Show S&P 500 Legend if we have data */}
+              {isNormalized && (
+                <div className="flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-[#22c55e]"></span>
+                  <span className="text-[var(--text-secondary)]">S&P 500</span>
+                </div>
             )}
           </>
         )}
@@ -208,7 +240,7 @@ export const PerformanceChart: React.FC<PerformanceChartProps> = ({ ticker, exte
                 paddingAngle={5}
                 dataKey={getValueKey(externalData.data)}
               >
-                {Array.isArray(externalData.data) && externalData.data.map((entry: any, index: number) => (
+                  {Array.isArray(externalData.data) && externalData.data.map((_: any, index: number) => (
                   <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                 ))}
               </Pie>
@@ -241,18 +273,19 @@ export const PerformanceChart: React.FC<PerformanceChartProps> = ({ ticker, exte
               />
               <YAxis
                 yAxisId="price"
-                domain={['dataMin', 'dataMax']}
+                    domain={['auto', 'auto']}
                 fontSize={10}
                 tickLine={false}
                 axisLine={false}
                 tick={{ fill: '#8c959f' }}
                 orientation="right"
+                    tickFormatter={(val) => isNormalized ? `${val.toFixed(1)}%` : val}
               />
               <YAxis
                 yAxisId="volume"
                 domain={['auto', 'auto']}
                 orientation="left"
-                hide={true}
+                    hide={true}
               />
               <Tooltip
                 contentStyle={{
@@ -263,6 +296,12 @@ export const PerformanceChart: React.FC<PerformanceChartProps> = ({ ticker, exte
                   backdropFilter: 'var(--card-blur)',
                   color: 'var(--text-primary)'
                 }}
+                    formatter={(val: number, name: string) => {
+                      if (name === 'price' || name === 'sp500') {
+                        return isNormalized ? `${val.toFixed(2)}%` : val;
+                      }
+                      return val;
+                    }}
               />
 
               {isMultiSeries && Array.isArray(seriesConfig) ? (
@@ -284,25 +323,34 @@ export const PerformanceChart: React.FC<PerformanceChartProps> = ({ ticker, exte
                 })
               ) : (
                 <>
+                        <defs>
+                          <linearGradient id="colorPrice" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="5%" stopColor="var(--brand)" stopOpacity={0.8} />
+                            <stop offset="95%" stopColor="var(--brand)" stopOpacity={0.1} />
+                          </linearGradient>
+                        </defs>
                   <Area
                     yAxisId="price"
                     type="monotone"
                     dataKey="price"
+                          name={externalData?.ticker || ticker}
                     stroke="var(--brand)"
                     strokeWidth={3}
                     fillOpacity={1}
                     fill="url(#colorPrice)"
+                          activeDot={{ r: 6, strokeWidth: 0, fill: 'var(--brand)' }}
                   />
-                  {!externalData && (
-                    <Line
-                      yAxisId="price"
-                      type="monotone"
-                      dataKey="sp500"
-                      stroke="#6ab04c"
-                      strokeWidth={1}
-                      dot={false}
-                      strokeDasharray="5 5"
-                    />
+                        {isNormalized && (
+                          <Line
+                            yAxisId="price"
+                            type="monotone"
+                            dataKey="sp500"
+                            name="S&P 500"
+                            stroke="#22c55e"
+                            strokeWidth={2}
+                            dot={false}
+                            strokeDasharray="3 3"
+                          />
                   )}
                 </>
               )}
