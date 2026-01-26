@@ -1,5 +1,6 @@
 import json
 from typing import Any, Dict, List, Optional
+import time
 
 class AIStreamProtocol:
     """
@@ -62,3 +63,23 @@ class AIStreamProtocol:
         Let's use the 'finish_message' approach or just text for safety in this version.
         """
         return f'0:{json.dumps("Error: " + message)}\n'
+
+    @staticmethod
+    def trace(content: str, tool: Optional[str] = None, args: Optional[Dict[str, Any]] = None, result: Optional[Any] = None, duration: Optional[float] = None, type: str = "debug") -> str:
+        """
+        Type 2: Data Part (Trace Event)
+        Format: 2:[{"type": "trace", "data": {...}}]
+        """
+        payload = {
+            "type": "trace",
+            "data": {
+                "type": type,
+                "content": content,
+                "tool": tool,
+                "args": args,
+                "result": result,
+                "duration": duration,
+                "timestamp": str(time.time())
+            }
+        }
+        return f'2:{json.dumps([payload])}\n'

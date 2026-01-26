@@ -143,7 +143,7 @@ export const WidgetSlot: React.FC<WidgetSlotProps> = ({
       : `Generate ${section} for ${tickers ? tickers[0] : '...'}`;
 
     return (
-      <div className="card min-h-[200px] flex items-center justify-center bg-white/5 border-dashed border-[var(--border)] shadow-none backdrop-blur-md">
+      <div className="card min-h-[200px] flex items-center justify-center border-dashed border-[var(--border)] shadow-none backdrop-blur-md">
         <button
            onClick={() => onGenerate(section)}
            className="flex items-center gap-2.5 text-[var(--brand)] font-extrabold px-6 py-2.5 rounded-full border border-blue-500/30 transition-all duration-200 text-[11px] uppercase tracking-wide bg-gradient-to-br from-blue-500/15 to-blue-500/5 shadow-[0_4px_12px_rgba(0,0,0,0.2),inset_0_1px_0_rgba(255,255,255,0.1),inset_0_-1px_0_rgba(0,0,0,0.1)] hover:-translate-y-0.5 hover:from-blue-500/20 hover:to-blue-500/10 hover:shadow-[0_6px_16px_rgba(62,166,255,0.25),inset_0_1px_0_rgba(255,255,255,0.15),inset_0_-1px_0_rgba(0,0,0,0.15)] active:translate-y-0 active:from-blue-500/15 active:to-blue-500/5 active:shadow-[0_4px_12px_rgba(0,0,0,0.2),inset_0_1px_0_rgba(255,255,255,0.1),inset_0_-1px_0_rgba(0,0,0,0.1)]"

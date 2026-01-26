@@ -56,10 +56,10 @@ export const Sidebar: React.FC = () => {
   if (!isSidebarOpen || chatDockPosition === 'left') return null;
 
   return (
-    <aside className="w-[var(--sidebar-width)] bg-[var(--bg-card)] border-r border-[var(--border)] flex flex-col z-[100] h-full overflow-hidden">
-      <div className="p-6 border-b border-[var(--border)]">
+    <aside className="w-[var(--sidebar-width)] bg-[var(--bg-card)] border-r border-[var(--border)] flex flex-col z-[100] h-full overflow-hidden backdrop-blur-xl">
+      <div className="p-6 border-b border-[var(--border)] bg-transparent">
         <div className="mb-6 flex flex-col items-start">
-          <img src="/factset-logo-final.png" alt="FACTSET" className="h-12 object-contain" />
+          <img src="/factset-logo-final.png" alt="FACTSET" className="h-12 object-contain dark:brightness-0 dark:invert transition-all" />
           <div className="flex items-center gap-1.5 ml-1 -mt-1 bg-white/5 backdrop-blur-md px-2.5 py-1 rounded-full border border-white/10 shadow-sm transition-all hover:bg-white/10">
             <Sparkles size={10} className="text-cyan-400" />
             <span className="text-[10px] font-semibold tracking-wider uppercase select-none">
@@ -69,6 +69,9 @@ export const Sidebar: React.FC = () => {
               </span>
             </span>
           </div>
+
+          {/* Auth Status & Connect Button */}
+          <AuthStatus />
         </div>
         <div className="flex items-center bg-white/5 border border-white/10 px-4 py-2 rounded-full focus-within:border-blue-500/50 focus-within:bg-white/10 transition-all">
           <Search size={14} className="text-[var(--text-muted)]" />
@@ -129,5 +132,63 @@ export const Sidebar: React.FC = () => {
         ))}
       </div>
     </aside>
+  );
+};
+
+const AuthStatus: React.FC = () => {
+  const [status, setStatus] = React.useState<{ connected: boolean; message?: string }>({ connected: false });
+  const [loading, setLoading] = React.useState(false);
+
+  const checkStatus = async () => {
+    try {
+      const res = await fetch('http://localhost:8001/auth/factset/status');
+      const data = await res.json();
+      setStatus(data);
+    } catch (e) {
+      console.error("Auth check failed", e);
+    }
+  };
+
+  React.useEffect(() => {
+    checkStatus();
+    const interval = setInterval(checkStatus, 30000); // Check every 30s
+    return () => clearInterval(interval);
+  }, []);
+
+  const handleConnect = async () => {
+    setLoading(true);
+    try {
+      // Fetch the Auth URL from backend
+      const res = await fetch('http://localhost:8001/auth/factset/url');
+      const data = await res.json();
+      if (data.auth_url) {
+        window.location.href = data.auth_url;
+      } else {
+        console.error("No auth_url returned");
+        setLoading(false);
+      }
+    } catch (e) {
+      console.error("Failed to get auth url", e);
+      setLoading(false);
+    }
+  };
+
+  if (status.connected) {
+    return (
+      <div className="mt-2 flex items-center gap-1.5 px-2 py-1 rounded-md bg-green-500/10 border border-green-500/20 text-green-400 text-[10px] font-bold uppercase tracking-wide">
+        <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+        Connected
+      </div>
+    );
+  }
+
+  return (
+    <button
+      onClick={handleConnect}
+      disabled={loading}
+      className="mt-2 w-full flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-500 text-white text-[10px] font-bold uppercase py-1.5 rounded-md transition-colors shadow-lg shadow-blue-900/20"
+    >
+      {loading ? 'Connecting...' : 'Connect FactSet'}
+    </button>
   );
 };

@@ -1,0 +1,161 @@
+[
+  {
+    "name": "get_current_datetime",
+    "description": "Returns the current date and time in ISO format, plus smart relative dates.\n    Useful for 'yesterday', 'last quarter', 'last year' logic.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "query": {
+          "type": "string",
+          "description": "Parameter query"
+        }
+      },
+      "required": []
+    }
+  },
+  {
+    "name": "google_search",
+    "description": "Performs a live Google Search for detailed world knowledge, news, or recent events.\n    Use this for: \"Who is CEO of X?\", \"Recent news about Y\", \"What does Z do?\".\n    Do NOT use for stock prices unless FactSet fails.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "query": {
+          "type": "string",
+          "description": "Parameter query"
+        }
+      },
+      "required": [
+        "query"
+      ]
+    }
+  },
+  {
+    "name": "plot_financial_data",
+    "description": "PLOTS a custom chart on the dashboard. \n    Call this whenever the user asks for a visualization or when you retrieve time-series data (prices, revenue execution) that is best shown as a chart.\n    Args:\n        title: Chart title (e.g. 'Apple Stock Price 1Y').\n        chart_type: 'line' (time series), 'bar' (categories/comparison), 'pie' (segments).\n        data_json: JSON string representation of the data.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string",
+          "description": "Parameter title"
+        },
+        "chart_type": {
+          "type": "string",
+          "description": "Parameter chart_type"
+        },
+        "data_json": {
+          "type": "string",
+          "description": "Parameter data_json"
+        }
+      },
+      "required": [
+        "title",
+        "chart_type",
+        "data_json"
+      ]
+    }
+  },
+  {
+    "name": "analyze_pdf_url",
+    "description": "Downloads a PDF from a URL and analyzes it using Gemini's multimodal capabilities.\n    Use this when you need to read a specific PDF document (e.g. Earnings Report, 10-K) to answer a question.\n    Args:\n        url: The direct URL to the PDF.\n        query: Specific question to answer from the PDF.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "url": {
+          "type": "string",
+          "description": "Parameter url"
+        },
+        "query": {
+          "type": "string",
+          "description": "Parameter query"
+        }
+      },
+      "required": [
+        "url"
+      ]
+    }
+  },
+  {
+    "name": "FactSet_Prices",
+    "description": "Fetches stock prices for a given ticker or list of tickers. Use this for single-point price checks.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "ids": {
+           "type": "array",
+           "items": {"type": "string"},
+           "description": "List of ticker symbols (e.g. ['AAPL-US', 'MSFT-US'])"
+        },
+        "ticker": {
+           "type": "string",
+           "description": "Single ticker symbol (legacy support)"
+        }
+      },
+      "required": ["ids"]
+    }
+  },
+  {
+    "name": "factset_global_prices",
+    "description": "Fetches historical pricing data. Use for trends, charts, and history.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "ids": {
+           "type": "array", 
+           "items": {"type": "string"},
+           "description": "List of tickers"
+        },
+        "startDate": {
+           "type": "string",
+           "description": "Start date in YYYY-MM-DD format"
+        },
+        "endDate": {
+           "type": "string",
+           "description": "End date in YYYY-MM-DD format"
+        },
+        "frequency": {
+           "type": "string", 
+           "enum": ["D", "W", "M", "AY", "AQ"],
+           "description": "Frequency: D (Daily), W (Weekly), M (Monthly), AY (Annual), AQ (Quarterly)"
+        }
+      },
+      "required": ["ids", "startDate"]
+    }
+  },
+  {
+    "name": "factset_fundamentals",
+    "description": "Fetches fundamental financial metrics (Sales, EPS, P/E, etc).",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "ids": {
+           "type": "array",
+           "items": {"type": "string"},
+           "description": "List of tickers"
+        },
+        "metrics": {
+           "type": "array",
+           "items": {"type": "string"},
+           "description": "List of metric IDs (e.g. ['FF_SALES', 'FF_EPS'])"
+        },
+        "fiscalPeriod": {
+            "type": "string",
+            "description": "Fiscal period (e.g. '2023', '2023FQ1')"
+        }
+      },
+      "required": ["ids", "metrics"]
+    }
+  },
+  {
+    "name": "factset_estimates",
+    "description": "Fetches consensus estimates for future periods.",
+    "parameters": {
+       "type": "object",
+       "properties": {
+          "ids": {"type": "array", "items": {"type": "string"}},
+          "metrics": {"type": "array", "items": {"type": "string"}}
+       },
+       "required": ["ids"]
+    }
+  }
+]

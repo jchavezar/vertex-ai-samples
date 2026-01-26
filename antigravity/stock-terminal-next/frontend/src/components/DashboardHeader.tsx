@@ -1,6 +1,7 @@
 import React from 'react';
 import { Share2, Download, Plus, Bell, ChevronDown, TrendingUp, TrendingDown, Sun, Moon } from 'lucide-react';
 import { useDashboardStore } from '../store/dashboardStore';
+import { ModelSelector } from './ModelSelector';
 import clsx from 'clsx';
 
 export const DashboardHeader: React.FC = () => {
@@ -72,6 +73,9 @@ export const DashboardHeader: React.FC = () => {
       </div>
 
       <div className="ml-auto flex gap-2">
+        <div className="mr-4">
+          <ModelSelector />
+        </div>
         <button 
           onClick={toggleTheme}
           className="bg-blue-500/10 text-[var(--brand)] border border-blue-500/20 px-5 h-9 text-[10px] uppercase font-black tracking-wider flex items-center gap-2 rounded-full hover:bg-blue-500/20 transition-all"

@@ -19,7 +19,7 @@ class StockAgent:
     def __init__(self):
         if not USE_MOCK:
             self.client = genai.Client(api_key=os.getenv("GOOGLE_API_KEY"))
-            self.model_id = "gemini-2.0-flash-exp" # Or 1.5-flash / 3.0-pro-preview
+            self.model_id = "gemini-2.5-flash" # Or 1.5-flash / 3.0-pro-preview
         else:
             print("WARNING: No GOOGLE_API_KEY found. Running in MOCK mode.")
 
