@@ -29,6 +29,12 @@ from src.protocol import AIStreamProtocol
 from src.latency_logger import logger as llog
 from src.smart_agent import create_smart_agent
 from src.market_data import get_real_price, get_real_history
+from src.reasoning_agent import ReasoningAgent
+
+# Global Store for Reasoning (Simple Dict for InMemory)
+# session_id -> markdown string
+reasoning_store: Dict[str, str] = {}
+reasoning_agent_service = ReasoningAgent()
 
 # Load Env
 load_dotenv(dotenv_path="../.env")
@@ -41,7 +47,9 @@ app.add_middleware(
         "http://localhost:5173", 
         "http://localhost:8001",
         "http://127.0.0.1:5173", 
-        "http://127.0.0.1:8001"
+        "http://127.0.0.1:8001",
+        "http://localhost:3005",
+        "http://127.0.0.1:3005"
     ],
     allow_credentials=True,
     allow_methods=["*"],
@@ -268,8 +276,18 @@ class ChatRequest(BaseModel):
     sessionId: Optional[str] = "default_chat"
     model: Optional[str] = "gemini-3-flash-preview"
 
+@app.get("/session/{session_id}/reasoning")
+async def get_reasoning(session_id: str):
+    """Returns the latest reasoning narrative for the session."""
+    narrative = reasoning_store.get(session_id)
+    if not narrative:
+        return {"status": "pending", "narrative": None}
+    return {"status": "complete", "narrative": narrative}
+
+from fastapi import BackgroundTasks
+
 @app.post("/chat")
-async def chat_endpoint(req: ChatRequest):
+async def chat_endpoint(req: ChatRequest, background_tasks: BackgroundTasks):
     """
     Streaming Chat Endpoint using Smart Agent (ADK) + Vercel AI SDK Protocol.
     """
@@ -281,7 +299,7 @@ async def chat_endpoint(req: ChatRequest):
         user_query = last.get("content", "") if isinstance(last, dict) else str(last)
 
     model_name = req.model or "gemini-3-flash-preview"
-    print(f"!!! NEXT CHAT: {user_query[:50]}... [Model: {model_name}]")
+    # print(f"!!! NEXT CHAT: {user_query[:50]}... [Model: {model_name}]")
     
     # 1. Get Token (or None)
     token = await get_valid_factset_token(session_id)
@@ -304,11 +322,14 @@ async def chat_endpoint(req: ChatRequest):
     
     # 3. Stream Generator
     async def event_generator():
+        # print("DEBUG: event_generator STARTED", flush=True)
         runner = adk.Runner(app_name="stock_terminal", agent=agent, session_service=session_service)
         
         # Ensure session
         if not await session_service.get_session(session_id=session_id, app_name="stock_terminal", user_id="user_1"):
+             # print("DEBUG: Creating Session...", flush=True)
              await session_service.create_session(session_id=session_id, app_name="stock_terminal", user_id="user_1")
+        # print("DEBUG: Session Ready", flush=True)
 
         new_message = Content(role="user", parts=[Part(text=user_query)])
         
@@ -316,9 +337,24 @@ async def chat_endpoint(req: ChatRequest):
         active_tool_ids = {} # name -> list of pending IDs
 
         try:
+
+            # Trace Collector
+            execution_trace = []
+            
+            def log_trace(event_type, **kwargs):
+                execution_trace.append({
+                    "type": event_type, 
+                    "timestamp": time.time(),
+                    **kwargs
+                })
+
+            # Initial Trace
             # Initial Trace
             yield AIStreamProtocol.trace("Session Started", type="system_status", args={"model": model_name})
+            log_trace("system_status", content="Session Started")
+            
             yield AIStreamProtocol.trace("Model Thinking", type="system_status")
+            log_trace("system_status", content="Model Thinking")
 
             # ... (Topology generation omitted for brevity, assuming it's unchanged if not targetted) ... 
             # WAIT. I need to be careful not to delete topology logic if I don't include it. 
@@ -367,15 +403,15 @@ async def chat_endpoint(req: ChatRequest):
             runner_task = None
             
             async def run_driver():
-                print("DEBUG: run_driver START", flush=True)
+                # print("DEBUG: run_driver START", flush=True)
                 try:
                     count = 0
                     async for event in runner.run_async(user_id="user_1", session_id=session_id, new_message=new_message):
                         # Wrapper to put event into queue
                         count += 1
-                        print(f"DEBUG: ADK Event: {type(event)}", flush=True)
+                        # print(f"DEBUG: ADK Event: {type(event)}", flush=True)
                         await event_queue.put(("ADK_EVENT", event))
-                    print(f"DEBUG: run_driver FINISHED. Events: {count}", flush=True)
+                    # print(f"DEBUG: run_driver FINISHED. Events: {count}", flush=True)
                     await event_queue.put(("DONE", None))
                 except Exception as e:
                     import traceback
@@ -383,7 +419,9 @@ async def chat_endpoint(req: ChatRequest):
                     print(f"Runner Task Error: {e}", flush=True)
                     await event_queue.put(("ERROR", str(e)))
 
+            print("DEBUG: Creating Driver Task...", flush=True)
             runner_task = asyncio.create_task(run_driver())
+            print("DEBUG: Driver Task Created", flush=True)
 
             # CONSUME QUEUE
             while True:
@@ -427,11 +465,13 @@ async def chat_endpoint(req: ChatRequest):
                                      
                                      # Track ID
                                      if call.name not in active_tool_ids: active_tool_ids[call.name] = []
-                                     active_tool_ids[call.name].append(tid)
+                                     # Store (tid, start_time)
+                                     active_tool_ids[call.name].append((tid, time.time()))
                                      
                                      yield AIStreamProtocol.tool_call(tid, call.name, args)
                                      # Emit Trace for visibility
                                      yield AIStreamProtocol.trace(f"Executing: {call.name}", tool=call.name, args=args, type="tool_call")
+                                     log_trace("tool_call", name=call.name, args=args)
                         
                         # Text Content with Chart Parsing AND Function Response Detection
                         if event.content and event.content.parts:
@@ -445,13 +485,53 @@ async def chat_endpoint(req: ChatRequest):
                                     
                                     # Match ID
                                     tid = None
+                                    duration = None
                                     if r_name in active_tool_ids and active_tool_ids[r_name]:
-                                        tid = active_tool_ids[r_name].pop(0)
+                                        # Pop the oldest ID (FIFO)
+                                        # stored as dict: {tid: start_time}
+                                        # Wait, active_tool_ids was a list of IDs. I need to change it to store info.
+                                        # Let's change active_tool_ids structure in the Tool Call block first.
+                                        # But I can't change it there easily in this ReplaceBlock.
+                                        # Wait, I can assume I'll change the other block too.
+                                        
+                                        # Let's check how active_tool_ids is currently used:
+                                        # line 316: active_tool_ids = {} # name -> list of pending IDs
+                                        # line 430: active_tool_ids[call.name].append(tid)
+                                        
+                                        # I'll change it to store (tid, start_time) tuples in the list.
+                                        
+                                        call_info = active_tool_ids[r_name].pop(0)
+                                        if isinstance(call_info, tuple):
+                                            tid, start_time = call_info
+                                            duration = time.time() - start_time
+                                        else:
+                                            # Fallback if I missed a spot or legacy
+                                            tid = call_info
+                                            duration = 0.0
                                     else:
                                         # Fallback or orphan
                                         tid = f"orphan_{time.time()}"
+                                        duration = 0.0
+                                    
+                                    # Send Tool Result with Duration (Injecting into payload if protocol supports it)
+                                    # The protocol.tool_result signature is (call_id, tool_name, result).
+                                    # I should overload 'result' or modify protocol? 
+                                    # Actually, let's just send a separate Trace event for Latency optimization if Protocol is strict.
+                                    # But user wants it on the graph. The graph listens to... what?
+                                    # The graph likely listens to metrics or I can send `2: data` event with metrics.
                                     
                                     yield AIStreamProtocol.tool_result(tid, r_name, r_content)
+                                    
+                                    # Yield Latency Metric explicitly
+                                    if duration is not None:
+                                        yield AIStreamProtocol.data({
+                                            "type": "latency",
+                                            "tool": r_name,
+                                            "duration": duration,
+                                            "timestamp": time.time()
+                                        })
+                                        log_trace("latency", tool=r_name, duration=duration)
+                                        log_trace("tool_result", name=r_name, result=r_content)
                                     continue # Skip text processing for this part
 
                                 # 2. Text Processing
@@ -501,17 +581,36 @@ async def chat_endpoint(req: ChatRequest):
 
             if buffer: yield AIStreamProtocol.text(buffer)
             yield AIStreamProtocol.trace("Agent finished", type="system")
+            log_trace("system_status", content="Agent finished")
+            
+
+            
                 
         except Exception as e:
             l = llog
             print(f"Stream Error: {e}")
             yield AIStreamProtocol.error(str(e))
-
-    return StreamingResponse(event_generator(), media_type="text/event-stream")
+        finally:
+            # TRIGGER BACKGROUND ANALYSIS (Robust)
+            if execution_trace:
+                 async def run_reasoning_job(trace, sid):
+                     print(f"Starting Reasoning Analysis for {sid}...", flush=True)
+                     try:
+                         narrative = await reasoning_agent_service.analyze_execution(trace)
+                         reasoning_store[sid] = narrative
+                         print(f"Reasoning Analysis Complete for {sid}", flush=True)
+                     except Exception as e:
+                         print(f"Reasoning Job Failed: {e}", flush=True)
+                 
+                 asyncio.create_task(run_reasoning_job(execution_trace, session_id))
+                 pass
+            
+    return StreamingResponse(event_generator(), media_type="application/x-ndjson")
 
 
 # --- SEARCH ENDPOINTS ---
 from src.vais import vais_client
+
 
 class SearchRequest(BaseModel):
     query: str
