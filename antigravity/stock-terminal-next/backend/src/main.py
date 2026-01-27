@@ -274,7 +274,7 @@ async def auth_callback(code: str, state: Optional[str] = None, error: Optional[
 class ChatRequest(BaseModel):
     messages: List[Dict[str, Any]]
     sessionId: Optional[str] = "default_chat"
-    model: Optional[str] = "gemini-3-flash-preview"
+    model: Optional[str] = "gemini-2.0-flash-exp"
 
 @app.get("/session/{session_id}/reasoning")
 async def get_reasoning(session_id: str):
@@ -298,8 +298,7 @@ async def chat_endpoint(req: ChatRequest, background_tasks: BackgroundTasks):
         last = req.messages[-1]
         user_query = last.get("content", "") if isinstance(last, dict) else str(last)
 
-    model_name = req.model or "gemini-3-flash-preview"
-    # print(f"!!! NEXT CHAT: {user_query[:50]}... [Model: {model_name}]")
+    model_name = req.model or "gemini-2.0-flash-exp"
     
     # 1. Get Token (or None)
     token = await get_valid_factset_token(session_id)
@@ -310,10 +309,21 @@ async def chat_endpoint(req: ChatRequest, background_tasks: BackgroundTasks):
     
     async def tool_observer(name, args, kwargs, result):
         try:
-            # Emit Trace Protocol (for visibility) ONLY
-            # We NO LONGER emit tool_result here because we cannot synchronize IDs with the main loop.
-            # The main loop will handle tool_result emission using function_response events.
+            # Emit Trace Protocol (for visibility)
             await event_queue.put(AIStreamProtocol.trace(f"Tool Result: {name}", tool=name, result=result, type="tool_result"))
+            
+            # PROACTIVE CHART EMISSION (Fix for Batch 3 Truncation)
+            if isinstance(result, str) and "[CHART]" in result and "[/CHART]" in result:
+                start = result.find("[CHART]")
+                end = result.find("[/CHART]") + 8
+                chart_block = result[start:end]
+                try:
+                    json_str = chart_block.replace("[CHART]", "").replace("[/CHART]", "")
+                    param_obj = json.loads(json_str)
+                    # Emit as a Protocol 2 (Data) event immediately
+                    await event_queue.put(AIStreamProtocol.data(param_obj))
+                except:
+                    pass
         except Exception as e:
             print(f"Queue Error: {e}")
 

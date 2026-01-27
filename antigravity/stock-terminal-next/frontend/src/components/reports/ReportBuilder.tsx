@@ -336,21 +336,33 @@ const PrimerTemplate: React.FC<{ data: ReportData }> = ({ data }) => {
 };
 
 const EarningsTemplate: React.FC<{ data: ReportData }> = ({ data }) => {
+  // Helper to extract display value from potential object structure
+  const getSurpriseVal = (val: any) => {
+    if (!val) return "N/A";
+    if (typeof val === 'object') {
+      // Handle { actual, estimate, surprise_percent }
+      const p = val.surprise_percent;
+      if (p !== undefined) return `${p > 0 ? '+' : ''}${p}%`;
+      return "N/A";
+    }
+    return val;
+  };
+
     return (
         <div className="p-8 flex flex-col h-full gap-6 font-sans text-xs">
           <div className="bg-blue-900 text-white p-6 rounded-lg text-center">
              <h1 className="text-3xl font-bold mb-2">Post Earnings Recap</h1>
-             <div className="text-xl opacity-80">{data.ticker} | Q4 2025</div>
+          <div className="text-xl opacity-80">{data.ticker} | {data['fiscal_period'] || "Q4 2024"}</div>
           </div>
           
           <div className="grid grid-cols-2 gap-4">
                <div className="p-6 bg-green-50 border border-green-200 rounded-lg text-center">
                    <div className="text-gray-500 uppercase tracking-wider font-bold text-[10px]">EPS Surprise</div>
-                   <div className="text-4xl font-black text-green-700 mt-2">{data.eps_surprise}</div>
+            <div className="text-4xl font-black text-green-700 mt-2">{getSurpriseVal(data.eps_surprise)}</div>
                </div>
                <div className="p-6 bg-blue-50 border border-blue-200 rounded-lg text-center">
                    <div className="text-gray-500 uppercase tracking-wider font-bold text-[10px]">Revenue Surprise</div>
-                   <div className="text-4xl font-black text-blue-700 mt-2">{data.revenue_surprise}</div>
+            <div className="text-4xl font-black text-blue-700 mt-2">{getSurpriseVal(data.revenue_surprise)}</div>
                </div>
           </div>
 
@@ -358,20 +370,28 @@ const EarningsTemplate: React.FC<{ data: ReportData }> = ({ data }) => {
 
           <div className="space-y-4">
               <h3 className="text-lg font-bold text-gray-800 border-l-4 border-blue-600 pl-3">Transcript Summary</h3>
-              <p className="leading-7 text-gray-700 text-sm">{data.transcript_summary || "No summary available."}</p>
+          <p className="leading-7 text-gray-700 text-sm whitespace-pre-wrap">{data.transcript_summary || "No summary available."}</p>
           </div>
           
            <div className="space-y-4">
               <h3 className="text-lg font-bold text-gray-800 border-l-4 border-purple-600 pl-3">Key Themes & Sentiment</h3>
               <div className="grid grid-cols-2 gap-4">
-                  {data.themes?.map((t: any, i: number) => (
+            {data.themes?.map((t: any, i: number) => {
+              // Handle both object and string formats
+              const topic = typeof t === 'string' ? t : t.topic;
+              const sentiment = typeof t === 'string' ? "Neutral" : t.sentiment;
+
+              return (
                       <div key={i} className="p-4 bg-gray-50 rounded-lg border border-gray-100">
-                          <div className="font-bold text-gray-900">{t.topic}</div>
-                          <div className={`mt-1 text-xs font-semibold px-2 py-0.5 rounded-full inline-block ${t.sentiment.includes("Bullish") ? "bg-green-100 text-green-700" : "bg-yellow-100 text-yellow-700"}`}>
-                            {t.sentiment}
-                          </div>
+                          <div className="font-bold text-gray-900">{topic}</div>
+                          {typeof t !== 'string' && (
+                            <div className={`mt-1 text-xs font-semibold px-2 py-0.5 rounded-full inline-block ${sentiment.includes("Bullish") ? "bg-green-100 text-green-700" : "bg-yellow-100 text-yellow-700"}`}>
+                              {sentiment}
+                            </div>
+                          )}
                       </div>
-                  ))}
+                    );
+                  })}
               </div>
           </div>
         </div>

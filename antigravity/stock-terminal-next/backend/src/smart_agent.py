@@ -194,6 +194,7 @@ Your mission is to provide accurate financial insights, real-time data, and inte
     - If you retrieve time-series data (prices, history) or segments (revenue by region), you **MUST** use `plot_financial_data` to visualize it.
     - **Trigger**: If user asks for "history", "trend", "performance", or "chart", you **MUST** call `plot_financial_data`.
     - Users love charts.
+    - **Data Efficiency**: When using `FactSet_GlobalPrices` for periods longer than 1 year, prefer Weekly (`W`) or Monthly (`M`) frequency to reduce data volume and avoid resource limits, unless Daily (`D`) is explicitly requested.
 
 5.  **Handling "Alphabet" / Ambiguity**:
     - "Alphabet" usually triggers a clarification between GOOGL (Class A) and GOOG (Class C).
@@ -255,7 +256,8 @@ class DelegatingTool(BaseTool):
         elif hasattr(target_tool, "input_schema"):
             self.input_schema = target_tool.input_schema
         else:
-            self.input_schema = {}
+            # Vertex AI requires parameters to be an OBJECT even if empty
+            self.input_schema = {"type": "object", "properties": {}}
 
     def _get_declaration(self):
         # Explicitly construct the declaration
@@ -371,10 +373,8 @@ class DelegatingTool(BaseTool):
 
 # --- FACTORY ---
 
-async def create_smart_agent(token: str, model_name: str = "gemini-3-flash-preview", tool_observer: Any = None) -> Agent:
-    """
-    Creates a Context-Aware Smart Agent using Gemini 3.0.
-    """
+async def create_smart_agent(token: str, model_name: str = "gemini-2.0-flash-exp", tool_observer: Any = None) -> Agent:
+    print(f"!!! CREATE SMART AGENT: model={model_name}, token_present={bool(token)}")
     
     # Load Schemas for Injection
     loaded_schemas = {}
@@ -455,39 +455,41 @@ async def create_smart_agent(token: str, model_name: str = "gemini-3-flash-previ
             mcp_tools = await create_mcp_toolset_for_token(token)
             
             if mcp_tools:
-                print(f"!!! SMART AGENT TOOLS FETCHED: {[t.name for t in mcp_tools]}", flush=True)
-                
                 safe_mcp_tools = []
                 for tool in mcp_tools:
-                    # STRICT FILTERING & RENAMING
-                    original_name = getattr(tool, 'name', '').lower()
+                    # SAFE NAME RETRIEVAL
+                    if hasattr(tool, 'name'):
+                        name_attr = tool.name
+                    elif hasattr(tool, '__name__'):
+                        name_attr = tool.__name__
+                    else:
+                        name_attr = "UNKNOWN_TOOL"
+                        
+                    original_name = name_attr.lower()
+                    original_name = name_attr.lower()
                     
                     if original_name.startswith("factset_"):
                         target_name = FACTSET_TOOL_MAPPING.get(original_name)
-                        if not target_name:
-                            # Try to match by suffix if exact match fails (e.g. casing differences)
-                            # But specifically remove "factset_prices" if it's not in the mapping.
-                            if original_name == "factset_prices":
-                                logger.info(f"Skipping unauthorized tool: {original_name}")
-                                continue
-                            
+                        if target_name:
+                             # Rename the tool safely
+                             try:
+                                 tool.name = target_name 
+                             except:
+                                 pass
+                             
+                             # Apply Wrapper (Schema Injection Happens Here)
+                             wrapped_tool = wrap_tool(tool)
+                             safe_mcp_tools.append(wrapped_tool)
+                             continue
+                        else:
+                            # Skip unknown FactSet tools to prevent LLM confusion
                             logger.info(f"Skipping unknown FactSet tool: {original_name}")
                             continue
-                            
-                        # Rename the tool
-                        tool.name = target_name
-                        logger.info(f"Renamed tool '{original_name}' -> '{target_name}'")
-                        
-                        # Apply Wrapper (Schema Injection Happens Here)
-                        wrapped_tool = wrap_tool(tool)
-                        safe_mcp_tools.append(wrapped_tool)
-
-                    else:
-                        # MCP tools are compatible with ADK Agent if they implement run_async or are callable.
-                        # We pass them directly to preserve schema and signature.
-                        logger.info(f"Adding MCP Tool direct: {tool.name}")
-                        wrapped_tool = wrap_tool(tool)
-                        safe_mcp_tools.append(wrapped_tool)
+                    
+                    # Also allow injected non-factset tools (e.g. google_search)
+                    logger.info(f"Adding non-FactSet Tool: {name_attr}")
+                    wrapped_tool = wrap_tool(tool)
+                    safe_mcp_tools.append(wrapped_tool)
                     
                 tools.extend(safe_mcp_tools)
 

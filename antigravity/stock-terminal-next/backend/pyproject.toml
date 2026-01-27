@@ -9,7 +9,17 @@ dependencies = [
     "pydantic>=2.6.0",
     "google-genai>=0.3.0",
     "python-dotenv>=1.0.0",
-    "httpx>=0.26.0"
+    "httpx>=0.26.0",
+    "httpx-sse",
+    "google-adk",
+    "anyio",
+    "colorama",
+    "mcp",
+    "requests",
+    "yfinance",
+    "h2",
+    "nest-asyncio",
+    "anthropic"
 ]
 
 [tool.setuptools]
