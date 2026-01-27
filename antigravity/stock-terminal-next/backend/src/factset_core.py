@@ -31,20 +31,20 @@ import mcp.types as mcp_types
 # SSE Client Patch (Robustness & Timeout)
 McpHttpClientFactory = mcp.client.sse.McpHttpClientFactory
 
-@asynccontextmanager
-async def custom_http_client_factory(
+def custom_http_client_factory(
     headers: dict[str, Any] | None = None,
     auth: httpx.Auth | None = None,
     timeout: httpx.Timeout | None = None,
-    http2: bool = False
+    http2: bool = True
 ):
-    # This factory is used by ADK defaults, but we override sse_client
-    # so we might use this logic inside our patch.
-    async with httpx.AsyncClient(
-        headers=headers, auth=auth, timeout=timeout, http2=True,
+    """
+    Fixed factory: return the AsyncClient instance directly.
+    The caller (mcp library) will manage the context since it is a context manager.
+    """
+    return httpx.AsyncClient(
+        headers=headers, auth=auth, timeout=timeout, http2=http2,
         follow_redirects=True
-    ) as client:
-        yield client
+    )
 
 # Apply nest_asyncio to allow nested loops if needed (common in MCP/AnyIO + Uvicorn)
 import nest_asyncio
@@ -301,6 +301,10 @@ async def create_mcp_toolset_for_token(token: str) -> List[Any]:
         sys.stderr.write(f"DEBUG: Schema Patch Error: {e}\n")
 
     logger = logging.getLogger("uvicorn")
+
+    # Inject Local Google Search Tool
+    tools.append(google_search)
+    sys.stderr.write(f"DEBUG: Injected google_search. Total tools: {len(tools)}\n")
 
     return tools
 

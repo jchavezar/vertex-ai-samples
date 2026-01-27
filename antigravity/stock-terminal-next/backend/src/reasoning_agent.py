@@ -46,40 +46,46 @@ class ReasoningAgent:
         You are an expert Observability Agent. 
         Analyze the following execution trace of an AI Agent interacting with financial tools.
         
-        Generate a "Reasoning & Performance Narrative" in Markdown.
+        Generate a **"Reasoning & Performance Narrative"** in strict Markdown.
         
-        Trace:
+        **Trace Data**:
         {trace_text}
         
-        Requirements:
-        1. **Title**: "Execution Analysis"
-        2. **Timeline**: Break down the flow into 3-5 logical steps (e.g., "Initial Fetch", "Self-Correction", "Final Answer").
-           - Infer the "intent" of each step.
-           - Mention specific tools used.
-           - Note any self-correction (e.g., if a tool failed or returned partial data and the agent tried again).
-        3. **Latency Explanation**:
-           - If there are specific slow tools (latency > 1s), explain clearly: "The 'FactSet_GlobalPrices' tool took 1.2s to retrieve data."
-           - If the agent had to "think" or "correct" itself, mention that as "Cognitive Processing".
-        4. **Tone**: Professional, technical but accessible. Like a senior engineer explaining the logs to a user.
-        5. **No Hallucinations**: Only describe what happened in the trace.
+        **Output Requirements**:
+        1. **Title**: Start with `### Execution Analysis`
+        2. **Timeline Steps**: Break down the flow into 3-5 logical steps using **Bold Headers** (e.g., `#### 1. Initial Query`).
+           - Use **bullet points** for details within each step.
+           - Explicitly mention tool names in `code blocks`.
+        3. **Latency & cognitive Checks**:
+           - If a tool took >1s, add a bullet: `* ⚠️ Latency Alert: [Tool] took 1.2s`
+           - If self-correction occurred, add a bullet: `* 🔄 Self-Correction: [Logic]`
+        4. **Summary**: End with `### Summary` section (1-2 sentences).
         
-        Example Output Format:
+        **Style Guide**:
+        - Use clear paragraph breaks between sections.
+        - **Bold** key terms.
+        - Keep it cleaner and less dense than a raw log.
+        
+        **Example Format**:
         ### Execution Analysis
-        **1. Initial Query**
-        The agent identified the need for stock prices and called `FactSet_GlobalPrices`.
         
-        **2. Data Retrieval**
-        FactSet returned the data successfully in 1.2s.
+        #### 1. Initial Query & Strategy
+        * The agent received the query and identified the need for `FactSet_GlobalPrices`.
+        * It formulated a plan to fetch data for the last 1 year.
         
-        **Summary**
-        Effective execution with no retries.
+        #### 2. Data Retrieval
+        * Called `FactSet_GlobalPrices` with frequency `AQ`.
+        * ⚠️ **Latency Alert**: The tool took 1.5s to respond.
+        
+        ### Summary
+        The agent successfully retrieved the data despite slight network latency.
         """
 
         try:
             # Use a fast model
             agent = Agent(
                 name="reasoning_worker",
-                model="gemini-2.5-flash", 
+                model="gemini-2.0-flash-exp", 
                 instruction="You are a log analysis engine. Output valid Markdown.",
             )
             

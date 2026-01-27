@@ -85,7 +85,10 @@ const TraceLog: React.FC<TraceLogProps> = ({ logs = [], isMaximized = false, sel
                  </span>
                  {/* Show Model Tag on System Status */}
                  {log.type === 'system_status' && log.args?.model && (
-                    <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-blue-900/30 text-blue-300 border border-blue-800/50">
+                  <span className={`px-1.5 py-0.5 rounded text-[9px] font-bold border ${isDark
+                      ? "bg-blue-500/10 text-blue-400 border-blue-500/20"
+                      : "bg-blue-50 text-blue-700 border-blue-200"
+                    }`}>
                         {log.args.model}
                     </span>
                  )}

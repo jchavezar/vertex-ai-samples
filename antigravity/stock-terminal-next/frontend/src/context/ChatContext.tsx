@@ -29,6 +29,8 @@ interface ChatContextType {
   selectedModel: string;
   setSelectedModel: (model: string) => void;
   sessionId: string;
+  stop: () => void;
+  resetChat: () => void;
 }
 
 const ChatContext = createContext<ChatContextType | undefined>(undefined);
@@ -56,7 +58,7 @@ export function ChatProvider({ children }: { children: ReactNode }) {
   // Timer Ref
   const startTimeRef = useRef<number | null>(null);
 
-  const { messages, input, handleInputChange, handleSubmit: originalHandleSubmit, data, isLoading } = useChat({
+  const { messages, input, handleInputChange, handleSubmit: originalHandleSubmit, data, isLoading, stop, setMessages } = useChat({
     api: 'http://localhost:8001/chat',
     body: {
        model: selectedModel,
@@ -95,13 +97,28 @@ export function ChatProvider({ children }: { children: ReactNode }) {
     }
   }, [isLoading]);
 
-  // Wrap handleSubmit to capture start time explicitly
   const handleSubmit = (e: any) => {
       const now = Date.now();
       startTimeRef.current = now;
       setStartTime(now);
       setLastLatency(null); // Reset on new query
       originalHandleSubmit(e);
+  };
+
+  const resetChat = () => {
+    stop();
+    setMessages([]);
+    setTraceLogs([]);
+    setTopology(null);
+    setLastLatency(null);
+    setStartTime(null);
+    startTimeRef.current = null;
+
+    // Reset Store states
+    setExecutionPath([]);
+    setNodeDurations({});
+    setNodeMetrics({});
+    setActiveWidget(null);
   };
 
   // Basic Trace Log helper
@@ -261,7 +278,9 @@ export function ChatProvider({ children }: { children: ReactNode }) {
     startTime,
     selectedModel,
     setSelectedModel,
-    sessionId
+    sessionId,
+    stop,
+    resetChat
   };
 
   return (
