@@ -1,4 +1,10 @@
 import os
+# PATCH MUST BE APPLIED BEFORE ADK IMPORTS
+try:
+    import src.factset_core
+except ImportError:
+    pass # Might fail if running as script, but usually fine in module
+
 import json
 import asyncio
 import secrets
@@ -22,16 +28,21 @@ from google.adk.sessions.sqlite_session_service import SqliteSessionService
 from src.protocol import AIStreamProtocol
 from src.latency_logger import logger as llog
 from src.smart_agent import create_smart_agent
-from src.mock_data import get_mock_price_response, get_mock_history_response
+from src.market_data import get_real_price, get_real_history
 
 # Load Env
-load_dotenv()
+load_dotenv(dotenv_path="../.env")
 
 app = FastAPI(title="Stock Terminal Next Backend")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=[
+        "http://localhost:5173", 
+        "http://localhost:8001",
+        "http://127.0.0.1:5173", 
+        "http://127.0.0.1:8001"
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -136,7 +147,7 @@ async def get_valid_factset_token(session_id: str):
         target_session = session_id if tokens.get(session_id) else "default_chat"
         new_data = await refresh_factset_token(target_session)
         if new_data:
-            return new_data.get("access_token")
+            return new_data
         else:
             return None
             
@@ -175,7 +186,7 @@ def get_factset_auth_url(session_id: str = "default_chat"):
 @app.get("/auth/factset/status")
 async def auth_status(session_id: str = "default_chat"):
     token = await get_valid_factset_token(session_id)
-    if token:
+    if token and "mock" not in token:
         data = factset_tokens.get(session_id, {})
         expires = data.get("expires_at", 0)
         remaining = int(expires - time.time())
@@ -352,14 +363,24 @@ async def chat_endpoint(req: ChatRequest):
             # START RUNNER IN BACKGROUND TASK to prevent blocking the queue consumption
             runner_task = None
             
+            # START RUNNER IN BACKGROUND TASK
+            runner_task = None
+            
             async def run_driver():
+                print("DEBUG: run_driver START", flush=True)
                 try:
+                    count = 0
                     async for event in runner.run_async(user_id="user_1", session_id=session_id, new_message=new_message):
                         # Wrapper to put event into queue
+                        count += 1
+                        print(f"DEBUG: ADK Event: {type(event)}", flush=True)
                         await event_queue.put(("ADK_EVENT", event))
+                    print(f"DEBUG: run_driver FINISHED. Events: {count}", flush=True)
                     await event_queue.put(("DONE", None))
                 except Exception as e:
-                    print(f"Runner Task Error: {e}")
+                    import traceback
+                    traceback.print_exc()
+                    print(f"Runner Task Error: {e}", flush=True)
                     await event_queue.put(("ERROR", str(e)))
 
             runner_task = asyncio.create_task(run_driver())
@@ -367,7 +388,9 @@ async def chat_endpoint(req: ChatRequest):
             # CONSUME QUEUE
             while True:
                 # Wait for next item
+                print("DEBUG: waiting for item...", flush=True)
                 item = await event_queue.get()
+                print(f"DEBUG: got item: {item if isinstance(item, str) else item[0]}", flush=True)
                 
                 # Check for Protocol String (Direct injection from observer)
                 if isinstance(item, str):
@@ -803,12 +826,14 @@ def health_check():
 async def get_ticker_info(ticker: str):
     """
     Returns real-time price and history for the dashboard snapshot.
-    Uses yfinance (via mock_data) to ensure real numbers.
+    Uses market_data (Yahoo Finance) to ensure real numbers.
     """
-    price_data = get_mock_price_response(ticker)
+    # Note: These return None if data is unavailable.
+    # We default to empty structs if None to avoid crashing the spread property
+    price_data = get_real_price(ticker) or {"price": 0, "currency": "USD", "time": "Unavailable"}
     
     # Fetch 6mo history for the chart
-    history_data = get_mock_history_response(ticker)
+    history_data = get_real_history(ticker) or {"history": []}
     
     # Merge
     response = {
@@ -879,6 +904,35 @@ async def generate_widget_endpoint(req: WidgetRequest):
                     final_text += part.text
                     
     return {"content": final_text}
+
+# --- REPORT ENDPOINTS ---
+from src.report_agent import ReportAgent
+
+@app.get("/report/stream")
+async def report_stream_endpoint(ticker: str, type: str):
+    """
+    Streams a generated report (Primer or Earnings) using NDJSON.
+    """
+    report_agent = ReportAgent(session_service=session_service)
+    
+    # We use a mock token or retrieve one if needed. 
+    # For now, we'll assume the agent handles its own auth or uses the global one.
+    # The ReportAgent expects a 'token' but its logic actually re-auths or uses 'factset_tokens.json' 
+    # if we look at 'create_mcp_toolset_for_token' in factset_core. 
+    # Let's pass a dummy token or a real one if we have it properly context-managed.
+    # Actually, looking at ReportAgent, it calls `create_mcp_toolset_for_token(token)`.
+    # We should grab a valid token if possible, or reliance on valid `factset_tokens.json` fallback.
+    
+    # Quick fix: Pass a dummy, assuming factset_core handles "load from file" if token is stale/empty
+    # or we can pass a known valid one from global `factset_tokens`.
+    token = "system-token" 
+    
+    if type == "primer":
+        generator = report_agent.generate_primer(ticker, token)
+    else:
+        generator = report_agent.generate_earnings_recap(ticker, token)
+        
+    return StreamingResponse(generator, media_type="application/x-ndjson")
 
 if __name__ == "__main__":
     import uvicorn

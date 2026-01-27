@@ -1,0 +1,668 @@
+{
+  "_description": "FactSet MCP Tools Schema Reference - Use this to understand all valid parameter values for each tool",
+  "_generated": "2026-01-27",
+  "_purpose": "LLM reference for constructing valid MCP tool calls",
+
+  "tools": {
+    "FactSet_EstimatesConsensus": {
+      "description": "Analyst estimates, forecasts, consensus data, ratings, segments, guidance",
+      "required_params": ["ids", "estimate_type"],
+      "params": {
+        "ids": {
+          "type": "array|string",
+          "description": "Security identifiers (FactSet IDs, tickers, CUSIP, SEDOL, ISIN)",
+          "examples": ["AAPL-US", ["TSLA-US", "MSFT-US"]],
+          "max": 3000
+        },
+        "estimate_type": {
+          "type": "string",
+          "required": true,
+          "valid_values": [
+            "consensus_fixed",
+            "consensus_rolling",
+            "surprise",
+            "ratings",
+            "segments",
+            "guidance"
+          ],
+          "descriptions": {
+            "consensus_fixed": "Analyst forecasts for SPECIFIC fiscal periods (use fiscalPeriodStart/End)",
+            "consensus_rolling": "Analyst forecasts for RELATIVE periods (use relativeFiscalStart/End)",
+            "surprise": "Actual vs estimate comparison (beat/miss analysis)",
+            "ratings": "Analyst buy/hold/sell recommendations",
+            "segments": "Product/geographic segment estimates",
+            "guidance": "Company-provided guidance"
+          }
+        },
+        "metrics": {
+          "type": "array|string",
+          "description": "Estimate metrics WITHOUT FF_ prefix",
+          "examples": ["SALES", "EPS", "EBITDA", "PRICE_TGT", "NET_INC"],
+          "note": "Required for consensus/surprise/segments, NOT for ratings/guidance"
+        },
+        "fiscalPeriodStart": {
+          "type": "string|integer",
+          "description": "Fixed fiscal period start",
+          "format": "YYYY for annual, YYYY/FQ for quarterly (e.g., '2025', '2024/4F')",
+          "note": "Only for consensus_fixed, cannot mix with relativeFiscal"
+        },
+        "fiscalPeriodEnd": {
+          "type": "string|integer",
+          "description": "Fixed fiscal period end, must be >= start"
+        },
+        "relativeFiscalStart": {
+          "type": "integer",
+          "description": "Relative period start (1=next period, 2=period after)",
+          "note": "For consensus_rolling/segments/guidance"
+        },
+        "relativeFiscalEnd": {
+          "type": "integer",
+          "description": "Must be >= relativeFiscalStart"
+        },
+        "startDate": {
+          "type": "string",
+          "format": "YYYY-MM-DD",
+          "description": "Historical retrieval start (when to get estimates)"
+        },
+        "endDate": {
+          "type": "string",
+          "format": "YYYY-MM-DD"
+        },
+        "frequency": {
+          "type": "string",
+          "valid_values": ["D", "W", "AM", "AQ", "AY"],
+          "descriptions": {
+            "D": "Daily",
+            "W": "Weekly",
+            "AM": "Monthly (note: AM not M)",
+            "AQ": "Quarterly",
+            "AY": "Yearly"
+          }
+        },
+        "periodicity": {
+          "type": "string",
+          "valid_values": ["ANN", "QTR", "SEMI", "NTMA", "LTMA"],
+          "default": "ANN"
+        },
+        "currency": {
+          "type": "string",
+          "examples": ["USD", "EUR", "GBP", "ESTIMATE"]
+        },
+        "statistic": {
+          "type": "string",
+          "valid_values": ["MEAN", "MEDIAN", "HIGH", "LOW"],
+          "note": "SURPRISE only"
+        },
+        "segmentType": {
+          "type": "string",
+          "valid_values": ["BUS", "GEO"],
+          "note": "SEGMENTS only"
+        }
+      }
+    },
+
+    "FactSet_GlobalPrices": {
+      "description": "Stock prices, OHLCV data, returns, corporate actions, dividends, shares outstanding",
+      "required_params": ["ids", "data_type"],
+      "params": {
+        "ids": {
+          "type": "array|string",
+          "description": "Security identifiers (tickers, SEDOL, ISIN, CUSIP, FactSet IDs)",
+          "examples": ["AAPL-US", ["FDS-US", "MSFT-US"]],
+          "max": {
+            "prices_single_day": 500,
+            "prices_multi_day": 50,
+            "returns": 500,
+            "corporate_actions": 50,
+            "annualized_dividends": 50,
+            "shares_outstanding": 50
+          }
+        },
+        "data_type": {
+          "type": "string",
+          "required": true,
+          "valid_values": [
+            "prices",
+            "returns",
+            "corporate_actions",
+            "annualized_dividends",
+            "shares_outstanding"
+          ],
+          "descriptions": {
+            "prices": "End-of-day OHLCV pricing data",
+            "returns": "Total return, price return, dividend return calculations",
+            "corporate_actions": "Cash dividends, stock distributions, rights, spinoffs, splits",
+            "annualized_dividends": "Current indicated annualized dividend (IAD)",
+            "shares_outstanding": "Historical shares outstanding"
+          }
+        },
+        "startDate": {
+          "type": "string",
+          "format": "YYYY-MM-DD",
+          "required_for": ["prices", "returns"],
+          "optional_for": ["corporate_actions", "shares_outstanding"]
+        },
+        "endDate": {
+          "type": "string",
+          "format": "YYYY-MM-DD",
+          "required_for": ["returns"]
+        },
+        "frequency": {
+          "type": "string",
+          "valid_values": ["D", "AD", "W", "M", "AM", "AQ", "CQ", "ASA", "CSA", "AY", "CY"],
+          "default": "D"
+        },
+        "calendar": {
+          "type": "string",
+          "valid_values": ["FIVEDAY", "SEVENDAY", "US"],
+          "default": "FIVEDAY"
+        },
+        "currency": {
+          "type": "string",
+          "examples": ["USD", "EUR", "LOCAL"]
+        },
+        "adjust": {
+          "type": "string",
+          "valid_values": ["SPLIT", "SPLIT_SPINOFF", "DIV_SPIN_SPLITS", "UNSPLIT"],
+          "default": "SPLIT",
+          "note": "PRICES only"
+        },
+        "dividendAdjust": {
+          "type": "string",
+          "valid_values": ["PRICE", "EXDATE", "PAYDATE", "EXDATE_C", "PAYDATE_C"],
+          "default": "EXDATE_C",
+          "note": "RETURNS only"
+        },
+        "eventCategory": {
+          "type": "string",
+          "valid_values": ["CASH_DIVS", "STOCK_DIST", "RIGHTS", "SPINOFFS", "SPLITS", "ALL"],
+          "default": "ALL",
+          "note": "CORPORATE_ACTIONS only"
+        }
+      }
+    },
+
+    "FactSet_People": {
+      "description": "Executive and leadership information, jobs, compensation, company stats",
+      "required_params": ["data_type", "ids"],
+      "params": {
+        "data_type": {
+          "type": "string",
+          "required": true,
+          "valid_values": [
+            "profiles",
+            "jobs",
+            "company_people",
+            "company_positions",
+            "company_compensation",
+            "company_stats"
+          ],
+          "descriptions": {
+            "profiles": "Personal/professional profile for individuals (Person Entity IDs)",
+            "jobs": "Employment history and career progression (Person Entity IDs)",
+            "company_people": "Executive roster for companies (Company IDs)",
+            "company_positions": "Specific position holders (Company IDs) - use for 'Who is the CEO?'",
+            "company_compensation": "Executive pay analysis (US companies only)",
+            "company_stats": "Leadership statistics and demographics"
+          }
+        },
+        "ids": {
+          "type": "array|string",
+          "description": "Person Entity IDs (XXXXXX-E) for profiles/jobs, Company IDs for company_* endpoints",
+          "examples": {
+            "person": ["0DPHLH-E"],
+            "company": ["AAPL-US", "MSFT-US"]
+          }
+        },
+        "status": {
+          "type": "string",
+          "valid_values": ["ALL", "PRIMARY", "ACTIVE", "INACTIVE"],
+          "default": "ALL",
+          "note": "JOBS only"
+        },
+        "level": {
+          "type": "string",
+          "valid_values": ["DETAIL", "SUMMARY"],
+          "default": "DETAIL",
+          "note": "JOBS only"
+        },
+        "type": {
+          "type": "string",
+          "valid_values": ["ALL", "BRD", "EMP"],
+          "default": "ALL",
+          "note": "JOBS only"
+        },
+        "function": {
+          "type": "string",
+          "valid_values": ["PEOPLE", "OFFICER", "DIRECTOR"],
+          "default": "PEOPLE",
+          "note": "COMPANY_PEOPLE only"
+        },
+        "position": {
+          "type": "string",
+          "valid_values": ["CEO", "CFO", "COO", "CHAIR", "PRES", "CTO", "CIO", "FOU", "BRD", "IND"],
+          "default": "CEO",
+          "note": "COMPANY_POSITIONS only"
+        },
+        "mbType": {
+          "type": "string",
+          "valid_values": ["MB", "MGMT", "BRD"],
+          "default": "MB",
+          "descriptions": {
+            "MB": "Management & Board",
+            "MGMT": "Management only",
+            "BRD": "Board only"
+          },
+          "note": "COMPANY_STATS only"
+        }
+      }
+    },
+
+    "FactSet_Ownership": {
+      "description": "Fund holdings, security holders, insider/institutional transactions",
+      "required_params": ["data_type", "ids"],
+      "params": {
+        "data_type": {
+          "type": "string",
+          "required": true,
+          "valid_values": [
+            "fund_holdings",
+            "security_holders",
+            "insider_transactions",
+            "institutional_transactions"
+          ],
+          "descriptions": {
+            "fund_holdings": "Holdings data for mutual funds, ETFs (max 10 fund IDs)",
+            "security_holders": "Ownership data for securities (max 1 security ID)",
+            "insider_transactions": "Insider trading from SEC filings (requires startDate/endDate)",
+            "institutional_transactions": "Institutional position changes from 13F (requires startDate/endDate)"
+          }
+        },
+        "ids": {
+          "type": "array|string",
+          "max": {
+            "fund_holdings": 10,
+            "security_holders": 1,
+            "insider_transactions": 10,
+            "institutional_transactions": 10
+          }
+        },
+        "date": {
+          "type": "string",
+          "format": "YYYY-MM-DD",
+          "note": "FUND_HOLDINGS/SECURITY_HOLDERS only (optional, defaults to latest)"
+        },
+        "startDate": {
+          "type": "string",
+          "format": "YYYY-MM-DD",
+          "required_for": ["insider_transactions", "institutional_transactions"]
+        },
+        "endDate": {
+          "type": "string",
+          "format": "YYYY-MM-DD",
+          "required_for": ["insider_transactions", "institutional_transactions"]
+        },
+        "topn": {
+          "type": "string",
+          "examples": ["5", "10", "25", "ALL"],
+          "note": "FUND_HOLDINGS/SECURITY_HOLDERS only"
+        },
+        "assetType": {
+          "type": "string",
+          "valid_values": ["ALL", "EQ", "FI"],
+          "default": "EQ",
+          "note": "FUND_HOLDINGS only"
+        },
+        "holderType": {
+          "type": "string",
+          "valid_values": ["F", "M", "S", "FS", "B"],
+          "descriptions": {
+            "F": "Institutions",
+            "M": "Mutual funds",
+            "S": "Insiders",
+            "FS": "Institutions + Insiders",
+            "B": "Beneficial owners"
+          },
+          "note": "SECURITY_HOLDERS/INSTITUTIONAL_TRANSACTIONS only"
+        },
+        "transactionType": {
+          "type": "string",
+          "valid_values": ["A", "P", "S", "PS", "O", "M"],
+          "default": "A",
+          "descriptions": {
+            "A": "All",
+            "P": "Purchases",
+            "S": "Sales",
+            "PS": "Purchases + Sales",
+            "O": "Options",
+            "M": "Other"
+          },
+          "note": "INSIDER_TRANSACTIONS only"
+        },
+        "frequency": {
+          "type": "string",
+          "valid_values": ["M", "MTD", "CQ", "CQTD", "CY", "CYTD"],
+          "default": "M",
+          "note": "INSTITUTIONAL_TRANSACTIONS only"
+        },
+        "periodOfMeasure": {
+          "type": "string",
+          "valid_values": ["1M", "3M", "6M", "12M"],
+          "default": "6M",
+          "note": "INSTITUTIONAL_TRANSACTIONS only"
+        }
+      }
+    },
+
+    "FactSet_Fundamentals": {
+      "description": "Financial statements - income statement, balance sheet, cash flow, ratios",
+      "required_params": ["data_type", "ids", "metrics"],
+      "params": {
+        "data_type": {
+          "type": "string",
+          "required": true,
+          "valid_values": ["fundamentals"],
+          "note": "MUST be exactly 'fundamentals' (const value)"
+        },
+        "ids": {
+          "type": "array|string",
+          "max": 250,
+          "examples": ["AAPL-US", ["FDS-US", "IBM-US"]]
+        },
+        "metrics": {
+          "type": "array|string",
+          "required": true,
+          "description": "Use FF_* prefixed codes",
+          "examples": ["FF_SALES", "FF_NET_INC", "FF_ASSETS", "FF_EPS_BASIC"],
+          "common_metrics": {
+            "revenue": "FF_SALES",
+            "net_income": "FF_NET_INC",
+            "eps": "FF_EPS_BASIC",
+            "total_assets": "FF_ASSETS",
+            "total_liabilities": "FF_LIAB",
+            "shareholders_equity": "FF_SH_EQ",
+            "debt": "FF_DEBT",
+            "debt_to_equity": "FF_DEBT_EQ",
+            "roe": "FF_ROE",
+            "roa": "FF_ROA",
+            "cash": "FF_CCE_END"
+          },
+          "max": 1600
+        },
+        "fiscalPeriodStart": {
+          "type": "string",
+          "format": "YYYY-MM-DD",
+          "description": "Omit for most recent, or provide with fiscalPeriodEnd"
+        },
+        "fiscalPeriodEnd": {
+          "type": "string",
+          "format": "YYYY-MM-DD"
+        },
+        "periodicity": {
+          "type": "string",
+          "valid_values": ["ANN", "ANN_R", "QTR", "QTR_R", "SEMI", "SEMI_R", "LTM", "LTM_R", "LTMSG", "LTM_SEMI", "LTM_SEMI_R", "YTD"],
+          "default": "ANN",
+          "descriptions": {
+            "ANN": "Annual original",
+            "ANN_R": "Annual with restatements",
+            "QTR": "Quarterly original",
+            "QTR_R": "Quarterly with restatements",
+            "LTM": "Last twelve months"
+          }
+        },
+        "currency": {
+          "type": "string",
+          "examples": ["USD", "EUR", "LOCAL", "DOC"]
+        },
+        "updateType": {
+          "type": "string",
+          "valid_values": ["RP", "RF"],
+          "default": "RP",
+          "descriptions": {
+            "RP": "Preliminary (initial reports)",
+            "RF": "Final (audited reports)"
+          }
+        }
+      }
+    },
+
+    "FactSet_SupplyChain": {
+      "description": "Business relationships - competitors, customers, suppliers, partners",
+      "required_params": ["ids", "relationshipType"],
+      "params": {
+        "ids": {
+          "type": "array|string",
+          "max": 500,
+          "examples": ["AAPL-US", ["MSFT-US", "GOOGL-US"]]
+        },
+        "relationshipType": {
+          "type": "string",
+          "required": true,
+          "valid_values": ["COMPETITORS", "CUSTOMERS", "SUPPLIERS", "PARTNERS"],
+          "descriptions": {
+            "COMPETITORS": "Companies disclosed as competitors",
+            "CUSTOMERS": "Companies that purchase from source company",
+            "SUPPLIERS": "Companies that provide goods/services to source",
+            "PARTNERS": "Strategic relationships including JVs"
+          }
+        },
+        "companyType": {
+          "type": "string",
+          "valid_values": ["PUBLIC_COMPANIES_ONLY", "PRIVATE_COMPANIES_ONLY", "ALL"],
+          "default": "PUBLIC_COMPANIES_ONLY"
+        },
+        "relationshipDirection": {
+          "type": "string",
+          "valid_values": ["ALL", "DIRECT", "REVERSE"],
+          "default": "ALL",
+          "descriptions": {
+            "ALL": "Both directions",
+            "DIRECT": "Source company disclosed the relationship",
+            "REVERSE": "Target company disclosed the relationship"
+          }
+        }
+      }
+    },
+
+    "FactSet_MergersAcquisitions": {
+      "description": "M&A transactions - deals by company, public targets, deal details",
+      "required_params": ["data_type"],
+      "params": {
+        "data_type": {
+          "type": "string",
+          "required": true,
+          "valid_values": ["deals_by_company", "public_targets", "deal_details"],
+          "descriptions": {
+            "deals_by_company": "Deals where specified companies are involved (max 500 company IDs)",
+            "public_targets": "Deals where target is publicly traded",
+            "deal_details": "Comprehensive details for specific deal IDs (max 100 deal IDs)"
+          }
+        },
+        "ids": {
+          "type": "array|string",
+          "required_for": ["deals_by_company", "deal_details"],
+          "note": "Company IDs for deals_by_company, Deal IDs for deal_details"
+        },
+        "startDate": {
+          "type": "string",
+          "format": "YYYY-MM-DD",
+          "note": "Max 1 year (365 days) span with endDate"
+        },
+        "endDate": {
+          "type": "string",
+          "format": "YYYY-MM-DD"
+        },
+        "status": {
+          "type": "string",
+          "valid_values": ["All", "Pending", "Complete"],
+          "required_for": ["public_targets"]
+        }
+      }
+    },
+
+    "FactSet_Metrics": {
+      "description": "Semantic search for financial metrics - discover metric codes before calling other APIs",
+      "required_params": ["text"],
+      "params": {
+        "text": {
+          "type": "array|string",
+          "required": true,
+          "description": "Search queries for metrics (use spaces, NOT hyphens)",
+          "examples": ["revenue", ["EBITDA", "debt to equity", "profit margin"]]
+        },
+        "target": {
+          "type": "string",
+          "valid_values": ["metric"],
+          "default": "metric"
+        },
+        "data_products": {
+          "type": "array|string",
+          "valid_values": ["fundamentals", "estimates"],
+          "descriptions": {
+            "fundamentals": "Returns FF_* prefixed codes",
+            "estimates": "Returns unprefixed codes"
+          }
+        },
+        "limit": {
+          "type": "integer",
+          "default": 20,
+          "description": "Max results per query"
+        }
+      }
+    },
+
+    "FactSet_GeoRev": {
+      "description": "Geographic revenue breakdown by regions or countries",
+      "required_params": ["data_type", "ids"],
+      "params": {
+        "data_type": {
+          "type": "string",
+          "required": true,
+          "valid_values": ["regions", "countries"],
+          "descriptions": {
+            "regions": "Revenue by Super-Regions, Regions, Areas",
+            "countries": "Revenue by individual countries"
+          }
+        },
+        "ids": {
+          "type": "array|string",
+          "max": 300,
+          "examples": ["AAPL-US"]
+        },
+        "regionIds": {
+          "type": "array|string",
+          "valid_values": {
+            "groups": ["SUPER_REGIONS", "REGIONS", "AREAS"],
+            "super_regions": {
+              "R1": "Africa and Middle East",
+              "R101": "Americas",
+              "R170": "Asia/Pacific",
+              "R274": "Europe"
+            }
+          },
+          "default": ["SUPER_REGIONS"],
+          "note": "REGIONS only"
+        },
+        "countryIds": {
+          "type": "array|string",
+          "examples": ["US", "CN", "JP", "DE", "GB", "ALL"],
+          "default": ["ALL"],
+          "note": "COUNTRIES only"
+        },
+        "startDate": {
+          "type": "string",
+          "format": "YYYY-MM-DD"
+        },
+        "endDate": {
+          "type": "string",
+          "format": "YYYY-MM-DD"
+        },
+        "frequency": {
+          "type": "string",
+          "valid_values": ["D", "W", "M", "AM", "CQ", "FQ", "AY", "CY", "FY"],
+          "default": "FY"
+        },
+        "currency": {
+          "type": "string",
+          "examples": ["USD", "EUR"]
+        }
+      }
+    },
+
+    "FactSet_CalendarEvents": {
+      "description": "Corporate event calendar - earnings calls, conferences, dividends, splits",
+      "required_params": ["symbols", "universeType", "eventTypes"],
+      "params": {
+        "symbols": {
+          "type": "array|string",
+          "required": true,
+          "examples": ["AAPL-US", ["MSFT-US", "GOOGL-US"]]
+        },
+        "universeType": {
+          "type": "string",
+          "required": true,
+          "valid_values": ["Tickers", "Index", "Etf", "AllCompanies"]
+        },
+        "eventTypes": {
+          "type": "array|string",
+          "required": true,
+          "valid_values": [
+            "Earnings",
+            "SalesRevenueCall",
+            "SalesRevenueRelease",
+            "GuidanceCall",
+            "AnalystsInvestorsMeeting",
+            "ShareholdersMeeting",
+            "SpecialSituation",
+            "Conference",
+            "ConfirmedEarningsRelease",
+            "ProjectedEarningsRelease",
+            "Split",
+            "Dividend"
+          ]
+        },
+        "startDateTime": {
+          "type": "string",
+          "format": "YYYY-MM-DDTHH:MM:SSZ",
+          "note": "Max 90-day span with endDateTime, cannot use with lastModifiedWithin"
+        },
+        "endDateTime": {
+          "type": "string",
+          "format": "YYYY-MM-DDTHH:MM:SSZ"
+        },
+        "lastModifiedWithin": {
+          "type": "string",
+          "valid_values": ["SixHours", "TwelveHours", "Today", "TwoDays", "OneWeek", "OneMonth"],
+          "note": "Cannot use with startDateTime/endDateTime"
+        }
+      }
+    }
+  },
+
+  "common_errors": {
+    "FactSet_Fundamentals": {
+      "issue": "'fundamentals' was expected",
+      "cause": "data_type must be exactly 'fundamentals' (const value)",
+      "fix": "data_type: 'fundamentals'"
+    },
+    "FactSet_Ownership": {
+      "issue": "'holders' is not one of [...]",
+      "cause": "Invalid data_type value",
+      "fix": "Use one of: fund_holdings, security_holders, insider_transactions, institutional_transactions"
+    }
+  },
+
+  "quick_reference": {
+    "data_type_values_by_tool": {
+      "FactSet_GlobalPrices": ["prices", "returns", "corporate_actions", "annualized_dividends", "shares_outstanding"],
+      "FactSet_People": ["profiles", "jobs", "company_people", "company_positions", "company_compensation", "company_stats"],
+      "FactSet_Ownership": ["fund_holdings", "security_holders", "insider_transactions", "institutional_transactions"],
+      "FactSet_Fundamentals": ["fundamentals"],
+      "FactSet_MergersAcquisitions": ["deals_by_company", "public_targets", "deal_details"],
+      "FactSet_GeoRev": ["regions", "countries"]
+    },
+    "estimate_type_values": ["consensus_fixed", "consensus_rolling", "surprise", "ratings", "segments", "guidance"],
+    "relationshipType_values": ["COMPETITORS", "CUSTOMERS", "SUPPLIERS", "PARTNERS"],
+    "eventTypes_values": ["Earnings", "Conference", "Dividend", "Split", "ShareholdersMeeting"]
+  }
+}
