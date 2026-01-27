@@ -5,7 +5,7 @@ import { ChevronDown, Sparkles, Check } from 'lucide-react';
 const MODELS = [
   { id: 'gemini-3-flash-preview', name: 'Gemini 3.0 Flash (Global)', tag: 'FASTEST' },
   { id: 'gemini-3-pro-preview', name: 'Gemini 3.0 Pro (Global)', tag: 'SMARTEST' },
-  { id: 'claude-3-5-sonnet-v2@20241022', name: 'Claude 3.5 Sonnet v2', tag: 'ANTHROPIC' },
+  { id: 'claude-3-5-sonnet-v2', name: 'Claude 3.5 Sonnet v2', tag: 'ANTHROPIC' },
   { id: 'gemini-2.5-flash', name: 'Gemini 2.5 Flash', tag: 'STABLE' },
   { id: 'gemini-2.5-flash-lite', name: 'Gemini 2.5 Flash-Lite', tag: 'EFFICIENT' },
   { id: 'gemini-2.5-pro', name: 'Gemini 2.5 Pro', tag: 'BALANCED' },

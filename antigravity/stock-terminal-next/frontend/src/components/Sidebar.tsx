@@ -26,6 +26,8 @@ export const Sidebar: React.FC = () => {
   const handleItemClick = (label: string) => {
     if (label === 'Advanced Search') {
       setCurrentView('advanced_search');
+    } else if (label === 'Reports Generator') {
+      setCurrentView('report_generator');
     } else {
       setCurrentView('dashboard');
       setActiveView(label);
@@ -94,7 +96,9 @@ export const Sidebar: React.FC = () => {
               key={idx}
               className={clsx(
                 "flex items-center px-4 py-2 mx-3 cursor-pointer gap-3 rounded-full transition-all text-sm",
-                (currentView === 'advanced_search' && item.label === 'Advanced Search') || (currentView === 'dashboard' && activeView === item.label)
+                (currentView === 'advanced_search' && item.label === 'Advanced Search') ||
+                  (currentView === 'report_generator' && item.label === 'Reports Generator') ||
+                  (currentView === 'dashboard' && activeView === item.label)
                   ? "text-[var(--brand)] bg-blue-500/10 font-bold shadow-lg"
                   : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-white/5 hover:translate-x-1"
               )}

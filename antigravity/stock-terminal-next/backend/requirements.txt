@@ -12,3 +12,4 @@ colorama
 mcp
 requests
 yfinance
+h2

@@ -14,24 +14,8 @@
     }
   },
   {
-    "name": "google_search",
-    "description": "Performs a live Google Search for detailed world knowledge, news, or recent events.\n    Use this for: \"Who is CEO of X?\", \"Recent news about Y\", \"What does Z do?\".\n    Do NOT use for stock prices unless FactSet fails.",
-    "parameters": {
-      "type": "object",
-      "properties": {
-        "query": {
-          "type": "string",
-          "description": "Parameter query"
-        }
-      },
-      "required": [
-        "query"
-      ]
-    }
-  },
-  {
     "name": "plot_financial_data",
-    "description": "PLOTS a custom chart on the dashboard. \n    Call this whenever the user asks for a visualization or when you retrieve time-series data (prices, revenue execution) that is best shown as a chart.\n    Args:\n        title: Chart title (e.g. 'Apple Stock Price 1Y').\n        chart_type: 'line' (time series), 'bar' (categories/comparison), 'pie' (segments).\n        data_json: JSON string representation of the data.",
+    "description": "PLOTS a custom chart on the dashboard. \n    Call this whenever the user asks for a visualization or when you retrieve time-series data (prices, revenue execution) that is best shown as a chart.\n    Args:\n        title: Chart title (e.g. 'Apple Stock Price 1Y').\n        chart_type: 'line' (time series), 'bar' (categories/comparison), 'pie' (segments). \n        data_json: JSON string representation of the data.",
     "parameters": {
       "type": "object",
       "properties": {
@@ -76,34 +60,44 @@
     }
   },
   {
-    "name": "FactSet_Prices",
-    "description": "Fetches stock prices for a given ticker or list of tickers. Use this for single-point price checks.",
+    "name": "get_market_sentiment",
+    "description": "Returns a custom qualitative sentiment analysis for a ticker (Demo Custom Tool).",
     "parameters": {
       "type": "object",
       "properties": {
-        "ids": {
-           "type": "array",
-           "items": {"type": "string"},
-           "description": "List of ticker symbols (e.g. ['AAPL-US', 'MSFT-US'])"
-        },
         "ticker": {
-           "type": "string",
-           "description": "Single ticker symbol (legacy support)"
+          "type": "string",
+          "description": "Ticker symbol"
         }
       },
-      "required": ["ids"]
+      "required": [
+        "ticker"
+      ]
     }
   },
   {
-    "name": "factset_global_prices",
+    "name": "FactSet_GlobalPrices",
     "description": "Fetches historical pricing data. Use for trends, charts, and history.",
     "parameters": {
       "type": "object",
       "properties": {
         "ids": {
-           "type": "array", 
-           "items": {"type": "string"},
-           "description": "List of tickers"
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "List of security identifiers (Market Tickers, SEDOL, ISIN, CUSIP). Examples: ['AAPL-US']"
+        },
+        "data_type": {
+          "type": "string",
+          "enum": [
+            "prices",
+            "returns",
+            "corporate_actions",
+            "annualized_dividends",
+            "shares_outstanding"
+          ],
+          "description": "Type of pricing data to retrieve."
         },
         "startDate": {
            "type": "string",
@@ -123,7 +117,7 @@
     }
   },
   {
-    "name": "factset_fundamentals",
+    "name": "FactSet_Fundamentals",
     "description": "Fetches fundamental financial metrics (Sales, EPS, P/E, etc).",
     "parameters": {
       "type": "object",
@@ -138,24 +132,344 @@
            "items": {"type": "string"},
            "description": "List of metric IDs (e.g. ['FF_SALES', 'FF_EPS'])"
         },
-        "fiscalPeriod": {
+        "data_type": {
             "type": "string",
-            "description": "Fiscal period (e.g. '2023', '2023FQ1')"
+            "enum": [
+              "fundamentals"
+            ],
+            "default": "fundamentals"
+          },
+          "fiscalPeriodStart": {
+            "type": "string",
+            "description": "Start date in YYYY-MM-DD format"
+          },
+          "fiscalPeriodEnd": {
+            "type": "string",
+            "description": "End date in YYYY-MM-DD format"
+          },
+          "periodicity": {
+            "type": "string",
+            "enum": [
+              "ANN",
+              "QTR",
+              "LTM",
+              "YTD"
+            ],
+            "description": "Reporting frequency"
         }
       },
       "required": ["ids", "metrics"]
     }
   },
   {
-    "name": "factset_estimates",
+    "name": "FactSet_EstimatesConsensus",
     "description": "Fetches consensus estimates for future periods.",
     "parameters": {
        "type": "object",
        "properties": {
           "ids": {"type": "array", "items": {"type": "string"}},
-          "metrics": {"type": "array", "items": {"type": "string"}}
-       },
-       "required": ["ids"]
-    }
+          "metrics": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "estimate_type": {
+            "type": "string",
+            "enum": [
+              "consensus_fixed",
+              "consensus_rolling",
+              "surprise",
+              "ratings",
+              "segments",
+              "guidance"
+            ]
+          },
+          "fiscalPeriodStart": {
+            "type": "string"
+          },
+          "fiscalPeriodEnd": {
+            "type": "string"
+          },
+          "relativeFiscalStart": {
+            "type": "string"
+          },
+          "relativeFiscalEnd": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "ids",
+          "estimate_type"
+        ]
+      }
+    },
+    {
+      "name": "FactSet_Ownership",
+      "description": "Comprehensive holdings, holders, and transactions data.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "data_type": {
+            "type": "string",
+            "enum": [
+              "fund_holdings",
+              "security_holders",
+              "insider_transactions",
+              "institutional_transactions"
+            ]
+          },
+          "ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "List of identifiers"
+          },
+          "date": {
+            "type": "string"
+          },
+          "startDate": {
+            "type": "string"
+          },
+          "endDate": {
+            "type": "string"
+          },
+          "holderType": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "data_type",
+          "ids"
+        ]
+      }
+    },
+    {
+      "name": "FactSet_People",
+      "description": "Comprehensive executive and leadership data.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "data_type": {
+            "type": "string",
+            "enum": [
+              "profiles",
+              "jobs",
+              "company_people",
+              "company_positions",
+              "company_compensation",
+              "company_stats"
+            ]
+          },
+          "ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "List of identifiers"
+          },
+          "position": {
+            "type": "string"
+          },
+          "function": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "data_type",
+          "ids"
+        ]
+      }
+    },
+    {
+      "name": "FactSet_MergersAcquisitions",
+      "description": "Comprehensive M&A transaction data.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "data_type": {
+            "type": "string",
+            "enum": [
+              "deals_by_company",
+              "public_targets",
+              "deal_details"
+            ]
+          },
+          "ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "List of identifiers"
+          },
+          "startDate": {
+            "type": "string"
+          },
+          "endDate": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "data_type"
+        ]
+      }
+    },
+    {
+      "name": "FactSet_SupplyChain",
+      "description": "Comprehensive business relationship data (competitors, suppliers, customers).",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "List of identifiers"
+          },
+          "relationshipType": {
+            "type": "string",
+            "enum": [
+              "COMPETITORS",
+              "CUSTOMERS",
+              "SUPPLIERS",
+              "PARTNERS"
+            ]
+          },
+          "relationshipDirection": {
+            "type": "string",
+            "enum": [
+              "ALL",
+              "DIRECT",
+              "REVERSE"
+            ]
+          }
+        },
+        "required": [
+          "ids",
+          "relationshipType"
+        ]
+      }
+    },
+    {
+      "name": "FactSet_GeoRev",
+      "description": "Comprehensive geographic revenue exposure analysis.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "data_type": {
+            "type": "string",
+            "enum": [
+              "regions",
+              "countries"
+            ]
+          },
+          "ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "regionIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "countryIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "startDate": {
+            "type": "string"
+          },
+          "endDate": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "data_type",
+          "ids"
+        ]
+      }
+    },
+    {
+      "name": "FactSet_Metrics",
+      "description": "Vector Search Tool - Semantic search for financial metrics and categories.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "text": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "List of text queries"
+          },
+          "target": {
+            "type": "string",
+            "default": "metric"
+          },
+          "data_products": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "text"
+        ]
+      }
+    },
+    {
+      "name": "FactSet_CalendarEvents",
+      "description": "Comprehensive corporate calendar event data (Earnings, Conferences, etc).",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "symbols": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "universeType": {
+            "type": "string",
+            "enum": [
+              "Tickers",
+              "Index",
+              "Etf",
+              "AllCompanies"
+            ]
+          },
+          "eventTypes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "startDateTime": {
+            "type": "string"
+          },
+          "endDateTime": {
+            "type": "string"
+          },
+          "lastModifiedWithin": {
+            "type": "string"
+          }
+        },
+          "required": [
+            "symbols",
+            "universeType",
+            "eventTypes"
+          ]
+        }
   }
 ]

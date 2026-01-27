@@ -154,8 +154,22 @@ const AdvancedPanel: React.FC<AdvancedPanelProps> = ({ onDragStart }) => {
           <div className="min-w-0">
             <h2 className={clsx("text-sm font-bold truncate", isDark ? "text-[var(--text-primary)]" : "text-slate-800")}>Terminal</h2>
             <div className={clsx("flex items-center gap-1 text-[10px] shrink-0", isDark ? "text-[var(--text-muted)]" : "text-slate-500")}>
-              <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
-              Online
+              {isLoading ? (
+                <>
+                  <span className="w-1.5 h-1.5 rounded-full bg-[var(--brand)] animate-ping" />
+                  <span className="font-medium text-[var(--brand)]">Thinking... <ThinkingTimer startTime={startTime || Date.now()} /></span>
+                </>
+              ) : lastLatency ? (
+                <>
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                  <span>Done ({lastLatency}s)</span>
+                </>
+              ) : (
+                <>
+                      <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+                      Online
+                </>
+              )}
             </div>
           </div>
         </div>
@@ -416,7 +430,7 @@ const AdvancedPanel: React.FC<AdvancedPanelProps> = ({ onDragStart }) => {
 
         {/* TRACE TAB */}
         <div className={`absolute inset-0 bg-[var(--bg-app)] transition-opacity duration-300 overflow-y-auto ${activeTab === 'trace' ? 'opacity-100 z-10' : 'opacity-0 z-0 pointer-events-none'}`}>
-          <TraceLog logs={traceLogs} selectedModel={selectedModel} />
+          <TraceLog logs={traceLogs} selectedModel={selectedModel} isLoading={isLoading} />
         </div>
 
         {/* REPORTS TAB - REMOVED */}

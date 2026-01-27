@@ -8,7 +8,7 @@ from google.adk.agents import Agent
 from google.genai.types import Content, Part
 from google.adk import Runner
 from google.adk.sessions import InMemorySessionService
-from src.factset_core import create_mcp_toolset_for_token, google_search
+from src.factset_core import create_mcp_toolset_for_token
 
 logger = logging.getLogger("report_agent")
 
@@ -26,18 +26,33 @@ class ReportAgent:
         # 1. Setup Tools
         try:
             tools = await create_mcp_toolset_for_token(token)
-            # Add Google Search explicitly if not in toolset (it usually isn't in FactSet toolset)
-            # actually we can use the helper `google_search` function as a tool if wrapped, 
-            # or just call it directly in the worker tasks. 
-            # For the agents, we need to pass callable tools.
+            # Filter & Rename Tools
+            FACTSET_TOOL_MAPPING = {
+                "factset_fundamentals": "FactSet_Fundamentals",
+                "factset_estimates": "FactSet_EstimatesConsensus",
+                "factset_global_prices": "FactSet_GlobalPrices",
+                "factset_ownership": "FactSet_Ownership",
+                "factset_people": "FactSet_People",
+                "factset_mergers_acquisitions": "FactSet_MergersAcquisitions",
+                "factset_calendar_events": "FactSet_CalendarEvents",
+                "factset_supply_chain": "FactSet_SupplyChain",
+                "factset_georev": "FactSet_GeoRev",
+                "factset_metrics": "FactSet_Metrics",
+            }
             
-            # Let's wrap our helper google_search as a tool for the agent
-            async def search_tool(query: str):
-                """Search Google for qualitative information."""
-                return await google_search(query)
-                
-            # Combine tools
-            all_tools = tools + [search_tool]
+            safe_tools = []
+            if tools:
+                for t in tools:
+                    name = getattr(t, 'name', '').lower()
+                    if name == "factset_prices" or name == "google_search":
+                        continue
+                    if name in FACTSET_TOOL_MAPPING:
+                        t.name = FACTSET_TOOL_MAPPING[name]
+                        safe_tools.append(t)
+                    elif not name.startswith("factset_"):
+                        safe_tools.append(t)
+            
+            all_tools = safe_tools
             
         except Exception as e:
             logger.error(f"Failed to init tools: {e}")
@@ -71,7 +86,7 @@ class ReportAgent:
                 model="gemini-2.5-flash-lite",
                 instruction=(
                     f"Fetch quarterly Sales and EPS for {ticker} for the last 8 quarters. "
-                    "Use 'factset_fundamentals' or 'factset_estimates'. "
+                    "Use 'FactSet_Fundamentals' or 'FactSet_EstimatesConsensus'. "
                     "Return ONLY valid JSON: {'quarters': [...], 'revenue': [...], 'eps': [...]}. "
                     "Revenue should be in Billions if large."
                 ),
@@ -90,7 +105,7 @@ class ReportAgent:
                 model="gemini-2.5-flash-lite",
                 instruction=(
                     f"Get the Market Cap, Sector, Industry, and P/E Ratio for {ticker}. "
-                    "Use 'factset_global_prices' or 'google_search'. "
+                    "Use 'FactSet_GlobalPrices'. "
                     "Return JSON: {'market_cap': '...', 'sector': '...', 'industry': '...', 'pe_ratio': '...'}"
                 ),
                 tools=all_tools
@@ -107,7 +122,7 @@ class ReportAgent:
                     "Also get a 1-sentence business description. "
                     "Return JSON: {'description': '...', 'swot': {'Strengths': [], 'Weaknesses': [], 'Opportunities': [], 'Threats': []}}"
                 ),
-                tools=[search_tool]
+                tools=[] # Qualitative analysis only (no search)
             )
             return await self._run_single_task(swot_agent, f"Analyze SWOT for {ticker}")
 

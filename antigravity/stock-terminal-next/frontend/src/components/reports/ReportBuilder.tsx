@@ -1,3 +1,4 @@
+import React, { useState } from 'react';
 import { FileText, Play, CheckCircle2, Loader2, Printer } from 'lucide-react';
 
 interface ReportBuilderProps {
@@ -21,7 +22,7 @@ interface ReportData {
   themes?: any[];
 }
 
-const ReportBuilder: React.FC<ReportBuilderProps> = ({ onClose }) => {
+const ReportBuilder: React.FC<ReportBuilderProps> = () => {
   const [ticker, setTicker] = useState('NVDA');
   const [reportType, setReportType] = useState<'primer' | 'earnings'>('primer');
   const [isGenerating, setIsGenerating] = useState(false);
@@ -45,12 +46,17 @@ const ReportBuilder: React.FC<ReportBuilderProps> = ({ onClose }) => {
       const reader = response.body.getReader();
       const decoder = new TextDecoder();
 
+      let buffer = '';
+
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
 
-        const chunk = decoder.decode(value);
-        const lines = chunk.split('\n');
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split('\n');
+        // The last element is either an empty string (if ends in newline) or a partial line
+        // We keep it in the buffer for the next chunk
+        buffer = lines.pop() || '';
         
         for (const line of lines) {
           if (!line.trim()) continue;
@@ -119,6 +125,13 @@ const ReportBuilder: React.FC<ReportBuilderProps> = ({ onClose }) => {
                  </button>
               </div>
               
+            {error && (
+              <div className="p-3 bg-red-50 text-red-600 text-sm rounded-lg flex items-center gap-2 border border-red-100 animate-in slide-in-from-top-2">
+                <div className="w-2 h-2 rounded-full bg-red-500 shrink-0" />
+                {error}
+              </div>
+            )}
+
               <button 
                 onClick={startGeneration}
                 className="w-full py-4 bg-[var(--brand)] text-white rounded-xl font-bold text-lg hover:brightness-110 active:scale-[0.98] transition-all flex items-center justify-center gap-2 shadow-lg shadow-blue-500/20"

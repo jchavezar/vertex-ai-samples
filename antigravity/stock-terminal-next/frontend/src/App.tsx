@@ -7,6 +7,7 @@ import { useDashboardStore } from './store/dashboardStore';
 import clsx from 'clsx';
 import { AdvancedSearchView } from './components/search/AdvancedSearchView';
 import { GraphOverlay } from './components/chat/GraphOverlay';
+import ReportBuilder from './components/reports/ReportBuilder';
 
 import { ChatProvider } from './context/ChatContext';
 
@@ -107,7 +108,9 @@ export const App = () => {
           <DashboardHeader />
 
           <div className="flex-1 overflow-y-auto p-0 scrollbar-hide">
-            {currentView === 'advanced_search' ? <AdvancedSearchView /> : <DashboardView />}
+            {currentView === 'advanced_search' ? <AdvancedSearchView /> :
+              currentView === 'report_generator' ? <ReportBuilder /> :
+                <DashboardView />}
           </div>
 
           {/* Floating Chat Wrapper */}

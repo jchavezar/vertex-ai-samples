@@ -1,6 +1,7 @@
 import os
 import logging
 import datetime
+print("DEBUG: factset_core.py TOP-LEVEL LOADED", flush=True)
 import asyncio
 import time
 import socket
@@ -10,190 +11,126 @@ from contextlib import asynccontextmanager
 from typing import Any, List, Dict
 from urllib.parse import urljoin
 import secrets
+import json
 
 # Standard Logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("simple_factset_agent")
+# logging.getLogger("mcp").setLevel(logging.DEBUG) # Optional
 
 from src.latency_logger import logger as llog
 
-# ADK & MCP Imports
+# --- 1. CORE PATCHES (Transport Replacement) ---
+# We replace the standard SSE client with StreamableHTTP client (with underscore)
+# ensuring we use the HTTP/2 client we configure manually.
 import mcp.client.sse
-from httpx_sse import aconnect_sse
+from mcp.client.streamable_http import streamablehttp_client
+
 import mcp.types as mcp_types
 
-# Native Auth Imports (ADK v1.23.0+)
-from fastapi.openapi.models import HTTPBearer
+# SSE Client Patch (Robustness & Timeout)
+McpHttpClientFactory = mcp.client.sse.McpHttpClientFactory
+
+@asynccontextmanager
+async def custom_http_client_factory(
+    headers: dict[str, Any] | None = None,
+    auth: httpx.Auth | None = None,
+    timeout: httpx.Timeout | None = None,
+    http2: bool = False
+):
+    # This factory is used by ADK defaults, but we override sse_client
+    # so we might use this logic inside our patch.
+    async with httpx.AsyncClient(
+        headers=headers, auth=auth, timeout=timeout, http2=True,
+        follow_redirects=True
+    ) as client:
+        yield client
+
+# Apply nest_asyncio to allow nested loops if needed (common in MCP/AnyIO + Uvicorn)
+import nest_asyncio
+try:
+    nest_asyncio.apply()
+except:
+    pass
+
+@asynccontextmanager
+async def patched_streamable_client(
+    url: str,
+    headers: dict[str, Any] | None = None,
+    timeout: float = 300.0,
+    sse_read_timeout: float = 3600.0,
+    httpx_client_factory: McpHttpClientFactory = custom_http_client_factory,
+    auth: httpx.Auth | None = None,
+):
+    """
+    Patched client that uses streamable_http_client (underscore) with a manually 
+    created httpx client (HTTP/2, headers, etc.).
+    Adapts signature to match mcp.client.sse.sse_client.
+    """
+    logger.info(f"StreamableHTTP (Patched): Starting connection attempt to {url}")
+    
+    # 1. Inject Authentication / Headers
+    if hasattr(auth, "http") and hasattr(auth.http, "credentials"):
+         token = auth.http.credentials.token
+         if token:
+             if headers is None: headers = {}
+             headers["Authorization"] = f"Bearer {token}"
+             headers["x-custom-auth"] = token 
+             logger.info("StreamableHTTP: Injected x-custom-auth header")
+             auth = None # Handled key via headers
+    
+    # 2. Use streamable_http_client with our custom factory to ensure HTTP/2
+    # We DO NOT create the client here; we pass the factory.
+    logger.info("StreamableHTTP: entering streamable_http_client with custom factory...")
+    
+    try:
+        async with streamablehttp_client(
+            url=url, 
+            headers=headers,
+            timeout=timeout,
+            sse_read_timeout=sse_read_timeout,
+            httpx_client_factory=custom_http_client_factory, # Enforce HTTP/2 via factory
+            auth=auth,
+            terminate_on_close=True
+        ) as (read_stream, write_stream, get_session_id):
+            
+            sid = get_session_id()
+            logger.info(f"StreamableHTTP: Connected! Session ID: {sid}")
+            
+            yield read_stream, write_stream
+            
+            logger.info("StreamableHTTP: Session cleanup")
+    except Exception as inner_e:
+         logger.error(f"StreamableHTTP Inner Error: {inner_e}")
+         raise inner_e
+
+# Apply patch
+mcp.client.sse.sse_client = patched_streamable_client
+logger.info("Replaced mcp.client.sse.sse_client with patched_streamable_client (explicit client)")
+
+
+# --- 2. ADK IMPORTS (Must be AFTER patch) ---
+
 from google.adk.auth.auth_credential import AuthCredential, HttpCredentials, HttpAuth
 from google.adk.tools.mcp_tool.mcp_toolset import McpToolset
 from google.adk.tools.mcp_tool.mcp_session_manager import SseConnectionParams
 
-# Other ADK Imports
 from google.adk.agents import Agent
 from google.adk.tools import google_search as adk_google_search
 from google.genai import types
 import google.adk as adk
 from google.adk.sessions import InMemorySessionService
 
-# --- 1. CORE PATCHES (Network & Stability) ---
 
-# SSE Client Patch (Robustness & Timeout)
-create_mcp_http_client = mcp.client.sse.create_mcp_http_client
-McpHttpClientFactory = mcp.client.sse.McpHttpClientFactory
-SessionMessage = mcp.client.sse.SessionMessage
+# --- 3. CUSTOM TOOLS ---
 
-@asynccontextmanager
-async def patched_sse_client(
-    url: str,
-    headers: dict[str, Any] | None = None,
-    timeout: float = 300.0,
-    sse_read_timeout: float = 3600.0,
-    httpx_client_factory: McpHttpClientFactory = create_mcp_http_client,
-    auth: httpx.Auth | None = None,
-):
-    """Robust SSE client with retry logic and dynamic endpoint updates."""
-    read_stream_writer, read_stream = anyio.create_memory_object_stream(256)
-    write_stream, write_stream_reader = anyio.create_memory_object_stream(256)
-    
-    # Shared state for reader/writer
-    state = {"pending_msg": None, "endpoint_url": None, "active": True}
-
-    async def run_sse():
-        max_retries = 5
-        for attempt in range(max_retries):
-            try:
-                async with httpx_client_factory(
-                    headers=headers, auth=auth, timeout=httpx.Timeout(timeout, read=sse_read_timeout)
-                ) as client:
-                    async with aconnect_sse(client, "GET", url) as event_source:
-                        event_source.response.raise_for_status()
-                        
-                        # Use a condition to signal termination
-                        stop_event = asyncio.Event()
-
-                        async def sse_reader(task_status=anyio.TASK_STATUS_IGNORED):
-                            try:
-                                # Initial endpoint
-                                force_endpoint = "/content/v1/messages"
-                                state["endpoint_url"] = urljoin(url, force_endpoint)
-                                task_status.started()
-                                
-                                async for sse in event_source.aiter_sse():
-                                    if sse.event == "endpoint":
-                                        state["endpoint_url"] = urljoin(url, sse.data)
-                                        logger.debug(f"SSE updated endpoint: {state['endpoint_url']}")
-                                    elif sse.event == "message":
-                                        try:
-                                            message = mcp_types.JSONRPCMessage.model_validate_json(sse.data)
-                                            await read_stream_writer.send(SessionMessage(message))
-                                        except Exception as e: 
-                                            logger.error(f"Failed to parse JSONRPCMessage: {e}")
-                            except Exception as e:
-                                logger.warning(f"SSE Reader error: {e}")
-                            finally:
-                                stop_event.set()
-
-                        async def post_writer():
-                            try:
-                                logger.info("SSE: post_writer started")
-                                while not stop_event.is_set():
-                                    # 1. Get message from ADK
-                                    try:
-                                        with anyio.fail_after(1.0):
-                                            msg = await write_stream_reader.receive()
-                                            state["pending_msg"] = msg
-                                            logger.debug(f"SSE: Received message to SEND: {msg}")
-                                    except (anyio.EndOfStream, TimeoutError, asyncio.TimeoutError):
-                                        if stop_event.is_set(): break
-                                        continue
-                                    
-                                    # 2. Try to send to FactSet
-                                    if state["pending_msg"] and state["endpoint_url"]:
-                                        session_message = state["pending_msg"]
-                                        try:
-                                            logger.debug(f"SSE: Posting to {state['endpoint_url']}")
-                                            resp = await client.post(
-                                                state["endpoint_url"],
-                                                json=session_message.message.model_dump(by_alias=True, mode="json", exclude_none=True),
-                                                headers={"Accept": "application/json, text/event-stream"},
-                                                timeout=30.0
-                                            )
-                                            logger.debug(f"SSE: Post response {resp.status_code}")
-                                            # Handle combined POST responses
-                                            if "event: message" in resp.text:
-                                                for line in resp.text.split("\\n"):
-                                                    if line.startswith("data: "):
-                                                        try:
-                                                            data = line[6:].strip()
-                                                            message = mcp_types.JSONRPCMessage.model_validate_json(data)
-                                                            await read_stream_writer.send(SessionMessage(message))
-                                                            logger.debug("SSE: Injected response from POST into read stream")
-                                                        except: pass
-                                            state["pending_msg"] = None
-                                        except Exception as e:
-                                            logger.error(f"Failed to POST to MCP: {e}")
-                                            await asyncio.sleep(0.5)
-                            except Exception as e:
-                                logger.warning(f"Post writer error: {e}")
-                            finally:
-                                logger.info("SSE: post_writer exiting")
-                                stop_event.set()
-
-                        async with anyio.create_task_group() as tg:
-                            logger.info("SSE: Starting task group")
-                            await tg.start(sse_reader)
-                            tg.start_soon(post_writer)
-                            await stop_event.wait()
-                            logger.info("SSE: stop_event set, cancelling group")
-                            tg.cancel_scope.cancel()
-                
-                # If we were told to stop entirely, break the retry loop
-                if not state["active"]: break
-                logger.info(f"SSE Connection closed. Retrying (Attempt {attempt+1}/{max_retries})...")
-                await asyncio.sleep(1)
-            except Exception as e:
-                import traceback
-                traceback.print_exc()
-                logger.warning(f"SSE Connection failed: {e}. Retrying in 2s...")
-                await asyncio.sleep(2)
-        
-        await read_stream_writer.aclose()
-
-    bg_task = asyncio.create_task(run_sse())
-    try:
-        yield read_stream, write_stream
-    finally:
-        state["active"] = False
-        bg_task.cancel()
-        try:
-            await bg_task
-        except: pass
-        await read_stream_writer.aclose()
-        await write_stream.aclose()
-
-# Apply patch immediately
-mcp.client.sse.sse_client = patched_sse_client
-logger.info("mcp.client.sse.sse_client patched successfully for robustness and deadlock prevention.")
-
-# --- GLOBAL TOOLSET CACHE ---
-GLOBAL_TOOLSET_CACHE = {} # token -> toolset_instance
-
-# --- 2. CUSTOM TOOLS ---
+GLOBAL_TOOLSET_CACHE = {} 
 
 def get_current_datetime(query: str = "") -> str:
-    """
-    Returns the current date and time in ISO format, plus smart relative dates.
-    Useful for 'yesterday', 'last quarter', 'last year' logic.
-    Args:
-        query: Optional context like "last quarter" to get specific ranges.
-    """
     now = datetime.datetime.now()
     yesterday = now - datetime.timedelta(days=1)
-    
-    # "Last Quarter" approx (last 3 months)
     last_q_end = now
     last_q_start = now - datetime.timedelta(days=90)
-    
     return f"""
     Current Time: {now.isoformat()}
     Today: {now.strftime('%Y-%m-%d')} ({now.strftime('%A')})
@@ -203,24 +140,12 @@ def get_current_datetime(query: str = "") -> str:
     """
 
 async def plot_financial_data(title: str, chart_type: str, data_json: str) -> str:
-    """
-    Plots a custom chart on the dashboard.
-    Args:
-        title: Chart title.
-        chart_type: 'line', 'bar', or 'pie'.
-        data_json: JSON string with 'label'/'value' (pie/bar) or 'ticker'/'history' (line).
-    """
     return f"[CHART] {data_json} [/CHART] I've plotted the {title} as a {chart_type} chart."
 
 async def google_search(query: str) -> str:
-    """
-    Performs a web search for textual info, news, or general knowledge.
-    Use as FALLBACK for financial numbers if FactSet is unavailable or fails.
-    """
     print(f"[Search] {query}")
     llog.start(f"Search: {query[:20]}")
     try:
-        # Isolated agent for search to avoid context pollution
         search_agent = Agent(
             name="search_worker",
             model="gemini-3-flash-preview",
@@ -244,68 +169,159 @@ async def google_search(query: str) -> str:
     except Exception as e:
         return f"Search failed: {e}"
 
-# --- 3. INSTRUCTIONS ---
+# --- 4. INSTRUCTIONS ---
 
 SIMPLE_INSTRUCTIONS = """
 You are a Smart Financial Agent connected to FactSet. 
 Your goal is to answer financial queries accurately using your tools.
 
 ### TOOLS & USAGE
-1. **factset_global_prices**: For stock prices. 
+1. **FactSet_GlobalPrices**: For stock prices. 
    - **CRITICAL**: Use `frequency='AQ'` for Quarterly, `'AY'` for Yearly. Never `FQ/FY`.
    - Default to 1 year range if not specified.
-2. **factset_fundamentals**: For metrics like sales, eps, etc.
-   - If `factset_fundamentals` returns empty/null, IMMEDIATELY try `factset_estimates_consensus` which often has the latest actuals.
+2. **FactSet_Fundamentals**: For metrics like sales, eps, etc.
+   - If `FactSet_Fundamentals` returns empty/null, IMMEDIATELY try `FactSet_EstimatesConsensus` which often has the latest actuals.
     - For "Last 5 Years", calculate the years using `get_current_datetime` and set specific `fiscalYear` ranges.
-3. google_search: For news, events, people, qualitative info. 
-   - DO NOT use for specific numbers (Revenue, P/E) unless FactSet fails completely. (Mention fallback).
-4. get_current_datetime: Use this FIRST for any date-related query ("yesterday", "last quarter") to derive exact dates.
+3. **FactSet_EstimatesConsensus**: For analyst estimates, target prices, and ratings.
+4. **FactSet_Ownership**: For institutional holders and funds.
+5. **FactSet_People**: For leadership, board, and compensation.
+6. **FactSet_MergersAcquisitions**: For M&A deals.
+7. **FactSet_CalendarEvents**: For earnings calls.
+8. **FactSet_SupplyChain**: For customers/suppliers.
+9. **FactSet_GeoRev**: For geographic revenue exposure.
+10. get_current_datetime: Use this FIRST for any date-related query ("yesterday", "last quarter") to derive exact dates.
 
-### INTERACTIVITY & CLARIFICATION
-- If a query is AMBIGUOUS (e.g. "How is the market?", "Compare these"), and you don't have context:
-  - **MAKE AN ASSUMPTION**: Pick a relevant index (SP500) or sector leaders (AAPL, NVDA for tech).
-  - **ACT IMMEDIATELY**: Fetch data for your assumed targets and explain: "I'll look at the S&P 500 to give you a market overview."
-  - **AVOID CLARIFICATION**: Do not ask "Which companies?" unless the query is completely meaningless.
-  - **Goal**: Zero-friction. Just give the user data.
+### STRICT RULES
+1. **NO GOOGLE SEARCH**. You generally do not have internet search access. Use ONLY the FactSet tools provided.
+2. If a tool is missing or returns an error, use your internal knowledge or admit you cannot answer. DO NOT hallucinate a tool named "google_search".
+3. **Run Real-Time**: Always use `get_current_datetime` to get today's date for `endDate` params.
 
 ### CHARTING
 - If you retrieve a table of data (history, segments), ALWAYS output a [CHART] tag using plot_financial_data or standard tool chart capabilities if available.
 - Visuals are high priority.
-
-### FALLBACK PROTOCOL
-- If a tool fails (error or empty), try ONE alternative strategy (e.g. diff tool, diff params).
-- If that fails, tell the user clearly: "I could not retrieve this data from FactSet."
-- DO NOT hallucinate numbers.
 """.strip()
 
-# --- 4. FACTORY ---
+# --- 5. FACTORY ---
 
+async def create_mcp_toolset_for_token(token: str) -> List[Any]:
+    import sys
+    sys.stderr.write(f"DEBUG: create_mcp_toolset_for_token CALLED\n")
+    
+    if token in GLOBAL_TOOLSET_CACHE:
+         # return await GLOBAL_TOOLSET_CACHE[token].get_tools()
+         # force fresh for now for safety
+         pass 
+
+    # --- 1. Create Toolset (Restored Logic) ---
+    sys.stderr.write("DEBUG: creating http credentials...\n")
+    http_creds = HttpCredentials(token=token)
+    http_auth = HttpAuth(scheme="Bearer", credentials=http_creds)
+    credential = AuthCredential(authType="http", http=http_auth)
+
+    # Use BASE URL /content/v1 as per user examples for StreamableHTTP
+    conn_params = SseConnectionParams(
+        url="https://mcp.factset.com/content/v1",
+        headers={
+            "Accept": "text/event-stream",
+            "Authorization": f"Bearer {token}",
+            "x-custom-auth": token
+        },
+        timeout=60.0,
+        sse_read_timeout=900.0,
+        reconnection_time=2.0
+    )
+
+    sys.stderr.write("DEBUG: Instantiating McpToolset...\n")
+    toolset = McpToolset(
+        connection_params=conn_params,
+        auth_credential=credential
+    )
+    
+    # GLOBAL_TOOLSET_CACHE[token] = toolset # uncomment if caching desired
+
+    sys.stderr.write("DEBUG: Calling toolset.get_tools()...\n")
+    tools = await toolset.get_tools()
+    sys.stderr.write(f"DEBUG: MCP Server returned {len(tools)} tools\n")
+
+    # --- HARDCODED SCHEMA PATCH (SAFETY NET) ---
+    HARDCODED_ESTIMATES_SCHEMA = {
+      "type": "object",
+      "properties": {
+          "ids": {"type": "array", "items": {"type": "string"}},
+          "metrics": {"type": "array", "items": {"type": "string"}},
+          "estimate_type": {
+            "type": "string", 
+            "enum": ["consensus_fixed", "consensus_rolling", "surprise", "ratings", "segments", "guidance"]
+          },
+          "fiscalPeriodStart": {"type": "string"},
+          "fiscalPeriodEnd": {"type": "string"},
+          "relativeFiscalStart": {"type": "string"},
+          "relativeFiscalEnd": {"type": "string"}
+      },
+      "required": ["ids", "estimate_type"]
+    }
+
+    # --- SCHEMA OVERRIDE (LOAD FROM FILE) ---
+    schema_lookup = {}
+    try:
+        # Look in parent directory (backend root) for mcp_tools_schema.json
+        schema_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "mcp_tools_schema.json"))
+        if os.path.exists(schema_path):
+            with open(schema_path, "r") as f:
+                schemas = json.load(f)
+                for s in schemas:
+                    if "name" in s:
+                        norm_name = s["name"].lower().replace("-", "_")
+                        
+                        if "inputSchema" in s:
+                            final_schema = s["inputSchema"]
+                        elif "parameters" in s:
+                            final_schema = s["parameters"]
+                        else:
+                            continue 
+                            
+                        schema_lookup[norm_name] = final_schema
+                        schema_lookup[s["name"]] = final_schema
+                        
+                # --- ALIASES ---
+                if "factset_estimatesconsensus" in schema_lookup:
+                     schema_lookup["factset_estimates"] = schema_lookup["factset_estimatesconsensus"]
+                     sys.stderr.write("DEBUG: Aliased factset_estimates -> factset_estimatesconsensus\n")
+                
+                if "factset_globalprices" in schema_lookup:
+                    schema_lookup["factset_global_prices"] = schema_lookup["factset_globalprices"]
+                    
+            sys.stderr.write(f"DEBUG: Schema Patch Loaded {len(schemas)} schemas from {schema_path}\n")
+        else:
+            sys.stderr.write(f"DEBUG: Schema Patch File NOT FOUND at {schema_path}\n")
+    except Exception as e:
+        sys.stderr.write(f"DEBUG: Schema Patch Error: {e}\n")
+
+    logger = logging.getLogger("uvicorn")
+
+    return tools
+
+# --- 6. HEALTH CHECK ---
 async def check_factset_health(token: str) -> bool:
     """
     Pings FactSet MCP endpoint to verify connectivity.
-    Returns True if healthy (200 OK), False if redirect/auth error.
     """
     try:
-        url = "https://mcp.factset.com/content/v1/sse"
-        async with httpx.AsyncClient(timeout=10.0, http2=False) as client:
-            resp = await client.get(url, headers={"Authorization": f"Bearer {token}", "Accept": "text/event-stream"}, follow_redirects=True)
-            
-            if resp.status_code == 200:
-                logger.info(f"Health Check OK: {resp.status_code}")
+        url = "https://mcp.factset.com/content/v1"
+        # We need headers for health check too
+        headers = {
+            "Authorization": f"Bearer {token}",
+            "x-custom-auth": token,
+            "Accept": "text/event-stream"
+        }
+        async with httpx.AsyncClient(timeout=10.0, http2=True, verify=True, follow_redirects=True) as client:
+            resp = await client.post(url, headers=headers, json={"jsonrpc":"2.0","method":"ping","id":99})
+            # POST should return 200 or 202
+            if resp.status_code in [200, 202]:
                 return True
-            if resp.status_code in [301, 302, 303, 307, 308]:
-                logger.warning(f"FactSet Health Check: Redirect detected ({resp.status_code}). Auth likely failed.")
-                return False
-            if resp.status_code in [401, 403]:
-                logger.warning(f"FactSet Health Check: Auth error ({resp.status_code}).")
-                return False
-            
-            logger.warning(f"FactSet Health Check: Unexpected status {resp.status_code}")
+            logger.warning(f"Health Check Status: {resp.status_code}")
             return False
             
     except Exception as e:
         logger.warning(f"FactSet Health Check Failed: {repr(e)}")
         return False
-
-
-# End of Core Utilities

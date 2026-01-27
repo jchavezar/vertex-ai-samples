@@ -1,0 +1,349 @@
+[
+  {
+    "name": "get_current_datetime",
+    "description": "Returns the current date and time in ISO format, plus smart relative dates. Useful for 'yesterday', 'last quarter', 'last year' logic.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "query": {"type": "string", "description": "Optional query string"}
+      },
+      "required": []
+    }
+  },
+  {
+    "name": "google_search",
+    "description": "Performs a live Google Search for qualitative info (news, CEO names, company descriptions). Do NOT use for financial numbers - use FactSet tools instead.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "query": {"type": "string", "description": "Search query"}
+      },
+      "required": ["query"]
+    }
+  },
+  {
+    "name": "plot_financial_data",
+    "description": "Plots a chart on the dashboard. Use for time-series data (prices, revenue) or comparisons.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "title": {"type": "string", "description": "Chart title"},
+        "chart_type": {"type": "string", "enum": ["line", "bar", "pie"], "description": "Chart type"},
+        "data_json": {"type": "string", "description": "JSON string of data"}
+      },
+      "required": ["title", "chart_type", "data_json"]
+    }
+  },
+  {
+    "name": "FactSet_Fundamentals",
+    "description": "Get financial statement data - income statement, balance sheet, cash flow, ratios. Use for revenue, EPS, debt, margins, ROE, ROA, etc.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "ids": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "Security identifiers (e.g., ['AAPL-US', 'MSFT-US']). Max 250."
+        },
+        "data_type": {
+          "type": "string",
+          "enum": ["fundamentals"],
+          "description": "MUST be exactly 'fundamentals' (required const value)"
+        },
+        "metrics": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "Metric codes with FF_ prefix. Common: FF_SALES (revenue), FF_NET_INC (net income), FF_EPS_BASIC (EPS), FF_ASSETS, FF_LIAB, FF_DEBT, FF_DEBT_ST (short-term debt), FF_DEBT_LT (long-term debt), FF_GROSS_MGN (gross margin), FF_NET_MGN (net margin), FF_ROE, FF_ROA, FF_ROIC, FF_PE (P/E ratio), FF_FREE_CF (free cash flow)"
+        },
+        "periodicity": {
+          "type": "string",
+          "enum": ["ANN", "QTR", "SEMI", "LTM"],
+          "description": "ANN=Annual, QTR=Quarterly, SEMI=Semi-annual, LTM=Last 12 months. Default: ANN"
+        },
+        "fiscalPeriodStart": {"type": "string", "description": "Start date YYYY-MM-DD"},
+        "fiscalPeriodEnd": {"type": "string", "description": "End date YYYY-MM-DD"},
+        "currency": {"type": "string", "description": "Currency code (USD, EUR, LOCAL)"}
+      },
+      "required": ["ids", "data_type", "metrics"]
+    }
+  },
+  {
+    "name": "FactSet_GlobalPrices",
+    "description": "Get stock prices, returns, dividends, corporate actions, shares outstanding.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "ids": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "Security identifiers (e.g., ['AAPL-US'])"
+        },
+        "data_type": {
+          "type": "string",
+          "enum": ["prices", "returns", "corporate_actions", "annualized_dividends", "shares_outstanding"],
+          "description": "Type of price data to retrieve"
+        },
+        "startDate": {"type": "string", "description": "Start date YYYY-MM-DD"},
+        "endDate": {"type": "string", "description": "End date YYYY-MM-DD"},
+        "frequency": {
+          "type": "string",
+          "enum": ["D", "W", "M", "AQ", "AY"],
+          "description": "D=Daily, W=Weekly, M=Monthly, AQ=Quarterly, AY=Annual"
+        },
+        "currency": {"type": "string", "description": "Currency (USD, EUR, LOCAL)"}
+      },
+      "required": ["ids", "data_type"]
+    }
+  },
+  {
+    "name": "FactSet_EstimatesConsensus",
+    "description": "Get analyst estimates, consensus forecasts, earnings surprises, ratings, guidance.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "ids": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "Security identifiers"
+        },
+        "estimate_type": {
+          "type": "string",
+          "enum": ["consensus_fixed", "consensus_rolling", "surprise", "ratings", "segments", "guidance"],
+          "description": "consensus_fixed=specific fiscal periods, consensus_rolling=relative periods, surprise=actual vs estimate, ratings=buy/hold/sell, segments=product/geo segments, guidance=company guidance"
+        },
+        "metrics": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "Metrics WITHOUT FF_ prefix: SALES, EPS, EBITDA, PRICE_TGT, NET_INC"
+        },
+        "fiscalPeriodStart": {"type": "string", "description": "For consensus_fixed: year (2024) or period (2024/4F)"},
+        "fiscalPeriodEnd": {"type": "string", "description": "Must be >= start"},
+        "relativeFiscalStart": {"type": "integer", "description": "For consensus_rolling: 1=next period, 2=period after"},
+        "relativeFiscalEnd": {"type": "integer", "description": "Must be >= start"},
+        "startDate": {"type": "string", "description": "Historical retrieval start YYYY-MM-DD"},
+        "endDate": {"type": "string", "description": "Historical retrieval end YYYY-MM-DD"},
+        "frequency": {
+          "type": "string",
+          "enum": ["D", "W", "AM", "AQ", "AY"],
+          "description": "D=Daily, W=Weekly, AM=Monthly, AQ=Quarterly, AY=Yearly"
+        },
+        "periodicity": {
+          "type": "string",
+          "enum": ["ANN", "QTR"],
+          "description": "ANN=Annual, QTR=Quarterly"
+        }
+      },
+      "required": ["ids", "estimate_type"]
+    }
+  },
+  {
+    "name": "FactSet_Ownership",
+    "description": "Get fund holdings, institutional ownership, insider trading, shareholder data.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "ids": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "Security or fund identifiers"
+        },
+        "data_type": {
+          "type": "string",
+          "enum": ["fund_holdings", "security_holders", "insider_transactions", "institutional_transactions"],
+          "description": "fund_holdings=holdings of a fund, security_holders=who owns a security, insider_transactions=insider trades, institutional_transactions=13F changes"
+        },
+        "startDate": {"type": "string", "description": "Required for insider/institutional transactions"},
+        "endDate": {"type": "string", "description": "Required for insider/institutional transactions"},
+        "topn": {"type": "string", "description": "Number of results (5, 10, 25, ALL)"},
+        "holderType": {
+          "type": "string",
+          "enum": ["F", "M", "S", "FS", "B"],
+          "description": "F=Institutions, M=Mutual funds, S=Insiders, FS=Institutions+Insiders, B=Beneficial"
+        },
+        "transactionType": {
+          "type": "string",
+          "enum": ["A", "P", "S", "PS", "O", "M"],
+          "description": "A=All, P=Purchases, S=Sales, PS=Purchases+Sales"
+        }
+      },
+      "required": ["ids", "data_type"]
+    }
+  },
+  {
+    "name": "FactSet_People",
+    "description": "Get executive profiles, leadership rosters, compensation, employment history.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "ids": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "Company IDs for company_* endpoints, Person IDs (XXXXXX-E) for profiles/jobs"
+        },
+        "data_type": {
+          "type": "string",
+          "enum": ["profiles", "jobs", "company_people", "company_positions", "company_compensation", "company_stats"],
+          "description": "profiles=individual info, jobs=employment history, company_people=executive roster, company_positions=specific roles (CEO/CFO), company_compensation=exec pay, company_stats=leadership demographics"
+        },
+        "position": {
+          "type": "string",
+          "enum": ["CEO", "CFO", "COO", "CHAIR", "PRES", "CTO", "CIO", "FOU", "BRD", "IND"],
+          "description": "For company_positions: CEO, CFO, COO, CHAIR, PRES, CTO, CIO, FOU (Founder), BRD (Board), IND (Independent)"
+        },
+        "function": {
+          "type": "string",
+          "enum": ["PEOPLE", "OFFICER", "DIRECTOR"],
+          "description": "For company_people"
+        },
+        "mbType": {
+          "type": "string",
+          "enum": ["MB", "MGMT", "BRD"],
+          "description": "For company_stats: MB=Management+Board, MGMT=Management, BRD=Board"
+        }
+      },
+      "required": ["ids", "data_type"]
+    }
+  },
+  {
+    "name": "FactSet_CalendarEvents",
+    "description": "Get corporate events - earnings calls, conferences, dividends, splits. Max 90-day date range.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "symbols": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "Company symbols (e.g., ['AAPL-US', 'MSFT-US'])"
+        },
+        "universeType": {
+          "type": "string",
+          "enum": ["Tickers", "Index", "Etf", "AllCompanies"],
+          "description": "Usually 'Tickers' for specific companies"
+        },
+        "eventTypes": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "Event types: Earnings, SalesRevenueCall, GuidanceCall, AnalystsInvestorsMeeting, ShareholdersMeeting, Conference, ConfirmedEarningsRelease, ProjectedEarningsRelease, Split, Dividend"
+        },
+        "startDateTime": {"type": "string", "description": "ISO format: YYYY-MM-DDTHH:MM:SSZ (max 90 days from end)"},
+        "endDateTime": {"type": "string", "description": "ISO format: YYYY-MM-DDTHH:MM:SSZ"},
+        "lastModifiedWithin": {
+          "type": "string",
+          "enum": ["SixHours", "TwelveHours", "Today", "TwoDays", "OneWeek", "OneMonth"],
+          "description": "Alternative to date range - get recently modified events"
+        }
+      },
+      "required": ["symbols", "universeType", "eventTypes"]
+    }
+  },
+  {
+    "name": "FactSet_SupplyChain",
+    "description": "Get business relationships - competitors, customers, suppliers, partners.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "ids": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "Company identifiers"
+        },
+        "relationshipType": {
+          "type": "string",
+          "enum": ["COMPETITORS", "CUSTOMERS", "SUPPLIERS", "PARTNERS"],
+          "description": "Type of relationship to retrieve"
+        },
+        "companyType": {
+          "type": "string",
+          "enum": ["PUBLIC_COMPANIES_ONLY", "PRIVATE_COMPANIES_ONLY", "ALL"],
+          "description": "Filter by company type"
+        }
+      },
+      "required": ["ids", "relationshipType"]
+    }
+  },
+  {
+    "name": "FactSet_MergersAcquisitions",
+    "description": "Get M&A deals - deals by company, public targets, deal details.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "ids": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "Company IDs for deals_by_company, Deal IDs for deal_details"
+        },
+        "data_type": {
+          "type": "string",
+          "enum": ["deals_by_company", "public_targets", "deal_details"],
+          "description": "deals_by_company=deals involving companies, public_targets=deals with public targets, deal_details=specific deal info"
+        },
+        "startDate": {"type": "string", "description": "YYYY-MM-DD (max 1 year range)"},
+        "endDate": {"type": "string", "description": "YYYY-MM-DD"},
+        "status": {
+          "type": "string",
+          "enum": ["All", "Pending", "Complete"],
+          "description": "Deal status filter"
+        }
+      },
+      "required": ["data_type"]
+    }
+  },
+  {
+    "name": "FactSet_GeoRev",
+    "description": "Get geographic revenue breakdown by regions or countries.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "ids": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "Company identifiers"
+        },
+        "data_type": {
+          "type": "string",
+          "enum": ["regions", "countries"],
+          "description": "regions=by super-regions/regions/areas, countries=by individual countries"
+        },
+        "regionIds": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "For regions: SUPER_REGIONS, REGIONS, AREAS, or specific IDs (R1=Africa/ME, R101=Americas, R170=Asia/Pacific, R274=Europe, R275=EU)"
+        },
+        "countryIds": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "For countries: US, CN, JP, DE, GB, ALL, etc."
+        },
+        "startDate": {"type": "string"},
+        "endDate": {"type": "string"},
+        "frequency": {
+          "type": "string",
+          "enum": ["FY", "CQ", "FQ"],
+          "description": "FY=Fiscal Year, CQ=Calendar Quarter, FQ=Fiscal Quarter"
+        }
+      },
+      "required": ["ids", "data_type"]
+    }
+  },
+  {
+    "name": "FactSet_Metrics",
+    "description": "Semantic search for financial metric codes. Use to discover correct metric IDs before calling other APIs.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "text": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "Search queries for metrics (use spaces, not hyphens): 'revenue', 'debt to equity', 'profit margin'"
+        },
+        "data_products": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "Filter by product: 'fundamentals' (returns FF_* codes), 'estimates' (no prefix)"
+        },
+        "limit": {"type": "integer", "description": "Max results per query (default 20)"}
+      },
+      "required": ["text"]
+    }
+  }
+]
