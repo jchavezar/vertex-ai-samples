@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { MessageSquare, Share2, Activity, Terminal, Maximize2, Minimize2, ChevronsRight, Clock } from 'lucide-react';
+import { MessageSquare, Share2, Activity, Terminal, Maximize2, Minimize2, ChevronsRight, Clock, Brain } from 'lucide-react';
 import { clsx } from "clsx";
 import { useDashboardStore } from '../../store/dashboardStore';
 import AgentGraph from './AgentGraph';
 import TraceLog from './TraceLog';
+import { ReasoningTab } from './ReasoningTab';
 import { StreamingMarkdown } from './StreamingMarkdown';
 import { useTerminalChat } from '../../hooks/useTerminalChat';
 
@@ -54,8 +55,8 @@ const DynamicStatusText: React.FC<{ logs: any[] }> = ({ logs }) => {
 };
 
 const AdvancedPanel: React.FC<AdvancedPanelProps> = ({ onDragStart }) => {
-  const [activeTab, setActiveTab] = useState<'chat' | 'graph' | 'trace'>('chat');
-  const { messages, input, handleInputChange, handleSubmit, isLoading, traceLogs, topology, executionPath, nodeDurations, nodeMetrics, lastLatency, startTime, selectedModel } = useTerminalChat();
+  const [activeTab, setActiveTab] = useState<'chat' | 'graph' | 'trace' | 'reasoning'>('chat');
+  const { messages, input, handleInputChange, handleSubmit, isLoading, traceLogs, topology, executionPath, nodeDurations, nodeMetrics, lastLatency, startTime, selectedModel, sessionId } = useTerminalChat();
   const { isChatMaximized, toggleChatMaximized, chatDockPosition, theme } = useDashboardStore();
   const isDark = theme === 'dark';
   const scrollContainerRef = React.useRef<HTMLDivElement>(null);
@@ -199,6 +200,13 @@ const AdvancedPanel: React.FC<AdvancedPanelProps> = ({ onDragStart }) => {
               onClick={() => setActiveTab('trace')}
               icon={<Activity size={13} />}
               label="Trace"
+              isDark={isDark}
+            />
+            <TabButton
+              active={activeTab === 'reasoning'}
+              onClick={() => setActiveTab('reasoning')}
+              icon={<Brain size={13} />}
+              label="Reasoning"
               isDark={isDark}
             />
           </div>
@@ -431,6 +439,11 @@ const AdvancedPanel: React.FC<AdvancedPanelProps> = ({ onDragStart }) => {
         {/* TRACE TAB */}
         <div className={`absolute inset-0 bg-[var(--bg-app)] transition-opacity duration-300 overflow-y-auto ${activeTab === 'trace' ? 'opacity-100 z-10' : 'opacity-0 z-0 pointer-events-none'}`}>
           <TraceLog logs={traceLogs} selectedModel={selectedModel} isLoading={isLoading} />
+        </div>
+
+        {/* REASONING TAB */}
+        <div className={`absolute inset-0 bg-[var(--bg-app)] transition-opacity duration-300 ${activeTab === 'reasoning' ? 'opacity-100 z-10' : 'opacity-0 z-0 pointer-events-none'}`}>
+          <ReasoningTab sessionId={sessionId} isActive={activeTab === 'reasoning'} />
         </div>
 
         {/* REPORTS TAB - REMOVED */}

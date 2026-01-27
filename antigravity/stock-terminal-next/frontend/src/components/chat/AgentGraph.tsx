@@ -199,19 +199,43 @@ const ToolNode = ({ data, sourcePosition = Position.Bottom, targetPosition = Pos
         </div>
       </div>
 
-       {/* Latency Display */}
-       {duration !== undefined && duration > 0 && (
+      {/* Latency List Display (Granular) */}
+      {data.metrics?.latencies && Array.isArray(data.metrics.latencies) && data.metrics.latencies.length > 0 ? (
         <div style={{
-          padding: '2px 6px',
-          background: 'rgba(59, 130, 246, 0.1)',
-          borderRadius: '4px',
-          display: 'flex', alignItems: 'center', gap: '4px',
-          fontSize: '10px', fontWeight: '600', color: '#3b82f6',
-          alignSelf: 'flex-start'
+          marginTop: '6px',
+          display: 'flex', flexDirection: 'column', gap: '3px', width: '100%'
         }}>
-           <Clock size={10} />
-           {duration.toFixed(2)}s
+          {data.metrics.latencies.map((dur: number, idx: number) => (
+            <div key={idx} style={{
+              padding: '2px 6px',
+              background: 'rgba(59, 130, 246, 0.1)',
+              borderRadius: '4px',
+              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+              fontSize: '10px', fontWeight: '600', color: '#3b82f6'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                <Clock size={10} />
+                <span style={{ opacity: 0.7 }}>#{idx + 1}</span>
+              </div>
+              <span>{dur.toFixed(2)}s</span>
+            </div>
+          ))}
         </div>
+      ) : (
+        /* Single Duration Fallback */
+        duration !== undefined && duration > 0 && (
+          <div style={{
+            padding: '2px 6px',
+            background: 'rgba(59, 130, 246, 0.1)',
+            borderRadius: '4px',
+            display: 'flex', alignItems: 'center', gap: '4px',
+            fontSize: '10px', fontWeight: '600', color: '#3b82f6',
+            alignSelf: 'flex-start'
+          }}>
+            <Clock size={10} />
+            {duration.toFixed(2)}s
+          </div>
+          )
       )}
 
       <Handle type="source" position={sourcePosition} style={{ opacity: 0 }} />

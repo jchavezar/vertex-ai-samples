@@ -28,6 +28,7 @@ interface ChatContextType {
   startTime: number | null;
   selectedModel: string;
   setSelectedModel: (model: string) => void;
+  sessionId: string;
 }
 
 const ChatContext = createContext<ChatContextType | undefined>(undefined);
@@ -217,6 +218,27 @@ export function ChatProvider({ children }: { children: ReactNode }) {
       if (payload.type === 'error') {
         addTraceLog('error', payload.message);
       }
+
+      // Latency Metric (New Granular Event)
+      if (payload.type === 'latency' && payload.tool && payload.duration) {
+        const toolName = payload.tool;
+        const duration = payload.duration;
+
+        const currentMetrics = useDashboardStore.getState().nodeMetrics || {};
+        const toolMetrics = currentMetrics[toolName] || {};
+        const currentLatencies = toolMetrics.latencies || [];
+
+        // Append new latency
+        const newLatencies = [...currentLatencies, duration];
+
+        setNodeMetrics({
+          ...currentMetrics,
+          [toolName]: {
+            ...toolMetrics,
+            latencies: newLatencies
+          }
+        });
+      }
     });
 
     // Update ref
@@ -238,7 +260,8 @@ export function ChatProvider({ children }: { children: ReactNode }) {
     lastLatency,
     startTime,
     selectedModel,
-    setSelectedModel
+    setSelectedModel,
+    sessionId
   };
 
   return (
