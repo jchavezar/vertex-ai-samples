@@ -101,8 +101,11 @@ async def patched_streamable_client(
             
             logger.info("StreamableHTTP: Session cleanup")
     except Exception as inner_e:
-         logger.error(f"StreamableHTTP Inner Error: {inner_e}")
-         raise inner_e
+         if "Attempted to exit cancel scope" in str(inner_e):
+             logger.warning(f"StreamableHTTP Ignored Exit Error: {inner_e}")
+         else:
+             logger.error(f"StreamableHTTP Inner Error: {inner_e}")
+             raise inner_e
 
 # Apply patch
 mcp.client.sse.sse_client = patched_streamable_client
