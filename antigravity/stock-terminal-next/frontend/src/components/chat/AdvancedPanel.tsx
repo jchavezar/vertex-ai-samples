@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { MessageSquare, Share2, Activity, Terminal, Maximize2, Minimize2, ChevronsRight, Clock, Brain } from 'lucide-react';
+import { MessageSquare, Share2, Activity, Terminal, Maximize2, Minimize2, ChevronsRight, Clock, Brain, Square, Trash2 } from 'lucide-react';
 import { clsx } from "clsx";
 import { useDashboardStore } from '../../store/dashboardStore';
 import AgentGraph from './AgentGraph';
@@ -56,7 +56,7 @@ const DynamicStatusText: React.FC<{ logs: any[] }> = ({ logs }) => {
 
 const AdvancedPanel: React.FC<AdvancedPanelProps> = ({ onDragStart }) => {
   const [activeTab, setActiveTab] = useState<'chat' | 'graph' | 'trace' | 'reasoning'>('chat');
-  const { messages, input, handleInputChange, handleSubmit, isLoading, traceLogs, topology, executionPath, nodeDurations, nodeMetrics, lastLatency, startTime, selectedModel, sessionId } = useTerminalChat();
+  const { messages, input, handleInputChange, handleSubmit, isLoading, traceLogs, topology, executionPath, nodeDurations, nodeMetrics, lastLatency, startTime, selectedModel, sessionId, stop, resetChat } = useTerminalChat();
   const { isChatMaximized, toggleChatMaximized, chatDockPosition, theme } = useDashboardStore();
   const isDark = theme === 'dark';
   const scrollContainerRef = React.useRef<HTMLDivElement>(null);
@@ -213,6 +213,25 @@ const AdvancedPanel: React.FC<AdvancedPanelProps> = ({ onDragStart }) => {
 
           {/* Actions */}
           <div className="flex items-center gap-1 pl-2 border-l border-[var(--border)]">
+            {isLoading ? (
+              <button
+                onClick={stop}
+                className="p-1.5 rounded-md text-amber-500 hover:text-amber-600 hover:bg-amber-500/10 transition-colors"
+                title="Stop Generation"
+              >
+                <Square size={14} fill="currentColor" />
+              </button>
+            ) : (
+              messages.length > 0 && (
+                <button
+                  onClick={resetChat}
+                  className="p-1.5 rounded-md text-red-500 hover:text-red-600 hover:bg-red-500/10 transition-colors"
+                  title="Reset Chat"
+                >
+                  <Trash2 size={14} />
+                </button>
+              )
+            )}
             <button
               onClick={toggleChatMaximized}
               className={clsx(

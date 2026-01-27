@@ -224,7 +224,100 @@ class ReportAgent:
             return {}
 
     async def generate_earnings_recap(self, ticker: str, token: str) -> Generator[str, None, None]:
-        # similar logic, keep simple for now or implement later
-        yield json.dumps({"type": "progress", "step": "Fetching Transcript (Simulation)", "progress": 0.2}) + "\n"
-        await asyncio.sleep(1)
-        yield json.dumps({"type": "complete", "data": {"type": "Earnings Recap", "ticker": ticker}}) + "\n"
+        yield json.dumps({"type": "progress", "step": "Initializing Earnings Workflow", "progress": 0.05}) + "\n"
+
+        # 1. Setup Tools (Reusable logic, maybe refactor later but copy-safe for now)
+        try:
+            tools = await create_mcp_toolset_for_token(token)
+            # Filter tools logic (same as primer)
+            FACTSET_TOOL_MAPPING = {
+                "factset_fundamentals": "FactSet_Fundamentals",
+                "factset_estimates": "FactSet_EstimatesConsensus",
+                "factset_global_prices": "FactSet_GlobalPrices",
+            }
+            safe_tools = []
+            if tools:
+                for t in tools:
+                    name = getattr(t, 'name', '').lower()
+                    if name in FACTSET_TOOL_MAPPING:
+                        t.name = FACTSET_TOOL_MAPPING[name]
+                        safe_tools.append(t)
+                    elif not name.startswith("factset_"):
+                        safe_tools.append(t)
+        except Exception as e:
+            logger.error(f"Failed to init tools: {e}")
+            yield json.dumps({"type": "error", "message": "Failed to initialize tools."}) + "\n"
+            return
+            
+        yield json.dumps({"type": "progress", "step": "Fetching Earnings Surprise Data", "progress": 0.2}) + "\n"
+        
+        # 2. Sequential Workers
+        
+        async def fetch_surprise():
+            """Fetch EPS and Sales Surprise"""
+            # Define tools - We explicitly INCLUDE google_search for this task as it's excellent for recent earnings surprise
+            surprise_tools = []
+            if tools:
+                for t in tools:
+                    name = getattr(t, 'name', '').lower()
+                    # Keep FactSet estimates but ALSO keep google_search
+                    if name in FACTSET_TOOL_MAPPING:
+                        t.name = FACTSET_TOOL_MAPPING[name]
+                        surprise_tools.append(t)
+                    elif name == "google_search":
+                        surprise_tools.append(t)
+                    elif not name.startswith("factset_"):
+                        surprise_tools.append(t)
+
+            agent = Agent(
+                name="surprise_worker",
+                model="gemini-2.5-flash-lite",
+                instruction=(
+                    f"Fetch the most recent quarterly earnings surprise data for {ticker} (EPS and Revenue). "
+                    "Use 'google_search' to find the latest earnings report figures (Actual vs Estimate). "
+                    "OR use 'FactSet_EstimatesConsensus' if reliable. "
+                    "Return ONLY JSON: "
+                    "{'eps_surprise': {'actual': float, 'estimate': float, 'surprise_percent': float}, "
+                    "'revenue_surprise': {'actual': float, 'estimate': float, 'surprise_percent': float}, "
+                    "'fiscal_period': 'Q4 2025'}" 
+                ),
+                tools=surprise_tools
+            )
+            return await self._run_single_task(agent, f"Find recent earnings surprise for {ticker}")
+
+        async def generate_analysis(surprise_data):
+            """Synthesize analysis based on the numbers"""
+            # We don't have a transcript, so we analyze the numbers.
+            agent = Agent(
+                name="analyst_worker",
+                model="gemini-2.5-flash-lite",
+                instruction=(
+                    "You are a financial analyst writing an Earnings Recap. "
+                    "Based ONLY on the provided surprise data, write a 'Quantitative Analysis' "
+                    "that substitutes for a transcript summary. "
+                    "Also generate 3 key 'Quantitative Themes' (bullet points). "
+                    "Return JSON: {'transcript_summary': '...', 'themes': ['...', '...', '...']}"
+                )
+            )
+            prompt = f"Analyze these results for {ticker}: {json.dumps(surprise_data)}"
+            return await self._run_single_task(agent, prompt)
+
+        # Execute Sequential
+        surprise_data = await fetch_surprise()
+        
+        yield json.dumps({"type": "progress", "step": "Synthesizing Analysis", "progress": 0.6}) + "\n"
+        
+        analysis_data = await generate_analysis(surprise_data)
+        
+        # Merge
+        final_report = {
+            "type": "Earnings Recap",
+            "ticker": ticker.upper(),
+            "eps_surprise": surprise_data.get("eps_surprise", {"actual": 0, "estimate": 0, "surprise_percent": 0}),
+            "revenue_surprise": surprise_data.get("revenue_surprise", {"actual": 0, "estimate": 0, "surprise_percent": 0}),
+            "fiscal_period": surprise_data.get("fiscal_period", "Recent Quarter"),
+            "transcript_summary": analysis_data.get("transcript_summary", "Analysis unavailable."),
+            "themes": analysis_data.get("themes", [])
+        }
+        
+        yield json.dumps({"type": "complete", "data": final_report}) + "\n"
