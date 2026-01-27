@@ -1022,9 +1022,13 @@ async def report_stream_endpoint(ticker: str, type: str):
     # Actually, looking at ReportAgent, it calls `create_mcp_toolset_for_token(token)`.
     # We should grab a valid token if possible, or reliance on valid `factset_tokens.json` fallback.
     
-    # Quick fix: Pass a dummy, assuming factset_core handles "load from file" if token is stale/empty
-    # or we can pass a known valid one from global `factset_tokens`.
-    token = "system-token" 
+    # Retrieve a valid token using the shared helper
+    # We use 'default_chat' session to reuse any existing authenticated token if available
+    token = await get_valid_factset_token("default_chat")
+    if not token:
+        # Fallback or error - though get_valid try to refresh or return None
+        print("Warning: No valid FactSet token found for report generation.")
+        token = "system-token-fallback" 
     
     if type == "primer":
         generator = report_agent.generate_primer(ticker, token)

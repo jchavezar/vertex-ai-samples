@@ -126,21 +126,26 @@ class ReportAgent:
             )
             return await self._run_single_task(swot_agent, f"Analyze SWOT for {ticker}")
 
-        # Execute Parallel
-        tasks = [fetch_financials(), fetch_profile(), fetch_news_swot()]
+        # Execute Sequential (Robustness Fix)
+        # We run these sequentially to avoid 'anyio' cancel scope violations or race conditions 
+        # in the shared McpToolset client during parallel execution.
         
-        # Updates during wait
-        yield json.dumps({"type": "progress", "step": "Gathering Financials & Market Data", "progress": 0.3}) + "\n"
-        await asyncio.sleep(0.5) # UI pacing
+        # 1. Financials
+        yield json.dumps({"type": "progress", "step": "Gathering Financials (1/3)...", "progress": 0.3}) + "\n"
+        fin_data = await fetch_financials()
         
-        yield json.dumps({"type": "progress", "step": "Analyzing Estimates & News", "progress": 0.5}) + "\n"
+        # 2. Profile
+        yield json.dumps({"type": "progress", "step": "Gathering Profile (2/3)...", "progress": 0.5}) + "\n"
+        prof_data = await fetch_profile()
         
-        results = await asyncio.gather(*tasks, return_exceptions=True)
+        # 3. SWOT
+        yield json.dumps({"type": "progress", "step": "Gathering News & SWOT (3/3)...", "progress": 0.7}) + "\n"
+        swot_data = await fetch_news_swot()
         
-        # Process Results
-        fin_data = results[0] if isinstance(results[0], dict) else {}
-        prof_data = results[1] if isinstance(results[1], dict) else {}
-        swot_data = results[2] if isinstance(results[2], dict) else {}
+        # Ensure dicts
+        fin_data = fin_data if isinstance(fin_data, dict) else {}
+        prof_data = prof_data if isinstance(prof_data, dict) else {}
+        swot_data = swot_data if isinstance(swot_data, dict) else {}
         
         # Merge into final structure
         data_context["financials"] = fin_data
