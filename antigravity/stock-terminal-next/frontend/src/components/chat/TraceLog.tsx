@@ -1,5 +1,5 @@
 import React, { useRef, useEffect } from 'react';
-import { Terminal } from 'lucide-react';
+import { Terminal, Zap, CheckCircle, XCircle, Info, Activity, AlertTriangle } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 
@@ -16,19 +16,17 @@ interface LogEntry {
 interface TraceLogProps {
   logs: LogEntry[];
   isMaximized?: boolean;
-  selectedModel?: string; // Add selectedModel prop
+  selectedModel?: string;
+  isLoading?: boolean;
 }
 
 import { useDashboardStore } from '../../store/dashboardStore';
 
-const TraceLog: React.FC<TraceLogProps> = ({ logs = [], isMaximized = false, selectedModel }) => {
+const TraceLog: React.FC<TraceLogProps> = ({ logs = [], isMaximized = false, selectedModel, isLoading = false }) => {
   const endRef = useRef<HTMLDivElement>(null);
   const { theme } = useDashboardStore();
   const isDark = theme === 'dark';
 
-  // Group logs by session or just list them? 
-  // For now, simple list but correctly styled.
-  
   useEffect(() => {
     if (endRef.current) {
       endRef.current.scrollIntoView({ behavior: 'smooth' });
@@ -38,7 +36,7 @@ const TraceLog: React.FC<TraceLogProps> = ({ logs = [], isMaximized = false, sel
   if (!logs || logs.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center h-full text-[var(--text-muted)] gap-4 opacity-50">
-        <Terminal size={48} color="#e6ebf1" />
+        <Terminal size={48} color={isDark ? "#333" : "#e6ebf1"} />
         <p>No activity recorded yet.</p>
       </div>
     );
@@ -49,8 +47,9 @@ const TraceLog: React.FC<TraceLogProps> = ({ logs = [], isMaximized = false, sel
       {/* Session/Model Header if active */}
       {selectedModel && logs.length > 0 && (
          <div className="flex items-center justify-center mb-6 opacity-70">
-            <div className="px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-[10px]">
-               Session with <span className="font-bold">{selectedModel}</span>
+          <div className="px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-[10px] flex items-center gap-1.5">
+            <Activity size={10} />
+            <span>Session with <span className="font-bold">{selectedModel}</span></span>
             </div>
          </div>
       )}
@@ -70,12 +69,12 @@ const TraceLog: React.FC<TraceLogProps> = ({ logs = [], isMaximized = false, sel
             isError = true;
         }
 
-        const isTool = log.type === 'tool_call' || log.type === 'tool_result';
-        
         return (
-          <div key={idx} className={`relative pl-4 border-l-2 transition-all duration-300 ${getBorderColorClass(visualType)}`}>
-            {/* Timeline Dot */}
-            <div className={`absolute -left-[5px] top-0.5 w-2 h-2 rounded-full ring-4 ring-[var(--bg-app)] ${getDotColorClass(visualType)}`} />
+          <div key={idx} className={`relative pl-8 border-l-2 transition-all duration-300 ${getBorderColorClass(visualType)}`}>
+            {/* Timeline Icon */}
+            <div className={`absolute -left-[9px] top-0 w-5 h-5 rounded-full border-2 border-[var(--bg-app)] flex items-center justify-center ${getIconBgClass(visualType)}`}>
+              {getIcon(visualType)}
+            </div>
             
             <div className="flex flex-col gap-1.5">
                {/* Header: Timestamp + Badge */}
@@ -100,19 +99,46 @@ const TraceLog: React.FC<TraceLogProps> = ({ logs = [], isMaximized = false, sel
           </div>
         );
       })}
+
+      {isLoading && (
+        <div className="relative pl-8 border-l-2 border-dashed border-gray-500/30 transition-all duration-300 opacity-60">
+          <div className="absolute -left-[9px] top-0 w-5 h-5 rounded-full border-2 border-[var(--bg-app)] flex items-center justify-center bg-gray-500 animate-pulse">
+            <div className="w-1.5 h-1.5 bg-white rounded-full ml-0.5 animate-bounce" />
+          </div>
+          <div className="flex items-center gap-2 py-1">
+            <span className="text-[10px] text-[var(--text-muted)] font-mono animate-pulse">Thinking...</span>
+          </div>
+        </div>
+      )}
+
       <div ref={endRef} />
     </div>
   );
 };
 
 // Helper Functions
-const getDotColorClass = (type: string) => {
+const getIcon = (type: string) => {
+  switch (type) {
+    case 'user': return <div className="w-2 h-2 rounded-full bg-white" />;
+    case 'assistant': return <Terminal size={10} className="text-white" />;
+    case 'tool_call': return <Zap size={10} className="text-white" />;
+    case 'tool_result': return <CheckCircle size={10} className="text-white" />;
+    case 'tool_error': return <XCircle size={10} className="text-white" />;
+    case 'error': return <AlertTriangle size={10} className="text-white" />;
+    case 'system_status': return <Activity size={10} className="text-white" />;
+    default: return <Info size={10} className="text-white" />;
+  }
+};
+
+const getIconBgClass = (type: string) => {
     switch (type) {
       case 'user': return 'bg-[var(--brand)]';
       case 'tool_call': return 'bg-purple-500';
       case 'tool_result': return 'bg-emerald-500';
-      case 'tool_error': return 'bg-red-500 animate-pulse';
+      case 'tool_error': return 'bg-red-500';
       case 'error': return 'bg-red-600';
+      case 'assistant': return 'bg-blue-500';
+      case 'system_status': return 'bg-slate-500';
       default: return 'bg-gray-500';
     }
 };
@@ -124,6 +150,7 @@ const getBorderColorClass = (type: string) => {
     case 'tool_result': return 'border-emerald-500/30';
     case 'tool_error': return 'border-red-500/50';
     case 'error': return 'border-red-500/50';
+    case 'assistant': return 'border-blue-500/30';
     default: return 'border-gray-700/30';
   }
 };
@@ -131,7 +158,7 @@ const getBorderColorClass = (type: string) => {
 const getBadgeColorClass = (type: string) => {
   switch (type) {
     case 'user': return 'text-[var(--brand)]';
-    case 'assistant': return 'text-slate-400';
+    case 'assistant': return 'text-blue-400';
     case 'tool_call': return 'text-purple-400';
     case 'tool_result': return 'text-emerald-400';
     case 'tool_error': return 'text-red-400 font-bold';
@@ -148,6 +175,7 @@ const getContentBgClass = (type: string, isDark: boolean) => {
         case 'tool_result': return isDark ? 'bg-emerald-900/10' : 'bg-emerald-50';
         case 'tool_error': return isDark ? 'bg-red-900/20' : 'bg-red-50';
         case 'error': return isDark ? 'bg-red-900/20' : 'bg-red-50';
+      case 'user': return isDark ? 'bg-transparent' : 'bg-gray-50';
         default: return 'bg-transparent';
     }
 }
@@ -187,9 +215,9 @@ const deepParseJSON = (obj: any): any => {
 const renderContent = (log: LogEntry, isMaximized: boolean, isDark: boolean, isError: boolean = false) => {
   switch (log.type) {
     case 'user':
-      return <div className="font-semibold p-1">{log.content}</div>;
+      return <div className="font-semibold p-2 text-[13px]">{log.content}</div>;
     case 'assistant':
-      return <div className="p-1"><ReactMarkdown remarkPlugins={[remarkGfm]}>{log.content || ''}</ReactMarkdown></div>;
+      return <div className="p-2"><ReactMarkdown remarkPlugins={[remarkGfm]}>{log.content || ''}</ReactMarkdown></div>;
     case 'tool_call':
       let argsDisplay = '';
       try {
@@ -200,11 +228,13 @@ const renderContent = (log: LogEntry, isMaximized: boolean, isDark: boolean, isE
       return (
         <div className="p-2">
           <div className="flex items-center gap-2 mb-2">
-             <span className="text-purple-400">⚡</span>
+            <Zap size={12} className="text-purple-400" />
              <strong>Executing:</strong> <span className={`${isDark ? 'text-purple-300' : 'text-purple-600'} font-bold`}>{log.tool}</span>
           </div>
-          <div className="p-2.5 rounded-md overflow-x-auto border border-black/5 bg-white/50">
-            <pre className={`text-[11px] ${isDark ? 'text-gray-100' : 'text-slate-900 font-semibold'} font-mono`}>{argsDisplay}</pre>
+          <div className="group relative">
+            <div className="p-2.5 rounded-md overflow-x-auto border border-black/5 bg-white/50">
+              <pre className={`text-[12px] leading-tight ${isDark ? 'text-gray-200' : 'text-slate-900 font-semibold'} font-mono`}>{argsDisplay}</pre>
+            </div>
           </div>
         </div>
       );
@@ -219,27 +249,36 @@ const renderContent = (log: LogEntry, isMaximized: boolean, isDark: boolean, isE
       return (
         <div className="p-2">
           <div className="flex items-center gap-2 mb-2">
-            {isError ? <span className="text-red-500 font-bold">⚠️ FAILED</span> : <span className="text-emerald-400">✓</span>}
+            {isError ? <XCircle size={12} className="text-red-500" /> : <CheckCircle size={12} className="text-emerald-400" />}
             <strong>{isError ? 'Error from:' : 'Result from:'}</strong> <span className={`${isError ? 'text-red-400' : (isDark ? 'text-emerald-300' : 'text-emerald-700')} font-bold`}>{log.tool}</span> 
             {log.duration && <span className="text-[9px] text-gray-500 bg-black/10 px-1.5 py-0.5 rounded-full ml-auto font-mono">{typeof log.duration === 'number' ? log.duration.toFixed(3) + 's' : log.duration}</span>}
           </div>
-          <div className={`p-2.5 rounded-md overflow-x-auto border ${isError ? 'bg-red-50 border-red-200' : 'bg-white/50 border-black/5'}`}>
-            <pre className={`text-[11px] ${isError ? 'text-red-800' : (isDark ? 'text-gray-100' : 'text-slate-900 font-semibold')} ${isMaximized ? 'max-h-[600px]' : 'max-h-[300px]'} overflow-y-auto custom-scrollbar font-mono`}>{resultDisplay}</pre>
+          <div className={`p-2.5 rounded-md overflow-x-auto border ${isError ? 'bg-red-500/5 border-red-200/20' : 'bg-white/50 border-black/5'}`}>
+            <pre className={`text-[12px] leading-tight ${isError ? 'text-red-400' : (isDark ? 'text-gray-200' : 'text-slate-900 font-semibold')} ${isMaximized ? 'max-h-[600px]' : 'max-h-[300px]'} overflow-y-auto custom-scrollbar font-mono`}>{resultDisplay}</pre>
           </div>
         </div>
       );
     case 'error':
-      return <div className="text-red-600 font-extrabold p-2 bg-red-100/10 rounded">{log.content}</div>;
+      return (
+        <div className="flex items-start gap-2 text-red-600 p-3 bg-red-100/10 rounded">
+          <AlertTriangle size={14} className="mt-0.5 shrink-0" />
+          <div className="font-bold">{log.content}</div>
+        </div>
+      );
     case 'system':
-      return <div className="italic text-[var(--text-muted)] p-1">{log.content}</div>;
+      return <div className="italic text-[var(--text-muted)] p-2">{log.content}</div>;
     case 'system_status':
     case 'debug':
       return (
-        <div className="text-[var(--text-secondary)] italic p-1">{log.content}</div>
+        <div className="text-[var(--text-secondary)] italic p-2 flex items-center gap-2">
+          {log.type === 'system_status' && <Activity size={10} />}
+          {log.content}
+        </div>
       );
     default:
-      return <div className="text-[var(--text-primary)] p-1">{String(log.content || '')}</div>;
+      return <div className="text-[var(--text-primary)] p-2">{String(log.content || '')}</div>;
   }
 };
 
 export default TraceLog;
+

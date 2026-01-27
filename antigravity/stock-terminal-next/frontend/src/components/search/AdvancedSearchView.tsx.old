@@ -57,7 +57,7 @@ export const AdvancedSearchView = () => {
     setIsOverviewExpanded(true);
 
     try {
-      const response = await fetch('http://localhost:8001/search', {
+      const response = await fetch('http://localhost:8085/search', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ query: query, pageSize: 12 })
@@ -100,7 +100,7 @@ export const AdvancedSearchView = () => {
         };
       });
 
-      const response = await fetch('http://localhost:8001/search/generative-overview', {
+      const response = await fetch('http://localhost:8085/search/generative-overview', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -112,35 +112,25 @@ export const AdvancedSearchView = () => {
 
       if (!response.ok) return;
 
-      console.log("Starting Generative Overview Fetch...");
-      if (!response.body) return;
-      const reader = response.body.getReader();
+      const reader = response.body?.getReader();
       const decoder = new TextDecoder();
-      let buffer = '';
+      if (!reader) return;
 
+      // Read the stream (which now contains one or more JSON lines)
       while (true) {
         const { done, value } = await reader.read();
-        if (done) {
-          console.log("Stream Done. Final Buffer:", buffer);
-          break;
-        }
+        if (done) break;
 
-        const chunkText = decoder.decode(value, { stream: true });
-        console.log("Received Chunk:", chunkText.length, "bytes", chunkText);
-
-        buffer += chunkText;
-        const lines = buffer.split('\n');
-        buffer = lines.pop() || '';
+        const chunk = decoder.decode(value);
+        const lines = chunk.split('\n');
 
         for (const line of lines) {
           if (!line.trim()) continue;
-          console.log("Processing Line:", line);
           try {
             const data = JSON.parse(line);
 
             // Handle Unified Payload
             if (data.text) {
-              console.log("Found Text:", data.text.substring(0, 20) + "...");
               setSummary(prev => ({
                 ...prev!,
                 summaryText: data.text,
@@ -164,36 +154,14 @@ export const AdvancedSearchView = () => {
 
             // Handle Error
             if (data.error) {
-              console.error("Backend Error in Stream:", data.error);
+              console.error("Overview Error:", data.error);
               setSummary(null);
             }
 
           } catch (e) {
-            console.warn("Stream parse error for line:", line, e);
+            console.warn("Stream parse error", e);
           }
         }
-      }
-
-      // Flush/Process remaining buffer
-      if (buffer.trim()) {
-        console.log("Processing Final Buffer:", buffer);
-        try {
-          const data = JSON.parse(buffer);
-          if (data.text) {
-            console.log("Found Text in Final Buffer:", data.text.substring(0, 20) + "...");
-            setSummary(prev => ({ ...prev!, summaryText: data.text, loading: false }));
-          }
-          if (data.data?.follow_up_questions) {
-            setSummary(prev => ({ ...prev!, followUpQuestions: data.data.follow_up_questions }));
-          }
-          if (data.data?.pdf_suggestion) {
-            setSummary(prev => ({ ...prev!, pdfSuggestion: data.data.pdf_suggestion }));
-          }
-          } catch (e) {
-            console.warn("Final Buffer Parse Error:", e);
-          }
-      } else {
-        console.log("Final Buffer Empty - No more data.");
       }
     } catch (err) {
       console.error("Summary failed", err);
@@ -213,7 +181,7 @@ export const AdvancedSearchView = () => {
     }));
 
     try {
-      const response = await fetch('http://localhost:8001/search/analyze-pdf', {
+      const response = await fetch('http://localhost:8085/search/analyze-pdf', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ url, query: query || "Summarize the key financial highlights." })

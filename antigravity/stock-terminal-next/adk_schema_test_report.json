@@ -1,0 +1,882 @@
+{
+  "test_type": "ADK + LLM + Schema",
+  "timestamp": "2026-01-26T20:58:08.270789",
+  "schema_file": "mcp_tools_schema.json",
+  "summary": {
+    "total": 41,
+    "ok": 39,
+    "no_ok": 2,
+    "success_rate": "95.1%",
+    "correct_tool_selection": 41,
+    "tool_selection_rate": "100.0%",
+    "average_latency_ms": 2792.6758614982045
+  },
+  "by_tool": {
+    "FactSet_Fundamentals": {
+      "ok": 5,
+      "no_ok": 0,
+      "correct_selection": 5
+    },
+    "FactSet_EstimatesConsensus": {
+      "ok": 5,
+      "no_ok": 0,
+      "correct_selection": 5
+    },
+    "FactSet_GlobalPrices": {
+      "ok": 5,
+      "no_ok": 0,
+      "correct_selection": 5
+    },
+    "FactSet_Ownership": {
+      "ok": 4,
+      "no_ok": 1,
+      "correct_selection": 5
+    },
+    "FactSet_MergersAcquisitions": {
+      "ok": 3,
+      "no_ok": 1,
+      "correct_selection": 4
+    },
+    "FactSet_People": {
+      "ok": 5,
+      "no_ok": 0,
+      "correct_selection": 5
+    },
+    "FactSet_CalendarEvents": {
+      "ok": 3,
+      "no_ok": 0,
+      "correct_selection": 3
+    },
+    "FactSet_GeoRev": {
+      "ok": 3,
+      "no_ok": 0,
+      "correct_selection": 3
+    },
+    "FactSet_SupplyChain": {
+      "ok": 4,
+      "no_ok": 0,
+      "correct_selection": 4
+    },
+    "FactSet_Metrics": {
+      "ok": 2,
+      "no_ok": 0,
+      "correct_selection": 2
+    }
+  },
+  "results": [
+    {
+      "query": "How much short-term and long-term debt does GE carry?",
+      "expected_tool": "FactSet_Fundamentals",
+      "tool_called": "FactSet_Fundamentals",
+      "arguments": {
+        "ids": [
+          "GE-US"
+        ],
+        "data_type": "fundamentals",
+        "metrics": [
+          "FF_DEBT_ST",
+          "FF_DEBT_LT"
+        ]
+      },
+      "status": "OK",
+      "status_detail": "Success",
+      "mcp_result": "{\n  \"data\": [\n    {\n      \"requestId\": \"GE-US\",\n      \"fsymId\": null,\n      \"metric\": null,\n      \"periodicity\": null,\n      \"fiscalPeriod\": null,\n      \"fiscalYear\": null,\n      \"fiscalPeriodLength\": null,\n      \"fiscalEndDate\": \"2025-12-31\",\n      \"reportDate\": null,\n      \"epsReportDate\": null,\n      \"updateType\": null,\n      \"currency\": \"USD\",\n      \"value\": null\n    }\n  ]\n}",
+      "error": null,
+      "latency_ms": 2884.1638565063477
+    },
+    {
+      "query": "Is Netflix's current P/E above or below their 5-year average?",
+      "expected_tool": "FactSet_Fundamentals",
+      "tool_called": "FactSet_Fundamentals",
+      "arguments": {
+        "ids": [
+          "NFLX-US"
+        ],
+        "data_type": "fundamentals",
+        "metrics": [
+          "FF_PE"
+        ],
+        "periodicity": "ANN"
+      },
+      "status": "OK",
+      "status_detail": "Success",
+      "mcp_result": "{\n  \"data\": [\n    {\n      \"requestId\": \"NFLX-US\",\n      \"fsymId\": null,\n      \"metric\": null,\n      \"periodicity\": null,\n      \"fiscalPeriod\": null,\n      \"fiscalYear\": null,\n      \"fiscalPeriodLength\": null,\n      \"fiscalEndDate\": \"2025-12-31\",\n      \"reportDate\": null,\n      \"epsReportDate\": null,\n      \"updateType\": null,\n      \"currency\": \"USD\",\n      \"value\": null\n    }\n  ]\n}",
+      "error": null,
+      "latency_ms": 1623.0387687683105
+    },
+    {
+      "query": "How does Tesla's current net margin compare to General Motors and Ford?",
+      "expected_tool": "FactSet_Fundamentals",
+      "tool_called": "FactSet_Fundamentals",
+      "arguments": {
+        "ids": [
+          "TSLA-US",
+          "GM-US",
+          "F-US"
+        ],
+        "data_type": "fundamentals",
+        "metrics": [
+          "FF_NET_MGN"
+        ],
+        "periodicity": "LTM"
+      },
+      "status": "OK",
+      "status_detail": "Success",
+      "mcp_result": "{\n  \"data\": [\n    {\n      \"requestId\": \"TSLA-US\",\n      \"fsymId\": null,\n      \"metric\": null,\n      \"periodicity\": null,\n      \"fiscalPeriod\": null,\n      \"fiscalYear\": null,\n      \"fiscalPeriodLength\": null,\n      \"fiscalEndDate\": \"2025-09-30\",\n      \"reportDate\": null,\n      \"epsReportDate\": null,\n      \"updateType\": null,\n      \"currency\": \"USD\",\n      \"value\": null\n    },\n    {\n      \"requestId\": \"GM-US\",\n      \"fsymId\": null,\n      \"metric\": null,\n      \"periodicity\": null,\n      \"fiscalPer",
+      "error": null,
+      "latency_ms": 1654.07395362854
+    },
+    {
+      "query": "Compare the gross margins and ROIC trends for Amazon, Google, and Meta over the past 5 years",
+      "expected_tool": "FactSet_Fundamentals",
+      "tool_called": "FactSet_Fundamentals",
+      "arguments": {
+        "ids": [
+          "AMZN-US",
+          "GOOGL-US",
+          "META-US"
+        ],
+        "data_type": "fundamentals",
+        "metrics": [
+          "FF_GROSS_MGN",
+          "FF_ROIC"
+        ],
+        "fiscalPeriodStart": "2019-01-01",
+        "fiscalPeriodEnd": "2023-12-31",
+        "periodicity": "ANN"
+      },
+      "status": "OK",
+      "status_detail": "Success",
+      "mcp_result": "{\n  \"data\": [\n    {\n      \"requestId\": \"AMZN-US\",\n      \"fsymId\": null,\n      \"metric\": null,\n      \"periodicity\": null,\n      \"fiscalPeriod\": null,\n      \"fiscalYear\": null,\n      \"fiscalPeriodLength\": null,\n      \"fiscalEndDate\": \"2019-12-31\",\n      \"reportDate\": null,\n      \"epsReportDate\": null,\n      \"updateType\": null,\n      \"currency\": \"USD\",\n      \"value\": null\n    },\n    {\n      \"requestId\": \"AMZN-US\",\n      \"fsymId\": null,\n      \"metric\": null,\n      \"periodicity\": null,\n      \"fiscalP",
+      "error": null,
+      "latency_ms": 1903.1319618225098
+    },
+    {
+      "query": "What is AMZN's free cash flow for Q1 2024 and how does it compare to Q1 2023?",
+      "expected_tool": "FactSet_Fundamentals",
+      "tool_called": "FactSet_Fundamentals",
+      "arguments": {
+        "ids": [
+          "AMZN-US"
+        ],
+        "data_type": "fundamentals",
+        "metrics": [
+          "FF_FREE_CF"
+        ],
+        "periodicity": "QTR",
+        "fiscalPeriodStart": "2023-01-01",
+        "fiscalPeriodEnd": "2024-03-31"
+      },
+      "status": "OK",
+      "status_detail": "Success",
+      "mcp_result": "{\n  \"data\": [\n    {\n      \"requestId\": \"AMZN-US\",\n      \"fsymId\": null,\n      \"metric\": null,\n      \"periodicity\": null,\n      \"fiscalPeriod\": null,\n      \"fiscalYear\": null,\n      \"fiscalPeriodLength\": null,\n      \"fiscalEndDate\": \"2023-03-31\",\n      \"reportDate\": null,\n      \"epsReportDate\": null,\n      \"updateType\": null,\n      \"currency\": \"USD\",\n      \"value\": null\n    },\n    {\n      \"requestId\": \"AMZN-US\",\n      \"fsymId\": null,\n      \"metric\": null,\n      \"periodicity\": null,\n      \"fiscalP",
+      "error": null,
+      "latency_ms": 1873.6729621887207
+    },
+    {
+      "query": "How did the 2025 consensus target price for Amazon change between October and December 2024?",
+      "expected_tool": "FactSet_EstimatesConsensus",
+      "tool_called": "FactSet_EstimatesConsensus",
+      "arguments": {
+        "ids": [
+          "AMZN-US"
+        ],
+        "estimate_type": "consensus_fixed",
+        "metrics": [
+          "PRICE_TGT"
+        ],
+        "fiscalPeriodStart": "2025",
+        "fiscalPeriodEnd": "2025",
+        "startDate": "2024-10-01",
+        "endDate": "2024-12-31",
+        "frequency": "AM"
+      },
+      "status": "OK",
+      "status_detail": "Success",
+      "mcp_result": "{\n  \"data\": [\n    {\n      \"requestId\": \"AMZN-US\",\n      \"fsymId\": \"MCNYYL-R\",\n      \"metric\": \"PRICE_TGT\",\n      \"periodicity\": \"ANN\",\n      \"fiscalPeriod\": 1,\n      \"fiscalYear\": 2025,\n      \"fiscalEndDate\": \"2025-12-31\",\n      \"estimateDate\": \"2024-10-01\",\n      \"currency\": \"LOCAL\",\n      \"estimateCurrency\": \"USD\",\n      \"mean\": 221.21563636363638,\n      \"median\": 220.0,\n      \"standardDeviation\": 16.4428877750789,\n      \"high\": 265.0,\n      \"low\": 180.0,\n      \"estimateCount\": 55,\n      \"up\":",
+      "error": null,
+      "latency_ms": 2018.9969539642334
+    },
+    {
+      "query": "How have next fiscal year EPS estimates for Apple evolved over the past 12 months?",
+      "expected_tool": "FactSet_EstimatesConsensus",
+      "tool_called": "FactSet_EstimatesConsensus",
+      "arguments": {
+        "ids": [
+          "AAPL-US"
+        ],
+        "estimate_type": "consensus_rolling",
+        "metrics": [
+          "EPS"
+        ],
+        "relativeFiscalStart": 1,
+        "relativeFiscalEnd": 1,
+        "startDate": "2023-10-26",
+        "endDate": "2024-10-26",
+        "frequency": "AM"
+      },
+      "status": "OK",
+      "status_detail": "Success",
+      "mcp_result": "{\n  \"data\": [\n    {\n      \"requestId\": \"AAPL-US\",\n      \"fsymId\": \"MH33D6-R\",\n      \"metric\": \"EPS\",\n      \"periodicity\": \"ANN\",\n      \"fiscalPeriod\": 1,\n      \"fiscalYear\": 2023,\n      \"fiscalEndDate\": \"2023-09-30\",\n      \"relativePeriod\": 1,\n      \"estimateDate\": \"2023-10-26\",\n      \"currency\": \"LOCAL\",\n      \"estimateCurrency\": \"USD\",\n      \"mean\": 6.056324717185,\n      \"median\": 6.06,\n      \"standardDeviation\": 0.0519964720727139,\n      \"high\": 6.11135774,\n      \"low\": 5.78,\n      \"estimateC",
+      "error": null,
+      "latency_ms": 1970.5159664154053
+    },
+    {
+      "query": "How consistent are long-term growth estimates (FY2-FY3) for Nvidia's sales?",
+      "expected_tool": "FactSet_EstimatesConsensus",
+      "tool_called": "FactSet_EstimatesConsensus",
+      "arguments": {
+        "ids": [
+          "NVDA-US"
+        ],
+        "estimate_type": "consensus_fixed",
+        "metrics": [
+          "SALES"
+        ],
+        "fiscalPeriodStart": "2026",
+        "fiscalPeriodEnd": "2027",
+        "frequency": "AY"
+      },
+      "status": "OK",
+      "status_detail": "Success",
+      "mcp_result": "{\n  \"data\": [\n    {\n      \"requestId\": \"NVDA-US\",\n      \"fsymId\": \"K7TPSX-R\",\n      \"metric\": \"SALES\",\n      \"periodicity\": \"ANN\",\n      \"fiscalPeriod\": 1,\n      \"fiscalYear\": 2026,\n      \"fiscalEndDate\": \"2027-01-31\",\n      \"estimateDate\": \"2026-01-27\",\n      \"currency\": \"LOCAL\",\n      \"estimateCurrency\": \"USD\",\n      \"mean\": 329612.5397693138,\n      \"median\": 324596.376,\n      \"standardDeviation\": 27566.8402702195,\n      \"high\": 412529.0,\n      \"low\": 264979.0,\n      \"estimateCount\": 63,\n     ",
+      "error": null,
+      "latency_ms": 2076.1048793792725
+    },
+    {
+      "query": "How often does Tesla beat earnings estimates? Show me their surprise pattern over the last 2 years.",
+      "expected_tool": "FactSet_EstimatesConsensus",
+      "tool_called": "FactSet_EstimatesConsensus",
+      "arguments": {
+        "ids": [
+          "TSLA-US"
+        ],
+        "estimate_type": "surprise",
+        "metrics": [
+          "EPS"
+        ],
+        "startDate": "2022-06-05",
+        "endDate": "2024-06-05",
+        "frequency": "AQ"
+      },
+      "status": "OK",
+      "status_detail": "Success",
+      "mcp_result": "{\n  \"data\": [\n    {\n      \"fsymId\": \"Q2YN1N-R\",\n      \"date\": \"2022-06-05\",\n      \"currency\": \"LOCAL\",\n      \"estimateCurrency\": \"USD\",\n      \"metric\": \"EPS\",\n      \"statistic\": \"MEAN\",\n      \"periodicity\": \"ANN\",\n      \"fiscalEndDate\": \"2021-12-31\",\n      \"fiscalYear\": 2021,\n      \"fiscalPeriod\": 1,\n      \"surpriseDate\": \"2022-01-27\",\n      \"surpriseAmount\": 0.09546068361785714,\n      \"surprisePercent\": 4.410207890279717,\n      \"surpriseBefore\": 2.164539314082143,\n      \"surpriseAfter\": 2.25999",
+      "error": null,
+      "latency_ms": 1725.726842880249
+    },
+    {
+      "query": "What is the current analyst consensus rating for Apple? How many analysts rate it Buy vs Hold vs Sell?",
+      "expected_tool": "FactSet_EstimatesConsensus",
+      "tool_called": "FactSet_EstimatesConsensus",
+      "arguments": {
+        "ids": [
+          "AAPL-US"
+        ],
+        "estimate_type": "ratings"
+      },
+      "status": "OK",
+      "status_detail": "Success",
+      "mcp_result": "{\n  \"data\": [\n    {\n      \"fsymId\": \"MH33D6-R\",\n      \"estimateDate\": \"2026-01-27\",\n      \"buyCount\": 22,\n      \"overweightCount\": 7,\n      \"holdCount\": 18,\n      \"underweightCount\": 1,\n      \"sellCount\": 2,\n      \"ratingsNestTotal\": 50,\n      \"ratingsNote\": 1.54,\n      \"ratingsNoteText\": \"OVERWEIGHT\",\n      \"requestId\": \"AAPL-US\"\n    }\n  ]\n}",
+      "error": null,
+      "latency_ms": 1455.3489685058594
+    },
+    {
+      "query": "Show the week-over-week change in closing prices for Oracle in Q1 2024",
+      "expected_tool": "FactSet_GlobalPrices",
+      "tool_called": "FactSet_GlobalPrices",
+      "arguments": {
+        "ids": [
+          "ORCL-US"
+        ],
+        "data_type": "prices",
+        "startDate": "2024-01-01",
+        "endDate": "2024-03-31",
+        "frequency": "W"
+      },
+      "status": "OK",
+      "status_detail": "Success",
+      "mcp_result": "{\n  \"data\": [\n    {\n      \"volume\": 6133770,\n      \"date\": \"2024-01-05\",\n      \"priceLow\": 102.29,\n      \"tradeCount\": 59849,\n      \"requestId\": \"ORCL-US\",\n      \"price\": 102.73,\n      \"vwap\": 102.850421,\n      \"fsymId\": \"HQ4DBK-R\",\n      \"currency\": \"USD\",\n      \"priceOpen\": 102.53,\n      \"priceHigh\": 103.72,\n      \"turnover\": 630938.744736\n    },\n    {\n      \"volume\": 9703848,\n      \"date\": \"2024-01-12\",\n      \"priceLow\": 104.965,\n      \"tradeCount\": 86084,\n      \"requestId\": \"ORCL-US\",\n      ",
+      "error": null,
+      "latency_ms": 1948.610782623291
+    },
+    {
+      "query": "Which days in the past month had the highest trading volume for Amazon?",
+      "expected_tool": "FactSet_GlobalPrices",
+      "tool_called": "FactSet_GlobalPrices",
+      "arguments": {
+        "ids": [
+          "AMZN-US"
+        ],
+        "data_type": "prices",
+        "startDate": "2024-01-27",
+        "endDate": "2024-02-27",
+        "frequency": "D"
+      },
+      "status": "OK",
+      "status_detail": "Success",
+      "mcp_result": "{\n  \"data\": [\n    {\n      \"volume\": 51047353,\n      \"date\": \"2024-01-26\",\n      \"priceLow\": 157.91,\n      \"tradeCount\": 426680,\n      \"requestId\": \"AMZN-US\",\n      \"price\": 159.12,\n      \"vwap\": 159.190279,\n      \"fsymId\": \"MCNYYL-R\",\n      \"currency\": \"USD\",\n      \"priceOpen\": 158.42,\n      \"priceHigh\": 160.72,\n      \"turnover\": 8125965.228986\n    },\n    {\n      \"volume\": 45270385,\n      \"date\": \"2024-01-29\",\n      \"priceLow\": 158.9,\n      \"tradeCount\": 447377,\n      \"requestId\": \"AMZN-US\",\n   ",
+      "error": null,
+      "latency_ms": 2027.0483493804932
+    },
+    {
+      "query": "Show all gap ups greater than 2% for TSLA stock price in the last quarter",
+      "expected_tool": "FactSet_GlobalPrices",
+      "tool_called": "FactSet_GlobalPrices",
+      "arguments": {
+        "ids": [
+          "TSLA-US"
+        ],
+        "data_type": "prices",
+        "startDate": "2024-07-01",
+        "endDate": "2024-09-30",
+        "frequency": "D"
+      },
+      "status": "OK",
+      "status_detail": "Success",
+      "mcp_result": "{\n  \"data\": [\n    {\n      \"volume\": 135691395,\n      \"date\": \"2024-07-01\",\n      \"priceLow\": 200.85,\n      \"tradeCount\": 1561634,\n      \"requestId\": \"TSLA-US\",\n      \"price\": 209.86,\n      \"vwap\": 209.137545,\n      \"fsymId\": \"Q2YN1N-R\",\n      \"currency\": \"USD\",\n      \"priceOpen\": 201.02,\n      \"priceHigh\": 213.23,\n      \"turnover\": 28371929.145554\n    },\n    {\n      \"volume\": 205047920,\n      \"date\": \"2024-07-02\",\n      \"priceLow\": 218.06,\n      \"tradeCount\": 2267409,\n      \"requestId\": \"TSLA-US",
+      "error": null,
+      "latency_ms": 1875.1351833343506
+    },
+    {
+      "query": "Compare the dividend payment frequencies between Johnson & Johnson, Procter & Gamble, and Unilever over the past two years",
+      "expected_tool": "FactSet_GlobalPrices",
+      "tool_called": "FactSet_GlobalPrices",
+      "arguments": {
+        "ids": [
+          "JNJ-US",
+          "PG-US",
+          "ULVR-GB"
+        ],
+        "data_type": "annualized_dividends",
+        "startDate": "2022-06-05",
+        "endDate": "2024-06-05",
+        "frequency": "AY"
+      },
+      "status": "OK",
+      "status_detail": "Success",
+      "mcp_result": "{\n  \"data\": [\n    {\n      \"fsymId\": \"KV0J41-R\",\n      \"eventId\": \"B5B7DC-A\",\n      \"effectiveDate\": \"2026-01-02\",\n      \"iadDefTradingAdj\": 5.2,\n      \"currency\": \"USD\",\n      \"requestId\": \"JNJ-US\"\n    },\n    {\n      \"fsymId\": \"RZXDWV-R\",\n      \"eventId\": \"R2XQCY-A\",\n      \"effectiveDate\": \"2026-01-13\",\n      \"iadDefTradingAdj\": 4.2272,\n      \"currency\": \"USD\",\n      \"requestId\": \"PG-US\"\n    },\n    {\n      \"fsymId\": \"CGF31Z-R\",\n      \"eventId\": \"CDPCMM-A\",\n      \"effectiveDate\": \"2025-02-13\",\n  ",
+      "error": null,
+      "latency_ms": 1882.4741840362549
+    },
+    {
+      "query": "Calculate the rolling 12-month return correlation between Netflix and Disney over the past 3 years",
+      "expected_tool": "FactSet_GlobalPrices",
+      "tool_called": "FactSet_GlobalPrices",
+      "arguments": {
+        "ids": [
+          "NFLX-US",
+          "DIS-US"
+        ],
+        "data_type": "returns",
+        "startDate": "2021-05-15",
+        "endDate": "2024-05-15",
+        "frequency": "M"
+      },
+      "status": "OK",
+      "status_detail": "Success",
+      "mcp_result": "{\n  \"data\": [\n    {\n      \"fsymId\": \"C4C0BL-R\",\n      \"totalReturn\": -2.076071,\n      \"date\": \"2021-05-31\",\n      \"currency\": \"USD\",\n      \"requestId\": \"NFLX-US\"\n    },\n    {\n      \"fsymId\": \"C4C0BL-R\",\n      \"totalReturn\": 5.05161,\n      \"date\": \"2021-06-30\",\n      \"currency\": \"USD\",\n      \"requestId\": \"NFLX-US\"\n    },\n    {\n      \"fsymId\": \"C4C0BL-R\",\n      \"totalReturn\": -2.01435,\n      \"date\": \"2021-07-30\",\n      \"currency\": \"USD\",\n      \"requestId\": \"NFLX-US\"\n    },\n    {\n      \"fsymId\": \"C",
+      "error": null,
+      "latency_ms": 2238.4159564971924
+    },
+    {
+      "query": "Show me all Apple holdings across the top 5 largest mutual funds",
+      "expected_tool": "FactSet_Ownership",
+      "tool_called": "FactSet_Ownership",
+      "arguments": {
+        "ids": [
+          "AAPL-US"
+        ],
+        "data_type": "security_holders",
+        "topn": "5",
+        "holderType": "M"
+      },
+      "status": "OK",
+      "status_detail": "Success",
+      "mcp_result": "{\n  \"data\": [\n    {\n      \"holderId\": \"M4004630\",\n      \"fsymId\": null,\n      \"holderEntityId\": \"04BF4M-E\",\n      \"holderName\": \"Vanguard Total Stock Market ETF\",\n      \"date\": \"2025-12-31\",\n      \"currency\": \"USD\",\n      \"investorType\": \"Exchange Traded Fund\",\n      \"holderType\": \"Mutual Fund\",\n      \"adjHolding\": 464189894.0,\n      \"adjMarketValue\": 126194664582.84,\n      \"weightClose\": 6.1099,\n      \"percentOutstanding\": 3.1582,\n      \"source\": \"US Fund (N-30D)\",\n      \"requestId\": \"AAPL-US\"\n",
+      "error": null,
+      "latency_ms": 1510.1690292358398
+    },
+    {
+      "query": "Who are the top 10 institutional holders of Apple stock?",
+      "expected_tool": "FactSet_Ownership",
+      "tool_called": "FactSet_Ownership",
+      "arguments": {
+        "ids": [
+          "AAPL-US"
+        ],
+        "data_type": "security_holders",
+        "topn": "10",
+        "holderType": "F"
+      },
+      "status": "OK",
+      "status_detail": "Success",
+      "mcp_result": "{\n  \"data\": [\n    {\n      \"holderId\": \"F72998\",\n      \"fsymId\": null,\n      \"holderEntityId\": \"002FYS-E\",\n      \"holderName\": \"The Vanguard Group, Inc.\",\n      \"date\": \"2025-09-30\",\n      \"currency\": \"USD\",\n      \"investorType\": \"Mutual Fund Manager\",\n      \"holderType\": \"Institution\",\n      \"adjHolding\": 1256864037.0,\n      \"adjMarketValue\": 341691057098.82,\n      \"weightClose\": 4.5665,\n      \"percentOutstanding\": 8.5513,\n      \"source\": \"13F Form\",\n      \"requestId\": \"AAPL-US\"\n    },\n    {\n   ",
+      "error": null,
+      "latency_ms": 1525.22611618042
+    },
+    {
+      "query": "Compare insider buying vs selling activity for Tesla over the past year",
+      "expected_tool": "FactSet_Ownership",
+      "tool_called": "FactSet_Ownership",
+      "arguments": {
+        "ids": [
+          "TSLA-US"
+        ],
+        "data_type": "insider_transactions",
+        "startDate": "2023-08-03",
+        "endDate": "2024-08-03",
+        "transactionType": "PS"
+      },
+      "status": "OK",
+      "status_detail": "Success",
+      "mcp_result": "{\n  \"data\": [\n    {\n      \"requestId\": \"TSLA-US\",\n      \"fsymId\": null,\n      \"currency\": null,\n      \"holderName\": \"KIRKHORN ZACHARY J\",\n      \"holderTitle\": \"Chief Financial Officer\",\n      \"holderId\": \"S16247888\",\n      \"shares\": -3750.0,\n      \"price\": null,\n      \"netValueChange\": null,\n      \"filingDate\": \"2023-08-09\",\n      \"isDerivative\": false,\n      \"isDirect\": true,\n      \"tradeType\": \"Disposition\",\n      \"formType\": \"4         \",\n      \"transactionDate\": \"2023-08-04\",\n      \"sharesOw",
+      "error": null,
+      "latency_ms": 2283.4250926971436
+    },
+    {
+      "query": "Which Netflix executives have made the largest stock purchases in 2024?",
+      "expected_tool": "FactSet_Ownership",
+      "tool_called": "FactSet_Ownership",
+      "arguments": {
+        "ids": [
+          "NFLX-US"
+        ],
+        "data_type": "insider_transactions",
+        "startDate": "2024-01-01",
+        "endDate": "2024-12-31",
+        "transactionType": "P",
+        "topn": "ALL"
+      },
+      "status": "OK",
+      "status_detail": "Success",
+      "mcp_result": "{\n  \"data\": [\n    {\n      \"requestId\": \"NFLX-US\",\n      \"fsymId\": null,\n      \"currency\": null,\n      \"holderName\": null,\n      \"holderTitle\": null,\n      \"holderId\": null,\n      \"shares\": null,\n      \"price\": null,\n      \"netValueChange\": null,\n      \"filingDate\": null,\n      \"isDerivative\": null,\n      \"isDirect\": null,\n      \"tradeType\": null,\n      \"formType\": null,\n      \"transactionDate\": null,\n      \"sharesOwned\": null,\n      \"secRule10b51\": null\n    }\n  ]\n}",
+      "error": null,
+      "latency_ms": 2864.651918411255
+    },
+    {
+      "query": "Compare institutional buying patterns between Amazon and Microsoft",
+      "expected_tool": "FactSet_Ownership",
+      "tool_called": "FactSet_Ownership",
+      "arguments": {
+        "ids": [
+          "AMZN-US",
+          "MSFT-US"
+        ],
+        "data_type": "institutional_transactions",
+        "startDate": "2023-01-01",
+        "endDate": "2023-12-31"
+      },
+      "status": "NO OK",
+      "status_detail": "MCP Error: Internal error: Error calling tool 'FactSet_Ownership': API call failed for /factset-ownership/v1/tr",
+      "mcp_result": "",
+      "error": null,
+      "latency_ms": 32582.861185073853
+    },
+    {
+      "query": "List all completed acquisitions made by Apple since 2020",
+      "expected_tool": "FactSet_MergersAcquisitions",
+      "tool_called": "FactSet_MergersAcquisitions",
+      "arguments": {
+        "ids": [
+          "AAPL-US"
+        ],
+        "data_type": "deals_by_company",
+        "startDate": "2020-01-01",
+        "endDate": "2024-01-01",
+        "status": "Complete"
+      },
+      "status": "OK",
+      "status_detail": "Success",
+      "mcp_result": "{\n  \"data\": [\n    {\n      \"dealId\": \"4004165MM\",\n      \"target\": {\n        \"fsymId\": null,\n        \"name\": \"SABH\u2019s Big Adventure, Inc.\",\n        \"industry\": \"Packaged Software\"\n      },\n      \"buyers\": [\n        {\n          \"fsymId\": null,\n          \"name\": \"Apple, Inc.\",\n          \"industry\": null,\n          \"ultimateParentId\": null\n        }\n      ],\n      \"sellers\": [\n        {\n          \"fsymId\": null,\n          \"name\": \"SABH\u2019s Big Adventure, Inc.\",\n          \"industry\": null,\n          \"ult",
+      "error": null,
+      "latency_ms": 1908.9319705963135
+    },
+    {
+      "query": "Compare the average deal value of Meta and Google acquisitions over the last 5 years",
+      "expected_tool": "FactSet_MergersAcquisitions",
+      "tool_called": "FactSet_MergersAcquisitions",
+      "arguments": {
+        "data_type": "deals_by_company",
+        "ids": [
+          "META-US",
+          "GOOGL-US"
+        ],
+        "startDate": "2019-01-01",
+        "endDate": "2024-01-01"
+      },
+      "status": "OK",
+      "status_detail": "Success",
+      "mcp_result": "{\n  \"data\": [\n    {\n      \"dealId\": \"4054439MM\",\n      \"target\": {\n        \"fsymId\": null,\n        \"name\": \"Facebook, Inc. /Satellite Internet Group/\",\n        \"industry\": \"Major Telecommunications\"\n      },\n      \"buyers\": [\n        {\n          \"fsymId\": null,\n          \"name\": \"Amazon.com, Inc.\",\n          \"industry\": null,\n          \"ultimateParentId\": null\n        }\n      ],\n      \"sellers\": [\n        {\n          \"fsymId\": null,\n          \"name\": \"Facebook, Inc.\",\n          \"industry\": null,",
+      "error": null,
+      "latency_ms": 5427.684783935547
+    },
+    {
+      "query": "What deals were announced yesterday where the target is a public company?",
+      "expected_tool": "FactSet_MergersAcquisitions",
+      "tool_called": "FactSet_MergersAcquisitions",
+      "arguments": {
+        "data_type": "public_targets",
+        "startDate": "2024-01-28",
+        "endDate": "2024-01-28",
+        "status": "All"
+      },
+      "status": "NO OK",
+      "status_detail": "MCP Error: Internal error: Error calling tool 'FactSet_MergersAcquisitions': [No data found] No deals found for",
+      "mcp_result": "",
+      "error": null,
+      "latency_ms": 1811.0229969024658
+    },
+    {
+      "query": "Retrieve all M&A deals where Amazon was the acquirer since 2015",
+      "expected_tool": "FactSet_MergersAcquisitions",
+      "tool_called": "FactSet_MergersAcquisitions",
+      "arguments": {
+        "ids": [
+          "AMZN-US"
+        ],
+        "data_type": "deals_by_company",
+        "startDate": "2015-01-01",
+        "endDate": "2024-10-26",
+        "status": "All"
+      },
+      "status": "OK",
+      "status_detail": "Success",
+      "mcp_result": "{\n  \"data\": [\n    {\n      \"dealId\": \"4212660MM\",\n      \"target\": {\n        \"fsymId\": null,\n        \"name\": \"Perceive Corp.\",\n        \"industry\": \"Semiconductors\"\n      },\n      \"buyers\": [\n        {\n          \"fsymId\": null,\n          \"name\": \"Amazon.com, Inc.\",\n          \"industry\": null,\n          \"ultimateParentId\": null\n        }\n      ],\n      \"sellers\": [\n        {\n          \"fsymId\": null,\n          \"name\": \"Xperi, Inc.\",\n          \"industry\": null,\n          \"ultimateParentId\": null\n    ",
+      "error": null,
+      "latency_ms": 2065.6790733337402
+    },
+    {
+      "query": "Show me the organizational structure and contact information for Tesla's leadership team",
+      "expected_tool": "FactSet_People",
+      "tool_called": "FactSet_People",
+      "arguments": {
+        "ids": [
+          "TSLA-US"
+        ],
+        "data_type": "company_people"
+      },
+      "status": "OK",
+      "status_detail": "Success",
+      "mcp_result": "{\n  \"data\": [\n    {\n      \"fsymId\": null,\n      \"email\": null,\n      \"name\": \"Robyn M. Denholm\",\n      \"jobFunction1\": \"Chairman\",\n      \"jobFunction2\": \"Independent Dir/Board Member\",\n      \"jobFunction3\": null,\n      \"jobFunction4\": null,\n      \"mainPhone\": \"1.512.516.8177\",\n      \"personId\": \"0056GC-E\",\n      \"phone\": null,\n      \"requestId\": \"TSLA-US\",\n      \"title\": \"Chairman\"\n    },\n    {\n      \"fsymId\": null,\n      \"email\": null,\n      \"name\": \"Elon Reeve Musk\",\n      \"jobFunction1\": \"Chi",
+      "error": null,
+      "latency_ms": 1596.3881015777588
+    },
+    {
+      "query": "Show me all the CFOs across the FAANG companies",
+      "expected_tool": "FactSet_People",
+      "tool_called": "FactSet_People",
+      "arguments": {
+        "ids": [
+          "AAPL-US",
+          "META-US",
+          "AMZN-US",
+          "NFLX-US",
+          "GOOGL-US"
+        ],
+        "data_type": "company_positions",
+        "position": "CFO"
+      },
+      "status": "OK",
+      "status_detail": "Success",
+      "mcp_result": "{\n  \"data\": [\n    {\n      \"fsymId\": null,\n      \"personId\": \"1095LQ-E\",\n      \"name\": \"Kevan Parekh, MBA\",\n      \"title\": \"Chief Financial Officer & Senior Vice President\",\n      \"yearsAtFirm\": 12.65,\n      \"age\": 54,\n      \"gender\": \"Male\",\n      \"requestPosition\": \"CFO\",\n      \"requestId\": \"AAPL-US\"\n    },\n    {\n      \"fsymId\": null,\n      \"personId\": \"0JJ1H0-E\",\n      \"name\": \"Susan J. Li\",\n      \"title\": \"Chief Financial Officer\",\n      \"yearsAtFirm\": 17.82,\n      \"age\": 40,\n      \"gender\": ",
+      "error": null,
+      "latency_ms": 2006.1898231506348
+    },
+    {
+      "query": "List the founders still active in leadership roles at major tech companies",
+      "expected_tool": "FactSet_People",
+      "tool_called": "FactSet_People",
+      "arguments": {
+        "ids": [
+          "AAPL-US",
+          "MSFT-US",
+          "GOOGL-US",
+          "AMZN-US",
+          "META-US"
+        ],
+        "data_type": "company_positions",
+        "position": "FOU"
+      },
+      "status": "OK",
+      "status_detail": "Success",
+      "mcp_result": "{\n  \"data\": [\n    {\n      \"fsymId\": null,\n      \"personId\": \"05F51W-E\",\n      \"name\": \"Steve Jobs\",\n      \"title\": \"Founder\",\n      \"yearsAtFirm\": 49.82,\n      \"age\": 56,\n      \"gender\": \"Male\",\n      \"requestPosition\": \"FOU\",\n      \"requestId\": \"AAPL-US\"\n    },\n    {\n      \"fsymId\": null,\n      \"personId\": \"0BJ7KY-E\",\n      \"name\": \"Ronald Gerald Wayne\",\n      \"title\": \"Founder\",\n      \"yearsAtFirm\": 49.82,\n      \"age\": null,\n      \"gender\": \"Male\",\n      \"requestPosition\": \"FOU\",\n      \"reques",
+      "error": null,
+      "latency_ms": 1968.1849479675293
+    },
+    {
+      "query": "Compare executive compensation packages between Netflix and Disney",
+      "expected_tool": "FactSet_People",
+      "tool_called": "FactSet_People",
+      "arguments": {
+        "ids": [
+          "NFLX-US",
+          "DIS-US"
+        ],
+        "data_type": "company_compensation"
+      },
+      "status": "OK",
+      "status_detail": "Success",
+      "mcp_result": "{\n  \"data\": [\n    {\n      \"name\": \"Reed Hastings\",\n      \"personId\": \"001K7R-E\",\n      \"title\": \"Non-Executive Chairman\",\n      \"salary\": 100000,\n      \"bonus\": null,\n      \"stockAwards\": 965039,\n      \"optionsAwards\": 281697,\n      \"otherCompensation\": 2215,\n      \"totalCompensation\": 1748951,\n      \"nonEquityIncentivePlanComp\": 400000,\n      \"nonQualifiedCompEarnings\": null,\n      \"compensationYear\": \"2024\",\n      \"requestId\": \"NFLX-US\"\n    },\n    {\n      \"name\": \"Gregory K. Peters\",\n      \"pe",
+      "error": null,
+      "latency_ms": 1670.1209545135498
+    },
+    {
+      "query": "Compare gender diversity metrics between Apple, Google, and Meta leadership teams",
+      "expected_tool": "FactSet_People",
+      "tool_called": "FactSet_People",
+      "arguments": {
+        "ids": [
+          "AAPL-US",
+          "GOOGL-US",
+          "META-US"
+        ],
+        "data_type": "company_stats",
+        "mbType": "MB"
+      },
+      "status": "OK",
+      "status_detail": "Success",
+      "mcp_result": "{\n  \"data\": [\n    {\n      \"fsymId\": null,\n      \"averageMgmtCompensation\": 42989440,\n      \"averageTenure\": 17.62,\n      \"medianTenure\": 1.91,\n      \"averageAge\": 61.41,\n      \"maxAge\": 77,\n      \"minimumAge\": 51,\n      \"medianAge\": 61,\n      \"boardIndependentDirectors\": 7,\n      \"femaleBoardMembers\": 4,\n      \"femaleBoardMembersPercent\": 50.0,\n      \"numberOfMembers\": 35,\n      \"onOtherBoardsAll\": 8,\n      \"onOtherBoardsCorporate\": 8,\n      \"mbType\": \"MB\",\n      \"requestId\": \"AAPL-US\"\n    },\n  ",
+      "error": null,
+      "latency_ms": 1778.9509296417236
+    },
+    {
+      "query": "When was Microsoft's last earnings call?",
+      "expected_tool": "FactSet_CalendarEvents",
+      "tool_called": "FactSet_CalendarEvents",
+      "arguments": {
+        "symbols": [
+          "MSFT-US"
+        ],
+        "universeType": "Tickers",
+        "eventTypes": [
+          "Earnings",
+          "SalesRevenueCall",
+          "GuidanceCall"
+        ],
+        "lastModifiedWithin": "OneMonth"
+      },
+      "status": "OK",
+      "status_detail": "Success",
+      "mcp_result": "{\n  \"data\": [\n    {\n      \"identifier\": \"MSFT-US\",\n      \"entityName\": \"Microsoft Corp.\",\n      \"description\": \"Q2 2026 Earnings Call\",\n      \"eventDateTime\": \"2026-01-28T22:30:00Z\",\n      \"marketTimeCode\": \"Specified\",\n      \"eventType\": \"Earnings\",\n      \"eventId\": \"1204039198\",\n      \"webcastLink\": \"https://www.microsoft.com/en-us/investor/events/fy-2026/earnings-fy-2026-q2\",\n      \"irLink\": \"www.microsoft.com/en-us/investor/default.aspx\",\n      \"fiscalYear\": \"2026\",\n      \"fiscalPeriod\": \"2\"",
+      "error": null,
+      "latency_ms": 1802.8507232666016
+    },
+    {
+      "query": "Does Nvidia have an earnings call scheduled this quarter?",
+      "expected_tool": "FactSet_CalendarEvents",
+      "tool_called": "FactSet_CalendarEvents",
+      "arguments": {
+        "symbols": [
+          "NVDA-US"
+        ],
+        "universeType": "Tickers",
+        "eventTypes": [
+          "Earnings",
+          "SalesRevenueCall",
+          "GuidanceCall"
+        ],
+        "startDateTime": "2024-07-01T00:00:00Z",
+        "endDateTime": "2024-09-30T23:59:59Z"
+      },
+      "status": "OK",
+      "status_detail": "Success",
+      "mcp_result": "{\n  \"error\": \"VALIDATION ERROR: Date range exceeds maximum 90-day limit.\\n\\nYour request:\\n  - startDateTime: 2024-07-01T00:00:00Z\\n  - endDateTime: 2024-09-30T23:59:59Z\\n  - Range: 91 days, 23 hours, 59 minutes, 59 seconds\\n  - Total: 7,948,799 seconds (max: 7,776,000 seconds)\\n\\nThe FactSet Events API enforces a STRICT 90-DAY (7,776,000 seconds) MAXIMUM.\\nEven adding 1 second over 90 days will cause the API to reject your request.\\n\\nSolutions:\\n1. Use endDateTime at 00:00:00 (midnight) instea",
+      "error": null,
+      "latency_ms": 1822.2198486328125
+    },
+    {
+      "query": "Compare the number of earnings calls held by JP Morgan and Goldman Sachs in 2024",
+      "expected_tool": "FactSet_CalendarEvents",
+      "tool_called": "FactSet_CalendarEvents",
+      "arguments": {
+        "symbols": [
+          "JPM-US",
+          "GS-US"
+        ],
+        "universeType": "Tickers",
+        "eventTypes": [
+          "Earnings",
+          "SalesRevenueCall",
+          "GuidanceCall"
+        ],
+        "startDateTime": "2024-01-01T00:00:00Z",
+        "endDateTime": "2024-12-31T23:59:59Z"
+      },
+      "status": "OK",
+      "status_detail": "Success",
+      "mcp_result": "{\n  \"error\": \"VALIDATION ERROR: Date range exceeds maximum 90-day limit.\\n\\nYour request:\\n  - startDateTime: 2024-01-01T00:00:00Z\\n  - endDateTime: 2024-12-31T23:59:59Z\\n  - Range: 365 days, 23 hours, 59 minutes, 59 seconds\\n  - Total: 31,622,399 seconds (max: 7,776,000 seconds)\\n\\nThe FactSet Events API enforces a STRICT 90-DAY (7,776,000 seconds) MAXIMUM.\\nEven adding 1 second over 90 days will cause the API to reject your request.\\n\\nSolutions:\\n1. Use endDateTime at 00:00:00 (midnight) inst",
+      "error": null,
+      "latency_ms": 1929.283857345581
+    },
+    {
+      "query": "Compare Amazon's Americas and Asia/Pacific revenue over the last 3 years",
+      "expected_tool": "FactSet_GeoRev",
+      "tool_called": "FactSet_GeoRev",
+      "arguments": {
+        "ids": [
+          "AMZN-US"
+        ],
+        "data_type": "regions",
+        "regionIds": [
+          "R101",
+          "R170"
+        ],
+        "startDate": "2021-01-01",
+        "endDate": "2023-12-31",
+        "frequency": "FY"
+      },
+      "status": "OK",
+      "status_detail": "Success",
+      "mcp_result": "{\n  \"data\": [\n    {\n      \"date\": \"2021-12-31\",\n      \"fsymId\": null,\n      \"regionId\": \"R101\",\n      \"requestId\": \"AMZN-US\",\n      \"regionCertaintyClass\": \"A\",\n      \"regionCertaintyRank\": 79,\n      \"regionConfidence\": 0.998863,\n      \"regionName\": \"Americas\",\n      \"regionPercent\": 68.394469,\n      \"regionRevenue\": 321332.26214518,\n      \"currency\": \"USD\",\n      \"fiscalEndDate\": \"2021-12-31\",\n      \"reportDate\": \"2021-12-31\"\n    },\n    {\n      \"date\": \"2022-12-31\",\n      \"fsymId\": null,\n      ",
+      "error": null,
+      "latency_ms": 2145.4520225524902
+    },
+    {
+      "query": "What's Coca-Cola's European Union revenue exposure?",
+      "expected_tool": "FactSet_GeoRev",
+      "tool_called": "FactSet_GeoRev",
+      "arguments": {
+        "ids": [
+          "KO-US"
+        ],
+        "data_type": "regions",
+        "regionIds": [
+          "R275"
+        ]
+      },
+      "status": "OK",
+      "status_detail": "Success",
+      "mcp_result": "{\n  \"data\": [\n    {\n      \"date\": \"2024-12-31\",\n      \"fsymId\": null,\n      \"regionId\": \"R275\",\n      \"requestId\": \"KO-US\",\n      \"regionCertaintyClass\": \"C\",\n      \"regionCertaintyRank\": 46,\n      \"regionConfidence\": 0.994512,\n      \"regionName\": \"European Union\",\n      \"regionPercent\": 12.652438,\n      \"regionRevenue\": 5917.03915508,\n      \"currency\": \"USD\",\n      \"fiscalEndDate\": \"2024-12-31\",\n      \"reportDate\": \"2024-12-31\"\n    }\n  ]\n}",
+      "error": null,
+      "latency_ms": 1770.6780433654785
+    },
+    {
+      "query": "How much revenue does Apple make in China?",
+      "expected_tool": "FactSet_GeoRev",
+      "tool_called": "FactSet_GeoRev",
+      "arguments": {
+        "ids": [
+          "AAPL-US"
+        ],
+        "data_type": "countries",
+        "countryIds": [
+          "CN"
+        ]
+      },
+      "status": "OK",
+      "status_detail": "Success",
+      "mcp_result": "{\n  \"data\": [\n    {\n      \"date\": \"2025-09-30\",\n      \"fsymId\": null,\n      \"countryId\": \"CN\",\n      \"requestId\": \"AAPL-US\",\n      \"countryCertaintyClass\": \"A\",\n      \"countryCertaintyRank\": 72,\n      \"countryConfidence\": 0.996513,\n      \"countryName\": \"China\",\n      \"countryPercent\": 14.540151,\n      \"countryRevenue\": 60510.43780311,\n      \"currency\": \"USD\",\n      \"fiscalEndDate\": \"2025-09-30\",\n      \"reportDate\": \"2025-09-27\"\n    }\n  ]\n}",
+      "error": null,
+      "latency_ms": 1804.3451309204102
+    },
+    {
+      "query": "List all direct customers of Taiwan Semiconductor",
+      "expected_tool": "FactSet_SupplyChain",
+      "tool_called": "FactSet_SupplyChain",
+      "arguments": {
+        "ids": [
+          "2330-TW"
+        ],
+        "relationshipType": "CUSTOMERS",
+        "companyType": "ALL"
+      },
+      "status": "OK",
+      "status_detail": "Success",
+      "mcp_result": "{\n  \"data\": [\n    {\n      \"entityId\": \"068XX4-E\",\n      \"companyName\": \"Global Unichip Corp.\",\n      \"overlappingProductCount\": \"5 of 10\",\n      \"overlapPercentage\": 50,\n      \"relationshipDirection\": \"Mutual\",\n      \"requestId\": \"2330-TW\",\n      \"requestEntityId\": \"001Y70-E\"\n    },\n    {\n      \"entityId\": \"000V67-E\",\n      \"companyName\": \"QUALCOMM Incorporated\",\n      \"overlappingProductCount\": \"1 of 24\",\n      \"overlapPercentage\": 4,\n      \"relationshipDirection\": \"Mutual\",\n      \"requestId\": ",
+      "error": null,
+      "latency_ms": 1527.0090103149414
+    },
+    {
+      "query": "Map the shared supplier ecosystem between Apple and Samsung's supply chains",
+      "expected_tool": "FactSet_SupplyChain",
+      "tool_called": "FactSet_SupplyChain",
+      "arguments": {
+        "ids": [
+          "AAPL-US"
+        ],
+        "relationshipType": "SUPPLIERS",
+        "companyType": "ALL"
+      },
+      "status": "OK",
+      "status_detail": "Success",
+      "mcp_result": "{\n  \"data\": [\n    {\n      \"entityId\": \"000DS3-E\",\n      \"companyName\": \"Cirrus Logic, Inc.\",\n      \"overlappingProductCount\": \"0 of 14\",\n      \"overlapPercentage\": 0,\n      \"relationshipDirection\": \"Reverse\",\n      \"requestId\": \"AAPL-US\",\n      \"requestEntityId\": \"AAPL-US\"\n    },\n    {\n      \"entityId\": \"0HBXZ2-E\",\n      \"companyName\": \"Cherrypick Games SA\",\n      \"overlappingProductCount\": \"0 of 8\",\n      \"overlapPercentage\": 0,\n      \"relationshipDirection\": \"Reverse\",\n      \"requestId\": \"AAPL",
+      "error": null,
+      "latency_ms": 2686.359167098999
+    },
+    {
+      "query": "Starting from Nvidia, map its direct suppliers",
+      "expected_tool": "FactSet_SupplyChain",
+      "tool_called": "FactSet_SupplyChain",
+      "arguments": {
+        "ids": [
+          "NVDA-US"
+        ],
+        "relationshipType": "SUPPLIERS"
+      },
+      "status": "OK",
+      "status_detail": "Success",
+      "mcp_result": "{\n  \"data\": [\n    {\n      \"entityId\": \"0638G0-E\",\n      \"companyName\": \"Fabrinet\",\n      \"overlappingProductCount\": \"2 of 22\",\n      \"overlapPercentage\": 9,\n      \"relationshipDirection\": \"Mutual\",\n      \"requestId\": \"NVDA-US\",\n      \"requestEntityId\": \"00208X-E\"\n    },\n    {\n      \"entityId\": \"05HWW7-E\",\n      \"companyName\": \"IBIDEN CO., LTD.\",\n      \"overlappingProductCount\": \"0 of 24\",\n      \"overlapPercentage\": 0,\n      \"relationshipDirection\": \"Reverse\",\n      \"requestId\": \"NVDA-US\",\n      ",
+      "error": null,
+      "latency_ms": 1505.7029724121094
+    },
+    {
+      "query": "Show me Tesla's top competitors",
+      "expected_tool": "FactSet_SupplyChain",
+      "tool_called": "FactSet_SupplyChain",
+      "arguments": {
+        "ids": [
+          "TSLA-US"
+        ],
+        "relationshipType": "COMPETITORS",
+        "companyType": "PUBLIC_COMPANIES_ONLY"
+      },
+      "status": "OK",
+      "status_detail": "Success",
+      "mcp_result": "{\n  \"data\": [\n    {\n      \"entityId\": \"001YFZ-E\",\n      \"companyName\": \"Volkswagen AG Pref\",\n      \"overlappingProductCount\": \"6 of 80\",\n      \"overlapPercentage\": 8,\n      \"relationshipDirection\": \"Reverse\",\n      \"requestId\": \"TSLA-US\",\n      \"requestEntityId\": \"006XY7-E\"\n    },\n    {\n      \"entityId\": \"0JYCR6-E\",\n      \"companyName\": \"Turbo Energy, S.A. Sponsored ADR\",\n      \"overlappingProductCount\": \"4 of 5\",\n      \"overlapPercentage\": 80,\n      \"relationshipDirection\": \"Reverse\",\n      \"re",
+      "error": null,
+      "latency_ms": 1537.5759601593018
+    },
+    {
+      "query": "Find metric codes for revenue and profitability",
+      "expected_tool": "FactSet_Metrics",
+      "tool_called": "FactSet_Metrics",
+      "arguments": {
+        "text": [
+          "revenue",
+          "profitability"
+        ],
+        "data_products": [
+          "fundamentals"
+        ]
+      },
+      "status": "OK",
+      "status_detail": "Success",
+      "mcp_result": "{\n  \"data\": [\n    {\n      \"query\": \"revenue\",\n      \"target\": \"metric\",\n      \"results\": [\n        {\n          \"score\": 0.9237941,\n          \"properties\": {\n            \"category\": \"INDUSTRY_METRICS\",\n            \"description\": \"Revenue in the Pharmaceutical industry captures the total income generated from the sale of drugs, medical devices, and related products and services. It is a foundational metric for evaluating the financial performance, market share, and growth trajectory of a company. ",
+      "error": null,
+      "latency_ms": 3127.290964126587
+    },
+    {
+      "query": "Discover valid metric codes for debt metrics",
+      "expected_tool": "FactSet_Metrics",
+      "tool_called": "FactSet_Metrics",
+      "arguments": {
+        "text": [
+          "debt",
+          "debt to equity",
+          "total debt",
+          "short term debt",
+          "long term debt"
+        ],
+        "data_products": [
+          "fundamentals"
+        ]
+      },
+      "status": "OK",
+      "status_detail": "Success",
+      "mcp_result": "{\n  \"data\": [\n    {\n      \"query\": \"debt\",\n      \"target\": \"metric\",\n      \"results\": [\n        {\n          \"score\": 0.9674977,\n          \"properties\": {\n            \"category\": \"BALANCE_SHEET\",\n            \"description\": \"Total Debt represents the sum of all interest-bearing liabilities on a company's balance sheet, including both short-term and long-term borrowings. This metric provides a comprehensive view of a company\u2019s overall indebtedness and is crucial for assessing financial leverage and",
+      "error": null,
+      "latency_ms": 2684.9961280822754
+    }
+  ]
+}
