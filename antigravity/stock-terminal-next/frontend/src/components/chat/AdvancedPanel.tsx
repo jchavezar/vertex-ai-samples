@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { MessageSquare, Share2, Activity, Terminal, Maximize2, Minimize2, ChevronsRight, Clock, Brain, Square, Trash2 } from 'lucide-react';
+import { MessageSquare, Share2, Activity, Terminal, Maximize2, Minimize2, ChevronsRight, Clock, Brain, Square, Trash2, Image as ImageIcon, X } from 'lucide-react';
 import { clsx } from "clsx";
 import { useDashboardStore } from '../../store/dashboardStore';
 import AgentGraph from './AgentGraph';
@@ -56,8 +56,17 @@ const DynamicStatusText: React.FC<{ logs: any[] }> = ({ logs }) => {
 
 const AdvancedPanel: React.FC<AdvancedPanelProps> = ({ onDragStart }) => {
   const [activeTab, setActiveTab] = useState<'chat' | 'graph' | 'trace' | 'reasoning'>('chat');
-  const { messages, input, handleInputChange, handleSubmit, isLoading, traceLogs, topology, executionPath, nodeDurations, nodeMetrics, lastLatency, startTime, selectedModel, sessionId, stop, resetChat } = useWorkstationChat();
+  const { messages, input, handleInputChange, handleSubmit, isLoading, traceLogs, topology, executionPath, nodeDurations, nodeMetrics, lastLatency, startTime, selectedModel, sessionId, stop, resetChat, image, handleImageSelect, clearImage } = useWorkstationChat();
   const { isChatMaximized, toggleChatMaximized, chatDockPosition, theme } = useDashboardStore();
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      handleImageSelect(e.target.files[0]);
+    }
+    // Reset value so same file can be selected again if needed
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
   const isDark = theme === 'dark';
   const scrollContainerRef = React.useRef<HTMLDivElement>(null);
   const messagesEndRef = React.useRef<HTMLDivElement>(null);
@@ -426,8 +435,38 @@ const AdvancedPanel: React.FC<AdvancedPanelProps> = ({ onDragStart }) => {
 
           {/* Input Area */}
           <div className={clsx("p-4 border-t bg-transparent shrink-0", isDark ? "border-white/10" : "border-gray-100")}>
+            {/* Image Preview */}
+            {image && (
+              <div className="relative inline-block mb-2 group">
+                <img src={`data:image/png;base64,${image}`} alt="Preview" className="h-16 w-16 object-cover rounded-lg border border-white/20" />
+                <button
+                  onClick={clearImage}
+                  className="absolute -top-1 -right-1 bg-black/50 text-white rounded-full p-0.5 hover:bg-black/80 transition-colors"
+                >
+                  <X size={12} />
+                </button>
+              </div>
+            )}
             <div className="relative overflow-hidden w-full min-w-0">
-              <form onSubmit={handleSubmit} className="relative w-full">
+              <form onSubmit={handleSubmit} className="relative w-full flex items-end gap-2">
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  className="hidden"
+                  accept="image/*"
+                  onChange={handleFileChange}
+                />
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={isLoading}
+                  className={clsx(
+                    "p-3 rounded-xl transition-colors shrink-0",
+                    isDark ? "bg-[var(--bg-app)] border border-[var(--border)] text-gray-400 hover:text-gray-200" : "bg-white border border-gray-200 text-slate-400 hover:text-slate-600"
+                  )}
+                >
+                  <ImageIcon size={20} />
+                </button>
                 <input
                   value={input}
                   onChange={handleInputChange}

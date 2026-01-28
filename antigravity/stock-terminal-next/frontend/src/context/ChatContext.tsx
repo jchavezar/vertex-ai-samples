@@ -31,6 +31,10 @@ interface ChatContextType {
   sessionId: string;
   stop: () => void;
   resetChat: () => void;
+  image: string | null;
+  mimeType: string | null;
+  handleImageSelect: (file: File) => Promise<void>;
+  clearImage: () => void;
 }
 
 const ChatContext = createContext<ChatContextType | undefined>(undefined);
@@ -50,6 +54,8 @@ export function ChatProvider({ children }: { children: ReactNode }) {
   const [startTime, setStartTime] = useState<number | null>(null);
   const [selectedModel, setSelectedModel] = useState<string>("gemini-3-flash-preview");
   const [sessionId] = useState(() => Math.random().toString(36).substring(7)); // Simple unique ID for this tab session
+  const [image, setImage] = useState<string | null>(null);
+  const [mimeType, setMimeType] = useState<string | null>(null);
   
   useEffect(() => {
     console.log("[ChatContext] Initialized with Session ID:", sessionId);
@@ -62,7 +68,9 @@ export function ChatProvider({ children }: { children: ReactNode }) {
     api: 'http://localhost:8001/chat',
     body: {
        model: selectedModel,
-       sessionId: sessionId
+      sessionId: sessionId,
+      image: image,
+      mimeType: mimeType
     },
     
     onResponse: (resp) => {
@@ -75,8 +83,6 @@ export function ChatProvider({ children }: { children: ReactNode }) {
     }
   });
 
-  // Robust Timer using isLoading state
-  // WE ONLY STOP here. We start in handleSubmit to capture the "Enter" key press time.
   // Robust Timer using isLoading state
   // WE ONLY STOP here. We start in handleSubmit to capture the "Enter" key press time.
   useEffect(() => {
@@ -103,6 +109,37 @@ export function ChatProvider({ children }: { children: ReactNode }) {
       setStartTime(now);
       setLastLatency(null); // Reset on new query
       originalHandleSubmit(e);
+    // Clear image after submit (short delay to ensure it's picked up?)
+    // Actually request is formed immediately.
+    setTimeout(() => {
+      setImage(null);
+      setMimeType(null);
+    }, 100);
+  };
+
+  const handleImageSelect = async (file: File) => {
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const result = e.target?.result as string;
+      // result is "data:image/png;base64,....."
+      if (result) {
+        // Split to get base64
+        const parts = result.split(',');
+        if (parts.length > 1) {
+          const mime = parts[0].match(/:(.*?);/)?.[1] || file.type;
+          const b64 = parts[1];
+          setMimeType(mime);
+          setImage(b64);
+        }
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const clearImage = () => {
+    setImage(null);
+    setMimeType(null);
   };
 
   const resetChat = () => {
@@ -310,7 +347,11 @@ export function ChatProvider({ children }: { children: ReactNode }) {
     setSelectedModel,
     sessionId,
     stop,
-    resetChat
+    resetChat,
+    image,
+    mimeType,
+    handleImageSelect,
+    clearImage
   };
 
   return (
