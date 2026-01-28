@@ -24,7 +24,7 @@ export const DashboardHeader: React.FC = () => {
   const currency = displayData.currency || '$';
 
   return (
-    <header className="bg-[var(--bg-card)] backdrop-blur-3xl border-b border-[var(--border)] px-6 py-3 flex items-center gap-6 z-50">
+    <header className="bg-[var(--bg-card)] backdrop-blur-3xl border-b border-[var(--border)] px-6 py-3 flex items-center gap-6 z-50 min-w-0 overflow-hidden">
       <div className="flex items-center gap-3">
         <div className="w-9 h-9 bg-[var(--brand-gradient)] text-white flex items-center justify-center rounded-full font-black text-base shadow-lg">
           {name.charAt(0)}

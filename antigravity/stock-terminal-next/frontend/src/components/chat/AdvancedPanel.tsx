@@ -6,7 +6,7 @@ import AgentGraph from './AgentGraph';
 import TraceLog from './TraceLog';
 import { ReasoningTab } from './ReasoningTab';
 import { StreamingMarkdown } from './StreamingMarkdown';
-import { useTerminalChat } from '../../hooks/useTerminalChat';
+import { useWorkstationChat } from '../../hooks/useWorkstationChat';
 
 interface AdvancedPanelProps {
   onClose?: () => void;
@@ -56,7 +56,7 @@ const DynamicStatusText: React.FC<{ logs: any[] }> = ({ logs }) => {
 
 const AdvancedPanel: React.FC<AdvancedPanelProps> = ({ onDragStart }) => {
   const [activeTab, setActiveTab] = useState<'chat' | 'graph' | 'trace' | 'reasoning'>('chat');
-  const { messages, input, handleInputChange, handleSubmit, isLoading, traceLogs, topology, executionPath, nodeDurations, nodeMetrics, lastLatency, startTime, selectedModel, sessionId, stop, resetChat } = useTerminalChat();
+  const { messages, input, handleInputChange, handleSubmit, isLoading, traceLogs, topology, executionPath, nodeDurations, nodeMetrics, lastLatency, startTime, selectedModel, sessionId, stop, resetChat } = useWorkstationChat();
   const { isChatMaximized, toggleChatMaximized, chatDockPosition, theme } = useDashboardStore();
   const isDark = theme === 'dark';
   const scrollContainerRef = React.useRef<HTMLDivElement>(null);
@@ -143,17 +143,17 @@ const AdvancedPanel: React.FC<AdvancedPanelProps> = ({ onDragStart }) => {
       >
         <div className="flex items-center gap-2 overflow-hidden">
           <button
-            onClick={() => setActiveTab('chat')} // "Home" action: Back to chat
+            onClick={() => setActiveTab('chat')} // "Home" action: Back to workstation
             className={clsx(
               "p-1.5 rounded-lg shrink-0 transition-colors cursor-pointer",
               isDark ? "bg-[var(--brand)]/10 text-[var(--brand)] hover:bg-[var(--brand)]/20" : "bg-blue-50 text-blue-600 hover:bg-blue-100"
             )}
-            title="Home / Reset View"
+            title="Workstation home"
           >
             <Terminal size={16} />
           </button>
           <div className="min-w-0">
-            <h2 className={clsx("text-sm font-bold truncate", isDark ? "text-[var(--text-primary)]" : "text-slate-800")}>Terminal</h2>
+            <h2 className={clsx("text-sm font-bold truncate", isDark ? "text-[var(--text-primary)]" : "text-slate-800")}>Workstation</h2>
             <div className={clsx("flex items-center gap-1 text-[10px] shrink-0", isDark ? "text-[var(--text-muted)]" : "text-slate-500")}>
               {isLoading ? (
                 <>
@@ -178,7 +178,7 @@ const AdvancedPanel: React.FC<AdvancedPanelProps> = ({ onDragStart }) => {
           <div className="flex items-center gap-1 shrink-0">
           {/* Tabs - Now more visible */}
           <div className={clsx(
-            "flex rounded-lg p-0.5 border",
+            "flex items-center gap-1.5 rounded-lg p-0.5 border min-w-0",
             isDark ? "bg-black/40 border-white/10" : "bg-slate-100 border-slate-200"
           )}>
             <TabButton
@@ -187,6 +187,7 @@ const AdvancedPanel: React.FC<AdvancedPanelProps> = ({ onDragStart }) => {
               icon={<MessageSquare size={13} />}
               label="Chat"
               isDark={isDark}
+              isChatMaximized={isChatMaximized}
             />
             <TabButton
               active={activeTab === 'graph'}
@@ -194,6 +195,7 @@ const AdvancedPanel: React.FC<AdvancedPanelProps> = ({ onDragStart }) => {
               icon={<Share2 size={13} />}
               label="Graph"
               isDark={isDark}
+              isChatMaximized={isChatMaximized}
             />
             <TabButton
               active={activeTab === 'trace'}
@@ -201,6 +203,7 @@ const AdvancedPanel: React.FC<AdvancedPanelProps> = ({ onDragStart }) => {
               icon={<Activity size={13} />}
               label="Trace"
               isDark={isDark}
+              isChatMaximized={isChatMaximized}
             />
             <TabButton
               active={activeTab === 'reasoning'}
@@ -208,6 +211,7 @@ const AdvancedPanel: React.FC<AdvancedPanelProps> = ({ onDragStart }) => {
               icon={<Brain size={13} />}
               label="Reasoning"
               isDark={isDark}
+              isChatMaximized={isChatMaximized}
             />
           </div>
 
@@ -282,7 +286,7 @@ const AdvancedPanel: React.FC<AdvancedPanelProps> = ({ onDragStart }) => {
                 <p>How can I help you today?</p>
               </div>
             )}
-            {messages.map((m, i) => {
+            {messages.map((m: any, i: number) => {
               const isAssistant = m.role === 'assistant';
               const isStreaming = isAssistant && i === messages.length - 1 && isLoading;
 
@@ -293,7 +297,7 @@ const AdvancedPanel: React.FC<AdvancedPanelProps> = ({ onDragStart }) => {
 
               // Identify if this is the latest user message to attach the active/final timer
               // This ensures the timer persists even after the assistant responds (which makes isLastMessage false)
-              const lastUserIndex = messages.reduce((acc, m, idx) => m.role === 'user' ? idx : acc, -1);
+              const lastUserIndex = messages.reduce((acc: number, m: any, idx: number) => m.role === 'user' ? idx : acc, -1);
               const isLatestUserMessage = m.role === 'user' && i === lastUserIndex;
 
               return (
@@ -421,26 +425,28 @@ const AdvancedPanel: React.FC<AdvancedPanelProps> = ({ onDragStart }) => {
           </div>
 
           {/* Input Area */}
-          <div className={clsx("p-4 border-t bg-transparent", isDark ? "border-white/10" : "border-gray-100")}>
-            <form onSubmit={handleSubmit} className="relative">
-              <input
-                value={input}
-                onChange={handleInputChange}
-                placeholder="Ask anything..."
-                className={clsx(
-                  "w-full rounded-xl py-3 px-4 pr-12 outline-none transition-all text-sm",
-                  isDark ? "bg-[var(--bg-app)] border border-[var(--border)] focus:ring-2 focus:ring-[var(--brand)] focus:border-transparent placeholder:text-gray-400 text-gray-200" :
-                  "bg-white border border-gray-200 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 focus:shadow-md placeholder:text-slate-400 text-slate-800"
-                )}
-              />
-              <button
-                disabled={isLoading}
-                type="submit"
-                className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 bg-[var(--brand)] text-white rounded-lg hover:bg-blue-600 disabled:opacity-50 transition-colors"
-              >
-                <MessageSquare size={16} />
-              </button>
-            </form>
+          <div className={clsx("p-4 border-t bg-transparent shrink-0", isDark ? "border-white/10" : "border-gray-100")}>
+            <div className="relative overflow-hidden w-full min-w-0">
+              <form onSubmit={handleSubmit} className="relative w-full">
+                <input
+                  value={input}
+                  onChange={handleInputChange}
+                  placeholder="Ask anything..."
+                  className={clsx(
+                    "w-full rounded-xl py-3 px-4 pr-12 outline-none transition-all text-sm min-w-0 flex-1",
+                    isDark ? "bg-[var(--bg-app)] border border-[var(--border)] focus:ring-2 focus:ring-[var(--brand)] focus:border-transparent placeholder:text-gray-400 text-gray-200" :
+                      "bg-white border border-gray-200 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 focus:shadow-md placeholder:text-slate-400 text-slate-800"
+                  )}
+                />
+                <button
+                  disabled={isLoading}
+                  type="submit"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 bg-[var(--brand)] text-white rounded-lg hover:bg-blue-600 disabled:opacity-50 transition-colors shrink-0"
+                >
+                  <MessageSquare size={16} />
+                </button>
+              </form>
+            </div>
           </div>
         </div>
 
@@ -474,21 +480,23 @@ const AdvancedPanel: React.FC<AdvancedPanelProps> = ({ onDragStart }) => {
 };
 
 // UI Helper
-const TabButton = ({ active, onClick, icon, label, isDark }: any) => (
+const TabButton = ({ active, onClick, icon, label, isDark, isChatMaximized }: any) => (
   <button
     onClick={onClick}
     className={clsx(
-      "flex items-center gap-1.5 px-2 py-1 rounded-md text-[11px] font-medium transition-all duration-200",
+      "flex items-center gap-1.5 px-2 py-1 rounded-md text-[11px] font-bold transition-all duration-200",
       active
-        ? "bg-[var(--brand)] text-white shadow-md"
+        ? "bg-[var(--brand)] text-white shadow-lg"
         : isDark
-          ? "text-[var(--text-muted)] hover:bg-[var(--bg-card)] hover:text-[var(--text-primary)]"
+          ? "text-gray-400 hover:bg-white/5 hover:text-white"
           : "text-slate-500 hover:bg-slate-200 hover:text-slate-800"
     )}
   >
     {icon}
-    {/* Hide label on small screens unless active/maximized? No, always show for clarity per user request */}
-    <span>{label}</span>
+    <span className={clsx(
+      "leading-none truncate",
+      isChatMaximized ? "inline-block max-w-[60px]" : "hidden"
+    )}>{label}</span>
   </button>
 );
 

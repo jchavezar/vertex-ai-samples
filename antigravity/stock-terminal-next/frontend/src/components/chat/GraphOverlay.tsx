@@ -24,13 +24,13 @@ export const GraphOverlay: React.FC = () => {
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.95 }}
                 transition={{ duration: 0.2 }}
-                className="fixed z-40 overflow-hidden bg-[var(--bg-card)] border border-[var(--border)] rounded-2xl shadow-2xl backdrop-blur-xl flex flex-col"
+                className="fixed z-[100] overflow-hidden bg-[#0a0a0a]/90 border border-white/10 rounded-2xl shadow-2xl backdrop-blur-3xl flex flex-col"
                 style={{
-                    boxShadow: "0 0 40px rgba(0,0,0,0.3)",
-                    top: isMaximized ? 16 : 80,
-                    bottom: isMaximized ? 16 : 80,
-                    left: isMaximized ? 16 : 80,
-                    right: isMaximized ? 16 : rightOffset
+                    boxShadow: "0 0 60px rgba(0,0,0,0.6)",
+                    top: isMaximized ? 16 : 40,
+                    bottom: isMaximized ? 16 : 40,
+                    left: isMaximized ? 16 : 40,
+                    right: isMaximized ? 16 : (rightOffset + 20)
                 }}
             >
                 {/* Header */}

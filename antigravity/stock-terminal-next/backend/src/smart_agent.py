@@ -118,7 +118,7 @@ async def analyze_pdf_url(url: str, query: str = "Summarize this document") -> s
         prompt = f"Analyze the attached PDF and answer this question: {query}"
         
         response = client.models.generate_content(
-            model="gemini-2.0-flash-exp",
+            model="gemini-2.5-flash",
             contents=[
                 types.Content(
                     role="user",
@@ -142,6 +142,32 @@ async def get_market_sentiment(ticker: str) -> str:
     """
     # Mock logic for demo
     return f"[CUSTOM TOOL] {ticker} sentiment is currently BULLISH based on recent social volume."
+
+async def consult_analyst_copilot(query: str = "Research macro investability context") -> str:
+    """
+    Delegates complex macro, sector, or 'investability' research to the Analyst Copilot sub-agent.
+    Use this when the user asks for high-level strategy, sector switch, or market 'opinions'.
+    """
+    from src.analyst_copilot import create_analyst_copilot
+    import google.adk as adk
+    from google.adk.sessions import InMemorySessionService
+    import secrets
+    
+    copilot = create_analyst_copilot()
+    session_service = InMemorySessionService()
+    runner = adk.Runner(app_name="copilot", agent=copilot, session_service=session_service)
+    session_id = secrets.token_hex(4)
+    await session_service.create_session(session_id=session_id, user_id="main_agent", app_name="copilot")
+    
+    final_result = ""
+    msg = types.Content(role="user", parts=[types.Part(text=query)])
+    async for event in runner.run_async(user_id="main_agent", session_id=session_id, new_message=msg):
+        if event.content and event.content.parts:
+            for part in event.content.parts:
+                if part.text:
+                    final_result += part.text
+                    
+    return f"[ANALYST COPILOT DELEGATION]\\n{final_result}"
 
 def fix_tool_params(tool_name: str, kwargs: dict) -> dict:
     """
@@ -200,7 +226,12 @@ Your mission is to provide accurate financial insights, real-time data, and inte
     - "Alphabet" usually triggers a clarification between GOOGL (Class A) and GOOG (Class C).
     - If unsure, ASK or show both if easy.
 
-6.  **Responsiveness**:
+6.  **Analyst Copilot (Strategic Research)**:
+    - If the user asks about **"investability"**, **"market trends"**, **"macro environment"**, or to **"switch sector/view"**, you **MUST** call `consult_analyst_copilot`.
+    - Example: "I want to get up to speed on the investability of NVDA" -> Call `consult_analyst_copilot`.
+    - This specialist has access to web news and macro strategy tools you do not.
+
+7.  **Responsiveness**:
     - Be concise.
     - If data is not available, say so immediately. Do not loop.
 
@@ -373,7 +404,7 @@ class DelegatingTool(BaseTool):
 
 # --- FACTORY ---
 
-async def create_smart_agent(token: str, model_name: str = "gemini-2.0-flash-exp", tool_observer: Any = None) -> Agent:
+async def create_smart_agent(token: str, model_name: str = "gemini-2.5-flash", tool_observer: Any = None) -> Agent:
     print(f"!!! CREATE SMART AGENT: model={model_name}, token_present={bool(token)}")
     
     # Load Schemas for Injection
@@ -441,7 +472,7 @@ async def create_smart_agent(token: str, model_name: str = "gemini-2.0-flash-exp
 
     # 1. Base Tools (Wrapped)
     # REMOVED google_search as per user request to prevent fallback hallucinations
-    base_tools = [get_current_datetime, plot_financial_data, analyze_pdf_url, get_market_sentiment]
+    base_tools = [get_current_datetime, plot_financial_data, analyze_pdf_url, get_market_sentiment, consult_analyst_copilot]
     tools = [wrap_tool(t) for t in base_tools]
     
     # Integrate FactSet/MCP if token is available

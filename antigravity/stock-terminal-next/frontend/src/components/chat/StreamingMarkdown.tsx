@@ -1,6 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import { MacroPerspectiveCard } from './MacroPerspectiveCard';
+import { PeerPackGrid } from './PeerPackGrid';
+import { useDashboardStore } from '../../store/dashboardStore';
+import { Zap } from 'lucide-react';
+import { clsx } from "clsx";
 
 interface StreamingMarkdownProps {
   content: string;
@@ -41,10 +46,9 @@ export const StreamingMarkdown: React.FC<StreamingMarkdownProps> = ({ content, i
 
     const animate = (time: number) => {
       const state = stateRef.current;
-      const { displayedContent, targetContent, lastFrameTime } = state;
+      const { displayedContent, targetContent } = state;
 
       // Calculate time delta
-      const delta = time - lastFrameTime;
       
       // Target frame rate (e.g. 60fps -> 16ms)
       // We throttle slightly to create a "tech" feel, or just go smooth.
@@ -89,33 +93,110 @@ export const StreamingMarkdown: React.FC<StreamingMarkdownProps> = ({ content, i
     return () => cancelAnimationFrame(animationFrameId);
   }, [isStreaming]);
 
+  const { theme } = useDashboardStore();
+  const isAnalystCopilot = content.includes('[ANALYST COPILOT]');
+
+  // Clean content for display (remove tags)
+  let displayStr = displayedContent;
+  let peerPackData: any[] | null = null;
+
+  // Detect and extract Structured Data
+  let structuredData: any = null;
+  const structuredDataMatch = displayStr.match(/\[STRUCTURED_DATA:\s*(\{.*?\})\]/);
+  if (structuredDataMatch && structuredDataMatch[1]) {
+    try {
+      structuredData = JSON.parse(structuredDataMatch[1]);
+    } catch (e) {
+      console.error("Failed to parse structured data", e);
+    }
+  }
+
+  // Detect and extract Peer Pack data (legacy support if needed, or just focus on structuredData)
+  const peerPackMatch = displayStr.match(/\[PEER_PACK:\s*(\[.*?\])\]/);
+  if (peerPackMatch && peerPackMatch[1] && !peerPackData) {
+    try {
+      peerPackData = JSON.parse(peerPackMatch[1]);
+    } catch (e) {
+      console.error("Failed to parse peer pack data", e);
+    }
+  }
+
+  // Remove tags from the markdown display
+  displayStr = displayStr.replace(/\[PEER_PACK:.*?\]/g, '');
+  displayStr = displayStr.replace(/\[STRUCTURED_DATA:.*?\]/g, '');
+  displayStr = displayStr.replace(/\[UI_COMMAND:.*?\]/g, '');
+
+  // Remove the Analyst Copilot prefix if present
+  displayStr = displayStr.replace('[ANALYST COPILOT]', '').trim();
+
+  const { setAnalysisData, activeAnalysisData, setIsChatMaximized, isChatMaximized } = useDashboardStore();
+
+  // PROACTIVE UI: Auto-maximize if the agent suggests a fullscreen layout (e.g. Peer Packs)
+  useEffect(() => {
+    if (!isStreaming && structuredData?.layout === 'fullscreen' && !isChatMaximized) {
+      console.log("PROACTIVE UI: Auto-maximizing chat for high-density analysis...");
+      setIsChatMaximized(true);
+    }
+  }, [isStreaming, structuredData, isChatMaximized, setIsChatMaximized]);
+
+  const handlePulseClick = () => {
+    if (structuredData) {
+      setAnalysisData(structuredData);
+    }
+  };
+
+  const renderContent = () => (
+    <div className="relative group">
+      <ReactMarkdown remarkPlugins={[remarkGfm]}>
+        {displayStr}
+      </ReactMarkdown>
+
+      {structuredData && !isStreaming && (
+        <div className="flex justify-start mt-4">
+          <button
+            onClick={handlePulseClick}
+            className={clsx(
+              "flex items-center gap-2 px-4 py-2.5 rounded-xl border font-black text-xs transition-all duration-300 transform active:scale-95 group/pulse",
+              theme === 'dark'
+                ? "bg-amber-500/10 border-amber-500/20 text-amber-500 hover:bg-amber-500/20 hover:border-amber-500/40"
+                : "bg-amber-50 border-amber-200 text-amber-600 hover:bg-amber-100 hover:border-amber-300 shadow-sm"
+            )}
+          >
+            <Zap size={14} className={clsx("transition-transform duration-500 group-hover/pulse:scale-125", activeAnalysisData ? "animate-pulse" : "")} fill="currentColor" />
+            <span className="uppercase tracking-widest">
+              {activeAnalysisData ? "Viewing Analysis" : "Expand Intelligent Pulse"}
+            </span>
+          </button>
+        </div>
+      )}
+
+      {peerPackData && !isAnalystCopilot && <PeerPackGrid peers={peerPackData} theme={theme} />}
+
+      {isStreaming && displayedContent.length < content.length && (
+        <span className="inline-flex items-center ml-0.5 align-baseline">
+          {scrambleSuffix && (
+            <span className="text-cyan-400 opacity-80 font-mono text-xs mr-0.5 select-none blur-[0.5px]">
+              {scrambleSuffix}
+            </span>
+          )}
+          <span
+            className="w-2.5 h-5 bg-[var(--brand)] inline-block align-middle animate-pulse shadow-[0_0_10px_var(--brand)]"
+            style={{ borderRadius: '1px' }}
+          />
+        </span>
+      )}
+    </div>
+  );
+
   return (
     <div className={`markdown-content relative leading-relaxed ${className || ''}`}>
-      <div className="relative">
-        {/* Render the stable markdown content */}
-        <ReactMarkdown remarkPlugins={[remarkGfm]}>
-            {displayedContent}
-        </ReactMarkdown>
-
-        {/* 
-            Premium Cursor & Scramble Effect 
-            - Scramble text is slightly brighter/different color to simulate decryption.
-            - Cursor has a "laser" glow.
-        */}
-        {isStreaming && displayedContent.length < content.length && (
-            <span className="inline-flex items-center ml-0.5 align-baseline">
-                {scrambleSuffix && (
-                    <span className="text-cyan-400 opacity-80 font-mono text-xs mr-0.5 select-none blur-[0.5px]">
-                        {scrambleSuffix}
-                    </span>
-                )}
-                <span 
-                    className="w-2.5 h-5 bg-[var(--brand)] inline-block align-middle animate-pulse shadow-[0_0_10px_var(--brand)]"
-                    style={{ borderRadius: '1px' }}
-                />
-            </span>
-        )}
-      </div>
+      {isAnalystCopilot ? (
+        <MacroPerspectiveCard theme={theme}>
+          {renderContent()}
+        </MacroPerspectiveCard>
+      ) : (
+        renderContent()
+      )}
     </div>
   );
 };

@@ -52,8 +52,10 @@ export const App = () => {
       if (!resizingRef.current) return;
 
       const newWidth = window.innerWidth - e.clientX;
-      // Constraints
-      if (newWidth > 300 && newWidth < 1200) {
+      // Constraints: Min 300px, Max 1200px or 80% of viewport
+      const maxWidth = Math.min(1200, window.innerWidth * 0.8);
+
+      if (newWidth > 300 && newWidth < maxWidth) {
         // Optimize with RAF
         cancelAnimationFrame(animationFrameId);
         animationFrameId = requestAnimationFrame(() => {
@@ -90,9 +92,17 @@ export const App = () => {
     document.body.classList.add('select-none'); // Prevent text selection while dragging
   };
 
+  // Force scroll hygiene to prevent horizontal shift when chat overflows
+  React.useEffect(() => {
+    const root = document.querySelector('.fixed.inset-0.flex');
+    if (root) {
+      root.scrollLeft = 0;
+    }
+  }, [isChatOpen, isChatMaximized, chatSidebarWidth]);
+
   return (
     <ChatProvider>
-      <div className="flex h-screen w-screen bg-[var(--bg-app)] text-[var(--text-primary)] font-sans overflow-hidden">
+      <div className="flex fixed inset-0 justify-start bg-[var(--bg-app)] text-[var(--text-primary)] font-sans overflow-hidden">
         <Sidebar />
 
         <div
@@ -104,7 +114,7 @@ export const App = () => {
           <div className="h-6 w-1 bg-white/10 rounded-full" />
         </div>
 
-        <main className="flex-1 flex flex-col overflow-hidden relative">
+        <main className="flex-1 flex flex-col min-w-0 relative transition-all duration-300 overflow-hidden">
           <DashboardHeader />
 
           <div className="flex-1 overflow-y-auto p-0 scrollbar-hide">
@@ -121,7 +131,7 @@ export const App = () => {
             <button
               onClick={() => setChatOpen(true)}
               className="absolute bottom-6 right-6 w-14 h-14 rounded-full bg-gradient-to-tr from-blue-600 to-cyan-500 shadow-2xl shadow-blue-500/30 flex items-center justify-center text-white hover:scale-110 transition-transform z-50 group"
-              title="Open Stock Agent"
+              title="Open Stock Workstation"
             >
               <div className="absolute inset-0 rounded-full bg-white/20 animate-ping opacity-20 group-hover:opacity-40" />
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -135,20 +145,32 @@ export const App = () => {
           <GraphOverlay />
         </main>
 
-        {/* Right Docked Chat */}
+        {/* Right Docked Chat Container */}
+        {isChatOpen && chatDockPosition === 'right' && isChatMaximized && (
+          <ChatContainer docked />
+        )}
+
+        {/* Right Docked Sidebar (Split View) */}
         <div
           className={clsx(
-            "relative flex border-l border-[var(--border)] bg-[var(--bg-app)]",
+            "relative flex flex-shrink-0 border-l border-[var(--border)] bg-[var(--bg-app)] overflow-hidden max-w-[80vw]",
             // Only apply transition if NOT resizing
             !isResizing && "transition-[width,opacity] duration-300 ease-in-out",
-            (chatDockPosition === 'right' && isChatOpen)
+            (chatDockPosition === 'right' && isChatOpen && !isChatMaximized)
               ? "opacity-100"
-              : "w-0 opacity-0 overflow-hidden"
+              : "w-0 opacity-0 overflow-hidden pointer-events-none"
           )}
+
           style={{
-            width: (chatDockPosition === 'right' && isChatOpen)
-              ? (isChatMaximized ? '55vw' : `${chatSidebarWidth}px`)
-              : 0
+            width: (chatDockPosition === 'right' && isChatOpen && !isChatMaximized)
+              ? `${chatSidebarWidth}px`
+              : 0,
+            minWidth: (chatDockPosition === 'right' && isChatOpen && !isChatMaximized)
+              ? `${chatSidebarWidth}px`
+              : 0,
+            maxWidth: (chatDockPosition === 'right' && isChatOpen && !isChatMaximized)
+              ? `${chatSidebarWidth}px`
+              : '80vw'
           }}
         >
           {/* Drag Handle */}
@@ -159,7 +181,7 @@ export const App = () => {
               title="Drag to resize"
             />
           )}
-          {(chatDockPosition === 'right' && isChatOpen) && <ChatContainer docked />}
+          {(chatDockPosition === 'right' && isChatOpen && !isChatMaximized) && <ChatContainer docked />}
         </div>
       </div>
     </ChatProvider>

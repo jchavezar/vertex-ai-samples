@@ -173,6 +173,20 @@ export function ChatProvider({ children }: { children: ReactNode }) {
       // 2. Event Parsing for Trace & Graph
       // Trace Event
       if (payload.type === 'trace' && payload.data) {
+        // - [x] Feature: Analyst Copilot (Macro/Investability) <!-- id: 6 -->
+        // - [x] Update Implementation Plan with Creative Enhancements <!-- id: 6.1 -->
+        // - [x] Implement `src/analyst_copilot.py` (Strategist Agent) <!-- id: 6.2 -->
+        // - [x] Add `update_dashboard_view` tool and UI signaling <!-- id: 6.3 -->
+        // - [x] Integrate into `smart_agent.py` as a delegated specialist <!-- id: 6.4 -->
+        // - [x] Verify scenario with Browser Subagent <!-- id: 6.5 -->
+        // - [x] Provide Testing Script for user <!-- id: 6.6 -->
+        // - [/] Feature: Creative Analyst UI (Strategist Mode) <!-- id: 7 -->
+        // - [/] Implement `MacroPerspectiveCard` (Glassmorphic Container) <!-- id: 7.1 -->
+        // - [ ] Implement `PeerPackGrid` (Interactive Competitor Cards) <!-- id: 7.2 -->
+        // - [ ] Update `StreamingMarkdown` with JSON/Tag Detection <!-- id: 7.3 -->
+        // - [ ] Add Macro Overlay to Dashboard <!-- id: 7.4 -->
+        // - [ ] Update Backend to return structured Peer Pack data <!-- id: 7.5 -->
+        // - [ ] Final UI/UX Verification in Browser <!-- id: 7.6 -->
         const traceData = payload.data;
         addTraceLog(
           traceData.type || 'debug',
@@ -236,6 +250,22 @@ export function ChatProvider({ children }: { children: ReactNode }) {
         addTraceLog('error', payload.message);
       }
 
+      // dashboard_command (New from Analyst Copilot)
+      if (payload.type === 'dashboard_command') {
+        const { view, payload: cmdPayload } = payload;
+        const store = useDashboardStore.getState();
+
+        if (view) {
+          store.setActiveView(view);
+          addTraceLog('system', `AI Command: Switched view to ${view}`);
+        }
+
+        if (cmdPayload?.ticker) {
+          store.setTicker(cmdPayload.ticker);
+          addTraceLog('system', `AI Command: Set ticker to ${cmdPayload.ticker}`);
+        }
+      }
+
       // Latency Metric (New Granular Event)
       if (payload.type === 'latency' && payload.tool && payload.duration) {
         const toolName = payload.tool;
@@ -290,10 +320,10 @@ export function ChatProvider({ children }: { children: ReactNode }) {
   );
 }
 
-export function useTerminalChat() {
+export function useWorkstationChat() {
   const context = useContext(ChatContext);
   if (context === undefined) {
-    throw new Error('useTerminalChat must be used within a ChatProvider');
+    throw new Error('useWorkstationChat must be used within a ChatProvider');
   }
   return context;
 }
