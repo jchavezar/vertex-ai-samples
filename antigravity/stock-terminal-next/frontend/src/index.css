@@ -81,11 +81,18 @@
   body {
     @apply bg-[var(--bg-app)] text-[var(--text-primary)] antialiased;
     font-family: var(--font-sans);
-    background-image: 
-      radial-gradient(circle at 50% 0%, rgba(56, 189, 248, 0.08), transparent 60%),
-      radial-gradient(circle at 85% 30%, rgba(129, 140, 248, 0.06), transparent 50%),
-      linear-gradient(180deg, #020617 0%, #000000 100%);
-    background-attachment: fixed;
+    margin: 0;
+      padding: 0;
+      overflow: hidden;
+      background: #000;
+      /* Solid base to prevent flickering */
+    }
+    
+    #root {
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      width: 100%;
   }
 }
 
@@ -112,4 +119,28 @@
   100% {
     transform: translateX(100%);
   }
+}
+/* 
+  EMERGENCY PURGE: Shadow DOM Glow & Vignette 
+  These target the search-defiant #preact-border-shadow-host
+*/
+#preact-border-shadow-host {
+  display: none !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
+[id*="preact-border-shadow"] {
+  display: none !important;
+}
+
+.animate-breathing {
+  animation: none !important;
+}
+
+/* Ensure all decorative vignettes are non-blocking */
+div[class*="vignette"],
+div[class*="glow-overlay"] {
+  pointer-events: none !important;
 }

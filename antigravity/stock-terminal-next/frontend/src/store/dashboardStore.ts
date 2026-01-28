@@ -65,6 +65,7 @@ interface DashboardState {
   isChatOpen: boolean;
   setChatOpen: (isOpen: boolean) => void;
   isChatMaximized: boolean;
+  setIsChatMaximized: (isMaximized: boolean) => void;
   toggleChatMaximized: () => void;
   chatSidebarWidth: number;
   setChatSidebarWidth: (width: number) => void;
@@ -86,6 +87,9 @@ interface DashboardState {
 
   executionPath: string[];
   setExecutionPath: (path: string[]) => void;
+
+  activeAnalysisData: any | null;
+  setAnalysisData: (data: any | null) => void;
 }
 
 export const useDashboardStore = create<DashboardState>((set) => ({
@@ -132,6 +136,7 @@ export const useDashboardStore = create<DashboardState>((set) => ({
   isChatOpen: true,
   setChatOpen: (isOpen) => set({ isChatOpen: isOpen }),
   isChatMaximized: false,
+  setIsChatMaximized: (isMaximized) => set({ isChatMaximized: isMaximized }),
   toggleChatMaximized: () => set((state) => ({ isChatMaximized: !state.isChatMaximized })),
   chatSidebarWidth: 450,
   setChatSidebarWidth: (width) => set({ chatSidebarWidth: width }),
@@ -154,4 +159,7 @@ export const useDashboardStore = create<DashboardState>((set) => ({
 
   executionPath: [],
   setExecutionPath: (path) => set({ executionPath: path }),
+
+  activeAnalysisData: null,
+  setAnalysisData: (data) => set({ activeAnalysisData: data }),
 }));

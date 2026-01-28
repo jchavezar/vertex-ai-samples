@@ -85,7 +85,7 @@ class ReasoningAgent:
             # Use a fast model
             agent = Agent(
                 name="reasoning_worker",
-                model="gemini-2.0-flash-exp", 
+                model="gemini-2.5-flash", 
                 instruction="You are a log analysis engine. Output valid Markdown.",
             )
             
