@@ -58,7 +58,7 @@ export const Sidebar: React.FC = () => {
   if (!isSidebarOpen || chatDockPosition === 'left') return null;
 
   return (
-    <aside className="w-[var(--sidebar-width)] bg-[var(--bg-card)] border-r border-[var(--border)] flex flex-col z-[100] h-full overflow-hidden backdrop-blur-xl">
+    <aside className="w-[var(--sidebar-width)] flex-shrink-0 bg-[var(--bg-card)] border-r border-[var(--border)] flex flex-col z-[100] h-full overflow-hidden backdrop-blur-xl">
       <div className="p-6 border-b border-[var(--border)] bg-transparent">
         <div className="mb-6 flex flex-col items-start">
           <img src="/factset-logo-final.png" alt="FACTSET" className="h-12 object-contain dark:brightness-0 dark:invert transition-all" />

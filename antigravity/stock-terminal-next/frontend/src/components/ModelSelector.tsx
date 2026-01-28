@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { useTerminalChat } from '../context/ChatContext';
+import { useWorkstationChat } from '../context/ChatContext';
 import { ChevronDown, Sparkles, Check } from 'lucide-react';
 
 const MODELS = [
@@ -12,7 +12,7 @@ const MODELS = [
 ];
 
 export function ModelSelector() {
-  const { selectedModel, setSelectedModel } = useTerminalChat();
+  const { selectedModel, setSelectedModel } = useWorkstationChat();
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 

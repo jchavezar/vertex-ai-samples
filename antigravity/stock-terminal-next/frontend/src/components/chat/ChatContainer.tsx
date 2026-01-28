@@ -1,15 +1,22 @@
 import React, { useRef } from 'react';
 import { useDashboardStore } from '../../store/dashboardStore';
 import { clsx } from 'clsx';
-import { motion, useDragControls } from 'framer-motion';
+import { motion, useDragControls, AnimatePresence } from 'framer-motion';
 import AdvancedPanel from './AdvancedPanel';
+import { AnalysisOverlay } from './AnalysisOverlay';
 
 interface ChatContainerProps {
   docked?: boolean;
 }
 
-export const ChatContainer: React.FC<ChatContainerProps> = ({ docked = false }) => {
-  const { chatDockPosition, setChatDockPosition, isChatMaximized, theme: globalTheme } = useDashboardStore();
+export const ChatContainer: React.FC<ChatContainerProps> = ({ docked: _docked = false }) => {
+  const {
+    chatDockPosition,
+    setChatDockPosition,
+    isChatMaximized,
+    theme: globalTheme,
+    activeAnalysisData
+  } = useDashboardStore();
   const controls = useDragControls();
   const constraintsRef = useRef(null);
 
@@ -25,7 +32,6 @@ export const ChatContainer: React.FC<ChatContainerProps> = ({ docked = false }) 
   };
 
   const isFloating = chatDockPosition === 'floating';
-  const isDocked = docked || !isFloating;
 
   // Dynamic Theme Classes based on Global Theme (not docked state)
   const isDark = globalTheme === 'dark';
@@ -57,16 +63,6 @@ export const ChatContainer: React.FC<ChatContainerProps> = ({ docked = false }) 
       runBadge: "bg-white/5 text-cyan-400 border border-white/10 backdrop-blur-sm"
   };
 
-  const getContainerStyles = () => {
-    if (!docked) {
-      if (isChatMaximized) {
-        // Centered large modal-like dimensions or just larger
-        return `fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90vw] h-[90vh] max-w-[1200px] rounded-2xl border ${theme.container.split(' ')[1]}`;
-      }
-      return `fixed bottom-6 right-6 w-[480px] h-[700px] rounded-2xl border ${theme.container.split(' ')[1]}`;
-    }
-    return "w-full h-full"; // Docked styles handled by parent flex, but we add theme classes in render
-  };
 
   return (
     <motion.div
@@ -77,18 +73,56 @@ export const ChatContainer: React.FC<ChatContainerProps> = ({ docked = false }) 
       dragMomentum={false}
       dragElastic={0}
       onDragEnd={handleDragEnd}
-      layout={true}
       className={clsx(
-        "flex flex-col overflow-hidden transition-all duration-300 ease-in-out z-50",
-        isFloating ? getContainerStyles() : getContainerStyles(),
-        theme.container
+        "flex",
+        (isChatMaximized || !isFloating) ? "w-full h-full" : "w-auto h-auto"
       )}
     >
-      <AdvancedPanel
-        dashboardData={useDashboardStore.getState().tickerData}
-        onClose={() => useDashboardStore.getState().setChatOpen(false)}
-        onDragStart={(e) => isFloating && controls.start(e)}
-      />
+      <motion.div
+        className={clsx(
+          "flex overflow-hidden transition-all duration-500 ease-in-out w-full h-full",
+          theme.container,
+          (isChatMaximized || isFloating) ? "fixed z-[1000]" : "relative z-[100]"
+        )}
+        style={{
+          width: isChatMaximized ? '100vw' : (isFloating ? '480px' : '100%'),
+          height: isChatMaximized ? '100vh' : (isFloating ? 'calc(100vh - 40px)' : '100%'),
+          borderRadius: isChatMaximized ? '0px' : (isFloating ? '24px' : '0px'),
+          border: isChatMaximized ? 'none' : undefined,
+          inset: (isChatMaximized || isFloating) ? '0px' : undefined,
+          boxShadow: isChatMaximized ? 'none' : (isFloating ? '0 25px 50px -12px rgba(0,0,0,0.5)' : undefined)
+        }}
+        initial={false}
+      >
+        <div className={clsx(
+          "flex flex-1 overflow-hidden h-full w-full bg-inherit",
+          activeAnalysisData && isChatMaximized ? "flex-row shrink-0" : "flex-col"
+        )}>
+          <div className={clsx(
+            "flex flex-col transition-all duration-500 h-full overflow-hidden shrink-0",
+            activeAnalysisData && isChatMaximized ? "w-1/2" : "w-full flex-1"
+          )}>
+            <AdvancedPanel
+              onClose={() => useDashboardStore.getState().setChatOpen(false)}
+              onDragStart={(e) => isFloating && controls.start(e)}
+            />
+          </div>
+
+          <AnimatePresence mode="wait">
+            {activeAnalysisData && isChatMaximized && (
+              <motion.div
+                initial={{ width: 0, opacity: 0 }}
+                animate={{ width: "50%", opacity: 1 }}
+                exit={{ width: 0, opacity: 0 }}
+                transition={{ duration: 0.4, ease: "easeInOut" }}
+                className="border-l border-white/10 overflow-hidden h-full flex flex-col bg-inherit shrink-0"
+              >
+                <AnalysisOverlay />
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+      </motion.div>
     </motion.div>
   );
 };

@@ -274,7 +274,7 @@ async def auth_callback(code: str, state: Optional[str] = None, error: Optional[
 class ChatRequest(BaseModel):
     messages: List[Dict[str, Any]]
     sessionId: Optional[str] = "default_chat"
-    model: Optional[str] = "gemini-2.0-flash-exp"
+    model: Optional[str] = "gemini-2.5-flash"
 
 @app.get("/session/{session_id}/reasoning")
 async def get_reasoning(session_id: str):
@@ -298,7 +298,7 @@ async def chat_endpoint(req: ChatRequest, background_tasks: BackgroundTasks):
         last = req.messages[-1]
         user_query = last.get("content", "") if isinstance(last, dict) else str(last)
 
-    model_name = req.model or "gemini-2.0-flash-exp"
+    model_name = req.model or "gemini-2.5-flash"
     
     # 1. Get Token (or None)
     token = await get_valid_factset_token(session_id)
@@ -313,17 +313,30 @@ async def chat_endpoint(req: ChatRequest, background_tasks: BackgroundTasks):
             await event_queue.put(AIStreamProtocol.trace(f"Tool Result: {name}", tool=name, result=result, type="tool_result"))
             
             # PROACTIVE CHART EMISSION (Fix for Batch 3 Truncation)
-            if isinstance(result, str) and "[CHART]" in result and "[/CHART]" in result:
-                start = result.find("[CHART]")
-                end = result.find("[/CHART]") + 8
-                chart_block = result[start:end]
-                try:
-                    json_str = chart_block.replace("[CHART]", "").replace("[/CHART]", "")
-                    param_obj = json.loads(json_str)
-                    # Emit as a Protocol 2 (Data) event immediately
-                    await event_queue.put(AIStreamProtocol.data(param_obj))
-                except:
-                    pass
+            if isinstance(result, str):
+                if "[CHART]" in result and "[/CHART]" in result:
+                    start = result.find("[CHART]")
+                    end = result.find("[/CHART]") + 8
+                    chart_block = result[start:end]
+                    try:
+                        json_str = chart_block.replace("[CHART]", "").replace("[/CHART]", "")
+                        param_obj = json.loads(json_str)
+                        # Emit as a Protocol 2 (Data) event immediately
+                        await event_queue.put(AIStreamProtocol.data(param_obj))
+                    except:
+                        pass
+                
+                # PROACTIVE UI COMMAND EMISSION
+                if "[UI_COMMAND]" in result and "[/UI_COMMAND]" in result:
+                    start = result.find("[UI_COMMAND]")
+                    end = result.find("[/UI_COMMAND]") + 13
+                    cmd_block = result[start:end]
+                    try:
+                        json_str = cmd_block.replace("[UI_COMMAND]", "").replace("[/UI_COMMAND]", "")
+                        cmd_obj = json.loads(json_str)
+                        await event_queue.put(AIStreamProtocol.data(cmd_obj))
+                    except:
+                        pass
         except Exception as e:
             print(f"Queue Error: {e}")
 
@@ -576,8 +589,29 @@ async def chat_endpoint(req: ChatRequest, background_tasks: BackgroundTasks):
                                         
                                     buffer = post_text
                                     
+                                # UI Command Parsing [UI_COMMAND]...[/UI_COMMAND]
+                                while "[UI_COMMAND]" in buffer and "[/UI_COMMAND]" in buffer:
+                                    start = buffer.find("[UI_COMMAND]")
+                                    end = buffer.find("[/UI_COMMAND]") + 13
+                                    
+                                    pre_text = buffer[:start]
+                                    cmd_block = buffer[start:end]
+                                    post_text = buffer[end:]
+                                    
+                                    if pre_text: yield AIStreamProtocol.text(pre_text)
+                                    
+                                    try:
+                                        json_str = cmd_block.replace("[UI_COMMAND]", "").replace("[/UI_COMMAND]", "")
+                                        cmd_obj = json.loads(json_str)
+                                        yield AIStreamProtocol.data(cmd_obj)
+                                        yield AIStreamProtocol.trace(f"UI Command: {cmd_obj.get('view')}", type="system")
+                                    except:
+                                        yield AIStreamProtocol.text(cmd_block)
+                                        
+                                    buffer = post_text
+
                                 # Flush if safe
-                                if "[CHART]" not in buffer:
+                                if "[CHART]" not in buffer and "[UI_COMMAND]" not in buffer:
                                     if buffer:
                                         yield AIStreamProtocol.text(buffer)
                                         buffer = ""

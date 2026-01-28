@@ -5,7 +5,7 @@ import { PerformanceChart } from './PerformanceChart';
 import { SummaryPanel } from './SummaryPanel';
 import { KeyStats } from './KeyStats';
 import { WidgetSlot } from './WidgetSlot';
-import { Terminal } from 'lucide-react';
+import { Terminal, Zap } from 'lucide-react';
 
 export const DashboardView: React.FC = () => {
   const { 
@@ -111,7 +111,27 @@ export const DashboardView: React.FC = () => {
 
 
   return (
-    <div className="grid grid-cols-12 gap-5 p-4 animate-in slide-in-from-bottom-2 duration-500 max-w-[1600px] mx-auto">
+    <div className="flex flex-col gap-5 p-4 animate-in slide-in-from-bottom-2 duration-500 w-full">
+      {/* Macro Context Overlay */}
+      {activeView !== 'Snapshot' && (
+        <div className="bg-gradient-to-r from-blue-600/20 to-cyan-500/20 border border-blue-500/30 rounded-2xl p-4 mb-2 flex items-center justify-between backdrop-blur-md shadow-lg shadow-blue-500/5 transition-all">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 rounded-xl bg-blue-500/20 flex items-center justify-center text-blue-400">
+              <Zap size={24} className="animate-pulse" />
+            </div>
+            <div>
+              <h2 className="text-lg font-black tracking-tight text-[var(--text-primary)]">Workstation Lens: {activeView}</h2>
+              <p className="text-xs text-[var(--text-muted)] font-medium">Strategist mode active. Correlating broad market indices with sector-specific alpha drivers.</p>
+            </div>
+          </div>
+          <div className="flex gap-2">
+            <span className="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-[10px] font-bold text-blue-400 uppercase tracking-widest">Macro-Aware</span>
+            <span className="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-[10px] font-bold text-cyan-400 uppercase tracking-widest">Peer-Pack Sync</span>
+          </div>
+        </div>
+      )}
+
+      <div className="grid grid-cols-12 gap-5 w-full">
       {!chartOverride && (
         <div className="col-span-12">
           <AgentInsights ticker={ticker} />
@@ -149,6 +169,7 @@ export const DashboardView: React.FC = () => {
           />
         </div>
       ))}
+    </div>
     </div>
   );
 };
