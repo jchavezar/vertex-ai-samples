@@ -275,6 +275,8 @@ class ChatRequest(BaseModel):
     messages: List[Dict[str, Any]]
     sessionId: Optional[str] = "default_chat"
     model: Optional[str] = "gemini-2.5-flash"
+    image: Optional[str] = None
+    mimeType: Optional[str] = None
 
 @app.get("/session/{session_id}/reasoning")
 async def get_reasoning(session_id: str):
@@ -354,7 +356,15 @@ async def chat_endpoint(req: ChatRequest, background_tasks: BackgroundTasks):
              await session_service.create_session(session_id=session_id, app_name="stock_terminal", user_id="user_1")
         # print("DEBUG: Session Ready", flush=True)
 
-        new_message = Content(role="user", parts=[Part(text=user_query)])
+        parts = [Part(text=user_query)]
+        if req.image and req.mimeType:
+             try:
+                  img_bytes = base64.b64decode(req.image)
+                  parts.append(Part.from_bytes(data=img_bytes, mime_type=req.mimeType))
+             except Exception as e:
+                  print(f"Error decoding image: {e}")
+
+        new_message = Content(role="user", parts=parts)
         
         buffer = ""
         active_tool_ids = {} # name -> list of pending IDs
