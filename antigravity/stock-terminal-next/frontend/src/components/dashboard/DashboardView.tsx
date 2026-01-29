@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { useDashboardStore } from '../../store/dashboardStore';
-import { useAgentInsights, InsightCard, SuggestedActionsCard } from './AgentInsights';
+import { StrategicIntelligenceFeed, QuickActionsPanel } from './AgentInsights';
 import { PerformanceChart } from './PerformanceChart';
 import { SummaryPanel } from './SummaryPanel';
 
@@ -25,7 +25,6 @@ export const DashboardView: React.FC = () => {
     setWidgetOverride
   } = useDashboardStore();
 
-  const { insights, suggestedActions } = useAgentInsights(ticker);
 
   useEffect(() => {
     const fetchTickerInfo = async () => {
@@ -117,7 +116,7 @@ export const DashboardView: React.FC = () => {
 
 
   return (
-    <div className="flex flex-col gap-5 p-4 w-full h-full overflow-hidden">
+    <div className="flex flex-col gap-4 p-4 w-full h-full overflow-hidden">
       {/* Macro Context Overlay */}
       {activeView !== 'Snapshot' && (
         <div className="bg-gradient-to-r from-blue-600/20 to-cyan-500/20 border border-blue-500/30 rounded-2xl p-4 mb-2 flex items-center justify-between backdrop-blur-md shadow-lg shadow-blue-500/5 transition-all">
@@ -156,9 +155,28 @@ export const DashboardView: React.FC = () => {
             </div>
           </div>
 
-          {/* RIGHT: Profile & Market Stats (Context Column) */}
           <div className="hidden xl:flex xl:col-span-3 h-full flex-col gap-4 overflow-y-auto no-scrollbar pb-4">
-            <div className="arch-card rounded-2xl p-4 shadow-sm border-[var(--border-subtle)]">
+            {/* Real-time Trading Bar */}
+            <div className="arch-card rounded-2xl p-4 shadow-sm border-[var(--border-subtle)] bg-[var(--bg-card)]">
+              <TradingStats tickerData={tickerData} layout="vertical" />
+            </div>
+
+            {/* Strategic Feed (Right Anchor) */}
+            <div className="flex-1 min-h-0">
+              <StrategicIntelligenceFeed ticker={ticker} />
+            </div>
+
+            {/* Quick Actions Panel */}
+            <div className="h-auto shrink-0">
+              <QuickActionsPanel ticker={ticker} />
+            </div>
+          </div>
+        </div>
+
+        {/* ROW 2: Analytic Intelligence Hub (Clickable AI Widgets) */}
+        <div className="grid grid-cols-4 gap-4 min-h-[300px] h-[300px] shrink-0 mb-4 px-2">
+          {/* Section 1: Profile */}
+          <div className="arch-card rounded-2xl shadow-sm border-[var(--border-subtle)] overflow-hidden">
               <WidgetSlot
                 section="Profile"
                 override={widgetOverrides['Profile']}
@@ -169,29 +187,40 @@ export const DashboardView: React.FC = () => {
               />
             </div>
 
-            {/* Market Data Consolidated Container */}
-            <div className="arch-card rounded-2xl p-6 flex flex-col gap-10 shadow-sm border-[var(--border-subtle)] bg-[var(--bg-card)]">
-              <TradingStats tickerData={tickerData} layout="vertical" />
-              <ValuationStats tickerData={tickerData} layout="vertical" />
-              <DividendStats tickerData={tickerData} layout="vertical" />
-              <ConsensusStats tickerData={tickerData} layout="vertical" />
-            </div>
+          {/* Section 2: Valuation */}
+          <div className="arch-card rounded-2xl shadow-sm border-[var(--border-subtle)] overflow-hidden">
+            <WidgetSlot
+              section="Valuation"
+              override={widgetOverrides['Valuation']}
+              isAiMode={!!chartOverride}
+              onGenerate={handleGenerateWidget}
+              tickers={tickersToAnalyze}
+              originalComponent={<div className="p-5"><ValuationStats tickerData={tickerData} layout="vertical" /></div>}
+            />
           </div>
-        </div>
 
-        {/* ROW 2: Context Items (4 Columns) - Fixed Height */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 h-[140px] shrink-0 mb-4">
-          <div className="h-full arch-card rounded-2xl shadow-sm border-[var(--border-subtle)] overflow-hidden">
-            <InsightCard data={insights[1]} color="gray" />
+          {/* Section 3: Dividends */}
+          <div className="arch-card rounded-2xl shadow-sm border-[var(--border-subtle)] overflow-hidden">
+            <WidgetSlot
+              section="Dividends"
+              override={widgetOverrides['Dividends']}
+              isAiMode={!!chartOverride}
+              onGenerate={handleGenerateWidget}
+              tickers={tickersToAnalyze}
+              originalComponent={<div className="p-5"><DividendStats tickerData={tickerData} layout="vertical" /></div>}
+            />
           </div>
-          <div className="h-full arch-card rounded-2xl shadow-sm border-[var(--border-subtle)] overflow-hidden">
-            <InsightCard data={insights[2]} color="gray" />
-          </div>
-          <div className="h-full arch-card rounded-2xl shadow-sm border-[var(--border-subtle)] overflow-hidden">
-            <InsightCard data={insights[0]} color="gray" />
-          </div>
-          <div className="h-full arch-card rounded-2xl shadow-sm border-[var(--border-subtle)] overflow-hidden">
-            <SuggestedActionsCard actions={suggestedActions} />
+
+          {/* Section 4: Consensus */}
+          <div className="arch-card rounded-2xl shadow-sm border-[var(--border-subtle)] overflow-hidden">
+            <WidgetSlot
+              section="Consensus"
+              override={widgetOverrides['Consensus']}
+              isAiMode={!!chartOverride}
+              onGenerate={handleGenerateWidget}
+              tickers={tickersToAnalyze}
+              originalComponent={<div className="p-5"><ConsensusStats tickerData={tickerData} layout="vertical" /></div>}
+            />
           </div>
         </div>
 

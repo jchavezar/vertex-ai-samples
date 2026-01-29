@@ -150,7 +150,7 @@ const AdvancedPanel: React.FC<AdvancedPanelProps> = ({ onDragStart }) => {
       {/* Header */}
       <div
         className={clsx(
-          "flex items-center justify-between p-3 pl-4 border-b shrink-0 bg-transparent cursor-grab active:cursor-grabbing select-none",
+          "flex flex-wrap items-center justify-between p-1.5 sm:p-2 pl-4 pr-10 border-b shrink-0 bg-transparent cursor-grab active:cursor-grabbing select-none transition-all duration-300 group/header relative overflow-hidden gap-y-1",
           isDark ? "border-white/10" : "border-gray-100"
         )}
         onPointerDown={onDragStart}
@@ -159,56 +159,40 @@ const AdvancedPanel: React.FC<AdvancedPanelProps> = ({ onDragStart }) => {
           useDashboardStore.getState().setChatDockPosition(current === 'right' ? 'floating' : 'right');
         }}
       >
-        <div className="flex items-center gap-4">
+        {/* Left Section: Icon and Title */}
+        <div className="flex items-center gap-1.5 sm:gap-2.5 min-w-max transition-all">
           <button
             onClick={() => setActiveTab('chat')}
             className={clsx(
-              "p-2 rounded-lg shrink-0 transition-all cursor-pointer",
+              "p-1.5 rounded-lg shrink-0 transition-all cursor-pointer",
               isDark ? "bg-white/5 text-white hover:bg-white/10" : "bg-slate-100 text-slate-900 hover:bg-slate-200"
             )}
             title="Workstation home"
           >
-            <Terminal size={18} />
+            <Terminal size={14} className="sm:w-[16px] sm:h-[16px]" />
           </button>
-          <div className="flex flex-col">
+
+          <div className="flex flex-col min-w-0 shrink transition-all">
             <h1 className={clsx(
-              "text-base font-black tracking-tight flex items-center gap-2 leading-none",
+              "text-[10px] sm:text-xs md:text-sm font-black tracking-tighter leading-none transition-all duration-300 uppercase",
               isDark ? "text-white" : "text-slate-900"
             )}>
-              Workstation
+              WORKSTATION
             </h1>
-            <p className={clsx(
-              "text-[8px] font-black tracking-widest mt-1 opacity-50",
-              isDark ? "text-white" : "text-slate-900"
-            )}>
-              TERMINAL
-            </p>
-          </div>
-          <div className={clsx("flex items-center gap-1.5 text-[8px] font-black uppercase tracking-widest mt-0.5", isDark ? "text-[var(--text-muted)]" : "text-slate-500")}>
-            {isLoading ? (
-              <>
-                <div className="w-1 h-1 rounded-full bg-white animate-ping" />
-                <span className="text-white">Analyzing <ThinkingTimer startTime={startTime || Date.now()} /></span>
-              </>
-            ) : (
-              <>
-                <div className="w-1 h-1 rounded-full bg-white/30" />
-                <span>Neural Link Active</span>
-              </>
-            )}
           </div>
         </div>
 
-          <div className="flex items-center gap-1 shrink-0">
-          {/* Tabs - Now more visible */}
+        {/* Right Section: Tabs & Window Controls */}
+        <div className="flex items-center gap-1 sm:gap-2 shrink-0 transition-all ml-auto">
+          {/* Tabs - Label visibility is strictly controlled */}
           <div className={clsx(
-            "flex items-center gap-1.5 rounded-lg p-1 border min-w-0",
-            isDark ? "bg-black/40 border-white/10" : "bg-slate-100 border-slate-200"
+            "flex items-center gap-0.5 sm:gap-1 rounded-lg p-0.5 border transition-all",
+            isDark ? "bg-black/30 border-white/5" : "bg-slate-100/50 border-slate-200/50"
           )}>
             <TabButton
               active={activeTab === 'chat'}
               onClick={() => setActiveTab('chat')}
-              icon={<MessageSquare size={16} />}
+              icon={<MessageSquare className="w-3.5 h-3.5" />}
               label="Chat"
               isDark={isDark}
               isChatMaximized={isChatMaximized}
@@ -216,7 +200,7 @@ const AdvancedPanel: React.FC<AdvancedPanelProps> = ({ onDragStart }) => {
             <TabButton
               active={activeTab === 'graph'}
               onClick={() => setActiveTab('graph')}
-              icon={<Share2 size={16} />}
+              icon={<Share2 className="w-3.5 h-3.5" />}
               label="Graph"
               isDark={isDark}
               isChatMaximized={isChatMaximized}
@@ -224,7 +208,7 @@ const AdvancedPanel: React.FC<AdvancedPanelProps> = ({ onDragStart }) => {
             <TabButton
               active={activeTab === 'trace'}
               onClick={() => setActiveTab('trace')}
-              icon={<Activity size={16} />}
+              icon={<Activity className="w-3.5 h-3.5" />}
               label="Trace"
               isDark={isDark}
               isChatMaximized={isChatMaximized}
@@ -232,43 +216,43 @@ const AdvancedPanel: React.FC<AdvancedPanelProps> = ({ onDragStart }) => {
             <TabButton
               active={activeTab === 'reasoning'}
               onClick={() => setActiveTab('reasoning')}
-              icon={<Brain size={16} />}
-              label="Reasoning"
+              icon={<Brain className="w-3.5 h-3.5" />}
+              label="Reason"
               isDark={isDark}
               isChatMaximized={isChatMaximized}
             />
           </div>
 
-          {/* Actions */}
-          <div className="flex items-center gap-1 pl-3 border-l border-[var(--border)]">
+          {/* Window Control Cluster */}
+          <div className="flex items-center gap-0 sm:gap-0.5 pl-1 sm:pl-2 border-l border-white/10 shrink-0 transition-all">
             {isLoading ? (
               <button
                 onClick={stop}
-                className="p-2 rounded-md text-amber-500 hover:text-amber-600 hover:bg-amber-500/10 transition-colors"
-                title="Stop Generation"
+                className="p-1 px-1.5 rounded-md text-amber-500 hover:text-amber-600 hover:bg-amber-500/10 transition-colors shrink-0"
+                title="Stop"
               >
-                <Square size={18} fill="currentColor" />
+                <Square size={14} className="sm:w-[15px] sm:h-[15px]" fill="currentColor" />
               </button>
             ) : (
               messages.length > 0 && (
                 <button
                   onClick={resetChat}
-                    className="p-2 rounded-md text-red-500 hover:text-red-600 hover:bg-red-500/10 transition-colors"
-                  title="Reset Chat"
+                    className="p-1 px-1.5 rounded-md text-red-500/70 hover:text-red-500 hover:bg-red-500/10 transition-colors shrink-0"
+                    title="Reset"
                 >
-                    <Trash2 size={18} />
+                    <Trash2 size={14} className="sm:w-[15px] sm:h-[15px]" />
                 </button>
               )
             )}
             <button
               onClick={toggleChatMaximized}
               className={clsx(
-                "p-2 rounded-md transition-colors",
-                isDark ? "text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-app)]" : "text-slate-500 hover:text-slate-800 hover:bg-slate-100"
+                "p-1 px-1.5 rounded-md transition-colors shrink-0",
+                isDark ? "text-white/40 hover:text-white hover:bg-white/10" : "text-slate-500 hover:text-slate-800 hover:bg-slate-100"
               )}
               title={isChatMaximized ? "Restore" : "Maximize"}
             >
-              {isChatMaximized ? <Minimize2 size={18} /> : <Maximize2 size={18} />}
+              {isChatMaximized ? <Minimize2 size={14} className="sm:w-[15px] sm:h-[15px]" /> : <Maximize2 size={14} className="sm:w-[15px] sm:h-[15px]" />}
             </button>
             <button
               onClick={() => {
@@ -276,22 +260,25 @@ const AdvancedPanel: React.FC<AdvancedPanelProps> = ({ onDragStart }) => {
                 useDashboardStore.getState().setChatDockPosition(current === 'right' ? 'floating' : 'right');
               }}
               className={clsx(
-                "p-2 rounded-md transition-colors",
-                isDark ? "text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-app)]" : "text-slate-500 hover:text-slate-800 hover:bg-slate-100"
+                "p-1 px-1.5 rounded-md transition-colors shrink-0",
+                isDark ? "text-white/40 hover:text-white hover:bg-white/10" : "text-slate-500 hover:text-slate-800 hover:bg-slate-100"
               )}
-              title={chatDockPosition === 'right' ? "Undock (Overlay)" : "Dock to Sidebar"}
+              title={chatDockPosition === 'right' ? "Undock" : "Dock"}
             >
-              {chatDockPosition === 'right' ? <Minimize2 size={18} className="rotate-45" /> : <Maximize2 size={18} className="-rotate-45" />}
+              {chatDockPosition === 'right' ? <Minimize2 size={14} className="sm:w-[15px] sm:h-[15px] rotate-45" /> : <Maximize2 size={14} className="sm:w-[15px] sm:h-[15px] -rotate-45" />}
             </button>
             <button
               onClick={() => useDashboardStore.getState().setChatOpen(false)}
-              className="p-2 text-[var(--text-muted)] hover:text-red-500 hover:bg-red-500/10 rounded-md transition-colors flex items-center gap-1"
-              title="Hide Sidebar"
+              className="p-1 px-1.5 text-white/40 hover:text-red-500 hover:bg-red-500/10 rounded-md transition-colors flex items-center gap-1 shrink-0"
+              title="Hide"
             >
-              <ChevronsRight size={18} />
+              <ChevronsRight size={14} className="sm:w-[15px] sm:h-[15px]" />
             </button>
           </div>
         </div>
+
+        {/* Safety Gutter Absolute Element (Fixed dead zone) */}
+        <div className="absolute top-0 right-0 w-8 h-full bg-transparent pointer-events-none group-active/header:bg-red-500/5 transition-colors" aria-hidden="true" />
       </div>
 
       {/* Content Area */}
