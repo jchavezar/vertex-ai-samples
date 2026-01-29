@@ -71,9 +71,11 @@ interface DashboardState {
   setChatSidebarWidth: (width: number) => void;
   isGraphOverlayOpen: boolean;
   setGraphOverlayOpen: (isOpen: boolean) => void;
+  isAdkOverlayOpen: boolean;
+  setAdkOverlayOpen: (isOpen: boolean) => void;
 
-  currentView: 'dashboard' | 'advanced_search' | 'report_generator';
-  setCurrentView: (view: 'dashboard' | 'advanced_search' | 'report_generator') => void;
+  currentView: 'dashboard' | 'advanced_search' | 'report_generator' | 'neural_link';
+  setCurrentView: (view: 'dashboard' | 'advanced_search' | 'report_generator' | 'neural_link') => void;
 
   // Shared Chat State
   topology: any | null; // Using any for now to avoid circular dependency with AgentGraph types
@@ -142,9 +144,11 @@ export const useDashboardStore = create<DashboardState>((set) => ({
   setChatSidebarWidth: (width) => set({ chatSidebarWidth: width }),
   isGraphOverlayOpen: false,
   setGraphOverlayOpen: (isOpen) => set({ isGraphOverlayOpen: isOpen }),
+  isAdkOverlayOpen: false,
+  setAdkOverlayOpen: (isOpen) => set({ isAdkOverlayOpen: isOpen }),
 
   currentView: 'dashboard',
-  setCurrentView: (view: 'dashboard' | 'advanced_search' | 'report_generator') => set({ currentView: view }),
+  setCurrentView: (view: 'dashboard' | 'advanced_search' | 'report_generator' | 'neural_link') => set({ currentView: view }),
 
   topology: null,
   setTopology: (topology) => set({ topology }),

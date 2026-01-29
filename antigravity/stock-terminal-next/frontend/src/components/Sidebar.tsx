@@ -8,13 +8,15 @@ import {
   PieChart,
   Globe,
   Search,
-  Sparkles
+  Sparkles,
+  Zap,
+  Cpu
 } from 'lucide-react';
 import { useDashboardStore } from '../store/dashboardStore';
 import clsx from 'clsx';
 
 export const Sidebar: React.FC = () => {
-  const { ticker, setTicker, activeView, setActiveView, isSidebarOpen, chatDockPosition, currentView, setCurrentView } = useDashboardStore();
+  const { ticker, setTicker, activeView, setActiveView, isSidebarOpen, chatDockPosition, currentView, setCurrentView, setAdkOverlayOpen } = useDashboardStore();
   const [inputValue, setInputValue] = React.useState(ticker);
 
   const handleSearch = (e: React.KeyboardEvent) => {
@@ -85,6 +87,43 @@ export const Sidebar: React.FC = () => {
             onKeyDown={handleSearch}
             className="bg-transparent border-none outline-none w-full ml-2 text-sm text-[var(--text-primary)]"
           />
+        </div>
+
+        {/* Toggle & System Controls */}
+        <div className="flex flex-col gap-3 mt-5">
+          {/* Neural Link Toggle */}
+          <div className="bg-white/5 border border-white/10 rounded-xl p-1 flex items-center relative gap-1 shadow-inner">
+            <button
+              onClick={() => setCurrentView('dashboard')}
+              className={clsx(
+                "flex-1 py-2 text-[10px] font-bold uppercase tracking-wider rounded-lg transition-all z-10 duration-200",
+                currentView !== 'neural_link' ? "text-white bg-white/10 shadow-sm border border-white/5" : "text-gray-500 hover:text-gray-300 hover:bg-white/5"
+              )}
+            >
+              Standard
+            </button>
+            <button
+              onClick={() => setCurrentView('neural_link')}
+              className={clsx(
+                "flex-1 py-2 text-[10px] font-bold uppercase tracking-wider rounded-lg transition-all z-10 flex items-center justify-center gap-1.5 duration-300",
+                currentView === 'neural_link'
+                  ? "text-white bg-gradient-to-r from-cyan-500 to-blue-600 shadow-md border border-white/10"
+                  : "text-gray-500 hover:text-cyan-400 hover:bg-white/5"
+              )}
+            >
+              <Zap size={12} className={clsx("transition-colors", currentView === 'neural_link' ? "text-yellow-300 fill-yellow-300" : "")} />
+              Neural Link
+            </button>
+          </div>
+
+          {/* ADK Overlay Trigger */}
+          <button
+            onClick={() => setAdkOverlayOpen(true)}
+            className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-[10px] font-bold uppercase tracking-wider bg-purple-500/10 hover:bg-purple-500/20 text-purple-400 border border-purple-500/20 transition-all hover:shadow-[0_0_15px_rgba(168,85,247,0.3)] hover:scale-[1.02] group duration-300"
+          >
+            <Cpu size={14} className="group-hover:rotate-180 transition-transform duration-700" />
+            <span>View System Architecture</span>
+          </button>
         </div>
       </div>
 
