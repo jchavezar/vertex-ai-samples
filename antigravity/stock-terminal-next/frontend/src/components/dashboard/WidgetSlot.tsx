@@ -124,21 +124,40 @@ export const WidgetSlot: React.FC<WidgetSlotProps> = ({
     );
   }
 
-  // 2. AI Mode Empty State (Prompt to Generate)
+  // 2. AI Mode State (Empty State with Center Action)
   if (isAiMode) {
     const isComparison = tickers && tickers.length > 1;
     const buttonText = isComparison
-      ? `Compare ${section} (${tickers.join(' vs ')})`
-      : `Generate ${section}`;
+      ? `Compare ${section}`
+      : `Generate ${section} Analysis`;
 
     return (
-      <div className={getContainerClass("min-h-[220px] flex items-center justify-center border border-dashed border-[var(--border-subtle)] bg-[var(--bg-app)]/30")}>
-        <button
-           onClick={() => onGenerate(section)}
-          className="px-6 py-2.5 bg-[var(--text-primary)] text-[var(--bg-app)] text-[9px] font-black uppercase tracking-[0.2em] rounded-full hover:scale-105 active:scale-95 transition-all shadow-xl hover:shadow-[var(--text-primary)]/10"
-        >
-          {buttonText}
-        </button>
+      <div className="h-full w-full flex flex-col items-center justify-center p-8 bg-[var(--bg-app)]/40 border border-dashed border-[var(--border-subtle)] group transition-all duration-500 hover:bg-[var(--bg-app)]/60">
+        <div className="flex flex-col items-center gap-5">
+          <div className="w-14 h-14 rounded-full bg-[var(--text-primary)]/5 flex items-center justify-center border border-[var(--text-primary)]/10 group-hover:bg-[var(--brand)]/10 group-hover:border-[var(--brand)]/30 group-hover:scale-110 transition-all duration-500 shadow-inner">
+            <Sparkles size={24} className="text-[var(--text-muted)] group-hover:text-[var(--brand)] transition-colors duration-500" />
+          </div>
+
+          <div className="text-center space-y-1.5">
+            <h3 className="text-[11px] font-black uppercase tracking-[0.4em] text-[var(--text-primary)] translate-x-[0.2em]">{section}</h3>
+            <p className="text-[9px] text-[var(--text-muted)] font-bold uppercase tracking-[0.2em] max-w-[180px] mx-auto opacity-50 group-hover:opacity-80 transition-opacity">
+              Awaiting Agent Synthesis
+            </p>
+          </div>
+
+          <button
+            onClick={() => onGenerate(section)}
+            className="mt-2 px-8 py-3 bg-[var(--text-primary)] text-[var(--bg-app)] text-[10px] font-black uppercase tracking-[0.25em] rounded-md hover:bg-[var(--brand)] hover:text-white transition-all shadow-xl hover:shadow-[var(--brand)]/30 active:scale-95 flex items-center gap-2"
+          >
+            <Sparkles size={11} />
+            {buttonText}
+          </button>
+        </div>
+
+        {/* Background Decorator */}
+        <div className="absolute top-3 right-3 text-[8px] font-black text-[var(--text-muted)] opacity-20 uppercase tracking-widest pointer-events-none">
+          Neural Slot {tickers[0]}
+        </div>
       </div>
     );
   }
