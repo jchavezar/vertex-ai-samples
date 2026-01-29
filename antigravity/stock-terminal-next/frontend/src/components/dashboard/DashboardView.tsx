@@ -132,13 +132,33 @@ export const DashboardView: React.FC = () => {
         </div>
       )}
 
-      {/* Main Grid Layout: 3 Columns x 3 Rows (roughly) */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 grid-rows-[auto_auto] gap-5 w-full max-w-[1920px] mx-auto pb-6 px-2 pt-2">
+      {/* NEW LAYOUT: Top Context Row + Main Workspace */}
+      <div className="flex flex-col w-full max-w-[1920px] mx-auto pb-6 px-2 pt-2 gap-5 h-full">
 
-        {/* LEFT COLUMN: Profile & First Insight */}
-        <div className="col-span-1 lg:col-span-3 flex flex-col gap-5 h-full">
-          {/* Profile Card */}
-          <div className="h-[280px]">
+        {/* ROW 1: Context Top Bar (4 Columns) */}
+        <div className="grid grid-cols-4 gap-5 h-[220px] shrink-0">
+          {/* Earnings Context */}
+          <div className="h-full">
+            <InsightCard data={insights[1]} color="indigo" />
+          </div>
+          {/* Industry Comp */}
+          <div className="h-full">
+            <InsightCard data={insights[2]} color="sky" />
+          </div>
+          {/* Meeting Prep */}
+          <div className="h-full">
+            <InsightCard data={insights[0]} color="blue" />
+          </div>
+          {/* Suggested Actions */}
+          <div className="h-full">
+            <SuggestedActionsCard actions={suggestedActions} />
+          </div>
+        </div>
+
+        {/* ROW 2: Main Workspace (Profile + Chart) */}
+        <div className="flex-1 grid grid-cols-12 gap-5 min-h-0">
+          {/* LEFT: Profile (Smaller width) */}
+          <div className="col-span-3 h-full">
             <WidgetSlot
               section="Profile"
               override={widgetOverrides['Profile']}
@@ -148,52 +168,32 @@ export const DashboardView: React.FC = () => {
               originalComponent={<SummaryPanel ticker={ticker} externalData={tickerData} />}
             />
           </div>
-          {/* Meeting Prep Insight */}
-          <div className="flex-1 min-h-[200px]">
-            <InsightCard data={insights[0]} color="blue" />
-          </div>
-        </div>
 
-        {/* CENTER COLUMN: Main Chart (Spans 2 rows effectively or takes most height) */}
-        <div className="col-span-1 lg:col-span-6 flex flex-col gap-5 h-full">
-          <div className="arch-card rounded-xl group/chart p-1 h-[500px] lg:h-full relative">
-            <div className="absolute top-0 right-0 p-6 z-10 opacity-0 group-hover/chart:opacity-100 transition-opacity">
-              <span className="text-xs font-mono text-[var(--text-muted)] border border-[var(--border)] px-2 py-1 rounded">LIVE</span>
+          {/* RIGHT: Main Chart */}
+          <div className="col-span-9 h-full">
+            <div className="arch-card rounded-xl group/chart p-1 h-full relative">
+              <div className="absolute top-0 right-0 p-6 z-10 opacity-0 group-hover/chart:opacity-100 transition-opacity">
+                <span className="text-xs font-mono text-[var(--text-muted)] border border-[var(--border)] px-2 py-1 rounded">LIVE</span>
+              </div>
+              <PerformanceChart
+                ticker={chartOverride?.ticker || ticker}
+                externalData={chartOverride}
+                defaultData={tickerData}
+              />
             </div>
-            <PerformanceChart
-              ticker={chartOverride?.ticker || ticker}
-              externalData={chartOverride}
-              defaultData={tickerData}
-            />
           </div>
         </div>
 
-        {/* RIGHT COLUMN: Other Insights & Actions */}
-        <div className="col-span-1 lg:col-span-3 flex flex-col gap-5 h-full">
-          {/* Earnings Context */}
-          <div className="flex-1 min-h-[200px]">
-            <InsightCard data={insights[1]} color="indigo" />
-          </div>
-          {/* Industry Comp */}
-          <div className="flex-1 min-h-[200px]">
-            <InsightCard data={insights[2]} color="sky" />
-          </div>
-          {/* Suggested Actions (Small) */}
-          <div className="h-[180px]">
-            <SuggestedActionsCard actions={suggestedActions} />
-          </div>
-        </div>
-
-        {/* BOTTOM ROW: Market Footer (Spans All) */}
-        <div className="col-span-1 lg:col-span-12 mt-2">
+        {/* BOTTOM: Market Footer */}
+        <div className="shrink-0 mt-auto">
           <div className="arch-card rounded-xl border-t border-[var(--border-highlight)] bg-[var(--bg-panel)]">
-            <div className="flex flex-col lg:flex-row items-center h-16 px-6">
+            <div className="flex flex-col lg:flex-row items-center h-24 px-6">
               {/* Label */}
-              <div className="flex items-center gap-3 pr-6 border-r border-[var(--border)] h-full lg:min-w-[160px] shrink-0">
-                <div className="w-1 h-8 bg-[var(--text-primary)]"></div>
+              <div className="flex items-center gap-4 pr-8 border-r border-[var(--border)] h-full lg:min-w-[180px] shrink-0">
+                <div className="w-1.5 h-10 bg-[var(--text-primary)]"></div>
                 <div>
-                  <h3 className="text-lg font-black text-[var(--text-primary)] tracking-widest uppercase leading-none">MARKET</h3>
-                  <p className="text-[9px] text-[var(--text-muted)] font-mono font-bold leading-none mt-1">REAL-TIME DATA</p>
+                  <h3 className="text-xl font-black text-[var(--text-primary)] tracking-widest uppercase leading-none">MARKET</h3>
+                  <p className="text-[10px] text-[var(--text-muted)] font-mono font-bold leading-none mt-1.5">REAL-TIME DATA</p>
                 </div>
               </div>
 

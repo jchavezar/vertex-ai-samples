@@ -1,9 +1,7 @@
+/* stylelint-disable at-rule-no-unknown */
 @tailwind base;
-/* stylelint-disable-line at-rule-no-unknown */
 @tailwind components;
-/* stylelint-disable-line at-rule-no-unknown */
 @tailwind utilities;
-/* stylelint-disable-line at-rule-no-unknown */
 
 @layer base {
   :root {
