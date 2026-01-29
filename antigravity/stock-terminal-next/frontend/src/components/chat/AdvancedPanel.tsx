@@ -170,22 +170,22 @@ const AdvancedPanel: React.FC<AdvancedPanelProps> = ({ onDragStart }) => {
           >
             <Terminal size={20} />
           </button>
-          <div className="min-w-0">
-            <h2 className={clsx("text-lg font-bold truncate", isDark ? "text-[var(--text-primary)]" : "text-slate-800")}>Workstation</h2>
-            <div className={clsx("flex items-center gap-1.5 text-xs shrink-0", isDark ? "text-[var(--text-muted)]" : "text-slate-500")}>
+          <div className="min-w-0 flex flex-col justify-center">
+            <h2 className={clsx("text-base font-bold leading-tight whitespace-nowrap", isDark ? "text-[var(--text-primary)]" : "text-slate-800")}>Workstation</h2>
+            <div className={clsx("flex items-center gap-1.5 text-[10px] shrink-0", isDark ? "text-[var(--text-muted)]" : "text-slate-500")}>
               {isLoading ? (
                 <>
-                  <span className="w-2 h-2 rounded-full bg-[var(--brand)] animate-ping" />
+                  <span className="w-1.5 h-1.5 rounded-full bg-[var(--brand)] animate-ping" />
                   <span className="font-medium text-[var(--brand)]">Thinking... <ThinkingTimer startTime={startTime || Date.now()} /></span>
                 </>
               ) : lastLatency ? (
                 <>
-                    <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
                   <span>Done ({lastLatency}s)</span>
                 </>
               ) : (
                 <>
-                      <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+                      <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
                       Online
                 </>
               )}
@@ -442,8 +442,8 @@ const AdvancedPanel: React.FC<AdvancedPanelProps> = ({ onDragStart }) => {
             <div ref={messagesEndRef} />
           </div>
 
-          {/* Input Area */}
-          <div className={clsx("p-6 border-t bg-transparent shrink-0", isDark ? "border-white/10" : "border-gray-100")}>
+          {/* Input Area - REVERTED TO COMPACT */}
+          <div className={clsx("p-4 border-t bg-transparent shrink-0", isDark ? "border-white/10" : "border-gray-100")}>
             {/* Image Preview */}
             {image && (
               <div className="relative inline-block mb-2 group">
@@ -470,11 +470,11 @@ const AdvancedPanel: React.FC<AdvancedPanelProps> = ({ onDragStart }) => {
                   onClick={() => fileInputRef.current?.click()}
                   disabled={isLoading}
                   className={clsx(
-                    "p-4 rounded-xl transition-colors shrink-0",
+                    "p-3 rounded-xl transition-colors shrink-0",
                     isDark ? "bg-[var(--bg-app)] border border-[var(--border)] text-gray-400 hover:text-gray-200" : "bg-white border border-gray-200 text-slate-400 hover:text-slate-600"
                   )}
                 >
-                  <ImageIcon size={24} />
+                  <ImageIcon size={20} />
                 </button>
                 <textarea
                   ref={textareaRef}
@@ -489,7 +489,7 @@ const AdvancedPanel: React.FC<AdvancedPanelProps> = ({ onDragStart }) => {
                   placeholder="Ask anything..."
                   rows={1}
                   className={clsx(
-                    "w-full rounded-2xl py-4 px-5 pr-14 outline-none transition-all text-base min-w-0 flex-1 resize-none overflow-y-auto no-scrollbar",
+                    "w-full rounded-2xl py-3 px-4 pr-14 outline-none transition-all text-sm min-w-0 flex-1 resize-none overflow-y-auto no-scrollbar",
                     isDark ? "bg-[var(--bg-app)] border border-[var(--border)] focus:outline-none placeholder:text-gray-400 text-gray-200" :
                       "bg-white border border-gray-200 focus:outline-none placeholder:text-slate-400 text-slate-800"
                   )}
@@ -499,7 +499,7 @@ const AdvancedPanel: React.FC<AdvancedPanelProps> = ({ onDragStart }) => {
                   type="submit"
                   className="absolute right-3 bottom-3 p-2 bg-[var(--brand)] text-white rounded-xl hover:bg-blue-600 disabled:opacity-50 transition-colors shrink-0"
                 >
-                  <MessageSquare size={20} />
+                  <MessageSquare size={18} />
                 </button>
               </form>
             </div>

@@ -256,15 +256,4 @@ export const StreamingMarkdown: React.FC<StreamingMarkdownProps> = ({ content, i
     </div>
   );
 };
-return (
-  <div className={`markdown-content relative leading-relaxed ${className || ''}`}>
-    {isAnalystCopilot ? (
-      <MacroPerspectiveCard theme={theme}>
-        {renderContent()}
-      </MacroPerspectiveCard>
-    ) : (
-      renderContent()
-    )}
-  </div>
-);
-};
+
