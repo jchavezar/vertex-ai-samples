@@ -1,5 +1,5 @@
 import React from 'react';
-import { TrendingUp, TrendingDown, Target, Zap } from 'lucide-react';
+import { TrendingUp, TrendingDown, Zap } from 'lucide-react';
 import { clsx } from 'clsx';
 
 interface PeerData {

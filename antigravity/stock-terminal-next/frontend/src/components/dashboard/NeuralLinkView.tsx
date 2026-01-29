@@ -1,9 +1,8 @@
 
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useDashboardStore } from '../../store/dashboardStore';
-import { ArrowLeft, Brain, TrendingUp, Globe, Clock, ExternalLink, Zap, Activity } from 'lucide-react';
+import { ArrowLeft, Brain, Globe, Clock, ExternalLink, Zap, Activity } from 'lucide-react';
 import clsx from 'clsx';
-import { SimpleChart } from '../dashboard/SimpleChart'; // Reuse existing simple chart if available or similar
 
 interface NeuralCard {
   title: string;

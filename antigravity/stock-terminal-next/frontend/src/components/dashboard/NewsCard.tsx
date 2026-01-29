@@ -39,7 +39,7 @@ const NewsCard: React.FC<NewsCardProps> = ({ item, onClick }) => {
                 {item.source}
             </span>
             <span className="text-[10px] font-mono text-slate-500">
-                {item.time}
+            {item.date || 'Just now'}
             </span>
         </div>
 
@@ -51,17 +51,17 @@ const NewsCard: React.FC<NewsCardProps> = ({ item, onClick }) => {
             <div className="flex items-center gap-2">
                 <div className={`w-1.5 h-1.5 rounded-full ${accentColor} animate-pulse`} />
                 <span className={`text-[10px] font-bold uppercase ${isPositive ? 'text-emerald-400' : isNegative ? 'text-red-400' : 'text-slate-400'}`}>
-                    {item.sentiment.toUpperCase()}
+              {(item.sentiment || 'neutral').toUpperCase()}
                 </span>
             </div>
             <div className="flex items-center gap-1">
                  <div className="h-1 w-12 bg-white/10 rounded-full overflow-hidden">
                     <div 
                         className={`h-full ${accentColor}`} 
-                        style={{ width: `${item.impact_score}%` }} 
+                style={{ width: `${(item.engagement_metrics?.likes || 0) > 100 ? 100 : (item.engagement_metrics?.likes || 50)}%` }} 
                     />
                  </div>
-                 <span className="text-[9px] font-mono text-slate-500">{item.impact_score}IMP</span>
+            <span className="text-[9px] font-mono text-slate-500">{(item.engagement_metrics?.likes || 0)}IMP</span>
             </div>
         </div>
       </div>
