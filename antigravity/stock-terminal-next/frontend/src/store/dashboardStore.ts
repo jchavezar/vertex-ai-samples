@@ -92,6 +92,28 @@ interface DashboardState {
 
   activeAnalysisData: any | null;
   setAnalysisData: (data: any | null) => void;
+
+  // New missing properties
+  compsAnalysis: any | null;
+  setCompsAnalysis: (data: any | null) => void;
+}
+
+export interface NewsItem {
+  id?: string;
+  headline: string;
+  summary: string;
+  source: string;
+  url: string;
+  sentiment?: 'positive' | 'negative' | 'neutral';
+  date?: string;
+  author?: string;
+  image_url?: string;
+  related_tickers?: string[];
+  engagement_metrics?: {
+    likes?: number;
+    shares?: number;
+    comments?: number;
+  };
 }
 
 export const useDashboardStore = create<DashboardState>((set) => ({
@@ -118,12 +140,14 @@ export const useDashboardStore = create<DashboardState>((set) => ({
   isSidebarOpen: true,
   toggleSidebar: () => set((state) => ({ isSidebarOpen: !state.isSidebarOpen })),
 
-  theme: 'light',
+  theme: (typeof window !== 'undefined' ? localStorage.getItem('stock-terminal-theme') as 'light' | 'dark' : 'light') || 'light',
   toggleTheme: () => set((state) => {
     const newTheme = state.theme === 'light' ? 'dark' : 'light';
+    localStorage.setItem('stock-terminal-theme', newTheme);
+    document.documentElement.setAttribute('data-theme', newTheme);
     if (newTheme === 'dark') {
       document.body.classList.add('dark');
-      document.body.classList.add('dark-theme'); // for compatibility
+      document.body.classList.add('dark-theme');
     } else {
       document.body.classList.remove('dark');
       document.body.classList.remove('dark-theme');
@@ -166,4 +190,7 @@ export const useDashboardStore = create<DashboardState>((set) => ({
 
   activeAnalysisData: null,
   setAnalysisData: (data) => set({ activeAnalysisData: data }),
+
+  compsAnalysis: null,
+  setCompsAnalysis: (data) => set({ compsAnalysis: data }),
 }));
