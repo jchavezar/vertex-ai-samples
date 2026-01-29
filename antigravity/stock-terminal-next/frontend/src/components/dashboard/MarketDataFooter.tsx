@@ -19,7 +19,7 @@ export const MarketDataFooter: React.FC<MarketDataFooterProps> = ({ tickerData }
     <div className="w-full h-full grid grid-cols-12 gap-4 items-center px-4">
       {/* TRADING */}
       <div className="col-span-3 flex flex-col justify-center h-full border-r border-[var(--border-subtle)] pr-4">
-        <div className="text-[10px] font-bold text-[var(--text-muted)] tracking-[0.2em] mb-1 uppercase opacity-80 flex items-center gap-2">
+        <div className="text-[9px] font-bold text-[var(--text-muted)] tracking-[0.2em] mb-1.5 uppercase opacity-80 flex items-center gap-2">
           <span className="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
           TRADING
         </div>
@@ -45,7 +45,7 @@ export const MarketDataFooter: React.FC<MarketDataFooterProps> = ({ tickerData }
 
       {/* VALUATION */}
       <div className="col-span-3 flex flex-col justify-center h-full border-r border-[var(--border-subtle)] pr-4 pl-2">
-        <div className="text-[10px] font-bold text-[var(--text-muted)] tracking-[0.2em] mb-1 uppercase opacity-80 flex items-center gap-2">
+        <div className="text-[9px] font-bold text-[var(--text-muted)] tracking-[0.2em] mb-1.5 uppercase opacity-80 flex items-center gap-2">
           <span className="w-1.5 h-1.5 rounded-full bg-purple-500"></span>
           VALUATION
         </div>
@@ -71,7 +71,7 @@ export const MarketDataFooter: React.FC<MarketDataFooterProps> = ({ tickerData }
 
       {/* DIVIDENDS */}
       <div className="col-span-3 flex flex-col justify-center h-full border-r border-[var(--border-subtle)] pr-4 pl-2">
-        <div className="text-[10px] font-bold text-[var(--text-muted)] tracking-[0.2em] mb-1 uppercase opacity-80 flex items-center gap-2">
+        <div className="text-[9px] font-bold text-[var(--text-muted)] tracking-[0.2em] mb-1.5 uppercase opacity-80 flex items-center gap-2">
           <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
           DIVIDENDS
         </div>

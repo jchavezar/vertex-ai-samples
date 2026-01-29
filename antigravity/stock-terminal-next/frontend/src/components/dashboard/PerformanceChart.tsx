@@ -183,7 +183,7 @@ export const PerformanceChart: React.FC<PerformanceChartProps> = ({ ticker, exte
         )}
       </div>
 
-      <div className="flex-1 w-full min-h-[300px] mt-4 px-2">
+      <div className="flex-1 w-full min-h-[200px] mt-4 px-2">
         <ResponsiveContainer>
           {externalData?.chartType === 'bar' && Array.isArray(externalData.data) ? (
             <BarChart
