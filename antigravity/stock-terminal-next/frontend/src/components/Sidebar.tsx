@@ -61,7 +61,7 @@ export const Sidebar: React.FC = () => {
 
   return (
     <aside className="w-[var(--sidebar-width)] flex-shrink-0 bg-[var(--bg-card)] border-r border-[var(--border)] flex flex-col z-[100] h-full overflow-hidden backdrop-blur-xl">
-      <div className="p-6 border-b border-[var(--border)] bg-transparent">
+      <div className="p-4 border-b border-[var(--border)] bg-transparent">
         <div className="mb-6 flex flex-col items-start">
           <img src="/factset-logo-final.png" alt="FACTSET" className="h-12 object-contain dark:brightness-0 dark:invert transition-all" />
           <div className="flex flex-col items-start gap-0.5 ml-1 mt-1 p-3 rounded-xl bg-white/5 border border-white/10 backdrop-blur-md transition-all hover:bg-white/10 hover:border-white/20 hover:shadow-[0_0_20px_rgba(66,133,244,0.15)] group">
@@ -133,7 +133,7 @@ export const Sidebar: React.FC = () => {
             <div
               key={idx}
               className={clsx(
-                "flex items-center px-4 py-3 mx-3 cursor-pointer gap-3 rounded-full transition-all text-base",
+                "flex items-center px-3 py-2 mx-2 cursor-pointer gap-3 rounded-full transition-all text-sm",
                 (currentView === 'advanced_search' && item.label === 'Advanced Search') ||
                   (currentView === 'report_generator' && item.label === 'Reports Generator') ||
                   (currentView === 'dashboard' && activeView === item.label)
@@ -142,7 +142,7 @@ export const Sidebar: React.FC = () => {
               )}
               onClick={() => handleItemClick(item.label)}
             >
-              <item.icon size={20} />
+              <item.icon size={18} />
               <span>{item.label}</span>
               {item.isNew && (
                 <span className="text-[9px] bg-blue-600 px-2 py-0.5 rounded-full text-white font-bold ml-auto shadow-sm">
@@ -160,7 +160,7 @@ export const Sidebar: React.FC = () => {
               <div
                 key={i}
                 className={clsx(
-                  "flex items-center py-2.5 px-4 mx-3 pl-11 cursor-pointer rounded-full transition-all text-sm",
+                  "flex items-center py-2 px-3 mx-2 pl-10 cursor-pointer rounded-full transition-all text-xs",
                   currentView === 'dashboard' && activeView === item
                     ? "text-[var(--brand)] bg-blue-500/10 font-bold"
                     : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-white/5"
