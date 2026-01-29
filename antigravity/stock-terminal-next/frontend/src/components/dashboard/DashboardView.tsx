@@ -1,12 +1,12 @@
 import React, { useEffect } from 'react';
 import { useDashboardStore } from '../../store/dashboardStore';
-import { AgentInsights } from './AgentInsights';
+import { useAgentInsights, InsightCard, SuggestedActionsCard } from './AgentInsights';
 import { PerformanceChart } from './PerformanceChart';
 import { SummaryPanel } from './SummaryPanel';
-import { KeyStats } from './KeyStats';
+
 import { WidgetSlot } from './WidgetSlot';
 import { Terminal, Zap } from 'lucide-react';
-import { GlassCard } from './GlassCard';
+import { MarketDataFooter } from './MarketDataFooter';
 
 export const DashboardView: React.FC = () => {
   const { 
@@ -20,12 +20,12 @@ export const DashboardView: React.FC = () => {
     setWidgetOverride
   } = useDashboardStore();
 
+  const { insights, suggestedActions } = useAgentInsights(ticker);
+
   useEffect(() => {
     const fetchTickerInfo = async () => {
       if (!ticker) return;
       try {
-        // Assuming the backend is running on port 8001 as in the original app
-        // In a real scenario, this might need an environment variable
         const response = await fetch(`http://localhost:8001/ticker-info/${ticker}`);
         if (response.ok) {
           const data = await response.json();
@@ -112,7 +112,7 @@ export const DashboardView: React.FC = () => {
 
 
   return (
-    <div className="flex flex-col gap-5 p-4 w-full">
+    <div className="flex flex-col gap-5 p-4 w-full h-full">
       {/* Macro Context Overlay */}
       {activeView !== 'Snapshot' && (
         <div className="bg-gradient-to-r from-blue-600/20 to-cyan-500/20 border border-blue-500/30 rounded-2xl p-4 mb-2 flex items-center justify-between backdrop-blur-md shadow-lg shadow-blue-500/5 transition-all">
@@ -132,13 +132,31 @@ export const DashboardView: React.FC = () => {
         </div>
       )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 w-full max-w-[1920px] mx-auto pb-12 px-6 pt-6">
+      {/* Main Grid Layout: 3 Columns x 3 Rows (roughly) */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 grid-rows-[auto_auto] gap-5 w-full max-w-[1920px] mx-auto pb-6 px-2 pt-2">
 
-        {/* ROW 1: Intelligence Grid (Hero Chart + Strategic Insights) */}
+        {/* LEFT COLUMN: Profile & First Insight */}
+        <div className="col-span-1 lg:col-span-3 flex flex-col gap-5 h-full">
+          {/* Profile Card */}
+          <div className="h-[280px]">
+            <WidgetSlot
+              section="Profile"
+              override={widgetOverrides['Profile']}
+              isAiMode={!!chartOverride}
+              onGenerate={handleGenerateWidget}
+              tickers={tickersToAnalyze}
+              originalComponent={<SummaryPanel ticker={ticker} externalData={tickerData} />}
+            />
+          </div>
+          {/* Meeting Prep Insight */}
+          <div className="flex-1 min-h-[200px]">
+            <InsightCard data={insights[0]} color="blue" />
+          </div>
+        </div>
 
-        {/* Hero Section: Performance Chart - Primary Focus */}
-        <div className="col-span-1 lg:col-span-8 flex flex-col min-h-[600px] lg:h-[65vh]">
-          <div className="arch-card h-full rounded-xl group/chart p-1">
+        {/* CENTER COLUMN: Main Chart (Spans 2 rows effectively or takes most height) */}
+        <div className="col-span-1 lg:col-span-6 flex flex-col gap-5 h-full">
+          <div className="arch-card rounded-xl group/chart p-1 h-[500px] lg:h-full relative">
             <div className="absolute top-0 right-0 p-6 z-10 opacity-0 group-hover/chart:opacity-100 transition-opacity">
               <span className="text-xs font-mono text-[var(--text-muted)] border border-[var(--border)] px-2 py-1 rounded">LIVE</span>
             </div>
@@ -150,67 +168,37 @@ export const DashboardView: React.FC = () => {
           </div>
         </div>
 
-        {/* Intelligence Column: Stacked Insights */}
-        <div className="col-span-1 lg:col-span-4 flex flex-col gap-4 min-h-[600px] lg:h-[65vh]">
-          {/* Main Insight Card */}
-          <div className="flex-[3] arch-card rounded-xl p-0 flex flex-col relative overflow-hidden group">
-            {/* Subtle Gradient Header */}
-            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[var(--blue-glow)] to-purple-500 opacity-80"></div>
-
-            <div className="p-5 h-full flex flex-col">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-sm font-medium text-[var(--text-secondary)] tracking-tight">INTELLIGENCE</h3>
-                <div className="w-2 h-2 rounded-full bg-[var(--accent)] animate-pulse"></div>
-              </div>
-              <div className="flex-1 overflow-auto">
-                <AgentInsights ticker={ticker} />
-              </div>
-            </div>
+        {/* RIGHT COLUMN: Other Insights & Actions */}
+        <div className="col-span-1 lg:col-span-3 flex flex-col gap-5 h-full">
+          {/* Earnings Context */}
+          <div className="flex-1 min-h-[200px]">
+            <InsightCard data={insights[1]} color="indigo" />
           </div>
-
-          {/* Secondary / Profile Card */}
-          <div className="flex-[2] arch-card rounded-xl p-0">
-            <WidgetSlot
-              section="Profile"
-              override={widgetOverrides['Profile']}
-              isAiMode={!!chartOverride}
-              onGenerate={handleGenerateWidget}
-              tickers={tickersToAnalyze}
-              originalComponent={<SummaryPanel ticker={ticker} externalData={tickerData} />}
-            />
+          {/* Industry Comp */}
+          <div className="flex-1 min-h-[200px]">
+            <InsightCard data={insights[2]} color="sky" />
+          </div>
+          {/* Suggested Actions (Small) */}
+          <div className="h-[180px]">
+            <SuggestedActionsCard actions={suggestedActions} />
           </div>
         </div>
 
-        {/* ROW 2: Market Essentials Ticker (Strict Footer) - ULTRA COMPACT */}
-        <div className="col-span-1 lg:col-span-12">
+        {/* BOTTOM ROW: Market Footer (Spans All) */}
+        <div className="col-span-1 lg:col-span-12 mt-2">
           <div className="arch-card rounded-xl border-t border-[var(--border-highlight)] bg-[var(--bg-panel)]">
             <div className="flex flex-col lg:flex-row items-center h-16 px-6">
-
               {/* Label */}
               <div className="flex items-center gap-3 pr-6 border-r border-[var(--border)] h-full lg:min-w-[160px] shrink-0">
-                <div className="w-1 h-6 bg-[var(--text-primary)]"></div>
+                <div className="w-1 h-8 bg-[var(--text-primary)]"></div>
                 <div>
-                  <h3 className="text-base font-black text-[var(--text-primary)] tracking-widest uppercase leading-none">MARKET</h3>
-                  <p className="text-[9px] text-[var(--text-muted)] font-mono font-bold leading-none mt-0.5">REAL-TIME DATA</p>
+                  <h3 className="text-lg font-black text-[var(--text-primary)] tracking-widest uppercase leading-none">MARKET</h3>
+                  <p className="text-[9px] text-[var(--text-muted)] font-mono font-bold leading-none mt-1">REAL-TIME DATA</p>
                 </div>
               </div>
 
-              {/* Data Grid */}
-              <div className="flex-1 w-full grid grid-cols-2 md:grid-cols-4 h-full">
-                {['Trading', 'Valuation', 'Dividends', 'Estimates'].map((section) => (
-                  <div key={section} className="h-full border-r border-[var(--border-subtle)] last:border-r-0 px-6 flex items-center">
-                    <WidgetSlot
-                      section={section}
-                      override={widgetOverrides[section]}
-                      isAiMode={!!chartOverride}
-                      onGenerate={handleGenerateWidget}
-                      tickers={tickersToAnalyze}
-                      originalComponent={<KeyStats section={section} ticker={ticker} externalData={tickerData} variant="clean" />}
-                      variant="clean"
-                    />
-                  </div>
-                ))}
-              </div>
+              {/* Unified Data Table */}
+              <MarketDataFooter tickerData={tickerData} />
             </div>
           </div>
         </div>

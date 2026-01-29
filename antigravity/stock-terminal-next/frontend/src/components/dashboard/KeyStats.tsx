@@ -7,7 +7,7 @@ interface KeyStatsProps {
   variant?: 'card' | 'clean' | 'ticker';
 }
 
-export const KeyStats: React.FC<KeyStatsProps> = ({ section, ticker, externalData, variant = 'card' }) => {
+export const KeyStats: React.FC<KeyStatsProps> = ({ section, externalData, variant = 'card' }) => {
   const data: Record<string, { label: string; value: string | number }[]> = {
     Trading: [
       { label: 'Open', value: externalData?.price ? `${externalData.currency || '$'} ${externalData.price}` : '$296.94' },
