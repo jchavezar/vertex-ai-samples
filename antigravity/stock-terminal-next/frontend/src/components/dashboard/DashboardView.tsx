@@ -133,7 +133,7 @@ export const DashboardView: React.FC = () => {
       )}
 
       {/* NEW LAYOUT: Main Workspace (Chart Top-Left) + Context Grid */}
-      <div className="flex flex-col w-full max-w-[1920px] mx-auto pb-6 px-2 pt-2 gap-5 h-full">
+      <div className="flex flex-col w-full max-w-[1920px] mx-auto pb-4 px-2 pt-2 gap-4 h-full">
 
         {/* ROW 1: Main Workspace (Chart + Profile) - Takes available height */}
         <div className="flex-1 grid grid-cols-12 gap-5 min-h-0">
@@ -165,7 +165,7 @@ export const DashboardView: React.FC = () => {
         </div>
 
         {/* ROW 2: Context Items (4 Columns) - Fixed Height */}
-        <div className="grid grid-cols-4 gap-4 h-[180px] shrink-0">
+        <div className="grid grid-cols-4 gap-4 h-[165px] shrink-0">
           {/* Earnings Context */}
           <div className="h-full">
             <InsightCard data={insights[1]} color="indigo" />
@@ -187,7 +187,7 @@ export const DashboardView: React.FC = () => {
         {/* BOTTOM: Market Footer */}
         <div className="shrink-0 mt-auto">
           <div className="arch-card rounded-xl border-t border-[var(--border-highlight)] bg-[var(--bg-panel)]">
-            <div className="flex flex-col lg:flex-row items-center h-20 px-6">
+            <div className="flex flex-col lg:flex-row items-center h-[74px] px-6">
               {/* Label */}
               <div className="flex items-center gap-4 pr-8 border-r border-[var(--border)] h-full lg:min-w-[170px] shrink-0">
                 <div className="w-1.5 h-8 bg-[var(--text-primary)]"></div>
