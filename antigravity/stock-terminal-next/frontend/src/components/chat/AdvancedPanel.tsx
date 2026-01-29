@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Send, MessageSquare, Share2, Activity, Terminal, Maximize2, Minimize2, ChevronsRight, Clock, Brain, Square, Trash2, Image as ImageIcon, X } from 'lucide-react';
+import { Send, MessageSquare, Share2, Activity, Terminal, Maximize2, Minimize2, ChevronsRight, Clock, Brain, Square, Trash2, Image as ImageIcon, X, Youtube } from 'lucide-react';
 import { clsx } from "clsx";
 import { useDashboardStore } from '../../store/dashboardStore';
 import AgentGraph from './AgentGraph';
@@ -56,7 +56,8 @@ const DynamicStatusText: React.FC<{ logs: any[] }> = ({ logs }) => {
 
 const AdvancedPanel: React.FC<AdvancedPanelProps> = ({ onDragStart }) => {
   const [activeTab, setActiveTab] = useState<'chat' | 'graph' | 'trace' | 'reasoning'>('chat');
-  const { messages, input, handleInputChange, handleSubmit, isLoading, traceLogs, topology, executionPath, nodeDurations, nodeMetrics, lastLatency, startTime, selectedModel, sessionId, stop, resetChat, image, handleImageSelect, clearImage } = useWorkstationChat();
+  const { messages, input, handleInputChange, handleSubmit, isLoading, traceLogs, topology, executionPath, nodeDurations, nodeMetrics, lastLatency, startTime, selectedModel, sessionId, stop, resetChat, image, handleImageSelect, clearImage, youtubeUrl, handleYoutubeSelect, clearYoutube } = useWorkstationChat();
+  const [showYoutubeInput, setShowYoutubeInput] = useState(false);
   const { isChatMaximized, toggleChatMaximized, chatDockPosition, theme } = useDashboardStore();
   const fileInputRef = React.useRef<HTMLInputElement>(null);
   const textareaRef = React.useRef<HTMLTextAreaElement>(null);
@@ -371,22 +372,27 @@ const AdvancedPanel: React.FC<AdvancedPanelProps> = ({ onDragStart }) => {
                   {/* I will move the Latency Evidence to the USER message block, specifically for the latest user message. */}
 
                   {isLatestUserMessage && (isLoading || lastLatency) && (
-                    <div className="mt-1 flex items-center gap-1.5 justify-end opacity-80">
-                      {/* Optional "View Graph" if we want it here too? No, View Graph is usually for the Result. */}
-                      {/* But the user said "View Graph area... where it should remain steady". */}
-                      {/* Maybe they mean the status bubble at the bottom? */}
-                      {/* "Observe the 'View Graph' area...". */}
-                      {/* If "View Graph" is on the assistant message, it shouldn't vanish unless `isLastMessage` check removed it. */}
-                      {/* `isLastMessage` checked if *Assistant* was last. It usually IS last. */}
-                      {/* Why did it vanish? Maybe `isLoading || lastLatency` became false? No, `lastLatency` is set. */}
-                      {/* Maybe `isLastMessage` became false because a NEW empty message appeared? Unlikely. */}
-                      {/* I will move the timer to the User Message to be safe and "start from send". */}
-                      <div className="flex items-center gap-1.5 text-xs text-[var(--text-muted)] bg-[var(--bg-card)] px-3 py-1 rounded-full border border-[var(--border)]">
-                        <Clock size={12} />
+                    <div className="mt-2 flex items-center gap-3 justify-end opacity-80 animate-in fade-in slide-in-from-right-2 duration-300">
+                      {/* Execution Graph Shortcut (Steady from Start) */}
+                      <button
+                        onClick={() => {
+                          useDashboardStore.getState().setGraphOverlayOpen(true);
+                        }}
+                        className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-[var(--brand)] hover:text-[var(--brand-hover)] transition-colors px-2 py-1 bg-[var(--brand)]/10 rounded-md border border-[var(--brand)]/20"
+                        title="View Execution Strategy"
+                      >
+                        <Share2 size={11} strokeWidth={2.5} /> View Graph
+                      </button>
+
+                      <div className="flex items-center gap-1.5 text-[10px] font-bold text-[var(--text-muted)] bg-[var(--bg-card)] px-2.5 py-1 rounded-md border border-[var(--border)] shadow-sm">
+                        <Clock size={11} />
                         {isLoading && startTime ? (
-                          <ThinkingTimer startTime={startTime} />
+                          <div className="flex items-center gap-1">
+                            <span className="w-1.5 h-1.5 bg-[var(--brand)] rounded-full animate-pulse"></span>
+                            <ThinkingTimer startTime={startTime} />
+                          </div>
                         ) : (
-                          <span className="font-mono font-medium">{lastLatency}s</span>
+                            <span className="font-mono">{lastLatency}s</span>
                         )}
                       </div>
                     </div>
@@ -436,21 +442,104 @@ const AdvancedPanel: React.FC<AdvancedPanelProps> = ({ onDragStart }) => {
           </div>
 
           {/* Input Area - REVERTED TO COMPACT */}
-          <div className={clsx("p-4 border-t bg-transparent shrink-0", isDark ? "border-white/10" : "border-gray-100")}>
-            {/* Image Preview */}
-            {image && (
-              <div className="relative inline-block mb-2 group">
-                <img src={`data:image/png;base64,${image}`} alt="Preview" className="h-20 w-20 object-cover rounded-lg border border-white/20" />
-                <button
-                  onClick={clearImage}
-                  className="absolute -top-1 -right-1 bg-black/50 text-white rounded-full p-1 hover:bg-black/80 transition-colors"
-                >
-                  <X size={14} />
-                </button>
+          <div className={clsx("p-4 border-t bg-transparent shrink-0 relative", isDark ? "border-white/10" : "border-gray-100")}>
+            {/* YouTube Input Widget (Floating) */}
+            {showYoutubeInput && (
+              <div className="absolute bottom-full left-4 right-4 mb-4 z-50 animate-in fade-in slide-in-from-bottom-4 duration-300">
+                <div className={clsx(
+                  "p-4 rounded-2xl border shadow-2xl backdrop-blur-xl",
+                  isDark ? "bg-zinc-900/90 border-red-500/30 shadow-red-900/20" : "bg-white/90 border-red-200 shadow-red-100"
+                )}>
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center gap-2">
+                      <div className="relative">
+                        <Youtube size={16} className="text-red-500" />
+                        <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(239,68,68,0.8)]"></span>
+                      </div>
+                      <span className={clsx("text-xs font-bold tracking-wider uppercase", isDark ? "text-red-400" : "text-red-600")}>
+                        Neural Attachment: YouTube
+                      </span>
+                    </div>
+                    <button
+                      onClick={() => setShowYoutubeInput(false)}
+                      className="p-1 hover:bg-white/10 rounded-full transition-colors"
+                    >
+                      <X size={14} className={isDark ? "text-gray-400" : "text-slate-400"} />
+                    </button>
+                  </div>
+                  <div className="flex gap-2">
+                    <input
+                      autoFocus
+                      type="text"
+                      placeholder="Paste YouTube URL here..."
+                      className={clsx(
+                        "flex-1 bg-transparent border rounded-lg px-3 py-2 text-sm outline-none transition-all",
+                        isDark ? "border-white/10 focus:border-red-500/50 text-white placeholder:text-zinc-600" : "border-slate-200 focus:border-red-400 text-slate-900 placeholder:text-slate-400"
+                      )}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                          const val = (e.target as HTMLInputElement).value;
+                          if (val) {
+                            handleYoutubeSelect(val);
+                            setShowYoutubeInput(false);
+                          }
+                        }
+                      }}
+                    />
+                    <button
+                      onClick={(e) => {
+                        const input = (e.currentTarget.previousSibling as HTMLInputElement).value;
+                        if (input) {
+                          handleYoutubeSelect(input);
+                          setShowYoutubeInput(false);
+                        }
+                      }}
+                      className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-xs font-bold rounded-lg transition-all shadow-lg shadow-red-900/20"
+                    >
+                      Attach
+                    </button>
+                  </div>
+                </div>
               </div>
             )}
+
+            {/* Attachment Previews */}
+            <div className="flex flex-wrap gap-2 mb-2">
+              {image && (
+                <div className="relative group">
+                  <img src={`data:image/png;base64,${image}`} alt="Preview" className="h-16 w-16 object-cover rounded-lg border border-white/20 shadow-lg" />
+                  <button
+                    onClick={clearImage}
+                    className="absolute -top-1 -right-1 bg-black/70 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                  >
+                    <X size={12} />
+                  </button>
+                </div>
+              )}
+              {youtubeUrl && (
+                <div className={clsx(
+                  "relative group flex items-center gap-2 px-3 py-2 rounded-lg border animate-in zoom-in-95 duration-200 shadow-lg",
+                  isDark ? "bg-red-950/20 border-red-500/30" : "bg-red-50 border-red-200"
+                )}>
+                  <div className="relative">
+                    <Youtube size={16} className="text-red-500" />
+                    <span className="absolute -top-1 -right-1 w-1.5 h-1.5 bg-red-500 rounded-full animate-pulse"></span>
+                  </div>
+                  <span className={clsx("text-[10px] font-bold truncate max-w-[120px] uppercase tracking-tight", isDark ? "text-red-400" : "text-red-600")}>
+                    Attached: Video
+                  </span>
+                  <button
+                    onClick={clearYoutube}
+                    className="p-0.5 hover:bg-red-500/20 rounded transition-colors"
+                  >
+                    <X size={12} className="text-red-500/70" />
+                  </button>
+                </div>
+              )}
+            </div>
             <div className="relative w-full min-w-0">
-              <form onSubmit={handleSubmit} className="flex items-end gap-2 bg-[var(--bg-app)] border border-[var(--border)] rounded-xl p-1.5 focus-within:border-[var(--brand)]/30 transition-all">
+              <form onSubmit={handleSubmit} className="flex items-end gap-2 bg-transparent border-none rounded-xl p-0.5 transition-all">
                 <input
                   type="file"
                   ref={fileInputRef}
@@ -468,6 +557,18 @@ const AdvancedPanel: React.FC<AdvancedPanelProps> = ({ onDragStart }) => {
                   )}
                 >
                   <ImageIcon size={18} />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowYoutubeInput(!showYoutubeInput)}
+                  disabled={isLoading}
+                  className={clsx(
+                    "p-2 rounded-lg transition-colors shrink-0 relative",
+                    (showYoutubeInput || youtubeUrl) ? "text-red-500 hover:text-red-400" : isDark ? "text-gray-500 hover:text-gray-300" : "text-slate-400 hover:text-slate-600"
+                  )}
+                >
+                  <Youtube size={18} />
+                  {youtubeUrl && <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-red-500 rounded-full animate-pulse transition-all"></span>}
                 </button>
                 <textarea
                   ref={textareaRef}

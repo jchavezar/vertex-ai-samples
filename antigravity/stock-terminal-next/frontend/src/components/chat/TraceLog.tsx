@@ -1,5 +1,5 @@
 import React, { useRef, useEffect } from 'react';
-import { Terminal, Zap, CheckCircle, XCircle, Info, Activity, AlertTriangle } from 'lucide-react';
+import { Terminal, Zap, CheckCircle, XCircle, Info, Activity, AlertTriangle, Youtube, Image as ImageIcon } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 
@@ -216,9 +216,31 @@ const deepParseJSON = (obj: any): any => {
 };
 
 const renderContent = (log: LogEntry, isMaximized: boolean, isDark: boolean, isError: boolean = false) => {
+  const hasAttachments = log.args && (log.args.image || log.args.youtubeUrl);
+
   switch (log.type) {
     case 'user':
-      return <div className="font-semibold p-2 text-[13px]">{log.content}</div>;
+      return (
+        <div className="flex flex-col gap-2 p-2">
+          <div className="font-semibold text-[13px]">{log.content}</div>
+          {hasAttachments && (
+            <div className="flex flex-wrap gap-2 mt-1">
+              {log.args.image && (
+                <div className={`flex items-center gap-1.5 px-2 py-1 rounded border ${isDark ? 'bg-white/5 border-white/10' : 'bg-white border-gray-100 shadow-sm'}`}>
+                  <ImageIcon size={12} className="text-blue-500" />
+                  <span className="text-[10px] font-bold">IMAGE ATTACHED</span>
+                </div>
+              )}
+              {log.args.youtubeUrl && (
+                <div className={`flex items-center gap-1.5 px-2 py-1 rounded border ${isDark ? 'bg-red-500/5 border-red-500/20' : 'bg-red-50 border-red-100 shadow-sm'}`}>
+                  <Youtube size={12} className="text-red-500" />
+                  <span className="text-[10px] font-bold truncate max-w-[150px]">{log.args.youtubeUrl}</span>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      );
     case 'assistant':
       return <div className="p-2"><ReactMarkdown remarkPlugins={[remarkGfm]}>{log.content || ''}</ReactMarkdown></div>;
     case 'tool_call':
@@ -269,7 +291,18 @@ const renderContent = (log: LogEntry, isMaximized: boolean, isDark: boolean, isE
         </div>
       );
     case 'system':
-      return <div className="italic text-[var(--text-muted)] p-2">{log.content}</div>;
+      const isYoutubeSystem = log.content?.includes('YouTube attached');
+      const isImageSystem = log.content?.includes('Image attached');
+
+      return (
+        <div className="italic text-[var(--text-muted)] p-2 flex flex-col gap-1">
+          <div className="flex items-center gap-2">
+            {isYoutubeSystem && <Youtube size={12} className="text-red-500" />}
+            {isImageSystem && <ImageIcon size={12} className="text-blue-500" />}
+            {log.content}
+          </div>
+        </div>
+      );
     case 'system_status':
     case 'debug':
       return (

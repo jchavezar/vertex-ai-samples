@@ -33,17 +33,18 @@ const DataItem: React.FC<{
   color?: string;
   small?: boolean;
 }> = ({ label, value, dimmed, color, small }) => (
-  <div className="flex flex-col gap-0.5 group/item transition-all duration-300">
+  <div className="flex flex-col gap-0.5 group/item transition-all duration-300 py-1">
     <div className="flex items-center gap-2">
-      <span className="text-[7.5px] font-black text-[var(--text-muted)] tracking-[0.25em] uppercase leading-none opacity-50 group-hover/item:opacity-100 transition-opacity whitespace-nowrap">
+      <span className="text-[8px] font-black text-[var(--text-muted)] tracking-[0.2em] uppercase leading-none opacity-40 group-hover/item:opacity-100 transition-opacity whitespace-nowrap">
         {label}
       </span>
-      <div className="h-[0.5px] flex-1 bg-[var(--border-subtle)]/20 group-hover/item:bg-[var(--border-subtle)]/50 transition-colors"></div>
+      <div className="h-[0.5px] flex-1 bg-[var(--border-subtle)]/30 group-hover/item:bg-blue-500/30 transition-colors"></div>
     </div>
     <span className={`
-      ${small ? 'text-[11px]' : 'text-[14px]'} 
-      font-bold font-mono leading-tight tracking-tight break-words pt-1
+      ${small ? 'text-[11px]' : 'text-[15px]'} 
+      font-bold font-mono leading-none tracking-tight break-words pt-1
       ${color ? color : dimmed ? 'text-[var(--text-secondary)]' : 'text-[var(--text-primary)]'}
+      group-hover/item:text-[var(--brand)] transition-colors
     `}>
       {value}
     </span>
@@ -58,12 +59,12 @@ const StatSection: React.FC<{
   isVertical?: boolean;
   children: React.ReactNode;
 }> = ({ title, isVertical, children }) => (
-  <div className="flex flex-col gap-2.5">
-    <div className="flex items-center gap-2 border-b border-[var(--border-subtle)]/50 pb-1 mb-0.5 bg-white/[0.01]">
-      <div className="w-1.5 h-1.5 rounded-full bg-[var(--brand)] shadow-[0_0_8px_rgba(59,130,246,0.3)]"></div>
-      <span className="text-[9px] font-black text-[var(--text-primary)] tracking-[0.3em] uppercase opacity-100">{title}</span>
+  <div className="flex flex-col gap-3">
+    <div className="flex items-center gap-2.5 border-b border-[var(--border-subtle)] pb-2.5 mb-1 bg-white/[0.02] px-1">
+      <div className="w-2 h-2 rounded-full bg-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.5)]"></div>
+      <span className="text-[10px] font-black text-[var(--text-primary)] tracking-[0.4em] uppercase">{title}</span>
     </div>
-    <div className={`grid ${isVertical ? 'grid-cols-2 gap-x-12 gap-y-2.5' : 'flex flex-row items-center gap-10'} px-0.5`}>
+    <div className={`grid ${isVertical ? 'grid-cols-2 gap-x-10 gap-y-3' : 'flex flex-row items-center gap-10'} px-1`}>
       {children}
     </div>
   </div>
@@ -108,7 +109,7 @@ export const ConsensusStats: React.FC<{ tickerData?: any; layout?: 'horizontal' 
     <div className="col-span-2 space-y-4">
       <div className="flex flex-col gap-2">
         <div className="flex items-center justify-between gap-2">
-          <span className="text-[8px] font-bold text-[var(--text-muted)] tracking-widest uppercase">SENTIMENT</span>
+          <span className="text-[9px] font-bold text-[var(--text-muted)] tracking-widest uppercase">SENTIMENT</span>
           <span className="text-[10px] font-bold text-[var(--text-primary)] uppercase">BUY (4.2)</span>
         </div>
         <div className="h-1 w-full bg-[var(--border-subtle)] rounded-full overflow-hidden">
@@ -116,7 +117,7 @@ export const ConsensusStats: React.FC<{ tickerData?: any; layout?: 'horizontal' 
         </div>
       </div>
       <div className="flex items-center justify-between pt-1 border-t border-[var(--border-subtle)]/50">
-        <span className="text-[8px] font-bold text-[var(--text-muted)] tracking-widest uppercase">PT TARGET</span>
+        <span className="text-[9px] font-bold text-[var(--text-muted)] tracking-widest uppercase">PT TARGET</span>
         <span className="text-[13px] font-bold text-[var(--text-primary)] font-mono">$314.00</span>
       </div>
     </div>

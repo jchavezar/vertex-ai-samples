@@ -53,10 +53,12 @@ export const DashboardHeader: React.FC = () => {
             <span className="text-3xl font-black text-[var(--text-primary)]">{price.toLocaleString()}</span>
           </div>
           <div className={clsx(
-            "flex items-center justify-end gap-1.5 text-sm font-black mt-0.5",
-            change > 0 ? "text-[var(--text-primary)]" : change < 0 ? "text-[var(--text-muted)]" : "text-[var(--text-muted)] opacity-50"
+            "flex items-center justify-end gap-1 px-2 py-0.5 rounded-md text-xs font-black mt-1.5 transition-all",
+            change > 0 ? "bg-[var(--accent)]/10 text-[var(--accent)]" :
+              change < 0 ? "bg-[var(--danger)]/10 text-[var(--danger)]" :
+                "bg-white/5 text-[var(--text-muted)]"
           )}>
-            {change > 0 ? <TrendingUp size={16} /> : change < 0 ? <TrendingDown size={16} /> : <div className="w-3 h-px bg-current opacity-30" />}
+            {change > 0 ? <TrendingUp size={12} strokeWidth={3} /> : change < 0 ? <TrendingDown size={12} strokeWidth={3} /> : null}
             {displayData.changePercent !== undefined ? Math.abs(displayData.changePercent).toFixed(2) : '0.00'}%
           </div>
         </div>
@@ -64,7 +66,7 @@ export const DashboardHeader: React.FC = () => {
         <div className="h-7 w-px bg-[var(--border)]" />
 
         <div className="flex flex-col">
-          <span className="text-[9px] text-[var(--text-muted)] uppercase font-black tracking-widest mb-0.5">Market Cap</span>
+          <span className="text-[10px] text-[var(--text-muted)] uppercase font-black tracking-widest mb-0.5">Market Cap</span>
           <span className="text-base font-black text-[var(--text-primary)]">
             {(marketCap / 1e9).toFixed(2)}B
           </span>
@@ -73,7 +75,7 @@ export const DashboardHeader: React.FC = () => {
         <div className="h-7 w-px bg-[var(--border)]" />
 
         <div className="flex flex-col">
-          <span className="text-[9px] text-[var(--text-muted)] uppercase font-black tracking-widest mb-0.5">P/E Ratio</span>
+          <span className="text-[10px] text-[var(--text-muted)] uppercase font-black tracking-widest mb-0.5">P/E Ratio</span>
           <span className="text-base font-black text-[var(--text-primary)]">
             {peRatio ? peRatio.toFixed(1) : '--'}
           </span>

@@ -33,8 +33,11 @@ interface ChatContextType {
   resetChat: () => void;
   image: string | null;
   mimeType: string | null;
+  youtubeUrl: string | null;
   handleImageSelect: (file: File) => Promise<void>;
+  handleYoutubeSelect: (url: string) => void;
   clearImage: () => void;
+  clearYoutube: () => void;
 }
 
 const ChatContext = createContext<ChatContextType | undefined>(undefined);
@@ -56,6 +59,7 @@ export function ChatProvider({ children }: { children: ReactNode }) {
   const [sessionId] = useState(() => Math.random().toString(36).substring(7)); // Simple unique ID for this tab session
   const [image, setImage] = useState<string | null>(null);
   const [mimeType, setMimeType] = useState<string | null>(null);
+  const [youtubeUrl, setYoutubeUrl] = useState<string | null>(null);
   
   useEffect(() => {
     console.log("[ChatContext] Initialized with Session ID:", sessionId);
@@ -70,7 +74,8 @@ export function ChatProvider({ children }: { children: ReactNode }) {
        model: selectedModel,
       sessionId: sessionId,
       image: image,
-      mimeType: mimeType
+      mimeType: mimeType,
+      youtubeUrl: youtubeUrl
     },
     
     onResponse: (resp) => {
@@ -114,6 +119,7 @@ export function ChatProvider({ children }: { children: ReactNode }) {
     setTimeout(() => {
       setImage(null);
       setMimeType(null);
+      setYoutubeUrl(null);
     }, 100);
   };
 
@@ -142,6 +148,14 @@ export function ChatProvider({ children }: { children: ReactNode }) {
     setMimeType(null);
   };
 
+  const handleYoutubeSelect = (url: string) => {
+    setYoutubeUrl(url);
+  };
+
+  const clearYoutube = () => {
+    setYoutubeUrl(null);
+  };
+
   const resetChat = () => {
     stop();
     setMessages([]);
@@ -149,6 +163,7 @@ export function ChatProvider({ children }: { children: ReactNode }) {
     setTopology(null);
     setLastLatency(null);
     setStartTime(null);
+    setYoutubeUrl(null);
     startTimeRef.current = null;
 
     // Reset Store states
@@ -174,7 +189,7 @@ export function ChatProvider({ children }: { children: ReactNode }) {
   // Add user message to trace on submit
   useEffect(() => {
     if (messages.length > 0 && messages[messages.length - 1].role === 'user') {
-      addTraceLog('user', messages[messages.length - 1].content);
+      addTraceLog('user', messages[messages.length - 1].content, undefined, { image, youtubeUrl });
       setExecutionPath([]); // Reset path on new query
       setNodeDurations({}); // Reset durations on new query
     }
@@ -357,8 +372,11 @@ export function ChatProvider({ children }: { children: ReactNode }) {
     resetChat,
     image,
     mimeType,
+    youtubeUrl,
     handleImageSelect,
-    clearImage
+    handleYoutubeSelect,
+    clearImage,
+    clearYoutube
   };
 
   return (
