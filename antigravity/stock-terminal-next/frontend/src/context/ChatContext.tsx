@@ -69,7 +69,7 @@ export function ChatProvider({ children }: { children: ReactNode }) {
   const startTimeRef = useRef<number | null>(null);
 
   const { messages, input, handleInputChange, handleSubmit: originalHandleSubmit, data, isLoading, stop, setMessages } = useChat({
-    api: 'http://localhost:8001/chat',
+    api: 'http://localhost:8002/chat',
     body: {
        model: selectedModel,
       sessionId: sessionId,

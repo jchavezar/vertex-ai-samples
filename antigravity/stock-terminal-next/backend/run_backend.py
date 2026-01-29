@@ -43,4 +43,4 @@ if __name__ == "__main__":
 
     nest_asyncio.apply()
     print("Starting Uvicorn via run_backend.py with patches applied...")
-    uvicorn.run("src.main:app", host="0.0.0.0", port=8001, reload=False, log_level="info")
+    uvicorn.run("src.main:app", host="0.0.0.0", port=8002, reload=False, log_level="info")

@@ -30,7 +30,7 @@ export const DashboardView: React.FC = () => {
     const fetchTickerInfo = async () => {
       if (!ticker) return;
       try {
-        const response = await fetch(`http://localhost:8001/ticker-info/${ticker}`);
+        const response = await fetch(`http://localhost:8002/ticker-info/${ticker}`);
         if (response.ok) {
           const data = await response.json();
           setTickerData(data);
@@ -55,7 +55,7 @@ export const DashboardView: React.FC = () => {
     }
 
     try {
-      const response = await fetch('http://localhost:8001/generate-widget', {
+      const response = await fetch('http://localhost:8002/generate-widget', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

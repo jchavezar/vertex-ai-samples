@@ -464,8 +464,9 @@ async def create_smart_agent(token: str, model_name: str = "gemini-2.5-flash", t
     ## PLOTTING OPTIMIZATION (CRITICAL)
     - When you retrieve a large dataset (e.g. from FactSet_GlobalPrices), the system caches it automatically.
     - To plot this data, call `plot_financial_data` with `use_last_data=True` and omit `data_json`.
-    - Example: `plot_financial_data(title="Apple Price", chart_type="line", use_last_data=True)`
-    - **NEVER** write out the full JSON data in the `data_json` argument if you just retrieved it. It is too slow.
+    - **MULTI-METRIC SUPPORT**: If you call multiple tools (e.g. Sales then Net Income) and then call `plot_financial_data(use_last_data=True)`, the system will AUTOMATICALLY MERGE both tables into a grouped comparison chart.
+    - **Trigger**: When comparing companies or metrics, fetch all data first, then call `plot_financial_data(chart_type="bar", use_last_data=True)`.
+    - **NEVER** write out the full JSON data if you just retrieved it. It is too slow.
     
     FAILURE TO USE EXACT VALUES WILL CAUSE API ERRORS.
     """
@@ -476,7 +477,7 @@ async def create_smart_agent(token: str, model_name: str = "gemini-2.5-flash", t
          SMART_INSTRUCTIONS += CRITICAL_RULES
 
     # Request-Scoped Data Cache
-    request_data_cache = {"last_result": None}
+    request_data_cache = {"results": []}
 
     # Scoped Plot Tool
     async def plot_financial_data(title: str, chart_type: str, data_json: str = None, use_last_data: bool = False) -> str:
@@ -486,47 +487,52 @@ async def create_smart_agent(token: str, model_name: str = "gemini-2.5-flash", t
             title: Chart title (e.g. 'Apple Stock Price 1Y').
             chart_type: 'line', 'bar', 'pie'.
             data_json: JSON string of data (Optional if use_last_data=True).
-            use_last_data: If True, uses the data from the most recent tool call (e.g. Prices). PREFERRED for speed.
+                       Preferred format for data items: {"label": "Name", "value": 100}.
+            use_last_data: If True, uses the data from the most recent tool call(s) (e.g. Prices). 
+                           If multiple data sources are found in the recent history, they will be MERGED.
         """
         import json
         try:
             actual_data = None
             
             if use_last_data:
-                logger.info("Using cached data for plot...")
-                # Extract data from cache
-                # Cache might be a dict with 'content' -> 'text' -> 'data' (MCP format) or direct list
-                cached = request_data_cache.get("last_result")
-                if cached:
-                    # Heuristic to find list of data
-                    if isinstance(cached, list):
-                        actual_data = cached
-                    elif isinstance(cached, dict):
-                        # MCP often wraps in content->text
-                        if "content" in cached and isinstance(cached["content"], list):
-                             try:
-                                 text_body = cached["content"][0]["text"]
-                                 # It might be a stringified JSON inside text, or a dict
-                                 if isinstance(text_body, str):
-                                     parsed = json.loads(text_body)
-                                     actual_data = parsed.get("data", parsed)
-                                 else:
-                                     actual_data = text_body.get("data", text_body)
-                             except:
-                                 actual_data = cached
-                        else:
-                             actual_data = cached.get("data", cached)
+                logger.info("Auto-merging cached data for plot...")
+                results = request_data_cache.get("results", [])
+                if not results:
+                    return "Error: No cached data found. Please provide data_json."
+                
+                # Merge logic: if we have multiple tool results, we try to join them on ticker/date
+                merged_data = []
+                # Heuristic: find the results that contain lists (data)
+                data_sources = []
+                for res in results:
+                    if isinstance(res, list): data_sources.append(res)
+                    elif isinstance(res, dict) and "content" in res:
+                        try:
+                            text_body = res["content"][0]["text"]
+                            parsed = json.loads(text_body) if isinstance(text_body, str) else text_body
+                            d = parsed.get("data", parsed)
+                            if isinstance(d, list): data_sources.append(d)
+                        except: pass
+                
+                if len(data_sources) == 1:
+                    actual_data = data_sources[0]
+                elif len(data_sources) > 1:
+                    # SMART MERGE: This is the 'Candid' capability fix.
+                    # We merge multiple distinct tool outputs into one big list for the pivot tool.
+                    actual_data = []
+                    for ds in data_sources:
+                        actual_data.extend(ds)
                 
                 if not actual_data:
-                    return "Error: No cached data found. Please provide data_json."
+                    return "Error: Could not extract valid data from cache."
             else:
                 if not data_json: return "Error: data_json is required if use_last_data=False."
                 if isinstance(data_json, str):
                     try:
-                        _ = json.loads(data_json)
                         actual_data = json.loads(data_json)
                     except:
-                        actual_data = data_json # Raw string?
+                        actual_data = data_json 
                 else:
                     actual_data = data_json
             
@@ -550,8 +556,7 @@ async def create_smart_agent(token: str, model_name: str = "gemini-2.5-flash", t
         
         async def caching_observer(name, args, kwargs, result):
             # Cache the result if it looks like data
-            # We blindly cache the last result
-            request_data_cache["last_result"] = result
+            request_data_cache["results"].append(result)
             # Chain to original
             if original_observer:
                 if asyncio.iscoroutinefunction(original_observer):

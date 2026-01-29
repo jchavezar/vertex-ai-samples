@@ -12,6 +12,7 @@ factset_tokens.json
 sessions.db
 inference_sessions.db
 inference_output.log
+neural_link_sessions.db
 
 # System
 .DS_Store
