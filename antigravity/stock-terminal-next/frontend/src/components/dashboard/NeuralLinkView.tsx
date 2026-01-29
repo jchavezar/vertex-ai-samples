@@ -13,16 +13,27 @@ interface NeuralCard {
   timestamp?: string;
 }
 
+interface RumorCard {
+    source: string;
+    content: string;
+    impact: 'High' | 'Medium' | 'Low';
+    vibe: string;
+    url?: string;
+}
+
 interface NeuralTrends {
   ticker: string;
   summary: string;
   cards: NeuralCard[];
+    rumors: RumorCard[];
+    market_vibe: string;
 }
 
 export const NeuralLinkView = () => {
   const { ticker, theme, setCurrentView } = useDashboardStore();
   const [data, setData] = useState<NeuralTrends | null>(null);
   const [loading, setLoading] = useState(true);
+    const [activeTab, setActiveTab] = useState<'news' | 'pulse'>('news');
   const isDark = theme === 'dark';
 
   useEffect(() => {
@@ -31,6 +42,7 @@ export const NeuralLinkView = () => {
       try {
         const res = await fetch(`http://localhost:8001/neural_link/trends/${ticker}`);
         const json = await res.json();
+        console.log("Neural Link Data:", json); // Debug Log
         setData(json);
       } catch (err) {
         console.error("Neural Link Fetch Error", err);
@@ -103,7 +115,7 @@ export const NeuralLinkView = () => {
                     <div className="text-center z-10">
                          <span className="text-xs font-bold tracking-widest uppercase text-gray-500 mb-2 block animate-pulse">Market Vibe</span>
                          <div className="text-5xl font-black bg-clip-text text-transparent bg-gradient-to-tr from-green-400 to-cyan-500">
-                            {data?.cards?.[0]?.sentiment || "NEUTRAL"}
+                                      {data?.market_vibe || "NEUTRAL"}
                          </div>
                     </div>
                     {/* Animated Background Ring */}
@@ -111,60 +123,147 @@ export const NeuralLinkView = () => {
                 </div>
             </div>
 
-            {/* Cards Grid */}
-            <div>
-                 <h3 className="text-sm font-bold tracking-widest uppercase text-gray-500 mb-6 flex items-center gap-2">
-                    <Globe size={14} /> Global Signals
-                 </h3>
-                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-                    {data?.cards.map((card, idx) => (
-                        <div 
-                            key={idx}
-                            className={clsx(
-                                "p-6 rounded-2xl border backdrop-blur-md transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl group flex flex-col justify-between h-full",
-                                isDark ? "bg-white/5 border-white/10 hover:shadow-cyan-900/20 hover:border-cyan-500/30" : "bg-white border-gray-100 hover:shadow-blue-200/50"
-                            )}
-                            style={{ animationDelay: `${idx * 100}ms` }}
-                        >
-                            <div>
-                                <div className="flex justify-between items-start mb-4">
-                                    <span className={clsx(
-                                        "px-2 py-1 rounded-md text-[10px] font-bold uppercase tracking-wide",
-                                        card.sentiment === 'Positive' ? "bg-green-500/20 text-green-400" :
-                                        card.sentiment === 'Negative' ? "bg-red-500/20 text-red-400" : "bg-gray-500/20 text-gray-400"
-                                    )}>
-                                        {card.sentiment}
-                                    </span>
-                                    <span className="text-[10px] text-gray-500 flex items-center gap-1">
-                                        <Clock size={10} />
-                                        {card.timestamp || 'Just now'}
-                                    </span>
-                                </div>
-                                <h4 className={clsx("font-bold text-lg mb-3 line-clamp-2 group-hover:text-cyan-400 transition-colors", isDark ? "text-gray-100" : "text-gray-800")}>
-                                    {card.title}
-                                </h4>
-                                <p className={clsx("text-sm line-clamp-3 mb-4", isDark ? "text-gray-400" : "text-gray-600")}>
-                                    {card.snippet}
-                                </p>
-                            </div>
-                            
-                            <div className="flex items-center justify-between pt-4 border-t border-white/5 mt-auto">
-                                <span className={clsx("text-xs font-semibold", isDark ? "text-gray-500" : "text-slate-500")}>
-                                    {card.source}
-                                </span>
-                                <a 
-                                    href={card.url} 
-                                    target="_blank" 
-                                    rel="noreferrer"
-                                    className="p-2 rounded-full bg-white/5 hover:bg-cyan-500 hover:text-white transition-all text-gray-400"
-                                >
-                                    <ExternalLink size={14} />
-                                </a>
-                            </div>
-                        </div>
-                    ))}
-                 </div>
-            </div>
+                      {/* Tabs */}
+                      <div className="flex items-center gap-4 border-b border-white/10 pb-4">
+                          <button
+                              onClick={() => setActiveTab('news')}
+                              className={clsx(
+                                  "px-4 py-2 rounded-full text-sm font-bold transition-all flex items-center gap-2",
+                                  activeTab === 'news'
+                                      ? "bg-cyan-500 text-white shadow-lg shadow-cyan-500/20"
+                                      : "text-gray-500 hover:text-gray-300 hover:bg-white/5"
+                              )}
+                          >
+                              <Globe size={14} /> Global Signals
+                          </button>
+                          <button
+                              onClick={() => setActiveTab('pulse')}
+                              className={clsx(
+                                  "px-4 py-2 rounded-full text-sm font-bold transition-all flex items-center gap-2",
+                                  activeTab === 'pulse'
+                                      ? "bg-purple-600 text-white shadow-lg shadow-purple-500/20"
+                                      : "text-gray-500 hover:text-gray-300 hover:bg-white/5"
+                              )}
+                          >
+                              <Zap size={14} /> Social Pulse
+                          </button>
+                      </div>
+
+                      {/* Content Logic */}
+                      {activeTab === 'news' ? (
+                          <div>
+                              <h3 className="text-[10px] font-black tracking-[0.2em] uppercase text-gray-500 mb-6 flex items-center gap-2">
+                                  <Activity size={12} className="text-cyan-400" /> NEWS SECTOR
+                              </h3>
+                              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                                  {data?.cards.map((card, idx) => (
+                                      <div
+                                          key={idx}
+                                          className={clsx(
+                                              "p-6 rounded-2xl border backdrop-blur-md transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl group flex flex-col justify-between h-full",
+                                              isDark ? "bg-white/5 border-white/10 hover:shadow-cyan-900/20 hover:border-cyan-500/30" : "bg-white border-gray-100 hover:shadow-blue-200/50"
+                                          )}
+                                          style={{ animationDelay: `${idx * 100}ms` }}
+                                      >
+                                          <div>
+                                              <div className="flex justify-between items-start mb-4">
+                                                  <span className={clsx(
+                                                      "px-2 py-1 rounded-md text-[10px] font-bold uppercase tracking-wide",
+                                                      card.sentiment === 'Positive' ? "bg-green-500/20 text-green-400" :
+                                                          card.sentiment === 'Negative' ? "bg-red-500/20 text-red-400" : "bg-gray-500/20 text-gray-400"
+                                                  )}>
+                                                      {card.sentiment}
+                                                  </span>
+                                                  <span className="text-[10px] text-gray-500 flex items-center gap-1">
+                                                      <Clock size={10} />
+                                                      {card.timestamp || 'Just now'}
+                                                  </span>
+                                              </div>
+                                              <h4 className={clsx("font-bold text-lg mb-3 line-clamp-2 group-hover:text-cyan-400 transition-colors", isDark ? "text-gray-100" : "text-gray-800")}>
+                                                  {card.title}
+                                              </h4>
+                                              <p className={clsx("text-sm line-clamp-3 mb-4", isDark ? "text-gray-400" : "text-gray-600")}>
+                                                  {card.snippet}
+                                              </p>
+                                          </div>
+
+                                          <div className="flex items-center justify-between pt-4 border-t border-white/5 mt-auto">
+                                              <span className={clsx("text-xs font-semibold", isDark ? "text-gray-500" : "text-slate-500")}>
+                                                  {card.source}
+                                              </span>
+                                              {card.url && (
+                                                  <a
+                                                      href={card.url}
+                                                      target="_blank"
+                                                      rel="noreferrer"
+                                                      className="p-2 rounded-full bg-white/5 hover:bg-cyan-500 hover:text-white transition-all text-gray-400"
+                                                  >
+                                                      <ExternalLink size={14} />
+                                                  </a>
+                                              )}
+                                          </div>
+                                      </div>
+                                  ))}
+                              </div>
+                          </div>
+                      ) : (
+                          <div className="space-y-6">
+                              <h3 className="text-[10px] font-black tracking-[0.2em] uppercase text-gray-500 mb-6 flex items-center gap-2">
+                                  <Zap size={12} className="text-purple-400" /> SOCIAL RUMOR MILL
+                              </h3>
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                  {data?.rumors && data.rumors.length > 0 ? data.rumors.map((rumor, idx) => (
+                                      <div
+                                          key={idx}
+                                          className={clsx(
+                                              "p-5 rounded-2xl border transition-all duration-300 relative group overflow-hidden",
+                                              isDark ? "bg-purple-900/5 border-purple-500/10 hover:border-purple-500/30 shadow-xl shadow-purple-900/5" : "bg-white border-purple-100 shadow-lg"
+                                          )}
+                                      >
+                                          <div className="absolute top-0 right-0 p-3 opacity-10 group-hover:opacity-20 transition-opacity">
+                                              <Zap size={40} className="text-purple-500" />
+                                          </div>
+
+                                          <div className="flex items-center gap-3 mb-3">
+                                              <div className="px-2 py-0.5 rounded bg-purple-500/20 text-purple-400 text-[10px] font-black uppercase tracking-tighter">
+                                                  {rumor.source}
+                                              </div>
+                                              <div className={clsx(
+                                                  "px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-tighter",
+                                                  rumor.impact === 'High' ? "bg-red-500/20 text-red-500" :
+                                                      rumor.impact === 'Medium' ? "bg-orange-500/20 text-orange-500" : "bg-blue-500/20 text-blue-500"
+                                              )}>
+                                                  IMPACT: {rumor.impact}
+                                              </div>
+                                              <div className="ml-auto text-[10px] font-bold text-gray-600 flex items-center gap-1 italic">
+                                                  #{rumor.vibe}
+                                              </div>
+                                          </div>
+
+                                          <p className={clsx("text-base leading-relaxed mb-4", isDark ? "text-gray-200 font-medium" : "text-gray-800")}>
+                                              "{rumor.content}"
+                                          </p>
+
+                                          {rumor.url && (
+                                              <a
+                                                  href={rumor.url}
+                                                  target="_blank"
+                                                  rel="noreferrer"
+                                                  className="text-xs text-purple-400 hover:text-purple-300 flex items-center gap-1 font-bold group/link"
+                                              >
+                                                  Inspect Source <ExternalLink size={10} className="group-hover/link:translate-x-0.5 transition-transform" />
+                                              </a>
+                                          )}
+                                      </div>
+                                  )) : (
+                                      <div className="col-span-full py-20 flex flex-col items-center justify-center text-gray-500 gap-4 opacity-50">
+                                          <Zap size={40} />
+                                          <p className="font-mono text-xs tracking-[0.3em]">NO ACTIVE RUMORS DETECTED</p>
+                                      </div>
+                                  )}
+                              </div>
+                          </div>
+                      )}
         </div>
       )}
     </div>

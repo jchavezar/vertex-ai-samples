@@ -21,7 +21,7 @@ from typing import List, Optional, Dict, Any
 # ADK Imports
 import google.adk as adk
 from google.adk.agents import Agent
-from google.genai.types import Content, Part
+from google.genai import types
 from google.adk.sessions.sqlite_session_service import SqliteSessionService
 
 # Internal Imports
@@ -278,6 +278,7 @@ class ChatRequest(BaseModel):
     model: Optional[str] = "gemini-2.5-flash"
     image: Optional[str] = None
     mimeType: Optional[str] = None
+    youtubeUrl: Optional[str] = None
 
 @app.get("/session/{session_id}/reasoning")
 async def get_reasoning(session_id: str):
@@ -295,6 +296,27 @@ async def get_neural_trends(ticker: str):
     print(f"Neural Link Request for {ticker}")
     trends = await neural_service.get_trends(ticker)
     return trends
+
+from src.adk_comps_workflow import run_adk_comps_workflow
+
+@app.post("/comps")
+async def comps_endpoint(req: Dict[str, Any]):
+    """
+    Triggers the multi-agent Comps Analysis workflow.
+    """
+    ticker = req.get("ticker", "NVDA")
+    session_id = req.get("sessionId", "default_chat")
+    context = req.get("context", "")
+    token = await get_valid_factset_token(session_id)
+
+    async def event_generator():
+        try:
+            async for event in run_adk_comps_workflow(ticker, session_id, context, token):
+                yield f"data: {json.dumps(event)}\n\n"
+        except Exception as e:
+            yield f"data: {json.dumps({'type': 'error', 'message': str(e)})}\n\n"
+
+    return StreamingResponse(event_generator(), media_type="text/event-stream")
 
 from fastapi import BackgroundTasks
 
@@ -366,15 +388,24 @@ async def chat_endpoint(req: ChatRequest, background_tasks: BackgroundTasks):
              await session_service.create_session(session_id=session_id, app_name="stock_terminal", user_id="user_1")
         # print("DEBUG: Session Ready", flush=True)
 
-        parts = [Part(text=user_query)]
+        parts = [types.Part(text=user_query)]
         if req.image and req.mimeType:
+             print(f"DEBUG: Attaching Image ({req.mimeType})", flush=True)
              try:
                   img_bytes = base64.b64decode(req.image)
-                  parts.append(Part.from_bytes(data=img_bytes, mime_type=req.mimeType))
+                  parts.append(types.Part.from_bytes(data=img_bytes, mime_type=req.mimeType))
              except Exception as e:
                   print(f"Error decoding image: {e}")
 
-        new_message = Content(role="user", parts=parts)
+        if req.youtubeUrl:
+             llog.log("YOUTUBE", f"ATTACH: Processing {req.youtubeUrl}")
+             # Removing mime_type to let SDK handle it, might fix 'duplicate' detection
+             yt_part = types.Part.from_uri(file_uri=req.youtubeUrl, mime_type="video/mp4")
+             llog.log("YOUTUBE", "PART: Created multimodal part (auto mime)")
+             parts.append(yt_part)
+
+        llog.log("ADK_PARTS", f"Total Parts: {len(parts)}, Content: {parts}")
+        new_message = types.Content(role="user", parts=parts)
         
         buffer = ""
         active_tool_ids = {} # name -> list of pending IDs
@@ -392,9 +423,13 @@ async def chat_endpoint(req: ChatRequest, background_tasks: BackgroundTasks):
                 })
 
             # Initial Trace
-            # Initial Trace
             yield AIStreamProtocol.trace("Session Started", type="system_status", args={"model": model_name})
             log_trace("system_status", content="Session Started")
+            
+            if req.image:
+                yield AIStreamProtocol.trace("Image attached", type="system", args={"mimeType": req.mimeType})
+            if req.youtubeUrl:
+                yield AIStreamProtocol.trace(f"YouTube attached: {req.youtubeUrl}", type="system")
             
             yield AIStreamProtocol.trace("Model Thinking", type="system_status")
             log_trace("system_status", content="Model Thinking")
@@ -526,56 +561,36 @@ async def chat_endpoint(req: ChatRequest, background_tasks: BackgroundTasks):
                                     r_name = resp.name 
                                     r_content = resp.response
                                     
-                                    # Match ID
+                                    # Match ID and Duration (Protocol 9 Optimization)
                                     tid = None
                                     duration = None
                                     if r_name in active_tool_ids and active_tool_ids[r_name]:
-                                        # Pop the oldest ID (FIFO)
-                                        # stored as dict: {tid: start_time}
-                                        # Wait, active_tool_ids was a list of IDs. I need to change it to store info.
-                                        # Let's change active_tool_ids structure in the Tool Call block first.
-                                        # But I can't change it there easily in this ReplaceBlock.
-                                        # Wait, I can assume I'll change the other block too.
-                                        
-                                        # Let's check how active_tool_ids is currently used:
-                                        # line 316: active_tool_ids = {} # name -> list of pending IDs
-                                        # line 430: active_tool_ids[call.name].append(tid)
-                                        
-                                        # I'll change it to store (tid, start_time) tuples in the list.
-                                        
                                         call_info = active_tool_ids[r_name].pop(0)
                                         if isinstance(call_info, tuple):
                                             tid, start_time = call_info
                                             duration = time.time() - start_time
                                         else:
-                                            # Fallback if I missed a spot or legacy
                                             tid = call_info
                                             duration = 0.0
                                     else:
-                                        # Fallback or orphan
                                         tid = f"orphan_{time.time()}"
                                         duration = 0.0
                                     
-                                    # Send Tool Result with Duration (Injecting into payload if protocol supports it)
-                                    # The protocol.tool_result signature is (call_id, tool_name, result).
-                                    # I should overload 'result' or modify protocol? 
-                                    # Actually, let's just send a separate Trace event for Latency optimization if Protocol is strict.
-                                    # But user wants it on the graph. The graph listens to... what?
-                                    # The graph likely listens to metrics or I can send `2: data` event with metrics.
-                                    
+                                    # Yield Protocol 9: Tool Result
                                     yield AIStreamProtocol.tool_result(tid, r_name, r_content)
                                     
-                                    # Yield Latency Metric explicitly
+                                    # Yield Granular Latency Metric for Graph Optimization
                                     if duration is not None:
                                         yield AIStreamProtocol.data({
                                             "type": "latency",
                                             "tool": r_name,
                                             "duration": duration,
-                                            "timestamp": time.time()
+                                            "timestamp": time.time(),
+                                            "status": "success"
                                         })
                                         log_trace("latency", tool=r_name, duration=duration)
                                         log_trace("tool_result", name=r_name, result=r_content)
-                                    continue # Skip text processing for this part
+                                    continue # Skip text processing for result parts
 
                                 # 2. Text Processing
                                 text = part.text or ""

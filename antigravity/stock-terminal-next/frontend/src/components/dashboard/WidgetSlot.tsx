@@ -132,31 +132,35 @@ export const WidgetSlot: React.FC<WidgetSlotProps> = ({
       : `Generate ${section} Analysis`;
 
     return (
-      <div className="h-full w-full flex flex-col items-center justify-center p-8 bg-[var(--bg-app)]/40 border border-dashed border-[var(--border-subtle)] group transition-all duration-500 hover:bg-[var(--bg-app)]/60">
-        <div className="flex flex-col items-center gap-5">
-          <div className="w-14 h-14 rounded-full bg-[var(--text-primary)]/5 flex items-center justify-center border border-[var(--text-primary)]/10 group-hover:bg-[var(--brand)]/10 group-hover:border-[var(--brand)]/30 group-hover:scale-110 transition-all duration-500 shadow-inner">
-            <Sparkles size={24} className="text-[var(--text-muted)] group-hover:text-[var(--brand)] transition-colors duration-500" />
-          </div>
-
-          <div className="text-center space-y-1.5">
-            <h3 className="text-[11px] font-black uppercase tracking-[0.4em] text-[var(--text-primary)] translate-x-[0.2em]">{section}</h3>
-            <p className="text-[9px] text-[var(--text-muted)] font-bold uppercase tracking-[0.2em] max-w-[180px] mx-auto opacity-50 group-hover:opacity-80 transition-opacity">
-              Awaiting Agent Synthesis
-            </p>
-          </div>
-
-          <button
-            onClick={() => onGenerate(section)}
-            className="mt-2 px-8 py-3 bg-[var(--text-primary)] text-[var(--bg-app)] text-[10px] font-black uppercase tracking-[0.25em] rounded-md hover:bg-[var(--brand)] hover:text-white transition-all shadow-xl hover:shadow-[var(--brand)]/30 active:scale-95 flex items-center gap-2"
-          >
-            <Sparkles size={11} />
-            {buttonText}
-          </button>
+      <div className="h-full w-full flex flex-col p-4 bg-[var(--bg-app)]/40 border border-dashed border-white/10 group transition-all duration-500 hover:bg-white/[0.02] relative overflow-hidden">
+        {/* Background Decorator */}
+        <div className="absolute top-2.5 right-3 text-[7.5px] font-black text-[var(--text-muted)] opacity-20 uppercase tracking-[0.35em] pointer-events-none group-hover:opacity-40 transition-opacity flex items-center gap-1.5">
+          <div className="w-1 h-1 rounded-full bg-white/20 animate-pulse"></div>
+          Neural Slot • {tickers[0]}
         </div>
 
-        {/* Background Decorator */}
-        <div className="absolute top-3 right-3 text-[8px] font-black text-[var(--text-muted)] opacity-20 uppercase tracking-widest pointer-events-none">
-          Neural Slot {tickers[0]}
+        <div className="flex-1 flex flex-col items-center justify-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center border border-white/10 group-hover:bg-blue-500/10 group-hover:border-blue-500/30 group-hover:scale-105 transition-all duration-500 shadow-lg relative overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+            <Sparkles size={18} className="text-[var(--text-muted)] group-hover:text-blue-400 transition-colors duration-500 relative z-10" />
+          </div>
+
+          <div className="text-center space-y-1">
+            <h3 className="text-[10px] font-black uppercase tracking-[0.35em] text-[var(--text-primary)] opacity-70 group-hover:opacity-100 transition-opacity leading-none">{section}</h3>
+            <p className="text-[7.5px] text-[var(--text-muted)] font-bold uppercase tracking-[0.15em] max-w-[160px] mx-auto opacity-40 group-hover:opacity-70 transition-opacity">
+              Awaiting Agentic Synthesis
+            </p>
+          </div>
+        </div>
+
+        <div className="w-full shrink-0">
+          <button
+            onClick={() => onGenerate(section)}
+            className="w-full py-3 bg-white text-black text-[9px] font-black uppercase tracking-[0.2em] rounded-xl hover:bg-blue-500 hover:text-white transition-all duration-300 shadow-xl hover:shadow-blue-500/30 active:scale-[0.97] flex items-center gap-2 justify-center border border-white/10 group/btn"
+          >
+            <Sparkles size={10} className="group-hover/btn:rotate-12 transition-transform" />
+            {buttonText}
+          </button>
         </div>
       </div>
     );

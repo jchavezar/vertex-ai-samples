@@ -54,10 +54,10 @@ export const App = () => {
       if (!resizingRef.current) return;
 
       const newWidth = window.innerWidth - e.clientX;
-      // Constraints: Min 300px, Max 600px (Restricted from 1200px)
-      const maxWidth = Math.min(600, window.innerWidth * 0.4);
+      // Constraints: Min 350px, Max 900px (Restricted for readability)
+      const maxWidth = Math.min(900, window.innerWidth * 0.6);
 
-      if (newWidth > 300 && newWidth < maxWidth) {
+      if (newWidth > 350 && newWidth < maxWidth) {
         // Optimize with RAF
         cancelAnimationFrame(animationFrameId);
         animationFrameId = requestAnimationFrame(() => {
@@ -179,13 +179,26 @@ export const App = () => {
               : '80vw'
           }}
         >
-          {/* Drag Handle */}
+          {/* Neural Handle - Tactical Edge Slider */}
           {(chatDockPosition === 'right' && isChatOpen && !isChatMaximized) && (
             <div
               onMouseDown={handleMouseDown}
-              className="absolute left-0 top-0 bottom-0 w-[4px] cursor-col-resize hover:bg-blue-500/50 z-50 transition-colors"
-              title="Drag to resize"
-            />
+              className="absolute left-[-2px] top-0 bottom-0 w-[4px] cursor-col-resize z-[100] group/resize"
+              title="Tactile Neural Edge - Resize Workspace"
+            >
+              {/* Invisible Hit Area Expansion */}
+              <div className="absolute left-[-4px] right-[-4px] inset-0" />
+
+              {/* The "Filament" - High-precision neon line */}
+              <div className="absolute left-1/2 top-0 bottom-0 w-[1px] bg-transparent group-hover/resize:bg-blue-500 shadow-[0_0_12px_rgba(59,130,246,0.8)] transition-all duration-300 pointer-events-none" />
+
+              {/* Tactile Beads - Micro-mechanical cues */}
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col gap-1.5 opacity-0 group-hover/resize:opacity-100 transition-opacity duration-500 delay-100 pointer-events-none">
+                <div className="w-1.5 h-1.5 rounded-full bg-blue-400 shadow-[0_0_8px_rgba(59,130,246,0.5)] border border-white/20" />
+                <div className="w-1.5 h-1.5 rounded-full bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.5)] border border-white/20" />
+                <div className="w-1.5 h-1.5 rounded-full bg-blue-400 shadow-[0_0_8px_rgba(59,130,246,0.5)] border border-white/20" />
+              </div>
+            </div>
           )}
           {(chatDockPosition === 'right' && isChatOpen && !isChatMaximized) && <ChatContainer docked />}
         </div>

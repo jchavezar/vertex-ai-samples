@@ -55,6 +55,31 @@ export interface Peer {
   key_metrics?: string[];
 }
 
+export interface RumorCard {
+  source: string;
+  content: string;
+  impact: 'High' | 'Medium' | 'Low';
+  vibe: string;
+  url?: string;
+}
+
+export interface NeuralCard {
+  title: string;
+  snippet: string;
+  source: string;
+  url: string;
+  sentiment: 'Positive' | 'Negative' | 'Neutral';
+  timestamp?: string;
+}
+
+export interface NeuralTrends {
+  ticker: string;
+  summary: string;
+  cards: NeuralCard[];
+  rumors: RumorCard[];
+  market_vibe: string;
+}
+
 export interface CompsIntel {
   peers: Peer[];
   summary?: string;
@@ -72,6 +97,7 @@ export interface TopologyNode {
 export interface TopologyEdge {
   source: string;
   target: string;
+  [key: string]: any;
 }
 
 export interface ProcessorTopology {

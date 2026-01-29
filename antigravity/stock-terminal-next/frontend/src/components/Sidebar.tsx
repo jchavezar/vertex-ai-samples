@@ -72,46 +72,51 @@ export const Sidebar: React.FC = () => {
           {/* Auth Status & Connect Button */}
           <AuthStatus />
         </div>
-        <div className="flex items-center bg-white/5 border border-white/20 px-4 py-3 rounded-full focus-within:border-blue-500/50 focus-within:bg-white/10 transition-all shadow-inner">
-          <Search size={18} className="text-gray-400" />
+        <div className="flex items-center bg-zinc-100 dark:bg-white/5 border border-zinc-200 dark:border-white/10 px-5 py-3.5 rounded-2xl focus-within:border-white/40 dark:focus-within:border-white/40 focus-within:bg-white dark:focus-within:bg-white/10 transition-all shadow-[inset_0_1px_2px_rgba(0,0,0,0.05)] dark:shadow-none group/search">
+          <Search size={16} className="text-zinc-400 dark:text-zinc-500 group-focus-within/search:text-black dark:group-focus-within/search:text-white transition-colors" />
           <input
             type="text"
             placeholder="Search Ticker..."
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
             onKeyDown={handleSearch}
-            className="bg-transparent border-none outline-none w-full ml-2 text-sm text-[var(--text-primary)] placeholder-gray-500"
+            className="bg-transparent border-none outline-none w-full ml-3 text-[11px] font-bold uppercase tracking-[0.1em] text-black dark:text-white placeholder-zinc-400 dark:placeholder-zinc-600"
           />
         </div>
 
         {/* Toggle & System Controls */}
         <div className="flex flex-col gap-4 mt-8">
-          {/* Neural Link Toggle - Liquid Glass Design */}
-          <div className="bg-black/20 backdrop-blur-xl border border-white/10 rounded-2xl p-1.5 flex items-center relative gap-1 shadow-[inset_0_2px_4px_rgba(0,0,0,0.3)] group/toggle">
+          {/* Neural Link Toggle - Liquid Obsidian Design */}
+          <div className="bg-zinc-100 dark:bg-black p-1 rounded-[22px] flex items-center relative gap-1 border border-zinc-200 dark:border-white/10 shadow-[inset_0_2px_8px_rgba(0,0,0,0.05)] dark:shadow-[inset_0_2px_8px_rgba(0,0,0,0.5)] overflow-hidden group/toggle h-[52px]">
+            {/* Animated Slider - Precise Positioning */}
+            <div
+              className={clsx(
+                "absolute top-1 bottom-1 w-[calc(50%-4px)] rounded-[18px] transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] shadow-[0_4px_12px_rgba(0,0,0,0.15)] dark:shadow-[0_4px_20px_rgba(0,0,0,0.5)] border border-white/20 bg-black dark:bg-white z-0",
+                currentView === 'neural_link' ? "left-[calc(50%+2px)]" : "left-1"
+              )}
+            >
+              <div className="absolute inset-0 bg-gradient-to-tr from-white/10 to-transparent opacity-50" />
+            </div>
+
             <button
               onClick={() => setCurrentView('dashboard')}
               className={clsx(
-                "flex-1 py-3 text-xs font-bold uppercase tracking-wider rounded-xl transition-all duration-300 relative overflow-hidden",
-                currentView !== 'neural_link'
-                  ? "text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.1),0_2px_4px_rgba(0,0,0,0.2)] bg-gradient-to-b from-white/10 to-white/5 border border-white/10"
-                  : "text-gray-500 hover:text-gray-300 hover:bg-white/5"
+                "flex-1 h-full text-[10px] font-black uppercase tracking-[0.25em] relative z-10 transition-colors duration-500",
+                currentView !== 'neural_link' ? "text-white dark:text-black" : "text-zinc-500 dark:text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-300"
               )}
             >
               Standard
             </button>
+
             <button
               onClick={() => setCurrentView('neural_link')}
               className={clsx(
-                "flex-1 py-3 text-xs font-bold uppercase tracking-wider rounded-xl transition-all duration-500 flex items-center justify-center gap-1.5 relative overflow-hidden",
-                currentView === 'neural_link' 
-                  ? "text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.1),0_4px_20px_rgba(0,0,0,0.8)] bg-black border border-white/10 ring-1 ring-white/5"
-                  : "text-gray-500 hover:text-cyan-400 hover:bg-white/5"
+                "flex-1 h-full text-[10px] font-black uppercase tracking-[0.25em] relative z-10 transition-colors duration-500 flex items-center justify-center gap-2",
+                currentView === 'neural_link' ? "text-white dark:text-black" : "text-zinc-500 dark:text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-300"
               )}
             >
-              {currentView === 'neural_link' && <div className="absolute inset-x-0 top-0 h-[1px] bg-white/20 blur-[0.5px]" />}
-
-              <Zap size={14} className={clsx("transition-colors duration-300", currentView === 'neural_link' ? "text-cyan-200 fill-cyan-200 shadow-cyan-500/50 drop-shadow-sm" : "")} />
-              <span className="relative z-10 text-shadow-sm">Neural Link</span>
+              <Zap size={12} className={clsx("transition-transform duration-500", currentView === 'neural_link' ? "fill-current scale-110" : "scale-100 opacity-40")} />
+              <span>Neural Link</span>
             </button>
           </div>
 
