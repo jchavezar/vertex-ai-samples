@@ -171,7 +171,7 @@ const AdvancedPanel: React.FC<AdvancedPanelProps> = ({ onDragStart }) => {
             <Terminal size={20} />
           </button>
           <div className="min-w-0 flex flex-col justify-center">
-            <h2 className={clsx("text-base font-bold leading-tight whitespace-nowrap", isDark ? "text-[var(--text-primary)]" : "text-slate-800")}>Workstation</h2>
+            <h2 className={clsx("text-sm font-bold leading-tight", isDark ? "text-[var(--text-primary)]" : "text-slate-800")}>Workstation</h2>
             <div className={clsx("flex items-center gap-1.5 text-[10px] shrink-0", isDark ? "text-[var(--text-muted)]" : "text-slate-500")}>
               {isLoading ? (
                 <>
