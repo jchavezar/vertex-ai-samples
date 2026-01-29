@@ -103,7 +103,6 @@ export const PerformanceChart: React.FC<PerformanceChartProps> = ({ ticker, exte
 
     // Check if labels follow a "Category - Metric" or "Metric - Category" pattern
     // This is a heuristic to group items like "GOOGL Rev", "GOOGL NI" into a "GOOGL" category.
-    const pivoted: any[] = [];
     const groups: { [key: string]: any } = {};
 
     data.forEach(item => {
