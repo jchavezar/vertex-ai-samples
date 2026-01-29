@@ -159,7 +159,7 @@ export const App = () => {
         {/* Right Docked Sidebar (Split View) */}
         <div
           className={clsx(
-            "relative flex flex-shrink-0 border-l border-[var(--border)] bg-[var(--bg-app)] overflow-hidden max-w-[80vw]",
+            "relative flex flex-shrink-0 border-l border-[var(--border)] bg-[var(--bg-app)] overflow-hidden max-w-[80vw] h-full",
             // Only apply transition if NOT resizing
             !isResizing && "transition-[width,opacity] duration-300 ease-in-out",
             (chatDockPosition === 'right' && isChatOpen && !isChatMaximized)

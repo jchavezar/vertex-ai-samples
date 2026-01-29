@@ -14,7 +14,8 @@ export const DashboardHeader: React.FC = () => {
     currency: '$',
     change: 0,
     marketCap: 0,
-    peRatio: 0
+    peRatio: 0,
+    changePercent: 0
   };
 
   const name = displayData.name || ticker;
@@ -29,51 +30,51 @@ export const DashboardHeader: React.FC = () => {
       {/* Left: Ticker Identity */}
       <div className="flex items-center gap-3 justify-self-start">
         <div>
-          <h1 className="text-3xl font-black leading-none flex items-baseline gap-3 tracking-tighter text-[var(--text-primary)]">
+          <h1 className="text-2xl font-black leading-none flex items-baseline gap-2 tracking-tighter text-[var(--text-primary)]">
             {name.split(' ')[0]}
             {name.split(' ')[0] !== ticker && (
-              <span className="text-sm bg-white/10 px-2 py-0.5 rounded-md text-[var(--text-secondary)] font-bold border border-white/10 translate-y-[-4px]">
+              <span className="text-xs bg-white/10 px-1.5 py-0.5 rounded-md text-[var(--text-secondary)] font-bold border border-white/10 translate-y-[-3px]">
                 {ticker}
               </span>
             )}
           </h1>
-          <div className="flex items-center gap-2 text-xs font-bold uppercase text-[var(--green)] mt-1.5 tracking-widest">
-            <div className="w-2 h-2 bg-[var(--green)] rounded-full shadow-[0_0_8px_var(--green)] animate-pulse" />
+          <div className="flex items-center gap-2 text-xs font-bold uppercase text-[var(--text-secondary)] mt-1 tracking-widest">
+            <div className="w-2 h-2 bg-white rounded-full shadow-[0_0_8px_rgba(255,255,255,0.5)] animate-pulse" />
             Market Open • {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
           </div>
         </div>
       </div>
 
       {/* Center: Financial Data */}
-      <div className="flex items-center gap-12 justify-self-center">
+      <div className="flex items-center gap-8 justify-self-center">
         <div>
           <div className="flex items-baseline justify-end gap-1 leading-none tracking-tighter text-right drop-shadow-sm">
-            <span className="text-lg font-bold text-[var(--text-muted)] translate-y-[-2px]">{currency}</span>
-            <span className="text-4xl font-black text-[var(--text-primary)]">{price.toLocaleString()}</span>
+            <span className="text-base font-bold text-[var(--text-muted)] translate-y-[-2px]">{currency}</span>
+            <span className="text-3xl font-black text-[var(--text-primary)]">{price.toLocaleString()}</span>
           </div>
           <div className={clsx(
-            "flex items-center justify-end gap-2 text-base font-black mt-0.5",
-            change > 0 ? "text-[#00C805] drop-shadow-sm" : change < 0 ? "text-[#FF4B4B] drop-shadow-sm" : "text-[var(--text-muted)]"
+            "flex items-center justify-end gap-1.5 text-sm font-black mt-0.5",
+            change > 0 ? "text-[var(--text-primary)]" : change < 0 ? "text-[var(--text-muted)]" : "text-[var(--text-muted)] opacity-50"
           )}>
-            {change > 0 ? <TrendingUp size={20} /> : change < 0 ? <TrendingDown size={20} /> : <div className="w-4 h-px bg-current opacity-50" />}
+            {change > 0 ? <TrendingUp size={16} /> : change < 0 ? <TrendingDown size={16} /> : <div className="w-3 h-px bg-current opacity-30" />}
             {displayData.changePercent !== undefined ? Math.abs(displayData.changePercent).toFixed(2) : '0.00'}%
           </div>
         </div>
 
-        <div className="h-8 w-px bg-[var(--border)]" />
+        <div className="h-7 w-px bg-[var(--border)]" />
 
         <div className="flex flex-col">
-          <span className="text-[10px] text-[var(--text-muted)] uppercase font-black tracking-widest mb-1">Market Cap</span>
-          <span className="text-lg font-black text-[var(--text-primary)]">
+          <span className="text-[9px] text-[var(--text-muted)] uppercase font-black tracking-widest mb-0.5">Market Cap</span>
+          <span className="text-base font-black text-[var(--text-primary)]">
             {(marketCap / 1e9).toFixed(2)}B
           </span>
         </div>
 
-        <div className="h-8 w-px bg-[var(--border)]" />
+        <div className="h-7 w-px bg-[var(--border)]" />
 
         <div className="flex flex-col">
-          <span className="text-[10px] text-[var(--text-muted)] uppercase font-black tracking-widest mb-1">P/E Ratio</span>
-          <span className="text-lg font-black text-[var(--text-primary)]">
+          <span className="text-[9px] text-[var(--text-muted)] uppercase font-black tracking-widest mb-0.5">P/E Ratio</span>
+          <span className="text-base font-black text-[var(--text-primary)]">
             {peRatio ? peRatio.toFixed(1) : '--'}
           </span>
         </div>

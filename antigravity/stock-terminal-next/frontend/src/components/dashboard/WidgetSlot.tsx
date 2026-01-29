@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Sparkles, Loader, Maximize2, X, Bot } from 'lucide-react';
+import { Loader, X, Sparkles } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 
@@ -40,102 +40,81 @@ export const WidgetSlot: React.FC<WidgetSlotProps> = ({
   if (override && (override.loading || override.content)) {
     if (override.loading) {
       return (
-        <div className={getContainerClass("card min-h-[200px] flex flex-col p-4 shadow-[0_0_15px_var(--brand-light)] border-[var(--brand)]")}>
-          <div className="flex items-center gap-2 mb-4 text-[var(--text-secondary)] uppercase tracking-wide text-[13px]">
+        <div className={getContainerClass("min-h-[220px] flex flex-col p-6 bg-[var(--bg-card)] border border-[var(--border-subtle)]")}>
+          <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-2">
-              <Sparkles size={14} className="text-[var(--brand)] animate-pulse" />
-              <span className="font-semibold">{section} Analysis</span>
+              <Sparkles size={12} className="text-[var(--text-primary)]" />
+              <span className="font-black text-[9px] text-[var(--text-primary)] uppercase tracking-[0.25em]">{section} Analysis</span>
             </div>
             <Loader className="animate-spin text-[var(--text-muted)]" size={12} />
           </div>
 
-          <div className="h-3 rounded bg-gradient-to-r from-[var(--border-light)] via-[var(--border)] to-[var(--border-light)] bg-[length:800px_104px] animate-[shimmer_1.5s_infinite_linear] w-[90%] mb-2" />
-          <div className="h-3 rounded bg-gradient-to-r from-[var(--border-light)] via-[var(--border)] to-[var(--border-light)] bg-[length:800px_104px] animate-[shimmer_1.5s_infinite_linear] w-full mb-2" />
-          <div className="h-3 rounded bg-gradient-to-r from-[var(--border-light)] via-[var(--border)] to-[var(--border-light)] bg-[length:800px_104px] animate-[shimmer_1.5s_infinite_linear] w-[85%] mb-2" />
-          <div className="h-3 rounded bg-gradient-to-r from-[var(--border-light)] via-[var(--border)] to-[var(--border-light)] bg-[length:800px_104px] animate-[shimmer_1.5s_infinite_linear] w-[95%] mt-3 mb-2" />
-          <div className="h-3 rounded bg-gradient-to-r from-[var(--border-light)] via-[var(--border)] to-[var(--border-light)] bg-[length:800px_104px] animate-[shimmer_1.5s_infinite_linear] w-[70%]" />
+          <div className="space-y-3">
+            <div className="h-2 rounded bg-[var(--border-subtle)]/50 animate-pulse w-[90%]" />
+            <div className="h-2 rounded bg-[var(--border-subtle)]/50 animate-pulse w-full" />
+            <div className="h-2 rounded bg-[var(--border-subtle)]/50 animate-pulse w-[85%]" />
+            <div className="h-2 rounded bg-[var(--border-subtle)]/50 animate-pulse w-[95%] mt-4" />
+            <div className="h-2 rounded bg-[var(--border-subtle)]/50 animate-pulse w-[70%]" />
+          </div>
 
-          <div className="mt-auto text-[10px] text-[var(--text-muted)] italic text-center">
-            Powering up Gemini analysts...
+          <div className="mt-auto text-[8px] text-[var(--text-muted)] font-black uppercase tracking-widest text-center opacity-50">
+            INTELLIGENCE LINK ACTIVE
           </div>
         </div>
       );
     }
 
-    // Extract only the first paragraph or block of text for the concise summary
-    const getConciseSummary = (content: string) => {
-      if (!content) return "";
-      // Remove the specific widget tags if they leaked into the content
-      const cleanContent = content.replace(/[\[\/?WIDGET:[^\]\]]+/g, '').trim();
-      const lines = cleanContent.split('\n');
-      const paragraph = [];
-      for (const line of lines) {
-        const trimmed = line.trim();
-        if (!trimmed) {
-          if (paragraph.length > 0) break;
-          continue;
-        }
-        if (trimmed.startsWith('|') || trimmed.startsWith('-')) continue;
-        paragraph.push(line);
-        if (paragraph.length > 3) break;
-      }
-      return paragraph.join('\n');
-    };
+
 
     const cleanFullContent = override.content?.replace(/[\[\/?WIDGET:[^\]\]]+/g, '').trim() || '';
-    const summaryContent = getConciseSummary(cleanFullContent) || cleanFullContent.substring(0, 150) + '...';
     const isLongContent = cleanFullContent.length > 350;
 
     return (
       <>
         <div
-          className={getContainerClass("card min-h-[200px] max-h-[300px] overflow-hidden flex flex-col cursor-pointer transition-all duration-200 hover:border-[var(--brand)] hover:shadow-lg shadow-[0_0_15px_var(--brand-light)] border-[var(--brand)] group")}
+          className={getContainerClass("min-h-[220px] max-h-[300px] overflow-hidden flex flex-col cursor-pointer transition-all duration-300 hover:bg-[var(--bg-panel)] bg-[var(--bg-card)] border border-[var(--border-subtle)] group p-6")}
           onClick={() => setIsModalOpen(true)}
         >
-          <div className="flex justify-between items-center gap-2 mb-2">
-            <div className="flex items-center gap-2">
-              <div className="flex flex-col">
-                <div className="flex items-center gap-2">
-                  <Sparkles size={12} className="text-[var(--brand)]" />
-                  <span className="font-extrabold text-[11px] text-[var(--text-primary)] uppercase tracking-wide">{section} Analysis</span>
-                </div>
-                {override.model && (
-                  <div className="flex items-center gap-1 text-[9px] text-[var(--text-muted)] ml-5 font-semibold">
-                    <Bot size={10} />
-                    {override.model}
-                  </div>
-                )}
+          <div className="flex justify-between items-center mb-4">
+            <div className="flex flex-col gap-1">
+              <div className="flex items-center gap-2">
+                <Sparkles size={12} className="text-[var(--text-primary)]" />
+                <span className="font-black text-[9px] text-[var(--text-primary)] uppercase tracking-[0.25em]">{section} Analysis</span>
               </div>
+              {override.model && (
+                <div className="text-[8px] text-[var(--text-muted)] font-bold tracking-widest uppercase ml-5 opacity-60">
+                  {override.model}
+                </div>
+              )}
             </div>
-            <div className="flex items-center gap-1 text-[10px] text-[var(--brand)] bg-[var(--brand-light)] px-1.5 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity">
-              <Maximize2 size={10} />
-              <span>Full Analysis</span>
+            <div className="bg-[var(--text-primary)] text-[var(--bg-app)] px-2 py-0.5 rounded text-[8px] font-black uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-all">
+              EXPAND
             </div>
           </div>
-          <div className="prose prose-invert prose-xs max-w-none text-[11px] leading-relaxed text-[var(--text-secondary)]">
-            <ReactMarkdown remarkPlugins={[remarkGfm]}>{summaryContent}</ReactMarkdown>
+          <div className="prose prose-invert prose-xs max-w-none text-[12px] leading-relaxed text-[var(--text-secondary)] font-medium tracking-tight">
+            <ReactMarkdown remarkPlugins={[remarkGfm]}>{cleanFullContent}</ReactMarkdown>
           </div>
           {isLongContent && (
-            <div className="mt-auto pt-2 text-center text-[10px] text-[var(--brand)] font-extrabold border-t border-[var(--border)] uppercase tracking-wide">
-              Click to see full analysis
+            <div className="mt-auto pt-4 text-center text-[8px] text-[var(--text-muted)] font-black border-t border-[var(--border-subtle)]/50 uppercase tracking-[0.2em] group-hover:text-[var(--text-primary)] transition-colors">
+              CLICK TO REVEAL FULL BRIEF
             </div>
           )}
         </div>
 
         {/* Full View Modal */}
         {isModalOpen && (
-          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[10000] animate-in fade-in duration-150" onClick={() => setIsModalOpen(false)}>
-            <div className="bg-[var(--bg-card)] w-[90%] max-w-[800px] max-h-[85vh] rounded-xl flex flex-col shadow-2xl overflow-hidden border border-[var(--border)] animate-in slide-in-from-bottom-4 duration-200" onClick={e => e.stopPropagation()}>
-              <div className="p-3 border-b border-[var(--border)] flex items-center justify-between bg-[var(--border-light)]">
-                <div className="flex items-center gap-2.5">
-                  <Sparkles size={18} className="text-[var(--brand)]" />
-                  <h2 className="text-base m-0 text-[var(--text-primary)] font-semibold">{section} - Full AI Analysis</h2>
+          <div className="fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center z-[10000] animate-in fade-in duration-200" onClick={() => setIsModalOpen(false)}>
+            <div className="bg-[var(--bg-card)] w-[95%] max-w-[900px] max-h-[90vh] rounded-2xl flex flex-col shadow-2xl overflow-hidden border border-[var(--border-subtle)] animate-in zoom-in-95 duration-200" onClick={e => e.stopPropagation()}>
+              <div className="p-4 border-b border-[var(--border-subtle)] flex items-center justify-between bg-[var(--bg-app)]">
+                <div className="flex items-center gap-3">
+                  <Sparkles size={16} className="text-[var(--text-primary)]" />
+                  <h2 className="text-[12px] font-black uppercase tracking-[0.3em] text-[var(--text-primary)]">{section} - AGENT DEBRIEF</h2>
                 </div>
-                <button onClick={() => setIsModalOpen(false)} className="text-[var(--text-muted)] bg-transparent border-none cursor-pointer hover:text-[var(--text-primary)]">
-                  <X size={24} />
+                <button onClick={() => setIsModalOpen(false)} className="p-2 hover:bg-white/5 rounded-full transition-colors">
+                  <X size={20} className="text-[var(--text-muted)] hover:text-[var(--text-primary)]" />
                 </button>
               </div>
-              <div className="p-6 overflow-y-auto text-[13px] leading-relaxed text-[var(--text-primary)] prose prose-invert max-w-none">
+              <div className="p-10 overflow-y-auto text-[14px] leading-relaxed text-[var(--text-primary)] prose prose-invert max-w-none selection:bg-white/10 no-scrollbar">
                 <ReactMarkdown remarkPlugins={[remarkGfm]}>{cleanFullContent}</ReactMarkdown>
               </div>
             </div>
@@ -150,15 +129,14 @@ export const WidgetSlot: React.FC<WidgetSlotProps> = ({
     const isComparison = tickers && tickers.length > 1;
     const buttonText = isComparison
       ? `Compare ${section} (${tickers.join(' vs ')})`
-      : `Generate ${section} for ${tickers ? tickers[0] : '...'}`;
+      : `Generate ${section}`;
 
     return (
-      <div className={getContainerClass("card min-h-[200px] flex items-center justify-center border-dashed border-[var(--border)] shadow-none backdrop-blur-md")}>
+      <div className={getContainerClass("min-h-[220px] flex items-center justify-center border border-dashed border-[var(--border-subtle)] bg-[var(--bg-app)]/30")}>
         <button
            onClick={() => onGenerate(section)}
-           className="flex items-center gap-2.5 text-[var(--brand)] font-extrabold px-6 py-2.5 rounded-full border border-blue-500/30 transition-all duration-200 text-[11px] uppercase tracking-wide bg-gradient-to-br from-blue-500/15 to-blue-500/5 shadow-[0_4px_12px_rgba(0,0,0,0.2),inset_0_1px_0_rgba(255,255,255,0.1),inset_0_-1px_0_rgba(0,0,0,0.1)] hover:-translate-y-0.5 hover:from-blue-500/20 hover:to-blue-500/10 hover:shadow-[0_6px_16px_rgba(62,166,255,0.25),inset_0_1px_0_rgba(255,255,255,0.15),inset_0_-1px_0_rgba(0,0,0,0.15)] active:translate-y-0 active:from-blue-500/15 active:to-blue-500/5 active:shadow-[0_4px_12px_rgba(0,0,0,0.2),inset_0_1px_0_rgba(255,255,255,0.1),inset_0_-1px_0_rgba(0,0,0,0.1)]"
+          className="px-6 py-2.5 bg-[var(--text-primary)] text-[var(--bg-app)] text-[9px] font-black uppercase tracking-[0.2em] rounded-full hover:scale-105 active:scale-95 transition-all shadow-xl hover:shadow-[var(--text-primary)]/10"
         >
-          <Sparkles size={14} />
           {buttonText}
         </button>
       </div>

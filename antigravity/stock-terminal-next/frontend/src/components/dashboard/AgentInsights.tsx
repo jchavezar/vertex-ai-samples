@@ -43,63 +43,51 @@ export const useAgentInsights = (ticker: string) => {
   return { insights, suggestedActions };
 };
 
-export const InsightCard: React.FC<{ data: InsightData; color?: 'blue' | 'sky' | 'indigo' }> = ({ data, color = 'blue' }) => {
+export const InsightCard: React.FC<{ data: InsightData; color?: 'blue' | 'sky' | 'indigo' | 'gray' }> = ({ data, color = 'gray' }) => {
   // Map color to classes
   const colorMap = {
-    blue: {
-      border: 'border-l-4 border-l-blue-500',
-      text: 'text-blue-500',
-      bg: 'bg-blue-500',
-      dot: 'bg-blue-500'
-    },
-    sky: {
-      border: 'border-l-4 border-l-sky-500',
-      text: 'text-sky-500',
-      bg: 'bg-sky-500',
-      dot: 'bg-sky-500'
-    },
-    indigo: {
-      border: 'border-l-4 border-l-indigo-500',
-      text: 'text-indigo-500',
-      bg: 'bg-indigo-500',
-      dot: 'bg-indigo-500'
-    }
+    blue: { border: 'border-l-2 border-l-blue-500', text: 'text-blue-500', dot: 'bg-blue-500' },
+    sky: { border: 'border-l-2 border-l-sky-500', text: 'text-sky-500', dot: 'bg-sky-500' },
+    indigo: { border: 'border-l-2 border-l-indigo-500', text: 'text-indigo-500', dot: 'bg-indigo-500' },
+    gray: { border: 'border-l-2 border-l-[var(--text-primary)]', text: 'text-[var(--text-primary)]', dot: 'bg-[var(--text-primary)]' }
   };
 
   const c = colorMap[color];
 
   return (
-    <div className={`card p-0 overflow-hidden hover:shadow-lg transition-all duration-300 group border-[var(--border)] bg-[var(--bg-card)] h-full flex flex-col ${c.border}`}>
-      <div className="bg-[var(--bg-panel)]/50 px-3 py-2 flex justify-between items-center border-b border-[var(--border)]">
-        <span className={`font-bold ${c.text} text-[10px] uppercase tracking-wider flex items-center gap-1.5`}>
-          <div className={`w-1.5 h-1.5 rounded-full ${c.dot} animate-pulse`}></div>
+    <div className={`p-0 overflow-hidden hover:bg-[var(--bg-panel)] transition-all duration-300 group bg-[var(--bg-card)] h-full flex flex-col ${c.border}`}>
+      <div className="px-3 py-2 flex justify-between items-center border-b border-[var(--border-subtle)]">
+        <span className={`font-black ${c.text} text-[9px] uppercase tracking-[0.2em] flex items-center gap-2`}>
+          <div className={`w-1 h-1 rounded-full ${c.dot}`}></div>
           {data.title}
         </span>
-        <span className="text-[9px] text-[var(--text-muted)] bg-[var(--bg-panel)] border border-[var(--border-subtle)] px-2 py-0.5 rounded-full font-mono">{data.time}</span>
+        <span className="text-[8px] text-[var(--text-muted)] font-black uppercase tracking-widest">{data.time}</span>
       </div>
-      <div className="p-4 flex-1 flex flex-col justify-center">
-        <h4 className="text-[15px] text-[var(--text-primary)] mb-2 font-bold leading-snug group-hover:text-[var(--accent)] transition-colors">{data.headline}</h4>
-        <p className="text-[13px] text-[var(--text-secondary)] leading-relaxed">{data.summary}</p>
+      <div className="p-4 flex-1 flex flex-col justify-center gap-1.5">
+        <h4 className="text-[14px] text-[var(--text-primary)] font-bold tracking-tight leading-snug group-hover:text-[var(--brand)] transition-colors line-clamp-1">{data.headline}</h4>
+        <p className="text-[12px] text-[var(--text-secondary)] leading-relaxed line-clamp-2">{data.summary}</p>
       </div>
     </div>
   );
 };
 
-export const SuggestedActionsCard: React.FC<{ actions: string[] }> = ({ actions }) => {
+export const SuggestedActionsCard: React.FC<{ actions: string[]; color?: 'blue' | 'gray' }> = ({ actions, color = 'gray' }) => {
+  const isGray = color === 'gray';
+
   return (
-    <div className="card p-0 overflow-hidden hover:shadow-lg transition-all duration-300 flex flex-col border-[var(--border)] bg-[var(--bg-card)] h-full border-l-4 border-l-sky-500">
-      <div className="bg-[var(--bg-panel)]/50 px-3 py-2 border-b border-[var(--border)]">
-        <span className="font-bold text-sky-500 text-[10px] uppercase tracking-wider flex items-center gap-1.5">
-          <div className="w-1.5 h-1.5 rounded-full bg-sky-500"></div>
+    <div className={`p-0 overflow-hidden hover:bg-[var(--bg-panel)] transition-all duration-300 flex flex-col bg-[var(--bg-card)] h-full border-l-2 ${isGray ? 'border-l-[var(--text-primary)]' : 'border-l-blue-500'}`}>
+      <div className="px-3 py-2 border-b border-[var(--border-subtle)]">
+        <span className={`font-black ${isGray ? 'text-[var(--text-primary)]' : 'text-blue-500'} text-[9px] uppercase tracking-[0.2em] flex items-center gap-2`}>
+          <div className={`w-1 h-1 rounded-full ${isGray ? 'bg-[var(--text-primary)]' : 'bg-blue-500'}`}></div>
           SUGGESTED ACTIONS
         </span>
       </div>
       <div className="p-2 flex-1">
         <ul className="list-none space-y-0.5">
           {actions.map((item, i) => (
-            <li key={i} className="text-[11px] font-medium text-[var(--text-secondary)] cursor-pointer transition-colors hover:text-sky-500 hover:bg-sky-500/5 px-3 py-1.5 rounded-md flex items-center gap-2.5 group">
-              <span className="w-1 h-1 rounded-full bg-sky-500 opacity-30 group-hover:opacity-100 transition-opacity"></span>
-              {item}
+            <li key={i} className="text-[11px] font-bold text-[var(--text-secondary)] cursor-pointer transition-colors hover:text-[var(--text-primary)] hover:bg-[var(--bg-panel)] px-3 py-1.5 rounded-md flex items-center gap-2.5 group">
+              <span className={`w-1 h-1 rounded-full ${isGray ? 'bg-[var(--text-primary)]' : 'bg-blue-500'} opacity-30 group-hover:opacity-100 transition-opacity`}></span>
+              <span className="truncate">{item}</span>
             </li>
           ))}
         </ul>
