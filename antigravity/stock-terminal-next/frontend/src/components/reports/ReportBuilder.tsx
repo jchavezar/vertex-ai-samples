@@ -352,7 +352,7 @@ const EarningsTemplate: React.FC<{ data: ReportData }> = ({ data }) => {
         <div className="p-8 flex flex-col h-full gap-6 font-sans text-xs">
           <div className="bg-blue-900 text-white p-6 rounded-lg text-center">
              <h1 className="text-3xl font-bold mb-2">Post Earnings Recap</h1>
-          <div className="text-xl opacity-80">{data.ticker} | {data['fiscal_period'] || "Q4 2024"}</div>
+          <div className="text-xl opacity-80">{data.ticker} | {(data as any)['fiscal_period'] || "Q4 2024"}</div>
           </div>
           
           <div className="grid grid-cols-2 gap-4">
