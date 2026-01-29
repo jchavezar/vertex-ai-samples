@@ -6,6 +6,7 @@ import { SummaryPanel } from './SummaryPanel';
 import { KeyStats } from './KeyStats';
 import { WidgetSlot } from './WidgetSlot';
 import { Terminal, Zap } from 'lucide-react';
+import { GlassCard } from './GlassCard';
 
 export const DashboardView: React.FC = () => {
   const { 
@@ -76,7 +77,7 @@ export const DashboardView: React.FC = () => {
 
   if (activeView !== 'Snapshot') {
     return (
-      <div className="flex flex-col items-center justify-center h-[60vh] text-[var(--text-muted)] animate-in fade-in duration-500">
+      <div className="flex flex-col items-center justify-center h-[60vh] text-[var(--text-muted)]">
         <div className="mb-6 opacity-50">
           <Terminal size={48} className="mx-auto" />
         </div>
@@ -111,7 +112,7 @@ export const DashboardView: React.FC = () => {
 
 
   return (
-    <div className="flex flex-col gap-5 p-4 animate-in slide-in-from-bottom-2 duration-500 w-full">
+    <div className="flex flex-col gap-5 p-4 w-full">
       {/* Macro Context Overlay */}
       {activeView !== 'Snapshot' && (
         <div className="bg-gradient-to-r from-blue-600/20 to-cyan-500/20 border border-blue-500/30 rounded-2xl p-4 mb-2 flex items-center justify-between backdrop-blur-md shadow-lg shadow-blue-500/5 transition-all">
@@ -131,45 +132,90 @@ export const DashboardView: React.FC = () => {
         </div>
       )}
 
-      <div className="grid grid-cols-12 gap-5 w-full">
-      {!chartOverride && (
-        <div className="col-span-12">
-          <AgentInsights ticker={ticker} />
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 w-full max-w-[1920px] mx-auto pb-12 px-6 pt-6">
+
+        {/* ROW 1: Intelligence Grid (Hero Chart + Strategic Insights) */}
+
+        {/* Hero Section: Performance Chart - Primary Focus */}
+        <div className="col-span-1 lg:col-span-8 flex flex-col min-h-[600px] lg:h-[65vh]">
+          <div className="arch-card h-full rounded-xl group/chart p-1">
+            <div className="absolute top-0 right-0 p-6 z-10 opacity-0 group-hover/chart:opacity-100 transition-opacity">
+              <span className="text-xs font-mono text-[var(--text-muted)] border border-[var(--border)] px-2 py-1 rounded">LIVE</span>
+            </div>
+            <PerformanceChart
+              ticker={chartOverride?.ticker || ticker}
+              externalData={chartOverride}
+              defaultData={tickerData}
+            />
+          </div>
         </div>
-      )}
 
-      <div className={`${chartOverride ? 'col-span-8' : 'col-span-8'}`}>
-        <PerformanceChart
-          ticker={chartOverride?.ticker || ticker}
-          externalData={chartOverride}
-          defaultData={tickerData}
-        />
-      </div>
+        {/* Intelligence Column: Stacked Insights */}
+        <div className="col-span-1 lg:col-span-4 flex flex-col gap-4 min-h-[600px] lg:h-[65vh]">
+          {/* Main Insight Card */}
+          <div className="flex-[3] arch-card rounded-xl p-0 flex flex-col relative overflow-hidden group">
+            {/* Subtle Gradient Header */}
+            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[var(--blue-glow)] to-purple-500 opacity-80"></div>
 
-      <div className="col-span-4">
-        <WidgetSlot
-          section="Profile"
-          override={widgetOverrides['Profile']}
-          isAiMode={!!chartOverride}
-          onGenerate={handleGenerateWidget}
-          tickers={tickersToAnalyze}
-          originalComponent={<SummaryPanel ticker={ticker} externalData={tickerData} />}
-        />
-      </div>
+            <div className="p-5 h-full flex flex-col">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-sm font-medium text-[var(--text-secondary)] tracking-tight">INTELLIGENCE</h3>
+                <div className="w-2 h-2 rounded-full bg-[var(--accent)] animate-pulse"></div>
+              </div>
+              <div className="flex-1 overflow-auto">
+                <AgentInsights ticker={ticker} />
+              </div>
+            </div>
+          </div>
 
-      {['Trading', 'Valuation', 'Dividends', 'Estimates'].map(section => (
-        <div className="col-span-3" key={section}>
-          <WidgetSlot
-            section={section}
-            override={widgetOverrides[section]}
-            isAiMode={!!chartOverride}
-            onGenerate={handleGenerateWidget}
-            tickers={tickersToAnalyze}
-            originalComponent={<KeyStats section={section} ticker={ticker} externalData={tickerData} />}
-          />
+          {/* Secondary / Profile Card */}
+          <div className="flex-[2] arch-card rounded-xl p-0">
+            <WidgetSlot
+              section="Profile"
+              override={widgetOverrides['Profile']}
+              isAiMode={!!chartOverride}
+              onGenerate={handleGenerateWidget}
+              tickers={tickersToAnalyze}
+              originalComponent={<SummaryPanel ticker={ticker} externalData={tickerData} />}
+            />
+          </div>
         </div>
-      ))}
-    </div>
+
+        {/* ROW 2: Market Essentials Ticker (Strict Footer) */}
+        <div className="col-span-1 lg:col-span-12">
+          <div className="arch-card rounded-xl border-t border-[var(--border-highlight)] bg-[var(--bg-panel)]">
+            <div className="flex flex-col lg:flex-row items-center h-[110px] px-6">
+
+              {/* Label */}
+              <div className="flex items-center gap-4 pr-8 border-r border-[var(--border)] h-full lg:min-w-[200px]">
+                <div className="w-1 h-8 bg-[var(--text-primary)]"></div>
+                <div>
+                  <h3 className="text-base font-black text-[var(--text-primary)] tracking-widest uppercase">MARKET</h3>
+                  <p className="text-xs text-[var(--text-muted)] font-mono font-bold">REAL-TIME DATA</p>
+                </div>
+              </div>
+
+              {/* Data Grid */}
+              <div className="flex-1 w-full grid grid-cols-2 md:grid-cols-4 h-full">
+                {['Trading', 'Valuation', 'Dividends', 'Estimates'].map((section) => (
+                  <div key={section} className="h-full border-r border-[var(--border-subtle)] last:border-r-0 px-6 flex items-center">
+                    <WidgetSlot
+                      section={section}
+                      override={widgetOverrides[section]}
+                      isAiMode={!!chartOverride}
+                      onGenerate={handleGenerateWidget}
+                      tickers={tickersToAnalyze}
+                      originalComponent={<KeyStats section={section} ticker={ticker} externalData={tickerData} variant="clean" />}
+                      variant="clean"
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
     </div>
   );
 };

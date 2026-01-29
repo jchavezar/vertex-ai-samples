@@ -1,117 +1,209 @@
-
-import React from 'react';
+import { useEffect, useState } from 'react';
 import { useDashboardStore } from '../../store/dashboardStore';
-import { X, Search, Database, Cpu, Layers, Code, Zap, Server, Globe } from 'lucide-react';
+import { X, Search, Database, Code, Zap, MessageSquare, Brain, Bot } from 'lucide-react';
 import clsx from 'clsx';
 
 export const AdkOverlay = () => {
     const { isAdkOverlayOpen, setAdkOverlayOpen } = useDashboardStore();
+    const [step, setStep] = useState(0);
+
+    // Animation Loop for Data Flow
+    useEffect(() => {
+        if (!isAdkOverlayOpen) return;
+        const interval = setInterval(() => {
+            setStep((prev) => (prev + 1) % 5);
+        }, 1500);
+        return () => clearInterval(interval);
+    }, [isAdkOverlayOpen]);
 
     if (!isAdkOverlayOpen) return null;
 
     return (
-        <div className="fixed inset-0 z-[200] flex items-center justify-center p-8 backdrop-blur-2xl bg-black/80 animate-fade-in">
-            <div className="absolute inset-0 bg-grid-white/[0.05] bg-[size:40px_40px] pointer-events-none" />
+        <div className="fixed inset-0 z-[200] flex items-center justify-center p-8 backdrop-blur-xl bg-black/60">
+            {/* Outer grid pattern for context */}
+            <div className="absolute inset-0 bg-grid-white/[0.05] bg-[size:40px_40px] pointer-events-none opacity-20" />
             
             <button 
                 onClick={() => setAdkOverlayOpen(false)}
-                className="absolute top-8 right-8 p-3 rounded-full bg-white/5 hover:bg-white/20 text-white transition-all z-20"
+                className="absolute top-8 right-8 p-3 rounded-full bg-white/10 hover:bg-white/20 text-white transition-all z-50 group border border-white/20 hover:scale-110 active:scale-95 shadow-lg shadow-white/5"
             >
-                <X size={32} />
+                <X size={32} className="group-hover:rotate-90 transition-transform" />
             </button>
 
-            <div className="relative w-full max-w-6xl aspect-video bg-black/40 border border-white/10 rounded-3xl overflow-hidden shadow-2xl shadow-cyan-900/40 p-12 flex flex-col items-center justify-center">
-                {/* Tech Background Rings */}
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] border border-cyan-500/20 rounded-full animate-spin-slow opacity-30" />
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] border border-purple-500/20 rounded-full animate-spin-reverse-slow opacity-30" />
-                
-                <h1 className="text-5xl font-bold text-center mb-16 bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 via-white to-purple-400 tracking-tight z-10 relative">
-                     Google Agent Development Kit (ADK)
-                     <span className="block text-xl font-mono font-normal text-cyan-400/80 mt-4 tracking-widest uppercase">System Architecture Visualization</span>
-                </h1>
-
-                <div className="grid grid-cols-3 gap-12 w-full max-w-5xl z-10 relative">
-                    
-                    {/* Element 1: Agent Runtime */}
-                    <div className="group relative">
-                        <div className="absolute inset-0 bg-gradient-to-b from-cyan-500/10 to-transparent rounded-2xl blur-xl transition-all duration-500 group-hover:bg-cyan-500/20" />
-                        <div className="relative p-8 rounded-2xl border border-white/10 bg-black/40 backdrop-blur-md flex flex-col items-center gap-6 hover:-translate-y-2 transition-transform duration-300 h-full border-t-cyan-500/50">
-                            <div className="w-20 h-20 rounded-2xl bg-cyan-500/10 flex items-center justify-center border border-cyan-400/30 group-hover:scale-110 transition-transform">
-                                <Cpu size={40} className="text-cyan-400" />
-                            </div>
-                            <h3 className="text-2xl font-bold text-white">Neural Agent</h3>
-                            <div className="flex flex-col gap-2 w-full">
-                                <CodeBadge label="google.adk.agents.Agent" color="cyan" />
-                                <CodeBadge label="model='gemini-2.5-flash-lite'" color="blue" />
-                                <CodeBadge label="Instruction Tuned" color="gray" />
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Element 2: Tools (Highlighted) */}
-                    <div className="group relative scale-110 -translate-y-4">
-                        <div className="absolute inset-0 bg-gradient-to-b from-yellow-500/10 to-transparent rounded-2xl blur-xl transition-all duration-500 group-hover:bg-yellow-500/20" />
-                        <div className="relative p-8 rounded-2xl border border-white/10 bg-black/40 backdrop-blur-md flex flex-col items-center gap-6 hover:-translate-y-2 transition-transform duration-300 h-full border-t-yellow-500 shadow-2xl shadow-yellow-500/10">
-                            <div className="w-24 h-24 rounded-full bg-yellow-500/10 flex items-center justify-center border border-yellow-400/50 relative group-hover:scale-110 transition-transform animate-pulse">
-                                <div className="absolute inset-0 bg-yellow-400/20 rounded-full animate-ping" />
-                                <Search size={48} className="text-yellow-400 relative z-10" />
-                            </div>
-                            <h3 className="text-2xl font-bold text-yellow-400">Search Tool</h3>
-                            <p className="text-gray-400 text-sm text-center">Real-time Web Intelligence</p>
-                            <div className="flex flex-col gap-2 w-full mt-2">
-                                <CodeBadge label="google.adk.tools.google_search" color="yellow" filled={true} />
-                                <CodeBadge label="Live Trends Extraction" color="gray" />
-                            </div>
-                        </div>
-                    </div>
-
-                     {/* Element 3: Runtime */}
-                     <div className="group relative">
-                        <div className="absolute inset-0 bg-gradient-to-b from-purple-500/10 to-transparent rounded-2xl blur-xl transition-all duration-500 group-hover:bg-purple-500/20" />
-                        <div className="relative p-8 rounded-2xl border border-white/10 bg-black/40 backdrop-blur-md flex flex-col items-center gap-6 hover:-translate-y-2 transition-transform duration-300 h-full border-t-purple-500/50">
-                            <div className="w-20 h-20 rounded-2xl bg-purple-500/10 flex items-center justify-center border border-purple-400/30 group-hover:scale-110 transition-transform">
-                                <Server size={40} className="text-purple-400" />
-                            </div>
-                            <h3 className="text-2xl font-bold text-white">ADK Runtime</h3>
-                            <div className="flex flex-col gap-2 w-full">
-                                <CodeBadge label="google.adk.Runner" color="purple" />
-                                <CodeBadge label="InMemorySessionService" color="purple" />
-                                <CodeBadge label="Async Stream Prototype" color="gray" />
-                            </div>
-                        </div>
-                    </div>
-
+            {/* Main Modal - Lighter Dark Theme */}
+            <div className="relative w-full max-w-[90vw] h-[85vh] bg-gradient-to-br from-[#2a2a2a] via-[#1a1a1a] to-[#0a0a0a] border border-white/20 rounded-[3rem] overflow-hidden shadow-2xl shadow-black/50 p-8 flex flex-col">
+                {/* Subtle Inner Spotlight - Brighter */}
+                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[500px] bg-cyan-500/10 blur-[120px] rounded-full pointer-events-none" />
+                {/* Header */}
+                <div className="absolute top-10 left-0 right-0 text-center z-20">
+                    <h1 className="text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-cyan-300 via-white to-purple-300 tracking-tight">
+                        ADK System Architecture
+                    </h1>
+                    <p className="text-sm font-mono text-cyan-300/80 mt-2 tracking-[0.3em] uppercase">Agentic Neural Orchestration Layer</p>
                 </div>
 
-                <div className="absolute bottom-8 text-center w-full">
-                     <p className="font-mono text-xs text-gray-500 tracking-[0.2em] uppercase">Powered by Vertex AI • Built with Google ADK</p>
+                {/* Flowchart Diagram */}
+                <div className="flex-1 w-full relative mt-12 flex items-center justify-center">
+                    
+                    {/* Connection Lines (SVG Layer) */}
+                    <svg className="absolute inset-0 w-full h-full pointer-events-none z-0">
+                        <defs>
+                            <linearGradient id="flowGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                                <stop offset="0%" stopColor="#22d3ee" stopOpacity="0.4" />
+                                <stop offset="100%" stopColor="#a855f7" stopOpacity="0.4" />
+                            </linearGradient>
+                            <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                                <polygon points="0 0, 10 3.5, 0 7" fill="#94a3b8" />
+                            </marker>
+                        </defs>
+
+                        {/* User -> Orchestrator */}
+                        <path d="M 250,300 C 350,300 350,300 450,300" stroke="url(#flowGradient)" strokeWidth="2" fill="none" className={clsx("transition-all duration-500", step === 0 ? "stroke-cyan-400 stroke-[3px] opacity-100" : "opacity-40")} markerEnd="url(#arrowhead)" />
+
+                        {/* Orchestrator -> Agent (Curved Up) */}
+                        <path d="M 650,300 C 700,300 700,200 800,200" stroke="url(#flowGradient)" strokeWidth="2" fill="none" className={clsx("transition-all duration-500", step === 1 ? "stroke-purple-400 stroke-[3px] opacity-100" : "opacity-40")} markerEnd="url(#arrowhead)" />
+
+                        {/* Agent -> Tools (Split downwards) */}
+                        <path d="M 1000,200 C 1050,200 1050,350 1000,400" stroke="url(#flowGradient)" strokeWidth="2" fill="none" className={clsx("transition-all duration-500", step === 2 ? "stroke-yellow-400 stroke-[3px] opacity-100" : "opacity-40")} markerEnd="url(#arrowhead)" />
+
+                        {/* Neural Agent Back to Orchestrator (The Big Loop) */}
+                        <path d="M 900,100 C 700,50 400,100 300,250" stroke="url(#flowGradient)" strokeWidth="2" fill="none" strokeDasharray="5,5" className={clsx("transition-all duration-500", step === 3 ? "stroke-green-400 stroke-[3px] opacity-100" : "opacity-30")} markerEnd="url(#arrowhead)" />
+
+                        {/* Tools -> Orchestrator (Return) - Optional, maybe implies data return */}
+                        <path d="M 900,450 C 700,550 550,550 550,400" stroke="url(#flowGradient)" strokeWidth="2" fill="none" strokeDasharray="5,5" className={clsx("transition-all duration-500", step === 3 ? "stroke-white stroke-[3px] opacity-100" : "opacity-30")} />
+                    </svg>
+
+                    {/* Nodes Container */}
+                    <div className="relative w-full h-full max-w-7xl mx-auto grid grid-cols-12 grid-rows-6 gap-4 z-10 pointer-events-none">
+
+                        {/* 1. User Input Node */}
+                        <div className="col-start-1 col-span-2 row-start-3 flex items-center justify-center">
+                            <ArchitectureNode
+                                icon={MessageSquare}
+                                title="User Input"
+                                subtitle="Natural Language"
+                                color="cyan"
+                                active={step === 0}
+                            />
+                        </div>
+
+                        {/* 2. ADK Orchestrator Node (Center Hub) */}
+                        <div className="col-start-4 col-span-3 row-start-3 flex items-center justify-center">
+                            <ArchitectureNode
+                                icon={Bot}
+                                title="ADK Orchestrator"
+                                subtitle="Runtime & Session Manager"
+                                color="blue"
+                                active={step === 0 || step === 3 || step === 4}
+                                size="lg"
+                            />
+                        </div>
+
+                        {/* 3. Neural Agent Node (Top Right) */}
+                        <div className="col-start-8 col-span-3 row-start-2 flex items-center justify-center">
+                            <ArchitectureNode
+                                icon={Brain}
+                                title="Neural Agent"
+                                subtitle="Gemini 2.5 Pro"
+                                color="purple"
+                                active={step === 1}
+                                size="lg"
+                            />
+                        </div>
+
+                        {/* 4. Tools Cluster (Below Agent) */}
+                        <div className="col-start-8 col-span-3 row-start-4 flex flex-row gap-4 justify-center items-start mt-4">
+                            <ToolNode icon={Search} label="Search" active={step === 2} delay={0} />
+                            <ToolNode icon={Database} label="FactSet" active={step === 2} delay={100} />
+                            <ToolNode icon={Code} label="Code" active={step === 2} delay={200} />
+                        </div>
+
+                        {/* 5. Response Node (Bottom Left-Center) - Implied Output */}
+                    </div>
+                </div>
+
+                <div className="absolute bottom-6 left-0 right-0 text-center">
+                    <p className="font-mono text-[10px] text-gray-500 tracking-[0.2em] uppercase">Architecture Visualization • v2.5.1-adk-refreshed</p>
                 </div>
             </div>
         </div>
     );
 };
 
-const CodeBadge = ({ label, color, filled = false }: { label: string, color: 'cyan' | 'blue' | 'purple' | 'yellow' | 'gray', filled?: boolean }) => {
-    const colors = {
-        cyan: "text-cyan-400 border-cyan-500/30 bg-cyan-500/10",
-        blue: "text-blue-400 border-blue-500/30 bg-blue-500/10",
-        purple: "text-purple-400 border-purple-500/30 bg-purple-500/10",
-        yellow: "text-yellow-400 border-yellow-500/50 bg-yellow-500/10",
-        gray: "text-gray-400 border-gray-500/30 bg-gray-500/10",
+const ArchitectureNode = ({ icon: Icon, title, subtitle, color, active, size = 'md' }: any) => {
+    const gradients = {
+        cyan: "from-cyan-500/20 to-cyan-900/40 border-cyan-400/50",
+        blue: "from-blue-500/20 to-blue-900/40 border-blue-400/50",
+        purple: "from-purple-500/20 to-purple-900/40 border-purple-400/50",
+        white: "from-white/10 to-gray-800/40 border-white/50",
     };
 
-    const filledColors = {
-        yellow: "text-black bg-yellow-400 border-yellow-400 font-bold",
-        cyan: "", blue: "", purple: "", gray: "" // Add others if needed
+    const iconColors = {
+        cyan: "text-cyan-200 bg-cyan-500/20",
+        blue: "text-blue-200 bg-blue-500/20",
+        purple: "text-purple-200 bg-purple-500/20",
+        white: "text-white bg-white/10",
     };
+
+    const activeGlow = {
+        cyan: "shadow-[0_0_50px_rgba(34,211,238,0.5)] border-cyan-300",
+        blue: "shadow-[0_0_50px_rgba(59,130,246,0.5)] border-blue-300",
+        purple: "shadow-[0_0_50px_rgba(168,85,247,0.5)] border-purple-300",
+        white: "shadow-[0_0_50px_rgba(255,255,255,0.4)] border-white",
+    };
+
+    const isLg = size === 'lg';
 
     return (
         <div className={clsx(
-            "px-3 py-1.5 rounded-md text-xs font-mono border text-center transition-all",
-            filled ? filledColors[color as keyof typeof filledColors] : colors[color],
-            !filled && "hover:bg-opacity-20 hover:scale-105 cursor-default"
+            "relative rounded-2xl border backdrop-blur-xl transition-all duration-700 flex flex-col items-center justify-center gap-3 overflow-hidden group",
+            isLg ? "w-64 h-48 p-6" : "w-48 h-36 p-4",
+            "bg-gradient-to-br",
+            gradients[color as keyof typeof gradients],
+            active ? clsx("scale-105 opacity-100", activeGlow[color as keyof typeof activeGlow]) : "scale-100 opacity-80 grayscale-[0.3]"
         )}>
-            {label}
+            {/* Chrome/Glass Shine Effect */}
+            <div className={clsx(
+                "absolute inset-0 bg-gradient-to-tr from-transparent via-white/5 to-transparent skew-x-12 translate-x-[-150%] transition-transform duration-1000",
+                active ? "animate-shine" : ""
+            )} />
+
+            <div className={clsx(
+                "rounded-full flex items-center justify-center transition-all duration-500 relative z-10",
+                isLg ? "w-16 h-16" : "w-12 h-12",
+                iconColors[color as keyof typeof iconColors],
+                active ? "scale-110 shadow-lg text-white" : ""
+            )}>
+                <Icon size={isLg ? 32 : 24} className={clsx("transition-all duration-500", active ? "drop-shadow-[0_0_10px_rgba(255,255,255,0.5)]" : "")} />
+            </div>
+
+            <div className="text-center relative z-10">
+                <h3 className={clsx("font-bold text-white tracking-wide transition-all duration-300", isLg ? "text-lg" : "text-sm", active ? "text-shadow-glow" : "")}>{title}</h3>
+                <p className={clsx("font-mono uppercase tracking-wider transition-opacity duration-300", isLg ? "text-xs" : "text-[10px]", active ? "opacity-100 text-white/90" : "opacity-60 text-white/60")}>{subtitle}</p>
+            </div>
+
+            {/* Active Ping */}
+            {active && (
+                <span className="absolute top-3 right-3 flex h-3 w-3">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-3 w-3 bg-white"></span>
+                </span>
+            )}
+        </div>
+    );
+};
+
+const ToolNode = ({ icon: Icon, label, active, delay }: any) => {
+    return (
+        <div className={clsx(
+            "flex flex-col items-center gap-2 p-3 rounded-xl border backdrop-blur-md transition-all duration-500 min-w-[80px]",
+            active ?
+                "translate-y-2 border-yellow-400/80 bg-gradient-to-b from-yellow-500/10 to-yellow-900/10 shadow-[0_0_20px_rgba(250,204,21,0.2)] text-yellow-300 scale-105" :
+                "border-white/10 bg-white/5 text-gray-400 hover:bg-white/10 hover:border-white/20"
+        )} style={{ transitionDelay: `${delay}ms` }}>
+            <Icon size={20} />
+            <span className="text-[10px] font-mono font-bold uppercase">{label}</span>
+            {active && <div className="w-1 absolute top-2 right-2 h-1 rounded-full bg-yellow-400 animate-pulse" />}
         </div>
     );
 };

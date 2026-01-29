@@ -2,145 +2,173 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --font-sans: 'Outfit', 'Inter', system-ui, -apple-system, sans-serif;
-  --font-mono: 'JetBrains Mono', 'Roboto Mono', monospace;
-
-  /* Light Theme (Default) */
-  /* Frost Crystal Theme (Light) */
-    --bg-app: #f1f5f9;
-    --bg-card: #ffffff;
-    --bg-popover: #ffffff;
-    --border: #e2e8f0;
-    --border-hover: #cbd5e1;
-    --border-light: #f1f5f9;
-
-  --text-primary: #0f172a;
-  --text-secondary: #475569;
-  --text-muted: #94a3b8;
-
-  --brand: #0284c7;
-    /* Sky 600 - Deeper Blue for contrast on light */
-    --brand-gradient: linear-gradient(135deg, #0284c7 0%, #2563eb 100%);
-    --brand-light: #e0f2fe;
-
-  --green: #059669;
-    --green-bg: #d1fae5;
-    --red: #dc2626;
-    --red-bg: #fee2e2;
-
-  --header-height: 56px;
-  --sidebar-width: 260px;
-  --sub-sidebar-width: 200px;
-  --glass-shadow:
-      0 4px 6px -1px rgba(0, 0, 0, 0.05),
-      0 2px 4px -1px rgba(0, 0, 0, 0.03),
-      inset 0 1px 0 0 rgba(255, 255, 255, 0.8);
-    --card-blur: blur(16px) saturate(180%);
-
-  --bg-msg-user: #eff6ff;
-  --text-msg-user: #004b87;
-  --border-msg-user: #dbeafe;
-  --bg-msg-assistant: #f8fafc;
-  --text-msg-assistant: #1e293b;
-  --border-msg-assistant: #e2e8f0;
-}
-
-.dark {
-  /* Crystal Liquid Glass Theme (Dark) */
-    --bg-app: #000000; /* True Void Base */
-    --bg-card: rgba(20, 20, 25, 0.4); /* Highly Transparent */
-    --bg-popover: rgba(10, 10, 15, 0.9);
-    
-    --border: rgba(255, 255, 255, 0.06); /* Ultra subtle */
-    --border-hover: rgba(255, 255, 255, 0.15);
-    --border-light: rgba(255, 255, 255, 0.03);
-
-    --text-primary: #f1f5f9; /* Slate 100 - Crisp but not harsh */
-    --text-secondary: #94a3b8; /* Slate 400 */
-    --text-muted: #64748b; /* Slate 500 */
-
-    --brand: #38bdf8; /* Sky 400 - Vibrant Liquid Blue */
-    --brand-gradient: linear-gradient(135deg, #38bdf8 0%, #818cf8 100%);
-    --brand-glow: 0 0 30px rgba(56, 189, 248, 0.2);
-    --brand-light: rgba(56, 189, 248, 0.1);
-
-    --green: #4ade80;
-    --green-bg: rgba(74, 222, 128, 0.15);
-    --red: #f87171;
-    --red-bg: rgba(248, 113, 113, 0.15);
-
-    /* Liquid Glass Shadows & Blur */
-    --glass-shadow: 
-      0 8px 32px 0 rgba(0, 0, 0, 0.5),
-      inset 0 1px 0 0 rgba(255, 255, 255, 0.05);
-    --card-blur: blur(40px) saturate(140%);
-}
-
 @layer base {
+  :root {
+    /* DEFAULT (DARK) THEME - "Architectural Void" */
+    /* Typography */
+    --font-sans: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --font-mono: 'JetBrains Mono', 'Menlo', 'Monaco', 'Courier New', monospace;
+
+    /* Backgrounds */
+    --bg-app: #030303;
+    --bg-panel: #0a0a0a;
+    --bg-card: #111111;
+
+    /* Borders */
+    --border: #333333;
+    --border-subtle: #222222;
+    --border-highlight: #555555;
+
+    /* Text */
+    --text-primary: #ededed;
+    --text-secondary: #a1a1aa;
+    --text-muted: #52525b;
+
+    /* Accents */
+    --brand: #ffffff;
+    --accent: #29bc9b;
+    --danger: #f55a4e;
+    --blue-glow: #3291ff;
+
+    /* Misc */
+    --header-height: 64px;
+    --card-shadow: 0 0 30px -10px rgba(255, 255, 255, 0.1);
+  }
+
+  /* LIGHT THEME - "Paper & Ink" */
+  [data-theme='light'] {
+    /* Backgrounds */
+    --bg-app: #ffffff;
+    --bg-panel: #f4f4f5;
+    --bg-card: #ffffff;
+
+    /* Borders */
+    --border: #e4e4e7;
+    --border-subtle: #f4f4f5;
+    --border-highlight: #d4d4d8;
+
+    /* Text */
+    --text-primary: #09090b;
+    --text-secondary: #52525b;
+    --text-muted: #a1a1aa;
+
+    /* Accents */
+    --brand: #000000;
+    --accent: #10b981;
+    --danger: #ef4444;
+    --blue-glow: #2563eb;
+
+    /* Misc */
+    --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  }
+
   body {
-    @apply bg-[var(--bg-app)] text-[var(--text-primary)] antialiased;
+    @apply bg-[var(--bg-app)] text-[var(--text-primary)] antialiased leading-relaxed overflow-x-hidden;
     font-family: var(--font-sans);
-    margin: 0;
-      padding: 0;
-      overflow: hidden;
-      background: #000;
-      /* Solid base to prevent flickering */
-    }
-    
-    #root {
-      margin: 0;
-      padding: 0;
-      height: 100vh;
-      width: 100%;
+    letter-spacing: -0.015em;
+  }
+
+  /* The "Grid" Background - Adaptive */
+  body::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image:
+      linear-gradient(to right, var(--border-subtle) 1px, transparent 1px),
+      linear-gradient(to bottom, var(--border-subtle) 1px, transparent 1px);
+    background-size: 60px 60px;
+    mask-image: radial-gradient(circle at center, black 40%, transparent 100%);
+    opacity: 0.4;
+    pointer-events: none;
+    z-index: -1;
+  }
+}
+
+@layer utilities {
+  .tracking-tighter-hero {
+    letter-spacing: -0.04em;
+  }
+
+  .text-glow {
+    text-shadow: 0 0 20px var(--brand);
   }
 }
 
 @layer components {
-  .card {
-    @apply bg-[var(--bg-card)] border border-[var(--border)] rounded-2xl p-5 transition-all duration-300;
-    backdrop-filter: var(--card-blur);
-    box-shadow: var(--glass-shadow);
-      background-image: linear-gradient(145deg, rgba(255, 255, 255, 0.03) 0%, transparent 100%);
-    }
-    
-    .glass-panel {
-      @apply bg-[var(--bg-card)] border border-[var(--border)];
-      backdrop-filter: var(--card-blur);
-      box-shadow: var(--glass-shadow);
+  /* Architectural Card */
+  .arch-card {
+    @apply bg-[var(--bg-card)] border border-[var(--border)] relative overflow-hidden transition-all duration-200;
   }
 
-  .card:hover {
-    @apply border-[var(--border-hover)] shadow-2xl;
+  .arch-card:hover {
+    border-color: var(--border-highlight);
+    box-shadow: var(--card-shadow);
+  }
+
+  .arch-inner {
+    @apply p-6;
+  }
+
+  .font-mono-numbers {
+    font-family: var(--font-mono);
+    letter-spacing: -0.03em;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Buttons */
+  .btn-arch {
+    @apply px-4 py-2 rounded-md font-medium text-sm transition-all;
+    background: var(--text-primary);
+    color: var(--bg-app);
+    border: 1px solid var(--text-primary);
+  }
+
+  .btn-arch:hover {
+    background: transparent;
+    color: var(--text-primary);
+  }
+
+  .btn-arch-ghost {
+    @apply px-4 py-2 rounded-md font-medium text-sm transition-all;
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-secondary);
+  }
+
+  .btn-arch-ghost:hover {
+    border-color: var(--text-primary);
+    color: var(--text-primary);
+    background: var(--bg-panel);
   }
 }
 
-@keyframes shimmer {
-  100% {
-    transform: translateX(100%);
-  }
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
 }
-/* 
-  EMERGENCY PURGE: Shadow DOM Glow & Vignette 
-  These target the search-defiant #preact-border-shadow-host
-*/
-#preact-border-shadow-host {
-  display: none !important;
-  opacity: 0 !important;
-  visibility: hidden !important;
-  pointer-events: none !important;
+::-webkit-scrollbar-track {
+  background: var(--bg-app);
 }
-
-[id*="preact-border-shadow"] {
-  display: none !important;
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-secondary);
 }
 
-.animate-breathing {
-  animation: none !important;
+/* Recharts Overrides */
+.recharts-cartesian-grid-horizontal line,
+.recharts-cartesian-grid-vertical line {
+  stroke: var(--border-subtle) !important;
+  stroke-opacity: 1;
 }
 
-/* Ensure all decorative vignettes are non-blocking */
-div[class*="vignette"],
-div[class*="glow-overlay"] {
-  pointer-events: none !important;
+.recharts-tooltip-cursor {
+  stroke: var(--text-muted) !important;
+  stroke-dasharray: 3 3;
 }

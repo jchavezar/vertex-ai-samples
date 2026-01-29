@@ -59,6 +59,15 @@ const AdvancedPanel: React.FC<AdvancedPanelProps> = ({ onDragStart }) => {
   const { messages, input, handleInputChange, handleSubmit, isLoading, traceLogs, topology, executionPath, nodeDurations, nodeMetrics, lastLatency, startTime, selectedModel, sessionId, stop, resetChat, image, handleImageSelect, clearImage } = useWorkstationChat();
   const { isChatMaximized, toggleChatMaximized, chatDockPosition, theme } = useDashboardStore();
   const fileInputRef = React.useRef<HTMLInputElement>(null);
+  const textareaRef = React.useRef<HTMLTextAreaElement>(null);
+
+  // Auto-resize textarea
+  React.useEffect(() => {
+    if (textareaRef.current) {
+      textareaRef.current.style.height = 'auto'; // Reset to shrink
+      textareaRef.current.style.height = `${Math.min(textareaRef.current.scrollHeight, 200)}px`; // Grow up to 200px
+    }
+  }, [input]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -283,7 +292,7 @@ const AdvancedPanel: React.FC<AdvancedPanelProps> = ({ onDragStart }) => {
       <div className="flex-1 overflow-hidden relative">
 
         {/* CHAT TAB */}
-        <div className={`absolute inset-0 flex flex-col transition-opacity duration-300 ${activeTab === 'chat' ? 'opacity-100 z-10' : 'opacity-0 z-0 pointer-events-none'}`}>
+        <div className={`absolute inset-0 flex flex-col ${activeTab === 'chat' ? 'z-10' : 'hidden'}`}>
           <div
             ref={scrollContainerRef}
             onScroll={handleScroll}
@@ -467,20 +476,28 @@ const AdvancedPanel: React.FC<AdvancedPanelProps> = ({ onDragStart }) => {
                 >
                   <ImageIcon size={20} />
                 </button>
-                <input
+                <textarea
+                  ref={textareaRef}
                   value={input}
                   onChange={handleInputChange}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                      e.preventDefault();
+                      e.currentTarget.form?.requestSubmit();
+                    }
+                  }}
                   placeholder="Ask anything..."
+                  rows={1}
                   className={clsx(
-                    "w-full rounded-xl py-3 px-4 pr-12 outline-none transition-all text-sm min-w-0 flex-1",
-                    isDark ? "bg-[var(--bg-app)] border border-[var(--border)] focus:ring-2 focus:ring-[var(--brand)] focus:border-transparent placeholder:text-gray-400 text-gray-200" :
-                      "bg-white border border-gray-200 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 focus:shadow-md placeholder:text-slate-400 text-slate-800"
+                    "w-full rounded-xl py-3 px-4 pr-12 outline-none transition-all text-sm min-w-0 flex-1 resize-none overflow-y-auto no-scrollbar",
+                    isDark ? "bg-[var(--bg-app)] border border-[var(--border)] focus:outline-none placeholder:text-gray-400 text-gray-200" :
+                      "bg-white border border-gray-200 focus:outline-none placeholder:text-slate-400 text-slate-800"
                   )}
                 />
                 <button
                   disabled={isLoading}
                   type="submit"
-                  className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 bg-[var(--brand)] text-white rounded-lg hover:bg-blue-600 disabled:opacity-50 transition-colors shrink-0"
+                  className="absolute right-2 bottom-2 p-1.5 bg-[var(--brand)] text-white rounded-lg hover:bg-blue-600 disabled:opacity-50 transition-colors shrink-0"
                 >
                   <MessageSquare size={16} />
                 </button>
@@ -490,7 +507,7 @@ const AdvancedPanel: React.FC<AdvancedPanelProps> = ({ onDragStart }) => {
         </div>
 
         {/* GRAPH TAB */}
-        <div className={`absolute inset-0 bg-[var(--bg-app)] transition-opacity duration-300 ${activeTab === 'graph' ? 'opacity-100 z-10' : 'opacity-0 z-0 pointer-events-none'}`}>
+        <div className={`absolute inset-0 bg-[var(--bg-app)] ${activeTab === 'graph' ? 'z-10' : 'hidden'}`}>
           <AgentGraph
             topology={topology}
             executionPath={executionPath}
@@ -501,12 +518,12 @@ const AdvancedPanel: React.FC<AdvancedPanelProps> = ({ onDragStart }) => {
         </div>
 
         {/* TRACE TAB */}
-        <div className={`absolute inset-0 bg-[var(--bg-app)] transition-opacity duration-300 overflow-y-auto ${activeTab === 'trace' ? 'opacity-100 z-10' : 'opacity-0 z-0 pointer-events-none'}`}>
+        <div className={`absolute inset-0 bg-[var(--bg-app)] overflow-y-auto ${activeTab === 'trace' ? 'z-10' : 'hidden'}`}>
           <TraceLog logs={traceLogs} selectedModel={selectedModel} isLoading={isLoading} />
         </div>
 
         {/* REASONING TAB */}
-        <div className={`absolute inset-0 bg-[var(--bg-app)] transition-opacity duration-300 ${activeTab === 'reasoning' ? 'opacity-100 z-10' : 'opacity-0 z-0 pointer-events-none'}`}>
+        <div className={`absolute inset-0 bg-[var(--bg-app)] ${activeTab === 'reasoning' ? 'z-10' : 'hidden'}`}>
           <ReasoningTab sessionId={sessionId} isActive={activeTab === 'reasoning'} />
         </div>
 
