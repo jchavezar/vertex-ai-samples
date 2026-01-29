@@ -6,6 +6,7 @@ import { PeerPackGrid } from './PeerPackGrid';
 import { useDashboardStore } from '../../store/dashboardStore';
 import { Zap } from 'lucide-react';
 import { clsx } from "clsx";
+import { PerformanceChart } from '../dashboard/PerformanceChart';
 
 interface StreamingMarkdownProps {
   content: string;
@@ -13,14 +14,15 @@ interface StreamingMarkdownProps {
   className?: string;
 }
 
-
-
 const SCRAMBLE_CHARS = "ABCDEF0123456789!@#$%^&*()_+";
 
 export const StreamingMarkdown: React.FC<StreamingMarkdownProps> = ({ content, isStreaming, className }) => {
   const [displayedContent, setDisplayedContent] = useState(isStreaming ? '' : content);
   const [scrambleSuffix, setScrambleSuffix] = useState('');
   
+  // Chart extraction logic
+  const [chartData, setChartData] = useState<any>(null);
+
   // Use a ref to track the animation loop state
   const stateRef = useRef({
     displayedContent: isStreaming ? '' : content,
@@ -28,16 +30,49 @@ export const StreamingMarkdown: React.FC<StreamingMarkdownProps> = ({ content, i
     lastFrameTime: 0,
   });
 
+  // Extract Chart Data & Clean Content
+  // We do this derived calculation to ensure targetContent is always "clean" (no JSON)
+  const getCleanContentAndChart = (rawContent: string) => {
+    let clean = rawContent;
+    let extractedChart = null;
+
+    // 1. Try to find complete block
+    const chartMatch = rawContent.match(/\[CHART\]([\s\S]*?)\[\/CHART\]/);
+    if (chartMatch && chartMatch[1]) {
+      try {
+        extractedChart = JSON.parse(chartMatch[1]);
+        clean = rawContent.replace(chartMatch[0], ''); // Remove full block
+      } catch (e) {
+        console.error("Failed to parse chart data", e);
+      }
+    } else {
+      // 2. If no complete block, check for partial to hide it while streaming
+      const partialMatch = rawContent.match(/\[CHART\][\s\S]*/);
+      if (partialMatch) {
+        clean = rawContent.replace(partialMatch[0], ''); // Hide partial
+      }
+    }
+
+    return { clean, extractedChart };
+  };
+
+  const { clean: cleanTargetContent, extractedChart: derivedChart } = getCleanContentAndChart(content);
+
   // Sync ref with props
   useEffect(() => {
-    stateRef.current.targetContent = content;
+    stateRef.current.targetContent = cleanTargetContent;
+
+    if (derivedChart) {
+      setChartData(derivedChart);
+    }
+
     // If not streaming, align immediately
     if (!isStreaming) {
-      setDisplayedContent(content);
-      stateRef.current.displayedContent = content;
+      setDisplayedContent(cleanTargetContent);
+      stateRef.current.displayedContent = cleanTargetContent;
       setScrambleSuffix('');
     }
-  }, [content, isStreaming]);
+  }, [content, isStreaming, cleanTargetContent, derivedChart]); // Added dependencies
 
   useEffect(() => {
     if (!isStreaming) return;
@@ -94,6 +129,10 @@ export const StreamingMarkdown: React.FC<StreamingMarkdownProps> = ({ content, i
   }, [isStreaming]);
 
   const { theme } = useDashboardStore();
+
+  // Note: content prop might contain [ANALYST COPILOT] but CleanContent might have stripped it?
+  // Actually, getCleanContentAndChart only strips [CHART].
+  // So [ANALYST COPILOT] remains in displayedContent if present.
   const isAnalystCopilot = content.includes('[ANALYST COPILOT]');
 
   // Clean content for display (remove tags)
@@ -151,6 +190,23 @@ export const StreamingMarkdown: React.FC<StreamingMarkdownProps> = ({ content, i
         {displayStr}
       </ReactMarkdown>
 
+      {/* Render Chart if present */}
+      {chartData && (
+        <div className={clsx(
+          "mt-4 mb-2 rounded-2xl overflow-hidden border shadow-sm transition-all animate-in fade-in slide-in-from-bottom-4 duration-700",
+          theme === 'dark' ? "bg-white/5 border-white/10" : "bg-white border-slate-200"
+        )}>
+          <div className="h-[350px] w-full p-4 relative">
+            <div className="absolute top-4 left-6 z-10 flex flex-col">
+              <span className={clsx("text-lg font-bold", theme === 'dark' ? "text-white" : "text-slate-800")}>
+                {chartData.title || "Market Data"}
+              </span>
+            </div>
+            <PerformanceChart ticker={chartData.title?.split(' ')[0] || "Unknown"} externalData={chartData} />
+          </div>
+        </div>
+      )}
+
       {structuredData && !isStreaming && (
         <div className="flex justify-start mt-4">
           <button
@@ -172,7 +228,7 @@ export const StreamingMarkdown: React.FC<StreamingMarkdownProps> = ({ content, i
 
       {peerPackData && !isAnalystCopilot && <PeerPackGrid peers={peerPackData} theme={theme} />}
 
-      {isStreaming && displayedContent.length < content.length && (
+      {isStreaming && displayedContent.length < cleanTargetContent.length && (
         <span className="inline-flex items-center ml-0.5 align-baseline">
           {scrambleSuffix && (
             <span className="text-cyan-400 opacity-80 font-mono text-xs mr-0.5 select-none blur-[0.5px]">
@@ -199,4 +255,16 @@ export const StreamingMarkdown: React.FC<StreamingMarkdownProps> = ({ content, i
       )}
     </div>
   );
+};
+return (
+  <div className={`markdown-content relative leading-relaxed ${className || ''}`}>
+    {isAnalystCopilot ? (
+      <MacroPerspectiveCard theme={theme}>
+        {renderContent()}
+      </MacroPerspectiveCard>
+    ) : (
+      renderContent()
+    )}
+  </div>
+);
 };
