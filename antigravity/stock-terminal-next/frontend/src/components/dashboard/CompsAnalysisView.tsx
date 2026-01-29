@@ -11,7 +11,7 @@ import { LogOverlay } from './LogOverlay';
 
 import { Peer } from './types';
 
-const API_BASE_URL = 'http://localhost:8001';
+const API_BASE_URL = 'http://localhost:8002';
 
 export const CompsAnalysisView: React.FC = () => {
   const { ticker, compsAnalysis, setCompsAnalysis, setTicker } = useDashboardStore();

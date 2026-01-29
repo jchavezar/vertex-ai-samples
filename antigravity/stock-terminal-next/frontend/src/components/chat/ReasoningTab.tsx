@@ -21,7 +21,7 @@ export const ReasoningTab: React.FC<ReasoningTabProps> = ({ sessionId = "default
     let isMounted = true;
     const poll = async () => {
       try {
-        const res = await fetch(`http://localhost:8001/session/${sessionId}/reasoning`);
+        const res = await fetch(`http://localhost:8002/session/${sessionId}/reasoning`);
         if (res.ok) {
           const data = await res.json();
           if (isMounted) {

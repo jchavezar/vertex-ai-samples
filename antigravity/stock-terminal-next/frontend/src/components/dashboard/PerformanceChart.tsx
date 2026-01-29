@@ -26,6 +26,14 @@ export const PerformanceChart: React.FC<PerformanceChartProps> = ({ ticker, exte
   const isMultiSeries = externalData?.series && externalData.series.length > 0;
 
   const formatXAxis = (tickItem: any) => {
+    if (typeof tickItem === 'number') {
+      if (Math.abs(tickItem) >= 1.0e+12) return (tickItem / 1.0e+12).toFixed(1) + "T";
+      if (Math.abs(tickItem) >= 1.0e+9) return (tickItem / 1.0e+9).toFixed(1) + "B";
+      if (Math.abs(tickItem) >= 1.0e+6) return (tickItem / 1.0e+6).toFixed(1) + "M";
+      if (Math.abs(tickItem) >= 1.0e+3) return (tickItem / 1.0e+3).toFixed(1) + "K";
+      return tickItem;
+    }
+
     if (!tickItem || typeof tickItem !== 'string') return tickItem;
 
     const match = tickItem.match(/^(\d{4})-(\d{2})-(\d{2})$/);
@@ -42,22 +50,79 @@ export const PerformanceChart: React.FC<PerformanceChartProps> = ({ ticker, exte
     return tickItem;
   };
 
-  const getLabelKey = (data: any[]) => {
-    if (!data || data.length === 0) return 'label';
+  const getValueKeys = (data: any[]) => {
+    if (!data || data.length === 0) return ['value'];
     const first = data[0];
-    if ('label' in first) return 'label';
-    if ('regionName' in first) return 'regionName';
-    if ('countryName' in first) return 'countryName';
-    return 'label';
+    const keys = Object.keys(first);
+
+    // Filter for numeric keys that aren't common metadata or ID keys
+    const numericKeys = keys.filter(k =>
+      typeof first[k] === 'number' &&
+      !['fiscalYear', 'fiscalPeriod', 'relativePeriod', 'estimateCount', 'up', 'down', 'isNormalized'].includes(k)
+    );
+
+    if (numericKeys.length > 0) return numericKeys;
+    return ['value'];
   };
 
   const getValueKey = (data: any[]) => {
-    if (!data || data.length === 0) return 'value';
+    return getValueKeys(data)[0];
+  };
+
+  const getLabelKey = (data: any[]) => {
+    if (!data || data.length === 0) return 'label';
     const first = data[0];
-    if ('value' in first) return 'value';
-    if ('regionRevenue' in first) return 'regionRevenue';
-    if ('countryRevenue' in first) return 'countryRevenue';
-    return 'value';
+
+    // Priority keys
+    if ('category' in first) return 'category';
+    if ('label' in first) return 'label';
+    if ('ticker' in first) return 'ticker';
+    if ('company' in first) return 'company';
+    if ('name' in first) return 'name';
+    if ('regionName' in first) return 'regionName';
+    if ('countryName' in first) return 'countryName';
+
+    // Fallback: first string key
+    const keys = Object.keys(first);
+    const stringKey = keys.find(k => typeof first[k] === 'string');
+    return stringKey || keys[0] || 'label';
+  };
+
+  /**
+   * Smart Pivot: If the data is "flat" (e.g. multiple rows for the same entity with different metrics),
+   * this groups them so Recharts can render grouped bars.
+   */
+  const pivotData = (data: any[]) => {
+    if (!data || data.length === 0) return data;
+
+    // If it already has multiple numeric keys, it's likely already pivoted
+    if (getValueKeys(data).length > 1) return data;
+
+    const labelKey = getLabelKey(data);
+    const valueKey = getValueKeys(data)[0];
+
+    // Check if labels follow a "Category - Metric" or "Metric - Category" pattern
+    // This is a heuristic to group items like "GOOGL Rev", "GOOGL NI" into a "GOOGL" category.
+    const pivoted: any[] = [];
+    const groups: { [key: string]: any } = {};
+
+    data.forEach(item => {
+      const fullLabel = String(item[labelKey]);
+      // Search for common delimiters or split points
+      // Tickers are usually uppercase 1-5 chars
+      const tickerMatch = fullLabel.match(/^([A-Z]{1,5})\b/);
+      const category = tickerMatch ? tickerMatch[1] : fullLabel;
+      const metric = tickerMatch ? fullLabel.replace(category, "").trim() : valueKey;
+
+      if (!groups[category]) {
+        groups[category] = { [labelKey]: category, category };
+      }
+
+      const cleanMetric = metric || valueKey;
+      groups[category][cleanMetric] = item[valueKey];
+    });
+
+    return Object.values(groups);
   };
 
   let chartData: any[] = [];
@@ -186,33 +251,53 @@ export const PerformanceChart: React.FC<PerformanceChartProps> = ({ ticker, exte
       <div className="flex-1 w-full min-h-[200px] mt-4 px-2">
         <ResponsiveContainer>
           {externalData?.chartType === 'bar' && Array.isArray(externalData.data) ? (
-            <BarChart
-              layout="vertical"
-              data={externalData.data}
-              margin={{ top: 10, right: 30, left: 10, bottom: 0 }}
-            >
-              <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="var(--border)" />
-              <XAxis type="number" fontSize={10} tick={{ fill: '#8c959f' }} />
-              <YAxis
-                type="category"
-                dataKey={getLabelKey(externalData.data)}
-                fontSize={10}
-                tick={{ fill: '#8c959f' }}
-                width={120}
-              />
-              <Tooltip
-                cursor={{ fill: 'transparent' }}
-                contentStyle={{
-                  fontSize: 10,
-                  borderRadius: 2,
-                  background: 'var(--bg-card)',
-                  border: '1px solid var(--border)',
-                  color: 'var(--text-primary)',
-                  boxShadow: '0 4px 12px rgba(0,0,0,0.5)'
-                }}
-              />
-              <Bar dataKey={getValueKey(externalData.data)} fill="var(--brand)" radius={[0, 999, 999, 0]} barSize={20} />
-            </BarChart>
+            (() => {
+              const transformData = pivotData(externalData.data);
+              const labelKey = getLabelKey(transformData);
+              const valueKeys = getValueKeys(transformData);
+
+              return (
+                <BarChart
+                  layout="vertical"
+                  data={transformData}
+                  margin={{ top: 5, right: 30, left: 20, bottom: 20 }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#334155" />
+                  <XAxis
+                    type="number"
+                    stroke="#94a3b8"
+                    tick={{ fill: '#94a3b8', fontSize: 10 }}
+                    axisLine={{ stroke: '#475569' }}
+                    tickFormatter={formatXAxis}
+                  />
+                  <YAxis
+                    type="category"
+                    dataKey={labelKey}
+                    stroke="#94a3b8"
+                    tick={{ fill: '#94a3b8', fontSize: 11, fontWeight: 600 }}
+                    axisLine={{ stroke: '#475569' }}
+                    width={100}
+                  />
+                  <Tooltip
+                    contentStyle={{ backgroundColor: '#1e293b', border: '1px solid #334155', borderRadius: '12px', boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.5)' }}
+                    itemStyle={{ color: '#f8fafc', fontSize: '11px' }}
+                    labelStyle={{ color: '#94a3b8', marginBottom: '4px', fontWeight: 'bold' }}
+                    cursor={{ fill: 'rgba(255,255,255,0.05)' }}
+                  />
+                  <Legend verticalAlign="top" align="right" height={36} wrapperStyle={{ fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.05em' }} />
+                  {valueKeys.map((key, index) => (
+                    <Bar
+                      key={key}
+                      dataKey={key}
+                      fill={COLORS[index % COLORS.length]}
+                      radius={[0, 4, 4, 0]}
+                      barSize={valueKeys.length > 2 ? 15 : 25}
+                      name={key === 'value' && externalData.title ? externalData.title : (key.charAt(0).toUpperCase() + key.slice(1).replace(/([A-Z])/g, ' $1'))}
+                    />
+                  ))}
+                </BarChart>
+              );
+            })()
           ) : externalData?.chartType === 'pie' && Array.isArray(externalData.data) ? (
             <PieChart margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
               <Pie

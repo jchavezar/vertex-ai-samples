@@ -40,7 +40,7 @@ export const NeuralLinkView = () => {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const res = await fetch(`http://localhost:8001/neural_link/trends/${ticker}`);
+        const res = await fetch(`http://localhost:8002/neural_link/trends/${ticker}`);
         const json = await res.json();
         console.log("Neural Link Data:", json); // Debug Log
         setData(json);
