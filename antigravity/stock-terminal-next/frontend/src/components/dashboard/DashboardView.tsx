@@ -132,10 +132,39 @@ export const DashboardView: React.FC = () => {
         </div>
       )}
 
-      {/* NEW LAYOUT: Top Context Row + Main Workspace */}
+      {/* NEW LAYOUT: Main Workspace (Chart Top-Left) + Context Grid */}
       <div className="flex flex-col w-full max-w-[1920px] mx-auto pb-6 px-2 pt-2 gap-5 h-full">
 
-        {/* ROW 1: Context Top Bar (4 Columns) */}
+        {/* ROW 1: Main Workspace (Chart + Profile) - Takes available height */}
+        <div className="flex-1 grid grid-cols-12 gap-5 min-h-0">
+          {/* LEFT: Main Chart (Primary Focus) */}
+          <div className="col-span-9 h-full">
+            <div className="arch-card rounded-xl group/chart p-1 h-full relative">
+              <div className="absolute top-0 right-0 p-6 z-10 opacity-0 group-hover/chart:opacity-100 transition-opacity">
+                <span className="text-xs font-mono text-[var(--text-muted)] border border-[var(--border)] px-2 py-1 rounded">LIVE</span>
+              </div>
+              <PerformanceChart
+                ticker={chartOverride?.ticker || ticker}
+                externalData={chartOverride}
+                defaultData={tickerData}
+              />
+            </div>
+          </div>
+
+          {/* RIGHT: Profile (Secondary Info) */}
+          <div className="col-span-3 h-full">
+            <WidgetSlot
+              section="Profile"
+              override={widgetOverrides['Profile']}
+              isAiMode={!!chartOverride}
+              onGenerate={handleGenerateWidget}
+              tickers={tickersToAnalyze}
+              originalComponent={<SummaryPanel ticker={ticker} externalData={tickerData} />}
+            />
+          </div>
+        </div>
+
+        {/* ROW 2: Context Items (4 Columns) - Fixed Height */}
         <div className="grid grid-cols-4 gap-5 h-[220px] shrink-0">
           {/* Earnings Context */}
           <div className="h-full">
@@ -152,35 +181,6 @@ export const DashboardView: React.FC = () => {
           {/* Suggested Actions */}
           <div className="h-full">
             <SuggestedActionsCard actions={suggestedActions} />
-          </div>
-        </div>
-
-        {/* ROW 2: Main Workspace (Profile + Chart) */}
-        <div className="flex-1 grid grid-cols-12 gap-5 min-h-0">
-          {/* LEFT: Profile (Smaller width) */}
-          <div className="col-span-3 h-full">
-            <WidgetSlot
-              section="Profile"
-              override={widgetOverrides['Profile']}
-              isAiMode={!!chartOverride}
-              onGenerate={handleGenerateWidget}
-              tickers={tickersToAnalyze}
-              originalComponent={<SummaryPanel ticker={ticker} externalData={tickerData} />}
-            />
-          </div>
-
-          {/* RIGHT: Main Chart */}
-          <div className="col-span-9 h-full">
-            <div className="arch-card rounded-xl group/chart p-1 h-full relative">
-              <div className="absolute top-0 right-0 p-6 z-10 opacity-0 group-hover/chart:opacity-100 transition-opacity">
-                <span className="text-xs font-mono text-[var(--text-muted)] border border-[var(--border)] px-2 py-1 rounded">LIVE</span>
-              </div>
-              <PerformanceChart
-                ticker={chartOverride?.ticker || ticker}
-                externalData={chartOverride}
-                defaultData={tickerData}
-              />
-            </div>
           </div>
         </div>
 

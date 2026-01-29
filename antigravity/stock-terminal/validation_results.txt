@@ -1,0 +1,18 @@
+--- BASIC QUERY ---
+{"type": "topology", "data": {"nodes": [{"id": "terminal_assistant", "type": "agent", "data": {"label": "terminal_assistant", "type": "LlmAgent", "model": "gemini-3-flash-preview"}}], "edges": []}}
+{"type": "model_info", "models": ["gemini-3-flash-preview"]}
+{"type": "usage", "prompt_tokens": 234, "candidates_tokens": 15, "total_tokens": 378}
+{"type": "text", "content": "I cannot provide real-time financial numbers. Please Connect to FactSet.", "sourceAgent": "terminal_assistant"}
+
+
+--- MEDIUM QUERY ---
+{"type": "topology", "data": {"nodes": [{"id": "terminal_assistant", "type": "agent", "data": {"label": "terminal_assistant", "type": "LlmAgent", "model": "gemini-3-flash-preview"}}], "edges": []}}
+{"type": "model_info", "models": ["gemini-3-flash-preview"]}
+{"type": "usage", "prompt_tokens": 231, "candidates_tokens": 15, "total_tokens": 405}
+{"type": "text", "content": "I cannot provide real-time financial numbers. Please Connect to FactSet.", "sourceAgent": "terminal_assistant"}
+
+
+--- COMPLEX QUERY ---
+{"type": "topology", "data": {"nodes": [{"id": "terminal_assistant", "type": "agent", "data": {"label": "terminal_assistant", "type": "LlmAgent", "model": "gemini-3-flash-preview"}}], "edges": []}}
+{"type": "model_info", "models": ["gemini-3-flash-preview"]}
+{"type": "usage", "prompt_tokens": 239, "candidates_tokens": 0, "total_tokens": 239}
