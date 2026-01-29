@@ -1,7 +1,8 @@
 
 import { useEffect, useState } from 'react';
 import { useDashboardStore } from '../../store/dashboardStore';
-import { ArrowLeft, Brain, Globe, Clock, ExternalLink, Zap, Activity } from 'lucide-react';
+import { ArrowLeft, Brain, Globe, Clock, ExternalLink, Zap, Activity, Youtube } from 'lucide-react';
+import { NewsHubView } from './NewsHubView';
 import clsx from 'clsx';
 
 interface NeuralCard {
@@ -33,7 +34,7 @@ export const NeuralLinkView = () => {
   const { ticker, theme, setCurrentView } = useDashboardStore();
   const [data, setData] = useState<NeuralTrends | null>(null);
   const [loading, setLoading] = useState(true);
-    const [activeTab, setActiveTab] = useState<'news' | 'pulse'>('news');
+    const [activeTab, setActiveTab] = useState<'news' | 'pulse' | 'news-hub'>('news');
   const isDark = theme === 'dark';
 
   useEffect(() => {
@@ -147,6 +148,17 @@ export const NeuralLinkView = () => {
                           >
                               <Zap size={14} /> Social Pulse
                           </button>
+                          <button
+                              onClick={() => setActiveTab('news-hub')}
+                              className={clsx(
+                                  "px-4 py-2 rounded-full text-sm font-bold transition-all flex items-center gap-2",
+                                  activeTab === 'news-hub'
+                                      ? "bg-red-600 text-white shadow-lg shadow-red-500/20"
+                                      : "text-gray-500 hover:text-gray-300 hover:bg-white/5"
+                              )}
+                          >
+                              <Youtube size={14} /> SemiAI News Hub
+                          </button>
                       </div>
 
                       {/* Content Logic */}
@@ -206,7 +218,7 @@ export const NeuralLinkView = () => {
                                   ))}
                               </div>
                           </div>
-                      ) : (
+                      ) : activeTab === 'pulse' ? (
                           <div className="space-y-6">
                               <h3 className="text-[10px] font-black tracking-[0.2em] uppercase text-gray-500 mb-6 flex items-center gap-2">
                                   <Zap size={12} className="text-purple-400" /> SOCIAL RUMOR MILL
@@ -263,6 +275,8 @@ export const NeuralLinkView = () => {
                                   )}
                               </div>
                           </div>
+                          ) : (
+                              <NewsHubView />
                       )}
         </div>
       )}
