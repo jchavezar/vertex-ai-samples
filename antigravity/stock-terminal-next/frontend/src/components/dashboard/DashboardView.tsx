@@ -12,6 +12,8 @@ import {
   DividendStats,
   ConsensusStats
 } from './MarketDataFooter';
+import { NewsHubView } from './NewsHubView';
+
 
 export const DashboardView: React.FC = () => {
   const { 
@@ -78,6 +80,14 @@ export const DashboardView: React.FC = () => {
       setWidgetOverride(section, { loading: false, content: `Error: Failed to fetch ${section} analysis.` });
     }
   };
+
+  if (activeView === 'SemiAI News Hub') {
+    return (
+      <div className="flex-1 overflow-y-auto w-full max-w-[1920px] mx-auto p-4 no-scrollbar">
+        <NewsHubView />
+      </div>
+    );
+  }
 
   if (activeView !== 'Snapshot') {
     return (
@@ -223,6 +233,8 @@ export const DashboardView: React.FC = () => {
             />
           </div>
         </div>
+
+
 
       </div>
     </div>

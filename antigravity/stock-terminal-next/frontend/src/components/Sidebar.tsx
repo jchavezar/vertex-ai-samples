@@ -10,7 +10,8 @@ import {
   Search,
   Sparkles,
   Zap,
-  Cpu
+  Cpu,
+  Youtube
 } from 'lucide-react';
 import { useDashboardStore } from '../store/dashboardStore';
 import clsx from 'clsx';
@@ -39,6 +40,7 @@ export const Sidebar: React.FC = () => {
   const menuItems = [
     { label: 'Advanced Search', icon: Sparkles, isNew: true },
     { label: 'Reports Generator', icon: FileText, isNew: true },
+    { label: 'SemiAI News Hub', icon: Youtube, isNew: true },
     { label: 'Snapshot', icon: LayoutDashboard },
     { label: 'Entity Structure', icon: Users },
     { label: 'Event Calendar', icon: TrendingUp },
