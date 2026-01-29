@@ -118,7 +118,7 @@ async def analyze_pdf_url(url: str, query: str = "Summarize this document") -> s
         prompt = f"Analyze the attached PDF and answer this question: {query}"
         
         response = client.models.generate_content(
-            model="gemini-2.5-flash",
+            model="gemini-2.0-flash-exp",
             contents=[
                 types.Content(
                     role="user",
@@ -142,32 +142,6 @@ async def get_market_sentiment(ticker: str) -> str:
     """
     # Mock logic for demo
     return f"[CUSTOM TOOL] {ticker} sentiment is currently BULLISH based on recent social volume."
-
-async def consult_analyst_copilot(query: str = "Research macro investability context") -> str:
-    """
-    Delegates complex macro, sector, or 'investability' research to the Analyst Copilot sub-agent.
-    Use this when the user asks for high-level strategy, sector switch, or market 'opinions'.
-    """
-    from src.analyst_copilot import create_analyst_copilot
-    import google.adk as adk
-    from google.adk.sessions import InMemorySessionService
-    import secrets
-    
-    copilot = create_analyst_copilot()
-    session_service = InMemorySessionService()
-    runner = adk.Runner(app_name="copilot", agent=copilot, session_service=session_service)
-    session_id = secrets.token_hex(4)
-    await session_service.create_session(session_id=session_id, user_id="main_agent", app_name="copilot")
-    
-    final_result = ""
-    msg = types.Content(role="user", parts=[types.Part(text=query)])
-    async for event in runner.run_async(user_id="main_agent", session_id=session_id, new_message=msg):
-        if event.content and event.content.parts:
-            for part in event.content.parts:
-                if part.text:
-                    final_result += part.text
-                    
-    return f"[ANALYST COPILOT DELEGATION]\\n{final_result}"
 
 def fix_tool_params(tool_name: str, kwargs: dict) -> dict:
     """
@@ -220,18 +194,12 @@ Your mission is to provide accurate financial insights, real-time data, and inte
     - If you retrieve time-series data (prices, history) or segments (revenue by region), you **MUST** use `plot_financial_data` to visualize it.
     - **Trigger**: If user asks for "history", "trend", "performance", or "chart", you **MUST** call `plot_financial_data`.
     - Users love charts.
-    - **Data Efficiency**: When using `FactSet_GlobalPrices` for periods longer than 1 year, prefer Weekly (`W`) or Monthly (`M`) frequency to reduce data volume and avoid resource limits, unless Daily (`D`) is explicitly requested.
 
 5.  **Handling "Alphabet" / Ambiguity**:
     - "Alphabet" usually triggers a clarification between GOOGL (Class A) and GOOG (Class C).
     - If unsure, ASK or show both if easy.
 
-6.  **Analyst Copilot (Strategic Research)**:
-    - If the user asks about **"investability"**, **"market trends"**, **"macro environment"**, or to **"switch sector/view"**, you **MUST** call `consult_analyst_copilot`.
-    - Example: "I want to get up to speed on the investability of NVDA" -> Call `consult_analyst_copilot`.
-    - This specialist has access to web news and macro strategy tools you do not.
-
-7.  **Responsiveness**:
+6.  **Responsiveness**:
     - Be concise.
     - If data is not available, say so immediately. Do not loop.
 
@@ -287,8 +255,7 @@ class DelegatingTool(BaseTool):
         elif hasattr(target_tool, "input_schema"):
             self.input_schema = target_tool.input_schema
         else:
-            # Vertex AI requires parameters to be an OBJECT even if empty
-            self.input_schema = {"type": "object", "properties": {}}
+            self.input_schema = {}
 
     def _get_declaration(self):
         # Explicitly construct the declaration
@@ -404,8 +371,10 @@ class DelegatingTool(BaseTool):
 
 # --- FACTORY ---
 
-async def create_smart_agent(token: str, model_name: str = "gemini-2.5-flash", tool_observer: Any = None) -> Agent:
-    print(f"!!! CREATE SMART AGENT: model={model_name}, token_present={bool(token)}")
+async def create_smart_agent(token: str, model_name: str = "gemini-3-flash-preview", tool_observer: Any = None) -> Agent:
+    """
+    Creates a Context-Aware Smart Agent using Gemini 3.0.
+    """
     
     # Load Schemas for Injection
     loaded_schemas = {}
@@ -452,12 +421,6 @@ async def create_smart_agent(token: str, model_name: str = "gemini-2.5-flash", t
     ### FactSet_SupplyChain
     - relationshipType: MUST be one of: "COMPETITORS", "CUSTOMERS", "SUPPLIERS", "PARTNERS"
     
-    ## PLOTTING OPTIMIZATION (CRITICAL)
-    - When you retrieve a large dataset (e.g. from FactSet_GlobalPrices), the system caches it automatically.
-    - To plot this data, call `plot_financial_data` with `use_last_data=True` and omit `data_json`.
-    - Example: `plot_financial_data(title="Apple Price", chart_type="line", use_last_data=True)`
-    - **NEVER** write out the full JSON data in the `data_json` argument if you just retrieved it. It is too slow.
-    
     FAILURE TO USE EXACT VALUES WILL CAUSE API ERRORS.
     """
     
@@ -465,68 +428,6 @@ async def create_smart_agent(token: str, model_name: str = "gemini-2.5-flash", t
     global SMART_INSTRUCTIONS
     if "CRITICAL TOOL PARAMETER RULES" not in SMART_INSTRUCTIONS:
          SMART_INSTRUCTIONS += CRITICAL_RULES
-
-    # Request-Scoped Data Cache
-    request_data_cache = {"last_result": None}
-
-    # Scoped Plot Tool
-    async def plot_financial_data(title: str, chart_type: str, data_json: str = None, use_last_data: bool = False) -> str:
-        """
-        PLOTS a custom chart on the dashboard.
-        Args:
-            title: Chart title (e.g. 'Apple Stock Price 1Y').
-            chart_type: 'line', 'bar', 'pie'.
-            data_json: JSON string of data (Optional if use_last_data=True).
-            use_last_data: If True, uses the data from the most recent tool call (e.g. Prices). PREFERRED for speed.
-        """
-        import json
-        try:
-            actual_data = None
-            
-            if use_last_data:
-                logger.info("Using cached data for plot...")
-                # Extract data from cache
-                # Cache might be a dict with 'content' -> 'text' -> 'data' (MCP format) or direct list
-                cached = request_data_cache.get("last_result")
-                if cached:
-                    # Heuristic to find list of data
-                    if isinstance(cached, list):
-                        actual_data = cached
-                    elif isinstance(cached, dict):
-                        # MCP often wraps in content->text
-                        if "content" in cached and isinstance(cached["content"], list):
-                             try:
-                                 text_body = cached["content"][0]["text"]
-                                 # It might be a stringified JSON inside text, or a dict
-                                 if isinstance(text_body, str):
-                                     parsed = json.loads(text_body)
-                                     actual_data = parsed.get("data", parsed)
-                                 else:
-                                     actual_data = text_body.get("data", text_body)
-                             except:
-                                 actual_data = cached
-                        else:
-                             actual_data = cached.get("data", cached)
-                
-                if not actual_data:
-                    return "Error: No cached data found. Please provide data_json."
-            else:
-                if not data_json: return "Error: data_json is required if use_last_data=False."
-                if isinstance(data_json, str):
-                    try:
-                        _ = json.loads(data_json)
-                        actual_data = json.loads(data_json)
-                    except:
-                        actual_data = data_json # Raw string?
-                else:
-                    actual_data = data_json
-            
-            # Ensure actual_data is serializable
-            payload = json.dumps({"title": title, "chartType": chart_type, "data": actual_data})
-            return f"[CHART]{payload}[/CHART] I've generated the {chart_type} chart for {title}."
-        except Exception as e:
-            logger.error(f"Chart payload error: {e}")
-            return f"Error generating chart: {e}"
 
     # Wrapper Helper using DelegatingTool
     def wrap_tool(tool_func):
@@ -536,25 +437,11 @@ async def create_smart_agent(token: str, model_name: str = "gemini-2.5-flash", t
              schema = loaded_schemas[t_name].get("parameters", {})
              logger.info(f"Smart Agent: Injected robust schema for {t_name}")
         
-        # Intercept Result for Cache
-        original_observer = tool_observer
-        
-        async def caching_observer(name, args, kwargs, result):
-            # Cache the result if it looks like data
-            # We blindly cache the last result
-            request_data_cache["last_result"] = result
-            # Chain to original
-            if original_observer:
-                if asyncio.iscoroutinefunction(original_observer):
-                    await original_observer(name, args, kwargs, result)
-                else:
-                    original_observer(name, args, kwargs, result)
-
-        return DelegatingTool(tool_func, schema_override=schema, observer=caching_observer)
+        return DelegatingTool(tool_func, schema_override=schema, observer=tool_observer)
 
     # 1. Base Tools (Wrapped)
     # REMOVED google_search as per user request to prevent fallback hallucinations
-    base_tools = [get_current_datetime, plot_financial_data, analyze_pdf_url, get_market_sentiment, consult_analyst_copilot]
+    base_tools = [get_current_datetime, plot_financial_data, analyze_pdf_url, get_market_sentiment]
     tools = [wrap_tool(t) for t in base_tools]
     
     # Integrate FactSet/MCP if token is available
@@ -568,41 +455,39 @@ async def create_smart_agent(token: str, model_name: str = "gemini-2.5-flash", t
             mcp_tools = await create_mcp_toolset_for_token(token)
             
             if mcp_tools:
+                print(f"!!! SMART AGENT TOOLS FETCHED: {[t.name for t in mcp_tools]}", flush=True)
+                
                 safe_mcp_tools = []
                 for tool in mcp_tools:
-                    # SAFE NAME RETRIEVAL
-                    if hasattr(tool, 'name'):
-                        name_attr = tool.name
-                    elif hasattr(tool, '__name__'):
-                        name_attr = tool.__name__
-                    else:
-                        name_attr = "UNKNOWN_TOOL"
-                        
-                    original_name = name_attr.lower()
-                    original_name = name_attr.lower()
+                    # STRICT FILTERING & RENAMING
+                    original_name = getattr(tool, 'name', '').lower()
                     
                     if original_name.startswith("factset_"):
                         target_name = FACTSET_TOOL_MAPPING.get(original_name)
-                        if target_name:
-                             # Rename the tool safely
-                             try:
-                                 tool.name = target_name 
-                             except:
-                                 pass
-                             
-                             # Apply Wrapper (Schema Injection Happens Here)
-                             wrapped_tool = wrap_tool(tool)
-                             safe_mcp_tools.append(wrapped_tool)
-                             continue
-                        else:
-                            # Skip unknown FactSet tools to prevent LLM confusion
+                        if not target_name:
+                            # Try to match by suffix if exact match fails (e.g. casing differences)
+                            # But specifically remove "factset_prices" if it's not in the mapping.
+                            if original_name == "factset_prices":
+                                logger.info(f"Skipping unauthorized tool: {original_name}")
+                                continue
+                            
                             logger.info(f"Skipping unknown FactSet tool: {original_name}")
                             continue
-                    
-                    # Also allow injected non-factset tools (e.g. google_search)
-                    logger.info(f"Adding non-FactSet Tool: {name_attr}")
-                    wrapped_tool = wrap_tool(tool)
-                    safe_mcp_tools.append(wrapped_tool)
+                            
+                        # Rename the tool
+                        tool.name = target_name
+                        logger.info(f"Renamed tool '{original_name}' -> '{target_name}'")
+                        
+                        # Apply Wrapper (Schema Injection Happens Here)
+                        wrapped_tool = wrap_tool(tool)
+                        safe_mcp_tools.append(wrapped_tool)
+
+                    else:
+                        # MCP tools are compatible with ADK Agent if they implement run_async or are callable.
+                        # We pass them directly to preserve schema and signature.
+                        logger.info(f"Adding MCP Tool direct: {tool.name}")
+                        wrapped_tool = wrap_tool(tool)
+                        safe_mcp_tools.append(wrapped_tool)
                     
                 tools.extend(safe_mcp_tools)
 

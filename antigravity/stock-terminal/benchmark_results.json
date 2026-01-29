@@ -1,0 +1,30 @@
+[
+  {
+    "name": "Basic (Fundamentals)",
+    "total_time": 1.88214111328125,
+    "ttft": 1.8821158409118652,
+    "first_tool_time": 0,
+    "tool_count": 0
+  },
+  {
+    "name": "Medium (People - Structured)",
+    "total_time": 4.001341819763184,
+    "ttft": 4.001317024230957,
+    "first_tool_time": 0,
+    "tool_count": 0
+  },
+  {
+    "name": "Complex (Parallel Comparison)",
+    "total_time": 4.020714044570923,
+    "ttft": 4.02069091796875,
+    "first_tool_time": 0,
+    "tool_count": 0
+  },
+  {
+    "name": "Complex (Estimates Surprise)",
+    "total_time": 2.009347915649414,
+    "ttft": 2.0093278884887695,
+    "first_tool_time": 0,
+    "tool_count": 0
+  }
+]
