@@ -30,12 +30,12 @@ from src.latency_logger import logger as llog
 from src.smart_agent import create_smart_agent
 from src.market_data import get_real_price, get_real_history
 from src.reasoning_agent import ReasoningAgent
+from src.comps_agent import run_comps_intelligence
 
 # Global Store for Reasoning (Simple Dict for InMemory)
 # session_id -> markdown string
 reasoning_store: Dict[str, str] = {}
-from src.reasoning_agent import ReasoningAgent
-from src.neural_link_agent import neural_service
+reasoning_agent_service = ReasoningAgent()
 
 # Load Env
 load_dotenv(dotenv_path="../.env")
@@ -276,8 +276,6 @@ class ChatRequest(BaseModel):
     messages: List[Dict[str, Any]]
     sessionId: Optional[str] = "default_chat"
     model: Optional[str] = "gemini-2.5-flash"
-    image: Optional[str] = None
-    mimeType: Optional[str] = None
 
 @app.get("/session/{session_id}/reasoning")
 async def get_reasoning(session_id: str):
@@ -286,15 +284,6 @@ async def get_reasoning(session_id: str):
     if not narrative:
         return {"status": "pending", "narrative": None}
     return {"status": "complete", "narrative": narrative}
-
-@app.get("/neural_link/trends/{ticker}")
-async def get_neural_trends(ticker: str):
-    """
-    Get Neural Link trends for a ticker using Google Search Agent.
-    """
-    print(f"Neural Link Request for {ticker}")
-    trends = await neural_service.get_trends(ticker)
-    return trends
 
 from fastapi import BackgroundTasks
 
@@ -366,15 +355,7 @@ async def chat_endpoint(req: ChatRequest, background_tasks: BackgroundTasks):
              await session_service.create_session(session_id=session_id, app_name="stock_terminal", user_id="user_1")
         # print("DEBUG: Session Ready", flush=True)
 
-        parts = [Part(text=user_query)]
-        if req.image and req.mimeType:
-             try:
-                  img_bytes = base64.b64decode(req.image)
-                  parts.append(Part.from_bytes(data=img_bytes, mime_type=req.mimeType))
-             except Exception as e:
-                  print(f"Error decoding image: {e}")
-
-        new_message = Content(role="user", parts=parts)
+        new_message = Content(role="user", parts=[Part(text=user_query)])
         
         buffer = ""
         active_tool_ids = {} # name -> list of pending IDs
@@ -1100,6 +1081,36 @@ async def report_stream_endpoint(ticker: str, type: str):
         generator = report_agent.generate_earnings_recap(ticker, token)
         
     return StreamingResponse(generator, media_type="application/x-ndjson")
+
+@app.get("/comps-analysis/stream")
+async def comps_analysis_stream(ticker: str, context: Optional[str] = "", session_id: Optional[str] = "comps_default"):
+    """
+    Streams deep competitor intelligence for the Comps Analysis workspace.
+    """
+    async def generate():
+        try:
+            # Emit Neural Sync Start
+            yield json.dumps({"type": "neural_sync", "status": "active", "message": "Establishing isolated data pipe..."}) + "\n"
+            await asyncio.sleep(0.5)
+            
+            # Retrieve a valid token for FactSet tools
+            token = await get_valid_factset_token(session_id)
+            
+            # Run Intelligence Agent
+            async for event in run_comps_intelligence(ticker, session_id, context, token):
+                if event["type"] == "reasoning":
+                    yield json.dumps({"type": "reasoning", "message": event["message"], "progress": event.get("progress")}) + "\n"
+                elif event["type"] == "intel":
+                    yield json.dumps({"type": "intel", "data": event["data"]}) + "\n"
+                elif event["type"] == "error":
+                    yield json.dumps({"type": "error", "message": event["message"]}) + "\n"
+            
+            # Emit Neural Sync Complete
+            yield json.dumps({"type": "neural_sync", "status": "synchronized", "message": "Intelligence synchronized."}) + "\n"
+        except Exception as e:
+            yield json.dumps({"type": "error", "message": str(e)}) + "\n"
+            
+    return StreamingResponse(generate(), media_type="application/x-ndjson")
 
 if __name__ == "__main__":
     import uvicorn
