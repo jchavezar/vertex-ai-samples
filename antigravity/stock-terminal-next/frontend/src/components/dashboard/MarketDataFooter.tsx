@@ -1,3 +1,5 @@
+import React from 'react';
+
 interface MarketDataFooterProps {
   tickerData?: any;
 }
@@ -16,112 +18,83 @@ export const MarketDataFooter: React.FC<MarketDataFooterProps> = ({ tickerData }
   };
 
   return (
-    <div className="w-full h-full grid grid-cols-12 gap-4 items-center px-4">
-      {/* TRADING */}
-      <div className="col-span-3 flex flex-col justify-center h-full border-r border-[var(--border-subtle)] pr-4">
-        <div className="text-[9px] font-bold text-[var(--text-muted)] tracking-[0.2em] mb-1.5 uppercase opacity-80 flex items-center gap-2">
-          <span className="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
-          TRADING
+    <div className="w-full h-full flex items-center justify-between px-6">
+      {/* TRADING SECTION */}
+      <div className="flex items-center gap-6 border-r border-[var(--border-subtle)] pr-8">
+        <div className="flex items-center gap-2">
+          <div className="w-1.5 h-1.5 rounded-full bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.5)]"></div>
+          <span className="text-[10px] font-black text-[var(--text-muted)] tracking-[0.15em] uppercase">TRADING</span>
         </div>
-        <div className="grid grid-cols-2 gap-x-2 gap-y-1">
-          <div>
-            <span className="block text-[9px] uppercase text-[var(--text-muted)] font-medium">Open</span>
-            <span className="block text-sm font-bold text-[var(--text-primary)] font-mono">{formatValue(tickerData?.price, '$')}</span>
-          </div>
-          <div>
-            <span className="block text-[9px] uppercase text-[var(--text-muted)] font-medium">Volume</span>
-            <span className="block text-sm font-bold text-[var(--text-primary)] font-mono">1.2M</span>
-          </div>
-          <div>
-            <span className="block text-[9px] uppercase text-[var(--text-muted)] font-medium">High</span>
-            <span className="block text-sm font-bold text-[var(--text-secondary)] font-mono">{formatValue(tickerData?.fiftyTwoWeekHigh, '$')}</span>
-          </div>
-          <div>
-            <span className="block text-[9px] uppercase text-[var(--text-muted)] font-medium">Low</span>
-            <span className="block text-sm font-bold text-[var(--text-secondary)] font-mono">{formatValue(tickerData?.fiftyTwoWeekLow, '$')}</span>
-          </div>
+        <div className="flex items-center gap-5">
+          <DataItem label="OPEN" value={formatValue(tickerData?.price, '$')} />
+          <DataItem label="VOL" value="1.2M" />
+          <DataItem label="52W H" value={formatValue(tickerData?.fiftyTwoWeekHigh, '$')} dimmed />
+          <DataItem label="52W L" value={formatValue(tickerData?.fiftyTwoWeekLow, '$')} dimmed />
         </div>
       </div>
 
-      {/* VALUATION */}
-      <div className="col-span-3 flex flex-col justify-center h-full border-r border-[var(--border-subtle)] pr-4 pl-2">
-        <div className="text-[9px] font-bold text-[var(--text-muted)] tracking-[0.2em] mb-1.5 uppercase opacity-80 flex items-center gap-2">
-          <span className="w-1.5 h-1.5 rounded-full bg-purple-500"></span>
-          VALUATION
+      {/* VALUATION SECTION */}
+      <div className="flex items-center gap-6 border-r border-[var(--border-subtle)] pr-8 pl-4">
+        <div className="flex items-center gap-2">
+          <div className="w-1.5 h-1.5 rounded-full bg-purple-500 shadow-[0_0_8px_rgba(168,85,247,0.5)]"></div>
+          <span className="text-[10px] font-black text-[var(--text-muted)] tracking-[0.15em] uppercase">VALUATION</span>
         </div>
-        <div className="grid grid-cols-2 gap-x-2 gap-y-1">
-          <div>
-            <span className="block text-[9px] uppercase text-[var(--text-muted)] font-medium">Mkt Cap</span>
-            <span className="block text-sm font-bold text-[var(--text-primary)] font-mono">{formatLargeNumber(tickerData?.marketCap)}</span>
-          </div>
-          <div>
-            <span className="block text-[9px] uppercase text-[var(--text-muted)] font-medium">P/E Ratio</span>
-            <span className="block text-sm font-bold text-[var(--text-primary)] font-mono">{formatValue(tickerData?.peRatio)}</span>
-          </div>
-          <div>
-            <span className="block text-[9px] uppercase text-[var(--text-muted)] font-medium">Beta</span>
-            <span className="block text-sm font-bold text-[var(--text-primary)] font-mono">1.12</span>
-          </div>
-          <div>
-            <span className="block text-[9px] uppercase text-[var(--text-muted)] font-medium">EPS</span>
-            <span className="block text-sm font-bold text-[var(--text-primary)] font-mono">14.23</span>
-          </div>
+        <div className="flex items-center gap-5">
+          <DataItem label="MKT CAP" value={formatLargeNumber(tickerData?.marketCap)} />
+          <DataItem label="P/E" value={formatValue(tickerData?.peRatio)} />
+          <DataItem label="BETA" value="1.12" />
+          <DataItem label="EPS" value="14.23" />
         </div>
       </div>
 
-      {/* DIVIDENDS */}
-      <div className="col-span-3 flex flex-col justify-center h-full border-r border-[var(--border-subtle)] pr-4 pl-2">
-        <div className="text-[9px] font-bold text-[var(--text-muted)] tracking-[0.2em] mb-1.5 uppercase opacity-80 flex items-center gap-2">
-          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-          DIVIDENDS
+      {/* DIVIDENDS SECTION */}
+      <div className="flex items-center gap-6 border-r border-[var(--border-subtle)] pr-8 pl-4">
+        <div className="flex items-center gap-2">
+          <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]"></div>
+          <span className="text-[10px] font-black text-[var(--text-muted)] tracking-[0.15em] uppercase">DIVIDENDS</span>
         </div>
-        <div className="grid grid-cols-2 gap-x-2 gap-y-1">
-          <div>
-            <span className="block text-[9px] uppercase text-[var(--text-muted)] font-medium">Yield</span>
-            <span className="block text-sm font-bold text-emerald-400 font-mono">
-              {tickerData?.dividendYield ? formatValue(tickerData.dividendYield * 100, '', '%') : '1.48%'}
-            </span>
-          </div>
-          <div>
-            <span className="block text-[9px] uppercase text-[var(--text-muted)] font-medium">Payout</span>
-            <span className="block text-sm font-bold text-[var(--text-secondary)] font-mono">42%</span>
-          </div>
-          <div className="col-span-2">
-            <span className="block text-[9px] uppercase text-[var(--text-muted)] font-medium">Ex-Div Date</span>
-            <span className="block text-xs font-bold text-[var(--text-primary)] font-mono">Feb 14, 2025</span>
-          </div>
+        <div className="flex items-center gap-5">
+          <DataItem
+            label="YIELD"
+            value={tickerData?.dividendYield ? formatValue(tickerData.dividendYield * 100, '', '%') : '1.48%'}
+            color="text-emerald-400"
+          />
+          <DataItem label="PAYOUT" value="42%" />
+          <DataItem label="EX-DIV" value="FEB 14" small />
         </div>
       </div>
 
-      {/* ANALYST CONSENSUS */}
-      <div className="col-span-3 flex flex-col justify-center h-full pl-2">
-        <div className="bg-[var(--bg-card)]/80 border border-[var(--border)] rounded-lg p-2 flex flex-col justify-center relative overflow-hidden group">
-          <div className="absolute top-0 right-0 p-1 opacity-50">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 block animate-pulse"></span>
-          </div>
-
-          <div className="flex items-center gap-2 mb-1">
-            <div className="text-[9px] font-bold text-[var(--text-muted)] tracking-[0.2em] uppercase">RATING</div>
-            <div className="h-1 flex-1 bg-[var(--border-subtle)] rounded-full overflow-hidden max-w-[60px]">
-              <div className="h-full w-[85%] bg-emerald-500 rounded-full"></div>
-            </div>
-          </div>
-
+      {/* RATING SECTION */}
+      <div className="flex items-center gap-4 pl-4 min-w-[200px]">
+        <div className="arch-card bg-[var(--bg-app)] border-emerald-500/30 rounded-lg px-3 py-1.5 flex flex-col gap-0.5 min-w-[140px]">
           <div className="flex items-center justify-between">
-            <div>
-              <span className="block text-[9px] uppercase text-[var(--text-muted)] font-medium">Consensus</span>
-              <span className="block text-sm font-black text-emerald-400 tracking-wide">BUY (4.2)</span>
-            </div>
-            <div className="text-right">
-              <span className="block text-[9px] uppercase text-[var(--text-muted)] font-medium">Target</span>
-              <div className="flex items-baseline gap-1 justify-end">
-                <span className="block text-sm font-black text-[var(--text-primary)] font-mono">$314</span>
-                <span className="text-[9px] font-bold text-emerald-400 font-mono">+14%</span>
-              </div>
-            </div>
+            <span className="text-[8px] font-black text-[var(--text-muted)] tracking-widest uppercase">CONSENSUS</span>
+            <span className="text-[9px] font-black text-emerald-400 uppercase">BUY (4.2)</span>
+          </div>
+          <div className="h-1 w-full bg-emerald-500/10 rounded-full overflow-hidden">
+            <div className="h-full w-[84%] bg-emerald-500 rounded-full"></div>
+          </div>
+          <div className="flex items-center justify-between">
+            <span className="text-[8px] font-black text-[var(--text-muted)] tracking-widest uppercase">TARGET</span>
+            <span className="text-[9px] font-black text-[var(--text-primary)] font-mono">$314 <span className="text-emerald-400">+14%</span></span>
           </div>
         </div>
       </div>
     </div>
   );
 };
+
+const DataItem: React.FC<{ label: string; value: string; dimmed?: boolean; color?: string; small?: boolean }> = ({
+  label, value, dimmed, color, small
+}) => (
+  <div className="flex flex-col">
+    <span className="text-[8px] font-black text-[var(--text-muted)] tracking-wider uppercase leading-none mb-1">{label}</span>
+    <span className={`
+      ${small ? 'text-xs' : 'text-sm'} 
+      font-black font-mono leading-none tracking-tight
+      ${color ? color : dimmed ? 'text-[var(--text-secondary)]' : 'text-[var(--text-primary)]'}
+    `}>
+      {value}
+    </span>
+  </div>
+);
