@@ -303,6 +303,13 @@ export function ChatProvider({ children }: { children: ReactNode }) {
         }
       }
 
+      // Chart Data (New Integration)
+      // Checks for direct chart payload from plot_financial_data
+      if (payload.chartType && payload.data) {
+         useDashboardStore.getState().setChartOverride(payload);
+         addTraceLog('system', `AI Command: Updated Dashboard Chart: ${payload.title}`);
+      }
+
       // Latency Metric (New Granular Event)
       if (payload.type === 'latency' && payload.tool && payload.duration) {
         const toolName = payload.tool;
