@@ -6,7 +6,12 @@ import { SummaryPanel } from './SummaryPanel';
 
 import { WidgetSlot } from './WidgetSlot';
 import { Terminal, Zap } from 'lucide-react';
-import { MarketDataFooter } from './MarketDataFooter';
+import {
+  TradingStats,
+  ValuationStats,
+  DividendStats,
+  ConsensusStats
+} from './MarketDataFooter';
 
 export const DashboardView: React.FC = () => {
   const { 
@@ -112,7 +117,7 @@ export const DashboardView: React.FC = () => {
 
 
   return (
-    <div className="flex flex-col gap-5 p-4 w-full h-full">
+    <div className="flex flex-col gap-5 p-4 w-full h-full overflow-hidden">
       {/* Macro Context Overlay */}
       {activeView !== 'Snapshot' && (
         <div className="bg-gradient-to-r from-blue-600/20 to-cyan-500/20 border border-blue-500/30 rounded-2xl p-4 mb-2 flex items-center justify-between backdrop-blur-md shadow-lg shadow-blue-500/5 transition-all">
@@ -133,15 +138,15 @@ export const DashboardView: React.FC = () => {
       )}
 
       {/* NEW LAYOUT: Main Workspace (Chart Top-Left) + Context Grid */}
-      <div className="flex flex-col w-full max-w-[1920px] mx-auto pb-4 px-2 pt-2 gap-4 h-full">
+      <div className="flex flex-col w-full max-w-[1920px] mx-auto pb-2 px-2 pt-2 gap-4 h-full min-h-0">
 
         {/* ROW 1: Main Workspace (Chart + Profile) - Takes available height */}
         <div className="flex-1 grid grid-cols-12 gap-5 min-h-0">
           {/* LEFT: Main Chart (Primary Focus) */}
-          <div className="col-span-9 h-full">
-            <div className="arch-card rounded-xl group/chart p-1 h-full relative">
-              <div className="absolute top-0 right-0 p-6 z-10 opacity-0 group-hover/chart:opacity-100 transition-opacity">
-                <span className="text-xs font-mono text-[var(--text-muted)] border border-[var(--border)] px-2 py-1 rounded">LIVE</span>
+          <div className="col-span-12 xl:col-span-9 h-full min-h-0 flex flex-col">
+            <div className="arch-card rounded-2xl group/chart p-1 flex-1 relative min-h-0 shadow-sm">
+              <div className="absolute top-4 right-4 z-10 opacity-0 group-hover/chart:opacity-100 transition-opacity">
+                <span className="text-[10px] font-bold text-[var(--text-muted)] border border-[var(--border-subtle)] px-2 py-1 rounded bg-[var(--bg-app)]/80 backdrop-blur-sm">REAL-TIME FEED</span>
               </div>
               <PerformanceChart
                 ticker={chartOverride?.ticker || ticker}
@@ -151,55 +156,42 @@ export const DashboardView: React.FC = () => {
             </div>
           </div>
 
-          {/* RIGHT: Profile (Secondary Info) */}
-          <div className="col-span-3 h-full">
-            <WidgetSlot
-              section="Profile"
-              override={widgetOverrides['Profile']}
-              isAiMode={!!chartOverride}
-              onGenerate={handleGenerateWidget}
-              tickers={tickersToAnalyze}
-              originalComponent={<SummaryPanel ticker={ticker} externalData={tickerData} />}
-            />
+          {/* RIGHT: Profile & Market Stats (Context Column) */}
+          <div className="hidden xl:flex xl:col-span-3 h-full flex-col gap-4 overflow-y-auto no-scrollbar pb-4">
+            <div className="arch-card rounded-2xl p-4 shadow-sm border-[var(--border-subtle)]">
+              <WidgetSlot
+                section="Profile"
+                override={widgetOverrides['Profile']}
+                isAiMode={!!chartOverride}
+                onGenerate={handleGenerateWidget}
+                tickers={tickersToAnalyze}
+                originalComponent={<SummaryPanel ticker={ticker} externalData={tickerData} />}
+              />
+            </div>
+
+            {/* Market Data Consolidated Container */}
+            <div className="arch-card rounded-2xl p-6 flex flex-col gap-10 shadow-sm border-[var(--border-subtle)] bg-[var(--bg-card)]">
+              <TradingStats tickerData={tickerData} layout="vertical" />
+              <ValuationStats tickerData={tickerData} layout="vertical" />
+              <DividendStats tickerData={tickerData} layout="vertical" />
+              <ConsensusStats tickerData={tickerData} layout="vertical" />
+            </div>
           </div>
         </div>
 
         {/* ROW 2: Context Items (4 Columns) - Fixed Height */}
-        <div className="grid grid-cols-4 gap-4 h-[165px] shrink-0">
-          {/* Earnings Context */}
-          <div className="h-full">
-            <InsightCard data={insights[1]} color="indigo" />
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 h-[140px] shrink-0 mb-4">
+          <div className="h-full arch-card rounded-2xl shadow-sm border-[var(--border-subtle)] overflow-hidden">
+            <InsightCard data={insights[1]} color="gray" />
           </div>
-          {/* Industry Comp */}
-          <div className="h-full">
-            <InsightCard data={insights[2]} color="sky" />
+          <div className="h-full arch-card rounded-2xl shadow-sm border-[var(--border-subtle)] overflow-hidden">
+            <InsightCard data={insights[2]} color="gray" />
           </div>
-          {/* Meeting Prep */}
-          <div className="h-full">
-            <InsightCard data={insights[0]} color="blue" />
+          <div className="h-full arch-card rounded-2xl shadow-sm border-[var(--border-subtle)] overflow-hidden">
+            <InsightCard data={insights[0]} color="gray" />
           </div>
-          {/* Suggested Actions */}
-          <div className="h-full">
+          <div className="h-full arch-card rounded-2xl shadow-sm border-[var(--border-subtle)] overflow-hidden">
             <SuggestedActionsCard actions={suggestedActions} />
-          </div>
-        </div>
-
-        {/* BOTTOM: Market Footer */}
-        <div className="shrink-0 mt-auto">
-          <div className="arch-card rounded-xl border-t border-[var(--border-highlight)] bg-[var(--bg-panel)]">
-            <div className="flex flex-col lg:flex-row items-center h-[74px] px-6">
-              {/* Label */}
-              <div className="flex items-center gap-4 pr-8 border-r border-[var(--border)] h-full lg:min-w-[170px] shrink-0">
-                <div className="w-1.5 h-8 bg-[var(--text-primary)]"></div>
-                <div>
-                  <h3 className="text-lg font-black text-[var(--text-primary)] tracking-widest uppercase leading-none">MARKET</h3>
-                  <p className="text-[9px] text-[var(--text-muted)] font-mono font-bold leading-none mt-1.5">REAL-TIME DATA</p>
-                </div>
-              </div>
-
-              {/* Unified Data Table */}
-              <MarketDataFooter tickerData={tickerData} />
-            </div>
           </div>
         </div>
 

@@ -66,7 +66,7 @@ export const Sidebar: React.FC = () => {
           <img src="/factset-logo-final.png" alt="FACTSET" className="h-12 object-contain dark:brightness-0 dark:invert transition-all" />
           <div className="flex flex-col items-start gap-0.5 ml-1 mt-1 p-3 rounded-xl bg-white/5 border border-white/10 backdrop-blur-md transition-all hover:bg-white/10 hover:border-white/20 hover:shadow-[0_0_20px_rgba(66,133,244,0.15)] group">
             <span className="text-[10px] text-gray-400 font-semibold uppercase tracking-[0.2em] leading-none ml-0.5 group-hover:text-gray-300 transition-colors">Powered by</span>
-            <span className="text-2xl font-black bg-gradient-to-r from-[#4285F4] via-[#9B72CB] to-[#D96570] bg-clip-text text-transparent tracking-tighter filter drop-shadow-sm group-hover:brightness-110 transition-all">Gemini</span>
+            <span className="text-2xl font-black bg-gradient-to-r from-gray-400 via-gray-300 to-gray-200 bg-clip-text text-transparent tracking-tighter filter drop-shadow-sm group-hover:brightness-110 transition-all">Gemini</span>
           </div>
 
           {/* Auth Status & Connect Button */}
@@ -118,7 +118,7 @@ export const Sidebar: React.FC = () => {
           {/* ADK Overlay Trigger */}
           <button
             onClick={() => setAdkOverlayOpen(true)}
-            className="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-xs font-bold uppercase tracking-wider bg-purple-500/10 hover:bg-purple-500/20 text-purple-400 border border-purple-500/20 transition-all hover:shadow-[0_0_15px_rgba(168,85,247,0.3)] hover:scale-[1.02] group duration-300"
+            className="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-xs font-bold uppercase tracking-wider bg-white/5 hover:bg-white/10 text-white/50 border border-white/10 transition-all hover:scale-[1.02] group duration-300"
           >
             <Cpu size={16} className="group-hover:rotate-180 transition-transform duration-700" />
             <span>View System Architecture</span>
@@ -137,7 +137,7 @@ export const Sidebar: React.FC = () => {
                 (currentView === 'advanced_search' && item.label === 'Advanced Search') ||
                   (currentView === 'report_generator' && item.label === 'Reports Generator') ||
                   (currentView === 'dashboard' && activeView === item.label)
-                  ? "text-[var(--brand)] bg-blue-500/10 font-bold shadow-lg"
+                  ? "text-white bg-white/10 font-bold shadow-lg"
                   : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-white/5 hover:translate-x-1"
               )}
               onClick={() => handleItemClick(item.label)}
@@ -145,7 +145,7 @@ export const Sidebar: React.FC = () => {
               <item.icon size={18} />
               <span>{item.label}</span>
               {item.isNew && (
-                <span className="text-[9px] bg-blue-600 px-2 py-0.5 rounded-full text-white font-bold ml-auto shadow-sm">
+                <span className="text-[9px] bg-zinc-700 px-2 py-0.5 rounded-full text-white font-bold ml-auto shadow-sm">
                   NEW
                 </span>
               )}
@@ -217,8 +217,8 @@ const AuthStatus: React.FC = () => {
 
   if (status.connected) {
     return (
-      <div className="mt-2 flex items-center gap-1.5 px-2 py-1 rounded-md bg-green-500/10 border border-green-500/20 text-green-400 text-[10px] font-bold uppercase tracking-wide">
-        <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+      <div className="mt-2 flex items-center gap-1.5 px-2 py-1 rounded-md bg-zinc-500/10 border border-zinc-500/20 text-zinc-400 text-[10px] font-bold uppercase tracking-wide">
+        <div className="w-1.5 h-1.5 rounded-full bg-zinc-400 animate-pulse" />
         Connected
       </div>
     );

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { MessageSquare, Share2, Activity, Terminal, Maximize2, Minimize2, ChevronsRight, Clock, Brain, Square, Trash2, Image as ImageIcon, X } from 'lucide-react';
+import { Send, MessageSquare, Share2, Activity, Terminal, Maximize2, Minimize2, ChevronsRight, Clock, Brain, Square, Trash2, Image as ImageIcon, X } from 'lucide-react';
 import { clsx } from "clsx";
 import { useDashboardStore } from '../../store/dashboardStore';
 import AgentGraph from './AgentGraph';
@@ -159,37 +159,43 @@ const AdvancedPanel: React.FC<AdvancedPanelProps> = ({ onDragStart }) => {
           useDashboardStore.getState().setChatDockPosition(current === 'right' ? 'floating' : 'right');
         }}
       >
-        <div className="flex items-center gap-3 overflow-hidden">
+        <div className="flex items-center gap-4">
           <button
-            onClick={() => setActiveTab('chat')} // "Home" action: Back to workstation
+            onClick={() => setActiveTab('chat')}
             className={clsx(
-              "p-2 rounded-lg shrink-0 transition-colors cursor-pointer",
-              isDark ? "bg-[var(--brand)]/10 text-[var(--brand)] hover:bg-[var(--brand)]/20" : "bg-blue-50 text-blue-600 hover:bg-blue-100"
+              "p-2 rounded-lg shrink-0 transition-all cursor-pointer",
+              isDark ? "bg-white/5 text-white hover:bg-white/10" : "bg-slate-100 text-slate-900 hover:bg-slate-200"
             )}
             title="Workstation home"
           >
-            <Terminal size={20} />
+            <Terminal size={18} />
           </button>
-          <div className="min-w-0 flex flex-col justify-center">
-            <h2 className={clsx("text-sm font-bold leading-tight", isDark ? "text-[var(--text-primary)]" : "text-slate-800")}>Workstation</h2>
-            <div className={clsx("flex items-center gap-1.5 text-[10px] shrink-0", isDark ? "text-[var(--text-muted)]" : "text-slate-500")}>
-              {isLoading ? (
-                <>
-                  <span className="w-1.5 h-1.5 rounded-full bg-[var(--brand)] animate-ping" />
-                  <span className="font-medium text-[var(--brand)]">Thinking... <ThinkingTimer startTime={startTime || Date.now()} /></span>
-                </>
-              ) : lastLatency ? (
-                <>
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                  <span>Done ({lastLatency}s)</span>
-                </>
-              ) : (
-                <>
-                      <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
-                      Online
-                </>
-              )}
-            </div>
+          <div className="flex flex-col">
+            <h1 className={clsx(
+              "text-base font-black tracking-tight flex items-center gap-2 leading-none",
+              isDark ? "text-white" : "text-slate-900"
+            )}>
+              Workstation
+            </h1>
+            <p className={clsx(
+              "text-[8px] font-black tracking-widest mt-1 opacity-50",
+              isDark ? "text-white" : "text-slate-900"
+            )}>
+              TERMINAL
+            </p>
+          </div>
+          <div className={clsx("flex items-center gap-1.5 text-[8px] font-black uppercase tracking-widest mt-0.5", isDark ? "text-[var(--text-muted)]" : "text-slate-500")}>
+            {isLoading ? (
+              <>
+                <div className="w-1 h-1 rounded-full bg-white animate-ping" />
+                <span className="text-white">Analyzing <ThinkingTimer startTime={startTime || Date.now()} /></span>
+              </>
+            ) : (
+              <>
+                <div className="w-1 h-1 rounded-full bg-white/30" />
+                <span>Neural Link Active</span>
+              </>
+            )}
           </div>
         </div>
 
@@ -296,7 +302,7 @@ const AdvancedPanel: React.FC<AdvancedPanelProps> = ({ onDragStart }) => {
           <div
             ref={scrollContainerRef}
             onScroll={handleScroll}
-            className="flex-1 overflow-y-auto p-6 space-y-6 scroll-smooth"
+            className="flex-1 overflow-y-auto p-4 space-y-4 scroll-smooth"
           >
             {messages.length === 0 && (
               <div className={clsx("h-full flex flex-col items-center justify-center opacity-60", isDark ? "text-[var(--text-muted)]" : "text-slate-400")}>
@@ -456,8 +462,8 @@ const AdvancedPanel: React.FC<AdvancedPanelProps> = ({ onDragStart }) => {
                 </button>
               </div>
             )}
-            <div className="relative overflow-hidden w-full min-w-0">
-              <form onSubmit={handleSubmit} className="relative w-full flex items-end gap-3">
+            <div className="relative w-full min-w-0">
+              <form onSubmit={handleSubmit} className="flex items-end gap-2 bg-[var(--bg-app)] border border-[var(--border)] rounded-xl p-1.5 focus-within:border-[var(--brand)]/30 transition-all">
                 <input
                   type="file"
                   ref={fileInputRef}
@@ -470,11 +476,11 @@ const AdvancedPanel: React.FC<AdvancedPanelProps> = ({ onDragStart }) => {
                   onClick={() => fileInputRef.current?.click()}
                   disabled={isLoading}
                   className={clsx(
-                    "p-3 rounded-xl transition-colors shrink-0",
-                    isDark ? "bg-[var(--bg-app)] border border-[var(--border)] text-gray-400 hover:text-gray-200" : "bg-white border border-gray-200 text-slate-400 hover:text-slate-600"
+                    "p-2 rounded-lg transition-colors shrink-0",
+                    isDark ? "text-gray-500 hover:text-gray-300" : "text-slate-400 hover:text-slate-600"
                   )}
                 >
-                  <ImageIcon size={20} />
+                  <ImageIcon size={18} />
                 </button>
                 <textarea
                   ref={textareaRef}
@@ -489,17 +495,17 @@ const AdvancedPanel: React.FC<AdvancedPanelProps> = ({ onDragStart }) => {
                   placeholder="Ask anything..."
                   rows={1}
                   className={clsx(
-                    "w-full rounded-2xl py-3 px-4 pr-14 outline-none transition-all text-sm min-w-0 flex-1 resize-none overflow-y-auto no-scrollbar",
-                    isDark ? "bg-[var(--bg-app)] border border-[var(--border)] focus:outline-none placeholder:text-gray-400 text-gray-200" :
-                      "bg-white border border-gray-200 focus:outline-none placeholder:text-slate-400 text-slate-800"
+                    "w-full py-2 px-1 outline-none transition-all text-sm min-w-0 flex-1 resize-none overflow-y-auto no-scrollbar bg-transparent",
+                    isDark ? "placeholder:text-gray-600 text-gray-200" :
+                      "placeholder:text-slate-400 text-slate-800"
                   )}
                 />
                 <button
-                  disabled={isLoading}
+                  disabled={isLoading || !input.trim()}
                   type="submit"
-                  className="absolute right-3 bottom-3 p-2 bg-[var(--brand)] text-white rounded-xl hover:bg-blue-600 disabled:opacity-50 transition-colors shrink-0"
+                  className="w-10 h-10 flex items-center justify-center bg-white text-black rounded-lg hover:bg-zinc-200 disabled:opacity-20 disabled:hover:bg-white transition-all shrink-0 self-center"
                 >
-                  <MessageSquare size={18} />
+                  <Send size={18} />
                 </button>
               </form>
             </div>
