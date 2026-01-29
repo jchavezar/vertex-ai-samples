@@ -1,4 +1,5 @@
-import React, { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect } from 'react';
+import clsx from 'clsx';
 import { useWorkstationChat } from '../context/ChatContext';
 import { ChevronDown, Sparkles, Check } from 'lucide-react';
 
@@ -35,18 +36,33 @@ export function ModelSelector() {
           e.stopPropagation();
           setIsOpen(!isOpen);
         }}
-        className={`
-          flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 border
-          ${isOpen 
-            ? 'bg-blue-500/10 border-blue-500/50 text-blue-400 shadow-[0_0_15px_rgba(59,130,246,0.3)]' 
-            : 'bg-[#0a0a0a] border-[#2a2a2a] text-gray-400 hover:text-gray-200 hover:border-[#3a3a3a]'}
-        `}
+        className={clsx(
+          "flex items-center gap-3 px-5 py-2.5 rounded-full transition-all duration-300 relative overflow-hidden group shadow-md hover:shadow-lg",
+          // Light Mode: High contrast slate/white with blue accent
+          "bg-white border-2 border-slate-100 text-slate-700",
+          // Dark Mode: Deep titanium
+          "dark:bg-white/5 dark:border-white/10 dark:text-white",
+          // Hover state
+          "hover:border-blue-400/50 dark:hover:border-blue-400/50 hover:scale-[1.02]",
+          // Open state
+          isOpen && "ring-2 ring-blue-500/20 border-blue-500 shadow-blue-500/10"
+        )}
       >
-        <Sparkles className="w-3.5 h-3.5 text-purple-400" />
-        <span className="bg-gradient-to-r from-gray-200 to-gray-400 bg-clip-text text-transparent">
-          {currentModel.name}
-        </span>
-        <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
+        {/* Animated sheen effect */}
+        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:animate-shimmer" />
+
+        <div className={clsx("p-1.5 rounded-full bg-blue-50 text-blue-600 dark:bg-blue-500/20 dark:text-blue-400")}>
+          <Sparkles size={14} className="fill-current" />
+        </div>
+
+        <div className="flex flex-col items-start leading-none mr-2">
+          <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-0.5">Model</span>
+          <span className="text-sm font-black tracking-tight group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+            {currentModel.name.replace(' (Global)', '')}
+          </span>
+        </div>
+
+        <ChevronDown size={16} className={clsx("text-slate-400 transition-transform duration-300", isOpen && "rotate-180 text-blue-500")} />
       </button>
 
       {/* Dropdown */}

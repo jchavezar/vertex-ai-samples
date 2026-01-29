@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { ReactFlow, Background, Controls, useNodesState, useEdgesState, Position, Handle, Node, Edge } from '@xyflow/react';
+import { ReactFlow, Background, useNodesState, useEdgesState, Position, Handle, Node, Edge } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import dagre from 'dagre';
 import { Bot, Layers, Repeat, Globe, Zap, Database, Clock, BarChart2 } from 'lucide-react';
@@ -323,7 +323,7 @@ const CircuitEdge = ({
           <path
             d={edgePath}
             fill="none"
-            stroke={flowColor}
+          stroke={(flowColor as string) || "#333"}
             strokeWidth={2}
             className="react-flow__edge-path-animated"
             style={{
@@ -465,7 +465,6 @@ const AgentGraph: React.FC<AgentGraphProps> = ({ topology, activeNodeId, executi
         proOptions={{ hideAttribution: true }}
       >
         <Background color="rgba(255,255,255,0.02)" gap={24} size={1} />
-        {/* <Controls style={{ fill: '#475569', backgroundColor: '#0f172a', borderColor: '#1e293b' }} /> */}
       </ReactFlow>
     </div>
   );

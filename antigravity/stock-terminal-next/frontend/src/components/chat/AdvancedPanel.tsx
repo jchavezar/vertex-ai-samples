@@ -150,7 +150,7 @@ const AdvancedPanel: React.FC<AdvancedPanelProps> = ({ onDragStart }) => {
       {/* Header */}
       <div
         className={clsx(
-          "flex items-center justify-between p-2 pl-3 border-b shrink-0 bg-transparent cursor-grab active:cursor-grabbing select-none",
+          "flex items-center justify-between p-3 pl-4 border-b shrink-0 bg-transparent cursor-grab active:cursor-grabbing select-none",
           isDark ? "border-white/10" : "border-gray-100"
         )}
         onPointerDown={onDragStart}
@@ -159,33 +159,33 @@ const AdvancedPanel: React.FC<AdvancedPanelProps> = ({ onDragStart }) => {
           useDashboardStore.getState().setChatDockPosition(current === 'right' ? 'floating' : 'right');
         }}
       >
-        <div className="flex items-center gap-2 overflow-hidden">
+        <div className="flex items-center gap-3 overflow-hidden">
           <button
             onClick={() => setActiveTab('chat')} // "Home" action: Back to workstation
             className={clsx(
-              "p-1.5 rounded-lg shrink-0 transition-colors cursor-pointer",
+              "p-2 rounded-lg shrink-0 transition-colors cursor-pointer",
               isDark ? "bg-[var(--brand)]/10 text-[var(--brand)] hover:bg-[var(--brand)]/20" : "bg-blue-50 text-blue-600 hover:bg-blue-100"
             )}
             title="Workstation home"
           >
-            <Terminal size={16} />
+            <Terminal size={20} />
           </button>
           <div className="min-w-0">
-            <h2 className={clsx("text-sm font-bold truncate", isDark ? "text-[var(--text-primary)]" : "text-slate-800")}>Workstation</h2>
-            <div className={clsx("flex items-center gap-1 text-[10px] shrink-0", isDark ? "text-[var(--text-muted)]" : "text-slate-500")}>
+            <h2 className={clsx("text-lg font-bold truncate", isDark ? "text-[var(--text-primary)]" : "text-slate-800")}>Workstation</h2>
+            <div className={clsx("flex items-center gap-1.5 text-xs shrink-0", isDark ? "text-[var(--text-muted)]" : "text-slate-500")}>
               {isLoading ? (
                 <>
-                  <span className="w-1.5 h-1.5 rounded-full bg-[var(--brand)] animate-ping" />
+                  <span className="w-2 h-2 rounded-full bg-[var(--brand)] animate-ping" />
                   <span className="font-medium text-[var(--brand)]">Thinking... <ThinkingTimer startTime={startTime || Date.now()} /></span>
                 </>
               ) : lastLatency ? (
                 <>
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                    <span className="w-2 h-2 rounded-full bg-emerald-500" />
                   <span>Done ({lastLatency}s)</span>
                 </>
               ) : (
                 <>
-                      <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+                      <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
                       Online
                 </>
               )}
@@ -196,13 +196,13 @@ const AdvancedPanel: React.FC<AdvancedPanelProps> = ({ onDragStart }) => {
           <div className="flex items-center gap-1 shrink-0">
           {/* Tabs - Now more visible */}
           <div className={clsx(
-            "flex items-center gap-1.5 rounded-lg p-0.5 border min-w-0",
+            "flex items-center gap-1.5 rounded-lg p-1 border min-w-0",
             isDark ? "bg-black/40 border-white/10" : "bg-slate-100 border-slate-200"
           )}>
             <TabButton
               active={activeTab === 'chat'}
               onClick={() => setActiveTab('chat')}
-              icon={<MessageSquare size={13} />}
+              icon={<MessageSquare size={16} />}
               label="Chat"
               isDark={isDark}
               isChatMaximized={isChatMaximized}
@@ -210,7 +210,7 @@ const AdvancedPanel: React.FC<AdvancedPanelProps> = ({ onDragStart }) => {
             <TabButton
               active={activeTab === 'graph'}
               onClick={() => setActiveTab('graph')}
-              icon={<Share2 size={13} />}
+              icon={<Share2 size={16} />}
               label="Graph"
               isDark={isDark}
               isChatMaximized={isChatMaximized}
@@ -218,7 +218,7 @@ const AdvancedPanel: React.FC<AdvancedPanelProps> = ({ onDragStart }) => {
             <TabButton
               active={activeTab === 'trace'}
               onClick={() => setActiveTab('trace')}
-              icon={<Activity size={13} />}
+              icon={<Activity size={16} />}
               label="Trace"
               isDark={isDark}
               isChatMaximized={isChatMaximized}
@@ -226,7 +226,7 @@ const AdvancedPanel: React.FC<AdvancedPanelProps> = ({ onDragStart }) => {
             <TabButton
               active={activeTab === 'reasoning'}
               onClick={() => setActiveTab('reasoning')}
-              icon={<Brain size={13} />}
+              icon={<Brain size={16} />}
               label="Reasoning"
               isDark={isDark}
               isChatMaximized={isChatMaximized}
@@ -234,35 +234,35 @@ const AdvancedPanel: React.FC<AdvancedPanelProps> = ({ onDragStart }) => {
           </div>
 
           {/* Actions */}
-          <div className="flex items-center gap-1 pl-2 border-l border-[var(--border)]">
+          <div className="flex items-center gap-1 pl-3 border-l border-[var(--border)]">
             {isLoading ? (
               <button
                 onClick={stop}
-                className="p-1.5 rounded-md text-amber-500 hover:text-amber-600 hover:bg-amber-500/10 transition-colors"
+                className="p-2 rounded-md text-amber-500 hover:text-amber-600 hover:bg-amber-500/10 transition-colors"
                 title="Stop Generation"
               >
-                <Square size={14} fill="currentColor" />
+                <Square size={18} fill="currentColor" />
               </button>
             ) : (
               messages.length > 0 && (
                 <button
                   onClick={resetChat}
-                  className="p-1.5 rounded-md text-red-500 hover:text-red-600 hover:bg-red-500/10 transition-colors"
+                    className="p-2 rounded-md text-red-500 hover:text-red-600 hover:bg-red-500/10 transition-colors"
                   title="Reset Chat"
                 >
-                  <Trash2 size={14} />
+                    <Trash2 size={18} />
                 </button>
               )
             )}
             <button
               onClick={toggleChatMaximized}
               className={clsx(
-                "p-1.5 rounded-md transition-colors",
+                "p-2 rounded-md transition-colors",
                 isDark ? "text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-app)]" : "text-slate-500 hover:text-slate-800 hover:bg-slate-100"
               )}
               title={isChatMaximized ? "Restore" : "Maximize"}
             >
-              {isChatMaximized ? <Minimize2 size={14} /> : <Maximize2 size={14} />}
+              {isChatMaximized ? <Minimize2 size={18} /> : <Maximize2 size={18} />}
             </button>
             <button
               onClick={() => {
@@ -270,19 +270,19 @@ const AdvancedPanel: React.FC<AdvancedPanelProps> = ({ onDragStart }) => {
                 useDashboardStore.getState().setChatDockPosition(current === 'right' ? 'floating' : 'right');
               }}
               className={clsx(
-                "p-1.5 rounded-md transition-colors",
+                "p-2 rounded-md transition-colors",
                 isDark ? "text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-app)]" : "text-slate-500 hover:text-slate-800 hover:bg-slate-100"
               )}
               title={chatDockPosition === 'right' ? "Undock (Overlay)" : "Dock to Sidebar"}
             >
-              {chatDockPosition === 'right' ? <Minimize2 size={14} className="rotate-45" /> : <Maximize2 size={14} className="-rotate-45" />}
+              {chatDockPosition === 'right' ? <Minimize2 size={18} className="rotate-45" /> : <Maximize2 size={18} className="-rotate-45" />}
             </button>
             <button
               onClick={() => useDashboardStore.getState().setChatOpen(false)}
-              className="p-1.5 text-[var(--text-muted)] hover:text-red-500 hover:bg-red-500/10 rounded-md transition-colors flex items-center gap-1"
+              className="p-2 text-[var(--text-muted)] hover:text-red-500 hover:bg-red-500/10 rounded-md transition-colors flex items-center gap-1"
               title="Hide Sidebar"
             >
-              <ChevronsRight size={14} />
+              <ChevronsRight size={18} />
             </button>
           </div>
         </div>
@@ -296,12 +296,12 @@ const AdvancedPanel: React.FC<AdvancedPanelProps> = ({ onDragStart }) => {
           <div
             ref={scrollContainerRef}
             onScroll={handleScroll}
-            className="flex-1 overflow-y-auto p-4 space-y-4 scroll-smooth"
+            className="flex-1 overflow-y-auto p-6 space-y-6 scroll-smooth"
           >
             {messages.length === 0 && (
               <div className={clsx("h-full flex flex-col items-center justify-center opacity-60", isDark ? "text-[var(--text-muted)]" : "text-slate-400")}>
-                <div className={clsx("p-4 rounded-full mb-4", isDark ? "bg-[var(--bg-app)]" : "bg-slate-100")}><Terminal size={32} /></div>
-                <p>How can I help you today?</p>
+                <div className={clsx("p-6 rounded-full mb-6", isDark ? "bg-[var(--bg-app)]" : "bg-slate-100")}><Terminal size={48} /></div>
+                <p className="text-xl">How can I help you today?</p>
               </div>
             )}
             {messages.map((m: any, i: number) => {
@@ -310,7 +310,7 @@ const AdvancedPanel: React.FC<AdvancedPanelProps> = ({ onDragStart }) => {
 
 
               // Typewriter Class Logic
-              const messageClass = isAssistant ? 'text-[13px] leading-relaxed' : '';
+              const messageClass = isAssistant ? 'text-lg leading-relaxed' : 'text-lg leading-relaxed';
 
 
               // Identify if this is the latest user message to attach the active/final timer
@@ -323,7 +323,7 @@ const AdvancedPanel: React.FC<AdvancedPanelProps> = ({ onDragStart }) => {
                   {/* Only render bubble if there is content */}
                   {m.content && m.content.trim() !== '' && (
                     <div className={clsx(
-                      "max-w-[85%] rounded-2xl p-3 px-4 text-sm shadow-sm",
+                      "max-w-[85%] rounded-3xl p-4 px-6 text-lg shadow-sm",
                       m.role === 'user' ? "bg-[var(--brand)] text-white rounded-br-none" :
                       isDark ? "bg-[var(--bg-app)] border border-[var(--border)] text-[var(--text-primary)] rounded-bl-none" :
                       "bg-white border border-gray-100 text-slate-800 rounded-bl-none shadow-sm"
@@ -350,10 +350,10 @@ const AdvancedPanel: React.FC<AdvancedPanelProps> = ({ onDragStart }) => {
                           onClick={() => {
                             useDashboardStore.getState().setGraphOverlayOpen(true);
                           }}
-                          className="text-[10px] text-[var(--brand)] hover:underline flex items-center gap-1.5 opacity-70 hover:opacity-100 transition-opacity"
+                          className="text-xs text-[var(--brand)] hover:underline flex items-center gap-1.5 opacity-70 hover:opacity-100 transition-opacity"
                           title="View Execution Graph"
                         >
-                          <Share2 size={11} /> View Graph
+                          <Share2 size={13} /> View Graph
                         </button>
                       </div>
                     )
@@ -388,8 +388,8 @@ const AdvancedPanel: React.FC<AdvancedPanelProps> = ({ onDragStart }) => {
                       {/* Why did it vanish? Maybe `isLoading || lastLatency` became false? No, `lastLatency` is set. */}
                       {/* Maybe `isLastMessage` became false because a NEW empty message appeared? Unlikely. */}
                       {/* I will move the timer to the User Message to be safe and "start from send". */}
-                      <div className="flex items-center gap-1.5 text-[10px] text-[var(--text-muted)] bg-[var(--bg-card)] px-2 py-0.5 rounded-full border border-[var(--border)]">
-                        <Clock size={10} />
+                      <div className="flex items-center gap-1.5 text-xs text-[var(--text-muted)] bg-[var(--bg-card)] px-3 py-1 rounded-full border border-[var(--border)]">
+                        <Clock size={12} />
                         {isLoading && startTime ? (
                           <ThinkingTimer startTime={startTime} />
                         ) : (
@@ -402,8 +402,8 @@ const AdvancedPanel: React.FC<AdvancedPanelProps> = ({ onDragStart }) => {
                   {/* Status Indicator (Generating...) */}
 
                   {isStreaming && (
-                    <div className="text-[10px] text-[var(--text-muted)] mt-1 animate-pulse flex items-center gap-1 pl-1">
-                      <Activity size={10} />
+                    <div className="text-xs text-[var(--text-muted)] mt-1 animate-pulse flex items-center gap-1 pl-1">
+                      <Activity size={12} />
                       <DynamicStatusText logs={traceLogs} />
                     </div>
                   )}
@@ -423,15 +423,15 @@ const AdvancedPanel: React.FC<AdvancedPanelProps> = ({ onDragStart }) => {
             {isLoading && (
               <div className="flex flex-col items-start animate-in fade-in slide-in-from-bottom-2 duration-300 mb-4">
                 <div className={clsx(
-                  "border rounded-2xl rounded-bl-none p-3 px-4 shadow-sm flex items-center gap-3",
+                  "border rounded-2xl rounded-bl-none p-4 px-6 shadow-sm flex items-center gap-3",
                   isDark ? "bg-[var(--bg-app)] border-[var(--border)] text-[var(--text-primary)]" : "bg-white border-gray-100 text-slate-800"
                 )}>
                   <div className="flex gap-1">
-                    <span className="w-1.5 h-1.5 bg-[var(--brand)] rounded-full animate-bounce [animation-delay:-0.3s]"></span>
-                    <span className="w-1.5 h-1.5 bg-[var(--brand)] rounded-full animate-bounce [animation-delay:-0.15s]"></span>
-                    <span className="w-1.5 h-1.5 bg-[var(--brand)] rounded-full animate-bounce"></span>
+                    <span className="w-2 h-2 bg-[var(--brand)] rounded-full animate-bounce [animation-delay:-0.3s]"></span>
+                    <span className="w-2 h-2 bg-[var(--brand)] rounded-full animate-bounce [animation-delay:-0.15s]"></span>
+                    <span className="w-2 h-2 bg-[var(--brand)] rounded-full animate-bounce"></span>
                   </div>
-                  <span className="text-xs text-[var(--text-muted)] font-medium flex items-center gap-2">
+                  <span className="text-sm text-[var(--text-muted)] font-medium flex items-center gap-2">
                     <DynamicStatusText logs={traceLogs} />
                     <span className="opacity-50">|</span>
                     {startTime && <ThinkingTimer startTime={startTime} />}
@@ -443,21 +443,21 @@ const AdvancedPanel: React.FC<AdvancedPanelProps> = ({ onDragStart }) => {
           </div>
 
           {/* Input Area */}
-          <div className={clsx("p-4 border-t bg-transparent shrink-0", isDark ? "border-white/10" : "border-gray-100")}>
+          <div className={clsx("p-6 border-t bg-transparent shrink-0", isDark ? "border-white/10" : "border-gray-100")}>
             {/* Image Preview */}
             {image && (
               <div className="relative inline-block mb-2 group">
-                <img src={`data:image/png;base64,${image}`} alt="Preview" className="h-16 w-16 object-cover rounded-lg border border-white/20" />
+                <img src={`data:image/png;base64,${image}`} alt="Preview" className="h-20 w-20 object-cover rounded-lg border border-white/20" />
                 <button
                   onClick={clearImage}
-                  className="absolute -top-1 -right-1 bg-black/50 text-white rounded-full p-0.5 hover:bg-black/80 transition-colors"
+                  className="absolute -top-1 -right-1 bg-black/50 text-white rounded-full p-1 hover:bg-black/80 transition-colors"
                 >
-                  <X size={12} />
+                  <X size={14} />
                 </button>
               </div>
             )}
             <div className="relative overflow-hidden w-full min-w-0">
-              <form onSubmit={handleSubmit} className="relative w-full flex items-end gap-2">
+              <form onSubmit={handleSubmit} className="relative w-full flex items-end gap-3">
                 <input
                   type="file"
                   ref={fileInputRef}
@@ -470,11 +470,11 @@ const AdvancedPanel: React.FC<AdvancedPanelProps> = ({ onDragStart }) => {
                   onClick={() => fileInputRef.current?.click()}
                   disabled={isLoading}
                   className={clsx(
-                    "p-3 rounded-xl transition-colors shrink-0",
+                    "p-4 rounded-xl transition-colors shrink-0",
                     isDark ? "bg-[var(--bg-app)] border border-[var(--border)] text-gray-400 hover:text-gray-200" : "bg-white border border-gray-200 text-slate-400 hover:text-slate-600"
                   )}
                 >
-                  <ImageIcon size={20} />
+                  <ImageIcon size={24} />
                 </button>
                 <textarea
                   ref={textareaRef}
@@ -489,7 +489,7 @@ const AdvancedPanel: React.FC<AdvancedPanelProps> = ({ onDragStart }) => {
                   placeholder="Ask anything..."
                   rows={1}
                   className={clsx(
-                    "w-full rounded-xl py-3 px-4 pr-12 outline-none transition-all text-sm min-w-0 flex-1 resize-none overflow-y-auto no-scrollbar",
+                    "w-full rounded-2xl py-4 px-5 pr-14 outline-none transition-all text-base min-w-0 flex-1 resize-none overflow-y-auto no-scrollbar",
                     isDark ? "bg-[var(--bg-app)] border border-[var(--border)] focus:outline-none placeholder:text-gray-400 text-gray-200" :
                       "bg-white border border-gray-200 focus:outline-none placeholder:text-slate-400 text-slate-800"
                   )}
@@ -497,9 +497,9 @@ const AdvancedPanel: React.FC<AdvancedPanelProps> = ({ onDragStart }) => {
                 <button
                   disabled={isLoading}
                   type="submit"
-                  className="absolute right-2 bottom-2 p-1.5 bg-[var(--brand)] text-white rounded-lg hover:bg-blue-600 disabled:opacity-50 transition-colors shrink-0"
+                  className="absolute right-3 bottom-3 p-2 bg-[var(--brand)] text-white rounded-xl hover:bg-blue-600 disabled:opacity-50 transition-colors shrink-0"
                 >
-                  <MessageSquare size={16} />
+                  <MessageSquare size={20} />
                 </button>
               </form>
             </div>
@@ -540,7 +540,7 @@ const TabButton = ({ active, onClick, icon, label, isDark, isChatMaximized }: an
   <button
     onClick={onClick}
     className={clsx(
-      "flex items-center gap-1.5 px-2 py-1 rounded-md text-[11px] font-bold transition-all duration-200",
+      "flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-bold transition-all duration-200",
       active
         ? "bg-[var(--brand)] text-white shadow-lg"
         : isDark
@@ -551,7 +551,7 @@ const TabButton = ({ active, onClick, icon, label, isDark, isChatMaximized }: an
     {icon}
     <span className={clsx(
       "leading-none truncate",
-      isChatMaximized ? "inline-block max-w-[60px]" : "hidden"
+      isChatMaximized ? "inline-block max-w-[80px]" : "hidden"
     )}>{label}</span>
   </button>
 );

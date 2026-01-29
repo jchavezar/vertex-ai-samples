@@ -64,40 +64,37 @@ export const Sidebar: React.FC = () => {
       <div className="p-6 border-b border-[var(--border)] bg-transparent">
         <div className="mb-6 flex flex-col items-start">
           <img src="/factset-logo-final.png" alt="FACTSET" className="h-12 object-contain dark:brightness-0 dark:invert transition-all" />
-          <div className="flex items-center gap-1.5 ml-1 -mt-1 bg-white/5 backdrop-blur-md px-2.5 py-1 rounded-full border border-white/10 shadow-sm transition-all hover:bg-white/10">
-            <Sparkles size={10} className="text-cyan-400" />
-            <span className="text-[10px] font-semibold tracking-wider uppercase select-none">
-              <span className="text-gray-400">Powered by</span>{" "}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#4E80FF] via-[#9C80FF] to-[#FF809C] font-bold">
-                Gemini
-              </span>
-            </span>
+          <div className="flex flex-col items-start gap-0.5 ml-1 mt-1 p-3 rounded-xl bg-white/5 border border-white/10 backdrop-blur-md transition-all hover:bg-white/10 hover:border-white/20 hover:shadow-[0_0_20px_rgba(66,133,244,0.15)] group">
+            <span className="text-[10px] text-gray-400 font-semibold uppercase tracking-[0.2em] leading-none ml-0.5 group-hover:text-gray-300 transition-colors">Powered by</span>
+            <span className="text-2xl font-black bg-gradient-to-r from-[#4285F4] via-[#9B72CB] to-[#D96570] bg-clip-text text-transparent tracking-tighter filter drop-shadow-sm group-hover:brightness-110 transition-all">Gemini</span>
           </div>
 
           {/* Auth Status & Connect Button */}
           <AuthStatus />
         </div>
-        <div className="flex items-center bg-white/5 border border-white/10 px-4 py-2 rounded-full focus-within:border-blue-500/50 focus-within:bg-white/10 transition-all">
-          <Search size={14} className="text-[var(--text-muted)]" />
+        <div className="flex items-center bg-white/5 border border-white/20 px-4 py-3 rounded-full focus-within:border-blue-500/50 focus-within:bg-white/10 transition-all shadow-inner">
+          <Search size={18} className="text-gray-400" />
           <input
             type="text"
             placeholder="Search Ticker..."
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
             onKeyDown={handleSearch}
-            className="bg-transparent border-none outline-none w-full ml-2 text-sm text-[var(--text-primary)]"
+            className="bg-transparent border-none outline-none w-full ml-2 text-sm text-[var(--text-primary)] placeholder-gray-500"
           />
         </div>
 
         {/* Toggle & System Controls */}
-        <div className="flex flex-col gap-3 mt-5">
-          {/* Neural Link Toggle */}
-          <div className="bg-white/5 border border-white/10 rounded-xl p-1 flex items-center relative gap-1 shadow-inner">
+        <div className="flex flex-col gap-4 mt-8">
+          {/* Neural Link Toggle - Liquid Glass Design */}
+          <div className="bg-black/20 backdrop-blur-xl border border-white/10 rounded-2xl p-1.5 flex items-center relative gap-1 shadow-[inset_0_2px_4px_rgba(0,0,0,0.3)] group/toggle">
             <button
               onClick={() => setCurrentView('dashboard')}
               className={clsx(
-                "flex-1 py-2 text-[10px] font-bold uppercase tracking-wider rounded-lg transition-all z-10 duration-200",
-                currentView !== 'neural_link' ? "text-white bg-white/10 shadow-sm border border-white/5" : "text-gray-500 hover:text-gray-300 hover:bg-white/5"
+                "flex-1 py-3 text-xs font-bold uppercase tracking-wider rounded-xl transition-all duration-300 relative overflow-hidden",
+                currentView !== 'neural_link'
+                  ? "text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.1),0_2px_4px_rgba(0,0,0,0.2)] bg-gradient-to-b from-white/10 to-white/5 border border-white/10"
+                  : "text-gray-500 hover:text-gray-300 hover:bg-white/5"
               )}
             >
               Standard
@@ -105,36 +102,38 @@ export const Sidebar: React.FC = () => {
             <button
               onClick={() => setCurrentView('neural_link')}
               className={clsx(
-                "flex-1 py-2 text-[10px] font-bold uppercase tracking-wider rounded-lg transition-all z-10 flex items-center justify-center gap-1.5 duration-300",
-                currentView === 'neural_link'
-                  ? "text-white bg-gradient-to-r from-cyan-500 to-blue-600 shadow-md border border-white/10"
+                "flex-1 py-3 text-xs font-bold uppercase tracking-wider rounded-xl transition-all duration-500 flex items-center justify-center gap-1.5 relative overflow-hidden",
+                currentView === 'neural_link' 
+                  ? "text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.2),0_4px_12px_rgba(0,0,0,0.5)] bg-gradient-to-b from-slate-600 via-slate-700 to-slate-800 border border-white/20 ring-1 ring-white/10"
                   : "text-gray-500 hover:text-cyan-400 hover:bg-white/5"
               )}
             >
-              <Zap size={12} className={clsx("transition-colors", currentView === 'neural_link' ? "text-yellow-300 fill-yellow-300" : "")} />
-              Neural Link
+              {currentView === 'neural_link' && <div className="absolute inset-x-0 top-0 h-[1px] bg-white/40 blur-[1px]" />}
+
+              <Zap size={14} className={clsx("transition-colors duration-300", currentView === 'neural_link' ? "text-cyan-200 fill-cyan-200 shadow-cyan-500/50 drop-shadow-sm" : "")} />
+              <span className="relative z-10 text-shadow-sm">Neural Link</span>
             </button>
           </div>
 
           {/* ADK Overlay Trigger */}
           <button
             onClick={() => setAdkOverlayOpen(true)}
-            className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-[10px] font-bold uppercase tracking-wider bg-purple-500/10 hover:bg-purple-500/20 text-purple-400 border border-purple-500/20 transition-all hover:shadow-[0_0_15px_rgba(168,85,247,0.3)] hover:scale-[1.02] group duration-300"
+            className="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-xs font-bold uppercase tracking-wider bg-purple-500/10 hover:bg-purple-500/20 text-purple-400 border border-purple-500/20 transition-all hover:shadow-[0_0_15px_rgba(168,85,247,0.3)] hover:scale-[1.02] group duration-300"
           >
-            <Cpu size={14} className="group-hover:rotate-180 transition-transform duration-700" />
+            <Cpu size={16} className="group-hover:rotate-180 transition-transform duration-700" />
             <span>View System Architecture</span>
           </button>
         </div>
       </div>
 
       <div className="flex-1 overflow-y-auto py-4">
-        <div className="mb-6">
-          <p className="px-4 text-[var(--text-muted)] font-bold text-[10px] mb-2 uppercase tracking-widest">REPORTS</p>
+        <div className="mb-8">
+          <p className="px-4 text-[var(--text-muted)] font-bold text-xs mb-3 uppercase tracking-widest">REPORTS</p>
           {menuItems.map((item, idx) => (
             <div
               key={idx}
               className={clsx(
-                "flex items-center px-4 py-2 mx-3 cursor-pointer gap-3 rounded-full transition-all text-sm",
+                "flex items-center px-4 py-3 mx-3 cursor-pointer gap-3 rounded-full transition-all text-base",
                 (currentView === 'advanced_search' && item.label === 'Advanced Search') ||
                   (currentView === 'report_generator' && item.label === 'Reports Generator') ||
                   (currentView === 'dashboard' && activeView === item.label)
@@ -143,7 +142,7 @@ export const Sidebar: React.FC = () => {
               )}
               onClick={() => handleItemClick(item.label)}
             >
-              <item.icon size={16} />
+              <item.icon size={20} />
               <span>{item.label}</span>
               {item.isNew && (
                 <span className="text-[9px] bg-blue-600 px-2 py-0.5 rounded-full text-white font-bold ml-auto shadow-sm">
@@ -155,13 +154,13 @@ export const Sidebar: React.FC = () => {
         </div>
 
         {sections.map((section, idx) => (
-          <div key={idx} className="mb-6">
-            <p className="px-4 text-[var(--text-muted)] font-bold text-[10px] mb-2 uppercase tracking-widest">{section.name}</p>
+          <div key={idx} className="mb-8">
+            <p className="px-4 text-[var(--text-muted)] font-bold text-xs mb-3 uppercase tracking-widest">{section.name}</p>
             {section.items.map((item, i) => (
               <div
                 key={i}
                 className={clsx(
-                  "flex items-center py-1.5 px-4 mx-3 pl-11 cursor-pointer rounded-full transition-all text-xs",
+                  "flex items-center py-2.5 px-4 mx-3 pl-11 cursor-pointer rounded-full transition-all text-sm",
                   currentView === 'dashboard' && activeView === item
                     ? "text-[var(--brand)] bg-blue-500/10 font-bold"
                     : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-white/5"

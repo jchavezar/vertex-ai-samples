@@ -9,6 +9,21 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap" rel="stylesheet">
     <title>Stock Terminal Next</title>
   </head>
+  <script>
+    (function() {
+      try {
+        const savedTheme = localStorage.getItem('stock-terminal-theme') || 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        if (savedTheme === 'dark') {
+          document.body.classList.add('dark');
+          document.body.classList.add('dark-theme');
+        } else {
+          document.body.classList.remove('dark');
+          document.body.classList.remove('dark-theme');
+        }
+      } catch (e) {}
+    })();
+  </script>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>

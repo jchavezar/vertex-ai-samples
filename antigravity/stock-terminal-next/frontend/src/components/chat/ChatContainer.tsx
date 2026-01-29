@@ -64,6 +64,9 @@ export const ChatContainer: React.FC<ChatContainerProps> = ({ docked: _docked = 
   };
 
 
+  // Resize State
+  const [floatingSize, setFloatingSize] = React.useState({ width: 480, height: 650 });
+
   return (
     <motion.div
       ref={constraintsRef}
@@ -80,22 +83,25 @@ export const ChatContainer: React.FC<ChatContainerProps> = ({ docked: _docked = 
     >
       <motion.div
         className={clsx(
-          "flex overflow-hidden transition-all duration-500 ease-in-out w-full h-full",
+          "flex overflow-visible ease-in-out w-full h-full relative group", // Changed overflow-hidden to visible to allow resize handle
           theme.container,
           (isChatMaximized || isFloating) ? "fixed z-[1000]" : "relative z-[100]"
         )}
         style={{
-          width: isChatMaximized ? '100vw' : (isFloating ? '480px' : '100%'),
-          height: isChatMaximized ? '100vh' : (isFloating ? 'calc(100vh - 40px)' : '100%'),
+          width: isChatMaximized ? '100vw' : (isFloating ? floatingSize.width : '100%'),
+          height: isChatMaximized ? '100vh' : (isFloating ? floatingSize.height : '100%'),
           borderRadius: isChatMaximized ? '0px' : (isFloating ? '24px' : '0px'),
-          border: isChatMaximized ? 'none' : undefined,
-          inset: (isChatMaximized || isFloating) ? '0px' : undefined,
-          boxShadow: isChatMaximized ? 'none' : (isFloating ? '0 25px 50px -12px rgba(0,0,0,0.5)' : undefined)
+          border: isChatMaximized ? 'none' : (isFloating ? '2px solid black' : undefined),
+          inset: isChatMaximized ? '0px' : undefined,
+          right: isFloating ? '20px' : undefined,
+          bottom: isFloating ? '100px' : undefined,
+          boxShadow: isChatMaximized ? 'none' : (isFloating ? '0 25px 50px -12px rgba(0,0,0,0.5)' : undefined),
+          fontSize: isFloating ? `${Math.max(16, 16 * (floatingSize.width / 480))}px` : undefined // Dynamic Font Scaling
         }}
         initial={false}
       >
         <div className={clsx(
-          "flex flex-1 overflow-hidden h-full w-full bg-inherit",
+          "flex flex-1 overflow-hidden h-full w-full bg-inherit rounded-[inherit]", // Added rounded-inherit to clip inner content
           activeAnalysisData && isChatMaximized ? "flex-row shrink-0" : "flex-col"
         )}>
           <div className={clsx(
@@ -122,6 +128,28 @@ export const ChatContainer: React.FC<ChatContainerProps> = ({ docked: _docked = 
             )}
           </AnimatePresence>
         </div>
+
+        {/* Resize Handle */}
+        {isFloating && (
+          <motion.div
+            drag
+            dragMomentum={false}
+            dragElastic={0}
+            onDrag={(_, info) => {
+              setFloatingSize(prev => ({
+                width: Math.max(300, prev.width + info.delta.x),
+                height: Math.max(300, prev.height + info.delta.y)
+              }));
+            }}
+            className="absolute bottom-1 right-1 w-6 h-6 cursor-nwse-resize z-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+          >
+            {/* Visual Grip */}
+            <div className="w-1.5 h-1.5 bg-gray-400/50 rounded-full mb-0.5 ml-0.5" />
+            <svg width="6" height="6" viewBox="0 0 6 6" fill="none" className="absolute bottom-1.5 right-1.5">
+              <path d="M6 6H0L6 0V6Z" fill="currentColor" className="text-gray-400" />
+            </svg>
+          </motion.div>
+        )}
       </motion.div>
     </motion.div>
   );

@@ -154,52 +154,36 @@ export const PerformanceChart: React.FC<PerformanceChartProps> = ({ ticker, exte
   const isNormalized = chartData.length > 0 && chartData[0].isNormalized;
 
   return (
-    <div className="card h-full min-h-[400px] flex flex-col transition-all duration-300 hover:shadow-xl hover:border-blue-500/20">
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-1 text-[12px] font-bold text-[var(--text-secondary)] tracking-widest uppercase">
-          PERFORMANCE <span className="text-[#3b82f6] cursor-pointer">→</span>
-        </div>
-        <div className="flex bg-[var(--bg-app)] rounded-lg p-0.5 border border-[var(--border)]">
-          {['1D', '1M', '6M', 'YTD'].map(period => (
-            <button
-              key={period}
-              className={`text-[10px] px-3 py-1 rounded-md font-semibold transition-all ${(externalData ? '1M' : '1D') === period
-                ? 'bg-white text-[#3b82f6] shadow-sm'
-                : 'text-[#64748b] hover:text-[#0f172a]'
-                }`}
-            >
-              {period}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      <div className="flex gap-4 mb-4 text-[11px] font-medium">
+    <div className="h-full flex flex-col">
+      <div className="flex gap-6 mb-0 text-[11px] font-mono tracking-tight border-b border-[var(--border)] pb-4 px-6 pt-6">
         {isMultiSeries && Array.isArray(seriesConfig) ? (
           seriesConfig.map(s => (
             <div key={s.key} className="flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full" style={{ background: s.color }}></span>
-              <span className="text-[var(--text-secondary)]">{s.ticker}</span>
+              <span className="w-2 h-0.5" style={{ background: s.color }}></span>
+              <span className="text-[var(--text-secondary)] uppercase">{s.ticker}</span>
             </div>
           ))
         ) : (
           <>
               <div className="flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-[#3b82f6]"></span>
-                <span className="text-[var(--text-secondary)]">{externalData?.ticker || ticker || "Unknown"}</span>
-            </div>
-              {/* Show S&P 500 Legend if we have data */}
+                <div className="flex flex-col">
+                  <span className="text-[10px] text-[var(--text-muted)] uppercase">Asset</span>
+                  <span className="text-[var(--text-primary)] font-bold">{externalData?.ticker || ticker || "Unknown"}</span>
+                </div>
+              </div>
               {isNormalized && (
-                <div className="flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-[#22c55e]"></span>
-                  <span className="text-[var(--text-secondary)]">S&P 500</span>
+                <div className="flex items-center gap-2 ml-4">
+                  <div className="flex flex-col">
+                    <span className="text-[10px] text-[var(--text-muted)] uppercase">Benchmark</span>
+                    <span className="text-[#22c55e] font-bold">S&P 500</span>
+                  </div>
                 </div>
             )}
           </>
         )}
       </div>
 
-      <div className="h-[240px] w-full">
+      <div className="flex-1 w-full min-h-[300px] mt-4 px-2">
         <ResponsiveContainer>
           {externalData?.chartType === 'bar' && Array.isArray(externalData.data) ? (
             <BarChart
@@ -219,12 +203,12 @@ export const PerformanceChart: React.FC<PerformanceChartProps> = ({ ticker, exte
               <Tooltip
                 cursor={{ fill: 'transparent' }}
                 contentStyle={{
-                  fontSize: 11,
-                  borderRadius: 12,
+                  fontSize: 10,
+                  borderRadius: 2,
                   background: 'var(--bg-card)',
                   border: '1px solid var(--border)',
-                  backdropFilter: 'var(--card-blur)',
-                  color: 'var(--text-primary)'
+                  color: 'var(--text-primary)',
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.5)'
                 }}
               />
               <Bar dataKey={getValueKey(externalData.data)} fill="var(--brand)" radius={[0, 999, 999, 0]} barSize={20} />
@@ -268,7 +252,7 @@ export const PerformanceChart: React.FC<PerformanceChartProps> = ({ ticker, exte
                 fontSize={10}
                 tickLine={false}
                 axisLine={false}
-                tick={{ fill: '#8c959f' }}
+                    tick={{ fill: 'var(--text-secondary)', fontSize: 11, fontWeight: 500 }}
                 tickFormatter={formatXAxis}
               />
               <YAxis
@@ -277,7 +261,7 @@ export const PerformanceChart: React.FC<PerformanceChartProps> = ({ ticker, exte
                 fontSize={10}
                 tickLine={false}
                 axisLine={false}
-                tick={{ fill: '#8c959f' }}
+                    tick={{ fill: 'var(--text-secondary)', fontSize: 11, fontWeight: 500 }}
                 orientation="right"
                     tickFormatter={(val) => isNormalized ? `${val.toFixed(1)}%` : val}
               />

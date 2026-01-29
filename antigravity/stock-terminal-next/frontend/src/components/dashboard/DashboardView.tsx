@@ -187,11 +187,11 @@ export const DashboardView: React.FC = () => {
             <div className="flex flex-col lg:flex-row items-center h-[110px] px-6">
 
               {/* Label */}
-              <div className="flex items-center gap-4 pr-8 border-r border-[var(--border)] h-full lg:min-w-[200px]">
-                <div className="w-1 h-8 bg-[var(--text-primary)]"></div>
+              <div className="flex items-center gap-4 pr-8 border-r border-[var(--border)] h-full lg:min-w-[240px]">
+                <div className="w-1.5 h-10 bg-[var(--text-primary)]"></div>
                 <div>
-                  <h3 className="text-base font-black text-[var(--text-primary)] tracking-widest uppercase">MARKET</h3>
-                  <p className="text-xs text-[var(--text-muted)] font-mono font-bold">REAL-TIME DATA</p>
+                  <h3 className="text-2xl font-black text-[var(--text-primary)] tracking-widest uppercase">MARKET</h3>
+                  <p className="text-sm text-[var(--text-muted)] font-mono font-bold">REAL-TIME DATA</p>
                 </div>
               </div>
 

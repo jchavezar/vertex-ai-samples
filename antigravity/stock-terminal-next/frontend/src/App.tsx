@@ -54,8 +54,8 @@ export const App = () => {
       if (!resizingRef.current) return;
 
       const newWidth = window.innerWidth - e.clientX;
-      // Constraints: Min 300px, Max 1200px or 80% of viewport
-      const maxWidth = Math.min(1200, window.innerWidth * 0.8);
+      // Constraints: Min 300px, Max 600px (Restricted from 1200px)
+      const maxWidth = Math.min(600, window.innerWidth * 0.4);
 
       if (newWidth > 300 && newWidth < maxWidth) {
         // Optimize with RAF

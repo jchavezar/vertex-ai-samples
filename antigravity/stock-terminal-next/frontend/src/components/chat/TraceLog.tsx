@@ -46,12 +46,12 @@ const TraceLog: React.FC<TraceLogProps> = ({ logs = [], isMaximized = false, sel
     <div className="p-4 font-mono text-[11px] bg-transparent min-h-full space-y-4">
       {/* Session/Model Header if active */}
       {selectedModel && logs.length > 0 && (
-         <div className="flex items-center justify-center mb-6 opacity-70">
+        <div className="flex items-center justify-center mb-6 opacity-70">
           <div className="px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-[10px] flex items-center gap-1.5">
             <Activity size={10} />
             <span>Session with <span className="font-bold">{selectedModel}</span></span>
-            </div>
-         </div>
+          </div>
+        </div>
       )}
 
       {logs.map((log, idx) => {
