@@ -70,16 +70,16 @@ export const InsightCard: React.FC<{ data: InsightData; color?: 'blue' | 'sky' |
 
   return (
     <div className={`card p-0 overflow-hidden hover:shadow-lg transition-all duration-300 group border-[var(--border)] bg-[var(--bg-card)] h-full flex flex-col ${c.border}`}>
-      <div className="bg-[var(--bg-panel)]/50 px-4 py-3 flex justify-between items-center border-b border-[var(--border)]">
-        <span className={`font-bold ${c.text} text-xs uppercase tracking-wide flex items-center gap-2`}>
-          <div className={`w-2 h-2 rounded-full ${c.dot} animate-pulse`}></div>
+      <div className="bg-[var(--bg-panel)]/50 px-3 py-2 flex justify-between items-center border-b border-[var(--border)]">
+        <span className={`font-bold ${c.text} text-[10px] uppercase tracking-wider flex items-center gap-1.5`}>
+          <div className={`w-1.5 h-1.5 rounded-full ${c.dot} animate-pulse`}></div>
           {data.title}
         </span>
-        <span className="text-[10px] text-[var(--text-muted)] bg-[var(--bg-panel)] border border-[var(--border-subtle)] px-2 py-0.5 rounded-full font-mono">{data.time}</span>
+        <span className="text-[9px] text-[var(--text-muted)] bg-[var(--bg-panel)] border border-[var(--border-subtle)] px-2 py-0.5 rounded-full font-mono">{data.time}</span>
       </div>
-      <div className="p-5 flex-1 flex flex-col justify-center">
-        <h4 className="text-base text-[var(--text-primary)] mb-3 font-bold leading-snug group-hover:text-[var(--accent)] transition-colors">{data.headline}</h4>
-        <p className="text-sm text-[var(--text-secondary)] leading-relaxed">{data.summary}</p>
+      <div className="p-4 flex-1 flex flex-col justify-center">
+        <h4 className="text-[15px] text-[var(--text-primary)] mb-2 font-bold leading-snug group-hover:text-[var(--accent)] transition-colors">{data.headline}</h4>
+        <p className="text-[13px] text-[var(--text-secondary)] leading-relaxed">{data.summary}</p>
       </div>
     </div>
   );
@@ -88,17 +88,17 @@ export const InsightCard: React.FC<{ data: InsightData; color?: 'blue' | 'sky' |
 export const SuggestedActionsCard: React.FC<{ actions: string[] }> = ({ actions }) => {
   return (
     <div className="card p-0 overflow-hidden hover:shadow-lg transition-all duration-300 flex flex-col border-[var(--border)] bg-[var(--bg-card)] h-full border-l-4 border-l-sky-500">
-      <div className="bg-[var(--bg-panel)]/50 px-4 py-3 border-b border-[var(--border)]">
-        <span className="font-bold text-sky-500 text-xs uppercase tracking-wide flex items-center gap-2">
-          <div className="w-2 h-2 rounded-full bg-sky-500"></div>
+      <div className="bg-[var(--bg-panel)]/50 px-3 py-2 border-b border-[var(--border)]">
+        <span className="font-bold text-sky-500 text-[10px] uppercase tracking-wider flex items-center gap-1.5">
+          <div className="w-1.5 h-1.5 rounded-full bg-sky-500"></div>
           SUGGESTED ACTIONS
         </span>
       </div>
-      <div className="p-3 flex-1">
-        <ul className="list-none space-y-1">
+      <div className="p-2 flex-1">
+        <ul className="list-none space-y-0.5">
           {actions.map((item, i) => (
-            <li key={i} className="text-xs font-medium text-[var(--text-secondary)] cursor-pointer transition-colors hover:text-sky-500 hover:bg-sky-500/5 px-3 py-2.5 rounded-md flex items-center gap-3 group">
-              <span className="w-1.5 h-1.5 rounded-full bg-sky-500 opacity-30 group-hover:opacity-100 transition-opacity"></span>
+            <li key={i} className="text-[11px] font-medium text-[var(--text-secondary)] cursor-pointer transition-colors hover:text-sky-500 hover:bg-sky-500/5 px-3 py-1.5 rounded-md flex items-center gap-2.5 group">
+              <span className="w-1 h-1 rounded-full bg-sky-500 opacity-30 group-hover:opacity-100 transition-opacity"></span>
               {item}
             </li>
           ))}
