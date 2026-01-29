@@ -1,4 +1,5 @@
 import React from 'react';
+import { Zap } from 'lucide-react';
 
 export interface InsightData {
   type: string;
@@ -37,7 +38,10 @@ export const useAgentInsights = (ticker: string) => {
   const suggestedActions = [
     `10-K Insights for ${ticker}`,
     `Annual KPI Tracking for ${ticker}`,
-    `Bond Market Update for ${ticker}`
+    `Bond Market Update for ${ticker}`,
+    `Insider Trading Activity for ${ticker}`,
+    `Institutional Ownership Shift for ${ticker}`,
+    `Sector Relative Value Analysis for ${ticker}`
   ];
 
   return { insights, suggestedActions };
@@ -55,17 +59,23 @@ export const InsightCard: React.FC<{ data: InsightData; color?: 'blue' | 'sky' |
   const c = colorMap[color];
 
   return (
-    <div className={`p-0 overflow-hidden hover:bg-[var(--bg-panel)] transition-all duration-300 group bg-[var(--bg-card)] h-full flex flex-col ${c.border}`}>
-      <div className="px-3 py-2 flex justify-between items-center border-b border-[var(--border-subtle)]">
-        <span className={`font-black ${c.text} text-[9px] uppercase tracking-[0.2em] flex items-center gap-2`}>
-          <div className={`w-1 h-1 rounded-full ${c.dot}`}></div>
+    <div className={`p-0 overflow-hidden hover:bg-[var(--bg-panel)] transition-all duration-300 group bg-[var(--bg-card)] h-full flex flex-col border-b border-[var(--border-subtle)]/30 ${c.border}`}>
+      <div className="px-4 py-2.5 flex justify-between items-center border-b border-[var(--border-subtle)] bg-white/[0.02]">
+        <span className={`font-black ${c.text} text-[10px] uppercase tracking-[0.2em] flex items-center gap-2`}>
+          <div className={`w-1.5 h-1.5 rounded-full ${c.dot} shadow-[0_0_8px_currentColor]`}></div>
           {data.title}
         </span>
-        <span className="text-[8px] text-[var(--text-muted)] font-black uppercase tracking-widest">{data.time}</span>
+        <span className="text-[9px] text-[var(--text-muted)] font-black uppercase tracking-widest opacity-60 group-hover:opacity-100 transition-opacity">{data.time}</span>
       </div>
-      <div className="p-4 flex-1 flex flex-col justify-center gap-1.5">
-        <h4 className="text-[14px] text-[var(--text-primary)] font-bold tracking-tight leading-snug group-hover:text-[var(--brand)] transition-colors line-clamp-1">{data.headline}</h4>
-        <p className="text-[12px] text-[var(--text-secondary)] leading-relaxed line-clamp-2">{data.summary}</p>
+      <div className="p-6 flex-1 overflow-y-auto no-scrollbar max-h-[160px]">
+        <div className="flex flex-col gap-3">
+          <h4 className="text-[15px] text-[var(--text-primary)] font-bold tracking-tight leading-snug group-hover:text-[var(--brand)] transition-colors">
+            {data.headline}
+          </h4>
+          <p className="text-[13px] text-[var(--text-secondary)] leading-relaxed font-medium">
+            {data.summary}
+          </p>
+        </div>
       </div>
     </div>
   );
@@ -76,18 +86,18 @@ export const SuggestedActionsCard: React.FC<{ actions: string[]; color?: 'blue' 
 
   return (
     <div className={`p-0 overflow-hidden hover:bg-[var(--bg-panel)] transition-all duration-300 flex flex-col bg-[var(--bg-card)] h-full border-l-2 ${isGray ? 'border-l-[var(--text-primary)]' : 'border-l-blue-500'}`}>
-      <div className="px-3 py-2 border-b border-[var(--border-subtle)]">
-        <span className={`font-black ${isGray ? 'text-[var(--text-primary)]' : 'text-blue-500'} text-[9px] uppercase tracking-[0.2em] flex items-center gap-2`}>
-          <div className={`w-1 h-1 rounded-full ${isGray ? 'bg-[var(--text-primary)]' : 'bg-blue-500'}`}></div>
+      <div className="px-4 py-2.5 border-b border-[var(--border-subtle)] bg-white/[0.01]">
+        <span className={`font-black ${isGray ? 'text-[var(--text-primary)]' : 'text-blue-500'} text-[10px] uppercase tracking-[0.25em] flex items-center gap-2`}>
+          <div className={`w-1.5 h-1.5 rounded-full ${isGray ? 'bg-[var(--text-primary)]' : 'bg-blue-500'} shadow-[0_0_8px_currentColor]`}></div>
           SUGGESTED ACTIONS
         </span>
       </div>
-      <div className="p-2 flex-1">
-        <ul className="list-none space-y-0.5">
+      <div className="p-4 flex-1 overflow-y-auto no-scrollbar max-h-[160px]">
+        <ul className="flex flex-col gap-2">
           {actions.map((item, i) => (
-            <li key={i} className="text-[11px] font-bold text-[var(--text-secondary)] cursor-pointer transition-colors hover:text-[var(--text-primary)] hover:bg-[var(--bg-panel)] px-3 py-1.5 rounded-md flex items-center gap-2.5 group">
-              <span className={`w-1 h-1 rounded-full ${isGray ? 'bg-[var(--text-primary)]' : 'bg-blue-500'} opacity-30 group-hover:opacity-100 transition-opacity`}></span>
-              <span className="truncate">{item}</span>
+            <li key={i} className="text-[12px] font-bold text-[var(--text-secondary)] cursor-pointer transition-all hover:text-[var(--text-primary)] hover:bg-[var(--bg-panel)] px-3 py-2 rounded-xl flex items-center gap-3 group border border-transparent hover:border-[var(--border)] hover:shadow-sm overflow-hidden shrink-0">
+              <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${isGray ? 'bg-[var(--text-primary)]' : 'bg-blue-500'} opacity-30 group-hover:opacity-100 group-hover:scale-110 transition-all`}></span>
+              <span className="leading-tight break-words">{item}</span>
             </li>
           ))}
         </ul>
@@ -96,17 +106,67 @@ export const SuggestedActionsCard: React.FC<{ actions: string[]; color?: 'blue' 
   );
 };
 
+// New Consolidated Intelligence Feed
+export const StrategicIntelligenceFeed: React.FC<{ ticker: string }> = ({ ticker }) => {
+  const { insights } = useAgentInsights(ticker);
+  return (
+    <div className="flex flex-col h-full bg-[var(--bg-card)] rounded-2xl border border-[var(--border-subtle)] overflow-hidden">
+      <div className="px-4 py-3 border-b border-[var(--border-subtle)] bg-white/[0.02] flex items-center justify-between">
+        <span className="font-black text-[var(--text-primary)] text-[10px] uppercase tracking-[0.3em] flex items-center gap-2">
+          <div className="w-1.5 h-1.5 rounded-full bg-[var(--brand)] shadow-[0_0_8px_rgba(59,130,246,0.5)]"></div>
+          STRATEGIC INTELLIGENCE FEED
+        </span>
+        <span className="text-[9px] font-bold text-[var(--text-muted)] uppercase tracking-widest opacity-60">Real-time Analysis</span>
+      </div>
+      <div className="flex-1 overflow-y-auto no-scrollbar">
+        {insights.map((insight, idx) => (
+          <InsightCard key={idx} data={insight} />
+        ))}
+      </div>
+    </div>
+  );
+};
+
+// New Quick Actions Panel (Static Buttons)
+export const QuickActionsPanel: React.FC<{ ticker: string }> = ({ ticker }) => {
+  const { suggestedActions } = useAgentInsights(ticker);
+  return (
+    <div className="flex flex-col h-full bg-[var(--bg-card)] rounded-2xl border border-[var(--border-subtle)] overflow-hidden">
+      <div className="px-4 py-3 border-b border-[var(--border-subtle)] bg-white/[0.02]">
+        <span className="font-black text-[var(--text-primary)] text-[10px] uppercase tracking-[0.3em] flex items-center gap-2">
+          <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]"></div>
+          SUGGESTED ACTIONS
+        </span>
+      </div>
+      <div className="p-3 flex-1 overflow-y-auto no-scrollbar">
+        <div className="flex flex-col gap-2">
+          {suggestedActions.map((action, i) => (
+            <button key={i} className="group w-full text-left p-3 rounded-xl bg-white/[0.02] border border-white/5 hover:bg-white/[0.06] hover:border-[var(--brand)]/30 transition-all duration-300 flex items-center gap-3">
+              <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center shrink-0 group-hover:bg-[var(--brand)]/10 transition-colors">
+                <Zap size={14} className="text-[var(--text-muted)] group-hover:text-[var(--brand)] transition-colors" />
+              </div>
+              <div className="flex flex-col gap-0.5">
+                <span className="text-[12px] font-bold text-[var(--text-primary)] leading-tight">{action}</span>
+                <span className="text-[9px] font-medium text-[var(--text-muted)] uppercase tracking-tight opacity-60">Run Analysis</span>
+              </div>
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
+
 // Legacy Component Wrapper for compatibility if needed elsewhere
 export const AgentInsights: React.FC<{ ticker: string }> = ({ ticker }) => {
-  const { insights, suggestedActions } = useAgentInsights(ticker);
   return (
-    <div className="flex flex-col gap-3 h-full overflow-auto pr-2">
-      {insights.map((insight, idx) => (
-        <React.Fragment key={idx}>
-          <InsightCard data={insight} />
-        </React.Fragment>
-      ))}
-      <SuggestedActionsCard actions={suggestedActions} />
+    <div className="grid grid-cols-12 gap-5 h-full">
+      <div className="col-span-12 lg:col-span-8 h-full">
+        <StrategicIntelligenceFeed ticker={ticker} />
+      </div>
+      <div className="col-span-12 lg:col-span-4 h-full">
+        <QuickActionsPanel ticker={ticker} />
+      </div>
     </div>
   );
 };

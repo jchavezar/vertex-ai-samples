@@ -104,11 +104,11 @@ export const Sidebar: React.FC = () => {
               className={clsx(
                 "flex-1 py-3 text-xs font-bold uppercase tracking-wider rounded-xl transition-all duration-500 flex items-center justify-center gap-1.5 relative overflow-hidden",
                 currentView === 'neural_link' 
-                  ? "text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.2),0_4px_12px_rgba(0,0,0,0.5)] bg-gradient-to-b from-slate-600 via-slate-700 to-slate-800 border border-white/20 ring-1 ring-white/10"
+                  ? "text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.1),0_4px_20px_rgba(0,0,0,0.8)] bg-black border border-white/10 ring-1 ring-white/5"
                   : "text-gray-500 hover:text-cyan-400 hover:bg-white/5"
               )}
             >
-              {currentView === 'neural_link' && <div className="absolute inset-x-0 top-0 h-[1px] bg-white/40 blur-[1px]" />}
+              {currentView === 'neural_link' && <div className="absolute inset-x-0 top-0 h-[1px] bg-white/20 blur-[0.5px]" />}
 
               <Zap size={14} className={clsx("transition-colors duration-300", currentView === 'neural_link' ? "text-cyan-200 fill-cyan-200 shadow-cyan-500/50 drop-shadow-sm" : "")} />
               <span className="relative z-10 text-shadow-sm">Neural Link</span>
@@ -137,7 +137,7 @@ export const Sidebar: React.FC = () => {
                 (currentView === 'advanced_search' && item.label === 'Advanced Search') ||
                   (currentView === 'report_generator' && item.label === 'Reports Generator') ||
                   (currentView === 'dashboard' && activeView === item.label)
-                  ? "text-white bg-white/10 font-bold shadow-lg"
+                  ? "text-[var(--brand)] bg-blue-500/10 font-bold shadow-[0_0_15px_rgba(59,130,246,0.1)] border border-blue-500/20"
                   : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-white/5 hover:translate-x-1"
               )}
               onClick={() => handleItemClick(item.label)}
@@ -162,7 +162,7 @@ export const Sidebar: React.FC = () => {
                 className={clsx(
                   "flex items-center py-2 px-3 mx-2 pl-10 cursor-pointer rounded-full transition-all text-xs",
                   currentView === 'dashboard' && activeView === item
-                    ? "text-[var(--brand)] bg-blue-500/10 font-bold"
+                    ? "text-[var(--brand)] bg-blue-500/10 font-bold shadow-[0_0_15px_rgba(59,130,246,0.1)] border border-blue-500/20"
                     : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-white/5"
                 )}
                 onClick={() => handleItemClick(item)}

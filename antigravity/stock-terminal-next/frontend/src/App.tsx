@@ -37,12 +37,12 @@ export const App = () => {
       // Close sidebar if it's open
       if (isSidebarOpen) toggleSidebar();
     } else {
-      // Restore previous state if it was open
+      // Restore previous state if it was open AND is currently closed
       if (previousSidebarState.current && !isSidebarOpen) {
         toggleSidebar();
       }
     }
-  }, [isGraphOverlayOpen]);
+  }, [isGraphOverlayOpen, isSidebarOpen, toggleSidebar]);
 
   const [isResizing, setIsResizing] = React.useState(false);
 

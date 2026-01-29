@@ -7,7 +7,13 @@ interface MarketDataFooterProps {
 
 const formatValue = (val: number | undefined, prefix = '', suffix = '', decimals = 2) => {
   if (val === undefined || val === null) return '-';
-  return `${prefix}${Number(val).toFixed(decimals)}${suffix}`;
+  const num = Number(val);
+  return `${prefix}${num.toLocaleString(undefined, { minimumFractionDigits: decimals, maximumFractionDigits: decimals })}${suffix}`;
+};
+
+const getDirectionalColor = (val: number | undefined) => {
+  if (val === undefined || val === null || val === 0) return 'text-[var(--text-primary)]';
+  return val > 0 ? 'text-emerald-500' : 'text-rose-500';
 };
 
 const formatLargeNumber = (num: number | undefined) => {
@@ -27,13 +33,16 @@ const DataItem: React.FC<{
   color?: string;
   small?: boolean;
 }> = ({ label, value, dimmed, color, small }) => (
-  <div className="flex flex-col min-w-0 transition-all">
-    <span className="text-[8px] font-bold text-[var(--text-muted)] tracking-[0.15em] uppercase leading-none mb-1.5 truncate">
-      {label}
-    </span>
+  <div className="flex flex-col gap-0.5 group/item transition-all duration-300">
+    <div className="flex items-center gap-2">
+      <span className="text-[7.5px] font-black text-[var(--text-muted)] tracking-[0.25em] uppercase leading-none opacity-50 group-hover/item:opacity-100 transition-opacity whitespace-nowrap">
+        {label}
+      </span>
+      <div className="h-[0.5px] flex-1 bg-[var(--border-subtle)]/20 group-hover/item:bg-[var(--border-subtle)]/50 transition-colors"></div>
+    </div>
     <span className={`
-      ${small ? 'text-[11px]' : 'text-[13px]'} 
-      font-bold font-mono leading-none tracking-tight truncate
+      ${small ? 'text-[11px]' : 'text-[14px]'} 
+      font-bold font-mono leading-tight tracking-tight break-words pt-1
       ${color ? color : dimmed ? 'text-[var(--text-secondary)]' : 'text-[var(--text-primary)]'}
     `}>
       {value}
@@ -49,24 +58,30 @@ const StatSection: React.FC<{
   isVertical?: boolean;
   children: React.ReactNode;
 }> = ({ title, isVertical, children }) => (
-  <div className="flex flex-col gap-4">
-    <div className="flex items-center gap-2 border-b border-[var(--border-subtle)] pb-2 mb-1">
-      <span className="text-[9px] font-black text-[var(--text-primary)] tracking-[0.25em] uppercase">{title}</span>
+  <div className="flex flex-col gap-2.5">
+    <div className="flex items-center gap-2 border-b border-[var(--border-subtle)]/50 pb-1 mb-0.5 bg-white/[0.01]">
+      <div className="w-1.5 h-1.5 rounded-full bg-[var(--brand)] shadow-[0_0_8px_rgba(59,130,246,0.3)]"></div>
+      <span className="text-[9px] font-black text-[var(--text-primary)] tracking-[0.3em] uppercase opacity-100">{title}</span>
     </div>
-    <div className={`grid ${isVertical ? 'grid-cols-2' : 'flex flex-row items-center gap-8'} gap-x-4 gap-y-5 px-0.5`}>
+    <div className={`grid ${isVertical ? 'grid-cols-2 gap-x-12 gap-y-2.5' : 'flex flex-row items-center gap-10'} px-0.5`}>
       {children}
     </div>
   </div>
   );
 
-export const TradingStats: React.FC<{ tickerData: any; layout?: 'horizontal' | 'vertical' }> = ({ tickerData, layout = 'horizontal' }) => (
-  <StatSection title="Trading" isVertical={layout === 'vertical'}>
-    <DataItem label="OPEN" value={formatValue(tickerData?.price, '$')} />
-    <DataItem label="VOL" value="1.2M" />
-    <DataItem label="52W HI" value={formatValue(tickerData?.fiftyTwoWeekHigh, '$')} dimmed />
-    <DataItem label="52W LO" value={formatValue(tickerData?.fiftyTwoWeekLow, '$')} dimmed />
-  </StatSection>
-);
+export const TradingStats: React.FC<{ tickerData: any; layout?: 'horizontal' | 'vertical' }> = ({ tickerData, layout = 'horizontal' }) => {
+  const change = tickerData?.regularMarketChangePercent || 0.45;
+  const color = getDirectionalColor(change);
+
+  return (
+    <StatSection title="Trading" isVertical={layout === 'vertical'}>
+      <DataItem label="PRICE" value={formatValue(tickerData?.price, '$')} color={color} />
+      <DataItem label="CHG %" value={formatValue(change, change > 0 ? '+' : '', '%')} color={color} />
+      <DataItem label="VOL" value="1.2M" />
+      <DataItem label="52W HI" value={formatValue(tickerData?.fiftyTwoWeekHigh, '$')} dimmed />
+    </StatSection>
+  );
+};
 
 export const ValuationStats: React.FC<{ tickerData: any; layout?: 'horizontal' | 'vertical' }> = ({ tickerData, layout = 'horizontal' }) => (
   <StatSection title="Valuation" isVertical={layout === 'vertical'}>
@@ -112,7 +127,7 @@ export const MarketDataFooter: React.FC<MarketDataFooterProps> = ({ tickerData, 
   const isVertical = layout === 'vertical';
 
   return (
-    <div className={`flex ${isVertical ? 'flex-col gap-10' : 'flex-row items-center justify-between'} p-6`}>
+    <div className={`flex ${isVertical ? 'flex-col gap-8' : 'flex-row items-center justify-between'} p-5`}>
       <TradingStats tickerData={tickerData} layout={layout} />
       {!isVertical && <div className="w-px h-10 bg-[var(--border-subtle)]" />}
       <ValuationStats tickerData={tickerData} layout={layout} />
