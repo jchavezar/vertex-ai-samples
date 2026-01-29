@@ -310,7 +310,7 @@ const AdvancedPanel: React.FC<AdvancedPanelProps> = ({ onDragStart }) => {
 
 
               // Typewriter Class Logic
-              const messageClass = isAssistant ? 'text-lg leading-relaxed' : 'text-lg leading-relaxed';
+              const messageClass = isAssistant ? 'text-sm leading-relaxed' : 'text-sm leading-relaxed';
 
 
               // Identify if this is the latest user message to attach the active/final timer
@@ -323,7 +323,7 @@ const AdvancedPanel: React.FC<AdvancedPanelProps> = ({ onDragStart }) => {
                   {/* Only render bubble if there is content */}
                   {m.content && m.content.trim() !== '' && (
                     <div className={clsx(
-                      "max-w-[85%] rounded-3xl p-4 px-6 text-lg shadow-sm",
+                      "max-w-[85%] rounded-3xl p-3 px-4 text-sm shadow-sm",
                       m.role === 'user' ? "bg-[var(--brand)] text-white rounded-br-none" :
                       isDark ? "bg-[var(--bg-app)] border border-[var(--border)] text-[var(--text-primary)] rounded-bl-none" :
                       "bg-white border border-gray-100 text-slate-800 rounded-bl-none shadow-sm"

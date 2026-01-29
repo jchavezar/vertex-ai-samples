@@ -25,11 +25,11 @@ export const DashboardHeader: React.FC = () => {
   const currency = displayData.currency || '$';
 
   return (
-    <header className="bg-[var(--bg-card)] backdrop-blur-3xl border-b border-[var(--border)] px-8 py-4 grid grid-cols-3 items-center z-50 min-w-0">
+    <header className="bg-[var(--bg-card)] backdrop-blur-3xl border-b border-[var(--border)] px-6 py-3 grid grid-cols-3 items-center z-50 min-w-0">
       {/* Left: Ticker Identity */}
       <div className="flex items-center gap-3 justify-self-start">
         <div>
-          <h1 className="text-4xl font-black leading-none flex items-baseline gap-3 tracking-tighter text-[var(--text-primary)]">
+          <h1 className="text-3xl font-black leading-none flex items-baseline gap-3 tracking-tighter text-[var(--text-primary)]">
             {name.split(' ')[0]}
             {name.split(' ')[0] !== ticker && (
               <span className="text-sm bg-white/10 px-2 py-0.5 rounded-md text-[var(--text-secondary)] font-bold border border-white/10 translate-y-[-4px]">
@@ -48,8 +48,8 @@ export const DashboardHeader: React.FC = () => {
       <div className="flex items-center gap-12 justify-self-center">
         <div>
           <div className="flex items-baseline justify-end gap-1 leading-none tracking-tighter text-right drop-shadow-sm">
-            <span className="text-xl font-bold text-[var(--text-muted)] translate-y-[-4px]">{currency}</span>
-            <span className="text-6xl font-black text-[var(--text-primary)]">{price.toLocaleString()}</span>
+            <span className="text-lg font-bold text-[var(--text-muted)] translate-y-[-2px]">{currency}</span>
+            <span className="text-4xl font-black text-[var(--text-primary)]">{price.toLocaleString()}</span>
           </div>
           <div className={clsx(
             "flex items-center justify-end gap-2 text-base font-black mt-0.5",
@@ -64,7 +64,7 @@ export const DashboardHeader: React.FC = () => {
 
         <div className="flex flex-col">
           <span className="text-[10px] text-[var(--text-muted)] uppercase font-black tracking-widest mb-1">Market Cap</span>
-          <span className="text-2xl font-black text-[var(--text-primary)]">
+          <span className="text-lg font-black text-[var(--text-primary)]">
             {(marketCap / 1e9).toFixed(2)}B
           </span>
         </div>
@@ -73,7 +73,7 @@ export const DashboardHeader: React.FC = () => {
 
         <div className="flex flex-col">
           <span className="text-[10px] text-[var(--text-muted)] uppercase font-black tracking-widest mb-1">P/E Ratio</span>
-          <span className="text-2xl font-black text-[var(--text-primary)]">
+          <span className="text-lg font-black text-[var(--text-primary)]">
             {peRatio ? peRatio.toFixed(1) : '--'}
           </span>
         </div>
