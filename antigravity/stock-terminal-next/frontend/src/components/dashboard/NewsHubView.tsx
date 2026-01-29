@@ -16,7 +16,7 @@ interface VideoNews {
 
 export const NewsHubView = () => {
   const { ticker, theme } = useDashboardStore();
-  const [news, setNews] = useState<VideoNews[]>([]);
+  const [data, setData] = useState<{ videos: VideoNews[], market_outlook: string }>({ videos: [], market_outlook: '' });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const isDark = theme === 'dark';
@@ -27,8 +27,8 @@ export const NewsHubView = () => {
     try {
       const res = await fetch(`http://localhost:8002/news_hub/${ticker}`);
       if (!res.ok) throw new Error("Failed to fetch news hub data");
-      const data = await res.json();
-      setNews(data);
+      const result = await res.json();
+      setData(result);
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -41,7 +41,7 @@ export const NewsHubView = () => {
 
     try {
       await fetch(`http://localhost:8002/news_hub/${ticker}`, { method: 'DELETE' });
-      setNews([]);
+      setData({ videos: [], market_outlook: '' });
       fetchNews();
     } catch (err) {
       console.error("Clear Session Error", err);
@@ -52,11 +52,36 @@ export const NewsHubView = () => {
     fetchNews();
   }, [ticker]);
 
+  const news = data.videos;
+
   if (loading && news.length === 0) {
     return (
-      <div className="flex-1 flex flex-col items-center justify-center py-20 gap-4">
-        <div className="w-12 h-12 rounded-full border-2 border-red-500/30 border-t-red-500 animate-spin" />
-        <p className="text-red-500 font-mono text-sm tracking-widest animate-pulse">SYNTHESIZING VIDEO DATA...</p>
+      <div className="flex flex-col gap-8 animate-pulse">
+        <div className="flex items-center justify-between">
+          <div className="h-4 w-32 bg-red-500/10 rounded-full" />
+          <div className="flex gap-2">
+            <div className="h-8 w-8 bg-white/5 rounded-lg" />
+            <div className="h-8 w-8 bg-white/5 rounded-lg" />
+          </div>
+        </div>
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
+          {[1, 2, 3, 4].map((i) => (
+            <div key={i} className={clsx(
+              "rounded-3xl border p-6 flex flex-col md:flex-row gap-6",
+              isDark ? "bg-[#111114] border-white/5" : "bg-white border-gray-100"
+            )}>
+              <div className="w-full md:w-56 h-36 bg-white/5 rounded-2xl" />
+              <div className="flex-1 space-y-4">
+                <div className="h-4 w-20 bg-red-500/10 rounded-full" />
+                <div className="h-6 w-3/4 bg-white/5 rounded-lg" />
+                <div className="space-y-2">
+                  <div className="h-3 w-full bg-white/5 rounded" />
+                  <div className="h-3 w-5/6 bg-white/5 rounded" />
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     );
   }
@@ -78,6 +103,24 @@ export const NewsHubView = () => {
 
   return (
     <div className="flex flex-col gap-6 animate-fade-in">
+      {/* Outlook Banner */}
+      {data.market_outlook && (
+        <div className={clsx(
+          "p-4 rounded-2xl border flex items-center gap-4 animate-slide-in",
+          isDark ? "bg-red-500/5 border-red-500/20" : "bg-red-50 border-red-100"
+        )}>
+          <div className="w-10 h-10 rounded-full bg-red-500 flex items-center justify-center shrink-0 shadow-lg shadow-red-500/20">
+            <AlertCircle size={20} className="text-white" />
+          </div>
+          <div>
+            <h4 className="text-[10px] font-black uppercase tracking-widest text-red-500 mb-0.5">SemiAI Market Outlook</h4>
+            <p className={clsx("text-sm font-medium", isDark ? "text-gray-200" : "text-gray-800")}>
+              {data.market_outlook}
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* Control Bar */}
       <div className="flex items-center justify-between">
         <h3 className="text-[10px] font-black tracking-[0.2em] uppercase text-gray-500 flex items-center gap-2">
@@ -120,8 +163,8 @@ export const NewsHubView = () => {
             <div
               key={item.id}
               className={clsx(
-                "group rounded-3xl border overflow-hidden transition-all duration-500 hover:scale-[1.02] shadow-2xl",
-                isDark ? "bg-[#111114] border-white/5 shadow-black/40" : "bg-white border-gray-100 shadow-blue-900/5"
+                "arch-card group rounded-3xl overflow-hidden shadow-2xl",
+                isDark ? "shadow-black/40" : "shadow-blue-900/5"
               )}
               style={{ animationDelay: `${idx * 150}ms` }}
             >
