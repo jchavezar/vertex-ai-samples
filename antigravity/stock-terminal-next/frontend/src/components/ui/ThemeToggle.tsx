@@ -7,7 +7,7 @@ export const ThemeToggle: React.FC = () => {
   useEffect(() => {
     // Check local storage or system preference
     const savedTheme = localStorage.getItem('theme') as 'dark' | 'light';
-    const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    // const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
     
     const initialTheme = savedTheme || 'dark'; // Default to dark for this app specifically
     setTheme(initialTheme);
