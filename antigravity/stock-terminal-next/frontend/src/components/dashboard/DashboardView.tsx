@@ -181,17 +181,17 @@ export const DashboardView: React.FC = () => {
           </div>
         </div>
 
-        {/* ROW 2: Market Essentials Ticker (Strict Footer) */}
+        {/* ROW 2: Market Essentials Ticker (Strict Footer) - COMPACT REVERT */}
         <div className="col-span-1 lg:col-span-12">
           <div className="arch-card rounded-xl border-t border-[var(--border-highlight)] bg-[var(--bg-panel)]">
-            <div className="flex flex-col lg:flex-row items-center h-[110px] px-6">
+            <div className="flex flex-col lg:flex-row items-center h-20 px-6">
 
               {/* Label */}
-              <div className="flex items-center gap-4 pr-8 border-r border-[var(--border)] h-full lg:min-w-[240px]">
-                <div className="w-1.5 h-10 bg-[var(--text-primary)]"></div>
+              <div className="flex items-center gap-3 pr-6 border-r border-[var(--border)] h-full lg:min-w-[180px]">
+                <div className="w-1 h-8 bg-[var(--text-primary)]"></div>
                 <div>
-                  <h3 className="text-2xl font-black text-[var(--text-primary)] tracking-widest uppercase">MARKET</h3>
-                  <p className="text-sm text-[var(--text-muted)] font-mono font-bold">REAL-TIME DATA</p>
+                  <h3 className="text-lg font-black text-[var(--text-primary)] tracking-widest uppercase leading-none">MARKET</h3>
+                  <p className="text-[10px] text-[var(--text-muted)] font-mono font-bold leading-none mt-1">REAL-TIME DATA</p>
                 </div>
               </div>
 
