@@ -1,0 +1,34 @@
+
+> stock-terminal-frontend@0.0.0 lint
+> eslint . --report-unused-disable-directives --max-warnings 0
+
+
+/Users/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/stock-terminal-next/frontend/src/components/chat/TraceLog.tsx
+  79:46  error  Parsing error: Invalid character
+
+/Users/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/stock-terminal-next/frontend/src/components/dashboard/DashboardView.tsx
+   48:93  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   51:51  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   52:44  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   56:36  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  124:91  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  127:49  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  128:42  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  132:35  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/stock-terminal-next/frontend/src/components/reports/ReportBuilder.tsx
+   25:19  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   32:12  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   33:10  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   34:18  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   35:22  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  404:35  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/stock-terminal-next/frontend/src/context/ChatContext.tsx
+  307:17  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+
+✖ 16 problems (15 errors, 1 warning)
+
+*** gpkg: This tool is configured to use Corp Airlock for package installs: http://go/corp-airlock
+*** gpkg: If Corp Airlock is breaking your workflow please report at: http://go/corp-airlock-feedback
+*** gpkg: Exceptions are available: http://go/corp-airlock#request-exception

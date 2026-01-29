@@ -7,7 +7,9 @@ import { useDashboardStore } from './store/dashboardStore';
 import clsx from 'clsx';
 import { AdvancedSearchView } from './components/search/AdvancedSearchView';
 import { GraphOverlay } from './components/chat/GraphOverlay';
+import { AdkOverlay } from './components/dashboard/AdkOverlay';
 import ReportBuilder from './components/reports/ReportBuilder';
+import { NeuralLinkView } from './components/dashboard/NeuralLinkView';
 
 import { ChatProvider } from './context/ChatContext';
 
@@ -120,6 +122,7 @@ export const App = () => {
           <div className="flex-1 overflow-y-auto p-0 scrollbar-hide">
             {currentView === 'advanced_search' ? <AdvancedSearchView /> :
               currentView === 'report_generator' ? <ReportBuilder /> :
+                currentView === 'neural_link' ? <NeuralLinkView /> :
                 <DashboardView />}
           </div>
 
@@ -143,6 +146,9 @@ export const App = () => {
 
           {/* Graph Overlay */}
           <GraphOverlay />
+
+          {/* ADK System Overlay */}
+          <AdkOverlay />
         </main>
 
         {/* Right Docked Chat Container */}
