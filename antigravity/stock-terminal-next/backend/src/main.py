@@ -36,6 +36,7 @@ from src.reasoning_agent import ReasoningAgent
 reasoning_store: Dict[str, str] = {}
 from src.reasoning_agent import ReasoningAgent
 from src.neural_link_agent import neural_service
+from src.news_hub_agent import news_hub_service
 
 # Load Env
 load_dotenv(dotenv_path="../.env")
@@ -275,6 +276,21 @@ async def auth_callback(code: str, state: Optional[str] = None, error: Optional[
         traceback.print_exc()
         print(f"CRITICAL AUTH ERROR: {e}")
         return HTMLResponse(f"<h1>Internal Server Error</h1><p>{str(e)}</p>")
+
+@app.get("/news_hub/{ticker}")
+async def get_news_hub(ticker: str):
+    """
+    Get SemiAI News Hub summarized video news for a ticker.
+    """
+    return await news_hub_service.get_summarized_news(ticker)
+
+@app.delete("/news_hub/{ticker}")
+async def clear_news_hub(ticker: str):
+    """
+    Clear the cached news for a ticker.
+    """
+    news_hub_service.clear_session(ticker)
+    return {"status": "success"}
 
 class ChatRequest(BaseModel):
     messages: List[Dict[str, Any]]
