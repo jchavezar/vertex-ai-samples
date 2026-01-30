@@ -96,6 +96,9 @@ interface DashboardState {
   // New missing properties
   compsAnalysis: any | null;
   setCompsAnalysis: (data: any | null) => void;
+
+  newsHubCache: Record<string, { videos: any[], market_outlook: string }>;
+  cacheNewsHubData: (ticker: string, data: { videos: any[], market_outlook: string }) => void;
 }
 
 export interface NewsItem {
@@ -193,4 +196,10 @@ export const useDashboardStore = create<DashboardState>((set) => ({
 
   compsAnalysis: null,
   setCompsAnalysis: (data) => set({ compsAnalysis: data }),
+
+  // News Hub Cache
+  newsHubCache: {},
+  cacheNewsHubData: (ticker, data) => set((state) => ({
+    newsHubCache: { ...state.newsHubCache, [ticker]: data }
+  })),
 }));

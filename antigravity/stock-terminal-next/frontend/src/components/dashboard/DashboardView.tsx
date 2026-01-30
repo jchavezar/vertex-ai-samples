@@ -57,27 +57,47 @@ export const DashboardView: React.FC = () => {
     }
 
     try {
-      const response = await fetch(import.meta.env.VITE_API_URL + '/generate-widget', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          tickers: tickersToAnalyze,
-          section: section,
-          session_id: "default_chat",
-          model: 'gemini-2.5-flash'
-        })
-      });
+      // Neural Slot Agent Routing
+      const neuralSlots = ["Profile", "Valuation", "Dividends", "Consensus"];
+      let data;
 
-      if (!response.ok) {
-        throw new Error(`Widget fetch failed with status: ${response.status}`);
+      if (neuralSlots.includes(section)) {
+        // Use the new Isolated Agent Endpoint
+        // Only analyze the specific ticker (first one if multiselect, usually just current ticker)
+        const targetTicker = tickersToAnalyze[0];
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/neural_link/deep_dive/${targetTicker}/${section}`, {
+          method: 'POST'
+        });
+
+        if (!response.ok) {
+          throw new Error(`Neural Link Agent failed with status: ${response.status}`);
+        }
+        data = await response.json();
+
+      } else {
+      // Fallback to generic widget generator
+        const response = await fetch(import.meta.env.VITE_API_URL + '/generate-widget', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            tickers: tickersToAnalyze,
+            section: section,
+            session_id: "default_chat",
+            model: 'gemini-2.5-flash'
+          })
+        });
+
+        if (!response.ok) {
+          throw new Error(`Widget fetch failed with status: ${response.status}`);
+        }
+        data = await response.json();
       }
 
-      const data = await response.json();
-      setWidgetOverride(section, { loading: false, content: data.content, model: 'gemini-2.5-flash' });
+      setWidgetOverride(section, { loading: false, content: data.content, model: 'gemini-2.5-flash-lite' });
 
     } catch (err) {
       console.error(`Failed to generate widget ${section}:`, err);
-      setWidgetOverride(section, { loading: false, content: `Error: Failed to fetch ${section} analysis.` });
+      setWidgetOverride(section, { loading: false, content: `Error: Failed to fetch ${section} analysis. System offline.` });
     }
   };
 
@@ -190,7 +210,7 @@ export const DashboardView: React.FC = () => {
               <WidgetSlot
                 section="Profile"
                 override={widgetOverrides['Profile']}
-                isAiMode={!!chartOverride}
+              isAiMode={true}
                 onGenerate={handleGenerateWidget}
                 tickers={tickersToAnalyze}
               originalComponent={<div className="p-4 h-full"><SummaryPanel ticker={ticker} externalData={tickerData} /></div>}
@@ -202,7 +222,7 @@ export const DashboardView: React.FC = () => {
             <WidgetSlot
               section="Valuation"
               override={widgetOverrides['Valuation']}
-              isAiMode={!!chartOverride}
+              isAiMode={true}
               onGenerate={handleGenerateWidget}
               tickers={tickersToAnalyze}
               originalComponent={<div className="p-4"><ValuationStats tickerData={tickerData} layout="vertical" /></div>}
@@ -214,7 +234,7 @@ export const DashboardView: React.FC = () => {
             <WidgetSlot
               section="Dividends"
               override={widgetOverrides['Dividends']}
-              isAiMode={!!chartOverride}
+              isAiMode={true}
               onGenerate={handleGenerateWidget}
               tickers={tickersToAnalyze}
               originalComponent={<div className="p-4"><DividendStats tickerData={tickerData} layout="vertical" /></div>}
@@ -226,7 +246,7 @@ export const DashboardView: React.FC = () => {
             <WidgetSlot
               section="Consensus"
               override={widgetOverrides['Consensus']}
-              isAiMode={!!chartOverride}
+              isAiMode={true}
               onGenerate={handleGenerateWidget}
               tickers={tickersToAnalyze}
               originalComponent={<div className="p-4"><ConsensusStats tickerData={tickerData} layout="vertical" /></div>}

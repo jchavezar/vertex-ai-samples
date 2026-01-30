@@ -44,7 +44,8 @@ load_dotenv(dotenv_path="../.env")
 app = FastAPI(title="Stock Terminal Next Backend")
 
 # Parse CORS Origins from Env
-cors_origins_str = os.getenv("CORS_ORIGINS", "http://localhost:5173,http://localhost:8001")
+# Parse CORS Origins from Env
+cors_origins_str = os.getenv("CORS_ORIGINS", "http://localhost:5173,http://localhost:8001,http://127.0.0.1:5173,http://127.0.0.1:8001")
 origins = [origin.strip() for origin in cors_origins_str.split(",")]
 
 app.add_middleware(
@@ -372,6 +373,8 @@ async def chat_endpoint(req: ChatRequest, background_tasks: BackgroundTasks):
                         param_obj = json.loads(json_str)
                         # Emit as a Protocol 2 (Data) event immediately
                         await event_queue.put(AIStreamProtocol.data(param_obj))
+                        # Trace
+                        await event_queue.put(AIStreamProtocol.trace(f"Generated Chart: {param_obj.get('title')}", type="system"))
                     except:
                         pass
                 
@@ -605,6 +608,21 @@ async def chat_endpoint(req: ChatRequest, background_tasks: BackgroundTasks):
                                         })
                                         log_trace("latency", tool=r_name, duration=duration)
                                         log_trace("tool_result", name=r_name, result=r_content)
+                                    
+                                    if r_name == "plot_financial_data":
+                                        try:
+                                            chart_payload = r_content if isinstance(r_content, dict) else json.loads(r_content)
+                                            # Protocol 2: Dashboard Update (ALWAYS EMIT for Snapshot)
+                                            yield AIStreamProtocol.data(chart_payload)
+                                            
+                                            # Protocol 0: Inline Chart (DISABLED per User Request - "No charts in chatbot")
+                                            # yield AIStreamProtocol.text(f"[CHART]{json.dumps(chart_payload)}[/CHART]")
+                                            
+                                            # Emit a simple confirmation text instead
+                                            yield AIStreamProtocol.text(f"_Updated Dashboard with {chart_payload.get('title', 'Market')} Chart_")
+                                        except Exception as chart_err:
+                                            print(f"Chart Emit Error: {chart_err}")
+
                                     continue # Skip text processing for result parts
 
                                 # 2. Text Processing
@@ -632,10 +650,10 @@ async def chat_endpoint(req: ChatRequest, background_tasks: BackgroundTasks):
                                         json_str = chart_block.replace("[CHART]", "").replace("[/CHART]", "")
                                         param_obj = json.loads(json_str)
                                         yield AIStreamProtocol.data(param_obj)
-                                        # Trace chart generation
+                                        # trace 
                                         yield AIStreamProtocol.trace(f"Generated Chart: {param_obj.get('title')}", type="system")
                                     except:
-                                        yield AIStreamProtocol.text(chart_block)
+                                        pass
                                         
                                     buffer = post_text
                                     
@@ -835,7 +853,7 @@ async def generative_overview_endpoint(req: OverviewRequest):
             temp_session_id = f"overview_{secrets.token_hex(4)}"
             await session_service.create_session(session_id=temp_session_id, app_name="stock_terminal", user_id="user_1")
             
-            msg = Content(role="user", parts=[Part(text=summary_prompt)])
+            msg = types.Content(role="user", parts=[types.Part(text=summary_prompt)])
             
             # Run Agent (Single Turn)
             async for event in runner.run_async(user_id="user_1", session_id=temp_session_id, new_message=msg):
@@ -958,7 +976,7 @@ async def analyze_pdf_endpoint(req: AnalyzePdfRequest):
         
         analysis_agent = Agent(
             name="pdf_analyst",
-            model="gemini-2.5-flash-lite",
+            model="gemini-2.5-flash",
             instruction=(
                 "You are an expert financial analyst engine. Your goal is to answer the user's question "
                 "with extreme precision using ONLY the provided PDF document.\\n"
@@ -979,10 +997,10 @@ async def analyze_pdf_endpoint(req: AnalyzePdfRequest):
         
         # 3. Create Multi-modal Message
         print("Creating Message...")
-        pdf_part = Part.from_bytes(data=pdf_bytes, mime_type="application/pdf")
-        text_part = Part(text=f"QUESTION: {req.query}\\n\\nPlease answer the question above based on the attached PDF. Provide a tailored, concise response.")
+        pdf_part = types.Part.from_bytes(data=pdf_bytes, mime_type="application/pdf")
+        text_part = types.Part(text=f"QUESTION: {req.query}\\n\\nPlease answer the question above based on the attached PDF. Provide a tailored, concise response.")
         
-        msg = Content(role="user", parts=[pdf_part, text_part])
+        msg = types.Content(role="user", parts=[pdf_part, text_part])
         
         # 4. Stream Response
         print("Starting Stream...")
@@ -1136,3 +1154,31 @@ if __name__ == "__main__":
     # Use PORT from env, default to 8001
     port = int(os.getenv("PORT", 8001))
     uvicorn.run("src.main:app", host="0.0.0.0", port=port, reload=True)
+@app.get("/neural_link/trends/{ticker}")
+async def get_neural_trends(ticker: str):
+    """
+    Get aggregated neural trends (News + Social Rumors) for a ticker.
+    """
+    try:
+        return await neural_service.get_trends(ticker)
+    except Exception as e:
+        llog.info(f"Neural Trend Error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/neural_link/deep_dive/{ticker}/{category}")
+async def generate_deep_dive(ticker: str, category: str):
+    """
+    Generate a deep dive analysis for a specific category using the isolated agent.
+    """
+    try:
+        # Validate category
+        valid_categories = ["Profile", "Valuation", "Dividends", "Consensus"]
+        if category not in valid_categories:
+             # loose match
+             pass 
+        
+        result = await neural_service.get_deep_dive(ticker, category)
+        return result
+    except Exception as e:
+        llog.info(f"Deep Dive Error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))

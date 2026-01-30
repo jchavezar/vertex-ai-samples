@@ -72,7 +72,7 @@ export const WidgetSlot: React.FC<WidgetSlotProps> = ({
     return (
       <>
         <div
-          className={getContainerClass("min-h-[220px] max-h-[300px] overflow-hidden flex flex-col cursor-pointer transition-all duration-300 hover:bg-[var(--bg-panel)] bg-[var(--bg-card)] border border-[var(--border-subtle)] group p-6")}
+          className={getContainerClass("min-h-[220px] max-h-[300px] relative overflow-hidden flex flex-col cursor-pointer transition-all duration-300 hover:bg-[var(--bg-panel)] bg-[var(--bg-card)] border border-[var(--border-subtle)] group p-6")}
           onClick={() => setIsModalOpen(true)}
         >
           <div className="flex justify-between items-center mb-4">
@@ -91,12 +91,19 @@ export const WidgetSlot: React.FC<WidgetSlotProps> = ({
               EXPAND
             </div>
           </div>
-          <div className="prose prose-invert prose-xs max-w-none text-[12px] leading-relaxed text-[var(--text-secondary)] font-medium tracking-tight">
+
+          <div className="prose prose-invert prose-xs max-w-none text-[12px] leading-relaxed text-[var(--text-secondary)] font-medium tracking-tight relative mb-8">
             <ReactMarkdown remarkPlugins={[remarkGfm]}>{cleanFullContent}</ReactMarkdown>
+
+
           </div>
+
+          {/* Gradient Mask for Long Content */}
           {isLongContent && (
-            <div className="mt-auto pt-4 text-center text-[8px] text-[var(--text-muted)] font-black border-t border-[var(--border-subtle)]/50 uppercase tracking-[0.2em] group-hover:text-[var(--text-primary)] transition-colors">
-              CLICK TO REVEAL FULL BRIEF
+            <div className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-[var(--bg-card)] via-[var(--bg-card)]/95 to-transparent flex flex-col justify-end items-center pb-4 pointer-events-none">
+              <span className="text-[8px] font-black tracking-[0.2em] uppercase text-[var(--text-primary)] bg-[var(--bg-app)]/80 px-4 py-1.5 rounded-full border border-[var(--border-subtle)] shadow-xl backdrop-blur-md group-hover:bg-[var(--text-primary)] group-hover:text-[var(--bg-app)] transition-all pointer-events-auto">
+                Click to Expand
+              </span>
             </div>
           )}
         </div>

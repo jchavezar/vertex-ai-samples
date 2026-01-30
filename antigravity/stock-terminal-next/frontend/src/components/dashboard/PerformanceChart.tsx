@@ -231,8 +231,8 @@ export const PerformanceChart: React.FC<PerformanceChartProps> = ({ ticker, exte
           <>
               <div className="flex items-center gap-2">
                 <div className="flex flex-col">
-                  <span className="text-[10px] text-[var(--text-muted)] uppercase">Asset</span>
-                  <span className="text-[var(--text-primary)] font-bold">{externalData?.ticker || ticker || "Unknown"}</span>
+                  <span className="text-[10px] text-[var(--text-muted)] uppercase tracking-wider font-semibold">Asset</span>
+                  <span className="text-[var(--text-primary)] font-bold text-lg tracking-tight">{externalData?.ticker || ticker}</span>
                 </div>
               </div>
               {isNormalized && (
@@ -393,8 +393,12 @@ export const PerformanceChart: React.FC<PerformanceChartProps> = ({ ticker, exte
                 <>
                         <defs>
                           <linearGradient id="colorPrice" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="5%" stopColor="var(--brand)" stopOpacity={0.8} />
-                            <stop offset="95%" stopColor="var(--brand)" stopOpacity={0.1} />
+                            <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.6} />
+                            <stop offset="95%" stopColor="#3b82f6" stopOpacity={0.0} />
+                          </linearGradient>
+                          <linearGradient id="colorPriceStroke" x1="0" y1="0" x2="1" y2="0">
+                            <stop offset="0%" stopColor="#3b82f6" />
+                            <stop offset="100%" stopColor="#60a5fa" />
                           </linearGradient>
                         </defs>
                   <Area
@@ -402,11 +406,11 @@ export const PerformanceChart: React.FC<PerformanceChartProps> = ({ ticker, exte
                     type="monotone"
                     dataKey="price"
                           name={externalData?.ticker || ticker}
-                    stroke="var(--brand)"
+                          stroke="url(#colorPriceStroke)" /* Use gradient stroke if possible, or var(--brand) */
                     strokeWidth={3}
                     fillOpacity={1}
                     fill="url(#colorPrice)"
-                          activeDot={{ r: 6, strokeWidth: 0, fill: 'var(--brand)' }}
+                          activeDot={{ r: 6, strokeWidth: 2, stroke: 'var(--bg-app)', fill: 'var(--brand)' }}
                   />
                         {isNormalized && (
                           <Line

@@ -1,4 +1,3 @@
-/* stylelint-disable at-rule-no-unknown */
 /* stylelint-disable */
 @tailwind base;
 @tailwind components;
@@ -12,29 +11,31 @@
     --font-mono: 'JetBrains Mono', 'Menlo', 'Monaco', 'Courier New', monospace;
 
     /* Backgrounds */
-    --bg-app: #030303;
+    --bg-app: #050505;
     --bg-panel: #0a0a0a;
-    --bg-card: #111111;
+    --bg-card: rgba(17, 17, 17, 0.7); /* Translucent for glassmorphism */
+    --card-blur: blur(20px);
 
     /* Borders */
-    --border: #333333;
-    --border-subtle: #222222;
-    --border-highlight: #555555;
+    --border: rgba(255, 255, 255, 0.08);
+    --border-subtle: rgba(255, 255, 255, 0.04);
+    --border-highlight: rgba(255, 255, 255, 0.15);
 
     /* Text */
-    --text-primary: #ededed;
-    --text-secondary: #a1a1aa;
-    --text-muted: #52525b;
+    --text-primary: #f8fafc;
+    --text-secondary: #94a3b8;
+    --text-muted: #64748b;
 
     /* Accents */
-    --brand: #ffffff;
-    --accent: #29bc9b;
-    --danger: #f55a4e;
-    --blue-glow: #3291ff;
+    --brand: #3b82f6;
+    --accent: #10b981;
+    --danger: #ef4444;
+    --blue-glow: #60a5fa;
 
     /* Misc */
     --header-height: 64px;
-    --card-shadow: 0 0 30px -10px rgba(255, 255, 255, 0.1);
+    --card-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+    --glass-border: 1px solid rgba(255, 255, 255, 0.05);
   }
 
   /* LIGHT THEME - "Paper & Ink" */
@@ -102,12 +103,20 @@
 @layer components {
   /* Architectural Card */
   .arch-card {
-    @apply bg-[var(--bg-card)] border border-[var(--border)] relative overflow-hidden transition-all duration-200;
+    background: var(--bg-card);
+    backdrop-filter: var(--card-blur);
+    border: var(--glass-border);
+    border-radius: 16px; /* Smooth rounded corners */
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
   }
 
   .arch-card:hover {
     border-color: var(--border-highlight);
-    box-shadow: var(--card-shadow);
+    box-shadow: var(--card-shadow), 0 0 20px rgba(59, 130, 246, 0.1); /* Subtle blue glow */
+    transform: translateY(-2px);
   }
 
   .arch-inner {
