@@ -38,21 +38,19 @@ export const NeuralLinkView = () => {
   const isDark = theme === 'dark';
 
   useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
+    const fetchTrends = async () => {
       try {
-        const res = await fetch(`http://localhost:8002/neural_link/trends/${ticker}`);
-        const json = await res.json();
-        console.log("Neural Link Data:", json); // Debug Log
-        setData(json);
-      } catch (err) {
-        console.error("Neural Link Fetch Error", err);
-      } finally {
+        const res = await fetch(`${import.meta.env.VITE_API_URL}/neural_link/trends/${ticker}`);
+        const data = await res.json();
+        setData(data);
+        setLoading(false);
+      } catch (e) {
+        console.error("Failed to fetch trends", e);
         setLoading(false);
       }
     };
-
-    fetchData();
+    
+    fetchTrends();
   }, [ticker]);
 
   return (

@@ -8,11 +8,14 @@ venv/
 *.log.*
 
 # Data & Secrets
+.env
 factset_tokens.json
+refresh_token.json
 sessions.db
 inference_sessions.db
 inference_output.log
 neural_link_sessions.db
+news_hub_sessions.db
 
 # System
 .DS_Store
@@ -25,6 +28,7 @@ neural_link_sessions.db
 node_modules/
 dist/
 build/
+frontend/dist/
 
 # Temporary / Debugging
 reproduce_*.py

@@ -190,7 +190,7 @@ const AuthStatus: React.FC = () => {
 
   const checkStatus = async () => {
     try {
-      const res = await fetch('http://localhost:8002/auth/factset/status');
+      const res = await fetch(import.meta.env.VITE_API_URL + '/auth/factset/status');
       const data = await res.json();
       setStatus(data);
     } catch (e) {
@@ -208,7 +208,7 @@ const AuthStatus: React.FC = () => {
     setLoading(true);
     try {
       // Fetch the Auth URL from backend
-      const res = await fetch('http://localhost:8002/auth/factset/url');
+      const res = await fetch(import.meta.env.VITE_API_URL + '/auth/factset/url');
       const data = await res.json();
       if (data.auth_url) {
         window.location.href = data.auth_url;

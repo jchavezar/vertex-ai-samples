@@ -11,7 +11,7 @@ import { LogOverlay } from './LogOverlay';
 
 import { Peer } from './types';
 
-const API_BASE_URL = 'http://localhost:8002';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8001';
 
 export const CompsAnalysisView: React.FC = () => {
   const { ticker, compsAnalysis, setCompsAnalysis, setTicker } = useDashboardStore();

@@ -43,26 +43,20 @@ load_dotenv(dotenv_path="../.env")
 
 app = FastAPI(title="Stock Terminal Next Backend")
 
+# Parse CORS Origins from Env
+cors_origins_str = os.getenv("CORS_ORIGINS", "http://localhost:5173,http://localhost:8001")
+origins = [origin.strip() for origin in cors_origins_str.split(",")]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:5173", 
-        "http://localhost:8001",
-        "http://localhost:8002",
-        "http://localhost:3009",
-        "http://127.0.0.1:5173", 
-        "http://127.0.0.1:8001",
-        "http://127.0.0.1:8002",
-        "http://127.0.0.1:3009",
-        "http://localhost:3005",
-        "http://127.0.0.1:3005"
-    ],
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
 # Constants
+PORT = int(os.getenv("PORT", 8001))
 FS_CLIENT_ID = os.getenv("FS_CLIENT_ID")
 FS_CLIENT_SECRET = os.getenv("FS_CLIENT_SECRET")
 FS_TOKEN_URL = "https://auth.factset.com/as/token.oauth2"
@@ -176,7 +170,7 @@ async def get_valid_factset_token(session_id: str):
 # FactSet Config
 FS_CLIENT_ID = os.getenv("FS_CLIENT_ID")
 FS_CLIENT_SECRET = os.getenv("FS_CLIENT_SECRET")
-FS_REDIRECT_URI = os.getenv("FS_REDIRECT_URI", "http://localhost:8002/auth/factset/callback")
+FS_REDIRECT_URI = os.getenv("FS_REDIRECT_URI", "http://localhost:8001/auth/factset/callback")
 FS_AUTH_URL = "https://auth.factset.com/as/authorization.oauth2"
 FS_TOKEN_URL = "https://auth.factset.com/as/token.oauth2"
 
@@ -213,7 +207,7 @@ async def auth_status(session_id: str = "default_chat"):
 
 class AuthCallbackRequest(BaseModel):
     code: str
-    redirect_uri: Optional[str] = "http://localhost:8002/auth/factset/callback"
+    redirect_uri: Optional[str] = "http://localhost:8001/auth/factset/callback"
 
 @app.get("/auth/factset/callback")
 async def auth_callback(code: str, state: Optional[str] = None, error: Optional[str] = None, error_description: Optional[str] = None, request: Request = None):
@@ -240,7 +234,7 @@ async def auth_callback(code: str, state: Optional[str] = None, error: Optional[
         redirect_uri = os.getenv("FS_REDIRECT_URI")
         if not redirect_uri:
             # Fallback to current URL base
-            redirect_uri = "http://localhost:8002/auth/factset/callback"
+            redirect_uri = "http://localhost:8001/auth/factset/callback"
             print(f"Using fallback redirect_uri: {redirect_uri}")
         
         payload = {
@@ -266,7 +260,8 @@ async def auth_callback(code: str, state: Optional[str] = None, error: Optional[
                 }
                 save_tokens(factset_tokens)
                 print("Successfully exchanged code for token.")
-                return RedirectResponse("http://localhost:3009/") # Redirect to Frontend
+                frontend_url = os.getenv("FRONTEND_URL", "http://localhost:5173/")
+                return RedirectResponse(frontend_url) # Redirect to Frontend
             else:
                 print(f"Auth Exchange Failed: {response.text}")
                 return HTMLResponse(f"<h1>Auth Exchange Failed</h1><p>{response.status_code}: {response.text}</p>")
@@ -1138,4 +1133,6 @@ async def report_stream_endpoint(ticker: str, type: str):
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run("src.main:app", host="0.0.0.0", port=8001, reload=True)
+    # Use PORT from env, default to 8001
+    port = int(os.getenv("PORT", 8001))
+    uvicorn.run("src.main:app", host="0.0.0.0", port=port, reload=True)
