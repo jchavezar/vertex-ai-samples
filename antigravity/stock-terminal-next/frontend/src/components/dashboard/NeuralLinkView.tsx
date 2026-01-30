@@ -39,6 +39,7 @@ export const NeuralLinkView = () => {
 
   useEffect(() => {
     const fetchTrends = async () => {
+        setLoading(true);
       try {
         const res = await fetch(`${import.meta.env.VITE_API_URL}/neural_link/trends/${ticker}`);
         const data = await res.json();
@@ -81,9 +82,39 @@ export const NeuralLinkView = () => {
       </div>
 
       {loading ? (
-        <div className="flex-1 flex flex-col items-center justify-center gap-4 animate-pulse">
-            <div className="w-16 h-16 rounded-full border-4 border-cyan-500/30 border-t-cyan-500 animate-spin" />
-            <p className="text-cyan-400 font-mono text-sm tracking-widest">ESTABLISHING NEURAL LINK...</p>
+              <div className="flex flex-col gap-8 animate-fade-in">
+                  {/* Skeleton Top Section */}
+                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                      <div className={clsx(
+                          "col-span-1 lg:col-span-2 h-[200px] rounded-3xl border animate-pulse",
+                          isDark ? "bg-white/5 border-white/5" : "bg-white border-gray-100"
+                      )}>
+                          <div className="h-full w-full flex items-center justify-center">
+                              <p className="text-cyan-400/50 font-mono text-xs tracking-[0.3em] animate-pulse">SYNTHESIZING TRENDS...</p>
+                          </div>
+                      </div>
+                      <div className={clsx(
+                          "col-span-1 h-[200px] rounded-3xl border animate-pulse",
+                          isDark ? "bg-white/5 border-white/5" : "bg-white border-gray-100"
+                      )} />
+                  </div>
+
+                  {/* Skeleton Tabs */}
+                  <div className="flex gap-4">
+                      {[1, 2, 3].map(i => (
+                          <div key={i} className={clsx("h-10 w-32 rounded-full animate-pulse", isDark ? "bg-white/5" : "bg-gray-200")} />
+                      ))}
+                  </div>
+
+                  {/* Skeleton Grid */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                      {[1, 2, 3, 4, 5, 6].map(i => (
+                          <div key={i} className={clsx(
+                              "h-[250px] rounded-2xl border animate-pulse",
+                              isDark ? "bg-white/5 border-white/5" : "bg-white border-gray-100"
+                          )} />
+                      ))}
+                  </div>
         </div>
       ) : (
         <div className="flex flex-col gap-8 animate-fade-in-up">

@@ -15,13 +15,19 @@ interface VideoNews {
 }
 
 export const NewsHubView = () => {
-  const { ticker, theme } = useDashboardStore();
+  const { ticker, theme, newsHubCache, cacheNewsHubData } = useDashboardStore();
   const [data, setData] = useState<{ videos: VideoNews[], market_outlook: string }>({ videos: [], market_outlook: '' });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const isDark = theme === 'dark';
 
-  const fetchNews = async () => {
+  const fetchNews = async (forceRefresh = false) => {
+    // Check cache first
+    if (!forceRefresh && newsHubCache[ticker]) {
+      setData(newsHubCache[ticker]);
+      return;
+    }
+
     setLoading(true);
     setError(null);
     try {
@@ -29,6 +35,7 @@ export const NewsHubView = () => {
       if (!res.ok) throw new Error("Failed to fetch news hub data");
       const result = await res.json();
       setData(result);
+      cacheNewsHubData(ticker, result);
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -42,7 +49,8 @@ export const NewsHubView = () => {
     try {
       await fetch(`${import.meta.env.VITE_API_URL}/news_hub/${ticker}`, { method: 'DELETE' });
       setData({ videos: [], market_outlook: '' });
-      fetchNews();
+      // Force refresh will update cache
+      fetchNews(true);
     } catch (err) {
       console.error("Clear Session Error", err);
     }
@@ -92,7 +100,7 @@ export const NewsHubView = () => {
         <AlertCircle size={48} className="text-red-500 opacity-50" />
         <p className="text-gray-400 max-w-md">{error}</p>
         <button
-          onClick={() => fetchNews()}
+          onClick={() => fetchNews(true)}
           className="px-6 py-2 bg-red-500/10 text-red-500 border border-red-500/50 rounded-full hover:bg-red-500/20 transition-all font-bold"
         >
           Retry Connection
@@ -141,7 +149,7 @@ export const NewsHubView = () => {
         </h3>
         <div className="flex items-center gap-2">
           <button
-            onClick={() => fetchNews()}
+            onClick={() => fetchNews(true)}
             disabled={loading}
             className={clsx(
               "p-2 rounded-lg transition-all",

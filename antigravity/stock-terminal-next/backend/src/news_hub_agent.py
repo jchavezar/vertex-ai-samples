@@ -27,8 +27,8 @@ class NewsHubService:
             name="news_hub_agent",
             model=model_name,
             instruction="""
-            You are a Semiconductor Financial Intelligence Scout.
-            Your task is to find REAL YouTube videos about semiconductor stocks (NVDA, TSMC, AMD, etc.).
+            You are a Financial Video Intelligence Scout.
+            Your task is to find REAL YouTube videos about specific stock tickers.
             
             STRICT RULES:
             1. You MUST call `google_search` to find news.
@@ -66,9 +66,10 @@ class NewsHubService:
         await self.session_service.create_session(session_id=session_id, user_id="system", app_name="news_hub")
         runner = adk.Runner(app_name="news_hub", agent=self.agent, session_service=self.session_service)
         
-        prompt = f"""Search for the 8 most recent (last 7 days) REAL financial news YouTube videos about {ticker} stock in a semiconductor market context.
+        import datetime
+        prompt = f"""Search for the 8 most recent (last 7 days) REAL financial news YouTube videos about {ticker} stock.
         
-        Use `google_search` with a query like 'youtube news {ticker} semiconductor {adk.get_current_datetime()}'
+        Use `google_search` with a query like 'youtube news {ticker} stock analysis {datetime.datetime.now().strftime('%Y-%m-%d')}'
         
         CRITICAL: 
         - Only include videos where you have a valid youtube.com/watch or youtu.be URL.

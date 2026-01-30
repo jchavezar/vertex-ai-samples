@@ -2,11 +2,9 @@ import React, { useState, useEffect, useRef } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { MacroPerspectiveCard } from './MacroPerspectiveCard';
-import { PeerPackGrid } from './PeerPackGrid';
 import { useDashboardStore } from '../../store/dashboardStore';
 import { Zap } from 'lucide-react';
 import { clsx } from "clsx";
-import { PerformanceChart } from '../dashboard/PerformanceChart';
 
 interface StreamingMarkdownProps {
   content: string;
@@ -19,9 +17,6 @@ const SCRAMBLE_CHARS = "ABCDEF0123456789!@#$%^&*()_+";
 export const StreamingMarkdown: React.FC<StreamingMarkdownProps> = ({ content, isStreaming, className }) => {
   const [displayedContent, setDisplayedContent] = useState(isStreaming ? '' : content);
   const [scrambleSuffix, setScrambleSuffix] = useState('');
-  
-  // Chart extraction logic
-  const [chartData, setChartData] = useState<any>(null);
 
   // Use a ref to track the animation loop state
   const stateRef = useRef({
@@ -30,41 +25,37 @@ export const StreamingMarkdown: React.FC<StreamingMarkdownProps> = ({ content, i
     lastFrameTime: 0,
   });
 
-  // Extract Chart Data & Clean Content
-  // We do this derived calculation to ensure targetContent is always "clean" (no JSON)
-  const getCleanContentAndChart = (rawContent: string) => {
-    let clean = rawContent;
-    let extractedChart = null;
+  // Memoize extraction to prevent re-render loops
+  const { cleanTargetContent, structuredData } = React.useMemo(() => {
+    let clean = content;
+    let extractedStructured = null;
 
-    // 1. Try to find complete block
-    const chartMatch = rawContent.match(/\[CHART\]([\s\S]*?)\[\/CHART\]/);
-    if (chartMatch && chartMatch[1]) {
+    // 1. Chart Extraction REMOVED (Charts only on Dashboard now)
+    // We still strip [CHART] tags if they appear to keep chat clean
+    clean = clean.replace(/\[CHART\][\s\S]*?\[\/CHART\]/g, '');
+    clean = clean.replace(/\[CHART\][\s\S]*/g, '');
+
+    // 2. Extract Structured Data (keep in text? or remove? logic says remove for display)
+    // The previous code extracted it from 'displayStr' later, but doing it here is cleaner for dependencies.
+    // However, existing logic extracted it from 'displayedContent' during render.
+    // Let's stick to the 'content' prop for extraction to be stable.
+    const structuredMatch = clean.match(/\[STRUCTURED_DATA:\s*(\{.*?\})\]/);
+    if (structuredMatch && structuredMatch[1]) {
       try {
-        extractedChart = JSON.parse(chartMatch[1]);
-        clean = rawContent.replace(chartMatch[0], ''); // Remove full block
-      } catch (e) {
-        console.error("Failed to parse chart data", e);
-      }
-    } else {
-      // 2. If no complete block, check for partial to hide it while streaming
-      const partialMatch = rawContent.match(/\[CHART\][\s\S]*/);
-      if (partialMatch) {
-        clean = rawContent.replace(partialMatch[0], ''); // Hide partial
-      }
+        extractedStructured = JSON.parse(structuredMatch[1]);
+        clean = clean.replace(/\[STRUCTURED_DATA:.*?\]/g, '');
+      } catch (e) { console.error(e); }
     }
 
-    return { clean, extractedChart };
-  };
+    clean = clean.replace(/\[PEER_PACK:.*?\]/g, '');
+    clean = clean.replace(/\[UI_COMMAND:.*?\]/g, '');
 
-  const { clean: cleanTargetContent, extractedChart: derivedChart } = getCleanContentAndChart(content);
+    return { cleanTargetContent: clean, structuredData: extractedStructured };
+  }, [content]);
 
   // Sync ref with props
   useEffect(() => {
     stateRef.current.targetContent = cleanTargetContent;
-
-    if (derivedChart) {
-      setChartData(derivedChart);
-    }
 
     // If not streaming, align immediately
     if (!isStreaming) {
@@ -72,8 +63,9 @@ export const StreamingMarkdown: React.FC<StreamingMarkdownProps> = ({ content, i
       stateRef.current.displayedContent = cleanTargetContent;
       setScrambleSuffix('');
     }
-  }, [content, isStreaming, cleanTargetContent, derivedChart]); // Added dependencies
+  }, [isStreaming, cleanTargetContent]); 
 
+  // Streaming Animation
   useEffect(() => {
     if (!isStreaming) return;
 
@@ -83,30 +75,17 @@ export const StreamingMarkdown: React.FC<StreamingMarkdownProps> = ({ content, i
       const state = stateRef.current;
       const { displayedContent, targetContent } = state;
 
-      // Calculate time delta
-      
-      // Target frame rate (e.g. 60fps -> 16ms)
-      // We throttle slightly to create a "tech" feel, or just go smooth.
-      // Let's go perfectly smooth but variable speed.
-      
       if (displayedContent.length < targetContent.length) {
-        // Determine catch-up speed
         const remaining = targetContent.length - displayedContent.length;
-        
-        // Dynamic Chunk Size: Faster if we are far behind
-        // 1 char per frame if close
-        // 3-5 chars per frame if far
+
         let charsToAdd = 1;
         if (remaining > 50) charsToAdd = 3;
         else if (remaining > 20) charsToAdd = 2;
 
-        // Add text
         const nextContent = targetContent.substring(0, displayedContent.length + charsToAdd);
         state.displayedContent = nextContent;
         setDisplayedContent(nextContent);
 
-        // Scramble Effect:
-        // Generate 2-3 random chars to append
         let suffix = "";
         const suffixLen = Math.min(2, remaining);
         for (let i = 0; i < suffixLen; i++) {
@@ -115,7 +94,6 @@ export const StreamingMarkdown: React.FC<StreamingMarkdownProps> = ({ content, i
         setScrambleSuffix(suffix);
 
       } else {
-        // Done streaming
         setScrambleSuffix('');
       }
 
@@ -124,56 +102,19 @@ export const StreamingMarkdown: React.FC<StreamingMarkdownProps> = ({ content, i
     };
 
     animationFrameId = requestAnimationFrame(animate);
-
     return () => cancelAnimationFrame(animationFrameId);
-  }, [isStreaming]);
+  }, [isStreaming]); // stable dependency
 
-  const { theme } = useDashboardStore();
+  const { theme, setAnalysisData, activeAnalysisData, setIsChatMaximized, isChatMaximized } = useDashboardStore();
 
-  // Note: content prop might contain [ANALYST COPILOT] but CleanContent might have stripped it?
-  // Actually, getCleanContentAndChart only strips [CHART].
-  // So [ANALYST COPILOT] remains in displayedContent if present.
   const isAnalystCopilot = content.includes('[ANALYST COPILOT]');
 
-  // Clean content for display (remove tags)
-  let displayStr = displayedContent;
-  let peerPackData: any[] | null = null;
+  // Clean final display string (remove markers that might still be there if not caught by regex)
+  let displayStr = displayedContent.replace('[ANALYST COPILOT]', '').trim();
 
-  // Detect and extract Structured Data
-  let structuredData: any = null;
-  const structuredDataMatch = displayStr.match(/\[STRUCTURED_DATA:\s*(\{.*?\})\]/);
-  if (structuredDataMatch && structuredDataMatch[1]) {
-    try {
-      structuredData = JSON.parse(structuredDataMatch[1]);
-    } catch (e) {
-      console.error("Failed to parse structured data", e);
-    }
-  }
-
-  // Detect and extract Peer Pack data (legacy support if needed, or just focus on structuredData)
-  const peerPackMatch = displayStr.match(/\[PEER_PACK:\s*(\[.*?\])\]/);
-  if (peerPackMatch && peerPackMatch[1] && !peerPackData) {
-    try {
-      peerPackData = JSON.parse(peerPackMatch[1]);
-    } catch (e) {
-      console.error("Failed to parse peer pack data", e);
-    }
-  }
-
-  // Remove tags from the markdown display
-  displayStr = displayStr.replace(/\[PEER_PACK:.*?\]/g, '');
-  displayStr = displayStr.replace(/\[STRUCTURED_DATA:.*?\]/g, '');
-  displayStr = displayStr.replace(/\[UI_COMMAND:.*?\]/g, '');
-
-  // Remove the Analyst Copilot prefix if present
-  displayStr = displayStr.replace('[ANALYST COPILOT]', '').trim();
-
-  const { setAnalysisData, activeAnalysisData, setIsChatMaximized, isChatMaximized } = useDashboardStore();
-
-  // PROACTIVE UI: Auto-maximize if the agent suggests a fullscreen layout (e.g. Peer Packs)
+  // PROACTIVE UI: Auto-maximize
   useEffect(() => {
     if (!isStreaming && structuredData?.layout === 'fullscreen' && !isChatMaximized) {
-      console.log("PROACTIVE UI: Auto-maximizing chat for high-density analysis...");
       setIsChatMaximized(true);
     }
   }, [isStreaming, structuredData, isChatMaximized, setIsChatMaximized]);
@@ -190,22 +131,7 @@ export const StreamingMarkdown: React.FC<StreamingMarkdownProps> = ({ content, i
         {displayStr}
       </ReactMarkdown>
 
-      {/* Render Chart if present */}
-      {chartData && (
-        <div className={clsx(
-          "mt-4 mb-2 rounded-2xl overflow-hidden border shadow-sm transition-all animate-in fade-in slide-in-from-bottom-4 duration-700",
-          theme === 'dark' ? "bg-white/5 border-white/10" : "bg-white border-slate-200"
-        )}>
-          <div className="h-[350px] w-full p-4 relative">
-            <div className="absolute top-4 left-6 z-10 flex flex-col">
-              <span className={clsx("text-lg font-bold", theme === 'dark' ? "text-white" : "text-slate-800")}>
-                {chartData.title || "Market Data"}
-              </span>
-            </div>
-            <PerformanceChart ticker={chartData.title?.split(' ')[0] || "Unknown"} externalData={chartData} />
-          </div>
-        </div>
-      )}
+      {/* INLINE CHART REMOVED PER USER REQUEST - Charts now only appear on Dashboard */}
 
       {structuredData && !isStreaming && (
         <div className="flex justify-start mt-4">
@@ -225,8 +151,6 @@ export const StreamingMarkdown: React.FC<StreamingMarkdownProps> = ({ content, i
           </button>
         </div>
       )}
-
-      {peerPackData && !isAnalystCopilot && <PeerPackGrid peers={peerPackData} theme={theme} />}
 
       {isStreaming && displayedContent.length < cleanTargetContent.length && (
         <span className="inline-flex items-center ml-0.5 align-baseline">

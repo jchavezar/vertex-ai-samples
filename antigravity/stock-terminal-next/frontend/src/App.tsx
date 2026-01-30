@@ -159,12 +159,12 @@ export const App = () => {
         {/* Right Docked Sidebar (Split View) */}
         <div
           className={clsx(
-            "relative flex flex-shrink-0 border-l border-[var(--border)] bg-[var(--bg-app)] overflow-hidden max-w-[80vw] h-full",
+            "relative flex flex-shrink-0 border-l border-[var(--border)] bg-[var(--bg-app)] z-50", // Removed overflow-hidden to allow handle to protrude
             // Only apply transition if NOT resizing
             !isResizing && "transition-[width,opacity] duration-300 ease-in-out",
             (chatDockPosition === 'right' && isChatOpen && !isChatMaximized)
               ? "opacity-100"
-              : "w-0 opacity-0 overflow-hidden pointer-events-none"
+              : "w-0 opacity-0 pointer-events-none" // Removed overflow-hidden here too
           )}
 
           style={{
@@ -183,14 +183,14 @@ export const App = () => {
           {(chatDockPosition === 'right' && isChatOpen && !isChatMaximized) && (
             <div
               onMouseDown={handleMouseDown}
-              className="absolute left-[-2px] top-0 bottom-0 w-[4px] cursor-col-resize z-[100] group/resize"
-              title="Tactile Neural Edge - Resize Workspace"
+              className="absolute left-[-6px] top-0 bottom-0 w-[12px] cursor-col-resize z-[100] group/resize flex justify-center"
+              title="Drag to resize"
             >
               {/* Invisible Hit Area Expansion */}
-              <div className="absolute left-[-4px] right-[-4px] inset-0" />
+              <div className="absolute inset-0 bg-transparent" />
 
               {/* The "Filament" - High-precision neon line */}
-              <div className="absolute left-1/2 top-0 bottom-0 w-[1px] bg-transparent group-hover/resize:bg-blue-500 shadow-[0_0_12px_rgba(59,130,246,0.8)] transition-all duration-300 pointer-events-none" />
+              <div className="w-[2px] h-full bg-transparent group-hover/resize:bg-blue-500 shadow-[0_0_12px_rgba(59,130,246,0.8)] transition-colors duration-300" />
 
               {/* Tactile Beads - Micro-mechanical cues */}
               <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col gap-1.5 opacity-0 group-hover/resize:opacity-100 transition-opacity duration-500 delay-100 pointer-events-none">
