@@ -69,7 +69,7 @@ export function ChatProvider({ children }: { children: ReactNode }) {
   const startTimeRef = useRef<number | null>(null);
 
   const { messages, input, handleInputChange, handleSubmit: originalHandleSubmit, data, isLoading, stop, setMessages } = useChat({
-    api: 'http://localhost:8002/chat',
+    api: `${import.meta.env.VITE_API_URL}/chat`,
     body: {
        model: selectedModel,
       sessionId: sessionId,

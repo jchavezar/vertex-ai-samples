@@ -8,8 +8,9 @@ google-adk
 pydantic
 anyio
 colorama
-
 mcp
 requests
 yfinance
 h2
+nest_asyncio
+pandas

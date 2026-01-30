@@ -28,10 +28,16 @@ class NewsHubService:
             model=model_name,
             instruction="""
             You are a Semiconductor Financial Intelligence Scout.
-            Your task is to find recent YouTube videos about semiconductor stocks (NVDA, TSMC, AMD, etc.).
-            Prioritize short, high-impact news videos (< 5 mins).
-            Search for the latest news and summarize the financial impact.
-            Return the results as a structured HubOutput.
+            Your task is to find REAL YouTube videos about semiconductor stocks (NVDA, TSMC, AMD, etc.).
+            
+            STRICT RULES:
+            1. You MUST call `google_search` to find news.
+            2. You ONLY include videos that appear in the `google_search` results.
+            3. You NEVER invent or hallucinate YouTube URLs or Video IDs.
+            4. If a search result is not a direct YouTube link, DO NOT include it.
+            5. The 'url' MUST be a real link from the search results.
+            6. The 'id' MUST be the actual 11-character YouTube video ID extracted from that link.
+            7. Return the results as a structured HubOutput.
             """,
             tools=[google_search],
             output_schema=HubOutput,
@@ -60,10 +66,14 @@ class NewsHubService:
         await self.session_service.create_session(session_id=session_id, user_id="system", app_name="news_hub")
         runner = adk.Runner(app_name="news_hub", agent=self.agent, session_service=self.session_service)
         
-        prompt = f"""Find the top 8 most recent (last 7 days) financial news YouTube videos for {ticker} (semiconductor context).
-        Prioritize videos under 5 minutes.
-        For each video, provide title, YouTube URL, impact summary, and duration.
-        Also provide a one-sentence 'market_outlook' for the semiconductor sector based on these findings.
+        prompt = f"""Search for the 8 most recent (last 7 days) REAL financial news YouTube videos about {ticker} stock in a semiconductor market context.
+        
+        Use `google_search` with a query like 'youtube news {ticker} semiconductor {adk.get_current_datetime()}'
+        
+        CRITICAL: 
+        - Only include videos where you have a valid youtube.com/watch or youtu.be URL.
+        - The 'id' field MUST be the real 11-char ID (e.g., 'ABCdef123GH').
+        - If you find no real results, return an empty list.
         """
         
         msg = types.Content(role="user", parts=[types.Part(text=prompt)])
@@ -75,15 +85,26 @@ class NewsHubService:
             session = await self.session_service.get_session(session_id=session_id, app_name="news_hub", user_id="system")
             if session and "hub_result" in session.state:
                 raw_data = session.state["hub_result"]
+                print(f"DEBUG: News Hub Raw Data for {ticker}: {json.dumps(raw_data, indent=2)}")
                 
-                # Format for frontend (add thumbnails)
                 videos = []
                 for i, v in enumerate(raw_data.get("videos", [])):
-                    video_id = self._extract_video_id(v.get("url", "")) or f"v-{i}"
+                    raw_id = v.get("id", "")
+                    url = v.get("url", "")
+                    
+                    # Ensure we have a valid ID
+                    video_id = self._extract_video_id(url) or raw_id
+                    
+                    if not video_id or len(video_id) != 11:
+                        # Skip or try to fix if it's a common hallucination
+                        if "v-" in str(video_id): continue 
+                        continue
+
                     videos.append({
                         **v,
                         "id": video_id,
-                        "thumbnail": f"https://i.ytimg.com/vi/{video_id}/mqdefault.jpg"
+                        "url": f"https://www.youtube.com/watch?v={video_id}",
+                        "thumbnail": f"https://img.youtube.com/vi/{video_id}/mqdefault.jpg"
                     })
                 
                 result = {

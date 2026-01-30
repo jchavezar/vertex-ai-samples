@@ -39,14 +39,11 @@ const ReportBuilder: React.FC<ReportBuilderProps> = () => {
     setCurrentStep("Initializing Agent...");
 
     try {
-      // Connect to Backend Stream
-      const response = await fetch(`http://localhost:8002/report/stream?ticker=${ticker}&type=${reportType}`);
-      if (!response.body) throw new Error("No response body");
-
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/report/stream?ticker=${ticker}&type=${reportType}`);
+      if (!response.body) return;
       const reader = response.body.getReader();
       const decoder = new TextDecoder();
-
-      let buffer = '';
+      let buffer = "";
 
       while (true) {
         const { done, value } = await reader.read();

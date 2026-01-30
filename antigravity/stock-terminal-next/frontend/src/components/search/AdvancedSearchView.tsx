@@ -57,7 +57,7 @@ export const AdvancedSearchView = () => {
     setIsOverviewExpanded(true);
 
     try {
-      const response = await fetch('http://localhost:8002/search', {
+      const response = await fetch(import.meta.env.VITE_API_URL + '/search', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ query: query, pageSize: 12 })
@@ -100,7 +100,7 @@ export const AdvancedSearchView = () => {
         };
       });
 
-      const response = await fetch('http://localhost:8002/search/generative-overview', {
+      const response = await fetch(import.meta.env.VITE_API_URL + '/search/generative-overview', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -213,7 +213,7 @@ export const AdvancedSearchView = () => {
     }));
 
     try {
-      const response = await fetch('http://localhost:8002/search/analyze-pdf', {
+      const response = await fetch(import.meta.env.VITE_API_URL + '/search/analyze-pdf', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ url, query: query || "Summarize the key financial highlights." })

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useDashboardStore } from '../../store/dashboardStore';
-import { Youtube, Trash2, Clock, Play, AlertCircle, RefreshCw, ExternalLink } from 'lucide-react';
+import { Youtube, Trash2, Clock, Play, AlertCircle, RefreshCw, ExternalLink, Sparkles } from 'lucide-react';
 import clsx from 'clsx';
 
 interface VideoNews {
@@ -25,7 +25,7 @@ export const NewsHubView = () => {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch(`http://localhost:8002/news_hub/${ticker}`);
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/news_hub/${ticker}`);
       if (!res.ok) throw new Error("Failed to fetch news hub data");
       const result = await res.json();
       setData(result);
@@ -40,7 +40,7 @@ export const NewsHubView = () => {
     if (!confirm("Clear this News Hub session and fetch fresh videos?")) return;
 
     try {
-      await fetch(`http://localhost:8002/news_hub/${ticker}`, { method: 'DELETE' });
+      await fetch(`${import.meta.env.VITE_API_URL}/news_hub/${ticker}`, { method: 'DELETE' });
       setData({ videos: [], market_outlook: '' });
       fetchNews();
     } catch (err) {
@@ -103,23 +103,36 @@ export const NewsHubView = () => {
 
   return (
     <div className="flex flex-col gap-6 animate-fade-in">
-      {/* Outlook Banner */}
-      {data.market_outlook && (
+      {/* Intelligence Banner / Market Outlook */}
+      <div className="grid grid-cols-1 gap-6 mb-8">
         <div className={clsx(
-          "p-4 rounded-2xl border flex items-center gap-4 animate-slide-in",
-          isDark ? "bg-red-500/5 border-red-500/20" : "bg-red-50 border-red-100"
+          "rounded-2xl p-6 border flex flex-col md:flex-row items-center gap-6 transition-all duration-500",
+          isDark
+            ? "bg-gradient-to-br from-zinc-900 to-black border-zinc-800 shadow-[0_0_30px_rgba(0,0,0,0.5)]"
+            : "bg-gradient-to-br from-blue-50 to-white border-blue-100 shadow-xl"
         )}>
-          <div className="w-10 h-10 rounded-full bg-red-500 flex items-center justify-center shrink-0 shadow-lg shadow-red-500/20">
-            <AlertCircle size={20} className="text-white" />
+          <div className={clsx(
+            "w-16 h-16 rounded-2xl flex items-center justify-center shrink-0",
+            isDark ? "bg-blue-500/10 text-blue-400" : "bg-blue-100 text-blue-600"
+          )}>
+            <Sparkles size={32} className="animate-pulse" />
           </div>
-          <div>
-            <h4 className="text-[10px] font-black uppercase tracking-widest text-red-500 mb-0.5">SemiAI Market Outlook</h4>
-            <p className={clsx("text-sm font-medium", isDark ? "text-gray-200" : "text-gray-800")}>
-              {data.market_outlook}
+          <div className="flex-1 text-center md:text-left">
+            <h2 className={clsx(
+              "text-sm font-bold uppercase tracking-[0.2em] mb-2",
+              isDark ? "text-blue-400/80" : "text-blue-600/80"
+            )}>
+              NLU Intelligence Outlook: {ticker}
+            </h2>
+            <p className={clsx(
+              "text-xl md:text-2xl font-black tracking-tight leading-snug",
+              isDark ? "text-white" : "text-zinc-900"
+            )}>
+              {data.market_outlook || "Gathering market intelligence..."}
             </p>
           </div>
         </div>
-      )}
+      </div>
 
       {/* Control Bar */}
       <div className="flex items-center justify-between">
@@ -175,6 +188,9 @@ export const NewsHubView = () => {
                     src={item.thumbnail}
                     alt={item.title}
                     className="w-full h-full object-cover transition-transform duration-700 group-hover/img:scale-110"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = 'https://img.youtube.com/vi/default/mqdefault.jpg';
+                    }}
                   />
                   <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover/img:opacity-100 transition-opacity">
                     <div className="w-12 h-12 rounded-full bg-red-600 flex items-center justify-center shadow-xl shadow-red-900/40">

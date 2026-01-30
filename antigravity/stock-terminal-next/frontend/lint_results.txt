@@ -1,3 +1,0 @@
-*** gpkg: This tool is configured to use Corp Airlock for package installs: http://go/corp-airlock
-*** gpkg: If Corp Airlock is breaking your workflow please report at: http://go/corp-airlock-feedback
-*** gpkg: Exceptions are available: http://go/corp-airlock#request-exception
