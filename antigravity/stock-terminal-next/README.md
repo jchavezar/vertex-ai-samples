@@ -33,3 +33,8 @@ Open `http://localhost:5173`.
 *   Ask: "Show me a chart of AAPL" -> Backend streams a `ChartWidget` (Protocol Type 2).
 *   Frontend `useTerminalChat` hook catches the data block and updates the Zustand store.
 *   Dashboard automatically renders the chart using Recharts.
+
+## Security
+This project follows a [Strict Zero-Leak Policy](SECURITY.md).
+**NEVER** commit environment variables or secrets.
+See `SECURITY.md` for secret management protocols.

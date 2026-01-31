@@ -9,10 +9,18 @@ venv/
 
 # Data & Secrets
 .env
-.env.example
+.env.*
 !.env.example
-factset_tokens.json
+*.pem
+*.key
+*.p12
+*.pfx
+client_secret*.json
+credentials.json
 refresh_token.json
+access_token.json
+*_token.json
+factset_tokens.json
 sessions.db
 inference_sessions.db
 inference_output.log
