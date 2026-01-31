@@ -1,6 +1,7 @@
 # FactSet & Secret Data
 .env
 .env.*
+!.env.example
 factset_tokens.json
 
 # AGPK Guides & Documentation (Internal)
