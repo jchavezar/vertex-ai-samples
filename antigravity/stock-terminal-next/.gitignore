@@ -9,6 +9,8 @@ venv/
 
 # Data & Secrets
 .env
+.env.example
+!.env.example
 factset_tokens.json
 refresh_token.json
 sessions.db
