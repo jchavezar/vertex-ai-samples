@@ -1,0 +1,11 @@
+# Zero-Leak Policy
+.env
+.env.*
+!.env.example
+__pycache__/
+*.pyc
+.DS_Store
+.streamlit/secrets.toml
+.venv/
+.adk/
+.idea/
