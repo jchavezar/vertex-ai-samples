@@ -30,21 +30,32 @@ The agent follows an event-driven pipeline, transforming raw SharePoint data int
 
 ```mermaid
 graph TD
+    %% Styling Definitions
+    classDef base fill:#fff,stroke:#333,stroke-width:1px,color:#333;
+    classDef ms fill:#eef2ff,stroke:#6366f1,stroke-width:2px,color:#4338ca,rx:10,ry:10;
+    classDef api fill:#e0e7ff,stroke:#4f46e5,stroke-width:2px,color:#312e81,rx:10,ry:10;
+    classDef adk fill:#faf5ff,stroke:#a855f7,stroke-width:2px,color:#6b21a8,rx:10,ry:10;
+    classDef gemini fill:#fdf4ff,stroke:#d946ef,stroke-width:3px,color:#86198f,rx:15,ry:15;
+    classDef out fill:#ecfdf5,stroke:#10b981,stroke-width:2px,color:#065f46,rx:10,ry:10;
+
     subgraph "Microsoft 365 Environment"
-        DL["Document Library"]
-        API["Graph API Delta Query"]
+        direction TB
+        DL["📄 Document Library"]:::ms
+        API["⚡ Graph API Delta Query"]:::api
     end
 
     subgraph "ADK Agent Runtime"
-        Con["SharePoint Connector"]
-        Conv["MarkItDown Converter"]
-        Runner["ADK Runner"]
-        Agent["LlmAgent (Gemini 3)"]
+        direction TB
+        Con["🔌 SharePoint Connector"]:::adk
+        Conv["🔄 MarkItDown Converter"]:::adk
+        Runner["🚀 ADK Runner"]:::adk
+        Agent["✨ LlmAgent (Gemini 3)"]:::gemini
     end
 
     subgraph "Intelligence Layer"
-        Report["classification_report.json"]
-        State["sync_state.json"]
+        direction TB
+        Report["📊 classification_report.json"]:::out
+        State["💾 sync_state.json"]:::out
     end
 
     DL -->|Change Event| API
@@ -56,8 +67,8 @@ graph TD
     Runner -->|Append| Report
     Con -->|Update Token| State
 
-    style Agent fill:#f9f,stroke:#333,stroke-width:2px
-    style Report fill:#bbf,stroke:#333,stroke-width:2px
+    %% Link Styling
+    linkStyle default stroke:#64748b,stroke-width:1px,fill:none;
 ```
 
 ---
