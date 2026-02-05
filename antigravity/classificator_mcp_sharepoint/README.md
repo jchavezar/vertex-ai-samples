@@ -38,13 +38,13 @@ graph TD
     classDef gemini fill:#fdf4ff,stroke:#d946ef,stroke-width:3px,color:#86198f,rx:15,ry:15;
     classDef out fill:#ecfdf5,stroke:#10b981,stroke-width:2px,color:#065f46,rx:10,ry:10;
 
-    subgraph "Microsoft 365 Environment"
+    subgraph MS ["Microsoft 365 Environment"]
         direction TB
         DL["📄 Document Library"]:::ms
         API["⚡ Graph API Delta Query"]:::api
     end
 
-    subgraph "ADK Agent Runtime"
+    subgraph AR ["ADK Agent Runtime"]
         direction TB
         Con["🔌 SharePoint Connector"]:::adk
         Conv["🔄 MarkItDown Converter"]:::adk
@@ -52,7 +52,7 @@ graph TD
         Agent["✨ LlmAgent (Gemini 3)"]:::gemini
     end
 
-    subgraph "Intelligence Layer"
+    subgraph IL ["Intelligence Layer"]
         direction TB
         Report["📊 classification_report.json"]:::out
         State["💾 sync_state.json"]:::out
@@ -69,6 +69,11 @@ graph TD
 
     %% Link Styling
     linkStyle default stroke:#64748b,stroke-width:1px,fill:none;
+
+    %% Subgraph Styling
+    style MS fill:#f8fafc,stroke:#94a3b8,stroke-width:1px,stroke-dasharray: 5 5
+    style AR fill:#fcfaff,stroke:#c084fc,stroke-width:1px,stroke-dasharray: 5 5
+    style IL fill:#f0fdf4,stroke:#86efac,stroke-width:1px,stroke-dasharray: 5 5
 ```
 
 ---
