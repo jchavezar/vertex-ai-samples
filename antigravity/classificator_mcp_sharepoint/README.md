@@ -31,20 +31,20 @@ The agent follows an event-driven pipeline, transforming raw SharePoint data int
 ```mermaid
 graph TD
     subgraph "Microsoft 365 Environment"
-        DL[Document Library]
-        API[Graph API Delta Query]
+        DL["Document Library"]
+        API["Graph API Delta Query"]
     end
 
     subgraph "ADK Agent Runtime"
-        Con[SharePoint Connector]
-        Conv[MarkItDown Converter]
-        Runner[ADK Runner]
-        Agent[LlmAgent (Gemini 3)]
+        Con["SharePoint Connector"]
+        Conv["MarkItDown Converter"]
+        Runner["ADK Runner"]
+        Agent["LlmAgent (Gemini 3)"]
     end
 
     subgraph "Intelligence Layer"
-        Report[classification_report.json]
-        State[sync_state.json]
+        Report["classification_report.json"]
+        State["sync_state.json"]
     end
 
     DL -->|Change Event| API
