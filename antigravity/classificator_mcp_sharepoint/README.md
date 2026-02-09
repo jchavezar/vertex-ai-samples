@@ -103,7 +103,7 @@ Clone the repository and install dependencies using `uv` (the lightning-fast Pyt
 uv sync
 ```
 
-### 2. Configuration {.tabset}
+### 2. Configuration
 
 Create a `.env` file in the root directory. This is **CRITICAL** for authentication.
 
@@ -121,7 +121,26 @@ GOOGLE_CLOUD_LOCATION=global
 GOOGLE_GENAI_LOCATION=global  # Force global for Gemini 3
 ```
 
-> **Tip:** Don't know your Site ID? Run the helper script: `uv run sharepoint_discovery.py`
+#### 🔑 Obtaining Microsoft Credentials
+
+Detailed steps to acquire the 5 required Microsoft identity values:
+
+**A. App Registration (Tenant, Client, Secret)**
+1.  **Azure Portal**: [App Registrations](https://portal.azure.com/#view/Microsoft_AAD_IAM/ActiveDirectoryMenuBlade/RegisteredApps) -> **New registration**.
+    *   **Name**: `SharePoint-Sentinel`
+    *   **Type**: "Accounts in this organizational directory only".
+2.  **Overview Page**: Copy **TENANT_ID** (Directory ID) and **CLIENT_ID** (Application ID).
+3.  **Certificates & Secrets**: Create a "New client secret". Copy the **Value** (this is your **CLIENT_SECRET**) immediately.
+
+**B. Grant API Permissions**
+1.  **API Permissions** -> **Add a permission** -> **Microsoft Graph** -> **Application permissions**.
+2.  Select `Sites.Read.All` and `Files.Read.All`.
+3.  **IMPORTANT**: Click **"Grant admin consent for [Your Org]"** until you see green checkmarks.
+
+**C. Finding Site & Drive IDs**
+Use [Microsoft Graph Explorer](https://developer.microsoft.com/en-us/graph/graph-explorer):
+1.  **SITE_ID**: Run `GET https://graph.microsoft.com/v1.0/sites/yourtenant.sharepoint.com:/sites/YourSiteName`. The `id` in the response is your **SITE_ID**.
+2.  **DRIVE_ID**: Run `GET https://graph.microsoft.com/v1.0/sites/{SITE_ID}/drives`. Copy the `id` of the target document library (e.g., "Documents").
 
 ### 3. Run the Agent
 
