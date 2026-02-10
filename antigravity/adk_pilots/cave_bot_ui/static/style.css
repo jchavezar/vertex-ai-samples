@@ -40,6 +40,17 @@ body {
     padding: 2rem;
 }
 
+.panel::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    box-shadow: inset 0 0 250px rgba(0, 0, 0, 0.8);
+    z-index: 5;
+}
 /* Hero Section */
 .hero {
     background-color: var(--monolith);

@@ -86,12 +86,14 @@ When the agent provides advice, it is rendered as a "Design Card" with distinct 
 
 ### 1. Requirements
 *   **Python 3.12+**
+*   **uv** (Python package & project manager)
 *   **Google Cloud Project** with Vertex AI enabled.
 *   **Gemini 3** access in the `global` region.
 
 ### 2. Installation
+The project is managed with `uv`. To install dependencies and set up the virtual environment:
 ```bash
-pip install fastapi uvicorn google-adk google-genai pydantic
+uv sync
 ```
 
 ### 3. Running the Pilot
@@ -101,8 +103,8 @@ export GOOGLE_CLOUD_PROJECT="your-project-id"
 export GOOGLE_CLOUD_LOCATION="global"
 export GOOGLE_GENAI_USE_VERTEXAI="true"
 
-# Start the server
-python app.py
+# Run with uv
+uv run python app.py
 ```
 Visit `http://localhost:8001` to enter the cave.
 
