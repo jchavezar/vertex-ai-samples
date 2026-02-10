@@ -74,11 +74,11 @@ graph TD
 
 ### Hero Experience
 The landing experience focuses on the "Monolith" concept, with scroll-triggered navigation.
-![Hero Section](assets/hero_section.png)
+![Hero Section](assets/hero_clean.png)
 
 ### Agentic UX: Design Cards
 When the agent provides advice, it is rendered as a "Design Card" with distinct sections for the Pillar, Suggestion, and Implementation Hint.
-![Chat Interface](assets/chat_interface.png)
+![Chat Interface](assets/chat_clean.png)
 
 ---
 
