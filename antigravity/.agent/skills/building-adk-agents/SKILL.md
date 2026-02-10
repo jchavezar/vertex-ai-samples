@@ -13,8 +13,17 @@ description: Guides the creation of Google ADK (Agent Development Kit) agents. U
 
 ## Mandatory Model Versions
 **CRITICAL**: You must ONLY use the following models. NO `gemini-1.5` or `gemini-2.0` (unless flash), and NO `text-bison`:
-- **Default**: `gemini-3-flash-preview` (Prioritize this)
-- **High-Reasoning**: `gemini-3-pro-preview`
+- **Default Model**: `gemini-3-flash-preview` (Prioritize this).
+- **CRITICAL - Region**: Gemini 3 (any variant) is ONLY available in the `global` region. You MUST set `os.environ["GOOGLE_CLOUD_LOCATION"] = "global"` before initializing ADK.
+- **Type Safety**: Use `google.genai.types` for all message and content schemas in current ADK (v1.23+).
+- **ADK Core Env Vars**: You MUST set `os.environ["GOOGLE_GENAI_USE_VERTEXAI"] = "true"` for ADK to correctly route to Vertex AI.
+- **Import Goal Standard**:
+  ```python
+  from google.adk.agents import LlmAgent
+  from google.adk.runners import Runner
+  from google.adk.sessions import InMemorySessionService
+  from google.genai import types
+  ```
 - **Fast/Light**: `gemini-2.5-flash`, `gemini-2.5-flash-lite`
 
 ## Structured Output (JSON Schema)
@@ -95,9 +104,10 @@ LlmAgent agent = LlmAgent.builder()
 [ ] **Validation**: Ensure type hints in tools are correct for auto-schema generation.
 
 ## Instructions
-1.  **Read the Docs First**: This skill includes a comprehensive documentation file in `resources/adk_docs.md`. **Always** search or read this file for specific implementation details before guessing.
-    - Path: `resources/adk_docs.md` (Relative to this skill)
-    - Use `grep_search` or `view_file` on `resources/adk_docs.md` to find snippets.
+1.  **Read the Docs First**: This skill includes a distilled documentation set in `resources/distilled/`. **Always** check these high-density files first for specific implementation details.
+    - Path: `resources/distilled/` (Relative to this skill)
+    - Fallback: If you need deep technical details or unusual edge cases, refer to the full `resources/adk_docs.md`.
+    - Use `grep_search` or `view_file` to locate patterns.
 
 2.  **Core Components**:
     - **`LlmAgent`**: Basic unit. Needs `name`, `instruction`, and optional `tools`.
@@ -112,5 +122,17 @@ LlmAgent agent = LlmAgent.builder()
 4.  **State Management**:
     - Use `ctx.session.state` to pass data between agents in a workflow.
 
+## Common Pitfalls & Guardrails
+- **`Session` Attribute Error**: NEVER use `ctx.session.history`. In ADK v1.23+, use **`ctx.session.events`**.
+- **Model 404/Invalid Region**: `gemini-3` models ONLY work in `global`. If you get a 404, verify `os.environ["GOOGLE_CLOUD_LOCATION"] = "global"`.
+- **FastAPI/Async Compatibility**: Use `runner.run_async(...)` instead of `runner.run(...)` inside async endpoints to prevent blocking.
+- **Event Parsing**: Always check for both `event.text` and `event.content.parts`. Structured output often comes via the `content` path.
+- **JSON Parsing**: When using `output_schema`, the resulting JSON might arrive as multiple text chunks or a single block. Always collect the `full_text` from the stream before trying to `json.loads()`.
+
 ## Resources
-- [ADK Documentation (Local)](resources/adk_docs.md)
+- [🚀 ADK Distilled: Start Here](resources/distilled/start_here.md)
+- [🧠 Core Concepts](resources/distilled/core_concepts.md)
+- [⛓️ Orchestration Patterns](resources/distilled/orchestration.md)
+- [🛠️ Tooling & Integrations](resources/distilled/tooling.md)
+- [🚀 Deployment Guide](resources/distilled/deployment.md)
+- [📚 Full Archive (Detailed)](resources/adk_docs.md)

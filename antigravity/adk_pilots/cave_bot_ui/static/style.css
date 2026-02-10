@@ -1,0 +1,209 @@
+:root {
+    --bg: #dcd7cd;
+    --text: #2a2826;
+    --monolith: #1a1918;
+    --accent: #c9c4b9;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background-color: var(--bg);
+    color: var(--text);
+    font-family: 'Courier New', Courier, monospace;
+    overflow-x: hidden;
+    height: 100vh;
+}
+
+/* Monolith UI Layout */
+.horizontal-scroll-wrapper {
+    display: flex;
+    flex-wrap: nowrap;
+    width: 200vw;
+    /* 2 panels: Hero + Chat */
+    height: 100vh;
+}
+
+.panel {
+    width: 100vw;
+    height: 100vh;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    padding: 2rem;
+}
+
+/* Hero Section */
+.hero {
+    background-color: var(--monolith);
+    color: var(--bg);
+}
+
+.hero-title {
+    font-size: 8vw;
+    text-transform: uppercase;
+    line-height: 0.9;
+    text-align: center;
+    mix-blend-mode: overlay;
+    font-weight: 900;
+}
+
+/* Chat Section */
+.chat-section {
+    background-color: var(--bg);
+}
+
+.chat-container {
+    width: 60vw;
+    height: 70vh;
+    border: 2px solid var(--monolith);
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    display: flex;
+    flex-direction: column;
+    padding: 2rem;
+    position: relative;
+    border-radius: 20px 20px 0 0;
+    /* Arch top */
+}
+
+.chat-messages {
+    flex-grow: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    padding-bottom: 1rem;
+}
+
+.message {
+    max-width: 80%;
+    padding: 1rem;
+    line-height: 1.6;
+    font-size: 1.1rem;
+}
+
+.message.user {
+    align-self: flex-end;
+    background-color: var(--monolith);
+    color: var(--bg);
+    border-radius: 15px 15px 0 15px;
+}
+
+.message.bot {
+    align-self: flex-start;
+    border-left: 4px solid var(--monolith);
+    padding-left: 1.5rem;
+}
+
+/* Structured Output Card */
+.design-card {
+    background: rgba(26, 25, 24, 0.03);
+    border: 1px solid var(--monolith);
+    padding: 1.5rem;
+    margin: 1rem 0;
+    width: 100%;
+}
+
+.design-card h3 {
+    text-transform: uppercase;
+    font-size: 0.8rem;
+    letter-spacing: 2px;
+    color: var(--monolith);
+    margin-bottom: 0.5rem;
+    opacity: 0.6;
+}
+
+.design-card .pillar-tag {
+    display: inline-block;
+    background: var(--monolith);
+    color: var(--bg);
+    padding: 2px 8px;
+    font-size: 0.7rem;
+    margin-bottom: 1rem;
+}
+
+.design-card .hint {
+    margin-top: 1.5rem;
+    background: #1a1918;
+    color: #00ff00;
+    /* Brutalist code look */
+    padding: 1rem;
+    font-size: 0.85rem;
+    font-family: 'Courier New', monospace;
+    position: relative;
+}
+
+.design-card .hint::before {
+    content: "IMPLEMENTATION_HINT";
+    position: absolute;
+    top: -10px;
+    right: 10px;
+    background: var(--bg);
+    color: var(--monolith);
+    padding: 0 5px;
+    font-size: 0.6rem;
+    border: 1px solid var(--monolith);
+}
+
+.chat-input-area {
+    display: flex;
+    gap: 1rem;
+    border-top: 1px solid var(--monolith);
+    padding-top: 1.5rem;
+}
+
+input {
+    flex-grow: 1;
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid var(--monolith);
+    color: var(--text);
+    padding: 0.5rem;
+    font-family: inherit;
+    font-size: 1.2rem;
+    outline: none;
+}
+
+button {
+    background: var(--monolith);
+    color: var(--bg);
+    border: none;
+    padding: 0.5rem 2rem;
+    cursor: pointer;
+    text-transform: uppercase;
+    font-weight: bold;
+    transition: all 0.3s;
+}
+
+button:hover {
+    background: var(--text);
+    letter-spacing: 2px;
+}
+
+/* Nav */
+nav {
+    position: fixed;
+    top: 2rem;
+    left: 2rem;
+    right: 2rem;
+    display: flex;
+    justify-content: space-between;
+    z-index: 100;
+    mix-blend-mode: difference;
+    color: white;
+    font-weight: bold;
+}
+
+/* Animations */
+.panel-sculpt {
+    opacity: 0;
+    transform: translateY(50px);
+}
