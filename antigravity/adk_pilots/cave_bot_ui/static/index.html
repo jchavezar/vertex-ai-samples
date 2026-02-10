@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CAVE ECHO // ADK PILOT</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script src="https://unpkg.com/lenis@1.0.45/dist/lenis.min.js"></script>
+</head>
+
+<body>
+    <nav>
+        <div class="logo">ECHO.MNLTH</div>
+        <div>ADK // PILOT_01</div>
+    </nav>
+
+    <div class="horizontal-scroll-wrapper">
+        <section class="panel hero">
+            <h1 class="hero-title">BEYOND<br>THE STONE</h1>
+            <p style="margin-top: 2rem;">SCROLL TO ACCESS THE ECHO</p>
+        </section>
+
+        <section class="panel chat-section">
+            <div class="chat-container panel-sculpt">
+                <div class="chat-messages" id="chatMessages" data-lenis-prevent>
+                    <div class="message bot">I am the Echo of the Cave. What secrets do you seek from the digital void?
+                    </div>
+                </div>
+                <div class="chat-input-area">
+                    <input type="text" id="userInput" placeholder="Ask the void..." autocomplete="off">
+                    <button id="sendBtn">SEND</button>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
