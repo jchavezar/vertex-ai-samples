@@ -1,8 +1,8 @@
-# Sockcop Search | Gemini Enterprise & SharePoint Grounding
+# Sockcop Search | Native Vertex AI Answer Integration & SharePoint Grounding
 
-Sockcop Search is a highly secure, modern GenAI unified search interface built with React, Vite, and Tailwind CSS. It leverages **Google Discovery Engine (Vertex AI Search)** to query your company's documents, utilizing **Workload Identity Federation (WIF)** to exchange Entra ID (Azure AD) user tokens for Google Cloud credentials on the fly, seamlessly grounding the LLM responses.
+Sockcop Search is a highly secure, modern GenAI unified search interface built with React, Vite, and Tailwind CSS. It leverages the **Google Vertex AI Answer API** to natively query and summarize your company's documents, utilizing **Workload Identity Federation (WIF)** to exchange Entra ID (Azure AD) user tokens for Google Cloud credentials on the fly, seamlessly grounding the LLM responses.
 
-![Gemini Fallback Result](./public/screenshots/alphabet_revenue_rag_fallback.png)
+![Vertex AI Native Answer Result](./public/screenshots/search_results_success.png)
 
 ## Core Architecture: Workload Identity Federation Flow
 
@@ -17,8 +17,7 @@ sequenceDiagram
         participant WIF as Google WIF Boundary 🛡️
     end
     box rgba(12, 74, 110, 0.3) Google Cloud Platform
-        participant VertexAI as Vertex AI Search
-        participant Gemini as Gemini 2.5 Flash
+        participant VertexAI as Vertex AI Answer API
     end
     
     User->>Frontend: Clicks "Sign in with Entra ID"
@@ -31,37 +30,50 @@ sequenceDiagram
     Frontend->>Frontend: Stores Google Token locally (In-Memory)
 ```
 
-## Advanced Architecture: Gemini RAG Fallback Mechanism
+## Advanced Architecture: Native Answer API Integration
 
-When querying Discovery Engine, strict "Out-of-Domain" guardrails can trigger false negatives (e.g., `OUT_OF_DOMAIN_QUERY_IGNORED`), resulting in missing AI summaries even when relevant SharePoint documents are retrieved. **Sockcop Search intercepts these blocked responses, extracts metadata payloads, and delegates unstructured text generation securely to Gemini 2.5 Flash.**
+Sockcop Search relies entirely on the powerful `default_config:answer` endpoint provided by Vertex AI Search. This modern endpoint natively handles the complex Retrieval-Augmented Generation (RAG) pipeline on the backend, ensuring accurate, grounded summarizations without the need for manual, client-side extraction or secondary LLM fallbacks.
 
 ```mermaid
 flowchart TD
     classDef ui fill:#0f172a,stroke:#38bdf8,stroke-width:2px,color:#fff;
     classDef api border-style:dashed,fill:#1e293b,stroke:#0f172a,color:#e2e8f0;
     classDef extract fill:#082f49,stroke:#0c4a6e,color:#bae6fd;
-    classDef model fill:#1d4ed8,stroke:#60a5fa,color:#fff,stroke-width:2px;
+    classDef rank text-align:center,fill:#f59e0b,stroke:#b45309,color:#fff;
 
-    User(["👤 User Query: Alphabet Revenue"]) --> UI("Sockcop React UI")
-    UI -- "Authorization: Bearer <GCP_TOKEN>" --> VAIS{{"Vertex AI Search (Discovery Engine API)"}}:::api
+    User(["👤 User Query"]) --> UI("Sockcop React UI")
+    UI -- "POST /servingConfigs/default_config:answer\nAuthorization: Bearer <GCP_TOKEN>" --> VAIS{{"Vertex AI Answer API"}}:::api
     
-    VAIS -- Returns 6 Documents --> Eval{"Vertex Summary Check"}
-    Eval -- "Strict Mode Allowed" --> Success("Displays Standard Vertex Summary")
-    Eval -- "OUT_OF_DOMAIN_QUERY_IGNORED" --> FallbackTrigger("Intercepts Skipped Summary")
+    VAIS -- "Retrieves Documents\nSynthesizes Grounded Answer" --> Extraction["Frontend Deep Extraction\n(Answer Payload & structData)"]:::extract
     
-    FallbackTrigger --> Extract["Aggressive Metadata Extraction\n(extractiveSegments, extractiveAnswers, snippets)"]:::extract
+    Extraction --> Score("Extracts Confidence Score (rank)"):::rank
+    Extraction --> Link("Extracts SharePoint Source (url_for_connector)"):::rank
+    Extraction --> Author("Extracts Document Metadata (author, title)"):::rank
     
-    Extract -- "Payload: ~2000 Words" --> Gemini{{"Gemini 2.5 Flash (generateContent API)"}}:::model
-    
-    Gemini -- "Parses Financial Figures & Synthesizes Answer" --> Inject("Injects Answer into UI State")
-    Inject --> Render("Displays Accurate Conversational AI Fallback"):::ui
+    Score --> Render("Displays Generative AI Summary & Detailed Citations"):::ui
+    Link --> Render
+    Author --> Render
 ```
+
+## UI Showcase: Native Grounding in Action
+
+### Interactive Citation Panel
+Explore grounded sources with deep metadata extraction directly from your connected datastores.
+![Detailed Citation View](./public/screenshots/citation_detail.png)
+
+### Native Answer Generation
+Vertex AI's `default_config:answer` synthesizing search results and providing fallback-free AI summarizations.
+![Search Results Overview](./public/screenshots/search_results.png)
+
+### Original Document Linking
+Deeply link directly to the source datastore (e.g. Microsoft SharePoint) to read the full context.
+![SharePoint Source View](./public/screenshots/sharepoint_source.png)
 
 ## Key Features
 
 * **Zero-Leak Stateless Architecture:** No middle-tier secrets or API keys are stored in the frontend source code. The user authenticates natively and generates a temporary session with WIF.
-* **Intelligent Document Mining:** Fallback logic securely hunts through Vertex AI's `structData` and `derivedStructData` maps to guarantee document titles, source links, and massive context payloads (`extractiveSegments`) generate properly.
-* **Conversational Delegation:** Bypasses legacy search UI constraints by handing raw paragraph blocks over to the most advanced Gemini models via `<PROJECT_NUMBER>/locations/us-central1` endpoints.
+* **Native Generation Pipeline:** Replaces legacy, constrained search endpoints with the comprehensive Vertex AI Answer API. Summarization, document retrieval, and grounding citations are generated server-side in one swift request.
+* **Intelligent Metadata Mapping:** The UI securely dives into the payload's `structData` schema to render a beautifully formatted citation list. This includes visual indicators for the API's internal Confidence Score (`rank`), origin author, and precise deep links mapped back to the connected SharePoint site.
 * **XSS Protection:** DOMPurify is embedded to securely process highlight `<b>` tags delivered from the Vertex APIs without exposing the frontend to HTML injections.
 
 ## Development Setup
