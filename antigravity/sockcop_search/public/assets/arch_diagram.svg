@@ -1,27 +1,22 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 400">
   <defs>
-    <!-- Background styling -->
     <style>
       .bg { fill: #0f172a; }
-      .text-title { font-family: 'Inter', sans-serif; font-size: 24px; font-weight: 700; fill: #f8fafc; }
-      .text-body { font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 400; fill: #cbd5e1; }
-      .text-small { font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 500; fill: #94a3b8; }
+      .text-title { font-family: 'Courier New', monospace; font-size: 24px; font-weight: 700; fill: #f8fafc; letter-spacing: 2px; }
+      .text-body { font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 600; fill: #f8fafc; }
+      .text-small { font-family: 'Courier New', monospace; font-size: 11px; font-weight: 500; fill: #94a3b8; }
       
-      /* Glowing lines */
       .line-main { stroke: #38bdf8; stroke-width: 2; fill: none; }
       .line-glow { stroke: rgba(56, 189, 248, 0.4); stroke-width: 6; fill: none; filter: blur(3px); }
       .line-dash { stroke: #64748b; stroke-width: 1.5; stroke-dasharray: 6 6; fill: none; }
       
-      /* Nodes */
       .box-entra { fill: rgba(139, 92, 246, 0.1); stroke: #8b5cf6; stroke-width: 2; rx: 8; ry: 8; }
       .box-gcp { fill: rgba(16, 185, 129, 0.1); stroke: #10b981; stroke-width: 2; rx: 8; ry: 8; }
       .box-vertex { fill: rgba(245, 158, 11, 0.1); stroke: #f59e0b; stroke-width: 2; rx: 8; ry: 8; }
-      .box-react { fill: rgba(59, 130, 246, 0.1); stroke: #3b82f6; stroke-width: 2; rx: 8; ry: 8; }
       .box-sharepoint { fill: #1e293b; stroke: #475569; stroke-width: 1; rx: 4; ry: 4; }
     </style>
     
-    <!-- Glow Filter -->
-    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+    <filter id="glow">
       <feGaussianBlur stdDeviation="5" result="blur" />
       <feMerge>
         <feMergeNode in="blur" />
@@ -29,7 +24,6 @@
       </feMerge>
     </filter>
 
-    <!-- Arrowheads -->
     <marker id="arrow-blue" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
       <path d="M 0 0 L 10 5 L 0 10 z" fill="#38bdf8" />
     </marker>
@@ -38,76 +32,90 @@
     </marker>
   </defs>
 
-  <!-- Base Canvas -->
   <rect class="bg" width="1000" height="400" />
   
-  <!-- Subtle Grid Background -->
   <g opacity="0.1">
     <path class="line-dash" d="M0,50 L1000,50 M0,100 L1000,100 M0,150 L1000,150 M0,200 L1000,200 M0,250 L1000,250 M0,300 L1000,300 M0,350 L1000,350" />
     <path class="line-dash" d="M100,0 L100,400 M200,0 L200,400 M300,0 L300,400 M400,0 L400,400 M500,0 L500,400 M600,0 L600,400 M700,0 L700,400 M800,0 L800,400 M900,0 L900,400" />
   </g>
 
-  <!-- Title -->
-  <text x="40" y="45" class="text-title">Sockcop Search Federation Architecture</text>
+  <!-- Title with animated cursor -->
+  <text x="40" y="45" class="text-title">FEDERATION_ARCHITECTURE<tspan fill="#38bdf8"><animate attributeName="opacity" values="1;0;1" dur="1s" repeatCount="indefinite" />_</tspan></text>
 
-  <!-- Group: Phase 1 (Auth & Federation) -->
+  <!-- Animated Data Packets (Circles moving along paths) -->
+  <!-- Auth Flow -->
+  <circle r="4" fill="#ffffff" filter="url(#glow)">
+    <animateMotion dur="2s" repeatCount="indefinite" path="M 260 130 L 360 130" />
+  </circle>
+  <circle r="4" fill="#ffffff" filter="url(#glow)">
+    <animateMotion dur="2s" repeatCount="indefinite" path="M 580 130 L 680 130" />
+  </circle>
+
+  <!-- Sync Flow -->
+  <circle r="4" fill="#f59e0b" filter="url(#glow)">
+    <animateMotion dur="3s" repeatCount="indefinite" path="M 260 270 L 360 270" />
+  </circle>
+  <circle r="4" fill="#f59e0b" filter="url(#glow)">
+    <animateMotion dur="3s" repeatCount="indefinite" path="M 580 270 L 680 270" />
+  </circle>
+
+  <!-- Cross-phase Flow -->
+  <circle r="4" fill="#10b981" filter="url(#glow)">
+    <animateMotion dur="4s" repeatCount="indefinite" path="M 750 170 C 750 200, 500 200, 430 230" />
+  </circle>
+
   <g transform="translate(40, 90)">
-    <!-- Entra App 1 -->
+    <!-- Nodes Phase 1 -->
     <rect class="box-entra" width="220" height="80" />
-    <text x="20" y="30" class="text-body" fill="#f8fafc" font-weight="600">Entra ID UI App</text>
+    <text x="20" y="30" class="text-body">Entra ID UI App</text>
     <text x="20" y="50" class="text-small">deloitte-entraid</text>
     <text x="20" y="65" class="text-small" fill="#8b5cf6">Primary Identity Provider</text>
 
-    <!-- WIF -->
     <rect class="box-gcp" x="320" y="0" width="220" height="80" />
-    <text x="340" y="30" class="text-body" fill="#f8fafc" font-weight="600">WF Identity Federation</text>
-    <text x="340" y="50" class="text-small">entra-id-oidc-pool-d</text>
-    <text x="340" y="65" class="text-small" fill="#10b981">Google Cloud Trust Boundary</text>
+    <text x="340" y="30" class="text-body">WF Identity Federation</text>
+    <text x="340" y="50" class="text-small">entra-id-pool-d</text>
+    <text x="340" y="65" class="text-small" fill="#10b981">Google Cloud Boundary</text>
 
-    <!-- IAM -->
     <rect class="box-gcp" x="640" y="0" width="220" height="80" />
-    <text x="660" y="30" class="text-body" fill="#f8fafc" font-weight="600">GCP IAM Bindings</text>
+    <text x="660" y="30" class="text-body">GCP IAM Bindings</text>
     <text x="660" y="50" class="text-small">principalSet://...</text>
     <text x="660" y="65" class="text-small" fill="#10b981">Vertex AI User Roles</text>
 
-    <!-- Connecting Lines -->
+    <!-- Phase 1 Lines -->
     <path class="line-glow" d="M 220 40 L 320 40" />
     <path class="line-main" d="M 220 40 L 320 40" marker-end="url(#arrow-blue)" />
-    <text x="240" y="30" class="text-small">Issuer &amp; Token</text>
+    <text x="230" y="30" class="text-small">Issuer &amp; Token</text>
 
     <path class="line-glow" d="M 540 40 L 640 40" />
     <path class="line-main" d="M 540 40 L 640 40" marker-end="url(#arrow-blue)" />
     <text x="560" y="30" class="text-small">Federates</text>
   </g>
 
-  <!-- Group: Phase 2 (Backend Sync) -->
   <g transform="translate(40, 230)">
-    <!-- Entra App 2 -->
+    <!-- Nodes Phase 2 -->
     <rect class="box-entra" width="220" height="80" />
-    <text x="20" y="30" class="text-body" fill="#f8fafc" font-weight="600">Entra ID Sync App</text>
-    <text x="20" y="50" class="text-small">sharepoint-datastore</text>
-    <text x="20" y="65" class="text-small" fill="#8b5cf6">Service Principal (Graph)</text>
+    <text x="20" y="30" class="text-body">Entra ID Sync App</text>
+    <text x="20" y="50" class="text-small">sharepoint-store</text>
+    <text x="20" y="65" class="text-small" fill="#8b5cf6">Service Principal</text>
 
-    <!-- Vertex AI -->
     <rect class="box-vertex" x="320" y="0" width="220" height="80" />
-    <text x="340" y="30" class="text-body" fill="#f8fafc" font-weight="600">Vertex AI Search</text>
+    <text x="340" y="30" class="text-body">Vertex AI Search</text>
     <text x="340" y="50" class="text-small">deloitte-demo engine</text>
-    <text x="340" y="65" class="text-small" fill="#f59e0b">SharePoint Connector Store</text>
+    <text x="340" y="65" class="text-small" fill="#f59e0b">SharePoint Connector</text>
     
-    <!-- SharePoint Data -->
     <rect class="box-sharepoint" x="640" y="0" width="220" height="80" />
-    <text x="660" y="45" class="text-body" fill="#f8fafc" font-weight="600">Microsoft SharePoint</text>
+    <text x="660" y="45" class="text-body">Microsoft SharePoint</text>
 
-    <!-- Connecting Lines -->
+    <!-- Phase 2 Lines -->
     <path class="line-glow" d="M 220 40 L 320 40" />
     <path class="line-main" d="M 220 40 L 320 40" marker-end="url(#arrow-blue)" />
-    <text x="240" y="30" class="text-small">Client Secret</text>
+    <text x="230" y="30" class="text-small">Client Secret</text>
 
     <path class="line-dash" d="M 540 40 L 640 40" marker-start="url(#arrow-gray)" marker-end="url(#arrow-gray)" />
-    <text x="560" y="30" class="text-small">Background Sync</text>
+    <text x="550" y="30" class="text-small">Background Sync</text>
   </g>
 
-  <!-- Connecting Phase 1 to Phase 2 (IAM to Vertex) -->
+  <!-- Cross-phase Line -->
   <path class="line-glow" d="M 750 170 C 750 200, 500 200, 430 230" />
   <path class="line-main" d="M 750 170 C 750 200, 500 200, 430 230" marker-end="url(#arrow-blue)" />
   <text x="580" y="195" class="text-small">Permits Query Execution</text>

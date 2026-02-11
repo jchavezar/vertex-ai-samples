@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 60">
+  <defs>
+    <linearGradient id="grad_header_setup.svg" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.8" />
+      <stop offset="100%" stop-color="#0f172a" stop-opacity="0" />
+    </linearGradient>
+    <filter id="glow_header_setup.svg" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="2" result="blur" />
+      <feMerge>
+        <feMergeNode in="blur" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <rect x="0" y="5" width="800" height="50" fill="url(#grad_header_setup.svg)" />
+  
+  <!-- Pulsing Neon Indicator -->
+  <rect x="0" y="5" width="5" height="50" fill="#38bdf8" filter="url(#glow_header_setup.svg)">
+    <animate attributeName="opacity" values="0.4;1;0.4" dur="2s" repeatCount="indefinite" />
+  </rect>
+  
+  <!-- Title Text -->
+  <text x="30" y="40" font-family="'Courier New', monospace" font-size="28" font-weight="bold" fill="#ffffff" letter-spacing="4">
+    SYSTEM_DEPLOY_PROTOCOL
+  </text>
+  
+  <!-- Blinking Cursor -->
+  <rect x="414" y="15" width="15" height="28" fill="#38bdf8">
+    <animate attributeName="opacity" values="1;0;1" dur="1s" repeatCount="indefinite" />
+  </rect>
+
+  <!-- Base Grid Line -->
+  <line x1="0" y1="58" x2="800" y2="58" stroke="#38bdf8" stroke-width="1" opacity="0.3" />
+  
+  <!-- Scanning Laser Line -->
+  <rect x="0" y="57" width="100" height="3" fill="#38bdf8" filter="url(#glow_header_setup.svg)">
+    <animate attributeName="x" values="0;800;0" dur="4s" repeatCount="indefinite" />
+  </rect>
+</svg>
