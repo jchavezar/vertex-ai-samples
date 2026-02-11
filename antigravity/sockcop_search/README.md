@@ -108,3 +108,55 @@ Use the standard dev server:
 npm run dev
 ```
 
+
+## 🚀 Configuration Guide: Azure AD (Entra ID) & Google Cloud WIF
+
+To securely integrate your application as a federated search connector using Gemini Enterprise capabilities, you must configure both Azure AD and GCP's Workforce Identity Federation (WIF). **Crucially, no credentials must be leaked or stored in your frontend.**
+
+### 1. Azure AD (Entra ID) Application Setup
+Create your Entra ID applications to serve as the Identity Provider (IdP) and the Datastore Connector:
+* **Register a New Application:** (e.g., `deloitte-entraid`)
+* **Authentication:** Configure the Redirect URIs for Web / SPA (e.g., `http://localhost:5173/`, `https://auth.cloud.google/signin-callback/...`) and ensure ID Tokens are enabled for implicit/hybrid flows.
+* **API Permissions:** Grant delegated permissions appropriate for your needs.
+  * For the core Entra ID app: `email`, `openid`, `profile`, `User.Read`.
+  * For the SharePoint Datastore app: `Files.ReadWrite.All`, `Sites.Manage.All`, `Sites.Search.All`, `AllSites.Read`, etc.
+
+*Example Screenshots of Entra ID Setup:*
+![Entra ID Authentication Config](./public/screenshots/deloitte-entraid_Authentication.png)
+![Entra ID API Permissions](./public/screenshots/deloitte-entraid_API_permissions.png)
+![SharePoint Datastore Auth](./public/screenshots/deloitte-sharepoint-datastore_Authentication.png)
+![SharePoint Datastore Permissions](./public/screenshots/deloitte-sharepoint-datastore_API_permissions.png)
+
+### 2. Google Cloud WIF Configuration
+Once the Azure AD app is created, configure the WIF pool and provider in GCP. 
+
+*Run the following commands using the `gcloud` CLI, replacing the placeholder values (`YOUR_TENANT_ID`, `YOUR_CLIENT_ID`, `YOUR_CLIENT_SECRET`) with your actual Entra ID credentials.*
+
+**Create the OIDC Provider in your Workforce Pool:**
+```bash
+gcloud iam workforce-pools providers create-oidc entra-id-oidc-pool-provider-de \
+    --workforce-pool="entra-id-oidc-pool-d" \
+    --location="global" \
+    --display-name="Entra ID Provider" \
+    --description="OIDC provider for Entra ID" \
+    --issuer-uri="https://login.microsoftonline.com/YOUR_TENANT_ID/v2.0" \
+    --client-id="YOUR_CLIENT_ID" \
+    --client-secret-value="YOUR_CLIENT_SECRET" \
+    --web-sso-response-type="code" \
+    --web-sso-assertion-claims-behavior="merge-user-info-over-id-token-claims" \
+    --attribute-mapping="google.subject=assertion.sub,google.groups=assertion.groups,google.display_name=assertion.preferred_username" \
+    --attribute-condition='assertion.issuer.startsWith("https://login.microsoftonline.com/YOUR_TENANT_ID")' \
+    --detailed-audit-logging
+```
+
+### 3. Google Cloud IAM Binding
+Grant the necessary permissions to the federated identities so they can query the Vertex AI Answer API:
+
+```bash
+# Replace YOUR_PROJECT_ID with your actual project ID
+gcloud projects add-iam-policy-binding YOUR_PROJECT_ID \
+    --member="principalSet://iam.googleapis.com/locations/global/workforcePools/entra-id-oidc-pool-d/*" \
+    --role="roles/discoveryengine.viewer"
+```
+
+Once configured, your frontend will securely authenticate via Entra ID, exchange the token using WIF (`entra-id-oidc-pool-d`), and query the Vertex AI Answer API natively.
