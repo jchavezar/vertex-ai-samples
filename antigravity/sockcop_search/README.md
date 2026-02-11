@@ -1,353 +1,151 @@
-# Sockcop Search | Native Vertex AI Answer Integration & SharePoint Grounding
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="./public/assets/hero_banner.svg">
+    <source media="(prefers-color-scheme: light)" srcset="./public/assets/hero_banner.svg">
+    <img alt="Sockcop Search Neo-Monolith Hero" src="./public/assets/hero_banner.svg" width="100%">
+  </picture>
+</p>
 
-Sockcop Search is a highly secure, modern GenAI unified search interface built with React, Vite, and Tailwind CSS. It leverages the **Google Vertex AI Answer API** to natively query and summarize your company's documents, utilizing **Workload Identity Federation (WIF)** to exchange Entra ID (Azure AD) user tokens for Google Cloud credentials on the fly, seamlessly grounding the LLM responses.
+# 🌐 Sockcop Search: The Enterprise Matrix
 
-![Vertex AI Native Answer Result](./public/screenshots/search_results_success.png)
+<div align="center">
 
-## Core Architecture: Workload Identity Federation Flow
+[![License](https://img.shields.io/badge/License-Apache_2.0-0F172A?style=for-the-badge&logoColor=38BDF8&labelColor=1E293B)](https://opensource.org/licenses/Apache-2.0)
+[![Next.js](https://img.shields.io/badge/Vite-6.0-0F172A?style=for-the-badge&logo=vite&logoColor=38BDF8&labelColor=1E293B)](https://vitejs.dev/)
+[![React](https://img.shields.io/badge/React-19.0-0F172A?style=for-the-badge&logo=react&logoColor=3B82F6&labelColor=1E293B)](https://react.dev/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind-CSS-0F172A?style=for-the-badge&logo=tailwind-css&logoColor=06B6D4&labelColor=1E293B)](https://tailwindcss.com/)
+[![Google Cloud](https://img.shields.io/badge/Vertex_AI-Search-0F172A?style=for-the-badge&logo=googlecloud&logoColor=F59E0B&labelColor=1E293B)](https://cloud.google.com/enterprise-search)
+[![Microsoft Entra](https://img.shields.io/badge/Entra_ID-Federation-0F172A?style=for-the-badge&logo=microsoft&logoColor=8B5CF6&labelColor=1E293B)](https://entra.microsoft.com/)
 
-The following diagram illustrates the zero-trust authentication flow across Microsoft Entra ID and Google Cloud via WIF.
+</div>
 
-```mermaid
-sequenceDiagram
-    box rgba(15, 23, 42, 0.4) Identity & Access Management
-        participant User as End User
-        participant Frontend as Sockcop Search UI
-        participant EntraID as Microsoft Entra ID
-        participant WIF as Google WIF Boundary 🛡️
-    end
-    box rgba(12, 74, 110, 0.3) Google Cloud Platform
-        participant VertexAI as Vertex AI Answer API
-    end
-    
-    User->>Frontend: Clicks "Sign in with Entra ID"
-    Frontend->>EntraID: Redirects for OAuth Consent
-    EntraID-->>Frontend: OAuth JWT `id_token`
-    
-    note over Frontend,WIF: Workload Identity Federation Exchange
-    Frontend->>WIF: POST /v1/token (audience, subject_token)
-    WIF-->>Frontend: Short-lived Google `access_token`
-    Frontend->>Frontend: Stores Google Token locally (In-Memory)
-```
+> **Sockcop Search** transcends basic retrieval. It is a high-fidelity, brutalist neo-monolith built on **React 19** and **Vite**, acting as a secure gateway to your enterprise intelligence. It federates Microsoft Entra ID authentication signals directly into the heart of Google Cloud's **Vertex AI Search (Gemini Enterprise)** engine without a traditional backend.
 
-## Advanced Architecture: Native Answer API Integration
+---
 
-Sockcop Search relies entirely on the powerful `default_config:answer` endpoint provided by Vertex AI Search. This modern endpoint natively handles the complex Retrieval-Augmented Generation (RAG) pipeline on the backend, ensuring accurate, grounded summarizations without the need for manual, client-side extraction or secondary LLM fallbacks.
+### ✨ The 2076 Architecture
 
-```mermaid
-flowchart TD
-    classDef ui fill:#0f172a,stroke:#38bdf8,stroke-width:2px,color:#fff;
-    classDef api border-style:dashed,fill:#1e293b,stroke:#0f172a,color:#e2e8f0;
-    classDef extract fill:#082f49,stroke:#0c4a6e,color:#bae6fd;
-    classDef rank text-align:center,fill:#f59e0b,stroke:#b45309,color:#fff;
+Sockcop Search utilizes a serverless cross-cloud trust mesh. Authentication originates in Azure. Authorization is verified in Google Cloud. Data is scraped from SharePoint. The answer is synthesized by Gemini. All orchestrated locally in real-time.
 
-    User(["👤 User Query"]) --> UI("Sockcop React UI")
-    UI -- "POST /servingConfigs/default_config:answer\nAuthorization: Bearer <GCP_TOKEN>" --> VAIS{{"Vertex AI Answer API"}}:::api
-    
-    VAIS -- "Retrieves Documents\nSynthesizes Grounded Answer" --> Extraction["Frontend Deep Extraction\n(Answer Payload & structData)"]:::extract
-    
-    Extraction --> Score("Extracts Confidence Score (rank)"):::rank
-    Extraction --> Link("Extracts SharePoint Source (url_for_connector)"):::rank
-    Extraction --> Author("Extracts Document Metadata (author, title)"):::rank
-    
-    Score --> Render("Displays Generative AI Summary & Detailed Citations"):::ui
-    Link --> Render
-    Author --> Render
-```
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="./public/assets/arch_diagram.svg">
+    <source media="(prefers-color-scheme: light)" srcset="./public/assets/arch_diagram.svg">
+    <img alt="Next Gen Architecture Pathway" src="./public/assets/arch_diagram.svg" width="100%">
+  </picture>
+</p>
 
-## UI Showcase: Native Grounding in Action
-
-### Interactive Citation Panel
-Explore grounded sources with deep metadata extraction directly from your connected datastores.
-![Detailed Citation View](./public/screenshots/citation_detail.png)
-
-### Native Answer Generation
-Vertex AI's `default_config:answer` synthesizing search results and providing fallback-free AI summarizations.
-![Search Results Overview](./public/screenshots/search_results.png)
-
-### Original Document Linking
-Deeply link directly to the source datastore (e.g. Microsoft SharePoint) to read the full context.
-![SharePoint Source View](./public/screenshots/sharepoint_source.png)
-
-## Key Features
-
-* **Zero-Leak Stateless Architecture:** No middle-tier secrets or API keys are stored in the frontend source code. The user authenticates natively and generates a temporary session with WIF.
-* **Native Generation Pipeline:** Replaces legacy, constrained search endpoints with the comprehensive Vertex AI Answer API. Summarization, document retrieval, and grounding citations are generated server-side in one swift request.
-* **Intelligent Metadata Mapping:** The UI securely dives into the payload's `structData` schema to render a beautifully formatted citation list. This includes visual indicators for the API's internal Confidence Score (`rank`), origin author, and precise deep links mapped back to the connected SharePoint site.
-* **XSS Protection:** DOMPurify is embedded to securely process highlight `<b>` tags delivered from the Vertex APIs without exposing the frontend to HTML injections.
-
-## Development Setup
-
-1. **Verify Dependencies**
-Make sure you use **npm**, **pnpm** or **yarn** to install local frontend packages.
-```bash
-npm install
-```
-
-2. **Environment & Configuration**
-For security, do not embed secrets! All configuration identifiers are inside `src/api/config.js`. Ensure your `.gitignore` is completely strict (we have appended the zero-leak rules automatically) protecting your `.env` tokens. 
-
-```javascript
-// Example src/api/config.js
-export const CONFIG = {
-  PROJECT_NUMBER: 'YOUR_PROJECT_NUMBER',
-  LOCATION: 'global',
-  WIF_POOL: '...',
-  WIF_PROVIDER: '...',
-  DATA_STORE_ID: '...',
-  ENGINE_ID: 'deloitte-demo',
-  TENANT_ID: '...',
-  MS_APP_ID: '...',
-  ISSUER: 'https://login.microsoftonline.com/...'
-};
-```
-
-3. **Running the App**
-Use the standard dev server:
-```bash
-npm run dev
-```
-
-
-## 🚀 Configuration Guide: Google Cloud WIF & Azure AD (Entra ID)
-
-To securely integrate your application as a federated search connector using Gemini Enterprise capabilities, you must configure both GCP's Workforce Identity Federation (WIF) and Azure AD. **Crucially, no credentials must be leaked or stored in your frontend.**
-
-### Step 1: Configure Google Cloud WIF (Workforce Identity Federation)
-We set up the WIF configuration first to establish the OpenID Connect (OIDC) trust with Entra ID and obtain the explicit Redirect URL needed for Azure AD.
-
-*Run the following commands using the `gcloud` CLI. Ensure you replace the placeholder values (`<TENANT_ID>`, `<CLIENT_ID>`, `<CLIENT_SECRET>`) with the corresponding ones from your Azure Entra ID Application.*
-
-**1A. Create the OIDC Provider in your Workforce Pool:**
-```bash
-gcloud iam workforce-pools providers create-oidc entra-id-oidc-pool-provider-de \
-    --workforce-pool="entra-id-oidc-pool-d" \
-    --location="global" \
-    --display-name="Entra ID Provider" \
-    --description="OIDC provider for Entra ID" \
-    --issuer-uri="https://login.microsoftonline.com/<TENANT_ID>/v2.0" \
-    --client-id="<CLIENT_ID>" \
-    --client-secret-value="<CLIENT_SECRET>" \
-    --web-sso-response-type="code" \
-    --web-sso-assertion-claims-behavior="merge-user-info-over-id-token-claims" \
-    --attribute-mapping="google.subject=assertion.sub,google.groups=assertion.groups,google.display_name=assertion.preferred_username" \
-    --attribute-condition='assertion.issuer.startsWith("https://login.microsoftonline.com/<TENANT_ID>")' \
-    --detailed-audit-logging
-```
-
-**1B. Bind IAM Permissions for the Identity Pool**
-Grant the necessary permissions to the federated identities so they can natively query the Vertex AI Answer API:
-```bash
-# Replace <YOUR_PROJECT_ID> with your actual GCP project ID
-gcloud projects add-iam-policy-binding <YOUR_PROJECT_ID> \
-    --member="principalSet://iam.googleapis.com/locations/global/workforcePools/entra-id-oidc-pool-d/*" \
-    --role="roles/discoveryengine.viewer"
-```
-
-**1C. Obtain the WIF Redirect URL**
-Your specific redirect URL for the Entra ID configuration will look like this:
-`https://auth.cloud.google/signin-callback/locations/global/workforcePools/entra-id-oidc-pool-d/providers/entra-id-oidc-pool-provider-de`
-
-### Step 2: Azure AD (Entra ID) Application Setup
-With your WIF provider running, complete the setup of your Entra ID application to act as the Identity Provider (IdP) and your Datastore Connector.
-
-**2A. Create/Configure the Application (`deloitte-entraid`)**
-* Ensure your application is registered in Entra ID.
-* Navigate to **Authentication**. Under **Web and SPA settings**:
-  * Add the following **Redirect URIs**:
-    * `http://localhost:5173/` (for local development)
-    * `https://auth.cloud.google/signin-callback/locations/global/workforcePools/entra-id-oidc-pool-d/providers/entra-id-oidc-pool-provider-de` (from Step 1C)
-  * Enable **ID tokens (used for implicit and hybrid flows)**.
-
-**2B. Configure API Permissions**
-Under **API Permissions**, you need to grant delegated permissions necessary for both basic sign-in and Datastore connectivity.
-* **For the core Entra ID auth app (`deloitte-entraid`):**
-  * Grant Microsoft Graph permissions: `email`, `openid`, `profile`, `User.Read`.
-* **For the SharePoint Datastore connector (`deloitte-sharepoint-datastore`):**
-  * Grant Microsoft Graph permissions: `Files.ReadWrite.All`, `Sites.Manage.All`, `Sites.Read.All`, `Sites.ReadWrite.All`, `User.Read`, `offline_access`.
-  * Grant SharePoint permissions: `AllSites.Read`, `Sites.Search.All` (Requires Admin Consent).
-
-*Example Screenshots of Entra ID & WIF Setup:*
-
-**WIF Provider Configuration:**
-<img src="./public/screenshots/WIF_pool_overview.png" alt="WIF Pool Configuration" width="800"/>
-<img src="./public/screenshots/WIF_provider_config.png" alt="WIF Provider Details" width="800"/>
-
-**Entra ID Auth App (deloitte-entraid):**
-<img src="./public/screenshots/deloitte-entraid_Authentication.png" alt="Entra ID Authentication Config" width="800"/>
-<img src="./public/screenshots/deloitte-entraid_API_permissions.png" alt="Entra ID API Permissions" width="800"/>
-
-**Datastore Connector (deloitte-sharepoint-datastore):**
-<img src="./public/screenshots/deloitte-sharepoint-datastore_Authentication.png" alt="SharePoint Datastore Auth" width="800"/>
-<img src="./public/screenshots/deloitte-sharepoint-datastore_API_permissions.png" alt="SharePoint Datastore Permissions" width="800"/>
-
-### Step 3: Integrate with Frontend (No Secrets!)
-Finally, configure the variables in `src/api/config.js` to link your frontend natively:
-```javascript
-export const CONFIG = {
-  PROJECT_NUMBER: '<YOUR_PROJECT_NUMBER>',
-  LOCATION: 'global',
-  WIF_POOL: 'entra-id-oidc-pool-d',
-  WIF_PROVIDER: 'entra-id-oidc-pool-provider-de',
-  DATA_STORE_ID: '<YOUR_DATASTORE_ID>',
-  ENGINE_ID: 'deloitte-demo',
-  TENANT_ID: '<YOUR_TENANT_ID>',
-  MS_APP_ID: '<YOUR_CLIENT_ID>', 
-  ISSUER: 'https://login.microsoftonline.com/<YOUR_TENANT_ID>/v2.0'
-};
-```
-Once configured, your frontend will securely authenticate via Entra ID, exchange the token using WIF (`entra-id-oidc-pool-d`), and query the Vertex AI Answer API natively containing actions in Gemini Enterprise.
-
-
-## 🚀 Step-by-Step Configuration Guide (Entra ID, WIF, & Datastore)
-
+---
+## 🚀 Step-by-Step Configuration Guide
 
 To securely integrate your application as a federated search connector using Gemini Enterprise capabilities, you must follow this specific initialization chronological order. **Crucially, no credentials must be leaked or stored in your frontend.**
 
-### 🌐 Architectural Sequence Flow
+<br/>
 
-```mermaid
-%%{init: {'theme': 'dark', 'themeVariables': { 'fontFamily': 'Inter, sans-serif', 'primaryColor': '#0F172A', 'edgeLabelBackground':'#1E293B', 'lineColor': '#38BDF8', 'primaryTextColor': '#F8FAFC', 'tertiaryColor': '#020617'}}}%%
-flowchart TD
-    classDef frontend fill:#3B82F6,stroke:#1D4ED8,stroke-width:2px,color:#fff,rx:8px,ry:8px
-    classDef entra fill:#8B5CF6,stroke:#6D28D9,stroke-width:2px,color:#fff,rx:8px,ry:8px
-    classDef gcp fill:#10B981,stroke:#047857,stroke-width:2px,color:#fff,rx:8px,ry:8px
-    classDef vertex fill:#F59E0B,stroke:#B45309,stroke-width:2px,color:#fff,rx:8px,ry:8px
-    classDef mapping fill:#1E293B,stroke:#475569,stroke-width:2px,stroke-dasharray: 4 4,color:#CBD5E1
+<details open>
+<summary><b>[PHASE 1] Initial Azure AD (Entra ID) App Setup</b></summary>
+<br/>
 
-    subgraph "Phase 1: User Authentication & Cloud Federation"
-        direction LR
-        A1[1. Entra ID App<br>deloitte-entraid]:::entra -->|Issuer & Client ID| W1[2. Google Cloud WIF<br>Identity Pool]:::gcp
-        W1 -->|Federates Identity| I1[3. GCP IAM Binding<br>principalSet://]:::gcp
-    end
+> **Objective:** Create the primary Identity Provider (IdP) for the frontend user session.
 
-    subgraph "Phase 2: Backend Datastore Integration"
-        direction LR
-        A2[4. Entra ID Service App<br>sharepoint-datastore]:::entra -->|Client Secret & Graph| V1[5. Vertex AI Datastore<br>SharePoint Connector]:::vertex
-        V1 -->|Background Indexing| SP[(Microsoft SharePoint)]:::mapping
-    end
+| **Step** | **Action** | **Validation Image** |
+| :--- | :--- | :--- |
+| **1.** | Navigate to **Microsoft Entra admin center** > **App registrations**. | |
+| **2.** | Create a new application (`deloitte-entraid`). | |
+| **3.** | Go to **Authentication**. Add a **SPA** platform. Set Redirect URIs (`http://localhost:5173`). Enable Access & ID tokens. | <img src="./public/screenshots/deloitte-entraid_Authentication.png" width="400" /> |
+| **4.** | Go to **API permissions**. Grant `User.Read`. Ensure Admin Consent is granted. | <img src="./public/screenshots/deloitte-entraid_API_permissions.png" width="400" /> |
 
-    subgraph "Phase 3: Final App Deployment"
-        direction TB
-        F1[6. React Frontend<br>config.js Assembly]:::frontend
-    end
+<div align="right">
+<code><b>EXTRACTED:</b> Client ID</code> | <code>Tenant ID</code> | <code>Issuer URI</code>
+</div>
+</details>
 
-    %% Internal Subgraph Wiring 
-    I1 -.->|Grants Search Viewer Role| F1
-    V1 ==>|Target Engine ID & Responses| F1
-    A1 -.->|Validates Login Token| F1
+<br/>
 
-```
+<details open>
+<summary><b>[PHASE 2] Google Cloud Workforce Identity Federation (WIF)</b></summary>
+<br/>
 
----
+> **Objective:** Command Google Cloud to trust the authentication tokens generated by Entra ID.
 
+| **Step** | **Action** | **Validation Image** |
+| :--- | :--- | :--- |
+| **1.** | Navigate to **GCP Console** > **IAM & Admin** > **Workforce Identity Federation**. | |
+| **2.** | Click **Create pool** (e.g., `entra-id-oidc-pool-d`). | <img src="./public/screenshots/WIF_pool_overview.png" width="400" /> |
+| **3.** | Inside the pool, click **Add Provider** (OIDC). | |
+| **4.** | Set **Issuer URI** and **Client ID** from Phase 1. Map `google.subject` to `assertion.sub`. | <img src="./public/screenshots/WIF_provider_config.png" width="400" /> |
 
-### Step 1: Initial Azure AD (Entra ID) App Setup (`deloitte-entraid`)
+<div align="right">
+<code><b>EXTRACTED:</b> WIF Pool ID</code> | <code>WIF Provider ID</code>
+</div>
+</details>
 
-The first requirement is an Azure AD application that acts as the primary Identity Provider (IdP) for the frontend user session.
+<br/>
 
-1.  Navigate to **Microsoft Entra admin center** > **App registrations**.
-2.  Create a new application (e.g., `deloitte-entraid`).
-3.  Navigate to the **Authentication** blade.
-    *   Add a **Single-page application** platform.
-    *   Set the **Redirect URIs** for your local and production frontend environments (e.g., `http://localhost:5173`).
-    *   Ensure **Access tokens** and **ID tokens** are checked under Implicit grant and hybrid flows.
+<details open>
+<summary><b>[PHASE 3] Google Cloud IAM WIF Binding</b></summary>
+<br/>
 
-<img src="./public/screenshots/deloitte-entraid_Authentication.png" alt="Entra ID Authentication Config" width="800"/>
+> **Objective:** Bind Vertex AI Search API permissions directly to the WIF-authenticated identities.
 
-4.  Navigate to the **API permissions** blade.
-    *   Ensure `User.Read` is granted.
-    *   You may need to `Grant admin consent` depending on your tenant's security defaults.
+| **Step** | **Action** | **Validation Image** |
+| :--- | :--- | :--- |
+| **1.** | Navigate to **GCP Console** > **IAM & Admin** > **IAM**. | |
+| **2.** | Click **Grant Access**. | |
+| **3.** | Enter the `principalSet://` identifier representing your WIF pool. | |
+| **4.** | Assign `Discovery Engine Viewer` and `Vertex AI User` roles. | <img src="./public/screenshots/gcp_iam_wif_bindings.png" width="400" /> |
 
-<img src="./public/screenshots/deloitte-entraid_API_permissions.png" alt="Entra ID API Permissions" width="800"/>
+</details>
 
-**Required IDs extracted from Step 1:**
-*   `Client ID` (Application ID)
-*   `Tenant ID`
-*   `Issuer URI` (Typically `https://login.microsoftonline.com/<YOUR-TENANT-ID>/v2.0`)
+<br/>
 
----
+<details open>
+<summary><b>[PHASE 4] SharePoint Connector App (Background Sync)</b></summary>
+<br/>
 
-### Step 2: Google Cloud Workforce Identity Federation (WIF)
+> **Objective:** Create a secondary "Service" App in Entra ID specifically designed for automated backend connector synchronization by Google Cloud.
 
-Now we must tell Google Cloud to trust the authentication signals generated by the Entra ID application from Step 1. This generates a **Workforce Identity Pool**.
+| **Step** | **Action** | **Validation Image** |
+| :--- | :--- | :--- |
+| **1.** | Return to **Entra App registrations**. Create `deloitte-sharepoint-datastore`. | |
+| **2.** | Go to **Authentication**. Configure Web callback (if needed by your specific flow). | <img src="./public/screenshots/deloitte-sharepoint-datastore_Authentication.png" width="400" /> |
+| **3.** | Go to **API permissions**. Add **Application permissions** for Microsoft Graph (`Sites.Read.All`, `Sites.Search.All`). **Grant Admin Consent**. | <img src="./public/screenshots/deloitte-sharepoint-datastore_API_permissions.png" width="400" /> |
+| **4.** | Go to **Certificates & secrets** and generate a new **Client Secret**. | |
 
-1.  Navigate to **Google Cloud Console** > **IAM & Admin** > **Workforce Identity Federation**.
-2.  Click **Create pool** (e.g., `entra-id-oidc-pool-d`). Note the generic Pool ID assigned.
+<div align="right">
+<code><b>EXTRACTED:</b> Client Secret</code>
+</div>
+</details>
 
-<img src="./public/screenshots/WIF_pool_overview.png" alt="WIF Pool Configuration" width="800"/>
+<br/>
 
-3.  Inside the new pool, click **Add Provider**. 
-4.  Configure the **OpenID Connect (OIDC)** provider (e.g., `entra-id-oidc-pool-provider-de`):
-    *   **Issuer URI**: Paste the Issuer URI from Step 1.
-    *   **Client ID**: Paste the Client ID (`deloitte-entraid`) from Step 1.
-    *   Define the attribute mapping (e.g., mapping `google.subject` to `assertion.sub`).
+<details open>
+<summary><b>[PHASE 5] Gemini Enterprise Agent Builder Configuration</b></summary>
+<br/>
 
-<img src="./public/screenshots/WIF_provider_config.png" alt="WIF Provider Details" width="800"/>
+> **Objective:** Connect the Entra ID Service App pipeline into the Google Cloud search indexer.
 
-5.  Upon creation, note the **Provider Details Redirect URL** (it ends in `/auth/callback`). You will need to take this URL and add it back to the **Redirect URIs** in your Entra ID application (Step 1) under a "Web" platform setting.
+| **Step** | **Action** | **Validation Image** |
+| :--- | :--- | :--- |
+| **1.** | Navigate to **GCP Console** > **Agent Builder** > **Data Stores**. | |
+| **2.** | Click **Create Data Store** > **SharePoint**. | |
+| **3.** | Provide the **Client ID** (from Phase 4), **Tenant ID**, and **Client Secret**. | |
+| **4.** | Define the SharePoint Site URLs to index and initiate the sync. | <img src="./public/screenshots/gcp_agent_builder_datastores.png" width="400" /> |
 
-**Required IDs extracted from Step 2:**
-*   `WIF Pool ID`
-*   `WIF Provider ID`
+<div align="right">
+<code><b>EXTRACTED:</b> Datastore ID</code> | <code>Engine ID</code>
+</div>
+</details>
 
----
+<br/>
 
-### Step 3: Google Cloud IAM WIF Binding 
+<details open>
+<summary><b>[PHASE 6] Frontend Integration (React App)</b></summary>
+<br/>
 
-We must bind the specific permissions required by the Vertex AI Search API to the identities authenticated via WIF.
+> **Objective:** Inject all accumulated identifiers into the React application.
 
-1.  Navigate to **Google Cloud Console** > **IAM & Admin** > **IAM**.
-2.  Click **Grant Access**.
-3.  For **New principals**, enter the `principalSet://` identifier representing your WIF pool (e.g., `principalSet://iam.googleapis.com/locations/global/workforcePools/<YOUR_POOL_ID>/*`).
-4.  Assign the vital roles:
-    *   `Discovery Engine Viewer` (or Admin depending on your read/write requirements).
-    *   `Vertex AI User`.
-
-<img src="./public/screenshots/gcp_iam_wif_bindings.png" alt="GCP IAM WIF Principal Bindings" width="800"/>
-
----
-
-### Step 4: SharePoint Connector App (`deloitte-sharepoint-datastore`)
-
-To allow Google Cloud's AI to actually crawl and index your SharePoint sites, you need a *second* "Service" App Registration in Entra ID specifically designed for backend connector synchronization.
-
-1.  Return to **Microsoft Entra admin center** > **App registrations**.
-2.  Create a second application (e.g., `deloitte-sharepoint-datastore`).
-3.  Under **Authentication**, ensure it supports web-based callbacks (though typically, automated syncing doesn't require complex SPA setups here).
-
-<img src="./public/screenshots/deloitte-sharepoint-datastore_Authentication.png" alt="SharePoint Datastore Auth" width="800"/>
-
-4.  Navigate to **API permissions**. **This is the critical step for indexers:**
-    *   Add **Microsoft Graph** permissions.
-    *   You *must* select **Application permissions** (not delegated), because Google Cloud crawls in the background.
-    *   Grant: `Sites.Read.All` or `AllSites.Read`, and `Sites.Search.All`.
-    *   **Crucial:** A tenant administrator *must* click **Grant admin consent**.
-
-<img src="./public/screenshots/deloitte-sharepoint-datastore_API_permissions.png" alt="SharePoint Datastore Permissions" width="800"/>
-
-5.  Navigate to **Certificates & secrets** and generate a new **Client Secret**. Save the secret value immediately, as it cannot be viewed again.
-
----
-
-### Step 5: Gemini Enterprise Agent Builder Configuration
-
-Finally, you connect the data pipeline together inside Google Cloud.
-
-1.  Navigate to **Google Cloud Console** > **Agent Builder** > **Data Stores**.
-2.  Click **Create Data Store** and choose **SharePoint**.
-3.  When prompted for Microsoft 365 Authentication:
-    *   Provide the **Client ID** from Step 4 (`deloitte-sharepoint-datastore`).
-    *   Provide the **Tenant ID**.
-    *   Provide the **Client Secret** generated in Step 4.
-4.  Specify the specific SharePoint Site URLs to index.
-5.  Save and initiate the sync. It will appear globally in your Datastores list alongside any other engines you define (like open-web indexing or BigQuery stores).
-
-<img src="./public/screenshots/gcp_agent_builder_datastores.png" alt="Agent Builder Datastore List" width="800"/>
-
-### Step 6: Frontend Integration 
-
-In your React application, update your `src/api/config.js` file with the mapping identifiers recovered in the previous steps. 
+Update your `src/api/config.js` file with the mapping identifiers recovered in the previous phases.
 
 ```javascript
 export const CONFIG = {
@@ -355,17 +153,22 @@ export const CONFIG = {
     PROJECT_NUMBER: "YOUR_PROJECT_NUMBER",
     LOCATION: "global",
     
-    // WIF Configuration from Step 2
+    // WIF Configuration (Phase 2)
     WIF_POOL: "<YOUR_POOL_ID>",
     WIF_PROVIDER: "<YOUR_PROVIDER_ID>",
     
-    // Vertex AI Configuration from Step 5
+    // Vertex AI (Phase 5)
     DATA_STORE_ID: "<YOUR_DATA_STORE_ID>",
     ENGINE_ID: "deloitte-demo",
     
-    // Entra ID Mapping from Step 1
+    // Entra ID (Phase 1)
     TENANT_ID: "<YOUR_TENANT_ID>",
     MS_APP_ID: "<YOUR_ENTRA_CLIENT_ID>", 
     ISSUER: "https://login.microsoftonline.com/<YOUR_TENANT_ID>/v2.0"
 };
 ```
+</details>
+
+---
+
+## 🛠️ Development Setup
