@@ -42,32 +42,29 @@
   <!-- Title with animated cursor -->
   <text x="40" y="45" class="text-title">FEDERATION_ARCHITECTURE<tspan fill="#38bdf8"><animate attributeName="opacity" values="1;0;1" dur="1s" repeatCount="indefinite" />_</tspan></text>
 
-  
-  <!-- Auth Flow (Token Exchange Sequence) -->
-  
-  <!-- Step 1: Microsoft Entra Token to WIF -->
+  <!-- Animated Data Packets (Circles moving along paths) -->
+  <!-- Auth Flow -->
   <circle r="4" fill="#ffffff" filter="url(#glow)">
-    <animateMotion dur="3s" repeatCount="indefinite" path="M 260 130 L 360 130" keyPoints="0;1" keyTimes="0;1" calcMode="linear"/>
+    <animateMotion dur="2s" repeatCount="indefinite" path="M 260 130 L 360 130" />
   </circle>
-  
-  <!-- Step 2: GCP STS Token to Vertex AI API -->
-  <circle r="4" fill="#38bdf8" filter="url(#glow)">
-    <animateMotion dur="2s" repeatCount="indefinite" path="M 430 170 L 430 230" begin="2s" keyPoints="0;1" keyTimes="0;1" calcMode="linear" />
+  <circle r="4" fill="#ffffff" filter="url(#glow)">
+    <animateMotion dur="2s" repeatCount="indefinite" path="M 580 130 L 680 130" />
   </circle>
 
-  <!-- Step 3: API Query Execution to SharePoint -->
+  <!-- Sync Flow -->
+  <circle r="4" fill="#f59e0b" filter="url(#glow)">
+    <animateMotion dur="3s" repeatCount="indefinite" path="M 260 270 L 360 270" />
+  </circle>
+  <circle r="4" fill="#f59e0b" filter="url(#glow)">
+    <animateMotion dur="3s" repeatCount="indefinite" path="M 580 270 L 680 270" />
+  </circle>
+
+  <!-- Cross-phase Flow -->
   <circle r="4" fill="#10b981" filter="url(#glow)">
-    <animateMotion dur="2s" repeatCount="indefinite" path="M 540 270 L 640 270" begin="4s" keyPoints="0;1" keyTimes="0;1" calcMode="linear" />
+    <animateMotion dur="4s" repeatCount="indefinite" path="M 750 170 C 750 200, 500 200, 430 230" />
   </circle>
 
-  <!-- Background Sync Flow -->
-  <circle r="4" fill="#f59e0b" filter="url(#glow)">
-    <animateMotion dur="4s" repeatCount="indefinite" path="M 640 270 L 540 270" />
-  </circle>
-  <circle r="4" fill="#f59e0b" filter="url(#glow)">
-    <animateMotion dur="4s" repeatCount="indefinite" path="M 260 270 L 360 270" />
-  </circle>
-<g transform="translate(40, 90)">
+  <g transform="translate(40, 90)">
     <!-- Nodes Phase 1 -->
     <rect class="box-entra" width="220" height="80" />
     <text x="20" y="30" class="text-body">Entra ID UI App</text>
@@ -87,11 +84,11 @@
     <!-- Phase 1 Lines -->
     <path class="line-glow" d="M 220 40 L 320 40" />
     <path class="line-main" d="M 220 40 L 320 40" marker-end="url(#arrow-blue)" />
-    <text x="230" y="30" class="text-small">Microsoft Entra Token</text>
+    <text x="230" y="30" class="text-small">Issuer &amp; Token</text>
 
     <path class="line-glow" d="M 540 40 L 640 40" />
     <path class="line-main" d="M 540 40 L 640 40" marker-end="url(#arrow-blue)" />
-    <text x="560" y="30" class="text-small">STS Token Validated</text>
+    <text x="560" y="30" class="text-small">Federates</text>
   </g>
 
   <g transform="translate(40, 230)">
@@ -118,10 +115,9 @@
     <text x="550" y="30" class="text-small">Background Sync</text>
   </g>
 
-  <!-- Discovery Engine API Query Line -->
-  <path class="line-glow" d="M 430 80 C 430 200, 430 200, 430 230" />
-  <path class="line-main" d="M 430 80 C 430 200, 430 200, 430 230" marker-end="url(#arrow-blue)" />
-  <text x="440" y="150" class="text-small">GCP STS Token Handshake</text>
-  <text x="440" y="165" class="text-small">Permits DiscoveryEngine API</text>
+  <!-- Cross-phase Line -->
+  <path class="line-glow" d="M 750 170 C 750 200, 500 200, 430 230" />
+  <path class="line-main" d="M 750 170 C 750 200, 500 200, 430 230" marker-end="url(#arrow-blue)" />
+  <text x="580" y="195" class="text-small">Permits Query Execution</text>
 
 </svg>
