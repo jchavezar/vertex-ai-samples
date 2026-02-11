@@ -11,6 +11,11 @@ export default defineConfig({
         target: 'https://discoveryengine.googleapis.com',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/google-api/, '')
+      },
+      '/aiplatform-api': {
+        target: 'https://us-central1-aiplatform.googleapis.com',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/aiplatform-api/, '')
       }
     }
   }
