@@ -1,0 +1,30 @@
+{
+  "theme": "base",
+  "themeVariables": {
+    "background": "#020617",
+    "primaryColor": "#0f172a",
+    "primaryBorderColor": "#38bdf8",
+    "primaryTextColor": "#e2e8f0",
+    "secondaryColor": "#1e293b",
+    "tertiaryColor": "#020617",
+    "lineColor": "#22d3ee",
+    "actorBkg": "#0f172a",
+    "actorBorder": "#38bdf8",
+    "actorTextColor": "#38bdf8",
+    "actorLineColor": "#334155",
+    "signalColor": "#4ade80",
+    "signalTextColor": "#f8fafc",
+    "noteBkg": "#1e293b",
+    "noteBorder": "#f43f5e",
+    "noteTextColor": "#fda4af",
+    "labelBoxBkgColor": "#1e293b",
+    "labelBoxBorderColor": "#f43f5e",
+    "labelTextColor": "#fda4af",
+    "loopTextColor": "#f8fafc",
+    "activationBorderColor": "#38bdf8",
+    "activationBkgColor": "#1e293b",
+    "sequenceNumberColor": "#f8fafc",
+    "fontFamily": "monospace",
+    "fontSize": "14px"
+  }
+}

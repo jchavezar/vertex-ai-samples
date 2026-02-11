@@ -1,0 +1,61 @@
+%%{init: {
+  "theme": "base",
+  "themeVariables": {
+    "background": "#020617",
+    "primaryColor": "#0f172a",
+    "primaryBorderColor": "#38bdf8",
+    "primaryTextColor": "#e2e8f0",
+    "secondaryColor": "#1e293b",
+    "tertiaryColor": "#020617",
+    "lineColor": "#22d3ee",
+    "actorBkg": "#0f172a",
+    "actorBorder": "#38bdf8",
+    "actorTextColor": "#38bdf8",
+    "actorLineColor": "#334155",
+    "signalColor": "#4ade80",
+    "signalTextColor": "#f8fafc",
+    "noteBkg": "#1e293b",
+    "noteBorder": "#f43f5e",
+    "noteTextColor": "#fda4af",
+    "labelBoxBkgColor": "#1e293b",
+    "labelBoxBorderColor": "#f43f5e",
+    "labelTextColor": "#fda4af",
+    "loopTextColor": "#f8fafc",
+    "activationBorderColor": "#38bdf8",
+    "activationBkgColor": "#1e293b",
+    "sequenceNumberColor": "#f8fafc",
+    "fontFamily": "monospace",
+    "fontSize": "14px"
+  }
+}}%%
+sequenceDiagram
+    autonumber
+    participant User as 👤 [USR]<br/>Operator
+    participant Frontend as 💻 [SYS]<br/>Sockcop Client
+    participant EntraID as 🗝️ [AUTH]<br/>Entra ID
+    participant GoogleSTS as 🛡️ [SEC]<br/>Google STS
+    participant VertexAI as 🧠 [AI]<br/>Vertex Search
+    
+    User->>Frontend: Click "Sign in"
+    Frontend->>EntraID: Redirect (MS_APP_ID)
+    EntraID-->>Frontend: Auth Code / ID Token
+    Frontend->>Frontend: Extract Token
+    
+    rect rgb(15, 23, 42)
+    Note over Frontend,GoogleSTS: ⚔️ Workload Identity Fed (WIF)
+    Frontend->>GoogleSTS: Exchange Token
+    GoogleSTS-->>Frontend: access_token
+    Frontend->>Frontend: Save Token
+    end
+    
+    User->>Frontend: Search "IT Support"
+    Frontend->>VertexAI: Search Query
+    
+    rect rgb(15, 23, 42)
+    Note over Frontend,VertexAI: 🔐 Header: Bearer <Google Token>
+    end
+    
+    VertexAI-->>Frontend: Results JSON
+    
+    Frontend->>Frontend: Parse & Sanitize
+    Frontend-->>User: Render UI
