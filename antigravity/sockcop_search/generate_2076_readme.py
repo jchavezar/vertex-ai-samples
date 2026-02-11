@@ -86,7 +86,7 @@ def create_header_svg(filename, title, width=800, height=80):
     <animate attributeName="opacity" values="1;0;1" dur="1s" repeatCount="indefinite" />
   </rect>
 </svg>'''
-    with open(f"{ASSET_DIR}/{filename}.svg", "w") as f:
+    with open(f"{ASSET_DIR}/{filename}", "w") as f:
         f.write(svg)
 
 
