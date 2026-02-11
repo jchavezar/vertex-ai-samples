@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs>
+    <filter id="glow_step_5">
+      <feGaussianBlur stdDeviation="2" result="blur" />
+      <feMerge>
+        <feMergeNode in="blur" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Static Hexagon Base -->
+  <polygon points="50,5 89,27 89,72 50,95 11,72 11,27" fill="#0f172a" stroke="#38bdf8" stroke-width="1.5" opacity="0.8"/>
+  
+  <!-- Number -->
+  <text x="50" y="62" font-family="'Courier New', monospace" font-size="36" font-weight="bold" fill="#38bdf8" text-anchor="middle" filter="url(#glow_step_5)">05</text>
+  
+  <!-- Spinning Outer Ring -->
+  <circle cx="50" cy="50" r="45" fill="none" stroke="#8b5cf6" stroke-width="1.5" stroke-dasharray="10 5 2 5" opacity="0.8">
+     <animateTransform attributeName="transform" type="rotate" from="0 50 50" to="360 50 50" dur="15s" repeatCount="indefinite"/>
+  </circle>
+  
+  <!-- Counter-Spinning Inner Ring -->
+  <circle cx="50" cy="50" r="38" fill="none" stroke="#38bdf8" stroke-width="0.5" stroke-dasharray="4 4" opacity="0.5">
+     <animateTransform attributeName="transform" type="rotate" from="360 50 50" to="0 50 50" dur="8s" repeatCount="indefinite"/>
+  </circle>
+</svg>

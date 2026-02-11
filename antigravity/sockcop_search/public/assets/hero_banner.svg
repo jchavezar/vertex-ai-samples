@@ -1,13 +1,11 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 300">
   <defs>
-    <!-- Dark Mode Background Gradients -->
     <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" stop-color="#020617" />
       <stop offset="50%" stop-color="#0f172a" />
       <stop offset="100%" stop-color="#1e293b" />
     </linearGradient>
     
-    <!-- Neon Accent Glows -->
     <filter id="neon" x="-50%" y="-50%" width="200%" height="200%">
       <feGaussianBlur stdDeviation="8" result="coloredBlur"/>
       <feMerge>
@@ -16,41 +14,54 @@
       </feMerge>
     </filter>
     
-    <!-- Brutalist Grid -->
     <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
       <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#334155" stroke-width="0.5" opacity="0.3"/>
     </pattern>
   </defs>
 
-  <!-- Base -->
   <rect width="100%" height="100%" fill="url(#bgGrad)" />
-  <rect width="100%" height="100%" fill="url(#grid)" />
+  <rect width="100%" height="100%" fill="url(#grid)">
+    <animate attributeName="opacity" values="0.3;0.6;0.3" dur="5s" repeatCount="indefinite" />
+  </rect>
 
-  <!-- Abstract Geometric Accents (The Neo-Monolith look) -->
+  <!-- Abstract Geometric Accents -->
   <path d="M 0 0 L 200 0 L 150 300 L 0 300 Z" fill="#1e293b" opacity="0.4" />
   <path d="M 1200 0 L 1000 0 L 1050 300 L 1200 300 Z" fill="#38bdf8" opacity="0.05" />
   
+  <!-- Glowing Nodes with animations -->
   <line x1="50" y1="50" x2="150" y2="50" stroke="#38bdf8" stroke-width="2" filter="url(#neon)"/>
-  <circle cx="50" cy="50" r="4" fill="#38bdf8" />
-  <circle cx="150" cy="50" r="4" fill="#38bdf8" />
+  <circle cx="50" cy="50" r="4" fill="#38bdf8">
+    <animate attributeName="r" values="4;8;4" dur="2s" repeatCount="indefinite" />
+  </circle>
+  <circle cx="150" cy="50" r="4" fill="#38bdf8">
+    <animate attributeName="r" values="4;8;4" dur="2.5s" repeatCount="indefinite" />
+  </circle>
 
   <line x1="1050" y1="250" x2="1150" y2="250" stroke="#8b5cf6" stroke-width="2" filter="url(#neon)"/>
-  <circle cx="1050" cy="250" r="4" fill="#8b5cf6" />
-  <circle cx="1150" cy="250" r="4" fill="#8b5cf6" />
+  <circle cx="1050" cy="250" r="4" fill="#8b5cf6">
+    <animate attributeName="r" values="4;8;4" dur="2s" repeatCount="indefinite" />
+  </circle>
+  <circle cx="1150" cy="250" r="4" fill="#8b5cf6">
+    <animate attributeName="r" values="4;8;4" dur="1.5s" repeatCount="indefinite" />
+  </circle>
 
-  <!-- Top Right decorative data points -->
-  <text x="1100" y="30" font-family="'Courier New', monospace" font-size="10" fill="#64748b" opacity="0.7">STATUS: ONLINE</text>
-  <text x="1100" y="45" font-family="'Courier New', monospace" font-size="10" fill="#64748b" opacity="0.7">VERSION: 2076.1</text>
+  <!-- Data points -->
+  <text x="1100" y="30" font-family="'Courier New', monospace" font-size="10" fill="#64748b" opacity="0.7">STATUS: <tspan fill="#10b981">ONLINE</tspan></text>
+  <text x="1100" y="45" font-family="'Courier New', monospace" font-size="10" fill="#64748b" opacity="0.7">VERSION: 2076.2</text>
   <text x="1100" y="60" font-family="'Courier New', monospace" font-size="10" fill="#38bdf8" opacity="0.7">FEDERATION: ACTIVE</text>
 
   <!-- Core Typography -->
   <g transform="translate(600, 140)" text-anchor="middle">
     <!-- Drop Shadow Layer -->
-    <text x="0" y="0" font-family="'Inter', sans-serif" font-weight="900" font-size="64" letter-spacing="12" fill="#000000" opacity="0.5">SOCKCOP SEARCH</text>
-    <text x="0" y="-3" font-family="'Inter', sans-serif" font-weight="900" font-size="64" letter-spacing="12" fill="#f8fafc">SOCKCOP SEARCH</text>
-    
-    <text x="0" y="40" font-family="'Inter', sans-serif" font-weight="300" font-size="20" letter-spacing="6" fill="#94a3b8">ENTERPRISE FEDERATED INDEXING</text>
+    <text x="0" y="0" font-family="'Arial Black', 'Inter', sans-serif" font-weight="900" font-size="64" letter-spacing="12" fill="#000000" opacity="0.5">SOCKCOP SEARCH</text>
+    <text x="0" y="-3" font-family="'Arial Black', 'Inter', sans-serif" font-weight="900" font-size="64" letter-spacing="12" fill="#f8fafc">SOCKCOP SEARCH</text>
+    <text x="0" y="40" font-family="'Courier New', monospace" font-size="20" letter-spacing="6" fill="#94a3b8">ENTERPRISE FEDERATED INDEXING</text>
   </g>
+
+  <!-- Scanning Vertical Line -->
+  <rect x="0" y="0" width="1200" height="2" fill="#8b5cf6" opacity="0.3" filter="url(#neon)">
+    <animate attributeName="y" values="0;280;0" dur="8s" repeatCount="indefinite" />
+  </rect>
 
   <!-- Bottom Data Bar -->
   <rect x="0" y="280" width="1200" height="20" fill="#0f172a" opacity="0.8"/>
