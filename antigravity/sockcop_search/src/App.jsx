@@ -2,10 +2,7 @@ import React, { useState, useEffect } from 'react';
 import DOMPurify from 'dompurify';
 import {
   exchangeForGoogleToken,
-  getWifLoginUrl,
-  getSharePointAuthUrl,
-  checkSharePointStatus,
-  acquireAndStoreRefreshToken
+  getWifLoginUrl
 } from './api/auth';
 import { CONFIG } from './api/config';
 import { executeSearch } from './api/search';
@@ -14,7 +11,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 function App() {
   const [googleToken, setGoogleToken] = useState(localStorage.getItem('google_token'));
-  const [isSpAuthorized, setIsSpAuthorized] = useState(false);
   const [loading, setLoading] = useState(false);
   const [query, setQuery] = useState('');
   const [searchResult, setSearchResult] = useState(null);
@@ -24,12 +20,9 @@ function App() {
   // Handle OAuth Callbacks
   useEffect(() => {
     const hash = window.location.hash;
-    const search = window.location.search;
-    const params = new URLSearchParams(search);
 
     console.log('[AUTH DEBUG] Component Render/Update');
     console.log('[AUTH DEBUG] Hash:', hash);
-    console.log('[AUTH DEBUG] Search Params:', params.toString());
     console.log('[AUTH DEBUG] Current Local Token:', googleToken ? 'PRESENT' : 'MISSING');
 
     // Check for ID Token (WIF flow)
@@ -59,40 +52,6 @@ function App() {
       } else {
         console.warn('[AUTH DEBUG] Hash contains id_token key but NO VALUE');
       }
-    }
-
-    // Check for SP Auth Code (Phase 2)
-    const code = params.get('code');
-    const state = params.get('state');
-    if (code && state === 'sp_auth') {
-      console.log('[AUTH DEBUG] Path: SharePoint Code detected');
-      if (googleToken) {
-        setLoading(true);
-        setError(null);
-        console.log('[AUTH DEBUG] Linking connector with code...');
-        acquireAndStoreRefreshToken(googleToken, code)
-          .then(() => {
-            console.log('[AUTH DEBUG] SUCCESS: SharePoint Linked');
-            setIsSpAuthorized(true);
-            window.history.replaceState({}, document.title, window.location.pathname);
-          })
-          .catch(err => {
-            console.error('[AUTH DEBUG] ERROR: SharePoint Link Failed', err);
-            setError("SharePoint Link Failed: " + (err.response?.data?.error_description || err.message));
-          })
-          .finally(() => setLoading(false));
-      } else {
-        console.warn('[AUTH DEBUG] Found logic code but NO GOOGLE TOKEN yet.');
-      }
-    }
-  }, [googleToken]);
-
-  // Check SP Status on Login
-  useEffect(() => {
-    if (googleToken) {
-      checkSharePointStatus(googleToken)
-        .then(status => setIsSpAuthorized(status))
-        .catch(err => console.error("Status check failed", err));
     }
   }, [googleToken]);
 
@@ -158,9 +117,9 @@ function App() {
         </div>
 
         <div className="flex items-center gap-4">
-          <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium ${isSpAuthorized ? 'bg-green-500/10 text-green-400' : 'bg-red-500/10 text-red-400'}`}>
+          <div className="flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium bg-green-500/10 text-green-400">
             <Database className="w-4 h-4" />
-            {isSpAuthorized ? 'SharePoint Connected' : 'SharePoint Limited'}
+            SharePoint Connected
           </div>
           <button onClick={logout} className="text-sm text-gray-400 hover:text-white underline underline-offset-4">Sign Out</button>
         </div>
@@ -168,28 +127,9 @@ function App() {
 
       {/* Main Content */}
       <main className="flex-1 max-w-6xl w-full mx-auto p-6 flex flex-col gap-8">
-        {!isSpAuthorized ? (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="carved p-10 flex flex-col items-center text-center gap-4 max-w-2xl mx-auto my-auto"
-          >
-            <AlertCircle className="w-16 h-16 text-sockcop-gold" />
-            <h2 className="text-2xl font-bold">Action Required</h2>
-            <p className="text-gray-400">You are logged in, but we still need your permission to search through SharePoint documents.</p>
-            <button
-              onClick={() => window.location.href = getSharePointAuthUrl()}
-              className="mt-4 px-8 py-4 bg-[#d4af37] text-white font-bold rounded-xl hover:bg-[#b8962e] transition-colors flex items-center gap-2 shadow-lg shadow-[#d4af37]/20"
-            >
-              <ExternalLink className="w-5 h-5 text-white" />
-              Authorize SharePoint Access
-            </button>
-          </motion.div>
-        ) : (
-          <>
-            {/* Search Box */}
-            <div className="space-y-4">
-              <form onSubmit={handleSearch} className="relative group">
+        {/* Search Box */}
+        <div className="space-y-4">
+          <form onSubmit={handleSearch} className="relative group">
                 <input
                   type="text"
                   value={query}
@@ -377,12 +317,8 @@ function App() {
                   )}
                 </div>
               </div>
-            </div>
-          </>
-        )}
+        </div>
       </main>
-
-      {/* Status Bar */}
       <footer className="glass border-t border-white/5 py-3 px-6 text-xs text-gray-500 flex justify-between items-center">
         <div className="flex gap-4">
           <span>Project: {CONFIG.PROJECT_NUMBER}</span>

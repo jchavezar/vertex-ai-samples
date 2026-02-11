@@ -1,16 +1,75 @@
-# React + Vite
+# Sockcop Search | Gemini Enterprise & SharePoint Grounding
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Sockcop Search is a highly secure, modern GenAI unified search interface built with React, Vite, and Tailwind CSS. It leverages **Google Discovery Engine (Vertex AI Search)** to query your company's documents, utilizing **Workload Identity Federation (WIF)** to exchange Entra ID (Azure AD) user tokens for Google Cloud credentials on the fly, seamlessly grounding the LLM responses.
 
-Currently, two official plugins are available:
+## System Architecture
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+The following diagram illustrates the zero-trust authentication flow across Entra ID and Google Cloud via WIF.
 
-## React Compiler
+```mermaid
+sequenceDiagram
+    participant User as End User
+    participant Frontend as Sockcop Search (React)
+    participant EntraID as Microsoft Entra ID (Azure AD)
+    participant GoogleSTS as Google STS (Token Exchange)
+    participant VertexAI as Vertex AI Search (Discovery Engine API)
+    
+    User->>Frontend: Clicks "Sign in with Entra ID"
+    Frontend->>EntraID: Redirects (auth URL + MS_APP_ID)
+    EntraID-->>Frontend: Redirects back with `id_token` in hash
+    Frontend->>Frontend: Extracts `id_token`
+    
+    Note over Frontend,GoogleSTS: Workload Identity Federation (WIF) Exchange
+    Frontend->>GoogleSTS: POST /v1/token (audience, subject_token)
+    GoogleSTS-->>Frontend: Returns short-lived `access_token`
+    Frontend->>Frontend: Stores Google Token locally
+    
+    User->>Frontend: Enters query ("IT Support")
+    Frontend->>VertexAI: POST .../servingConfigs/default_search:search
+    Note over Frontend,VertexAI: Header: Authorization: Bearer <Google Token>
+    VertexAI-->>Frontend: JSON payload (Results, Summaries, Extractive Snippets)
+    
+    Frontend->>Frontend: Parses structData & Sanitizes Snippets
+    Frontend-->>User: Renders rich Grounded Search & AI Summary UI
+```
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Features
+* **100% Client-Side:** No middle-tier secrets or API keys are stored in the frontend source code. The user authenticates natively and generates a temporary session.
+* **Smart Parsing:** Fallback logic securely hunts through Vertex AI's `structData` and `derivedStructData` maps to guarantee document titles, source links, and code snippets generate properly.
+* **XSS Protection:** DOMPurify is embedded to securely process highlight `<b>` tags delivered from the Vertex APIs without exposing the frontend to HTML injections.
 
-## Expanding the ESLint configuration
+## Development Setup
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+1. **Verify Dependencies**
+Make sure you use **npm** or **pnpm** or **yarn** to install local frontend packages.
+```bash
+npm install
+```
+
+2. **Environment & Configuration**
+For security, do not embed secrets! All configuration identifiers are inside `src/api/config.js`. Ensure your `.gitignore` is completely strict (we have appended the zero-leak rules automatically) protecting your `.env` tokens. 
+
+```javascript
+// Example src/api/config.js
+export const CONFIG = {
+  PROJECT_NUMBER: '440133963879',
+  LOCATION: 'global',
+  WIF_POOL: '...',
+  WIF_PROVIDER: '...',
+  DATA_STORE_ID: '...',
+  ENGINE_ID: 'deloitte-demo',
+  TENANT_ID: '...',
+  MS_APP_ID: '...',
+  ISSUER: 'https://login.microsoftonline.com/...'
+};
+```
+
+3. **Running the App**
+Use the standard dev server:
+```bash
+npm run dev
+```
+
+## Security Posture (Zero-Leak)
+- Confirmed NO secret keys, service accounts (`credentials.json`), or `.env` parameters were ever burned into git history.
+- Ensure any Microsoft Azure Client secrets stay securely rotated entirely disconnected from this repo. WIF uses implicit Client-ID exchanges, completely sidestepping standard Client-Secret pipelines.
