@@ -395,32 +395,38 @@ readme_content = """<p align="center">
 The following diagram illustrates the zero-trust authentication flow across Entra ID and Google Cloud via WIF, critical for **TOPOLOGY B**:
 
 ```mermaid
-%%{
-  init: {
-    'theme': 'base',
-    'themeVariables': {
-      'primaryColor': '#ede9fe',
-      'primaryTextColor': '#0f172a',
-      'primaryBorderColor': '#c4b5fd',
-      'lineColor': '#94a3b8',
-      'secondaryColor': '#f0fdf4',
-      'tertiaryColor': '#e0f2fe',
-      'actorBkg': '#ede9fe',
-      'actorBorder': '#c4b5fd',
-      'signalColor': '#475569',
-      'signalTextColor': '#475569',
-      'noteBkgColor': '#fef08a',
-      'noteTextColor': '#0f172a',
-      'noteBorderColor': '#fde047'
-    }
+%%{init: {
+  "theme": "base",
+  "themeVariables": {
+    "background": "#020617",
+    "primaryColor": "#0f172a",
+    "primaryBorderColor": "#38bdf8",
+    "primaryTextColor": "#e2e8f0",
+    "secondaryColor": "#1e293b",
+    "tertiaryColor": "#020617",
+    "lineColor": "#22d3ee",
+    "actorBkg": "#0f172a",
+    "actorBorder": "#22d3ee",
+    "actorTextColor": "#38bdf8",
+    "actorLineColor": "#334155",
+    "signalColor": "#4ade80",
+    "signalTextColor": "#f8fafc",
+    "noteBkg": "#064e3b",
+    "noteBorder": "#10b981",
+    "noteTextColor": "#a7f3d0",
+    "labelBoxBkgColor": "#0f172a",
+    "labelBoxBorderColor": "#f43f5e",
+    "labelTextColor": "#fda4af",
+    "edgeLabelBackground": "#020617",
+    "fontFamily": "monospace"
   }
-}%%
+}}%%
 sequenceDiagram
-    participant User as End User
-    participant Frontend as Sockcop Search (React)
-    participant EntraID as Microsoft Entra ID (Azure AD)
-    participant GoogleSTS as Google STS (Token Exchange)
-    participant VertexAI as Vertex AI Search (Discovery Engine API)
+    participant User as 👤 [USR]_Operator
+    participant Frontend as 💻 [SYS]_Sockcop_Client
+    participant EntraID as 🗝️ [AUTH]_Entra_ID
+    participant GoogleSTS as 🛡️ [SEC]_Google_STS
+    participant VertexAI as 🧠 [AI]_Vertex_Search
     
     User->>Frontend: Clicks "Sign in with Entra ID"
     Frontend->>EntraID: Redirects (auth URL + MS_APP_ID)
