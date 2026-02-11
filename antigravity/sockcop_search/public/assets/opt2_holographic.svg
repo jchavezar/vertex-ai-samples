@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 60">
+  <defs>
+    <pattern id="dotGrid" width="10" height="10" patternUnits="userSpaceOnUse">
+      <circle cx="2" cy="2" r="1" fill="#475569" opacity="0.4"/>
+    </pattern>
+    <filter id="glow2" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="2" result="blur" />
+      <feMerge>
+        <feMergeNode in="blur" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <rect x="0" y="5" width="800" height="50" fill="url(#dotGrid)" />
+  
+  <!-- Holographic Brackets -->
+  <path d="M 25 15 L 10 15 L 10 45 L 25 45" fill="none" stroke="#8b5cf6" stroke-width="3" filter="url(#glow2)"/>
+  <path d="M 420 15 L 435 15 L 435 45 L 420 45" fill="none" stroke="#8b5cf6" stroke-width="3" filter="url(#glow2)"/>
+  
+  <text x="40" y="38" font-family="'Courier New', monospace" font-size="24" font-weight="bold" fill="#38bdf8" letter-spacing="4">
+    INTERFACE_TOPOLOGIES
+  </text>
+  
+  <!-- Scanning Data Line -->
+  <rect x="0" y="55" width="800" height="1" fill="#38bdf8" opacity="0.3"/>
+  <rect x="0" y="54" width="100" height="3" fill="#38bdf8" filter="url(#glow2)">
+    <animate attributeName="x" values="-100;800;-100" dur="4s" repeatCount="indefinite" />
+  </rect>
+</svg>

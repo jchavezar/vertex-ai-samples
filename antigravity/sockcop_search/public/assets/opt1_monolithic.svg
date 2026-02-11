@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 60">
+  <defs>
+    <filter id="glow1" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="3" result="blur" />
+      <feMerge>
+        <feMergeNode in="blur" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+  </defs>
+  <!-- Angled dark background -->
+  <polygon points="0,5 720,5 750,55 0,55" fill="#0f172a" />
+  
+  <!-- Glowing neon top edge -->
+  <polygon points="0,5 720,5 725,12 0,12" fill="#38bdf8" filter="url(#glow1)"/>
+  
+  <!-- Accent triangle -->
+  <polygon points="730,5 740,5 765,45 755,45" fill="#8b5cf6" />
+  
+  <text x="30" y="40" font-family="'Courier New', monospace" font-size="24" font-weight="bold" fill="#f8fafc" letter-spacing="4">
+    INTERFACE_TOPOLOGIES
+  </text>
+  
+  <!-- Pulsing Square -->
+  <rect x="400" y="20" width="16" height="22" fill="#38bdf8">
+    <animate attributeName="opacity" values="1;0;1" dur="1s" repeatCount="indefinite" />
+  </rect>
+</svg>
