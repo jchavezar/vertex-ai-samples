@@ -1,9 +1,9 @@
 <div align="center">
-  <img src="./assets/hero_monolith.png" width="100%" alt="Antigravity Monolith" />
+  <img src="assets/hero_monolith.png" width="600" alt="Antigravity Monolith" />
 </div>
 
 <div align="center">
-  <img src="./assets/header_hub.svg" width="100%" alt="ANTIGRAVITY HUB" />
+  <img src="assets/header_hub.svg" width="100%" alt="ANTIGRAVITY HUB" />
 </div>
 
 <div align="center">
@@ -21,7 +21,7 @@
   <!-- ROW 1: SEARCH & FINANCE -->
   <tr>
     <td width="50%" valign="top">
-      <img src="./assets/header_search.svg" width="100%" />
+      <img src="assets/header_search.svg" width="100%" />
       <br/><br/>
       <strong>PROJECT: SOCKCOP SEARCH</strong><br/>
       The next-generation search interface. Implements the "Neo-Monolith" design system, 
@@ -30,7 +30,7 @@
       <a href="./sockcop_search/">Example: ACCESS_TERMINAL &rarr;</a>
     </td>
     <td width="50%" valign="top">
-      <img src="./assets/header_finance.svg" width="100%" />
+      <img src="assets/header_finance.svg" width="100%" />
       <br/><br/>
       <strong>PROJECT: STOCK TERMINAL</strong><br/>
       Autonomous market surveillance system. Features agentic swarms for financial reporting, 
@@ -43,7 +43,7 @@
   <!-- ROW 2: BIO & MCP -->
   <tr>
     <td width="50%" valign="top">
-      <img src="./assets/header_bio.svg" width="100%" />
+      <img src="assets/header_bio.svg" width="100%" />
       <br/><br/>
       <strong>PROJECT: ARCHITECT BIO</strong><br/>
       Experimental architectural identity systems. Explores "Digital-Organic", "Modern Cave", 
@@ -52,7 +52,7 @@
       <a href="./bio/">Example: ACCESS_TERMINAL &rarr;</a>
     </td>
     <td width="50%" valign="top">
-      <img src="./assets/header_mcp.svg" width="100%" />
+      <img src="assets/header_mcp.svg" width="100%" />
       <br/><br/>
       <strong>PROJECT: SHAREPOINT MCP</strong><br/>
       Enterprise knowledge graph connector. Bridges SharePoint data into the Gemini context 
@@ -65,7 +65,7 @@
   <!-- ROW 3: ADK & ASYNC -->
   <tr>
     <td width="50%" valign="top">
-      <img src="./assets/header_adk.svg" width="100%" />
+      <img src="assets/header_adk.svg" width="100%" />
       <br/><br/>
       <strong>PROJECT: ADK LABS</strong><br/>
       Google Agent Development Kit (ADK) pilots. Demonstrates function calling, 
@@ -74,7 +74,7 @@
       <a href="./adk_pilots/">Example: ACCESS_TERMINAL &rarr;</a>
     </td>
     <td width="50%" valign="top">
-      <img src="./assets/header_hub.svg" width="100%" />
+      <img src="assets/header_hub.svg" width="100%" />
       <br/><br/>
       <strong>PROJECT: ASYNC CORE</strong><br/>
       High-throughput parallel processing units. Patterns for offloading long-running 
