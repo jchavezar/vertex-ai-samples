@@ -1,7 +1,7 @@
 {
   "theme": "base",
   "themeVariables": {
-    "background": "#020617",
+    "background": "transparent",
     "primaryColor": "#0f172a",
     "primaryBorderColor": "#38bdf8",
     "primaryTextColor": "#e2e8f0",
