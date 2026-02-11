@@ -109,54 +109,90 @@ npm run dev
 ```
 
 
-## 🚀 Configuration Guide: Azure AD (Entra ID) & Google Cloud WIF
+## 🚀 Configuration Guide: Google Cloud WIF & Azure AD (Entra ID)
 
-To securely integrate your application as a federated search connector using Gemini Enterprise capabilities, you must configure both Azure AD and GCP's Workforce Identity Federation (WIF). **Crucially, no credentials must be leaked or stored in your frontend.**
+To securely integrate your application as a federated search connector using Gemini Enterprise capabilities, you must configure both GCP's Workforce Identity Federation (WIF) and Azure AD. **Crucially, no credentials must be leaked or stored in your frontend.**
 
-### 1. Azure AD (Entra ID) Application Setup
-Create your Entra ID applications to serve as the Identity Provider (IdP) and the Datastore Connector:
-* **Register a New Application:** (e.g., `deloitte-entraid`)
-* **Authentication:** Configure the Redirect URIs for Web / SPA (e.g., `http://localhost:5173/`, `https://auth.cloud.google/signin-callback/...`) and ensure ID Tokens are enabled for implicit/hybrid flows.
-* **API Permissions:** Grant delegated permissions appropriate for your needs.
-  * For the core Entra ID app: `email`, `openid`, `profile`, `User.Read`.
-  * For the SharePoint Datastore app: `Files.ReadWrite.All`, `Sites.Manage.All`, `Sites.Search.All`, `AllSites.Read`, etc.
+### Step 1: Configure Google Cloud WIF (Workforce Identity Federation)
+We set up the WIF configuration first to establish the OpenID Connect (OIDC) trust with Entra ID and obtain the explicit Redirect URL needed for Azure AD.
 
-*Example Screenshots of Entra ID Setup:*
-![Entra ID Authentication Config](./public/screenshots/deloitte-entraid_Authentication.png)
-![Entra ID API Permissions](./public/screenshots/deloitte-entraid_API_permissions.png)
-![SharePoint Datastore Auth](./public/screenshots/deloitte-sharepoint-datastore_Authentication.png)
-![SharePoint Datastore Permissions](./public/screenshots/deloitte-sharepoint-datastore_API_permissions.png)
+*Run the following commands using the `gcloud` CLI. Ensure you replace the placeholder values (`<TENANT_ID>`, `<CLIENT_ID>`, `<CLIENT_SECRET>`) with the corresponding ones from your Azure Entra ID Application.*
 
-### 2. Google Cloud WIF Configuration
-Once the Azure AD app is created, configure the WIF pool and provider in GCP. 
-
-*Run the following commands using the `gcloud` CLI, replacing the placeholder values (`YOUR_TENANT_ID`, `YOUR_CLIENT_ID`, `YOUR_CLIENT_SECRET`) with your actual Entra ID credentials.*
-
-**Create the OIDC Provider in your Workforce Pool:**
+**1A. Create the OIDC Provider in your Workforce Pool:**
 ```bash
 gcloud iam workforce-pools providers create-oidc entra-id-oidc-pool-provider-de \
     --workforce-pool="entra-id-oidc-pool-d" \
     --location="global" \
     --display-name="Entra ID Provider" \
     --description="OIDC provider for Entra ID" \
-    --issuer-uri="https://login.microsoftonline.com/YOUR_TENANT_ID/v2.0" \
-    --client-id="YOUR_CLIENT_ID" \
-    --client-secret-value="YOUR_CLIENT_SECRET" \
+    --issuer-uri="https://login.microsoftonline.com/<TENANT_ID>/v2.0" \
+    --client-id="<CLIENT_ID>" \
+    --client-secret-value="<CLIENT_SECRET>" \
     --web-sso-response-type="code" \
     --web-sso-assertion-claims-behavior="merge-user-info-over-id-token-claims" \
     --attribute-mapping="google.subject=assertion.sub,google.groups=assertion.groups,google.display_name=assertion.preferred_username" \
-    --attribute-condition='assertion.issuer.startsWith("https://login.microsoftonline.com/YOUR_TENANT_ID")' \
+    --attribute-condition='assertion.issuer.startsWith("https://login.microsoftonline.com/<TENANT_ID>")' \
     --detailed-audit-logging
 ```
 
-### 3. Google Cloud IAM Binding
-Grant the necessary permissions to the federated identities so they can query the Vertex AI Answer API:
-
+**1B. Bind IAM Permissions for the Identity Pool**
+Grant the necessary permissions to the federated identities so they can natively query the Vertex AI Answer API:
 ```bash
-# Replace YOUR_PROJECT_ID with your actual project ID
-gcloud projects add-iam-policy-binding YOUR_PROJECT_ID \
+# Replace <YOUR_PROJECT_ID> with your actual GCP project ID
+gcloud projects add-iam-policy-binding <YOUR_PROJECT_ID> \
     --member="principalSet://iam.googleapis.com/locations/global/workforcePools/entra-id-oidc-pool-d/*" \
     --role="roles/discoveryengine.viewer"
 ```
 
-Once configured, your frontend will securely authenticate via Entra ID, exchange the token using WIF (`entra-id-oidc-pool-d`), and query the Vertex AI Answer API natively.
+**1C. Obtain the WIF Redirect URL**
+Your specific redirect URL for the Entra ID configuration will look like this:
+`https://auth.cloud.google/signin-callback/locations/global/workforcePools/entra-id-oidc-pool-d/providers/entra-id-oidc-pool-provider-de`
+
+### Step 2: Azure AD (Entra ID) Application Setup
+With your WIF provider running, complete the setup of your Entra ID application to act as the Identity Provider (IdP) and your Datastore Connector.
+
+**2A. Create/Configure the Application (`deloitte-entraid`)**
+* Ensure your application is registered in Entra ID.
+* Navigate to **Authentication**. Under **Web and SPA settings**:
+  * Add the following **Redirect URIs**:
+    * `http://localhost:5173/` (for local development)
+    * `https://auth.cloud.google/signin-callback/locations/global/workforcePools/entra-id-oidc-pool-d/providers/entra-id-oidc-pool-provider-de` (from Step 1C)
+  * Enable **ID tokens (used for implicit and hybrid flows)**.
+
+**2B. Configure API Permissions**
+Under **API Permissions**, you need to grant delegated permissions necessary for both basic sign-in and Datastore connectivity.
+* **For the core Entra ID auth app (`deloitte-entraid`):**
+  * Grant Microsoft Graph permissions: `email`, `openid`, `profile`, `User.Read`.
+* **For the SharePoint Datastore connector (`deloitte-sharepoint-datastore`):**
+  * Grant Microsoft Graph permissions: `Files.ReadWrite.All`, `Sites.Manage.All`, `Sites.Read.All`, `Sites.ReadWrite.All`, `User.Read`, `offline_access`.
+  * Grant SharePoint permissions: `AllSites.Read`, `Sites.Search.All` (Requires Admin Consent).
+
+*Example Screenshots of Entra ID & WIF Setup:*
+
+**WIF Provider Configuration:**
+![WIF Provider Configuration](./public/screenshots/WIF_provider_config.png)
+
+**Entra ID Auth App (deloitte-entraid):**
+![Entra ID Authentication Config](./public/screenshots/deloitte-entraid_Authentication.png)
+![Entra ID API Permissions](./public/screenshots/deloitte-entraid_API_permissions.png)
+
+**Datastore Connector (deloitte-sharepoint-datastore):**
+![SharePoint Datastore Auth](./public/screenshots/deloitte-sharepoint-datastore_Authentication.png)
+![SharePoint Datastore Permissions](./public/screenshots/deloitte-sharepoint-datastore_API_permissions.png)
+
+### Step 3: Integrate with Frontend (No Secrets!)
+Finally, configure the variables in `src/api/config.js` to link your frontend natively:
+```javascript
+export const CONFIG = {
+  PROJECT_NUMBER: '<YOUR_PROJECT_NUMBER>',
+  LOCATION: 'global',
+  WIF_POOL: 'entra-id-oidc-pool-d',
+  WIF_PROVIDER: 'entra-id-oidc-pool-provider-de',
+  DATA_STORE_ID: '<YOUR_DATASTORE_ID>',
+  ENGINE_ID: 'deloitte-demo',
+  TENANT_ID: '<YOUR_TENANT_ID>',
+  MS_APP_ID: '<YOUR_CLIENT_ID>', 
+  ISSUER: 'https://login.microsoftonline.com/<YOUR_TENANT_ID>/v2.0'
+};
+```
+Once configured, your frontend will securely authenticate via Entra ID, exchange the token using WIF (`entra-id-oidc-pool-d`), and query the Vertex AI Answer API natively containing actions in Gemini Enterprise.
