@@ -1,13 +1,19 @@
 import axios from 'axios';
 import { CONFIG } from './config';
 
-export const executeSearch = async (googleToken, query) => {
+export const executeSearch = async (googleToken, query, previousContext = null) => {
   // Base path for the answer service
   const url = `/google-api/v1alpha/projects/${CONFIG.PROJECT_NUMBER}/locations/${CONFIG.LOCATION}/collections/default_collection/engines/${CONFIG.ENGINE_ID}/servingConfigs/default_config:answer`;
 
+  let finalQuery = query;
+  if (previousContext && previousContext.query && previousContext.answer) {
+    finalQuery = `Context:\nQ: ${previousContext.query}\nA: ${previousContext.answer.substring(0, 500)}\n\nCurrent Question: ${query}`;
+    console.log('[SEARCH DEBUG] Injecting Context. Final Query Preview:', finalQuery.substring(0, 100) + '...');
+  }
+
   const payload = {
     query: {
-      text: query
+      text: finalQuery
     },
     answerGenerationSpec: {
       modelSpec: {
