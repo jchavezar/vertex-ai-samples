@@ -31,31 +31,3 @@ export const exchangeForGoogleToken = async (idToken) => {
   }
 };
 
-export const getSharePointAuthUrl = () => {
-  const redirect = window.location.origin + '/';
-  return `https://login.microsoftonline.com/${CONFIG.TENANT_ID}/oauth2/v2.0/authorize?client_id=${CONFIG.SP_APP_ID}&response_type=code&redirect_uri=${encodeURIComponent(redirect)}&scope=offline_access%20Sites.Read.All%20User.Read&state=sp_auth`;
-};
-
-export const acquireAndStoreRefreshToken = async (googleToken, authCode) => {
-  const fullRedirectUri = window.location.href;
-  // Restore the /collections/default_collection segment as verified in documentation
-  const url = `/google-api/v1alpha/projects/${CONFIG.PROJECT_NUMBER}/locations/${CONFIG.LOCATION}/collections/default_collection/dataConnector:acquireAndStoreRefreshToken`;
-
-  console.log('[AUTH DEBUG] acquireAndStoreRefreshToken URL:', url);
-
-  return axios.post(url, {
-    fullRedirectUri: fullRedirectUri,
-    scopes: ["offline_access", "Sites.Read.All", "User.Read"]
-  }, {
-    headers: {
-      Authorization: `Bearer ${googleToken}`
-    }
-  });
-};
-
-export const checkSharePointStatus = async (googleToken) => {
-  // Bypass legacy Check for Gemini Enterprise flow
-  console.log('[AUTH DEBUG] Bypassing SharePoint Status Check for Gemini Enterprise');
-  return true;
-};
-

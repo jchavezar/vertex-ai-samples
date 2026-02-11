@@ -18,12 +18,7 @@ export const executeSearch = async (googleToken, query) => {
       },
       summarySpec: {
         summaryResultCount: 5,
-        includeCitations: true,
-        ignoreAdversarialQuery: false,
-        ignoreNonAnswerSeekingQuery: false,
-        modelSpec: {
-          version: "stable"
-        }
+        includeCitations: true
       },
       extractiveContentSpec: {
         maxExtractiveAnswerCount: 1,
