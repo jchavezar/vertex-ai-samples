@@ -202,6 +202,11 @@ function App() {
                               View Original Document
                             </a>
                           )}
+                      {searchResult.results[activeCitation].document.structData?.author && (
+                        <div className="text-[11px] text-gray-400 mt-2 font-mono">
+                          AUTHOR: {searchResult.results[activeCitation].document.structData.author}
+                        </div>
+                      )}
                         </div>
                       </div>
 
@@ -211,7 +216,7 @@ function App() {
                           // snippets normally come in derivedStructData.snippets
                           const snippets = doc.derivedStructData?.snippets || [];
                           const extractiveAnswers = doc.derivedStructData?.extractiveAnswers || [];
-                          const fallbackHtml = doc.structData?.snippet || doc.structData?.content || "No detailed snippet available for this section.";
+                      const fallbackHtml = doc.structData?.snippet || doc.structData?.description || doc.structData?.content || "No detailed snippet available for this section.";
 
                           if (snippets.length > 0) {
                             return snippets.map((snip, idx) => (
@@ -280,6 +285,11 @@ function App() {
                         <span className="text-xs bg-sockcop-gold/10 text-sockcop-gold px-2 py-0.5 rounded uppercase font-bold">
                           DOC {i + 1}
                         </span>
+                        {res.document.structData?.rank && (
+                          <span className="text-[10px] text-gray-500 font-mono tracking-widest border border-white/10 px-1 rounded">
+                            SCORE: {res.document.structData.rank.toFixed(1)}
+                          </span>
+                        )}
                         <ChevronRight className="w-4 h-4 text-gray-600 group-hover:text-white" />
                       </div>
                       <h4 className="font-semibold text-sm line-clamp-1 group-hover:text-sockcop-gold transition-colors">
@@ -291,8 +301,8 @@ function App() {
                       <p className="text-xs text-gray-500 mt-2 line-clamp-3">
                         {res.document.derivedStructData?.snippets?.[0]?.snippet
                           ? DOMPurify.sanitize(res.document.derivedStructData.snippets[0].snippet).replace(/<[^>]+>/g, '')
-                          : res.document.structData?.snippet
-                            ? DOMPurify.sanitize(res.document.structData.snippet).replace(/<[^>]+>/g, '')
+                          : res.document.structData?.snippet || res.document.structData?.description
+                            ? DOMPurify.sanitize(res.document.structData?.snippet || res.document.structData?.description).replace(/<[^>]+>/g, '')
                             : "Click to see details..."}
                       </p>
                     </motion.div>
