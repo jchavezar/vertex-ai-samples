@@ -396,7 +396,7 @@ The following diagram illustrates the zero-trust authentication flow across Entr
 
 <br/>
 <p align="center">
-  <img src="./public/assets/auth_topology.svg?v=3" alt="Detailed Entra ID / WIF Authorization Sequence" width="100%">
+  <img src="./public/assets/auth_topology_v4.svg" alt="Detailed Entra ID / WIF Authorization Sequence" width="100%">
 </p>
 <br/>
 
