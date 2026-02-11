@@ -62,15 +62,15 @@ The following diagram illustrates the zero-trust authentication flow across Entr
 </blockquote>
 
 <details open>
-<summary><kbd>TOPOLOGY A</kbd> <b>Native Gemini Enterprise Interface (Zero-Code)</b></summary>
+<summary><kbd>TOPOLOGY A</kbd> <b>Native Gemini Consumer (Agent Builder)</b></summary>
 <br/>
 <table>
   <tr>
     <td valign="top">
-      <kbd>EXECUTE</kbd> Navigate to <b>GCP Console</b> &gt; <b>Agent Builder</b> &gt; <b>deloitte-demo</b>.<br/><br/>
-      <kbd>DEFINE</kbd> Ensure the SharePoint datastore is connected and fully synced.<br/><br/>
-      <kbd>OPERATE</kbd> Click <b>Preview</b> to utilize the out-of-the-box Gemini UI.<br/><br/>
-      <kbd>RESULT</kbd> Instantly chat, search, and retrieve grounded financial data directly from Microsoft SharePoint without deploying any custom React code.
+      <kbd>IDENTITY</kbd> <b>Workload Identity Federation (WIF)</b> translates Entra ID roles to Google Cloud IAM.<br/><br/>
+      <kbd>EXECUTE</kbd> Navigate to <b>GCP Console</b> &gt; <b>Agent Builder</b>.<br/><br/>
+      <kbd>OPERATE</kbd> Utilize the out-of-the-box <b>Preview</b> or standard web widget.<br/><br/>
+      <kbd>RESULT</kbd> Immediate, zero-code access to grounded financial data using the federated identity backbone.
     </td>
     <td width="400" valign="top">
       <img src="./public/screenshots/native_datastore_status.png" width="400" style="border-radius: 8px;" />
@@ -84,14 +84,15 @@ The following diagram illustrates the zero-trust authentication flow across Entr
 <br/>
 
 <details open>
-<summary><kbd>TOPOLOGY B</kbd> <b>Custom React Neo-Monolith (WIF Required)</b></summary>
+<summary><kbd>TOPOLOGY B</kbd> <b>Custom Neo-Monolith (Direct API)</b></summary>
 <br/>
 <table>
   <tr>
     <td valign="top">
-      <kbd>EXECUTE</kbd> Utilize this repository's precise brutalist UI.<br/><br/>
-      <kbd>DEFINE</kbd> This methodology bypasses the preview interface and calls the Discovery Engine API directly using <b>Workforce Identity Federation (WIF)</b> coupled with Entra ID.<br/><br/>
-      <kbd>OPERATE</kbd> Follow the rigorous 6-Phase Pipeline below to orchestrate the auth handshake.
+      <kbd>IDENTITY</kbd> <b>Workload Identity Federation (WIF)</b> exchanges the <code>id_token</code> for a Google Access Token directly in the browser.<br/><br/>
+      <kbd>EXECUTE</kbd> Deploy this repository's precise brutalist React UI.<br/><br/>
+      <kbd>OPERATE</kbd> Bypasses the generic interface to call the <b>Discovery Engine API</b> directly.<br/><br/>
+      <kbd>RESULT</kbd> A fully customizable, "Modern Cave" experience with <b>Sockcop</b> branding and specialized visual data structures.
     </td>
     <td width="400" valign="top">
       <img src="./public/screenshots/search_results.png" width="400" style="border-radius: 8px;" />
