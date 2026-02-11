@@ -35,8 +35,8 @@ Replace standard `## Headers` with custom-generated, full-width SVG banners that
     *   `noteBkg`: `#1e293b` (Dark Slate) - **CRITICAL** to avoid yellow notes.
     *   `noteTextColor`: `#fda4af` (Neon Rose).
     *   `actorBkg`: `#0f172a` (Void).
-    *   `background`: `transparent`.
-3.  **Generate:** `npx -y @mermaid-js/mermaid-cli -i source.mmd -o output.svg -c config.json -b transparent`
+    *   `background`: `#020617` (Void Black) - **CRITICAL** for Light Mode visibility.
+3.  **Generate:** `npx -y @mermaid-js/mermaid-cli -i source.mmd -o output.svg -c config.json`
 4.  **Embed:** `<img src="./assets/diagram.svg" width="100%">`
 
 ### C. Narrative Topology (The "Dual Path")
