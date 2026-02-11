@@ -430,7 +430,6 @@ sequenceDiagram
 <p align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="./public/assets/header_config.svg">
-
     <source media="(prefers-color-scheme: light)" srcset="./public/assets/header_config.svg">
     <img alt="Configuration Pipeline Header" src="./public/assets/header_config.svg" width="100%">
   </picture>
