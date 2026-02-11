@@ -9,46 +9,29 @@
       <stop offset="50%" stop-color="#fcd34d" stop-opacity="0.1" />
       <stop offset="100%" stop-color="black" stop-opacity="0" />
     </linearGradient>
-    <style>
-      /* @import removed for GitHub compatibility */
-      .bg { fill: url(#bgGrad); }
-      .text-main { font-family: 'Courier New', Courier, monospace; fill: #fcd34d; font-weight: 700; font-size: 48px; letter-spacing: 4px; text-transform: uppercase; filter: drop-shadow(0 0 5px #fcd34d); }
-      .text-sub { font-family: 'Courier New', Courier, monospace; fill: #94a3b8; font-weight: 400; font-size: 16px; letter-spacing: 2px; text-transform: uppercase; }
-      .code-bg { font-family: 'Courier New', Courier, monospace; fill: #1e293b; font-size: 10px; opacity: 0.3; }
-      
-      /* Animations */
-      @keyframes scrollCode { 0% { transform: translateY(0); } 100% { transform: translateY(-50%); } }
-      .scrolling-code { animation: scrollCode 20s linear infinite; }
-      
-      @keyframes pulseGlow { 0%, 100% { opacity: 0.8; } 50% { opacity: 1; filter: drop-shadow(0 0 15px #fcd34d); } }
-      .glow-text { animation: pulseGlow 3s ease-in-out infinite; }
-      
-      @keyframes scanline { 0% { transform: translateY(-100%); } 100% { transform: translateY(200%); } }
-      .scan-bar { animation: scanline 4s linear infinite; fill: url(#scanGrad); }
-    </style>
   </defs>
 
   <!-- Background -->
-  <rect x="0" y="0" width="1000" height="180" class="bg" />
+  <rect x="0" y="0" width="1000" height="180" fill="url(#bgGrad)" />
 
-  <!-- Scrolling Code -->
-  <g class="scrolling-code">
-    <text x="20" y="20" class="code-bg">.monolith-container {</text>
-<text x="20" y="34" class="code-bg">      scroll-snap-type: y mandatory;</text>
-<text x="20" y="48" class="code-bg">      background: #0f172a;</text>
-<text x="20" y="62" class="code-bg">      mix-blend-mode: exclusion;</text>
-<text x="20" y="76" class="code-bg">    }</text>
-<text x="20" y="90" class="code-bg">.monolith-container {</text>
-<text x="20" y="104" class="code-bg">      scroll-snap-type: y mandatory;</text>
-<text x="20" y="118" class="code-bg">      background: #0f172a;</text>
-<text x="20" y="132" class="code-bg">      mix-blend-mode: exclusion;</text>
-<text x="20" y="146" class="code-bg">    }</text>
+  <!-- Scrolling Code (Static for now to ensure visibility, animation removed for compat) -->
+  <g>
+    <text x="20" y="20" font-family="Courier New, Courier, monospace" fill="#1e293b" font-size="10px" opacity="0.3">.monolith-container {</text>
+<text x="20" y="34" font-family="Courier New, Courier, monospace" fill="#1e293b" font-size="10px" opacity="0.3">      scroll-snap-type: y mandatory;</text>
+<text x="20" y="48" font-family="Courier New, Courier, monospace" fill="#1e293b" font-size="10px" opacity="0.3">      background: #0f172a;</text>
+<text x="20" y="62" font-family="Courier New, Courier, monospace" fill="#1e293b" font-size="10px" opacity="0.3">      mix-blend-mode: exclusion;</text>
+<text x="20" y="76" font-family="Courier New, Courier, monospace" fill="#1e293b" font-size="10px" opacity="0.3">    }</text>
+<text x="20" y="90" font-family="Courier New, Courier, monospace" fill="#1e293b" font-size="10px" opacity="0.3">.monolith-container {</text>
+<text x="20" y="104" font-family="Courier New, Courier, monospace" fill="#1e293b" font-size="10px" opacity="0.3">      scroll-snap-type: y mandatory;</text>
+<text x="20" y="118" font-family="Courier New, Courier, monospace" fill="#1e293b" font-size="10px" opacity="0.3">      background: #0f172a;</text>
+<text x="20" y="132" font-family="Courier New, Courier, monospace" fill="#1e293b" font-size="10px" opacity="0.3">      mix-blend-mode: exclusion;</text>
+<text x="20" y="146" font-family="Courier New, Courier, monospace" fill="#1e293b" font-size="10px" opacity="0.3">    }</text>
 
   </g>
 
   <!-- Main Content -->
-  <text x="50" y="80" class="text-main glow-text">ARCHITECT_CORE</text>
-  <text x="52" y="110" class="text-sub">// BIO_GENERATOR ... ONLINE</text>
+  <text x="50" y="80" font-family="Courier New, Courier, monospace" fill="#fcd34d" font-weight="700" font-size="48px" letter-spacing="4px" text-transform="uppercase">ARCHITECT_CORE</text>
+  <text x="52" y="110" font-family="Courier New, Courier, monospace" fill="#94a3b8" font-weight="400" font-size="16px" letter-spacing="2px" text-transform="uppercase">// BIO_GENERATOR ... ONLINE</text>
 
   <!-- Tech Decor -->
   <path d="M 0 40 L 0 0 L 40 0" stroke="#fcd34d" stroke-width="2" fill="none" />
@@ -56,5 +39,5 @@
   <path d="M 0 140 L 0 180 L 40 180" stroke="#fcd34d" stroke-width="2" fill="none" />
   <path d="M 1000 140 L 1000 180 L 960 180" stroke="#fcd34d" stroke-width="2" fill="none" />
   
-  <rect x="0" y="0" width="1000" height="40" class="scan-bar" />
+  <rect x="0" y="0" width="1000" height="40" fill="url(#scanGrad)" />
 </svg>
