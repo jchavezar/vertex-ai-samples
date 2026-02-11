@@ -356,6 +356,26 @@ readme_content = """<p align="center">
 The following diagram illustrates the zero-trust authentication flow across Entra ID and Google Cloud via WIF, critical for **TOPOLOGY B**:
 
 ```mermaid
+%%{
+  init: {
+    'theme': 'base',
+    'themeVariables': {
+      'primaryColor': '#ede9fe',
+      'primaryTextColor': '#0f172a',
+      'primaryBorderColor': '#c4b5fd',
+      'lineColor': '#94a3b8',
+      'secondaryColor': '#f0fdf4',
+      'tertiaryColor': '#e0f2fe',
+      'actorBkg': '#ede9fe',
+      'actorBorder': '#c4b5fd',
+      'signalColor': '#475569',
+      'signalTextColor': '#475569',
+      'noteBkgColor': '#fef08a',
+      'noteTextColor': '#0f172a',
+      'noteBorderColor': '#fde047'
+    }
+  }
+}%%
 sequenceDiagram
     participant User as End User
     participant Frontend as Sockcop Search (React)
