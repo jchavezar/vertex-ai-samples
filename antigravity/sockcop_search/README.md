@@ -170,7 +170,8 @@ Under **API Permissions**, you need to grant delegated permissions necessary for
 *Example Screenshots of Entra ID & WIF Setup:*
 
 **WIF Provider Configuration:**
-<img src="./public/screenshots/WIF_provider_config.png" alt="WIF Provider Configuration" width="800"/>
+<img src="./public/screenshots/WIF_pool_overview.png" alt="WIF Pool Configuration" width="800"/>
+<img src="./public/screenshots/WIF_provider_config.png" alt="WIF Provider Details" width="800"/>
 
 **Entra ID Auth App (deloitte-entraid):**
 <img src="./public/screenshots/deloitte-entraid_Authentication.png" alt="Entra ID Authentication Config" width="800"/>
