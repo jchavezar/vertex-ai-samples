@@ -170,15 +170,15 @@ Under **API Permissions**, you need to grant delegated permissions necessary for
 *Example Screenshots of Entra ID & WIF Setup:*
 
 **WIF Provider Configuration:**
-![WIF Provider Configuration](./public/screenshots/WIF_provider_config.png)
+<img src="./public/screenshots/WIF_provider_config.png" alt="WIF Provider Configuration" width="800"/>
 
 **Entra ID Auth App (deloitte-entraid):**
-![Entra ID Authentication Config](./public/screenshots/deloitte-entraid_Authentication.png)
-![Entra ID API Permissions](./public/screenshots/deloitte-entraid_API_permissions.png)
+<img src="./public/screenshots/deloitte-entraid_Authentication.png" alt="Entra ID Authentication Config" width="800"/>
+<img src="./public/screenshots/deloitte-entraid_API_permissions.png" alt="Entra ID API Permissions" width="800"/>
 
 **Datastore Connector (deloitte-sharepoint-datastore):**
-![SharePoint Datastore Auth](./public/screenshots/deloitte-sharepoint-datastore_Authentication.png)
-![SharePoint Datastore Permissions](./public/screenshots/deloitte-sharepoint-datastore_API_permissions.png)
+<img src="./public/screenshots/deloitte-sharepoint-datastore_Authentication.png" alt="SharePoint Datastore Auth" width="800"/>
+<img src="./public/screenshots/deloitte-sharepoint-datastore_API_permissions.png" alt="SharePoint Datastore Permissions" width="800"/>
 
 ### Step 3: Integrate with Frontend (No Secrets!)
 Finally, configure the variables in `src/api/config.js` to link your frontend natively:
