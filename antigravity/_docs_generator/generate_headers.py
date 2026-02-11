@@ -32,11 +32,11 @@ def generate_header(filename, title, subtitle, code_snippet, theme_color="#22d3e
       <stop offset="100%" stop-color="black" stop-opacity="0" />
     </linearGradient>
     <style>
-      @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap');
+      /* @import removed for GitHub compatibility */
       .bg {{ fill: url(#bgGrad); }}
-      .text-main {{ font-family: 'JetBrains Mono', monospace; fill: {theme_color}; font-weight: 700; font-size: 48px; letter-spacing: 4px; text-transform: uppercase; filter: drop-shadow(0 0 5px {theme_color}); }}
-      .text-sub {{ font-family: 'JetBrains Mono', monospace; fill: #94a3b8; font-weight: 400; font-size: 16px; letter-spacing: 2px; text-transform: uppercase; }}
-      .code-bg {{ font-family: 'JetBrains Mono', monospace; fill: #1e293b; font-size: 10px; opacity: 0.3; }}
+      .text-main {{ font-family: 'Courier New', Courier, monospace; fill: {theme_color}; font-weight: 700; font-size: 48px; letter-spacing: 4px; text-transform: uppercase; filter: drop-shadow(0 0 5px {theme_color}); }}
+      .text-sub {{ font-family: 'Courier New', Courier, monospace; fill: #94a3b8; font-weight: 400; font-size: 16px; letter-spacing: 2px; text-transform: uppercase; }}
+      .code-bg {{ font-family: 'Courier New', Courier, monospace; fill: #1e293b; font-size: 10px; opacity: 0.3; }}
       
       /* Animations */
       @keyframes scrollCode {{ 0% {{ transform: translateY(0); }} 100% {{ transform: translateY(-50%); }} }}
