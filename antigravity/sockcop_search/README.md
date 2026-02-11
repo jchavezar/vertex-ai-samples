@@ -201,9 +201,46 @@ Once configured, your frontend will securely authenticate via Entra ID, exchange
 
 ## 🚀 Step-by-Step Configuration Guide (Entra ID, WIF, & Datastore)
 
+
 To securely integrate your application as a federated search connector using Gemini Enterprise capabilities, you must follow this specific initialization chronological order. **Crucially, no credentials must be leaked or stored in your frontend.**
 
+### 🌐 Architectural Sequence Flow
+
+```mermaid
+%%{init: {'theme': 'dark', 'themeVariables': { 'fontFamily': 'Inter, sans-serif', 'primaryColor': '#0F172A', 'edgeLabelBackground':'#1E293B', 'lineColor': '#38BDF8', 'primaryTextColor': '#F8FAFC', 'tertiaryColor': '#020617'}}}%%
+flowchart TD
+    classDef frontend fill:#3B82F6,stroke:#1D4ED8,stroke-width:2px,color:#fff,rx:8px,ry:8px
+    classDef entra fill:#8B5CF6,stroke:#6D28D9,stroke-width:2px,color:#fff,rx:8px,ry:8px
+    classDef gcp fill:#10B981,stroke:#047857,stroke-width:2px,color:#fff,rx:8px,ry:8px
+    classDef vertex fill:#F59E0B,stroke:#B45309,stroke-width:2px,color:#fff,rx:8px,ry:8px
+    classDef mapping fill:#1E293B,stroke:#475569,stroke-width:2px,stroke-dasharray: 4 4,color:#CBD5E1
+
+    subgraph "Phase 1: User Authentication & Cloud Federation"
+        direction LR
+        A1[1. Entra ID App<br>deloitte-entraid]:::entra -->|Issuer & Client ID| W1[2. Google Cloud WIF<br>Identity Pool]:::gcp
+        W1 -->|Federates Identity| I1[3. GCP IAM Binding<br>principalSet://]:::gcp
+    end
+
+    subgraph "Phase 2: Backend Datastore Integration"
+        direction LR
+        A2[4. Entra ID Service App<br>sharepoint-datastore]:::entra -->|Client Secret & Graph| V1[5. Vertex AI Datastore<br>SharePoint Connector]:::vertex
+        V1 -->|Background Indexing| SP[(Microsoft SharePoint)]:::mapping
+    end
+
+    subgraph "Phase 3: Final App Deployment"
+        direction TB
+        F1[6. React Frontend<br>config.js Assembly]:::frontend
+    end
+
+    %% Internal Subgraph Wiring 
+    I1 -.->|Grants Search Viewer Role| F1
+    V1 ==>|Target Engine ID & Responses| F1
+    A1 -.->|Validates Login Token| F1
+
+```
+
 ---
+
 
 ### Step 1: Initial Azure AD (Entra ID) App Setup (`deloitte-entraid`)
 

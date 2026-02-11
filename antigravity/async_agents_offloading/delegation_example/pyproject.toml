@@ -4,4 +4,10 @@ version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.13"
-dependencies = []
+dependencies = [
+    "google-adk>=1.5.0",
+    "google-genai>=0.1.0",
+]
+
+[tool.setuptools]
+py-modules = ["main", "agents", "streamlit_app"]

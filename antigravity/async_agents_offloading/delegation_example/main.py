@@ -68,8 +68,7 @@ reporter_agent = LlmAgent(
 # The Pipe: Sequential Agent
 pipeline_agent = SequentialAgent(
     name="BackgroundPipeline",
-    sub_agents=[validator_agent, worker_agent, reporter_agent],
-    output_key="pipeline_output"
+    sub_agents=[validator_agent, worker_agent, reporter_agent]
 )
 
 # --- 2. Define Main Agent & Delegation Logic ---
@@ -111,7 +110,8 @@ class DelegationTools:
         # Initialize session state for the pipeline
         await self.session_service.create_session(
             app_name="background_app",
-            session_id=session_id
+            session_id=session_id,
+            user_id="background_user"
         )
         
         # We need to inject the input into the session or as a message
@@ -128,11 +128,11 @@ class DelegationTools:
         
         try:
             # Execute the pipeline
-            async for event in pipeline_runner.run_async(session_id=session_id, new_message=input_content):
+            async for event in pipeline_runner.run_async(session_id=session_id, new_message=input_content, user_id="background_user"):
                 pass # Consume events
             
             # Retrieve result
-            session = await self.session_service.get_session(app_name="background_app", session_id=session_id)
+            session = await self.session_service.get_session(app_name="background_app", session_id=session_id, user_id="background_user")
             final_report = session.state.get("pipeline_output") or session.state.get("final_report")
             
             # NOTIFICATION (Simulation)
@@ -148,8 +148,10 @@ class DelegationTools:
 async def main():
     # Setup
     api_key = os.getenv("GOOGLE_API_KEY")
-    if not api_key:
-        logger.warning("GOOGLE_API_KEY not found in environment. Please set it.")
+    project = os.getenv("GOOGLE_CLOUD_PROJECT")
+    
+    if not api_key and not project:
+        logger.warning("Neither GOOGLE_API_KEY nor GOOGLE_CLOUD_PROJECT found in environment. Please set one.")
         # Proceeding might fail if the agents actually try to call the model
     
     session_service = InMemorySessionService()
@@ -176,7 +178,7 @@ async def main():
     )
 
     session_id = "main_user_session"
-    await session_service.create_session(app_name="main_app", session_id=session_id)
+    await session_service.create_session(app_name="main_app", session_id=session_id, user_id="main_user")
 
     print("--- ADK Async Delegation Demo ---")
     print("User: 'Analyze the stock market trends for me' (triggers background)")
@@ -192,7 +194,7 @@ async def main():
         content = types.Content(role="user", parts=[types.Part(text=user_input)])
         
         # Run Main Agent
-        async for event in main_runner.run_async(session_id=session_id, new_message=content):
+        async for event in main_runner.run_async(session_id=session_id, new_message=content, user_id="main_user"):
             if event.is_final_response():
                 print(f"Agent: {event.content.parts[0].text}")
         
