@@ -42,7 +42,7 @@ flowchart TD
     classDef extract fill:#082f49,stroke:#0c4a6e,color:#bae6fd;
     classDef model fill:#1d4ed8,stroke:#60a5fa,color:#fff,stroke-width:2px;
 
-    User([👤 User Query: "Alphabet Revenue"]) --> UI("Sockcop React UI")
+    User(["👤 User Query: Alphabet Revenue"]) --> UI("Sockcop React UI")
     UI -- "Authorization: Bearer <GCP_TOKEN>" --> VAIS{{"Vertex AI Search (Discovery Engine API)"}}:::api
     
     VAIS -- Returns 6 Documents --> Eval{"Vertex Summary Check"}
