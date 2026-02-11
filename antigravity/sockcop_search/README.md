@@ -70,6 +70,3 @@ Use the standard dev server:
 npm run dev
 ```
 
-## Security Posture (Zero-Leak)
-- Confirmed NO secret keys, service accounts (`credentials.json`), or `.env` parameters were ever burned into git history.
-- Ensure any Microsoft Azure Client secrets stay securely rotated entirely disconnected from this repo. WIF uses implicit Client-ID exchanges, completely sidestepping standard Client-Secret pipelines.
