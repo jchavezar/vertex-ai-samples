@@ -17,6 +17,9 @@ function App() {
   const [error, setError] = useState(null);
   const [activeCitation, setActiveCitation] = useState(null);
 
+  const [processingTime, setProcessingTime] = useState(0);
+  const [conversationContext, setConversationContext] = useState(null);
+
   // Handle OAuth Callbacks
   useEffect(() => {
     const hash = window.location.hash;
@@ -55,14 +58,42 @@ function App() {
     }
   }, [googleToken]);
 
+  // Timer Effect
+  useEffect(() => {
+    let interval;
+    if (loading) {
+      setProcessingTime(0);
+      interval = setInterval(() => {
+        setProcessingTime(prev => prev + 100);
+      }, 100);
+    } else {
+      setProcessingTime(0);
+    }
+    return () => clearInterval(interval);
+  }, [loading]);
+
   const handleSearch = async (e) => {
     e.preventDefault();
     if (!query.trim()) return;
+
+    // RESET STATE IMMEDIATELY (Visual only)
     setLoading(true);
     setError(null);
+    setSearchResult(null);
+    setActiveCitation(null);
+    setProcessingTime(0);
+
     try {
-      const data = await executeSearch(googleToken, query);
+      const data = await executeSearch(googleToken, query, conversationContext);
       setSearchResult(data);
+
+      // Update Context with this successful Turn
+      setConversationContext({
+        query: query,
+        answer: data.answer || "No answer text generated."
+      });
+      console.log('[APP DEBUG] Updated Context:', { query, answerPrefix: data.answer?.substring(0, 20) });
+
     } catch (err) {
       setError("Search failed: " + err.message);
     } finally {
@@ -73,8 +104,10 @@ function App() {
   const logout = () => {
     localStorage.removeItem('google_token');
     setGoogleToken(null);
-    setIsSpAuthorized(false);
     setSearchResult(null);
+    setError(null);
+    setActiveCitation(null);
+    setConversationContext(null);
   };
 
   if (!googleToken) {
@@ -164,7 +197,26 @@ function App() {
               {/* Answer Column */}
               <div className="lg:col-span-2 space-y-6">
                 <AnimatePresence mode="wait">
-                  {searchResult && activeCitation !== null ? (
+              {loading ? (
+                <motion.div
+                  key="processing"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  className="carved p-12 flex flex-col items-center justify-center space-y-6 min-h-[300px]"
+                >
+                  <div className="relative">
+                    <Loader2 className="w-12 h-12 text-sockcop-gold animate-spin" />
+                    <div className="absolute inset-0 animate-ping opacity-20 bg-sockcop-gold rounded-full" />
+                  </div>
+                  <div className="text-center space-y-2">
+                    <h3 className="text-xl font-bold text-white animate-pulse">Processing Query...</h3>
+                    <p className="text-sockcop-gold font-mono">
+                      {(processingTime / 1000).toFixed(1)}s
+                    </p>
+                  </div>
+                </motion.div>
+              ) : searchResult && activeCitation !== null ? (
                     <motion.div
                       key="citation-detail"
                       initial={{ opacity: 0, scale: 0.95 }}
