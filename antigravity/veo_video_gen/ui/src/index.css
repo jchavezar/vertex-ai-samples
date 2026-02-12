@@ -1,0 +1,30 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  @apply bg-cave-950 text-white font-sans overflow-x-hidden;
+}
+
+/* Scrollbar aesthetic - "Carved" look */
+::-webkit-scrollbar {
+  width: 10px;
+}
+::-webkit-scrollbar-track {
+  @apply bg-stone-900;
+}
+::-webkit-scrollbar-thumb {
+  @apply bg-stone-800 rounded-full border-2 border-stone-900;
+}
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-stone-700;
+}
+
+/* Utility for glass effects */
+.glass {
+  @apply bg-white/5 backdrop-blur-lg border border-white/10;
+}
+
+.carved {
+  @apply bg-black/20 shadow-[inset_0_2px_4px_rgba(0,0,0,0.6)] border-b border-white/5;
+}
