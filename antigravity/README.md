@@ -83,6 +83,22 @@
       <a href="./async_agents_offloading/">Example: ACCESS_TERMINAL &rarr;</a>
     </td>
   </tr>
+
+  <!-- ROW 4: VEO GENERATION -->
+  <tr>
+    <td width="50%" valign="top">
+      <img src="assets/header_bio.svg" width="100%" /> <!-- Re-using bio header as placeholder -->
+      <br/><br/>
+      <strong>PROJECT: VEO VIDEO GEN</strong><br/>
+      Generative Video Interface. Powered by Veo 2.0 and Google ADK. Features "Modern Cave" 
+      UI and real-time generation feedback.<br/>
+      <br/>
+      <a href="./veo_video_gen/">Example: ACCESS_TERMINAL &rarr;</a>
+    </td>
+    <td width="50%" valign="top">
+      <!-- Empty slot for future expansion -->
+    </td>
+  </tr>
 </table>
 
 <br/>

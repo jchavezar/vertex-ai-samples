@@ -1,0 +1,66 @@
+Delete Signature: (resource_name: str, *, force: bool = False, **kwargs) -> None
+REST Engine count: 30
+REST Found: veo-video-expert-agent - projects/254356041555/locations/us-central1/reasoningEngines/1120291298029338624
+REST Found: veo-video-expert-agent - projects/254356041555/locations/us-central1/reasoningEngines/2167378211392978944
+REST Found: veo-video-expert-agent - projects/254356041555/locations/us-central1/reasoningEngines/8270881606386843648
+REST Found: veo-video-expert-agent - projects/254356041555/locations/us-central1/reasoningEngines/621464862739922944
+Failed to register API methods. Please follow the guide to register the API methods: https://cloud.google.com/vertex-ai/generative-ai/docs/agent-engine/develop/custom#custom-methods. Error: {Operation schema {'description': 'Query the application.\n        Args:\n            a: The first input number\n            b: The second input number\n        Returns:\n            int: The additional result.\n        ', 'name': 'SimpleAdditionApp_query', 'parameters': {'type': 'object', 'required': ['a', 'b'], 'properties': {'a': {'type': 'integer'}, 'b': {'type': 'integer'}}}} does not contain an `api_mode` field.}
+Traceback (most recent call last):
+  File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/veo_video_gen/scripts/list_rest.py", line 35, in <module>
+    sdk_agents_list = list(sdk_agents)
+                      ^^^^^^^^^^^^^^^^
+  File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/veo_video_gen/.venv/lib/python3.12/site-packages/vertexai/agent_engines/__init__.py", line 242, in list
+    yield AgentEngine(agent.name)
+          ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/veo_video_gen/.venv/lib/python3.12/site-packages/vertexai/agent_engines/_agent_engines.py", line 357, in __init__
+    self._gca_resource = self._get_gca_resource(resource_name=resource_name)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/veo_video_gen/.venv/lib/python3.12/site-packages/google/cloud/aiplatform/base.py", line 691, in _get_gca_resource
+    return getattr(self.api_client, self._getter_method)(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/veo_video_gen/.venv/lib/python3.12/site-packages/google/cloud/aiplatform_v1/services/reasoning_engine_service/client.py", line 1081, in get_reasoning_engine
+    response = rpc(
+               ^^^^
+  File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/veo_video_gen/.venv/lib/python3.12/site-packages/google/api_core/gapic_v1/method.py", line 131, in __call__
+    return wrapped_func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/veo_video_gen/.venv/lib/python3.12/site-packages/google/api_core/retry/retry_unary.py", line 294, in retry_wrapped_func
+    return retry_target(
+           ^^^^^^^^^^^^^
+  File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/veo_video_gen/.venv/lib/python3.12/site-packages/google/api_core/retry/retry_unary.py", line 147, in retry_target
+    result = target()
+             ^^^^^^^^
+  File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/veo_video_gen/.venv/lib/python3.12/site-packages/google/api_core/grpc_helpers.py", line 75, in error_remapped_callable
+    return callable_(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/veo_video_gen/.venv/lib/python3.12/site-packages/grpc/_interceptor.py", line 276, in __call__
+    response, ignored_call = self._with_call(
+                             ^^^^^^^^^^^^^^^^
+  File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/veo_video_gen/.venv/lib/python3.12/site-packages/grpc/_interceptor.py", line 328, in _with_call
+    call = self._interceptor.intercept_unary_unary(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/veo_video_gen/.venv/lib/python3.12/site-packages/google/cloud/aiplatform_v1/services/reasoning_engine_service/transports/grpc.py", line 84, in intercept_unary_unary
+    response = continuation(client_call_details, request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/veo_video_gen/.venv/lib/python3.12/site-packages/grpc/_interceptor.py", line 314, in continuation
+    response, call = self._thunk(new_method).with_call(
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/veo_video_gen/.venv/lib/python3.12/site-packages/grpc/_channel.py", line 1170, in with_call
+    state, call = self._blocking(
+                  ^^^^^^^^^^^^^^^
+  File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/veo_video_gen/.venv/lib/python3.12/site-packages/grpc/_channel.py", line 1143, in _blocking
+    event = call.next_event()
+            ^^^^^^^^^^^^^^^^^
+  File "src/python/grpcio/grpc/_cython/_cygrpc/channel.pyx.pxi", line 388, in grpc._cython.cygrpc.SegregatedCall.next_event
+  File "src/python/grpcio/grpc/_cython/_cygrpc/channel.pyx.pxi", line 211, in grpc._cython.cygrpc._next_call_event
+  File "src/python/grpcio/grpc/_cython/_cygrpc/channel.pyx.pxi", line 205, in grpc._cython.cygrpc._next_call_event
+  File "src/python/grpcio/grpc/_cython/_cygrpc/completion_queue.pyx.pxi", line 97, in grpc._cython.cygrpc._latent_event
+  File "src/python/grpcio/grpc/_cython/_cygrpc/completion_queue.pyx.pxi", line 81, in grpc._cython.cygrpc._internal_latent_event
+  File "src/python/grpcio/grpc/_cython/_cygrpc/completion_queue.pyx.pxi", line 77, in grpc._cython.cygrpc._interpret_event
+  File "src/python/grpcio/grpc/_cython/_cygrpc/tag.pyx.pxi", line 71, in grpc._cython.cygrpc._BatchOperationTag.event
+  File "src/python/grpcio/grpc/_cython/_cygrpc/operation.pyx.pxi", line 138, in grpc._cython.cygrpc.ReceiveInitialMetadataOperation.un_c
+  File "src/python/grpcio/grpc/_cython/_cygrpc/metadata.pyx.pxi", line 69, in grpc._cython.cygrpc._metadata
+  File "src/python/grpcio/grpc/_cython/_cygrpc/metadata.pyx.pxi", line 70, in genexpr
+  File "src/python/grpcio/grpc/_cython/_cygrpc/metadata.pyx.pxi", line 64, in grpc._cython.cygrpc._metadatum
+  File "<string>", line 1, in <lambda>
+KeyboardInterrupt

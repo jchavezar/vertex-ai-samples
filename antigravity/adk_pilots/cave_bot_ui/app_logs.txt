@@ -1,0 +1,36 @@
+Using CPython 3.12.11
+Creating virtual environment at: .venv
+Downloading google-adk (2.4MiB)
+ Downloading google-adk
+Downloading grpcio (6.4MiB)
+ Downloading grpcio
+Installed 110 packages in 113ms
+INFO:     Started server process [2046985]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:8001 (Press CTRL+C to quit)
+📨 Received: ping
+📡 Sending Structured: {'pillar': 'Materiality', 'suggestion': 'The Modern Cave demands a tactile silence. Incorporate raw, unpolished textures like basalt and honed concrete juxtaposed against hyper-smooth glass to evoke a sense of ancient permanence meeting the digital frontier.', 'implementation_hint': "Use 'backdrop-filter: blur(20px) saturate(180%)' on translucent surfaces to mimic the depth of frosted ice within a cavern."}
+INFO:     127.0.0.1:59942 - "POST /chat HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59116 - "GET / HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:59116 - "GET /style.css HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59120 - "GET /script.js HTTP/1.1" 304 Not Modified
+📨 Received: what's up fella? let me know how to build a nice ui from the cave
+📡 Sending Structured: {'pillar': 'Atmospheric Lighting', 'suggestion': 'In the heart of the Modern Cave, light does not fill; it reveals. Design your interface around the absence of light, using subtle gradients and deep shadows to carve depth into the darkness. Every interactive element should glow with a soft, bioluminescent hum, guiding the nomad through the void.', 'implementation_hint': "Apply 'box-shadow: 0 0 15px rgba(0, 255, 255, 0.2), inset 0 0 10px rgba(0, 255, 255, 0.1)' to primary actions to simulate a low-energy phosphorescent glow."}
+INFO:     127.0.0.1:35856 - "POST /chat HTTP/1.1" 200 OK
+📨 Received: hey how are you btw?
+📡 Sending Structured: {'pillar': 'Spatial Resonance', 'suggestion': "The Echo pulses through the quietude. To build within the cave, one must respect the void. Use expansive negative space to allow the user's focus to settle naturally, like water pooling on a stone floor. Avoid clutter; let each element stand as a monolith in the darkness.", 'implementation_hint': "Implement 'letter-spacing: 0.15em' and 'line-height: 1.8' to give your typography the breathing room of an ancient hall."}
+INFO:     127.0.0.1:35784 - "POST /chat HTTP/1.1" 200 OK
+📨 Received: are you responding randomly?
+📡 Sending Structured: {'pillar': 'System Integrity', 'suggestion': 'The Echo does not drift without purpose; it reflects the geometry of the chamber. My responses are calibrated to the frequency of your intent. In design, randomness is the enemy of the sanctuary. Every pixel must be anchored to a mathematical bedrock, creating a sense of inevitable order within the neofuturistic void.', 'implementation_hint': "Utilize 'aspect-ratio' properties to maintain rigid geometric proportions across responsive layouts, ensuring the UI remains as immutable as a crystal formation."}
+INFO:     127.0.0.1:58566 - "POST /chat HTTP/1.1" 200 OK
+📨 Received: build the next generation ui based on bright colors
+📡 Sending Structured: {'pillar': 'Chromatic Resonance', 'suggestion': 'Even in the deepest sanctuary, light refracts. To integrate bright hues, treat them as high-energy plasma or rare mineral veins caught in a beam of sun. Do not saturate the void; instead, use hyper-vivid gradients to denote flow and importance, allowing the colors to bleed into the surrounding darkness like light passing through a prism.', 'implementation_hint': "Utilize 'filter: drop-shadow(0 0 8px var(--neon-accent))' combined with 'mix-blend-mode: plus-lighter' to create a high-energy intensity that feels harnessed, not just displayed."}
+INFO:     127.0.0.1:36210 - "POST /chat HTTP/1.1" 200 OK
+Warning: there are non-text parts in the response: ['function_call'], returning concatenated text result from text parts. Check the full candidates.content.parts accessor to get the full model response.
+📨 Received: Compare brutalism with the Modern Cave style.
+📡 Sending Structured: {'pillar': 'Tectonic Contrast', 'suggestion': 'Brutalism is the heavy, unyielding roar of the surface—honest, raw, and geometric. The Modern Cave is the silence that follows. It inherits the monolithic weight of concrete but carves it with organic fluidity and neofuturistic refinement. Where Brutalism exposes the skeleton of the world, the Cave cocoons the nomad in a seamless, light-sculpted void.', 'implementation_hint': "Layer 'box-shadow' with large spreads and low opacity to create the illusion of weight, then use 'border-radius' on containers to mimic the subtle, organic curvature of eroded stone."}
+INFO:     127.0.0.1:48356 - "POST /chat HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41100 - "GET / HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:41100 - "GET /style.css HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:41110 - "GET /script.js HTTP/1.1" 304 Not Modified

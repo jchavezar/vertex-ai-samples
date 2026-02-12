@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AETHER // GLASS STRUCTURALISM</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script src="https://unpkg.com/lenis@1.0.45/dist/lenis.min.js"></script>
+</head>
+<body>
+    <div class="background-canvas">
+        <img src="hero_bg.png" alt="Parametric Background">
+    </div>
+    
+    <div class="glass-overlay"></div>
+
+    <nav class="glass-nav">
+        <div class="logo">AETHER</div>
+        <div class="nav-links">
+            <span>VISION</span>
+            <span>PROJECTS</span>
+            <span>CONTACT</span>
+        </div>
+    </nav>
+
+    <main class="content-wrapper">
+        <section class="section hero">
+            <h1 class="hero-title">TRANSLUCENT<br>REALITY</h1>
+            <div class="scroll-ind"></div>
+        </section>
+
+        <section class="section bio">
+            <div class="glass-card bio-card">
+                <div class="card-content">
+                    <h2>THE GHOST IN THE SHELL</h2>
+                    <p>Architecture is frozen light. We design translucent structures that interact with their environment through refraction and reflection.</p>
+                </div>
+                <div class="card-visual">
+                    <img src="profile.png" alt="Holographic Architect" class="holo-filter">
+                </div>
+            </div>
+        </section>
+
+        <section class="section showcase">
+            <div class="infinite-lane">
+                <!-- Items will be cloned for loop -->
+                <div class="showcase-item">
+                     <img src="portfolio1.png" alt="Project 1" class="glass-img">
+                     <span class="item-title">CRYSTAL TOWER</span>
+                </div>
+                <div class="showcase-item">
+                     <img src="portfolio1.png" alt="Project 2" class="glass-img" style="filter: hue-rotate(45deg);">
+                     <span class="item-title">PRISM LAB</span>
+                </div>
+                 <div class="showcase-item">
+                     <img src="portfolio1.png" alt="Project 3" class="glass-img" style="filter: hue-rotate(90deg);">
+                     <span class="item-title">VOID MUSEUM</span>
+                </div>
+                 <div class="showcase-item">
+                     <img src="portfolio1.png" alt="Project 4" class="glass-img" style="filter: hue-rotate(180deg);">
+                     <span class="item-title">AQUA HABITAT</span>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>
