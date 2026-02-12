@@ -6,11 +6,24 @@ import {
 } from './api/auth';
 import { CONFIG } from './api/config';
 import { executeSearch } from './api/search';
-import { Search, LogIn, ShieldCheck, Database, FileText, ExternalLink, Loader2, ChevronRight, AlertCircle } from 'lucide-react';
+import { Search, LogIn, ShieldCheck, Database, FileText, ExternalLink, Loader2, ChevronRight, AlertCircle, CheckCircle2, Lock, Key } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 function App() {
-  const [googleToken, setGoogleToken] = useState(localStorage.getItem('google_token'));
+  const [googleToken, setGoogleToken] = useState(() => {
+    const token = localStorage.getItem('google_token');
+    const expiry = localStorage.getItem('token_expiry');
+    // If token exists and hasn't expired (using an aggressive 30 second buffer)
+    if (token && expiry && Date.now() < parseInt(expiry) - 30000) {
+      return token;
+    }
+    // Clean up if expired
+    if (expiry && Date.now() >= parseInt(expiry) - 30000) {
+      localStorage.removeItem('google_token');
+      localStorage.removeItem('token_expiry');
+    }
+    return null;
+  });
   const [loading, setLoading] = useState(false);
   const [query, setQuery] = useState('');
   const [searchResult, setSearchResult] = useState(null);
@@ -19,6 +32,16 @@ function App() {
 
   const [processingTime, setProcessingTime] = useState(0);
   const [conversationContext, setConversationContext] = useState(null);
+
+  // New state: null | 'checking_entra' | 'exchanging_sts' | 'connecting_sharepoint' | 'complete'
+  const [authStage, setAuthStage] = useState(() => {
+    const token = localStorage.getItem('google_token');
+    const expiry = localStorage.getItem('token_expiry');
+    if (token && expiry && Date.now() < parseInt(expiry) - 30000) {
+      return 'complete';
+    }
+    return null;
+  });
 
   // Handle OAuth Callbacks
   useEffect(() => {
@@ -38,20 +61,34 @@ function App() {
         console.log('[AUTH DEBUG] ID Token found. Length:', idToken.length);
         setLoading(true);
         setError(null);
-        console.log('[AUTH DEBUG] Triggering exchangeForGoogleToken...');
-        exchangeForGoogleToken(idToken)
-          .then(data => {
-            console.log('[AUTH DEBUG] SUCCESS: Google Token Received');
-            setGoogleToken(data.access_token);
-            localStorage.setItem('google_token', data.access_token);
-            // Clear URL
-            window.history.replaceState({}, document.title, window.location.pathname);
-          })
-          .catch(err => {
-            console.error('[AUTH DEBUG] ERROR: STS Exchange Failed', err);
-            setError("WIF Exchange Failed: " + (err.response?.data?.error_description || err.message));
-          })
-          .finally(() => setLoading(false));
+        setAuthStage('checking_entra'); // Start animation flow
+
+        // Simulate a slight delay to let user see "Checking Entra ID Auth"
+        setTimeout(() => {
+          setAuthStage('exchanging_sts');
+          console.log('[AUTH DEBUG] Triggering exchangeForGoogleToken...');
+          exchangeForGoogleToken(idToken)
+            .then(data => {
+              console.log('[AUTH DEBUG] SUCCESS: Google Token Received');
+              setAuthStage('connecting_sharepoint');
+
+              // Simulate connection establishment visualization
+              setTimeout(() => {
+                setGoogleToken(data.access_token);
+                localStorage.setItem('google_token', data.access_token);
+                localStorage.setItem('token_expiry', Date.now() + ((data.expires_in || 3600) * 1000));
+                // End animation flow and clear URL
+                setAuthStage('complete');
+                window.history.replaceState({}, document.title, window.location.pathname);
+              }, 1500);
+            })
+            .catch(err => {
+              console.error('[AUTH DEBUG] ERROR: STS Exchange Failed', err);
+              setError("WIF Exchange Failed: " + (err.response?.data?.error_description || err.message));
+              setAuthStage(null);
+            })
+            .finally(() => setLoading(false));
+        }, 1200);
       } else {
         console.warn('[AUTH DEBUG] Hash contains id_token key but NO VALUE');
       }
@@ -103,66 +140,151 @@ function App() {
 
   const logout = () => {
     localStorage.removeItem('google_token');
+    localStorage.removeItem('token_expiry');
     setGoogleToken(null);
+    setAuthStage(null);
     setSearchResult(null);
     setError(null);
     setActiveCitation(null);
     setConversationContext(null);
   };
 
-  if (!googleToken) {
+  const renderAuthStageItem = (stageName, label, icon, isActive, isComplete) => {
+    let statusClass = "text-gray-500 bg-white/5 border-white/10 opacity-50";
+    let iconColor = "text-gray-500";
+
+    if (isComplete) {
+      statusClass = "text-green-400 bg-green-500/10 border-green-500/30 opacity-100 shadow-[0_0_10px_rgba(34,197,94,0.1)]";
+      iconColor = "text-green-400";
+    } else if (isActive) {
+      statusClass = "text-sockcop-gold bg-sockcop-gold/10 border-sockcop-gold/30 ring-1 ring-sockcop-gold/50 opacity-100 shadow-[0_0_15px_rgba(212,175,55,0.2)]";
+      iconColor = "text-sockcop-gold";
+    }
+
     return (
-      <div className="min-h-screen bg-cave-900 flex flex-col items-center justify-center p-4 text-white">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="glass p-8 rounded-3xl max-w-md w-full text-center space-y-6"
-        >
-          <div className="flex justify-center">
-            <div className="p-4 bg-sockcop-gold/10 rounded-2xl">
-              <ShieldCheck className="w-12 h-12 text-sockcop-gold" />
-            </div>
-          </div>
-          <h1 className="text-3xl font-bold font-inter tracking-tight text-white">Sockcop Search</h1>
-          <p className="text-gray-400">Secure GenAI Search grounded in your SharePoint data.</p>
-          <button
-            onClick={() => window.location.href = getWifLoginUrl()}
-            className="w-full bg-[#d4af37] hover:bg-[#b8962e] text-white font-bold py-4 rounded-xl flex items-center justify-center gap-2 transition-all active:scale-95 shadow-lg shadow-[#d4af37]/30"
-          >
-            <LogIn className="w-5 h-5 text-white" />
-            Sign in with Entra ID
-          </button>
-          <div className="text-xs text-gray-500 uppercase tracking-widest pt-4">Workforce Identity Federated</div>
-        </motion.div>
-      </div>
+      <motion.div
+        layout
+        className={`flex items-center gap-3 p-3 rounded-xl border transition-all duration-500 ${statusClass}`}
+      >
+        <div className={`p-1.5 rounded-lg bg-white/5 ${iconColor}`}>
+          {isComplete ? <CheckCircle2 className="w-4 h-4" /> : isActive ? <Loader2 className="w-4 h-4 animate-spin" /> : icon}
+        </div>
+        <div className="flex-1 font-medium text-sm tracking-wide">
+          {label}
+        </div>
+      </motion.div>
     );
-  }
+  };
 
   return (
     <div className="min-h-screen bg-cave-900 text-white flex flex-col">
       {/* Header */}
       <nav className="glass sticky top-0 z-50 px-6 py-4 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 bg-sockcop-gold rounded-lg flex items-center justify-center">
+          <div className="w-8 h-8 bg-sockcop-gold rounded-lg flex items-center justify-center shadow-[0_0_15px_rgba(212,175,55,0.3)]">
             <ShieldCheck className="w-5 h-5 text-black" />
           </div>
-          <span className="text-xl font-bold tracking-tight">Sockcop</span>
+          <span className="text-xl font-bold tracking-tight">Sockcop Search</span>
         </div>
 
         <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium bg-green-500/10 text-green-400">
-            <Database className="w-4 h-4" />
-            SharePoint Connected
-          </div>
-          <button onClick={logout} className="text-sm text-gray-400 hover:text-white underline underline-offset-4">Sign Out</button>
+          {googleToken ? (
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium bg-green-500/10 text-green-400 border border-green-500/20">
+              <Database className="w-4 h-4" />
+              SharePoint Connected
+            </div>
+          ) : (
+            <button
+              onClick={() => window.location.href = getWifLoginUrl()}
+              className="flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium bg-red-500/10 text-red-500 hover:bg-red-500/20 transition-colors shadow-lg shadow-red-500/10 border border-red-500/20"
+            >
+              <AlertCircle className="w-4 h-4" />
+              SharePoint Disconnected (Click to Connect)
+            </button>
+          )}
+          {googleToken && (
+            <button onClick={logout} className="text-sm font-medium text-gray-400 hover:text-white underline underline-offset-4 decoration-white/20 hover:decoration-white/80 transition-all">Sign Out</button>
+          )}
         </div>
       </nav>
 
       {/* Main Content */}
       <main className="flex-1 max-w-6xl w-full mx-auto p-6 flex flex-col gap-8">
-        {/* Search Box */}
-        <div className="space-y-4">
-          <form onSubmit={handleSearch} className="relative group">
+        {!googleToken && !authStage ? (
+          <div className="flex flex-col items-center justify-center p-12 text-center space-y-6 mt-12">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="glass p-12 rounded-3xl max-w-lg w-full text-center space-y-6 relative overflow-hidden"
+            >
+              {/* Decorative top gradient */}
+              <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-transparent via-red-500/50 to-transparent" />
+
+              <div className="flex justify-center">
+                <div className="p-4 bg-red-500/10 rounded-2xl ring-1 ring-red-500/20">
+                  <Database className="w-12 h-12 text-red-400 animate-pulse" />
+                </div>
+              </div>
+              <h1 className="text-3xl font-bold font-inter tracking-tight text-white">Connection Required</h1>
+              <p className="text-gray-400 leading-relaxed">Your session has expired or you haven't connected yet. Please connect to enable secure GenAI search over your SharePoint data.</p>
+              <button
+                onClick={() => window.location.href = getWifLoginUrl()}
+                className="w-full bg-gradient-to-r from-sockcop-gold to-[#b8962e] hover:brightness-110 text-black font-bold py-4 rounded-xl flex items-center justify-center gap-2 transition-all active:scale-95 shadow-[0_0_20px_rgba(212,175,55,0.3)] mt-4"
+              >
+                <LogIn className="w-5 h-5 text-black/80" />
+                Connect to Microsoft Entra ID
+              </button>
+              <div className="text-xs text-gray-500 uppercase tracking-widest pt-4 font-bold">Azure + Google Cloud WIF Pipeline</div>
+            </motion.div>
+          </div>
+        ) : (
+          <>
+            {/* Auth Progress Tracker (Always visible when connecting or connected) */}
+            {authStage && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="mb-2"
+              >
+                <div className="flex items-center gap-2 mb-3 px-2">
+                  <ShieldCheck className="w-4 h-4 text-sockcop-gold" />
+                  <h3 className="text-[11px] font-bold text-gray-400 uppercase tracking-widest">Authentication Pipeline Status</h3>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                  {renderAuthStageItem(
+                    'checking_entra',
+                    'Validating Entra ID Issuer Token',
+                    <Lock className="w-4 h-4" />,
+                    authStage === 'checking_entra',
+                    ['exchanging_sts', 'connecting_sharepoint', 'complete'].includes(authStage)
+                  )}
+                  {renderAuthStageItem(
+                    'exchanging_sts',
+                    'Google STS Token Exchange',
+                    <Key className="w-4 h-4" />,
+                    authStage === 'exchanging_sts',
+                    ['connecting_sharepoint', 'complete'].includes(authStage)
+                  )}
+                  {renderAuthStageItem(
+                    'connecting_sharepoint',
+                    'Graph API Secure Session',
+                    <Database className="w-4 h-4" />,
+                    authStage === 'connecting_sharepoint',
+                    authStage === 'complete'
+                  )}
+                </div>
+              </motion.div>
+            )}
+
+            {/* Search Box - Only visible when fully connected */}
+            {authStage === 'complete' && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.1 }}
+                className="space-y-4"
+              >
+                <form onSubmit={handleSearch} className="relative group">
                 <input
                   type="text"
                   value={query}
@@ -190,7 +312,8 @@ function App() {
                   </button>
                 ))}
               </div>
-            </div>
+                </motion.div>
+              )}
 
             {/* Results Grid */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 pb-12">
@@ -379,7 +502,9 @@ function App() {
                   )}
                 </div>
               </div>
-        </div>
+              </div>
+          </>
+        )}
       </main>
       <footer className="glass border-t border-white/5 py-3 px-6 text-xs text-gray-500 flex justify-between items-center">
         <div className="flex gap-4">
