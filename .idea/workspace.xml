@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="3728e2f1-6a0c-4c56-b66a-e56c7a6c1811" name="Changes" comment="mcp local toolbox + bigquery Aug 1st 25">
+      <change afterPath="$PROJECT_DIR$/gen_ai/adk/custom_grounding_eval/readme.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gen_ai/adk/custom_grounding_eval/Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/gen_ai/adk/custom_grounding_eval/Dockerfile" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gen_ai/adk/custom_grounding_eval/frontend.py" beforeDir="false" afterPath="$PROJECT_DIR$/gen_ai/adk/custom_grounding_eval/main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gen_ai/adk/custom_grounding_eval/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/gen_ai/adk/custom_grounding_eval/requirements.txt" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Python Script" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+    <option name="UPDATE_TYPE" value="REBASE" />
+  </component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;jchavezar&quot;
+  }
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/jchavezar/vertex-ai-samples.git&quot;,
+    &quot;accountId&quot;: &quot;29c2a9c5-9328-47c8-ad4d-5b0b9e3f0647&quot;
+  }
+}</component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 8
+}</component>
+  <component name="ProjectId" id="30TG8DMycm7zOE5CZROLUo2LZ97" />
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ACTIVE_CLOUD_PROJECT_ACCOUNT&quot;: &quot;jesusarguelles@google.com&quot;,
+    &quot;ACTIVE_CLOUD_PROJECT_ID&quot;: &quot;jesusarguelles-sandbox&quot;,
+    &quot;ACTIVE_CLOUD_PROJECT_NAME&quot;: &quot;jesusarguelles-sandbox&quot;,
+    &quot;ACTIVE_CLOUD_PROJECT_NUMBER&quot;: &quot;390227712642&quot;,
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;com.google.cloudcode.ide_session_index&quot;: &quot;20250728_0001&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/gen_ai/search_solutions/multimodal_embeddings/video_search_app&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;project.structure.last.edited&quot;: &quot;SDKs&quot;,
+    &quot;project.structure.proportion&quot;: &quot;0.15&quot;,
+    &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;project.propVCSSupport.Mappings&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  }
+}</component>
+  <component name="PyConsoleOptionsProvider">
+    <option name="myPythonConsoleState">
+      <console-settings module-name="vertex-ai-samples" working-directory="$PROJECT_DIR$/gen_ai/search_solutions/multimodal_embeddings/video_search_app">
+        <option name="myModuleName" value="vertex-ai-samples" />
+        <option name="myWorkingDirectory" value="$PROJECT_DIR$/gen_ai/search_solutions/multimodal_embeddings/video_search_app" />
+      </console-settings>
+    </option>
+  </component>
+  <component name="RdControllerToolWindowsLayoutState" isNewUi="true">
+    <layout>
+      <window_info id="Merge Requests" />
+      <window_info id="Backup and Sync History" />
+      <window_info id="Commit_Guest" show_stripe_button="false" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.18489583" />
+      <window_info id="Commit" order="1" weight="0.18489583" />
+      <window_info id="Structure" order="2" side_tool="true" weight="0.25" />
+      <window_info id="Bookmarks" order="3" side_tool="true" weight="0.33008274" />
+      <window_info id="Pull Requests" order="4" weight="0.18489583" />
+      <window_info id="Learn" order="5" weight="0.18489583" />
+      <window_info anchor="bottom" id="Database Changes" />
+      <window_info anchor="bottom" id="TypeScript" />
+      <window_info anchor="bottom" id="Python Packages" />
+      <window_info anchor="bottom" id="TODO" />
+      <window_info anchor="bottom" id="File Transfer" />
+      <window_info anchor="bottom" id="HfCacheToolWindow" />
+      <window_info anchor="bottom" id="Find" />
+      <window_info anchor="bottom" id="Version Control" order="0" weight="0.31710914" />
+      <window_info anchor="bottom" id="Problems" order="1" />
+      <window_info anchor="bottom" id="Problems View" order="2" />
+      <window_info active="true" anchor="bottom" id="Terminal" order="3" visible="true" />
+      <window_info anchor="bottom" id="Services" order="4" weight="0.43903637" />
+      <window_info anchor="bottom" id="Profiler" order="5" weight="0.33677483" />
+      <window_info anchor="right" id="Plots" />
+      <window_info anchor="right" id="PR AI Assistant" />
+      <window_info anchor="right" id="Source Protect" />
+      <window_info anchor="right" id="Material Theme: Favorite Themes Shuffle" show_stripe_button="false" side_tool="true" />
+      <window_info anchor="right" id="documentation.v2" side_tool="true" />
+      <window_info anchor="right" id="Coverage" side_tool="true" />
+      <window_info anchor="right" id="Compute Engine" />
+      <window_info anchor="right" id="Secret Manager" />
+      <window_info anchor="right" id="SciView" />
+      <window_info anchor="right" id="Google Cloud Storage (GCS)" />
+      <window_info anchor="right" id="Jupyter Variables" side_tool="true" />
+      <window_info anchor="right" id="Google Cloud Databases" />
+      <window_info anchor="right" id="Notifications" order="0" weight="0.32994792" />
+      <window_info anchor="right" id="AIAssistant" order="1" show_stripe_button="false" weight="0.33035713" />
+      <window_info anchor="right" id="Database" order="2" show_stripe_button="false" weight="0.3671875" />
+      <window_info anchor="right" id="Gradle" order="3" weight="0.25" />
+      <window_info anchor="right" id="Maven" order="4" weight="0.25" />
+      <window_info active="true" anchor="right" id="StudioBot" order="5" visible="true" weight="0.33035713" />
+      <window_info anchor="right" id="Python Console" order="6" visible="true" weight="0.29774305" />
+      <window_info anchor="right" id="Cloud Run" order="7" weight="0.3671875" />
+      <window_info anchor="right" id="Kubernetes Explorer" order="8" weight="0.3671875" />
+      <window_info active="true" anchor="right" id="Bito" order="9" visible="true" weight="0.33035713" />
+      <window_info anchor="right" id="Endpoints" order="10" weight="0.33035713" />
+    </layout>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-jdk-9823dce3aa75-bf35d07a577b-intellij.indexing.shared.core-IU-252.23892.360" />
+        <option value="bundled-js-predefined-d6986cc7102b-e03c56caf84a-JavaScript-IU-252.23892.360" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="3728e2f1-6a0c-4c56-b66a-e56c7a6c1811" name="Changes" comment="" />
+      <created>1753643989144</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1753643989144</updated>
+      <workItem from="1753643990636" duration="3743000" />
+      <workItem from="1753666727561" duration="440000" />
+      <workItem from="1753667175969" duration="186000" />
+      <workItem from="1753667370650" duration="123000" />
+      <workItem from="1753667501648" duration="1446000" />
+      <workItem from="1754261990695" duration="7244000" />
+      <workItem from="1754320548275" duration="6239000" />
+      <workItem from="1754924299520" duration="52000" />
+      <workItem from="1754924371068" duration="58000" />
+      <workItem from="1754924502529" duration="1358000" />
+      <workItem from="1756915150974" duration="351000" />
+      <workItem from="1756915530339" duration="140000" />
+      <workItem from="1756915768933" duration="599000" />
+    </task>
+    <task id="LOCAL-00001" summary="mcp local toolbox + bigquery Aug 1st 25">
+      <option name="closed" value="true" />
+      <created>1754264314963</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1754264314963</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="mcp local toolbox + bigquery Aug 1st 25" />
+    <option name="LAST_COMMIT_MESSAGE" value="mcp local toolbox + bigquery Aug 1st 25" />
+  </component>
+  <component name="XSLT-Support.FileAssociations.UIState">
+    <expand />
+    <select />
+  </component>
+</project>

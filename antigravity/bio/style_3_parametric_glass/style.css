@@ -1,0 +1,217 @@
+:root {
+    --primary-color: #0a0a1a;
+    --glass-border: rgba(255, 255, 255, 0.1);
+    --glass-bg: rgba(255, 255, 255, 0.05);
+    --neon-blue: #00f3ff;
+    --neon-purple: #bc13fe;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    cursor: crosshair;
+}
+
+body {
+    background-color: var(--primary-color);
+    color: white;
+    font-family: 'Geist Mono', 'Roboto Mono', monospace; /* Techy monospace */
+    overflow-x: hidden;
+}
+
+/* Background */
+.background-canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -2;
+    overflow: hidden;
+}
+
+.background-canvas img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0.6;
+    transform: scale(1.1);
+    transition: transform 0.2s ease-out;
+}
+
+.glass-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    backdrop-filter: blur(20px);
+    pointer-events: none;
+    mask: radial-gradient(circle at center, transparent 0%, black 100%);
+    -webkit-mask: radial-gradient(circle at center, transparent 0%, black 100%);
+}
+
+/* Nav */
+.glass-nav {
+    position: fixed;
+    top: 2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 90%;
+    display: flex;
+    justify-content: space-between;
+    padding: 1.5rem 3rem;
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    backdrop-filter: blur(10px);
+    border-radius: 100px;
+    z-index: 100;
+}
+
+.logo {
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-shadow: 0 0 10px var(--neon-blue);
+}
+
+.nav-links span {
+    margin-left: 2rem;
+    font-size: 0.9rem;
+    opacity: 0.7;
+    transition: all 0.3s;
+}
+
+.nav-links span:hover {
+    opacity: 1;
+    text-shadow: 0 0 10px var(--neon-purple);
+}
+
+/* Hero */
+.hero {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+.hero-title {
+    font-size: 8vw;
+    font-weight: 200;
+    line-height: 1;
+    background: linear-gradient(to bottom, #fff, rgba(255,255,255,0));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    opacity: 0.8;
+}
+
+/* Bio */
+.bio {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    perspective: 1000px;
+}
+
+.glass-card {
+    width: 80vw;
+    height: 70vh;
+    background: rgba(10, 10, 26, 0.4);
+    border: 1px solid var(--glass-border);
+    backdrop-filter: blur(40px);
+    border-radius: 30px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    overflow: hidden;
+    position: relative;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+}
+
+.card-content {
+    padding: 5vw;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.card-content h2 {
+    font-size: 3vw;
+    margin-bottom: 2rem;
+    color: var(--neon-blue);
+    text-shadow: 0 0 20px rgba(0, 243, 255, 0.3);
+}
+
+.card-content p {
+    font-size: 1.2vw;
+    line-height: 1.6;
+    color: #a0a0ff;
+}
+
+.card-visual {
+    position: relative;
+    overflow: hidden;
+}
+
+.card-visual img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    /* Holographic effect */
+    filter: brightness(1.2) contrast(1.1) hue-rotate(180deg) saturate(0.8);
+    opacity: 0.8;
+    mix-blend-mode: screen;
+}
+
+/* Showcase */
+.showcase {
+    height: 100vh;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+}
+
+.infinite-lane {
+    display: flex;
+    gap: 2vw;
+    position: absolute;
+    left: 0;
+    will-change: transform;
+}
+
+.showcase-item {
+    width: 25vw;
+    height: 35vw;
+    position: relative;
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    overflow: hidden;
+    background: black;
+}
+
+.glass-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0.7;
+    transition: all 0.5s;
+}
+
+.showcase-item:hover .glass-img {
+    opacity: 1;
+    transform: scale(1.1);
+}
+
+.item-title {
+    position: absolute;
+    bottom: 2rem;
+    left: 2rem;
+    font-size: 1.5rem;
+    font-weight: bold;
+    z-index: 10;
+    text-shadow: 0 0 10px black;
+}
