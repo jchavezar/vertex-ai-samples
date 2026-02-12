@@ -7,7 +7,7 @@ export const getWifLoginUrl = () => {
   const redirect = window.location.origin + '/'; // Match Azure's trailing slash
   console.log('Initiating WIF Login with Redirect:', redirect);
 
-  return `${CONFIG.ISSUER.replace('/v2.0', '')}/oauth2/v2.0/authorize?client_id=${CONFIG.MS_APP_ID}&response_type=id_token&redirect_uri=${encodeURIComponent(redirect)}&scope=openid%20profile%20email&response_mode=fragment&nonce=${Math.random().toString(36).substring(7)}`;
+  return `${CONFIG.ISSUER.replace('/v2.0', '')}/oauth2/v2.0/authorize?client_id=${CONFIG.MS_APP_ID}&response_type=id_token&redirect_uri=${encodeURIComponent(redirect)}&scope=openid%20profile%20email&response_mode=fragment&prompt=login&nonce=${Math.random().toString(36).substring(7)}`;
 };
 
 export const exchangeForGoogleToken = async (idToken) => {

@@ -95,7 +95,7 @@ The following diagram illustrates the zero-trust authentication flow across Entr
       <kbd>RESULT</kbd> A fully customizable, "Modern Cave" experience with <b>Sockcop</b> branding and specialized visual data structures.
     </td>
     <td width="400" valign="top">
-      <img src="./public/screenshots/search_results.png" width="400" style="border-radius: 8px;" />
+      <img src="./docs/assets/sockcop_active_search.png" width="400" style="border-radius: 8px;" />
     </td>
   </tr>
 </table>
