@@ -1,0 +1,17 @@
+[project]
+name = "backend"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12.9"
+dependencies = [
+    "fastapi>=0.129.0",
+    "google-adk>=1.25.0",
+    "httpx>=0.28.1",
+    "markitdown[all]>=0.1.4",
+    "msal>=1.34.0",
+    "pydantic>=2.12.5",
+    "python-dotenv>=1.2.1",
+    "sse-starlette>=3.2.0",
+    "uvicorn>=0.40.0",
+]
