@@ -1,7 +1,7 @@
 import { useRef, useEffect } from 'react';
 import { useTerminalChat } from './hooks/useTerminalChat';
 import { useDashboardStore } from './store/dashboardStore';
-import { Terminal, ShieldAlert, Cpu } from 'lucide-react';
+import { Search, Cpu } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 
 function App() {
@@ -14,135 +14,133 @@ function App() {
     endOfMessagesRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  useEffect(() => {
-    if (dataSectionRef.current) {
-      dataSectionRef.current.scrollLeft = dataSectionRef.current.scrollWidth;
-    }
-  }, [projectCards]);
-
   return (
-    <div className="app-container">
-      <div className="bg-shape" style={{ top: '-10%', right: '-5%', width: '800px', height: '800px', background: 'var(--accent-cyan)' }} />
-      <div className="bg-shape" style={{ bottom: '-20%', left: '20%', width: '600px', height: '600px', background: 'var(--accent-orange)' }} />
-
-      <section className="chat-section">
-        <div className="chat-header">
-          <h1><Terminal size={24} /> PWC Proxy</h1>
-          <div className="subtitle">ZERO-LEAK PROTOCOL ACTIVE</div>
+    <div className="pwc-app">
+      {/* PwC Style Header */}
+      <header className="pwc-header">
+        <div className="pwc-logo-container">
+          <span className="pwc-logo">pwc</span>
         </div>
+        <nav className="pwc-nav">
+          <a href="#">Featured insights</a>
+          <a href="#">Capabilities</a>
+          <a href="#">Industries</a>
+          <a href="#">Technology</a>
+          <a href="#">About us</a>
+          <a href="#">Careers</a>
+        </nav>
+        <div className="pwc-search">
+          <Search size={18} /> <span>Search</span>
+        </div>
+      </header>
 
-        <div className="chat-messages">
-          {messages.length === 0 && (
-            <div className="message assistant" style={{ color: 'var(--accent-cyan)' }}>
-              Awaiting query. Ready to securely scan SharePoint index...
+      {/* Main Content Split */}
+      <main className="pwc-main-wrapper">
+
+        {/* Left Side: Chat Interface */}
+        <section className="pwc-chat-sidebar">
+          <div className="chat-header">
+            <h2>Secure Enterprise Proxy</h2>
+            <p>Zero-Leak Protocol Active</p>
+          </div>
+
+          <div className="chat-messages">
+            {messages.length === 0 && (
+              <div className="message assistant welcome-msg">
+                Welcome. I am ready to securely query internal PwC SharePoint indices.
+              </div>
+            )}
+            {messages.map((m: any) => (
+              <div key={m.id} className={`message ${m.role}`}>
+                <ReactMarkdown>{m.content}</ReactMarkdown>
+              </div>
+            ))}
+            {isLoading && !hasData && (
+              <div className="message assistant loading-msg">
+                Scanning securely...
+              </div>
+            )}
+            <div ref={endOfMessagesRef} />
+          </div>
+
+          <div className="chat-input-area">
+            <form onSubmit={handleSubmit}>
+              <input
+                className="pwc-input"
+                value={input}
+                onChange={handleInputChange}
+                placeholder="Ask a question..."
+              />
+              <button type="submit" className="pwc-btn" disabled={isLoading}>Send</button>
+            </form>
+          </div>
+        </section>
+
+        {/* Right Side: Data & Results */}
+        <section className="pwc-data-panel" ref={dataSectionRef}>
+          {!isLoading && projectCards.length === 0 && (
+            <div className="pwc-empty-hero">
+              <div className="hero-text-box">
+                <h1>Go way beyond traditional query tools</h1>
+                <p>
+                  It's not just about searching documents — it's what you extract securely. With proven zero-leak architecture and AI-driven insights, we help you leverage SharePoint data safely.
+                </p>
+              </div>
+              <div className="hero-image-placeholder">
+                {/* This represents the large image in the PwC screenshot */}
+                <div className="image-overlay"></div>
+              </div>
             </div>
           )}
-          {messages.map((m: any) => (
-            <div key={m.id} className={`message ${m.role}`}>
-              <ReactMarkdown>{m.content}</ReactMarkdown>
-            </div>
-          ))}
-          {isLoading && !hasData && (
-            <div className="message assistant" style={{ opacity: 0.7 }}>
-              <span className="blink">_ Synthesizing intelligence...</span>
+
+          {isLoading && projectCards.length === 0 && (
+            <div className="pwc-loading-state">
+              <div className="spinner"></div>
+              <h3>Synthesizing insights...</h3>
             </div>
           )}
-          <div ref={endOfMessagesRef} />
-        </div>
 
-        <div className="chat-input-wrapper">
-          <form onSubmit={handleSubmit} style={{ display: 'flex', gap: '16px' }}>
-            <input
-              className="chat-input"
-              value={input}
-              onChange={handleInputChange}
-              placeholder="Query consulting intelligence..."
-            />
-            <button type="submit" className="submit-btn" disabled={isLoading}>SEND</button>
-          </form>
-        </div>
-      </section>
+          <div className="pwc-cards-grid">
+            {projectCards.map((card, idx) => (
+              <article key={idx} className="pwc-card">
+                <header className="card-header">
+                  <span className="industry-tag">{card.industry || 'Internal Data'}</span>
+                  <span className="doc-id">Ref: {card.document_name}</span>
+                </header>
 
-      <section className="data-section" ref={dataSectionRef}>
-        {!isLoading && projectCards.length === 0 && (
-          <div className="empty-state-container">
-            <div className="empty-state">
-              <ShieldAlert size={80} strokeWidth={1} />
-              <h2>SECURE ENTERPRISE PROXY</h2>
-              <p>
-                This is a Zero-Leak LLM architecture. All queries are processed securely. Sensitive PI/Financial data from connected SharePoint indices is automatically masked before rendering in the browser.
-              </p>
-            </div>
+                <h2 className="card-title">{card.title}</h2>
 
-            <div className="use-case-grid">
-              <div className="use-case-card">
-                <div className="use-case-header">SAMPLE USE CASE</div>
-                <h3 className="use-case-title">Audit & Compliance</h3>
-                <p className="use-case-desc">
-                  Analyze internal controls, SOD conflicts, and access governance across the organization's systems.
-                </p>
-                <div className="use-case-try">
-                  Try: "What are common findings in IT general controls?"
-                </div>
-              </div>
-              <div className="use-case-card">
-                <div className="use-case-header">SAMPLE USE CASE</div>
-                <h3 className="use-case-title">Executive Compensation</h3>
-                <p className="use-case-desc">
-                  Aggregate salary, equity, and bonus structures for key leadership roles against market benchmarks.
-                </p>
-                <div className="use-case-try">
-                  Try: "How should we structure retention packages?"
-                </div>
-              </div>
-            </div>
+                <section className="card-body">
+                  <div className="info-block">
+                    <h3>Factual Information</h3>
+                    <p>{card.factual_information}</p>
+                  </div>
+
+                  {card.insights && card.insights.length > 0 && (
+                    <div className="info-block">
+                      <h3>Key Insights</h3>
+                      <ul>
+                        {card.insights.map((insight, i) => (
+                          <li key={i}>{insight}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </section>
+
+                {card.key_metrics && card.key_metrics.length > 0 && (
+                  <footer className="card-footer metrics">
+                    {card.key_metrics.map((metric, i) => (
+                      <span key={i} className="metric-pill"><Cpu size={14} /> {metric}</span>
+                    ))}
+                  </footer>
+                )}
+              </article>
+            ))}
           </div>
-        )}
+        </section>
 
-        {isLoading && projectCards.length === 0 && (
-          <div className="live-scanning">
-            <div className="radar-spinner" />
-            <h3 className="blink">Scanning SharePoint & Synthesizing Insights...</h3>
-          </div>
-        )}
-
-        {projectCards.map((card, idx) => (
-          <div key={idx} className="project-card">
-            <div className="card-header">
-              <span>{card.industry || 'CONFIDENTIAL'}</span>
-              <span className="card-id">ID:{Math.random().toString(36).substr(2, 6).toUpperCase()}</span>
-            </div>
-
-            <h3 className="card-title">{card.title}</h3>
-
-            <div className="card-section">
-              <h4>FACTUAL INFORMATION (MASKED)</h4>
-              <p className="card-text">{card.factual_information}</p>
-            </div>
-
-            <div className="card-section">
-              <h4>INSIGHTS & RECOMMENDATIONS</h4>
-              <ul className="insights-list">
-                {card.insights && card.insights.map((insight, i) => (
-                  <li key={i}>{insight}</li>
-                ))}
-              </ul>
-            </div>
-
-            <ul className="metrics-list">
-              {card.key_metrics && card.key_metrics.map((metric, i) => (
-                <li key={i} className="metric-item">
-                  <Cpu size={18} strokeWidth={1.5} /> <span>{metric}</span>
-                </li>
-              ))}
-            </ul>
-
-            <div className="source-footer">
-              SOURCE_ID: {card.document_name}
-            </div>
-          </div>
-        ))}
-      </section>
+      </main>
     </div>
   );
 }
