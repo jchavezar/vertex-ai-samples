@@ -67,3 +67,6 @@ credentials.json
 *.njsproj
 *.sln
 *.sw?
+
+# Project specifics
+generate_pdfs.py
