@@ -32,7 +32,7 @@ flowchart LR
 
     subgraph MCP ["MCP Server"]
         D[Python MCP SDK]
-        D_Tool[search_documents()]
+        D_Tool["search_documents()"]
         D --- D_Tool
     end
 
