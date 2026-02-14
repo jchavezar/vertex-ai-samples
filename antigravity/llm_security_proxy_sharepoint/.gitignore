@@ -39,9 +39,6 @@ share/python-wheels/
 MANIFEST
 
 # Environment sets
-.env
-.env.*
-!.env.example
 .venv
 venv/
 ENV/
@@ -49,6 +46,9 @@ env.bak/
 venv.bak/
 
 # Data & Secrets (MANDATORY)
+.env
+.env.*
+!.env.example
 *.pem
 *.key
 *.p12
