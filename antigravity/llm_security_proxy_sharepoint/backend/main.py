@@ -76,9 +76,16 @@ async def _chat_stream(messages: list):
                 }
                 yield AIStreamProtocol.data([widget_payload])
 
+from auth_context import set_user_token
+
 @app.post("/chat")
-async def chat_endpoint(request: ChatRequest):
-    return StreamingResponse(_chat_stream(request.messages), media_type="text/plain; charset=utf-8")
+async def chat_endpoint(request: Request):
+    data = await request.json()
+    auth_header = request.headers.get("Authorization")
+    if auth_header and auth_header.startswith("Bearer "):
+        token = auth_header.split(" ")[1]
+        set_user_token(token)
+    return StreamingResponse(_chat_stream(data.get("messages", [])), media_type="text/plain; charset=utf-8")
 
 if __name__ == "__main__":
     import uvicorn

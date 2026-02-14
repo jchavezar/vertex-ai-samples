@@ -3,12 +3,13 @@ import { useEffect } from 'react';
 import { useDashboardStore } from '../store/dashboardStore';
 import type { ProjectCardData } from '../store/dashboardStore';
 
-export function useTerminalChat() {
+export function useTerminalChat(token: string | null) {
   const addProjectCard = useDashboardStore((s) => s.addProjectCard);
   const clearCards = useDashboardStore((s) => s.clearCards);
 
   const { messages, input, handleInputChange, handleSubmit, data, isLoading } = useChat({
     api: '/chat',
+    headers: token ? { Authorization: `Bearer ${token}` } : undefined,
   });
 
   // Listen for Type 2 Data events 

@@ -12,14 +12,19 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 logger = logging.getLogger(__name__)
 
 class SharePointMCP:
-    def __init__(self):
+    def __init__(self, token=None):
         self.tenant_id = os.getenv("TENANT_ID")
         self.client_id = os.getenv("CLIENT_ID")
         self.client_secret = os.getenv("CLIENT_SECRET")
         self.site_id = os.getenv("SITE_ID")
         self.drive_id = os.getenv("DRIVE_ID")
         self.region = os.getenv("MS_GRAPH_REGION", "NAM")
-        self.token = self._get_ms_token()
+        if token:
+            logger.info("Using provided user-delegated token.")
+            self.token = token
+        else:
+            logger.info("No token provided. Falling back to Application Credentials.")
+            self.token = self._get_ms_token()
 
     def _get_ms_token(self):
         if not all([self.tenant_id, self.client_id, self.client_secret]):

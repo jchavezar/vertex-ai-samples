@@ -6,6 +6,7 @@ readme = "README.md"
 requires-python = ">=3.12.9"
 dependencies = [
     "fastapi>=0.129.0",
+    "fastmcp>=2.14.5",
     "google-adk>=1.25.0",
     "httpx>=0.28.1",
     "markitdown[all]>=0.1.4",

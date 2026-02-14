@@ -5,13 +5,11 @@ from mcp_sharepoint import SharePointMCP
 from typing import List, Union
 from pydantic import BaseModel, Field
 
-mcp = None
+from auth_context import get_user_token
 
 def get_mcp():
-    global mcp
-    if mcp is None:
-        mcp = SharePointMCP()
-    return mcp
+    token = get_user_token()
+    return SharePointMCP(token=token)
 
 def _search_sharepoint_documents(query: str, limit: int = 5) -> str:
     """
