@@ -1,9 +1,17 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
-import { Play, Loader2, Sparkles, Film, Send, User, Bot, Video, Paperclip, X, Trash2, Terminal, CloudLightning } from 'lucide-react';
+import { Play, Loader2, Sparkles, Film, Send, User, Bot, Video, Paperclip, X, Trash2, Terminal, CloudLightning, RefreshCw, ChevronDown, Check, RotateCcw, Copy } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { v4 as uuidv4 } from 'uuid';
+
+const models = [
+  { id: "gemini-2.5-flash", label: "Gemini 2.5 Flash", region: "us-central1" },
+  { id: "gemini-2.5-pro", label: "Gemini 2.5 Pro", region: "us-central1" },
+  { id: "gemini-3-flash-preview", label: "Gemini 3.0 Flash (Preview)", region: "global", badge: "Global Only" },
+  { id: "gemini-3-pro-preview", label: "Gemini 3.0 Pro (Preview)", region: "global", badge: "Global Only" },
+];
+
 
 function App() {
   const [messages, setMessages] = useState([]);
@@ -12,14 +20,60 @@ function App() {
   const [duration, setDuration] = useState(5);
   const [loading, setLoading] = useState(false);
   const [sessionId, setSessionId] = useState(uuidv4());
+  const [sessionCopied, setSessionCopied] = useState(false);
+
+  const handleResetSession = async () => {
+    try {
+      // Tell backend to clear the session mapping
+      await axios.post('/api/session/reset', { session_id: sessionId });
+    } catch (err) {
+      console.log("Session reset on backend (may not exist yet):", err.message);
+    }
+    // Generate new frontend session ID
+    const newSessionId = uuidv4();
+    setSessionId(newSessionId);
+    // Clear chat history
+    setMessages([
+      {
+        id: 'init',
+        role: 'agent',
+        text: "Hello! I'm your Veo Video Expert. Tell me what you want to create, and I'll help you craft the perfect prompt.",
+        video: null
+      }
+    ]);
+  };
+
+  const handleCopySessionId = () => {
+    navigator.clipboard.writeText(sessionId);
+    setSessionCopied(true);
+    setTimeout(() => setSessionCopied(false), 2000);
+  };
 
   // Agent Engine State
   const [agents, setAgents] = useState([]);
+  const [selectedAgent, setSelectedAgent] = useState(null);
+  const [isModelOpen, setIsModelOpen] = useState(false);
+  const modelDropdownRef = useRef(null);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (modelDropdownRef.current && !modelDropdownRef.current.contains(event.target)) {
+        setIsModelOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
   const [deploying, setDeploying] = useState(false);
   const [deployStatus, setDeployStatus] = useState({ is_deploying: false, logs: [], error: null });
   const [selectedAgentLogs, setSelectedAgentLogs] = useState(null);
   const [deployStartTime, setDeployStartTime] = useState(null);
   const [deployTimeElapsed, setDeployTimeElapsed] = useState(0);
+  const [selectedModel, setSelectedModel] = useState("gemini-2.5-flash"); // Default model
 
   const messagesEndRef = useRef(null);
   const fileInputRef = useRef(null);
@@ -86,7 +140,11 @@ function App() {
     setDeployTimeElapsed(0);
     setDeployStatus({ is_deploying: true, logs: [], error: null });
     try {
-      await axios.post('/api/agents/deploy');
+      const modelConfig = models.find(m => m.id === selectedModel);
+      await axios.post('/api/agents/deploy', {
+        model_name: selectedModel,
+        region: modelConfig?.region || "us-central1"
+      });
 
       // Start polling status
       const pollInterval = setInterval(async () => {
@@ -177,7 +235,8 @@ function App() {
       const response = await axios.post('/api/chat', {
         message: finalMessage,
         image_base64: currentAttachment,
-        session_id: sessionId
+        session_id: sessionId,
+        agent_resource_name: selectedAgent
       });
 
       const data = response.data;
@@ -221,6 +280,58 @@ function App() {
             Agent Engine
           </div>
 
+          <div className="mb-2 relative" ref={modelDropdownRef}>
+            <label className="text-xs text-stone-400 font-medium mb-1 block uppercase tracking-wider">Model Version</label>
+
+            <div
+              onClick={() => !deploying && setIsModelOpen(!isModelOpen)}
+              className={`w-full bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-xs text-white flex items-center justify-between cursor-pointer transition-colors hover:border-purple-500/50 ${deploying ? 'opacity-50 cursor-not-allowed' : ''}`}
+            >
+              <div className="flex items-center gap-2 truncate">
+                <span>{models.find(m => m.id === selectedModel)?.label || selectedModel}</span>
+                {models.find(m => m.id === selectedModel)?.region === "global" && (
+                  <span className="text-[8px] bg-yellow-500/20 text-yellow-400 px-1 py-0.5 rounded">GLOBAL</span>
+                )}
+              </div>
+              <ChevronDown className={`w-3 h-3 text-stone-400 transition-transform ${isModelOpen ? 'rotate-180' : ''}`} />
+            </div>
+
+            <AnimatePresence>
+              {isModelOpen && (
+                <motion.div
+                  initial={{ opacity: 0, y: -5 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -5 }}
+                  transition={{ duration: 0.1 }}
+                  className="absolute top-full left-0 w-full mt-1 bg-stone-900 border border-white/10 rounded-lg shadow-xl z-50 overflow-hidden"
+                >
+                  {models.map(model => (
+                    <div
+                      key={model.id}
+                      onClick={() => {
+                        setSelectedModel(model.id);
+                        setIsModelOpen(false);
+                      }}
+                      className="px-3 py-2 text-xs text-white hover:bg-purple-900/30 cursor-pointer flex items-center justify-between group border-b border-white/5 last:border-0"
+                    >
+                      <div className="flex items-center gap-2">
+                        <span className={selectedModel === model.id ? 'text-purple-300 font-medium' : 'text-stone-300'}>
+                          {model.label}
+                        </span>
+                        {model.badge && (
+                          <span className="text-[9px] bg-yellow-500/20 text-yellow-400 px-1.5 py-0.5 rounded-full border border-yellow-500/30">
+                            {model.badge}
+                          </span>
+                        )}
+                      </div>
+                      {selectedModel === model.id && <Check className="w-3 h-3 text-purple-400" />}
+                    </div>
+                  ))}
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+
           <button
             onClick={handleDeployAgent}
             disabled={deploying}
@@ -239,14 +350,24 @@ function App() {
           )}
 
           {agents.map(agent => (
-            <div key={agent.resource_name} className="p-3 rounded-xl bg-white/5 border border-white/5 hover:border-white/10 transition-colors group">
+            <div
+              key={agent.resource_name}
+              onClick={() => setSelectedAgent(selectedAgent === agent.resource_name ? null : agent.resource_name)}
+              className={`p-3 rounded-xl border transition-colors cursor-pointer group ${selectedAgent === agent.resource_name
+                ? 'bg-purple-500/20 border-purple-500'
+                : 'bg-white/5 border-white/5 hover:border-white/10'
+                }`}
+            >
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse shadow-[0_0_8px_rgba(74,222,128,0.6)]" title="Online" />
-                  <span className="text-sm font-medium truncate w-40" title={agent.resource_name}>
+                  <span className="text-sm font-medium truncate w-32" title={agent.resource_name}>
                     {parseAgentName(agent.resource_name)}
                   </span>
                 </div>
+                {selectedAgent === agent.resource_name && (
+                  <span className="text-[10px] font-bold text-purple-400 bg-purple-500/10 px-2 py-0.5 rounded-full">ACTIVE</span>
+                )}
               </div>
               <div className="flex gap-2 mt-3">
                 <button
@@ -254,6 +375,14 @@ function App() {
                   className="flex-1 py-1.5 bg-white/5 hover:bg-white/10 rounded-lg text-xs text-stone-300 flex items-center justify-center gap-1 transition-colors"
                 >
                   <Terminal className="w-3 h-3" /> Logs
+                </button>
+                <button
+                  onClick={handleDeployAgent}
+                  disabled={deploying}
+                  className="px-3 py-1.5 bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 rounded-lg text-xs flex items-center justify-center transition-colors disabled:opacity-50"
+                  title="Update from Code"
+                >
+                  <RefreshCw className={`w-3 h-3 ${deploying ? 'animate-spin' : ''}`} />
                 </button>
                 <button
                   onClick={() => handleDeleteAgent(agent.resource_name)}
@@ -284,8 +413,35 @@ function App() {
               </div>
             </div>
           </div>
-          <div className="text-xs text-stone-500 font-mono hidden md:block">
-            POWERED BY GOOGLE ADK & VEO
+
+          {/* Session Control */}
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 bg-black/30 border border-white/10 rounded-lg px-3 py-1.5">
+              <span className="text-[10px] text-stone-500 uppercase tracking-wider">Session</span>
+              <code className="text-[10px] text-stone-300 font-mono">{sessionId.slice(0, 8)}...</code>
+              <button
+                onClick={handleCopySessionId}
+                className="p-1 hover:bg-white/10 rounded text-stone-400 hover:text-white transition-colors"
+                title="Copy Session ID"
+              >
+                {sessionCopied ? <Check className="w-3 h-3 text-green-400" /> : <Copy className="w-3 h-3" />}
+              </button>
+              <button
+                onClick={handleResetSession}
+                className="p-1 hover:bg-white/10 rounded text-stone-400 hover:text-orange-400 transition-colors"
+                title="New Session (Reset Chat)"
+              >
+                <RotateCcw className="w-3 h-3" />
+              </button>
+            </div>
+
+            <div className="text-xs text-stone-500 font-mono flex items-center gap-3 hidden md:flex">
+              {selectedAgent ? (
+                <span className="text-[10px] font-bold text-purple-400 bg-purple-500/10 px-2 py-1 rounded-full border border-purple-500/20 shadow-[0_0_10px_rgba(168,85,247,0.2)]">REMOTE AGENT</span>
+              ) : (
+                <span className="text-[10px] font-bold text-blue-400 bg-blue-500/10 px-2 py-1 rounded-full border border-blue-500/20 shadow-[0_0_10px_rgba(59,130,246,0.2)]">LOCAL AGENT</span>
+              )}
+            </div>
           </div>
         </div>
 

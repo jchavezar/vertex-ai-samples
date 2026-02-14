@@ -14,3 +14,8 @@ trigger: always_on
 
 ## Documentation Rules
 - Every new folder needs to be put in the main index in the antigravity folder every time you push it.
+
+
+## Avoid
+Under any circumstances use old models in your code develop and deploy like gemini-2.0* gemini-1.5* text-bison* or any other old model. NEVER.
+- Allowed models to use: gemini-2.5-flash, gemini-2.5-pro, gemini-3-flash-preview and gemini-3-pro-preview in ANY of your develops or troubleshooting.

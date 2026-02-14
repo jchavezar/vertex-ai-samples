@@ -7,6 +7,8 @@ export interface ProjectCardData {
   insights: string[];
   key_metrics: string[];
   document_name: string;
+  document_url?: string;
+  redacted_entities?: string[];
 }
 
 interface DashboardState {

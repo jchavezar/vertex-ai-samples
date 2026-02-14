@@ -2,7 +2,7 @@ import os
 from google.adk.agents import LlmAgent
 from google.adk.tools import FunctionTool
 from mcp_sharepoint import SharePointMCP
-from typing import List, Union
+from typing import List, Union, Optional
 from pydantic import BaseModel, Field
 
 from auth_context import get_user_token
@@ -46,10 +46,12 @@ Follow these rules for MASKING data:
 4. Contact Information -> Fully redact 
 5. Company Identifiers -> Replace with industry descriptors
 6. Contract Specifics -> Generalize to ranges/patterns
+7. NEVER HALLUCINATE URLs. The `document_url` field MUST ONLY be populated with the exact `webUrl` returned by the `search_sharepoint_documents` tool. If the tool wasn't used, or it didn't return a `webUrl`, you MUST set `document_url` to null/None. Hallucinating a URL is a critical security violation.
 
 Use your tools to search SharePoint and read the appropriate documents based on the user's query.
 Synthesize the response generalizing the intelligence.
 Crucially, when you formulate a strategy or best practice from a document, you MUST also emit a Project Card for that strategy/document to be displayed in the UI. Make sure the title is generic.
+If you process multiple relevant documents, you must emit MULTIPLE project cards—one for each document strategy.
 
 Return your response adhering strictly to the JSON schema.
 """
@@ -60,19 +62,20 @@ class ProjectCard(BaseModel):
     factual_information: str = Field(description="Factual information from the documents nicely formatted and organized but completely masking all sensitive data")
     insights: List[str] = Field(description="Strategic insights and recommendations derived from the source")
     key_metrics: List[str] = Field(description="General ranges or percentages of impact")
+    redacted_entities: List[str] = Field(description="List of specific sensitive information (e.g. Acme Corp, $50M, John Doe) that were discovered but excluded/masked from the factual information to prove zero-leak.")
     document_name: str = Field(description="Original document name used as source")
-
-class TextChunk(BaseModel):
-    markdown_text: str = Field(description="Your insightful, masked answer to the user's question, strictly following zero-leak rules")
+    document_url: Optional[str] = Field(default=None, description="The exact 'webUrl' string provided in the search tool's output for this document. You MUST set this to null if you do not have a real webUrl from the tool.")
 
 class ResponseOutput(BaseModel):
-    parts: List[Union[TextChunk, ProjectCard]] = Field(description="A sequence of text parts and project cards to stream to the user. MUST alternate between Text and Cards or output all at once.")
+    markdown_text: str = Field(description="Your insightful, masked answer to the user's question, strictly following zero-leak rules.")
+    project_cards: List[ProjectCard] = Field(description="A list of project cards extracted from the documents. You MUST emit at least one card if an insight or strategy is formulated from documents.")
 
-agent = LlmAgent(
-    name="PWC_Security_Proxy",
-    model="gemini-3-pro-preview",
-    instruction=INSTRUCTIONS,
-    tools=[search_sharepoint_documents, read_document_content],
-    output_schema=ResponseOutput,
-    output_key="proxy_output"
-)
+def get_agent(model_name: str = "gemini-3-pro-preview") -> LlmAgent:
+    return LlmAgent(
+        name="PWC_Security_Proxy",
+        model=model_name,
+        instruction=INSTRUCTIONS,
+        tools=[search_sharepoint_documents, read_document_content],
+        output_schema=ResponseOutput,
+        output_key="proxy_output"
+    )

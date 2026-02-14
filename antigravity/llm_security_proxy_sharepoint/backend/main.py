@@ -6,7 +6,7 @@ from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 from google.adk.runners import Runner
 from google.adk.sessions.in_memory_session_service import InMemorySessionService
-from agent import agent
+from agent import get_agent
 from protocol import AIStreamProtocol
 from dotenv import load_dotenv
 import os
@@ -30,14 +30,14 @@ session_service = InMemorySessionService()
 class ChatRequest(BaseModel):
     messages: list
 
-async def _chat_stream(messages: list):
+async def _chat_stream(messages: list, model_name: str):
     prompt = messages[-1]['content']
     # Ensure session exists
     session = await session_service.get_session(app_name="PWC_Security_Proxy", user_id="default_user", session_id="default_sess")
     if not session:
         await session_service.create_session(app_name="PWC_Security_Proxy", user_id="default_user", session_id="default_sess")
 
-    runner = Runner(app_name="PWC_Security_Proxy", agent=agent, session_service=session_service)
+    runner = Runner(app_name="PWC_Security_Proxy", agent=get_agent(model_name), session_service=session_service)
     
     from google.genai import types
     msg = types.Content(role="user", parts=[types.Part.from_text(text=prompt)])
@@ -55,37 +55,44 @@ async def _chat_stream(messages: list):
         return
 
     # Yield parts according to Vercel AI SDK Zero-Parsing stream protocol
-    parts = result.get('parts', []) if isinstance(result, dict) else getattr(result, 'parts', [])
-    for part in parts:
-        if isinstance(part, dict):
-            if 'markdown_text' in part:
-                yield AIStreamProtocol.text(part['markdown_text'])
-            else:
-                widget_payload = {
-                    "type": "project_card",
-                    "data": part
-                }
-                yield AIStreamProtocol.data([widget_payload])
-        else:
-            if hasattr(part, 'markdown_text') and getattr(part, 'markdown_text'):
-                yield AIStreamProtocol.text(part.markdown_text)
-            else:
-                widget_payload = {
-                    "type": "project_card",
-                    "data": part.model_dump()
-                }
-                yield AIStreamProtocol.data([widget_payload])
+    if isinstance(result, dict):
+        text_content = result.get('markdown_text', '')
+        cards = result.get('project_cards', [])
+        
+        if text_content:
+            yield AIStreamProtocol.text(text_content)
+            
+        for card in cards:
+            widget_payload = {
+                "type": "project_card",
+                "data": card
+            }
+            yield AIStreamProtocol.data([widget_payload])
+    else:
+        text_content = getattr(result, 'markdown_text', '')
+        cards = getattr(result, 'project_cards', [])
+        
+        if text_content:
+            yield AIStreamProtocol.text(text_content)
+            
+        for card in cards:
+            widget_payload = {
+                "type": "project_card",
+                "data": card.model_dump() if hasattr(card, 'model_dump') else card
+            }
+            yield AIStreamProtocol.data([widget_payload])
 
 from auth_context import set_user_token
 
 @app.post("/chat")
 async def chat_endpoint(request: Request):
     data = await request.json()
+    model_name = data.get("model", "gemini-3-pro-preview")
     auth_header = request.headers.get("Authorization")
     if auth_header and auth_header.startswith("Bearer "):
         token = auth_header.split(" ")[1]
         set_user_token(token)
-    return StreamingResponse(_chat_stream(data.get("messages", [])), media_type="text/plain; charset=utf-8")
+    return StreamingResponse(_chat_stream(data.get("messages", []), model_name), media_type="text/plain; charset=utf-8")
 
 if __name__ == "__main__":
     import uvicorn
