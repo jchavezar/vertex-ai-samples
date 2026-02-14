@@ -13,7 +13,7 @@ export const msalConfig: Configuration = {
 };
 
 export const loginRequest = {
-  scopes: ["https://graph.microsoft.com/.default"],
+  scopes: ["User.Read", "Sites.Read.All", "Files.Read.All"],
 };
 
 export const msalInstance = new PublicClientApplication(msalConfig);

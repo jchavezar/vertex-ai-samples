@@ -1,4 +1,4 @@
-import msal
+
 import requests
 import time
 import logging
@@ -13,9 +13,6 @@ logger = logging.getLogger(__name__)
 
 class SharePointMCP:
     def __init__(self, token=None):
-        self.tenant_id = os.getenv("TENANT_ID")
-        self.client_id = os.getenv("CLIENT_ID")
-        self.client_secret = os.getenv("CLIENT_SECRET")
         self.site_id = os.getenv("SITE_ID")
         self.drive_id = os.getenv("DRIVE_ID")
         self.region = os.getenv("MS_GRAPH_REGION", "NAM")
@@ -23,27 +20,8 @@ class SharePointMCP:
             logger.info("Using provided user-delegated token.")
             self.token = token
         else:
-            logger.info("No token provided. Falling back to Application Credentials.")
-            self.token = self._get_ms_token()
-
-    def _get_ms_token(self):
-        if not all([self.tenant_id, self.client_id, self.client_secret]):
-            logger.error("Missing AD credentials")
-            raise Exception("Missing AD Credentials in environment")
-        try:
-            app = msal.ConfidentialClientApplication(
-                self.client_id, authority=f"https://login.microsoftonline.com/{self.tenant_id}",
-                client_credential=self.client_secret
-            )
-            result = app.acquire_token_for_client(scopes=["https://graph.microsoft.com/.default"])
-            if "access_token" in result:
-                return result['access_token']
-            else:
-                logger.error(f"Error acquiring token: {result.get('error_description')}")
-                raise Exception(f"Could not acquire token: {result.get('error')}")
-        except Exception as e:
-            logger.error(f"Authentication failed: {e}")
-            raise
+            logger.error("No user token provided. Delegated authentication required.")
+            raise Exception("No user token provided. The application requires authorized requests from the frontend.")
 
     def get_drive_web_url(self):
         url = f"https://graph.microsoft.com/v1.0/sites/{self.site_id}/drives/{self.drive_id}"
