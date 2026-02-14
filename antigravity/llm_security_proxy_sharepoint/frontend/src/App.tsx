@@ -1,7 +1,7 @@
 import { useRef, useEffect, useState } from 'react';
 import { useTerminalChat } from './hooks/useTerminalChat';
 import { useDashboardStore } from './store/dashboardStore';
-import { Search, Cpu, User, LogOut } from 'lucide-react';
+import { Cpu, User, LogOut, Network, Server, Database, ShieldAlert, Terminal } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { useMsal, useIsAuthenticated } from '@azure/msal-react';
 import { loginRequest } from './authConfig';
@@ -47,10 +47,23 @@ function App() {
     instance.logoutRedirect({ postLogoutRedirectUri: "/" }).catch(console.error);
   };
 
-  const { messages, input, handleInputChange, handleSubmit, isLoading, hasData } = useTerminalChat(token);
+  const [selectedModel, setSelectedModel] = useState('gemini-3-pro-preview');
+  const [showTopology, setShowTopology] = useState(false);
+  const { messages, input, handleInputChange, handleSubmit, isLoading, hasData } = useTerminalChat(token, selectedModel);
   const projectCards = useDashboardStore(s => s.projectCards);
   const endOfMessagesRef = useRef<HTMLDivElement>(null);
   const dataSectionRef = useRef<HTMLDivElement>(null);
+
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  useEffect(() => {
+    if (textareaRef.current) {
+      textareaRef.current.style.height = 'auto';
+      // Max height to prevent taking up too much screen space, enable scroll if larger
+      const scrollHeight = textareaRef.current.scrollHeight;
+      textareaRef.current.style.height = Math.min(scrollHeight, 150) + 'px';
+    }
+  }, [input]);
 
   useEffect(() => {
     endOfMessagesRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -71,8 +84,8 @@ function App() {
           <a href="#">About us</a>
           <a href="#">Careers</a>
         </nav>
-        <div className="pwc-search">
-          <Search size={18} /> <span>Search</span>
+        <div className="pwc-search" style={{ cursor: 'pointer' }} onClick={() => setShowTopology(!showTopology)}>
+          <Network size={18} /> <span>{showTopology ? 'Close Topology' : 'Topology'}</span>
         </div>
         <div className="pwc-auth">
           {isAuthenticated ? (
@@ -93,13 +106,99 @@ function App() {
       </header>
 
       {/* Main Content Split */}
-      <main className="pwc-main-wrapper">
+      {showTopology ? (
+        <div className="pwc-topology-wrapper" style={{ overflowX: 'auto' }}>
+          <h2>Zero-Leak Architecture Topology</h2>
+          <div className="topology-container" style={{ width: 'max-content', minWidth: '100%', paddingBottom: '40px' }}>
+            <div className="flow-row">
+              <div className="topology-node blue" style={{ width: '250px' }}>
+                <User className="icon" size={32} />
+                <h4>End User</h4>
+                <p>React SPA (Vite)</p>
+                <div className="node-detail">useTerminalChat()</div>
+              </div>
+              <div className="flow-edge flow-edge-horizontal" style={{ width: '120px' }}>
+                SSE / HTTP
+                <div className="line"></div>
+              </div>
+              <div className="topology-node secure" style={{ width: '320px' }}>
+                <ShieldAlert className="icon" size={32} color="var(--pwc-red)" />
+                <h4>Security Proxy</h4>
+                <p>Google ADK / FastAPI</p>
+                <div className="node-detail">LlmAgent / Session</div>
+              </div>
+              <div className="flow-edge flow-edge-horizontal" style={{ width: '120px' }}>
+                Vertex API
+                <div className="line"></div>
+              </div>
+              <div className="topology-node" style={{ width: '250px' }}>
+                <Cpu className="icon" size={32} />
+                <h4>LLM</h4>
+                <p>Gemini 3 Pro / Flash</p>
+                <div className="node-detail">gemini-3-pro-preview</div>
+              </div>
+            </div>
+
+            <div className="flow-row">
+              <div style={{ width: '250px' }}></div>
+              <div style={{ width: '120px' }}></div>
+              <div className="flow-edge flow-edge-vertical" style={{ width: '320px', justifyContent: 'center', position: 'relative' }}>
+                <div className="line" style={{ margin: 0 }}></div>
+                <div style={{ position: 'absolute', marginLeft: '30px', background: 'var(--pwc-bg-main)', padding: '0 8px', fontSize: '0.75rem', color: '#888', fontWeight: 600 }}>MCP TOOL CALL</div>
+              </div>
+              <div style={{ width: '120px' }}></div>
+              <div style={{ width: '250px' }}></div>
+            </div>
+
+            <div className="flow-row">
+              <div className="topology-node" style={{ borderColor: '#2e7d32', borderTopColor: '#2e7d32', width: '250px' }}>
+                <Terminal className="icon" size={32} color="#2e7d32" />
+                <h4>MCP Server</h4>
+                <p>Python MCP SDK</p>
+                <div className="node-detail">search_documents()</div>
+              </div>
+              <div className="flow-edge flow-edge-horizontal" style={{ width: '120px' }}>
+                REST
+                <div className="line"></div>
+              </div>
+              <div className="topology-node blue" style={{ width: '320px' }}>
+                <Server className="icon" size={32} />
+                <h4>Microsoft Graph</h4>
+                <p>Entra ID / OAuth 2.0</p>
+                <div className="node-detail">Client Credentials</div>
+              </div>
+              <div className="flow-edge flow-edge-horizontal" style={{ width: '120px' }}>
+                Graph API
+                <div className="line"></div>
+              </div>
+              <div className="topology-node" style={{ width: '250px' }}>
+                <Database className="icon" size={32} color="#0078D4" />
+                <h4>SharePoint</h4>
+                <p>Protected Indices</p>
+                <div className="node-detail">sites/FinancialDoc</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : (
+          <main className="pwc-main-wrapper">
 
         {/* Left Side: Chat Interface */}
         <section className="pwc-chat-sidebar">
           <div className="chat-header">
             <h2>Secure Enterprise Proxy</h2>
-            <p>Zero-Leak Protocol Active</p>
+                <p style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
+                  Zero-Leak Protocol Active
+                  <span className="status-indicator active" style={{ width: '6px', height: '6px', display: 'inline-block' }}></span>
+                </p>
+                <select
+                  value={selectedModel}
+                  onChange={(e) => setSelectedModel(e.target.value)}
+                  style={{ background: 'transparent', border: '1px solid rgba(208, 74, 2, 0.3)', borderRadius: '4px', color: 'var(--pwc-orange)', padding: '4px 8px', outline: 'none', cursor: 'pointer', fontWeight: 'bold', fontSize: '11px', fontFamily: 'monospace' }}
+                >
+                  <option value="gemini-3-pro-preview" style={{ color: 'black' }}>gemini-3-pro-preview</option>
+                  <option value="gemini-3-flash-preview" style={{ color: 'black' }}>gemini-3-flash-preview</option>
+                </select>
           </div>
 
           <div className="chat-messages">
@@ -123,13 +222,23 @@ function App() {
 
           <div className="chat-input-area">
             <form onSubmit={handleSubmit}>
-              <input
-                className="pwc-input"
+                  <textarea
+                    ref={textareaRef}
+                    className="pwc-input pwc-textarea"
                 value={input}
                 onChange={handleInputChange}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        if (!isLoading && input.trim()) {
+                          e.currentTarget.form?.requestSubmit();
+                        }
+                      }
+                    }}
+                    rows={1}
                 placeholder="Ask a question..."
               />
-              <button type="submit" className="pwc-btn" disabled={isLoading}>Send</button>
+                  <button type="submit" className="pwc-btn" disabled={isLoading || !input.trim()}>Send</button>
             </form>
           </div>
         </section>
@@ -163,8 +272,15 @@ function App() {
               <article key={idx} className="pwc-card">
                 <header className="card-header">
                   <span className="industry-tag">{card.industry || 'Internal Data'}</span>
-                  <span className="doc-id">Ref: {card.document_name}</span>
-                </header>
+                  <a
+                    href={card.document_url || `https://sockcop.sharepoint.com/sites/FinancialDocument/Shared%20Documents/${encodeURIComponent(card.document_name)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="doc-id"
+                    title="View Secure Source Document"
+                  >
+                    Ref: {card.document_name}
+                  </a></header>
 
                 <h2 className="card-title">{card.title}</h2>
 
@@ -198,7 +314,8 @@ function App() {
           </div>
         </section>
 
-      </main>
+          </main>
+      )}
     </div>
   );
 }

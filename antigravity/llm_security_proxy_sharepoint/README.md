@@ -2,39 +2,62 @@
 
 This project is a secure, generalized consulting intelligence proxy. It acts as a middleman between confidential SharePoint documents and a chat interface, allowing users to query intelligence without ever exposing sensitive client data, PII, or raw financial specifics.
 
-This project implements the **Zero-Parsing Architecture** using FastAPI, Google ADK (Agent Development Kit), and the React 19 Vercel AI SDK.
+This project implements the **Zero-Parsing Architecture** using FastAPI, Google ADK (Agent Development Kit), and the React 19 Vercel AI SDK. It also provides a beautiful, modern **Topology UI** to inspect the end-to-end trace.
 
-## Architecture & Features
-- **Frontend (React 19 + Vercel AI SDK):** Built with "Modern Cave" aesthetics. It uses a Zero-Parsing UI where the backend streams both markdown chat tokens (`0:` protocol) and structured UI components (`2:` Data Protocol) directly to the user interface.
-- **Backend (FastAPI + Google ADK):** Hosts an `LlmAgent` using `gemini-3-pro-preview`. The agent enforces strict data masking guidelines and processes incoming streams.
-- **MCP Server (Microsoft Graph API):** A specialized set of tools that allows the LLM to search and download PDF documents directly from a corporate SharePoint tenant using daemon-style Application credentials.
+## 🔐 Zero-Leak Protocol
 
----
-
-## 1. Prerequisites & Azure AD Configuration
-
-Before running any code, you must configure Microsoft Entra ID (Azure AD) to allow the backend daemon to read SharePoint files automatically.
-
-### Creating the App Registration
-1. Go to the **Azure Portal** -> **Microsoft Entra ID**.
-2. Click **App registrations** -> **New registration**.
-3. Name it (e.g., `pwc-sharepoint-proxy`).
-4. Under **Redirect URI**, select **Single-page application (SPA)** and enter `http://localhost:5173/` (or `http://localhost:3000/` depending on your frontend port). This is required for the frontend sign-in.
-5. Note your **Application (client) ID** and **Directory (tenant) ID**.
-6. Go to **Certificates & secrets** and create a **New client secret**. Save the `Value` immediately (for the backend daemon).
-
-### Setting API Permissions
-This step is critical; without it, you will receive `403 Forbidden` errors.
-1. In your App Registration, go to **API permissions**.
-2. Click **Add a permission** -> **Microsoft Graph**.
-3. Select **Application permissions** (NOT Delegated).
-4. Search for and check: `Sites.Read.All` and `Files.Read.All`.
-5. Click **Add permissions**.
-6. **CRITICAL:** Click the **Grant admin consent for [Your Tenant]** button at the top of the list and confirm. The status dots must turn into green checkmarks.
+This repository adheres to strict Zero-Leak protocols.
+- **NEVER** commit `.env` files.
+- **NEVER** hardcode credentials (e.g., `client_id`, `client_secret`, `tenant_id`).
+- Secrets are managed entirely in your local environment.
+- The `.gitignore` includes mandatory exclusion rules for all standard credential files.
 
 ---
 
-## 2. Environment Setup
+## 🏗️ Architecture Topology
+
+The application enforces a secure offloading architecture using the Model Context Protocol (MCP).
+
+```mermaid
+flowchart LR
+    subgraph Frontend ["End User / React SPA"]
+        A[useTerminalChat Hook]
+    end
+
+    subgraph Backend ["Security Proxy (FastAPI)"]
+        B[Google ADK Runner]
+        C[gemini-3-pro-preview]
+        B <--> C
+    end
+
+    subgraph MCP ["MCP Server"]
+        D[Python MCP SDK]
+        D_Tool[search_documents()]
+        D --- D_Tool
+    end
+
+    subgraph Data ["Microsoft Cloud"]
+        E[Graph API / Entra ID]
+        F[(SharePoint Indices)]
+        E --> F
+    end
+
+    A -- SSE / HTTP --> B
+    B -- MCP TOOL CALL --> D
+    D -- REST --> E
+```
+
+### Flow Breakdown:
+1. **End User (React SPA):** The user types a query in the beautifully designed "Modern Cave" chat interface.
+2. **Security Proxy:** The Vercel AI SDK streams the request to a FastAPI backend running a Google ADK `LlmAgent`.
+3. **LLM Evaluation:** `gemini-3-pro-preview` evaluates the query and delegates extraction to the MCP Server if external knowledge is required.
+4. **MCP Server:** Executes the `search_documents()` tool via the standard Model Context Protocol.
+5. **Microsoft Graph:** Authenticates using OAuth 2.0 Client Credentials and accesses protected SharePoint directories.
+6. **Zero-Parsing Delivery:** The Proxy returns sanitized markdown (`0:`) and structured data cards (`2:`) back to the frontend dynamically.
+
+---
+
+## 🚀 Environment Setup
 
 At the root of the project (`llm_security_proxy_sharepoint/`), create a `.env` file containing your Azure credentials and SharePoint targets:
 
@@ -52,90 +75,40 @@ DRIVE_ID=your_drive_id
 GOOGLE_CLOUD_PROJECT=your_gcp_project
 ```
 
-> **Note:** Enure your environment variables are set correctly. You can find your `SITE_ID` and `DRIVE_ID` via the Microsoft Graph Explorer if needed.
+Ensure your Entra ID application has `Sites.Read.All` and `Files.Read.All` with **Admin Consent Granted**.
 
 ---
 
-## 3. Project Installation
+## 📦 Installation & Execution
 
 We strictly use `uv` for Python dependency management.
 
-### Backend Setup
+### Backend Start
 ```bash
 cd backend
-# Install dependencies
 uv sync
+uv run python main.py
 ```
+*(Runs on port 8001)*
 
-### Frontend Setup
-Ensure you have `npm` or `yarn` installed.
-
+### Frontend Start
 ```bash
 cd frontend
 npm install
-```
-
----
-
-## 4. Running the Application
-
-You can run the application in its integrated mode (FastAPI + Agent) or use the standalone MCP server.
-
-### Integrated Mode (FastAPI + ADK Runner)
-This starts the backend on port `8001`.
-```bash
-cd backend
-uv run python main.py
-```
-
-### Start the Frontend (Vite + React)
-We configure this to run on `3000` to avoid conflicts.
-```bash
-cd frontend
 npm run dev
 ```
+*(Runs on port 5173)*
 
----
-
-## 5. Standalone MCP Server & Cloud Run Deployment
-
-This project now includes a **standalone MCP Server** using `FastMCP` (in `backend/mcp_server.py`). This allows other agents or applications to consume your SharePoint logic directly via the Model Context Protocol.
-
-### Running the MCP Server Locally (Inspector Mode)
-You can run the server in `stdio` mode to use it with the [MCP Inspector](https://github.com/modelcontextprotocol/inspector):
+### Standalone MCP Server
+You can also run the SharePoint connector as a standalone MCP server for the MCP Inspector:
 ```bash
 cd backend
-uv run python mcp_server.py
+uv run python mcp_sharepoint.py
 ```
 
-### Deploying to Google Cloud Run
-1. **Build the container**:
-   ```bash
-   gcloud builds submit --tag gcr.io/[PROJECT_ID]/sharepoint-mcp-server ./backend
-   ```
-2. **Deploy as an SSE Server**:
-   ```bash
-   gcloud run deploy sharepoint-mcp-server \
-     --image gcr.io/[PROJECT_ID]/sharepoint-mcp-server \
-     --set-env-vars="TENANT_ID=...,CLIENT_ID=...,..." \
-     --allow-unauthenticated
-   ```
-   *The server dynamically switches to SSE transport when the `PORT` environment variable is detected.*
-
 ---
 
-The application will be available at `http://localhost:3000`. 
-
----
-
-## 7. How It Works: The Zero-Parsing Flow
-1. User types a query into the React `<Chat />` interface.
-2. The Vercel AI SDK sends a single `/chat` HTTP POST to the FastAPI backend.
-3. FastAPI instantiates the `LlmAgent` through the ADK `Runner`.
-4. The Gemini 3 Pro model evaluates the query, realizes it needs SharePoint data, and executes the `search_documents` and `get_document_content` MCP tools.
-5. `mcp_sharepoint.py` acquires an MSAL token and downloads the raw PDF bytes, using `markitdown` to convert it into raw text.
-6. The LLM reads the raw text, applies its masking instructions (hiding names/PII), and generates a response.
-7. `main.py` catches this response and streams it back to the frontend:
-   - It yields conversational text as `0: "markdown text"`.
-   - It yields structured Project Cards as `2: [{"type": "project_card", "data": {...}}]`.
-8. The React frontend's `useTerminalChat` hook automatically parses these streams and updates the Zustand store, rendering the beautiful UI components dynamically without any manual JSON parsing logic.
+## 🎨 UI/UX Highlights
+- **Topology View:** A built-in architecture viewer inside the application (`Topology` toggle in the header).
+- **Responsive PWC Chat Sidebar:** Dark glassmorphism, contextual cards, and a sophisticated prompt input overlay.
+- **Enterprise Grade Look:** Authentic layout based on corporate guidelines, ensuring robust navigation and aesthetic spacing.

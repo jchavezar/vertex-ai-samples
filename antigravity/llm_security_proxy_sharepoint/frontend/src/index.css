@@ -45,9 +45,9 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-    padding: 0 var(--spacing-xxl);
+  padding: 0 var(--spacing-xxl);
   height: 72px;
-    background-color: rgba(255, 255, 255, 0.8);
+  background-color: rgba(255, 255, 255, 0.8);
     backdrop-filter: blur(10px);
     border-bottom: 1px solid var(--pwc-border);
     position: sticky;
@@ -58,7 +58,7 @@ body {
 
 .pwc-logo-container {
   flex-shrink: 0;
-    margin-right: var(--spacing-md);
+  margin-right: var(--spacing-xl);
 }
 
 .pwc-logo {
@@ -72,6 +72,8 @@ body {
 .pwc-nav {
   display: flex;
   gap: var(--spacing-xl);
+  flex-grow: 1;
+    justify-content: center;
 }
 
 .pwc-nav a {
@@ -79,7 +81,7 @@ body {
   color: var(--pwc-grey);
   font-weight: 500;
   font-size: 0.9rem;
-    transition: color 0.2s, transform 0.2s;
+  transition: color 0.2s, transform 0.2s;
 }
 
 .pwc-nav a:hover {
@@ -87,6 +89,12 @@ body {
   transform: translateY(-1px);
 }
 
+.pwc-header-right {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-lg);
+  flex-shrink: 0;
+}
 @media (max-width: 768px) {
   .pwc-nav {
     display: none;
@@ -178,45 +186,67 @@ body {
 
 .chat-input-area form {
   display: flex;
-  gap: var(--spacing-md);
-    align-items: stretch;
+  align-items: flex-end;
+    background: var(--pwc-light-grey);
+    border: 1px solid var(--pwc-border);
+    border-radius: 24px;
+    padding: 8px 8px 8px 16px;
+    transition: all 0.2s ease;
+  }
+  
+  .chat-input-area form:focus-within {
+    background: #fff;
+    border-color: var(--pwc-orange);
+    box-shadow: 0 0 0 3px rgba(208, 74, 2, 0.1);
 }
 
 .pwc-input {
   flex-grow: 1;
-  padding: 14px var(--spacing-lg);
-  border: 1px solid var(--pwc-border);
-  border-radius: 10px;
+  border: none;
+    background: transparent;
+    padding: 8px 0;
   font-family: var(--font-sans);
   font-size: 0.95rem;
-    background: var(--pwc-light-grey);
-    transition: all 0.2s;
+  color: var(--pwc-black);
+    outline: none;
+    resize: none;
+    overflow-y: auto;
+    min-height: 24px;
+    line-height: 1.5;
 }
 
 .pwc-input:focus {
-  background: #fff;
-  border-color: var(--pwc-orange);
-  box-shadow: 0 0 0 3px rgba(208, 74, 2, 0.1);
-    outline: none;
+  outline: none;
+  box-shadow: none;
 }
 
 .pwc-btn {
   background: var(--pwc-orange);
   color: white;
   border: none;
-  border-radius: 10px;
-    padding: 0 var(--spacing-xl);
+  border-radius: 24px;
+    padding: 10px 24px;
+    height: 40px;
     font-weight: 600;
   cursor: pointer;
   transition: all 0.2s;
+  flex-shrink: 0;
+    margin-left: 8px;
+    margin-bottom: 2px;
 }
 
-.pwc-btn:hover {
+.pwc-btn:hover:not(:disabled) {
   background: var(--pwc-red);
-    transform: translateY(-1px);
+  transform: translateY(-1px);
     box-shadow: 0 4px 12px rgba(224, 48, 30, 0.2);
 }
 
+.pwc-btn:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
+}
 /* Data Board */
 .pwc-data-panel {
   flex-grow: 1;
@@ -445,4 +475,245 @@ body {
 
 .logout-btn:hover {
   opacity: 1;
+}
+
+/* Redacted Entities Halo Box */
+.redacted-halo-box {
+  margin-top: var(--spacing-lg);
+  padding: var(--spacing-md);
+  border-radius: var(--pwc-radius);
+  background: rgba(224, 48, 30, 0.05);
+  /* very light red */
+  border: 1px dashed var(--pwc-red);
+  box-shadow: 0 0 15px rgba(224, 48, 30, 0.15);
+  position: relative;
+  z-index: 1;
+}
+
+.redacted-halo-box::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  border-radius: calc(var(--pwc-radius) + 2px);
+  background: linear-gradient(45deg, rgba(224, 48, 30, 0.3), transparent, rgba(224, 48, 30, 0.3));
+  z-index: -1;
+  filter: blur(4px);
+  opacity: 0.8;
+  animation: pulse-halo 3s ease-in-out infinite alternate;
+}
+
+@keyframes pulse-halo {
+  0% {
+    opacity: 0.5;
+    filter: blur(4px);
+  }
+
+  100% {
+    opacity: 1;
+    filter: blur(8px);
+  }
+}
+
+.redacted-header {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  color: var(--pwc-red);
+  font-weight: 700;
+  font-size: 0.75rem;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: var(--spacing-sm);
+}
+
+.redacted-entities-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
+}
+
+.redacted-pill {
+  background: var(--pwc-bg-main);
+  border: 1px solid rgba(224, 48, 30, 0.4);
+  color: var(--pwc-red);
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  font-family: monospace;
+}
+
+.doc-id {
+  font-size: 0.75rem;
+  color: #888;
+  font-family: monospace;
+}
+
+a.doc-id {
+  color: var(--pwc-orange);
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+a.doc-id:hover {
+  text-decoration: underline;
+  color: #c02a1b;
+}
+
+/* Topology View Styles */
+.pwc-topology-wrapper {
+  padding: 60px 40px;
+  background: var(--pwc-bg-main);
+  min-height: calc(100vh - 60px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  overflow-y: auto;
+}
+
+.pwc-topology-wrapper h2 {
+  color: var(--pwc-orange);
+  margin-bottom: 40px;
+  font-size: 2rem;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+.topology-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: 900px;
+}
+
+.flow-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
+.topology-node {
+  background: white;
+  padding: 24px;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  width: 250px;
+  border: 1px solid #e0e0e0;
+  border-top: 4px solid var(--pwc-orange);
+  transition: transform 0.2s ease;
+  position: relative;
+}
+
+.topology-node:hover {
+  transform: translateY(-5px);
+}
+
+.topology-node.secure {
+  border-color: var(--pwc-red);
+  border-top-color: var(--pwc-red);
+  background: rgba(224, 48, 30, 0.02);
+}
+
+.topology-node.blue {
+  border-top-color: #0078D4;
+  /* Microsoft Blue */
+}
+
+.topology-node .icon {
+  margin-bottom: 12px;
+  color: #333;
+}
+
+.topology-node h4 {
+  margin: 0 0 8px 0;
+  font-size: 1.1rem;
+  color: #333;
+}
+
+.topology-node p {
+  font-size: 0.85rem;
+  color: #666;
+  margin: 0;
+  line-height: 1.4;
+  margin-bottom: 16px;
+}
+
+.node-detail {
+  background: var(--pwc-light-grey);
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-family: monospace;
+  color: var(--pwc-grey);
+  border: 1px solid var(--pwc-border);
+  margin-top: auto;
+}
+
+.flow-edge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  color: #888;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.flow-edge-horizontal {
+  width: 120px;
+  flex-direction: column;
+}
+
+.flow-edge-horizontal .line {
+  height: 2px;
+  width: 100%;
+  background: repeating-linear-gradient(90deg, #ccc, #ccc 4px, transparent 4px, transparent 8px);
+  position: relative;
+  margin: 4px 0;
+}
+
+.flow-edge-horizontal .line::after {
+  content: '';
+  position: absolute;
+  right: -5px;
+  top: -4px;
+  border-top: 5px solid transparent;
+  border-bottom: 5px solid transparent;
+  border-left: 8px solid #ccc;
+}
+
+.flow-edge-vertical {
+  height: 80px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin: 10px 0;
+}
+
+.flow-edge-vertical .line {
+  width: 2px;
+  height: 100%;
+  background: repeating-linear-gradient(180deg, #ccc, #ccc 4px, transparent 4px, transparent 8px);
+  position: relative;
+  margin-left: 10px;
+}
+
+.flow-edge-vertical .line::after {
+  content: '';
+  position: absolute;
+  bottom: -5px;
+  left: -4px;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 8px solid #ccc;
 }

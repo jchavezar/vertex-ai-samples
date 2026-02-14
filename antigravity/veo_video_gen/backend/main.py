@@ -1,5 +1,10 @@
 import os
 import logging
+import importlib
+import sys
+import re
+import base64
+import tempfile
 from dotenv import load_dotenv
 
 # Load params from .env file
@@ -22,7 +27,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
 from google.adk.runners import Runner
-from agent import video_expert_agent as VideoExpertAgent
+from agent_pkg.agent import video_expert_agent as VideoExpertAgent
 from google.adk.sessions import InMemorySessionService
 
 # Helper logger
@@ -48,15 +53,43 @@ runner = Runner(
     session_service=session_service
 )
 
+# Persistent local AdkApp instance for session continuity
+from vertexai.agent_engines import AdkApp
+import vertexai
+
+# Initialize at startup
+vertexai.init(
+    project=os.environ.get("GOOGLE_CLOUD_PROJECT", "vtxdemos"),
+    location=os.environ.get("GOOGLE_CLOUD_LOCATION", "us-central1")
+)
+
+_local_adk_app = None
+
+def get_local_adk_app():
+    """Returns a persistent AdkApp instance for local agent queries."""
+    global _local_adk_app
+    if _local_adk_app is None:
+        from agent_pkg.agent import video_expert_agent
+        _local_adk_app = AdkApp(
+            agent=video_expert_agent,
+            enable_tracing=False  # Disable to avoid telemetry 403 errors
+        )
+    return _local_adk_app
+
 class ChatRequest(BaseModel):
     message: str
     image_base64: Optional[str] = None
     session_id: str
+    agent_resource_name: Optional[str] = None
 
 class ChatResponse(BaseModel):
     response: str
     video_base64: Optional[str] = None
     session_id: str
+
+class DeployRequest(BaseModel):
+    model_name: str = "gemini-2.5-flash"
+    region: str = "us-central1"  # Gemini 3.x models require "global"
 
 @app.get("/")
 async def root():
@@ -69,7 +102,7 @@ from vertexai.agent_engines import AdkApp
 import threading
 
 # Internal endpoint configuration for Agent Engines
-AGENT_ENGINE_DISPLAY_NAME = "veo-video-expert-agent"
+AGENT_ENGINE_DISPLAY_NAME = "Veo Video Agent"
 # We assume PROJECT and LOCATION env vars are set properly by the startup code
 STAGING_BUCKET = os.getenv("STAGING_BUCKET", f"gs://{os.environ['GOOGLE_CLOUD_PROJECT']}-agent-staging")
 
@@ -133,13 +166,33 @@ async def list_agents():
         logger.error(f"Error listing agents: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
-def deploy_worker():
+def deploy_worker(model_name: str, region: str = "us-central1"):
     """Background worker for deploying the agent."""
+    def log_to_ui(msg):
+        logger.info(msg)
+        deployment_status["logs"].append(msg)
+
     try:
-        from agent import video_expert_agent # Ensure we import relative to backend during execution
+        # Patch agent.py with the selected model
+        log_to_ui(f"Patching agent.py to use model: {model_name}")
+        log_to_ui(f"Using region: {region}")
+        agent_path = os.path.join(os.path.dirname(__file__), "agent_pkg/agent.py")
+        with open(agent_path, "r") as f:
+            content = f.read()
         
-        # We must initialize vertexai with an explicit staging bucket for Reasoning Engine
-        vertexai.init(project=os.environ["GOOGLE_CLOUD_PROJECT"], location=os.environ["GOOGLE_CLOUD_LOCATION"])
+        # Robust replacement for model="any-string"
+        new_content = re.sub(r'model="[^"]+"', f'model="{model_name}"', content)
+        
+        with open(agent_path, "w") as f:
+            f.write(new_content)
+            
+        # Dynamically import/reload agent to pick up changes
+        import agent_pkg.agent as agent
+        importlib.reload(agent.agent)
+        from agent_pkg.agent import video_expert_agent
+        
+        log_to_ui(f"Initializing Vertex AI connection for region: {region}...")
+        vertexai.init(project=os.environ["GOOGLE_CLOUD_PROJECT"], location=region)
         client = vertexai.Client(project=os.environ["GOOGLE_CLOUD_PROJECT"], location=os.environ["GOOGLE_CLOUD_LOCATION"])
         
         deployment_app = AdkApp(
@@ -147,20 +200,28 @@ def deploy_worker():
             enable_tracing=True
         )
         
-        logger.info(f"Checking for existing agent with display_name='{AGENT_ENGINE_DISPLAY_NAME}'")
+        log_to_ui(f"Checking for existing agent: {AGENT_ENGINE_DISPLAY_NAME}")
         all_engines = list(client.agent_engines.list())
         target_engine = next((e for e in all_engines if e.api_resource.display_name == AGENT_ENGINE_DISPLAY_NAME), None)
         
         requirements_list = [
-           "google-cloud-aiplatform[adk,agent_engines]",
-           "google-genai",
-           "python-dotenv",
-           "requests", 
-           "pillow"
+            "google-cloud-aiplatform[adk,agent_engines]",
+            "google-adk",
+            "google-genai",
+            "python-dotenv",
+            "requests", 
+            "pillow",
+            "cloudpickle",
+            "pydantic"
+        ]
+        
+        base_dir = os.path.dirname(__file__)
+        extra_packages = [
+            os.path.join(base_dir, "agent_pkg/agent.py")
         ]
         
         if target_engine:
-            logger.info(f"Existing agent found: {target_engine.api_resource.name}. Triggering UPDATE...")
+            log_to_ui(f"Updating existing Reasoning Engine: {target_engine.api_resource.name}")
             remote_app = client.agent_engines.update(
                 name=target_engine.api_resource.name,
                 agent=deployment_app,
@@ -168,36 +229,38 @@ def deploy_worker():
                     "display_name": AGENT_ENGINE_DISPLAY_NAME,
                     "staging_bucket": STAGING_BUCKET,
                     "requirements": requirements_list,
-                    "extra_packages": ["agent.py", "video_tools.py"],
+                    "extra_packages": extra_packages,
                     "env_vars": {"ENABLE_TELEMETRY": "False"}
                 }
             )
             deployment_status["resource_name"] = remote_app.api_resource.name
-            logger.info(f"Update successful! Resource: {remote_app.api_resource.name}")
+            log_to_ui("Reasoning Engine UPDATE successful!")
         else:
-            logger.info(f"Triggering remote deployment CREATE for {AGENT_ENGINE_DISPLAY_NAME}")
+            log_to_ui(f"Creating NEW Reasoning Engine: {AGENT_ENGINE_DISPLAY_NAME}...")
+            log_to_ui(f"Staging to bucket: {STAGING_BUCKET}")
             remote_app = client.agent_engines.create(
                 agent=deployment_app,
                 config={
                     "display_name": AGENT_ENGINE_DISPLAY_NAME,
                     "staging_bucket": STAGING_BUCKET,
                     "requirements": requirements_list,
-                    "extra_packages": ["agent.py", "video_tools.py"],
+                    "extra_packages": extra_packages,
                     "env_vars": {"ENABLE_TELEMETRY": "False"}
                 }
             )
             deployment_status["resource_name"] = remote_app.api_resource.name
-            logger.info(f"Deployment successful! Resource: {remote_app.api_resource.name}")
+            log_to_ui(f"Reasoning Engine CREATE successful! Resource: {remote_app.api_resource.name}")
         
     except Exception as e:
-        logger.error(f"Error deploying agent: {e}")
+        err_msg = f"Deployment Error: {str(e)}"
+        log_to_ui(err_msg)
         deployment_status["error"] = str(e)
     finally:
         deployment_status["is_deploying"] = False
-        logger.info("Deployment background worker finished.")
+        log_to_ui("Deployment background worker finished.")
 
 @app.post("/api/agents/deploy")
-async def deploy_agent():
+async def deploy_agent(request: DeployRequest):
     """Starts the root agent deployment to Vertex AI Agent Engine."""
     if deployment_status["is_deploying"]:
         raise HTTPException(status_code=400, detail="Deployment already in progress")
@@ -207,7 +270,7 @@ async def deploy_agent():
     deployment_status["error"] = None
     deployment_status["resource_name"] = None
     
-    thread = threading.Thread(target=deploy_worker)
+    thread = threading.Thread(target=deploy_worker, args=(request.model_name, request.region))
     thread.start()
     
     return {
@@ -237,15 +300,14 @@ async def delete_agent(resource_name: str):
         
         # We can extract the location from the resource name or just use os.environ
         api_location = os.environ.get("GOOGLE_CLOUD_LOCATION", "us-central1")
-        url = f"https://{api_location}-aiplatform.googleapis.com/v1beta1/{full_resource_name}"
+        url = f"https://{api_location}-aiplatform.googleapis.com/v1beta1/{full_resource_name}?force=true"
         headers = {"Authorization": f"Bearer {creds.token}"}
         
         resp = requests.delete(url, headers=headers)
         if not resp.ok:
             logger.warning(f"Deletion warning/error: {resp.text}")
-            
-        # For long-running operations, typically returning HTTP 200/202 is enough
-        return {"status": "success", "message": f"Delete triggered for {resource_name}"}
+             
+        return {"status": "success", "message": f"Delete triggered for {full_resource_name}"}
     except Exception as e:
         logger.error(f"Error deleting agent: {e}")
         raise HTTPException(status_code=500, detail=str(e))
@@ -271,38 +333,43 @@ async def get_debug_cat_image():
 
 session_map = {}
 
+class SessionResetRequest(BaseModel):
+    session_id: str
+
+@app.post("/api/session/reset")
+async def reset_session(request: SessionResetRequest):
+    """Deletes a session from the map, forcing a new ADK session on next chat."""
+    session_id = request.session_id
+    if session_id in session_map:
+        old_adk_session = session_map.pop(session_id)
+        logger.info(f"Reset session: frontend={session_id}, adk={old_adk_session}")
+        return {"status": "reset", "old_adk_session": old_adk_session}
+    return {"status": "not_found", "message": "Session was not in map"}
+
+@app.get("/api/session/{session_id}")
+async def get_session_info(session_id: str):
+    """Returns info about a session."""
+    if session_id in session_map:
+        return {
+            "frontend_session_id": session_id,
+            "adk_session_id": session_map[session_id],
+            "exists": True
+        }
+    return {"frontend_session_id": session_id, "exists": False}
+
 @app.post("/api/chat", response_model=ChatResponse)
 async def chat(request: ChatRequest):
     try:
-        from agent import video_expert_agent
-        from vertexai.agent_engines import AdkApp
-        import vertexai
-
-        # Initialize Vertex AI
-        vertexai.init(project=os.environ["GOOGLE_CLOUD_PROJECT"], location=os.environ["GOOGLE_CLOUD_LOCATION"])
-
-        local_app = AdkApp(
-            agent=video_expert_agent,
-            enable_tracing=True
-        )
+        from agent_pkg.agent import video_expert_agent
+        from vertexai import agent_engines
 
         session_id = request.session_id
         logger.info(f"Processing chat for front-end session {session_id}")
-        
-        # Map frontend session to AdkApp session
-        if session_id not in session_map:
-            session = await local_app.async_create_session(user_id="user")
-            # Handle both dict and object returns based on user snippet
-            session_map[session_id] = session["id"] if isinstance(session, dict) and "id" in session else session.id
-        
-        adk_session_id = session_map[session_id]
         
         prompt_text = request.message
         if request.image_base64:
             # Save to temp file to ensure tool can read it
             try:
-                import tempfile
-                import base64
                 fd, temp_path = tempfile.mkstemp(suffix=".png")
                 
                 # Fix potential padding issues
@@ -320,43 +387,190 @@ async def chat(request: ChatRequest):
                 logger.error(f"Failed to save temp image: {e}")
                 prompt_text += f"\n[IMAGE_CONTEXT ERROR: {e}]"
 
-        # Use AdkApp session and stream query
-        session = await local_app.async_create_session(user_id="user")
-        
         agent_response_text = ""
         video_data = None
         
-        async for event in local_app.async_stream_query(
-            user_id="user",
-            session_id=adk_session_id,
-            message=prompt_text,
-        ):
-            logger.info(f"Event: {type(event)}")
-            evt_str = str(event)
+        if request.agent_resource_name:
+            # Force the correct project ID in the resource string
+            parts = request.agent_resource_name.split("/")
+            if len(parts) >= 2 and parts[0] == "projects":
+                 parts[1] = os.environ.get("GOOGLE_CLOUD_PROJECT", "vtxdemos")
+            fixed_resource_name = "/".join(parts)
             
-            # Extract video base64 from file if present
-            if "VIDEO_BASE64_FILE:" in evt_str:
-                import re
-                match = re.search(r"VIDEO_BASE64_FILE:([/\w\.-]+)", evt_str)
-                if match:
-                    temp_path = match.group(1)
-                    try:
-                        with open(temp_path, "r") as f:
-                            video_data = f.read()
-                        # Cleanup temp file if desired, or let OS handle /tmp
-                    except Exception as fetch_e:
-                        logger.error(f"Failed to load video payload: {fetch_e}")
+            logger.info(f"Querying REMOTE agent: {fixed_resource_name}")
+            remote_app = agent_engines.get(fixed_resource_name)
             
-            # Robust text extraction from ModelResponse or other text-bearing events
-            try:
-                if hasattr(event, 'text') and event.text:
-                    agent_response_text += event.text
-                elif hasattr(event, 'message') and hasattr(event.message, 'content'):
-                    for part in event.message.content:
-                        if hasattr(part, 'text') and part.text:
-                            agent_response_text += part.text
-            except Exception as e:
-                logger.error(f"Error extracting text from event: {e}")
+            if session_id not in session_map:
+                session_resp = await remote_app.async_create_session(user_id="user")
+                session_map[session_id] = session_resp["id"] if isinstance(session_resp, dict) and "id" in session_resp else getattr(session_resp, "id", None)
+            
+            adk_session_id = session_map[session_id]
+            
+            async for event in remote_app.async_stream_query(
+                user_id="user",
+                session_id=adk_session_id,
+                message=prompt_text,
+            ):
+                logger.info(f"Event: {type(event)}")
+                evt_str = str(event)
+                
+                # Extract video file path from payload if present
+                if "VIDEO_FILE_PATH_PAYLOAD:" in evt_str:
+                    logger.info("Found VIDEO_FILE_PATH_PAYLOAD marker in remote stream.")
+                    match = re.search(r"VIDEO_FILE_PATH_PAYLOAD:([^\s'\"\}\]]+)", evt_str)
+                    if match:
+                        file_path = match.group(1)
+                        logger.info(f"Extracted file path: {file_path}")
+                        try:
+                            if os.path.exists(file_path):
+                                with open(file_path, "rb") as f:
+                                    # Use global base64
+                                    video_data = base64.b64encode(f.read()).decode("utf-8")
+                                logger.info(f"Loaded base64 payload of length: {len(video_data)}")
+                                # Cleanup temp file
+                                os.remove(file_path)
+                            else:
+                                logger.error(f"Video file not found: {file_path}")
+                        except Exception as e:
+                            logger.error(f"Error loading video file: {e}")
+                
+                # Robust text extraction from ModelResponse or other text-bearing events
+                try:
+                    # Recursive search for text in dict events
+                    def find_text_in_dict(d):
+                        txt = ""
+                        if isinstance(d, dict):
+                            if "text" in d and d["text"]:
+                                txt += d["text"]
+                            for v in d.values():
+                                txt += find_text_in_dict(v)
+                        elif isinstance(d, list):
+                            for item in d:
+                                txt += find_text_in_dict(item)
+                        return txt
+                    
+                    if isinstance(event, dict):
+                        extracted = find_text_in_dict(event)
+                        if extracted and extracted not in agent_response_text:
+                             # Append or replace based on overlap
+                             if agent_response_text and extracted.startswith(agent_response_text):
+                                 agent_response_text = extracted
+                             else:
+                                 agent_response_text += extracted
+                    elif hasattr(event, 'text') and event.text:
+                        agent_response_text += event.text
+                    elif hasattr(event, 'message') and hasattr(event.message, 'content'):
+                        for part in event.message.content:
+                            if hasattr(part, 'text') and part.text:
+                                agent_response_text += part.text
+                except Exception as e:
+                    logger.error(f"Error extracting text from event: {e}")
+                    
+        else:
+            logger.info("Querying LOCAL agent: video_expert_agent")
+            local_app = get_local_adk_app()  # Use persistent instance
+
+            if session_id not in session_map:
+                try:
+                    session = await local_app.async_create_session(user_id="user")
+                    # ADK returns different types based on version, handle both
+                    if isinstance(session, dict):
+                        session_map[session_id] = session.get("id")
+                    else:
+                        session_map[session_id] = getattr(session, "id", None)
+                    logger.info(f"Created new ADK session: {session_map[session_id]} for frontend session {session_id}")
+                except Exception as e:
+                    logger.error(f"Failed to create ADK session: {e}")
+                    # Fallback or error? Let's try to proceed if we have a session or fail gracefully
+                    if session_id not in session_map:
+                         raise HTTPException(status_code=500, detail="Failed to initialize agent session")
+
+            adk_session_id = session_map[session_id]
+            logger.info(f"Using ADK session: {adk_session_id}")
+
+            async for event in local_app.async_stream_query(
+                user_id="user",
+                session_id=adk_session_id,
+                message=prompt_text,
+            ):
+                logger.info(f"Event: {type(event)}")
+                evt_str = str(event)
+                
+                # Extract video file path from payload if present
+                if "VIDEO_FILE_PATH_PAYLOAD:" in evt_str:
+                    logger.info("Found VIDEO_FILE_PATH_PAYLOAD marker in local stream.")
+                    # Regex improved to exclude trailing quotes or braces if inside a str(dict)
+                    match = re.search(r"VIDEO_FILE_PATH_PAYLOAD:([^\s'\"\}\]]+)", evt_str)
+                    if match:
+                        file_path = match.group(1)
+                        logger.info(f"Extracted file path: {file_path}")
+                        try:
+                            if os.path.exists(file_path):
+                                with open(file_path, "rb") as f:
+                                    # Use global base64
+                                    video_data = base64.b64encode(f.read()).decode("utf-8")
+                                logger.info(f"Loaded base64 payload of length: {len(video_data)}")
+                                # Cleanup temp file
+                                os.remove(file_path)
+                            else:
+                                logger.error(f"Video file not found: {file_path}")
+                        except Exception as e:
+                            logger.error(f"Error loading video file: {e}")
+                
+                # Robust text extraction from ModelResponse or other text-bearing events
+                try:
+                    # Deep debug log for dict events
+                    if isinstance(event, dict):
+                        logger.info(f"Local Event Detail: {event.keys()}")
+                        if "response" in event:
+                             logger.info(f"Response data: {str(event['response'])[:200]}...")
+
+                    # Refined text extraction: only look for text in specific places
+                    def extract_clean_text(obj):
+                        if isinstance(obj, str): 
+                            # Exclude our internal markers from visible text
+                            if "VIDEO_FILE_PATH_PAYLOAD:" in obj:
+                                return ""
+                            return obj
+                        
+                        if isinstance(obj, dict):
+                            # Targeted extraction: only from 'parts' if it exists, or 'text'
+                            text_out = ""
+                            if "text" in obj and isinstance(obj["text"], str):
+                                if "VIDEO_FILE_PATH_PAYLOAD:" not in obj["text"]:
+                                    text_out += obj["text"]
+                            
+                            # If this is a content object with parts
+                            parts = obj.get("content", {}).get("parts", []) if isinstance(obj.get("content"), dict) else []
+                            if not parts and "parts" in obj: parts = obj["parts"]
+                            
+                            if isinstance(parts, list):
+                                for p in parts:
+                                    if isinstance(p, dict) and "text" in p:
+                                        text_out += p["text"]
+                            
+                            # Fallback but avoid internal keys
+                            # (Optional: we could recurse only into specific keys)
+                            return text_out
+                            
+                        if isinstance(obj, list):
+                            return "".join([extract_clean_text(i) for i in obj])
+                        
+                        if hasattr(obj, "text") and isinstance(obj.text, str):
+                            return obj.text if "VIDEO_FILE_PATH_PAYLOAD:" not in obj.text else ""
+                            
+                        return ""
+
+                    extracted_text = extract_clean_text(event)
+                    if extracted_text:
+                        # Heuristic to handle streaming updates (delta vs full)
+                        if agent_response_text and extracted_text.startswith(agent_response_text):
+                            agent_response_text = extracted_text
+                        else:
+                            if extracted_text not in agent_response_text:
+                                 agent_response_text += extracted_text
+                except Exception as e:
+                    logger.error(f"Error extracting text from event: {e}")
 
         # Final check if STILL empty, apply the fallback message
         if not agent_response_text:

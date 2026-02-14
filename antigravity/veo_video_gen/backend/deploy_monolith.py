@@ -1,3 +1,7 @@
+import os
+import vertexai
+from vertexai.agent_engines import AdkApp
+
 
 import os
 import time
@@ -7,20 +11,23 @@ from google.adk.tools import FunctionTool
 from google import genai
 from google.genai import types
 
-# Initialize Client
-PROJECT_ID = os.getenv("PROJECT_ID", "vtxdemos")
-LOCATION = os.getenv("LOCATION", "us-central1")
+_client = None
 
-try:
-    client = genai.Client(
-        vertexai=True,
-        project=PROJECT_ID,
-        location=LOCATION,
-    )
-except:
-    client = None
+def get_client():
+    global _client
+    if _client is None:
+        PROJECT_ID = os.getenv("PROJECT_ID", "vtxdemos")
+        LOCATION = os.getenv("LOCATION", "us-central1")
+        print(f"Initializing GenAI Client for {PROJECT_ID} in {LOCATION}")
+        _client = genai.Client(
+            vertexai=True,
+            project=PROJECT_ID,
+            location=LOCATION,
+        )
+    return _client
 
 def _poll_and_return(operation):
+    client = get_client()
     if not client: return "Error: GenAI client not initialized."
     
     while not operation.done:
@@ -41,14 +48,16 @@ def _poll_and_return(operation):
         print(f"Video generated: {type(video)}")
         if hasattr(video, 'video') and hasattr(video.video, 'video_bytes'):
              video_bytes = video.video.video_bytes
-             video_base64 = base64.b64encode(video_bytes).decode("utf-8")
+             
+             # Save to temporary file to keep model history clean (avoid token bloat)
              import tempfile
-             fd, temp_path = tempfile.mkstemp(suffix=".txt")
-             with os.fdopen(fd, "w") as f:
-                 f.write(video_base64)
-             # Return file path marker for UI, keeps LLM context tiny
-             print(f"Saved video payload to {temp_path}")
-             return f"VIDEO_BASE64_FILE:{temp_path}"
+             fd, temp_path = tempfile.mkstemp(suffix=".mp4", prefix="veo_out_")
+             with os.fdopen(fd, "wb") as f:
+                 f.write(video_bytes)
+             
+             print(f"Saved generated video to {temp_path}")
+             # Return file path marker for main.py to handle
+             return f"VIDEO_FILE_PATH_PAYLOAD:{temp_path}"
         else:
              print(f"Video structure missing bytes: {video}")
              raise ValueError(f"Video structure unexpected: {video}")
@@ -78,7 +87,7 @@ def generate_text_to_video(
             resolution="720p",
             person_generation="allow_all"
         )
-        op = client.models.generate_videos(
+        op = get_client().models.generate_videos(
             model="veo-3.1-fast-generate-preview",
             source=source,
             config=config
@@ -125,7 +134,7 @@ def generate_image_to_video(
             resolution="720p",
             person_generation="allow_all"
         )
-        op = client.models.generate_videos(
+        op = get_client().models.generate_videos(
             model="veo-3.1-fast-generate-preview",
             source=source,
             config=config
@@ -174,7 +183,7 @@ def generate_video_with_reference(
                 )
             ]
         )
-        op = client.models.generate_videos(
+        op = get_client().models.generate_videos(
             model="veo-3.1-fast-generate-preview",
             source=source,
             config=config
@@ -186,7 +195,7 @@ def generate_video_with_reference(
 def generate_video_from_video(
     video_base64: str,
     prompt: str,
-    duration_seconds: int = 5
+    duration_seconds: int = 6
 ) -> str:
     """
     Generates a video from a video input (Video-to-Video / Editing).
@@ -209,7 +218,7 @@ def generate_video_from_video(
             resolution="720p",
             person_generation="allow_all"
         )
-        op = client.models.generate_videos(
+        op = get_client().models.generate_videos(
             model="veo-3.1-fast-generate-preview",
             source=source,
             config=config
@@ -225,3 +234,93 @@ reference_video_tool = FunctionTool(generate_video_with_reference)
 video_to_video_tool = FunctionTool(generate_video_from_video)
 
 all_tools = [text_to_video_tool, image_to_video_tool, reference_video_tool, video_to_video_tool]
+
+
+import os
+from dotenv import load_dotenv
+
+# Load .env aggressively
+dotenv_path = os.path.expanduser("~/.env")
+if not os.path.exists(dotenv_path):
+    dotenv_path = "../.env"
+load_dotenv(dotenv_path=dotenv_path)
+
+# Set env vars for ADK
+os.environ["GOOGLE_GENAI_USE_VERTEXAI"] = "true"
+os.environ["GOOGLE_CLOUD_PROJECT"] = os.getenv("PROJECT_ID", "vtxdemos")
+os.environ["GOOGLE_CLOUD_LOCATION"] = os.getenv("LOCATION", "us-central1")
+
+from typing import Optional, Dict, Any
+from google.adk.agents import LlmAgent
+from google.adk.sessions import InMemorySessionService
+
+
+# Define the System Prompt
+SYSTEM_PROMPT = """You are a Video Generation Expert Agent powered by Veo.
+Your goal is to help users create amazing videos.
+
+You have access to the following tools:
+1. `generate_text_to_video(prompt, aspect_ratio, duration_seconds)`: Use this when the user handles a pure text request. 
+   - Improve the user's prompt to be more descriptive, cinematic, and detailed before calling this tool.
+   - Supported durations: 4, 6, 8 seconds. Default to 4.
+   - Ask for aspect ratio (default 16:9) or duration if not specified.
+
+2. `generate_image_to_video(image_base64, prompt, duration_seconds)`: Use this when the user provides an image and wants to animate it ("make this move", "animate this").
+   - The user might provide an image as a base64 string or a file path.
+   - Supported durations: 4, 6, 8 seconds.
+
+3. `generate_video_with_reference(prompt, reference_image_base64, reference_type, duration_seconds)`: Use this when the user wants to generate a video *based on* a reference image (e.g., "use this style", "keep this character").
+   - `reference_type` can be 'style' or 'subject'.
+
+**Rules:**
+- If the user asks about your capabilities, explain that you are a Video Expert and list your tools. Do NOT call any tools yet if they just ask for your capabilities.
+- Always be helpful and enthusiastic.
+- When a tool returns a video file path (starts with "VIDEO_FILE_PATH_PAYLOAD:"), strictly reply with: "Here is your generated video!" and nothing else, as the UI will render it. 
+- If the tool returns an error, explain it to the user.
+"""
+
+# Create the Agent
+video_expert_agent = LlmAgent(
+    name="video_expert",
+    model="gemini-2.5-flash", # User Mandated: Only 2.5 or 3.0 allowed
+    instruction=SYSTEM_PROMPT,
+    tools=[text_to_video_tool, image_to_video_tool, reference_video_tool]
+)
+
+# ==========================================
+# DEPLOYMENT SCRIPT
+# ==========================================
+if __name__ == "__main__":
+    PROJECT_ID = os.environ.get("GOOGLE_CLOUD_PROJECT", "vtxdemos")
+    LOCATION = os.environ.get("GOOGLE_CLOUD_LOCATION", "us-central1")
+    STAGING_BUCKET = os.environ.get("STAGING_BUCKET", "gs://gcp-vertex-ai-generative-ai")
+    AGENT_ENGINE_DISPLAY_NAME = "Veo Video Agent"
+
+    print(f"Initializing Vertex AI for project {PROJECT_ID} in {LOCATION}")
+    vertexai.init(project=PROJECT_ID, location=LOCATION)
+    client = vertexai.Client(project=PROJECT_ID, location=LOCATION)
+
+    deployment_app = AdkApp(agent=video_expert_agent, enable_tracing=False)
+
+    requirements_list = [
+        "google-cloud-aiplatform[adk,agent_engines]",
+        "google-adk",
+        "google-genai",
+        "python-dotenv",
+        "requests", "pillow", "cloudpickle", "pydantic"
+    ]
+
+    print("Starting deployment to Agent Engine...")
+    try:
+        remote_app = client.agent_engines.create(
+            agent=deployment_app,
+            config={
+                "display_name": AGENT_ENGINE_DISPLAY_NAME,
+                "staging_bucket": STAGING_BUCKET,
+                "requirements": requirements_list,
+                "env_vars": {"ENABLE_TELEMETRY": "False"}
+            }
+        )
+        print("Deployment successful!")
+    except Exception as e:
+        print(f"Deployment failed: {e}")
