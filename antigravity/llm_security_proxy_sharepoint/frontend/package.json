@@ -4,13 +4,15 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite --port 3000 --host 0.0.0.0",
+    "dev": "vite --port 5173 --host 0.0.0.0",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview"
   },
   "dependencies": {
     "@ai-sdk/react": "^1.1.18",
+    "@azure/msal-browser": "^5.2.0",
+    "@azure/msal-react": "^5.0.4",
     "ai": "^6.0.85",
     "lucide-react": "^0.563.0",
     "react": "^19.2.4",

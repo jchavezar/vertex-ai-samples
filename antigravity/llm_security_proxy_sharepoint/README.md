@@ -18,9 +18,10 @@ Before running any code, you must configure Microsoft Entra ID (Azure AD) to all
 ### Creating the App Registration
 1. Go to the **Azure Portal** -> **Microsoft Entra ID**.
 2. Click **App registrations** -> **New registration**.
-3. Name it (e.g., `pwc-sharepoint-proxy`) and leave the Redirect URIs empty (we are using the Client Credentials flow).
-4. Note your **Application (client) ID** and **Directory (tenant) ID**.
-5. Go to **Certificates & secrets** and create a **New client secret**. Save the `Value` immediately.
+3. Name it (e.g., `pwc-sharepoint-proxy`).
+4. Under **Redirect URI**, select **Single-page application (SPA)** and enter `http://localhost:5173/` (or `http://localhost:3000/` depending on your frontend port). This is required for the frontend sign-in.
+5. Note your **Application (client) ID** and **Directory (tenant) ID**.
+6. Go to **Certificates & secrets** and create a **New client secret**. Save the `Value` immediately (for the backend daemon).
 
 ### Setting API Permissions
 This step is critical; without it, you will receive `403 Forbidden` errors.
@@ -51,7 +52,7 @@ DRIVE_ID=your_drive_id
 GOOGLE_CLOUD_PROJECT=your_gcp_project
 ```
 
-> **Note:** Run the scripts inside `backend/manual_to_sharepoint_api.md` (specifically `get_site_for_drive.py` or `find_financial_drives.py`) if you need help finding your exact `SITE_ID` and `DRIVE_ID` strings.
+> **Note:** Enure your environment variables are set correctly. You can find your `SITE_ID` and `DRIVE_ID` via the Microsoft Graph Explorer if needed.
 
 ---
 
@@ -78,9 +79,9 @@ npm install
 
 ## 4. Running the Application
 
-You must run both the backend API server and the frontend dev server simultaneously.
+You can run the application in its integrated mode (FastAPI + Agent) or use the standalone MCP server.
 
-### Start the Backend (FastAPI + ADK Runner)
+### Integrated Mode (FastAPI + ADK Runner)
 This starts the backend on port `8001`.
 ```bash
 cd backend
@@ -88,17 +89,46 @@ uv run python main.py
 ```
 
 ### Start the Frontend (Vite + React)
-We configure this to run on port `3000` to avoid conflicts.
+We configure this to run on `3000` to avoid conflicts.
 ```bash
 cd frontend
 npm run dev
 ```
 
+---
+
+## 5. Standalone MCP Server & Cloud Run Deployment
+
+This project now includes a **standalone MCP Server** using `FastMCP` (in `backend/mcp_server.py`). This allows other agents or applications to consume your SharePoint logic directly via the Model Context Protocol.
+
+### Running the MCP Server Locally (Inspector Mode)
+You can run the server in `stdio` mode to use it with the [MCP Inspector](https://github.com/modelcontextprotocol/inspector):
+```bash
+cd backend
+uv run python mcp_server.py
+```
+
+### Deploying to Google Cloud Run
+1. **Build the container**:
+   ```bash
+   gcloud builds submit --tag gcr.io/[PROJECT_ID]/sharepoint-mcp-server ./backend
+   ```
+2. **Deploy as an SSE Server**:
+   ```bash
+   gcloud run deploy sharepoint-mcp-server \
+     --image gcr.io/[PROJECT_ID]/sharepoint-mcp-server \
+     --set-env-vars="TENANT_ID=...,CLIENT_ID=...,..." \
+     --allow-unauthenticated
+   ```
+   *The server dynamically switches to SSE transport when the `PORT` environment variable is detected.*
+
+---
+
 The application will be available at `http://localhost:3000`. 
 
 ---
 
-## How It Works: The Zero-Parsing Flow
+## 7. How It Works: The Zero-Parsing Flow
 1. User types a query into the React `<Chat />` interface.
 2. The Vercel AI SDK sends a single `/chat` HTTP POST to the FastAPI backend.
 3. FastAPI instantiates the `LlmAgent` through the ADK `Runner`.

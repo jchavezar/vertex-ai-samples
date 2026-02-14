@@ -1,11 +1,53 @@
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, useState } from 'react';
 import { useTerminalChat } from './hooks/useTerminalChat';
 import { useDashboardStore } from './store/dashboardStore';
-import { Search, Cpu } from 'lucide-react';
+import { Search, Cpu, User, LogOut } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
+import { useMsal, useIsAuthenticated } from '@azure/msal-react';
+import { loginRequest } from './authConfig';
+import { InteractionRequiredAuthError } from '@azure/msal-browser';
 
 function App() {
-  const { messages, input, handleInputChange, handleSubmit, isLoading, hasData } = useTerminalChat();
+  const { instance, accounts } = useMsal();
+  const isAuthenticated = useIsAuthenticated();
+  const [token, setToken] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (isAuthenticated && accounts[0]) {
+      const request = {
+        ...loginRequest,
+        account: accounts[0]
+      };
+
+      const pingToken = async () => {
+        try {
+          const response = await instance.acquireTokenSilent(request);
+          setToken(response.accessToken);
+        } catch (error) {
+          if (error instanceof InteractionRequiredAuthError) {
+            instance.acquireTokenRedirect(request).catch(console.error);
+          }
+        }
+      };
+
+      pingToken();
+      // Setup ping alive every 5 minutes to refresh token
+      const interval = setInterval(pingToken, 5 * 60 * 1000);
+      return () => clearInterval(interval);
+    } else {
+      setToken(null);
+    }
+  }, [isAuthenticated, accounts, instance]);
+
+  const handleLogin = () => {
+    instance.loginRedirect(loginRequest).catch(console.error);
+  };
+
+  const handleLogout = () => {
+    instance.logoutRedirect({ postLogoutRedirectUri: "/" }).catch(console.error);
+  };
+
+  const { messages, input, handleInputChange, handleSubmit, isLoading, hasData } = useTerminalChat(token);
   const projectCards = useDashboardStore(s => s.projectCards);
   const endOfMessagesRef = useRef<HTMLDivElement>(null);
   const dataSectionRef = useRef<HTMLDivElement>(null);
@@ -31,6 +73,22 @@ function App() {
         </nav>
         <div className="pwc-search">
           <Search size={18} /> <span>Search</span>
+        </div>
+        <div className="pwc-auth">
+          {isAuthenticated ? (
+            <div className="auth-symbol">
+              <div className="status-indicator active" title="Active Ping (Token Refreshed)"></div>
+              <User size={18} />
+              <span className="user-name">{accounts[0]?.name?.split(' ')[0]}</span>
+              <button onClick={handleLogout} className="logout-btn" title="Log Out">
+                <LogOut size={16} />
+              </button>
+            </div>
+          ) : (
+            <button onClick={handleLogin} className="login-btn">
+              <User size={18} /> Sign In
+            </button>
+          )}
         </div>
       </header>
 
