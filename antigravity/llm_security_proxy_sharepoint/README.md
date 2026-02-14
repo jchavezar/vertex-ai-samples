@@ -20,31 +20,48 @@ The application enforces a secure offloading architecture using the Model Contex
 
 ```mermaid
 flowchart LR
+    %% Styling Definitions
+    classDef default fill:#fff,stroke:#333,stroke-width:1px,color:#333;
+    classDef frontend fill:#eef2ff,stroke:#6366f1,stroke-width:2px,color:#4338ca,rx:10,ry:10;
+    classDef backend fill:#faf5ff,stroke:#a855f7,stroke-width:2px,color:#6b21a8,rx:10,ry:10;
+    classDef gemini fill:#fdf4ff,stroke:#d946ef,stroke-width:3px,color:#86198f,rx:15,ry:15;
+    classDef mcp fill:#e0e7ff,stroke:#4f46e5,stroke-width:2px,color:#312e81,rx:10,ry:10;
+    classDef data fill:#ecfdf5,stroke:#10b981,stroke-width:2px,color:#065f46,rx:10,ry:10;
+
     subgraph Frontend ["End User / React SPA"]
-        A[useTerminalChat Hook]
+        A[useTerminalChat Hook]:::frontend
     end
 
     subgraph Backend ["Security Proxy (FastAPI)"]
-        B[Google ADK Runner]
-        C[gemini-3-pro-preview]
+        B[Google ADK Runner]:::backend
+        C[gemini-3-pro-preview]:::gemini
         B <--> C
     end
 
     subgraph MCP ["MCP Server"]
-        D[Python MCP SDK]
-        D_Tool["search_documents()"]
+        D[Python MCP SDK]:::mcp
+        D_Tool["search_documents()"]:::mcp
         D --- D_Tool
     end
 
     subgraph Data ["Microsoft Cloud"]
-        E[Graph API / Entra ID]
-        F[(SharePoint Indices)]
+        E[Graph API / Entra ID]:::data
+        F[(SharePoint Indices)]:::data
         E --> F
     end
 
     A -- SSE / HTTP --> B
     B -- MCP TOOL CALL --> D
     D -- REST --> E
+
+    %% Link Styling
+    linkStyle default stroke:#64748b,stroke-width:1px,fill:none;
+
+    %% Subgraph Styling
+    style Frontend fill:#f8fafc,stroke:#94a3b8,stroke-width:1px,stroke-dasharray: 5 5
+    style Backend fill:#fcfaff,stroke:#c084fc,stroke-width:1px,stroke-dasharray: 5 5
+    style MCP fill:#eff6ff,stroke:#60a5fa,stroke-width:1px,stroke-dasharray: 5 5
+    style Data fill:#f0fdf4,stroke:#86efac,stroke-width:1px,stroke-dasharray: 5 5
 ```
 
 ### Flow Breakdown:
