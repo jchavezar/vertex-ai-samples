@@ -1,0 +1,76 @@
+/* Project Card Widget Styles */
+.info-block-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-sm);
+}
+
+.info-block-header h3 {
+  margin-bottom: 0;
+}
+
+.toggle-context-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: transparent;
+  border: 1px solid var(--pwc-border);
+  color: var(--pwc-grey);
+  padding: 4px 10px;
+  border-radius: 16px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.toggle-context-btn:hover {
+  background: var(--pwc-light-grey);
+  color: var(--pwc-black);
+  border-color: var(--pwc-grey);
+}
+
+.context-container {
+  min-height: 80px;
+  /* Prevent layout shift when toggling */
+}
+
+.card-meta-right {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  max-width: 100%;
+}
+
+
+.original-context-text {
+  font-family: var(--font-serif);
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: var(--pwc-black);
+  padding: var(--spacing-md);
+  background: var(--pwc-bg-hero);
+  border-left: 3px solid var(--pwc-orange);
+  border-radius: 0 8px 8px 0;
+}
+
+.redacted-tape {
+  display: inline-block;
+  background-color: var(--pwc-black);
+  color: transparent;
+  user-select: none;
+  border-radius: 2px;
+  padding: 0 4px;
+  margin: 0 2px;
+  filter: blur(2px);
+  transition: filter 0.3s ease;
+  cursor: help;
+}
+
+.redacted-tape:hover {
+  filter: blur(0);
+  color: white;
+}

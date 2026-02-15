@@ -89,6 +89,21 @@ body {
   transform: translateY(-1px);
 }
 
+.pwc-topology-btn {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  color: var(--pwc-grey);
+  font-weight: 500;
+  font-size: 0.9rem;
+  transition: color 0.2s, transform 0.2s;
+  cursor: pointer;
+}
+
+.pwc-topology-btn:hover {
+  color: var(--pwc-orange);
+  transform: translateY(-1px);
+}
 .pwc-header-right {
   display: flex;
   align-items: center;
@@ -316,11 +331,12 @@ body {
 
 .card-header {
   display: flex;
-    justify-content: flex-start;
-      align-items: center;
+  justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap;
     gap: var(--spacing-md);
-      margin-bottom: var(--spacing-md);
-      font-size: 0.85rem;
+    margin-bottom: var(--spacing-md);
+    font-size: 0.85rem;
 }
 
 .industry-tag {
@@ -556,6 +572,8 @@ a.doc-id {
   color: var(--pwc-orange);
   text-decoration: none;
   transition: all 0.2s ease;
+  word-break: break-all;
+    max-width: 100%;
 }
 
 a.doc-id:hover {

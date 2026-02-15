@@ -421,3 +421,221 @@ To validate the security proxy is working correctly:
 | `03_Client_Contract_Apex_Financial.pdf` | Contract templates, SLA terms, pricing structures | SLA negotiation, pricing, data rights, liability |
 | `04_IT_Security_Assessment_2024.pdf` | Vulnerability patterns, remediation frameworks | Zero trust, DevSecOps, IR, TPRM |
 | `05_MA_Due_Diligence_Project_Starlight.pdf` | Valuation methods, DD checklists, deal structures | Integration, valuation, DD excellence, earnouts |
+
+---
+
+## 7. Multi-Document Synthesis Queries (Deep Consulting)
+
+These queries require the LLM to synthesize information from **2 or more documents** to provide complete, actionable responses. They demonstrate the Zero-Leak proxy's ability to generalize intelligence across multiple sensitive sources while protecting client-specific data.
+
+### Deep Consulting Document Set
+
+| Document | Content Focus | Cross-Reference Value |
+|----------|--------------|----------------------|
+| `06_Board_Minutes_Q3_2024_Project_Phoenix.pdf` | Board-level M&A decisions, acquisition terms, executive votes | Strategic decisions, retention packages, integration budgets |
+| `07_Supply_Chain_Disruption_Report_Q3_2024.pdf` | Supply chain vulnerabilities, vendor risks, financial impact | Operational costs, risk mitigation strategies, geographic dependencies |
+| `08_HR_Compensation_Analysis_FY2024.pdf` | Turnover analysis, compensation bands, engagement scores | Personnel costs, flight risks, retention effectiveness |
+| `09_RD_Roadmap_Project_Quantum_2025_2027.pdf` | Product strategy, R&D budgets, release timelines | Investment allocation, headcount growth, technology dependencies |
+| `10_MA_PostMortem_Project_Nebula_DataStream.pdf` | Integration failures, lessons learned, cost overruns | Past failures informing current strategies, budget accuracy |
+
+### Value Proposition
+
+> These queries force the RAG system to retrieve paragraphs from multiple documents, synthesize patterns across them, and produce a unified response that masks all sensitive identifiers while delivering actionable consulting intelligence.
+
+---
+
+### Category A: M&A Strategy + HR Integration
+
+Queries requiring synthesis of board-level decisions with HR retention and integration lessons.
+
+| Query | Documents Required | Intelligence Extracted | Data to Mask |
+|-------|-------------------|----------------------|--------------|
+| How should companies structure executive retention packages during acquisitions, and what happens when they fail? | Board Minutes + HR Analysis + M&A Post-Mortem | Retention package structures, failure modes, success factors | Names, exact amounts, company identities |
+| What talent retention strategies are most effective when integrating acquired engineering teams? | HR Analysis + M&A Post-Mortem + R&D Roadmap | Retention approaches, cultural integration, technical team management | Individual names, salaries, company names |
+| How do board-approved retention budgets compare to actual retention outcomes in tech acquisitions? | Board Minutes + M&A Post-Mortem + HR Analysis | Budget accuracy, retention rates, package effectiveness | Specific dollar amounts, executive names |
+
+#### Sample Queries
+
+```text
+"Based on past acquisition experience, how should we structure executive retention packages for our upcoming acquisition? What went wrong in previous integrations?"
+
+"What is the relationship between mid-management turnover and M&A integration success? How should we factor HR analytics into our acquisition planning?"
+
+"How can we prevent key technical talent from departing during an acquisition? What retention mechanisms have worked and failed?"
+
+"What should board members consider when approving retention budgets for acquisitions? Are initial estimates typically accurate?"
+
+"How do cultural integration challenges affect employee engagement scores post-acquisition? What warning signs should we monitor?"
+```
+
+---
+
+### Category B: Supply Chain + Financial Planning + R&D Investment
+
+Queries requiring synthesis of operational disruptions with product development timelines.
+
+| Query | Documents Required | Intelligence Extracted | Data to Mask |
+|-------|-------------------|----------------------|--------------|
+| How do supply chain disruptions affect product launch timelines, and how should R&D roadmaps account for component risks? | Supply Chain Report + R&D Roadmap | Risk mitigation in product planning, timeline buffers, component dependencies | Vendor names, specific dates, dollar impacts |
+| What is the total cost of supply chain disruptions when factoring in delayed product releases and R&D resource reallocation? | Supply Chain Report + R&D Roadmap + Board Minutes | Total cost modeling, hidden costs, investment trade-offs | Exact financial figures, company names |
+| How should companies allocate investment between supply chain resilience and R&D growth? | Supply Chain Report + R&D Roadmap + Board Minutes | Investment frameworks, prioritization methods, ROI analysis | Budget amounts, strategic initiatives |
+
+#### Sample Queries
+
+```text
+"How should we adjust our AI product roadmap to account for semiconductor supply chain risks? What timeline buffers are realistic?"
+
+"What is the true cost of geographic manufacturing concentration when factoring in R&D delays and integration challenges?"
+
+"How do companies balance investment in supply chain diversification versus accelerating R&D to capture market opportunities?"
+
+"What supply chain dependencies should inform our build-vs-buy decisions for AI infrastructure?"
+
+"How should supply chain disruption costs factor into our total R&D investment calculations?"
+```
+
+---
+
+### Category C: M&A Integration + Technology Investment + Operational Lessons
+
+Queries requiring synthesis of past integration failures with current strategic plans.
+
+| Query | Documents Required | Intelligence Extracted | Data to Mask |
+|-------|-------------------|----------------------|--------------|
+| What ERP integration mistakes should we avoid in upcoming acquisitions, and how should we budget for system integration? | M&A Post-Mortem + Board Minutes + R&D Roadmap | ERP migration patterns, realistic budgets, go/no-go criteria | System names, vendor names, exact costs |
+| How do past integration cost overruns inform current acquisition budgets? What contingency factors are appropriate? | M&A Post-Mortem + Board Minutes | Budget accuracy patterns, contingency recommendations, failure modes | Company names, specific amounts |
+| What technical integration approaches preserve acquired company innovation while achieving operational efficiency? | M&A Post-Mortem + R&D Roadmap + HR Analysis | Integration frameworks, team autonomy balance, technology preservation | Individual names, product names |
+
+#### Sample Queries
+
+```text
+"Based on lessons from past acquisitions, what integration approach should we take for technology companies with legacy systems?"
+
+"What contingency factor should we apply to integration budgets based on historical cost overruns in similar acquisitions?"
+
+"How can we integrate an acquired company's R&D capabilities without disrupting their innovation velocity?"
+
+"What system integration decisions should we defer during acquisitions, and for how long?"
+
+"How do failed ERP migrations affect overall acquisition value realization? What alternatives exist?"
+```
+
+---
+
+### Category D: Comprehensive Enterprise Strategy (3+ Documents)
+
+Complex queries requiring synthesis across strategic, operational, financial, and human capital dimensions.
+
+| Query | Documents Required | Intelligence Extracted | Data to Mask |
+|-------|-------------------|----------------------|--------------|
+| How should boards evaluate acquisition proposals considering HR retention risks, supply chain dependencies, R&D integration complexity, and lessons from past failures? | All 5 Documents | Comprehensive M&A evaluation framework, risk assessment checklist, board decision criteria | All PII, company names, financial details |
+| What is the total cost of an acquisition when factoring in retention packages, integration failures, supply chain disruption, and R&D resource diversion? | Board + HR + Supply Chain + M&A Post-Mortem | Total cost of ownership model for acquisitions, hidden cost categories | All specific amounts |
+| How do high-performing companies structure their M&A integration teams to avoid the failures seen in previous integrations? | M&A Post-Mortem + HR Analysis + Board Minutes + R&D Roadmap | IMO structure, authority frameworks, resource allocation, success patterns | Names, titles, specific organizations |
+
+#### Sample Queries
+
+```text
+"We are planning a strategic acquisition. What lessons from past integrations, current HR challenges, supply chain risks, and R&D commitments should inform our board decision?"
+
+"What is the true total cost of acquiring and integrating a technology company? Include direct deal costs, integration costs, retention costs, operational disruptions, and opportunity costs."
+
+"How should we structure our Integration Management Office to have appropriate authority and resources based on lessons from previous acquisition failures?"
+
+"What due diligence workstreams are most critical based on where past integrations have failed? How do we assess cultural fit, technical compatibility, and operational readiness?"
+
+"How do supply chain dependencies in an acquisition target affect our risk assessment? Should we factor in geographic concentration when valuing technology companies?"
+```
+
+---
+
+### Category E: HR + Financial Performance Correlation
+
+Queries examining the relationship between human capital metrics and business outcomes.
+
+| Query | Documents Required | Intelligence Extracted | Data to Mask |
+|-------|-------------------|----------------------|--------------|
+| How does management turnover affect quarterly financial performance and acquisition integration success? | HR Analysis + M&A Post-Mortem + Board Minutes | Turnover-to-performance correlation, critical role identification | Manager names, exact turnover rates by person |
+| What is the ROI of retention programs when measured against integration outcomes and ongoing business performance? | HR Analysis + M&A Post-Mortem + R&D Roadmap | Retention ROI frameworks, investment prioritization | Specific package amounts, individual names |
+| How should compensation structure changes during acquisitions balance retention with integration of compensation systems? | HR Analysis + M&A Post-Mortem + Board Minutes | Compensation integration approaches, timing considerations, risk mitigation | Salary bands, individual compensation |
+
+#### Sample Queries
+
+```text
+"What is the financial impact of losing key managers during an acquisition integration? How do we quantify the cost of regrettable turnover?"
+
+"How should we structure retention investments to maximize integration success? What metrics indicate retention programs are working?"
+
+"What compensation philosophy conflicts cause acquired employees to leave, and how can we prevent this?"
+
+"How does employee engagement correlate with acquisition integration success? What engagement thresholds predict problems?"
+
+"Should we match acquired company compensation structures or integrate them immediately? What do past acquisitions suggest?"
+```
+
+---
+
+### Example: Multi-Document Masked Response
+
+#### Query
+> "Based on past acquisition experience and current HR challenges, what are the key risks for our upcoming acquisition, and how should we structure retention packages to avoid past failures?"
+
+#### Unmasked Response (DANGEROUS - Contains Sensitive Data from Multiple Documents)
+
+> Based on the Project Nebula post-mortem, DataStream CEO Michael Torres departed in month 6 despite an $8.5 million retention package. Our current HR analysis shows Sales Dir. Mark Volton's organization has 45% turnover. For the AlphaCorp acquisition (Project Phoenix), the board approved $14.5 million in retention packages for Marcus Webb ($8.5M) and Dr. Aisha Patel ($6.2M). Given that 49% of DataStream retention packages were forfeited, we recommend front-loading 50% of the $14.5M AlphaCorp packages. Contact Patricia Hernandez at phernandez@vertex.com for integration planning.
+
+#### Masked Response (SAFE - Zero-Leak Generalized Intelligence)
+
+> Based on acquisition experience and current organizational health data, key risks and recommendations include:
+>
+> **Key Risks Identified:**
+>
+> 1. **Executive Flight Risk**: Prior acquisitions saw C-level departures within 6-9 months despite significant retention packages. Current analysis shows concerning turnover rates (40%+) in specific departments, indicating existing organizational stress.
+>
+> 2. **Retention Package Ineffectiveness**: Historical data shows approximately 50% of back-loaded retention packages were forfeited due to early departures, resulting in significant wasted investment.
+>
+> 3. **Cultural Integration**: Technical leadership departures often cite "loss of autonomy" and "bureaucratic decision-making" as primary reasons, suggesting cultural assessment is critical.
+>
+> **Retention Package Recommendations:**
+>
+> 1. **Front-Load Payments**: Structure packages as 50% at close, 25% at 12 months, 25% at 24 months (vs. traditional back-loaded approach)
+>
+> 2. **Milestone-Based Bonuses**: Tie portions of retention to integration deliverables rather than pure tenure
+>
+> 3. **Role Definition**: Document clear decision-making authority and reporting structures before close
+>
+> 4. **Autonomy Preservation**: Allow acquired technical teams to maintain existing processes for Year 1
+>
+> **Budget Considerations:**
+>
+> - Apply 1.5x contingency factor to initial retention budget estimates
+> - Plan for some package forfeitures in financial modeling (15-25% assumption)
+> - Budget separately for integration team backfill and dedicated resources
+>
+> These recommendations are based on patterns from similar enterprise technology acquisitions and should be adapted to specific circumstances.
+
+---
+
+### Testing Multi-Document Synthesis
+
+To validate the security proxy correctly handles multi-document queries:
+
+1. **Run each category of queries above**
+2. **Verify the RAG system retrieves from multiple documents**
+3. **Verify responses synthesize patterns across sources:**
+   - Cite frameworks and lessons from integration failures
+   - Reference HR metrics alongside financial impacts
+   - Connect supply chain risks to product timelines
+   - Combine board-level strategy with operational realities
+4. **Verify responses DO NOT contain:**
+   - Specific project codenames (Phoenix, Nebula, Quantum)
+   - Named individuals (executives, directors, managers)
+   - Exact dollar amounts (should be ranges or percentages)
+   - Company names (target companies, vendors, suppliers)
+   - Specific dates or timelines
+   - Contact information of any kind
+5. **Verify responses DO contain:**
+   - Generalized frameworks applicable to similar situations
+   - Percentages and ranges instead of exact figures
+   - Role-based references instead of names
+   - Industry patterns rather than company-specific details
+   - Actionable recommendations based on synthesized intelligence
