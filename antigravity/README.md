@@ -96,7 +96,13 @@
       <a href="./veo_video_gen/">Example: ACCESS_TERMINAL &rarr;</a>
     </td>
     <td width="50%" valign="top">
-      <!-- Empty slot for future expansion -->
+      <img src="assets/header_mcp.svg" width="100%" /> <!-- Re-using mcp header as placeholder -->
+      <br/><br/>
+      <strong>PROJECT: LLM SECURITY PROXY</strong><br/>
+      Zero-Leak Enterprise Protocol. Enforces strict authentication, 
+      masked structured outputs using Google ADK orchestration over deep Microsoft SharePoint data.<br/>
+      <br/>
+      <a href="./llm_security_proxy_sharepoint/">Example: ACCESS_TERMINAL &rarr;</a>
     </td>
   </tr>
 </table>
