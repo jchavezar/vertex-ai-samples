@@ -124,16 +124,27 @@ uv run python mcp_server.py
 ```
 
 ### Serverless Cloud Run Deployment
-You can deploy the FastMCP server securely on Google Cloud Run to provide streaming endpoints across any interface:
+
+You can deploy the components securely on Google Cloud Run. By default, organizational policies mandate secure internal connections, so both the FastMCP backend and React frontend are deployed securely using `--no-allow-unauthenticated`. Check the frontend's `McpInspector.tsx` code logic to see how it relays the Google Identity Token to communicate.
+
+**Deploy the Backend API**:
 ```bash
 cd backend
 gcloud run deploy mcp-sharepoint-server \
   --source . \
   --region us-central1 \
-  --allow-unauthenticated \
+  --no-allow-unauthenticated \
   --env-vars-file=../.env
 ```
-Once deployed, simply copy the URL and update your `McpInspector.tsx` state variable to consume your new edge-running MCP connection.
+
+**Deploy the Frontend NGINX**:
+```bash
+cd frontend
+gcloud run deploy security-proxy-frontend \
+  --source . \
+  --region us-central1 \
+  --no-allow-unauthenticated
+```
 
 ---
 

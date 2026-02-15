@@ -240,7 +240,7 @@ function App() {
           </div>
         </div>
       ) : activeAppTab === 'inspector' ? (
-        <McpInspector goHome={() => { setActiveAppTab('proxy'); setShowTopology(false); }} />
+          <McpInspector goHome={() => { setActiveAppTab('proxy'); setShowTopology(false); }} token={token || undefined} />
       ) : (
           <main className="pwc-main-wrapper">
 
