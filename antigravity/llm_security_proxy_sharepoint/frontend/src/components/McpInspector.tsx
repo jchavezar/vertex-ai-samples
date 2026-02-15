@@ -3,6 +3,8 @@ import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { SSEClientTransport } from "@modelcontextprotocol/sdk/client/sse.js";
 import { Copy, Check, ChevronDown, ChevronRight, Play, Server, Layers, ShieldAlert, XCircle, ArrowLeft } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
+// @ts-ignore
+import { EventSourcePolyfill } from 'event-source-polyfill';
 import './McpInspector.css';
 
 interface McpTool {
@@ -13,9 +15,10 @@ interface McpTool {
 
 interface McpInspectorProps {
   goHome?: () => void;
+  token?: string;
 }
 
-export function McpInspector({ goHome }: McpInspectorProps) {
+export function McpInspector({ goHome, token }: McpInspectorProps) {
   const [client, setClient] = useState<Client | null>(null);
   const [isConnected, setIsConnected] = useState(false);
   const [serverUrl, setServerUrl] = useState('https://mcp-sharepoint-server-440133963879.us-central1.run.app/sse');
@@ -50,7 +53,21 @@ export function McpInspector({ goHome }: McpInspectorProps) {
     try {
       addLog('info', `Attempting to connect to ${serverUrl}...`);
 
-      const transport = new SSEClientTransport(new URL(serverUrl));
+      if (token) {
+        // Apply Polyfill exactly when Auth is required since standard EventSource prevents headers
+        globalThis.EventSource = EventSourcePolyfill as any;
+      }
+
+      const transportOptions = token ? {
+        eventSourceInit: {
+          headers: { Authorization: `Bearer ${token}` }
+        } as any,
+        requestInit: {
+          headers: { Authorization: `Bearer ${token}` }
+        }
+      } : undefined;
+
+      const transport = new SSEClientTransport(new URL(serverUrl), transportOptions);
       const mcpClient = new Client({
         name: "antigravity-inspector",
         version: "1.0.0",

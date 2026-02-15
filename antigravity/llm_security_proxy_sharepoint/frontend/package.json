@@ -17,6 +17,7 @@
     "@azure/msal-react": "^5.0.4",
     "@modelcontextprotocol/sdk": "^1.26.0",
     "ai": "^6.0.85",
+    "event-source-polyfill": "^1.0.31",
     "html2canvas": "^1.4.1",
     "jspdf": "^4.1.0",
     "lucide-react": "^0.563.0",
