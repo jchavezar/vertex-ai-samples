@@ -4,7 +4,9 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite --port 5173 --host 0.0.0.0",
+    "dev": "concurrently -c \"cyan,magenta\" \"npm run dev:ui\" \"npm run dev:proxy\"",
+    "dev:ui": "vite --port 5173 --host 0.0.0.0",
+    "dev:proxy": "cd ../backend && uv run python main.py",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview"
@@ -13,6 +15,7 @@
     "@ai-sdk/react": "^1.1.18",
     "@azure/msal-browser": "^5.2.0",
     "@azure/msal-react": "^5.0.4",
+    "@modelcontextprotocol/sdk": "^1.26.0",
     "ai": "^6.0.85",
     "html2canvas": "^1.4.1",
     "jspdf": "^4.1.0",
@@ -29,6 +32,7 @@
     "@types/react": "^19.0.8",
     "@types/react-dom": "^19.0.3",
     "@vitejs/plugin-react": "^5.1.1",
+    "concurrently": "^9.2.1",
     "eslint": "^9.39.1",
     "eslint-plugin-react-hooks": "^7.0.1",
     "eslint-plugin-react-refresh": "^0.4.24",

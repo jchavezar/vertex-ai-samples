@@ -1,0 +1,408 @@
+.mcp-inspector-container {
+  display: flex;
+  width: 100%;
+  height: calc(100vh - 60px);
+  background-color: var(--pwc-light-grey);
+  color: var(--pwc-black);
+  font-family: inherit;
+  overflow: hidden;
+}
+
+.inspector-sidebar {
+  width: 300px;
+  background-color: var(--pwc-bg-main);
+  border-right: 1px solid var(--pwc-border);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.sidebar-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.sidebar-header h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--pwc-black);
+}
+
+.control-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.control-group label {
+  font-size: 0.8rem;
+  color: var(--pwc-grey);
+  font-weight: 500;
+}
+
+.control-group input {
+  background-color: var(--pwc-bg-main);
+  border: 1px solid var(--pwc-border);
+  color: var(--pwc-black);
+  padding: 8px 12px;
+  border-radius: 4px;
+  font-family: monospace;
+  font-size: 0.85rem;
+}
+
+.control-group input:focus {
+  outline: none;
+  border-color: var(--pwc-orange);
+  box-shadow: 0 0 0 2px rgba(208, 74, 2, 0.2);
+}
+
+.control-group input:disabled {
+  background-color: var(--pwc-light-grey);
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.tools-list-nav ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Main Area */
+.inspector-main {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background-color: var(--pwc-bg-main);
+}
+
+.pane-header {
+  padding: 15px 20px;
+  background-color: var(--pwc-light-grey);
+  border-bottom: 1px solid var(--pwc-border);
+  display: flex;
+  align-items: center;
+}
+
+.pane-header h4 {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 1rem;
+  color: var(--pwc-black);
+}
+
+.pane-content {
+  padding: 20px;
+  overflow-y: auto;
+  flex-grow: 1;
+}
+
+.tools-pane {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  border-bottom: 2px solid var(--pwc-border);
+  overflow: hidden;
+}
+
+.logs-pane {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--pwc-bg-main);
+  overflow: hidden;
+}
+
+.empty-state {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  color: var(--pwc-grey);
+  font-style: italic;
+}
+
+/* Tool Accordion */
+.tools-accordion {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.tool-card {
+  background-color: var(--pwc-bg-main);
+  border: 1px solid var(--pwc-border);
+  border-radius: 6px;
+  overflow: hidden;
+  box-shadow: var(--pwc-shadow-sm);
+}
+
+.tool-card-header {
+  padding: 12px 15px;
+  background-color: var(--pwc-light-grey);
+  cursor: pointer;
+  user-select: none;
+  transition: background-color 0.2s;
+}
+
+.tool-card-header:hover {
+  background-color: var(--pwc-border);
+}
+
+.tool-card-body {
+  padding: 20px;
+  border-top: 1px solid var(--pwc-border);
+}
+
+.schema-viewer {
+  background-color: var(--pwc-light-grey);
+  border: 1px solid var(--pwc-border);
+  border-radius: 4px;
+  padding: 10px;
+  margin-bottom: 15px;
+}
+
+.schema-title {
+  font-size: 0.75rem;
+  color: var(--pwc-grey);
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 600;
+}
+
+.schema-viewer pre {
+  margin: 0;
+  color: #2e7d32;
+  font-family: monospace;
+}
+
+.mcp-inspector-container textarea.pwc-input {
+  background-color: var(--pwc-bg-main);
+  border: 1px solid var(--pwc-border);
+  color: var(--pwc-black);
+  resize: vertical;
+  padding: 8px;
+  border-radius: 4px;
+}
+
+.mcp-inspector-container textarea.pwc-input:focus {
+  outline: none;
+  border-color: var(--pwc-orange);
+  box-shadow: 0 0 0 2px rgba(208, 74, 2, 0.2);
+}
+
+.back-btn {
+  background: var(--pwc-bg-main);
+  border: 1px solid var(--pwc-border);
+  color: var(--pwc-grey);
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  transition: all 0.2s;
+  margin-bottom: 20px;
+  font-weight: 500;
+}
+
+.back-btn:hover {
+  background-color: var(--pwc-light-grey);
+  color: var(--pwc-black);
+  border-color: #ccc;
+}
+
+/* Logs Terminal */
+.terminal {
+  font-family: 'Consolas', 'Monaco', monospace;
+}
+
+.logs-stream {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.log-entry {
+  padding: 10px;
+  border-radius: 4px;
+  background-color: var(--pwc-light-grey);
+  border-left: 3px solid transparent;
+  border: 1px solid var(--pwc-border);
+}
+
+.log-info {
+  border-left-color: #0078D4;
+}
+
+.log-error {
+  border-left-color: var(--pwc-red);
+  background-color: rgba(224, 48, 30, 0.05);
+}
+
+.log-request {
+  border-left-color: var(--pwc-rose);
+}
+
+.log-response {
+  border-left-color: #2e7d32;
+}
+
+.log-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+
+.log-badge {
+  font-size: 0.65rem;
+  font-weight: bold;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.badge-info {
+  background-color: rgba(0, 120, 212, 0.1);
+  color: #0078D4;
+}
+
+.badge-error {
+  background-color: rgba(224, 48, 30, 0.1);
+  color: var(--pwc-red);
+}
+
+.badge-request {
+  background-color: rgba(235, 140, 0, 0.1);
+  color: var(--pwc-rose);
+}
+
+.badge-response {
+  background-color: rgba(46, 125, 50, 0.1);
+  color: #2e7d32;
+}
+
+.log-message {
+  color: var(--pwc-grey);
+  line-height: 1.4;
+}
+
+.log-info .log-message {
+  color: var(--pwc-grey);
+}
+
+.log-error .log-message {
+  color: var(--pwc-red);
+}
+
+.log-request .log-message {
+  color: var(--pwc-black);
+}
+
+.log-response .log-message {
+  color: var(--pwc-black);
+}
+
+.w-full {
+  width: 100%;
+}
+
+.mt-4 {
+  margin-top: 1rem;
+}
+
+.mt-6 {
+  margin-top: 1.5rem;
+}
+
+.mb-2 {
+  margin-bottom: 0.5rem;
+}
+
+.mb-4 {
+  margin-bottom: 1rem;
+}
+
+.text-sm {
+  font-size: 0.875rem;
+}
+
+.text-xs {
+  font-size: 0.75rem;
+}
+
+.font-mono {
+  font-family: monospace;
+}
+
+.font-bold {
+  font-weight: bold;
+}
+
+.text-gray-300 {
+  color: #6c757d;
+}
+
+.text-gray-400 {
+  color: var(--pwc-grey);
+}
+
+.text-gray-500 {
+  color: #adb5bd;
+}
+
+.text-pwc-orange {
+  color: var(--pwc-orange);
+}
+
+.flex {
+  display: flex;
+}
+
+.items-center {
+  align-items: center;
+}
+
+.justify-between {
+  justify-content: space-between;
+}
+
+.justify-end {
+  justify-content: flex-end;
+}
+
+.gap-1 {
+  gap: 0.25rem;
+}
+
+.gap-2 {
+  gap: 0.5rem;
+}
+
+.py-1 {
+  padding-top: 0.25rem;
+  padding-bottom: 0.25rem;
+}
+
+.block {
+  display: block;
+}
+
+.truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

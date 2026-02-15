@@ -1,23 +1,22 @@
 FROM python:3.12-slim
 
-# Install uv
-COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
+# Install uv (using pip to keep it simple and independent)
+RUN pip install uv
 
 # Set working directory
 WORKDIR /app
 
 # Copy dependency files
-copy pyproject.toml uv.lock ./
+COPY pyproject.toml ./
 
-# Install dependencies
-RUN uv sync --frozen --no-cache
+# Install dependencies using public PyPI to avoid corp airlock registry issues
+RUN uv pip install --system -r pyproject.toml --index-url https://pypi.org/simple
 
 # Copy application code
-copy . .
+COPY . .
 
 # Expose the port (Cloud Run sets PORT env var)
 EXPOSE 8080
 
 # Run the MCP server
-# We use uv run to ensure the environment is correctly activated
-CMD ["uv", "run", "python", "mcp_server.py"]
+CMD ["python", "mcp_server.py"]
