@@ -117,11 +117,23 @@ npm run dev
 *(Runs on port 5173)*
 
 ### Standalone MCP Server
-You can also run the SharePoint connector as a standalone MCP server for the MCP Inspector:
+You can run the SharePoint connector natively as a standalone server for the MCP Inspector:
 ```bash
 cd backend
-uv run python mcp_sharepoint.py
+uv run python mcp_server.py
 ```
+
+### Serverless Cloud Run Deployment
+You can deploy the FastMCP server securely on Google Cloud Run to provide streaming endpoints across any interface:
+```bash
+cd backend
+gcloud run deploy mcp-sharepoint-server \
+  --source . \
+  --region us-central1 \
+  --allow-unauthenticated \
+  --env-vars-file=../.env
+```
+Once deployed, simply copy the URL and update your `McpInspector.tsx` state variable to consume your new edge-running MCP connection.
 
 ---
 

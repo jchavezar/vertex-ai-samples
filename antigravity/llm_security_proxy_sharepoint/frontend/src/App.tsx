@@ -1,7 +1,7 @@
 import { useRef, useEffect, useState } from 'react';
 import { useTerminalChat } from './hooks/useTerminalChat';
 import { useDashboardStore } from './store/dashboardStore';
-import { Cpu, User, LogOut, Network, Server, Database, ShieldAlert, Terminal, Download } from 'lucide-react';
+import { Cpu, User, LogOut, Server, Database, ShieldAlert, Terminal, Download } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import html2canvas from 'html2canvas';
 import { jsPDF } from 'jspdf';
@@ -10,6 +10,7 @@ import { loginRequest } from './authConfig';
 import { InteractionRequiredAuthError } from '@azure/msal-browser';
 import { PromptGallery } from './components/PromptGallery';
 import { ProjectCardWidget } from './components/ProjectCardWidget';
+import { McpInspector } from './components/McpInspector';
 import './PromptGallery.css';
 
 function App() {
@@ -54,6 +55,7 @@ function App() {
 
   const [selectedModel, setSelectedModel] = useState('gemini-3-pro-preview');
   const [showTopology, setShowTopology] = useState(false);
+  const [activeAppTab, setActiveAppTab] = useState('proxy');
   const { messages, input, handleInputChange, handleSubmit, isLoading, hasData } = useTerminalChat(token, selectedModel);
   const projectCards = useDashboardStore(s => s.projectCards);
   const endOfMessagesRef = useRef<HTMLDivElement>(null);
@@ -125,19 +127,12 @@ function App() {
           <span className="pwc-logo">pwc</span>
         </div>
         <nav className="pwc-nav">
-          <a href="#">Featured insights</a>
-          <a href="#">Capabilities</a>
-          <a href="#">Industries</a>
-          <a href="#">Technology</a>
-          <a href="#">About us</a>
-          <a href="#">Careers</a>
+          <a href="#" className={activeAppTab === 'proxy' && !showTopology ? "active" : ""} onClick={(e) => { e.preventDefault(); setActiveAppTab('proxy'); setShowTopology(false); }}>Secure Enterprise Proxy</a>
+          <a href="#" className={activeAppTab === 'inspector' && !showTopology ? "active" : ""} onClick={(e) => { e.preventDefault(); setActiveAppTab('inspector'); setShowTopology(false); }}>MCP Inspector</a>
+          <a href="#" className={showTopology ? "active" : ""} onClick={(e) => { e.preventDefault(); setShowTopology(true); }}>Zero-Leak Topology</a>
         </nav>
         <div className="pwc-header-right">
-          <div className="pwc-topology-btn" onClick={() => setShowTopology(!showTopology)}>
-            <Network size={18} /> <span>{showTopology ? 'Close Topology' : 'Topology'}</span>
-          </div>
-
-          {projectCards.length > 0 && !showTopology && (
+          {projectCards.length > 0 && !showTopology && activeAppTab === 'proxy' && (
             <button
               onClick={exportToPDF}
               disabled={isExporting}
@@ -244,6 +239,8 @@ function App() {
             </div>
           </div>
         </div>
+      ) : activeAppTab === 'inspector' ? (
+        <McpInspector goHome={() => { setActiveAppTab('proxy'); setShowTopology(false); }} />
       ) : (
           <main className="pwc-main-wrapper">
 
