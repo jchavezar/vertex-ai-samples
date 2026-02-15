@@ -1,11 +1,16 @@
 import { useRef, useEffect, useState } from 'react';
 import { useTerminalChat } from './hooks/useTerminalChat';
 import { useDashboardStore } from './store/dashboardStore';
-import { Cpu, User, LogOut, Network, Server, Database, ShieldAlert, Terminal } from 'lucide-react';
+import { Cpu, User, LogOut, Network, Server, Database, ShieldAlert, Terminal, Download } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
+import html2canvas from 'html2canvas';
+import { jsPDF } from 'jspdf';
 import { useMsal, useIsAuthenticated } from '@azure/msal-react';
 import { loginRequest } from './authConfig';
 import { InteractionRequiredAuthError } from '@azure/msal-browser';
+import { PromptGallery } from './components/PromptGallery';
+import { ProjectCardWidget } from './components/ProjectCardWidget';
+import './PromptGallery.css';
 
 function App() {
   const { instance, accounts } = useMsal();
@@ -69,6 +74,49 @@ function App() {
     endOfMessagesRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
+  const [isExporting, setIsExporting] = useState(false);
+
+  const exportToPDF = async () => {
+    if (!dataSectionRef.current || projectCards.length === 0) return;
+    setIsExporting(true);
+
+    try {
+      // Find the grid container to capture
+      const gridElement = dataSectionRef.current.querySelector('.pwc-cards-grid') as HTMLElement;
+      if (!gridElement) return;
+
+      const canvas = await html2canvas(gridElement, {
+        scale: 2, // High resolution
+        useCORS: true,
+        backgroundColor: '#1E1E1E', // Match the dark theme background
+      });
+
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+
+      // Add a header
+      pdf.setFillColor(208, 74, 2); // PwC Orange
+      pdf.rect(0, 0, pdfWidth, 20, 'F');
+      pdf.setTextColor(255, 255, 255);
+      pdf.setFontSize(16);
+      pdf.text('PwC Secure Intelligence Briefing', 14, 13);
+
+      pdf.setTextColor(100, 100, 100);
+      pdf.setFontSize(10);
+      pdf.text(`Generated: ${new Date().toLocaleDateString()}`, 14, 28);
+
+      pdf.addImage(imgData, 'PNG', 0, 35, pdfWidth, pdfHeight);
+      pdf.save('PwC_Intelligence_Briefing.pdf');
+    } catch (error) {
+      console.error('Failed to export PDF:', error);
+      alert('Failed to generate the PDF briefing.');
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
   return (
     <div className="pwc-app">
       {/* PwC Style Header */}
@@ -84,24 +132,40 @@ function App() {
           <a href="#">About us</a>
           <a href="#">Careers</a>
         </nav>
-        <div className="pwc-search" style={{ cursor: 'pointer' }} onClick={() => setShowTopology(!showTopology)}>
-          <Network size={18} /> <span>{showTopology ? 'Close Topology' : 'Topology'}</span>
-        </div>
-        <div className="pwc-auth">
-          {isAuthenticated ? (
-            <div className="auth-symbol">
-              <div className="status-indicator active" title="Active Ping (Token Refreshed)"></div>
-              <User size={18} />
-              <span className="user-name">{accounts[0]?.name?.split(' ')[0]}</span>
-              <button onClick={handleLogout} className="logout-btn" title="Log Out">
-                <LogOut size={16} />
-              </button>
-            </div>
-          ) : (
-            <button onClick={handleLogin} className="login-btn">
-              <User size={18} /> Sign In
+        <div className="pwc-header-right">
+          <div className="pwc-topology-btn" onClick={() => setShowTopology(!showTopology)}>
+            <Network size={18} /> <span>{showTopology ? 'Close Topology' : 'Topology'}</span>
+          </div>
+
+          {projectCards.length > 0 && !showTopology && (
+            <button
+              onClick={exportToPDF}
+              disabled={isExporting}
+              className="pwc-btn"
+              style={{ padding: '6px 16px', display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.85rem' }}
+              title="Export as Executive Briefing PDF"
+            >
+              <Download size={16} />
+              {isExporting ? 'Exporting...' : 'Export Briefing'}
             </button>
           )}
+
+          <div className="pwc-auth">
+            {isAuthenticated ? (
+              <div className="auth-symbol">
+                <div className="status-indicator active" title="Active Ping (Token Refreshed)"></div>
+                <User size={18} />
+                <span className="user-name">{accounts[0]?.name?.split(' ')[0]}</span>
+                <button onClick={handleLogout} className="logout-btn" title="Log Out">
+                  <LogOut size={16} />
+                </button>
+              </div>
+            ) : (
+              <button onClick={handleLogin} className="login-btn">
+                <User size={18} /> Sign In
+              </button>
+            )}
+          </div>
         </div>
       </header>
 
@@ -246,18 +310,20 @@ function App() {
         {/* Right Side: Data & Results */}
         <section className="pwc-data-panel" ref={dataSectionRef}>
           {!isLoading && projectCards.length === 0 && (
-            <div className="pwc-empty-hero">
-              <div className="hero-text-box">
-                <h1>Go way beyond traditional query tools</h1>
-                <p>
-                  It's not just about searching documents — it's what you extract securely. With proven zero-leak architecture and AI-driven insights, we help you leverage SharePoint data safely.
-                </p>
-              </div>
-              <div className="hero-image-placeholder">
-                {/* This represents the large image in the PwC screenshot */}
-                <div className="image-overlay"></div>
-              </div>
-            </div>
+                <PromptGallery
+                  onSelectPrompt={(prompt) => {
+                    const syntheticEvent = {
+                      target: { value: prompt }
+                    } as React.ChangeEvent<HTMLTextAreaElement>;
+                    handleInputChange(syntheticEvent);
+                    setTimeout(() => {
+                      if (textareaRef.current && textareaRef.current.form) {
+                        textareaRef.current.form.requestSubmit();
+                      }
+                    }, 100);
+                  }}
+                  isLoading={isLoading}
+                />
           )}
 
           {isLoading && projectCards.length === 0 && (
@@ -269,47 +335,7 @@ function App() {
 
           <div className="pwc-cards-grid">
             {projectCards.map((card, idx) => (
-              <article key={idx} className="pwc-card">
-                <header className="card-header">
-                  <span className="industry-tag">{card.industry || 'Internal Data'}</span>
-                  <a
-                    href={card.document_url || `https://sockcop.sharepoint.com/sites/FinancialDocument/Shared%20Documents/${encodeURIComponent(card.document_name)}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="doc-id"
-                    title="View Secure Source Document"
-                  >
-                    Ref: {card.document_name}
-                  </a></header>
-
-                <h2 className="card-title">{card.title}</h2>
-
-                <section className="card-body">
-                  <div className="info-block">
-                    <h3>Factual Information</h3>
-                    <p>{card.factual_information}</p>
-                  </div>
-
-                  {card.insights && card.insights.length > 0 && (
-                    <div className="info-block">
-                      <h3>Key Insights</h3>
-                      <ul>
-                        {card.insights.map((insight, i) => (
-                          <li key={i}>{insight}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-                </section>
-
-                {card.key_metrics && card.key_metrics.length > 0 && (
-                  <footer className="card-footer metrics">
-                    {card.key_metrics.map((metric, i) => (
-                      <span key={i} className="metric-pill"><Cpu size={14} /> {metric}</span>
-                    ))}
-                  </footer>
-                )}
-              </article>
+              <ProjectCardWidget key={idx} card={card as any} />
             ))}
           </div>
         </section>

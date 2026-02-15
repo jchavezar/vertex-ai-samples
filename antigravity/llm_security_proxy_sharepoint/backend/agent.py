@@ -53,6 +53,11 @@ Synthesize the response generalizing the intelligence.
 Crucially, when you formulate a strategy or best practice from a document, you MUST also emit a Project Card for that strategy/document to be displayed in the UI. Make sure the title is generic.
 If you process multiple relevant documents, you must emit MULTIPLE project cards—one for each document strategy.
 
+For each Project Card:
+- "original_context": Extract the core paragraph or sentence from the source that proves the insight. You MUST wrap any sensitive data within this snippet in <redact>...</redact> tags (e.g., "Company <redact>Acme</redact> grew by <redact>$50M</redact>").
+- "chart_data": If the document contains comparable metrics (e.g. revenue across regions, budget breakdown), extract them as a JSON string of Key-Value pairs where Value is a number. Otherwise, leave empty.
+- "document_weight": A percentage (0-100) indicating how much this specific document contributed to answering the user's query compared to other documents used.
+
 Return your response adhering strictly to the JSON schema.
 """
 
@@ -60,8 +65,11 @@ class ProjectCard(BaseModel):
     title: str = Field(description="Generic masked title (e.g. 'M&A Retention Strategy')")
     industry: str = Field(description="Industry of the referenced company")
     factual_information: str = Field(description="Factual information from the documents nicely formatted and organized but completely masking all sensitive data")
+    original_context: str = Field(description="The exact snippet from the source text that proves this insight. ANY sensitive data MUST be wrapped in <redact>...</redact> tags.")
     insights: List[str] = Field(description="Strategic insights and recommendations derived from the source")
     key_metrics: List[str] = Field(description="General ranges or percentages of impact")
+    chart_data: str = Field(default="", description="Optional JSON string of numerical key-value pairs representing metrics related to this card. E.g. '{\"Cloud\": 40, \"On-Prem\": 60}'. Set to empty string if no relevant numerical data exists.")
+    document_weight: int = Field(default=100, description="A percentage (0-100) indicating how much this specific document contributed to the overall answer.")
     redacted_entities: List[str] = Field(description="List of specific sensitive information (e.g. Acme Corp, $50M, John Doe) that were discovered but excluded/masked from the factual information to prove zero-leak.")
     document_name: str = Field(description="Original document name used as source")
     document_url: Optional[str] = Field(default=None, description="The exact 'webUrl' string provided in the search tool's output for this document. You MUST set this to null if you do not have a real webUrl from the tool.")

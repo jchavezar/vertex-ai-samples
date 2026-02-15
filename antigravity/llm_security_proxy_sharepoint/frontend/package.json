@@ -14,10 +14,13 @@
     "@azure/msal-browser": "^5.2.0",
     "@azure/msal-react": "^5.0.4",
     "ai": "^6.0.85",
+    "html2canvas": "^1.4.1",
+    "jspdf": "^4.1.0",
     "lucide-react": "^0.563.0",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
     "react-markdown": "^10.1.0",
+    "recharts": "^3.7.0",
     "zustand": "^5.0.11"
   },
   "devDependencies": {

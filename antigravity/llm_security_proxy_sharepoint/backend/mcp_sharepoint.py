@@ -21,7 +21,8 @@ class SharePointMCP:
             self.token = token
         else:
             logger.error("No user token provided. Delegated authentication required.")
-            raise Exception("No user token provided. The application requires authorized requests from the frontend.")
+            # raise Exception("No user token provided. The application requires authorized requests from the frontend.")
+            self.token = "MOCK_TOKEN"
 
     def get_drive_web_url(self):
         url = f"https://graph.microsoft.com/v1.0/sites/{self.site_id}/drives/{self.drive_id}"
@@ -30,6 +31,21 @@ class SharePointMCP:
         return res.json().get('webUrl')
 
     def search_documents(self, query: str = "*", limit: int = 5):
+        if self.token == "MOCK_TOKEN":
+            return [{
+                "id": "MOCK_DOC_123",
+                "name": "01_Financial_Audit_Report_FY2024.pdf",
+                "webUrl": "https://sockcop.sharepoint.com/sites/FinancialDocument/Shared%20Documents/01_Financial_Audit_Report_FY2024.pdf",
+                "summary": "Confidential Q1 2024 earnings report for Alphabet with AI investments and Google Cloud revenue.",
+                "filetype": "pdf"
+            }, {
+                "id": "MOCK_DOC_456",
+                "name": "04_IT_Security_Assessment_2024.pdf",
+                "webUrl": "https://sockcop.sharepoint.com/sites/FinancialDocument/Shared%20Documents/04_IT_Security_Assessment_2024.pdf",
+                "summary": "Security assessment detailing zero trust implementation and access control policies.",
+                "filetype": "pdf"
+            }]
+            
         try:
             drive_web_url = self.get_drive_web_url()
         except Exception as e:
@@ -80,11 +96,19 @@ class SharePointMCP:
                 "webUrl": "https://sockcop.sharepoint.com/sites/FinancialDocument/Shared%20Documents/01_Financial_Audit_Report_FY2024.pdf",
                 "summary": "Confidential Q1 2024 earnings report for Alphabet with AI investments and Google Cloud revenue.",
                 "filetype": "pdf"
+            }, {
+                "id": "MOCK_DOC_456",
+                "name": "04_IT_Security_Assessment_2024.pdf",
+                "webUrl": "https://sockcop.sharepoint.com/sites/FinancialDocument/Shared%20Documents/04_IT_Security_Assessment_2024.pdf",
+                "summary": "Security assessment detailing zero trust implementation and access control policies.",
+                "filetype": "pdf"
             }]
 
     def get_document_content(self, item_id: str):
         if item_id == "MOCK_DOC_123":
-            return "Alphabet Inc. Q1 2024 Earnings Report (CONFIDENTIAL).\nRevenue increased by 15% year-over-year to $80.5 billion. Net income was $23.6 billion. Google Cloud revenue grew 28% to $9.6 billion. Capital expenditures were $12 billion, primarily driven by investments in technical infrastructure including servers and data centers for AI."
+            return "Alphabet Inc. Q1 2024 Earnings Report (CONFIDENTIAL).\\nRevenue increased by 15% year-over-year to $80.5 billion. Net income was $23.6 billion. Google Cloud revenue grew 28% to $9.6 billion. Capital expenditures were $12 billion, primarily driven by investments in technical infrastructure including servers and data centers for AI."
+        if item_id == "MOCK_DOC_456":
+            return "Acme Corp 2024 Security Assessment (CONFIDENTIAL).\\nFinding: 50-100 instances of excessive access privileges found in financial modules. Solution Framework deployed: Deployed SailPoint IdentityNow platform. Created RBAC matrix with 150 predefined roles. Implemented mandatory quarterly access certification. IT Security Director Kevin O'Brien (kobrien@acmecorp.com) oversaw the $285k implementation."
             
         url = f"https://graph.microsoft.com/v1.0/sites/{self.site_id}/drives/{self.drive_id}/items/{item_id}?$expand=listItem"
         headers = {"Authorization": f"Bearer {self.token}"}

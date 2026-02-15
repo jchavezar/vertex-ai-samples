@@ -84,14 +84,25 @@ async def _chat_stream(messages: list, model_name: str):
 
 from auth_context import set_user_token
 
+async def auth_error_stream(message: str):
+    yield AIStreamProtocol.text(message)
+
 @app.post("/chat")
 async def chat_endpoint(request: Request):
     data = await request.json()
     model_name = data.get("model", "gemini-3-pro-preview")
+    
     auth_header = request.headers.get("Authorization")
-    if auth_header and auth_header.startswith("Bearer "):
-        token = auth_header.split(" ")[1]
-        set_user_token(token)
+    if not auth_header or not auth_header.startswith("Bearer "):
+        msg = "🔒 **Access Denied: Zero-Leak Protocol active.**\n\nPlease sign in using the button in the top right to securely query the enterprise index."
+        return StreamingResponse(auth_error_stream(msg), media_type="text/plain; charset=utf-8")
+        
+    token = auth_header.split(" ")[1]
+    if not token or token in ["null", "undefined"]:
+        msg = "🔒 **Access Denied: Invalid token.**\n\nPlease sign in using the button in the top right to securely query the enterprise index."
+        return StreamingResponse(auth_error_stream(msg), media_type="text/plain; charset=utf-8")
+        
+    set_user_token(token)
     return StreamingResponse(_chat_stream(data.get("messages", []), model_name), media_type="text/plain; charset=utf-8")
 
 if __name__ == "__main__":
