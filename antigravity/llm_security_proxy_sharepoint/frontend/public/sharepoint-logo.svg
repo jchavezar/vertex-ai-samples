@@ -1,0 +1,19 @@
+<svg width="256" height="256" viewBox="0 0 256 256" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Right circles forming the cloud -->
+  <circle cx="156" cy="74" r="50" fill="#006C70"/>
+  <circle cx="188" cy="132" r="54" fill="#008272"/>
+  <circle cx="146" cy="180" r="48" fill="#006C70"/>
+
+  <!-- Shadow effect behind the rounded square to give depth against the cloud -->
+  <rect x="23" y="67" width="118" height="118" rx="14" fill="#004A4D" opacity="0.3"/>
+  <rect x="27" y="70" width="114" height="114" rx="14" fill="#004A4D" opacity="0.5"/>
+
+  <!-- Left rounded square (main box) -->
+  <rect x="30" y="72" width="112" height="112" rx="14" fill="#008272"/>
+
+  <!-- Inner shadow representation or highlight (optional, flat style works well) -->
+  <path d="M30 86C30 78.268 36.268 72 44 72H128C135.732 72 142 78.268 142 86V130H30V86Z" fill="#00907D" opacity="0.4"/>
+
+  <!-- The "S" letter -->
+  <text x="86" y="156" font-family="'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-weight="700" font-size="82" fill="#FFFFFF" text-anchor="middle">S</text>
+</svg>

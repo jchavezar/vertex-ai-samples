@@ -58,12 +58,14 @@ export const ProjectCardWidget: React.FC<ProjectCardWidgetProps> = ({ card }) =>
         value: Number(dataObj[key])
       }));
 
+      const chartHeight = Math.max(200, data.length * 60);
+
       return (
-        <div className="chart-container" style={{ height: '200px', marginTop: '1rem', background: 'rgba(0,0,0,0.2)', padding: '1rem', borderRadius: '8px' }}>
+        <div className="chart-container" style={{ width: '100%', marginTop: '1rem', background: 'rgba(0,0,0,0.05)', padding: '1rem', borderRadius: '8px', boxSizing: 'border-box', overflow: 'hidden' }}>
           <h4 style={{ marginBottom: '1rem', fontSize: '0.9rem', color: 'var(--pwc-orange)', display: 'flex', alignItems: 'center', gap: '8px' }}>
             <BarChart2 size={16} /> Data Visualization
           </h4>
-          <ResponsiveContainer width="100%" height="100%">
+          <ResponsiveContainer width="100%" height={chartHeight}>
             <BarChart data={data} layout="vertical" margin={{ top: 5, right: 30, left: 10, bottom: 5 }}>
               <XAxis type="number" hide />
               <YAxis dataKey="name" type="category" axisLine={false} tickLine={false} tick={{ fill: 'var(--pwc-black)', fontSize: 12 }} width={160} />

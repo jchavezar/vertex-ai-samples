@@ -179,10 +179,12 @@ body {
 }
 
 .message.user {
-  background-color: var(--pwc-black);
-  color: white;
+  background: #FFFFFF;
+    color: var(--pwc-black);
   align-self: flex-end;
   border-bottom-right-radius: 4px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    border: 1px solid #E5E7EB;
 }
 
 .message.assistant {
@@ -734,4 +736,101 @@ a.doc-id:hover {
   border-left: 5px solid transparent;
   border-right: 5px solid transparent;
   border-top: 8px solid #ccc;
+}
+/* SharePoint AI Loading Animation */
+.gemini-loading-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  margin: 16px 0;
+  padding: 0 16px;
+}
+
+.gemini-search-pill {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  background: #FFFFFF;
+  border-radius: 12px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.04), 0 2px 4px rgba(0, 0, 0, 0.02);
+  font-family: var(--font-sans);
+}
+
+.sharepoint-icon-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  margin-right: 2px;
+}
+
+.sharepoint-icon-wrapper::before {
+  content: '';
+  position: absolute;
+  top: -6px;
+  bottom: -6px;
+  left: -6px;
+  right: -6px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  /* Glowing line simulation: we use two border sections colored, maybe a shadow */
+  border-top-color: #0364B8;
+  border-bottom-color: #0078D4;
+  animation: spin 1s linear infinite;
+  opacity: 0.9;
+  filter: drop-shadow(0 0 4px rgba(0, 120, 212, 0.6));
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.sharepoint-logo {
+  width: 20px;
+  height: 20px;
+  z-index: 1;
+  animation: pulse-logo 2s ease-in-out infinite alternate;
+}
+
+@keyframes pulse-logo {
+  0% {
+    transform: scale(0.9);
+  }
+
+  100% {
+    transform: scale(1.1);
+  }
+}
+
+.gemini-loading-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+}
+
+.gemini-loading-title {
+  color: #1A1B1E;
+  font-size: 0.9rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  letter-spacing: 0px;
+}
+
+.gemini-loading-subtitle {
+  color: #6B7280;
+  font-size: 0.8rem;
+  font-weight: 400;
+  margin-top: 2px;
 }
