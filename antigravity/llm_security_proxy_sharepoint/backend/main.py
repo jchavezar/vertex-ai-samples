@@ -60,33 +60,87 @@ async def _chat_stream(messages: list, model_name: str):
     # Run the agent (synchronously handles the tools and LLM)
     yield AIStreamProtocol.data({"type": "status", "message": "Establishing secure context...", "icon": "shield-alert", "pulse": True})
     
-    log_latency("Context Initialization")
+    import asyncio
+    from public_agent import get_public_agent
+
+    queue = asyncio.Queue()
+
+    # Create private session copies to avoid clashes
+    pub_session = await session_service.get_session(app_name="Public_Research_Proxy", user_id="default_user", session_id="public_sess")
+    if not pub_session:
+        await session_service.create_session(app_name="Public_Research_Proxy", user_id="default_user", session_id="public_sess")
+    
+    pub_runner = Runner(app_name="Public_Research_Proxy", agent=get_public_agent("gemini-2.5-flash"), session_service=session_service)
+
+    async def stream_agent(runner_obj, sess_id, tag):
+        try:
+            async for event in runner_obj.run_async(user_id="default_user", session_id=sess_id, new_message=msg):
+                await queue.put({"tag": tag, "event": event, "type": "data"})
+        except Exception as e:
+            await queue.put({"tag": tag, "event": e, "type": "error"})
+        finally:
+            await queue.put({"tag": tag, "type": "done"})
+
+    asyncio.create_task(stream_agent(runner, "default_sess", "sharepoint"))
+    asyncio.create_task(stream_agent(pub_runner, "public_sess", "public"))
+
+    active_streams = 2
+    pub_insight = ""
+
     current_action = "LLM Orchestration & Reasoning"
+    
+    while active_streams > 0:
+        msg_obj = await queue.get()
+        tag = msg_obj["tag"]
+        msg_type = msg_obj["type"]
 
-    try:
-        async for event in runner.run_async(user_id="default_user", session_id="default_sess", new_message=msg):
-            try:
-                edata = event.model_dump()
-                
-                # Extract usage metadata
-                usage = edata.get("usage_metadata")
-                if usage:
-                    # Sum up usage across all turns in this reasoning chain
-                    total_tokens["prompt"] += usage.get("prompt_token_count") or 0
-                    total_tokens["candidates"] += usage.get("candidates_token_count") or 0
-                    total_tokens["total"] += usage.get("total_token_count") or 0
+        if msg_type == "done":
+            active_streams -= 1
+            if tag == "sharepoint":
+                log_latency("SharePoint Turnaround")
+            continue
+            
+        evt = msg_obj["event"]
+        
+        if msg_type == "error":
+            print(f"===== RUNNER CRASHED [{tag}] ===== ", evt)
+            if tag == "sharepoint":
+                yield AIStreamProtocol.data({"type": "status", "message": f"Security Proxy Error: {str(evt)}", "icon": "alert-triangle", "pulse": False})
+                reasoning_steps.append(f"AGENT EXECUTION HALTED [{tag}]: {str(evt)}")
+            continue
 
-                content = edata.get("content", {})
-                if content and isinstance(content, dict):
-                    parts = content.get("parts", [])
-                    for p in parts:
-                        # Capture thoughts if present
+        try:
+            edata = evt.model_dump()
+            
+            # Combine token stats
+            usage = edata.get("usage_metadata")
+            if usage:
+                total_tokens["prompt"] += usage.get("prompt_token_count") or 0
+                total_tokens["candidates"] += usage.get("candidates_token_count") or 0
+                total_tokens["total"] += usage.get("total_token_count") or 0
+
+            content = edata.get("content", {})
+            if content and isinstance(content, dict):
+                parts = content.get("parts", [])
+                for p in parts:
+                    if tag == "public":
+                        if p.get("text"):
+                            txt = p['text'].strip()
+                            pub_insight += txt + "\n"
+                            yield AIStreamProtocol.data({
+                                "type": "public_insight", 
+                                "message": "Public Web Consensus",
+                                "data": pub_insight.strip(),
+                                "icon": "globe",
+                                "pulse": True
+                            })
+                    else:
+                        # SHAREPOINT LOGIC
                         if p.get("thought"):
                             txt = f"THOUGHT:\n{p['thought'].strip()}"
                             if txt not in reasoning_steps:
                                 reasoning_steps.append(txt)
 
-                        # Capture reasoning steps explicitly from text
                         if p.get("text"):
                             txt = p['text'].strip()
                             if txt and txt not in reasoning_steps:
@@ -110,7 +164,6 @@ async def _chat_stream(messages: list, model_name: str):
                         elif p.get("function_response"):
                             tool_name = p["function_response"].get("name", "")
                             res_str = str(p["function_response"].get("response", {}))
-                            # truncate response because it can be massive
                             if len(res_str) > 500:
                                 res_str = res_str[:500] + "... [TRUNCATED]"
                             reasoning_steps.append(f"TOOL RESPONSE: {tool_name}\nRESULT: {res_str}")
@@ -118,18 +171,23 @@ async def _chat_stream(messages: list, model_name: str):
                             log_latency(current_action)
                             yield AIStreamProtocol.data({"type": "status", "message": "Synthesizing zero-leak intelligence...", "icon": "cpu", "pulse": True})
                             current_action = "LLM Final Synthesis"
-            except Exception as e:
-                print("===== ERROR IN EVENT ===== ", e)
-                pass
-    except Exception as e:
-        print("===== RUNNER CRASHED ===== ", e)
-        yield AIStreamProtocol.data({"type": "status", "message": f"Security Proxy Error: {str(e)}", "icon": "alert-triangle", "pulse": False})
-        reasoning_steps.append(f"AGENT EXECUTION HALTED: {str(e)}")
-        log_latency("Agent Exception")
+        except Exception as e:
+            print("===== ERROR IN EVENT PARSING ===== ", e)
+            pass
 
     log_latency(current_action)
     total_time = time.time() - start_time
     latency_metrics.append({"step": "Total Turnaround Time", "duration_s": round(total_time, 2)})
+
+    # Final public_insight payload explicitly to stop pulse
+    if pub_insight:
+        yield AIStreamProtocol.data({
+            "type": "public_insight", 
+            "message": "Public Web Consensus",
+            "data": pub_insight.strip(),
+            "icon": "globe",
+            "pulse": False
+        })
 
     yield AIStreamProtocol.data({
         "type": "telemetry",

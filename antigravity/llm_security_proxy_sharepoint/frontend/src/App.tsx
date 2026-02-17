@@ -11,6 +11,7 @@ import {
   Terminal,
   Download,
   CheckCircle,
+  Globe,
 } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import html2canvas from "html2canvas";
@@ -103,7 +104,8 @@ function App() {
     usedSharePoint,
     telemetry,
     reasoningSteps,
-    tokenUsage
+    tokenUsage,
+    publicInsight
   } = useTerminalChat(token, selectedModel);
   const projectCards = useDashboardStore((s) => s.projectCards);
   const endOfMessagesRef = useRef<HTMLDivElement>(null);
@@ -475,6 +477,16 @@ function App() {
                       <ReactMarkdown>{m.content}</ReactMarkdown>
                     </div>
                     ) : null)}
+
+                    {publicInsight && (
+                      <div className="message assistant" style={{ background: 'rgba(94, 174, 253, 0.05)', borderLeft: '3px solid #5eaefd' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px', color: '#5eaefd', fontSize: '11px', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                          <Globe size={14} /> Public Web Consensus (Gemini 2.5 Flash)
+                        </div>
+                        <ReactMarkdown>{publicInsight}</ReactMarkdown>
+                      </div>
+                    )}
+
                     {(isLoading || thoughtStatus) && (
                     <div className="gemini-loading-wrapper">
                       <div className="gemini-search-pill">
