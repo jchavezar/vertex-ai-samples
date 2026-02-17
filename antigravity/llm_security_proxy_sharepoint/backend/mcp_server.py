@@ -8,9 +8,7 @@ mcp = FastMCP(
     "SharePoint Security Proxy MCP"
 )
 
-# Initialize the internal logic
-# Env vars are expected to be set for the container
-sharepoint = SharePointMCP()
+# Removed global sharepoint instance to avoid startup crashes
 
 @mcp.tool()
 def search_sharepoint(query: str, limit: int = 5) -> str:
@@ -22,6 +20,8 @@ def search_sharepoint(query: str, limit: int = 5) -> str:
         limit: Max number of documents to return.
     """
     try:
+        from auth_context import get_user_token
+        sharepoint = SharePointMCP(token=get_user_token())
         results = sharepoint.search_documents(query, limit)
         return json.dumps(results, indent=2)
     except Exception as e:
@@ -36,6 +36,8 @@ def read_document_content(item_id: str) -> str:
         item_id: The unique identifier of the file from SharePoint.
     """
     try:
+        from auth_context import get_user_token
+        sharepoint = SharePointMCP(token=get_user_token())
         return sharepoint.get_document_content(item_id)
     except Exception as e:
         return f"Error reading document: {str(e)}"

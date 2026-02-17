@@ -1,106 +1,116 @@
-# PWC LLM Security Proxy: SharePoint Integration
+# 🛡️ PWC LLM Security Proxy: SharePoint Integration
 
-This project is a secure, generalized consulting intelligence proxy. It acts as a middleman between confidential SharePoint documents and a chat interface, allowing users to query intelligence without ever exposing sensitive client data, PII, or raw financial specifics.
+> **Zero-Leak Protocol Enforced**: This project implements a secure, generalized consulting intelligence proxy. It acts as a middleman between confidential SharePoint documents and a chat interface, guaranteeing that users can query enterprise intelligence without ever exposing sensitive client data, PII, or raw financial specifics to the public web.
 
-This project implements the **Zero-Parsing Architecture** using FastAPI, Google ADK (Agent Development Kit), and the React 19 Vercel AI SDK. It also provides a beautiful, modern **Topology UI** to inspect the end-to-end trace.
-
-## 🔐 Zero-Leak Protocol
-
-This repository adheres to strict Zero-Leak protocols.
-- **NEVER** commit `.env` files.
-- **NEVER** hardcode credentials (e.g., `client_id`, `client_secret`, `tenant_id`).
-- Secrets are managed entirely in your local environment.
-- The `.gitignore` includes mandatory exclusion rules for all standard credential files.
+This application is built using the **Zero-Parsing Architecture** combining **FastAPI**, **Google ADK (Agent Development Kit)**, and the **React 19 Vercel AI SDK**. It offers a beautiful, modern **Topology UI** to inspect end-to-end telemetry and execution latency.
 
 ---
 
-## 🏗️ Architecture Topology
+## ✨ Features & Zero-Leak Security
 
-The application enforces a secure offloading architecture using the Model Context Protocol (MCP).
+This repository adheres to strict Zero-Leak protocols for enterprise deployments:
+- **Never Commit Secrets**: `.env` files and credentials are strictly `.gitignore`'d.
+- **Client-Side Identity**: Microsoft Entra ID (MSAL) handles primary authentication entirely in the browser.
+- **Stateless Proxying**: The Cloud Run backend receives short-lived user-delegated tokens per request, validating them directly against the Microsoft Graph API before ever initiating Vertex AI generation. 
+- **No Stored Tokens**: The `.env` file only requires non-secret IDs (`TENANT_ID`, `CLIENT_ID`, `SITE_ID`, `DRIVE_ID`).
+
+---
+
+## 🏗️ Cloud Native Architecture (Google Cloud Run)
+
+The application enforces a secure offloading architecture using the **Model Context Protocol (MCP)**, specifically tailored for stateless serverless deployment.
 
 ```mermaid
 flowchart LR
-    %% Styling Definitions
-    classDef default fill:#fff,stroke:#333,stroke-width:1px,color:#333;
-    classDef frontend fill:#eef2ff,stroke:#6366f1,stroke-width:2px,color:#4338ca,rx:10,ry:10;
-    classDef backend fill:#faf5ff,stroke:#a855f7,stroke-width:2px,color:#6b21a8,rx:10,ry:10;
-    classDef gemini fill:#fdf4ff,stroke:#d946ef,stroke-width:3px,color:#86198f,rx:15,ry:15;
-    classDef mcp fill:#e0e7ff,stroke:#4f46e5,stroke-width:2px,color:#312e81,rx:10,ry:10;
-    classDef data fill:#ecfdf5,stroke:#10b981,stroke-width:2px,color:#065f46,rx:10,ry:10;
-
-    subgraph Frontend ["End User / React SPA"]
-        A[useTerminalChat Hook]:::frontend
+    %% Modern Futuristic Styling Requirements
+    classDef default fill:#1e293b,stroke:#475569,stroke-width:2px,color:#f8fafc;
+    classDef user fill:#0f172a,stroke:#3b82f6,stroke-width:2px,color:#bfdbfe,rx:12,ry:12;
+    classDef frontend fill:#020617,stroke:#6366f1,stroke-width:3px,color:#c7d2fe,rx:12,ry:12;
+    classDef backend fill:#111827,stroke:#a855f7,stroke-width:3px,color:#e9d5ff,rx:12,ry:12;
+    classDef ai fill:#2e1065,stroke:#d946ef,stroke-width:3px,color:#fbcfe8,rx:15,ry:15;
+    classDef data fill:#064e3b,stroke:#10b981,stroke-width:3px,color:#a7f3d0,rx:12,ry:12;
+    
+    subgraph Client ["Client Identity Boundary"]
+        U[End User / Browser]:::user
+        A[React SPA / MSAL]:::frontend
+        U -- "Microsoft Login" --> A
     end
 
-    subgraph Backend ["Security Proxy (FastAPI)"]
-        B[Google ADK Runner]:::backend
-        C[gemini-3-pro-preview]:::gemini
+    subgraph GCP ["Google Cloud Run (Serverless)"]
+        B[FastAPI Security Proxy]:::backend
+        M[Internal MCP Server]:::backend
+        C[Google ADK / Vertex AI]:::ai
+        B <--> M
         B <--> C
     end
 
-    subgraph MCP ["MCP Server"]
-        D[Python MCP SDK]:::mcp
-        D_Tool["search_documents()"]:::mcp
-        D --- D_Tool
-    end
-
-    subgraph Data ["Microsoft Cloud"]
-        E[Graph API / Entra ID]:::data
-        F[(SharePoint Indices)]:::data
+    subgraph Entra ["Microsoft 365 Enterprise"]
+        E[Entra ID / Graph API]:::data
+        F[(SharePoint Internal Indices)]:::data
         E --> F
     end
 
-    A -- SSE / HTTP --> B
-    B -- MCP TOOL CALL --> D
-    D -- REST --> E
-
-    %% Link Styling
-    linkStyle default stroke:#64748b,stroke-width:1px,fill:none;
-
-    %% Subgraph Styling
-    style Frontend fill:#f8fafc,stroke:#94a3b8,stroke-width:1px,stroke-dasharray: 5 5
-    style Backend fill:#fcfaff,stroke:#c084fc,stroke-width:1px,stroke-dasharray: 5 5
-    style MCP fill:#eff6ff,stroke:#60a5fa,stroke-width:1px,stroke-dasharray: 5 5
-    style Data fill:#f0fdf4,stroke:#86efac,stroke-width:1px,stroke-dasharray: 5 5
+    A -- "Streaming HTTP + Bearer Token" --> B
+    M -- "Delegated Search" --> E
+    
+    %% Styles
+    linkStyle default stroke:#64748b,stroke-width:2px,fill:none;
+    style Client fill:#020617,stroke:#3b82f6,stroke-width:1px,stroke-dasharray: 4 4
+    style GCP fill:#000000,stroke:#8b5cf6,stroke-width:1px,stroke-dasharray: 4 4
+    style Entra fill:#022c22,stroke:#10b981,stroke-width:1px,stroke-dasharray: 4 4
 ```
 
 ### Flow Breakdown:
-1. **End User (React SPA):** The user types a query in the beautifully designed "Modern Cave" chat interface.
-2. **Security Proxy:** The Vercel AI SDK streams the request to a FastAPI backend running a Google ADK `LlmAgent`.
-3. **LLM Evaluation:** `gemini-3-pro-preview` evaluates the query and delegates extraction to the MCP Server if external knowledge is required.
-4. **MCP Server:** Executes the `search_documents()` tool via the standard Model Context Protocol.
-5. **Microsoft Graph:** Authenticates using OAuth 2.0 Client Credentials and accesses protected SharePoint directories.
-6. **Zero-Parsing Delivery:** The Proxy returns sanitized markdown (`0:`) and structured data cards (`2:`) back to the frontend dynamically.
+1. **End User Authentication**: User logs in via Microsoft Entra ID leveraging the MSAL library directly in the React frontend.
+2. **Streaming Execution**: The Vercel AI SDK streams the request along with the `Bearer` token to the FastAPI backend running a Google ADK `LlmAgent`.
+3. **LLM Evaluation**: `gemini-3-pro-preview` evaluates the query and delegates execution to the internal `FastMCP` server for external knowledge retrieval.
+4. **Token Hydration**: The MCP Server hydrates the incoming user token, querying the Microsoft Graph API securely to retrieve documents specifically scoped to the signed-in user.
+5. **Zero-Parsing Delivery**: The Proxy returns sanitized markdown (`0:`) and structured data citation cards (`2:`) back to the frontend dynamically.
 
 ---
 
-## 🚀 Environment Setup
+## 🚀 Live Environment Verification
+
+The application is fully optimized for Cloud Run deployments. When deployed, it features seamless active routing and zero-leak configuration proxying.
+
+### Example Query Executions
+![Cloud Run Standard End-to-End Test](assets/cloud_run_demo.webp)
+
+![Active Browsing Query Cards](assets/cloud_run_queries.webp)
+
+---
+
+## 🛠️ Replication & Setup Guide
+
+### 1. Azure App Registration
+Ensure your Entra ID application has:
+- Supported account types: Single Tenant
+- Redirect URIs (SPA): `http://localhost:5173` and your `https://your-cloud-run-frontend-url`
+- API Permissions: `Sites.Read.All`, `Files.Read.All`, `User.Read` (Delegated)
+
+### 2. Configure Environment
 
 At the root of the project (`llm_security_proxy_sharepoint/`), create a `.env` file containing your Azure credentials and SharePoint targets:
 
 ```env
-# Microsoft Graph API Credentials
+# Microsoft Configuration (No secrets!)
 TENANT_ID=your_tenant_id
 CLIENT_ID=your_client_id
-CLIENT_SECRET=your_client_secret
 
-# SharePoint Targets
+# SharePoint Targeting
 SITE_ID=your_site_id
 DRIVE_ID=your_drive_id
 
-# Google Cloud (For LLM and ADK)
+# Google Cloud Targeting
 GOOGLE_CLOUD_PROJECT=your_gcp_project
+GOOGLE_CLOUD_LOCATION=us-central1
 ```
 
-Ensure your Entra ID application has `Sites.Read.All` and `Files.Read.All` with **Admin Consent Granted**.
+*(Note: The `backend/main.py` is configured to gracefully load the `.env` from the parent directory.)*
 
----
+### 3. Local Development (`uv` strictly enforced)
 
-## 📦 Installation & Execution
-
-We strictly use `uv` for Python dependency management.
-
-### Backend Start
+**Backend:**
 ```bash
 cd backend
 uv sync
@@ -108,47 +118,40 @@ uv run python main.py
 ```
 *(Runs on port 8001)*
 
-### Frontend Start
+**Frontend:**
+*Create a `.env.local` in the `frontend` directory for Vite:*
+```env
+VITE_TENANT_ID=your_tenant_id
+VITE_CLIENT_ID=your_client_id
+# Localhost pointing
+VITE_BACKEND_URL=http://localhost:8001/chat
+```
 ```bash
 cd frontend
 npm install
 npm run dev
 ```
-*(Runs on port 5173)*
-
-### Standalone MCP Server
-You can run the SharePoint connector natively as a standalone server for the MCP Inspector:
-```bash
-cd backend
-uv run python mcp_server.py
-```
-
-### Serverless Cloud Run Deployment
-
-You can deploy the components securely on Google Cloud Run. By default, organizational policies mandate secure internal connections, so both the FastMCP backend and React frontend are deployed securely using `--no-allow-unauthenticated`. Check the frontend's `McpInspector.tsx` code logic to see how it relays the Google Identity Token to communicate.
-
-**Deploy the Backend API**:
-```bash
-cd backend
-gcloud run deploy mcp-sharepoint-server \
-  --source . \
-  --region us-central1 \
-  --no-allow-unauthenticated \
-  --env-vars-file=../.env
-```
-
-**Deploy the Frontend NGINX**:
-```bash
-cd frontend
-gcloud run deploy security-proxy-frontend \
-  --source . \
-  --region us-central1 \
-  --no-allow-unauthenticated
-```
 
 ---
 
-## 🎨 UI/UX Highlights
-- **Topology View:** A built-in architecture viewer inside the application (`Topology` toggle in the header).
-- **Responsive PWC Chat Sidebar:** Dark glassmorphism, contextual cards, and a sophisticated prompt input overlay.
-- **Enterprise Grade Look:** Authentic layout based on corporate guidelines, ensuring robust navigation and aesthetic spacing.
+## ☁️ Cloud Run Deployment
+
+Deploying to Cloud Run uses optimized scripts that pass Build-Time environment variables securely without leaking `.env` secrets into the image registries.
+
+**Deploy Backend:**
+```bash
+cd backend
+./deploy.sh
+```
+*The script resolves `../.env` and maps `SITE_ID` and `DRIVE_ID` via `gcloud run deploy --set-env-vars`.*
+
+**Deploy Frontend:**
+*Update your `frontend/.env.local` to point `VITE_BACKEND_URL` to the newly deployed Cloud Run backend URL.*
+```bash
+cd frontend
+./deploy.sh
+```
+*The script creates an ephemeral `docker-env.txt` to inject MSAL variables during Docker build time without exposing them to the source tree.*
+
+### Secure Identity Access
+Both the Frontend and Backend are deployed with `--allow-unauthenticated` at the Google Cloud IAM level. **Security is strictly enforced at the application level** by the React MSAL provider and the FastAPI Bearer validation. Unauthenticated requests to the backend `/chat` endpoint will fail immediately.
