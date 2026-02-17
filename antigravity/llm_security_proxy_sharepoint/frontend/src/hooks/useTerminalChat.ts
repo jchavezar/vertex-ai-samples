@@ -28,6 +28,7 @@ export function useTerminalChat(token: string | null, model: string = 'gemini-3-
   const [telemetry, setTelemetry] = useState<TelemetryEvent[]>([]);
   const [reasoningSteps, setReasoningSteps] = useState<string[]>([]);
   const [tokenUsage, setTokenUsage] = useState<TokenUsage | null>(null);
+  const [publicInsight, setPublicInsight] = useState<string>('');
 
   const { messages, input, handleInputChange, handleSubmit, data, isLoading } = useChat({
     api: '/chat',
@@ -48,6 +49,8 @@ export function useTerminalChat(token: string | null, model: string = 'gemini-3-
       const p = rawP as any;
       if (p.type === 'project_card' && p.data) {
         addProjectCard(p.data as ProjectCardData);
+      } else if (p.type === 'public_insight') {
+        setPublicInsight(p.data || '');
       } else if (p.type === 'status') {
         if (p.icon === 'search' || p.icon === 'database' || p.icon === 'file-search') {
           setUsedSharePoint(true);
@@ -78,9 +81,10 @@ export function useTerminalChat(token: string | null, model: string = 'gemini-3-
     setTelemetry([]);
     setReasoningSteps([]);
     setTokenUsage(null);
+    setPublicInsight('');
     setThoughtStatus({ message: 'Requesting proxy access...', icon: 'shield-alert', pulse: true });
     handleSubmit(e);
   };
 
-  return { messages, input, handleInputChange, handleSubmit: customHandleSubmit, isLoading, hasData: !!data && data.length > 0, thoughtStatus, usedSharePoint, telemetry, reasoningSteps, tokenUsage };
+  return { messages, input, handleInputChange, handleSubmit: customHandleSubmit, isLoading, hasData: !!data && data.length > 0, thoughtStatus, usedSharePoint, telemetry, reasoningSteps, tokenUsage, publicInsight };
 }
