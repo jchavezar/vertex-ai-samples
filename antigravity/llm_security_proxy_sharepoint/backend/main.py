@@ -1,3 +1,9 @@
+import os
+import sys
+
+# Ensure backend directory is in sys.path so 'agent' can be imported easily even if run from root
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+
 import json
 import logging
 from fastapi import FastAPI, Request
@@ -6,10 +12,11 @@ from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 from google.adk.runners import Runner
 from google.adk.sessions.in_memory_session_service import InMemorySessionService
+
+# Now we can safely import agent, protocol, etc.
 from agent import get_agent
 from protocol import AIStreamProtocol
 from dotenv import load_dotenv
-import os
 
 load_dotenv(dotenv_path="../.env")
 
