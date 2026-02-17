@@ -30,8 +30,12 @@ export function useTerminalChat(token: string | null, model: string = 'gemini-3-
   const [tokenUsage, setTokenUsage] = useState<TokenUsage | null>(null);
   const [publicInsight, setPublicInsight] = useState<string>('');
 
+  const apiEndpoint = import.meta.env.VITE_BACKEND_URL || (typeof window !== 'undefined' && window.location.hostname !== 'localhost'
+    ? 'https://mcp-sharepoint-server-440133963879.us-central1.run.app/chat'
+    : '/chat');
+
   const { messages, input, setMessages, handleInputChange, handleSubmit, data, isLoading } = useChat({
-    api: '/chat',
+    api: apiEndpoint,
     headers: token ? { Authorization: `Bearer ${token}` } : undefined,
     body: { model },
   });

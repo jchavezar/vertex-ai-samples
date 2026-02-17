@@ -18,5 +18,5 @@ COPY . .
 # Expose the port (Cloud Run sets PORT env var)
 EXPOSE 8080
 
-# Run the MCP server
-CMD ["python", "mcp_server.py"]
+# Run the Proxy server
+CMD ["python", "main.py"]
