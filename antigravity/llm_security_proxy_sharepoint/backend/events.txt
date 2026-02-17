@@ -1,0 +1,78 @@
+Yielded Events:
+ - Event: model_version='gemini-3-flash-preview' content=Content(
+  parts=[
+    Part(
+      function_call=FunctionCall(
+        args={
+          'query': 'audit report'
+        },
+        id='adk-97ebfc7c-c6c2-4abb-b113-74516145832e',
+        name='_search_sharepoint_documents'
+      ),
+      thought_signature=b'\n\xf9\x01\x01\x8f=k_\x1c\xd7\xe0\xf7\xa6\x07\x1bg\x03\xb1\xe0\xe6\xec\xc3P\x07N\x1c\xd8-kA\x95\xe5\xef1\x1ew\x8acP\xd3}`\x97[\x91\x7f\x11C\x87\xbd\xca\\\xae<\xfbRm0\x8e\xad\x05\xb1\x03E5~\x15PC\xea\xfad;4\x80\xc9P\x15\x1b\x7f\x81=\xe9sT\xb9\x83\xdf!q\x85\xba\x08\x1b\xf9\x9bR...'
+    ),
+  ],
+  role='model'
+) grounding_metadata=None partial=None turn_complete=None finish_reason=<FinishReason.STOP: 'STOP'> error_code=None error_message=None interrupted=None custom_metadata=None usage_metadata=GenerateContentResponseUsageMetadata(
+  candidates_token_count=13,
+  candidates_tokens_details=[
+    ModalityTokenCount(
+      modality=<MediaModality.TEXT: 'TEXT'>,
+      token_count=13
+    ),
+  ],
+  prompt_token_count=1186,
+  prompt_tokens_details=[
+    ModalityTokenCount(
+      modality=<MediaModality.TEXT: 'TEXT'>,
+      token_count=1186
+    ),
+  ],
+  thoughts_token_count=45,
+  total_token_count=1244,
+  traffic_type=<TrafficType.ON_DEMAND: 'ON_DEMAND'>
+) live_session_resumption_update=None input_transcription=None output_transcription=None avg_logprobs=-1.444970748649485 logprobs_result=None cache_metadata=None citation_metadata=None interaction_id=None invocation_id='e-796478f5-4d21-4504-a08f-c59159fcd55f' author='PWC_Security_Proxy' actions=EventActions(skip_summarization=None, state_delta={}, artifact_delta={}, transfer_to_agent=None, escalate=None, requested_auth_configs={}, requested_tool_confirmations={}, compaction=None, end_of_agent=None, agent_state=None, rewind_before_invocation_id=None) long_running_tool_ids=set() branch=None id='631f153d-9502-4509-866a-5dfce2402601' timestamp=1771291811.786146
+ - DUMP: {'model_version': 'gemini-3-flash-preview', 'content': {'parts': [{'media_resolution': None, 'code_execution_result': None, 'executable_code': None, 'file_data': None, 'function_call': {'id': 'adk-97ebfc7c-c6c2-4abb-b113-74516145832e', 'args': {'query': 'audit report'}, 'name': '_search_sharepoint_documents', 'partial_args': None, 'will_continue': None}, 'function_response': None, 'inline_data': None, 'text': None, 'thought': None, 'thought_signature': b'\n\xf9\x01\x01\x8f=k_\x1c\xd7\xe0\xf7\xa6\x07\x1bg\x03\xb1\xe0\xe6\xec\xc3P\x07N\x1c\xd8-kA\x95\xe5\xef1\x1ew\x8acP\xd3}`\x97[\x91\x7f\x11C\x87\xbd\xca\\\xae<\xfbRm0\x8e\xad\x05\xb1\x03E5~\x15PC\xea\xfad;4\x80\xc9P\x15\x1b\x7f\x81=\xe9sT\xb9\x83\xdf!q\x85\xba\x08\x1b\xf9\x9bRu\xbc[\xe4\x0cs\xc8\xdf\x12\x07\\=\xba\x91\x7f#[\x84&\x8a3\xb6\xa1\xb0\xa8z\x0b,\x8c\xbf\x00#\x99I\xc9\xfb\xe7\xa8\xe9\xcc\t\xce\xfa\xb7\x9a\xc9\xf1\x88G\xc8\xe2\xee\r/"\x1dk\xf2\xc5\xeb\x8a\xcc\xcc\xb0\x9c\xf9\xda\x186\x99uu8;\xd5{U\x90u~R\xcb\xb6Cj\xce-B\x7f\x8a\\\xda\x05\xcbr<e-\xfak\xb9\xbe\xf2\x0c.?\x06\xbdh\xd0_R\xc6H\xedk\x90\x14\xdda\xcb&\xab#\xa2\xd9\x04Ok\x0f\x1aS!\x81\x8a\xf3\x196\x86\xc3\x0e\xfb\xf6\x97P\nf1\xe8\xc1\xe0HE\x93\xac', 'video_metadata': None}], 'role': 'model'}, 'grounding_metadata': None, 'partial': None, 'turn_complete': None, 'finish_reason': <FinishReason.STOP: 'STOP'>, 'error_code': None, 'error_message': None, 'interrupted': None, 'custom_metadata': None, 'usage_metadata': {'cache_tokens_details': None, 'cached_content_token_count': None, 'candidates_token_count': 13, 'candidates_tokens_details': [{'modality': <MediaModality.TEXT: 'TEXT'>, 'token_count': 13}], 'prompt_token_count': 1186, 'prompt_tokens_details': [{'modality': <MediaModality.TEXT: 'TEXT'>, 'token_count': 1186}], 'thoughts_token_count': 45, 'tool_use_prompt_token_count': None, 'tool_use_prompt_tokens_details': None, 'total_token_count': 1244, 'traffic_type': <TrafficType.ON_DEMAND: 'ON_DEMAND'>}, 'live_session_resumption_update': None, 'input_transcription': None, 'output_transcription': None, 'avg_logprobs': -1.444970748649485, 'logprobs_result': None, 'cache_metadata': None, 'citation_metadata': None, 'interaction_id': None, 'invocation_id': 'e-796478f5-4d21-4504-a08f-c59159fcd55f', 'author': 'PWC_Security_Proxy', 'actions': {'skip_summarization': None, 'state_delta': {}, 'artifact_delta': {}, 'transfer_to_agent': None, 'escalate': None, 'requested_auth_configs': {}, 'requested_tool_confirmations': {}, 'compaction': None, 'end_of_agent': None, 'agent_state': None, 'rewind_before_invocation_id': None}, 'long_running_tool_ids': set(), 'branch': None, 'id': '631f153d-9502-4509-866a-5dfce2402601', 'timestamp': 1771291811.786146}
+ - Event: model_version=None content=Content(
+  parts=[
+    Part(
+      function_response=FunctionResponse(
+        id='adk-97ebfc7c-c6c2-4abb-b113-74516145832e',
+        name='_search_sharepoint_documents',
+        response={
+          'result': 'Error: Failed to search SharePoint: {"error":{"code":"InvalidAuthenticationToken","message":"IDX14100: JWT is not well formed, there are no dots (.).\\nThe token needs to be in JWS or JWE Compact Serialization Format. (JWS): \'EncodedHeader.EncodedPayload.EncodedSignature\'. (JWE): \'EncodedProtectedHeader.EncodedEncryptedKey.EncodedInitializationVector.EncodedCiphertext.EncodedAuthenticationTag\'.","innerError":{"date":"2026-02-17T01:30:13","request-id":"a57c55d3-05d9-4657-b1b4-4ac5afa523bc","client-request-id":"a57c55d3-05d9-4657-b1b4-4ac5afa523bc"}}}'
+        }
+      )
+    ),
+  ],
+  role='user'
+) grounding_metadata=None partial=None turn_complete=None finish_reason=None error_code=None error_message=None interrupted=None custom_metadata=None usage_metadata=None live_session_resumption_update=None input_transcription=None output_transcription=None avg_logprobs=None logprobs_result=None cache_metadata=None citation_metadata=None interaction_id=None invocation_id='e-796478f5-4d21-4504-a08f-c59159fcd55f' author='PWC_Security_Proxy' actions=EventActions(skip_summarization=None, state_delta={}, artifact_delta={}, transfer_to_agent=None, escalate=None, requested_auth_configs={}, requested_tool_confirmations={}, compaction=None, end_of_agent=None, agent_state=None, rewind_before_invocation_id=None) long_running_tool_ids=None branch=None id='1d8c92bf-2f14-4108-a81f-f75c1a97bfc7' timestamp=1771291813.769289
+ - DUMP: {'model_version': None, 'content': {'parts': [{'media_resolution': None, 'code_execution_result': None, 'executable_code': None, 'file_data': None, 'function_call': None, 'function_response': {'will_continue': None, 'scheduling': None, 'parts': None, 'id': 'adk-97ebfc7c-c6c2-4abb-b113-74516145832e', 'name': '_search_sharepoint_documents', 'response': {'result': 'Error: Failed to search SharePoint: {"error":{"code":"InvalidAuthenticationToken","message":"IDX14100: JWT is not well formed, there are no dots (.).\\nThe token needs to be in JWS or JWE Compact Serialization Format. (JWS): \'EncodedHeader.EncodedPayload.EncodedSignature\'. (JWE): \'EncodedProtectedHeader.EncodedEncryptedKey.EncodedInitializationVector.EncodedCiphertext.EncodedAuthenticationTag\'.","innerError":{"date":"2026-02-17T01:30:13","request-id":"a57c55d3-05d9-4657-b1b4-4ac5afa523bc","client-request-id":"a57c55d3-05d9-4657-b1b4-4ac5afa523bc"}}}'}}, 'inline_data': None, 'text': None, 'thought': None, 'thought_signature': None, 'video_metadata': None}], 'role': 'user'}, 'grounding_metadata': None, 'partial': None, 'turn_complete': None, 'finish_reason': None, 'error_code': None, 'error_message': None, 'interrupted': None, 'custom_metadata': None, 'usage_metadata': None, 'live_session_resumption_update': None, 'input_transcription': None, 'output_transcription': None, 'avg_logprobs': None, 'logprobs_result': None, 'cache_metadata': None, 'citation_metadata': None, 'interaction_id': None, 'invocation_id': 'e-796478f5-4d21-4504-a08f-c59159fcd55f', 'author': 'PWC_Security_Proxy', 'actions': {'skip_summarization': None, 'state_delta': {}, 'artifact_delta': {}, 'transfer_to_agent': None, 'escalate': None, 'requested_auth_configs': {}, 'requested_tool_confirmations': {}, 'compaction': None, 'end_of_agent': None, 'agent_state': None, 'rewind_before_invocation_id': None}, 'long_running_tool_ids': None, 'branch': None, 'id': '1d8c92bf-2f14-4108-a81f-f75c1a97bfc7', 'timestamp': 1771291813.769289}
+ - Event: model_version='gemini-3-flash-preview' content=Content(
+  parts=[
+    Part(
+      text='{"markdown_text": "I cannot fulfill this request as I was unable to retrieve relevant internal documents.", "project_cards": []} ',
+      thought_signature=b'\n\x8a\x03\x01\x8f=k_\x8dQ_X&]w\x9e\xb9\x047\xbb\xecS\x04\x11?\xad\x8d;\x83\xa2\xa8\x1c\xb6i\tr\x8b\xdb\x1d\xb7\xd9Kg\xddgm\xb6]G\xb9\xb4\x99s\xc1\xe2\t7\xe6\x85\x16\xa4&\xc9NJh:\xab\x10\xc8\x03nt\x12\xf9\xd6L\xfapu;\xe0Y\x8a\x12\x81%\x06]<D\xcdK\xba\xafCh...'
+    ),
+  ],
+  role='model'
+) grounding_metadata=None partial=None turn_complete=None finish_reason=<FinishReason.STOP: 'STOP'> error_code=None error_message=None interrupted=None custom_metadata=None usage_metadata=GenerateContentResponseUsageMetadata(
+  candidates_token_count=29,
+  candidates_tokens_details=[
+    ModalityTokenCount(
+      modality=<MediaModality.TEXT: 'TEXT'>,
+      token_count=29
+    ),
+  ],
+  prompt_token_count=1400,
+  prompt_tokens_details=[
+    ModalityTokenCount(
+      modality=<MediaModality.TEXT: 'TEXT'>,
+      token_count=1400
+    ),
+  ],
+  thoughts_token_count=70,
+  total_token_count=1499,
+  traffic_type=<TrafficType.ON_DEMAND: 'ON_DEMAND'>
+) live_session_resumption_update=None input_transcription=None output_transcription=None avg_logprobs=-0.43703739608044784 logprobs_result=None cache_metadata=None citation_metadata=None interaction_id=None invocation_id='e-796478f5-4d21-4504-a08f-c59159fcd55f' author='PWC_Security_Proxy' actions=EventActions(skip_summarization=None, state_delta={'proxy_output': {'markdown_text': 'I cannot fulfill this request as I was unable to retrieve relevant internal documents.', 'project_cards': []}}, artifact_delta={}, transfer_to_agent=None, escalate=None, requested_auth_configs={}, requested_tool_confirmations={}, compaction=None, end_of_agent=None, agent_state=None, rewind_before_invocation_id=None) long_running_tool_ids=None branch=None id='14983050-e74d-40ea-8194-94f10da60ecd' timestamp=1771291813.771104
+ - DUMP: {'model_version': 'gemini-3-flash-preview', 'content': {'parts': [{'media_resolution': None, 'code_execution_result': None, 'executable_code': None, 'file_data': None, 'function_call': None, 'function_response': None, 'inline_data': None, 'text': '{"markdown_text": "I cannot fulfill this request as I was unable to retrieve relevant internal documents.", "project_cards": []} ', 'thought': None, 'thought_signature': b'\n\x8a\x03\x01\x8f=k_\x8dQ_X&]w\x9e\xb9\x047\xbb\xecS\x04\x11?\xad\x8d;\x83\xa2\xa8\x1c\xb6i\tr\x8b\xdb\x1d\xb7\xd9Kg\xddgm\xb6]G\xb9\xb4\x99s\xc1\xe2\t7\xe6\x85\x16\xa4&\xc9NJh:\xab\x10\xc8\x03nt\x12\xf9\xd6L\xfapu;\xe0Y\x8a\x12\x81%\x06]<D\xcdK\xba\xafChf\\8\x07\xa6fUXm_,D%\xf6\xdes\xf7q\xea\xbcF\xed\xf6\x99\xf5\xfc\xe4\x03-kW\xf0<\x8d\xd2C\xd1\xc4=V\xb5\x1c\x15\x94\x91\xabXsv?\x95E{\xdc)\x82\xf5\xe2X&\xd4\x81\xd7\xeb\x98+3\xf8F\x01\xf7\x81}?,\xa0\x94\xb1\x1f\x15u\x91\xd1\xc8FG\xfc\x8e\x8a\x14\xdf (\xf9O\xbf\xe6\x98Yl\x90\xc3n\xa4\x9c\x8f\xeb\x9e[\xdcE\x1c\x89[#1[\x8e\x95~^\x80N\x15$\x8c\xc4\xbf\xcbE(PN\xde\x7f\x97\xffFs\xcb\x99q\xa2\xb0\x1e(\x96\x87qx\x9f\x8f\x06\x9f\'\xc1t]O\xb3\xcf\xb0x\x05S^t1\xa8;O\x00\xe4\xed\x95$\xc3\xf3\xeb\x90\x8bo\xdc\x9bH#|\x80Z\xfb\xd9]m\x98G\x18\x8f\xb8\xd4\xed\xbe/\x10\x13\xad\xebz\x15\xc5;Q\xe1\xf5\x17\xc2\xb6\x07\xee\xeb\xe5#-]\xe1\xb5\xc6\\\xf6}\xe6\x18\xc7\xff\xeegw\x89\xbc\x1b[\x1eF\xc5\x9e\xcd\xd8\x9dy\x9c\xc4\x91\x0c\x19\xe9\xa1\x0f\xf3+\xab\x92\xac\x1a\xda\x05\xfd\xdaQ\xa2F\x1e\xc7\x9a\x90V\x88T\xbe\xf8\xb1rA,\x97\x92~\x95\xe1\x15)?"\xe7\xe6\x00"&\xde$\x99\x9c', 'video_metadata': None}], 'role': 'model'}, 'grounding_metadata': None, 'partial': None, 'turn_complete': None, 'finish_reason': <FinishReason.STOP: 'STOP'>, 'error_code': None, 'error_message': None, 'interrupted': None, 'custom_metadata': None, 'usage_metadata': {'cache_tokens_details': None, 'cached_content_token_count': None, 'candidates_token_count': 29, 'candidates_tokens_details': [{'modality': <MediaModality.TEXT: 'TEXT'>, 'token_count': 29}], 'prompt_token_count': 1400, 'prompt_tokens_details': [{'modality': <MediaModality.TEXT: 'TEXT'>, 'token_count': 1400}], 'thoughts_token_count': 70, 'tool_use_prompt_token_count': None, 'tool_use_prompt_tokens_details': None, 'total_token_count': 1499, 'traffic_type': <TrafficType.ON_DEMAND: 'ON_DEMAND'>}, 'live_session_resumption_update': None, 'input_transcription': None, 'output_transcription': None, 'avg_logprobs': -0.43703739608044784, 'logprobs_result': None, 'cache_metadata': None, 'citation_metadata': None, 'interaction_id': None, 'invocation_id': 'e-796478f5-4d21-4504-a08f-c59159fcd55f', 'author': 'PWC_Security_Proxy', 'actions': {'skip_summarization': None, 'state_delta': {'proxy_output': {'markdown_text': 'I cannot fulfill this request as I was unable to retrieve relevant internal documents.', 'project_cards': []}}, 'artifact_delta': {}, 'transfer_to_agent': None, 'escalate': None, 'requested_auth_configs': {}, 'requested_tool_confirmations': {}, 'compaction': None, 'end_of_agent': None, 'agent_state': None, 'rewind_before_invocation_id': None}, 'long_running_tool_ids': None, 'branch': None, 'id': '14983050-e74d-40ea-8194-94f10da60ecd', 'timestamp': 1771291813.771104}

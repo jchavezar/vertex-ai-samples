@@ -21,49 +21,55 @@ class SharePointMCP:
             self.token = token
         else:
             logger.error("No user token provided. Delegated authentication required.")
-            # raise Exception("No user token provided. The application requires authorized requests from the frontend.")
-            self.token = "MOCK_TOKEN"
+            raise Exception("No user token provided. The application requires authorized requests from the frontend.")
 
     def get_drive_web_url(self):
+        try:
+            import base64, json
+            parts = self.token.split('.')
+            if len(parts) >= 2:
+                payload = parts[1]
+                payload += '=' * (-len(payload) % 4)
+                decoded = json.loads(base64.urlsafe_b64decode(payload))
+                logger.info(f"Token scopes: {decoded.get('scp')}")
+                logger.info(f"Token audience: {decoded.get('aud')}")
+                logger.info(f"Token expiration: {decoded.get('exp')}")
+        except Exception as e:
+            logger.info(f"Could not decode token: {e}")
+            
         url = f"https://graph.microsoft.com/v1.0/sites/{self.site_id}/drives/{self.drive_id}"
         res = requests.get(url, headers={"Authorization": f"Bearer {self.token}"})
-        res.raise_for_status()
+        if not res.ok:
+            logger.error(f"get_drive_web_url HTTP Error {res.status_code}: {res.text}")
+            res.raise_for_status()
         return res.json().get('webUrl')
 
     def search_documents(self, query: str = "*", limit: int = 5):
-        if self.token == "MOCK_TOKEN":
-            return [{
-                "id": "MOCK_DOC_123",
-                "name": "01_Financial_Audit_Report_FY2024.pdf",
-                "webUrl": "https://sockcop.sharepoint.com/sites/FinancialDocument/Shared%20Documents/01_Financial_Audit_Report_FY2024.pdf",
-                "summary": "Confidential Q1 2024 earnings report for Alphabet with AI investments and Google Cloud revenue.",
-                "filetype": "pdf"
-            }, {
-                "id": "MOCK_DOC_456",
-                "name": "04_IT_Security_Assessment_2024.pdf",
-                "webUrl": "https://sockcop.sharepoint.com/sites/FinancialDocument/Shared%20Documents/04_IT_Security_Assessment_2024.pdf",
-                "summary": "Security assessment detailing zero trust implementation and access control policies.",
-                "filetype": "pdf"
-            }]
-            
+
+        drive_web_url = None
         try:
             drive_web_url = self.get_drive_web_url()
         except Exception as e:
-            logger.error(f"Failed to get drive web url: {e}")
-            return f"Failed to get drive URL: {e}"
+            logger.error(f"Failed to get drive web url, continuing without path constraint: {e}")
 
         url = "https://graph.microsoft.com/v1.0/search/query"
         headers = {
             "Authorization": f"Bearer {self.token}",
-            "Content-Type": "application/json",
-            "Region": self.region
+            "Content-Type": "application/json"
         }
+        
+        query_string = query
+        if drive_web_url:
+            query_string = f'{query} path:"{drive_web_url}"'
+            
         payload = {
-            "requests": [{
-                "entityTypes": ["driveItem"],
-                "query": { "queryString": f'path:"{drive_web_url}" {query}' },
-                "region": self.region,
-                "fields": ["id", "name", "webUrl", "summary", "filetype", "listId", "siteId"],
+            "requests": [
+                {
+                    "entityTypes": ["driveItem"],
+                    "query": {
+                        "queryString": query_string
+                    },
+                    "fields": ["id", "name", "webUrl", "summary", "filetype", "listId", "siteId"],
                 "size": limit
             }]
         }
@@ -86,37 +92,27 @@ class SharePointMCP:
                     "summary": r.get('summary'),
                     "filetype": r.get('filetype')
                 })
+            logger.info(f"Search results returned: {len(results)}")
+            if results:
+                for r in results:
+                    logger.info(f"- {r.get('name')}")
             return results
         except requests.exceptions.RequestException as e:
-            logger.error(f"Failed to search items: {e}")
-            # Graceful fallback for UI testing and demos if the live tenant is unavailable/throws 400
-            return [{
-                "id": "MOCK_DOC_123",
-                "name": "01_Financial_Audit_Report_FY2024.pdf",
-                "webUrl": "https://sockcop.sharepoint.com/sites/FinancialDocument/Shared%20Documents/01_Financial_Audit_Report_FY2024.pdf",
-                "summary": "Confidential Q1 2024 earnings report for Alphabet with AI investments and Google Cloud revenue.",
-                "filetype": "pdf"
-            }, {
-                "id": "MOCK_DOC_456",
-                "name": "04_IT_Security_Assessment_2024.pdf",
-                "webUrl": "https://sockcop.sharepoint.com/sites/FinancialDocument/Shared%20Documents/04_IT_Security_Assessment_2024.pdf",
-                "summary": "Security assessment detailing zero trust implementation and access control policies.",
-                "filetype": "pdf"
-            }]
+            error_text = response.text if 'response' in locals() and hasattr(response, 'text') else str(e)
+            logger.error(f"Failed to search items: {error_text}")
+            raise Exception(f"Failed to search SharePoint: {error_text}")
 
     def get_document_content(self, item_id: str):
-        if item_id == "MOCK_DOC_123":
-            return "Alphabet Inc. Q1 2024 Earnings Report (CONFIDENTIAL).\\nRevenue increased by 15% year-over-year to $80.5 billion. Net income was $23.6 billion. Google Cloud revenue grew 28% to $9.6 billion. Capital expenditures were $12 billion, primarily driven by investments in technical infrastructure including servers and data centers for AI."
-        if item_id == "MOCK_DOC_456":
-            return "Acme Corp 2024 Security Assessment (CONFIDENTIAL).\\nFinding: 50-100 instances of excessive access privileges found in financial modules. Solution Framework deployed: Deployed SailPoint IdentityNow platform. Created RBAC matrix with 150 predefined roles. Implemented mandatory quarterly access certification. IT Security Director Kevin O'Brien (kobrien@acmecorp.com) oversaw the $285k implementation."
-            
+
         url = f"https://graph.microsoft.com/v1.0/sites/{self.site_id}/drives/{self.drive_id}/items/{item_id}?$expand=listItem"
         headers = {"Authorization": f"Bearer {self.token}"}
         try:
             response = requests.get(url, headers=headers)
             if response.status_code == 429:
                 return "Throttled by SharePoint, please retry."
-            response.raise_for_status()
+            if not response.ok:
+                logger.error(f"get_document_content HTTP Error {response.status_code}: {response.text}")
+                response.raise_for_status()
             data = response.json()
 
             download_url = data.get('@microsoft.graph.downloadUrl')
