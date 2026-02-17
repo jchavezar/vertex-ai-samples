@@ -154,6 +154,14 @@ async def _chat_stream(messages: list, model_name: str):
                             reasoning_steps.append(f"TOOL CALL: {tool_name}\nARGS: {args_str}")
                             
                             log_latency(current_action)
+                            
+                            yield AIStreamProtocol.data({
+                                "type": "telemetry",
+                                "data": latency_metrics,
+                                "reasoning": reasoning_steps,
+                                "tokens": total_tokens
+                            })
+                            
                             if "search" in tool_name:
                                 yield AIStreamProtocol.data({"type": "status", "message": "Searching enterprise indices...", "icon": "search", "pulse": True})
                                 current_action = "Graph API Search"
@@ -172,6 +180,12 @@ async def _chat_stream(messages: list, model_name: str):
                             
                             log_latency(current_action)
                             yield AIStreamProtocol.data({"type": "status", "message": "Synthesizing zero-leak intelligence...", "icon": "cpu", "pulse": True})
+                            yield AIStreamProtocol.data({
+                                "type": "telemetry",
+                                "data": latency_metrics,
+                                "reasoning": reasoning_steps,
+                                "tokens": total_tokens
+                            })
                             current_action = "LLM Final Synthesis"
         except Exception as e:
             print("===== ERROR IN EVENT PARSING ===== ", e)
