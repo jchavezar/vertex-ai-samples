@@ -478,14 +478,7 @@ function App() {
                     </div>
                     ) : null)}
 
-                    {publicInsight && (
-                      <div className="message assistant" style={{ background: 'rgba(94, 174, 253, 0.05)', borderLeft: '3px solid #5eaefd' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px', color: '#5eaefd', fontSize: '11px', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                          <Globe size={14} /> Public Web Consensus (Gemini 2.5 Flash)
-                        </div>
-                        <ReactMarkdown>{publicInsight}</ReactMarkdown>
-                      </div>
-                    )}
+
 
                     {(isLoading || thoughtStatus) && (
                     <div className="gemini-loading-wrapper">
@@ -565,6 +558,18 @@ function App() {
                 )}
 
                 <div className="pwc-cards-grid">
+                    {publicInsight && (
+                      <div className="pwc-card" style={{ gridColumn: '1 / -1', background: 'rgba(94, 174, 253, 0.05)', borderLeft: '4px solid #5eaefd' }}>
+                        <div className="card-header" style={{ marginBottom: '15px' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#5eaefd', fontSize: '12px', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                            <Globe size={16} /> Public Web Consensus (Gemini 2.5 Flash)
+                          </div>
+                        </div>
+                        <div className="card-content" style={{ fontSize: '14px', lineHeight: '1.6', color: 'var(--pwc-text)' }}>
+                          <ReactMarkdown>{publicInsight}</ReactMarkdown>
+                        </div>
+                      </div>
+                    )}
                   {projectCards.map((card, idx) => (
                     <ProjectCardWidget key={idx} card={card as any} />
                   ))}
