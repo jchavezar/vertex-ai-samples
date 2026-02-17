@@ -154,7 +154,11 @@ async def _chat_stream(messages: list, model_name: str):
                         
                         log_latency(tag, current_action[tag])
                         
-                        if "search" in tool_name:
+                        if tool_name == "google_search":
+                            reasoning_steps.append(f"{agent_label} THOUGHT:\nI need to search the public internet for relevant general market information.")
+                            yield AIStreamProtocol.data({"type": "status", "message": "Searching public web...", "icon": "globe", "pulse": True})
+                            current_action[tag] = "Google Search API"
+                        elif "search" in tool_name:
                             reasoning_steps.append(f"{agent_label} THOUGHT:\nI need to search the enterprise database for relevant information before proceeding.")
                             yield AIStreamProtocol.data({"type": "status", "message": "Searching enterprise indices...", "icon": "search", "pulse": True})
                             current_action[tag] = "Graph API Search"
@@ -193,21 +197,21 @@ async def _chat_stream(messages: list, model_name: str):
                     if p.get("text"):
                         txt = p['text'].strip()
                         if txt:
-                            step_text = f"{agent_label} SYNTHESIS:\n{txt}"
-                            if step_text not in reasoning_steps:
-                                reasoning_steps.append(step_text)
-                                # send live telemetry update so it renders
-                                yield AIStreamProtocol.data({"type": "telemetry", "data": latency_metrics, "reasoning": reasoning_steps, "tokens": total_tokens})
-                                
-                        if tag == "public":
-                            pub_insight += txt + "\n"
-                            yield AIStreamProtocol.data({
-                                "type": "public_insight", 
-                                "message": "Public Web Consensus",
-                                "data": pub_insight.strip(),
-                                "icon": "globe",
-                                "pulse": True
-                            })
+                            if tag == "sharepoint":
+                                step_text = f"{agent_label} SYNTHESIS:\n{txt}"
+                                if step_text not in reasoning_steps:
+                                    reasoning_steps.append(step_text)
+                                    yield AIStreamProtocol.data({"type": "telemetry", "data": latency_metrics, "reasoning": reasoning_steps, "tokens": total_tokens})
+                                    
+                            if tag == "public":
+                                pub_insight += p['text']
+                                yield AIStreamProtocol.data({
+                                    "type": "public_insight", 
+                                    "message": "Public Web Consensus",
+                                    "data": pub_insight.strip(),
+                                    "icon": "globe",
+                                    "pulse": True
+                                })
         except Exception as e:
             print("===== ERROR IN EVENT PARSING ===== ", e)
             pass
@@ -219,6 +223,7 @@ async def _chat_stream(messages: list, model_name: str):
 
     # Final public_insight payload explicitly to stop pulse
     if pub_insight:
+        reasoning_steps.append(f"[Public Web] SYNTHESIS:\n{pub_insight.strip()}")
         yield AIStreamProtocol.data({
             "type": "public_insight", 
             "message": "Public Web Consensus",
