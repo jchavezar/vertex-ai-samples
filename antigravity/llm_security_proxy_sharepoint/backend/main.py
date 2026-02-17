@@ -286,15 +286,12 @@ async def chat_endpoint(request: Request):
     model_name = data.get("model", "gemini-3-pro-preview")
     
     auth_header = request.headers.get("Authorization")
-    if not auth_header or not auth_header.startswith("Bearer "):
-        msg = "🔒 **Access Denied: Zero-Leak Protocol active.**\n\nPlease sign in using the button in the top right to securely query the enterprise index."
-        return StreamingResponse(auth_error_stream(msg), media_type="text/plain; charset=utf-8")
-        
-    token = auth_header.split(" ")[1]
-    if not token or token in ["null", "undefined"]:
-        msg = "🔒 **Access Denied: Invalid token.**\n\nPlease sign in using the button in the top right to securely query the enterprise index."
-        return StreamingResponse(auth_error_stream(msg), media_type="text/plain; charset=utf-8")
-        
+    token = None
+    if auth_header and auth_header.startswith("Bearer "):
+        extracted = auth_header.split(" ")[1]
+        if extracted and extracted not in ["null", "undefined"]:
+            token = extracted
+
     set_user_token(token)
     return StreamingResponse(_chat_stream(data.get("messages", []), model_name), media_type="text/plain; charset=utf-8")
 

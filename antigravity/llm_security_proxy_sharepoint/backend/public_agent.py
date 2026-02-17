@@ -15,10 +15,24 @@ Rules:
 4. If the user query is completely internal and impossible to search on the public web, simply state: "Query relates strictly to internal data; awaiting enterprise search resolution."
 """
 
+from google.adk.agents.callback_context import CallbackContext
+from google.genai import types
+from auth_context import get_user_token
+
+async def check_auth_callback_public(callback_context: CallbackContext) -> types.Content | None:
+    token = get_user_token()
+    if not token or token in ["null", "undefined"]:
+        return types.Content(
+            role="model",
+            parts=[types.Part.from_text(text="🔒 **Access Denied**: Cannot perform public research without enterprise authentication.")]
+        )
+    return None
+
 def get_public_agent(model_name: str = "gemini-2.5-flash") -> LlmAgent:
     return LlmAgent(
         name="Public_Research_Proxy",
         model=model_name,
         instruction=INSTRUCTIONS,
-        tools=[GoogleSearchTool()]
+        tools=[GoogleSearchTool()],
+        before_agent_callback=check_auth_callback_public
     )

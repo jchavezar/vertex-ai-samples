@@ -84,6 +84,30 @@ class ResponseOutput(BaseModel):
     markdown_text: str = Field(description="Your insightful, masked answer to the user's question, strictly following zero-leak rules.")
     project_cards: List[ProjectCard] = Field(description="A list of project cards extracted from the documents. You MUST emit at least one card if an insight or strategy is formulated from documents.")
 
+from google.adk.agents.callback_context import CallbackContext
+from google.genai import types
+import json
+
+async def check_auth_callback(callback_context: CallbackContext) -> types.Content | None:
+    token = get_user_token()
+    if not token or token in ["null", "undefined"]:
+        # User is not authenticated. Return a mock ResponseOutput immediately.
+        # This prevents the LLM from executing and ensures zero-leak.
+        denied_output = {
+            "markdown_text": "🔒 **Access Denied: Zero-Leak Protocol active.**\n\nPlease sign in using the button in the top right to securely query the enterprise index.",
+            "project_cards": []
+        }
+        
+        # Hydrate the session state so the FastAPI streaming handler correctly parses the result
+        callback_context.state["proxy_output"] = denied_output
+
+        # ADK intercepts this Content and treats it as the LLM's final generated output.
+        return types.Content(
+            role="model",
+            parts=[types.Part.from_text(text=json.dumps(denied_output))]
+        )
+    return None
+
 def get_agent(model_name: str = "gemini-3-pro-preview") -> LlmAgent:
     return LlmAgent(
         name="PWC_Security_Proxy",
@@ -91,5 +115,6 @@ def get_agent(model_name: str = "gemini-3-pro-preview") -> LlmAgent:
         instruction=INSTRUCTIONS,
         tools=[search_sharepoint_documents, read_document_content],
         output_schema=ResponseOutput,
-        output_key="proxy_output"
+        output_key="proxy_output",
+        before_agent_callback=check_auth_callback
     )
