@@ -211,3 +211,59 @@
   background: #555;
   border-radius: 3px;
 }
+.trace-step {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.trace-label {
+  display: inline-block;
+  font-family: var(--font-mono, monospace);
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  background: #eee;
+  color: #555;
+  align-self: flex-start;
+}
+
+.label-thought {
+  background: #e0f2fe;
+  color: #0284c7;
+}
+
+.label-analysis {
+  background: #fef08a;
+  color: #a16207;
+}
+
+.label-tool {
+  background: #f3e8ff;
+  color: #7e22ce;
+}
+
+.label-args {
+  background: #f1f5f9;
+  color: #475569;
+}
+
+.label-response {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.label-result {
+  background: #ffedd5;
+  color: #c2410c;
+}
+
+.label-synthesis {
+  background: #ffedd5;
+  color: #b91c1c;
+  border-left: 3px solid #b91c1c;
+  padding-left: 6px;
+}

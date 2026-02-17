@@ -10,6 +10,29 @@ interface TelemetryTabProps {
 }
 
 const renderStepContent = (step: string) => {
+  const match = step.match(/^(THOUGHT|ANALYSIS|TOOL|ARGS|RESPONSE|RESULT|SYNTHESIS):\s*(.*)/is);
+  if (match) {
+    const label = match[1].toUpperCase();
+    const content = match[2];
+    let parsedContent;
+    try {
+      parsedContent = JSON.parse(content);
+      return (
+        <div className="trace-step">
+          <span className={`trace-label label-${label.toLowerCase()}`}>{label}</span>
+          <pre className="json-pretty">{JSON.stringify(parsedContent, null, 2)}</pre>
+        </div>
+      );
+    } catch {
+      return (
+        <div className="trace-step">
+          <span className={`trace-label label-${label.toLowerCase()}`}>{label}</span>
+          <p>{content}</p>
+        </div>
+      );
+    }
+  }
+
   try {
     const parsed = JSON.parse(step);
     return (

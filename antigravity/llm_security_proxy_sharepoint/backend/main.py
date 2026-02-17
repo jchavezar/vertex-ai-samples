@@ -36,22 +36,21 @@ session_service = InMemorySessionService()
 
 class ChatRequest(BaseModel):
     messages: list
-
 async def _chat_stream(messages: list, model_name: str):
     import time
     start_time = time.time()
-    last_phase_time = start_time
+    last_phase_time = {"sharepoint": start_time, "public": start_time}
     latency_metrics = []
     reasoning_steps = []
     total_tokens = {"prompt": 0, "candidates": 0, "total": 0}
     
-    def log_latency(step_name):
-        nonlocal last_phase_time
+    def log_latency(tag, step_name):
         now = time.time()
-        duration_sec = now - last_phase_time
+        duration_sec = now - last_phase_time[tag]
         if duration_sec > 0.01:
-            latency_metrics.append({"step": step_name, "duration_s": round(duration_sec, 2)})
-        last_phase_time = now
+            prefix = "[Enterprise] " if tag == "sharepoint" else "[Public Web] "
+            latency_metrics.append({"step": prefix + step_name, "duration_s": round(duration_sec, 2)})
+        last_phase_time[tag] = now
 
     import uuid
     current_request_id = str(uuid.uuid4())
@@ -106,7 +105,7 @@ async def _chat_stream(messages: list, model_name: str):
     active_streams = 2
     pub_insight = ""
 
-    current_action = "LLM Orchestration & Reasoning"
+    current_action = {"sharepoint": "LLM Orchestration & Reasoning", "public": "Web Research Orchestration"}
     
     while active_streams > 0:
         msg_obj = await queue.get()
@@ -115,8 +114,7 @@ async def _chat_stream(messages: list, model_name: str):
 
         if msg_type == "done":
             active_streams -= 1
-            if tag == "sharepoint":
-                log_latency("SharePoint Turnaround")
+            log_latency(tag, "Turnaround Complete")
             continue
             
         evt = msg_obj["event"]
@@ -148,45 +146,59 @@ async def _chat_stream(messages: list, model_name: str):
                         txt = f"{agent_label} THOUGHT:\n{p['thought'].strip()}"
                         if txt not in reasoning_steps:
                             reasoning_steps.append(txt)
+                            yield AIStreamProtocol.data({"type": "telemetry", "data": latency_metrics, "reasoning": reasoning_steps, "tokens": total_tokens})
 
                     if p.get("function_call"):
                         tool_name = p["function_call"].get("name", "")
                         args_str = str(p["function_call"].get("args", {}))
-                        reasoning_steps.append(f"{agent_label} TOOL: {tool_name}\nARGS: {args_str}")
                         
-                        if tag != "public":
-                            log_latency(current_action)
-                            current_total = round(time.time() - start_time, 2)
-                            temp_metrics = latency_metrics + [{"step": "Total Turnaround Time", "duration_s": current_total}]
-                            yield AIStreamProtocol.data({"type": "telemetry", "data": temp_metrics, "reasoning": reasoning_steps, "tokens": total_tokens})
+                        log_latency(tag, current_action[tag])
+                        
+                        if "search" in tool_name:
+                            reasoning_steps.append(f"{agent_label} THOUGHT:\nI need to search the enterprise database for relevant information before proceeding.")
+                            yield AIStreamProtocol.data({"type": "status", "message": "Searching enterprise indices...", "icon": "search", "pulse": True})
+                            current_action[tag] = "Graph API Search"
+                        elif "read" in tool_name:
+                            reasoning_steps.append(f"{agent_label} ANALYSIS:\nThe search results found relevant files. I must now extract their text using MarkItDown OCR to synthesize the final answer.")
+                            yield AIStreamProtocol.data({"type": "status", "message": "Extracting text via MarkItDown OCR...", "icon": "database", "pulse": True})
+                            current_action[tag] = "Document MarkItDown OCR"
+                        else:
+                            current_action[tag] = f"Tool: {tool_name}"
                             
-                            if "search" in tool_name:
-                                yield AIStreamProtocol.data({"type": "status", "message": "Searching enterprise indices...", "icon": "search", "pulse": True})
-                                current_action = "Graph API Search"
-                            elif "read" in tool_name:
-                                yield AIStreamProtocol.data({"type": "status", "message": "Extracting text via MarkItDown OCR...", "icon": "database", "pulse": True})
-                                current_action = "Document MarkItDown OCR"
-                            else:
-                                current_action = f"Tool: {tool_name}"
-                                
+                        reasoning_steps.append(f"{agent_label} TOOL:\n{tool_name}")
+                        reasoning_steps.append(f"{agent_label} ARGS:\n{args_str}")
+
+                        current_total = round(time.time() - start_time, 2)
+                        temp_metrics = latency_metrics + [{"step": "Total Turnaround Time", "duration_s": current_total}]
+                        yield AIStreamProtocol.data({"type": "telemetry", "data": temp_metrics, "reasoning": reasoning_steps, "tokens": total_tokens})
+                            
                     elif p.get("function_response"):
                         tool_name = p["function_response"].get("name", "")
                         res_str = str(p["function_response"].get("response", {}))
                         if len(res_str) > 500:
                             res_str = res_str[:500] + "... [TRUNCATED]"
-                        reasoning_steps.append(f"{agent_label} RESPONSE: {tool_name}\nRESULT: {res_str}")
+                        reasoning_steps.append(f"{agent_label} RESPONSE:\n{tool_name}")
+                        reasoning_steps.append(f"{agent_label} RESULT:\n{res_str}")
+                        
+                        log_latency(tag, current_action[tag])
                         
                         if tag != "public":
-                            log_latency(current_action)
                             yield AIStreamProtocol.data({"type": "status", "message": "Synthesizing zero-leak intelligence...", "icon": "cpu", "pulse": True})
-                            current_action = "LLM Final Synthesis"
-                            
-                            current_total = round(time.time() - start_time, 2)
-                            temp_metrics = latency_metrics + [{"step": "Total Turnaround Time", "duration_s": current_total}]
-                            yield AIStreamProtocol.data({"type": "telemetry", "data": temp_metrics, "reasoning": reasoning_steps, "tokens": total_tokens})
+                        current_action[tag] = "LLM Final Synthesis"
+                        
+                        current_total = round(time.time() - start_time, 2)
+                        temp_metrics = latency_metrics + [{"step": "Total Turnaround Time", "duration_s": current_total}]
+                        yield AIStreamProtocol.data({"type": "telemetry", "data": temp_metrics, "reasoning": reasoning_steps, "tokens": total_tokens})
 
                     if p.get("text"):
                         txt = p['text'].strip()
+                        if txt:
+                            step_text = f"{agent_label} SYNTHESIS:\n{txt}"
+                            if step_text not in reasoning_steps:
+                                reasoning_steps.append(step_text)
+                                # send live telemetry update so it renders
+                                yield AIStreamProtocol.data({"type": "telemetry", "data": latency_metrics, "reasoning": reasoning_steps, "tokens": total_tokens})
+                                
                         if tag == "public":
                             pub_insight += txt + "\n"
                             yield AIStreamProtocol.data({
@@ -196,15 +208,12 @@ async def _chat_stream(messages: list, model_name: str):
                                 "icon": "globe",
                                 "pulse": True
                             })
-                            yield AIStreamProtocol.data({"type": "status", "message": "Researching public web...", "icon": "globe", "pulse": True})
-                        else:
-                            if txt and txt not in reasoning_steps:
-                                reasoning_steps.append(f"{agent_label} SYNTHESIS:\n{txt}")
         except Exception as e:
             print("===== ERROR IN EVENT PARSING ===== ", e)
             pass
 
-    log_latency(current_action)
+    log_latency("sharepoint", current_action["sharepoint"])
+    log_latency("public", current_action["public"])
     total_time = time.time() - start_time
     latency_metrics.append({"step": "Total Turnaround Time", "duration_s": round(total_time, 2)})
 
