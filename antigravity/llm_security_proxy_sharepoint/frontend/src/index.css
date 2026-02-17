@@ -756,8 +756,30 @@ a.doc-id:hover {
   border: 1px solid rgba(0, 0, 0, 0.08);
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.04), 0 2px 4px rgba(0, 0, 0, 0.02);
   font-family: var(--font-sans);
+  position: relative;
 }
 
+.sharepoint-used-badge {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 14px;
+  height: 14px;
+  opacity: 0;
+  animation: badge-fade-in 0.4s ease-out forwards;
+}
+
+@keyframes badge-fade-in {
+  from {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+
+  to {
+    opacity: 0.6;
+    transform: scale(1);
+  }
+}
 .sharepoint-icon-wrapper {
   position: relative;
   display: flex;
@@ -833,4 +855,41 @@ a.doc-id:hover {
   font-size: 0.8rem;
   font-weight: 400;
   margin-top: 2px;
+}
+.pulsing-text {
+  animation: pulse-op 1.5s infinite alternate;
+}
+
+@keyframes pulse-op {
+  0% {
+    opacity: 0.6;
+  }
+
+  100% {
+    opacity: 1;
+  }
+}
+
+.gemini-sparkle-icon {
+  animation: pulse-sparkle 2s ease-in-out infinite alternate;
+  filter: drop-shadow(0px 2px 4px rgba(76, 138, 255, 0.4));
+}
+
+@keyframes pulse-sparkle {
+  0% {
+    transform: scale(0.95) rotate(-2deg);
+    opacity: 0.8;
+  }
+
+  100% {
+    transform: scale(1.15) rotate(5deg);
+    opacity: 1;
+    filter: drop-shadow(0px 4px 10px rgba(180, 125, 255, 0.6));
+  }
+}
+
+
+.sharepoint-icon-wrapper svg {
+  color: var(--pwc-orange);
+  animation: pulse-logo 2s ease-in-out infinite alternate;
 }

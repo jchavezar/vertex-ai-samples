@@ -19,8 +19,11 @@ def _search_sharepoint_documents(query: str, limit: int = 5) -> str:
         limit: Max number of documents to return.
     """
     import json
-    res = get_mcp().search_documents(query, limit)
-    return json.dumps(res, indent=2)
+    try:
+        res = get_mcp().search_documents(query, limit)
+        return json.dumps(res, indent=2)
+    except Exception as e:
+        return f"Error searching documents: {str(e)}"
 
 search_sharepoint_documents = FunctionTool(func=_search_sharepoint_documents)
 
@@ -30,7 +33,10 @@ def _read_document_content(item_id: str) -> str:
     Args:
         item_id: The unique identifier of the file from SharePoint.
     """
-    return get_mcp().get_document_content(item_id)
+    try:
+        return get_mcp().get_document_content(item_id)
+    except Exception as e:
+        return f"Error reading document: {str(e)}"
 
 read_document_content = FunctionTool(func=_read_document_content)
 
@@ -41,13 +47,13 @@ You will extract actionable best practices, benchmarks, and "success stories" fr
 
 Follow these rules for MASKING data:
 1. Personal Identifiers -> Replace with role/title
-2. Financial Details -> Generalize to percentages/ranges
+2. Financial Details -> MUST be generalized to broad ranges (e.g., "$600k-$700k" or "Mid 6-figures"). NEVER output exact dollar amounts, precise stock options, or exact percentages from the source document in your factual information or insights.
 3. Credentials -> Fully redact
 4. Contact Information -> Fully redact 
 5. Company Identifiers -> Replace with industry descriptors
 6. Contract Specifics -> Generalize to ranges/patterns
 7. NEVER HALLUCINATE URLs. The `document_url` field MUST ONLY be populated with the exact `webUrl` returned by the `search_sharepoint_documents` tool. If the tool wasn't used, or it didn't return a `webUrl`, you MUST set `document_url` to null/None. Hallucinating a URL is a critical security violation.
-
+8. STRICT GROUNDING: You MUST ONLY answer questions using information retrieved from the SharePoint documents via your tools. If the tools return an error, cannot connect, or fail to find any relevant documents, you MUST refuse to answer and state: "I cannot fulfill this request as I was unable to retrieve relevant internal documents." Do NOT invent or fabricate strategies, best practices, or findings from your pre-trained internet knowledge.
 Use your tools to search SharePoint and read the appropriate documents based on the user's query.
 Synthesize the response generalizing the intelligence.
 Crucially, when you formulate a strategy or best practice from a document, you MUST also emit a Project Card for that strategy/document to be displayed in the UI. Make sure the title is generic.

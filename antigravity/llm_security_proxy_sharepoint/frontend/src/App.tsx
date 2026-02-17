@@ -10,6 +10,7 @@ import {
   ShieldAlert,
   Terminal,
   Download,
+  CheckCircle,
 } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import html2canvas from "html2canvas";
@@ -20,7 +21,32 @@ import { InteractionRequiredAuthError } from "@azure/msal-browser";
 import { PromptGallery } from "./components/PromptGallery";
 import { ProjectCardWidget } from "./components/ProjectCardWidget";
 import { McpInspector } from "./components/McpInspector";
+import { TelemetryTab } from "./components/TelemetryTab";
 import "./PromptGallery.css";
+
+const GeminiSparkleIcon = ({ className = "" }: { className?: string }) => (
+  <svg
+    className={`gemini-sparkle-icon ${className}`}
+    width="22"
+    height="22"
+    viewBox="0 0 24 24"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <defs>
+      <linearGradient id="gemini-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#5eaefd" />
+        <stop offset="50%" stopColor="#b47dff" />
+        <stop offset="100%" stopColor="#f36c5b" />
+      </linearGradient>
+    </defs>
+    <path
+      d="M12 0C12 6.627 6.627 12 0 12C6.627 12 12 17.373 12 24C12 17.373 17.373 12 24 12C17.373 12 12 6.627 12 0Z"
+      fill="url(#gemini-gradient)"
+    />
+  </svg>
+);
+
 
 function App() {
   const { instance, accounts } = useMsal();
@@ -73,7 +99,11 @@ function App() {
     handleInputChange,
     handleSubmit,
     isLoading,
-    hasData,
+    thoughtStatus,
+    usedSharePoint,
+    telemetry,
+    reasoningSteps,
+    tokenUsage
   } = useTerminalChat(token, selectedModel);
   const projectCards = useDashboardStore((s) => s.projectCards);
   const endOfMessagesRef = useRef<HTMLDivElement>(null);
@@ -182,6 +212,19 @@ function App() {
             }}
           >
             Zero-Leak Topology
+          </a>
+          <a
+            href="#"
+            className={
+              activeAppTab === "telemetry" && !showTopology ? "active" : ""
+            }
+            onClick={(e) => {
+              e.preventDefault();
+              setActiveAppTab("telemetry");
+              setShowTopology(false);
+            }}
+          >
+            Execution Latency
           </a>
         </nav>
         <div className="pwc-header-right">
@@ -366,6 +409,8 @@ function App() {
           }}
           token={token || undefined}
         />
+        ) : activeAppTab === "telemetry" ? (
+          <TelemetryTab telemetry={telemetry} reasoningSteps={reasoningSteps} tokenUsage={tokenUsage} />
       ) : (
             <main className="pwc-main-wrapper">
               {/* Left Side: Chat Interface */}
@@ -425,20 +470,26 @@ function App() {
                       indices.
                     </div>
                   )}
-                  {messages.map((m: any) => (
+                    {messages.map((m: any) => m.content ? (
                     <div key={m.id} className={`message ${m.role}`}>
                       <ReactMarkdown>{m.content}</ReactMarkdown>
                     </div>
-                  ))}
-                  {isLoading && !hasData && (
+                    ) : null)}
+                    {(isLoading || thoughtStatus) && (
                     <div className="gemini-loading-wrapper">
                       <div className="gemini-search-pill">
+                          {usedSharePoint && <img src="/sharepoint-logo.svg" className="sharepoint-used-badge" alt="SharePoint Used" title="SharePoint indices searched" />}
                         <div className="sharepoint-icon-wrapper">
-                          <img src="/sharepoint-logo.svg" alt="SharePoint" className="sharepoint-logo" />
+                            {thoughtStatus ? (
+                              thoughtStatus.icon === 'search' || thoughtStatus.icon === 'database' || thoughtStatus.icon === 'file-search' ? <img src="/sharepoint-logo.svg" alt="SharePoint" className="sharepoint-logo" /> :
+                                thoughtStatus.icon === 'shield-alert' ? <ShieldAlert color="var(--pwc-orange)" size={20} /> :
+                                  thoughtStatus.icon === 'check-circle' ? <CheckCircle color="var(--pwc-orange)" size={20} /> :
+                                    <GeminiSparkleIcon />
+                            ) : <GeminiSparkleIcon />}
                         </div>
                         <div className="gemini-loading-text">
-                          <div className="gemini-loading-title">SharePoint</div>
-                          <div className="gemini-loading-subtitle">Connecting...</div>
+                            <div className="gemini-loading-title">Google ADK</div>
+                            <div className={`gemini-loading-subtitle ${thoughtStatus?.pulse ? 'pulsing-text' : ''}`}>{thoughtStatus ? thoughtStatus.message : 'Synthesizing...'}</div>
                         </div>
                       </div>
                     </div>
@@ -497,7 +548,7 @@ function App() {
                 {isLoading && projectCards.length === 0 && (
                   <div className="pwc-loading-state">
                     <div className="spinner"></div>
-                    <h3>Synthesizing insights...</h3>
+                      <h3>{thoughtStatus ? thoughtStatus.message : 'Synthesizing insights...'}</h3>
                   </div>
                 )}
 
