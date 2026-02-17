@@ -134,6 +134,8 @@ async def _chat_stream(messages: list, model_name: str):
                                 "icon": "globe",
                                 "pulse": True
                             })
+                            # also output a status to keep it alive
+                            yield AIStreamProtocol.data({"type": "status", "message": "Researching public web...", "icon": "globe", "pulse": True})
                     else:
                         # SHAREPOINT LOGIC
                         if p.get("thought"):

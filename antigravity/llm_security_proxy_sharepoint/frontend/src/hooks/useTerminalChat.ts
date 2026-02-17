@@ -74,11 +74,12 @@ export function useTerminalChat(token: string | null, model: string = 'gemini-3-
         if (p.type === 'telemetry') {
           if (p.reasoning) setReasoningSteps(p.reasoning as string[]);
           if (p.tokens) setTokenUsage(p.tokens as TokenUsage);
+          if (p.data) setTelemetry(p.data as TelemetryEvent[]);
+          break; // Avoid overwriting with older telemetry from same chunk
         }
       }
     }
 
-    // Process single-fire elements (Cards, Telemetry) in forward pass to maintain order
     const lastChunk = data[data.length - 1] as any;
     const payloads: any[] = Array.isArray(lastChunk) ? lastChunk : [lastChunk];
     for (const p of payloads) {
@@ -86,6 +87,8 @@ export function useTerminalChat(token: string | null, model: string = 'gemini-3-
       if (p.type === 'project_card' && p.data) {
         addProjectCard(p.data as ProjectCardData);
       } else if (p.type === 'telemetry') {
+        if (p.reasoning) setReasoningSteps(p.reasoning as string[]);
+        if (p.tokens) setTokenUsage(p.tokens as TokenUsage);
         if (p.data) setTelemetry(p.data as TelemetryEvent[]);
       }
     }
