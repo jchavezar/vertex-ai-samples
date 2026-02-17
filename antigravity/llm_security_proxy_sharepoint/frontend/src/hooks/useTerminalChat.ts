@@ -30,7 +30,7 @@ export function useTerminalChat(token: string | null, model: string = 'gemini-3-
   const [tokenUsage, setTokenUsage] = useState<TokenUsage | null>(null);
   const [publicInsight, setPublicInsight] = useState<string>('');
 
-  const { messages, input, handleInputChange, handleSubmit, data, isLoading } = useChat({
+  const { messages, input, handleInputChange, handleSubmit, data, isLoading, setData } = useChat({
     api: '/chat',
     headers: token ? { Authorization: `Bearer ${token}` } : undefined,
     body: { model },
@@ -108,6 +108,7 @@ export function useTerminalChat(token: string | null, model: string = 'gemini-3-
     setReasoningSteps([]);
     setTokenUsage(null);
     setPublicInsight('');
+    setData(undefined);
     setThoughtStatus({ message: 'Requesting proxy access...', icon: 'shield-alert', pulse: true });
     handleSubmit(e);
   };

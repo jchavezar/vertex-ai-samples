@@ -46,11 +46,16 @@ async def _chat_stream(messages: list, model_name: str):
             latency_metrics.append({"step": step_name, "duration_s": round(duration_sec, 2)})
         last_phase_time = now
 
+    import uuid
+    current_request_id = str(uuid.uuid4())
+    sess_id = f"sess_{current_request_id}"
+    pub_sess_id = f"pub_{current_request_id}"
+
     prompt = messages[-1]['content']
     # Ensure session exists
-    session = await session_service.get_session(app_name="PWC_Security_Proxy", user_id="default_user", session_id="default_sess")
+    session = await session_service.get_session(app_name="PWC_Security_Proxy", user_id="default_user", session_id=sess_id)
     if not session:
-        await session_service.create_session(app_name="PWC_Security_Proxy", user_id="default_user", session_id="default_sess")
+        await session_service.create_session(app_name="PWC_Security_Proxy", user_id="default_user", session_id=sess_id)
 
     runner = Runner(app_name="PWC_Security_Proxy", agent=get_agent(model_name), session_service=session_service)
     
@@ -58,6 +63,13 @@ async def _chat_stream(messages: list, model_name: str):
     msg = types.Content(role="user", parts=[types.Part.from_text(text=prompt)])
     
     # Run the agent (synchronously handles the tools and LLM)
+    yield AIStreamProtocol.data({
+        "type": "public_insight", 
+        "message": "Public Web Consensus",
+        "data": "",
+        "icon": "globe",
+        "pulse": True
+    })
     yield AIStreamProtocol.data({"type": "status", "message": "Establishing secure context...", "icon": "shield-alert", "pulse": True})
     
     import asyncio
@@ -66,23 +78,23 @@ async def _chat_stream(messages: list, model_name: str):
     queue = asyncio.Queue()
 
     # Create private session copies to avoid clashes
-    pub_session = await session_service.get_session(app_name="Public_Research_Proxy", user_id="default_user", session_id="public_sess")
+    pub_session = await session_service.get_session(app_name="Public_Research_Proxy", user_id="default_user", session_id=pub_sess_id)
     if not pub_session:
-        await session_service.create_session(app_name="Public_Research_Proxy", user_id="default_user", session_id="public_sess")
+        await session_service.create_session(app_name="Public_Research_Proxy", user_id="default_user", session_id=pub_sess_id)
     
     pub_runner = Runner(app_name="Public_Research_Proxy", agent=get_public_agent("gemini-2.5-flash"), session_service=session_service)
 
-    async def stream_agent(runner_obj, sess_id, tag):
+    async def stream_agent(runner_obj, sid, tag):
         try:
-            async for event in runner_obj.run_async(user_id="default_user", session_id=sess_id, new_message=msg):
+            async for event in runner_obj.run_async(user_id="default_user", session_id=sid, new_message=msg):
                 await queue.put({"tag": tag, "event": event, "type": "data"})
         except Exception as e:
             await queue.put({"tag": tag, "event": e, "type": "error"})
         finally:
             await queue.put({"tag": tag, "type": "done"})
 
-    asyncio.create_task(stream_agent(runner, "default_sess", "sharepoint"))
-    asyncio.create_task(stream_agent(pub_runner, "public_sess", "public"))
+    asyncio.create_task(stream_agent(runner, sess_id, "sharepoint"))
+    asyncio.create_task(stream_agent(pub_runner, pub_sess_id, "public"))
 
     active_streams = 2
     pub_insight = ""
@@ -135,14 +147,12 @@ async def _chat_stream(messages: list, model_name: str):
                         args_str = str(p["function_call"].get("args", {}))
                         reasoning_steps.append(f"{agent_label} TOOL: {tool_name}\nARGS: {args_str}")
                         
-                        log_latency(current_action)
-                        current_total = round(time.time() - start_time, 2)
-                        temp_metrics = latency_metrics + [{"step": "Total Turnaround Time", "duration_s": current_total}]
-                        yield AIStreamProtocol.data({"type": "telemetry", "data": temp_metrics, "reasoning": reasoning_steps, "tokens": total_tokens})
-                        
-                        if tag == "public":
-                            current_action = f"Google Web Search"
-                        else:
+                        if tag != "public":
+                            log_latency(current_action)
+                            current_total = round(time.time() - start_time, 2)
+                            temp_metrics = latency_metrics + [{"step": "Total Turnaround Time", "duration_s": current_total}]
+                            yield AIStreamProtocol.data({"type": "telemetry", "data": temp_metrics, "reasoning": reasoning_steps, "tokens": total_tokens})
+                            
                             if "search" in tool_name:
                                 yield AIStreamProtocol.data({"type": "status", "message": "Searching enterprise indices...", "icon": "search", "pulse": True})
                                 current_action = "Graph API Search"
@@ -159,14 +169,14 @@ async def _chat_stream(messages: list, model_name: str):
                             res_str = res_str[:500] + "... [TRUNCATED]"
                         reasoning_steps.append(f"{agent_label} RESPONSE: {tool_name}\nRESULT: {res_str}")
                         
-                        log_latency(current_action)
                         if tag != "public":
+                            log_latency(current_action)
                             yield AIStreamProtocol.data({"type": "status", "message": "Synthesizing zero-leak intelligence...", "icon": "cpu", "pulse": True})
                             current_action = "LLM Final Synthesis"
                             
-                        current_total = round(time.time() - start_time, 2)
-                        temp_metrics = latency_metrics + [{"step": "Total Turnaround Time", "duration_s": current_total}]
-                        yield AIStreamProtocol.data({"type": "telemetry", "data": temp_metrics, "reasoning": reasoning_steps, "tokens": total_tokens})
+                            current_total = round(time.time() - start_time, 2)
+                            temp_metrics = latency_metrics + [{"step": "Total Turnaround Time", "duration_s": current_total}]
+                            yield AIStreamProtocol.data({"type": "telemetry", "data": temp_metrics, "reasoning": reasoning_steps, "tokens": total_tokens})
 
                     if p.get("text"):
                         txt = p['text'].strip()
@@ -210,7 +220,7 @@ async def _chat_stream(messages: list, model_name: str):
 
     yield AIStreamProtocol.data({"type": "status", "message": "Transmission complete.", "icon": "check-circle", "pulse": False})
         
-    session = await session_service.get_session(app_name="PWC_Security_Proxy", user_id="default_user", session_id="default_sess")
+    session = await session_service.get_session(app_name="PWC_Security_Proxy", user_id="default_user", session_id=sess_id)
     
     # Get the resulting parts from schema
     result = session.state.get("proxy_output") if session else None
