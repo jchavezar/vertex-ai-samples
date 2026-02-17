@@ -68,7 +68,7 @@ graph TD
         C --> D1[Page 1 Agent]
         C --> D2[Page 2 Agent]
         C --> Dn[Page n Agent]
-        D1 & D2 & Dn -.->|Vertex AI (Global)| Gemini[Gemini 3 Pro / Flash]
+        D1 & D2 & Dn -.->|Vertex AI| Gemini[Gemini 3 Pro]
     end
 ```
 
