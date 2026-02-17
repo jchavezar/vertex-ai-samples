@@ -155,9 +155,12 @@ async def _chat_stream(messages: list, model_name: str):
                             
                             log_latency(current_action)
                             
+                            current_total = round(time.time() - start_time, 2)
+                            temp_metrics = latency_metrics + [{"step": "Total Turnaround Time", "duration_s": current_total}]
+                            
                             yield AIStreamProtocol.data({
                                 "type": "telemetry",
-                                "data": latency_metrics,
+                                "data": temp_metrics,
                                 "reasoning": reasoning_steps,
                                 "tokens": total_tokens
                             })
@@ -180,9 +183,12 @@ async def _chat_stream(messages: list, model_name: str):
                             
                             log_latency(current_action)
                             yield AIStreamProtocol.data({"type": "status", "message": "Synthesizing zero-leak intelligence...", "icon": "cpu", "pulse": True})
+                            current_total = round(time.time() - start_time, 2)
+                            temp_metrics = latency_metrics + [{"step": "Total Turnaround Time", "duration_s": current_total}]
+                            
                             yield AIStreamProtocol.data({
                                 "type": "telemetry",
-                                "data": latency_metrics,
+                                "data": temp_metrics,
                                 "reasoning": reasoning_steps,
                                 "tokens": total_tokens
                             })
