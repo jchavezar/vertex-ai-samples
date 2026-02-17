@@ -132,14 +132,14 @@ body {
 /* Sidebar Chat Board Style */
 .pwc-chat-sidebar {
   width: 420px;
-    background-color: var(--pwc-bg-main);
+  background-color: var(--pwc-bg-main);
     border-radius: var(--pwc-radius);
     box-shadow: var(--pwc-shadow-md);
   display: flex;
   flex-direction: column;
-  flex-shrink: 0;
   overflow: hidden;
-    border: 1px solid var(--pwc-border);
+  flex-shrink: 0;
+  border: 1px solid var(--pwc-border);
 }
 
 .chat-header {
@@ -268,9 +268,9 @@ body {
 .pwc-data-panel {
   flex-grow: 1;
   background-color: transparent;
-  overflow-y: auto;
   display: flex;
   flex-direction: column;
+  overflow-y: auto;
 }
 
 .pwc-empty-hero {

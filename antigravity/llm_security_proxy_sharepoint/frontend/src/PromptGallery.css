@@ -37,16 +37,18 @@
 }
 
 .gallery-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: var(--spacing-lg);
-  padding: var(--spacing-xl);
-  overflow-y: auto;
+  display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--spacing-xxl);
+    padding: var(--spacing-xxl);
   flex-grow: 1;
   align-content: start;
+  overflow-y: auto;
 }
 
 .gallery-category-card {
+  width: 320px;
   background: var(--pwc-light-grey);
   border: 1px solid var(--pwc-border);
   border-radius: 12px;
