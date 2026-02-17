@@ -328,11 +328,11 @@ function App() {
                 <p>Gemini 3 Pro / Flash</p>
                 <div className="node-detail">gemini-3-pro-preview</div>
               </div>
+              <div style={{ width: "370px" }}></div>
             </div>
 
             <div className="flow-row">
-              <div style={{ width: "250px" }}></div>
-              <div style={{ width: "120px" }}></div>
+              <div style={{ width: "370px" }}></div>
               <div
                 className="flow-edge flow-edge-vertical"
                 style={{
@@ -356,17 +356,17 @@ function App() {
                   MCP TOOL CALL
                 </div>
               </div>
-              <div style={{ width: "120px" }}></div>
-              <div style={{ width: "250px" }}></div>
+              <div style={{ width: "740px" }}></div>
             </div>
 
             <div className="flow-row">
+              <div style={{ width: "370px" }}></div>
               <div
                 className="topology-node"
                 style={{
                   borderColor: "#2e7d32",
                   borderTopColor: "#2e7d32",
-                  width: "250px",
+                  width: "320px",
                 }}
               >
                 <Terminal className="icon" size={32} color="#2e7d32" />
@@ -381,7 +381,7 @@ function App() {
                 REST
                 <div className="line"></div>
               </div>
-              <div className="topology-node blue" style={{ width: "320px" }}>
+              <div className="topology-node blue" style={{ width: "250px" }}>
                 <Server className="icon" size={32} />
                 <h4>Microsoft Graph</h4>
                 <p>Entra ID / OAuth 2.0</p>

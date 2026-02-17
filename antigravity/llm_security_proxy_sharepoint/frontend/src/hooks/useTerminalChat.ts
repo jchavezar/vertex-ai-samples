@@ -47,6 +47,7 @@ export function useTerminalChat(token: string | null, model: string = 'gemini-3-
 
     let foundStatus = false;
     let foundInsight = false;
+    let foundTelemetry = false;
 
     for (let i = data.length - 1; i >= 0; i--) {
       const currentChunk = data[i] as any;
@@ -71,11 +72,11 @@ export function useTerminalChat(token: string | null, model: string = 'gemini-3-
           foundStatus = true;
         }
 
-        if (p.type === 'telemetry') {
+        if (p.type === 'telemetry' && !foundTelemetry) {
           if (p.reasoning) setReasoningSteps(p.reasoning as string[]);
           if (p.tokens) setTokenUsage(p.tokens as TokenUsage);
           if (p.data) setTelemetry(p.data as TelemetryEvent[]);
-          break; // Avoid overwriting with older telemetry from same chunk
+          foundTelemetry = true;
         }
       }
     }
@@ -86,10 +87,6 @@ export function useTerminalChat(token: string | null, model: string = 'gemini-3-
       if (!p) continue;
       if (p.type === 'project_card' && p.data) {
         addProjectCard(p.data as ProjectCardData);
-      } else if (p.type === 'telemetry') {
-        if (p.reasoning) setReasoningSteps(p.reasoning as string[]);
-        if (p.tokens) setTokenUsage(p.tokens as TokenUsage);
-        if (p.data) setTelemetry(p.data as TelemetryEvent[]);
       }
     }
   }, [data, addProjectCard]);
