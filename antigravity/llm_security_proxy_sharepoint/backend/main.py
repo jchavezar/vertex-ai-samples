@@ -114,7 +114,7 @@ async def _chat_stream(messages: list, model_name: str):
 
         if msg_type == "done":
             active_streams -= 1
-            log_latency(tag, "Turnaround Complete")
+            log_latency(tag, current_action[tag])
             continue
             
         evt = msg_obj["event"]
@@ -216,8 +216,6 @@ async def _chat_stream(messages: list, model_name: str):
             print("===== ERROR IN EVENT PARSING ===== ", e)
             pass
 
-    log_latency("sharepoint", current_action["sharepoint"])
-    log_latency("public", current_action["public"])
     total_time = time.time() - start_time
     latency_metrics.append({"step": "Total Turnaround Time", "duration_s": round(total_time, 2)})
 
