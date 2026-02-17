@@ -1,0 +1,1 @@
+{"response":"Please provide the document(s) you would like me to extract data from. I can analyze text, charts, and images within them.","session_id":"23178c7c-9f7c-4303-b261-aa19480ccb26","pipeline_data":[]}

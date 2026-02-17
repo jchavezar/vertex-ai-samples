@@ -1,0 +1,18 @@
+[project]
+name = "backend"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi>=0.129.0",
+    "google-adk>=1.25.0",
+    "google-cloud-aiplatform>=1.137.0",
+    "google-cloud-bigquery>=3.40.1",
+    "pydantic>=2.12.5",
+    "pypdf>=6.7.1",
+    "pypdf2>=3.0.1",
+    "python-dotenv>=1.2.1",
+    "requests>=2.32.5",
+    "uvicorn>=0.41.0",
+]
