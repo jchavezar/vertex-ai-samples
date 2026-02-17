@@ -39,31 +39,54 @@ export function useTerminalChat(token: string | null, model: string = 'gemini-3-
   // Listen for Type 2 Data events 
   useEffect(() => {
     if (!data || data.length === 0) return;
-    const latestList = data[data.length - 1];
 
-    // Handle Vercel AI SDK array parsing combinations
-    const payloads = Array.isArray(latestList) ? latestList : [latestList];
+    // Vercel AI SDK appends JSON objects sent via AIStreamProtocol.data() to the `data` array.
+    // Since Public Agent and SharePoint Agent emit concurrently, we must find the *latest* status
+    // and *latest* public_insight by searching backwards, avoiding dropped updates if they clobber
+    // each other in the same React render cycle.
 
-    for (const rawP of payloads) {
-      if (!rawP) continue;
-      const p = rawP as any;
+    let foundStatus = false;
+    let foundInsight = false;
+
+    for (let i = data.length - 1; i >= 0; i--) {
+      const currentChunk = data[i] as any;
+      const payloads: any[] = Array.isArray(currentChunk) ? currentChunk : [currentChunk];
+      // Reverse through payloads inside the chunk too
+      for (let j = payloads.length - 1; j >= 0; j--) {
+        const p = payloads[j] as any;
+        if (!p) continue;
+
+        if (p.type === 'public_insight' && !foundInsight) {
+          setPublicInsight(p.data || '');
+          foundInsight = true;
+        } else if (p.type === 'status' && !foundStatus) {
+          if (p.icon === 'search' || p.icon === 'database' || p.icon === 'file-search') {
+            setUsedSharePoint(true);
+          }
+          setThoughtStatus({
+            message: p.message,
+            icon: p.icon || 'cpu',
+            pulse: p.pulse !== false
+          });
+          foundStatus = true;
+        }
+
+        if (p.type === 'telemetry') {
+          if (p.reasoning) setReasoningSteps(p.reasoning as string[]);
+          if (p.tokens) setTokenUsage(p.tokens as TokenUsage);
+        }
+      }
+    }
+
+    // Process single-fire elements (Cards, Telemetry) in forward pass to maintain order
+    const lastChunk = data[data.length - 1] as any;
+    const payloads: any[] = Array.isArray(lastChunk) ? lastChunk : [lastChunk];
+    for (const p of payloads) {
+      if (!p) continue;
       if (p.type === 'project_card' && p.data) {
         addProjectCard(p.data as ProjectCardData);
-      } else if (p.type === 'public_insight') {
-        setPublicInsight(p.data || '');
-      } else if (p.type === 'status') {
-        if (p.icon === 'search' || p.icon === 'database' || p.icon === 'file-search') {
-          setUsedSharePoint(true);
-        }
-        setThoughtStatus({
-          message: p.message,
-          icon: p.icon || 'cpu',
-          pulse: p.pulse !== false
-        });
       } else if (p.type === 'telemetry') {
         if (p.data) setTelemetry(p.data as TelemetryEvent[]);
-        if (p.reasoning) setReasoningSteps(p.reasoning as string[]);
-        if (p.tokens) setTokenUsage(p.tokens as TokenUsage);
       }
     }
   }, [data, addProjectCard]);
