@@ -18,5 +18,5 @@ COPY . .
 # Expose the port (Cloud Run sets PORT env var)
 EXPOSE 8080
 
-# Run the Proxy server
+# Run the Security Proxy server
 CMD ["python", "main.py"]
