@@ -89,20 +89,69 @@ export const TelemetryTab: React.FC<TelemetryTabProps> = ({ telemetry, reasoning
 
           <div className="telemetry-reasoning">
             <h3>Agent Reasoning Trace</h3>
-            {reasoningSteps.length === 0 ? (
-              <p className="no-reasoning-text">No intermediate reasoning steps captured for this request.</p>
-            ) : (
-              <div className="reasoning-list">
-                {reasoningSteps.map((step, idx) => (
-                  <div key={idx} className="reasoning-item">
-                    <div className="reasoning-indicator"></div>
-                    <div className="reasoning-content">
-                      {renderStepContent(step)}
+            {(() => {
+              if (reasoningSteps.length === 0) {
+                return <p className="no-reasoning-text">No intermediate reasoning steps captured for this request.</p>;
+              }
+
+              const publicSteps = reasoningSteps.filter(step => step.startsWith('[Public Web]'));
+              const enterpriseSteps = reasoningSteps.filter(step => step.startsWith('[Enterprise Proxy]'));
+              const generalSteps = reasoningSteps.filter(step => !step.startsWith('[Public Web]') && !step.startsWith('[Enterprise Proxy]'));
+
+              return (
+                <div className="workflows-container">
+                  {enterpriseSteps.length > 0 && (
+                    <div className="reasoning-workflow-section">
+                      <h4 className="workflow-title enterprise-title">🛡️ Secure Enterprise Proxy Workflow</h4>
+                      <div className="reasoning-list">
+                        {enterpriseSteps.map((step, idx) => (
+                          <div key={`ent-${idx}`} className="reasoning-item enterprise-item">
+                            <div className="reasoning-indicator enterprise-indicator"></div>
+                            <div className="reasoning-content">
+                              {renderStepContent(step.replace('[Enterprise Proxy] ', ''))}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
                     </div>
-                  </div>
-                ))}
-              </div>
-            )}
+                  )}
+
+                  {publicSteps.length > 0 && (
+                    <div className="reasoning-workflow-section">
+                      {enterpriseSteps.length > 0 && <div className="workflow-divider" />}
+                      <h4 className="workflow-title public-title">🌐 Public Web Intelligence Workflow</h4>
+                      <div className="reasoning-list">
+                        {publicSteps.map((step, idx) => (
+                          <div key={`pub-${idx}`} className="reasoning-item public-item">
+                            <div className="reasoning-indicator public-indicator"></div>
+                            <div className="reasoning-content">
+                              {renderStepContent(step.replace('[Public Web] ', ''))}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {generalSteps.length > 0 && (
+                    <div className="reasoning-workflow-section">
+                      {(enterpriseSteps.length > 0 || publicSteps.length > 0) && <div className="workflow-divider" />}
+                      <h4 className="workflow-title general-title">⚙️ Main Execution Trace</h4>
+                      <div className="reasoning-list">
+                        {generalSteps.map((step, idx) => (
+                          <div key={`gen-${idx}`} className="reasoning-item">
+                            <div className="reasoning-indicator"></div>
+                            <div className="reasoning-content">
+                              {renderStepContent(step)}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              );
+            })()}
           </div>
         </div>
       </div>

@@ -123,48 +123,26 @@ async def _chat_stream(messages: list, model_name: str):
             if content and isinstance(content, dict):
                 parts = content.get("parts", [])
                 for p in parts:
-                    if tag == "public":
-                        if p.get("text"):
-                            txt = p['text'].strip()
-                            pub_insight += txt + "\n"
-                            yield AIStreamProtocol.data({
-                                "type": "public_insight", 
-                                "message": "Public Web Consensus",
-                                "data": pub_insight.strip(),
-                                "icon": "globe",
-                                "pulse": True
-                            })
-                            # also output a status to keep it alive
-                            yield AIStreamProtocol.data({"type": "status", "message": "Researching public web...", "icon": "globe", "pulse": True})
-                    else:
-                        # SHAREPOINT LOGIC
-                        if p.get("thought"):
-                            txt = f"THOUGHT:\n{p['thought'].strip()}"
-                            if txt not in reasoning_steps:
-                                reasoning_steps.append(txt)
+                    agent_label = "[Public Web]" if tag == "public" else "[Enterprise Proxy]"
+                    
+                    if p.get("thought"):
+                        txt = f"{agent_label} THOUGHT:\n{p['thought'].strip()}"
+                        if txt not in reasoning_steps:
+                            reasoning_steps.append(txt)
 
-                        if p.get("text"):
-                            txt = p['text'].strip()
-                            if txt and txt not in reasoning_steps:
-                                reasoning_steps.append(txt)
-                                
-                        if p.get("function_call"):
-                            tool_name = p["function_call"].get("name", "")
-                            args_str = str(p["function_call"].get("args", {}))
-                            reasoning_steps.append(f"TOOL CALL: {tool_name}\nARGS: {args_str}")
-                            
-                            log_latency(current_action)
-                            
-                            current_total = round(time.time() - start_time, 2)
-                            temp_metrics = latency_metrics + [{"step": "Total Turnaround Time", "duration_s": current_total}]
-                            
-                            yield AIStreamProtocol.data({
-                                "type": "telemetry",
-                                "data": temp_metrics,
-                                "reasoning": reasoning_steps,
-                                "tokens": total_tokens
-                            })
-                            
+                    if p.get("function_call"):
+                        tool_name = p["function_call"].get("name", "")
+                        args_str = str(p["function_call"].get("args", {}))
+                        reasoning_steps.append(f"{agent_label} TOOL: {tool_name}\nARGS: {args_str}")
+                        
+                        log_latency(current_action)
+                        current_total = round(time.time() - start_time, 2)
+                        temp_metrics = latency_metrics + [{"step": "Total Turnaround Time", "duration_s": current_total}]
+                        yield AIStreamProtocol.data({"type": "telemetry", "data": temp_metrics, "reasoning": reasoning_steps, "tokens": total_tokens})
+                        
+                        if tag == "public":
+                            current_action = f"Google Web Search"
+                        else:
                             if "search" in tool_name:
                                 yield AIStreamProtocol.data({"type": "status", "message": "Searching enterprise indices...", "icon": "search", "pulse": True})
                                 current_action = "Graph API Search"
@@ -173,26 +151,38 @@ async def _chat_stream(messages: list, model_name: str):
                                 current_action = "Document MarkItDown OCR"
                             else:
                                 current_action = f"Tool: {tool_name}"
+                                
+                    elif p.get("function_response"):
+                        tool_name = p["function_response"].get("name", "")
+                        res_str = str(p["function_response"].get("response", {}))
+                        if len(res_str) > 500:
+                            res_str = res_str[:500] + "... [TRUNCATED]"
+                        reasoning_steps.append(f"{agent_label} RESPONSE: {tool_name}\nRESULT: {res_str}")
                         
-                        elif p.get("function_response"):
-                            tool_name = p["function_response"].get("name", "")
-                            res_str = str(p["function_response"].get("response", {}))
-                            if len(res_str) > 500:
-                                res_str = res_str[:500] + "... [TRUNCATED]"
-                            reasoning_steps.append(f"TOOL RESPONSE: {tool_name}\nRESULT: {res_str}")
-                            
-                            log_latency(current_action)
+                        log_latency(current_action)
+                        if tag != "public":
                             yield AIStreamProtocol.data({"type": "status", "message": "Synthesizing zero-leak intelligence...", "icon": "cpu", "pulse": True})
-                            current_total = round(time.time() - start_time, 2)
-                            temp_metrics = latency_metrics + [{"step": "Total Turnaround Time", "duration_s": current_total}]
-                            
-                            yield AIStreamProtocol.data({
-                                "type": "telemetry",
-                                "data": temp_metrics,
-                                "reasoning": reasoning_steps,
-                                "tokens": total_tokens
-                            })
                             current_action = "LLM Final Synthesis"
+                            
+                        current_total = round(time.time() - start_time, 2)
+                        temp_metrics = latency_metrics + [{"step": "Total Turnaround Time", "duration_s": current_total}]
+                        yield AIStreamProtocol.data({"type": "telemetry", "data": temp_metrics, "reasoning": reasoning_steps, "tokens": total_tokens})
+
+                    if p.get("text"):
+                        txt = p['text'].strip()
+                        if tag == "public":
+                            pub_insight += txt + "\n"
+                            yield AIStreamProtocol.data({
+                                "type": "public_insight", 
+                                "message": "Public Web Consensus",
+                                "data": pub_insight.strip(),
+                                "icon": "globe",
+                                "pulse": True
+                            })
+                            yield AIStreamProtocol.data({"type": "status", "message": "Researching public web...", "icon": "globe", "pulse": True})
+                        else:
+                            if txt and txt not in reasoning_steps:
+                                reasoning_steps.append(f"{agent_label} SYNTHESIS:\n{txt}")
         except Exception as e:
             print("===== ERROR IN EVENT PARSING ===== ", e)
             pass
