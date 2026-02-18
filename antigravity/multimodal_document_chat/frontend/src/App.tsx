@@ -12,6 +12,29 @@ interface ChatMessage {
 
 type AppState = 'upload' | 'processing' | 'dashboard';
 
+const GeminiSparkleIcon = ({ className = "" }: { className?: string }) => (
+  <svg
+    className={`gemini-sparkle-icon ${className}`}
+    width="22"
+    height="22"
+    viewBox="0 0 24 24"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <defs>
+      <linearGradient id="gemini-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#5eaefd" />
+        <stop offset="50%" stopColor="#b47dff" />
+        <stop offset="100%" stopColor="#f36c5b" />
+      </linearGradient>
+    </defs>
+    <path
+      d="M12 0C12 6.627 6.627 12 0 12C6.627 12 12 17.373 12 24C12 17.373 17.373 12 24 12C17.373 12 12 6.627 12 0Z"
+      fill="url(#gemini-gradient)"
+    />
+  </svg>
+);
+
 function App() {
   const [appState, setAppState] = useState<AppState>('upload');
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -286,9 +309,13 @@ function App() {
               ))}
 
               {isLoading && (
-                <div className="chat-bubble assistant pending">
-                  <div className="thinking-dots">
-                    <span></span><span></span><span></span>
+                <div className="gemini-loading-wrapper">
+                  <div className="gemini-search-pill">
+                    <GeminiSparkleIcon />
+                    <div className="gemini-loading-text">
+                      <div className="gemini-loading-title">Google ADK</div>
+                      <div className="gemini-loading-subtitle pulsing-text">Synthesizing...</div>
+                    </div>
                   </div>
                 </div>
               )}
