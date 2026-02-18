@@ -4,7 +4,7 @@ from typing import List, Any, Optional
 class ExtractedEntity(BaseModel):
     page_number: int = Field(description="The page number in the original document.")
     entity_type: str = Field(description="'TEXT', 'TABLE', or 'CHART'")
-    content_description: str = Field(description="The actual text content, or a detailed description of the table/chart if it is visual.")
+    content_description: str = Field(description="The actual text content. For tables and charts, provide a detailed description and the FULL TABLE DATA IN MARKDOWN FORMAT.")
     structured_data: Optional[dict] = Field(description="Optional parsed JSON dictionary for tabular data (headers, rows).", default=None)
     box_2d: Optional[List[int]] = Field(description="Normalized bounding box [ymin, xmin, ymax, xmax] from 0-1000.", default=None)
     embedding: Optional[List[float]] = Field(description="3072-dimensional embedding vector assigned post-extraction.", default=None)

@@ -3,7 +3,7 @@ import uuid
 import base64
 from typing import Optional, List
 import vertexai
-from fastapi import FastAPI, UploadFile, File, Form, HTTPException
+from fastapi import FastAPI, UploadFile, File, Form, HTTPException, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 
@@ -46,7 +46,7 @@ app.add_middleware(
 session_service = InMemorySessionService()
 
 # Define models
-MODEL_NAME = "gemini-2.5-pro" # Excellent for multimodal tasks
+MODEL_NAME = "gemini-2.5-flash" # Faster model for responsive chat
 
 # Create agent
 agent = LlmAgent(
@@ -63,6 +63,8 @@ runner = Runner(
 )
 
 from pipeline.agents import process_document_pipeline
+from pipeline.bigquery import get_indexed_documents_bq, delete_document_from_bq
+from pipeline.feature_store import sync_feature_store_from_bq
 
 @app.post("/chat")
 async def chat_endpoint(
@@ -78,10 +80,9 @@ async def chat_endpoint(
             app_name="multimodal_doc_chat"
         )
     else:
-        try:
-            await session_service.get_session(user_id="default_user", session_id=session_id, app_name="multimodal_doc_chat")
-        except Exception:
-             await session_service.create_session(user_id="default_user", session_id=session_id, app_name="multimodal_doc_chat")
+        session = await session_service.get_session(user_id="default_user", session_id=session_id, app_name="multimodal_doc_chat")
+        if not session:
+            await session_service.create_session(user_id="default_user", session_id=session_id, app_name="multimodal_doc_chat")
 
     try:
         if not files and not message:
@@ -109,18 +110,17 @@ async def chat_endpoint(
             # Add strict instructions for grounding formatting
             instruction_text = """
 You are an expert analyzing documents. ALWAYS ground your answers using the provided EXTRACTED PIPELINE DATA.
-Crucially, you MUST cite your sources using EXACTLY this format for every claim: `[Doc: filename, Page: X, Chunk: chunk_id]`.
-Do not use any other citation format. If citing multiple chunks, cite them separately like `[Doc: filename, Page: X, Chunk: id1] [Doc: filename, Page: X, Chunk: id2]`.
+Crucially, you MUST cite your sources using EXACTLY this format for every claim: [1], [2], etc., corresponding to the Source ID.
+DO NOT wrap the citation in backticks (`). DO NOT place periods, commas, or other punctuation immediately BEFORE or AFTER the citation bracket itself, incorporate the citation cleanly without extra symbols.
 """
-            runner.agent.system_instruction = types.Content(
-                role="system",
-                parts=[types.Part.from_text(text=instruction_text)]
-            )
+            runner.agent.instruction = instruction_text
             
             # We add a summary of the extracted data as context to the assistant
             context_str = f"EXTRACTED PIPELINE DATA:\n"
-            for row in pipeline_output[:20]: # Provide more context chunks
-                 context_str += f"- [Doc: {file.filename}, Page: {row.get('page_number', 'unknown')}, Chunk: {row.get('chunk_id', 'unknown')}] {row.get('entity_type', 'TEXT')}: {row.get('content', '')[:500]}...\n"
+            for idx, row in enumerate(pipeline_output[:20]): # Provide more context chunks
+                 frontend_id = str(idx + 1)
+                 row['frontend_id'] = frontend_id
+                 context_str += f"Source [{frontend_id}]: (Doc: {file.filename}, Page: {row.get('page_number', 'unknown')}) {row.get('entity_type', 'TEXT')}: {row.get('content', '')}...\n"
                  
             parts.append(types.Part.from_text(text=context_str))
         elif message:
@@ -130,17 +130,20 @@ Do not use any other citation format. If citing multiple chunks, cite them separ
             if search_results:
                 instruction_text = """
 You are an expert analyzing documents. ALWAYS ground your answers using the provided RETRIEVED CONTEXT.
-Crucially, you MUST cite your sources using EXACTLY this format for every claim: `[Doc: filename, Page: X, Chunk: chunk_id]`.
+Crucially, you MUST cite your sources using EXACTLY this format for every claim: [1], [2], etc., corresponding to the Source ID.
+DO NOT wrap the citation in backticks (`). DO NOT place periods, commas, or other punctuation immediately BEFORE or AFTER the citation bracket itself, incorporate the citation cleanly without extra symbols.
 """
-                runner.agent.system_instruction = types.Content(
-                    role="system",
-                    parts=[types.Part.from_text(text=instruction_text)]
-                )
+                runner.agent.instruction = instruction_text
                 
                 context_str = f"RETRIEVED CONTEXT FROM BIGQUERY:\n"
-                for res in search_results:
-                     context_str += f"- [Doc: {res['document_name']}, Page: {res['page_number']}, Chunk: {res['chunk_id']}] {res['entity_type']}: {res['content']}\n"
+                for idx, res in enumerate(search_results):
+                     frontend_id = str(idx + 1)
+                     res['frontend_id'] = frontend_id
+                     context_str += f"Source [{frontend_id}]: (Doc: {res['document_name']}, Page: {res['page_number']}) Content: {res['content']}\n"
                 parts.append(types.Part.from_text(text=context_str))
+                
+                # Expose these chunks back to the frontend for citation tooltips
+                pipeline_output.extend(search_results)
 
         if not parts:
             parts.append(types.Part.from_text(text="I have processed the document pipeline successfully."))
@@ -179,6 +182,64 @@ Crucially, you MUST cite your sources using EXACTLY this format for every claim:
         import traceback
         traceback.print_exc()
         raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/documents")
+async def list_documents():
+    docs = get_indexed_documents_bq()
+    return {"documents": docs}
+
+@app.delete("/api/documents/{document_name}")
+async def delete_document(document_name: str, background_tasks: BackgroundTasks):
+    success = delete_document_from_bq(document_name)
+    if success:
+        # Trigger feature store sync in background so the online view reflects the deletion
+        background_tasks.add_task(sync_feature_store_from_bq)
+        return {"status": "success", "message": f"Deleted {document_name}"}
+    else:
+        raise HTTPException(status_code=500, detail="Failed to delete document")
+
+@app.get("/api/documents/{document_name}/data")
+async def get_document_data(document_name: str):
+    from pipeline.bigquery import get_document_chunks_from_bq
+    import json
+    chunks = get_document_chunks_from_bq(document_name)
+    if not chunks:
+        raise HTTPException(status_code=404, detail="Document data not found")
+        
+    # We create a new session ID for the user to chat with this document
+    session_id = str(uuid.uuid4())
+    await session_service.create_session(
+        user_id="default_user",
+        session_id=session_id,
+        app_name="multimodal_doc_chat"
+    )
+    
+    # Load metadata (annotated images, traces, bounding boxes)
+    metadata_path = os.path.join(os.path.dirname(__file__), "local_data", f"{document_name}.json")
+    annotated_images = []
+    traces = [{"timestamp": "Now", "event": f"Loaded {len(chunks)} cached chunks from BigQuery Index."}]
+    
+    if os.path.exists(metadata_path):
+        try:
+            with open(metadata_path, 'r') as f:
+                metadata = json.load(f)
+                annotated_images = metadata.get("annotated_images", [])
+                traces = metadata.get("traces", traces)
+                boxes = metadata.get("boxes", {})
+                # Inject bounding boxes back into chunks
+                for chunk in chunks:
+                    chunk_id = chunk.get("chunk_id")
+                    if chunk_id in boxes:
+                        chunk["box_2d"] = boxes[chunk_id]
+        except Exception as e:
+            print(f"Error loading metadata for {document_name}: {e}")
+    
+    return {
+        "session_id": session_id,
+        "pipeline_data": chunks,
+        "annotated_images": annotated_images,
+        "traces": traces,
+    }
 
 if __name__ == "__main__":
     import uvicorn

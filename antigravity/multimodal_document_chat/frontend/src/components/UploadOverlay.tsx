@@ -15,22 +15,48 @@ interface UploadOverlayProps {
 
 export const UploadOverlay: React.FC<UploadOverlayProps> = ({ isProcessing }) => {
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
+  const [stepTimes, setStepTimes] = useState<number[]>([0, 0, 0, 0]);
+  const currentStepRef = React.useRef(0);
+  const stepStartTimesRef = React.useRef<number[]>([0, 0, 0, 0]);
 
   useEffect(() => {
     if (!isProcessing) {
       setCurrentStepIndex(0);
+      setStepTimes([0, 0, 0, 0]);
+      currentStepRef.current = 0;
       return;
     }
 
+    const now = Date.now();
+    stepStartTimesRef.current = [now, 0, 0, 0];
+
+    const setStep = (idx: number) => {
+      setCurrentStepIndex(idx);
+      currentStepRef.current = idx;
+      stepStartTimesRef.current[idx] = Date.now();
+    };
+
     // Simulate progress through the steps since we don't have SSE yet
     // Average time is ~30 seconds for the entire pipeline
-    const intervals = [
-      setTimeout(() => setCurrentStepIndex(1), 2000),   // Upload fast
-      setTimeout(() => setCurrentStepIndex(2), 15000),  // Extraction takes ~13s
-      setTimeout(() => setCurrentStepIndex(3), 25000),  // Embeddings take ~10s
+    const timeouts = [
+      setTimeout(() => setStep(1), 2000),   // Upload fast
+      setTimeout(() => setStep(2), 15000),  // Extraction takes ~13s
+      setTimeout(() => setStep(3), 25000),  // Embeddings take ~10s
     ];
 
-    return () => intervals.forEach(clearTimeout);
+    const interval = setInterval(() => {
+      setStepTimes(prev => {
+        const newTimes = [...prev];
+        const idx = currentStepRef.current;
+        newTimes[idx] = (Date.now() - stepStartTimesRef.current[idx]) / 1000;
+        return newTimes;
+      });
+    }, 100);
+
+    return () => {
+      timeouts.forEach(clearTimeout);
+      clearInterval(interval);
+    };
   }, [isProcessing]);
 
   return (
@@ -79,6 +105,11 @@ export const UploadOverlay: React.FC<UploadOverlayProps> = ({ isProcessing }) =>
                           <Icon className="text-text-secondary" />}
                     </div>
                     <span className="step-label">{step.label}</span>
+                    {(!isPending || isCurrent) && (
+                      <span className="step-timer" style={{ marginLeft: 'auto', fontSize: '0.85rem', color: isCurrent ? 'var(--text-primary)' : 'var(--text-secondary)' }}>
+                        {stepTimes[index].toFixed(1)}s
+                      </span>
+                    )}
                   </motion.div>
                 );
               })}

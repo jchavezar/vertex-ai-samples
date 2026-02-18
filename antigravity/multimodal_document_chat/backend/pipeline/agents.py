@@ -17,7 +17,7 @@ from .embeddings import generate_embeddings_for_entities
 logger = logging.getLogger(__name__)
 
 # --- Model definitions from user request & ADK rules ---
-MODEL_EXTRACTOR = "gemini-2.5-flash" # Changed to flash for high throughput
+MODEL_EXTRACTOR = "gemini-2.5-pro" # Better for spatial bounding boxes
 MODEL_NORMALIZER = "gemini-2.5-flash" # Fast cleanup
 
 # We define a function to create an agent for a specific page chunk
@@ -41,11 +41,11 @@ def _create_page_extractor(page_chunk: dict, page_num: int) -> LlmAgent:
         model=MODEL_EXTRACTOR,
         instruction=f"""
         Analyze the specific PDF page provided.
-        1. Identify any text blocks, charts, diagrams, or standalone tables.
-        2. Create an entity for each.
-        3. For text: Extract exactly.
-        4. For charts/tables: Describe them precisely and extract tabular data structurally.
-        5. For every entity, provide `box_2d`: a 2D integer array [ymin, xmin, ymax, xmax] representing the normalized bounding box coordinates (0-1000).
+        1. Identify any text blocks, charts, diagrams, or standalone tables. Create an entity for each. Limit to 25 objects per page.
+        2. For text blocks: Extract exactly. DO NOT provide a bounding box (`box_2d` must be null).
+        3. For charts/images/tables (non-raw text): Describe them precisely. IF IT IS A TABLE, YOU MUST INCLUDE THE FULL TABLE DATA IN MARKDOWN FORMAT INSIDE `content_description`.
+        4. Provide `box_2d` ONLY for tables, images, charts, or non-raw text elements. `box_2d` must be a 2D integer array [ymin, xmin, ymax, xmax] representing the normalized bounding box coordinates (0-1000). Never return masks.
+        5. If a non-text object is present multiple times, give each object a unique description according to its distinct characteristics (colors, size, position, etc.).
         6. Return the result strictly as a JSON object matching the requested schema.
         """,
         output_schema=DocumentPageResult,
@@ -172,8 +172,8 @@ async def run_parallel_extraction(pdf_bytes: bytes, runner_factory, session_serv
     if not chunks:
         return [], []
 
-    # Limit to 100 concurrent requests as per Gemini 2.5 Flash optimizations
-    semaphore = asyncio.Semaphore(100)
+    # Limit concurrent requests to prevent Vertex API 503 Overloaded errors
+    semaphore = asyncio.Semaphore(15)
     tasks = []
     
     for chunk in chunks:
@@ -233,7 +233,7 @@ async def process_document_pipeline(file_bytes: bytes, filename: str, session_se
              "document_name": filename,
              "page_number": entity.page_number,
              "entity_type": entity.entity_type,
-             "content": entity.content_description[:5000], # Keep reasonably sized for BQ string logs
+             "content": entity.content_description, # Keep full content for LLM context
              "embedding": entity.embedding # The 3072 dimension vector
          }
          output_rows.append(row)
@@ -266,6 +266,26 @@ async def process_document_pipeline(file_bytes: bytes, filename: str, session_se
     from .bigquery import insert_embeddings_to_bq
     insert_embeddings_to_bq(output_rows)
          
+    # 6. Save metadata locally (bounding boxes, annotated images, traces)
+    metadata = {
+        "annotated_images": annotated_images,
+        "traces": [t.model_dump() for t in traces],
+        "boxes": {}
+    }
+    for i, entity in enumerate(embedded_entities):
+         chunk_id = f"chunk_{filename}_{entity.page_number}_{i}"
+         if hasattr(entity, 'box_2d') and entity.box_2d:
+             metadata["boxes"][chunk_id] = entity.box_2d
+
+    local_data_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "local_data")
+    os.makedirs(local_data_dir, exist_ok=True)
+    metadata_path = os.path.join(local_data_dir, f"{filename}.json")
+    try:
+        with open(metadata_path, "w") as f:
+            json.dump(metadata, f)
+    except Exception as e:
+        logger.error(f"Failed to save local metadata for {filename}: {e}")
+
     return {
         "output_rows": output_rows,
         "annotated_images": annotated_images,
