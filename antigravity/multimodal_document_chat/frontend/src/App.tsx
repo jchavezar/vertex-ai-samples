@@ -3,6 +3,7 @@ import ReactMarkdown from 'react-markdown';
 import { Send, UploadCloud, FileText } from 'lucide-react';
 import { UploadOverlay } from './components/UploadOverlay';
 import { ResultsViewer, type PipelineEntity } from './components/ResultsViewer';
+import { IndexedDocuments } from './components/IndexedDocuments';
 
 interface ChatMessage {
   id: string;
@@ -10,7 +11,7 @@ interface ChatMessage {
   content: string;
 }
 
-type AppState = 'upload' | 'processing' | 'dashboard';
+type AppState = 'processing' | 'dashboard';
 
 const GeminiSparkleIcon = ({ className = "" }: { className?: string }) => (
   <svg
@@ -36,7 +37,7 @@ const GeminiSparkleIcon = ({ className = "" }: { className?: string }) => (
 );
 
 function App() {
-  const [appState, setAppState] = useState<AppState>('upload');
+  const [appState, setAppState] = useState<AppState>('dashboard');
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
   const [session, setSession] = useState('');
@@ -115,7 +116,7 @@ function App() {
       setAppState('dashboard');
     } catch (err) {
       console.error(err);
-      setAppState('upload');
+      setAppState('dashboard');
       alert('Error processing document. Please try again.');
     } finally {
       setIsLoading(false);
@@ -151,6 +152,23 @@ function App() {
 
       const data = await response.json();
 
+      // Accumulate new RAG chunks into the pipeline data for citation tooltips
+      if (data.pipeline_data && data.pipeline_data.length > 0) {
+        setPipelineResult(prev => {
+          const existingData = prev?.pipeline_data || [];
+          // Simple deduplication by chunk_id
+          const newChunks = data.pipeline_data.filter((newChunk: any) =>
+            !existingData.some((existingChunk: any) => existingChunk.chunk_id === newChunk.chunk_id)
+          );
+          return {
+            ...prev,
+            pipeline_data: [...existingData, ...newChunks],
+            annotated_images: prev?.annotated_images || [],
+            traces: prev?.traces || []
+          };
+        });
+      }
+
       const assistantMessage: ChatMessage = {
         id: crypto.randomUUID(),
         role: 'assistant',
@@ -185,54 +203,54 @@ function App() {
 
   // Custom markdown component to parse citation tags like [Doc: filename, Page: X, Chunk: id]
   const renderMarkdown = (content: string) => {
-    // We pre-process the content to wrap citations in a specific span for ReactMarkdown to handle as text nodes,
-    // or we can use a simpler approach: regex replace with a custom token and let React handle it.
-    // For simplicity with react-markdown, we can parse it dynamically or just use a custom renderer for `text`.
-    // Actually, writing a custom text renderer is best.
+    // Replace citations with standard markdown links using a custom protocol
+    // E.g., parse [1], [2]
+    const citationRegex = /\[(\d+)\]/g;
+    const processedContent = content.replace(citationRegex, (_match, id) => {
+      return `[${id}](citation:${id} "View Source ${id}")`;
+    });
 
-    // Simpler approach: split by regex and map to React nodes
-    const citationRegex = /\[Doc:\s*(.*?),?\s*Page:\s*(\d+|unknown),?\s*Chunk:\s*([^\]]+)\]/g;
+    return (
+      <ReactMarkdown
+        components={{
+          a: ({ node, href, title, children, ...props }) => {
+            if (href && href.startsWith('citation:')) {
+              const chunk = href.replace('citation:', '');
+              const isActive = activeHighlight === chunk;
 
-    const parts = [];
-    let lastIndex = 0;
-    let match;
+              // Find chunk text for the tooltip using frontend_id
+              const chunkData = pipelineResult?.pipeline_data?.find((d: any) => d.frontend_id === chunk);
 
-    while ((match = citationRegex.exec(content)) !== null) {
-      // Push preceding text 
-      if (match.index > lastIndex) {
-        parts.push(<ReactMarkdown key={`text-${lastIndex}`}>{content.slice(lastIndex, match.index)}</ReactMarkdown>);
-      }
+              console.log("CITATION DEBUG", {
+                lookingForId: chunk,
+                foundData: chunkData,
+                totalPipelineDataChunks: pipelineResult?.pipeline_data?.length
+              });
 
-      // Push the citation pill
-      const [fullMatch, doc, page, chunk] = match;
-      const isActive = activeHighlight === chunk;
+              let tooltipText = title || 'View Source';
+              if (chunkData && chunkData.content) {
+                // Truncate if extremely long, but typically chunk is small enough
+                tooltipText = `Source Text:\\n\\n${chunkData.content}`;
+              }
 
-      parts.push(
-        <span
-          key={`cite-${match.index}`}
-          onClick={() => handleHighlightClick(chunk)}
-          className={`citation-pill ${isActive ? 'active' : ''}`}
-          title={`View ${doc} - Page ${page}`}
-        >
-          <FileText size={12} style={{ display: 'inline', marginRight: '4px' }} />
-          P{page}
-        </span>
-      );
-
-      lastIndex = match.index + fullMatch.length;
-    }
-
-    // Push remaining text
-    if (lastIndex < content.length) {
-      parts.push(<ReactMarkdown key={`text-${lastIndex}`}>{content.slice(lastIndex)}</ReactMarkdown>);
-    }
-
-    // If no citations found, just render standard markdown
-    if (parts.length === 0) {
-      return <ReactMarkdown>{content}</ReactMarkdown>;
-    }
-
-    return <>{parts}</>;
+              return (
+                <span
+                  onClick={() => handleHighlightClick(chunk)}
+                  className={`citation-pill ${isActive ? 'active' : ''}`}
+                  title={tooltipText}
+                >
+                  <FileText size={12} style={{ display: 'inline', marginRight: '4px' }} />
+                  {children}
+                </span>
+              );
+            }
+            return <a href={href} title={title} {...props}>{children}</a>;
+          }
+        }}
+      >
+        {processedContent}
+      </ReactMarkdown>
+    );
   };
 
   return (
@@ -241,44 +259,7 @@ function App() {
         <div className="app-title">Nexus Multi-Doc Analyst</div>
       </header>
 
-      {appState === 'upload' && (
-        <main className="upload-view">
-          <div className="upload-view-title">
-            <h1>Document Intelligence</h1>
-            <p>Upload a complex PDF document to automatically extract tabular data, detect bounding boxes, and chat securely with the contents.</p>
-          </div>
 
-          <div className="hero-dropzone" onClick={() => fileInputRef.current?.click()}>
-            <div className="upload-icon-container">
-              <UploadCloud size={48} />
-            </div>
-            <div>
-              <h3 style={{ fontSize: '1.25rem', marginBottom: '0.5rem', color: 'var(--text-primary)' }}>Click to upload a document</h3>
-              <p style={{ color: 'var(--text-secondary)' }}>PDF, PNG, or images</p>
-            </div>
-
-            <div className="startup-actions" onClick={e => e.stopPropagation()}>
-              <button
-                className="btn primary"
-                onClick={loadTestPDF}
-                title="Load Test PDF"
-                style={{ padding: '0.75rem 1.5rem', marginTop: '1rem', width: '100%' }}
-              >
-                <FileText size={20} />
-                Run with Test PDF
-              </button>
-            </div>
-          </div>
-
-          <input
-            type="file"
-            multiple
-            ref={fileInputRef}
-            style={{ width: 0, height: 0, position: 'absolute', opacity: 0 }}
-            onChange={handleFileSelect}
-          />
-        </main>
-      )}
 
       {appState === 'processing' && (
         <UploadOverlay isProcessing={true} />
@@ -287,7 +268,7 @@ function App() {
       {appState === 'dashboard' && (
         <main className="dashboard-layout">
           <div className="dashboard-main">
-            {pipelineResult && pipelineResult.pipeline_data && (
+            {pipelineResult && pipelineResult.pipeline_data ? (
               <ResultsViewer
                 data={pipelineResult.pipeline_data}
                 annotatedImages={pipelineResult.annotated_images}
@@ -297,6 +278,67 @@ function App() {
                 activeTab={activeTab}
                 onTabChange={setActiveTab}
               />
+            ) : (
+              <div style={{ flex: 1, padding: '2rem', display: 'flex', flexDirection: 'column', gap: '2rem', overflowY: 'auto' }}>
+                <div className="upload-view-title" style={{ textAlign: 'left', marginBottom: 0 }}>
+                  <h1 style={{ fontSize: '2rem', marginBottom: '0.5rem', background: 'linear-gradient(135deg, var(--text-primary), var(--accent-cyan))', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Multi-Modal Document Intelligence</h1>
+                  <p style={{ maxWidth: '100%', color: 'var(--text-secondary)' }}>Upload a new document or select an indexed document below to start chatting.</p>
+                </div>
+
+                  <div className="hero-dropzone" onClick={() => fileInputRef.current?.click()} style={{ padding: '2rem', maxWidth: '100%', width: '100%', display: 'flex', flexDirection: 'row', justifyContent: 'center', textAlign: 'left' }}>
+                    <div className="upload-icon-container" style={{ width: '60px', height: '60px', marginBottom: 0, marginRight: '1.5rem' }}>
+                      <UploadCloud size={32} />
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                      <h3 style={{ fontSize: '1.25rem', marginBottom: '0.25rem', color: 'var(--text-primary)' }}>Click to upload a new document</h3>
+                      <p style={{ color: 'var(--text-secondary)' }}>PDF, PNG, or images</p>
+                    </div>
+                  </div>
+
+                  <button
+                    className="btn outline"
+                    onClick={loadTestPDF}
+                    title="Load Test PDF"
+                    style={{ width: 'FIT-CONTENT', margin: '0 auto', padding: '0.5rem 1rem' }}
+                  >
+                    <FileText size={16} />
+                    Quick Run with Test PDF
+                  </button>
+
+                  <input
+                    type="file"
+                    multiple
+                    ref={fileInputRef}
+                    style={{ width: 0, height: 0, position: 'absolute', opacity: 0 }}
+                    onChange={handleFileSelect}
+                  />
+
+                  <div style={{ borderTop: '1px solid rgba(255, 255, 255, 0.05)', margin: '1rem 0' }}></div>
+
+                  <IndexedDocuments
+                    onSelectDocument={async (docName) => {
+                      try {
+                        const res = await fetch(`http://localhost:8001/api/documents/${encodeURIComponent(docName)}/data`);
+                        if (res.ok) {
+                          const data = await res.json();
+                          if (data.session_id) setSession(data.session_id);
+                          setPipelineResult(data);
+                          setMessages([{
+                            id: crypto.randomUUID(),
+                            role: 'assistant',
+                            content: `Successfully loaded document **${docName}** from the index. How can I help you analyze it?`,
+                          }]);
+                          setAppState('dashboard');
+                        } else {
+                          alert('Failed to load document data');
+                        }
+                      } catch (e) {
+                        console.error(e);
+                        alert('Error loading document data');
+                      }
+                    }}
+                  />
+                </div>
             )}
           </div>
 

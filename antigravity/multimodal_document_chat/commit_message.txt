@@ -1,8 +1,0 @@
-feat(multimodal-chat): Fix Vertex AI Auth and Implement ADK Document Parsing Pipeline
-
-- Explicitly set `GOOGLE_GENAI_USE_VERTEXAI=true` inside `main.py` before Vertex AI and ADK initialize to safely enforce credentials mapping and resolve the GenAI SDK default authentication missing error.
-- Successfully migrated legacy document parsing to Google ADK `ParallelAgent`.
-- Implemented `before_model_callback` using compliant `callback_context` and `llm_request` ADK schema.
-- Integrated programmatic calls to `text-embedding-004` to assign 3072-dim embeddings for all identified `ExtractedEntity` chunks, tables, and charts.
-
-No sensitive keys or secrets were leaked in this commit.
