@@ -17,7 +17,7 @@ from .embeddings import generate_embeddings_for_entities
 logger = logging.getLogger(__name__)
 
 # --- Model definitions from user request & ADK rules ---
-MODEL_EXTRACTOR = "gemini-2.5-pro" # Better for spatial bounding boxes
+MODEL_EXTRACTOR = "gemini-3-flash-preview" # Better for spatial bounding boxes
 MODEL_NORMALIZER = "gemini-2.5-flash" # Fast cleanup
 
 # We define a function to create an agent for a specific page chunk
