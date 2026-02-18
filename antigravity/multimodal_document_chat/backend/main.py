@@ -37,7 +37,7 @@ app = FastAPI(title="Multimodal Document Chat")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
-    allow_credentials=True,
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -89,12 +89,16 @@ async def chat_endpoint(
              
         # Process files through the pipeline first if present
         pipeline_output = []
+        annotated_images = []
+        traces = []
         for file in files:
             if file.size > 0:
                 file_bytes = await file.read()
                 # Run complete extraction + embedding pipeline
-                extracted_rows = await process_document_pipeline(file_bytes, file.filename, session_service)
-                pipeline_output.extend(extracted_rows)
+                result_dict = await process_document_pipeline(file_bytes, file.filename, session_service)
+                pipeline_output.extend(result_dict["output_rows"])
+                annotated_images.extend(result_dict["annotated_images"])
+                traces.extend(result_dict.get("traces", []))
                 
         # Now run the conversational agent using this extracted context
         parts = []
@@ -102,12 +106,41 @@ async def chat_endpoint(
             parts.append(types.Part.from_text(text=message))
             
         if pipeline_output:
+            # Add strict instructions for grounding formatting
+            instruction_text = """
+You are an expert analyzing documents. ALWAYS ground your answers using the provided EXTRACTED PIPELINE DATA.
+Crucially, you MUST cite your sources using EXACTLY this format for every claim: `[Doc: filename, Page: X, Chunk: chunk_id]`.
+Do not use any other citation format. If citing multiple chunks, cite them separately like `[Doc: filename, Page: X, Chunk: id1] [Doc: filename, Page: X, Chunk: id2]`.
+"""
+            runner.agent.system_instruction = types.Content(
+                role="system",
+                parts=[types.Part.from_text(text=instruction_text)]
+            )
+            
             # We add a summary of the extracted data as context to the assistant
-            context_str = f"EXTRACTED PIPELINE DATA ({len(pipeline_output)} entities indexed with Embeddings):\n"
-            for row in pipeline_output[:10]: # Limit context for the LLM to avoid token overflow
-                 context_str += f"- [Page {row['page_number']}] {row['entity_type']}: {row['content'][:500]}...\n"
+            context_str = f"EXTRACTED PIPELINE DATA:\n"
+            for row in pipeline_output[:20]: # Provide more context chunks
+                 context_str += f"- [Doc: {file.filename}, Page: {row.get('page_number', 'unknown')}, Chunk: {row.get('chunk_id', 'unknown')}] {row.get('entity_type', 'TEXT')}: {row.get('content', '')[:500]}...\n"
                  
             parts.append(types.Part.from_text(text=context_str))
+        elif message:
+            # RAG Search if we didn't just upload a document
+            from pipeline.bigquery import search_embeddings_in_bq
+            search_results = await search_embeddings_in_bq(message)
+            if search_results:
+                instruction_text = """
+You are an expert analyzing documents. ALWAYS ground your answers using the provided RETRIEVED CONTEXT.
+Crucially, you MUST cite your sources using EXACTLY this format for every claim: `[Doc: filename, Page: X, Chunk: chunk_id]`.
+"""
+                runner.agent.system_instruction = types.Content(
+                    role="system",
+                    parts=[types.Part.from_text(text=instruction_text)]
+                )
+                
+                context_str = f"RETRIEVED CONTEXT FROM BIGQUERY:\n"
+                for res in search_results:
+                     context_str += f"- [Doc: {res['document_name']}, Page: {res['page_number']}, Chunk: {res['chunk_id']}] {res['entity_type']}: {res['content']}\n"
+                parts.append(types.Part.from_text(text=context_str))
 
         if not parts:
             parts.append(types.Part.from_text(text="I have processed the document pipeline successfully."))
@@ -137,7 +170,9 @@ async def chat_endpoint(
         return {
             "response": response_text, 
             "session_id": session_id,
-            "pipeline_data": pipeline_output # Send embeddings and chunks back
+            "pipeline_data": pipeline_output, # Send embeddings and chunks back
+            "annotated_images": annotated_images,
+            "traces": traces
         }
     except Exception as e:
         print(f"Error in chat_endpoint: {e}")
