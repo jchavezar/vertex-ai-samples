@@ -14,15 +14,15 @@ from dotenv import load_dotenv
 import vertexai
 
 load_dotenv(dotenv_path="../.env")
-os.environ["GOOGLE_CLOUD_LOCATION"] = os.environ.get("LOCATION", "us-central1")
-os.environ["GOOGLE_GENAI_LOCATION"] = os.environ.get("LOCATION", "us-central1")
+os.environ["GOOGLE_CLOUD_LOCATION"] = "global"
+os.environ["GOOGLE_GENAI_LOCATION"] = "global"
 os.environ["GOOGLE_CLOUD_PROJECT"] = os.environ.get("PROJECT_ID", "")
 os.environ["GOOGLE_GENAI_USE_VERTEXAI"] = "true"
 vertexai.init(project=os.environ.get("PROJECT_ID"), location=os.environ.get("LOCATION", "us-central1"))
 def create_mock_agent(i):
     return LlmAgent(
         name=f"test_agent_{i}",
-        model="gemini-2.5-flash",
+        model="gemini-3-flash-preview",
         instruction="Reply exactly with: 'Hello from page'"
     )
 
@@ -46,16 +46,16 @@ async def run_single(agent, session_service, i, sem):
 
 async def main():
     service = InMemorySessionService()
-    sem = asyncio.Semaphore(25)
+    sem = asyncio.Semaphore(15)
     tasks = []
     
     start_total = time.time()
-    for i in range(10):
+    for i in range(20):
         agent = create_mock_agent(i)
         tasks.append(run_single(agent, service, i, sem))
         
     await asyncio.gather(*tasks)
-    print(f"Total time for 10 tasks: {time.time() - start_total:.2f} seconds")
+    print(f"Total time for 20 tasks: {time.time() - start_total:.2f} seconds")
 
 if __name__ == "__main__":
     asyncio.run(main())

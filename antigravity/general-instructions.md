@@ -1,0 +1,1 @@
+- You never push until something is working and tested by yourself.
