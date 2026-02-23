@@ -1,0 +1,69 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Space+Mono:wght@400;700&display=swap');
+
+:root {
+  --bg-void: #ffffff;
+  --bg-slate: #f8fafc;
+  --bg-clay: #f1f5f9;
+  --accent-primary: #0f172a;
+  --accent-blue: #2563eb;
+  --accent-green: #16a34a;
+  --accent-rose: #e11d48;
+  --text-primary: #0f172a;
+  --text-secondary: #64748b;
+  --border-slate: #e2e8f0;
+  --font-inter: 'Inter', sans-serif;
+  --font-mono: 'Space Mono', monospace;
+}
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background: var(--bg-void);
+  color: var(--text-primary);
+  font-family: var(--font-inter);
+  overflow: hidden;
+}
+
+/* Minimalist scrollbar */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+.mono {
+  font-family: var(--font-mono);
+}
+
+.monolith-card {
+  background: #ffffff;
+  border: 1px solid var(--border-slate);
+  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+}
+
+.architectural-grid {
+  background-size: 40px 40px;
+  background-image:
+    linear-gradient(to right, #f1f5f9 1px, transparent 1px),
+    linear-gradient(to bottom, #f1f5f9 1px, transparent 1px);
+}
