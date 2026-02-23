@@ -1,0 +1,11 @@
+[project]
+name = "gemini-cli"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "google-auth>=2.48.0",
+    "google-cloud-discoveryengine>=0.17.0",
+    "requests>=2.32.5",
+]

@@ -1,0 +1,31 @@
+INFO:     Started server process [85918]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:8001 (Press CTRL+C to quit)
+INFO:     Deploying new agent: FixedGEInterceptor
+Using bucket deloitte-plantas_cloudbuild
+Writing to gs://deloitte-plantas_cloudbuild/reasoning_engine/reasoning_engine.pkl
+Writing to gs://deloitte-plantas_cloudbuild/reasoning_engine/requirements.txt
+Creating in-memory tarfile of extra_packages
+Writing to gs://deloitte-plantas_cloudbuild/reasoning_engine/dependencies.tar.gz
+Creating ReasoningEngine
+Create ReasoningEngine backing LRO: projects/254356041555/locations/us-central1/reasoningEngines/956252959258181632/operations/8308867267815276544
+ERROR:    Deployment failed: 500 Service account service-254356041555@gcp-sa-aiplatform.iam.gserviceaccount.com doesn't have sufficient permission "storage.objects.get" to read gs://deloitte-plantas_cloudbuild/reasoning_engine/reasoning_engine.pkl.
+ Please refer to our documentation (https://cloud.google.com/vertex-ai/generative-ai/docs/agent-engine/troubleshooting/deploy) for checking logs and other troubleshooting tips. 13: Service account service-254356041555@gcp-sa-aiplatform.iam.gserviceaccount.com doesn't have sufficient permission "storage.objects.get" to read gs://deloitte-plantas_cloudbuild/reasoning_engine/reasoning_engine.pkl.
+ Please refer to our documentation (https://cloud.google.com/vertex-ai/generative-ai/docs/agent-engine/troubleshooting/deploy) for checking logs and other troubleshooting tips.
+INFO:     127.0.0.1:36894 - "POST /api/agents/deploy HTTP/1.1" 500 Internal Server Error
+INFO:     Deploying new agent: FixedGEInterceptor
+Using bucket deloitte-plantas_cloudbuild
+Writing to gs://deloitte-plantas_cloudbuild/reasoning_engine/reasoning_engine.pkl
+Writing to gs://deloitte-plantas_cloudbuild/reasoning_engine/requirements.txt
+Creating in-memory tarfile of extra_packages
+Writing to gs://deloitte-plantas_cloudbuild/reasoning_engine/dependencies.tar.gz
+Creating ReasoningEngine
+Create ReasoningEngine backing LRO: projects/254356041555/locations/us-central1/reasoningEngines/7510397791965806592/operations/8511388513558593536
+ReasoningEngine created. Resource name: projects/254356041555/locations/us-central1/reasoningEngines/7510397791965806592
+To use this ReasoningEngine in another session:
+reasoning_engine = vertexai.preview.reasoning_engines.ReasoningEngine('projects/254356041555/locations/us-central1/reasoningEngines/7510397791965806592')
+INFO:     127.0.0.1:55578 - "POST /api/agents/deploy HTTP/1.1" 200 OK
+INFO:     127.0.0.1:39690 - "GET /api/ge_agents HTTP/1.1" 404 Not Found
+INFO:     Registering in GE: https://discoveryengine.googleapis.com/v1alpha/projects/254356041555/locations/global/collections/default_collection/engines/agentspace-testing_1748446185255/assistants/default_assistant/agents
+INFO:     127.0.0.1:54404 - "POST /api/agents/projects/254356041555/locations/us-central1/reasoningEngines/7510397791965806592/register-ge?target_engine_id=agentspace-testing_1748446185255 HTTP/1.1" 200 OK

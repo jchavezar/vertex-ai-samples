@@ -1,0 +1,18 @@
+[project]
+name = "backend"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "cloudpickle>=3.1.2",
+    "fastapi>=0.129.0",
+    "google-adk>=1.25.1",
+    "google-cloud-aiplatform[adk,agent-engines]>=1.138.0",
+    "google-cloud-discoveryengine>=0.13.12",
+    "google-genai>=1.63.0",
+    "pydantic>=2.12.5",
+    "python-dotenv>=1.2.1",
+    "requests>=2.32.5",
+    "uvicorn>=0.41.0",
+]
