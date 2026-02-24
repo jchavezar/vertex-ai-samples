@@ -53,7 +53,7 @@ graph TD
 graph TD
     User([User Query]) --> Agent[StreamAssist Agent]
     
-    subgraph Reasoning Engine
+    subgraph RE [Reasoning Engine]
         Agent -->|Evaluate Intent| Router{Tool Router}
         Router -->|Need Private Data| DS[(Datastore)]
         Router -->|Need Public Data| Web[Google Search]
@@ -72,6 +72,7 @@ graph TD
     style Web fill:#f0fdf4,stroke:#86efac,stroke-width:1px,stroke-dasharray: 5 5
     style Tool fill:#fcfaff,stroke:#c084fc,stroke-width:1px,stroke-dasharray: 5 5
     style AskBack fill:#eff6ff,stroke:#60a5fa,stroke-width:1px,stroke-dasharray: 5 5
+    style RE fill:transparent,stroke:#94a3b8,stroke-dasharray: 5 5
 ```
 
 ---
