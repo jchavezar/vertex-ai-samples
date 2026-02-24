@@ -71,7 +71,7 @@ graph TD
     style DS fill:#f0fdf4,stroke:#86efac,stroke-width:1px,stroke-dasharray: 5 5
     style Web fill:#f0fdf4,stroke:#86efac,stroke-width:1px,stroke-dasharray: 5 5
     style Tool fill:#fcfaff,stroke:#c084fc,stroke-width:1px,stroke-dasharray: 5 5
-    style AskBack fill:#fffbeb,stroke:#fcd34d,stroke-width:1px,stroke-dasharray: 5 5
+    style AskBack fill:#eff6ff,stroke:#60a5fa,stroke-width:1px,stroke-dasharray: 5 5
 ```
 
 ---
