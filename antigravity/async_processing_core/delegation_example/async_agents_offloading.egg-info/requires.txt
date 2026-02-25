@@ -1,2 +1,0 @@
-google-adk @ {root:uri}/../../gen_ai/adk
-google-genai>=0.1.0

@@ -42,6 +42,16 @@ The interface allows you to search once and see how both implementations respond
 Maximize the debug terminal to inspect raw JSON logs, tool traces, and backend events without distraction.
 ![Maximized Terminal](assets/terminal_hero.png)
 
+## 📂 PROJECT STRUCTURE
+
+```text
+vais_agent_comparison/
+├── backend/            # FastAPI Backend (Python, uv)
+├── frontend/           # Modern React/Vite User Interface
+├── docs/               # Architecture diagrams and documentation
+└── README.md           # This file
+```
+
 ## Quick Start
 
 ### Prerequisites
@@ -63,13 +73,8 @@ SEARCH_ENGINE_ID=projects/.../locations/global/collections/default_collection/en
 ### 2. Run Backend
 ```bash
 cd backend
-# Create and activate venv
-uv venv
-source .venv/bin/activate
-# Install dependencies
-uv pip install -r requirements.txt
-# Run server
-uvicorn main:app --reload --port 8001
+uv sync
+uv run uvicorn main:app --reload --port 8001
 ```
 
 ### 3. Run Frontend

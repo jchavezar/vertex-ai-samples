@@ -42,7 +42,7 @@
     </td>
   </tr>
 
-  <!-- ROW 2: NEXTGEN FINANCE & BIO -->
+  <!-- ROW 2: NEXTGEN FINANCE & MCP -->
   <tr>
     <td width="50%" valign="top">
       <img src="assets/header_finance.svg" width="100%" />
@@ -53,19 +53,6 @@
       <a href="./market_swarm_nextgen/">ACCESS_TERMINAL &rarr;</a>
     </td>
     <td width="50%" valign="top">
-      <img src="assets/header_bio.svg" width="100%" />
-      <br/><br/>
-      <strong>PROJECT: ARCHITECTURAL BIO MATRIX</strong><br/>
-      Experimental architectural identity systems. Explores "Digital-Organic", "Modern Cave", 
-      and "Parametric Glass" web aesthetics.<br/>
-      <br/>
-      <a href="./architectural_bio_matrix/">ACCESS_TERMINAL &rarr;</a>
-    </td>
-  </tr>
-
-  <!-- ROW 3: MCP & MULTIMODAL -->
-  <tr>
-    <td width="50%" valign="top">
       <img src="assets/header_mcp.svg" width="100%" />
       <br/><br/>
       <strong>PROJECT: SHAREPOINT SENTINEL MCP</strong><br/>
@@ -74,6 +61,10 @@
       <br/>
       <a href="./sharepoint_sentinel_mcp/">ACCESS_TERMINAL &rarr;</a>
     </td>
+  </tr>
+
+  <!-- ROW 3: MULTIMODAL & ADK LABS -->
+  <tr>
     <td width="50%" valign="top">
       <img src="assets/header_search.svg" width="100%" />
       <br/><br/>
@@ -82,10 +73,6 @@
       <br/>
       <a href="./multimodal_document_nexus/">ACCESS_TERMINAL &rarr;</a>
     </td>
-  </tr>
-
-  <!-- ROW 4: ADK LABS & ASYNC CORE -->
-  <tr>
     <td width="50%" valign="top">
       <img src="assets/header_adk.svg" width="100%" />
       <br/><br/>
@@ -95,18 +82,9 @@
       <br/>
       <a href="./adk_laboratory_nexus/">ACCESS_TERMINAL &rarr;</a>
     </td>
-    <td width="50%" valign="top">
-      <img src="assets/header_hub.svg" width="100%" />
-      <br/><br/>
-      <strong>PROJECT: ASYNC PROCESSING CORE</strong><br/>
-      High-throughput parallel processing units. Patterns for offloading long-running 
-      agent tasks to background workers.<br/>
-      <br/>
-      <a href="./async_processing_core/">ACCESS_TERMINAL &rarr;</a>
-    </td>
   </tr>
 
-  <!-- ROW 5: VIDEO GEN & SECURITY PROXY -->
+  <!-- ROW 4: VIDEO GEN & SECURITY PROXY -->
   <tr>
     <td width="50%" valign="top">
       <img src="assets/header_bio.svg" width="100%" />
@@ -128,7 +106,7 @@
     </td>
   </tr>
 
-  <!-- ROW 6: AI AVATARS & DIAGRAMS -->
+  <!-- ROW 5: AI AVATARS & GE COGNITIVE -->
   <tr>
     <td width="50%" valign="top">
       <img src="assets/header_adk.svg" width="100%" />
@@ -139,18 +117,6 @@
       <a href="./avatar_synthesis_engine/">ACCESS_TERMINAL &rarr;</a>
     </td>
     <td width="50%" valign="top">
-      <img src="assets/header_hub.svg" width="100%" />
-      <br/><br/>
-      <strong>PROJECT: DIAGRAM FORGE AI</strong><br/>
-      Autonomous system architecture visualization via Mermaid.js and LLM synthesis.<br/>
-      <br/>
-      <a href="./diagram_forge_ai/">ACCESS_TERMINAL &rarr;</a>
-    </td>
-  </tr>
-
-  <!-- ROW 7: GE COGNITIVE & VAIS COMPARISON -->
-  <tr>
-    <td width="50%" valign="top">
       <img src="assets/header_search.svg" width="100%" />
       <br/><br/>
       <strong>PROJECT: GE COGNITIVE UNDERSTANDING</strong><br/>
@@ -158,6 +124,10 @@
       <br/>
       <a href="./ge_cognitive_understanding/">ACCESS_TERMINAL &rarr;</a>
     </td>
+  </tr>
+
+  <!-- ROW 6: VAIS COMPARISON & GE UNDERSTANDING -->
+  <tr>
     <td width="50%" valign="top">
       <img src="assets/header_adk.svg" width="100%" />
       <br/><br/>
@@ -165,6 +135,14 @@
       A full-stack application comparing standard ADK tools with custom low-level Vertex AI Search implementations.<br/>
       <br/>
       <a href="./vais_agent_comparison/">ACCESS_TERMINAL &rarr;</a>
+    </td>
+    <td width="50%" valign="top">
+      <img src="assets/header_hub.svg" width="100%" />
+      <br/><br/>
+      <strong>PROJECT: GE UNDERSTANDING</strong><br/>
+      Foundational pipeline demonstrating document processing, text extraction, and metadata tagging.<br/>
+      <br/>
+      <a href="./ge_understanding/">ACCESS_TERMINAL &rarr;</a>
     </td>
   </tr>
 </table>

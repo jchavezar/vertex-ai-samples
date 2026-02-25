@@ -78,6 +78,18 @@ graph TD
 
 ---
 
+## 📂 PROJECT STRUCTURE
+
+```text
+sharepoint_sentinel_mcp/
+├── backend/            # Python ADK Agent (classifier_agent.py)
+├── frontend/           # React/Vite Dashboard Interface
+├── docs/               # Architecture diagrams and documentation
+└── README.md           # This file
+```
+
+---
+
 ## 🛠️ Prerequisites
 
 Before you begin, ensure you have the following:
@@ -142,12 +154,23 @@ Use [Microsoft Graph Explorer](https://developer.microsoft.com/en-us/graph/graph
 1.  **SITE_ID**: Run `GET https://graph.microsoft.com/v1.0/sites/yourtenant.sharepoint.com:/sites/YourSiteName`. The `id` in the response is your **SITE_ID**.
 2.  **DRIVE_ID**: Run `GET https://graph.microsoft.com/v1.0/sites/{SITE_ID}/drives`. Copy the `id` of the target document library (e.g., "Documents").
 
-### 3. Run the Agent
+### 3. Run the Agent (Backend)
 
 Execute the agent. It will verify your credentials, sync changes, and start classifying.
 
 ```bash
+cd backend
 uv run python classifier_agent.py
+```
+
+### 4. Run the Dashboard (Frontend)
+
+The frontend provides a real-time view of classified documents.
+
+```bash
+cd frontend
+npm install
+npm run dev
 ```
 
 ---
