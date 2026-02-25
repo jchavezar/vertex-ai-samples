@@ -17,92 +17,154 @@
 
 <br/>
 
+## 🌐 ANTIGRAVITY SYSTEMS INDEX
+
 <table width="100%" border="0" cellspacing="0" cellpadding="20">
   <!-- ROW 1: SEARCH & FINANCE -->
   <tr>
     <td width="50%" valign="top">
       <img src="assets/header_search.svg" width="100%" />
       <br/><br/>
-      <strong>PROJECT: SOCKCOP SEARCH</strong><br/>
+      <strong>PROJECT: NEXUS SEARCH CORE</strong><br/>
       The next-generation search interface. Implements the "Neo-Monolith" design system, 
       Workload Identity Federation (WIF) bridging, and Gemini Enterprise integration.<br/>
       <br/>
-      <a href="./sockcop_search/">Example: ACCESS_TERMINAL &rarr;</a>
+      <a href="./nexus_search_core/">ACCESS_TERMINAL &rarr;</a>
     </td>
     <td width="50%" valign="top">
       <img src="assets/header_finance.svg" width="100%" />
       <br/><br/>
-      <strong>PROJECT: STOCK TERMINAL</strong><br/>
+      <strong>PROJECT: MARKET SWARM TERMINAL</strong><br/>
       Autonomous market surveillance system. Features agentic swarms for financial reporting, 
       PDF synthesis, and real-time market data analysis.<br/>
       <br/>
-      <a href="./stock-terminal/">Example: ACCESS_TERMINAL &rarr;</a>
+      <a href="./market_swarm_terminal/">ACCESS_TERMINAL &rarr;</a>
     </td>
   </tr>
 
-  <!-- ROW 2: BIO & MCP -->
+  <!-- ROW 2: NEXTGEN FINANCE & BIO -->
   <tr>
+    <td width="50%" valign="top">
+      <img src="assets/header_finance.svg" width="100%" />
+      <br/><br/>
+      <strong>PROJECT: MARKET SWARM NEXTGEN</strong><br/>
+      The evolved iteration of the financial intelligence terminal utilizing the Gatekeeper Pattern.<br/>
+      <br/>
+      <a href="./market_swarm_nextgen/">ACCESS_TERMINAL &rarr;</a>
+    </td>
     <td width="50%" valign="top">
       <img src="assets/header_bio.svg" width="100%" />
       <br/><br/>
-      <strong>PROJECT: ARCHITECT BIO</strong><br/>
+      <strong>PROJECT: ARCHITECTURAL BIO MATRIX</strong><br/>
       Experimental architectural identity systems. Explores "Digital-Organic", "Modern Cave", 
       and "Parametric Glass" web aesthetics.<br/>
       <br/>
-      <a href="./bio/">Example: ACCESS_TERMINAL &rarr;</a>
-    </td>
-    <td width="50%" valign="top">
-      <img src="assets/header_mcp.svg" width="100%" />
-      <br/><br/>
-      <strong>PROJECT: SHAREPOINT MCP</strong><br/>
-      Enterprise knowledge graph connector. Bridges SharePoint data into the Gemini context 
-      using Model Context Protocol (MCP) and Graph API.<br/>
-      <br/>
-      <a href="./classificator_mcp_sharepoint/">Example: ACCESS_TERMINAL &rarr;</a>
+      <a href="./architectural_bio_matrix/">ACCESS_TERMINAL &rarr;</a>
     </td>
   </tr>
 
-  <!-- ROW 3: ADK & ASYNC -->
+  <!-- ROW 3: MCP & MULTIMODAL -->
+  <tr>
+    <td width="50%" valign="top">
+      <img src="assets/header_mcp.svg" width="100%" />
+      <br/><br/>
+      <strong>PROJECT: SHAREPOINT SENTINEL MCP</strong><br/>
+      Enterprise knowledge graph connector. Bridges SharePoint data into the Gemini context 
+      using Model Context Protocol (MCP) and Graph API.<br/>
+      <br/>
+      <a href="./sharepoint_sentinel_mcp/">ACCESS_TERMINAL &rarr;</a>
+    </td>
+    <td width="50%" valign="top">
+      <img src="assets/header_search.svg" width="100%" />
+      <br/><br/>
+      <strong>PROJECT: MULTIMODAL DOCUMENT NEXUS</strong><br/>
+      Enterprise Intelligence Platform for multimodal document chat, embedding, and intelligence extraction.<br/>
+      <br/>
+      <a href="./multimodal_document_nexus/">ACCESS_TERMINAL &rarr;</a>
+    </td>
+  </tr>
+
+  <!-- ROW 4: ADK LABS & ASYNC CORE -->
   <tr>
     <td width="50%" valign="top">
       <img src="assets/header_adk.svg" width="100%" />
       <br/><br/>
-      <strong>PROJECT: ADK LABS</strong><br/>
-      Google Agent Development Kit (ADK) pilots. Demonstrates function calling, 
+      <strong>PROJECT: ADK LABORATORY NEXUS</strong><br/>
+      Google Agent Development Kit (ADK) experimental proving grounds. Demonstrates function calling, 
       grounding, and multi-agent coordination patterns.<br/>
       <br/>
-      <a href="./adk_pilots/">Example: ACCESS_TERMINAL &rarr;</a>
+      <a href="./adk_laboratory_nexus/">ACCESS_TERMINAL &rarr;</a>
     </td>
     <td width="50%" valign="top">
       <img src="assets/header_hub.svg" width="100%" />
       <br/><br/>
-      <strong>PROJECT: ASYNC CORE</strong><br/>
+      <strong>PROJECT: ASYNC PROCESSING CORE</strong><br/>
       High-throughput parallel processing units. Patterns for offloading long-running 
       agent tasks to background workers.<br/>
       <br/>
-      <a href="./async_agents_offloading/">Example: ACCESS_TERMINAL &rarr;</a>
+      <a href="./async_processing_core/">ACCESS_TERMINAL &rarr;</a>
     </td>
   </tr>
 
-  <!-- ROW 4: VEO GENERATION -->
+  <!-- ROW 5: VIDEO GEN & SECURITY PROXY -->
   <tr>
     <td width="50%" valign="top">
-      <img src="assets/header_bio.svg" width="100%" /> <!-- Re-using bio header as placeholder -->
+      <img src="assets/header_bio.svg" width="100%" />
       <br/><br/>
-      <strong>PROJECT: VEO VIDEO GEN</strong><br/>
+      <strong>PROJECT: VEO GENERATION MATRIX</strong><br/>
       Generative Video Interface. Powered by Veo 2.0 and Google ADK. Features "Modern Cave" 
       UI and real-time generation feedback.<br/>
       <br/>
-      <a href="./veo_video_gen/">Example: ACCESS_TERMINAL &rarr;</a>
+      <a href="./veo_generation_matrix/">ACCESS_TERMINAL &rarr;</a>
     </td>
     <td width="50%" valign="top">
-      <img src="assets/header_mcp.svg" width="100%" /> <!-- Re-using mcp header as placeholder -->
+      <img src="assets/header_mcp.svg" width="100%" />
       <br/><br/>
-      <strong>PROJECT: LLM SECURITY PROXY</strong><br/>
+      <strong>PROJECT: ZERO-LEAK SECURITY PROXY</strong><br/>
       Zero-Leak Enterprise Protocol. Enforces strict authentication, 
       masked structured outputs using Google ADK orchestration over deep Microsoft SharePoint data.<br/>
       <br/>
-      <a href="./llm_security_proxy_sharepoint/">Example: ACCESS_TERMINAL &rarr;</a>
+      <a href="./zero_leak_security_proxy/">ACCESS_TERMINAL &rarr;</a>
+    </td>
+  </tr>
+
+  <!-- ROW 6: AI AVATARS & DIAGRAMS -->
+  <tr>
+    <td width="50%" valign="top">
+      <img src="assets/header_adk.svg" width="100%" />
+      <br/><br/>
+      <strong>PROJECT: AVATAR SYNTHESIS ENGINE</strong><br/>
+      Next-gen avatar generation and deployment module using Web UIs and Google GenAI.<br/>
+      <br/>
+      <a href="./avatar_synthesis_engine/">ACCESS_TERMINAL &rarr;</a>
+    </td>
+    <td width="50%" valign="top">
+      <img src="assets/header_hub.svg" width="100%" />
+      <br/><br/>
+      <strong>PROJECT: DIAGRAM FORGE AI</strong><br/>
+      Autonomous system architecture visualization via Mermaid.js and LLM synthesis.<br/>
+      <br/>
+      <a href="./diagram_forge_ai/">ACCESS_TERMINAL &rarr;</a>
+    </td>
+  </tr>
+
+  <!-- ROW 7: GE COGNITIVE & VAIS COMPARISON -->
+  <tr>
+    <td width="50%" valign="top">
+      <img src="assets/header_search.svg" width="100%" />
+      <br/><br/>
+      <strong>PROJECT: GE COGNITIVE UNDERSTANDING</strong><br/>
+      Deep analysis and insight extraction engine to comprehend massive unstructured datasets.<br/>
+      <br/>
+      <a href="./ge_cognitive_understanding/">ACCESS_TERMINAL &rarr;</a>
+    </td>
+    <td width="50%" valign="top">
+      <img src="assets/header_adk.svg" width="100%" />
+      <br/><br/>
+      <strong>PROJECT: VAIS AGENT COMPARISON</strong><br/>
+      A full-stack application comparing standard ADK tools with custom low-level Vertex AI Search implementations.<br/>
+      <br/>
+      <a href="./vais_agent_comparison/">ACCESS_TERMINAL &rarr;</a>
     </td>
   </tr>
 </table>
