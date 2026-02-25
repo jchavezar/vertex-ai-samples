@@ -1,1 +1,0 @@
-{"detail":"'ExtractedEntity' object has no attribute 'embedding'"}

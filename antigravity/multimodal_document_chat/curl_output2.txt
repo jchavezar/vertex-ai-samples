@@ -1,1 +1,0 @@
-{"response":"Of course. Here is the data extracted from the bar chart titled \"Customer Churn by Product\".\n\n### Customer Churn by Product\n\n| Product | Churn Rate (%) |\n| :--- | :--- |\n| Product A | 15% |\n| Product B | 9% |\n| Product C | 21% |\n| Product D | 5% |\n| Product E | 12% |","session_id":"87051efa-33ff-461b-952b-1c4275bb8ac6","pipeline_data":[]}
