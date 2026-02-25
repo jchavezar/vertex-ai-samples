@@ -24,3 +24,4 @@ client_secret*.json
 credentials.json
 *_token.json
 
+*.pdf
