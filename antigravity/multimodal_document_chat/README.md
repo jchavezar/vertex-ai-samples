@@ -15,6 +15,14 @@
 
 Built using the **Zero-Parsing Architecture** (React 19 + FastAPI + Google ADK), it delivers high-performance semantic retrieval directly backed by **Google BigQuery Vector Search** and **Gemini 3 Flash Preview**.
 
+### 🎨 Visual Interface
+
+| **Intelligent Dashboard** | **Holographic Citation System** |
+|:---:|:---:|
+| ![Dashboard](./docs/screenshots/dashboard.png) | ![Citation Feature](./docs/screenshots/citation_feature.png) |
+| *Modern Glassmorphic UI with real-time pipeline status* | *Holographic hover previews and deep-linked chart highlighting* |
+
+
 ### ✨ Key Features & Zero-Leak Security
 * **🧠 Agentic Extraction**: Utilizes **Google ADK** to run orchestrated, parallel `LlmAgent` extractions across PDF pages.
 * **📊 Multimodal Grounding**: Identifies charts and graphics, converting them to rich markdown descriptions and providing bounding boxes.
