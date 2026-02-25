@@ -2,18 +2,25 @@ import requests
 import uuid
 
 def test_pipeline():
-    # Make sure to place a sample pdf at 'sample.pdf' for this script to run accurately
     url = "http://localhost:8001/chat"
     session_id = str(uuid.uuid4())
     
-    # Create a dummy PDF if none exists
-    with open("sample.pdf", "wb") as f:
-        # Just write some placeholder text, pypdf2 might complain but we'll see
-        f.write(b"%PDF-1.4\n1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj\n2 0 obj\n<< /Type /Pages /Kids [3 0 R] /Count 1 >>\nendobj\n3 0 obj\n<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Contents 4 0 R >>\nendobj\n4 0 obj\n<< /Length 21 >>\nstream\nBT /F1 12 Tf 100 700 Td (Hello World) Tj ET\nendstream\nendobj\nxref\n0 5\n0000000000 65535 f \n0000000009 00000 n \n0000000058 00000 n \n0000000115 00000 n \n0000000213 00000 n \ntrailer\n<< /Size 5 /Root 1 0 R >>\nstartxref\n285\n%%EOF\n")
+    # Use real_sample.pdf if present in the same directory, otherwise fall back to sample.pdf
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    real_pdf_path = os.path.join(current_dir, "real_sample.pdf")
+    
+    filename = "sample.pdf"
+    if os.path.exists(real_pdf_path):
+        filename = real_pdf_path
+        print(f"Using existing sample: {filename}")
+    else:
+        # Create a dummy PDF if none exists
+        with open("sample.pdf", "wb") as f:
+            f.write(b"%PDF-1.4\n1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj\n2 0 obj\n<< /Type /Pages /Kids [3 0 R] /Count 1 >>\nendobj\n3 0 obj\n<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Contents 4 0 R >>\nendobj\n4 0 obj\n<< /Length 21 >>\nstream\nBT /F1 12 Tf 100 700 Td (Hello World) Tj ET\nendstream\nendobj\nxref\n0 5\n0000000000 65535 f \n0000000009 00000 n \n0000000058 00000 n \n0000000115 00000 n \n0000000213 00000 n \ntrailer\n<< /Size 5 /Root 1 0 R >>\nstartxref\n285\n%%EOF\n")
 
     
     print("Testing pipeline...")
-    with open("sample.pdf", "rb") as pdf_file:
+    with open(filename, "rb") as pdf_file:
         files = {"files": ("sample.pdf", pdf_file, "application/pdf")}
         data = {
             "message": "Summarize this document based on the specific tables in the text.",
