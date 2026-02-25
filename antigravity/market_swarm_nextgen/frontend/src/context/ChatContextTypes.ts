@@ -1,5 +1,5 @@
 import { createContext } from 'react';
-import { Message } from 'ai/react';
+import { Message } from '@ai-sdk/react';
 import { NodeMetrics, ProcessorTopology } from '../components/dashboard/types';
 
 export interface LogEntry {
