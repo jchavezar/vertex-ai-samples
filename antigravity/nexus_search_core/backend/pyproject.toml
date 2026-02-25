@@ -1,0 +1,13 @@
+[project]
+name = "backend"
+version = "0.1.0"
+description = "Nexus Search Core Backend"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi>=0.115.6",
+    "pydantic>=2.10.4",
+    "uvicorn>=0.34.0",
+    "python-dotenv",
+    "google-cloud-discoveryengine"
+]

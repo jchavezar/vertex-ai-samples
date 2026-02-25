@@ -16,6 +16,18 @@ This repository adheres to strict Zero-Leak protocols for enterprise deployments
 
 ---
 
+## 📂 PROJECT STRUCTURE
+
+```text
+zero_leak_security_proxy/
+├── backend/            # FastAPI Security Proxy (Python, uv)
+├── frontend/           # React 19 Vercel AI SDK SPA
+├── docs/               # Architecture diagrams and documentation
+└── README.md           # This file
+```
+
+---
+
 ## 🏗️ Cloud Native Architecture (Google Cloud Run)
 
 The application enforces a secure offloading architecture using the **Model Context Protocol (MCP)**, specifically tailored for stateless serverless deployment.

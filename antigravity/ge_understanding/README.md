@@ -1,12 +1,13 @@
 <div align="center">
-  <img src="../assets/header_hub.svg" width="100%" alt="HEADER" />
+  <img src="https://capsule-render.vercel.app/api?type=waving&color=0f172a&height=200&section=header&text=GE%20UNDERSTANDING&fontSize=60&fontAlignY=38&desc=Insight%20Engine&descAlignY=58&descAlign=62" width="100%" alt="HEADER" />
 </div>
 
+<br/>
+
 <div align="center">
-  <h1>GE COGNITIVE UNDERSTANDING</h1>
   <h3>SYSTEM STATUS: <strong>ONLINE</strong> // SECURITY_LEVEL: <strong>SIGMA</strong></h3>
   <p>
-    <em>Deep analysis and insight extraction engine.</em>
+    <em>A powerful system for reasoning over enterprise knowledge bases and extracting actionable insights.</em>
   </p>
 </div>
 
@@ -16,21 +17,20 @@
 
 > **Core Engine:** FastAPI (Backend) | React, Vite, TS (Frontend)
 
-A processing module designed to comprehend and structure massive sets of unstructured domain data, identifying complex patterns.
+This module handles complex queries against structured and unstructured datastores.
 
 ```mermaid
 graph TD
     User([User]) -->|Interacts| UI[Frontend: React/Vite]
     UI -->|API Requests| API[Backend: FastAPI]
     API -->|LLM Reasoning| Model[Google Gemini Pro]
-    Model -->|Structured Insights| API
-    API -->|Aggregated Data| UI
+    Model -->|Search/Retrieval| DB[(Vector Datastore)]
 ```
 
 ## 📂 PROJECT STRUCTURE
 
 ```text
-ge_cognitive_understanding/
+ge_understanding/
 ├── backend/            # FastAPI Backend & LLM Routing (Python, uv)
 ├── frontend/           # Modern React/Vite User Interface
 ├── docs/               # Architecture diagrams and documentation
@@ -41,10 +41,10 @@ ge_cognitive_understanding/
 
 ### 1. Backend Ignition
 
-The backend leverages `uv` for ultra-fast dependency management. Make sure you configure your `.env` properly.
+The backend leverages `uv` for ultra-fast dependency management.
 
 ```bash
-cd ge_cognitive_understanding/backend
+cd ge_understanding/backend
 uv sync
 uv run main.py
 ```
@@ -54,7 +54,7 @@ uv run main.py
 The frontend operates on Vite for HMR and rapid development.
 
 ```bash
-cd ge_cognitive_understanding/frontend
+cd ge_understanding/frontend
 npm install
 npm run dev
 ```

@@ -1,8 +1,8 @@
 <p align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="./public/assets/hero_banner.svg">
-    <source media="(prefers-color-scheme: light)" srcset="./public/assets/hero_banner.svg">
-    <img alt="Sockcop Search Neo-Monolith Hero" src="./public/assets/hero_banner.svg" width="100%">
+    <source media="(prefers-color-scheme: dark)" srcset="./frontend/public/assets/hero_banner.svg">
+    <source media="(prefers-color-scheme: light)" srcset="./frontend/public/assets/hero_banner.svg">
+    <img alt="Sockcop Search Neo-Monolith Hero" src="./frontend/public/assets/hero_banner.svg" width="100%">
   </picture>
 </p>
 
@@ -17,16 +17,42 @@
 </div>
 
 <blockquote>
-  <p><b>SYSTEM LOG:</b> Sockcop Search transcends basic retrieval. It is a high-fidelity, brutalist neo-monolith acting as a secure gateway to your enterprise intelligence. It federates Microsoft Entra ID authentication signals directly into the heart of Google Cloud's Vertex AI Search (Gemini Enterprise) engine without a traditional backend.</p>
+  <p><b>SYSTEM LOG:</b> Sockcop Search transcends basic retrieval. It is a high-fidelity, brutalist neo-monolith acting as a secure gateway to your enterprise intelligence. It federates Microsoft Entra ID authentication signals directly into the heart of Google Cloud's Vertex AI Search (Gemini Enterprise) engine.</p>
 </blockquote>
+
+<br/>
+
+## 🪐 ARCHITECTURE & SPECS
+
+> **Core Engine:** FastAPI (Backend) | React, Vite, TS (Frontend)
+
+```mermaid
+graph TD
+    User([User]) -->|Authenticates| Entra[Microsoft Entra ID]
+    Entra -->|Federates Identity| WIF[Workload Identity Fed]
+    User -->|Interacts| UI[Frontend: React/Vite]
+    UI -->|API Requests| API[Backend: FastAPI]
+    API -->|Proxies Search| WIF
+    WIF -->|Secured Access| VAIS[Vertex AI Search]
+```
+
+## 📂 PROJECT STRUCTURE
+
+```text
+nexus_search_core/
+├── backend/            # FastAPI Backend (Python, uv)
+├── frontend/           # Modern React/Vite User Interface
+├── docs/               # Architecture diagrams and documentation
+└── README.md           # This file
+```
 
 <br/>
 
 <p align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="./public/assets/arch_diagram.svg">
-    <source media="(prefers-color-scheme: light)" srcset="./public/assets/arch_diagram.svg">
-    <img alt="Next Gen Architecture Pathway" src="./public/assets/arch_diagram.svg" width="100%">
+    <source media="(prefers-color-scheme: dark)" srcset="./frontend/public/assets/arch_diagram.svg">
+    <source media="(prefers-color-scheme: light)" srcset="./frontend/public/assets/arch_diagram.svg">
+    <img alt="Next Gen Architecture Pathway" src="./frontend/public/assets/arch_diagram.svg" width="100%">
   </picture>
 </p>
 
@@ -34,9 +60,9 @@
 
 <p align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="./public/assets/header_topologies.svg">
-    <source media="(prefers-color-scheme: light)" srcset="./public/assets/header_topologies.svg">
-    <img alt="Interface Topologies Header" src="./public/assets/header_topologies.svg" width="100%">
+    <source media="(prefers-color-scheme: dark)" srcset="./frontend/public/assets/header_topologies.svg">
+    <source media="(prefers-color-scheme: light)" srcset="./frontend/public/assets/header_topologies.svg">
+    <img alt="Interface Topologies Header" src="./frontend/public/assets/header_topologies.svg" width="100%">
   </picture>
 </p>
 
@@ -53,7 +79,7 @@ The following diagram illustrates the zero-trust authentication flow across Entr
 
 <br/>
 <p align="center">
-  <img src="./public/assets/auth_topology_v4.svg" alt="Detailed Entra ID / WIF Authorization Sequence" width="100%">
+  <img src="./frontend/public/assets/auth_topology_v4.svg" alt="Detailed Entra ID / WIF Authorization Sequence" width="100%">
 </p>
 <br/>
 
@@ -73,9 +99,9 @@ The following diagram illustrates the zero-trust authentication flow across Entr
       <kbd>RESULT</kbd> Immediate, zero-code access to grounded financial data using the federated identity backbone.
     </td>
     <td width="400" valign="top">
-      <img src="./public/screenshots/native_datastore_status.png" width="400" style="border-radius: 8px;" />
+      <img src="./frontend/public/screenshots/native_datastore_status.png" width="400" style="border-radius: 8px;" />
       <br/><br/>
-      <img src="./public/screenshots/native_search_results.png" width="400" style="border-radius: 8px;" />
+      <img src="./frontend/public/screenshots/native_search_results.png" width="400" style="border-radius: 8px;" />
     </td>
   </tr>
 </table>
@@ -89,9 +115,9 @@ The following diagram illustrates the zero-trust authentication flow across Entr
 <table>
   <tr>
     <td valign="top">
-      <kbd>IDENTITY</kbd> <b>Workload Identity Federation (WIF)</b> exchanges the <code>id_token</code> for a Google Access Token directly in the browser.<br/><br/>
-      <kbd>EXECUTE</kbd> Deploy this repository's precise brutalist React UI.<br/><br/>
-      <kbd>OPERATE</kbd> Bypasses the generic interface to call the <b>Discovery Engine API</b> directly.<br/><br/>
+      <kbd>IDENTITY</kbd> <b>Workload Identity Federation (WIF)</b> exchanges the <code>id_token</code> for a Google Access Token directly.<br/><br/>
+      <kbd>EXECUTE</kbd> Deploy this repository's precise brutalist UI and FastAPI proxy.<br/><br/>
+      <kbd>OPERATE</kbd> Bypasses the generic interface to call the <b>Discovery Engine API</b> safely.<br/><br/>
       <kbd>RESULT</kbd> A fully customizable, "Modern Cave" experience with <b>Sockcop</b> branding and specialized visual data structures.
     </td>
     <td width="400" valign="top">
@@ -105,9 +131,9 @@ The following diagram illustrates the zero-trust authentication flow across Entr
 
 <p align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="./public/assets/header_config.svg">
-    <source media="(prefers-color-scheme: light)" srcset="./public/assets/header_config.svg">
-    <img alt="Configuration Pipeline Header" src="./public/assets/header_config.svg" width="100%">
+    <source media="(prefers-color-scheme: dark)" srcset="./frontend/public/assets/header_config.svg">
+    <source media="(prefers-color-scheme: light)" srcset="./frontend/public/assets/header_config.svg">
+    <img alt="Configuration Pipeline Header" src="./frontend/public/assets/header_config.svg" width="100%">
   </picture>
 </p>
 
@@ -123,7 +149,7 @@ The following diagram illustrates the zero-trust authentication flow across Entr
 
 <table>
   <tr>
-    <td width="100" align="center" valign="top"><img src="./public/assets/step_1.svg" width="60"></td>
+    <td width="100" align="center" valign="top"><img src="./frontend/public/assets/step_1.svg" width="60"></td>
     <td valign="top">
       <kbd>EXECUTE</kbd> Navigate to <b>Entra ID</b> &gt; <b>App registrations</b>.<br/><br/>
       <kbd>INPUT</kbd> Create the app <code>deloitte-entraid</code>.<br/><br/>
@@ -136,9 +162,9 @@ The following diagram illustrates the zero-trust authentication flow across Entr
       <code>ISSUER: "https://login.microsoftonline.com/YOUR_TENANT_ID/v2.0"</code>
     </td>
     <td width="400" valign="top">
-      <img src="./public/screenshots/deloitte-entraid_Authentication.png" width="400" style="border-radius: 8px;" />
+      <img src="./frontend/public/screenshots/deloitte-entraid_Authentication.png" width="400" style="border-radius: 8px;" />
       <br/><br/>
-      <img src="./public/screenshots/deloitte-entraid_API_permissions.png" width="400" style="border-radius: 8px;" />
+      <img src="./frontend/public/screenshots/deloitte-entraid_API_permissions.png" width="400" style="border-radius: 8px;" />
     </td>
   </tr>
 </table>
@@ -153,7 +179,7 @@ The following diagram illustrates the zero-trust authentication flow across Entr
 
 <table>
   <tr>
-    <td width="100" align="center" valign="top"><img src="./public/assets/step_2.svg" width="60"></td>
+    <td width="100" align="center" valign="top"><img src="./frontend/public/assets/step_2.svg" width="60"></td>
     <td valign="top">
       <kbd>EXECUTE</kbd> Navigate to <b>GCP Console</b> &gt; <b>IAM &amp; Admin</b>.<br/><br/>
       <kbd>INPUT</kbd> Create pool named <code>entra-id-oidc-pool-d</code>.<br/><br/>
@@ -162,9 +188,9 @@ The following diagram illustrates the zero-trust authentication flow across Entr
       <kbd>EXTRACT</kbd> Recover the <code>WIF Pool ID</code> and <code>WIF Provider ID</code>.
     </td>
     <td width="400" valign="top">
-      <img src="./public/screenshots/WIF_pool_overview.png" width="400" style="border-radius: 8px;" />
+      <img src="./frontend/public/screenshots/WIF_pool_overview.png" width="400" style="border-radius: 8px;" />
       <br/><br/>
-      <img src="./public/screenshots/WIF_provider_config.png" width="400" style="border-radius: 8px;" />
+      <img src="./frontend/public/screenshots/WIF_provider_config.png" width="400" style="border-radius: 8px;" />
     </td>
   </tr>
 </table>
@@ -179,7 +205,7 @@ The following diagram illustrates the zero-trust authentication flow across Entr
 
 <table>
   <tr>
-    <td width="100" align="center" valign="top"><img src="./public/assets/step_3.svg" width="60"></td>
+    <td width="100" align="center" valign="top"><img src="./frontend/public/assets/step_3.svg" width="60"></td>
     <td valign="top">
       <kbd>EXECUTE</kbd> Navigate to <b>GCP Console</b> &gt; <b>IAM &amp; Admin</b>.<br/><br/>
       <kbd>DEFINE</kbd> Bind permissions directly to the WIF-authenticated identities.<br/><br/>
@@ -187,7 +213,7 @@ The following diagram illustrates the zero-trust authentication flow across Entr
       <kbd>CONFIG</kbd> Assign <code>Discovery Engine Viewer</code> and <code>Vertex AI User</code> roles.
     </td>
     <td width="400" valign="top">
-      <img src="./public/screenshots/gcp_iam_wif_bindings.png" width="400" style="border-radius: 8px;" />
+      <img src="./frontend/public/screenshots/gcp_iam_wif_bindings.png" width="400" style="border-radius: 8px;" />
     </td>
   </tr>
 </table>
@@ -202,7 +228,7 @@ The following diagram illustrates the zero-trust authentication flow across Entr
 
 <table>
   <tr>
-    <td width="100" align="center" valign="top"><img src="./public/assets/step_4.svg" width="60"></td>
+    <td width="100" align="center" valign="top"><img src="./frontend/public/assets/step_4.svg" width="60"></td>
     <td valign="top">
       <kbd>EXECUTE</kbd> Return to <b>Entra ID</b> &gt; <b>App registrations</b>.<br/><br/>
       <kbd>DEFINE</kbd> Create Service App: <code>sharepoint-datastore</code>.<br/><br/>
@@ -211,9 +237,9 @@ The following diagram illustrates the zero-trust authentication flow across Entr
       <kbd>EXTRACT</kbd> Save the <code>Client Secret</code>.
     </td>
     <td width="400" valign="top">
-      <img src="./public/screenshots/deloitte-sharepoint-datastore_Authentication.png" width="400" style="border-radius: 8px;" />
+      <img src="./frontend/public/screenshots/deloitte-sharepoint-datastore_Authentication.png" width="400" style="border-radius: 8px;" />
       <br/><br/>
-      <img src="./public/screenshots/deloitte-sharepoint-datastore_API_permissions.png" width="400" style="border-radius: 8px;" />
+      <img src="./frontend/public/screenshots/deloitte-sharepoint-datastore_API_permissions.png" width="400" style="border-radius: 8px;" />
     </td>
   </tr>
 </table>
@@ -228,7 +254,7 @@ The following diagram illustrates the zero-trust authentication flow across Entr
 
 <table>
   <tr>
-    <td width="100" align="center" valign="top"><img src="./public/assets/step_5.svg" width="60"></td>
+    <td width="100" align="center" valign="top"><img src="./frontend/public/assets/step_5.svg" width="60"></td>
     <td valign="top">
       <kbd>EXECUTE</kbd> Navigate to <b>GCP Console</b> &gt; <b>Agent Builder</b>.<br/><br/>
       <kbd>DEFINE</kbd> Connect the Entra ID Service App pipeline into the Google Cloud search indexer.<br/><br/>
@@ -237,45 +263,7 @@ The following diagram illustrates the zero-trust authentication flow across Entr
       <kbd>EXTRACT</kbd> Recover the <code>Datastore ID</code> and <code>Engine ID</code>.
     </td>
     <td width="400" valign="top">
-      <img src="./public/screenshots/gcp_agent_builder_datastores.png" width="400" style="border-radius: 8px;" />
-    </td>
-  </tr>
-</table>
-
-</details>
-
-<br/>
-
-<details open>
-<summary><kbd>PHASE 6</kbd> <b>Frontend Integration (React App)</b></summary>
-<br/>
-
-<table>
-  <tr>
-    <td width="100" align="center" valign="top"><img src="./public/assets/step_6.svg" width="60"></td>
-    <td valign="top">
-      <kbd>EXECUTE</kbd> Inject all accumulated identifiers into the Codebase.<br/><br/>
-      <kbd>DEFINE</kbd> Update your <code>src/api/config.js</code> file.
-      <br/><br/>
-<pre><code>export const CONFIG = {
-  // GCP Configuration
-  LOCATION: "global",
-  
-  // WIF Configuration (Phase 2)
-  WIF_POOL: "&lt;YOUR_POOL_ID&gt;",
-  WIF_PROVIDER: "&lt;YOUR_PROVIDER_ID&gt;",
-  
-  // Vertex AI (Phase 5)
-  DATA_STORE_ID: "&lt;YOUR_DATA_STORE_ID&gt;",
-  ENGINE_ID: "deloitte-demo",
-  
-  // Entra ID (Phase 1)
-  TENANT_ID: "&lt;YOUR_TENANT_ID&gt;",
-  MS_APP_ID: "&lt;YOUR_ENTRA_CLIENT_ID&gt;", 
-  ISSUER: "https://login.microsoft..."
-};</code></pre>
-    </td>
-    <td width="400" valign="top">
+      <img src="./frontend/public/screenshots/gcp_agent_builder_datastores.png" width="400" style="border-radius: 8px;" />
     </td>
   </tr>
 </table>
@@ -286,9 +274,9 @@ The following diagram illustrates the zero-trust authentication flow across Entr
 
 <p align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="./public/assets/header_setup.svg">
-    <source media="(prefers-color-scheme: light)" srcset="./public/assets/header_setup.svg">
-    <img alt="Setup Protocol Header" src="./public/assets/header_setup.svg" width="100%">
+    <source media="(prefers-color-scheme: dark)" srcset="./frontend/public/assets/header_setup.svg">
+    <source media="(prefers-color-scheme: light)" srcset="./frontend/public/assets/header_setup.svg">
+    <img alt="Setup Protocol Header" src="./frontend/public/assets/header_setup.svg" width="100%">
   </picture>
 </p>
 
@@ -296,12 +284,23 @@ The following diagram illustrates the zero-trust authentication flow across Entr
   <p><b>OPERATION:</b> Initialize the monolith terminal sequence.</p>
 </blockquote>
 
-<table>
-  <tr>
-    <td>
-      <kbd>EXECUTE</kbd> Install dependencies: <br/><code>npm install</code><br/><br/>
-      <kbd>EXECUTE</kbd> Start the serverless React client: <br/><code>npm run dev</code>
-    </td>
-  </tr>
-</table>
+### 1. Backend Ignition
+
+The backend leverages `uv` for ultra-fast dependency management.
+
+```bash
+cd nexus_search_core/backend
+uv sync
+uv run main.py
+```
+
+### 2. Frontend Launch
+
+The frontend operates on Vite for HMR and rapid development.
+
+```bash
+cd nexus_search_core/frontend
+npm install
+npm run dev
+```
 
