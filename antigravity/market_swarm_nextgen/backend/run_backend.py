@@ -42,5 +42,6 @@ if __name__ == "__main__":
         print(f"Failed to patch google.ai.generativelanguage.Tool: {e}")
 
     nest_asyncio.apply()
-    print("Starting Uvicorn via run_backend.py with patches applied...")
-    uvicorn.run("src.main:app", host="0.0.0.0", port=8002, reload=False, log_level="info")
+    port = int(os.getenv("PORT", 8001))
+    print(f"Starting Uvicorn via run_backend.py on port {port} with patches applied...")
+    uvicorn.run("src.main:app", host="0.0.0.0", port=port, reload=False, log_level="info")
