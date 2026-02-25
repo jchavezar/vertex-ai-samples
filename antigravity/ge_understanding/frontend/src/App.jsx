@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Terminal,
@@ -94,7 +94,7 @@ const ChatInput = ({ onSend, disabled }) => {
   );
 };
 
-const PayloadPane = ({ payload }) => {
+const PayloadPane = ({ payload, lastPayload, setIsResizingRight, rightSidebarWidth, isResizingRight }) => {
   return (
     <div className="flex flex-col h-full bg-slate-50 border-x border-slate-200 overflow-hidden">
       <div className="h-12 border-b border-slate-200 bg-white flex items-center px-6 justify-between shrink-0">
@@ -169,7 +169,7 @@ const AgentManager = ({ agents, geAgents, selectedId, onSelect, onRefresh, onDel
   const countLabel = activeTab === 'ENGINE' ? 'ENGINES_AVAILABLE' : 'ENTERPRISE_AGENTS';
 
   return (
-    <div className="w-[400px] flex flex-col bg-white h-full overflow-hidden border-l border-slate-100 shadow-xl z-10 transition-all duration-300">
+    <div className="w-full flex flex-col bg-white h-full overflow-hidden border-l border-slate-100 shadow-xl z-10 transition-all duration-300">
 
       {/* Header & Tabs */}
       <div className="flex flex-col border-b border-slate-100 bg-slate-50/80 backdrop-blur-sm shrink-0">
@@ -332,7 +332,16 @@ const AgentManager = ({ agents, geAgents, selectedId, onSelect, onRefresh, onDel
                 </div>
                 <div className="flex justify-between px-1">
                   <div className="flex gap-1">
-                    {['SEARCH', 'ANSWER'].map(m => (
+                    <button
+                      onClick={(e) => { e.stopPropagation(); setGeMode('AGENT'); }}
+                      className={cn(
+                        "px-2 py-0.5 text-[8px] rounded font-bold transition-colors",
+                        geMode === 'AGENT' ? "bg-blue-500/20 text-blue-400" : "text-slate-500 hover:text-slate-400"
+                      )}
+                    >
+                      AGENT
+                    </button>
+                    {agent.is_ge_agent && ['SEARCH', 'ANSWER'].map(m => (
                       <button
                         key={m}
                         onClick={(e) => { e.stopPropagation(); setGeMode(m); }}
@@ -378,12 +387,12 @@ const LayoutStyles = () => (
     }
     @media (min-width: 1024px) {
       .monolith-grid {
-        grid-template-columns: 1fr 340px !important;
+        grid-template-columns: 1fr var(--agent-width) !important;
       }
     }
     @media (min-width: 1280px) {
       .monolith-grid {
-        grid-template-columns: 1fr 440px 340px !important;
+        grid-template-columns: 1fr var(--payload-width) var(--agent-width) !important;
       }
     }
     .custom-scrollbar::-webkit-scrollbar {
@@ -402,17 +411,78 @@ const LayoutStyles = () => (
   `}} />
 );
 
+const ResizeHandle = ({ onMouseDown, className }) => (
+  <div
+    className={cn(
+      "w-1.5 hover:w-2 bg-transparent hover:bg-blue-500/50 cursor-col-resize absolute top-0 bottom-0 z-50 transition-all ml-[-3px]",
+      className
+    )}
+    onMouseDown={(e) => {
+      e.preventDefault();
+      onMouseDown();
+    }}
+  />
+);
+
 export default function App() {
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(false);
   const [agents, setAgents] = useState([]);
   const [geAgents, setGeAgents] = useState([]); // New state for GE Agents
   const [selectedAgentId, setSelectedAgentId] = useState(null);
-  const [geMode, setGeMode] = useState('SEARCH');
+  const [geMode, setGeMode] = useState('AGENT');
   const [geQuery, setGeQuery] = useState("What are your capabilities?");
   const [lastPayload, setLastPayload] = useState(null);
   const [geLoading, setGeLoading] = useState(false);
   const scrollRef = useRef(null);
+
+  // --- Resizable Sidebar Logic ---
+  // payloadWidth corresponds to the middle pane (visible on XL)
+  const [payloadWidth, setPayloadWidth] = useState(440);
+  // agentWidth corresponds to the right pane (Activity/Agents)
+  const [agentWidth, setAgentWidth] = useState(450);
+
+  const [isResizingPayload, setIsResizingPayload] = useState(false);
+  const [isResizingAgent, setIsResizingAgent] = useState(false);
+
+  const startResizingPayload = useCallback(() => setIsResizingPayload(true), []);
+  const stopResizingPayload = useCallback(() => setIsResizingPayload(false), []);
+
+  const startResizingAgent = useCallback(() => setIsResizingAgent(true), []);
+  const stopResizingAgent = useCallback(() => setIsResizingAgent(false), []);
+
+  const resize = useCallback((e) => {
+    if (isResizingAgent) {
+      const newWidth = window.innerWidth - e.clientX;
+      if (newWidth > 250 && newWidth < 600) {
+        setAgentWidth(newWidth);
+      }
+    } else if (isResizingPayload) {
+      // Payload pane is between Chat and Agent.
+      // Its width is: (Window Width - Chat Width - Agent Width)
+      // But resizing from the left of Payload pane:
+      // The mouse X position defines the split between Chat and Payload.
+      // So Payload Width = (Window Width - Mouse X - Agent Width)
+      // We assume Agent pane is visible if Payload pane is visible (XL screen)
+      const newWidth = window.innerWidth - e.clientX - agentWidth;
+      if (newWidth > 300 && newWidth < 800) {
+        setPayloadWidth(newWidth);
+      }
+    }
+  }, [isResizingAgent, isResizingPayload, agentWidth]);
+
+  useEffect(() => {
+    if (isResizingAgent || isResizingPayload) {
+      window.addEventListener("mousemove", resize);
+      window.addEventListener("mouseup", stopResizingAgent); // Shared stop for simplicity or specific
+      window.addEventListener("mouseup", stopResizingPayload);
+    }
+    return () => {
+      window.removeEventListener("mousemove", resize);
+      window.removeEventListener("mouseup", stopResizingAgent);
+      window.removeEventListener("mouseup", stopResizingPayload);
+    };
+  }, [resize, stopResizingAgent, stopResizingPayload, isResizingAgent, isResizingPayload]);
 
   const fetchAgents = async () => {
     try {
@@ -524,6 +594,13 @@ export default function App() {
   const handleTestSearch = async (uid, overrideQuery, mode = 'SEARCH') => {
     setGeLoading(true);
     const query = overrideQuery || "What are your capabilities?";
+
+    if (mode === 'AGENT') {
+      await handleSend(query);
+      setGeLoading(false);
+      return;
+    }
+
     const endpoint = mode === 'SEARCH' ? '/api/ge_search' : '/api/ge_answer';
 
     try {
@@ -647,7 +724,13 @@ export default function App() {
   };
 
   return (
-    <div className="h-screen bg-slate-50 flex flex-col selection:bg-slate-900 selection:text-white p-6 md:p-8 lg:p-10 box-border overflow-hidden">
+    <div
+      className="h-screen bg-slate-50 flex flex-col selection:bg-slate-900 selection:text-white p-6 md:p-8 lg:p-10 box-border overflow-hidden"
+      style={{
+        '--payload-width': `${payloadWidth}px`,
+        '--agent-width': `${agentWidth}px`
+      }}
+    >
       <LayoutStyles />
       <div className="flex-1 flex flex-col bg-white border border-slate-200 shadow-2xl shadow-slate-200/50 relative overflow-hidden rounded-[2.5rem]">
         <Header />
@@ -734,12 +817,14 @@ export default function App() {
           </section>
 
           {/* Column 2: Payload HUD */}
-          <aside className="hidden xl:flex h-full min-w-0 min-h-0">
+          <aside className="hidden xl:flex h-full min-w-0 min-h-0 relative" style={{ width: payloadWidth }}>
+            <ResizeHandle onMouseDown={startResizingPayload} className="left-0" />
             <PayloadPane payload={lastPayload} />
           </aside>
 
           {/* Column 3: Agent Manager (Tray) */}
-          <aside className="hidden lg:flex h-full min-w-0 min-h-0">
+          <aside className="hidden lg:flex h-full min-w-0 min-h-0 relative" style={{ width: agentWidth }}>
+            <ResizeHandle onMouseDown={startResizingAgent} className="left-0" />
             <AgentManager
               agents={agents}
               geAgents={geAgents}

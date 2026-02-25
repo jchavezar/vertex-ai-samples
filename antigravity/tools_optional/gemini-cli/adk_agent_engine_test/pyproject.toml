@@ -1,0 +1,11 @@
+[project]
+name = "adk-agent-engine-test"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi>=0.132.0",
+    "google-adk>=1.15.1",
+    "uvicorn>=0.41.0",
+]

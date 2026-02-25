@@ -37,8 +37,7 @@ def run_agentic_assist(query: str):
     print(f"Calling: {url_stream}")
     with requests.post(url_stream, json=payload, headers=headers, stream=True) as response:
         if response.status_code == 200:
-            print("
-=== AGENTIC ASSIST ANSWER ===")
+            print("\n=== AGENTIC ASSIST ANSWER ===")
             accumulated_answer = ""
             for line in response.iter_lines():
                 if line:
@@ -64,9 +63,7 @@ def run_agentic_assist(query: str):
                                 accumulated_answer += text_chunk
                         except json.JSONDecodeError:
                             pass
-            print("
-
-=== STREAM COMPLETED ===")
+            print("\n\n=== STREAM COMPLETED ===")
         else:
             print(f"Error {response.status_code}: {response.text}")
 
