@@ -1,39 +1,36 @@
 <div align="center">
-  <img src="../assets/header_hub.svg" width="100%" alt="HEADER" />
+<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
 </div>
 
-<div align="center">
-  <h1>AVATAR SYNTHESIS ENGINE</h1>
-  <h3>SYSTEM STATUS: <strong>ONLINE</strong> // SECURITY_LEVEL: <strong>DELTA</strong></h3>
-  <p>
-    <em>Next-gen avatar generation and deployment module.</em>
-  </p>
-</div>
+# Run and deploy your AI Studio app
 
-<br/>
+This contains everything you need to run your app locally.
 
-## 🪐 ARCHITECTURE & SPECS
+## Run Locally
 
-> **Core Engine:** React, Vite, Node.js
 
-Provides everything needed to run and deploy an AI Studio application locally for generating, modifying, and animating digital personas.
+### Prerequisites
+- Node.js
+- [uv](https://github.com/astral-sh/uv) (for backend)
 
-## 🚀 IGNITION SEQUENCE
+### Setup & Run
+1. **Frontend**:
+   ```bash
+   npm install
+   npm run dev
+   ```
 
-```bash
-cd avatar_synthesis_engine
-npm install
-npm run dev
-```
+2. **Backend**:
+   ```bash
+   cd backend
+   uv sync
+   uv run main.py
+   ```
 
-## 🛡️ SECURITY PROTOCOLS
+3. **Secrets**:
+   Ensure you have a `.env` file in the root directory with your keys:
+   ```env
+   GEMINI_API_KEY=...
+   GOOGLE_API_KEY=...
+   ```
 
-- **Zero-Leak Compliant:** `.env` structures are sealed.
-- **Identity:** Authenticated operations only.
-
-<br/>
-
-<div align="center">
-  <img src="https://capsule-render.vercel.app/api?type=waving&color=0f172a&height=100&section=footer" width="100%" />
-  <p>POWERED_BY: <strong>GEMINI_2.5_PRO</strong> // ARCHITECTURE: <strong>NEO_MONOLITH</strong></p>
-</div>
