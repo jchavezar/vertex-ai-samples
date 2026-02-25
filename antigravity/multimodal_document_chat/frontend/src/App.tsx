@@ -4,6 +4,7 @@ import { Send, UploadCloud, FileText } from 'lucide-react';
 import { UploadOverlay } from './components/UploadOverlay';
 import { ResultsViewer, type PipelineEntity } from './components/ResultsViewer';
 import { IndexedDocuments } from './components/IndexedDocuments';
+import { Citation } from './components/Citation';
 
 interface ChatMessage {
   id: string;
@@ -207,41 +208,31 @@ function App() {
     // E.g., parse [1], [2]
     const citationRegex = /\[(\d+)\]/g;
     const processedContent = content.replace(citationRegex, (_match, id) => {
-      return `[${id}](citation:${id} "View Source ${id}")`;
+      return `[${id}](#citation-${id})`;
     });
 
     return (
       <ReactMarkdown
         components={{
           a: ({ node, href, title, children, ...props }) => {
-            if (href && href.startsWith('citation:')) {
-              const chunk = href.replace('citation:', '');
-              const isActive = activeHighlight === chunk;
+            const isCitation = href && href.startsWith('#citation-');
+            if (isCitation) {
+              const id = href.replace('#citation-', '');
+              const index = parseInt(id) - 1;
+              const chunkData = pipelineResult?.pipeline_data?.[index];
+              const chunkId = chunkData?.chunk_id || `chunk_${id}`;
 
-              // Find chunk text for the tooltip using frontend_id
-              const chunkData = pipelineResult?.pipeline_data?.find((d: any) => d.frontend_id === chunk);
-
-              console.log("CITATION DEBUG", {
-                lookingForId: chunk,
-                foundData: chunkData,
-                totalPipelineDataChunks: pipelineResult?.pipeline_data?.length
-              });
-
-              let tooltipText = title || 'View Source';
-              if (chunkData && chunkData.content) {
-                // Truncate if extremely long, but typically chunk is small enough
-                tooltipText = `Source Text:\\n\\n${chunkData.content}`;
-              }
+              const isActive = activeHighlight === chunkId;
 
               return (
-                <span
-                  onClick={() => handleHighlightClick(chunk)}
-                  className={`citation-pill ${isActive ? 'active' : ''}`}
-                  title={tooltipText}
+                <Citation
+                  id={id}
+                  chunkData={chunkData}
+                  isActive={isActive}
+                  onClick={() => handleHighlightClick(chunkId)}
                 >
-                  <FileText size={12} style={{ display: 'inline', marginRight: '4px' }} />
-                  {children}
-                </span>
+                  {id}
+                </Citation>
               );
             }
             return <a href={href} title={title} {...props}>{children}</a>;
