@@ -2,9 +2,40 @@ import json
 import logging
 import uuid
 import time
-from typing import Optional, Any, AsyncGenerator
-from google.adk.agents import BaseAgent
+from typing import Optional, Any, AsyncGenerator, Callable
+import sys
+import os
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+print("DEBUG: Starting agent.py", file=sys.stderr)
+try:
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    print(f"DEBUG: current_dir={current_dir}", file=sys.stderr)
+    parent_dir = os.path.dirname(current_dir)
+    print(f"DEBUG: parent_dir={parent_dir}", file=sys.stderr)
+    print(f"DEBUG: Listing parent_dir: {os.listdir(parent_dir)}", file=sys.stderr)
+    
+    vendor_path = os.path.join(parent_dir, 'vendor')
+    print(f"DEBUG: vendor_path={vendor_path}", file=sys.stderr)
+    if os.path.exists(vendor_path):
+        print(f"DEBUG: Adding vendor path: {vendor_path}", file=sys.stderr)
+        sys.path.insert(0, vendor_path)
+    else:
+        print("DEBUG: vendor path DOES NOT EXIST", file=sys.stderr)
+
+    import google.adk
+    print("DEBUG: Successfully imported google.adk", file=sys.stderr)
+except Exception as e:
+    print(f"DEBUG: Error in agent.py setup: {e}", file=sys.stderr)
+    import traceback
+    traceback.print_exc(file=sys.stderr)
+
+from google.adk.agents import BaseAgent, InvocationContext
 from google.adk.agents.callback_context import CallbackContext
+from google.adk.events.event import Event
+from google.adk.tools.tool_context import ToolContext
 import google.genai.types as types
 
 logger = logging.getLogger(__name__)
@@ -36,11 +67,11 @@ class GEMINIPayloadInterceptor(BaseAgent):
             before_agent_callback=self.intercept_logic
         )
 
-    async def intercept_logic(self, ctx: CallbackContext) -> Optional[types.Content]:
+    async def intercept_logic(self, callback_context: CallbackContext, **kwargs) -> Optional[types.Content]:
         # Extract the raw payload from reasoning engine request if available
-        # In this specific context, we are getting it from the 'request_json' arg
-        # formatted by the proxy in main.py or deploy_standalone.py
-        request_json = ctx.arguments.get("request_json", "{}")
+        # In current ADK, callback_context wraps invocation_context.
+        ctx = callback_context
+        request_json = kwargs.get("request_json", "{}")
         
         try:
             # Attempt to pretty-print the intercepted JSON
@@ -55,18 +86,36 @@ class GEMINIPayloadInterceptor(BaseAgent):
             parts=[types.Part(text=f"### 🕵️ Gemini Enterprise Interceptor payload captured!\n\n**Raw `request_json`**:\n```json\n{formatted_json}\n```")]
         )
 
-    async def _run_async_impl(self, ctx: CallbackContext, **kwargs) -> types.Content:
+    async def _run_async_impl(self, ctx: InvocationContext) -> AsyncGenerator[Event, None]:
         # Fallback if no content is returned by the callback
-        return types.Content(
-            role="model",
-            parts=[types.Part(text="Interceptor Active: Waiting for payload...")]
+        yield Event(
+            invocation_id=ctx.invocation_id,
+            author=self.name,
+            content=types.Content(
+                role="model",
+                parts=[types.Part(text="Interceptor Active: Waiting for payload...")]
+            )
         )
 
-    def query(self, **kwargs):
+    async def query(self, payload: dict) -> str:
         """
-        Required by Reasoning Engine validation.
+        Standard Reasoning Engine query method.
+        Wraps the GE-specific streaming method for easier testing.
         """
-        pass
+        request_json = json.dumps(payload)
+        logger.info(f"Query called with payload type: {type(payload)}")
+        
+        # Invoke the streaming logic
+        # Since query is expected to return a value (not a stream usually in this context),
+        # we will collect the stream.
+        try:
+            response_content = ""
+            async for chunk in self.streaming_agent_run_with_events(request_json):
+                response_content += chunk
+            return response_content
+        except Exception as e:
+            logger.error(f"Query execution failed: {e}")
+            return json.dumps({"text": f"Error: {str(e)}", "metadata": {}})
 
     async def streaming_agent_run_with_events(self, request_json: str, config: Optional[Any] = None) -> AsyncGenerator[str, None]:
         """
@@ -76,23 +125,60 @@ class GEMINIPayloadInterceptor(BaseAgent):
         logger.info(f"Interceptor received request_json: {request_json[:200]}...") # Log first 200 chars
 
         # Create a mock context for the intercept logic
-        class MockContext:
-            def __init__(self, arg):
-                self.arguments = {"request_json": arg}
-        
-        ctx = MockContext(request_json)
+        callback_context = CallbackContext(invocation_context=None) # Bare context for demo
         
         # Run the intercept logic
-        content = await self.intercept_logic(ctx)
-        
-        # Yield the response as a JSON string, mocking a generation event
-        # The format must match what GE expects from a custom agent
-        # We wrap the content text in a valid response structure
+        content = await self.intercept_logic(callback_context=callback_context, request_json=request_json)
         response_text = content.parts[0].text
         
-        # Construct a simple response event
-        # In a real scenario, this might need to match the specific schema GE expects from the agent
-        # for now, we just yield the text.
-        yield response_text
+        # Try to parse request_json for metadata
+        try:
+            req_data = json.loads(request_json)
+        except:
+            req_data = {"raw": request_json}
+
+        # Construct the full payload with metadata
+        full_payload = {
+            "text": response_text,
+            "metadata": {
+                "original_request": req_data,
+                "session_id": req_data.get("session", "unknown") if isinstance(req_data, dict) else "unknown",
+                "timestamp": time.time()
+            }
+        }
+        
+        # Yield the response as a JSON string
+        yield json.dumps(full_payload)
+
+
+class ContextDemoAgent(BaseAgent):
+    tools: list[Callable] = []
+
+    def __init__(self):
+        super().__init__(
+            name="ContextDemoAgent",
+            description="Agent to demonstrate ADK context extraction",
+            tools=[self.who_am_i]
+        )
+
+    def who_am_i(self, tool_context: ToolContext = None) -> dict:
+        """Returns the current session context information."""
+        if tool_context and tool_context.invocation_context:
+             session = tool_context.invocation_context.session
+             return {
+                 "session_id": session.session_id,
+                 "user_id": session.user_id,
+                 "state": session.state
+             }
+        return {"error": "No tool context available"}
+
+    async def query(self, prompt: str = "", **kwargs) -> dict:
+        """Entry point for Reasoning Engine. Returns debug info about inputs."""
+        return {
+            "message": "Hello from ContextDemoAgent",
+            "received_kwargs": list(kwargs.keys()),
+            "prompt": prompt,
+            "tool_output": self.who_am_i() # Call without context to see default behavior
+        }
 
 interceptor_app = GEMINIPayloadInterceptor()

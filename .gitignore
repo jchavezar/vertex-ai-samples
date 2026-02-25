@@ -1,5 +1,17 @@
 /gen_ai/tmp/.idea/
 
+# Common Junk (MANDATORY CLEANUP)
+__pycache__/
+.venv/
+local_data/
+*.pyc
+*.log
+.DS_Store
+node_modules/
+dist/
+build/
+server_pid.txt
+
 # Data & Secrets (MANDATORY)
 .env
 .env.*
@@ -11,3 +23,4 @@
 client_secret*.json
 credentials.json
 *_token.json
+

@@ -15,14 +15,15 @@ from google.adk.sessions import InMemorySessionService
 from google.genai import types
 from google.cloud import discoveryengine_v1alpha as discoveryengine
 import requests
-from dotenv import load_dotenv
+import certifi
 
-# Load environment variables
-load_dotenv(dotenv_path="../.env")
+# Fix for "Could not find a suitable TLS CA certificate bundle"
+os.environ["SSL_CERT_FILE"] = certifi.where()
+os.environ["REQUESTS_CA_BUNDLE"] = certifi.where()
 
 logger = logging.getLogger("uvicorn")
 
-app = FastAPI(title="GE Understanding Interceptor Proxy")
+app = FastAPI(title="GE Understanding Interceptor Proxy V2")
 
 app.add_middleware(
     CORSMiddleware,
@@ -43,8 +44,8 @@ def get_project_id():
     except Exception:
         return None
 
-PROJECT_ID = get_project_id()
-PROJECT_NUMBER = "254356041555" # Default from user request, but can be updated
+PROJECT_ID = os.getenv("PROJECT_ID", "vtxdemos")
+PROJECT_NUMBER = os.getenv("PROJECT_NUMBER", "254356041555")
 LOCATION = os.getenv("LOCATION", "us-central1")
 
 logger.info(f"Initialized with PROJECT_ID: {PROJECT_ID}, LOCATION: {LOCATION}")
@@ -56,8 +57,8 @@ vertexai.init(
     api_transport="grpc"
 )
 
-# The default interceptor engine ID (hardcoded for fallback)
-DEFAULT_ENGINE_ID = f"projects/{PROJECT_ID}/locations/{LOCATION}/reasoningEngines/9214561650181406720" if PROJECT_ID else ""
+# The new managed interceptor engine ID
+DEFAULT_ENGINE_ID = f"projects/{PROJECT_NUMBER}/locations/{LOCATION}/reasoningEngines/1859646897011032064"
 
 # Initialize ADK Session Service
 session_service = InMemorySessionService()
@@ -87,7 +88,7 @@ async def list_agents():
             
             is_interceptor = ("Interceptor" in display_name or 
                              "interceptor" in display_name.lower() or 
-                             "7166831194611384320" in name)
+                             "1859646897011032064" in name)
             
             result.append({
                 "resource_name": name,
@@ -382,6 +383,12 @@ async def chat(request: ChatRequest):
     
     logger.info(f"Targeting Engine ID: {engine_id}")
     
+    # Sanitize engine_id if it's just the ID
+    if engine_id and not engine_id.startswith("projects/") and PROJECT_NUMBER:
+        # Using PROJECT_NUMBER as ReasoningEngine API seems to return/prefer it in this environment
+        engine_id = f"projects/{PROJECT_NUMBER}/locations/{LOCATION}/reasoningEngines/{engine_id}"
+        logger.info(f"Sanitized Engine ID to: {engine_id}")
+    
     # Mocking the request_json structure typically sent by Gemini Enterprise
     # to the 'streaming_agent_run_with_events' method.
     simulated_request_json = {
@@ -390,9 +397,19 @@ async def chat(request: ChatRequest):
         ],
         "systemInstruction": {
             "role": "system", 
-            "parts": [{"text": "You are a helpful assistant."}]
+            "parts": [{"text": "You are a helpful assistant. Provide detailed information about your context when asked."}]
         },
-        "tools": []
+        "tools": [],
+        "session": f"projects/{PROJECT_NUMBER}/locations/global/collections/default_collection/engines/mock-engine/sessions/{request.session_id or 'mock-session-999'}",
+        "user_id": "user@google.com",
+        "metadata": {
+            "origin": "vertex_ai_dashboard",
+            "debug_mode": True,
+            "grounding_config": {
+                "enabled": True,
+                "dynamic_retrieval_config": {"mode": "MODE_UNSPECIFIED", "dynamic_threshold": 0}
+            }
+        }
     }
 
     async def event_generator():
@@ -411,39 +428,59 @@ async def chat(request: ChatRequest):
                 app_name="ge_interceptor"
             )
 
-            # We pass the message to the streaming_agent_run_with_events
-            # In a real scenario, Gemini Enterprise sends 'request_json' to the Reasoning Engine endpoint.
-            # Here we simulate that call using the SDK.
-            stream = remote_agent.streaming_agent_run_with_events(
-                request_json=json.dumps(simulated_request_json)
-            )
+            # We use the query() method which wraps the streaming logic for the SDK client
+            # The ReasoningEngine SDK client exposes 'query' by default.
+            logger.info("Invoking agent via .query() method...")
             
-            logger.info("Stream initialized, starting to yield events...")
-            for event in stream:
-                logger.info(f"Yielding event: {str(event)[:100]}...")
-                # Pretty print the payload if it's the interceptor event
-                # The user requested pretty printing because they can't see the full text
-                # when it's minified in the HUD.
-                if isinstance(event, dict) and "content" in event:
-                    text = event["content"].get("parts", [{}])[0].get("text", "")
-                    if "Raw `request_json`" in text:
-                        try:
-                            # Extract the JSON from the markdown code block
-                            json_str = text.split("```json\n")[1].split("\n```")[0]
-                            parsed_json = json.loads(json_str)
-                            pretty_json = json.dumps(parsed_json, indent=2)
-                            
-                            # Replace the minified JSON with pretty JSON in the event text
-                            event["content"]["parts"][0]["text"] = text.replace(json_str, pretty_json)
-                            # Add metadata for the UI HUD
-                            event["isIntercepted"] = True
-                            event["resource_name"] = engine_id
-                            event["parsed_payload"] = parsed_json
-                            event["method"] = "streaming_agent_run_with_events"
-                        except Exception as pe:
-                            logger.error(f"Pretty print error: {pe}")
+            # Note: The SDK 'query' method is blocking/synchronous.
+            # In a production async app, we might want to run this in a threadpool,
+            # but for this demo/interceptor it is acceptable.
+            response_payload = remote_agent.query(payload=simulated_request_json)
+            
+            # The response_payload is the string returned by agent.query()
+            # It should be the JSON string of the intercepted event.
+            logger.info("Agent query returned successfully.")
+            
+            # Attempt to parse the JSON payload from the agent
+            try:
+                # The agent now returns a JSON string with "text" and "metadata"
+                clean_payload = str(response_payload).strip()
+                # Handle potential markdown fencing
+                if clean_payload.startswith("```json"):
+                    clean_payload = clean_payload[7:].strip()
+                if clean_payload.endswith("```"):
+                    clean_payload = clean_payload[:-3].strip()
+                
+                data_obj = json.loads(clean_payload)
+                
+                if isinstance(data_obj, dict) and "text" in data_obj:
+                    response_text = data_obj["text"]
+                    # Use the metadata from the agent if available
+                    metadata = data_obj.get("metadata", {})
+                    # The "original_request" in metadata is what we want to show in the payload pane
+                    final_parsed_payload = metadata.get("original_request", simulated_request_json)
+                else:
+                     # Fallback for legacy/other agents
+                     response_text = str(response_payload)
+                     final_parsed_payload = simulated_request_json
+                     metadata = {}
+            except Exception as e:
+                logger.warning(f"Failed to parse agent JSON: {e}")
+                response_text = str(response_payload)
+                final_parsed_payload = simulated_request_json
+                metadata = {}
 
-                yield f"data: {json.dumps(event)}\n\n"
+            # Construct the event data
+            event_data = {
+                "content": {"parts": [{"text": response_text}]},
+                "isIntercepted": True,
+                "resource_name": engine_id,
+                "parsed_payload": final_parsed_payload,
+                "metadata": metadata,
+                "method": "query (via streaming_agent_run_with_events)"
+            }
+
+            yield f"data: {json.dumps(event_data)}\n\n"
                 
         except Exception as e:
             logger.error(f"Error in backend stream: {e}")
@@ -480,13 +517,16 @@ async def deploy_agent(request: dict):
             display_name=display_name,
             description=f"GE Interceptor: {display_name}",
             requirements=[
-                "google-adk",
                 "google-cloud-aiplatform",
                 "google-genai",
-                "google-cloud-discoveryengine",
-                "requests"
+                "google-auth",
+                "requests",
+                "python-dotenv"
             ],
-            extra_packages=["agent_pkg"],
+            extra_packages=[
+                os.path.join(os.path.dirname(__file__), "agent_pkg"),
+                os.path.join(os.path.dirname(__file__), "vendor")
+            ],
         )
         
         return {
