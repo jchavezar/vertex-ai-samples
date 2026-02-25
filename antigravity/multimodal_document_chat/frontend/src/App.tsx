@@ -71,9 +71,9 @@ function App() {
 
   const loadTestPDF = async () => {
     try {
-      const response = await fetch('/test.pdf');
+      const response = await fetch('/sample_fictional.pdf');
       const blob = await response.blob();
-      const file = new File([blob], 'test.pdf', { type: 'application/pdf' });
+      const file = new File([blob], 'sample_fictional.pdf', { type: 'application/pdf' });
       startPipeline([file]);
     } catch (e) {
       console.error('Failed to load test PDF', e);
