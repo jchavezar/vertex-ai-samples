@@ -1,0 +1,21 @@
+version: '3.8'
+
+services:
+  orchestrator:
+    build:
+      context: .
+      dockerfile: agents/orchestrator/Dockerfile
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+    environment:
+      - GOOGLE_APPLICATION_CREDENTIALS=/app/credentials.json
+
+  frontend:
+    build:
+      context: ./app
+    ports:
+      - "3000:3000"
+    depends_on:
+      - orchestrator

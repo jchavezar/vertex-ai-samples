@@ -1,0 +1,15 @@
+{
+  "name": "Verity Nexus Engine",
+  "description": "A forensic and regulatory audit engine powered by Google ADK.",
+  "api": {
+    "type": "openapi",
+    "url": "/api/openapi.json"
+  },
+  "capabilities": [
+    "audit_forensics",
+    "tax_compliance",
+    "multi_agent_orchestration"
+  ],
+  "author": "Verity Nexus",
+  "version": "1.0.0"
+}

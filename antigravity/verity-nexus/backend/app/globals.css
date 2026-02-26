@@ -1,0 +1,88 @@
+:root {
+  --kpmg-blue: #00338D;
+  --kpmg-cyan: #0091DA;
+  --kpmg-white: #FFFFFF;
+  --kpmg-gray: #F3F3F3;
+  --kpmg-dark-gray: #333333;
+  --background: var(--kpmg-white);
+  --foreground: var(--kpmg-dark-gray);
+}
+
+body {
+  margin: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: var(--kpmg-gray);
+  color: var(--foreground);
+}
+
+.dashboard {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  grid-template-rows: 60px 1fr;
+  height: 100vh;
+}
+
+.header {
+  grid-column: 1 / -1;
+  background-color: var(--kpmg-blue);
+  color: white;
+  display: flex;
+  align-items: center;
+  padding: 0 20px;
+  font-weight: bold;
+  font-size: 1.2rem;
+  letter-spacing: 1px;
+}
+
+.sidebar {
+  background-color: var(--kpmg-white);
+  border-right: 1px solid #ddd;
+  padding: 20px;
+}
+
+.main-content {
+  padding: 20px;
+  overflow-y: auto;
+}
+
+.card {
+  background: white;
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.btn-primary {
+  background-color: var(--kpmg-cyan);
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 2px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.btn-primary:hover {
+  background-color: var(--kpmg-blue);
+}
+
+.flow-graph {
+  border: 1px dashed var(--kpmg-cyan);
+  height: 300px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(0, 145, 218, 0.05);
+  border-radius: 8px;
+  font-style: italic;
+  color: var(--kpmg-blue);
+}
+
+.chat-input {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  margin-top: 10px;
+}

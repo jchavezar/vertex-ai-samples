@@ -1,0 +1,501 @@
+Trans_ID,Date,Account_Code,Entity,Vendor_Name,Amount_USD,Approval_Status,Description
+TXN-2026-0420,2026-11-06 18:55:24,500-OFFICE,Verity Nexus HQ,Pitney Bowes Inc.,5285.21,APPROVED,Standard Office Expense
+TXN-2026-0041,2026-11-06 17:01:25,500-MARKETING,Verity Nexus HQ,Publicis Groupe,50405.2,APPROVED,Marketing Support Services
+TXN-2026-0404,2026-07-20 09:03:40,500-LEGAL,Verity Nexus HQ,Kirkland & Ellis LLP,49581.04,APPROVED,Legal - Project Alpha
+TXN-2026-0078,2026-06-01 11:49:01,500-OFFICE,Verity Nexus HQ,Uline Inc.,3217.78,APPROVED,Office - Project Alpha
+TXN-2026-0261,2026-01-26 16:45:07,500-INSURANCE,Verity Nexus HQ,Marsh McLennan,46299.95,APPROVED,Standard Insurance Expense
+TXN-2026-0073,2026-08-05 13:34:52,500-LEGAL,Verity Nexus HQ,Sullivan & Cromwell,26463.41,APPROVED,Legal Services - Q3
+TXN-2026-0287,2026-11-12 12:04:04,500-OFFICE,Verity Nexus HQ,Xerox Corporation,7340.41,APPROVED,Standard Office Expense
+TXN-2026-0067,2026-10-22 11:27:08,500-SOFTWARE,Verity Nexus HQ,ServiceNow Inc.,26240.04,APPROVED,Software Support Services
+TXN-2026-0038,2026-09-28 15:34:39,500-INSURANCE,Verity Nexus HQ,Willis Towers Watson,25585.65,APPROVED,Standard Insurance Expense
+TXN-2026-0128,2026-02-02 08:01:19,500-SOFTWARE,Verity Nexus HQ,Microsoft Corporation,34456.91,APPROVED,Annual Software Renewal
+TXN-2026-0002,2026-09-09 15:04:00,500-MARKETING,Verity Nexus HQ,Interpublic Group,30742.16,APPROVED,Monthly Marketing Invoice
+TXN-2026-0406,2026-07-21 14:24:11,500-OFFICE,Verity Nexus HQ,W.B. Mason Company,7762.69,APPROVED,Office - Project Alpha
+TXN-2026-0143,2026-02-16 10:32:48,500-UTILITIES,Verity Nexus HQ,Waste Management Inc.,20301.03,APPROVED,Monthly Utilities Invoice
+TXN-2026-0001,2026-06-01 12:49:59,500-TRAVEL,Verity Nexus HQ,Hilton Hotels,3911.43,APPROVED,Monthly Travel Invoice
+TXN-2026-0160,2026-07-06 13:53:03,500-TRAVEL,Verity Nexus HQ,Uber Business,832.16,APPROVED,Travel - Project Alpha
+TXN-2026-0060,2026-04-23 16:58:58,500-UTILITIES,Verity Nexus HQ,Consolidated Edison,47882.13,APPROVED,Monthly Utilities Invoice
+TXN-2026-0080,2026-01-19 08:58:19,500-LEGAL,Verity Nexus HQ,Baker McKenzie,138489.25,APPROVED,Legal Support Services
+TXN-2026-0069,2026-12-10 14:54:04,500-MARKETING,Verity Nexus HQ,Omnicom Group,18194.04,APPROVED,Marketing - Project Alpha
+TXN-2026-0005,2026-12-15 15:46:19,500-TRAVEL,Verity Nexus HQ,United Airlines,6297.73,APPROVED,Monthly Travel Invoice
+TXN-2026-0493,2026-08-31 11:06:57,500-CONSULTING,Verity Nexus HQ,Enterprise LLP,123000,APPROVED,Consulting Support Services
+TXN-2026-0308,2026-11-16 08:27:28,500-SOFTWARE,Verity Nexus HQ,ServiceNow Inc.,79439.74,APPROVED,Monthly Software Invoice
+TXN-2026-0438,2026-04-14 13:06:00,500-SOFTWARE,Verity Nexus HQ,Microsoft Corporation,97819.52,APPROVED,Standard Software Expense
+TXN-2026-0350,2026-06-03 09:27:22,500-UTILITIES,Verity Nexus HQ,Pacific Gas & Electric,37126.16,APPROVED,Utilities - Project Alpha
+TXN-2026-0302,2026-07-10 17:26:38,500-CONSULTING,Verity Nexus HQ,McKinsey & Company,253503.89,APPROVED,Annual Consulting Renewal
+TXN-2026-0148,2026-07-10 16:51:09,500-UTILITIES,Verity Nexus HQ,Pacific Gas & Electric,26860.08,APPROVED,Utilities - Project Alpha
+TXN-2026-0064,2026-01-26 09:38:11,500-TRAVEL,Verity Nexus HQ,American Express Travel,14311.95,APPROVED,Annual Travel Renewal
+TXN-2026-0435,2026-03-09 10:05:48,500-LEGAL,Verity Nexus HQ,Jones Day,161247.39,APPROVED,Annual Legal Renewal
+TXN-2026-0266,2026-07-06 10:00:18,500-UTILITIES,Verity Nexus HQ,Verizon Business,10085.2,APPROVED,Utilities Services - Q3
+TXN-2026-0117,2026-09-25 09:33:14,500-MARKETING,Verity Nexus HQ,WPP plc,77206.64,APPROVED,Standard Marketing Expense
+TXN-2026-0375,2026-10-05 09:05:24,500-INSURANCE,Verity Nexus HQ,Marsh McLennan,41332.1,APPROVED,Annual Insurance Renewal
+TXN-2026-0011,2026-10-05 11:54:43,500-TRAVEL,Verity Nexus HQ,Uber Business,1217.93,APPROVED,Travel - Project Alpha
+TXN-2026-0291,2026-03-04 18:30:35,500-TRAVEL,Verity Nexus HQ,Hilton Hotels,1785.41,APPROVED,Standard Travel Expense
+TXN-2026-0205,2026-05-05 16:13:00,500-INSURANCE,Verity Nexus HQ,Willis Towers Watson,11504.0,APPROVED,Standard Insurance Expense
+TXN-2026-0324,2026-04-24 08:36:54,500-SOFTWARE,Verity Nexus HQ,Slack Technologies,13775.93,APPROVED,Annual Software Renewal
+TXN-2026-0330,2026-11-26 09:20:30,500-SOFTWARE,Verity Nexus HQ,Amazon Web Services,13008.63,APPROVED,Software - Project Alpha
+TXN-2026-0211,2026-10-05 09:46:30,500-SOFTWARE,Verity Nexus HQ,Amazon Web Services,135296.6,APPROVED,Annual Software Renewal
+TXN-2026-0471,2026-10-19 18:13:23,500-MARKETING,Verity Nexus HQ,WPP plc,8181.8,APPROVED,Annual Marketing Renewal
+TXN-2026-0202,2026-06-24 16:50:39,500-SOFTWARE,Verity Nexus HQ,Zoom Video Communications,1114.64,APPROVED,Software Services - Q2
+TXN-2026-0242,2026-08-04 15:37:03,500-INSURANCE,Verity Nexus HQ,Aon plc,53313.76,APPROVED,Insurance - Project Alpha
+TXN-2026-0448,2026-05-13 16:05:52,500-INSURANCE,Verity Nexus HQ,Willis Towers Watson,46403.6,APPROVED,Insurance - Project Alpha
+TXN-2026-0464,2026-10-15 12:45:15,500-LEGAL,Verity Nexus HQ,Jones Day,12470.05,APPROVED,Legal Services - Q4
+TXN-2026-0090,2026-12-10 09:22:34,500-TRAVEL,Verity Nexus HQ,Uber Business,275.99,APPROVED,Travel Services - Q4
+TXN-2026-0284,2026-11-09 09:10:59,500-CONSULTING,Verity Nexus HQ,Ernst & Young LLP,120340.11,APPROVED,Standard Consulting Expense
+TXN-2026-0444,2026-07-24 08:05:30,500-CONSULTING,Verity Nexus HQ,Enterprise LLP,80492.3,APPROVED,Consulting Services - Q3
+TXN-2026-0241,2026-09-08 08:14:53,500-CONSULTING,Verity Nexus HQ,Bain & Company,401511.36,APPROVED,Consulting Services - Q3
+TXN-2026-0178,2026-08-31 16:51:23,500-SOFTWARE,Verity Nexus HQ,Zoom Video Communications,1000,APPROVED,Software Services - Q3
+TXN-2026-0229,2026-12-15 12:49:18,500-TRAVEL,Verity Nexus HQ,Hertz Corporation,688.43,APPROVED,Annual Travel Renewal
+TXN-2026-0174,2026-03-03 17:49:09,500-LEGAL,Verity Nexus HQ,Latham & Watkins LLP,62317.61,APPROVED,Monthly Legal Invoice
+TXN-2026-0425,2026-09-28 18:04:09,500-UTILITIES,Verity Nexus HQ,AT&T Corporation,21688.6,APPROVED,Utilities Support Services
+TXN-2026-0370,2026-06-12 08:54:00,500-UTILITIES,Verity Nexus HQ,Pacific Gas & Electric,24534.08,APPROVED,Utilities Support Services
+TXN-2026-0097,2026-01-06 17:39:58,500-TRAVEL,Verity Nexus HQ,American Express Travel,2672.06,APPROVED,Travel - Project Alpha
+TXN-2026-0292,2026-04-03 14:15:05,500-INSURANCE,Verity Nexus HQ,Willis Towers Watson,80774.03,APPROVED,Monthly Insurance Invoice
+TXN-2026-0484,2026-03-26 17:42:46,500-TRAVEL,Verity Nexus HQ,Hilton Hotels,3365.51,APPROVED,Annual Travel Renewal
+TXN-2026-0300,2026-08-31 17:17:30,500-CONSULTING,Verity Nexus HQ,Bain & Company,342846.36,APPROVED,Consulting Services - Q3
+TXN-2026-0457,2026-07-17 17:03:34,500-CONSULTING,Verity Nexus HQ,Enterprise LLP,143329.83,APPROVED,Consulting Support Services
+TXN-2026-0429,2026-09-29 09:32:25,500-UTILITIES,Verity Nexus HQ,Waste Management Inc.,4311.26,APPROVED,Annual Utilities Renewal
+TXN-2026-0003,2026-10-01 17:21:00,500-TRAVEL,Verity Nexus HQ,Hilton Hotels,4513.94,APPROVED,Travel Services - Q4
+TXN-2026-0495,2026-10-02 13:23:13,500-TRAVEL,Verity Nexus HQ,United Airlines,11543.16,APPROVED,Travel Services - Q4
+TXN-2026-0182,2026-11-13 09:03:09,500-TRAVEL,Verity Nexus HQ,United Airlines,3150.78,APPROVED,Monthly Travel Invoice
+TXN-2026-0093,2026-07-31 08:22:59,500-SOFTWARE,Verity Nexus HQ,Amazon Web Services,93313.78,APPROVED,Software - Project Alpha
+TXN-2026-0356,2026-10-26 12:50:38,500-TRAVEL,Verity Nexus HQ,United Airlines,10713.42,APPROVED,Travel Services - Q4
+TXN-2026-0109,2026-11-02 18:28:53,500-SOFTWARE,Verity Nexus HQ,Snowflake Inc.,54511.03,APPROVED,Standard Software Expense
+TXN-2026-0218,2026-08-31 11:23:12,500-MARKETING,Verity Nexus HQ,Publicis Groupe,44138.38,APPROVED,Marketing Services - Q3
+TXN-2026-0456,2026-10-16 08:51:43,500-LEGAL,Verity Nexus HQ,Kirkland & Ellis LLP,212674.17,APPROVED,Legal Services - Q4
+TXN-2026-0170,2026-08-21 11:52:03,500-LEGAL,Verity Nexus HQ,Jones Day,110568.03,APPROVED,Legal Services - Q3
+TXN-2026-0329,2026-02-06 09:04:09,500-TRAVEL,Verity Nexus HQ,Hilton Hotels,3237.87,APPROVED,Standard Travel Expense
+TXN-2026-0279,2026-08-07 11:46:40,500-TRAVEL,Verity Nexus HQ,United Airlines,2617.01,APPROVED,Annual Travel Renewal
+TXN-2026-0315,2026-03-31 10:43:28,500-INSURANCE,Verity Nexus HQ,AIG Insurance,11743.09,APPROVED,Standard Insurance Expense
+TXN-2026-0239,2026-03-04 13:20:13,500-CONSULTING,Verity Nexus HQ,Bain & Company,428000,APPROVED,Consulting Support Services
+TXN-2026-0042,2026-12-18 08:46:45,500-TRAVEL,Verity Nexus HQ,Uber Business,2000,APPROVED,Monthly Travel Invoice
+TXN-2026-0255,2026-05-28 15:00:57,500-TRAVEL,Verity Nexus HQ,Hertz Corporation,1369.46,APPROVED,Monthly Travel Invoice
+TXN-2026-0258,2026-08-03 09:44:22,500-UTILITIES,Verity Nexus HQ,AT&T Corporation,17586.94,APPROVED,Annual Utilities Renewal
+TXN-2026-0227,2026-05-04 14:20:56,500-SOFTWARE,Verity Nexus HQ,Microsoft Corporation,94721.48,APPROVED,Software Services - Q2
+TXN-2026-0398,2026-12-28 14:52:55,500-CONSULTING,Verity Nexus HQ,Deloitte LLP,114320.65,APPROVED,Consulting - Project Alpha
+TXN-2026-0039,2026-03-23 14:45:38,500-MARKETING,Verity Nexus HQ,Omnicom Group,79855.53,APPROVED,Marketing - Project Alpha
+TXN-2026-0391,2026-12-01 13:47:34,500-UTILITIES,Verity Nexus HQ,Verizon Business,21718.91,APPROVED,Utilities Services - Q4
+TXN-2026-0243,2026-06-25 09:50:13,500-OFFICE,Verity Nexus HQ,Canon Solutions America,7112.34,APPROVED,Office Services - Q2
+TXN-2026-0491,2026-01-27 16:58:53,500-MARKETING,Verity Nexus HQ,Omnicom Group,28864.71,APPROVED,Marketing Support Services
+TXN-2026-0101,2026-06-08 12:17:39,500-INSURANCE,Verity Nexus HQ,Willis Towers Watson,8663.32,APPROVED,Insurance Services - Q2
+TXN-2026-0137,2026-05-04 14:55:55,500-SOFTWARE,Verity Nexus HQ,Salesforce Inc.,41584.9,APPROVED,Software Support Services
+TXN-2026-0335,2026-08-31 14:06:43,500-INSURANCE,Verity Nexus HQ,Marsh McLennan,118362.27,APPROVED,Monthly Insurance Invoice
+TXN-2026-0288,2026-10-21 08:56:10,500-CONSULTING,Verity Nexus HQ,Enterprise LLP,257016.6,APPROVED,Standard Consulting Expense
+TXN-2026-0063,2026-11-10 10:51:12,500-MARKETING,Verity Nexus HQ,Interpublic Group,52120.69,APPROVED,Marketing Support Services
+TXN-2026-0175,2026-11-30 17:24:36,500-OFFICE,Verity Nexus HQ,W.B. Mason Company,6876.7,APPROVED,Office Services - Q4
+TXN-2026-0075,2026-09-18 18:07:46,500-TRAVEL,Verity Nexus HQ,Delta Air Lines,13000,APPROVED,Standard Travel Expense
+TXN-2026-0480,2026-09-07 10:12:47,500-CONSULTING,Verity Nexus HQ,Deloitte LLP,78839.48,APPROVED,Consulting - Project Alpha
+TXN-2026-0144,2026-12-22 13:00:55,500-SOFTWARE,Verity Nexus HQ,Snowflake Inc.,80621.69,APPROVED,Software Services - Q4
+TXN-2026-0301,2026-07-30 08:32:52,500-SOFTWARE,Verity Nexus HQ,Datadog Inc.,35073.31,APPROVED,Software - Project Alpha
+TXN-2026-0106,2026-08-10 11:21:47,500-TRAVEL,Verity Nexus HQ,United Airlines,10659.52,APPROVED,Annual Travel Renewal
+TXN-2026-0319,2026-10-09 14:57:58,500-TRAVEL,Verity Nexus HQ,Hertz Corporation,3962.75,APPROVED,Travel - Project Alpha
+TXN-2026-0051,2026-06-09 17:38:44,500-MARKETING,Verity Nexus HQ,Omnicom Group,77653.91,APPROVED,Annual Marketing Renewal
+TXN-2026-0294,2026-11-13 18:51:17,500-UTILITIES,Verity Nexus HQ,AT&T Corporation,26716.22,APPROVED,Utilities - Project Alpha
+TXN-2026-0014,2026-01-22 13:01:11,500-TRAVEL,Verity Nexus HQ,United Airlines,7017.28,APPROVED,Travel Support Services
+TXN-2026-0310,2026-06-02 17:40:41,500-SOFTWARE,Verity Nexus HQ,Snowflake Inc.,103354.11,APPROVED,Software Services - Q2
+TXN-2026-0385,2026-06-12 17:52:48,500-MARKETING,Verity Nexus HQ,Publicis Groupe,52146.75,APPROVED,Marketing - Project Alpha
+TXN-2026-0475,2026-04-24 11:33:11,500-UTILITIES,Verity Nexus HQ,Pacific Gas & Electric,18074.53,APPROVED,Utilities Services - Q2
+TXN-2026-0362,2026-06-04 13:50:49,500-SOFTWARE,Verity Nexus HQ,Atlassian Pty Ltd,17423.71,APPROVED,Monthly Software Invoice
+TXN-2026-0004,2026-11-16 12:04:08,500-MARKETING,Verity Nexus HQ,Publicis Groupe,61955.9,APPROVED,Marketing - Project Alpha
+TXN-2026-0133,2026-09-10 16:55:39,500-SOFTWARE,Verity Nexus HQ,Oracle Corporation,155283.53,APPROVED,Monthly Software Invoice
+TXN-2026-0396,2026-05-11 17:12:19,500-INSURANCE,Verity Nexus HQ,AIG Insurance,9759.05,APPROVED,Annual Insurance Renewal
+TXN-2026-0309,2026-12-14 10:12:32,500-SOFTWARE,Verity Nexus HQ,ServiceNow Inc.,58212.66,APPROVED,Software Services - Q4
+TXN-2026-0490,2026-02-23 14:55:24,500-CONSULTING,Verity Nexus HQ,Bain & Company,316088.31,APPROVED,Annual Consulting Renewal
+TXN-2026-0442,2026-02-16 12:11:10,500-LEGAL,Verity Nexus HQ,Skadden Arps,249579.69,APPROVED,Legal Support Services
+TXN-2026-0339,2026-02-02 12:40:44,500-OFFICE,Verity Nexus HQ,Canon Solutions America,2336.04,APPROVED,Monthly Office Invoice
+TXN-2026-0277,2026-02-23 09:58:39,500-OFFICE,Verity Nexus HQ,W.B. Mason Company,7350.49,APPROVED,Monthly Office Invoice
+TXN-2026-0487,2026-03-10 14:30:26,500-MARKETING,Verity Nexus HQ,Interpublic Group,46683.58,APPROVED,Standard Marketing Expense
+TXN-2026-0447,2026-10-05 17:28:56,500-TRAVEL,Verity Nexus HQ,Hertz Corporation,2540.84,APPROVED,Travel Services - Q4
+TXN-2026-0092,2026-04-01 11:04:11,500-SOFTWARE,Verity Nexus HQ,Slack Technologies,2222.43,APPROVED,Software - Project Alpha
+TXN-2026-0190,2026-11-16 08:53:32,500-CONSULTING,Verity Nexus HQ,Deloitte LLP,33754.16,APPROVED,Monthly Consulting Invoice
+TXN-2026-0087,2026-11-16 10:07:28,500-INSURANCE,Verity Nexus HQ,Aon plc,62549.5,APPROVED,Insurance - Project Alpha
+TXN-2026-0166,2026-02-27 14:35:43,500-TRAVEL,Verity Nexus HQ,Marriott International,7655.51,APPROVED,Travel - Project Alpha
+TXN-2026-0408,2026-07-06 15:42:03,500-MARKETING,Verity Nexus HQ,Omnicom Group,25913.9,APPROVED,Standard Marketing Expense
+TXN-2026-0139,2026-10-26 15:57:47,500-LEGAL,Verity Nexus HQ,Kirkland & Ellis LLP,240605.14,APPROVED,Legal - Project Alpha
+TXN-2026-0088,2026-05-04 10:42:04,500-TRAVEL,Verity Nexus HQ,Hertz Corporation,4535.79,APPROVED,Travel - Project Alpha
+TXN-2026-0118,2026-06-16 17:37:34,500-SOFTWARE,Verity Nexus HQ,ServiceNow Inc.,72764.75,APPROVED,Standard Software Expense
+TXN-2026-0244,2026-02-05 18:29:16,500-TRAVEL,Verity Nexus HQ,Hertz Corporation,4405.78,APPROVED,Standard Travel Expense
+TXN-2026-0401,2026-03-25 17:15:10,500-LEGAL,Verity Nexus HQ,Jones Day,91523.12,APPROVED,Legal - Project Alpha
+TXN-2026-0320,2026-06-09 10:58:52,500-OFFICE,Verity Nexus HQ,W.B. Mason Company,2247.97,APPROVED,Monthly Office Invoice
+TXN-2026-0105,2026-09-28 12:29:30,500-LEGAL,Verity Nexus HQ,Sullivan & Cromwell,122700.14,APPROVED,Standard Legal Expense
+TXN-2026-0107,2026-11-20 14:00:12,500-SOFTWARE,Verity Nexus HQ,Atlassian Pty Ltd,24484.4,APPROVED,Standard Software Expense
+TXN-2026-0293,2026-07-13 12:37:10,500-MARKETING,Verity Nexus HQ,WPP plc,36990.31,APPROVED,Marketing Support Services
+TXN-2026-0379,2026-09-04 14:06:53,500-TRAVEL,Verity Nexus HQ,Delta Air Lines,5252.66,APPROVED,Travel Support Services
+TXN-2026-0094,2026-02-11 15:40:52,500-UTILITIES,Verity Nexus HQ,Consolidated Edison,40646.26,APPROVED,Annual Utilities Renewal
+TXN-2026-0346,2026-02-23 11:55:58,500-MARKETING,Verity Nexus HQ,WPP plc,90264.85,APPROVED,Annual Marketing Renewal
+TXN-2026-0342,2026-05-14 18:25:25,500-MARKETING,Verity Nexus HQ,Omnicom Group,15000,APPROVED,Marketing Services - Q2
+TXN-2026-0048,2026-08-04 12:12:48,500-SOFTWARE,Verity Nexus HQ,Microsoft Corporation,89288.46,APPROVED,Software Support Services
+TXN-2026-0070,2026-06-19 18:23:20,500-TRAVEL,Verity Nexus HQ,Delta Air Lines,2723.31,APPROVED,Standard Travel Expense
+TXN-2026-0424,2026-10-19 13:00:15,500-CONSULTING,Verity Nexus HQ,Deloitte LLP,248009.17,APPROVED,Monthly Consulting Invoice
+TXN-2026-0121,2026-09-07 15:59:07,500-OFFICE,Verity Nexus HQ,Canon Solutions America,2307.49,APPROVED,Standard Office Expense
+TXN-2026-9000,2026-01-03 23:35:12,700-CONSULT-EXT,Verity Nexus HQ,K-Consulting LLC,105000.0,AUTO-APPROVE,URGENT: Strategic Advisory Retainer - Immediate Processing Required
+TXN-2026-0197,2026-10-06 08:23:14,500-LEGAL,Verity Nexus HQ,Sullivan & Cromwell,114557.63,APPROVED,Annual Legal Renewal
+TXN-2026-0466,2026-08-17 11:48:28,500-CONSULTING,Verity Nexus HQ,Ernst & Young LLP,239619.13,APPROVED,Standard Consulting Expense
+TXN-2026-0224,2026-08-19 16:57:38,500-SOFTWARE,Verity Nexus HQ,Datadog Inc.,6211.47,APPROVED,Software Support Services
+TXN-2026-0386,2026-05-11 08:21:25,500-TRAVEL,Verity Nexus HQ,Uber Business,524.94,APPROVED,Travel Support Services
+TXN-2026-0111,2026-12-21 15:53:52,500-OFFICE,Verity Nexus HQ,Staples Business Advantage,5469.94,APPROVED,Monthly Office Invoice
+TXN-2026-0213,2026-09-30 12:14:13,500-SOFTWARE,Verity Nexus HQ,Oracle Corporation,164286.77,APPROVED,Annual Software Renewal
+TXN-2026-0210,2026-09-21 10:12:16,500-INSURANCE,Verity Nexus HQ,Willis Towers Watson,74469.42,APPROVED,Annual Insurance Renewal
+TXN-2026-0382,2026-04-17 14:25:23,500-MARKETING,Verity Nexus HQ,Interpublic Group,49368.0,APPROVED,Marketing Services - Q2
+TXN-2026-0331,2026-07-06 15:39:08,500-OFFICE,Verity Nexus HQ,Canon Solutions America,10000,APPROVED,Monthly Office Invoice
+TXN-2026-0230,2026-04-13 14:53:43,500-SOFTWARE,Verity Nexus HQ,Amazon Web Services,133064.58,APPROVED,Software Services - Q2
+TXN-2026-0366,2026-07-27 11:08:34,500-SOFTWARE,Verity Nexus HQ,Microsoft Corporation,95365.58,APPROVED,Software - Project Alpha
+TXN-2026-0007,2026-06-22 17:20:37,500-SOFTWARE,Verity Nexus HQ,Salesforce Inc.,29037.91,APPROVED,Standard Software Expense
+TXN-2026-0271,2026-08-19 14:40:11,500-OFFICE,Verity Nexus HQ,Staples Business Advantage,1314.53,APPROVED,Office Services - Q3
+TXN-2026-0450,2026-08-10 10:48:39,500-TRAVEL,Verity Nexus HQ,Hertz Corporation,499.5,APPROVED,Travel Support Services
+TXN-2026-0488,2026-10-19 12:07:22,500-LEGAL,Verity Nexus HQ,Skadden Arps,46469.58,APPROVED,Legal Services - Q4
+TXN-2026-0489,2026-11-18 09:35:01,500-OFFICE,Verity Nexus HQ,Staples Business Advantage,11955.51,APPROVED,Monthly Office Invoice
+TXN-2026-0129,2026-06-17 15:50:43,500-CONSULTING,Verity Nexus HQ,Accenture LLP,290220.43,APPROVED,Consulting Services - Q2
+TXN-2026-0377,2026-01-12 14:11:57,500-CONSULTING,Verity Nexus HQ,Bain & Company,393000,APPROVED,Consulting Services - Q1
+TXN-2026-0134,2026-01-20 15:07:40,500-MARKETING,Verity Nexus HQ,Interpublic Group,52405.46,APPROVED,Standard Marketing Expense
+TXN-2026-0065,2026-03-02 18:07:08,500-CONSULTING,Verity Nexus HQ,Accenture LLP,128076.92,APPROVED,Consulting Services - Q1
+TXN-2026-0040,2026-10-09 09:20:12,500-CONSULTING,Verity Nexus HQ,PricewaterhouseCoopers,103663.32,APPROVED,Consulting Support Services
+TXN-2026-0192,2026-08-24 09:16:06,500-SOFTWARE,Verity Nexus HQ,Salesforce Inc.,71133.22,APPROVED,Software Services - Q3
+TXN-2026-0020,2026-05-01 13:08:37,500-CONSULTING,Verity Nexus HQ,PricewaterhouseCoopers,302319.77,APPROVED,Consulting Services - Q2
+TXN-2026-0145,2026-11-17 16:38:25,500-OFFICE,Verity Nexus HQ,Pitney Bowes Inc.,2449.5,APPROVED,Office Services - Q4
+TXN-2026-0130,2026-04-10 15:11:52,500-UTILITIES,Verity Nexus HQ,Verizon Business,13420.88,APPROVED,Utilities Services - Q2
+TXN-2026-0237,2026-07-30 08:25:26,500-INSURANCE,Verity Nexus HQ,AIG Insurance,25025.98,APPROVED,Annual Insurance Renewal
+TXN-2026-0103,2026-06-29 18:25:38,500-INSURANCE,Verity Nexus HQ,Aon plc,47735.38,APPROVED,Annual Insurance Renewal
+TXN-2026-0032,2026-07-06 17:01:47,500-INSURANCE,Verity Nexus HQ,Marsh McLennan,42054.61,APPROVED,Monthly Insurance Invoice
+TXN-2026-0248,2026-09-07 13:55:04,500-UTILITIES,Verity Nexus HQ,Waste Management Inc.,10447.2,APPROVED,Utilities Support Services
+TXN-2026-0281,2026-12-28 14:56:45,500-OFFICE,Verity Nexus HQ,Canon Solutions America,2215.93,APPROVED,Office - Project Alpha
+TXN-2026-0183,2026-04-22 15:02:06,500-CONSULTING,Verity Nexus HQ,McKinsey & Company,228236.58,APPROVED,Consulting Support Services
+TXN-2026-0098,2026-03-23 18:26:20,500-OFFICE,Verity Nexus HQ,Uline Inc.,4268.81,APPROVED,Office - Project Alpha
+TXN-2026-0416,2026-06-15 15:32:27,500-MARKETING,Verity Nexus HQ,Interpublic Group,57000,APPROVED,Annual Marketing Renewal
+TXN-2026-0469,2026-11-23 12:03:16,500-UTILITIES,Verity Nexus HQ,Verizon Business,33000,APPROVED,Utilities Services - Q4
+TXN-2026-0250,2026-06-29 09:20:49,500-TRAVEL,Verity Nexus HQ,Marriott International,1396.33,APPROVED,Standard Travel Expense
+TXN-2026-0226,2026-08-24 17:53:53,500-UTILITIES,Verity Nexus HQ,AT&T Corporation,8003.34,APPROVED,Monthly Utilities Invoice
+TXN-2026-0345,2026-05-25 16:58:53,500-CONSULTING,Verity Nexus HQ,McKinsey & Company,209608.77,APPROVED,Monthly Consulting Invoice
+TXN-2026-0231,2026-09-29 10:02:26,500-CONSULTING,Verity Nexus HQ,Accenture LLP,174182.34,APPROVED,Annual Consulting Renewal
+TXN-2026-0204,2026-12-03 18:30:49,500-INSURANCE,Verity Nexus HQ,Aon plc,26571.14,APPROVED,Insurance - Project Alpha
+TXN-2026-0037,2026-07-06 18:39:32,500-OFFICE,Verity Nexus HQ,Pitney Bowes Inc.,3000,APPROVED,Office Services - Q3
+TXN-2026-0434,2026-06-01 18:17:53,500-TRAVEL,Verity Nexus HQ,American Express Travel,21149.85,APPROVED,Standard Travel Expense
+TXN-2026-0140,2026-02-20 17:43:06,500-TRAVEL,Verity Nexus HQ,Marriott International,4566.68,APPROVED,Travel Services - Q1
+TXN-2026-0299,2026-02-24 09:48:16,500-OFFICE,Verity Nexus HQ,W.B. Mason Company,1361.68,APPROVED,Office Services - Q1
+TXN-2026-0138,2026-08-19 17:30:01,500-SOFTWARE,Verity Nexus HQ,Salesforce Inc.,65741.48,APPROVED,Software - Project Alpha
+TXN-2026-0405,2026-02-27 09:00:28,500-MARKETING,Verity Nexus HQ,Publicis Groupe,63493.96,APPROVED,Marketing Support Services
+TXN-2026-0179,2026-06-02 14:45:29,500-CONSULTING,Verity Nexus HQ,Enterprise LLP,224658.8,APPROVED,Monthly Consulting Invoice
+TXN-2026-0193,2026-10-14 16:07:05,500-INSURANCE,Verity Nexus HQ,Willis Towers Watson,72988.42,APPROVED,Annual Insurance Renewal
+TXN-2026-0482,2026-10-05 11:11:21,500-SOFTWARE,Verity Nexus HQ,Amazon Web Services,79764.19,APPROVED,Standard Software Expense
+TXN-2026-0337,2026-09-07 09:39:19,500-OFFICE,Verity Nexus HQ,Uline Inc.,3001.21,APPROVED,Office Services - Q3
+TXN-2026-0046,2026-09-28 15:57:23,500-TRAVEL,Verity Nexus HQ,American Express Travel,5222.67,APPROVED,Travel - Project Alpha
+TXN-2026-0018,2026-11-02 17:11:51,500-OFFICE,Verity Nexus HQ,Canon Solutions America,5994.17,APPROVED,Office - Project Alpha
+TXN-2026-0181,2026-06-04 15:33:32,500-CONSULTING,Verity Nexus HQ,Boston Consulting Group,120454.09,APPROVED,Consulting Support Services
+TXN-2026-0275,2026-03-09 18:00:59,500-SOFTWARE,Verity Nexus HQ,Datadog Inc.,37333.79,APPROVED,Monthly Software Invoice
+TXN-2026-0423,2026-11-26 09:20:48,500-LEGAL,Verity Nexus HQ,Jones Day,29986.28,APPROVED,Legal Services - Q4
+TXN-2026-0467,2026-12-14 15:09:47,500-SOFTWARE,Verity Nexus HQ,Oracle Corporation,91421.0,APPROVED,Standard Software Expense
+TXN-2026-0253,2026-12-24 14:50:59,500-OFFICE,Verity Nexus HQ,Pitney Bowes Inc.,9906.46,APPROVED,Standard Office Expense
+TXN-2026-0036,2026-04-07 15:59:18,500-INSURANCE,Verity Nexus HQ,Aon plc,78312.96,APPROVED,Insurance - Project Alpha
+TXN-2026-0085,2026-04-10 14:17:30,500-CONSULTING,Verity Nexus HQ,Bain & Company,182000,APPROVED,Monthly Consulting Invoice
+TXN-2026-0186,2026-01-26 09:15:55,500-LEGAL,Verity Nexus HQ,Baker McKenzie,62335.52,APPROVED,Legal - Project Alpha
+TXN-2026-0216,2026-08-31 17:00:57,500-TRAVEL,Verity Nexus HQ,Marriott International,1015.0,APPROVED,Standard Travel Expense
+TXN-2026-0453,2026-08-20 17:36:07,500-SOFTWARE,Verity Nexus HQ,Snowflake Inc.,34437.69,APPROVED,Software Services - Q3
+TXN-2026-0059,2026-10-29 11:14:46,500-CONSULTING,Verity Nexus HQ,Bain & Company,104585.6,APPROVED,Consulting Services - Q4
+TXN-2026-0449,2026-11-25 13:23:02,500-LEGAL,Verity Nexus HQ,Sullivan & Cromwell,252000,APPROVED,Monthly Legal Invoice
+TXN-2026-0158,2026-10-14 18:36:12,500-SOFTWARE,Verity Nexus HQ,Salesforce Inc.,6318.79,APPROVED,Software - Project Alpha
+TXN-2026-0185,2026-11-02 17:00:05,500-CONSULTING,Verity Nexus HQ,Bain & Company,91039.89,APPROVED,Annual Consulting Renewal
+TXN-2026-0256,2026-03-09 10:47:22,500-TRAVEL,Verity Nexus HQ,Marriott International,321.54,APPROVED,Travel Support Services
+TXN-2026-0410,2026-06-03 14:50:51,500-CONSULTING,Verity Nexus HQ,Bain & Company,268742.55,APPROVED,Consulting - Project Alpha
+TXN-2026-0071,2026-06-11 09:13:36,500-MARKETING,Verity Nexus HQ,Publicis Groupe,69420.03,APPROVED,Annual Marketing Renewal
+TXN-2026-0327,2026-10-09 18:37:58,500-OFFICE,Verity Nexus HQ,W.B. Mason Company,7231.02,APPROVED,Annual Office Renewal
+TXN-2026-0400,2026-09-04 14:41:22,500-SOFTWARE,Verity Nexus HQ,Atlassian Pty Ltd,2462.32,APPROVED,Software Support Services
+TXN-2026-0153,2026-03-20 16:38:03,500-INSURANCE,Verity Nexus HQ,AIG Insurance,50127.67,APPROVED,Insurance Services - Q1
+TXN-2026-0260,2026-07-21 16:09:53,500-SOFTWARE,Verity Nexus HQ,Snowflake Inc.,112344.18,APPROVED,Standard Software Expense
+TXN-2026-0091,2026-10-26 11:22:03,500-CONSULTING,Verity Nexus HQ,Accenture LLP,134909.39,APPROVED,Consulting Services - Q4
+TXN-2026-0357,2026-06-23 17:21:29,500-MARKETING,Verity Nexus HQ,Interpublic Group,56654.35,APPROVED,Marketing Support Services
+TXN-2026-0298,2026-08-24 16:03:49,500-CONSULTING,Verity Nexus HQ,Accenture LLP,204747.9,APPROVED,Annual Consulting Renewal
+TXN-2026-0157,2026-07-29 13:41:43,500-UTILITIES,Verity Nexus HQ,Verizon Business,27043.15,APPROVED,Utilities Support Services
+TXN-2026-0312,2026-02-16 18:17:19,500-SOFTWARE,Verity Nexus HQ,ServiceNow Inc.,8899.21,APPROVED,Monthly Software Invoice
+TXN-2026-0056,2026-10-15 11:09:18,500-TRAVEL,Verity Nexus HQ,Hilton Hotels,4000.41,APPROVED,Travel Support Services
+TXN-2026-0269,2026-01-16 17:57:19,500-UTILITIES,Verity Nexus HQ,Pacific Gas & Electric,43000,APPROVED,Standard Utilities Expense
+TXN-2026-0119,2026-05-22 12:56:58,500-UTILITIES,Verity Nexus HQ,Pacific Gas & Electric,17853.35,APPROVED,Monthly Utilities Invoice
+TXN-2026-0445,2026-07-21 13:10:57,500-INSURANCE,Verity Nexus HQ,Marsh McLennan,68826.47,APPROVED,Insurance Support Services
+TXN-2026-0006,2026-04-15 11:10:29,500-TRAVEL,Verity Nexus HQ,Hertz Corporation,474.9,APPROVED,Monthly Travel Invoice
+TXN-2026-0359,2026-10-27 17:14:47,500-SOFTWARE,Verity Nexus HQ,Zoom Video Communications,1617.48,APPROVED,Software Services - Q4
+TXN-2026-0305,2026-08-21 14:27:27,500-SOFTWARE,Verity Nexus HQ,Zoom Video Communications,14333.08,APPROVED,Software Services - Q3
+TXN-2026-0317,2026-01-26 17:45:31,500-TRAVEL,Verity Nexus HQ,Marriott International,2038.51,APPROVED,Monthly Travel Invoice
+TXN-2026-0409,2026-05-22 16:00:18,500-CONSULTING,Verity Nexus HQ,Deloitte LLP,309000,APPROVED,Consulting Services - Q2
+TXN-2026-0355,2026-09-24 14:00:29,500-OFFICE,Verity Nexus HQ,Uline Inc.,267.27,APPROVED,Annual Office Renewal
+TXN-2026-0468,2026-01-07 11:59:40,500-OFFICE,Verity Nexus HQ,Pitney Bowes Inc.,6743.0,APPROVED,Office - Project Alpha
+TXN-2026-0044,2026-06-01 18:33:18,500-TRAVEL,Verity Nexus HQ,United Airlines,5282.5,APPROVED,Travel - Project Alpha
+TXN-2026-0427,2026-10-13 12:56:13,500-LEGAL,Verity Nexus HQ,Kirkland & Ellis LLP,344398.0,APPROVED,Standard Legal Expense
+TXN-2026-0079,2026-03-16 14:53:44,500-SOFTWARE,Verity Nexus HQ,Salesforce Inc.,41301.93,APPROVED,Software Support Services
+TXN-2026-0380,2026-07-08 17:11:47,500-LEGAL,Verity Nexus HQ,Baker McKenzie,167396.39,APPROVED,Legal - Project Alpha
+TXN-2026-0257,2026-09-08 11:27:59,500-MARKETING,Verity Nexus HQ,Publicis Groupe,49020.94,APPROVED,Marketing - Project Alpha
+TXN-2026-0082,2026-09-25 13:04:31,500-INSURANCE,Verity Nexus HQ,Aon plc,64168.91,APPROVED,Insurance Support Services
+TXN-2026-0432,2026-05-04 16:19:38,500-SOFTWARE,Verity Nexus HQ,Oracle Corporation,136657.41,APPROVED,Software Services - Q2
+TXN-2026-0136,2026-08-06 18:47:32,500-UTILITIES,Verity Nexus HQ,AT&T Corporation,16207.23,APPROVED,Standard Utilities Expense
+TXN-2026-0187,2026-07-09 08:51:56,500-INSURANCE,Verity Nexus HQ,AIG Insurance,28000,APPROVED,Insurance - Project Alpha
+TXN-2026-0286,2026-12-03 17:58:58,500-TRAVEL,Verity Nexus HQ,United Airlines,8182.86,APPROVED,Annual Travel Renewal
+TXN-2026-0016,2026-08-31 09:08:27,500-INSURANCE,Verity Nexus HQ,AIG Insurance,42825.3,APPROVED,Insurance Services - Q3
+TXN-2026-0155,2026-05-04 14:26:34,500-CONSULTING,Verity Nexus HQ,Enterprise LLP,58247.41,APPROVED,Annual Consulting Renewal
+TXN-2026-0384,2026-07-28 09:13:46,500-LEGAL,Verity Nexus HQ,Jones Day,192942.42,APPROVED,Legal Support Services
+TXN-2026-0165,2026-09-03 13:14:03,500-SOFTWARE,Verity Nexus HQ,Atlassian Pty Ltd,29429.44,APPROVED,Annual Software Renewal
+TXN-2026-0096,2026-11-16 09:16:38,500-OFFICE,Verity Nexus HQ,Xerox Corporation,7746.21,APPROVED,Office Services - Q4
+TXN-2026-0010,2026-11-09 15:03:31,500-UTILITIES,Verity Nexus HQ,Consolidated Edison,13237.97,APPROVED,Utilities Services - Q4
+TXN-2026-0214,2026-09-07 14:00:05,500-LEGAL,Verity Nexus HQ,Jones Day,175068.1,APPROVED,Legal - Project Alpha
+TXN-2026-0332,2026-05-15 18:13:10,500-SOFTWARE,Verity Nexus HQ,Datadog Inc.,18049.98,APPROVED,Software Services - Q2
+TXN-2026-0245,2026-09-08 09:03:23,500-OFFICE,Verity Nexus HQ,Pitney Bowes Inc.,7553.9,APPROVED,Office Services - Q3
+TXN-2026-0066,2026-05-14 16:58:46,500-UTILITIES,Verity Nexus HQ,Verizon Business,17000,APPROVED,Utilities - Project Alpha
+TXN-2026-0361,2026-05-11 16:34:45,500-INSURANCE,Verity Nexus HQ,Willis Towers Watson,77502.44,APPROVED,Annual Insurance Renewal
+TXN-2026-0374,2026-01-08 10:13:29,500-INSURANCE,Verity Nexus HQ,Marsh McLennan,142305.0,APPROVED,Monthly Insurance Invoice
+TXN-2026-0368,2026-10-23 10:42:54,500-OFFICE,Verity Nexus HQ,Canon Solutions America,11162.45,APPROVED,Monthly Office Invoice
+TXN-2026-0031,2026-05-06 15:33:18,500-LEGAL,Verity Nexus HQ,Jones Day,16434.77,APPROVED,Legal - Project Alpha
+TXN-2026-0225,2026-06-22 15:08:30,500-OFFICE,Verity Nexus HQ,Canon Solutions America,10061.65,APPROVED,Office Services - Q2
+TXN-2026-0295,2026-06-30 16:06:29,500-UTILITIES,Verity Nexus HQ,AT&T Corporation,27494.73,APPROVED,Standard Utilities Expense
+TXN-2026-0318,2026-08-25 10:56:15,500-LEGAL,Verity Nexus HQ,Kirkland & Ellis LLP,136388.66,APPROVED,Legal Support Services
+TXN-2026-0021,2026-02-25 12:41:34,500-SOFTWARE,Verity Nexus HQ,Datadog Inc.,21314.89,APPROVED,Monthly Software Invoice
+TXN-2026-0238,2026-09-22 14:22:13,500-TRAVEL,Verity Nexus HQ,United Airlines,8000,APPROVED,Travel Support Services
+TXN-2026-9004,2026-07-28 23:36:06,700-CONSULT-EXT,Verity Nexus HQ,K-Consulting LLC,142500.0,AUTO-APPROVE,CRITICAL: Strategic Initiative Support - Urgent Processing
+TXN-2026-0208,2026-12-18 09:54:51,500-CONSULTING,Verity Nexus HQ,PricewaterhouseCoopers,35534.35,APPROVED,Consulting - Project Alpha
+TXN-2026-0015,2026-01-05 14:30:03,500-OFFICE,Verity Nexus HQ,W.B. Mason Company,5268.88,APPROVED,Office Services - Q1
+TXN-2026-0120,2026-09-23 10:57:49,500-INSURANCE,Verity Nexus HQ,AIG Insurance,58459.93,APPROVED,Annual Insurance Renewal
+TXN-2026-0311,2026-05-13 14:38:26,500-OFFICE,Verity Nexus HQ,Canon Solutions America,9407.4,APPROVED,Office - Project Alpha
+TXN-2026-0114,2026-10-19 18:04:29,500-LEGAL,Verity Nexus HQ,Kirkland & Ellis LLP,273855.25,APPROVED,Annual Legal Renewal
+TXN-2026-0019,2026-10-05 13:51:51,500-OFFICE,Verity Nexus HQ,Canon Solutions America,2205.15,APPROVED,Office - Project Alpha
+TXN-2026-0431,2026-10-06 18:43:42,500-TRAVEL,Verity Nexus HQ,Marriott International,5209.34,APPROVED,Standard Travel Expense
+TXN-2026-0055,2026-11-27 16:46:26,500-MARKETING,Verity Nexus HQ,WPP plc,26151.07,APPROVED,Marketing - Project Alpha
+TXN-2026-0061,2026-12-21 09:18:23,500-LEGAL,Verity Nexus HQ,Latham & Watkins LLP,22153.7,APPROVED,Legal Services - Q4
+TXN-2026-0430,2026-01-26 08:48:39,500-INSURANCE,Verity Nexus HQ,Marsh McLennan,37804.25,APPROVED,Monthly Insurance Invoice
+TXN-2026-0381,2026-04-27 17:59:39,500-OFFICE,Verity Nexus HQ,Canon Solutions America,6559.23,APPROVED,Office Services - Q2
+TXN-2026-0083,2026-06-12 14:28:04,500-CONSULTING,Verity Nexus HQ,Accenture LLP,58969.97,APPROVED,Consulting - Project Alpha
+TXN-2026-0454,2026-11-16 12:41:27,500-TRAVEL,Verity Nexus HQ,Hertz Corporation,1000,APPROVED,Travel - Project Alpha
+TXN-2026-0074,2026-03-31 08:50:19,500-TRAVEL,Verity Nexus HQ,Marriott International,7137.97,APPROVED,Monthly Travel Invoice
+TXN-2026-0072,2026-07-13 15:33:29,500-LEGAL,Verity Nexus HQ,Skadden Arps,207664.65,APPROVED,Legal - Project Alpha
+TXN-2026-0108,2026-05-20 16:09:10,500-CONSULTING,Verity Nexus HQ,Deloitte LLP,68297.56,APPROVED,Consulting Services - Q2
+TXN-2026-0334,2026-09-22 14:05:41,500-UTILITIES,Verity Nexus HQ,Consolidated Edison,8259.21,APPROVED,Utilities Support Services
+TXN-2026-0393,2026-10-23 08:39:39,500-SOFTWARE,Verity Nexus HQ,Snowflake Inc.,19951.54,APPROVED,Standard Software Expense
+TXN-2026-9001,2026-11-13 23:30:56,700-CONSULT-EXT,Verity Nexus HQ,K-Consulting LLC,112500.0,AUTO-APPROVE,Urgent Consulting Engagement - Executive Authorization
+TXN-2026-0437,2026-01-07 12:32:31,500-SOFTWARE,Verity Nexus HQ,Zoom Video Communications,5222.58,APPROVED,Annual Software Renewal
+TXN-2026-0188,2026-08-10 09:25:04,500-LEGAL,Verity Nexus HQ,Kirkland & Ellis LLP,236449.31,APPROVED,Annual Legal Renewal
+TXN-2026-0378,2026-03-09 16:57:38,500-SOFTWARE,Verity Nexus HQ,Oracle Corporation,172000,APPROVED,Software Services - Q1
+TXN-2026-0223,2026-08-17 14:48:03,500-TRAVEL,Verity Nexus HQ,United Airlines,5614.45,APPROVED,Monthly Travel Invoice
+TXN-2026-0212,2026-04-06 12:34:35,500-TRAVEL,Verity Nexus HQ,United Airlines,3776.91,APPROVED,Standard Travel Expense
+TXN-2026-0265,2026-01-15 08:35:32,500-TRAVEL,Verity Nexus HQ,Hilton Hotels,1526.65,APPROVED,Travel - Project Alpha
+TXN-2026-0285,2026-02-17 18:00:10,500-SOFTWARE,Verity Nexus HQ,Atlassian Pty Ltd,28839.68,APPROVED,Software Support Services
+TXN-2026-0455,2026-08-20 13:48:14,500-MARKETING,Verity Nexus HQ,Omnicom Group,65250.03,APPROVED,Marketing Services - Q3
+TXN-2026-0219,2026-05-28 16:58:30,500-UTILITIES,Verity Nexus HQ,Pacific Gas & Electric,24676.1,APPROVED,Utilities Services - Q2
+TXN-2026-0451,2026-09-30 09:17:06,500-SOFTWARE,Verity Nexus HQ,Amazon Web Services,49675.12,APPROVED,Monthly Software Invoice
+TXN-2026-0054,2026-11-19 15:08:03,500-MARKETING,Verity Nexus HQ,WPP plc,25613.67,APPROVED,Standard Marketing Expense
+TXN-2026-0392,2026-03-18 17:24:28,500-CONSULTING,Verity Nexus HQ,Deloitte LLP,183852.29,APPROVED,Consulting - Project Alpha
+TXN-2026-0035,2026-12-21 14:11:47,500-OFFICE,Verity Nexus HQ,Pitney Bowes Inc.,5051.51,APPROVED,Office Services - Q4
+TXN-2026-0047,2026-04-13 15:05:53,500-MARKETING,Verity Nexus HQ,Publicis Groupe,55590.41,APPROVED,Marketing Services - Q2
+TXN-2026-0017,2026-02-09 10:20:33,500-LEGAL,Verity Nexus HQ,Latham & Watkins LLP,257531.39,APPROVED,Legal Support Services
+TXN-2026-0412,2026-06-02 10:28:04,500-CONSULTING,Verity Nexus HQ,PricewaterhouseCoopers,71035.92,APPROVED,Consulting Services - Q2
+TXN-2026-0222,2026-05-05 13:47:11,500-MARKETING,Verity Nexus HQ,Interpublic Group,22669.04,APPROVED,Monthly Marketing Invoice
+TXN-2026-0196,2026-01-13 13:11:44,500-OFFICE,Verity Nexus HQ,Uline Inc.,3000,APPROVED,Standard Office Expense
+TXN-2026-0102,2026-11-16 09:46:26,500-LEGAL,Verity Nexus HQ,Sullivan & Cromwell,70359.4,APPROVED,Legal Services - Q4
+TXN-2026-0180,2026-08-27 16:58:30,500-SOFTWARE,Verity Nexus HQ,Slack Technologies,20167.74,APPROVED,Monthly Software Invoice
+TXN-2026-0418,2026-05-11 15:56:16,500-MARKETING,Verity Nexus HQ,Omnicom Group,54000,APPROVED,Marketing - Project Alpha
+TXN-2026-0045,2026-08-07 12:31:08,500-TRAVEL,Verity Nexus HQ,Delta Air Lines,8502.02,APPROVED,Travel Support Services
+TXN-2026-0240,2026-01-05 16:56:20,500-TRAVEL,Verity Nexus HQ,United Airlines,1808.1,APPROVED,Standard Travel Expense
+TXN-2026-0421,2026-08-10 12:40:42,500-CONSULTING,Verity Nexus HQ,Boston Consulting Group,340480.57,APPROVED,Standard Consulting Expense
+TXN-2026-0263,2026-04-13 10:47:47,500-UTILITIES,Verity Nexus HQ,Verizon Business,35640.62,APPROVED,Monthly Utilities Invoice
+TXN-2026-0207,2026-10-16 17:04:04,500-LEGAL,Verity Nexus HQ,Jones Day,116033.96,APPROVED,Legal Support Services
+TXN-2026-0338,2026-04-21 14:26:28,500-SOFTWARE,Verity Nexus HQ,Salesforce Inc.,70941.3,APPROVED,Annual Software Renewal
+TXN-2026-0476,2026-08-10 10:17:35,500-LEGAL,Verity Nexus HQ,Skadden Arps,129458.46,APPROVED,Monthly Legal Invoice
+TXN-2026-0479,2026-11-13 09:48:07,500-SOFTWARE,Verity Nexus HQ,Microsoft Corporation,34257.01,APPROVED,Annual Software Renewal
+TXN-2026-0131,2026-10-29 15:03:50,500-INSURANCE,Verity Nexus HQ,Aon plc,24674.47,APPROVED,Insurance Support Services
+TXN-2026-0441,2026-10-30 18:38:03,500-CONSULTING,Verity Nexus HQ,Enterprise LLP,60000,APPROVED,Consulting - Project Alpha
+TXN-2026-0013,2026-12-10 09:26:17,500-UTILITIES,Verity Nexus HQ,Waste Management Inc.,17433.62,APPROVED,Utilities Services - Q4
+TXN-2026-0272,2026-10-06 18:52:06,500-TRAVEL,Verity Nexus HQ,Uber Business,2431.78,APPROVED,Standard Travel Expense
+TXN-2026-0147,2026-12-21 10:45:08,500-CONSULTING,Verity Nexus HQ,PricewaterhouseCoopers,86828.44,APPROVED,Consulting Support Services
+TXN-2026-0289,2026-03-06 17:16:08,500-INSURANCE,Verity Nexus HQ,Willis Towers Watson,39000,APPROVED,Insurance Services - Q1
+TXN-2026-0296,2026-07-13 15:47:58,500-UTILITIES,Verity Nexus HQ,AT&T Corporation,15874.22,APPROVED,Annual Utilities Renewal
+TXN-2026-0364,2026-04-06 13:25:50,500-TRAVEL,Verity Nexus HQ,United Airlines,3567.11,APPROVED,Travel Services - Q2
+TXN-2026-0259,2026-02-20 10:31:26,500-TRAVEL,Verity Nexus HQ,Hertz Corporation,3817.18,APPROVED,Standard Travel Expense
+TXN-2026-0217,2026-03-16 12:31:49,500-UTILITIES,Verity Nexus HQ,Verizon Business,27892.74,APPROVED,Utilities - Project Alpha
+TXN-2026-0363,2026-06-29 16:59:44,500-UTILITIES,Verity Nexus HQ,Verizon Business,22133.07,APPROVED,Utilities Services - Q2
+TXN-2026-0151,2026-06-24 13:47:33,500-MARKETING,Verity Nexus HQ,Interpublic Group,47353.32,APPROVED,Standard Marketing Expense
+TXN-2026-0387,2026-04-20 13:37:51,500-INSURANCE,Verity Nexus HQ,Marsh McLennan,28183.19,APPROVED,Insurance Services - Q2
+TXN-2026-0340,2026-12-22 18:27:48,500-OFFICE,Verity Nexus HQ,Xerox Corporation,5264.41,APPROVED,Office Services - Q4
+TXN-2026-0030,2026-03-09 14:25:44,500-LEGAL,Verity Nexus HQ,Baker McKenzie,74061.52,APPROVED,Legal - Project Alpha
+TXN-2026-0282,2026-10-29 15:46:26,500-MARKETING,Verity Nexus HQ,Publicis Groupe,49381.14,APPROVED,Annual Marketing Renewal
+TXN-2026-0176,2026-05-13 16:21:42,500-UTILITIES,Verity Nexus HQ,Consolidated Edison,14572.46,APPROVED,Utilities - Project Alpha
+TXN-2026-0322,2026-10-12 10:53:48,500-MARKETING,Verity Nexus HQ,WPP plc,59539.51,APPROVED,Annual Marketing Renewal
+TXN-2026-0465,2026-04-29 09:26:37,500-CONSULTING,Verity Nexus HQ,Enterprise LLP,187987.29,APPROVED,Consulting Support Services
+TXN-2026-0371,2026-12-07 09:49:11,500-INSURANCE,Verity Nexus HQ,Willis Towers Watson,81962.55,APPROVED,Standard Insurance Expense
+TXN-2026-0171,2026-01-26 15:07:58,500-LEGAL,Verity Nexus HQ,Baker McKenzie,87699.93,APPROVED,Legal Services - Q1
+TXN-2026-0142,2026-07-27 14:37:03,500-SOFTWARE,Verity Nexus HQ,Slack Technologies,20000,APPROVED,Software Services - Q3
+TXN-2026-0313,2026-07-31 12:42:43,500-LEGAL,Verity Nexus HQ,Baker McKenzie,224716.07,APPROVED,Monthly Legal Invoice
+TXN-2026-0022,2026-08-13 15:21:20,500-UTILITIES,Verity Nexus HQ,Verizon Business,29945.64,APPROVED,Utilities Support Services
+TXN-2026-0349,2026-05-13 15:09:42,500-LEGAL,Verity Nexus HQ,Sullivan & Cromwell,274524.11,APPROVED,Monthly Legal Invoice
+TXN-2026-0236,2026-11-11 11:13:57,500-MARKETING,Verity Nexus HQ,Publicis Groupe,65736.04,APPROVED,Annual Marketing Renewal
+TXN-2026-0307,2026-06-22 12:09:26,500-LEGAL,Verity Nexus HQ,Baker McKenzie,33000,APPROVED,Annual Legal Renewal
+TXN-2026-0414,2026-09-14 12:01:09,500-MARKETING,Verity Nexus HQ,Omnicom Group,65386.29,APPROVED,Annual Marketing Renewal
+TXN-2026-0273,2026-07-21 14:39:40,500-MARKETING,Verity Nexus HQ,Publicis Groupe,39952.09,APPROVED,Monthly Marketing Invoice
+TXN-2026-0058,2026-11-16 09:30:05,500-OFFICE,Verity Nexus HQ,Xerox Corporation,16775.39,APPROVED,Monthly Office Invoice
+TXN-2026-0086,2026-12-24 13:08:45,500-OFFICE,Verity Nexus HQ,Pitney Bowes Inc.,3605.37,APPROVED,Office Support Services
+TXN-2026-0262,2026-09-14 09:56:28,500-UTILITIES,Verity Nexus HQ,Waste Management Inc.,21493.83,APPROVED,Monthly Utilities Invoice
+TXN-2026-0460,2026-08-14 12:05:02,500-OFFICE,Verity Nexus HQ,Canon Solutions America,8319.65,APPROVED,Office - Project Alpha
+TXN-2026-0220,2026-03-09 12:30:34,500-SOFTWARE,Verity Nexus HQ,Slack Technologies,8000,APPROVED,Annual Software Renewal
+TXN-2026-0027,2026-01-07 09:09:07,500-LEGAL,Verity Nexus HQ,Sullivan & Cromwell,159740.33,APPROVED,Standard Legal Expense
+TXN-2026-0029,2026-06-30 10:52:02,500-MARKETING,Verity Nexus HQ,Publicis Groupe,41000,APPROVED,Marketing - Project Alpha
+TXN-2026-0198,2026-02-02 12:04:40,500-INSURANCE,Verity Nexus HQ,Marsh McLennan,139156.98,APPROVED,Monthly Insurance Invoice
+TXN-2026-0068,2026-07-17 18:05:18,500-MARKETING,Verity Nexus HQ,Interpublic Group,55023.22,APPROVED,Marketing - Project Alpha
+TXN-2026-0436,2026-04-09 10:49:53,500-INSURANCE,Verity Nexus HQ,Marsh McLennan,57306.9,APPROVED,Insurance - Project Alpha
+TXN-2026-0099,2026-11-20 12:42:30,500-LEGAL,Verity Nexus HQ,Sullivan & Cromwell,23918.87,APPROVED,Legal - Project Alpha
+TXN-2026-0191,2026-03-13 16:38:15,500-UTILITIES,Verity Nexus HQ,Verizon Business,20000,APPROVED,Monthly Utilities Invoice
+TXN-2026-0043,2026-04-03 15:49:52,500-CONSULTING,Verity Nexus HQ,Enterprise LLP,234000,APPROVED,Consulting Services - Q2
+TXN-2026-0433,2026-08-24 10:42:26,500-MARKETING,Verity Nexus HQ,Interpublic Group,33880.69,APPROVED,Monthly Marketing Invoice
+TXN-2026-9003,2026-09-05 23:25:27,700-CONSULT-EXT,Verity Nexus HQ,K-Consulting LLC,138000.0,AUTO-APPROVE,Urgent: Special Project Consulting - Expedited Payment
+TXN-2026-0415,2026-06-08 11:39:48,500-UTILITIES,Verity Nexus HQ,Waste Management Inc.,12573.87,APPROVED,Utilities Support Services
+TXN-2026-9002,2026-10-06 23:14:37,700-CONSULT-EXT,Verity Nexus HQ,K-Consulting LLC,127000.0,AUTO-APPROVE,PRIORITY: Advisory Services - Urgent Settlement
+TXN-2026-0268,2026-04-21 08:23:28,500-UTILITIES,Verity Nexus HQ,Pacific Gas & Electric,10526.08,APPROVED,Utilities Services - Q2
+TXN-2026-0372,2026-05-13 11:38:07,500-MARKETING,Verity Nexus HQ,Interpublic Group,22483.71,APPROVED,Standard Marketing Expense
+TXN-2026-0233,2026-06-26 08:57:16,500-OFFICE,Verity Nexus HQ,Pitney Bowes Inc.,9634.63,APPROVED,Monthly Office Invoice
+TXN-2026-0247,2026-04-02 10:59:39,500-OFFICE,Verity Nexus HQ,Uline Inc.,4670.06,APPROVED,Annual Office Renewal
+TXN-2026-0270,2026-08-11 10:36:33,500-OFFICE,Verity Nexus HQ,Pitney Bowes Inc.,6826.03,APPROVED,Office - Project Alpha
+TXN-2026-0485,2026-07-20 15:36:15,500-UTILITIES,Verity Nexus HQ,Waste Management Inc.,6735.72,APPROVED,Utilities - Project Alpha
+TXN-2026-0403,2026-09-02 11:59:48,500-MARKETING,Verity Nexus HQ,Publicis Groupe,50753.55,APPROVED,Standard Marketing Expense
+TXN-2026-0159,2026-02-24 10:14:06,500-UTILITIES,Verity Nexus HQ,AT&T Corporation,21919.92,APPROVED,Annual Utilities Renewal
+TXN-2026-0486,2026-01-26 16:11:52,500-CONSULTING,Verity Nexus HQ,PricewaterhouseCoopers,281129.12,APPROVED,Consulting - Project Alpha
+TXN-2026-0316,2026-10-12 11:40:43,500-INSURANCE,Verity Nexus HQ,Aon plc,85426.6,APPROVED,Insurance - Project Alpha
+TXN-2026-0203,2026-12-07 16:38:53,500-OFFICE,Verity Nexus HQ,Staples Business Advantage,1682.24,APPROVED,Monthly Office Invoice
+TXN-2026-0354,2026-09-23 14:21:00,500-TRAVEL,Verity Nexus HQ,Hertz Corporation,1907.35,APPROVED,Monthly Travel Invoice
+TXN-2026-0280,2026-11-26 16:38:21,500-TRAVEL,Verity Nexus HQ,Hertz Corporation,2000,APPROVED,Standard Travel Expense
+TXN-2026-0473,2026-09-18 13:24:27,500-TRAVEL,Verity Nexus HQ,Uber Business,3000,APPROVED,Travel Services - Q3
+TXN-2026-0417,2026-03-23 11:57:47,500-SOFTWARE,Verity Nexus HQ,Oracle Corporation,46301.54,APPROVED,Software - Project Alpha
+TXN-2026-0221,2026-02-25 13:22:44,500-TRAVEL,Verity Nexus HQ,Marriott International,6564.16,APPROVED,Standard Travel Expense
+TXN-2026-0146,2026-02-19 18:36:28,500-SOFTWARE,Verity Nexus HQ,Zoom Video Communications,5346.83,APPROVED,Software Support Services
+TXN-2026-0458,2026-08-17 09:41:14,500-UTILITIES,Verity Nexus HQ,Verizon Business,20201.99,APPROVED,Monthly Utilities Invoice
+TXN-2026-0348,2026-04-27 09:17:32,500-UTILITIES,Verity Nexus HQ,AT&T Corporation,15547.33,APPROVED,Utilities Support Services
+TXN-2026-0306,2026-05-12 10:39:46,500-INSURANCE,Verity Nexus HQ,AIG Insurance,54646.89,APPROVED,Standard Insurance Expense
+TXN-2026-0026,2026-07-10 12:40:42,500-OFFICE,Verity Nexus HQ,Pitney Bowes Inc.,4303.3,APPROVED,Office - Project Alpha
+TXN-2026-0440,2026-12-08 15:47:58,500-CONSULTING,Verity Nexus HQ,Boston Consulting Group,255000,APPROVED,Consulting - Project Alpha
+TXN-2026-0168,2026-07-24 15:27:24,500-SOFTWARE,Verity Nexus HQ,Datadog Inc.,22958.0,APPROVED,Standard Software Expense
+TXN-2026-0389,2026-09-28 08:21:27,500-INSURANCE,Verity Nexus HQ,Aon plc,107410.4,APPROVED,Monthly Insurance Invoice
+TXN-2026-0249,2026-09-22 13:39:49,500-INSURANCE,Verity Nexus HQ,Marsh McLennan,92647.94,APPROVED,Standard Insurance Expense
+TXN-2026-0304,2026-01-13 13:20:27,500-TRAVEL,Verity Nexus HQ,American Express Travel,10691.74,APPROVED,Travel Services - Q1
+TXN-2026-0426,2026-01-26 15:44:32,500-INSURANCE,Verity Nexus HQ,AIG Insurance,27533.51,APPROVED,Annual Insurance Renewal
+TXN-2026-0367,2026-11-24 16:33:25,500-SOFTWARE,Verity Nexus HQ,Microsoft Corporation,59648.23,APPROVED,Standard Software Expense
+TXN-2026-0463,2026-11-16 17:39:46,500-UTILITIES,Verity Nexus HQ,Waste Management Inc.,7429.25,APPROVED,Standard Utilities Expense
+TXN-2026-0326,2026-06-10 17:46:38,500-UTILITIES,Verity Nexus HQ,Waste Management Inc.,22753.2,APPROVED,Annual Utilities Renewal
+TXN-2026-0209,2026-09-14 13:44:43,500-LEGAL,Verity Nexus HQ,Latham & Watkins LLP,124535.32,APPROVED,Standard Legal Expense
+TXN-2026-0474,2026-06-03 17:58:12,500-CONSULTING,Verity Nexus HQ,Deloitte LLP,122027.28,APPROVED,Annual Consulting Renewal
+TXN-2026-0470,2026-07-17 14:44:03,500-UTILITIES,Verity Nexus HQ,Consolidated Edison,25000,APPROVED,Utilities Support Services
+TXN-2026-0115,2026-11-16 16:32:54,500-UTILITIES,Verity Nexus HQ,Consolidated Edison,39750.34,APPROVED,Utilities Support Services
+TXN-2026-0478,2026-01-12 18:20:12,500-LEGAL,Verity Nexus HQ,Latham & Watkins LLP,301102.6,APPROVED,Monthly Legal Invoice
+TXN-2026-0283,2026-12-01 12:00:34,500-UTILITIES,Verity Nexus HQ,AT&T Corporation,8868.83,APPROVED,Utilities Services - Q4
+TXN-2026-0215,2026-10-19 08:18:53,500-LEGAL,Verity Nexus HQ,Jones Day,135707.8,APPROVED,Monthly Legal Invoice
+TXN-2026-0164,2026-12-14 16:07:44,500-CONSULTING,Verity Nexus HQ,Accenture LLP,66630.89,APPROVED,Monthly Consulting Invoice
+TXN-2026-0184,2026-02-09 12:06:32,500-INSURANCE,Verity Nexus HQ,AIG Insurance,5384.51,APPROVED,Insurance Support Services
+TXN-2026-0104,2026-08-27 08:20:38,500-LEGAL,Verity Nexus HQ,Jones Day,71769.62,APPROVED,Annual Legal Renewal
+TXN-2026-0388,2026-07-09 13:24:52,500-UTILITIES,Verity Nexus HQ,Consolidated Edison,20608.87,APPROVED,Annual Utilities Renewal
+TXN-2026-0084,2026-05-27 17:22:45,500-UTILITIES,Verity Nexus HQ,AT&T Corporation,24616.77,APPROVED,Utilities Support Services
+TXN-2026-0274,2026-07-17 17:19:24,500-TRAVEL,Verity Nexus HQ,Hertz Corporation,689.01,APPROVED,Monthly Travel Invoice
+TXN-2026-0141,2026-11-09 08:02:33,500-MARKETING,Verity Nexus HQ,Publicis Groupe,48000,APPROVED,Marketing Support Services
+TXN-2026-0459,2026-10-12 18:55:12,500-TRAVEL,Verity Nexus HQ,Marriott International,3794.15,APPROVED,Travel Support Services
+TXN-2026-0443,2026-03-06 15:05:50,500-SOFTWARE,Verity Nexus HQ,Salesforce Inc.,26475.9,APPROVED,Annual Software Renewal
+TXN-2026-0481,2026-06-26 18:21:12,500-OFFICE,Verity Nexus HQ,Pitney Bowes Inc.,2537.69,APPROVED,Office - Project Alpha
+TXN-2026-0200,2026-05-25 14:29:58,500-CONSULTING,Verity Nexus HQ,Ernst & Young LLP,192558.33,APPROVED,Consulting Services - Q2
+TXN-2026-0195,2026-04-06 16:29:17,500-SOFTWARE,Verity Nexus HQ,Slack Technologies,4664.01,APPROVED,Software - Project Alpha
+TXN-2026-0462,2026-10-16 14:18:53,500-SOFTWARE,Verity Nexus HQ,Slack Technologies,19882.7,APPROVED,Annual Software Renewal
+TXN-2026-0113,2026-09-24 18:22:04,500-OFFICE,Verity Nexus HQ,Xerox Corporation,8032.58,APPROVED,Office Support Services
+TXN-2026-0321,2026-11-20 15:07:37,500-MARKETING,Verity Nexus HQ,WPP plc,77000,APPROVED,Marketing Services - Q4
+TXN-2026-0341,2026-05-20 12:31:53,500-MARKETING,Verity Nexus HQ,Interpublic Group,38279.87,APPROVED,Annual Marketing Renewal
+TXN-2026-0012,2026-01-08 17:48:51,500-LEGAL,Verity Nexus HQ,Baker McKenzie,98397.59,APPROVED,Legal Services - Q1
+TXN-2026-0162,2026-05-06 10:36:08,500-INSURANCE,Verity Nexus HQ,Aon plc,89000,APPROVED,Insurance - Project Alpha
+TXN-2026-0052,2026-03-13 14:36:22,500-LEGAL,Verity Nexus HQ,Latham & Watkins LLP,199504.41,APPROVED,Monthly Legal Invoice
+TXN-2026-0167,2026-11-30 10:48:53,500-LEGAL,Verity Nexus HQ,Skadden Arps,156543.69,APPROVED,Legal Support Services
+TXN-2026-0095,2026-09-17 17:05:15,500-INSURANCE,Verity Nexus HQ,Marsh McLennan,114941.81,APPROVED,Monthly Insurance Invoice
+TXN-2026-0399,2026-02-05 08:10:05,500-UTILITIES,Verity Nexus HQ,Consolidated Edison,8045.33,APPROVED,Annual Utilities Renewal
+TXN-2026-0089,2026-04-27 10:23:40,500-INSURANCE,Verity Nexus HQ,Marsh McLennan,59480.5,APPROVED,Insurance Services - Q2
+TXN-2026-0132,2026-05-04 08:17:24,500-CONSULTING,Verity Nexus HQ,Enterprise LLP,199634.87,APPROVED,Consulting - Project Alpha
+TXN-2026-0390,2026-07-20 17:49:23,500-LEGAL,Verity Nexus HQ,Baker McKenzie,186289.14,APPROVED,Legal Services - Q3
+TXN-2026-0483,2026-11-13 08:31:28,500-TRAVEL,Verity Nexus HQ,Hertz Corporation,4000,APPROVED,Travel Services - Q4
+TXN-2026-0333,2026-05-06 12:27:18,500-MARKETING,Verity Nexus HQ,Omnicom Group,16052.29,APPROVED,Annual Marketing Renewal
+TXN-2026-0290,2026-11-25 12:52:15,500-LEGAL,Verity Nexus HQ,Kirkland & Ellis LLP,298959.27,APPROVED,Standard Legal Expense
+TXN-2026-0234,2026-08-17 15:05:03,500-SOFTWARE,Verity Nexus HQ,ServiceNow Inc.,18645.3,APPROVED,Software - Project Alpha
+TXN-2026-0173,2026-06-08 17:53:54,500-TRAVEL,Verity Nexus HQ,Delta Air Lines,2635.34,APPROVED,Travel Support Services
+TXN-2026-0149,2026-01-12 13:57:28,500-MARKETING,Verity Nexus HQ,Interpublic Group,25192.95,APPROVED,Marketing - Project Alpha
+TXN-2026-0081,2026-02-16 15:28:14,500-OFFICE,Verity Nexus HQ,Uline Inc.,360.69,APPROVED,Monthly Office Invoice
+TXN-2026-0235,2026-09-09 18:39:19,500-OFFICE,Verity Nexus HQ,Pitney Bowes Inc.,2335.08,APPROVED,Monthly Office Invoice
+TXN-2026-0373,2026-09-25 08:22:05,500-MARKETING,Verity Nexus HQ,Interpublic Group,42779.23,APPROVED,Annual Marketing Renewal
+TXN-2026-0343,2026-09-21 08:12:11,500-UTILITIES,Verity Nexus HQ,Waste Management Inc.,15079.01,APPROVED,Monthly Utilities Invoice
+TXN-2026-0352,2026-11-24 18:12:22,500-UTILITIES,Verity Nexus HQ,Pacific Gas & Electric,13611.8,APPROVED,Utilities Services - Q4
+TXN-2026-0494,2026-07-21 12:34:35,500-UTILITIES,Verity Nexus HQ,Consolidated Edison,18886.88,APPROVED,Monthly Utilities Invoice
+TXN-2026-0477,2026-09-01 12:59:49,500-MARKETING,Verity Nexus HQ,Interpublic Group,34253.74,APPROVED,Monthly Marketing Invoice
+TXN-2026-0376,2026-04-13 12:50:28,500-MARKETING,Verity Nexus HQ,Publicis Groupe,54945.09,APPROVED,Monthly Marketing Invoice
+TXN-2026-0452,2026-02-12 08:16:33,500-CONSULTING,Verity Nexus HQ,Deloitte LLP,341439.79,APPROVED,Consulting - Project Alpha
+TXN-2026-0150,2026-05-29 09:43:53,500-MARKETING,Verity Nexus HQ,Omnicom Group,19522.64,APPROVED,Marketing Services - Q2
+TXN-2026-0163,2026-07-23 14:17:46,500-UTILITIES,Verity Nexus HQ,Verizon Business,4031.58,APPROVED,Annual Utilities Renewal
+TXN-2026-0358,2026-12-21 15:40:40,500-MARKETING,Verity Nexus HQ,Omnicom Group,25679.39,APPROVED,Marketing Services - Q4
+TXN-2026-0397,2026-06-25 16:51:27,500-LEGAL,Verity Nexus HQ,Skadden Arps,151948.06,APPROVED,Standard Legal Expense
+TXN-2026-0194,2026-11-02 13:16:50,500-CONSULTING,Verity Nexus HQ,PricewaterhouseCoopers,39783.31,APPROVED,Consulting - Project Alpha
+TXN-2026-0126,2026-07-27 10:26:16,500-MARKETING,Verity Nexus HQ,Interpublic Group,18321.77,APPROVED,Marketing Services - Q3
+TXN-2026-0472,2026-02-23 11:05:08,500-SOFTWARE,Verity Nexus HQ,Amazon Web Services,55000,APPROVED,Annual Software Renewal
+TXN-2026-0353,2026-11-13 11:42:29,500-TRAVEL,Verity Nexus HQ,Delta Air Lines,4016.35,APPROVED,Travel Services - Q4
+TXN-2026-0062,2026-07-07 10:11:21,500-CONSULTING,Verity Nexus HQ,Boston Consulting Group,50000,APPROVED,Consulting Support Services
+TXN-2026-0303,2026-12-14 16:37:51,500-CONSULTING,Verity Nexus HQ,PricewaterhouseCoopers,28934.44,APPROVED,Consulting Support Services
+TXN-2026-0446,2026-08-25 18:28:03,500-LEGAL,Verity Nexus HQ,Latham & Watkins LLP,281096.25,APPROVED,Legal Support Services
+TXN-2026-0407,2026-11-16 10:37:45,500-UTILITIES,Verity Nexus HQ,Waste Management Inc.,3249.15,APPROVED,Annual Utilities Renewal
+TXN-2026-0246,2026-03-06 09:13:46,500-OFFICE,Verity Nexus HQ,Pitney Bowes Inc.,5078.66,APPROVED,Office Services - Q1
+TXN-2026-0251,2026-07-20 09:56:29,500-LEGAL,Verity Nexus HQ,Kirkland & Ellis LLP,29112.93,APPROVED,Legal Support Services
+TXN-2026-0169,2026-06-22 13:18:58,500-UTILITIES,Verity Nexus HQ,Pacific Gas & Electric,18697.1,APPROVED,Annual Utilities Renewal
+TXN-2026-0314,2026-12-07 14:03:01,500-UTILITIES,Verity Nexus HQ,Consolidated Edison,27855.5,APPROVED,Utilities Services - Q4
+TXN-2026-0413,2026-02-12 09:59:32,500-TRAVEL,Verity Nexus HQ,Hertz Corporation,2426.47,APPROVED,Annual Travel Renewal
+TXN-2026-0439,2026-03-23 08:21:48,500-CONSULTING,Verity Nexus HQ,Boston Consulting Group,372242.82,APPROVED,Monthly Consulting Invoice
+TXN-2026-0201,2026-05-08 09:57:04,500-OFFICE,Verity Nexus HQ,Canon Solutions America,7082.16,APPROVED,Annual Office Renewal
+TXN-2026-0328,2026-11-23 15:39:26,500-UTILITIES,Verity Nexus HQ,Consolidated Edison,20390.85,APPROVED,Utilities Services - Q4
+TXN-2026-0411,2026-11-18 15:33:01,500-MARKETING,Verity Nexus HQ,Omnicom Group,5872.05,APPROVED,Annual Marketing Renewal
+TXN-2026-0009,2026-11-30 14:29:08,500-OFFICE,Verity Nexus HQ,Uline Inc.,3331.72,APPROVED,Standard Office Expense
+TXN-2026-0254,2026-10-19 08:16:36,500-OFFICE,Verity Nexus HQ,Uline Inc.,1000,APPROVED,Office Support Services
+TXN-2026-0347,2026-06-15 16:59:14,500-TRAVEL,Verity Nexus HQ,United Airlines,10193.98,APPROVED,Annual Travel Renewal
+TXN-2026-0116,2026-05-22 11:51:03,500-SOFTWARE,Verity Nexus HQ,Slack Technologies,14958.08,APPROVED,Software - Project Alpha
+TXN-2026-0049,2026-11-06 14:19:15,500-LEGAL,Verity Nexus HQ,Sullivan & Cromwell,214875.71,APPROVED,Annual Legal Renewal
+TXN-2026-0360,2026-08-03 09:58:46,500-LEGAL,Verity Nexus HQ,Baker McKenzie,83578.85,APPROVED,Legal Services - Q3
+TXN-2026-0492,2026-08-12 16:23:33,500-OFFICE,Verity Nexus HQ,Pitney Bowes Inc.,9000,APPROVED,Annual Office Renewal
+TXN-2026-0023,2026-04-20 15:15:32,500-MARKETING,Verity Nexus HQ,Publicis Groupe,28626.1,APPROVED,Monthly Marketing Invoice
+TXN-2026-0278,2026-03-16 13:02:03,500-SOFTWARE,Verity Nexus HQ,Zoom Video Communications,1719.0,APPROVED,Annual Software Renewal
+TXN-2026-0122,2026-06-12 17:24:26,500-SOFTWARE,Verity Nexus HQ,Zoom Video Communications,3949.55,APPROVED,Software Services - Q2
+TXN-2026-0077,2026-07-29 15:36:22,500-TRAVEL,Verity Nexus HQ,Uber Business,1081.29,APPROVED,Travel - Project Alpha
+TXN-2026-0365,2026-05-19 17:49:43,500-OFFICE,Verity Nexus HQ,Staples Business Advantage,11987.11,APPROVED,Office Services - Q2
+TXN-2026-0112,2026-05-04 16:43:37,500-INSURANCE,Verity Nexus HQ,Marsh McLennan,71548.19,APPROVED,Annual Insurance Renewal
+TXN-2026-0422,2026-07-01 08:05:44,500-MARKETING,Verity Nexus HQ,Interpublic Group,28349.94,APPROVED,Annual Marketing Renewal
+TXN-2026-0028,2026-01-19 17:56:49,500-INSURANCE,Verity Nexus HQ,Aon plc,52481.03,APPROVED,Annual Insurance Renewal
+TXN-2026-0402,2026-01-23 18:41:21,500-UTILITIES,Verity Nexus HQ,Pacific Gas & Electric,43897.94,APPROVED,Utilities Services - Q1
+TXN-2026-0100,2026-05-20 16:36:09,500-SOFTWARE,Verity Nexus HQ,Datadog Inc.,22379.5,APPROVED,Software - Project Alpha
+TXN-2026-0154,2026-11-16 15:34:17,500-INSURANCE,Verity Nexus HQ,Marsh McLennan,25632.33,APPROVED,Insurance Support Services
+TXN-2026-0034,2026-06-25 15:18:40,500-TRAVEL,Verity Nexus HQ,United Airlines,1346.33,APPROVED,Standard Travel Expense
+TXN-2026-0344,2026-04-13 17:52:40,500-MARKETING,Verity Nexus HQ,WPP plc,52000,APPROVED,Standard Marketing Expense
+TXN-2026-0123,2026-11-05 16:52:23,500-OFFICE,Verity Nexus HQ,Canon Solutions America,9675.88,APPROVED,Office Support Services
+TXN-2026-0024,2026-08-24 08:13:52,500-OFFICE,Verity Nexus HQ,Pitney Bowes Inc.,1329.91,APPROVED,Office Support Services
+TXN-2026-0297,2026-12-21 11:38:53,500-UTILITIES,Verity Nexus HQ,Verizon Business,12000,APPROVED,Annual Utilities Renewal
+TXN-2026-0394,2026-12-11 08:18:35,500-TRAVEL,Verity Nexus HQ,Hilton Hotels,2446.3,APPROVED,Annual Travel Renewal
+TXN-2026-0177,2026-10-16 11:56:50,500-OFFICE,Verity Nexus HQ,Canon Solutions America,7000,APPROVED,Standard Office Expense
+TXN-2026-0276,2026-06-08 17:52:23,500-SOFTWARE,Verity Nexus HQ,Snowflake Inc.,31470.85,APPROVED,Monthly Software Invoice
+TXN-2026-0264,2026-01-19 16:25:17,500-INSURANCE,Verity Nexus HQ,Aon plc,28743.22,APPROVED,Insurance Services - Q1
+TXN-2026-0156,2026-09-07 11:28:40,500-TRAVEL,Verity Nexus HQ,Uber Business,2723.54,APPROVED,Standard Travel Expense
+TXN-2026-0395,2026-10-27 14:30:02,500-CONSULTING,Verity Nexus HQ,Enterprise LLP,212006.64,APPROVED,Monthly Consulting Invoice
+TXN-2026-0252,2026-03-23 17:11:07,500-LEGAL,Verity Nexus HQ,Sullivan & Cromwell,221506.75,APPROVED,Standard Legal Expense
+TXN-2026-0057,2026-01-13 14:24:21,500-UTILITIES,Verity Nexus HQ,Waste Management Inc.,14000,APPROVED,Utilities Support Services
+TXN-2026-0336,2026-11-11 15:50:22,500-OFFICE,Verity Nexus HQ,Staples Business Advantage,9097.21,APPROVED,Office Support Services
+TXN-2026-0110,2026-01-12 17:21:06,500-LEGAL,Verity Nexus HQ,Sullivan & Cromwell,91980.91,APPROVED,Standard Legal Expense
+TXN-2026-0008,2026-10-19 15:54:15,500-LEGAL,Verity Nexus HQ,Jones Day,57186.56,APPROVED,Annual Legal Renewal
+TXN-2026-0124,2026-11-23 09:56:43,500-INSURANCE,Verity Nexus HQ,Marsh McLennan,57335.33,APPROVED,Insurance Support Services
+TXN-2026-0383,2026-09-22 09:11:41,500-OFFICE,Verity Nexus HQ,Uline Inc.,1680.36,APPROVED,Office Services - Q3
+TXN-2026-0228,2026-04-13 12:38:25,500-OFFICE,Verity Nexus HQ,W.B. Mason Company,1820.86,APPROVED,Monthly Office Invoice
+TXN-2026-0053,2026-02-25 15:59:15,500-OFFICE,Verity Nexus HQ,Canon Solutions America,5000,APPROVED,Office - Project Alpha
+TXN-2026-0076,2026-03-23 10:17:22,500-UTILITIES,Verity Nexus HQ,Consolidated Edison,11329.52,APPROVED,Utilities Services - Q1
+TXN-2026-0172,2026-03-23 09:19:46,500-OFFICE,Verity Nexus HQ,Uline Inc.,2000,APPROVED,Monthly Office Invoice
+TXN-2026-0135,2026-09-10 08:00:45,500-CONSULTING,Verity Nexus HQ,Boston Consulting Group,379877.87,APPROVED,Consulting - Project Alpha
+TXN-2026-0152,2026-01-28 17:00:27,500-CONSULTING,Verity Nexus HQ,Deloitte LLP,263417.95,APPROVED,Consulting Support Services
+TXN-2026-0125,2026-08-13 17:18:41,500-TRAVEL,Verity Nexus HQ,Uber Business,1043.5,APPROVED,Travel Support Services
+TXN-2026-0323,2026-04-20 11:39:41,500-SOFTWARE,Verity Nexus HQ,Snowflake Inc.,118798.13,APPROVED,Software Support Services
+TXN-2026-0369,2026-05-04 18:26:07,500-SOFTWARE,Verity Nexus HQ,Microsoft Corporation,21776.94,APPROVED,Standard Software Expense
+TXN-2026-0025,2026-12-25 12:00:15,500-LEGAL,Verity Nexus HQ,Skadden Arps,44164.61,APPROVED,Legal Support Services
+TXN-2026-0419,2026-05-28 08:05:50,500-MARKETING,Verity Nexus HQ,WPP plc,95000,APPROVED,Marketing Support Services
+TXN-2026-0206,2026-01-05 16:21:00,500-TRAVEL,Verity Nexus HQ,Delta Air Lines,12325.94,APPROVED,Standard Travel Expense
+TXN-2026-0199,2026-11-11 09:44:32,500-SOFTWARE,Verity Nexus HQ,Snowflake Inc.,77711.43,APPROVED,Standard Software Expense
+TXN-2026-0428,2026-01-12 10:37:21,500-TRAVEL,Verity Nexus HQ,Hilton Hotels,3316.0,APPROVED,Travel Services - Q1
+TXN-2026-0351,2026-10-19 16:23:01,500-MARKETING,Verity Nexus HQ,WPP plc,63794.78,APPROVED,Marketing - Project Alpha
+TXN-2026-0127,2026-04-17 10:02:06,500-SOFTWARE,Verity Nexus HQ,Atlassian Pty Ltd,17709.75,APPROVED,Standard Software Expense
+TXN-2026-0189,2026-06-18 18:40:20,500-MARKETING,Verity Nexus HQ,WPP plc,49879.04,APPROVED,Standard Marketing Expense
+TXN-2026-0267,2026-04-10 16:59:36,500-UTILITIES,Verity Nexus HQ,Consolidated Edison,44810.13,APPROVED,Utilities Services - Q2
+TXN-2026-0161,2026-12-18 14:02:35,500-INSURANCE,Verity Nexus HQ,Aon plc,63511.44,APPROVED,Insurance Services - Q4
+TXN-2026-0050,2026-03-09 12:43:02,500-LEGAL,Verity Nexus HQ,Latham & Watkins LLP,44004.12,APPROVED,Monthly Legal Invoice
+TXN-2026-0325,2026-06-02 09:14:12,500-MARKETING,Verity Nexus HQ,Publicis Groupe,58713.33,APPROVED,Standard Marketing Expense
+TXN-2026-0232,2026-06-10 12:18:10,500-LEGAL,Verity Nexus HQ,Skadden Arps,115483.49,APPROVED,Standard Legal Expense
+TXN-2026-0033,2026-08-31 13:18:02,500-MARKETING,Verity Nexus HQ,WPP plc,81940.12,APPROVED,Standard Marketing Expense
+TXN-2026-0461,2026-01-22 10:44:25,500-SOFTWARE,Verity Nexus HQ,Microsoft Corporation,93190.73,APPROVED,Monthly Software Invoice

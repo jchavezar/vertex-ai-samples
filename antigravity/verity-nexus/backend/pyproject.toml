@@ -1,0 +1,26 @@
+[project]
+name = "verity-nexus-engine"
+version = "0.1.0"
+description = "Financial audit and regulatory compliance engine with AI-powered anomaly detection"
+readme = "docs/README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "google-adk>=1.0.0",
+    "python-dotenv>=1.0.0",
+    "pydantic>=2.0.0",
+    "pyyaml>=6.0.0",
+    "fastapi>=0.133.1",
+    "uvicorn>=0.41.0",
+    "google-genai>=1.64.0",
+    "httpx>=0.28.1",
+]
+
+[project.scripts]
+generate-synthetic-data = "tools.generate_synthetic_data:generate_dataset_programmatically"
+generate-regulatory-kb = "tools.generate_regulatory_kb:generate_regulatory_kb_sync"
+
+[dependency-groups]
+dev = [
+    "pytest>=8.0.0",
+    "pytest-asyncio>=0.23.0",
+]
