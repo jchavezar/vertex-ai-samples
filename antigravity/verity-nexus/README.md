@@ -2,56 +2,95 @@
 
 > **Cinematic AI-to-Agent Forensic Swarm**
 
-Verity Nexus is a high-fidelity internal audit and forensic accounting platform that leverages a "Swarm Intelligence" architecture. It transforms raw analytical telemetry into a cinematic, executive-grade narrative, allowing auditors to visualize complex risk signals with zero technical debris.
+Verity Nexus is a next-generation forensic auditing and financial risk platform. It transforms raw analytical telemetry from an agentic swarm into a cinematic, executive-grade narrative, allowing institutions to identify, visualize, and mitigate financial anomalies with zero technical debris.
 
-![Verity Nexus Dashboard](./docs/assets/dashboard.png)
+---
 
-## ⚡ Core Architecture: Neural Discovery Sync
+## ⚡ The Vision: Zero-Parsing Intelligence
+Traditional audit tools drown users in spreadsheets and static logs. **Verity Nexus** pioneered the **Zero-Parsing Architecture**, where technical payloads are intercepted by a **Narrative Filtration Engine** and rendered as interactive **Neural Discovery Shards**.
 
-The platform implements a **Zero-Parsing Architecture**. Instead of presenting raw data, the **Agentic Reasoning Swarm** synchronizes analytical findings directly into the UI's neural layer.
+### 🧩 Core Achievements
+- **Neural Synchronization**: Real-time handoffs between specialized agents (Audit, Tax, Orchestrator).
+- **Cinematic Discovery Layer**: Smooth transitions between high-level risk metrics and deep-level forensic evidence.
+- **Materiality Mapping**: Precision dollar-value impact assessment using a dynamic $1.5M Shard threshold.
 
-### 🧩 Analytical Synchronization
-Technical payloads (JSON/Telemetry) are intercepted by the **Narrative Filtration Engine** and replaced with high-fidelity "Forensic Shards."
+---
 
-![Forensic Shard Badge](./docs/assets/shard_badge.png)
+## 🖼️ Investigative Query Showcases
 
-### 📊 Real-Time Exposure Metrics
-The **Materiality Gauge** (Exposure Index) calculates institutional risk in real-time, providing a dynamic "Materiality Load" visualization.
+### 🔍 Principal Forensic Analysis
+Scanning the entire ledger for material anomalies and internal control violations.
+![Principal Analysis](./docs/assets/query_forensic.png)
 
-- **Exposure Index**: Real-time dollar-value impact assessment.
-- **Materiality Load**: Percentage-based visual of the floor-to-limit risk threshold ($1.5M Shard).
-- **Anomaly Counter**: Real-time synchronization of forensic discoveries.
+### 🏢 Vendor Nexus Audit
+Identifying high-risk vendors and cross-referencing with approved entity lists.
+![Vendor Audit](./docs/assets/query_vendor.png)
 
-## ✨ Key Features (V2.0)
+### 📊 Tax Exposure Calculation
+Real-time calculation of tax liabilities and regulatory exposure across jurisdictions.
+![Tax Exposure](./docs/assets/query_tax.png)
 
-- **Neural Discovery Sync**: Aggressive chat filtering replaces technical payloads with interactive "Forensic Shard" badges.
-- **Cinematic Data Jump**: Click any shard badge to smoothly scroll and highlight synchronized findings in the central discovery layer.
-- **Materiality Gauge (Exposure Index)**: Real-time visualization of financial risk, materiality load, and anomaly density.
-- **Swarm Intelligence Architecture**: Multi-agent orchestration (Verity Orchestrator, Audit Agent, Tax Agent) visualizing real-time handoffs.
-- **Premium Forensic Aesthetic**: Neofuturistic dark-mode UI with glassmorphism, pulse animations, and brutalist typography.
+---
 
-## 🛡️ Forensic Discoveries (Interactive)
-Individual audit findings are rendered as **Neural Discovery Shards**. Click a "Forensic Shard" in the chat to jump directly to its entry in the central panel.
-- **Risk Indexing**: Precision-weighted severity scores (1.0 - 10.0).
-- **Tactical Insights**: AI-generated investigative starting points.
-- **Expedience Mapping**: High-value transaction highlights.
+## 🧬 System Architecture & Workflow
 
-![Discovery Shards](./docs/assets/findings_panel.png)
+The platform leverages a **Swarm Intelligence** model where specialized agents collaborate in a decentralized manner to minimize investigation latency.
 
-## 🚀 Getting Started
+```mermaid
+graph TD
+    User([Auditor Query]) --> Input[Swarm Input Base]
+    Input --> Orchestrator{Verity Orchestrator}
+    
+    subgraph Swarm Intelligence Layer
+        Orchestrator --> AuditAgent[Audit Forensic Agent]
+        Orchestrator --> TaxAgent[Tax Compliance Agent]
+        AuditAgent <--> TaxAgent
+    end
+    
+    AuditAgent --> DiscoveryLayer[Neural Discovery Shards]
+    TaxAgent --> ExposureLayer[Materiality Gauge]
+    
+    DiscoveryLayer --> Feedback[Human-in-the-loop Validation]
+    ExposureLayer --> Feedback
+    
+    style User fill:#f97316,stroke:#fff,stroke-width:2px,color:#fff
+    style Orchestrator fill:#222,stroke:#f97316,stroke-width:2px,color:#f97316
+    style AuditAgent fill:#111,stroke:#333,stroke-dasharray: 5 5,color:#888
+    style TaxAgent fill:#111,stroke:#333,stroke-dasharray: 5 5,color:#888
+    style DiscoveryLayer fill:#111,stroke:#f97316,stroke-width:1px,color:#f97316,opacity:0.8
+```
+
+---
+
+## 🕹️ Interactive Elements
+
+### 🛠️ Live Inspection (High-Fidelity Mode)
+ аудиторы can maximize the system diagram to inspect agentic handoffs in real-time. This provides an immersive view of the swarm's neural architecture.
+![Architecture Overlay](./docs/assets/architecture_overlay.png)
+
+### 🚀 Cinematic Data Jump
+When a **Forensic Shard** is detected in the swarm feed, clicking the badge triggers a cinematic smooth-scroll that locks focus onto the specific finding in the central panel.
+![Shard Interaction](./docs/assets/diagram_hover.png)
+
+### 📋 Precision Copy Logic
+Shard IDs in the discovery cards are interactive. A single click copies the unique `SHARD_ID` to the clipboard, optimized for rapid documentation and case management.
+
+---
+
+## 🚀 Deployment Guide
 
 ### Prerequisites
 - **Python 3.12+** (Managed via `uv`)
 - **Node.js 18+**
-- **Google ADK**
+- **Google ADK (Agent Development Kit)**
 
-### Backend Setup
+### 1. Backend Orchestration
 ```bash
 cd backend
 uv run server.py
 ```
 
-### Frontend Setup
+### 2. Frontend Cinematic UI
 ```bash
 cd frontend
 npm install
@@ -59,4 +98,7 @@ npm run dev -- -p 5174
 ```
 
 ---
-**Secure Development Protocol**: This repository strictly enforces a Zero-Leak policy. Credentials and `.env` files are never committed.
+
+**Secure Development Protocol**: This repository strictly enforces a **Zero-Leak** policy. 
+- **Fingerprint**: `VERITY_NEXUS_V2_SYNC_SUCCESSFUL_20240523`
+- Credentials and `.env` files are never committed to version control.

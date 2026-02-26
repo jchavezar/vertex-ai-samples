@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List, Optional
@@ -34,19 +34,21 @@ async def search(query: str):
     return {"query": query, "results": []}
 
 @app.post("/evaluate")
-async def evaluate(req: EvalRequest):
-    """
-    Parallel Evaluation Endpoint.
-    Invokes the ADK Evaluator Agent to perform fact-attribution analysis.
-    """
+async def evaluate(request: Request):
+    data = await request.json()
+    answer = data.get("answer")
+    sources = data.get("sources")
+    citations = data.get("citations", [])
+    
+    if not answer or not sources:
+        return {"error": "Missing answer or sources"}
+    
     try:
-        result = await evaluate_answer(req.answer, req.sources)
-        if not result:
-            raise HTTPException(status_code=500, detail="Evaluation failed to produce results")
+        result = await evaluate_answer(answer, sources, citations)
         return result
     except Exception as e:
-        print(f"Error in evaluate: {str(e)}")
-        raise HTTPException(status_code=500, detail=str(e))
+        print(f"Evaluation Error: {str(e)}")
+        return {"error": str(e)}
 
 if __name__ == "__main__":
     import uvicorn
