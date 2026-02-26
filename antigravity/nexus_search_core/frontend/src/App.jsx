@@ -6,7 +6,7 @@ import {
 } from './api/auth';
 import { CONFIG } from './api/config';
 import { executeSearch } from './api/search';
-import { Search, LogIn, ShieldCheck, Database, FileText, ExternalLink, Loader2, ChevronRight, AlertCircle, CheckCircle2, Lock, Key } from 'lucide-react';
+import { Search, LogIn, ShieldCheck, Database, FileText, ExternalLink, Loader2, ChevronRight, AlertCircle, CheckCircle2, Lock, Key, Zap, MessageSquare } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 function App() {
@@ -31,6 +31,7 @@ function App() {
   const [activeCitation, setActiveCitation] = useState(null);
 
   const [processingTime, setProcessingTime] = useState(0);
+  const [searchMethod, setSearchMethod] = useState('answer'); // 'answer', 'search', 'stream'
   const [conversationContext, setConversationContext] = useState(null);
 
   // New state: null | 'checking_entra' | 'exchanging_sts' | 'connecting_sharepoint' | 'complete'
@@ -109,7 +110,122 @@ function App() {
     return () => clearInterval(interval);
   }, [loading]);
 
+  /**
+   * Helper to render text with grounded highlights based on API citations
+   */
+  const renderGroundedText = (text, citations = []) => {
+    if (!text) return null;
+    if (!citations || citations.length === 0) return text;
+
+    // Sort citations and filter out small or invalid spans
+    const sortedCitations = [...citations]
+      .filter(cit => cit.startIndex !== undefined && cit.endIndex !== undefined && cit.endIndex > cit.startIndex)
+      .sort((a, b) => a.startIndex - b.startIndex);
+
+    if (sortedCitations.length === 0) return text;
+
+    const nodes = [];
+    let lastIdx = 0;
+
+    sortedCitations.forEach((cit, i) => {
+      // 1. Text BEFORE grounding (interpreted talk / KB)
+      if (cit.startIndex > lastIdx) {
+        nodes.push(
+          <span key={`kb-${i}`} className="text-white/60">
+            {text.substring(lastIdx, cit.startIndex)}
+          </span>
+        );
+      }
+
+      // 2. GROUNDED text (factual data from agent)
+      nodes.push(
+        <motion.span
+          key={`grounded-${i}`}
+          initial={{ backgroundColor: 'rgba(212, 175, 55, 0)', y: 2 }}
+          animate={{ backgroundColor: 'rgba(212, 175, 55, 0.25)', y: 0 }}
+          className="text-white font-bold border-b-2 border-sockcop-gold px-1 rounded-sm cursor-help shadow-[0_4px_12px_rgba(212,175,55,0.1)]"
+          title="Fact verified by search"
+        >
+          {text.substring(cit.startIndex, cit.endIndex)}
+        </motion.span>
+      );
+
+      lastIdx = cit.endIndex;
+    });
+
+    // 3. Final trailing text
+    if (lastIdx < text.length) {
+      nodes.push(
+        <span key="kb-final" className="text-white/50 italic">
+          {text.substring(lastIdx)}
+        </span>
+      );
+    }
+
+    return nodes;
+  };
+
+  /**
+   * Render text using segments provided by the ADK Evaluator Agent
+   */
+  const renderEvaluatedText = (segments) => {
+    if (!segments || segments.length === 0) return null;
+    return segments.map((seg, i) => (
+      <motion.span
+        key={`seg-${i}`}
+        initial={{ opacity: 0, y: 5 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: i * 0.05 }}
+        className={
+          seg.attribution === 'grounded'
+            ? "text-white font-bold border-b-2 border-sockcop-gold px-1 bg-sockcop-gold/20 rounded-sm cursor-help relative group"
+            : "text-white/40 italic px-0.5"
+        }
+        title={seg.attribution === 'grounded' ? `Verified from ${seg.source_ref || 'Sources'}` : 'Model Interpretation'}
+      >
+        {seg.text}
+        {seg.attribution === 'grounded' && (
+          <span className="absolute -top-7 left-0 bg-sockcop-gold text-black text-[9px] font-black px-2 py-0.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity shadow-lg whitespace-nowrap z-50 pointer-events-none uppercase tracking-tighter">
+            {seg.source_ref || 'Verified'}
+          </span>
+        )}
+      </motion.span>
+    ));
+  };
+
+  /**
+   * Fetch fact-attribution evaluation from the ADK Evaluator Agent
+   */
+  const triggerEvaluation = async (answer, results) => {
+    if (!answer || !results || results.length === 0) return;
+
+    console.log('[EVALUATOR] Triggering parallel fact analysis...');
+
+    // Map existing results to a concise text block for the agent
+    const sources = results.map((r, i) => `SOURCE ${i + 1}: TITLE=${r.title}\nCONTENT=${r.content || r.snippet}`).join('\n\n');
+
+    try {
+      const response = await fetch('http://localhost:8001/evaluate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ answer, sources })
+      });
+
+      if (response.ok) {
+        const evalData = await response.json();
+        console.log('[EVALUATOR] Analysis complete:', evalData);
+        setSearchResult(prev => ({
+          ...prev,
+          evaluations: evalData.segments
+        }));
+      }
+    } catch (err) {
+      console.error('[EVALUATOR] Parallel analysis failed:', err);
+    }
+  };
+
   const handleSearch = async (e) => {
+    // ... existing handleSearch implementation ...
     e.preventDefault();
     if (!query.trim()) return;
 
@@ -121,17 +237,40 @@ function App() {
     setProcessingTime(0);
 
     try {
-      const data = await executeSearch(googleToken, query, conversationContext);
+      let data;
+      if (searchMethod === 'stream') {
+        // Initialize with empty result to show the container
+        setSearchResult({ answer: "", results: [], citations: [] });
+        data = await executeSearch(googleToken, query, conversationContext, 'stream', (chunk, fullAnswer, results, citations) => {
+          setSearchResult(prev => ({
+            ...prev,
+            answer: fullAnswer,
+            results: results || [],
+            citations: citations || []
+          }));
+        });
+      } else {
+        data = await executeSearch(googleToken, query, conversationContext, searchMethod);
+      }
+
       setSearchResult(data);
 
+      // Trigger the Parallel Evaluator Agent while the user is reading
+      if (searchMethod === 'stream' && data.answer) {
+        triggerEvaluation(data.answer, data.results);
+      }
+
       // Update Context with this successful Turn
-      setConversationContext({
-        query: query,
-        answer: data.answer || "No answer text generated."
-      });
-      console.log('[APP DEBUG] Updated Context:', { query, answerPrefix: data.answer?.substring(0, 20) });
+      if (data.answer) {
+        setConversationContext({
+          query: query,
+          answer: data.answer || "No answer text generated."
+        });
+      }
+      console.log('[APP DEBUG] Method:', searchMethod, 'Updated Context:', { query, answerPrefix: data.answer?.substring(0, 20) });
 
     } catch (err) {
+      console.error('[APP DEBUG] Search error:', err);
       setError("Search failed: " + err.message);
     } finally {
       setLoading(false);
@@ -284,6 +423,33 @@ function App() {
                 transition={{ delay: 0.1 }}
                 className="space-y-4"
               >
+                  <div className="flex gap-3 justify-center mb-6">
+                    <button
+                      type="button"
+                      onClick={() => setSearchMethod('answer')}
+                      className={`flex items-center gap-2 px-6 py-3 rounded-2xl transition-all border-2 ${searchMethod === 'answer' ? 'bg-sockcop-gold/20 border-sockcop-gold text-sockcop-gold shadow-[0_0_15px_rgba(212,175,55,0.2)]' : 'bg-white/5 border-white/5 text-gray-400 hover:bg-white/10'}`}
+                    >
+                      <MessageSquare className="w-4 h-4" />
+                      <span className="font-bold text-sm tracking-wide">Answer</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setSearchMethod('stream')}
+                      className={`flex items-center gap-2 px-6 py-3 rounded-2xl transition-all border-2 ${searchMethod === 'stream' ? 'bg-sockcop-gold/20 border-sockcop-gold text-sockcop-gold shadow-[0_0_15px_rgba(212,175,55,0.2)]' : 'bg-white/5 border-white/5 text-gray-400 hover:bg-white/10'}`}
+                    >
+                      <Zap className="w-4 h-4" />
+                      <span className="font-bold text-sm tracking-wide">Stream Assist</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setSearchMethod('search')}
+                      className={`flex items-center gap-2 px-6 py-3 rounded-2xl transition-all border-2 ${searchMethod === 'search' ? 'bg-sockcop-gold/20 border-sockcop-gold text-sockcop-gold shadow-[0_0_15px_rgba(212,175,55,0.2)]' : 'bg-white/5 border-white/5 text-gray-400 hover:bg-white/10'}`}
+                    >
+                      <Database className="w-4 h-4" />
+                      <span className="font-bold text-sm tracking-wide">Search Only</span>
+                    </button>
+                  </div>
+
                 <form onSubmit={handleSearch} className="relative group">
                 <input
                   type="text"
@@ -423,11 +589,18 @@ function App() {
                       className="carved p-8 space-y-4 leading-relaxed"
                     >
                       <div className="text-xs font-mono text-sockcop-gold flex items-center gap-2">
-                        <Loader2 className="w-3 h-3 animate-pulse" />
-                        AI GENERATED ANSWER
+                              {loading && <Loader2 className="w-3 h-3 animate-pulse" />}
+                              {searchMethod === 'stream' ? 'AGENTIC ASSIST' :
+                                searchMethod === 'answer' ? 'GENERATIVE ANSWER' :
+                                  'SEARCH RESULTS'}
                       </div>
                       <div className="text-lg text-gray-100 whitespace-pre-wrap">
-                        {searchResult.answer || searchResult.summary?.summaryText || "I couldn't find a specific answer, but here is what I found in the documents."}
+                              {searchResult.evaluations
+                                ? renderEvaluatedText(searchResult.evaluations)
+                                : searchMethod === 'stream' && searchResult.answer
+                                  ? renderGroundedText(searchResult.answer, searchResult.citations)
+                                  : (searchResult.answer || searchResult.summary?.summaryText || "I couldn't find a specific answer, but here is what I found in the documents.")
+                              }
                       </div>
                     </motion.div>
                   )}
