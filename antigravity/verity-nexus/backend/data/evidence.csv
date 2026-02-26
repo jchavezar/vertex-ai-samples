@@ -1,0 +1,5 @@
+transaction_id,amount,entity,status
+TX001,500.00,General Services,COMPLETED
+TX002,99999.00,Shadow Holdings,PENDING
+TX003,1200.50,Blackwood Inc,COMPLETED
+TX004,50.00,Internal Transfer,COMPLETED

@@ -1,0 +1,213 @@
+{
+  "schema_version": "2026.1",
+  "last_updated": "2026-02-25",
+  "description": "Field mapping schema for Verity Nexus ledger to enterprise ERP systems",
+  "source_system": {
+    "name": "Verity Nexus Ledger",
+    "file": "ledger_2026.csv",
+    "encoding": "UTF-8",
+    "delimiter": ","
+  },
+  "field_mappings": {
+    "Trans_ID": {
+      "description": "Unique transaction identifier",
+      "data_type": "VARCHAR(20)",
+      "nullable": false,
+      "primary_key": true,
+      "sap": {
+        "table": "BSEG",
+        "field": "BELNR",
+        "full_path": "SAP_BSEG_BELNR",
+        "description": "Accounting Document Number"
+      },
+      "oracle": {
+        "table": "GL_JE_LINES",
+        "field": "JE_LINE_NUM",
+        "full_path": "ORA_GL_JE_LINE_NUM",
+        "description": "Journal Entry Line Number"
+      }
+    },
+    "Date": {
+      "description": "Transaction date and time",
+      "data_type": "TIMESTAMP",
+      "nullable": false,
+      "format": "YYYY-MM-DD HH:MM:SS",
+      "sap": {
+        "table": "BKPF",
+        "field": "BUDAT",
+        "full_path": "SAP_BKPF_BUDAT",
+        "description": "Posting Date",
+        "time_field": {
+          "table": "BKPF",
+          "field": "CPUTM",
+          "full_path": "SAP_BKPF_CPUTM",
+          "description": "Entry Time"
+        }
+      },
+      "oracle": {
+        "table": "GL_JE_HEADERS",
+        "field": "DEFAULT_EFFECTIVE_DATE",
+        "full_path": "ORA_GL_EFFECTIVE_DATE",
+        "description": "Effective Date"
+      }
+    },
+    "Account_Code": {
+      "description": "General ledger account code",
+      "data_type": "VARCHAR(20)",
+      "nullable": false,
+      "sap": {
+        "table": "BSEG",
+        "field": "HKONT",
+        "full_path": "SAP_BSEG_HKONT",
+        "description": "General Ledger Account"
+      },
+      "oracle": {
+        "table": "GL_CODE_COMBINATIONS",
+        "field": "CODE_COMBINATION_ID",
+        "full_path": "ORA_GL_CODE_COMB_ID",
+        "description": "Account Code Combination"
+      }
+    },
+    "Entity": {
+      "description": "Legal entity or company code",
+      "data_type": "VARCHAR(50)",
+      "nullable": false,
+      "sap": {
+        "table": "BKPF",
+        "field": "BUKRS",
+        "full_path": "SAP_BKPF_BUKRS",
+        "description": "Company Code"
+      },
+      "oracle": {
+        "table": "GL_JE_HEADERS",
+        "field": "LEDGER_ID",
+        "full_path": "ORA_GL_LEDGER_ID",
+        "description": "Ledger Identifier",
+        "lookup_table": "GL_LEDGERS"
+      }
+    },
+    "Vendor_Name": {
+      "description": "Vendor or supplier name",
+      "data_type": "VARCHAR(100)",
+      "nullable": false,
+      "sap": {
+        "table": "LFA1",
+        "field": "NAME1",
+        "full_path": "SAP_LFA1_NAME1",
+        "description": "Vendor Name",
+        "join_key": {
+          "from_table": "BSEG",
+          "from_field": "LIFNR",
+          "to_table": "LFA1",
+          "to_field": "LIFNR"
+        }
+      },
+      "oracle": {
+        "table": "AP_SUPPLIERS",
+        "field": "VENDOR_NAME",
+        "full_path": "ORA_AP_VENDOR_NAME",
+        "description": "Supplier Name",
+        "join_key": {
+          "from_table": "AP_INVOICES_ALL",
+          "from_field": "VENDOR_ID",
+          "to_table": "AP_SUPPLIERS",
+          "to_field": "VENDOR_ID"
+        }
+      }
+    },
+    "Amount_USD": {
+      "description": "Transaction amount in USD",
+      "data_type": "DECIMAL(18,2)",
+      "nullable": false,
+      "currency": "USD",
+      "sap": {
+        "table": "BSEG",
+        "field": "DMBTR",
+        "full_path": "SAP_BSEG_DMBTR",
+        "description": "Amount in Local Currency",
+        "currency_field": {
+          "table": "BKPF",
+          "field": "WAERS",
+          "full_path": "SAP_BKPF_WAERS"
+        }
+      },
+      "oracle": {
+        "table": "GL_JE_LINES",
+        "field": "ENTERED_DR",
+        "full_path": "ORA_GL_ENTERED_DR",
+        "description": "Entered Debit Amount",
+        "credit_field": "ENTERED_CR",
+        "currency_field": "CURRENCY_CODE"
+      }
+    },
+    "Approval_Status": {
+      "description": "Transaction approval status",
+      "data_type": "VARCHAR(20)",
+      "nullable": false,
+      "valid_values": [
+        "APPROVED",
+        "PENDING",
+        "REJECTED",
+        "AUTO-APPROVE"
+      ],
+      "sap": {
+        "table": "BKPF",
+        "field": "BSTAT",
+        "full_path": "SAP_BKPF_BSTAT",
+        "description": "Document Status",
+        "value_mapping": {
+          "APPROVED": "",
+          "PENDING": "V",
+          "REJECTED": "S",
+          "AUTO-APPROVE": "D"
+        }
+      },
+      "oracle": {
+        "table": "GL_JE_HEADERS",
+        "field": "STATUS",
+        "full_path": "ORA_GL_STATUS",
+        "description": "Journal Status",
+        "value_mapping": {
+          "APPROVED": "P",
+          "PENDING": "U",
+          "REJECTED": "R",
+          "AUTO-APPROVE": "P"
+        }
+      }
+    },
+    "Description": {
+      "description": "Transaction description or narrative",
+      "data_type": "VARCHAR(500)",
+      "nullable": true,
+      "sap": {
+        "table": "BSEG",
+        "field": "SGTXT",
+        "full_path": "SAP_BSEG_SGTXT",
+        "description": "Item Text"
+      },
+      "oracle": {
+        "table": "GL_JE_LINES",
+        "field": "DESCRIPTION",
+        "full_path": "ORA_GL_LINE_DESC",
+        "description": "Line Description"
+      }
+    }
+  },
+  "derived_fields": {
+    "risk_score": {
+      "description": "Calculated risk score (0.0 - 1.0)",
+      "data_type": "DECIMAL(3,2)",
+      "calculation": "AI_MODEL_OUTPUT",
+      "storage": "AUDIT_WORKPAPER"
+    },
+    "materiality_flag": {
+      "description": "Boolean flag if amount exceeds materiality threshold",
+      "data_type": "BOOLEAN",
+      "calculation": "Amount_USD > materiality_policy.thresholds.de_minimis"
+    }
+  },
+  "extraction_queries": {
+    "sap": "\n                SELECT\n                    BSEG.BELNR AS Trans_ID,\n                    CONCAT(BKPF.BUDAT, ' ', BKPF.CPUTM) AS Date,\n                    BSEG.HKONT AS Account_Code,\n                    BKPF.BUKRS AS Entity,\n                    LFA1.NAME1 AS Vendor_Name,\n                    BSEG.DMBTR AS Amount_USD,\n                    BKPF.BSTAT AS Approval_Status,\n                    BSEG.SGTXT AS Description\n                FROM BSEG\n                INNER JOIN BKPF ON BSEG.BUKRS = BKPF.BUKRS\n                    AND BSEG.BELNR = BKPF.BELNR\n                    AND BSEG.GJAHR = BKPF.GJAHR\n                LEFT JOIN LFA1 ON BSEG.LIFNR = LFA1.LIFNR\n                WHERE BKPF.GJAHR = '2026'\n            ",
+    "oracle": "\n                SELECT\n                    JL.JE_LINE_NUM AS Trans_ID,\n                    JH.DEFAULT_EFFECTIVE_DATE AS Date,\n                    CC.CODE_COMBINATION_ID AS Account_Code,\n                    L.NAME AS Entity,\n                    S.VENDOR_NAME AS Vendor_Name,\n                    NVL(JL.ENTERED_DR, 0) - NVL(JL.ENTERED_CR, 0) AS Amount_USD,\n                    JH.STATUS AS Approval_Status,\n                    JL.DESCRIPTION AS Description\n                FROM GL_JE_LINES JL\n                INNER JOIN GL_JE_HEADERS JH ON JL.JE_HEADER_ID = JH.JE_HEADER_ID\n                INNER JOIN GL_LEDGERS L ON JH.LEDGER_ID = L.LEDGER_ID\n                INNER JOIN GL_CODE_COMBINATIONS CC ON JL.CODE_COMBINATION_ID = CC.CODE_COMBINATION_ID\n                LEFT JOIN AP_INVOICES_ALL AI ON JL.REFERENCE_5 = AI.INVOICE_NUM\n                LEFT JOIN AP_SUPPLIERS S ON AI.VENDOR_ID = S.VENDOR_ID\n                WHERE EXTRACT(YEAR FROM JH.DEFAULT_EFFECTIVE_DATE) = 2026\n            "
+  }
+}

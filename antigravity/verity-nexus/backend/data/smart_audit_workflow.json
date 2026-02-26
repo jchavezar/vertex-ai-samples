@@ -1,0 +1,370 @@
+[
+  {
+    "step_id": 1,
+    "step_name": "Ingestion",
+    "phase": "Data Acquisition",
+    "description": "Automated ingestion of financial data from multiple ERP sources with validation and normalization",
+    "metadata": {
+      "agent_role": "DataIngestionAgent",
+      "agent_capabilities": [
+        "ERP_CONNECTOR",
+        "SCHEMA_VALIDATION",
+        "DATA_NORMALIZATION",
+        "DUPLICATE_DETECTION"
+      ],
+      "model": "gemini-2.5-flash",
+      "timeout_seconds": 300
+    },
+    "inputs": [
+      {
+        "source": "SAP_S4HANA",
+        "tables": [
+          "BSEG",
+          "BKPF",
+          "LFA1",
+          "KNA1"
+        ],
+        "format": "CSV/JSON"
+      },
+      {
+        "source": "Oracle_Financials",
+        "tables": [
+          "GL_JE_LINES",
+          "AP_INVOICES",
+          "AP_SUPPLIERS"
+        ],
+        "format": "CSV/JSON"
+      },
+      {
+        "source": "Legacy_Systems",
+        "tables": [
+          "LEDGER_EXPORT"
+        ],
+        "format": "CSV"
+      }
+    ],
+    "outputs": [
+      {
+        "artifact": "normalized_ledger.parquet",
+        "schema_version": "2026.1"
+      },
+      {
+        "artifact": "ingestion_report.json",
+        "includes": [
+          "row_counts",
+          "validation_errors",
+          "data_quality_scores"
+        ]
+      }
+    ],
+    "validation_rules": [
+      "Schema conformance check",
+      "Referential integrity validation",
+      "Date range verification (fiscal year 2026)",
+      "Currency code standardization"
+    ],
+    "success_criteria": {
+      "min_data_quality_score": 0.95,
+      "max_validation_errors": 100,
+      "required_fields_complete": true
+    },
+    "next_step": "Transaction_Scoring",
+    "rollback_on_failure": true
+  },
+  {
+    "step_id": 2,
+    "step_name": "Transaction_Scoring",
+    "phase": "Risk Assessment",
+    "description": "AI-powered risk scoring of individual transactions using materiality thresholds and anomaly detection",
+    "metadata": {
+      "agent_role": "AuditAgent",
+      "agent_capabilities": [
+        "ANOMALY_DETECTION",
+        "RISK_SCORING",
+        "PATTERN_RECOGNITION",
+        "BENFORD_ANALYSIS"
+      ],
+      "model": "gemini-2.5-flash",
+      "timeout_seconds": 600
+    },
+    "inputs": [
+      {
+        "artifact": "normalized_ledger.parquet",
+        "from_step": "Ingestion"
+      },
+      {
+        "reference": "materiality_policy.yaml",
+        "type": "configuration"
+      },
+      {
+        "reference": "approved_vendors.json",
+        "type": "master_data"
+      }
+    ],
+    "outputs": [
+      {
+        "artifact": "scored_transactions.parquet",
+        "includes": [
+          "risk_score",
+          "risk_factors",
+          "materiality_flag"
+        ]
+      },
+      {
+        "artifact": "high_risk_queue.json",
+        "description": "Transactions requiring manual review"
+      },
+      {
+        "artifact": "scoring_analytics.json",
+        "includes": [
+          "distribution_stats",
+          "benford_deviation",
+          "cluster_analysis"
+        ]
+      }
+    ],
+    "scoring_factors": [
+      {
+        "factor": "amount_materiality",
+        "weight": 0.25,
+        "description": "Transaction amount relative to materiality threshold"
+      },
+      {
+        "factor": "vendor_risk",
+        "weight": 0.3,
+        "description": "Vendor approval status and historical patterns"
+      },
+      {
+        "factor": "timing_anomaly",
+        "weight": 0.15,
+        "description": "Unusual processing times or patterns"
+      },
+      {
+        "factor": "description_analysis",
+        "weight": 0.15,
+        "description": "NLP analysis of transaction descriptions"
+      },
+      {
+        "factor": "approval_workflow",
+        "weight": 0.15,
+        "description": "Adherence to standard approval processes"
+      }
+    ],
+    "thresholds": {
+      "high_risk": 0.75,
+      "medium_risk": 0.5,
+      "low_risk": 0.25
+    },
+    "success_criteria": {
+      "scoring_complete": true,
+      "high_risk_reviewed": false
+    },
+    "next_step": "A2A_Validation",
+    "parallel_execution": false
+  },
+  {
+    "step_id": 3,
+    "step_name": "A2A_Validation",
+    "phase": "Cross-Agent Verification",
+    "description": "Agent-to-Agent validation protocol for high-risk transactions requiring multi-domain expertise",
+    "metadata": {
+      "agent_role": "TaxAgent",
+      "collaborating_agents": [
+        "AuditAgent",
+        "ComplianceAgent"
+      ],
+      "agent_capabilities": [
+        "TAX_COMPLIANCE_CHECK",
+        "TRANSFER_PRICING_ANALYSIS",
+        "PILLAR_TWO_ASSESSMENT",
+        "TREATY_VERIFICATION"
+      ],
+      "model": "gemini-2.5-flash",
+      "timeout_seconds": 900
+    },
+    "inputs": [
+      {
+        "artifact": "high_risk_queue.json",
+        "from_step": "Transaction_Scoring"
+      },
+      {
+        "reference": "regulatory_kb_2026.md",
+        "type": "knowledge_base"
+      },
+      {
+        "reference": "erp_mapping_schema.json",
+        "type": "configuration"
+      }
+    ],
+    "outputs": [
+      {
+        "artifact": "a2a_validation_results.json",
+        "includes": [
+          "validation_status",
+          "agent_consensus",
+          "findings"
+        ]
+      },
+      {
+        "artifact": "escalation_queue.json",
+        "description": "Items requiring human expert review"
+      },
+      {
+        "artifact": "tax_exposure_report.json",
+        "includes": [
+          "pillar_two_impact",
+          "withholding_tax_risks",
+          "transfer_pricing_flags"
+        ]
+      }
+    ],
+    "validation_protocols": [
+      {
+        "protocol": "VENDOR_VERIFICATION",
+        "agents": [
+          "AuditAgent"
+        ],
+        "checks": [
+          "approved_vendor_list",
+          "historical_patterns",
+          "external_verification"
+        ]
+      },
+      {
+        "protocol": "TAX_TREATY_CHECK",
+        "agents": [
+          "TaxAgent"
+        ],
+        "checks": [
+          "jurisdiction_classification",
+          "treaty_benefits",
+          "substance_requirements"
+        ]
+      },
+      {
+        "protocol": "PILLAR_TWO_ASSESSMENT",
+        "agents": [
+          "TaxAgent"
+        ],
+        "checks": [
+          "QDMTT_exposure",
+          "SBIE_carveout",
+          "top_up_tax_risk"
+        ]
+      },
+      {
+        "protocol": "CONSENSUS_VOTING",
+        "agents": [
+          "AuditAgent",
+          "TaxAgent",
+          "ComplianceAgent"
+        ],
+        "quorum_required": 2,
+        "escalate_on_disagreement": true
+      }
+    ],
+    "success_criteria": {
+      "all_high_risk_validated": true,
+      "consensus_reached": true,
+      "escalations_documented": true
+    },
+    "next_step": "Final_Review",
+    "human_in_loop": true
+  },
+  {
+    "step_id": 4,
+    "step_name": "Final_Review",
+    "phase": "Human Oversight & Reporting",
+    "description": "Senior auditor review of AI findings with final sign-off and regulatory report generation",
+    "metadata": {
+      "agent_role": "ReportingAgent",
+      "human_roles": [
+        "Senior_Auditor",
+        "Tax_Director",
+        "Audit_Partner"
+      ],
+      "agent_capabilities": [
+        "REPORT_GENERATION",
+        "FINDING_SUMMARIZATION",
+        "REGULATORY_FORMATTING",
+        "AUDIT_TRAIL_COMPILATION"
+      ],
+      "model": "gemini-2.5-flash",
+      "timeout_seconds": 1200
+    },
+    "inputs": [
+      {
+        "artifact": "a2a_validation_results.json",
+        "from_step": "A2A_Validation"
+      },
+      {
+        "artifact": "escalation_queue.json",
+        "from_step": "A2A_Validation"
+      },
+      {
+        "artifact": "scoring_analytics.json",
+        "from_step": "Transaction_Scoring"
+      }
+    ],
+    "outputs": [
+      {
+        "artifact": "audit_findings_report.pdf",
+        "format": "Enterprise_CLARA_TEMPLATE",
+        "sections": [
+          "Executive_Summary",
+          "High_Risk_Findings",
+          "Recommendations",
+          "Management_Response"
+        ]
+      },
+      {
+        "artifact": "regulatory_submission.xml",
+        "format": "XBRL",
+        "applicable_to": [
+          "SOX_404",
+          "PCAOB_AS_2201"
+        ]
+      },
+      {
+        "artifact": "audit_trail.json",
+        "includes": [
+          "all_agent_actions",
+          "human_decisions",
+          "timestamps",
+          "evidence_links"
+        ]
+      },
+      {
+        "artifact": "pillar_two_disclosure.json",
+        "format": "GloBE_INFORMATION_RETURN"
+      }
+    ],
+    "review_workflow": {
+      "stages": [
+        {
+          "stage": "AI_SUMMARY_REVIEW",
+          "reviewer": "Senior_Auditor",
+          "sla_hours": 24
+        },
+        {
+          "stage": "TAX_FINDING_VALIDATION",
+          "reviewer": "Tax_Director",
+          "sla_hours": 48
+        },
+        {
+          "stage": "FINAL_SIGNOFF",
+          "reviewer": "Audit_Partner",
+          "sla_hours": 72
+        }
+      ],
+      "requires_all_approvals": true
+    },
+    "success_criteria": {
+      "all_findings_addressed": true,
+      "sign_offs_complete": true,
+      "reports_generated": true
+    },
+    "next_step": null,
+    "workflow_complete": true
+  }
+]

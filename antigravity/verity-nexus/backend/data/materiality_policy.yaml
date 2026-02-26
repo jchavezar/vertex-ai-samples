@@ -1,0 +1,102 @@
+materiality_policy:
+  version: '2026.1'
+  effective_date: '2026-01-01'
+  last_reviewed: '2026-02-25'
+  prepared_by: Forensic Data Engineering Team
+  thresholds:
+    overall_materiality: 1500000
+    performance_materiality: 1125000
+    de_minimis: 75000
+    trivial_threshold: 7500
+    currency: USD
+  quantitative_benchmarks:
+    revenue_percentage: 0.5
+    total_assets_percentage: 0.25
+    net_income_percentage: 5.0
+    equity_percentage: 1.0
+  risk_triggers:
+    unapproved_vendors:
+      description: Transactions with vendors not on the approved vendor master list
+      risk_level: HIGH
+      threshold_amount: 50000
+      escalation_required: true
+      review_timeframe_hours: 24
+      actions:
+      - Flag transaction for immediate review
+      - Verify vendor legitimacy through external sources
+      - Cross-reference with historical payment patterns
+      - Notify Internal Audit if cumulative exposure exceeds $100,000
+      responsible_party: AuditAgent
+      compliance_references:
+      - SOX Section 404
+      - COSO Framework - Control Activities
+    non_treaty_jurisdiction_transfers:
+      description: Cross-border payments to jurisdictions without tax treaty protection
+      risk_level: CRITICAL
+      threshold_amount: 100000
+      escalation_required: true
+      review_timeframe_hours: 4
+      mandatory_forensic_review: true
+      actions:
+      - 'CRITICAL FLAG: Any unverified service fees exceeding $100,000 to non-treaty
+        jurisdictions must be flagged for manual forensic review to prevent Top-up
+        Tax evasion'
+      - Verify substance of services rendered
+      - Request transfer pricing documentation
+      - Assess OECD Pillar Two QDMTT implications
+      - Escalate to Tax Director within 4 hours
+      responsible_party: TaxAgent
+      compliance_references:
+      - OECD Pillar Two GloBE Rules
+      - FATCA/CRS Reporting Requirements
+      - Anti-Money Laundering Regulations
+      non_treaty_jurisdictions:
+      - British Virgin Islands
+      - Cayman Islands
+      - Panama
+      - Bermuda
+      - Jersey
+      - Guernsey
+      - Isle of Man
+      - Mauritius
+      - Seychelles
+      - Vanuatu
+    unusual_timing_patterns:
+      description: Transactions processed outside normal business hours
+      risk_level: MEDIUM
+      threshold_hours:
+        after: '21:00'
+        before: 06:00
+      weekend_flag: true
+      actions:
+      - Log for pattern analysis
+      - Cross-reference with employee access logs
+      - Escalate if combined with other risk factors
+      responsible_party: AuditAgent
+    round_number_transactions:
+      description: Transactions with suspiciously round amounts
+      risk_level: LOW
+      pattern: Amounts divisible by $10,000 with no cents
+      threshold_amount: 50000
+      actions:
+      - Flag for review if combined with other indicators
+      - Compare to historical transaction patterns
+      responsible_party: AuditAgent
+    approval_bypass:
+      description: Transactions marked as AUTO-APPROVE or bypassing standard workflow
+      risk_level: HIGH
+      escalation_required: true
+      actions:
+      - Immediate review by Senior Auditor
+      - Verify authorization chain
+      - Document business justification
+      responsible_party: AuditAgent
+  aggregation_rules:
+    vendor_cumulative_threshold: 250000
+    category_cumulative_threshold: 500000
+    period: fiscal_quarter
+    lookback_periods: 4
+  governance:
+    review_frequency: quarterly
+    approval_authority: Audit Committee
+    next_review_date: '2026-04-01'

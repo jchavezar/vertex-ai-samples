@@ -1,0 +1,9 @@
+{
+  "entity": "Blackwood Inc",
+  "vat_number": "EU123456789",
+  "jurisdiction": "Ireland",
+  "filings": [
+    { "type": "VAT", "period": "2025-Q4", "status": "FILED" },
+    { "type": "CIT", "period": "2024", "status": "MISSING" }
+  ]
+}
