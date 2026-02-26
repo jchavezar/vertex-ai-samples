@@ -5,8 +5,34 @@ import {
   getWifLoginUrl
 } from './api/auth';
 import { CONFIG } from './api/config';
+import axios from 'axios';
+import {
+  Search,
+  Sparkles,
+  ChevronRight,
+  ExternalLink,
+  Loader2,
+  ShieldCheck,
+  BrainCircuit,
+  MessageSquare,
+  Globe,
+  Database,
+  History,
+  LayoutDashboard,
+  Clock,
+  SendHorizontal,
+  Info,
+  LogIn,
+  FileText,
+  AlertCircle,
+  CheckCircle2,
+  Lock,
+  Key,
+  Zap
+} from 'lucide-react';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import { executeSearch } from './api/search';
-import { Search, LogIn, ShieldCheck, Database, FileText, ExternalLink, Loader2, ChevronRight, AlertCircle, CheckCircle2, Lock, Key, Zap, MessageSquare } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 function App() {
@@ -33,6 +59,7 @@ function App() {
   const [processingTime, setProcessingTime] = useState(0);
   const [searchMethod, setSearchMethod] = useState('answer'); // 'answer', 'search', 'stream'
   const [conversationContext, setConversationContext] = useState(null);
+  const [isEvaluating, setIsEvaluating] = useState(false);
 
   // New state: null | 'checking_entra' | 'exchanging_sts' | 'connecting_sharepoint' | 'complete'
   const [authStage, setAuthStage] = useState(() => {
@@ -115,39 +142,74 @@ function App() {
    */
   const renderGroundedText = (text, citations = []) => {
     if (!text) return null;
-    if (!citations || citations.length === 0) return text;
+
+    // If no citations, just render as basic Markdown
+    if (!citations || citations.length === 0) {
+      return (
+        <ReactMarkdown remarkPlugins={[remarkGfm]}>
+          {text}
+        </ReactMarkdown>
+      );
+    }
 
     // Sort citations and filter out small or invalid spans
     const sortedCitations = [...citations]
       .filter(cit => cit.startIndex !== undefined && cit.endIndex !== undefined && cit.endIndex > cit.startIndex)
       .sort((a, b) => a.startIndex - b.startIndex);
 
-    if (sortedCitations.length === 0) return text;
+    if (sortedCitations.length === 0) {
+      return (
+        <ReactMarkdown remarkPlugins={[remarkGfm]}>
+          {text}
+        </ReactMarkdown>
+      );
+    }
 
     const nodes = [];
     let lastIdx = 0;
+
+    const MarkdownComponent = ({ content, className }) => (
+      <ReactMarkdown
+        remarkPlugins={[remarkGfm]}
+        components={{
+          p: ({ children }) => <span className={className}>{children}</span>,
+          strong: ({ children }) => <strong className="font-black text-white">{children}</strong>,
+          code: ({ children }) => <code className="bg-white/10 px-1 rounded text-sockcop-gold text-xs">{children}</code>,
+          ul: ({ children }) => <ul className="inline-flex flex-col ml-4 list-disc">{children}</ul>,
+          li: ({ children }) => <li className="inline-list-item">{children}</li>
+        }}
+      >
+        {content}
+      </ReactMarkdown>
+    );
 
     sortedCitations.forEach((cit, i) => {
       // 1. Text BEFORE grounding (interpreted talk / KB)
       if (cit.startIndex > lastIdx) {
         nodes.push(
-          <span key={`kb-${i}`} className="text-white/60">
-            {text.substring(lastIdx, cit.startIndex)}
-          </span>
+          <div key={`kb-${i}`} className="inline-block relative group mx-0.5 align-baseline">
+            <span className="border-b-2 border-purple-400/50 bg-purple-500/30 px-1.5 py-0.5 rounded-md transition-all hover:bg-purple-500/45 text-white">
+              <MarkdownComponent content={text.substring(lastIdx, cit.startIndex)} />
+            </span>
+          </div>
         );
       }
 
       // 2. GROUNDED text (factual data from agent)
       nodes.push(
-        <motion.span
+        <motion.div
           key={`grounded-${i}`}
-          initial={{ backgroundColor: 'rgba(212, 175, 55, 0)', y: 2 }}
-          animate={{ backgroundColor: 'rgba(212, 175, 55, 0.25)', y: 0 }}
-          className="text-white font-bold border-b-2 border-sockcop-gold px-1 rounded-sm cursor-help shadow-[0_4px_12px_rgba(212,175,55,0.1)]"
-          title="Fact verified by search"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="inline-block relative group mx-0.5"
         >
-          {text.substring(cit.startIndex, cit.endIndex)}
-        </motion.span>
+          <span className="border-b-2 border-cyan-400 bg-cyan-400/40 px-1 rounded-md transition-all group-hover:bg-cyan-400/60 shadow-[0_0_15px_rgba(34,211,238,0.2)]">
+            <MarkdownComponent content={text.substring(cit.startIndex, cit.endIndex)} />
+          </span>
+          <span className="absolute -top-8 left-1/2 -translate-x-1/2 bg-cyan-500 text-black text-[10px] font-black px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-all z-50 whitespace-nowrap">
+            Verified Grounding
+          </span>
+        </motion.div>
       );
 
       lastIdx = cit.endIndex;
@@ -156,59 +218,103 @@ function App() {
     // 3. Final trailing text
     if (lastIdx < text.length) {
       nodes.push(
-        <span key="kb-final" className="text-white/50 italic">
-          {text.substring(lastIdx)}
-        </span>
+        <div key="kb-final" className="inline-block relative group mx-0.5 align-baseline">
+          <span className="border-b-2 border-purple-400/50 bg-purple-500/30 px-1.5 py-0.5 rounded-md transition-all hover:bg-purple-500/45 text-white">
+            <MarkdownComponent content={text.substring(lastIdx)} />
+          </span>
+        </div>
       );
     }
 
-    return nodes;
+    return <div className="flex flex-wrap items-baseline gap-y-1">{nodes}</div>;
   };
 
   /**
-   * Render text using segments provided by the ADK Evaluator Agent
-   */
+ * Render text using segments provided by the ADK Evaluator Agent
+ * Uses ReactMarkdown for premium aesthetics while preserving attribution highlights
+ */
   const renderEvaluatedText = (segments) => {
     if (!segments || segments.length === 0) return null;
-    return segments.map((seg, i) => (
-      <motion.span
-        key={`seg-${i}`}
-        initial={{ opacity: 0, y: 5 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: i * 0.05 }}
-        className={
-          seg.attribution === 'grounded'
-            ? "text-white font-bold border-b-2 border-sockcop-gold px-1 bg-sockcop-gold/20 rounded-sm cursor-help relative group"
-            : "text-white/40 italic px-0.5"
-        }
-        title={seg.attribution === 'grounded' ? `Verified from ${seg.source_ref || 'Sources'}` : 'Model Interpretation'}
-      >
-        {seg.text}
-        {seg.attribution === 'grounded' && (
-          <span className="absolute -top-7 left-0 bg-sockcop-gold text-black text-[9px] font-black px-2 py-0.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity shadow-lg whitespace-nowrap z-50 pointer-events-none uppercase tracking-tighter">
-            {seg.source_ref || 'Verified'}
-          </span>
-        )}
-      </motion.span>
-    ));
+
+    return (
+      <div className="flex flex-wrap items-baseline gap-y-1">
+        {segments.map((seg, i) => {
+          const isGrounded = seg.attribution === 'grounded';
+
+          return (
+            <motion.div
+              key={`seg-${i}`}
+              initial={{ opacity: 0, y: 5 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: i * 0.01 }}
+              className={
+                isGrounded
+                  ? "relative inline-block group cursor-help mx-0.5 align-baseline"
+                  : "relative inline-block group mx-0.5 align-baseline"
+              }
+            >
+              <span className={
+                isGrounded
+                  ? "border-b-2 border-cyan-400 bg-cyan-400/40 px-1.5 py-0.5 rounded-md transition-all group-hover:bg-cyan-400/60 shadow-[0_0_20px_rgba(34,211,238,0.25)] text-white"
+                  : "border-b-2 border-purple-400/50 bg-purple-500/30 px-1.5 py-0.5 rounded-md transition-all hover:bg-purple-500/45 text-white"
+              }>
+                <ReactMarkdown
+                  remarkPlugins={[remarkGfm]}
+                  components={{
+                    p: ({ children }) => <span className="inline">{children}</span>,
+                    strong: ({ children }) => <strong className="font-black text-white">{children}</strong>,
+                    code: ({ children }) => <code className={`bg-white/10 px-1 rounded ${isGrounded ? 'text-cyan-400' : 'text-purple-400'} text-xs`}>{children}</code>,
+                    ul: ({ children }) => <ul className="inline-flex flex-col ml-4 list-disc">{children}</ul>,
+                    li: ({ children }) => <li className="inline-list-item">{children}</li>,
+                    table: ({ children }) => <div className="my-4 overflow-x-auto"><table className="border-collapse border border-white/10 w-full">{children}</table></div>,
+                    thead: ({ children }) => <thead className="bg-white/5">{children}</thead>,
+                    th: ({ children }) => <th className="border border-white/10 p-2 text-left">{children}</th>,
+                    td: ({ children }) => <td className="border border-white/10 p-2">{children}</td>
+                  }}
+                >
+                  {seg.text}
+                </ReactMarkdown>
+              </span>
+
+              {isGrounded ? (
+                <span className="absolute -top-10 left-1/2 -translate-x-1/2 bg-cyan-500 text-black text-[10px] font-black px-3 py-1.5 rounded-full opacity-0 group-hover:opacity-100 transition-all shadow-2xl whitespace-nowrap z-50 pointer-events-none uppercase tracking-widest border border-white/20 flex items-center gap-1.5 scale-90 group-hover:scale-100 origin-bottom">
+                  <Database size={12} />
+                  {seg.source_ref || 'Verified Source'}
+                </span>
+              ) : (
+                <span className="absolute -top-10 left-1/2 -translate-x-1/2 bg-purple-500 text-white text-[10px] font-black px-3 py-1.5 rounded-full opacity-0 group-hover:opacity-100 transition-all shadow-2xl whitespace-nowrap z-50 pointer-events-none uppercase tracking-widest border border-white/20 flex items-center gap-1.5 scale-90 group-hover:scale-100 origin-bottom">
+                  <BrainCircuit size={12} />
+                  Internal Model Knowledge
+                </span>
+              )}
+            </motion.div>
+          );
+        })}
+      </div>
+    );
   };
 
-  /**
-   * Fetch fact-attribution evaluation from the ADK Evaluator Agent
-   */
-  const triggerEvaluation = async (answer, results) => {
+  const triggerEvaluation = async (answer, results, citations = []) => {
     if (!answer || !results || results.length === 0) return;
 
-    console.log('[EVALUATOR] Triggering parallel fact analysis...');
+    console.log('[EVALUATOR] Triggering parallel fact analysis with context...');
 
-    // Map existing results to a concise text block for the agent
-    const sources = results.map((r, i) => `SOURCE ${i + 1}: TITLE=${r.title}\nCONTENT=${r.content || r.snippet}`).join('\n\n');
+    const sources = results.map((r, i) => {
+      const doc = r.document;
+      const title = doc?.structData?.title || doc?.derivedStructData?.title || "Unknown Source";
+      const snippets = doc?.derivedStructData?.snippets || [];
+      const content = snippets.length > 0
+        ? snippets.map(s => s.snippet).join(' ... ')
+        : doc?.structData?.snippet || "";
+      return `SOURCE ${i + 1}: TITLE=${title}\nCONTENT=${content}`;
+    }).join('\n\n');
 
+    setIsEvaluating(true);
     try {
       const response = await fetch('http://localhost:8001/evaluate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ answer, sources })
+        body: JSON.stringify({ answer, sources, citations })
       });
 
       if (response.ok) {
@@ -221,15 +327,15 @@ function App() {
       }
     } catch (err) {
       console.error('[EVALUATOR] Parallel analysis failed:', err);
+    } finally {
+      setIsEvaluating(false);
     }
   };
 
   const handleSearch = async (e) => {
-    // ... existing handleSearch implementation ...
-    e.preventDefault();
+    if (e) e.preventDefault();
     if (!query.trim()) return;
 
-    // RESET STATE IMMEDIATELY (Visual only)
     setLoading(true);
     setError(null);
     setSearchResult(null);
@@ -239,7 +345,6 @@ function App() {
     try {
       let data;
       if (searchMethod === 'stream') {
-        // Initialize with empty result to show the container
         setSearchResult({ answer: "", results: [], citations: [] });
         data = await executeSearch(googleToken, query, conversationContext, 'stream', (chunk, fullAnswer, results, citations) => {
           setSearchResult(prev => ({
@@ -255,20 +360,16 @@ function App() {
 
       setSearchResult(data);
 
-      // Trigger the Parallel Evaluator Agent while the user is reading
-      if (searchMethod === 'stream' && data.answer) {
-        triggerEvaluation(data.answer, data.results);
+      if ((searchMethod === 'stream' || searchMethod === 'answer') && data.answer) {
+        triggerEvaluation(data.answer, data.results, data.citations || []);
       }
 
-      // Update Context with this successful Turn
       if (data.answer) {
         setConversationContext({
           query: query,
           answer: data.answer || "No answer text generated."
         });
       }
-      console.log('[APP DEBUG] Method:', searchMethod, 'Updated Context:', { query, answerPrefix: data.answer?.substring(0, 20) });
-
     } catch (err) {
       console.error('[APP DEBUG] Search error:', err);
       setError("Search failed: " + err.message);
@@ -323,7 +424,7 @@ function App() {
           <div className="w-8 h-8 bg-sockcop-gold rounded-lg flex items-center justify-center shadow-[0_0_15px_rgba(212,175,55,0.3)]">
             <ShieldCheck className="w-5 h-5 text-black" />
           </div>
-          <span className="text-xl font-bold tracking-tight">Sockcop Search</span>
+          <span className="text-xl font-black uppercase tracking-[0.3em] font-mono text-white/90">Sockcop Search</span>
         </div>
 
         <div className="flex items-center gap-4">
@@ -364,8 +465,9 @@ function App() {
                   <Database className="w-12 h-12 text-red-400 animate-pulse" />
                 </div>
               </div>
-              <h1 className="text-3xl font-bold font-inter tracking-tight text-white">Connection Required</h1>
-              <p className="text-gray-400 leading-relaxed">Your session has expired or you haven't connected yet. Please connect to enable secure GenAI search over your SharePoint data.</p>
+              <h1 className="text-2xl font-black uppercase tracking-[0.4em] text-white">Connection Required</h1>
+              <div className="hud-line my-4" />
+              <p className="text-gray-400 leading-relaxed text-sm">PROTECTED_INFRASTRUCTURE: Session expired or missing. Identity verification required for SharePoint traversal.</p>
               <button
                 onClick={() => window.location.href = getWifLoginUrl()}
                 className="w-full bg-gradient-to-r from-sockcop-gold to-[#b8962e] hover:brightness-110 text-black font-bold py-4 rounded-xl flex items-center justify-center gap-2 transition-all active:scale-95 shadow-[0_0_20px_rgba(212,175,55,0.3)] mt-4"
@@ -430,7 +532,7 @@ function App() {
                       className={`flex items-center gap-2 px-6 py-3 rounded-2xl transition-all border-2 ${searchMethod === 'answer' ? 'bg-sockcop-gold/20 border-sockcop-gold text-sockcop-gold shadow-[0_0_15px_rgba(212,175,55,0.2)]' : 'bg-white/5 border-white/5 text-gray-400 hover:bg-white/10'}`}
                     >
                       <MessageSquare className="w-4 h-4" />
-                      <span className="font-bold text-sm tracking-wide">Answer</span>
+                      <span className="font-black text-xs uppercase tracking-widest">Answer</span>
                     </button>
                     <button
                       type="button"
@@ -438,7 +540,7 @@ function App() {
                       className={`flex items-center gap-2 px-6 py-3 rounded-2xl transition-all border-2 ${searchMethod === 'stream' ? 'bg-sockcop-gold/20 border-sockcop-gold text-sockcop-gold shadow-[0_0_15px_rgba(212,175,55,0.2)]' : 'bg-white/5 border-white/5 text-gray-400 hover:bg-white/10'}`}
                     >
                       <Zap className="w-4 h-4" />
-                      <span className="font-bold text-sm tracking-wide">Stream Assist</span>
+                      <span className="font-black text-xs uppercase tracking-widest">Stream Assist</span>
                     </button>
                     <button
                       type="button"
@@ -446,7 +548,7 @@ function App() {
                       className={`flex items-center gap-2 px-6 py-3 rounded-2xl transition-all border-2 ${searchMethod === 'search' ? 'bg-sockcop-gold/20 border-sockcop-gold text-sockcop-gold shadow-[0_0_15px_rgba(212,175,55,0.2)]' : 'bg-white/5 border-white/5 text-gray-400 hover:bg-white/10'}`}
                     >
                       <Database className="w-4 h-4" />
-                      <span className="font-bold text-sm tracking-wide">Search Only</span>
+                      <span className="font-black text-xs uppercase tracking-widest">Search Only</span>
                     </button>
                   </div>
 
@@ -456,8 +558,9 @@ function App() {
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
                   placeholder="Ask Sockcop about your documents..."
-                  className="w-full bg-cave-800 border border-white/10 p-6 pr-16 rounded-3xl text-xl focus:ring-2 focus:ring-sockcop-gold outline-none transition-all placeholder:text-gray-400 group-hover:bg-cave-700"
+                      className="w-full bg-[#020617] border border-white/5 p-6 pr-16 rounded-2xl text-xl focus:ring-1 focus:ring-sockcop-gold/50 outline-none transition-all placeholder:text-gray-600 group-hover:bg-[#0f172a] shadow-2xl font-light"
                 />
+                    <div className="absolute bottom-0 left-6 right-16 h-[1px] bg-gradient-to-r from-transparent via-sockcop-gold/30 to-transparent scale-x-0 group-focus-within:scale-x-100 transition-transform duration-700" />
                 <button
                   type="submit"
                   disabled={loading}
@@ -590,17 +693,32 @@ function App() {
                     >
                       <div className="text-xs font-mono text-sockcop-gold flex items-center gap-2">
                               {loading && <Loader2 className="w-3 h-3 animate-pulse" />}
-                              {searchMethod === 'stream' ? 'AGENTIC ASSIST' :
-                                searchMethod === 'answer' ? 'GENERATIVE ANSWER' :
-                                  'SEARCH RESULTS'}
+                              {searchMethod === 'stream' ? 'SYST_STREAM_ASSIST // VERIFIED' :
+                                searchMethod === 'answer' ? 'SYST_GEN_ANSWER // GROUNDED' :
+                                  'SYST_SEARCH_QUERY // RAW'}
                       </div>
-                      <div className="text-lg text-gray-100 whitespace-pre-wrap">
+                            <div className="text-lg text-gray-100">
                               {searchResult.evaluations
                                 ? renderEvaluatedText(searchResult.evaluations)
                                 : searchMethod === 'stream' && searchResult.answer
                                   ? renderGroundedText(searchResult.answer, searchResult.citations)
                                   : (searchResult.answer || searchResult.summary?.summaryText || "I couldn't find a specific answer, but here is what I found in the documents.")
                               }
+
+                              {isEvaluating && (
+                                <motion.div
+                                  initial={{ opacity: 0 }}
+                                  animate={{ opacity: 1 }}
+                                  className="mt-6 pt-4 border-t border-white/5 flex items-center gap-3 text-sm text-sockcop-gold/80 italic font-medium"
+                                >
+                                  <div className="flex gap-1">
+                                    <motion.div animate={{ scale: [1, 1.2, 1] }} transition={{ repeat: Infinity, duration: 1 }} className="w-1.5 h-1.5 rounded-full bg-sockcop-gold" />
+                                    <motion.div animate={{ scale: [1, 1.2, 1] }} transition={{ repeat: Infinity, duration: 1, delay: 0.2 }} className="w-1.5 h-1.5 rounded-full bg-sockcop-gold" />
+                                    <motion.div animate={{ scale: [1, 1.2, 1] }} transition={{ repeat: Infinity, duration: 1, delay: 0.4 }} className="w-1.5 h-1.5 rounded-full bg-sockcop-gold" />
+                                  </div>
+                                  Verifying facts with Evaluator Agent...
+                                </motion.div>
+                              )}
                       </div>
                     </motion.div>
                   )}

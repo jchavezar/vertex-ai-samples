@@ -28,3 +28,7 @@ credentials.json
 # Explicitly ignore the private sample we were working on
 # (assuming it's Sample-ISS-Ch10-Sample-Industry 1.pdf)
 # antigravity/multimodal_document_chat/docs/Sample-ISS-Ch10-Sample-Industry 1.pdf
+
+# Browser Data & Cache
+**/browser_data/
+

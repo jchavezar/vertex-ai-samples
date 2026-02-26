@@ -28,24 +28,33 @@ class FactSegment(BaseModel):
 
 class EvaluationResult(BaseModel):
     segments: List[FactSegment] = Field(description="The full response decomposed into attributed segments")
+    summary: Optional[str] = Field(None, description="A brief summary of what was grounded vs knowledge-based")
 
 # 2. Define the Evaluator Agent
 evaluator_agent = LlmAgent(
     name="fact_evaluator",
     model="gemini-2.5-flash", 
     instruction="""
-    You are a Fact-Attribution Specialist. Your goal is to analyze a generated answer and its source documents.
+    You are a Fact-Attribution Specialist for a premium search engine. 
+    Your goal is to analyze a generated 'Answer' and its source documents ('Sources' and 'Citations').
     
     TASK:
-    1. Read the provided 'Answer' and the list of 'Sources'.
-    2. Decompose the 'Answer' into segments (sentences or logical phrases).
-    3. For EACH segment, compare it against the 'Sources'.
-    4. If the segment contains specific data, numbers, or unique facts present in the sources, mark it as 'grounded'.
-    5. If the segment is conversational filler, general introductory text, or general common knowledge not specifically mentioned in the sources, mark it as 'knowledge'.
-    6. Ensure the sequence of 'text' in your segments, when concatenated, reconstructs the original 'Answer' exactly. DO NOT skip any words or punctuation.
+    1. Read the provided 'Answer', the 'Sources' (raw content), and 'Citations' (specific grounding metadata).
+    2. Decompose the 'Answer' into segments (sentences or logical blocks).
+    3. For EACH segment, determine if it is:
+       - 'grounded': The fact, data, or technical claim is explicitly supported by the Sources OR the Citations metadata.
+       - 'knowledge': The text is conversational filler, reasoning, common knowledge, or information NOT present in any provided context.
+    4. MAPPING:
+       - If a segment reflects information from a 'Citation' (provided as [Source Index, Start, End]), mark it 'grounded' and use that source reference.
+       - If it matches a 'Source' content but isn't explicitly in the citations list, still mark it 'grounded'.
+    5. MARKDOWN PRESERVATION:
+       - Ensure your segments do NOT break markdown formatting. For example, if the answer contains "**Bold Text**", keep that within a single segment or split it in a way that doesn't leave dangling syntax.
+       - If there are tables (markdown) or lists, treat the entire table/list or logical rows as segments to preserve structure.
+    6. RECONSTRUCTION:
+       - The sequence of 'text' in your segments MUST reconstruct the original 'Answer' perfectly. 
+       - Do not add, remove, or modify any characters from the original answer.
     
-    IMPORTANT: Be strict. If a fact is even slightly missing from the sources, mark it as 'knowledge'.
-    The attribution must be exactly one of: "grounded" or "knowledge".
+    ATTRIBUTION VALUES: "grounded" or "knowledge".
     """,
     output_schema=EvaluationResult,
     output_key="evaluation"
@@ -60,12 +69,12 @@ runner = Runner(
     auto_create_session=True
 )
 
-async def evaluate_answer(answer: str, sources: str):
+async def evaluate_answer(answer: str, sources: str, citations: List = []):
     """
     Parallel Evaluation logic.
     """
     print(f"[DEBUG_EVAL] Starting evaluation for answer: {answer[:50]}...")
-    prompt = f"ANSWER TO EVALUATE:\n{answer}\n\nSOURCES PROVIDED:\n{sources}"
+    prompt = f"ANSWER TO EVALUATE:\n{answer}\n\nCITATIONS METADATA (Grounding references):\n{citations}\n\nSOURCES CONTENT:\n{sources}"
     new_message = types.Content(role="user", parts=[types.Part(text=prompt)])
     
     session_id = f"eval_{hashlib.md5(answer.encode()).hexdigest()[:10]}"

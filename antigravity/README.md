@@ -145,6 +145,21 @@
       <a href="./ge_understanding/">ACCESS_TERMINAL &rarr;</a>
     </td>
   </tr>
+  <!-- ROW 7: VERITY NEXUS -->
+  <tr>
+    <td width="50%" valign="top">
+      <img src="assets/header_finance.svg" width="100%" />
+      <br/><br/>
+      <strong>PROJECT: VERITY NEXUS V2.0</strong><br/>
+      Cinematic AI-to-Agent forensic swarm platform. Features real-time materiality load visualization, 
+      neural discovery shards, and executive-grade narrative synchronization.<br/>
+      <br/>
+      <a href="./verity-nexus/">ACCESS_TERMINAL &rarr;</a>
+    </td>
+    <td width="50%" valign="top">
+      <!-- PLACEHOLDER FOR NEXT PROJECT -->
+    </td>
+  </tr>
 </table>
 
 <br/>
