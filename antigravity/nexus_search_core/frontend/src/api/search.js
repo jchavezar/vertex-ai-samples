@@ -73,11 +73,11 @@ const mapSearchResult = (sr) => {
 };
 
 /**
- * Method: Answer (Legacy RAG)
- * Returns a generative answer with citations.
+ * Method: Answer (RAG)
+ * Returns a generative answer with citations. Uses v1beta for improved model support.
  */
 export const executeAnswer = async (googleToken, query, previousContext = null) => {
-  const url = `/google-api/v1alpha/projects/${CONFIG.PROJECT_NUMBER}/locations/${CONFIG.LOCATION}/collections/default_collection/engines/${CONFIG.ENGINE_ID}/servingConfigs/default_config:answer`;
+  const url = `/google-api/v1alpha/projects/${CONFIG.PROJECT_NUMBER}/locations/${CONFIG.LOCATION}/collections/default_collection/engines/${CONFIG.ENGINE_ID}/servingConfigs/default_search:answer`;
 
   let finalQuery = query;
   if (previousContext && previousContext.query && previousContext.answer) {
@@ -86,9 +86,13 @@ export const executeAnswer = async (googleToken, query, previousContext = null) 
 
   const payload = {
     query: { text: finalQuery },
+    relatedQuestionsSpec: { enable: true },
     answerGenerationSpec: {
       modelSpec: { modelVersion: "stable" },
-      includeCitations: true
+      includeCitations: true,
+      ignoreNonAnswerSeekingQuery: false,
+      ignoreLowRelevantContent: false,
+      ignoreAdversarialQuery: true
     }
   };
 
@@ -108,8 +112,9 @@ export const executeAnswer = async (googleToken, query, previousContext = null) 
   }
 
   return {
-    answer: answerData?.answerText || "No answer generated.",
-    results: extractedResults
+    answer: answerData?.answerText || "A summary could not be generated. Please check the sources below.",
+    results: extractedResults,
+    citations: answerData?.citations || []
   };
 };
 
@@ -118,7 +123,7 @@ export const executeAnswer = async (googleToken, query, previousContext = null) 
  * Returns raw search results without a generative answer.
  */
 export const executeClassicSearch = async (googleToken, query) => {
-  const url = `/google-api/v1alpha/projects/${CONFIG.PROJECT_NUMBER}/locations/${CONFIG.LOCATION}/collections/default_collection/engines/${CONFIG.ENGINE_ID}/servingConfigs/default_config:search`;
+  const url = `/google-api/v1alpha/projects/${CONFIG.PROJECT_NUMBER}/locations/${CONFIG.LOCATION}/collections/default_collection/engines/${CONFIG.ENGINE_ID}/servingConfigs/default_search:search`;
 
   const payload = {
     query: query,
@@ -136,15 +141,27 @@ export const executeClassicSearch = async (googleToken, query) => {
 };
 
 /**
- * Method: StreamAssist (Modern Agentic)
- * Streams an answer using the v1beta streamAnswer endpoint for better grounding.
+ * Method: StreamAssist (Modern RAG Streaming)
+ * Streams an answer using the v1beta streamAnswer endpoint for perfect grounding.
+ * This matches the "Gemini Enterprise" preview experience in Agent Builder.
  */
 export const executeStreamAssist = async (googleToken, query, onChunk) => {
-  // Use the agentic streamAssist endpoint as defined in the docs
-  const url = `/google-api/v1beta/projects/${CONFIG.PROJECT_NUMBER}/locations/${CONFIG.LOCATION}/collections/default_collection/engines/${CONFIG.ENGINE_ID}/assistants/default_assistant:streamAssist`;
+  // Use v1alpha streamAnswer on default_search for high-fidelity grounding matching console's "Search method"
+  const url = `/google-api/v1alpha/projects/${CONFIG.PROJECT_NUMBER}/locations/${CONFIG.LOCATION}/collections/default_collection/engines/${CONFIG.ENGINE_ID}/servingConfigs/default_search:streamAnswer`;
 
   const payload = {
-    query: { text: query }
+    query: { text: query },
+    relatedQuestionsSpec: { enable: true },
+    answerGenerationSpec: {
+      modelSpec: { modelVersion: "stable" },
+      includeCitations: true,
+      ignoreNonAnswerSeekingQuery: false,
+      ignoreLowRelevantContent: false,
+      ignoreAdversarialQuery: true,
+      promptSpec: {
+        preamble: "You are a professional enterprise search assistant. Provide precise, grounded answers. If an employee ID, specific value or technical data is requested, extract it exactly from the provided context sources. NEVER refuse to answer if the information is present in the context."
+      }
+    }
   };
 
   const response = await fetch(url, {
@@ -168,7 +185,6 @@ export const executeStreamAssist = async (googleToken, query, onChunk) => {
   let citations = [];
 
   let buffer = '';
-  // ... (reader loop)
   while (true) {
     const { done, value } = await reader.read();
     if (done) break;
@@ -219,19 +235,17 @@ export const executeStreamAssist = async (googleToken, query, onChunk) => {
   }
 
   function processPacket(parsed) {
-    console.log('[STREAM_DEBUG_PACKET]', parsed);
-
-    // 1. Extract Answer text
-    let answerText = parsed.answerStep?.answerText || parsed.answer?.answerText || parsed.text || "";
-
-    // v1beta assist replies handling
-    if (!answerText && parsed.answer?.replies && Array.isArray(parsed.answer.replies)) {
-      answerText = parsed.answer.replies.map(r => r.groundedContent?.content?.text || "").join("");
-    }
+    // 1. Extract Answer text from streamAnswer response
+    let answerText = parsed.answer?.answerText || "";
 
     if (answerText) {
-      fullAnswer += answerText;
-      // Pass the current state of citations too
+      if (answerText.startsWith(fullAnswer)) {
+        // If the new chunk is an accumulation of what we already have, replace it
+        fullAnswer = answerText;
+      } else if (!fullAnswer.endsWith(answerText)) {
+      // Otherwise, it's a new delta, so append it (if not already a duplicate)
+        fullAnswer += answerText;
+      }
       onChunk(answerText, fullAnswer, extractedResults, citations);
     }
 
@@ -246,28 +260,15 @@ export const executeStreamAssist = async (googleToken, query, onChunk) => {
         return;
       }
 
-      // Check for citations in various places
-      // v1beta assist replies grounding metadata
-      if (obj.replies && Array.isArray(obj.replies)) {
-        obj.replies.forEach(reply => {
-          const groundedContent = reply.groundedContent;
-          if (groundedContent?.citations) {
-            citations.push(...groundedContent.citations);
-          }
-          if (reply.searchResults) foundResults.push(...reply.searchResults);
-        });
+      // v1beta streamAnswer grounding locations
+      if (obj.citations) {
+        citations.push(...obj.citations);
       }
 
-      // General groundingMetadata (used in streamAnswer)
-      if (obj.groundingMetadata?.citations) {
-        citations.push(...obj.groundingMetadata.citations);
-      }
-
-      // Standard results locations
-      if (obj.groundingChunks) foundResults.push(...obj.groundingChunks);
-      if (obj.groundingMetadata?.groundingChunks) foundResults.push(...obj.groundingMetadata.groundingChunks);
       if (obj.searchResults) foundResults.push(...obj.searchResults);
-      if (obj.observation?.searchResults) foundResults.push(...obj.observation.searchResults);
+
+      // Standard grounding metadata
+      if (obj.groundingMetadata?.groundingChunks) foundResults.push(...obj.groundingMetadata.groundingChunks);
 
       for (const key of Object.keys(obj)) {
         if (key !== 'answerText' && key !== 'text' && typeof obj[key] === 'object') {
@@ -287,19 +288,18 @@ export const executeStreamAssist = async (googleToken, query, onChunk) => {
         );
         if (!isDup) extractedResults.push(m);
       });
-      // Notify parent of new metadata
       onChunk('', fullAnswer, extractedResults, citations);
     }
   }
 
-  // Fallback
-  if (extractedResults.length === 0) {
+  // Fallback to classic search only if the model explicitly refused or no content
+  if (fullAnswer.includes("I am sorry") || fullAnswer.includes("could not be generated") || !fullAnswer) {
     try {
-      console.log('[STREAM_DEBUG] No results in stream, trying fallback...');
+      console.log('[STREAM_DEBUG] Quality check failed, trying fallback...');
       const fallback = await executeClassicSearch(googleToken, query);
       if (fallback.results?.length > 0) {
         extractedResults = fallback.results;
-        if (onChunk) onChunk("", fullAnswer, extractedResults, citations);
+        onChunk("", fullAnswer, extractedResults, citations);
       }
     } catch (e) {
       console.error('[STREAM_DEBUG] Fallback failed:', e);

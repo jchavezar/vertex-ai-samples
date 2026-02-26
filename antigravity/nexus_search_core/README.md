@@ -129,6 +129,84 @@ The following diagram illustrates the zero-trust authentication flow across Entr
 
 <br/>
 
+## ⚡ SEARCH CYCLE & EXPERIENCE
+
+The Sockcop Search interface is designed for high-fidelity, grounded exploration. Below is the end-to-end lifecycle of a query within the system.
+
+<details open>
+<summary><kbd>STEP 1</kbd> <b>Initial Query Input</b></summary>
+<br/>
+<table>
+  <tr>
+    <td valign="top">
+      <kbd>EXECUTE</kbd> The user enters a natural language query into the search monolith. In this example, we are retrieving specific employee data from a secure repository.<br/><br/>
+      <kbd>UI STATE</kbd> The terminal pulsates, indicating the system is ready to federate the identity and begin the grounded retrieval.
+    </td>
+    <td width="550" valign="top">
+      <img src="./docs/assets/search_cycle/query_input.png" width="550" style="border-radius: 8px; border: 1px solid #334155;" />
+    </td>
+  </tr>
+</table>
+</details>
+
+<br/>
+
+<details open>
+<summary><kbd>STEP 2</kbd> <b>Streaming Grounded Answer</b></summary>
+<br/>
+<table>
+  <tr>
+    <td valign="top">
+      <kbd>EXECUTE</kbd> The <code>streamAnswer</code> API begins returning tokens in real-time. This minimizes perceived latency and provides immediate cognitive feedback.<br/><br/>
+      <kbd>UI STATE</kbd> Tokens emerge from the terminal. Simultaneously, the <b>Evaluator Agent</b> is dispatched in the background to verify every claim against the grounded source material.
+    </td>
+    <td width="550" valign="top">
+      <img src="./docs/assets/search_cycle/stream_answer.png" width="550" style="border-radius: 8px; border: 1px solid #334155;" />
+    </td>
+  </tr>
+</table>
+</details>
+
+<br/>
+
+<details open>
+<summary><kbd>STEP 3</kbd> <b>Evaluated & Grounded Synthesis</b></summary>
+<br/>
+<table>
+  <tr>
+    <td valign="top">
+      <kbd>EXECUTE</kbd> The <b>Evaluator Agent</b> completes the verification. All facts are cross-referenced with the <b>Grounded Sources</b> visible in the right panel.<br/><br/>
+      <kbd>UI STATE</kbd> Verified facts are dynamically highlighted in <b>Cyber Blue</b>. Tooltips provide precise citation pointers, ensuring zero hallucination.
+    </td>
+    <td width="550" valign="top">
+      <img src="./docs/assets/search_cycle/evaluation_complete.png" width="550" style="border-radius: 8px; border: 1px solid #334155;" />
+    </td>
+  </tr>
+</table>
+</details>
+
+<br/>
+
+<details open>
+<summary><kbd>STEP 4</kbd> <b>Deep Source Inspection</b></summary>
+<br/>
+<table>
+  <tr>
+    <td valign="top">
+      <kbd>EXECUTE</kbd> The user clicks on a <b>Grounded Source</b> (e.g., DOC 1) to inspect the raw enterprise intelligence.<br/><br/>
+      <kbd>UI STATE</kbd> A focused sidebar displays the original document text, allowing for absolute transparency and verification of the AI's synthesis.
+    </td>
+    <td width="550" valign="top">
+      <img src="./docs/assets/search_cycle/source_document_detail.png" width="550" style="border-radius: 8px; border: 1px solid #334155;" />
+    </td>
+  </tr>
+</table>
+</details>
+
+<br/>
+
+<br/>
+
 <p align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="./frontend/public/assets/header_config.svg">

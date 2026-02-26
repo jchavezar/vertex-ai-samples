@@ -34,3 +34,6 @@ dist-ssr
 client_secret*.json
 credentials.json
 *_token.json
+
+# Development Tools
+tools/

@@ -33,7 +33,7 @@ class EvaluationResult(BaseModel):
 # 2. Define the Evaluator Agent
 evaluator_agent = LlmAgent(
     name="fact_evaluator",
-    model="gemini-2.5-flash", 
+    model="gemini-2.5-pro", 
     instruction="""
     You are a Fact-Attribution Specialist for a premium search engine. 
     Your goal is to analyze a generated 'Answer' and its source documents ('Sources' and 'Citations').
