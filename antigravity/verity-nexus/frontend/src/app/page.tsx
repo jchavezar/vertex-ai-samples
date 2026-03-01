@@ -301,6 +301,158 @@ const MaterialityGauge = () => {
   );
 };
 
+const EvidenceLedgerModal = () => {
+  const { findings, setEvidenceMaximized } = useVerityStore();
+  const [ledgerData, setLedgerData] = React.useState<any[]>([]);
+  const [isLoading, setIsLoading] = React.useState(true);
+
+  React.useEffect(() => {
+    fetch('http://localhost:8005/api/ledger')
+      .then(res => res.json())
+      .then(data => {
+        if (data.transactions) {
+          setLedgerData(data.transactions);
+        }
+      })
+      .catch(err => console.error("Error fetching ledger:", err))
+      .finally(() => setIsLoading(false));
+  }, []);
+
+  const items = React.useMemo(() => {
+    if (ledgerData.length === 0) return findings;
+
+    const anomalyMap = new Map();
+    (findings || []).forEach((f: any) => {
+      if (f.trans_id) {
+        anomalyMap.set(f.trans_id, f);
+        const numPart = f.trans_id.split('-').pop();
+        if (numPart) anomalyMap.set(numPart, f);
+      }
+    });
+
+    const combined = ledgerData.map(row => {
+      const f = anomalyMap.get(row.trans_id) || anomalyMap.get(row.trans_id?.split('-').pop());
+
+      if (f) {
+        return {
+          ...row,
+          vendor: row.vendor_name,
+          amount: row.amount_usd,
+          risk_score: f.risk_score || 0,
+          risk_factors: f.risk_factors || [],
+          recommendation: f.recommendation || "",
+          hasFinding: true
+        };
+      }
+      return {
+        ...row,
+        vendor: row.vendor_name,
+        amount: row.amount_usd,
+        risk_score: 0,
+        risk_factors: [],
+        recommendation: "Standard operating procedure. No anomalies detected.",
+        hasFinding: false
+      };
+    });
+
+    combined.sort((a, b) => {
+      if (a.hasFinding && !b.hasFinding) return -1;
+      if (!a.hasFinding && b.hasFinding) return 1;
+      return (b.risk_score || 0) - (a.risk_score || 0);
+    });
+
+    return combined;
+  }, [ledgerData, findings]);
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 z-[100] bg-black/90 backdrop-blur-2xl flex flex-col p-12 overflow-hidden"
+    >
+      <div className="flex justify-between items-center mb-8 shrink-0">
+        <div className="flex items-center gap-4">
+          <div className="w-10 h-10 rounded-xl bg-cyan-600/20 flex items-center justify-center border border-cyan-500/30">
+            <Search className="w-5 h-5 text-cyan-500" />
+          </div>
+          <div>
+            <h2 className="text-xl font-black text-white uppercase tracking-tighter">Forensic Evidence Ledger</h2>
+            <p className="text-[10px] font-bold text-cyan-500/50 uppercase tracking-[0.4em]">Cross-Verification Data Grid</p>
+          </div>
+        </div>
+        <button
+          onClick={() => setEvidenceMaximized(false)}
+          className="w-12 h-12 rounded-full border border-white/10 flex items-center justify-center hover:bg-white/10 transition-colors group"
+        >
+          <X className="w-6 h-6 text-slate-400 group-hover:scale-110 group-hover:text-white transition-all" />
+        </button>
+      </div>
+
+      <div className="flex-1 overflow-auto border border-white/10 rounded-2xl bg-[#080808] relative custom-scrollbar">
+        <div className="absolute inset-0 bg-cyan-500/5 pointer-events-none" />
+        <table className="w-full text-left text-[11px] text-slate-300 relative z-10">
+          <thead className="sticky top-0 bg-[#0A0A0A] uppercase tracking-widest text-[9px] font-black border-b border-white/10 z-20">
+            <tr>
+              <th className="p-4 px-6 text-cyan-500/80">Trans_ID</th>
+              <th className="p-4 px-6">Date</th>
+              <th className="p-4 px-6">Entity/Vendor</th>
+              <th className="p-4 px-6 text-right">Exposure</th>
+              <th className="p-4 px-6">Risk Profile</th>
+              <th className="p-4 px-6 text-right">Index</th>
+              <th className="p-4 px-6 w-1/3">Agent Justification</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-white/5 font-mono">
+            {items.map((f, i) => (
+              <tr key={f.trans_id || i} className="hover:bg-white/[0.02] transition-colors group cursor-crosshair">
+                <td className="p-4 px-6 whitespace-nowrap">
+                  <span className="bg-white/5 border border-white/10 px-2 py-1 rounded text-slate-400 group-hover:text-cyan-400 transition-colors">
+                    {f.trans_id?.split('-')[0] || `TR-${i}`}
+                  </span>
+                </td>
+                <td className="p-4 px-6 whitespace-nowrap">{f.date || '---'}</td>
+                <td className="p-4 px-6 font-bold text-white uppercase tracking-tight">{f.vendor || f.category || 'Unknown'}</td>
+                <td className="p-4 px-6 text-right text-orange-400 font-bold whitespace-nowrap">${f.amount?.toLocaleString() || '---'}</td>
+                <td className="p-4 px-6">
+                  <div className="flex flex-wrap gap-1">
+                    {(f.risk_factors || [f.risk_level || 'Anomaly']).map((factor: string, i: number) => (
+                      <span key={i} className="text-[8px] bg-red-500/10 text-red-400 px-2 py-0.5 rounded uppercase tracking-wider border border-red-500/20">
+                        {factor}
+                      </span>
+                    ))}
+                  </div>
+                </td>
+                <td className="p-4 px-6 text-right font-black shadow-lg">
+                  <span className={f.risk_score > 0.8 ? 'text-red-500' : 'text-orange-500'}>
+                    {(f.risk_score * 10).toFixed(1)}
+                  </span>
+                </td>
+                <td className="p-4 px-6 text-slate-400 italic font-sans text-[10px] leading-relaxed">
+                  "{f.recommendation || f.impact_assessment || "No detailed assessment provided."}"
+                </td>
+              </tr>
+            ))}
+            {isLoading ? (
+              <tr>
+                <td colSpan={7} className="p-12 text-center text-slate-600 uppercase tracking-widest font-bold animate-pulse">
+                  Querying Quantum Ledger...
+                </td>
+              </tr>
+            ) : items.length === 0 ? (
+              <tr>
+                <td colSpan={7} className="p-12 text-center text-slate-600 uppercase tracking-widest font-bold">
+                  No forensic shards synchronized. Process queries via terminal to populate matrix.
+                </td>
+              </tr>
+            ) : null}
+          </tbody>
+        </table>
+      </div>
+    </motion.div>
+  );
+};
+
 const ReasoningStream = () => {
   const { reasoning } = useVerityStore();
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -397,18 +549,65 @@ const nodes = [
       padding: '10px'
     }
   },
+  {
+    id: 'mcp_server',
+    position: { x: 0, y: 300 },
+    data: { label: <div>MCP Server (Cloud Run)<br /><span style={{ fontSize: '8px', opacity: 0.7 }}>mcp-database-toolbox</span></div> },
+    style: {
+      background: '#0a0a0a',
+      color: '#0ea5e9', // cyan-500
+      borderRadius: '12px',
+      border: '1px dashed #0ea5e9',
+      fontSize: '10px',
+      fontWeight: 'bold',
+      padding: '10px'
+    }
+  },
+  {
+    id: 'cloud_sql',
+    position: { x: 0, y: 450 },
+    data: { label: <div>Cloud SQL (PostgreSQL)<br /><span style={{ fontSize: '8px', opacity: 0.7 }}>'ledger' Database</span></div> },
+    style: {
+      background: '#0a0a0a',
+      color: '#3b82f6', // blue-500
+      borderRadius: '12px',
+      border: '1px solid #3b82f6',
+      fontSize: '10px',
+      fontWeight: 'bold',
+      padding: '10px'
+    }
+  },
+  {
+    id: 'gemini',
+    position: { x: 500, y: 300 },
+    data: { label: <div>Vertex AI<br /><span style={{ fontSize: '8px', opacity: 0.7 }}>Gemini 2.5 Flash</span></div> },
+    style: {
+      background: '#0a0a0a',
+      color: '#a855f7', // purple-500
+      borderRadius: '12px',
+      border: '1px solid #a855f7',
+      fontSize: '10px',
+      fontWeight: 'bold',
+      padding: '10px'
+    }
+  }
 ];
 
 const edges = [
   { id: 'o-a', source: 'orchestrator', target: 'audit_agent', animated: true, style: { stroke: '#444' } },
   { id: 'o-t', source: 'orchestrator', target: 'tax_agent', animated: true, style: { stroke: '#444' } },
   { id: 'a-t', source: 'audit_agent', target: 'tax_agent', label: 'Findings Transfer', animated: true, style: { stroke: '#D4A373', fontSize: '8px' } },
+  { id: 'a-mcp', source: 'audit_agent', target: 'mcp_server', label: 'SSE Connection', animated: true, style: { stroke: '#0ea5e9', fontSize: '8px' } },
+  { id: 'mcp-db', source: 'mcp_server', target: 'cloud_sql', label: 'SQL Tunnel', animated: true, style: { stroke: '#3b82f6', fontSize: '8px' } },
+  { id: 'o-g', source: 'orchestrator', target: 'gemini', animated: true, style: { stroke: '#a855f7', opacity: 0.3 } },
+  { id: 'a-g', source: 'audit_agent', target: 'gemini', animated: true, style: { stroke: '#a855f7', opacity: 0.3 } },
+  { id: 't-g', source: 'tax_agent', target: 'gemini', animated: true, style: { stroke: '#a855f7', opacity: 0.3 } },
 ];
 
 export default function VerityNexus() {
   const [mounted, setMounted] = useState(false);
   const [isDiagramMaximized, setIsDiagramMaximized] = useState(false);
-  const { addReasoning, updateStats, updateAgentStatus, setSignOffVisible, isSignOffVisible, findings, setFindings } = useVerityStore();
+  const { addReasoning, updateStats, updateAgentStatus, setSignOffVisible, isSignOffVisible, findings, setFindings, isEvidenceMaximized, setEvidenceMaximized } = useVerityStore();
 
   useEffect(() => {
     setMounted(true);
@@ -616,9 +815,18 @@ export default function VerityNexus() {
                 <h4 className="text-xl font-black text-white tracking-tight italic uppercase">High Anomaly Threshold Reached</h4>
               </div>
             </div>
-            <button className="bg-white text-black text-[10px] font-black px-6 py-3 rounded-xl hover:bg-orange-500 hover:text-white transition-all transform active:scale-95 shadow-xl shadow-white/5">
-              GENERATE REPORT
-            </button>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => setEvidenceMaximized(true)}
+                className="bg-transparent border border-cyan-500/30 text-cyan-500 text-[10px] font-black px-6 py-3 rounded-xl hover:bg-cyan-500/10 hover:border-cyan-500/50 transition-all transform active:scale-95 shadow-xl relative overflow-hidden group uppercase tracking-widest"
+              >
+                <div className="absolute inset-0 bg-cyan-500/10 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
+                Table Data
+              </button>
+              <button className="bg-white text-black text-[10px] font-black px-6 py-3 rounded-xl hover:bg-orange-500 hover:text-white transition-all transform active:scale-95 shadow-xl shadow-white/5">
+                GENERATE REPORT
+              </button>
+            </div>
           </div>
         </div>
 
@@ -838,6 +1046,11 @@ export default function VerityNexus() {
             </motion.div>
           </motion.div>
         )}
+      </AnimatePresence>
+
+      {/* Evidence Ledger Maximization Overlay */}
+      <AnimatePresence>
+        {isEvidenceMaximized && <EvidenceLedgerModal />}
       </AnimatePresence>
     </div>
   );

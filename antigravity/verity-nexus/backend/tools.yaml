@@ -1,0 +1,46 @@
+---
+kind: sources
+name: pg-ledger
+type: cloud-sql-postgres
+project: vtxdemos
+region: us-central1
+instance: pg15-pgvector-demo
+database: ledger
+user: auditor
+password: nexus
+---
+kind: tools
+name: query_transactions_by_jurisdiction
+type: postgres-sql
+source: pg-ledger
+description: "Query ledger transactions for a specific jurisdiction. High risk jurisdictions include 'Cayman Islands', 'BVI', 'Panama'."
+parameters:
+  - name: jurisdiction_name
+    type: string
+    description: "The name of the jurisdiction to filter by."
+statement: "SELECT * FROM ledger_transactions WHERE jurisdiction = $1;"
+---
+kind: tools
+name: query_high_value_transactions
+type: postgres-sql
+source: pg-ledger
+description: "Query transactions exceeding a certain amount limit. Standard de minimis is usually 1,000,000."
+parameters:
+  - name: min_amount
+    type: integer
+    description: "Minimum transaction amount."
+statement: "SELECT * FROM ledger_transactions WHERE amount >= $1 ORDER BY amount DESC;"
+---
+kind: tools
+name: get_all_transactions
+type: postgres-sql
+source: pg-ledger
+description: "Fetch a batch of transactions. Useful for general auditing. Adjust offset and limit to paginate through the ledger."
+parameters:
+  - name: limit
+    type: integer
+    description: "Number of rows to return (e.g., 50)."
+  - name: offset
+    type: integer
+    description: "Number of rows to skip (e.g., 0 for first page)."
+statement: "SELECT * FROM ledger_transactions ORDER BY trans_id LIMIT $1 OFFSET $2;"

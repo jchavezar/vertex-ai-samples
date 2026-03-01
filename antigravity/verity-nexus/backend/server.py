@@ -3,6 +3,8 @@ from datetime import datetime
 import asyncio
 import json
 import uuid
+import psycopg2
+from psycopg2.extras import RealDictCursor
 from fastapi import FastAPI, Request, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
@@ -26,6 +28,28 @@ app.add_middleware(
 )
 
 session_service = InMemorySessionService()
+
+@app.get("/api/ledger")
+def get_ledger():
+    try:
+        conn = psycopg2.connect(
+            host="localhost", port="5433", user="auditor", password="nexus", dbname="ledger"
+        )
+        cur = conn.cursor(cursor_factory=RealDictCursor)
+        cur.execute("SELECT * FROM ledger_transactions ORDER BY date DESC LIMIT 1000")
+        rows = cur.fetchall()
+        
+        for row in rows:
+            if 'amount_usd' in row and row['amount_usd'] is not None:
+                row['amount_usd'] = float(row['amount_usd'])
+            if 'date' in row and row['date'] is not None:
+                row['date'] = str(row['date'])
+                
+        conn.close()
+        return {"transactions": rows}
+    except Exception as e:
+        print(f"Error fetching ledger: {e}")
+        return {"error": str(e)}
 
 @app.post("/api/chat")
 async def chat(request: Request):
