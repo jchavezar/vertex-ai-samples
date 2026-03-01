@@ -24,6 +24,9 @@ description: Expert guide for building, deploying, and debugging Google ADK (Age
     - **Type Hints**: Mandatory for all Python tool functions (used for schema generation).
     - **Docstrings**: Mandatory for all tools (used for LLM tool descriptions).
     - **Error Handling**: Wrap tool execution in try/except blocks.
+4.  **Environment & Execution**:
+    - **ALWAYS use `uv`**: Mandated for project initialization (`uv init`), dependency management (`uv add`), and execution (`uv run`).
+    - **No Orphan Environments**: Do not create or use non-uv venvs or global python environments.
 
 ## 🧠 Knowledge Base
 This skill is backed by the full ADK documentation.
@@ -103,8 +106,38 @@ workflow = SequentialAgent(
     - Use `@tool` decorator.
     - Annotate args with `Annotated[type, "description"]` if using advanced typing.
 4.  **Verify**:
-    - Run the agent locally.
+    - Run the agent locally using `uv run`.
     - Check logs for tool calling errors.
+
+### 4. Next-Gen Agent Engine Deployment
+Utilize the `vertexai.Client` and `vertexai.agent_engines.AdkApp` pattern for robust Cloud deployments.
+
+```python
+import vertexai
+from vertexai.agent_engines import AdkApp
+
+# 1. Initialize with Client
+client = vertexai.Client(project="PROJ", location="LOC")
+
+# 2. Wrap Agent
+deployment_app = AdkApp(agent=root_agent, enable_tracing=True)
+
+# 3. Idempotent Update or Create
+all_engines = list(client.agent_engines.list())
+target = next((e for e in all_engines if e.api_resource.display_name == "MY_APP"), None)
+
+if target:
+    remote_app = client.agent_engines.update(
+        name=target.api_resource.name,
+        agent=deployment_app,
+        config={"display_name": "MY_APP", "staging_bucket": "gs://...", "requirements": "requirements.txt", "extra_packages": ["agent.py"]}
+    )
+else:
+    remote_app = client.agent_engines.create(
+        agent=deployment_app,
+        config={"display_name": "MY_APP", "staging_bucket": "gs://...", "requirements": "requirements.txt", "extra_packages": ["agent.py"]}
+    )
+```
 
 ## 🛑 Common Pitfalls to Avoid
 - **Missing `output_key`**: If you don't set this in a workflow, the parent agent won't get the result.

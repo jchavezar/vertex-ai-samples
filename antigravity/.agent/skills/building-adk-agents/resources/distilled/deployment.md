@@ -10,26 +10,29 @@ adk run agent.py
 adk web --port 8000
 ```
 
-## 2. Cloud Run (Serverless)
-Standard containerized deployment.
-```bash
-# General flow
-gcloud run deploy my-agent --source .
-```
-- Ensure `.env` variables are mapped to Cloud Run env secrets.
+## 2. Vertex AI Agent Engine (Recommended)
+Use `google.genai.Client()` for deployment and lifecycle management.
 
-## 3. Vertex AI Agent Engine
-High-scale, managed hosting specifically for ADK agents.
 ```python
-from google.adk.deploy import AgentEngine
+from google.genai import Client
+from my_agent import root_agent
 
-deployment = AgentEngine(
-    name="prod-agent",
-    root_agent=my_agent
+client = Client(vertexai=True, project="my-project", location="us-central1")
+
+remote_agent = client.agent_engines.create(
+    agent=root_agent,
+    config={
+        "display_name": "my-adk-agent",
+        "requirements": ["google-adk", "google-genai"],
+        "env_vars": {"GOOGLE_GENAI_USE_VERTEXAI": "true"}
+    }
 )
-deployment.deploy()
 ```
-*Note: Requires billing enabled and specific Vertex AI permissions.*
+
+### Lifecycle Commands
+- **List**: `client.agent_engines.list()`
+- **Get**: `client.agent_engines.get(name="agent-id")`
+- **Delete**: `client.agent_engines.delete(name="agent-id")`
 
 ---
-*Reference: adk-docs/docs/deploy/cloud-run.md*
+*Reference: https://docs.cloud.google.com/agent-builder/agent-engine/deploy*
