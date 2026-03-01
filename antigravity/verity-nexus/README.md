@@ -47,6 +47,11 @@ graph TD
         AuditAgent <--> TaxAgent
     end
     
+    subgraph Data Infrastructure Layer
+        AuditAgent --> MCP[MCP Database Toolbox 🚀]
+        MCP --> CloudSQL[(Cloud SQL PostgreSQL)]
+    end
+    
     AuditAgent --> DiscoveryLayer[Neural Discovery Shards]
     TaxAgent --> ExposureLayer[Materiality Gauge]
     
@@ -57,6 +62,8 @@ graph TD
     style Orchestrator fill:#222,stroke:#f97316,stroke-width:2px,color:#f97316
     style AuditAgent fill:#111,stroke:#333,stroke-dasharray: 5 5,color:#888
     style TaxAgent fill:#111,stroke:#333,stroke-dasharray: 5 5,color:#888
+    style MCP fill:#1e40af,stroke:#60a5fa,stroke-width:2px,color:#fff
+    style CloudSQL fill:#047857,stroke:#34d399,stroke-width:2px,color:#fff
     style DiscoveryLayer fill:#111,stroke:#f97316,stroke-width:1px,color:#f97316,opacity:0.8
 ```
 
