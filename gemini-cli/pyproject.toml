@@ -5,12 +5,18 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
+    "google-adk>=1.15.1",
     "google-auth>=2.48.0",
     "google-cloud-discoveryengine>=0.17.0",
+    "google-genai>=1.40.0",
+    "pydantic>=2.12.5",
     "requests>=2.32.5",
 ]
 
 [tool.uv.workspace]
 members = [
     "adk_agent_engine_test",
+    "agent-engine-test",
+    "agent-engine-project",
+    "agent-engine-toolkit",
 ]
