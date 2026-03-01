@@ -540,7 +540,7 @@ function App() {
                       className={`flex items-center gap-2 px-6 py-3 rounded-2xl transition-all border-2 ${searchMethod === 'stream' ? 'bg-sockcop-gold/20 border-sockcop-gold text-sockcop-gold shadow-[0_0_15px_rgba(212,175,55,0.2)]' : 'bg-white/5 border-white/5 text-gray-400 hover:bg-white/10'}`}
                     >
                       <Zap className="w-4 h-4" />
-                      <span className="font-black text-xs uppercase tracking-widest">Stream Assist</span>
+                      <span className="font-black text-xs uppercase tracking-widest">Stream Answer</span>
                     </button>
                     <button
                       type="button"
