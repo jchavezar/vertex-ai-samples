@@ -17,6 +17,10 @@ from agents.orchestrator.main import orchestrator
 from google.adk.sessions import InMemorySessionService
 from google.adk import Runner # Using direct import
 from google.genai import types
+from pydantic import BaseModel
+
+class SQLQuery(BaseModel):
+    query: string
 
 app = FastAPI(title="Verity Nexus API")
 
@@ -49,6 +53,40 @@ def get_ledger():
         return {"transactions": rows}
     except Exception as e:
         print(f"Error fetching ledger: {e}")
+        return {"error": str(e)}
+
+@app.post("/api/sql")
+def execute_sql(payload: dict):
+    query = payload.get("query", "")
+    if not query:
+        raise HTTPException(status_code=400, detail="No query provided")
+        
+    try:
+        conn = psycopg2.connect(
+            host="localhost", port="5433", user="auditor", password="nexus", dbname="ledger"
+        )
+        cur = conn.cursor(cursor_factory=RealDictCursor)
+        cur.execute(query)
+        
+        # Determine if it's a SELECT returning rows or an modification
+        if cur.description:
+            rows = cur.fetchall()
+            # Convert non-serializable types safely
+            for row in rows:
+                for key, value in row.items():
+                    if 'amount_usd' in key and value is not None:
+                        row[key] = float(value)
+                    elif 'date' in key and value is not None:
+                        row[key] = str(value)
+            result = {"results": rows, "columns": [desc[0] for desc in cur.description]}
+        else:
+            conn.commit()
+            result = {"message": f"Query executed successfully. {cur.rowcount} rows affected."}
+            
+        conn.close()
+        return result
+    except Exception as e:
+        print(f"SQL Error: {e}")
         return {"error": str(e)}
 
 @app.post("/api/chat")

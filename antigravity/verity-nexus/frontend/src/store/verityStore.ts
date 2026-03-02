@@ -21,6 +21,7 @@ interface VerityState {
   findings: any[];
   isSignOffVisible: boolean;
   isEvidenceMaximized: boolean;
+  isSQLTerminalOpen: boolean;
 
   updateAgentStatus: (id: string, status: AgentNode['status']) => void;
   updateStats: (updates: Partial<DeploymentStats>) => void;
@@ -28,6 +29,7 @@ interface VerityState {
   setFindings: (findings: any[]) => void;
   setSignOffVisible: (visible: boolean) => void;
   setEvidenceMaximized: (visible: boolean) => void;
+  setSQLTerminalOpen: (visible: boolean) => void;
   reset: () => void;
 }
 
@@ -47,6 +49,7 @@ export const useVerityStore = create<VerityState>((set) => ({
   findings: [],
   isSignOffVisible: false,
   isEvidenceMaximized: false,
+  isSQLTerminalOpen: false,
 
   updateAgentStatus: (id, status) => set((state) => ({
     agents: state.agents.map(a => a.id === id ? { ...a, status } : a)
@@ -66,12 +69,15 @@ export const useVerityStore = create<VerityState>((set) => ({
 
   setEvidenceMaximized: (visible) => set({ isEvidenceMaximized: visible }),
 
+  setSQLTerminalOpen: (visible) => set({ isSQLTerminalOpen: visible }),
+
   reset: () => set({
     reasoning: [],
     findings: [],
     stats: { materiality_reached: 0, total_exposure: 0, anomalies_found: 0, active_agent: 'none' },
     isSignOffVisible: false,
     isEvidenceMaximized: false,
+    isSQLTerminalOpen: false,
     agents: [
       { id: 'orchestrator', label: 'Verity Orchestrator', status: 'idle', type: 'orchestrator' },
       { id: 'audit_agent', label: 'Forensic Audit Agent', status: 'idle', type: 'audit' },
