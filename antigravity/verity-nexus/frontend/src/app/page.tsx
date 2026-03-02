@@ -749,8 +749,11 @@ export default function VerityNexus() {
             </div>
           </div>
           <div className="h-8 w-px bg-white/5" />
-          <button className="text-[10px] font-bold bg-white/5 border border-white/10 px-4 py-2 rounded-xl hover:bg-white/10 transition-colors uppercase tracking-widest">
-            Terminal View
+          <button
+            onClick={() => useVerityStore.getState().setSQLTerminalOpen(true)}
+            className="text-[10px] font-bold bg-white/5 border border-white/10 px-4 py-2 rounded-xl hover:bg-white/10 transition-colors uppercase tracking-widest"
+          >
+            SQL Terminal
           </button>
         </div>
       </div>
@@ -1052,6 +1055,197 @@ export default function VerityNexus() {
       <AnimatePresence>
         {isEvidenceMaximized && <EvidenceLedgerModal />}
       </AnimatePresence>
+
+      {/* SQL Terminal Overlay */}
+      <AnimatePresence>
+        {useVerityStore.getState().isSQLTerminalOpen && <SQLTerminalModal />}
+      </AnimatePresence>
     </div>
   );
 }
+
+// --- New SQL Terminal Component ---
+const SQLTerminalModal = () => {
+  const { setSQLTerminalOpen } = useVerityStore();
+  const [query, setQuery] = useState("SELECT * FROM ledger_transactions LIMIT 5;");
+  const [results, setResults] = useState<any[] | null>(null);
+  const [columns, setColumns] = useState<string[]>([]);
+  const [error, setError] = useState<string | null>(null);
+  const [message, setMessage] = useState<string | null>(null);
+  const [isExecuting, setIsExecuting] = useState(false);
+
+  const handleExecute = async () => {
+    setIsExecuting(true);
+    setError(null);
+    setMessage(null);
+    setResults(null);
+    setColumns([]);
+
+    try {
+      const res = await fetch('http://localhost:8005/api/sql', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ query }),
+      });
+
+      const data = await res.json();
+
+      if (data.error) {
+        setError(data.error);
+      } else if (data.results) {
+        setResults(data.results);
+        setColumns(data.columns || (data.results.length > 0 ? Object.keys(data.results[0]) : []));
+      } else if (data.message) {
+        setMessage(data.message);
+      }
+    } catch (err: any) {
+      setError(err.message || "Failed to execute query.");
+    } finally {
+      setIsExecuting(false);
+    }
+  };
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 z-[110] bg-black/95 backdrop-blur-3xl flex flex-col p-12 overflow-hidden"
+    >
+      <div className="flex justify-between items-center mb-8 shrink-0">
+        <div className="flex items-center gap-4">
+          <div className="w-10 h-10 rounded-xl bg-orange-600/20 flex items-center justify-center border border-orange-500/30">
+            <Terminal className="w-5 h-5 text-orange-500" />
+          </div>
+          <div>
+            <h2 className="text-xl font-black text-white uppercase tracking-tighter">Direct SQL Terminal</h2>
+            <p className="text-[10px] font-bold text-orange-500/50 uppercase tracking-[0.4em]">Quantum Ledger Root Access</p>
+          </div>
+        </div>
+        <button
+          onClick={() => setSQLTerminalOpen(false)}
+          className="w-12 h-12 rounded-full border border-white/10 flex items-center justify-center hover:bg-white/10 transition-colors group"
+        >
+          <X className="w-6 h-6 text-slate-400 group-hover:scale-110 group-hover:text-white transition-all" />
+        </button>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 flex-1 overflow-hidden">
+        {/* Editor Area */}
+        <div className="col-span-1 flex flex-col gap-4">
+          <div className="bg-[#050505] border border-white/10 rounded-2xl p-4 flex-1 flex flex-col relative overflow-hidden">
+            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-orange-500/50 to-transparent" />
+            <div className="flex justify-between items-center mb-4">
+              <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Query Editor</span>
+              <span className="text-[10px] font-mono text-emerald-500 animate-pulse">Connected: localhost:5433</span>
+            </div>
+
+            <textarea
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              className="flex-1 bg-transparent w-full text-slate-300 font-mono text-sm leading-relaxed resize-none focus:outline-none custom-scrollbar"
+              spellCheck={false}
+              placeholder="Enter SQL query here..."
+            />
+
+            <div className="pt-4 mt-auto border-t border-white/5 flex justify-end">
+              <button
+                onClick={handleExecute}
+                disabled={isExecuting || !query.trim()}
+                className="bg-white text-black text-[10px] font-black px-6 py-3 rounded-xl hover:bg-orange-500 hover:text-white transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-xl uppercase tracking-widest flex items-center gap-2"
+              >
+                {isExecuting ? (
+                  <>
+                    <div className="w-3 h-3 rounded-full border-2 border-slate-400 border-t-black animate-spin" />
+                    Executing...
+                  </>
+                ) : (
+                  <>
+                    <Zap className="w-3 h-3" /> Execute
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Results Area */}
+        <div className="col-span-2 flex flex-col bg-[#0A0A0A] border border-white/10 rounded-2xl overflow-hidden relative">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-cyan-500/5 rounded-full blur-[80px] pointer-events-none" />
+          <div className="p-4 border-b border-white/5 bg-[#080808] z-10 flex justify-between items-center">
+            <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Execution Results</span>
+            {results && (
+              <span className="text-[10px] font-mono bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 px-3 py-1 rounded-full">
+                {results.length} rows returned
+              </span>
+            )}
+          </div>
+
+          <div className="flex-1 overflow-auto custom-scrollbar p-1">
+            {error && (
+              <div className="m-4 bg-red-500/10 border border-red-500/30 rounded-xl p-6 text-red-500 font-mono text-sm shadow-inner overflow-x-auto">
+                <div className="flex items-center gap-2 mb-2">
+                  <AlertTriangle className="w-4 h-4" />
+                  <span className="font-black uppercase tracking-widest text-[10px]">Syntax/Execution Error</span>
+                </div>
+                {error}
+              </div>
+            )}
+
+            {message && (
+              <div className="m-4 bg-emerald-500/10 border border-emerald-500/30 rounded-xl p-6 text-emerald-500 font-mono text-sm shadow-inner flex items-center gap-3">
+                <CheckCircle2 className="w-5 h-5" />
+                {message}
+              </div>
+            )}
+
+            {!error && !message && !results && !isExecuting && (
+              <div className="h-full flex flex-col items-center justify-center opacity-30 select-none">
+                <Terminal className="w-16 h-16 mb-4 text-slate-300" />
+                <p className="font-black uppercase tracking-[0.3em] text-[10px] text-slate-400">Awaiting Query Execution</p>
+              </div>
+            )}
+
+            {isExecuting && !results && (
+              <div className="h-full flex flex-col items-center justify-center opacity-50 select-none">
+                <div className="w-12 h-12 rounded-full border-4 border-white/10 border-t-orange-500 animate-spin mb-4" />
+                <p className="font-black uppercase tracking-[0.3em] text-[10px] text-orange-400 animate-pulse">Running SQL on Ledger Tuple...</p>
+              </div>
+            )}
+
+            {results && results.length > 0 && columns && (
+              <table className="w-full text-left text-[11px] text-slate-300 relative z-10 font-mono whitespace-nowrap">
+                <thead className="sticky top-0 bg-[#0A0A0A] uppercase tracking-widest text-[9px] font-black border-b border-white/10 z-20 shadow-md">
+                  <tr>
+                    {columns.map(col => (
+                      <th key={col} className="p-3 px-4 border-r border-white/5 last:border-0">{col}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-white/5">
+                  {results.map((row, i) => (
+                    <tr key={i} className="hover:bg-white/[0.03] transition-colors">
+                      {columns.map(col => (
+                        <td key={`${i}-${col}`} className="p-3 px-4 border-r border-white/5 last:border-0 truncate max-w-[300px]" title={String(row[col])}>
+                          {row[col] === null ? <span className="text-slate-600 italic">null</span> : String(row[col])}
+                        </td>
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+
+            {results && results.length === 0 && (
+              <div className="p-12 text-center text-slate-500 font-mono text-sm">
+                Command executed successfully, but returned 0 rows.
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </motion.div>
+  );
+};
