@@ -152,7 +152,7 @@
       <br/><br/>
       <strong>PROJECT: VERITY NEXUS V2.0</strong><br/>
       Cinematic AI-to-Agent forensic swarm platform. Features real-time materiality load visualization, 
-      neural discovery shards, and executive-grade narrative synchronization.<br/>
+      neural discovery shards, and Tier-3 Direct Binary Pipe (Agentless) for zero-latency data streams.<br/>
       <br/>
       <a href="./verity-nexus/">ACCESS_TERMINAL &rarr;</a>
     </td>
