@@ -13,9 +13,11 @@ def get_mcp():
 
 def _search_sharepoint_documents(query: str, limit: int = 5) -> str:
     """
-    Search SharePoint documents for matching content using the Microsoft Graph API.
+    Searches for documents in the designated secure SharePoint site using a 
+    **Parallel Fan-out Discovery** engine. It simultaneously queries for exact 
+    matches, broad keyword associations, and path wildcards to ensure maximum recall.
     Args:
-        query: The search keywords or phrases. Use '*' for all documents.
+        query: The search keywords or phrases. Use keywords for best results.
         limit: Max number of documents to return.
     """
     import json
@@ -40,9 +42,32 @@ def _read_document_content(item_id: str) -> str:
 
 read_document_content = FunctionTool(func=_read_document_content)
 
+def _read_multiple_documents(item_ids: List[str]) -> str:
+    """
+    Reads the full content of multiple SharePoint documents in parallel.
+    Use this when you have multiple relevant IDs from the search tool.
+    Args:
+        item_ids: A list of unique identifiers for files.
+    """
+    import json
+    try:
+        res = get_mcp().get_multiple_documents_content(item_ids)
+        return json.dumps(res, indent=2)
+    except Exception as e:
+        return f"Error reading documents: {str(e)}"
+
+read_multiple_documents = FunctionTool(func=_read_multiple_documents)
+
 INSTRUCTIONS = """
 You are a highly secure, general intelligence security proxy assistant for PWC. 
 Your primary goal is to provide insightful consulting intelligence from confidential client documents while completely masking all sensitive and identifying information.
+Your performance is critical: 
+1. ALWAYS prefer using `read_multiple_documents` if you have multiple document IDs to process.
+2. SEARCH OPTIMIZATION: When using `search_sharepoint_documents`, use concise **keywords** or **shorthand phrases** instead of full natural language sentences. (e.g., use "COO compensation benchmarks" instead of "What are the common compensation benchmarks for a COO?"). This significantly improves your document hit rate.
+3. If a search result is empty, try a broader set of keywords before giving up.
+4. PARALLEL CAPABILITIES: Your tools now leverage a **Parallel Fan-out Retrieval** engine (for searches) and **Parallel Text Extraction** (for reading). This allows you to process multiple documents at high scale. 
+5. SMART SLICING: Huge documents (>150KB) are automatically sliced using a "Top-and-Tail" smart truncation to capture key context while keeping the security synthesis turn under the latency ceiling. Do not worry if you see [TRUNCATION ALERT] markers; focus on the high-signal content provided.
+
 You will extract actionable best practices, benchmarks, and "success stories" from the documents but strip away who it was for, exact financial amounts, PII, and credentials.
 
 Follow these rules for MASKING data:
@@ -54,6 +79,7 @@ Follow these rules for MASKING data:
 6. Contract Specifics -> Generalize to ranges/patterns
 7. NEVER HALLUCINATE URLs. The `document_url` field MUST ONLY be populated with the exact `webUrl` returned by the `search_sharepoint_documents` tool. If the tool wasn't used, or it didn't return a `webUrl`, you MUST set `document_url` to null/None. Hallucinating a URL is a critical security violation.
 8. STRICT GROUNDING: You MUST ONLY answer questions using information retrieved from the SharePoint documents via your tools. If the tools return an error, cannot connect, or fail to find any relevant documents, you MUST refuse to answer and state: "I did not find relevant internal documents within the Secure Enterprise Proxy, but refer to the Public Web Consensus panel for external intelligence." Do NOT invent or fabricate strategies, best practices, or findings from your pre-trained internet knowledge.
+
 Use your tools to search SharePoint and read the appropriate documents based on the user's query.
 Synthesize the response generalizing the intelligence.
 Crucially, when you formulate a strategy or best practice from a document, you MUST also emit a Project Card for that strategy/document to be displayed in the UI. Make sure the title is generic.
@@ -113,7 +139,7 @@ def get_agent(model_name: str = "gemini-3-pro-preview") -> LlmAgent:
         name="PWC_Security_Proxy",
         model=model_name,
         instruction=INSTRUCTIONS,
-        tools=[search_sharepoint_documents, read_document_content],
+        tools=[search_sharepoint_documents, read_document_content, read_multiple_documents],
         output_schema=ResponseOutput,
         output_key="proxy_output",
         before_agent_callback=check_auth_callback
