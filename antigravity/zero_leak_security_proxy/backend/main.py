@@ -159,13 +159,13 @@ async def _chat_stream(messages: list, model_name: str):
                             yield AIStreamProtocol.data({"type": "status", "message": "Searching public web...", "icon": "globe", "pulse": True})
                             current_action[tag] = "Google Search API"
                         elif "search" in tool_name:
-                            reasoning_steps.append(f"{agent_label} THOUGHT:\nI need to search the enterprise database for relevant information before proceeding.")
-                            yield AIStreamProtocol.data({"type": "status", "message": "Searching enterprise indices...", "icon": "search", "pulse": True})
-                            current_action[tag] = "Graph API Search"
+                            reasoning_steps.append(f"{agent_label} THOUGHT:\nI need to search the enterprise database for relevant information. I will use a **Parallel Fan-out Search** with 3 distinct query angles to maximize recall.")
+                            yield AIStreamProtocol.data({"type": "status", "message": "Executing Parallel Fan-out Search...", "icon": "search", "pulse": True})
+                            current_action[tag] = "Graph Parallel Fan-out Search"
                         elif "read" in tool_name:
-                            reasoning_steps.append(f"{agent_label} ANALYSIS:\nThe search results found relevant files. I must now extract their text using MarkItDown OCR to synthesize the final answer.")
-                            yield AIStreamProtocol.data({"type": "status", "message": "Extracting text via MarkItDown OCR...", "icon": "database", "pulse": True})
-                            current_action[tag] = "Document MarkItDown OCR"
+                            reasoning_steps.append(f"{agent_label} ANALYSIS:\nI identified relevant documents. I will now trigger the **MarkItDown Global Conversion** engine to transform complex binaries into clean Markdown for high-scale synthesis.")
+                            yield AIStreamProtocol.data({"type": "status", "message": "Neural Markdown Conversion...", "icon": "file-text", "pulse": True})
+                            current_action[tag] = "Neural Markdown Conversion"
                         else:
                             current_action[tag] = f"Tool: {tool_name}"
                             
@@ -178,9 +178,16 @@ async def _chat_stream(messages: list, model_name: str):
                             
                     elif p.get("function_response"):
                         tool_name = p["function_response"].get("name", "")
-                        res_str = str(p["function_response"].get("response", {}))
+                        resp_data = p["function_response"].get("response", "")
+                        res_str = str(resp_data)
+                        
                         if len(res_str) > 500:
                             res_str = res_str[:500] + "... [TRUNCATED]"
+                        
+                        # Phase: Detect Vision triggers and update UI status
+                        if "read" in tool_name and "[NEURAL VISION BLOCK:" in str(resp_data):
+                            yield AIStreamProtocol.data({"type": "status", "message": "Neural Vision describing visual assets...", "icon": "eye", "pulse": True})
+                            
                         reasoning_steps.append(f"{agent_label} RESPONSE:\n{tool_name}")
                         reasoning_steps.append(f"{agent_label} RESULT:\n{res_str}")
                         
@@ -276,6 +283,14 @@ async def _chat_stream(messages: list, model_name: str):
             yield AIStreamProtocol.data(widget_payload)
 
 from auth_context import set_user_token
+
+@app.get("/health")
+async def health_check():
+    return {"status": "ok", "service": "zero_leak_security_proxy"}
+
+@app.get("/")
+async def root():
+    return {"message": "Zero-Leak Security Proxy Backend is running.", "docs": "/docs"}
 
 async def auth_error_stream(message: str):
     yield AIStreamProtocol.text(message)

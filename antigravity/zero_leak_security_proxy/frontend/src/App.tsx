@@ -325,8 +325,8 @@ function App() {
               <div className="topology-node" style={{ width: "250px" }}>
                 <Cpu className="icon" size={32} />
                 <h4>LLM</h4>
-                <p>Gemini 3 Pro / Flash</p>
-                <div className="node-detail">gemini-3-pro-preview</div>
+                <p>Gemini 3 Pro / Flash / Lite</p>
+                <div className="node-detail">{selectedModel}</div>
               </div>
               <div style={{ width: "370px" }}></div>
             </div>
@@ -462,6 +462,12 @@ function App() {
                 >
                       gemini-3-flash-preview
                     </option>
+                      <option
+                        value="gemini-3.1-flash-lite-preview"
+                        style={{ color: "black" }}
+                      >
+                        gemini-3.1-flash-lite-preview
+                      </option>
                   </select>
                 </div>
 
