@@ -19,10 +19,9 @@ description: Guides the creation of Google ADK (Agent Development Kit) agents. U
 - **ADK Core Env Vars**: You MUST set `os.environ["GOOGLE_GENAI_USE_VERTEXAI"] = "true"` for ADK to correctly route to Vertex AI.
 - **Import Goal Standard**:
   ```python
+  import vertexai
+  from vertexai.agent_engines import AdkApp
   from google.adk.agents import LlmAgent
-  from google.adk.runners import Runner
-  from google.adk.sessions import InMemorySessionService
-  from google.genai import types
   ```
 - **Fast/Light**: `gemini-2.5-flash`, `gemini-2.5-flash-lite`
 

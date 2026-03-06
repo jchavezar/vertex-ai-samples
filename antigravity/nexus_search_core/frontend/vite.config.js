@@ -12,6 +12,10 @@ export default defineConfig({
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/google-api/, '')
       },
+      '/evaluate': {
+        target: 'http://127.0.0.1:8001',
+        changeOrigin: true
+      },
       '/aiplatform-api': {
         target: 'https://us-central1-aiplatform.googleapis.com',
         changeOrigin: true,

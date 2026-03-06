@@ -11,28 +11,47 @@ adk web --port 8000
 ```
 
 ## 2. Vertex AI Agent Engine (Recommended)
-Use `google.genai.Client()` for deployment and lifecycle management.
+Use `vertexai.Client()` and `AdkApp` for deployment and lifecycle management.
 
+### Deployment Example
 ```python
-from google.genai import Client
+import vertexai
+from vertexai.agent_engines import AdkApp
 from my_agent import root_agent
 
-client = Client(vertexai=True, project="my-project", location="us-central1")
+vertexai.init(project="my-project", location="us-central1")
+client = vertexai.Client(project="my-project", location="us-central1")
 
-remote_agent = client.agent_engines.create(
-    agent=root_agent,
+# Wrap the ADK agent
+deployment_app = AdkApp(agent=root_agent, enable_tracing=True)
+
+# Create or Update
+remote_app = client.agent_engines.create(
+    agent=deployment_app,
     config={
-        "display_name": "my-adk-agent",
-        "requirements": ["google-adk", "google-genai"],
-        "env_vars": {"GOOGLE_GENAI_USE_VERTEXAI": "true"}
+        "display_name": "my-agent-engine",
+        "staging_bucket": "gs://my-bucket",
+        "requirements": "requirements.txt",
+        "extra_packages": ["agent.py"],
     }
 )
 ```
 
-### Lifecycle Commands
-- **List**: `client.agent_engines.list()`
-- **Get**: `client.agent_engines.get(name="agent-id")`
-- **Delete**: `client.agent_engines.delete(name="agent-id")`
+### Lifecycle & Testing
+```python
+# List Engines
+engines = client.agent_engines.list()
+
+# Async Testing
+async def test_agent(app):
+    session = await app.async_create_session(user_id="test_user")
+    async for event in app.async_stream_query(
+        user_id="test_user",
+        session_id=session.id,
+        message="Hello!"
+    ):
+        print(event)
+```
 
 ---
 *Reference: https://docs.cloud.google.com/agent-builder/agent-engine/deploy*

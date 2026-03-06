@@ -21,23 +21,25 @@ const mapSearchResult = (sr) => {
   // 4. groundedContent/groundingChunks/references
 
   const doc = sr.document || sr;
-  const structData = doc.structData || {};
-  const derivedStructData = doc.derivedStructData || {};
+  const structData = doc.structData || sr.structData || {};
+  const derivedStructData = doc.derivedStructData || sr.derivedStructData || {};
+
+  console.log('[DEBUG_RAW_SR]', JSON.stringify(sr));
 
   // Extract from the most likely places
   const name = doc.name || doc.id || (typeof sr.document === 'string' ? sr.document : "");
 
-  // v1beta groundingChunks handling
-  const chunkText = sr.content || sr.text || sr.retrieval_chunk?.text || "";
-  const chunkTitle = sr.title || sr.retrieval_chunk?.title || "";
-  const chunkUri = sr.uri || sr.link || sr.retrieval_chunk?.uri || "";
+  // v1alpha/v1beta groundingChunks handling
+  const chunkText = sr.content || sr.text || sr.retrievedContext?.text || sr.retrieval_chunk?.text || "";
+  const chunkTitle = sr.title || sr.retrievedContext?.title || sr.retrieval_chunk?.title || "";
+  const chunkUri = sr.uri || sr.link || sr.retrievedContext?.uri || sr.retrieval_chunk?.uri || "";
 
   const title =
     structData.title ||
     structData.name ||
     chunkTitle ||
     derivedStructData.title ||
-    (typeof name === 'string' ? name.split('/').pop() : "Source Material");
+    (typeof name === 'string' && name ? name.split('/').pop() : "Source Material");
 
   const uri =
     structData.url ||
@@ -282,11 +284,30 @@ export const executeStreamAssist = async (googleToken, query, onChunk) => {
     if (foundResults.length > 0 || citations.length > 0) {
       const mapped = foundResults.map(mapSearchResult);
       mapped.forEach(m => {
-        const isDup = extractedResults.some(er =>
-          er.document.name === m.document.name ||
-          (er.document.structData.url === m.document.structData.url && m.document.structData.url !== "")
+        const existingIdx = extractedResults.findIndex(er =>
+          (m.document.name && er.document.name === m.document.name) ||
+          (m.document.structData?.url && er.document.structData?.url === m.document.structData?.url)
         );
-        if (!isDup) extractedResults.push(m);
+
+        if (existingIdx !== -1) {
+          // It's a duplicate. However, groundingChunks often arrive first with missing titles.
+          // If the new chunk (m) has better metadata (e.g. from searchResults), we should merge it over the existing one.
+          const er = extractedResults[existingIdx];
+
+          if (!er.document.structData.title || er.document.structData.title.match(/^[0-9]+$/)) {
+            if (m.document.structData.title && !m.document.structData.title.match(/^[0-9]+$/)) {
+              er.document.structData.title = m.document.structData.title;
+            }
+          }
+          if (!er.document.structData.url && m.document.structData.url) {
+            er.document.structData.url = m.document.structData.url;
+          }
+          if (!er.document.structData.snippet && m.document.structData.snippet) {
+            er.document.structData.snippet = m.document.structData.snippet;
+          }
+        } else {
+          extractedResults.push(m);
+        }
       });
       onChunk('', fullAnswer, extractedResults, citations);
     }

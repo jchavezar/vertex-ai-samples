@@ -311,7 +311,7 @@ function App() {
 
     setIsEvaluating(true);
     try {
-      const response = await fetch('http://localhost:8001/evaluate', {
+      const response = await fetch('/evaluate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ answer, sources, citations })
@@ -633,7 +633,7 @@ function App() {
                             {searchResult.results[activeCitation].document.derivedStructData?.title ||
                               searchResult.results[activeCitation].document.structData?.title ||
                               searchResult.results[activeCitation].document.structData?.name ||
-                              searchResult.results[activeCitation].document.name.split('/').pop()}
+                                  (searchResult.results[activeCitation].document.name || '').split('/').pop() || 'Unknown Document'}
                           </h2>
                           {(searchResult.results[activeCitation].document.structData?.url || searchResult.results[activeCitation].document.derivedStructData?.link) && (
                             <a
@@ -677,7 +677,7 @@ function App() {
                           } else {
                             return (
                               <div className="bg-white/5 p-4 rounded-xl border border-white/5">
-                                <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(fallbackHtml) }} />
+                                <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(fallbackHtml || "") }} />
                               </div>
                             );
                           }
@@ -762,7 +762,7 @@ function App() {
                         {res.document.derivedStructData?.title ||
                           res.document.structData?.title ||
                           res.document.structData?.name ||
-                          res.document.name.split('/').pop()}
+                          (res.document.name || '').split('/').pop() || 'Unknown Document'}
                       </h4>
                       <p className="text-xs text-gray-500 mt-2 line-clamp-3">
                         {res.document.derivedStructData?.snippets?.[0]?.snippet

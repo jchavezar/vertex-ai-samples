@@ -20,7 +20,7 @@ from google.genai import types
 from pydantic import BaseModel
 
 class SQLQuery(BaseModel):
-    query: string
+    query: str
 
 app = FastAPI(title="Verity Nexus API")
 
