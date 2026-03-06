@@ -1,0 +1,112 @@
+GET https://discoveryengine.googleapis.com/v1alpha/projects/440133963879/locations/global/collections/default_collection/engines/deloitte-demo/assistants
+Found assistant: projects/440133963879/locations/global/collections/default_collection/engines/deloitte-demo/assistants/default_assistant
+POSTing to https://discoveryengine.googleapis.com/v1alpha/projects/440133963879/locations/global/collections/default_collection/engines/deloitte-demo/assistants/default_assistant:streamAssist
+[{
+  "answer": {
+    "state": "IN_PROGRESS",
+    "replies": [
+      {
+        "groundedContent": {
+          "content": {
+            "role": "model",
+            "text": "**Analyzing the Ambiguity**\n",
+            "thought": true
+          }
+        }
+      }
+    ]
+  },
+  "assistToken": "NMwKDAiHkKjNBhDZqpynAxIkNjlhODg1NjctMDAwMC0yNGNmLTg4YjctYzgyYWRkN2U5Y2U0"
+}
+,
+{
+  "answer": {
+    "state": "IN_PROGRESS",
+    "replies": [
+      {
+        "groundedContent": {
+          "content": {
+            "role": "model",
+            "text": "**Defining the Scope**\n",
+            "thought": true
+          }
+        }
+      }
+    ]
+  },
+  "assistToken": "NMwKDAiHkKjNBhDZqpynAxIkNjlhODg1NjctMDAwMC0yNGNmLTg4YjctYzgyYWRkN2U5Y2U0"
+}
+,
+{
+  "answer": {
+    "state": "IN_PROGRESS",
+    "replies": [
+      {
+        "groundedContent": {
+          "content": {
+            "role": "model",
+            "text": "**Crafting a Response**\n",
+            "thought": true
+          }
+        }
+      }
+    ]
+  },
+  "assistToken": "NMwKDAiHkKjNBhDZqpynAxIkNjlhODg1NjctMDAwMC0yNGNmLTg4YjctYzgyYWRkN2U5Y2U0"
+}
+,
+{
+  "answer": {
+    "state": "IN_PROGRESS",
+    "replies": [
+      {
+        "groundedContent": {
+          "content": {
+            "role": "model",
+            "text": "I can help with that. Could you please clarify what type of documents you are looking for, and where they might"
+          }
+        }
+      }
+    ]
+  },
+  "assistToken": "NMwKDAiHkKjNBhDZqpynAxIkNjlhODg1NjctMDAwMC0yNGNmLTg4YjctYzgyYWRkN2U5Y2U0"
+}
+,
+{
+  "answer": {
+    "state": "IN_PROGRESS",
+    "replies": [
+      {
+        "groundedContent": {
+          "content": {
+            "role": "model",
+            "text": " be located? For example, are you interested in recent emails, files in a specific Google Drive folder, or something else?"
+          }
+        }
+      }
+    ]
+  },
+  "assistToken": "NMwKDAiHkKjNBhDZqpynAxIkNjlhODg1NjctMDAwMC0yNGNmLTg4YjctYzgyYWRkN2U5Y2U0"
+}
+,
+{
+  "answer": {
+    "name": "projects/440133963879/locations/global/collections/default_collection/engines/deloitte-demo/sessions/7963006331831842890/assistAnswers/1184827939993354173",
+    "state": "SUCCEEDED",
+    "replies": [
+      {
+        "groundedContent": {},
+        "replyId": "9756130798193514985"
+      },
+      {
+        "groundedContent": {},
+        "replyId": "9756130798193514985"
+      }
+    ]
+  },
+  "sessionInfo": {
+    "session": "projects/440133963879/locations/global/collections/default_collection/engines/deloitte-demo/sessions/7963006331831842890"
+  },
+  "assistToken": "NMwKDAiHkKjNBhDZqpynAxIkNjlhODg1NjctMDAwMC0yNGNmLTg4YjctYzgyYWRkN2U5Y2U0"
+}
+]

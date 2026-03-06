@@ -98,6 +98,9 @@ async def evaluate_answer(answer: str, sources: str, citations: List = []):
         
         result = session.state.get("evaluation")
         if result:
+            # Check if result is a Pydantic object and needs serialization
+            if hasattr(result, "model_dump"):
+                result = result.model_dump()
             print(f"[DEBUG_EVAL] Evaluation completed with {len(result.get('segments', []))} segments")
         else:
             print(f"[DEBUG_EVAL] Evaluation result is EMPTY in session state")
