@@ -1,6 +1,6 @@
 import os
 import json
-import psycopg2
+from google.cloud import bigquery
 from google.genai import Client
 from typing import List, Dict, Any
 from dotenv import load_dotenv
@@ -9,44 +9,45 @@ from dotenv import load_dotenv
 load_dotenv()
 load_dotenv("../.env")
 
-# PostgreSQL Connection settings (Local Docker)
-DB_HOST = "localhost"
-DB_PORT = "5433" # Mapped port
-DB_USER = "auditor"
-DB_PASS = "nexus"
-DB_NAME = "ledger"
-
 # Initialize Gemini Client
 # It will automatically pick up Vertex AI configuration from .env
-client = Client()
+genai_client = Client()
 
-# Initialize Gemini Client
-client = Client()
+BQ_DATASET = "verity_nexus_ledger"
+BQ_TABLE = "ledger_transactions"
 
 def setup_database():
-    """Creates the ledger_transactions table if it doesn't exist."""
-    print("Connecting to PostgreSQL...")
-    conn = psycopg2.connect(
-        host=DB_HOST, port=DB_PORT, user=DB_USER, password=DB_PASS, dbname=DB_NAME
-    )
-    cur = conn.cursor()
-
-    print("Creating ledger_transactions table...")
-    cur.execute("""
-        CREATE TABLE IF NOT EXISTS ledger_transactions (
-            id SERIAL PRIMARY KEY,
-            trans_id VARCHAR(50) UNIQUE NOT NULL,
-            date DATE NOT NULL,
-            vendor_name VARCHAR(255) NOT NULL,
-            amount_usd DECIMAL(15, 2) NOT NULL,
-            department VARCHAR(100) NOT NULL,
-            description TEXT,
-            approval_status VARCHAR(50) NOT NULL,
-            jurisdiction VARCHAR(100) NOT NULL
-        )
-    """)
-    conn.commit()
-    return conn, cur
+    """Creates the ledger_transactions table in BigQuery if it doesn't exist."""
+    print("Connecting to BigQuery...")
+    client = bigquery.Client()
+    dataset_id = f"{client.project}.{BQ_DATASET}"
+    
+    try:
+        dataset = bigquery.Dataset(dataset_id)
+        dataset.location = "US"
+        dataset = client.create_dataset(dataset, timeout=30, exists_ok=True)
+        print("Dataset ready: {}.{}".format(client.project, dataset.dataset_id))
+    except Exception as e:
+        print(f"Dataset creation error: {e}")
+        
+    table_id = f"{dataset_id}.{BQ_TABLE}"
+    
+    schema = [
+        bigquery.SchemaField("trans_id", "STRING", mode="REQUIRED"),
+        bigquery.SchemaField("date", "DATE", mode="REQUIRED"),
+        bigquery.SchemaField("vendor_name", "STRING", mode="REQUIRED"),
+        bigquery.SchemaField("amount_usd", "FLOAT", mode="REQUIRED"),
+        bigquery.SchemaField("department", "STRING", mode="REQUIRED"),
+        bigquery.SchemaField("description", "STRING"),
+        bigquery.SchemaField("approval_status", "STRING", mode="REQUIRED"),
+        bigquery.SchemaField("jurisdiction", "STRING", mode="REQUIRED"),
+    ]
+    
+    table = bigquery.Table(table_id, schema=schema)
+    table = client.create_table(table, exists_ok=True)
+    print("Table ready: {}.{}.{}".format(table.project, table.dataset_id, table.table_id))
+    
+    return client, table_id
 
 def generate_transaction_batch(batch_num: int) -> str:
     """Uses Gemini 2.5 Flash to generate a batch of highly realistic synthetic transactions."""
@@ -79,7 +80,7 @@ def generate_transaction_batch(batch_num: int) -> str:
     """
 
     print(f"Requesting batch {batch_num} from Gemini 2.5 Flash...")
-    response = client.models.generate_content(
+    response = genai_client.models.generate_content(
         model='gemini-2.5-flash',
         contents=prompt,
         config={
@@ -89,36 +90,23 @@ def generate_transaction_batch(batch_num: int) -> str:
     )
     return response.text
 
-def insert_batch(conn, cur, batch_data: str):
-    """Parses JSON and inserts into Postgres."""
+def insert_batch(client, table_id, batch_data: str):
+    """Parses JSON and inserts into BigQuery."""
     try:
         transactions = json.loads(batch_data)
-        for txn in transactions:
-            cur.execute("""
-                INSERT INTO ledger_transactions 
-                (trans_id, date, vendor_name, amount_usd, department, description, approval_status, jurisdiction)
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
-                ON CONFLICT (trans_id) DO NOTHING
-            """, (
-                txn['trans_id'],
-                txn['date'],
-                txn['vendor_name'],
-                txn['amount_usd'],
-                txn['department'],
-                txn['description'],
-                txn['approval_status'],
-                txn['jurisdiction']
-            ))
-        conn.commit()
-        print(f"  Inserted {len(transactions)} rows.")
+        # BigQuery expects DATE fields to be formatted as strings 'YYYY-MM-DD', which we have.
+        errors = client.insert_rows_json(table_id, transactions)
+        if errors == []:
+            print(f"  Inserted {len(transactions)} rows.")
+        else:
+            print(f"Encountered errors while inserting rows: {errors}")
     except Exception as e:
         print(f"Error parsing or inserting batch: {e}")
-        conn.rollback()
 
 if __name__ == "__main__":
-    conn, cur = setup_database()
+    client, table_id = setup_database()
     
-    total_rows = 1000
+    total_rows = 500
     batch_size = 50
     num_batches = total_rows // batch_size
     
@@ -126,8 +114,6 @@ if __name__ == "__main__":
     
     for i in range(num_batches):
         batch_json = generate_transaction_batch(i + 1)
-        insert_batch(conn, cur, batch_json)
+        insert_batch(client, table_id, batch_json)
         
-    cur.close()
-    conn.close()
-    print("Database population complete.")
+    print("BigQuery population complete.")

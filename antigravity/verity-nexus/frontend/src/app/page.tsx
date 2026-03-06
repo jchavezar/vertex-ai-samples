@@ -23,6 +23,7 @@ import {
 } from 'lucide-react';
 import ReactFlow, { Background, Controls } from 'reactflow';
 import 'reactflow/dist/style.css';
+import { McpInspector } from '@/components/McpInspector';
 
 // --- Sub-Components ---
 
@@ -509,7 +510,7 @@ const ReasoningStream = () => {
 const nodes = [
   {
     id: 'orchestrator',
-    position: { x: 250, y: 0 },
+    position: { x: 150, y: 0 },
     data: { label: 'Orchestrator' },
     style: {
       background: '#111',
@@ -523,7 +524,7 @@ const nodes = [
   },
   {
     id: 'audit_agent',
-    position: { x: 0, y: 150 },
+    position: { x: 0, y: 120 },
     data: { label: 'Audit Agent' },
     style: {
       background: '#0a0a0a',
@@ -537,7 +538,7 @@ const nodes = [
   },
   {
     id: 'tax_agent',
-    position: { x: 500, y: 150 },
+    position: { x: 300, y: 120 },
     data: { label: 'Tax Agent' },
     style: {
       background: '#0a0a0a',
@@ -551,7 +552,7 @@ const nodes = [
   },
   {
     id: 'mcp_server',
-    position: { x: 0, y: 300 },
+    position: { x: 0, y: 260 },
     data: { label: <div>MCP Server (Cloud Run)<br /><span style={{ fontSize: '8px', opacity: 0.7 }}>mcp-database-toolbox</span></div> },
     style: {
       background: '#0a0a0a',
@@ -565,7 +566,7 @@ const nodes = [
   },
   {
     id: 'cloud_sql',
-    position: { x: 0, y: 450 },
+    position: { x: 0, y: 400 },
     data: { label: <div>Cloud SQL (PostgreSQL)<br /><span style={{ fontSize: '8px', opacity: 0.7 }}>'ledger' Database</span></div> },
     style: {
       background: '#0a0a0a',
@@ -579,7 +580,7 @@ const nodes = [
   },
   {
     id: 'gemini',
-    position: { x: 500, y: 300 },
+    position: { x: 300, y: 260 },
     data: { label: <div>Vertex AI<br /><span style={{ fontSize: '8px', opacity: 0.7 }}>Gemini 2.5 Flash</span></div> },
     style: {
       background: '#0a0a0a',
@@ -604,10 +605,26 @@ const edges = [
   { id: 't-g', source: 'tax_agent', target: 'gemini', animated: true, style: { stroke: '#a855f7', opacity: 0.3 } },
 ];
 
+import { ThemeToggle } from '@/components/theme-toggle';
+
 export default function VerityNexus() {
   const [mounted, setMounted] = useState(false);
   const [isDiagramMaximized, setIsDiagramMaximized] = useState(false);
-  const { addReasoning, updateStats, updateAgentStatus, setSignOffVisible, isSignOffVisible, findings, setFindings, isEvidenceMaximized, setEvidenceMaximized } = useVerityStore();
+  const {
+    addReasoning,
+    updateStats,
+    updateAgentStatus,
+    setSignOffVisible,
+    isSignOffVisible,
+    findings,
+    setFindings,
+    isEvidenceMaximized,
+    setEvidenceMaximized,
+    isSQLTerminalOpen,
+    setSQLTerminalOpen,
+    isMCPToolboxOpen,
+    setMCPToolboxOpen
+  } = useVerityStore();
 
   useEffect(() => {
     setMounted(true);
@@ -750,11 +767,19 @@ export default function VerityNexus() {
           </div>
           <div className="h-8 w-px bg-white/5" />
           <button
-            onClick={() => useVerityStore.getState().setSQLTerminalOpen(true)}
+            onClick={() => setSQLTerminalOpen(true)}
             className="text-[10px] font-bold bg-white/5 border border-white/10 px-4 py-2 rounded-xl hover:bg-white/10 transition-colors uppercase tracking-widest"
           >
             SQL Terminal
           </button>
+          <button
+            onClick={() => setMCPToolboxOpen(true)}
+            className="text-[10px] font-bold bg-white/5 border border-white/10 px-4 py-2 rounded-xl hover:bg-white/10 transition-colors uppercase tracking-widest flex items-center gap-2"
+          >
+            <Zap className="w-3 h-3 text-cyan-500" />
+            MCP Toolbox
+          </button>
+          <ThemeToggle />
         </div>
       </div>
 
@@ -1058,7 +1083,14 @@ export default function VerityNexus() {
 
       {/* SQL Terminal Overlay */}
       <AnimatePresence>
-        {useVerityStore.getState().isSQLTerminalOpen && <SQLTerminalModal />}
+        {isSQLTerminalOpen && <SQLTerminalModal />}
+      </AnimatePresence>
+
+      {/* MCP Toolbox Overlay */}
+      <AnimatePresence>
+        {isMCPToolboxOpen && (
+          <McpInspector goHome={() => setMCPToolboxOpen(false)} />
+        )}
       </AnimatePresence>
     </div>
   );
@@ -1067,7 +1099,7 @@ export default function VerityNexus() {
 // --- New SQL Terminal Component ---
 const SQLTerminalModal = () => {
   const { setSQLTerminalOpen } = useVerityStore();
-  const [query, setQuery] = useState("SELECT * FROM ledger_transactions LIMIT 5;");
+  const [query, setQuery] = useState("SELECT * FROM verity_nexus_ledger.ledger_transactions LIMIT 5;");
   const [results, setResults] = useState<any[] | null>(null);
   const [columns, setColumns] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);

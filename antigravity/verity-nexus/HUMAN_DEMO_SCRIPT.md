@@ -85,5 +85,33 @@ A professional executive summary covering total material risk (e.g., $2.8M) and 
 
 ---
 
+## 🔬 Narrative Act 5: The Multi-Modal Investigation (SQL & MCP)
+**Presenter Voice:** *"Our natural language Orchestrator found anomalies. But in forensics, trust requires verification. Let's prove where this data comes from."*
+
+**Action 1:** Open the **SQL Terminal** from the top right button. 
+Execute the following exact query:
+```sql
+SELECT * FROM `vtxdemos.verity_nexus_ledger.ledger_transactions` WHERE jurisdiction = 'Cayman Islands' LIMIT 5;
+```
+
+**What to explain while it runs:**
+- *"We are switching to a deterministic approach by executing raw SQL against the BigQuery ledger."*
+- *"Notice that the results—like the $1.55M transaction—match the AI's findings exactly. This proves our agent is structurally grounded in the actual enterprise data warehouse, not just generating plausible text."*
+
+**Action 2:** Open the **MCP Toolbox** (wrench icon on the far left or top menu).
+1. Expand the `query_transactions_by_jurisdiction` tool.
+2. Click the Send to Chat icon to load this JSON payload, or type it manually into the Toolbox Chat:
+```json
+{ "jurisdiction_name": "Cayman Islands" }
+```
+3. Click Send.
+
+**What to explain while it runs:**
+- *"Here we peel back the curtain. This is the Model Context Protocol (MCP) Server, deployed statelessly on Cloud Run."*
+- *"By sending the exact JSON payload the agent used, we can see the raw tool output. This is the structured data feed the LLM receives *before* it synthesizes its human-readable answer."*
+- *"The results match perfectly across all three domains: AI natural language, raw SQL, and direct tool protocol."*
+
+---
+
 ## 🛑 Clean Up
 To end the demo, just `Ctrl+C` both terminal tabs.

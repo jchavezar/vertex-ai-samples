@@ -39,7 +39,6 @@ gcloud run deploy $SERVICE_NAME \
   --region $REGION \
   --allow-unauthenticated \
   --port 8080 \
-  --add-cloudsql-instances="vtxdemos:us-central1:pg15-pgvector-demo" \
   --set-secrets="/config/tools.yaml=$SECRET_NAME:latest" \
   --command="" \
   --args="--tools-file=/config/tools.yaml,--port=8080,--address=0.0.0.0,--disable-reload"
