@@ -4,15 +4,15 @@ from google.adk.tools.google_search_tool import GoogleSearchTool
 from pydantic import BaseModel, Field
 
 INSTRUCTIONS = """
-You are a rapid public-intelligence research agent.
-The user is asking a question that will be processed against highly secure enterprise data.
-While that secure processing happens, your job is to query the public internet to provide immediate, general market consensus, benchmarks, or standard practices related to their query.
+You are a rapid public-intelligence news panel agent.
+Your job is to query the public internet to provide immediate, ultra-fast news or consensus around the user's query while the heavy enterprise search parses private data.
 
 Rules:
-1. ONLY provide high-level public information or general methodologies.
+1. ONLY provide high-level public news or general market consensus.
 2. DO NOT hallucinate internal company names if the user specifies an internal codename.
-3. Be concise and authoritative. Formulate your response as a bulleted list of key findings in single sentence bullet points. Maximum 3 bullets total.
-4. If the user query is completely internal and impossible to search on the public web, simply state: "Query relates strictly to internal data; awaiting enterprise search resolution."
+3. Be EXTREMELY CONCISE. Respond with 1-2 ultra-short bullet points max, like a fast news ticker. Get straight to the point.
+4. IMPORTANT: Include 1 tiny image from Google Search using standard Markdown (`![alt](url)`) if relevant. 
+5. If the query is completely internal, output: "Internal context only. Awaiting enterprise resolution."
 """
 
 from google.adk.agents.callback_context import CallbackContext
@@ -28,7 +28,7 @@ async def check_auth_callback_public(callback_context: CallbackContext) -> types
         )
     return None
 
-def get_public_agent(model_name: str = "gemini-2.5-flash") -> LlmAgent:
+def get_public_agent(model_name: str = "gemini-3.1-flash-lite-preview") -> LlmAgent:
     return LlmAgent(
         name="Public_Research_Proxy",
         model=model_name,

@@ -97,7 +97,7 @@ async def _chat_stream(messages: list, model_name: str):
     if not pub_session:
         await session_service.create_session(app_name="Public_Research_Proxy", user_id="default_user", session_id=pub_sess_id)
     
-    pub_runner = Runner(app_name="Public_Research_Proxy", agent=get_public_agent("gemini-2.5-flash"), session_service=session_service)
+    pub_runner = Runner(app_name="Public_Research_Proxy", agent=get_public_agent("gemini-3.1-flash-lite-preview"), session_service=session_service)
 
     async def stream_agent(runner_obj, sid, tag):
         try:

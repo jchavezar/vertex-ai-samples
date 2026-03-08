@@ -139,6 +139,47 @@ body {
     background-color: #f0f2f5;
 }
 
+/* Table Overlay Modal */
+.table-overlay-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  z-index: 99999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.table-overlay-content {
+  background: var(--pwc-bg-main);
+  border-radius: var(--pwc-radius);
+  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.2);
+  width: 90vw;
+  max-width: 1000px;
+  max-height: 90vh;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  border: 1px solid var(--pwc-border);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
 /* Sidebar Chat Board Style */
 .pwc-chat-sidebar {
   width: 420px;
@@ -155,10 +196,72 @@ body {
     transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
+.pwc-chat-sidebar.wide {
+  width: 800px;
+  max-width: 60vw;
+}
+
+.pwc-chat-sidebar.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  max-width: none;
+  z-index: 2000;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+@media (max-width: 1024px) {
+  .pwc-chat-sidebar.wide {
+    width: 600px;
+    max-width: 45vw;
+  }
+}
+
 .chat-header {
   padding: var(--spacing-lg);
   border-bottom: 1px solid var(--pwc-border);
   background: linear-gradient(to bottom, #fff, #fafafa);
+  display: flex;
+  flex-direction: column;
+}
+
+.chat-header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  width: 100%;
+}
+
+.chat-mode-controls {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.chat-mode-btn {
+  background: transparent;
+  border: none;
+  color: var(--pwc-grey);
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.chat-mode-btn:hover {
+  background: rgba(0, 0, 0, 0.05);
+  color: var(--pwc-orange);
+}
+
+.chat-mode-btn.active {
+  color: var(--pwc-orange);
+  background: rgba(208, 74, 2, 0.1);
 }
 
 .chat-header h2 {
@@ -192,20 +295,22 @@ body {
 }
 
 .message.user {
-  background: #FFFFFF;
-    color: var(--pwc-black);
+  background: linear-gradient(135deg, rgba(255,255,255,1) 0%, rgba(250,250,252,1) 100%);
+  color: var(--pwc-black);
   align-self: flex-end;
   border-bottom-right-radius: 4px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-    border: 1px solid #E5E7EB;
+  box-shadow: 0 8px 16px -4px rgba(0, 0, 0, 0.06);
+  border: 1px solid rgba(229, 231, 235, 0.6);
 }
 
 .message.assistant {
   background-color: var(--pwc-light-grey);
-    color: var(--pwc-black);
-    align-self: flex-start;
-    border-bottom-left-radius: 4px;
+  color: var(--pwc-black);
+  align-self: flex-start;
+  border-bottom-left-radius: 4px;
   border: 1px solid var(--pwc-border);
+  border-left: 3px solid var(--pwc-orange);
+  box-shadow: 3px 4px 12px rgba(0, 0, 0, 0.03);
 }
 
 .chat-input-area {
@@ -1126,6 +1231,54 @@ a.doc-id:hover {
   50% { transform: translateY(-10px); }
 }
 
+
+
+/* Premium Markdown Table Styles */
+.premium-table-wrapper {
+  overflow-x: auto;
+  margin: 16px 0;
+  border: 1px solid var(--pwc-glass-border);
+  border-radius: 8px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  background: transparent;
+}
+
+.premium-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  background: transparent;
+}
+
+.premium-thead {
+  background: rgba(208, 74, 2, 0.05); /* very subtle orange tint */
+  border-bottom: 2px solid var(--pwc-orange);
+  color: inherit;
+}
+
+.premium-th {
+  padding: 14px 20px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: inherit;
+}
+
+.premium-td {
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--pwc-glass-border);
+  font-size: 0.9rem;
+  color: inherit;
+  opacity: 0.9;
+}
+
+/* Specific styling when in Public Web Consensus (dark) */
+.card-content .premium-thead {
+  background: rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid rgba(255,255,255,0.2);
+}
+.card-content .premium-td {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
 
 .sharepoint-icon-wrapper svg {
   color: var(--pwc-orange);

@@ -13,9 +13,11 @@ import {
   CheckCircle,
   Globe,
   Search,
-  ChevronUp
+  ChevronUp,
+  Maximize2,
+  PanelLeft
 } from "lucide-react";
-import ReactMarkdown from "react-markdown";
+import { MarkdownRenderer } from "./components/MarkdownRenderer";
 import html2canvas from "html2canvas";
 import { jsPDF } from "jspdf";
 import { useMsal, useIsAuthenticated } from "@azure/msal-react";
@@ -97,6 +99,7 @@ function App() {
   const [selectedModel, setSelectedModel] = useState("gemini-3-flash-preview");
   const [showTopology, setShowTopology] = useState(false);
   const [activeAppTab, setActiveAppTab] = useState("proxy");
+  const [chatMode, setChatMode] = useState<'default'|'wide'|'overlay'>('default');
   const {
     messages,
     input,
@@ -451,9 +454,34 @@ function App() {
       ) : (
             <main className="pwc-main-wrapper">
               {/* Left Side: Chat Interface */}
-              <section className="pwc-chat-sidebar">
+              <section className={`pwc-chat-sidebar ${chatMode !== 'default' ? chatMode : ''}`}>
                 <div className="chat-header">
-                  <h2>Secure Enterprise Proxy</h2>
+                  <div className="chat-header-top">
+                    <h2>Secure Enterprise Proxy</h2>
+                    <div className="chat-mode-controls">
+                      <button 
+                        className={`chat-mode-btn ${chatMode === 'default' ? 'active' : ''}`} 
+                        onClick={() => setChatMode('default')}
+                        title="Default Width"
+                      >
+                        <PanelLeft size={18} />
+                      </button>
+                      <button 
+                        className={`chat-mode-btn ${chatMode === 'wide' ? 'active' : ''}`} 
+                        onClick={() => setChatMode('wide')}
+                        title="Wide Mode"
+                      >
+                        <Maximize2 size={18} />
+                      </button>
+                      <button 
+                        className={`chat-mode-btn ${chatMode === 'overlay' ? 'active' : ''}`} 
+                        onClick={() => setChatMode('overlay')}
+                        title="Fullscreen Overlay"
+                      >
+                        <Terminal size={18} />
+                      </button>
+                    </div>
+                  </div>
                   <p
                     style={{
                       display: "flex",
@@ -510,9 +538,31 @@ function App() {
                       indices.
                     </div>
                   )}
-                    {messages.map((m: any) => m.content ? (
+                    {messages.map((m: any, index: number) => m.content ? (
                     <div key={m.id} className={`message ${m.role}`}>
-                      <ReactMarkdown>{m.content}</ReactMarkdown>
+                      <MarkdownRenderer content={m.content} />
+                      
+                      {/* Card Relationship Visualization */}
+                      {m.role === 'assistant' && 
+                       index === messages.length - 1 && 
+                       projectCards.length > 0 && (
+                        <div style={{
+                          marginTop: '16px',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '6px',
+                          background: 'rgba(208, 74, 2, 0.08)',
+                          color: 'var(--pwc-orange)',
+                          padding: '6px 12px',
+                          borderRadius: '16px',
+                          fontSize: '0.8rem',
+                          fontWeight: 600,
+                          border: '1px solid rgba(208, 74, 2, 0.2)'
+                        }}>
+                          <Database size={14} /> 
+                          Related: {projectCards.length} Data Card{projectCards.length > 1 ? 's' : ''} Generated &#8594;
+                        </div>
+                      )}
                     </div>
                     ) : null)}
 
@@ -673,9 +723,8 @@ function App() {
                               padding: '2px 8px', 
                               borderRadius: '12px', 
                               fontSize: '10px',
-                              border: '1px solid rgba(94, 174, 253, 0.3)'
                             }}>
-                              Gemini 2.5 Flash
+                              gemini-3.1-flash-lite-preview
                             </span>
                           </div>
                           <div style={{ 
@@ -708,7 +757,7 @@ function App() {
                               padding: '0 24px 24px 24px',
                               fontWeight: '400'
                             }}>
-                            <ReactMarkdown>{publicInsight}</ReactMarkdown>
+                            <MarkdownRenderer content={publicInsight} chatMode={chatMode} />
                           </div>
                         )}
                       </div>
