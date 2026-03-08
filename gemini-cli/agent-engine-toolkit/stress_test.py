@@ -1,94 +1,109 @@
 import asyncio
 import os
 import time
-from google.genai import Client
-from google.adk.events.event import Event
+import vertexai
+import json
+from datetime import datetime
 
-# Configuration
+# --- CONFIGURATION ---
 PROJECT = "vtxdemos"
 LOCATION = "us-central1"
-# Replace this with the actual engine name after deployment
-ENGINE_NAME = "projects/254356041555/locations/us-central1/reasoningEngines/4503945973533245440"
+AGENT_ENGINE_NAME = "root_agent_test"
 NUM_CONCURRENT_REQUESTS = 80
+LOG_FILE = "logs.txt"
 
-async def send_query(client, session_id, query_index):
-    """Sends a single query to a specific session and returns performance metrics."""
+async def send_query(app, query_index):
+    """Sends a single query, returns metrics and logs result."""
     start_time = time.time()
+    user_id = f"stress-user-{query_index}"
+    query_text = f"Stress test query #{query_index}: What is the speed of light in a vacuum? Reply in one sentence."
+    
     try:
-        # We use a unique session ID for each query to test session creation overhead
-        # In Agent Engine, interacting with a reasoning engine via genai client:
-        # Note: The exact method for genai.Client() to CALL an agent engine might vary.
-        # Usually it's client.models.generate_content or a specialized agent_engines method.
-        # Based on documentation, we can use the remote_agent object or the engine name.
+        # Create Session
+        session = await app.async_create_session(user_id=user_id)
+        session_id = session["id"] if isinstance(session, dict) and "id" in session else session.id
         
-        # Simulating the call using the reasoning_engines interface or similar
-        # For this stress test, we are measuring response time and success/failure.
+        # Stream Query
+        response_text = ""
+        async for event in app.async_stream_query(
+            user_id=user_id,
+            session_id=session_id,
+            message=query_text
+        ):
+            if hasattr(event, 'text'): response_text += event.text
+            elif isinstance(event, dict) and 'text' in event: response_text += event['text']
         
-        # Actual call pattern for Agent Engine (Reasoning Engine) via google-genai:
-        response = await asyncio.to_thread(
-            client.models.generate_content,
-            model=ENGINE_NAME,
-            contents=f"Stress test query {query_index}. Reply with 'OK'.",
-            config={"candidate_count": 1}
-        )
-        
-        end_time = time.time()
+        latency = time.time() - start_time
         return {
             "index": query_index,
             "success": True,
-            "latency": end_time - start_time,
-            "response": response.text if hasattr(response, 'text') else str(response)
+            "latency": latency,
+            "query": query_text,
+            "response": response_text.strip()
         }
     except Exception as e:
-        end_time = time.time()
+        latency = time.time() - start_time
         return {
             "index": query_index,
             "success": False,
-            "latency": end_time - start_time,
+            "latency": latency,
+            "query": query_text,
             "error": str(e)
         }
 
-async def run_stress_test():
-    client = Client(
-        vertexai=True,
-        project=PROJECT,
-        location=LOCATION
-    )
+async def run_detailed_test():
+    vertexai.init(project=PROJECT, location=LOCATION)
+    client = vertexai.Client(project=PROJECT, location=LOCATION)
     
-    print(f"🚀 Starting stress test: {NUM_CONCURRENT_REQUESTS} concurrent queries to {ENGINE_NAME}...")
+    found = next((e for e in client.agent_engines.list() if e.api_resource.display_name == AGENT_ENGINE_NAME), None)
+    if not found: return print(f"Error: {AGENT_ENGINE_NAME} not found.")
+    app = client.agent_engines.get(name=found.api_resource.name)
+
+    print(f"🔥 Launching Stress Test: {NUM_CONCURRENT_REQUESTS} requests...")
+    results = await asyncio.gather(*[send_query(app, i) for i in range(NUM_CONCURRENT_REQUESTS)])
     
-    tasks = []
-    for i in range(NUM_CONCURRENT_REQUESTS):
-        # Generate a unique session ID for each request
-        session_id = f"stress-test-session-{int(time.time())}-{i}"
-        tasks.append(send_query(client, session_id, i))
+    # Save Logs
+    with open(LOG_FILE, "w") as f:
+        f.write(f"STRESS TEST LOGS - {datetime.now()}\n")
+        f.write("="*80 + "\n")
+        for r in results:
+            f.write(f"Query #{r['index']} | Success: {r['success']} | Latency: {r['latency']:.2f}s\n")
+            f.write(f"Q: {r['query']}\n")
+            if r['success']: f.write(f"A: {r['response']}\n")
+            else: f.write(f"ERROR: {r['error']}\n")
+            f.write("-" * 40 + "\n")
+
+    # Metrics
+    successes = [r for r in results if r['success']]
+    latencies = [r['latency'] for r in successes]
     
-    start_total = time.time()
-    results = await asyncio.gather(*tasks)
-    end_total = time.time()
+    final_metrics = {
+        "total_requests": NUM_CONCURRENT_REQUESTS,
+        "success_count": len(successes),
+        "failure_count": len(results) - len(successes),
+        "avg_latency": sum(latencies)/len(latencies) if latencies else 0,
+        "min_latency": min(latencies) if latencies else 0,
+        "max_latency": max(latencies) if latencies else 0,
+        "errors": list(set([r['error'] for r in results if not r['success']]))
+    }
     
-    # Analysis
-    successes = [r for r in results if r["success"]]
-    failures = [r for r in results if not r["success"]]
-    latencies = [r["latency"] for r in results if r["success"]]
+    # Output report to console
+    print("\n" + "#"*50)
+    print("       🚀 VERTEX AI AGENT ENGINE STRESS REPORT")
+    print("#"*50)
+    print(f"Engine:         {found.api_resource.name}")
+    print(f"Requests:       {final_metrics['total_requests']}")
+    print(f"Success Rate:   {(final_metrics['success_count']/final_metrics['total_requests'])*100:.1f}%")
+    print(f"Avg Latency:    {final_metrics['avg_latency']:.2f}s")
+    print(f"Max Latency:    {final_metrics['max_latency']:.2f}s")
+    print(f"Logs Saved to:  {LOG_FILE}")
+    print("#"*50)
     
-    print("\n--- Stress Test Report ---")
-    print(f"Total Requests: {NUM_CONCURRENT_REQUESTS}")
-    print(f"Successes: {len(successes)}")
-    print(f"Failures: {len(failures)}")
-    print(f"Total Duration: {end_total - start_total:.2f}s")
-    
-    if latencies:
-        print(f"Average Latency (Success): {sum(latencies)/len(latencies):.2f}s")
-        print(f"Min Latency: {min(latencies):.2f}s")
-        print(f"Max Latency: {max(latencies):.2f}s")
-    
-    if failures:
-        print("\nTop 5 Errors:")
-        error_msgs = [f["error"] for f in failures]
-        for msg in list(set(error_msgs))[:5]:
-            count = error_msgs.count(msg)
-            print(f"- [{count}] {msg}")
+    if final_metrics['failure_count'] > 0:
+        print("\n⚠️ QUOTA LIMITATIONS DETECTED:")
+        for err in final_metrics['errors']:
+            if "429" in err:
+                print(f" - [429] Rate Limit Reached: {err[:150]}...")
 
 if __name__ == "__main__":
-    asyncio.run(run_stress_test())
+    asyncio.run(run_detailed_test())

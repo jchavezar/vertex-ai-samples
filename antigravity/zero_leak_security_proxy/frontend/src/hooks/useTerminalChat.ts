@@ -22,7 +22,6 @@ export interface TokenUsage {
 
 export function useTerminalChat(token: string | null, model: string = 'gemini-3-pro-preview') {
   const addProjectCard = useDashboardStore((s) => s.addProjectCard);
-  const clearCards = useDashboardStore((s) => s.clearCards);
   const [thoughtStatus, setThoughtStatus] = useState<ThoughtStatus | null>(null);
   const [usedSharePoint, setUsedSharePoint] = useState<boolean>(false);
   const [telemetry, setTelemetry] = useState<TelemetryEvent[]>([]);
@@ -103,14 +102,19 @@ export function useTerminalChat(token: string | null, model: string = 'gemini-3-
 
   const customHandleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    clearCards();
+    // We don't clear projectCards here to avoid a blank screen "flash"
+    // Instead, we mark the current state as "stale" or simply wait for the first data chunk.
     setUsedSharePoint(false);
     setTelemetry([]);
     setReasoningSteps([]);
     setTokenUsage(null);
     setPublicInsight('');
-    setMessages([]);
-    setThoughtStatus({ message: 'Requesting proxy access...', icon: 'shield-alert', pulse: true });
+    setMessages([]); // This clears the chat list, which is expected for a new query
+    setThoughtStatus({ message: 'Initializing Zero-Leak Security Proxy...', icon: 'shield-alert', pulse: true });
+
+    // We'll clear the cards just before submitting, but we'll improve this with a "clearing" event if needed
+    // clearCards(); 
+
     handleSubmit(e);
   };
 

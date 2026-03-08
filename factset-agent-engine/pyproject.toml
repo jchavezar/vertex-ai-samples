@@ -1,0 +1,21 @@
+[project]
+name = "factset-agent-engine"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "jesusarguelles", email = "jchavezar@gmail.com" }
+]
+requires-python = ">=3.12"
+dependencies = [
+    "google-adk>=1.26.0",
+    "google-genai>=1.66.0",
+    "httpx>=0.28.1",
+    "mcp>=1.26.0",
+    "nest-asyncio>=1.6.0",
+    "pydantic>=2.12.5",
+]
+
+[build-system]
+requires = ["uv_build>=0.9.7,<0.10.0"]
+build-backend = "uv_build"

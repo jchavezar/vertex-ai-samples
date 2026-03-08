@@ -177,12 +177,12 @@ export function McpInspector({ goHome, token }: McpInspectorProps) {
 
         {isConnected && tools.length > 0 && (
           <div className="tools-list-nav">
-            <h4 className="flex items-center gap-2 mt-6 mb-2">
+            <h4 className="mcp-flex mcp-items-center mcp-gap-2 mcp-mt-6 mcp-mb-2">
               <Layers size={14} /> Available Tools ({tools.length})
             </h4>
             <ul>
               {tools.map(tool => (
-                <li key={tool.name} className="truncate text-sm text-gray-300">
+                <li key={tool.name} className="mcp-truncate mcp-text-sm mcp-text-gray-300">
                   • {tool.name}
                 </li>
               ))}
@@ -216,32 +216,32 @@ export function McpInspector({ goHome, token }: McpInspectorProps) {
                       className="tool-card-header"
                       onClick={() => toggleToolExpanded(tool.name)}
                     >
-                      <div className="flex items-center gap-2">
+                      <div className="mcp-flex mcp-items-center mcp-gap-2">
                         {expandedTools[tool.name] ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
-                        <span className="font-mono text-pwc-orange font-bold font-sm">{tool.name}</span>
+                        <span className="mcp-font-mono mcp-text-pwc-orange mcp-font-bold mcp-text-sm">{tool.name}</span>
                       </div>
                     </div>
 
                     {expandedTools[tool.name] && (
                       <div className="tool-card-body">
-                        <p className="tool-desc text-sm mb-4 text-gray-300">{tool.description}</p>
+                        <p className="tool-desc mcp-text-sm mcp-mb-4 mcp-text-gray-300">{tool.description}</p>
 
                         <div className="schema-viewer">
                           <div className="schema-title">Arguments JSON Schema</div>
-                          <pre className="text-xs">{JSON.stringify(tool.inputSchema, null, 2)}</pre>
+                          <pre className="mcp-text-xs">{JSON.stringify(tool.inputSchema, null, 2)}</pre>
                         </div>
 
-                        <div className="execution-form mt-4">
-                          <label className="block text-xs font-bold mb-1 text-gray-400">Input Arguments (JSON)</label>
+                        <div className="execution-form mcp-mt-4">
+                          <label className="mcp-block mcp-text-xs mcp-font-bold mcp-mb-1 mcp-text-gray-400">Input Arguments (JSON)</label>
                           <textarea
-                            className="pwc-input text-xs font-mono w-full"
+                            className="pwc-input mcp-text-xs mcp-font-mono mcp-w-full"
                             rows={4}
                             placeholder='{\n  "arg_name": "value"\n}'
                             value={toolInputs[tool.name] || ''}
                             onChange={(e) => setToolInputs((prev: any) => ({ ...prev, [tool.name]: e.target.value }))}
                           />
                           <button
-                            className="pwc-btn secondary text-xs mt-2 py-1 flex items-center gap-1"
+                            className="pwc-btn secondary mcp-text-xs mcp-mt-2 mcp-py-1 mcp-flex mcp-items-center mcp-gap-1"
                             onClick={() => executeTool(tool.name)}
                             disabled={executingTool === tool.name}
                           >
@@ -259,15 +259,15 @@ export function McpInspector({ goHome, token }: McpInspectorProps) {
 
         {/* Logs Terminal Pane */}
         <div className="logs-pane">
-          <div className="pane-header flex justify-between">
+          <div className="pane-header mcp-flex mcp-justify-between">
             <h4>Console Output</h4>
-            <button className="text-xs text-gray-400 hover:text-white" onClick={clearLogs}>Clear</button>
+            <button className="mcp-text-xs mcp-text-gray-400 hover:text-white" onClick={clearLogs}>Clear</button>
           </div>
-          <div className="pane-content terminal scroll-y flex-col-reverse flex">
+          <div className="pane-content terminal scroll-y flex-col-reverse mcp-flex">
             {logs.length === 0 ? (
-              <div className="text-gray-500 text-sm italic">Waiting for activity...</div>
+              <div className="mcp-text-gray-500 mcp-text-sm italic">Waiting for activity...</div>
             ) : (
-              <div className="logs-stream flex flex-col justify-end min-h-full">
+                <div className="logs-stream mcp-flex mcp-flex-col mcp-justify-end min-h-full">
                 {logs.map(log => (
                   <div key={log.id} className={`log-entry log-${log.type}`}>
                     <div className="log-meta">
@@ -281,10 +281,10 @@ export function McpInspector({ goHome, token }: McpInspectorProps) {
                             {copiedResponse === log.id ? <Check size={14} color="#00ff00" /> : <Copy size={14} color="#aaaaaa" />}
                           </button>
                         </div>
-                        <pre className="log-message font-mono text-sm max-h-[300px] overflow-y-auto w-full"><ReactMarkdown>{log.message.replace(/\\n/g, '\n')}</ReactMarkdown></pre>
+                        <pre className="log-message mcp-font-mono mcp-text-sm max-h-[300px] overflow-y-auto mcp-w-full"><ReactMarkdown>{log.message.replace(/\\n/g, '\n')}</ReactMarkdown></pre>
                       </div>
                     ) : (
-                      <div className="log-message font-mono text-sm break-words whitespace-pre-wrap">{log.message}</div>
+                        <div className="log-message mcp-font-mono mcp-text-sm break-words whitespace-pre-wrap">{log.message}</div>
                     )}
                   </div>
                 ))}

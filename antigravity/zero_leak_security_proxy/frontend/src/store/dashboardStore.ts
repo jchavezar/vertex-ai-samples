@@ -9,6 +9,9 @@ export interface ProjectCardData {
   document_name: string;
   document_url?: string;
   redacted_entities?: string[];
+  pii_detected?: boolean;
+  governance_recommendation?: string;
+  original_context?: string;
 }
 
 interface DashboardState {

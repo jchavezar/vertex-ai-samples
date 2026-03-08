@@ -1,54 +1,68 @@
 import os
-from google.genai import Client
-from src.agent_definition import root_agent
+import vertexai
+from vertexai.agent_engines import AdkApp
+import importlib
 
-# Configuration
-PROJECT = "vtxdemos"
-LOCATION = "us-central1"
+# --- CONFIGURATION ---
+# We use your preferred engine name
+AGENT_ENGINE_NAME = "root_agent_test"
+STAGING_BUCKET = "gs://vtxdemos-staging"
 
-def deploy_to_agent_engine():
-    """
-    Deploys the root_agent to Vertex AI Agent Engine using the 
-    genai.Client().agent_engines.create() method for maximum flexibility.
-    """
-    client = Client(
-        vertexai=True,
-        project=PROJECT,
-        location=LOCATION
+def deploy():
+    # Initialize Vertex AI SDK
+    vertexai.init(
+        project="vtxdemos",
+        location="us-central1",
+    )
+    client = vertexai.Client(
+        project="vtxdemos",
+        location="us-central1",
     )
 
-    print(f"Deploying agent to Project: {PROJECT}, Location: {LOCATION}...")
+    # We define the agent inline to ensure AdkApp picks up the correct reference
+    from google.adk.agents import LlmAgent
+    root_agent = LlmAgent(
+        name="root_agent",
+        model="gemini-2.5-flash",
+        instruction="You are a helpful assistant running on Vertex AI Agent Engine. Respond concisely."
+    )
 
-    # Define deployment configuration
-    # This approach allows for detailed control over the deployment environment
+    # Wrap the agent
+    deployment_app = AdkApp(
+        agent=root_agent,
+        enable_tracing=True,
+    )
+
+    # Automatic Deployment (Update or Create)
+    print(f"Searching for existing Agent Engine: {AGENT_ENGINE_NAME}...")
+    all_engines = list(client.agent_engines.list())
+    target_engine = next((e for e in all_engines if e.api_resource.display_name == AGENT_ENGINE_NAME), None)
+
+    # Prepare configuration
+    # Note: vertexai.Client().agent_engines expects a list for requirements or a path to requirements.txt
     config = {
-        "display_name": "root-agent-engine-test",
-        "description": "Deployment of a basic root agent using Google GenAI SDK",
-        "requirements": [
-            "google-adk",
-            "google-genai",
-            "pydantic"
-        ],
-        "env_vars": {
-            "GOOGLE_GENAI_USE_VERTEXAI": "true",
-            "GOOGLE_CLOUD_PROJECT": PROJECT,
-            "GOOGLE_CLOUD_LOCATION": LOCATION
-        }
+        "display_name": AGENT_ENGINE_NAME,
+        "staging_bucket": STAGING_BUCKET,
+        "requirements": ["google-adk", "google-genai", "pydantic"],
     }
 
-    try:
-        # The recommended new way to deploy agents
-        remote_agent = client.agent_engines.create(
-            agent=root_agent,
+    if target_engine:
+        print(f"Found existing engine: {target_engine.api_resource.name}. Updating...")
+        remote_app = client.agent_engines.update(
+            name=target_engine.api_resource.name,
+            agent=deployment_app,
             config=config
         )
-        
-        print(f"✅ Agent successfully deployed!")
-        print(f"Agent Engine Resource Name: {remote_agent.name}")
-        return remote_agent
-    except Exception as e:
-        print(f"❌ Deployment failed: {e}")
-        return None
+        print(f"Update complete: {remote_app.api_resource.name}")
+    else:
+        print("No existing engine found. Creating new one...")
+        remote_app = client.agent_engines.create(
+            agent=deployment_app,
+            config=config
+        )
+        print(f"Creation complete: {remote_app.api_resource.name}")
+    
+    return remote_app
 
 if __name__ == "__main__":
-    deploy_to_agent_engine()
+    deploy()
