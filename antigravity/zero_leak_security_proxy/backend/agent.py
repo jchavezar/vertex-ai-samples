@@ -154,6 +154,7 @@ Your goal is to provide consulting intelligence while ensuring strict Zero-Leak 
 Emit a `ProjectCard` for every insight or document processed.
 - `pii_detected`: Set to true if source doc contains high-risk unmasked data.
 - `governance_recommendation`: A clear action string (e.g. "MOVE TO RESTRICTED VAULT" or "NONE").
+- **`original_context`**: Extract the core paragraph/sentence from the document. You MUST wrap ALL sensitive/PII data in this specific snippet within `<redact>...</redact>` tags (e.g., "Company <redact>Acme</redact> grew by <redact>$50M</redact>").
 """
 
 class ProjectCard(BaseModel):

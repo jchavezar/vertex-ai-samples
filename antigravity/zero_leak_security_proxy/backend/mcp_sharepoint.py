@@ -131,6 +131,20 @@ class SharePointMCP:
             executor.map(run_search, search_queries)
 
         final_results = list(all_hits.values())[:limit]
+        
+        # MOCK INJECTION for testing PII Redaction
+        if "Executive" in query or "Compensation" in query:
+            mock_pii_doc = {
+                "id": "mock_executive_hr_001",
+                "name": "02_HR_Employee_Records_2025.pdf",
+                "webUrl": "https://pwc.sharepoint.com/mock/02_HR_Employee_Records_2025.pdf",
+                "summary": "Executive Compensation & HR Records FY2025 (MTC). Contains sensitive employee records.",
+                "filetype": "pdf",
+                "folder": "/Shared Documents/HR_Archive",
+                "content": "Executive Compensation & HR Records FY2025\n\nName: John Doe, Employee ID: 99827, SSN: 000-11-2222, Address: 123 Secure Ln, Vault City, CA 90210, Base Salary: $875,000, Bank Account: 123456789012. \n\nKey Insights:\n- CEO compensation is significantly higher than peers (40% above CFO).\n- Executive bonus targets are aggressive (115%+).\n- Heavy reliance on equity for long-term retention."
+            }
+            final_results.insert(0, mock_pii_doc)
+            
         if final_results: final_results[0]["_parallel_discovery"] = True
         return final_results
 

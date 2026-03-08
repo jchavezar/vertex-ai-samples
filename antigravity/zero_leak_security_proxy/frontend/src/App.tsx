@@ -12,7 +12,8 @@ import {
   Download,
   CheckCircle,
   Globe,
-  Search
+  Search,
+  ChevronUp
 } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import html2canvas from "html2canvas";
@@ -110,6 +111,23 @@ function App() {
     publicInsight
   } = useTerminalChat(token, selectedModel);
   const projectCards = useDashboardStore((s) => s.projectCards);
+  const [isPublicInsightExpanded, setIsPublicInsightExpanded] = useState(true);
+  const [hasCollapsedForQuery, setHasCollapsedForQuery] = useState(false);
+
+  useEffect(() => {
+    if (messages.length === 0) {
+      setIsPublicInsightExpanded(true);
+      setHasCollapsedForQuery(false);
+    }
+  }, [messages.length]);
+
+  useEffect(() => {
+    if (projectCards.length > 0 && !hasCollapsedForQuery) {
+      setIsPublicInsightExpanded(false);
+      setHasCollapsedForQuery(true);
+    }
+  }, [projectCards.length, hasCollapsedForQuery]);
+
   const endOfMessagesRef = useRef<HTMLDivElement>(null);
   const dataSectionRef = useRef<HTMLDivElement>(null);
 
@@ -470,6 +488,9 @@ function App() {
                       fontFamily: "monospace",
                     }}
                   >
+                    <option value="gemini-3.1-flash-lite" style={{ color: "black" }}>
+                      gemini-3.1-flash-lite
+                    </option>
                     <option value="gemini-3-pro-preview" style={{ color: "black" }}>
                       gemini-3-pro-preview
                     </option>
@@ -568,44 +589,35 @@ function App() {
                 )}
 
 
-                    {/* Discovery Status during loading: Now a centered overlay to avoid layout shift */}
+                    {/* Discovery Status during loading */}
                     {isLoading && (
-                      <div style={{
-                        position: 'fixed',
-                        top: '50%',
-                        left: '50%',
-                        transform: 'translate(-50%, -50%)',
-                        zIndex: 2000,
-                        pointerEvents: 'none'
-                      }}>
+                      <div className="gemini-loading-wrapper" style={{ marginBottom: '20px', display: 'flex', justifyContent: 'center' }}>
                         <div className={`gemini-search-pill ${usedSharePoint ? 'active' : ''}`}
                           style={{
-                            background: 'rgba(255, 255, 255, 0.95)',
-                            backdropFilter: 'blur(15px)',
-                            border: '1px solid var(--pwc-orange)',
-                            padding: '16px 28px',
-                            borderRadius: '40px',
+                            background: '#fff',
+                            border: '1px solid var(--pwc-border)',
+                            padding: '12px 24px',
+                            borderRadius: '30px',
                             display: 'flex',
                             alignItems: 'center',
-                            gap: '15px',
-                            boxShadow: '0 20px 50px rgba(208, 74, 2, 0.25)'
+                            gap: '12px',
+                            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.05)'
                           }}>
                           <div className="sharepoint-icon-wrapper" style={{
                             background: usedSharePoint ? 'var(--pwc-orange)' : '#f0f0f0',
-                            padding: '10px',
+                            padding: '8px',
                             borderRadius: '50%',
                             display: 'flex',
                             alignItems: 'center',
-                            justifyContent: 'center',
-                            boxShadow: usedSharePoint ? '0 0 15px rgba(208, 74, 2, 0.4)' : 'none'
+                            justifyContent: 'center'
                           }}>
-                            {usedSharePoint ? <Database size={22} color="white" /> : <Search size={22} color="#666" />}
+                            {usedSharePoint ? <img src="/sharepoint-logo.svg" alt="SharePoint" style={{ width: '16px', height: '16px', filter: 'brightness(0) invert(1)' }} /> : <Search size={16} color="#666" />}
                           </div>
                           <div style={{ display: 'flex', flexDirection: 'column' }}>
-                            <span style={{ fontSize: '11px', fontWeight: 800, color: 'var(--pwc-orange)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+                            <span style={{ fontSize: '10px', fontWeight: 700, color: 'var(--pwc-orange)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                               {usedSharePoint ? 'SECURE INDEX HIT' : 'SCANNING ECOSYSTEM'}
                             </span>
-                            <span style={{ fontSize: '15px', color: '#111', fontWeight: 600 }}>
+                            <span style={{ fontSize: '14px', color: '#333', fontWeight: 500 }}>
                               {thoughtStatus?.message || 'Synthesizing Intelligence...'}
                             </span>
                           </div>
@@ -613,19 +625,97 @@ function App() {
                       </div>
                     )}
 
-                <div className="pwc-cards-grid">
+                <div style={{ marginBottom: projectCards.length > 0 && publicInsight ? '24px' : '0' }}>
                     {publicInsight && (
-                      <div className="pwc-card" style={{ background: 'rgba(94, 174, 253, 0.05)', borderLeft: '4px solid #5eaefd' }}>
-                        <div className="card-header" style={{ marginBottom: '15px' }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#5eaefd', fontSize: '12px', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                            <Globe size={16} /> Public Web Consensus (Gemini 2.5 Flash)
+                      <div className="pwc-card" style={{ 
+                          background: 'linear-gradient(135deg, #1E1E1E 0%, #2A2A2A 100%)', 
+                          border: '1px solid rgba(94, 174, 253, 0.3)',
+                          boxShadow: '0 8px 32px rgba(0, 0, 0, 0.15)',
+                          borderRadius: '16px',
+                          overflow: 'hidden',
+                          cursor: 'pointer', 
+                          transition: 'all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1)'
+                        }} 
+                        onClick={() => setIsPublicInsightExpanded(!isPublicInsightExpanded)}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.transform = 'translateY(-2px)';
+                          e.currentTarget.style.boxShadow = '0 12px 40px rgba(94, 174, 253, 0.2)';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.transform = 'translateY(0)';
+                          e.currentTarget.style.boxShadow = '0 8px 32px rgba(0, 0, 0, 0.15)';
+                        }}
+                      >
+                        <div className="card-header" style={{ 
+                            marginBottom: isPublicInsightExpanded ? '16px' : '0', 
+                            display: 'flex', 
+                            justifyContent: 'space-between', 
+                            alignItems: 'center', 
+                            transition: 'margin-bottom 0.3s ease',
+                            padding: '16px 24px',
+                            background: 'rgba(255, 255, 255, 0.03)',
+                            borderBottom: isPublicInsightExpanded ? '1px solid rgba(255, 255, 255, 0.08)' : 'none'
+                          }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: '#fff', fontSize: '13px', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+                            <div style={{ 
+                              background: 'linear-gradient(135deg, #5eaefd 0%, #b47dff 100%)', 
+                              WebkitBackgroundClip: 'text',
+                              WebkitTextFillColor: 'transparent',
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '8px'
+                            }}>
+                              <Globe size={18} color="#5eaefd" /> PUBLIC WEB CONSENSUS
+                            </div>
+                            <span style={{ 
+                              background: 'rgba(94, 174, 253, 0.15)', 
+                              color: '#5eaefd', 
+                              padding: '2px 8px', 
+                              borderRadius: '12px', 
+                              fontSize: '10px',
+                              border: '1px solid rgba(94, 174, 253, 0.3)'
+                            }}>
+                              Gemini 2.5 Flash
+                            </span>
+                          </div>
+                          <div style={{ 
+                            color: 'rgba(255, 255, 255, 0.6)', 
+                            display: 'flex', 
+                            alignItems: 'center', 
+                            gap: '6px', 
+                            fontSize: '11px', 
+                            fontWeight: '600',
+                            letterSpacing: '0.05em'
+                          }}>
+                            {isPublicInsightExpanded ? 'COLLAPSE' : 'EXPAND'}
+                            <div style={{ 
+                              background: 'rgba(255, 255, 255, 0.1)', 
+                              borderRadius: '50%', 
+                              padding: '4px',
+                              display: 'flex',
+                              transition: 'transform 0.3s ease',
+                              transform: isPublicInsightExpanded ? 'rotate(0deg)' : 'rotate(180deg)'
+                            }}>
+                              <ChevronUp size={14} />
+                            </div>
                           </div>
                         </div>
-                        <div className="card-content" style={{ fontSize: '14px', lineHeight: '1.6', color: 'var(--pwc-text)' }}>
-                          <ReactMarkdown>{publicInsight}</ReactMarkdown>
-                        </div>
+                        {isPublicInsightExpanded && (
+                          <div className="card-content" style={{ 
+                              fontSize: '15px', 
+                              lineHeight: '1.7', 
+                              color: '#E0E0E0', 
+                              padding: '0 24px 24px 24px',
+                              fontWeight: '400'
+                            }}>
+                            <ReactMarkdown>{publicInsight}</ReactMarkdown>
+                          </div>
+                        )}
                       </div>
                     )}
+                </div>
+
+                <div className="pwc-cards-grid">
                   {projectCards.map((card, idx) => (
                     <ProjectCardWidget key={idx} card={card as any} />
                   ))}

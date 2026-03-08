@@ -31,9 +31,13 @@ export const ProjectCardWidget: React.FC<ProjectCardWidgetProps> = ({ card }) =>
   // Helper to render original context with styled redactions
   const renderOriginalContext = (text: string) => {
     if (!text) return null;
-    const parts = text.split(/(<redact>.*?<\/redact>)/g);
+    
+    // Replace literal '\n' combinations with actual newline characters
+    const normalizedText = text.replace(/\\n/g, '\n');
+    const parts = normalizedText.split(/(<redact>.*?<\/redact>)/g);
+    
     return (
-      <p className="original-context-text">
+      <p className="original-context-text" style={{ whiteSpace: 'pre-wrap' }}>
         {parts.map((part, index) => {
           if (part.startsWith('<redact>') && part.endsWith('</redact>')) {
             const redactedContent = part.replace('<redact>', '').replace('</redact>', '');
