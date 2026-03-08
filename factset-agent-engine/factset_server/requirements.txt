@@ -1,0 +1,6 @@
+fastapi
+uvicorn
+mcp
+httpx
+nest-asyncio
+starlette

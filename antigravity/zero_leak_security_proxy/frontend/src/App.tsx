@@ -12,6 +12,7 @@ import {
   Download,
   CheckCircle,
   Globe,
+  Search
 } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import html2canvas from "html2canvas";
@@ -23,6 +24,7 @@ import { PromptGallery } from "./components/PromptGallery";
 import { ProjectCardWidget } from "./components/ProjectCardWidget";
 import { McpInspector } from "./components/McpInspector";
 import { TelemetryTab } from "./components/TelemetryTab";
+import { DocumentWorkspaceV2 } from "./components/DocumentWorkspaceV2";
 import "./PromptGallery.css";
 
 const GeminiSparkleIcon = ({ className = "" }: { className?: string }) => (
@@ -91,7 +93,7 @@ function App() {
       .catch(console.error);
   };
 
-  const [selectedModel, setSelectedModel] = useState("gemini-3-pro-preview");
+  const [selectedModel, setSelectedModel] = useState("gemini-3-flash-preview");
   const [showTopology, setShowTopology] = useState(false);
   const [activeAppTab, setActiveAppTab] = useState("proxy");
   const {
@@ -174,7 +176,7 @@ function App() {
   return (
     <div className="pwc-app">
       {/* PwC Style Header */}
-      <header className="pwc-header">
+      <header className="pwc-header pwc-header-vibrant">
         <div className="pwc-logo-container">
           <span className="pwc-logo">pwc</span>
         </div>
@@ -191,6 +193,19 @@ function App() {
             }}
           >
             Secure Enterprise Proxy
+          </a>
+          <a
+            href="#"
+            className={
+              activeAppTab === "workspace" && !showTopology ? "active" : ""
+            }
+            onClick={(e) => {
+              e.preventDefault();
+              setActiveAppTab("workspace");
+              setShowTopology(false);
+            }}
+          >
+            Document Workspace
           </a>
           <a
             href="#"
@@ -325,7 +340,7 @@ function App() {
               <div className="topology-node" style={{ width: "250px" }}>
                 <Cpu className="icon" size={32} />
                 <h4>LLM</h4>
-                <p>Gemini 3 Pro / Flash / Lite</p>
+                <p>Gemini 3 Pro / Flash</p>
                 <div className="node-detail">{selectedModel}</div>
               </div>
               <div style={{ width: "370px" }}></div>
@@ -403,6 +418,8 @@ function App() {
             </div>
           </div>
         </div>
+      ) : activeAppTab === "workspace" ? (
+        <DocumentWorkspaceV2 token={token || undefined} />
       ) : activeAppTab === "inspector" ? (
         <McpInspector
           goHome={() => {
@@ -456,18 +473,12 @@ function App() {
                     <option value="gemini-3-pro-preview" style={{ color: "black" }}>
                       gemini-3-pro-preview
                     </option>
-                    <option
-                      value="gemini-3-flash-preview"
-                      style={{ color: "black" }}
-                >
+                    <option value="gemini-3-flash-preview" style={{ color: "black" }}>
                       gemini-3-flash-preview
                     </option>
-                      <option
-                        value="gemini-3.1-flash-lite-preview"
-                        style={{ color: "black" }}
-                      >
-                        gemini-3.1-flash-lite-preview
-                      </option>
+                    <option value="gemini-2.5-flash" style={{ color: "black" }}>
+                      gemini-2.5-flash
+                    </option>
                   </select>
                 </div>
 
@@ -539,7 +550,8 @@ function App() {
 
               {/* Right Side: Data & Results */}
               <section className="pwc-data-panel" ref={dataSectionRef}>
-                {!isLoading && projectCards.length === 0 && (
+                    {/* Initial Suggestion Gallery: Keep visible until we have ACTUAL assistant content or project cards */}
+                    {messages.filter(m => m.role === 'assistant' && m.content.trim().length > 0).length === 0 && projectCards.length === 0 && (
                   <PromptGallery
                     onSelectPrompt={(prompt) => {
                       const syntheticEvent = {
@@ -551,21 +563,59 @@ function App() {
                           textareaRef.current.form.requestSubmit();
                         }
                       }, 100);
-                    }}
-                    isLoading={isLoading}
+                        }}
                   />
                 )}
 
-                {isLoading && projectCards.length === 0 && (
-                  <div className="pwc-loading-state">
-                    <div className="spinner"></div>
-                      <h3>{thoughtStatus ? thoughtStatus.message : 'Synthesizing insights...'}</h3>
-                  </div>
-                )}
+
+                    {/* Discovery Status during loading: Now a centered overlay to avoid layout shift */}
+                    {isLoading && (
+                      <div style={{
+                        position: 'fixed',
+                        top: '50%',
+                        left: '50%',
+                        transform: 'translate(-50%, -50%)',
+                        zIndex: 2000,
+                        pointerEvents: 'none'
+                      }}>
+                        <div className={`gemini-search-pill ${usedSharePoint ? 'active' : ''}`}
+                          style={{
+                            background: 'rgba(255, 255, 255, 0.95)',
+                            backdropFilter: 'blur(15px)',
+                            border: '1px solid var(--pwc-orange)',
+                            padding: '16px 28px',
+                            borderRadius: '40px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '15px',
+                            boxShadow: '0 20px 50px rgba(208, 74, 2, 0.25)'
+                          }}>
+                          <div className="sharepoint-icon-wrapper" style={{
+                            background: usedSharePoint ? 'var(--pwc-orange)' : '#f0f0f0',
+                            padding: '10px',
+                            borderRadius: '50%',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            boxShadow: usedSharePoint ? '0 0 15px rgba(208, 74, 2, 0.4)' : 'none'
+                          }}>
+                            {usedSharePoint ? <Database size={22} color="white" /> : <Search size={22} color="#666" />}
+                          </div>
+                          <div style={{ display: 'flex', flexDirection: 'column' }}>
+                            <span style={{ fontSize: '11px', fontWeight: 800, color: 'var(--pwc-orange)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+                              {usedSharePoint ? 'SECURE INDEX HIT' : 'SCANNING ECOSYSTEM'}
+                            </span>
+                            <span style={{ fontSize: '15px', color: '#111', fontWeight: 600 }}>
+                              {thoughtStatus?.message || 'Synthesizing Intelligence...'}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    )}
 
                 <div className="pwc-cards-grid">
                     {publicInsight && (
-                      <div className="pwc-card" style={{ gridColumn: '1 / -1', background: 'rgba(94, 174, 253, 0.05)', borderLeft: '4px solid #5eaefd' }}>
+                      <div className="pwc-card" style={{ background: 'rgba(94, 174, 253, 0.05)', borderLeft: '4px solid #5eaefd' }}>
                         <div className="card-header" style={{ marginBottom: '15px' }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#5eaefd', fontSize: '12px', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                             <Globe size={16} /> Public Web Consensus (Gemini 2.5 Flash)

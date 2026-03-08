@@ -6,6 +6,7 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 import json
 import logging
+import requests
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
@@ -13,11 +14,19 @@ from pydantic import BaseModel
 from google.adk.runners import Runner
 from google.adk.sessions.in_memory_session_service import InMemorySessionService
 
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
 # Now we can safely import agent, protocol, etc.
 from agent import get_agent
 from protocol import AIStreamProtocol
-from dotenv import load_dotenv
+from pdf_editor_agent import PDFDeSynthesizer, create_pdf_editor_agent
+from pwc_renderer import render_report
+from regenerative_pipeline import run_regenerative_pipeline
+from mcp_sharepoint import SharePointMCP
 
+from dotenv import load_dotenv
 load_dotenv(dotenv_path="../.env")
 
 os.environ["GOOGLE_CLOUD_LOCATION"] = "global"
@@ -310,8 +319,316 @@ async def chat_endpoint(request: Request):
     set_user_token(token)
     return StreamingResponse(_chat_stream(data.get("messages", []), model_name), media_type="text/plain; charset=utf-8")
 
+@app.get("/api/sharepoint/list")
+async def list_sharepoint_folder(request: Request, folder_id: str = "root"):
+    auth_header = request.headers.get("Authorization")
+    token = None
+    if auth_header and auth_header.startswith("Bearer "):
+        token = auth_header.split(" ")[1]
+    
+    if not token or token in ["null", "undefined"]:
+        return {"error": "Unauthorized"}
+        
+    try:
+        sp = SharePointMCP(token=token)
+        items = sp.list_folder_contents(folder_id)
+        return {"items": items}
+    except Exception as e:
+        return {"error": str(e)}
+
+@app.get("/api/sharepoint/content")
+async def get_sharepoint_content(request: Request, item_id: str):
+    auth_header = request.headers.get("Authorization")
+    token = None
+    if auth_header and auth_header.startswith("Bearer "):
+        token = auth_header.split(" ")[1]
+    
+    if not token or token in ["null", "undefined"]:
+        return {"error": "Unauthorized"}
+        
+    try:
+        sp = SharePointMCP(token=token)
+        content = sp.get_document_content(item_id)
+        return {"content": content}
+    except Exception as e:
+        return {"error": str(e)}
+
+@app.get("/api/sharepoint/preview_url")
+async def get_sharepoint_preview_url(request: Request, item_id: str):
+    auth_header = request.headers.get("Authorization")
+    token = None
+    if auth_header and auth_header.startswith("Bearer "):
+        token = auth_header.split(" ")[1]
+    
+    if not token or token in ["null", "undefined"]:
+        return {"error": "Unauthorized"}
+        
+    try:
+        sp = SharePointMCP(token=token)
+        preview_url = sp.get_preview_url(item_id)
+        return {"preview_url": preview_url}
+    except Exception as e:
+        return {"error": str(e)}
+
+class ModificationRequest(BaseModel):
+    item_id: str
+    prompt: str
+
+@app.post("/api/sharepoint/propose_modification")
+async def propose_modification(request: Request, data: ModificationRequest):
+    auth_header = request.headers.get("Authorization")
+    token = None
+    if auth_header and auth_header.startswith("Bearer "):
+        token = auth_header.split(" ")[1]
+    
+    if not token or token in ["null", "undefined"]:
+        return {"error": "Unauthorized"}
+        
+    try:
+        sp = SharePointMCP(token=token)
+        # 1. Fetch content natively (returns bytes for PDFs)
+        content_res = sp.get_document_content(data.item_id, native=True)
+        
+        from google.genai import Client, types
+        client = Client(vertexai=True, project=os.environ.get("GOOGLE_CLOUD_PROJECT"), location="us-central1")
+        
+        if isinstance(content_res, dict) and content_res.get("type") == "pdf":
+            logger.info(f"Triggering Regenerative PDF Mod for {data.item_id}")
+            local_path = content_res["local_path"]
+            
+            # 1. De-synthesize
+            try:
+                deserializer = PDFDeSynthesizer(local_path)
+                report_json = deserializer.desynthesize()
+                logger.info("Successfully de-synthesized PDF to Component Feed")
+            except Exception as e:
+                logger.error(f"De-synthesis failed: {e}")
+                return {"error": f"Failed to parse PDF structure: {e}"}
+
+            # 2. Modify with Agent
+            agent = create_pdf_editor_agent()
+            system_prompt = agent.instruction
+            user_msg = f"Original Report JSON:\n{json.dumps(report_json, indent=2)}\n\nUSER MODIFICATION REQUEST: {data.prompt}"
+            
+            response = client.models.generate_content(
+                model="gemini-2.5-flash",
+                contents=user_msg,
+                config={"system_instruction": system_prompt}
+            )
+            
+            modified_json_str = response.text.strip()
+            # Clean up potential markdown formatting
+            if modified_json_str.startswith("```json"):
+                modified_json_str = modified_json_str.replace("```json", "").replace("```", "").strip()
+            
+            # 3. Return the modified JSON prefixed with PDF_REGEN:
+            return {"modified_content": f"PDF_REGEN:{modified_json_str}"}
+        
+        else:
+            # Standard Text Modification
+            model_id = "gemini-2.5-flash"
+            system_prompt = "You are a professional PwC document editor. Your task is to modify the provided document content based on the user's instructions. Return ONLY the fully modified content. Do not include any explanations or meta-talk."
+            user_msg = f"DOCUMENT CONTENT:\n{content_res}\n\nUSER MODIFICATION PROMPT: {data.prompt}"
+            
+            response = client.models.generate_content(
+                model=model_id,
+                contents=user_msg,
+                config={"system_instruction": system_prompt}
+            )
+            return {"modified_content": response.text}
+            
+    except Exception as e:
+        logger.error(f"Modification error: {e}")
+        return {"error": str(e)}
+
+class RegenerativeRequest(BaseModel):
+    item_id: str
+    prompt: str
+
+@app.post("/api/sharepoint/regenerative_stream")
+async def regenerative_stream(request: Request, data: RegenerativeRequest):
+    auth_header = request.headers.get("Authorization")
+    token = None
+    if auth_header and auth_header.startswith("Bearer "):
+        token = auth_header.split(" ")[1]
+    
+    if not token or token in ["null", "undefined"]:
+        return {"error": "Unauthorized"}
+        
+    try:
+        sp = SharePointMCP(token=token)
+        content_res = sp.get_document_content(data.item_id, native=True)
+        if not isinstance(content_res, dict):
+            return {"error": "Could not retrieve native PDF."}
+            
+        local_path = content_res["local_path"]
+        
+        return StreamingResponse(
+            run_regenerative_pipeline(local_path, data.prompt),
+            media_type="text/event-stream"
+        )
+    except Exception as e:
+        logger.error(f"Error in regenerative stream: {e}")
+        return {"error": str(e)}
+
+class CommitRequest(BaseModel):
+    item_id: str
+    content: str
+
+@app.post("/api/sharepoint/commit_modification")
+async def commit_modification(request: Request, data: CommitRequest):
+    auth_header = request.headers.get("Authorization")
+    token = None
+    if auth_header and auth_header.startswith("Bearer "):
+        token = auth_header.split(" ")[1]
+    
+    if not token or token in ["null", "undefined"]:
+        return {"error": "Unauthorized"}
+        
+    try:
+        sp = SharePointMCP(token=token)
+        
+        if data.content.startswith("PDF_REGEN:"):
+            # High-Fidelity PDF Patching Flow
+            json_str = data.content.replace("PDF_REGEN:", "").strip()
+            if json_str.startswith("```json"):
+                json_str = json_str.replace("```json", "").replace("```", "").strip()
+            
+            patches = json.loads(json_str)
+            
+            # 1. Fetch content natively
+            content_res = sp.get_document_content(data.item_id, native=True)
+            if not isinstance(content_res, dict):
+                return {"error": "Could not retrieve native PDF for replacement context."}
+            
+            local_path = content_res["local_path"]
+            
+            # 2. PROACTIVELY BACKUP
+            sp.create_backup(data.item_id)
+            
+            # 3. Apply Patches
+            import fitz
+            doc = fitz.open(local_path)
+            
+            patched_regions = {}
+            # Sort patches by length to replace longest strings first
+            sorted_patches = sorted(patches, key=lambda x: len(x.get("find", "")), reverse=True)
+            
+            for patch in sorted_patches:
+                search_text = patch.get("find")
+                replacement_text = patch.get("replace")
+                if not search_text or not replacement_text or search_text == replacement_text:
+                    continue
+                
+                target_pages = [patch.get("page_idx")] if "page_idx" in patch else range(len(doc))
+                
+                for page_idx in target_pages:
+                    if page_idx is None or page_idx >= len(doc): continue
+                    page = doc[page_idx]
+                    if page_idx not in patched_regions: patched_regions[page_idx] = []
+                    
+                    text_instances = page.search_for(search_text)
+                    for inst in text_instances:
+                        if any(inst.intersects(prev_rect) for prev_rect in patched_regions[page_idx]):
+                            continue
+
+                        dict_content = page.get_text("dict", clip=inst + (-2, -2, 2, 2))
+                        font_size = 9
+                        font_color = (0, 0, 0)
+                        font_name = "helv"
+                        origin = inst.bl + (0, -1)
+                        
+                        found_style = False
+                        for block in dict_content.get("blocks", []):
+                            if block.get("type") != 0: continue
+                            for line in block.get("lines", []):
+                                for span in line.get("spans", []):
+                                    if search_text.lower() in span["text"].lower() or inst.intersects(span["bbox"]):
+                                        font_size = span["size"]
+                                        c = span["color"]
+                                        font_color = (((c >> 16) & 0xFF) / 255.0, ((c >> 8) & 0xFF) / 255.0, (c & 0xFF) / 255.0)
+                                        raw_font = span["font"].lower()
+                                        font_name = "helv" if "sans" in raw_font or "inter" in raw_font else "tiro" if "serif" in raw_font else "helv"
+                                        origin = fitz.Point(span["origin"])
+                                        found_style = True
+                                        break
+                                if found_style: break
+                            if found_style: break
+                        
+                        mask_rect = inst + (-0.5, -0.5, 0.5, 0.5)
+                        page.draw_rect(mask_rect, color=(1, 1, 1), fill=(1, 1, 1))
+                        page.insert_text(origin, replacement_text, fontsize=font_size, color=font_color, fontname=font_name)
+                        patched_regions[page_idx].append(inst)
+            
+            output_pdf_path = f"/tmp/regenerated_{data.item_id}.pdf"
+            doc.save(output_pdf_path)
+            doc.close()
+            
+            # 4. Upload binary to SharePoint
+            url = f"{sp.base_url}/sites/{sp.site_id}/drives/{sp.drive_id}/items/{data.item_id}/content"
+            headers = {"Authorization": f"Bearer {token}", "Content-Type": "application/pdf"}
+            with open(output_pdf_path, "rb") as f:
+                patched_bytes = f.read()
+            
+            res = requests.put(url, headers=headers, data=patched_bytes)
+            res.raise_for_status()
+            
+            # Clean up
+            if os.path.exists(output_pdf_path): os.remove(output_pdf_path)
+            if os.path.exists(local_path): os.remove(local_path)
+            
+            return {"status": "success", "mode": "regenerative_synthesis", "result": res.json()}
+        else:
+            # Standard Text Overwrite
+            result = sp.update_document_content(data.item_id, data.content)
+            return {"status": "success", "mode": "text_overwrite", "result": result}
+            
+    except Exception as e:
+        logger.error(f"Commit error: {e}")
+        return {"error": str(e)}
+
+class RestoreRequest(BaseModel):
+    item_id: str
+    backup_id: str = None
+
+@app.post("/api/sharepoint/restore_backup")
+async def restore_backup_api(request: Request, data: RestoreRequest):
+    auth_header = request.headers.get("Authorization")
+    token = None
+    if auth_header and auth_header.startswith("Bearer "):
+        token = auth_header.split(" ")[1]
+    
+    if not token or token in ["null", "undefined"]:
+        return {"error": "Unauthorized"}
+        
+    try:
+        sp = SharePointMCP(token=token)
+        result = sp.restore_backup(data.item_id, data.backup_id)
+        return result
+    except Exception as e:
+        logger.error(f"Restore API error: {e}")
+        return {"error": str(e)}
+
+@app.get("/api/sharepoint/backups")
+async def get_backups_api(request: Request, item_id: str):
+    auth_header = request.headers.get("Authorization")
+    token = None
+    if auth_header and auth_header.startswith("Bearer "):
+        token = auth_header.split(" ")[1]
+    
+    if not token or token in ["null", "undefined"]:
+        return {"error": "Unauthorized"}
+        
+    try:
+        sp = SharePointMCP(token=token)
+        backups = getattr(sp, "get_backups", lambda x: [])(item_id)
+        return {"backups": backups}
+    except Exception as e:
+        logger.error(f"List backups API error: {e}")
+        return {"error": str(e)}
+
 if __name__ == "__main__":
     import uvicorn
     import os
     port = int(os.environ.get("PORT", 8001))
-    uvicorn.run("main:app", host="0.0.0.0", port=port, reload=False)
+    uvicorn.run("main:app", host="0.0.0.0", port=port, reload=True)

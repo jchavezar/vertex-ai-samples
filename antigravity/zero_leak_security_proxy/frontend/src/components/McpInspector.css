@@ -316,93 +316,160 @@
   color: var(--pwc-black);
 }
 
-.w-full {
+.mcp-w-full {
   width: 100%;
 }
 
-.mt-4 {
+.mcp-mt-4 {
   margin-top: 1rem;
 }
 
-.mt-6 {
+.mcp-mt-6 {
   margin-top: 1.5rem;
 }
 
-.mb-2 {
+.mcp-mb-2 {
   margin-bottom: 0.5rem;
 }
 
-.mb-4 {
+.mcp-mb-4 {
   margin-bottom: 1rem;
 }
 
-.text-sm {
+.mcp-text-sm {
   font-size: 0.875rem;
 }
 
-.text-xs {
+.mcp-text-xs {
   font-size: 0.75rem;
 }
 
-.font-mono {
+.mcp-font-mono {
   font-family: monospace;
 }
 
-.font-bold {
+.mcp-font-bold {
   font-weight: bold;
 }
 
-.text-gray-300 {
+.mcp-text-gray-300 {
   color: #6c757d;
 }
 
-.text-gray-400 {
+.mcp-text-gray-400 {
   color: var(--pwc-grey);
 }
 
-.text-gray-500 {
+.mcp-text-gray-500 {
   color: #adb5bd;
 }
 
-.text-pwc-orange {
+.mcp-text-pwc-orange {
   color: var(--pwc-orange);
 }
 
-.flex {
+.mcp-flex {
   display: flex;
 }
 
-.items-center {
+.mcp-items-center {
   align-items: center;
 }
 
-.justify-between {
+.mcp-justify-between {
   justify-content: space-between;
 }
 
-.justify-end {
+.mcp-justify-end {
   justify-content: flex-end;
 }
 
-.gap-1 {
+.mcp-gap-1 {
   gap: 0.25rem;
 }
 
-.gap-2 {
+.mcp-gap-2 {
   gap: 0.5rem;
 }
 
-.py-1 {
+.mcp-py-1 {
   padding-top: 0.25rem;
   padding-bottom: 0.25rem;
 }
 
-.block {
+.mcp-block {
   display: block;
 }
 
-.truncate {
+.mcp-truncate {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+/* Document Workspace 3-Panel Layout */
+.mcp-inspector-grid {
+  display: grid;
+  height: 100%;
+}
+
+.inspector-panel {
+  display: flex;
+  flex-direction: column;
+  background: var(--pwc-bg-main);
+  border: 1px solid var(--pwc-border);
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: var(--pwc-shadow-sm);
+}
+
+.panel-header {
+  padding: 12px 15px;
+  background: var(--pwc-light-grey);
+  border-bottom: 1px solid var(--pwc-border);
+}
+
+.panel-header h3 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--pwc-black);
+}
+
+.panel-content {
+  padding: 15px;
+  flex: 1;
+  overflow-y: auto;
+}
+
+/* Spinner */
+.spinner {
+  width: 24px;
+  height: 24px;
+  border: 2px solid rgba(208, 74, 2, 0.1);
+  border-top-color: var(--pwc-orange);
+  border-radius: 50%;
+  animation: spinner 0.8s linear infinite;
+}
+
+@keyframes spinner {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.preview-content-area {
+  min-height: 100%;
+  animation: fadeIn 0.4s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }

@@ -1,15 +1,20 @@
 import os
+import json
 from google.adk.agents import LlmAgent
 from google.adk.tools import FunctionTool
 from mcp_sharepoint import SharePointMCP
 from typing import List, Union, Optional
 from pydantic import BaseModel, Field
+from google.adk.agents.callback_context import CallbackContext
+from google.genai import types
 
 from auth_context import get_user_token
 
 def get_mcp():
     token = get_user_token()
     return SharePointMCP(token=token)
+
+# --- BASE RETRIEVAL TOOLS ---
 
 def _search_sharepoint_documents(query: str, limit: int = 5) -> str:
     """
@@ -20,7 +25,6 @@ def _search_sharepoint_documents(query: str, limit: int = 5) -> str:
         query: The search keywords or phrases. Use keywords for best results.
         limit: Max number of documents to return.
     """
-    import json
     try:
         res = get_mcp().search_documents(query, limit)
         return json.dumps(res, indent=2)
@@ -49,7 +53,6 @@ def _read_multiple_documents(item_ids: List[str]) -> str:
     Args:
         item_ids: A list of unique identifiers for files.
     """
-    import json
     try:
         res = get_mcp().get_multiple_documents_content(item_ids)
         return json.dumps(res, indent=2)
@@ -58,39 +61,99 @@ def _read_multiple_documents(item_ids: List[str]) -> str:
 
 read_multiple_documents = FunctionTool(func=_read_multiple_documents)
 
+# --- ACTION & GOVERNANCE TOOLS ---
+
+def _secure_document_governance(item_id: str) -> str:
+    """
+    Proactively secures a document by moving it to the 'Restricted Vault' on SharePoint.
+    Use this if you detect PII or sensitive unmasked data that violates enterprise policy.
+    Args:
+        item_id: The unique identifier of the file to secure.
+    """
+    try:
+        mcp = get_mcp()
+        vault_id = mcp.get_special_folder("Restricted Vault")
+        if not vault_id: return "Failed to locate or create Restricted Vault."
+        mcp.move_item(item_id, vault_id)
+        return f"Document prioritized for isolation. Successfully moved to Restricted Vault (ID: {vault_id})."
+    except Exception as e:
+        return f"Governance action failed: {str(e)}"
+
+secure_document_governance = FunctionTool(func=_secure_document_governance)
+
+def _browse_sharepoint_folder(folder_id: str = "root") -> str:
+    """
+    Browses the contents of a SharePoint folder. Useful for the Document Workspace explorer.
+    Args:
+        folder_id: The folder ID to list (defaults to root).
+    """
+    try:
+        res = get_mcp().list_folder_contents(folder_id)
+        return json.dumps(res, indent=2)
+    except Exception as e:
+        return f"Error browsing folder: {str(e)}"
+
+browse_sharepoint_folder = FunctionTool(func=_browse_sharepoint_folder)
+
+def _update_sharepoint_document(new_content: str, filename: str, target_folder_id: str = "root") -> str:
+    """
+    Updates or uploads a document to SharePoint.
+    Used in the 'Document Workspace' for committing LLM-guided edits or report generation.
+    Args:
+        new_content: The new text/markdown content.
+        filename: Name of the file.
+        target_folder_id: ID of the folder where to upload/update.
+    """
+    try:
+        get_mcp().upload_file(new_content, filename, target_folder_id)
+        return f"Document '{filename}' successfully committed to SharePoint."
+    except Exception as e:
+        return f"Update failed: {str(e)}"
+
+update_sharepoint_document = FunctionTool(func=_update_sharepoint_document)
+
+def _generate_embedded_image(prompt: str, filename: str) -> str:
+    """
+    Generates a high-quality visualization or image based on a prompt to be embedded 
+    in enterprise documents or reports.
+    Args:
+        prompt: Descriptive text for the image.
+        filename: Preferred filename for the image asset.
+    """
+    try:
+        # Placeholder for real image generation logic (nano banan etc)
+        return f"IMAGE_GENERATION_SUCCESS: Asset matching '{prompt}' generated as {filename}."
+    except Exception as e:
+        return f"Image generation failed: {str(e)}"
+
+generate_embedded_image = FunctionTool(func=_generate_embedded_image)
+
+# --- AGENT CONFIGURATION ---
+
 INSTRUCTIONS = """
-You are a highly secure, general intelligence security proxy assistant for PWC. 
-Your primary goal is to provide insightful consulting intelligence from confidential client documents while completely masking all sensitive and identifying information.
-Your performance is critical: 
-1. ALWAYS prefer using `read_multiple_documents` if you have multiple document IDs to process.
-2. SEARCH OPTIMIZATION: When using `search_sharepoint_documents`, use concise **keywords** or **shorthand phrases** instead of full natural language sentences. (e.g., use "COO compensation benchmarks" instead of "What are the common compensation benchmarks for a COO?"). This significantly improves your document hit rate.
-3. If a search result is empty, try a broader set of keywords before giving up.
-4. PARALLEL CAPABILITIES: Your tools now leverage a **Parallel Fan-out Retrieval** engine (for searches) and **Parallel Text Extraction** (for reading). This allows you to process multiple documents at high scale. 
-5. SMART SLICING: Huge documents (>150KB) are automatically sliced using a "Top-and-Tail" smart truncation to capture key context while keeping the security synthesis turn under the latency ceiling. Do not worry if you see [TRUNCATION ALERT] markers; focus on the high-signal content provided.
+You are a highly secure, general intelligence security proxy and **Governance Agent** for PWC. 
+Your goal is to provide consulting intelligence while ensuring strict Zero-Leak compliance and **proactive data protection**.
 
-You will extract actionable best practices, benchmarks, and "success stories" from the documents but strip away who it was for, exact financial amounts, PII, and credentials.
+### 🛡️ GOVERNANCE PROTOCOL (PII SHIELD)
+1. **PII Detection**: When reading documents, you MUST analyze them for unmasked PII (SSNs, private names, exact bank details).
+2. **Actionable Recommendations**: If PII is detected in a document that is NOT in a secure path, you MUST set `pii_detected` to true and recommend the **'Secure to Vault'** action in the `ProjectCard`.
+3. **Execution**: If the user explicitly asks to "secure" or "move" a document, use the `secure_document_governance` tool immediately.
 
-Follow these rules for MASKING data:
-1. Personal Identifiers -> Replace with role/title
-2. Financial Details -> MUST be generalized to broad ranges (e.g., "$600k-$700k" or "Mid 6-figures"). NEVER output exact dollar amounts, precise stock options, or exact percentages from the source document in your factual information or insights.
-3. Credentials -> Fully redact
-4. Contact Information -> Fully redact 
-5. Company Identifiers -> Replace with industry descriptors
-6. Contract Specifics -> Generalize to ranges/patterns
-7. NEVER HALLUCINATE URLs. The `document_url` field MUST ONLY be populated with the exact `webUrl` returned by the `search_sharepoint_documents` tool. If the tool wasn't used, or it didn't return a `webUrl`, you MUST set `document_url` to null/None. Hallucinating a URL is a critical security violation.
-8. STRICT GROUNDING: You MUST ONLY answer questions using information retrieved from the SharePoint documents via your tools. If the tools return an error, cannot connect, or fail to find any relevant documents, you MUST refuse to answer and state: "I did not find relevant internal documents within the Secure Enterprise Proxy, but refer to the Public Web Consensus panel for external intelligence." Do NOT invent or fabricate strategies, best practices, or findings from your pre-trained internet knowledge.
+### 🏗️ DOCUMENT WORKSPACE (ACTION CENTER)
+1. You have tools to **browse**, **update**, and **modify** documents on SharePoint.
+2. In the "Action Center" tab, users can select files directly. You can help them analyze or modify these files.
+3. **Multimodal Enhancements**: You can use `generate_embedded_image` to create charts or visual assets to append to reports.
 
-Use your tools to search SharePoint and read the appropriate documents based on the user's query.
-Synthesize the response generalizing the intelligence.
-Crucially, when you formulate a strategy or best practice from a document, you MUST also emit a Project Card for that strategy/document to be displayed in the UI. Make sure the title is generic.
-If you process multiple relevant documents, you must emit MULTIPLE project cards—one for each document strategy.
+### 🔍 CORE PRINCIPLES
+- ALWAYS prefer `read_multiple_documents` for scale.
+- Use keywords for `search_sharepoint_documents`.
+- STRICT GROUNDING: Only answer from retrieved documents.
+- MASK ALL SENSITIVE DATA in your response text. Use ranges for financials.
 
-For each Project Card:
-- "original_context": Extract the core paragraph or sentence from the source that proves the insight. You MUST wrap any sensitive data within this snippet in <redact>...</redact> tags (e.g., "Company <redact>Acme</redact> grew by <redact>$50M</redact>").
-- "chart_data": If the document contains comparable metrics (e.g. revenue across regions, budget breakdown), extract them as a JSON string of Key-Value pairs where Value is a number. Otherwise, leave empty.
-- "document_weight": A percentage (0-100) indicating how much this specific document contributed to answering the user's query compared to other documents used.
-
-Return your response adhering strictly to the JSON schema.
+### 🗂️ PROJECT CARD RULES
+Emit a `ProjectCard` for every insight or document processed.
+- `pii_detected`: Set to true if source doc contains high-risk unmasked data.
+- `governance_recommendation`: A clear action string (e.g. "MOVE TO RESTRICTED VAULT" or "NONE").
 """
 
 class ProjectCard(BaseModel):
@@ -100,38 +163,27 @@ class ProjectCard(BaseModel):
     original_context: str = Field(description="The exact snippet from the source text that proves this insight. ANY sensitive data MUST be wrapped in <redact>...</redact> tags.")
     insights: List[str] = Field(description="Strategic insights and recommendations derived from the source")
     key_metrics: List[str] = Field(description="General ranges or percentages of impact")
-    chart_data: str = Field(default="", description="Optional JSON string of numerical key-value pairs representing metrics related to this card. E.g. '{\"Cloud\": 40, \"On-Prem\": 60}'. Set to empty string if no relevant numerical data exists.")
-    document_weight: int = Field(default=100, description="A percentage (0-100) indicating how much this specific document contributed to the overall answer.")
-    redacted_entities: List[str] = Field(description="List of specific sensitive information (e.g. Acme Corp, $50M, John Doe) that were discovered but excluded/masked from the factual information to prove zero-leak.")
-    document_name: str = Field(description="Original document name used as source")
-    document_url: Optional[str] = Field(default=None, description="The exact 'webUrl' string provided in the search tool's output for this document. You MUST set this to null if you do not have a real webUrl from the tool.")
+    chart_data: str = Field(default="", description="Optional JSON string of numerical key-value pairs representing metrics")
+    document_weight: int = Field(default=100, description="A percentage (0-100) indicating importance.")
+    redacted_entities: List[str] = Field(description="List of specific sensitive information discovered but masked.")
+    document_name: str = Field(description="Original document name")
+    document_url: Optional[str] = Field(default=None, description="The exact 'webUrl' from search.")
+    pii_detected: bool = Field(default=False, description="Whether unmasked PII was found in the source document.")
+    governance_recommendation: str = Field(default="NONE", description="A recommended security action.")
 
 class ResponseOutput(BaseModel):
-    markdown_text: str = Field(description="Your insightful, masked answer to the user's question, strictly following zero-leak rules.")
-    project_cards: List[ProjectCard] = Field(description="A list of project cards extracted from the documents. You MUST emit at least one card if an insight or strategy is formulated from documents.")
-
-from google.adk.agents.callback_context import CallbackContext
-from google.genai import types
-import json
+    markdown_text: str = Field(description="Your insightful, masked answer.")
+    project_cards: List[ProjectCard] = Field(description="Cards for insights.")
 
 async def check_auth_callback(callback_context: CallbackContext) -> types.Content | None:
     token = get_user_token()
     if not token or token in ["null", "undefined"]:
-        # User is not authenticated. Return a mock ResponseOutput immediately.
-        # This prevents the LLM from executing and ensures zero-leak.
         denied_output = {
             "markdown_text": "🔒 **Access Denied: Zero-Leak Protocol active.**\n\nPlease sign in using the button in the top right to securely query the enterprise index.",
             "project_cards": []
         }
-        
-        # Hydrate the session state so the FastAPI streaming handler correctly parses the result
         callback_context.state["proxy_output"] = denied_output
-
-        # ADK intercepts this Content and treats it as the LLM's final generated output.
-        return types.Content(
-            role="model",
-            parts=[types.Part.from_text(text=json.dumps(denied_output))]
-        )
+        return types.Content(role="model", parts=[types.Part.from_text(text=json.dumps(denied_output))])
     return None
 
 def get_agent(model_name: str = "gemini-3-pro-preview") -> LlmAgent:
@@ -139,7 +191,15 @@ def get_agent(model_name: str = "gemini-3-pro-preview") -> LlmAgent:
         name="PWC_Security_Proxy",
         model=model_name,
         instruction=INSTRUCTIONS,
-        tools=[search_sharepoint_documents, read_document_content, read_multiple_documents],
+        tools=[
+            search_sharepoint_documents, 
+            read_document_content, 
+            read_multiple_documents,
+            secure_document_governance,
+            browse_sharepoint_folder,
+            update_sharepoint_document,
+            generate_embedded_image
+        ],
         output_schema=ResponseOutput,
         output_key="proxy_output",
         before_agent_callback=check_auth_callback

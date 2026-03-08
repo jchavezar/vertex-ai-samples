@@ -3,7 +3,6 @@ import { Lightbulb, Database, FileText, Lock, Building, Users } from 'lucide-rea
 
 interface PromptGalleryProps {
   onSelectPrompt: (prompt: string) => void;
-  isLoading: boolean;
 }
 
 const CATEGORIES = [
@@ -59,7 +58,7 @@ const CATEGORIES = [
   }
 ];
 
-export const PromptGallery: React.FC<PromptGalleryProps> = ({ onSelectPrompt, isLoading }) => {
+export const PromptGallery: React.FC<PromptGalleryProps> = ({ onSelectPrompt }) => {
   return (
     <div className="prompt-gallery-container">
       <div className="gallery-header">
@@ -81,7 +80,6 @@ export const PromptGallery: React.FC<PromptGalleryProps> = ({ onSelectPrompt, is
                   key={pIdx}
                   className="prompt-pill"
                   onClick={() => onSelectPrompt(prompt)}
-                  disabled={isLoading}
                 >
                   {prompt}
                 </button>
