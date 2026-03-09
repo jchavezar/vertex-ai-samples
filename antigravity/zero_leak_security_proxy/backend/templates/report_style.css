@@ -1,0 +1,115 @@
+@page {
+    size: letter portrait;
+    margin: 1in;
+    @top-left {
+        content: "pwc";
+        font-family: Arial, Helvetica, sans-serif;
+        color: #d04a02;
+        font-weight: bold;
+        font-size: 14pt;
+    }
+    @top-center {
+        content: "CONFIDENTIAL - FOR INTERNAL USE ONLY";
+        font-family: Arial, Helvetica, sans-serif;
+        color: #7b7b7b;
+        font-weight: bold;
+        font-size: 10pt;
+    }
+    @bottom-center {
+        content: "Page " counter(page) " | " string(doctitle);
+        font-family: "Georgia", serif;
+        font-style: italic;
+        color: #7b7b7b;
+        font-size: 10pt;
+    }
+}
+
+body {
+    font-family: "Arial", Helvetica, sans-serif;
+    color: #333333;
+    line-height: 1.5;
+    font-size: 11pt;
+}
+
+h1, h2, h3, h4 {
+    font-family: "Arial", Helvetica, sans-serif;
+    color: #2d5573;
+    font-weight: bold;
+}
+
+h1 { font-size: 18pt; margin-bottom: 0.5em; string-set: doctitle content(); }
+h2 { font-size: 14pt; margin-top: 1.5em; margin-bottom: 0.5em; }
+h3 { font-size: 12pt; margin-top: 1.2em; margin-bottom: 0.5em; }
+
+p {
+    margin-bottom: 1em;
+}
+
+/* 
+ * Professional Table Styling 
+ */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1em;
+    margin-bottom: 1.5em;
+    page-break-inside: avoid;
+}
+
+th, td {
+    padding: 10px 12px;
+    border: 1px solid #dddddd;
+    text-align: left;
+    vertical-align: top;
+}
+
+th code, td code {
+    background: transparent;
+    color: inherit;
+    padding: 0;
+    border-radius: 0;
+}
+
+th {
+    background-color: #1a3b5c;
+    color: #ffffff;
+    font-weight: bold;
+}
+
+tr:nth-child(even) {
+    background-color: #f6f6f6;
+}
+
+/* 
+ * Chart Styling 
+ */
+.chart-container {
+    width: 100%;
+    text-align: center;
+    margin-top: 2em;
+    margin-bottom: 2em;
+    page-break-inside: avoid;
+}
+
+.chart-container img {
+    max-width: 90%;
+    height: auto;
+    border: 1px solid #eaeaea;
+    box-shadow: 0px 4px 10px rgba(0,0,0,0.05);
+}
+
+.chart-caption {
+    font-size: 9pt;
+    color: #666666;
+    margin-top: 0.5em;
+    font-style: italic;
+}
+
+/* Custom horizontal rule matching the client's PDF style */
+hr {
+    border: 0;
+    height: 1px;
+    background-color: #d04a02;
+    margin-top: 2em;
+    margin-bottom: 2em;
+}

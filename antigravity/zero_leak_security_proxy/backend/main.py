@@ -370,6 +370,30 @@ async def get_sharepoint_preview_url(request: Request, item_id: str):
     except Exception as e:
         return {"error": str(e)}
 
+@app.get("/api/sharepoint/view_regenerated")
+async def view_regenerated(request: Request, path: str, t: str = None):
+    from fastapi.responses import FileResponse
+    import urllib.parse
+    
+    auth_header = request.headers.get("Authorization")
+    token = None
+    if auth_header and auth_header.startswith("Bearer "):
+        token = auth_header.split(" ")[1]
+    elif t:
+        token = t
+    
+    if not token or token in ["null", "undefined"]:
+        return {"error": "Unauthorized"}
+        
+    try:
+        decoded_path = urllib.parse.unquote(path)
+        if not os.path.exists(decoded_path):
+            return {"error": "File not found"}
+            
+        return FileResponse(decoded_path, media_type="application/pdf")
+    except Exception as e:
+        return {"error": str(e)}
+
 class ModificationRequest(BaseModel):
     item_id: str
     prompt: str
@@ -488,7 +512,33 @@ async def commit_modification(request: Request, data: CommitRequest):
     try:
         sp = SharePointMCP(token=token)
         
-        if data.content.startswith("PDF_REGEN:"):
+        if data.content.startswith("FULL_REGEN:"):
+            import requests
+            # Fast-path for completely regenerated documents using WeasyPrint output
+            local_pdf_path = data.content.replace("FULL_REGEN:", "").strip()
+            
+            if not os.path.exists(local_pdf_path):
+                return {"error": "Generated PDF not found on disk for commit."}
+                
+            # 1. PROACTIVELY BACKUP
+            sp.create_backup(data.item_id)
+            
+            # 2. Upload binary to SharePoint
+            url = f"{sp.base_url}/sites/{sp.site_id}/drives/{sp.drive_id}/items/{data.item_id}/content"
+            headers = {"Authorization": f"Bearer {token}", "Content-Type": "application/pdf"}
+            with open(local_pdf_path, "rb") as f:
+                new_pdf_bytes = f.read()
+            
+            res = requests.put(url, headers=headers, data=new_pdf_bytes)
+            res.raise_for_status()
+            
+            # Clean up local temp file as we've safely updated SharePoint
+            if os.path.exists(local_pdf_path):
+                os.remove(local_pdf_path)
+            
+            return {"status": "success", "mode": "regenerative_synthesis_full", "result": res.json()}
+            
+        elif data.content.startswith("PDF_REGEN:"):
             # High-Fidelity PDF Patching Flow
             json_str = data.content.replace("PDF_REGEN:", "").strip()
             if json_str.startswith("```json"):
@@ -508,6 +558,9 @@ async def commit_modification(request: Request, data: CommitRequest):
             
             # 3. Apply Patches
             import fitz
+            import matplotlib.pyplot as plt
+            import io
+            
             doc = fitz.open(local_path)
             
             patched_regions = {}
@@ -515,9 +568,19 @@ async def commit_modification(request: Request, data: CommitRequest):
             sorted_patches = sorted(patches, key=lambda x: len(x.get("find", "")), reverse=True)
             
             for patch in sorted_patches:
+                action = patch.get("action", "text_replace")
+                
+                # Forward compatibility for old patch styles that didn't specify action
+                if "replace" in patch and "action" not in patch:
+                    action = "text_replace"
+                    
                 search_text = patch.get("find")
+                if not search_text:
+                    continue
+                    
                 replacement_text = patch.get("replace")
-                if not search_text or not replacement_text or search_text == replacement_text:
+                
+                if action == "text_replace" and (not replacement_text or search_text == replacement_text):
                     continue
                 
                 target_pages = [patch.get("page_idx")] if "page_idx" in patch else range(len(doc))
@@ -555,9 +618,38 @@ async def commit_modification(request: Request, data: CommitRequest):
                                 if found_style: break
                             if found_style: break
                         
+                        # Erase and overlay
                         mask_rect = inst + (-0.5, -0.5, 0.5, 0.5)
                         page.draw_rect(mask_rect, color=(1, 1, 1), fill=(1, 1, 1))
-                        page.insert_text(origin, replacement_text, fontsize=font_size, color=font_color, fontname=font_name)
+                        
+                        if action == "insert_chart":
+                            chart_data = patch.get("chart_data", {})
+                            labels = chart_data.get("labels", [])
+                            values = chart_data.get("values", [])
+                            title = patch.get("chart_title", "Chart")
+                            chart_type = patch.get("chart_type", "bar")
+                            
+                            if labels and values:
+                                plt.figure(figsize=(5, 3))
+                                if chart_type == "pie":
+                                    plt.pie(values, labels=labels, autopct='%1.1f%%')
+                                elif chart_type == "line":
+                                    plt.plot(labels, values, marker='o')
+                                else:
+                                    plt.bar(labels, values, color="#d04a02")
+                                plt.title(title)
+                                plt.tight_layout()
+                                
+                                buf = io.BytesIO()
+                                plt.savefig(buf, format='png', dpi=150, bbox_inches='tight')
+                                buf.seek(0)
+                                
+                                # Insert image to fill the exact erased rect
+                                page.insert_image(mask_rect, stream=buf.read())
+                                plt.close()
+                        else:
+                            page.insert_text(origin, replacement_text, fontsize=font_size, color=font_color, fontname=font_name)
+                            
                         patched_regions[page_idx].append(inst)
             
             output_pdf_path = f"/tmp/regenerated_{data.item_id}.pdf"

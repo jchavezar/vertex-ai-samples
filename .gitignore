@@ -1,16 +1,19 @@
 /gen_ai/tmp/.idea/
 
 # Common Junk (MANDATORY CLEANUP)
-__pycache__/
-.venv/
+**/__pycache__/
+**/.venv/
+**/node_modules/
+**/dist/
+**/build/
 local_data/
 *.pyc
 *.log
 .DS_Store
-node_modules/
-dist/
-build/
 server_pid.txt
+*.pdf
+!antigravity/zero_leak_security_proxy/backend/test_pwc_report.pdf
+!antigravity/zero_leak_security_proxy/backend/verified_regenerative_report.pdf
 
 # Data & Secrets (MANDATORY)
 .env

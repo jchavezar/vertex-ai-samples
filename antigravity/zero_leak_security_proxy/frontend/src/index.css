@@ -134,9 +134,40 @@ body {
 .pwc-main-wrapper {
   display: flex;
   height: calc(100vh - 72px);
-    padding: var(--spacing-md);
-    gap: var(--spacing-md);
-    background-color: #f0f2f5;
+  padding: var(--spacing-md);
+  gap: var(--spacing-lg);
+  background-color: #f0f2f5;
+  position: relative;
+}
+
+/* Draggable Sidebar Resizer */
+.pwc-sidebar-resizer {
+  width: 16px;
+  margin: 0 4px; /* effectively giving an overall gap of 24px between panels */
+  cursor: col-resize;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  transition: background-color 0.2s;
+  border-radius: 4px;
+}
+
+.pwc-sidebar-resizer:hover, .pwc-sidebar-resizer.active {
+  background-color: rgba(94, 174, 253, 0.1);
+}
+
+.resizer-handle {
+  width: 4px;
+  height: 48px;
+  background-color: var(--pwc-border);
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+
+.pwc-sidebar-resizer:hover .resizer-handle, .pwc-sidebar-resizer.active .resizer-handle {
+  background-color: #5eaefd;
+  box-shadow: 0 0 8px rgba(94, 174, 253, 0.4);
 }
 
 /* Table Overlay Modal */
@@ -182,18 +213,26 @@ body {
 
 /* Sidebar Chat Board Style */
 .pwc-chat-sidebar {
-  width: 420px;
+  /* Default width overridden by inline style during resizing */
+  width: 420px; 
   background: var(--pwc-glass);
-    backdrop-filter: blur(16px) saturate(150%);
-    -webkit-backdrop-filter: blur(16px) saturate(150%);
-    border-radius: var(--pwc-radius);
-    box-shadow: var(--pwc-shadow-md);
+  backdrop-filter: blur(16px) saturate(150%);
+  -webkit-backdrop-filter: blur(16px) saturate(150%);
+  border-radius: var(--pwc-radius);
+  box-shadow: var(--pwc-shadow-md);
   display: flex;
   flex-direction: column;
   overflow: hidden;
   flex-shrink: 0;
   border: 1px solid var(--pwc-glass-border);
-    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  /* Disable width transition while dragging to ensure smooth 60fps tracking */
+  transition: width 0s, background 0.4s cubic-bezier(0.16, 1, 0.3, 1), transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.pwc-chat-sidebar.resizing {
+  transition: none; /* Instant feedback */
+  user-select: none;
+  pointer-events: none; /* Prevents iframes or text from interfering during drag */
 }
 
 .pwc-chat-sidebar.wide {
@@ -1283,4 +1322,21 @@ a.doc-id:hover {
 .sharepoint-icon-wrapper svg {
   color: var(--pwc-orange);
   animation: pulse-logo 2s ease-in-out infinite alternate;
+}
+/* Public Web Consensus Loading Transition Animation */
+@keyframes pulseInsightGlow {
+  0% { box-shadow: 0 0 15px rgba(94, 174, 253, 0.1); border-color: rgba(94, 174, 253, 0.2); }
+  50% { box-shadow: 0 0 40px rgba(94, 174, 253, 0.5); border-color: rgba(94, 174, 253, 0.8); }
+  100% { box-shadow: 0 0 15px rgba(94, 174, 253, 0.1); border-color: rgba(94, 174, 253, 0.2); }
+}
+
+.pwc-insight-streaming {
+  animation: pulseInsightGlow 3s infinite ease-in-out;
+  transform: translateY(2vh) scale(1.01);
+  transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.pwc-insight-settled {
+  transform: translateY(0) scale(1);
+  transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
 }

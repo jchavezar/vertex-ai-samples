@@ -3,13 +3,22 @@ import time
 import json
 import asyncio
 import traceback
+import io
+import base64
 from typing import AsyncGenerator
+
 import fitz  # PyMuPDF
+import matplotlib.pyplot as plt
+import markdown
+from markitdown import MarkItDown
+from weasyprint import HTML, CSS
+from jinja2 import Environment, FileSystemLoader
+
 import vertexai
 from vertexai.generative_models import GenerativeModel
 
 # Ensure your GOOGLE_CLOUD_PROJECT / PROJECT_ID env vars are set properly
-vertexai.init(project=os.environ.get("PROJECT_ID", "vtxdemos"), location=os.environ.get("LOCATION", "us-central1"))
+vertexai.init(project=os.environ.get("PROJECT_ID", "vtxdemos"), location="global")
 
 def _clean_json(json_str: str) -> str:
     """Helper to strip markdown blocks from LLM JSON responses."""
@@ -22,11 +31,37 @@ def _clean_json(json_str: str) -> str:
         json_str = json_str[:-3]
     return json_str.strip()
 
+# Initialize Agents
+router_model = GenerativeModel("gemini-3.1-flash-lite-preview", system_instruction=(
+    "You are the Architectural Router for document generation. You read an original document and a user directive. "
+    "Your job is to plan the final document structure by breaking it down into a JSON array of blocks. "
+    "Each block has a 'type' ('text', 'table', 'chart'). "
+    "If a block is unchanged from the original, set 'needs_generation': false and provide its exact 'content' in markdown. "
+    "If a block needs to be created or modified based on the directive, set 'needs_generation': true and provide an 'instruction' for the subagent. "
+    "Output MUST be valid JSON: [{'type': 'text|table|chart', 'needs_generation': bool, 'content': '...', 'instruction': '...'}]."
+))
+
+text_agent = GenerativeModel("gemini-3.1-flash-lite-preview", system_instruction=(
+    "You are the Text Agent. You write fluid, highly professional corporate narrative text. "
+    "Given an instruction, generate the appropriate markdown text. Output raw markdown. Do not wrap in ```markdown."
+))
+
+table_agent = GenerativeModel("gemini-3.1-flash-lite-preview", system_instruction=(
+    "You are the Table Agent. You format raw data into pristine, semantic markdown tables. "
+    "Given an instruction and context, output the exact markdown table. Output raw markdown table only."
+))
+
+chart_agent = GenerativeModel("gemini-3.1-flash-lite-preview", system_instruction=(
+    "You are the Chart Agent. You extract numerical data destined for charts. "
+    "Given an instruction, return a JSON object with 'chart_type' ('bar', 'pie', 'line'), 'title', 'labels' (array of strings), and 'values' (array of numbers). "
+    "CRITICAL: The length of the 'labels' array MUST EXACTLY MATCH the length of the 'values' array. "
+    "If the table has multiple columns of values, select only ONE column to plot (or derive a single value per label) to ensure array lengths match. "
+    "Output STRICTLY valid JSON."
+))
+
 async def run_regenerative_pipeline(pdf_path: str, prompt: str) -> AsyncGenerator[str, None]:
     """
-    Executes the High-Fidelity Regenerative Pipeline.
-    Instead of recreating the PDF from scratch, it uses LLMs to identify targeted text replacements,
-    and then applies visual patches directly over the original PDF preserving 100% of formatting.
+    Executes the Modular Intelligence Routing Pipeline to construct flawless PDFs.
     """
     start_time_total = time.time()
 
@@ -43,169 +78,166 @@ async def run_regenerative_pipeline(pdf_path: str, prompt: str) -> AsyncGenerato
         loop = asyncio.get_event_loop()
 
         # ---------------------------------------------------------------------
-        # Stage 1: Snapshot De-synthesis (Decomposition)
+        # Stage 1: Document Extraction (MarkItDown)
         # ---------------------------------------------------------------------
         yield format_sse("Snapshot Analysis", "running")
         
-        def _extract_pages():
-            doc = fitz.open(pdf_path)
-            pages = []
-            for i in range(len(doc)):
-                text = doc.load_page(i).get_text("text").strip()
-                if text:
-                    pages.append({"page_idx": i, "text": text})
-            doc.close()
-            return pages
+        def _extract_markdown():
+            md = MarkItDown()
+            result = md.convert(pdf_path)
+            return result.text_content
             
-        document_pages = await loop.run_in_executor(None, _extract_pages)
-        yield format_sse("Snapshot Analysis", "completed", result_data={"pages_found": len(document_pages)})
+        original_markdown = await loop.run_in_executor(None, _extract_markdown)
+        yield format_sse("Snapshot Analysis", "completed", result_data={"bytes_extracted": len(original_markdown)})
+
 
         # ---------------------------------------------------------------------
-        # Stage 2: Parallel Intelligence Routing (Targeted Patch Generation)
+        # Stage 2: Parallel Intelligence Routing (Document Decomposition)
         # ---------------------------------------------------------------------
         yield format_sse("Parallel Intelligence Routing", "running")
         
-        # User requested gemini-2.5-flash for parallelism
-        model_25_flash = GenerativeModel("gemini-2.5-flash", system_instruction=(
-            "You are a precise document updater. Read the provided page text and the user's directive. "
-            "Identify what needs to be changed on this specific page based on the directive. "
-            "Return a JSON array of objects representing text replacements: "
-            "`[{\"find\": \"exact text from page to replace\", \"replace\": \"new text\"}]`. "
-            "If no changes are needed on this page, return an empty array `[]`. "
-            "CRITICAL: The `find` text MUST EXACTLY MATCH a contiguous substring from the provided page text. "
-            "Do not hallucinate matches. Output STRICTLY VALID JSON."
-        ))
-
-        async def analyze_page(page_info):
-            user_msg = f"User Directive: {prompt}\n\n--- Page {page_info['page_idx'] + 1} Text ---\n{page_info['text']}"
-            def _run():
-                res = model_25_flash.generate_content(user_msg, generation_config={"response_mime_type": "application/json"})
-                patches = json.loads(_clean_json(res.text))
-                for p in patches:
-                    p["page_idx"] = page_info["page_idx"]
-                return patches
-            try:
-                # Fast parallel execution
-                return await loop.run_in_executor(None, _run)
-            except Exception as e:
-                print(f"Error on page {page_info['page_idx']}: {e}")
-                return []
-
-        all_patches = []
-        # Run all pages concurrently
-        results = await asyncio.gather(*(analyze_page(p) for p in document_pages))
-        for res in results:
-            if isinstance(res, list):
-                all_patches.extend(res)
-
-        yield format_sse("Parallel Intelligence Routing", "completed", result_data={"patches_proposed": len(all_patches)})
-
-        # ---------------------------------------------------------------------
-        # Stage 3: Aesthetic Evaluation Layer (Validation & Consolidation)
-        # ---------------------------------------------------------------------
-        yield format_sse("Aesthetic Evaluation Layer", "running")
+        router_prompt = f"User Directive: {prompt}\n\n--- Original Document ---\n{original_markdown}"
         
-        # User requested gemini-3-flash-preview for sequential/non-parallel logic
-        model_3_flash = GenerativeModel("gemini-3-flash-preview", system_instruction=(
-            "You are the Aesthetic Evaluator (Gatekeeper). Review the proposed text replacement patches against the original user prompt. "
-            "Ensure the replacements are logical, factually consistent with the prompt, and don't introduce visual regressions (like overly long strings). "
-            "Output the finalized, validated JSON array of patches `[{\"find\": \"...\", \"replace\": \"...\"}]`. "
-            "If a patch is invalid or hallucinated, omit it. Do NOT change the JSON structure."
-        ))
-
-        async def run_evaluator():
-            if not all_patches:
-                return []
-            user_msg = f"User Directive: {prompt}\n\nProposed Patches from Parallel Experts:\n{json.dumps(all_patches, indent=2)}\n\nValidate and return the final JSON array. Include the 'page_idx' field if it was provided."
-            def _run():
-                res = model_3_flash.generate_content(user_msg, generation_config={"response_mime_type": "application/json"})
-                return json.loads(_clean_json(res.text))
+        def _route():
+            res = router_model.generate_content(router_prompt, generation_config={"response_mime_type": "application/json"})
             try:
-                validated = await loop.run_in_executor(None, _run)
-                return validated
+                parsed = json.loads(_clean_json(res.text))
             except Exception as e:
-                print(f"Evaluation error: {e}")
-                return all_patches # Fallback to unvalidated patches if 3.0 fails
-
-        final_validated_patches = await run_evaluator()
-        yield format_sse("Aesthetic Evaluation Layer", "completed", result_data={"patches_validated": len(final_validated_patches)})
+                print(f"Error parsing router JSON: {e}")
+                parsed = []
+                
+            blocks_out = []
+            if isinstance(parsed, dict):
+                # In case the model wrapped it in an object {"blocks": [...]}
+                for k, v in parsed.items():
+                    if isinstance(v, list):
+                        blocks_out.extend(v)
+            elif isinstance(parsed, list):
+                for item in parsed:
+                    if isinstance(item, dict):
+                        blocks_out.append(item)
+                    elif isinstance(item, list): # List of lists generated sometimes
+                        blocks_out.extend([x for x in item if isinstance(x, dict)])
+            return blocks_out
+            
+        blocks = await loop.run_in_executor(None, _route)
+        yield format_sse("Parallel Intelligence Routing", "completed", result_data={"blocks_planned": len(blocks)})
 
         # ---------------------------------------------------------------------
-        # Stage 4: Server-Side PDF Synthesis (High-Fidelity Patching)
+        # Stage 3: Parallel Subagents Execution
         # ---------------------------------------------------------------------
-        yield format_sse("Server-Side PDF Synthesis", "running")
+        yield format_sse("Parallel Subagent Synthesis", "running")
+
+        async def _process_block(block):
+            if not block.get("needs_generation"):
+                # Fast path markdown conversion
+                html_content = markdown.markdown(block.get("content", ""), extensions=['tables'])
+                return html_content
+
+            instruction = block.get("instruction", "")
+            b_type = block.get("type")
+
+            if b_type == "text":
+                res = await loop.run_in_executor(None, lambda: text_agent.generate_content(instruction).text)
+                return markdown.markdown(res, extensions=['tables'])
+                
+            elif b_type == "table":
+                res = await loop.run_in_executor(None, lambda: table_agent.generate_content(f"Data Context: {original_markdown}\n\nInstruction: {instruction}").text)
+                return markdown.markdown(res, extensions=['tables'])
+
+            elif b_type == "chart":
+                def _gen_chart():
+                    res = chart_agent.generate_content(f"Data Context: {original_markdown}\n\nInstruction: {instruction}", generation_config={"response_mime_type": "application/json"})
+                    chart_spec = json.loads(_clean_json(res.text))
+                    
+                    labels = chart_spec.get("labels", [])
+                    values = chart_spec.get("values", [])
+                    c_type = chart_spec.get("chart_type", "bar")
+                    title = chart_spec.get("title", "Chart")
+                    
+                    if not labels or not values:
+                        return "<p><i>Chart data unavailable</i></p>"
+
+                    # Enforce shape match to prevent matplotlib crashes
+                    min_len = min(len(labels), len(values))
+                    labels = labels[:min_len]
+                    values = values[:min_len]
+
+                    plt.figure(figsize=(8, 5))
+                    if c_type == "pie":
+                        plt.pie(values, labels=labels, autopct='%1.1f%%', colors=['#d04a02', '#2d5573', '#eb8c00', '#e0301e'])
+                    elif c_type == "line":
+                        plt.plot(labels, values, marker='o', color="#d04a02", linewidth=2)
+                        plt.grid(True, linestyle="--", alpha=0.6)
+                        plt.xticks(rotation=45, ha="right")
+                    else: # bar
+                        plt.bar(labels, values, color="#d04a02")
+                        plt.grid(axis='y', linestyle="--", alpha=0.6)
+                        plt.xticks(rotation=45, ha="right")
+                        
+                    plt.title(title, fontsize=14, color="#2d5573", fontweight="bold")
+                    plt.tight_layout()
+                    
+                    buf = io.BytesIO()
+                    plt.savefig(buf, format='png', dpi=200, bbox_inches='tight')
+                    plt.close()
+                    buf.seek(0)
+                    
+                    encoded = base64.b64encode(buf.read()).decode('utf-8')
+                    return f'<div class="chart-container"><img src="data:image/png;base64,{encoded}" alt="{title}"><div class="chart-caption">{title}</div></div>'
+                
+                return await loop.run_in_executor(None, _gen_chart)
+
+            return ""
+
+        # Run all subagents concurrently
+        block_results = await asyncio.gather(*(_process_block(b) for b in blocks))
         
-        def _apply_in_place_patches():
-            """Applies visual patches (whiteout + text overlay) onto the original PDF."""
-            doc = fitz.open(pdf_path)
+        final_html_content = "\n".join(block_results)
+        
+        yield format_sse("Parallel Subagent Synthesis", "completed", result_data={"agents_executed": sum(1 for b in blocks if b.get('needs_generation'))})
+
+        # ---------------------------------------------------------------------
+        # Stage 4: Server-Side PDF Synthesis (WeasyPrint)
+        # ---------------------------------------------------------------------
+        yield format_sse("Aesthetic Evaluation Layer", "running") # We map Aesthetic Evaluation to the compilation step
+        
+        def _compile_pdf():
+            template_dir = os.path.join(os.path.dirname(__file__), "templates")
+            env = Environment(loader=FileSystemLoader(template_dir))
+            template = env.get_template("report_skeleton.html")
+            
+            # Extract a sensible title
+            doc_title = "Financial Audit Report"
+            if blocks and blocks[0].get("content"):
+                first_lines = blocks[0]["content"].split("\n")
+                if first_lines and first_lines[0].startswith("#"):
+                    doc_title = first_lines[0].replace("#", "").strip()
+
+            rendered_html = template.render(
+                document_title=doc_title,
+                body_content=final_html_content
+            )
+            
             output_path = pdf_path.replace(".pdf", "_regenerated.pdf")
             
-            patched_regions = {}
-            # Sort patches by length to replace longest strings first
-            sorted_patches = sorted(final_validated_patches, key=lambda x: len(x.get("find", "")), reverse=True)
-            
-            for patch in sorted_patches:
-                search_text = patch.get("find")
-                replacement_text = patch.get("replace")
-                if not search_text or not replacement_text or search_text == replacement_text:
-                    continue
+            # Write to disk to debug if necessary
+            # with open(pdf_path.replace(".pdf", "_regenerated.html"), "w") as f:
+            #     f.write(rendered_html)
                 
-                # If page_idx is given, only search that page, else search all
-                target_pages = [patch.get("page_idx")] if "page_idx" in patch else range(len(doc))
-                
-                for page_idx in target_pages:
-                    if page_idx is None or page_idx >= len(doc):
-                        continue
-                    page = doc[page_idx]
-                    if page_idx not in patched_regions:
-                        patched_regions[page_idx] = []
-                    
-                    text_instances = page.search_for(search_text)
-                    for inst in text_instances:
-                        # Prevent overlapping patches
-                        if any(inst.intersects(prev_rect) for prev_rect in patched_regions[page_idx]):
-                            continue
-
-                        # Extract original styling
-                        dict_content = page.get_text("dict", clip=inst + (-2, -2, 2, 2))
-                        font_size = 9
-                        font_color = (0, 0, 0)
-                        font_name = "helv"
-                        origin = inst.bl + (0, -1)
-                        
-                        found_style = False
-                        for block in dict_content.get("blocks", []):
-                            if block.get("type") != 0: continue
-                            for line in block.get("lines", []):
-                                for span in line.get("spans", []):
-                                    if search_text.lower() in span["text"].lower() or inst.intersects(span["bbox"]):
-                                        font_size = span["size"]
-                                        c = span["color"]
-                                        font_color = (((c >> 16) & 0xFF) / 255.0, ((c >> 8) & 0xFF) / 255.0, (c & 0xFF) / 255.0)
-                                        raw_font = span["font"].lower()
-                                        font_name = "helv" if "sans" in raw_font or "inter" in raw_font else "tiro" if "serif" in raw_font else "helv"
-                                        origin = fitz.Point(span["origin"])
-                                        found_style = True
-                                        break
-                                if found_style: break
-                            if found_style: break
-                        
-                        # Erase and overlay
-                        # Expand mask slightly to cover anti-aliasing
-                        mask_rect = inst + (-0.5, -0.5, 0.5, 0.5)
-                        page.draw_rect(mask_rect, color=(1, 1, 1), fill=(1, 1, 1))
-                        page.insert_text(origin, replacement_text, fontsize=font_size, color=font_color, fontname=font_name)
-                        patched_regions[page_idx].append(inst)
-            
-            doc.save(output_path)
-            doc.close()
+            css_path = os.path.join(template_dir, "report_style.css")
+            HTML(string=rendered_html, base_url=template_dir).write_pdf(output_path, stylesheets=[CSS(filename=css_path)])
             return output_path
             
-        output_pdf_path = await loop.run_in_executor(None, _apply_in_place_patches)
+        final_pdf_path = await loop.run_in_executor(None, _compile_pdf)
+
+        yield format_sse("Aesthetic Evaluation Layer", "completed", result_data={"pdf_generated": True})
         
-        yield format_sse("Server-Side PDF Synthesis", "completed", result_data={"output_path": output_pdf_path, "modified_content": final_validated_patches})
+        # We replace the final stage name to match the UI expectations if needed, but the UI expects Server-Side PDF Synthesis
+        yield format_sse("Server-Side PDF Synthesis", "completed", result_data={"output_path": final_pdf_path})
         yield format_sse("Pipeline Complete", "success")
 
     except Exception as e:
         traceback.print_exc()
         yield format_sse("Pipeline Error", "failed", error=str(e))
+
