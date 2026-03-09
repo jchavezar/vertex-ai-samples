@@ -1,0 +1,15 @@
+[project]
+name = "vais-agent-comparison-backend"
+version = "0.1.0"
+description = "Backend for VAIS Agent Comparison app"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi>=0.128.8",
+    "uvicorn>=0.40.0",
+    "python-dotenv>=1.2.1",
+    "google-adk>=1.24.1",
+    "google-cloud-discoveryengine>=0.13.12",
+    "google-genai>=1.62.0",
+    "pydantic>=2.12.5",
+]
