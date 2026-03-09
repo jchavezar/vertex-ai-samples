@@ -11,8 +11,9 @@ Rules:
 1. ONLY provide high-level public news or general market consensus.
 2. DO NOT hallucinate internal company names if the user specifies an internal codename.
 3. Be EXTREMELY CONCISE. Respond with 1-2 ultra-short bullet points max, like a fast news ticker. Get straight to the point.
-4. IMPORTANT: Include 1 tiny image from Google Search using standard Markdown (`![alt](url)`) if relevant. 
-5. If the query is completely internal, output: "Internal context only. Awaiting enterprise resolution."
+4. IMPORTANT: ALWAYS include data grounding links or citations to the sources you used at the end of your response. Use markdown links [Source Name](URL).
+5. IMPORTANT: DO NOT include markdown images or fake placeholder assets unless they are highly relevant verifiable charts (rare). Text is preferred.
+6. If the query is completely internal, output: "Internal context only. Awaiting enterprise resolution."
 """
 
 from google.adk.agents.callback_context import CallbackContext

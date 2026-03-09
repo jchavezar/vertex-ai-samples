@@ -167,6 +167,12 @@ export const DocumentWorkspaceV2: React.FC<{ token?: string }> = ({ token }) => 
               if (event.result && event.result.modified_content) {
                  setModifiedContent(event.result.modified_content);
               }
+              if (event.result && event.result.output_path) {
+                 setModifiedContent(event.result.output_path);
+                 // Also immediately update the preview pane to show the generated PDF!
+                 // Route through the Vite proxy instead of hitting the backend port directly
+                 setPreviewUrl(`/api/sharepoint/view_regenerated?path=${encodeURIComponent(event.result.output_path)}&t=${token}&_cb=${Date.now()}`);
+              }
 
               if (event.status === 'failed') {
                  setIsProcessing(false);
@@ -199,6 +205,13 @@ export const DocumentWorkspaceV2: React.FC<{ token?: string }> = ({ token }) => 
      setStatusMsg({ text: "Committing high-fidelity PDF...", type: 'info' });
  
      try {
+       let finalContent = modifiedContent;
+       if (typeof modifiedContent === 'string' && modifiedContent.includes('_regenerated.pdf')) {
+           finalContent = `FULL_REGEN:${modifiedContent}`;
+       } else if (typeof modifiedContent === 'object' || typeof modifiedContent === 'string') {
+           finalContent = `PDF_REGEN:${JSON.stringify(modifiedContent)}`;
+       }
+
        const response = await fetch('/api/sharepoint/commit_modification', {
          method: 'POST',
          headers: {
@@ -207,13 +220,14 @@ export const DocumentWorkspaceV2: React.FC<{ token?: string }> = ({ token }) => 
          },
          body: JSON.stringify({
            item_id: selectedFile.id,
-           content: `PDF_REGEN:${JSON.stringify(modifiedContent)}`
+           content: finalContent
          })
        });
  
        const data = await response.json();
        if (data.status === 'success') {
          setStatusMsg({ text: "Synthetic Backup & Commit Successful", type: 'success' });
+         setPreviewUrl(null); // Clear preview to prevent race condition before backend unmonitors it
          setRefreshKey(prev => prev + 1);
          setPipelineEvents([]);
          setModifiedContent(null);

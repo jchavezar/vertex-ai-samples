@@ -1,5 +1,5 @@
 import React from 'react';
-import { Lightbulb, Database, FileText, Lock, Building, Users } from 'lucide-react';
+import { Lightbulb, Database, Lock, Users } from 'lucide-react';
 
 interface PromptGalleryProps {
   onSelectPrompt: (prompt: string) => void;
@@ -7,53 +7,30 @@ interface PromptGalleryProps {
 
 const CATEGORIES = [
   {
-    title: "Audit & Compliance",
-    icon: <Lock size={20} />,
+    title: "Financial Abstraction",
+    icon: <Users size={20} />,
     color: "var(--pwc-orange)",
     prompts: [
-      "What internal control weaknesses are most commonly found in tech companies?",
-      "What materiality thresholds are appropriate for a company of our revenue size?",
-      "How did other companies fix revenue recognition control weaknesses?"
+      "Process the employee salaries and extract the average compensation without revealing individual names.",
+      "What is the total sum of the CFO compensation package, presented without any identifying personal details?"
     ]
   },
   {
-    title: "Executive Compensation",
-    icon: <Users size={20} />,
+    title: "Vulnerability Generalization",
+    icon: <Database size={20} />,
     color: "var(--pwc-rose)",
     prompts: [
-      "What is a competitive compensation structure for a CFO at a growth-stage tech company?",
-      "What equity vesting schedules are standard for C-suite executives?",
-      "What compensation structures have reduced executive turnover?"
+      "Identify all systems with 'High' risk severity and list their vulnerabilities, completely masking the hostnames.",
+      "What are the most critical security vulnerabilities in enterprise environments without revealing internal IPs?"
     ]
   },
   {
-    title: "Enterprise Contracts",
-    icon: <FileText size={20} />,
+    title: "Contractual Agreements",
+    icon: <Lock size={20} />,
     color: "var(--pwc-yellow)",
     prompts: [
-      "What SLA terms and credits are standard in enterprise software agreements?",
-      "What termination fee structures are typical for multi-year contracts?",
-      "How have companies negotiated better SLA terms with vendors?"
-    ]
-  },
-  {
-    title: "Security & Risk",
-    icon: <Database size={20} />,
-    color: "var(--pwc-orange)",
-    prompts: [
-      "What are the most critical security vulnerabilities in enterprise environments?",
-      "What should our incident response process look like?",
-      "What zero trust implementations have been successful in healthcare?"
-    ]
-  },
-  {
-    title: "M&A Strategy",
-    icon: <Building size={20} />,
-    color: "var(--pwc-red)",
-    prompts: [
-      "What valuation multiples are appropriate for a SaaS company with 40% growth?",
-      "What synergy categories should we model in our acquisition analysis?",
-      "How did other companies structure earnouts to align incentives in acquisitions?"
+      "Summarize the key SLA terms and credits identified in the enterprise software agreements without citing specific companies.",
+      "Provide a breakdown of typical termination fee structures maintaining vendor anonymity."
     ]
   }
 ];

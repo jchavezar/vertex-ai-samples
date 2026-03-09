@@ -621,21 +621,115 @@ function App() {
 
               {/* Right Side: Data & Results */}
               <section className="pwc-data-panel" ref={dataSectionRef}>
-                    {/* Initial Suggestion Gallery: Keep visible until we have ACTUAL assistant content or project cards */}
-                    {messages.filter(m => m.role === 'assistant' && m.content.trim().length > 0).length === 0 && projectCards.length === 0 && (
-                  <PromptGallery
-                    onSelectPrompt={(prompt) => {
-                      const syntheticEvent = {
-                        target: { value: prompt },
-                      } as React.ChangeEvent<HTMLTextAreaElement>;
-                      handleInputChange(syntheticEvent);
-                      setTimeout(() => {
-                        if (textareaRef.current && textareaRef.current.form) {
-                          textareaRef.current.form.requestSubmit();
-                        }
-                      }, 100);
-                        }}
-                  />
+                    {/* Initial Suggestion Gallery: Keep visible until a query is submitted */}
+                    {messages.length === 0 && projectCards.length === 0 && (
+                      <div style={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '24px',
+                        padding: '20px'
+                      }}>
+                        <div style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '12px',
+                          marginBottom: '8px'
+                        }}>
+                          <Search size={24} color="var(--pwc-orange)" />
+                          <h2 style={{ fontSize: '1.5rem', fontWeight: 600, color: '#333', margin: 0 }}>Consulting Intelligence Hub</h2>
+                        </div>
+                        <p style={{ color: '#666', fontSize: '1rem', marginTop: '-16px' }}>
+                          Select a strategic query to securely extract generalized insights from our confidential knowledge base.
+                        </p>
+                        <div style={{
+                          display: 'grid',
+                          gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+                          gap: '24px'
+                        }}>
+                          {[
+                            {
+                              title: "Financial Abstraction",
+                              icon: <Users size={20} />,
+                              color: "var(--pwc-orange)",
+                              prompts: [
+                                "Process the employee salaries and extract the average compensation without revealing individual names.",
+                                "What is the total sum of the CFO compensation package, presented without any identifying personal details?"
+                              ]
+                            },
+                            {
+                              title: "Vulnerability Generalization",
+                              icon: <Database size={20} />,
+                              color: "var(--pwc-rose)",
+                              prompts: [
+                                "Identify all systems with 'High' risk severity and list their vulnerabilities, completely masking the hostnames.",
+                                "What are the most critical security vulnerabilities in enterprise environments without revealing internal IPs?"
+                              ]
+                            },
+                            {
+                              title: "Contractual Agreements",
+                              icon: <Lock size={20} />,
+                              color: "var(--pwc-yellow)",
+                              prompts: [
+                                "Summarize the key SLA terms and credits identified in the enterprise software agreements without citing specific companies.",
+                                "Provide a breakdown of typical termination fee structures maintaining vendor anonymity."
+                              ]
+                            }
+                          ].map((category, idx) => (
+                            <div key={idx} style={{
+                              background: '#fff',
+                              borderRadius: '12px',
+                              padding: '24px',
+                              boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
+                              border: '1px solid #eaeaea',
+                              display: 'flex',
+                              flexDirection: 'column',
+                              gap: '16px'
+                            }}>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', color: category.color, fontWeight: 600, fontSize: '1.1rem' }}>
+                                {category.icon}
+                                {category.title}
+                              </div>
+                              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                {category.prompts.map((prompt, pIdx) => (
+                                  <button
+                                    key={pIdx}
+                                    style={{
+                                      background: '#f8f9fa',
+                                      border: '1px solid #e2e8f0',
+                                      padding: '12px 16px',
+                                      borderRadius: '8px',
+                                      textAlign: 'left',
+                                      fontSize: '0.9rem',
+                                      color: '#475569',
+                                      cursor: 'pointer',
+                                      transition: 'all 0.2s ease',
+                                    }}
+                                    onMouseEnter={(e) => {
+                                      e.currentTarget.style.borderColor = category.color;
+                                      e.currentTarget.style.color = '#1e293b';
+                                      e.currentTarget.style.transform = 'translateY(-2px)';
+                                      e.currentTarget.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1)';
+                                    }}
+                                    onMouseLeave={(e) => {
+                                      e.currentTarget.style.borderColor = '#e2e8f0';
+                                      e.currentTarget.style.color = '#475569';
+                                      e.currentTarget.style.transform = 'translateY(0)';
+                                      e.currentTarget.style.boxShadow = 'none';
+                                    }}
+                                    onClick={() => {
+                                      const syntheticEvent = { target: { value: prompt } } as React.ChangeEvent<HTMLTextAreaElement>;
+                                      handleInputChange(syntheticEvent);
+                                      setTimeout(() => { if (textareaRef.current && textareaRef.current.form) textareaRef.current.form.requestSubmit(); }, 100);
+                                    }}
+                                  >
+                                    {prompt}
+                                  </button>
+                                ))}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
                 )}
 
 
@@ -675,16 +769,24 @@ function App() {
                       </div>
                     )}
 
-                <div style={{ marginBottom: projectCards.length > 0 && publicInsight ? '24px' : '0' }}>
-                    {publicInsight && (
-                      <div className="pwc-card" style={{ 
+                <div style={{ 
+                  marginBottom: projectCards.length > 0 && (publicInsight || isLoading) ? '24px' : '0',
+                  flexGrow: projectCards.length === 0 && (messages.length > 0 || isLoading) ? 1 : 0,
+                  display: 'flex',
+                  flexDirection: 'column'
+                }}>
+                    {(publicInsight || (isLoading && messages.length > 0)) && (
+                      <div className={`pwc-card ${isLoading && !publicInsight ? 'pwc-insight-streaming' : 'pwc-insight-settled'}`} style={{ 
                           background: 'linear-gradient(135deg, #1E1E1E 0%, #2A2A2A 100%)', 
-                          border: '1px solid rgba(94, 174, 253, 0.3)',
-                          boxShadow: '0 8px 32px rgba(0, 0, 0, 0.15)',
+                          border: `1px solid ${isLoading && !publicInsight ? 'rgba(94, 174, 253, 0.8)' : 'rgba(94, 174, 253, 0.3)'}`,
+                          boxShadow: isLoading && !publicInsight ? '0 0 40px rgba(94, 174, 253, 0.3)' : '0 8px 32px rgba(0, 0, 0, 0.15)',
                           borderRadius: '16px',
                           overflow: 'hidden',
+                          flexGrow: 1,
+                          display: 'flex',
+                          flexDirection: 'column',
                           cursor: 'pointer', 
-                          transition: 'all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1)'
+                          transition: 'all 0.5s cubic-bezier(0.25, 0.8, 0.25, 1)'
                         }} 
                         onClick={() => setIsPublicInsightExpanded(!isPublicInsightExpanded)}
                         onMouseEnter={(e) => {
@@ -755,9 +857,29 @@ function App() {
                               lineHeight: '1.7', 
                               color: '#E0E0E0', 
                               padding: '0 24px 24px 24px',
-                              fontWeight: '400'
+                              fontWeight: '400',
+                              flexGrow: 1,
+                              display: 'flex',
+                              flexDirection: 'column',
+                              justifyContent: publicInsight ? 'flex-start' : 'center',
+                              alignItems: publicInsight ? 'stretch' : 'center',
+                              minHeight: projectCards.length === 0 && !publicInsight ? '200px' : 'auto'
                             }}>
-                            <MarkdownRenderer content={publicInsight} chatMode={chatMode} />
+                            {publicInsight ? (
+                              <MarkdownRenderer content={publicInsight} chatMode={chatMode} />
+                            ) : (
+                              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px', color: '#888' }}>
+                                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '20px' }}>
+                                  <div className="dw-spinner" style={{ width: '40px', height: '40px', borderWidth: '3px', borderColor: 'rgba(94, 174, 253, 0.2)', borderTopColor: '#5eaefd' }}></div>
+                                  <span className="pulsing-text" style={{ fontSize: '1.1rem', color: '#5eaefd', letterSpacing: '0.05em' }}>Analyzing Global Public Intelligence...</span>
+                                </div>
+                                {thoughtStatus && (
+                                  <div style={{ fontSize: '13px', color: 'rgba(255, 255, 255, 0.5)', maxWidth: '400px', textAlign: 'center' }}>
+                                    {thoughtStatus.message}
+                                  </div>
+                                )}
+                              </div>
+                            )}
                           </div>
                         )}
                       </div>
