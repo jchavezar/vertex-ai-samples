@@ -352,6 +352,16 @@ body {
   box-shadow: 3px 4px 12px rgba(0, 0, 0, 0.03);
 }
 
+.message.assistant a {
+  color: var(--pwc-orange);
+  text-decoration: underline;
+  font-weight: 600;
+}
+
+.message.assistant a:hover {
+  color: var(--pwc-red);
+}
+
 .chat-input-area {
   padding: var(--spacing-lg);
   background: var(--pwc-bg-main);
@@ -1339,4 +1349,86 @@ a.doc-id:hover {
 .pwc-insight-settled {
   transform: translateY(0) scale(1);
   transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Premium Link Styling for Public Web Consensus (Dark Background) */
+.card-content a {
+  color: #FB923C; /* Warm Orange that pops on dark bg */
+  text-decoration: none;
+  font-weight: 600;
+  position: relative;
+  padding: 0 4px;
+  border-radius: 4px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border-bottom: 1px dashed rgba(251, 146, 60, 0.4);
+}
+
+.card-content a:hover {
+  color: #ffffff;
+  background: rgba(251, 146, 60, 0.15);
+  border-bottom-style: solid;
+  border-bottom-color: #FB923C;
+  box-shadow: 0 0 12px rgba(251, 146, 60, 0.2);
+}
+
+.card-content a:active {
+  transform: scale(0.98);
+}
+
+/* Streaming indicator for chunks */
+.streaming-chunk-cursor {
+  display: inline-block;
+  width: 8px;
+  height: 18px;
+  background: #FB923C;
+  margin-left: 4px;
+  vertical-align: middle;
+  animation: cursor-blink 0.8s infinite;
+  border-radius: 1px;
+}
+
+.streaming-chunk-cursor.pulsing {
+  box-shadow: 0 0 10px #FB923C;
+  animation: cursor-blink 0.8s infinite, cursor-pulse 1.5s infinite alternate;
+}
+
+@keyframes cursor-pulse {
+  from { box-shadow: 0 0 4px #FB923C; }
+  to { box-shadow: 0 0 15px #FB923C; }
+}
+
+@keyframes cursor-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+/* Global link color override for dark mode */
+a {
+  color: #FB923C;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+a:hover {
+  filter: brightness(1.2);
+}
+
+/* Bullet points in PWC */
+.card-content ul {
+  list-style: none;
+  padding-left: 0;
+}
+
+.card-content li {
+  position: relative;
+  padding-left: 24px;
+  margin-bottom: 12px;
+}
+
+.card-content li::before {
+  content: "→";
+  position: absolute;
+  left: 0;
+  color: #FB923C; /* Changed from #5eaefd to match theme better */
+  font-weight: bold;
 }

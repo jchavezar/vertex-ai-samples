@@ -157,7 +157,12 @@
       <a href="./verity-nexus/">ACCESS_TERMINAL &rarr;</a>
     </td>
     <td width="50%" valign="top">
-      <!-- PLACEHOLDER FOR NEXT PROJECT -->
+      <img src="assets/header_adk.svg" width="100%" />
+      <br/><br/>
+      <strong>PROJECT: DYNAMIC WORKFLOW ORCHESTRATOR</strong><br/>
+      Demonstrates real-time event streaming across sequential agentic steps using Google ADK and FastAPI SSE.<br/>
+      <br/>
+      <a href="./dynamic_workflow_orchestrator/">ACCESS_TERMINAL &rarr;</a>
     </td>
   </tr>
 </table>

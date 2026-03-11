@@ -80,6 +80,49 @@ function App() {
     }
   };
 
+  const startGcsPipeline = async () => {
+    setAppState('processing');
+    setIsLoading(true);
+
+    const formData = new FormData();
+    formData.append('gcs_uri', 'gs://vtxdemos-datasets-private/deloitte/multimodal_document_project/Sample-ISS-Ch10-Sample-Industry 1.pdf');
+
+    try {
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || 'GCS Pipeline failed');
+      }
+
+      const data = await response.json();
+      if (data.session_id) setSession(data.session_id);
+
+      setPipelineResult({
+        pipeline_data: data.pipeline_data,
+        annotated_images: data.annotated_images,
+        traces: data.traces
+      });
+
+      setMessages([{
+        id: crypto.randomUUID(),
+        role: 'assistant',
+        content: data.response || "GCS Pipeline process complete. How can I help you analyze this document?",
+      }]);
+
+      setAppState('dashboard');
+    } catch (err) {
+      console.error(err);
+      setAppState('dashboard');
+      alert(`Error processing GCS document: ${err}`);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const startPipeline = async (files: File[]) => {
     setAppState('processing');
     setIsLoading(true);
@@ -286,15 +329,27 @@ function App() {
                     </div>
                   </div>
 
-                  <button
-                    className="btn outline"
-                    onClick={loadTestPDF}
-                    title="Load Test PDF"
-                    style={{ width: 'FIT-CONTENT', margin: '0 auto', padding: '0.5rem 1rem' }}
-                  >
-                    <FileText size={16} />
-                    Quick Run with Test PDF
-                  </button>
+                  <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
+                    <button
+                      className="btn outline"
+                      onClick={loadTestPDF}
+                      title="Load Test PDF"
+                      style={{ width: 'FIT-CONTENT', padding: '0.5rem 1rem' }}
+                    >
+                      <FileText size={16} />
+                      Quick Run with Test PDF
+                    </button>
+
+                    <button
+                      className="btn primary"
+                      onClick={startGcsPipeline}
+                      title="Test with GCS File"
+                      style={{ width: 'FIT-CONTENT', padding: '0.5rem 1rem', background: 'linear-gradient(135deg, var(--accent-blue), var(--accent-purple))' }}
+                    >
+                      <GeminiSparkleIcon className="mr-2" />
+                      Test with GCS File (Active Browsing)
+                    </button>
+                  </div>
 
                   <input
                     type="file"
@@ -309,7 +364,7 @@ function App() {
                   <IndexedDocuments
                     onSelectDocument={async (docName) => {
                       try {
-                        const res = await fetch(`http://localhost:8001/api/documents/${encodeURIComponent(docName)}/data`);
+                        const res = await fetch(`/api/documents/${encodeURIComponent(docName)}/data`);
                         if (res.ok) {
                           const data = await res.json();
                           if (data.session_id) setSession(data.session_id);

@@ -4,6 +4,7 @@ import base64
 from typing import Optional, List
 import vertexai
 from fastapi import FastAPI, UploadFile, File, Form, HTTPException, BackgroundTasks
+from google.cloud import storage
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 
@@ -66,11 +67,12 @@ from pipeline.agents import process_document_pipeline
 from pipeline.bigquery import get_indexed_documents_bq, delete_document_from_bq
 from pipeline.feature_store import sync_feature_store_from_bq
 
-@app.post("/chat")
+@app.post("/api/chat")
 async def chat_endpoint(
     message: str = Form(""),
     session_id: str = Form(""),
-    files: List[UploadFile] = File([]) # Optional files
+    files: List[UploadFile] = File([]), # Optional files
+    gcs_uri: Optional[str] = Form(None) # Optional GCS URI
 ):
     if not session_id:
         session_id = str(uuid.uuid4())
@@ -85,8 +87,8 @@ async def chat_endpoint(
             await session_service.create_session(user_id="default_user", session_id=session_id, app_name="multimodal_doc_chat")
 
     try:
-        if not files and not message:
-             raise HTTPException(status_code=400, detail="Message or file is required.")
+        if not files and not message and not gcs_uri:
+             raise HTTPException(status_code=400, detail="Message, file, or GCS URI is required.")
              
         # Process files through the pipeline first if present
         pipeline_output = []
@@ -97,9 +99,38 @@ async def chat_endpoint(
                 file_bytes = await file.read()
                 # Run complete extraction + embedding pipeline
                 result_dict = await process_document_pipeline(file_bytes, file.filename, session_service)
-                pipeline_output.extend(result_dict["output_rows"])
-                annotated_images.extend(result_dict["annotated_images"])
-                traces.extend(result_dict.get("traces", []))
+                if result_dict:
+                    pipeline_output.extend(result_dict.get("output_rows", []))
+                    annotated_images.extend(result_dict.get("annotated_images", []))
+                    traces.extend(result_dict.get("traces", []))
+                
+        # Handle GCS URI if provided
+        if gcs_uri:
+            print(f"Processing GCS URI: {gcs_uri}")
+            try:
+                if not gcs_uri.startswith("gs://"):
+                    raise HTTPException(status_code=400, detail="Invalid GCS URI. Must start with gs://")
+                
+                bucket_name = gcs_uri.split("/")[2]
+                blob_name = "/".join(gcs_uri.split("/")[3:])
+                
+                storage_client = storage.Client()
+                bucket = storage_client.bucket(bucket_name)
+                blob = bucket.blob(blob_name)
+                
+                file_bytes = blob.download_as_bytes()
+                filename = os.path.basename(blob_name) or "gcs_file.pdf"
+                
+                result_dict = await process_document_pipeline(file_bytes, filename, session_service)
+                if result_dict:
+                    pipeline_output.extend(result_dict.get("output_rows", []))
+                    annotated_images.extend(result_dict.get("annotated_images", []))
+                    traces.extend(result_dict.get("traces", []))
+            except Exception as e:
+                print(f"Error downloading from GCS: {e}")
+                if isinstance(e, HTTPException):
+                    raise e
+                raise HTTPException(status_code=500, detail=f"Failed to process GCS file: {str(e)}")
                 
         # Now run the conversational agent using this extracted context
         parts = []
@@ -120,7 +151,8 @@ DO NOT wrap the citation in backticks (`). DO NOT place periods, commas, or othe
             for idx, row in enumerate(pipeline_output[:20]): # Provide more context chunks
                  frontend_id = str(idx + 1)
                  row['frontend_id'] = frontend_id
-                 context_str += f"Source [{frontend_id}]: (Doc: {file.filename}, Page: {row.get('page_number', 'unknown')}) {row.get('entity_type', 'TEXT')}: {row.get('content', '')}...\n"
+                 doc_name = row.get('document_name', 'Document')
+                 context_str += f"Source [{frontend_id}]: (Doc: {doc_name}, Page: {row.get('page_number', 'unknown')}) {row.get('entity_type', 'TEXT')}: {row.get('content', '')}...\n"
                  
             parts.append(types.Part.from_text(text=context_str))
         elif message:
@@ -181,6 +213,8 @@ DO NOT wrap the citation in backticks (`). DO NOT place periods, commas, or othe
         print(f"Error in chat_endpoint: {e}")
         import traceback
         traceback.print_exc()
+        if isinstance(e, HTTPException):
+            raise e
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/api/documents")

@@ -13,7 +13,7 @@ export const IndexedDocuments: React.FC<{ onSelectDocument?: (docName: string) =
   const fetchDocs = async () => {
     setLoading(true);
     try {
-      const res = await fetch('http://localhost:8001/api/documents');
+      const res = await fetch('/api/documents');
       const data = await res.json();
       setDocuments(data.documents || []);
     } catch (e) {
@@ -31,7 +31,7 @@ export const IndexedDocuments: React.FC<{ onSelectDocument?: (docName: string) =
     if (!confirm(`Are you sure you want to delete ${docName} from the database? This action cannot be undone.`)) return;
     setLoading(true);
     try {
-      const res = await fetch(`http://localhost:8001/api/documents/${encodeURIComponent(docName)}`, {
+      const res = await fetch(`/api/documents/${encodeURIComponent(docName)}`, {
         method: 'DELETE'
       });
       if (res.ok) {
