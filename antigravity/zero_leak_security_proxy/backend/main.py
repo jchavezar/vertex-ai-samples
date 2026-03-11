@@ -90,8 +90,8 @@ async def _chat_stream(messages: list, model_name: str, token: str = None):
     if not pub_session:
         await session_service.create_session(app_name="Public_Research_Proxy", user_id="default_user", session_id=pub_sess_id)
     
-    # Use gemini-3.1-flash-lite-preview for ultra-fast response for Public Web Consensus
-    pub_agent = get_public_agent("gemini-3.1-flash-lite-preview")
+    # Use gemini-2.5-flash for ultra-fast response for Public Web Consensus and to avoid 429s
+    pub_agent = get_public_agent("gemini-2.5-flash")
     pub_runner = Runner(
         app_name="Public_Research_Proxy", 
         agent=pub_agent, 
@@ -123,7 +123,7 @@ async def _chat_stream(messages: list, model_name: str, token: str = None):
     # 2. Start Enterprise Discovery in background to avoid blocking public stream
     yield AIStreamProtocol.data({"type": "status", "message": "Discovering Enterprise Toolset...", "icon": "shield-alert", "pulse": True})
     
-    discovery_task = asyncio.create_task(get_agent_with_mcp_tools(token=token))
+    discovery_task = asyncio.create_task(get_agent_with_mcp_tools(token=token, model_name=model_name))
     
     active_streams = 1 # Public started
     sharepoint_started = False
@@ -135,6 +135,8 @@ async def _chat_stream(messages: list, model_name: str, token: str = None):
         while active_streams > 0 or not sharepoint_started:
             # Check if discovery finished and we need to start sharepoint stream
             if not sharepoint_started and discovery_task.done():
+                discovery_time = time.time() - start_time
+                logger.info(f">>> [LATENCY] MCP Discovery Time: {discovery_time:.2f}s")
                 try:
                     agent, exit_stack = await discovery_task
                     sp_runner = Runner(app_name="PWC_Security_Proxy", agent=agent, session_service=session_service)
@@ -159,6 +161,15 @@ async def _chat_stream(messages: list, model_name: str, token: str = None):
             if msg_type == "done":
                 active_streams -= 1
                 log_latency(tag, current_action[tag])
+                if tag == "public":
+                    # Send final settled state for public insight immediately so UI can decouple
+                    yield AIStreamProtocol.data({
+                        "type": "public_insight", 
+                        "message": "Public Web Consensus",
+                        "data": pub_insight.strip(),
+                        "icon": "globe",
+                        "pulse": False
+                    })
                 continue
                 
             evt = msg_obj["event"]
@@ -171,6 +182,11 @@ async def _chat_stream(messages: list, model_name: str, token: str = None):
             # Process Event
             try:
                 edata = evt.model_dump()
+                
+                # DEBUG DUMP FOR PUBLIC EVENT
+                if tag == "public":
+                    logger.info(f"[PUBLIC EVENT DUMP] {edata}")
+                    
                 usage = edata.get("usage_metadata")
                 if usage:
                     total_tokens["prompt"] += usage.get("prompt_token_count") or 0
@@ -188,6 +204,19 @@ async def _chat_stream(messages: list, model_name: str, token: str = None):
                             if txt not in reasoning_steps:
                                 reasoning_steps.append(txt)
                                 yield AIStreamProtocol.data({"type": "telemetry", "data": latency_metrics, "reasoning": reasoning_steps, "tokens": total_tokens})
+                                
+                        # Extract Google Search Grounding Metadata dynamically since built-in tool doesn't emit a standard function call
+                        if tag == "public":
+                            grounding = edata.get("grounding_metadata", {})
+                            if grounding:
+                                qs = grounding.get("web_search_queries", [])
+                                if qs:
+                                    search_str = ", ".join(qs)
+                                    tool_str = f"{agent_label} TOOL:\ngoogle_search"
+                                    if tool_str not in reasoning_steps:
+                                        reasoning_steps.append(tool_str)
+                                        reasoning_steps.append(f"{agent_label} ARGS:\n{{queries: [{search_str}]}}")
+                                        yield AIStreamProtocol.data({"type": "telemetry", "data": latency_metrics, "reasoning": reasoning_steps, "tokens": total_tokens})
 
                         if p.get("function_call"):
                             tool_name = p["function_call"].get("name", "")
@@ -204,8 +233,14 @@ async def _chat_stream(messages: list, model_name: str, token: str = None):
                             elif tool_name == "emit_project_card":
                                 # INTERCEPT: Send card to frontend immediately
                                 yield AIStreamProtocol.data({"type": "project_card", "data": tool_args})
+                            elif "read" in tool_name:
+                                reasoning_steps.append(f"{agent_label} ANALYSIS:\nThe search results found relevant files. I must now extract their text to synthesize the final answer.")
+                                current_action[tag] = "Document Extraction"
+                            else:
+                                current_action[tag] = f"Tool: {tool_name}"
                             
                             reasoning_steps.append(f"{agent_label} TOOL:\n{tool_name}")
+                            reasoning_steps.append(f"{agent_label} ARGS:\n{str(tool_args)}")
                             yield AIStreamProtocol.data({"type": "telemetry", "data": latency_metrics, "reasoning": reasoning_steps, "tokens": total_tokens})
                                 
                         elif p.get("function_response"):
@@ -213,6 +248,7 @@ async def _chat_stream(messages: list, model_name: str, token: str = None):
                             resp_data = p["function_response"].get("response", "")
                             res_str = str(resp_data)[:500] + "... [TRUNCATED]" if len(str(resp_data)) > 500 else str(resp_data)
                             
+                            reasoning_steps.append(f"{agent_label} RESPONSE:\n{tool_name}")
                             reasoning_steps.append(f"{agent_label} RESULT:\n{res_str}")
                             log_latency(tag, current_action[tag])
                             
@@ -222,8 +258,14 @@ async def _chat_stream(messages: list, model_name: str, token: str = None):
                             yield AIStreamProtocol.data({"type": "telemetry", "data": latency_metrics, "reasoning": reasoning_steps, "tokens": total_tokens})
 
                         if p.get("text"):
-                            txt = p['text']
+                            txt = p['text'].strip()
                             if txt:
+                                if tag == "sharepoint":
+                                    step_text = f"{agent_label} SYNTHESIS:\n{txt}"
+                                    if step_text not in reasoning_steps:
+                                        reasoning_steps.append(step_text)
+                                        yield AIStreamProtocol.data({"type": "telemetry", "data": latency_metrics, "reasoning": reasoning_steps, "tokens": total_tokens})
+                                
                                 if tag == "public":
                                     pub_insight += txt
                                     # Streaming cursor character █ for fast feedback
@@ -240,15 +282,6 @@ async def _chat_stream(messages: list, model_name: str, token: str = None):
             except Exception as e:
                 logger.error(f"Event parsing error in {tag}: {e}")
 
-        # Final cleanup for public insight (remove cursor)
-        yield AIStreamProtocol.data({
-            "type": "public_insight", 
-            "message": "Public Web Consensus",
-            "data": pub_insight.strip(),
-            "icon": "globe",
-            "pulse": False
-        })
-        
         # Cards are now emitted in real-time via the 'emit_project_card' tool interception in the event loop.
 
     finally:
@@ -276,7 +309,7 @@ async def auth_error_stream(message: str):
 @app.post("/chat")
 async def chat_endpoint(request: Request):
     data = await request.json()
-    model_name = data.get("model", "gemini-3-pro-preview")
+    model_name = data.get("model", "gemini-2.5-flash")
     
     auth_header = request.headers.get("Authorization")
     token = None

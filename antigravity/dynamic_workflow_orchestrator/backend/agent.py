@@ -70,10 +70,17 @@ class EventFlowAgent(BaseAgent):
             return
 
         elif step == "waiting_for_user":
-            user_decision = ctx.session.state.get("user_decision")
+            user_decision = ctx.session.state.get("user_decision", "").lower().strip()
             logger.info(f"[{self.name}] Resuming workflow. User decision: {user_decision}")
-            if user_decision == "continue":
-                logger.info(f"[{self.name}] Running BulletPointAgent...")
+            
+            # Simple keyword matching for demo purposes. 
+            # In a real app, this could be evaluated by another LLM to determine intent.
+            if user_decision and user_decision not in ["cancel", "no", "stop", "abort"]:
+                logger.info(f"[{self.name}] User approved. Running BulletPointAgent...")
+                # We can even pass the user's specific instructions to the bullet point agent
+                # by temporarily appending it to the context or state
+                ctx.session.state["user_instructions"] = user_decision
+                
                 async for event in self.bullet_point_agent.run_async(ctx):
                     yield event
                 

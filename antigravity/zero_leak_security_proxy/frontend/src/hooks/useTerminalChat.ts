@@ -20,7 +20,7 @@ export interface TokenUsage {
   total: number;
 }
 
-export function useTerminalChat(token: string | null, model: string = 'gemini-3-pro-preview') {
+export function useTerminalChat(token: string | null, model: string = 'gemini-3-flash-preview') {
   const addProjectCard = useDashboardStore((s) => s.addProjectCard);
   const [thoughtStatus, setThoughtStatus] = useState<ThoughtStatus | null>(null);
   const [usedSharePoint, setUsedSharePoint] = useState<boolean>(false);
