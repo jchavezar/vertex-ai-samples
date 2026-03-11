@@ -51,7 +51,7 @@ async def start_workflow(request: Request):
             state_delta["workflow_step"] = "start"
             state_delta["user_decision"] = None
         elif action == "continue":
-            state_delta["user_decision"] = "continue"
+            state_delta["user_decision"] = input_text
         elif action == "cancel":
             state_delta["user_decision"] = "cancel"
     except Exception:

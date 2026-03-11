@@ -19,6 +19,8 @@ export default function App() {
   const [completed, setCompleted] = useState(false);
   const [cancelled, setCancelled] = useState(false);
   
+  const [hitlInput, setHitlInput] = useState('');
+
   const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -94,6 +96,7 @@ export default function App() {
     setBullets('');
     setCompleted(false);
     setCancelled(false);
+    setHitlInput('');
 
     const newSessionId = `sess_${Date.now()}`;
     setSessionId(newSessionId);
@@ -102,9 +105,17 @@ export default function App() {
   };
 
   const handleContinue = async () => {
+    if (!hitlInput.trim()) return;
     setIsWaitingForUser(false);
     setIsProcessing(true);
-    await runWorkflowStep({ action: 'continue', sessionId });
+    // Determine if it looks like a cancel request to short-circuit
+    if (['cancel', 'stop', 'abort', 'no'].includes(hitlInput.toLowerCase().trim())) {
+        setCancelled(true);
+        setIsProcessing(false);
+        await runWorkflowStep({ action: 'cancel', sessionId });
+        return;
+    }
+    await runWorkflowStep({ action: 'continue', text: hitlInput, sessionId });
   };
 
   const handleCancel = async () => {
@@ -147,7 +158,7 @@ export default function App() {
               {isProcessing ? (
                 <>
                   <Loader2 className="w-5 h-5 animate-spin" />
-                  <span>Processing Workflow...</span>
+                  <span>Processing...</span>
                 </>
               ) : (
                 <>
@@ -181,30 +192,35 @@ export default function App() {
           {/* Human-in-the-loop Interactive Prompt */}
           {isWaitingForUser && (
             <div className="glass-panel p-6 border border-amber-500/30 bg-amber-500/5 transition-all">
-              <div className="flex flex-col items-center text-center space-y-4">
-                <div className="w-12 h-12 rounded-full bg-amber-500/20 flex items-center justify-center text-amber-400">
-                  <ListChecks className="w-6 h-6" />
+              <div className="flex flex-col space-y-4">
+                <div className="flex items-center space-x-3">
+                  <div className="w-10 h-10 rounded-full bg-amber-500/20 flex items-center justify-center text-amber-400">
+                    <ListChecks className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-amber-400">Agent requires your input</h3>
+                    <p className="text-slate-300 text-sm">
+                      Review the summary above and instruct the Insight Agent below. Type "Cancel" to abort.
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <h3 className="text-xl font-semibold text-amber-400">Summary Complete!</h3>
-                  <p className="text-slate-300 mt-2">
-                    Review the summary above. Would you like the Insight Agent to extract key bullet points from this summary?
-                  </p>
-                </div>
-                <div className="flex space-x-4 pt-4">
-                  <button 
-                    onClick={handleCancel}
-                    className="px-6 py-2.5 rounded-lg border border-slate-700 bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white transition-all font-medium flex items-center space-x-2"
-                  >
-                    <XCircle className="w-4 h-4" />
-                    <span>Cancel Workflow</span>
-                  </button>
+                
+                <div className="mt-4 flex space-x-3">
+                  <input
+                    type="text"
+                    value={hitlInput}
+                    onChange={(e) => setHitlInput(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && handleContinue()}
+                    placeholder="e.g. Yes, please extract 5 key takeaways emphasizing technical details..."
+                    className="flex-1 glass-input py-3 px-4 text-sm"
+                    autoFocus
+                  />
                   <button 
                     onClick={handleContinue}
-                    className="px-6 py-2.5 rounded-lg bg-emerald-500 text-white hover:bg-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.3)] transition-all font-medium flex items-center space-x-2"
+                    disabled={!hitlInput.trim()}
+                    className="px-6 py-2 rounded-lg bg-emerald-500 text-white hover:bg-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.3)] disabled:opacity-50 disabled:shadow-none transition-all font-medium flex items-center"
                   >
-                    <CheckCircle className="w-4 h-4" />
-                    <span>Generate Bullet Points</span>
+                    <span>Send</span>
                   </button>
                 </div>
               </div>

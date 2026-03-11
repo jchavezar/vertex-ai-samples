@@ -46,10 +46,10 @@ Navigate to `http://localhost:5176` to view the UI.
 ## Demo
 
 **Real-time Streaming:**
-![Dynamic Workflow Demo](../../.gemini/jetski/brain/4124182f-8406-4892-ab46-f8b02dd66414/streaming_result_1773172683582.png)
+![Dynamic Workflow Demo](/usr/local/google/home/jesusarguelles/.gemini/jetski/brain/4124182f-8406-4892-ab46-f8b02dd66414/streaming_result_1773172683582.png)
 
 **Interactive Workflow (Awaiting User Review):**
-![Awaiting Review](../../.gemini/jetski/brain/4124182f-8406-4892-ab46-f8b02dd66414/hitl_waiting_approval_1773196852013.png)
+![Awaiting Review](/usr/local/google/home/jesusarguelles/.gemini/jetski/brain/4124182f-8406-4892-ab46-f8b02dd66414/hitl_waiting_approval_1773196852013.png)
 
 **Final Result (Workflow Completed):**
-![Final Output](../../.gemini/jetski/brain/4124182f-8406-4892-ab46-f8b02dd66414/hitl_finished_final_1773197690663.png)
+![Final Output](/usr/local/google/home/jesusarguelles/.gemini/jetski/brain/4124182f-8406-4892-ab46-f8b02dd66414/hitl_finished_final_1773197690663.png)

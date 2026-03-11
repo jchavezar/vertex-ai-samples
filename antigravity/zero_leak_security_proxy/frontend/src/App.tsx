@@ -519,17 +519,11 @@ function App() {
                       fontFamily: "monospace",
                     }}
                   >
-                        <option value="gemini-2.5-flash" style={{ color: "black" }}>
-                      gemini-2.5-flash
-                    </option>
-                    <option value="gemini-2.5-pro" style={{ color: "black" }}>
-                      gemini-2.5-pro
-                    </option>
                     <option value="gemini-3-flash-preview" style={{ color: "black" }}>
                       gemini-3-flash-preview
                     </option>
-                    <option value="gemini-3-pro-preview" style={{ color: "black" }}>
-                      gemini-3-pro-preview
+                    <option value="gemini-2.5-flash" style={{ color: "black" }}>
+                      gemini-2.5-flash
                     </option>
                   </select>
                 </div>
