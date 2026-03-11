@@ -1,0 +1,44 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-slate-900 text-slate-100 font-['Outfit'];
+    background-image: radial-gradient(circle at 15% 50%, rgba(30, 58, 138, 0.15), transparent 40%),
+                      radial-gradient(circle at 85% 30%, rgba(139, 92, 246, 0.15), transparent 40%);
+    background-attachment: fixed;
+  }
+}
+
+@layer components {
+  .glass-panel {
+    @apply bg-slate-800/40 backdrop-blur-xl border border-slate-700/50 rounded-2xl shadow-2xl;
+  }
+  
+  .glass-input {
+    @apply bg-slate-900/50 backdrop-blur-md border border-slate-700/50 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all text-slate-100 placeholder-slate-400;
+  }
+  
+  .glass-button {
+    @apply bg-indigo-600/80 hover:bg-indigo-500/80 backdrop-blur-md text-white px-6 py-3 rounded-xl font-medium transition-all shadow-lg shadow-indigo-900/20 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .event-card {
+    @apply bg-slate-800/60 backdrop-blur-md border border-slate-700/50 rounded-xl p-5 shadow-lg transition-all hover:border-slate-600/50;
+    animation: slideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
