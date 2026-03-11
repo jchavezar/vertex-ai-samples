@@ -23,8 +23,16 @@ zero_leak_security_proxy/
 ├── backend/            # FastAPI Security Proxy (Python, uv)
 ├── frontend/           # React 19 Vercel AI SDK SPA
 ├── docs/               # Architecture diagrams and documentation
+├── mcp_server.md       # MCP Server Documentation and Tool Usage
 └── README.md           # This file
 ```
+
+---
+
+## 🤖 Model Context Protocol (MCP)
+
+This project implements a robust **FastMCP Server** to safely delegate data retrieval and enforcement.
+👉 **[Read the Full MCP Server Documentation](mcp_server.md)**
 
 ---
 
