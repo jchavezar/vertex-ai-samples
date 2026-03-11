@@ -6,6 +6,8 @@ import tailwindcss from '@tailwindcss/vite'
 export default defineConfig({
   plugins: [react(), tailwindcss()],
   server: {
+    port: 5174,
+    host: '0.0.0.0',
     proxy: {
       '/google-api': {
         target: 'https://discoveryengine.googleapis.com',
@@ -13,7 +15,7 @@ export default defineConfig({
         rewrite: (path) => path.replace(/^\/google-api/, '')
       },
       '/evaluate': {
-        target: 'http://127.0.0.1:8001',
+        target: 'http://127.0.0.1:8006',
         changeOrigin: true
       },
       '/aiplatform-api': {

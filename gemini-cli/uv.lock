@@ -11,6 +11,7 @@ resolution-markers = [
 members = [
     "agent-engine-toolkit",
     "gemini-cli",
+    "gemini-enterprise-api",
 ]
 
 [[package]]
@@ -356,6 +357,21 @@ requires-dist = [
     { name = "google-cloud-discoveryengine", specifier = ">=0.17.0" },
     { name = "google-genai", specifier = ">=1.40.0" },
     { name = "pydantic", specifier = ">=2.12.5" },
+    { name = "requests", specifier = ">=2.32.5" },
+]
+
+[[package]]
+name = "gemini-enterprise-api"
+version = "0.1.0"
+source = { virtual = "gemini_enterprise_api" }
+dependencies = [
+    { name = "google-auth" },
+    { name = "requests" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "google-auth", specifier = ">=2.48.0" },
     { name = "requests", specifier = ">=2.32.5" },
 ]
 

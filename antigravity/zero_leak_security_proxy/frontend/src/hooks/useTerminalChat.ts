@@ -28,6 +28,7 @@ export function useTerminalChat(token: string | null, model: string = 'gemini-3-
   const [reasoningSteps, setReasoningSteps] = useState<string[]>([]);
   const [tokenUsage, setTokenUsage] = useState<TokenUsage | null>(null);
   const [publicInsight, setPublicInsight] = useState<string>('');
+  const [isPublicInsightStreaming, setIsPublicInsightStreaming] = useState<boolean>(false);
 
   const apiEndpoint = import.meta.env.VITE_BACKEND_URL || (typeof window !== 'undefined' && window.location.hostname !== 'localhost'
     ? 'https://mcp-sharepoint-server-REDACTED_PROJECT_NUMBER.us-central1.run.app/chat'
@@ -62,6 +63,7 @@ export function useTerminalChat(token: string | null, model: string = 'gemini-3-
 
         if (p.type === 'public_insight' && !foundInsight) {
           setPublicInsight(p.data || '');
+          setIsPublicInsightStreaming(p.pulse === true);
           foundInsight = true;
         } else if (p.type === 'status' && !foundStatus) {
           if (p.icon === 'search' || p.icon === 'database' || p.icon === 'file-search') {
@@ -118,5 +120,5 @@ export function useTerminalChat(token: string | null, model: string = 'gemini-3-
     handleSubmit(e);
   };
 
-  return { messages, input, handleInputChange, handleSubmit: customHandleSubmit, isLoading, hasData: !!data && data.length > 0, thoughtStatus, usedSharePoint, telemetry, reasoningSteps, tokenUsage, publicInsight };
+  return { messages, input, handleInputChange, handleSubmit: customHandleSubmit, isLoading, hasData: !!data && data.length > 0, thoughtStatus, usedSharePoint, telemetry, reasoningSteps, tokenUsage, publicInsight, isPublicInsightStreaming };
 }

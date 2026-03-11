@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "concurrently -c \"cyan,magenta\" \"npm run dev:ui\" \"npm run dev:proxy\"",
-    "dev:ui": "vite --port 5173 --host 0.0.0.0",
+    "dev:ui": "vite --port 5175 --host 0.0.0.0",
     "dev:proxy": "cd ../backend && uv run python main.py",
     "build": "tsc -b && vite build",
     "lint": "eslint .",

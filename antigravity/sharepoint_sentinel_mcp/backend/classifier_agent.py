@@ -318,7 +318,7 @@ class ContentAnalyzer:
 # Main Application
 # -------------------------------------------------------------------------
 STATE_FILE = "sync_state.json"
-REPORT_FILE = "classification_report.jsonl"
+REPORT_FILE = "classification_report.json"
 
 async def main():
     # 1. Config
@@ -336,7 +336,7 @@ async def main():
 
     if not all([TENANT_ID, CLIENT_ID, PROJECT_ID]):
         logger.error("Missing Env Vars. Ensure TENANT_ID, CLIENT_ID, GOOGLE_CLOUD_PROJECT are set.")
-        sys.exit(1)
+        raise ValueError("Missing environment variables.")
 
     # 2. Init Components
     connector = SharePointConnector(TENANT_ID, CLIENT_ID, CLIENT_SECRET, SITE_ID, DRIVE_ID)
@@ -357,11 +357,20 @@ async def main():
     # 4. Processing Loop
     MAX_FILES_TO_PROCESS = 1000 
     processed_count = 0
-    all_results = []
     
+    # Load existing results to avoid overwriting with empty list
+    all_results = []
+    if os.path.exists(REPORT_FILE):
+        try:
+            with open(REPORT_FILE, 'r') as f:
+                all_results = json.load(f)
+        except:
+            logger.warning("Report file corrupted or empty, starting fresh.")
+
     try:
         delta_iterator = connector.get_delta_changes(state)
         
+        has_new_data = False
         for item in delta_iterator:
             if 'delta_link' in item:
                  state['delta_link'] = item['delta_link']
@@ -383,6 +392,7 @@ async def main():
                 continue
 
             logger.info(f"Processing: {name}...")
+            has_new_data = True
             
             # Download
             download_url = item.get('@microsoft.graph.downloadUrl')
@@ -398,9 +408,10 @@ async def main():
             processed_count += 1
             print(f"✅ Classified: {name} -> {result.sensitivity_level}")
 
-        # Save Final Report
-        with open("classification_report.json", 'w') as f:
-            json.dump(all_results, f, indent=2)
+        # Save Final Report (only if we processed something or if we want to preserve state)
+        if has_new_data or processed_count > 0:
+            with open(REPORT_FILE, 'w') as f:
+                json.dump(all_results, f, indent=2)
             
         # Save state
         with open(STATE_FILE, 'w') as f:
@@ -408,7 +419,7 @@ async def main():
             
     except Exception as e:
         logger.exception("Run failed.")
-        sys.exit(1)
+        raise
 
     logger.info("Run Complete.")
 

@@ -325,6 +325,7 @@ name = "classificator-mcp-sharepoint"
 version = "0.1.0"
 source = { virtual = "." }
 dependencies = [
+    { name = "fastapi" },
     { name = "google-adk" },
     { name = "google-cloud-aiplatform" },
     { name = "markitdown", extra = ["all"] },
@@ -332,10 +333,12 @@ dependencies = [
     { name = "pydantic" },
     { name = "python-dotenv" },
     { name = "requests" },
+    { name = "uvicorn" },
 ]
 
 [package.metadata]
 requires-dist = [
+    { name = "fastapi", specifier = ">=0.123.10" },
     { name = "google-adk", specifier = ">=1.23.0" },
     { name = "google-cloud-aiplatform", specifier = ">=1.136.0" },
     { name = "markitdown", extras = ["all"], specifier = ">=0.1.4" },
@@ -343,6 +346,7 @@ requires-dist = [
     { name = "pydantic", specifier = ">=2.12.5" },
     { name = "python-dotenv", specifier = ">=1.2.1" },
     { name = "requests", specifier = ">=2.32.5" },
+    { name = "uvicorn", specifier = ">=0.40.0" },
 ]
 
 [[package]]

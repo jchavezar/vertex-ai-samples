@@ -15,7 +15,9 @@ import {
   Search,
   ChevronUp,
   Maximize2,
-  PanelLeft
+  PanelLeft,
+  Users,
+  Lock
 } from "lucide-react";
 import { MarkdownRenderer } from "./components/MarkdownRenderer";
 import html2canvas from "html2canvas";
@@ -111,7 +113,8 @@ function App() {
     telemetry,
     reasoningSteps,
     tokenUsage,
-    publicInsight
+    publicInsight,
+    isPublicInsightStreaming
   } = useTerminalChat(token, selectedModel);
   const projectCards = useDashboardStore((s) => s.projectCards);
   const [isPublicInsightExpanded, setIsPublicInsightExpanded] = useState(true);
@@ -516,17 +519,17 @@ function App() {
                       fontFamily: "monospace",
                     }}
                   >
-                    <option value="gemini-3.1-flash-lite" style={{ color: "black" }}>
-                      gemini-3.1-flash-lite
+                        <option value="gemini-2.5-flash" style={{ color: "black" }}>
+                      gemini-2.5-flash
                     </option>
-                    <option value="gemini-3-pro-preview" style={{ color: "black" }}>
-                      gemini-3-pro-preview
+                    <option value="gemini-2.5-pro" style={{ color: "black" }}>
+                      gemini-2.5-pro
                     </option>
                     <option value="gemini-3-flash-preview" style={{ color: "black" }}>
                       gemini-3-flash-preview
                     </option>
-                    <option value="gemini-2.5-flash" style={{ color: "black" }}>
-                      gemini-2.5-flash
+                    <option value="gemini-3-pro-preview" style={{ color: "black" }}>
+                      gemini-3-pro-preview
                     </option>
                   </select>
                 </div>
@@ -826,7 +829,7 @@ function App() {
                               borderRadius: '12px', 
                               fontSize: '10px',
                             }}>
-                              gemini-3.1-flash-lite-preview
+                                gemini-3.1-flash-lite
                             </span>
                           </div>
                           <div style={{ 
@@ -866,7 +869,10 @@ function App() {
                               minHeight: projectCards.length === 0 && !publicInsight ? '200px' : 'auto'
                             }}>
                             {publicInsight ? (
-                              <MarkdownRenderer content={publicInsight} chatMode={chatMode} />
+                              <div style={{ position: 'relative' }}>
+                                <MarkdownRenderer content={publicInsight} chatMode={chatMode} />
+                                {isPublicInsightStreaming && <span className="streaming-chunk-cursor pulsing"></span>}
+                              </div>
                             ) : (
                               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px', color: '#888' }}>
                                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '20px' }}>
