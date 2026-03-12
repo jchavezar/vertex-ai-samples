@@ -55,6 +55,7 @@ gcloud run deploy mcp-sharepoint-server \
   --region $LOCATION \
   --allow-unauthenticated \
   --set-env-vars="$ENV_VARS" \
+  --memory 1Gi \
   --min-instances=0 \
   --max-instances=5 \
   --quiet

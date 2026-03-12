@@ -105,7 +105,7 @@ The application is fully optimized for Cloud Run deployments. When deployed, it 
 ### 1. Azure App Registration
 Ensure your Entra ID application has:
 - Supported account types: Single Tenant
-- Redirect URIs (SPA): `http://localhost:5173` and your `https://your-cloud-run-frontend-url`
+- Redirect URIs (SPA): `http://localhost:5175` and your `https://your-cloud-run-frontend-url`
 - API Permissions: `Sites.Read.All`, `Files.Read.All`, `User.Read` (Delegated)
 
 ### 2. Configure Environment
@@ -136,7 +136,7 @@ cd backend
 uv sync
 uv run python main.py
 ```
-*(Runs on port 8001)*
+*(Runs on port 8002)*
 
 **Frontend:**
 *Create a `.env.local` in the `frontend` directory for Vite:*
@@ -144,7 +144,7 @@ uv run python main.py
 VITE_TENANT_ID=your_tenant_id
 VITE_CLIENT_ID=your_client_id
 # Localhost pointing
-VITE_BACKEND_URL=http://localhost:8001/chat
+VITE_BACKEND_URL=http://localhost:8002/chat
 ```
 ```bash
 cd frontend

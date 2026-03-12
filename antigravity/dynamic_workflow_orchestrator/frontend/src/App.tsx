@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { Play, Loader2, FileText, ListChecks, CheckCircle, XCircle } from 'lucide-react';
+import { Play, Loader2, FileText, ListChecks, CheckCircle, XCircle, Cpu, CloudLightning } from 'lucide-react';
 
 type EventType = 'update' | 'final' | 'pause' | 'complete';
 
@@ -18,6 +18,7 @@ export default function App() {
   const [bullets, setBullets] = useState('');
   const [completed, setCompleted] = useState(false);
   const [cancelled, setCancelled] = useState(false);
+  const [mode, setMode] = useState<'local' | 'remote'>('local');
   
   const [hitlInput, setHitlInput] = useState('');
 
@@ -29,7 +30,7 @@ export default function App() {
 
   const runWorkflowStep = async (payload: any) => {
     try {
-      const response = await fetch('http://localhost:8007/api/workflow', {
+      const response = await fetch(`http://localhost:8007/api/workflow?mode=${mode}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ...payload, userId: 'user_1' })
@@ -137,6 +138,33 @@ export default function App() {
           <p className="text-slate-400 max-w-2xl mx-auto text-lg">
             Powered by Google Agent Development Kit (ADK). Demonstrating real-time event streaming across sequential agentic steps with human-in-the-loop.
           </p>
+          
+          <div className="flex justify-center mt-6">
+            <div className="bg-slate-800/50 p-1 rounded-xl flex items-center shadow-inner border border-slate-700/50 w-full max-w-sm">
+              <button
+                onClick={() => setMode('local')}
+                className={`flex-1 flex items-center justify-center space-x-2 py-2.5 px-4 rounded-lg text-sm font-medium transition-all ${
+                  mode === 'local' 
+                    ? 'bg-slate-700 text-white shadow-md' 
+                    : 'text-slate-400 hover:text-slate-200 hover:bg-slate-700/30'
+                }`}
+              >
+                <Cpu className="w-4 h-4" />
+                <span>Local ADK</span>
+              </button>
+              <button
+                onClick={() => setMode('remote')}
+                className={`flex-1 flex items-center justify-center space-x-2 py-2.5 px-4 rounded-lg text-sm font-medium transition-all ${
+                  mode === 'remote' 
+                    ? 'bg-indigo-600 text-white shadow-md shadow-indigo-900/20' 
+                    : 'text-slate-400 hover:text-slate-200 hover:bg-slate-700/30'
+                }`}
+              >
+                <CloudLightning className="w-4 h-4" />
+                <span>Agent Engine</span>
+              </button>
+            </div>
+          </div>
         </div>
 
         {/* Input Section */}

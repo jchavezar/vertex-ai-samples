@@ -23,6 +23,29 @@ This project includes a fully interactive Human-in-the-Loop step. The ADK workfl
 
 This project strictly adheres to the Zero-Leak security policy. All secrets (`GEMINI_API_KEY`) must reside in `.env` files which are globally git-ignored. The backend programmatically resolves the `.env` file via `python-dotenv`.
 
+## Agent Engine & Gemini Enterprise Deployment
+
+This agent is configured to be deployed to **Vertex AI Agent Engine** and exposed via **Gemini Enterprise**.
+
+### 1. Deploying to Agent Engine
+To deploy the backend orchestration logic to Google Cloud as a Reasoning Engine:
+```bash
+cd backend
+uv run python deploy.py
+```
+This script will package the agent, upload it to the designated staging bucket, and provision a Vertex AI Reasoning Engine. It will output the unique Engine ID upon completion.
+
+### 2. Registering with Gemini Enterprise
+To expose your deployed Agent Engine app via the Gemini Enterprise interface:
+1. Open the **Google Cloud Console**.
+2. Navigate to **Vertex AI Search and Conversation** (or **Discovery Engine**).
+3. Select your designated **Gemini Enterprise App**.
+4. Navigate to the **Agents** tab and click **Add agent**.
+5. Select **Custom agent via Agent Engine**.
+6. Follow the UI prompts to configure the agent's display name and link it to the Reasoning Engine ID:
+   - `projects/*/locations/us-central1/reasoningEngines/8966261138304008192` (dynamic_workflow_orchestrator)
+   - `projects/*/locations/us-central1/reasoningEngines/7262493104274407424` (dynamic_workflow_orchestrator_v4)
+
 ## Ports
 
 - **Frontend**: `5176`

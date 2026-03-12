@@ -430,7 +430,7 @@ const RightSidebar = ({
       if (!dashboardData) return;
       setSummaryLoading(true);
       try {
-        const res = await fetch('http://localhost:8001/summarize', {
+        const res = await fetch('http://localhost:8005/summarize', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -454,7 +454,7 @@ const RightSidebar = ({
   // Fetch FactSet Status
   const checkFactSetStatus = async () => {
     try {
-      const response = await fetch('http://localhost:8001/auth/factset/status');
+      const response = await fetch('http://localhost:8005/auth/factset/status');
       const data = await response.json();
       setIsFactSetConnected(data.connected);
       setHasRefreshToken(!!data.has_refresh_token);
@@ -521,7 +521,7 @@ const RightSidebar = ({
 
     const fetchConfig = async () => {
       try {
-        const res = await fetch('http://localhost:8001/agent-config');
+        const res = await fetch('http://localhost:8005/agent-config');
         const data = await res.json();
         setAgentConfig(data);
       } catch (err) {
@@ -622,7 +622,7 @@ const RightSidebar = ({
     }
 
     try {
-      const response = await fetch('http://localhost:8001/chat', {
+      const response = await fetch('http://localhost:8005/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -1217,7 +1217,7 @@ const RightSidebar = ({
           // --- END DIRECT PLOT LOGIC ---
 
           // Use the Backend Curator for intelligent plotting (Fallback)
-          const response = await fetch('http://localhost:8001/curate-chart', {
+          const response = await fetch('http://localhost:8005/curate-chart', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -1255,7 +1255,7 @@ const RightSidebar = ({
 
     try {
       // Pass session_id to ensure the backend maps the code correctly
-      const res = await fetch('http://localhost:8001/auth/factset/url?session_id=default_chat');
+      const res = await fetch('http://localhost:8005/auth/factset/url?session_id=default_chat');
       const data = await res.json();
       if (data.auth_url && authWindow) {
         setAuthUrl(data.auth_url);
@@ -1278,7 +1278,7 @@ const RightSidebar = ({
           alert("Please provide a Refresh Token.");
           return;
         }
-        const res = await fetch('http://localhost:8001/auth/factset/manual', {
+        const res = await fetch('http://localhost:8005/auth/factset/manual', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ refresh_token: manualRefreshToken, session_id: "default_chat" })
@@ -1297,7 +1297,7 @@ const RightSidebar = ({
         return;
       }
 
-      const res = await fetch('http://localhost:8001/auth/factset/callback', {
+      const res = await fetch('http://localhost:8005/auth/factset/callback', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ redirect_url: authInput, session_id: "default_chat" })

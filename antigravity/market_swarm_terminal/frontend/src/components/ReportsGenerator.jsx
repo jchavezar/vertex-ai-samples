@@ -134,7 +134,7 @@ const ReportsGenerator = ({
 
     try {
       console.log("Fetching report from backend...");
-      const response = await fetch('http://127.0.0.1:8001/generate-report', {
+      const response = await fetch('http://127.0.0.1:8005/generate-report', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

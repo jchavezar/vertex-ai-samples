@@ -167,7 +167,7 @@ Open two terminal tabs:
 ```bash
 cd backend
 source .venv/bin/activate
-uvicorn main:app --reload --port 8001
+uvicorn main:app --reload --port 8005
 ```
 
 **Tab 2 (Frontend):**

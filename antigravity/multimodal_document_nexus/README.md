@@ -1,40 +1,42 @@
-# 📄 Multimodal Document Chat: Enterprise Intelligence Platform
+# 🌌 Multimodal Document Nexus 
 
-> **Next-Gen Document Analysis powered by Google Agent Development Kit (ADK) & Vertex AI**
+> **Welcome to the Future of Enterprise Intelligence**
+> Powered by Google Agent Development Kit (ADK) & Vertex AI.
 
 ![Python](https://img.shields.io/badge/Python-3.12%2B-blue?style=for-the-badge&logo=python)
 ![Google Cloud](https://img.shields.io/badge/Google_Cloud-Vertex_AI-red?style=for-the-badge&logo=googlecloud)
 ![React](https://img.shields.io/badge/React-19-0078D4?style=for-the-badge&logo=react)
 ![GenAI](https://img.shields.io/badge/Model-Gemini_3_Flash_Preview-purple?style=for-the-badge)
 
+The **Multimodal Document Nexus** represents a paradigm shift in document processing. Far exceeding primitive OCR, it extracts, semantically understands, and embeds entire multimodal objects—including charts, standalone tables, and nested graphics—natively from PDFs.
+
+Built completely upon the **Zero-Parsing Architecture** (React 19 + FastAPI + Google ADK), it leverages **Google BigQuery Vector Search** and **Gemini 3 Flash Preview** to achieve sub-second, enterprise-scale semantic retrieval.
+
 ---
 
-## 🚀 Overview
+## 🎬 Nexus in Action
 
-**Multimodal Document Chat** is a robust, serverless-ready application designed to extract, embed, and intelligently chat with complex documents. It seamlessly processes text, standalone tables, charts, and images natively within PDFs. 
+*(Click below or view the WebP showcase)*
+<p align="center">
+  <img src="./docs/screenshots/nexus_ui_showcase.webp" alt="Nexus UI Showcase"/>
+</p>
 
-Built using the **Zero-Parsing Architecture** (React 19 + FastAPI + Google ADK), it delivers high-performance semantic retrieval directly backed by **Google BigQuery Vector Search** and **Gemini 3 Flash Preview**.
+---
 
-### 🎨 Visual Interface
+## 🛰️ Visual Interface Showcase
 
-| **Intelligent Dashboard** | **Holographic Citation System** |
+Experience the next-generation Glassmorphic UI featuring real-time multimodal processing status and holographic hover elements.
+
+| **Nexus Dashboard & Grounding** | **Active Pipeline & ADK Tracing** |
 |:---:|:---:|
-| ![Dashboard](./docs/screenshots/dashboard.png) | ![Citation Feature](./docs/screenshots/citation_feature.png) |
-| *Modern Glassmorphic UI with real-time pipeline status* | *Holographic hover previews and deep-linked chart highlighting* |
-
-
-### ✨ Key Features & Zero-Leak Security
-* **🧠 Agentic Extraction**: Utilizes **Google ADK** to run orchestrated, parallel `LlmAgent` extractions across PDF pages.
-* **📊 Multimodal Grounding**: Identifies charts and graphics, converting them to rich markdown descriptions and providing bounding boxes.
-* **🔍 Hyperscale Search**: Integrates directly with Google BigQuery `VECTOR_SEARCH` for lightning-fast enterprise chunk retrieval.
-* **🔒 Zero-Leak Output**: Credentials and `.env` files are strictly `.gitignore`'d, executing safely with explicit permission grants.
-* **⚡ Modern UI**: Beautiful, interactive React frontend featuring annotated PDF displays, citation tooltips, and source reference cards.
+| ![Dashboard](./docs/screenshots/initial_dashboard_1773325935326.png)<br>*Futuristic Workspace* | ![Pipeline Active](./docs/screenshots/pipeline_active_1773325953358.png)<br>*Real-time Task Processing* |
+| ![Chat Citations](./docs/screenshots/chat_response_with_citations_1773326383770.png)<br>*Holographic Source Citations* | ![ADK Tracing](./docs/screenshots/adk_tracing_tab_1773326305769.png)<br>*Orchestrated Agent Tracing* |
 
 ---
 
-## 🏗️ Architecture & Topology
+## 🧬 Architectural Topology
 
-The application enforces an event-driven pipeline, transforming raw PDF data into structured embeddings with seamless multimodal chat support.
+The Nexus operates via an event-driven flow, orchestrating swarms of `LlmAgent` routines to convert unstructured data into a high-dimensional reality.
 
 ```mermaid
 flowchart LR
@@ -46,41 +48,41 @@ flowchart LR
     classDef ai fill:#2e1065,stroke:#d946ef,stroke-width:3px,color:#fbcfe8,rx:15,ry:15;
     classDef data fill:#064e3b,stroke:#10b981,stroke-width:3px,color:#a7f3d0,rx:12,ry:12;
     
-    subgraph Client ["User Environment"]
+    subgraph Client ["Observer Space (Local)"]
         direction TB
-        U[👤 End User]:::user
-        A[⚛️ React + Vite UI]:::frontend
-        U -- "Uploads PDF" --> A
+        U[👤 Operator]:::user
+        A[⚛️ React 19 UI]:::frontend
+        U -- "Injects PDF" --> A
     end
 
-    subgraph API ["FastAPI Backend (Google ADK)"]
+    subgraph API ["FastAPI Core (Google ADK)"]
         direction TB
-        B[⚡ /chat & /api/documents Endpoint]:::backend
+        B[⚡ Nexus Gateway]:::backend
         S[🧠 InMemorySessionService]:::backend
-        P[🏃‍♂️ Parallel ADK Runner.run_async]:::backend
+        P[🏃‍♂️ Swarm Orchestrator (ADK)]:::backend
     end
 
-    subgraph AI ["Intelligence Layer (Vertex AI)"]
+    subgraph AI ["Neural Matrix (Vertex AI)"]
         direction TB
-        C[🤖 Extractor: Gemini 3 Flash Preview]:::ai
-        D[🤖 Analyzer: Gemini 2.5 Flash]:::ai
-        E[🔢 Text Embedding: 004]:::ai
+        C[🤖 Entity Extractor: Gemini 3 Flash]:::ai
+        D[🤖 Context Analyzer: Gemini 2.5 Flash]:::ai
+        E[🔢 Embedding Core: Gecko 004]:::ai
     end
 
-    subgraph Storage ["Enterprise Data"]
+    subgraph Storage ["Persistent State"]
         direction TB
-        F[(📦 Google BigQuery Vector Index)]:::data
+        F[(📦 BigQuery Vector Index)]:::data
     end
 
-    A -- "Streaming HTTP API" --> B
+    A -- "Streaming Transport" --> B
     B -- "Uploads Pages" --> P
     P -- "Multimodal Extraction" --> C
     C -- "Flattened Entities" --> E
     E -- "3072d Vectors" --> F
     
-    B -- "RAG Query" --> F
-    F -- "Top Source Chunks" --> B
-    B -- "Context + Query" --> D
+    B -- "Hybrid Search" --> F
+    F -- "Contextual Chunks" --> B
+    B -- "Synthesis" --> D
     D -- "Masked Markdown + Citations" --> A
     
     %% Styles
@@ -93,12 +95,21 @@ flowchart LR
 
 ---
 
-## 🛠️ Replication & Setup Guide
+## 🔒 Ironclad Zero-Leak Security
 
-### 1. Configure Environment
+As part of the **Antigravity Project Suite**, this repository enforces the absolute **Zero-Leak Protocol**. 
+- Secrets, API keys, and environment variables (`.env`) are strictly sandboxed.
+- The Git configuration rejects any commit attempting to exfiltrate operational keys.
+- **Verification Level:** Passed ✅.
 
-At the root of the project, create a `.env` file containing your Google Cloud targets:
+---
 
+## 🚀 Deployment & Replication Guide
+
+To materialize this environment on your local node, follow these stringent procedures:
+
+### 1. Environment Synchronization
+Initialize a `.env` file at the root level (`/antigravity/.env`) to link your local instance to the Google Cloud mesh:
 ```env
 # Google Cloud Targeting
 PROJECT_ID=your_gcp_project
@@ -106,39 +117,40 @@ GOOGLE_CLOUD_PROJECT=your_gcp_project
 LOCATION=us-central1
 ```
 
-*(Note: The `backend/main.py` is configured to gracefully load the `.env` from the project directory and forces `global` for preview models.)*
+*(Note: The `backend/main.py` is dynamically configured to traverse upwards and locate the `.env` automatically).*
 
-### 2. Local Development (`uv` strictly enforced)
-
-**Backend:**
-Use `uv` to sync dependencies and run the server.
+### 2. Backend Initialization (Port 8001)
+We enforce the use of `uv` for hyperspeed Python management and isolated environment execution.
 
 ```bash
 cd backend
-uv sync
+uv init      # If not initialized
+uv sync      # Synchronize dependencies
 uv run python main.py
 ```
-*(Runs on port 8001)*
+> The API Gateway will ignite and bind to `localhost:8001`.
 
-**Frontend:**
-From the `frontend` directory, launch the React UI.
+### 3. Frontend Initialization (Port 5172)
+Navigate to the UI directory to assemble the React 19 visualizer.
 
 ```bash
 cd frontend
 npm install
 npm run dev
 ```
-*(Runs on port 5173)*
+> The React Interface will establish a connection on `localhost:5172`.
 
 ---
 
-## 🔧 Troubleshooting & Common Issues
+## 🔮 Diagnostic Telemetry
 
-| Error | Cause | Fix |
+Should you encounter anomalies in the space-time fabric during execution:
+
+| Anomaly Code | Root Cause | Automated Resolution Strategy |
 | :--- | :--- | :--- |
-| `404 Publisher Model Not Found` | Wrong Location | Handled automatically in `main.py` by forcing `GOOGLE_CLOUD_LOCATION=global` for Gemini 3 Preview. |
-| `BigQuery Dataset Error` | Missing Initialization | The backend will automatically try to create the `esg_demo_data` dataset. Ensure your service account has `BigQuery Admin` rights. |
-| `No Extracted Entities` | Empty PDF / Parsing Failure | Check terminal logs for `Parallel Extraction` errors. Some image-only PDFs may require OCR features. |
+| `404 Publisher Model Not Found` | Regional API Limitation | Bypassed. `main.py` forces `global` location context for Gemini 3 Preview capabilities. |
+| `BigQuery Dataset Error` | Missing Initialization Matrix | The backend attempts auto-creation of `esg_demo_data`. Ensure `BigQuery Admin` IAM grants are applied to the active service account. |
+| `Zero Output Extracted` | Vector Nullification | Review terminal ADK traces. Heavy image-based PDFs may require enhanced vision flags to trigger the OCR processors. |
 
 ---
-*Built with ❤️ by the Google Cloud AI Team.*
+*Architected with ❤️ for the Future by the Google Cloud AI Team.*

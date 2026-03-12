@@ -95,7 +95,7 @@ function App() {
     const fetchTickerInfo = async () => {
       setLoading(true);
       try {
-        const response = await fetch(`http://localhost:8001/ticker-info/${ticker}`);
+        const response = await fetch(`http://localhost:8005/ticker-info/${ticker}`);
         const data = await response.json();
         setTickerData(data);
       } catch (err) {
@@ -132,7 +132,7 @@ function App() {
     try {
       console.log(`[App] Triggering async widget analysis for ${section}...`);
 
-      const response = await fetch('http://localhost:8001/generate-widget', {
+      const response = await fetch('http://localhost:8005/generate-widget', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
