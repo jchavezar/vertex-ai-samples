@@ -3,7 +3,7 @@ import requests
 import json
 
 def test_chat_latency(message="hi", model="gemini-2.5-flash"):
-    url = "http://localhost:8001/chat"
+    url = "http://localhost:8005/chat"
     payload = {
         "message": message,
         "model": model,

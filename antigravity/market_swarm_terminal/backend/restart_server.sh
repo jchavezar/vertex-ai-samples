@@ -21,16 +21,16 @@ pkill -9 curl || true
 echo "Waiting 2 seconds for ports to clear..."
 sleep 2
 
-echo "Checking port 8001..."
-lsof -i :8001
+echo "Checking port 8005..."
+lsof -i :8005
 
 echo "Starting Backend Server Fresh..."
 cd "$(dirname "$0")" || exit
 
 # Check if venv exists
 if [ -f ".venv/bin/python" ]; then
-    ./.venv/bin/python -m uvicorn main:app --host 0.0.0.0 --port 8001 --reload
+    ./.venv/bin/python -m uvicorn main:app --host 0.0.0.0 --port 8005 --reload
 else
     echo "ERROR: .venv not found. Trying global python..."
-    python3 -m uvicorn main:app --host 0.0.0.0 --port 8001 --reload
+    python3 -m uvicorn main:app --host 0.0.0.0 --port 8005 --reload
 fi

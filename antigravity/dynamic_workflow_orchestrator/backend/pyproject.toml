@@ -7,6 +7,7 @@ requires-python = ">=3.12"
 dependencies = [
     "fastapi>=0.123.10",
     "google-adk>=1.24.1",
+    "google-cloud-aiplatform>=1.140.0",
     "google-genai>=1.62.0",
     "pydantic>=2.12.5",
     "python-dotenv>=1.2.1",

@@ -231,7 +231,7 @@ The Sockcop Search interface is designed for high-fidelity, grounded exploration
     <td valign="top">
       <kbd>EXECUTE</kbd> Navigate to <b>Entra ID</b> &gt; <b>App registrations</b>.<br/><br/>
       <kbd>INPUT</kbd> Create the app <code>deloitte-entraid</code>.<br/><br/>
-      <kbd>DEFINE</kbd> Under Authentication, add Single-page application and set redirect URI to <code>http://localhost:5173</code>.<br/><br/>
+      <kbd>DEFINE</kbd> Under Authentication, add Single-page application and set redirect URI to <code>http://localhost:5174</code>.<br/><br/>
       <kbd>CONFIG</kbd> Under API Permissions, grant <code>User.Read</code>, <code>profile</code>, <code>openid</code>, and <code>email</code>.<br/><br/>
       <kbd>EXTRACT</kbd> Recover your exact payloads shown below.
       <br/><br/>

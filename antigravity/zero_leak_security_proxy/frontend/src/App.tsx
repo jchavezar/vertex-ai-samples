@@ -25,7 +25,7 @@ import { jsPDF } from "jspdf";
 import { useMsal, useIsAuthenticated } from "@azure/msal-react";
 import { loginRequest } from "./authConfig";
 import { InteractionRequiredAuthError } from "@azure/msal-browser";
-import { PromptGallery } from "./components/PromptGallery";
+
 import { ProjectCardWidget } from "./components/ProjectCardWidget";
 import { McpInspector } from "./components/McpInspector";
 import { TelemetryTab } from "./components/TelemetryTab";

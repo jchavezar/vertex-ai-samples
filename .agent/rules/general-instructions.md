@@ -15,6 +15,10 @@ trigger: always_on
 ## Documentation Rules
 - Every new folder needs to be put in the main index in the antigravity folder every time you push it.
 
+## Gemini Enterprise vs Agent Engine Deployment (CRITICAL)
+- **Agent Engine** is the backend infrastructure (Reasoning Engine) where the code runs. Deploying to Agent Engine only exposes an API endpoint via Vertex AI.
+- **Gemini Enterprise** is the consumer-facing user interface (agent builder/discovery engine). 
+- **RULE:** If you are asked to deploy and register an agent, deploying to Agent Engine is NOT enough. You MUST also register the Reasoning Engine in the Gemini Enterprise App. If you cannot do this automatically, you MUST explicitly tell the user that they must go to the Gemini Enterprise Console to link the Reasoning Engine ID to complete the registration.
 
 ## Avoid
 Under any circumstances use old models in your code develop and deploy like gemini-2.0* gemini-1.5* text-bison* or any other old model. NEVER.

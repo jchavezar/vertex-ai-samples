@@ -19,7 +19,7 @@ const AdvancedSearchView = () => {
     setError(null);
 
     try {
-      const response = await fetch('http://localhost:8001/search', {
+      const response = await fetch('http://localhost:8005/search', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ query: query, pageSize: 12 })
@@ -58,7 +58,7 @@ const AdvancedSearchView = () => {
         return doc.htmlSnippet || doc.snippet || doc.title;
       }).filter(Boolean);
 
-      const response = await fetch('http://localhost:8001/search/generative-overview', {
+      const response = await fetch('http://localhost:8005/search/generative-overview', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ query: searchQuery, contexts: topContexts })
