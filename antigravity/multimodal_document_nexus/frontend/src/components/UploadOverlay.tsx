@@ -6,7 +6,7 @@ const steps = [
   { id: 'upload', icon: FileText, label: 'Uploading Document' },
   { id: 'extract', icon: Brain, label: 'Parallel Extraction via ADK' },
   { id: 'embed', icon: Zap, label: 'Generating Vector Embeddings' },
-  { id: 'sync', icon: Database, label: 'Syncing to BigQuery & Feature Store' },
+  { id: 'index', icon: Database, label: 'Indexing to Vector Store' },
 ];
 
 interface UploadOverlayProps {
@@ -121,7 +121,7 @@ export const UploadOverlay: React.FC<UploadOverlayProps> = ({ isProcessing }) =>
               animate={{ opacity: 1 }}
               transition={{ delay: 1 }}
             >
-              Gemini 2.5 Flash is analyzing your document...
+              Processing and indexing your document...
             </motion.div>
           </div>
         </motion.div>
