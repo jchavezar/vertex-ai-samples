@@ -1,0 +1,109 @@
+/* Prompt Gallery Styles */
+.prompt-gallery-container {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  height: 100%;
+  background: white;
+  border-radius: var(--deloitte-radius);
+  box-shadow: var(--deloitte-shadow-md);
+  border: 1px solid var(--deloitte-border);
+  overflow: hidden;
+}
+
+.gallery-header {
+  padding: var(--spacing-xl);
+  background: var(--deloitte-bg-hero);
+  border-bottom: 1px solid var(--deloitte-border);
+  text-align: center;
+}
+
+.gallery-icon {
+  color: var(--deloitte-green);
+  margin-bottom: var(--spacing-sm);
+}
+
+.gallery-header h2 {
+  font-family: var(--font-serif);
+  font-size: 2rem;
+  color: var(--deloitte-black);
+  margin-bottom: var(--spacing-xs);
+}
+
+.gallery-header p {
+  color: var(--deloitte-grey);
+  font-size: 1rem;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.gallery-grid {
+  display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--spacing-xxl);
+    padding: var(--spacing-xxl);
+  flex-grow: 1;
+  align-content: start;
+  overflow-y: auto;
+}
+
+.gallery-category-card {
+  width: 320px;
+  background: var(--deloitte-light-grey);
+  border: 1px solid var(--deloitte-border);
+  border-radius: 12px;
+  padding: var(--spacing-lg);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.gallery-category-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--deloitte-shadow-sm);
+  background: white;
+}
+
+.category-card-header {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-md);
+}
+
+.category-card-header h3 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--deloitte-black);
+}
+
+.category-prompts {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.prompt-pill {
+  background: white;
+  border: 1px solid var(--deloitte-border);
+  color: var(--deloitte-grey);
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.2s;
+  line-height: 1.4;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+}
+
+.prompt-pill:hover:not(:disabled) {
+  border-color: var(--deloitte-green);
+  color: var(--deloitte-black);
+  transform: translateX(4px);
+  box-shadow: var(--deloitte-shadow-sm);
+}
+
+.prompt-pill:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
