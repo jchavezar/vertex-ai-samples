@@ -1,0 +1,1458 @@
+@import url('https://fonts.googleapis.com/css2?family=Georgia&family=Inter:wght@300;400;600&display=swap');
+
+:root {
+  --deloitte-green: #86BC25;
+    --deloitte-green-bright: #A0CE4E;
+    --deloitte-black-accent: #000000;
+    --deloitte-green-alt: #86BC25;
+    --deloitte-black: #1a1a1a;
+    --deloitte-grey: #404040;
+  --deloitte-light-grey: #f8f9fa;
+    --deloitte-border: rgba(0, 0, 0, 0.08);
+    --deloitte-bg-main: #ffffff;
+    --deloitte-bg-hero: #f4f7f0;
+    --deloitte-shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    --deloitte-shadow-md: 0 12px 24px -6px rgba(0, 0, 0, 0.08);
+    --deloitte-radius: 20px;
+  
+    --deloitte-glass: rgba(255, 255, 255, 0.7);
+      --deloitte-glass-border: rgba(255, 255, 255, 0.6);
+    
+      --font-serif: "Georgia", "Times New Roman", Times, serif;
+      --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+    --spacing-md: 16px;
+    --spacing-lg: 24px;
+    --spacing-xl: 32px;
+  --spacing-xxl: 48px;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: #FDFDFD;
+    color: var(--deloitte-black);
+  font-family: var(--font-sans);
+  line-height: 1.5;
+  overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* Layout: Sidebar + Main Content */
+.deloitte-app {
+  display: flex;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+  background-color: var(--deloitte-light-grey);
+}
+
+/* Header transformed into Left Sidebar */
+.deloitte-header {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  padding: var(--spacing-lg);
+  width: 260px;
+  height: 100vh;
+  background: var(--deloitte-black);
+  color: white;
+  position: static;
+  box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+  z-index: 1000;
+  transition: all 0.3s ease;
+}
+
+.deloitte-header:hover {
+  background: var(--deloitte-black);
+}
+
+.deloitte-logo-container {
+  flex-shrink: 0;
+  margin-bottom: var(--spacing-xl);
+  width: 100%;
+}
+
+.deloitte-logo {
+  font-family: var(--font-sans);
+  font-size: 2rem;
+  font-weight: 800;
+  color: white !important; /* Force white logo on dark sidebar */
+  letter-spacing: -1px;
+}
+
+.deloitte-nav {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  width: 100%;
+}
+
+.deloitte-nav a {
+  text-decoration: none;
+  color: rgba(255,255,255,0.7);
+  font-weight: 600;
+  font-size: 0.95rem;
+  padding: 12px 16px;
+  border-radius: 8px;
+  transition: background 0.2s, color 0.2s, transform 0.2s;
+  display: block;
+}
+
+.deloitte-nav a:hover,
+.deloitte-nav a.active {
+  color: white;
+  background: rgba(255,255,255,0.1);
+  transform: translateX(4px);
+  border-left: 4px solid var(--deloitte-green);
+}
+
+.deloitte-header-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--spacing-lg);
+  margin-top: auto; /* Push to bottom */
+  width: 100%;
+  padding-top: var(--spacing-lg);
+  border-top: 1px solid rgba(255,255,255,0.1);
+}
+
+@media (max-width: 768px) {
+  .deloitte-header {
+    width: 60px;
+    padding: var(--spacing-md) var(--spacing-sm);
+  }
+  .deloitte-nav a {
+    font-size: 0;
+    padding: 12px 0;
+    text-align: center;
+  }
+  .deloitte-logo {
+    font-size: 1rem;
+  }
+}
+
+/* Layout */
+.deloitte-main-wrapper {
+  display: flex;
+  flex-direction: row; /* Chat on the left, adjacent to Deloitte header, data on the right */
+  flex-grow: 1;
+  height: 100vh;
+  padding: var(--spacing-xl);
+  gap: var(--spacing-xl);
+  background-color: var(--deloitte-light-grey);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Draggable Sidebar Resizer */
+.deloitte-sidebar-resizer {
+  width: 16px;
+  margin: 0 4px; /* effectively giving an overall gap of 24px between panels */
+  cursor: col-resize;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  transition: background-color 0.2s;
+  border-radius: 4px;
+}
+
+.deloitte-sidebar-resizer:hover, .deloitte-sidebar-resizer.active {
+  background-color: rgba(94, 174, 253, 0.1);
+}
+
+.resizer-handle {
+  width: 4px;
+  height: 48px;
+  background-color: var(--deloitte-border);
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+
+.deloitte-sidebar-resizer:hover .resizer-handle, .deloitte-sidebar-resizer.active .resizer-handle {
+  background-color: #5eaefd;
+  box-shadow: 0 0 8px rgba(94, 174, 253, 0.4);
+}
+
+/* Table Overlay Modal */
+.table-overlay-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  z-index: 99999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.table-overlay-content {
+  background: var(--deloitte-bg-main);
+  border-radius: var(--deloitte-radius);
+  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.2);
+  width: 90vw;
+  max-width: 1000px;
+  max-height: 90vh;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  border: 1px solid var(--deloitte-border);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+/* Sidebar Chat Board Style */
+.deloitte-chat-sidebar {
+  /* Dynamic sizing */
+  width: 420px; 
+  background: white;
+  border-radius: var(--deloitte-radius);
+  box-shadow: 0 10px 40px rgba(0,0,0,0.08); /* elevated shadow */
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  flex-shrink: 0;
+  border: 1px solid rgba(0,0,0,0.05);
+  transition: width 0.3s cubic-bezier(0.16, 1, 0.3, 1), transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  margin-left: 0;
+}
+
+.deloitte-chat-sidebar.resizing {
+  transition: none; /* Instant feedback */
+  user-select: none;
+  pointer-events: none; /* Prevents iframes or text from interfering during drag */
+}
+
+/* Wide mode now takes up mostly the right side */
+.deloitte-chat-sidebar.wide {
+  width: 600px;
+}
+
+/* Overlay brings it to center */
+.deloitte-chat-sidebar.overlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 800px;
+  height: 80vh;
+  z-index: 2000;
+  border-radius: 16px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+}
+
+@media (max-width: 1024px) {
+  .deloitte-chat-sidebar.wide {
+    width: 600px;
+    max-width: 45vw;
+  }
+}
+
+.chat-header {
+  padding: var(--spacing-lg) var(--spacing-xl);
+  border-bottom: 1px solid var(--deloitte-border);
+  background: linear-gradient(to bottom, #fff, #fafafa);
+  display: flex;
+  flex-direction: column;
+}
+
+.chat-header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  width: 100%;
+}
+
+.chat-mode-controls {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.chat-mode-btn {
+  background: transparent;
+  border: none;
+  color: var(--deloitte-grey);
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.chat-mode-btn:hover {
+  background: rgba(0, 0, 0, 0.05);
+  color: var(--deloitte-green);
+}
+
+.chat-mode-btn.active {
+  color: var(--deloitte-green);
+  background: rgba(134, 188, 37, 0.1);
+}
+
+.chat-header h2 {
+  font-family: var(--font-serif);
+  font-size: 1.4rem;
+  margin-bottom: var(--spacing-xs);
+}
+
+.chat-header p {
+  font-size: 0.75rem;
+    color: var(--deloitte-green);
+    font-weight: 600;
+    letter-spacing: 1px;
+}
+
+.chat-messages {
+  flex-grow: 1;
+  overflow-y: auto;
+  padding: var(--spacing-lg) var(--spacing-xl);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.message {
+  padding: var(--spacing-md) var(--spacing-lg);
+    border-radius: 12px;
+  font-size: 0.95rem;
+  max-width: 90%;
+  line-height: 1.6;
+}
+
+.message.user {
+  background: linear-gradient(135deg, rgba(255,255,255,1) 0%, rgba(250,250,252,1) 100%);
+  color: var(--deloitte-black);
+  align-self: flex-end;
+  border-bottom-right-radius: 4px;
+  box-shadow: 0 8px 16px -4px rgba(0, 0, 0, 0.06);
+  border: 1px solid rgba(229, 231, 235, 0.6);
+}
+
+.message.assistant {
+  background-color: var(--deloitte-light-grey);
+  color: var(--deloitte-black);
+  align-self: flex-start;
+  border-bottom-left-radius: 4px;
+  border: 1px solid var(--deloitte-border);
+  border-left: 3px solid var(--deloitte-green);
+  box-shadow: 3px 4px 12px rgba(0, 0, 0, 0.03);
+}
+
+.message.assistant a {
+  color: var(--deloitte-green);
+  text-decoration: underline;
+  font-weight: 600;
+}
+
+.message.assistant a:hover {
+  color: var(--deloitte-black-accent);
+}
+
+.chat-input-area {
+  padding: var(--spacing-lg) var(--spacing-xl);
+  background: var(--deloitte-bg-main);
+  border-top: 1px solid var(--deloitte-border);
+}
+
+.chat-input-area form {
+  display: flex;
+  align-items: flex-end;
+    background: var(--deloitte-light-grey);
+    border: 1px solid var(--deloitte-border);
+    border-radius: 24px;
+    padding: 8px 8px 8px 16px;
+    transition: all 0.2s ease;
+  }
+  
+  .chat-input-area form:focus-within {
+    background: #fff;
+    border-color: var(--deloitte-green);
+    box-shadow: 0 0 0 3px rgba(134, 188, 37, 0.1);
+}
+
+.deloitte-input {
+  flex-grow: 1;
+  border: none;
+    background: transparent;
+    padding: 8px 0;
+  font-family: var(--font-sans);
+  font-size: 0.95rem;
+  color: var(--deloitte-black);
+    outline: none;
+    resize: none;
+    overflow-y: auto;
+    min-height: 24px;
+    line-height: 1.5;
+}
+
+.deloitte-input:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+.deloitte-btn {
+  background: var(--deloitte-green);
+  color: white;
+  border: none;
+  border-radius: 24px;
+    padding: 10px 24px;
+    height: 40px;
+    font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  flex-shrink: 0;
+    margin-left: 8px;
+    margin-bottom: 2px;
+}
+
+.deloitte-btn:hover:not(:disabled) {
+  background: var(--deloitte-black-accent);
+  transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.deloitte-btn:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
+}
+/* Data Board */
+.deloitte-data-panel {
+  flex-grow: 1;
+  background-color: transparent;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  padding-right: var(--spacing-md);
+}
+
+.deloitte-empty-hero {
+  display: flex;
+  height: 100%;
+    border-radius: var(--deloitte-radius);
+    overflow: hidden;
+    background: white;
+    box-shadow: var(--deloitte-shadow-md);
+    border: 1px solid var(--deloitte-border);
+}
+
+.hero-text-box {
+  flex: 1.2;
+  background-color: var(--deloitte-bg-hero);
+  padding: var(--spacing-xxl);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.hero-text-box h1 {
+  font-family: var(--font-serif);
+  font-size: 4rem;
+  line-height: 1.1;
+  margin-bottom: var(--spacing-lg);
+  font-weight: 500;
+}
+
+.hero-image-placeholder {
+  flex: 1;
+  background: url('https://images.unsplash.com/photo-1573164713988-8665fc963095?auto=format&fit=crop&q=80&w=2000') center/cover no-repeat;
+  filter: grayscale(0.2);
+  }
+  
+  /* Board Cards */
+  .deloitte-cards-grid {
+    padding: var(--spacing-md);
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(450px, 1fr));
+    gap: var(--spacing-lg);
+    align-items: start;
+  }
+  
+  .deloitte-card {
+    background: white;
+    border-radius: var(--deloitte-radius);
+    padding: var(--spacing-xl);
+    box-shadow: var(--deloitte-shadow-md);
+    border: 1px solid var(--deloitte-border);
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  animation: card-slide-up 0.6s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+  }
+  
+  @keyframes card-slide-up {
+    from {
+      opacity: 0;
+      transform: translateY(30px) scale(0.98);
+    }
+  
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+  
+  /* Staggered entry for cards */
+  .deloitte-cards-grid> :nth-child(1) {
+    animation-delay: 0.1s;
+}
+
+.deloitte-cards-grid> :nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.deloitte-cards-grid> :nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+.deloitte-cards-grid> :nth-child(4) {
+  animation-delay: 0.4s;
+}
+.deloitte-card:hover {
+  transform: translateY(-8px) scale(1.01);
+    box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.12);
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-md);
+    font-size: 0.85rem;
+}
+
+.industry-tag {
+  color: var(--deloitte-black);
+  font-weight: 600;
+}
+
+.industry-tag+.doc-id::before {
+  content: '|';
+  margin-right: var(--spacing-md);
+  color: var(--deloitte-border);
+}
+.doc-id {
+  color: var(--deloitte-grey);
+}
+
+.card-footer.metrics {
+  margin-top: var(--spacing-xl);
+  padding-top: var(--spacing-lg);
+  border-top: 1px solid var(--deloitte-border);
+  display: flex;
+    flex-wrap: wrap;
+      gap: var(--spacing-sm);
+}
+
+.deloitte-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 6px;
+  height: 100%;
+  background: var(--deloitte-green);
+}
+
+/* Masked Data Styling */
+.masked-data {
+  display: inline-block;
+  background: rgba(134, 188, 37, 0.08);
+  border: 1px dashed var(--deloitte-green);
+  padding: 0 6px;
+  border-radius: 4px;
+  font-family: 'Space Mono', monospace;
+  font-size: 0.85em;
+  color: var(--deloitte-green);
+  margin: 0 2px;
+}
+
+.card-title {
+  font-family: var(--font-sans);
+  font-weight: 800;
+  font-size: 1.6rem;
+  margin-bottom: var(--spacing-xl);
+  color: var(--deloitte-black);
+}
+
+.info-block h3 {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  color: #777;
+  margin-bottom: var(--spacing-sm);
+  letter-spacing: 0.5px;
+    font-weight: 600;
+}
+
+.card-body {
+  display: flex;
+  flex-direction: column;
+    gap: var(--spacing-md);
+}
+
+.metric-pill {
+  background: #f8f9fa;
+    padding: 6px 14px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    border: 1px solid #eaeaea;
+    color: var(--deloitte-black);
+}
+.deloitte-auth {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-left: auto;
+}
+
+.login-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: white;
+  color: var(--deloitte-black);
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-family: var(--font-sans);
+  font-weight: 600;
+  transition: background 0.2s, transform 0.2s;
+  width: 100%;
+  justify-content: center;
+}
+
+.login-btn:hover {
+  background-color: var(--deloitte-green);
+  color: white;
+  transform: translateY(-1px);
+}
+
+.auth-symbol {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 6px 12px;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.status-indicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: #e50000;
+}
+
+.status-indicator.active {
+  background-color: #008c2a;
+  box-shadow: 0 0 8px #008c2a;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% { opacity: 0.6; }
+  50% { opacity: 1; }
+  100% { opacity: 0.6; }
+}
+
+.user-name {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--deloitte-light-gray);
+}
+
+.logout-btn {
+  background: transparent;
+  border: none;
+  color: var(--deloitte-green);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  opacity: 0.7;
+  transition: opacity 0.2s;
+}
+
+.logout-btn:hover {
+  opacity: 1;
+}
+
+/* Redacted Entities Halo Box */
+.redacted-halo-box {
+  margin-top: var(--spacing-lg);
+  padding: var(--spacing-md);
+  border-radius: var(--deloitte-radius);
+  background: rgba(0, 0, 0, 0.05);
+  /* very light red */
+  border: 1px dashed var(--deloitte-black-accent);
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.15);
+  position: relative;
+  z-index: 1;
+}
+
+.redacted-halo-box::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  border-radius: calc(var(--deloitte-radius) + 2px);
+  background: linear-gradient(45deg, rgba(0, 0, 0, 0.3), transparent, rgba(0, 0, 0, 0.3));
+  z-index: -1;
+  filter: blur(4px);
+  opacity: 0.8;
+  animation: pulse-halo 3s ease-in-out infinite alternate;
+}
+
+@keyframes pulse-halo {
+  0% {
+    opacity: 0.5;
+    filter: blur(4px);
+  }
+
+  100% {
+    opacity: 1;
+    filter: blur(8px);
+  }
+}
+
+.redacted-header {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  color: var(--deloitte-black-accent);
+  font-weight: 700;
+  font-size: 0.75rem;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: var(--spacing-sm);
+}
+
+.redacted-entities-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
+}
+
+.redacted-pill {
+  background: var(--deloitte-bg-main);
+  border: 1px solid rgba(0, 0, 0, 0.4);
+  color: var(--deloitte-black-accent);
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  font-family: monospace;
+}
+
+.doc-id {
+  font-size: 0.75rem;
+  color: #888;
+  font-family: monospace;
+}
+
+a.doc-id {
+  color: var(--deloitte-green);
+  text-decoration: none;
+  transition: all 0.2s ease;
+  word-break: break-all;
+    max-width: 100%;
+}
+
+a.doc-id:hover {
+  text-decoration: underline;
+  color: #c02a1b;
+}
+
+/* Topology View Styles */
+.deloitte-topology-wrapper {
+  padding: 60px 40px;
+  background: var(--deloitte-bg-main);
+  min-height: calc(100vh - 60px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  overflow-y: auto;
+}
+
+.deloitte-topology-wrapper h2 {
+  color: var(--deloitte-green);
+  margin-bottom: 40px;
+  font-size: 2rem;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+.topology-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: 900px;
+}
+
+.flow-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
+.topology-node {
+  background: white;
+  padding: 24px;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  width: 250px;
+  border: 1px solid #e0e0e0;
+  border-top: 4px solid var(--deloitte-green);
+  transition: transform 0.2s ease;
+  position: relative;
+}
+
+.topology-node:hover {
+  transform: translateY(-5px);
+}
+
+.topology-node.secure {
+  border-color: var(--deloitte-black-accent);
+  border-top-color: var(--deloitte-black-accent);
+  background: rgba(0, 0, 0, 0.02);
+}
+
+.topology-node.blue {
+  border-top-color: #0078D4;
+  /* Microsoft Blue */
+}
+
+.topology-node .icon {
+  margin-bottom: 12px;
+  color: #333;
+}
+
+.topology-node h4 {
+  margin: 0 0 8px 0;
+  font-size: 1.1rem;
+  color: #333;
+}
+
+.topology-node p {
+  font-size: 0.85rem;
+  color: #666;
+  margin: 0;
+  line-height: 1.4;
+  margin-bottom: 16px;
+}
+
+.node-detail {
+  background: var(--deloitte-light-grey);
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-family: monospace;
+  color: var(--deloitte-grey);
+  border: 1px solid var(--deloitte-border);
+  margin-top: auto;
+}
+
+.flow-edge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  color: #888;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.flow-edge-horizontal {
+  width: 120px;
+  flex-direction: column;
+}
+
+.flow-edge-horizontal .line {
+  height: 2px;
+  width: 100%;
+  background: repeating-linear-gradient(90deg, #ccc, #ccc 4px, transparent 4px, transparent 8px);
+  position: relative;
+  margin: 4px 0;
+}
+
+.flow-edge-horizontal .line::after {
+  content: '';
+  position: absolute;
+  right: -5px;
+  top: -4px;
+  border-top: 5px solid transparent;
+  border-bottom: 5px solid transparent;
+  border-left: 8px solid #ccc;
+}
+
+.flow-edge-vertical {
+  height: 80px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin: 10px 0;
+}
+
+.flow-edge-vertical .line {
+  width: 2px;
+  height: 100%;
+  background: repeating-linear-gradient(180deg, #ccc, #ccc 4px, transparent 4px, transparent 8px);
+  position: relative;
+  margin-left: 10px;
+}
+
+.flow-edge-vertical .line::after {
+  content: '';
+  position: absolute;
+  bottom: -5px;
+  left: -4px;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 8px solid #ccc;
+}
+/* SharePoint AI Loading Animation */
+.gemini-loading-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  margin: 16px 0;
+  padding: 0 16px;
+}
+
+.gemini-search-pill {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  background: #FFFFFF;
+  border-radius: 12px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.04), 0 2px 4px rgba(0, 0, 0, 0.02);
+  font-family: var(--font-sans);
+  position: relative;
+}
+
+.sharepoint-used-badge {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 14px;
+  height: 14px;
+  opacity: 0;
+  animation: badge-fade-in 0.4s ease-out forwards;
+}
+
+@keyframes badge-fade-in {
+  from {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+
+  to {
+    opacity: 0.6;
+    transform: scale(1);
+  }
+}
+.sharepoint-icon-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  margin-right: 2px;
+}
+
+.sharepoint-icon-wrapper::before {
+  content: '';
+  position: absolute;
+  top: -6px;
+  bottom: -6px;
+  left: -6px;
+  right: -6px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  /* Glowing line simulation: we use two border sections colored, maybe a shadow */
+  border-top-color: #0364B8;
+  border-bottom-color: #0078D4;
+  animation: spin 1s linear infinite;
+  opacity: 0.9;
+  filter: drop-shadow(0 0 4px rgba(0, 120, 212, 0.6));
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.sharepoint-logo {
+  width: 20px;
+  height: 20px;
+  z-index: 1;
+  animation: pulse-logo 2s ease-in-out infinite alternate;
+}
+
+@keyframes pulse-logo {
+  0% {
+    transform: scale(0.9);
+  }
+
+  100% {
+    transform: scale(1.1);
+  }
+}
+
+.gemini-loading-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+}
+
+.gemini-loading-title {
+  color: #1A1B1E;
+  font-size: 0.9rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  letter-spacing: 0px;
+}
+
+.gemini-loading-subtitle {
+  color: #6B7280;
+  font-size: 0.8rem;
+  font-weight: 400;
+  margin-top: 2px;
+}
+.pulsing-text {
+  animation: pulse-op 1.5s infinite alternate;
+}
+
+/* Premium Loading State Refinement */
+.deloitte-loading-state .spinner {
+  width: 50px;
+  height: 50px;
+  border: 3px solid rgba(134, 188, 37, 0.1);
+  border-top-color: var(--deloitte-green);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  box-shadow: 0 0 15px rgba(134, 188, 37, 0.2);
+}
+
+.deloitte-loading-state h3 {
+  font-family: 'Georgia', serif;
+  font-size: 1.5rem;
+  letter-spacing: -0.5px;
+}
+
+.prompt-gallery-container {
+  animation: fade-in 0.8s ease-out;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Staggered entry for cards */
+.deloitte-card {
+  animation: card-slide-up 0.6s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+}
+
+@keyframes card-slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(30px) scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.deloitte-cards-grid> :nth-child(1) {
+  animation-delay: 0.1s;
+}
+
+.deloitte-cards-grid> :nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.deloitte-cards-grid> :nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+.deloitte-cards-grid> :nth-child(4) {
+  animation-delay: 0.4s;
+}
+
+/* Glassmorphism Intensity */
+.deloitte-glass-heavy {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(30px) saturate(200%);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+}
+@keyframes pulse-op {
+  0% {
+    opacity: 0.6;
+  }
+
+  100% {
+    opacity: 1;
+  }
+}
+
+.gemini-sparkle-icon {
+  animation: pulse-sparkle 2s ease-in-out infinite alternate;
+  filter: drop-shadow(0px 2px 4px rgba(76, 138, 255, 0.4));
+}
+
+@keyframes pulse-sparkle {
+  0% {
+    transform: scale(0.95) rotate(-2deg);
+    opacity: 0.8;
+  }
+
+  100% {
+    transform: scale(1.15) rotate(5deg);
+    opacity: 1;
+  }
+}
+
+/* ==========================================================================
+   Utility System (Global Helpers)
+   ========================================================================== */
+
+/* Layout & Flexbox */
+.flex { display: flex; }
+.inline-flex { display: inline-flex; }
+.flex-col { flex-direction: column; }
+.items-center { align-items: center; }
+.items-start { align-items: flex-start; }
+.items-end { align-items: flex-end; }
+.justify-center { justify-content: center; }
+.justify-between { justify-content: space-between; }
+.justify-around { justify-content: space-around; }
+.justify-end { justify-content: flex-end; }
+.flex-1 { flex: 1 1 0%; }
+.flex-grow { flex-grow: 1; }
+.flex-shrink-0 { flex-shrink: 0; }
+.gap-1 { gap: 4px; }
+.gap-2 { gap: 8px; }
+.gap-3 { gap: 12px; }
+.gap-4 { gap: 16px; }
+.gap-6 { gap: 24px; }
+.grid { display: grid; }
+
+/* Sizing */
+.w-full { width: 100%; }
+.h-full { height: 100%; }
+.w-screen { width: 100vw; }
+.h-screen { height: 100vh; }
+
+/* Spacing (Standard Increments) */
+.mt-1 { margin-top: 4px; }
+.mt-2 { margin-top: 8px; }
+.mt-3 { margin-top: 12px; }
+.mt-4 { margin-top: 16px; }
+.mt-6 { margin-top: 24px; }
+.mt-8 { margin-top: 32px; }
+
+.mb-1 { margin-bottom: 4px; }
+.mb-2 { margin-bottom: 8px; }
+.mb-3 { margin-bottom: 12px; }
+.mb-4 { margin-bottom: 16px; }
+.mb-6 { margin-bottom: 24px; }
+
+.ml-1 { margin-left: 4px; }
+.ml-2 { margin-left: 8px; }
+.mr-1 { margin-right: 4px; }
+.mr-2 { margin-right: 8px; }
+
+.p-1 { padding: 4px; }
+.p-2 { padding: 8px; }
+.p-3 { padding: 12px; }
+.p-4 { padding: 16px; }
+.p-6 { padding: 24px; }
+.px-1 { padding-left: 4px; padding-right: 4px; }
+.px-2 { padding-left: 8px; padding-right: 8px; }
+.px-4 { padding-left: 16px; padding-right: 16px; }
+.py-1 { padding-top: 4px; padding-bottom: 4px; }
+.py-2 { padding-top: 8px; padding-bottom: 8px; }
+
+/* Typography */
+.text-xs { font-size: 0.75rem; line-height: 1rem; }
+.text-sm { font-size: 0.875rem; line-height: 1.25rem; }
+.text-base { font-size: 1rem; line-height: 1.5rem; }
+.text-lg { font-size: 1.125rem; line-height: 1.75rem; }
+.text-xl { font-size: 1.25rem; line-height: 1.75rem; }
+.font-medium { font-weight: 500; }
+.font-semibold { font-weight: 600; }
+.font-bold { font-weight: 700; }
+.font-mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+.text-uppercase { text-transform: uppercase; }
+.italic { font-style: italic; }
+
+/* Colors (Using PWC Tokens) */
+.text-deloitte-orange { color: var(--deloitte-green); }
+.text-deloitte-grey { color: var(--deloitte-grey); }
+.text-white { color: white; }
+.bg-deloitte-orange { background-color: var(--deloitte-green); }
+
+/* Visibility & Layers */
+.hidden { display: none; }
+.block { display: block; }
+.relative { position: relative; }
+.absolute { position: absolute; }
+.fixed { position: fixed; }
+.inset-0 { top: 0; right: 0; bottom: 0; left: 0; }
+.z-50 { z-index: 50; }
+.z-100 { z-index: 100; }
+.cursor-pointer { cursor: pointer; }
+.pointer-events-none { pointer-events: none; }
+
+/* Components Specific - Discovery Overlay */
+.discovery-overlay {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 2000;
+  pointer-events: none;
+}
+
+.discovery-pill {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(15px);
+  border: 1px solid var(--deloitte-green);
+  padding: 16px 28px;
+  border-radius: 40px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  box-shadow: 0 20px 50px rgba(134, 188, 37, 0.25);
+  animation: pill-bounce 2s infinite ease-in-out;
+}
+
+.discovery-pill.active {
+  border-color: #0364B8;
+  box-shadow: 0 20px 50px rgba(3, 100, 184, 0.2);
+}
+
+@keyframes pill-bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+
+
+/* Premium Markdown Table Styles */
+.premium-table-wrapper {
+  overflow-x: auto;
+  margin: 16px 0;
+  border: 1px solid var(--deloitte-glass-border);
+  border-radius: 8px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  background: transparent;
+}
+
+.premium-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  background: transparent;
+}
+
+.premium-thead {
+  background: rgba(134, 188, 37, 0.05); /* very subtle orange tint */
+  border-bottom: 2px solid var(--deloitte-green);
+  color: inherit;
+}
+
+.premium-th {
+  padding: 14px 20px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: inherit;
+}
+
+.premium-td {
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--deloitte-glass-border);
+  font-size: 0.9rem;
+  color: inherit;
+  opacity: 0.9;
+}
+
+/* Specific styling when in Public Web Consensus (dark) */
+.card-content .premium-thead {
+  background: rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid rgba(255,255,255,0.2);
+}
+.card-content .premium-td {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.sharepoint-icon-wrapper svg {
+  color: var(--deloitte-green);
+  animation: pulse-logo 2s ease-in-out infinite alternate;
+}
+/* Public Web Consensus Loading Transition Animation */
+@keyframes pulseInsightGlow {
+  0% { box-shadow: 0 0 15px rgba(94, 174, 253, 0.1); border-color: rgba(94, 174, 253, 0.2); }
+  50% { box-shadow: 0 0 40px rgba(94, 174, 253, 0.5); border-color: rgba(94, 174, 253, 0.8); }
+  100% { box-shadow: 0 0 15px rgba(94, 174, 253, 0.1); border-color: rgba(94, 174, 253, 0.2); }
+}
+
+.deloitte-insight-streaming {
+  animation: pulseInsightGlow 3s infinite ease-in-out;
+  transform: translateY(2vh) scale(1.01);
+  transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.deloitte-insight-settled {
+  transform: translateY(0) scale(1);
+  transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Premium Link Styling for Public Web Consensus (Dark Background) */
+.card-content a {
+  color: #FB923C; /* Warm Orange that pops on dark bg */
+  text-decoration: none;
+  font-weight: 600;
+  position: relative;
+  padding: 0 4px;
+  border-radius: 4px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border-bottom: 1px dashed rgba(251, 146, 60, 0.4);
+}
+
+.card-content a:hover {
+  color: #ffffff;
+  background: rgba(251, 146, 60, 0.15);
+  border-bottom-style: solid;
+  border-bottom-color: #FB923C;
+  box-shadow: 0 0 12px rgba(251, 146, 60, 0.2);
+}
+
+.card-content a:active {
+  transform: scale(0.98);
+}
+
+/* Streaming indicator for chunks */
+.streaming-chunk-cursor {
+  display: inline-block;
+  width: 8px;
+  height: 18px;
+  background: #FB923C;
+  margin-left: 4px;
+  vertical-align: middle;
+  animation: cursor-blink 0.8s infinite;
+  border-radius: 1px;
+}
+
+.streaming-chunk-cursor.pulsing {
+  box-shadow: 0 0 10px #FB923C;
+  animation: cursor-blink 0.8s infinite, cursor-pulse 1.5s infinite alternate;
+}
+
+@keyframes cursor-pulse {
+  from { box-shadow: 0 0 4px #FB923C; }
+  to { box-shadow: 0 0 15px #FB923C; }
+}
+
+@keyframes cursor-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+/* Global link color override for dark mode */
+a {
+  color: #FB923C;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+a:hover {
+  filter: brightness(1.2);
+}
+
+/* Bullet points in PWC */
+.card-content ul {
+  list-style: none;
+  padding-left: 0;
+}
+
+.card-content li {
+  position: relative;
+  padding-left: 24px;
+  margin-bottom: 12px;
+}
+
+.card-content li::before {
+  content: "→";
+  position: absolute;
+  left: 0;
+  color: #FB923C; /* Changed from #5eaefd to match theme better */
+  font-weight: bold;
+}
+.deloitte-chat-sidebar.full-width {
+  flex-grow: 1;
+  width: auto;
+  max-width: none;
+}
