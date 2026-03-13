@@ -2,10 +2,8 @@ import { useRef, useEffect, useState } from "react";
 import { useTerminalChat } from "./hooks/useTerminalChat";
 import { useDashboardStore } from "./store/dashboardStore";
 import {
-  Cpu,
   User,
   LogOut,
-  Server,
   Database,
   ShieldAlert,
   Terminal,
@@ -25,9 +23,12 @@ import { loginRequest } from "./authConfig";
 import { InteractionRequiredAuthError } from "@azure/msal-browser";
 
 import { ProjectCardWidget } from "./components/ProjectCardWidget";
+import type { ProjectCardData } from "./components/ProjectCardWidget";
 import { McpInspector } from "./components/McpInspector";
 import { TelemetryTab } from "./components/TelemetryTab";
 import { DocumentWorkspaceV2 } from "./components/DocumentWorkspaceV2";
+import type { Message } from "@ai-sdk/react";
+import { TopologyView } from "./components/TopologyView";
 import "./PromptGallery.css";
 
 const GeminiSparkleIcon = ({ className = "" }: { className?: string }) => (
@@ -114,7 +115,8 @@ function App() {
     tokenUsage,
     publicInsight,
     isPublicInsightStreaming,
-    hasData
+    hasData,
+    adkEvents
   } = useTerminalChat(token, selectedModel, routerMode);
   const projectCards = useDashboardStore((s) => s.projectCards);
   const [isPublicInsightExpanded, setIsPublicInsightExpanded] = useState(false);
@@ -327,121 +329,12 @@ function App() {
           <div
             className="topology-container"
             style={{
-              width: "max-content",
-              minWidth: "100%",
+              width: "100%",
+              height: "calc(100vh - 120px)",
               paddingBottom: "40px",
             }}
           >
-            <div className="flow-row">
-              <div className="topology-node blue" style={{ width: "250px" }}>
-                <User className="icon" size={32} />
-                <h4>End User</h4>
-                <p>React SPA (Vite)</p>
-                <div className="node-detail">useTerminalChat()</div>
-              </div>
-              <div
-                className="flow-edge flow-edge-horizontal"
-                style={{ width: "120px" }}
-              >
-                SSE / HTTP
-                <div className="line"></div>
-              </div>
-              <div className="topology-node secure" style={{ width: "320px" }}>
-                <ShieldAlert
-                  className="icon"
-                  size={32}
-                  color="var(--deloitte-black-accent)"
-                />
-                <h4>Security Proxy</h4>
-                <p>Google ADK / FastAPI</p>
-                <div className="node-detail">LlmAgent / Session</div>
-              </div>
-              <div
-                className="flow-edge flow-edge-horizontal"
-                style={{ width: "120px" }}
-              >
-                Vertex API
-                <div className="line"></div>
-              </div>
-              <div className="topology-node" style={{ width: "250px" }}>
-                <Cpu className="icon" size={32} />
-                <h4>LLM</h4>
-                <p>Gemini 3 Pro / Flash</p>
-                <div className="node-detail">{selectedModel}</div>
-              </div>
-              <div style={{ width: "370px" }}></div>
-            </div>
-
-            <div className="flow-row">
-              <div style={{ width: "370px" }}></div>
-              <div
-                className="flow-edge flow-edge-vertical"
-                style={{
-                  width: "320px",
-                  justifyContent: "center",
-                  position: "relative",
-                }}
-              >
-                <div className="line" style={{ margin: 0 }}></div>
-                <div
-                  style={{
-                    position: "absolute",
-                    marginLeft: "30px",
-                    background: "var(--deloitte-bg-main)",
-                    padding: "0 8px",
-                    fontSize: "0.75rem",
-                    color: "#888",
-                    fontWeight: 600,
-                  }}
-                >
-                  MCP TOOL CALL
-                </div>
-              </div>
-              <div style={{ width: "740px" }}></div>
-            </div>
-
-            <div className="flow-row">
-              <div style={{ width: "370px" }}></div>
-              <div
-                className="topology-node"
-                style={{
-                  borderColor: "#2e7d32",
-                  borderTopColor: "#2e7d32",
-                  width: "320px",
-                }}
-              >
-                <Terminal className="icon" size={32} color="#2e7d32" />
-                <h4>MCP Server</h4>
-                <p>Python MCP SDK</p>
-                <div className="node-detail">search_documents()</div>
-              </div>
-              <div
-                className="flow-edge flow-edge-horizontal"
-                style={{ width: "120px" }}
-              >
-                REST
-                <div className="line"></div>
-              </div>
-              <div className="topology-node blue" style={{ width: "250px" }}>
-                <Server className="icon" size={32} />
-                <h4>Microsoft Graph</h4>
-                <p>Entra ID / OAuth 2.0</p>
-                <div className="node-detail">Client Credentials</div>
-              </div>
-              <div
-                className="flow-edge flow-edge-horizontal"
-                style={{ width: "120px" }}
-              >
-                Graph API
-                <div className="line"></div>
-              </div>
-              <div className="topology-node" style={{ width: "250px" }}>
-                <Database className="icon" size={32} color="#0078D4" />
-                <h4>SharePoint</h4>
-                <p>Protected Indices</p>
-                <div className="node-detail">sites/FinancialDoc</div>
-              </div>
-            </div>
+            <TopologyView adkEvents={adkEvents} />
           </div>
         </div>
       ) : activeAppTab === "workspace" ? (
@@ -601,7 +494,7 @@ function App() {
                       </div>
                     </div>
                   )}
-                    {messages.map((m: any, index: number) => m.content ? (
+                    {messages.map((m: Message, index: number) => m.content ? (
                     <div key={m.id} className={`message ${m.role}`} style={{ flexDirection: 'column', alignItems: 'flex-start' }}>
                       <MarkdownRenderer content={m.content} />
                       
@@ -753,7 +646,7 @@ function App() {
                                   }}>
                                   <div className="deloitte-cards-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '16px' }} ref={dataSectionRef}>
                                     {projectCards.map((card, idx) => (
-                                      <ProjectCardWidget key={idx} card={card as any} />
+                                      <ProjectCardWidget key={idx} card={card as ProjectCardData} />
                                     ))}
                                   </div>
                                 </div>

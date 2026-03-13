@@ -3,7 +3,7 @@ import { Cpu, Eye, EyeOff, BarChart2 } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import '../ProjectCardWidget.css';
 
-interface ProjectCardData {
+export interface ProjectCardData {
   title: string;
   industry: string;
   factual_information: string;
@@ -89,7 +89,7 @@ export const ProjectCardWidget: React.FC<ProjectCardWidgetProps> = ({ card }) =>
           </ResponsiveContainer>
         </div>
       );
-    } catch (e) { return null; }
+    } catch { return null; }
   };
 
   const getWeightColor = (weight: number = 100) => {

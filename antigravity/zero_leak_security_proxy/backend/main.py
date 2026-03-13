@@ -88,7 +88,19 @@ async def _chat_stream(messages: list, model_name: str, token: str = None):
     # 1. Initialize Public Agent immediately (Prior to Discovery)
     pub_session = await session_service.get_session(app_name="Public_Research_Proxy", user_id="default_user", session_id=pub_sess_id)
     if not pub_session:
-        await session_service.create_session(app_name="Public_Research_Proxy", user_id="default_user", session_id=pub_sess_id)
+        pub_session = await session_service.create_session(app_name="Public_Research_Proxy", user_id="default_user", session_id=pub_sess_id)
+        
+    from google.adk.events import Event
+    # POPULATE ADK SESSIONS WITH FRONTEND TRUTH HISTORY
+    if len(messages) > 1:
+        for m in messages[:-1]: # Exclude the current prompt
+            role = "user" if m.get("role") == "user" else "model"
+            part = types.Part.from_text(text=m.get("content", ""))
+            content_obj = types.Content(role=role, parts=[part])
+            evt = Event(author=role, content=content_obj)
+            session.events.append(evt)
+            pub_session.events.append(evt)
+    # ------------------------------------------------
     
     # Use gemini-2.5-flash for ultra-fast response for Public Web Consensus and to avoid 429s
     pub_agent = get_public_agent("gemini-2.5-flash")
@@ -100,7 +112,7 @@ async def _chat_stream(messages: list, model_name: str, token: str = None):
 
     async def stream_agent(runner_obj, sid, tag):
         try:
-            async for event in runner_obj.run_async(user_id="default_user", session_id=sid, new_message=msg):
+            async for event in runner_obj.run_async(user_id="default_user", session_id=sid, new_message=prompt):
                 await queue.put({"tag": tag, "event": event, "type": "data"})
         except Exception as e:
             logger.error(f"Task {tag} failed: {e}")
