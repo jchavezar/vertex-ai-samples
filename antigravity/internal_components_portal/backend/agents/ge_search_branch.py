@@ -37,67 +37,77 @@ async def stream_ge_search(query: str):
         yield AIStreamProtocol.text("\n❌ Failed to authenticate with Google Cloud to call Discovery Engine.\n")
         return
 
-    url = f"https://discoveryengine.googleapis.com/v1alpha/projects/{PROJECT_NUMBER}/locations/{LOCATION}/collections/default_collection/engines/{ENGINE_ID}/servingConfigs/default_search:answer"
-    
-    headers = {
-        "Authorization": f"Bearer {token}",
-        "Content-Type": "application/json",
-        "X-Goog-User-Project": PROJECT_NUMBER
-    }
-    
-    payload = {
-        "query": { "text": query },
-        "relatedQuestionsSpec": { "enable": True },
-        "answerGenerationSpec": {
-            "modelSpec": { "modelVersion": "stable" },
-            "includeCitations": True,
-            "ignoreNonAnswerSeekingQuery": False,
-            "ignoreLowRelevantContent": False,
-            "ignoreAdversarialQuery": True
-        }
-    }
-    
-    reasoning_steps.append(f"[Discovery Engine] API EVIDENCE: endpoint\nURL: {url}")
-    reasoning_steps.append(f"[Discovery Engine] TOOL CALL: servingConfigs/default_search:answer\nARGS: {json.dumps(payload, indent=2)}")
-    yield AIStreamProtocol.data({"type": "telemetry", "data": latency_metrics, "reasoning": reasoning_steps, "tokens": {"prompt": 0, "candidates": 0, "total": 0}})
-    
-    yield AIStreamProtocol.data({"type": "status", "message": "🔍 Calling Gemini Enterprise (Discovery Engine)...", "icon": "search", "pulse": True})
+    from google.cloud import discoveryengine_v1 as discoveryengine
+    import time
     
     try:
+        # Set up the client
+        client_options = {"api_endpoint": "discoveryengine.googleapis.com"}
+        client = discoveryengine.ConversationalSearchServiceClient(client_options=client_options)
+
+        # Build serving config manually to use collections/ engines/ instead of dataStores/
+        serving_config = f"projects/{PROJECT_NUMBER}/locations/{LOCATION}/collections/default_collection/engines/{ENGINE_ID}/servingConfigs/default_search"
+
+        request = discoveryengine.AnswerQueryRequest(
+            serving_config=serving_config,
+            query=discoveryengine.Query(text=query),
+            related_questions_spec=discoveryengine.AnswerQueryRequest.RelatedQuestionsSpec(enable=True),
+            answer_generation_spec=discoveryengine.AnswerQueryRequest.AnswerGenerationSpec(
+                model_spec={"model_version": "stable"},
+                include_citations=True,
+                ignore_non_answer_seeking_query=False,
+                ignore_low_relevant_content=False,
+                ignore_adversarial_query=True
+            )
+        )
+
+        reasoning_steps.append(f"[Discovery Engine] API EVIDENCE: endpoint\nClient: ConversationalSearchServiceClient")
+        reasoning_steps.append(f"[Discovery Engine] TOOL CALL: answer_query(stream=True)\nQuery: {query}")
+        yield AIStreamProtocol.data({"type": "telemetry", "data": latency_metrics, "reasoning": reasoning_steps, "tokens": {"prompt": 0, "candidates": 0, "total": 0}})
+        
+        yield AIStreamProtocol.data({"type": "status", "message": "🔍 Calling Gemini Enterprise (Discovery Engine)...", "icon": "search", "pulse": True})
+
         api_start = time.time()
-        response = requests.post(url, headers=headers, json=payload, timeout=30)
-        api_duration = time.time() - api_start
-        response.raise_for_status()
-        data = response.json()
+        # Make the streaming request
+        response_stream = client.stream_answer_query(request=request)
         
-        latency_metrics.append({"step": "[Discovery Engine] API Call", "duration_s": round(api_duration, 2)})
+        is_first_chunk = True
+        references = []
         
-        # Show the raw response in reasoning trace
-        reasoning_steps.append(f"[Discovery Engine] TOOL RESPONSE: raw_json\nRESULT: {json.dumps(data, indent=2)}")
-        yield AIStreamProtocol.data({"type": "telemetry", "data": latency_metrics, "reasoning": reasoning_steps, "tokens": {"prompt": 0, "candidates": 0, "total": 0}})
+        for response in response_stream:
+            # First chunk telemetry
+            if is_first_chunk:
+                api_duration = time.time() - api_start
+                latency_metrics.append({"step": "[Discovery Engine] API Call", "duration_s": round(api_duration, 2)})
+                reasoning_steps.append(f"[Discovery Engine] TOOL RESPONSE: Stream Connected")
+                yield AIStreamProtocol.data({"type": "telemetry", "data": latency_metrics, "reasoning": reasoning_steps, "tokens": {"prompt": 0, "candidates": 0, "total": 0}})
+                
+                # Check for initial references 
+                if response.answer and response.answer.references:
+                    references = response.answer.references
+                
+                is_first_chunk = False
 
-        answer_obj = data.get("answer", {})
-        answer_text = answer_obj.get("answerText", "No answer found.")
-        
-        reasoning_steps.append(f"[Discovery Engine] SYNTHESIS:\n{answer_text}")
-        yield AIStreamProtocol.data({"type": "telemetry", "data": latency_metrics, "reasoning": reasoning_steps, "tokens": {"prompt": 0, "candidates": 0, "total": 0}})
+            # Stream the answerText fragment if present
+            if response.answer and response.answer.answer_text:
+                if "SYNTHESIS" not in reasoning_steps[-1]:
+                    reasoning_steps.append("[Discovery Engine] SYNTHESIS:\n...")
+                    yield AIStreamProtocol.data({"type": "telemetry", "data": latency_metrics, "reasoning": reasoning_steps, "tokens": {"prompt": 0, "candidates": 0, "total": 0}})
+                
+                yield AIStreamProtocol.text(response.answer.answer_text)
 
-        yield AIStreamProtocol.text(answer_text + "\n\n")
-        
-        # References/citations
-        references = answer_obj.get("references", [])
+        # Stream references at the end
         if references:
-            yield AIStreamProtocol.text("\n**Sources:**\n")
+            yield AIStreamProtocol.text("\n\n**Sources:**\n")
             for ref in references:
-                chunk_info = ref.get("chunkInfo", {})
-                title = chunk_info.get("documentMetadata", {}).get("title", "Document")
-                uri = chunk_info.get("documentMetadata", {}).get("uri", "")
-                content = chunk_info.get("content", "")[:200] + "..."
-                if uri:
-                    yield AIStreamProtocol.text(f"- [{title}]({uri})\n")
-                else:
-                    yield AIStreamProtocol.text(f"- {title}\n")
-                    
+                if ref.chunk_info and ref.chunk_info.document_metadata:
+                    title = ref.chunk_info.document_metadata.title or "Document"
+                    uri = ref.chunk_info.document_metadata.uri or ""
+                    if uri:
+                        yield AIStreamProtocol.text(f"- [{title}]({uri})\n")
+                    else:
+                        yield AIStreamProtocol.text(f"- {title}\n")
+                        
         total_time = time.time() - start_time
         latency_metrics.append({"step": "[Total] Router: SEARCH", "duration_s": round(total_time, 2)})
         yield AIStreamProtocol.data({"type": "telemetry", "data": latency_metrics, "reasoning": reasoning_steps, "tokens": {"prompt": 0, "candidates": 0, "total": 0}})
