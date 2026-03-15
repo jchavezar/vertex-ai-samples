@@ -21,12 +21,13 @@ import { jsPDF } from "jspdf";
 import { useMsal, useIsAuthenticated } from "@azure/msal-react";
 import { loginRequest } from "./authConfig";
 import { InteractionRequiredAuthError } from "@azure/msal-browser";
-
 import { ProjectCardWidget } from "./components/ProjectCardWidget";
 import type { ProjectCardData } from "./components/ProjectCardWidget";
 import { McpInspector } from "./components/McpInspector";
 import { TelemetryTab } from "./components/TelemetryTab";
 import { DocumentWorkspaceV2 } from "./components/DocumentWorkspaceV2";
+import { GeMcpFlow } from "./components/GeMcpFlow";
+import { AuthRequestFlow } from "./components/AuthRequestFlow";
 import type { Message } from "@ai-sdk/react";
 import { TopologyView } from "./components/TopologyView";
 import "./PromptGallery.css";
@@ -55,10 +56,25 @@ const GeminiSparkleIcon = ({ className = "" }: { className?: string }) => (
 );
 
 
+const PROMPT_POOL = [
+  "What is the average salary?",
+  "What are the critical vulnerabilities?",
+  "Summarize key SLA terms",
+  "What is our remote work policy?",
+  "Analyze cloud migration costs.",
+  "Show the M&A playbook summary.",
+  "Check SOC2 compliance status.",
+  "Show Q3 financial performance.",
+  "List approved software vendors.",
+  "Summarize the travel expense policy.",
+  "Analyze Q2 gross margins.",
+  "Who are our top tier clients?"
+];
+
 function App() {
   const { instance, accounts } = useMsal();
   const isAuthenticated = useIsAuthenticated();
-  const [token, setToken] = useState<string | null>(null);
+  const [tokens, setTokens] = useState<{accessToken: string, idToken: string} | null>(null);
 
   useEffect(() => {
     if (isAuthenticated && accounts[0]) {
@@ -70,7 +86,7 @@ function App() {
       const pingToken = async () => {
         try {
           const response = await instance.acquireTokenSilent(request);
-          setToken(response.accessToken);
+          setTokens({ accessToken: response.accessToken, idToken: response.idToken });
         } catch (error) {
           if (error instanceof InteractionRequiredAuthError) {
             instance.acquireTokenRedirect(request).catch(console.error);
@@ -83,7 +99,7 @@ function App() {
       const interval = setInterval(pingToken, 5 * 60 * 1000);
       return () => clearInterval(interval);
     } else {
-      setToken(null);
+      setTokens(null);
     }
   }, [isAuthenticated, accounts, instance]);
 
@@ -102,6 +118,9 @@ function App() {
   const [activeAppTab, setActiveAppTab] = useState("proxy");
   const [chatMode, setChatMode] = useState<'default'|'wide'|'overlay'>('default');
   const [routerMode, setRouterMode] = useState<'all_mcp'|'ge_mcp'>('all_mcp');
+
+  const effectiveTokens = tokens;
+
   const {
     messages,
     input,
@@ -115,13 +134,13 @@ function App() {
     tokenUsage,
     publicInsight,
     isPublicInsightStreaming,
-    hasData,
-    adkEvents
-  } = useTerminalChat(token, selectedModel, routerMode);
+    hasData
+  } = useTerminalChat(effectiveTokens, selectedModel, routerMode);
   const projectCards = useDashboardStore((s) => s.projectCards);
   const [isPublicInsightExpanded, setIsPublicInsightExpanded] = useState(false);
   const [isProjectCardsExpanded, setIsProjectCardsExpanded] = useState(false);
   const [hasCollapsedForQuery, setHasCollapsedForQuery] = useState(false);
+  const [suggestedPrompts, setSuggestedPrompts] = useState<string[]>([]);
 
   useEffect(() => {
     if (messages.length === 0) {
@@ -129,6 +148,9 @@ function App() {
       setIsProjectCardsExpanded(false);
       setHasCollapsedForQuery(false);
     }
+    // Update suggestions on each query
+    const shuffled = [...PROMPT_POOL].sort(() => 0.5 - Math.random());
+    setSuggestedPrompts(shuffled.slice(0, 3));
   }, [messages.length]);
 
   useEffect(() => {
@@ -271,6 +293,32 @@ function App() {
           >
             Execution Latency
           </a>
+          <a
+            href="#"
+            className={
+              activeAppTab === "ge_flow" && !showTopology ? "active" : ""
+            }
+            onClick={(e) => {
+              e.preventDefault();
+              setActiveAppTab("ge_flow");
+              setShowTopology(false);
+            }}
+          >
+            Chat Flow
+          </a>
+          <a
+            href="#"
+            className={
+              activeAppTab === "auth_flow" && !showTopology ? "active" : ""
+            }
+            onClick={(e) => {
+              e.preventDefault();
+              setActiveAppTab("auth_flow");
+              setShowTopology(false);
+            }}
+          >
+            Auth Flow
+          </a>
         </nav>
         <div className="deloitte-header-right">
           {projectCards.length > 0 &&
@@ -294,7 +342,7 @@ function App() {
               </button>
             )}
 
-          <div className="deloitte-auth">
+          <div className="deloitte-auth" style={{ display: 'flex', alignItems: 'center' }}>
             {isAuthenticated ? (
               <div className="auth-symbol">
                 <div
@@ -308,14 +356,14 @@ function App() {
                 <button
                   onClick={handleLogout}
                   className="logout-btn"
-                  title="Log Out"
+                  title="Log Out (Entra ID)"
                 >
                   <LogOut size={16} />
                 </button>
               </div>
             ) : (
               <button onClick={handleLogin} className="login-btn">
-                <User size={18} /> Sign In
+                <User size={18} /> Sign In with Microsoft
               </button>
             )}
           </div>
@@ -325,7 +373,33 @@ function App() {
       {/* Main Content Split */}
       {showTopology ? (
         <div className="deloitte-topology-wrapper" style={{ overflowX: "auto" }}>
-          <h2>Zero-Leak Architecture Topology</h2>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', paddingRight: '24px' }}>
+            <h2>Zero-Leak Architecture Topology</h2>
+            <select
+              value={routerMode}
+              onChange={(e) => setRouterMode(e.target.value as 'all_mcp'|'ge_mcp')}
+              style={{
+                background: "transparent",
+                border: "1px solid rgba(134, 188, 37, 0.3)",
+                borderRadius: "4px",
+                color: "var(--deloitte-green)",
+                padding: "6px 12px",
+                outline: "none",
+                cursor: "pointer",
+                fontWeight: "bold",
+                fontSize: "12px",
+                fontFamily: "monospace",
+              }}
+              title="Select Routing Architecture"
+            >
+              <option value="all_mcp" style={{ color: "black" }}>
+                All MCP (Direct)
+              </option>
+              <option value="ge_mcp" style={{ color: "black" }}>
+                GE + MCP (Router)
+              </option>
+            </select>
+          </div>
           <div
             className="topology-container"
             style={{
@@ -334,21 +408,25 @@ function App() {
               paddingBottom: "40px",
             }}
           >
-            <TopologyView adkEvents={adkEvents} />
+            <TopologyView routerMode={routerMode} />
           </div>
         </div>
       ) : activeAppTab === "workspace" ? (
-        <DocumentWorkspaceV2 token={token || undefined} />
+        <DocumentWorkspaceV2 token={tokens?.accessToken || undefined} />
       ) : activeAppTab === "inspector" ? (
         <McpInspector
           goHome={() => {
             setActiveAppTab("proxy");
             setShowTopology(false);
           }}
-          token={token || undefined}
+          token={tokens?.accessToken || undefined}
         />
         ) : activeAppTab === "telemetry" ? (
           <TelemetryTab telemetry={telemetry} reasoningSteps={reasoningSteps} tokenUsage={tokenUsage} />
+        ) : activeAppTab === "ge_flow" ? (
+          <GeMcpFlow />
+        ) : activeAppTab === "auth_flow" ? (
+          <AuthRequestFlow onNavigateToChat={() => { setActiveAppTab("ge_flow"); setShowTopology(false); }} />
       ) : (
             <main className="deloitte-main-wrapper" style={{ flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
               {/* Chat Interface filling the right pane */}
@@ -450,50 +528,6 @@ function App() {
                 </div>
 
                 <div className="chat-messages">
-                  {messages.length === 0 && (
-                    <div className="welcome-container" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', gap: '20px' }}>
-                      <div className="message assistant welcome-msg" style={{ alignSelf: 'center', textAlign: 'center', marginBottom: '10px' }}>
-                        Welcome. I am ready to securely query internal Deloitte SharePoint indices.
-                      </div>
-                      
-                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', justifyContent: 'center', maxWidth: '90%' }}>
-                        {[
-                          "Process the employee salaries and extract the average compensation without revealing names.",
-                          "What are the most critical security vulnerabilities maintaining host anonymity?",
-                          "Summarize the key SLA terms and credits without citing specific companies.",
-                        ].map((prompt, idx) => (
-                           <button
-                             key={idx}
-                             onClick={() => {
-                               const syntheticEvent = { target: { value: prompt } } as React.ChangeEvent<HTMLTextAreaElement>;
-                               handleInputChange(syntheticEvent);
-                               setTimeout(() => { if (textareaRef.current && textareaRef.current.form) textareaRef.current.form.requestSubmit(); }, 100);
-                             }}
-                             style={{
-                               background: 'rgba(134, 188, 37, 0.1)',
-                               border: '1px solid rgba(134, 188, 37, 0.3)',
-                               color: 'var(--deloitte-green)',
-                               padding: '8px 16px',
-                               borderRadius: '20px',
-                               fontSize: '0.85rem',
-                               fontWeight: 500,
-                               cursor: 'pointer',
-                               transition: 'all 0.2s ease',
-                               textAlign: 'center'
-                             }}
-                             onMouseEnter={(e) => {
-                               e.currentTarget.style.background = 'rgba(134, 188, 37, 0.2)';
-                             }}
-                             onMouseLeave={(e) => {
-                               e.currentTarget.style.background = 'rgba(134, 188, 37, 0.1)';
-                             }}
-                           >
-                             {prompt}
-                           </button>
-                        ))}
-                      </div>
-                    </div>
-                  )}
                     {messages.map((m: Message, index: number) => m.content ? (
                     <div key={m.id} className={`message ${m.role}`} style={{ flexDirection: 'column', alignItems: 'flex-start' }}>
                       <MarkdownRenderer content={m.content} />
@@ -680,7 +714,40 @@ function App() {
                   <div ref={endOfMessagesRef} />
                 </div>
 
-                <div className="chat-input-area">
+                <div className="chat-input-area" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', justifyContent: 'center', width: '100%', paddingBottom: '8px' }}>
+                    {suggestedPrompts.map((prompt, idx) => (
+                       <button
+                         key={idx}
+                         onClick={(e) => {
+                           e.preventDefault();
+                           const syntheticEvent = { target: { value: prompt } } as React.ChangeEvent<HTMLTextAreaElement>;
+                           handleInputChange(syntheticEvent);
+                           setTimeout(() => { if (textareaRef.current && textareaRef.current.form) textareaRef.current.form.requestSubmit(); }, 100);
+                         }}
+                         style={{
+                           background: 'rgba(134, 188, 37, 0.1)',
+                           border: '1px solid rgba(134, 188, 37, 0.3)',
+                           color: 'var(--deloitte-green)',
+                           padding: '6px 14px',
+                           borderRadius: '16px',
+                           fontSize: '0.8rem',
+                           fontWeight: 500,
+                           cursor: 'pointer',
+                           transition: 'all 0.2s ease',
+                           textAlign: 'center'
+                         }}
+                         onMouseEnter={(e) => {
+                           e.currentTarget.style.background = 'rgba(134, 188, 37, 0.2)';
+                         }}
+                         onMouseLeave={(e) => {
+                           e.currentTarget.style.background = 'rgba(134, 188, 37, 0.1)';
+                         }}
+                       >
+                         {prompt}
+                       </button>
+                    ))}
+                  </div>
                   <form onSubmit={handleSubmit}>
                     <textarea
                       ref={textareaRef}

@@ -32,7 +32,7 @@ export interface StreamPayload {
   [key: string]: unknown;
 }
 
-export function useTerminalChat(token: string | null, model: string = 'gemini-3-flash-preview', routerMode: string = 'all_mcp') {
+export function useTerminalChat(tokens: { accessToken: string, idToken: string } | null, model: string = 'gemini-3-flash-preview', routerMode: string = 'all_mcp') {
   const addProjectCard = useDashboardStore((s) => s.addProjectCard);
   const [thoughtStatus, setThoughtStatus] = useState<ThoughtStatus | null>(null);
   const [usedSharePoint, setUsedSharePoint] = useState<boolean>(false);
@@ -49,7 +49,10 @@ export function useTerminalChat(token: string | null, model: string = 'gemini-3-
 
   const { messages, input, setMessages, handleInputChange, handleSubmit, data, isLoading } = useChat({
     api: apiEndpoint,
-    headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+    headers: tokens ? { 
+      Authorization: `Bearer ${tokens.accessToken}`,
+      'X-Entra-Id-Token': tokens.idToken
+    } : undefined,
     body: { model, routerMode },
   });
 

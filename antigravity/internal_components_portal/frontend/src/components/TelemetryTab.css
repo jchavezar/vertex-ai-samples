@@ -338,6 +338,8 @@
 .label-api-evidence { background: #dbeafe; color: #1e40af; border-left: 2px solid #1e40af; }
 .label-tool-call { background: #fff7ed; color: #c2410c; }
 .label-tool-response { background: #f0fdf4; color: #15803d; }
+.label-step { background: #e5e7eb; color: #374151; }
+.label-datasource { background: #ccfbf1; color: #0f766e; border-left: 2px solid #0f766e; }
 
 .trace-header-tag {
   font-size: 0.65rem;

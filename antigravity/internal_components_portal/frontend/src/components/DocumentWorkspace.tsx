@@ -19,23 +19,25 @@ const SimpleDiff: React.FC<{ original: string; modified: string }> = ({ original
   if (!modified) return <div style={{ color: '#888', fontStyle: 'italic', padding: '20px' }}>No modifications proposed yet...</div>;
 
   if (modified.startsWith("PDF_PATCH:")) {
+    let patches: Record<string, string>[] = [];
     try {
       const patchStr = modified.replace("PDF_PATCH:", "").trim().replace(/^```json/, "").replace(/```$/, "").trim();
-      const patches = JSON.parse(patchStr);
-      return (
-        <div className="dw-diff-viewer">
-          {patches.map((p: any, idx: number) => (
-            <div key={idx} style={{ marginBottom: '15px', padding: '10px', background: '#f9f9f9', borderRadius: '4px', borderLeft: '3px solid var(--deloitte-green)' }}>
-              <div style={{ color: '#ff4d4d', textDecoration: 'line-through', fontSize: '12px', marginBottom: '4px' }}>- {p.find}</div>
-              <div style={{ color: '#2e7d32', fontWeight: 'bold' }}>+ {p.replace}</div>
-            </div>
-          ))}
-          <div style={{ marginTop: '10px', fontSize: '11px', color: '#888', fontStyle: 'italic' }}>* Visual patching will be applied to the PDF while preserving layout.</div>
-        </div>
-      );
+      patches = JSON.parse(patchStr);
     } catch (e) {
       return <div>Error parsing PDF patch data: {String(e)}</div>;
     }
+
+    return (
+      <div className="dw-diff-viewer">
+        {patches.map((p: Record<string, string>, idx: number) => (
+          <div key={idx} style={{ marginBottom: '15px', padding: '10px', background: '#f9f9f9', borderRadius: '4px', borderLeft: '3px solid var(--deloitte-green)' }}>
+            <div style={{ color: '#ff4d4d', textDecoration: 'line-through', fontSize: '12px', marginBottom: '4px' }}>- {p.find}</div>
+            <div style={{ color: '#2e7d32', fontWeight: 'bold' }}>+ {p.replace}</div>
+          </div>
+        ))}
+        <div style={{ marginTop: '10px', fontSize: '11px', color: '#888', fontStyle: 'italic' }}>* Visual patching will be applied to the PDF while preserving layout.</div>
+      </div>
+    );
   }
 
   return (
@@ -130,6 +132,7 @@ export const DocumentWorkspace: React.FC<{ token?: string }> = ({ token }) => {
 
   useEffect(() => {
     if (token) fetchFolder(currentPath[currentPath.length - 1].id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentPath, token]);
 
   const handleItemClick = (item: SharePointItem) => {
@@ -140,7 +143,7 @@ export const DocumentWorkspace: React.FC<{ token?: string }> = ({ token }) => {
     }
   };
 
-  const handleAction = async (_action: string) => {
+  const handleAction = async () => {
     if (!selectedFile || !aiPrompt) return;
 
     setIsProcessing(true);
@@ -309,7 +312,7 @@ export const DocumentWorkspace: React.FC<{ token?: string }> = ({ token }) => {
                   <button
                     className="deloitte-btn"
                     style={{ width: '100%', marginTop: '5px' }}
-                    onClick={() => handleAction('GENERATE')}
+                    onClick={() => handleAction()}
                     disabled={isProcessing || !aiPrompt}
                   >
                     {isProcessing ? 'Thinking...' : 'Generate Proposal'}

@@ -19,7 +19,7 @@ interface PipelineEvent {
   stage: string;
   status: 'running' | 'completed' | 'failed' | 'success';
   elapsed_ms: number;
-  result?: any;
+  result?: Record<string, unknown>;
   error?: string;
 }
 
@@ -36,7 +36,7 @@ export const DocumentWorkspaceV2: React.FC<{ token?: string }> = ({ token }) => 
 
   // Pipeline Tracking State
   const [pipelineEvents, setPipelineEvents] = useState<PipelineEvent[]>([]);
-  const [modifiedContent, setModifiedContent] = useState<any>(null); // from final result
+  const [modifiedContent, setModifiedContent] = useState<unknown>(null); // from final result
   
   const [showArchitecture, setShowArchitecture] = useState(false);
 
@@ -98,6 +98,7 @@ export const DocumentWorkspaceV2: React.FC<{ token?: string }> = ({ token }) => 
 
   useEffect(() => {
     if (token) fetchFolder(currentPath[currentPath.length - 1].id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentPath, token]);
 
   const handleItemClick = (item: SharePointItem) => {
@@ -171,7 +172,7 @@ export const DocumentWorkspaceV2: React.FC<{ token?: string }> = ({ token }) => 
                  setModifiedContent(event.result.output_path);
                  // Also immediately update the preview pane to show the generated PDF!
                  // Route through the Vite proxy instead of hitting the backend port directly
-                 setPreviewUrl(`/api/sharepoint/view_regenerated?path=${encodeURIComponent(event.result.output_path)}&t=${token}&_cb=${Date.now()}`);
+                 setPreviewUrl(`/api/sharepoint/view_regenerated?path=${encodeURIComponent(event.result.output_path as string)}&t=${token}&_cb=${Date.now()}`);
               }
 
               if (event.status === 'failed') {
@@ -234,7 +235,7 @@ export const DocumentWorkspaceV2: React.FC<{ token?: string }> = ({ token }) => 
        } else {
          setStatusMsg({ text: `Commit Error: ${data.error}`, type: 'error' });
        }
-     } catch (e) {
+     } catch {
        setStatusMsg({ text: "Failed to save changes", type: 'error' });
      } finally {
        setIsProcessing(false);
@@ -270,7 +271,7 @@ export const DocumentWorkspaceV2: React.FC<{ token?: string }> = ({ token }) => 
                       } else {
                         setStatusMsg({ text: `Restore failed: ${data.error}`, type: 'error' });
                       }
-                    } catch (e) {
+                    } catch {
                       setStatusMsg({ text: "Restore error", type: 'error' });
                     } finally {
                       setIsProcessing(false);
@@ -652,7 +653,7 @@ export const DocumentWorkspaceV2: React.FC<{ token?: string }> = ({ token }) => 
                             } else {
                               setStatusMsg({ text: `Restore failed: ${data.error}`, type: 'error' });
                             }
-                          } catch (e) {
+                          } catch {
                             setStatusMsg({ text: "Restore error", type: 'error' });
                           } finally {
                             setIsProcessing(false);

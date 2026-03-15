@@ -3,14 +3,14 @@ import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { SSEClientTransport } from "@modelcontextprotocol/sdk/client/sse.js";
 import { Copy, Check, ChevronDown, ChevronRight, Play, Server, Layers, ShieldAlert, XCircle, ArrowLeft } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
-// @ts-ignore
+// @ts-expect-error Polyfill without proper types
 import { EventSourcePolyfill } from 'event-source-polyfill';
 import './McpInspector.css';
 
 interface McpTool {
   name: string;
   description: string;
-  inputSchema: any;
+  inputSchema: Record<string, unknown>;
 }
 
 interface McpInspectorProps {
@@ -55,13 +55,13 @@ export function McpInspector({ goHome, token }: McpInspectorProps) {
 
       if (token) {
         // Apply Polyfill exactly when Auth is required since standard EventSource prevents headers
-        globalThis.EventSource = EventSourcePolyfill as any;
+        globalThis.EventSource = EventSourcePolyfill as unknown as typeof EventSource;
       }
 
       const transportOptions = token ? {
         eventSourceInit: {
           headers: { Authorization: `Bearer ${token}` }
-        } as any,
+        } as Record<string, unknown>,
         requestInit: {
           headers: { Authorization: `Bearer ${token}` }
         }
@@ -90,11 +90,11 @@ export function McpInspector({ goHome, token }: McpInspectorProps) {
         addLog('response', `No tools returned from server.`);
       }
 
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error(error);
       setIsConnected(false);
       setClient(null);
-      addLog('error', `Connection failed: ${error.message || 'Unknown error'}`);
+      addLog('error', `Connection failed: ${(error as Error).message || 'Unknown error'}`);
     }
   };
 
@@ -123,9 +123,9 @@ export function McpInspector({ goHome, token }: McpInspectorProps) {
       const formattedResult = JSON.stringify(result, null, 2);
       addLog('response', `Tool [${toolName}] returned:\n${formattedResult}`);
 
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error(error);
-      addLog('error', `Tool [${toolName}] execution failed: ${error.message}`);
+      addLog('error', `Tool [${toolName}] execution failed: ${(error as Error).message}`);
     } finally {
       setExecutingTool(null);
     }
@@ -238,7 +238,7 @@ export function McpInspector({ goHome, token }: McpInspectorProps) {
                             rows={4}
                             placeholder='{\n  "arg_name": "value"\n}'
                             value={toolInputs[tool.name] || ''}
-                            onChange={(e) => setToolInputs((prev: any) => ({ ...prev, [tool.name]: e.target.value }))}
+                            onChange={(e) => setToolInputs((prev: Record<string, string>) => ({ ...prev, [tool.name]: e.target.value }))}
                           />
                           <button
                             className="deloitte-btn secondary mcp-text-xs mcp-mt-2 mcp-py-1 mcp-flex mcp-items-center mcp-gap-1"
