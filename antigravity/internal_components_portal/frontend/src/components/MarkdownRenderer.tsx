@@ -9,7 +9,7 @@ interface MarkdownRendererProps {
   chatMode?: 'default' | 'wide' | 'overlay' | string;
 }
 
-const TableWithOverlay = ({ children, chatMode, ...props }: any) => {
+const TableWithOverlay = ({ children, chatMode, ...props }: { children: React.ReactNode, chatMode?: string, [key: string]: unknown }) => {
   const [isOpen, setIsOpen] = useState(false);
 
   if (chatMode === 'default') {
@@ -42,8 +42,8 @@ const TableWithOverlay = ({ children, chatMode, ...props }: any) => {
                 <button 
                   onClick={() => setIsOpen(false)} 
                   style={{ background: 'transparent', border: 'none', color: 'var(--deloitte-grey)', cursor: 'pointer', padding: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '4px' }}
-                  onMouseOver={(e: any) => e.currentTarget.style.background = 'rgba(0,0,0,0.05)'}
-                  onMouseOut={(e: any) => e.currentTarget.style.background = 'transparent'}
+                  onMouseOver={(e: React.MouseEvent<HTMLButtonElement>) => e.currentTarget.style.background = 'rgba(0,0,0,0.05)'}
+                  onMouseOut={(e: React.MouseEvent<HTMLButtonElement>) => e.currentTarget.style.background = 'transparent'}
                 >
                   <X size={20} />
                 </button>
@@ -72,21 +72,21 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content, cha
     <ReactMarkdown
       remarkPlugins={[remarkGfm]}
       components={{
-        table: ({ node, children, ...props }) => (
+        table: ({ children, ...props }) => (
           <TableWithOverlay chatMode={chatMode} {...props}>
             {children}
           </TableWithOverlay>
         ),
-        thead: ({ node, ...props }) => (
+        thead: ({ ...props }) => (
           <thead className="premium-thead" {...props} />
         ),
-        th: ({ node, ...props }) => (
+        th: ({ ...props }) => (
           <th className="premium-th" {...props} />
         ),
-        td: ({ node, ...props }) => (
+        td: ({ ...props }) => (
           <td className="premium-td" {...props} />
         ),
-        tbody: ({ node, ...props }) => (
+        tbody: ({ ...props }) => (
           <tbody className="premium-tbody" {...props} />
         )
       }}

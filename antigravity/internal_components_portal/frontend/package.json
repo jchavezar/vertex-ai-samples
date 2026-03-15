@@ -16,6 +16,7 @@
     "@azure/msal-browser": "^5.2.0",
     "@azure/msal-react": "^5.0.4",
     "@modelcontextprotocol/sdk": "^1.26.0",
+    "@xyflow/react": "^12.10.1",
     "ai": "^6.0.85",
     "event-source-polyfill": "^1.0.31",
     "html2canvas": "^1.4.1",

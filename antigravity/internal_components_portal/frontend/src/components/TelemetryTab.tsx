@@ -21,11 +21,13 @@ const renderStepContent = (step: string) => {
   }
 
   // Check for internal labels like INTENT:, TOOL:, ARGS:, RESPONSE:, RESULT:
-  const labelMatch = body.match(/^(INTENT|TOOL|TOOL CALL|TOOL RESPONSE|API EVIDENCE|ARGS|RESPONSE|RESULT|SYNTHESIS|THOUGHT|ANALYSIS):\s*(.*)/is);
+  // Also tolerate optional bracketed states like THOUGHT [IN_PROGRESS]:
+  const labelMatch = body.match(/^(INTENT|TOOL|TOOL CALL|TOOL RESPONSE|API EVIDENCE|ARGS|RESPONSE|RESULT|SYNTHESIS|THOUGHT|ANALYSIS|STEP|DATASOURCE)(?:\s*\[[^\]]+\])?:\s*(.*)/is);
   
   if (labelMatch) {
-    const label = labelMatch[1].toUpperCase();
-    const content = labelMatch[2].trim();
+    const label = labelMatch[1] ? labelMatch[1].toUpperCase() : "UNKNOWN";
+    const labelClass = labelMatch[1] ? labelMatch[1].toLowerCase().replace(' ', '-') : "unknown";
+    const content = labelMatch[2] ? labelMatch[2].trim() : "";
     let parsedContent;
     
     // Try to parse as JSON if it looks like one
@@ -35,7 +37,7 @@ const renderStepContent = (step: string) => {
         return (
           <div className="trace-step">
             {header && <div className="trace-header-tag">{header}</div>}
-            <span className={`trace-label label-${label.toLowerCase().replace(' ', '-')}`}>{label}</span>
+            <span className={`trace-label label-${labelClass}`}>{label}</span>
             <pre className="json-pretty">{JSON.stringify(parsedContent, null, 2)}</pre>
           </div>
         );
@@ -47,7 +49,7 @@ const renderStepContent = (step: string) => {
     return (
       <div className="trace-step">
         {header && <div className="trace-header-tag">{header}</div>}
-        <span className={`trace-label label-${label.toLowerCase().replace(' ', '-')}`}>{label}</span>
+        <span className={`trace-label label-${labelClass}`}>{label}</span>
         <p style={{ whiteSpace: 'pre-wrap' }}>{content}</p>
       </div>
     );

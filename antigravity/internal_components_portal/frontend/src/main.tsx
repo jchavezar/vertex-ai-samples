@@ -9,9 +9,9 @@ msalInstance.initialize().then(() => {
   msalInstance.handleRedirectPromise().catch(console.error);
   createRoot(document.getElementById('root')!).render(
     <StrictMode>
-      <MsalProvider instance={msalInstance}>
-        <App />
-      </MsalProvider>
+        <MsalProvider instance={msalInstance}>
+          <App />
+        </MsalProvider>
     </StrictMode>,
   );
 });
