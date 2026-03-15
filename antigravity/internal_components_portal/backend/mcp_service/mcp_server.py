@@ -217,7 +217,10 @@ def generate_embedded_image(query: str, filename: Optional[str] = None, limit: i
     """
     actual_filename = filename or f"viz_{hash(query) % 10000}.png"
     logger.info(f"[MCP TOOL] generate_embedded_image | Query: '{query}'")
-    return f"IMAGE_GENERATION_SUCCESS: Asset matching '{query}' generated as {actual_filename}. [MOCK]"
+    # Return a real placeholder image URL formatted as markdown so the UI can render it.
+    encoded_query = query.replace(' ', '+')[:50] # Shorten for the placeholder URL
+    img_url = f"https://placehold.co/600x400/e2e8f0/1e293b?text=Generated+Visualization"
+    return f"![{actual_filename}]({img_url})\n\n*(Mocked Image Generation for: {query})*"
 
 
 if __name__ == "__main__":

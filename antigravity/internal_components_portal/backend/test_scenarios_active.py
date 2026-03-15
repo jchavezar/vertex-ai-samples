@@ -5,7 +5,7 @@ import time
 URL = "http://localhost:8008/chat"
 TOKEN = "test_token_internal" # Placeholder, backend handles null/None for testing if needed
 
-def test_scenario(name, router_mode, prompt):
+def run_scenario(name, router_mode, prompt):
     print(f"\n--- TESTING SCENARIO: {name} ---")
     print(f"Router Mode: {router_mode}")
     print(f"Prompt: {prompt}")
@@ -71,10 +71,10 @@ def test_scenario(name, router_mode, prompt):
 
 if __name__ == "__main__":
     # Scenario 1: All MCP (Direct) - Search query
-    test_scenario("All MCP (Direct) - Search", "all_mcp", "What is the compensation for CFO Jennifer Anne Walsh?")
+    run_scenario("All MCP (Direct) - Search", "all_mcp", "What is the compensation for CFO Jennifer Anne Walsh?")
     
     # Scenario 2: GE + MCP (Router) - Search query (Routes to GE)
-    test_scenario("GE + MCP (Router) - Search", "ge_mcp", "What are the latest SLA terms found in documents?")
+    run_scenario("GE + MCP (Router) - Search", "ge_mcp", "What are the latest SLA terms found in documents?")
     
     # Scenario 3: GE + MCP (Router) - Action query (Routes to MCP)
-    test_scenario("GE + MCP (Router) - Action", "ge_mcp", "Please write a summary of the compliance docs and save it as a new file named compliance_summary.pdf")
+    run_scenario("GE + MCP (Router) - Action", "ge_mcp", "Please write a summary of the compliance docs and save it as a new file named compliance_summary.pdf")

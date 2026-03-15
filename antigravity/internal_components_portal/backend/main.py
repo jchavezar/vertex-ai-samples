@@ -28,7 +28,7 @@ from agents.pdf_editor_agent import PDFDeSynthesizer, create_pdf_editor_agent
 from utils.pwc_renderer import render_report
 from pipelines.regenerative_pipeline import run_regenerative_pipeline
 from mcp_service.mcp_sharepoint import SharePointMCP
-from utils.auth_context import set_user_token
+from utils.auth_context import set_user_token, set_user_id_token
 
 from dotenv import load_dotenv
 load_dotenv(dotenv_path="../.env")
@@ -51,9 +51,10 @@ session_service = InMemorySessionService()
 
 class ChatRequest(BaseModel):
     messages: list
-async def _chat_stream(messages: list, model_name: str, token: str = None):
+async def _chat_stream(messages: list, model_name: str, token: str = None, id_token: str = None):
     # Set the token in the current context (essential for async streaming tasks)
     set_user_token(token)
+    set_user_id_token(id_token)
     
     import time
     start_time = time.time()
@@ -61,6 +62,7 @@ async def _chat_stream(messages: list, model_name: str, token: str = None):
     latency_metrics = []
     reasoning_steps = []
     total_tokens = {"prompt": 0, "candidates": 0, "total": 0}
+    adk_events_trace = []
     
     def log_latency(tag, step_name):
         now = time.time()
@@ -119,7 +121,11 @@ async def _chat_stream(messages: list, model_name: str, token: str = None):
             async for event in runner_obj.run_async(user_id="default_user", session_id=sid, new_message=msg_obj):
                 await queue.put({"tag": tag, "event": event, "type": "data"})
         except Exception as e:
-            logger.error(f"Task {tag} failed: {e}")
+            import traceback
+            tb_str = traceback.format_exc()
+            with open("traceback_dump.txt", "w") as f:
+                f.write(tb_str)
+            logger.exception(f"Task {tag} failed: {e}")
             await queue.put({"tag": tag, "event": str(e), "type": "error"})
         finally:
             await queue.put({"tag": tag, "type": "done"})
@@ -167,12 +173,12 @@ async def _chat_stream(messages: list, model_name: str, token: str = None):
             # Wait for any event from either stream
             try:
                 # Poll with short timeout to allow checking discovery_task status
-                msg_obj = await asyncio.wait_for(queue.get(), timeout=0.1)
+                q_item = await asyncio.wait_for(queue.get(), timeout=0.1)
             except asyncio.TimeoutError:
                 continue
 
-            tag = msg_obj["tag"]
-            msg_type = msg_obj["type"]
+            tag = q_item["tag"]
+            msg_type = q_item["type"]
 
             if msg_type == "done":
                 active_streams -= 1
@@ -188,16 +194,19 @@ async def _chat_stream(messages: list, model_name: str, token: str = None):
                     })
                 continue
                 
-            evt = msg_obj["event"]
+            evt = q_item["event"]
             if msg_type == "error":
                 if tag == "sharepoint":
                     yield AIStreamProtocol.data({"type": "status", "message": f"Enterprise Proxy Error: {str(evt)}", "icon": "alert-triangle", "pulse": False})
                     reasoning_steps.append(f"AGENT EXECUTION HALTED [{tag}]: {str(evt)}")
                 continue
-
             # Process Event
             try:
-                edata = evt.model_dump()
+                edata = evt.model_dump(mode='json')
+                
+                # ADK Events for enterprise trace
+                if tag == "sharepoint":
+                    adk_events_trace.append({"source": "PWC_Security_Proxy", "event": edata})
                 
                 # DEBUG DUMP FOR PUBLIC EVENT
                 if tag == "public":
@@ -220,7 +229,7 @@ async def _chat_stream(messages: list, model_name: str, token: str = None):
                             txt = f"{agent_label} THOUGHT ({author}):\n{p['thought'].strip()}"
                             if txt not in reasoning_steps:
                                 reasoning_steps.append(txt)
-                                yield AIStreamProtocol.data({"type": "telemetry", "data": latency_metrics, "reasoning": reasoning_steps, "tokens": total_tokens})
+                                yield AIStreamProtocol.data({"type": "telemetry", "data": latency_metrics, "reasoning": reasoning_steps, "tokens": total_tokens, "adk_events": adk_events_trace})
                                 
                         # Extract Google Search Grounding Metadata dynamically
                         if tag == "public":
@@ -233,7 +242,7 @@ async def _chat_stream(messages: list, model_name: str, token: str = None):
                                     if tool_str not in reasoning_steps:
                                         reasoning_steps.append(tool_str)
                                         reasoning_steps.append(f"{agent_label} ARGS:\n{{queries: [{search_str}]}}")
-                                        yield AIStreamProtocol.data({"type": "telemetry", "data": latency_metrics, "reasoning": reasoning_steps, "tokens": total_tokens})
+                                        yield AIStreamProtocol.data({"type": "telemetry", "data": latency_metrics, "reasoning": reasoning_steps, "tokens": total_tokens, "adk_events": adk_events_trace})
 
                         if p.get("function_call"):
                             tool_name = p["function_call"].get("name", "")
@@ -281,7 +290,7 @@ async def _chat_stream(messages: list, model_name: str, token: str = None):
                                     step_text = f"{agent_label} SYNTHESIS ({author}):\n{txt}"
                                     if step_text not in reasoning_steps:
                                         reasoning_steps.append(step_text)
-                                        yield AIStreamProtocol.data({"type": "telemetry", "data": latency_metrics, "reasoning": reasoning_steps, "tokens": total_tokens})
+                                        yield AIStreamProtocol.data({"type": "telemetry", "data": latency_metrics, "reasoning": reasoning_steps, "tokens": total_tokens, "adk_events": adk_events_trace})
                                 
                                 if tag == "public":
                                     pub_insight += txt
@@ -307,7 +316,7 @@ async def _chat_stream(messages: list, model_name: str, token: str = None):
 
     total_time = time.time() - start_time
     latency_metrics.append({"step": "[Total] Turnaround Time", "duration_s": round(total_time, 2)})
-    yield AIStreamProtocol.data({"type": "telemetry", "data": latency_metrics, "reasoning": reasoning_steps, "tokens": total_tokens})
+    yield AIStreamProtocol.data({"type": "telemetry", "data": latency_metrics, "reasoning": reasoning_steps, "tokens": total_tokens, "adk_events": adk_events_trace})
     yield AIStreamProtocol.data({"type": "status", "message": "Transmission complete.", "icon": "check-circle", "pulse": False})
 
 from utils.auth_context import set_user_token
@@ -323,8 +332,9 @@ async def root():
 async def auth_error_stream(message: str):
     yield AIStreamProtocol.text(message)
 
-async def _ge_mcp_chat_stream(messages: list, model_name: str, token: str = None):
+async def _ge_mcp_chat_stream(messages: list, model_name: str, token: str = None, id_token: str = None):
     set_user_token(token)
+    set_user_id_token(id_token)
     prompt = messages[-1]['content']
     
     reasoning_steps = []
@@ -353,6 +363,12 @@ async def _ge_mcp_chat_stream(messages: list, model_name: str, token: str = None
     
     router_runner = Runner(app_name="PWC_Router", agent=router_agent, session_service=session_service)
     router_sess_id = f"router_{uuid.uuid4()}"
+    
+    # Create the session before running
+    router_session = await session_service.get_session(app_name="PWC_Router", user_id="default_user", session_id=router_sess_id)
+    if not router_session:
+        router_session = await session_service.create_session(app_name="PWC_Router", user_id="default_user", session_id=router_sess_id)
+        
     msg_obj = types.Content(role="user", parts=[types.Part.from_text(text=prompt)])
     
     intent = "SEARCH"
@@ -378,7 +394,7 @@ async def _ge_mcp_chat_stream(messages: list, model_name: str, token: str = None
                         if txt not in reasoning_steps:
                             reasoning_steps.append(txt)
                             yield AIStreamProtocol.data({"type": "telemetry", "data": latency_metrics, "reasoning": reasoning_steps, "tokens": tokens, "adk_events": adk_events_trace})
-                    if p.get("text") and author == "model":
+                    if p.get("text") and author in ["model", "router_agent"]:
                         intent_text = p.get("text").strip().upper()
                         if "ACTION" in intent_text and "SEARCH" not in intent_text:
                             intent = "ACTION"
@@ -403,7 +419,7 @@ async def _ge_mcp_chat_stream(messages: list, model_name: str, token: str = None
     if intent == "SEARCH":
         raw_answer = ""
         # Pass the adk_events_trace to GE search so it can append traces
-        async for chunk in stream_ge_search(messages, adk_events_trace):
+        async for chunk in stream_ge_search(messages, adk_events_trace, id_token):
             # If the chunk is telemetry from GE, we merge it
             if isinstance(chunk, str) and '"type": "telemetry"' in chunk:
                 try:
@@ -481,7 +497,7 @@ async def _ge_mcp_chat_stream(messages: list, model_name: str, token: str = None
                 async for event in runner.run_async(user_id="default_user", session_id=sess_id, new_message=msg_obj):
                     await queue.put({"event": event, "type": "data"})
             except Exception as e:
-                logger.error(f"Action Task failed: {e}")
+                logger.exception(f"Action Task failed: {e}")
                 await queue.put({"event": str(e), "type": "error"})
             finally:
                 await queue.put({"type": "done"})
@@ -566,10 +582,14 @@ async def chat_endpoint(request: Request):
         if extracted and extracted not in ["null", "undefined"]:
             token = extracted
 
+    id_token = request.headers.get("X-Entra-Id-Token")
+    if id_token and id_token in ["null", "undefined", "None"]:
+        id_token = None
+
     if router_mode == "ge_mcp":
-        return StreamingResponse(_ge_mcp_chat_stream(data.get("messages", []), model_name, token), media_type="text/plain; charset=utf-8")
+        return StreamingResponse(_ge_mcp_chat_stream(data.get("messages", []), model_name, token, id_token), media_type="text/plain; charset=utf-8")
     else:
-        return StreamingResponse(_chat_stream(data.get("messages", []), model_name, token), media_type="text/plain; charset=utf-8")
+        return StreamingResponse(_chat_stream(data.get("messages", []), model_name, token, id_token), media_type="text/plain; charset=utf-8")
 
 @app.get("/api/sharepoint/list")
 async def list_sharepoint_folder(request: Request, folder_id: str = "root"):
@@ -586,6 +606,50 @@ async def list_sharepoint_folder(request: Request, folder_id: str = "root"):
         items = sp.list_folder_contents(folder_id)
         return {"items": items}
     except Exception as e:
+        return {"error": str(e)}
+
+class TokenAcquisitionRequest(BaseModel):
+    data_connector: str
+    code: str
+    redirect_uri: str
+
+@app.post("/api/ge/acquire_and_store_refresh_token")
+async def acquire_and_store_refresh_token(request: Request, data: TokenAcquisitionRequest):
+    auth_header = request.headers.get("Authorization")
+    token = None
+    if auth_header and auth_header.startswith("Bearer "):
+        token = auth_header.split(" ")[1]
+    
+    if not token or token in ["null", "undefined"]:
+        return {"error": "Unauthorized. Must provide an end-user Google token for 3LO."}
+        
+    try:
+        PROJECT_NUMBER = "440133963879" 
+        LOCATION = "global"
+        
+        url = f"https://discoveryengine.googleapis.com/v1alpha/projects/{PROJECT_NUMBER}/locations/{LOCATION}/collections/default_collection/dataConnectors/{data.data_connector}:acquireAndStoreRefreshToken"
+        
+        headers = {
+            "Authorization": f"Bearer {token}",
+            "Content-Type": "application/json",
+            "X-Goog-User-Project": PROJECT_NUMBER
+        }
+        
+        payload = {
+            "authorizationCode": data.code,
+            "redirectUri": data.redirect_uri
+        }
+        
+        resp = requests.post(url, headers=headers, json=payload, timeout=30)
+        try:
+            resp.raise_for_status()
+            return {"status": "success", "response": resp.json()}
+        except Exception as e:
+            logger.error(f"GE Token Acquisition Error: {resp.text}")
+            return {"error": resp.text, "status_code": resp.status_code}
+            
+    except Exception as e:
+        logger.error(f"Token acquisition exception: {e}")
         return {"error": str(e)}
 
 @app.get("/api/sharepoint/content")
