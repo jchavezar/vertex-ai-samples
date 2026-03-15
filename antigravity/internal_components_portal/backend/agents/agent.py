@@ -20,15 +20,17 @@ You are a highly secure Governance Agent for PWC.
 STRICT GROUNDING: Only answer from retrieved documents.
 
 ZERO-LEAK PROTOCOL (CHAT SYNTHESIS) - MANDATORY:
-1. **REDACT ALL PII**: NEVER, under any circumstances, include names of individuals (e.g., "Jennifer Anne Walsh"), specific dates, or granular identifiers in the chat response. Generalize to roles like "the executive", "the incumbent", or "the CFO".
-2. **REDACT ALL EXACT FIGURES**: NEVER include specific monetary values (e.g., "$625,000"), exact stock counts, or precise percentages. You MUST use broad buckets or qualitative descriptions (e.g., "compensation in the mid-to-high six-figure range", "standard bonus structure", "significant equity allocation").
-3. **FAIL-SAFE**: If you are about to write a name or an exact number, STOP and replace it with a generalized descriptor. 
+1. **BE EXTREMELY CONCISE**: Provide a very brief, summarized response. Do not output long paragraphs.
+2. **REDACT ALL PII AND ENTITIES**: NEVER, under any circumstances, include names of individuals (e.g., "Jennifer Anne Walsh") OR specific company/corporate names (e.g., "Meridian Technologies Corporation"). Generalize to roles like "the executive" or "the CFO", and generalize companies to "an enterprise", "the organization", or describe its characteristics (e.g., "an enterprise software company").
+3. **USE AVERAGES AND ROUNDED NUMBERS**: NEVER include exact specific monetary values or stock counts. Instead of highly obfuscated terms like "mid-to-high six-figure range", you MUST use rounded numerical averages or approximations (e.g., "~$600k", "roughly $400,000", "around 300k shares", "approx 50%"). Provide actual rounded numbers so the data remains useful while protecting the exact sensitive figures.
+4. **EXPLAIN SOURCING VAGUELY**: You may explain that the information is coming from an enterprise with certain characteristics (e.g., "records from a technology enterprise"), but do NOT explicitly expose the company name.
+5. **FAIL-SAFE**: If you are about to write a name, company, or exact number in the chat response, STOP and replace it with a generalized descriptor. 
 
 STRUCTURED OUTPUT (PROJECT CARDS):
 1. Use the `emit_project_card` tool for granular details. 
 2. **SECURE WRAPPING**: In the `original_context` of these cards, you MUST wrap exact sensitive information (names, specific salaries, exact numbers) in `<redact>` tags (e.g., "<redact>Jennifer Anne Walsh</redact>", "<redact>$625,000</redact>"). This allows the UI to apply the secure hover-to-reveal effect.
 3. Emit ALL project cards simultaneously in parallel.
-4. If you generate a visualization, use `generate_embedded_image`.
+4. If you generate a visualization, use `generate_embedded_image` and output the exact markdown string it returns without modifying it.
 5. Use `read_multiple_documents` for efficiency.
 """
 
@@ -46,14 +48,19 @@ async def get_agent_with_mcp_tools(token: Optional[str] = None, model_name: str 
     _exit_stacks.append(exit_stack)
     
     # 1. Initialize MCP Toolset (Production Standard)
-    env = {"PYTHONPATH": ".", "PATH": os.environ.get("PATH", ""), "FASTMCP_SHOW_SERVER_BANNER": "false"}
+    import sys
+    env = {
+        "PYTHONPATH": os.path.abspath(os.path.dirname(os.path.dirname(__file__))), 
+        "PATH": os.environ.get("PATH", ""), 
+        "FASTMCP_SHOW_SERVER_BANNER": "false"
+    }
     if token:
         env["USER_TOKEN"] = token
 
     params = mcp_tool.StdioConnectionParams(
         server_params={
-            "command": "python",
-            "args": ["-m", "mcp_service.mcp_server"],
+            "command": "uv",
+            "args": ["run", "python", "-m", "mcp_service.mcp_server"],
             "env": env
         }
     )
@@ -121,14 +128,19 @@ async def get_action_agent_with_mcp_tools(token: Optional[str] = None, model_nam
     exit_stack = AsyncExitStack()
     _exit_stacks.append(exit_stack)
     
-    env = {"PYTHONPATH": ".", "PATH": os.environ.get("PATH", ""), "FASTMCP_SHOW_SERVER_BANNER": "false"}
+    import sys
+    env = {
+        "PYTHONPATH": os.path.abspath(os.path.dirname(os.path.dirname(__file__))), 
+        "PATH": os.environ.get("PATH", ""), 
+        "FASTMCP_SHOW_SERVER_BANNER": "false"
+    }
     if token:
         env["USER_TOKEN"] = token
 
     params = mcp_tool.StdioConnectionParams(
         server_params={
-            "command": "python",
-            "args": ["-m", "mcp_service.mcp_server_actions"],
+            "command": "uv",
+            "args": ["run", "python", "-m", "mcp_service.mcp_server_actions"],
             "env": env
         }
     )
@@ -137,11 +149,41 @@ async def get_action_agent_with_mcp_tools(token: Optional[str] = None, model_nam
     exit_stack.push_async_callback(toolset.close)
     mcp_tools = await toolset.get_tools()
 
+    # --- PRODUCTION GUARD: Authentication Interceptor ---
+    def create_guarded_tool(tool_item, original_func):
+        async def auth_guarded_run(*args, **kwargs):
+            from utils.auth_context import get_user_token
+            current_token = get_user_token()
+            print(f">>> [AUTH GUARD] Tool '{tool_item.name}' called. Token present: {current_token is not None}")
+            if not current_token or current_token in ["null", "undefined", "None"]:
+                return "AUTH_REQUIRED: The user is NOT signed in. Secure Enterprise search cannot proceed. Please prompt the user to click the 'Sign In' button at the top right of the application interface."
+            return await original_func(*args, **kwargs)
+        return auth_guarded_run
+
+    for tool in mcp_tools:
+        tool.run_async = create_guarded_tool(tool, tool.run_async)
+
+    # --- PRODUCTION GUARD: Agent-Level Authentication Callback ---
+    from google.adk.agents.callback_context import CallbackContext
+    from google.genai import types
+    from utils.auth_context import get_user_token
+    
+    async def before_agent_auth_callback_action(callback_context: CallbackContext) -> types.Content | None:
+        current_token = token or get_user_token()
+        print(f">>> [ACTION AGENT CALLBACK] Checking token: {current_token is not None and current_token not in ['null', 'undefined', 'None']}")
+        if not current_token or current_token in ["null", "undefined", "None"]:
+            return types.Content(
+                role="model",
+                parts=[types.Part.from_text(text="🔒 **Access Restricted**: You are currently not signed in. Please click the **'Sign In'** button at the top right to access enterprise data.")]
+            )
+        return None
+
     agent = agents.LlmAgent(
         name="ActionProxyAgent",
         model=model_name,
-        instruction="You are an Action Agent. You modify and generate files using tools. Use provided tools.",
-        tools=mcp_tools
+        instruction=ENHANCED_GOVERNANCE_INSTRUCTIONS,
+        tools=mcp_tools,
+        before_agent_callback=before_agent_auth_callback_action
     )
     
     _agent_cache[cache_key] = agent

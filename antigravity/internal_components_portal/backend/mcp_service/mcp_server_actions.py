@@ -8,9 +8,7 @@ from fastmcp import FastMCP
 
 from mcp_service.mcp_sharepoint import SharePointMCP
 from utils.auth_context import get_user_token
-from pipelines.regenerative_pipeline import run_regenerative_pipeline
 from utils.pwc_renderer import render_report
-
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
@@ -55,6 +53,51 @@ def update_sharepoint_document(new_content: str, filename: str, target_folder_id
         return f"Error updating document: {str(e)}"
 
 @mcp.tool()
+def search_documents(query: str, limit: int = 5) -> str:
+    """
+    Search for documents in SharePoint related to a query.
+    
+    Args:
+        query: The search term.
+        limit: Max results.
+    """
+    logger.info(f"[Action MCP] Searching Documents for '{query}'")
+    try:
+        results = _get_sharepoint().search_documents(query, limit)
+        if not results:
+            return "No documents found."
+        
+        output = "Search Results:\n"
+        for i, res in enumerate(results):
+            output += f"{i+1}. {res['name']} (ID: {res['id']})\n   {res.get('webUrl', '')}\n"
+        return output
+    except Exception as e:
+        logger.error(f"[Action MCP] Search failed: {str(e)}")
+        return f"Search error: {str(e)}"
+
+@mcp.tool()
+def read_multiple_documents(document_ids: List[str]) -> str:
+    """
+    Reads the full content of multiple SharePoint documents given their IDs.
+    
+    Args:
+        document_ids: A list of SharePoint document IDs.
+    """
+    logger.info(f"[Action MCP] Reading {len(document_ids)} documents")
+    try:
+        sp = _get_sharepoint()
+        output = ""
+        for d_id in document_ids:
+            try:
+                content = sp.read_document(d_id)
+                output += f"--- Document ID: {d_id} ---\n{content}\n"
+            except Exception as e:
+                output += f"--- Error reading Document ID: {d_id}: {str(e)} ---\n"
+        return output
+    except Exception as e:
+        return f"Error: {str(e)}"
+
+@mcp.tool()
 def generate_pdf_report(prompt: str, data: str) -> str:
     """
     Generates a professional PDF report based on the provided data and instructions.
@@ -65,34 +108,55 @@ def generate_pdf_report(prompt: str, data: str) -> str:
     """
     logger.info(f"[MCP TOOL] generate_pdf_report | Prompt: '{prompt[:50]}...'")
     try:
-        # We can reuse the regenerative pipeline or pwc_renderer
-        # run_regenerative_pipeline typically modifies an existing report
-        # If we just want a fresh generation, we can use the main pipeline or just create a minimal JSON and render it
-        # For simplicity, we'll return a stub or call a basic generation logic
+        from google import genai
+        from google.genai import types
+        import os
         
-        # We can create a dummy initial JSON structure from the data
-        from backend.agents.pdf_editor_agent import create_pdf_editor_agent
-        # This is a bit complex if it requires multiple steps.
-        # Let's assume the agent can just format the data as standard Markdown and we save it.
-        # Or, we can use render_report directly with a generic JSON.
+        client = genai.Client()
+        model_name = "gemini-2.5-flash"
         
-        generic_json = {
-            "title": "Generated Report",
-            "date": "March 2026",
-            "ticker": "PWC",
-            "components": [
-                {
-                    "type": "text",
-                    "title": "Input Data",
-                    "content": data
-                }
-            ]
-        }
+        sys_instructions = (
+            "You are a professional report formatter. Your task is to extract information from "
+            "the provided data and format it into a specific JSON structure for PDF rendering. "
+            "Maintain a formal, professional tone suitable for a Deloitte consultancy report.\n\n"
+            "Return ONLY raw valid JSON matching this schema:\n"
+            "{\n"
+            '  "title": "Main Report Title",\n'
+            '  "date": "Month Year",\n'
+            '  "ticker": "Optional string",\n'
+            '  "components": [\n'
+            "    {\n"
+            '      "type": "text",\n'
+            '      "title": "Section Title",\n'
+            '      "content": "Detailed text content using Markdown formatting (bolding, lists, etc.)"\n'
+            "    },\n"
+            "    {\n"
+            '      "type": "table",\n'
+            '      "title": "Data Overview",\n'
+            '      "headers": ["Col 1", "Col 2"],\n'
+            '      "rows": [["Val1", "Val2"]]\n'
+            "    }\n"
+            "  ]\n"
+            "}"
+        )
+        
+        response = client.models.generate_content(
+            model=model_name,
+            contents=[types.Content(role="user", parts=[types.Part.from_text(text=f"Instructions: {prompt}\n\nData to format:\n{data}")])],
+            config={"system_instruction": sys_instructions, "response_mime_type": "application/json"}
+        )
+        
+        try:
+            report_json = json.loads(response.text)
+        except Exception as e:
+            logger.error(f"Failed to parse JSON from structured output: {e}\nResponse: {response.text}")
+            return f"Failed to generate report structure. JSON parsing error."
         
         output_pdf = "assets/generated_report.pdf"
         output_image = "assets/generated_report_preview.png"
         
-        success = render_report(generic_json, output_pdf, output_image)
+        from utils.pwc_renderer import render_report
+        success = render_report(report_json, output_pdf, output_image)
         if success:
             logger.info("[MCP TOOL] generate_pdf_report | Success")
             return f"PDF report generated successfully as {output_pdf} and preview as {output_image}"

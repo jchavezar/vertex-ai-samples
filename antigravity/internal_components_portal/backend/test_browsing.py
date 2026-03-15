@@ -8,6 +8,9 @@ from google.adk.runners import Runner
 from google.adk.sessions.in_memory_session_service import InMemorySessionService
 from google.genai import types
 
+import pytest
+
+@pytest.mark.asyncio
 async def test_browsing():
     agent = get_public_agent("gemini-2.5-flash")
     session_service = InMemorySessionService()

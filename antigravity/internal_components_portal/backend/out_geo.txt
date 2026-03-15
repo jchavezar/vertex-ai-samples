@@ -1,0 +1,170 @@
+Widget response code: 200
+Fetched DataStores: [{'dataStore': 'projects/REDACTED_PROJECT_NUMBER/locations/global/collections/default_collection/dataStores/deloitte-sharepoint_attachment'}, {'dataStore': 'projects/REDACTED_PROJECT_NUMBER/locations/global/collections/default_collection/dataStores/deloitte-sharepoint_comment'}, {'dataStore': 'projects/REDACTED_PROJECT_NUMBER/locations/global/collections/default_collection/dataStores/deloitte-sharepoint_event'}, {'dataStore': 'projects/REDACTED_PROJECT_NUMBER/locations/global/collections/default_collection/dataStores/deloitte-sharepoint_page'}, {'dataStore': 'projects/REDACTED_PROJECT_NUMBER/locations/global/collections/default_collection/dataStores/deloitte-sharepoint_file'}]
+
+--- Testing toolsSpec ---
+STATUS CODE: 200
+SUCCESS! Output:
+[{
+  "answer": {
+    "state": "IN_PROGRESS",
+    "replies": [
+      {
+        "groundedContent": {
+          "content": {
+            "role": "model",
+            "text": "**Examining CFO Salaries**\n",
+            "thought": true
+          }
+        }
+      }
+    ]
+  },
+  "assistToken": "NMwKDAishdfNBhDCsYLOARIkNjliMGRmMmUtMDAwMC0yNzg5LWJkZWItZDQzYTJjYzU0NmJm"
+}
+
+,
+
+
+
+{
+  "answer": {
+    "state": "IN_PROGRESS",
+    "replies": [
+      {
+        "groundedContent": {
+          "content": {
+            "role": "model",
+            "text": "**
+Initiating Salary Research**\n",
+            "thought": true
+          }
+        }
+      }
+    ]
+  },
+  "assistToken": "NMwKDAishdfNBhDCsYLOARIkNjliMGRmMmUtMDAwMC0yNzg5LWJkZWItZDQzYTJjYzU0NmJm"
+}
+
+,
+{
+  "answer": {
+    "state": "IN_PROGRESS",
+    "replies": [
+      {
+        "groundedContent": {
+          "content": {
+            "role": "model",
+            "text": "**
+E
+v
+a
+l
+u
+ating Internal Resources**\n",
+            "thought": true
+          }
+        }
+      }
+    ]
+  },
+  "assistToken": "NMwKDAishdfNBhDCsYLOARIkNjliMGRmMmUtMDAwMC0yNzg5LWJkZWItZDQzYTJjYzU0NmJm"
+}
+
+,
+{
+  "answer": {
+    "state": "IN_PROGRESS",
+    "replies": [
+      {
+        "groundedContent": {
+          "content": {
+            "role": "model",
+            "text": "**
+A
+s
+s
+e
+ssi
+ng 
+t
+h
+e
+ 
+S
+earch Limitations**\n",
+            "thought": true
+          }
+        }
+      }
+    ]
+  },
+  "assistToken": "NMwKDAishdfNBhDCsYLOARIkNjliMGRmMmUtMDAwMC0yNzg5LWJkZWItZDQzYTJjYzU0NmJm"
+}
+
+,
+{
+  "answer": {
+    "state": "IN_PROGRESS",
+    "replies": [
+      {
+        "groundedContent": {
+          "content": {
+            "role": "model",
+            "text": "
+I
+ 
+w
+a
+s
+ 
+u
+nable to find any information about the salary"
+          }
+        }
+      }
+    ]
+  },
+  "assistToken": "NMwKDAishdfNBhDCsYLOARIkNjliMGRmMmUtMDAwMC0yNzg5LWJkZWItZDQzYTJjYzU0NmJm"
+}
+
+,
+{
+  "answer": {
+    "state": "IN_PROGRESS",
+    "replies": [
+      {
+        "groundedContent": {
+          "content": {
+            "role": "model",
+            "text": " of a CFO within our internal systems. For the most accurate and up-to-date salary information, I would recommend consulting public resources that specialize in compensation data, such as salary websites or reports from financial news organizations."
+          }
+        }
+      }
+    ]
+  },
+  "assistToken": "NMwKDAishdfNBhDCsYLOARIkNjliMGRmMmUtMDAwMC0yNzg5LWJkZWItZDQzYTJjYzU0NmJm"
+}
+
+,
+{
+  "answer": {
+    "name": "projects/REDACTED_PROJECT_NUMBER/locations/global/collections/default_collection/engines/deloitte-demo/sessions/13031049717587958495/assistAnswers/8888406703548449385",
+    "state": "SUCCEEDED",
+    "replies": [
+      {
+        "groundedContent": {},
+        "replyId": "9742803230988740606"
+      },
+      {
+        "groundedContent": {},
+        "replyId": "9742803230988740606"
+      }
+    ]
+  },
+  "sessionInfo": {
+    "session": "projects/REDACTED_PROJECT_NUMBER/locations/global/collections/default_collection/engines/deloitte-demo/sessions/13031049717587958495"
+  },
+  "assistToken": "NMwKDAishdfNBhDCsYLOARIkNjliMGRmMmUtMDAwMC0yNzg5LWJkZWItZDQzYTJjYzU0NmJm"
+}
+
+]
