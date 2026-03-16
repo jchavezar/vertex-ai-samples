@@ -85,11 +85,11 @@ const initialNodes = [
     data: { 
       label: 'FastAPI /api/chat/stream', 
       subtitle: 'API Gateway', 
-      desc: 'Validates & unpacks JWT.', 
+      desc: 'Validates & unpacks JWT to inject Microsoft auth_context into the Request.', 
       icon: Server, 
       color: 'green', 
       accent: '#86bc25',
-      snippet: '// Validates & unpacks JWT to inject Microsoft auth_context into the Request.\n@app.post("/api/chat/stream")\nasync def chat_stream(req: Request, router_mode: str):\n    auth_payload = await verify_jwt(req)\n    return StreamingResponse(\n        generate_stream(req.messages, auth_payload),\n        media_type="text/event-stream"\n    )'
+      snippet: '// Validates & unpacks JWT to inject Microsoft auth_context into the Request.\n@app.post("/api/chat/stream")\nasync def chat_stream(req: Request, router_mode: str):\n    raw_entra_token, auth_payload = await verify_jwt(req)\n    return StreamingResponse(\n        generate_stream(req.messages, raw_entra_token, auth_payload),\n        media_type="text/event-stream"\n    )'
     } 
   },
 
@@ -118,12 +118,12 @@ const initialNodes = [
     position: { x: 450, y: 400 }, 
     data: { 
       label: 'WIF STS Authentication (2LO)', 
-      subtitle: 'Zero-Leak Protocol', 
-      desc: 'Exchanges Entra token for GCP token.', 
-      icon: ShieldAlert, 
+      subtitle: 'ZERO-LEAK PROTOCOL', 
+      desc: 'Exchanges Entra token for GCP token via STS.', 
+      icon: Network, 
       color: 'orange', 
       accent: '#f97316',
-      snippet: '// Exchanges Microsoft Entra Signature for a GCP Service Token via WIF.\n// This ensures Vertex AI Search enforces SharePoint document-level ACLs (Security Trimming) natively.\nsts = google.auth.transport.requests.Request()\ntoken_req = {\n    "audience": WIF_PROVIDER,\n    "grantType": "urn:ietf:params:oauth:grant-type:token-exchange",\n    "subjectToken": entra_id_jwt\n}\ngcp_token = fetch_sts_token(token_req)'
+      snippet: '// Exchanges Microsoft Entra Signature for a GCP Service Token via WIF.\n// This ensures Vertex AI Search enforces Vertex AI Search enforces SharePoint document-level ACLs (Security Trimming) natively.\nsts = google.auth.transport.requests.Request()\ntoken_req = {\n    "audience": WIF_PROVIDER,\n    "grantType": "urn:ietf:params:oauth:grant-type:token-exchange",\n    "subjectToken": raw_entra_token\n}\ngcp_token = fetch_sts_token(token_req)'
     } 
   },
   { 
@@ -226,6 +226,32 @@ const initialEdges = [
   { id: 'e-mcp-front', source: 'mcp_direct', target: 'response_rendered', sourceHandle: 's-bottom', targetHandle: 't-top', type: 'smoothstep', label: 'Markdown Response', animated: true, markerEnd: { type: MarkerType.ArrowClosed, width: 20, height: 20, color: '#ec4899' }, style: { stroke: '#ec4899', strokeWidth: 2, strokeDasharray: '5 5' }, labelStyle: { fill: '#ec4899', fontWeight: 600 }, labelBgStyle: { fill: '#1e1e1e' } }
 ];
 
+// --- Custom Highlighter ---
+const SecuritySyntaxHighlighter = ({ code }: { code: string }) => {
+  // We want to highlight specific authentication and security terms
+  const highlightCode = (text: string) => {
+    // Escape HTML first
+    let safeText = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    
+    // Highlight Auth keywords
+    safeText = safeText.replace(/\b(JWT|token|Bearer|auth_payload|WIF_PROVIDER|raw_entra_token|gcp_token|sts|grantType|subjectToken)\b/g, 
+      '<span style="color: #ec4899; font-weight: bold; background: rgba(236, 72, 153, 0.15); padding: 0 4px; border-radius: 3px;">$1</span>'
+    );
+    
+    // Highlight specific auth context terms
+    safeText = safeText.replace(/\b(auth_context|Authorization)\b/g, 
+      '<span style="color: #06b6d4; font-weight: bold; background: rgba(6, 182, 212, 0.15); padding: 0 4px; border-radius: 3px;">$1</span>'
+    );
+    
+    // Highlight comments
+    safeText = safeText.replace(/(\/\/.*)/g, '<span style="color: #6b7280; font-style: italic;">$1</span>');
+
+    return { __html: safeText };
+  };
+
+  return <code dangerouslySetInnerHTML={highlightCode(code)} />;
+};
+
 export const GeMcpFlow: React.FC = () => {
   const [routerMode, setRouterMode] = React.useState<'ge_mcp' | 'all_mcp'>('ge_mcp');
 
@@ -243,14 +269,14 @@ export const GeMcpFlow: React.FC = () => {
     return initialEdges;
   }, [routerMode]);
 
-  const [nodes, , onNodesChange] = useNodesState(visibleNodes as any);
-  const [edges, , onEdgesChange] = useEdgesState(visibleEdges as any);
+  const [nodes, setNodes, onNodesChange] = useNodesState(visibleNodes as any);
+  const [edges, setEdges, onEdgesChange] = useEdgesState(visibleEdges as any);
   
   React.useEffect(() => {
     // Force a re-render/update when mode changes
-    onNodesChange([{ type: 'reset', item: visibleNodes } as any]);
-    onEdgesChange([{ type: 'reset', item: visibleEdges } as any]);
-  }, [routerMode, visibleNodes, visibleEdges, onNodesChange, onEdgesChange]);
+    setNodes(visibleNodes as any);
+    setEdges(visibleEdges as any);
+  }, [routerMode, visibleNodes, visibleEdges, setNodes, setEdges]);
   
   const [hoverData, setHoverData] = React.useState<{node: any, x: number, y: number} | null>(null);
 
@@ -363,7 +389,7 @@ export const GeMcpFlow: React.FC = () => {
               </span>
             </div>
             <pre className="ge-code-block">
-              <code>{hoverData.node.data.snippet}</code>
+              <SecuritySyntaxHighlighter code={hoverData.node.data.snippet} />
             </pre>
           </div>
         )}

@@ -133,8 +133,7 @@ function App() {
     reasoningSteps,
     tokenUsage,
     publicInsight,
-    isPublicInsightStreaming,
-    hasData
+    isPublicInsightStreaming
   } = useTerminalChat(effectiveTokens, selectedModel, routerMode);
   const projectCards = useDashboardStore((s) => s.projectCards);
   const [isPublicInsightExpanded, setIsPublicInsightExpanded] = useState(false);
@@ -536,103 +535,7 @@ function App() {
                       {m.role === 'assistant' && index === messages.length - 1 && routerMode === 'all_mcp' && (
                         <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '16px' }}>
 
-                          {/* Public Web Consensus Widget */}
-                          {(publicInsight || (isLoading && messages.length > 0 && !hasData && activeAppTab === 'proxy')) && (
-                            <div className={`deloitte-insight-inline ${isLoading && !publicInsight ? 'deloitte-insight-streaming' : 'deloitte-insight-settled'}`} style={{ 
-                                background: '#1a1a1a', 
-                                border: `1px solid ${isLoading && !publicInsight ? 'rgba(94, 174, 253, 0.8)' : 'rgba(255, 255, 255, 0.1)'}`,
-                                borderRadius: '12px',
-                                overflow: 'hidden',
-                                width: '100%',
-                                transition: 'all 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
-                                boxShadow: '0 8px 30px rgba(0, 0, 0, 0.3)',
-                                marginTop: '16px'
-                              }} 
-                            >
-                              <div className="card-header" style={{ 
-                                  padding: '12px 16px',
-                                  display: 'flex', 
-                                  justifyContent: 'space-between', 
-                                  alignItems: 'center', 
-                                  cursor: 'pointer',
-                                  borderBottom: isPublicInsightExpanded ? '1px solid rgba(255, 255, 255, 0.1)' : 'none',
-                                  background: isPublicInsightExpanded ? 'rgba(255, 255, 255, 0.05)' : 'transparent',
-                                  transition: 'background 0.3s ease'
-                                }}
-                                onClick={() => setIsPublicInsightExpanded(!isPublicInsightExpanded)}
-                              >
-                                <div style={{ 
-                                  display: 'flex', 
-                                  alignItems: 'center', 
-                                  gap: '10px', 
-                                  color: '#ffffff', // Full white for max visibility
-                                  fontSize: '11px', 
-                                  fontWeight: '900', 
-                                  textTransform: 'uppercase', 
-                                  letterSpacing: '0.12em',
-                                  textShadow: '0 0 10px rgba(94, 174, 253, 0.3)' 
-                                }}>
-                                  <div style={{ 
-                                    padding: '6px', 
-                                    borderRadius: '6px', 
-                                    background: 'rgba(134, 188, 37, 0.15)', // Deloitte Green tint
-                                    border: '1px solid rgba(134, 188, 37, 0.3)',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center'
-                                  }}>
-                                    <Globe size={16} color="#86BC25" style={{ filter: 'drop-shadow(0 0 8px rgba(134, 188, 37, 0.8))' }} /> 
-                                  </div>
-                                  <span style={{ 
-                                    fontWeight: 800, 
-                                    letterSpacing: '0.1em', 
-                                    fontSize: '11px',
-                                    color: '#86BC25',
-                                    textShadow: '0 0 10px rgba(134, 188, 37, 0.4)'
-                                  }}>
-                                    PUBLIC WEB CONSENSUS
-                                  </span>
-                                  {isLoading && !publicInsight && (
-                                    <div className="dw-typing-dots" style={{ marginLeft: '4px' }}>
-                                      <span></span><span></span><span></span>
-                                    </div>
-                                  )}
-                                </div>
-                                <div style={{ 
-                                  color: '#FFFFFF', // High contrast white
-                                  fontSize: '11px',
-                                  fontWeight: 600,
-                                  opacity: 0.8,
-                                  background: 'rgba(255,255,255,0.05)',
-                                  padding: '4px 10px',
-                                  borderRadius: '20px',
-                                  border: '1px solid rgba(255,255,255,0.1)'
-                                }}>
-                                  VIRTUAL ANALYST: FLASH-2.5
-                                </div>
-                              </div>
-                              
-                              <div style={{ 
-                                padding: '20px 24px',
-                                fontSize: '14px', 
-                                color: '#F0F0F0',
-                                background: 'linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.2) 100%)',
-                                lineHeight: '1.6'
-                              }}>
-                                  {publicInsight ? (
-                                    <div style={{ position: 'relative' }}>
-                                      <MarkdownRenderer content={publicInsight} chatMode="default" />
-                                      {isPublicInsightStreaming && <span className="streaming-chunk-cursor pulsing"></span>}
-                                    </div>
-                                  ) : (
-                                    <div style={{ textAlign: 'center', padding: '20px', color: '#888' }}>
-                                      <div className="dw-spinner" style={{ width: '20px', height: '20px', borderWidth: '2px', borderColor: 'rgba(94, 174, 253, 0.2)', borderTopColor: '#5eaefd', margin: '0 auto 10px auto' }}></div>
-                                      Gathering global insights...
-                                    </div>
-                                  )}
-                                </div>
-                              </div>
-                            )}
+
 
                           {/* Generated Data Cards Widget */}
                           {projectCards.length > 0 && (
@@ -692,6 +595,109 @@ function App() {
                       )}
                     </div>
                     ) : null)}
+
+                    {/* Public Web Consensus Widget (Independent Bubble) */}
+                    {routerMode === 'all_mcp' && (publicInsight || (messages.length > 0 && activeAppTab === 'proxy')) && (
+                      <div className={`deloitte-insight-inline ${isLoading && !publicInsight ? 'deloitte-insight-streaming' : 'deloitte-insight-settled'}`} style={{ 
+                          background: '#1a1a1a', 
+                          border: `1px solid ${isLoading && !publicInsight ? 'rgba(94, 174, 253, 0.8)' : 'rgba(255, 255, 255, 0.1)'}`,
+                          borderRadius: '12px',
+                          overflow: 'hidden',
+                          width: '100%',
+                          transition: 'all 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
+                          boxShadow: '0 8px 30px rgba(0, 0, 0, 0.3)',
+                          marginBottom: '16px'
+                        }} 
+                      >
+                        <div className="card-header" style={{ 
+                            padding: '12px 16px',
+                            display: 'flex', 
+                            justifyContent: 'space-between', 
+                            alignItems: 'center', 
+                            cursor: 'pointer',
+                            borderBottom: isPublicInsightExpanded ? '1px solid rgba(255, 255, 255, 0.1)' : 'none',
+                            background: isPublicInsightExpanded ? 'rgba(255, 255, 255, 0.05)' : 'transparent',
+                            transition: 'background 0.3s ease'
+                          }}
+                          onClick={() => setIsPublicInsightExpanded(!isPublicInsightExpanded)}
+                        >
+                          <div style={{ 
+                            display: 'flex', 
+                            alignItems: 'center', 
+                            gap: '10px', 
+                            color: '#ffffff', // Full white for max visibility
+                            fontSize: '11px', 
+                            fontWeight: '900', 
+                            textTransform: 'uppercase', 
+                            letterSpacing: '0.12em',
+                            textShadow: '0 0 10px rgba(94, 174, 253, 0.3)' 
+                          }}>
+                            <div style={{ 
+                              padding: '6px', 
+                              borderRadius: '6px', 
+                              background: 'rgba(134, 188, 37, 0.15)', // Deloitte Green tint
+                              border: '1px solid rgba(134, 188, 37, 0.3)',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center'
+                            }}>
+                              <Globe size={16} color="#86BC25" style={{ filter: 'drop-shadow(0 0 8px rgba(134, 188, 37, 0.8))' }} /> 
+                            </div>
+                            <span style={{ 
+                              fontWeight: 800, 
+                              letterSpacing: '0.1em', 
+                              fontSize: '11px',
+                              color: '#86BC25',
+                              textShadow: '0 0 10px rgba(134, 188, 37, 0.4)'
+                            }}>
+                              PUBLIC WEB CONSENSUS
+                            </span>
+                            {isLoading && !publicInsight && (
+                              <div className="dw-typing-dots" style={{ marginLeft: '4px' }}>
+                                <span></span><span></span><span></span>
+                              </div>
+                            )}
+                          </div>
+                          <div style={{ 
+                            color: '#FFFFFF', // High contrast white
+                            fontSize: '11px',
+                            fontWeight: 600,
+                            opacity: 0.8,
+                            background: 'rgba(255,255,255,0.05)',
+                            padding: '4px 10px',
+                            borderRadius: '20px',
+                            border: '1px solid rgba(255,255,255,0.1)'
+                          }}>
+                            VIRTUAL ANALYST: FLASH-3.1-LITE
+                          </div>
+                        </div>
+                        
+                        <div style={{ 
+                          padding: '20px 24px',
+                          fontSize: '14px', 
+                          color: '#F0F0F0',
+                          background: 'linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.2) 100%)',
+                          lineHeight: '1.6'
+                        }}>
+                            {publicInsight ? (
+                              <div style={{ position: 'relative' }}>
+                                <MarkdownRenderer content={publicInsight} chatMode="default" />
+                                {isPublicInsightStreaming && <span className="streaming-chunk-cursor pulsing"></span>}
+                              </div>
+                            ) : isLoading ? (
+                              <div style={{ textAlign: 'center', padding: '20px', color: '#888' }}>
+                                <div className="dw-spinner" style={{ width: '20px', height: '20px', borderWidth: '2px', borderColor: 'rgba(94, 174, 253, 0.2)', borderTopColor: '#5eaefd', margin: '0 auto 10px auto' }}></div>
+                                Gathering global insights...
+                              </div>
+                            ) : (
+                              <div style={{ textAlign: 'center', padding: '20px', color: '#888', fontStyle: 'italic' }}>
+                                No related public data or consensus available for this internal query.
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      )}
+
                     {(isLoading || thoughtStatus) && (
                     <div className="gemini-loading-wrapper">
                       <div className="gemini-search-pill">

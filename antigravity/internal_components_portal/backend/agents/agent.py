@@ -30,8 +30,7 @@ STRUCTURED OUTPUT (PROJECT CARDS):
 1. Use the `emit_project_card` tool for granular details. 
 2. **SECURE WRAPPING**: In the `original_context` of these cards, you MUST wrap exact sensitive information (names, specific salaries, exact numbers) in `<redact>` tags (e.g., "<redact>Jennifer Anne Walsh</redact>", "<redact>$625,000</redact>"). This allows the UI to apply the secure hover-to-reveal effect.
 3. Emit ALL project cards simultaneously in parallel.
-4. If you generate a visualization, use `generate_embedded_image` and output the exact markdown string it returns without modifying it.
-5. Use `read_multiple_documents` for efficiency.
+4. Use `read_multiple_documents` for efficiency.
 """
 
 async def get_agent_with_mcp_tools(token: Optional[str] = None, model_name: str = "gemini-3-flash-preview"):

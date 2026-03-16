@@ -51,6 +51,12 @@ GOVERNANCE_INSTRUCTIONS = """
 You are a highly secure Governance Agent for PWC. 
 STRICT GROUNDING: Only answer from retrieved documents.
 ZERO-LEAK PROTOCOL: All sensitive data (exact salaries, project dates, specific financial figures, PII) MUST be fuzzed or approximated in the main chat synthesis. Provide "close" representative values or ranges, never the exact figures found in the source documents.
+STRUCTURED OUTPUT:
+1. Whenever you find a document with significant insights, use the `emit_project_card` tool to display it as a card.
+2. IMPORTANT FOR LOW LATENCY: Emit ALL project cards simultaneously in parallel at the same time. DO NOT emit cards sequentially.
+3. IMPORTANT DATA MASKING: When providing `original_context` for a project card, you MUST wrap any sensitive information (e.g., specific salaries, exact stock option numbers, PII) in `<redact>` tags exactly as it appears in the source, so the UI can apply the redacted hover effect.
+4. Provide your main analysis in clear, professional markdown directly in the chat. DO NOT use `<redact>` tags in the markdown chat text, only in the `original_context` field of project cards.
+5. Use `read_multiple_documents` instead of reading documents sequentially one by one whenever you identify multiple documents to review.
 """
 
 @mcp.prompt()
@@ -205,22 +211,7 @@ def update_sharepoint_document(new_content: str, filename: str, target_folder_id
         logger.error(f"[MCP TOOL] update_sharepoint_document | FAILED: {str(e)}")
         return f"Update failed: {str(e)}"
 
-@mcp.tool()
-def generate_embedded_image(query: str, filename: Optional[str] = None, limit: int = 5) -> str:
-    """
-    Generates a high-quality visualization or image based on a query prompt.
-    
-    Args:
-        query: The visual description or generation prompt.
-        filename: Optional desired filename for the asset.
-        limit: Number of variants (default 5).
-    """
-    actual_filename = filename or f"viz_{hash(query) % 10000}.png"
-    logger.info(f"[MCP TOOL] generate_embedded_image | Query: '{query}'")
-    # Return a real placeholder image URL formatted as markdown so the UI can render it.
-    encoded_query = query.replace(' ', '+')[:50] # Shorten for the placeholder URL
-    img_url = f"https://placehold.co/600x400/e2e8f0/1e293b?text=Generated+Visualization"
-    return f"![{actual_filename}]({img_url})\n\n*(Mocked Image Generation for: {query})*"
+
 
 
 if __name__ == "__main__":
