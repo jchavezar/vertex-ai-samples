@@ -135,6 +135,32 @@ const initialEdges = [
   { id: 'e-backend-chat', source: 'fastapi_auth', target: 'chat_handoff', sourceHandle: 's-right', targetHandle: 't-left', type: 'smoothstep', label: 'Begin Chat Protocol', animated: true, markerEnd: { type: MarkerType.ArrowClosed, color: '#f97316' }, style: { stroke: '#f97316', strokeWidth: 2 }, labelBgStyle: { fill: '#1e1e1e' }, labelStyle: { fill: '#f97316', fontWeight: 'bold' } },
 ];
 
+// --- Custom Highlighter ---
+const SecuritySyntaxHighlighter = ({ code }: { code: string }) => {
+  // We want to highlight specific authentication and security terms
+  const highlightCode = (text: string) => {
+    // Escape HTML first
+    let safeText = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    
+    // Highlight Auth keywords
+    safeText = safeText.replace(/\b(JWT|token|Bearer|accessToken|idToken|entra_id_jwt|gcp_token|sts|grantType|subjectToken|RS256|issuer)\b/g, 
+      '<span style="color: #ec4899; font-weight: bold; background: rgba(236, 72, 153, 0.15); padding: 0 4px; border-radius: 3px;">$1</span>'
+    );
+    
+    // Highlight specific auth context terms
+    safeText = safeText.replace(/\b(auth_context|Authorization)\b/g, 
+      '<span style="color: #06b6d4; font-weight: bold; background: rgba(6, 182, 212, 0.15); padding: 0 4px; border-radius: 3px;">$1</span>'
+    );
+    
+    // Highlight comments
+    safeText = safeText.replace(/(\/\/.*)/g, '<span style="color: #6b7280; font-style: italic;">$1</span>');
+
+    return { __html: safeText };
+  };
+
+  return <code dangerouslySetInnerHTML={highlightCode(code)} />;
+};
+
 export const AuthRequestFlow: React.FC<AuthRequestFlowProps> = ({ onNavigateToChat }) => {
   const [nodes, , onNodesChange] = useNodesState(initialNodes as any);
   const [edges, , onEdgesChange] = useEdgesState(initialEdges as any);
@@ -235,7 +261,7 @@ export const AuthRequestFlow: React.FC<AuthRequestFlowProps> = ({ onNavigateToCh
               </span>
             </div>
             <pre className="ge-code-block">
-              <code>{hoverData.node.data.snippet}</code>
+              <SecuritySyntaxHighlighter code={hoverData.node.data.snippet} />
             </pre>
           </div>
         )}

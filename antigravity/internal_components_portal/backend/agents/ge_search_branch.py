@@ -292,7 +292,7 @@ async def stream_ge_search(messages: list, adk_events_trace: list = None, payloa
                                 for item in obj:
                                     res = _find_key(item, key)
                                     if res is not None: return res
-                            return N                        # Check for references recursively in any chunk
+                            return None                        # Check for references recursively in any chunk
                         refs = _find_key(ans, "references")
                         if refs and isinstance(refs, list):
                             for ref in refs:
