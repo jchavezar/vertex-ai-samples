@@ -9,8 +9,7 @@ from mcp_service.mcp_server import GOVERNANCE_INSTRUCTIONS, ProjectCard
 from pydantic import BaseModel, Field
 from typing import List, Optional
 
-# Global cache to persist MCP server process and eliminate per-request start latency
-_agent_cache = {}
+# Note: Caching removed to ensure fresh toolsets per request and avoid resource leaks or dead handles
 _exit_stacks = []
 
 # --- PRODUCTION GUARD: Updated Instructions for Tool-Based Cards ---
@@ -31,30 +30,28 @@ STRUCTURED OUTPUT (PROJECT CARDS):
 2. **SECURE WRAPPING**: In the `original_context` of these cards, you MUST wrap exact sensitive information (names, specific salaries, exact numbers) in `<redact>` tags (e.g., "<redact>Jennifer Anne Walsh</redact>", "<redact>$625,000</redact>"). This allows the UI to apply the secure hover-to-reveal effect.
 3. Emit ALL project cards simultaneously in parallel.
 4. Use `read_multiple_documents` for efficiency.
+5. **FAST FAIL / EARLY EXIT**: If the user's question is general knowledge (e.g., 'tech news trends') OR if `search_documents` returns an empty array, DO NOT hallucinate and DO NOT attempt multiple broad searches. Immediately output a concise message: "This subject is outside our available enterprise database. Please refer to Public Web Research for insights." and STOP doing tool calls. This saves massive latency.
 """
 
-async def get_agent_with_mcp_tools(token: Optional[str] = None, model_name: str = "gemini-3-flash-preview"):
+async def get_agent_with_mcp_tools(token: Optional[str] = None, id_token: Optional[str] = None, model_name: str = "gemini-3-flash-preview"):
     """
     Returns an ADK LlmAgent initialized via the Production-Standard MCP Discovery.
-    Caches the MCP server connection per token to eliminate startup latency.
+    Ensures a fresh toolset/session per request for complete isolation and security.
     """
-    cache_key = f"{token or 'default'}_{model_name}"
-    if cache_key in _agent_cache:
-        print(f">>> [MCP CACHE] Returning cached agent for token (First 5 chars): {cache_key[:5]}")
-        return _agent_cache[cache_key], None
-
     exit_stack = AsyncExitStack()
     _exit_stacks.append(exit_stack)
     
     # 1. Initialize MCP Toolset (Production Standard)
     import sys
-    env = {
+    env = os.environ.copy()
+    env.update({
         "PYTHONPATH": os.path.abspath(os.path.dirname(os.path.dirname(__file__))), 
-        "PATH": os.environ.get("PATH", ""), 
         "FASTMCP_SHOW_SERVER_BANNER": "false"
-    }
+    })
     if token:
         env["USER_TOKEN"] = token
+    if id_token:
+        env["USER_ID_TOKEN"] = id_token
 
     params = mcp_tool.StdioConnectionParams(
         server_params={
@@ -106,35 +103,30 @@ async def get_agent_with_mcp_tools(token: Optional[str] = None, model_name: str 
         tools=mcp_tools,
         before_agent_callback=before_agent_auth_callback
     )
-    
-    _agent_cache[cache_key] = agent
-    return agent, None
+    return agent, exit_stack
 
 # Helper for standard synchronous sessions if needed
 def get_agent_session():
     """Creates a basic session with the agent."""
     return sessions.SessionService()
 
-async def get_action_agent_with_mcp_tools(token: Optional[str] = None, model_name: str = "gemini-3-flash-preview"):
+async def get_action_agent_with_mcp_tools(token: Optional[str] = None, id_token: Optional[str] = None, model_name: str = "gemini-3-flash-preview"):
     """
     Returns an ADK LlmAgent initialized via the Actions MCP.
     """
-    cache_key = f"action_{token or 'default'}_{model_name}"
-    if cache_key in _agent_cache:
-        print(f">>> [MCP CACHE] Returning cached action agent")
-        return _agent_cache[cache_key], None
-
     exit_stack = AsyncExitStack()
     _exit_stacks.append(exit_stack)
     
     import sys
-    env = {
+    env = os.environ.copy()
+    env.update({
         "PYTHONPATH": os.path.abspath(os.path.dirname(os.path.dirname(__file__))), 
-        "PATH": os.environ.get("PATH", ""), 
         "FASTMCP_SHOW_SERVER_BANNER": "false"
-    }
+    })
     if token:
         env["USER_TOKEN"] = token
+    if id_token:
+        env["USER_ID_TOKEN"] = id_token
 
     params = mcp_tool.StdioConnectionParams(
         server_params={
@@ -184,7 +176,5 @@ async def get_action_agent_with_mcp_tools(token: Optional[str] = None, model_nam
         tools=mcp_tools,
         before_agent_callback=before_agent_auth_callback_action
     )
-    
-    _agent_cache[cache_key] = agent
-    return agent, None
+    return agent, exit_stack
 

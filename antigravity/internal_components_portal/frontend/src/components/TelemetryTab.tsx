@@ -1,5 +1,5 @@
 import React from 'react';
-import { Activity } from 'lucide-react';
+import { Activity, Brain, Wrench, Zap, Search, FileText, ChevronRight } from 'lucide-react';
 import type { TelemetryEvent, TokenUsage } from '../hooks/useTerminalChat';
 import './TelemetryTab.css';
 
@@ -10,56 +10,62 @@ interface TelemetryTabProps {
 }
 
 const renderStepContent = (step: string) => {
-  // Enhanced regex to handle headers like [Router], [Discovery Engine], [Action]
-  const headerMatch = step.match(/^\[(Router|Discovery Engine|Action|Action Setup)\]\s*(.*)/is);
-  let header = "";
-  let body = step;
-
-  if (headerMatch) {
-    header = headerMatch[1];
-    body = headerMatch[2];
-  }
-
-  // Check for internal labels like INTENT:, TOOL:, ARGS:, RESPONSE:, RESULT:
-  // Also tolerate optional bracketed states like THOUGHT [IN_PROGRESS]:
-  const labelMatch = body.match(/^(INTENT|TOOL|TOOL CALL|TOOL RESPONSE|API EVIDENCE|ARGS|RESPONSE|RESULT|SYNTHESIS|THOUGHT|ANALYSIS|STEP|DATASOURCE)(?:\s*\[[^\]]+\])?:\s*(.*)/is);
+  // Clean up the bracketed prefixes like [Enterprise Proxy] since they are redundant in the hierarchical view
+  const cleanStep = step.replace(/^\[(Router|Discovery Engine|Action|Action Setup|Enterprise Proxy|Public Web|Redaction)\]\s*/i, '');
+  
+  // Unified label set for vibrant color-coding
+  const labelRegex = /^(INTENT|TOOL|TOOL CALL|TOOL RESPONSE|API EVIDENCE|ARGS|RESPONSE|RESULT|SYNTHESIS|THOUGHT|ANALYSIS|STEP|DATASOURCE|EVALUATION)/i;
+  const labelMatch = cleanStep.match(labelRegex);
   
   if (labelMatch) {
-    const label = labelMatch[1] ? labelMatch[1].toUpperCase() : "UNKNOWN";
-    const labelClass = labelMatch[1] ? labelMatch[1].toLowerCase().replace(' ', '-') : "unknown";
-    const content = labelMatch[2] ? labelMatch[2].trim() : "";
-    let parsedContent;
+    const label = labelMatch[1].toUpperCase();
+    const content = cleanStep.replace(labelRegex, '').replace(/^[:\s\-\]\[]+/, '').trim();
+
+    // Choose icon based on label
+    let Icon = Activity;
+    if (label.includes('THOUGHT') || label.includes('ANALYSIS') || label.includes('SYNTHESIS')) Icon = Brain;
+    if (label.includes('TOOL')) Icon = Wrench;
+    if (label.includes('INTENT')) Icon = Zap;
+    if (label.includes('EVIDENCE') || label.includes('DATASOURCE')) Icon = Search;
+    if (label.includes('RESPONSE') || label.includes('RESULT') || label.includes('STEP')) Icon = FileText;
     
-    // Try to parse as JSON if it looks like one
+    // Dynamically assign a CSS class based on the label for color-coding
+    const labelClass = label.toLowerCase().replace(' ', '-'); // e.g., 'tool-call', 'thought'
+
+    let parsedContent;
     if (content.startsWith('{') || content.startsWith('[')) {
       try {
         parsedContent = JSON.parse(content);
         return (
-          <div className="trace-step">
-            {header && <div className="trace-header-tag">{header}</div>}
-            <span className={`trace-label label-${labelClass}`}>{label}</span>
-            <pre className="json-pretty">{JSON.stringify(parsedContent, null, 2)}</pre>
+          <div className={`trace-step-card card-label-${labelClass}`}> {/* New class for CSS targeting */}
+            <div className="step-card-header">
+              <Icon size={14} className={`step-icon icon-label-${labelClass}`} /> {/* New class for CSS targeting */}
+              <span className={`trace-label-compact label-${labelClass}`}>{label}</span>
+            </div>
+            <pre className="json-pretty-compact">{JSON.stringify(parsedContent, null, 2)}</pre>
           </div>
         );
-      } catch {
-        // Fallback to text if JSON parse fails
-      }
+      } catch { /* Fallback */ }
     }
 
     return (
-      <div className="trace-step">
-        {header && <div className="trace-header-tag">{header}</div>}
-        <span className={`trace-label label-${labelClass}`}>{label}</span>
-        <p style={{ whiteSpace: 'pre-wrap' }}>{content}</p>
+      <div className={`trace-step-card card-label-${labelClass}`}> {/* New class for CSS targeting */}
+        <div className="step-card-header">
+          <Icon size={14} className={`step-icon icon-label-${labelClass}`} /> {/* New class for CSS targeting */}
+          <span className={`trace-label-compact label-${labelClass}`}>{label}</span>
+        </div>
+        <p className="step-card-text">{content}</p>
       </div>
     );
   }
 
-  // Default rendering for unknown formats
+  // Default rendering for steps without a specific label
   return (
-    <div className="trace-step">
-      {header && <div className="trace-header-tag">{header}</div>}
-      <p style={{ whiteSpace: 'pre-wrap' }}>{body}</p>
+    <div className="trace-step-card card-label-general"> {/* New class for general steps */}
+      <div className="step-card-header">
+        <ChevronRight size={14} className="step-icon" />
+      </div>
+      <p className="step-card-text">{cleanStep}</p>
     </div>
   );
 };
@@ -85,7 +91,7 @@ export const TelemetryTab: React.FC<TelemetryTabProps> = ({ telemetry, reasoning
       </div>
 
       <div className="telemetry-board">
-        <div className="telemetry-summary">
+        <div className="telemetry-summary" id="telemetry-summary">
           <div className="summary-stat">
             <span className="stat-label">Total Turnaround</span>
             <span className="stat-value">{totalTime}s</span>
@@ -102,172 +108,114 @@ export const TelemetryTab: React.FC<TelemetryTabProps> = ({ telemetry, reasoning
           )}
         </div>
 
-        <div className="telemetry-body-grid">
-          <div className="telemetry-timeline">
-            <h3>Latency Timeline</h3>
-            {telemetry.map((event, idx) => {
-              if (event.step.includes('Total')) return null;
-
-              const percentage = totalTime > 0 ? (event.duration_s / totalTime) * 100 : 0;
-
-              return (
-                <div key={idx} className="timeline-event">
-                  <div className="timeline-info">
-                    <span className="event-name">{event.step}</span>
-                    <span className="event-time">{event.duration_s}s</span>
-                  </div>
-                  <div className="timeline-bar-bg">
-                    <div
-                      className="timeline-bar-fill"
-                      style={{
-                        width: `${Math.max(percentage, 1)}%`,
-                      }}
-                    ></div>
-                  </div>
-                </div>
-              );
-            })}
+        <div className="telemetry-main-layout">
+          <div className="telemetry-index-sidebar">
+            <div className="index-title">Step Index</div>
+            <div className="index-list">
+              <a href="#telemetry-summary" className="index-item summary-index-item">
+                <span className="index-name">Detailed Summary</span>
+                <span className="index-latency">{totalTime}s</span>
+              </a>
+              {telemetry.map((event, idx) => {
+                if (event.step.includes('Total')) return null;
+                return (
+                  <a key={idx} href={`#phase-${idx}`} className="index-item">
+                    <span className="index-name">{event.step.replace(/^\[.*?\]\s*/, '')}</span>
+                    <span className="index-latency">{event.duration_s}s</span>
+                  </a>
+                );
+              })}
+            </div>
           </div>
 
-          <div className="telemetry-reasoning">
-            <h3>Agent Reasoning Trace</h3>
+          <div className="telemetry-consolidated-view">
+            <div className="consolidated-column">
+            <h3>Unified Execution Trace</h3>
             {(() => {
-              if (reasoningSteps.length === 0) {
-                return <p className="no-reasoning-text">No intermediate reasoning steps captured for this request.</p>;
-              }
-
-              const publicSteps = reasoningSteps.filter(step => step.startsWith('[Public Web]'));
-              const enterpriseSteps = reasoningSteps.filter(step => step.startsWith('[Enterprise Proxy]'));
-              const routerSteps = reasoningSteps.filter(step => step.startsWith('[Router]'));
-              const geSteps = reasoningSteps.filter(step => step.startsWith('[Discovery Engine]'));
-              const actionSteps = reasoningSteps.filter(step => step.startsWith('[Action]'));
-              const redactionSteps = reasoningSteps.filter(step => step.startsWith('[Redaction]'));
+              const totalTime = telemetry.find((t) => t.step.includes('Total'))?.duration_s || 1;
               
-              const otherSteps = reasoningSteps.filter(step => 
-                !step.startsWith('[Public Web]') && 
-                !step.startsWith('[Enterprise Proxy]') &&
-                !step.startsWith('[Router]') &&
-                !step.startsWith('[Discovery Engine]') &&
-                !step.startsWith('[Action]') &&
-                !step.startsWith('[Redaction]')
-              );
+              return telemetry.map((event, idx) => {
+                if (event.step.includes('Total')) return null;
 
-              return (
-                <div className="workflows-container">
-                  {routerSteps.length > 0 && (
-                    <div className="reasoning-workflow-section">
-                      <h4 className="workflow-title router-title">🔀 Intent Router Analysis</h4>
-                      <div className="reasoning-list">
-                        {routerSteps.map((step, idx) => (
-                          <div key={`router-${idx}`} className="reasoning-item router-item">
-                            <div className="reasoning-indicator router-indicator"></div>
-                            <div className="reasoning-content">{renderStepContent(step)}</div>
+                const percentage = (event.duration_s / totalTime) * 100;
+                
+                // Determine which reasoning steps belong to this latency phase
+                let relevantSteps: string[] = [];
+                const stepLower = event.step.toLowerCase();
+                
+                if (stepLower.includes('system-atomic') || stepLower.includes('handshake') || stepLower.includes('intent')) {
+                  relevantSteps = reasoningSteps.filter(s => s.startsWith('[Router]'));
+                } else if (stepLower.includes('enterprise-atomic')) {
+                  relevantSteps = reasoningSteps.filter(s => 
+                    s.startsWith('[Enterprise Proxy]') || 
+                    s.startsWith('[Discovery Engine]') || 
+                    s.startsWith('[Action]') ||
+                    s.startsWith('[Redaction]')
+                  );
+                } else if (stepLower.includes('public-atomic')) {
+                  relevantSteps = reasoningSteps.filter(s => s.startsWith('[Public Web]'));
+                }
+
+                return (
+                  <div key={idx} id={`phase-${idx}`} className="consolidated-phase">
+                    <div className="phase-header">
+                      <div className="phase-info">
+                        <span className="phase-name">{event.step}</span>
+                        <span className="phase-duration">{event.duration_s}s</span>
+                      </div>
+                      <div className="phase-progress-container">
+                        <div 
+                          className="phase-progress-fill" 
+                          style={{ width: `${Math.max(percentage, 2)}%` }}
+                        />
+                      </div>
+                    </div>
+                    
+                    {relevantSteps.length > 0 && (
+                      <div className="phase-subtasks">
+                        {relevantSteps.map((step, sIdx) => (
+                          <div key={sIdx} className="subtask-item">
+                            {renderStepContent(step)}
                           </div>
                         ))}
                       </div>
-                    </div>
-                  )}
-
-                  {geSteps.length > 0 && (
-                    <div className="reasoning-workflow-section">
-                      <div className="workflow-divider" />
-                      <h4 className="workflow-title ge-title">🔍 Discovery Engine (GE) Execution</h4>
-                      <div className="reasoning-list">
-                        {geSteps.map((step, idx) => (
-                          <div key={`ge-${idx}`} className="reasoning-item ge-item">
-                            <div className="reasoning-indicator ge-indicator"></div>
-                            <div className="reasoning-content">{renderStepContent(step)}</div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {actionSteps.length > 0 && (
-                    <div className="reasoning-workflow-section">
-                      <div className="workflow-divider" />
-                      <h4 className="workflow-title action-title">⚡ MCP Tool Orchestration</h4>
-                      <div className="reasoning-list">
-                        {actionSteps.map((step, idx) => (
-                          <div key={`action-${idx}`} className="reasoning-item action-item">
-                            <div className="reasoning-indicator action-indicator"></div>
-                            <div className="reasoning-content">{renderStepContent(step)}</div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {redactionSteps.length > 0 && (
-                    <div className="reasoning-workflow-section">
-                      <div className="workflow-divider" />
-                      <h4 className="workflow-title enterprise-title" style={{ color: '#00D1FF' }}>🛡️ Zero-Leak Shield (Redaction)</h4>
-                      <div className="reasoning-list">
-                        {redactionSteps.map((step, idx) => (
-                          <div key={`redact-${idx}`} className="reasoning-item enterprise-item">
-                            <div className="reasoning-indicator enterprise-indicator" style={{ background: '#00D1FF' }}></div>
-                            <div className="reasoning-content">{renderStepContent(step)}</div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {enterpriseSteps.length > 0 && (
-                    <div className="reasoning-workflow-section">
-                      <div className="workflow-divider" />
-                      <h4 className="workflow-title enterprise-title">🛡️ Secure Enterprise Proxy Workflow</h4>
-                      <div className="reasoning-list">
-                        {enterpriseSteps.map((step, idx) => (
-                          <div key={`ent-${idx}`} className="reasoning-item enterprise-item">
-                            <div className="reasoning-indicator enterprise-indicator"></div>
-                            <div className="reasoning-content">
-                              {renderStepContent(step.replace('[Enterprise Proxy] ', ''))}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {publicSteps.length > 0 && (
-                    <div className="reasoning-workflow-section">
-                      <div className="workflow-divider" />
-                      <h4 className="workflow-title public-title">🌐 Public Web Intelligence Workflow</h4>
-                      <div className="reasoning-list">
-                        {publicSteps.map((step, idx) => (
-                          <div key={`pub-${idx}`} className="reasoning-item public-item">
-                            <div className="reasoning-indicator public-indicator"></div>
-                            <div className="reasoning-content">
-                              {renderStepContent(step.replace('[Public Web] ', ''))}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {otherSteps.length > 0 && (
-                    <div className="reasoning-workflow-section">
-                      <div className="workflow-divider" />
-                      <h4 className="workflow-title general-title">⚙️ Main Execution Trace</h4>
-                      <div className="reasoning-list">
-                        {otherSteps.map((step, idx) => (
-                          <div key={`gen-${idx}`} className="reasoning-item">
-                            <div className="reasoning-indicator"></div>
-                            <div className="reasoning-content">
-                              {renderStepContent(step)}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              );
+                    )}
+                  </div>
+                );
+              });
             })()}
+            
+            {/* Catch-all for any reasoning steps that weren't captured by the categorizer */}
+            {(() => {
+              const usedPrefixes = ['[Router]', '[Enterprise Proxy]', '[Discovery Engine]', '[Action]', '[Redaction]', '[Public Web]'];
+              const orphanSteps = reasoningSteps.filter(step => 
+                !usedPrefixes.some(p => step.startsWith(p))
+              );
+
+              if (orphanSteps.length > 0) {
+                return (
+                  <div className="consolidated-phase orphan-phase">
+                    <div className="phase-header">
+                      <div className="phase-info">
+                        <span className="phase-name">Additional Execution Context</span>
+                      </div>
+                    </div>
+                    <div className="phase-subtasks">
+                      {orphanSteps.map((step, idx) => (
+                        <div key={idx} className="subtask-item">
+                          {renderStepContent(step)}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                );
+              }
+              return null;
+            })()}
+            </div>
           </div>
         </div>
+
       </div>
     </div>
   );

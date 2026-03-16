@@ -1,0 +1,100 @@
+Traceback (most recent call last):
+  File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/internal_components_portal/backend/.venv/lib/python3.12/site-packages/anyio/streams/memory.py", line 117, in receive
+    return self.receive_nowait()
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/internal_components_portal/backend/.venv/lib/python3.12/site-packages/anyio/streams/memory.py", line 112, in receive_nowait
+    raise WouldBlock
+anyio.WouldBlock
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/internal_components_portal/backend/.venv/lib/python3.12/site-packages/anyio/_core/_tasks.py", line 124, in fail_after
+    yield cancel_scope
+  File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/internal_components_portal/backend/.venv/lib/python3.12/site-packages/mcp/shared/session.py", line 292, in send_request
+    response_or_error = await response_stream_reader.receive()
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/internal_components_portal/backend/.venv/lib/python3.12/site-packages/anyio/streams/memory.py", line 125, in receive
+    await receive_event.wait()
+  File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/internal_components_portal/backend/.venv/lib/python3.12/site-packages/anyio/_backends/_asyncio.py", line 1789, in wait
+    await self._event.wait()
+  File "/usr/local/google/home/jesusarguelles/.pyenv/versions/3.12.9/lib/python3.12/asyncio/locks.py", line 212, in wait
+    await fut
+asyncio.exceptions.CancelledError: Cancelled via cancel scope 7f73f4cebc50; reason: deadline exceeded
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/internal_components_portal/backend/.venv/lib/python3.12/site-packages/mcp/shared/session.py", line 291, in send_request
+    with anyio.fail_after(timeout):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/google/home/jesusarguelles/.pyenv/versions/3.12.9/lib/python3.12/contextlib.py", line 158, in __exit__
+    self.gen.throw(value)
+  File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/internal_components_portal/backend/.venv/lib/python3.12/site-packages/anyio/_core/_tasks.py", line 127, in fail_after
+    raise TimeoutError
+TimeoutError
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/internal_components_portal/backend/main.py", line 154, in stream_agent
+    pub_session.events.append(evt)
+  File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/internal_components_portal/backend/.venv/lib/python3.12/site-packages/google/adk/runners.py", line 561, in run_async
+    async for event in agen:
+  File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/internal_components_portal/backend/.venv/lib/python3.12/site-packages/google/adk/runners.py", line 549, in _run_with_trace
+    async for event in agen:
+  File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/internal_components_portal/backend/.venv/lib/python3.12/site-packages/google/adk/runners.py", line 778, in _exec_with_plugin
+    async for event in agen:
+  File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/internal_components_portal/backend/.venv/lib/python3.12/site-packages/google/adk/runners.py", line 538, in execute
+    async for event in agen:
+  File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/internal_components_portal/backend/.venv/lib/python3.12/site-packages/google/adk/agents/base_agent.py", line 294, in run_async
+    async for event in agen:
+  File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/internal_components_portal/backend/.venv/lib/python3.12/site-packages/google/adk/agents/llm_agent.py", line 468, in _run_async_impl
+    async for event in agen:
+  File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/internal_components_portal/backend/.venv/lib/python3.12/site-packages/google/adk/flows/llm_flows/base_llm_flow.py", line 427, in run_async
+    async for event in agen:
+  File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/internal_components_portal/backend/.venv/lib/python3.12/site-packages/google/adk/flows/llm_flows/base_llm_flow.py", line 514, in _run_one_step_async
+    async for event in agen:
+  File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/internal_components_portal/backend/.venv/lib/python3.12/site-packages/google/adk/flows/llm_flows/base_llm_flow.py", line 712, in _postprocess_async
+    async for event in agen:
+  File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/internal_components_portal/backend/.venv/lib/python3.12/site-packages/google/adk/flows/llm_flows/base_llm_flow.py", line 830, in _postprocess_handle_function_calls_async
+    if function_response_event := await functions.handle_function_calls_async(
+                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/internal_components_portal/backend/.venv/lib/python3.12/site-packages/google/adk/flows/llm_flows/functions.py", line 342, in handle_function_calls_async
+    return await handle_function_call_list_async(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/internal_components_portal/backend/.venv/lib/python3.12/site-packages/google/adk/flows/llm_flows/functions.py", line 388, in handle_function_call_list_async
+    function_response_events = await asyncio.gather(*tasks)
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/internal_components_portal/backend/.venv/lib/python3.12/site-packages/google/adk/flows/llm_flows/functions.py", line 575, in _execute_single_function_call_async
+    function_response_event = await _run_with_trace()
+                              ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/internal_components_portal/backend/.venv/lib/python3.12/site-packages/google/adk/flows/llm_flows/functions.py", line 523, in _run_with_trace
+    raise tool_error
+  File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/internal_components_portal/backend/.venv/lib/python3.12/site-packages/google/adk/flows/llm_flows/functions.py", line 510, in _run_with_trace
+    function_response = await __call_tool_async(
+                        ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/internal_components_portal/backend/.venv/lib/python3.12/site-packages/google/adk/flows/llm_flows/functions.py", line 936, in __call_tool_async
+    return await tool.run_async(args=args, tool_context=tool_context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/internal_components_portal/backend/agents/agent.py", line 75, in auth_guarded_run
+    return await original_func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/internal_components_portal/backend/.venv/lib/python3.12/site-packages/google/adk/tools/mcp_tool/mcp_tool.py", line 285, in run_async
+    return await super().run_async(args=args, tool_context=tool_context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/internal_components_portal/backend/.venv/lib/python3.12/site-packages/google/adk/tools/base_authenticated_tool.py", line 94, in run_async
+    return await self._run_async_impl(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/internal_components_portal/backend/.venv/lib/python3.12/site-packages/google/adk/tools/mcp_tool/mcp_session_manager.py", line 163, in wrapper
+    return await func(self, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/internal_components_portal/backend/.venv/lib/python3.12/site-packages/google/adk/tools/mcp_tool/mcp_tool.py", line 324, in _run_async_impl
+    response = await session.call_tool(
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/internal_components_portal/backend/.venv/lib/python3.12/site-packages/mcp/client/session.py", line 383, in call_tool
+    result = await self.send_request(
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/internal_components_portal/backend/.venv/lib/python3.12/site-packages/mcp/shared/session.py", line 294, in send_request
+    raise McpError(
+mcp.shared.exceptions.McpError: Timed out while waiting for response to ClientRequest. Waited 5.0 seconds.

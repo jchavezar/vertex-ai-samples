@@ -112,7 +112,7 @@ async def _chat_stream(messages: list, model_name: str, token: str = None):
 
     async def stream_agent(runner_obj, sid, tag):
         try:
-            async for event in runner_obj.run_async(user_id="default_user", session_id=sid, new_message=prompt):
+            async for event in runner_obj.run_async(user_id="default_user", session_id=sid, new_message=msg):
                 await queue.put({"tag": tag, "event": event, "type": "data"})
         except Exception as e:
             logger.error(f"Task {tag} failed: {e}")

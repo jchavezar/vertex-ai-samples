@@ -132,11 +132,13 @@ class SharePointMCP:
                 }]
             }
             try:
-                resp = requests.post(url, headers=headers, json=payload, timeout=8)
+                logger.info(f"Executing search branch: {q_str}")
+                resp = requests.post(url, headers=headers, json=payload, timeout=20)
                 resp.raise_for_status()
                 data = resp.json().get('value', [])
                 if data:
                     for container in data[0].get('hitsContainers', []):
+
                         for hit in container.get('hits', []):
                             res = hit.get('resource', {})
                             iid = res.get('id')
