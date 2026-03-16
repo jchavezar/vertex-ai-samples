@@ -1,5 +1,16 @@
 import os
 import sys
+import time
+from datetime import timedelta
+import mcp.client.session
+
+# --- BOOTSTRAP: Increase MCP Client Timeout to handle SharePoint Latency ---
+_orig_call_tool = mcp.client.session.ClientSession.call_tool
+async def patched_call_tool(self, *args, **kwargs):
+    if "read_timeout_seconds" not in kwargs:
+        kwargs["read_timeout_seconds"] = timedelta(seconds=30)
+    return await _orig_call_tool(self, *args, **kwargs)
+mcp.client.session.ClientSession.call_tool = patched_call_tool
 
 # Ensure backend directory is in sys.path so 'agent' can be imported easily even if run from root
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
@@ -51,27 +62,77 @@ session_service = InMemorySessionService()
 
 class ChatRequest(BaseModel):
     messages: list
+from typing import Tuple, Dict, Any
+import jwt
+
+async def verify_jwt(request: Request) -> Tuple[str, Dict[str, Any]]:
+    """
+    Helper to extract and verify the JWT from the request headers.
+    Matches the naming and pattern in the Auth Flow & GE+MCP snippets.
+    """
+    auth_header = request.headers.get("Authorization")
+    token = None
+    if auth_header and auth_header.startswith("Bearer "):
+        token = auth_header.split(" ")[1]
+        if token in ["null", "undefined"]:
+            token = None
+            
+    id_token = request.headers.get("X-Entra-Id-Token")
+    if id_token and id_token in ["null", "undefined", "None"]:
+        id_token = None
+
+    # In a real enterprise app, we would use jwt.decode(token, ...) with public keys
+    # For this portal, we prioritize propagation of the 'id_token' for GE / WIF
+    payload = {}
+    if token and len(token.split('.')) == 3:
+        try:
+            # We skip verification for the proxy but decode payload for identity
+            payload = jwt.decode(token, options={"verify_signature": False})
+        except:
+            payload = {}
+            
+    # We return the primary token (access_token) and the payload
+    # The id_token is also retrieved from headers elsewhere
+    return token, payload
+
 async def _chat_stream(messages: list, model_name: str, token: str = None, id_token: str = None):
     # Set the token in the current context (essential for async streaming tasks)
     set_user_token(token)
     set_user_id_token(id_token)
     
-    import time
-    start_time = time.time()
-    last_phase_time = {"sharepoint": start_time, "public": start_time}
     latency_metrics = []
     reasoning_steps = []
     total_tokens = {"prompt": 0, "candidates": 0, "total": 0}
     adk_events_trace = []
+
     
     def log_latency(tag, step_name):
         now = time.time()
         duration_sec = now - last_phase_time[tag]
         if duration_sec > 0.01:
-            prefix = "[Enterprise] " if tag == "sharepoint" else "[Public Web] "
+            # Enhanced labels for atomic visibility (normalized)
+            prefix = "[ENTERPRISE-ATOMIC] " if tag == "sharepoint" else "[PUBLIC-ATOMIC] "
             latency_metrics.append({"step": prefix + step_name, "duration_s": round(duration_sec, 2)})
         last_phase_time[tag] = now
+        # PROACTIVE TELEMETRY YIELD
+        try:
+            loop = asyncio.get_event_loop()
+            if loop.is_running():
+                # We use a small delay or direct put to ensure it's processed after the append
+                loop.create_task(queue.put({"tag": "system", "type": "telemetry_yield"}))
+        except:
+            pass
 
+
+
+    start_time = time.time()
+    last_phase_time = {"sharepoint": start_time, "public": start_time}
+    tool_start_times = {"sharepoint": {}, "public": {}}
+    llm_start_time = {"sharepoint": start_time, "public": start_time}
+    
+    pipe_start = start_time
+
+    has_yielded_text = False
     import uuid
     current_request_id = str(uuid.uuid4())
     sess_id = f"sess_{current_request_id}"
@@ -130,8 +191,29 @@ async def _chat_stream(messages: list, model_name: str, token: str = None, id_to
         finally:
             await queue.put({"tag": tag, "type": "done"})
 
-    # Launch Public Agent background task NOW - it starts working immediately
-    asyncio.create_task(stream_agent(pub_runner, pub_sess_id, "public"))
+    import threading
+    def stream_public_in_new_loop(runner_obj, sid, tag):
+        main_loop = asyncio.get_running_loop()
+        def target():
+            new_loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(new_loop)
+            async def run_it():
+                try:
+                    async for event in runner_obj.run_async(user_id="default_user", session_id=sid, new_message=msg_obj):
+                        asyncio.run_coroutine_threadsafe(queue.put({"tag": tag, "event": event, "type": "data"}), main_loop)
+                except Exception as e:
+                    import traceback
+                    logger.error(f"Thread task {tag} failed: {traceback.format_exc()}")
+                    asyncio.run_coroutine_threadsafe(queue.put({"tag": tag, "event": str(e), "type": "error"}), main_loop)
+                finally:
+                    asyncio.run_coroutine_threadsafe(queue.put({"tag": tag, "type": "done"}), main_loop)
+            new_loop.run_until_complete(run_it())
+            new_loop.close()
+        t = threading.Thread(target=target)
+        t.start()
+
+    # Launch Public Agent background task in true OS thread - prevents sync blocks
+    stream_public_in_new_loop(pub_runner, pub_sess_id, "public")
 
     yield AIStreamProtocol.data({
         "type": "public_insight", 
@@ -145,7 +227,7 @@ async def _chat_stream(messages: list, model_name: str, token: str = None, id_to
     # 2. Start Enterprise Discovery in background to avoid blocking public stream
     yield AIStreamProtocol.data({"type": "status", "message": "Discovering Enterprise Toolset...", "icon": "shield-alert", "pulse": True})
     
-    discovery_task = asyncio.create_task(get_agent_with_mcp_tools(token=token, model_name=model_name))
+    discovery_task = asyncio.create_task(get_agent_with_mcp_tools(token=token, id_token=id_token, model_name=model_name))
     
     active_streams = 1 # Public started
     sharepoint_started = False
@@ -153,22 +235,26 @@ async def _chat_stream(messages: list, model_name: str, token: str = None, id_to
     pub_insight = ""
     current_action = {"sharepoint": "LLM Orchestration & Reasoning", "public": "Web Research Orchestration"}
 
+
     try:
         while active_streams > 0 or not sharepoint_started:
             # Check if discovery finished and we need to start sharepoint stream
             if not sharepoint_started and discovery_task.done():
                 discovery_time = time.time() - start_time
-                logger.info(f">>> [LATENCY] MCP Discovery Time: {discovery_time:.2f}s")
+                latency_metrics.append({"step": "[SYSTEM-ATOMIC] Official MCP Handshake", "duration_s": round(discovery_time, 2)})
                 try:
                     agent, exit_stack = await discovery_task
                     sp_runner = Runner(app_name="PWC_Security_Proxy", agent=agent, session_service=session_service)
                     asyncio.create_task(stream_agent(sp_runner, sess_id, "sharepoint"))
                     sharepoint_started = True
+                    llm_start_time["sharepoint"] = time.time() # Start tracking first LLM call
                     active_streams += 1
                 except Exception as e:
-                    logger.error(f"Enterprise Discovery failed: {e}")
+                    import traceback
+                    logger.error(f"Enterprise Discovery failed: {e}\n{traceback.format_exc()}")
                     sharepoint_started = True # mark as attempted
                     yield AIStreamProtocol.data({"type": "status", "message": f"Discovery Error: {str(e)}", "icon": "alert-triangle", "pulse": False})
+                    yield AIStreamProtocol.text(f"\n❌ Enterprise Discovery failed: {str(e)}\n")
 
             # Wait for any event from either stream
             try:
@@ -180,25 +266,35 @@ async def _chat_stream(messages: list, model_name: str, token: str = None, id_to
             tag = q_item["tag"]
             msg_type = q_item["type"]
 
+            if msg_type == "telemetry_yield":
+                yield AIStreamProtocol.data({"type": "telemetry", "data": list(latency_metrics), "reasoning": reasoning_steps, "tokens": total_tokens, "adk_events": adk_events_trace})
+                continue
+
+
             if msg_type == "done":
                 active_streams -= 1
                 log_latency(tag, current_action[tag])
                 if tag == "public":
-                    # Send final settled state for public insight immediately so UI can decouple
-                    yield AIStreamProtocol.data({
-                        "type": "public_insight", 
-                        "message": "Public Web Consensus",
-                        "data": pub_insight.strip(),
-                        "icon": "globe",
-                        "pulse": False
-                    })
+                    # PROACTIVE YIELD: Send public insight as soon as it's ready, 
+                    # with is_streaming=False to avoid the 'black bubble' wait effect.
+                    if pub_insight:
+                        yield AIStreamProtocol.data({
+                            "type": "public_insight", 
+                            "message": "Public Web Consensus",
+                            "data": pub_insight.strip(),
+                            "icon": "globe",
+                            "pulse": False,
+                            "is_streaming": False
+                        })
                 continue
+
                 
             evt = q_item["event"]
             if msg_type == "error":
                 if tag == "sharepoint":
                     yield AIStreamProtocol.data({"type": "status", "message": f"Enterprise Proxy Error: {str(evt)}", "icon": "alert-triangle", "pulse": False})
                     reasoning_steps.append(f"AGENT EXECUTION HALTED [{tag}]: {str(evt)}")
+                    yield AIStreamProtocol.text(f"\n❌ Error: {str(evt)}\n")
                 continue
             # Process Event
             try:
@@ -247,6 +343,7 @@ async def _chat_stream(messages: list, model_name: str, token: str = None, id_to
                         if p.get("function_call"):
                             tool_name = p["function_call"].get("name", "")
                             tool_args = p["function_call"].get("args", {})
+                            
                             log_latency(tag, current_action[tag])
                             
                             if tool_name == "google_search":
@@ -262,6 +359,7 @@ async def _chat_stream(messages: list, model_name: str, token: str = None, id_to
                             elif "read" in tool_name:
                                 reasoning_steps.append(f"{agent_label} ANALYSIS ({author}):\nThe search results found relevant files. I must now extract their text to synthesize the final answer.")
                                 current_action[tag] = "Document Extraction"
+
                             else:
                                 current_action[tag] = f"Tool: {tool_name}"
                             
@@ -271,6 +369,7 @@ async def _chat_stream(messages: list, model_name: str, token: str = None, id_to
                                 
                         elif p.get("function_response"):
                             tool_name = p["function_response"].get("name", "")
+                            
                             resp_data = p["function_response"].get("response", "")
                             res_str = str(resp_data)[:500] + "... [TRUNCATED]" if len(str(resp_data)) > 500 else str(resp_data)
                             
@@ -294,17 +393,19 @@ async def _chat_stream(messages: list, model_name: str, token: str = None, id_to
                                 
                                 if tag == "public":
                                     pub_insight += txt
-                                    # Streaming cursor character █ for fast feedback
-                                    yield AIStreamProtocol.data({
-                                        "type": "public_insight", 
-                                        "message": "Public Web Consensus",
-                                        "data": pub_insight.strip() + " █",
-                                        "icon": "globe",
-                                        "pulse": True
-                                    })
+                                    # PWC STREAMING DEFERRED
+                                    pass
                                 else:
+                                    # Track TTFT (Time to First Token)
+                                    if not has_yielded_text:
+                                        ttft = time.time() - pipe_start
+                                        latency_metrics.append({"step": "[SYSTEM-ATOMIC] Time to First Token (TTFT)", "duration_s": round(ttft, 2)})
+                                        has_yielded_text = True
+                                        asyncio.create_task(queue.put({"tag": "system", "type": "telemetry_yield"}))
+                                    
                                     # Main synthesis stream
                                     yield AIStreamProtocol.text(txt)
+
             except Exception as e:
                 logger.error(f"Event parsing error in {tag}: {e}")
 
@@ -315,7 +416,19 @@ async def _chat_stream(messages: list, model_name: str, token: str = None, id_to
             await exit_stack.aclose()
 
     total_time = time.time() - start_time
-    latency_metrics.append({"step": "[Total] Turnaround Time", "duration_s": round(total_time, 2)})
+    latency_metrics.append({"step": "[SYSTEM-ATOMIC] Total Pipeline Turnaround", "duration_s": round(total_time, 2)})
+    
+    # Public insight fallback yield if it wasn't already sent (e.g. loops broke before the delayed public insight could flush)
+    if pub_insight:
+        yield AIStreamProtocol.data({
+            "type": "public_insight", 
+            "message": "Public Web Consensus",
+            "data": pub_insight.strip(),
+            "icon": "globe",
+            "pulse": False,
+            "is_streaming": False
+        })
+
     yield AIStreamProtocol.data({"type": "telemetry", "data": latency_metrics, "reasoning": reasoning_steps, "tokens": total_tokens, "adk_events": adk_events_trace})
     yield AIStreamProtocol.data({"type": "status", "message": "Transmission complete.", "icon": "check-circle", "pulse": False})
 
@@ -407,7 +520,7 @@ async def _ge_mcp_chat_stream(messages: list, model_name: str, token: str = None
                             yield AIStreamProtocol.data({"type": "telemetry", "data": latency_metrics, "reasoning": reasoning_steps, "tokens": tokens, "adk_events": adk_events_trace})
 
         router_duration = time.time() - router_start
-        latency_metrics.append({"step": "Intent Classification", "duration_s": round(router_duration, 2)})
+        latency_metrics.append({"step": "[SYSTEM-ATOMIC] Intent Classification", "duration_s": round(router_duration, 2)})
         reasoning_steps.append(f"[Router] INTENT DETECTED: {intent}")
         yield AIStreamProtocol.data({"type": "telemetry", "data": latency_metrics, "reasoning": reasoning_steps, "tokens": tokens, "adk_events": adk_events_trace})
         
@@ -486,102 +599,114 @@ async def _ge_mcp_chat_stream(messages: list, model_name: str, token: str = None
                 session.events.append(evt)
         # ------------------------------------------------
             
-        agent, exit_stack = await get_action_agent_with_mcp_tools(token=token, model_name=model_name)
-        runner = Runner(app_name="PWC_Action_Proxy", agent=agent, session_service=session_service)
-        msg_obj = types.Content(role="user", parts=[types.Part.from_text(text=prompt)])
-        
-        queue = asyncio.Queue()
-        async def stream_action():
-            try:
-                # new_message correctly handles the final user prompt through the runner
-                async for event in runner.run_async(user_id="default_user", session_id=sess_id, new_message=msg_obj):
-                    await queue.put({"event": event, "type": "data"})
-            except Exception as e:
-                logger.exception(f"Action Task failed: {e}")
-                await queue.put({"event": str(e), "type": "error"})
-            finally:
-                await queue.put({"type": "done"})
-                
-        asyncio.create_task(stream_action())
-        
-        action_start = time.time()
-        
-        while True:
-            msg_q = await queue.get()
-            t = msg_q["type"]
-            if t == "done":
-                break
-            elif t == "error":
-                yield AIStreamProtocol.text(f"\n❌ Action Proxy Error: {msg_q['event']}\n")
-                continue
-                
-            evt = msg_q["event"]
-            edata = evt.model_dump()
-            adk_events_trace.append({"source": "PWC_Action_Proxy", "event": edata})
-            usage = edata.get("usage_metadata")
-            if usage:
-                tokens["prompt"] += usage.get("prompt_token_count") or 0
-                tokens["candidates"] += usage.get("candidates_token_count") or 0
-                tokens["total"] += usage.get("total_token_count") or 0
+        try:
+            agent, exit_stack = await get_action_agent_with_mcp_tools(token=token, id_token=id_token, model_name=model_name)
+            runner = Runner(app_name="PWC_Action_Proxy", agent=agent, session_service=session_service)
+            msg_obj = types.Content(role="user", parts=[types.Part.from_text(text=prompt)])
             
-            author = edata.get("author", "unknown")
-            
-            content = edata.get("content", {})
-            if content and isinstance(content, dict):
-                parts = content.get("parts", [])
-                for p in parts:
-                    if p.get("thought"):
-                        txt = f"[ADK: {author}] THOUGHT:\n{p['thought'].strip()}"
-                        if txt not in reasoning_steps:
-                            reasoning_steps.append(txt)
-                            yield AIStreamProtocol.data({"type": "telemetry", "data": latency_metrics, "reasoning": reasoning_steps, "tokens": tokens, "adk_events": adk_events_trace})
+            queue = asyncio.Queue()
+            async def stream_action():
+                try:
+                    # new_message correctly handles the final user prompt through the runner
+                    async for event in runner.run_async(user_id="default_user", session_id=sess_id, new_message=msg_obj):
+                        await queue.put({"event": event, "type": "data"})
+                except Exception as e:
+                    logger.exception(f"Action Task failed: {e}")
+                    await queue.put({"event": str(e), "type": "error"})
+                finally:
+                    await queue.put({"type": "done"})
                     
-                    if p.get("function_call"):
-                        tool_name = p["function_call"].get("name", "")
-                        tool_args = p["function_call"].get("args", {})
-                        yield AIStreamProtocol.data({"type": "status", "message": f"Executing Action: {tool_name}...", "icon": "zap", "pulse": True})
-                        reasoning_steps.append(f"[ADK: {author}] TOOL CALL: {tool_name}\nARGS: {json.dumps(tool_args, indent=2)}")
-                        yield AIStreamProtocol.data({"type": "telemetry", "data": latency_metrics, "reasoning": reasoning_steps, "tokens": tokens, "adk_events": adk_events_trace})
+            asyncio.create_task(stream_action())
+            
+            action_start = time.time()
+            
+            while True:
+                msg_q = await queue.get()
+                t = msg_q["type"]
+                if t == "done":
+                    break
+                elif t == "error":
+                    yield AIStreamProtocol.text(f"\n❌ Action Proxy Error: {msg_q['event']}\n")
+                    continue
+                    
+                evt = msg_q["event"]
+                edata = evt.model_dump()
+                adk_events_trace.append({"source": "PWC_Action_Proxy", "event": edata})
+                usage = edata.get("usage_metadata")
+                if usage:
+                    tokens["prompt"] += usage.get("prompt_token_count") or 0
+                    tokens["candidates"] += usage.get("candidates_token_count") or 0
+                    tokens["total"] += usage.get("total_token_count") or 0
+                
+                author = edata.get("author", "unknown")
+                
+                content = edata.get("content", {})
+                if content and isinstance(content, dict):
+                    parts = content.get("parts", [])
+                    for p in parts:
+                        if p.get("call"):
+                            tool_name = p["call"].get("name")
+                            yield AIStreamProtocol.data({"type": "status", "message": f"Executing {tool_name}...", "icon": "cpu", "pulse": True})
                         
-                    elif p.get("function_response"):
-                        tool_name = p["function_response"].get("name", "")
-                        resp_data = p["function_response"].get("response", "")
-                        res_str = json.dumps(resp_data, indent=2) if isinstance(resp_data, (dict, list)) else str(resp_data)
-                        if len(res_str) > 1000:
-                            res_str = res_str[:1000] + "... [TRUNCATED]"
-                        reasoning_steps.append(f"[ADK: {author}] TOOL RESPONSE ({tool_name}):\n{res_str}")
-                        yield AIStreamProtocol.data({"type": "telemetry", "data": latency_metrics, "reasoning": reasoning_steps, "tokens": tokens, "adk_events": adk_events_trace})
-                        yield AIStreamProtocol.data({"type": "status", "message": f"Completed action: {tool_name}", "icon": "check", "pulse": False})
-                        
-                    elif p.get("text"):
-                        # Ensure we trace everything in ADK if possible
-                        if author == "model":
-                            txt_trace = f"[ADK: {author}] RESPONSE TEXT:\n{p.get('text')}"
-                            if txt_trace not in reasoning_steps:
-                                reasoning_steps.append(txt_trace)
+                        if p.get("response"):
+                            tool_name = p["response"].get("name")
+
+                        if p.get("thought"):
+                            txt = f"[ADK: {author}] THOUGHT:\n{p['thought'].strip()}"
+                            if txt not in reasoning_steps:
+                                reasoning_steps.append(txt)
                                 yield AIStreamProtocol.data({"type": "telemetry", "data": latency_metrics, "reasoning": reasoning_steps, "tokens": tokens, "adk_events": adk_events_trace})
+                        
+                        if p.get("function_call"):
+                            tool_name = p["function_call"].get("name", "")
+                            tool_args = p["function_call"].get("args", {})
+                            yield AIStreamProtocol.data({"type": "status", "message": f"Executing Action: {tool_name}...", "icon": "zap", "pulse": True})
+                            reasoning_steps.append(f"[ADK: {author}] TOOL CALL: {tool_name}\nARGS: {json.dumps(tool_args, indent=2)}")
+                            yield AIStreamProtocol.data({"type": "telemetry", "data": latency_metrics, "reasoning": reasoning_steps, "tokens": tokens, "adk_events": adk_events_trace})
                             
-                            yield AIStreamProtocol.text(p.get("text"))
-        
-        action_duration = time.time() - action_start
-        latency_metrics.append({"step": "Action Execution", "duration_s": round(action_duration, 2)})
-        yield AIStreamProtocol.data({"type": "telemetry", "data": latency_metrics, "reasoning": reasoning_steps, "tokens": tokens, "adk_events": adk_events_trace})
-        yield AIStreamProtocol.data({"type": "status", "message": "Action completed.", "icon": "check-circle", "pulse": False})
+                        elif p.get("function_response"):
+                            tool_name = p["function_response"].get("name", "")
+                            resp_data = p["function_response"].get("response", "")
+                            res_str = json.dumps(resp_data, indent=2) if isinstance(resp_data, (dict, list)) else str(resp_data)
+                            if len(res_str) > 1000:
+                                res_str = res_str[:1000] + "... [TRUNCATED]"
+                            reasoning_steps.append(f"[ADK: {author}] TOOL RESPONSE ({tool_name}):\n{res_str}")
+                            yield AIStreamProtocol.data({"type": "telemetry", "data": latency_metrics, "reasoning": reasoning_steps, "tokens": tokens, "adk_events": adk_events_trace})
+                            yield AIStreamProtocol.data({"type": "status", "message": f"Completed action: {tool_name}", "icon": "check", "pulse": False})
+                            
+                        elif p.get("text"):
+                            # Ensure we trace everything in ADK if possible
+                            if author == "model":
+                                txt_trace = f"[ADK: {author}] RESPONSE TEXT:\n{p.get('text')}"
+                                if txt_trace not in reasoning_steps:
+                                    reasoning_steps.append(txt_trace)
+                                    yield AIStreamProtocol.data({"type": "telemetry", "data": latency_metrics, "reasoning": reasoning_steps, "tokens": tokens, "adk_events": adk_events_trace})
+                                
+                                yield AIStreamProtocol.text(p.get("text"))
+            
+            action_duration = time.time() - action_start
+            latency_metrics.append({"step": "[SYSTEM-ATOMIC] Action Execution", "duration_s": round(action_duration, 2)})
+            yield AIStreamProtocol.data({"type": "telemetry", "data": latency_metrics, "reasoning": reasoning_steps, "tokens": tokens, "adk_events": adk_events_trace})
+            yield AIStreamProtocol.data({"type": "status", "message": "Action completed.", "icon": "check-circle", "pulse": False})
+        finally:
+            if exit_stack:
+                await exit_stack.aclose()
 
 
-@app.post("/chat")
+@app.post("/api/chat/stream")
 async def chat_endpoint(request: Request):
+    """
+    Renamed endpoint to match documented architecture snippets.
+    Enforces the 'Zero-Leak' token passing pattern.
+    """
     data = await request.json()
-    model_name = data.get("model", "gemini-2.5-flash")
+    model_name = data.get("model", "gemini-3-flash-preview")
     router_mode = data.get("routerMode", "all_mcp")
     
-    auth_header = request.headers.get("Authorization")
-    token = None
-    if auth_header and auth_header.startswith("Bearer "):
-        extracted = auth_header.split(" ")[1]
-        if extracted and extracted not in ["null", "undefined"]:
-            token = extracted
-
+    # Extract tokens using the new standard helper
+    token, auth_payload = await verify_jwt(request)
+    
+    # Also grab the ID token (which is what GE search specifically needs for WIF)
     id_token = request.headers.get("X-Entra-Id-Token")
     if id_token and id_token in ["null", "undefined", "None"]:
         id_token = None

@@ -44,8 +44,8 @@ export function useTerminalChat(tokens: { accessToken: string, idToken: string }
   const [adkEvents, setAdkEvents] = useState<Record<string, unknown>[]>([]);
 
   const apiEndpoint = import.meta.env.VITE_BACKEND_URL || (typeof window !== 'undefined' && window.location.hostname !== 'localhost'
-    ? 'https://mcp-sharepoint-server-REDACTED_PROJECT_NUMBER.us-central1.run.app/chat'
-    : '/chat');
+    ? 'https://mcp-sharepoint-server-REDACTED_PROJECT_NUMBER.us-central1.run.app/api/chat/stream'
+    : '/api/chat/stream');
 
   const { messages, input, setMessages, handleInputChange, handleSubmit, data, isLoading } = useChat({
     api: apiEndpoint,

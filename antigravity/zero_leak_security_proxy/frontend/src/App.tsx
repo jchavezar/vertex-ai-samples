@@ -823,7 +823,7 @@ function App() {
                               borderRadius: '12px', 
                               fontSize: '10px',
                             }}>
-                                gemini-3.1-flash-lite
+                                {selectedModel}
                             </span>
                           </div>
                           <div style={{ 

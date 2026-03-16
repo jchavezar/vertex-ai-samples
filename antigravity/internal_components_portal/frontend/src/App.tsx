@@ -57,18 +57,18 @@ const GeminiSparkleIcon = ({ className = "" }: { className?: string }) => (
 
 
 const PROMPT_POOL = [
-  "What is the average salary?",
-  "What are the critical vulnerabilities?",
-  "Summarize key SLA terms",
-  "What is our remote work policy?",
-  "Analyze cloud migration costs.",
-  "Show the M&A playbook summary.",
-  "Check SOC2 compliance status.",
-  "Show Q3 financial performance.",
-  "List approved software vendors.",
-  "Summarize the travel expense policy.",
-  "Analyze Q2 gross margins.",
-  "Who are our top tier clients?"
+  "What is the salary of a CFO?",
+  "What is a competitive compensation structure for a CFO?",
+  "What equity vesting schedules are standard for C-suite?",
+  "What bonus target percentages are typical for executives?",
+  "How should we structure executive retention packages?",
+  "What internal control weaknesses are common in tech?",
+  "What SLA terms are standard in enterprise agreements?",
+  "What are the most critical security vulnerabilities?",
+  "What valuation multiples are appropriate for SaaS?",
+  "How to structure retention during acquisitions?",
+  "What is the true total cost of an acquisition?",
+  "How does management turnover affect financial performance?"
 ];
 
 function App() {
@@ -528,177 +528,184 @@ function App() {
 
                 <div className="chat-messages">
                     {messages.map((m: Message, index: number) => m.content ? (
-                    <div key={m.id} className={`message ${m.role}`} style={{ flexDirection: 'column', alignItems: 'flex-start' }}>
-                      <MarkdownRenderer content={m.content} />
-                      
-                      {/* Integrated Widgets for Last Assistant Message */}
-                      {m.role === 'assistant' && index === messages.length - 1 && routerMode === 'all_mcp' && (
-                        <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '16px' }}>
-
-
-
-                          {/* Generated Data Cards Widget */}
-                          {projectCards.length > 0 && (
-                            <div style={{ 
-                                background: 'rgba(134, 188, 37, 0.05)', 
-                                border: '1px solid rgba(134, 188, 37, 0.3)',
-                                borderRadius: '12px',
-                                overflow: 'hidden',
-                                width: '100%',
-                                transition: 'all 0.3s ease'
-                              }} 
-                            >
-                              <div className="card-header" style={{ 
-                                  padding: '12px 16px',
-                                  display: 'flex', 
-                                  justifyContent: 'space-between', 
-                                  alignItems: 'center', 
-                                  cursor: 'pointer',
-                                  borderBottom: isProjectCardsExpanded ? '1px solid rgba(134, 188, 37, 0.15)' : 'none',
-                                  background: isProjectCardsExpanded ? 'rgba(134, 188, 37, 0.05)' : 'transparent'
-                                }}
-                                onClick={() => setIsProjectCardsExpanded(!isProjectCardsExpanded)}
-                              >
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#fff', fontSize: '12px', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                                  <Database size={16} color="var(--deloitte-green)" /> 
-                                  <span style={{ color: 'var(--deloitte-green)' }}>GENERATED DATA CARDS ({projectCards.length})</span>
-                                </div>
+                      <div key={index} style={{ width: '100%', display: 'flex', flexDirection: 'column' }}>
+                        <div className={`message ${m.role}`} style={{ flexDirection: 'column', alignItems: 'flex-start' }}>
+                          <MarkdownRenderer content={m.content} />
+                          
+                          {/* Integrated Widgets for Last Assistant Message */}
+                          {m.role === 'assistant' && index === messages.length - 1 && routerMode === 'all_mcp' && (
+                            <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '16px' }}>
+                              {/* Generated Data Cards Widget */}
+                              {projectCards.length > 0 && (
                                 <div style={{ 
-                                  color: 'var(--deloitte-green)', 
-                                  display: 'flex', 
-                                  alignItems: 'center', 
-                                  gap: '6px', 
-                                  fontSize: '10px', 
-                                  fontWeight: '600'
-                                }}>
-                                  {isProjectCardsExpanded ? 'COLLAPSE' : 'EXPAND'}
-                                  <ChevronUp size={14} style={{ transform: isProjectCardsExpanded ? 'rotate(0deg)' : 'rotate(180deg)', transition: 'transform 0.3s' }} />
-                                </div>
-                              </div>
-                              
-                              {isProjectCardsExpanded && (
-                                <div className="card-content" style={{ 
-                                    padding: '16px',
-                                    background: 'rgba(0,0,0,0.1)'
-                                  }}>
-                                  <div className="deloitte-cards-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '16px' }} ref={dataSectionRef}>
-                                    {projectCards.map((card, idx) => (
-                                      <ProjectCardWidget key={idx} card={card as ProjectCardData} />
-                                    ))}
+                                    background: 'rgba(134, 188, 37, 0.05)', 
+                                    border: '1px solid rgba(134, 188, 37, 0.3)',
+                                    borderRadius: '12px',
+                                    overflow: 'hidden',
+                                    width: '100%',
+                                    transition: 'all 0.3s ease'
+                                  }} 
+                                >
+                                  <div className="card-header" style={{ 
+                                      padding: '12px 16px',
+                                      display: 'flex', 
+                                      justifyContent: 'space-between', 
+                                      alignItems: 'center', 
+                                      cursor: 'pointer',
+                                      borderBottom: isProjectCardsExpanded ? '1px solid rgba(134, 188, 37, 0.15)' : 'none',
+                                      background: isProjectCardsExpanded ? 'rgba(134, 188, 37, 0.05)' : 'transparent'
+                                    }}
+                                    onClick={() => setIsProjectCardsExpanded(!isProjectCardsExpanded)}
+                                  >
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#fff', fontSize: '12px', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                                      <Database size={16} color="var(--deloitte-green)" /> 
+                                      <span style={{ color: 'var(--deloitte-green)' }}>GENERATED DATA CARDS ({projectCards.length})</span>
+                                    </div>
+                                    <div style={{ 
+                                      color: 'var(--deloitte-green)', 
+                                      display: 'flex', 
+                                      alignItems: 'center', 
+                                      gap: '6px', 
+                                      fontSize: '10px', 
+                                      fontWeight: '600'
+                                    }}>
+                                      {isProjectCardsExpanded ? 'COLLAPSE' : 'EXPAND'}
+                                      <ChevronUp size={14} style={{ transform: isProjectCardsExpanded ? 'rotate(0deg)' : 'rotate(180deg)', transition: 'transform 0.3s' }} />
+                                    </div>
                                   </div>
+                                  
+                                  {isProjectCardsExpanded && (
+                                    <div className="card-content" style={{ 
+                                        padding: '16px',
+                                        background: 'rgba(0,0,0,0.1)'
+                                      }}>
+                                      <div className="deloitte-cards-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '16px' }} ref={dataSectionRef}>
+                                        {projectCards.map((card, idx) => (
+                                          <ProjectCardWidget key={idx} card={card as ProjectCardData} />
+                                        ))}
+                                      </div>
+                                    </div>
+                                  )}
                                 </div>
                               )}
                             </div>
                           )}
-
                         </div>
-                      )}
-                    </div>
+
+                        {/* Public Web Consensus Widget rendered AFTER User Message but BEFORE final assistant response */}
+                        {m.role === 'user' && index === 0 && routerMode === 'all_mcp' && publicInsight && publicInsight.replace(/[█\s]/g, '').length > 0 && (
+                          <div className={`message assistant deloitte-insight-inline ${isPublicInsightStreaming ? 'deloitte-insight-streaming' : 'deloitte-insight-settled'}`} style={{ 
+                              background: '#1a1a1a', 
+                              border: `1px solid ${isPublicInsightStreaming ? 'rgba(134, 188, 37, 0.5)' : 'rgba(255, 255, 255, 0.1)'}`,
+                              borderRadius: '12px',
+                              overflow: 'hidden',
+                              width: '100%',
+                              transition: 'all 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
+                              boxShadow: '0 8px 30px rgba(0, 0, 0, 0.3)',
+                              marginBottom: '16px',
+                              marginTop: '16px',
+                              padding: '0', 
+                              maxWidth: '100%',
+                              animation: 'fadeIn 0.5s ease-out'
+                            }} 
+                          >
+                            <div className="card-header" style={{ 
+                                padding: '12px 16px',
+                                display: 'flex', 
+                                justifyContent: 'space-between', 
+                                alignItems: 'center', 
+                                cursor: 'pointer',
+                                borderBottom: isPublicInsightExpanded ? '1px solid rgba(255, 255, 255, 0.1)' : 'none',
+                                background: isPublicInsightExpanded ? 'rgba(255, 255, 255, 0.05)' : 'transparent',
+                                transition: 'background 0.3s ease',
+                                marginBottom: '0'
+                              }}
+                              onClick={() => setIsPublicInsightExpanded(!isPublicInsightExpanded)}
+                            >
+                              <div style={{ 
+                                display: 'flex', 
+                                alignItems: 'center', 
+                                gap: '10px', 
+                                color: '#ffffff',
+                                fontSize: '11px', 
+                                fontWeight: '900', 
+                                textTransform: 'uppercase', 
+                                letterSpacing: '0.12em',
+                                textShadow: '0 0 10px rgba(94, 174, 253, 0.3)' 
+                              }}>
+                                <div style={{ 
+                                  padding: '6px', 
+                                  borderRadius: '6px', 
+                                  background: 'rgba(134, 188, 37, 0.15)',
+                                  border: '1px solid rgba(134, 188, 37, 0.3)',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center'
+                                }}>
+                                  <Globe size={16} color="#86BC25" style={{ filter: 'drop-shadow(0 0 8px rgba(134, 188, 37, 0.8))' }} /> 
+                                </div>
+                                <span style={{ 
+                                  fontWeight: 800, 
+                                  letterSpacing: '0.1em', 
+                                  fontSize: '11px',
+                                  color: '#86BC25',
+                                  textShadow: '0 0 10px rgba(134, 188, 37, 0.4)'
+                                }}>
+                                  PUBLIC WEB CONSENSUS
+                                </span>
+                                {isPublicInsightStreaming && (
+                                  <div className="dw-typing-dots" style={{ marginLeft: '4px' }}>
+                                    <span></span><span></span><span></span>
+                                  </div>
+                                )}
+                              </div>
+                              <div style={{ 
+                                color: '#FFFFFF',
+                                fontSize: '11px',
+                                fontWeight: 600,
+                                opacity: 0.8,
+                                background: 'rgba(255,255,255,0.05)',
+                                padding: '4px 10px',
+                                borderRadius: '20px',
+                                border: '1px solid rgba(255,255,255,0.1)',
+                                display: chatMode === 'default' ? 'none' : 'block'
+                              }}>
+                                VIRTUAL ANALYST: FLASH-3.1-LITE
+                              </div>
+                              <div style={{ 
+                                color: 'var(--deloitte-green)', 
+                                display: 'flex', 
+                                alignItems: 'center', 
+                                gap: '6px', 
+                                fontSize: '10px', 
+                                fontWeight: '600'
+                              }}>
+                                {isPublicInsightExpanded ? 'COLLAPSE' : 'EXPAND'}
+                                <ChevronUp size={14} style={{ transform: isPublicInsightExpanded ? 'rotate(0deg)' : 'rotate(180deg)', transition: 'transform 0.3s' }} />
+                              </div>
+                            </div>
+                            
+                            {isPublicInsightExpanded && (
+                              <div style={{ 
+                                padding: '20px 24px',
+                                fontSize: '14px', 
+                                color: '#F0F0F0',
+                                background: 'linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.2) 100%)',
+                                lineHeight: '1.6'
+                              }}>
+                                <div style={{ position: 'relative' }}>
+                                  <MarkdownRenderer content={publicInsight} chatMode="default" />
+                                  {isPublicInsightStreaming && <span className="streaming-chunk-cursor pulsing"></span>}
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </div>
                     ) : null)}
 
-                    {/* Public Web Consensus Widget (Independent Bubble) */}
-                    {routerMode === 'all_mcp' && (publicInsight || (messages.length > 0 && activeAppTab === 'proxy')) && (
-                      <div className={`deloitte-insight-inline ${isLoading && !publicInsight ? 'deloitte-insight-streaming' : 'deloitte-insight-settled'}`} style={{ 
-                          background: '#1a1a1a', 
-                          border: `1px solid ${isLoading && !publicInsight ? 'rgba(94, 174, 253, 0.8)' : 'rgba(255, 255, 255, 0.1)'}`,
-                          borderRadius: '12px',
-                          overflow: 'hidden',
-                          width: '100%',
-                          transition: 'all 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
-                          boxShadow: '0 8px 30px rgba(0, 0, 0, 0.3)',
-                          marginBottom: '16px'
-                        }} 
-                      >
-                        <div className="card-header" style={{ 
-                            padding: '12px 16px',
-                            display: 'flex', 
-                            justifyContent: 'space-between', 
-                            alignItems: 'center', 
-                            cursor: 'pointer',
-                            borderBottom: isPublicInsightExpanded ? '1px solid rgba(255, 255, 255, 0.1)' : 'none',
-                            background: isPublicInsightExpanded ? 'rgba(255, 255, 255, 0.05)' : 'transparent',
-                            transition: 'background 0.3s ease'
-                          }}
-                          onClick={() => setIsPublicInsightExpanded(!isPublicInsightExpanded)}
-                        >
-                          <div style={{ 
-                            display: 'flex', 
-                            alignItems: 'center', 
-                            gap: '10px', 
-                            color: '#ffffff', // Full white for max visibility
-                            fontSize: '11px', 
-                            fontWeight: '900', 
-                            textTransform: 'uppercase', 
-                            letterSpacing: '0.12em',
-                            textShadow: '0 0 10px rgba(94, 174, 253, 0.3)' 
-                          }}>
-                            <div style={{ 
-                              padding: '6px', 
-                              borderRadius: '6px', 
-                              background: 'rgba(134, 188, 37, 0.15)', // Deloitte Green tint
-                              border: '1px solid rgba(134, 188, 37, 0.3)',
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center'
-                            }}>
-                              <Globe size={16} color="#86BC25" style={{ filter: 'drop-shadow(0 0 8px rgba(134, 188, 37, 0.8))' }} /> 
-                            </div>
-                            <span style={{ 
-                              fontWeight: 800, 
-                              letterSpacing: '0.1em', 
-                              fontSize: '11px',
-                              color: '#86BC25',
-                              textShadow: '0 0 10px rgba(134, 188, 37, 0.4)'
-                            }}>
-                              PUBLIC WEB CONSENSUS
-                            </span>
-                            {isLoading && !publicInsight && (
-                              <div className="dw-typing-dots" style={{ marginLeft: '4px' }}>
-                                <span></span><span></span><span></span>
-                              </div>
-                            )}
-                          </div>
-                          <div style={{ 
-                            color: '#FFFFFF', // High contrast white
-                            fontSize: '11px',
-                            fontWeight: 600,
-                            opacity: 0.8,
-                            background: 'rgba(255,255,255,0.05)',
-                            padding: '4px 10px',
-                            borderRadius: '20px',
-                            border: '1px solid rgba(255,255,255,0.1)'
-                          }}>
-                            VIRTUAL ANALYST: FLASH-3.1-LITE
-                          </div>
-                        </div>
-                        
-                        <div style={{ 
-                          padding: '20px 24px',
-                          fontSize: '14px', 
-                          color: '#F0F0F0',
-                          background: 'linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.2) 100%)',
-                          lineHeight: '1.6'
-                        }}>
-                            {publicInsight ? (
-                              <div style={{ position: 'relative' }}>
-                                <MarkdownRenderer content={publicInsight} chatMode="default" />
-                                {isPublicInsightStreaming && <span className="streaming-chunk-cursor pulsing"></span>}
-                              </div>
-                            ) : isLoading ? (
-                              <div style={{ textAlign: 'center', padding: '20px', color: '#888' }}>
-                                <div className="dw-spinner" style={{ width: '20px', height: '20px', borderWidth: '2px', borderColor: 'rgba(94, 174, 253, 0.2)', borderTopColor: '#5eaefd', margin: '0 auto 10px auto' }}></div>
-                                Gathering global insights...
-                              </div>
-                            ) : (
-                              <div style={{ textAlign: 'center', padding: '20px', color: '#888', fontStyle: 'italic' }}>
-                                No related public data or consensus available for this internal query.
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      )}
 
-                    {(isLoading || thoughtStatus) && (
+                    {((isLoading || thoughtStatus) && (!messages.length || messages[messages.length - 1].role !== 'assistant')) && (
                     <div className="gemini-loading-wrapper">
                       <div className="gemini-search-pill">
                           {usedSharePoint && <img src="/sharepoint-logo.svg" className="sharepoint-used-badge" alt="SharePoint Used" title="SharePoint indices searched" />}

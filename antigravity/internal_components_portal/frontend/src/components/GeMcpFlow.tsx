@@ -11,7 +11,7 @@ import {
   Position,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
-import { Server, Cpu, Database, Network, Search, Activity, Terminal, ShieldAlert, Key } from 'lucide-react';
+import { Server, Cpu, Database, Network, Search, Activity, Terminal, Key } from 'lucide-react';
 import './GeMcpFlow.css';
 
 // --- Custom Nodes ---

@@ -45,7 +45,7 @@ def update_sharepoint_document(new_content: str, filename: str, target_folder_id
     """
     logger.info(f"[MCP TOOL] update_sharepoint_document | Filename: '{filename}'")
     try:
-        url = _get_sharepoint().upload_document(filename, new_content, target_folder_id)
+        url = _get_sharepoint().upload_file(new_content, filename, target_folder_id)
         logger.info(f"[MCP TOOL] update_sharepoint_document | Success | URL: {url}")
         return f"Document '{filename}' successfully saved/updated at: {url}"
     except Exception as e:
@@ -89,7 +89,7 @@ def read_multiple_documents(document_ids: List[str]) -> str:
         output = ""
         for d_id in document_ids:
             try:
-                content = sp.read_document(d_id)
+                content = sp.get_document_content(d_id)
                 output += f"--- Document ID: {d_id} ---\n{content}\n"
             except Exception as e:
                 output += f"--- Error reading Document ID: {d_id}: {str(e)} ---\n"

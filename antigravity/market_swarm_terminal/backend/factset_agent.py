@@ -262,7 +262,11 @@ def sanitize_schema(schema):
 
 async def patched_get_tools(self, readonly_context=None):
     try:
-        tools = await original_get_tools(self, readonly_context)
+        if not hasattr(self, '_init_lock'):
+            self._init_lock = asyncio.Lock()
+            
+        async with self._init_lock:
+            tools = await original_get_tools(self, readonly_context)
         
         # Check if loop guard is enabled for this toolset instance
         enable_loop_guard = getattr(self, "_enable_loop_guard", False)
