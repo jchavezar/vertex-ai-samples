@@ -1,7 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Search, Globe, ChevronDown, Menu, X, Briefcase, TrendingUp, Shield, Activity, FileText, Building, Cpu, Landmark, ChevronRight, Zap } from 'lucide-react';
+import { Search, Globe, ChevronDown, Menu, X, Briefcase, TrendingUp, Shield, Activity, FileText, Building, Cpu, Landmark, ChevronRight, Zap, Loader2 } from 'lucide-react';
 import { motion } from 'framer-motion';
+import ReactMarkdown from 'react-markdown';
 import './Header.css';
+import GenerativeDashboardModal from './GenerativeDashboardModal';
 
 const Header = () => {
   const [scrolled, setScrolled] = useState(false);
@@ -13,6 +15,17 @@ const Header = () => {
   const [isGeneratingNav, setIsGeneratingNav] = useState(false);
   const [generatedCategories, setGeneratedCategories] = useState([]);
   const menuRef = useRef(null);
+
+  // Live Policy Pulse State
+  const [isInsightMenuOpen, setIsInsightMenuOpen] = useState(false);
+  const [pulseQuery, setPulseQuery] = useState('');
+  const [isPulsing, setIsPulsing] = useState(false);
+  const [pulseContent, setPulseContent] = useState('');
+  
+  // Generative Dashboard State
+  const [isDashboardOpen, setIsDashboardOpen] = useState(false);
+  const [selectedDashboardIndustry, setSelectedDashboardIndustry] = useState('');
+  const [dashboardNavQuery, setDashboardNavQuery] = useState('');
   
   // Default static categories before AI generation
   const defaultCategories = [
@@ -35,6 +48,7 @@ const Header = () => {
     const handleClickOutside = (event) => {
       if (menuRef.current && !menuRef.current.contains(event.target)) {
         setIsMegaMenuOpen(false);
+        setIsInsightMenuOpen(false);
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
@@ -76,6 +90,66 @@ const Header = () => {
     return <IconComponent size={20} strokeWidth={1.5} />;
   };
 
+  const handlePulseSearch = async (e) => {
+    e.preventDefault();
+    if (!pulseQuery.trim()) return;
+
+    setIsPulsing(true);
+    setPulseContent('');
+
+    try {
+      const response = await fetch('/api/nav/live-pulse', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query: pulseQuery })
+      });
+
+      if (!response.body) throw new Error("ReadableStream not yet supported.");
+
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder('utf-8');
+      let buffer = '';
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+        
+        const parts = buffer.split(/\r?\n\r?\n/);
+        buffer = parts.pop() || '';
+        
+        for (const sseEvent of parts) {
+          if (!sseEvent.trim()) continue;
+          
+          const lines = sseEvent.split(/\r?\n/);
+          for (const line of lines) {
+            if (line.startsWith('data: ')) {
+              const dataStr = line.substring(6).trim();
+              if (dataStr === '[DONE]') break;
+              if (dataStr) {
+                try {
+                  const parsed = JSON.parse(dataStr);
+                  const content = parsed.text || parsed.content;
+                  if (content) {
+                    setPulseContent(prev => prev + content);
+                  }
+                } catch (err) {
+                  console.error("Error parsing SSE JSON:", err);
+                }
+              }
+            }
+          }
+        }
+      }
+    } catch (error) {
+      console.error("Failed to fetch live pulse:", error);
+      setPulseContent("Error retrieving real-time data.");
+    } finally {
+      setIsPulsing(false);
+    }
+  };
+
   return (
     <header className={`header ${scrolled ? 'header-scrolled' : ''}`}>
       <div className="header-top">
@@ -107,11 +181,18 @@ const Header = () => {
       <div className="header-nav glass-panel" ref={menuRef}>
         <div className="header-container relative">
           <nav className="nav-links">
-            <a href="#">Insights</a>
+            <a 
+              href="#" 
+              onClick={(e) => { e.preventDefault(); setIsInsightMenuOpen(!isInsightMenuOpen); setIsMegaMenuOpen(false); }}
+              className={isInsightMenuOpen ? 'active-tab' : ''}
+              style={{ display: 'flex', alignItems: 'center', gap: '4px' }}
+            >
+              Insights <ChevronDown size={14} className={`nav-chevron ${isInsightMenuOpen ? 'rotate' : ''}`} />
+            </a>
             <a href="#">Services</a>
             <a 
               href="#" 
-              onClick={(e) => { e.preventDefault(); setIsMegaMenuOpen(!isMegaMenuOpen); }}
+              onClick={(e) => { e.preventDefault(); setIsMegaMenuOpen(!isMegaMenuOpen); setIsInsightMenuOpen(false); }}
               className={isMegaMenuOpen ? 'active-tab' : ''}
               style={{ display: 'flex', alignItems: 'center', gap: '4px' }}
             >
@@ -121,6 +202,84 @@ const Header = () => {
             <a href="#">Careers & Culture</a>
           </nav>
           
+          {/* Live Policy Pulse Dropdown */}
+          <motion.div 
+            className="ai-mega-menu"
+            initial={{ opacity: 0, y: -10, pointerEvents: 'none' }}
+            animate={{ 
+              opacity: isInsightMenuOpen ? 1 : 0, 
+              y: isInsightMenuOpen ? 0 : -10,
+              pointerEvents: isInsightMenuOpen ? 'auto' : 'none'
+            }}
+            transition={{ duration: 0.3, ease: 'easeOut' }}
+            style={{ position: 'absolute', top: '100%', left: 0, right: 0 }}
+          >
+            <div className="mega-menu-content">
+              {/* Left Column: Input */}
+              <div className="mega-ai-column">
+                <div className="mega-ai-header">
+                  <div className="mega-ai-icon-container">
+                    <Activity size={20} className="text-accent" />
+                  </div>
+                  <h3>Live Policy Pulse</h3>
+                </div>
+                <p>Monitor real-time tax legislation changes and policy updates grounded in global search.</p>
+                
+                <form onSubmit={handlePulseSearch} className="mega-ai-form">
+                  <div className="input-wrapper">
+                    <input 
+                      type="text" 
+                      placeholder="e.g. Digital Services Tax in France..." 
+                      value={pulseQuery}
+                      onChange={(e) => setPulseQuery(e.target.value)}
+                      disabled={isPulsing}
+                    />
+                    <button type="submit" disabled={isPulsing || !pulseQuery.trim()}>
+                      {isPulsing ? (
+                        <motion.div 
+                          animate={{ rotate: 360 }} 
+                          transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
+                        >
+                          <Loader2 size={16} /> {/* Assume Loader2 is imported, if not use Activity or something */}
+                        </motion.div>
+                      ) : (
+                        <Search size={18} />
+                      )}
+                    </button>
+                  </div>
+                </form>
+
+                {isPulsing && (
+                  <div className="nav-generation-status">
+                     <span className="pulse-dot"></span>
+                     <span>Grounding data via Global Search...</span>
+                  </div>
+                )}
+              </div>
+
+              {/* Right Column: Results Stream */}
+              <div className="mega-categories-column">
+                <div className="categories-header">
+                  <h4>Intelligence Feed</h4>
+                  {(pulseContent || isPulsing) && <span className="ai-badge">Live Search AI</span>}
+                </div>
+                
+                <div className="pulse-content-display" style={{ padding: '1rem', background: 'rgba(255,255,255,0.02)', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.05)', minHeight: '150px', maxHeight: '300px', overflowY: 'auto' }}>
+                  {!pulseContent && !isPulsing && (
+                    <div style={{ opacity: 0.5, textAlign: 'center', marginTop: '20px' }}>
+                      Enter a topic to activate geopolitical and tax monitoring.
+                    </div>
+                  )}
+                  {pulseContent && (
+                    <ReactMarkdown>
+                      {pulseContent}
+                    </ReactMarkdown>
+                  )}
+                </div>
+              </div>
+            </div>
+          </motion.div>
+
           {/* AI Mega-Menu Dropdown */}
           <motion.div 
             className="ai-mega-menu"
@@ -191,6 +350,13 @@ const Header = () => {
                       initial={{ opacity: 0, x: 10 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: idx * 0.1 }}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        setIsMegaMenuOpen(false);
+                        setSelectedDashboardIndustry(cat.title);
+                        setDashboardNavQuery(navQuery);
+                        setIsDashboardOpen(true);
+                      }}
                     >
                       <div className="cat-icon">
                         {getIcon(cat.icon)}
@@ -212,6 +378,13 @@ const Header = () => {
           </div>
         </div>
       </div>
+
+      <GenerativeDashboardModal 
+        isOpen={isDashboardOpen} 
+        onClose={() => setIsDashboardOpen(false)} 
+        industry={selectedDashboardIndustry}
+        navQuery={dashboardNavQuery}
+      />
     </header>
   );
 };

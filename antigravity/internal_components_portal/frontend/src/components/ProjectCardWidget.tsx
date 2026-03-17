@@ -156,18 +156,18 @@ export const ProjectCardWidget: React.FC<ProjectCardWidgetProps> = ({ card }) =>
           </div>
         </div>
 
-        {card.insights && card.insights.length > 0 && (
+        {card.insights && (Array.isArray(card.insights) ? card.insights : typeof card.insights === 'string' ? [card.insights] : []).length > 0 && (
           <div className="info-block">
             <h3>Key Insights</h3>
-            <ul>{card.insights.map((insight, i) => <li key={i}>{insight}</li>)}</ul>
+            <ul>{(Array.isArray(card.insights) ? card.insights : typeof card.insights === 'string' ? [card.insights] : []).map((insight, i) => <li key={i}>{insight}</li>)}</ul>
           </div>
         )}
         {card.chart_data && renderChart(card.chart_data)}
       </section>
 
-      {card.key_metrics && card.key_metrics.length > 0 && (
+      {card.key_metrics && (Array.isArray(card.key_metrics) ? card.key_metrics : typeof card.key_metrics === 'string' ? [card.key_metrics] : []).length > 0 && (
         <footer className="card-footer metrics">
-          {card.key_metrics.map((metric, i) => <span key={i} className="metric-pill"><Cpu size={14} /> {metric}</span>)}
+          {(Array.isArray(card.key_metrics) ? card.key_metrics : typeof card.key_metrics === 'string' ? [card.key_metrics] : []).map((metric, i) => <span key={i} className="metric-pill"><Cpu size={14} /> {metric}</span>)}
         </footer>
       )}
     </article>

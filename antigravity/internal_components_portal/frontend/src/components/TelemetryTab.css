@@ -574,3 +574,246 @@
   letter-spacing: 0.05em;
   margin-bottom: -4px;
 }
+
+/* Telemetry Sidebar Styles */
+.telemetry-with-sidebar {
+  flex-direction: row;
+  padding: 0;
+  gap: 0;
+  width: 100%;
+  max-width: 100%;
+  height: 100%;
+}
+
+.telemetry-history-sidebar {
+  width: 320px;
+  background-color: #fcfcfc;
+  border-right: 1px solid #e5e7eb;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow-y: hidden;
+}
+
+.history-sidebar-header {
+  padding: 20px 24px;
+  border-bottom: 1px solid #e5e7eb;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background-color: white;
+}
+
+.history-sidebar-header h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: #111827;
+}
+
+.history-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.history-item {
+  padding: 14px 16px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background-color: white;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.history-item:hover {
+  border-color: #d1d5db;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.history-item.active {
+  border-color: #86BC25; /* Deloitte Green */
+  background-color: #f8fbf4; /* Light green tint */
+}
+
+.history-item.analysis {
+  background: linear-gradient(to right, #ffffff, #f0f7ff);
+  border-left: 4px solid #3b82f6;
+}
+
+.history-item.analysis.active {
+  border-color: #3b82f6;
+  background-color: #f0f7ff;
+}
+
+.history-item-query {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #374151;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.history-item-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+
+.meta-badge {
+  font-size: 0.7rem;
+  padding: 2px 6px;
+  border-radius: 12px;
+  font-weight: 500;
+  background-color: #f3f4f6;
+  color: #4b5563;
+}
+
+.meta-badge.model {
+  background-color: #e0e7ff;
+  color: #3730a3;
+}
+
+.meta-badge.mode {
+  background-color: #fae8ff;
+  color: #86198f;
+}
+
+.meta-badge.active-tag {
+  background-color: #dcfce7;
+  color: #166534;
+}
+
+.meta-badge.ai-insight {
+  background-color: #dbeafe;
+  color: #1e40af;
+}
+
+.history-sidebar-actions {
+  padding: 16px;
+  border-top: 1px solid #e5e7eb;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background-color: white;
+}
+
+.analyze-button, .clear-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px;
+  border-radius: 8px;
+  font-weight: 500;
+  font-size: 0.9rem;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.analyze-button {
+  background-color: #1e3a8a; /* Deloitte dark blue */
+  color: white;
+}
+
+.analyze-button:hover:not(:disabled) {
+  background-color: #172554;
+}
+
+.analyze-button:disabled {
+  background-color: #93c5fd;
+  cursor: not-allowed;
+}
+
+.clear-button {
+  background-color: #fee2e2;
+  color: #991b1b;
+}
+
+.clear-button:hover:not(:disabled) {
+  background-color: #fecaca;
+}
+
+.clear-button:disabled {
+  background-color: #f3f4f6;
+  color: #9ca3af;
+  cursor: not-allowed;
+}
+
+/* Main Content Area */
+.telemetry-main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow-y: auto;
+  padding: 32px 48px;
+  box-sizing: border-box;
+}
+
+.telemetry-analysis-view {
+  background-color: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+  border: 1px solid #e5e7eb;
+  padding: 40px;
+  min-height: 100%;
+}
+
+.analysis-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 32px;
+  color: #1e3a8a;
+  border-bottom: 1px solid #e5e7eb;
+  padding-bottom: 24px;
+}
+
+.analysis-header h2 {
+  font-size: 1.8rem;
+  font-weight: 600;
+  margin: 0;
+  color: #111827;
+}
+
+.analysis-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  height: 200px;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.no-result {
+  text-align: center;
+  color: #6b7280;
+  font-style: italic;
+  margin-top: 40px;
+}
+
+.markdown-container {
+  color: #374151;
+  line-height: 1.6;
+}
+
+.markdown-container h1, .markdown-container h2, .markdown-container h3 {
+  color: #111827;
+  margin-top: 24px;
+  margin-bottom: 16px;
+}
+

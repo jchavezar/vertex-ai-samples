@@ -133,7 +133,10 @@ function App() {
     reasoningSteps,
     tokenUsage,
     publicInsight,
-    isPublicInsightStreaming
+    isPublicInsightStreaming,
+    telemetryHistory,
+    setTelemetryHistory,
+    currentQuery
   } = useTerminalChat(effectiveTokens, selectedModel, routerMode);
   const projectCards = useDashboardStore((s) => s.projectCards);
   const [isPublicInsightExpanded, setIsPublicInsightExpanded] = useState(false);
@@ -421,7 +424,16 @@ function App() {
           token={tokens?.accessToken || undefined}
         />
         ) : activeAppTab === "telemetry" ? (
-          <TelemetryTab telemetry={telemetry} reasoningSteps={reasoningSteps} tokenUsage={tokenUsage} />
+          <TelemetryTab 
+            telemetry={telemetry} 
+            reasoningSteps={reasoningSteps} 
+            tokenUsage={tokenUsage} 
+            telemetryHistory={telemetryHistory}
+            setTelemetryHistory={setTelemetryHistory}
+            currentQuery={currentQuery}
+            selectedModel={selectedModel}
+            routerMode={routerMode}
+          />
         ) : activeAppTab === "ge_flow" ? (
           <GeMcpFlow />
         ) : activeAppTab === "auth_flow" ? (
@@ -521,6 +533,9 @@ function App() {
                       </option>
                       <option value="gemini-2.5-flash" style={{ color: "black" }}>
                         gemini-2.5-flash
+                      </option>
+                      <option value="gemini-3.1-flash-lite-preview" style={{ color: "black" }}>
+                        gemini-3.1-flash-lite-preview
                       </option>
                     </select>
                   </div>

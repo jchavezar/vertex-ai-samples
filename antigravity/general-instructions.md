@@ -19,6 +19,8 @@ To avoid port conflicts when running multiple Antigravity applications simultane
 | **market_swarm_terminal** | Frontend | `5173` |
 | **nexus_search_core** | Backend | `8006` |
 | **nexus_search_core** | Frontend | `5174` |
+| **global_tax_intelligence** | Backend | `8009` |
+| **global_tax_intelligence** | Frontend | `5178` |
 
 > [!IMPORTANT]
 > Never use overlapping ports for Antigravity apps. Always check this section before assigning new ports to any application.
