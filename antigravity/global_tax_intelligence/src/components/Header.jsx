@@ -1,14 +1,18 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Search, Globe, ChevronDown, Menu, X, Briefcase, TrendingUp, Shield, Activity, FileText, Building, Cpu, Landmark, ChevronRight, Zap, Loader2 } from 'lucide-react';
+import { Search, Globe, ChevronDown, Menu, X, Briefcase, TrendingUp, Shield, Activity, FileText, Building, Cpu, Landmark, ChevronRight, Zap, Loader2, BrainCircuit } from 'lucide-react';
 import { motion } from 'framer-motion';
 import ReactMarkdown from 'react-markdown';
 import './Header.css';
 import GenerativeDashboardModal from './GenerativeDashboardModal';
+import SwarmBoardroomModal from './SwarmBoardroomModal';
 
 const Header = () => {
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   
+  // 3080 Future Labs State
+  const [isBoardroomOpen, setIsBoardroomOpen] = useState(false);
+
   // AI Mega-Menu State
   const [isMegaMenuOpen, setIsMegaMenuOpen] = useState(false);
   const [navQuery, setNavQuery] = useState('');
@@ -199,7 +203,14 @@ const Header = () => {
               Industries <ChevronDown size={14} className={`nav-chevron ${isMegaMenuOpen ? 'rotate' : ''}`} />
             </a>
             <a href="#">How We Work</a>
-            <a href="#">Careers & Culture</a>
+            <a 
+              href="#" 
+              onClick={(e) => { e.preventDefault(); setIsBoardroomOpen(true); setIsMegaMenuOpen(false); setIsInsightMenuOpen(false); }}
+              style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#fbbf24', fontWeight: 600, background: 'rgba(251,191,36,0.1)', padding: '6px 12px', borderRadius: '20px', marginLeft: '12px' }}
+              className="future-labs-btn"
+            >
+              <BrainCircuit size={16} /> 3080 Labs
+            </a>
           </nav>
           
           {/* Live Policy Pulse Dropdown */}
@@ -379,11 +390,16 @@ const Header = () => {
         </div>
       </div>
 
-      <GenerativeDashboardModal 
+    <GenerativeDashboardModal 
         isOpen={isDashboardOpen} 
         onClose={() => setIsDashboardOpen(false)} 
         industry={selectedDashboardIndustry}
         navQuery={dashboardNavQuery}
+      />
+
+      <SwarmBoardroomModal 
+        isOpen={isBoardroomOpen} 
+        onClose={() => setIsBoardroomOpen(false)} 
       />
     </header>
   );
