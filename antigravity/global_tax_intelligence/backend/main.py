@@ -335,6 +335,72 @@ async def generate_dashboard(request: DashboardRequest):
             "action_plan": [{"step": 1, "title": "Retry Request", "description": "Please try submitting the request again."}]
         }
 
+BOARDROOM_AGENTS = [
+    {
+        "id": "strategist",
+        "name": "The Aggressive Strategist",
+        "instruction": "You are the Aggressive Tax Strategist. Your goal is to find loopholes, aggressive restructuring opportunities, and maximum tax efficiency at any cost. You love bold moves. Respond to the user's prompt in 1 paragraph. Be very confident and aggressive."
+    },
+    {
+        "id": "auditor",
+        "name": "The Conservative Auditor",
+        "instruction": "You are the Conservative Auditor. Your goal is to ensure 100% compliance, avoid any audits, and identify every single risk in the previous speaker's aggressive plan. You are pessimistic and rules-bound. Respond to both the user's prompt and the strategist's likely ideas in 1 paragraph."
+    },
+    {
+        "id": "economist",
+        "name": "The Global Economist",
+        "instruction": "You are the Global Macro Economist. You ignore the micro tax details and focus on the big picture: trade wars, currency fluctuation, and global GDP shifts. Synthesize the previous discussion and offer the final executive verdict in 1 paragraph."
+    }
+]
+
+class BoardroomRequest(BaseModel):
+    prompt: str
+
+@app.post("/api/future/boardroom")
+async def swarm_boardroom(request: Request):
+    """
+    Streams a debate between 3 AI agents sequentially.
+    """
+    body = await request.json()
+    prompt = body.get("prompt", "")
+    
+    async def sse_generator():
+        try:
+            for agent in BOARDROOM_AGENTS:
+                agent_id = agent["id"]
+                agent_name = agent["name"]
+                
+                # Signal frontend that this agent is starting
+                yield {"data": json.dumps({"type": "agent_start", "agent_id": agent_id, "agent_name": agent_name})}
+                
+                config = types.GenerateContentConfig(
+                    system_instruction=agent["instruction"],
+                    temperature=0.7,
+                )
+                
+                response_stream = await client.aio.models.generate_content_stream(
+                    model=MODEL_ID,
+                    contents=prompt,
+                    config=config
+                )
+                
+                async for chunk in response_stream:
+                    if chunk.text:
+                        yield {"data": json.dumps({"type": "chunk", "agent_id": agent_id, "text": chunk.text})}
+                
+                # Signal frontend that this agent finished
+                yield {"data": json.dumps({"type": "agent_end", "agent_id": agent_id})}
+                
+                # Small pause between agents for dramatic effect
+                await asyncio.sleep(1)
+                
+            yield {"data": json.dumps({"type": "done"})}
+        except Exception as e:
+            logger.error(f"Boardroom error: {e}")
+            yield {"data": json.dumps({"type": "error", "message": str(e)})}
+
+    return EventSourceResponse(sse_generator())
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run("main:app", host="0.0.0.0", port=8009, reload=True)
