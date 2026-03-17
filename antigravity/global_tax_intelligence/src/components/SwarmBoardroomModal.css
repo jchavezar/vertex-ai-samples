@@ -131,17 +131,6 @@
   font-size: 1.05rem;
 }
 
-/* Glowing Brain Visual */
-.swarm-visual {
-  position: relative;
-  width: 120px;
-  height: 120px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 2rem;
-}
-
 .center-brain {
   color: #38bdf8;
   z-index: 2;
@@ -340,4 +329,274 @@
   cursor: not-allowed;
   transform: none;
   box-shadow: none;
+}
+
+/* Holographic Neural Core */
+.swarm-visual {
+  position: relative;
+  width: 150px;
+  height: 150px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 2rem auto;
+}
+
+.holo-core {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.9), rgba(56, 189, 248, 0.4));
+  box-shadow: 0 0 30px rgba(56, 189, 248, 0.6), inset 0 0 20px rgba(255, 255, 255, 0.5);
+  animation: coreSpin 4s linear infinite, coreBreathe 2s ease-in-out infinite alternate;
+  transition: all 0.5s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.holo-core.active.strategist {
+  background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.9), rgba(239, 68, 68, 0.6));
+  box-shadow: 0 0 50px rgba(239, 68, 68, 0.8), inset 0 0 20px rgba(255, 255, 255, 0.5);
+  transform: scale(1.1);
+  animation: coreSpin 1.5s linear infinite;
+}
+
+.holo-core.active.auditor {
+  background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.9), rgba(251, 191, 36, 0.6));
+  box-shadow: 0 0 50px rgba(251, 191, 36, 0.8), inset 0 0 20px rgba(255, 255, 255, 0.5);
+  transform: scale(1.05);
+  animation: coreSpin 2.5s linear infinite;
+}
+
+.holo-core.active.economist {
+  background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.9), rgba(56, 189, 248, 0.6));
+  box-shadow: 0 0 50px rgba(56, 189, 248, 0.8), inset 0 0 20px rgba(255, 255, 255, 0.5);
+  transform: scale(1.1);
+  animation: coreSpin 2s linear infinite;
+}
+
+.holo-ring {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border: 2px dashed rgba(56, 189, 248, 0.3);
+  border-radius: 50%;
+  animation: ringSpin 8s linear infinite;
+}
+
+.holo-ring:nth-child(2) {
+  width: 120%;
+  height: 120%;
+  border: 1px dotted rgba(255, 255, 255, 0.2);
+  animation: ringSpin 12s linear infinite reverse;
+}
+
+@keyframes coreSpin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+@keyframes coreBreathe {
+  0% { filter: brightness(1); }
+  100% { filter: brightness(1.3); }
+}
+@keyframes ringSpin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Equalizers */
+.consensus-dashboard {
+  display: flex;
+  justify-content: space-around;
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+}
+
+.metric-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.metric-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+}
+
+.eq-bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+  height: 50px;
+}
+
+.eq-bar {
+  width: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  transition: height 0.3s cubic-bezier(0.4, 0, 0.2, 1), background 0.3s ease;
+}
+
+.eq-bar.active.strategist { background: #ef4444; box-shadow: 0 0 15px #ef4444; }
+.eq-bar.active.auditor { background: #fbbf24; box-shadow: 0 0 15px #fbbf24; }
+.eq-bar.active.economist { background: #38bdf8; box-shadow: 0 0 15px #38bdf8; }
+
+/* Audio Waveform Replacement for dots */
+.synthetic-waveform {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  height: 20px;
+  margin-left: auto;
+}
+
+.synthetic-waveform .wave {
+  width: 4px;
+  height: 4px;
+  background: #fff;
+  border-radius: 2px;
+  animation: waveform 0.6s ease-in-out infinite alternate;
+}
+
+.active-strategist .wave { background: #ef4444; box-shadow: 0 0 8px #ef4444; }
+.active-auditor .wave { background: #fbbf24; box-shadow: 0 0 8px #fbbf24; }
+.active-economist .wave { background: #38bdf8; box-shadow: 0 0 8px #38bdf8; }
+
+.synthetic-waveform .wave:nth-child(1) { animation-delay: 0s; }
+.synthetic-waveform .wave:nth-child(2) { animation-delay: 0.1s; }
+.synthetic-waveform .wave:nth-child(3) { animation-delay: 0.2s; }
+.synthetic-waveform .wave:nth-child(4) { animation-delay: 0.3s; }
+.synthetic-waveform .wave:nth-child(5) { animation-delay: 0.4s; }
+
+@keyframes waveform {
+  0% { height: 4px; }
+  100% { height: 20px; }
+}
+
+/* Neon Keyword Badges */
+.neon-keyword {
+  display: inline-block;
+  padding: 0 6px;
+  margin: 0 2px;
+  border-radius: 4px;
+  font-weight: 700;
+  text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+  animation: glowIn 0.3s ease-out forwards;
+}
+
+.neon-keyword.strategist {
+  color: #ef4444;
+  background: rgba(239, 68, 68, 0.15);
+  box-shadow: 0 0 8px rgba(239, 68, 68, 0.4);
+  border: 1px solid rgba(239, 68, 68, 0.4);
+}
+.neon-keyword.auditor {
+  color: #fbbf24;
+  background: rgba(251, 191, 36, 0.15);
+  box-shadow: 0 0 8px rgba(251, 191, 36, 0.4);
+  border: 1px solid rgba(251, 191, 36, 0.4);
+}
+.neon-keyword.economist {
+  color: #38bdf8;
+  background: rgba(56, 189, 248, 0.15);
+  box-shadow: 0 0 8px rgba(56, 189, 248, 0.4);
+  border: 1px solid rgba(56, 189, 248, 0.4);
+}
+
+@keyframes glowIn {
+  from { opacity: 0; filter: blur(2px); transform: scale(1.1); }
+  to { opacity: 1; filter: blur(0); transform: scale(1); }
+}
+
+/* Quantum Decoding Text */
+.quantum-char {
+  color: #38bdf8;
+  opacity: 0.8;
+  font-family: monospace;
+  animation: settleChar 0.15s forwards;
+}
+
+@keyframes settleChar {
+  0% { opacity: 1; color: #fff; }
+  100% { opacity: 0; display: none; }
+}
+
+.boardroom-quick-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
+.quick-action-btn {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  color: #94a3b8;
+  font-size: 0.85rem;
+  padding: 6px 12px;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-weight: 500;
+}
+
+.quick-action-btn:hover:not(:disabled) {
+  background: rgba(56, 189, 248, 0.15);
+  color: #38bdf8;
+  box-shadow: 0 0 10px rgba(56, 189, 248, 0.3);
+}
+
+.quick-action-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+
+/* Override strong tags to look like neon keywords based on active agent */
+.active-strategist .markdown-body strong {
+  display: inline-block;
+  padding: 0 6px;
+  margin: 0 2px;
+  border-radius: 4px;
+  font-weight: 700;
+  text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+  animation: glowIn 0.3s ease-out forwards;
+  color: #ef4444;
+  background: rgba(239, 68, 68, 0.15);
+  box-shadow: 0 0 8px rgba(239, 68, 68, 0.4);
+  border: 1px solid rgba(239, 68, 68, 0.4);
+}
+
+.active-auditor .markdown-body strong {
+  display: inline-block;
+  padding: 0 6px;
+  margin: 0 2px;
+  border-radius: 4px;
+  font-weight: 700;
+  text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+  animation: glowIn 0.3s ease-out forwards;
+  color: #fbbf24;
+  background: rgba(251, 191, 36, 0.15);
+  box-shadow: 0 0 8px rgba(251, 191, 36, 0.4);
+  border: 1px solid rgba(251, 191, 36, 0.4);
+}
+
+.active-economist .markdown-body strong {
+  display: inline-block;
+  padding: 0 6px;
+  margin: 0 2px;
+  border-radius: 4px;
+  font-weight: 700;
+  text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+  animation: glowIn 0.3s ease-out forwards;
+  color: #38bdf8;
+  background: rgba(56, 189, 248, 0.15);
+  box-shadow: 0 0 8px rgba(56, 189, 248, 0.4);
+  border: 1px solid rgba(56, 189, 248, 0.4);
 }
