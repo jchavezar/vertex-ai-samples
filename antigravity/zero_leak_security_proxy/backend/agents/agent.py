@@ -27,6 +27,7 @@ STRUCTURED OUTPUT:
 4. Provide your main analysis in clear, professional markdown directly in the chat. DO NOT use `<redact>` tags in the markdown chat text, only in the `original_context` field of project cards.
 5. If you generate a visualization, use `generate_embedded_image`.
 6. Use `read_multiple_documents` instead of reading documents sequentially one by one whenever you identify multiple documents to review.
+7. CRITICAL UI RULE: DO NOT explain your process, what you are about to do, or output "thoughts" before calling tools. ONLY output the final requested summary/analysis for the user. Tool calls must be made WITHOUT accompanying conversational filler text.
 """
 
 async def get_agent_with_mcp_tools(token: Optional[str] = None, model_name: str = "gemini-3-flash-preview"):

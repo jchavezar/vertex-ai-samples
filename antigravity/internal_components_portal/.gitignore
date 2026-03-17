@@ -71,3 +71,4 @@ credentials.json
 # Project specifics
 generate_pdfs.py
 scratch_pad/
+.tmp-testing/

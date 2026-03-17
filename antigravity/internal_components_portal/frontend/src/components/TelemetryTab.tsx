@@ -135,7 +135,7 @@ export const TelemetryTab: React.FC<TelemetryTabProps> = ({
       }
 
       const data = await response.json();
-      setAnalysisResult(data.analysis_report);
+      setAnalysisResult(data.analysis);
     } catch (err) {
       console.error("Error analyzing latency:", err);
       setAnalysisResult(`**Error**: Failed to generate analysis report. ${err instanceof Error ? err.message : ''}`);
