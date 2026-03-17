@@ -15,12 +15,25 @@ export default function SwarmBoardroomModal({ isOpen, onClose }) {
   const [messages, setMessages] = useState([]);
   const [isSimulating, setIsSimulating] = useState(false);
   const [activeAgent, setActiveAgent] = useState(null);
+  const [eqBars, setEqBars] = useState(Array.from({ length: 12 }, () => 10));
   
   const messagesEndRef = useRef(null);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, activeAgent]);
+
+  useEffect(() => {
+    let interval;
+    if (isSimulating && activeAgent) {
+      interval = setInterval(() => {
+        setEqBars(Array.from({ length: 12 }, () => Math.random() * 100));
+      }, 150);
+    } else if (!isSimulating) {
+      setEqBars(Array.from({ length: 12 }, () => 10)); // resting state
+    }
+    return () => clearInterval(interval);
+  }, [isSimulating, activeAgent]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -124,14 +137,26 @@ export default function SwarmBoardroomModal({ isOpen, onClose }) {
             {messages.length === 0 && !isSimulating ? (
               <div className="boardroom-empty-state">
                 <div className="swarm-visual">
-                  <span className="pulse-ring"></span>
-                  <BrainCircuit size={48} className="center-brain" />
+                  <div className="holo-core"></div>
+                  <div className="holo-ring"></div>
+                  <div className="holo-ring"></div>
                 </div>
                 <h3>Deploy the Strategy Swarm</h3>
                 <p>Present a global tax or macroeconomic challenge. Watch three distinct AI personas debate, critique, and synthesize a master strategy in real-time.</p>
               </div>
             ) : (
               <div className="boardroom-stream">
+                <div className="consensus-dashboard">
+                  <div className="metric-group">
+                    <span className="metric-label">Neural Execution Link</span>
+                    <div className="eq-bars">
+                      {eqBars.map((h, i) => (
+                        <div key={i} className={`eq-bar ${activeAgent ? `active ${activeAgent}` : ''}`} style={{ height: `${h}%` }}></div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
                 <AnimatePresence>
                   {messages.map((msg, idx) => (
                     <motion.div 
@@ -145,13 +170,15 @@ export default function SwarmBoardroomModal({ isOpen, onClose }) {
                         {EVENT_ICONS[msg.agent_id]}
                         <h4>{msg.agent_name}</h4>
                         {activeAgent === msg.agent_id && (
-                          <div className="agent-typing-indicator">
-                            <span className="dot"></span><span className="dot"></span><span className="dot"></span>
+                          <div className={`synthetic-waveform active-${msg.agent_id}`}>
+                            <span className="wave"></span><span className="wave"></span><span className="wave"></span><span className="wave"></span><span className="wave"></span>
                           </div>
                         )}
                       </div>
                       <div className="agent-body markdown-body">
-                        <ReactMarkdown>{msg.text}</ReactMarkdown>
+                        <ReactMarkdown>
+                          {msg.text.replace(/\b(Risk|Audit|Strategy|Volatility|Liability|Loophole|Tariffs|Exposure|Crypto|Geoeconomic|Pillar Two|AI|Digital Services|Onshoring)\b/gi, '**$1**')}
+                        </ReactMarkdown>
                       </div>
                     </motion.div>
                   ))}
@@ -162,6 +189,12 @@ export default function SwarmBoardroomModal({ isOpen, onClose }) {
           </div>
 
           <div className="boardroom-input-area">
+            <div className="boardroom-quick-actions">
+              <button type="button" className="quick-action-btn" disabled={isSimulating} onClick={() => setPrompt("Examine the risk of new global AI compute tariffs.")}>AI Tariffs</button>
+              <button type="button" className="quick-action-btn" disabled={isSimulating} onClick={() => setPrompt("Review Pillar Two implications for our supply chain.")}>Pillar Two</button>
+              <button type="button" className="quick-action-btn" disabled={isSimulating} onClick={() => setPrompt("Simulate the exposure of shifting manufacturing offshore.")}>Offshoring Risk</button>
+              <button type="button" className="quick-action-btn" disabled={isSimulating} onClick={() => setPrompt("Aggressive restructuring for digital IP holding.")}>Digital IP Restructuring</button>
+            </div>
             <form onSubmit={handleSubmit} className="boardroom-form">
               <input 
                 type="text" 
