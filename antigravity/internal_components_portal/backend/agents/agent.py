@@ -95,12 +95,40 @@ async def get_agent_with_mcp_tools(token: Optional[str] = None, id_token: Option
             )
         return None
 
-    # 3. Initialize Agent Engine Ready Agent (Removed output_schema for better streaming)
+    # 3. Initialize Planner (Dynamic based on budget_config.txt)
+    from google.adk.planners import BuiltInPlanner
+    from google.genai.types import ThinkingConfig
+    
+    thinking_budget_val = None
+    try:
+        if os.path.exists("budget_config.txt"):
+            with open("budget_config.txt", "r") as f:
+                content = f.read().strip()
+                if content:
+                    thinking_budget_val = int(content)
+    except Exception as e:
+        print(f">>> [EXPERIMENT] Failed to read budget_config.txt: {e}")
+
+    planner = None
+    if thinking_budget_val is not None:
+        try:
+            planner = BuiltInPlanner(
+                thinking_config=ThinkingConfig(
+                    include_thoughts=True,
+                    thinking_budget=thinking_budget_val
+                )
+            )
+            print(f">>> [EXPERIMENT] Enabled BuiltInPlanner with thinking_budget={thinking_budget_val}")
+        except ValueError:
+            print(f">>> [EXPERIMENT] Invalid THINKING_BUDGET: {thinking_budget_val}")
+
+    # 4. Initialize Agent Engine Ready Agent
     agent = agents.LlmAgent(
         name="SecurityProxyAgent",
-        model=model_name,
+        model="gemini-2.5-flash",
         instruction=ENHANCED_GOVERNANCE_INSTRUCTIONS,
         tools=mcp_tools,
+        planner=planner,
         before_agent_callback=before_agent_auth_callback
     )
     return agent, exit_stack

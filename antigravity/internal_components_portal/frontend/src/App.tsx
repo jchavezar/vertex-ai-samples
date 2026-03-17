@@ -705,7 +705,7 @@ function App() {
                     ) : null)}
 
 
-                    {((isLoading || thoughtStatus) && (!messages.length || messages[messages.length - 1].role !== 'assistant')) && (
+                    {isLoading && (
                     <div className="gemini-loading-wrapper">
                       <div className="gemini-search-pill">
                           {usedSharePoint && <img src="/sharepoint-logo.svg" className="sharepoint-used-badge" alt="SharePoint Used" title="SharePoint indices searched" />}
