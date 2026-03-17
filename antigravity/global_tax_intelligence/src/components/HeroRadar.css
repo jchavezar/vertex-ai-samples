@@ -1,0 +1,376 @@
+.hero-radar-container {
+  padding-top: 140px;
+  min-height: 90vh;
+  display: flex;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(135deg, var(--accent-primary) 0%, #4c1d95 60%, #9333ea 100%);
+  color: white;
+}
+
+/* Subtal background glow */
+.hero-radar-container::before {
+  content: '';
+  position: absolute;
+  top: 20%;
+  right: 10%;
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.2) 0%, rgba(0,0,0,0) 70%);
+  filter: blur(80px);
+  z-index: 0;
+  pointer-events: none;
+}
+
+.hero-radar-container::after {
+  content: '';
+  position: absolute;
+  bottom: 0%;
+  left: 20%;
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, rgba(0,0,0,0) 70%);
+  filter: blur(80px);
+  z-index: 0;
+  pointer-events: none;
+}
+
+.hero-radar-content {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 40px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 60px;
+  align-items: center;
+  position: relative;
+  z-index: 10;
+}
+
+.hero-text {
+  max-width: 650px;
+}
+
+.badge-enterprise {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  background: rgba(59, 130, 246, 0.1);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #eff6ff;
+  margin-bottom: 24px;
+}
+
+.text-accent {
+  color: #fff;
+  font-weight: 700;
+}
+
+.hero-subtitle {
+  font-size: 1.2rem;
+  color: rgba(255, 255, 255, 0.9);
+  margin: 24px 0 40px;
+  max-width: 540px;
+}
+
+.hero-radar-container .text-gradient {
+  background: linear-gradient(135deg, #ffffff 0%, #93c5fd 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.hero-radar-container .text-gradient-ai {
+  background: linear-gradient(135deg, #4ade80 0%, #06b6d4 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 0 15px rgba(74, 222, 128, 0.4));
+}
+
+.hero-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.primary-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  background: linear-gradient(135deg, var(--accent-primary) 0%, #2563eb 100%);
+  color: white;
+  border: none;
+  padding: 16px 32px;
+  border-radius: 8px;
+  font-size: 1.05rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  width: fit-content;
+  box-shadow: 0 10px 25px rgba(59, 130, 246, 0.4);
+}
+
+.primary-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 15px 35px rgba(59, 130, 246, 0.5);
+}
+
+.trust-indicators {
+  display: flex;
+  gap: 20px;
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.trust-indicators span {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.text-green-400 {
+  color: #4ade80;
+}
+
+/* Visual Abstract Radar */
+.hero-visual {
+  position: relative;
+  height: 600px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.radar-abstract {
+  position: relative;
+  width: 500px;
+  height: 500px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.radar-circle {
+  position: absolute;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.circle-1 { width: 200px; height: 200px; border-style: dashed; animation: spin 40s linear infinite; }
+.circle-2 { width: 350px; height: 350px; border-color: rgba(139, 92, 246, 0.15); animation: spin 60s linear infinite reverse; }
+.circle-3 { width: 500px; height: 500px; }
+
+/* Dynamic Orbiting Satellites */
+.orbit-path {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+.orbit-1 { width: 200px; height: 200px; animation: spin 15s linear infinite; }
+.orbit-2 { width: 350px; height: 350px; animation: spin 25s linear infinite reverse; }
+.orbit-3 { width: 500px; height: 500px; animation: spin 45s linear infinite; }
+
+.orbiting-node {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background-color: #fff;
+  filter: drop-shadow(0 0 10px rgba(255,255,255,0.8));
+}
+
+.satellite-1 { width: 6px; height: 6px; background-color: #4ade80; filter: drop-shadow(0 0 8px #4ade80); }
+.satellite-2 { width: 8px; height: 8px; background-color: #06b6d4; filter: drop-shadow(0 0 10px #06b6d4); }
+.satellite-3 { width: 5px; height: 5px; background-color: #c084fc; filter: drop-shadow(0 0 6px #c084fc); }
+
+@keyframes spin {
+  100% { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+.center-globe {
+  color: rgba(255, 255, 255, 0.8);
+  filter: drop-shadow(0 0 20px rgba(59, 130, 246, 0.6));
+}
+
+.animate-pulse-slow {
+  animation: pulse-slow 4s ease-in-out infinite;
+}
+
+@keyframes pulse-slow {
+  0%, 100% { filter: drop-shadow(0 0 10px rgba(59, 130, 246, 0.4)); opacity: 0.8; }
+  50% { filter: drop-shadow(0 0 30px rgba(59, 130, 246, 0.8)); opacity: 1; }
+}
+
+.datapoint {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  z-index: 20;
+}
+
+.node-eu { top: 25%; right: 30%; }
+.node-asia { bottom: 35%; right: 15%; }
+.node-na { top: 35%; left: 20%; }
+
+.ping {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background-color: #fff;
+  opacity: 0.8;
+}
+
+.dot {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background-color: #fff;
+}
+
+.tooltip {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translate(-50%, -10px);
+  background: var(--bg-glass-heavy);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--border-light);
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  color: white;
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+}
+
+.tooltip-trigger:hover .tooltip {
+  opacity: 1;
+  visibility: visible;
+  transform: translate(-50%, -15px);
+}
+
+.absolute-insight {
+  position: absolute;
+  bottom: 40px;
+  left: 0;
+  padding: 24px 30px;
+  width: 360px;
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+  animation: float 6s ease-in-out infinite;
+}
+
+.insight-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 12px;
+}
+
+.absolute-insight p {
+  font-size: 1rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin: 0;
+}
+
+@keyframes float {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+  100% { transform: translateY(0px); }
+}
+
+@media (max-width: 1024px) {
+  .hero-radar-content {
+    grid-template-columns: 1fr;
+    text-align: center;
+  }
+  
+  .hero-text {
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .hero-subtitle {
+    margin: 24px auto 40px;
+  }
+}
+
+/* Active Scanning States */
+.btn-analyzing {
+  background: linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%);
+  animation: scanningPulse 1.5s infinite;
+  cursor: wait;
+}
+
+@keyframes scanningPulse {
+  0% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7); }
+  70% { box-shadow: 0 0 0 15px rgba(59, 130, 246, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
+}
+
+.radar-active-scan .circle-1 { border-color: #06b6d4; animation: spin 2s linear infinite; }
+.radar-active-scan .circle-2 { border-color: #3b82f6; animation: spin 3s linear infinite reverse; }
+.radar-active-scan .circle-3 { border-color: #8b5cf6; animation: spin 4s linear infinite; filter: drop-shadow(0 0 15px rgba(139, 92, 246, 0.5)); }
+
+.radar-active-scan .orbit-1 { animation: spin 1.5s linear infinite; }
+.radar-active-scan .orbit-2 { animation: spin 2s linear infinite reverse; }
+.radar-active-scan .orbit-3 { animation: spin 2.5s linear infinite; }
+
+.radar-active-scan .center-globe {
+  color: #06b6d4;
+  filter: drop-shadow(0 0 30px #06b6d4);
+  animation: fastPulse 0.5s ease-in-out infinite;
+}
+
+@keyframes fastPulse {
+  0%, 100% { filter: drop-shadow(0 0 20px #06b6d4); opacity: 0.8; transform: scale(1); }
+  50% { filter: drop-shadow(0 0 50px #3b82f6); opacity: 1; transform: scale(1.05); }
+}
+
+.radar-sweep-beam {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 250px;
+  height: 250px;
+  transform-origin: 0 0;
+  background: conic-gradient(from 0deg, rgba(6, 182, 212, 0) 0deg, rgba(6, 182, 212, 0.1) 60deg, rgba(6, 182, 212, 0.4) 90deg, rgba(6, 182, 212, 0) 90deg);
+  animation: radarSweep 1s linear infinite;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 5;
+}
+
+@keyframes radarSweep {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
