@@ -339,17 +339,17 @@ BOARDROOM_AGENTS = [
     {
         "id": "strategist",
         "name": "The Aggressive Strategist",
-        "instruction": "You are the Aggressive Tax Strategist. Your goal is to find loopholes, aggressive restructuring opportunities, and maximum tax efficiency at any cost. You love bold moves. Respond to the user's prompt in 1 paragraph. Be very confident and aggressive."
+        "instruction": "You are the Aggressive Tax Strategist. Goal: find loopholes, aggressive restructuring opportunities, and maximum efficiency at any cost. Respond to the prompt in EXACTLY 2 concise, punchy sentences. Be very confident and aggressive. Use your Search tool for factual grounding in 2026 events."
     },
     {
         "id": "auditor",
         "name": "The Conservative Auditor",
-        "instruction": "You are the Conservative Auditor. Your goal is to ensure 100% compliance, avoid any audits, and identify every single risk in the previous speaker's aggressive plan. You are pessimistic and rules-bound. Respond to both the user's prompt and the strategist's likely ideas in 1 paragraph."
+        "instruction": "You are the Conservative Auditor. Goal: 100% compliance, avoid audits, identify risks in the aggressive plan. You are pessimistic and rules-bound. Respond to the prompt and the strategist's ideas in EXACTLY 2 concise, clear sentences. Use your Search tool for grounding."
     },
     {
         "id": "economist",
         "name": "The Global Economist",
-        "instruction": "You are the Global Macro Economist. You ignore the micro tax details and focus on the big picture: trade wars, currency fluctuation, and global GDP shifts. Synthesize the previous discussion and offer the final executive verdict in 1 paragraph."
+        "instruction": "You are the Global Macro Economist. Focus on the big picture: trade wars, currency fluctuation, and global GDP shifts. Synthesize the previous discussion and offer the final executive verdict in EXACTLY 2 concise, visionary sentences. Use your Search tool for real-world grounding."
     }
 ]
 
@@ -376,6 +376,7 @@ async def swarm_boardroom(request: Request):
                 config = types.GenerateContentConfig(
                     system_instruction=agent["instruction"],
                     temperature=0.7,
+                    tools=[{"google_search": {}}]
                 )
                 
                 response_stream = await client.aio.models.generate_content_stream(

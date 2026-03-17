@@ -88,7 +88,10 @@ export default function SwarmBoardroomModal({ isOpen, onClose }) {
                   const newMsgs = [...prev];
                   const lastMsg = newMsgs[newMsgs.length - 1];
                   if (lastMsg && lastMsg.agent_id === data.agent_id) {
-                    lastMsg.text += data.text;
+                    newMsgs[newMsgs.length - 1] = {
+                      ...lastMsg,
+                      text: lastMsg.text + data.text
+                    };
                   }
                   return newMsgs;
                 });
