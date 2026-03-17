@@ -32,7 +32,7 @@ export default function SwarmBoardroomModal({ isOpen, onClose }) {
 
     try {
       // Backend expects a POST request, returning an SSE stream
-      const response = await fetch('http://localhost:8009/api/future/boardroom', {
+      const response = await fetch('/api/future/boardroom', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ prompt })
