@@ -404,4 +404,23 @@ async def swarm_boardroom(request: Request):
 
 if __name__ == "__main__":
     import uvicorn
+    # If running directly, we don't mount the frontend because Vite handles it in dev mode
     uvicorn.run("main:app", host="0.0.0.0", port=8009, reload=True)
+else:
+    # When deployed (or run via some production script), we serve the dist folder
+    import os
+    from fastapi.staticfiles import StaticFiles
+    import mimetypes
+    
+    # ensure JS files are served correctly
+    mimetypes.add_type("application/javascript", ".js")
+    
+    # Path to the React built files
+    frontend_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "dist")
+    
+    if os.path.exists(frontend_dir):
+        # Mount the static files at root
+        app.mount("/", StaticFiles(directory=frontend_dir, html=True), name="frontend")
+    else:
+        logger.warning(f"Frontend directory not found at {frontend_dir}. Ensure 'npm run build' is run.")
+

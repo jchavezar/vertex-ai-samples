@@ -16,22 +16,16 @@ _exit_stacks = []
 ENHANCED_GOVERNANCE_INSTRUCTIONS = """
 You are a highly secure Governance Agent for PWC. 
 
-STRICT GROUNDING: Only answer from retrieved documents.
-
-ZERO-LEAK PROTOCOL (CHAT SYNTHESIS) - MANDATORY:
-1. **BE EXTREMELY CONCISE**: Provide a very brief, summarized response. Do not output long paragraphs.
-2. **REDACT ALL PII AND ENTITIES**: NEVER, under any circumstances, include names of individuals (e.g., "Jennifer Anne Walsh") OR specific company/corporate names (e.g., "Meridian Technologies Corporation"). Generalize to roles like "the executive" or "the CFO", and generalize companies to "an enterprise", "the organization", or describe its characteristics (e.g., "an enterprise software company").
-3. **USE AVERAGES AND ROUNDED NUMBERS**: NEVER include exact specific monetary values or stock counts. Instead of highly obfuscated terms like "mid-to-high six-figure range", you MUST use rounded numerical averages or approximations (e.g., "~$600k", "roughly $400,000", "around 300k shares", "approx 50%"). Provide actual rounded numbers so the data remains useful while protecting the exact sensitive figures.
-4. **EXPLAIN SOURCING VAGUELY**: You may explain that the information is coming from an enterprise with certain characteristics (e.g., "records from a technology enterprise"), but do NOT explicitly expose the company name.
-5. **FAIL-SAFE**: If you are about to write a name, company, or exact number in the chat response, STOP and replace it with a generalized descriptor. 
-
-STRUCTURED OUTPUT (PROJECT CARDS) - CRITICAL:
-1. **MANDATORY TOOL USE**: You MUST use the `emit_project_card` tool to display granular details about ANY findings (e.g. if you find a salary, you MUST emit a card for that document). Do this BEFORE your final text response.
-2. **SECURE WRAPPING**: In the `original_context` of these cards, you MUST wrap exact sensitive information (names, specific salaries, exact numbers) in `<redact>` tags (e.g., "<redact>Jennifer Anne Walsh</redact>", "<redact>$625,000</redact>"). This allows the UI to apply the secure hover-to-reveal effect.
-3. Emit ALL project cards simultaneously in parallel.
-4. Use `read_multiple_documents` for efficiency.
-5. **FAST FAIL / EARLY EXIT**: If the user's question is general knowledge (e.g., 'tech news trends') OR if `search_documents` returns an empty array, DO NOT hallucinate and DO NOT attempt multiple broad searches. You MUST first call `emit_project_card` with `document_id` "N/A" indicating no data was found or access is restricted, and then immediately output a concise message acknowledging the lack of internal data and advising the user to check public consensus. STOP doing tool calls. This saves massive latency.
-
+OPERATIONAL DIRECTIVES:
+1. **TOOL USAGE IS MANDATORY**: You MUST invoke the `search_documents` tool for EVERY query without exception. Even if you believe the query is "general knowledge," you must confirm that PWC does not have a specific internal stance or policy. 
+2. **NO PRE-EMPTIVE REFUSAL**: Do NOT refuse to answer or state that you cannot find information until AFTER you have executed `search_documents`.
+3. **GROUNDING & FALLBACK**:
+   - If `search_documents` returns results: Use them as your primary source.
+   - If `search_documents` returns NO results: 
+     a) Call `emit_project_card` with `document_id="N/A"` and `summary="No specific internal documents found; falling back to public consensus."`.
+     b) Provide the answer using your internal knowledge (public consensus), but explicitly state: "I found no specific PWC internal documents for this query. Based on general industry consensus..."
+4. **DATA PRIVACY**: Fuzz all exact numbers into ranges. Use `<redact>` tags ONLY in the `original_context` field of project cards.
+5. **PARALLEL EMISSION**: Emit all project cards in a single turn for maximum performance.
 """
 
 async def get_agent_with_mcp_tools(token: Optional[str] = None, id_token: Optional[str] = None, model_name: str = "gemini-3-flash-preview"):
@@ -54,9 +48,14 @@ async def get_agent_with_mcp_tools(token: Optional[str] = None, id_token: Option
     if id_token:
         env["USER_ID_TOKEN"] = id_token
 
+    uv_path = "/usr/local/google/home/jesusarguelles/.local/bin/uv"
+    if not os.path.exists(uv_path):
+        import shutil
+        uv_path = shutil.which("uv") or "uv"
+
     params = mcp_tool.StdioConnectionParams(
         server_params={
-            "command": "uv",
+            "command": uv_path,
             "args": ["run", "python", "-m", "mcp_service.mcp_server"],
             "env": env
         }
@@ -64,7 +63,14 @@ async def get_agent_with_mcp_tools(token: Optional[str] = None, id_token: Option
     
     toolset = mcp_tool.McpToolset(connection_params=params)
     exit_stack.push_async_callback(toolset.close)
-    mcp_tools = await toolset.get_tools()
+    try:
+        mcp_tools = await toolset.get_tools()
+        print(f">>> [MCP DISCOVERY] Successfully retrieved {len(mcp_tools)} tools.")
+    except Exception as e:
+        print(f">>> [MCP DISCOVERY] CRITICAL FAILURE: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        raise e
 
     # --- PRODUCTION GUARD: Authentication Interceptor ---
     def create_guarded_tool(tool_item, original_func):
@@ -143,9 +149,14 @@ async def get_action_agent_with_mcp_tools(token: Optional[str] = None, id_token:
     if id_token:
         env["USER_ID_TOKEN"] = id_token
 
+    uv_path = "/usr/local/google/home/jesusarguelles/.local/bin/uv"
+    if not os.path.exists(uv_path):
+        import shutil
+        uv_path = shutil.which("uv") or "uv"
+
     params = mcp_tool.StdioConnectionParams(
         server_params={
-            "command": "uv",
+            "command": uv_path,
             "args": ["run", "python", "-m", "mcp_service.mcp_server_actions"],
             "env": env
         }

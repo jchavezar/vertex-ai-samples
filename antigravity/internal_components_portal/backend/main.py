@@ -63,6 +63,10 @@ session_service = InMemorySessionService()
 
 class ChatRequest(BaseModel):
     messages: list
+
+class LatencyAnalyzeRequest(BaseModel):
+    history: list
+    model: str = "gemini-3-flash-preview"
 from typing import Tuple, Dict, Any
 import jwt
 
@@ -338,15 +342,22 @@ async def _chat_stream(messages: list, model_name: str, token: str = None, id_to
                     for p in parts:
                         agent_label = "[Public Web]" if tag == "public" else "[Enterprise Proxy]"
                         
-                        is_thought = p.get("thought") is True or (p.get("thought") and isinstance(p["thought"], str))
+                        is_native_thought = p.get("thought") is True or (p.get("thought") and isinstance(p["thought"], str))
+                        has_function_call_in_turn = any(part.get("function_call") for part in parts)
+                        is_thought = is_native_thought or (has_function_call_in_turn and p.get("text"))
+                        
                         if is_thought:
-                            thought_text = p.get("text") if p.get("thought") is True else p.get("thought")
+                            thought_text = p.get("text") if (is_native_thought and p.get("thought") is True) or (not is_native_thought and p.get("text")) else p.get("thought")
                             if thought_text and isinstance(thought_text, str):
                                 txt = f"{agent_label} THOUGHT ({author}) [{model_name}]:\n{thought_text.strip()}"
                                 if txt not in reasoning_steps:
                                     reasoning_steps.append(txt)
                                     yield AIStreamProtocol.data({"type": "telemetry", "data": latency_metrics, "reasoning": reasoning_steps, "tokens": total_tokens, "adk_events": adk_events_trace})
-                            continue # CRITICAL: Skip standard text extraction so thoughts don't leak into the frontend UI chat
+                            
+                            # If it was just 'text' acting as a thought before a function call, we don't 'continue' so it doesn't break function_call parsing,
+                            # but we definitely shouldn't yield it to the UI below. We will handle that below.
+                            if is_native_thought:
+                                continue # CRITICAL: Skip standard text extraction so thoughts don't leak into the frontend UI chat
                                 
                         # Extract Google Search Grounding Metadata dynamically
                         if tag == "public":
@@ -403,7 +414,7 @@ async def _chat_stream(messages: list, model_name: str, token: str = None, id_to
                             current_action[tag] = "LLM Final Synthesis"
                             yield AIStreamProtocol.data({"type": "telemetry", "data": latency_metrics, "reasoning": reasoning_steps, "tokens": total_tokens})
 
-                        if p.get("text") and isinstance(p["text"], str):
+                        if p.get("text") and isinstance(p["text"], str) and not has_function_call_in_turn:
                             txt = p['text'].strip()
                             if txt:
                                 if author == "model":
@@ -1216,6 +1227,15 @@ async def get_backups_api(request: Request, item_id: str):
         return {"backups": backups}
     except Exception as e:
         logger.error(f"List backups API error: {e}")
+        return {"error": str(e)}
+
+@app.post("/api/latency/analyze")
+async def analyze_latency_api(data: LatencyAnalyzeRequest):
+    try:
+        analysis = analyze_latency_profiles(data.history, data.model)
+        return {"analysis": analysis}
+    except Exception as e:
+        logger.error(f"Latency Analysis API error: {e}")
         return {"error": str(e)}
 
 if __name__ == "__main__":
