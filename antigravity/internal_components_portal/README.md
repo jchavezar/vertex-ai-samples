@@ -1,6 +1,6 @@
-# 🛡️ PWC LLM Security Proxy: SharePoint Integration
+# 🛡️ Internal Components Portal: SharePoint Integration
 
-> **Zero-Leak Protocol Enforced**: This project implements a secure, generalized consulting intelligence proxy. It acts as a middleman between confidential SharePoint documents and a chat interface, guaranteeing that users can query enterprise intelligence without ever exposing sensitive client data, PII, or raw financial specifics to the public web.
+> **Zero-Leak Protocol Enforced**: This project implements a secure, generalized consulting intelligence portal. It acts as a middleman between confidential SharePoint documents and a chat interface, guaranteeing that users can query enterprise intelligence without ever exposing sensitive client data, PII, or raw financial specifics to the public web.
 
 This application is built using the **Zero-Parsing Architecture** combining **FastAPI**, **Google ADK (Agent Development Kit)**, and the **React 19 Vercel AI SDK**. It offers a beautiful, modern **Topology UI** to inspect end-to-end telemetry and execution latency.
 
@@ -19,7 +19,7 @@ This repository adheres to strict Zero-Leak protocols for enterprise deployments
 ## 📂 PROJECT STRUCTURE
 
 ```text
-zero_leak_security_proxy/
+internal_components_portal/
 ├── backend/            # FastAPI Security Proxy (Python, uv)
 ├── frontend/           # React 19 Vercel AI SDK SPA
 ├── docs/               # Architecture diagrams and documentation
@@ -89,20 +89,7 @@ flowchart LR
 
 ---
 
-## 🚀 Live Environment Verification
-
-The application is fully optimized for Cloud Run deployments. When deployed, it features seamless active routing and zero-leak configuration proxying.
-
-### Example Query Executions
-![Cloud Run Standard End-to-End Test](assets/cloud_run_demo.webp)
-
-![Active Browsing Query Cards](assets/cloud_run_queries.webp)
-
----
-
 ## 🛠️ Replication & Setup Guide
-
-### 1. Azure App Registration
 Ensure your Entra ID application has:
 - Supported account types: Single Tenant
 - Redirect URIs (SPA): `http://localhost:5177` and your `https://your-cloud-run-frontend-url`
@@ -110,7 +97,7 @@ Ensure your Entra ID application has:
 
 ### 2. Configure Environment
 
-At the root of the project (`llm_security_proxy_sharepoint/`), create a `.env` file containing your Azure credentials and SharePoint targets:
+At the root of the project (`internal_components_portal/`), create a `.env` file containing your Azure credentials and SharePoint targets:
 
 ```env
 # Microsoft Configuration (No secrets!)
