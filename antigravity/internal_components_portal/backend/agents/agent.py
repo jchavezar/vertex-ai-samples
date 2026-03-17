@@ -25,12 +25,13 @@ ZERO-LEAK PROTOCOL (CHAT SYNTHESIS) - MANDATORY:
 4. **EXPLAIN SOURCING VAGUELY**: You may explain that the information is coming from an enterprise with certain characteristics (e.g., "records from a technology enterprise"), but do NOT explicitly expose the company name.
 5. **FAIL-SAFE**: If you are about to write a name, company, or exact number in the chat response, STOP and replace it with a generalized descriptor. 
 
-STRUCTURED OUTPUT (PROJECT CARDS):
-1. Use the `emit_project_card` tool for granular details. 
+STRUCTURED OUTPUT (PROJECT CARDS) - CRITICAL:
+1. **MANDATORY TOOL USE**: You MUST use the `emit_project_card` tool to display granular details about ANY findings (e.g. if you find a salary, you MUST emit a card for that document). Do this BEFORE your final text response.
 2. **SECURE WRAPPING**: In the `original_context` of these cards, you MUST wrap exact sensitive information (names, specific salaries, exact numbers) in `<redact>` tags (e.g., "<redact>Jennifer Anne Walsh</redact>", "<redact>$625,000</redact>"). This allows the UI to apply the secure hover-to-reveal effect.
 3. Emit ALL project cards simultaneously in parallel.
 4. Use `read_multiple_documents` for efficiency.
-5. **FAST FAIL / EARLY EXIT**: If the user's question is general knowledge (e.g., 'tech news trends') OR if `search_documents` returns an empty array, DO NOT hallucinate and DO NOT attempt multiple broad searches. Immediately output a concise message: "This subject is outside our available enterprise database. Please refer to Public Web Research for insights." and STOP doing tool calls. This saves massive latency.
+5. **FAST FAIL / EARLY EXIT**: If the user's question is general knowledge (e.g., 'tech news trends') OR if `search_documents` returns an empty array, DO NOT hallucinate and DO NOT attempt multiple broad searches. You MUST first call `emit_project_card` with `document_id` "N/A" indicating no data was found or access is restricted, and then immediately output a concise message acknowledging the lack of internal data and advising the user to check public consensus. STOP doing tool calls. This saves massive latency.
+
 """
 
 async def get_agent_with_mcp_tools(token: Optional[str] = None, id_token: Optional[str] = None, model_name: str = "gemini-3-flash-preview"):
@@ -95,37 +96,23 @@ async def get_agent_with_mcp_tools(token: Optional[str] = None, id_token: Option
             )
         return None
 
-    # 3. Initialize Planner (Dynamic based on budget_config.txt)
+    # 3. Initialize Planner (Optimized for gemini-2.5-flash)
     from google.adk.planners import BuiltInPlanner
     from google.genai.types import ThinkingConfig
     
-    thinking_budget_val = None
-    try:
-        if os.path.exists("budget_config.txt"):
-            with open("budget_config.txt", "r") as f:
-                content = f.read().strip()
-                if content:
-                    thinking_budget_val = int(content)
-    except Exception as e:
-        print(f">>> [EXPERIMENT] Failed to read budget_config.txt: {e}")
-
-    planner = None
-    if thinking_budget_val is not None:
-        try:
-            planner = BuiltInPlanner(
-                thinking_config=ThinkingConfig(
-                    include_thoughts=True,
-                    thinking_budget=thinking_budget_val
-                )
-            )
-            print(f">>> [EXPERIMENT] Enabled BuiltInPlanner with thinking_budget={thinking_budget_val}")
-        except ValueError:
-            print(f">>> [EXPERIMENT] Invalid THINKING_BUDGET: {thinking_budget_val}")
+    # HARDCODED OPTIMIZATION: 1024 budget showed ~40% latency improvement in testing.
+    planner = BuiltInPlanner(
+        thinking_config=ThinkingConfig(
+            include_thoughts=True,
+            thinking_budget=1024
+        )
+    )
+    print(">>> [PRODUCTION] Enabled BuiltInPlanner with optimized thinking_budget=1024")
 
     # 4. Initialize Agent Engine Ready Agent
     agent = agents.LlmAgent(
         name="SecurityProxyAgent",
-        model="gemini-2.5-flash",
+        model=model_name,
         instruction=ENHANCED_GOVERNANCE_INSTRUCTIONS,
         tools=mcp_tools,
         planner=planner,

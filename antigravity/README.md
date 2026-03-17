@@ -165,6 +165,21 @@
       <a href="./dynamic_workflow_orchestrator/">ACCESS_TERMINAL &rarr;</a>
     </td>
   </tr>
+  <!-- ROW 10: INTERNAL PORTAL -->
+  <tr>
+    <td width="50%" valign="top">
+      <img src="assets/header_hub.svg" width="100%" />
+      <br/><br/>
+      <strong>PROJECT: INTERNAL COMPONENTS PORTAL</strong><br/>
+      Advanced Latency Benchmarking. Features real-time profile visualization and 
+      dynamic thinking budget optimization for Enterprise search.<br/>
+      <br/>
+      <a href="./internal_components_portal/">ACCESS_TERMINAL &rarr;</a>
+    </td>
+    <td width="50%" valign="top">
+      <!-- PLACEHOLDER -->
+    </td>
+  </tr>
 </table>
 
 <br/>

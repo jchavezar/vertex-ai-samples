@@ -24,7 +24,7 @@ app = FastAPI(title="Global Tax Intelligence Backend")
 # Setup CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5178", "http://127.0.0.1:5178"],
+    allow_origins=["http://localhost:5178", "http://127.0.0.1:5178", "http://localhost:5179", "http://127.0.0.1:5179"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -71,6 +71,23 @@ Generate exactly 4 distinct categories.
 DO NOT include any markdown formatting, backticks, or other text outside the JSON array. Just the raw JSON array.
 """
 
+LIVE_PULSE_INSTRUCTION = """
+You are the KPMG Global Insights Coordinator.
+The user is requesting a live update on tax policies for a specific region or topic.
+You MUST use your Google Search tool to find the absolute latest, current news on this topic.
+Format your response beautifully with markdown:
+- Start with a bold headline reflecting current news.
+- Provide a exactly 1-2 sentence executive summary of the real-world news.
+- Add a bullet point "Risk Impact: [High/Medium/Low] - [1 sentence reason]".
+DO NOT make up information. Use grounded search results.
+"""
+
+DASHBOARD_INSTRUCTION = """
+You are the KPMG Global Insights Coordinator building a generative dashboard.
+Given an industry, generate a comprehensive strategic tax risk assessment.
+You MUST output a JSON object matching the requested schema exactly.
+"""
+
 # Models
 class ChatMessage(BaseModel):
     role: str # "user" or "model" 
@@ -81,6 +98,29 @@ class ChatRequest(BaseModel):
 
 class NavRequest(BaseModel):
     description: str
+
+class PulseRequest(BaseModel):
+    query: str
+
+class ActionItem(BaseModel):
+    step: int
+    title: str
+    description: str
+
+class RiskFactor(BaseModel):
+    area: str
+    impact: str
+    severity: str # High, Medium, Low
+
+class GenerativeDashboardProfile(BaseModel):
+    industry: str
+    executive_summary: str
+    market_trend: str
+    risk_factors: List[RiskFactor]
+    action_plan: List[ActionItem]
+
+class DashboardRequest(BaseModel):
+    industry: str
 
 @app.get("/health")
 async def health_check():
@@ -183,6 +223,48 @@ async def copilot_chat(request: ChatRequest):
 
     return EventSourceResponse(sse_generator())
 
+@app.post("/api/nav/live-pulse")
+async def live_policy_pulse(request: PulseRequest):
+    """
+    Streams a live, search-grounded real-world tax policy update.
+    """
+    async def sse_generator():
+        try:
+            config = types.GenerateContentConfig(
+                system_instruction=LIVE_PULSE_INSTRUCTION,
+                tools=[{"google_search": {}}],
+                temperature=0.3
+            )
+            prompt = f"Fetch the absolute latest news regarding corporate tax policies for: {request.query}."
+            
+            logger.info(f"Generating Live Pulse for: {prompt}")
+            response_stream = await client.aio.models.generate_content_stream(
+                model=MODEL_ID,
+                contents=prompt,
+                config=config
+            )
+            
+            async for chunk in response_stream:
+                if chunk.text:
+                    yield {
+                        "event": "message",
+                        "data": json.dumps({"text": chunk.text})
+                    }
+                    await asyncio.sleep(0.01)
+            
+            yield {
+                "event": "done",
+                "data": "[DONE]"
+            }
+        except Exception as e:
+            logger.error(f"Error in live pulse: {e}")
+            yield {
+                "event": "error",
+                "data": json.dumps({"error": str(e)})
+            }
+            
+    return EventSourceResponse(sse_generator())
+
 @app.post("/api/nav/dynamic-industries")
 async def generate_dynamic_nav(request: NavRequest):
     """
@@ -211,13 +293,47 @@ async def generate_dynamic_nav(request: NavRequest):
         
     except Exception as e:
         logger.error(f"Error generating dynamic nav: {e}")
-        # Return some resilient defaults if AI synthesis fails
         return {"categories": [
             {"title": "Global Compliance Engine", "description": "Automated cross-border tax analysis", "icon": "Globe"},
             {"title": "Transfer Pricing Nexus", "description": "Intercompany agreement insights", "icon": "FileText"},
             {"title": "M&A Structuring", "description": "Risk assessment for global transactions", "icon": "Briefcase"},
             {"title": "Digital Service Taxes", "description": "Evaluating digital product exposure", "icon": "Cpu"}
         ]}
+
+@app.post("/api/generate-dashboard")
+async def generate_dashboard(request: DashboardRequest):
+    """
+    Generates a structured interactive dashboard profile for a given industry.
+    """
+    try:
+        config = types.GenerateContentConfig(
+            system_instruction=DASHBOARD_INSTRUCTION,
+            response_mime_type="application/json",
+            response_schema=GenerativeDashboardProfile,
+            temperature=0.2
+        )
+        
+        prompt = f"Identify the critical global tax risks and strategies for the {request.industry} industry in 2026."
+        logger.info(f"Generating dashboard for industry: {request.industry}")
+        
+        response = await client.aio.models.generate_content(
+            model=MODEL_ID,
+            contents=prompt,
+            config=config
+        )
+        
+        dashboard_data = json.loads(response.text)
+        return dashboard_data
+        
+    except Exception as e:
+        logger.error(f"Error generating dashboard: {e}")
+        return {
+            "industry": request.industry,
+            "executive_summary": "System currently unavailable. Please try again or consult your KPMG representative.",
+            "market_trend": "Data synthesis interrupted.",
+            "risk_factors": [{"area": "System Error", "impact": str(e), "severity": "High"}],
+            "action_plan": [{"step": 1, "title": "Retry Request", "description": "Please try submitting the request again."}]
+        }
 
 if __name__ == "__main__":
     import uvicorn

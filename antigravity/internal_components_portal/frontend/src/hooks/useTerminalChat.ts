@@ -14,6 +14,12 @@ export interface TelemetryEvent {
   duration_s: number;
 }
 
+export interface TelemetryConfig {
+  model: string;
+  thinking_budget: number | string;
+  optimizations: string[];
+}
+
 export interface TokenUsage {
   prompt: number;
   candidates: number;
@@ -32,6 +38,17 @@ export interface StreamPayload {
   [key: string]: unknown;
 }
 
+export interface TelemetrySession {
+  id: string;
+  timestamp: string;
+  query: string;
+  model: string;
+  mode: string;
+  telemetry: TelemetryEvent[];
+  reasoningSteps: string[];
+  tokenUsage: TokenUsage | null;
+}
+
 export function useTerminalChat(tokens: { accessToken: string, idToken: string } | null, model: string = 'gemini-3-flash-preview', routerMode: string = 'all_mcp') {
   const addProjectCard = useDashboardStore((s) => s.addProjectCard);
   const [thoughtStatus, setThoughtStatus] = useState<ThoughtStatus | null>(null);
@@ -42,6 +59,9 @@ export function useTerminalChat(tokens: { accessToken: string, idToken: string }
   const [publicInsight, setPublicInsight] = useState<string>('');
   const [isPublicInsightStreaming, setIsPublicInsightStreaming] = useState<boolean>(false);
   const [adkEvents, setAdkEvents] = useState<Record<string, unknown>[]>([]);
+  const [telemetryConfig, setTelemetryConfig] = useState<TelemetryConfig | null>(null);
+  const [telemetryHistory, setTelemetryHistory] = useState<TelemetrySession[]>([]);
+  const [currentQuery, setCurrentQuery] = useState<string>('');
 
   const apiEndpoint = import.meta.env.VITE_BACKEND_URL || (typeof window !== 'undefined' && window.location.hostname !== 'localhost'
     ? 'https://mcp-sharepoint-server-REDACTED_PROJECT_NUMBER.us-central1.run.app/api/chat/stream'
@@ -100,6 +120,7 @@ export function useTerminalChat(tokens: { accessToken: string, idToken: string }
             if (p.tokens) setTokenUsage(p.tokens as TokenUsage);
             if (p.data) setTelemetry(p.data as TelemetryEvent[]);
             if (p.adk_events) setAdkEvents(p.adk_events as Record<string, unknown>[]);
+            if (p.config) setTelemetryConfig(p.config as TelemetryConfig);
             foundTelemetry = true;
           }
         }
@@ -124,6 +145,25 @@ export function useTerminalChat(tokens: { accessToken: string, idToken: string }
 
   const customHandleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    
+    if (telemetry.length > 0 && currentQuery) {
+      setTelemetryHistory(prev => [
+        ...prev,
+        {
+          id: crypto.randomUUID(),
+          timestamp: new Date().toISOString(),
+          query: currentQuery,
+          model,
+          mode: routerMode,
+          telemetry: [...telemetry],
+          reasoningSteps: [...reasoningSteps],
+          tokenUsage: tokenUsage ? { ...tokenUsage } : null
+        }
+      ]);
+    }
+
+    setCurrentQuery(input);
+    
     // We don't clear projectCards here to avoid a blank screen "flash"
     // Instead, we mark the current state as "stale" or simply wait for the first data chunk.
     setUsedSharePoint(false);
@@ -132,6 +172,7 @@ export function useTerminalChat(tokens: { accessToken: string, idToken: string }
     setTokenUsage(null);
     setPublicInsight('');
     setAdkEvents([]);
+    setTelemetryConfig(null);
     setMessages([]); // This clears the chat list, which is expected for a new query
     setThoughtStatus({ message: 'Initializing Zero-Leak Security Proxy...', icon: 'shield-alert', pulse: true });
 
@@ -141,5 +182,24 @@ export function useTerminalChat(tokens: { accessToken: string, idToken: string }
     handleSubmit(e);
   };
 
-  return { messages, input, handleInputChange, handleSubmit: customHandleSubmit, isLoading, hasData: !!data && data.length > 0, thoughtStatus, usedSharePoint, telemetry, reasoningSteps, tokenUsage, publicInsight, isPublicInsightStreaming, adkEvents };
+  return { 
+    messages, 
+    input, 
+    handleInputChange, 
+    handleSubmit: customHandleSubmit, 
+    isLoading, 
+    hasData: !!data && data.length > 0, 
+    thoughtStatus, 
+    usedSharePoint, 
+    telemetry, 
+    reasoningSteps, 
+    tokenUsage, 
+    publicInsight, 
+    isPublicInsightStreaming, 
+    adkEvents,
+    telemetryConfig,
+    telemetryHistory,
+    setTelemetryHistory,
+    currentQuery
+  };
 }

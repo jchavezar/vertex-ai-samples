@@ -35,3 +35,6 @@ credentials.json
 # Browser Data & Cache
 **/browser_data/
 
+# Archived Scripts
+scripts_archive/
+

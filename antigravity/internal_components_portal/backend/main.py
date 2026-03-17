@@ -40,6 +40,7 @@ from utils.pwc_renderer import render_report
 from pipelines.regenerative_pipeline import run_regenerative_pipeline
 from mcp_service.mcp_sharepoint import SharePointMCP
 from utils.auth_context import set_user_token, set_user_id_token
+from agents.analyze_latency_agent import analyze_latency_profiles
 
 from dotenv import load_dotenv
 load_dotenv(dotenv_path="../.env")
@@ -100,6 +101,8 @@ async def _chat_stream(messages: list, model_name: str, token: str = None, id_to
     set_user_token(token)
     set_user_id_token(id_token)
     
+    prompt = messages[-1]["content"] if messages else ""
+    
     latency_metrics = []
     reasoning_steps = []
     total_tokens = {"prompt": 0, "candidates": 0, "total": 0}
@@ -111,7 +114,7 @@ async def _chat_stream(messages: list, model_name: str, token: str = None, id_to
         duration_sec = now - last_phase_time[tag]
         if duration_sec > 0.01:
             # Enhanced labels for atomic visibility (normalized)
-            prefix = "[ENTERPRISE-ATOMIC] " if tag == "sharepoint" else "[PUBLIC-ATOMIC] "
+            prefix = f"[ENTERPRISE-ATOMIC: {model_name}] " if tag == "sharepoint" else f"[PUBLIC-ATOMIC: {model_name}] "
             latency_metrics.append({"step": prefix + step_name, "duration_s": round(duration_sec, 2)})
         last_phase_time[tag] = now
         # PROACTIVE TELEMETRY YIELD
@@ -138,7 +141,21 @@ async def _chat_stream(messages: list, model_name: str, token: str = None, id_to
     sess_id = f"sess_{current_request_id}"
     pub_sess_id = f"pub_{current_request_id}"
 
-    prompt = messages[-1]['content']
+    # --- LATENCY OPTIMIZATION PROFILE ---
+    optimization_params = {
+        "model": model_name,
+        "thinking_budget": 1024,
+        "optimizations": [
+            "BuiltInPlanner Enabled",
+            "Parallel Tool Fan-out",
+            "Auth Context Caching",
+            "Zero-Leak Masking Protocol"
+        ]
+    }
+    
+    # Inject optimization details directly into the trace as a system step
+    reasoning_steps.append(f"[SYSTEM] OPTIMIZATION PROFILE:\n{json.dumps(optimization_params, indent=2)}")
+    
     # Ensure session exists
     session = await session_service.get_session(app_name="PWC_Security_Proxy", user_id="default_user", session_id=sess_id)
     if not session:
@@ -267,7 +284,7 @@ async def _chat_stream(messages: list, model_name: str, token: str = None, id_to
             msg_type = q_item["type"]
 
             if msg_type == "telemetry_yield":
-                yield AIStreamProtocol.data({"type": "telemetry", "data": list(latency_metrics), "reasoning": reasoning_steps, "tokens": total_tokens, "adk_events": adk_events_trace})
+                yield AIStreamProtocol.data({"type": "telemetry", "data": list(latency_metrics), "reasoning": reasoning_steps, "tokens": total_tokens, "adk_events": adk_events_trace, "config": optimization_params})
                 continue
 
 
@@ -321,11 +338,15 @@ async def _chat_stream(messages: list, model_name: str, token: str = None, id_to
                     for p in parts:
                         agent_label = "[Public Web]" if tag == "public" else "[Enterprise Proxy]"
                         
-                        if p.get("thought"):
-                            txt = f"{agent_label} THOUGHT ({author}):\n{p['thought'].strip()}"
-                            if txt not in reasoning_steps:
-                                reasoning_steps.append(txt)
-                                yield AIStreamProtocol.data({"type": "telemetry", "data": latency_metrics, "reasoning": reasoning_steps, "tokens": total_tokens, "adk_events": adk_events_trace})
+                        is_thought = p.get("thought") is True or (p.get("thought") and isinstance(p["thought"], str))
+                        if is_thought:
+                            thought_text = p.get("text") if p.get("thought") is True else p.get("thought")
+                            if thought_text and isinstance(thought_text, str):
+                                txt = f"{agent_label} THOUGHT ({author}) [{model_name}]:\n{thought_text.strip()}"
+                                if txt not in reasoning_steps:
+                                    reasoning_steps.append(txt)
+                                    yield AIStreamProtocol.data({"type": "telemetry", "data": latency_metrics, "reasoning": reasoning_steps, "tokens": total_tokens, "adk_events": adk_events_trace})
+                            continue # CRITICAL: Skip standard text extraction so thoughts don't leak into the frontend UI chat
                                 
                         # Extract Google Search Grounding Metadata dynamically
                         if tag == "public":
@@ -363,8 +384,8 @@ async def _chat_stream(messages: list, model_name: str, token: str = None, id_to
                             else:
                                 current_action[tag] = f"Tool: {tool_name}"
                             
-                            reasoning_steps.append(f"{agent_label} TOOL ({author}):\n{tool_name}")
-                            reasoning_steps.append(f"{agent_label} ARGS:\n{str(tool_args)}")
+                            reasoning_steps.append(f"{agent_label} TOOL ({author}) [{model_name}]:\n{tool_name}")
+                            reasoning_steps.append(f"{agent_label} ARGS [{model_name}]:\n{str(tool_args)}")
                             yield AIStreamProtocol.data({"type": "telemetry", "data": latency_metrics, "reasoning": reasoning_steps, "tokens": total_tokens})
                                 
                         elif p.get("function_response"):
@@ -373,8 +394,8 @@ async def _chat_stream(messages: list, model_name: str, token: str = None, id_to
                             resp_data = p["function_response"].get("response", "")
                             res_str = str(resp_data)[:500] + "... [TRUNCATED]" if len(str(resp_data)) > 500 else str(resp_data)
                             
-                            reasoning_steps.append(f"{agent_label} RESPONSE ({author}):\n{tool_name}")
-                            reasoning_steps.append(f"{agent_label} RESULT:\n{res_str}")
+                            reasoning_steps.append(f"{agent_label} RESPONSE ({author}) [{model_name}]:\n{tool_name}")
+                            reasoning_steps.append(f"{agent_label} RESULT [{model_name}]:\n{res_str}")
                             log_latency(tag, current_action[tag])
                             
                             if tag == "sharepoint":
@@ -382,19 +403,27 @@ async def _chat_stream(messages: list, model_name: str, token: str = None, id_to
                             current_action[tag] = "LLM Final Synthesis"
                             yield AIStreamProtocol.data({"type": "telemetry", "data": latency_metrics, "reasoning": reasoning_steps, "tokens": total_tokens})
 
-                        if p.get("text"):
+                        if p.get("text") and isinstance(p["text"], str):
                             txt = p['text'].strip()
                             if txt:
                                 if author == "model":
-                                    step_text = f"{agent_label} SYNTHESIS ({author}):\n{txt}"
+                                    step_text = f"{agent_label} SYNTHESIS ({author}) [{model_name}]:\n{txt}"
                                     if step_text not in reasoning_steps:
                                         reasoning_steps.append(step_text)
                                         yield AIStreamProtocol.data({"type": "telemetry", "data": latency_metrics, "reasoning": reasoning_steps, "tokens": total_tokens, "adk_events": adk_events_trace})
                                 
                                 if tag == "public":
                                     pub_insight += txt
-                                    # PWC STREAMING DEFERRED
-                                    pass
+                                    # STREAMING YIELD: Send public insight as soon as it accumulates significant text
+                                    if len(pub_insight) % 50 < 5: # Periodic yield to feel alive
+                                        yield AIStreamProtocol.data({
+                                            "type": "public_insight", 
+                                            "message": "Public Web Consensus",
+                                            "data": pub_insight.strip() + "...",
+                                            "icon": "globe",
+                                            "pulse": True,
+                                            "is_streaming": True
+                                        })
                                 else:
                                     # Track TTFT (Time to First Token)
                                     if not has_yielded_text:
@@ -429,7 +458,7 @@ async def _chat_stream(messages: list, model_name: str, token: str = None, id_to
             "is_streaming": False
         })
 
-    yield AIStreamProtocol.data({"type": "telemetry", "data": latency_metrics, "reasoning": reasoning_steps, "tokens": total_tokens, "adk_events": adk_events_trace})
+    yield AIStreamProtocol.data({"type": "telemetry", "data": latency_metrics, "reasoning": reasoning_steps, "tokens": total_tokens, "adk_events": adk_events_trace, "config": optimization_params})
     yield AIStreamProtocol.data({"type": "status", "message": "Transmission complete.", "icon": "check-circle", "pulse": False})
 
 from utils.auth_context import set_user_token
@@ -454,6 +483,20 @@ async def _ge_mcp_chat_stream(messages: list, model_name: str, token: str = None
     latency_metrics = []
     adk_events_trace = []
     tokens = {"prompt": 0, "candidates": 0, "total": 0}
+    
+    # --- LATENCY OPTIMIZATION PROFILE ---
+    optimization_params = {
+        "model": model_name,
+        "thinking_budget": "N/A (GE-Optimized)",
+        "optimizations": [
+            "Gemini Enterprise Sequential Search",
+            "Vertex AI Search Toolset",
+            "Router Intent Classification",
+            "WIF Auth Implementation"
+        ]
+    }
+    # Inject optimization details directly into the trace as a system step
+    reasoning_steps.append(f"[SYSTEM] OPTIMIZATION PROFILE:\n{json.dumps(optimization_params, indent=2)}")
     
     import time
     from google.genai import types
@@ -520,7 +563,7 @@ async def _ge_mcp_chat_stream(messages: list, model_name: str, token: str = None
                             yield AIStreamProtocol.data({"type": "telemetry", "data": latency_metrics, "reasoning": reasoning_steps, "tokens": tokens, "adk_events": adk_events_trace})
 
         router_duration = time.time() - router_start
-        latency_metrics.append({"step": "[SYSTEM-ATOMIC] Intent Classification", "duration_s": round(router_duration, 2)})
+        latency_metrics.append({"step": f"[SYSTEM-ATOMIC: {model_name}] Intent Classification", "duration_s": round(router_duration, 2)})
         reasoning_steps.append(f"[Router] INTENT DETECTED: {intent}")
         yield AIStreamProtocol.data({"type": "telemetry", "data": latency_metrics, "reasoning": reasoning_steps, "tokens": tokens, "adk_events": adk_events_trace})
         
@@ -557,7 +600,8 @@ async def _ge_mcp_chat_stream(messages: list, model_name: str, token: str = None
                         "data": combined_metrics, 
                         "reasoning": combined_reasoning, 
                         "tokens": tokens,
-                        "adk_events": adk_events_trace
+                        "adk_events": adk_events_trace,
+                        "config": optimization_params
                     })
                     continue # Don't yield the original telemetry chunk as-is
                 except Exception as e:
@@ -685,8 +729,8 @@ async def _ge_mcp_chat_stream(messages: list, model_name: str, token: str = None
                                 yield AIStreamProtocol.text(p.get("text"))
             
             action_duration = time.time() - action_start
-            latency_metrics.append({"step": "[SYSTEM-ATOMIC] Action Execution", "duration_s": round(action_duration, 2)})
-            yield AIStreamProtocol.data({"type": "telemetry", "data": latency_metrics, "reasoning": reasoning_steps, "tokens": tokens, "adk_events": adk_events_trace})
+            latency_metrics.append({"step": f"[SYSTEM-ATOMIC: {model_name}] Action Execution", "duration_s": round(action_duration, 2)})
+            yield AIStreamProtocol.data({"type": "telemetry", "data": latency_metrics, "reasoning": reasoning_steps, "tokens": tokens, "adk_events": adk_events_trace, "config": optimization_params})
             yield AIStreamProtocol.data({"type": "status", "message": "Action completed.", "icon": "check-circle", "pulse": False})
         finally:
             if exit_stack:
@@ -737,6 +781,20 @@ class TokenAcquisitionRequest(BaseModel):
     data_connector: str
     code: str
     redirect_uri: str
+
+class AnalyzeLatencyRequest(BaseModel):
+    history: list
+
+@app.post("/api/latency/analyze")
+async def analyze_latency_endpoint(request: Request, data: AnalyzeLatencyRequest):
+    # Enforces the 'Zero-Leak' pattern just to verify caller is legit
+    token, _ = await verify_jwt(request)
+    
+    # Run analysis using a strong model (e.g. gemini-2.5-pro) to ensure rich insights
+    model_name = "gemini-2.5-pro" 
+    
+    analysis_md = analyze_latency_profiles(data.history, model_name)
+    return {"analysis": analysis_md}
 
 @app.post("/api/ge/acquire_and_store_refresh_token")
 async def acquire_and_store_refresh_token(request: Request, data: TokenAcquisitionRequest):
