@@ -12,7 +12,7 @@ WORKDIR /app
 
 # Install dependencies via uv
 COPY backend/pyproject.toml backend/uv.lock* ./
-RUN pip install uv && uv pip install --system fastapi uvicorn google-generativeai pydantic sse-starlette python-dotenv
+RUN pip install uv && uv pip install --system fastapi uvicorn google-genai pydantic sse-starlette python-dotenv
 
 # Copy everything else
 COPY backend ./backend

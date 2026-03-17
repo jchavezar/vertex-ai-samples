@@ -49,12 +49,9 @@ gcloud services enable \
     iap.googleapis.com
 
 # 2. Build and Deploy to Cloud Run
-echo "[2] Building the Docker image via Cloud Build..."
-gcloud builds submit --tag "$IMAGE_NAME" .
-
-echo "[3] Deploying to Cloud Run..."
+echo "[2] Building and Deploying to Cloud Run from source..."
 gcloud run deploy "$SERVICE_NAME" \
-    --image "$IMAGE_NAME" \
+    --source . \
     --region "$REGION" \
     --platform managed \
     --ingress internal-and-cloud-load-balancing \
