@@ -51,8 +51,8 @@ export default function SwarmBoardroomModal({ isOpen, onClose }) {
         
         rawData += decoder.decode(value, { stream: true });
         
-        // Split by SSE double newline
-        const lines = rawData.split('\n\n');
+        // Split by SSE double newline (supports both LF and CRLF)
+        const lines = rawData.split(/\r?\n\r?\n/);
         // Keep the last part if not complete
         rawData = lines.pop() || "";
         
