@@ -6,7 +6,7 @@ from google.genai import types
 
 logger = logging.getLogger("analyze_latency_agent")
 
-def analyze_latency_profiles(history_data: list, model_name: str = "gemini-3-flash-preview") -> str:
+def analyze_latency_profiles(history_data: list, model_name: str = "gemini-2.5-flash") -> str:
     """
     Analyzes a history array of latency profiles and outputs a comparative markdown report.
     """

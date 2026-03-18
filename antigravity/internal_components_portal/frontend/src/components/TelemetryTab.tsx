@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Activity, Brain, Wrench, Zap, Search, FileText, ChevronRight, Settings2, Trash2, BarChart2, Loader2 } from 'lucide-react';
+import React, { useState, useRef, useEffect } from 'react';
+import { Activity, Brain, Wrench, Zap, Search, FileText, ChevronRight, Settings2, Trash2, BarChart2, Loader2, MessageSquare, Send, X } from 'lucide-react';
 import type { TelemetryEvent, TokenUsage, TelemetrySession } from '../hooks/useTerminalChat';
 import { MarkdownRenderer } from './MarkdownRenderer';
 import './TelemetryTab.css';
@@ -91,6 +91,65 @@ export const TelemetryTab: React.FC<TelemetryTabProps> = ({
   const [selectedSessionId, setSelectedSessionId] = useState<string>('current');
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisResult, setAnalysisResult] = useState<string | null>(null);
+  
+  // Chatbot State
+  const [isChatOpen, setIsChatOpen] = useState(false);
+  const [chatMessages, setChatMessages] = useState<{role: string, content: string}[]>([]);
+  const [chatInput, setChatInput] = useState('');
+  const [isChatLoading, setIsChatLoading] = useState(false);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (isChatOpen) {
+      // Use requestAnimationFrame to ensure layout has updated before scrolling
+      const scrollFrame = requestAnimationFrame(() => {
+        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+      });
+      return () => cancelAnimationFrame(scrollFrame);
+    }
+  }, [chatMessages, isChatOpen, isChatLoading]);
+
+  const handleChatSubmit = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    if (!chatInput.trim() || isChatLoading) return;
+
+    const userMessage = { role: 'user', content: chatInput };
+    setChatMessages(prev => [...prev, userMessage]);
+    setChatInput('');
+    setIsChatLoading(true);
+
+    try {
+      const token = localStorage.getItem('access_token');
+      const apiEndpoint = import.meta.env.VITE_BACKEND_URL || (typeof window !== 'undefined' && window.location.hostname !== 'localhost' ? '' : 'http://localhost:8008');
+      
+      const response = await fetch(`${apiEndpoint}/api/latency/chat`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ 
+          messages: [...chatMessages, userMessage],
+          history: allSessions,
+          analysis_result: analysisResult,
+          model: 'gemini-2.5-flash'
+        })
+      });
+
+      if (!response.ok) throw new Error(`Failed to send message: ${response.status}`);
+      
+      const data = await response.json();
+      if (data.error) throw new Error(data.error);
+      
+      setChatMessages(prev => [...prev, { role: 'assistant', content: data.response }]);
+    } catch (err) {
+      console.error("Chat Error:", err);
+      const errMsg = err instanceof Error ? err.message : "Backend connection error";
+      setChatMessages(prev => [...prev, { role: 'assistant', content: `**Error**: ${errMsg}. Please ensure the backend server is running.` }]);
+    } finally {
+      setIsChatLoading(false);
+    }
+  };
 
   const currentSession: TelemetrySession = {
     id: 'current',
@@ -219,7 +278,13 @@ export const TelemetryTab: React.FC<TelemetryTabProps> = ({
              onClick={handleAnalyze} 
              disabled={isAnalyzing || allSessions.length === 0}
            >
-             {isAnalyzing ? <Loader2 size={16} className="animate-spin" /> : <BarChart2 size={16} />}
+             {isAnalyzing ? (
+               <div className="animate-spin" style={{ display: 'inline-flex' }}>
+                 <Loader2 size={16} />
+               </div>
+             ) : (
+               <BarChart2 size={16} />
+             )}
              Analyze All
            </button>
            <button 
@@ -244,11 +309,13 @@ export const TelemetryTab: React.FC<TelemetryTabProps> = ({
              </div>
              <div className="analysis-body">
                {isAnalyzing ? (
-                 <div className="analysis-loading">
-                   <Loader2 className="animate-spin text-blue-500" size={32} />
-                   <p>Generating deep analysis across your executions...</p>
-                 </div>
-               ) : analysisResult ? (
+                  <div className="analysis-loading">
+                    <div className="animate-spin text-blue-500">
+                      <Loader2 size={32} />
+                    </div>
+                    <p>Generating deep analysis across your executions...</p>
+                  </div>
+                ) : analysisResult ? (
                  <div className="markdown-container">
                    <MarkdownRenderer content={analysisResult} />
                  </div>
@@ -396,6 +463,83 @@ export const TelemetryTab: React.FC<TelemetryTabProps> = ({
           </>
         ) : null}
       </div>
+
+      {/* Chatbot Overlay Widget */}
+      {isChatOpen && (
+        <>
+          <div className="chatbot-backdrop" onClick={() => setIsChatOpen(false)} />
+          <div className={`latency-chatbot-overlay`}>
+            <div className="chatbot-overlay-header">
+              <h3>
+                <Brain size={20} className="header-icon" />
+                Execution Analyzer Assistant
+              </h3>
+              <button className="close-chatbot-btn" onClick={() => setIsChatOpen(false)}>
+                <X size={20} />
+              </button>
+            </div>
+
+            <div className="chatbot-overlay-content">
+              {chatMessages.length === 0 && (
+                <div className="welcome-card">
+                  <Brain size={32} className="welcome-icon" />
+                  <h3>How can I help you today?</h3>
+                  <p>I can help you understand these execution traces, identify bottlenecks, or compare different sessions.</p>
+                  <div className="prompt-suggestions">
+                    <button onClick={() => { setChatInput("Which session was the fastest?"); }}>Fastest session?</button>
+                    <button onClick={() => { setChatInput("Where are the main bottlenecks?"); }}>Main bottlenecks?</button>
+                    <button onClick={() => { setChatInput("Compare the last two sessions."); }}>Compare last two?</button>
+                  </div>
+                </div>
+              )}
+              {chatMessages.map((msg, idx) => (
+                <div key={idx} className={`chat-message ${msg.role}`}>
+                  <MarkdownRenderer content={msg.content} />
+                </div>
+              ))}
+              {isChatLoading && (
+                <div className="chat-message bot loading">
+                  <div className="animate-spin">
+                    <Loader2 size={16} />
+                  </div>
+                </div>
+              )}
+              <div ref={messagesEndRef} />
+            </div>
+
+            <div className="chatbot-overlay-footer">
+              <form onSubmit={handleChatSubmit}>
+                <input 
+                  type="text" 
+                  className="chatbot-input"
+                  placeholder="Ask about your execution data..." 
+                  value={chatInput}
+                  onChange={(e) => setChatInput(e.target.value)}
+                  disabled={isChatLoading}
+                />
+                <button type="submit" className="chatbot-send-btn" disabled={!chatInput.trim() || isChatLoading}>
+                  {isChatLoading ? (
+                    <div className="animate-spin">
+                      <Loader2 size={18} />
+                    </div>
+                  ) : (
+                    <Send size={18} />
+                  )}
+                </button>
+              </form>
+            </div>
+          </div>
+        </>
+      )}
+
+      {/* Floating Action Button */}
+      <button 
+        className={`chatbot-fab ${isChatOpen ? 'active' : ''}`} 
+        onClick={() => setIsChatOpen(!isChatOpen)}
+        title="Open Execution Analyzer"
+      >
+        {isChatOpen ? <X size={24} /> : <MessageSquare size={24} />}
+      </button>
     </div>
   );
 };

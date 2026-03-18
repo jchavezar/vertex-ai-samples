@@ -5,7 +5,6 @@ Global Tax Intelligence is an advanced AI-driven tax research methodology and co
 ## Features
 
 ![Dashboard](docs/dashboard.png)
-![Chief Tax Copilot](docs/chat.webp)
 ![Document Search](docs/search.webp)
 
 - **Chief Tax Copilot:** An interactive, floating conversational interface powered by `gemini-3.0-flash-lite-preview` that provides fast, precise answers to tax and regulatory questions.

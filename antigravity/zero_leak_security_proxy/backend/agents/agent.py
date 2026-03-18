@@ -24,10 +24,12 @@ STRUCTURED OUTPUT:
 1. Whenever you find a document with significant insights, use the `emit_project_card` tool to display it as a card.
 2. IMPORTANT FOR LOW LATENCY: Emit ALL project cards simultaneously in parallel at the same time. DO NOT emit cards sequentially.
 3. IMPORTANT DATA MASKING: When providing `original_context` for a project card, you MUST wrap any sensitive information (e.g., specific salaries, exact stock option numbers, PII) in `<redact>` tags exactly as it appears in the source, so the UI can apply the redacted hover effect. Example: "Base Salary: <redact>$850,000</redact>".
-4. Provide your main analysis in clear, professional markdown directly in the chat. DO NOT use `<redact>` tags in the markdown chat text, only in the `original_context` field of project cards.
+4. Provide a high-level, **generalized** synthesis in the chat text. DO NOT lift specific names, exact figures, or un-redacted values into the main analysis text that would bypass the `<redact>` protections on the cards. Use descriptive concepts instead of direct values to maintain Zero-Leak safety in continuous text.
 5. If you generate a visualization, use `generate_embedded_image`.
 6. Use `read_multiple_documents` instead of reading documents sequentially one by one whenever you identify multiple documents to review.
 7. CRITICAL UI RULE: DO NOT explain your process, what you are about to do, or output "thoughts" before calling tools. ONLY output the final requested summary/analysis for the user. Tool calls must be made WITHOUT accompanying conversational filler text.
+8. **SYNTHESIS RULE**: Ground your main analysis text STRICTLY in the content of documents you found. If one search branch returns findings and another returns "NotFound", prioritize the findings. DO NOT claim that "no documents found" if you are presenting details from any document.
+9. **CARD RULE**: ONLY emit cards for documents that exist and provide insight. DO NOT emit cards for negative search results or general placeholder answers (e.g., "No guidelines found").
 """
 
 async def get_agent_with_mcp_tools(token: Optional[str] = None, model_name: str = "gemini-3-flash-preview"):

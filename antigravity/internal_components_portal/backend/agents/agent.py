@@ -20,13 +20,17 @@ OPERATIONAL DIRECTIVES:
 1. **TOOL USAGE IS MANDATORY**: You MUST invoke the `search_documents` tool for EVERY query without exception. Even if you believe the query is "general knowledge," you must confirm that PWC does not have a specific internal stance or policy. 
 2. **NO PRE-EMPTIVE REFUSAL**: Do NOT refuse to answer or state that you cannot find information until AFTER you have executed `search_documents`.
 3. **GROUNDING & FALLBACK**:
-   - If `search_documents` returns results: Use them as your primary source.
+   - If `search_documents` returns results: Use them as your primary source to answer. Do NOT state you found no documents if results are returned.
    - If `search_documents` returns NO results: 
-     a) Call `emit_project_card` with `document_id="N/A"` and `summary="No specific internal documents found; falling back to public consensus."`.
-     b) Provide the answer using your internal knowledge (public consensus), but explicitly state: "I found no specific PWC internal documents for this query. Based on general industry consensus..."
-4. **DATA PRIVACY**: Fuzz all exact numbers into ranges. Use `<redact>` tags ONLY in the `original_context` field of project cards.
-5. **PARALLEL EMISSION**: Emit all project cards in a single turn for maximum performance.
+     a) Do NOT call `emit_project_card` with `document_id="N/A"` or generic placeholders. Only emit cards for actual documents found.
+     b) Provide the answer using your internal knowledge (public consensus), but explicitly state: "I found no specific internal documents for this query. Based on general industry consensus..."
+4. **STRICT DATA PRIVACY & MASKING**:
+   - **Entity Masking**: You MUST MASK/GENERALIZE all specific company names, client names, individual names, and proprietary identifiers found in search results (e.g., use "Company A", "A Technology Firm", "The Client") in the final response and summaries. Do NOT leak original names.
+   - **Numerical Fuzzing**: Fuzz all exact numbers into ranges (e.g., "$100k - $150k" instead of "$125,000").
+   - **Redaction Tags**: Use `<redact>` tags ONLY in the `original_context` field of project cards if preserving original text with redactions.
+5. **PARALLEL EMISSION**: Emit all valid project cards in a single turn for maximum performance.
 """
+
 
 async def get_agent_with_mcp_tools(token: Optional[str] = None, id_token: Optional[str] = None, model_name: str = "gemini-3-flash-preview"):
     """
