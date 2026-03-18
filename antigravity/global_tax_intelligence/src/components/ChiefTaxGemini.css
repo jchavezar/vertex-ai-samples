@@ -1,17 +1,17 @@
-.copilot-section {
+.gemini-section {
   padding: 80px 40px;
   max-width: 1400px;
   margin: 0 auto;
 }
 
-.copilot-container {
+.gemini-container {
   display: grid;
   grid-template-columns: 1fr 1.2fr;
   gap: 60px;
   align-items: center;
 }
 
-.copilot-info {
+.gemini-info {
   max-width: 500px;
 }
 
@@ -32,13 +32,13 @@
   color: var(--kpmg-light);
 }
 
-.copilot-info h2 {
+.gemini-info h2 {
   font-size: 3rem;
   margin-bottom: 24px;
   color: var(--kpmg-blue);
 }
 
-.copilot-info p {
+.gemini-info p {
   color: var(--text-muted);
   font-size: 1.1rem;
   margin-bottom: 40px;
@@ -82,7 +82,7 @@
 }
 
 /* Chat Interface */
-.copilot-interface {
+.gemini-interface {
   background: white;
   border-radius: 8px;
   border: 1px solid #e2e8f0;
@@ -423,7 +423,7 @@
 }
 
 @media (max-width: 1024px) {
-  .copilot-container {
+  .gemini-container {
     grid-template-columns: 1fr;
   }
 }

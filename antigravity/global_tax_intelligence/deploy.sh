@@ -90,11 +90,11 @@ if ! gcloud compute backend-services describe "$BACKEND_SERVICE" --global >/dev/
 fi
 
 echo "[7] Adding NEG to Backend Service..."
-if ! gcloud compute backend-services get-health "$BACKEND_SERVICE" --global >/dev/null 2>&1; then
+if ! gcloud compute backend-services describe "$BACKEND_SERVICE" --global --format="value(backends)" | grep -q "$NEG_NAME"; then
     gcloud compute backend-services add-backend "$BACKEND_SERVICE" \
         --global \
         --network-endpoint-group="$NEG_NAME" \
-        --network-endpoint-group-region="$REGION" || true
+        --network-endpoint-group-region="$REGION"
 fi
 
 # 6. Create URL Map
@@ -157,6 +157,19 @@ else
         --member="user:$ALLOWED_EMAIL" \
         --role="roles/iap.httpsResourceAccessor"
 fi
+
+echo "If IAP is enabled, only $ALLOWED_EMAIL can access it."
+echo "It may take up to 10-15 minutes for the Load Balancer and IAP to fully propagate."
+echo "✅ IAP has been enabled and configured for Backend Service: $BACKEND_SERVICE"
+
+# 10. Grant IAP Service Account the Cloud Run Invoker Role
+echo "🛡️ Granting IAP Service Account permission to invoke Cloud Run..."
+PROJECT_NUMBER=$(gcloud projects describe $PROJECT_ID --format="value(projectNumber)")
+gcloud run services add-iam-policy-binding $SERVICE_NAME \
+  --region $REGION \
+  --project $PROJECT_ID \
+  --member "serviceAccount:service-${PROJECT_NUMBER}@gcp-sa-iap.iam.gserviceaccount.com" \
+  --role "roles/run.invoker"
 
 echo "==================================================================="
 echo "Deployment Complete!"

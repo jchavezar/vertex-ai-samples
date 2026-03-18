@@ -14,8 +14,8 @@ const HeroRadar = () => {
     setIsAnalyzing(true);
     setTimeout(() => {
       setIsAnalyzing(false);
-      document.getElementById('copilot-section')?.scrollIntoView({ behavior: 'smooth' });
-      window.dispatchEvent(new CustomEvent('triggerCopilot', { detail: 'Analyze Global Compliance' }));
+      document.getElementById('gemini-section')?.scrollIntoView({ behavior: 'smooth' });
+      window.dispatchEvent(new CustomEvent('triggerGemini', { detail: 'Analyze Global Compliance' }));
     }, 2000);
   };
 

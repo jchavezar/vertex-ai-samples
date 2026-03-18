@@ -5,6 +5,7 @@ import ReactMarkdown from 'react-markdown';
 import './Header.css';
 import GenerativeDashboardModal from './GenerativeDashboardModal';
 import SwarmBoardroomModal from './SwarmBoardroomModal';
+import DiscoverySearch from './DiscoverySearch';
 
 const Header = () => {
   const [scrolled, setScrolled] = useState(false);
@@ -309,7 +310,7 @@ const Header = () => {
                   <div className="mega-ai-icon-container">
                     <Zap size={20} className="text-accent" />
                   </div>
-                  <h3>Navigational Copilot</h3>
+                  <h3>Navigational Gemini</h3>
                 </div>
                 <p>Describe your operating model, expansion plans, or challenges to instantly map your relevant global tax risk surface.</p>
                 
@@ -383,10 +384,7 @@ const Header = () => {
             </div>
           </motion.div>
 
-          <div className="search-container">
-            <Search size={18} />
-            <span>Search</span>
-          </div>
+          <DiscoverySearch />
         </div>
       </div>
 

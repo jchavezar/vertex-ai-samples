@@ -1,7 +1,7 @@
 import React from 'react';
 import Header from './components/Header';
 import HeroRadar from './components/HeroRadar';
-import ChiefTaxCopilot from './components/ChiefTaxCopilot';
+import ChiefTaxGemini from './components/ChiefTaxGemini';
 import TransferPricingAnalyzer from './components/TransferPricingAnalyzer';
 import ZeroLeakShield from './components/ZeroLeakShield';
 import './App.css';
@@ -18,9 +18,9 @@ function App() {
         {/* Security / Trust Banner */}
         <ZeroLeakShield />
 
-        {/* Copilot Section taking up the narrative space */}
+        {/* Gemini Section taking up the narrative space */}
         <div className="section-divider"></div>
-        <ChiefTaxCopilot />
+        <ChiefTaxGemini />
         
         {/* Multimodal Drag and Drop */}
         <div className="section-divider"></div>

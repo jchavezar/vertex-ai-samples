@@ -3,13 +3,13 @@ import { Send, Sparkles, Bot, User, FileText, ChevronRight, Globe, Loader2, Buil
 import { motion, AnimatePresence } from 'framer-motion';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import './ChiefTaxCopilot.css';
+import './ChiefTaxGemini.css';
 
-const ChiefTaxCopilot = () => {
+const ChiefTaxGemini = () => {
   const [messages, setMessages] = useState([
     {
       role: 'assistant',
-      content: 'Hello. I am your **KPMG Chief Tax Copilot**, powered by Gemini 2.5 Pro. How can I assist with your global tax strategy today?',
+      content: 'Hello. I am your **KPMG Chief Tax Gemini**, accelerated by Gemini 3.1 Flash Lite. How can I assist with your global tax strategy today?',
       isInitial: true
     }
   ]);
@@ -40,8 +40,8 @@ const ChiefTaxCopilot = () => {
         handleSendRef.current(e.detail);
       }
     };
-    window.addEventListener('triggerCopilot', handleTrigger);
-    return () => window.removeEventListener('triggerCopilot', handleTrigger);
+    window.addEventListener('triggerGemini', handleTrigger);
+    return () => window.removeEventListener('triggerGemini', handleTrigger);
   }, []);
 
   const suggestedPrompts = [
@@ -66,7 +66,7 @@ const ChiefTaxCopilot = () => {
     try {
       const newMessages = [...messages, { role: 'user', content: text }];
       
-      const response = await fetch('/api/copilot/chat', {
+      const response = await fetch('/api/gemini/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ messages: newMessages })
@@ -145,14 +145,14 @@ const ChiefTaxCopilot = () => {
   };
 
   return (
-    <section className="copilot-section" id="copilot-section">
-      <div className="copilot-container">
+    <section className="gemini-section" id="gemini-section">
+      <div className="gemini-container">
         
-        <div className="copilot-info">
+        <div className="gemini-info">
           <div className="kpmg-logo-placeholder">
             <span className="kpmg-text">KPMG</span>
           </div>
-          <h2>Your Chief <br/>Tax Copilot</h2>
+          <h2>Your Chief <br/>Tax Gemini</h2>
           <p>
             Navigate complexities instantly. Our conversational AI agent synthesizes global 
             legislation, your corporate structure, and real-time market data to provide 
@@ -177,7 +177,7 @@ const ChiefTaxCopilot = () => {
           </div>
         </div>
 
-        <div className="copilot-interface glass-panel">
+        <div className="gemini-interface glass-panel">
           <div className="chat-window">
             <div className="chat-header">
                <Building size={18} className="text-accent-primary" />
@@ -269,7 +269,7 @@ const ChiefTaxCopilot = () => {
                   type="text" 
                   value={inputValue}
                   onChange={(e) => setInputValue(e.target.value)}
-                  placeholder="Ask a global tax question to the KPMG Copilot..."
+                  placeholder="Ask a global tax question to the KPMG Gemini..."
                   className="chat-input"
                 />
                 <button 
@@ -288,4 +288,4 @@ const ChiefTaxCopilot = () => {
   );
 };
 
-export default ChiefTaxCopilot;
+export default ChiefTaxGemini;
