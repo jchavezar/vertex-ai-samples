@@ -10,6 +10,7 @@ from sse_starlette.sse import EventSourceResponse
 from google import genai
 from google.genai import types
 from dotenv import load_dotenv
+from vais import vais_client
 
 # Load env vars
 load_dotenv(dotenv_path="../../.env")
@@ -24,7 +25,7 @@ app = FastAPI(title="Global Tax Intelligence Backend")
 # Setup CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5178", "http://127.0.0.1:5178", "http://localhost:5179", "http://127.0.0.1:5179"],
+    allow_origins=["http://localhost:5178", "http://127.0.0.1:5178", "http://localhost:5181", "http://127.0.0.1:5181", "http://127.0.0.1:5179", "http://localhost:5179"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -38,8 +39,8 @@ client = genai.Client(vertexai=True, project=os.environ.get("GOOGLE_CLOUD_PROJEC
 MODEL_ID = "gemini-3.1-flash-lite-preview"
 
 # Define instructions
-COPILOT_INSTRUCTION = """
-You are the KPMG Chief Tax Copilot, an elite AI advisor specialized in Global Tax Intelligence developed for KPMG.
+GEMINI_INSTRUCTION = """
+You are the KPMG Chief Tax Gemini, an elite AI advisor specialized in Global Tax Intelligence developed for KPMG.
 Your audience consists of corporate executives (CFOs, Heads of Tax, Directors).
 Provide highly professional, accurate, and strategic tax advice.
 When asked about current events, upcoming tax rules (e.g., tax updates for 2026), rely on your Google Search capability to find the latest real-world developments and cite them.
@@ -102,6 +103,9 @@ class NavRequest(BaseModel):
 class PulseRequest(BaseModel):
     query: str
 
+class SearchRequest(BaseModel):
+    query: str
+
 class ActionItem(BaseModel):
     step: int
     title: str
@@ -125,6 +129,86 @@ class DashboardRequest(BaseModel):
 @app.get("/health")
 async def health_check():
     return {"status": "ok"}
+
+@app.post("/api/search")
+async def discovery_engine_search(request: SearchRequest):
+    """
+    Query Vertex AI Search (Discovery Engine).
+    """
+    try:
+        logger.info(f"Querying Discovery Engine for: {request.query}")
+        results = await vais_client.search(request.query)
+        return results
+    except Exception as e:
+        logger.error(f"Search error: {e}")
+        return {"error": str(e), "results": []}
+
+class OverviewRequest(BaseModel):
+    query: str
+    search_results: Optional[List[Dict[str, Any]]] = None
+
+@app.post("/api/search/generative-overview")
+async def generative_search_overview(request: OverviewRequest):
+    """
+    Synthesize an executive summary of the search results and identify PDF targets.
+    """
+    async def sse_generator():
+        try:
+            # Prepare context
+            contexts = []
+            if request.search_results and isinstance(request.search_results, list):
+                for i, res in enumerate(request.search_results[:5]):
+                    doc = res.get("document", {})
+                    struct_data = doc.get("derivedStructData", {})
+                    title = struct_data.get("title", "")
+                    link = struct_data.get("link", "")
+                    snippets = struct_data.get("snippets", [])
+                    snippet = snippets[0].get("snippet", "") if snippets else ""
+                    file_format = struct_data.get("fileFormat", "")
+                    contexts.append(f"Result {i+1}:\\nTitle: {title}\\nURL: {link}\\nSnippet: {snippet}\\nFormat: {file_format}")
+            
+            context_text = "\\n\\n".join(contexts)
+            
+            prompt = f"""User Query: {request.query}\n\nSearch Results:\n{context_text}\n\nTask: Summarize the findings VERY CONCISELY (max 2-3 sentences or 3 short bullet points). Be direct and insightful. If you see a highly relevant PDF in the results, append this exact tag at the very end of your response: [PDF_SUGGESTION]{{"title": "<pdf title>", "url": "<pdf url>", "reason": "<why it's useful>"}}[/PDF_SUGGESTION]"""
+            # User specifically requested gemini-3.1-flash-lite-preview in global region
+            config = types.GenerateContentConfig(
+                system_instruction="You are a KPMG Strategic AI providing an ultra-concise, brief executive summary of search results. Use markdown. Do not provide lengthy explanations.",
+                temperature=0.3
+            )
+            
+            logger.info(f"Generating overview for query: {request.query}")
+            response_stream = await client.aio.models.generate_content_stream(
+                model="gemini-3.1-flash-lite-preview",
+                contents=prompt,
+                config=config
+            )
+            
+            buffered_text = ""
+            async for chunk in response_stream:
+                if chunk.text:
+                    text_chunk = chunk.text
+                    buffered_text += text_chunk
+                    
+                    # Yield incremental updates, but we should let the frontend parse the PDF_SUGGESTION tag if it appears
+                    yield {
+                        "event": "message",
+                        "data": json.dumps({"text": text_chunk})
+                    }
+                    await asyncio.sleep(0.01)
+                    
+            yield {
+                "event": "done",
+                "data": "[DONE]"
+            }
+            
+        except Exception as e:
+            logger.error(f"Error in generative overview: {e}")
+            yield {
+                "event": "error",
+                "data": json.dumps({"error": str(e)})
+            }
+            
+    return EventSourceResponse(sse_generator())
 
 @app.get("/api/radar/insight")
 async def generate_radar_insight(request: Request):
@@ -168,10 +252,10 @@ async def generate_radar_insight(request: Request):
             
     return EventSourceResponse(sse_generator())
 
-@app.post("/api/copilot/chat")
-async def copilot_chat(request: ChatRequest):
+@app.post("/api/gemini/chat")
+async def gemini_chat(request: ChatRequest):
     """
-    Handles multi-turn chat for the Chief Tax Copilot.
+    Handles multi-turn chat for the Chief Tax Gemini.
     """
     async def sse_generator():
         try:
@@ -189,7 +273,7 @@ async def copilot_chat(request: ChatRequest):
                 return
                 
             config = types.GenerateContentConfig(
-                system_instruction=COPILOT_INSTRUCTION,
+                system_instruction=GEMINI_INSTRUCTION,
                 tools=[{"google_search": {}}],
             )
             
@@ -215,7 +299,7 @@ async def copilot_chat(request: ChatRequest):
             }
             
         except Exception as e:
-            logger.error(f"Error in copilot chat: {e}")
+            logger.error(f"Error in gemini chat: {e}")
             yield {
                 "event": "error",
                 "data": json.dumps({"error": str(e)})
