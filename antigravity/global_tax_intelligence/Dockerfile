@@ -11,19 +11,19 @@ FROM python:3.11-slim
 WORKDIR /app
 
 # Install dependencies via uv
-COPY backend/pyproject.toml backend/uv.lock* ./
-RUN pip install uv && uv pip install --system fastapi uvicorn google-genai pydantic sse-starlette python-dotenv
-
-# Copy everything else
-COPY backend ./backend
+# We copy everything so `uv sync` has access to the full application code if needed.
+COPY . .
 
 # Copy built frontend step
 COPY --from=build-frontend /app/dist ./dist
 
+# Install uv and sync pyproject.toml
+RUN pip install uv && cd backend && uv sync --no-dev --system
+
 # Create a local env for Vertex AI if it exists
 ENV PORT=8080
-
 EXPOSE 8080
 
 # Start server
-CMD ["uvicorn", "backend.main:app", "--host", "0.0.0.0", "--port", "8080"]
+WORKDIR /app/backend
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8080"]
