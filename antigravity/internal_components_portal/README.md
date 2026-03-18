@@ -91,7 +91,7 @@ flowchart LR
 
 Below is a live rendering of the dashboard processing a query (`what is the salary of cfo?`) while enforcing strictly grounded references and masked entities.
 
-![Enterprise Shield Response](docs/images/cfo_salary_response_1773839234981.png)
+![Enterprise Shield Response](docs/images/cfo_salary_response_1773839415160.png)
 
 ---
 
@@ -99,7 +99,7 @@ Below is a live rendering of the dashboard processing a query (`what is the sala
 
 Our application combines with a real-time **Execution Analyzer Assistant** accessible via the **Execution Latency** tab. Click the bottom-right floating action window to analyze live tracing analytics dynamically while complying with strict shielding policies.
 
-![Execution Analyzer Overlay Tool](docs/images/execution_analyzer_overlay_1773839079218.png)
+![Execution Analyzer Overlay Tool](docs/images/analyzer_overlay_dashboard_v3_1773839474230.png)
 
 ### Key Optimizations & Security Update:
 - **Strict Grounding Enforcement**: Direct instructions compel correctly grounded output without generic fallback loops or redundant summaries.
