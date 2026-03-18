@@ -10,12 +10,6 @@ resolution-markers = [
     "python_full_version < '3.13' and sys_platform != 'win32'",
 ]
 
-[manifest]
-members = [
-    "backend",
-    "playwright-test",
-]
-
 [[package]]
 name = "aiofile"
 version = "3.9.0"
@@ -2752,17 +2746,6 @@ wheels = [
     { url = "https://us-python.pkg.dev/artifact-foundry-prod/ah-3p-staging-python/playwright/playwright-1.58.0-py3-none-win_amd64.whl", hash = "sha256:a2bf639d0ce33b3ba38de777e08697b0d8f3dc07ab6802e4ac53fb65e3907af8" },
     { url = "https://us-python.pkg.dev/artifact-foundry-prod/ah-3p-staging-python/playwright/playwright-1.58.0-py3-none-win_arm64.whl", hash = "sha256:32ffe5c303901a13a0ecab91d1c3f74baf73b84f4bedbb6b935f5bc11cc98e1b" },
 ]
-
-[[package]]
-name = "playwright-test"
-version = "0.1.0"
-source = { virtual = "playwright_test" }
-dependencies = [
-    { name = "playwright" },
-]
-
-[package.metadata]
-requires-dist = [{ name = "playwright", specifier = ">=1.58.0" }]
 
 [[package]]
 name = "pluggy"

@@ -87,6 +87,17 @@ flowchart LR
 4. **Token Hydration**: The MCP Server hydrates the incoming user token, querying the Microsoft Graph API securely to retrieve documents specifically scoped to the signed-in user.
 5. **Zero-Parsing Delivery**: The Proxy returns sanitized markdown (`0:`) and structured data citation cards (`2:`) back to the frontend dynamically.
 
+## 🔍 Execution Analyzer (Analytical Overlay)
+
+Our application combines with a real-time **Execution Analyzer Assistant** accessible via the **Execution Latency** tab. Click the bottom-right floating action window to analyze live tracing analytics dynamically while complying with strict shielding policies.
+
+![Execution Analyzer Overlay Tool](docs/images/execution_analyzer_overlay_1773839079218.png)
+
+### Key Optimizations & Security Update:
+- **Strict Grounding Enforcement**: Direct instructions compel correctly grounded output without generic fallback loops or redundant summaries.
+- **Zero-Leak Data Masking**: Secure rules redact original entity names and ranges to "Company A", "Access Restricted", etc.
+- **Async Loader Overlays**: Standardized telemetry components ensuring correct load timing on parallel streams.
+
 ---
 
 ## 🛠️ Replication & Setup Guide

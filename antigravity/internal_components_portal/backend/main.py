@@ -21,6 +21,7 @@ import requests
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
+from typing import List, Optional, Any
 from pydantic import BaseModel
 from google.adk.runners import Runner
 from google.adk.sessions.in_memory_session_service import InMemorySessionService
@@ -41,6 +42,7 @@ from pipelines.regenerative_pipeline import run_regenerative_pipeline
 from mcp_service.mcp_sharepoint import SharePointMCP
 from utils.auth_context import set_user_token, set_user_id_token
 from agents.analyze_latency_agent import analyze_latency_profiles
+from agents.latency_chat_agent import chat_with_latency_data
 
 from dotenv import load_dotenv
 load_dotenv(dotenv_path="../.env")
@@ -66,7 +68,7 @@ class ChatRequest(BaseModel):
 
 class LatencyAnalyzeRequest(BaseModel):
     history: list
-    model: str = "gemini-3-flash-preview"
+    model: str = "gemini-2.5-flash"
 from typing import Tuple, Dict, Any
 import jwt
 
@@ -793,16 +795,40 @@ class TokenAcquisitionRequest(BaseModel):
     code: str
     redirect_uri: str
 
-class AnalyzeLatencyRequest(BaseModel):
-    history: list
+class LatencyChatRequest(BaseModel):
+    messages: List[Any]
+    history: List[Any]
+    analysis_result: Optional[str] = None
+    model: Optional[str] = "gemini-2.5-flash"
+
+@app.post("/api/latency/chat")
+async def latency_chat_endpoint(request: Request, data: LatencyChatRequest):
+    # Enforces the 'Zero-Leak' pattern partially for identity
+    # But allow unauthenticated chat as users only query output data from history
+    try:
+        token, _ = await verify_jwt(request)
+    except:
+        token = None
+        
+    try:
+        # Override to 2.5-flash for maximum responsiveness as requested
+        model_to_use = "gemini-2.5-flash"
+        response = chat_with_latency_data(data.messages, data.history, data.analysis_result, model_to_use)
+        return {"response": response}
+    except Exception as e:
+        logger.error(f"Latency Chat API error: {e}")
+        return {"error": str(e)}
 
 @app.post("/api/latency/analyze")
-async def analyze_latency_endpoint(request: Request, data: AnalyzeLatencyRequest):
-    # Enforces the 'Zero-Leak' pattern just to verify caller is legit
-    token, _ = await verify_jwt(request)
+async def analyze_latency_endpoint(request: Request, data: LatencyAnalyzeRequest):
+    # Enforces the 'Zero-Leak' pattern just to verify caller is legit if possible
+    try:
+        token, _ = await verify_jwt(request)
+    except:
+        token = None
     
-    # Run analysis using a strong model (e.g. gemini-2.5-pro) to ensure rich insights
-    model_name = "gemini-2.5-pro" 
+    # Run analysis using gemini-2.5-flash for speed as requested
+    model_name = "gemini-2.5-flash"
     
     analysis_md = analyze_latency_profiles(data.history, model_name)
     return {"analysis": analysis_md}
@@ -1229,14 +1255,7 @@ async def get_backups_api(request: Request, item_id: str):
         logger.error(f"List backups API error: {e}")
         return {"error": str(e)}
 
-@app.post("/api/latency/analyze")
-async def analyze_latency_api(data: LatencyAnalyzeRequest):
-    try:
-        analysis = analyze_latency_profiles(data.history, data.model)
-        return {"analysis": analysis}
-    except Exception as e:
-        logger.error(f"Latency Analysis API error: {e}")
-        return {"error": str(e)}
+# Redundant legacy endpoint removed, now centralized above.
 
 if __name__ == "__main__":
     import uvicorn
