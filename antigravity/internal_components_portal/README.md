@@ -87,6 +87,14 @@ flowchart LR
 4. **Token Hydration**: The MCP Server hydrates the incoming user token, querying the Microsoft Graph API securely to retrieve documents specifically scoped to the signed-in user.
 5. **Zero-Parsing Delivery**: The Proxy returns sanitized markdown (`0:`) and structured data citation cards (`2:`) back to the frontend dynamically.
 
+## 🛡️ Enterprise Data Verification
+
+Below is a live rendering of the dashboard processing a query (`what is the salary of cfo?`) while enforcing strictly grounded references and masked entities.
+
+![Enterprise Shield Response](docs/images/cfo_salary_response_1773839234981.png)
+
+---
+
 ## 🔍 Execution Analyzer (Analytical Overlay)
 
 Our application combines with a real-time **Execution Analyzer Assistant** accessible via the **Execution Latency** tab. Click the bottom-right floating action window to analyze live tracing analytics dynamically while complying with strict shielding policies.
