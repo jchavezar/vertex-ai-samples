@@ -18,7 +18,7 @@ COPY . .
 COPY --from=build-frontend /app/dist ./dist
 
 # Install uv and sync pyproject.toml
-RUN pip install uv && cd backend && uv sync --no-dev --system
+RUN pip install uv && cd backend && uv pip install --system -r pyproject.toml
 
 # Create a local env for Vertex AI if it exists
 ENV PORT=8080
