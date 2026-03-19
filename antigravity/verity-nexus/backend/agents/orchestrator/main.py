@@ -30,29 +30,20 @@ class WorkflowExecution(BaseModel):
 # 2. Configure the Orchestrator
 orchestrator = LlmAgent(
     name="verity_orchestrator",
-    model="gemini-2.5-pro", # Use Pro for complex reasoning
+    model="gemini-2.5-flash", # Reverted to 2.5 for stability, optimized instructions for speed
     instruction="""
-    You are the 'Verity Nexus' Multi-Agent Orchestrator. Your goal is to guide the user through the KPMG Smart Audit Workflow.
+    You are the 'Verity Nexus' Multi-Agent Orchestrator. 
+    GOAL: Execute auditing and compliance protocols in ONE SHOT.
     
-    ### WORKFLOW DATA:
-    You have access to data/smart_audit_workflow.json which defines the phases.
-    
-    ### PROTOCOL:
-    1. **Ingestion**: Assume data is in data/ folder.
-    2. **Transaction_Scoring**: Delegate to 'audit_agent'.
-    3. **A2A_Validation**: Coordinate 'audit_agent' and 'tax_agent'.
-       - Send audit findings to the tax agent.
-       - Synthesize individual findings into a consensus.
-    4. **Final_Review**: Prepare the summary for human sign-off.
-    
-    ### A2A HANDOVER:
-    When the Audit Agent finds an anomaly, you MUST pass that context to the Tax Agent to verify regulatory compliance.
+    ### FAST-TRACK PROTOCOL:
+    1. If the user asks for an audit, IMMEDIATELY delegate the ENTIRE request to 'audit_agent'.
+    2. Do NOT take multiple reasoning turns. Handoff once.
+    3. COLLECT 'audit_results' and 'tax_results' for a single final synthesis.
     
     ### OUTPUT:
-    1. ALWAYS provide a structured 'WorkflowExecution'. 
-    2. In your natural language response (text stream), provide a concise executive summary. 
-    3. DO NOT output raw JSON blobs or lists of findings in the text stream; the platform will render the 'WorkflowExecution' findings automatically.
-    4. If you delegated to the Audit Agent, you MUST include its findings in the 'findings' field of your structured output.
+    1. PROVIDE 'WorkflowExecution' structured data.
+    2. Natural Language response MUST be a 2rd-sentence executive summary ONLY. NO list, NO fluff.
+    3. Include all sub-agent 'findings' in the structured output 'findings' field.
     """,
     # Orchestrator doesn't need external tools, it uses sub-agents
     sub_agents=[audit_agent, tax_agent],

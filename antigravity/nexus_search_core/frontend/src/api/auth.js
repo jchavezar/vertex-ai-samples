@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { CONFIG } from './config';
 
-const STS_URL = 'https://sts.googleapis.com/v1/token';
+const STS_URL = '/sts/v1/token';
 
 export const getWifLoginUrl = () => {
   const redirect = window.location.origin + '/'; // Match Azure's trailing slash
@@ -15,11 +15,11 @@ export const exchangeForGoogleToken = async (idToken) => {
 
   const payload = {
     audience,
-    grantType: 'urn:ietf:params:oauth:grant-type:token-exchange',
-    requestedTokenType: 'urn:ietf:params:oauth:token-type:access_token',
+    grant_type: 'urn:ietf:params:oauth:grant-type:token-exchange',
+    requested_token_type: 'urn:ietf:params:oauth:token-type:access_token',
     scope: 'https://www.googleapis.com/auth/cloud-platform',
-    subjectToken: idToken,
-    subjectTokenType: 'urn:ietf:params:oauth:token-type:id_token',
+    subject_token: idToken,
+    subject_token_type: 'urn:ietf:params:oauth:token-type:id_token',
   };
 
   try {

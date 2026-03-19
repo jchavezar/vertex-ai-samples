@@ -3,7 +3,7 @@ import requests
 import json
 import time
 
-URL = "http://localhost:8001/api/mcp_chat"
+URL = "http://localhost:8005/api/mcp_chat"
 
 test_queries = [
     'EXECUTE PROTOCOL: { "jurisdiction_name": "Cayman Islands" }'

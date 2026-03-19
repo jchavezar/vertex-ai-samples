@@ -29,10 +29,35 @@ const mapSearchResult = (sr) => {
   // Extract from the most likely places
   const name = doc.name || doc.id || (typeof sr.document === 'string' ? sr.document : "");
 
-  // v1alpha/v1beta groundingChunks handling
-  const chunkText = sr.content || sr.text || sr.retrievedContext?.text || sr.retrieval_chunk?.text || "";
-  const chunkTitle = sr.title || sr.retrievedContext?.title || sr.retrieval_chunk?.title || "";
-  const chunkUri = sr.uri || sr.link || sr.retrievedContext?.uri || sr.retrieval_chunk?.uri || "";
+  // v1alpha/v1beta groundingChunks handling (web and local document structures)
+  const chunkText = 
+    sr.content || 
+    sr.text || 
+    sr.retrievedContext?.text || 
+    sr.retrieval_chunk?.text || 
+    sr.web?.title || 
+    sr.local?.snippet || 
+    sr.retrieved_document?.snippet || 
+    "";
+
+  const chunkTitle = 
+    sr.title || 
+    sr.retrievedContext?.title || 
+    sr.retrieval_chunk?.title || 
+    sr.web?.title || 
+    sr.local?.title || 
+    sr.retrieved_document?.title || 
+    "";
+
+  const chunkUri = 
+    sr.uri || 
+    sr.link || 
+    sr.retrievedContext?.uri || 
+    sr.retrieval_chunk?.uri || 
+    sr.web?.uri || 
+    sr.local?.uri || 
+    sr.retrieved_document?.uri || 
+    "";
 
   const title =
     structData.title ||
@@ -143,12 +168,10 @@ export const executeClassicSearch = async (googleToken, query) => {
 };
 
 /**
- * Method: StreamAssist (Modern RAG Streaming)
- * Streams an answer using the v1beta streamAnswer endpoint for perfect grounding.
- * This matches the "Gemini Enterprise" preview experience in Agent Builder.
+ * Method: StreamAnswer (Generative Answer Streaming)
+ * Streams an answer using the v1alpha streamAnswer endpoint.
  */
-export const executeStreamAssist = async (googleToken, query, onChunk) => {
-  // Use v1alpha streamAnswer on default_search for high-fidelity grounding matching console's "Search method"
+export const executeStreamAnswer = async (googleToken, query, onChunk) => {
   const url = `/google-api/v1alpha/projects/${CONFIG.PROJECT_NUMBER}/locations/${CONFIG.LOCATION}/collections/default_collection/engines/${CONFIG.ENGINE_ID}/servingConfigs/default_search:streamAnswer`;
 
   const payload = {
@@ -332,13 +355,186 @@ export const executeStreamAssist = async (googleToken, query, onChunk) => {
 
 
 /**
+ * Method: StreamAssist (Advanced Multi-Turn Streaming)
+ * Streams an answer using the v1alpha assist endpoint for accurate grounding.
+ */
+export const executeStreamAssist = async (googleToken, query, onChunk) => {
+  const url = `/google-api/v1alpha/projects/${CONFIG.PROJECT_NUMBER}/locations/${CONFIG.LOCATION}/collections/default_collection/engines/${CONFIG.ENGINE_ID}/assistants/default_assistant:streamAssist`;
+
+  // Payload structure based on internal_components_portal backend
+  const payload = {
+    query: { text: query },
+    toolsSpec: {
+      vertexAiSearchSpec: {
+        dataStoreSpecs: [
+          { dataStore: `projects/${CONFIG.PROJECT_NUMBER}/locations/${CONFIG.LOCATION}/collections/default_collection/dataStores/${CONFIG.DATA_STORE_ID}` }
+        ]
+      }
+    }
+  };
+
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: {
+      ...getHeaders(googleToken),
+      'Accept': 'text/event-stream'
+    },
+    body: JSON.stringify(payload)
+  });
+
+  if (!response.ok) {
+    const errorBody = await response.text();
+    throw new Error(`StreamAssist API Error: ${response.status} - ${errorBody}`);
+  }
+
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  let fullAnswer = "";
+  let extractedResults = [];
+  let citations = [];
+
+  let buffer = '';
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+
+    buffer += decoder.decode(value, { stream: true });
+
+    let startIdx = 0;
+    let depth = 0;
+    let inString = false;
+    let escaped = false;
+
+    for (let i = 0; i < buffer.length; i++) {
+      const char = buffer[i];
+
+      if (escaped) {
+        escaped = false;
+        continue;
+      }
+      if (char === '\\') {
+        escaped = true;
+        continue;
+      }
+      if (char === '"') {
+        inString = !inString;
+        continue;
+      }
+
+      if (!inString) {
+        if (char === '{') {
+          if (depth === 0) startIdx = i;
+          depth++;
+        } else if (char === '}') {
+          depth--;
+          if (depth === 0) {
+            const jsonStr = buffer.substring(startIdx, i + 1);
+            try {
+              const parsed = JSON.parse(jsonStr);
+              console.log('[STREAM_DEBUG_PACKET]', JSON.stringify(parsed));
+              processPacket(parsed);
+            } catch (e) {
+              console.warn('[STREAM_DEBUG] JSON parse error in segment:', e);
+            }
+            buffer = buffer.substring(i + 1);
+            i = -1;
+          }
+        }
+      }
+    }
+  }
+
+  function processPacket(parsed) {
+    let answerText = parsed.answer?.answerText || "";
+
+    // Fallback to replies structure used by streamAssist
+    if (!answerText && parsed.answer?.replies?.length > 0) {
+      const reply = parsed.answer.replies[0];
+      const content = reply.groundedContent?.content || {};
+      answerText = content.text || "";
+      if (!answerText && content.parts?.length > 0) {
+        answerText = content.parts[0].text || "";
+      }
+    }
+
+    if (answerText) {
+      if (answerText.startsWith(fullAnswer)) {
+        fullAnswer = answerText;
+      } else if (!fullAnswer.endsWith(answerText)) {
+        fullAnswer += answerText;
+      }
+      onChunk(answerText, fullAnswer, extractedResults, citations);
+    }
+
+    let foundResults = [];
+
+    const findGrounding = (obj) => {
+      if (!obj || typeof obj !== 'object') return;
+      if (Array.isArray(obj)) {
+        obj.forEach(findGrounding);
+        return;
+      }
+      if (obj.citations) citations.push(...obj.citations);
+      if (obj.searchResults) foundResults.push(...obj.searchResults);
+      if (obj.groundingMetadata?.groundingChunks) foundResults.push(...obj.groundingMetadata.groundingChunks);
+
+      for (const key of Object.keys(obj)) {
+        if (key !== 'answerText' && key !== 'text' && typeof obj[key] === 'object') {
+          findGrounding(obj[key]);
+        }
+      }
+    };
+
+    findGrounding(parsed);
+
+    if (foundResults.length > 0 || citations.length > 0) {
+      const mapped = foundResults.map(mapSearchResult);
+      mapped.forEach(m => {
+        const existingIdx = extractedResults.findIndex(er =>
+          (m.document.name && er.document.name === m.document.name) ||
+          (m.document.structData?.url && er.document.structData?.url === m.document.structData?.url)
+        );
+
+        if (existingIdx !== -1) {
+          const er = extractedResults[existingIdx];
+          if (!er.document.structData.title || er.document.structData.title.match(/^[0-9]+$/)) {
+            if (m.document.structData.title && !m.document.structData.title.match(/^[0-9]+$/)) {
+              er.document.structData.title = m.document.structData.title;
+            }
+          }
+          if (!er.document.structData.url && m.document.structData.url) er.document.structData.url = m.document.structData.url;
+          if (!er.document.structData.snippet && m.document.structData.snippet) er.document.structData.snippet = m.document.structData.snippet;
+        } else {
+          extractedResults.push(m);
+        }
+      });
+      onChunk('', fullAnswer, extractedResults, citations);
+    }
+  }
+
+  if (fullAnswer.includes("I am sorry") || fullAnswer.includes("could not be generated") || !fullAnswer) {
+    try {
+      const fallback = await executeClassicSearch(googleToken, query);
+      if (fallback.results?.length > 0) {
+        extractedResults = fallback.results;
+        onChunk("", fullAnswer, extractedResults, citations);
+      }
+    } catch (e) {}
+  }
+
+  return { answer: fullAnswer, results: extractedResults, citations };
+};
+
+/**
  * Universal Search Wrapper (for backward compatibility or combined logic)
  */
 export const executeSearch = async (googleToken, query, previousContext = null, method = 'answer', onChunk = null) => {
   switch (method) {
     case 'search':
       return await executeClassicSearch(googleToken, query);
-    case 'stream':
+    case 'streamAnswer':
+      return await executeStreamAnswer(googleToken, query, onChunk);
+    case 'streamAssist':
       return await executeStreamAssist(googleToken, query, onChunk);
     case 'answer':
     default:
