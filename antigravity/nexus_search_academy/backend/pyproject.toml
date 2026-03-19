@@ -1,0 +1,15 @@
+[project]
+name = "nexus-search-academy-backend"
+version = "0.1.0"
+description = "Nexus Search Academy Backend - Educational Suite"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi>=0.115.6",
+    "pydantic>=2.10.4",
+    "uvicorn>=0.34.0",
+    "python-dotenv",
+    "google-cloud-discoveryengine",
+    "google-adk>=1.25.1",
+    "google-genai>=1.68.0",
+]

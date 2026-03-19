@@ -1,0 +1,122 @@
+:root {
+  --bg-color: #050508;
+  --glass-bg: rgba(15, 15, 25, 0.7);
+  --glass-border: rgba(255, 255, 255, 0.05);
+  --neon-teal: #00ffcc;
+  --neon-pink: #ff007f;
+  --neon-cyan: #00ffff;
+  --text-primary: #f8f9fa;
+  --text-secondary: #8b92a5;
+  --accent-glow: rgba(0, 255, 204, 0.15);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Inter', sans-serif;
+}
+
+body {
+  background-color: var(--bg-color);
+  color: var(--text-primary);
+  overflow-x: hidden;
+  background-image: 
+    radial-gradient(at 0% 0%, rgba(0, 255, 204, 0.05) 0px, transparent 50%),
+    radial-gradient(at 100% 100%, rgba(255, 0, 127, 0.05) 0px, transparent 50%),
+    linear-gradient(rgba(0,0,0,0.3) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,0,0,0.3) 1px, transparent 1px);
+  background-size: 100% 100%, 100% 100%, 20px 20px, 20px 20px;
+}
+
+h1, h2, h3, .step-title {
+  font-family: 'Space Grotesk', sans-serif;
+}
+
+.glass-panel {
+  background: var(--glass-bg);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border);
+  border-radius: 16px;
+  padding: 1.5rem;
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+}
+
+.glow-text {
+  text-shadow: 0 0 10px var(--neon-teal);
+  color: var(--neon-teal);
+}
+
+.code-block {
+  background: #0d0d14;
+  border-radius: 8px;
+  padding: 1rem;
+  font-family: 'Space Mono', monospace;
+  font-size: 0.9rem;
+  border-left: 3px solid var(--neon-pink);
+  overflow-x: auto;
+  color: #e0e0e6;
+}
+
+.timeline-node {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #13131f;
+  border: 2px solid #222233;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.timeline-node.active {
+  background: rgba(0, 255, 204, 0.1);
+  border-color: var(--neon-teal);
+  box-shadow: 0 0 15px var(--accent-glow);
+}
+
+.timeline-line {
+  height: 2px;
+  background: #222233;
+  flex-grow: 1;
+  transition: background 0.3s;
+}
+
+.timeline-line.active {
+  background: var(--neon-teal);
+  box-shadow: 0 0 5px var(--neon-teal);
+}
+
+button {
+  cursor: pointer;
+  background: linear-gradient(45deg, #13131f, #1a1a2c);
+  border: 1px solid #33334c;
+  color: white;
+  padding: 0.8rem 1.5rem;
+  border-radius: 8px;
+  transition: all 0.2s;
+  font-weight: 600;
+}
+
+button:hover {
+  border-color: var(--neon-teal);
+  box-shadow: 0 0 10px var(--accent-glow);
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #0a0a0f;
+}
+::-webkit-scrollbar-thumb {
+  background: #222233;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--neon-teal);
+}
