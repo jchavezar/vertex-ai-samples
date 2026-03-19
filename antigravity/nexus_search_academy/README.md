@@ -146,14 +146,25 @@ Open `.env` and configure your **Google Cloud Vertex AI Search index targets**:
 
 ## 🚀 Launch Procedure
 
-To ignite the subsystem, use the absolute controller:
+To ignite the subsystems locally, navigate to the respective directory and start the services:
 
+### 1. ⚙️ Start Backend
+The backend uses **Python** management via `uv`. Run the following to start the FastAPI Gateway:
 ```bash
-# Navigate to Scratch Control
-cd /usr/local/google/home/jesusarguelles/.gemini/jetski/scratch
-
-# Fire default thrusters
-./restart_academy.sh
+cd backend
+uv run main.py
 ```
+*The Backend API will be available on `http://localhost:8009`.*
+
+### 2. 🖥️ Start Frontend
+The frontend is built with **Vite + React**. Start the development server:
+```bash
+cd frontend
+npm install
+npm run dev
+```
+*The Dashboard will be live on `http://localhost:5173`.*
+
+---
 
 *The Academy is officially online.*
