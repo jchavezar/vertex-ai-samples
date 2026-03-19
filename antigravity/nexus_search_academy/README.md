@@ -115,6 +115,35 @@ For concrete Python execution guidelines covering how the backend swaps security
 
 ---
 
+## ⚙️ Configuration & Environment Setup
+
+To allow other users to load their own Microsoft Entra ID and Google Cloud Workload Identity Federation specs into this tool, follow these environment variable setup guides.
+
+### 1. 🖥️ Frontend setup
+Navigate to the `frontend` directory and copy the template:
+```bash
+cd frontend
+cp .env.example .env
+```
+Open `.env` and configure your **Microsoft Entra ID Application Dashboard** bindings:
+*   `VITE_MS_APP_ID`: Your client Application (App Registrations) ID
+*   `VITE_TENANT_ID`: Your corporate Azure Tenant ID
+*   `VITE_WIF_POOL`: Google Cloud IAM Workload Identity Pool ID
+*   `VITE_WIF_PROVIDER`: Google Cloud IAM Workload Identity Pool Provider ID
+
+### 2. ⚙️ Backend Setup
+Navigate to the `backend` directory and copy the template:
+```bash
+cd backend
+cp .env.example .env
+```
+Open `.env` and configure your **Google Cloud Vertex AI Search index targets**:
+*   `PROJECT_NUMBER`: Your Google Cloud numeric Project Number (not project-id string)
+*   `ENGINE_ID`: Vertex AI App/Engine Identifier
+*   `DATA_STORE_ID`: Primary DataStore Bucket target ID
+
+---
+
 ## 🚀 Launch Procedure
 
 To ignite the subsystem, use the absolute controller:
