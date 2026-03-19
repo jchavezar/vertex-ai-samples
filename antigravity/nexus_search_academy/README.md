@@ -1,28 +1,49 @@
 # 🌌 Nexus Search Academy (Year 3050 Edition)
 
-> **Status:** Cybernetically Enhanced & Operational 🚀
-> **Location:** `antigravity/nexus_search_academy`
+<div align="center">
 
-Welcome to the **Nexus Search Academy**, a futuristic, interactive learning environment designed to guide you through the inner workings of **Secure Workload Identity Federation (WIF)** and **Vertex AI Discovery Engine** integrations.
+![Nexus Academy Header](./assets/nexus_search_academy_header_1773929912159.png)
 
-This application isn't just a tool; it's a holographic dashboard that strips away the black box of enterprise security, showing you every token, every hash, and every API packet in real-time.
+[![Security: WIF](https://img.shields.io/badge/Security-Workload%20Identity%20(WIF)-00f3ff?style=for-the-badge&logo=google-cloud&logoColor=white)](#)
+[![Model: Gemini](https://img.shields.io/badge/AI%20Model-Gemini%202.5-00ff66?style=for-the-badge&logo=google-gemini&logoColor=white)](#)
+[![Framework](https://img.shields.io/badge/Stack-Vite%20%2B%20FastAPI-ab00ff?style=for-the-badge&logo=fastapi&logoColor=white)](#)
+
+</div>
 
 ---
 
-## 🛰️ Application Ports
+## 🛰️ Overview
 
-| Component | Port | Tech Stack |
-| :--- | :--- | :--- |
-| **Frontend** | `5179` | Vite + React ⚛️ |
-| **Backend** | `8010` | FastAPI + UV 🐍 |
+Welcome to the **Nexus Search Academy**, a futuristic holographic dashboard designed to strip away the black box of enterprise security and RAG operations. Guide operations through **Secure Workload Identity Federation (WIF)** translates and triggers strictly trimmed flows back down into sub-indexed frames dynamically.
+
+To communicate with the Discovery Engine without maintaining static long-lived keys, we utilize transparent Token Exchange translation pipelines binding securely to targeted indices.
+
+---
+
+## 🛰️ Dashboard Dashboard Previews
+
+### 🔬 Inner Auditing View (Step 5)
+Monitor exactly which DataStores (e.g., SharePoint Online Federated Indices) are executing background queries along with raw layout configurations frames transparently.
+
+![Dashboard Preview Step 5](./assets/nexus_search_academy_step5_1773931181078.png)
+
+### 🤖 Live Agent Smith stream assist
+Trigger live AI prompts executing strictly isolated streaming pipelines maintaining visual audit streams collapsibly above clean narrative replies.
+
+![Agent Smith View Screen](./assets/nexus_search_academy_with_agent_smith_1773931216260.png)
+
+---
+
+## 🛠️ Core Upgrades Layered
+
+*   **🧠 Dynamic Reasoning Tracking Box:** Transparently separates AI intermediate "Thinking" logs (`Assessing Database...`, `Formulating Query...`) inside styled collapsible Panel overlays above Markdown descriptive layouts buffers directly!
+*   **🛰️ Transparent SharePoint diagnostics Specs:** Explicit payload structures layout accurately inside debug logs fully describing direct workspace index target addresses securely without rendering dead-ends layout templates or ambiguity lists.
 
 ---
 
 ## 🧠 The Authentication Cycle
 
-To communicate with the Discovery Engine without managing risky static service account keys, we utilize a secure Token Exchange workflow. 
-
-Below is the architectural flowchart demonstrating how we translate a corporate identity (Microsoft Entra ID) into a Google Cloud access token.
+Below is the sequential architectural flowchart demonstrating how we translate corporate Identities (Microsoft Entra ID) securely into a transparent Google Cloud access credential bind.
 
 ```mermaid
 %%{init: {
@@ -70,20 +91,11 @@ graph TD
 
 ---
 
-## 🛠️ Core Features
+## 📖 Essential references
 
-### 1. Step-by-Step Interactive Walkthrough
-Navigate through the lifecycle of a query:
-*   **Identity Provider Login:** Direct OAuth redirect.
-*   **Hash Fragment Listener:** Real-time extraction.
-*   **STS Token Exchange:** Transparent token visualization.
-*   **Authenticated StreamAssist:** Live SSE streams.
+For concrete Python execution guidelines covering how the backend swaps security frameworks endpoints dynamically before triggerings:
 
-### 2. Reactive Chat Overlay
-An AI-powered assistant is always on standby in the bottom right corner.
-*   **Maximized Mode:** Expand to fill the glassmorphic visor view.
-*   **Grounding Indicator:** Instant HUD response verification (`Telemetry Grounded`).
-*   **Streaming HUD:** Watch responses populate fluidly.
+*   🛰️ **[`SHAREPOINT_STS_SPEC.md`](./SHAREPOINT_STS_SPEC.md)**: Full configuration spec template mapping indices to backend pipelines correctly!
 
 ---
 
