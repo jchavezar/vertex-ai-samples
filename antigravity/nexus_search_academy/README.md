@@ -61,24 +61,40 @@ Below is the sequential architectural flowchart demonstrating how we translate c
     'clusterBorder': '#1e293b'
   }
 }}%%
-graph TD
-    subgraph "Client Environment (Browser)"
-        User([User 👤]) -->|1. Clicks Login| FE[Frontend App 🖥️]
-        FE -->|2. Redirect to Auth| MS
-        MS -->|3. Return id_token| FE
-        FE -->|4. Update Code Visualiszer| FE
-        FE -->|5. Send id_token Request| BE[Backend API ⚙️]
+graph LR
+    subgraph UI [Browser Layout]
+        direction TB
+        User([User 👤])
+        FE[Frontend App 🖥️]
+        User -->|1. Clicks Login| FE
+        FE -.->|4. Render telemetry| FE
     end
 
-    MS[Microsoft Entra ID 🔐]
-    STS[Google STS 🔑]
-    DE[Discovery Engine 🧠]
+    subgraph Entra [Azure Workspace]
+        MS[Microsoft Entra ID 🔐]
+    end
 
-    BE -->|6. POST /sts/v1/token| STS
-    STS -->|7. Issue Google Token| BE
+    subgraph Host [FastAPI Gateway]
+        direction TB
+        BE[Backend API ⚙️]
+        STS[Google STS 🔑]
+    end
+
+    subgraph Vertex [Discovery Engine]
+        DE[Discovery Engine 🧠]
+    end
+
+    %% Client authentication trigger
+    FE -->|2. Redirect| MS
+    MS -->|3. Return id_token| FE
+    FE -->|5. Forward id_token| BE
+
+    %% Exchange & Groundings
+    BE -->|6. POST /sts/token| STS
+    STS -->|7. Return Access_Token| BE
     BE -->|8. executeStreamAssist| DE
-    DE -->|9. SSE Stream Responses| BE
-    BE -->|10. Reactive Stream| FE
+    DE -->|9. SSE Streams responses| BE
+    BE -->|10. Push UI Stream| FE
 
     classDef chrome fill:#0b1120,stroke:#00f3ff,stroke-width:2px;
     classDef server fill:#0b1120,stroke:#ab00ff,stroke-width:2px;
