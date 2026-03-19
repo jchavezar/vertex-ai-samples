@@ -169,9 +169,9 @@ def stream_assist(request: ChatRequest, authorization: str = Header(None)):
     except Exception:
         admin_token = token
 
-    PROJECT_NUMBER = "440133963879"
-    LOCATION = "global"
-    ENGINE_ID = "deloitte-demo"
+    PROJECT_NUMBER = os.environ.get("PROJECT_NUMBER", "440133963879")
+    LOCATION = os.environ.get("LOCATION", "global")
+    ENGINE_ID = os.environ.get("ENGINE_ID", "deloitte-demo")
 
     # Fetch DataStores dynamically
     ds_url = f"https://discoveryengine.googleapis.com/v1alpha/projects/{PROJECT_NUMBER}/locations/{LOCATION}/collections/default_collection/engines/{ENGINE_ID}/widgetConfigs/default_search_widget_config"
@@ -207,7 +207,7 @@ def stream_assist(request: ChatRequest, authorization: str = Header(None)):
             "vertexAiSearchSpec": { "dataStoreSpecs": dataStoreSpecs }
         }
     else:
-         DATA_STORE_ID = "5817ee80-82a4-49e3-a19c-2cedc73a6300"
+         DATA_STORE_ID = os.environ.get("DATA_STORE_ID", "5817ee80-82a4-49e3-a19c-2cedc73a6300")
          payload["toolsSpec"] = {
              "vertexAiSearchSpec": {
                  "dataStoreSpecs": [{ "dataStore": f"projects/{PROJECT_NUMBER}/locations/{LOCATION}/collections/default_collection/dataStores/{DATA_STORE_ID}" }]
