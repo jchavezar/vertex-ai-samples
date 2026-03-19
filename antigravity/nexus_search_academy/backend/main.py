@@ -1,9 +1,12 @@
 import uvicorn
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Header
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List, Dict
 from fastapi.responses import StreamingResponse
+import requests
+import google.auth
+from google.auth.transport.requests import Request
 from chat_agent import get_chat_stream
 import os
 
@@ -49,37 +52,47 @@ def get_steps():
             "icon": "Shield",
             "under_the_hood": {
                 "language": "javascript",
-                "code": "// Step 1: Implicit Flow or Auth Code flow to get Entra ID Token\nconst token = await msalInstance.acquireTokenSilent({\n  scopes: ['User.Read', 'Sites.Read.All']\n});\nconsole.log('Entra ID JWT:', token.accessToken);"
+                "code": "// Step 1: Login to get Entra ID Token\nconst token = await msalInstance.acquireTokenSilent({ scopes: ['User.Read'] });"
             }
         },
         {
             "id": 2,
             "title": "Workload Identity Federation (STS)",
-            "description": "Google Cloud doesn't trust Entra ID by default. We use Security Token Service (STS) to exchange the Entra ID token for a short-lived Google Token.",
+            "description": "Google Cloud exchanges the Entra ID token for a short-lived Google Token. This is the core of WIF.",
             "icon": "RefreshCw",
             "under_the_hood": {
                 "language": "python",
-                "code": "# Step 2: STS Token Exchange\nresponse = requests.post(\n    'https://sts.googleapis.com/v1/token',\n    json={\n        'audience': '//iam.googleapis.com/projects/PROJECT_NUMBER/locations/global/workloadIdentityPools/POOL_ID/providers/PROVIDER_ID',\n        'grantType': 'urn:ietf:params:oauth:grant-type:token-exchange',\n        'requestedTokenType': 'urn:ietf:params:oauth:token-type:access_token',\n        'subjectToken': entra_id_token,\n        'subjectTokenType': 'urn:ietf:params:oauth:token-type:jwt'\n    }\n)\nsa_token = response.json()['access_token']"
+                "code": "# Step 2: STS Token Exchange\nresponse = requests.post('https://sts.googleapis.com/v1/token', json={...})"
             }
         },
         {
             "id": 3,
             "title": "The Google Access Token",
-            "description": "We now have a federated Google Access Token. This token is scoped ONLY to what the IAM binding allows for that federated identity.",
+            "description": "We now have a federated Google Access Token scoped strictly to IAM bindings.",
             "icon": "Key",
             "under_the_hood": {
                 "language": "json",
-                "code": "{\n  \"issuer\": \"sts.googleapis.com\",\n  \"audience\": \"//iam.googleapis.com/...\",\n  \"scope\": \"https://www.googleapis.com/auth/cloud-platform\",\n  \"expires_in\": 3600\n}"
+                "code": "{\n  \"issuer\": \"sts.googleapis.com\",\n  \"scope\": \"https://www.googleapis.com/auth/cloud-platform\"\n}"
             }
         },
         {
             "id": 4,
+            "title": "Backend Metadata Brokerage",
+            "description": "The backend elevates credentials exclusively to read Administrative Configurations (`widgetConfigs`) avoids authorization lookup failures securely.",
+            "icon": "Shield",
+            "under_the_hood": {
+                "language": "python",
+                "code": "# Step 4: Elevated admin configuration fetch\nadmin_creds, _ = google.auth.default()\nds_resp = requests.get(ds_url, headers={'Authorization': f'Bearer {admin_creds.token}'})"
+            }
+        },
+        {
+            "id": 5,
             "title": "The Quantum Search Call",
-            "description": "With the Google Token, we call Vertex AI Search. We pass the query and the token, and Vertex returns grounded answers from SharePoint.",
+            "description": "The backend carries ultimate Streams utilizing the USER's token securely back into Vertex AI for optimal security trimming compliance.",
             "icon": "Sparkles",
             "under_the_hood": {
                 "language": "python",
-                "code": "# Step 4: Vertex AI Search Call\nclient = discoveryengine.SearchServiceClient(credentials=credentials)\nrequest = discoveryengine.SearchRequest(\n    serving_config='projects/.../servingConfigs/default_search',\n    query='What is the CFO salary?',\n    content_search_spec={\n        'snippet_spec': {'max_snippet_count': 5}\n    }\n)"
+                "code": "# Step 5: streamAssist execution\nheaders = { 'Authorization': f'Bearer {user_token}' }\nresponse_stream = requests.post(url, headers=headers, json=payload)"
             }
         }
     ]
@@ -139,6 +152,76 @@ def chat_stream(request: ChatRequest):
         get_chat_stream(request.query, request.context),
         media_type="text/event-stream"
     )
+
+@app.post("/api/stream/assist")
+def stream_assist(request: ChatRequest, authorization: str = Header(None)):
+    """Acts as a proxy endpoint with elevated token privileges to look up widget config grounding."""
+    if not authorization:
+        raise HTTPException(status_code=401, detail="Authorization header missing")
+    token = authorization.split(" ")[1] if " " in authorization else authorization
+
+    # lookup high privileges admin_creds to populate widgetConfigs DataStore buckets
+    try:
+        admin_creds, _ = google.auth.default(scopes=["https://www.googleapis.com/auth/cloud-platform"])
+        if not admin_creds.valid:
+            admin_creds.refresh(Request())
+        admin_token = admin_creds.token
+    except Exception:
+        admin_token = token
+
+    PROJECT_NUMBER = "440133963879"
+    LOCATION = "global"
+    ENGINE_ID = "deloitte-demo"
+
+    # Fetch DataStores dynamically
+    ds_url = f"https://discoveryengine.googleapis.com/v1alpha/projects/{PROJECT_NUMBER}/locations/{LOCATION}/collections/default_collection/engines/{ENGINE_ID}/widgetConfigs/default_search_widget_config"
+    ds_headers = {
+        "Authorization": f"Bearer {admin_token}",
+        "Content-Type": "application/json",
+        "X-Goog-User-Project": PROJECT_NUMBER
+    }
+    dataStoreSpecs = []
+    try:
+        ds_resp = requests.get(ds_url, headers=ds_headers, timeout=10)
+        if ds_resp.status_code == 200:
+            collections = ds_resp.json().get('collectionComponents', [{}])
+            dataStoreSpecs = [
+                {'dataStore': r['name']}
+                for r in collections[0].get('dataStoreComponents', [])
+            ]
+    except Exception:
+        pass
+
+    url = f"https://discoveryengine.googleapis.com/v1alpha/projects/{PROJECT_NUMBER}/locations/{LOCATION}/collections/default_collection/engines/{ENGINE_ID}/assistants/default_assistant:streamAssist"
+    headers = {
+        "Authorization": f"Bearer {token}",
+        "Content-Type": "application/json",
+        "X-Goog-User-Project": PROJECT_NUMBER,
+        "Accept": "text/event-stream"
+    }
+    payload = {
+        "query": { "text": request.query }
+    }
+    if dataStoreSpecs:
+        payload["toolsSpec"] = {
+            "vertexAiSearchSpec": { "dataStoreSpecs": dataStoreSpecs }
+        }
+    else:
+         DATA_STORE_ID = "5817ee80-82a4-49e3-a19c-2cedc73a6300"
+         payload["toolsSpec"] = {
+             "vertexAiSearchSpec": {
+                 "dataStoreSpecs": [{ "dataStore": f"projects/{PROJECT_NUMBER}/locations/{LOCATION}/collections/default_collection/dataStores/{DATA_STORE_ID}" }]
+             }
+         }
+
+    response_stream = requests.post(url, headers=headers, json=payload, stream=True, timeout=60)
+    
+    def generate():
+        for chunk in response_stream.iter_content(chunk_size=1024):
+            if chunk:
+                yield chunk
+
+    return StreamingResponse(generate(), media_type="text/event-stream")
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8009)

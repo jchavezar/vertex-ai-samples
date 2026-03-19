@@ -7,8 +7,8 @@ def get_chat_stream(query: str, logs: List[Dict]):
     """
     Streams a response from Gemini using the provided logs as context.
     """
-    # Initialize client. Assumes GEMINI_API_KEY is set or ADC is valid.
-    client = genai.Client()
+    # Initialize client.
+    client = genai.Client(vertexai=True, location="us-central1")
     
     # Format context from logs
     context_str = "Here is the current telemetry log from the Academy Session:\n\n"
@@ -33,13 +33,7 @@ If they ask questions unrelated to the Academy session or cloud security, polite
 """
 
     contents = [
-        types.Content(
-            role="user",
-            parts=[
-                types.Part.from_text(context_str),
-                types.Part.from_text(f"\n\nUser Question: {query}")
-            ]
-        )
+        f"{context_str}\n\nUser Question: {query}"
     ]
 
     # Using gemini-2.5-flash for fast streaming and Compliance

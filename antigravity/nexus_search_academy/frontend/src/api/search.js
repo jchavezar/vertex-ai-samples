@@ -27,17 +27,11 @@ export const mapSearchResult = (sr) => {
  * streams an answer using the v1alpha streamAssist endpoint.
  */
 export const executeStreamAssist = async (googleToken, query, onChunk, onLog) => {
-  const url = `/google-api/v1alpha/projects/${CONFIG.PROJECT_NUMBER}/locations/${CONFIG.LOCATION}/collections/default_collection/engines/${CONFIG.ENGINE_ID}/assistants/default_assistant:streamAssist`;
+  const url = `/api/stream/assist`;
 
   const payload = {
-    query: { text: query },
-    toolsSpec: {
-      vertexAiSearchSpec: {
-        dataStoreSpecs: [
-          { dataStore: `projects/${CONFIG.PROJECT_NUMBER}/locations/${CONFIG.LOCATION}/collections/default_collection/dataStores/${CONFIG.DATA_STORE_ID}` }
-        ]
-      }
-    }
+    query: query,
+    context: [] 
   };
 
   if (onLog) onLog(`[Assist] POST ${url}`, payload, getHeaders(googleToken));
@@ -112,6 +106,18 @@ export const executeStreamAssist = async (googleToken, query, onChunk, onLog) =>
       answerText = content.text || "";
       if (!answerText && content.parts?.length > 0) {
         answerText = content.parts[0].text || "";
+      }
+    }
+
+    // Check if packet contains thoughts or reasoning
+    const thoughtText = parsed.answer?.thought || parsed.thought || 
+                       parsed.answer?.replies?.[0]?.thought || 
+                       parsed.answer?.replies?.[0]?.groundedContent?.content?.thought;
+
+    if (thoughtText && !answerText.includes(thoughtText)) {
+      // Wrap thought in custom tags so frontend can isolate it
+      if (!fullAnswer.includes(`<thought>${thoughtText}</thought>`)) {
+         fullAnswer = `<thought>${thoughtText}</thought>\n\n` + fullAnswer;
       }
     }
 
