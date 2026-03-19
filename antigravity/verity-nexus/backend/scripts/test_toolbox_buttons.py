@@ -3,7 +3,7 @@ import requests
 import json
 import time
 
-URL = "http://localhost:8001/api/mcp_chat"
+URL = "http://localhost:8005/api/mcp_chat"
 
 test_queries = [
     "Audit the ledger for material transactions (those above $1.5M) and flag any outliers."

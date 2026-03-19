@@ -128,7 +128,7 @@ const AuditFindings = () => {
 
             return (
               <motion.div
-                key={finding.trans_id || idx}
+                key={`${finding.trans_id || 'finding'}-${idx}`}
                 initial={{ opacity: 0, scale: 0.95, y: 30 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.95 }}
@@ -308,7 +308,7 @@ const EvidenceLedgerModal = () => {
   const [isLoading, setIsLoading] = React.useState(true);
 
   React.useEffect(() => {
-    fetch('http://localhost:8005/api/ledger')
+    fetch('/api/ledger')
       .then(res => res.json())
       .then(data => {
         if (data.transactions) {
@@ -406,7 +406,7 @@ const EvidenceLedgerModal = () => {
           </thead>
           <tbody className="divide-y divide-white/5 font-mono">
             {items.map((f, i) => (
-              <tr key={f.trans_id || i} className="hover:bg-white/[0.02] transition-colors group cursor-crosshair">
+              <tr key={`${f.trans_id || 'row'}-${i}`} className="hover:bg-white/[0.02] transition-colors group cursor-crosshair">
                 <td className="p-4 px-6 whitespace-nowrap">
                   <span className="bg-white/5 border border-white/10 px-2 py-1 rounded text-slate-400 group-hover:text-cyan-400 transition-colors">
                     {f.trans_id?.split('-')[0] || `TR-${i}`}
@@ -631,7 +631,7 @@ export default function VerityNexus() {
   }, []);
 
   const { messages, input, handleInputChange, handleSubmit, data } = useChat({
-    api: 'http://localhost:8005/api/chat',
+    api: '/api/chat',
     onFinish: () => {
       setSignOffVisible(true);
       addReasoning("Execution cycle complete. Finalizing output shards.");
@@ -1114,7 +1114,7 @@ const SQLTerminalModal = () => {
     setColumns([]);
 
     try {
-      const res = await fetch('http://localhost:8005/api/sql', {
+      const res = await fetch('/api/sql', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

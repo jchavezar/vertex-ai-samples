@@ -57,7 +57,7 @@ function App() {
   const [activeCitation, setActiveCitation] = useState(null);
 
   const [processingTime, setProcessingTime] = useState(0);
-  const [searchMethod, setSearchMethod] = useState('answer'); // 'answer', 'search', 'stream'
+  const [searchMethod, setSearchMethod] = useState('answer'); // 'answer', 'search', 'streamAnswer', 'streamAssist'
   const [conversationContext, setConversationContext] = useState(null);
   const [isEvaluating, setIsEvaluating] = useState(false);
 
@@ -344,9 +344,10 @@ function App() {
 
     try {
       let data;
-      if (searchMethod === 'stream') {
+      const isStreaming = searchMethod === 'streamAnswer' || searchMethod === 'streamAssist';
+      if (isStreaming) {
         setSearchResult({ answer: "", results: [], citations: [] });
-        data = await executeSearch(googleToken, query, conversationContext, 'stream', (chunk, fullAnswer, results, citations) => {
+        data = await executeSearch(googleToken, query, conversationContext, searchMethod, (chunk, fullAnswer, results, citations) => {
           setSearchResult(prev => ({
             ...prev,
             answer: fullAnswer,
@@ -360,7 +361,7 @@ function App() {
 
       setSearchResult(data);
 
-      if ((searchMethod === 'stream' || searchMethod === 'answer') && data.answer) {
+      if ((isStreaming || searchMethod === 'answer') && data.answer) {
         triggerEvaluation(data.answer, data.results, data.citations || []);
       }
 
@@ -536,11 +537,19 @@ function App() {
                     </button>
                     <button
                       type="button"
-                      onClick={() => setSearchMethod('stream')}
-                      className={`flex items-center gap-2 px-6 py-3 rounded-2xl transition-all border-2 ${searchMethod === 'stream' ? 'bg-sockcop-gold/20 border-sockcop-gold text-sockcop-gold shadow-[0_0_15px_rgba(212,175,55,0.2)]' : 'bg-white/5 border-white/5 text-gray-400 hover:bg-white/10'}`}
+                      onClick={() => setSearchMethod('streamAnswer')}
+                      className={`flex items-center gap-2 px-6 py-3 rounded-2xl transition-all border-2 ${searchMethod === 'streamAnswer' ? 'bg-sockcop-gold/20 border-sockcop-gold text-sockcop-gold shadow-[0_0_15px_rgba(212,175,55,0.2)]' : 'bg-white/5 border-white/5 text-gray-400 hover:bg-white/10'}`}
                     >
                       <Zap className="w-4 h-4" />
                       <span className="font-black text-xs uppercase tracking-widest">Stream Answer</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setSearchMethod('streamAssist')}
+                      className={`flex items-center gap-2 px-6 py-3 rounded-2xl transition-all border-2 ${searchMethod === 'streamAssist' ? 'bg-sockcop-gold/20 border-sockcop-gold text-sockcop-gold shadow-[0_0_15px_rgba(212,175,55,0.2)]' : 'bg-white/5 border-white/5 text-gray-400 hover:bg-white/10'}`}
+                    >
+                      <Sparkles className="w-4 h-4" />
+                      <span className="font-black text-xs uppercase tracking-widest">Stream Assist</span>
                     </button>
                     <button
                       type="button"
@@ -693,14 +702,15 @@ function App() {
                     >
                       <div className="text-xs font-mono text-sockcop-gold flex items-center gap-2">
                               {loading && <Loader2 className="w-3 h-3 animate-pulse" />}
-                              {searchMethod === 'stream' ? 'SYST_STREAM_ASSIST // VERIFIED' :
+                              {searchMethod === 'streamAssist' ? 'SYST_STREAM_ASSIST // VERIFIED' :
+                                searchMethod === 'streamAnswer' ? 'SYST_STREAM_ANSWER // VERIFIED' :
                                 searchMethod === 'answer' ? 'SYST_GEN_ANSWER // GROUNDED' :
                                   'SYST_SEARCH_QUERY // RAW'}
                       </div>
                             <div className="text-lg text-gray-100">
                               {searchResult.evaluations
                                 ? renderEvaluatedText(searchResult.evaluations)
-                                : searchMethod === 'stream' && searchResult.answer
+                                : (searchMethod === 'streamAnswer' || searchMethod === 'streamAssist') && searchResult.answer
                                   ? renderGroundedText(searchResult.answer, searchResult.citations)
                                   : (searchResult.answer || searchResult.summary?.summaryText || "I couldn't find a specific answer, but here is what I found in the documents.")
                               }

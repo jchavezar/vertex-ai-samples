@@ -18,6 +18,11 @@ export default defineConfig({
         target: 'http://127.0.0.1:8006',
         changeOrigin: true
       },
+      '/sts': {
+        target: 'https://sts.googleapis.com',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/sts/, '')
+      },
       '/aiplatform-api': {
         target: 'https://us-central1-aiplatform.googleapis.com',
         changeOrigin: true,

@@ -90,6 +90,30 @@ def execute_sql(payload: dict):
         print(f"SQL Error: {e}")
         return {"error": str(e)}
 
+@app.get("/mcp/list_tools")
+async def list_tools():
+    """Lists available tools from the MCP set."""
+    try:
+        from google.adk.tools.mcp_tool.mcp_toolset import MCPToolset, SseConnectionParams
+        mcp_toolset = MCPToolset(
+            connection_params=SseConnectionParams(
+                url=os.environ.get("MCP_LEDGER_TOOLBOX_URL", "https://mcp-ledger-toolbox-254356041555.us-central1.run.app/mcp/sse")
+            )
+        )
+        tools = await mcp_toolset.get_tools()
+        
+        processed_tools = []
+        for t in tools:
+            processed_tools.append({
+                "name": getattr(t, "name", str(t)),
+                "description": getattr(t, "description", ""),
+                "inputSchema": getattr(t, "parameters", {}) if hasattr(t, "parameters") else {}
+            })
+        return {"tools": processed_tools}
+    except Exception as e:
+        print(f"Error listing tools: {e}")
+        return {"tools": []}
+
 @app.post("/api/mcp_chat")
 async def mcp_chat_sync(request: Request):
     """A direct chat endpoint for the MCP Toolbox UI without streaming."""
@@ -104,6 +128,9 @@ async def mcp_chat_sync(request: Request):
         
         last_message = messages[-1]["content"]
         session_id = body.get("id", str(uuid.uuid4()))
+        
+        # Define user_msg for runner.run_async to prevent NameError
+        user_msg = types.Content(role="user", parts=[types.Part(text=last_message)])
         
         # Dynamically determine identity and instruction
         is_protocol = last_message.startswith("EXECUTE PROTOCOL:")
@@ -120,7 +147,7 @@ async def mcp_chat_sync(request: Request):
                 
                 # Manual routing for demo buttons
                 if "Cayman" in cmd:
-                    query = f"SELECT * FROM `{table_ref}` WHERE jurisdiction = 'Cayman' LIMIT 10"
+                    query = f"SELECT * FROM `{table_ref}` WHERE jurisdiction LIKE '%Cayman%' LIMIT 10"
                 elif "Pending" in cmd:
                     query = f"SELECT * FROM `{table_ref}` WHERE approval_status = 'Pending' LIMIT 10"
                 else:
@@ -140,12 +167,7 @@ async def mcp_chat_sync(request: Request):
             adk_messages = [{"role": m["role"], "content": m["content"]} for m in messages] # Keep context but minimal instruction
         else:
             agent_name = "Forensic_Swarm_Auditor"
-            instruction = """
-            You are a lead Forensic Auditor for the Verity Nexus Swarm.
-            Schema: trans_id, date, vendor_name, amount_usd, department, description, approval_status, jurisdiction.
-            RULES: DO NOT use broken tools. ALWAYS use `get_all_transactions` and filter manually.
-            Provide a professional forensic report.
-            """
+            instruction = "Forensic Audit Lead. Protocol: Call 'get_all_transactions' once, manually filter top 3 anomalies. Output: Summary (1 sentence) + Markdown Table."
             adk_messages = [{"role": m["role"], "content": m["content"]} for m in messages]
 
         from google.adk.agents import LlmAgent
@@ -158,7 +180,7 @@ async def mcp_chat_sync(request: Request):
             tools=[
                 MCPToolset(
                     connection_params=SseConnectionParams(
-                        url="https://mcp-ledger-toolbox-oyntfgdwsq-uc.a.run.app/mcp/sse"
+                        url=os.environ.get("MCP_LEDGER_TOOLBOX_URL", "https://mcp-ledger-toolbox-254356041555.us-central1.run.app/mcp/sse")
                     )
                 )
             ]
@@ -173,15 +195,72 @@ async def mcp_chat_sync(request: Request):
         
         response_text = ""
         async for event in runner.run_async(new_message=user_msg, user_id="default_user", session_id=session_id):
-            if event.content and event.content.parts:
-                for part in event.content.parts:
-                    if part.text:
-                        response_text += part.text
+            print(f"--- [DEBUG MCP_CHAT] Event: {event}")
+            # Log structured content or type
+            if hasattr(event, "content") and event.content:
+                print(f"--- [DEBUG] Event Content: {event.content}")
+                if event.content.parts:
+                    for part in event.content.parts:
+                        if part.text:
+                            print(f"--- [DEBUG] Text Part found: {part.text}")
+                            response_text += part.text
+                        if part.function_call:
+                            print(f"--- [DEBUG] Function Call Part found: {part.function_call}")
+            if hasattr(event, "error") and event.error:
+                 print(f"--- [DEBUG] Event Error found: {event.error}")
+                 raise Exception(f"Runner event error: {event.error}")
+        
+        print(f"--- [DEBUG MCP_CHAT] Final response_text accumulation: '{response_text}'")
+        if not response_text:
+             # If we still have NO text, it might mean it ONLY called tools and returned nothing, 
+             # or there was no model output. Let's return a safe message for debug.
+             return {"reply": "Debug Error: Runner completed with empty response_text."}
 
         return {"reply": response_text}
     except Exception as e:
+        import traceback
         print(f"Error in mcp_chat: {e}")
+        traceback.print_exc()
         return {"error": str(e)}
+
+async def keepalive_iterator(iterator, timeout=10.0):
+    """
+    Wraps an async iterator that might pause during agent execution or tool calls,
+    yielding a keepalive sentinel object on time-out so that framing can be maintained
+    without cancelling the underlying generator.
+    """
+    queue = asyncio.Queue()
+    
+    # Task to consume the iterator and push items to the queue
+    async def consume():
+        try:
+            async for item in iterator:
+                await queue.put(item)
+        except Exception as e:
+            await queue.put(e)
+        finally:
+            await queue.put(None) # Sentinel to stop
+
+    task = asyncio.create_task(consume())
+
+    class KeepaliveSentinel:
+        def __init__(self):
+            self.type = "keepalive"
+
+    while True:
+        try:
+            item = await asyncio.wait_for(queue.get(), timeout=timeout)
+            if item is None:
+                break
+            if isinstance(item, Exception):
+                raise item
+            yield item
+        except asyncio.TimeoutError:
+            # Yield sentinel without cancelling the iterator task
+            yield KeepaliveSentinel()
+            
+    await task # Clean up task resources
+
 
 @app.post("/api/chat")
 async def chat(request: Request):
@@ -208,7 +287,16 @@ async def chat(request: Request):
             # Track agent transitions for the Live Graph
             current_agent = "orchestrator"
             
-            async for event in runner.run_async(new_message=user_msg, user_id=user_id, session_id=session_id):
+            async for event in keepalive_iterator(runner.run_async(new_message=user_msg, user_id=user_id, session_id=session_id)):
+                # Handle Keepalive Sentinel
+                if hasattr(event, "type") and event.type == "keepalive":
+                    print("--- [DEBUG] Emitting Keepalive to keep LB stream warm.")
+                    yield AIStreamProtocol.data({
+                        "type": "keepalive",
+                        "timestamp": datetime.now().isoformat()
+                    })
+                    continue
+
                 # Check for agent transition via the author or transfer_to_agent action
                 if event.author and event.author != current_agent:
                     current_agent = event.author

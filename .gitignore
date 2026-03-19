@@ -38,3 +38,12 @@ credentials.json
 # Archived Scripts
 scripts_archive/
 
+# Local Only Cleanup
+**/local_only/
+**/__local_tools__/
+stderr.txt
+stdout.txt
+output.json
+test_out.txt
+.tmp-testing/
+
