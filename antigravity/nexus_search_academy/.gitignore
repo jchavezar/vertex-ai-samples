@@ -1,0 +1,22 @@
+# Data & Secrets (MANDATORY)
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+client_secret*.json
+credentials.json
+*_token.json
+
+# Node
+node_modules
+dist
+
+# Python
+.venv
+__pycache__
+*.pyc
+.pytest_cache
+*.log
