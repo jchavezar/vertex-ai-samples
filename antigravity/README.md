@@ -177,7 +177,12 @@
       <a href="./internal_components_portal/">ACCESS_TERMINAL &rarr;</a>
     </td>
     <td width="50%" valign="top">
-      <!-- PLACEHOLDER -->
+      <img src="assets/header_hub.svg" width="100%" />
+      <br/><br/>
+      <strong>PROJECT: OBSERVABILITY NEXUS</strong><br/>
+      Centralized real-time telemetry and monitoring interface. Aggregates deep execution latency and neural event traces across the Antigravity suite using WebSockets.<br/>
+      <br/>
+      <a href="./observability_nexus/">ACCESS_TERMINAL &rarr;</a>
     </td>
   </tr>
 </table>

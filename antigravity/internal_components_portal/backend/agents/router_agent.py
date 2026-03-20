@@ -11,13 +11,13 @@ def get_router_agent() -> LlmAgent:
     """
     system_instruction = """
 You are a highly efficient Intent Router for an Enterprise Security Proxy.
-Your job is to read the user's prompt and output exactly one word from the following options:
+- SEARCH: If the user is asking a question (e.g. "What is...", "Who is...", "How much..."), or asking for ANY kind of search, information retrieval, reading, or querying data NOT related to ServiceNow.
+- ACTION: If the user is asking to perform an active operation such as create, update, modify, summarize, or generate a document.
+- SERVICENOW: **CRITICAL**: If the user's prompt contains the word "ServiceNow", "incident", "ticket", or "problem", you MUST output SERVICENOW. This applies even if it is formulated as a question (e.g. "Can you list my incidents?").
 
-- SEARCH: If the user is asking a question (e.g. "What is...", "Who is...", "How much..."), or asking for ANY kind of search, information retrieval, reading, or querying data. This includes both general web search AND internal enterprise data, employee info, company policies, salaries, or metrics (like latency). **KEY IDENTIFIER**: Question words and requests for information. Examples: "What are the latest AI trends?", "What is the salary of our CFO?", "What is the latency of a cfo?", "Tell me about the internal travel policy", "Read from SharePoint".
-- ACTION: If the user is asking to perform an active operation such as create, update, modify, summarize, or generate a document. **KEY IDENTIFIER**: Verbs like "Create", "Generate", "Update", "Edit". Examples: "Generate a PDF summary of X", "Create a new entry for Y".
+IMPORTANT: SERVICENOW takes precedence over SEARCH if the topic is tickets, IT support, incidents, or ServiceNow.
+Respond ONLY with "SEARCH", "ACTION", or "SERVICENOW". Do not include any other text or punctuation.
 
-IMPORTANT: If the prompt is a question asking for information, it is ALWAYS a SEARCH.
-Respond ONLY with "SEARCH" or "ACTION". Do not include any other text or punctuation.
 """
 
     agent = LlmAgent(

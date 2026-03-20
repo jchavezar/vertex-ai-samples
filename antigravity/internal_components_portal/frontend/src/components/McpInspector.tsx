@@ -21,7 +21,7 @@ interface McpInspectorProps {
 export function McpInspector({ goHome, token }: McpInspectorProps) {
   const [client, setClient] = useState<Client | null>(null);
   const [isConnected, setIsConnected] = useState(false);
-  const [serverUrl, setServerUrl] = useState('http://localhost:8088/sse');
+  const [serverUrl, setServerUrl] = useState('http://localhost:8008/sse');
   const [tools, setTools] = useState<McpTool[]>([]);
   const [logs, setLogs] = useState<{ id: string, type: 'info' | 'error' | 'request' | 'response', message: string, timestamp: Date }[]>([]);
   const [expandedTools, setExpandedTools] = useState<Record<string, boolean>>({});
