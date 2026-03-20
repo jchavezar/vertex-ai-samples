@@ -21,6 +21,7 @@ dependencies = [
     "markdown>=3.10.2",
     "matplotlib>=3.10.8",
     "playwright>=1.58.0",
+    "nexus-telemetry",
 ]
 
 [dependency-groups]
@@ -33,3 +34,6 @@ dev = [
 members = [
     "playwright_test",
 ]
+
+[tool.uv.sources]
+nexus-telemetry = { path = "../../nexus_telemetry" }

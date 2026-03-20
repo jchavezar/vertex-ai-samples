@@ -210,6 +210,7 @@ dependencies = [
     { name = "markitdown", extra = ["all"] },
     { name = "matplotlib" },
     { name = "msal" },
+    { name = "nexus-telemetry" },
     { name = "playwright" },
     { name = "pydantic" },
     { name = "pymupdf" },
@@ -236,6 +237,7 @@ requires-dist = [
     { name = "markitdown", extras = ["all"], specifier = ">=0.1.4" },
     { name = "matplotlib", specifier = ">=3.10.8" },
     { name = "msal", specifier = ">=1.34.0" },
+    { name = "nexus-telemetry", directory = "../../nexus_telemetry" },
     { name = "playwright", specifier = ">=1.58.0" },
     { name = "pydantic", specifier = ">=2.12.5" },
     { name = "pymupdf", specifier = ">=1.24.2" },
@@ -2304,6 +2306,17 @@ sdist = { url = "https://us-python.pkg.dev/artifact-foundry-prod/ah-3p-staging-p
 wheels = [
     { url = "https://us-python.pkg.dev/artifact-foundry-prod/ah-3p-staging-python/msal-extensions/msal_extensions-1.3.1-py3-none-any.whl", hash = "sha256:96d3de4d034504e969ac5e85bae8106c8373b5c6568e4c8fa7af2eca9dbe6bca" },
 ]
+
+[[package]]
+name = "nexus-telemetry"
+version = "0.1.0"
+source = { directory = "../../nexus_telemetry" }
+dependencies = [
+    { name = "httpx" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "httpx", specifier = ">=0.28.1" }]
 
 [[package]]
 name = "numpy"

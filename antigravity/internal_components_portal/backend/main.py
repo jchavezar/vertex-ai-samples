@@ -44,7 +44,7 @@ from mcp_service.mcp_sharepoint import SharePointMCP
 from utils.auth_context import set_user_token, set_user_id_token
 from agents.analyze_latency_agent import analyze_latency_profiles
 from agents.latency_chat_agent import chat_with_latency_data
-from utils.telemetry import push_telemetry_async
+from nexus_telemetry import push_telemetry_async, NexusAPITrackerMiddleware
 
 from dotenv import load_dotenv
 load_dotenv(dotenv_path="../.env")
@@ -55,6 +55,8 @@ os.environ["GOOGLE_GENAI_USE_VERTEXAI"] = "true"
 os.environ["GOOGLE_CLOUD_PROJECT"] = "vtxdemos"
 
 app = FastAPI()
+
+app.add_middleware(NexusAPITrackerMiddleware)
 
 app.add_middleware(
     CORSMiddleware,
