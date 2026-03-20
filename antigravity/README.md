@@ -189,6 +189,21 @@
 
 <br/>
 
+## 📚 Shared Core Libraries
+
+<table width="100%">
+  <tr>
+    <td width="30%"><strong>Module</strong></td>
+    <td width="70%"><strong>Description</strong></td>
+  </tr>
+  <tr>
+    <td><a href="./nexus_telemetry/"><code>nexus_telemetry</code></a></td>
+    <td>Standalone, strictly non-blocking Observability Nexus client package. Features zero-latency queuing, decoupled ASGI tracking middleware, and pure HTTPX streaming interception for system-wide APM.</td>
+  </tr>
+</table>
+
+<br/>
+
 <div align="center">
   <img src="https://capsule-render.vercel.app/api?type=waving&color=0f172a&height=100&section=footer" width="100%" />
   <p>POWERED_BY: <strong>GEMINI_2.5_PRO</strong> // ARCHITECTURE: <strong>NEO_MONOLITH</strong></p>
