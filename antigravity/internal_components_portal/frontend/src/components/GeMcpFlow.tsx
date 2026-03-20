@@ -186,6 +186,20 @@ const initialNodes = [
       snippet: '// Executes pure tools without search grounding (e.g. List Datastores).\nserver = Server("direct-action-mcp")\n@server.tool()\nasync def execute_action(params: dict):\n    logger.info("Executing isolated ADK tool")\n    return ActionEngine.run(params)'
     } 
   },
+  {
+    id: 'servicenow_mcp',
+    type: 'custom',
+    position: { x: 1250, y: 700 },
+    data: {
+      label: 'ServiceNow Target MCP',
+      subtitle: 'External API Integration',
+      desc: 'Connects to remote SNOW instance.',
+      icon: Database,
+      color: 'emerald',
+      accent: '#34d399',
+      snippet: '// Proxies incident queries naturally to SNOW over REST.\n@server.tool()\nasync def get_incidents(limit: int):\n    req = requests.get(SNOW_URL, auth=BasicAuth)'
+    }
+  },
   
   // === EXIT NODE ===
   { 
@@ -215,6 +229,7 @@ const initialEdges = [
   { id: 'e-adk-ge', source: 'adk_router', target: 'ge_auth', sourceHandle: 's-left', targetHandle: 't-right', type: 'smoothstep', label: 'Intent: Knowledge Search', animated: true, markerEnd: { type: MarkerType.ArrowClosed, width: 20, height: 20, color: '#f97316' }, style: { stroke: '#f97316', strokeWidth: 2 }, labelStyle: { fill: '#f97316', fontWeight: 600 }, labelBgStyle: { fill: '#1e1e1e' } },
   // DOWNSIDE - Action loop launches down
   { id: 'e-adk-mcp', source: 'adk_router', target: 'mcp_direct', sourceHandle: 's-bottom', targetHandle: 't-top', type: 'smoothstep', label: 'Intent: Direct Action', animated: true, markerEnd: { type: MarkerType.ArrowClosed, width: 20, height: 20, color: '#ec4899' }, style: { stroke: '#ec4899', strokeWidth: 2 }, labelStyle: { fill: '#ec4899', fontWeight: 600 }, labelBgStyle: { fill: '#1e1e1e' } },
+  { id: 'e-adk-snow', source: 'adk_router', target: 'servicenow_mcp', sourceHandle: 's-right', targetHandle: 't-top', type: 'smoothstep', label: 'Intent: ServiceNow', animated: true, markerEnd: { type: MarkerType.ArrowClosed, width: 20, height: 20, color: '#34d399' }, style: { stroke: '#34d399', strokeWidth: 2 }, labelStyle: { fill: '#34d399', fontWeight: 600 }, labelBgStyle: { fill: '#1e1e1e' } },
   
   // Search Pipeline Loop
   { id: 'e-ge-vertex', source: 'ge_auth', target: 'vertex_search', sourceHandle: 's-left', targetHandle: 't-right', type: 'smoothstep', label: 'Exchanges GCP Token', animated: true, markerEnd: { type: MarkerType.ArrowClosed, width: 20, height: 20, color: '#3b82f6' }, style: { stroke: '#3b82f6', strokeWidth: 2 }, labelStyle: { fill: '#3b82f6', fontWeight: 600 }, labelBgStyle: { fill: '#1e1e1e' } },
@@ -223,7 +238,8 @@ const initialEdges = [
   
   // Return to client exit node
   { id: 'e-aistream-front', source: 'aistream', target: 'response_rendered', sourceHandle: 's-right', targetHandle: 't-left', type: 'smoothstep', label: 'AIStream Response', animated: true, markerEnd: { type: MarkerType.ArrowClosed, width: 20, height: 20, color: '#06b6d4' }, style: { stroke: '#06b6d4', strokeWidth: 2, strokeDasharray: '5 5' }, labelStyle: { fill: '#06b6d4', fontWeight: 600 }, labelBgStyle: { fill: '#1e1e1e' } },
-  { id: 'e-mcp-front', source: 'mcp_direct', target: 'response_rendered', sourceHandle: 's-bottom', targetHandle: 't-top', type: 'smoothstep', label: 'Markdown Response', animated: true, markerEnd: { type: MarkerType.ArrowClosed, width: 20, height: 20, color: '#ec4899' }, style: { stroke: '#ec4899', strokeWidth: 2, strokeDasharray: '5 5' }, labelStyle: { fill: '#ec4899', fontWeight: 600 }, labelBgStyle: { fill: '#1e1e1e' } }
+  { id: 'e-mcp-front', source: 'mcp_direct', target: 'response_rendered', sourceHandle: 's-bottom', targetHandle: 't-top', type: 'smoothstep', label: 'Markdown Response', animated: true, markerEnd: { type: MarkerType.ArrowClosed, width: 20, height: 20, color: '#ec4899' }, style: { stroke: '#ec4899', strokeWidth: 2, strokeDasharray: '5 5' }, labelStyle: { fill: '#ec4899', fontWeight: 600 }, labelBgStyle: { fill: '#1e1e1e' } },
+  { id: 'e-snow-front', source: 'servicenow_mcp', target: 'response_rendered', sourceHandle: 's-bottom', targetHandle: 't-right', type: 'smoothstep', label: 'System Response', animated: true, markerEnd: { type: MarkerType.ArrowClosed, width: 20, height: 20, color: '#34d399' }, style: { stroke: '#34d399', strokeWidth: 2, strokeDasharray: '5 5' }, labelStyle: { fill: '#34d399', fontWeight: 600 }, labelBgStyle: { fill: '#1e1e1e' } }
 ];
 
 // --- Custom Highlighter ---
