@@ -51,6 +51,8 @@ async def get_agent_with_mcp_tools(token: Optional[str] = None, id_token: Option
         env["USER_TOKEN"] = token
     if id_token:
         env["USER_ID_TOKEN"] = id_token
+    elif token:
+        env["USER_ID_TOKEN"] = token
 
     uv_path = "/usr/local/google/home/jesusarguelles/.local/bin/uv"
     if not os.path.exists(uv_path):
@@ -207,4 +209,57 @@ async def get_action_agent_with_mcp_tools(token: Optional[str] = None, id_token:
         before_agent_callback=before_agent_auth_callback_action
     )
     return agent, exit_stack
+
+async def get_servicenow_agent_with_mcp_tools(token: Optional[str] = None, id_token: Optional[str] = None, model_name: str = "gemini-3-flash-preview"):
+    """
+    Returns an ADK LlmAgent initialized via the ServiceNow MCP.
+    """
+    exit_stack = AsyncExitStack()
+    _exit_stacks.append(exit_stack)
+    
+    import sys
+    env = os.environ.copy()
+    env.update({
+        "PYTHONPATH": os.path.abspath(os.path.dirname(os.path.dirname(__file__))), 
+        "FASTMCP_SHOW_SERVER_BANNER": "false"
+    })
+    
+    if token:
+        env["USER_TOKEN"] = token
+    if id_token:
+        env["USER_ID_TOKEN"] = id_token
+    elif token:
+        env["USER_ID_TOKEN"] = token
+    
+    uv_path = "/usr/local/google/home/jesusarguelles/.local/bin/uv"
+    if not os.path.exists(uv_path):
+        import shutil
+        uv_path = shutil.which("uv") or "uv"
+
+    params = mcp_tool.StdioConnectionParams(
+        server_params={
+            "command": uv_path,
+            "args": ["run", "python", "-m", "servicenow_mcp.mcp_server_servicenow"],
+            "env": env
+        }
+    )
+    
+    toolset = mcp_tool.McpToolset(connection_params=params)
+    exit_stack.push_async_callback(toolset.close)
+    mcp_tools = await toolset.get_tools()
+
+    SERVICENOW_INSTRUCTIONS = """
+You are a highly secure ServiceNow Agent for PWC. 
+Your role is to help the user manage tickets and incidents in ServiceNow.
+You MUST provide clear confirmation before executing any CREATE or UPDATE actions.
+"""
+
+    agent = agents.LlmAgent(
+        name="ServiceNowProxyAgent",
+        model=model_name,
+        instruction=SERVICENOW_INSTRUCTIONS,
+        tools=mcp_tools
+    )
+    return agent, exit_stack
+
 

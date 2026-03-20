@@ -19,3 +19,6 @@ trigger: always_on
 ## Avoid
 Under any circumstances use old models in your code develop and deploy like gemini-2.0* gemini-1.5* text-bison* or any other old model. NEVER.
 - Allowed models to use: gemini-2.5-flash, gemini-2.5-pro, gemini-3-flash-preview and gemini-3-pro-preview in ANY of your develops or troubleshooting.
+
+## Think first before testing/publish
+Because you are in a ssh session (jetski is running locally on my macbook and the resource is connecto through ssh to sockcop.c.googlers.com) if you are gonna test "browsing" using or depending a specific port, you ALWAYS have to ask the user first to forward those ports, otherwise you wont be able to use them.

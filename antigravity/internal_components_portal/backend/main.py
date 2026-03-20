@@ -31,7 +31,8 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # Now we can safely import agent, protocol, etc.
-from agents.agent import get_agent_with_mcp_tools, get_action_agent_with_mcp_tools
+from agents.agent import get_agent_with_mcp_tools, get_action_agent_with_mcp_tools, get_servicenow_agent_with_mcp_tools
+
 from agents.router_agent import get_router_agent
 from agents.ge_search_branch import stream_ge_search
 from agents.redaction_agent import generalize_content
@@ -43,6 +44,7 @@ from mcp_service.mcp_sharepoint import SharePointMCP
 from utils.auth_context import set_user_token, set_user_id_token
 from agents.analyze_latency_agent import analyze_latency_profiles
 from agents.latency_chat_agent import chat_with_latency_data
+from utils.telemetry import push_telemetry_async
 
 from dotenv import load_dotenv
 load_dotenv(dotenv_path="../.env")
@@ -326,6 +328,7 @@ async def _chat_stream(messages: list, model_name: str, token: str = None, id_to
                 # ADK Events for enterprise trace
                 if tag == "sharepoint":
                     adk_events_trace.append({"source": "PWC_Security_Proxy", "event": edata})
+                    push_telemetry_async({"tag": "security_proxy", "event": edata})
                 
                 # DEBUG DUMP FOR PUBLIC EVENT
                 if tag == "public":
@@ -338,7 +341,8 @@ async def _chat_stream(messages: list, model_name: str, token: str = None, id_to
                     total_tokens["total"] += usage.get("total_token_count") or 0
 
                 content = edata.get("content")
-                author = edata.get("author", "unknown")
+                author = edata.get("author") or "unknown"
+                is_model_role = (edata.get("content") or {}).get("role") == "model"
                 if content and isinstance(content, dict):
                     parts = content.get("parts", [])
                     for p in parts:
@@ -419,7 +423,7 @@ async def _chat_stream(messages: list, model_name: str, token: str = None, id_to
                         if p.get("text") and isinstance(p["text"], str) and not has_function_call_in_turn:
                             txt = p['text'].strip()
                             if txt:
-                                if author == "model":
+                                if is_model_role or author == "model":
                                     step_text = f"{agent_label} SYNTHESIS ({author}) [{model_name}]:\n{txt}"
                                     if step_text not in reasoning_steps:
                                         reasoning_steps.append(step_text)
@@ -446,7 +450,8 @@ async def _chat_stream(messages: list, model_name: str, token: str = None, id_to
                                         asyncio.create_task(queue.put({"tag": "system", "type": "telemetry_yield"}))
                                     
                                     # Main synthesis stream
-                                    yield AIStreamProtocol.text(txt)
+                                    if is_model_role or author == "model":
+                                        yield AIStreamProtocol.text(txt)
 
             except Exception as e:
                 logger.error(f"Event parsing error in {tag}: {e}")
@@ -478,7 +483,7 @@ from utils.auth_context import set_user_token
 
 @app.get("/health")
 async def health_check():
-    return {"status": "ok", "service": "zero_leak_security_proxy"}
+    return {"status": "ok", "service": "internal_components_portal"}
 
 @app.get("/")
 async def root():
@@ -544,8 +549,9 @@ async def _ge_mcp_chat_stream(messages: list, model_name: str, token: str = None
     
     try:
         async for event in router_runner.run_async(user_id="default_user", session_id=router_sess_id, new_message=msg_obj):
-            edata = event.model_dump()
+            edata = event.model_dump(mode='json')
             adk_events_trace.append({"source": "PWC_Router", "event": edata})
+            push_telemetry_async({"tag": "router", "event": edata})
             author = edata.get("author", "unknown")
             content = edata.get("content", {})
             
@@ -567,6 +573,8 @@ async def _ge_mcp_chat_stream(messages: list, model_name: str, token: str = None
                         intent_text = p.get("text").strip().upper()
                         if "ACTION" in intent_text and "SEARCH" not in intent_text:
                             intent = "ACTION"
+                        elif "SERVICENOW" in intent_text:
+                            intent = "SERVICENOW"
                         elif "SEARCH" in intent_text:
                             intent = "SEARCH"
                         
@@ -577,6 +585,11 @@ async def _ge_mcp_chat_stream(messages: list, model_name: str, token: str = None
 
         router_duration = time.time() - router_start
         latency_metrics.append({"step": f"[SYSTEM-ATOMIC: {model_name}] Intent Classification", "duration_s": round(router_duration, 2)})
+        
+        # Hardcode safety net: if the user explicitly asked for servicenow
+        if "servicenow" in prompt.lower() or "incident" in prompt.lower():
+            intent = "SERVICENOW"
+
         reasoning_steps.append(f"[Router] INTENT DETECTED: {intent}")
         yield AIStreamProtocol.data({"type": "telemetry", "data": latency_metrics, "reasoning": reasoning_steps, "tokens": tokens, "adk_events": adk_events_trace})
         
@@ -626,8 +639,95 @@ async def _ge_mcp_chat_stream(messages: list, model_name: str, token: str = None
         
         yield AIStreamProtocol.data({"type": "status", "message": "Search completed.", "icon": "check-circle", "pulse": False})
     
+    elif intent == "SERVICENOW":
+        yield AIStreamProtocol.data({"type": "status", "message": "Intent Detected: ServiceNow. Routing to ServiceNow Agent...", "icon": "zap", "pulse": True})
+        
+        reasoning_steps.append("[Router] Dispatching to ServiceNow Runner with Standard ServiceNow MCP tools...")
+        yield AIStreamProtocol.data({"type": "telemetry", "data": latency_metrics, "reasoning": reasoning_steps, "tokens": tokens, "adk_events": adk_events_trace})
+        
+        sess_id = f"sno_{uuid.uuid4()}"
+        session = await session_service.get_session(app_name="PWC_ServiceNow_Proxy", user_id="default_user", session_id=sess_id)
+        if not session:
+            session = await session_service.create_session(app_name="PWC_ServiceNow_Proxy", user_id="default_user", session_id=sess_id)
+            
+        if len(messages) > 1:
+            for msg in messages[:-1]:
+                role = "user" if msg.get("role") == "user" else "model"
+                part = types.Part.from_text(text=msg.get("content", ""))
+                content_obj = types.Content(role=role, parts=[part])
+                evt = Event(author=role, content=content_obj)
+                session.events.append(evt)
+            
+        try:
+            agent, exit_stack = await get_servicenow_agent_with_mcp_tools(token=token, id_token=id_token, model_name=model_name)
+            runner = Runner(app_name="PWC_ServiceNow_Proxy", agent=agent, session_service=session_service)
+            msg_obj = types.Content(role="user", parts=[types.Part.from_text(text=prompt)])
+            
+            queue = asyncio.Queue()
+            async def stream_sno():
+                try:
+                    async for event in runner.run_async(user_id="default_user", session_id=sess_id, new_message=msg_obj):
+                        await queue.put({"event": event, "type": "data"})
+                except Exception as e:
+                    logger.exception(f"ServiceNow Task failed: {e}")
+                    await queue.put({"event": str(e), "type": "error"})
+                finally:
+                    await queue.put({"type": "done"})
+                    
+            asyncio.create_task(stream_sno())
+            sno_start = time.time()
+            
+            while True:
+                msg_q = await queue.get()
+                t = msg_q["type"]
+                if t == "done":
+                    break
+                elif t == "error":
+                    yield AIStreamProtocol.text(f"\n❌ ServiceNow Proxy Error: {msg_q['event']}\n")
+                    continue
+                    
+                evt = msg_q["event"]
+                edata = evt.model_dump(mode='json')
+                adk_events_trace.append({"source": "PWC_ServiceNow_Proxy", "event": edata})
+                push_telemetry_async({"tag": "servicenow", "event": edata})
+                usage = edata.get("usage_metadata")
+                if usage:
+                    tokens["prompt"] += usage.get("prompt_token_count") or 0
+                    tokens["candidates"] += usage.get("candidates_token_count") or 0
+                    tokens["total"] += usage.get("total_token_count") or 0
+                
+                parts = edata.get("content", {}).get("parts", []) if edata.get("content") else []
+                author = edata.get("author") or "unknown"
+                is_model_role = (edata.get("content") or {}).get("role") == "model"
+                for p in parts:
+                    if p.get("thought"):
+                        txt = f"[ServiceNow: {author}] THOUGHT:\n{p['thought'].strip()}"
+                        if txt not in reasoning_steps:
+                            reasoning_steps.append(txt)
+                            yield AIStreamProtocol.data({"type": "telemetry", "data": latency_metrics, "reasoning": reasoning_steps, "tokens": tokens, "adk_events": adk_events_trace})
+                    
+                    if p.get("function_call"):
+                        tool_name = p["function_call"].get("name", "")
+                        yield AIStreamProtocol.data({"type": "status", "message": f"Executing ServiceNow Action: {tool_name}...", "icon": "zap", "pulse": True})
+                    elif p.get("function_response"):
+                        tool_name = p["function_response"].get("name", "")
+                        yield AIStreamProtocol.data({"type": "status", "message": f"Completed ServiceNow Action: {tool_name}", "icon": "check", "pulse": False})
+                    elif p.get("text"):
+                        if is_model_role or author == "model":
+                            yield AIStreamProtocol.text(p.get("text"))
+            
+            sno_duration = time.time() - sno_start
+            latency_metrics.append({"step": f"[SYSTEM-ATOMIC: {model_name}] ServiceNow Execution", "duration_s": round(sno_duration, 2)})
+            yield AIStreamProtocol.data({"type": "telemetry", "data": latency_metrics, "reasoning": reasoning_steps, "tokens": tokens, "adk_events": adk_events_trace, "config": optimization_params})
+        finally:
+            if 'exit_stack' in locals() and exit_stack:
+                await exit_stack.aclose()
+                
+        yield AIStreamProtocol.data({"type": "status", "message": "ServiceNow operation completed.", "icon": "check-circle", "pulse": False})
+
     else:
         yield AIStreamProtocol.data({"type": "status", "message": "Intent Detected: Action. Routing to MCP Action Server...", "icon": "zap", "pulse": True})
+
         
         # Evidence for Action LLM
         action_api_info = {
@@ -687,17 +787,19 @@ async def _ge_mcp_chat_stream(messages: list, model_name: str, token: str = None
                     continue
                     
                 evt = msg_q["event"]
-                edata = evt.model_dump()
+                edata = evt.model_dump(mode='json')
                 adk_events_trace.append({"source": "PWC_Action_Proxy", "event": edata})
+                push_telemetry_async({"tag": "action", "event": edata})
                 usage = edata.get("usage_metadata")
                 if usage:
                     tokens["prompt"] += usage.get("prompt_token_count") or 0
                     tokens["candidates"] += usage.get("candidates_token_count") or 0
                     tokens["total"] += usage.get("total_token_count") or 0
                 
-                author = edata.get("author", "unknown")
+                author = edata.get("author") or "unknown"
                 
                 content = edata.get("content", {})
+                is_model_role = content.get("role") == "model" if isinstance(content, dict) else False
                 if content and isinstance(content, dict):
                     parts = content.get("parts", [])
                     for p in parts:
@@ -733,7 +835,7 @@ async def _ge_mcp_chat_stream(messages: list, model_name: str, token: str = None
                             
                         elif p.get("text"):
                             # Ensure we trace everything in ADK if possible
-                            if author == "model":
+                            if is_model_role or author == "model":
                                 txt_trace = f"[ADK: {author}] RESPONSE TEXT:\n{p.get('text')}"
                                 if txt_trace not in reasoning_steps:
                                     reasoning_steps.append(txt_trace)
