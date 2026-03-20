@@ -13,10 +13,18 @@ interface TelemetryEvent {
 }
 
 const formatTimestamp = (date: Date) => {
-  return date.toISOString().split('T')[1].split('.')[0] + '.' + date.getMilliseconds().toString().padStart(3, '0');
+  const options: Intl.DateTimeFormatOptions = {
+    timeZone: 'America/New_York',
+    hour12: false,
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit'
+  };
+  const timeString = date.toLocaleTimeString('en-US', options);
+  return `${timeString}.${date.getMilliseconds().toString().padStart(3, '0')}`;
 };
 
-const LogEntry = ({ entry, index }: { entry: { timestamp: Date, payload: any }, index: number }) => {
+const LogEntry = ({ entry, index, isSelected, onSelect }: { entry: { timestamp: Date, payload: any }, index: number, isSelected: boolean, onSelect: () => void }) => {
   const timeStr = formatTimestamp(entry.timestamp);
   let content = '';
   let colorClass = 'text-green-400';
@@ -50,7 +58,10 @@ const LogEntry = ({ entry, index }: { entry: { timestamp: Date, payload: any }, 
   }
 
   return (
-    <div className="flex flex-row items-start space-x-3 mb-2 px-2 py-1.5 hover:bg-white/5 rounded transition-colors group">
+    <div 
+      className={`flex flex-row items-start space-x-3 mb-2 px-2 py-1.5 rounded transition-colors group cursor-pointer ${isSelected ? 'bg-white/10 border-l-2 border-emerald-400' : 'hover:bg-white/5 border-l-2 border-transparent'}`}
+      onClick={onSelect}
+    >
       <div className="shrink-0 mt-0.5">{icon}</div>
       <div className="flex-1 min-w-0">
         <div className="flex items-center space-x-2 mb-1">
@@ -71,9 +82,19 @@ const LogEntry = ({ entry, index }: { entry: { timestamp: Date, payload: any }, 
 
 export default function App() {
   const [logs, setLogs] = useState<{ timestamp: Date, payload: any }[]>([]);
+  const [selectedLog, setSelectedLog] = useState<{ timestamp: Date, payload: any } | null>(null);
   const [isConnected, setIsConnected] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
+  const [nyTime, setNyTime] = useState("");
   const logsEndRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      const now = new Date();
+      setNyTime(now.toLocaleTimeString('en-US', { timeZone: 'America/New_York', hour12: false }));
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
   
   // Stats
   const [totalEvents, setTotalEvents] = useState(0);
@@ -143,6 +164,13 @@ export default function App() {
         </div>
         
         <div className="flex items-center space-x-6">
+          {nyTime && (
+            <div className="flex flex-col items-end text-xs font-mono">
+              <span className="text-slate-500 uppercase">NY Time</span>
+              <span className="text-blue-400 font-bold text-sm" suppressHydrationWarning>{nyTime}</span>
+            </div>
+          )}
+          <div className="h-8 w-px bg-white/10 hidden sm:block"></div>
           <div className="flex items-center space-x-4 text-xs font-mono">
             <div className="flex flex-col items-end">
               <span className="text-slate-500 uppercase">Live Events</span>
@@ -183,7 +211,7 @@ export default function App() {
                 <p className="text-sm tracking-wider uppercase">Listening for Agent Activity...</p>
               </div>
             ) : (
-              logs.map((log, i) => <LogEntry key={i} entry={log} index={i} />)
+              logs.map((log, i) => <LogEntry key={i} entry={log} index={i} isSelected={selectedLog === log} onSelect={() => setSelectedLog(log)} />)
             )}
             <div ref={logsEndRef} />
           </div>
@@ -198,36 +226,41 @@ export default function App() {
             </div>
           </div>
           
-          <div className="p-6 flex-1 text-sm text-slate-400">
-             <div className="bg-white/5 rounded-lg p-5 border border-white/5 shadow-2xl">
-               <h3 className="text-white font-medium mb-4 flex items-center">
-                 <ShieldAlert className="mr-2 text-blue-400" size={16} />
-                 Zero-Leak Security Proxy
-               </h3>
-               
-               <div className="space-y-4 font-mono text-xs">
-                 <div className="flex justify-between border-b border-white/5 pb-2">
-                   <span className="text-slate-500">MCP Host</span>
-                   <span className="text-emerald-400">FastMCP Cluster</span>
-                 </div>
-                 <div className="flex justify-between border-b border-white/5 pb-2">
-                   <span className="text-slate-500">Router</span>
-                   <span className="text-blue-400">gemini-2.5-flash</span>
-                 </div>
-                 <div className="flex justify-between border-b border-white/5 pb-2">
-                   <span className="text-slate-500">Auth Matrix</span>
-                   <span className="text-purple-400">Microsoft Entra ID</span>
-                 </div>
-                 <div className="flex justify-between pt-2">
-                   <span className="text-slate-500">Data Masking</span>
-                   <span className="text-green-400 text-[10px] uppercase px-1.5 py-0.5 bg-green-400/10 rounded">Active</span>
-                 </div>
-               </div>
-             </div>
-             
-             <div className="mt-8 text-xs text-slate-500 leading-relaxed font-mono">
-               Awaiting deep trace payload... Select a trace packet in the feed to expand its causal graph.
-             </div>
+          <div className="flex-1 flex flex-col min-h-0 bg-[#0a101d] overflow-hidden">
+            {selectedLog ? (
+              <div className="flex-1 overflow-y-auto w-full custom-scrollbar p-0 m-0">
+                <div className="border-b border-white/5 bg-white/5 p-4 shrink-0">
+                  <h3 className="text-white font-medium flex items-center mb-1">
+                    <ShieldAlert className="mr-2 text-blue-400" size={16} />
+                    {selectedLog.payload.tag?.toUpperCase() || selectedLog.payload.type?.toUpperCase() || 'EVENT PAYLOAD'}
+                  </h3>
+                  <div className="text-slate-500 text-xs font-mono">{formatTimestamp(selectedLog.timestamp)} [America/New_York]</div>
+                </div>
+                <div className="p-4">
+                  <pre className="text-[11px] text-emerald-400 font-mono whitespace-pre-wrap break-words leading-relaxed w-full">
+                    {JSON.stringify(selectedLog.payload, null, 2)}
+                  </pre>
+                </div>
+              </div>
+            ) : (
+              <div className="p-6">
+                <div className="bg-white/5 rounded-lg p-5 border border-white/5 shadow-2xl">
+                  <h3 className="text-white font-medium mb-4 flex items-center opacity-50">
+                    <Activity className="mr-2 text-slate-400" size={16} />
+                    Awaiting Selection
+                  </h3>
+                  <div className="space-y-4 font-mono text-xs opacity-50">
+                    <div className="flex justify-between border-b border-white/5 pb-2">
+                      <span className="text-slate-500">Status</span>
+                      <span className="text-emerald-400">Listening to Stream</span>
+                    </div>
+                  </div>
+                </div>
+                <div className="mt-8 text-xs text-slate-500 leading-relaxed font-mono">
+                  Select a trace packet in the feed to expand its full JSON schema and deep data structures dynamically.
+                </div>
+              </div>
+            )}
           </div>
         </aside>
       </main>
