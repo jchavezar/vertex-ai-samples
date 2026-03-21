@@ -9,6 +9,7 @@ dependencies = [
     "google-adk>=1.10.0",
     "google-genai>=1.68.0",
     "pydantic>=2.12.5",
+    "python-dotenv>=1.2.2",
     "requests>=2.32.5",
     "uvicorn>=0.42.0",
     "websockets>=16.0",

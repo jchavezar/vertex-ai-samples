@@ -73,10 +73,14 @@ async def websocket_endpoint(websocket: WebSocket):
 
 from pydantic import BaseModel
 import json
+import os
+from dotenv import load_dotenv
 from google import genai
 from google.genai import types
 from fastapi.responses import StreamingResponse
 from typing import List, Any
+
+load_dotenv()
 
 class ChatRequest(BaseModel):
     query: str
@@ -84,11 +88,12 @@ class ChatRequest(BaseModel):
 
 @app.post("/api/chat")
 async def chat_overlay(request: ChatRequest):
-    # Initialize the new SDK Client
+    # Initialize the new SDK Client using env vars
+    is_vertex = os.getenv("VERTEX_AI", "true").lower() == "true"
     client = genai.Client(
-        vertexai=True, 
-        project="cloud-llm-preview1", 
-        location="us-central1"
+        vertexai=is_vertex, 
+        project=os.getenv("PROJECT_ID", "vtxdemos"), 
+        location=os.getenv("LOCATION", "global")
     )
         
     # We pass the telemetry events as context
@@ -107,7 +112,7 @@ async def chat_overlay(request: ChatRequest):
     def generate():
         try:
             responses = client.models.generate_content_stream(
-                model="gemini-3.0-flash-lite-preview",
+                model="gemini-3.1-flash-lite",
                 contents=prompt,
                 config=types.GenerateContentConfig(
                     tools=[{"google_search": {}}],
@@ -118,7 +123,7 @@ async def chat_overlay(request: ChatRequest):
                 if chunk.text:
                     yield chunk.text
         except Exception as e:
-            print(f"Error with 3.0 lite: {e}. Falling back to 2.5-flash")
+            print(f"Error with 3.1 lite: {e}. Falling back to gemini-2.5-flash")
             # Fallback
             try:
                 responses = client.models.generate_content_stream(
@@ -143,3 +148,4 @@ def health():
 
 if __name__ == "__main__":
     uvicorn.run("main:app", host="0.0.0.0", port=8145, reload=False)
+
