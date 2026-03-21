@@ -248,17 +248,20 @@ async def get_servicenow_agent_with_mcp_tools(token: Optional[str] = None, id_to
     exit_stack.push_async_callback(toolset.close)
     mcp_tools = await toolset.get_tools()
 
+    from google.adk.tools import google_search
+
     SERVICENOW_INSTRUCTIONS = """
 You are a highly secure ServiceNow Agent for PWC. 
 Your role is to help the user manage tickets and incidents in ServiceNow.
 You MUST provide clear confirmation before executing any CREATE or UPDATE actions.
+You also have the `google_search` tool. Use it freely to gather precise technical information from the internet to enrich, validate, or generate content for tickets when specific details are requested but missing in your context. If the user asks you to create a ticket based on internet knowledge, use `google_search` first.
 """
 
     agent = agents.LlmAgent(
         name="ServiceNowProxyAgent",
         model=model_name,
         instruction=SERVICENOW_INSTRUCTIONS,
-        tools=mcp_tools
+        tools=mcp_tools + [google_search]
     )
     return agent, exit_stack
 
