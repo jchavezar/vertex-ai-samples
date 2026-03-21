@@ -56,6 +56,55 @@ os.environ["GOOGLE_CLOUD_PROJECT"] = "vtxdemos"
 
 app = FastAPI()
 
+def push_smart_telemetry(tag: str, edata: dict):
+    """
+    Parses ADK event data and pushes curated, readable events to Nexus.
+    """
+    try:
+        author = edata.get("author", "unknown")
+        content = edata.get("content", {})
+        if not content or not isinstance(content, dict):
+            return
+
+        parts = content.get("parts", [])
+        for p in parts:
+            if p.get("thought"):
+                push_telemetry_async({
+                    "tag": tag,
+                    "type": "thought",
+                    "author": author,
+                    "text": p["thought"]
+                })
+            
+            if p.get("function_call"):
+                push_telemetry_async({
+                    "tag": tag,
+                    "type": "tool_call",
+                    "author": author,
+                    "name": p["function_call"].get("name"),
+                    "args": p["function_call"].get("args")
+                })
+            
+            if p.get("function_response"):
+                push_telemetry_async({
+                    "tag": tag,
+                    "type": "tool_result",
+                    "author": author,
+                    "name": p["function_response"].get("name"),
+                    "result": p["function_response"].get("response")
+                })
+            
+            if p.get("text") and not any(k in p for k in ["function_call", "function_response", "thought"]):
+                # Only push final synthesis text or status updates
+                push_telemetry_async({
+                    "tag": tag,
+                    "type": "agent_text",
+                    "author": author,
+                    "text": p["text"]
+                })
+    except Exception as e:
+        logger.error(f"Error in push_smart_telemetry: {e}")
+
 app.add_middleware(NexusAPITrackerMiddleware)
 
 app.add_middleware(
@@ -68,7 +117,10 @@ app.add_middleware(
 session_service = InMemorySessionService()
 
 class ChatRequest(BaseModel):
-    messages: list
+    messages: list[dict]
+    model: str = "gemini-3-flash-preview"
+    routerMode: str = "all_mcp"  # Can be "all_mcp" or "ge_mcp"
+    sessionId: str | None = None
 
 class LatencyAnalyzeRequest(BaseModel):
     history: list
@@ -106,7 +158,7 @@ async def verify_jwt(request: Request) -> Tuple[str, Dict[str, Any]]:
     # The id_token is also retrieved from headers elsewhere
     return token, payload
 
-async def _chat_stream(messages: list, model_name: str, token: str = None, id_token: str = None):
+async def _chat_stream(messages: list, model_name: str, token: str = None, id_token: str = None, session_id: str = None):
     # Set the token in the current context (essential for async streaming tasks)
     set_user_token(token)
     set_user_id_token(id_token)
@@ -330,7 +382,7 @@ async def _chat_stream(messages: list, model_name: str, token: str = None, id_to
                 # ADK Events for enterprise trace
                 if tag == "sharepoint":
                     adk_events_trace.append({"source": "PWC_Security_Proxy", "event": edata})
-                    push_telemetry_async({"tag": "security_proxy", "event": edata})
+                    push_smart_telemetry("security_proxy", edata)
                 
                 # DEBUG DUMP FOR PUBLIC EVENT
                 if tag == "public":
@@ -494,7 +546,7 @@ async def root():
 async def auth_error_stream(message: str):
     yield AIStreamProtocol.text(message)
 
-async def _ge_mcp_chat_stream(messages: list, model_name: str, token: str = None, id_token: str = None):
+async def _ge_mcp_chat_stream(messages: list, model_name: str, token: str = None, id_token: str = None, session_id: str = None):
     set_user_token(token)
     set_user_id_token(id_token)
     prompt = messages[-1]['content']
@@ -524,83 +576,105 @@ async def _ge_mcp_chat_stream(messages: list, model_name: str, token: str = None
     import uuid
     import asyncio
 
+    # --- SESSION STATE OVERRIDE ---
+    active_route = None
+    session_id_to_use = session_id or f"router_{uuid.uuid4()}"
+    user_session = await session_service.get_session(app_name="PWC_Router", user_id="default_user", session_id=session_id_to_use)
+    if not user_session:
+        user_session = await session_service.create_session(app_name="PWC_Router", user_id="default_user", session_id=session_id_to_use)
+    else:
+        active_route = user_session.state.get("current_route")
+    
+    # Check if the user is explicitly cancelling
+    cancel_keywords = ["cancel", "stop", "exit", "quit", "nevermind"]
+    if active_route and any(kw in prompt.lower() for kw in cancel_keywords):
+        user_session.state["current_route"] = None
+        active_route = None
+        yield AIStreamProtocol.data({"type": "status", "message": "Workflow Cancelled. Returning to Main Menu.", "icon": "info", "pulse": False})
+        yield AIStreamProtocol.text("\n**Workflow Cancelled.** How else can I help you today?\n")
+        return
+
     router_start = time.time()
-    yield AIStreamProtocol.data({"type": "status", "message": "Analyzing Intent...", "icon": "cpu", "pulse": True})
-    
-    router_agent = get_router_agent()
-    # Log evidence of API call for telemetry roughly
-    api_evidence = {
-        "endpoint": "Vertex AI (Gemini Enterprise)",
-        "model": "gemini-2.5-flash",
-        "project": os.environ.get("GOOGLE_CLOUD_PROJECT"),
-        "location": "us-central1"
-    }
-    reasoning_steps.append(f"[Router API EVIDENCE]\n{json.dumps(api_evidence, indent=2)}")
-    
-    router_runner = Runner(app_name="PWC_Router", agent=router_agent, session_service=session_service)
-    router_sess_id = f"router_{uuid.uuid4()}"
-    
-    # Create the session before running
-    router_session = await session_service.get_session(app_name="PWC_Router", user_id="default_user", session_id=router_sess_id)
-    if not router_session:
-        router_session = await session_service.create_session(app_name="PWC_Router", user_id="default_user", session_id=router_sess_id)
-        
-    history_str = ""
-    if len(messages) > 1:
-        history_str = "\n".join([f"{msg.get('role').upper()}: {msg.get('content')}" for msg in messages[-4:-1]])
-        
-    router_prompt = f"Previous Conversation History:\n{history_str}\n\n-----\nEvaluate the following User's latest message:\n{prompt}" if history_str else prompt
-    
-    msg_obj = types.Content(role="user", parts=[types.Part.from_text(text=router_prompt)])
-    
     intent = "SEARCH"
-    
+    adk_events_trace = []
+
     try:
-        async for event in router_runner.run_async(user_id="default_user", session_id=router_sess_id, new_message=msg_obj):
-            edata = event.model_dump(mode='json')
-            adk_events_trace.append({"source": "PWC_Router", "event": edata})
-            push_telemetry_async({"tag": "router", "event": edata})
-            author = edata.get("author", "unknown")
-            content = edata.get("content", {})
-            
-            usage = edata.get("usage_metadata")
-            if usage:
-                tokens["prompt"] += usage.get("prompt_token_count") or 0
-                tokens["candidates"] += usage.get("candidates_token_count") or 0
-                tokens["total"] += usage.get("total_token_count") or 0
-                
-            if content and isinstance(content, dict):
-                parts = content.get("parts", [])
-                for p in parts:
-                    if p.get("thought"):
-                        txt = f"[ADK Router: {author}] THOUGHT:\n{p['thought'].strip()}"
-                        if txt not in reasoning_steps:
-                            reasoning_steps.append(txt)
-                            yield AIStreamProtocol.data({"type": "telemetry", "data": latency_metrics, "reasoning": reasoning_steps, "tokens": tokens, "adk_events": adk_events_trace})
-                    if p.get("text") and author in ["model", "router_agent"]:
-                        intent_text = p.get("text").strip().upper()
-                        if "ACTION" in intent_text and "SEARCH" not in intent_text:
-                            intent = "ACTION"
-                        elif "SERVICENOW" in intent_text:
-                            intent = "SERVICENOW"
-                        elif "SEARCH" in intent_text:
-                            intent = "SEARCH"
-                        
-                        txt_trace = f"[ADK Router: {author}] RESPONSE TEXT:\n{intent_text}"
-                        if txt_trace not in reasoning_steps:
-                            reasoning_steps.append(txt_trace)
-                            yield AIStreamProtocol.data({"type": "telemetry", "data": latency_metrics, "reasoning": reasoning_steps, "tokens": tokens, "adk_events": adk_events_trace})
-
-        router_duration = time.time() - router_start
-        latency_metrics.append({"step": f"[SYSTEM-ATOMIC: {model_name}] Intent Classification", "duration_s": round(router_duration, 2)})
-        
-        # Hardcode safety net: if the user explicitly asked for servicenow
-        if "servicenow" in prompt.lower() or "incident" in prompt.lower():
+        if active_route == "SERVICENOW":
             intent = "SERVICENOW"
+            reasoning_steps.append(f"[Router] Bypassing Classifier. Continuing existing active route: SERVICENOW")
+            yield AIStreamProtocol.data({"type": "status", "message": "Resuming ServiceNow Workflow...", "icon": "cpu", "pulse": True})
+            yield AIStreamProtocol.data({"type": "telemetry", "data": latency_metrics, "reasoning": reasoning_steps, "tokens": tokens, "adk_events": adk_events_trace})
+        else:
+            yield AIStreamProtocol.data({"type": "status", "message": "Analyzing Intent...", "icon": "cpu", "pulse": True})
+            
+            router_agent = get_router_agent()
+            # Log evidence of API call for telemetry roughly
+            api_evidence = {
+                "endpoint": "Vertex AI (Gemini Enterprise)",
+                "model": "gemini-2.5-flash",
+                "project": os.environ.get("GOOGLE_CLOUD_PROJECT"),
+                "location": "us-central1"
+            }
+            reasoning_steps.append(f"[Router API EVIDENCE]\n{json.dumps(api_evidence, indent=2)}")
+            
+            router_runner = Runner(app_name="PWC_Router", agent=router_agent, session_service=session_service)
+            
+            history_str = ""
+            if len(messages) > 1:
+                history_str = "\n".join([f"{msg.get('role').upper()}: {msg.get('content')}" for msg in messages[-4:-1]])
+                
+            router_prompt = f"Previous Conversation History:\n{history_str}\n\n-----\nEvaluate the following User's latest message:\n{prompt}" if history_str else prompt
+            
+            msg_obj = types.Content(role="user", parts=[types.Part.from_text(text=router_prompt)])
+            
+            async for event in router_runner.run_async(user_id="default_user", session_id=session_id_to_use, new_message=msg_obj):
+                edata = event.model_dump(mode='json')
+                adk_events_trace.append({"source": "PWC_Router", "event": edata})
+                push_smart_telemetry("router", edata)
+                author = edata.get("author", "unknown")
+                content = edata.get("content", {})
+                
+                usage = edata.get("usage_metadata")
+                if usage:
+                    tokens["prompt"] += usage.get("prompt_token_count") or 0
+                    tokens["candidates"] += usage.get("candidates_token_count") or 0
+                    tokens["total"] += usage.get("total_token_count") or 0
+                    
+                if content and isinstance(content, dict):
+                    parts = content.get("parts", [])
+                    for p in parts:
+                        if p.get("thought"):
+                            txt = f"[ADK Router: {author}] THOUGHT:\n{p['thought'].strip()}"
+                            if txt not in reasoning_steps:
+                                reasoning_steps.append(txt)
+                                yield AIStreamProtocol.data({"type": "telemetry", "data": latency_metrics, "reasoning": reasoning_steps, "tokens": tokens, "adk_events": adk_events_trace})
+                        if p.get("text") and author in ["model", "router_agent"]:
+                            intent_text = p.get("text").strip().upper()
+                            if "ACTION" in intent_text and "SEARCH" not in intent_text:
+                                intent = "ACTION"
+                            elif "SERVICENOW" in intent_text:
+                                intent = "SERVICENOW"
+                            elif "SEARCH" in intent_text:
+                                intent = "SEARCH"
+                            
+                            txt_trace = f"[ADK Router: {author}] RESPONSE TEXT:\n{intent_text}"
+                            if txt_trace not in reasoning_steps:
+                                reasoning_steps.append(txt_trace)
+                                yield AIStreamProtocol.data({"type": "telemetry", "data": latency_metrics, "reasoning": reasoning_steps, "tokens": tokens, "adk_events": adk_events_trace})
 
-        reasoning_steps.append(f"[Router] INTENT DETECTED: {intent}")
-        yield AIStreamProtocol.data({"type": "telemetry", "data": latency_metrics, "reasoning": reasoning_steps, "tokens": tokens, "adk_events": adk_events_trace})
-        
+            router_duration = time.time() - router_start
+            latency_metrics.append({"step": f"[SYSTEM-ATOMIC: {model_name}] Intent Classification", "duration_s": round(router_duration, 2)})
+            
+            # Hardcode safety net: if the user explicitly asked for servicenow or a related problem
+            if any(k in prompt.lower() for k in ["servicenow", "incident", "ticket", "gas", "fuel", "tank", "leak", "recall"]):
+                intent = "SERVICENOW"
+
+            if intent == "SERVICENOW":
+                user_session.state["current_route"] = "SERVICENOW"
+
+            reasoning_steps.append(f"[Router] INTENT DETECTED: {intent}")
+            yield AIStreamProtocol.data({"type": "telemetry", "data": latency_metrics, "reasoning": reasoning_steps, "tokens": tokens, "adk_events": adk_events_trace})
+            
     except Exception as e:
         logger.error(f"Router Exception: {e}", exc_info=True)
         yield AIStreamProtocol.data({"type": "status", "message": f"Error during intent routing: {e}", "icon": "error", "pulse": False})
@@ -653,18 +727,19 @@ async def _ge_mcp_chat_stream(messages: list, model_name: str, token: str = None
         reasoning_steps.append("[Router] Dispatching to ServiceNow Runner with Standard ServiceNow MCP tools...")
         yield AIStreamProtocol.data({"type": "telemetry", "data": latency_metrics, "reasoning": reasoning_steps, "tokens": tokens, "adk_events": adk_events_trace})
         
-        sess_id = f"sno_{uuid.uuid4()}"
+        sess_id = f"sno_{session_id_to_use}"
         session = await session_service.get_session(app_name="PWC_ServiceNow_Proxy", user_id="default_user", session_id=sess_id)
         if not session:
             session = await session_service.create_session(app_name="PWC_ServiceNow_Proxy", user_id="default_user", session_id=sess_id)
             
-        if len(messages) > 1:
-            for msg in messages[:-1]:
-                role = "user" if msg.get("role") == "user" else "model"
-                part = types.Part.from_text(text=msg.get("content", ""))
-                content_obj = types.Content(role=role, parts=[part])
-                evt = Event(author=role, content=content_obj)
-                session.events.append(evt)
+            # Seed history only on initial creation to avoid duplicating the history
+            if len(messages) > 1:
+                for msg in messages[:-1]:
+                    role = "user" if msg.get("role") == "user" else "model"
+                    part = types.Part.from_text(text=msg.get("content", ""))
+                    content_obj = types.Content(role=role, parts=[part])
+                    evt = Event(author=role, content=content_obj)
+                    session.events.append(evt)
             
         try:
             agent, exit_stack = await get_servicenow_agent_with_mcp_tools(token=token, id_token=id_token, model_name=model_name, enable_google_search=True)
@@ -697,7 +772,7 @@ async def _ge_mcp_chat_stream(messages: list, model_name: str, token: str = None
                 evt = msg_q["event"]
                 edata = evt.model_dump(mode='json')
                 adk_events_trace.append({"source": "PWC_ServiceNow_Proxy", "event": edata})
-                push_telemetry_async({"tag": "servicenow", "event": edata})
+                push_smart_telemetry("servicenow", edata)
                 usage = edata.get("usage_metadata")
                 if usage:
                     tokens["prompt"] += usage.get("prompt_token_count") or 0
@@ -797,7 +872,7 @@ async def _ge_mcp_chat_stream(messages: list, model_name: str, token: str = None
                 evt = msg_q["event"]
                 edata = evt.model_dump(mode='json')
                 adk_events_trace.append({"source": "PWC_Action_Proxy", "event": edata})
-                push_telemetry_async({"tag": "action", "event": edata})
+                push_smart_telemetry("action_agent", edata)
                 usage = edata.get("usage_metadata")
                 if usage:
                     tokens["prompt"] += usage.get("prompt_token_count") or 0
@@ -878,10 +953,21 @@ async def chat_endpoint(request: Request):
     if id_token and id_token in ["null", "undefined", "None"]:
         id_token = None
 
+    session_id = data.get("sessionId")
+
+    # Instrument the inbound request
+    push_telemetry_async({
+        "tag": "user_request",
+        "type": "prompt",
+        "model": model_name,
+        "mode": router_mode,
+        "prompt": data.get("messages", [])[-1].get("content", "") if data.get("messages") else ""
+    })
+
     if router_mode == "ge_mcp":
-        return StreamingResponse(_ge_mcp_chat_stream(data.get("messages", []), model_name, token, id_token), media_type="text/plain; charset=utf-8")
+        return StreamingResponse(_ge_mcp_chat_stream(data.get("messages", []), model_name, token, id_token, session_id), media_type="text/plain; charset=utf-8")
     else:
-        return StreamingResponse(_chat_stream(data.get("messages", []), model_name, token, id_token), media_type="text/plain; charset=utf-8")
+        return StreamingResponse(_chat_stream(data.get("messages", []), model_name, token, id_token, session_id), media_type="text/plain; charset=utf-8")
 
 @app.get("/api/sharepoint/list")
 async def list_sharepoint_folder(request: Request, folder_id: str = "root"):
