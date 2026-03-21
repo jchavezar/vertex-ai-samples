@@ -67,7 +67,7 @@ export function useTerminalChat(tokens: { accessToken: string, idToken: string }
     ? 'https://mcp-sharepoint-server-440133963879.us-central1.run.app/api/chat/stream'
     : '/api/chat/stream');
 
-  const { messages, input, setMessages, handleInputChange, handleSubmit, data, isLoading } = useChat({
+  const { messages, input, handleInputChange, handleSubmit, data, isLoading } = useChat({
     api: apiEndpoint,
     headers: tokens ? { 
       Authorization: `Bearer ${tokens.accessToken}`,
@@ -173,7 +173,7 @@ export function useTerminalChat(tokens: { accessToken: string, idToken: string }
     setPublicInsight('');
     setAdkEvents([]);
     setTelemetryConfig(null);
-    setMessages([]); // This clears the chat list, which is expected for a new query
+    // Removed setMessages([]) so chat history is preserved
     setThoughtStatus({ message: 'Initializing Zero-Leak Security Proxy...', icon: 'shield-alert', pulse: true });
 
     // We'll clear the cards just before submitting, but we'll improve this with a "clearing" event if needed
