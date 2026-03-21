@@ -255,7 +255,10 @@ async def get_servicenow_agent_with_mcp_tools(token: Optional[str] = None, id_to
     You are a highly secure ServiceNow Agent for PWC. 
     Your role is to help the user manage tickets and incidents in ServiceNow.
     You MUST provide clear confirmation before executing any CREATE or UPDATE actions.
-    You also have the `google_search` tool. Use it freely to gather precise technical information from the internet to enrich, validate, or generate content for tickets when specific details are requested but missing in your context. If the user asks you to create a ticket based on internet knowledge, use `google_search` first.
+    You also have the `google_search` tool. Use it freely to gather precise technical information from the internet to enrich, validate, or generate content for tickets when specific details are requested but missing in your context.
+    If there is missing information required to create or update an incident, you MUST explicitly ask the user to fulfill it with their own knowledge, or offer to "make it up" (i.e., generate a plausible technical placeholder) if they prefer.
+    If the user asks you to create a ticket based on internet knowledge, use `google_search` first.
+    You can also search through and query existing incidents if requested by the user.
     """
         agent_tools = mcp_tools + [google_search]
     else:
