@@ -661,7 +661,7 @@ async def _ge_mcp_chat_stream(messages: list, model_name: str, token: str = None
                 session.events.append(evt)
             
         try:
-            agent, exit_stack = await get_servicenow_agent_with_mcp_tools(token=token, id_token=id_token, model_name=model_name)
+            agent, exit_stack = await get_servicenow_agent_with_mcp_tools(token=token, id_token=id_token, model_name=model_name, enable_google_search=True)
             runner = Runner(app_name="PWC_ServiceNow_Proxy", agent=agent, session_service=session_service)
             msg_obj = types.Content(role="user", parts=[types.Part.from_text(text=prompt)])
             

@@ -210,7 +210,7 @@ async def get_action_agent_with_mcp_tools(token: Optional[str] = None, id_token:
     )
     return agent, exit_stack
 
-async def get_servicenow_agent_with_mcp_tools(token: Optional[str] = None, id_token: Optional[str] = None, model_name: str = "gemini-3-flash-preview"):
+async def get_servicenow_agent_with_mcp_tools(token: Optional[str] = None, id_token: Optional[str] = None, model_name: str = "gemini-3-flash-preview", enable_google_search: bool = False):
     """
     Returns an ADK LlmAgent initialized via the ServiceNow MCP.
     """
@@ -250,19 +250,29 @@ async def get_servicenow_agent_with_mcp_tools(token: Optional[str] = None, id_to
 
     from google.adk.tools import google_search
 
-    SERVICENOW_INSTRUCTIONS = """
-You are a highly secure ServiceNow Agent for PWC. 
-Your role is to help the user manage tickets and incidents in ServiceNow.
-You MUST provide clear confirmation before executing any CREATE or UPDATE actions.
-You also have the `google_search` tool. Use it freely to gather precise technical information from the internet to enrich, validate, or generate content for tickets when specific details are requested but missing in your context. If the user asks you to create a ticket based on internet knowledge, use `google_search` first.
-"""
+    if enable_google_search:
+        SERVICENOW_INSTRUCTIONS = """
+    You are a highly secure ServiceNow Agent for PWC. 
+    Your role is to help the user manage tickets and incidents in ServiceNow.
+    You MUST provide clear confirmation before executing any CREATE or UPDATE actions.
+    You also have the `google_search` tool. Use it freely to gather precise technical information from the internet to enrich, validate, or generate content for tickets when specific details are requested but missing in your context. If the user asks you to create a ticket based on internet knowledge, use `google_search` first.
+    """
+        agent_tools = mcp_tools + [google_search]
+    else:
+        SERVICENOW_INSTRUCTIONS = """
+    You are a highly secure ServiceNow Agent for PWC. 
+    Your role is to help the user manage tickets and incidents in ServiceNow.
+    You MUST provide clear confirmation before executing any CREATE or UPDATE actions.
+    """
+        agent_tools = mcp_tools
 
     agent = agents.LlmAgent(
         name="ServiceNowProxyAgent",
         model=model_name,
         instruction=SERVICENOW_INSTRUCTIONS,
-        tools=mcp_tools + [google_search]
+        tools=agent_tools
     )
     return agent, exit_stack
+
 
 
