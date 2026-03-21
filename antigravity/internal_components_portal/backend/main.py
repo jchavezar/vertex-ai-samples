@@ -545,15 +545,13 @@ async def _ge_mcp_chat_stream(messages: list, model_name: str, token: str = None
     if not router_session:
         router_session = await session_service.create_session(app_name="PWC_Router", user_id="default_user", session_id=router_sess_id)
         
+    history_str = ""
     if len(messages) > 1:
-        for msg in messages[:-1]:
-            role = "user" if msg.get("role") == "user" else "model"
-            part = types.Part.from_text(text=msg.get("content", ""))
-            content_obj = types.Content(role=role, parts=[part])
-            evt = Event(author=role, content=content_obj)
-            router_session.events.append(evt)
+        history_str = "\n".join([f"{msg.get('role').upper()}: {msg.get('content')}" for msg in messages[-4:-1]])
         
-    msg_obj = types.Content(role="user", parts=[types.Part.from_text(text=prompt)])
+    router_prompt = f"Previous Conversation History:\n{history_str}\n\n-----\nEvaluate the following User's latest message:\n{prompt}" if history_str else prompt
+    
+    msg_obj = types.Content(role="user", parts=[types.Part.from_text(text=router_prompt)])
     
     intent = "SEARCH"
     
