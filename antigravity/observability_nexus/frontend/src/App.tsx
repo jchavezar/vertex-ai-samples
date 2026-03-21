@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { Activity, ShieldAlert, Cpu, Network, Zap, Play, Square, Settings, Database, Server } from 'lucide-react';
-
+import NexusChatOverlay from './NexusChatOverlay';
 interface TelemetryEvent {
   raw?: any;
   type?: string;
@@ -264,6 +264,9 @@ export default function App() {
           </div>
         </aside>
       </main>
+      
+      {/* Bot Chat Overlay (Floating) */}
+      <NexusChatOverlay logs={logs} />
     </div>
   );
 }

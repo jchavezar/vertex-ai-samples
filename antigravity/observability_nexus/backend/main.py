@@ -71,6 +71,72 @@ async def websocket_endpoint(websocket: WebSocket):
     except WebSocketDisconnect:
         manager.disconnect(websocket)
 
+from pydantic import BaseModel
+import json
+from google import genai
+from google.genai import types
+from fastapi.responses import StreamingResponse
+from typing import List, Any
+
+class ChatRequest(BaseModel):
+    query: str
+    logs: List[Any] = []
+
+@app.post("/api/chat")
+async def chat_overlay(request: ChatRequest):
+    # Initialize the new SDK Client
+    client = genai.Client(
+        vertexai=True, 
+        project="cloud-llm-preview1", 
+        location="us-central1"
+    )
+        
+    # We pass the telemetry events as context
+    system_instruction = (
+        "You are an AI assistant built into the Observability Nexus platform. "
+        "Your job is to answer the user's questions about their system using the provided log events as context. "
+        "Use the Google Search tool if you need external knowledge. Be concise, technical, and helpful."
+    )
+    
+    prompt = "Context Logs:\n"
+    # Truncate logs if too big
+    logs_str = json.dumps(request.logs[-10:], indent=2)
+    prompt += logs_str
+    prompt += f"\n\nUser Question: {request.query}"
+
+    def generate():
+        try:
+            responses = client.models.generate_content_stream(
+                model="gemini-3.0-flash-lite-preview",
+                contents=prompt,
+                config=types.GenerateContentConfig(
+                    tools=[{"google_search": {}}],
+                    system_instruction=system_instruction
+                )
+            )
+            for chunk in responses:
+                if chunk.text:
+                    yield chunk.text
+        except Exception as e:
+            print(f"Error with 3.0 lite: {e}. Falling back to 2.5-flash")
+            # Fallback
+            try:
+                responses = client.models.generate_content_stream(
+                    model="gemini-2.5-flash",
+                    contents=prompt,
+                    config=types.GenerateContentConfig(
+                        tools=[{"google_search": {}}],
+                        system_instruction=system_instruction
+                    )
+                )
+                for chunk in responses:
+                    if chunk.text:
+                        yield chunk.text
+            except Exception as e2:
+                yield f"Error generating response: {e2}"
+
+    return StreamingResponse(generate(), media_type="text/event-stream")
+
 @app.get("/health")
 def health():
     return {"status": "ok", "app": "observability_nexus"}
