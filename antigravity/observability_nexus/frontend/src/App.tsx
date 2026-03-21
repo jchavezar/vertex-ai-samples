@@ -1,16 +1,6 @@
-import React, { useEffect, useState, useRef } from 'react';
-import { Activity, ShieldAlert, Cpu, Network, Zap, Play, Square, Settings, Database, Server } from 'lucide-react';
+import { useEffect, useState, useRef } from 'react';
+import { Activity, ShieldAlert, Cpu, Network, Zap, Play, Square, Settings, Database } from 'lucide-react';
 import NexusChatOverlay from './NexusChatOverlay';
-interface TelemetryEvent {
-  raw?: any;
-  type?: string;
-  data?: any;
-  event?: any;
-  tag?: string;
-  reasoning?: string[];
-  metrics?: any[];
-  [key: string]: any;
-}
 
 const formatTimestamp = (date: Date) => {
   const options: Intl.DateTimeFormatOptions = {
@@ -24,57 +14,254 @@ const formatTimestamp = (date: Date) => {
   return `${timeString}.${date.getMilliseconds().toString().padStart(3, '0')}`;
 };
 
+const getEventMetadata = (payload: any) => {
+  if (payload?.type === 'error') {
+    return {
+      color: 'text-red-400',
+      bgColor: 'bg-red-500/10',
+      borderColor: 'border-red-500/50',
+      icon: <ShieldAlert size={14} className="text-red-500" />,
+      tag: 'ERROR'
+    };
+  }
+  
+  const tag = payload?.tag || payload?.type || 'event';
+  const type = payload?.type || '';
+  
+  if (tag === 'user_request') {
+    return { 
+      color: 'text-white', 
+      bgColor: 'bg-white/5',
+      borderColor: 'border-white/20',
+      icon: <Database size={14} className="text-slate-400" />, 
+      tag: 'USER_PROMPT' 
+    };
+  }
+
+  if (type === 'thought') {
+    return { 
+      color: 'text-slate-400', 
+      bgColor: 'bg-slate-500/5',
+      borderColor: 'border-slate-500/20',
+      icon: <Cpu size={14} className="text-slate-500" />, 
+      tag: 'THOUGHT' 
+    };
+  }
+
+  if (type === 'tool_call' || type === 'tool_result') {
+    return { 
+      color: 'text-indigo-400', 
+      bgColor: 'bg-indigo-500/10',
+      borderColor: 'border-indigo-500/30',
+      icon: <Zap size={14} className="text-indigo-500" />, 
+      tag: 'TOOL_TRACE' 
+    };
+  }
+
+  switch (tag.toLowerCase()) {
+    case 'router':
+      return { 
+        color: 'text-fuchsia-400', 
+        bgColor: 'bg-fuchsia-500/10',
+        borderColor: 'border-fuchsia-500/30',
+        icon: <Cpu size={14} className="text-fuchsia-500" />, 
+        tag: 'ROUTER' 
+      };
+    case 'sharepoint':
+    case 'security_proxy':
+      return { 
+        color: 'text-blue-400', 
+        bgColor: 'bg-blue-500/10',
+        borderColor: 'border-blue-500/30',
+        icon: <Database size={14} className="text-blue-500" />, 
+        tag: 'SHAREPOINT' 
+      };
+    case 'servicenow':
+      return { 
+        color: 'text-orange-400', 
+        bgColor: 'bg-orange-500/10',
+        borderColor: 'border-orange-500/30',
+        icon: <Zap size={14} className="text-orange-500" />, 
+        tag: 'SERVICENOW' 
+      };
+    case 'api_output':
+      return { 
+        color: 'text-cyan-400', 
+        bgColor: 'bg-cyan-500/10',
+        borderColor: 'border-cyan-500/30',
+        icon: <Network size={14} className="text-cyan-500" />, 
+        tag: 'API_TRACE' 
+      };
+    case 'telemetry':
+      return { 
+        color: 'text-yellow-400', 
+        bgColor: 'bg-yellow-500/10',
+        borderColor: 'border-yellow-500/30',
+        icon: <Zap size={14} className="text-yellow-500" />, 
+        tag: 'METRICS' 
+      };
+    case 'public':
+      return { 
+        color: 'text-purple-400', 
+        bgColor: 'bg-purple-500/10',
+        borderColor: 'border-purple-500/30',
+        icon: <Network size={14} className="text-purple-500" />, 
+        tag: 'PUBLIC_WEB' 
+      };
+    default:
+      return { 
+        color: 'text-emerald-400', 
+        bgColor: 'bg-emerald-500/5',
+        borderColor: 'border-emerald-500/20',
+        icon: <Activity size={14} className="text-emerald-500" />, 
+        tag: tag.toUpperCase() 
+      };
+  }
+};
+
+const FormattedContent = ({ payload, meta }: { payload: any, meta: any }) => {
+  const { color } = meta;
+  
+  if (payload?.tag === 'user_request') {
+    return (
+      <div className="space-y-1">
+        <div className="text-[10px] text-slate-500 uppercase tracking-tighter">Model: {payload.model} | Mode: {payload.mode}</div>
+        <div className="text-sm font-semibold text-white leading-snug">
+          {payload.prompt}
+        </div>
+      </div>
+    );
+  }
+
+  if (payload?.type === 'thought') {
+    return (
+      <div className="bg-white/5 rounded p-2 border border-white/5">
+        <div className="text-[9px] text-slate-500 uppercase mb-1 flex items-center">
+          <Cpu size={10} className="mr-1" /> AI Reasoning ({payload.author})
+        </div>
+        <div className="text-[11px] text-slate-400 italic font-serif leading-relaxed line-clamp-4">
+          {payload.text}
+        </div>
+      </div>
+    );
+  }
+
+  if (payload?.type === 'tool_call') {
+    return (
+      <div className="space-y-1">
+        <div className="flex items-center space-x-2">
+          <Zap size={12} className="text-indigo-400" />
+          <span className="text-indigo-300 font-bold uppercase text-[10px]">Action Triggered</span>
+          <span className="text-white font-mono text-[11px] bg-indigo-500/20 px-1.5 rounded">{payload.name}</span>
+        </div>
+        <div className="text-[10px] text-slate-500 font-mono truncate">
+          Args: {JSON.stringify(payload.args)}
+        </div>
+      </div>
+    );
+  }
+
+  if (payload?.type === 'tool_result') {
+    const resStr = JSON.stringify(payload.result);
+    return (
+      <div className="space-y-1 border-l border-indigo-500/20 pl-2 ml-1">
+        <div className="text-[9px] text-indigo-400/60 uppercase">Action Response</div>
+        <div className="text-[11px] text-slate-400 font-mono line-clamp-2 italic">
+          {resStr.length > 300 ? resStr.substring(0, 300) + '...' : resStr}
+        </div>
+      </div>
+    );
+  }
+
+  if (payload?.type === 'agent_text') {
+    return (
+      <div className="text-[11px] text-emerald-300 leading-relaxed font-medium">
+        {payload.text}
+      </div>
+    );
+  }
+
+  if (payload?.type === 'error') {
+    return <div className={`font-bold ${color}`}>{payload.event || payload.message || 'Unknown Error Event'}</div>;
+  }
+
+  if (payload?.tag === 'api_output') {
+    const event = payload.event || {};
+    return (
+      <div className="space-y-1">
+        <div className="flex items-center space-x-2">
+          <span className="px-1 bg-cyan-500/20 text-cyan-300 font-bold rounded text-[10px]">{event.method}</span>
+          <span className="text-slate-400 truncate text-[11px]">{event.url}</span>
+        </div>
+        {event.response_chunk && (
+          <div className="text-[11px] text-slate-500 italic truncate max-w-xl">
+            {typeof event.response_chunk === 'string' ? event.response_chunk.substring(0, 200) : JSON.stringify(event.response_chunk).substring(0, 200)}
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  if (payload?.tag === 'servicenow' && !payload?.type) {
+    const event = payload.event || {};
+    return (
+      <div className="space-y-1">
+        <div className="text-orange-300 font-medium text-[11px]">ServiceNow Legacy Trace</div>
+        <div className="text-[10px] text-slate-500 font-mono truncate">
+          {JSON.stringify(event)}
+        </div>
+      </div>
+    );
+  }
+
+  if (payload?.type === 'telemetry') {
+    return (
+      <div className="grid grid-cols-2 gap-4 text-[11px]">
+        <div className="flex flex-col">
+          <span className="text-slate-500 uppercase text-[9px]">Latency</span>
+          <span className="text-yellow-400 font-mono">{JSON.stringify(payload.data)}</span>
+        </div>
+        <div className="flex flex-col">
+          <span className="text-slate-500 uppercase text-[9px]">Usage</span>
+          <span className="text-yellow-400 font-mono">{JSON.stringify(payload.tokens)}</span>
+        </div>
+      </div>
+    );
+  }
+
+  // Fallback for general logs
+  const displayContent = payload?.event || payload?.data || payload;
+  const contentStr = typeof displayContent === 'string' ? displayContent : JSON.stringify(displayContent);
+  
+  return (
+    <div className={`font-mono text-[11px] ${color} line-clamp-3`}>
+      {contentStr}
+    </div>
+  );
+};
+
 const LogEntry = ({ entry, index, isSelected, onSelect }: { entry: { timestamp: Date, payload: any }, index: number, isSelected: boolean, onSelect: () => void }) => {
+  const meta = getEventMetadata(entry.payload);
   const timeStr = formatTimestamp(entry.timestamp);
-  let content = '';
-  let colorClass = 'text-green-400';
-  let icon = <Activity size={14} />;
-
-  if (entry.payload?.type === 'error') {
-    colorClass = 'text-red-400';
-    icon = <ShieldAlert size={14} className="text-red-500" />;
-    content = String(entry.payload?.event || 'Unknown error');
-  } else if (entry.payload?.tag === 'sharepoint') {
-    colorClass = 'text-blue-400';
-    icon = <Database size={14} className="text-blue-500" />;
-    content = JSON.stringify(entry.payload?.event, null, 2);
-  } else if (entry.payload?.tag === 'public') {
-    colorClass = 'text-purple-400';
-    icon = <Network size={14} className="text-purple-500" />;
-    content = JSON.stringify(entry.payload?.event, null, 2);
-  } else if (entry.payload?.type === 'telemetry') {
-    colorClass = 'text-yellow-400';
-    icon = <Zap size={14} className="text-yellow-500" />;
-    content = `[TELEMETRY] Latency Metrics: ${JSON.stringify(entry.payload?.data)} | Tokens: ${JSON.stringify(entry.payload?.tokens)}`;
-  } else {
-    colorClass = 'text-gray-400';
-    icon = <Server size={14} className="text-gray-500" />;
-    content = JSON.stringify(entry.payload, null, 2);
-  }
-
-  // Truncate massively long content for the live feed
-  if (content.length > 500) {
-    content = content.substring(0, 500) + '... [TRUNCATED]';
-  }
 
   return (
     <div 
-      className={`flex flex-row items-start space-x-3 mb-2 px-2 py-1.5 rounded transition-colors group cursor-pointer ${isSelected ? 'bg-white/10 border-l-2 border-emerald-400' : 'hover:bg-white/5 border-l-2 border-transparent'}`}
+      className={`flex flex-col border-l-2 mb-2 transition-all cursor-pointer overflow-hidden ${isSelected ? 'bg-white/10 border-white shadow-[0_0_20px_rgba(255,255,255,0.05)] translate-x-1' : `hover:bg-white/5 ${meta.borderColor} border-l-transparent`}`}
       onClick={onSelect}
     >
-      <div className="shrink-0 mt-0.5">{icon}</div>
-      <div className="flex-1 min-w-0">
-        <div className="flex items-center space-x-2 mb-1">
-          <span className="text-xs text-gray-500 font-mono">[{timeStr}]</span>
-          {entry.payload?.tag && (
-             <span className="text-[10px] uppercase tracking-wider font-semibold text-white/50 bg-white/10 px-1.5 py-0.5 rounded">
-               {entry.payload.tag}
-             </span>
-          )}
+      <div className={`px-3 py-2 ${meta.bgColor} flex items-center justify-between border-b border-white/5`}>
+        <div className="flex items-center space-x-3">
+          <div className="shrink-0">{meta.icon}</div>
+          <span className="text-[10px] text-slate-500 font-mono">[{timeStr}]</span>
+          <span className={`text-[9px] font-bold tracking-[0.2em] px-2 py-0.5 rounded-full bg-black/40 ${meta.color}`}>
+            {meta.tag}
+          </span>
         </div>
-        <pre className={`text-xs font-mono whitespace-pre-wrap ${colorClass}`}>
-          {content}
-        </pre>
+        <div className="text-[9px] text-slate-600 font-mono">#{index.toString().padStart(4, '0')}</div>
+      </div>
+      
+      <div className="px-3 py-3">
+        <FormattedContent payload={entry.payload} meta={meta} />
       </div>
     </div>
   );

@@ -279,3 +279,80 @@ async def get_servicenow_agent_with_mcp_tools(token: Optional[str] = None, id_to
 
 
 
+
+from typing import AsyncGenerator
+from typing_extensions import override
+from google.adk.agents import BaseAgent, LlmAgent
+from google.adk.agents.invocation_context import InvocationContext
+from google.adk.events import Event
+from pydantic import BaseModel, Field
+
+class IntentClassification(BaseModel):
+    intent: str = Field(description="The intent of the user. Must be one of: 'SERVICENOW', 'SEARCH', 'ACTION', 'CANCEL'")
+
+class DeloitteRouterAgent(BaseAgent):
+    """
+    Stateful Router Agent orchestrating ServiceNow and Search using ADK 2.0
+    """
+    servicenow_agent: LlmAgent
+    classifier_agent: LlmAgent
+    model_config = {"arbitrary_types_allowed": True}
+
+    def __init__(self, name: str, servicenow_agent: LlmAgent, model_name: str = "gemini-3-flash-preview"):
+        classifier_agent = LlmAgent(
+            name="IntentClassifier",
+            model=model_name,
+            instruction="""You are a routing classifier. Evaluate the user's latest message and reply ONLY with the intent.
+Available Intents:
+- 'SERVICENOW': The user mentions ServiceNow, tickets, incidents, or asks to create/update them.
+- 'SEARCH': The user asks for documents, public web search, or general questions.
+- 'ACTION': The user asks to perform a general action.
+- 'CANCEL': The user asks to cancel, stop, or exit the current flow.""",
+            output_schema=IntentClassification,
+            output_key="detected_intent"
+        )
+        super().__init__(
+            name=name,
+            servicenow_agent=servicenow_agent,
+            classifier_agent=classifier_agent,
+            sub_agents=[servicenow_agent, classifier_agent]
+        )
+
+    @override
+    async def _run_async_impl(self, ctx: InvocationContext) -> AsyncGenerator[Event, None]:
+        # 1. Check current route
+        current_route = ctx.session.state.get("current_route")
+
+        # 2. Before simply routing, let's run the classifier to see if it's a CANCEL or hard switch
+        # Actually, for speed, in ADK 2.0 we can just check if we are in a route. 
+        # If in a route, we assume they want to continue UNLESS they say "cancel"
+        
+        # We will use the intent classifier first
+        async for event in self.classifier_agent.run_async(ctx):
+            pass # We don't yield the classifier's internal thoughts to the UI
+
+        intent_result = ctx.session.state.get("detected_intent")
+        intent = intent_result.intent if intent_result else "SEARCH"
+
+        if intent == "CANCEL":
+            ctx.session.state["current_route"] = None
+            from google.genai import types
+            yield Event(author="router", content=types.Content(role="model", parts=[types.Part.from_text(text="Workflow cancelled. Returning to main menu.")]))
+            return
+
+        # Explicit route shifts
+        if intent == "SERVICENOW":
+            ctx.session.state["current_route"] = "SERVICENOW"
+        elif intent == "SEARCH" and not current_route:
+            # If they just ask general questions, keep route empty
+            pass 
+
+        active_route = ctx.session.state.get("current_route")
+
+        if active_route == "SERVICENOW":
+            async for event in self.servicenow_agent.run_async(ctx):
+                yield event
+        else:
+            # For simplicity, if not servicenow, we yield a special event so main.py knows to fallback to normal search
+            from google.genai import types
+            yield Event(author="router", content=types.Content(role="model", parts=[types.Part.from_text(text="[SYSTEM_FALLBACK_SEARCH]")]))
