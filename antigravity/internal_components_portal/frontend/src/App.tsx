@@ -796,7 +796,12 @@ function App() {
                     <button
                       type="submit"
                       className="deloitte-btn"
-                      disabled={isLoading || !input.trim()}
+                      disabled={isLoading}
+                      onClick={(e) => {
+                        if (!input.trim()) {
+                          e.preventDefault();
+                        }
+                      }}
                     >
                       Send
                     </button>
