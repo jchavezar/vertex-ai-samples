@@ -545,6 +545,14 @@ async def _ge_mcp_chat_stream(messages: list, model_name: str, token: str = None
     if not router_session:
         router_session = await session_service.create_session(app_name="PWC_Router", user_id="default_user", session_id=router_sess_id)
         
+    if len(messages) > 1:
+        for msg in messages[:-1]:
+            role = "user" if msg.get("role") == "user" else "model"
+            part = types.Part.from_text(text=msg.get("content", ""))
+            content_obj = types.Content(role=role, parts=[part])
+            evt = Event(author=role, content=content_obj)
+            router_session.events.append(evt)
+        
     msg_obj = types.Content(role="user", parts=[types.Part.from_text(text=prompt)])
     
     intent = "SEARCH"
