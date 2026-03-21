@@ -124,6 +124,16 @@ def list_incidents(limit: int = 10, offset: int = 0, state: Optional[str] = None
     return query_table("incident", query=q, limit=limit, offset=offset)
 
 @mcp.tool()
+def search_incidents(search_term: str, limit: int = 10) -> str:
+    """
+    Searches for incidents containing a specific text string (search_term) in their short_description or description.
+    Use this tool when the user asks to find a ticket related to a specific topic, keyword, or name.
+    """
+    logger.info(f"[ServiceNow MCP] search_incidents | term='{search_term}'")
+    query = f"short_descriptionLIKE{search_term}^ORdescriptionLIKE{search_term}^ORDERBYDESCsys_created_on"
+    return query_table("incident", query=query, limit=limit)
+
+@mcp.tool()
 def list_problems(limit: int = 10, offset: int = 0, state: Optional[str] = None) -> str:
     """Lists Problems board items."""
     q = "ORDERBYDESCsys_created_on"
