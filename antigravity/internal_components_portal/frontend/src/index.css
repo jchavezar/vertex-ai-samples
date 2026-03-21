@@ -235,6 +235,8 @@ body {
   flex-direction: column;
   overflow: hidden;
   flex-shrink: 0;
+  height: 100%; /* Force height to parent constraints */
+  max-height: 100%;
   border: 1px solid rgba(0,0,0,0.05);
   transition: width 0.3s cubic-bezier(0.16, 1, 0.3, 1), transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   margin-left: 0;
@@ -277,6 +279,7 @@ body {
   background: linear-gradient(to bottom, #fff, #fafafa);
   display: flex;
   flex-direction: column;
+  flex-shrink: 0;
 }
 
 .chat-header-top {
@@ -330,6 +333,7 @@ body {
 
 .chat-messages {
   flex-grow: 1;
+  min-height: 0; /* Add min-height to allow scrolling */
   overflow-y: auto;
   padding: var(--spacing-lg) var(--spacing-xl);
   display: flex;
