@@ -89,7 +89,7 @@ export default function NexusChatOverlay({ logs }: ComponentProps) {
 
       {/* Expanded Chat Overlay */}
       {isOpen && (
-        <div className="fixed bottom-6 right-6 w-96 h-[32rem] bg-[#0a101d] border border-white/10 rounded-2xl shadow-2xl flex flex-col z-50 overflow-hidden backdrop-blur-3xl animate-in slide-in-from-bottom-8">
+        <div className="fixed bottom-6 right-6 w-[28rem] h-[40rem] min-w-[24rem] min-h-[30rem] max-w-[90vw] max-h-[90vh] resize bg-[#0a101d] border border-white/10 rounded-2xl shadow-2xl flex flex-col z-50 overflow-hidden backdrop-blur-3xl animate-in slide-in-from-bottom-8">
           
           {/* Header */}
           <div className="p-4 border-b border-white/10 flex items-center justify-between bg-white/5 shrink-0">
