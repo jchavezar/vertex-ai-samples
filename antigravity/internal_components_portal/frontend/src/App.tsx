@@ -55,7 +55,29 @@ const GeminiSparkleIcon = ({ className = "" }: { className?: string }) => (
   </svg>
 );
 
+const AdkIcon = ({ className = "" }: { className?: string }) => (
+  <svg
+    className={className}
+    width="22"
+    height="22"
+    viewBox="0 0 24 24"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    style={{ filter: 'drop-shadow(0 0 6px rgba(66,133,244,0.4))' }}
+  >
+    <path d="M12 2L2 7l10 5 10-5-10-5z" fill="#4285F4"/>
+    <path d="M2 17l10 5 10-5M2 12l10 5 10-5" stroke="#34A853" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+  </svg>
+);
 
+const ServiceNowIcon = ({ className = "" }: { className?: string }) => (
+  <img 
+    src="/servicenow.svg" 
+    alt="ServiceNow"
+    className={className} 
+    style={{ width: 22, height: 22, objectFit: 'contain', filter: 'drop-shadow(0 0 4px rgba(129, 181, 161, 0.4))' }} 
+  />
+);
 const PROMPT_POOL = [
   "What is the salary of a CFO?",
   "What is a competitive compensation structure for a CFO?",
@@ -136,7 +158,8 @@ function App() {
     isPublicInsightStreaming,
     telemetryHistory,
     setTelemetryHistory,
-    currentQuery
+    currentQuery,
+    clearChat
   } = useTerminalChat(effectiveTokens, selectedModel, routerMode);
   const projectCards = useDashboardStore((s) => s.projectCards);
   const [isPublicInsightExpanded, setIsPublicInsightExpanded] = useState(false);
@@ -538,6 +561,24 @@ function App() {
                         gemini-3.1-flash-lite-preview
                       </option>
                     </select>
+                    <button
+                      onClick={clearChat}
+                      style={{
+                        background: "transparent",
+                        border: "1px solid rgba(134, 188, 37, 0.3)",
+                        borderRadius: "4px",
+                        color: "var(--deloitte-green)",
+                        padding: "4px 8px",
+                        outline: "none",
+                        cursor: "pointer",
+                        fontWeight: "bold",
+                        fontSize: "11px",
+                        fontFamily: "monospace",
+                      }}
+                      title="Clear Chat History"
+                    >
+                      Clear Chat
+                    </button>
                   </div>
                 </div>
 
@@ -720,25 +761,45 @@ function App() {
                     ) : null)}
 
 
-                    {isLoading && (
-                    <div className="gemini-loading-wrapper">
-                      <div className="gemini-search-pill">
-                          {usedSharePoint && <img src="/sharepoint-logo.svg" className="sharepoint-used-badge" alt="SharePoint Used" title="SharePoint indices searched" />}
-                        <div className="sharepoint-icon-wrapper">
-                            {thoughtStatus ? (
-                              thoughtStatus.icon === 'search' || thoughtStatus.icon === 'database' || thoughtStatus.icon === 'file-search' ? <img src="/sharepoint-logo.svg" alt="SharePoint" className="sharepoint-logo" /> :
-                                thoughtStatus.icon === 'shield-alert' ? <ShieldAlert color="var(--deloitte-green)" size={20} /> :
-                                  thoughtStatus.icon === 'check-circle' ? <CheckCircle color="var(--deloitte-green)" size={20} /> :
-                                    <GeminiSparkleIcon />
-                            ) : <GeminiSparkleIcon />}
+                    {isLoading && (() => {
+                      let IconComponent = GeminiSparkleIcon;
+                      let loadingTitle = "Google ADK (LLM)";
+
+                      if (thoughtStatus) {
+                        const msgLower = thoughtStatus.message.toLowerCase();
+                        if (msgLower.includes('servicenow')) {
+                          IconComponent = ServiceNowIcon;
+                          loadingTitle = "ServiceNow MCP";
+                        } else if (msgLower.includes('tool') || msgLower.includes('routing') || msgLower.includes('workflow') || msgLower.includes('agent')) {
+                          IconComponent = AdkIcon;
+                          loadingTitle = "Google ADK Workflow";
+                        } else if (thoughtStatus.icon === 'search' || thoughtStatus.icon === 'database' || thoughtStatus.icon === 'file-search') {
+                          IconComponent = () => <img src="/sharepoint-logo.svg" alt="SharePoint" className="sharepoint-logo" style={{ width: 20, height: 20 }} />;
+                          loadingTitle = "SharePoint MCP";
+                        } else if (thoughtStatus.icon === 'shield-alert') {
+                          IconComponent = () => <ShieldAlert color="var(--deloitte-green)" size={20} />;
+                          loadingTitle = "Zero-Leak Protocol";
+                        } else if (thoughtStatus.icon === 'check-circle') {
+                          IconComponent = () => <CheckCircle color="var(--deloitte-green)" size={20} />;
+                          loadingTitle = "Task Complete";
+                        }
+                      }
+
+                      return (
+                        <div className="gemini-loading-wrapper">
+                          <div className="gemini-search-pill">
+                              {usedSharePoint && <img src="/sharepoint-logo.svg" className="sharepoint-used-badge" alt="SharePoint Used" title="SharePoint indices searched" />}
+                            <div className="sharepoint-icon-wrapper">
+                              <IconComponent />
+                            </div>
+                            <div className="gemini-loading-text">
+                                <div className="gemini-loading-title">{loadingTitle}</div>
+                                <div className={`gemini-loading-subtitle ${thoughtStatus?.pulse ? 'pulsing-text' : ''}`}>{thoughtStatus ? thoughtStatus.message : 'Synthesizing...'}</div>
+                            </div>
+                          </div>
                         </div>
-                        <div className="gemini-loading-text">
-                            <div className="gemini-loading-title">Google ADK</div>
-                            <div className={`gemini-loading-subtitle ${thoughtStatus?.pulse ? 'pulsing-text' : ''}`}>{thoughtStatus ? thoughtStatus.message : 'Synthesizing...'}</div>
-                        </div>
-                      </div>
-                    </div>
-                  )}
+                      );
+                    })()}
                   <div ref={endOfMessagesRef} />
                 </div>
 

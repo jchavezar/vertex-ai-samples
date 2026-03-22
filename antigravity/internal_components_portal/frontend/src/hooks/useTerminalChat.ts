@@ -68,7 +68,7 @@ export function useTerminalChat(tokens: { accessToken: string, idToken: string }
     ? 'https://mcp-sharepoint-server-REDACTED_PROJECT_NUMBER.us-central1.run.app/api/chat/stream'
     : '/api/chat/stream');
 
-  const { messages, input, handleInputChange, handleSubmit, data, isLoading } = useChat({
+  const { messages, setMessages, input, handleInputChange, handleSubmit, data, isLoading } = useChat({
     api: apiEndpoint,
     headers: tokens ? { 
       Authorization: `Bearer ${tokens.accessToken}`,
@@ -183,6 +183,18 @@ export function useTerminalChat(tokens: { accessToken: string, idToken: string }
     handleSubmit(e);
   };
 
+  const clearChat = () => {
+    setMessages([]);
+    setUsedSharePoint(false);
+    setTelemetry([]);
+    setReasoningSteps([]);
+    setTokenUsage(null);
+    setPublicInsight('');
+    setAdkEvents([]);
+    setTelemetryConfig(null);
+    setCurrentQuery('');
+  };
+
   return { 
     messages, 
     input, 
@@ -201,6 +213,7 @@ export function useTerminalChat(tokens: { accessToken: string, idToken: string }
     telemetryConfig,
     telemetryHistory,
     setTelemetryHistory,
-    currentQuery
+    currentQuery,
+    clearChat
   };
 }
