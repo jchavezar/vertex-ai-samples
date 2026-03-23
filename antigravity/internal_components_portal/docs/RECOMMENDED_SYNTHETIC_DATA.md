@@ -1,6 +1,6 @@
 # Recommended Synthetic Data for Deep Consulting Use Cases
 
-To create a powerful demonstration of the LLM Security Proxy that WOWs PwC clients, we need synthetic documents that trigger complex analytical reasoning, cross-document synthesis, and showcase the proxy's capability to generalize highly sensitive strategic data.
+To create a powerful demonstration of the LLM Security Proxy that WOWs Internal clients, we need synthetic documents that trigger complex analytical reasoning, cross-document synthesis, and showcase the proxy's capability to generalize highly sensitive strategic data.
 
 By expanding the repository with the following 5 document types, we can demonstrate "Deep Consulting Use Cases" (like cross-referencing HR data with Financial data to find ROI on talent retention).
 

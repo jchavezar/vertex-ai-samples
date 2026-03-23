@@ -35,7 +35,7 @@
   align-items: center;
   gap: 12px;
   margin-bottom: 30px;
-  color: var(--deloitte-green, #86BC25);
+  color: var(--internal-green, #86BC25);
 }
 
 .telemetry-header h2 {
@@ -242,7 +242,7 @@
 .phase-duration {
   font-size: 1rem;
   font-weight: 700;
-  color: var(--deloitte-green, #86BC25);
+  color: var(--internal-green, #86BC25);
   font-family: var(--font-mono, monospace);
 }
 
@@ -255,7 +255,7 @@
 
 .phase-progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, var(--deloitte-green, #86BC25) 0%, #E97639 100%);
+  background: linear-gradient(90deg, var(--internal-green, #86BC25) 0%, #E97639 100%);
   border-radius: 3px;
   transition: width 1.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -537,7 +537,7 @@
 .router-title { color: #8b5cf6; }
 .ge-title { color: #3b82f6; }
 .action-title { color: #f59e0b; }
-.enterprise-title { color: var(--deloitte-green, #86BC25); }
+.enterprise-title { color: var(--internal-green, #86BC25); }
 .public-title { color: #E97639; }
 
 .workflow-divider {
@@ -549,13 +549,13 @@
 .router-indicator { background: #8b5cf6; }
 .ge-indicator { background: #3b82f6; }
 .action-indicator { background: #f59e0b; }
-.enterprise-indicator { background: var(--deloitte-green, #86BC25); }
+.enterprise-indicator { background: var(--internal-green, #86BC25); }
 .public-indicator { background: #E97639; }
 
 .router-item { border-left: 3px solid #8b5cf6; }
 .ge-item { border-left: 3px solid #3b82f6; }
 .action-item { border-left: 3px solid #f59e0b; }
-.enterprise-item { border-left: 3px solid var(--deloitte-green, #86BC25); }
+.enterprise-item { border-left: 3px solid var(--internal-green, #86BC25); }
 .public-item { border-left: 3px solid #E97639; }
 
 /* New Labels */
@@ -640,7 +640,7 @@
 }
 
 .history-item.active {
-  border-color: #86BC25; /* Deloitte Green */
+  border-color: #86BC25; /* Internal Green */
   background-color: #f8fbf4; /* Light green tint */
 }
 
@@ -723,7 +723,7 @@
 }
 
 .analyze-button {
-  background-color: #1e3a8a; /* Deloitte dark blue */
+  background-color: #1e3a8a; /* Internal dark blue */
   color: white;
 }
 
@@ -854,7 +854,7 @@
 
 .markdown-container h1 {
   font-size: 2rem;
-  border-bottom: 2px solid var(--deloitte-green, #86BC25);
+  border-bottom: 2px solid var(--internal-green, #86BC25);
   padding-bottom: 8px;
   display: inline-block;
 }
@@ -894,11 +894,11 @@
 }
 
 .markdown-container li::marker {
-  color: var(--deloitte-green, #86BC25);
+  color: var(--internal-green, #86BC25);
 }
 
 .markdown-container blockquote {
-  border-left: 4px solid var(--deloitte-green, #86BC25);
+  border-left: 4px solid var(--internal-green, #86BC25);
   background: #f8fafc;
   padding: 16px 20px;
   margin: 20px 0;
@@ -1079,12 +1079,12 @@
 
 .chatbot-input:focus {
   outline: none;
-  border-color: var(--deloitte-green, #86BC25);
+  border-color: var(--internal-green, #86BC25);
   box-shadow: 0 0 0 3px rgba(134, 188, 37, 0.1);
 }
 
 .chatbot-send-btn {
-  background: var(--deloitte-green, #86BC25);
+  background: var(--internal-green, #86BC25);
   color: white;
   border: none;
   border-radius: 10px;
@@ -1115,7 +1115,7 @@
   width: 64px;
   height: 64px;
   border-radius: 50%;
-  background: var(--deloitte-green, #86BC25);
+  background: var(--internal-green, #86BC25);
   color: white;
   border: none;
   box-shadow: 0 4px 20px rgba(134, 188, 37, 0.4);

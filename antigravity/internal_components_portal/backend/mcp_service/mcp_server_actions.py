@@ -8,7 +8,7 @@ from fastmcp import FastMCP
 
 from mcp_service.mcp_sharepoint import SharePointMCP
 from utils.auth_context import get_user_token
-from utils.pwc_renderer import render_report
+from utils.internal_renderer import render_report
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
@@ -19,14 +19,14 @@ mcp = FastMCP("Security-Proxy-Actions-MCP")
 
 # --- PROMPTS ---
 ACTION_INSTRUCTIONS = """
-You are a highly secure Action Agent for PWC. 
+You are a highly secure Action Agent for Internal. 
 Your role is exclusively to perform actions such as generating reports, creating PDFs, or updating documents.
 You do not search for information. You rely on the user to provide the necessary information.
 """
 
 @mcp.prompt()
 def action_persona(context: str = "") -> str:
-    """Exports the official PWC Action persona."""
+    """Exports the official Internal Action persona."""
     return f"{ACTION_INSTRUCTIONS}\n\nContext: {context}"
 
 def _get_sharepoint() -> SharePointMCP:
@@ -155,7 +155,7 @@ def generate_pdf_report(prompt: str, data: str) -> str:
         output_pdf = "assets/generated_report.pdf"
         output_image = "assets/generated_report_preview.png"
         
-        from utils.pwc_renderer import render_report
+        from utils.internal_renderer import render_report
         success = render_report(report_json, output_pdf, output_image)
         if success:
             logger.info("[MCP TOOL] generate_pdf_report | Success")

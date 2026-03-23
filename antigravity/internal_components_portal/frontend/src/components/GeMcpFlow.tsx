@@ -334,7 +334,7 @@ export const GeMcpFlow: React.FC = () => {
               background: "transparent",
               border: "1px solid rgba(134, 188, 37, 0.3)",
               borderRadius: "4px",
-              color: "var(--deloitte-green)",
+              color: "var(--internal-green)",
               padding: "6px 12px",
               outline: "none",
               cursor: "pointer",

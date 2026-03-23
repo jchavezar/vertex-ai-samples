@@ -14,7 +14,7 @@ def chat_with_latency_data(messages: list, history_data: list, analysis_result: 
         client = genai.Client(vertexai=True, project=os.environ.get("GOOGLE_CLOUD_PROJECT"), location="us-central1")
         
         system_instruction = f"""
-You are the "Execution Insight" AI, an expert specialized in analyzing AI performance telemetry for the PwC Zero-Leak Security Proxy.
+You are the "Execution Insight" AI, an expert specialized in analyzing AI performance telemetry for the Internal Zero-Leak Security Proxy.
 Your purpose is to answer user questions about the specific executions they are viewing in the Telemetry tab.
 
 CONTEXT PROVIDED:

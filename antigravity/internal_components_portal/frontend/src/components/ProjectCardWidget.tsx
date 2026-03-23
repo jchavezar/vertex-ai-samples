@@ -76,15 +76,15 @@ export const ProjectCardWidget: React.FC<ProjectCardWidgetProps> = ({ card }) =>
       const chartHeight = Math.max(200, data.length * 60);
       return (
         <div className="chart-container" style={{ width: '100%', marginTop: '1rem', background: 'rgba(0,0,0,0.05)', padding: '1rem', borderRadius: '8px', boxSizing: 'border-box' }}>
-          <h4 style={{ marginBottom: '1rem', fontSize: '0.9rem', color: 'var(--deloitte-green)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <h4 style={{ marginBottom: '1rem', fontSize: '0.9rem', color: 'var(--internal-green)', display: 'flex', alignItems: 'center', gap: '8px' }}>
             <BarChart2 size={16} /> Data Visualization
           </h4>
           <ResponsiveContainer width="100%" height={chartHeight}>
             <BarChart data={data} layout="vertical">
               <XAxis type="number" hide />
-              <YAxis dataKey="name" type="category" axisLine={false} tickLine={false} tick={{ fill: 'var(--deloitte-black)', fontSize: 12 }} width={160} />
-              <Tooltip cursor={{ fill: 'rgba(0,0,0,0.05)' }} contentStyle={{ backgroundColor: 'var(--deloitte-bg-main)', borderColor: 'var(--deloitte-border)', color: 'var(--deloitte-black)' }} />
-              <Bar dataKey="value" fill="var(--deloitte-green)" radius={[0, 4, 4, 0]} barSize={20} />
+              <YAxis dataKey="name" type="category" axisLine={false} tickLine={false} tick={{ fill: 'var(--internal-black)', fontSize: 12 }} width={160} />
+              <Tooltip cursor={{ fill: 'rgba(0,0,0,0.05)' }} contentStyle={{ backgroundColor: 'var(--internal-bg-main)', borderColor: 'var(--internal-border)', color: 'var(--internal-black)' }} />
+              <Bar dataKey="value" fill="var(--internal-green)" radius={[0, 4, 4, 0]} barSize={20} />
             </BarChart>
           </ResponsiveContainer>
         </div>
@@ -93,13 +93,13 @@ export const ProjectCardWidget: React.FC<ProjectCardWidgetProps> = ({ card }) =>
   };
 
   const getWeightColor = (weight: number = 100) => {
-    if (weight >= 80) return 'var(--deloitte-green)';
+    if (weight >= 80) return 'var(--internal-green)';
     if (weight >= 50) return '#FFB600';
-    return 'var(--deloitte-dark-gray)';
+    return 'var(--internal-dark-gray)';
   };
 
   return (
-    <article className={`deloitte-card ${card.pii_detected ? 'pii-alert' : ''}`}
+    <article className={`internal-card ${card.pii_detected ? 'pii-alert' : ''}`}
       style={card.pii_detected ? { border: '2px solid #E0301E', boxShadow: '0 0 15px rgba(224, 48, 30, 0.2)' } : {}}>
       <header className="card-header">
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -127,12 +127,12 @@ export const ProjectCardWidget: React.FC<ProjectCardWidgetProps> = ({ card }) =>
         <div className="governance-banner" style={{ background: 'rgba(224, 48, 30, 0.1)', border: '1px solid #E0301E', padding: '10px', borderRadius: '6px', marginBottom: '15px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div>
             <div style={{ fontSize: '10px', fontWeight: 'bold', color: '#E0301E', textTransform: 'uppercase' }}>Governance Action Recommended</div>
-            <div style={{ fontSize: '13px', color: 'var(--deloitte-black)' }}>{card.governance_recommendation}</div>
+            <div style={{ fontSize: '13px', color: 'var(--internal-black)' }}>{card.governance_recommendation}</div>
           </div>
           <button
             onClick={handleSecureDocument}
             disabled={isSecuring}
-            className="deloitte-btn"
+            className="internal-btn"
             style={{ background: '#E0301E', fontSize: '11px', padding: '4px 12px' }}
           >
             {isSecuring ? 'Securing...' : 'Secure Now'}

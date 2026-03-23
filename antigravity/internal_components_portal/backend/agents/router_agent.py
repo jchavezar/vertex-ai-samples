@@ -4,7 +4,7 @@ from google.adk.agents.llm_agent import LlmAgent
 
 logger = logging.getLogger("router_agent")
 
-def get_router_agent() -> LlmAgent:
+def get_router_agent(model: str = "gemini-2.5-flash") -> LlmAgent:
     """
     Returns a Google ADK LlmAgent configured to route the user's prompt 
     as either SEARCH or ACTION.
@@ -21,9 +21,15 @@ IMPORTANT: SERVICENOW takes absolute precedence if the user is describing a prob
 Respond ONLY with "SEARCH", "ACTION", or "SERVICENOW". Do not include any other text or punctuation.
 """
 
+    if "gemini-3" in model and "projects/" not in model:
+        import os
+        project = os.getenv("GOOGLE_CLOUD_PROJECT", "vtxdemos")
+        model = f"projects/{project}/locations/global/publishers/google/models/{model}"
+        logger.info(f"Dynamically mapped gemini-3 to global region: {model}")
+
     agent = LlmAgent(
         name="router_agent",
-        model="gemini-2.5-flash",
+        model=model,
         instruction=system_instruction
     )
     return agent

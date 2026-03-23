@@ -15,14 +15,14 @@ const TableWithOverlay = ({ children, chatMode, ...props }: { children: React.Re
   if (chatMode === 'default') {
     return (
       <>
-        <div style={{ margin: '16px 0', padding: '12px 16px', border: '1px solid var(--deloitte-glass-border)', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'rgba(255,255,255,0.05)' }}>
+        <div style={{ margin: '16px 0', padding: '12px 16px', border: '1px solid var(--internal-glass-border)', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'rgba(255,255,255,0.05)' }}>
           <span style={{ fontSize: '0.9rem', fontWeight: 500, display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <Table size={16} color="var(--deloitte-green)" /> Data Table
+            <Table size={16} color="var(--internal-green)" /> Data Table
           </span>
           <button 
             onClick={() => setIsOpen(true)} 
             style={{ 
-              padding: '6px 12px', background: 'var(--deloitte-green)', color: 'white', border: 'none', 
+              padding: '6px 12px', background: 'var(--internal-green)', color: 'white', border: 'none', 
               borderRadius: '4px', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 600,
               display: 'flex', alignItems: 'center'
             }}
@@ -35,13 +35,13 @@ const TableWithOverlay = ({ children, chatMode, ...props }: { children: React.Re
         {isOpen && createPortal(
           <div className="table-overlay-modal" onClick={() => setIsOpen(false)}>
             <div className="table-overlay-content" onClick={e => e.stopPropagation()}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', borderBottom: '1px solid var(--deloitte-border)', paddingBottom: '12px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', borderBottom: '1px solid var(--internal-border)', paddingBottom: '12px' }}>
                 <h3 style={{ margin: 0, fontSize: '1.1rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <Table size={18} color="var(--deloitte-green)" /> Detailed Data View
+                  <Table size={18} color="var(--internal-green)" /> Detailed Data View
                 </h3>
                 <button 
                   onClick={() => setIsOpen(false)} 
-                  style={{ background: 'transparent', border: 'none', color: 'var(--deloitte-grey)', cursor: 'pointer', padding: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '4px' }}
+                  style={{ background: 'transparent', border: 'none', color: 'var(--internal-grey)', cursor: 'pointer', padding: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '4px' }}
                   onMouseOver={(e: React.MouseEvent<HTMLButtonElement>) => e.currentTarget.style.background = 'rgba(0,0,0,0.05)'}
                   onMouseOut={(e: React.MouseEvent<HTMLButtonElement>) => e.currentTarget.style.background = 'transparent'}
                 >

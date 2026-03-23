@@ -15,8 +15,8 @@
   align-items: center;
   gap: 6px;
   background: transparent;
-  border: 1px solid var(--deloitte-border);
-  color: var(--deloitte-grey);
+  border: 1px solid var(--internal-border);
+  color: var(--internal-grey);
   padding: 4px 10px;
   border-radius: 16px;
   font-size: 0.75rem;
@@ -26,9 +26,9 @@
 }
 
 .toggle-context-btn:hover {
-  background: var(--deloitte-light-grey);
-  color: var(--deloitte-black);
-  border-color: var(--deloitte-grey);
+  background: var(--internal-light-grey);
+  color: var(--internal-black);
+  border-color: var(--internal-grey);
 }
 
 .context-container {
@@ -50,10 +50,10 @@
   font-family: var(--font-serif);
   font-size: 0.95rem;
   line-height: 1.6;
-  color: var(--deloitte-black);
+  color: var(--internal-black);
   padding: var(--spacing-md);
-  background: var(--deloitte-bg-hero);
-  border-left: 3px solid var(--deloitte-green);
+  background: var(--internal-bg-hero);
+  border-left: 3px solid var(--internal-green);
   border-radius: 0 8px 8px 0;
 }
 
@@ -71,5 +71,5 @@
 
 .redacted-tape:hover {
   background-color: #1a1a1a;
-  color: #86BC25; /* Deloitte Green on hover */
+  color: #86BC25; /* Internal Green on hover */
 }

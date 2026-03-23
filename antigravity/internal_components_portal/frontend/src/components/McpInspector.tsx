@@ -149,7 +149,7 @@ export function McpInspector({ goHome, token }: McpInspectorProps) {
           </button>
         )}
         <div className="sidebar-header">
-          <Server size={20} color="var(--deloitte-green)" />
+          <Server size={20} color="var(--internal-green)" />
           <h3>MCP Server</h3>
         </div>
 
@@ -165,7 +165,7 @@ export function McpInspector({ goHome, token }: McpInspectorProps) {
         </div>
 
         <button
-          className={`deloitte-btn w-full ${isConnected ? 'danger' : ''}`}
+          className={`internal-btn w-full ${isConnected ? 'danger' : ''}`}
           onClick={connect}
         >
           {isConnected ? (
@@ -218,7 +218,7 @@ export function McpInspector({ goHome, token }: McpInspectorProps) {
                     >
                       <div className="mcp-flex mcp-items-center mcp-gap-2">
                         {expandedTools[tool.name] ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
-                        <span className="mcp-font-mono mcp-text-deloitte-green mcp-font-bold mcp-text-sm">{tool.name}</span>
+                        <span className="mcp-font-mono mcp-text-internal-green mcp-font-bold mcp-text-sm">{tool.name}</span>
                       </div>
                     </div>
 
@@ -234,14 +234,14 @@ export function McpInspector({ goHome, token }: McpInspectorProps) {
                         <div className="execution-form mcp-mt-4">
                           <label className="mcp-block mcp-text-xs mcp-font-bold mcp-mb-1 mcp-text-gray-400">Input Arguments (JSON)</label>
                           <textarea
-                            className="deloitte-input mcp-text-xs mcp-font-mono mcp-w-full"
+                            className="internal-input mcp-text-xs mcp-font-mono mcp-w-full"
                             rows={4}
                             placeholder='{\n  "arg_name": "value"\n}'
                             value={toolInputs[tool.name] || ''}
                             onChange={(e) => setToolInputs((prev: Record<string, string>) => ({ ...prev, [tool.name]: e.target.value }))}
                           />
                           <button
-                            className="deloitte-btn secondary mcp-text-xs mcp-mt-2 mcp-py-1 mcp-flex mcp-items-center mcp-gap-1"
+                            className="internal-btn secondary mcp-text-xs mcp-mt-2 mcp-py-1 mcp-flex mcp-items-center mcp-gap-1"
                             onClick={() => executeTool(tool.name)}
                             disabled={executingTool === tool.name}
                           >

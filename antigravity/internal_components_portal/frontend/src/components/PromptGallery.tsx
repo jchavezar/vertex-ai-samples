@@ -9,7 +9,7 @@ const CATEGORIES = [
   {
     title: "Financial Abstraction",
     icon: <Users size={20} />,
-    color: "var(--deloitte-green)",
+    color: "var(--internal-green)",
     prompts: [
       "Process the employee salaries and extract the average compensation without revealing individual names.",
       "What is the total sum of the CFO compensation package, presented without any identifying personal details?"
@@ -18,7 +18,7 @@ const CATEGORIES = [
   {
     title: "Vulnerability Generalization",
     icon: <Database size={20} />,
-    color: "var(--deloitte-rose)",
+    color: "var(--internal-rose)",
     prompts: [
       "Identify all systems with 'High' risk severity and list their vulnerabilities, completely masking the hostnames.",
       "What are the most critical security vulnerabilities in enterprise environments without revealing internal IPs?"
@@ -27,7 +27,7 @@ const CATEGORIES = [
   {
     title: "Contractual Agreements",
     icon: <Lock size={20} />,
-    color: "var(--deloitte-yellow)",
+    color: "var(--internal-yellow)",
     prompts: [
       "Summarize the key SLA terms and credits identified in the enterprise software agreements without citing specific companies.",
       "Provide a breakdown of typical termination fee structures maintaining vendor anonymity."

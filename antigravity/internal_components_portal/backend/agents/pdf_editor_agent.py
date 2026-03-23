@@ -6,7 +6,7 @@ from google.adk.agents import Agent, LlmAgent
 from google.adk.planners import BuiltInPlanner
 
 # Direct import for local testing if needed
-# from .pwc_renderer import render_report
+# from .internal_renderer import render_report
 
 class PDFDeSynthesizer:
     """
@@ -109,10 +109,10 @@ def create_pdf_editor_agent():
 
 if __name__ == "__main__":
     # Test on the generated report
-    pdf_to_test = "test_pwc_report.pdf"
+    pdf_to_test = "test_internal_report.pdf"
     if os.path.exists(pdf_to_test):
         deserializer = PDFDeSynthesizer(pdf_to_test)
         report_json = deserializer.desynthesize()
         print(json.dumps(report_json, indent=2))
     else:
-        print(f"Error: {pdf_to_test} not found. Run pwc_renderer.py first.")
+        print(f"Error: {pdf_to_test} not found. Run internal_renderer.py first.")

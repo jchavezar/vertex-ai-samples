@@ -250,7 +250,7 @@ export const DocumentWorkspaceV2: React.FC<{ token?: string }> = ({ token }) => 
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
             {selectedFile && selectedFile.type === 'file' && (
               <button 
-                className="deloitte-btn secondary" 
+                className="internal-btn secondary" 
                 style={{ padding: '4px 12px', fontSize: '12px', display: 'flex', alignItems: 'center', gap: '6px' }}
                 onClick={async () => {
                   if (selectedFile.name.includes('_BAK_')) {
@@ -406,7 +406,7 @@ export const DocumentWorkspaceV2: React.FC<{ token?: string }> = ({ token }) => 
                     style={{ minHeight: '80px', marginBottom: '10px' }}
                   />
                   <button
-                    className="deloitte-btn"
+                    className="internal-btn"
                     style={{ width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px' }}
                     onClick={startRegenerativePipeline}
                     disabled={isProcessing || !aiPrompt}
@@ -430,17 +430,17 @@ export const DocumentWorkspaceV2: React.FC<{ token?: string }> = ({ token }) => 
                               padding: '12px',
                               display: 'flex',
                               flexDirection: 'column',
-                              borderLeft: evt.status === 'running' ? '4px solid var(--deloitte-green)' : 
+                              borderLeft: evt.status === 'running' ? '4px solid var(--internal-green)' : 
                                           evt.status === 'failed' ? '4px solid #ef4444' : '4px solid #22c55e'
                             }}>
                               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
                                 <span style={{ fontWeight: 600, fontSize: '13px', color: '#1e293b' }}>{evt.stage}</span>
-                                <span style={{ fontFamily: 'monospace', fontSize: '11px', color: evt.status === 'running' ? 'var(--deloitte-green)' : '#64748b' }}>
+                                <span style={{ fontFamily: 'monospace', fontSize: '11px', color: evt.status === 'running' ? 'var(--internal-green)' : '#64748b' }}>
                                   {evt.elapsed_ms}ms
                                 </span>
                               </div>
                               <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', color: '#64748b' }}>
-                                {evt.status === 'running' && <Loader2 size={12} className="spin" color="var(--deloitte-green)" />}
+                                {evt.status === 'running' && <Loader2 size={12} className="spin" color="var(--internal-green)" />}
                                 {evt.status === 'completed' && <CheckCircle size={12} color="#22c55e" />}
                                 {evt.status === 'failed' && <ShieldAlert size={12} color="#ef4444" />}
                                 <span style={{ textTransform: 'capitalize' }}>{evt.status}</span>
@@ -458,8 +458,8 @@ export const DocumentWorkspaceV2: React.FC<{ token?: string }> = ({ token }) => 
                   <div className="dw-fade-in" style={{ marginTop: '20px', padding: '15px', background: 'rgba(34, 197, 94, 0.05)', borderRadius: '8px', border: '1px dashed #22c55e' }}>
                     <p style={{ fontSize: '12px', marginBottom: '10px', color: '#166534', fontWeight: 600 }}>Aesthetics Evaluated & Synthesis Complete.</p>
                     <div style={{ display: 'flex', gap: '10px' }}>
-                      <button className="deloitte-btn" style={{ flex: 1, backgroundColor: '#22c55e' }} onClick={commitChanges}>Accept & Commit</button>
-                      <button className="deloitte-btn secondary" style={{ flex: 0.5 }} onClick={() => { setModifiedContent(null); setPipelineEvents([]); }}>Discard</button>
+                      <button className="internal-btn" style={{ flex: 1, backgroundColor: '#22c55e' }} onClick={commitChanges}>Accept & Commit</button>
+                      <button className="internal-btn secondary" style={{ flex: 0.5 }} onClick={() => { setModifiedContent(null); setPipelineEvents([]); }}>Discard</button>
                     </div>
                   </div>
                 )}
@@ -563,7 +563,7 @@ export const DocumentWorkspaceV2: React.FC<{ token?: string }> = ({ token }) => 
                 </h4>
                 <p style={{ margin: 0, fontSize: '13px', color: '#475569', display: 'grid', gridTemplateColumns: '80px 1fr', gap: '8px', marginBottom: '8px' }}>
                   <strong>Type:</strong> <div>Rendering Engine</div>
-                  <strong>Tools:</strong> <div><code>pwc_renderer</code> (Jinja2, WeasyPrint)</div>
+                  <strong>Tools:</strong> <div><code>internal_renderer</code> (Jinja2, WeasyPrint)</div>
                 </p>
                 <p style={{ margin: 0, fontSize: '13px', color: '#64748b', lineHeight: '1.5' }}>Executes a pixel-perfect HTML-to-PDF conversion utilizing the sanitized data payload and static asset bindings to generate the final modified document.</p>
               </div>
@@ -633,7 +633,7 @@ export const DocumentWorkspaceV2: React.FC<{ token?: string }> = ({ token }) => 
                         </span>
                       </div>
                       <button 
-                        className="deloitte-btn secondary"
+                        className="internal-btn secondary"
                         style={{ padding: '6px 12px', fontSize: '12px' }}
                         onClick={async () => {
                           setShowRestoreModal(false);

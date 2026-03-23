@@ -165,7 +165,7 @@ class SharePointMCP:
             mock_pii_doc = {
                 "id": "mock_executive_hr_001",
                 "name": "02_HR_Employee_Records_2025.pdf",
-                "webUrl": "https://pwc.sharepoint.com/mock/02_HR_Employee_Records_2025.pdf",
+                "webUrl": "https://internal.sharepoint.com/mock/02_HR_Employee_Records_2025.pdf",
                 "summary": "Executive Compensation & HR Records FY2025 (MTC). Contains sensitive employee records.",
                 "filetype": "pdf",
                 "folder": "/Shared Documents/HR_Archive",
@@ -312,7 +312,7 @@ class SharePointMCP:
                                         b = (c & 0xFF) / 255.0
                                         font_color = (r, g, b)
                                         
-                                        # Font Mapping for PwC aesthetics
+                                        # Font Mapping for Internal aesthetics
                                         raw_font = span["font"].lower()
                                         if "inter" in raw_font or "sans" in raw_font:
                                             font_name = "helv"

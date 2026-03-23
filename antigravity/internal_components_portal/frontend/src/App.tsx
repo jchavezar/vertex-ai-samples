@@ -213,7 +213,7 @@ function App() {
     try {
       // Find the grid container to capture
       const gridElement = dataSectionRef.current.querySelector(
-        ".deloitte-cards-grid",
+        ".internal-cards-grid",
       ) as HTMLElement;
       if (!gridElement) return;
 
@@ -229,18 +229,18 @@ function App() {
       const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
 
       // Add a header
-      pdf.setFillColor(134, 188, 37); // Deloitte Orange
+      pdf.setFillColor(134, 188, 37); // Internal Orange
       pdf.rect(0, 0, pdfWidth, 20, "F");
       pdf.setTextColor(255, 255, 255);
       pdf.setFontSize(16);
-      pdf.text("Deloitte Enterprise Shield Briefing", 14, 13);
+      pdf.text("Internal Enterprise Shield Briefing", 14, 13);
 
       pdf.setTextColor(100, 100, 100);
       pdf.setFontSize(10);
       pdf.text(`Generated: ${new Date().toLocaleDateString()}`, 14, 28);
 
       pdf.addImage(imgData, "PNG", 0, 35, pdfWidth, pdfHeight);
-      pdf.save("Deloitte_Enterprise_Shield_Briefing.pdf");
+      pdf.save("Internal_Enterprise_Shield_Briefing.pdf");
     } catch (error) {
       console.error("Failed to export PDF:", error);
       alert("Failed to generate the PDF briefing.");
@@ -250,13 +250,13 @@ function App() {
   };
 
   return (
-    <div className="deloitte-app">
-      {/* Deloitte Style Header */}
-      <header className="deloitte-header deloitte-header-vibrant">
-        <div className="deloitte-logo-container">
-          <span className="deloitte-logo" style={{color: "black", textTransform: "none", fontWeight: 800}}>Deloitte.</span>
+    <div className="internal-app">
+      {/* Internal Style Header */}
+      <header className="internal-header internal-header-vibrant">
+        <div className="internal-logo-container">
+          <span className="internal-logo" style={{color: "black", textTransform: "none", fontWeight: 800}}>Internal.</span>
         </div>
-        <nav className="deloitte-nav">
+        <nav className="internal-nav">
           <a
             href="#"
             className={
@@ -268,7 +268,7 @@ function App() {
               setShowTopology(false);
             }}
           >
-            Deloitte Enterprise Shield
+            Internal Enterprise Shield
           </a>
           <a
             href="#"
@@ -346,14 +346,14 @@ function App() {
             Auth Flow
           </a>
         </nav>
-        <div className="deloitte-header-right">
+        <div className="internal-header-right">
           {projectCards.length > 0 &&
             !showTopology &&
             activeAppTab === "proxy" && (
               <button
                 onClick={exportToPDF}
                 disabled={isExporting}
-                className="deloitte-btn"
+                className="internal-btn"
               style={{
                 padding: "6px 16px",
                 display: "flex",
@@ -368,7 +368,7 @@ function App() {
               </button>
             )}
 
-          <div className="deloitte-auth" style={{ display: 'flex', alignItems: 'center' }}>
+          <div className="internal-auth" style={{ display: 'flex', alignItems: 'center' }}>
             {isAuthenticated ? (
               <div className="auth-symbol">
                 <div
@@ -398,7 +398,7 @@ function App() {
 
       {/* Main Content Split */}
       {showTopology ? (
-        <div className="deloitte-topology-wrapper" style={{ overflowX: "auto" }}>
+        <div className="internal-topology-wrapper" style={{ overflowX: "auto" }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', paddingRight: '24px' }}>
             <h2>Zero-Leak Architecture Topology</h2>
             <select
@@ -408,7 +408,7 @@ function App() {
                 background: "transparent",
                 border: "1px solid rgba(134, 188, 37, 0.3)",
                 borderRadius: "4px",
-                color: "var(--deloitte-green)",
+                color: "var(--internal-green)",
                 padding: "6px 12px",
                 outline: "none",
                 cursor: "pointer",
@@ -463,12 +463,12 @@ function App() {
         ) : activeAppTab === "auth_flow" ? (
           <AuthRequestFlow onNavigateToChat={() => { setActiveAppTab("ge_flow"); setShowTopology(false); }} />
       ) : (
-            <main className="deloitte-main-wrapper" style={{ flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
+            <main className="internal-main-wrapper" style={{ flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
               {/* Chat Interface filling the right pane */}
-              <section className={`deloitte-chat-sidebar ${chatMode !== 'default' ? chatMode : ''} full-width`} style={{ margin: '0', maxWidth: '100%', width: '100%', borderLeft: 'none', height: '100%', display: 'flex', flexDirection: 'column' }}>
+              <section className={`internal-chat-sidebar ${chatMode !== 'default' ? chatMode : ''} full-width`} style={{ margin: '0', maxWidth: '100%', width: '100%', borderLeft: 'none', height: '100%', display: 'flex', flexDirection: 'column' }}>
                 <div className="chat-header">
                   <div className="chat-header-top">
-                    <h2>Deloitte Enterprise Shield</h2>
+                    <h2>Internal Enterprise Shield</h2>
                     <div className="chat-mode-controls">
                       <button 
                         className={`chat-mode-btn ${chatMode === 'default' ? 'active' : ''}`} 
@@ -512,7 +512,7 @@ function App() {
                         }}
                       ></span>
                     </p>
-                    <div style={{ fontSize: '11px', color: 'var(--deloitte-green)', opacity: 0.9, fontFamily: 'monospace', display: 'flex', gap: '16px', background: 'rgba(134,188,37,0.1)', padding: '4px 8px', borderRadius: '4px', border: '1px solid rgba(134,188,37,0.2)' }}>
+                    <div style={{ fontSize: '11px', color: 'var(--internal-green)', opacity: 0.9, fontFamily: 'monospace', display: 'flex', gap: '16px', background: 'rgba(134,188,37,0.1)', padding: '4px 8px', borderRadius: '4px', border: '1px solid rgba(134,188,37,0.2)' }}>
                       <span title="ADK Session ID">SESSION_ID: {sessionId.split('-')[0].toUpperCase()}</span>
                       <span title="Context Window Length">MEMORY: {messages.length} msg{messages.length !== 1 ? 's' : ''}</span>
                     </div>
@@ -525,7 +525,7 @@ function App() {
                         background: "transparent",
                         border: "1px solid rgba(134, 188, 37, 0.3)",
                         borderRadius: "4px",
-                        color: "var(--deloitte-green)",
+                        color: "var(--internal-green)",
                         padding: "4px 8px",
                         outline: "none",
                         cursor: "pointer",
@@ -549,7 +549,7 @@ function App() {
                         background: "transparent",
                         border: "1px solid rgba(134, 188, 37, 0.3)",
                         borderRadius: "4px",
-                        color: "var(--deloitte-green)",
+                        color: "var(--internal-green)",
                         padding: "4px 8px",
                         outline: "none",
                         cursor: "pointer",
@@ -574,7 +574,7 @@ function App() {
                         background: "transparent",
                         border: "1px solid rgba(134, 188, 37, 0.3)",
                         borderRadius: "4px",
-                        color: "var(--deloitte-green)",
+                        color: "var(--internal-green)",
                         padding: "4px 8px",
                         outline: "none",
                         cursor: "pointer",
@@ -621,11 +621,11 @@ function App() {
                                     onClick={() => setIsProjectCardsExpanded(!isProjectCardsExpanded)}
                                   >
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#fff', fontSize: '12px', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                                      <Database size={16} color="var(--deloitte-green)" /> 
-                                      <span style={{ color: 'var(--deloitte-green)' }}>GENERATED DATA CARDS ({projectCards.length})</span>
+                                      <Database size={16} color="var(--internal-green)" /> 
+                                      <span style={{ color: 'var(--internal-green)' }}>GENERATED DATA CARDS ({projectCards.length})</span>
                                     </div>
                                     <div style={{ 
-                                      color: 'var(--deloitte-green)', 
+                                      color: 'var(--internal-green)', 
                                       display: 'flex', 
                                       alignItems: 'center', 
                                       gap: '6px', 
@@ -642,7 +642,7 @@ function App() {
                                         padding: '16px',
                                         background: 'rgba(0,0,0,0.1)'
                                       }}>
-                                      <div className="deloitte-cards-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '16px' }} ref={dataSectionRef}>
+                                      <div className="internal-cards-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '16px' }} ref={dataSectionRef}>
                                         {projectCards.map((card, idx) => (
                                           <ProjectCardWidget key={idx} card={card as ProjectCardData} />
                                         ))}
@@ -657,7 +657,7 @@ function App() {
 
                         {/* Public Web Consensus Widget rendered AFTER User Message but BEFORE final assistant response */}
                         {m.role === 'user' && index === 0 && routerMode === 'all_mcp' && publicInsight && publicInsight.replace(/[█\s]/g, '').length > 0 && (
-                          <div className={`message assistant deloitte-insight-inline ${isPublicInsightStreaming ? 'deloitte-insight-streaming' : 'deloitte-insight-settled'}`} style={{ 
+                          <div className={`message assistant internal-insight-inline ${isPublicInsightStreaming ? 'internal-insight-streaming' : 'internal-insight-settled'}`} style={{ 
                               background: '#1a1a1a', 
                               border: `1px solid ${isPublicInsightStreaming ? 'rgba(134, 188, 37, 0.5)' : 'rgba(255, 255, 255, 0.1)'}`,
                               borderRadius: '12px',
@@ -736,7 +736,7 @@ function App() {
                                 VIRTUAL ANALYST: FLASH-3.1-LITE
                               </div>
                               <div style={{ 
-                                color: 'var(--deloitte-green)', 
+                                color: 'var(--internal-green)', 
                                 display: 'flex', 
                                 alignItems: 'center', 
                                 gap: '6px', 
@@ -784,10 +784,10 @@ function App() {
                           IconComponent = () => <img src="/sharepoint-logo.svg" alt="SharePoint" className="sharepoint-logo" style={{ width: 20, height: 20 }} />;
                           loadingTitle = "SharePoint MCP";
                         } else if (thoughtStatus.icon === 'shield-alert') {
-                          IconComponent = () => <ShieldAlert color="var(--deloitte-green)" size={20} />;
+                          IconComponent = () => <ShieldAlert color="var(--internal-green)" size={20} />;
                           loadingTitle = "Zero-Leak Protocol";
                         } else if (thoughtStatus.icon === 'check-circle') {
-                          IconComponent = () => <CheckCircle color="var(--deloitte-green)" size={20} />;
+                          IconComponent = () => <CheckCircle color="var(--internal-green)" size={20} />;
                           loadingTitle = "Task Complete";
                         }
                       }
@@ -824,7 +824,7 @@ function App() {
                          style={{
                            background: 'rgba(134, 188, 37, 0.1)',
                            border: '1px solid rgba(134, 188, 37, 0.3)',
-                           color: 'var(--deloitte-green)',
+                           color: 'var(--internal-green)',
                            padding: '6px 14px',
                            borderRadius: '16px',
                            fontSize: '0.8rem',
@@ -847,7 +847,7 @@ function App() {
                   <form onSubmit={handleSubmit}>
                     <textarea
                       ref={textareaRef}
-                      className="deloitte-input deloitte-textarea"
+                      className="internal-input internal-textarea"
                       value={input}
                       onChange={handleInputChange}
                       onKeyDown={(e) => {
@@ -863,7 +863,7 @@ function App() {
                     />
                     <button
                       type="submit"
-                      className="deloitte-btn"
+                      className="internal-btn"
                       disabled={isLoading}
                       onClick={(e) => {
                         if (!input.trim()) {

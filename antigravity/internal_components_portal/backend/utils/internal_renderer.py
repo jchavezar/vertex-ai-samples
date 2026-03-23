@@ -3,7 +3,7 @@ import json
 from jinja2 import Template
 from weasyprint import HTML, CSS
 
-PWC_TEMPLATE = """
+Internal_TEMPLATE = """
 <!DOCTYPE html>
 <html>
 <head>
@@ -216,7 +216,7 @@ def render_report(report_data, output_path):
             )
         processed_components.append(new_comp)
 
-    template = Template(PWC_TEMPLATE)
+    template = Template(Internal_TEMPLATE)
     html_out = template.render(
         ticker=report_data.get("ticker", "UNKNOWN"),
         title=report_data.get("title", "Investment Report"),
@@ -254,5 +254,5 @@ if __name__ == "__main__":
             }
         ]
     }
-    render_report(test_json, "test_pwc_report.pdf")
-    print("Test report saved to test_pwc_report.pdf")
+    render_report(test_json, "test_internal_report.pdf")
+    print("Test report saved to test_internal_report.pdf")
