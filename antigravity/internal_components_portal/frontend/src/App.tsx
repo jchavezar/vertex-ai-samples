@@ -159,7 +159,8 @@ function App() {
     telemetryHistory,
     setTelemetryHistory,
     currentQuery,
-    clearChat
+    clearChat,
+    sessionId
   } = useTerminalChat(effectiveTokens, selectedModel, routerMode);
   const projectCards = useDashboardStore((s) => s.projectCards);
   const [isPublicInsightExpanded, setIsPublicInsightExpanded] = useState(false);
@@ -492,24 +493,30 @@ function App() {
                       </button>
                     </div>
                   </div>
-                  <p
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "8px",
-                      marginBottom: "10px",
-                    }}
-                  >
-                    Zero-Leak Protocol Active
-                    <span
-                      className="status-indicator active"
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+                    <p
                       style={{
-                        width: "6px",
-                        height: "6px",
-                        display: "inline-block",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "8px",
+                        margin: 0
                       }}
-                    ></span>
-                  </p>
+                    >
+                      Zero-Leak Protocol Active
+                      <span
+                        className="status-indicator active"
+                        style={{
+                          width: "6px",
+                          height: "6px",
+                          display: "inline-block",
+                        }}
+                      ></span>
+                    </p>
+                    <div style={{ fontSize: '11px', color: 'var(--deloitte-green)', opacity: 0.9, fontFamily: 'monospace', display: 'flex', gap: '16px', background: 'rgba(134,188,37,0.1)', padding: '4px 8px', borderRadius: '4px', border: '1px solid rgba(134,188,37,0.2)' }}>
+                      <span title="ADK Session ID">SESSION_ID: {sessionId.split('-')[0].toUpperCase()}</span>
+                      <span title="Context Window Length">MEMORY: {messages.length} msg{messages.length !== 1 ? 's' : ''}</span>
+                    </div>
+                  </div>
                   <div style={{ display: 'flex', gap: '10px' }}>
                     <select
                       value={routerMode}

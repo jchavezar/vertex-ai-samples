@@ -214,6 +214,7 @@ export function useTerminalChat(tokens: { accessToken: string, idToken: string }
     telemetryHistory,
     setTelemetryHistory,
     currentQuery,
-    clearChat
+    clearChat,
+    sessionId
   };
 }
