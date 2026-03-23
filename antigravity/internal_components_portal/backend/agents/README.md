@@ -54,9 +54,16 @@ graph TD
     %% Post Analysis
     TelemetryLog --> AnalyticsAgent[📊 Execution Insight AI \n latency_chat_agent.py]:::insight
     User -. "Queries Telemetry" .-> AnalyticsAgent
+
+    %% Clickable Links via Absolute GitHub URLs!
+    click Router "https://github.com/jchavezar/vertex-ai-samples/blob/main/antigravity/internal_components_portal/backend/agents/docs/router.md" "Intent Router Documentation"
+    click SecurityProxy "https://github.com/jchavezar/vertex-ai-samples/blob/main/antigravity/internal_components_portal/backend/agents/docs/security_proxy.md" "Security Proxy Details"
+    click ServiceNowProxy "https://github.com/jchavezar/vertex-ai-samples/blob/main/antigravity/internal_components_portal/backend/agents/docs/servicenow_proxy.md" "ServiceNow Agent Info"
+    click PublicProxy "https://github.com/jchavezar/vertex-ai-samples/blob/main/antigravity/internal_components_portal/backend/agents/docs/public_research.md" "Public Intelligence Proxy"
+    click AnalyticsAgent "https://github.com/jchavezar/vertex-ai-samples/blob/main/antigravity/internal_components_portal/backend/agents/docs/analytics_agents.md" "Latency & Analytics Engine"
 ```
 
-> **Note on Diagram Links**: GitHub renders Mermaid diagrams inside isolated `viewscreen` sandboxes, which breaks relative markdown links. Instead of clicking the diagram, use the stylized navigation grid below!
+The diagram nodes above are fully interactive. Clicking a component navigates directly to its respective configuration file natively in GitHub!
 
 ## 🔗 The Swarm Component Grid
 
