@@ -45,6 +45,13 @@ graph TD
     %% Post Analysis
     TelemetryLog --> AnalyticsAgent[📊 Execution Insight AI \n latency_chat_agent.py]
     User -. queries telemetry .-> AnalyticsAgent
+
+    %% Clickable Links
+    click Router "docs/router.md" "Intent Router Documentation"
+    click SecurityProxy "docs/security_proxy.md" "Security Proxy Details"
+    click ServiceNowProxy "docs/servicenow_proxy.md" "ServiceNow Agent Info"
+    click PublicProxy "docs/public_research.md" "Public Intelligence Proxy"
+    click AnalyticsAgent "docs/analytics_agents.md" "Latency & Analytics Engine"
 ```
 
 ## Core Tenets
