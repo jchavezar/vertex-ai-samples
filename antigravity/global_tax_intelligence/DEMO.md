@@ -4,6 +4,16 @@ Global Tax Intelligence is an advanced, AI-driven corporate tax research methodo
 
 ---
 
+## 📈 Enhancement Matrix: Before vs. After Google AI
+
+| Capability | Previous Standard | Enhanced with Google AI |
+| :--- | :--- | :--- |
+| **Document Search** | Keyword-based matching, manual indexing | **Generative Synthesis**: Automatic layout previews and abstract summarization via Vertex AI Search. |
+| **Tax Advisory** | Static portals and manual report lookups | **Chief Tax Copilot**: Real-time multi-turn advice with live Google Search reference grounding. |
+| **Strategic Modeling** | Manual desk research & forecasting decks | **Swarm Boardroom Simulation**: Live multi-agent debate to critique restructuring scenarios dynamically. |
+
+---
+
 ## 🚀 Key Modules & Capabilities
 
 ### 1. Global Tax Dashboard
