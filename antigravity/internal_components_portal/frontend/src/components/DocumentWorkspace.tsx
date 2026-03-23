@@ -30,7 +30,7 @@ const SimpleDiff: React.FC<{ original: string; modified: string }> = ({ original
     return (
       <div className="dw-diff-viewer">
         {patches.map((p: Record<string, string>, idx: number) => (
-          <div key={idx} style={{ marginBottom: '15px', padding: '10px', background: '#f9f9f9', borderRadius: '4px', borderLeft: '3px solid var(--deloitte-green)' }}>
+          <div key={idx} style={{ marginBottom: '15px', padding: '10px', background: '#f9f9f9', borderRadius: '4px', borderLeft: '3px solid var(--internal-green)' }}>
             <div style={{ color: '#ff4d4d', textDecoration: 'line-through', fontSize: '12px', marginBottom: '4px' }}>- {p.find}</div>
             <div style={{ color: '#2e7d32', fontWeight: 'bold' }}>+ {p.replace}</div>
           </div>
@@ -310,7 +310,7 @@ export const DocumentWorkspace: React.FC<{ token?: string }> = ({ token }) => {
                     placeholder="e.g. 'Summarize the risks section', 'Redact all PII'..."
                   />
                   <button
-                    className="deloitte-btn"
+                    className="internal-btn"
                     style={{ width: '100%', marginTop: '5px' }}
                     onClick={() => handleAction()}
                     disabled={isProcessing || !aiPrompt}
@@ -325,11 +325,11 @@ export const DocumentWorkspace: React.FC<{ token?: string }> = ({ token }) => {
                 </div>
 
                 {modifiedContent && (
-                  <div className="dw-fade-in" style={{ padding: '15px', background: 'rgba(208, 74, 2, 0.05)', borderRadius: '8px', border: '1px dashed var(--deloitte-green)' }}>
+                  <div className="dw-fade-in" style={{ padding: '15px', background: 'rgba(208, 74, 2, 0.05)', borderRadius: '8px', border: '1px dashed var(--internal-green)' }}>
                     <p style={{ fontSize: '12px', marginBottom: '10px', color: '#555' }}>Ready to push these changes to SharePoint?</p>
                     <div style={{ display: 'flex', gap: '10px' }}>
-                      <button className="deloitte-btn" style={{ flex: 1 }} onClick={commitChanges}>Accept & Commit</button>
-                      <button className="deloitte-btn secondary" style={{ flex: 0.5 }} onClick={() => setModifiedContent("")}>Discard</button>
+                      <button className="internal-btn" style={{ flex: 1 }} onClick={commitChanges}>Accept & Commit</button>
+                      <button className="internal-btn secondary" style={{ flex: 0.5 }} onClick={() => setModifiedContent("")}>Discard</button>
                     </div>
                   </div>
                 )}

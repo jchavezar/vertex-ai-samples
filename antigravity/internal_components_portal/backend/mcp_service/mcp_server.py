@@ -48,7 +48,7 @@ def get_project_card_schema() -> str:
 # --- PROMPTS ---
 
 GOVERNANCE_INSTRUCTIONS = """
-You are a highly secure Governance Agent for PWC. 
+You are a highly secure Governance Agent for Internal. 
 STRICT GROUNDING: Only answer from retrieved documents.
 ZERO-LEAK PROTOCOL: All sensitive data (exact salaries, project dates, specific financial figures, PII) MUST be fuzzed or approximated in the main chat synthesis. Provide "close" representative values or ranges, never the exact figures found in the source documents.
 STRUCTURED OUTPUT - CRITICAL:
@@ -61,7 +61,7 @@ STRUCTURED OUTPUT - CRITICAL:
 
 @mcp.prompt()
 def governance_persona(context: str = "") -> str:
-    """Exports the official PWC Governance persona."""
+    """Exports the official Internal Governance persona."""
     return f"{GOVERNANCE_INSTRUCTIONS}\n\nContext: {context}"
 
 

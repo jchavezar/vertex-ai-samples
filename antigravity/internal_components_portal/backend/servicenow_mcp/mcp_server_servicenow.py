@@ -46,13 +46,17 @@ def _get_session() -> requests.Session:
 
     if auth_token:
         logger.info("[ServiceNow MCP] User OIDC JWT Bearer token detected. Bypassing OIDC mapping for developer instance and forcing Basic Auth.")
-        # session.headers.update({"Authorization": f"Bearer {auth_token}"})
-        session.auth = ("admin", "ServiceNow85!") 
-        return session
+        # Determine fallback basic auth from environment if mapping fails:
+        fallback_user = os.environ.get("SERVICENOW_BASIC_AUTH_USER")
+        fallback_pass = os.environ.get("SERVICENOW_BASIC_AUTH_PASS")
+        if fallback_user and fallback_pass:
+            session.auth = (fallback_user, fallback_pass) 
+            return session
+        else:
+            raise ValueError("SERVICENOW_BASIC_AUTH_USER and SERVICENOW_BASIC_AUTH_PASS must be set for fallback auth.")
         
-    logger.warning("No valid ServiceNow Authentication credentials found. Falling back to Basic Auth for demo.")
-    session.auth = ("admin", "ServiceNow85!")
-    return session
+    logger.error("No valid ServiceNow Authentication credentials mapped. Access Denied.")
+    raise ValueError("Access Denied: ServiceNow requires a valid OIDC Token.")
 
 def _get_api_url(table_name: str) -> str:
     """Builds the full Table API URL."""

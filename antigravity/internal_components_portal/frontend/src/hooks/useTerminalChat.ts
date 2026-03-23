@@ -62,7 +62,7 @@ export function useTerminalChat(tokens: { accessToken: string, idToken: string }
   const [telemetryConfig, setTelemetryConfig] = useState<TelemetryConfig | null>(null);
   const [telemetryHistory, setTelemetryHistory] = useState<TelemetrySession[]>([]);
   const [currentQuery, setCurrentQuery] = useState<string>('');
-  const [sessionId] = useState<string>(() => crypto.randomUUID());
+  const [sessionId, setSessionId] = useState<string>(() => crypto.randomUUID());
 
   const apiEndpoint = import.meta.env.VITE_BACKEND_URL || (typeof window !== 'undefined' && window.location.hostname !== 'localhost'
     ? 'https://mcp-sharepoint-server-REDACTED_PROJECT_NUMBER.us-central1.run.app/api/chat/stream'
@@ -114,6 +114,10 @@ export function useTerminalChat(tokens: { accessToken: string, idToken: string }
               pulse: p.pulse !== false
             });
             foundStatus = true;
+          }
+
+          if (p.type === 'vertex_session' && p.session_id) {
+            setSessionId(p.session_id as string);
           }
 
           if (p.type === 'telemetry' && !foundTelemetry) {

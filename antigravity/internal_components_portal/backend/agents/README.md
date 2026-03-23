@@ -70,7 +70,7 @@ The diagram nodes above are fully interactive. Clicking a component navigates di
 | Agent Component | Core Function | Associated Documentation |
 | :--- | :--- | :--- |
 | **⚡ Intent Router** | Real-time classification & multiplexing | [docs/router.md](docs/router.md) |
-| **🛡️ Security Proxy** | Zero-Leak PWC internal SharePoint search | [docs/security_proxy.md](docs/security_proxy.md) |
+| **🛡️ Security Proxy** | Zero-Leak Internal internal SharePoint search | [docs/security_proxy.md](docs/security_proxy.md) |
 | **🛠️ ServiceNow Proxy** | Ticketing & Incident management | [docs/servicenow_proxy.md](docs/servicenow_proxy.md) |
 | **🌐 Public Intelligence** | High-velocity public web browsing | [docs/public_research.md](docs/public_research.md) |
 | **📊 Analytics Engine** | Telemetry execution JSON analysis | [docs/analytics_agents.md](docs/analytics_agents.md) |

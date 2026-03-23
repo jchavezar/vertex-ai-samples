@@ -34,11 +34,11 @@ logger = logging.getLogger(__name__)
 from agents.agent import get_agent_with_mcp_tools, get_action_agent_with_mcp_tools, get_servicenow_agent_with_mcp_tools
 
 from agents.router_agent import get_router_agent
-from agents.ge_search_branch import stream_ge_search
+# Removed: from agents.ge_search_branch import stream_ge_search
 from agents.redaction_agent import generalize_content
 from utils.protocol import AIStreamProtocol
 from agents.pdf_editor_agent import PDFDeSynthesizer, create_pdf_editor_agent
-from utils.pwc_renderer import render_report
+from utils.internal_renderer import render_report
 from pipelines.regenerative_pipeline import run_regenerative_pipeline
 from mcp_service.mcp_sharepoint import SharePointMCP
 from utils.auth_context import set_user_token, set_user_id_token
@@ -114,8 +114,20 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-session_service = InMemorySessionService()
+import os
+from google.adk.sessions.in_memory_session_service import InMemorySessionService
+from google.adk.sessions.vertex_ai_session_service import VertexAiSessionService
 
+agent_engine_id = os.environ.get("ROUTER_REASONING_ENGINE_ID")
+if agent_engine_id:
+    logger.info(f"Using VertexAiSessionService with Reasoning Engine ID: {agent_engine_id}")
+    session_service = VertexAiSessionService(
+        location="us-central1",
+        agent_engine_id=agent_engine_id.split("/")[-1]
+    )
+else:
+    logger.info("Using InMemorySessionService fallback.")
+    session_service = InMemorySessionService()
 class ChatRequest(BaseModel):
     messages: list[dict]
     model: str = "gemini-3-flash-preview"
@@ -157,6 +169,22 @@ async def verify_jwt(request: Request) -> Tuple[str, Dict[str, Any]]:
     # We return the primary token (access_token) and the payload
     # The id_token is also retrieved from headers elsewhere
     return token, payload
+async def get_or_create_session(app_name, sess_id):
+    import uuid
+    if sess_id:
+        try:
+            session = await session_service.get_session(app_name=app_name, user_id="default_user", session_id=sess_id)
+            if session:
+                return session
+        except Exception:
+            pass
+    try:
+        # Vertex does not allow user-provided session_id
+        return await session_service.create_session(app_name=app_name, user_id="default_user")
+    except Exception:
+        # Fallback for InMemory
+        return await session_service.create_session(app_name=app_name, user_id="default_user", session_id=sess_id or str(uuid.uuid4()))
+
 
 async def _chat_stream(messages: list, model_name: str, token: str = None, id_token: str = None, session_id: str = None):
     # Set the token in the current context (essential for async streaming tasks)
@@ -198,10 +226,9 @@ async def _chat_stream(messages: list, model_name: str, token: str = None, id_to
     pipe_start = start_time
 
     has_yielded_text = False
-    import uuid
-    current_request_id = str(uuid.uuid4())
-    sess_id = f"sess_{current_request_id}"
-    pub_sess_id = f"pub_{current_request_id}"
+    session_id_to_use = session_id if session_id else str(uuid.uuid4())
+    sess_id = f"sh-{session_id_to_use}"
+    pub_sess_id = f"pb-{session_id_to_use}"
 
     # --- LATENCY OPTIMIZATION PROFILE ---
     optimization_params = {
@@ -219,9 +246,7 @@ async def _chat_stream(messages: list, model_name: str, token: str = None, id_to
     reasoning_steps.append(f"[SYSTEM] OPTIMIZATION PROFILE:\n{json.dumps(optimization_params, indent=2)}")
     
     # Ensure session exists
-    session = await session_service.get_session(app_name="PWC_Security_Proxy", user_id="default_user", session_id=sess_id)
-    if not session:
-        session = await session_service.create_session(app_name="PWC_Security_Proxy", user_id="default_user", session_id=sess_id)
+    session = await get_or_create_session("internal-security-proxy", sess_id)
 
     import asyncio
     from agents.public_agent import get_public_agent
@@ -232,9 +257,7 @@ async def _chat_stream(messages: list, model_name: str, token: str = None, id_to
     msg_obj = types.Content(role="user", parts=[types.Part.from_text(text=prompt)])
 
     # 1. Initialize Public Agent immediately (Prior to Discovery)
-    pub_session = await session_service.get_session(app_name="Public_Research_Proxy", user_id="default_user", session_id=pub_sess_id)
-    if not pub_session:
-        pub_session = await session_service.create_session(app_name="Public_Research_Proxy", user_id="default_user", session_id=pub_sess_id)
+    pub_session = await get_or_create_session("public-research-proxy", pub_sess_id)
     
     # POPULATE ADK SESSIONS WITH FRONTEND TRUTH HISTORY
     if len(messages) > 1:
@@ -323,8 +346,8 @@ async def _chat_stream(messages: list, model_name: str, token: str = None, id_to
                 latency_metrics.append({"step": "[SYSTEM-ATOMIC] Official MCP Handshake", "duration_s": round(discovery_time, 2)})
                 try:
                     agent, exit_stack = await discovery_task
-                    sp_runner = Runner(app_name="PWC_Security_Proxy", agent=agent, session_service=session_service)
-                    asyncio.create_task(stream_agent(sp_runner, sess_id, "sharepoint"))
+                    runner = Runner(app_name="internal-security-proxy", agent=agent, session_service=session_service)
+                    asyncio.create_task(stream_agent(runner, sess_id, "sharepoint"))
                     sharepoint_started = True
                     llm_start_time["sharepoint"] = time.time() # Start tracking first LLM call
                     active_streams += 1
@@ -381,7 +404,7 @@ async def _chat_stream(messages: list, model_name: str, token: str = None, id_to
                 
                 # ADK Events for enterprise trace
                 if tag == "sharepoint":
-                    adk_events_trace.append({"source": "PWC_Security_Proxy", "event": edata})
+                    adk_events_trace.append({"source": "Internal_Security_Proxy", "event": edata})
                     push_smart_telemetry("security_proxy", edata)
                 
                 # DEBUG DUMP FOR PUBLIC EVENT
@@ -578,11 +601,10 @@ async def _ge_mcp_chat_stream(messages: list, model_name: str, token: str = None
 
     # --- SESSION STATE OVERRIDE ---
     active_route = None
-    session_id_to_use = session_id or f"router_{uuid.uuid4()}"
-    user_session = await session_service.get_session(app_name="PWC_Router", user_id="default_user", session_id=session_id_to_use)
-    if not user_session:
-        user_session = await session_service.create_session(app_name="PWC_Router", user_id="default_user", session_id=session_id_to_use)
-    else:
+    session_id_to_use = session_id or f"router-{uuid.uuid4()}"
+    user_session = await get_or_create_session("Internal_Router", session_id_to_use)
+    if user_session:
+        yield AIStreamProtocol.data({"type": "vertex_session", "session_id": user_session.id})
         active_route = user_session.state.get("current_route")
     
     # Check if the user is explicitly cancelling
@@ -617,7 +639,7 @@ async def _ge_mcp_chat_stream(messages: list, model_name: str, token: str = None
             }
             reasoning_steps.append(f"[Router API EVIDENCE]\n{json.dumps(api_evidence, indent=2)}")
             
-            router_runner = Runner(app_name="PWC_Router", agent=router_agent, session_service=session_service)
+            router_runner = Runner(app_name="Internal_Router", agent=router_agent, session_service=session_service)
             
             history_str = ""
             if len(messages) > 1:
@@ -627,9 +649,9 @@ async def _ge_mcp_chat_stream(messages: list, model_name: str, token: str = None
             
             msg_obj = types.Content(role="user", parts=[types.Part.from_text(text=router_prompt)])
             
-            async for event in router_runner.run_async(user_id="default_user", session_id=session_id_to_use, new_message=msg_obj):
+            async for event in router_runner.run_async(user_id="default_user", session_id=user_session.id, new_message=msg_obj):
                 edata = event.model_dump(mode='json')
-                adk_events_trace.append({"source": "PWC_Router", "event": edata})
+                adk_events_trace.append({"source": "Internal_Router", "event": edata})
                 push_smart_telemetry("router", edata)
                 author = edata.get("author", "unknown")
                 content = edata.get("content", {})
@@ -682,44 +704,11 @@ async def _ge_mcp_chat_stream(messages: list, model_name: str, token: str = None
         
     if intent == "SEARCH":
         raw_answer = ""
-        # Pass the adk_events_trace to GE search so it can append traces
-        async for chunk in stream_ge_search(messages, adk_events_trace, id_token):
-            # If the chunk is telemetry from GE, we merge it
-            if isinstance(chunk, str) and '"type": "telemetry"' in chunk:
-                try:
-                    # The chunk is formatted as "2:[...]" for data chunks in AIStreamProtocol
-                    payload_str = chunk[2:] # Strip "2:"
-                    chunk_arr = json.loads(payload_str)
-                    
-                    if isinstance(chunk_arr, list) and len(chunk_arr) > 0:
-                        chunk_data = chunk_arr[0]
-                    else:
-                        chunk_data = chunk_arr
-                        
-                    # Merge reasoning and metrics
-                    ge_reasoning = chunk_data.get("reasoning", [])
-                    ge_metrics = chunk_data.get("data", [])
-                    
-                    combined_reasoning = reasoning_steps + ge_reasoning
-                    combined_metrics = latency_metrics + ge_metrics
-                    
-                    yield AIStreamProtocol.data({
-                        "type": "telemetry", 
-                        "data": combined_metrics, 
-                        "reasoning": combined_reasoning, 
-                        "tokens": tokens,
-                        "adk_events": adk_events_trace,
-                        "config": optimization_params
-                    })
-                    continue # Don't yield the original telemetry chunk as-is
-                except Exception as e:
-                    logger.error(f"Telemetry merge failed: {e}")
-                    pass
-            
-            # Stream the unredacted text directly
-            yield chunk
-        
-        yield AIStreamProtocol.data({"type": "status", "message": "Search completed.", "icon": "check-circle", "pulse": False})
+        # The GE Search Branch is not deployed yet or has missing dependencies.
+        # Fallback to direct user communication to unblock deployment.
+        error_msg = "\n**GE Search Branch Unavailable**\nThe GE Search feature is currently unavailable. Ask me about ServiceNow!"
+        yield AIStreamProtocol.text(error_msg)
+        yield AIStreamProtocol.data({"type": "status", "message": "Search completed with warnings.", "icon": "alert-triangle", "pulse": False})
     
     elif intent == "SERVICENOW":
         yield AIStreamProtocol.data({"type": "status", "message": "Intent Detected: ServiceNow. Routing to ServiceNow Agent...", "icon": "zap", "pulse": True})
@@ -727,13 +716,11 @@ async def _ge_mcp_chat_stream(messages: list, model_name: str, token: str = None
         reasoning_steps.append("[Router] Dispatching to ServiceNow Runner with Standard ServiceNow MCP tools...")
         yield AIStreamProtocol.data({"type": "telemetry", "data": latency_metrics, "reasoning": reasoning_steps, "tokens": tokens, "adk_events": adk_events_trace})
         
-        sess_id = f"sno_{session_id_to_use}"
-        session = await session_service.get_session(app_name="PWC_ServiceNow_Proxy", user_id="default_user", session_id=sess_id)
-        if not session:
-            session = await session_service.create_session(app_name="PWC_ServiceNow_Proxy", user_id="default_user", session_id=sess_id)
+        sess_id = f"sno-{session_id_to_use}"
+        session = await get_or_create_session("internal-servicenow-proxy", sess_id)
             
-            # Seed history only on initial creation to avoid duplicating the history
-            if len(messages) > 1:
+        # Seed history
+        if len(messages) > 1:
                 for msg in messages[:-1]:
                     role = "user" if msg.get("role") == "user" else "model"
                     part = types.Part.from_text(text=msg.get("content", ""))
@@ -743,13 +730,13 @@ async def _ge_mcp_chat_stream(messages: list, model_name: str, token: str = None
             
         try:
             agent, exit_stack = await get_servicenow_agent_with_mcp_tools(token=token, id_token=id_token, model_name=model_name, enable_google_search=True)
-            runner = Runner(app_name="PWC_ServiceNow_Proxy", agent=agent, session_service=session_service)
+            runner = Runner(app_name="internal-servicenow-proxy", agent=agent, session_service=session_service)
             msg_obj = types.Content(role="user", parts=[types.Part.from_text(text=prompt)])
             
             queue = asyncio.Queue()
             async def stream_sno():
                 try:
-                    async for event in runner.run_async(user_id="default_user", session_id=sess_id, new_message=msg_obj):
+                    async for event in runner.run_async(user_id="default_user", session_id=session.id, new_message=msg_obj):
                         await queue.put({"event": event, "type": "data"})
                 except Exception as e:
                     logger.exception(f"ServiceNow Task failed: {e}")
@@ -771,7 +758,7 @@ async def _ge_mcp_chat_stream(messages: list, model_name: str, token: str = None
                     
                 evt = msg_q["event"]
                 edata = evt.model_dump(mode='json')
-                adk_events_trace.append({"source": "PWC_ServiceNow_Proxy", "event": edata})
+                adk_events_trace.append({"source": "Internal_ServiceNow_Proxy", "event": edata})
                 push_smart_telemetry("servicenow", edata)
                 usage = edata.get("usage_metadata")
                 if usage:
@@ -824,10 +811,8 @@ async def _ge_mcp_chat_stream(messages: list, model_name: str, token: str = None
         reasoning_steps.append("[Router] Dispatching to Runner with MCP tools...")
         yield AIStreamProtocol.data({"type": "telemetry", "data": latency_metrics, "reasoning": reasoning_steps, "tokens": tokens, "adk_events": adk_events_trace})
         
-        sess_id = f"action_{uuid.uuid4()}"
-        session = await session_service.get_session(app_name="PWC_Action_Proxy", user_id="default_user", session_id=sess_id)
-        if not session:
-            session = await session_service.create_session(app_name="PWC_Action_Proxy", user_id="default_user", session_id=sess_id)
+        sess_id = f"act-{session_id_to_use}"
+        session = await get_or_create_session("internal-action-proxy", sess_id)
             
         # POPULATE ADK SESSION WITH FRONTEND TRUTH HISTORY
         if len(messages) > 1:
@@ -841,14 +826,14 @@ async def _ge_mcp_chat_stream(messages: list, model_name: str, token: str = None
             
         try:
             agent, exit_stack = await get_action_agent_with_mcp_tools(token=token, id_token=id_token, model_name=model_name)
-            runner = Runner(app_name="PWC_Action_Proxy", agent=agent, session_service=session_service)
+            runner = Runner(app_name="internal-action-proxy", agent=agent, session_service=session_service)
             msg_obj = types.Content(role="user", parts=[types.Part.from_text(text=prompt)])
             
             queue = asyncio.Queue()
             async def stream_action():
                 try:
                     # new_message correctly handles the final user prompt through the runner
-                    async for event in runner.run_async(user_id="default_user", session_id=sess_id, new_message=msg_obj):
+                    async for event in runner.run_async(user_id="default_user", session_id=session.id, new_message=msg_obj):
                         await queue.put({"event": event, "type": "data"})
                 except Exception as e:
                     logger.exception(f"Action Task failed: {e}")
@@ -871,7 +856,7 @@ async def _ge_mcp_chat_stream(messages: list, model_name: str, token: str = None
                     
                 evt = msg_q["event"]
                 edata = evt.model_dump(mode='json')
-                adk_events_trace.append({"source": "PWC_Action_Proxy", "event": edata})
+                adk_events_trace.append({"source": "Internal_Action_Proxy", "event": edata})
                 push_smart_telemetry("action_agent", edata)
                 usage = edata.get("usage_metadata")
                 if usage:
@@ -1183,7 +1168,7 @@ async def propose_modification(request: Request, data: ModificationRequest):
         else:
             # Standard Text Modification
             model_id = "gemini-2.5-flash"
-            system_prompt = "You are a professional PwC document editor. Your task is to modify the provided document content based on the user's instructions. Return ONLY the fully modified content. Do not include any explanations or meta-talk."
+            system_prompt = "You are a professional Internal document editor. Your task is to modify the provided document content based on the user's instructions. Return ONLY the fully modified content. Do not include any explanations or meta-talk."
             user_msg = f"DOCUMENT CONTENT:\n{content_res}\n\nUSER MODIFICATION PROMPT: {data.prompt}"
             
             response = client.models.generate_content(

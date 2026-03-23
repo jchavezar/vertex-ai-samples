@@ -2,16 +2,16 @@
   display: flex;
   width: 100%;
   height: calc(100vh - 60px);
-  background-color: var(--deloitte-light-grey);
-  color: var(--deloitte-black);
+  background-color: var(--internal-light-grey);
+  color: var(--internal-black);
   font-family: inherit;
   overflow: hidden;
 }
 
 .inspector-sidebar {
   width: 300px;
-  background-color: var(--deloitte-bg-main);
-  border-right: 1px solid var(--deloitte-border);
+  background-color: var(--internal-bg-main);
+  border-right: 1px solid var(--internal-border);
   padding: 20px;
   display: flex;
   flex-direction: column;
@@ -29,7 +29,7 @@
   margin: 0;
   font-size: 1.1rem;
   font-weight: 600;
-  color: var(--deloitte-black);
+  color: var(--internal-black);
 }
 
 .control-group {
@@ -40,14 +40,14 @@
 
 .control-group label {
   font-size: 0.8rem;
-  color: var(--deloitte-grey);
+  color: var(--internal-grey);
   font-weight: 500;
 }
 
 .control-group input {
-  background-color: var(--deloitte-bg-main);
-  border: 1px solid var(--deloitte-border);
-  color: var(--deloitte-black);
+  background-color: var(--internal-bg-main);
+  border: 1px solid var(--internal-border);
+  color: var(--internal-black);
   padding: 8px 12px;
   border-radius: 4px;
   font-family: monospace;
@@ -56,12 +56,12 @@
 
 .control-group input:focus {
   outline: none;
-  border-color: var(--deloitte-green);
+  border-color: var(--internal-green);
   box-shadow: 0 0 0 2px rgba(208, 74, 2, 0.2);
 }
 
 .control-group input:disabled {
-  background-color: var(--deloitte-light-grey);
+  background-color: var(--internal-light-grey);
   opacity: 0.6;
   cursor: not-allowed;
 }
@@ -81,13 +81,13 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  background-color: var(--deloitte-bg-main);
+  background-color: var(--internal-bg-main);
 }
 
 .pane-header {
   padding: 15px 20px;
-  background-color: var(--deloitte-light-grey);
-  border-bottom: 1px solid var(--deloitte-border);
+  background-color: var(--internal-light-grey);
+  border-bottom: 1px solid var(--internal-border);
   display: flex;
   align-items: center;
 }
@@ -98,7 +98,7 @@
   align-items: center;
   gap: 8px;
   font-size: 1rem;
-  color: var(--deloitte-black);
+  color: var(--internal-black);
 }
 
 .pane-content {
@@ -111,7 +111,7 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  border-bottom: 2px solid var(--deloitte-border);
+  border-bottom: 2px solid var(--internal-border);
   overflow: hidden;
 }
 
@@ -119,7 +119,7 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  background-color: var(--deloitte-bg-main);
+  background-color: var(--internal-bg-main);
   overflow: hidden;
 }
 
@@ -128,7 +128,7 @@
   justify-content: center;
   align-items: center;
   height: 100%;
-  color: var(--deloitte-grey);
+  color: var(--internal-grey);
   font-style: italic;
 }
 
@@ -140,33 +140,33 @@
 }
 
 .tool-card {
-  background-color: var(--deloitte-bg-main);
-  border: 1px solid var(--deloitte-border);
+  background-color: var(--internal-bg-main);
+  border: 1px solid var(--internal-border);
   border-radius: 6px;
   overflow: hidden;
-  box-shadow: var(--deloitte-shadow-sm);
+  box-shadow: var(--internal-shadow-sm);
 }
 
 .tool-card-header {
   padding: 12px 15px;
-  background-color: var(--deloitte-light-grey);
+  background-color: var(--internal-light-grey);
   cursor: pointer;
   user-select: none;
   transition: background-color 0.2s;
 }
 
 .tool-card-header:hover {
-  background-color: var(--deloitte-border);
+  background-color: var(--internal-border);
 }
 
 .tool-card-body {
   padding: 20px;
-  border-top: 1px solid var(--deloitte-border);
+  border-top: 1px solid var(--internal-border);
 }
 
 .schema-viewer {
-  background-color: var(--deloitte-light-grey);
-  border: 1px solid var(--deloitte-border);
+  background-color: var(--internal-light-grey);
+  border: 1px solid var(--internal-border);
   border-radius: 4px;
   padding: 10px;
   margin-bottom: 15px;
@@ -174,7 +174,7 @@
 
 .schema-title {
   font-size: 0.75rem;
-  color: var(--deloitte-grey);
+  color: var(--internal-grey);
   margin-bottom: 8px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -187,25 +187,25 @@
   font-family: monospace;
 }
 
-.mcp-inspector-container textarea.deloitte-input {
-  background-color: var(--deloitte-bg-main);
-  border: 1px solid var(--deloitte-border);
-  color: var(--deloitte-black);
+.mcp-inspector-container textarea.internal-input {
+  background-color: var(--internal-bg-main);
+  border: 1px solid var(--internal-border);
+  color: var(--internal-black);
   resize: vertical;
   padding: 8px;
   border-radius: 4px;
 }
 
-.mcp-inspector-container textarea.deloitte-input:focus {
+.mcp-inspector-container textarea.internal-input:focus {
   outline: none;
-  border-color: var(--deloitte-green);
+  border-color: var(--internal-green);
   box-shadow: 0 0 0 2px rgba(208, 74, 2, 0.2);
 }
 
 .back-btn {
-  background: var(--deloitte-bg-main);
-  border: 1px solid var(--deloitte-border);
-  color: var(--deloitte-grey);
+  background: var(--internal-bg-main);
+  border: 1px solid var(--internal-border);
+  color: var(--internal-grey);
   padding: 6px 12px;
   border-radius: 4px;
   cursor: pointer;
@@ -219,8 +219,8 @@
 }
 
 .back-btn:hover {
-  background-color: var(--deloitte-light-grey);
-  color: var(--deloitte-black);
+  background-color: var(--internal-light-grey);
+  color: var(--internal-black);
   border-color: #ccc;
 }
 
@@ -239,9 +239,9 @@
 .log-entry {
   padding: 10px;
   border-radius: 4px;
-  background-color: var(--deloitte-light-grey);
+  background-color: var(--internal-light-grey);
   border-left: 3px solid transparent;
-  border: 1px solid var(--deloitte-border);
+  border: 1px solid var(--internal-border);
 }
 
 .log-info {
@@ -249,12 +249,12 @@
 }
 
 .log-error {
-  border-left-color: var(--deloitte-red);
+  border-left-color: var(--internal-red);
   background-color: rgba(224, 48, 30, 0.05);
 }
 
 .log-request {
-  border-left-color: var(--deloitte-rose);
+  border-left-color: var(--internal-rose);
 }
 
 .log-response {
@@ -282,12 +282,12 @@
 
 .badge-error {
   background-color: rgba(224, 48, 30, 0.1);
-  color: var(--deloitte-red);
+  color: var(--internal-red);
 }
 
 .badge-request {
   background-color: rgba(235, 140, 0, 0.1);
-  color: var(--deloitte-rose);
+  color: var(--internal-rose);
 }
 
 .badge-response {
@@ -296,24 +296,24 @@
 }
 
 .log-message {
-  color: var(--deloitte-grey);
+  color: var(--internal-grey);
   line-height: 1.4;
 }
 
 .log-info .log-message {
-  color: var(--deloitte-grey);
+  color: var(--internal-grey);
 }
 
 .log-error .log-message {
-  color: var(--deloitte-red);
+  color: var(--internal-red);
 }
 
 .log-request .log-message {
-  color: var(--deloitte-black);
+  color: var(--internal-black);
 }
 
 .log-response .log-message {
-  color: var(--deloitte-black);
+  color: var(--internal-black);
 }
 
 .mcp-w-full {
@@ -357,15 +357,15 @@
 }
 
 .mcp-text-gray-400 {
-  color: var(--deloitte-grey);
+  color: var(--internal-grey);
 }
 
 .mcp-text-gray-500 {
   color: #adb5bd;
 }
 
-.mcp-text-deloitte-green {
-  color: var(--deloitte-green);
+.mcp-text-internal-green {
+  color: var(--internal-green);
 }
 
 .mcp-flex {
@@ -415,24 +415,24 @@
 .inspector-panel {
   display: flex;
   flex-direction: column;
-  background: var(--deloitte-bg-main);
-  border: 1px solid var(--deloitte-border);
+  background: var(--internal-bg-main);
+  border: 1px solid var(--internal-border);
   border-radius: 8px;
   overflow: hidden;
-  box-shadow: var(--deloitte-shadow-sm);
+  box-shadow: var(--internal-shadow-sm);
 }
 
 .panel-header {
   padding: 12px 15px;
-  background: var(--deloitte-light-grey);
-  border-bottom: 1px solid var(--deloitte-border);
+  background: var(--internal-light-grey);
+  border-bottom: 1px solid var(--internal-border);
 }
 
 .panel-header h3 {
   margin: 0;
   font-size: 14px;
   font-weight: 600;
-  color: var(--deloitte-black);
+  color: var(--internal-black);
 }
 
 .panel-content {
@@ -446,7 +446,7 @@
   width: 24px;
   height: 24px;
   border: 2px solid rgba(208, 74, 2, 0.1);
-  border-top-color: var(--deloitte-green);
+  border-top-color: var(--internal-green);
   border-radius: 50%;
   animation: spinner 0.8s linear infinite;
 }

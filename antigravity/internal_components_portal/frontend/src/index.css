@@ -1,22 +1,22 @@
 @import url('https://fonts.googleapis.com/css2?family=Georgia&family=Inter:wght@300;400;600&display=swap');
 
 :root {
-  --deloitte-green: #86BC25;
-    --deloitte-green-bright: #A0CE4E;
-    --deloitte-black-accent: #000000;
-    --deloitte-green-alt: #86BC25;
-    --deloitte-black: #1a1a1a;
-    --deloitte-grey: #404040;
-  --deloitte-light-grey: #f8f9fa;
-    --deloitte-border: rgba(0, 0, 0, 0.08);
-    --deloitte-bg-main: #ffffff;
-    --deloitte-bg-hero: #f4f7f0;
-    --deloitte-shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-    --deloitte-shadow-md: 0 12px 24px -6px rgba(0, 0, 0, 0.08);
-    --deloitte-radius: 20px;
+  --internal-green: #86BC25;
+    --internal-green-bright: #A0CE4E;
+    --internal-black-accent: #000000;
+    --internal-green-alt: #86BC25;
+    --internal-black: #1a1a1a;
+    --internal-grey: #404040;
+  --internal-light-grey: #f8f9fa;
+    --internal-border: rgba(0, 0, 0, 0.08);
+    --internal-bg-main: #ffffff;
+    --internal-bg-hero: #f4f7f0;
+    --internal-shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    --internal-shadow-md: 0 12px 24px -6px rgba(0, 0, 0, 0.08);
+    --internal-radius: 20px;
   
-    --deloitte-glass: rgba(255, 255, 255, 0.7);
-      --deloitte-glass-border: rgba(255, 255, 255, 0.6);
+    --internal-glass: rgba(255, 255, 255, 0.7);
+      --internal-glass-border: rgba(255, 255, 255, 0.6);
     
       --font-serif: "Georgia", "Times New Roman", Times, serif;
       --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
@@ -37,7 +37,7 @@
 
 body {
   background-color: #FDFDFD;
-    color: var(--deloitte-black);
+    color: var(--internal-black);
   font-family: var(--font-sans);
   line-height: 1.5;
   overflow-x: hidden;
@@ -45,16 +45,16 @@ body {
 }
 
 /* Layout: Sidebar + Main Content */
-.deloitte-app {
+.internal-app {
   display: flex;
   height: 100vh;
   width: 100vw;
   overflow: hidden;
-  background-color: var(--deloitte-light-grey);
+  background-color: var(--internal-light-grey);
 }
 
 /* Header transformed into Left Sidebar */
-.deloitte-header {
+.internal-header {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -62,7 +62,7 @@ body {
   padding: var(--spacing-lg);
   width: 260px;
   height: 100vh;
-  background: var(--deloitte-black);
+  background: var(--internal-black);
   color: white;
   position: static;
   box-shadow: 2px 0 10px rgba(0,0,0,0.1);
@@ -70,17 +70,17 @@ body {
   transition: all 0.3s ease;
 }
 
-.deloitte-header:hover {
-  background: var(--deloitte-black);
+.internal-header:hover {
+  background: var(--internal-black);
 }
 
-.deloitte-logo-container {
+.internal-logo-container {
   flex-shrink: 0;
   margin-bottom: var(--spacing-xl);
   width: 100%;
 }
 
-.deloitte-logo {
+.internal-logo {
   font-family: var(--font-sans);
   font-size: 2rem;
   font-weight: 800;
@@ -88,14 +88,14 @@ body {
   letter-spacing: -1px;
 }
 
-.deloitte-nav {
+.internal-nav {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-sm);
   width: 100%;
 }
 
-.deloitte-nav a {
+.internal-nav a {
   text-decoration: none;
   color: rgba(255,255,255,0.7);
   font-weight: 600;
@@ -106,15 +106,15 @@ body {
   display: block;
 }
 
-.deloitte-nav a:hover,
-.deloitte-nav a.active {
+.internal-nav a:hover,
+.internal-nav a.active {
   color: white;
   background: rgba(255,255,255,0.1);
   transform: translateX(4px);
-  border-left: 4px solid var(--deloitte-green);
+  border-left: 4px solid var(--internal-green);
 }
 
-.deloitte-header-right {
+.internal-header-right {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -126,35 +126,35 @@ body {
 }
 
 @media (max-width: 768px) {
-  .deloitte-header {
+  .internal-header {
     width: 60px;
     padding: var(--spacing-md) var(--spacing-sm);
   }
-  .deloitte-nav a {
+  .internal-nav a {
     font-size: 0;
     padding: 12px 0;
     text-align: center;
   }
-  .deloitte-logo {
+  .internal-logo {
     font-size: 1rem;
   }
 }
 
 /* Layout */
-.deloitte-main-wrapper {
+.internal-main-wrapper {
   display: flex;
-  flex-direction: row; /* Chat on the left, adjacent to Deloitte header, data on the right */
+  flex-direction: row; /* Chat on the left, adjacent to Internal header, data on the right */
   flex-grow: 1;
   height: 100vh;
   padding: var(--spacing-xl);
   gap: var(--spacing-xl);
-  background-color: var(--deloitte-light-grey);
+  background-color: var(--internal-light-grey);
   position: relative;
   overflow: hidden;
 }
 
 /* Draggable Sidebar Resizer */
-.deloitte-sidebar-resizer {
+.internal-sidebar-resizer {
   width: 16px;
   margin: 0 4px; /* effectively giving an overall gap of 24px between panels */
   cursor: col-resize;
@@ -166,19 +166,19 @@ body {
   border-radius: 4px;
 }
 
-.deloitte-sidebar-resizer:hover, .deloitte-sidebar-resizer.active {
+.internal-sidebar-resizer:hover, .internal-sidebar-resizer.active {
   background-color: rgba(94, 174, 253, 0.1);
 }
 
 .resizer-handle {
   width: 4px;
   height: 48px;
-  background-color: var(--deloitte-border);
+  background-color: var(--internal-border);
   border-radius: 4px;
   transition: all 0.2s;
 }
 
-.deloitte-sidebar-resizer:hover .resizer-handle, .deloitte-sidebar-resizer.active .resizer-handle {
+.internal-sidebar-resizer:hover .resizer-handle, .internal-sidebar-resizer.active .resizer-handle {
   background-color: #5eaefd;
   box-shadow: 0 0 8px rgba(94, 174, 253, 0.4);
 }
@@ -201,8 +201,8 @@ body {
 }
 
 .table-overlay-content {
-  background: var(--deloitte-bg-main);
-  border-radius: var(--deloitte-radius);
+  background: var(--internal-bg-main);
+  border-radius: var(--internal-radius);
   box-shadow: 0 24px 48px rgba(0, 0, 0, 0.2);
   width: 90vw;
   max-width: 1000px;
@@ -211,7 +211,7 @@ body {
   display: flex;
   flex-direction: column;
   animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-  border: 1px solid var(--deloitte-border);
+  border: 1px solid var(--internal-border);
 }
 
 @keyframes fadeIn {
@@ -225,11 +225,11 @@ body {
 }
 
 /* Sidebar Chat Board Style */
-.deloitte-chat-sidebar {
+.internal-chat-sidebar {
   /* Dynamic sizing */
   width: 420px; 
   background: white;
-  border-radius: var(--deloitte-radius);
+  border-radius: var(--internal-radius);
   box-shadow: 0 10px 40px rgba(0,0,0,0.08); /* elevated shadow */
   display: flex;
   flex-direction: column;
@@ -242,19 +242,19 @@ body {
   margin-left: 0;
 }
 
-.deloitte-chat-sidebar.resizing {
+.internal-chat-sidebar.resizing {
   transition: none; /* Instant feedback */
   user-select: none;
   pointer-events: none; /* Prevents iframes or text from interfering during drag */
 }
 
 /* Wide mode now takes up mostly the right side */
-.deloitte-chat-sidebar.wide {
+.internal-chat-sidebar.wide {
   width: 600px;
 }
 
 /* Overlay brings it to center */
-.deloitte-chat-sidebar.overlay {
+.internal-chat-sidebar.overlay {
   position: absolute;
   top: 50%;
   left: 50%;
@@ -267,7 +267,7 @@ body {
 }
 
 @media (max-width: 1024px) {
-  .deloitte-chat-sidebar.wide {
+  .internal-chat-sidebar.wide {
     width: 600px;
     max-width: 45vw;
   }
@@ -275,7 +275,7 @@ body {
 
 .chat-header {
   padding: var(--spacing-lg) var(--spacing-xl);
-  border-bottom: 1px solid var(--deloitte-border);
+  border-bottom: 1px solid var(--internal-border);
   background: linear-gradient(to bottom, #fff, #fafafa);
   display: flex;
   flex-direction: column;
@@ -298,7 +298,7 @@ body {
 .chat-mode-btn {
   background: transparent;
   border: none;
-  color: var(--deloitte-grey);
+  color: var(--internal-grey);
   cursor: pointer;
   padding: 4px;
   border-radius: 4px;
@@ -310,11 +310,11 @@ body {
 
 .chat-mode-btn:hover {
   background: rgba(0, 0, 0, 0.05);
-  color: var(--deloitte-green);
+  color: var(--internal-green);
 }
 
 .chat-mode-btn.active {
-  color: var(--deloitte-green);
+  color: var(--internal-green);
   background: rgba(134, 188, 37, 0.1);
 }
 
@@ -326,7 +326,7 @@ body {
 
 .chat-header p {
   font-size: 0.75rem;
-    color: var(--deloitte-green);
+    color: var(--internal-green);
     font-weight: 600;
     letter-spacing: 1px;
 }
@@ -351,7 +351,7 @@ body {
 
 .message.user {
   background: linear-gradient(135deg, rgba(255,255,255,1) 0%, rgba(250,250,252,1) 100%);
-  color: var(--deloitte-black);
+  color: var(--internal-black);
   align-self: flex-end;
   border-bottom-right-radius: 4px;
   box-shadow: 0 8px 16px -4px rgba(0, 0, 0, 0.06);
@@ -359,36 +359,36 @@ body {
 }
 
 .message.assistant {
-  background-color: var(--deloitte-light-grey);
-  color: var(--deloitte-black);
+  background-color: var(--internal-light-grey);
+  color: var(--internal-black);
   align-self: flex-start;
   border-bottom-left-radius: 4px;
-  border: 1px solid var(--deloitte-border);
-  border-left: 3px solid var(--deloitte-green);
+  border: 1px solid var(--internal-border);
+  border-left: 3px solid var(--internal-green);
   box-shadow: 3px 4px 12px rgba(0, 0, 0, 0.03);
 }
 
 .message.assistant a {
-  color: var(--deloitte-green);
+  color: var(--internal-green);
   text-decoration: underline;
   font-weight: 600;
 }
 
 .message.assistant a:hover {
-  color: var(--deloitte-black-accent);
+  color: var(--internal-black-accent);
 }
 
 .chat-input-area {
   padding: var(--spacing-lg) var(--spacing-xl);
-  background: var(--deloitte-bg-main);
-  border-top: 1px solid var(--deloitte-border);
+  background: var(--internal-bg-main);
+  border-top: 1px solid var(--internal-border);
 }
 
 .chat-input-area form {
   display: flex;
   align-items: flex-end;
-    background: var(--deloitte-light-grey);
-    border: 1px solid var(--deloitte-border);
+    background: var(--internal-light-grey);
+    border: 1px solid var(--internal-border);
     border-radius: 24px;
     padding: 8px 8px 8px 16px;
     transition: all 0.2s ease;
@@ -396,18 +396,18 @@ body {
   
   .chat-input-area form:focus-within {
     background: #fff;
-    border-color: var(--deloitte-green);
+    border-color: var(--internal-green);
     box-shadow: 0 0 0 3px rgba(134, 188, 37, 0.1);
 }
 
-.deloitte-input {
+.internal-input {
   flex-grow: 1;
   border: none;
     background: transparent;
     padding: 8px 0;
   font-family: var(--font-sans);
   font-size: 0.95rem;
-  color: var(--deloitte-black);
+  color: var(--internal-black);
     outline: none;
     resize: none;
     overflow-y: auto;
@@ -415,13 +415,13 @@ body {
     line-height: 1.5;
 }
 
-.deloitte-input:focus {
+.internal-input:focus {
   outline: none;
   box-shadow: none;
 }
 
-.deloitte-btn {
-  background: var(--deloitte-green);
+.internal-btn {
+  background: var(--internal-green);
   color: white;
   border: none;
   border-radius: 24px;
@@ -435,20 +435,20 @@ body {
     margin-bottom: 2px;
 }
 
-.deloitte-btn:hover:not(:disabled) {
-  background: var(--deloitte-black-accent);
+.internal-btn:hover:not(:disabled) {
+  background: var(--internal-black-accent);
   transform: translateY(-1px);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
-.deloitte-btn:disabled {
+.internal-btn:disabled {
   background: #ccc;
   cursor: not-allowed;
   box-shadow: none;
   transform: none;
 }
 /* Data Board */
-.deloitte-data-panel {
+.internal-data-panel {
   flex-grow: 1;
   background-color: transparent;
   display: flex;
@@ -457,19 +457,19 @@ body {
   padding-right: var(--spacing-md);
 }
 
-.deloitte-empty-hero {
+.internal-empty-hero {
   display: flex;
   height: 100%;
-    border-radius: var(--deloitte-radius);
+    border-radius: var(--internal-radius);
     overflow: hidden;
     background: white;
-    box-shadow: var(--deloitte-shadow-md);
-    border: 1px solid var(--deloitte-border);
+    box-shadow: var(--internal-shadow-md);
+    border: 1px solid var(--internal-border);
 }
 
 .hero-text-box {
   flex: 1.2;
-  background-color: var(--deloitte-bg-hero);
+  background-color: var(--internal-bg-hero);
   padding: var(--spacing-xxl);
   display: flex;
   flex-direction: column;
@@ -491,7 +491,7 @@ body {
   }
   
   /* Board Cards */
-  .deloitte-cards-grid {
+  .internal-cards-grid {
     padding: var(--spacing-md);
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(450px, 1fr));
@@ -499,12 +499,12 @@ body {
     align-items: start;
   }
   
-  .deloitte-card {
+  .internal-card {
     background: white;
-    border-radius: var(--deloitte-radius);
+    border-radius: var(--internal-radius);
     padding: var(--spacing-xl);
-    box-shadow: var(--deloitte-shadow-md);
-    border: 1px solid var(--deloitte-border);
+    box-shadow: var(--internal-shadow-md);
+    border: 1px solid var(--internal-border);
     transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease;
   position: relative;
   overflow: hidden;
@@ -524,22 +524,22 @@ body {
   }
   
   /* Staggered entry for cards */
-  .deloitte-cards-grid> :nth-child(1) {
+  .internal-cards-grid> :nth-child(1) {
     animation-delay: 0.1s;
 }
 
-.deloitte-cards-grid> :nth-child(2) {
+.internal-cards-grid> :nth-child(2) {
   animation-delay: 0.2s;
 }
 
-.deloitte-cards-grid> :nth-child(3) {
+.internal-cards-grid> :nth-child(3) {
   animation-delay: 0.3s;
 }
 
-.deloitte-cards-grid> :nth-child(4) {
+.internal-cards-grid> :nth-child(4) {
   animation-delay: 0.4s;
 }
-.deloitte-card:hover {
+.internal-card:hover {
   transform: translateY(-8px) scale(1.01);
     box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.12);
 }
@@ -555,48 +555,48 @@ body {
 }
 
 .industry-tag {
-  color: var(--deloitte-black);
+  color: var(--internal-black);
   font-weight: 600;
 }
 
 .industry-tag+.doc-id::before {
   content: '|';
   margin-right: var(--spacing-md);
-  color: var(--deloitte-border);
+  color: var(--internal-border);
 }
 .doc-id {
-  color: var(--deloitte-grey);
+  color: var(--internal-grey);
 }
 
 .card-footer.metrics {
   margin-top: var(--spacing-xl);
   padding-top: var(--spacing-lg);
-  border-top: 1px solid var(--deloitte-border);
+  border-top: 1px solid var(--internal-border);
   display: flex;
     flex-wrap: wrap;
       gap: var(--spacing-sm);
 }
 
-.deloitte-card::before {
+.internal-card::before {
   content: '';
   position: absolute;
   top: 0;
   left: 0;
   width: 6px;
   height: 100%;
-  background: var(--deloitte-green);
+  background: var(--internal-green);
 }
 
 /* Masked Data Styling */
 .masked-data {
   display: inline-block;
   background: rgba(134, 188, 37, 0.08);
-  border: 1px dashed var(--deloitte-green);
+  border: 1px dashed var(--internal-green);
   padding: 0 6px;
   border-radius: 4px;
   font-family: 'Space Mono', monospace;
   font-size: 0.85em;
-  color: var(--deloitte-green);
+  color: var(--internal-green);
   margin: 0 2px;
 }
 
@@ -605,7 +605,7 @@ body {
   font-weight: 800;
   font-size: 1.6rem;
   margin-bottom: var(--spacing-xl);
-  color: var(--deloitte-black);
+  color: var(--internal-black);
 }
 
 .info-block h3 {
@@ -630,9 +630,9 @@ body {
     font-size: 0.85rem;
     font-weight: 600;
     border: 1px solid #eaeaea;
-    color: var(--deloitte-black);
+    color: var(--internal-black);
 }
-.deloitte-auth {
+.internal-auth {
   display: flex;
   align-items: center;
   gap: 12px;
@@ -644,7 +644,7 @@ body {
   align-items: center;
   gap: 8px;
   background-color: white;
-  color: var(--deloitte-black);
+  color: var(--internal-black);
   border: none;
   padding: 8px 16px;
   border-radius: 6px;
@@ -657,7 +657,7 @@ body {
 }
 
 .login-btn:hover {
-  background-color: var(--deloitte-green);
+  background-color: var(--internal-green);
   color: white;
   transform: translateY(-1px);
 }
@@ -694,13 +694,13 @@ body {
 .user-name {
   font-size: 0.85rem;
   font-weight: 500;
-  color: var(--deloitte-light-gray);
+  color: var(--internal-light-gray);
 }
 
 .logout-btn {
   background: transparent;
   border: none;
-  color: var(--deloitte-green);
+  color: var(--internal-green);
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -718,10 +718,10 @@ body {
 .redacted-halo-box {
   margin-top: var(--spacing-lg);
   padding: var(--spacing-md);
-  border-radius: var(--deloitte-radius);
+  border-radius: var(--internal-radius);
   background: rgba(0, 0, 0, 0.05);
   /* very light red */
-  border: 1px dashed var(--deloitte-black-accent);
+  border: 1px dashed var(--internal-black-accent);
   box-shadow: 0 0 15px rgba(0, 0, 0, 0.15);
   position: relative;
   z-index: 1;
@@ -734,7 +734,7 @@ body {
   left: -2px;
   right: -2px;
   bottom: -2px;
-  border-radius: calc(var(--deloitte-radius) + 2px);
+  border-radius: calc(var(--internal-radius) + 2px);
   background: linear-gradient(45deg, rgba(0, 0, 0, 0.3), transparent, rgba(0, 0, 0, 0.3));
   z-index: -1;
   filter: blur(4px);
@@ -758,7 +758,7 @@ body {
   display: flex;
   align-items: center;
   gap: var(--spacing-sm);
-  color: var(--deloitte-black-accent);
+  color: var(--internal-black-accent);
   font-weight: 700;
   font-size: 0.75rem;
   letter-spacing: 1px;
@@ -773,9 +773,9 @@ body {
 }
 
 .redacted-pill {
-  background: var(--deloitte-bg-main);
+  background: var(--internal-bg-main);
   border: 1px solid rgba(0, 0, 0, 0.4);
-  color: var(--deloitte-black-accent);
+  color: var(--internal-black-accent);
   padding: 4px 10px;
   border-radius: 20px;
   font-size: 0.75rem;
@@ -790,7 +790,7 @@ body {
 }
 
 a.doc-id {
-  color: var(--deloitte-green);
+  color: var(--internal-green);
   text-decoration: none;
   transition: all 0.2s ease;
   word-break: break-all;
@@ -803,9 +803,9 @@ a.doc-id:hover {
 }
 
 /* Topology View Styles */
-.deloitte-topology-wrapper {
+.internal-topology-wrapper {
   padding: 60px 40px;
-  background: var(--deloitte-bg-main);
+  background: var(--internal-bg-main);
   min-height: calc(100vh - 60px);
   display: flex;
   flex-direction: column;
@@ -813,8 +813,8 @@ a.doc-id:hover {
   overflow-y: auto;
 }
 
-.deloitte-topology-wrapper h2 {
-  color: var(--deloitte-green);
+.internal-topology-wrapper h2 {
+  color: var(--internal-green);
   margin-bottom: 40px;
   font-size: 2rem;
   text-transform: uppercase;
@@ -847,7 +847,7 @@ a.doc-id:hover {
   text-align: center;
   width: 250px;
   border: 1px solid #e0e0e0;
-  border-top: 4px solid var(--deloitte-green);
+  border-top: 4px solid var(--internal-green);
   transition: transform 0.2s ease;
   position: relative;
 }
@@ -857,8 +857,8 @@ a.doc-id:hover {
 }
 
 .topology-node.secure {
-  border-color: var(--deloitte-black-accent);
-  border-top-color: var(--deloitte-black-accent);
+  border-color: var(--internal-black-accent);
+  border-top-color: var(--internal-black-accent);
   background: rgba(0, 0, 0, 0.02);
 }
 
@@ -887,13 +887,13 @@ a.doc-id:hover {
 }
 
 .node-detail {
-  background: var(--deloitte-light-grey);
+  background: var(--internal-light-grey);
   padding: 4px 8px;
   border-radius: 4px;
   font-size: 0.75rem;
   font-family: monospace;
-  color: var(--deloitte-grey);
-  border: 1px solid var(--deloitte-border);
+  color: var(--internal-grey);
+  border: 1px solid var(--internal-border);
   margin-top: auto;
 }
 
@@ -1080,17 +1080,17 @@ a.doc-id:hover {
 }
 
 /* Premium Loading State Refinement */
-.deloitte-loading-state .spinner {
+.internal-loading-state .spinner {
   width: 50px;
   height: 50px;
   border: 3px solid rgba(134, 188, 37, 0.1);
-  border-top-color: var(--deloitte-green);
+  border-top-color: var(--internal-green);
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
   box-shadow: 0 0 15px rgba(134, 188, 37, 0.2);
 }
 
-.deloitte-loading-state h3 {
+.internal-loading-state h3 {
   font-family: 'Georgia', serif;
   font-size: 1.5rem;
   letter-spacing: -0.5px;
@@ -1113,7 +1113,7 @@ a.doc-id:hover {
 }
 
 /* Staggered entry for cards */
-.deloitte-card {
+.internal-card {
   animation: card-slide-up 0.6s cubic-bezier(0.16, 1, 0.3, 1) backwards;
 }
 
@@ -1129,24 +1129,24 @@ a.doc-id:hover {
   }
 }
 
-.deloitte-cards-grid> :nth-child(1) {
+.internal-cards-grid> :nth-child(1) {
   animation-delay: 0.1s;
 }
 
-.deloitte-cards-grid> :nth-child(2) {
+.internal-cards-grid> :nth-child(2) {
   animation-delay: 0.2s;
 }
 
-.deloitte-cards-grid> :nth-child(3) {
+.internal-cards-grid> :nth-child(3) {
   animation-delay: 0.3s;
 }
 
-.deloitte-cards-grid> :nth-child(4) {
+.internal-cards-grid> :nth-child(4) {
   animation-delay: 0.4s;
 }
 
 /* Glassmorphism Intensity */
-.deloitte-glass-heavy {
+.internal-glass-heavy {
   background: rgba(255, 255, 255, 0.8);
   backdrop-filter: blur(30px) saturate(200%);
   border: 1px solid rgba(255, 255, 255, 0.4);
@@ -1252,11 +1252,11 @@ a.doc-id:hover {
 .text-uppercase { text-transform: uppercase; }
 .italic { font-style: italic; }
 
-/* Colors (Using PWC Tokens) */
-.text-deloitte-orange { color: var(--deloitte-green); }
-.text-deloitte-grey { color: var(--deloitte-grey); }
+/* Colors (Using Internal Tokens) */
+.text-internal-orange { color: var(--internal-green); }
+.text-internal-grey { color: var(--internal-grey); }
 .text-white { color: white; }
-.bg-deloitte-orange { background-color: var(--deloitte-green); }
+.bg-internal-orange { background-color: var(--internal-green); }
 
 /* Visibility & Layers */
 .hidden { display: none; }
@@ -1283,7 +1283,7 @@ a.doc-id:hover {
 .discovery-pill {
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(15px);
-  border: 1px solid var(--deloitte-green);
+  border: 1px solid var(--internal-green);
   padding: 16px 28px;
   border-radius: 40px;
   display: flex;
@@ -1309,7 +1309,7 @@ a.doc-id:hover {
 .premium-table-wrapper {
   overflow-x: auto;
   margin: 16px 0;
-  border: 1px solid var(--deloitte-glass-border);
+  border: 1px solid var(--internal-glass-border);
   border-radius: 8px;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
   background: transparent;
@@ -1324,7 +1324,7 @@ a.doc-id:hover {
 
 .premium-thead {
   background: rgba(134, 188, 37, 0.05); /* very subtle orange tint */
-  border-bottom: 2px solid var(--deloitte-green);
+  border-bottom: 2px solid var(--internal-green);
   color: inherit;
 }
 
@@ -1337,7 +1337,7 @@ a.doc-id:hover {
 
 .premium-td {
   padding: 14px 20px;
-  border-bottom: 1px solid var(--deloitte-glass-border);
+  border-bottom: 1px solid var(--internal-glass-border);
   font-size: 0.9rem;
   color: inherit;
   opacity: 0.9;
@@ -1353,7 +1353,7 @@ a.doc-id:hover {
 }
 
 .sharepoint-icon-wrapper svg {
-  color: var(--deloitte-green);
+  color: var(--internal-green);
   animation: pulse-logo 2s ease-in-out infinite alternate;
 }
 /* Public Web Consensus Loading Transition Animation */
@@ -1363,13 +1363,13 @@ a.doc-id:hover {
   100% { box-shadow: 0 0 15px rgba(94, 174, 253, 0.1); border-color: rgba(94, 174, 253, 0.2); }
 }
 
-.deloitte-insight-streaming {
+.internal-insight-streaming {
   animation: pulseInsightGlow 3s infinite ease-in-out;
   transform: translateY(2vh) scale(1.01);
   transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.deloitte-insight-settled {
+.internal-insight-settled {
   transform: translateY(0) scale(1);
   transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
 }
@@ -1436,7 +1436,7 @@ a:hover {
   filter: brightness(1.2);
 }
 
-/* Bullet points in PWC */
+/* Bullet points in Internal */
 .card-content ul {
   list-style: none;
   padding-left: 0;
@@ -1455,7 +1455,7 @@ a:hover {
   color: #FB923C; /* Changed from #5eaefd to match theme better */
   font-weight: bold;
 }
-.deloitte-chat-sidebar.full-width {
+.internal-chat-sidebar.full-width {
   flex-grow: 1;
   width: auto;
   max-width: none;
