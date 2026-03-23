@@ -1,0 +1,189 @@
+.ge-flow-wrapper {
+  flex: 1;
+  height: 100%;
+  background-color: #121212;
+  display: flex;
+  flex-direction: column;
+}
+
+.ge-flow-header {
+  padding: 20px 30px;
+  background: linear-gradient(90deg, #1e1e1e 0%, #151515 100%);
+  border-bottom: 1px solid #333;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.ge-flow-header h2 {
+  margin: 0;
+  color: #fff;
+  font-size: 22px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.ge-flow-header p {
+  margin: 5px 0 0 0;
+  color: #a0a0a0;
+  font-size: 13px;
+}
+
+.ge-flow-container {
+  flex: 1;
+  position: relative;
+}
+
+/* Custom Node Styles */
+.react-flow__node-customNode {
+  background: #1e1e1e;
+  border: 1px solid #333;
+  border-radius: 8px;
+  padding: 15px;
+  color: #fff;
+  min-width: 250px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+  transition: all 0.3s ease;
+}
+
+.react-flow__node-customNode:hover {
+  border-color: #86bc25; /* Internal green */
+  box-shadow: 0 10px 30px rgba(134, 188, 37, 0.2);
+  transform: translateY(-2px);
+}
+
+.react-flow__node-customNode.highlight {
+  border-color: #86bc25;
+  box-shadow: 0 0 20px rgba(134, 188, 37, 0.4);
+}
+
+.node-icon-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  margin-bottom: 12px;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.node-icon-wrapper.green { color: #86bc25; background: rgba(134, 188, 37, 0.1); }
+.node-icon-wrapper.blue { color: #3b82f6; background: rgba(59, 130, 246, 0.1); }
+.node-icon-wrapper.purple { color: #8b5cf6; background: rgba(139, 92, 246, 0.1); }
+.node-icon-wrapper.orange { color: #f97316; background: rgba(249, 115, 22, 0.1); }
+.node-icon-wrapper.cyan { color: #06b6d4; background: rgba(6, 182, 212, 0.1); }
+.node-icon-wrapper.pink { color: #ec4899; background: rgba(236, 72, 153, 0.1); }
+.node-icon-wrapper.yellow { color: #eab308; background: rgba(234, 179, 8, 0.1); }
+
+.node-title {
+  font-size: 15px;
+  font-weight: 600;
+  margin: 0 0 5px 0;
+  color: #fff;
+}
+
+.node-subtitle {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #86bc25;
+  margin: 0 0 8px 0;
+  font-weight: 700;
+}
+
+.node-desc {
+  font-size: 12px;
+  color: #a0a0a0;
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* React Flow Built-in Overrides for Dark Mode */
+.react-flow__background {
+  background-color: #0a0a0a;
+}
+
+.react-flow__controls {
+  background: #1e1e1e;
+  border: 1px solid #333;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.react-flow__controls-button {
+  background: transparent;
+  border-bottom: 1px solid #333;
+  color: #fff;
+  fill: #fff;
+}
+
+.react-flow__controls-button:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.react-flow__minimap {
+  background: #1e1e1e;
+  border: 1px solid #333;
+  border-radius: 8px;
+}
+
+.react-flow__minimap-mask {
+  fill: rgba(0, 0, 0, 0.7);
+}
+
+.react-flow__minimap-node {
+  fill: #86bc25;
+}
+
+/* Hover Code Snippet Overlay */
+.ge-code-overlay {
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+  width: 450px;
+  max-width: calc(100% - 40px);
+  background: rgba(18, 18, 18, 0.95);
+  border: 1px solid #333;
+  border-left: 4px solid #86bc25;
+  border-radius: 8px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.7);
+  z-index: 1000;
+  overflow: hidden;
+  backdrop-filter: blur(10px);
+}
+
+.ge-code-overlay-header {
+  padding: 10px 15px;
+  background: #1e1e1e;
+  border-bottom: 1px solid #333;
+  font-size: 13px;
+  color: #a0a0a0;
+}
+
+.ge-code-overlay-header strong {
+  color: #fff;
+  font-weight: 600;
+}
+
+.ge-code-block {
+  margin: 0;
+  padding: 15px;
+  font-family: 'Consolas', 'Courier New', monospace;
+  font-size: 12px;
+  line-height: 1.5;
+  color: #d4d4d4;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+.dw-fade-in {
+  animation: dwFadeIn 0.2s ease-out;
+}
+
+@keyframes dwFadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}

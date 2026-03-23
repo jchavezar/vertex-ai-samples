@@ -1,0 +1,41 @@
+# Use the official Python image
+FROM python:3.12-slim
+
+# Set environment variables
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+ENV PORT=8080
+ENV PYTHONPATH="/app:/app/mcp_service"
+
+# Set working directory
+WORKDIR /app
+
+# Install system dependencies for MarkItDown and PyMuPDF
+RUN apt-get update && apt-get install -y \
+    libgl1 \
+    libglib2.0-0 \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install python dependencies
+RUN pip install --no-cache-dir \
+    fastmcp \
+    requests \
+    pyjwt \
+    markitdown \
+    pymupdf \
+    python-dotenv \
+    google-genai \
+    pydantic \
+    starlette \
+    uvicorn
+
+# Copy the server files
+# We need the parent backend structure for imports to work
+COPY . .
+
+# Expose the port
+EXPOSE 8080
+
+# Command to run the SSE server
+# Note: Pointing to the specialized entry point
+CMD ["python", "mcp_service/mcp_server_sharepoint_sse.py"]

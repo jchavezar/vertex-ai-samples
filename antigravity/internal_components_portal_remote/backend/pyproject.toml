@@ -1,0 +1,43 @@
+[project]
+name = "backend"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12.9"
+dependencies = [
+    "fastapi>=0.129.0",
+    "fastmcp>=3.1.0",
+    "google-adk>=1.27.2",
+    "google-genai>=1.68.0",
+    "httpx>=0.28.1",
+    "markitdown[all]>=0.1.4",
+    "msal>=1.34.0",
+    "pydantic>=2.12.5",
+    "python-dotenv>=1.2.1",
+    "pymupdf>=1.24.2",
+    "sse-starlette>=3.2.0",
+    "uvicorn>=0.40.0",
+    "weasyprint>=68.1",
+    "jinja2>=3.1.6",
+    "markdown>=3.10.2",
+    "matplotlib>=3.10.8",
+    "playwright>=1.58.0",
+    "nexus-telemetry",
+    "cloudpickle>=3.1.2",
+    "google-cloud-aiplatform>=1.142.0",
+    "aiohttp>=3.13.3",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=9.0.2",
+    "pytest-asyncio>=1.3.0",
+]
+
+[tool.uv.workspace]
+members = [
+    "playwright_test",
+]
+
+[tool.uv.sources]
+nexus-telemetry = { path = "nexus_telemetry" }
