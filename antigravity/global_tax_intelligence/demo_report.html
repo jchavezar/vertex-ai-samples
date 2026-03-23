@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Global Tax Intelligence - AI Demo Walkthrough</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Space+Grotesk:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0d1117;
+            --card-bg: rgba(22, 27, 34, 0.7);
+            --accent-primary: #00A3A1; /* KPMG Teal */
+            --accent-secondary: #00338D; /* KPMG Blue */
+            --text-main: #f0f6fc;
+            --text-sub: #8b949e;
+            --border-color: rgba(240, 246, 252, 0.1);
+            --gradient-1: linear-gradient(135deg, #00338D 0%, #00A3A1 100%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            line-height: 1.6;
+            overflow-x: hidden;
+            background-image: 
+                radial-gradient(ellipse at top right, rgba(0, 163, 161, 0.05), transparent),
+                radial-gradient(ellipse at bottom left, rgba(0, 51, 141, 0.08), transparent);
+        }
+
+        header {
+            padding: 4rem 2rem;
+            text-align: center;
+            border-bottom: 1px solid var(--border-color);
+            background: linear-gradient(rgba(0,0,0,0.4), rgba(13,17,23,1));
+            backdrop-filter: blur(10px);
+        }
+
+        h1 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.02em;
+        }
+
+        .subtitle {
+            font-size: 1.25rem;
+            color: var(--text-sub);
+            max-width: 600px;
+            margin: 0 auto 2rem;
+        }
+
+        .badge {
+            background: rgba(0, 163, 161, 0.1);
+            border: 1px solid var(--accent-primary);
+            color: var(--accent-primary);
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            display: inline-block;
+            margin-bottom: 1.5rem;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+        }
+
+        main {
+            max-width: 1100px;
+            margin: 3rem auto;
+            padding: 0 2rem;
+        }
+
+        section {
+            margin-bottom: 4rem;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 2.5rem;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+            backdrop-filter: blur(12px);
+            transition: transform 0.3s ease;
+        }
+
+        section:hover {
+            transform: translateY(-5px);
+            border-color: rgba(0, 163, 161, 0.3);
+        }
+
+        h2 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            color: var(--accent-primary);
+        }
+
+        h2::before {
+            content: '';
+            display: block;
+            width: 4px;
+            height: 24px;
+            background: var(--gradient-1);
+            border-radius: 4px;
+        }
+
+        p {
+            color: rgba(240, 246, 252, 0.85);
+            margin-bottom: 1.5rem;
+            font-size: 1.05rem;
+        }
+
+        .media-container {
+            width: 100%;
+            border-radius: 12px;
+            overflow: hidden;
+            margin: 2rem 0;
+            background: #161b22;
+            border: 1px solid rgba(255,255,255,0.05);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+        }
+
+        img, video {
+            width: 100%;
+            height: auto;
+            display: block;
+            transition: scale 0.3s ease;
+        }
+
+        .captions {
+            text-align: center;
+            font-size: 0.9rem;
+            color: var(--text-sub);
+            margin-top: -1rem;
+            margin-bottom: 2rem;
+            font-style: italic;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .grid-item {
+            background: rgba(255, 255, 255, 0.02);
+            padding: 1.5rem;
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.05);
+            height: 100%;
+        }
+
+        .grid-item h3 {
+            color: var(--text-main);
+            margin-bottom: 0.75rem;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .grid-item h3::before {
+            content: '✦';
+            color: var(--accent-primary);
+        }
+
+        .grid-item p {
+            font-size: 0.95rem;
+            color: var(--text-sub);
+            margin-bottom: 0;
+        }
+
+        footer {
+            text-align: center;
+            padding: 3rem;
+            border-top: 1px solid var(--border-color);
+            color: var(--text-sub);
+            font-size: 0.9rem;
+            background: rgba(0,0,0,0.2);
+        }
+
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="badge">ALPHA PILOT</div>
+        <h1>Global Tax Intelligence</h1>
+        <p class="subtitle">An advanced AI-driven tax research methodology and copilot designed for corporate leadership, navigated with real-time Vertex AI Search grounding.</p>
+    </header>
+
+    <main>
+
+        <section id="dashboard">
+            <h2>Strategic Tax Dashboard</h2>
+            <p>The centralized control center integrates real-world regulatory impacts into actionable metrics. A sleek, high-end dashboard mimics visual responsive layout tools making analytical synthesis highly interpretable. It infuses real-time updates seamlessly on cross-border exposure thresholds.</p>
+            
+            <div class="media-container">
+                <img src="docs/dashboard.png" alt="Strategic Tax Dashboard Main View">
+            </div>
+            <p class="captions">Figure 1: Corporate dark-mode dashboard showcasing Live Strategy metrics panel nodes.</p>
+        </section>
+
+        <section id="copilot">
+            <h2>Chief Tax Gemini</h2>
+            <p>The **Chief Tax Copilot** acts as an elite advisor specialized navigating corporate restructuring structures, using multi-modal lookup loops grounded in **Google Search Grounding**. This ensures replies remain accurate referencing live dynamic changes like Pillar Two deployment dates.</p>
+
+            <div class="grid">
+                <div class="grid-item">
+                    <h3>Search Grounding</h3>
+                    <p>Anchor-backed validation verifies correct references against live legislative bodies preventing hallucinations.</p>
+                </div>
+                <div class="grid-item">
+                    <h3>Layout Aware</h3>
+                    <p>Recognizes structured reporting formats parsing correctly on multi-turn loops.</p>
+                </div>
+                <div class="grid-item">
+                    <h3>Persona-Driven</h3>
+                    <p>Formulated keeping rigid enterprise guidelines giving CFO-facing tone.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="search">
+            <h2>Vertex AI Search Synthesis</h2>
+            <p>Utilizing powerful multi-tiered layouts layout systems, the search synthesis module evaluates corpora datasets streaming modular previews representing critical reference targets without manual context evaluation.</p>
+
+            <div class="media-container">
+                <img src="docs/search.webp" alt="Document Layout Search Interaction Views">
+            </div>
+            <p class="captions">Figure 2: Layout search summary outputs supporting background dynamic parsing previews.</p>
+        </section>
+
+        <section id="recording">
+            <h2>Interaction Walkthrough</h2>
+            <p>Watch the interactive dashboard, streaming execution setup, and responsive node controls in traversal sequence using multi-turn loops:</p>
+            
+            <div class="media-container">
+                <img src="docs/demo_recording.webp" alt="Interactive Walkthrough Sequence Animation">
+            </div>
+            <p class="captions">Figure 3: Scroll animation showing full landing dashboard tree and floating agent interactions.</p>
+        </section>
+
+    </main>
+
+    <footer>
+        <p>Built with Google Vertex AI & Framer Motion for the KPMG Strategic Suite. Powered by Gemini.</p>
+    </footer>
+
+</body>
+</html>
