@@ -55,7 +55,6 @@ graph TD
     %% Post Analysis
     TelemetryLog --> AnalyticsAgent[📊 Execution Insight AI \n latency_chat_agent.py]:::insight
     User -. "Queries Telemetry" .-> AnalyticsAgent
-```
 
     %% Clickable Links via Absolute GitHub URLs!
     click Router "https://github.com/jchavezar/vertex-ai-samples/blob/main/antigravity/internal_components_portal/backend/agents/docs/router.md" "Intent Router Documentation"
