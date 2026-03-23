@@ -1,0 +1,8 @@
+google-adk==1.27.2
+google-genai==1.68.0
+google-cloud-aiplatform==1.142.0
+pydantic>=2.10.0
+cloudpickle>=3.1.2
+fastapi>=0.129.0
+uvicorn>=0.40.0
+anyio>=4.12.1
