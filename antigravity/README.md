@@ -185,6 +185,22 @@
       <a href="./observability_nexus/">ACCESS_TERMINAL &rarr;</a>
     </td>
   </tr>
+  <!-- ROW 11: INTERNAL PORTAL LOCAL -->
+  <tr>
+    <td width="50%" valign="top">
+      <img src="assets/header_hub.svg" width="100%" />
+      <br/><br/>
+      <strong>PROJECT: INTERNAL_COMPONENTS_PORTAL_LOCAL</strong><br/>
+      Sovereign developer interface for advanced component experimentation. Features isolated port mapping (8011/5181) and direct neural session debugging. <br/>
+      <br/>
+      <img src="assets/portal_local_sharepoint.png" width="45%" border="1" />
+      <img src="assets/portal_local_servicenow.png" width="45%" border="1" />
+      <br/><br/>
+      <a href="./internal_components_portal_local/">ACCESS_TERMINAL &rarr;</a>
+    </td>
+    <td width="50%" valign="top">
+    </td>
+  </tr>
 </table>
 
 <br/>
