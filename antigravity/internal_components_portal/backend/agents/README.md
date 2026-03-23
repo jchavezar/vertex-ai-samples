@@ -25,36 +25,51 @@ This directory contains the brains of the Zero-Leak Portal. Instead of just one 
 
 ```mermaid
 graph TD
-    User([User Prompt]) --> Auth[Token Validation layer]
-    Auth --> Router[⚡ DeloitteRouterAgent \n gemini-2.5-flash]
+    %% Styling Definitions
+    classDef user fill:#2d3436,stroke:#b2bec3,stroke-width:2px,color:#fff,rx:15,ry:15;
+    classDef auth fill:#6c5ce7,stroke:#a29bfe,stroke-width:3px,color:#fff,rx:10,ry:10;
+    classDef router fill:#fdcb6e,stroke:#ffeaa7,stroke-width:3px,color:#2d3436,rx:10,ry:10,font-weight:bold;
+    classDef proxy fill:#0984e3,stroke:#74b9ff,stroke-width:2px,color:#fff,rx:8,ry:8;
+    classDef db fill:#00b894,stroke:#55efc4,stroke-width:2px,color:#fff,shape:cylinder;
+    classDef telemetry fill:#e17055,stroke:#fab1a0,stroke-width:2px,color:#fff;
+    classDef insight fill:#d63031,stroke:#ff7675,stroke-width:3px,color:#fff,rx:10,ry:10;
+
+    User([👤 User Prompt]):::user --> Auth[🔐 Token Validation Layer]:::auth
+    Auth --> Router[⚡ DeloitteRouterAgent \n gemini-2.5-flash]:::router
     
     %% Intent Detection
-    Router -- "intent == ACTION/SEARCH" --> SecurityProxy[🛡️ Security Proxy \ntools: mcp_server]
-    Router -- "intent == SERVICENOW" --> ServiceNowProxy[🛠️ ServiceNow Proxy \ntools: servicenow_mcp]
-    Router -- "intent == PUBLIC" --> PublicProxy[🌐 Public Research Proxy \ntools: google_search]
+    Router -- "ACTION / SEARCH" --> SecurityProxy[🛡️ Security Proxy \n MCP: mcp_server]:::proxy
+    Router -- "SERVICENOW" --> ServiceNowProxy[🛠️ ServiceNow Proxy \n MCP: servicenow_mcp]:::proxy
+    Router -- "PUBLIC" --> PublicProxy[🌐 Public Research Proxy \n Tool: google_search]:::proxy
 
     %% Deep Dives
-    SecurityProxy -.-> SharePoint[(SharePoint)]
-    ServiceNowProxy -.-> SNSystem[(ServiceNow Cloud)]
-    PublicProxy -.-> Web[(Public Internet)]
+    SecurityProxy -.-> SharePoint[(SharePoint)]:::db
+    ServiceNowProxy -.-> SNSystem[(ServiceNow Cloud)]:::db
+    PublicProxy -.-> Web[(Public Internet)]:::db
 
     %% Observability
-    SecurityProxy -.-> TelemetryLog[Telemetry JSON Stream]
+    SecurityProxy -.-> TelemetryLog[📈 Telemetry JSON Stream]:::telemetry
     ServiceNowProxy -.-> TelemetryLog
-
+    
     %% Post Analysis
-    TelemetryLog --> AnalyticsAgent[📊 Execution Insight AI \n latency_chat_agent.py]
-    User -. queries telemetry .-> AnalyticsAgent
-
-    %% Clickable Links
-    click Router "docs/router.md" "Intent Router Documentation"
-    click SecurityProxy "docs/security_proxy.md" "Security Proxy Details"
-    click ServiceNowProxy "docs/servicenow_proxy.md" "ServiceNow Agent Info"
-    click PublicProxy "docs/public_research.md" "Public Intelligence Proxy"
-    click AnalyticsAgent "docs/analytics_agents.md" "Latency & Analytics Engine"
+    TelemetryLog --> AnalyticsAgent[📊 Execution Insight AI \n latency_chat_agent.py]:::insight
+    User -. "Queries Telemetry" .-> AnalyticsAgent
 ```
+
+> **Note on Diagram Links**: GitHub renders Mermaid diagrams inside isolated `viewscreen` sandboxes, which breaks relative markdown links. Instead of clicking the diagram, use the stylized navigation grid below!
+
+## 🔗 The Swarm Component Grid
+
+| Agent Component | Core Function | Associated Documentation |
+| :--- | :--- | :--- |
+| **⚡ Intent Router** | Real-time classification & multiplexing | [docs/router.md](docs/router.md) |
+| **🛡️ Security Proxy** | Zero-Leak PWC internal SharePoint search | [docs/security_proxy.md](docs/security_proxy.md) |
+| **🛠️ ServiceNow Proxy** | Ticketing & Incident management | [docs/servicenow_proxy.md](docs/servicenow_proxy.md) |
+| **🌐 Public Intelligence** | High-velocity public web browsing | [docs/public_research.md](docs/public_research.md) |
+| **📊 Analytics Engine** | Telemetry execution JSON analysis | [docs/analytics_agents.md](docs/analytics_agents.md) |
 
 ## Core Tenets
 1. **Zero-Leak Initialization**: MCP definitions are dynamically created per request (`uv run python -m ...`), terminating as soon as the session dies. No data leaks.
+
 2. **Context Passing**: Swarms share memory in-memory via ADK `SessionService` instances isolated strictly via unique AppNames and Session IDs.
 3. **Execution Streams**: All outputs are Server-Sent Events (SSE). We capture functions, tools, thoughts, and outputs in real-time, feeding UI elements.
