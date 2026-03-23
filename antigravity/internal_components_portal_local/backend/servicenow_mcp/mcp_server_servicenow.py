@@ -291,5 +291,40 @@ def submit_catalog_item(catalog_item_sys_id: str, quantity: int = 1, variables_j
     except Exception as e:
         return f"Error submitting catalog item: {str(e)}"
 
+@mcp.tool()
+def search_service_requests(search_term: str, limit: int = 10) -> str:
+    """
+    Searches for Service Requests (Requested Items - RITM) containing text in their short_description or description.
+    Use this when the user asks for the status or list of their requests or order items starting with 'RITM'.
+    """
+    logger.info(f"[ServiceNow MCP] search_service_requests | term='{search_term}'")
+    query = f"short_descriptionLIKE{search_term}^ORdescriptionLIKE{search_term}^ORDERBYDESCsys_created_on"
+    return query_table("sc_req_item", query=query, limit=limit)
+
+@mcp.tool()
+def close_incident(sys_id: str, close_code: str, close_notes: str) -> str:
+    """
+    Closes an incident correctly by providing mandatory resolution fields in ServiceNow.
+    Required args: close_code (e.g., 'Solved (Work Around)', 'Solved (Permanently)') and close_notes.
+    State 7 = Closed.
+    """
+    logger.info(f"[ServiceNow MCP] close_incident | sys_id={sys_id}")
+    payload = {
+        "state": "7", 
+        "close_code": close_code,
+        "close_notes": close_notes
+    }
+    return update_ticket("incident", sys_id, json.dumps(payload))
+
+@mcp.tool()
+def search_catalog_items(search_term: str, limit: int = 10) -> str:
+    """
+    Searches for items in the Service Catalog (sc_cat_item) setup (e.g., 'Laptop', 'iPad', 'Software').
+    Use this to find the Catalog Item SysID before ordering via submit_catalog_item.
+    """
+    logger.info(f"[ServiceNow MCP] search_catalog_items | term='{search_term}'")
+    query = f"nameLIKE{search_term}^ORshort_descriptionLIKE{search_term}"
+    return query_table("sc_cat_item", query=query, limit=limit)
+
 if __name__ == "__main__":
     mcp.run()

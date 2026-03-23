@@ -1,53 +1,11 @@
 Traceback (most recent call last):
-  File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/internal_components_portal/backend/main.py", line 285, in stream_agent
+  File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/internal_components_portal/backend/main.py", line 284, in stream_agent
     async for event in runner_obj.run_async(user_id="default_user", session_id=sid, new_message=msg_obj):
-  File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/zero_leak_security_proxy/backend/.venv/lib/python3.12/site-packages/google/adk/runners.py", line 561, in run_async
+  File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/internal_components_portal/backend/.venv/lib/python3.12/site-packages/google/adk/runners.py", line 561, in run_async
     async for event in agen:
-  File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/zero_leak_security_proxy/backend/.venv/lib/python3.12/site-packages/google/adk/runners.py", line 496, in _run_with_trace
+  File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/internal_components_portal/backend/.venv/lib/python3.12/site-packages/google/adk/runners.py", line 496, in _run_with_trace
     session = await self._get_or_create_session(
               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/zero_leak_security_proxy/backend/.venv/lib/python3.12/site-packages/google/adk/runners.py", line 374, in _get_or_create_session
-    session = await self.session_service.get_session(
-              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/zero_leak_security_proxy/backend/.venv/lib/python3.12/site-packages/google/adk/sessions/vertex_ai_session_service.py", line 160, in get_session
-    get_session_response, events_iterator = await asyncio.gather(
-                                            ^^^^^^^^^^^^^^^^^^^^^
-  File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/zero_leak_security_proxy/backend/.venv/lib/python3.12/site-packages/vertexai/_genai/sessions.py", line 894, in get
-    response = await self._api_client.async_request(
-               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/zero_leak_security_proxy/backend/.venv/lib/python3.12/site-packages/google/genai/_api_client.py", line 1442, in async_request
-    result = await self._async_request(
-             ^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/zero_leak_security_proxy/backend/.venv/lib/python3.12/site-packages/google/genai/_api_client.py", line 1375, in _async_request
-    return await self._async_retry(  # type: ignore[no-any-return]
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/zero_leak_security_proxy/backend/.venv/lib/python3.12/site-packages/tenacity/asyncio/__init__.py", line 112, in __call__
-    do = await self.iter(retry_state=retry_state)
-         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/zero_leak_security_proxy/backend/.venv/lib/python3.12/site-packages/tenacity/asyncio/__init__.py", line 157, in iter
-    result = await action(retry_state)
-             ^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/zero_leak_security_proxy/backend/.venv/lib/python3.12/site-packages/tenacity/_utils.py", line 111, in inner
-    return call(*args, **kwargs)
-           ^^^^^^^^^^^^^^^^^^^^^
-  File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/zero_leak_security_proxy/backend/.venv/lib/python3.12/site-packages/tenacity/__init__.py", line 413, in exc_check
-    raise retry_exc.reraise()
-          ^^^^^^^^^^^^^^^^^^^
-  File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/zero_leak_security_proxy/backend/.venv/lib/python3.12/site-packages/tenacity/__init__.py", line 184, in reraise
-    raise self.last_attempt.result()
-          ^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/usr/local/google/home/jesusarguelles/.pyenv/versions/3.12.9/lib/python3.12/concurrent/futures/_base.py", line 449, in result
-    return self.__get_result()
-           ^^^^^^^^^^^^^^^^^^^
-  File "/usr/local/google/home/jesusarguelles/.pyenv/versions/3.12.9/lib/python3.12/concurrent/futures/_base.py", line 401, in __get_result
-    raise self._exception
-  File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/zero_leak_security_proxy/backend/.venv/lib/python3.12/site-packages/tenacity/asyncio/__init__.py", line 116, in __call__
-    result = await fn(*args, **kwargs)
-             ^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/zero_leak_security_proxy/backend/.venv/lib/python3.12/site-packages/google/genai/_api_client.py", line 1355, in _async_request_once
-    await errors.APIError.raise_for_async_response(client_response)
-  File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/zero_leak_security_proxy/backend/.venv/lib/python3.12/site-packages/google/genai/errors.py", line 216, in raise_for_async_response
-    await cls.raise_error_async(status_code, response_json, response)
-  File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/zero_leak_security_proxy/backend/.venv/lib/python3.12/site-packages/google/genai/errors.py", line 238, in raise_error_async
-    raise ClientError(status_code, response_json, response)
-google.genai.errors.ClientError: 400 INVALID_ARGUMENT. {'error': {'code': 400, 'message': 'List of found errors:\t1.Field: name; Message: Invalid Session resource name.\t', 'status': 'INVALID_ARGUMENT', 'details': [{'@type': 'type.googleapis.com/google.rpc.BadRequest', 'fieldViolations': [{'field': 'name', 'description': 'Invalid Session resource name.'}]}, {'@type': 'type.googleapis.com/google.rpc.DebugInfo', 'detail': '[ORIGINAL ERROR] generic::invalid_argument: com.google.cloud.ai.platform.common.errors.AiPlatformException: code=INVALID_ARGUMENT, message=List of found errors:\t1.Field: name; Message: Invalid Session resource name.\t, cause=null [google.rpc.error_details_ext] { code: 3 message: "List of found errors:\\t1.Field: name; Message: Invalid Session resource name.\\t" details { [type.googleapis.com/google.rpc.BadRequest] { field_violations { field: "name" description: "Invalid Session resource name." } } } }'}]}}
+  File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/internal_components_portal/backend/.venv/lib/python3.12/site-packages/google/adk/runners.py", line 384, in _get_or_create_session
+    raise ValueError(message)
+ValueError: Session not found: sh-3ca39624-53ae-49e2-8c4f-57369ada84d1
