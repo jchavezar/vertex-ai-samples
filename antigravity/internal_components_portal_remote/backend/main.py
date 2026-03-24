@@ -45,7 +45,9 @@ from mcp_service.mcp_sharepoint import SharePointMCP
 from utils.auth_context import set_user_token, set_user_id_token
 from agents.analyze_latency_agent import analyze_latency_profiles
 from agents.latency_chat_agent import chat_with_latency_data
-from nexus_telemetry import push_telemetry_async, NexusAPITrackerMiddleware
+# Telemetry disabled for internal_components_portal_remote
+def push_telemetry_async(*args, **kwargs): pass
+
 
 # Session map to track remote agent sessions between frontend and ADK cloud
 session_map = {}
@@ -61,55 +63,10 @@ os.environ["GOOGLE_CLOUD_PROJECT"] = "vtxdemos"
 app = FastAPI()
 
 def push_smart_telemetry(tag: str, edata: dict):
-    """
-    Parses ADK event data and pushes curated, readable events to Nexus.
-    """
-    try:
-        author = edata.get("author", "unknown")
-        content = edata.get("content", {})
-        if not content or not isinstance(content, dict):
-            return
+    pass
 
-        parts = content.get("parts", [])
-        for p in parts:
-            if p.get("thought"):
-                push_telemetry_async({
-                    "tag": tag,
-                    "type": "thought",
-                    "author": author,
-                    "text": p["thought"]
-                })
-            
-            if p.get("function_call"):
-                push_telemetry_async({
-                    "tag": tag,
-                    "type": "tool_call",
-                    "author": author,
-                    "name": p["function_call"].get("name"),
-                    "args": p["function_call"].get("args")
-                })
-            
-            if p.get("function_response"):
-                push_telemetry_async({
-                    "tag": tag,
-                    "type": "tool_result",
-                    "author": author,
-                    "name": p["function_response"].get("name"),
-                    "result": p["function_response"].get("response")
-                })
-            
-            if p.get("text") and not any(k in p for k in ["function_call", "function_response", "thought"]):
-                # Only push final synthesis text or status updates
-                push_telemetry_async({
-                    "tag": tag,
-                    "type": "agent_text",
-                    "author": author,
-                    "text": p["text"]
-                })
-    except Exception as e:
-        logger.error(f"Error in push_smart_telemetry: {e}")
 
-app.add_middleware(NexusAPITrackerMiddleware)
+# Telemetry middleware disabled
 
 app.add_middleware(
     CORSMiddleware,
@@ -651,7 +608,6 @@ async def _ge_mcp_chat_stream(messages: list, model_name: str, token: str = None
                 logger.info(f">>> [ROUTING] Using Remote Agent Engine: {agent_engine_id}")
                 remote_app = agent_engines.get(agent_engine_id)
                 
-                # Get or create cloud session defensively
                 if user_session.id not in session_map:
                     logger.info(f">>> Creating remote session for local User Session: {user_session.id}")
                     session_resp = await remote_app.async_create_session(user_id="default_user")
@@ -673,7 +629,20 @@ async def _ge_mcp_chat_stream(messages: list, model_name: str, token: str = None
                 stream = router_runner.run_async(user_id="default_user", session_id=user_session.id, new_message=msg_obj)
 
             async for event in stream:
-                edata = event.model_dump(mode='json')
+                if hasattr(event, "model_dump"):
+                    edata = event.model_dump(mode='json')
+                else:
+                    from google.protobuf.json_format import MessageToDict
+                    # Use event.data directly which is raw bytes for HttpBody
+                    if hasattr(event, "data") and isinstance(event.data, bytes):
+                        try:
+                            edata = json.loads(event.data.decode("utf-8"))
+                        except Exception:
+                            # If not JSON, use MessageToDict as fallback for general protobuf metadata
+                            edata = MessageToDict(event)
+                    else:
+                        edata = MessageToDict(event)
+
                 adk_events_trace.append({"source": "Internal_Router", "event": edata})
                 push_smart_telemetry("router", edata)
                 author = edata.get("author", "unknown")
@@ -960,13 +929,8 @@ async def chat_endpoint(request: Request):
     session_id = data.get("sessionId")
 
     # Instrument the inbound request
-    push_telemetry_async({
-        "tag": "user_request",
-        "type": "prompt",
-        "model": model_name,
-        "mode": router_mode,
-        "prompt": data.get("messages", [])[-1].get("content", "") if data.get("messages") else ""
-    })
+    # push_telemetry_async disabled
+    pass
 
     if router_mode == "ge_mcp":
         return StreamingResponse(_ge_mcp_chat_stream(data.get("messages", []), model_name, token, id_token, session_id), media_type="text/plain; charset=utf-8")
