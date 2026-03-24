@@ -39,12 +39,12 @@ graph TD
     Auth --> Proxy[🛡️ Zero-Leak Security Proxy \n Single Loop Execution]:::proxy
 
     Proxy -- "MCP: query_sharepoint" --> SP[(Configured SharePoint)]:::db
-    Proxy -- "MCP: brave_search" --> Web[(Public Internet)]:::db
+    Proxy -- "MCP: google_search" --> Web[(Public Internet)]:::db
 
     click Auth "https://github.com/jchavezar/vertex-ai-samples/blob/main/antigravity/internal_components_portal_remote/backend/main.py" "Gateway Logic"
     click Proxy "https://github.com/jchavezar/vertex-ai-samples/blob/main/antigravity/internal_components_portal_remote/backend/agents/docs/security_proxy.md" "Zero-Leak Search Logic"
     click SP "https://github.com/jchavezar/vertex-ai-samples/blob/main/antigravity/internal_components_portal_remote/backend/mcp_service/README.md" "SharePoint Connector"
-    click Web "https://github.com/jchavezar/vertex-ai-samples/blob/main/antigravity/internal_components_portal_remote/backend/agents/docs/public_research.md" "Public Search Logic"
+    click Web "https://github.com/jchavezar/vertex-ai-samples/blob/main/antigravity/internal_components_portal_remote/backend/agents/docs/public_research.md" "Public Google Search Logic"
 ```
 
 ### ⚡ Mode 2: GE + MCP (Zero-Shot Dynamic Routing)
