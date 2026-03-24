@@ -22,8 +22,12 @@ def save_config(config):
 async def main():
     parser = argparse.ArgumentParser(description="OpenRouter Stats Tracker (BigQuery Only)")
     parser.add_argument("--limit", type=int, default=None, help="Limit number of models to scrape for testing")
-    parser.add_argument("--concurrency", type=int, default=10, help="Concurrency level for Playwright page scraping")
-    args = parser.parse_args()
+    parser.add_argument("--concurrency", type=int, default=3, help="Concurrency level for Playwright page scraping")
+    
+    import sys
+    # Avoid ArgumentParser crashes when imported inside Uvicorn/FastAPI
+    args = parser.parse_args() if __name__ == "__main__" else parser.parse_args([])
+
     
     config = load_config()
 

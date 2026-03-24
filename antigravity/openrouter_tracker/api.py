@@ -11,13 +11,12 @@ def read_root():
 @app.get("/run")
 async def trigger_run():
     """
-    Triggers the scraper and updates Spreadsheet + BigQuery.
-    Runs asynchronously so the HTTP request completes immediately.
+    Triggers the scraper and updates BigQuery synchronously.
+    Keeps HTTP connection open to guarantee Cloud Run preserves CPU execution until complete.
     """
-    # Run absolute execution loop synchronously inside function isolate
-    print("Triggering OpenRouter stats scrape batch stream manually...")
-    asyncio.create_task(tracker.main())
-    return {"status": "Scrape triggered successfully in background."}
+    print("Triggering OpenRouter stats scrape batch stream synchronous...")
+    await tracker.main()
+    return {"status": "Scrape completed successfully and saved to BigQuery."}
 
 if __name__ == "__main__":
     import uvicorn
