@@ -9,7 +9,7 @@ export default defineConfig({
     host: true, // Listen on all local IPs
     port: 5180,
     proxy: {
-      '/api': {
+      '/acc/api': {
         target: 'http://127.0.0.1:8012',
         changeOrigin: true
       }

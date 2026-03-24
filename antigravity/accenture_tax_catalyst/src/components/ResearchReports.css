@@ -1,0 +1,132 @@
+.reports-section {
+  padding: 80px 40px;
+  background: #0B0B11; /* Sleek dark mode to match the theme */
+  position: relative;
+  overflow: hidden;
+}
+
+.reports-container {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.section-header {
+  text-align: center;
+  margin-bottom: 50px;
+}
+
+.section-header h2 {
+  font-size: 2.8rem;
+  background: linear-gradient(135deg, #A100FF 0%, #00F0FF 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-weight: 700;
+  margin-bottom: 12px;
+  font-family: 'Outfit', sans-serif;
+}
+
+.section-header p {
+  font-size: 1.15rem;
+  color: #94A3B8;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.reports-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 30px;
+}
+
+.report-card {
+  position: relative;
+  height: 380px;
+  border-radius: 16px;
+  overflow: hidden;
+  cursor: pointer;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+}
+
+.card-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  opacity: 0.15;
+  transition: opacity 0.3s ease;
+  z-index: 1;
+}
+
+.report-card:hover .card-bg {
+  opacity: 0.3;
+}
+
+.card-glass {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.2) 0%, rgba(0, 0, 0, 0.8) 100%); /* Subtle overlay for text */
+  padding: 30px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  z-index: 2;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 16px;
+}
+
+.report-type {
+  font-size: 0.75rem;
+  letter-spacing: 1.5px;
+  color: #A100FF;
+  font-weight: 700;
+  text-transform: uppercase;
+  font-family: 'Outfit', sans-serif;
+}
+
+.report-card h3 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #FFFFFF;
+  line-height: 1.4;
+  margin-top: 20px;
+  margin-bottom: auto;
+  font-family: 'Inter', sans-serif;
+}
+
+.card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding-top: 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.read-more {
+  font-size: 0.9rem;
+  color: #E2E8F0;
+  font-weight: 600;
+  font-family: 'Outfit', sans-serif;
+}
+
+.arrow {
+  color: #FFFFFF;
+  font-size: 1.2rem;
+  transition: transform 0.2s ease;
+}
+
+.report-card:hover .arrow {
+  transform: translateX(5px);
+}
+
+@media (max-width: 768px) {
+  .section-header h2 {
+    font-size: 2.2rem;
+  }
+}

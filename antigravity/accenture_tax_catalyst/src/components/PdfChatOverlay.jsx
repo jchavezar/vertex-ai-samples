@@ -65,7 +65,7 @@ const PdfChatOverlay = ({ pdfInfo, onClose }) => {
     setTimeout(scrollToBottom, 50);
 
     try {
-      const response = await fetch('/api/gemini/chat', {
+      const response = await fetch('api/gemini/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ messages: payloadMessages })

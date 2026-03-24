@@ -10,33 +10,49 @@ from sse_starlette.sse import EventSourceResponse
 from google import genai
 from google.genai import types
 from dotenv import load_dotenv
-from vais import vais_client
 
-# Load env vars
-load_dotenv(dotenv_path="../../.env")
+# Try to load env vars from current, parent, or grandparent dir
+for path in [".env", "../.env", "../../.env"]:
+    load_dotenv(dotenv_path=path)
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Initialize FastAPI
-app = FastAPI(title="Accenture Tax Catalyst Backend")
+# Project detection
+PROJECT_ID = os.environ.get("GOOGLE_CLOUD_PROJECT") or os.environ.get("PROJECT_ID")
+if not PROJECT_ID:
+    try:
+        import google.auth
+        _, auto_project = google.auth.default()
+        PROJECT_ID = auto_project
+        logger.info(f"Auto-detected Project ID from ADC: {PROJECT_ID}")
+    except Exception:
+        PROJECT_ID = "254356041555" # Last resort fallback
+        logger.warning(f"Project ID not detected, using fallback: {PROJECT_ID}")
 
-# Setup CORS
+# Initialize Gemini Client
+client = genai.Client(vertexai=True, project=PROJECT_ID, location="global")
+MODEL_ID = "gemini-3.1-flash-lite-preview"
+
+# Discovery client import after env loading
+try:
+    from vais import vais_client
+except ImportError:
+    logger.warning("vais_client not found. Discovery search will be unavailable.")
+    vais_client = None
+
+# Initialize FastAPI (Root App)
+app = FastAPI(title="Accenture Tax Catalyst Root")
+
+# Setup CORS on root app
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5180", "http://127.0.0.1:5180", "http://localhost:5178", "http://127.0.0.1:5178"],
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-# Initialize Gemini Client
-# We must ensure GEMINI_API_KEY is in the environment
-import os
-client = genai.Client(vertexai=True, project=os.environ.get("GOOGLE_CLOUD_PROJECT"), location="global")
-
-MODEL_ID = "gemini-3.1-flash-lite-preview"
 
 # Define instructions
 GEMINI_INSTRUCTION = """
@@ -91,7 +107,7 @@ You MUST output a JSON object matching the requested schema exactly.
 
 # Models
 class ChatMessage(BaseModel):
-    role: str # "user" or "model" 
+    role: str 
     content: str
     
 class ChatRequest(BaseModel):
@@ -106,55 +122,37 @@ class PulseRequest(BaseModel):
 class SearchRequest(BaseModel):
     query: str
 
-class ActionItem(BaseModel):
-    step: int
-    title: str
-    description: str
-
-class RiskFactor(BaseModel):
-    area: str
-    impact: str
-    severity: str # High, Medium, Low
-
-class GenerativeDashboardProfile(BaseModel):
-    industry: str
-    executive_summary: str
-    market_trend: str
-    risk_factors: List[RiskFactor]
-    action_plan: List[ActionItem]
-
 class DashboardRequest(BaseModel):
     industry: str
 
-@app.get("/health")
-async def health_check():
-    return {"status": "ok"}
+# Create a sub-app for the actual logic
+# This sub-app will be mounted at /acc
+acc_app = FastAPI(title="Accenture Tax Catalyst Content")
 
-@app.post("/api/search")
+@acc_app.get("/health")
+async def health_check():
+    return {"status": "ok", "project_id": PROJECT_ID, "vais_enabled": vais_client is not None}
+
+@acc_app.post("/api/search")
 async def discovery_engine_search(request: SearchRequest):
-    """
-    Query Vertex AI Search (Discovery Engine).
-    """
     try:
         logger.info(f"Querying Discovery Engine for: {request.query}")
+        if not vais_client:
+            return {"error": "Discovery Engine client not initialized", "results": []}
         results = await vais_client.search(request.query)
         return results
     except Exception as e:
-        logger.error(f"Search error: {e}")
+        logger.exception(f"Search error: {e}")
         return {"error": str(e), "results": []}
 
 class OverviewRequest(BaseModel):
     query: str
     search_results: Optional[List[Dict[str, Any]]] = None
 
-@app.post("/api/search/generative-overview")
+@acc_app.post("/api/search/generative-overview")
 async def generative_search_overview(request: OverviewRequest):
-    """
-    Synthesize an executive summary of the search results and identify PDF targets.
-    """
     async def sse_generator():
         try:
-            # Prepare context
             contexts = []
             if request.search_results and isinstance(request.search_results, list):
                 for i, res in enumerate(request.search_results[:5]):
@@ -164,68 +162,17 @@ async def generative_search_overview(request: OverviewRequest):
                     link = struct_data.get("link", "")
                     snippets = struct_data.get("snippets", [])
                     snippet = snippets[0].get("snippet", "") if snippets else ""
-                    file_format = struct_data.get("fileFormat", "")
-                    contexts.append(f"Result {i+1}:\\nTitle: {title}\\nURL: {link}\\nSnippet: {snippet}\\nFormat: {file_format}")
+                    contexts.append(f"Result {i+1}:\\nTitle: {title}\\nURL: {link}\\nSnippet: {snippet}")
             
             context_text = "\\n\\n".join(contexts)
+            prompt = f"User Query: {request.query}\n\nSearch Results:\n{context_text}\n\nTask: Summarize the findings VERY CONCISELY (max 2-3 sentences). Be direct. If you see a highly relevant PDF, append: [PDF_SUGGESTION]{{\"title\": \"...\", \"url\": \"...\"}}[/PDF_SUGGESTION]"
             
-            prompt = f"""User Query: {request.query}\n\nSearch Results:\n{context_text}\n\nTask: Summarize the findings VERY CONCISELY (max 2-3 sentences or 3 short bullet points). Be direct and insightful. If you see a highly relevant PDF in the results, append this exact tag at the very end of your response: [PDF_SUGGESTION]{{"title": "<pdf title>", "url": "<pdf url>", "reason": "<why it's useful>"}}[/PDF_SUGGESTION]"""
-            # User specifically requested gemini-3.1-flash-lite-preview in global region
             config = types.GenerateContentConfig(
-                system_instruction="You are an Accenture Strategic AI providing an ultra-concise, brief executive summary of search results. Use any provided search data and your Google Search tool to ensure facts are fully grounded with current live events. Use markdown. Keep summaries short.",
+                system_instruction="You are an Accenture Strategic AI providing an ultra-concise executive summary. Use markdown.",
                 temperature=0.3,
                 tools=[{"google_search": {}}],
             )
             
-            logger.info(f"Generating overview for query: {request.query}")
-            response_stream = await client.aio.models.generate_content_stream(
-                model="gemini-3.1-flash-lite-preview",
-                contents=prompt,
-                config=config
-            )
-            
-            buffered_text = ""
-            async for chunk in response_stream:
-                if chunk.text:
-                    text_chunk = chunk.text
-                    buffered_text += text_chunk
-                    
-                    # Yield incremental updates, but we should let the frontend parse the PDF_SUGGESTION tag if it appears
-                    yield {
-                        "event": "message",
-                        "data": json.dumps({"text": text_chunk})
-                    }
-                    await asyncio.sleep(0.01)
-                    
-            yield {
-                "event": "done",
-                "data": "[DONE]"
-            }
-            
-        except Exception as e:
-            logger.error(f"Error in generative overview: {e}")
-            yield {
-                "event": "error",
-                "data": json.dumps({"error": str(e)})
-            }
-            
-    return EventSourceResponse(sse_generator())
-
-@app.get("/api/radar/insight")
-async def generate_radar_insight(request: Request):
-    """
-    Generate a live insight based on current search trends for global tax.
-    Uses GET to easily trigger from frontend event sources, though POST is also fine.
-    """
-    async def sse_generator():
-        try:
-            config = types.GenerateContentConfig(
-                system_instruction=RADAR_INSTRUCTION,
-                tools=[{"google_search": {}}],
-            )
-            prompt = "What is the most critical corporate tax news right now? Give me a short, simple summary."
-            
-            logger.info("Generating Radar Insight...")
             response_stream = await client.aio.models.generate_content_stream(
                 model=MODEL_ID,
                 contents=prompt,
@@ -234,278 +181,132 @@ async def generate_radar_insight(request: Request):
             
             async for chunk in response_stream:
                 if chunk.text:
-                    yield {
-                        "event": "message",
-                        "data": json.dumps({"text": chunk.text})
-                    }
+                    yield {"event": "message", "data": json.dumps({"text": chunk.text})}
                     await asyncio.sleep(0.01)
-            
-            yield {
-                "event": "done",
-                "data": "[DONE]"
-            }
+            yield {"event": "done", "data": "[DONE]"}
         except Exception as e:
-            logger.error(f"Error in radar insight: {e}")
-            yield {
-                "event": "error",
-                "data": json.dumps({"error": str(e)})
-            }
+            logger.exception(f"Error in generative overview: {e}")
+            yield {"event": "error", "data": json.dumps({"error": str(e)})}
             
     return EventSourceResponse(sse_generator())
 
-@app.post("/api/gemini/chat")
-async def gemini_chat(request: ChatRequest):
-    """
-    Handles multi-turn chat for the Chief Tax Gemini.
-    """
+@acc_app.get("/api/radar/insight")
+async def generate_radar_insight(request: Request):
     async def sse_generator():
         try:
-            # Format history for Gemini API
-            gemini_messages = []
-            for msg in request.messages:
-                role = "user" if msg.role == "user" else "model"
-                gemini_messages.append(
-                    types.Content(role=role, parts=[types.Part.from_text(text=msg.content)])
-                )
-                
+            config = types.GenerateContentConfig(system_instruction=RADAR_INSTRUCTION, tools=[{"google_search": {}}])
+            response_stream = await client.aio.models.generate_content_stream(model=MODEL_ID, contents="What is the most critical corporate tax news right now?", config=config)
+            async for chunk in response_stream:
+                if chunk.text:
+                    yield {"event": "message", "data": json.dumps({"text": chunk.text})}
+                    await asyncio.sleep(0.01)
+            yield {"event": "done", "data": "[DONE]"}
+        except Exception as e:
+            logger.exception(f"Error in radar insight: {e}")
+            yield {"event": "error", "data": json.dumps({"error": str(e)})}
+    return EventSourceResponse(sse_generator())
+
+@acc_app.post("/api/gemini/chat")
+async def gemini_chat(request: ChatRequest):
+    async def sse_generator():
+        try:
+            gemini_messages = [types.Content(role="user" if m.role == "user" else "model", parts=[types.Part.from_text(text=m.content)]) for m in request.messages]
             if not gemini_messages:
-                # Should not happen
                 yield {"event": "done", "data": "[DONE]"}
                 return
-                
-            config = types.GenerateContentConfig(
-                system_instruction=GEMINI_INSTRUCTION,
-                tools=[{"google_search": {}}],
-            )
-            
-            logger.info(f"Chat request with {len(gemini_messages)} history messages")
-            
-            response_stream = await client.aio.models.generate_content_stream(
-                model=MODEL_ID,
-                contents=gemini_messages,
-                config=config
-            )
-
+            config = types.GenerateContentConfig(system_instruction=GEMINI_INSTRUCTION, tools=[{"google_search": {}}])
+            response_stream = await client.aio.models.generate_content_stream(model=MODEL_ID, contents=gemini_messages, config=config)
             async for chunk in response_stream:
                 if chunk.text:
-                    yield {
-                        "event": "message",
-                        "data": json.dumps({"text": chunk.text})
-                    }
+                    yield {"event": "message", "data": json.dumps({"text": chunk.text})}
                     await asyncio.sleep(0.01)
-                    
-            yield {
-                "event": "done",
-                "data": "[DONE]"
-            }
-            
+            yield {"event": "done", "data": "[DONE]"}
         except Exception as e:
-            logger.error(f"Error in gemini chat: {e}")
-            yield {
-                "event": "error",
-                "data": json.dumps({"error": str(e)})
-            }
-
+            logger.exception(f"Error in gemini chat: {e}")
+            yield {"event": "error", "data": json.dumps({"error": str(e)})}
     return EventSourceResponse(sse_generator())
 
-@app.post("/api/nav/live-pulse")
+@acc_app.post("/api/nav/live-pulse")
 async def live_policy_pulse(request: PulseRequest):
-    """
-    Streams a live, search-grounded real-world tax policy update.
-    """
     async def sse_generator():
         try:
-            config = types.GenerateContentConfig(
-                system_instruction=LIVE_PULSE_INSTRUCTION,
-                tools=[{"google_search": {}}],
-                temperature=0.3
-            )
-            prompt = f"Fetch the absolute latest news regarding corporate tax policies for: {request.query}."
-            
-            logger.info(f"Generating Live Pulse for: {prompt}")
-            response_stream = await client.aio.models.generate_content_stream(
-                model=MODEL_ID,
-                contents=prompt,
-                config=config
-            )
-            
+            config = types.GenerateContentConfig(system_instruction=LIVE_PULSE_INSTRUCTION, tools=[{"google_search": {}}], temperature=0.3)
+            response_stream = await client.aio.models.generate_content_stream(model=MODEL_ID, contents=f"Fetch latest tax policies for: {request.query}.", config=config)
             async for chunk in response_stream:
                 if chunk.text:
-                    yield {
-                        "event": "message",
-                        "data": json.dumps({"text": chunk.text})
-                    }
+                    yield {"event": "message", "data": json.dumps({"text": chunk.text})}
                     await asyncio.sleep(0.01)
-            
-            yield {
-                "event": "done",
-                "data": "[DONE]"
-            }
+            yield {"event": "done", "data": "[DONE]"}
         except Exception as e:
-            logger.error(f"Error in live pulse: {e}")
-            yield {
-                "event": "error",
-                "data": json.dumps({"error": str(e)})
-            }
-            
+            logger.exception(f"Error in live pulse: {e}")
+            yield {"event": "error", "data": json.dumps({"error": str(e)})}
     return EventSourceResponse(sse_generator())
 
-@app.post("/api/nav/dynamic-industries")
+@acc_app.post("/api/nav/dynamic-industries")
 async def generate_dynamic_nav(request: NavRequest):
-    """
-    Generates a custom navigation structure based on the user's input.
-    """
     try:
-        config = types.GenerateContentConfig(
-            system_instruction=NAV_INSTRUCTION,
-            response_mime_type="application/json",
-            temperature=0.7
-        )
-        
-        prompt = f"User Operating Model: {request.description}"
-        logger.info(f"Generating custom navigation for: {prompt}")
-        
-        response = await client.aio.models.generate_content(
-            model=MODEL_ID,
-            contents=prompt,
-            config=config
-        )
-        
-        # The response should already be valid JSON due to response_mime_type 
-        # and our strict instructions, but we parse it to ensure we send it back correctly
-        nav_data = json.loads(response.text)
-        return {"categories": nav_data}
-        
+        config = types.GenerateContentConfig(system_instruction=NAV_INSTRUCTION, response_mime_type="application/json")
+        response = await client.aio.models.generate_content(model=MODEL_ID, contents=f"User Operating Model: {request.description}", config=config)
+        return {"categories": json.loads(response.text)}
     except Exception as e:
-        logger.error(f"Error generating dynamic nav: {e}")
-        return {"categories": [
-            {"title": "Global Compliance Engine", "description": "Automated cross-border tax analysis", "icon": "Globe"},
-            {"title": "Transfer Pricing Nexus", "description": "Intercompany agreement insights", "icon": "FileText"},
-            {"title": "M&A Structuring", "description": "Risk assessment for global transactions", "icon": "Briefcase"},
-            {"title": "Digital Service Taxes", "description": "Evaluating digital product exposure", "icon": "Cpu"}
-        ]}
+        logger.exception(f"Error generating dynamic nav: {e}")
+        return {"categories": [{"title": "Global Compliance", "description": "Tax analysis", "icon": "Globe"}]}
 
-@app.post("/api/generate-dashboard")
+@acc_app.post("/api/generate-dashboard")
 async def generate_dashboard(request: DashboardRequest):
-    """
-    Generates a structured interactive dashboard profile for a given industry.
-    """
     try:
-        config = types.GenerateContentConfig(
-            system_instruction=DASHBOARD_INSTRUCTION,
-            response_mime_type="application/json",
-            response_schema=GenerativeDashboardProfile,
-            temperature=0.2
-        )
-        
-        prompt = f"Identify the critical global tax risks and strategies for the {request.industry} industry in 2026."
-        logger.info(f"Generating dashboard for industry: {request.industry}")
-        
-        response = await client.aio.models.generate_content(
-            model=MODEL_ID,
-            contents=prompt,
-            config=config
-        )
-        
-        dashboard_data = json.loads(response.text)
-        return dashboard_data
-        
+        config = types.GenerateContentConfig(system_instruction=DASHBOARD_INSTRUCTION, response_mime_type="application/json")
+        response = await client.aio.models.generate_content(model=MODEL_ID, contents=f"Tax risks for {request.industry} in 2026.", config=config)
+        return json.loads(response.text)
     except Exception as e:
-        logger.error(f"Error generating dashboard: {e}")
-        return {
-            "industry": request.industry,
-            "executive_summary": "System currently unavailable. Please try again or consult your Accenture representative.",
-            "market_trend": "Data synthesis interrupted.",
-            "risk_factors": [{"area": "System Error", "impact": str(e), "severity": "High"}],
-            "action_plan": [{"step": 1, "title": "Retry Request", "description": "Please try submitting the request again."}]
-        }
+        logger.exception(f"Error generating dashboard: {e}")
+        return {"industry": request.industry, "risk_factors": [{"area": "System Error", "impact": str(e), "severity": "High"}]}
 
-BOARDROOM_AGENTS = [
-    {
-        "id": "strategist",
-        "name": "The Aggressive Strategist",
-        "instruction": "You are the Aggressive Tax Strategist. Goal: find loopholes, aggressive restructuring opportunities, and maximum efficiency at any cost. Respond to the prompt in EXACTLY 2 concise, punchy sentences. Be very confident and aggressive. Use your Search tool for factual grounding in 2026 events."
-    },
-    {
-        "id": "auditor",
-        "name": "The Conservative Auditor",
-        "instruction": "You are the Conservative Auditor. Goal: 100% compliance, avoid audits, identify risks in the aggressive plan. You are pessimistic and rules-bound. Respond to the prompt and the strategist's ideas in EXACTLY 2 concise, clear sentences. Use your Search tool for grounding."
-    },
-    {
-        "id": "economist",
-        "name": "The Global Economist",
-        "instruction": "You are the Global Macro Economist. Focus on the big picture: trade wars, currency fluctuation, and global GDP shifts. Synthesize the previous discussion and offer the final executive verdict in EXACTLY 2 concise, visionary sentences. Use your Search tool for real-world grounding."
-    }
-]
-
-class BoardroomRequest(BaseModel):
-    prompt: str
-
-@app.post("/api/future/boardroom")
+@acc_app.post("/api/future/boardroom")
 async def swarm_boardroom(request: Request):
-    """
-    Streams a debate between 3 AI agents sequentially.
-    """
     body = await request.json()
     prompt = body.get("prompt", "")
-    
     async def sse_generator():
         try:
+            BOARDROOM_AGENTS = [
+                {"id": "strategist", "name": "Strategist", "instruction": "Aggressive Strategist..."},
+                {"id": "auditor", "name": "Auditor", "instruction": "Conservative Auditor..."},
+                {"id": "economist", "name": "Economist", "instruction": "Global Economist..."}
+            ]
             for agent in BOARDROOM_AGENTS:
-                agent_id = agent["id"]
-                agent_name = agent["name"]
-                
-                # Signal frontend that this agent is starting
-                yield {"data": json.dumps({"type": "agent_start", "agent_id": agent_id, "agent_name": agent_name})}
-                
-                config = types.GenerateContentConfig(
-                    system_instruction=agent["instruction"],
-                    temperature=0.7,
-                    tools=[{"google_search": {}}]
-                )
-                
-                response_stream = await client.aio.models.generate_content_stream(
-                    model=MODEL_ID,
-                    contents=prompt,
-                    config=config
-                )
-                
+                yield {"data": json.dumps({"type": "agent_start", "agent_id": agent["id"], "agent_name": agent["name"]})}
+                response_stream = await client.aio.models.generate_content_stream(model=MODEL_ID, contents=prompt, config=types.GenerateContentConfig(system_instruction=agent["instruction"], tools=[{"google_search": {}}]))
                 async for chunk in response_stream:
-                    if chunk.text:
-                        yield {"data": json.dumps({"type": "chunk", "agent_id": agent_id, "text": chunk.text})}
-                
-                # Signal frontend that this agent finished
-                yield {"data": json.dumps({"type": "agent_end", "agent_id": agent_id})}
-                
-                # Small pause between agents for dramatic effect
+                    if chunk.text: yield {"data": json.dumps({"type": "chunk", "agent_id": agent["id"], "text": chunk.text})}
+                yield {"data": json.dumps({"type": "agent_end", "agent_id": agent["id"]})}
                 await asyncio.sleep(1)
-                
             yield {"data": json.dumps({"type": "done"})}
         except Exception as e:
-            logger.error(f"Boardroom error: {e}")
             yield {"data": json.dumps({"type": "error", "message": str(e)})}
-
     return EventSourceResponse(sse_generator())
+
+# Serving the frontend
+import os
+from fastapi.staticfiles import StaticFiles
+import mimetypes
+
+mimetypes.add_type("application/javascript", ".js")
+frontend_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "dist")
+
+if os.path.exists(frontend_dir):
+    # Mount static files at the ROOT of the sub-app
+    acc_app.mount("/", StaticFiles(directory=frontend_dir, html=True), name="frontend")
+    logger.info(f"Frontend mounted at /acc/ using directory {frontend_dir}")
+else:
+    logger.warning(f"Frontend directory not found at {frontend_dir}")
+
+# Mount the sub-app at /acc in the main app
+app.mount("/acc", acc_app)
+
+@app.get("/health")
+async def root_health():
+    return {"status": "ok", "message": "Backend is running. App is at /acc"}
 
 if __name__ == "__main__":
     import uvicorn
-    # If running directly, we don't mount the frontend because Vite handles it in dev mode
-    uvicorn.run("main:app", host="0.0.0.0", port=8009, reload=True)
-else:
-    # When deployed (or run via some production script), we serve the dist folder
-    import os
-    from fastapi.staticfiles import StaticFiles
-    import mimetypes
-    
-    # ensure JS files are served correctly
-    mimetypes.add_type("application/javascript", ".js")
-    
-    # Path to the React built files
-    frontend_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "dist")
-    
-    if os.path.exists(frontend_dir):
-        # Mount the static files at /acc path
-        app.mount("/acc", StaticFiles(directory=frontend_dir, html=True), name="frontend")
-    else:
-        logger.warning(f"Frontend directory not found at {frontend_dir}. Ensure 'npm run build' is run.")
-
+    uvicorn.run("main:app", host="0.0.0.0", port=8080, reload=True)

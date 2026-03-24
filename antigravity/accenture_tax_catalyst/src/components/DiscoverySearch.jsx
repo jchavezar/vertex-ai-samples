@@ -68,7 +68,7 @@ const DiscoverySearch = ({ isOpen, setIsOpen }) => {
       overviewAbortControllerRef.current.abort();
     }
     try {
-      const response = await fetch('/api/search', {
+      const response = await fetch('api/search', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ query: searchQuery })
@@ -98,7 +98,7 @@ const DiscoverySearch = ({ isOpen, setIsOpen }) => {
     overviewAbortControllerRef.current = controller;
     
     try {
-      const response = await fetch('/api/search/generative-overview', {
+      const response = await fetch('api/search/generative-overview', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ query: searchQuery, search_results: searchResults }),
