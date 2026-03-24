@@ -57,11 +57,11 @@ graph TD
     User -. "Queries Telemetry" .-> AnalyticsAgent
 
     %% Clickable Links via Absolute GitHub URLs!
-    click Router "https://github.com/jchavezar/vertex-ai-samples/blob/main/antigravity/internal_components_portal/backend/agents/docs/router.md" "Intent Router Documentation"
-    click SecurityProxy "https://github.com/jchavezar/vertex-ai-samples/blob/main/antigravity/internal_components_portal/backend/agents/docs/security_proxy.md" "Security Proxy Details"
-    click ServiceNowProxy "https://github.com/jchavezar/vertex-ai-samples/blob/main/antigravity/internal_components_portal/backend/agents/docs/servicenow_proxy.md" "ServiceNow Agent Info"
-    click PublicProxy "https://github.com/jchavezar/vertex-ai-samples/blob/main/antigravity/internal_components_portal/backend/agents/docs/public_research.md" "Public Intelligence Proxy"
-    click AnalyticsAgent "https://github.com/jchavezar/vertex-ai-samples/blob/main/antigravity/internal_components_portal/backend/agents/docs/analytics_agents.md" "Latency & Analytics Engine"
+    click Router "https://github.com/jchavezar/vertex-ai-samples/blob/main/antigravity/internal_components_portal_remote/backend/agents/docs/router.md" "Intent Router Documentation"
+    click SecurityProxy "https://github.com/jchavezar/vertex-ai-samples/blob/main/antigravity/internal_components_portal_remote/backend/agents/docs/security_proxy.md" "Security Proxy Details"
+    click ServiceNowProxy "https://github.com/jchavezar/vertex-ai-samples/blob/main/antigravity/internal_components_portal_remote/backend/agents/docs/servicenow_proxy.md" "ServiceNow Agent Info"
+    click PublicProxy "https://github.com/jchavezar/vertex-ai-samples/blob/main/antigravity/internal_components_portal_remote/backend/agents/docs/public_research.md" "Public Intelligence Proxy"
+    click AnalyticsAgent "https://github.com/jchavezar/vertex-ai-samples/blob/main/antigravity/internal_components_portal_remote/backend/agents/docs/analytics_agents.md" "Latency & Analytics Engine"
 ```
 
 The diagram nodes above are fully interactive. Clicking a component navigates directly to its respective configuration file natively in GitHub!
