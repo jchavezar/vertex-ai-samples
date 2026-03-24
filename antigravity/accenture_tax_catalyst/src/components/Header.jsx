@@ -67,7 +67,7 @@ const Header = () => {
 
     setIsGeneratingNav(true);
     try {
-      const response = await fetch('/api/nav/dynamic-industries', {
+      const response = await fetch('api/nav/dynamic-industries', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ description: navQuery })
@@ -104,7 +104,7 @@ const Header = () => {
     setPulseContent('');
 
     try {
-      const response = await fetch('/api/nav/live-pulse', {
+      const response = await fetch('api/nav/live-pulse', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ query: pulseQuery })

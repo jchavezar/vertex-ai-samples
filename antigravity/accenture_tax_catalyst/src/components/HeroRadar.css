@@ -233,14 +233,42 @@
 
 .datapoint {
   position: absolute;
+  top: 50%;
+  left: 50%;
   width: 12px;
   height: 12px;
   z-index: 20;
 }
 
-.node-eu { top: 25%; right: 30%; }
-.node-asia { bottom: 35%; right: 15%; }
-.node-na { top: 35%; left: 20%; }
+.node-na {
+  transform: translate(-50%, -50%) rotate(0deg) translateY(-100px) rotate(0deg);
+  animation: orbit-na 20s linear infinite;
+}
+
+.node-eu {
+  transform: translate(-50%, -50%) rotate(0deg) translateY(-175px) rotate(0deg);
+  animation: orbit-eu 30s linear infinite;
+}
+
+.node-asia {
+  transform: translate(-50%, -50%) rotate(0deg) translateY(-220px) rotate(0deg);
+  animation: orbit-asia 40s linear infinite;
+}
+
+@keyframes orbit-na {
+  0% { transform: translate(-50%, -50%) rotate(0deg) translateY(-100px) rotate(0deg); }
+  100% { transform: translate(-50%, -50%) rotate(360deg) translateY(-100px) rotate(-360deg); }
+}
+
+@keyframes orbit-eu {
+  0% { transform: translate(-50%, -50%) rotate(120deg) translateY(-175px) rotate(-120deg); }
+  100% { transform: translate(-50%, -50%) rotate(480deg) translateY(-175px) rotate(-480deg); }
+}
+
+@keyframes orbit-asia {
+  0% { transform: translate(-50%, -50%) rotate(240deg) translateY(-220px) rotate(-240deg); }
+  100% { transform: translate(-50%, -50%) rotate(600deg) translateY(-220px) rotate(-600deg); }
+}
 
 .ping {
   position: absolute;
@@ -294,12 +322,13 @@
   
   padding: 24px 30px;
   width: 380px;
-  background: rgba(255, 255, 255, 0.96);
+  background: rgba(15, 23, 42, 0.9); /* Dark glass */
   box-shadow: 0 10px 50px rgba(161, 0, 255, 0.15), 0 4px 12px rgba(0,0,0,0.08);
   border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(10px);
   z-index: 50;
+  color: #fff; /* Ensure text is white */
 }
 
 @keyframes slowOrbit {
@@ -317,7 +346,7 @@
   gap: 8px;
   font-size: 0.85rem;
   font-weight: 700;
-  color: var(--text-primary);
+  color: #fff;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   margin-bottom: 12px;

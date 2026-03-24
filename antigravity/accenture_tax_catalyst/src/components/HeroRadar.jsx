@@ -24,7 +24,7 @@ const HeroRadar = () => {
 
     const fetchInsight = async () => {
       try {
-        const response = await fetch('/api/radar/insight', {
+        const response = await fetch('api/radar/insight', {
           method: 'GET',
         });
 
@@ -131,7 +131,6 @@ const HeroRadar = () => {
             <div className="radar-circle circle-2"></div>
             <div className="radar-circle circle-3"></div>
             
-            {/* Dynamic Data Net Connect Flows */}
             <svg className="mesh-network-svg" viewBox="0 0 500 500">
               <defs>
                 <linearGradient id="flow-grad" x1="0" y1="0" x2="1" y2="1">
@@ -139,24 +138,7 @@ const HeroRadar = () => {
                   <stop offset="100%" stopColor="#00E5FF" stopOpacity="0.2" />
                 </linearGradient>
               </defs>
-              <g className="flow-streams">
-                {/* Node NA to Center */}
-                <path d="M 120,185 Q 180,210 250,250" className="stream-path line-na" />
-                {/* Node EU to Center */}
-                <path d="M 350,135 Q 300,190 250,250" className="stream-path line-eu" />
-                {/* Node Asia to Center */}
-                <path d="M 420,320 Q 340,300 250,250" className="stream-path line-asia" />
-              </g>
-              {/* Dynamic Accelerator Pulse Triggers */}
-              <circle r="3" className="pulse-trigger trigger-na">
-                <animateMotion dur="3s" repeatCount="indefinite" path="M 120,185 Q 180,210 250,250" />
-              </circle>
-              <circle r="3" className="pulse-trigger trigger-eu">
-                <animateMotion dur="4s" repeatCount="indefinite" path="M 350,135 Q 300,190 250,250" />
-              </circle>
-              <circle r="3" className="pulse-trigger trigger-asia">
-                <animateMotion dur="3.5s" repeatCount="indefinite" path="M 420,320 Q 340,300 250,250" />
-              </circle>
+              {/* Removed flow-streams and pulse-triggers to make it a pure solar system with orbiting planets */}
             </svg>
 
             {/* Glowing nodes simulating stationary data points */}

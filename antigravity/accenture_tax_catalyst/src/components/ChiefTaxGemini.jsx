@@ -1,11 +1,12 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, Sparkles, Bot, User, FileText, ChevronRight, Globe, Loader2, Building } from 'lucide-react';
+import { Send, Sparkles, Bot, User, FileText, ChevronRight, Globe, Loader2, Building, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import './ChiefTaxGemini.css';
 
 const ChiefTaxGemini = () => {
+  const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([
     {
       role: 'assistant',
@@ -66,7 +67,7 @@ const ChiefTaxGemini = () => {
     try {
       const newMessages = [...messages, { role: 'user', content: text }];
       
-      const response = await fetch('/api/gemini/chat', {
+      const response = await fetch('api/gemini/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ messages: newMessages })
@@ -180,14 +181,34 @@ const ChiefTaxGemini = () => {
           </div>
         </div>
 
-        <div className="gemini-interface glass-panel">
+      {/* Floating Toggle Button */}
+      {!isOpen && (
+        <button className="chat-toggle-btn" onClick={() => setIsOpen(true)}>
+          <Bot size={24} />
+        </button>
+      )}
+
+      {/* Chat Window Overlay */}
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div 
+            className="gemini-interface glass-panel"
+            drag
+            dragMomentum={false}
+            style={{ cursor: 'move' }}
+          >
           <div className="chat-window">
             <div className="chat-header">
-               <Building size={18} className="text-accent-primary" />
-               <span className="chat-header-title">Accenture Catalyst Engine</span>
-               <div className="chat-header-status">
-                 <span className="pulse-dot"></span> Online
+               <div className="chat-header-left">
+                 <Building size={18} className="text-accent-primary" />
+                 <span className="chat-header-title">Accenture Catalyst Engine</span>
+                 <div className="chat-header-status">
+                   <span className="pulse-dot"></span> Online
+                 </div>
                </div>
+               <button className="chat-window-close-btn" onClick={() => setIsOpen(false)}>
+                 <X size={18} />
+               </button>
             </div>
             
             <div className="chat-messages" ref={chatContainerRef}>
@@ -285,7 +306,9 @@ const ChiefTaxGemini = () => {
               </div>
             </form>
           </div>
-        </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
       </div>
     </section>
   );

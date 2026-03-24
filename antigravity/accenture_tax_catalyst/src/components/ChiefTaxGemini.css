@@ -81,20 +81,61 @@
   backdrop-filter: blur(12px);
   border-radius: 8px;
   border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
   overflow: hidden;
-  height: 600px;
+  width: 480px; /* Bigger */
+  height: 700px; /* Bigger */
   display: flex;
   flex-direction: column;
+  position: fixed;
+  bottom: 120px; /* Shifted up to clear Jesus Chavez tag */
+  right: 60px;
+  z-index: 2000; /* Above all content */
+  resize: both;
+  overflow: hidden;
 }
 
 .chat-header {
   display: flex;
   align-items: center;
-  gap: 10px;
+  justify-content: space-between; /* Push left elements and close button apart */
   padding: 16px 24px;
-  background: #f8fafc;
-  border-bottom: 1px solid #e2e8f0;
+  background: rgba(15, 23, 42, 0.9);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(12px);
+  position: relative; /* For absolute close button positioning */
+}
+
+.chat-header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.chat-window-close-btn {
+  position: absolute;
+  top: 12px;
+  right: 16px;
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.6);
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  z-index: 10;
+}
+
+.chat-window-close-btn:hover {
+  color: white;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.chat-window-close-btn:active {
+  transform: scale(0.95);
 }
 
 .text-accent-primary {
@@ -422,4 +463,34 @@
   .gemini-container {
     grid-template-columns: 1fr;
   }
+}
+
+/* Toggle Button */
+.chat-toggle-btn {
+  position: fixed;
+  bottom: 110px; /* Moved up to avoid overlapping with name tag */
+  right: 40px;
+  z-index: 2100; /* Above chat window */
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--accent-primary);
+  color: white;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 4px 20px rgba(161, 0, 255, 0.4);
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.chat-toggle-btn:hover {
+  transform: scale(1.1) rotate(5deg);
+  background: #8200d9;
+  box-shadow: 0 6px 24px rgba(161, 0, 255, 0.6);
+}
+
+.chat-toggle-btn:active {
+  transform: scale(0.95);
 }

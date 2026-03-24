@@ -15,7 +15,7 @@ const GenerativeDashboardModal = ({ isOpen, onClose, industry, navQuery }) => {
       
       const fullIndustryQuery = navQuery ? `${industry} (${navQuery})` : industry;
       
-      fetch('/api/generate-dashboard', {
+      fetch('api/generate-dashboard', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ industry: fullIndustryQuery })

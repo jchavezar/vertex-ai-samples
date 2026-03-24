@@ -46,7 +46,9 @@ gcloud services enable \
     run.googleapis.com \
     compute.googleapis.com \
     cloudbuild.googleapis.com \
-    iap.googleapis.com
+    iap.googleapis.com \
+    aiplatform.googleapis.com \
+    discoveryengine.googleapis.com
 
 # 2. Build and Deploy to Cloud Run
 echo "[2] Building and Deploying to Cloud Run from source..."
@@ -55,6 +57,7 @@ gcloud run deploy "$SERVICE_NAME" \
     --region "$REGION" \
     --platform managed \
     --ingress internal-and-cloud-load-balancing \
+    --set-env-vars "GOOGLE_CLOUD_PROJECT=$PROJECT_ID,PROJECT_ID=$PROJECT_ID,VAIS_PROJECT_ID=$PROJECT_ID" \
     --allow-unauthenticated \
     --quiet
 
@@ -170,6 +173,23 @@ gcloud run services add-iam-policy-binding $SERVICE_NAME \
   --project $PROJECT_ID \
   --member "serviceAccount:service-${PROJECT_NUMBER}@gcp-sa-iap.iam.gserviceaccount.com" \
   --role "roles/run.invoker"
+
+# 11. Grant Cloud Run Service Account necessary AI permissions
+echo "🔑 Granting Cloud Run Service Account necessary permissions..."
+RUN_SA=$(gcloud run services describe $SERVICE_NAME --region $REGION --format="value(spec.template.spec.serviceAccountName)")
+if [ -z "$RUN_SA" ]; then
+    RUN_SA="${PROJECT_NUMBER}-compute@developer.gserviceaccount.com"
+fi
+echo "Using Service Account: $RUN_SA"
+
+gcloud projects add-iam-policy-binding $PROJECT_ID \
+    --member="serviceAccount:$RUN_SA" \
+    --role="roles/aiplatform.user" \
+    --quiet
+gcloud projects add-iam-policy-binding $PROJECT_ID \
+    --member="serviceAccount:$RUN_SA" \
+    --role="roles/discoveryengine.viewer" \
+    --quiet
 
 echo "==================================================================="
 echo "Deployment Complete!"
