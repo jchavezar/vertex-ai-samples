@@ -10,8 +10,7 @@ logger = logging.getLogger(__name__)
 if not logger.handlers:
     logging.basicConfig(level=logging.INFO)
 
-# Import instructions directly for persona consistency
-from mcp_service.mcp_server import GOVERNANCE_INSTRUCTIONS, ProjectCard
+
 
 from pydantic import BaseModel, Field
 from typing import List, Optional
