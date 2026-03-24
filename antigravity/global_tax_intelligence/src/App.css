@@ -62,3 +62,81 @@ main {
     text-align: center;
   }
 }
+
+/* Floating Space Badge Styles for Creator */
+.floating-creator-badge {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  background: rgba(10, 10, 18, 0.85);
+  backdrop-filter: blur(12px);
+  padding: 10px 18px;
+  border-radius: 30px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25), 0 0 15px rgba(161, 0, 255, 0.15);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  z-index: 10000;
+  cursor: pointer;
+  overflow: hidden;
+  text-decoration: none;
+}
+
+.floating-creator-badge .badge-content {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.1;
+}
+
+.floating-creator-badge .badge-text {
+  font-weight: 600;
+  font-size: 0.85rem;
+  letter-spacing: 0.3px;
+  background: linear-gradient(135deg, #a100ff 0%, #00f0ff 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-family: 'Outfit', sans-serif;
+}
+
+.floating-creator-badge .badge-handle {
+  font-size: 0.7rem;
+  color: #64748b;
+}
+
+/* Footer Creator Expanded Context */
+.footer-creator {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+}
+
+.footer-creator p {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.footer-creator p.handle {
+  font-size: 0.75rem;
+  color: #64748b;
+}
+
+.footer-creator .linkedin-link {
+  font-size: 0.8rem;
+  color: var(--accent-primary);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.footer-creator .linkedin-link:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 768px) {
+  .footer-creator {
+    align-items: center;
+  }
+}

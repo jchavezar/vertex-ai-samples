@@ -4,6 +4,7 @@ import react from '@vitejs/plugin-react'
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
+  base: '/acc/',
   server: {
     host: true, // Listen on all local IPs
     port: 5180,
