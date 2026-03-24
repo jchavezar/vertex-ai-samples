@@ -503,8 +503,8 @@ else:
     frontend_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "dist")
     
     if os.path.exists(frontend_dir):
-        # Mount the static files at root
-        app.mount("/", StaticFiles(directory=frontend_dir, html=True), name="frontend")
+        # Mount the static files at /kpmg path
+        app.mount("/kpmg", StaticFiles(directory=frontend_dir, html=True), name="frontend")
     else:
         logger.warning(f"Frontend directory not found at {frontend_dir}. Ensure 'npm run build' is run.")
 

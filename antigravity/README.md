@@ -199,6 +199,23 @@
       <a href="./internal_components_portal_local/">ACCESS_TERMINAL &rarr;</a>
     </td>
     <td width="50%" valign="top">
+  <!-- ROW 12: TAX DEMOS (CONSOLIDATED) -->
+  <tr>
+    <td width="50%" valign="top">
+      <img src="assets/header_finance.svg" width="100%" />
+      <br/><br/>
+      <strong>PROJECT: ACCENTURE TAX CATALYST</strong><br/>
+      Advanced AI-driven tax research methodology. Consolidates with KPMG under a shared load balancer.<br/>
+      <br/>
+      <a href="./accenture_tax_catalyst/">ACCESS_TERMINAL &rarr;</a>
+    </td>
+    <td width="50%" valign="top">
+      <img src="assets/header_finance.svg" width="100%" />
+      <br/><br/>
+      <strong>PROJECT: GLOBAL TAX INTELLIGENCE (KPMG)</strong><br/>
+      Chief Tax Copilot and document search workspace features. Shares LB with Accenture.<br/>
+      <br/>
+      <a href="./global_tax_intelligence/">ACCESS_TERMINAL &rarr;</a>
     </td>
   </tr>
 </table>
