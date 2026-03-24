@@ -45,9 +45,9 @@ const ChiefTaxGemini = () => {
   }, []);
 
   const suggestedPrompts = [
-    "What are the tax implications if we manufacture in Vietnam but hold IP in Singapore?",
-    "Summarize the latest OECD Pillar Two updates affecting our EU entities.",
-    "Generate an optimal entity structure for our upcoming expansion into LATAM."
+    "Tax implications: Vietnam Mfg / Singapore IP",
+    "OECD Pillar Two EU updates",
+    "Optimal LATAM entity expansion structure"
   ];
 
   const handleSend = async (text) => {

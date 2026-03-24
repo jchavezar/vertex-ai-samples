@@ -43,6 +43,9 @@ def deploy():
         "staging_bucket": STAGING_BUCKET,
         "requirements": "requirements-adk.txt",
         "extra_packages": ["agents"], # Package the entire agents folder
+        "env_vars": {
+            "SHAREPOINT_MCP_URL": "https://mcp-sharepoint-server-254356041555.us-central1.run.app/sse"
+        }
     }
 
     if target_engine:

@@ -1,24 +1,24 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
 :root {
-  --bg-primary: #ffffff;
-  --bg-secondary: #f8fafc;
-  --bg-glass: rgba(255, 255, 255, 0.85);
-  --bg-glass-heavy: rgba(255, 255, 255, 1);
+  --bg-primary: #0B0B11; /* Dark theme */
+  --bg-secondary: #12121A;
+  --bg-glass: rgba(15, 15, 25, 0.7);
+  --bg-glass-heavy: rgba(11, 11, 17, 0.9);
   
-  --text-primary: #000000; /* Accenture Corporate Black */
-  --text-secondary: #475569; /* Slate gray */
-  --text-muted: #64748b;
+  --text-primary: #ffffff; /* Light text */
+  --text-secondary: #94A3B8;
+  --text-muted: #64748B;
   
   --accent-primary: #A100FF; /* Accenture Purple */
-  --accent-secondary: #1E1B4B; /* Darker index purple/navy contrast */
+  --accent-secondary: #1E1B4B; 
   --accent-glow: rgba(161, 0, 255, 0.15);
-  --accent-glow-secondary: rgba(0, 0, 0, 0.05);
+  --accent-glow-secondary: rgba(255, 255, 255, 0.05);
   
   --accenture-purple: #A100FF;
   --accenture-black: #000000;
 
-  --border-light: #e2e8f0;
+  --border-light: rgba(255, 255, 255, 0.1);
   --border-glow: rgba(161, 0, 255, 0.1);
 }
 
