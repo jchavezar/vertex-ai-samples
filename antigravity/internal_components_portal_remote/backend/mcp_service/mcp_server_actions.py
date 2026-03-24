@@ -53,7 +53,7 @@ def update_sharepoint_document(new_content: str, filename: str, target_folder_id
         return f"Error updating document: {str(e)}"
 
 @mcp.tool()
-def search_documents(query: str, limit: int = 5) -> str:
+def search_documents(query: str, limit: int = 3) -> str:
     """
     Search for documents in SharePoint related to a query.
     

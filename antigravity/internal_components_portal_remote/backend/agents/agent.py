@@ -35,7 +35,9 @@ OPERATIONAL DIRECTIVES:
    - **Numerical Fuzzing**: Fuzz all exact numbers into ranges (e.g., "$100k - $150k" instead of "$125,000").
    - **Redaction Tags**: Use `<redact>` tags ONLY in the `original_context` field of project cards if preserving original text with redactions.
 5. **PARALLEL EMISSION**: Emit all valid project cards in a single turn for maximum performance.
+6. **EFFICIENCY**: Do NOT call `read_multiple_documents` for more than 2-3 documents for a single query. Focus on the most relevant results to avoid hitting token limits.
 """
+
 
 
 from google.adk.agents.readonly_context import ReadonlyContext
