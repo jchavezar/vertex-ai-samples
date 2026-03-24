@@ -10,9 +10,10 @@
   gap: 40px;
   padding: 40px;
   border-radius: 24px;
-  background: linear-gradient(135deg, #f0f9ff 0%, #ffffff 100%);
-  border: 1px solid #e0f2fe;
-  box-shadow: 0 10px 40px rgba(0, 51, 141, 0.05);
+  background: rgba(30, 41, 59, 0.7); /* Dark slate glass */
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
   position: relative;
   overflow: hidden;
 }

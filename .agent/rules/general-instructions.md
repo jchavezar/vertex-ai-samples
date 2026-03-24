@@ -22,3 +22,7 @@ Under any circumstances use old models in your code develop and deploy like gemi
 
 ## Think first before testing/publish
 Because you are in a ssh session (jetski is running locally on my macbook and the resource is connecto through ssh to sockcop.c.googlers.com) if you are gonna test "browsing" using or depending a specific port, you ALWAYS have to ask the user first to forward those ports, otherwise you wont be able to use them.
+
+
+## Clean is important
+After you do testings, creating new files, scripts etc and I ask for github pushes or "clean in general" besides the zero leak and other rules you already have I need you to keep the files and scripts in temporary folders out of the github (I dont need to backup unnecesary files).

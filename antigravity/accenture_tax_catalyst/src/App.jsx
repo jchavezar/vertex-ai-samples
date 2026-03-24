@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Header from './components/Header';
 import HeroRadar from './components/HeroRadar';
+import ResearchReports from './components/ResearchReports';
 import ChiefTaxGemini from './components/ChiefTaxGemini';
 import TransferPricingAnalyzer from './components/TransferPricingAnalyzer';
 import ZeroLeakShield from './components/ZeroLeakShield';
@@ -36,7 +37,12 @@ function App() {
         {/* Core AI Hero Section */}
         <HeroRadar />
         
+        {/* Fill Website with Research Reports Section */}
+        <div className="section-divider"></div>
+        <ResearchReports />
+        
         {/* Security / Trust Banner */}
+        <div className="section-divider"></div>
         <ZeroLeakShield />
 
         {/* Gemini Section taking up the narrative space */}

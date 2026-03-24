@@ -1,6 +1,7 @@
 import os
 import sys
 import time
+from vertexai import agent_engines
 from datetime import timedelta
 import mcp.client.session
 
@@ -45,6 +46,9 @@ from utils.auth_context import set_user_token, set_user_id_token
 from agents.analyze_latency_agent import analyze_latency_profiles
 from agents.latency_chat_agent import chat_with_latency_data
 from nexus_telemetry import push_telemetry_async, NexusAPITrackerMiddleware
+
+# Session map to track remote agent sessions between frontend and ADK cloud
+session_map = {}
 
 from dotenv import load_dotenv
 load_dotenv(dotenv_path="../.env")
@@ -633,17 +637,7 @@ async def _ge_mcp_chat_stream(messages: list, model_name: str, token: str = None
         else:
             yield AIStreamProtocol.data({"type": "status", "message": "Analyzing Intent...", "icon": "cpu", "pulse": True})
             
-            router_agent = get_router_agent()
-            # Log evidence of API call for telemetry roughly
-            api_evidence = {
-                "endpoint": "Vertex AI (Gemini Enterprise)",
-                "model": "gemini-2.5-flash",
-                "project": os.environ.get("GOOGLE_CLOUD_PROJECT"),
-                "location": "us-central1"
-            }
-            reasoning_steps.append(f"[Router API EVIDENCE]\n{json.dumps(api_evidence, indent=2)}")
-            
-            router_runner = Runner(app_name="Internal_Router", agent=router_agent, session_service=session_service)
+            agent_engine_id = os.environ.get("AGENT_ENGINE_ID")
             
             history_str = ""
             if len(messages) > 1:
@@ -653,7 +647,32 @@ async def _ge_mcp_chat_stream(messages: list, model_name: str, token: str = None
             
             msg_obj = types.Content(role="user", parts=[types.Part.from_text(text=router_prompt)])
             
-            async for event in router_runner.run_async(user_id="default_user", session_id=user_session.id, new_message=msg_obj):
+            if agent_engine_id:
+                logger.info(f">>> [ROUTING] Using Remote Agent Engine: {agent_engine_id}")
+                remote_app = agent_engines.get(agent_engine_id)
+                
+                # Get or create cloud session defensively
+                if user_session.id not in session_map:
+                    logger.info(f">>> Creating remote session for local User Session: {user_session.id}")
+                    session_resp = await remote_app.async_create_session(user_id="default_user")
+                    logger.info(f">>> Remote session response: {session_resp}")
+                    session_map[user_session.id] = session_resp["id"] if isinstance(session_resp, dict) and "id" in session_resp else getattr(session_resp, "id", None)
+                
+                cloud_session_id = session_map[user_session.id]
+                stream = remote_app.async_stream_query(user_id="default_user", session_id=cloud_session_id, message=router_prompt)
+            else:
+                router_agent = get_router_agent()
+                api_evidence = {
+                    "endpoint": "Vertex AI (Gemini Enterprise)",
+                    "model": "gemini-2.5-flash",
+                    "project": os.environ.get("GOOGLE_CLOUD_PROJECT"),
+                    "location": "us-central1"
+                }
+                reasoning_steps.append(f"[Router API EVIDENCE]\n{json.dumps(api_evidence, indent=2)}")
+                router_runner = Runner(app_name="Internal_Router", agent=router_agent, session_service=session_service)
+                stream = router_runner.run_async(user_id="default_user", session_id=user_session.id, new_message=msg_obj)
+
+            async for event in stream:
                 edata = event.model_dump(mode='json')
                 adk_events_trace.append({"source": "Internal_Router", "event": edata})
                 push_smart_telemetry("router", edata)

@@ -77,10 +77,11 @@
 
 /* Chat Interface */
 .gemini-interface {
-  background: white;
+  background: rgba(30, 41, 59, 0.7); /* Dark slate glass */
+  backdrop-filter: blur(12px);
   border-radius: 8px;
-  border: 1px solid #e2e8f0;
-  box-shadow: 0 10px 30px rgba(0, 51, 141, 0.05); /* very soft shadow */
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
   overflow: hidden;
   height: 600px;
   display: flex;
@@ -136,7 +137,7 @@
   flex-direction: column;
   padding: 24px;
   position: relative;
-  background: #ffffff;
+  background: rgba(15, 23, 42, 0.5); /* Deep slate */
 }
 
 .chat-messages {
@@ -147,6 +148,7 @@
   display: flex;
   flex-direction: column;
   gap: 20px;
+  padding-top: 24px;
   padding-bottom: 20px;
 }
 
@@ -287,15 +289,15 @@
   text-align: left;
   padding: 14px 18px;
   border-radius: 6px;
-  color: #475569;
+  color: #f1f5f9; /* Light text */
   font-size: 0.9rem;
   cursor: pointer;
   transition: all 0.2s;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: white;
-  border: 1px solid #e2e8f0;
+  background: rgba(30, 41, 59, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .prompt-btn:hover {
@@ -318,9 +320,9 @@
   width: 100%;
   padding: 16px 50px 16px 20px;
   border-radius: 6px;
-  color: var(--text-primary);
-  background: white;
-  border: 1px solid #cbd5e1;
+  color: #f1f5f9;
+  background: rgba(15, 23, 42, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   font-size: 1rem;
   outline: none;
   font-family: inherit;
