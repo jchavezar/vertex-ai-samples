@@ -46,7 +46,7 @@ TRIGGER_URL="$SERVICE_URL/run"
 if gcloud scheduler jobs describe $CRON_JOB_NAME --location $REGION > /dev/null 2>&1; then
     echo "Updating existing Cloud Scheduler job to 6-hour frequency..."
     gcloud scheduler jobs update http $CRON_JOB_NAME \
-        --schedule="0 */6 * * *" \
+        --schedule="0 0,12 * * *" \
         --uri=$TRIGGER_URL \
         --http-method=GET \
         --location=$REGION \
@@ -54,7 +54,7 @@ if gcloud scheduler jobs describe $CRON_JOB_NAME --location $REGION > /dev/null 
 else
     echo "Creating new Cloud Scheduler job (Every 6 hours)..."
     gcloud scheduler jobs create http $CRON_JOB_NAME \
-        --schedule="0 */6 * * *" \
+        --schedule="0 0,12 * * *" \
         --uri=$TRIGGER_URL \
         --http-method=GET \
         --location=$REGION \
