@@ -89,6 +89,9 @@ if agent_engine_id:
 else:
     logger.info("Using InMemorySessionService fallback.")
     session_service = InMemorySessionService()
+
+_session_history = {} # Global session history store for UI sidebar
+
 class ChatRequest(BaseModel):
     messages: list[dict]
     model: str = "gemini-3-flash-preview"
@@ -188,6 +191,15 @@ async def _chat_stream(messages: list, model_name: str, token: str = None, id_to
 
     has_yielded_text = False
     session_id_to_use = session_id if session_id else str(uuid.uuid4())
+    
+    # Track session history for sidebar
+    if messages:
+        _session_history[session_id_to_use] = {
+            "messages": messages,
+            "updated_at": int(time.time()),
+            "title": messages[0]["content"][:30] if messages else "New Chat"
+        }
+        
     sess_id = f"sh-{session_id_to_use}"
     pub_sess_id = f"pb-{session_id_to_use}"
 
@@ -565,6 +577,15 @@ async def _ge_mcp_chat_stream(messages: list, model_name: str, token: str = None
     # --- SESSION STATE OVERRIDE ---
     active_route = None
     session_id_to_use = session_id or f"router-{uuid.uuid4()}"
+    
+    # Track session history for sidebar
+    if messages:
+        _session_history[session_id_to_use] = {
+            "messages": messages,
+            "updated_at": int(time.time()),
+            "title": messages[0]["content"][:30] if messages else "New Chat"
+        }
+        
     user_session = await get_or_create_session("Internal_Router", session_id_to_use)
     if token:
         user_session.state["token"] = token
@@ -936,6 +957,32 @@ async def chat_endpoint(request: Request):
         return StreamingResponse(_ge_mcp_chat_stream(data.get("messages", []), model_name, token, id_token, session_id), media_type="text/plain; charset=utf-8")
     else:
         return StreamingResponse(_chat_stream(data.get("messages", []), model_name, token, id_token, session_id), media_type="text/plain; charset=utf-8")
+
+@app.get("/api/sessions")
+async def list_sessions():
+    """
+    List all active sessions for the sidebar.
+    """
+    sessions_list = []
+    for sid, info in _session_history.items():
+        sessions_list.append({
+            "id": sid,
+            "title": info.get("title", "Untitled Chat"),
+            "updated_at": info.get("updated_at")
+        })
+    # Sort by updated_at descending
+    sessions_list.sort(key=lambda x: x["updated_at"] or 0, reverse=True)
+    return sessions_list
+
+@app.get("/api/sessions/{session_id}/history")
+async def get_session_history(session_id: str):
+    """
+    Get message history for a specific session.
+    """
+    if session_id not in _session_history:
+        return {"messages": []}
+    return {"messages": _session_history[session_id].get("messages", [])}
+
 
 @app.get("/api/sharepoint/list")
 async def list_sharepoint_folder(request: Request, folder_id: str = "root"):

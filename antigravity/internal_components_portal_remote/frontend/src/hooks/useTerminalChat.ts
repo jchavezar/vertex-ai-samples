@@ -199,6 +199,19 @@ export function useTerminalChat(tokens: { accessToken: string, idToken: string }
     setCurrentQuery('');
   };
 
+  const loadSession = async (id: string) => {
+    setSessionId(id);
+    try {
+      const response = await fetch(`/api/sessions/${id}/history`);
+      if (response.ok) {
+        const data = await response.json();
+        setMessages(data.messages || []);
+      }
+    } catch (error) {
+      console.error('Error loading session history:', error);
+    }
+  };
+
   return { 
     messages, 
     input, 
@@ -219,6 +232,7 @@ export function useTerminalChat(tokens: { accessToken: string, idToken: string }
     setTelemetryHistory,
     currentQuery,
     clearChat,
-    sessionId
+    sessionId,
+    loadSession
   };
 }
