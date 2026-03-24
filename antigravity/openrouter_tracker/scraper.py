@@ -38,7 +38,7 @@ async def scrape_model_providers(page, model_id):
         for node in latency_nodes:
             # Traverse upwards to parent card/row
             curr = node
-            for _ in range(4):
+            for _ in range(5):
                 if curr.parent:
                     curr = curr.parent
                 else:
