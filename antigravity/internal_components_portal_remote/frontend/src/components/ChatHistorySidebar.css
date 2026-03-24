@@ -1,0 +1,82 @@
+.chat-history-sidebar {
+  width: 240px;
+  background: white;
+  border-right: 1px solid var(--internal-border);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  flex-shrink: 0;
+}
+
+.history-header {
+  padding: var(--spacing-md);
+  border-bottom: 1px solid var(--internal-border);
+  background: #fafafa;
+}
+
+.history-header h3 {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--internal-grey);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.history-list {
+  flex-grow: 1;
+  overflow-y: auto;
+  padding: var(--spacing-sm);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.history-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.history-item:hover {
+  background: #f4f7f0;
+}
+
+.history-item.active {
+  background: rgba(134, 188, 37, 0.1);
+  border-left: 3px solid var(--internal-green);
+}
+
+.history-item-icon {
+  font-size: 1.2rem;
+}
+
+.history-item-content {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.history-item-title {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--internal-black);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.history-item-date {
+  font-size: 0.75rem;
+  color: var(--internal-grey);
+}
+
+.history-loading, .history-empty {
+  padding: var(--spacing-md);
+  text-align: center;
+  color: var(--internal-grey);
+  font-size: 0.85rem;
+}

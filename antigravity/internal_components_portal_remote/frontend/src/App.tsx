@@ -30,6 +30,7 @@ import { GeMcpFlow } from "./components/GeMcpFlow";
 import { AuthRequestFlow } from "./components/AuthRequestFlow";
 import type { Message } from "@ai-sdk/react";
 import { TopologyView } from "./components/TopologyView";
+import { ChatHistorySidebar } from "./components/ChatHistorySidebar";
 import "./PromptGallery.css";
 
 const GeminiSparkleIcon = ({ className = "" }: { className?: string }) => (
@@ -160,7 +161,8 @@ function App() {
     setTelemetryHistory,
     currentQuery,
     clearChat,
-    sessionId
+    sessionId,
+    loadSession
   } = useTerminalChat(effectiveTokens, selectedModel, routerMode);
   const projectCards = useDashboardStore((s) => s.projectCards);
   const [isPublicInsightExpanded, setIsPublicInsightExpanded] = useState(false);
@@ -464,8 +466,10 @@ function App() {
           <AuthRequestFlow onNavigateToChat={() => { setActiveAppTab("ge_flow"); setShowTopology(false); }} />
       ) : (
             <main className="internal-main-wrapper" style={{ flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
-              {/* Chat Interface filling the right pane */}
-              <section className={`internal-chat-sidebar ${chatMode !== 'default' ? chatMode : ''} full-width`} style={{ margin: '0', maxWidth: '100%', width: '100%', borderLeft: 'none', height: '100%', display: 'flex', flexDirection: 'column' }}>
+              <div style={{ display: 'flex', flexDirection: 'row', height: '100%', width: '100%' }}>
+                <ChatHistorySidebar onSelectSession={loadSession} activeSessionId={sessionId} />
+                {/* Chat Interface filling the right pane */}
+                <section className={`internal-chat-sidebar ${chatMode !== 'default' ? chatMode : ''} full-width`} style={{ margin: '0', maxWidth: '100%', width: '100%', borderLeft: 'none', height: '100%', display: 'flex', flexDirection: 'column' }}>
                 <div className="chat-header">
                   <div className="chat-header-top">
                     <h2>Internal Enterprise Shield</h2>
@@ -876,6 +880,7 @@ function App() {
                   </form>
                 </div>
               </section>
+              </div>
             </main>
       )}
     </div>
