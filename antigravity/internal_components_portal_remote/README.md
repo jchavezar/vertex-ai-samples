@@ -12,31 +12,34 @@ The diagram below outlines the core service boundaries deployed in production. *
 
 ```mermaid
 graph TD
-    classDef user fill:#2d3436,stroke:#b2bec3,stroke-width:2px,color:#fff;
-    classDef RunService fill:#0984e3,stroke:#74b9ff,stroke-width:2px,color:#fff;
-    classDef AgentEngine fill:#fdcb6e,stroke:#ffeaa7,stroke-width:3px,color:#2d3436;
+    classDef user fill:#2d3436,stroke:#b2bec3,stroke-width:2px,color:#fff,rx:15,ry:15;
+    classDef RunService fill:#0984e3,stroke:#74b9ff,stroke-width:2px,color:#fff,rx:8,ry:8;
+    classDef AgentEngine fill:#fdcb6e,stroke:#ffeaa7,stroke-width:3px,color:#2d3436,rx:10,ry:10,font-weight:bold;
     classDef db fill:#00b894,stroke:#55efc4,stroke-width:2px,color:#fff,shape:cylinder;
-    classDef Telemetry fill:#e17055,stroke:#fab1a0,stroke-width:2px,color:#fff;
-    classDef gateway fill:#6c5ce7,stroke:#a29bfe,stroke-width:2px,color:#fff;
+    classDef gateway fill:#6c5ce7,stroke:#a29bfe,stroke-width:2px,color:#fff,rx:10,ry:10;
 
-    Anonymous([👤 User Prompt]) --> UI[🎨 React 19 Frontend \n Vercel AI SDK]:::RunService
-    UI -- "HTTPS/REST" --> Auth[🔐 FastAPI Gateway \n Token Validation]:::gateway
-    Auth -- "HTTPS/REST" --> RouterAgent[⚡ ge_adk_portal_router \n Deployed: Agent Engine]:::AgentEngine
+    User([👤 User Prompt]):::user --> UI[🎨 React 19 Frontend \n Vercel AI SDK]:::RunService
+    UI -- "Mode Choice" --> Auth[🔐 FastAPI Gateway \n Token Validation]:::gateway
 
-    %% Remote Transport layer
-    RouterAgent -- "HTTPS/SSE POST" --> SharePointCR[🐋 SharePoint Sec Proxy \n Cloud Run: mcp-sharepoint-server]:::RunService
-    RouterAgent -- "HTTPS/SSE POST" --> ServiceNowCR[🐋 ServiceNow Proxy \n Cloud Run: servicenow-mcp]:::RunService
+    %% Mode Bifurcation
+    Auth -- "Toggle: All MCP (Direct)" --> SP_Sec[🛡️ SharePoint Sec Proxy \n Cloud Run: mcp-sharepoint-server]:::RunService
+    Auth -- "Toggle: GE + MCP (Router)" --> RouterAgent[⚡ ge_adk_portal_router \n Deployed: Agent Engine]:::AgentEngine
+
+    %% Router Bifurcation
+    RouterAgent -- "Knowledge" --> DE[🔍 Discovery Engine Agent \n Vertex AI Search]:::RunService
+    RouterAgent -- "Actions" --> SN_Proxy[🐋 ServiceNow Proxy \n Cloud Run: servicenow-mcp]:::RunService
+    RouterAgent -- "Actions" --> SP_Sec
 
     %% Target APIs
-    SharePointCR -.-> SharePoint[(Microsoft SharePoint)]:::db
-    ServiceNowCR -.-> ServiceNow[(ServiceNow Cloud)]:::db
+    SP_Sec -.-> SharePoint[(Microsoft SharePoint)]:::db
+    SN_Proxy -.-> ServiceNow[(ServiceNow Cloud)]:::db
 
     %% Click Map Targets (Absolute GitHub URLs)
-    click UI "https://github.com/jchavezar/vertex-ai-samples/tree/main/antigravity/internal_components_portal_remote/frontend" "View Frontend Source"
-    click Auth "https://github.com/jchavezar/vertex-ai-samples/blob/main/antigravity/internal_components_portal_remote/backend/main.py" "View FastAPI Gateway"
-    click RouterAgent "https://github.com/jchavezar/vertex-ai-samples/tree/main/antigravity/internal_components_portal_remote/backend/agents" "View ADK Router Orchestrators"
-    click SharePointCR "https://github.com/jchavezar/vertex-ai-samples/tree/main/antigravity/internal_components_portal_remote/backend/mcp_service" "View SharePoint MCP"
-    click ServiceNowCR "https://github.com/jchavezar/vertex-ai-samples/tree/main/antigravity/internal_components_portal_remote/backend/servicenow_mcp" "View ServiceNow MCP"
+    click UI "https://github.com/jchavezar/vertex-ai-samples/tree/main/antigravity/internal_components_portal_remote/frontend" "View Frontend Code"
+    click Auth "https://github.com/jchavezar/vertex-ai-samples/blob/main/antigravity/internal_components_portal_remote/backend/main.py" "View Gateway Logic"
+    click RouterAgent "https://github.com/jchavezar/vertex-ai-samples/tree/main/antigravity/internal_components_portal_remote/backend/agents/docs/router.md" "ADK Intent Routing"
+    click SP_Sec "https://github.com/jchavezar/vertex-ai-samples/blob/main/antigravity/internal_components_portal_remote/backend/agents/docs/security_proxy.md" "Zero-Leak SharePoint Search"
+    click SN_Proxy "https://github.com/jchavezar/vertex-ai-samples/blob/main/antigravity/internal_components_portal_remote/backend/agents/docs/servicenow_proxy.md" "ServiceNow Agent Info"
 ```
 
 ---
