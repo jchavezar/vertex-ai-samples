@@ -1,0 +1,366 @@
+.pdf-chat-overlay-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(4, 11, 22, 0.85);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+}
+
+.pdf-chat-modal {
+  width: 90vw;
+  max-width: 1400px;
+  height: 85vh;
+  background: rgba(10, 16, 30, 0.7);
+  border: 1px solid rgba(161, 0, 255, 0.3);
+  border-radius: 20px;
+  box-shadow: 0 0 40px rgba(0, 0, 0, 0.6), inset 0 0 20px rgba(161, 0, 255, 0.1);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
+}
+
+/* Modal Header */
+.pdf-chat-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.25rem 2rem;
+  border-bottom: 1px solid rgba(161, 0, 255, 0.2);
+  background: linear-gradient(90deg, rgba(10, 16, 30, 0.9) 0%, rgba(161, 0, 255, 0.3) 100%);
+}
+
+.pdf-chat-header-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.pdf-chat-icon {
+  color: #A100FF;
+  filter: drop-shadow(0 0 8px rgba(161, 0, 255, 0.6));
+}
+
+.pdf-chat-header-title h3 {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  color: #fff;
+}
+
+.pdf-chat-header-title span {
+  font-size: 0.85rem;
+  color: #A100FF;
+  background: rgba(161, 0, 255, 0.15);
+  padding: 2px 8px;
+  border-radius: 12px;
+  border: 1px solid rgba(161, 0, 255, 0.3);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.close-overlay-btn {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #8fa3b0;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.close-overlay-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  transform: rotate(90deg);
+}
+
+/* Body Split Pane */
+.pdf-chat-body {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+/* Left Pane: PDF Preview / Summary */
+.pdf-preview-pane {
+  flex: 0 0 35%;
+  border-right: 1px solid rgba(161, 0, 255, 0.2);
+  background: rgba(4, 11, 22, 0.4);
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  overflow-y: auto;
+}
+
+.pdf-preview-card {
+  background: linear-gradient(135deg, rgba(161, 0, 255, 0.1) 0%, rgba(161, 0, 255, 0.05) 100%);
+  border: 1px solid rgba(161, 0, 255, 0.2);
+  border-radius: 16px;
+  padding: 1.5rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.pdf-preview-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  background: #A100FF;
+  box-shadow: 0 0 10px #A100FF;
+}
+
+.pdf-preview-card h4 {
+  margin: 0 0 1rem 0;
+  font-size: 1.3rem;
+  color: #fff;
+  line-height: 1.4;
+}
+
+.pdf-preview-card p {
+  color: #8fa3b0;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.pdf-action-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 1.5rem;
+  color: #A100FF;
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 500;
+  padding: 8px 16px;
+  background: rgba(161, 0, 255, 0.1);
+  border: 1px solid rgba(161, 0, 255, 0.3);
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.pdf-action-link:hover {
+  background: rgba(161, 0, 255, 0.2);
+  box-shadow: 0 0 15px rgba(161, 0, 255, 0.2);
+  transform: translateY(-1px);
+}
+
+.pdf-metadata {
+  margin-top: auto;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  padding-top: 1.5rem;
+}
+
+.metadata-item {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+  font-size: 0.85rem;
+}
+
+.metadata-item .label {
+  color: #6a7f90;
+}
+
+.metadata-item .value {
+  color: #8fa3b0;
+  font-family: monospace;
+}
+
+/* Right Pane: Chat Interface */
+.pdf-chat-interface {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: rgba(10, 16, 30, 0.5);
+  position: relative;
+}
+
+/* Reusing similar classes to the ChiefTaxGemini but scoped or shared */
+.pdf-chat-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  scroll-behavior: smooth;
+}
+
+.pdf-chat-input-area {
+  padding: 1.5rem 2rem;
+  background: rgba(4, 11, 22, 0.6);
+  border-top: 1px solid rgba(161, 0, 255, 0.2);
+}
+
+.pdf-input-wrapper {
+  display: flex;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(161, 0, 255, 0.4);
+  border-radius: 24px;
+  padding: 0.5rem;
+  align-items: center;
+  transition: all 0.3s ease;
+  box-shadow: inset 0 2px 10px rgba(0,0,0,0.5);
+}
+
+.pdf-input-wrapper:focus-within {
+  border-color: #A100FF;
+  box-shadow: 0 0 20px rgba(161, 0, 255, 0.2), inset 0 2px 10px rgba(0,0,0,0.5);
+}
+
+.pdf-chat-input {
+  flex: 1;
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 1rem;
+  padding: 0.5rem 1rem;
+  outline: none;
+  font-family: inherit;
+}
+
+.pdf-chat-input::placeholder {
+  color: #4a5f70;
+}
+
+.pdf-send-btn {
+  background: rgba(255, 255, 255, 0.05);
+  border: none;
+  color: #4a5f70;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: not-allowed;
+  transition: all 0.2s ease;
+}
+
+.pdf-send-btn.active {
+  background: linear-gradient(135deg, #8200d9 0%, #A100FF 100%);
+  color: #fff;
+  cursor: pointer;
+  box-shadow: 0 0 15px rgba(161, 0, 255, 0.4);
+}
+
+.pdf-send-btn.active:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 20px rgba(161, 0, 255, 0.6);
+}
+
+/* Specific Chat Bubbles mapping */
+.pdf-message-wrapper {
+  display: flex;
+  gap: 1rem;
+  max-width: 85%;
+}
+
+.pdf-wrapper-assistant {
+  align-self: flex-start;
+}
+
+.pdf-wrapper-user {
+  align-self: flex-end;
+  flex-direction: row-reverse;
+}
+
+.pdf-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-weight: 600;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.pdf-avatar-assistant {
+  background: linear-gradient(135deg, rgba(161, 0, 255, 0.8) 0%, rgba(130, 0, 217, 0.8) 100%);
+  color: #fff;
+  box-shadow: 0 0 15px rgba(161, 0, 255, 0.3);
+}
+
+.pdf-avatar-user {
+  background: rgba(255, 255, 255, 0.1);
+  color: #8fa3b0;
+}
+
+.pdf-message-bubble {
+  padding: 1.25rem;
+  border-radius: 16px;
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+.pdf-bubble-assistant {
+  background: rgba(161, 0, 255, 0.15);
+  border: 1px solid rgba(161, 0, 255, 0.2);
+  color: #e0e5ea;
+  border-top-left-radius: 4px;
+}
+
+.pdf-bubble-user {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #fff;
+  border-top-right-radius: 4px;
+}
+
+/* Animations */
+@keyframes scanningLasers {
+  0% { left: -10%; }
+  100% { left: 110%; }
+}
+
+.pdf-scanning-indicator {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #A100FF;
+  font-size: 0.9rem;
+  font-weight: 500;
+  letter-spacing: 1px;
+}
+
+/* Markdown Overrides for Dark Theme Overlay */
+.pdf-message-bubble .markdown-body h1,
+.pdf-message-bubble .markdown-body h2,
+.pdf-message-bubble .markdown-body h3,
+.pdf-message-bubble .markdown-body h4 {
+  color: #A100FF; 
+  margin-top: 16px;
+  margin-bottom: 12px;
+  font-weight: 600;
+}
+
+.pdf-message-bubble .markdown-body strong {
+  color: #60a5fa;
+  font-weight: 600;
+}
+
+.pdf-message-bubble .markdown-body a {
+  color: #38bdf8;
+  text-decoration: underline;
+}

@@ -1,0 +1,87 @@
+.zero-leak-container {
+  max-width: 1000px;
+  margin: 100px auto;
+  padding: 0 40px;
+}
+
+.security-banner {
+  display: flex;
+  align-items: center;
+  gap: 40px;
+  padding: 40px;
+  border-radius: 24px;
+  background: linear-gradient(135deg, #f0f9ff 0%, #ffffff 100%);
+  border: 1px solid #e0f2fe;
+  box-shadow: 0 10px 40px rgba(0, 51, 141, 0.05);
+  position: relative;
+  overflow: hidden;
+}
+
+.security-banner::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; height: 3px;
+  background: linear-gradient(90deg, #38bdf8, var(--accent-primary), #38bdf8);
+  opacity: 0.7;
+}
+
+.security-icon-group {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.shield-bg {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 100px; height: 100px;
+  background: radial-gradient(circle, rgba(0, 51, 141, 0.1) 0%, transparent 70%);
+  border-radius: 50%;
+  animation: pulseGlow 3s infinite;
+}
+
+.shield-icon {
+  position: relative;
+  z-index: 2;
+  color: var(--accent-primary);
+  filter: drop-shadow(0 0 10px rgba(0, 51, 141, 0.2));
+}
+
+.lock-badge {
+  position: absolute;
+  bottom: -4px; right: -4px;
+  width: 24px; height: 24px;
+  background: #10b981;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 3;
+  border: 2px solid #fff;
+  color: white;
+}
+
+.security-content h3 {
+  font-size: 1.5rem;
+  margin-bottom: 12px;
+  color: var(--text-primary);
+}
+
+.security-content p {
+  color: var(--text-secondary);
+  font-size: 1.05rem;
+  line-height: 1.6;
+}
+
+.security-content strong {
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+@media (max-width: 768px) {
+  .security-banner {
+    flex-direction: column;
+    text-align: center;
+    padding: 30px 20px;
+  }
+}

@@ -1,0 +1,8 @@
+fastapi>=0.110.0
+uvicorn>=0.28.0
+requests>=2.31.0
+google-api-python-client>=2.122.0
+google-auth-oauthlib>=1.2.0
+google-cloud-bigquery>=3.18.0
+beautifulsoup4>=4.12.3
+playwright>=1.40.0

@@ -1,0 +1,9 @@
+*.html
+*.png
+artifacts/
+.system_generated/
+__pycache__/
+models.json
+token.json
+*.webp
+*.log
