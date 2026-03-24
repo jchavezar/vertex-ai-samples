@@ -21,48 +21,54 @@ This directory contains the brains of the Zero-Leak Portal. Instead of just one 
 * **[The Analytics & Latency Agents](docs/analytics_agents.md)** (`latency_chat_agent.py` & `analyze_latency_agent.py`)
   The performance engineers. Used strictly in the Telemetry tab to analyze execution JSON footprints and identify bottlenecked tools or TTFT drops.
 
-## How It Works (The Execution Flow)
+## 🗺️ How It Works: The Two Operational Modes
+
+Depending on the mode selected in the UI frontend, the architecture shifts between direct tool execution (All MCP) and zero-shot intent routing (GE + MCP).
+
+### 🔍 Mode 1: All MCP (Direct Context Execution)
+In this mode, a single, hardened **Security Proxy** intercepts the prompt and executes MCP tools directly in a single loop. It is ideal for pure, non-routed confidential lookups.
 
 ```mermaid
 graph TD
-    %% Styling Definitions
+    classDef user fill:#2d3436,stroke:#b2bec3,stroke-width:2px,color:#fff,rx:15,ry:15;
+    classDef auth fill:#6c5ce7,stroke:#a29bfe,stroke-width:3px,color:#fff,rx:10,ry:10;
+    classDef proxy fill:#0097e6,stroke:#00a8ff,stroke-width:2px,color:#fff,rx:8,ry:8;
+    classDef db fill:#44bd32,stroke:#4cd137,stroke-width:2px,color:#fff,shape:cylinder;
+
+    User([👤 User Prompt]):::user --> Auth[🔐 Token Validation Layer]:::auth
+    Auth --> Proxy[🛡️ Zero-Leak Security Proxy \n Single Loop Execution]:::proxy
+
+    Proxy -- "MCP: query_sharepoint" --> SP[(Configured SharePoint)]:::db
+    Proxy -- "MCP: brave_search" --> Web[(Public Internet)]:::db
+```
+
+### ⚡ Mode 2: GE + MCP (Zero-Shot Dynamic Routing)
+In this mode, we utilize the **DeloitteRouterAgent** (Google ADK) to perform high-speed intent classification. The router forks the execution path:
+1. **Knowledge Retrieval**: Routed to Vertex AI **Discovery Engine** (indexed data).
+2. **Enterprise Actions**: Routed to specialized **MCP Swarm Agents** (ServiceNow writing, PDF regeneration).
+
+```mermaid
+graph TD
     classDef user fill:#2d3436,stroke:#b2bec3,stroke-width:2px,color:#fff,rx:15,ry:15;
     classDef auth fill:#6c5ce7,stroke:#a29bfe,stroke-width:3px,color:#fff,rx:10,ry:10;
     classDef router fill:#fdcb6e,stroke:#ffeaa7,stroke-width:3px,color:#2d3436,rx:10,ry:10,font-weight:bold;
     classDef proxy fill:#0097e6,stroke:#00a8ff,stroke-width:2px,color:#fff,rx:8,ry:8;
-    classDef run fill:#e84118,stroke:#c23616,stroke-width:2px,color:#fff,rx:8,ry:8;
     classDef db fill:#44bd32,stroke:#4cd137,stroke-width:2px,color:#fff,shape:cylinder;
-    classDef telemetry fill:#e17055,stroke:#fab1a0,stroke-width:2px,color:#fff;
-    classDef insight fill:#d63031,stroke:#ff7675,stroke-width:3px,color:#fff,rx:10,ry:10;
 
     User([👤 User Prompt]):::user --> Auth[🔐 Token Validation Layer]:::auth
-    Auth --> Router[⚡ DeloitteRouterAgent \n DEPLOYED: Vertex AI Agent Engine]:::router
-    
-    %% Intent Detection
-    Router -- "ACTION / SEARCH\n HTTPS (SSE)" --> SecurityProxy[🛡️ SharePoint Security Proxy \n Cloud Run: mcp-sharepoint-server]:::run
-    Router -- "SERVICENOW\n HTTPS (SSE)" --> ServiceNowProxy[🛠️ ServiceNow Proxy \n Cloud Run: servicenow-mcp]:::run
-    Router -- "PUBLIC\n Local Invoke" --> PublicProxy[🌐 Public Research Proxy \n Tool: google_search]:::proxy
+    Auth --> Router[⚡ DeloitteRouterAgent \n DEPLOYED: Agent Engine]:::router
 
-    %% Deep Dives
-    SecurityProxy -.-> SharePoint[(SharePoint)]:::db
-    ServiceNowProxy -.-> SNSystem[(ServiceNow Cloud)]:::db
-    PublicProxy -.-> Web[(Public Internet)]:::db
+    %% Intent Fork
+    Router -- "Search Intent (HTTP/Get)" --> DE[🔍 Discovery Engine Agent \n Type: Vertex AI Search]:::proxy
+    Router -- "Tool Intent (HTTP/SSE)" --> MCP[🛠️ MCP Swarm Agents \n SharePoint, ServiceNow]:::proxy
 
-    %% Observability
-    SecurityProxy -.-> TelemetryLog[📈 Telemetry JSON Stream]:::telemetry
-    ServiceNowProxy -.-> TelemetryLog
-    
-    %% Post Analysis
-    TelemetryLog --> AnalyticsAgent[📊 Execution Insight AI \n latency_chat_agent.py]:::insight
-    User -. "Queries Telemetry" .-> AnalyticsAgent
-
-    %% Clickable Links via Absolute GitHub URLs!
-    click Router "https://github.com/jchavezar/vertex-ai-samples/blob/main/antigravity/internal_components_portal_remote/backend/agents/docs/router.md" "Intent Router Documentation"
-    click SecurityProxy "https://github.com/jchavezar/vertex-ai-samples/blob/main/antigravity/internal_components_portal_remote/backend/agents/docs/security_proxy.md" "Security Proxy Details"
-    click ServiceNowProxy "https://github.com/jchavezar/vertex-ai-samples/blob/main/antigravity/internal_components_portal_remote/backend/agents/docs/servicenow_proxy.md" "ServiceNow Agent Info"
-    click PublicProxy "https://github.com/jchavezar/vertex-ai-samples/blob/main/antigravity/internal_components_portal_remote/backend/agents/docs/public_research.md" "Public Intelligence Proxy"
-    click AnalyticsAgent "https://github.com/jchavezar/vertex-ai-samples/blob/main/antigravity/internal_components_portal_remote/backend/agents/docs/analytics_agents.md" "Latency & Analytics Engine"
+    DE -.-> VDS[(Vertex Data Store)]:::db
+    MCP -.-> SP[(SharePoint Cloud)]:::db
+    MCP -.-> ServiceNow[(ServiceNow Cloud)]:::db
 ```
+
+---
+
 
 The diagram nodes above are fully interactive. Clicking a component navigates directly to its respective configuration file natively in GitHub!
 
