@@ -348,6 +348,7 @@ function App() {
             Auth Flow
           </a>
         </nav>
+        <ChatHistorySidebar onSelectSession={loadSession} activeSessionId={sessionId} />
         <div className="internal-header-right">
           {projectCards.length > 0 &&
             !showTopology &&
@@ -466,9 +467,6 @@ function App() {
           <AuthRequestFlow onNavigateToChat={() => { setActiveAppTab("ge_flow"); setShowTopology(false); }} />
       ) : (
             <main className="internal-main-wrapper" style={{ flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
-              <div style={{ display: 'flex', flexDirection: 'row', height: '100%', width: '100%' }}>
-                <ChatHistorySidebar onSelectSession={loadSession} activeSessionId={sessionId} />
-                {/* Chat Interface filling the right pane */}
                 <section className={`internal-chat-sidebar ${chatMode !== 'default' ? chatMode : ''} full-width`} style={{ margin: '0', maxWidth: '100%', width: '100%', borderLeft: 'none', height: '100%', display: 'flex', flexDirection: 'column' }}>
                 <div className="chat-header">
                   <div className="chat-header-top">
@@ -880,7 +878,6 @@ function App() {
                   </form>
                 </div>
               </section>
-              </div>
             </main>
       )}
     </div>
