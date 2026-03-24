@@ -1,191 +1,92 @@
-# 🛡️ Internal Components Portal: SharePoint Integration
+# 🛡️ Remote Zero-Leak Enterprise Portal
 
-> **Zero-Leak Protocol Enforced**: This project implements a secure, generalized consulting intelligence portal. It acts as a middleman between confidential SharePoint documents and a chat interface, guaranteeing that users can query enterprise intelligence without ever exposing sensitive client data, PII, or raw financial specifics to the public web.
+> **Zero-Leak Protocol Enforced**: This project implements a secure consulting intelligence portal leveraging a Middleman architecture between confidential SharePoint/ServiceNow documents and user endpoints. It guarantees users can query enterprise intelligence safely without exposing sensitive client data, PII, or raw account specifics to model parsing layers.
 
-This application is built using the **Zero-Parsing Architecture** combining **FastAPI**, **Google ADK (Agent Development Kit)**, and the **React 19 Vercel AI SDK**. It offers a beautiful, modern **Topology UI** to inspect end-to-end telemetry and execution latency.
-
----
-
-## ✨ Features & Zero-Leak Security
-
-This repository adheres to strict Zero-Leak protocols for enterprise deployments:
-- **Never Commit Secrets**: `.env` files and credentials are strictly `.gitignore`'d.
-- **Client-Side Identity**: Microsoft Entra ID (MSAL) handles primary authentication entirely in the browser.
-- **Stateless Proxying**: The Cloud Run backend receives short-lived user-delegated tokens per request, validating them directly against the Microsoft Graph API before ever initiating Vertex AI generation. 
-- **No Stored Tokens**: The `.env` file only requires non-secret IDs (`TENANT_ID`, `CLIENT_ID`, `SITE_ID`, `DRIVE_ID`).
+This application runs purely on **Cloud Run** and **Vertex AI Agent Engine**, coordinating secure delegated search loops via the **Model Context Protocol (MCP)** powered by **Google ADK (Agent Development Kit)** and the **React 19 Vercel AI SDK**.
 
 ---
 
-## 📂 PROJECT STRUCTURE
+## 🗺️ Master Component Architecture (Interactive)
 
-```text
-internal_components_portal/
-├── backend/            # FastAPI Security Proxy (Python, uv)
-├── frontend/           # React 19 Vercel AI SDK SPA
-├── docs/               # Architecture diagrams and documentation
-├── mcp_server.md       # MCP Server Documentation and Tool Usage
-└── README.md           # This file
-```
-
----
-
-## 🤖 Model Context Protocol (MCP)
-
-This project implements a robust **FastMCP Server** to safely delegate data retrieval and enforcement.
-👉 **[Read the Full MCP Server Documentation](mcp_server.md)**
-
----
-
-## 📖 Remote Architecture & Replication Guide
-
-For a comprehensive, step-by-step walkthrough explaining how the **MCP Servers** (SharePoint & ServiceNow) operate on Cloud Run and coordinate with the **Vertex AI Agent Engine**, see the master index:
-
-👉 **[Read the Full Remote Architecture Guide](GUIDE.md)**
-
----
-
-## 🏗️ Cloud Native Architecture (Google Cloud Run)
-
-The application enforces a secure offloading architecture using the **Model Context Protocol (MCP)**, specifically tailored for stateless serverless deployment.
+The diagram below outlines the core service boundaries deployed in production. **Clicking any node inside the mesh navigates directly to its code repository or full documentation structure.**
 
 ```mermaid
-flowchart LR
-    %% Modern Futuristic Styling Requirements
-    classDef default fill:#1e293b,stroke:#475569,stroke-width:2px,color:#f8fafc;
-    classDef user fill:#0f172a,stroke:#3b82f6,stroke-width:2px,color:#bfdbfe,rx:12,ry:12;
-    classDef frontend fill:#020617,stroke:#6366f1,stroke-width:3px,color:#c7d2fe,rx:12,ry:12;
-    classDef backend fill:#111827,stroke:#a855f7,stroke-width:3px,color:#e9d5ff,rx:12,ry:12;
-    classDef ai fill:#2e1065,stroke:#d946ef,stroke-width:3px,color:#fbcfe8,rx:15,ry:15;
-    classDef data fill:#064e3b,stroke:#10b981,stroke-width:3px,color:#a7f3d0,rx:12,ry:12;
-    
-    subgraph Client ["Client Identity Boundary"]
-        U[End User / Browser]:::user
-        A[React SPA / MSAL]:::frontend
-        U -- "Microsoft Login" --> A
-    end
+graph TD
+    classDef user fill:#2d3436,stroke:#b2bec3,stroke-width:2px,color:#fff;
+    classDef RunService fill:#0984e3,stroke:#74b9ff,stroke-width:2px,color:#fff;
+    classDef AgentEngine fill:#fdcb6e,stroke:#ffeaa7,stroke-width:3px,color:#2d3436;
+    classDef db fill:#00b894,stroke:#55efc4,stroke-width:2px,color:#fff,shape:cylinder;
+    classDef Telemetry fill:#e17055,stroke:#fab1a0,stroke-width:2px,color:#fff;
+    classDef gateway fill:#6c5ce7,stroke:#a29bfe,stroke-width:2px,color:#fff;
 
-    subgraph GCP ["Google Cloud Run (Serverless)"]
-        B[FastAPI Security Proxy]:::backend
-        M[Internal MCP Server]:::backend
-        C[Google ADK / Vertex AI]:::ai
-        B <--> M
-        B <--> C
-    end
+    Anonymous([👤 User Prompt]) --> UI[🎨 React 19 Frontend \n Vercel AI SDK]:::RunService
+    UI -- "HTTPS/REST" --> Auth[🔐 FastAPI Gateway \n Token Validation]:::gateway
+    Auth -- "HTTPS/REST" --> RouterAgent[⚡ ge_adk_portal_router \n Deployed: Agent Engine]:::AgentEngine
 
-    subgraph Entra ["Microsoft 365 Enterprise"]
-        E[Entra ID / Graph API]:::data
-        F[(SharePoint Internal Indices)]:::data
-        E --> F
-    end
+    %% Remote Transport layer
+    RouterAgent -- "HTTPS/SSE POST" --> SharePointCR[🐋 SharePoint Sec Proxy \n Cloud Run: mcp-sharepoint-server]:::RunService
+    RouterAgent -- "HTTPS/SSE POST" --> ServiceNowCR[🐋 ServiceNow Proxy \n Cloud Run: servicenow-mcp]:::RunService
 
-    A -- "Streaming HTTP + Bearer Token" --> B
-    M -- "Delegated Search" --> E
-    
-    %% Styles
-    linkStyle default stroke:#64748b,stroke-width:2px,fill:none;
-    style Client fill:#020617,stroke:#3b82f6,stroke-width:1px,stroke-dasharray: 4 4
-    style GCP fill:#000000,stroke:#8b5cf6,stroke-width:1px,stroke-dasharray: 4 4
-    style Entra fill:#022c22,stroke:#10b981,stroke-width:1px,stroke-dasharray: 4 4
+    %% Target APIs
+    SharePointCR -.-> SharePoint[(Microsoft SharePoint)]:::db
+    ServiceNowCR -.-> ServiceNow[(ServiceNow Cloud)]:::db
+
+    %% Click Map Targets (Absolute GitHub URLs)
+    click UI "https://github.com/jchavezar/vertex-ai-samples/tree/main/antigravity/internal_components_portal_remote/frontend" "View Frontend Source"
+    click Auth "https://github.com/jchavezar/vertex-ai-samples/blob/main/antigravity/internal_components_portal_remote/backend/main.py" "View FastAPI Gateway"
+    click RouterAgent "https://github.com/jchavezar/vertex-ai-samples/tree/main/antigravity/internal_components_portal_remote/backend/agents" "View ADK Router Orchestrators"
+    click SharePointCR "https://github.com/jchavezar/vertex-ai-samples/tree/main/antigravity/internal_components_portal_remote/backend/mcp_service" "View SharePoint MCP"
+    click ServiceNowCR "https://github.com/jchavezar/vertex-ai-samples/tree/main/antigravity/internal_components_portal_remote/backend/servicenow_mcp" "View ServiceNow MCP"
 ```
 
-### Flow Breakdown:
-1. **End User Authentication**: User logs in via Microsoft Entra ID leveraging the MSAL library directly in the React frontend.
-2. **Streaming Execution**: The Vercel AI SDK streams the request along with the `Bearer` token to the FastAPI backend running a Google ADK `LlmAgent`.
-3. **LLM Evaluation**: `gemini-3-pro-preview` evaluates the query and delegates execution to the internal `FastMCP` server for external knowledge retrieval.
-4. **Token Hydration**: The MCP Server hydrates the incoming user token, querying the Microsoft Graph API securely to retrieve documents specifically scoped to the signed-in user.
-5. **Zero-Parsing Delivery**: The Proxy returns sanitized markdown (`0:`) and structured data citation cards (`2:`) back to the frontend dynamically.
-
-## 🛡️ Enterprise Data Verification
-
-Below is a live rendering of the dashboard processing a query (`what is the salary of cfo?`) while enforcing strictly grounded references and masked entities.
-
-![Enterprise Shield Response](docs/images/cfo_salary_response_1773839415160.png)
-
 ---
 
-## 🔍 Execution Analyzer (Analytical Overlay)
+## 🚀 Step-by-Step Replication Guide
 
-Our application combines with a real-time **Execution Analyzer Assistant** accessible via the **Execution Latency** tab. Click the bottom-right floating action window to analyze live tracing analytics dynamically while complying with strict shielding policies.
+To deploy the entire Remote Mesh stack correctly, follow this standard deployment sequence:
 
-![Execution Analyzer Overlay Tool](docs/images/analyzer_overlay_dashboard_v3_1773839474230.png)
-
-### Key Optimizations & Security Update:
-- **Strict Grounding Enforcement**: Direct instructions compel correctly grounded output without generic fallback loops or redundant summaries.
-- **Zero-Leak Data Masking**: Secure rules redact original entity names and ranges to "Company A", "Access Restricted", etc.
-- **Async Loader Overlays**: Standardized telemetry components ensuring correct load timing on parallel streams.
-
----
-
-## 🛠️ Replication & Setup Guide
-Ensure your Entra ID application has:
-- Supported account types: Single Tenant
-- Redirect URIs (SPA): `http://localhost:5177` and your `https://your-cloud-run-frontend-url`
-- API Permissions: `Sites.Read.All`, `Files.Read.All`, `User.Read` (Delegated)
-
-### 2. Configure Environment
-
-At the root of the project (`internal_components_portal/`), create a `.env` file containing your Azure credentials and SharePoint targets:
-
+### **Step 1: Environment Bindings**
+Ensure your root `.env` (excluded from git) contain metadata endpoints references supporting deployments routing mesh securely:
 ```env
-# Microsoft Configuration (No secrets!)
-TENANT_ID=your_tenant_id
-CLIENT_ID=your_client_id
+# Cloud Run endpoints (Hydrate these after triggering Step 2)
+SERVICENOW_MCP_URL="https://servicenow-mcp-<hash>.us-central1.run.app/sse"
+SHAREPOINT_MCP_URL="https://mcp-sharepoint-server-<hash>.us-central1.run.app/sse"
 
-# SharePoint Targeting
-SITE_ID=your_site_id
-DRIVE_ID=your_drive_id
-
-# Google Cloud Targeting
-GOOGLE_CLOUD_PROJECT=your_gcp_project
-GOOGLE_CLOUD_LOCATION=us-central1
+# Targets (Non-secret IDs for Entra authentication layer)
+TENANT_ID="your-azure-tenant-id"
+CLIENT_ID="your-azure-app-client-id"
+SITE_ID="your-sharepoint-site-id"
+DRIVE_ID="your-sharepoint-drive-id"
 ```
 
-*(Note: The `backend/main.py` is configured to gracefully load the `.env` from the parent directory.)*
+### **Step 2: Deploying the Backends (Cloud Run)**
+Each specialized target listener gets wrapped inside its isolated execution context container:
 
-### 3. Local Development (`uv` strictly enforced)
+1. **Deploy SharePoint Sec Proxy**:
+   ```bash
+   cd backend
+   # Build image and publish listening endpoints
+   gcloud run deploy mcp-sharepoint-server --source . --file Dockerfile_sharepoint
+   ```
 
-**Backend:**
+2. **Deploy ServiceNow Proxy**:
+   ```bash
+   cd backend
+   gcloud run deploy servicenow-mcp --source . --file Dockerfile
+   ```
+
+### **Step 3: Registering with Vertex AI Agent Engine**
+Register the master `LlmAgent` mesh router on Vertex AI reasoning engines to unify intent classifying:
 ```bash
 cd backend
-uv sync
-uv run python main.py
-```
-*(Runs on port 8008)*
-
-**Frontend:**
-*Create a `.env.local` in the `frontend` directory for Vite:*
-```env
-VITE_TENANT_ID=your_tenant_id
-VITE_CLIENT_ID=your_client_id
-# Localhost pointing
-VITE_BACKEND_URL=http://localhost:8008/chat
-```
-```bash
-cd frontend
-npm install
-npm run dev
+uv run python deploy_agent_engine.py
 ```
 
 ---
 
-## ☁️ Cloud Run Deployment
-
-Deploying to Cloud Run uses optimized scripts that pass Build-Time environment variables securely without leaking `.env` secrets into the image registries.
-
-**Deploy Backend:**
-```bash
-cd backend
-./deploy.sh
-```
-*The script resolves `../.env` and maps `SITE_ID` and `DRIVE_ID` via `gcloud run deploy --set-env-vars`.*
-
-**Deploy Frontend:**
-*Update your `frontend/.env.local` to point `VITE_BACKEND_URL` to the newly deployed Cloud Run backend URL.*
-```bash
-cd frontend
-./deploy.sh
-```
-*The script creates an ephemeral `docker-env.txt` to inject MSAL variables during Docker build time without exposing them to the source tree.*
-
-### Secure Identity Access
-Both the Frontend and Backend are deployed with `--allow-unauthenticated` at the Google Cloud IAM level. **Security is strictly enforced at the application level** by the React MSAL provider and the FastAPI Bearer validation. Unauthenticated requests to the backend `/chat` endpoint will fail immediately.
+## 📂 isolated Directory Navigation
+Click a subfolder directory to view component diagrams framing internal triggers and loop sequences absolute links nodes ranges correctly:
+*   [🎨 frontend/](frontend/) : Vite standard setup housing local routing hooks.
+*   [🐋 backend/mcp_service/](backend/mcp_service/) : Logic for delegated Parallel SharePoint node.
+*   [🐋 backend/servicenow_mcp/](backend/servicenow_mcp/) : Logic for specialized tickets emission node.
+*   [⚡ backend/agents/](backend/agents/) : Google ADK orchestrators framing prompt streams node.

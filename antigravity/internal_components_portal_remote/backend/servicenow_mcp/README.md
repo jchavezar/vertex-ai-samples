@@ -29,18 +29,20 @@ if __name__ == "__main__":
 
 ## 🔧 Exposing Advanced API Capabilities
 
-The following list of tools is fully callable by the Agent Engine over HTTP requests:
+The following list of tools is fully callable by the Agent Engine over HTTP requests. **Click a tool to view its source code implementation:**
 
-| Tool Name | Arguments | Description |
-| :--- | :--- | :--- |
-| `query_table` | `table_name: str, query: str` | Generic Table API wrapper search. |
-| `create_ticket` | `table_name, payload_json` | Creates a record in any ServiceNow table (e.g., incident). |
-| `update_ticket` | `table_name, sys_id, updates_json` | Updates ticket fields/state using raw stringified JSON. |
-| `get_ticket` | `number: str` | Fetches single ticket exact match (e.g., INC0000601). |
-| `delete_ticket` | `table_name, sys_id` | Deletes record from table (Fails if user lacks ACL permissions). |
-| `add_comment` | `table_name, sys_id, text` | Appends customer visible `comment` or internal `work_note`. |
-| `submit_catalog_item`| `catalog_item_sys_id, quantities, variables` | Submits a Service Catalog request via order_now Cart API. |
-| `search_catalog_items`| `search_term: str` | Searches `sc_cat_item` (e.g., 'Laptop', 'Vpn') for Order SysID discovery. |
+```mermaid
+graph TD
+    classDef tool fill:#e8f5e9,stroke:#43a047,stroke-width:2px,color:#1b5e20;
+    
+    T1[🔍 query_table \n Generic Table API Search]:::tool
+    T2[📋 list_incidents \n List Incident Tickets]:::tool
+    T3[➕ create_ticket \n Insert Record into Table]:::tool
+    
+    click T1 "https://github.com/jchavezar/vertex-ai-samples/blob/main/antigravity/internal_components_portal_remote/backend/servicenow_mcp/mcp_server_servicenow.py#L70" "View Code"
+    click T2 "https://github.com/jchavezar/vertex-ai-samples/blob/main/antigravity/internal_components_portal_remote/backend/servicenow_mcp/mcp_server_servicenow.py#L123" "View Code"
+    click T3 "https://github.com/jchavezar/vertex-ai-samples/blob/main/antigravity/internal_components_portal_remote/backend/servicenow_mcp/mcp_server_servicenow.py#L166" "View Code"
+```
 
 ---
 

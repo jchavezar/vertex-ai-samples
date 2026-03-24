@@ -1,0 +1,9 @@
+# Exclude absolute local env weights
+.venv/
+__pycache__/
+*.png
+*.html
+models.json
+.git/
+.gitignore
+.dockerignore

@@ -21,15 +21,22 @@ if __name__ == "__main__":
 
 ## 🔧 Tools definitions (`mcp_server.py`)
 
-The actual tools coordinates follow isolated authentication scopes and emit parallel payloads:
+The actual tools coordinates follow isolated authentication scopes and emit parallel payloads. **Click a tool to view its source code implementation:**
 
-| Tool Name | Arguments | Description |
-| :--- | :--- | :--- |
-| `search_documents` | `query: str, limit: int` | Searches SharePoint using Parallel Fan-out Discovery across broad paths. |
-| `read_document_content` | `item_id: str` | Reads full text payload for a single securely bound workspace ID. |
-| `read_multiple_documents` | `item_ids: List[str]` | Reads content for multiple indices in parallel to lower stream response latency. |
-| `emit_project_card` | `title, insights, key_metrics, redact_entities...` | Submits a structured layout card. **Rule**: Wrap PII or financial weights in `<redact>` tags for UI processing. |
-| `secure_document_governance` | `item_id: str` | Relocates a flagged file into the 'Restricted Vault' directory automatically. |
+```mermaid
+graph TD
+    classDef tool fill:#fdeff2,stroke:#f06292,stroke-width:2px,color:#d81b60;
+    
+    T1[🔍 search_documents \n Parallel Fan-out Discovery]:::tool
+    T2[📋 emit_project_card \n Structured Card + PII Masking]:::tool
+    T3[📄 read_document_content \n Full Text Streaming]:::tool
+    T4[🛡️ secure_document_governance \n Auto-Relocate to Vault]:::tool
+    
+    click T1 "https://github.com/jchavezar/vertex-ai-samples/blob/main/antigravity/internal_components_portal_remote/backend/mcp_service/mcp_server.py#L79" "View Code"
+    click T2 "https://github.com/jchavezar/vertex-ai-samples/blob/main/antigravity/internal_components_portal_remote/backend/mcp_service/mcp_server.py#L99" "View Code"
+    click T3 "https://github.com/jchavezar/vertex-ai-samples/blob/main/antigravity/internal_components_portal_remote/backend/mcp_service/mcp_server.py#L124" "View Code"
+    click T4 "https://github.com/jchavezar/vertex-ai-samples/blob/main/antigravity/internal_components_portal_remote/backend/mcp_service/mcp_server.py#L157" "View Code"
+```
 
 ### 🛡️ Core Governance Persona Prompt
 The server exports a continuous instruction guide forcing the Agent to use `<redact>` tags whenever exact salaries or sensitive metrics are accessed:
