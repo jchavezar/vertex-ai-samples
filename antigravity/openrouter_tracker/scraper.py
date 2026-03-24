@@ -8,8 +8,13 @@ async def scrape_model_providers(page, model_id):
     url = f'https://openrouter.ai/{model_id}'
     print(f"[{model_id}] Navigating to {url}...")
     try:
-        await page.goto(url, timeout=30000)
-        await page.wait_for_timeout(3000)
+        await page.goto(url, timeout=45000, wait_until="domcontentloaded")
+        try:
+            # Wait up to 8s for Async Javascript Hydration to render the Latency indicators
+            await page.wait_for_selector('div:has-text("Latency")', timeout=8000)
+        except Exception:
+            pass
+        await page.wait_for_timeout(1000)
         
         # Click "Providers" tab
         try:
@@ -88,10 +93,14 @@ async def scrape_batch(model_ids, concurrency=3):
         
         async def sem_scrape(model_id):
             async with semaphore:
-                # Open separate page for isolation
-                page = await browser.new_page()
+                # Use a fake context user-agent to bypass bot detection blocking.
+                context = await browser.new_context(
+                    user_agent='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36'
+                )
+                page = await context.new_page()
                 res = await scrape_model_providers(page, model_id)
                 await page.close()
+                await context.close()
                 all_results.extend(res)
                 
         tasks = [sem_scrape(mid) for mid in model_ids]

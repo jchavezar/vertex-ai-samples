@@ -7,7 +7,7 @@ set -e
 PROJECT_ID="vtxdemos"
 REGION="us-central1"
 SERVICE_NAME="openrouter-tracker"
-IMAGE_NAME="gcr.io/$PROJECT_ID/$SERVICE_NAME"
+IMAGE_NAME="gcr.io/$PROJECT_ID/$SERVICE_NAME:$(date +%s)"
 CRON_JOB_NAME="openrouter-stats-daily"
 
 echo "=========================================================="
@@ -49,14 +49,16 @@ if gcloud scheduler jobs describe $CRON_JOB_NAME --location $REGION > /dev/null 
         --schedule="0 */6 * * *" \
         --uri=$TRIGGER_URL \
         --http-method=GET \
-        --location=$REGION
+        --location=$REGION \
+        --attempt-deadline=15m
 else
     echo "Creating new Cloud Scheduler job (Every 6 hours)..."
     gcloud scheduler jobs create http $CRON_JOB_NAME \
         --schedule="0 */6 * * *" \
         --uri=$TRIGGER_URL \
         --http-method=GET \
-        --location=$REGION
+        --location=$REGION \
+        --attempt-deadline=15m
 fi
 
 
