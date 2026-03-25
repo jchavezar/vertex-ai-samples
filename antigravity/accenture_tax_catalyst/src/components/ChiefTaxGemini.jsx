@@ -37,6 +37,7 @@ const ChiefTaxGemini = () => {
 
   useEffect(() => {
     const handleTrigger = (e) => {
+      setIsOpen(true); // Auto-open the chat window
       if (handleSendRef.current) {
         handleSendRef.current(e.detail);
       }
@@ -193,9 +194,9 @@ const ChiefTaxGemini = () => {
         {isOpen && (
           <motion.div 
             className="gemini-interface glass-panel"
-            drag
+            drag={window.innerWidth > 768}
             dragMomentum={false}
-            style={{ cursor: 'move' }}
+            style={{ cursor: window.innerWidth > 768 ? 'move' : 'default' }}
           >
           <div className="chat-window">
             <div className="chat-header">

@@ -47,6 +47,8 @@ def create_table_if_not_exists():
         bigquery.SchemaField("latency_sec", "FLOAT", mode="NULLABLE"),
         bigquery.SchemaField("throughput_tps", "FLOAT", mode="NULLABLE"),
         bigquery.SchemaField("uptime_pct", "FLOAT", mode="NULLABLE"),
+        bigquery.SchemaField("pull_timestamp", "TIMESTAMP", mode="NULLABLE"),
+        bigquery.SchemaField("date_only", "DATE", mode="NULLABLE"),
     ]
     
     try:
@@ -73,7 +75,7 @@ def parse_float(val_str):
     except ValueError:
         return None
 
-def insert_rows(rows_data):
+def insert_rows(rows_data, pull_time=None):
     """
     rows_data: list of dicts with keys (model_id, provider, latency, throughput, uptime)
     Returns count of items inserted
@@ -120,7 +122,9 @@ def insert_rows(rows_data):
             "latency_sec": latency,
 
             "throughput_tps": throughput,
-            "uptime_pct": uptime
+            "uptime_pct": uptime,
+            "pull_timestamp": pull_time if pull_time else now_iso,
+            "date_only": datetime.now(timezone.utc).date().isoformat()
         })
 
             

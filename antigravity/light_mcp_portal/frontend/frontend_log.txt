@@ -1,0 +1,28 @@
+
+> frontend@0.0.0 dev
+> vite --port 5185
+
+
+  VITE v8.0.2  ready in 236 ms
+
+  ➜  Local:   http://localhost:5185/
+  ➜  Network: use --host to expose
+10:06:29 AM [vite] (client) hmr update /src/App.css
+10:07:01 AM [vite] (client) hmr update /src/App.css
+10:07:21 AM [vite] (client) hmr update /src/App.tsx
+10:08:29 AM [vite] (client) hmr update /src/App.css
+10:08:45 AM [vite] (client) hmr update /src/App.tsx
+10:09:07 AM [vite] (client) hmr update /src/App.css
+10:09:11 AM [vite] vite.config.ts changed, restarting server...
+10:09:11 AM [vite] server restarted.
+10:15:07 AM [vite] (client) hmr update /src/App.css
+10:15:47 AM [vite] (client) hmr update /src/App.tsx
+10:24:32 AM [vite] http proxy error: /api/chat
+AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+10:24:32 AM [vite] (client) [console.error] Error in chat: Error: Failed to send message
+    at handleSend (http://localhost:5185/src/App.tsx?t=1774433747751:84:28)
+*** gpkg: This tool is configured to use Corp Airlock for package installs: http://go/corp-airlock
+*** gpkg: If Corp Airlock is breaking your workflow please report at: http://go/corp-airlock-feedback
+*** gpkg: Exceptions are available: http://go/corp-airlock#request-exception

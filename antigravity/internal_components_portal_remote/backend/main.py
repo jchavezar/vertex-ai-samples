@@ -18,7 +18,11 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 import json
 import logging
+import asyncio
+import os
+import time
 import requests
+import uuid
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
@@ -79,7 +83,7 @@ import os
 from google.adk.sessions.in_memory_session_service import InMemorySessionService
 from google.adk.sessions.vertex_ai_session_service import VertexAiSessionService
 
-agent_engine_id = os.environ.get("ROUTER_REASONING_ENGINE_ID")
+agent_engine_id = os.environ.get("AGENT_ENGINE_ID")
 if agent_engine_id:
     logger.info(f"Using VertexAiSessionService with Reasoning Engine ID: {agent_engine_id}")
     session_service = VertexAiSessionService(
@@ -547,7 +551,7 @@ async def auth_error_stream(message: str):
 async def _ge_mcp_chat_stream(messages: list, model_name: str, token: str = None, id_token: str = None, session_id: str = None):
     set_user_token(token)
     set_user_id_token(id_token)
-    prompt = messages[-1]['content']
+    prompt = messages[-1].get('content', '') if messages else ""
     
     reasoning_steps = []
     latency_metrics = []
@@ -679,7 +683,12 @@ async def _ge_mcp_chat_stream(messages: list, model_name: str, token: str = None
                     parts = content.get("parts", [])
                     for p in parts:
                         if p.get("thought"):
-                            txt = f"[ADK Router: {author}] THOUGHT:\n{p['thought'].strip()}"
+                            thought_content = p['thought']
+                            if isinstance(thought_content, str):
+                                thought_text = thought_content.strip()
+                            else:
+                                thought_text = str(thought_content)
+                            txt = f"[ADK Router: {author}] THOUGHT:\n{thought_text}"
                             if txt not in reasoning_steps:
                                 reasoning_steps.append(txt)
                                 yield AIStreamProtocol.data({"type": "telemetry", "data": latency_metrics, "reasoning": reasoning_steps, "tokens": tokens, "adk_events": adk_events_trace})
@@ -778,7 +787,12 @@ async def _ge_mcp_chat_stream(messages: list, model_name: str, token: str = None
                 is_model_role = (edata.get("content") or {}).get("role") == "model"
                 for p in parts:
                     if p.get("thought"):
-                        txt = f"[ServiceNow: {author}] THOUGHT:\n{p['thought'].strip()}"
+                        thought_content = p['thought']
+                        if isinstance(thought_content, str):
+                            thought_text = thought_content.strip()
+                        else:
+                            thought_text = str(thought_content)
+                        txt = f"[ServiceNow: {author}] THOUGHT:\n{thought_text}"
                         if txt not in reasoning_steps:
                             reasoning_steps.append(txt)
                             yield AIStreamProtocol.data({"type": "telemetry", "data": latency_metrics, "reasoning": reasoning_steps, "tokens": tokens, "adk_events": adk_events_trace})
@@ -801,6 +815,99 @@ async def _ge_mcp_chat_stream(messages: list, model_name: str, token: str = None
                 await exit_stack.aclose()
                 
         yield AIStreamProtocol.data({"type": "status", "message": "ServiceNow operation completed.", "icon": "check-circle", "pulse": False})
+
+    elif intent == "SEARCH":
+        yield AIStreamProtocol.data({"type": "status", "message": "Intent Detected: Search. Routing to Discovery Agent...", "icon": "search", "pulse": True})
+        
+        reasoning_steps.append("[Router] Dispatching to Discovery Runner with standard enterprise tools...")
+        yield AIStreamProtocol.data({"type": "telemetry", "data": latency_metrics, "reasoning": reasoning_steps, "tokens": tokens, "adk_events": adk_events_trace})
+        
+        sess_id = f"sch-{session_id_to_use}"
+        session = await get_or_create_session("internal-security-proxy", sess_id)
+        if token:
+            session.state["token"] = token
+            
+        # Seed history
+        if len(messages) > 1:
+            for msg in messages[:-1]:
+                role = "user" if msg.get("role") == "user" else "model"
+                part = types.Part.from_text(text=msg.get("content", ""))
+                content_obj = types.Content(role=role, parts=[part])
+                evt = Event(author=role, content=content_obj)
+                session.events.append(evt)
+                
+        try:
+            agent, exit_stack = await get_agent_with_mcp_tools(token=token, id_token=id_token, model_name=model_name)
+            # Make sure it's the exact runner name used elsewhere
+            runner = Runner(app_name="internal-security-proxy", agent=agent, session_service=session_service)
+            msg_obj = types.Content(role="user", parts=[types.Part.from_text(text=prompt)])
+            
+            queue = asyncio.Queue()
+            async def stream_search():
+                try:
+                    async for event in runner.run_async(user_id="default_user", session_id=session.id, new_message=msg_obj):
+                        await queue.put({"event": event, "type": "data"})
+                except Exception as e:
+                    logger.exception(f"Search Task failed: {e}")
+                    await queue.put({"event": str(e), "type": "error"})
+                finally:
+                    await queue.put({"type": "done"})
+                    
+            asyncio.create_task(stream_search())
+            search_start = time.time()
+            
+            while True:
+                msg_q = await queue.get()
+                t = msg_q["type"]
+                if t == "done":
+                    break
+                elif t == "error":
+                    yield AIStreamProtocol.text(f"\n❌ Discovery Proxy Error: {msg_q['event']}\n")
+                    continue
+                    
+                evt = msg_q["event"]
+                edata = evt.model_dump(mode='json')
+                adk_events_trace.append({"source": "Internal_Security_Proxy", "event": edata})
+                push_smart_telemetry("security_proxy", edata)
+                usage = edata.get("usage_metadata")
+                if usage:
+                    tokens["prompt"] += usage.get("prompt_token_count") or 0
+                    tokens["candidates"] += usage.get("candidates_token_count") or 0
+                    tokens["total"] += usage.get("total_token_count") or 0
+                
+                parts = edata.get("content", {}).get("parts", []) if edata.get("content") else []
+                author = edata.get("author") or "unknown"
+                is_model_role = (edata.get("content") or {}).get("role") == "model"
+                for p in parts:
+                    if p.get("thought"):
+                        thought_content = p['thought']
+                        if isinstance(thought_content, str):
+                            thought_text = thought_content.strip()
+                        else:
+                            thought_text = str(thought_content)
+                        txt = f"[Search: {author}] THOUGHT:\n{thought_text}"
+                        if txt not in reasoning_steps:
+                            reasoning_steps.append(txt)
+                            yield AIStreamProtocol.data({"type": "telemetry", "data": latency_metrics, "reasoning": reasoning_steps, "tokens": tokens, "adk_events": adk_events_trace})
+                    
+                    if p.get("function_call"):
+                        tool_name = p["function_call"].get("name", "")
+                        yield AIStreamProtocol.data({"type": "status", "message": f"Executing Search Action: {tool_name}...", "icon": "search", "pulse": True})
+                    elif p.get("function_response"):
+                        tool_name = p["function_response"].get("name", "")
+                        yield AIStreamProtocol.data({"type": "status", "message": f"Completed Search Action: {tool_name}", "icon": "check", "pulse": False})
+                    elif p.get("text"):
+                        if is_model_role or author == "model":
+                            yield AIStreamProtocol.text(p.get("text"))
+            
+            search_duration = time.time() - search_start
+            latency_metrics.append({"step": f"[SYSTEM-ATOMIC: {model_name}] Discovery Execution", "duration_s": round(search_duration, 2)})
+            yield AIStreamProtocol.data({"type": "telemetry", "data": latency_metrics, "reasoning": reasoning_steps, "tokens": tokens, "adk_events": adk_events_trace, "config": optimization_params})
+        finally:
+            if 'exit_stack' in locals() and exit_stack:
+                await exit_stack.aclose()
+                
+        yield AIStreamProtocol.data({"type": "status", "message": "Search operation completed.", "icon": "check-circle", "pulse": False})
 
     else:
         yield AIStreamProtocol.data({"type": "status", "message": "Intent Detected: Action. Routing to MCP Action Server...", "icon": "zap", "pulse": True})

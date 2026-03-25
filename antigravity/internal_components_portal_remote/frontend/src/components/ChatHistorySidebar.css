@@ -4,10 +4,12 @@
   display: flex;
   flex-direction: column;
   height: auto;
-  max-height: 400px;
-  flex-shrink: 0;
+  flex-grow: 1;
+  flex-shrink: 1;
+  min-height: 0;
   margin-top: 24px;
 }
+
 
 .history-header {
   padding: 12px 16px;
@@ -31,23 +33,21 @@
   gap: 4px;
 }
 
-.history-item {
+.sidebar-history-item {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 12px;
-  border-radius: 8px;
+  padding: 8px 12px;
+  border-radius: 4px;
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
-.history-item:hover {
+.sidebar-history-item:hover {
   background: rgba(255, 255, 255, 0.05);
 }
 
-.history-item.active {
-  background: rgba(134, 188, 37, 0.1);
-  border-left: 3px solid var(--internal-green);
+.sidebar-history-item.active {
+  background: rgba(255, 255, 255, 0.1);
 }
 
 .history-item-icon {
@@ -62,8 +62,8 @@
 
 .history-item-title {
   font-size: 0.85rem;
-  font-weight: 500;
-  color: #fff;
+  font-weight: 400;
+  color: #e3e3e3;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;

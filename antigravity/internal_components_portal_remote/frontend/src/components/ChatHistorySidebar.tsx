@@ -49,16 +49,10 @@ export const ChatHistorySidebar: React.FC<ChatHistorySidebarProps> = ({ onSelect
         {sessions.map((session) => (
           <div 
             key={session.id} 
-            className={`history-item ${activeSessionId === session.id ? 'active' : ''}`}
+            className={`sidebar-history-item ${activeSessionId === session.id ? 'active' : ''}`}
             onClick={() => onSelectSession(session.id)}
           >
-            <div className="history-item-icon">💬</div>
-            <div className="history-item-content">
-              <div className="history-item-title">{session.title}</div>
-              <div className="history-item-date">
-                {new Date(session.updated_at * 1000).toLocaleDateString()}
-              </div>
-            </div>
+            <div className="history-item-title">{session.title}</div>
           </div>
         ))}
       </div>

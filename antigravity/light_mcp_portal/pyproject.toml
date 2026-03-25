@@ -1,0 +1,14 @@
+[project]
+name = "light-mcp-portal"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "fastmcp>=3.1.1",
+]
+
+[tool.uv.workspace]
+members = [
+    "backend",
+]

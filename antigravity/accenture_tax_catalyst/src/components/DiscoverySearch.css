@@ -48,7 +48,7 @@
   width: 100vw !important;
   height: 100vh !important;
   background: #000000 !important; /* Strict Opaque Black just like Accenture */
-  z-index: 999998 !important;
+  z-index: 9999998 !important;
 }
 
 .discovery-overlay-wrapper {
@@ -58,7 +58,7 @@
   width: 100vw !important;
   height: 100vh !important;
   max-width: 100vw !important;
-  z-index: 999999 !important;
+  z-index: 9999999 !important;
   display: flex !important;
   flex-direction: column !important;
   pointer-events: auto !important;

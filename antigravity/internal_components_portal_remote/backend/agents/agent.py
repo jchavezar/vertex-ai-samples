@@ -1,6 +1,10 @@
 from google.adk import agents
 from google.adk import sessions
 from google.adk.tools import mcp_tool
+from google.adk.tools.base_tool import BaseTool
+from google.adk.tools.tool_context import ToolContext
+from google.genai import types
+from typing_extensions import override
 import os
 import logging
 from contextlib import AsyncExitStack
@@ -23,11 +27,11 @@ ENHANCED_GOVERNANCE_INSTRUCTIONS = """
 You are a highly secure Governance Agent for Internal. 
 
 OPERATIONAL DIRECTIVES:
-1. **TOOL USAGE IS MANDATORY**: You MUST invoke the `search_documents` tool for EVERY query without exception. Even if you believe the query is "general knowledge," you must confirm that Internal does not have a specific internal stance or policy. 
-2. **NO PRE-EMPTIVE REFUSAL**: Do NOT refuse to answer or state that you cannot find information until AFTER you have executed `search_documents`.
+1. **TOOL USAGE IS MANDATORY**: You MUST invoke available search tools (`search_documents` for SharePoint or `search_vertex_ai` for Discovery Engine) for EVERY query without exception. Even if you believe the query is "general knowledge," you must confirm that Internal does not have a specific internal stance or policy. 
+2. **NO PRE-EMPTIVE REFUSAL**: Do NOT refuse to answer or state that you cannot find information until AFTER you have executed search tools.
 3. **GROUNDING & FALLBACK**:
-   - If `search_documents` returns results: Use them as your primary source to answer. Do NOT state you found no documents if results are returned.
-   - If `search_documents` returns NO results: 
+   - If search results are returned: Use them as your primary source to answer. Do NOT state you found no documents if results are returned.
+   - If search results return NO results: 
      a) Do NOT call `emit_project_card` with `document_id="N/A"` or generic placeholders. Only emit cards for actual documents found.
      b) Provide the answer using your internal knowledge (public consensus), but explicitly state: "I found no specific internal documents for this query. Based on general industry consensus..."
 4. **STRICT DATA PRIVACY & MASKING**:
@@ -49,26 +53,97 @@ def mcp_header_provider(readonly_context: ReadonlyContext) -> dict[str, str]:
     """
     headers = {}
     
-    # 1. Fallback to local context vars for local FastAPI execution (to preserve functioning mode)
-    from utils.auth_context import get_user_token
-    token = get_user_token()
-    if token and token not in ["null", "undefined", "None"]:
-         headers["Authorization"] = f"Bearer {token.strip()}"
-         return headers
-
-    # 2. Inspect session state for cloud execution (Reasoning Engine / ADK context)
+    # 1. Inspect session state for cloud execution (Reasoning Engine / ADK context)
     if hasattr(readonly_context, "session") and hasattr(readonly_context.session, "state"):
         session_state = dict(readonly_context.session.state)
-        # Scan for JWT string (starts with eyJ, usually > 100 chars)
+        # Explicit check for 'token' key first
+        token = session_state.get("token")
+        if token and isinstance(token, str) and token not in ["null", "undefined", "None"]:
+             headers["Authorization"] = f"Bearer {token.strip()}"
+             return headers
+             
+        # Scan for JWT string (starts with eyJ, usually > 100 chars) as fallback
         for key, value in session_state.items():
             if isinstance(value, str) and (value.startswith("eyJ") or len(value) > 100):
                  if hasattr(logger, "info"):
                       logger.info(f">>> [MCP HEADER] Found dynamic token in session state key: {key}")
                  headers["Authorization"] = f"Bearer {value.strip()}"
-                 break
+                 return headers
+
+    # 2. Fallback to local context vars for local FastAPI execution
+    from utils.auth_context import get_user_token
+    token = get_user_token()
+    if token and token not in ["null", "undefined", "None"]:
+         headers["Authorization"] = f"Bearer {token.strip()}"
                  
     return headers
 
+
+# --- CUSTOM VERTEX AI SEARCH TOOL (Grounding Support) ---
+def is_gemini_model(model: str) -> bool:
+    return "gemini" in model.lower()
+
+def is_gemini_1_model(model: str) -> bool:
+    return "gemini-1" in model.lower()
+
+class VertexAiSearchToolCustom(BaseTool):
+    """
+    A custom implementation of Vertex AI Search that behaves as a BaseTool.
+    This bypasses the ADK 'single built-in tool' limitation and supports 
+    explicit datastore specs for SharePoint.
+    """
+    def __init__(
+        self,
+        *,
+        data_store_id: Optional[str] = None,
+        data_store_specs: Optional[list[types.VertexAISearchDataStoreSpec]] = None,
+        search_engine_id: Optional[str] = None,
+        filter: Optional[str] = None,
+        max_results: Optional[int] = None
+    ):
+        super().__init__(name='search_vertex_ai', description='Search across internal knowledge bases using Vertex AI Search.')
+        self.data_store_id = data_store_id
+        self.data_store_specs = data_store_specs
+        self.search_engine_id = search_engine_id
+        self.filter = filter
+        self.max_results = max_results
+
+    @override
+    async def process_llm_request(
+        self,
+        *,
+        tool_context: ToolContext,
+        llm_request: "LlmRequest", # type: ignore
+    ) -> None:
+        if is_gemini_model(llm_request.model):
+            llm_request.config = llm_request.config or types.GenerateContentConfig()
+            llm_request.config.tools = llm_request.config.tools or []
+
+            # Extract engine_id from data_store_id if not provided
+            engine_id = self.search_engine_id
+            if not engine_id and self.data_store_id:
+                engine_id = self.data_store_id.split('/')[-1]
+
+            # Construct the retrieval config
+            vertex_ai_search_config = types.VertexAISearch(
+                # datastore=self.data_store_id, # Mutually exclusive with engine
+                data_store_specs=self.data_store_specs,
+                engine=engine_id,
+                filter=self.filter,
+                max_results=self.max_results,
+            )
+
+            # Manually append the retrieval tool to the LLM request
+            llm_request.config.tools.append(
+                types.Tool(
+                    retrieval=types.Retrieval(
+                        vertex_ai_search=vertex_ai_search_config
+                    )
+                )
+            )
+            logger.info(f">>> [CUSTOM SEARCH TOOL] Injected Vertex AI Search config for datastore: {self.data_store_id}")
+        else:
+            logger.warning(f"[CUSTOM SEARCH TOOL] Model {llm_request.model} does not support Vertex AI Search Grounding.")
 
 async def get_agent_with_mcp_tools(token: Optional[str] = None, id_token: Optional[str] = None, model_name: str = "gemini-2.5-flash"):
     """
@@ -124,6 +199,39 @@ async def get_agent_with_mcp_tools(token: Optional[str] = None, id_token: Option
         import traceback
         traceback.print_exc()
         raise e
+    # 2. Add Discovery Engine Support (Custom Implementation for SharePoint)
+    data_store_id = os.environ.get("DATA_STORE_ID")
+    project_id = os.environ.get("GOOGLE_CLOUD_PROJECT", "vtxdemos")
+    location = os.environ.get("GOOGLE_CLOUD_LOCATION", "global")
+    
+    discovery_tools = []
+    if data_store_id:
+        # If the ID provided is already a full path, we use it directly.
+        # Otherwise, we construct it.
+        if "/" not in data_store_id:
+            data_store_id = f"projects/{project_id}/locations/{location}/collections/default_collection/dataStores/{data_store_id}"
+            
+        logger.info(f">>> [DISCOVERY ENGINE] Initializing CUSTOM VertexAiSearchTool with Data Store: {data_store_id}")
+        
+        # Pull standard engine mapping if available
+        search_engine_id = os.environ.get("SEARCH_ENGINE_ID")
+        
+        # Build strict datastore specs as requested for SharePoint grounding
+        ds_specs = [
+            types.VertexAISearchDataStoreSpec(
+                data_store=data_store_id
+            )
+        ]
+        
+        vertex_search = VertexAiSearchToolCustom(
+            data_store_id=data_store_id,
+            data_store_specs=ds_specs,
+            search_engine_id=search_engine_id,
+            max_results=5
+        )
+        discovery_tools.append(vertex_search)
+    else:
+        logger.warning("DATA_STORE_ID NOT set. Discovery Engine tool will NOT be available.")
 
     # --- PRODUCTION GUARD: Authentication Interceptor ---
     def create_guarded_tool(tool_item, original_func):
@@ -192,7 +300,7 @@ async def get_agent_with_mcp_tools(token: Optional[str] = None, id_token: Option
         name="SecurityProxyAgent",
         model=model_name,
         instruction=ENHANCED_GOVERNANCE_INSTRUCTIONS,
-        tools=mcp_tools,
+        tools=mcp_tools + discovery_tools,
         planner=planner,
         before_agent_callback=before_agent_auth_callback
     )
@@ -203,7 +311,8 @@ def get_agent_session():
     """Creates a basic session with the agent."""
     return sessions.SessionService()
 
-async def get_action_agent_with_mcp_tools(token: Optional[str] = None, id_token: Optional[str] = None, model_name: str = "gemini-3-flash-preview"):
+async def get_action_agent_with_mcp_tools(token: Optional[str] = None, id_token: Optional[str] = None, model_name: str = "gemini-2.5-flash"):
+
     """
     Returns an ADK LlmAgent initialized via the Actions MCP.
     """
@@ -302,7 +411,7 @@ async def get_servicenow_agent_with_mcp_tools(token: Optional[str] = None, id_to
         import shutil
         uv_path = shutil.which("uv") or "uv"
 
-    mcp_url = os.environ.get("SERVICENOW_MCP_URL_DISABLED") # Forced Local
+    mcp_url = os.environ.get("SERVICENOW_MCP_URL")
     if not mcp_url:
         logger.error("SERVICENOW_MCP_URL is NOT set. Falling back to local stdio.")
         params = mcp_tool.StdioConnectionParams(
@@ -316,7 +425,10 @@ async def get_servicenow_agent_with_mcp_tools(token: Optional[str] = None, id_to
         logger.info(f">>> [MCP DISCOVERY] Connecting to Remote ServiceNow MCP: {mcp_url}")
         params = mcp_tool.SseConnectionParams(url=mcp_url)
     
-    toolset = mcp_tool.McpToolset(connection_params=params)
+    toolset = mcp_tool.McpToolset(
+        connection_params=params,
+        header_provider=mcp_header_provider
+    )
     exit_stack.push_async_callback(toolset.close)
     mcp_tools = await toolset.get_tools()
 
