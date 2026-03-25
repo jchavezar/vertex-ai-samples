@@ -6,10 +6,12 @@ import ResearchReports from './components/ResearchReports';
 import ChiefTaxGemini from './components/ChiefTaxGemini';
 import TransferPricingAnalyzer from './components/TransferPricingAnalyzer';
 import ZeroLeakShield from './components/ZeroLeakShield';
+import DiscoverySearch from './components/DiscoverySearch';
 import './App.css';
 
 function App() {
   const [isAtBottom, setIsAtBottom] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -31,7 +33,7 @@ function App() {
 
   return (
     <div className="app-container">
-      <Header />
+      <Header isSearchOpen={isSearchOpen} setIsSearchOpen={setIsSearchOpen} />
       
       <main>
         {/* Core AI Hero Section */}
@@ -100,6 +102,9 @@ function App() {
           </div>
         </div>
       </footer>
+
+      {/* Globally mounted Search Overlay to avoid mobile parent hiding issues */}
+      <DiscoverySearch isOpen={isSearchOpen} setIsOpen={setIsSearchOpen} />
     </div>
   );
 }

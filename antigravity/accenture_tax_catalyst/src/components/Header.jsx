@@ -5,12 +5,10 @@ import ReactMarkdown from 'react-markdown';
 import './Header.css';
 import GenerativeDashboardModal from './GenerativeDashboardModal';
 import SwarmBoardroomModal from './SwarmBoardroomModal';
-import DiscoverySearch from './DiscoverySearch';
 
-const Header = () => {
+const Header = ({ isSearchOpen, setIsSearchOpen }) => {
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [isSearchOpen, setIsSearchOpen] = useState(false); // added
   
   // 3080 Future Labs State
   const [isBoardroomOpen, setIsBoardroomOpen] = useState(false);
@@ -160,12 +158,19 @@ const Header = () => {
     <header className={`header ${scrolled ? 'header-scrolled' : ''}`}>
       <div className="header-top">
         <div className="header-container">
+          <button 
+            className="navbar-search-trigger" 
+            onClick={() => setIsSearchOpen(true)}
+            aria-label="Search"
+          >
+            <Search size={22} />
+          </button>
+
           <div className="logo-container" style={{ display: 'flex', alignItems: 'center' }}>
             <div style={{ position: 'relative', display: 'inline-flex', alignItems: 'center' }}>
-              <span style={{ fontSize: '26px', fontWeight: '700', color: '#ffffff', letterSpacing: '-0.5px', fontFamily: "'Inter', sans-serif" }}>accenture</span>
+              <span style={{ fontSize: '26px', fontWeight: '700', color: '#ffffff', letterSpacing: '-0.5px', fontFamily: "'Inter', sans-serif" }} className="accenture-text">accenture</span>
               <span style={{ position: 'absolute', top: '-6px', right: '31px', color: '#A100FF', fontSize: '18px', fontWeight: '900' }}>&gt;</span>
             </div>
-            <span style={{ fontSize: '12px', fontWeight: '500', color: 'rgba(255,255,255,0.9)', borderLeft: '1px solid rgba(255,255,255,0.3)', paddingLeft: '8px', lineHeight: '1.2', marginLeft: '8px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Tax<br/>Catalyst</span>
           </div>
 
           <div className="header-top-links">
@@ -174,15 +179,6 @@ const Header = () => {
               <span>USA</span>
               <ChevronDown size={14} />
             </div>
-            
-            <button 
-              className="navbar-search-trigger" 
-              onClick={() => setIsSearchOpen(true)}
-              aria-label="Search"
-            >
-              <Search size={18} />
-            </button>
-
             <a href="#" className="hide-mobile">Resources</a>
             <a href="#" className="hide-mobile">Alumni</a>
             <button className="contact-btn">Contact</button>
@@ -263,7 +259,7 @@ const Header = () => {
                           animate={{ rotate: 360 }} 
                           transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
                         >
-                          <Loader2 size={16} /> {/* Assume Loader2 is imported, if not use Activity or something */}
+                          <Loader2 size={16} />
                         </motion.div>
                       ) : (
                         <Search size={18} />
@@ -394,8 +390,6 @@ const Header = () => {
               </div>
             </div>
           </motion.div>
-
-          <DiscoverySearch isOpen={isSearchOpen} setIsOpen={setIsSearchOpen} />
         </div>
       </div>
 

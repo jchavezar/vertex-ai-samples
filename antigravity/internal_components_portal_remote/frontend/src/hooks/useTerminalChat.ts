@@ -189,6 +189,7 @@ export function useTerminalChat(tokens: { accessToken: string, idToken: string }
 
   const clearChat = () => {
     setMessages([]);
+    setSessionId(crypto.randomUUID());
     setUsedSharePoint(false);
     setTelemetry([]);
     setReasoningSteps([]);

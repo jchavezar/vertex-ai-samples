@@ -1,0 +1,26 @@
+{
+  "short_name": "Tax Catalyst",
+  "name": "Accenture Tax Catalyst",
+  "icons": [
+    {
+      "src": "/acc/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/acc/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ],
+  "start_url": "/acc/",
+  "display": "standalone",
+  "theme_color": "#0B0B11",
+  "background_color": "#0B0B11",
+  "orientation": "portrait",
+  "description": "Global AI-driven tax intelligence for the enterprise.",
+  "id": "/acc/",
+  "scope": "/acc/"
+}

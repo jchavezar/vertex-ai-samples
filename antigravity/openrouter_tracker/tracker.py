@@ -39,9 +39,15 @@ async def main():
         with open("models.json", 'r') as f:
             model_ids = json.load(f)
             
+    # Filter for Anthropic models only
+    model_ids = [m for m in model_ids if "anthropic" in m["id"].lower()]
+            
     if not model_ids:
-        print("No models found. Exiting.")
+        print("No Anthropic models found. Exiting.")
         return
+        
+    fixed_pull_time = datetime.datetime.now(datetime.timezone.utc).isoformat()
+    print(f"Filtering for Anthropic models only. Found {len(model_ids)} models. Pull Time: {fixed_pull_time}")
         
     # Create lookup map & simplify slug list variables for concurrency loops backwards compatibility
     models_lookup = {m["id"]: m for m in model_ids}
@@ -91,7 +97,7 @@ async def main():
         # 4b. Sync to BigQuery for historical aggregation
 
         try:
-            bigquery_sync.insert_rows(enriched_results)
+            bigquery_sync.insert_rows(enriched_results, pull_time=fixed_pull_time)
         except Exception as e:
             print(f"BigQuery Sync Failed: {e}")
 

@@ -12,8 +12,9 @@ async def patched_call_tool(self, *args, **kwargs):
     return await _orig_call_tool(self, *args, **kwargs)
 mcp.client.session.ClientSession.call_tool = patched_call_tool
 
-# Ensure backend directory is in sys.path so 'agent' can be imported easily even if run from root
+# Ensure backend and nexus_telemetry are in sys.path
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "nexus_telemetry", "src")))
 
 import json
 import logging
@@ -29,6 +30,9 @@ from google.adk.sessions.in_memory_session_service import InMemorySessionService
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+from google.genai import types as genai_types
+from google.adk.events import Event
 
 # Now we can safely import agent, protocol, etc.
 from agents.agent import get_agent_with_mcp_tools, get_action_agent_with_mcp_tools, get_servicenow_agent_with_mcp_tools
@@ -52,7 +56,7 @@ load_dotenv(dotenv_path="../.env")
 os.environ["GOOGLE_CLOUD_LOCATION"] = "global"
 os.environ["GOOGLE_GENAI_LOCATION"] = "global"
 os.environ["GOOGLE_GENAI_USE_VERTEXAI"] = "true"
-os.environ["GOOGLE_CLOUD_PROJECT"] = "vtxdemos"
+os.environ["GOOGLE_CLOUD_PROJECT"] = os.environ.get("GOOGLE_CLOUD_PROJECT", "vtxdemos")
 
 app = FastAPI()
 
@@ -250,11 +254,11 @@ async def _chat_stream(messages: list, model_name: str, token: str = None, id_to
 
     import asyncio
     from agents.public_agent import get_public_agent
-    from google.genai import types
+    from google.genai import types as genai_types
     from google.adk.events import Event
 
     queue = asyncio.Queue()
-    msg_obj = types.Content(role="user", parts=[types.Part.from_text(text=prompt)])
+    msg_obj = genai_types.Content(role="user", parts=[genai_types.Part.from_text(text=prompt)])
 
     # 1. Initialize Public Agent immediately (Prior to Discovery)
     pub_session = await get_or_create_session("public-research-proxy", pub_sess_id)
@@ -263,8 +267,8 @@ async def _chat_stream(messages: list, model_name: str, token: str = None, id_to
     if len(messages) > 1:
         for msg in messages[:-1]: # Exclude the current prompt
             role = "user" if msg.get("role") == "user" else "model"
-            part = types.Part.from_text(text=msg.get("content", ""))
-            content_obj = types.Content(role=role, parts=[part])
+            part = genai_types.Part.from_text(text=msg.get("content", ""))
+            content_obj = genai_types.Content(role=role, parts=[part])
             evt = Event(author=role, content=content_obj)
             session.events.append(evt)
             pub_session.events.append(evt)
@@ -594,8 +598,6 @@ async def _ge_mcp_chat_stream(messages: list, model_name: str, token: str = None
     reasoning_steps.append(f"[SYSTEM] OPTIMIZATION PROFILE:\n{json.dumps(optimization_params, indent=2)}")
     
     import time
-    from google.genai import types
-    from google.adk.events import Event
     import uuid
     import asyncio
 
@@ -647,7 +649,7 @@ async def _ge_mcp_chat_stream(messages: list, model_name: str, token: str = None
                 
             router_prompt = f"Previous Conversation History:\n{history_str}\n\n-----\nEvaluate the following User's latest message:\n{prompt}" if history_str else prompt
             
-            msg_obj = types.Content(role="user", parts=[types.Part.from_text(text=router_prompt)])
+            msg_obj = genai_types.Content(role="user", parts=[genai_types.Part.from_text(text=router_prompt)])
             
             async for event in router_runner.run_async(user_id="default_user", session_id=user_session.id, new_message=msg_obj):
                 edata = event.model_dump(mode='json')
@@ -703,12 +705,87 @@ async def _ge_mcp_chat_stream(messages: list, model_name: str, token: str = None
         return
         
     if intent == "SEARCH":
-        raw_answer = ""
-        # The GE Search Branch is not deployed yet or has missing dependencies.
-        # Fallback to direct user communication to unblock deployment.
-        error_msg = "\n**GE Search Branch Unavailable**\nThe GE Search feature is currently unavailable. Ask me about ServiceNow!"
-        yield AIStreamProtocol.text(error_msg)
-        yield AIStreamProtocol.data({"type": "status", "message": "Search completed with warnings.", "icon": "alert-triangle", "pulse": False})
+        yield AIStreamProtocol.data({"type": "status", "message": "Intent Detected: Search. Routing to Grounded Search Agent...", "icon": "zap", "pulse": True})
+        
+        reasoning_steps.append("[Router] Dispatching to Search Runner with Discovery Engine Grounding (SharePoint) + All MCP tools...")
+        yield AIStreamProtocol.data({"type": "telemetry", "data": latency_metrics, "reasoning": reasoning_steps, "tokens": tokens, "adk_events": adk_events_trace})
+        
+        sess_id = f"sea-{session_id_to_use}"
+        session = await get_or_create_session("internal-search-proxy", sess_id)
+            
+        # Seed history
+        if len(messages) > 1:
+                for msg in messages[:-1]:
+                    role = "user" if msg.get("role") == "user" else "model"
+                    part = genai_types.Part.from_text(text=msg.get("content", ""))
+                    content_obj = genai_types.Content(role=role, parts=[part])
+                    evt = Event(author=role, content=content_obj)
+                    session.events.append(evt)
+            
+        try:
+            agent, exit_stack = await get_agent_with_mcp_tools(token=token, id_token=id_token, model_name=model_name)
+            runner = Runner(app_name="internal-search-proxy", agent=agent, session_service=session_service)
+            msg_obj = genai_types.Content(role="user", parts=[genai_types.Part.from_text(text=prompt)])
+            
+            queue = asyncio.Queue()
+            async def stream_sea():
+                try:
+                    async for event in runner.run_async(user_id="default_user", session_id=session.id, new_message=msg_obj):
+                        await queue.put({"event": event, "type": "data"})
+                except Exception as e:
+                    logger.exception(f"Search Task failed: {e}")
+                    await queue.put({"event": str(e), "type": "error"})
+                finally:
+                    await queue.put({"type": "done"})
+                    
+            asyncio.create_task(stream_sea())
+            sea_start = time.time()
+            
+            while True:
+                item = await queue.get()
+                if item["type"] == "done":
+                    break
+                if item["type"] == "error":
+                    yield AIStreamProtocol.text(f"\n**Search Execution Error:** {item['event']}\n")
+                    break
+                
+                event = item["event"]
+                edata = event.model_dump(mode='json')
+                adk_events_trace.append({"source": "internal-search-proxy", "event": edata})
+                push_smart_telemetry("internal-search-proxy", edata)
+                
+                usage = edata.get("usage_metadata")
+                if usage:
+                    tokens["prompt"] += usage.get("prompt_token_count") or 0
+                    tokens["candidates"] += usage.get("candidates_token_count") or 0
+                    tokens["total"] += usage.get("total_token_count") or 0
+
+                content = edata.get("content", {})
+                if content and isinstance(content, dict):
+                    author = edata.get("author", "unknown")
+                    parts = content.get("parts", [])
+                    for p in parts:
+                        if p.get("thought"):
+                            txt = f"[Search Step] THOUGHT:\n{p['thought'].strip()}"
+                            if txt not in reasoning_steps:
+                                reasoning_steps.append(txt)
+                                yield AIStreamProtocol.data({"type": "telemetry", "data": latency_metrics, "reasoning": reasoning_steps, "tokens": tokens, "adk_events": adk_events_trace})
+                        if p.get("text") and author == "model":
+                            yield AIStreamProtocol.text(p["text"])
+                        if p.get("function_call"):
+                            reasoning_steps.append(f"[Search Step] CALLING TOOL: {p['function_call'].get('name')} with args {p['function_call'].get('args')}")
+                            yield AIStreamProtocol.data({"type": "telemetry", "data": latency_metrics, "reasoning": reasoning_steps, "tokens": tokens, "adk_events": adk_events_trace})
+                
+            sea_duration = time.time() - sea_start
+            latency_metrics.append({"step": f"[AGENT: Search] Execution", "duration_s": round(sea_duration, 2)})
+            yield AIStreamProtocol.data({"type": "telemetry", "data": latency_metrics, "reasoning": reasoning_steps, "tokens": tokens, "adk_events": adk_events_trace})
+            yield AIStreamProtocol.data({"type": "status", "message": "Search Task Completed.", "icon": "check-circle", "pulse": False})
+            
+            await exit_stack.aclose()
+        except Exception as e:
+            logger.error(f"Search Execution Exception: {e}", exc_info=True)
+            yield AIStreamProtocol.text(f"\n**Routing Error:** {e}\n")
+            yield AIStreamProtocol.data({"type": "status", "message": f"Execution Failed: {e}", "icon": "alert-triangle", "pulse": False})
     
     elif intent == "SERVICENOW":
         yield AIStreamProtocol.data({"type": "status", "message": "Intent Detected: ServiceNow. Routing to ServiceNow Agent...", "icon": "zap", "pulse": True})
@@ -723,15 +800,15 @@ async def _ge_mcp_chat_stream(messages: list, model_name: str, token: str = None
         if len(messages) > 1:
                 for msg in messages[:-1]:
                     role = "user" if msg.get("role") == "user" else "model"
-                    part = types.Part.from_text(text=msg.get("content", ""))
-                    content_obj = types.Content(role=role, parts=[part])
+                    part = genai_types.Part.from_text(text=msg.get("content", ""))
+                    content_obj = genai_types.Content(role=role, parts=[part])
                     evt = Event(author=role, content=content_obj)
                     session.events.append(evt)
             
         try:
             agent, exit_stack = await get_servicenow_agent_with_mcp_tools(token=token, id_token=id_token, model_name=model_name, enable_google_search=True)
             runner = Runner(app_name="internal-servicenow-proxy", agent=agent, session_service=session_service)
-            msg_obj = types.Content(role="user", parts=[types.Part.from_text(text=prompt)])
+            msg_obj = genai_types.Content(role="user", parts=[genai_types.Part.from_text(text=prompt)])
             
             queue = asyncio.Queue()
             async def stream_sno():
@@ -818,8 +895,8 @@ async def _ge_mcp_chat_stream(messages: list, model_name: str, token: str = None
         if len(messages) > 1:
             for msg in messages[:-1]: # Exclude the current prompt
                 role = "user" if msg.get("role") == "user" else "model"
-                part = types.Part.from_text(text=msg.get("content", ""))
-                content_obj = types.Content(role=role, parts=[part])
+                part = genai_types.Part.from_text(text=msg.get("content", ""))
+                content_obj = genai_types.Content(role=role, parts=[part])
                 evt = Event(author=role, content=content_obj)
                 session.events.append(evt)
         # ------------------------------------------------
@@ -827,7 +904,7 @@ async def _ge_mcp_chat_stream(messages: list, model_name: str, token: str = None
         try:
             agent, exit_stack = await get_action_agent_with_mcp_tools(token=token, id_token=id_token, model_name=model_name)
             runner = Runner(app_name="internal-action-proxy", agent=agent, session_service=session_service)
-            msg_obj = types.Content(role="user", parts=[types.Part.from_text(text=prompt)])
+            msg_obj = genai_types.Content(role="user", parts=[genai_types.Part.from_text(text=prompt)])
             
             queue = asyncio.Queue()
             async def stream_action():

@@ -1,16 +1,88 @@
+from google.genai import types as genai_types
 from google.adk import agents
 from google.adk import sessions
 from google.adk.tools import mcp_tool
+from google.adk.tools.base_tool import BaseTool
+from google.adk.tools.tool_context import ToolContext
+from pydantic import BaseModel, Field
+from typing import List, Optional, Any
+from typing_extensions import override
 import os
+import logging
+import traceback
 from contextlib import AsyncExitStack
 
-# Import instructions directly for persona consistency
-from mcp_service.mcp_server import GOVERNANCE_INSTRUCTIONS, ProjectCard
-from pydantic import BaseModel, Field
-from typing import List, Optional
+# Standard logger setup
+logger = logging.getLogger(__name__)
 
 # Note: Caching removed to ensure fresh toolsets per request and avoid resource leaks or dead handles
 _exit_stacks = []
+
+# Note: Caching removed to ensure fresh toolsets per request and avoid resource leaks or dead handles
+_exit_stacks = []
+
+# --- CUSTOM VERTEX AI SEARCH TOOL (Grounding Support) ---
+def is_gemini_model(model: str) -> bool:
+    return "gemini" in model.lower()
+
+class VertexAiSearchToolCustom(BaseTool):
+    """
+    A custom implementation of Vertex AI Search that behaves as a BaseTool.
+    This bypasses the ADK 'single built-in tool' limitation and supports 
+    explicit datastore specs for SharePoint.
+    """
+    def __init__(
+        self,
+        *,
+        data_store_id: Optional[str] = None,
+        data_store_specs: Optional[list[genai_types.VertexAISearchDataStoreSpec]] = None,
+        search_engine_id: Optional[str] = None,
+        filter: Optional[str] = None,
+        max_results: Optional[int] = None
+    ):
+        super().__init__(name='search_documents', description='Search across internal knowledge bases using Vertex AI Search.')
+        self.data_store_id = data_store_id
+        self.data_store_specs = data_store_specs
+        self.search_engine_id = search_engine_id
+        self.filter = filter
+        self.max_results = max_results
+
+    @override
+    async def process_llm_request(
+        self,
+        *,
+        tool_context: ToolContext,
+        llm_request: "genai_types.LlmRequest", # type: ignore
+    ) -> None:
+        if is_gemini_model(llm_request.model):
+            llm_request.config = llm_request.config or genai_types.GenerateContentConfig()
+            llm_request.config.tools = llm_request.config.tools or []
+
+            # Extract engine_id from data_store_id if not provided
+            engine_id = self.search_engine_id
+            if not engine_id and self.data_store_id:
+                engine_id = self.data_store_id.split('/')[-1]
+
+            # Construct the retrieval config
+            vertex_ai_search_config = genai_types.VertexAISearch(
+                # datastore=self.data_store_id, # Mutually exclusive with engine
+                data_store_specs=self.data_store_specs,
+                engine=engine_id,
+                filter=self.filter,
+                max_results=self.max_results,
+            )
+
+            # Manually append the retrieval tool to the LLM request
+            llm_request.config.tools.append(
+                genai_types.Tool(
+                    retrieval=genai_types.Retrieval(
+                        vertex_ai_search=vertex_ai_search_config
+                    )
+                )
+            )
+            logger.info(f">>> [CUSTOM SEARCH TOOL] Injected Vertex AI Search config for datastore: {self.data_store_id}")
+        else:
+            logger.warning(f"[CUSTOM SEARCH TOOL] Model {llm_request.model} does not support Vertex AI Search Grounding.")
 
 # --- PRODUCTION GUARD: Updated Instructions for Tool-Based Cards ---
 ENHANCED_GOVERNANCE_INSTRUCTIONS = """
@@ -78,6 +150,40 @@ async def get_agent_with_mcp_tools(token: Optional[str] = None, id_token: Option
         traceback.print_exc()
         raise e
 
+    # 2. Add Discovery Engine Support (Custom Implementation for SharePoint)
+    data_store_id = os.environ.get("DATA_STORE_ID")
+    project_id = os.environ.get("GOOGLE_CLOUD_PROJECT", "vtxdemos")
+    location = os.environ.get("GOOGLE_CLOUD_LOCATION", "global")
+    
+    discovery_tools = []
+    if data_store_id:
+        if "/" not in data_store_id:
+            data_store_id = f"projects/{project_id}/locations/{location}/collections/default_collection/dataStores/{data_store_id}"
+            
+        logger.info(f">>> [DISCOVERY ENGINE] Initializing CUSTOM VertexAiSearchTool with Data Store: {data_store_id}")
+        
+        search_engine_id = os.environ.get("SEARCH_ENGINE_ID")
+        
+        ds_specs = [
+            genai_types.VertexAISearchDataStoreSpec(
+                data_store=data_store_id
+            )
+        ]
+        
+        vertex_search = VertexAiSearchToolCustom(
+            data_store_id=data_store_id,
+            data_store_specs=ds_specs,
+            search_engine_id=search_engine_id,
+            max_results=5
+        )
+        discovery_tools.append(vertex_search)
+        
+        # ELIMINATE CONFLICT: Filter out the standard MCP search_documents to ensure Grounding is used
+        mcp_tools = [t for t in mcp_tools if t.name != "search_documents"]
+        logger.info(">>> [TOOL OVERRIDE] Replaced MCP search_documents with Vertex AI Search Grounding tool.")
+    else:
+        logger.warning("DATA_STORE_ID NOT set. Discovery Engine tool will NOT be available.")
+
     # --- PRODUCTION GUARD: Authentication Interceptor ---
     def create_guarded_tool(tool_item, original_func):
         async def auth_guarded_run(*args, **kwargs):
@@ -94,17 +200,16 @@ async def get_agent_with_mcp_tools(token: Optional[str] = None, id_token: Option
 
     # --- PRODUCTION GUARD: Agent-Level Authentication Callback ---
     from google.adk.agents.callback_context import CallbackContext
-    from google.genai import types
     from utils.auth_context import get_user_token
     
-    async def before_agent_auth_callback(callback_context: CallbackContext) -> types.Content | None:
+    async def before_agent_auth_callback(callback_context: CallbackContext) -> genai_types.Content | None:
         # Use the token passed to the outer function directly to capture it in this scope
         current_token = token or get_user_token()
         print(f">>> [AGENT CALLBACK] Checking token (auth callback): {current_token is not None and current_token not in ['null', 'undefined', 'None']}")
         if not current_token or current_token in ["null", "undefined", "None"]:
-            return types.Content(
+            return genai_types.Content(
                 role="model",
-                parts=[types.Part.from_text(text="🔒 **Access Restricted**: You are currently not signed in. Please click the **'Sign In'** button at the top right to access enterprise data.")]
+                parts=[genai_types.Part.from_text(text="🔒 **Access Restricted**: You are currently not signed in. Please click the **'Sign In'** button at the top right to access enterprise data.")]
             )
         return None
 
@@ -126,7 +231,7 @@ async def get_agent_with_mcp_tools(token: Optional[str] = None, id_token: Option
         name="SecurityProxyAgent",
         model=model_name,
         instruction=ENHANCED_GOVERNANCE_INSTRUCTIONS,
-        tools=mcp_tools,
+        tools=mcp_tools + discovery_tools,
         planner=planner,
         before_agent_callback=before_agent_auth_callback
     )
@@ -188,16 +293,15 @@ async def get_action_agent_with_mcp_tools(token: Optional[str] = None, id_token:
 
     # --- PRODUCTION GUARD: Agent-Level Authentication Callback ---
     from google.adk.agents.callback_context import CallbackContext
-    from google.genai import types
     from utils.auth_context import get_user_token
     
-    async def before_agent_auth_callback_action(callback_context: CallbackContext) -> types.Content | None:
+    async def before_agent_auth_callback_action(callback_context: CallbackContext) -> genai_types.Content | None:
         current_token = token or get_user_token()
         print(f">>> [ACTION AGENT CALLBACK] Checking token: {current_token is not None and current_token not in ['null', 'undefined', 'None']}")
         if not current_token or current_token in ["null", "undefined", "None"]:
-            return types.Content(
+            return genai_types.Content(
                 role="model",
-                parts=[types.Part.from_text(text="🔒 **Access Restricted**: You are currently not signed in. Please click the **'Sign In'** button at the top right to access enterprise data.")]
+                parts=[genai_types.Part.from_text(text="🔒 **Access Restricted**: You are currently not signed in. Please click the **'Sign In'** button at the top right to access enterprise data.")]
             )
         return None
 
@@ -336,8 +440,7 @@ Available Intents:
 
         if intent == "CANCEL":
             ctx.session.state["current_route"] = None
-            from google.genai import types
-            yield Event(author="router", content=types.Content(role="model", parts=[types.Part.from_text(text="Workflow cancelled. Returning to main menu.")]))
+            yield Event(author="router", content=genai_types.Content(role="model", parts=[genai_types.Part.from_text(text="Workflow cancelled. Returning to main menu.")]))
             return
 
         # Explicit route shifts
@@ -354,5 +457,4 @@ Available Intents:
                 yield event
         else:
             # For simplicity, if not servicenow, we yield a special event so main.py knows to fallback to normal search
-            from google.genai import types
-            yield Event(author="router", content=types.Content(role="model", parts=[types.Part.from_text(text="[SYSTEM_FALLBACK_SEARCH]")]))
+            yield Event(author="router", content=genai_types.Content(role="model", parts=[genai_types.Part.from_text(text="[SYSTEM_FALLBACK_SEARCH]")]))

@@ -1,0 +1,463 @@
+INFO:main:AGENT_ENGINE_ID not set. Using InMemorySessionService fallback.
+INFO:     Started server process [897172]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:8010 (Press CTRL+C to quit)
+INFO:     127.0.0.1:33186 - "GET /api/sessions HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:41108 - "GET /api/sessions HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:41124 - "GET /api/sessions HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:41128 - "GET /api/sessions HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:49370 - "GET /api/sessions HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:49374 - "GET /api/sessions HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:49388 - "GET /api/sessions HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:53916 - "GET /api/sessions HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:53922 - "GET /api/sessions HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:53936 - "GET /api/sessions HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:36104 - "GET /api/sessions HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:36114 - "GET /api/sessions HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:36120 - "GET /api/sessions HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:56270 - "GET /api/sessions HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:56278 - "GET /api/sessions HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:56282 - "GET /api/sessions HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:55446 - "GET /api/sessions HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:55456 - "GET /api/sessions HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:55470 - "GET /api/sessions HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:47260 - "GET /api/sessions HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:47272 - "GET /api/sessions HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:47288 - "GET /api/sessions HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:34376 - "GET /api/sessions HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:34384 - "GET /api/sessions HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:34400 - "GET /api/sessions HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:37570 - "GET /api/sessions HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:37582 - "GET /api/sessions HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:37596 - "GET /api/sessions HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:53276 - "GET /api/sessions HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:53282 - "GET /api/sessions HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:53286 - "GET /api/sessions HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:53100 - "GET /api/sessions HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:53104 - "GET /api/sessions HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:53108 - "GET /api/sessions HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:59758 - "GET /api/sessions HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:59768 - "GET /api/sessions HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:59784 - "GET /api/sessions HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:48864 - "GET /api/sessions HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:48876 - "GET /api/sessions HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:48888 - "GET /api/sessions HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:43586 - "GET /api/sessions HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:43598 - "GET /api/sessions HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:43600 - "GET /api/sessions HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:56414 - "GET /api/sessions HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:56420 - "GET /api/sessions HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:56430 - "GET /api/sessions HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:39316 - "GET /api/sessions HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:39320 - "GET /api/sessions HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:39324 - "GET /api/sessions HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:59134 - "GET /api/sessions HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:59148 - "GET /api/sessions HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:59158 - "GET /api/sessions HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:40702 - "GET /api/sessions HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:40704 - "GET /api/sessions HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:40708 - "GET /api/sessions HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:42226 - "GET /api/sessions HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:42232 - "GET /api/sessions HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:42236 - "GET /api/sessions HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:47168 - "GET /api/sessions HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:47172 - "GET /api/sessions HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:47188 - "GET /api/sessions HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:47488 - "GET /api/sessions HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:47490 - "GET /api/sessions HTTP/1.1" 404 Not Found
+INFO:main:Received chat request for session session_1774410507805
+INFO:     127.0.0.1:52742 - "POST /api/chat HTTP/1.1" 200 OK
+INFO:google_adk.google.adk.models.google_llm:Sending out request, model: gemini-3-pro-preview, backend: GoogleLLMVariant.VERTEX_AI, stream: False
+INFO:google_genai.models:AFC is enabled with max remote calls: 10.
+INFO:google_adk.google.adk.models.google_llm:Response received from the model.
+INFO:main:Router Classification: SEARCH
+INFO:main:Initializing Search Agent with SharePoint DataStore: 5817ee80-82a4-49e3-a19c-2cedc73a6300
+ERROR:    Exception in ASGI application
+  + Exception Group Traceback (most recent call last):
+  |   File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/light_mcp_portal/.venv/lib/python3.12/site-packages/starlette/_utils.py", line 81, in collapse_excgroups
+  |     yield
+  |   File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/light_mcp_portal/.venv/lib/python3.12/site-packages/starlette/responses.py", line 270, in __call__
+  |     async with anyio.create_task_group() as task_group:
+  |                ^^^^^^^^^^^^^^^^^^^^^^^^^
+  |   File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/light_mcp_portal/.venv/lib/python3.12/site-packages/anyio/_backends/_asyncio.py", line 799, in __aexit__
+  |     raise BaseExceptionGroup(
+  | ExceptionGroup: unhandled errors in a TaskGroup (1 sub-exception)
+  +-+---------------- 1 ----------------
+    | Traceback (most recent call last):
+    |   File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/light_mcp_portal/.venv/lib/python3.12/site-packages/uvicorn/protocols/http/h11_impl.py", line 410, in run_asgi
+    |     result = await app(  # type: ignore[func-returns-value]
+    |              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/light_mcp_portal/.venv/lib/python3.12/site-packages/uvicorn/middleware/proxy_headers.py", line 60, in __call__
+    |     return await self.app(scope, receive, send)
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/light_mcp_portal/.venv/lib/python3.12/site-packages/fastapi/applications.py", line 1159, in __call__
+    |     await super().__call__(scope, receive, send)
+    |   File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/light_mcp_portal/.venv/lib/python3.12/site-packages/starlette/applications.py", line 107, in __call__
+    |     await self.middleware_stack(scope, receive, send)
+    |   File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/light_mcp_portal/.venv/lib/python3.12/site-packages/starlette/middleware/errors.py", line 186, in __call__
+    |     raise exc
+    |   File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/light_mcp_portal/.venv/lib/python3.12/site-packages/starlette/middleware/errors.py", line 164, in __call__
+    |     await self.app(scope, receive, _send)
+    |   File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/light_mcp_portal/.venv/lib/python3.12/site-packages/starlette/middleware/exceptions.py", line 63, in __call__
+    |     await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+    |   File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/light_mcp_portal/.venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    |     raise exc
+    |   File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/light_mcp_portal/.venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    |     await app(scope, receive, sender)
+    |   File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/light_mcp_portal/.venv/lib/python3.12/site-packages/fastapi/middleware/asyncexitstack.py", line 18, in __call__
+    |     await self.app(scope, receive, send)
+    |   File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/light_mcp_portal/.venv/lib/python3.12/site-packages/starlette/routing.py", line 716, in __call__
+    |     await self.middleware_stack(scope, receive, send)
+    |   File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/light_mcp_portal/.venv/lib/python3.12/site-packages/starlette/routing.py", line 736, in app
+    |     await route.handle(scope, receive, send)
+    |   File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/light_mcp_portal/.venv/lib/python3.12/site-packages/starlette/routing.py", line 290, in handle
+    |     await self.app(scope, receive, send)
+    |   File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/light_mcp_portal/.venv/lib/python3.12/site-packages/fastapi/routing.py", line 134, in app
+    |     await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+    |   File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/light_mcp_portal/.venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    |     raise exc
+    |   File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/light_mcp_portal/.venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    |     await app(scope, receive, sender)
+    |   File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/light_mcp_portal/.venv/lib/python3.12/site-packages/fastapi/routing.py", line 121, in app
+    |     await response(scope, receive, send)
+    |   File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/light_mcp_portal/.venv/lib/python3.12/site-packages/starlette/responses.py", line 269, in __call__
+    |     with collapse_excgroups():
+    |          ^^^^^^^^^^^^^^^^^^^^
+    |   File "/usr/local/google/home/jesusarguelles/.local/share/uv/python/cpython-3.12.11-linux-x86_64-gnu/lib/python3.12/contextlib.py", line 158, in __exit__
+    |     self.gen.throw(value)
+    |   File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/light_mcp_portal/.venv/lib/python3.12/site-packages/starlette/_utils.py", line 87, in collapse_excgroups
+    |     raise exc
+    |   File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/light_mcp_portal/.venv/lib/python3.12/site-packages/starlette/responses.py", line 273, in wrap
+    |     await func()
+    |   File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/light_mcp_portal/.venv/lib/python3.12/site-packages/starlette/responses.py", line 253, in stream_response
+    |     async for chunk in self.body_iterator:
+    |   File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/light_mcp_portal/backend/main.py", line 146, in _stream
+    |     search_tool = VertexAiSearchTool(
+    |                   ^^^^^^^^^^^^^^^^^^^
+    |   File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/light_mcp_portal/.venv/lib/python3.12/site-packages/google/adk/tools/vertex_ai_search_tool.py", line 100, in __init__
+    |     raise ValueError(
+    | ValueError: Either data_store_id or search_engine_id must be specified.
+    +------------------------------------
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/light_mcp_portal/.venv/lib/python3.12/site-packages/uvicorn/protocols/http/h11_impl.py", line 410, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/light_mcp_portal/.venv/lib/python3.12/site-packages/uvicorn/middleware/proxy_headers.py", line 60, in __call__
+    return await self.app(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/light_mcp_portal/.venv/lib/python3.12/site-packages/fastapi/applications.py", line 1159, in __call__
+    await super().__call__(scope, receive, send)
+  File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/light_mcp_portal/.venv/lib/python3.12/site-packages/starlette/applications.py", line 107, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/light_mcp_portal/.venv/lib/python3.12/site-packages/starlette/middleware/errors.py", line 186, in __call__
+    raise exc
+  File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/light_mcp_portal/.venv/lib/python3.12/site-packages/starlette/middleware/errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/light_mcp_portal/.venv/lib/python3.12/site-packages/starlette/middleware/exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/light_mcp_portal/.venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/light_mcp_portal/.venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/light_mcp_portal/.venv/lib/python3.12/site-packages/fastapi/middleware/asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/light_mcp_portal/.venv/lib/python3.12/site-packages/starlette/routing.py", line 716, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/light_mcp_portal/.venv/lib/python3.12/site-packages/starlette/routing.py", line 736, in app
+    await route.handle(scope, receive, send)
+  File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/light_mcp_portal/.venv/lib/python3.12/site-packages/starlette/routing.py", line 290, in handle
+    await self.app(scope, receive, send)
+  File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/light_mcp_portal/.venv/lib/python3.12/site-packages/fastapi/routing.py", line 134, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/light_mcp_portal/.venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/light_mcp_portal/.venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/light_mcp_portal/.venv/lib/python3.12/site-packages/fastapi/routing.py", line 121, in app
+    await response(scope, receive, send)
+  File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/light_mcp_portal/.venv/lib/python3.12/site-packages/starlette/responses.py", line 269, in __call__
+    with collapse_excgroups():
+         ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/google/home/jesusarguelles/.local/share/uv/python/cpython-3.12.11-linux-x86_64-gnu/lib/python3.12/contextlib.py", line 158, in __exit__
+    self.gen.throw(value)
+  File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/light_mcp_portal/.venv/lib/python3.12/site-packages/starlette/_utils.py", line 87, in collapse_excgroups
+    raise exc
+  File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/light_mcp_portal/.venv/lib/python3.12/site-packages/starlette/responses.py", line 273, in wrap
+    await func()
+  File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/light_mcp_portal/.venv/lib/python3.12/site-packages/starlette/responses.py", line 253, in stream_response
+    async for chunk in self.body_iterator:
+  File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/light_mcp_portal/backend/main.py", line 146, in _stream
+    search_tool = VertexAiSearchTool(
+                  ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/light_mcp_portal/.venv/lib/python3.12/site-packages/google/adk/tools/vertex_ai_search_tool.py", line 100, in __init__
+    raise ValueError(
+ValueError: Either data_store_id or search_engine_id must be specified.
+INFO:main:Received chat request for session session_1774433170438
+>>> [LIGHT PORTAL] Initializing VertexAiSearchTool with DataStore path: projects/REDACTED_PROJECT_NUMBER/locations/global/collections/default_collection/dataStores/5817ee80-82a4-49e3-a19c-2cedc73a6300
+INFO:     127.0.0.1:59140 - "POST /api/chat HTTP/1.1" 200 OK
+INFO:google_adk.google.adk.models.google_llm:Sending out request, model: gemini-3-pro-preview, backend: GoogleLLMVariant.VERTEX_AI, stream: False
+INFO:google_genai.models:AFC is enabled with max remote calls: 10.
+INFO:google_adk.google.adk.models.google_llm:Response received from the model.
+INFO:main:Router Classification: SEARCH
+INFO:main:Initializing Search Agent with SharePoint DataStore: 5817ee80-82a4-49e3-a19c-2cedc73a6300
+ERROR:    Exception in ASGI application
+  + Exception Group Traceback (most recent call last):
+  |   File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/light_mcp_portal/.venv/lib/python3.12/site-packages/starlette/_utils.py", line 81, in collapse_excgroups
+  |     yield
+  |   File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/light_mcp_portal/.venv/lib/python3.12/site-packages/starlette/responses.py", line 270, in __call__
+  |     async with anyio.create_task_group() as task_group:
+  |                ^^^^^^^^^^^^^^^^^^^^^^^^^
+  |   File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/light_mcp_portal/.venv/lib/python3.12/site-packages/anyio/_backends/_asyncio.py", line 799, in __aexit__
+  |     raise BaseExceptionGroup(
+  | ExceptionGroup: unhandled errors in a TaskGroup (1 sub-exception)
+  +-+---------------- 1 ----------------
+    | Traceback (most recent call last):
+    |   File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/light_mcp_portal/.venv/lib/python3.12/site-packages/uvicorn/protocols/http/h11_impl.py", line 410, in run_asgi
+    |     result = await app(  # type: ignore[func-returns-value]
+    |              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/light_mcp_portal/.venv/lib/python3.12/site-packages/uvicorn/middleware/proxy_headers.py", line 60, in __call__
+    |     return await self.app(scope, receive, send)
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/light_mcp_portal/.venv/lib/python3.12/site-packages/fastapi/applications.py", line 1159, in __call__
+    |     await super().__call__(scope, receive, send)
+    |   File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/light_mcp_portal/.venv/lib/python3.12/site-packages/starlette/applications.py", line 107, in __call__
+    |     await self.middleware_stack(scope, receive, send)
+    |   File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/light_mcp_portal/.venv/lib/python3.12/site-packages/starlette/middleware/errors.py", line 186, in __call__
+    |     raise exc
+    |   File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/light_mcp_portal/.venv/lib/python3.12/site-packages/starlette/middleware/errors.py", line 164, in __call__
+    |     await self.app(scope, receive, _send)
+    |   File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/light_mcp_portal/.venv/lib/python3.12/site-packages/starlette/middleware/exceptions.py", line 63, in __call__
+    |     await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+    |   File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/light_mcp_portal/.venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    |     raise exc
+    |   File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/light_mcp_portal/.venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    |     await app(scope, receive, sender)
+    |   File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/light_mcp_portal/.venv/lib/python3.12/site-packages/fastapi/middleware/asyncexitstack.py", line 18, in __call__
+    |     await self.app(scope, receive, send)
+    |   File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/light_mcp_portal/.venv/lib/python3.12/site-packages/starlette/routing.py", line 716, in __call__
+    |     await self.middleware_stack(scope, receive, send)
+    |   File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/light_mcp_portal/.venv/lib/python3.12/site-packages/starlette/routing.py", line 736, in app
+    |     await route.handle(scope, receive, send)
+    |   File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/light_mcp_portal/.venv/lib/python3.12/site-packages/starlette/routing.py", line 290, in handle
+    |     await self.app(scope, receive, send)
+    |   File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/light_mcp_portal/.venv/lib/python3.12/site-packages/fastapi/routing.py", line 134, in app
+    |     await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+    |   File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/light_mcp_portal/.venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    |     raise exc
+    |   File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/light_mcp_portal/.venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    |     await app(scope, receive, sender)
+    |   File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/light_mcp_portal/.venv/lib/python3.12/site-packages/fastapi/routing.py", line 121, in app
+    |     await response(scope, receive, send)
+    |   File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/light_mcp_portal/.venv/lib/python3.12/site-packages/starlette/responses.py", line 269, in __call__
+    |     with collapse_excgroups():
+    |          ^^^^^^^^^^^^^^^^^^^^
+    |   File "/usr/local/google/home/jesusarguelles/.local/share/uv/python/cpython-3.12.11-linux-x86_64-gnu/lib/python3.12/contextlib.py", line 158, in __exit__
+    |     self.gen.throw(value)
+    |   File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/light_mcp_portal/.venv/lib/python3.12/site-packages/starlette/_utils.py", line 87, in collapse_excgroups
+    |     raise exc
+    |   File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/light_mcp_portal/.venv/lib/python3.12/site-packages/starlette/responses.py", line 273, in wrap
+    |     await func()
+    |   File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/light_mcp_portal/.venv/lib/python3.12/site-packages/starlette/responses.py", line 253, in stream_response
+    |     async for chunk in self.body_iterator:
+    |   File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/light_mcp_portal/backend/main.py", line 146, in _stream
+    |     search_tool = VertexAiSearchTool(
+    |                   ^^^^^^^^^^^^^^^^^^^
+    |   File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/light_mcp_portal/.venv/lib/python3.12/site-packages/google/adk/tools/vertex_ai_search_tool.py", line 100, in __init__
+    |     raise ValueError(
+    | ValueError: Either data_store_id or search_engine_id must be specified.
+    +------------------------------------
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/light_mcp_portal/.venv/lib/python3.12/site-packages/uvicorn/protocols/http/h11_impl.py", line 410, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/light_mcp_portal/.venv/lib/python3.12/site-packages/uvicorn/middleware/proxy_headers.py", line 60, in __call__
+    return await self.app(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/light_mcp_portal/.venv/lib/python3.12/site-packages/fastapi/applications.py", line 1159, in __call__
+    await super().__call__(scope, receive, send)
+  File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/light_mcp_portal/.venv/lib/python3.12/site-packages/starlette/applications.py", line 107, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/light_mcp_portal/.venv/lib/python3.12/site-packages/starlette/middleware/errors.py", line 186, in __call__
+    raise exc
+  File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/light_mcp_portal/.venv/lib/python3.12/site-packages/starlette/middleware/errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/light_mcp_portal/.venv/lib/python3.12/site-packages/starlette/middleware/exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/light_mcp_portal/.venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/light_mcp_portal/.venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/light_mcp_portal/.venv/lib/python3.12/site-packages/fastapi/middleware/asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/light_mcp_portal/.venv/lib/python3.12/site-packages/starlette/routing.py", line 716, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/light_mcp_portal/.venv/lib/python3.12/site-packages/starlette/routing.py", line 736, in app
+    await route.handle(scope, receive, send)
+  File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/light_mcp_portal/.venv/lib/python3.12/site-packages/starlette/routing.py", line 290, in handle
+    await self.app(scope, receive, send)
+  File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/light_mcp_portal/.venv/lib/python3.12/site-packages/fastapi/routing.py", line 134, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/light_mcp_portal/.venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/light_mcp_portal/.venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/light_mcp_portal/.venv/lib/python3.12/site-packages/fastapi/routing.py", line 121, in app
+    await response(scope, receive, send)
+  File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/light_mcp_portal/.venv/lib/python3.12/site-packages/starlette/responses.py", line 269, in __call__
+    with collapse_excgroups():
+         ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/google/home/jesusarguelles/.local/share/uv/python/cpython-3.12.11-linux-x86_64-gnu/lib/python3.12/contextlib.py", line 158, in __exit__
+    self.gen.throw(value)
+  File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/light_mcp_portal/.venv/lib/python3.12/site-packages/starlette/_utils.py", line 87, in collapse_excgroups
+    raise exc
+  File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/light_mcp_portal/.venv/lib/python3.12/site-packages/starlette/responses.py", line 273, in wrap
+    await func()
+  File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/light_mcp_portal/.venv/lib/python3.12/site-packages/starlette/responses.py", line 253, in stream_response
+    async for chunk in self.body_iterator:
+  File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/light_mcp_portal/backend/main.py", line 146, in _stream
+    search_tool = VertexAiSearchTool(
+                  ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/light_mcp_portal/.venv/lib/python3.12/site-packages/google/adk/tools/vertex_ai_search_tool.py", line 100, in __init__
+    raise ValueError(
+ValueError: Either data_store_id or search_engine_id must be specified.
+INFO:main:Received chat request for session session_1774433565521
+>>> [LIGHT PORTAL] Initializing VertexAiSearchTool with DataStore path: projects/REDACTED_PROJECT_NUMBER/locations/global/collections/default_collection/dataStores/5817ee80-82a4-49e3-a19c-2cedc73a6300
+INFO:     127.0.0.1:43032 - "POST /api/chat HTTP/1.1" 200 OK
+INFO:google_adk.google.adk.models.google_llm:Sending out request, model: gemini-3-pro-preview, backend: GoogleLLMVariant.VERTEX_AI, stream: False
+INFO:google_genai.models:AFC is enabled with max remote calls: 10.
+INFO:google_adk.google.adk.models.google_llm:Response received from the model.
+INFO:main:Router Classification: SEARCH
+INFO:main:Initializing Search Agent with SharePoint DataStore: 5817ee80-82a4-49e3-a19c-2cedc73a6300
+ERROR:    Exception in ASGI application
+  + Exception Group Traceback (most recent call last):
+  |   File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/light_mcp_portal/.venv/lib/python3.12/site-packages/starlette/_utils.py", line 81, in collapse_excgroups
+  |     yield
+  |   File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/light_mcp_portal/.venv/lib/python3.12/site-packages/starlette/responses.py", line 270, in __call__
+  |     async with anyio.create_task_group() as task_group:
+  |                ^^^^^^^^^^^^^^^^^^^^^^^^^
+  |   File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/light_mcp_portal/.venv/lib/python3.12/site-packages/anyio/_backends/_asyncio.py", line 799, in __aexit__
+  |     raise BaseExceptionGroup(
+  | ExceptionGroup: unhandled errors in a TaskGroup (1 sub-exception)
+  +-+---------------- 1 ----------------
+    | Traceback (most recent call last):
+    |   File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/light_mcp_portal/.venv/lib/python3.12/site-packages/uvicorn/protocols/http/h11_impl.py", line 410, in run_asgi
+    |     result = await app(  # type: ignore[func-returns-value]
+    |              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/light_mcp_portal/.venv/lib/python3.12/site-packages/uvicorn/middleware/proxy_headers.py", line 60, in __call__
+    |     return await self.app(scope, receive, send)
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/light_mcp_portal/.venv/lib/python3.12/site-packages/fastapi/applications.py", line 1159, in __call__
+    |     await super().__call__(scope, receive, send)
+    |   File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/light_mcp_portal/.venv/lib/python3.12/site-packages/starlette/applications.py", line 107, in __call__
+    |     await self.middleware_stack(scope, receive, send)
+    |   File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/light_mcp_portal/.venv/lib/python3.12/site-packages/starlette/middleware/errors.py", line 186, in __call__
+    |     raise exc
+    |   File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/light_mcp_portal/.venv/lib/python3.12/site-packages/starlette/middleware/errors.py", line 164, in __call__
+    |     await self.app(scope, receive, _send)
+    |   File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/light_mcp_portal/.venv/lib/python3.12/site-packages/starlette/middleware/exceptions.py", line 63, in __call__
+    |     await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+    |   File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/light_mcp_portal/.venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    |     raise exc
+    |   File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/light_mcp_portal/.venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    |     await app(scope, receive, sender)
+    |   File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/light_mcp_portal/.venv/lib/python3.12/site-packages/fastapi/middleware/asyncexitstack.py", line 18, in __call__
+    |     await self.app(scope, receive, send)
+    |   File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/light_mcp_portal/.venv/lib/python3.12/site-packages/starlette/routing.py", line 716, in __call__
+    |     await self.middleware_stack(scope, receive, send)
+    |   File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/light_mcp_portal/.venv/lib/python3.12/site-packages/starlette/routing.py", line 736, in app
+    |     await route.handle(scope, receive, send)
+    |   File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/light_mcp_portal/.venv/lib/python3.12/site-packages/starlette/routing.py", line 290, in handle
+    |     await self.app(scope, receive, send)
+    |   File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/light_mcp_portal/.venv/lib/python3.12/site-packages/fastapi/routing.py", line 134, in app
+    |     await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+    |   File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/light_mcp_portal/.venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    |     raise exc
+    |   File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/light_mcp_portal/.venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    |     await app(scope, receive, sender)
+    |   File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/light_mcp_portal/.venv/lib/python3.12/site-packages/fastapi/routing.py", line 121, in app
+    |     await response(scope, receive, send)
+    |   File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/light_mcp_portal/.venv/lib/python3.12/site-packages/starlette/responses.py", line 269, in __call__
+    |     with collapse_excgroups():
+    |          ^^^^^^^^^^^^^^^^^^^^
+    |   File "/usr/local/google/home/jesusarguelles/.local/share/uv/python/cpython-3.12.11-linux-x86_64-gnu/lib/python3.12/contextlib.py", line 158, in __exit__
+    |     self.gen.throw(value)
+    |   File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/light_mcp_portal/.venv/lib/python3.12/site-packages/starlette/_utils.py", line 87, in collapse_excgroups
+    |     raise exc
+    |   File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/light_mcp_portal/.venv/lib/python3.12/site-packages/starlette/responses.py", line 273, in wrap
+    |     await func()
+    |   File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/light_mcp_portal/.venv/lib/python3.12/site-packages/starlette/responses.py", line 253, in stream_response
+    |     async for chunk in self.body_iterator:
+    |   File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/light_mcp_portal/backend/main.py", line 146, in _stream
+    |     search_tool = VertexAiSearchTool(
+    |                   ^^^^^^^^^^^^^^^^^^^
+    |   File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/light_mcp_portal/.venv/lib/python3.12/site-packages/google/adk/tools/vertex_ai_search_tool.py", line 100, in __init__
+    |     raise ValueError(
+    | ValueError: Either data_store_id or search_engine_id must be specified.
+    +------------------------------------
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/light_mcp_portal/.venv/lib/python3.12/site-packages/uvicorn/protocols/http/h11_impl.py", line 410, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/light_mcp_portal/.venv/lib/python3.12/site-packages/uvicorn/middleware/proxy_headers.py", line 60, in __call__
+    return await self.app(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/light_mcp_portal/.venv/lib/python3.12/site-packages/fastapi/applications.py", line 1159, in __call__
+    await super().__call__(scope, receive, send)
+  File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/light_mcp_portal/.venv/lib/python3.12/site-packages/starlette/applications.py", line 107, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/light_mcp_portal/.venv/lib/python3.12/site-packages/starlette/middleware/errors.py", line 186, in __call__
+    raise exc
+  File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/light_mcp_portal/.venv/lib/python3.12/site-packages/starlette/middleware/errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/light_mcp_portal/.venv/lib/python3.12/site-packages/starlette/middleware/exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/light_mcp_portal/.venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/light_mcp_portal/.venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/light_mcp_portal/.venv/lib/python3.12/site-packages/fastapi/middleware/asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/light_mcp_portal/.venv/lib/python3.12/site-packages/starlette/routing.py", line 716, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/light_mcp_portal/.venv/lib/python3.12/site-packages/starlette/routing.py", line 736, in app
+    await route.handle(scope, receive, send)
+  File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/light_mcp_portal/.venv/lib/python3.12/site-packages/starlette/routing.py", line 290, in handle
+    await self.app(scope, receive, send)
+  File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/light_mcp_portal/.venv/lib/python3.12/site-packages/fastapi/routing.py", line 134, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/light_mcp_portal/.venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/light_mcp_portal/.venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/light_mcp_portal/.venv/lib/python3.12/site-packages/fastapi/routing.py", line 121, in app
+    await response(scope, receive, send)
+  File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/light_mcp_portal/.venv/lib/python3.12/site-packages/starlette/responses.py", line 269, in __call__
+    with collapse_excgroups():
+         ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/google/home/jesusarguelles/.local/share/uv/python/cpython-3.12.11-linux-x86_64-gnu/lib/python3.12/contextlib.py", line 158, in __exit__
+    self.gen.throw(value)
+  File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/light_mcp_portal/.venv/lib/python3.12/site-packages/starlette/_utils.py", line 87, in collapse_excgroups
+    raise exc
+  File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/light_mcp_portal/.venv/lib/python3.12/site-packages/starlette/responses.py", line 273, in wrap
+    await func()
+  File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/light_mcp_portal/.venv/lib/python3.12/site-packages/starlette/responses.py", line 253, in stream_response
+    async for chunk in self.body_iterator:
+  File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/light_mcp_portal/backend/main.py", line 146, in _stream
+    search_tool = VertexAiSearchTool(
+                  ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/light_mcp_portal/.venv/lib/python3.12/site-packages/google/adk/tools/vertex_ai_search_tool.py", line 100, in __init__
+    raise ValueError(
+ValueError: Either data_store_id or search_engine_id must be specified.
+*** gpkg: This tool is configured to use Corp Airlock for package installs: http://go/corp-airlock
+*** gpkg: If Corp Airlock is breaking your workflow please report at: http://go/corp-airlock-feedback
+*** gpkg: Exceptions are available: http://go/corp-airlock#request-exception

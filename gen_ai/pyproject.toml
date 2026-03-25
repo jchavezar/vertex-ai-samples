@@ -12,3 +12,8 @@ dependencies = [
     "pandas>=2.3.1",
     "toolbox-core>=0.4.0",
 ]
+
+[tool.uv.workspace]
+members = [
+    "adk_google_search_test",
+]
