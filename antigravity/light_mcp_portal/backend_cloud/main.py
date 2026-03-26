@@ -19,7 +19,6 @@ from google.adk.sessions import InMemorySessionService
 from google.adk.runners import Runner
 
 from agents.router_agent import get_router_agent
-from agents.agent import get_servicenow_agent_with_mcp_tools
 from google.adk.tools import VertexAiSearchTool
 
 # Configure Logger
@@ -29,29 +28,9 @@ logger = logging.getLogger("main")
 app = FastAPI()
 
 # Initialize Session Service (Vertex AI if AGENT_ENGINE_ID is set, else In-Memory)
-try:
-    from google.adk.sessions.vertex_ai_session_service import VertexAiSessionService
-    agent_engine_id = os.environ.get("AGENT_ENGINE_ID")
-    if agent_engine_id:
-        if "/" in agent_engine_id:
-            parts = agent_engine_id.split("/")
-            if len(parts) == 6:
-                p_project = parts[1]
-                p_location = parts[3]
-                p_id = parts[5]
-                logger.info(f"Using VertexAiSessionService with parsed project={p_project}, location={p_location}, id={p_id}")
-                session_service = VertexAiSessionService(project=p_project, location=p_location, agent_engine_id=p_id)
-            else:
-                logger.warning("AGENT_ENGINE_ID set but could not be parsed as resource name. Using as is.")
-                session_service = VertexAiSessionService(agent_engine_id=agent_engine_id)
-        else:
-            session_service = VertexAiSessionService(agent_engine_id=agent_engine_id)
-    else:
-        logger.info("AGENT_ENGINE_ID not set. Using InMemorySessionService fallback.")
-        session_service = InMemorySessionService()
-except ImportError:
-    logger.warning("VertexAiSessionService could not be imported. Using InMemorySessionService fallback.")
-    session_service = InMemorySessionService()
+# Force InMemorySessionService for local router in cloud backend to avoid hangs
+logger.info("Using InMemorySessionService for local router in cloud backend.")
+session_service = InMemorySessionService()
 
 async def get_or_create_session(app_name: str, session_id: str):
     try:
@@ -126,36 +105,95 @@ async def chat_stream(request: ChatRequest, raw_request: Request):
 
         # 3. Route to corresponding Agent
         if intent == "SERVICENOW":
-            # ServiceNow Route
-            agent, exit_stack = await get_servicenow_agent_with_mcp_tools(user_token=bearer_token)
-            agent_runner = Runner(app_name="servicenow_agent", agent=agent, session_service=session_service)
-            
-            # Ensure session exists for ServiceNow
-            sn_session = await get_or_create_session("servicenow_agent", request.session_id)
-            sn_session_id = sn_session.id
-            
             accumulatedText = ""
-            try:
-                # Stream content from ServiceNow Agent
-                msg_obj = types.Content(role="user", parts=[types.Part.from_text(text=request.prompt)])
-                async for event in agent_runner.run_async(user_id="default_user", session_id=sn_session_id, new_message=msg_obj):
-                    # Convert Event to UI format
-                    if hasattr(event, "content") and event.content and event.content.parts:
-                        for part in event.content.parts:
-                            if hasattr(part, "text") and part.text:
-                                accumulatedText += part.text
-                                yield f"data: {json.dumps({'type': 'text', 'content': part.text})}\n\n"
-                            elif hasattr(part, "thought") and part.thought:
-                                logger.info(f"AI Thought: {part.thought}")
-                    elif hasattr(event, "tool_call") and event.tool_call:
-                        yield f"data: {json.dumps({'type': 'status', 'message': f'Calling Tool: {event.tool_call.function_name}', 'icon': 'tool'})}\n\n"
+            if os.environ.get("AGENT_ENGINE_ID"):
+                logger.info(f"Routing to Remote Agent Engine: {os.environ.get('AGENT_ENGINE_ID')}")
+                import vertexai
+                from vertexai.agent_engines import AdkApp
+                from google.adk.sessions.vertex_ai_session_service import VertexAiSessionService
                 
-                if not accumulatedText:
-                    error_msg = "The ServiceNow agent failed to generate a response. This often happens if the tool call fails or the response is empty."
-                    logger.warning(f"Empty ServiceNow result for session {request.session_id}")
-                    yield f"data: {json.dumps({'type': 'text', 'content': error_msg})}\n\n"
-            finally:
-                await exit_stack.aclose()
+                engine_id = os.environ.get("AGENT_ENGINE_ID")
+                if engine_id and "/" in engine_id:
+                    engine_id = engine_id.split("/")[-1]
+                
+                logger.info(f"Routing to Remote Agent Engine ID: {engine_id}")
+                
+                # Setup cloud session service with the specific engine ID
+                from agents.agent import root_agent
+                cloud_session_service = VertexAiSessionService(
+                    project=os.environ.get("GOOGLE_CLOUD_PROJECT"),
+                    location="us-central1",
+                    agent_engine_id=engine_id
+                )
+                
+                try:
+                    # 1. Create a session with the token state
+                    session = await cloud_session_service.create_session(
+                        app_name="servicenow_mcp_agent_prod",
+                        user_id="default_user",
+                        state={"USER_TOKEN": bearer_token} if bearer_token else {}
+                    )
+                    logger.info(f"Created Cloud Session ID: {session.id}")
+                    
+                    remote_app = AdkApp(agent=root_agent, session_service_builder=lambda: cloud_session_service)
+                    
+                    # 2. Use the generated session ID
+                    async for event in remote_app.async_stream_query(
+                        user_id="default_user",
+                        session_id=session.id,
+                        message=request.prompt
+                    ):
+                        if hasattr(event, "type"):
+                            if event.type == "message":
+                                if hasattr(event, "content") and hasattr(event.content, "parts"):
+                                    for part in event.content.parts:
+                                        if hasattr(part, "text") and part.text:
+                                            accumulatedText += part.text
+                                            yield f"data: {json.dumps({'type': 'text', 'content': part.text})}\n\n"
+                            elif event.type == "tool_call":
+                                yield f"data: {json.dumps({'type': 'status', 'message': f'Calling Cloud Tool: {event.tool_call.function_name}', 'icon': 'tool'})}\n\n"
+                            elif event.type == "thought":
+                                logger.info(f"Cloud AI Thought: {event.text}")
+                    
+                    if not accumulatedText:
+                        error_msg = "The remote ServiceNow agent failed to generate a response."
+                        logger.warning(f"Empty ServiceNow result for session {request.session_id}")
+                        yield f"data: {json.dumps({'type': 'text', 'content': error_msg})}\n\n"
+                
+                except Exception as e:
+                    logger.error(f"Failed remote Agent Engine call: {e}")
+                    yield f"data: {json.dumps({'type': 'text', 'content': f'Remote Agent Error: {e}'})}\n\n"
+                    
+            else:
+                # ServiceNow Local Route
+                agent, exit_stack = await get_servicenow_agent_with_mcp_tools(user_token=bearer_token)
+                agent_runner = Runner(app_name="servicenow_agent", agent=agent, session_service=session_service)
+                
+                # Ensure session exists for ServiceNow
+                sn_session = await get_or_create_session("servicenow_agent", request.session_id)
+                sn_session_id = sn_session.id
+                
+                try:
+                    # Stream content from Local ServiceNow Agent
+                    msg_obj = types.Content(role="user", parts=[types.Part.from_text(text=request.prompt)])
+                    async for event in agent_runner.run_async(user_id="default_user", session_id=sn_session_id, new_message=msg_obj):
+                        # Convert Event to UI format
+                        if hasattr(event, "content") and event.content and event.content.parts:
+                            for part in event.content.parts:
+                                if hasattr(part, "text") and part.text:
+                                    accumulatedText += part.text
+                                    yield f"data: {json.dumps({'type': 'text', 'content': part.text})}\n\n"
+                                elif hasattr(part, "thought") and part.thought:
+                                    logger.info(f"AI Thought: {part.thought}")
+                        elif hasattr(event, "tool_call") and event.tool_call:
+                            yield f"data: {json.dumps({'type': 'status', 'message': f'Calling Tool: {event.tool_call.function_name}', 'icon': 'tool'})}\n\n"
+                    
+                    if not accumulatedText:
+                        error_msg = "The ServiceNow agent failed to generate a response. This often happens if the tool call fails or the response is empty."
+                        logger.warning(f"Empty ServiceNow result for session {request.session_id}")
+                        yield f"data: {json.dumps({'type': 'text', 'content': error_msg})}\n\n"
+                finally:
+                    await exit_stack.aclose()
                 
         else:
             # SEARCH Route - Using Direct streamAssist with User Identity (STS Exchange)

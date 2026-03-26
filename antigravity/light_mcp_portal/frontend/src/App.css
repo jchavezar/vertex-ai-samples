@@ -309,3 +309,88 @@ body {
   background-color: #e2e8f0;
   border-radius: 10px;
 }
+
+/* Markdown Styles */
+.markdown-body {
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+.markdown-body p {
+  margin-bottom: 12px;
+}
+.markdown-body p:last-child {
+  margin-bottom: 0;
+}
+
+.markdown-body table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 16px 0;
+  background-color: rgba(255, 255, 255, 0.5);
+  border-radius: 8px;
+  overflow: hidden;
+  font-size: 0.85rem;
+}
+
+.message-bubble.user .markdown-body table {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+.markdown-body th,
+.markdown-body td {
+  border: 1px solid #e2e8f0;
+  padding: 8px 12px;
+  text-align: left;
+}
+
+.message-bubble.user .markdown-body th,
+.message-bubble.user .markdown-body td {
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.markdown-body th {
+  background-color: #f1f5f9;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.message-bubble.user .markdown-body th {
+  background-color: rgba(0, 0, 0, 0.2);
+  color: white;
+}
+
+.markdown-body a {
+  color: #3b82f6;
+  text-decoration: none;
+  font-weight: 500;
+}
+.message-bubble.user .markdown-body a {
+  color: #bfdbfe;
+}
+
+.markdown-body a:hover {
+  text-decoration: underline;
+}
+
+.markdown-body blockquote {
+  border-left: 4px solid #cbd5e1;
+  padding-left: 12px;
+  margin: 12px 0;
+  color: #475569;
+  font-style: italic;
+  background: rgba(0,0,0,0.02);
+  padding: 8px 12px;
+  border-radius: 0 4px 4px 0;
+}
+
+.message-bubble.user .markdown-body blockquote {
+  border-left: 4px solid rgba(255, 255, 255, 0.3);
+  color: rgba(255, 255, 255, 0.9);
+  background: rgba(255,255,255,0.05);
+}
+
+.markdown-body ul, .markdown-body ol {
+  margin-left: 20px;
+  margin-bottom: 12px;
+}

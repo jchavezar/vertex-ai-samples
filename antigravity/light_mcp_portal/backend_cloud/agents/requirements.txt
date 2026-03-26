@@ -1,0 +1,6 @@
+google-adk
+google-genai
+python-dotenv
+cloudpickle
+pydantic
+google-cloud-aiplatform
