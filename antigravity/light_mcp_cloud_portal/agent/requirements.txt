@@ -1,0 +1,8 @@
+google-adk>=1.9.0
+google-cloud-aiplatform>=1.87.0
+google-auth>=2.29.0
+fastmcp>=2.5.0
+requests>=2.32.0
+python-dotenv>=1.0.0
+cloudpickle>=3.0.0
+pydantic>=2.0.0
