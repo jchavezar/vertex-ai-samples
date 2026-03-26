@@ -7,12 +7,6 @@ resolution-markers = [
     "python_full_version < '3.13'",
 ]
 
-[manifest]
-members = [
-    "backend",
-    "light-mcp-portal",
-]
-
 [[package]]
 name = "aiofile"
 version = "3.9.0"
@@ -210,7 +204,7 @@ wheels = [
 [[package]]
 name = "backend"
 version = "0.1.0"
-source = { virtual = "backend" }
+source = { virtual = "." }
 dependencies = [
     { name = "fastapi" },
     { name = "fastmcp" },
@@ -710,7 +704,7 @@ wheels = [
 
 [[package]]
 name = "google-adk"
-version = "1.27.3"
+version = "1.27.4"
 source = { registry = "https://us-python.pkg.dev/artifact-foundry-prod/ah-3p-staging-python/simple/" }
 dependencies = [
     { name = "aiosqlite" },
@@ -759,9 +753,9 @@ dependencies = [
     { name = "watchdog" },
     { name = "websockets" },
 ]
-sdist = { url = "https://us-python.pkg.dev/artifact-foundry-prod/ah-3p-staging-python/google-adk/google_adk-1.27.3.tar.gz", hash = "sha256:58945d207cc8f87a5ece7610b3b209f14e254d6f45283ee9431e487fe3552db5" }
+sdist = { url = "https://us-python.pkg.dev/artifact-foundry-prod/ah-3p-staging-python/google-adk/google_adk-1.27.4.tar.gz", hash = "sha256:d193b6de41879615c67b0bee5df8c75223caef49748dafe8c9006496df28ed0d" }
 wheels = [
-    { url = "https://us-python.pkg.dev/artifact-foundry-prod/ah-3p-staging-python/google-adk/google_adk-1.27.3-py3-none-any.whl", hash = "sha256:1ef8f32b1a9cc393a9de2fc8700d961b4c25206a7e8631c1386fa5d8c4f9628b" },
+    { url = "https://us-python.pkg.dev/artifact-foundry-prod/ah-3p-staging-python/google-adk/google_adk-1.27.4-py3-none-any.whl", hash = "sha256:b5b2a96b902471352f35448faf72a2b9d9c7f4d355143545305eb8f92e0332a2" },
 ]
 
 [[package]]
@@ -838,7 +832,7 @@ wheels = [
 
 [[package]]
 name = "google-cloud-aiplatform"
-version = "1.142.0"
+version = "1.143.0"
 source = { registry = "https://us-python.pkg.dev/artifact-foundry-prod/ah-3p-staging-python/simple/" }
 dependencies = [
     { name = "docstring-parser" },
@@ -854,9 +848,9 @@ dependencies = [
     { name = "pydantic" },
     { name = "typing-extensions" },
 ]
-sdist = { url = "https://us-python.pkg.dev/artifact-foundry-prod/ah-3p-staging-python/google-cloud-aiplatform/google_cloud_aiplatform-1.142.0.tar.gz", hash = "sha256:87b49e002703dc14885093e9b264587db84222bef5f70f5a442d03f41beecdd1" }
+sdist = { url = "https://us-python.pkg.dev/artifact-foundry-prod/ah-3p-staging-python/google-cloud-aiplatform/google_cloud_aiplatform-1.143.0.tar.gz", hash = "sha256:1f0124a89795a6b473deb28724dd37d95334205df3a9c9c48d0b8d7a3d5d5cc4" }
 wheels = [
-    { url = "https://us-python.pkg.dev/artifact-foundry-prod/ah-3p-staging-python/google-cloud-aiplatform/google_cloud_aiplatform-1.142.0-py2.py3-none-any.whl", hash = "sha256:17c91db9b613cbbafb2c36335b123686aeb2b4b8448be5134b565ae07165a39a" },
+    { url = "https://us-python.pkg.dev/artifact-foundry-prod/ah-3p-staging-python/google-cloud-aiplatform/google_cloud_aiplatform-1.143.0-py2.py3-none-any.whl", hash = "sha256:78df97d044859f743a9cc48b89a260d33579b0d548b1589bb3ae9f4c2afc0c5a" },
 ]
 
 [package.optional-dependencies]
@@ -1571,17 +1565,6 @@ sdist = { url = "https://us-python.pkg.dev/artifact-foundry-prod/ah-3p-staging-p
 wheels = [
     { url = "https://us-python.pkg.dev/artifact-foundry-prod/ah-3p-staging-python/keyring/keyring-25.7.0-py3-none-any.whl", hash = "sha256:be4a0b195f149690c166e850609a477c532ddbfbaed96a404d4e43f8d5e2689f" },
 ]
-
-[[package]]
-name = "light-mcp-portal"
-version = "0.1.0"
-source = { virtual = "." }
-dependencies = [
-    { name = "fastmcp" },
-]
-
-[package.metadata]
-requires-dist = [{ name = "fastmcp", specifier = ">=3.1.1" }]
 
 [[package]]
 name = "mako"
@@ -2560,7 +2543,7 @@ wheels = [
 
 [[package]]
 name = "requests"
-version = "2.32.5"
+version = "2.33.0"
 source = { registry = "https://us-python.pkg.dev/artifact-foundry-prod/ah-3p-staging-python/simple/" }
 dependencies = [
     { name = "certifi" },
@@ -2568,9 +2551,9 @@ dependencies = [
     { name = "idna" },
     { name = "urllib3" },
 ]
-sdist = { url = "https://us-python.pkg.dev/artifact-foundry-prod/ah-3p-staging-python/requests/requests-2.32.5.tar.gz", hash = "sha256:dbba0bac56e100853db0ea71b82b4dfd5fe2bf6d3754a8893c3af500cec7d7cf" }
+sdist = { url = "https://us-python.pkg.dev/artifact-foundry-prod/ah-3p-staging-python/requests/requests-2.33.0.tar.gz", hash = "sha256:c7ebc5e8b0f21837386ad0e1c8fe8b829fa5f544d8df3b2253bff14ef29d7652" }
 wheels = [
-    { url = "https://us-python.pkg.dev/artifact-foundry-prod/ah-3p-staging-python/requests/requests-2.32.5-py3-none-any.whl", hash = "sha256:2462f94637a34fd532264295e186976db0f5d453d1cdd31473c85a6a161affb6" },
+    { url = "https://us-python.pkg.dev/artifact-foundry-prod/ah-3p-staging-python/requests/requests-2.33.0-py3-none-any.whl", hash = "sha256:3324635456fa185245e24865e810cecec7b4caf933d7eb133dcde67d48cee69b" },
 ]
 
 [[package]]

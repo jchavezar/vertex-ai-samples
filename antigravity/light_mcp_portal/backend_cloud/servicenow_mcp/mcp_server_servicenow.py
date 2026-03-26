@@ -3,7 +3,7 @@ import json
 import logging
 import requests
 from typing import List, Optional, Any
-from fastmcp import FastMCP
+from fastmcp import FastMCP, Context
 
 logging.basicConfig(
     level=logging.INFO,
@@ -15,7 +15,7 @@ mcp = FastMCP("ServiceNow-MCP")
 
 # Environment Variables
 INSTANCE_URL = os.environ.get("SERVICENOW_INSTANCE_URL")
-# OAuth JWT Bearer Flow
+# OAuth JWT Bearer Flow (Fallback)
 USER_ID_TOKEN = os.environ.get("USER_ID_TOKEN")
 USER_TOKEN = os.environ.get("USER_TOKEN")
 
@@ -35,7 +35,14 @@ class FallbackSession(requests.Session):
                 resp = super().request(method, url, **kwargs)
         return resp
 
-def _get_session() -> requests.Session:
+def _extract_token(ctx: Context) -> Optional[str]:
+    if ctx and hasattr(ctx, "request_context") and ctx.request_context:
+        auth_header = ctx.request_context.headers.get("authorization")
+        if auth_header and auth_header.startswith("Bearer "):
+            return auth_header.split(" ")[1]
+    return None
+
+def _get_session(auth_token: Optional[str] = None) -> requests.Session:
     """
     Returns an authenticated requests session using the True JWT Bearer Flow.
     The USER_ID_TOKEN provided by Microsoft Entra ID is passed directly to ServiceNow as a Bearer token.
@@ -49,21 +56,21 @@ def _get_session() -> requests.Session:
     session.headers.update({"Accept": "application/json", "Content-Type": "application/json"})
     
     # 1. Real JWT Flow (Prioritized)
-    auth_token = USER_TOKEN or USER_ID_TOKEN
+    final_token = auth_token or USER_TOKEN or USER_ID_TOKEN
     
     # Optional debug logging for JWT (no verification)
-    if auth_token:
+    if final_token:
         try:
             import jwt
-            decoded = jwt.decode(auth_token, options={"verify_signature": False})
+            decoded = jwt.decode(final_token, options={"verify_signature": False})
             logger.info(f"[ServiceNow MCP] JWT Audience: {decoded.get('aud')}")
             logger.info(f"[ServiceNow MCP] JWT UPN/preferred_username: {decoded.get('upn')} / {decoded.get('preferred_username')}")
         except Exception as e:
             logger.error(f"[ServiceNow MCP] Failed to decode JWT for logging: {e}")
 
-    if auth_token:
+    if final_token:
         logger.info("[ServiceNow MCP] OIDC JWT Bearer token detected. Using Bearer Auth.")
-        session.headers.update({"Authorization": f"Bearer {auth_token}"})
+        session.headers.update({"Authorization": f"Bearer {final_token}"})
         return session
         
     # 2. Local fallback for developer instances
@@ -86,20 +93,15 @@ def _get_api_url(table_name: str) -> str:
 # --- GENERIC TABLE API ---
 
 @mcp.tool()
-def query_table(table_name: str, query: str = "", limit: int = 50, offset: int = 0) -> str:
+def query_table(table_name: str, query: str = "", limit: int = 50, offset: int = 0, ctx: Context = None, auth_token: Optional[str] = None) -> str:
     """
     Generic wrapper tool to query any ServiceNow table. Use with standard tables 
     like 'incident', 'problem', 'change_request', 'sc_task', 'sc_req_item'.
-    
-    Args:
-        table_name: Name of the ServiceNow table to query.
-        query: Encoded ServiceNow query (e.g., 'active=true^priority=1').
-        limit: Max number of records to return (default 10).
-        offset: Pagination offset.
     """
     logger.info(f"[ServiceNow MCP] query_table | table={table_name}, query='{query}'")
     try:
-        session = _get_session()
+        final_token = auth_token or _extract_token(ctx)
+        session = _get_session(final_token)
         url = _get_api_url(table_name)
         
         params = {
@@ -119,7 +121,6 @@ def query_table(table_name: str, query: str = "", limit: int = 50, offset: int =
             
         output = f"### ServiceNow Table: {table_name} (Limit: {limit})\n\n"
         
-        # Determine standard display fields based on common tables
         for item in results:
             nr = item.get('number', item.get('sys_id'))
             desc = item.get('short_description', item.get('description', 'N/A'))
@@ -139,60 +140,47 @@ def query_table(table_name: str, query: str = "", limit: int = 50, offset: int =
 # --- SPECIFIC TICKET HELPERS ---
 
 @mcp.tool()
-def list_incidents(limit: int = 50, offset: int = 0, state: Optional[str] = None) -> str:
+def list_incidents(limit: int = 50, offset: int = 0, state: Optional[str] = None, ctx: Context = None) -> str:
     """Lists incidents matching state rules (Pagination supported)."""
     q = "ORDERBYDESCsys_created_on"
     if state:
         q = f"state={state}^{q}"
-    return query_table("incident", query=q, limit=limit, offset=offset)
+    return query_table("incident", query=q, limit=limit, offset=offset, auth_token=_extract_token(ctx))
 
 @mcp.tool()
-def search_incidents(search_term: str, limit: int = 10) -> str:
-    """
-    Searches for incidents containing a specific text string (search_term) in their short_description or description.
-    Use this tool when the user asks to find a ticket related to a specific topic, keyword, or name.
-    """
+def search_incidents(search_term: str, limit: int = 10, ctx: Context = None) -> str:
     logger.info(f"[ServiceNow MCP] search_incidents | term='{search_term}'")
     query = f"short_descriptionLIKE{search_term}^ORdescriptionLIKE{search_term}^ORDERBYDESCsys_created_on"
-    return query_table("incident", query=query, limit=limit)
+    return query_table("incident", query=query, limit=limit, auth_token=_extract_token(ctx))
 
 @mcp.tool()
-def list_problems(limit: int = 10, offset: int = 0, state: Optional[str] = None) -> str:
-    """Lists Problems board items."""
+def list_problems(limit: int = 10, offset: int = 0, state: Optional[str] = None, ctx: Context = None) -> str:
     q = "ORDERBYDESCsys_created_on"
     if state:
         q = f"state={state}^{q}"
-    return query_table("problem", query=q, limit=limit, offset=offset)
+    return query_table("problem", query=q, limit=limit, offset=offset, auth_token=_extract_token(ctx))
 
 @mcp.tool()
-def list_changes(limit: int = 10, offset: int = 0, state: Optional[str] = None) -> str:
-    """Lists Change Request items."""
+def list_changes(limit: int = 10, offset: int = 0, state: Optional[str] = None, ctx: Context = None) -> str:
     q = "ORDERBYDESCsys_created_on"
     if state:
         q = f"state={state}^{q}"
-    return query_table("change_request", query=q, limit=limit, offset=offset)
+    return query_table("change_request", query=q, limit=limit, offset=offset, auth_token=_extract_token(ctx))
 
 @mcp.tool()
-def list_catalog_tasks(limit: int = 10, offset: int = 0, state: Optional[str] = None) -> str:
-    """Lists Catalog Tasks (sc_task)."""
+def list_catalog_tasks(limit: int = 10, offset: int = 0, state: Optional[str] = None, ctx: Context = None) -> str:
     q = "ORDERBYDESCsys_created_on"
     if state:
         q = f"state={state}^{q}"
-    return query_table("sc_task", query=q, limit=limit, offset=offset)
+    return query_table("sc_task", query=q, limit=limit, offset=offset, auth_token=_extract_token(ctx))
 
 
 @mcp.tool()
-def create_ticket(table_name: str, payload_json: str) -> str:
-    """
-    Generic tool to create a record in any ServiceNow table (incident, problem, change_request, tasks).
-    
-    Args:
-        table_name: Target table (e.g., 'incident')
-        payload_json: Stringified JSON of properties (e.g., '{"short_description": "Issue", "priority": "3"}')
-    """
+def create_ticket(table_name: str, payload_json: str, ctx: Context = None) -> str:
+    """Generic tool to create a record in any ServiceNow table (incident, problem, change_request, tasks)."""
     logger.info(f"[ServiceNow MCP] create_ticket | Table: {table_name}")
     try:
-        session = _get_session()
+        session = _get_session(_extract_token(ctx))
         url = _get_api_url(table_name)
         
         body = json.loads(payload_json)
@@ -207,18 +195,11 @@ def create_ticket(table_name: str, payload_json: str) -> str:
         return f"Error creating record: {str(e)}"
 
 @mcp.tool()
-def update_ticket(table_name: str, sys_id: str, updates_json: str) -> str:
-    """
-    Generic tool to update a ticket status or metadata inside any ServiceNow table.
-    
-    Args:
-        table_name: Target table (e.g., 'incident')
-        sys_id: 32-character sys_id inside table
-        updates_json: Stringified JSON of updates (e.g., '{"state": "2"}')
-    """
+def update_ticket(table_name: str, sys_id: str, updates_json: str, ctx: Context = None) -> str:
+    """Generic tool to update a ticket status or metadata inside any ServiceNow table."""
     logger.info(f"[ServiceNow MCP] update_ticket | Table: {table_name} | SysID: {sys_id}")
     try:
-        session = _get_session()
+        session = _get_session(_extract_token(ctx))
         url = f"{_get_api_url(table_name)}/{sys_id}"
         
         body = json.loads(updates_json)
@@ -234,20 +215,18 @@ def update_ticket(table_name: str, sys_id: str, updates_json: str) -> str:
 # --- ADVANCED CAPABILITIES ---
 
 @mcp.tool()
-def get_ticket(number: str) -> str:
-    """ Retrieves a ticket exactly by its unique number (e.g. INC0000601, PRB0000001). """
+def get_ticket(number: str, ctx: Context = None) -> str:
     logger.info(f"[ServiceNow MCP] get_ticket | number={number}")
     prefix = number[:3].upper()
     table_map = {"INC": "incident", "PRB": "problem", "CHG": "change_request", "SCT": "sc_task", "RIT": "sc_req_item"}
     table = table_map.get(prefix, "task")
-    return query_table(table, query=f"number={number}", limit=1)
+    return query_table(table, query=f"number={number}", limit=1, auth_token=_extract_token(ctx))
 
 @mcp.tool()
-def delete_ticket(table_name: str, sys_id: str) -> str:
-    """ Deletes a record from a table. Fails if the user lacks ACL permissions. """
+def delete_ticket(table_name: str, sys_id: str, ctx: Context = None) -> str:
     logger.info(f"[ServiceNow MCP] delete_ticket | table={table_name} id={sys_id}")
     try:
-        session = _get_session()
+        session = _get_session(_extract_token(ctx))
         url = f"{_get_api_url(table_name)}/{sys_id}"
         resp = session.delete(url)
         resp.raise_for_status()
@@ -256,18 +235,16 @@ def delete_ticket(table_name: str, sys_id: str) -> str:
         return f"Error deleting record (might be an ACL block): {str(e)}"
 
 @mcp.tool()
-def add_comment(table_name: str, sys_id: str, text: str, is_internal_work_note: bool = False) -> str:
-    """ Appends text to either 'comments' (customer visible) or 'work_notes' (internal IT visible) on a ticket. """
+def add_comment(table_name: str, sys_id: str, text: str, is_internal_work_note: bool = False, ctx: Context = None) -> str:
     logger.info(f"[ServiceNow MCP] add_comment | table={table_name} id={sys_id}")
     field = "work_notes" if is_internal_work_note else "comments"
-    return update_ticket(table_name, sys_id, json.dumps({field: text}))
+    return update_ticket(table_name, sys_id, json.dumps({field: text}), ctx=ctx)
 
 @mcp.tool()
-def list_attachments(table_name: str, sys_id: str) -> str:
-    """ Lists all file attachments associated with a specific record. """
+def list_attachments(table_name: str, sys_id: str, ctx: Context = None) -> str:
     logger.info(f"[ServiceNow MCP] list_attachments | {table_name} {sys_id}")
     try:
-        session = _get_session()
+        session = _get_session(_extract_token(ctx))
         url = f"{INSTANCE_URL.rstrip('/')}/api/now/attachment"
         params = {"sysparm_query": f"table_name={table_name}^table_sys_id={sys_id}"}
         resp = session.get(url, params=params)
@@ -279,11 +256,10 @@ def list_attachments(table_name: str, sys_id: str) -> str:
         return f"Error listing attachments: {str(e)}"
 
 @mcp.tool()
-def upload_text_attachment(table_name: str, sys_id: str, file_name: str, content: str) -> str:
-    """ Uploads raw text content as a .txt or .md file attachment to a ticket. """
+def upload_text_attachment(table_name: str, sys_id: str, file_name: str, content: str, ctx: Context = None) -> str:
     logger.info(f"[ServiceNow MCP] upload_text_attachment | {file_name}")
     try:
-        session = _get_session()
+        session = _get_session(_extract_token(ctx))
         url = f"{INSTANCE_URL.rstrip('/')}/api/now/attachment/file"
         params = {"table_name": table_name, "table_sys_id": sys_id, "file_name": file_name}
         headers = {"Content-Type": "text/plain"}
@@ -296,11 +272,10 @@ def upload_text_attachment(table_name: str, sys_id: str, file_name: str, content
         return f"Error uploading attachment: {str(e)}"
 
 @mcp.tool()
-def submit_catalog_item(catalog_item_sys_id: str, quantity: int = 1, variables_json: str = "{}") -> str:
-    """ Submits a formal Service Catalog request via the 'order_now' Cart API. """
+def submit_catalog_item(catalog_item_sys_id: str, quantity: int = 1, variables_json: str = "{}", ctx: Context = None) -> str:
     logger.info(f"[ServiceNow MCP] submit_catalog_item | Item ID: {catalog_item_sys_id}")
     try:
-        session = _get_session()
+        session = _get_session(_extract_token(ctx))
         url = f"{INSTANCE_URL.rstrip('/')}/api/sn_sc/servicecatalog/items/{catalog_item_sys_id}/order_now"
         payload = {"sysparm_quantity": quantity, "variables": json.loads(variables_json)}
         resp = session.post(url, json=payload)
@@ -311,39 +286,26 @@ def submit_catalog_item(catalog_item_sys_id: str, quantity: int = 1, variables_j
         return f"Error submitting catalog item: {str(e)}"
 
 @mcp.tool()
-def search_service_requests(search_term: str, limit: int = 10) -> str:
-    """
-    Searches for Service Requests (Requested Items - RITM) containing text in their short_description or description.
-    Use this when the user asks for the status or list of their requests or order items starting with 'RITM'.
-    """
+def search_service_requests(search_term: str, limit: int = 10, ctx: Context = None) -> str:
     logger.info(f"[ServiceNow MCP] search_service_requests | term='{search_term}'")
     query = f"short_descriptionLIKE{search_term}^ORdescriptionLIKE{search_term}^ORDERBYDESCsys_created_on"
-    return query_table("sc_req_item", query=query, limit=limit)
+    return query_table("sc_req_item", query=query, limit=limit, auth_token=_extract_token(ctx))
 
 @mcp.tool()
-def close_incident(sys_id: str, close_code: str, close_notes: str) -> str:
-    """
-    Closes an incident correctly by providing mandatory resolution fields in ServiceNow.
-    Required args: close_code (e.g., 'Solved (Work Around)', 'Solved (Permanently)') and close_notes.
-    State 7 = Closed.
-    """
+def close_incident(sys_id: str, close_code: str, close_notes: str, ctx: Context = None) -> str:
     logger.info(f"[ServiceNow MCP] close_incident | sys_id={sys_id}")
     payload = {
         "state": "7", 
         "close_code": close_code,
         "close_notes": close_notes
     }
-    return update_ticket("incident", sys_id, json.dumps(payload))
+    return update_ticket("incident", sys_id, json.dumps(payload), ctx=ctx)
 
 @mcp.tool()
-def search_catalog_items(search_term: str, limit: int = 10) -> str:
-    """
-    Searches for items in the Service Catalog (sc_cat_item) setup (e.g., 'Laptop', 'iPad', 'Software').
-    Use this to find the Catalog Item SysID before ordering via submit_catalog_item.
-    """
+def search_catalog_items(search_term: str, limit: int = 10, ctx: Context = None) -> str:
     logger.info(f"[ServiceNow MCP] search_catalog_items | term='{search_term}'")
     query = f"nameLIKE{search_term}^ORshort_descriptionLIKE{search_term}"
-    return query_table("sc_cat_item", query=query, limit=limit)
+    return query_table("sc_cat_item", query=query, limit=limit, auth_token=_extract_token(ctx))
 
 if __name__ == "__main__":
     mcp.run()
