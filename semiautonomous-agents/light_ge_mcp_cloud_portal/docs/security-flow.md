@@ -142,37 +142,82 @@
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
 
-## Two-Token Architecture
+## Discovery Engine Authentication Flow
 
-This system uses **two different tokens** for different purposes:
+```
++------------------------------------------------------------------+
+| STEP 4B: DISCOVERY ENGINE (search_sharepoint tool)                |
++------------------------------------------------------------------+
+|                                                                  |
+|   Agent decides to search SharePoint documents                    |
+|         |                                                        |
+|         v                                                        |
+|   +----------------------------------------------------------+  |
+|   |  search_sharepoint(query, tool_context)                   |  |
+|   |                                                           |  |
+|   |  1. Extract USER_TOKEN from tool_context.state            |  |
+|   |     user_token = tool_context.state.get("USER_TOKEN")     |  |
+|   |                                                           |  |
+|   |  2. Exchange JWT via WIF/STS                              |  |
+|   |     gcp_token = exchange_wif_token(user_token)            |  |
+|   |     (Same WIF pool/provider as frontend)                  |  |
+|   |                                                           |  |
+|   |  3. Call streamAssist with USER's GCP token               |  |
+|   |     Authorization: Bearer {user_gcp_token}                |  |
+|   +----------------------------------------------------------+  |
+|         |                                                        |
+|         v                                                        |
+|   +----------------------------------------------------------+  |
+|   |  Discovery Engine (streamAssist API)                      |  |
+|   |                                                           |  |
+|   |  - Uses user identity for SharePoint ACL checks           |  |
+|   |  - Returns only documents user can access                 |  |
+|   |  - Grounded response with source citations                |  |
+|   +----------------------------------------------------------+  |
+|                                                                  |
+|   See: [agent/tools/discovery_engine.py](../agent/tools/)        |
+|                                                                  |
++------------------------------------------------------------------+
+```
+
+## Multi-Token Architecture
+
+This system uses **multiple tokens** for different purposes:
 
 | Token | Purpose | Issued By | Validated By |
 |-------|---------|-----------|--------------|
-| **GCP Access Token** | Authenticate to Agent Engine API | GCP STS (via WIF) | Vertex AI |
+| **GCP Access Token (Frontend)** | Authenticate to Agent Engine API | GCP STS (via WIF) | Vertex AI |
+| **GCP Access Token (Agent)** | User identity for Discovery Engine | GCP STS (via WIF) | Discovery Engine |
 | **Cloud Run ID Token** | Service-to-service auth | Agent Engine SA | Cloud Run IAM |
 | **User JWT (Entra)** | User identity for ServiceNow | Entra ID | ServiceNow OIDC |
+| **Service Account Token** | Admin operations (datastore discovery) | GCP IAM | Discovery Engine |
 
-### Why Two Tokens?
+### Token Flow Diagram
 
 ```
-                    ┌─────────────────────────────┐
-                    │     GCP Access Token        │
-                    │  (Workforce Identity)       │
-                    │                             │
-                    │  WHO: The logged-in user    │
-                    │  CAN: Call Agent Engine API │
-                    └──────────────┬──────────────┘
-                                   │
-          ┌────────────────────────┼────────────────────────┐
-          │                        │                        │
-          ▼                        ▼                        ▼
-┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│ Cloud Run Token │    │   Entra JWT     │    │  Basic Auth     │
-│ (Service Auth)  │    │  (User Auth)    │    │  (Fallback)     │
-│                 │    │                 │    │                 │
-│ WHO: Agent SA   │    │ WHO: User       │    │ WHO: Admin      │
-│ CAN: Call MCP   │    │ CAN: ServiceNow │    │ CAN: Testing    │
-└─────────────────┘    └─────────────────┘    └─────────────────┘
+                    +-----------------------------+
+                    |     Entra ID JWT            |
+                    |  (Original User Token)      |
+                    |                             |
+                    |  WHO: The logged-in user    |
+                    |  STORED: session.state      |
+                    +--------------+--------------+
+                                   |
+          +------------------------+------------------------+
+          |                        |                        |
+          v                        v                        v
++-------------------+  +---------------------+  +---------------------+
+| WIF Exchange #1   |  | WIF Exchange #2     |  | Passed as Header    |
+| (Frontend)        |  | (Agent)             |  | (MCP Server)        |
++-------------------+  +---------------------+  +---------------------+
+|                   |  |                     |  |                     |
+| GCP Token         |  | GCP Token           |  | X-User-Token        |
+| -> Agent Engine   |  | -> Discovery Engine |  | -> ServiceNow       |
+|                   |  |                     |  |                     |
++-------------------+  +---------------------+  +---------------------+
+         |                        |                        |
+         v                        v                        v
+  [Vertex AI API]      [SharePoint via DE]      [ServiceNow OIDC]
 ```
 
 ## Code References
@@ -234,6 +279,10 @@ def _extract_token_from_context(ctx: Context) -> Optional[str]:
 
 ## Related Documentation
 
+- [Architecture Overview](architecture.md) - System component diagram
+- [Discovery Engine Setup](discovery-engine-setup.md) - SharePoint grounding configuration
+- [LazyMcpToolset Pattern](lazy-mcp-pattern.md) - Solving pickle serialization
 - [GCP Infrastructure Setup](gcp-setup.md) - WIF pool/provider configuration
 - [Entra ID Setup](entra-id-setup.md) - App registration details
 - [ServiceNow Setup](servicenow-setup.md) - OIDC provider configuration
+- [Troubleshooting](troubleshooting.md) - Common issues and solutions
