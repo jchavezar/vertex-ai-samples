@@ -231,6 +231,8 @@ light_ge_mcp_cloud_portal/
 
 ### 1. LazyMcpToolset (Solving Pickle Serialization)
 
+> **Source:** [`agent/agent.py#L141-L175`](agent/agent.py#L141-L175)
+
 ```python
 class LazyMcpToolset(BaseToolset):
     """
@@ -250,6 +252,8 @@ class LazyMcpToolset(BaseToolset):
 
 ### 2. WIF Token Exchange
 
+> **Source:** [`agent/tools/discovery_engine.py#L73-L95`](agent/tools/discovery_engine.py#L73-L95)
+
 ```python
 def exchange_wif_token(self, user_id_token: str) -> str:
     """Exchange Entra ID JWT for Google Cloud access token via STS."""
@@ -268,6 +272,8 @@ def exchange_wif_token(self, user_id_token: str) -> str:
 ```
 
 ### 3. Dynamic Datastore Discovery
+
+> **Source:** [`agent/tools/discovery_engine.py#L119-L145`](agent/tools/discovery_engine.py#L119-L145)
 
 ```python
 def _get_dynamic_datastores(self) -> List[Dict[str, str]]:
