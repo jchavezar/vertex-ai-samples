@@ -1,0 +1,8 @@
+[project]
+name = "light-mcp-cloud-portal"
+version = "1.0.0"
+description = "Production-ready Light MCP Cloud Portal"
+requires-python = ">=3.11"
+
+[tool.uv.workspace]
+members = ["mcp-server", "agent"]

@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JWT Token Helper</title>
+    <script src="https://alcdn.msauth.net/browser/2.38.0/js/msal-browser.min.js"></script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 900px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 { color: #333; }
+        h2 { color: #666; margin-top: 0; }
+        button {
+            background: #0078d4;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-right: 10px;
+        }
+        button:hover { background: #106ebe; }
+        button.secondary {
+            background: #6c757d;
+        }
+        textarea {
+            width: 100%;
+            height: 150px;
+            font-family: monospace;
+            font-size: 12px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-top: 10px;
+        }
+        .status {
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .status.success { background: #d4edda; color: #155724; }
+        .status.error { background: #f8d7da; color: #721c24; }
+        .status.info { background: #cce5ff; color: #004085; }
+        pre {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            overflow-x: auto;
+            font-size: 13px;
+        }
+        .token-box {
+            word-break: break-all;
+            background: #fff3cd;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        input {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            width: 300px;
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>JWT Token Helper</h1>
+    <p>Get Entra ID (Azure AD) tokens for testing MCP Server and Agent Engine.</p>
+
+    <div class="card" style="background: #fff3cd; border-left: 4px solid #ffc107;">
+        <strong>Important:</strong> This page must be served via HTTP (not file://).<br>
+        Run: <code>uv run scripts/serve-token-page.py</code> or <code>python3 -m http.server 9000</code><br><br>
+        Also ensure <code>http://localhost:5177</code> is registered as a Redirect URI in your Entra ID App Registration (already configured!).
+    </div>
+
+    <div class="card">
+        <h2>1. Configuration</h2>
+        <p>Enter your Entra ID application details:</p>
+        <div style="margin-bottom: 10px;">
+            <label>Client ID: </label>
+            <input type="text" id="clientId" value="ecbfa47e-a75c-403c-a13b-f27eff101e4e">
+        </div>
+        <div style="margin-bottom: 10px;">
+            <label>Tenant ID: </label>
+            <input type="text" id="tenantId" value="de46a3fd-0d68-4b25-8343-6eb5d71afce9">
+        </div>
+        <button onclick="saveConfig()">Save Configuration</button>
+        <div id="configStatus"></div>
+    </div>
+
+    <div class="card">
+        <h2>2. Authenticate</h2>
+        <button onclick="login()">Login with Microsoft</button>
+        <button onclick="logout()" class="secondary">Logout</button>
+        <div id="authStatus"></div>
+    </div>
+
+    <div class="card">
+        <h2>3. Get Tokens</h2>
+        <button onclick="getTokens()">Get ID Token</button>
+        <button onclick="copyToken()" class="secondary">Copy to Clipboard</button>
+        <div id="tokenStatus"></div>
+
+        <h3>ID Token (use this for ServiceNow)</h3>
+        <div class="token-box" id="idToken">Login first to get token...</div>
+
+        <h3>Token Claims</h3>
+        <pre id="tokenClaims">Login first to see claims...</pre>
+    </div>
+
+    <div class="card">
+        <h2>4. Test Commands</h2>
+        <p>Copy these commands to test your services:</p>
+
+        <h3>Test MCP Server</h3>
+        <pre id="mcpCommand">
+# Replace YOUR_TOKEN with the ID token above
+curl -X POST http://localhost:8080/mcp \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"method": "tools/call", "params": {"name": "list_incidents", "arguments": {"limit": 5}}}'
+        </pre>
+
+        <h3>Test Agent Engine</h3>
+        <pre id="agentCommand">
+# Create session with token
+curl -X POST "https://us-central1-aiplatform.googleapis.com/v1beta1/projects/YOUR_PROJECT/locations/us-central1/reasoningEngines/YOUR_AGENT_ID/sessions" \
+  -H "Authorization: Bearer $(gcloud auth print-access-token)" \
+  -H "Content-Type: application/json" \
+  -d '{"userId": "test", "agentSession": {"state": {"USER_TOKEN": "YOUR_JWT_TOKEN"}}}'
+        </pre>
+    </div>
+
+    <script>
+        let msalInstance = null;
+        let currentToken = null;
+
+        // Load saved config or use defaults
+        window.onload = function() {
+            const savedClientId = localStorage.getItem('msal_client_id');
+            const savedTenantId = localStorage.getItem('msal_tenant_id');
+            if (savedClientId) document.getElementById('clientId').value = savedClientId;
+            if (savedTenantId) document.getElementById('tenantId').value = savedTenantId;
+
+            // Auto-init if we have values (either saved or default)
+            const clientId = document.getElementById('clientId').value;
+            const tenantId = document.getElementById('tenantId').value;
+            if (clientId && tenantId) {
+                localStorage.setItem('msal_client_id', clientId);
+                localStorage.setItem('msal_tenant_id', tenantId);
+                initMsal();
+                showStatus('configStatus', 'Using pre-configured Entra ID settings', 'info');
+            }
+        };
+
+        function saveConfig() {
+            const clientId = document.getElementById('clientId').value.trim();
+            const tenantId = document.getElementById('tenantId').value.trim();
+
+            if (!clientId || !tenantId) {
+                showStatus('configStatus', 'Please enter both Client ID and Tenant ID', 'error');
+                return;
+            }
+
+            localStorage.setItem('msal_client_id', clientId);
+            localStorage.setItem('msal_tenant_id', tenantId);
+            showStatus('configStatus', 'Configuration saved!', 'success');
+            initMsal();
+        }
+
+        function initMsal() {
+            const clientId = localStorage.getItem('msal_client_id');
+            const tenantId = localStorage.getItem('msal_tenant_id');
+
+            if (!clientId || !tenantId) return;
+
+            const msalConfig = {
+                auth: {
+                    clientId: clientId,
+                    authority: `https://login.microsoftonline.com/${tenantId}`,
+                    redirectUri: window.location.origin + window.location.pathname
+                },
+                cache: {
+                    cacheLocation: "sessionStorage"
+                }
+            };
+
+            msalInstance = new msal.PublicClientApplication(msalConfig);
+
+            // Handle redirect response
+            msalInstance.handleRedirectPromise().then(response => {
+                if (response) {
+                    showStatus('authStatus', `Logged in as: ${response.account.username}`, 'success');
+                    currentToken = response.idToken;
+                    displayToken(response.idToken);
+                } else {
+                    const accounts = msalInstance.getAllAccounts();
+                    if (accounts.length > 0) {
+                        showStatus('authStatus', `Already logged in as: ${accounts[0].username}`, 'info');
+                    }
+                }
+            }).catch(error => {
+                showStatus('authStatus', `Error: ${error.message}`, 'error');
+            });
+        }
+
+        async function login() {
+            if (!msalInstance) {
+                showStatus('authStatus', 'Please save configuration first', 'error');
+                return;
+            }
+
+            const loginRequest = {
+                scopes: ["User.Read", "openid", "profile", "email"]
+            };
+
+            try {
+                await msalInstance.loginRedirect(loginRequest);
+            } catch (error) {
+                showStatus('authStatus', `Login error: ${error.message}`, 'error');
+            }
+        }
+
+        async function logout() {
+            if (msalInstance) {
+                await msalInstance.logoutRedirect();
+            }
+        }
+
+        async function getTokens() {
+            if (!msalInstance) {
+                showStatus('tokenStatus', 'Please save configuration and login first', 'error');
+                return;
+            }
+
+            const accounts = msalInstance.getAllAccounts();
+            if (accounts.length === 0) {
+                showStatus('tokenStatus', 'Please login first', 'error');
+                return;
+            }
+
+            const tokenRequest = {
+                scopes: ["User.Read"],
+                account: accounts[0]
+            };
+
+            try {
+                const response = await msalInstance.acquireTokenSilent(tokenRequest);
+                currentToken = response.idToken;
+                displayToken(response.idToken);
+                showStatus('tokenStatus', 'Token acquired successfully!', 'success');
+            } catch (error) {
+                showStatus('tokenStatus', `Error: ${error.message}`, 'error');
+            }
+        }
+
+        function displayToken(token) {
+            document.getElementById('idToken').textContent = token;
+
+            // Decode and display claims
+            try {
+                const payload = token.split('.')[1];
+                const decoded = JSON.parse(atob(payload));
+                document.getElementById('tokenClaims').textContent = JSON.stringify(decoded, null, 2);
+            } catch (e) {
+                document.getElementById('tokenClaims').textContent = 'Could not decode token';
+            }
+        }
+
+        function copyToken() {
+            if (currentToken) {
+                navigator.clipboard.writeText(currentToken);
+                showStatus('tokenStatus', 'Token copied to clipboard!', 'success');
+            } else {
+                showStatus('tokenStatus', 'No token to copy', 'error');
+            }
+        }
+
+        function showStatus(elementId, message, type) {
+            const el = document.getElementById(elementId);
+            el.innerHTML = `<div class="status ${type}">${message}</div>`;
+        }
+    </script>
+</body>
+</html>
