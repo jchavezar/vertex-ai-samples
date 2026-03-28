@@ -4,8 +4,6 @@
 
 A production-ready implementation demonstrating federated identity, grounded SharePoint search, and enterprise tool integration using Google Cloud Agent Engine.
 
-![Architecture Overview](docs/images/architecture-banner.png)
-
 ## What This Project Does
 
 ```
