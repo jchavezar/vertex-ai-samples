@@ -1,0 +1,16 @@
+[project]
+name = "servicenow-mcp-server"
+version = "1.0.0"
+description = "ServiceNow MCP Server with StreamableHTTP transport"
+requires-python = ">=3.11"
+dependencies = [
+    "fastmcp>=2.5.0",
+    "requests>=2.32.0",
+    "python-dotenv>=1.0.0",
+]
+
+[project.scripts]
+serve = "mcp_server:main"
+
+[dependency-groups]
+dev = ["pytest>=8.0.0"]
