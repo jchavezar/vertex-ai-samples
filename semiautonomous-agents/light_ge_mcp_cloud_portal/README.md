@@ -31,6 +31,22 @@ A production-ready implementation demonstrating federated identity, grounded Sha
 └─────────────────────────────────────────────────────────────────────────────────┘
 ```
 
+## Demo
+
+### Welcome Screen
+![Welcome Screen](docs/images/01-welcome-screen.png)
+*Cloud Portal Assistant with Microsoft Entra ID authentication*
+
+### SharePoint Search (Discovery Engine)
+![SharePoint Grounded Response](docs/images/02-sharepoint-grounded-response.png)
+*Query: "What is the salary of a CFO?" - Returns grounded response with source citations from SharePoint documents*
+
+### ServiceNow Integration (MCP)
+![ServiceNow Incidents](docs/images/03-servicenow-incidents.png)
+*Query: "List 5 Ducati incidents" - Returns real-time data from ServiceNow via MCP*
+
+---
+
 ## Key Features
 
 | Feature | Description | Status |
