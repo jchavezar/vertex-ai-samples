@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 
 # Configuration detection
 # We try to get from environment first
-PROJECT_ID = os.getenv("VAIS_PROJECT_ID")
+PROJECT_ID = os.getenv("VAIS_PROJECT_ID", "254356041555")
 LOCATION = os.getenv("VAIS_LOCATION", "global")
 COLLECTION = os.getenv("VAIS_COLLECTION", "default_collection")
 ENGINE = os.getenv("VAIS_ENGINE", "accenture")

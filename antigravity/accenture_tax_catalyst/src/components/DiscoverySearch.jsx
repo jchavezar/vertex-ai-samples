@@ -223,7 +223,7 @@ const DiscoverySearch = ({ isOpen, setIsOpen }) => {
                 <div className="search-top-bar">
                   <div className="search-branding">
                     <span className="accenture-wordmark">accenture</span>
-                    <span className="portal-subtext">Tax Catalyst</span>
+                    <span className="portal-subtext">360° Value Synthesis</span>
                   </div>
                   <button className="close-overlay-btn" onClick={() => setIsOpen(false)} aria-label="Close search">
                     <X size={20} />
@@ -242,7 +242,7 @@ const DiscoverySearch = ({ isOpen, setIsOpen }) => {
                     type="text" 
                     value={query}
                     onChange={(e) => setQuery(e.target.value)}
-                    placeholder="Search Global Intelligence, tax compliance, or policies..."
+                    placeholder="Search Global Intelligence, sustainability, or enterprise value..."
                     autoComplete="off"
                     spellCheck="false"
                   />
@@ -287,7 +287,7 @@ const DiscoverySearch = ({ isOpen, setIsOpen }) => {
                       <div className="filter-item"><input type="checkbox" id="f-consulting" defaultChecked /><label htmlFor="f-consulting">Consulting Management</label><span className="count">12</span></div>
                       <div className="filter-item"><input type="checkbox" id="f-finance" /><label htmlFor="f-finance">Financial Services</label><span className="count">8</span></div>
                       <div className="filter-item"><input type="checkbox" id="f-legal" /><label htmlFor="f-legal">Legal & Compliance</label><span className="count">5</span></div>
-                      <div className="filter-item"><input type="checkbox" id="f-tax" defaultChecked /><label htmlFor="f-tax">International Tax</label><span className="count">18</span></div>
+                      <div className="filter-item"><input type="checkbox" id="f-tax" defaultChecked /><label htmlFor="f-tax">Strategic Transformation</label><span className="count">18</span></div>
                     </div>
                     <div className="filter-group">
                       <div className="filter-group-header">Document Type</div>
@@ -323,7 +323,7 @@ const DiscoverySearch = ({ isOpen, setIsOpen }) => {
                               onClick={(e) => handlePdfDeepDive(e, pdfSuggestion)}
                               className="accenture-inline-pill"
                             >
-                              <Bot size={14} /> Chat with Chief Tax Gemini
+                              <Bot size={14} /> Chat with Executive Value Gemini
                             </button>
                           </div>
                         )}
@@ -353,7 +353,7 @@ const DiscoverySearch = ({ isOpen, setIsOpen }) => {
                                 <div className="result-top-accent" />
                                 <h4>
                                   <a href={structData.link || '#'} target={structData.link ? "_blank" : "_self"} rel="noreferrer" className="result-title-link">
-                                    {structData.title || structData.htmlTitle?.replace(/<[^>]*>?/gm, '') || item.document?.name || 'Tax Briefing Document'}
+                                    {structData.title || structData.htmlTitle?.replace(/<[^>]*>?/gm, '') || item.document?.name || 'Strategic Briefing Document'}
                                   </a>
                                 </h4>
                                 {snippet && (
@@ -364,7 +364,7 @@ const DiscoverySearch = ({ isOpen, setIsOpen }) => {
                                   {structData.displayLink && <span className="meta-source">{structData.displayLink}</span>}
                                   {isPdf && (
                                     <button className="accenture-inline-link pdf-action" onClick={(e) => handlePdfDeepDive(e, {
-                                        title: structData.title || item.document?.name || 'Tax Document',
+                                        title: structData.title || item.document?.name || 'Strategic Document',
                                         url: structData.link,
                                         snippet: snippet || ''
                                     })}>
@@ -391,10 +391,10 @@ const DiscoverySearch = ({ isOpen, setIsOpen }) => {
                     <div className="search-suggestions">
                       <h5>Suggested Intelligence Queries</h5>
                       <div className="suggestion-chips">
-                        <span onClick={() => setQuery("Digital Services Tax EMEA")}>Digital Services Tax EMEA</span>
-                        <span onClick={() => setQuery("Pillar Two Compliance")}>Pillar Two Compliance</span>
-                        <span onClick={() => setQuery("Transfer Pricing Guidelines")}>Transfer Pricing Guidelines</span>
-                        <span onClick={() => setQuery("Permanent Establishment")}>Permanent Establishment Risk</span>
+                        <span onClick={() => setQuery("ESG Compliance EMEA")}>ESG Compliance EMEA</span>
+                        <span onClick={() => setQuery("Scope 3 Carbon Reporting")}>Scope 3 Carbon Reporting</span>
+                        <span onClick={() => setQuery("Value Realization Frameworks")}>Value Realization Frameworks</span>
+                        <span onClick={() => setQuery("Future of Work Readiness")}>Future of Work Readiness</span>
                       </div>
                     </div>
                   )}

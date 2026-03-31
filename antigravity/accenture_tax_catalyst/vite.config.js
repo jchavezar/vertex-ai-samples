@@ -10,7 +10,7 @@ export default defineConfig({
     port: 5180,
     proxy: {
       '/acc/api': {
-        target: 'http://127.0.0.1:8012',
+        target: 'http://127.0.0.1:8000',
         changeOrigin: true
       }
     }
