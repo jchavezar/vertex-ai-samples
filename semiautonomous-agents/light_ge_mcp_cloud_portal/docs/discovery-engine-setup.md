@@ -117,11 +117,11 @@ Content-Type: application/json
 
 ## How dataStoreSpecs Are Fetched
 
+> **Source:** [`agent/tools/discovery_engine.py#L119-L153`](../agent/tools/discovery_engine.py#L119-L153)
+
 Datastores are discovered dynamically from the widget config (not hardcoded):
 
 ```python
-# agent/tools/discovery_engine.py
-
 def _get_dynamic_datastores(self):
     """Fetch datastores from widget config. Uses SERVICE ACCOUNT (admin op)."""
     
@@ -138,6 +138,8 @@ def _get_dynamic_datastores(self):
 ---
 
 ## WIF Token Exchange
+
+> **Source:** [`agent/tools/discovery_engine.py#L73-L117`](../agent/tools/discovery_engine.py#L73-L117)
 
 Converts Entra ID JWT to GCP access token:
 

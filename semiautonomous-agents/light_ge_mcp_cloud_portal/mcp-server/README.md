@@ -38,7 +38,7 @@ MCP_TRANSPORT=sse
 
 ## Key Components
 
-### Header Extraction ([`mcp_server.py`](mcp_server.py) lines 56-98)
+### Header Extraction ([`mcp_server.py#L56-L98`](mcp_server.py#L56-L98))
 
 For SSE transport, headers are on `request_context.request`:
 
@@ -65,7 +65,7 @@ def _extract_token_from_context(ctx: Context) -> Optional[str]:
     return None
 ```
 
-### Basic Auth Fallback ([`mcp_server.py`](mcp_server.py) lines 30-53)
+### Basic Auth Fallback ([`mcp_server.py#L30-L53`](mcp_server.py#L30-L53))
 
 ```python
 class FallbackSession(requests.Session):
