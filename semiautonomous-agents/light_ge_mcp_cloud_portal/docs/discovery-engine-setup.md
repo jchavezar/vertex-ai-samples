@@ -26,7 +26,17 @@ RESPONSE: "Jennifer Walsh, $3,855,000" + source citations
 | **1** | **User Access Token** | Entra ID JWT → STS → GCP Token (for ACL enforcement) |
 | **2** | **dataStoreSpecs** | Tells streamAssist which datastores to search |
 
-> Without BOTH, streamAssist returns generic LLM responses with no SharePoint grounding.
+### Real API Output Comparison
+
+**Query:** "What is the salary of a CFO?"
+
+| Scenario | API Response |
+|----------|--------------|
+| **WITHOUT dataStoreSpecs** | *"The salary of a CFO can vary widely... In the United States, the average salary for a CFO is around **$400,000 per year**. However, for smaller companies, it might be closer to **$150,000**, while for large corporations, it can easily exceed **$1 million**..."* |
+| **WITH dataStoreSpecs + Service Account** | *"I am sorry, I was unable to find any information about the salary of a CFO in your internal documents."* |
+| **WITH dataStoreSpecs + User Token (WIF)** | *"According to the Financial Audit Report for Fiscal Year 2024, the total compensation for the CFO, **Jennifer Walsh**, is **$3,855,000**."* + `textGroundingMetadata` with source: `01_Financial_Audit_Report_FY2024.pdf` |
+
+**Key insight:** The middle row proves dataStoreSpecs works - it tried searching SharePoint but the service account lacks ACL access. Only the user token (via WIF) can access ACL-protected documents.
 
 ---
 
