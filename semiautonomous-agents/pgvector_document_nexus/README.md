@@ -74,16 +74,73 @@ A production-ready document processing system that extracts entities from PDFs (
 
 - Python 3.12+
 - Node.js 20+
-- Google Cloud SDK with authenticated ADC
-- Cloud SQL PostgreSQL instance with pgvector extension
+- Google Cloud SDK authenticated (`gcloud auth login`)
 
-### Setup
+### One-Script Setup (Cloud SQL + App)
 
 ```bash
-# 1. Navigate to project
+# Set your variables
+export PROJECT_ID=your-project-id
+export REGION=us-central1
+export INSTANCE_NAME=pgvector-nexus
+export DB_PASSWORD=your-secure-password
+
+# 1. Create Cloud SQL with pgvector (takes 5-10 min)
+gcloud config set project $PROJECT_ID
+gcloud sql instances create $INSTANCE_NAME \
+  --database-version=POSTGRES_15 \
+  --cpu=2 \
+  --memory=8GB \
+  --region=$REGION \
+  --root-password=$DB_PASSWORD \
+  --database-flags=cloudsql.enable_pgvector=on
+
+# 2. Create database and user
+gcloud sql databases create pgvector_doc_nexus --instance=$INSTANCE_NAME
+gcloud sql users create emb-admin --instance=$INSTANCE_NAME --password=$DB_PASSWORD
+
+# 3. Authorize your IP
+MY_IP=$(curl -s ifconfig.me)
+gcloud sql instances patch $INSTANCE_NAME --authorized-networks=$MY_IP/32 --quiet
+
+# 4. Get Cloud SQL IP
+DB_HOST=$(gcloud sql instances describe $INSTANCE_NAME --format="value(ipAddresses[0].ipAddress)")
+echo "Cloud SQL IP: $DB_HOST"
+
+# 5. Navigate to project
 cd semiautonomous-agents/pgvector_document_nexus
 
-# 2. Create .env file (see docs/getting-started.md for details)
+# 6. Create .env file
+cat > .env << EOF
+PROJECT_ID=$PROJECT_ID
+LOCATION=$REGION
+DB_HOST=$DB_HOST
+DB_PORT=5432
+DB_NAME=pgvector_doc_nexus
+DB_USER=emb-admin
+DB_PASSWORD=$DB_PASSWORD
+EOF
+
+# 7. Install uv (if needed)
+curl -LsSf https://astral.sh/uv/install.sh | sh
+export PATH="$HOME/.local/bin:$PATH"
+
+# 8. Setup backend
+cd backend && uv sync && uv run python init_db.py
+
+# 9. Start backend (background)
+uv run uvicorn main:app --host 0.0.0.0 --port 8002 &
+
+# 10. Setup and start frontend
+cd ../frontend && npm install && npm run dev
+```
+
+### If You Already Have Cloud SQL
+
+```bash
+cd semiautonomous-agents/pgvector_document_nexus
+
+# Create .env with your existing Cloud SQL details
 cat > .env << 'EOF'
 PROJECT_ID=your-project
 LOCATION=us-central1
@@ -94,10 +151,10 @@ DB_USER=emb-admin
 DB_PASSWORD=your-password
 EOF
 
-# 3. Backend
+# Backend
 cd backend && uv sync && uv run python main.py
 
-# 4. Frontend (new terminal)
+# Frontend (new terminal)
 cd frontend && npm install && npm run dev
 ```
 
