@@ -1,5 +1,7 @@
 # Phase 1: Local Testing
 
+[<- Back to Main README](../README.md) | [Phase 2: Cloud Deployment](PHASE2_CLOUD_DEPLOYMENT.md)
+
 **Goal:** Verify the JWT token flows correctly through all components before deploying to cloud.
 
 ---

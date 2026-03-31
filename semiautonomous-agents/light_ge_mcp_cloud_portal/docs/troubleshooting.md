@@ -420,5 +420,7 @@ gcloud logging read 'resource.type="aiplatform.googleapis.com/ReasoningEngine"' 
 ## Related Documentation
 
 - [Debug Checklist](debug-checklist.md) - Step-by-step debugging
-- [LazyMcpToolset Pattern](lazy-mcp-pattern.md) - Deployment serialization fix
-- [Security Flow](security-flow.md) - Token flow understanding
+- [LazyMcpToolset Pattern](lazy-mcp-pattern.md) - Pickle serialization fix
+- [Security Flow](security-flow.md) - Token flow diagrams
+- [Discovery Engine Setup](discovery-engine-setup.md) - dataStoreSpecs requirements
+- [Architecture](architecture.md) - E2E system diagram

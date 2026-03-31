@@ -139,6 +139,8 @@ Remember to add the production URL to Entra ID redirect URIs.
 
 ## Related Documentation
 
-- [Entra ID Setup](../docs/entra-id-setup.md)
-- [GCP Setup](../docs/gcp-setup.md) - WIF configuration
-- [Security Flow](../docs/security-flow.md)
+- [Entra ID Setup](../docs/entra-id-setup.md) - Microsoft app registration
+- [GCP Setup](../docs/gcp-setup.md) - WIF pool/provider setup
+- [Security Flow](../docs/security-flow.md) - Token flow diagrams
+- [Architecture](../docs/architecture.md) - E2E system diagram
+- [Agent](../agent/README.md) - Backend agent implementation

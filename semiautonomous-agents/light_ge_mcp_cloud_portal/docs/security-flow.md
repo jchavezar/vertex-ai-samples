@@ -279,10 +279,10 @@ def _extract_token_from_context(ctx: Context) -> Optional[str]:
 
 ## Related Documentation
 
-- [Architecture Overview](architecture.md) - System component diagram
-- [Discovery Engine Setup](discovery-engine-setup.md) - SharePoint grounding configuration
-- [LazyMcpToolset Pattern](lazy-mcp-pattern.md) - Solving pickle serialization
-- [GCP Infrastructure Setup](gcp-setup.md) - WIF pool/provider configuration
-- [Entra ID Setup](entra-id-setup.md) - App registration details
+- [Architecture (E2E Diagram)](architecture.md) - Complete system flow with all tokens
+- [Discovery Engine Setup](discovery-engine-setup.md) - WIF + dataStoreSpecs requirements
+- [LazyMcpToolset Pattern](lazy-mcp-pattern.md) - Pickle serialization solution
+- [GCP Setup](gcp-setup.md) - WIF pool/provider configuration
+- [Entra ID Setup](entra-id-setup.md) - Microsoft app registration
 - [ServiceNow Setup](servicenow-setup.md) - OIDC provider configuration
 - [Troubleshooting](troubleshooting.md) - Common issues and solutions

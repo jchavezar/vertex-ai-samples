@@ -248,6 +248,8 @@ gcloud run services logs read servicenow-mcp --region=us-central1 --limit=50
 
 ## Related Documentation
 
-- [Security Flow](security-flow.md) - Token flow details
-- [Entra ID Setup](entra-id-setup.md) - Microsoft configuration
+- [Security Flow](security-flow.md) - Token flow diagrams
+- [Entra ID Setup](entra-id-setup.md) - Microsoft app registration
 - [Deployment Guide](deployment.md) - Step-by-step deployment
+- [Architecture](architecture.md) - E2E system diagram
+- [Discovery Engine Setup](discovery-engine-setup.md) - SharePoint grounding

@@ -169,6 +169,8 @@ async for event in agent.async_stream_query(
 
 ## Related Documentation
 
-- [MCP Server](../mcp-server/README.md) - Tool implementations
-- [Security Flow](../docs/security-flow.md) - Token flow
-- [GCP Setup](../docs/gcp-setup.md) - IAM configuration
+- [MCP Server](../mcp-server/README.md) - FastMCP + ServiceNow tools
+- [Discovery Engine Setup](../docs/discovery-engine-setup.md) - SharePoint grounding
+- [LazyMcpToolset Pattern](../docs/lazy-mcp-pattern.md) - Pickle serialization fix
+- [Security Flow](../docs/security-flow.md) - Token flow diagrams
+- [Architecture](../docs/architecture.md) - E2E system diagram
