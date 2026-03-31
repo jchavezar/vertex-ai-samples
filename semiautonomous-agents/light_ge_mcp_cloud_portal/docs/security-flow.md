@@ -92,7 +92,7 @@
 │   │  }                                                      │              │
 │   └─────────────────────────────────────────────────────────┘              │
 │                                                                             │
-│   See: [agent/agent.py](../agent/agent.py) lines 36-62                     │
+│   See: [agent/agent.py#L105-L140](../agent/agent.py#L105-L140)             │
 │                                                                             │
 └─────────────────────────────────────────────────────────────────────────────┘
                                                   │
@@ -115,7 +115,7 @@
 │   │  user_token = headers.get("x-user-token")               │              │
 │   └─────────────────────────────────────────────────────────┘              │
 │                                                                             │
-│   See: [mcp-server/mcp_server.py](../mcp-server/mcp_server.py) lines 56-98 │
+│   See: [mcp-server/mcp_server.py#L56-L98](../mcp-server/mcp_server.py#L56-L98) │
 │                                                                             │
 └─────────────────────────────────────────────────────────────────────────────┘
                                                   │
@@ -175,7 +175,7 @@
 |   |  - Grounded response with source citations                |  |
 |   +----------------------------------------------------------+  |
 |                                                                  |
-|   See: [agent/tools/discovery_engine.py](../agent/tools/)        |
+|   See: [discovery_engine.py#L73-L117](../agent/tools/discovery_engine.py#L73-L117) |
 |                                                                  |
 +------------------------------------------------------------------+
 ```

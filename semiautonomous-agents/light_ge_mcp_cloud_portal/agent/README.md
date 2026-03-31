@@ -59,7 +59,7 @@ root_agent = LlmAgent(
 )
 ```
 
-### Header Provider ([`agent.py`](agent.py) lines 36-62)
+### Header Provider ([`agent.py#L105-L140`](agent.py#L105-L140))
 
 The `header_provider` callback adds authentication headers to MCP requests:
 

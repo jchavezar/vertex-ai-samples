@@ -82,6 +82,8 @@ Wrap the `McpToolset` in a lazy wrapper that defers creation until runtime:
 
 ## Implementation
 
+> **Source:** [`agent/agent.py#L105-L200`](../agent/agent.py#L105-L200)
+
 ### Complete Code
 
 ```python
