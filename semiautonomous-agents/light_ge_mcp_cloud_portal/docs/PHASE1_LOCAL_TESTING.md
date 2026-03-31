@@ -27,7 +27,7 @@ Step 3: Full stack (Backend → Agent → MCP → ServiceNow)
 ## Step 1: Get a JWT Token
 
 ```bash
-cd /path/to/light_mcp_cloud_portal
+cd /path/to/light_ge_mcp_cloud_portal
 
 # Start the token helper (opens browser)
 uv run scripts/serve-token-page.py
@@ -69,7 +69,7 @@ Starting MCP server 'ServiceNow-MCP' on http://0.0.0.0:8081/mcp
 
 In a **new terminal**:
 ```bash
-cd /path/to/light_mcp_cloud_portal
+cd /path/to/light_ge_mcp_cloud_portal
 export TEST_JWT_TOKEN="eyJ..."
 
 uv run scripts/test-local.py --test mcp
