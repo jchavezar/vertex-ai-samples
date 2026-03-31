@@ -6,6 +6,113 @@
 
 This architecture enables secure, identity-aware access to **SharePoint documents** (via Discovery Engine) and **ServiceNow ITSM** (via MCP) through an AI agent, with end-to-end JWT token propagation using Workforce Identity Federation.
 
+## End-to-End Flow (Complete Picture)
+
+```
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│                                           USER BROWSER                                               │
+│  ┌─────────────────────────────────────────────────────────────────────────────────────────────────┐│
+│  │  1. MSAL Login          2. WIF/STS Exchange              3. Create Session + Query              ││
+│  │  ─────────────          ──────────────────               ─────────────────────────              ││
+│  │  User clicks            POST sts.googleapis.com          POST reasoningEngines/{id}:query       ││
+│  │  "Sign in"              ┌─────────────────────┐          Body: {                                ││
+│  │       │                 │ subject_token: JWT  │            state: {USER_TOKEN: "eyJ..."}        ││
+│  │       ▼                 │ audience: //iam...  │          }                                      ││
+│  │  ┌─────────┐            │ ───────────────────▶│          Authorization: Bearer {GCP_TOKEN}      ││
+│  │  │Entra ID │────JWT────▶│ GCP_TOKEN (WIF)     │────────────────────────────────────────────────▶││
+│  │  └─────────┘            └─────────────────────┘                                                 ││
+│  └─────────────────────────────────────────────────────────────────────────────────────────────────┘│
+└─────────────────────────────────────────────────────────────────────────────────────────────────────┘
+                                                    │
+                                                    │ HTTPS + WIF GCP Token
+                                                    ▼
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│                                    VERTEX AI AGENT ENGINE                                            │
+│  ┌─────────────────────────────────────────────────────────────────────────────────────────────────┐│
+│  │                                        LlmAgent                                                  ││
+│  │                                                                                                  ││
+│  │   Session State: { USER_TOKEN: "eyJ..." }  ◄── Stored from create_session                       ││
+│  │                         │                                                                        ││
+│  │         ┌───────────────┴───────────────┐                                                        ││
+│  │         │                               │                                                        ││
+│  │         ▼                               ▼                                                        ││
+│  │   ┌─────────────────┐           ┌─────────────────┐                                             ││
+│  │   │search_sharepoint│           │ LazyMcpToolset  │                                             ││
+│  │   │  (function)     │           │  (ServiceNow)   │                                             ││
+│  │   └────────┬────────┘           └────────┬────────┘                                             ││
+│  │            │                             │                                                       ││
+│  │   4a. WIF Exchange              4b. header_provider()                                           ││
+│  │   (agent-side)                  ┌────────────────────────────────┐                              ││
+│  │   JWT → GCP Token               │ Returns:                       │                              ││
+│  │            │                    │  Authorization: {CR_ID_TOKEN}  │◄── Cloud Run service auth    ││
+│  │            │                    │  X-User-Token: {ENTRA_JWT}     │◄── User identity passthrough ││
+│  │            │                    └────────────────────────────────┘                              ││
+│  └────────────┼─────────────────────────────┼───────────────────────────────────────────────────────┘│
+└───────────────┼─────────────────────────────┼────────────────────────────────────────────────────────┘
+                │                             │
+                │ User's GCP Token            │ Cloud Run ID Token + X-User-Token header
+                │ (WIF-exchanged)             │
+                ▼                             ▼
+┌───────────────────────────────┐   ┌───────────────────────────────────────────────────────────────┐
+│     DISCOVERY ENGINE          │   │                    CLOUD RUN (MCP SERVER)                     │
+│     (streamAssist API)        │   │  ┌─────────────────────────────────────────────────────────┐  │
+│  ┌─────────────────────────┐  │   │  │  5. IAM validates Cloud Run ID Token                    │  │
+│  │ 5. User identity from   │  │   │  │     (service-{PROJECT}@gcp-sa-aiplatform-re...          │  │
+│  │    WIF token            │  │   │  │     must have roles/run.invoker)                        │  │
+│  │                         │  │   │  │                                                         │  │
+│  │ 6. Query SharePoint     │  │   │  │  6. Extract X-User-Token header                         │  │
+│  │    with user's ACLs     │  │   │  │     user_jwt = headers.get("x-user-token")              │  │
+│  │                         │  │   │  │                                                         │  │
+│  │ 7. Return grounded      │  │   │  │  7. Call ServiceNow with user JWT                       │  │
+│  │    response + sources   │  │   │  │     Authorization: Bearer {ENTRA_JWT}                   │  │
+│  └─────────────────────────┘  │   │  └─────────────────────────────────────────────────────────┘  │
+└───────────────┬───────────────┘   └───────────────────────────────┬───────────────────────────────┘
+                │                                                   │
+                │ Graph API                                         │ HTTPS + JWT
+                │ (federated)                                       │
+                ▼                                                   ▼
+┌───────────────────────────────┐   ┌───────────────────────────────────────────────────────────────┐
+│     SHAREPOINT ONLINE         │   │                         SERVICENOW                            │
+│  ┌─────────────────────────┐  │   │  ┌─────────────────────────────────────────────────────────┐  │
+│  │ - User's documents      │  │   │  │  8. OIDC Provider validates JWT signature               │  │
+│  │ - ACL-filtered results  │  │   │  │  9. Maps email claim → sys_user                         │  │
+│  │ - Financial reports,    │  │   │  │  10. Returns user-scoped incidents/data                 │  │
+│  │   HR docs, contracts    │  │   │  └─────────────────────────────────────────────────────────┘  │
+│  └─────────────────────────┘  │   └───────────────────────────────────────────────────────────────┘
+└───────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│                                     SERVICE ACCOUNTS SUMMARY                                         │
+├─────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│                                                                                                      │
+│  ┌──────────────────────────────────────┐    ┌──────────────────────────────────────────────────┐  │
+│  │ Agent Engine Service Account          │    │ Agent Engine Internal SA                         │  │
+│  │ ─────────────────────────────────────│    │ ─────────────────────────────────────────────── │  │
+│  │ {PROJECT_NUM}-compute@developer...    │    │ service-{PROJECT}@gcp-sa-aiplatform-re...        │  │
+│  │                                       │    │                                                  │  │
+│  │ Used for:                             │    │ Used for:                                        │  │
+│  │ • Fetching widget config (datastores) │    │ • Generating Cloud Run ID token                  │  │
+│  │ • Admin operations on Discovery Engine│    │ • Invoking MCP Server on Cloud Run               │  │
+│  │                                       │    │                                                  │  │
+│  │ Needs: roles/discoveryengine.editor   │    │ Needs: roles/run.invoker on MCP service          │  │
+│  └──────────────────────────────────────┘    └──────────────────────────────────────────────────┘  │
+│                                                                                                      │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│                                        TOKEN SUMMARY                                                 │
+├──────────────────────┬─────────────────────────────┬────────────────────────────────────────────────┤
+│ Token                │ Created By                  │ Used For                                       │
+├──────────────────────┼─────────────────────────────┼────────────────────────────────────────────────┤
+│ Entra JWT            │ Microsoft login (MSAL)      │ Original user identity                         │
+│ GCP Token (Frontend) │ STS exchange in browser     │ Authenticate to Agent Engine API               │
+│ GCP Token (Agent)    │ STS exchange in agent       │ User identity for Discovery Engine             │
+│ Cloud Run ID Token   │ Agent Engine internal SA    │ Service-to-service auth (Agent → MCP)          │
+│ X-User-Token         │ Passed through from session │ User identity for ServiceNow                   │
+│ Service Account Token│ Default compute SA          │ Admin ops (fetch datastores)                   │
+└──────────────────────┴─────────────────────────────┴────────────────────────────────────────────────┘
+```
+
 ## Complete Component Diagram
 
 ```
