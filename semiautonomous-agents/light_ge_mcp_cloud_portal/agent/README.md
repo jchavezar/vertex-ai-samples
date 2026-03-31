@@ -41,21 +41,20 @@ SERVICENOW_MCP_URL=https://servicenow-mcp-xxx.us-central1.run.app/sse
 
 ```python
 from google.adk.agents import LlmAgent
-from google.adk.tools.mcp_tool.mcp_toolset import McpToolset, SseConnectionParams
+
+# Use LazyMcpToolset for Agent Engine deployment (solves pickle serialization)
+# See: docs/lazy-mcp-pattern.md
 
 root_agent = LlmAgent(
-    name="ServiceNowAgentCloud",
+    name="CloudPortalAgent",
     model="gemini-2.5-flash",
     instruction=INSTRUCTIONS,
     tools=[
-        McpToolset(
-            connection_params=SseConnectionParams(
-                url=MCP_URL,
-                timeout=120,
-            ),
-            header_provider=mcp_header_provider,  # Dynamic headers
-            errlog=explicit_logger,
-        )
+        LazyMcpToolset(  # NOT direct McpToolset
+            url=MCP_URL,
+            header_provider=mcp_header_provider,
+        ),
+        search_sharepoint,  # Discovery Engine tool
     ]
 )
 ```

@@ -33,8 +33,8 @@ Use this checklist when things aren't working. Work through each section in orde
 |                                                                  |
 |  DISCOVERY ENGINE                                                |
 |  [ ] App created with correct ENGINE_ID                          |
-|  [ ] SharePoint data sources connected                           |
-|  [ ] Documents indexed (check status)                            |
+|  [ ] SharePoint federated connector configured                   |
+|  [ ] Widget config returns datastores                            |
 |                                                                  |
 +------------------------------------------------------------------+
 ```

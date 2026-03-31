@@ -7,11 +7,12 @@
 ## Deployment Order
 
 ```
-1. MCP Server → Cloud Run (exposes /mcp endpoint)
+1. MCP Server → Cloud Run (exposes /sse endpoint)
 2. Agent → Agent Engine (points to MCP Server URL)
-3. Backend → Cloud Run (calls Agent Engine)
-4. Frontend → Update API URL
+3. Frontend → Configure Agent Engine ID + WIF
 ```
+
+> **Note:** No separate backend needed - frontend calls Agent Engine directly via Workforce Identity Federation.
 
 ---
 
@@ -59,54 +60,25 @@ AGENT_ENGINE_ID=<your-new-agent-id>
 
 ---
 
-## Step 3: Deploy TypeScript Backend
+## Step 3: Configure Frontend
 
-```bash
-cd backend
-
-# Update .env
-echo "AGENT_ENGINE_ID=$AGENT_ENGINE_ID" >> .env
-
-# Deploy
-gcloud run deploy portal-backend \
-  --source . \
-  --region us-central1 \
-  --allow-unauthenticated \
-  --set-env-vars "GOOGLE_CLOUD_PROJECT=deloitte-plantas,AGENT_ENGINE_ID=$AGENT_ENGINE_ID"
-```
-
-**Capture the URL:**
-```bash
-BACKEND_URL=$(gcloud run services describe portal-backend \
-  --region us-central1 \
-  --format 'value(status.url)')
-
-echo "Backend URL: $BACKEND_URL"
-```
-
----
-
-## Step 4: Test Cloud Deployment
-
-```bash
-export TEST_JWT_TOKEN="eyJ..."
-
-curl -X POST "$BACKEND_URL/api/chat" \
-  -H "Authorization: Bearer $TEST_JWT_TOKEN" \
-  -H "Content-Type: application/json" \
-  -d '{"message": "List 3 incidents"}'
-```
-
----
-
-## Step 5: Update Frontend
-
-Update your frontend's API URL:
+Update `frontend/src/authConfig.ts` with your Agent Engine ID:
 
 ```typescript
-// frontend/.env or config
-VITE_API_URL=https://portal-backend-xxxxx.us-central1.run.app
+export const agentConfig = {
+  projectId: "your-project-id",
+  location: "us-central1",
+  agentEngineId: AGENT_ENGINE_ID,  // From Step 2
+};
 ```
+
+```bash
+cd ../frontend
+npm install
+npm run dev
+```
+
+Open http://localhost:5173 and test with Microsoft login.
 
 ---
 
@@ -114,9 +86,10 @@ VITE_API_URL=https://portal-backend-xxxxx.us-central1.run.app
 
 - [ ] MCP Server responds at `$MCP_URL`
 - [ ] Agent Engine creates sessions with `USER_TOKEN` in state
-- [ ] Agent calls MCP tools with JWT in Authorization header
+- [ ] Agent calls MCP tools with JWT in X-User-Token header
 - [ ] ServiceNow returns user-scoped data (not Basic Auth fallback)
-- [ ] End-to-end: Frontend → Backend → Agent → MCP → ServiceNow
+- [ ] Discovery Engine returns grounded SharePoint responses
+- [ ] End-to-end: Frontend → Agent Engine → MCP/Discovery Engine
 
 ---
 

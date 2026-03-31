@@ -1,6 +1,6 @@
 # Discovery Engine Setup Guide
 
-[<- Back to Main README](../README.md) | [Architecture](architecture.md)
+[<- Back to Main README](../README.md) | [Architecture](architecture.md) | [Security Flow](security-flow.md) | [Troubleshooting](troubleshooting.md)
 
 ## Overview
 
@@ -183,6 +183,8 @@ WIF_PROVIDER_ID=entra-id-oidc-pool-provider-de
 
 ## Related Documentation
 
-- [Architecture Overview](architecture.md)
-- [Security Flow](security-flow.md)
-- [Troubleshooting](troubleshooting.md)
+- [Architecture Overview](architecture.md) - System components and data flow
+- [Security Flow](security-flow.md) - Token flow diagrams (WIF, STS)
+- [LazyMcpToolset Pattern](lazy-mcp-pattern.md) - Pickle serialization fix
+- [GCP Setup](gcp-setup.md) - WIF pool/provider configuration
+- [Troubleshooting](troubleshooting.md) - Common issues and solutions
