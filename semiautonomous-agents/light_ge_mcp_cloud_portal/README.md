@@ -206,23 +206,30 @@ Open http://localhost:5173, sign in with Microsoft, and ask:
 
 ## Documentation
 
-### Core Concepts
+### Start Here
 
 | Document | Description |
 |----------|-------------|
-| [Architecture Deep Dive](docs/architecture.md) | System design and component interactions |
-| [LazyMcpToolset Pattern](docs/lazy-mcp-pattern.md) | **Critical**: Solving Agent Engine serialization |
-| [WIF Authentication Flow](docs/security-flow.md) | Identity federation explained with diagrams |
-| [Discovery Engine Setup](docs/discovery-engine-setup.md) | SharePoint grounding configuration |
+| [Architecture (E2E Diagram)](docs/architecture.md) | **Complete system flow** - tokens, service accounts, all components |
+| [Discovery Engine Setup](docs/discovery-engine-setup.md) | **Two requirements** for grounded SharePoint responses |
 
-### Setup Guides
+### Core Patterns
 
 | Document | Description |
 |----------|-------------|
-| [GCP Infrastructure](docs/gcp-setup.md) | WIF, IAM, Cloud Run, Agent Engine |
+| [LazyMcpToolset Pattern](docs/lazy-mcp-pattern.md) | Solving Agent Engine pickle serialization |
+| [Security & Token Flow](docs/security-flow.md) | WIF, STS, JWT propagation diagrams |
+
+### Setup & Deployment
+
+| Document | Description |
+|----------|-------------|
+| [GCP Infrastructure](docs/gcp-setup.md) | WIF pools, IAM, Cloud Run |
 | [Entra ID Configuration](docs/entra-id-setup.md) | Microsoft app registration |
 | [ServiceNow Configuration](docs/servicenow-setup.md) | OIDC provider setup |
-| [Deployment Guide](docs/deployment.md) | Step-by-step deployment |
+| [Deployment Guide](docs/deployment.md) | Full deployment steps |
+| [Phase 1: Local Testing](docs/PHASE1_LOCAL_TESTING.md) | Test locally before deploying |
+| [Phase 2: Cloud Deployment](docs/PHASE2_CLOUD_DEPLOYMENT.md) | Deploy to GCP |
 
 ### Troubleshooting
 
@@ -230,6 +237,14 @@ Open http://localhost:5173, sign in with Microsoft, and ask:
 |----------|-------------|
 | [Troubleshooting Guide](docs/troubleshooting.md) | Common issues and solutions |
 | [Debug Checklist](docs/debug-checklist.md) | Step-by-step debugging |
+
+### Component READMEs
+
+| Component | Description |
+|-----------|-------------|
+| [agent/](agent/README.md) | ADK agent with LazyMcpToolset + search_sharepoint |
+| [mcp-server/](mcp-server/README.md) | FastMCP server for ServiceNow |
+| [frontend/](frontend/README.md) | React + MSAL + WIF |
 
 ---
 
