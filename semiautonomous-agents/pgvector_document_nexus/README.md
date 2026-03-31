@@ -54,8 +54,8 @@ A production-ready document processing system that extracts entities from PDFs (
 ### SQL Query Explorer
 ![SQL Tab](docs/images/03-sql-tab.png)
 
-### Chat with Citations
-![Chat Interaction](docs/images/04-chat-interaction.png)
+### Chat with Citations (2.68s response time)
+![Chat with Response Time](docs/images/05-chat-fast-response.png)
 
 ## Key Features
 
