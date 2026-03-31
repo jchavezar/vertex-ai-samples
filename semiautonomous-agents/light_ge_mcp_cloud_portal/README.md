@@ -240,21 +240,9 @@ graph LR
     AGENT --> MCP
     MCP --> SNOW
     FRONT --> ENTRA
-
-    click ARCH "./docs/architecture.md" _self
-    click DE "./docs/discovery-engine-setup.md" _self
-    click LAZY "./docs/lazy-mcp-pattern.md" _self
-    click SEC "./docs/security-flow.md" _self
-    click GCP "./docs/gcp-setup.md" _self
-    click ENTRA "./docs/entra-id-setup.md" _self
-    click SNOW "./docs/servicenow-setup.md" _self
-    click DEPLOY "./docs/deployment.md" _self
-    click TROUBLE "./docs/troubleshooting.md" _self
-    click DEBUG "./docs/debug-checklist.md" _self
-    click AGENT "./agent/README.md" _self
-    click MCP "./mcp-server/README.md" _self
-    click FRONT "./frontend/README.md" _self
 ```
+
+*Use the tables below for clickable links*
 
 ### Start Here
 
