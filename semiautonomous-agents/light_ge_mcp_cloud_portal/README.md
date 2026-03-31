@@ -240,9 +240,21 @@ graph LR
     AGENT --> MCP
     MCP --> SNOW
     FRONT --> ENTRA
-```
 
-*Use the tables below for clickable links*
+    click ARCH "https://github.com/jchavezar/vertex-ai-samples/blob/main/semiautonomous-agents/light_ge_mcp_cloud_portal/docs/architecture.md"
+    click DE "https://github.com/jchavezar/vertex-ai-samples/blob/main/semiautonomous-agents/light_ge_mcp_cloud_portal/docs/discovery-engine-setup.md"
+    click LAZY "https://github.com/jchavezar/vertex-ai-samples/blob/main/semiautonomous-agents/light_ge_mcp_cloud_portal/docs/lazy-mcp-pattern.md"
+    click SEC "https://github.com/jchavezar/vertex-ai-samples/blob/main/semiautonomous-agents/light_ge_mcp_cloud_portal/docs/security-flow.md"
+    click GCP "https://github.com/jchavezar/vertex-ai-samples/blob/main/semiautonomous-agents/light_ge_mcp_cloud_portal/docs/gcp-setup.md"
+    click ENTRA "https://github.com/jchavezar/vertex-ai-samples/blob/main/semiautonomous-agents/light_ge_mcp_cloud_portal/docs/entra-id-setup.md"
+    click SNOW "https://github.com/jchavezar/vertex-ai-samples/blob/main/semiautonomous-agents/light_ge_mcp_cloud_portal/docs/servicenow-setup.md"
+    click DEPLOY "https://github.com/jchavezar/vertex-ai-samples/blob/main/semiautonomous-agents/light_ge_mcp_cloud_portal/docs/deployment.md"
+    click TROUBLE "https://github.com/jchavezar/vertex-ai-samples/blob/main/semiautonomous-agents/light_ge_mcp_cloud_portal/docs/troubleshooting.md"
+    click DEBUG "https://github.com/jchavezar/vertex-ai-samples/blob/main/semiautonomous-agents/light_ge_mcp_cloud_portal/docs/debug-checklist.md"
+    click AGENT "https://github.com/jchavezar/vertex-ai-samples/blob/main/semiautonomous-agents/light_ge_mcp_cloud_portal/agent/README.md"
+    click MCP "https://github.com/jchavezar/vertex-ai-samples/blob/main/semiautonomous-agents/light_ge_mcp_cloud_portal/mcp-server/README.md"
+    click FRONT "https://github.com/jchavezar/vertex-ai-samples/blob/main/semiautonomous-agents/light_ge_mcp_cloud_portal/frontend/README.md"
+```
 
 ### Start Here
 
