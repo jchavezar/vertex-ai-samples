@@ -51,46 +51,16 @@ Discovery Engine (Gemini Enterprise) enables grounded search across SharePoint d
 | WIF Pool + Provider | For user identity federation |
 | Service Account | With Discovery Engine permissions |
 
-## Setup Steps
+## Connector Types
 
-### 1. Create Discovery Engine App
+| Type | Data Location | ACL Enforcement | Sync Required |
+|------|---------------|-----------------|---------------|
+| **Federated (this project)** | Stays in SharePoint | At query time via WIF | No |
+| 3P Connector | Copied to GCP | At index time | Yes (daily/weekly) |
 
-```bash
-# Navigate to Vertex AI Search in Cloud Console
-# Create new Search app with type: "Enterprise"
+This project uses **Federated Identity** - data remains in SharePoint and user permissions are enforced at query time through WIF token exchange.
 
-# App ID format: projects/{project_num}/locations/global/collections/default_collection/engines/{engine_id}
-```
-
-### 2. Connect SharePoint Data Source
-
-```
-+-----------------------------------------------------------------+
-|              SHAREPOINT DATA SOURCE CONFIGURATION                |
-+-----------------------------------------------------------------+
-|                                                                 |
-|  STEP 1: Add Data Store                                         |
-|  +---------------------------------------------------------+   |
-|  |  Type: Cloud Storage / SharePoint                        |   |
-|  |  Source: sockcop.sharepoint.com/sites/FinancialDocument  |   |
-|  +---------------------------------------------------------+   |
-|                                                                 |
-|  STEP 2: Configure Sync                                         |
-|  +---------------------------------------------------------+   |
-|  |  Frequency: Periodic (recommended: daily)                 |   |
-|  |  Full sync: Weekly                                        |   |
-|  +---------------------------------------------------------+   |
-|                                                                 |
-|  STEP 3: Verify Indexing                                        |
-|  +---------------------------------------------------------+   |
-|  |  Documents indexed: 150+                                  |   |
-|  |  Status: ACTIVE                                           |   |
-|  +---------------------------------------------------------+   |
-|                                                                 |
-+-----------------------------------------------------------------+
-```
-
-### 3. Configure Widget for Datastore Discovery
+## How Datastores Are Discovered
 
 The agent dynamically discovers datastores using the widget config API:
 
