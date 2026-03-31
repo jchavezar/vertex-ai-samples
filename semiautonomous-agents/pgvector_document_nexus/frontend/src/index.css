@@ -352,6 +352,53 @@ body {
   text-decoration: underline;
 }
 
+.response-time {
+  margin-top: 0.5rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--border-subtle);
+  font-size: 0.75rem;
+  color: var(--aurora-teal);
+  font-family: 'Monaco', 'Menlo', monospace;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.response-time::before {
+  content: '⚡';
+  font-size: 0.7rem;
+}
+
+.loading-message {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.loading-content {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+.loading-content .spin {
+  animation: spin 1s linear infinite;
+}
+
+.loading-timer {
+  font-size: 0.85rem;
+  color: var(--aurora-purple);
+  font-family: 'Monaco', 'Menlo', monospace;
+  font-weight: 600;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
 .chat-input-area {
   padding: 1rem;
   border-top: 1px solid var(--border-subtle);

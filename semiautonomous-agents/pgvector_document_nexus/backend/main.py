@@ -29,6 +29,8 @@ from google.adk.sessions import InMemorySessionService
 from google.adk.agents import LlmAgent
 from google.genai import types
 
+from google import genai as genai_client
+
 from pipeline import (
     process_document_pipeline,
     search_embeddings_pgvector,
@@ -37,12 +39,43 @@ from pipeline import (
     delete_document,
     insert_chunks_to_pgvector,
     init_db_schema,
+    get_genai_client,
 )
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Initialize database schema on startup
     await init_db_schema()
+
+    # Warm up the singleton genai client to avoid cold start on first request
+    print("Warming up genai client...")
+    from google.genai.types import EmbedContentConfig
+
+    # Get the singleton client (same one used by all requests)
+    client = get_genai_client()
+
+    # Warm up embedding model
+    try:
+        await client.aio.models.embed_content(
+            model="text-embedding-004",
+            contents="warmup",
+            config=EmbedContentConfig(task_type="RETRIEVAL_QUERY", output_dimensionality=768)
+        )
+        print("  - Embedding model warmed up")
+    except Exception as e:
+        print(f"  - Embedding warmup failed: {e}")
+
+    # Warm up LLM model
+    try:
+        await client.aio.models.generate_content(
+            model="gemini-2.5-flash",
+            contents="hi"
+        )
+        print("  - LLM model warmed up")
+    except Exception as e:
+        print(f"  - LLM warmup failed: {e}")
+
+    print("Server ready!")
     yield
 
 app = FastAPI(title="PGVector Document Nexus", lifespan=lifespan)
@@ -171,55 +204,34 @@ MUST cite sources using [1], [2], etc. Do NOT use backticks around citations.
         if not parts:
             parts.append(types.Part.from_text(text="Document processed successfully."))
 
-        content = types.Content(role="user", parts=parts)
-        runner.agent.model = selected_model
-
+        # Use direct genai call for faster response (bypasses ADK overhead)
         async def run_main_agent():
             if not message:
                 return "Document processed and indexed in pgvector. You can now search or chat."
 
-            response_text = ""
-            async for event in runner.run_async(
-                user_id="default_user",
-                session_id=session_id,
-                new_message=content
-            ):
-                if event.is_final_response() and event.content and event.content.parts:
-                    for part in event.content.parts:
-                        if part.text:
-                            response_text += part.text
-            return response_text
+            client = get_genai_client()
 
-        async def run_evaluator():
-            if not message or not search_results:
-                return ""
+            # Build the prompt
+            system_instruction = instruction_text if instruction_text else "You are a helpful assistant that analyzes documents. Be concise."
+            user_prompt = message
+            if context_str:
+                user_prompt = f"{context_str}\n\nUSER QUESTION: {message}"
 
-            eval_agent = LlmAgent(
-                name="grounding_evaluator",
-                model="gemini-2.5-flash",
-                instruction="""Evaluate if the retrieved documents are relevant to the query.
-Summarize relevant info found. Be concise. Format in Markdown."""
+            response = await client.aio.models.generate_content(
+                model=selected_model,
+                contents=user_prompt,
+                config={
+                    "system_instruction": system_instruction,
+                    "temperature": 0.7,
+                    "max_output_tokens": 1024,
+                }
             )
-            eval_runner = Runner(agent=eval_agent, session_service=session_service, app_name="eval_chat")
-            eval_content = types.Content(role="user", parts=[
-                types.Part.from_text(text=f"QUERY:\n{message}\n\n{context_str}")
-            ])
 
-            eval_session_id = f"eval_{session_id}"
-            eval_session = await session_service.get_session(user_id="system", session_id=eval_session_id, app_name="eval_chat")
-            if not eval_session:
-                await session_service.create_session(user_id="system", session_id=eval_session_id, app_name="eval_chat")
+            return response.text if response.text else "No response generated."
 
-            eval_text = ""
-            async for event in eval_runner.run_async(user_id="system", session_id=eval_session_id, new_message=eval_content):
-                if event.is_final_response() and event.content and event.content.parts:
-                    for part in event.content.parts:
-                        if part.text:
-                            eval_text += part.text
-            return eval_text
-
-        import asyncio
-        main_resp, eval_resp = await asyncio.gather(run_main_agent(), run_evaluator())
+        # Run main agent only (removed evaluator to reduce latency)
+        main_resp = await run_main_agent()
+        eval_resp = ""
 
         return {
             "response": main_resp,

@@ -12,6 +12,7 @@ interface ChatMessage {
   role: 'user' | 'assistant';
   content: string;
   chunks?: any[];
+  responseTimeMs?: number;
 }
 
 interface PipelineEntity {
@@ -76,6 +77,8 @@ function App() {
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const chatScrollRef = useRef<HTMLDivElement>(null);
+  const [elapsedMs, setElapsedMs] = useState(0);
+  const startTimeRef = useRef<number>(0);
 
   const models = [
     { id: 'gemini-2.5-flash', label: 'Gemini 2.5 Flash' },
@@ -91,6 +94,17 @@ function App() {
       chatScrollRef.current.scrollTop = chatScrollRef.current.scrollHeight;
     }
   }, [messages, isLoading]);
+
+  // Timer for response time
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (isLoading && startTimeRef.current > 0) {
+      interval = setInterval(() => {
+        setElapsedMs(Date.now() - startTimeRef.current);
+      }, 10);
+    }
+    return () => clearInterval(interval);
+  }, [isLoading]);
 
   const fetchIndexedDocs = async () => {
     try {
@@ -196,6 +210,8 @@ function App() {
     setMessages(prev => [...prev, userMsg]);
     setInput('');
     setIsLoading(true);
+    startTimeRef.current = Date.now();
+    setElapsedMs(0);
 
     const formData = new FormData();
     formData.append('message', userMsg.content);
@@ -207,6 +223,8 @@ function App() {
         method: 'POST',
         body: formData,
       });
+
+      const responseTimeMs = Date.now() - startTimeRef.current;
 
       if (!res.ok) throw new Error('Chat failed');
 
@@ -230,16 +248,20 @@ function App() {
         role: 'assistant',
         content: data.response || 'No response generated.',
         chunks: data.pipeline_data || [],
+        responseTimeMs,
       }]);
     } catch (err) {
       console.error(err);
+      const responseTimeMs = Date.now() - startTimeRef.current;
       setMessages(prev => [...prev, {
         id: crypto.randomUUID(),
         role: 'assistant',
         content: `Error: ${err}`,
+        responseTimeMs,
       }]);
     } finally {
       setIsLoading(false);
+      startTimeRef.current = 0;
     }
   };
 
@@ -662,10 +684,27 @@ function App() {
               {messages.map(msg => (
                 <div key={msg.id} className={`chat-message ${msg.role}`}>
                   {msg.role === 'assistant' ? renderMarkdown(msg.content, msg.chunks) : msg.content}
+                  {msg.role === 'assistant' && msg.responseTimeMs && (
+                    <div className="response-time">
+                      {msg.responseTimeMs >= 1000
+                        ? `${(msg.responseTimeMs / 1000).toFixed(2)}s`
+                        : `${msg.responseTimeMs}ms`}
+                    </div>
+                  )}
                 </div>
               ))}
               {isLoading && (
-                <div className="chat-message assistant shimmer" style={{ height: '60px' }} />
+                <div className="chat-message assistant loading-message">
+                  <div className="loading-content">
+                    <Loader2 size={16} className="spin" />
+                    <span>Searching pgvector...</span>
+                  </div>
+                  <div className="loading-timer">
+                    {elapsedMs >= 1000
+                      ? `${(elapsedMs / 1000).toFixed(2)}s`
+                      : `${elapsedMs}ms`}
+                  </div>
+                </div>
               )}
             </div>
 

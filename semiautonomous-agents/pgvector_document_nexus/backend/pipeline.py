@@ -30,6 +30,21 @@ from google.adk.runners import Runner
 logger = logging.getLogger(__name__)
 
 # ========================================
+# Singleton GenAI Client (avoids cold start on each request)
+# ========================================
+_genai_client = None
+
+def get_genai_client():
+    global _genai_client
+    if _genai_client is None:
+        _genai_client = genai.Client(
+            vertexai=True,
+            project=os.environ.get("GOOGLE_CLOUD_PROJECT"),
+            location=os.environ.get("GOOGLE_CLOUD_LOCATION", "us-central1")
+        )
+    return _genai_client
+
+# ========================================
 # Pydantic Schemas
 # ========================================
 
@@ -267,11 +282,7 @@ async def insert_chunks_to_pgvector(rows: List[Dict[str, Any]]):
 
 async def search_embeddings_pgvector(query_text: str, top_k: int = 5) -> List[Dict[str, Any]]:
     """Search for similar chunks using pgvector cosine similarity."""
-    client = genai.Client(
-        vertexai=True,
-        project=os.environ.get("GOOGLE_CLOUD_PROJECT"),
-        location=os.environ.get("GOOGLE_CLOUD_LOCATION", "us-central1")
-    )
+    client = get_genai_client()
 
     try:
         response = await client.aio.models.embed_content(
