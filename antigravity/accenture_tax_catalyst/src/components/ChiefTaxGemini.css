@@ -85,6 +85,7 @@
   overflow: hidden;
   width: 480px; /* Bigger */
   height: 700px; /* Bigger */
+  max-height: calc(100dvh - 140px); /* Leave 120px bottom + 20px top margin */
   display: flex;
   flex-direction: column;
   position: fixed;
@@ -259,10 +260,40 @@
 /* Suggested Prompts Styling */
 .suggested-prompts {
   display: flex;
-  flex-direction: column;
-  gap: 10px;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 8px;
   margin-bottom: 20px;
   flex-shrink: 0;
+}
+
+.suggested-title {
+  width: 100%;
+  font-size: 0.85rem;
+  color: #94a3b8;
+  margin-bottom: 2px;
+}
+
+.prompt-btn {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(4px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  padding: 6px 12px;
+  font-size: 0.82rem;
+  color: #e2e8f0;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.prompt-btn:hover {
+  background: rgba(161, 0, 255, 0.2);
+  border-color: rgba(161, 0, 255, 0.4);
+  color: white;
+  transform: translateY(-1px);
 }
 
 /* Mobile Responsive Styles (Chrome App Mode) */
@@ -275,6 +306,7 @@
     bottom: 0 !important;
     width: 100vw !important;
     height: 100dvh !important; /* FIXED: Use dvh for mobile */
+    max-height: none !important; /* Reset desktop max-height */
     margin: 0 !important;
     border-radius: 0 !important;
     z-index: 10000 !important;

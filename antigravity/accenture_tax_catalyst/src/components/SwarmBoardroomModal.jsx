@@ -145,7 +145,7 @@ export default function SwarmBoardroomModal({ isOpen, onClose }) {
                   <div className="holo-ring"></div>
                 </div>
                 <h3>Deploy the Strategy Swarm</h3>
-                <p>Present a global tax or macroeconomic challenge. Watch three distinct AI personas debate, critique, and synthesize a master strategy in real-time.</p>
+                <p>Present a global transformation or value realization challenge. Watch three distinct AI personas debate, critique, and synthesize a master strategy in real-time.</p>
               </div>
             ) : (
               <div className="boardroom-stream">
@@ -193,15 +193,15 @@ export default function SwarmBoardroomModal({ isOpen, onClose }) {
 
           <div className="boardroom-input-area">
             <div className="boardroom-quick-actions">
-              <button type="button" className="quick-action-btn" disabled={isSimulating} onClick={() => setPrompt("Examine the risk of new global AI compute tariffs.")}>AI Tariffs</button>
-              <button type="button" className="quick-action-btn" disabled={isSimulating} onClick={() => setPrompt("Review Pillar Two implications for our supply chain.")}>Pillar Two</button>
+              <button type="button" className="quick-action-btn" disabled={isSimulating} onClick={() => setPrompt("Examine the ROI of sustainable supply chain transformation.")}>Sustainability ROI</button>
+              <button type="button" className="quick-action-btn" disabled={isSimulating} onClick={() => setPrompt("Review Scope 3 Carbon implications for our logistics.")}>Scope 3 Carbon</button>
               <button type="button" className="quick-action-btn" disabled={isSimulating} onClick={() => setPrompt("Simulate the exposure of shifting manufacturing offshore.")}>Offshoring Risk</button>
               <button type="button" className="quick-action-btn" disabled={isSimulating} onClick={() => setPrompt("Aggressive restructuring for digital IP holding.")}>Digital IP Restructuring</button>
             </div>
             <form onSubmit={handleSubmit} className="boardroom-form">
               <input 
                 type="text" 
-                placeholder="e.g., Should we move our EMEA IP holding company from Ireland to Switzerland this year?"
+                placeholder="e.g., Should we pivot our EMEA supply chain to 100% renewable energy by 2030?"
                 value={prompt}
                 onChange={(e) => setPrompt(e.target.value)}
                 disabled={isSimulating}

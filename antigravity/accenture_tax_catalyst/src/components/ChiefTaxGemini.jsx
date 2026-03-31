@@ -10,7 +10,7 @@ const ChiefTaxGemini = () => {
   const [messages, setMessages] = useState([
     {
       role: 'assistant',
-      content: 'Hello. I am your **Accenture Chief Tax Catalyst**, accelerated by Gemini 3.1 Flash Lite. How can I assist with your global tax strategy today?',
+      content: 'Hello. I am your **Executive Value Gemini**, accelerated by Gemini 3.1 Flash Lite. How can I assist with your 360° value strategy today?',
       isInitial: true
     }
   ]);
@@ -47,9 +47,9 @@ const ChiefTaxGemini = () => {
   }, []);
 
   const suggestedPrompts = [
-    "Tax implications: Vietnam Mfg / Singapore IP",
-    "OECD Pillar Two EU updates",
-    "Optimal LATAM entity expansion structure"
+    "Sustainability ROI for manufacturing",
+    "Talent attrition vs skill demands in Tech",
+    "Financial impacts of cloud transformation"
   ];
 
   const handleSend = async (text) => {
@@ -157,26 +157,25 @@ const ChiefTaxGemini = () => {
               <span style={{ position: 'absolute', top: '-4px', right: '28px', color: '#ffffff', fontSize: '16px', fontWeight: '900' }}>&gt;</span>
             </span>
           </div>
-          <h2>Your Chief <br/>Tax Gemini</h2>
+          <h2>Your Executive <br/>Value Gemini</h2>
           <p>
-            Navigate complexities instantly. Our conversational AI agent synthesizes global 
-            legislation, your corporate structure, and real-time market data to provide 
-            actionable tax intelligence.
+            Synthesize enterprise-wide impact instantly. Our conversational AI agent integrates 
+            sustainability metrics, talent trends, and project outcomes to provide a 360° view of business value.
           </p>
           
           <div className="features-list">
             <div className="feature-item">
               <div className="feature-icon"><FileText size={18} /></div>
               <div>
-                <h4>Contract Analysis</h4>
-                <span>Instantly reviews intercompany agreements.</span>
+                <h4>ESG Impact Synthesis</h4>
+                <span>Monitor and predict net-zero progress and regulatory alignment.</span>
               </div>
             </div>
             <div className="feature-item">
               <div className="feature-icon"><Globe size={18} /></div>
               <div>
-                <h4>Multi-jurisdictional Logic</h4>
-                <span>Cross-references treaties across 150+ countries.</span>
+                <h4>Talent Dynamics Analysis</h4>
+                <span>Decode employee sentiment and workforce inclusion in real-time.</span>
               </div>
             </div>
           </div>
@@ -294,7 +293,7 @@ const ChiefTaxGemini = () => {
                   type="text" 
                   value={inputValue}
                   onChange={(e) => setInputValue(e.target.value)}
-                  placeholder="Ask a global tax question to the Accenture Catalyst..."
+                  placeholder="Ask about enterprise value, sustainability, or talent trends..."
                   className="chat-input"
                 />
                 <button 

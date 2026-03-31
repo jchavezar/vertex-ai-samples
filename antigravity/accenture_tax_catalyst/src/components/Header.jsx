@@ -33,10 +33,10 @@ const Header = ({ isSearchOpen, setIsSearchOpen }) => {
   
   // Default static categories before AI generation
   const defaultCategories = [
-    { title: "Financial Services", description: "Tax strategies for banking, insurance, and asset management.", icon: "Landmark" },
-    { title: "Technology", description: "Navigating digital economy taxes and IP structuring.", icon: "Cpu" },
-    { title: "Healthcare", description: "Compliance for pharma, devices, and care providers.", icon: "Activity" },
-    { title: "Infrastructure", description: "Tax modeling for energy, real estate, and public projects.", icon: "Building" }
+    { title: "Sustainability & ESG", description: "Net-zero transition and carbon reduction strategies.", icon: "Globe" },
+    { title: "Future of Work", description: "Unlocking human potential and talent reinvention.", icon: "Briefcase" },
+    { title: "Enterprise AI & Cloud", description: "Driving growth with a modern digital core.", icon: "Cpu" },
+    { title: "Value Realization", description: "Measuring 360° total enterprise reinvention ROI.", icon: "TrendingUp" }
   ];
 
   useEffect(() => {
@@ -78,10 +78,10 @@ const Header = ({ isSearchOpen, setIsSearchOpen }) => {
       console.error("Failed to generate dynamic navigation", error);
       // Fallback
       setGeneratedCategories([
-        { title: "Global Compliance Engine", description: "Automated cross-border tax analysis", icon: "Globe" },
-        { title: "Transfer Pricing Nexus", "description": "Intercompany agreement insights", icon: "FileText" },
-        { title: "M&A Structuring", description: "Risk assessment for global transactions", icon: "Briefcase" },
-        { title: "Digital Service Taxes", description: "Evaluating digital product exposure", icon: "Cpu" }
+        { title: "Sustainability Hub", description: "Track ESG metrics and carbon footprint.", icon: "Globe" },
+        { title: "Talent Analytics", description: "Predictive insights on workforce trends.", icon: "Briefcase" },
+        { title: "Value Realization", description: "Measure total enterprise reinvention ROI.", icon: "TrendingUp" },
+        { title: "Digital Core", description: "Cloud migration and AI acceleration status.", icon: "Cpu" }
       ]);
     } finally {
       setIsGeneratingNav(false);
@@ -189,6 +189,47 @@ const Header = ({ isSearchOpen, setIsSearchOpen }) => {
           </button>
         </div>
       </div>
+
+      {/* Mobile Menu Dropdown */}
+      {mobileMenuOpen && (
+        <div 
+          className="mobile-menu-dropdown"
+          style={{
+            position: 'absolute',
+            top: '70px',
+            left: 0,
+            right: 0,
+            background: 'rgba(10, 10, 15, 0.98)',
+            borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
+            padding: '1.5rem',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '1rem',
+            zIndex: 1000
+          }}
+        >
+          {['Insights', 'Services', 'Industries', 'How We Work'].map(item => (
+            <button 
+              key={item}
+              className="mobile-nav-link" 
+              style={{ background: 'none', border: 'none', color: '#fff', textAlign: 'left', cursor: 'pointer', fontSize: '1.1rem' }}
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              {item}
+            </button>
+          ))}
+          <button 
+            className="mobile-nav-link" 
+            style={{ 
+              background: 'rgba(251,191,36,0.1)', border: '1px solid #fbbf24', color: '#fbbf24', 
+              padding: '0.75rem', borderRadius: '8px', cursor: 'pointer', marginTop: '0.5rem' 
+            }} 
+            onClick={() => { setIsBoardroomOpen(true); setMobileMenuOpen(false); }}
+          >
+            3080 Labs
+          </button>
+        </div>
+      )}
       
       <div className="header-nav glass-panel" ref={menuRef}>
         <div className="header-container relative">
@@ -238,17 +279,17 @@ const Header = ({ isSearchOpen, setIsSearchOpen }) => {
               <div className="mega-ai-column">
                 <div className="mega-ai-header">
                   <div className="mega-ai-icon-container">
-                    <Activity size={20} className="text-accent" />
+                    <TrendingUp size={20} className="text-accent" />
                   </div>
-                  <h3>Live Policy Pulse</h3>
+                  <h3>Live 360° Value Pulse</h3>
                 </div>
-                <p>Monitor real-time tax legislation changes and policy updates grounded in global search.</p>
+                <p>Monitor real-time sustainability, talent, and business transformation trends grounded in global search.</p>
                 
                 <form onSubmit={handlePulseSearch} className="mega-ai-form">
                   <div className="input-wrapper">
                     <input 
                       type="text" 
-                      placeholder="e.g. Digital Services Tax in France..." 
+                      placeholder="e.g. Sustainability reports for Tech retail..." 
                       value={pulseQuery}
                       onChange={(e) => setPulseQuery(e.target.value)}
                       disabled={isPulsing}
@@ -286,7 +327,7 @@ const Header = ({ isSearchOpen, setIsSearchOpen }) => {
                 <div className="pulse-content-display" style={{ padding: '1rem', background: 'rgba(255,255,255,0.02)', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.05)', minHeight: '150px', maxHeight: '300px', overflowY: 'auto' }}>
                   {!pulseContent && !isPulsing && (
                     <div style={{ opacity: 0.5, textAlign: 'center', marginTop: '20px' }}>
-                      Enter a topic to activate geopolitical and tax monitoring.
+                      Enter a topic to activate 360° value and transformation monitoring.
                     </div>
                   )}
                   {pulseContent && (
@@ -319,7 +360,7 @@ const Header = ({ isSearchOpen, setIsSearchOpen }) => {
                   </div>
                   <h3>Navigational Gemini</h3>
                 </div>
-                <p>Describe your operating model, expansion plans, or challenges to instantly map your relevant global tax risk surface.</p>
+                <p>Describe your operating model, expansion plans, or challenges to instantly map your relevant 360° value opportunity surface.</p>
                 
                 <form onSubmit={handleNavGenerate} className="mega-ai-form">
                   <div className="input-wrapper">

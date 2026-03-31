@@ -91,15 +91,15 @@ const HeroRadar = () => {
         >
           <div className="badge-enterprise">
             <ShieldAlert size={14} className="text-accent" />
-            <span>Zero-Leak Security Active</span>
+            <span>Total Strategic Reinvention</span>
           </div>
           <h1>
-            Thinking Beyond <span className="text-gradient">Borders.</span><br />
+            360° <span className="text-gradient">Value.</span><br />
             Powered by <span className="text-gradient-ai">Gemini AI.</span>
           </h1>
           <p className="hero-subtitle">
-            Anticipate short- and long-term consequences of global tax planning with real-time, 
-            AI-driven policy analysis and dynamic risk assessment.
+            Anticipate impact across sustainability, talent, and financials with real-time, 
+            AI-driven synthesis of your total enterprise value.
           </p>
           
           <div className="hero-actions">
@@ -108,7 +108,7 @@ const HeroRadar = () => {
               onClick={handleAnalyzeClick}
               disabled={isAnalyzing}
             >
-              {isAnalyzing ? 'Initializing Core Scan...' : 'Analyze Global Compliance'} <Activity size={16} />
+              {isAnalyzing ? 'Synthesizing Value Metrics...' : 'Analyze Enterprise Value'} <Activity size={16} />
             </button>
             <div className="trust-indicators">
               <span><CheckCircle2 size={14} className="text-green-400" /> SOC2 Compliant</span>

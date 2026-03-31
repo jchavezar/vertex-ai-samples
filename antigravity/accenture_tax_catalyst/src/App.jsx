@@ -4,7 +4,7 @@ import Header from './components/Header';
 import HeroRadar from './components/HeroRadar';
 import ResearchReports from './components/ResearchReports';
 import ChiefTaxGemini from './components/ChiefTaxGemini';
-import TransferPricingAnalyzer from './components/TransferPricingAnalyzer';
+import StrategicValueSimulator from './components/StrategicValueSimulator';
 import ZeroLeakShield from './components/ZeroLeakShield';
 import DiscoverySearch from './components/DiscoverySearch';
 import './App.css';
@@ -51,9 +51,9 @@ function App() {
         <div className="section-divider"></div>
         <ChiefTaxGemini />
         
-        {/* Multimodal Drag and Drop */}
+        {/* Value Strategy Simulator */}
         <div className="section-divider"></div>
-        <TransferPricingAnalyzer />
+        <StrategicValueSimulator />
       </main>
 
       {/* Floating Space Badge */}
