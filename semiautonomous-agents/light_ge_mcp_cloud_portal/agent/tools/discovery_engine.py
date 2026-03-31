@@ -286,15 +286,22 @@ class DiscoveryEngineClient:
             print(f"[DE] Fallback to configured datastore: {self.data_store_id}", flush=True)
 
         # Build streamAssist payload
+        # CRITICAL: toolsSpec.vertexAiSearchSpec.dataStoreSpecs is REQUIRED for grounded responses
+        # Without dataStoreSpecs: streamAssist returns generic LLM responses (no SharePoint grounding)
+        # With dataStoreSpecs: streamAssist searches SharePoint and returns grounded answers with citations
         payload = {
             "query": {"text": query}
         }
         if datastore_specs:
+            # This is what triggers grounding on SharePoint documents
+            # The response will include textGroundingMetadata with source references
             payload["toolsSpec"] = {
                 "vertexAiSearchSpec": {
                     "dataStoreSpecs": datastore_specs
                 }
             }
+        else:
+            print("[DE] WARNING: No dataStoreSpecs - response will NOT be grounded on SharePoint!", flush=True)
 
         # Call streamAssist API
         url = (

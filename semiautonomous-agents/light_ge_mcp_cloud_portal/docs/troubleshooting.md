@@ -174,7 +174,58 @@ gcloud run services add-iam-policy-binding servicenow-mcp \
 
 ## 3. Query Errors
 
-### 3.1 Discovery Engine 400 Bad Request
+### 3.1 Response Not Grounded (Generic LLM Response)
+
+**Symptom:**
+```
+Query: "What is the CFO salary?"
+Response: "A CFO's salary typically ranges from $150,000 to $500,000..."
+          (Generic answer, no specific names, no citations)
+```
+
+**Root Cause:** Missing or incorrectly structured `dataStoreSpecs`
+
+**Diagnostic:**
+```
++------------------------------------------------------------------+
+|           GROUNDING NOT WORKING - DIAGNOSTIC CHECKLIST            |
++------------------------------------------------------------------+
+|                                                                  |
+|  [ ] 1. Is dataStoreSpecs in the payload?                        |
+|      Check logs: "[DE] Dynamic datastores found: N"              |
+|      If N = 0, datastores are not being passed                   |
+|                                                                  |
+|  [ ] 2. Is dataStoreSpecs nested correctly?                      |
+|      WRONG:  {"dataStoreSpecs": [...]}                           |
+|      RIGHT:  {"toolsSpec": {"vertexAiSearchSpec":                |
+|                 {"dataStoreSpecs": [...]}}}                      |
+|                                                                  |
+|  [ ] 3. Check response for textGroundingMetadata                 |
+|      If missing -> grounding did not trigger                     |
+|      If present but empty -> no matching documents               |
+|                                                                  |
+|  [ ] 4. Is user token valid for SharePoint access?               |
+|      ACLs may prevent access to documents                        |
+|                                                                  |
++------------------------------------------------------------------+
+```
+
+**Solution:**
+```python
+# Ensure dataStoreSpecs is wrapped in toolsSpec.vertexAiSearchSpec
+payload = {
+    "query": {"text": query},
+    "toolsSpec": {
+        "vertexAiSearchSpec": {
+            "dataStoreSpecs": [
+                {"dataStore": "projects/.../dataStores/your-datastore"}
+            ]
+        }
+    }
+}
+```
+
+### 3.2 Discovery Engine 400 Bad Request
 
 ```
 ERROR: 400 Bad Request - Invalid JSON payload received. Unknown name "description"
