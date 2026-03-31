@@ -222,23 +222,73 @@ The `dataStoreSpecs` must be wrapped in `toolsSpec.vertexAiSearchSpec`:
 
 ### Request Format
 
-```python
-POST https://discoveryengine.googleapis.com/v1alpha/projects/{project_num}/locations/global/collections/default_collection/engines/{engine_id}/servingConfigs/default_search:streamAssist
+```
+POST https://discoveryengine.googleapis.com/v1alpha/projects/{project_num}/locations/global/collections/default_collection/engines/{engine_id}/assistants/default_assistant:streamAssist
+```
 
+**Payload with dataStoreSpecs (REQUIRED for grounding):**
+
+```json
 {
     "query": {
-        "text": "What is the CFO salary?",
-        "queryId": "unique-query-id"
+        "text": "What is the CFO salary?"
     },
-    "session": "projects/{project_num}/locations/global/collections/default_collection/engines/{engine_id}/sessions/-",
-    "safetySpec": {
-        "enable": true
-    },
-    "dataStoreSpecs": [
-        {"dataStore": "projects/{project_num}/locations/global/collections/default_collection/dataStores/deloitte-sharepoint_file"},
-        {"dataStore": "projects/{project_num}/locations/global/collections/default_collection/dataStores/deloitte-sharepoint_page"}
-    ]
+    "toolsSpec": {
+        "vertexAiSearchSpec": {
+            "dataStoreSpecs": [
+                {"dataStore": "projects/{project_num}/locations/global/.../dataStores/sharepoint_file"},
+                {"dataStore": "projects/{project_num}/locations/global/.../dataStores/sharepoint_page"}
+            ]
+        }
+    }
 }
+```
+
+### Dynamic Datastore Discovery
+
+The `dataStoreSpecs` values are NOT hardcoded - they come from `_get_dynamic_datastores()` which fetches them from the widget config:
+
+```python
+# agent/tools/discovery_engine.py
+
+def _get_dynamic_datastores(self) -> List[Dict[str, str]]:
+    """Fetch SharePoint datastores from widget config.
+    
+    Uses SERVICE ACCOUNT credentials (not user token) since this is an admin operation.
+    The actual search later uses the USER token for ACL enforcement.
+    """
+    # Service account for admin operations
+    admin_token = self._get_service_credentials()
+    
+    url = (
+        f"https://discoveryengine.googleapis.com/v1alpha/"
+        f"projects/{self.project_number}/locations/{self.location}/"
+        f"collections/default_collection/engines/{self.engine_id}/"
+        f"widgetConfigs/default_search_widget_config"
+    )
+    
+    resp = requests.get(url, headers={"Authorization": f"Bearer {admin_token}"})
+    
+    # Extract datastore names from widget config
+    datastore_specs = []
+    collections = resp.json().get('collectionComponents', [{}])
+    for comp in collections:
+        for ds_comp in comp.get('dataStoreComponents', []):
+            datastore_specs.append({'dataStore': ds_comp['name']})
+            # Returns: projects/.../dataStores/deloitte-sharepoint_file, etc.
+    
+    return datastore_specs
+```
+
+**Flow:**
+```
+1. _get_dynamic_datastores() fetches widget config (service account)
+      ↓
+2. Extracts datastore names from collectionComponents
+      ↓
+3. Builds payload with toolsSpec.vertexAiSearchSpec.dataStoreSpecs
+      ↓
+4. Calls streamAssist with USER token (WIF-exchanged) for ACL enforcement
 ```
 
 ### Response Format
