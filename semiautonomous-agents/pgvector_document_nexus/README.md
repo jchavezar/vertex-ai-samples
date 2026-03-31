@@ -43,6 +43,17 @@ A production-ready document processing system that extracts entities from PDFs (
 +------------------------------------------------------------------+
 ```
 
+## Demo
+
+### Upload View
+![Upload View](docs/images/01-upload-view.png)
+
+### Dashboard - Data Tab
+![Dashboard Data Tab](docs/images/02-dashboard-data.png)
+
+### SQL Query Explorer
+![SQL Tab](docs/images/03-sql-tab.png)
+
 ## Key Features
 
 | Feature | Description | Status |
