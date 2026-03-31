@@ -206,6 +206,56 @@ Open http://localhost:5173, sign in with Microsoft, and ask:
 
 ## Documentation
 
+```mermaid
+graph LR
+    README[README] --> ARCH[Architecture<br/>E2E Diagram]
+    README --> DE[Discovery Engine<br/>Setup]
+    README --> LAZY[LazyMcpToolset<br/>Pattern]
+    README --> SEC[Security &<br/>Token Flow]
+    
+    ARCH --> SEC
+    ARCH --> LAZY
+    DE --> SEC
+    DE --> ARCH
+    
+    README --> GCP[GCP Setup]
+    README --> ENTRA[Entra ID Setup]
+    README --> SNOW[ServiceNow Setup]
+    README --> DEPLOY[Deployment]
+    
+    GCP --> ENTRA
+    ENTRA --> SNOW
+    GCP --> SEC
+    
+    README --> TROUBLE[Troubleshooting]
+    README --> DEBUG[Debug Checklist]
+    TROUBLE --> DEBUG
+    TROUBLE --> DE
+    
+    README --> AGENT[agent/]
+    README --> MCP[mcp-server/]
+    README --> FRONT[frontend/]
+    
+    AGENT --> LAZY
+    AGENT --> MCP
+    MCP --> SNOW
+    FRONT --> ENTRA
+
+    click ARCH "docs/architecture.md"
+    click DE "docs/discovery-engine-setup.md"
+    click LAZY "docs/lazy-mcp-pattern.md"
+    click SEC "docs/security-flow.md"
+    click GCP "docs/gcp-setup.md"
+    click ENTRA "docs/entra-id-setup.md"
+    click SNOW "docs/servicenow-setup.md"
+    click DEPLOY "docs/deployment.md"
+    click TROUBLE "docs/troubleshooting.md"
+    click DEBUG "docs/debug-checklist.md"
+    click AGENT "agent/README.md"
+    click MCP "mcp-server/README.md"
+    click FRONT "frontend/README.md"
+```
+
 ### Start Here
 
 | Document | Description |
