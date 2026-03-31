@@ -163,6 +163,8 @@ gcloud logging read 'resource.type="cloud_run_revision" AND textPayload:("[MCP]"
 
 ## Related Documentation
 
-- [Agent Engine](../agent/README.md) - header_provider implementation
-- [Security Flow](../docs/security-flow.md) - Token flow
+- [Agent](../agent/README.md) - ADK agent + header_provider
 - [ServiceNow Setup](../docs/servicenow-setup.md) - OIDC configuration
+- [Security Flow](../docs/security-flow.md) - Token flow diagrams
+- [Architecture](../docs/architecture.md) - E2E system diagram
+- [Troubleshooting](../docs/troubleshooting.md) - Common issues

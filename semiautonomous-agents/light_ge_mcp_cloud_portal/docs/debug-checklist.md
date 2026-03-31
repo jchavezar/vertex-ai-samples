@@ -255,4 +255,5 @@ gcloud ai reasoning-engines list --region=us-central1 >> debug_logs.txt
 
 - [Troubleshooting Guide](troubleshooting.md) - Detailed error solutions
 - [Security Flow](security-flow.md) - Token flow diagrams
-- [Architecture](architecture.md) - System overview
+- [Architecture](architecture.md) - E2E system diagram
+- [Discovery Engine Setup](discovery-engine-setup.md) - dataStoreSpecs requirements

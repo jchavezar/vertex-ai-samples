@@ -1,5 +1,7 @@
 # LazyMcpToolset Pattern
 
+[<- Back to Main README](../README.md) | [Architecture](architecture.md) | [Troubleshooting](troubleshooting.md)
+
 > **Solving Agent Engine Pickle Serialization Issues**
 
 This document explains the LazyMcpToolset pattern - a critical solution for deploying ADK agents with MCP toolsets to Google Cloud Agent Engine.
@@ -346,3 +348,11 @@ curl -X POST "https://us-central1-aiplatform.googleapis.com/v1/.../reasoningEngi
 | header_provider | ✅ Supported | ✅ Supported |
 
 The LazyMcpToolset pattern is essential for any ADK agent using MCP that will be deployed to Agent Engine.
+
+## Related Documentation
+
+- [Agent](../agent/README.md) - Agent implementation using LazyMcpToolset
+- [Architecture](architecture.md) - E2E system diagram
+- [Security Flow](security-flow.md) - Token flow and header_provider
+- [Troubleshooting](troubleshooting.md) - Pickle serialization errors
+- [Deployment Guide](deployment.md) - Deploying to Agent Engine

@@ -167,6 +167,7 @@ Example decoded JWT from Entra ID:
 
 ## Related Documentation
 
-- [GCP Setup](gcp-setup.md) - WIF configuration
-- [ServiceNow Setup](servicenow-setup.md) - OIDC provider
-- [Security Flow](security-flow.md) - Token flow details
+- [GCP Setup](gcp-setup.md) - WIF pool/provider configuration
+- [ServiceNow Setup](servicenow-setup.md) - OIDC provider setup
+- [Security Flow](security-flow.md) - Token flow diagrams
+- [Architecture](architecture.md) - E2E system diagram

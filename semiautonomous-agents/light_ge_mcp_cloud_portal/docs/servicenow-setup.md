@@ -173,6 +173,8 @@ The server will automatically fall back to Basic Auth if JWT fails.
 
 ## Related Documentation
 
-- [Entra ID Setup](entra-id-setup.md) - App registration
-- [Security Flow](security-flow.md) - End-to-end token flow
-- [GCP Setup](gcp-setup.md) - Agent Engine configuration
+- [Entra ID Setup](entra-id-setup.md) - Microsoft app registration
+- [Security Flow](security-flow.md) - Token flow diagrams
+- [GCP Setup](gcp-setup.md) - WIF + Agent Engine setup
+- [Architecture](architecture.md) - E2E system diagram
+- [MCP Server](../mcp-server/README.md) - FastMCP implementation
