@@ -58,6 +58,28 @@ A production-ready implementation demonstrating federated identity, grounded Sha
 | **Per-Request JWT Injection** | User identity flows through entire system | ✅ |
 | **Dynamic Datastore Discovery** | Auto-discovers SharePoint datastores | ✅ |
 
+### Critical: dataStoreSpecs for Grounded Responses
+
+> **Without `dataStoreSpecs`, streamAssist returns generic LLM responses instead of grounded SharePoint data.**
+
+The `dataStoreSpecs` field tells Discovery Engine which datastores to search. It must be wrapped in `toolsSpec.vertexAiSearchSpec`:
+
+```python
+# REQUIRED for grounded responses from SharePoint
+payload = {
+    "query": {"text": "What is the CFO salary?"},
+    "toolsSpec": {
+        "vertexAiSearchSpec": {
+            "dataStoreSpecs": [
+                {"dataStore": "projects/.../dataStores/sharepoint-files"}
+            ]
+        }
+    }
+}
+```
+
+See [Discovery Engine Setup](docs/discovery-engine-setup.md#critical-datastorespecs-for-grounded-responses) for details. ([Official API Reference](https://cloud.google.com/generative-ai-app-builder/docs/reference/rest/v1alpha/projects.locations.collections.engines.assistants/streamAssist))
+
 ## Architecture
 
 ```

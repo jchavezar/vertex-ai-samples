@@ -122,6 +122,104 @@ def _get_dynamic_datastores(self) -> List[Dict[str, str]]:
 
 The `streamAssist` API provides grounded responses with source citations.
 
+**Official Documentation:** [Google Cloud Discovery Engine streamAssist API Reference](https://cloud.google.com/generative-ai-app-builder/docs/reference/rest/v1alpha/projects.locations.collections.engines.assistants/streamAssist)
+
+> **Note:** The official API reference shows the `toolsSpec` parameter but does not clearly explain that `dataStoreSpecs` is **required** for grounded responses. This section fills that documentation gap.
+
+### CRITICAL: dataStoreSpecs for Grounded Responses
+
+**The `dataStoreSpecs` field is REQUIRED to get grounded responses from SharePoint.**
+
+Without `dataStoreSpecs`, streamAssist returns generic LLM responses using the model's training knowledge. With `dataStoreSpecs`, it searches your SharePoint documents and returns grounded answers with citations.
+
+```
++------------------------------------------------------------------+
+|           streamAssist BEHAVIOR: With vs Without dataStoreSpecs   |
++------------------------------------------------------------------+
+|                                                                  |
+|  WITHOUT dataStoreSpecs:                                         |
+|  +---------------------------------------------------------+    |
+|  |  Request:                                                |    |
+|  |    {"query": {"text": "What is the CFO salary?"}}       |    |
+|  |                                                          |    |
+|  |  Response:                                               |    |
+|  |    "A CFO's salary typically ranges from $150,000 to    |    |
+|  |     $500,000 depending on company size..."              |    |
+|  |                                                          |    |
+|  |  - Generic LLM knowledge                                 |    |
+|  |  - NO textGroundingMetadata                              |    |
+|  |  - NO SharePoint sources                                 |    |
+|  |  - NOT using your documents                              |    |
+|  +---------------------------------------------------------+    |
+|                                                                  |
+|  WITH dataStoreSpecs:                                            |
+|  +---------------------------------------------------------+    |
+|  |  Request:                                                |    |
+|  |    {"query": {"text": "What is the CFO salary?"},       |    |
+|  |     "toolsSpec": {"vertexAiSearchSpec": {               |    |
+|  |       "dataStoreSpecs": [{"dataStore": "..."}]          |    |
+|  |     }}}                                                  |    |
+|  |                                                          |    |
+|  |  Response:                                               |    |
+|  |    "According to the Financial Audit Report FY2024,     |    |
+|  |     the CFO Jennifer Walsh's total compensation is      |    |
+|  |     $3,855,000..."                                       |    |
+|  |                                                          |    |
+|  |  - Grounded on YOUR SharePoint documents                 |    |
+|  |  - Includes textGroundingMetadata with sources           |    |
+|  |  - Cites specific documents (title, URL)                 |    |
+|  |  - Respects SharePoint ACLs via user identity            |    |
+|  +---------------------------------------------------------+    |
+|                                                                  |
++------------------------------------------------------------------+
+```
+
+### Why dataStoreSpecs is Required
+
+| Aspect | Without dataStoreSpecs | With dataStoreSpecs |
+|--------|------------------------|---------------------|
+| **Data Source** | Model's training data | Your SharePoint documents |
+| **Response Type** | Generic/hallucinated | Grounded with citations |
+| **textGroundingMetadata** | Not present | Contains source references |
+| **ACL Enforcement** | N/A | User's SharePoint permissions apply |
+| **Document Citations** | None | Title, URL, snippet from source |
+
+### The toolsSpec Structure
+
+The `dataStoreSpecs` must be wrapped in `toolsSpec.vertexAiSearchSpec`:
+
+```json
+{
+  "query": {"text": "your question"},
+  "toolsSpec": {
+    "vertexAiSearchSpec": {
+      "dataStoreSpecs": [
+        {"dataStore": "projects/{num}/locations/global/collections/default_collection/dataStores/{id}"}
+      ]
+    }
+  }
+}
+```
+
+**Common Mistake:** Putting `dataStoreSpecs` at the root level will NOT work:
+```json
+// WRONG - dataStoreSpecs at root level
+{
+  "query": {"text": "..."},
+  "dataStoreSpecs": [...]  // This is ignored!
+}
+
+// CORRECT - nested in toolsSpec.vertexAiSearchSpec
+{
+  "query": {"text": "..."},
+  "toolsSpec": {
+    "vertexAiSearchSpec": {
+      "dataStoreSpecs": [...]  // This triggers grounding
+    }
+  }
+}
+```
+
 ### Request Format
 
 ```python
@@ -165,6 +263,40 @@ POST https://discoveryengine.googleapis.com/v1alpha/projects/{project_num}/locat
     }
 }
 ```
+
+### How to Verify Grounding is Working
+
+Check for `textGroundingMetadata` in the response:
+
+```python
+# Parse streamAssist response
+for chunk in response_json:
+    answer = chunk.get("answer", {})
+    for reply in answer.get("replies", []):
+        grounded_content = reply.get("groundedContent", {})
+        
+        # Check for grounding metadata
+        grounding = grounded_content.get("textGroundingMetadata", {})
+        references = grounding.get("references", [])
+        
+        if references:
+            print("GROUNDED - Sources found:")
+            for ref in references:
+                doc = ref.get("documentMetadata", {})
+                print(f"  - {doc.get('title')}: {doc.get('uri')}")
+        else:
+            print("NOT GROUNDED - No sources (check dataStoreSpecs)")
+```
+
+**Signs of successful grounding:**
+- Response includes `textGroundingMetadata.references`
+- Each reference has `documentMetadata` with `title`, `uri`, `domain`
+- Answer text includes specific details from your documents
+
+**Signs grounding is NOT working:**
+- No `textGroundingMetadata` in response
+- Generic/vague answers without specific details
+- No source citations
 
 ## WIF Token Exchange for User Identity
 
