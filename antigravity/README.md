@@ -218,6 +218,19 @@
       <a href="./global_tax_intelligence/">ACCESS_TERMINAL &rarr;</a>
     </td>
   </tr>
+  <!-- ROW 13: SEMIAUTONOMOUS AGENTS -->
+  <tr>
+    <td width="50%" valign="top">
+      <img src="assets/header_adk.svg" width="100%" />
+      <br/><br/>
+      <strong>PROJECT: SEMIAUTONOMOUS AGENTS</strong><br/>
+      Experimental proving ground for semiautonomous agentic patterns. Includes ADK script generation, hierarchical RAG, Discovery Engine tests, and MCP cloud portals.<br/>
+      <br/>
+      <a href="../semiautonomous-agents/">ACCESS_TERMINAL &rarr;</a>
+    </td>
+    <td width="50%" valign="top">
+    </td>
+  </tr>
 </table>
 
 <br/>

@@ -1,0 +1,1068 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Framework Race - ADK vs LangGraph</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0f1117;
+            --bg-secondary: #1a1d27;
+            --bg-tertiary: #252a38;
+            --text-primary: #f0f2f5;
+            --text-secondary: #8b92a5;
+            --accent-adk: #4285f4;
+            --accent-adk-glow: rgba(66, 133, 244, 0.3);
+            --accent-langgraph: #9c27b0;
+            --accent-langgraph-glow: rgba(156, 39, 176, 0.3);
+            --success: #34a853;
+            --warning: #fbbc04;
+            --error: #ea4335;
+            --border: #2d3348;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+
+        .container { max-width: 1400px; margin: 0 auto; padding: 24px; }
+
+        .header { text-align: center; margin-bottom: 24px; }
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent-adk), var(--accent-langgraph));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 8px;
+        }
+        .header p { color: var(--text-secondary); font-size: 1.1rem; }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 24px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 0;
+        }
+        .tab {
+            padding: 12px 24px;
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            margin-bottom: -1px;
+            transition: all 0.2s;
+        }
+        .tab:hover { color: var(--text-primary); }
+        .tab.active {
+            color: var(--text-primary);
+            border-bottom-color: var(--accent-adk);
+        }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        /* Race Tab Styles */
+        .race-track-container {
+            background: var(--bg-secondary);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 24px;
+            border: 1px solid var(--border);
+        }
+        .race-track { display: flex; gap: 24px; margin-bottom: 24px; }
+        .lane {
+            flex: 1;
+            background: var(--bg-tertiary);
+            border-radius: 12px;
+            padding: 20px;
+            position: relative;
+        }
+        .lane::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 4px;
+        }
+        .lane.adk::before { background: linear-gradient(90deg, var(--accent-adk), transparent); }
+        .lane.langgraph::before { background: linear-gradient(90deg, var(--accent-langgraph), transparent); }
+
+        .lane-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+        .lane-title { display: flex; align-items: center; gap: 12px; }
+        .lane-icon {
+            width: 40px; height: 40px;
+            border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 700; font-size: 1.2rem;
+        }
+        .adk .lane-icon { background: var(--accent-adk-glow); color: var(--accent-adk); }
+        .langgraph .lane-icon { background: var(--accent-langgraph-glow); color: var(--accent-langgraph); }
+        .lane-name { font-weight: 600; font-size: 1.2rem; }
+        .lane-timer {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.5rem; font-weight: 600;
+            padding: 8px 16px; border-radius: 8px;
+            background: var(--bg-primary);
+        }
+        .adk .lane-timer { color: var(--accent-adk); }
+        .langgraph .lane-timer { color: var(--accent-langgraph); }
+
+        .progress-container { height: 8px; background: var(--bg-primary); border-radius: 4px; margin-bottom: 16px; }
+        .progress-bar { height: 100%; width: 0%; border-radius: 4px; transition: width 0.3s; }
+        .adk .progress-bar { background: linear-gradient(90deg, var(--accent-adk), #8ab4f8); }
+        .langgraph .progress-bar { background: linear-gradient(90deg, var(--accent-langgraph), #ce93d8); }
+
+        .steps { display: flex; flex-direction: column; gap: 12px; }
+        .step {
+            background: var(--bg-primary);
+            border-radius: 8px;
+            padding: 12px 16px;
+            display: flex; align-items: center; gap: 12px;
+            opacity: 0.5;
+            transition: all 0.3s;
+        }
+        .step.active { opacity: 1; border-left: 3px solid; }
+        .adk .step.active { border-color: var(--accent-adk); box-shadow: 0 0 20px var(--accent-adk-glow); }
+        .langgraph .step.active { border-color: var(--accent-langgraph); box-shadow: 0 0 20px var(--accent-langgraph-glow); }
+        .step.complete { opacity: 1; }
+        .step-number {
+            width: 24px; height: 24px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.75rem; font-weight: 600;
+            background: var(--bg-tertiary);
+        }
+        .step.complete .step-number { background: var(--success); color: white; }
+        .step-info { flex: 1; }
+        .step-name { font-weight: 500; font-size: 0.9rem; }
+        .step-latency { font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; color: var(--text-secondary); }
+
+        .answer-section { margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border); }
+        .answer-bubble {
+            background: var(--bg-primary);
+            border-radius: 12px;
+            padding: 16px;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        .answer-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+        .answer-label { font-weight: 600; font-size: 0.85rem; text-transform: uppercase; color: var(--text-secondary); }
+        .answer-badge { padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 500; }
+        .answer-badge.correct { background: rgba(52, 168, 83, 0.2); color: var(--success); }
+        .answer-badge.incorrect { background: rgba(234, 67, 53, 0.2); color: var(--error); }
+
+        .input-section {
+            background: var(--bg-secondary);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 24px;
+            border: 1px solid var(--border);
+        }
+        .input-group { display: flex; gap: 16px; margin-bottom: 16px; }
+        .query-input {
+            flex: 1;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px 20px;
+            font-size: 1rem;
+            color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
+        }
+        .query-input:focus { outline: none; border-color: var(--accent-adk); }
+        .race-button {
+            background: linear-gradient(135deg, var(--accent-adk), var(--accent-langgraph));
+            border: none;
+            border-radius: 12px;
+            padding: 16px 32px;
+            font-size: 1rem;
+            font-weight: 600;
+            color: white;
+            cursor: pointer;
+        }
+        .race-button:hover:not(:disabled) { transform: translateY(-2px); }
+        .race-button:disabled { opacity: 0.6; cursor: not-allowed; }
+
+        .test-cases { display: flex; gap: 8px; flex-wrap: wrap; }
+        .test-case-btn {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 8px 16px;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            cursor: pointer;
+        }
+        .test-case-btn:hover { background: var(--bg-primary); border-color: var(--accent-adk); color: var(--text-primary); }
+
+        .status-indicator {
+            text-align: center;
+            padding: 12px;
+            background: var(--bg-tertiary);
+            border-radius: 8px;
+            margin-bottom: 16px;
+            font-weight: 500;
+            display: none;
+        }
+        .status-indicator.show { display: block; }
+        .status-indicator.racing { background: linear-gradient(90deg, var(--accent-adk-glow), var(--accent-langgraph-glow)); }
+        .status-indicator.evaluating { background: rgba(251, 188, 4, 0.2); color: var(--warning); }
+        .status-indicator.complete { background: rgba(52, 168, 83, 0.2); color: var(--success); }
+
+        .results-section {
+            background: var(--bg-secondary);
+            border-radius: 16px;
+            padding: 24px;
+            border: 1px solid var(--border);
+            display: none;
+        }
+        .results-section.show { display: block; }
+        .results-header {
+            display: flex; align-items: center; justify-content: center;
+            margin-bottom: 24px; padding: 24px;
+            background: var(--bg-tertiary); border-radius: 12px;
+        }
+        .winner-badge {
+            display: flex; align-items: center; gap: 12px;
+            padding: 16px 24px; border-radius: 12px;
+            font-weight: 600; font-size: 1.2rem;
+        }
+        .winner-badge.adk { background: var(--accent-adk-glow); color: var(--accent-adk); }
+        .winner-badge.langgraph { background: var(--accent-langgraph-glow); color: var(--accent-langgraph); }
+        .winner-badge.tie { background: var(--bg-primary); color: var(--warning); }
+        .trophy-icon { font-size: 2rem; }
+
+        .comparison-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+        .comparison-card { background: var(--bg-tertiary); border-radius: 12px; padding: 20px; }
+        .comparison-card h3 { font-size: 1rem; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+        .score-display { font-family: 'JetBrains Mono', monospace; font-size: 3rem; font-weight: 700; margin-bottom: 8px; }
+        .adk .score-display { color: var(--accent-adk); }
+        .langgraph .score-display { color: var(--accent-langgraph); }
+        .metrics { display: flex; gap: 16px; margin-top: 16px; }
+        .metric { flex: 1; background: var(--bg-primary); padding: 12px; border-radius: 8px; text-align: center; }
+        .metric-value { font-family: 'JetBrains Mono', monospace; font-size: 1.2rem; font-weight: 600; margin-bottom: 4px; }
+        .metric-label { font-size: 0.75rem; color: var(--text-secondary); text-transform: uppercase; }
+
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+        .racing .lane-timer { animation: pulse 0.5s ease-in-out infinite; }
+
+        /* How It Works Tab Styles */
+        .workflow-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+        .workflow-card {
+            background: var(--bg-secondary);
+            border-radius: 16px;
+            padding: 24px;
+            border: 1px solid var(--border);
+        }
+        .workflow-card.adk { border-top: 4px solid var(--accent-adk); }
+        .workflow-card.langgraph { border-top: 4px solid var(--accent-langgraph); }
+        .workflow-card h2 {
+            display: flex; align-items: center; gap: 12px;
+            margin-bottom: 20px; font-size: 1.4rem;
+        }
+        .workflow-card h2 .icon {
+            width: 36px; height: 36px;
+            border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 700;
+        }
+        .workflow-card.adk h2 .icon { background: var(--accent-adk-glow); color: var(--accent-adk); }
+        .workflow-card.langgraph h2 .icon { background: var(--accent-langgraph-glow); color: var(--accent-langgraph); }
+
+        .flow-diagram {
+            background: var(--bg-tertiary);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .flow-step {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: var(--bg-primary);
+            border-radius: 8px;
+            margin-bottom: 8px;
+        }
+        .flow-step:last-child { margin-bottom: 0; }
+        .flow-arrow {
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 1.2rem;
+            padding: 4px 0;
+        }
+        .flow-step-num {
+            width: 28px; height: 28px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 600; font-size: 0.85rem;
+        }
+        .adk .flow-step-num { background: var(--accent-adk); color: white; }
+        .langgraph .flow-step-num { background: var(--accent-langgraph); color: white; }
+        .flow-step-content { flex: 1; }
+        .flow-step-title { font-weight: 600; font-size: 0.95rem; }
+        .flow-step-desc { font-size: 0.8rem; color: var(--text-secondary); margin-top: 2px; }
+
+        .code-section { margin-top: 20px; }
+        .code-section h3 {
+            font-size: 1rem;
+            margin-bottom: 12px;
+            color: var(--text-secondary);
+            display: flex; align-items: center; gap: 8px;
+        }
+        .code-block {
+            background: #1e1e2e;
+            border-radius: 12px;
+            padding: 16px;
+            overflow-x: auto;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            line-height: 1.6;
+            border: 1px solid var(--border);
+        }
+        .code-block code {
+            color: #cdd6f4;
+        }
+        .code-comment { color: #6c7086; }
+        .code-keyword { color: #cba6f7; }
+        .code-string { color: #a6e3a1; }
+        .code-function { color: #89b4fa; }
+        .code-class { color: #f9e2af; }
+        .code-decorator { color: #fab387; }
+
+        .imports-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--bg-tertiary);
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            margin-right: 8px;
+            margin-bottom: 8px;
+        }
+        .imports-badge code {
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--text-primary);
+        }
+
+        .feature-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 16px;
+        }
+        .feature-tag {
+            background: var(--bg-tertiary);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+        .adk .feature-tag { border: 1px solid var(--accent-adk-glow); }
+        .langgraph .feature-tag { border: 1px solid var(--accent-langgraph-glow); }
+
+        .architecture-diagram {
+            background: var(--bg-tertiary);
+            border-radius: 12px;
+            padding: 24px;
+            margin: 24px 0;
+            text-align: center;
+        }
+        .architecture-diagram pre {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            color: var(--text-primary);
+            text-align: left;
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>AI Framework Race</h1>
+            <p>Google ADK 2.0 vs LangGraph - Same Model, Different Frameworks</p>
+        </header>
+
+        <!-- Tabs -->
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('race')">Race</button>
+            <button class="tab" onclick="switchTab('howItWorks')">How It Works</button>
+        </div>
+
+        <!-- Race Tab -->
+        <div id="raceTab" class="tab-content active">
+            <div class="input-section">
+                <div class="input-group">
+                    <input type="text" class="query-input" id="queryInput"
+                           placeholder="Enter a complex question to test both frameworks...">
+                    <button class="race-button" id="raceButton" onclick="startRace()">
+                        <span>Start Race</span>
+                    </button>
+                </div>
+                <div class="test-cases" id="testCases"></div>
+            </div>
+
+            <div class="status-indicator" id="statusIndicator">Ready to race!</div>
+
+            <div class="race-track-container">
+                <div class="race-track">
+                    <!-- ADK Lane -->
+                    <div class="lane adk" id="adkLane">
+                        <div class="lane-header">
+                            <div class="lane-title">
+                                <div class="lane-icon">G</div>
+                                <span class="lane-name">Google ADK 2.0</span>
+                            </div>
+                            <div class="lane-timer" id="adkTimer">0.00s</div>
+                        </div>
+                        <div class="progress-container">
+                            <div class="progress-bar" id="adkProgress"></div>
+                        </div>
+                        <div class="steps">
+                            <div class="step" id="adkStep1">
+                                <span class="step-number">1</span>
+                                <div class="step-info">
+                                    <div class="step-name">Analyzer</div>
+                                    <div class="step-latency" id="adkStep1Latency">--</div>
+                                </div>
+                            </div>
+                            <div class="step" id="adkStep2">
+                                <span class="step-number">2</span>
+                                <div class="step-info">
+                                    <div class="step-name">Reasoner</div>
+                                    <div class="step-latency" id="adkStep2Latency">--</div>
+                                </div>
+                            </div>
+                            <div class="step" id="adkStep3">
+                                <span class="step-number">3</span>
+                                <div class="step-info">
+                                    <div class="step-name">Synthesizer</div>
+                                    <div class="step-latency" id="adkStep3Latency">--</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="answer-section" id="adkAnswerSection" style="display: none;">
+                            <div class="answer-header">
+                                <span class="answer-label">Final Answer</span>
+                                <span class="answer-badge" id="adkBadge"></span>
+                            </div>
+                            <div class="answer-bubble" id="adkAnswer"></div>
+                        </div>
+                    </div>
+
+                    <!-- LangGraph Lane -->
+                    <div class="lane langgraph" id="langgraphLane">
+                        <div class="lane-header">
+                            <div class="lane-title">
+                                <div class="lane-icon">L</div>
+                                <span class="lane-name">LangGraph</span>
+                            </div>
+                            <div class="lane-timer" id="langgraphTimer">0.00s</div>
+                        </div>
+                        <div class="progress-container">
+                            <div class="progress-bar" id="langgraphProgress"></div>
+                        </div>
+                        <div class="steps">
+                            <div class="step" id="langgraphStep1">
+                                <span class="step-number">1</span>
+                                <div class="step-info">
+                                    <div class="step-name">Analyzer</div>
+                                    <div class="step-latency" id="langgraphStep1Latency">--</div>
+                                </div>
+                            </div>
+                            <div class="step" id="langgraphStep2">
+                                <span class="step-number">2</span>
+                                <div class="step-info">
+                                    <div class="step-name">Reasoner</div>
+                                    <div class="step-latency" id="langgraphStep2Latency">--</div>
+                                </div>
+                            </div>
+                            <div class="step" id="langgraphStep3">
+                                <span class="step-number">3</span>
+                                <div class="step-info">
+                                    <div class="step-name">Synthesizer</div>
+                                    <div class="step-latency" id="langgraphStep3Latency">--</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="answer-section" id="langgraphAnswerSection" style="display: none;">
+                            <div class="answer-header">
+                                <span class="answer-label">Final Answer</span>
+                                <span class="answer-badge" id="langgraphBadge"></span>
+                            </div>
+                            <div class="answer-bubble" id="langgraphAnswer"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="results-section" id="resultsSection">
+                <div class="results-header">
+                    <div class="winner-badge" id="speedWinner">
+                        <span class="trophy-icon" id="trophyIcon"></span>
+                        <span id="winnerText">Loading...</span>
+                    </div>
+                </div>
+                <div class="comparison-grid">
+                    <div class="comparison-card adk">
+                        <h3>
+                            <span class="lane-icon" style="width: 24px; height: 24px; font-size: 0.8rem;">G</span>
+                            Google ADK 2.0
+                        </h3>
+                        <div class="score-display" id="adkScore">--</div>
+                        <div class="metrics">
+                            <div class="metric">
+                                <div class="metric-value" id="adkTotalTime">--</div>
+                                <div class="metric-label">Total Time</div>
+                            </div>
+                            <div class="metric">
+                                <div class="metric-value" id="adkAccuracy">--</div>
+                                <div class="metric-label">Accuracy</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="comparison-card langgraph">
+                        <h3>
+                            <span class="lane-icon" style="width: 24px; height: 24px; font-size: 0.8rem;">L</span>
+                            LangGraph
+                        </h3>
+                        <div class="score-display" id="langgraphScore">--</div>
+                        <div class="metrics">
+                            <div class="metric">
+                                <div class="metric-value" id="langgraphTotalTime">--</div>
+                                <div class="metric-label">Total Time</div>
+                            </div>
+                            <div class="metric">
+                                <div class="metric-value" id="langgraphAccuracy">--</div>
+                                <div class="metric-label">Accuracy</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- How It Works Tab -->
+        <div id="howItWorksTab" class="tab-content">
+            <div class="architecture-diagram">
+                <pre>
+                           +------------------+
+                           |      Query       |
+                           +--------+---------+
+                                    |
+                    +---------------+---------------+
+                    |                               |
+            +-------v-------+               +-------v-------+
+            | Google ADK 2.0|               |   LangGraph   |
+            +-------+-------+               +-------+-------+
+                    |                               |
+         +----------+----------+         +----------+----------+
+         |          |          |         |          |          |
+    +----v----+ +---v---+ +----v----+  +----v----+ +---v---+ +----v----+
+    |Analyzer | |Reasoner| |Synthesizer| |Analyzer | |Reasoner| |Synthesizer|
+    | Agent   | | Agent  | |  Agent   | |  Node   | |  Node  | |   Node   |
+    +---------+ +---+----+ +----+----+ +---------+ +---+----+ +----+----+
+                   |            |                      |            |
+              [Tools]      [Answer]              [Tools]       [Answer]
+                                    |
+                           +--------v---------+
+                           |    Evaluator     |
+                           | (Gemini Flash)   |
+                           +------------------+
+                </pre>
+            </div>
+
+            <div class="workflow-section">
+                <!-- ADK Card -->
+                <div class="workflow-card adk">
+                    <h2><span class="icon">G</span> Google ADK 2.0</h2>
+
+                    <div style="margin-bottom: 16px;">
+                        <span class="imports-badge"><code>google.adk.agents.Agent</code></span>
+                        <span class="imports-badge"><code>google.adk.runners.InMemoryRunner</code></span>
+                        <span class="imports-badge"><code>google.genai.types</code></span>
+                    </div>
+
+                    <div class="flow-diagram">
+                        <div class="flow-step">
+                            <span class="flow-step-num">1</span>
+                            <div class="flow-step-content">
+                                <div class="flow-step-title">Create Agent</div>
+                                <div class="flow-step-desc">Instantiate Agent with model, instructions, and tools</div>
+                            </div>
+                        </div>
+                        <div class="flow-arrow">|</div>
+                        <div class="flow-step">
+                            <span class="flow-step-num">2</span>
+                            <div class="flow-step-content">
+                                <div class="flow-step-title">Create Runner & Session</div>
+                                <div class="flow-step-desc">InMemoryRunner manages execution, session tracks state</div>
+                            </div>
+                        </div>
+                        <div class="flow-arrow">|</div>
+                        <div class="flow-step">
+                            <span class="flow-step-num">3</span>
+                            <div class="flow-step-content">
+                                <div class="flow-step-title">Run Async</div>
+                                <div class="flow-step-desc">Stream events, auto-handle tool calls</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="code-section">
+                        <h3>Agent Definition</h3>
+                        <div class="code-block">
+<code><span class="code-keyword">from</span> <span class="code-class">google.adk.agents</span> <span class="code-keyword">import</span> Agent
+<span class="code-keyword">from</span> <span class="code-class">google.adk.runners</span> <span class="code-keyword">import</span> InMemoryRunner
+
+<span class="code-comment"># Define tool</span>
+<span class="code-keyword">def</span> <span class="code-function">calculate</span>(expression: <span class="code-class">str</span>) -> <span class="code-class">str</span>:
+    <span class="code-string">"""Evaluate a math expression."""</span>
+    <span class="code-keyword">return</span> <span class="code-function">str</span>(<span class="code-function">eval</span>(expression))
+
+<span class="code-comment"># Create agent with tools</span>
+reasoner = <span class="code-class">Agent</span>(
+    name=<span class="code-string">"reasoner"</span>,
+    model=<span class="code-string">"gemini-2.0-flash-001"</span>,
+    instruction=<span class="code-string">"""You are a logical reasoner.
+Use the calculate tool for math."""</span>,
+    tools=[calculate],
+)</code>
+                        </div>
+                    </div>
+
+                    <div class="code-section">
+                        <h3>Execution Flow</h3>
+                        <div class="code-block">
+<code><span class="code-comment"># Create runner and session</span>
+runner = <span class="code-class">InMemoryRunner</span>(agent=reasoner, app_name=<span class="code-string">"race"</span>)
+session = <span class="code-keyword">await</span> runner.session_service.create_session(
+    app_name=<span class="code-string">"race"</span>, user_id=<span class="code-string">"user1"</span>
+)
+
+<span class="code-comment"># Create message</span>
+message = types.<span class="code-class">Content</span>(
+    role=<span class="code-string">'user'</span>,
+    parts=[types.<span class="code-class">Part</span>(text=query)]
+)
+
+<span class="code-comment"># Run and collect response</span>
+<span class="code-keyword">async for</span> event <span class="code-keyword">in</span> runner.run_async(
+    user_id=<span class="code-string">"user1"</span>,
+    session_id=session.id,
+    new_message=message
+):
+    <span class="code-keyword">if</span> event.content <span class="code-keyword">and</span> event.content.parts:
+        <span class="code-keyword">for</span> part <span class="code-keyword">in</span> event.content.parts:
+            <span class="code-keyword">if</span> part.text:
+                response_parts.append(part.text)</code>
+                        </div>
+                    </div>
+
+                    <div class="feature-list">
+                        <span class="feature-tag">Agent Class</span>
+                        <span class="feature-tag">InMemoryRunner</span>
+                        <span class="feature-tag">Session Management</span>
+                        <span class="feature-tag">Auto Tool Execution</span>
+                        <span class="feature-tag">Event Streaming</span>
+                    </div>
+                </div>
+
+                <!-- LangGraph Card -->
+                <div class="workflow-card langgraph">
+                    <h2><span class="icon">L</span> LangGraph</h2>
+
+                    <div style="margin-bottom: 16px;">
+                        <span class="imports-badge"><code>langgraph.graph.StateGraph</code></span>
+                        <span class="imports-badge"><code>langchain_core.tools.tool</code></span>
+                        <span class="imports-badge"><code>langchain_google_vertexai</code></span>
+                    </div>
+
+                    <div class="flow-diagram">
+                        <div class="flow-step">
+                            <span class="flow-step-num">1</span>
+                            <div class="flow-step-content">
+                                <div class="flow-step-title">Define State & Nodes</div>
+                                <div class="flow-step-desc">TypedDict for state, async functions for nodes</div>
+                            </div>
+                        </div>
+                        <div class="flow-arrow">|</div>
+                        <div class="flow-step">
+                            <span class="flow-step-num">2</span>
+                            <div class="flow-step-content">
+                                <div class="flow-step-title">Build Graph</div>
+                                <div class="flow-step-desc">Add nodes, connect with edges</div>
+                            </div>
+                        </div>
+                        <div class="flow-arrow">|</div>
+                        <div class="flow-step">
+                            <span class="flow-step-num">3</span>
+                            <div class="flow-step-content">
+                                <div class="flow-step-title">Compile & Invoke</div>
+                                <div class="flow-step-desc">Compile graph, invoke with initial state</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="code-section">
+                        <h3>Tool & State Definition</h3>
+                        <div class="code-block">
+<code><span class="code-keyword">from</span> <span class="code-class">langgraph.graph</span> <span class="code-keyword">import</span> StateGraph, START, END
+<span class="code-keyword">from</span> <span class="code-class">langchain_core.tools</span> <span class="code-keyword">import</span> tool
+
+<span class="code-decorator">@tool</span>
+<span class="code-keyword">def</span> <span class="code-function">calculate</span>(expression: <span class="code-class">str</span>) -> <span class="code-class">str</span>:
+    <span class="code-string">"""Evaluate a math expression."""</span>
+    <span class="code-keyword">return</span> <span class="code-function">str</span>(<span class="code-function">eval</span>(expression))
+
+<span class="code-keyword">class</span> <span class="code-class">GraphState</span>(<span class="code-class">TypedDict</span>):
+    query: <span class="code-class">str</span>
+    analysis: <span class="code-class">str</span>
+    reasoning: <span class="code-class">str</span>
+    final_answer: <span class="code-class">str</span>
+    steps: <span class="code-class">list</span>[StepResult]</code>
+                        </div>
+                    </div>
+
+                    <div class="code-section">
+                        <h3>Graph Construction</h3>
+                        <div class="code-block">
+<code><span class="code-comment"># Initialize LLM with tools</span>
+llm = <span class="code-class">ChatVertexAI</span>(model=<span class="code-string">"gemini-2.0-flash-001"</span>)
+llm_with_tools = llm.bind_tools([calculate])
+
+<span class="code-comment"># Define node function</span>
+<span class="code-keyword">async def</span> <span class="code-function">reason_node</span>(state: GraphState) -> GraphState:
+    response = <span class="code-keyword">await</span> llm_with_tools.ainvoke(messages)
+
+    <span class="code-keyword">if</span> response.tool_calls:
+        <span class="code-comment"># Execute tools manually</span>
+        result = calculate.invoke(response.tool_calls[<span class="code-string">0</span>][<span class="code-string">'args'</span>])
+        <span class="code-comment"># Follow-up call with result</span>
+        final = <span class="code-keyword">await</span> llm.ainvoke(follow_up_msgs)
+
+    <span class="code-keyword">return</span> state
+
+<span class="code-comment"># Build graph</span>
+builder = <span class="code-class">StateGraph</span>(GraphState)
+builder.add_node(<span class="code-string">"reasoner"</span>, reason_node)
+builder.add_edge(START, <span class="code-string">"analyzer"</span>)
+builder.add_edge(<span class="code-string">"analyzer"</span>, <span class="code-string">"reasoner"</span>)
+builder.add_edge(<span class="code-string">"reasoner"</span>, END)
+graph = builder.compile()</code>
+                        </div>
+                    </div>
+
+                    <div class="feature-list">
+                        <span class="feature-tag">StateGraph</span>
+                        <span class="feature-tag">TypedDict State</span>
+                        <span class="feature-tag">@tool Decorator</span>
+                        <span class="feature-tag">bind_tools()</span>
+                        <span class="feature-tag">Manual Tool Handling</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Comparison Table -->
+            <div class="workflow-card" style="border-top: 4px solid var(--warning);">
+                <h2 style="color: var(--warning);">Key Differences</h2>
+                <table style="width: 100%; border-collapse: collapse; margin-top: 16px;">
+                    <thead>
+                        <tr style="border-bottom: 2px solid var(--border);">
+                            <th style="text-align: left; padding: 12px; color: var(--text-secondary);">Aspect</th>
+                            <th style="text-align: left; padding: 12px; color: var(--accent-adk);">Google ADK 2.0</th>
+                            <th style="text-align: left; padding: 12px; color: var(--accent-langgraph);">LangGraph</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="border-bottom: 1px solid var(--border);">
+                            <td style="padding: 12px;">Tool Execution</td>
+                            <td style="padding: 12px;">Automatic (framework handles)</td>
+                            <td style="padding: 12px;">Manual (developer controls)</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid var(--border);">
+                            <td style="padding: 12px;">State Management</td>
+                            <td style="padding: 12px;">Session-based (InMemorySessionService)</td>
+                            <td style="padding: 12px;">TypedDict passed through graph</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid var(--border);">
+                            <td style="padding: 12px;">Orchestration</td>
+                            <td style="padding: 12px;">Agent per step, separate runners</td>
+                            <td style="padding: 12px;">Single compiled graph</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid var(--border);">
+                            <td style="padding: 12px;">LLM Calls (with tools)</td>
+                            <td style="padding: 12px;">Auto multi-turn (2+ calls)</td>
+                            <td style="padding: 12px;">Explicit calls (developer decides)</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 12px;">Overhead</td>
+                            <td style="padding: 12px;">Higher (more abstraction)</td>
+                            <td style="padding: 12px;">Lower (direct control)</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // State
+        let isRacing = false;
+        let adkStepCount = 0;
+        let langgraphStepCount = 0;
+        let adkTotalMs = 0;
+        let langgraphTotalMs = 0;
+        let adkFinished = false;
+        let langgraphFinished = false;
+        let startTime = 0;
+        let timerInterval = null;
+
+        // Tab switching
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+
+            if (tabName === 'race') {
+                document.querySelector('.tab:nth-child(1)').classList.add('active');
+                document.getElementById('raceTab').classList.add('active');
+            } else {
+                document.querySelector('.tab:nth-child(2)').classList.add('active');
+                document.getElementById('howItWorksTab').classList.add('active');
+            }
+        }
+
+        // Load test cases
+        async function loadTestCases() {
+            try {
+                const response = await fetch('/api/test-cases');
+                const data = await response.json();
+                const container = document.getElementById('testCases');
+                container.innerHTML = data.test_cases.map(tc =>
+                    `<button class="test-case-btn" onclick="setQuery('${tc.query.replace(/'/g, "\\'")}')">${tc.name}</button>`
+                ).join('');
+            } catch (error) {
+                console.error('Failed to load test cases:', error);
+            }
+        }
+
+        function setQuery(query) {
+            document.getElementById('queryInput').value = query;
+        }
+
+        function formatTime(ms) {
+            if (ms < 1000) return `${ms.toFixed(0)}ms`;
+            return `${(ms / 1000).toFixed(2)}s`;
+        }
+
+        function resetUI() {
+            document.getElementById('adkProgress').style.width = '0%';
+            document.getElementById('langgraphProgress').style.width = '0%';
+            document.getElementById('adkTimer').textContent = '0.00s';
+            document.getElementById('langgraphTimer').textContent = '0.00s';
+
+            for (let i = 1; i <= 3; i++) {
+                document.getElementById(`adkStep${i}`).className = 'step';
+                document.getElementById(`langgraphStep${i}`).className = 'step';
+                document.getElementById(`adkStep${i}Latency`).textContent = '--';
+                document.getElementById(`langgraphStep${i}Latency`).textContent = '--';
+            }
+
+            document.getElementById('adkAnswerSection').style.display = 'none';
+            document.getElementById('langgraphAnswerSection').style.display = 'none';
+            document.getElementById('resultsSection').classList.remove('show');
+
+            adkStepCount = 0;
+            langgraphStepCount = 0;
+            adkTotalMs = 0;
+            langgraphTotalMs = 0;
+            adkFinished = false;
+            langgraphFinished = false;
+        }
+
+        function updateStatus(status, type) {
+            const indicator = document.getElementById('statusIndicator');
+            indicator.textContent = status;
+            indicator.className = `status-indicator show ${type}`;
+        }
+
+        function startTimer() {
+            startTime = performance.now();
+            timerInterval = setInterval(() => {
+                const elapsed = (performance.now() - startTime) / 1000;
+                if (!adkFinished) {
+                    document.getElementById('adkTimer').textContent = (adkTotalMs > 0 ? (adkTotalMs / 1000).toFixed(2) : elapsed.toFixed(2)) + 's';
+                }
+                if (!langgraphFinished) {
+                    document.getElementById('langgraphTimer').textContent = (langgraphTotalMs > 0 ? (langgraphTotalMs / 1000).toFixed(2) : elapsed.toFixed(2)) + 's';
+                }
+            }, 50);
+        }
+
+        function stopTimer() {
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
+        }
+
+        async function startRace() {
+            const query = document.getElementById('queryInput').value.trim();
+            if (!query) { alert('Please enter a question'); return; }
+            if (isRacing) return;
+            isRacing = true;
+
+            resetUI();
+            updateStatus('Racing! Both frameworks running in parallel...', 'racing');
+            document.getElementById('raceButton').disabled = true;
+            document.getElementById('adkLane').classList.add('racing');
+            document.getElementById('langgraphLane').classList.add('racing');
+            startTimer();
+
+            try {
+                const response = await fetch('/api/race', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ query })
+                });
+
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
+
+                while (true) {
+                    const { value, done } = await reader.read();
+                    if (done) break;
+
+                    const text = decoder.decode(value);
+                    const lines = text.split('\n');
+
+                    for (const line of lines) {
+                        if (line.startsWith('data: ')) {
+                            try {
+                                const data = JSON.parse(line.slice(6));
+                                handleEvent(data);
+                            } catch (e) { console.error('Parse error:', e); }
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error('Race error:', error);
+                updateStatus('Error: ' + error.message, 'error');
+            } finally {
+                stopTimer();
+                isRacing = false;
+                document.getElementById('raceButton').disabled = false;
+                document.getElementById('adkLane').classList.remove('racing');
+                document.getElementById('langgraphLane').classList.remove('racing');
+            }
+        }
+
+        function handleEvent(data) {
+            switch (data.event) {
+                case 'race_start': console.log('Race started:', data.query); break;
+                case 'step': handleStep(data); break;
+                case 'result': handleResult(data); break;
+                case 'evaluating': updateStatus('Evaluating answers with Gemini Flash Lite...', 'evaluating'); break;
+                case 'evaluation': handleEvaluation(data); break;
+                case 'race_complete': handleRaceComplete(data); break;
+            }
+        }
+
+        function handleStep(data) {
+            const framework = data.framework === 'ADK' ? 'adk' : 'langgraph';
+            const stepNum = data.step_name === 'Analyzer' ? 1 : data.step_name === 'Reasoner' ? 2 : 3;
+
+            const stepEl = document.getElementById(`${framework}Step${stepNum}`);
+            const latencyEl = document.getElementById(`${framework}Step${stepNum}Latency`);
+
+            stepEl.classList.add('active', 'complete');
+            latencyEl.textContent = formatTime(data.latency_ms);
+
+            if (framework === 'adk') {
+                adkStepCount++;
+                adkTotalMs += data.latency_ms;
+                document.getElementById('adkProgress').style.width = `${(adkStepCount / 3) * 100}%`;
+                document.getElementById('adkTimer').textContent = formatTime(adkTotalMs);
+            } else {
+                langgraphStepCount++;
+                langgraphTotalMs += data.latency_ms;
+                document.getElementById('langgraphProgress').style.width = `${(langgraphStepCount / 3) * 100}%`;
+                document.getElementById('langgraphTimer').textContent = formatTime(langgraphTotalMs);
+            }
+        }
+
+        function handleResult(data) {
+            const framework = data.framework === 'ADK' ? 'adk' : 'langgraph';
+
+            if (framework === 'adk') adkFinished = true;
+            else langgraphFinished = true;
+
+            document.getElementById(`${framework}Timer`).textContent = formatTime(data.total_latency_ms);
+            document.getElementById(`${framework}Lane`).classList.remove('racing');
+            document.getElementById(`${framework}AnswerSection`).style.display = 'block';
+            document.getElementById(`${framework}Answer`).textContent = data.final_answer;
+        }
+
+        function handleEvaluation(data) {
+            document.getElementById('adkBadge').className = `answer-badge ${data.adk_correct ? 'correct' : 'incorrect'}`;
+            document.getElementById('adkBadge').textContent = data.adk_correct ? 'Correct' : 'Incorrect';
+            document.getElementById('adkScore').textContent = data.adk_score.toFixed(0);
+            document.getElementById('adkAccuracy').textContent = data.adk_correct ? 'Correct' : 'Wrong';
+
+            document.getElementById('langgraphBadge').className = `answer-badge ${data.langgraph_correct ? 'correct' : 'incorrect'}`;
+            document.getElementById('langgraphBadge').textContent = data.langgraph_correct ? 'Correct' : 'Incorrect';
+            document.getElementById('langgraphScore').textContent = data.langgraph_score.toFixed(0);
+            document.getElementById('langgraphAccuracy').textContent = data.langgraph_correct ? 'Correct' : 'Wrong';
+        }
+
+        function handleRaceComplete(data) {
+            updateStatus('Race complete!', 'complete');
+            document.getElementById('resultsSection').classList.add('show');
+
+            document.getElementById('adkTotalTime').textContent = formatTime(data.adk_total_ms);
+            document.getElementById('langgraphTotalTime').textContent = formatTime(data.langgraph_total_ms);
+
+            const winnerBadge = document.getElementById('speedWinner');
+            const trophyIcon = document.getElementById('trophyIcon');
+            const winnerText = document.getElementById('winnerText');
+
+            if (data.faster === 'ADK') {
+                winnerBadge.className = 'winner-badge adk';
+                trophyIcon.textContent = '🏆';
+                winnerText.textContent = `ADK wins by ${formatTime(data.time_diff_ms)}!`;
+            } else if (data.faster === 'LangGraph') {
+                winnerBadge.className = 'winner-badge langgraph';
+                trophyIcon.textContent = '🏆';
+                winnerText.textContent = `LangGraph wins by ${formatTime(data.time_diff_ms)}!`;
+            } else {
+                winnerBadge.className = 'winner-badge tie';
+                trophyIcon.textContent = '🤝';
+                winnerText.textContent = "It's a tie!";
+            }
+        }
+
+        // Initialize
+        loadTestCases();
+    </script>
+</body>
+</html>
