@@ -1,0 +1,24 @@
+[project]
+name = "hierarchical-rag-nexus"
+version = "0.1.0"
+description = "Parent-Child RAG with Cloud SQL pgvector"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi>=0.115.0",
+    "uvicorn[standard]>=0.32.0",
+    "python-multipart>=0.0.12",
+    "asyncpg>=0.30.0",
+    "pgvector>=0.3.6",
+    "google-adk>=1.0.0",
+    "google-genai>=1.0.0",
+    "google-cloud-aiplatform>=1.75.0",
+    "python-dotenv>=1.0.1",
+    "pypdf>=5.0.0",
+    "pymupdf>=1.25.0",
+    "pillow>=11.0.0",
+    "reportlab>=4.2.0",
+]
+
+[tool.uv]
+dev-dependencies = []
