@@ -39,6 +39,9 @@ token.json
 # Archived Scripts
 scripts_archive/
 
+# Runtime artifacts
+generated_script.sh
+
 # Local Only Cleanup
 **/local_only/
 **/__local_tools__/
