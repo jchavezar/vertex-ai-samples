@@ -1,0 +1,38 @@
+# Core Framework
+fastapi>=0.109.0
+uvicorn[standard]>=0.27.0
+pydantic>=2.5.0
+pydantic-settings>=2.1.0
+
+# Google ADK
+google-adk>=1.0.0
+
+# LangGraph & LangChain
+langgraph>=0.2.0
+langchain>=0.3.0
+langchain-google-vertexai>=2.0.0
+langchain-anthropic>=0.2.0
+langchain-openai>=0.2.0
+
+# Google Cloud
+google-cloud-aiplatform>=1.70.0
+google-auth>=2.27.0
+vertexai>=1.70.0
+
+# MCP Support
+mcp>=1.0.0
+
+# Database & State
+sqlalchemy>=2.0.0
+asyncpg>=0.29.0
+redis>=5.0.0
+
+# Utilities
+httpx>=0.26.0
+pyyaml>=6.0.0
+python-multipart>=0.0.6
+structlog>=24.1.0
+
+# Testing & Evaluation
+pytest>=8.0.0
+pytest-asyncio>=0.23.0
