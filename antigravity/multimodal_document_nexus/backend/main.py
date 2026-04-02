@@ -66,6 +66,7 @@ runner = Runner(
 from pipeline import process_document_pipeline
 from pipeline import get_indexed_documents_bq, delete_document_from_bq
 from pipeline import sync_feature_store_from_bq
+from evaluation import compare_rag_approaches, format_comparison_for_frontend
 
 @app.post("/api/chat")
 async def chat_endpoint(
@@ -382,6 +383,139 @@ async def get_document_data(document_name: str):
         "annotated_images": annotated_images,
         "traces": traces,
     }
+
+@app.post("/api/compare-rag")
+async def compare_rag_endpoint(
+    query: str = Form(...),
+    model: str = Form("gemini-2.5-flash")
+):
+    """
+    Deep comparison between Hierarchical RAG and Simple RAG approaches.
+    Returns detailed evaluation scores, grounding analysis, and highlighted spans.
+    """
+    try:
+        comparison = await compare_rag_approaches(query, model)
+        return format_comparison_for_frontend(comparison)
+    except Exception as e:
+        print(f"Error in compare_rag_endpoint: {e}")
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/api/explorer/chunks")
+async def get_explorer_chunks(
+    document_name: Optional[str] = None,
+    entity_type: Optional[str] = None,
+    chunk_type: Optional[str] = None,  # "parent", "child", or "all"
+    limit: int = 500
+):
+    """
+    Data Explorer endpoint - returns all chunks with stats for the Explorer panel.
+    Supports filtering by document, entity type, and parent/child chunk type.
+    """
+    from pipeline import get_all_indexed_chunks_from_bq
+    from google.cloud import bigquery
+
+    project_id = os.environ.get("GOOGLE_CLOUD_PROJECT")
+    if not project_id:
+        raise HTTPException(status_code=500, detail="GOOGLE_CLOUD_PROJECT not configured")
+
+    try:
+        client = bigquery.Client(project=project_id)
+        dataset_id = "esg_demo_data"
+        table_id = "document_embeddings_fs"
+        table_ref = f"`{project_id}.{dataset_id}.{table_id}`"
+
+        # Build dynamic WHERE clause
+        conditions = []
+        params = []
+
+        if document_name:
+            conditions.append("document_name = @doc_name")
+            params.append(bigquery.ScalarQueryParameter("doc_name", "STRING", document_name))
+
+        if entity_type and entity_type != "all":
+            conditions.append("entity_type = @entity_type")
+            params.append(bigquery.ScalarQueryParameter("entity_type", "STRING", entity_type))
+
+        # Parent chunks don't have _c suffix, child chunks do
+        if chunk_type == "parent":
+            conditions.append("NOT REGEXP_CONTAINS(chunk_id, r'_c\\d+$')")
+        elif chunk_type == "child":
+            conditions.append("REGEXP_CONTAINS(chunk_id, r'_c\\d+$')")
+
+        where_clause = f"WHERE {' AND '.join(conditions)}" if conditions else ""
+
+        # Query chunks with filters
+        query = f"""
+        SELECT document_name, chunk_id, page_number, entity_type, content
+        FROM {table_ref}
+        {where_clause}
+        ORDER BY document_name, page_number, chunk_id
+        LIMIT @limit
+        """
+        params.append(bigquery.ScalarQueryParameter("limit", "INT64", limit))
+
+        job_config = bigquery.QueryJobConfig(query_parameters=params)
+        query_job = client.query(query, job_config=job_config)
+        rows = query_job.result()
+
+        chunks = []
+        for row in rows:
+            chunk_id = row.chunk_id
+            # Check for _c suffix followed by digits to identify child chunks
+            is_child = "_c" in chunk_id and chunk_id.split("_c")[-1].isdigit()
+            is_parent = not is_child
+            chunks.append({
+                "document_name": row.document_name,
+                "chunk_id": chunk_id,
+                "page_number": int(row.page_number) if row.page_number else 0,
+                "entity_type": row.entity_type,
+                "content": row.content,
+                "is_parent": is_parent,
+                "is_child": is_child,
+                "parent_id": chunk_id.rsplit("_c", 1)[0] if is_child else None
+            })
+
+        # Calculate stats (unfiltered totals)
+        stats_query = f"""
+        SELECT
+            COUNT(*) as total_chunks,
+            COUNT(DISTINCT document_name) as total_documents,
+            COUNTIF(NOT REGEXP_CONTAINS(chunk_id, r'_c\\d+$')) as parent_count,
+            COUNTIF(REGEXP_CONTAINS(chunk_id, r'_c\\d+$')) as child_count
+        FROM {table_ref}
+        """
+        stats_job = client.query(stats_query)
+        stats_row = list(stats_job.result())[0]
+
+        # Entity type breakdown
+        type_query = f"""
+        SELECT entity_type, COUNT(*) as count
+        FROM {table_ref}
+        GROUP BY entity_type
+        """
+        type_job = client.query(type_query)
+        by_type = {row.entity_type: row.count for row in type_job.result()}
+
+        return {
+            "chunks": chunks,
+            "stats": {
+                "total_chunks": stats_row.total_chunks,
+                "total_documents": stats_row.total_documents,
+                "parents": stats_row.parent_count,
+                "children": stats_row.child_count,
+                "by_type": by_type
+            }
+        }
+
+    except Exception as e:
+        print(f"Error in explorer chunks endpoint: {e}")
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=str(e))
+
 
 if __name__ == "__main__":
     import uvicorn
