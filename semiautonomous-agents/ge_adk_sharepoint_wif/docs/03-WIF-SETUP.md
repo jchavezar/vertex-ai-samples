@@ -19,6 +19,10 @@ Both use:
 
 ## Why Two Providers?
 
+![WIF Two Providers](../assets/wif-two-providers.png)
+
+*GCP Console showing one pool with two OIDC providers - one for GE login, one for agent WIF*
+
 | Flow | Token Audience | Provider Needed |
 |------|---------------|-----------------|
 | GE Login | `ecbfa47e-...` (no prefix) | Original provider |
