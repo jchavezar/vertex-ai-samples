@@ -25,6 +25,10 @@
 
 ## Step 2: Expose a Custom API (CRITICAL)
 
+![Expose an API](../assets/entra-expose-api.png)
+
+*Application ID URI with `api://` prefix and `user_impersonation` scope configuration*
+
 **Why**: WIF requires the access token audience to match your app's client ID. Without a custom scope, Microsoft returns tokens with Graph API audience which WIF rejects.
 
 1. Go to **Expose an API**
