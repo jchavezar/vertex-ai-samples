@@ -1,0 +1,53 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv/
+venv/
+ENV/
+env/
+*.egg-info/
+dist/
+build/
+
+# Environment files with secrets
+.env
+.env.local
+.env.*.local
+
+# Private troubleshooting commands (contains secrets)
+.troubleshoot_commands.md
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Test artifacts
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Local testing tokens
+test_ui/*.json
+test_ui/tokens/
+
+# Temporary files
+tmp/
+temp/
+*.tmp

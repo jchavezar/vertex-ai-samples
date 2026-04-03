@@ -1,0 +1,28 @@
+[project]
+name = "ge-adk-sharepoint-wif"
+version = "0.1.0"
+description = "ADK Agent for SharePoint access via Discovery Engine with WIF authentication"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "google-cloud-aiplatform[adk,agent_engines]>=1.88.0",
+    "google-cloud-discoveryengine>=0.13.0",
+    "google-auth>=2.0.0",
+    "requests>=2.31.0",
+    "python-dotenv>=1.0.0",
+    "flet>=0.25.0",
+    "fastapi>=0.115.0",
+    "uvicorn>=0.32.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0",
+    "pytest-asyncio>=0.23.0",
+]
+
+[tool.uv]
+dev-dependencies = [
+    "pytest>=8.0.0",
+    "pytest-asyncio>=0.23.0",
+]
