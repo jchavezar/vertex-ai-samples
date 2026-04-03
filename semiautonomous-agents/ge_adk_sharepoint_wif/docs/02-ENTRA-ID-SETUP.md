@@ -46,6 +46,10 @@
 
 ## Step 3: Configure Authentication Platforms
 
+![Authentication Platforms](../assets/entra-authentication-platforms.png)
+
+*Both Web and SPA platforms configured with their redirect URIs*
+
 ### Web Platform (for Gemini Enterprise)
 
 1. **Authentication** → **Add a platform** → **Web**
@@ -84,6 +88,10 @@ Single-page application:
 ---
 
 ## Step 5: Configure API Permissions
+
+![API Permissions](../assets/entra-api-permissions.png)
+
+*Required Microsoft Graph permissions with admin consent granted*
 
 1. **API permissions** → **Add a permission**
 2. **My APIs** → Select your app → ✓ `user_impersonation` → **Add permissions**
