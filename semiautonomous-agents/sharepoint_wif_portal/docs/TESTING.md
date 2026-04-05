@@ -1,29 +1,30 @@
 # Testing Guide
 
-**Version:** 2.0.0  
-**Last Updated:** 2026-04-04
+**Version:** 2.1.0  
+**Last Updated:** 2026-04-05
 
-**Navigation**: [Index](00-INDEX.md) | [08-Agent](08-ADK-AGENT.md) | **Testing**
+**Navigation**: [Index](00-INDEX.md) | [09-Panel](09-AGENT-PANEL.md) | [10-Deploy](10-CLOUD-DEPLOYMENT.md) | **Testing**
 
 ---
 
 ## Testing Workflow
 
-```
-+=====================================================================+
-|                         ADK AGENT TESTING                            |
-|                                                                      |
-|   1. LOCAL            2. DEPLOY          3. REMOTE          4. GE   |
-|   +---------+        +---------+        +---------+        +------+ |
-|   | test_   |   -->  | deploy  |   -->  | test_   |   -->  | GE   | |
-|   | local   |        | .py     |        | remote  |        | UI   | |
-|   +---------+        +---------+        +---------+        +------+ |
-|       |                  |                  |                  |    |
-|       v                  v                  v                  v    |
-|   In-memory          Agent             Agent             End-to-   |
-|   session            Engine            Engine            end with  |
-|   + tools            deploy            SDK query         OAuth     |
-+=====================================================================+
+```mermaid
+flowchart LR
+    subgraph Phase1["1. LOCAL"]
+        L["test_local.py<br/>In-memory + tools"]
+    end
+    subgraph Phase2["2. DEPLOY"]
+        D["deploy.py<br/>Agent Engine"]
+    end
+    subgraph Phase3["3. REMOTE"]
+        R["test_remote.py<br/>SDK query"]
+    end
+    subgraph Phase4["4. GE"]
+        G["GE UI<br/>End-to-end OAuth"]
+    end
+    
+    L --> D --> R --> G
 ```
 
 ---

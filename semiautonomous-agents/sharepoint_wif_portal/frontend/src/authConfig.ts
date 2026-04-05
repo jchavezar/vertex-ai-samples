@@ -27,6 +27,7 @@ export const msalConfig = {
 };
 
 // Scopes for login - using custom API scope for WIF-compatible token
+// Note: offline_access not included - SPAs use silent token refresh via iframe
 export const loginRequest = {
   scopes: [
     `api://${CLIENT_ID}/user_impersonation`,

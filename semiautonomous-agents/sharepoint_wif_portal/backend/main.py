@@ -429,24 +429,32 @@ class AgentRequest(BaseModel):
 @app.post("/api/agent")
 async def agent_query(request: Request, body: AgentRequest):
     """Query the InsightComparator agent via Agent Engine SDK with Microsoft JWT."""
-    import asyncio
-    from agent_client import get_agent_client
-
-    # Get Microsoft Entra ID token (NOT exchanged - agent does its own WIF exchange)
-    microsoft_jwt = request.headers.get("X-Entra-Id-Token")
-    user_id = "anonymous"
-
-    if microsoft_jwt:
-        user_id = "authenticated_user"
-        print(f"[Agent] Passing Microsoft JWT to agent (length: {len(microsoft_jwt)})")
-
     try:
+        import asyncio
+        from agent_client import get_agent_client
+
+        # Get Microsoft Entra ID token (NOT exchanged - agent does its own WIF exchange)
+        microsoft_jwt = request.headers.get("X-Entra-Id-Token")
+        user_id = "anonymous"
+
+        if microsoft_jwt:
+            user_id = "authenticated_user"
+            print(f"[Agent] Passing Microsoft JWT to agent (length: {len(microsoft_jwt)})")
+
         client = get_agent_client()
         # Run blocking agent query in thread pool, pass Microsoft JWT for session state
         response = await asyncio.to_thread(client.query, body.query, user_id, microsoft_jwt)
         return {"answer": response, "agent": True}
+    except ImportError as e:
+        print(f"[Agent] Import error: {e}")
+        return {"error": f"Agent module not available: {e}", "agent": True}
+    except ValueError as e:
+        print(f"[Agent] Config error: {e}")
+        return {"error": f"Agent not configured: {e}", "agent": True}
     except Exception as e:
         print(f"[Agent] Error: {e}")
+        import traceback
+        traceback.print_exc()
         return {"error": str(e), "agent": True}
 
 

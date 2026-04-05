@@ -116,7 +116,15 @@ export default function AgentPanel({ accessToken }: AgentPanelProps) {
         body: JSON.stringify({ query: input })
       });
 
-      const data = await resp.json();
+      // Handle non-JSON responses gracefully
+      const contentType = resp.headers.get('content-type');
+      let data;
+      if (contentType && contentType.includes('application/json')) {
+        data = await resp.json();
+      } else {
+        const text = await resp.text();
+        data = { error: `Server error: ${text.slice(0, 100)}` };
+      }
 
       setMessages(prev => prev.map(m =>
         m.isLoading

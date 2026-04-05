@@ -1,4 +1,11 @@
-# Frontend Features & UI Guide
+# 07 - Frontend Features & UI Guide
+
+**Version:** 1.1.0  
+**Last Updated:** 2026-04-05
+
+**Navigation**: [Index](00-INDEX.md) | [05-Local Dev](05-LOCAL-DEV.md) | [06-Agent Engine](06-AGENT-ENGINE.md) | **07-Frontend** | [08-Agent](08-ADK-AGENT.md)
+
+---
 
 Enterprise Search Portal with dual-mode search: **SharePoint grounding** (Discovery Engine) and **Web grounding** (`/btw` quick search).
 
@@ -8,46 +15,30 @@ Enterprise Search Portal with dual-mode search: **SharePoint grounding** (Discov
 
 ## Architecture Overview
 
-```
-┌───────────────────────────────────────────────────────────────────────────────┐
-│                            FRONTEND (React + Vite)                             │
-│  ┌─────────────────────────────────────────────────────────────────────────┐  │
-│  │                         USER INTERFACE                                   │  │
-│  │  ┌──────────────┐  ┌──────────────────────────────────────────────────┐ │  │
-│  │  │   Sidebar    │  │                 Chat Area                         │ │  │
-│  │  │  ──────────  │  │  ┌──────────────────────────────────────────────┐│ │  │
-│  │  │  + New Chat  │  │  │  Main Query (SharePoint Grounded)            ││ │  │
-│  │  │              │  │  │  - Uses Discovery Engine StreamAssist         ││ │  │
-│  │  │  CONVOS:     │  │  │  - ACL-aware (user permissions)              ││ │  │
-│  │  │  > Chat 1  🗑 │  │  │  - Returns SharePoint document sources       ││ │  │
-│  │  │    Chat 2  🗑 │  │  │  - Latency: 10-25s                          ││ │  │
-│  │  │              │  │  └──────────────────────────────────────────────┘│ │  │
-│  │  │              │  │  ┌──────────────────────────────────────────────┐│ │  │
-│  │  │              │  │  │  /btw Query (Web Grounded)                   ││ │  │
-│  │  │              │  │  │  - Uses Gemini 3.1 Flash Lite + Google Search││ │  │
-│  │  │              │  │  │  - Real-time web results                     ││ │  │
-│  │  │              │  │  │  - Latency: 1-5s                             ││ │  │
-│  │  │              │  │  └──────────────────────────────────────────────┘│ │  │
-│  │  └──────────────┘  └──────────────────────────────────────────────────┘ │  │
-│  └─────────────────────────────────────────────────────────────────────────┘  │
-└───────────────────────────────────────────────────────────────────────────────┘
-                                        │
-                    ┌───────────────────┴───────────────────┐
-                    │                                       │
-                    v                                       v
-        ┌───────────────────────┐               ┌───────────────────────┐
-        │   /api/chat           │               │   /api/quick          │
-        │   (SharePoint Search) │               │   (Web Search)        │
-        │                       │               │                       │
-        │  Discovery Engine     │               │  Gemini Flash Lite    │
-        │  StreamAssist API     │               │  + Google Search Tool │
-        │  + WIF Token Exchange │               │  (No WIF Required)    │
-        └───────────────────────┘               └───────────────────────┘
+```mermaid
+flowchart TB
+    subgraph UI["Frontend (React + Vite)"]
+        Sidebar["Sidebar<br/>+ New Chat<br/>Conversations"]
+        Main["Main Query<br/>SharePoint Grounded<br/>ACL-aware, 10-25s"]
+        BTW["/btw Query<br/>Web Grounded<br/>Real-time, 1-5s"]
+    end
+    
+    subgraph APIs["Backend APIs"]
+        Chat["/api/chat<br/>Discovery Engine<br/>+ WIF Exchange"]
+        Quick["/api/quick<br/>Gemini Flash<br/>+ Google Search"]
+    end
+    
+    Main --> Chat
+    BTW --> Quick
 ```
 
 ---
 
 ## Dual Search Modes
+
+![Dual Search Modes](../assets/portal-dual-search.png)
+
+*The portal showing both search modes: `/btw` quick search (3.6s, web grounded) and main query (18.3s, SharePoint grounded with ACL)*
 
 ### 1. Main Query (SharePoint Grounded)
 
@@ -112,6 +103,27 @@ sequenceDiagram
 ---
 
 ## UI Components
+
+### Authentication Overlay
+
+When not authenticated, the UI displays a full-screen overlay with blurred background prompting users to sign in:
+
+```
++-------------------------------------------------------+
+|                                                       |
+|           🛡️ Authentication Required                  |
+|                                                       |
+|   Sign in with your Microsoft account to access      |
+|   Enterprise Search                                   |
+|                                                       |
+|          [ Sign in with Microsoft ]                   |
+|                                                       |
++-------------------------------------------------------+
+```
+
+The overlay prevents interaction with the main UI until login is complete. Implemented in:
+- `App.tsx`: Conditional rendering based on `isAuthenticated` from MSAL
+- `index.css`: `.auth-overlay` and `.auth-modal` styles
 
 ### Loading Animations
 

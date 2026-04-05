@@ -4,6 +4,10 @@ Test questions for validating SharePoint document grounding via Discovery Engine
 
 **Source Document**: Master Services Agreement (MSA-2024-0847) between Meridian Technologies Corporation and Apex Financial Services, Inc.
 
+![Test Question Example](../assets/portal-dual-search.png)
+
+*Example: "What is the total annual contract value?" correctly returns $4,850,000 with source citation from SharePoint*
+
 ---
 
 ## Test Results Summary

@@ -4,8 +4,8 @@ Agent Engine Client for InsightComparator Agent.
 Provides Agent Engine SDK integration for the backend.
 Supports WIF token pass-through for user-level SharePoint ACL.
 
-Version: 1.1.0
-Date: 2026-04-04
+Version: 1.2.0
+Date: 2026-04-05
 """
 import os
 from typing import Optional

@@ -380,6 +380,20 @@ function App() {
 
   return (
     <div className="workspace-container">
+      {/* Login overlay - grays out everything until authenticated */}
+      {!isAuthenticated && (
+        <div className="auth-overlay">
+          <div className="auth-modal glass-panel">
+            <Shield size={48} className="auth-icon" />
+            <h2>Authentication Required</h2>
+            <p>Sign in with your Microsoft account to access Enterprise Search</p>
+            <button className="auth-login-btn" onClick={handleLogin}>
+              <LogIn size={18} />
+              Sign in with Microsoft
+            </button>
+          </div>
+        </div>
+      )}
       <aside className="sidebar glass-panel">
         <div className="brand">
           <Cloud className="brand-icon" />
