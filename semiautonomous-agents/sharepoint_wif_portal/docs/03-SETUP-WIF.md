@@ -1,37 +1,50 @@
-# Workforce Identity Federation Setup
+# 03 - Workforce Identity Federation Setup
 
-> **Version**: 1.0.0 | **Last Updated**: 2026-04-03
+> **Version**: 1.2.0 | **Last Updated**: 2026-04-05
 
-**Navigation**: [README](../README.md) | [GCP Setup](01-SETUP-GCP.md) | [Entra ID](02-SETUP-ENTRA.md) | **WIF** | [Discovery](04-SETUP-DISCOVERY.md) | [Local Dev](05-LOCAL-DEV.md) | [Agent Engine](06-AGENT-ENGINE.md)
+**Navigation**: [Index](00-INDEX.md) | [01-GCP](01-SETUP-GCP.md) | [02-Entra](02-SETUP-ENTRA.md) | **03-WIF** | [04-Discovery](04-SETUP-DISCOVERY.md) | [08-Agent](08-ADK-AGENT.md)
+
+---
+
+## Prerequisites
+
+| From | Variable | Purpose |
+|------|----------|---------|
+| [01-SETUP-GCP.md](01-SETUP-GCP.md) | `PROJECT_NUMBER` | Pool creation |
+| [02-SETUP-ENTRA.md](02-SETUP-ENTRA.md) | `TENANT_ID` | Issuer URL |
+| [02-SETUP-ENTRA.md](02-SETUP-ENTRA.md) | `OAUTH_CLIENT_ID` | Provider audience |
+
+---
+
+## Outputs (used by later docs)
+
+| Variable | Example | Used In |
+|----------|---------|---------|
+| `WIF_POOL_ID` | `sp-wif-pool-v2` | 04-Discovery, 08-Agent |
+| `ge-login-provider` | Provider name | GE login (no api://) |
+| `entra-provider` | Provider name | 08-Agent (WITH api://) |
 
 ---
 
 ## Overview
 
-Workforce Identity Federation (WIF) exchanges Microsoft tokens for GCP tokens, preserving user identity for ACL-aware access.
+Configures two WIF providers — one for GE user login (ID token, no `api://` prefix) and one for agent token exchange (access token, `api://` prefix). Both are required; a single provider cannot handle both token audiences.
 
+```mermaid
+flowchart TB
+    subgraph Pool["Workforce Pool: sharepoint-wif-pool"]
+        P1["<b>entra-login-provider</b><br/>Client ID: {client-id}<br/><i>For GE login</i>"]
+        P2["<b>entra-agent-provider</b><br/>Client ID: api://{client-id}<br/><i>For agent WIF</i>"]
+    end
+    
+    GE["GE Login<br/>ID Token"] -->|"aud: client-id"| P1
+    Agent["Agent WIF<br/>Access Token"] -->|"aud: api://client-id"| P2
+    
+    P1 --> GCP1[GCP Token]
+    P2 --> GCP2[GCP Token]
 ```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                      TWO PROVIDERS REQUIRED                                 │
-├─────────────────────────────────────────────────────────────────────────────┤
-│                                                                             │
-│   Workforce Pool: sharepoint-wif-pool                                       │
-│   ├── Provider 1: entra-login-provider                                      │
-│   │   └── Client ID: {client-id}           ← For Gemini Enterprise login   │
-│   │                                                                          │
-│   └── Provider 2: entra-agent-provider                                      │
-│       └── Client ID: api://{client-id}     ← For agent WIF exchange        │
-│                                                                             │
-│   WHY TWO PROVIDERS?                                                        │
-│   ┌─────────────────────────────────────────────────────────────────────┐   │
-│   │ GE Login:  ID token    → aud: "client-id"        → Provider 1      │   │
-│   │ Agent WIF: Access token → aud: "api://client-id" → Provider 2      │   │
-│   │                                                                     │   │
-│   │ Single provider = one flow breaks!                                  │   │
-│   └─────────────────────────────────────────────────────────────────────┘   │
-│                                                                             │
-└─────────────────────────────────────────────────────────────────────────────┘
-```
+
+**Why two providers?** GE login and agent WIF use different token audiences. Single provider = one flow breaks.
 
 ![WIF Pool with Providers](../assets/wif-pool-providers.png)
 
@@ -40,16 +53,6 @@ Workforce Identity Federation (WIF) exchanges Microsoft tokens for GCP tokens, p
 ![Agent Provider Details](../assets/wif-agent-provider-details.png)
 
 *Agent provider showing `api://` prefix in Client ID - critical for WIF exchange*
-
----
-
-## Prerequisites
-
-From previous steps:
-- `TENANT_ID`: Your Microsoft Entra tenant ID
-- `CLIENT_ID`: Your app registration client ID
-- `CLIENT_SECRET`: Your client secret
-- `ORG_ID`: Your GCP organization ID
 
 ---
 

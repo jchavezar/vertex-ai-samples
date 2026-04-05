@@ -1,16 +1,14 @@
-# 08 - ADK Agent: Internal vs External Insight Comparator
+# 08 - ADK Agent: InsightComparator
 
-**Version:** 1.1.0  
-**Last Updated:** 2026-04-04  
+**Version:** 1.2.0  
+**Last Updated:** 2026-04-05  
 **Status:** Production
 
-**Navigation**: [Index](00-INDEX.md) | [01-GCP](01-SETUP-GCP.md) | [02-Entra](02-SETUP-ENTRA.md) | [03-WIF](03-SETUP-WIF.md) | [04-Discovery](04-SETUP-DISCOVERY.md) | **08-Agent** | [Testing](TESTING.md)
+**Navigation**: [Index](00-INDEX.md) | [04-Discovery](04-SETUP-DISCOVERY.md) | **08-Agent** | [09-Panel](09-AGENT-PANEL.md) | [10-Deploy](10-CLOUD-DEPLOYMENT.md)
 
 ---
 
 ## Prerequisites
-
-All previous setup steps must be complete:
 
 | From | Variable | Purpose |
 |------|----------|---------|
@@ -28,91 +26,52 @@ All previous setup steps must be complete:
 
 | Variable | Example | Used In |
 |----------|---------|---------|
-| `REASONING_ENGINE_RES` | `projects/.../reasoningEngines/...` | [TESTING.md](TESTING.md) |
-| `AUTH_ID` | `sharepointauth2` | [TESTING.md](TESTING.md) |
+| `REASONING_ENGINE_RES` | `projects/.../reasoningEngines/...` | [09-AGENT-PANEL](09-AGENT-PANEL.md), [10-CLOUD-DEPLOYMENT](10-CLOUD-DEPLOYMENT.md) |
+| `AUTH_ID` | `sharepointauth2` | Agent registration |
 
 ---
 
 ## Overview
 
-Deploys an ADK Agent to Gemini Enterprise that compares internal SharePoint documents with external web sources using a single `compare_insights` tool.
+Deploys InsightComparator to Agent Engine — a single `compare_insights` tool that runs SharePoint (ACL-aware, via WIF) and Google Search concurrently, then synthesizes both into a structured comparison.
 
+```mermaid
+flowchart TB
+    subgraph Agent["InsightComparator Agent (gemini-2.5-flash-lite)"]
+        Tool["compare_insights tool"]
+        
+        subgraph Parallel["Concurrent Execution"]
+            SP["SharePoint Search<br/>Discovery Engine<br/>• WIF token exchange<br/>• ACL-aware results"]
+            GS["Google Search<br/>Gemini Grounding<br/>• googleSearch tool<br/>• Public web"]
+        end
+        
+        Response["Structured Response<br/>• internal_findings<br/>• external_findings"]
+    end
+    
+    Tool --> SP & GS
+    SP & GS --> Response
 ```
-+===============================================================================+
-|                        InsightComparator Agent                                 |
-|                        (gemini-2.5-flash-lite)                                |
-|                                                                                |
-|   +-----------------------------------------------------------------------+   |
-|   |                       compare_insights tool                            |   |
-|   |                                                                        |   |
-|   |   Executes BOTH searches concurrently:                                |   |
-|   |                                                                        |   |
-|   |   +---------------------------+   +---------------------------+       |   |
-|   |   |      SharePoint Search    |   |      Google Search        |       |   |
-|   |   |      (Discovery Engine)   |   |      (Gemini Grounding)   |       |   |
-|   |   |                           |   |                           |       |   |
-|   |   |  - WIF token exchange     |   |  - gemini-2.5-flash-lite  |       |   |
-|   |   |  - ACL-aware results      |   |  - googleSearch tool      |       |   |
-|   |   |  - dataStoreSpecs         |   |  - Public web grounding   |       |   |
-|   |   +---------------------------+   +---------------------------+       |   |
-|   |                 |                           |                          |   |
-|   |                 +-------------+-------------+                          |   |
-|   |                               |                                        |   |
-|   |                               v                                        |   |
-|   |                   +------------------------+                           |   |
-|   |                   |  Structured Response   |                           |   |
-|   |                   |  - internal_findings   |                           |   |
-|   |                   |  - external_findings   |                           |   |
-|   |                   +------------------------+                           |   |
-|   +-----------------------------------------------------------------------+   |
-|                                                                                |
-+===============================================================================+
-```
-
----
-
-## Development Timeline
-
-| Date | Time | Phase | Action |
-|------|------|-------|--------|
-| 2026-04-04 | 08:46 | Setup | Environment configuration |
-| 2026-04-04 | 09:20 | Code | Agent + tools implementation |
-| 2026-04-04 | 09:29 | Test | Local testing (test_local.py) |
-| 2026-04-04 | 09:31 | Deploy | First Agent Engine deployment |
-| 2026-04-04 | 10:37 | Fix | Authorization scope (user_impersonation) |
-| 2026-04-04 | 12:47 | Fix | WIF provider audience mismatch |
-| 2026-04-04 | 13:17 | Deploy | Final deployment with entra-provider |
-| 2026-04-04 | 13:20 | Verify | Production verified working |
 
 ---
 
 ## WIF Provider Configuration
 
-**Critical:** The agent must use `entra-provider` (with `api://` audience) for WIF token exchange.
+**Critical:** The agent MUST use `entra-provider` (with `api://` audience) for WIF token exchange.
 
-```
-+-----------------------------------------------------------------------+
-|                    WIF AUDIENCE MATCHING                               |
-|                                                                        |
-|   Authorization Token                 WIF Provider                     |
-|   (from sharepointauth2)              (for agent)                      |
-|                                                                        |
-|   aud: "api://7868d053-..."    --->   entra-provider                  |
-|                                        (expects api:// prefix)         |
-|                                                                        |
-|   GE Login Token                      WIF Provider                     |
-|   (from user login)                   (for GE)                         |
-|                                                                        |
-|   aud: "7868d053-..."          --->   ge-login-provider               |
-|                                        (NO api:// prefix)              |
-+-----------------------------------------------------------------------+
-```
-
-### Environment Variable
-
-```bash
-# .env - MUST use entra-provider for agent
-WIF_PROVIDER_ID=entra-provider
+```mermaid
+flowchart LR
+    subgraph Tokens["Token Types"]
+        Auth["Authorization Token<br/>aud: api://client-id"]
+        Login["GE Login Token<br/>aud: client-id"]
+    end
+    
+    subgraph Providers["WIF Providers"]
+        EP["entra-provider<br/>(expects api:// prefix)"]
+        LP["ge-login-provider<br/>(NO api:// prefix)"]
+    end
+    
+    Auth -->|"Agent WIF"| EP
+    Login -->|"GE Login"| LP
 ```
 
 ---
@@ -167,7 +126,7 @@ GOOGLE_CLOUD_LOCATION=us-central1
 uv sync
 ```
 
-Dependencies installed:
+Dependencies:
 - `google-cloud-aiplatform[adk,agent_engines]>=1.88.0`
 - `google-cloud-discoveryengine>=0.13.0`
 - `httpx>=0.28.0`
@@ -190,9 +149,6 @@ Expected output:
 
 Phase 1: Direct Tool Testing
 ------------------------------------------------------------
-Project Number: REDACTED_PROJECT_NUMBER
-Engine ID:      gemini-enterprise
-[Test] Calling Discovery Engine with service account...
 [OK] Answer: Based on the documents...
 [OK] Sources: 3
 
@@ -206,10 +162,8 @@ Tools:  ['compare_insights']
 ------------------------------------------------------------
 ## Internal Findings (SharePoint)
 ...
-
 ## External Findings (Web)
 ...
-------------------------------------------------------------
 ```
 
 ---
@@ -230,135 +184,176 @@ Project:  sharepoint-wif-agent
 Location: us-central1
 Staging:  gs://sharepoint-wif-agent-staging
 =====================================
-Creating Agent Engine deployment...
-=====================================
 Deployment Complete!
 =====================================
-Resource Name: projects/REDACTED_PROJECT_NUMBER/locations/us-central1/reasoningEngines/1452886418605998080
+Resource Name: projects/REDACTED_PROJECT_NUMBER/locations/us-central1/reasoningEngines/1988251824309665792
 =====================================
 ```
 
-Add to `.env`:
+**Save the Resource Name** - add to `.env` and `backend/.env`:
 
 ```bash
-REASONING_ENGINE_RES=projects/REDACTED_PROJECT_NUMBER/locations/us-central1/reasoningEngines/1452886418605998080
+REASONING_ENGINE_RES=projects/REDACTED_PROJECT_NUMBER/locations/us-central1/reasoningEngines/1988251824309665792
 ```
 
 ---
 
-## Step 5: Test Remote Deployment
+## Step 5: Grant IAM Permissions
+
+**Critical:** Grant `roles/aiplatform.user` at BOTH project AND resource level.
+
+### 5a: Project-Level IAM
+
+```bash
+# For local development (your user account)
+gcloud projects add-iam-policy-binding ${PROJECT_ID} \
+  --member="user:YOUR_EMAIL@example.com" \
+  --role="roles/aiplatform.user"
+
+# For Cloud Run (production) - uses default compute SA
+gcloud projects add-iam-policy-binding ${PROJECT_ID} \
+  --member="serviceAccount:${PROJECT_NUMBER}-compute@developer.gserviceaccount.com" \
+  --role="roles/aiplatform.user"
+```
+
+### 5b: Resource-Level IAM (Required for query permission)
+
+```bash
+# Extract engine ID from REASONING_ENGINE_RES
+ENGINE_ID=$(echo $REASONING_ENGINE_RES | grep -oP 'reasoningEngines/\K[0-9]+')
+
+# Set IAM on the Reasoning Engine resource
+curl -X POST \
+  -H "Authorization: Bearer $(gcloud auth print-access-token)" \
+  -H "Content-Type: application/json" \
+  "https://${LOCATION}-aiplatform.googleapis.com/v1beta1/${REASONING_ENGINE_RES}:setIamPolicy" \
+  -d '{
+    "policy": {
+      "bindings": [{
+        "role": "roles/aiplatform.user",
+        "members": [
+          "user:YOUR_EMAIL@example.com",
+          "serviceAccount:'${PROJECT_NUMBER}'-compute@developer.gserviceaccount.com"
+        ]
+      }]
+    }
+  }'
+```
+
+**Wait ~60 seconds** for IAM propagation.
+
+---
+
+## Step 6: Test Remote Deployment
 
 ```bash
 uv run python test_remote.py
 ```
 
----
-
-## Step 6: Register Authorization
-
-```bash
-chmod +x register_auth.sh
-./register_auth.sh
-```
-
-**Critical scope in register_auth.sh:**
-
-```bash
-# Must include user_impersonation for WIF token exchange
-"scopes": ["api://'${OAUTH_CLIENT_ID}'/user_impersonation"]
-```
+If you get 403 errors, verify IAM was applied correctly (see Troubleshooting).
 
 ---
 
-## Step 7: Register Agent to Agentspace
+## Step 7: Register Authorization (Optional - for Agentspace)
 
 ```bash
-chmod +x register_agent.sh
-./register_agent.sh
+chmod +x scripts/register_auth.sh
+./scripts/register_auth.sh
+```
+
+**Critical scope:**
+
+```bash
+"scopes": ["api://${OAUTH_CLIENT_ID}/user_impersonation"]
+```
+
+---
+
+## Step 8: Register Agent to Agentspace (Optional)
+
+```bash
+chmod +x scripts/register_agent.sh
+./scripts/register_agent.sh
 ```
 
 Agent appears in Gemini Enterprise UI.
 
 ---
 
-## Agent Output Format
-
-```markdown
-## Internal Findings (SharePoint)
-[Summary from internal_findings.answer]
-- Key points from company documents
-- Sources: [Document titles/links]
-
-## External Findings (Web)
-[Summary from external_findings.answer]
-- Key points from public sources
-- Sources: [Website titles/links]
-
-## Synthesis
-- What aligns between internal and external?
-- What's unique to internal documents?
-- What external context adds value?
-- Recommendations
-```
-
----
-
-## Dynamic AUTH_ID Detection
-
-The agent auto-detects AUTH_ID from `tool_context.state`:
-
-```python
-# Priority order:
-1. AUTH_ID env var override
-2. Pattern match "temp:*" keys (Agentspace runtime)
-3. Common key names: sharepointauth, sharepointauth2, msauth
-```
-
----
-
 ## Files Reference
 
-| File | Version | Purpose |
-|------|---------|---------|
-| `agent/agent.py` | 1.0.1 | Agent + compare_insights tool |
-| `agent/discovery_engine.py` | 1.0.0 | WIF token exchange + DE client |
-| `deploy.py` | 1.0.0 | Deploy to Agent Engine |
-| `test_local.py` | 1.0.0 | Pre-deployment testing |
-| `test_remote.py` | 1.0.0 | Post-deployment testing |
-| `register_auth.sh` | 1.0.0 | OAuth authorization |
-| `register_agent.sh` | 1.0.0 | Agentspace registration |
+| File | Purpose |
+|------|---------|
+| `agent/agent.py` | Agent + compare_insights tool |
+| `agent/discovery_engine.py` | WIF token exchange + DE client |
+| `deploy.py` | Deploy to Agent Engine |
+| `test_local.py` | Pre-deployment testing |
+| `test_remote.py` | Post-deployment testing |
+| `scripts/register_auth.sh` | OAuth authorization |
+| `scripts/register_agent.sh` | Agentspace registration |
 
 ---
 
 ## Troubleshooting
 
+### Permission Denied: reasoningEngines.get or reasoningEngines.query
+
+**Error:**
+```
+403 Permission 'aiplatform.reasoningEngines.get' denied...
+```
+or
+```
+403 Permission 'aiplatform.reasoningEngines.query' denied...
+```
+
+**Cause:** Missing IAM at project or resource level.
+
+**Solution:**
+
+1. Verify project-level IAM:
+```bash
+gcloud projects get-iam-policy ${PROJECT_ID} --format=json | \
+  python3 -c "import sys,json; [print(m) for b in json.load(sys.stdin)['bindings'] if 'aiplatform.user' in b['role'] for m in b['members']]"
+```
+
+2. Apply resource-level IAM (Step 5b above).
+
+3. Wait 60 seconds for propagation.
+
+---
+
 ### WIF Audience Mismatch (403 on SharePoint)
 
 **Error:**
 ```
-WIF STS error: {"error":"invalid_grant","error_description":"The audience in ID Token [api://7868d053-...] does not match the expected audience."}
+WIF STS error: {"error":"invalid_grant","error_description":"The audience in ID Token does not match..."}
 ```
 
 **Solution:**
 ```bash
-# Change WIF_PROVIDER_ID to entra-provider
+# Ensure WIF_PROVIDER_ID=entra-provider in .env
 WIF_PROVIDER_ID=entra-provider
 
 # Redeploy
 uv run python deploy.py update
 ```
 
-### Authorization Loop
+---
+
+### Authorization Loop in Agentspace
 
 **Error:** "The agent requires additional authorization for: sharepointauth2"
 
-**Solution:** Add `user_impersonation` scope to authorization in `register_auth.sh`:
+**Solution:** Add `user_impersonation` scope in `register_auth.sh`:
 
 ```bash
 "scopes": ["api://${OAUTH_CLIENT_ID}/user_impersonation"]
 ```
 
-### Agent Not Visible in GE
+---
+
+### Agent Not Visible in Gemini Enterprise
 
 **Solution:** Verify `sharingConfig.scope = "ALL_USERS"` in agent registration.
 
@@ -379,3 +374,10 @@ uv run python deploy.py update
 # Test remotely
 uv run python test_remote.py
 ```
+
+---
+
+## Next Steps
+
+- [09-AGENT-PANEL.md](09-AGENT-PANEL.md) - Add Agent Panel to custom UI
+- [10-CLOUD-DEPLOYMENT.md](10-CLOUD-DEPLOYMENT.md) - Deploy to Cloud Run

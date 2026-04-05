@@ -1,28 +1,40 @@
-# GCP Project Setup
+# 01 - GCP Project Setup
 
-> **Version**: 1.0.0 | **Last Updated**: 2026-04-03
+> **Version**: 1.2.0 | **Last Updated**: 2026-04-05
 
-**Navigation**: [README](../README.md) | **GCP Setup** | [Entra ID](02-SETUP-ENTRA.md) | [WIF](03-SETUP-WIF.md) | [Discovery](04-SETUP-DISCOVERY.md) | [Local Dev](05-LOCAL-DEV.md) | [Agent Engine](06-AGENT-ENGINE.md)
+**Navigation**: [Index](00-INDEX.md) | **01-GCP** | [02-Entra](02-SETUP-ENTRA.md) | [03-WIF](03-SETUP-WIF.md) | [04-Discovery](04-SETUP-DISCOVERY.md) | [08-Agent](08-ADK-AGENT.md)
+
+---
+
+## Prerequisites
+
+None - this is the first step.
+
+---
+
+## Outputs (used by later docs)
+
+| Variable | Example | Used In |
+|----------|---------|---------|
+| `PROJECT_ID` | `sharepoint-wif-agent` | All docs |
+| `PROJECT_NUMBER` | `REDACTED_PROJECT_NUMBER` | 03-WIF, 04-Discovery, 08-Agent |
+| `STAGING_BUCKET` | `gs://sharepoint-wif-agent-staging` | 08-Agent |
 
 ---
 
 ## Overview
 
-This guide covers creating and configuring the GCP project for SharePoint WIF Portal.
+Provisions the five GCP APIs that WIF token exchange and Discovery Engine depend on — nothing else in this guide works without this foundation.
 
-```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                           GCP COMPONENTS                                    │
-├─────────────────────────────────────────────────────────────────────────────┤
-│                                                                             │
-│   Project: sharepoint-wif-agent                                             │
-│   ├── Discovery Engine API      → SharePoint search                         │
-│   ├── Vertex AI API             → Agent Engine (optional)                   │
-│   ├── IAM API                   → Workforce Identity Federation             │
-│   ├── STS API                   → Token exchange                            │
-│   └── Cloud Resource Manager    → Project management                        │
-│                                                                             │
-└─────────────────────────────────────────────────────────────────────────────┘
+```mermaid
+graph TB
+    subgraph Project["GCP Project: sharepoint-wif-agent"]
+        DE[Discovery Engine API<br/>SharePoint search]
+        VA[Vertex AI API<br/>Agent Engine]
+        IAM[IAM API<br/>Workforce Identity Federation]
+        STS[STS API<br/>Token exchange]
+        CRM[Cloud Resource Manager<br/>Project management]
+    end
 ```
 
 ---

@@ -1,6 +1,6 @@
 # Agent Engine Deployment (Optional)
 
-> **Version**: 1.0.0 | **Last Updated**: 2026-04-03
+> **Version**: 1.1.0 | **Last Updated**: 2026-04-05
 
 **Navigation**: [README](../README.md) | [GCP Setup](01-SETUP-GCP.md) | [Entra ID](02-SETUP-ENTRA.md) | [WIF](03-SETUP-WIF.md) | [Discovery](04-SETUP-DISCOVERY.md) | [Local Dev](05-LOCAL-DEV.md) | **Agent Engine**
 
@@ -8,26 +8,25 @@
 
 ## Overview
 
-Deploy an ADK agent to Vertex AI Agent Engine for use in Gemini Enterprise (Agentspace).
+Deploys the InsightComparator agent to Agent Engine and registers it in Agentspace, making it available in the Gemini Enterprise UI with OAuth token passthrough to SharePoint.
 
-```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                    AGENT ENGINE ARCHITECTURE                                │
-├─────────────────────────────────────────────────────────────────────────────┤
-│                                                                             │
-│   Gemini Enterprise (Agentspace)                                            │
-│   ├── User asks question                                                    │
-│   ├── OAuth: Microsoft login → token stored in session                      │
-│   └── Routes to registered agent                                            │
-│                 │                                                           │
-│                 ▼                                                           │
-│   Agent Engine (Reasoning Engine)                                           │
-│   ├── ADK Agent receives query + token from session                         │
-│   ├── WIF exchange: Microsoft JWT → GCP token                               │
-│   ├── Discovery Engine search with user identity                            │
-│   └── Enhanced response (summaries, entities, follow-ups)                   │
-│                                                                             │
-└─────────────────────────────────────────────────────────────────────────────┘
+```mermaid
+flowchart TB
+    subgraph GE["Gemini Enterprise (Agentspace)"]
+        User["User asks question"]
+        OAuth["OAuth: MS login → token in session"]
+        Route["Routes to agent"]
+    end
+    
+    subgraph AE["Agent Engine (Reasoning Engine)"]
+        Agent["ADK Agent receives query + token"]
+        WIF["WIF exchange: MS JWT → GCP token"]
+        Search["Discovery Engine search"]
+        Response["Enhanced response"]
+    end
+    
+    User --> OAuth --> Route --> Agent
+    Agent --> WIF --> Search --> Response
 ```
 
 ---
@@ -185,3 +184,10 @@ Test in Gemini Enterprise:
 | Agent not visible | Run share command with ALL_USERS |
 | OAuth fails | Check AUTH_ID matches authorization |
 | No results | Verify dataStoreSpecs in agent |
+
+---
+
+## Next Steps
+
+- [07-FRONTEND-FEATURES.md](07-FRONTEND-FEATURES.md) - Frontend UI features
+- [08-ADK-AGENT.md](08-ADK-AGENT.md) - Deploy InsightComparator agent

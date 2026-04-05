@@ -1,10 +1,10 @@
 # 09 - Agent Panel Integration
 
-**Version:** 1.0.0  
-**Last Updated:** 2026-04-04  
+**Version:** 1.2.0  
+**Last Updated:** 2026-04-05  
 **Status:** Production
 
-**Navigation**: [Index](00-INDEX.md) | [08-Agent](08-ADK-AGENT.md) | **09-Panel** | [Testing](TESTING.md)
+**Navigation**: [Index](00-INDEX.md) | [08-Agent](08-ADK-AGENT.md) | **09-Panel** | [10-Deploy](10-CLOUD-DEPLOYMENT.md)
 
 ---
 
@@ -20,32 +20,29 @@
 
 ## Overview
 
-Adds an Agent Panel to the custom UI, enabling users to interact with the InsightComparator agent alongside the main chat.
+Wires the deployed Agent Engine resource into the custom portal — users get side-by-side access to ACL-aware SharePoint search and the InsightComparator agent from a single UI.
 
-```
-+===========================================================================+
-|                         CUSTOM UI ARCHITECTURE                             |
-|                                                                            |
-|   +---------------------------+     +---------------------------+          |
-|   |       MAIN CHAT           |     |      AGENT PANEL          |          |
-|   |       (Direct API)        |     |      (Agent Engine)       |          |
-|   |                           |     |                           |          |
-|   |   /api/chat               |     |   /api/agent              |          |
-|   |      |                    |     |      |                    |          |
-|   |      v                    |     |      v                    |          |
-|   |   Discovery Engine        |     |   Agent Engine SDK        |          |
-|   |   streamAssist API        |     |      |                    |          |
-|   |                           |     |      v                    |          |
-|   |   Features:               |     |   InsightComparator       |          |
-|   |   - SharePoint search     |     |      |                    |          |
-|   |   - /btw quick answers    |     |      +------+------+      |          |
-|   |   - Session management    |     |      |             |      |          |
-|   |                           |     |      v             v      |          |
-|   +---------------------------+     |   SharePoint    Google    |          |
-|                                     |   (WIF)         Search    |          |
-|                                     +---------------------------+          |
-|                                                                            |
-+===========================================================================+
+![Agent Panel](../assets/portal-agent-panel.png)
+
+*The InsightComparator Agent Panel showing external web context alongside SharePoint search results*
+
+```mermaid
+flowchart TB
+    subgraph UI["Custom UI"]
+        subgraph MainChat["Main Chat (Direct API)"]
+            MC["/api/chat<br/>Discovery Engine<br/>streamAssist API"]
+        end
+        subgraph AgentPanel["Agent Panel (Agent Engine)"]
+            AP["/api/agent<br/>Agent Engine SDK"]
+            IC["InsightComparator"]
+            SP["SharePoint<br/>(WIF)"]
+            GS["Google<br/>Search"]
+        end
+    end
+    
+    MC -->|"SharePoint search<br/>/btw quick answers"| DE[Discovery Engine]
+    AP --> IC
+    IC --> SP & GS
 ```
 
 ---
@@ -141,34 +138,14 @@ class AgentClient:
 
 ## Token Flow
 
-```
-+-----------------------------------------------------------------------+
-|                    JWT PASSTHROUGH FLOW                                |
-|                                                                        |
-|   Frontend                Backend                 Agent                |
-|   --------                -------                 -----                |
-|                                                                        |
-|   X-Entra-Id-Token  --->  microsoft_jwt  --->  session.state           |
-|   (header)                (extract)             ["sharepointauth2"]    |
-|                                                                        |
-|                                                      |                 |
-|                                                      v                 |
-|                                              tool_context.state        |
-|                                              or                        |
-|                                              invocation_context        |
-|                                              .session.state            |
-|                                                      |                 |
-|                                                      v                 |
-|                                              WIF Exchange (STS)        |
-|                                                      |                 |
-|                                                      v                 |
-|                                              GCP Access Token          |
-|                                                      |                 |
-|                                                      v                 |
-|                                              Discovery Engine          |
-|                                              (ACL-aware search)        |
-|                                                                        |
-+-----------------------------------------------------------------------+
+```mermaid
+flowchart LR
+    FE["Frontend<br/>X-Entra-Id-Token"] --> BE["Backend<br/>extract JWT"]
+    BE --> SS["session.state<br/>[sharepointauth2]"]
+    SS --> TC["tool_context.state"]
+    TC --> WIF["WIF Exchange<br/>(STS)"]
+    WIF --> GCP["GCP Access Token"]
+    GCP --> DE["Discovery Engine<br/>(ACL-aware)"]
 ```
 
 ---
@@ -291,6 +268,9 @@ The InsightComparator agent has two tools:
 |-------|-------|----------|
 | Agent panel empty | Backend not restarted | Restart with new .env |
 | "Agent unavailable" | Wrong REASONING_ENGINE_RES | Check step 08 output |
+| "Agent not configured" | REASONING_ENGINE_RES not set | Set env var in Cloud Run |
+| 403 `aiplatform.reasoningEngines.*` denied | Missing IAM role | Grant `roles/aiplatform.user` at project AND resource level (see [08-ADK-AGENT Step 5](08-ADK-AGENT.md#step-5-grant-iam-permissions)) |
+| "Internal Server Error" as JSON parse error | Backend missing vertexai | Add google-cloud-aiplatform to pyproject.toml |
 | SharePoint 403 | WIF provider mismatch | Use `entra-provider` |
 | No web results | Model not available | Check Gemini API enabled |
 | Slow response | Cold start | First query takes longer |
@@ -311,4 +291,5 @@ The InsightComparator agent has two tools:
 
 ## Next Steps
 
+- [10-CLOUD-DEPLOYMENT.md](10-CLOUD-DEPLOYMENT.md) - Deploy to Cloud Run + GLB + IAP
 - [TESTING.md](TESTING.md) - Full testing workflow

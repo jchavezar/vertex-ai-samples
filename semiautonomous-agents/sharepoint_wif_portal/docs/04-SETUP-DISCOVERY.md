@@ -1,34 +1,53 @@
-# Discovery Engine Setup
+# 04 - Discovery Engine Setup
 
-> **Version**: 1.0.0 | **Last Updated**: 2026-04-03
+> **Version**: 1.2.0 | **Last Updated**: 2026-04-05
 
-**Navigation**: [README](../README.md) | [GCP Setup](01-SETUP-GCP.md) | [Entra ID](02-SETUP-ENTRA.md) | [WIF](03-SETUP-WIF.md) | **Discovery** | [Local Dev](05-LOCAL-DEV.md) | [Agent Engine](06-AGENT-ENGINE.md)
+**Navigation**: [Index](00-INDEX.md) | [01-GCP](01-SETUP-GCP.md) | [02-Entra](02-SETUP-ENTRA.md) | [03-WIF](03-SETUP-WIF.md) | **04-Discovery** | [08-Agent](08-ADK-AGENT.md)
+
+---
+
+## Prerequisites
+
+| From | Variable | Purpose |
+|------|----------|---------|
+| [01-SETUP-GCP.md](01-SETUP-GCP.md) | `PROJECT_ID` | Discovery Engine project |
+| [01-SETUP-GCP.md](01-SETUP-GCP.md) | `PROJECT_NUMBER` | API calls |
+| [02-SETUP-ENTRA.md](02-SETUP-ENTRA.md) | `OAUTH_CLIENT_ID` | Federated connector |
+| [03-SETUP-WIF.md](03-SETUP-WIF.md) | `WIF_POOL_ID` | User identity mapping |
+
+---
+
+## Outputs (used by later docs)
+
+| Variable | Example | Used In |
+|----------|---------|---------|
+| `ENGINE_ID` | `gemini-enterprise` | 08-Agent |
+| `DATA_STORE_ID` | `sharepoint-data-def-connector_file` | 08-Agent |
 
 ---
 
 ## Overview
 
-Discovery Engine provides the search infrastructure. The SharePoint federated connector syncs documents while preserving ACLs.
+Connects Discovery Engine to SharePoint via a federated connector that syncs documents while preserving ACLs — this is what makes per-user access enforcement possible at query time rather than in your application code.
 
-```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                    DISCOVERY ENGINE COMPONENTS                              │
-├─────────────────────────────────────────────────────────────────────────────┤
-│                                                                             │
-│   App (Agentspace)                                                          │
-│   └── Engine (Search App)                                                   │
-│       └── Data Store                                                        │
-│           └── SharePoint Federated Connector                                │
-│               ├── Sites: sharepoint.com/sites/...                           │
-│               ├── Sync: Periodic or on-demand                               │
-│               └── ACLs: Preserved from SharePoint                           │
-│                                                                             │
-│   API: streamAssist                                                         │
-│   ├── Input: Query + dataStoreSpecs (REQUIRED)                              │
-│   ├── Auth: User token via WIF                                              │
-│   └── Output: Grounded answer + sources                                     │
-│                                                                             │
-└─────────────────────────────────────────────────────────────────────────────┘
+```mermaid
+flowchart TB
+    subgraph DE["Discovery Engine"]
+        App["App (Agentspace)"]
+        Engine["Engine (Search App)"]
+        DS["Data Store"]
+        Connector["SharePoint Federated Connector<br/>• Sites synced<br/>• ACLs preserved"]
+        
+        App --> Engine --> DS --> Connector
+    end
+    
+    subgraph API["streamAssist API"]
+        Input["Input: Query + dataStoreSpecs"]
+        Auth["Auth: User token via WIF"]
+        Output["Output: Grounded answer + sources"]
+    end
+    
+    Connector --> API
 ```
 
 ---

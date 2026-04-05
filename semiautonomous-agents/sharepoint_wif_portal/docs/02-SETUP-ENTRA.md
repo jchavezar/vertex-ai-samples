@@ -1,14 +1,32 @@
-# Microsoft Entra ID Setup
+# 02 - Microsoft Entra ID Setup
 
-> **Version**: 1.0.0 | **Last Updated**: 2026-04-03
+> **Version**: 1.2.0 | **Last Updated**: 2026-04-05
 
-**Navigation**: [README](../README.md) | [GCP Setup](01-SETUP-GCP.md) | **Entra ID** | [WIF](03-SETUP-WIF.md) | [Discovery](04-SETUP-DISCOVERY.md) | [Local Dev](05-LOCAL-DEV.md) | [Agent Engine](06-AGENT-ENGINE.md)
+**Navigation**: [Index](00-INDEX.md) | [01-GCP](01-SETUP-GCP.md) | **02-Entra** | [03-WIF](03-SETUP-WIF.md) | [04-Discovery](04-SETUP-DISCOVERY.md) | [08-Agent](08-ADK-AGENT.md)
+
+---
+
+## Prerequisites
+
+| From | Variable | Purpose |
+|------|----------|---------|
+| [01-SETUP-GCP.md](01-SETUP-GCP.md) | `PROJECT_ID` | For redirect URI configuration |
+
+---
+
+## Outputs (used by later docs)
+
+| Variable | Example | Used In |
+|----------|---------|---------|
+| `TENANT_ID` | `de46a3fd-...` | 03-WIF, 08-Agent |
+| `OAUTH_CLIENT_ID` | `7868d053-...` | 03-WIF, 04-Discovery, 08-Agent |
+| `OAUTH_CLIENT_SECRET` | `k8K8Q~...` | 08-Agent |
 
 ---
 
 ## Overview
 
-Configure Microsoft Entra ID (formerly Azure AD) for OAuth authentication with custom API scope for WIF compatibility.
+Creates the Entra app registration that issues tokens your portal and agent exchange via WIF. The `api://` Application ID URI set here is what makes the audience match possible in step 03.
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
@@ -127,12 +145,16 @@ This creates the custom scope that sets the correct token audience for WIF.
 
 3. Click **Configure**
 
-### SPA Platform (for Local Testing)
+### SPA Platform (for Local Testing AND Production)
+
+> **IMPORTANT**: Production URLs MUST be added under **Single-page application**, not Web.
+> Error `AADSTS9002326: Cross-origin token redemption is permitted only for the 'Single-Page Application' client-type` means the URL is under Web instead of SPA.
 
 1. **Authentication** → **Add a platform** → **Single-page application**
 2. Redirect URIs:
-   - `http://localhost:5173`
-   - `http://localhost:5177`
+   - `http://localhost:5173` (local development)
+   - `http://localhost:5177` (alternate port)
+   - `https://your-domain.com` (production - **NO trailing slash**)
 3. Click **Configure**
 
 **Final configuration:**
@@ -143,7 +165,8 @@ Platforms:
 │   ├── https://vertexaisearch.cloud.google.com/oauth-redirect
 │   └── https://auth.cloud.google.com/signin-callback/.../entra-login-provider
 └── Single-page application
-    └── http://localhost:5173
+    ├── http://localhost:5173
+    └── https://your-production-domain.com  ← CRITICAL: must be SPA, not Web
 ```
 
 ![Authentication Platforms](../assets/entra-authentication-final.png)

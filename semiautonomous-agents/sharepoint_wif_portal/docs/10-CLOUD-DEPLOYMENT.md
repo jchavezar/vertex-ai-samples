@@ -1,7 +1,7 @@
 # 10 - Cloud Deployment: Cloud Run + Load Balancer + IAP
 
-**Version:** 1.0.0  
-**Last Updated:** 2026-04-04  
+**Version:** 1.1.0  
+**Last Updated:** 2026-04-05  
 **Status:** Production
 
 **Navigation**: [Index](00-INDEX.md) | [09-Panel](09-AGENT-PANEL.md) | **10-Deploy** | [Testing](TESTING.md)
@@ -20,39 +20,26 @@
 
 ## Overview
 
-Deploy the SharePoint WIF Portal to production with enterprise security.
+Packages the React + FastAPI stack into a single Cloud Run container fronted by a Global Load Balancer and IAP — same codebase as local, only environment variables change.
 
-```
-+===========================================================================+
-|                    PRODUCTION ARCHITECTURE                                 |
-|                                                                            |
-|   Internet                                                                 |
-|      |                                                                     |
-|      v                                                                     |
-|   +-------+     +-------+     +------------------+                        |
-|   |  DNS  | --> |  GLB  | --> |       IAP        |                        |
-|   +-------+     +-------+     +------------------+                        |
-|                     |                  |                                   |
-|                     |         (Google Identity)                           |
-|                     |                  |                                   |
-|                     v                  v                                   |
-|   +-------------------------------------------------+                     |
-|   |              Cloud Run Service                   |                     |
-|   |                                                  |                     |
-|   |   +-------------------+   +------------------+  |                     |
-|   |   |    Frontend       |   |     Backend      |  |                     |
-|   |   |    (nginx)        |-->|    (FastAPI)     |  |                     |
-|   |   |    :80            |   |    :8000         |  |                     |
-|   |   +-------------------+   +------------------+  |                     |
-|   |                                  |              |                     |
-|   +-------------------------------------------------+                     |
-|                                      |                                     |
-|                                      v                                     |
-|   +------------------+    +------------------+    +------------------+    |
-|   | Discovery Engine |    |  Agent Engine    |    |   Google STS     |    |
-|   +------------------+    +------------------+    +------------------+    |
-|                                                                            |
-+===========================================================================+
+> **Same Code, Different Environment**: The Custom UI uses an [environment-agnostic architecture](05-LOCAL-DEV.md#environment-agnostic-architecture) - the same source code works in both local development and Cloud Run. Only environment variables change.
+
+```mermaid
+flowchart TB
+    Internet((Internet)) --> DNS[Cloud DNS]
+    DNS --> GLB[Global Load Balancer]
+    GLB --> IAP[Identity-Aware Proxy<br/>Google Identity]
+    
+    subgraph CloudRun["Cloud Run Service"]
+        FE["Frontend (nginx)<br/>:80"]
+        BE["Backend (FastAPI)<br/>:8000"]
+        FE --> BE
+    end
+    
+    IAP --> CloudRun
+    BE --> DE[Discovery Engine]
+    BE --> AE[Agent Engine]
+    BE --> STS[Google STS]
 ```
 
 ---
@@ -351,7 +338,47 @@ gcloud run deploy sharepoint-portal \
 
 ---
 
-## Step 6: Create Serverless NEG
+## Step 6: Grant Agent Engine IAM
+
+**Critical:** Cloud Run service account needs `roles/aiplatform.user` to call Agent Engine.
+
+### 6a: Project-Level IAM
+
+```bash
+# Grant to default compute service account
+gcloud projects add-iam-policy-binding ${PROJECT_ID} \
+  --member="serviceAccount:${PROJECT_NUMBER}-compute@developer.gserviceaccount.com" \
+  --role="roles/aiplatform.user"
+```
+
+### 6b: Resource-Level IAM (Required for query permission)
+
+```bash
+# Get your Reasoning Engine resource name
+REASONING_ENGINE_RES=projects/${PROJECT_NUMBER}/locations/${REGION}/reasoningEngines/YOUR_ENGINE_ID
+
+# Set IAM on the Reasoning Engine resource itself
+curl -X POST \
+  -H "Authorization: Bearer $(gcloud auth print-access-token)" \
+  -H "Content-Type: application/json" \
+  "https://${REGION}-aiplatform.googleapis.com/v1beta1/${REASONING_ENGINE_RES}:setIamPolicy" \
+  -d '{
+    "policy": {
+      "bindings": [{
+        "role": "roles/aiplatform.user",
+        "members": [
+          "serviceAccount:'${PROJECT_NUMBER}'-compute@developer.gserviceaccount.com"
+        ]
+      }]
+    }
+  }'
+```
+
+**Wait ~60 seconds** for IAM propagation before testing.
+
+---
+
+## Step 7: Create Serverless NEG
 
 ```bash
 # Create Network Endpoint Group for Cloud Run
@@ -364,7 +391,7 @@ gcloud compute network-endpoint-groups create sharepoint-portal-neg \
 
 ---
 
-## Step 7: Create Backend Service
+## Step 8: Create Backend Service
 
 ```bash
 # Create backend service
@@ -383,7 +410,7 @@ gcloud compute backend-services add-backend sharepoint-portal-backend \
 
 ---
 
-## Step 8: Create URL Map and Target Proxy
+## Step 9: Create URL Map and Target Proxy
 
 ```bash
 # Create URL map
@@ -402,14 +429,15 @@ gcloud compute target-https-proxies create sharepoint-portal-https-proxy \
 
 ---
 
-## Step 9: Create SSL Certificate
+## Step 10: Create SSL Certificate
 
-### Option A: Google-Managed Certificate
+### Option A: Google-Managed Certificate (Recommended)
 
 ```bash
 # Create managed certificate (requires domain)
-gcloud compute ssl-certificates create sharepoint-portal-cert \
-  --domains=portal.yourdomain.com \
+# Use subdomain with HYPHENS (not underscores)
+gcloud compute ssl-certificates create sharepoint-portal-cert-v2 \
+  --domains=sharepoint-wif-portal.sonrobots.net \
   --global \
   --project=${PROJECT_ID}
 ```
@@ -427,7 +455,7 @@ gcloud compute ssl-certificates create sharepoint-portal-cert \
 
 ---
 
-## Step 10: Create Global Forwarding Rule
+## Step 11: Create Global Forwarding Rule
 
 ```bash
 # Reserve static IP
@@ -454,7 +482,7 @@ gcloud compute forwarding-rules create sharepoint-portal-https-rule \
 
 ---
 
-## Step 11: Configure IAP
+## Step 12: Configure IAP
 
 ### Enable IAP API
 
@@ -462,29 +490,40 @@ gcloud compute forwarding-rules create sharepoint-portal-https-rule \
 gcloud services enable iap.googleapis.com --project=${PROJECT_ID}
 ```
 
-### Configure OAuth Consent Screen
+### Provision IAP Service Account
 
-1. Go to **APIs & Services** > **OAuth consent screen**
+**Critical:** Create the IAP service account before configuring IAP:
+
+```bash
+# Create the IAP service agent (required for Cloud Run invocation)
+gcloud beta services identity create --service=iap.googleapis.com --project=${PROJECT_ID}
+```
+
+This creates: `service-${PROJECT_NUMBER}@gcp-sa-iap.iam.gserviceaccount.com`
+
+### Configure OAuth Consent Screen (Console)
+
+1. Go to: `https://console.cloud.google.com/apis/credentials/consent?project=${PROJECT_ID}`
 2. Configure:
-   - User type: Internal (or External for broader access)
-   - App name: SharePoint Portal
+   - User type: **Internal** (for Workspace users only)
+   - App name: `SharePoint WIF Portal`
    - Support email: your-email@domain.com
+   - Click **Save and Continue** through all steps
 
-### Create OAuth Client for IAP
+### Create OAuth Client for IAP (Console)
 
-1. Go to **APIs & Services** > **Credentials**
-2. Create **OAuth 2.0 Client ID**:
-   - Type: Web application
-   - Name: IAP-SharePoint-Portal
-   - Authorized redirect URIs:
-     ```
-     https://iap.googleapis.com/v1/oauth/clientIds/CLIENT_ID:handleRedirect
-     ```
+1. Go to: `https://console.cloud.google.com/apis/credentials?project=${PROJECT_ID}`
+2. Click **Create Credentials** > **OAuth client ID**
+3. Configure:
+   - Application type: **Web application**
+   - Name: `IAP-SharePoint-Portal`
+   - Leave Authorized redirect URIs empty (IAP adds automatically)
+4. Click **Create** and **copy the Client ID and Secret**
 
 ### Enable IAP on Backend Service
 
 ```bash
-# Enable IAP
+# Enable IAP with OAuth credentials
 gcloud iap web enable \
   --resource-type=backend-services \
   --service=sharepoint-portal-backend \
@@ -515,19 +554,46 @@ gcloud iap web add-iam-policy-binding \
 
 ---
 
-## Step 12: Update Cloud Run (Disable Public Access)
+## Step 13: Configure Cloud Run for IAP
+
+Cloud Run must be configured to work with IAP behind the load balancer:
+
+### Restrict Ingress to Load Balancer Only
 
 ```bash
-# Remove unauthenticated access (IAP will handle auth)
+# Only allow traffic from the load balancer (not direct Cloud Run URL)
 gcloud run services update sharepoint-portal \
   --region=${REGION} \
-  --no-allow-unauthenticated \
+  --ingress=internal-and-cloud-load-balancing \
   --project=${PROJECT_ID}
 ```
 
+### Grant IAP Service Account Permission to Invoke
+
+```bash
+# The IAP service account needs invoker permission (required)
+gcloud run services add-iam-policy-binding sharepoint-portal \
+  --region=${REGION} \
+  --project=${PROJECT_ID} \
+  --member="serviceAccount:service-${PROJECT_NUMBER}@gcp-sa-iap.iam.gserviceaccount.com" \
+  --role="roles/run.invoker"
+
+# Also grant serverless NEG service account (belt and suspenders)
+gcloud run services add-iam-policy-binding sharepoint-portal \
+  --region=${REGION} \
+  --project=${PROJECT_ID} \
+  --member="serviceAccount:service-${PROJECT_NUMBER}@serverless-robot-prod.iam.gserviceaccount.com" \
+  --role="roles/run.invoker"
+```
+
+**Note:** This pattern uses:
+- **IAP** for authentication at the load balancer level
+- **IAP service account** to invoke Cloud Run after authentication
+- **Ingress restriction** to block direct Cloud Run access
+
 ---
 
-## Step 13: Configure DNS
+## Step 14: Configure DNS
 
 Point your domain to the load balancer IP:
 
@@ -537,10 +603,44 @@ gcloud compute addresses describe sharepoint-portal-ip \
   --global \
   --format="get(address)" \
   --project=${PROJECT_ID}
-
-# Create A record in your DNS:
-# portal.yourdomain.com → [IP_ADDRESS]
 ```
+
+### Cloudflare Configuration
+
+| Type | Name | Content | Proxy Status | TTL |
+|------|------|---------|--------------|-----|
+| **A** | `sharepoint-wif-portal` | `34.102.240.31` | **DNS Only** (gray cloud) | Auto |
+
+**Note:** Use hyphens (`-`) not underscores (`_`) in subdomain names.
+
+**Important - Keep Proxy OFF during SSL provisioning:**
+- Google-managed SSL requires direct access for domain validation
+- Cert stays `PROVISIONING` if Cloudflare proxy is enabled
+- After cert shows `ACTIVE` (~15-30 min), you can enable proxy
+
+### Verify SSL Certificate Status
+
+```bash
+gcloud compute ssl-certificates describe sharepoint-portal-cert \
+  --global --project=sharepoint-wif-agent \
+  --format="table(name,managed.status,managed.domainStatus)"
+```
+
+---
+
+## Current Deployment
+
+| Resource | Value |
+|----------|-------|
+| **Domain** | `sharepoint-wif-portal.sonrobots.net` |
+| **Load Balancer IP** | `34.102.240.31` |
+| **SSL Certificate** | `sharepoint-portal-cert-v2` (Google-managed, ACTIVE) |
+| **Cloud Run URL** | `https://sharepoint-portal-rxhrarbbrq-uc.a.run.app` |
+| **Cloud Run Ingress** | `internal-and-cloud-load-balancing` |
+| **IAP** | Enabled with OAuth client |
+| **Project** | `sharepoint-wif-agent` |
+| **Project Number** | `REDACTED_PROJECT_NUMBER` |
+| **Region** | `us-central1` |
 
 ---
 
@@ -593,31 +693,25 @@ echo "=========================================="
 
 ## Final Architecture
 
-```
-+===========================================================================+
-|                         PRODUCTION STACK                                   |
-|                                                                            |
-|   Layer          Component              Purpose                           |
-|   -----          ---------              -------                           |
-|                                                                            |
-|   DNS            Cloud DNS              portal.company.com                |
-|                       |                                                   |
-|                       v                                                   |
-|   Edge           Global LB              SSL termination, routing          |
-|                       |                                                   |
-|                       v                                                   |
-|   Security       IAP                    Google Identity auth              |
-|                       |                                                   |
-|                       v                                                   |
-|   Compute        Cloud Run              Serverless, auto-scaling          |
-|                       |                                                   |
-|                  +----+----+                                              |
-|                  |         |                                              |
-|                  v         v                                              |
-|   Services    Agent     Discovery       SharePoint + Web search           |
-|               Engine    Engine                                            |
-|                                                                            |
-+===========================================================================+
+```mermaid
+flowchart TB
+    subgraph Edge["Edge Layer"]
+        DNS["Cloud DNS<br/>portal.company.com"]
+        GLB["Global Load Balancer<br/>SSL termination"]
+        IAP["Identity-Aware Proxy<br/>Google Identity auth"]
+    end
+    
+    subgraph Compute["Compute Layer"]
+        CR["Cloud Run<br/>Serverless, auto-scaling"]
+    end
+    
+    subgraph Services["Service Layer"]
+        AE["Agent Engine"]
+        DE["Discovery Engine"]
+    end
+    
+    DNS --> GLB --> IAP --> CR
+    CR --> AE & DE
 ```
 
 ---
@@ -627,7 +721,8 @@ echo "=========================================="
 | Issue | Cause | Solution |
 |-------|-------|----------|
 | 502 Bad Gateway | Backend not ready | Wait for Cloud Run cold start |
-| 403 Forbidden | IAP not authorized | Add user to IAP policy |
+| 403 Forbidden (IAP) | IAP not authorized | Add user to IAP policy |
+| 403 `aiplatform.reasoningEngines.*` | Missing Agent IAM | Apply Step 6 (project + resource-level IAM) |
 | SSL error | Cert not provisioned | Wait ~15 min for managed cert |
 | CORS errors | Missing headers | Check nginx proxy config |
 | Agent timeout | Cold start | Increase min-instances to 1 |
@@ -648,9 +743,11 @@ echo "=========================================="
 
 ## Security Checklist
 
-- [ ] IAP enabled on backend service
-- [ ] Cloud Run set to `--no-allow-unauthenticated`
-- [ ] SSL certificate active
+- [x] IAP enabled on backend service with OAuth credentials
+- [x] Cloud Run ingress set to `internal-and-cloud-load-balancing`
+- [x] Serverless NEG service account granted `roles/run.invoker`
+- [x] SSL certificate active (Google-managed)
+- [x] IAP access granted to authorized users
 - [ ] No secrets in environment variables (use Secret Manager)
 - [ ] Service account has minimal required roles
 - [ ] VPC connector if accessing private resources
