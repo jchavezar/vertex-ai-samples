@@ -30,6 +30,8 @@
 
 Connects Discovery Engine to SharePoint via a federated connector that syncs documents while preserving ACLs — this is what makes per-user access enforcement possible at query time rather than in your application code.
 
+> **Naming note**: Discovery Engine is the underlying GCP API that powers **Gemini Enterprise** (GE). When GCP documentation says "Discovery Engine" and the console shows "AI Applications" or "Gemini Enterprise", they are the same product. The `streamAssist` endpoint is the programmatic interface to the same search capabilities you see in the Gemini Enterprise UI.
+
 ```mermaid
 flowchart TB
     subgraph DE["Discovery Engine"]

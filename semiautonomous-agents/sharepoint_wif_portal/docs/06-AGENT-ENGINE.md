@@ -1,14 +1,16 @@
-# Agent Engine Deployment (Optional)
+# 06 - Agent Engine: Agentspace Registration (Optional)
 
-> **Version**: 1.1.0 | **Last Updated**: 2026-04-05
+> **Version**: 1.2.0 | **Last Updated**: 2026-04-05
 
-**Navigation**: [README](../README.md) | [GCP Setup](01-SETUP-GCP.md) | [Entra ID](02-SETUP-ENTRA.md) | [WIF](03-SETUP-WIF.md) | [Discovery](04-SETUP-DISCOVERY.md) | [Local Dev](05-LOCAL-DEV.md) | **Agent Engine**
+**Navigation**: [Index](00-INDEX.md) | [05-Local Dev](05-LOCAL-DEV.md) | **06-Agent Engine** | [07-Frontend](07-FRONTEND-FEATURES.md) | [08-Agent](08-ADK-AGENT.md)
+
+> **Two ways to add an agent**: This doc covers **registering any agent in Gemini Enterprise / Agentspace** via API. For building and deploying the full **InsightComparator ADK agent** (concurrent SharePoint + Google Search), go to [08-ADK-AGENT.md](08-ADK-AGENT.md). Both docs can be read independently.
 
 ---
 
 ## Overview
 
-Deploys the InsightComparator agent to Agent Engine and registers it in Agentspace, making it available in the Gemini Enterprise UI with OAuth token passthrough to SharePoint.
+Registers a pre-deployed Agent Engine reasoning engine into Gemini Enterprise (Agentspace), making it available in the GE UI with OAuth token passthrough to SharePoint.
 
 ```mermaid
 flowchart TB
