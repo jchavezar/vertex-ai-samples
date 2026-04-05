@@ -22,9 +22,9 @@
 
 Wires the deployed Agent Engine resource into the custom portal — users get side-by-side access to ACL-aware SharePoint search and the InsightComparator agent from a single UI.
 
-![Agent Panel](../assets/portal-agent-panel.png)
+![Agent Panel](../assets/portal-agent-panel-live.png)
 
-*The InsightComparator Agent Panel showing external web context alongside SharePoint search results*
+*InsightComparator agent panel open alongside the main chat — SharePoint-grounded financial report on the left, agent answering "What is the Critical (P1) availability SLA?" with Internal (SharePoint) and External (Web) findings on the right*
 
 ```mermaid
 flowchart TB

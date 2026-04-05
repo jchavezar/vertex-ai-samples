@@ -242,6 +242,10 @@ Click **Continue** → **Create**
 
 > **Note**: Use `entra-login-provider` (without api:// prefix) for Gemini Enterprise login. The `entra-agent-provider` (with api:// prefix) is for programmatic WIF token exchange.
 
+![GE SharePoint Connector](../assets/ge-sharepoint-connector.png)
+
+*Gemini Enterprise connector selector — SharePoint and Google Search both enabled for this app*
+
 **Save:**
 
 | Setting | Your Value |

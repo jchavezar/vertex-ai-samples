@@ -36,9 +36,9 @@ flowchart TB
 
 ## Dual Search Modes
 
-![Dual Search Modes](../assets/portal-dual-search.png)
+![Dual Search Modes](../assets/portal-overview.png)
 
-*The portal showing both search modes: `/btw` quick search (3.6s, web grounded) and main query (18.3s, SharePoint grounded with ACL)*
+*Both modes active simultaneously — `/btw` quick search (5.1s, web grounded, coral theme) and main SharePoint query (24.1s, ACL enforced). User identity shown top-left, ACL Protected badge top-right.*
 
 ### 1. Main Query (SharePoint Grounded)
 
@@ -126,6 +126,10 @@ The overlay prevents interaction with the main UI until login is complete. Imple
 - `index.css`: `.auth-overlay` and `.auth-modal` styles
 
 ### Loading Animations
+
+![Thinking State](../assets/portal-thinking-state.png)
+
+*Multi-turn conversation in progress — previous answer grounded in SharePoint sources, new query in "Ideating... (thinking)" state. The `/btw` hint is visible in the input placeholder.*
 
 #### Main Query (Purple Theme)
 ```

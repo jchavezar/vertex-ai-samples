@@ -278,6 +278,22 @@ chmod +x scripts/register_agent.sh
 
 Agent appears in Gemini Enterprise UI.
 
+**First-time user experience — OAuth authorization prompt:**
+
+![GE Agent Authorize](../assets/ge-agent-authorize.png)
+
+*On first use, Gemini Enterprise prompts the user to authorize the agent to access SharePoint on their behalf*
+
+![GE Agent OAuth](../assets/ge-agent-oauth.png)
+
+*Microsoft "Pick an account" login — user selects their Entra identity to complete the WIF token exchange*
+
+**After authorization — InsightComparator output:**
+
+![GE InsightComparator](../assets/ge-insight-comparator.png)
+
+*InsightComparator response showing Internal Findings (SharePoint, ACL-enforced) and External Findings (web) in separate labeled sections with sources*
+
 ---
 
 ## Files Reference

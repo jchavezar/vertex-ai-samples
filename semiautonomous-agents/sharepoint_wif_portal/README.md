@@ -57,6 +57,10 @@ By the end of this guide you will have:
 - **InsightComparator ADK agent on Agent Engine** — a single `compare_insights` tool that concurrently searches SharePoint (internal, ACL-aware) and Google Search (public web), then synthesizes a comparison
 - **Production Cloud Run deployment** — single container with nginx + FastAPI + built React, behind a Global Load Balancer with IAP — same codebase as local, only environment variables change
 
+![Portal Overview](assets/portal-overview.png)
+
+*Custom portal — authenticated user, dual-mode search active, ACL enforcement confirmed*
+
 ---
 
 ## Built & Tested With

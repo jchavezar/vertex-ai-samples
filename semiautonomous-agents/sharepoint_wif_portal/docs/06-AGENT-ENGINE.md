@@ -42,6 +42,10 @@ Beyond basic search, the agent provides:
 | **Follow-up Suggestions** | Related questions to explore |
 | **Source Ranking** | Most relevant sources first |
 
+![GE ACL Result](../assets/ge-acl-result.png)
+
+*Gemini Enterprise answering "what is Jennifer's salary?" — answer grounded in SharePoint with ACL citation badges, follow-up suggestions generated automatically*
+
 ---
 
 ## Step 1: Deploy Agent
