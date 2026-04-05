@@ -195,9 +195,6 @@ Select entity types to index:
 4. Enter workforce pool: `locations/global/workforcePools/sharepoint-wif-pool`
 5. Click **Save**
 
-![Identity Provider](../assets/discovery-identity-provider.png)
-
-*WIF pool configured for access control*
 
 ### 3.5 Create Data Connector
 
