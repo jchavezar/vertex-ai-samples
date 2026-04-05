@@ -4,6 +4,8 @@
 
 **Navigation**: [Index](00-INDEX.md) | [01-GCP](01-SETUP-GCP.md) | [02-Entra](02-SETUP-ENTRA.md) | **03-WIF** | [04-Discovery](04-SETUP-DISCOVERY.md) | [08-Agent](08-ADK-AGENT.md)
 
+> **This doc implements [Auth Chain Requirements 2 & 4](00-AUTH-CHAIN.md#requirement-2-two-wif-providers--not-one)** — the two WIF providers with different audiences, and the IAM roles that allow the exchanged token to list datastores and call streamAssist.
+
 ---
 
 ## Prerequisites

@@ -55,6 +55,8 @@ A full-stack enterprise search portal that bridges Microsoft Entra ID identities
 
 > **Note on naming:** Throughout this guide, "Discovery Engine" refers to the underlying GCP API that powers **Gemini Enterprise** (the product your users interact with). It was previously known as Enterprise Search, then Vertex AI Search. The `streamAssist` endpoint is the programmatic interface to the same search capabilities available in the Gemini Enterprise UI.
 
+> **⚠️ Read this before starting:** [`00-AUTH-CHAIN.md`](docs/00-AUTH-CHAIN.md) — The authentication chain (Entra JWT → WIF/STS → `dataStoreSpecs` → SharePoint) is **not documented by the product team** and took significant effort to reverse-engineer. This is the core of the entire solution. Everything else in this guide is scaffolding around it.
+
 By the end of this guide you will have:
 
 - **React + FastAPI custom portal** — MSAL login acquires an Entra JWT; the backend exchanges it for a scoped GCP access token via Workforce Identity Federation (WIF); Gemini Enterprise (Discovery Engine API) runs each query under the user's own identity

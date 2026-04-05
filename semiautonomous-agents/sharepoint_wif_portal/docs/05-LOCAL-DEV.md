@@ -4,6 +4,8 @@
 
 **Navigation**: [Index](00-INDEX.md) | [04-Discovery](04-SETUP-DISCOVERY.md) | **05-Local Dev** | [06-Agent Engine](06-AGENT-ENGINE.md) | [10-Deploy](10-CLOUD-DEPLOYMENT.md)
 
+> **This doc runs the full [Authentication Chain](00-AUTH-CHAIN.md) end-to-end locally** — MSAL login → STS exchange → `dataStoreSpecs` → `streamAssist` against SharePoint. If the chain isn't working, the [failure mode table](00-AUTH-CHAIN.md#failure-mode-reference) is your first stop.
+
 ---
 
 ## Overview

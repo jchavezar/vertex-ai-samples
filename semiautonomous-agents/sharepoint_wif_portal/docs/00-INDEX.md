@@ -10,6 +10,7 @@ For the full reading order, architecture, token flow, and configuration referenc
 
 | # | Document | What It Sets Up |
 |---|----------|-----------------|
+| ⚠️ | [**00-AUTH-CHAIN.md**](00-AUTH-CHAIN.md) | **Read first — the undocumented auth chain that makes everything work** |
 | 01 | [01-SETUP-GCP.md](01-SETUP-GCP.md) | GCP project, APIs, IAM |
 | 02 | [02-SETUP-ENTRA.md](02-SETUP-ENTRA.md) | Microsoft Entra ID app registration |
 | 03 | [03-SETUP-WIF.md](03-SETUP-WIF.md) | WIF pool + two providers |
