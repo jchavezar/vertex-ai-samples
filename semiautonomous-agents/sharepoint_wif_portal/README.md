@@ -34,6 +34,11 @@ flowchart LR
     style P2 fill:#34A853,color:#fff
     style P3 fill:#FBBC04,color:#000
     style P4 fill:#EA4335,color:#fff
+
+    click P1 "https://github.com/jchavezar/vertex-ai-samples/blob/main/semiautonomous-agents/sharepoint_wif_portal/docs/01-SETUP-GCP.md" "Phase 1: GCP Setup"
+    click P2 "https://github.com/jchavezar/vertex-ai-samples/blob/main/semiautonomous-agents/sharepoint_wif_portal/docs/05-LOCAL-DEV.md" "Phase 2: Local Development"
+    click P3 "https://github.com/jchavezar/vertex-ai-samples/blob/main/semiautonomous-agents/sharepoint_wif_portal/docs/08-ADK-AGENT.md" "Phase 3: ADK Agent"
+    click P4 "https://github.com/jchavezar/vertex-ai-samples/blob/main/semiautonomous-agents/sharepoint_wif_portal/docs/10-CLOUD-DEPLOYMENT.md" "Phase 4: Cloud Run"
 ```
 
 | Goal | Phases needed |
