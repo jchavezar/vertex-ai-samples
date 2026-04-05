@@ -1,0 +1,29 @@
+[project]
+name = "sharepoint-wif-portal-agent"
+version = "1.2.0"
+description = "ADK Agent: Internal vs External Insight Comparator - SharePoint + Google Search"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "google-cloud-aiplatform[adk,agent_engines]==1.145.0",
+    "google-cloud-discoveryengine==0.13.12",
+    "google-auth==2.49.1",
+    "requests==2.33.1",
+    "python-dotenv==1.2.2",
+    "httpx==0.28.1",
+]
+
+[tool.setuptools.packages.find]
+include = ["agent*"]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0",
+    "pytest-asyncio>=0.23.0",
+]
+
+[tool.uv]
+dev-dependencies = [
+    "pytest>=8.0.0",
+    "pytest-asyncio>=0.23.0",
+]

@@ -17,6 +17,44 @@ By the end of this guide you will have:
 
 ---
 
+## Built & Tested With
+
+> All library versions are pinned exactly in `pyproject.toml` and `package.json`. Use `uv sync` and `npm ci` to reproduce the exact environment.
+
+**Backend (Python)**
+
+| Library | Version |
+|---------|---------|
+| `fastapi` | 0.135.3 |
+| `google-cloud-aiplatform` | 1.145.0 |
+| `google-auth` | 2.49.1 |
+| `pydantic` | 2.12.5 |
+| `uvicorn` | 0.43.0 |
+| `sse-starlette` | 3.3.4 |
+
+**Agent (Python)**
+
+| Library | Version |
+|---------|---------|
+| `google-cloud-aiplatform[adk,agent_engines]` | 1.145.0 |
+| `google-adk` | 1.28.1 |
+| `google-cloud-discoveryengine` | 0.13.12 |
+| `google-auth` | 2.49.1 |
+| `httpx` | 0.28.1 |
+
+**Frontend (Node)**
+
+| Library | Version |
+|---------|---------|
+| `react` | 19.2.4 |
+| `@azure/msal-browser` | 4.30.0 |
+| `@azure/msal-react` | 3.0.29 |
+| `react-markdown` | 10.1.0 |
+| `vite` | 8.0.3 |
+| `typescript` | 5.9.3 |
+
+---
+
 ## Architecture
 
 ```
