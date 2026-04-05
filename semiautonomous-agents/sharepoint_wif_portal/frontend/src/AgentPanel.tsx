@@ -3,7 +3,7 @@
  * This is a separate add-on that doesn't modify App.tsx
  */
 import { useState, useRef, useEffect } from 'react';
-import { Bot, X, Send, Sparkles, MinusCircle, Cpu, Database, Search, FileText, Zap, BrainCircuit } from 'lucide-react';
+import { X, Send, MinusCircle, Cpu, Database, Search, FileText, Zap, BrainCircuit } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 
