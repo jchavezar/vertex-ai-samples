@@ -1,19 +1,53 @@
 # SharePoint WIF Portal
 
-**Version:** 2.2.0 | **Last Updated:** 2026-04-05
+![Python](https://img.shields.io/badge/Python-3.12+-3776AB?logo=python&logoColor=white)
+![Node](https://img.shields.io/badge/Node-18+-339933?logo=node.js&logoColor=white)
+![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black)
+![FastAPI](https://img.shields.io/badge/FastAPI-0.135-009688?logo=fastapi&logoColor=white)
+![GCP](https://img.shields.io/badge/Google_Cloud-Powered-4285F4?logo=google-cloud&logoColor=white)
+![Version](https://img.shields.io/badge/Version-2.2.0-lightgrey)
 
-## Prerequisites
+![Portal Overview](assets/portal-overview.png)
 
-Before starting, make sure you have:
+*Custom portal — authenticated user, dual-mode search active, ACL enforcement confirmed*
 
-| Requirement | Notes |
-|-------------|-------|
-| **GCP project** with billing enabled | Owner or Editor role |
-| **Microsoft Azure subscription** | With permissions to register Entra apps |
-| **SharePoint Online tenant** | Sites you want to make searchable |
-| **Python 3.12+** | [Download](https://python.org) |
-| **uv** (Python package manager) | `curl -LsSf https://astral.sh/uv/install.sh \| sh` |
-| **Node 18+** | For building the frontend |
+> [!WARNING]
+> **Read [`docs/00-AUTH-CHAIN.md`](docs/00-AUTH-CHAIN.md) before starting setup.**
+> The authentication chain (Entra JWT → WIF/STS → `dataStoreSpecs` → SharePoint) is not documented by the product team and took significant effort to reverse-engineer. Skipping it causes silent failures with no clear error messages — Gemini returns HTTP 200 with plausible-looking answers sourced from its training data, not your SharePoint.
+
+---
+
+## What You're Building
+
+A full-stack enterprise search portal that bridges Microsoft Entra ID identities to Google Cloud — no credential storage, no service account impersonation, per-user SharePoint ACL enforcement at query time.
+
+> **Note on naming:** Throughout this guide, "Discovery Engine" refers to the underlying GCP API that powers **Gemini Enterprise** (the product your users interact with). It was previously known as Enterprise Search, then Vertex AI Search. The `streamAssist` endpoint is the programmatic interface to the same search capabilities available in the Gemini Enterprise UI.
+
+By the end of this guide you will have:
+
+- **React + FastAPI custom portal** — MSAL login acquires an Entra JWT; the backend exchanges it for a scoped GCP access token via Workforce Identity Federation (WIF); Gemini Enterprise (Discovery Engine API) runs each query under the user's own identity
+- **Per-user SharePoint ACL enforcement** — users only see documents they're already permitted to access in SharePoint, enforced by Gemini Enterprise, not by your application logic
+- **InsightComparator ADK agent on Agent Engine** — a single `compare_insights` tool that concurrently searches SharePoint (internal, ACL-aware) and Google Search (public web), then synthesizes a comparison
+- **Production Cloud Run deployment** — single container with nginx + FastAPI + built React, behind a Global Load Balancer with IAP — same codebase as local, only environment variables change
+
+---
+
+## Quick Start
+
+> Full setup requires completing the infrastructure docs first (Entra ID, WIF, Discovery Engine). These commands assume that's done — see [Choose Your Path](#choose-your-path) below.
+
+```bash
+# 1. Configure environment
+cp .env.example .env          # fill in GCP + Entra values
+cp frontend/.env.example frontend/.env   # fill in VITE_CLIENT_ID + VITE_TENANT_ID
+
+# 2. Start backend
+cd backend && uv sync && uv run uvicorn main:app --reload
+
+# 3. Start frontend (new terminal)
+cd frontend && npm install && npm run dev
+# → http://localhost:5173
+```
 
 ---
 
@@ -49,24 +83,16 @@ flowchart LR
 
 ---
 
-## What You're Building
+## Prerequisites
 
-A full-stack enterprise search portal that bridges Microsoft Entra ID identities to Google Cloud — no credential storage, no service account impersonation, per-user SharePoint ACL enforcement at query time.
-
-> **Note on naming:** Throughout this guide, "Discovery Engine" refers to the underlying GCP API that powers **Gemini Enterprise** (the product your users interact with). It was previously known as Enterprise Search, then Vertex AI Search. The `streamAssist` endpoint is the programmatic interface to the same search capabilities available in the Gemini Enterprise UI.
-
-> **⚠️ Read this before starting:** [`00-AUTH-CHAIN.md`](docs/00-AUTH-CHAIN.md) — The authentication chain (Entra JWT → WIF/STS → `dataStoreSpecs` → SharePoint) is **not documented by the product team** and took significant effort to reverse-engineer. This is the core of the entire solution. Everything else in this guide is scaffolding around it.
-
-By the end of this guide you will have:
-
-- **React + FastAPI custom portal** — MSAL login acquires an Entra JWT; the backend exchanges it for a scoped GCP access token via Workforce Identity Federation (WIF); Gemini Enterprise (Discovery Engine API) runs each query under the user's own identity
-- **Per-user SharePoint ACL enforcement** — users only see documents they're already permitted to access in SharePoint, enforced by Gemini Enterprise, not by your application logic
-- **InsightComparator ADK agent on Agent Engine** — a single `compare_insights` tool that concurrently searches SharePoint (internal, ACL-aware) and Google Search (public web), then synthesizes a comparison
-- **Production Cloud Run deployment** — single container with nginx + FastAPI + built React, behind a Global Load Balancer with IAP — same codebase as local, only environment variables change
-
-![Portal Overview](assets/portal-overview.png)
-
-*Custom portal — authenticated user, dual-mode search active, ACL enforcement confirmed*
+| Requirement | Notes |
+|-------------|-------|
+| **GCP project** with billing enabled | Owner or Editor role |
+| **Microsoft Azure subscription** | With permissions to register Entra apps |
+| **SharePoint Online tenant** | Sites you want to make searchable |
+| **Python 3.12+** | [Download](https://python.org) |
+| **uv** (Python package manager) | `curl -LsSf https://astral.sh/uv/install.sh \| sh` |
+| **Node 18+** | For building the frontend |
 
 ---
 
@@ -109,6 +135,9 @@ By the end of this guide you will have:
 ---
 
 ## Architecture
+
+<details>
+<summary>Show full architecture diagram</summary>
 
 ```
 +================================================================================================+
@@ -203,11 +232,16 @@ By the end of this guide you will have:
 +==================================================================================================+
 ```
 
+</details>
+
 ---
 
 ## Documentation
 
 Follow this order. Each phase builds on the previous.
+
+<details>
+<summary>Show documentation flow diagram</summary>
 
 ```
 +===========================================================================+
@@ -236,8 +270,11 @@ Follow this order. Each phase builds on the previous.
 +===========================================================================+
 ```
 
+</details>
+
 | # | Document | Depends On | What It Sets Up |
 |---|----------|------------|-----------------|
+| ⚠️ | [**00-AUTH-CHAIN.md**](docs/00-AUTH-CHAIN.md) | — | **Read first — the undocumented auth chain** |
 | 01 | [01-SETUP-GCP.md](docs/01-SETUP-GCP.md) | — | GCP project, APIs, IAM |
 | 02 | [02-SETUP-ENTRA.md](docs/02-SETUP-ENTRA.md) | 01 | Microsoft Entra ID app registration |
 | 03 | [03-SETUP-WIF.md](docs/03-SETUP-WIF.md) | 01, 02 | WIF pool + two providers |
@@ -253,6 +290,9 @@ Follow this order. Each phase builds on the previous.
 ---
 
 ## Token Flow
+
+<details>
+<summary>Show token flow diagram</summary>
 
 ```
                     CUSTOM PORTAL                              GEMINI ENTERPRISE
@@ -300,58 +340,11 @@ User Login          User Login
 +------------------+  +------------------+
 ```
 
+</details>
+
 > For the full step-by-step sequence diagrams see:
 > - [07-FRONTEND-FEATURES.md](docs/07-FRONTEND-FEATURES.md) — JWT → STS exchange → Discovery Engine → SharePoint (main query) and `/btw` web search flow
 > - [09-AGENT-PANEL.md](docs/09-AGENT-PANEL.md) — JWT passthrough → Agent Engine → parallel SharePoint + Google Search
-
----
-
-## Quick Start
-
-### 1. Prerequisites
-
-```bash
-# Install uv (Python package manager)
-curl -LsSf https://astral.sh/uv/install.sh | sh
-
-# Node 18+ required for frontend
-```
-
-### 2. Configure Environment
-
-```bash
-cp .env.example .env
-# Edit .env with your values (see docs/01-SETUP-GCP.md)
-```
-
-### 3. Run the Portal
-
-```bash
-# Terminal 1: Backend
-cd backend && uv sync && uv run python main.py
-
-# Terminal 2: Frontend
-cd frontend && npm install && npm run dev
-```
-
-Open http://localhost:5173
-
-### 4. Deploy the ADK Agent (Optional)
-
-```bash
-# Test agent locally
-uv run python test_local.py
-
-# Deploy to Agent Engine
-uv run python deploy.py
-
-# Test deployed agent
-uv run python test_remote.py
-
-# Register to Gemini Enterprise
-./scripts/register_auth.sh
-./scripts/register_agent.sh
-```
 
 ---
 
@@ -445,6 +438,9 @@ Two providers are required because Entra issues tokens with different audiences 
 
 ## Testing Workflow
 
+<details>
+<summary>Show testing workflow diagram</summary>
+
 ```
 +---------------------------------------------------------------------+
 |                        TESTING WORKFLOW                              |
@@ -471,6 +467,8 @@ Two providers are required because Entra issues tokens with different audiences 
 +---------------------------------------------------------------------+
 ```
 
+</details>
+
 | Step | Command | Purpose |
 |------|---------|---------|
 | 1 | `uv run python test_local.py` | Test before deployment |
@@ -490,4 +488,4 @@ Two providers are required because Entra issues tokens with different audiences 
 | SharePoint 403 | Check `WIF_PROVIDER_ID=entra-provider` for agent |
 | Agent not visible in GE | Set `sharingConfig.scope = ALL_USERS` |
 | Authorization loop | Add `user_impersonation` scope |
-| No sources returned | Check `dataStoreSpecs` in request |
+| No sources returned | Check `dataStoreSpecs` in request — see [00-AUTH-CHAIN.md](docs/00-AUTH-CHAIN.md) |
