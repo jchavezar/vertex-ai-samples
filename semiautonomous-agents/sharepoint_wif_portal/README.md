@@ -289,6 +289,10 @@ User Login          User Login
 +------------------+  +------------------+
 ```
 
+> For the full step-by-step sequence diagrams see:
+> - [07-FRONTEND-FEATURES.md](docs/07-FRONTEND-FEATURES.md) — JWT → STS exchange → Discovery Engine → SharePoint (main query) and `/btw` web search flow
+> - [09-AGENT-PANEL.md](docs/09-AGENT-PANEL.md) — JWT passthrough → Agent Engine → parallel SharePoint + Google Search
+
 ---
 
 ## Quick Start
