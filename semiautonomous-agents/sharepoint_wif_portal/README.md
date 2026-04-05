@@ -2,6 +2,48 @@
 
 **Version:** 2.2.0 | **Last Updated:** 2026-04-05
 
+## Prerequisites
+
+Before starting, make sure you have:
+
+| Requirement | Notes |
+|-------------|-------|
+| **GCP project** with billing enabled | Owner or Editor role |
+| **Microsoft Azure subscription** | With permissions to register Entra apps |
+| **SharePoint Online tenant** | Sites you want to make searchable |
+| **Python 3.12+** | [Download](https://python.org) |
+| **uv** (Python package manager) | `curl -LsSf https://astral.sh/uv/install.sh \| sh` |
+| **Node 18+** | For building the frontend |
+
+---
+
+## Choose Your Path
+
+Not every deployment needs all four phases. Pick the track that matches your goal.
+
+```mermaid
+flowchart LR
+    P1["Phase 1\nInfrastructure\n(01–04)"]
+
+    P1 --> P2["Phase 2\nCustom Portal\n(05–07)"]
+    P1 --> P3["Phase 3\nADK Agent\n(08–09)"]
+    P2 --> P4["Phase 4\nCloud Run\n(10)"]
+    P3 --> P4
+
+    style P1 fill:#4285F4,color:#fff
+    style P2 fill:#34A853,color:#fff
+    style P3 fill:#FBBC04,color:#000
+    style P4 fill:#EA4335,color:#fff
+```
+
+| Goal | Phases needed |
+|------|--------------|
+| Custom React portal querying SharePoint via WIF | 1 → 2 → 4 |
+| ADK agent available in Gemini Enterprise UI | 1 → 3 |
+| Both portal and agent, production-ready | 1 → 2 → 3 → 4 |
+
+---
+
 ## What You're Building
 
 A full-stack enterprise search portal that bridges Microsoft Entra ID identities to Google Cloud — no credential storage, no service account impersonation, per-user SharePoint ACL enforcement at query time.
