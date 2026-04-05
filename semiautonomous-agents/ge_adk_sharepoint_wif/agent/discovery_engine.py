@@ -77,10 +77,10 @@ class DiscoveryEngineClient:
         Returns:
             Google Cloud access token
         """
-        logger.debug(f"WIF Pool: {self.wif_pool_id}, Provider: {self.wif_provider_id}")
+        print(f"[WIF] Pool: {self.wif_pool_id}, Provider: {self.wif_provider_id}", flush=True)
 
         if not self.wif_pool_id or not self.wif_provider_id:
-            logger.warning("WIF not configured - using service account")
+            print("[WIF] Not configured - using service account", flush=True)
             return self._get_service_credentials()
 
         sts_url = "https://sts.googleapis.com/v1/token"
@@ -88,7 +88,7 @@ class DiscoveryEngineClient:
             f"//iam.googleapis.com/locations/global/workforcePools/{self.wif_pool_id}/"
             f"providers/{self.wif_provider_id}"
         )
-        logger.debug(f"WIF Audience: {audience}")
+        print(f"[WIF] Audience: {audience}", flush=True)
 
         payload = {
             "audience": audience,
@@ -96,24 +96,24 @@ class DiscoveryEngineClient:
             "requestedTokenType": "urn:ietf:params:oauth:token-type:access_token",
             "scope": "https://www.googleapis.com/auth/cloud-platform",
             "subjectToken": microsoft_jwt,
-            # Use id_token type for Microsoft ID tokens
-            "subjectTokenType": "urn:ietf:params:oauth:token-type:id_token"
+            # Use jwt type for Microsoft access tokens (portal sends access_token, not id_token)
+            "subjectTokenType": "urn:ietf:params:oauth:token-type:jwt"
         }
 
         try:
             response = requests.post(sts_url, json=payload, timeout=10)
-            logger.debug(f"WIF STS response status: {response.status_code}")
+            print(f"[WIF] STS response status: {response.status_code}", flush=True)
 
             if response.status_code != 200:
-                logger.error(f"WIF STS error: {response.text[:300]}")
+                print(f"[WIF] STS error: {response.text[:500]}", flush=True)
                 return self._get_service_credentials()
 
             token = response.json().get("access_token")
-            logger.info(f"WIF exchange successful, token length: {len(token) if token else 0}")
+            print(f"[WIF] Exchange SUCCESS, token length: {len(token) if token else 0}", flush=True)
             return token
 
         except Exception as e:
-            logger.error(f"WIF exception: {e}")
+            print(f"[WIF] Exception: {e}", flush=True)
             return self._get_service_credentials()
 
     def _get_dynamic_datastores(self) -> List[Dict[str, str]]:
@@ -229,10 +229,10 @@ class DiscoveryEngineClient:
         """
         # Get access token - try WIF exchange first, fallback to service account
         if user_token and len(user_token) > 50:
-            logger.info(f"[WIF] Attempting token exchange (length: {len(user_token)})")
+            print(f"[SEARCH] Attempting WIF exchange (token length: {len(user_token)})", flush=True)
             access_token = self.exchange_wif_token(user_token)
         else:
-            logger.warning("[WIF] No user token - using service account")
+            print("[SEARCH] No user token - using service account", flush=True)
             access_token = self._get_service_credentials()
 
         headers = {
@@ -243,14 +243,14 @@ class DiscoveryEngineClient:
 
         # CRITICAL: Get dataStoreSpecs for SharePoint grounding
         datastore_specs = self._get_dynamic_datastores()
-        logger.debug(f"Dynamic datastores found: {len(datastore_specs)}")
+        print(f"[DE] Dynamic datastores found: {len(datastore_specs)}", flush=True)
 
         # Fallback to configured datastore
         if not datastore_specs and self.data_store_id:
             datastore_specs = [{
                 "dataStore": f"projects/{self.project_number}/locations/{self.location}/collections/default_collection/dataStores/{self.data_store_id}"
             }]
-            logger.debug(f"Fallback to configured datastore: {self.data_store_id}")
+            print(f"[DE] Fallback to datastore: {self.data_store_id}", flush=True)
 
         # Build streamAssist payload
         # CRITICAL: toolsSpec.vertexAiSearchSpec.dataStoreSpecs is REQUIRED for SharePoint grounding
@@ -276,10 +276,12 @@ class DiscoveryEngineClient:
             f"assistants/default_assistant:streamAssist"
         )
 
-        logger.info(f"Calling Discovery Engine streamAssist: {url}")
+        print(f"[DE] Calling streamAssist: {url}", flush=True)
+        print(f"[DE] Payload: {json.dumps(payload)[:300]}", flush=True)
 
         try:
             response = requests.post(url, headers=headers, json=payload, timeout=60)
+            print(f"[DE] Response status: {response.status_code}", flush=True)
             response.raise_for_status()
 
             resp_json = response.json()

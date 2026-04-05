@@ -51,3 +51,4 @@ test_ui/tokens/
 tmp/
 temp/
 *.tmp
+agent/.env

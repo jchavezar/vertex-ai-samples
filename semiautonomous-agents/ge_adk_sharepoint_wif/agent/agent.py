@@ -1,14 +1,18 @@
 """
-GE ADK SharePoint WIF - Main Agent
-Accesses SharePoint via Discovery Engine with WIF token exchange.
-Token is received from Gemini Enterprise via tool_context.state["temp:{AUTH_ID}"]
+GE ADK SharePoint WIF - InsightComparator Agent
+Compares internal SharePoint documents with external web sources.
+- SharePoint: via Discovery Engine with WIF token exchange
+- Web: via Gemini with Google Search grounding
 """
 import os
 import sys
 import logging
+import requests
 
 from google.adk.agents import Agent
 from google.adk.tools import ToolContext
+import google.auth
+from google.auth.transport.requests import Request as AuthRequest
 
 from .discovery_engine import DiscoveryEngineClient
 
@@ -70,25 +74,37 @@ async def search_sharepoint(query: str, tool_context: ToolContext) -> dict:
     print("=" * 50, flush=True)
 
     # Extract Microsoft JWT from session state
-    # In Agentspace: tokens are at temp:{AUTH_ID} (runtime-injected)
-    # In local testing: tokens are at {AUTH_ID} (stored in session state)
+    # In Agentspace: tokens are at temp:{AUTH_ID} (runtime-injected) in tool_context.state
+    # In SDK calls: tokens are at {AUTH_ID} in invocation_context.session.state
+    # In local testing: tokens are at {AUTH_ID} in tool_context.state
     microsoft_jwt = None
     temp_key = f"temp:{AUTH_ID}"
     local_key = AUTH_ID
 
     try:
-        # Try temp: key first (Agentspace runtime)
+        # Try temp: key first (Agentspace/Gemini Enterprise runtime)
         microsoft_jwt = tool_context.state.get(temp_key)
         if microsoft_jwt:
-            print(f"[TOKEN] Found via '{temp_key}' (length: {len(microsoft_jwt)})", flush=True)
-        else:
-            # Try local key (local testing)
+            print(f"[TOKEN] Found via tool_context.state['{temp_key}'] (length: {len(microsoft_jwt)})", flush=True)
+
+        # Try local key in tool_context.state (local testing)
+        if not microsoft_jwt:
             microsoft_jwt = tool_context.state.get(local_key)
             if microsoft_jwt:
-                print(f"[TOKEN] Found via '{local_key}' (length: {len(microsoft_jwt)})", flush=True)
+                print(f"[TOKEN] Found via tool_context.state['{local_key}'] (length: {len(microsoft_jwt)})", flush=True)
+
+        # Try session.state from invocation_context (SDK/custom UI calls)
+        if not microsoft_jwt and hasattr(tool_context, '_invocation_context'):
+            inv_ctx = tool_context._invocation_context
+            if hasattr(inv_ctx, 'session') and inv_ctx.session and hasattr(inv_ctx.session, 'state'):
+                session_state = inv_ctx.session.state
+                if isinstance(session_state, dict):
+                    microsoft_jwt = session_state.get(local_key)
+                    if microsoft_jwt:
+                        print(f"[TOKEN] Found via session.state['{local_key}'] (length: {len(microsoft_jwt)})", flush=True)
 
         if not microsoft_jwt:
-            print(f"[TOKEN] No token found (tried '{temp_key}' and '{local_key}')", flush=True)
+            print(f"[TOKEN] No token found (tried temp_key, local_key, session.state)", flush=True)
             print("[TOKEN] Using service account fallback", flush=True)
 
     except Exception as e:
@@ -123,29 +139,115 @@ async def search_sharepoint(query: str, tool_context: ToolContext) -> dict:
         return {"error": str(e), "answer": f"Search error: {e}"}
 
 
+async def search_web(query: str, tool_context: ToolContext) -> dict:
+    """
+    Search the public web using Google Search.
+    Uses Gemini with Google Search grounding for external information.
+
+    Args:
+        query: The search query to find relevant web information
+
+    Returns:
+        Search results with answer and source URLs from the web
+    """
+    logger.info(f"[search_web] Query: {query}")
+
+    try:
+        # Get GCP credentials
+        creds, _ = google.auth.default()
+        creds.refresh(AuthRequest())
+        access_token = creds.token
+
+        # Use Gemini with Google Search grounding (global location for Google Search)
+        url = f"https://aiplatform.googleapis.com/v1/projects/{PROJECT_NUMBER}/locations/global/publishers/google/models/gemini-2.5-flash:generateContent"
+
+        response = requests.post(url,
+            headers={"Authorization": f"Bearer {access_token}", "Content-Type": "application/json"},
+            json={
+                "contents": [{"role": "user", "parts": [{"text": f"{query}\n\nProvide a concise, factual answer based on current web information."}]}],
+                "tools": [{"googleSearch": {}}],
+                "generationConfig": {
+                    "maxOutputTokens": 800,
+                    "temperature": 0.7
+                }
+            },
+            timeout=30
+        )
+
+        if response.status_code == 200:
+            data = response.json()
+            candidate = data.get("candidates", [{}])[0]
+
+            # Extract text
+            parts = candidate.get("content", {}).get("parts", [])
+            answer = ""
+            for part in parts:
+                if part.get("text"):
+                    answer += part.get("text", "")
+
+            # Extract Google Search sources
+            sources = []
+            grounding = candidate.get("groundingMetadata", {})
+            for chunk in grounding.get("groundingChunks", []):
+                web = chunk.get("web", {})
+                if web.get("uri") and web.get("title"):
+                    sources.append({
+                        "title": web.get("title", ""),
+                        "url": web.get("uri", "")
+                    })
+
+            return {
+                "answer": answer.strip() if answer else "No web results found.",
+                "source_count": len(sources),
+                "sources": sources[:5]
+            }
+        else:
+            logger.error(f"[search_web] API error: {response.status_code}")
+            return {"error": f"Web search failed: {response.status_code}", "answer": "Web search unavailable."}
+
+    except Exception as e:
+        logger.error(f"[search_web] Error: {e}")
+        return {"error": str(e), "answer": f"Web search error: {e}"}
+
+
 # Agent definition
 root_agent = Agent(
-    name="SharePointAssistant",
-    model="gemini-2.5-flash-lite",
-    description="AI Assistant with access to SharePoint documents via Discovery Engine",
-    instruction="""You are a SharePoint Document Assistant.
+    name="InsightComparator",
+    model="gemini-2.5-flash",
+    description="AI Agent that compares internal SharePoint documents with external web sources",
+    instruction="""You are InsightComparator - an AI agent that provides comprehensive insights by comparing INTERNAL company documents with EXTERNAL web information.
 
-**CRITICAL RULE: For EVERY user question, you MUST call the search_sharepoint tool FIRST.**
+**YOUR WORKFLOW:**
+1. ALWAYS call `search_sharepoint` FIRST to find internal company information
+2. THEN call `search_web` to find external/public information on the same topic
+3. COMPARE and SYNTHESIZE both sources in your response
 
-Do NOT respond directly. Do NOT try to answer from general knowledge.
-ALWAYS call `search_sharepoint` with the user's question as the query.
+**RESPONSE FORMAT:**
+After gathering both internal and external data, structure your response as:
 
-After receiving the search results:
-1. Present the answer from the search results
-2. Include source document titles and links
-3. If no results found, say so - do NOT make up information
+**Internal Insights (SharePoint):**
+[Summary of what you found in company documents]
+
+**External Context (Web):**
+[Summary of relevant public information]
+
+**Comparison & Analysis:**
+[How internal data compares to external benchmarks/information]
+
+**IMPORTANT RULES:**
+- NEVER skip the SharePoint search - internal data comes first
+- ALWAYS provide the web search for external context
+- Clearly distinguish between internal (confidential) and external (public) sources
+- If internal data is sensitive, note that external sources are for context only
+- Include source links from both searches
 
 Example:
-User: "What is the CEO salary?"
-You: [Call search_sharepoint with query="What is the CEO salary?"]
-Then: Present the results from the tool.
+User: "What is Jennifer's salary?"
+1. Call search_sharepoint("Jennifer salary")
+2. Call search_web("CFO salary benchmarks 2024")
+3. Compare: "Jennifer earns $625K as CFO. Industry benchmark for CFOs is $500-800K..."
 """,
-    tools=[search_sharepoint]
+    tools=[search_sharepoint, search_web]
 )
 
 

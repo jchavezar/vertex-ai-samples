@@ -223,48 +223,28 @@ async def get_session(session_id: str, request: Request):
     }
 
 
-@app.post("/api/chat")
-async def chat(request: Request, body: ChatRequest):
-    """Send a message in a conversation."""
-    token = request.headers.get("X-Entra-Id-Token")
-
-    print(f"[DEBUG] Query: {body.query[:50]}...")
-    print(f"[DEBUG] SharePoint Only: {body.sharepoint_only}")
-    print(f"[DEBUG] Session ID: {body.session_id[:50] if body.session_id else 'None'}...")
-    print(f"[DEBUG] Token present: {bool(token)}, length: {len(token) if token else 0}")
-
-    # Save token for debugging
-    if token:
-        with open("/tmp/entra_token.txt", "w") as f:
-            f.write(token)
-
-    gcp_token = exchange_token(token) if token else None
-    print(f"[DEBUG] GCP Token: {bool(gcp_token)}")
-
-    if not gcp_token:
-        return {"answer": "Please login with Microsoft to chat.", "sources": [], "session_id": None}
-
+def _do_chat_sync(gcp_token: str, query: str, session_id: str | None, sharepoint_only: bool):
+    """Synchronous chat logic - runs in thread pool to not block event loop."""
     # Create session if not provided
-    session_id = body.session_id
     if not session_id:
         create_resp = requests.post(
             f"{BASE_URL}/sessions",
             headers={"Authorization": f"Bearer {gcp_token}", "Content-Type": "application/json"},
-            json={"displayName": body.query[:30]},
+            json={"displayName": query[:30]},
             timeout=10
         )
         if create_resp.ok:
             session_id = create_resp.json().get("name")
 
     # Build payload
-    payload = {"query": {"text": body.query}}
+    payload = {"query": {"text": query}}
 
     # Add session for conversation continuity
     if session_id:
         payload["session"] = session_id
 
     # Restrict to SharePoint datastore when enabled
-    if body.sharepoint_only:
+    if sharepoint_only:
         payload["toolsSpec"] = {
             "vertexAiSearchSpec": {
                 "dataStoreSpecs": [{
@@ -313,6 +293,36 @@ async def chat(request: Request, body: ChatRequest):
     }
 
 
+@app.post("/api/chat")
+async def chat(request: Request, body: ChatRequest):
+    """Send a message in a conversation."""
+    import asyncio
+
+    token = request.headers.get("X-Entra-Id-Token")
+
+    print(f"[DEBUG] Query: {body.query[:50]}...")
+    print(f"[DEBUG] SharePoint Only: {body.sharepoint_only}")
+    print(f"[DEBUG] Session ID: {body.session_id[:50] if body.session_id else 'None'}...")
+    print(f"[DEBUG] Token present: {bool(token)}, length: {len(token) if token else 0}")
+
+    # Save token for debugging
+    if token:
+        with open("/tmp/entra_token.txt", "w") as f:
+            f.write(token)
+
+    gcp_token = exchange_token(token) if token else None
+    print(f"[DEBUG] GCP Token: {bool(gcp_token)}")
+
+    if not gcp_token:
+        return {"answer": "Please login with Microsoft to chat.", "sources": [], "session_id": None}
+
+    # Run blocking requests in thread pool - DOES NOT BLOCK event loop
+    # This allows /api/quick to be processed while this is running
+    return await asyncio.to_thread(
+        _do_chat_sync, gcp_token, body.query, body.session_id, body.sharepoint_only
+    )
+
+
 # Keep old endpoint for backwards compatibility
 @app.post("/api/search")
 async def search(request: Request, body: ChatRequest):
@@ -325,17 +335,31 @@ class QuickAskRequest(BaseModel):
     context: str = ""  # Previous conversation context
 
 
+# Module-level cached credentials for /api/quick
+_cached_creds = None
+_cached_creds_lock = None
+
+def _get_gcp_token_sync():
+    """Get GCP token synchronously (for thread pool)."""
+    import google.auth
+    from google.auth.transport.requests import Request as AuthRequest
+    global _cached_creds
+    if _cached_creds is None:
+        _cached_creds, _ = google.auth.default()
+    if not _cached_creds.valid:
+        _cached_creds.refresh(AuthRequest())
+    return _cached_creds.token
+
+
 @app.post("/api/quick")
 async def quick_ask(request: Request, body: QuickAskRequest):
     """Quick response using Gemini 3.1 Flash Lite with Google Search grounding."""
+    import asyncio
     import httpx
-    import google.auth
-    from google.auth.transport.requests import Request as AuthRequest
 
     try:
-        creds, _ = google.auth.default()
-        creds.refresh(AuthRequest())
-        access_token = creds.token
+        # Run blocking auth in thread pool to avoid blocking event loop
+        access_token = await asyncio.to_thread(_get_gcp_token_sync)
     except Exception as e:
         return {"answer": f"Auth error: {e}", "quick": True, "sources": []}
 
@@ -396,6 +420,34 @@ async def quick_ask(request: Request, body: QuickAskRequest):
             print(f"[Quick] Error: {e}")
 
     return {"answer": "Quick response unavailable.", "quick": True, "sources": []}
+
+
+class AgentRequest(BaseModel):
+    query: str
+
+
+@app.post("/api/agent")
+async def agent_query(request: Request, body: AgentRequest):
+    """Query the InsightComparator agent via Agent Engine SDK with Microsoft JWT."""
+    import asyncio
+    from agent_client import get_agent_client
+
+    # Get Microsoft Entra ID token (NOT exchanged - agent does its own WIF exchange)
+    microsoft_jwt = request.headers.get("X-Entra-Id-Token")
+    user_id = "anonymous"
+
+    if microsoft_jwt:
+        user_id = "authenticated_user"
+        print(f"[Agent] Passing Microsoft JWT to agent (length: {len(microsoft_jwt)})")
+
+    try:
+        client = get_agent_client()
+        # Run blocking agent query in thread pool, pass Microsoft JWT for session state
+        response = await asyncio.to_thread(client.query, body.query, user_id, microsoft_jwt)
+        return {"answer": response, "agent": True}
+    except Exception as e:
+        print(f"[Agent] Error: {e}")
+        return {"error": str(e), "agent": True}
 
 
 if __name__ == "__main__":

@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { flushSync } from 'react-dom';
 import { useMsal, useIsAuthenticated } from '@azure/msal-react';
 import { loginRequest } from './authConfig';
 import ReactMarkdown from 'react-markdown';
@@ -226,34 +227,39 @@ function App() {
       .then(r => r.json())
       .then(data => {
         const latency = Math.round(performance.now() - quickStart);
-        setConversations(prev => prev.map(conv => {
-          if (conv.id === convId) {
-            return {
-              ...conv,
-              messages: conv.messages.map(m =>
-                m.id === `${msgId}-response`
-                  ? { ...m, content: data.answer || 'No response', sources: data.sources || [], latencyMs: latency, isLoading: false }
-                  : m
-              )
-            };
-          }
-          return conv;
-        }));
+        // Use flushSync to force IMMEDIATE render - don't wait for main chat
+        flushSync(() => {
+          setConversations(prev => prev.map(conv => {
+            if (conv.id === convId) {
+              return {
+                ...conv,
+                messages: conv.messages.map(m =>
+                  m.id === `${msgId}-response`
+                    ? { ...m, content: data.answer || 'No response', sources: data.sources || [], latencyMs: latency, isLoading: false }
+                    : m
+                )
+              };
+            }
+            return conv;
+          }));
+        });
       })
       .catch(() => {
-        setConversations(prev => prev.map(conv => {
-          if (conv.id === convId) {
-            return {
-              ...conv,
-              messages: conv.messages.map(m =>
-                m.id === `${msgId}-response`
-                  ? { ...m, content: 'Quick response failed', isLoading: false }
-                  : m
-              )
-            };
-          }
-          return conv;
-        }));
+        flushSync(() => {
+          setConversations(prev => prev.map(conv => {
+            if (conv.id === convId) {
+              return {
+                ...conv,
+                messages: conv.messages.map(m =>
+                  m.id === `${msgId}-response`
+                    ? { ...m, content: 'Quick response failed', isLoading: false }
+                    : m
+                )
+              };
+            }
+            return conv;
+          }));
+        });
       });
   };
 
@@ -467,14 +473,6 @@ function App() {
         <div className="chat-container">
           {activeConversation?.messages.length === 0 ? (
             <div className="welcome-screen">
-              <div className="meteor-field">
-                <div className="meteor m1"></div>
-                <div className="meteor m2"></div>
-                <div className="meteor m3"></div>
-                <div className="meteor m4"></div>
-                <div className="meteor m5"></div>
-                <div className="aurora"></div>
-              </div>
               <h1 className="hero-title">Enterprise Search Chat</h1>
               <p>Ask questions about your SharePoint documents. Use <code>/btw</code> for quick questions while waiting!</p>
               <div className="quick-prompts">
@@ -555,22 +553,42 @@ function App() {
 
           <div className="input-container">
             <form onSubmit={handleSend} className="chat-form">
-              <input
-                ref={inputRef}
-                type="text"
-                placeholder={isLoading ? "Type /btw for quick questions while waiting..." : "Ask about your SharePoint documents..."}
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                className="chat-input"
-              />
+              <div className="input-wrapper">
+                <input
+                  ref={inputRef}
+                  type="text"
+                  placeholder={isLoading ? "Type /btw for quick questions while waiting..." : "Ask about your SharePoint documents..."}
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  className={`chat-input ${query.startsWith('/btw') ? 'has-command' : ''}`}
+                />
+                {/* Command indicator badge */}
+                {query.startsWith('/btw') && (
+                  <span className="cmd-badge">QUICK</span>
+                )}
+              </div>
               <button type="submit" className="send-btn" disabled={!query.trim()}>
                 {query.startsWith('/btw ') ? <Zap size={18} /> : <Send size={18} />}
               </button>
             </form>
-            <div className={`input-hint ${isLoading ? 'visible' : ''}`}>
-              <Zap size={12} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 4 }} />
-              <span>Type <kbd>/btw</kbd> for instant Gemini response</span>
-            </div>
+
+            {/* Autocomplete dropdown for /btw - shows below input */}
+            {query === '/' || query === '/b' || query === '/bt' || query === '/btw' ? (
+              <div className="autocomplete-dropdown">
+                <div
+                  className="autocomplete-item"
+                  onClick={() => { setQuery('/btw '); inputRef.current?.focus(); }}
+                >
+                  <span className="autocomplete-cmd">/btw</span>
+                  <span className="autocomplete-desc">Ask a quick side question without interrupting the main conversation</span>
+                </div>
+              </div>
+            ) : (
+              <div className={`input-hint ${isLoading ? 'visible' : ''}`}>
+                <Zap size={12} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 4 }} />
+                <span>Type <kbd>/btw</kbd> for instant Gemini response</span>
+              </div>
+            )}
           </div>
         </div>
       </main>
