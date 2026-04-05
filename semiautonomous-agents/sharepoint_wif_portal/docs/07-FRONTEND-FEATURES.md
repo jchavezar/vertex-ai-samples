@@ -71,6 +71,13 @@ sequenceDiagram
 - **Grounded**: All answers cite SharePoint sources
 - **Latency**: 10-25 seconds (complex reasoning)
 
+> **Code:**
+> - [`frontend/src/App.tsx#L317`](https://github.com/jchavezar/vertex-ai-samples/blob/main/semiautonomous-agents/sharepoint_wif_portal/frontend/src/App.tsx#L317) — `fetch('/api/chat')` with `X-Entra-Id-Token` header
+> - [`backend/main.py#L297`](https://github.com/jchavezar/vertex-ai-samples/blob/main/semiautonomous-agents/sharepoint_wif_portal/backend/main.py#L297) — `/api/chat` endpoint
+> - [`backend/main.py#L44`](https://github.com/jchavezar/vertex-ai-samples/blob/main/semiautonomous-agents/sharepoint_wif_portal/backend/main.py#L44) — `exchange_token()` Entra JWT → GCP token via STS
+> - [`backend/main.py#L226`](https://github.com/jchavezar/vertex-ai-samples/blob/main/semiautonomous-agents/sharepoint_wif_portal/backend/main.py#L226) — `_do_chat_sync()` streamAssist call
+> - [`agent/discovery_engine.py#L254`](https://github.com/jchavezar/vertex-ai-samples/blob/main/semiautonomous-agents/sharepoint_wif_portal/agent/discovery_engine.py#L254) — `streamAssist` API request
+
 ### 2. `/btw` Quick Query (Web Grounded)
 
 For instant web search while main query processes.
@@ -100,11 +107,21 @@ sequenceDiagram
 - **Async**: Runs in parallel with main queries
 - **No Auth Required**: Uses service account
 
+> **Code:**
+> - [`frontend/src/App.tsx#L222`](https://github.com/jchavezar/vertex-ai-samples/blob/main/semiautonomous-agents/sharepoint_wif_portal/frontend/src/App.tsx#L222) — async `fetch('/api/quick')` (does not block main query)
+> - [`backend/main.py#L355`](https://github.com/jchavezar/vertex-ai-samples/blob/main/semiautonomous-agents/sharepoint_wif_portal/backend/main.py#L355) — `/api/quick` endpoint
+
 ---
 
 ## UI Components
 
 ### Authentication Overlay
+
+> **Code:**
+> - [`frontend/src/authConfig.ts#L16`](https://github.com/jchavezar/vertex-ai-samples/blob/main/semiautonomous-agents/sharepoint_wif_portal/frontend/src/authConfig.ts#L16) — `msalConfig` (clientId, authority)
+> - [`frontend/src/authConfig.ts#L31`](https://github.com/jchavezar/vertex-ai-samples/blob/main/semiautonomous-agents/sharepoint_wif_portal/frontend/src/authConfig.ts#L31) — `loginRequest` scopes (`user_impersonation`)
+> - [`frontend/src/App.tsx#L128`](https://github.com/jchavezar/vertex-ai-samples/blob/main/semiautonomous-agents/sharepoint_wif_portal/frontend/src/App.tsx#L128) — `acquireTokenSilent` → token refresh
+> - [`frontend/src/App.tsx#L175`](https://github.com/jchavezar/vertex-ai-samples/blob/main/semiautonomous-agents/sharepoint_wif_portal/frontend/src/App.tsx#L175) — `loginPopup` fallback
 
 When not authenticated, the UI displays a full-screen overlay with blurred background prompting users to sign in:
 

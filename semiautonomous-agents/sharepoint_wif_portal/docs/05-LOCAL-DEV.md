@@ -54,6 +54,12 @@ This works because:
 - **Local**: Vite proxy intercepts `/api/*` → forwards to `localhost:8000`
 - **Production**: nginx proxy intercepts `/api/*` → forwards to `127.0.0.1:8000`
 
+> **Code:**
+> - [`frontend/src/App.tsx#L317`](https://github.com/jchavezar/vertex-ai-samples/blob/main/semiautonomous-agents/sharepoint_wif_portal/frontend/src/App.tsx#L317) — `/api/chat` fetch
+> - [`frontend/src/App.tsx#L222`](https://github.com/jchavezar/vertex-ai-samples/blob/main/semiautonomous-agents/sharepoint_wif_portal/frontend/src/App.tsx#L222) — `/api/quick` fetch
+> - [`frontend/vite.config.ts#L8`](https://github.com/jchavezar/vertex-ai-samples/blob/main/semiautonomous-agents/sharepoint_wif_portal/frontend/vite.config.ts#L8) — Vite proxy (`/api/*` → `localhost:8000`)
+> - [`deploy/nginx.conf`](https://github.com/jchavezar/vertex-ai-samples/blob/main/semiautonomous-agents/sharepoint_wif_portal/deploy/nginx.conf) — nginx proxy (`/api/*` → `127.0.0.1:8000`)
+
 ### Pattern 2: Proxy Layer Abstraction
 
 ```mermaid
@@ -394,6 +400,11 @@ FRONTEND_PORT=5173
 ---
 
 ## Step 2: Start Backend
+
+> **Code:**
+> - [`backend/main.py#L44`](https://github.com/jchavezar/vertex-ai-samples/blob/main/semiautonomous-agents/sharepoint_wif_portal/backend/main.py#L44) — `exchange_token()` Entra JWT → GCP token via STS
+> - [`backend/main.py#L297`](https://github.com/jchavezar/vertex-ai-samples/blob/main/semiautonomous-agents/sharepoint_wif_portal/backend/main.py#L297) — `/api/chat` endpoint (main search + WIF)
+> - [`backend/main.py#L355`](https://github.com/jchavezar/vertex-ai-samples/blob/main/semiautonomous-agents/sharepoint_wif_portal/backend/main.py#L355) — `/api/quick` endpoint (Gemini + Google Search)
 
 ```bash
 cd backend

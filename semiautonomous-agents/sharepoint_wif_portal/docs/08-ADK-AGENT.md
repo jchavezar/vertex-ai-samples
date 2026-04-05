@@ -35,6 +35,13 @@
 
 Deploys InsightComparator to Agent Engine — a single `compare_insights` tool that runs SharePoint (ACL-aware, via WIF) and Google Search concurrently, then synthesizes both into a structured comparison.
 
+> **Code:**
+> - [`agent/agent.py#L141`](https://github.com/jchavezar/vertex-ai-samples/blob/main/semiautonomous-agents/sharepoint_wif_portal/agent/agent.py#L141) — `compare_insights()` tool definition
+> - [`agent/agent.py#L44`](https://github.com/jchavezar/vertex-ai-samples/blob/main/semiautonomous-agents/sharepoint_wif_portal/agent/agent.py#L44) — `_detect_auth_id()` JWT extraction from `tool_context.state`
+> - [`agent/agent.py#L212`](https://github.com/jchavezar/vertex-ai-samples/blob/main/semiautonomous-agents/sharepoint_wif_portal/agent/agent.py#L212) — `root_agent` definition (model, tools, instructions)
+> - [`agent/discovery_engine.py#L103`](https://github.com/jchavezar/vertex-ai-samples/blob/main/semiautonomous-agents/sharepoint_wif_portal/agent/discovery_engine.py#L103) — WIF/STS token exchange inside agent
+> - [`agent/discovery_engine.py#L254`](https://github.com/jchavezar/vertex-ai-samples/blob/main/semiautonomous-agents/sharepoint_wif_portal/agent/discovery_engine.py#L254) — `streamAssist` API call with user identity
+
 ```mermaid
 flowchart TB
     subgraph Agent["InsightComparator Agent (gemini-2.5-flash-lite)"]

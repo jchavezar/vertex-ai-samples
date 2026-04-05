@@ -90,6 +90,12 @@ sequenceDiagram
 
 ### Backend: `/api/agent` Endpoint
 
+> **Code:**
+> - [`backend/main.py#L430`](https://github.com/jchavezar/vertex-ai-samples/blob/main/semiautonomous-agents/sharepoint_wif_portal/backend/main.py#L430) — `/api/agent` endpoint
+> - [`backend/main.py#L437`](https://github.com/jchavezar/vertex-ai-samples/blob/main/semiautonomous-agents/sharepoint_wif_portal/backend/main.py#L437) — `X-Entra-Id-Token` extracted and passed to agent session state
+> - [`frontend/src/AgentPanel.tsx#L38`](https://github.com/jchavezar/vertex-ai-samples/blob/main/semiautonomous-agents/sharepoint_wif_portal/frontend/src/AgentPanel.tsx#L38) — `AgentPanel` component
+> - [`frontend/src/AgentPanel.tsx#L110`](https://github.com/jchavezar/vertex-ai-samples/blob/main/semiautonomous-agents/sharepoint_wif_portal/frontend/src/AgentPanel.tsx#L110) — `fetch('/api/agent')` call
+
 **File:** `backend/main.py`
 
 ```python
