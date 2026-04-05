@@ -36,6 +36,10 @@ token.json
 # Browser Data & Cache
 **/browser_data/
 
+# IDE & CLI tool configs (local only)
+**/.gemini/
+**/.claude/
+
 # Archived Scripts
 scripts_archive/
 
