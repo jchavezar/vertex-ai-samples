@@ -22,9 +22,14 @@
 |   +-----------+     +-----------+     +-----------+                       |
 |                                                                            |
 |   PHASE 3: AGENT INTEGRATION                                              |
-|   +-----------+     +-----------+     +-----------+                       |
-|   | 08-AGENT  | --> | 09-PANEL  | --> |  TESTING  |                       |
-|   +-----------+     +-----------+     +-----------+                       |
+|   +-----------+     +-----------+                                          |
+|   | 08-AGENT  | --> | 09-PANEL  |                                          |
+|   +-----------+     +-----------+                                          |
+|                                                                            |
+|   PHASE 4: PRODUCTION DEPLOYMENT                                          |
+|   +-----------+     +-----------+                                          |
+|   | 10-DEPLOY | --> |  TESTING  |                                          |
+|   +-----------+     +-----------+                                          |
 |                                                                            |
 +===========================================================================+
 ```
@@ -44,7 +49,8 @@
 | 07 | [07-FRONTEND-FEATURES.md](07-FRONTEND-FEATURES.md) | 05-06 | Chat, /btw, sessions |
 | 08 | [08-ADK-AGENT.md](08-ADK-AGENT.md) | 01-04 | Deploy InsightComparator agent |
 | 09 | [09-AGENT-PANEL.md](09-AGENT-PANEL.md) | 05, 08 | Add Agent Panel to custom UI |
-| - | [TESTING.md](TESTING.md) | 09 | Full testing workflow |
+| 10 | [10-CLOUD-DEPLOYMENT.md](10-CLOUD-DEPLOYMENT.md) | 01-09 | Cloud Run + GLB + IAP |
+| - | [TESTING.md](TESTING.md) | 10 | Full testing workflow |
 
 ---
 
