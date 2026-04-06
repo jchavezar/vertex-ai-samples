@@ -17,6 +17,24 @@
 
 ---
 
+## Contents
+
+- [What You're Building](#what-youre-building)
+- [Quick Start](#quick-start)
+- [Choose Your Path](#choose-your-path)
+- [Prerequisites](#prerequisites)
+- [Built & Tested With](#built--tested-with)
+- [Architecture](#architecture)
+- [Documentation](#documentation)
+- [Token Flow](#token-flow)
+- [Project Structure](#project-structure)
+- [Backend API](#backend-api)
+- [Configuration](#configuration)
+- [Testing Workflow](#testing-workflow)
+- [Troubleshooting](#troubleshooting)
+
+---
+
 ## What You're Building
 
 A full-stack enterprise search portal that bridges Microsoft Entra ID identities to Google Cloud — no credential storage, no service account impersonation, per-user SharePoint ACL enforcement at query time.
