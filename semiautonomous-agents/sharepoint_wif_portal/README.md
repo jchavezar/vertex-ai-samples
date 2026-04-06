@@ -16,7 +16,15 @@
 
 *Authenticated portal — zero credential storage, per-user SharePoint ACLs, concurrent search*
 
-![Portal demo: query → thinking → SharePoint results with citations → agent panel](assets/portal-demo.gif)
+![Portal demo: query → thinking → SharePoint results with citations](assets/portal-demo.gif)
+
+<details>
+<summary>See Agent Panel demo (compares SharePoint + Web data)</summary>
+
+![Agent demo: InsightComparator comparing internal SharePoint data with web research](assets/portal-agent-demo.gif)
+*InsightComparator agent searches both SharePoint (internal) and Google (web) in parallel*
+
+</details>
 
 > [!WARNING]
 > **Read [`docs/00-AUTH-CHAIN.md`](docs/00-AUTH-CHAIN.md) before starting setup.**
@@ -60,6 +68,9 @@ A full-stack enterprise search portal that bridges Microsoft Entra ID identities
 👤 **Per-user ACL enforcement** — SharePoint permissions enforced at query time by Gemini Enterprise, not by your application logic
 
 ⚡ **Concurrent search** — InsightComparator ADK agent searches SharePoint (internal, ACL-aware) and Google (public web) in parallel, then synthesizes both
+
+![/btw demo: instant Gemini response while SharePoint query is still processing](assets/portal-btw-demo.gif)
+*Use `/btw` for instant answers while waiting for SharePoint results*
 
 ☁️ **Deploy anywhere** — same codebase runs locally and on Cloud Run behind GLB + IAP; only environment variables change
 
