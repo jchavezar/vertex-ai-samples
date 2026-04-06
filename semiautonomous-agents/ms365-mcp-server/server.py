@@ -74,6 +74,7 @@ from tools.sharepoint import (
     download_file,
     create_folder,
     search_files,
+    search_content,
 )
 
 
@@ -173,14 +174,27 @@ def sp_create_folder(drive_id: str, parent_path: str, folder_name: str) -> str:
 @mcp.tool()
 def sp_search_files(query: str, drive_id: str = "", limit: int = 25) -> str:
     """
-    Search for files across SharePoint and OneDrive.
+    Search for files across SharePoint and OneDrive by file name.
 
     Args:
-        query: Search query (file name, content, etc.)
+        query: Search query (file name)
         drive_id: Optional drive ID to limit search scope, or 'me' for OneDrive only
         limit: Maximum number of results (default 25)
     """
     return search_files(query, drive_id or None, limit)
+
+
+@mcp.tool()
+def sp_search_content(query: str, limit: int = 10) -> str:
+    """
+    Search within document content across SharePoint and OneDrive.
+    Finds text inside documents (PDFs, Word docs, etc.) not just file names.
+
+    Args:
+        query: Text to search for within document content
+        limit: Maximum number of results (default 10)
+    """
+    return search_content(query, limit)
 
 
 # ============================================================

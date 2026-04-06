@@ -363,3 +363,77 @@ def search_files(query: str, drive_id: Optional[str] = None, limit: int = 25) ->
     except Exception as e:
         logger.error(f"[SharePoint] Search failed: {e}")
         return f"Error: {str(e)}"
+
+
+def search_content(query: str, limit: int = 10) -> str:
+    """
+    Search within document content across SharePoint and OneDrive.
+    Uses Microsoft Graph Search API to find text inside documents.
+
+    Args:
+        query: Search query to find within document content
+        limit: Maximum number of results (default 10)
+    """
+    try:
+        if not query or query.strip() == "":
+            return "Error: Please provide a search term."
+
+        client = get_graph_client()
+
+        # Use the Search API to search within document content
+        search_request = {
+            "requests": [
+                {
+                    "entityTypes": ["driveItem"],
+                    "query": {
+                        "queryString": query
+                    },
+                    "from": 0,
+                    "size": limit,
+                    "fields": [
+                        "name",
+                        "webUrl",
+                        "lastModifiedDateTime",
+                        "createdBy",
+                        "size"
+                    ]
+                }
+            ]
+        }
+
+        result = client.post("/search/query", json_data=search_request)
+
+        hits = []
+        for response in result.get("value", []):
+            for hit_container in response.get("hitsContainers", []):
+                hits.extend(hit_container.get("hits", []))
+
+        if not hits:
+            return f"No content found matching: '{query}'"
+
+        output = f"## Content Search Results for '{query}'\n\n"
+        output += f"*Found {len(hits)} document(s) containing this text*\n\n"
+
+        for i, hit in enumerate(hits, 1):
+            resource = hit.get("resource", {})
+            name = resource.get("name", "Unknown")
+            web_url = resource.get("webUrl", "")
+            modified = resource.get("lastModifiedDateTime", "")[:10] if resource.get("lastModifiedDateTime") else "N/A"
+
+            # Get summary/snippet if available
+            summary = hit.get("summary", "")
+
+            output += f"### {i}. {name}\n"
+            output += f"- **URL**: {web_url}\n"
+            output += f"- **Modified**: {modified}\n"
+            if summary:
+                output += f"- **Snippet**: {summary}\n"
+            output += "\n"
+
+        return output
+
+    except GraphAPIError as e:
+        return f"Error searching content: {e}"
+    except Exception as e:
+        logger.error(f"[SharePoint] Content search failed: {e}")
+        return f"Error: {str(e)}"

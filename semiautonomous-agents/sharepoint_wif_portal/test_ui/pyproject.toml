@@ -1,0 +1,12 @@
+[project]
+name = "insight-comparator-test-ui"
+version = "1.0.0"
+description = "Test UI for InsightComparator agent - login and test with real JWT"
+requires-python = ">=3.11"
+dependencies = [
+    "fastapi>=0.115.0",
+    "uvicorn>=0.34.0",
+    "python-dotenv>=1.0.0",
+    "google-cloud-aiplatform[adk,agent_engines]>=1.88.0",
+    "pydantic>=2.0.0",
+]
