@@ -1,5 +1,7 @@
 # SharePoint WIF Portal
 
+> *Zero credential storage. Per-user SharePoint ACLs. One auth chain nobody documented.*
+
 ![Python](https://img.shields.io/badge/Python-3.12+-3776AB?logo=python&logoColor=white)
 ![Node](https://img.shields.io/badge/Node-18+-339933?logo=node.js&logoColor=white)
 ![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black)
