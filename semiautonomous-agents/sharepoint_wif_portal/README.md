@@ -381,29 +381,9 @@ sharepoint_wif_portal/
 
 ---
 
-## Key Configuration
+## Configuration
 
-### Environment Variables
-
-| Variable | Purpose | Source |
-|----------|---------|--------|
-| `PROJECT_ID` | GCP project ID | GCP Console |
-| `PROJECT_NUMBER` | GCP project number | GCP Console |
-| `ENGINE_ID` | Discovery Engine ID | Discovery Engine |
-| `DATA_STORE_ID` | SharePoint datastore | Discovery Engine |
-| `WIF_POOL_ID` | Workforce pool ID | WIF Console |
-| `WIF_PROVIDER_ID` | `entra-provider` for agent | WIF Console |
-| `OAUTH_CLIENT_ID` | Entra app client ID | Azure Portal |
-| `TENANT_ID` | Entra tenant ID | Azure Portal |
-
-### WIF Providers
-
-Two providers are required because Entra issues tokens with different audiences depending on the flow.
-
-| Provider | Audience | Used By |
-|----------|----------|---------|
-| `ge-login-provider` | `{client-id}` | GE user login (ID token) |
-| `entra-provider` | `api://{client-id}` | Agent WIF exchange (access token) |
+See [`.env.example`](.env.example) for all variables. Full details in [03-SETUP-WIF.md](docs/03-SETUP-WIF.md) (WIF providers) and [05-LOCAL-DEV.md](docs/05-LOCAL-DEV.md) (environment setup).
 
 ---
 
