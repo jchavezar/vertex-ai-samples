@@ -1319,14 +1319,14 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "fastapi", extras = ["standard"], specifier = ">=0.135.3" },
-    { name = "google-auth", specifier = ">=2.49.1" },
-    { name = "google-cloud-aiplatform", specifier = ">=1.50.0" },
-    { name = "pydantic", specifier = ">=2.12.5" },
-    { name = "python-dotenv", specifier = ">=1.2.2" },
-    { name = "requests", specifier = ">=2.33.1" },
-    { name = "sse-starlette", specifier = ">=2.2.1" },
-    { name = "uvicorn", specifier = ">=0.34.1" },
+    { name = "fastapi", extras = ["standard"], specifier = "==0.135.3" },
+    { name = "google-auth", specifier = "==2.49.1" },
+    { name = "google-cloud-aiplatform", specifier = "==1.145.0" },
+    { name = "pydantic", specifier = "==2.12.5" },
+    { name = "python-dotenv", specifier = "==1.2.2" },
+    { name = "requests", specifier = "==2.33.1" },
+    { name = "sse-starlette", specifier = "==3.3.4" },
+    { name = "uvicorn", specifier = "==0.43.0" },
 ]
 
 [package.metadata.requires-dev]

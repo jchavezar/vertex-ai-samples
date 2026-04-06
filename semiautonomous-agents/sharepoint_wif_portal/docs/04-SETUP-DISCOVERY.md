@@ -1,6 +1,6 @@
 # 04 - Discovery Engine Setup
 
-> **Version**: 1.2.0 | **Last Updated**: 2026-04-05
+> **Version**: 1.3.0 | **Last Updated**: 2026-04-06
 
 **Navigation**: [Index](00-INDEX.md) | [01-GCP](01-SETUP-GCP.md) | [02-Entra](02-SETUP-ENTRA.md) | [03-WIF](03-SETUP-WIF.md) | **04-Discovery** | [08-Agent](08-ADK-AGENT.md)
 
@@ -13,7 +13,7 @@
 | [01-SETUP-GCP.md](01-SETUP-GCP.md) | `PROJECT_ID` | Discovery Engine project |
 | [01-SETUP-GCP.md](01-SETUP-GCP.md) | `PROJECT_NUMBER` | API calls |
 | [02-SETUP-ENTRA.md](02-SETUP-ENTRA.md) | `OAUTH_CLIENT_ID` | Federated connector |
-| [03-SETUP-WIF.md](03-SETUP-WIF.md) | `WIF_POOL_ID` | User identity mapping |
+| [03-WIF-SETUP.md](03-SETUP-WIF.md) | `WIF_POOL_ID` | User identity mapping |
 
 ---
 
@@ -31,26 +31,6 @@
 Connects Discovery Engine to SharePoint via a federated connector that syncs documents while preserving ACLs — this is what makes per-user access enforcement possible at query time rather than in your application code.
 
 > **Naming note**: Discovery Engine is the underlying GCP API that powers **Gemini Enterprise** (GE). When GCP documentation says "Discovery Engine" and the console shows "AI Applications" or "Gemini Enterprise", they are the same product. The `streamAssist` endpoint is the programmatic interface to the same search capabilities you see in the Gemini Enterprise UI.
-
-```mermaid
-flowchart TB
-    subgraph DE["Discovery Engine"]
-        App["App (Agentspace)"]
-        Engine["Engine (Search App)"]
-        DS["Data Store"]
-        Connector["SharePoint Federated Connector<br/>• Sites synced<br/>• ACLs preserved"]
-        
-        App --> Engine --> DS --> Connector
-    end
-    
-    subgraph API["streamAssist API"]
-        Input["Input: Query + dataStoreSpecs"]
-        Auth["Auth: User token via WIF"]
-        Output["Output: Grounded answer + sources"]
-    end
-    
-    Connector --> API
-```
 
 ---
 
@@ -73,10 +53,6 @@ flowchart TB
    - `https://vertexaisearch.cloud.google.com/console/oauth/sharepoint_oauth.html` ← For connector wizard
    - `https://vertexaisearch.cloud.google.com/oauth-redirect` ← For Gemini Enterprise SharePoint auth
 3. Click **Configure**
-
-![SharePoint Connector Authentication](../assets/connector-authentication.png)
-
-*SharePoint Connector with both redirect URIs configured*
 
 ### Add API Permissions (COMPLETE LIST)
 
@@ -104,16 +80,8 @@ flowchart TB
 | `AllSites.Read` | **CRITICAL** - Read all site collections |
 | `AllSites.Write` | Write access (for actions) |
 
-> **Why SharePoint permissions?** Microsoft Graph permissions alone are NOT sufficient for federated search. The SharePoint API permissions (`Sites.Search.All`, `AllSites.Read`) enable real-time search queries against SharePoint content.
-
 2. Click **Add permissions**
 3. Click **Grant admin consent for [tenant]** ← **REQUIRED**
-
-![SharePoint Connector Permissions](../assets/connector-api-permissions.png)
-
-*SharePoint Connector with Microsoft Graph AND SharePoint permissions - ALL must show "Granted"*
-
-> **After adding permissions**: If you've already authorized SharePoint in Gemini Enterprise, you must **re-authorize** to pick up the new permissions.
 
 ### Create Client Secret
 
@@ -132,7 +100,7 @@ flowchart TB
 
 ## Step 2: Configure Project Authentication
 
-Before creating data stores, configure the project-level identity provider.
+Before creating apps or data stores, configure the project-level identity provider.
 
 1. Go to [AI Applications](https://console.cloud.google.com/gen-app-builder) → **Settings** → **Authentication**
 2. Click the **pencil icon** on the **global** row
@@ -140,56 +108,55 @@ Before creating data stores, configure the project-level identity provider.
 4. Enter: `locations/global/workforcePools/sharepoint-wif-pool`
 5. Click **Save**
 
-![Authentication Settings](../assets/discovery-auth-settings.png)
+---
 
-*Project-level authentication settings*
+## Step 3: Create Gemini Enterprise App (Engine)
+
+1. Go to **AI Applications** → **Apps** → **Create App**
+2. Select **Gemini Enterprise** (or Search)
+3. Configure:
+   - **App name**: `gemini-enterprise-app`
+   - **Engine ID**: `gemini-enterprise-app`
+   - **Location**: `global (Global)`
+4. Click **Create**
+
+### 3.1 Configure Workforce Identity for the App
+
+1. Click **Set up identity** on the dashboard (or go to **Integration**)
+2. Select **Use a third-party identity provider**
+3. Configure:
+   - **Workforce pool ID**: `locations/global/workforcePools/sharepoint-wif-pool`
+   - **Workforce provider ID**: `entra-login-provider`
+4. Click **Confirm Workforce Identity**
 
 ---
 
-## Step 3: Create Data Store with SharePoint Connector
+## Step 4: Create Data Store with SharePoint Connector
 
-1. In AI Applications, go to **Data Stores** → **Create Data Store**
-2. Select **Third-party sources** → **SharePoint Online**
+Now, create the data store and link it to your app.
 
-### 3.1 Authentication Settings
+1. Inside your App, go to **Data Stores** in the left sidebar
+2. Click **+ New data store**
+3. Select **Third-party sources** → **SharePoint Online**
 
-Configure OAuth credentials:
+### 4.1 Authentication Settings
+
+Configure OAuth credentials using values from Step 1:
 - **Instance URI**: `https://your-tenant.sharepoint.com`
 - **Tenant ID**: Your Entra tenant ID
-- **Client ID**: From Step 1 (SharePoint Connector app)
+- **Client ID**: From Step 1
 - **Client Secret**: From Step 1
 
-> **IMPORTANT: Use Incognito Browser**
-> 
-> MSAL caches tokens and may auto-complete OAuth without proper consent.
-> Always use an **incognito/private window** when authorizing to ensure:
-> 1. You see the Microsoft login page
-> 2. You enter credentials
-> 3. You see and accept the consent screen
->
-> If the popup closes immediately without login, cached tokens prevented proper authorization.
+> **IMPORTANT**: Always use an **incognito browser** for authorization to avoid credential caching.
 
 Click **Authorize** → Sign in with admin account → **Accept consent**
 
-![SharePoint Authentication](../assets/discovery-sharepoint-auth.png)
-
-*Successfully logged in with associated identity*
-
-### 3.2 Destinations
+### 4.2 Destinations & Entities
 
 - **Host 1**: Your SharePoint site URL (e.g., `https://your-tenant.sharepoint.com/sites/Documents`)
-- **Port 1**: Leave empty (uses HTTPS 443)
+- **Entities to Search**: Select **File** (most important), Page, etc.
 
-### 3.3 Entities to Search
-
-Select entity types to index:
-- ✓ Attachment
-- ✓ Comment
-- ✓ Event
-- ✓ Page
-- ✓ File (most important for documents)
-
-### 3.4 Configure Access Control
+### 4.3 Configure Federated Access Control
 
 1. Click **Configure access control**
 2. Click the **pencil icon** on the **global** row
@@ -197,17 +164,12 @@ Select entity types to index:
 4. Enter workforce pool: `locations/global/workforcePools/sharepoint-wif-pool`
 5. Click **Save**
 
-
-### 3.5 Create Data Connector
+### 4.4 Finalize Data Connector
 
 - **Location**: `global (Global)`
-- **Data connector name**: `sharepoint-financial-docs`
+- **Data connector name**: `sharepoint-docs-connector`
 
 Click **Continue** → **Create**
-
-![Data Stores](../assets/discovery-data-stores.png)
-
-*Data connector with entity sub-stores created*
 
 **Save:**
 
@@ -217,79 +179,66 @@ Click **Continue** → **Create**
 
 ---
 
-## Step 4: Create Gemini Enterprise App
-
-1. Go to **AI Applications** → **Apps** → **Create App**
-2. Select **Search** or **Gemini Enterprise**
-3. Configure:
-   - **App name**: `gemini-enterprise-app` (generic name for multi-connector use)
-   - **Engine ID**: `gemini-enterprise-app`
-   - **Location**: `global (Global)`
-4. Click **Create**
-
-### 4.1 Connect Data Stores
-
-1. Go to **Connected data stores** in the left sidebar
-2. Click **+ New data store** or verify your SharePoint stores are connected
-3. The connector should auto-connect with all entity sub-stores (File, Page, etc.)
-
-### 4.2 Configure Workforce Identity
-
-1. Click **Set up identity** on the dashboard (or go to **Integration**)
-2. Select **Use a third-party identity provider**
-3. Configure:
-   - **Workforce pool ID**: `locations/global/workforcePools/sharepoint-wif-pool`
-   - **Workforce provider ID**: `entra-login-provider` (for Gemini Enterprise login)
-4. Click **Confirm Workforce Identity**
-
-> **Note**: Use `entra-login-provider` (without api:// prefix) for Gemini Enterprise login. The `entra-agent-provider` (with api:// prefix) is for programmatic WIF token exchange.
-
-![GE SharePoint Connector](../assets/ge-sharepoint-connector.png)
-
-*Gemini Enterprise connector selector — SharePoint and Google Search both enabled for this app*
-
-**Save:**
-
-| Setting | Your Value |
-|---------|------------|
-| Engine ID | `_________________________` |
-
----
-
 ## Step 5: Verify Data Sync
 
 1. Go to **Data Stores** → Select your store
-2. Check **Activity** tab for sync status
-3. Verify document count matches expected
+2. Check **Activity** tab for sync status. Since this is **Federated Search**, you won't see "indexing" logs like traditional ingestion, but you should see the connector status as "Active".
 
 ---
 
-## Step 6: Test Search API
+## Step 6: Test Search API (WIF Flow)
 
-Test with service account (admin access):
+Calling `streamAssist` requires a Google Cloud access token. If your user is authenticated via Entra ID, you must exchange their Entra JWT for a Google STS token.
+
+### 6.1 Exchange Entra JWT for Google STS Token
 
 ```bash
-export PROJECT_NUMBER=REDACTED_PROJECT_NUMBER
-export ENGINE_ID=your-engine-id
+export SUBJECT_TOKEN="<ENTRA_ID_TOKEN_OR_ACCESS_TOKEN>"
+export POOL_ID="sharepoint-wif-pool"
+export PROVIDER_ID="entra-agent-provider" # Provider with api:// prefix
+
+curl -X POST https://sts.googleapis.com/v1/token \
+    --header "Content-Type: application/json" \
+    --data '{
+        "audience": "//iam.googleapis.com/locations/global/workforcePools/'${POOL_ID}'/providers/'${PROVIDER_ID}'",
+        "grantType": "urn:ietf:params:oauth:grant-type:token-exchange",
+        "requestedTokenType": "urn:ietf:params:oauth:token-type:access_token",
+        "scope": "https://www.googleapis.com/auth/cloud-platform",
+        "subjectToken": "'${SUBJECT_TOKEN}'",
+        "subjectTokenType": "urn:ietf:params:oauth:token-type:jwt"
+    }'
+```
+
+The response will contain an `access_token`. Save it as `STS_TOKEN`.
+
+### 6.2 Call streamAssist API
+
+The `dataStoreSpecs` is **REQUIRED** in the payload to specify the SharePoint data store. Use the **Project Number** (not ID) in the resource path.
+
+```bash
+export PROJECT_NUMBER="1234567890"
+export ENGINE_ID="gemini-enterprise-app"
+export DATA_STORE_ID="sharepoint-docs-connector_file"
+export STS_TOKEN="<TOKEN_FROM_STEP_6_1>"
 
 curl -X POST \
   "https://discoveryengine.googleapis.com/v1alpha/projects/${PROJECT_NUMBER}/locations/global/collections/default_collection/engines/${ENGINE_ID}/assistants/default_assistant:streamAssist" \
-  -H "Authorization: Bearer $(gcloud auth print-access-token)" \
+  -H "Authorization: Bearer ${STS_TOKEN}" \
   -H "Content-Type: application/json" \
   -H "X-Goog-User-Project: ${PROJECT_NUMBER}" \
   -d '{
-    "query": {"text": "test query"},
+    "query": {"text": "What documents mention financial audit?"},
     "toolsSpec": {
       "vertexAiSearchSpec": {
         "dataStoreSpecs": [
-          {"dataStore": "projects/'${PROJECT_NUMBER}'/locations/global/collections/default_collection/dataStores/YOUR_DATASTORE_ID"}
+          {
+            "dataStore": "projects/'${PROJECT_NUMBER}'/locations/global/collections/default_collection/dataStores/'${DATA_STORE_ID}'"
+          }
         ]
       }
     }
   }'
 ```
-
-**Important**: `dataStoreSpecs` is REQUIRED for grounded responses from SharePoint.
 
 ---
 
@@ -297,76 +246,9 @@ curl -X POST \
 
 ```env
 # Discovery Engine
-ENGINE_ID=sharepoint-search
-DATA_STORE_ID=sharepoint-docs
+ENGINE_ID=gemini-enterprise-app
+DATA_STORE_ID=sharepoint-docs-connector_file
 ```
-
----
-
-## API Reference
-
-### streamAssist Endpoint
-
-```
-POST /v1alpha/projects/{project}/locations/global/collections/default_collection/engines/{engine}/assistants/default_assistant:streamAssist
-```
-
-### Required Headers
-
-| Header | Value |
-|--------|-------|
-| Authorization | `Bearer {token}` |
-| Content-Type | `application/json` |
-| X-Goog-User-Project | `{project_number}` |
-
-### Request Body
-
-```json
-{
-  "query": {"text": "your search query"},
-  "toolsSpec": {
-    "vertexAiSearchSpec": {
-      "dataStoreSpecs": [
-        {"dataStore": "projects/{project}/locations/global/collections/default_collection/dataStores/{datastore}"}
-      ]
-    }
-  }
-}
-```
-
----
-
-## Federated Search Behavior
-
-> **Understanding how Federated Search works**
-
-Federated Search queries SharePoint's search index in real-time. This differs from Data Ingestion mode:
-
-| Aspect | Federated Search | Data Ingestion |
-|--------|-----------------|----------------|
-| Index location | SharePoint | Google Cloud |
-| Query execution | Real-time to SharePoint | Against local index |
-| Document content | Depends on SharePoint indexing | Fully extracted |
-| Best for | Finding documents | Searching within documents |
-
-**Query Tips for Federated Search:**
-
-| Query Type | Works Well | May Not Work |
-|------------|------------|--------------|
-| Document discovery | "What documents do I have access to?" | "What is the CFO salary?" |
-| Title/metadata search | "Find the Financial Audit Report" | Specific content queries |
-| Content search | "Documents about executive compensation" | Exact phrase in PDF |
-
-**Example queries that work well:**
-- "Show me all financial documents"
-- "Find the FY2024 audit report"
-- "What documents mention Jennifer Walsh?"
-
-**If content search doesn't return expected results:**
-1. Check if SharePoint has indexed the document content
-2. Try searching by document title or metadata
-3. Use broader search terms
-4. Consider Data Ingestion mode for deep content search
 
 ---
 
@@ -374,14 +256,13 @@ Federated Search queries SharePoint's search index in real-time. This differs fr
 
 | Error | Cause | Solution |
 |-------|-------|----------|
-| `token: "-"` in requests | OAuth flow not completed | Re-authorize in incognito browser |
-| `FAILED_PRECONDITION` | Missing IAM roles | Add all 6 required IAM bindings |
-| Search returns no results | Missing SharePoint API permissions | Add `Sites.Search.All` + `AllSites.Read` |
-| Generic responses (no grounding) | SharePoint toggle off | Enable SharePoint toggle in chat |
-| OAuth popup closes immediately | MSAL cache | Use incognito browser |
+| `PERMISSION_DENIED` | Missing IAM on Workforce Pool | Ensure `discoveryengine.user` is granted to the principalSet |
+| `INVALID_ARGUMENT` | Using Project ID instead of Number | Use `${PROJECT_NUMBER}` in the dataStore path |
+| No results found | Missing SharePoint Search permissions | Verify `Sites.Search.All` is granted and consented in Entra ID |
+| `FAILED_PRECONDITION` | Workforce Pool not configured on Data Store | Check Step 4.3 |
 
 ---
 
 ## Next Step
 
-→ [05-LOCAL-DEV.md](05-LOCAL-DEV.md) - Set up local development environment
+→ [08-ADK-AGENT.md](08-ADK-AGENT.md) - Build the reasoning agent with SharePoint grounding
