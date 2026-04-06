@@ -407,33 +407,6 @@ Two providers are required because Entra issues tokens with different audiences 
 | `ge-login-provider` | `{client-id}` | GE user login (ID token) |
 | `entra-provider` | `api://{client-id}` | Agent WIF exchange (access token) |
 
-### Values Flow
-
-```
-01-SETUP-GCP.md
-├── PROJECT_ID        → All docs
-├── PROJECT_NUMBER    → 03, 04, 08
-└── STAGING_BUCKET    → 08
-
-02-SETUP-ENTRA.md
-├── TENANT_ID         → 03, 08
-├── OAUTH_CLIENT_ID   → 03, 04, 08
-└── OAUTH_CLIENT_SECRET → 08
-
-03-SETUP-WIF.md
-├── WIF_POOL_ID       → 04, 08
-├── ge-login-provider → GE login
-└── entra-provider    → Agent WIF
-
-04-SETUP-DISCOVERY.md
-├── ENGINE_ID         → 08
-└── DATA_STORE_ID     → 08
-
-08-ADK-AGENT.md
-├── REASONING_ENGINE_RES → backend, testing
-└── AUTH_ID              → testing
-```
-
 ---
 
 ## Testing Workflow
