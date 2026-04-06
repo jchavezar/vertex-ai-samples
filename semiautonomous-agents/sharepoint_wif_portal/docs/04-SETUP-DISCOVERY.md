@@ -54,6 +54,10 @@ Connects Discovery Engine to SharePoint via a federated connector that syncs doc
    - `https://vertexaisearch.cloud.google.com/oauth-redirect` ← For Gemini Enterprise SharePoint auth
 3. Click **Configure**
 
+![SharePoint Connector Authentication](../assets/connector-authentication.png)
+
+*SharePoint Connector with both redirect URIs configured*
+
 ### Add API Permissions (COMPLETE LIST)
 
 > **Critical**: ALL permissions below are required. Missing any causes search failures.
@@ -83,6 +87,10 @@ Connects Discovery Engine to SharePoint via a federated connector that syncs doc
 2. Click **Add permissions**
 3. Click **Grant admin consent for [tenant]** ← **REQUIRED**
 
+![SharePoint Connector Permissions](../assets/connector-api-permissions.png)
+
+*SharePoint Connector with Microsoft Graph AND SharePoint permissions - ALL must show "Granted"*
+
 ### Create Client Secret
 
 1. Go to **Certificates & secrets** → **New client secret**
@@ -108,6 +116,10 @@ Before creating apps or data stores, configure the project-level identity provid
 4. Enter: `locations/global/workforcePools/sharepoint-wif-pool`
 5. Click **Save**
 
+![Authentication Settings](../assets/discovery-auth-settings.png)
+
+*Project-level authentication settings*
+
 ---
 
 ## Step 3: Create Gemini Enterprise App (Engine)
@@ -128,6 +140,10 @@ Before creating apps or data stores, configure the project-level identity provid
    - **Workforce pool ID**: `locations/global/workforcePools/sharepoint-wif-pool`
    - **Workforce provider ID**: `entra-login-provider`
 4. Click **Confirm Workforce Identity**
+
+![GE SharePoint Connector](../assets/ge-sharepoint-connector.png)
+
+*Gemini Enterprise connector selector — SharePoint and Google Search both enabled for this app*
 
 ---
 
@@ -151,6 +167,10 @@ Configure OAuth credentials using values from Step 1:
 
 Click **Authorize** → Sign in with admin account → **Accept consent**
 
+![SharePoint Authentication](../assets/discovery-sharepoint-auth.png)
+
+*Successfully logged in with associated identity*
+
 ### 4.2 Destinations & Entities
 
 - **Host 1**: Your SharePoint site URL (e.g., `https://your-tenant.sharepoint.com/sites/Documents`)
@@ -170,6 +190,10 @@ Click **Authorize** → Sign in with admin account → **Accept consent**
 - **Data connector name**: `sharepoint-docs-connector`
 
 Click **Continue** → **Create**
+
+![Data Stores](../assets/discovery-data-stores.png)
+
+*Data connector with entity sub-stores created*
 
 **Save:**
 
