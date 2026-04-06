@@ -9,9 +9,14 @@
 ![GCP](https://img.shields.io/badge/Google_Cloud-Powered-4285F4?logo=google-cloud&logoColor=white)
 ![Version](https://img.shields.io/badge/Version-2.2.0-lightgrey)
 
-![Portal Overview](assets/portal-overview.png)
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="assets/portal-overview-dark.png">
+  <img src="assets/portal-overview-light.png" alt="Enterprise Search Portal — authenticated, SharePoint + WIF" width="100%">
+</picture>
 
-*Custom portal — authenticated user, dual-mode search active, ACL enforcement confirmed*
+*Authenticated portal — zero credential storage, per-user SharePoint ACLs, concurrent search*
+
+![Portal demo: query → thinking → SharePoint results with citations → agent panel](assets/portal-demo.gif)
 
 > [!WARNING]
 > **Read [`docs/00-AUTH-CHAIN.md`](docs/00-AUTH-CHAIN.md) before starting setup.**
@@ -19,9 +24,17 @@
 
 ---
 
+## The Problem
+
+Discovery Engine's federated SharePoint connector requires an exact chain of undocumented configuration — a specific Entra manifest flag, two WIF providers with different token audiences, and a required API field that returns HTTP 200 silently without it. This guide exists because that chain took 5 days and multiple LLMs to reverse-engineer. [`00-AUTH-CHAIN.md`](docs/00-AUTH-CHAIN.md) preserves the result so you don't have to.
+
+---
+
 ## Contents
 
+- [The Problem](#the-problem)
 - [What You're Building](#what-youre-building)
+- [What Makes This Different](#what-makes-this-different)
 - [Quick Start](#quick-start)
 - [Choose Your Path](#choose-your-path)
 - [Prerequisites](#prerequisites)
@@ -34,6 +47,7 @@
 - [Configuration](#configuration)
 - [Testing Workflow](#testing-workflow)
 - [Troubleshooting](#troubleshooting)
+- [Roadmap](#roadmap)
 
 ---
 
@@ -51,9 +65,21 @@ A full-stack enterprise search portal that bridges Microsoft Entra ID identities
 
 ---
 
+## What Makes This Different
+
+| Approach | Credential storage | ACL enforcement | Federated identity |
+|---|---|---|---|
+| Service account impersonation | Stored secrets | App-level | No |
+| Direct Graph API | Stored secrets | App-level | No |
+| **This portal (WIF)** | **None** | **SharePoint-native** | **Yes** |
+
+---
+
 ## Quick Start
 
-> Full setup requires completing the infrastructure docs first (Entra ID, WIF, Discovery Engine). These commands assume that's done — see [Choose Your Path](#choose-your-path) below.
+> Haven't done infrastructure yet? Start at [01-SETUP-GCP.md](docs/01-SETUP-GCP.md).
+>
+> These commands assume infrastructure is complete (Entra ID, WIF, Discovery Engine) — see [Choose Your Path](#choose-your-path) for the full phase map.
 
 ```bash
 # 1. Configure environment
@@ -461,3 +487,14 @@ See [`.env.example`](.env.example) for all variables. Full details in [03-SETUP-
 | Agent not visible in GE | Set `sharingConfig.scope = ALL_USERS` |
 | Authorization loop | Add `user_impersonation` scope |
 | No sources returned | Check `dataStoreSpecs` in request — see [00-AUTH-CHAIN.md](docs/00-AUTH-CHAIN.md) |
+
+---
+
+## Roadmap
+
+- [x] Custom React portal with WIF auth (Entra → GCP token exchange)
+- [x] InsightComparator ADK agent (SharePoint + Google Search in parallel)
+- [x] Cloud Run + GLB + IAP production deployment
+- [x] Microsoft 365 MCP server for Claude Code integration
+- [ ] Multi-tenant support
+- [ ] Support for additional federated connectors (Confluence, Salesforce)
