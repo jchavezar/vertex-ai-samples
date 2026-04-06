@@ -41,12 +41,13 @@
 
 A full-stack enterprise search portal that bridges Microsoft Entra ID identities to Google Cloud — no credential storage, no service account impersonation, per-user SharePoint ACL enforcement at query time.
 
-By the end of this guide you will have:
+🔐 **Zero credential storage** — WIF exchanges Entra JWTs for scoped GCP tokens at runtime; no secrets stored, no service account impersonation
 
-- **React + FastAPI custom portal** — MSAL login acquires an Entra JWT; the backend exchanges it for a scoped GCP access token via Workforce Identity Federation (WIF); Gemini Enterprise (Discovery Engine API) runs each query under the user's own identity
-- **Per-user SharePoint ACL enforcement** — users only see documents they're already permitted to access in SharePoint, enforced by Gemini Enterprise, not by your application logic
-- **InsightComparator ADK agent on Agent Engine** — a single `compare_insights` tool that concurrently searches SharePoint (internal, ACL-aware) and Google Search (public web), then synthesizes a comparison
-- **Production Cloud Run deployment** — single container with nginx + FastAPI + built React, behind a Global Load Balancer with IAP — same codebase as local, only environment variables change
+👤 **Per-user ACL enforcement** — SharePoint permissions enforced at query time by Gemini Enterprise, not by your application logic
+
+⚡ **Concurrent search** — InsightComparator ADK agent searches SharePoint (internal, ACL-aware) and Google (public web) in parallel, then synthesizes both
+
+☁️ **Deploy anywhere** — same codebase runs locally and on Cloud Run behind GLB + IAP; only environment variables change
 
 ---
 
