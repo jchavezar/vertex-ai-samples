@@ -1,0 +1,87 @@
+.hero-section { padding: 100px 0 48px; background: linear-gradient(135deg, #FFFFFF 0%, #F5F7F8 50%, #F2F2F2 100%); position: relative; overflow: hidden; }
+.hero-container { max-width: 1400px; margin: 0 auto; padding: 0 40px; display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center; }
+.hero-headline { font-family: Charter, Georgia, serif; font-size: 3.5rem; color: #2D2D2D; line-height: 1.1; margin-bottom: 24px; }
+.hero-accent { background: linear-gradient(135deg, #D04A02 0%, #FD5108 100%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+.hero-subtitle { color: #464646; font-size: 1.15rem; line-height: 1.7; max-width: 520px; margin-bottom: 32px; }
+.hero-cta { background: transparent; color: #D04A02; border: 2px solid #D04A02; padding: 14px 32px; border-radius: 4px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: all 0.3s ease; font-family: var(--font-sans); }
+.hero-cta:hover { background: #D04A02; color: white; box-shadow: 0 4px 14px rgba(208,74,2,0.3); }
+.trust-badges { display: flex; gap: 16px; margin-top: 24px; }
+.trust-badge { display: flex; align-items: center; gap: 6px; font-size: 0.8rem; color: #16a34a; font-weight: 500; background: #f0fdf4; padding: 6px 12px; border-radius: 20px; border: 1px solid #bbf7d0; }
+
+/* Globe Visualization */
+.hero-radar { position: relative; }
+.globe-container { position: relative; width: 100%; max-width: 420px; margin: 0 auto; }
+.globe-canvas { width: 100%; height: auto; display: block; }
+
+/* Globe wireframe */
+.globe-equator { fill: none; stroke: #D04A02; stroke-width: 0.8; opacity: 0.3; }
+.globe-meridian { fill: none; stroke: #E5E5E5; stroke-width: 0.5; opacity: 0.5; }
+.globe-parallel { fill: none; stroke: #E5E5E5; stroke-width: 0.4; opacity: 0.35; }
+.globe-outline { fill: none; stroke: #D04A02; stroke-width: 1.5; opacity: 0.2; }
+.globe-glow { fill: url(#globeGlow); }
+
+/* Rotating group */
+.globe-spin { animation: globeSpin 30s linear infinite; transform-origin: 200px 200px; }
+@keyframes globeSpin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+.globe-spin-reverse { animation: globeSpinReverse 40s linear infinite; transform-origin: 200px 200px; }
+@keyframes globeSpinReverse { from { transform: rotate(0deg); } to { transform: rotate(-360deg); } }
+
+/* Data nodes */
+.globe-node { opacity: 0; animation: nodeAppear 3s ease-in-out infinite; }
+.globe-node:nth-child(1) { animation-delay: 0s; }
+.globe-node:nth-child(2) { animation-delay: 0.5s; }
+.globe-node:nth-child(3) { animation-delay: 1s; }
+.globe-node:nth-child(4) { animation-delay: 1.5s; }
+.globe-node:nth-child(5) { animation-delay: 2s; }
+.globe-node:nth-child(6) { animation-delay: 2.5s; }
+@keyframes nodeAppear { 0% { opacity: 0; r: 2; } 50% { opacity: 1; r: 5; } 100% { opacity: 0; r: 2; } }
+
+/* Pulse rings around nodes */
+.node-pulse { fill: none; stroke: #D04A02; stroke-width: 1; opacity: 0; animation: nodePulse 3s ease-out infinite; }
+.node-pulse:nth-of-type(2n) { animation-delay: 1.5s; }
+@keyframes nodePulse { 0% { r: 4; opacity: 0.6; stroke-width: 2; } 100% { r: 18; opacity: 0; stroke-width: 0.5; } }
+
+/* Connection arcs */
+.globe-arc { fill: none; stroke: #FD5108; stroke-width: 1; opacity: 0; stroke-dasharray: 200; stroke-dashoffset: 200; animation: arcDraw 4s ease-in-out infinite; }
+.globe-arc:nth-child(1) { animation-delay: 0.3s; }
+.globe-arc:nth-child(2) { animation-delay: 1.2s; }
+.globe-arc:nth-child(3) { animation-delay: 2.1s; }
+@keyframes arcDraw { 0% { stroke-dashoffset: 200; opacity: 0; } 20% { opacity: 0.7; } 50% { stroke-dashoffset: 0; opacity: 0.5; } 80% { opacity: 0.2; } 100% { stroke-dashoffset: -200; opacity: 0; } }
+
+/* Floating labels */
+.globe-label { font-size: 8px; fill: #7D7D7D; font-family: var(--font-sans); font-weight: 600; letter-spacing: 0.5px; opacity: 0; animation: labelFloat 5s ease-in-out infinite; }
+.globe-label:nth-child(1) { animation-delay: 0.2s; }
+.globe-label:nth-child(2) { animation-delay: 1.4s; }
+.globe-label:nth-child(3) { animation-delay: 2.6s; }
+.globe-label:nth-child(4) { animation-delay: 3.8s; }
+@keyframes labelFloat { 0% { opacity: 0; transform: translateY(4px); } 20% { opacity: 0.8; transform: translateY(0); } 80% { opacity: 0.8; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-4px); } }
+
+/* Orbiting satellites */
+.orbit-ring { fill: none; stroke: #E5E5E5; stroke-width: 0.5; stroke-dasharray: 3 6; }
+.orbit-sat { fill: #D04A02; }
+.orbit-path-1 { animation: orbitSat1 6s linear infinite; transform-origin: 200px 200px; }
+.orbit-path-2 { animation: orbitSat2 9s linear infinite; transform-origin: 200px 200px; }
+.orbit-path-3 { animation: orbitSat3 12s linear infinite; transform-origin: 200px 200px; }
+@keyframes orbitSat1 { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+@keyframes orbitSat2 { from { transform: rotate(120deg); } to { transform: rotate(480deg); } }
+@keyframes orbitSat3 { from { transform: rotate(240deg); } to { transform: rotate(-120deg); } }
+
+/* Center logo */
+.globe-center-bg { fill: white; filter: drop-shadow(0 2px 8px rgba(208,74,2,0.2)); }
+.globe-logo { fill: #D04A02; font-size: 20px; font-weight: 700; font-family: Charter, Georgia, serif; }
+
+/* Insight Card */
+.insight-card { position: relative; margin-top: 16px; background: #ffffff; border: 1px solid #E5E5E5; border-left: 4px solid #D04A02; border-radius: 4px; padding: 16px 20px; box-shadow: 0 4px 16px rgba(0,0,0,0.08); }
+.insight-label { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 1px; color: #D04A02; font-weight: 600; margin-bottom: 6px; }
+.insight-content { color: #464646; font-size: 0.88rem; line-height: 1.5; max-height: 80px; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; }
+.insight-content strong { color: #D04A02; }
+.insight-content p { margin: 0; }
+.insight-loading { color: #7D7D7D; font-style: italic; }
+
+@media (max-width: 768px) {
+  .hero-container { grid-template-columns: 1fr; text-align: center; }
+  .hero-headline { font-size: 2.5rem; }
+  .hero-subtitle { max-width: 100%; }
+  .trust-badges { justify-content: center; }
+  .globe-container { max-width: 280px; }
+}

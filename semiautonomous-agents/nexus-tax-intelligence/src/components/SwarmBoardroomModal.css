@@ -1,0 +1,50 @@
+.boardroom-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 10000; display: flex; align-items: center; justify-content: center; padding: 20px; }
+.boardroom-modal { background: #0B0B11; border-radius: 12px; width: 95%; max-width: 1000px; max-height: 90vh; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); display: flex; flex-direction: column; }
+.boardroom-header { padding: 24px 32px; border-bottom: 1px solid rgba(255,255,255,0.1); display: flex; justify-content: space-between; align-items: flex-start; }
+.boardroom-title { color: white; font-size: 1.5rem; font-weight: 700; }
+.boardroom-subtitle { color: rgba(255,255,255,0.5); font-size: 0.88rem; margin-top: 4px; }
+.boardroom-close { background: transparent; border: none; color: rgba(255,255,255,0.5); cursor: pointer; padding: 6px; border-radius: 4px; }
+.boardroom-close:hover { color: white; background: rgba(255,255,255,0.1); }
+.boardroom-body { padding: 32px; overflow-y: auto; flex: 1; }
+
+/* Empty state holo */
+.boardroom-empty { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 20px; }
+.holo-core { width: 160px; height: 160px; position: relative; margin: 0 auto 24px; display: flex; align-items: center; justify-content: center; }
+.holo-ring { position: absolute; border: 1px solid rgba(208,74,2,0.25); border-radius: 50%; }
+.ring-1 { width: 100%; height: 100%; animation: holoSpin 8s linear infinite; }
+.ring-2 { width: 75%; height: 75%; animation: holoSpin 6s linear infinite reverse; }
+.ring-3 { width: 50%; height: 50%; animation: holoSpin 4s linear infinite; }
+@keyframes holoSpin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+.holo-center { font-size: 28px; font-weight: 700; color: #D04A02; font-family: Charter, Georgia, serif; z-index: 1; }
+.holo-desc { color: rgba(255,255,255,0.5); font-size: 0.95rem; max-width: 400px; }
+
+/* Agent cards */
+.agent-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 20px; margin-bottom: 16px; }
+.agent-header { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+.agent-icon { width: 40px; height: 40px; border-radius: 8px; display: flex; align-items: center; justify-content: center; }
+.agent-name { color: white; font-weight: 600; font-size: 0.95rem; }
+.agent-text { color: rgba(255,255,255,0.8); line-height: 1.6; font-size: 0.95rem; }
+.agent-text p { margin-bottom: 8px; }
+.agent-text strong { color: #FD5108; }
+
+/* Equalizer */
+.equalizer { display: flex; gap: 2px; height: 20px; align-items: flex-end; margin-left: auto; }
+.eq-bar { width: 3px; background: #D04A02; border-radius: 1px; animation: equalize 0.8s ease-in-out infinite alternate; }
+@keyframes equalize { 0% { height: 4px; } 100% { height: 18px; } }
+
+/* Controls */
+.quick-actions { display: flex; flex-wrap: wrap; gap: 8px; padding: 0 32px 12px; }
+.quick-btn { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.7); border-radius: 20px; padding: 8px 16px; cursor: pointer; font-size: 0.85rem; transition: all 0.2s; font-family: var(--font-sans); }
+.quick-btn:hover:not(:disabled) { background: rgba(255,255,255,0.1); color: white; border-color: rgba(255,255,255,0.2); }
+.quick-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.boardroom-input-area { padding: 16px 32px 24px; border-top: 1px solid rgba(255,255,255,0.08); display: flex; gap: 12px; }
+.boardroom-input { flex: 1; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: white; padding: 14px 20px; font-size: 0.95rem; font-family: var(--font-sans); }
+.boardroom-input:focus { outline: none; border-color: rgba(208,74,2,0.5); }
+.boardroom-input::placeholder { color: rgba(255,255,255,0.3); }
+.boardroom-submit { background: #D04A02; color: white; border: none; border-radius: 8px; padding: 14px 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+.boardroom-submit:disabled { opacity: 0.5; cursor: not-allowed; }
+.spin { animation: spin 1s linear infinite; }
+@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+.debate-complete { text-align: center; padding: 16px; }
+.reset-debate-btn { background: transparent; border: 1px solid rgba(255,255,255,0.2); color: white; border-radius: 8px; padding: 12px 24px; cursor: pointer; font-family: var(--font-sans); }
+.reset-debate-btn:hover { background: rgba(255,255,255,0.05); }

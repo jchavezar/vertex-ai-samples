@@ -1,0 +1,13 @@
+[project]
+name = "chronoshot"
+version = "0.1.0"
+description = "Discovery Engine StreamAssist latency probe"
+requires-python = ">=3.12"
+dependencies = [
+    "requests>=2.31",
+    "python-dotenv>=1.0",
+    "msal>=1.28",
+    "httpx>=0.27",
+    "markitdown>=0.1",
+    "google-genai>=1.0",
+]

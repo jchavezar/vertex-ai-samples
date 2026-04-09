@@ -1,0 +1,32 @@
+%%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#fbbc04', 'primaryTextColor': '#000'}}}%%
+
+flowchart LR
+    subgraph INPUT["Microsoft JWT"]
+        MS_JWT["iss: sts.windows.net/tenant<br/>aud: api://client-id<br/>sub: user@domain.com<br/>email: user@domain.com<br/>groups: [sg-1, sg-2]"]
+    end
+
+    subgraph STS["STS Token Exchange"]
+        STS_REQ["POST sts.googleapis.com/v1/token<br/><br/>audience: //iam.googleapis.com/<br/>  locations/global/<br/>  workforcePools/sp-wif-pool-v2/<br/>  providers/entra-provider<br/><br/>grantType: token-exchange<br/>subjectToken: JWT<br/>scope: cloud-platform"]
+    end
+
+    subgraph VALIDATION["WIF Validation"]
+        V1["Issuer Match"]
+        V2["Audience Match"]
+        V3["Attribute Mapping"]
+        V1 --> V2
+        V2 --> V3
+    end
+
+    subgraph OUTPUT["GCP Token"]
+        GCP_TOK["principal: user@domain.com<br/>principalSet: workforcePools/...<br/>scope: cloud-platform<br/>expires_in: 3600"]
+    end
+
+    MS_JWT --> STS_REQ
+    STS_REQ --> V1
+    V3 --> GCP_TOK
+
+    style MS_JWT fill:#0078d4,color:#fff
+    style GCP_TOK fill:#4285f4,color:#fff
+    style V1 fill:#34a853,color:#fff
+    style V2 fill:#34a853,color:#fff
+    style V3 fill:#34a853,color:#fff

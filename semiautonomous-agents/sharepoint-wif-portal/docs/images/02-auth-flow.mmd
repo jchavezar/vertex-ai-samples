@@ -1,0 +1,49 @@
+%%{init: {'theme': 'base', 'themeVariables': { 'actorBkg': '#4285f4', 'actorTextColor': '#fff', 'actorLineColor': '#1a73e8'}}}%%
+
+sequenceDiagram
+    autonumber
+
+    participant User as User
+    participant Portal as React Portal
+    participant MSAL as MSAL
+    participant Entra as Entra ID
+    participant Backend as FastAPI
+    participant STS as Google STS
+    participant WIF as WIF Provider
+    participant GE as Discovery Engine
+    participant SPO as SharePoint Online
+
+    rect rgb(0, 120, 212, 0.1)
+        Note over User,Entra: PHASE 1: Microsoft Authentication
+        User->>Portal: Open Application
+        Portal->>MSAL: Check Auth Status
+        MSAL->>Entra: Authorization Request
+        User->>Entra: Enter Credentials
+        Entra-->>MSAL: ID Token + Access Token
+        MSAL-->>Portal: Tokens Stored
+    end
+
+    rect rgb(251, 188, 4, 0.1)
+        Note over Portal,WIF: PHASE 2: WIF Token Exchange
+        User->>Portal: Submit Query
+        Portal->>Backend: POST /api/chat<br/>X-Entra-Id-Token: {jwt}
+        Backend->>STS: Exchange Token<br/>subjectToken: {jwt}
+        STS->>WIF: Validate JWT
+        Note over WIF: Check Issuer<br/>Check Audience<br/>Map Attributes
+        WIF-->>STS: Valid
+        STS-->>Backend: GCP Access Token
+    end
+
+    rect rgb(66, 133, 244, 0.1)
+        Note over Backend,SPO: PHASE 3: Grounded Search
+        Backend->>GE: streamAssist<br/>Bearer {gcp_token}<br/>+ dataStoreSpecs
+        GE->>GE: Extract User Identity
+        GE->>SPO: Query with User
+        Note over SPO: ACL Enforcement
+        SPO-->>GE: Filtered Documents
+        GE->>GE: Generate Grounded Answer
+        GE-->>Backend: Answer + Sources
+    end
+
+    Backend-->>Portal: Response
+    Portal-->>User: Display Answer

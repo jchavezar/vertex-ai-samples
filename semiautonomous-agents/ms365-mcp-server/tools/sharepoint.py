@@ -249,13 +249,18 @@ def download_file(drive_id: str, file_path: str) -> str:
             )
             response.raise_for_status()
 
-            # Try to decode as text, fallback to base64
-            try:
-                content = response.text
-                return f"## File Content\n\n```\n{content}\n```"
-            except Exception:
+            # Detect binary content and use base64 for non-text files
+            content_type = response.headers.get("content-type", "")
+            ext = file_path.rsplit(".", 1)[-1].lower() if "." in file_path else ""
+            binary_types = {"pdf", "docx", "xlsx", "pptx", "zip", "png", "jpg", "jpeg", "gif"}
+            is_binary = ext in binary_types or "octet-stream" in content_type or "application/pdf" in content_type
+
+            if is_binary:
                 content_b64 = base64.b64encode(response.content).decode("utf-8")
                 return f"## File Content (Base64)\n\n```\n{content_b64}\n```"
+            else:
+                content = response.text
+                return f"## File Content\n\n```\n{content}\n```"
 
     except GraphAPIError as e:
         return f"Error downloading file: {e}"

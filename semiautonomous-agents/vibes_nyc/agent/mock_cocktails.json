@@ -1,0 +1,74 @@
+{
+  "venues": [
+    {
+      "name": "Saint Restaurant Bar & Speakeasy",
+      "address": "136 2nd Ave, New York, NY 10003",
+      "yelp_id": "67760312c7a6d645c9d0adc3",
+      "rating": 4.0,
+      "review_count": 20,
+      "price": "$$$",
+      "photos": [],
+      "categories": [
+        "Speakeasy"
+      ],
+      "underground_score": 100,
+      "vibe_tags": [
+        "hidden",
+        "moody",
+        "exclusive",
+        "contemporary"
+      ],
+      "accessibility": "walk-in",
+      "vibe_summary": "A true hidden gem that offers an escape from the frantic energy of the surrounding blocks. It provides a quiet, refined atmosphere perfect for focused, high-end cocktail contemplation.",
+      "best_time": "Weekday evenings for a quieter experience."
+    },
+    {
+      "name": "Holiday Cocktail Lounge",
+      "address": "75 Saint Marks Pl, New York, NY 10003",
+      "yelp_id": "50d23ea9e4b0bf2ab00e8a2d",
+      "rating": 4.0,
+      "review_count": 50,
+      "price": "$$",
+      "photos": [],
+      "categories": [
+        "Cocktail Bar"
+      ],
+      "underground_score": 100,
+      "vibe_tags": [
+        "vintage",
+        "divey",
+        "intimate",
+        "eclectic"
+      ],
+      "accessibility": "walk-in",
+      "vibe_summary": "A legendary LES-adjacent watering hole that feels like time-traveled from a grittier era. The space perfectly balances classic cocktail sophistication with the neighborhood's authentic, no-frills roots.",
+      "best_time": "Early evening, before the late-night crowd arrives."
+    },
+    {
+      "name": "Paul's Cocktail Lounge",
+      "address": "2 Avenue of the Americas, New York, NY 10013",
+      "yelp_id": "527049ce11d2ef6b8356195f",
+      "rating": 4.0,
+      "review_count": 80,
+      "price": "$$$",
+      "photos": [],
+      "categories": [
+        "Night Club",
+        "Cocktail Bar"
+      ],
+      "underground_score": 100,
+      "vibe_tags": [
+        "eclectic",
+        "lounge",
+        "buzzing",
+        "creative"
+      ],
+      "accessibility": "walk-in",
+      "vibe_summary": "A colorful, kitschy sanctuary that feels more like an eccentric living room than a standard bar. The vibe is lively and perfect for those who want a unique, memorable scene away from traditional lounge tropes.",
+      "best_time": "Late night when the energy peaks."
+    }
+  ],
+  "location": "Lower East Side, NYC",
+  "query": "cocktails",
+  "count": 3
+}

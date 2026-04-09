@@ -1,0 +1,39 @@
+.heatmap-section { padding: 48px 0; background: var(--bg-primary); }
+.heatmap-container { max-width: 1400px; margin: 0 auto; padding: 0 40px; position: relative; }
+.heatmap-header { text-align: center; margin-bottom: 32px; }
+.heatmap-header h2 { font-family: Charter, Georgia, serif; color: #2D2D2D; }
+.heatmap-subtitle { color: #464646; margin-top: 8px; }
+.filter-controls { display: flex; justify-content: center; gap: 12px; margin-bottom: 32px; flex-wrap: wrap; }
+.filter-btn { background: white; border: 1px solid #E5E5E5; border-radius: 4px; padding: 10px 20px; cursor: pointer; font-weight: 500; font-size: 0.9rem; transition: all 0.2s; color: #464646; font-family: var(--font-sans); }
+.filter-btn.active { background: #D04A02; color: white; border-color: #D04A02; }
+.filter-btn:hover:not(.active) { border-color: #D04A02; color: #D04A02; }
+.map-wrapper { background: white; border: 1px solid #E5E5E5; border-radius: 8px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
+.world-map { width: 100%; height: auto; }
+.country-group { cursor: pointer; }
+.country-path { transition: all 0.2s; }
+.country-path:hover { stroke: #D04A02; stroke-width: 2; filter: brightness(0.9); }
+.country-selected { stroke: #D04A02 !important; stroke-width: 2.5 !important; }
+.country-label { fill: #2D2D2D; font-weight: 600; pointer-events: none; font-family: var(--font-sans); }
+@keyframes countryPulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
+.country-pulse { animation: countryPulse 2s infinite; }
+.color-legend { display: flex; gap: 16px; justify-content: center; margin-top: 20px; flex-wrap: wrap; }
+.legend-item { display: flex; align-items: center; gap: 6px; font-size: 0.78rem; color: #464646; }
+.legend-swatch { width: 16px; height: 12px; border-radius: 2px; border: 1px solid #E5E5E5; }
+
+/* Risk Panel */
+.risk-panel { background: white; border: 1px solid #E5E5E5; border-radius: 8px; padding: 28px; margin-top: 24px; box-shadow: 0 4px 16px rgba(0,0,0,0.08); }
+.risk-panel-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; }
+.risk-panel-header h3 { font-size: 1.2rem; color: #2D2D2D; margin-bottom: 8px; }
+.panel-close { background: transparent; border: none; cursor: pointer; color: #464646; padding: 4px; }
+.panel-close:hover { color: #2D2D2D; }
+.risk-level-badge { display: inline-block; padding: 4px 12px; border-radius: 12px; font-size: 0.82rem; font-weight: 600; }
+.risk-level-high { background: #fef2f2; color: #dc2626; }
+.risk-level-medium { background: #fff7ed; color: #ea580c; }
+.risk-level-low { background: #f0fdf4; color: #16a34a; }
+.risk-category-tag { display: inline-block; background: rgba(208,74,2,0.08); color: #D04A02; padding: 4px 12px; border-radius: 4px; font-size: 0.82rem; font-weight: 600; margin-bottom: 16px; }
+.risk-briefing { color: #2D2D2D; line-height: 1.7; }
+.risk-briefing strong { color: #D04A02; }
+.risk-briefing p { margin-bottom: 8px; }
+.briefing-loading { display: flex; align-items: center; gap: 8px; color: #D04A02; font-size: 0.9rem; }
+.spin { animation: spin 1s linear infinite; }
+@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }

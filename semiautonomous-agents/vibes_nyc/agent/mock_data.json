@@ -1,0 +1,127 @@
+{
+  "venues": [
+    {
+      "name": "L Stop Coffee Shop",
+      "address": "490 Metropolitan Ave (Union St.), Brooklyn, NY 11211, United States",
+      "yelp_id": "4b65fffff964a5208c0d2be3",
+      "rating": 4,
+      "review_count": 0,
+      "price": "N/A",
+      "photos": [
+        "https://ss3.4sqi.net/img/categories_v2/food/coffeeshop_bg_88.png"
+      ],
+      "categories": [
+        "Coffee Shop"
+      ],
+      "underground_score": 100,
+      "vibe_tags": [
+        "cozy",
+        "neighborhood",
+        "lo-fi",
+        "minimal"
+      ],
+      "accessibility": "walk-in",
+      "vibe_summary": "A quintessential neighborhood hole-in-the-wall that avoids the pretension of larger Williamsburg chains. It\u2019s the perfect quiet corner to start your morning with a straightforward, solid cup of coffee.",
+      "best_time": "8:00 AM"
+    },
+    {
+      "name": "Aldos Coffee Shop",
+      "address": "241 S 4th St, Brooklyn, NY 11211, United States",
+      "yelp_id": "4f32a5c019836c91c7ec22b3",
+      "rating": 4,
+      "review_count": 0,
+      "price": "N/A",
+      "photos": [
+        "https://ss3.4sqi.net/img/categories_v2/food/coffeeshop_bg_88.png"
+      ],
+      "categories": [
+        "Coffee Shop"
+      ],
+      "underground_score": 100,
+      "vibe_tags": [
+        "vintage",
+        "calm",
+        "neighborhood",
+        "intimate"
+      ],
+      "accessibility": "walk-in",
+      "vibe_summary": "This is a true local haunt that feels untouched by the rapid gentrification of the surrounding blocks. Expect a very quiet environment ideal for reflection before the neighborhood fully wakes up.",
+      "best_time": "9:00 AM"
+    },
+    {
+      "name": "Social House Coffee Shop",
+      "address": "60 Broadway, Brooklyn, NY 11249, United States",
+      "yelp_id": "5f00d4685908016263496921",
+      "rating": 4,
+      "review_count": 0,
+      "price": "N/A",
+      "photos": [
+        "https://ss3.4sqi.net/img/categories_v2/food/coffeeshop_bg_88.png"
+      ],
+      "categories": [
+        "Coffee Shop"
+      ],
+      "underground_score": 100,
+      "vibe_tags": [
+        "contemporary",
+        "creative",
+        "lo-fi",
+        "welcoming"
+      ],
+      "accessibility": "walk-in",
+      "vibe_summary": "Positioned slightly off the beaten path, this spot offers a more modern aesthetic while maintaining a laid-back, community-centric atmosphere. It\u2019s a great place to observe the local creative crowd on their way to the studio.",
+      "best_time": "8:30 AM"
+    },
+    {
+      "name": "Jessi's Coffee Shop",
+      "address": "223 Bushwick Ave, Brooklyn, NY 11206, United States",
+      "yelp_id": "4a5a2472f964a520c6b91fe3",
+      "rating": 4,
+      "review_count": 0,
+      "price": "N/A",
+      "photos": [
+        "https://ss3.4sqi.net/img/categories_v2/food/coffeeshop_bg_88.png"
+      ],
+      "categories": [
+        "Coffee Shop"
+      ],
+      "underground_score": 100,
+      "vibe_tags": [
+        "eclectic",
+        "authentic",
+        "unpretentious",
+        "cozy"
+      ],
+      "accessibility": "walk-in",
+      "vibe_summary": "An unpretentious spot that captures the older, more industrial spirit of the area. It serves no-nonsense coffee to a steady stream of regulars who value substance over style.",
+      "best_time": "7:30 AM"
+    },
+    {
+      "name": "Maria's Coffee Shop",
+      "address": "769 Manhattan Ave, Brooklyn, NY 11222, United States",
+      "yelp_id": "4f3270e319836c91c7d818fc",
+      "rating": 4,
+      "review_count": 0,
+      "price": "N/A",
+      "photos": [
+        "https://ss3.4sqi.net/img/categories_v2/food/coffeeshop_bg_88.png"
+      ],
+      "categories": [
+        "Coffee Shop"
+      ],
+      "underground_score": 100,
+      "vibe_tags": [
+        "neighborhood",
+        "vintage",
+        "quiet",
+        "simple"
+      ],
+      "accessibility": "walk-in",
+      "vibe_summary": "Located in the deeper pockets of the neighborhood, this is where time feels like it has slowed down to a crawl. It provides a simple, serene environment to enjoy a morning coffee without the rush of the main thoroughfares.",
+      "best_time": "8:00 AM"
+    }
+  ],
+  "location": "Williamsburg, Brooklyn",
+  "query": "coffee",
+  "count": 5
+}

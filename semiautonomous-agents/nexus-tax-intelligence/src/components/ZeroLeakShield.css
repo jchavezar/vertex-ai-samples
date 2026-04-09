@@ -1,0 +1,7 @@
+.zero-leak-section { background: linear-gradient(135deg, #FFF7F0 0%, #FFFFFF 100%); padding: 32px 0; text-align: center; position: relative; }
+.zero-leak-accent-line { position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, transparent, #D04A02, #FD5108, transparent); }
+.zero-leak-container { max-width: 800px; margin: 0 auto; padding: 0 40px; display: flex; flex-direction: column; align-items: center; }
+.zero-leak-icon { width: 80px; height: 80px; border-radius: 50%; background: rgba(208,74,2,0.08); display: flex; align-items: center; justify-content: center; color: #D04A02; position: relative; }
+.zero-leak-lock { position: absolute; bottom: 2px; right: 2px; width: 26px; height: 26px; border-radius: 50%; background: #D04A02; color: white; display: flex; align-items: center; justify-content: center; border: 2px solid white; }
+.zero-leak-heading { font-size: 1.5rem; font-weight: 600; color: #2D2D2D; margin-top: 24px; }
+.zero-leak-description { color: #464646; font-size: 1rem; line-height: 1.6; max-width: 600px; margin-top: 12px; }

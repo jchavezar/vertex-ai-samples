@@ -1,0 +1,128 @@
+:root {
+  /* === BACKGROUNDS (LIGHT THEME) === */
+  --bg-primary: #FFFFFF;
+  --bg-secondary: #F5F7F8;
+  --bg-tertiary: #F2F2F2;
+  --bg-glass: rgba(255, 255, 255, 0.92);
+  --bg-glass-heavy: rgba(255, 255, 255, 1);
+
+  /* === TEXT === */
+  --text-primary: #2D2D2D;
+  --text-secondary: #464646;
+  --text-muted: #7D7D7D;
+
+  /* === BRAND COLORS (Orange Identity) === */
+  --accent-primary: #D04A02;
+  --accent-bright: #FD5108;
+  --accent-hover: #C52B09;
+  --accent-danger: #E0301E;
+  --accent-rose: #D93954;
+  --accent-success: #16a34a;
+  --accent-warning: #d97706;
+  --accent-glow: rgba(208, 74, 2, 0.15);
+  --accent-glow-bright: rgba(253, 81, 8, 0.15);
+
+  /* === BORDERS === */
+  --border-light: #E5E5E5;
+  --border-subtle: #CCCCCC;
+  --border-glow: rgba(208, 74, 2, 0.1);
+
+  /* === TYPOGRAPHY === */
+  --font-sans: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-serif: Charter, Georgia, serif;
+
+  /* === SHADOWS === */
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 10px 30px rgba(0, 0, 0, 0.10);
+  --shadow-orange: 0 4px 14px rgba(208, 74, 2, 0.2);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Typography */
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+h1 {
+  font-size: 3.5rem;
+  letter-spacing: -0.02em;
+}
+
+h2 {
+  font-size: 2.5rem;
+  letter-spacing: -0.01em;
+}
+
+p {
+  line-height: 1.6;
+}
+
+/* Utility Classes */
+.glass-panel {
+  background: var(--bg-glass);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--border-light);
+  border-radius: 4px;
+  box-shadow: var(--shadow-sm);
+}
+
+.text-gradient {
+  background: linear-gradient(135deg, var(--text-primary) 0%, var(--accent-primary) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.text-gradient-ai {
+  background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-bright) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.text-accent {
+  color: var(--accent-primary);
+}
+
+/* Animations */
+@keyframes pulseGlow {
+  0% { box-shadow: 0 0 0 0 var(--accent-glow); }
+  70% { box-shadow: 0 0 0 10px rgba(208, 74, 2, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(208, 74, 2, 0); }
+}
+
+.animate-pulse-glow {
+  animation: pulseGlow 2s infinite;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-secondary);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border-light);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-primary);
+}

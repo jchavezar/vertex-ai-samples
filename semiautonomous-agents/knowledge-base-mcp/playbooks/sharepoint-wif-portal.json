@@ -1,0 +1,80 @@
+[
+  {
+    "title": "Configure SharePoint Federated Connector for Gemini Enterprise",
+    "category": "recipe",
+    "project": "sharepoint-wif-portal",
+    "content": "## Steps to Create SharePoint Federated Connector\n\n1. **Create Azure App Registration**\n   - Go to Entra ID → App registrations → New registration\n   - Name: `sharepoint-connector-{project}`\n   - Set redirect URI: Web type with your GCP callback URL\n\n2. **Configure API Permissions (CRITICAL)**\n   - Microsoft Graph (Delegated): User.Read, Files.Read.All, Sites.Read.All, offline_access\n   - SharePoint (Delegated): Sites.Search.All, AllSites.Read\n   - Click 'Grant admin consent'\n\n3. **Create Client Secret**\n   - Certificates & secrets → New client secret\n   - Copy value immediately (shown only once)\n\n4. **In GCP Console**\n   - Go to Agent Builder → Data Stores → Create\n   - Type: Third-party → SharePoint Online\n   - Select 'Federated' (not indexing)\n   - Enter: Tenant ID, Client ID, Client Secret, Site URL\n\n5. **Authorize in Incognito**\n   - CRITICAL: Use incognito browser\n   - Must see fresh login + consent screens\n   - If issues, revoke in Entra ID → Enterprise Apps → User consent",
+    "tags": ["sharepoint", "federated-connector", "gemini-enterprise", "discovery-engine", "azure", "entra-id"],
+    "rejected": [
+      "Using 3P indexing connector (data stays in SharePoint with federated)",
+      "Granting Application permissions instead of Delegated",
+      "Using regular browser (MSAL cache causes silent failures)"
+    ],
+    "search_text": "how to create sharepoint federated connector for gemini enterprise discovery engine setup azure app registration delegated permissions"
+  },
+  {
+    "title": "Configure Workforce Identity Federation (WIF) for SharePoint Portal",
+    "category": "architecture",
+    "project": "sharepoint-wif-portal",
+    "content": "## WIF Setup for Microsoft Entra → GCP Token Exchange\n\n### Why Two Providers?\n- **ge-login-provider**: Audience = `{client-id}` → For Gemini Enterprise UI direct login\n- **entra-provider**: Audience = `api://{client-id}` → For Portal backend and Agent Engine\n\n### Step 1: Create WIF Pool\n```bash\ngcloud iam workforce-pools create sp-wif-pool-v2 \\\n  --location=global \\\n  --organization=ORGANIZATION_ID\n```\n\n### Step 2: Create Providers\n```bash\n# For GE UI login (ID token)\ngcloud iam workforce-pools providers create-oidc ge-login-provider \\\n  --workforce-pool=sp-wif-pool-v2 \\\n  --location=global \\\n  --issuer-uri=https://login.microsoftonline.com/{tenant}/v2.0 \\\n  --client-id={client-id} \\\n  --attribute-mapping='google.subject=assertion.email'\n\n# For Portal/Agent (access token)\ngcloud iam workforce-pools providers create-oidc entra-provider \\\n  --workforce-pool=sp-wif-pool-v2 \\\n  --location=global \\\n  --issuer-uri=https://sts.windows.net/{tenant}/ \\\n  --client-id=api://{client-id} \\\n  --attribute-mapping='google.subject=assertion.email,google.groups=assertion.groups'\n```\n\n### Step 3: IAM Bindings\n```bash\nPRINCIPAL='principalSet://iam.googleapis.com/locations/global/workforcePools/sp-wif-pool-v2/*'\n\ngcloud projects add-iam-policy-binding PROJECT_ID \\\n  --member=$PRINCIPAL \\\n  --role=roles/discoveryengine.editor\n\ngcloud projects add-iam-policy-binding PROJECT_ID \\\n  --member=$PRINCIPAL \\\n  --role=roles/aiplatform.user\n```\n\n### Step 4: Entra Manifest (CRITICAL)\n```json\n{\n  \"oauth2AllowIdTokenImplicitFlow\": true,\n  \"groupMembershipClaims\": \"SecurityGroup\"\n}\n```",
+    "tags": ["wif", "workforce-identity-federation", "azure", "entra-id", "iam", "token-exchange", "sts"],
+    "rejected": [
+      "Single provider for both flows (ID token and access token have different audiences)",
+      "Missing oauth2AllowIdTokenImplicitFlow (causes FAILED_PRECONDITION)",
+      "Using only discoveryengine.viewer (need editor for streamAssist)"
+    ],
+    "search_text": "how to configure workforce identity federation wif for sharepoint microsoft entra azure active directory gcp token exchange two providers"
+  },
+  {
+    "title": "Call streamAssist API with SharePoint Grounding",
+    "category": "recipe",
+    "project": "sharepoint-wif-portal",
+    "content": "## Using streamAssist with SharePoint Federated Connector\n\n### Critical: dataStoreSpecs is REQUIRED\nWithout `dataStoreSpecs`, you get generic LLM responses (NOT grounded in SharePoint).\n\n### Request Structure\n```python\nimport requests\n\nGCP_TOKEN = exchange_wif_token(ms_jwt)  # STS exchange\n\nresponse = requests.post(\n    f'https://discoveryengine.googleapis.com/v1/projects/{PROJECT_NUMBER}/'\n    f'locations/global/collections/default_collection/engines/{ENGINE_ID}:streamAssist',\n    headers={'Authorization': f'Bearer {GCP_TOKEN}'},\n    json={\n        'query': {'text': 'What is our Q3 strategy?'},\n        'session': f'projects/{PROJECT_NUMBER}/locations/global/collections/default_collection/engines/{ENGINE_ID}/sessions/-',\n        'toolsSpec': {\n            'vertexAiSearchSpec': {\n                'dataStoreSpecs': [{\n                    'dataStore': f'projects/{PROJECT_NUMBER}/locations/global/collections/default_collection/dataStores/{DATA_STORE_ID}'\n                }]\n            }\n        }\n    }\n)\n```\n\n### STS Token Exchange\n```python\ndef exchange_wif_token(ms_jwt):\n    response = requests.post(\n        'https://sts.googleapis.com/v1/token',\n        data={\n            'grant_type': 'urn:ietf:params:oauth:grant-type:token-exchange',\n            'subject_token': ms_jwt,\n            'subject_token_type': 'urn:ietf:params:oauth:token-type:jwt',\n            'audience': f'//iam.googleapis.com/locations/global/workforcePools/{WIF_POOL_ID}/providers/{WIF_PROVIDER_ID}',\n            'scope': 'https://www.googleapis.com/auth/cloud-platform',\n        }\n    )\n    return response.json()['access_token']\n```\n\n### Common Failure: No dataStoreSpecs\n- Symptom: streamAssist returns answer but `groundingMetadata.sources` is empty\n- Cause: Missing `toolsSpec.vertexAiSearchSpec.dataStoreSpecs`\n- Fix: Always include dataStoreSpecs array with full dataStore path",
+    "tags": ["streamassist", "discovery-engine", "grounding", "sharepoint", "api", "datastores"],
+    "rejected": [
+      "Calling streamAssist without dataStoreSpecs (returns ungrounded responses)",
+      "Using discoveryengine.viewer role (need editor for streamAssist)",
+      "Passing user token directly without STS exchange"
+    ],
+    "search_text": "how to call streamassist api with sharepoint grounding discovery engine datastoreSpecs required"
+  },
+  {
+    "title": "Build Agent Engine Tool with WIF Token Passthrough",
+    "category": "pattern",
+    "project": "sharepoint-wif-portal",
+    "content": "## ADK Agent with SharePoint WIF Authentication\n\n### Architecture\n1. User authenticates to Gemini Enterprise via WIF\n2. Agent Engine receives MS JWT in tool_context.state\n3. Tool extracts JWT, exchanges via STS, calls streamAssist\n4. SharePoint ACLs enforced based on user identity\n\n### Tool Implementation\n```python\nfrom google.adk import Agent, Tool\nfrom google.adk.tools import ToolContext\n\nclass DiscoveryEngineClient:\n    async def search(self, query: str, user_token: str):\n        # Exchange MS JWT for GCP token\n        gcp_token = await self._exchange_wif_token(user_token)\n        \n        # Call streamAssist with user identity\n        return await self._stream_assist(\n            query=query,\n            token=gcp_token,\n            data_store_specs=[DATA_STORE_PATH]\n        )\n\n@Tool()\nasync def compare_insights(query: str, tool_context: ToolContext):\n    # Find MS token in state (pattern: temp:*)\n    user_token = None\n    for key, value in tool_context.state.items():\n        if key.startswith('temp:') and 'token' in key.lower():\n            user_token = value\n            break\n    \n    if not user_token:\n        return {'error': 'No authentication token found'}\n    \n    client = DiscoveryEngineClient()\n    internal = await client.search(query, user_token)\n    \n    # Also search external with Gemini + Google Search\n    external = await search_web(query)\n    \n    return {\n        'internal_findings': internal,\n        'external_findings': external\n    }\n```\n\n### OAuth Grant Setup in Agent Engine\n1. Create OAuth client in Entra ID\n2. Configure Agent Engine with OAuth grant\n3. Map state key (e.g., `temp:sharepointauth2`) to token storage",
+    "tags": ["agent-engine", "adk", "wif", "tool", "sharepoint", "oauth", "token-passthrough"],
+    "rejected": [
+      "Using service account instead of user identity (breaks ACL enforcement)",
+      "Hardcoding token (each user must use their own credentials)",
+      "Skipping STS exchange (MS JWT cannot be used directly with GCP APIs)"
+    ],
+    "search_text": "how to build agent engine tool with wif token passthrough sharepoint user identity adk google"
+  },
+  {
+    "title": "Deploy SharePoint WIF Portal to Cloud Run",
+    "category": "recipe",
+    "project": "sharepoint-wif-portal",
+    "content": "## Cloud Run Deployment with nginx + FastAPI\n\n### Architecture\n- nginx (port 8080): Serves React SPA, proxies /api/* to backend\n- FastAPI (port 8000): WIF exchange, streamAssist calls\n- supervisord: Process manager for both services\n\n### Dockerfile\n```dockerfile\nFROM python:3.12-slim\n\n# Install nginx and supervisord\nRUN apt-get update && apt-get install -y nginx supervisor\n\n# Copy and build frontend\nCOPY frontend/ /app/frontend/\nRUN cd /app/frontend && npm install && npm run build\nRUN cp -r /app/frontend/dist/* /usr/share/nginx/html/\n\n# Copy backend\nCOPY backend/ /app/backend/\nRUN pip install -r /app/backend/requirements.txt\n\n# nginx config (proxy /api/* to :8000)\nCOPY nginx.conf /etc/nginx/sites-enabled/default\n\n# supervisord config\nCOPY supervisord.conf /etc/supervisor/supervisord.conf\n\nEXPOSE 8080\nCMD [\"supervisord\", \"-c\", \"/etc/supervisor/supervisord.conf\"]\n```\n\n### nginx.conf\n```nginx\nserver {\n    listen 8080;\n    root /usr/share/nginx/html;\n    index index.html;\n    \n    location / {\n        try_files $uri $uri/ /index.html;\n    }\n    \n    location /api/ {\n        proxy_pass http://127.0.0.1:8000;\n        proxy_http_version 1.1;\n    }\n    \n    location /health {\n        proxy_pass http://127.0.0.1:8000/health;\n    }\n}\n```\n\n### Deploy\n```bash\ngcloud run deploy sharepoint-wif-portal \\\n  --source . \\\n  --region us-central1 \\\n  --allow-unauthenticated \\\n  --set-secrets 'PROJECT_NUMBER=PROJECT_NUMBER:latest,ENGINE_ID=ENGINE_ID:latest'\n```",
+    "tags": ["cloud-run", "deployment", "nginx", "fastapi", "supervisord", "docker"],
+    "rejected": [
+      "Running only FastAPI (need nginx for SPA routing)",
+      "Using Cloud Run's automatic PORT without nginx proxy",
+      "Exposing backend directly without frontend proxy"
+    ],
+    "search_text": "how to deploy sharepoint wif portal cloud run nginx fastapi react spa supervisord"
+  },
+  {
+    "title": "React Frontend with MSAL Authentication for WIF",
+    "category": "pattern",
+    "project": "sharepoint-wif-portal",
+    "content": "## MSAL Setup for SharePoint WIF Portal\n\n### MSAL Configuration\n```typescript\n// authConfig.ts\nexport const msalConfig = {\n  auth: {\n    clientId: import.meta.env.VITE_OAUTH_CLIENT_ID,\n    authority: `https://login.microsoftonline.com/${import.meta.env.VITE_TENANT_ID}`,\n    redirectUri: window.location.origin,\n  },\n  cache: {\n    cacheLocation: 'sessionStorage',\n    storeAuthStateInCookie: false,\n  },\n};\n\nexport const loginRequest = {\n  scopes: [\n    'User.Read',\n    `api://${import.meta.env.VITE_OAUTH_CLIENT_ID}/access_as_user`,\n  ],\n};\n```\n\n### Token Acquisition\n```typescript\n// useAuth.ts\nexport function useAuth() {\n  const { instance, accounts } = useMsal();\n  \n  const getAccessToken = async (): Promise<string> => {\n    const account = accounts[0];\n    const response = await instance.acquireTokenSilent({\n      ...loginRequest,\n      account,\n    });\n    return response.accessToken;  // This goes to backend for WIF exchange\n  };\n  \n  return { getAccessToken };\n}\n```\n\n### API Call with Token\n```typescript\n// api.ts\nexport async function chat(message: string, token: string) {\n  const response = await fetch('/api/chat', {\n    method: 'POST',\n    headers: {\n      'Content-Type': 'application/json',\n      'X-Entra-Id-Token': token,  // Backend extracts this for WIF\n    },\n    body: JSON.stringify({ message }),\n  });\n  return response.json();\n}\n```\n\n### Key Points\n- Use `api://` scope to get access token (not ID token)\n- Access token has audience `api://{client-id}` which matches WIF provider\n- ID token has audience `{client-id}` which is for GE UI direct login",
+    "tags": ["react", "msal", "authentication", "frontend", "typescript", "vite"],
+    "rejected": [
+      "Using ID token for API calls (wrong audience for WIF provider)",
+      "Storing tokens in localStorage (sessionStorage is more secure)",
+      "Calling GCP APIs directly from frontend (must go through backend for WIF)"
+    ],
+    "search_text": "how to setup react frontend msal authentication wif sharepoint portal access token api scope"
+  }
+]

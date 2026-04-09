@@ -1,0 +1,10 @@
+google-adk>=1.9.0
+google-cloud-aiplatform>=1.88.0
+anthropic[vertex]>=0.42.0
+google-auth>=2.29.0
+python-dotenv>=1.0.0
+cloudpickle>=3.0.0
+pydantic>=2.0.0
+opentelemetry-instrumentation-grpc>=0.48b0
+opentelemetry-instrumentation-httpx>=0.48b0
+opentelemetry-instrumentation-google-genai>=0.2b0

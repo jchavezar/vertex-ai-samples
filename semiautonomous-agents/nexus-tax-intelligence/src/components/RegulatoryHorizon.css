@@ -1,0 +1,57 @@
+.horizon-section { padding: 48px 0; background: #F5F7F8; }
+.horizon-container { max-width: 1200px; margin: 0 auto; padding: 0 40px; }
+.horizon-header { text-align: center; margin-bottom: 32px; }
+.horizon-header h2 { font-family: Charter, Georgia, serif; color: #2D2D2D; }
+.horizon-subtitle { color: #464646; margin-top: 8px; font-size: 1.05rem; }
+
+.scan-btn { background: #D04A02; color: white; border: none; border-radius: 4px; padding: 12px 24px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; margin: 0 auto 32px; font-family: var(--font-sans); font-size: 0.95rem; }
+.scan-btn:hover { background: #C52B09; }
+.scan-btn:disabled { background: #CCCCCC; cursor: not-allowed; }
+
+/* Loading */
+.horizon-loading { display: flex; align-items: center; justify-content: center; gap: 12px; padding: 40px 20px; color: #D04A02; font-weight: 500; }
+.spin { animation: spin 1s linear infinite; }
+@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+/* Timeline */
+.horizon-timeline { position: relative; padding: 40px 0 20px; overflow-x: auto; }
+.timeline-line { position: absolute; top: 32px; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, #D04A02, #FD5108, #D93954, #C52B09); border-radius: 2px; }
+.timeline-cards { display: flex; gap: 20px; padding: 0 10px 20px; min-width: min-content; }
+
+.horizon-card { background: white; border: 1px solid #E5E5E5; border-radius: 8px; width: 260px; min-width: 260px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); overflow: hidden; transition: transform 0.2s, box-shadow 0.2s; cursor: pointer; position: relative; margin-top: 28px; }
+.horizon-card::before { content: ''; position: absolute; top: -28px; left: 50%; width: 2px; height: 28px; background: #E5E5E5; }
+.horizon-card::after { content: ''; position: absolute; top: -34px; left: 50%; transform: translateX(-50%); width: 12px; height: 12px; border-radius: 50%; border: 3px solid #D04A02; background: white; }
+.horizon-card:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(0,0,0,0.1); }
+
+.card-impact-bar { height: 4px; width: 100%; }
+.impact-high { background: #E0301E; }
+.impact-medium { background: #FD5108; }
+.impact-low { background: #16a34a; }
+
+.horizon-card-body { padding: 20px; }
+.card-jurisdiction { color: #7D7D7D; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; margin-bottom: 6px; }
+.card-title { color: #2D2D2D; font-weight: 700; font-size: 0.95rem; margin-bottom: 8px; line-height: 1.4; }
+.card-date { color: #D04A02; font-size: 0.82rem; font-weight: 600; margin-bottom: 8px; }
+.card-summary { color: #464646; font-size: 0.85rem; line-height: 1.5; }
+
+.impact-badge { display: inline-block; padding: 3px 10px; border-radius: 10px; font-size: 0.75rem; font-weight: 600; margin-top: 10px; }
+.badge-high { background: #fef2f2; color: #dc2626; }
+.badge-medium { background: #fff7ed; color: #ea580c; }
+.badge-low { background: #f0fdf4; color: #16a34a; }
+
+/* Detail expansion */
+.horizon-detail { background: white; border: 1px solid #E5E5E5; border-radius: 8px; padding: 28px; margin-top: 24px; box-shadow: 0 4px 16px rgba(0,0,0,0.08); }
+.detail-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; }
+.detail-header h3 { font-size: 1.1rem; color: #2D2D2D; font-family: Charter, Georgia, serif; }
+.detail-jurisdiction { color: #D04A02; font-size: 0.85rem; font-weight: 600; }
+.detail-close { background: transparent; border: none; cursor: pointer; color: #7D7D7D; padding: 4px; }
+.detail-close:hover { color: #2D2D2D; }
+.detail-content { color: #2D2D2D; line-height: 1.7; }
+.detail-content strong { color: #D04A02; }
+.detail-content p { margin-bottom: 8px; }
+.detail-content ul, .detail-content ol { padding-left: 20px; margin: 8px 0; }
+.detail-loading { display: flex; align-items: center; gap: 8px; color: #D04A02; font-size: 0.9rem; }
+
+/* Empty state */
+.horizon-empty { text-align: center; padding: 60px 20px; color: #7D7D7D; }
+.horizon-empty p { margin-top: 8px; }

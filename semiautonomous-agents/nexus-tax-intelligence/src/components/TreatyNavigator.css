@@ -1,0 +1,72 @@
+.treaty-section { padding: 48px 0; background: var(--bg-primary); }
+.treaty-container { max-width: 1000px; margin: 0 auto; padding: 0 40px; }
+.treaty-header { text-align: center; margin-bottom: 32px; }
+.treaty-header h2 { font-family: Charter, Georgia, serif; color: #2D2D2D; }
+.treaty-subtitle { color: #464646; margin-top: 8px; font-size: 1.05rem; }
+
+/* Selector */
+.treaty-selector { background: white; border: 1px solid #E5E5E5; border-radius: 8px; padding: 32px; max-width: 600px; margin: 0 auto; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
+.treaty-row { display: flex; align-items: center; gap: 16px; justify-content: center; flex-wrap: wrap; }
+.treaty-select { padding: 12px 16px; border: 1px solid #E5E5E5; border-radius: 4px; font-size: 0.95rem; font-family: var(--font-sans); color: #2D2D2D; min-width: 180px; }
+.treaty-select:focus { outline: none; border-color: #D04A02; box-shadow: 0 0 0 3px rgba(208,74,2,0.1); }
+.treaty-vs { color: #7D7D7D; font-weight: 700; font-size: 1.1rem; }
+.analyze-treaty-btn { background: #D04A02; color: white; border: none; border-radius: 4px; padding: 12px 24px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; margin: 20px auto 0; font-family: var(--font-sans); }
+.analyze-treaty-btn:hover { background: #C52B09; }
+.analyze-treaty-btn:disabled { background: #CCCCCC; cursor: not-allowed; }
+
+/* Loading */
+.treaty-loading { display: flex; align-items: center; justify-content: center; gap: 12px; padding: 60px 20px; color: #D04A02; font-weight: 500; }
+.spin { animation: spin 1s linear infinite; }
+@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+/* Result */
+.treaty-result { margin-top: 32px; }
+
+/* Treaty strength meter */
+.treaty-strength { background: white; border: 1px solid #E5E5E5; border-radius: 8px; padding: 28px; margin-bottom: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); text-align: center; }
+.strength-label { color: #7D7D7D; font-size: 0.85rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px; }
+.strength-meter { display: flex; align-items: center; gap: 16px; justify-content: center; }
+.strength-score { font-size: 2.8rem; font-weight: 800; font-family: Charter, Georgia, serif; }
+.score-weak { color: #dc2626; }
+.score-moderate { color: #ea580c; }
+.score-strong { color: #16a34a; }
+.meter-bar-bg { width: 300px; height: 10px; background: #F2F2F2; border-radius: 5px; overflow: hidden; }
+.meter-bar-fill { height: 100%; border-radius: 5px; transition: width 0.8s ease-out; }
+.strength-desc { color: #464646; font-size: 0.9rem; margin-top: 8px; }
+
+/* Withholding table */
+.treaty-table-card { background: white; border: 1px solid #E5E5E5; border-radius: 8px; padding: 28px; margin-bottom: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
+.treaty-table-card h3 { font-family: Charter, Georgia, serif; color: #2D2D2D; margin-bottom: 16px; font-size: 1.1rem; }
+.treaty-table { width: 100%; border-collapse: collapse; }
+.treaty-table th, .treaty-table td { padding: 12px 16px; text-align: left; border-bottom: 1px solid #E5E5E5; }
+.treaty-table th { background: #F5F7F8; font-weight: 600; color: #2D2D2D; font-size: 0.88rem; }
+.treaty-table td { color: #464646; font-size: 0.92rem; }
+.treaty-table tr:last-child td { border-bottom: none; }
+.rate-cell { font-weight: 700; color: #D04A02; }
+
+/* Info cards grid */
+.treaty-info-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin-bottom: 24px; }
+@media (max-width: 700px) { .treaty-info-grid { grid-template-columns: 1fr; } }
+
+.treaty-info-card { background: white; border: 1px solid #E5E5E5; border-radius: 8px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
+.info-card-icon { width: 36px; height: 36px; border-radius: 8px; background: rgba(208,74,2,0.08); display: flex; align-items: center; justify-content: center; color: #D04A02; margin-bottom: 12px; }
+.info-card-title { font-weight: 700; color: #2D2D2D; font-size: 0.95rem; margin-bottom: 8px; }
+.info-card-text { color: #464646; font-size: 0.88rem; line-height: 1.6; }
+
+/* Recommendations */
+.treaty-recs { background: white; border: 1px solid #E5E5E5; border-radius: 8px; padding: 28px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
+.treaty-recs h3 { font-family: Charter, Georgia, serif; color: #2D2D2D; margin-bottom: 16px; font-size: 1.1rem; }
+.rec-list { list-style: none; padding: 0; margin: 0; }
+.rec-list li { padding: 10px 0; border-bottom: 1px solid #F2F2F2; color: #464646; font-size: 0.9rem; display: flex; gap: 10px; align-items: flex-start; line-height: 1.5; }
+.rec-list li:last-child { border-bottom: none; }
+.rec-bullet { color: #D04A02; font-weight: 700; flex-shrink: 0; }
+
+/* No treaty */
+.no-treaty { text-align: center; padding: 40px; background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; margin-top: 32px; }
+.no-treaty h3 { color: #dc2626; margin-bottom: 8px; }
+.no-treaty p { color: #464646; }
+
+/* Reset */
+.treaty-actions { display: flex; justify-content: center; margin-top: 24px; }
+.new-treaty-btn { background: transparent; color: #D04A02; border: 2px solid #D04A02; border-radius: 4px; padding: 12px 24px; font-weight: 600; cursor: pointer; font-family: var(--font-sans); }
+.new-treaty-btn:hover { background: #D04A02; color: white; }
