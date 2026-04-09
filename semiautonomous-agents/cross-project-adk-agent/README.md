@@ -108,7 +108,9 @@ cross-project-adk-agent/
 │   ├── 01_console_landing.png          # sharepoint-wif-agent console
 │   ├── 01_agent_engine_list.png        # Agent Engine with cross-project-assistant
 │   ├── 02_iam_crossproject.png         # IAM cross-project bindings
-│   └── 03_gemini_enterprise_landing.png # Gemini Enterprise in vtxdemos
+│   ├── 03_gemini_enterprise_landing.png # Gemini Enterprise in vtxdemos
+│   ├── 04_agent_engine_traces.png      # Agent Engine details with traces/spans
+│   └── 05_gemini_enterprise_chat.png   # cross_project_agent responding in GE
 ├── .env.example              # Configuration template
 ├── .python-version           # 3.12
 ├── pyproject.toml            # Dependencies (uv)

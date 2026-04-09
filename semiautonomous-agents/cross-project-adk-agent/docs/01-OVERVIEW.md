@@ -6,6 +6,14 @@
 
 ![Cross-Project Demo](../assets/cross-project-demo.gif)
 
+### Agent Engine Traces (Project A)
+
+![Agent Engine Traces](../assets/04_agent_engine_traces.png)
+
+### Gemini Enterprise Chat (Project B)
+
+![Gemini Enterprise Chat](../assets/05_gemini_enterprise_chat.png)
+
 ## What This Project Does
 
 Demonstrates **cross-project ADK agent deployment**: an agent runs in one GCP project but is accessible from Gemini Enterprise in a different project.

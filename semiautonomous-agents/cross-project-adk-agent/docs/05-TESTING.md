@@ -90,9 +90,11 @@ curl -X POST \
 
 After registration, test directly in the Agentspace UI:
 
+![Gemini Enterprise Chat with cross_project_agent](../assets/05_gemini_enterprise_chat.png)
+
 1. Navigate to your Gemini Enterprise instance
-2. Find "Cross-Project Assistant" in the agent list
-3. Ask: "What is Vertex AI Agent Engine?"
+2. Find `cross_project_agent` in the agent list
+3. Ask: "hey how are you?"
 4. Verify the response comes from the agent in `sharepoint-wif-agent`
 
 ---

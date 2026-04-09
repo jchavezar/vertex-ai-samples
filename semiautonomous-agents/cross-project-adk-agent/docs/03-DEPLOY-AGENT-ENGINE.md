@@ -6,6 +6,8 @@ This deploys the ADK agent to Agent Engine in `sharepoint-wif-agent`.
 
 ![Agent Engine in sharepoint-wif-agent](../assets/01_agent_engine_list.png)
 
+![Agent Engine Details & Traces](../assets/04_agent_engine_traces.png)
+
 ---
 
 ## The Agent
