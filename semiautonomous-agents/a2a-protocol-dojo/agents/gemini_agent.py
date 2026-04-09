@@ -1,7 +1,7 @@
 """
 Gemini Agent — A2A Protocol Dojo.
 
-A2A agent powered by Gemini 2.5 Flash with streaming support.
+A2A agent powered by gemini-3.1-flash-lite-preview with streaming support.
 Falls back to mock mode when no GCP project is configured.
 Port: 8002
 """
@@ -36,18 +36,21 @@ from a2a.types import (
     TextPart,
 )
 
-PROJECT_ID = os.environ.get("PROJECT_ID", "")
+PROJECT_ID = os.environ.get("PROJECT_ID", "vtxdemos")
+LOCATION = os.environ.get("LOCATION", "global")
+MODEL = os.environ.get("MODEL", "gemini-3.1-flash-lite-preview")
 USE_GEMINI = bool(PROJECT_ID)
 
 if USE_GEMINI:
     os.environ["GOOGLE_GENAI_USE_VERTEXAI"] = "true"
     os.environ["GOOGLE_CLOUD_PROJECT"] = PROJECT_ID
+    os.environ["GOOGLE_CLOUD_LOCATION"] = LOCATION
     from google import genai
 
     client = genai.Client(
         vertexai=True,
         project=PROJECT_ID,
-        location=os.environ.get("LOCATION", "us-central1"),
+        location=LOCATION,
     )
 
 MOCK_RESPONSES = [
@@ -83,7 +86,7 @@ class GeminiAgentExecutor(AgentExecutor):
             # Stream from Gemini
             full_text = ""
             response = client.models.generate_content_stream(
-                model="gemini-2.5-flash",
+                model=MODEL,
                 contents=user_text,
             )
             for chunk in response:
@@ -157,7 +160,7 @@ class GeminiAgentExecutor(AgentExecutor):
         )
 
 
-mode_label = "Gemini 2.5 Flash" if USE_GEMINI else "Mock Mode"
+mode_label = f"{MODEL} ({LOCATION})" if USE_GEMINI else "Mock Mode"
 print(f"Gemini Agent starting in: {mode_label}")
 
 agent_card = AgentCard(
