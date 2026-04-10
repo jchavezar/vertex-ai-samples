@@ -34,7 +34,7 @@
 
 ## The Problem
 
-Discovery Engine's federated SharePoint connector requires an exact chain of undocumented configuration — a specific Entra manifest flag, two WIF providers with different token audiences, and a required API field that returns HTTP 200 silently without it. This guide exists because that chain took 5 days and multiple LLMs to reverse-engineer. [`00-AUTH-CHAIN.md`](docs/00-AUTH-CHAIN.md) preserves the result so you don't have to.
+Discovery Engine's federated SharePoint connector requires an exact chain of undocumented configuration — a specific Entra manifest flag, two WIF providers with different token audiences, and a required API field that returns HTTP 200 silently without it. This guide exists because the product team does not yet maintain public documentation for this chain. [`00-AUTH-CHAIN.md`](docs/00-AUTH-CHAIN.md) preserves the result so you don't have to.
 
 ---
 

@@ -8,7 +8,7 @@
 
 ## Why This Document Exists
 
-This is the document that took **5 days and multiple LLMs to figure out** because the product team does not currently maintain public documentation for this authentication flow.
+This document exists because the product team does not currently maintain public documentation for this authentication flow.
 
 Every other document in this guide covers things you can find on Google — how to create a GCP project, register an Entra app, deploy Cloud Run. **This document covers what you cannot find anywhere else**: the exact chain of requirements that makes `streamAssist` work with a federated SharePoint connector under a real user's identity.
 
