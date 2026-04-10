@@ -28,7 +28,7 @@
 
 > [!WARNING]
 > **Read [`docs/00-AUTH-CHAIN.md`](docs/00-AUTH-CHAIN.md) before starting setup.**
-> The authentication chain (Entra JWT → WIF/STS → `dataStoreSpecs` → SharePoint) is not documented by the product team and took significant effort to reverse-engineer. Skipping it causes silent failures with no clear error messages — Gemini returns HTTP 200 with plausible-looking answers sourced from its training data, not your SharePoint.
+> The authentication chain (Entra JWT → WIF/STS → `dataStoreSpecs` → SharePoint) is not publicly documented. Skipping it causes silent failures — Gemini returns HTTP 200 with plausible-looking answers sourced from its training data, not your SharePoint.
 
 ---
 
@@ -53,7 +53,7 @@ Discovery Engine's federated SharePoint connector requires an exact chain of und
 - [Project Structure](#project-structure)
 - [Backend API](#backend-api)
 - [Configuration](#configuration)
-- [Testing Workflow](#testing-workflow)
+- [Testing](#testing)
 - [Troubleshooting](#troubleshooting)
 - [Roadmap](#roadmap)
 
@@ -192,141 +192,23 @@ flowchart LR
 
 ## Architecture
 
-<details>
-<summary>Show full architecture diagram</summary>
-
+```mermaid
+flowchart TB
+    Portal["Custom Portal<br/>React + Vite"] & GE["Gemini Enterprise"] --> Entra["Microsoft Entra ID"]
+    Entra --> WIF["Workforce Identity Federation<br/>2 providers: login + agent"]
+    WIF --> STS["Google STS<br/>Token Exchange"]
+    STS --> Backend["FastAPI Backend<br/>/api/chat · /api/quick · /api/agent"]
+    Backend --> DE["Discovery Engine<br/>streamAssist + ACLs"]
+    Backend --> AE["Agent Engine<br/>InsightComparator"]
+    DE --> SP["SharePoint Online"]
+    DE --> GS["Google Search"]
 ```
-+================================================================================================+
-|                              SHAREPOINT WIF PORTAL - FULL ARCHITECTURE                          |
-|                                                                                                 |
-|   +-------------------------------------------------------------------------------------------+ |
-|   |                                    USER INTERFACES                                         | |
-|   |                                                                                            | |
-|   |    +-------------------+              +-------------------+              +---------------+ | |
-|   |    |   Custom Portal   |              | Gemini Enterprise |              |   Test UI     | | |
-|   |    |   (React + Vite)  |              |       (GE)        |              | (localhost)   | | |
-|   |    |   Port 5173       |              |                   |              | Port 8080     | | |
-|   |    +--------+----------+              +--------+----------+              +-------+-------+ | |
-|   |             |                                  |                                 |         | |
-|   +-------------|----------------------------------|-------------------------------- |--------- + |
-|                 |                                  |                                 |           |
-|   +-------------v----------------------------------v---------------------------------v---------+ |
-|   |                              AUTHENTICATION LAYER                                          | |
-|   |                                                                                            | |
-|   |    +-----------------------------------------------------------------------------------+   | |
-|   |    |                           Microsoft Entra ID                                      |   | |
-|   |    |                                                                                   |   | |
-|   |    |    App Registration: sharepoint-wif-portal                                        |   | |
-|   |    |    +-----------------------------+    +-----------------------------+             |   | |
-|   |    |    | ID Token                    |    | Access Token                |             |   | |
-|   |    |    | aud: {client-id}            |    | aud: api://{client-id}      |             |   | |
-|   |    |    | For: GE Login               |    | For: Agent WIF Exchange     |             |   | |
-|   |    |    +-----------------------------+    +-----------------------------+             |   | |
-|   |    +-----------------------------------------------------------------------------------+   | |
-|   |                            |                              |                                | |
-|   +----------------------------|------------------------------|------------------------------ + |
-|                                |                              |                                  |
-|   +----------------------------v------------------------------v------------------------------+ |
-|   |                           WORKFORCE IDENTITY FEDERATION (WIF)                             | |
-|   |                                                                                            | |
-|   |    Pool: sp-wif-pool-v2                                                                   | |
-|   |    +-------------------------------------+    +-------------------------------------+      | |
-|   |    | Provider: ge-login-provider         |    | Provider: entra-provider            |      | |
-|   |    | Audience: {client-id} (no prefix)   |    | Audience: api://{client-id}         |      | |
-|   |    | Purpose: GE user authentication     |    | Purpose: Agent token exchange       |      | |
-|   |    | Grants: discoveryengine.viewer      |    | Grants: discoveryengine.viewer      |      | |
-|   |    +-------------------------------------+    +-------------------------------------+      | |
-|   |                            |                              |                                | |
-|   |                            +-------> STS Exchange <-------+                                | |
-|   |                                          |                                                 | |
-|   |                                          v                                                 | |
-|   |                                   GCP Access Token                                         | |
-|   |                                   (User Identity)                                          | |
-|   +----------------------------|--------------------------------------------------------------+ |
-|                                |                                                                 |
-|   +----------------------------v--------------------------------------------------------------+ |
-|   |                                    BACKEND SERVICES                                        | |
-|   |                                                                                            | |
-|   |    +------------------------------------------+    +----------------------------------+    | |
-|   |    |            FastAPI Backend               |    |      Agent Engine (ADK)          |    | |
-|   |    |            Port 8000                     |    |                                  |    | |
-|   |    |                                          |    |    +-------------------------+   |    | |
-|   |    |    /api/chat   - streamAssist + WIF      |    |    | InsightComparator Agent |   |    | |
-|   |    |    /api/quick  - Gemini + Google Search  |    |    | compare_insights tool   |   |    | |
-|   |    |    /api/sessions - Conversation mgmt     |    |    +-------------------------+   |    | |
-|   |    +------------------------------------------+    +----------------------------------+    | |
-|   |                   |                                              |                         | |
-|   +-----------------  |  ------------------------------------------- | ----------------------- + |
-|                       |                                              |                           |
-|   +-------------------v----------------------------------------------v-------------------------+ |
-|   |                              DISCOVERY ENGINE                                              | |
-|   |                                                                                            | |
-|   |    Engine: gemini-enterprise                                                              | |
-|   |    +------------------------------------------+    +----------------------------------+    | |
-|   |    |         streamAssist API                 |    |      Agentspace                  |    | |
-|   |    |                                          |    |                                  |    | |
-|   |    |    - Query with user identity (WIF)      |    |    Registered Agents:            |    | |
-|   |    |    - SharePoint ACL enforcement          |    |    - InsightComparator           |    | |
-|   |    |    - Grounding with sources              |    |    - OAuth: sharepointauth2      |    | |
-|   |    +------------------------------------------+    +----------------------------------+    | |
-|   |                                                                                            | |
-|   +--------------------------------------------------------------------------------------------+ |
-|                                              |                                                   |
-|   +------------------------------------------v-------------------------------------------------+ |
-|   |                                    DATA SOURCES                                            | |
-|   |                                                                                            | |
-|   |    +------------------------------------------+    +----------------------------------+    | |
-|   |    |         SharePoint Online                |    |       Google Search              |    | |
-|   |    |                                          |    |                                  |    | |
-|   |    |    Data Store: sharepoint-data-*         |    |    Gemini Grounding Tool         |    | |
-|   |    |    Connector: Federated (Third-party)    |    |    Public web results            |    | |
-|   |    |    ACL: User-level via WIF identity      |    |                                  |    | |
-|   |    +------------------------------------------+    +----------------------------------+    | |
-|   |                                                                                            | |
-|   +--------------------------------------------------------------------------------------------+ |
-|                                                                                                  |
-+==================================================================================================+
-```
-
-</details>
 
 ---
 
 ## Documentation
 
 Follow this order. Each phase builds on the previous.
-
-<details>
-<summary>Show documentation flow diagram</summary>
-
-```
-+===========================================================================+
-|                         DOCUMENTATION FLOW                                 |
-|                                                                            |
-|   PHASE 1: INFRASTRUCTURE                                                  |
-|   +-----------+     +-----------+     +-----------+     +-----------+     |
-|   |  01-GCP   | --> |  02-ENTRA | --> |  03-WIF   | --> |  04-DISCO |     |
-|   +-----------+     +-----------+     +-----------+     +-----------+     |
-|                                                                            |
-|   PHASE 2: CUSTOM UI (Direct API - No Agent Required)                     |
-|   +-----------+     +-----------+     +-----------+                       |
-|   |  05-DEV   | --> |  06-ENGINE| --> |  07-FRONT |                       |
-|   +-----------+     +-----------+     +-----------+                       |
-|                                                                            |
-|   PHASE 3: AGENT INTEGRATION                                              |
-|   +-----------+     +-----------+                                          |
-|   | 08-AGENT  | --> | 09-PANEL  |                                          |
-|   +-----------+     +-----------+                                          |
-|                                                                            |
-|   PHASE 4: PRODUCTION DEPLOYMENT                                          |
-|   +-----------+     +-----------+                                          |
-|   | 10-DEPLOY | --> |  TESTING  |                                          |
-|   +-----------+     +-----------+                                          |
-|                                                                            |
-+===========================================================================+
-```
-
-</details>
 
 | # | Document | Depends On | What It Sets Up |
 |---|----------|------------|-----------------|
@@ -347,60 +229,14 @@ Follow this order. Each phase builds on the previous.
 
 ## Token Flow
 
-<details>
-<summary>Show token flow diagram</summary>
+Two parallel flows — Custom Portal uses MSAL + backend STS exchange; Gemini Enterprise uses its own login provider:
 
-```
-                    CUSTOM PORTAL                              GEMINI ENTERPRISE
-                    ============                               =================
+| Flow | Token Audience | WIF Provider | Purpose |
+|------|---------------|--------------|---------|
+| Custom Portal | `api://{client-id}` | `entra-agent-provider` | Backend STS exchange → streamAssist |
+| Gemini Enterprise | `{client-id}` (no prefix) | `entra-login-provider` | GE user authentication |
 
-User Login          User Login
-     |                   |
-     v                   v
-+----------+        +----------+
-| Entra ID |        | Entra ID |
-| (MSAL)   |        | (via GE) |
-+----------+        +----------+
-     |                   |
-     | ID Token          | Access Token
-     | aud:{client-id}   | aud:api://{client-id}
-     |                   |
-     v                   v
-+----------+        +-------------------+
-| Frontend |        | ge-login-provider |
-+----------+        +-------------------+
-     |                   |
-     | X-Entra-Id-Token  | ID Token
-     |                   |
-     v                   v
-+----------+        +-------------------+
-| Backend  |        | Agentspace        |
-| (FastAPI)|        +-------------------+
-+----------+              |
-     |                    | temp:sharepointauth2
-     | STS Exchange       |
-     |                    v
-     v              +-------------------+
-+----------+        | ADK Agent         |
-| STS      |        | (Agent Engine)    |
-+----------+        +-------------------+
-     |                    |
-     | GCP Token          | STS Exchange via
-     | (WIF identity)     | entra-provider
-     |                    |
-     v                    v
-+------------------+  +------------------+
-| Discovery Engine |  | Discovery Engine |
-| streamAssist     |  | streamAssist     |
-| (ACL enforced)   |  | (ACL enforced)   |
-+------------------+  +------------------+
-```
-
-</details>
-
-> For the full step-by-step sequence diagrams see:
-> - [07-FRONTEND-FEATURES.md](docs/07-FRONTEND-FEATURES.md) — JWT → STS exchange → Discovery Engine → SharePoint (main query) and `/btw` web search flow
-> - [09-AGENT-PANEL.md](docs/09-AGENT-PANEL.md) — JWT passthrough → Agent Engine → parallel SharePoint + Google Search
+> For detailed sequence diagrams, see [07-FRONTEND-FEATURES.md](docs/07-FRONTEND-FEATURES.md) and [09-AGENT-PANEL.md](docs/09-AGENT-PANEL.md).
 
 ---
 
@@ -445,38 +281,7 @@ See [`.env.example`](.env.example) for all variables. Full details in [03-SETUP-
 
 ---
 
-## Testing Workflow
-
-<details>
-<summary>Show testing workflow diagram</summary>
-
-```
-+---------------------------------------------------------------------+
-|                        TESTING WORKFLOW                              |
-|                                                                      |
-|   1. LOCAL TEST          2. DEPLOY           3. REMOTE TEST         |
-|   +-------------+        +-------------+     +-------------+        |
-|   | test_local  |  --->  | deploy.py   | --> | test_remote |        |
-|   | .py         |        |             |     | .py         |        |
-|   +-------------+        +-------------+     +-------------+        |
-|        |                       |                   |                 |
-|        v                       v                   v                 |
-|   In-memory ADK          Agent Engine         Query via SDK         |
-|   + Discovery Engine     Deployment           Stream response       |
-|                                                                      |
-|   4. REGISTER            5. GE UI TEST                              |
-|   +-------------+        +------------------+                       |
-|   | scripts/    |  --->  | Gemini Enterprise|                       |
-|   | register_*  |        | Manual Testing   |                       |
-|   +-------------+        +------------------+                       |
-|        |                       |                                     |
-|        v                       v                                     |
-|   OAuth + Agent            User clicks                               |
-|   in Agentspace            "Authorize"                               |
-+---------------------------------------------------------------------+
-```
-
-</details>
+## Testing
 
 | Step | Command | Purpose |
 |------|---------|---------|

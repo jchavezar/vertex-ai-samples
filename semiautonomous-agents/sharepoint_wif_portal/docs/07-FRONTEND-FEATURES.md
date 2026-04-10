@@ -238,78 +238,22 @@ Quick web search (no authentication required).
 
 ## Discovery Engine Integration
 
-### StreamAssist API Call
+The backend uses the `streamAssist` API with WIF token exchange and `dataStoreSpecs` to query SharePoint under the user's identity. For the full authentication chain, payload format, and token exchange implementation, see [00-AUTH-CHAIN.md](00-AUTH-CHAIN.md).
 
-```python
-# backend/main.py
-
-BASE_URL = f"https://discoveryengine.googleapis.com/v1alpha/projects/{PROJECT_NUMBER}/locations/global/collections/default_collection/engines/{ENGINE_ID}"
-
-# Build payload with SharePoint datastore restriction
-payload = {
-    "query": {"text": query},
-    "session": session_id,  # For multi-turn
-    "toolsSpec": {
-        "vertexAiSearchSpec": {
-            "dataStoreSpecs": [{
-                "dataStore": f"projects/{PROJECT_NUMBER}/locations/global/collections/default_collection/dataStores/{DATA_STORE_ID}"
-            }]
-        }
-    }
-}
-
-# Call StreamAssist
-resp = requests.post(
-    f"{BASE_URL}/assistants/default_assistant:streamAssist",
-    headers={"Authorization": f"Bearer {gcp_token}"},
-    json=payload,
-    timeout=90
-)
-```
-
-### WIF Token Exchange
-
-```python
-def exchange_token(jwt: str) -> str:
-    """Exchange Entra JWT for GCP token via STS."""
-    resp = requests.post("https://sts.googleapis.com/v1/token", json={
-        "audience": f"//iam.googleapis.com/locations/global/workforcePools/{WIF_POOL_ID}/providers/{WIF_PROVIDER_ID}",
-        "grantType": "urn:ietf:params:oauth:grant-type:token-exchange",
-        "requestedTokenType": "urn:ietf:params:oauth:token-type:access_token",
-        "scope": "https://www.googleapis.com/auth/cloud-platform",
-        "subjectToken": jwt,
-        "subjectTokenType": "urn:ietf:params:oauth:token-type:jwt"
-    })
-    return resp.json().get("access_token")
-```
+> **Code:**
+> - [`backend/main.py#L44`](https://github.com/jchavezar/vertex-ai-samples/blob/main/semiautonomous-agents/sharepoint_wif_portal/backend/main.py#L44) — `exchange_token()` STS call
+> - [`backend/main.py#L226`](https://github.com/jchavezar/vertex-ai-samples/blob/main/semiautonomous-agents/sharepoint_wif_portal/backend/main.py#L226) — `_do_chat_sync()` streamAssist call with `dataStoreSpecs`
 
 ### Source Extraction
 
-```python
-def extract_sources(data) -> List[dict]:
-    """Extract grounding sources from StreamAssist response."""
-    sources = []
-    
-    # Pattern 1: textGroundingMetadata (first query)
-    for ref in obj.get("textGroundingMetadata", {}).get("references", []):
-        doc = ref.get("documentMetadata", {})
-        sources.append({
-            "title": doc.get("title"),
-            "url": doc.get("uri"),
-            "snippet": ref.get("content", "")[:200]
-        })
-    
-    # Pattern 2: groundingMetadata (follow-up queries)
-    for chunk in obj.get("groundingMetadata", {}).get("groundingChunks", []):
-        ctx = chunk.get("retrievedContext", {})
-        sources.append({
-            "title": ctx.get("title"),
-            "url": ctx.get("uri"),
-            "snippet": ctx.get("text", "")[:200]
-        })
-    
-    return sources[:5]
-```
+The `streamAssist` response uses two grounding metadata formats depending on conversation turn:
+
+| Turn | Metadata Key | Contains |
+|------|-------------|----------|
+| First query | `textGroundingMetadata.references` | `documentMetadata.title`, `documentMetadata.uri` |
+| Follow-up | `groundingMetadata.groundingChunks` | `retrievedContext.title`, `retrievedContext.uri` |
+
+> **Code:** [`backend/main.py#L226`](https://github.com/jchavezar/vertex-ai-samples/blob/main/semiautonomous-agents/sharepoint_wif_portal/backend/main.py#L226) — both extraction patterns
 
 ---
 
@@ -388,7 +332,7 @@ payload = {
 
 ```bash
 # Backend (.env)
-PROJECT_NUMBER=REDACTED_PROJECT_NUMBER
+PROJECT_NUMBER=${PROJECT_NUMBER}
 ENGINE_ID=gemini-enterprise
 DATA_STORE_ID=sharepoint-datastore-id
 WIF_POOL_ID=sp-wif-pool-v2

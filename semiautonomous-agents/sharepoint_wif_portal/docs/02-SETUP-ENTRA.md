@@ -20,9 +20,9 @@
 
 | Variable | Example | Used In |
 |----------|---------|---------|
-| `TENANT_ID` | `de46a3fd-...` | 03-WIF, 08-Agent |
-| `OAUTH_CLIENT_ID` | `7868d053-...` | 03-WIF, 04-Discovery, 08-Agent |
-| `OAUTH_CLIENT_SECRET` | `k8K8Q~...` | 08-Agent |
+| `TENANT_ID` | `xxxxxxxx-xxxx-...` | 03-WIF, 08-Agent |
+| `OAUTH_CLIENT_ID` | `xxxxxxxx-xxxx-...` | 03-WIF, 04-Discovery, 08-Agent |
+| `OAUTH_CLIENT_SECRET` | `xxxxxx~...` | 08-Agent |
 
 ---
 
@@ -72,7 +72,7 @@ Creates the Entra app registration that issues tokens your portal and agent exch
 
 ---
 
-## Step 2: Expose an API (CRITICAL)
+## Step 2: Expose an API
 
 This creates the custom scope that sets the correct token audience for WIF.
 
@@ -98,7 +98,7 @@ This creates the custom scope that sets the correct token audience for WIF.
 
 ---
 
-## Step 3: Configure Token Settings (CRITICAL)
+## Step 3: Configure Token Settings
 
 > **This step is REQUIRED for WIF to work.** Missing these settings causes `FAILED_PRECONDITION` errors.
 

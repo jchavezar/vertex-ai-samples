@@ -60,7 +60,7 @@ Connects Discovery Engine to SharePoint via a federated connector that syncs doc
 
 ### Add API Permissions (COMPLETE LIST)
 
-> **Critical**: ALL permissions below are required. Missing any causes search failures.
+> **Note**: All permissions below are required. Missing any causes search failures.
 
 1. Go to **API permissions** → **Add a permission**
 
@@ -80,8 +80,8 @@ Connects Discovery Engine to SharePoint via a federated connector that syncs doc
 
 | Permission | Purpose |
 |------------|---------|
-| `Sites.Search.All` | **CRITICAL** - Run search queries as user |
-| `AllSites.Read` | **CRITICAL** - Read all site collections |
+| `Sites.Search.All` | Run search queries as user (required) |
+| `AllSites.Read` | Read all site collections (required) |
 | `AllSites.Write` | Write access (for actions) |
 
 2. Click **Add permissions**
@@ -212,7 +212,9 @@ Click **Continue** → **Create**
 
 ## Step 6: Test Search API (WIF Flow)
 
-Calling `streamAssist` requires a Google Cloud access token. If your user is authenticated via Entra ID, you must exchange their Entra JWT for a Google STS token.
+> For a full explanation of the authentication chain, see [00-AUTH-CHAIN.md](00-AUTH-CHAIN.md).
+
+Calling `streamAssist` requires a Google Cloud access token. Exchange an Entra JWT for a Google STS token:
 
 ### 6.1 Exchange Entra JWT for Google STS Token
 
@@ -240,9 +242,9 @@ The response will contain an `access_token`. Save it as `STS_TOKEN`.
 The `dataStoreSpecs` is **REQUIRED** in the payload to specify the SharePoint data store. Use the **Project Number** (not ID) in the resource path.
 
 ```bash
-export PROJECT_NUMBER="1234567890"
-export ENGINE_ID="gemini-enterprise-app"
-export DATA_STORE_ID="sharepoint-docs-connector_file"
+export PROJECT_NUMBER="<your-project-number>"
+export ENGINE_ID="<your-engine-id>"
+export DATA_STORE_ID="<your-datastore-id>"
 export STS_TOKEN="<TOKEN_FROM_STEP_6_1>"
 
 curl -X POST \

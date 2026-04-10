@@ -33,7 +33,7 @@ Edit `.env` with your values:
 
 ```env
 # GCP
-PROJECT_NUMBER=REDACTED_PROJECT_NUMBER
+PROJECT_NUMBER=${PROJECT_NUMBER}
 LOCATION=global
 
 # Discovery Engine
@@ -77,7 +77,7 @@ curl http://localhost:8000/health
 # {"status":"healthy","service":"sharepoint-wif-portal"}
 
 curl http://localhost:8000/api/config
-# {"project_number":"REDACTED_PROJECT_NUMBER","engine_id":"gemini-enterprise",...}
+# {"project_number":"${PROJECT_NUMBER}","engine_id":"gemini-enterprise",...}
 ```
 
 One-time GCP credential setup (local only):
@@ -233,7 +233,7 @@ location /api/ { proxy_pass http://127.0.0.1:8000; }
 
 ### Authentication Flow
 
-> The full authentication chain (Entra JWT → STS exchange → `dataStoreSpecs`) is documented in **[00-AUTH-CHAIN.md](00-AUTH-CHAIN.md)**. That document was written specifically to preserve the hard-won knowledge that is not publicly documented by the product team.
+> The full authentication chain (Entra JWT → STS exchange → `dataStoreSpecs`) is documented in **[00-AUTH-CHAIN.md](00-AUTH-CHAIN.md)** — it covers configuration that is not yet publicly documented by the product team.
 
 The local setup above exercises the complete chain. When you log in via MSAL and run a search, the sequence is:
 

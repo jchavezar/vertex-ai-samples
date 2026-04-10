@@ -17,7 +17,7 @@ None - this is the first step.
 | Variable | Example | Used In |
 |----------|---------|---------|
 | `PROJECT_ID` | `sharepoint-wif-agent` | All docs |
-| `PROJECT_NUMBER` | `REDACTED_PROJECT_NUMBER` | 03-WIF, 04-Discovery, 08-Agent |
+| `PROJECT_NUMBER` | `${PROJECT_NUMBER}` | 03-WIF, 04-Discovery, 08-Agent |
 | `STAGING_BUCKET` | `gs://sharepoint-wif-agent-staging` | 08-Agent |
 
 ---
@@ -51,7 +51,7 @@ graph TB
 | Setting | Value |
 |---------|-------|
 | Project ID | `sharepoint-wif-agent` |
-| Project Number | `REDACTED_PROJECT_NUMBER` |
+| Project Number | `${PROJECT_NUMBER}` |
 
 ---
 

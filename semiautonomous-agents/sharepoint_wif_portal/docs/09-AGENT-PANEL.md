@@ -233,7 +233,7 @@ Add to `backend/.env`:
 
 ```bash
 # Agent Engine (from step 08)
-REASONING_ENGINE_RES=projects/REDACTED_PROJECT_NUMBER/locations/us-central1/reasoningEngines/1988251824309665792
+REASONING_ENGINE_RES=projects/${PROJECT_NUMBER}/locations/us-central1/reasoningEngines/1988251824309665792
 ```
 
 ---

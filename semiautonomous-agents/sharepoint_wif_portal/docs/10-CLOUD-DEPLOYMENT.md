@@ -44,41 +44,6 @@ flowchart TB
 
 ---
 
-## Architecture Flow
-
-```mermaid
-flowchart TB
-    subgraph Internet
-        User[User Browser]
-    end
-    
-    subgraph GCP["Google Cloud"]
-        DNS[Cloud DNS]
-        GLB[Global Load Balancer]
-        IAP[Identity-Aware Proxy]
-        
-        subgraph CloudRun["Cloud Run"]
-            FE[Frontend - nginx]
-            BE[Backend - FastAPI]
-        end
-        
-        DE[Discovery Engine]
-        AE[Agent Engine]
-        STS[Google STS]
-    end
-    
-    User --> DNS
-    DNS --> GLB
-    GLB --> IAP
-    IAP -->|Authenticated| CloudRun
-    FE --> BE
-    BE --> DE
-    BE --> AE
-    BE --> STS
-```
-
----
-
 ## Step 1: Prepare Dockerfiles
 
 ### Backend Dockerfile
@@ -326,12 +291,12 @@ gcloud run deploy sharepoint-portal \
   --cpu=1 \
   --min-instances=0 \
   --max-instances=10 \
-  --set-env-vars="PROJECT_NUMBER=REDACTED_PROJECT_NUMBER" \
+  --set-env-vars="PROJECT_NUMBER=${PROJECT_NUMBER}" \
   --set-env-vars="ENGINE_ID=gemini-enterprise" \
   --set-env-vars="DATA_STORE_ID=sharepoint-data-def-connector_file" \
   --set-env-vars="WIF_POOL_ID=sp-wif-pool-v2" \
   --set-env-vars="WIF_PROVIDER_ID=entra-provider" \
-  --set-env-vars="REASONING_ENGINE_RES=projects/REDACTED_PROJECT_NUMBER/locations/us-central1/reasoningEngines/1988251824309665792"
+  --set-env-vars="REASONING_ENGINE_RES=projects/${PROJECT_NUMBER}/locations/us-central1/reasoningEngines/1988251824309665792"
 ```
 
 **Note:** For IAP, change `--allow-unauthenticated` to `--no-allow-unauthenticated` after configuring the load balancer.
@@ -340,7 +305,7 @@ gcloud run deploy sharepoint-portal \
 
 ## Step 6: Grant Agent Engine IAM
 
-**Critical:** Cloud Run service account needs `roles/aiplatform.user` to call Agent Engine.
+Cloud Run service account needs `roles/aiplatform.user` to call Agent Engine.
 
 ### 6a: Project-Level IAM
 
@@ -437,7 +402,7 @@ gcloud compute target-https-proxies create sharepoint-portal-https-proxy \
 # Create managed certificate (requires domain)
 # Use subdomain with HYPHENS (not underscores)
 gcloud compute ssl-certificates create sharepoint-portal-cert-v2 \
-  --domains=sharepoint-wif-portal.sonrobots.net \
+  --domains=sharepoint-wif-portal.example.com \
   --global \
   --project=${PROJECT_ID}
 ```
@@ -492,7 +457,7 @@ gcloud services enable iap.googleapis.com --project=${PROJECT_ID}
 
 ### Provision IAP Service Account
 
-**Critical:** Create the IAP service account before configuring IAP:
+Create the IAP service account before configuring IAP:
 
 ```bash
 # Create the IAP service agent (required for Cloud Run invocation)
@@ -609,7 +574,7 @@ gcloud compute addresses describe sharepoint-portal-ip \
 
 | Type | Name | Content | Proxy Status | TTL |
 |------|------|---------|--------------|-----|
-| **A** | `sharepoint-wif-portal` | `34.102.240.31` | **DNS Only** (gray cloud) | Auto |
+| **A** | `sharepoint-wif-portal` | `<LOAD_BALANCER_IP>` | **DNS Only** (gray cloud) | Auto |
 
 **Note:** Use hyphens (`-`) not underscores (`_`) in subdomain names.
 
@@ -622,25 +587,23 @@ gcloud compute addresses describe sharepoint-portal-ip \
 
 ```bash
 gcloud compute ssl-certificates describe sharepoint-portal-cert \
-  --global --project=sharepoint-wif-agent \
+  --global --project=${PROJECT_ID} \
   --format="table(name,managed.status,managed.domainStatus)"
 ```
 
 ---
 
-## Current Deployment
+## Deployment Checklist
 
-| Resource | Value |
-|----------|-------|
-| **Domain** | `sharepoint-wif-portal.sonrobots.net` |
-| **Load Balancer IP** | `34.102.240.31` |
-| **SSL Certificate** | `sharepoint-portal-cert-v2` (Google-managed, ACTIVE) |
-| **Cloud Run URL** | `https://sharepoint-portal-rxhrarbbrq-uc.a.run.app` |
-| **Cloud Run Ingress** | `internal-and-cloud-load-balancing` |
+After completing all steps, verify these resources exist:
+
+| Resource | Expected State |
+|----------|---------------|
+| **Domain** | Points to load balancer IP via DNS |
+| **SSL Certificate** | `ACTIVE` (Google-managed) |
+| **Cloud Run** | Running, ingress = `internal-and-cloud-load-balancing` |
 | **IAP** | Enabled with OAuth client |
-| **Project** | `sharepoint-wif-agent` |
-| **Project Number** | `REDACTED_PROJECT_NUMBER` |
-| **Region** | `us-central1` |
+| **Load Balancer** | Forwarding HTTPS → Cloud Run via NEG |
 
 ---
 
@@ -682,7 +645,7 @@ gcloud run deploy ${SERVICE_NAME} \
   --cpu=1 \
   --min-instances=0 \
   --max-instances=10 \
-  --set-env-vars="PROJECT_NUMBER=REDACTED_PROJECT_NUMBER,ENGINE_ID=gemini-enterprise,WIF_POOL_ID=sp-wif-pool-v2,WIF_PROVIDER_ID=entra-provider"
+  --set-env-vars="PROJECT_NUMBER=${PROJECT_NUMBER},ENGINE_ID=gemini-enterprise,WIF_POOL_ID=sp-wif-pool-v2,WIF_PROVIDER_ID=entra-provider"
 
 echo "=========================================="
 echo "Deployment Complete!"

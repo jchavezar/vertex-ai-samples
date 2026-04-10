@@ -140,7 +140,7 @@ uv run python test_remote.py
 
 | Variable | Value | Description |
 |----------|-------|-------------|
-| `PROJECT_NUMBER` | REDACTED_PROJECT_NUMBER | GCP project number |
+| `PROJECT_NUMBER` | ${PROJECT_NUMBER} | GCP project number |
 | `ENGINE_ID` | gemini-enterprise | Discovery Engine |
 | `DATA_STORE_ID` | sharepoint-data-def-connector_file | SharePoint datastore |
 | `WIF_POOL_ID` | sp-wif-pool-v2 | WIF pool |

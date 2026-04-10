@@ -126,7 +126,7 @@ gcloud iam workforce-pools providers create-oidc entra-agent-provider \
 
 ## Step 4: Grant IAM Permissions (ALL REQUIRED)
 
-> **Critical**: Missing IAM bindings cause `FAILED_PRECONDITION` errors. Grant ALL roles below.
+> **Note**: Missing IAM bindings cause `FAILED_PRECONDITION` errors. Grant all roles below.
 
 ```bash
 export PROJECT_ID=sharepoint-wif-agent

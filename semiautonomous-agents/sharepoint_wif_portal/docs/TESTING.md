@@ -61,7 +61,7 @@ This tests the agent BEFORE deploying to Agent Engine.
 ============================================================
          Phase 1: Direct Tool Testing
 ============================================================
-Project Number: REDACTED_PROJECT_NUMBER
+Project Number: ${PROJECT_NUMBER}
 Engine ID:      gemini-enterprise
 Data Store ID:  sharepoint-data-def-connector_file
 WIF Pool ID:    sp-wif-pool-v2
@@ -122,13 +122,13 @@ Creating Agent Engine deployment...
 =====================================
 Deployment Complete!
 =====================================
-Resource Name: projects/REDACTED_PROJECT_NUMBER/locations/us-central1/reasoningEngines/1452886418605998080
+Resource Name: projects/${PROJECT_NUMBER}/locations/us-central1/reasoningEngines/1452886418605998080
 =====================================
 ```
 
 Save to `.env`:
 ```bash
-REASONING_ENGINE_RES=projects/REDACTED_PROJECT_NUMBER/locations/us-central1/reasoningEngines/1452886418605998080
+REASONING_ENGINE_RES=projects/${PROJECT_NUMBER}/locations/us-central1/reasoningEngines/1452886418605998080
 ```
 
 ---

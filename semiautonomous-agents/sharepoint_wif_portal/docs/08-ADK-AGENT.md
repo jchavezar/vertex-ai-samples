@@ -95,7 +95,7 @@ Edit `.env`:
 ```bash
 # GCP
 PROJECT_ID=sharepoint-wif-agent
-PROJECT_NUMBER=REDACTED_PROJECT_NUMBER
+PROJECT_NUMBER=${PROJECT_NUMBER}
 LOCATION=us-central1
 STAGING_BUCKET=gs://sharepoint-wif-agent-staging
 
@@ -193,14 +193,14 @@ Staging:  gs://sharepoint-wif-agent-staging
 =====================================
 Deployment Complete!
 =====================================
-Resource Name: projects/REDACTED_PROJECT_NUMBER/locations/us-central1/reasoningEngines/1988251824309665792
+Resource Name: projects/${PROJECT_NUMBER}/locations/us-central1/reasoningEngines/1988251824309665792
 =====================================
 ```
 
 **Save the Resource Name** - add to `.env` and `backend/.env`:
 
 ```bash
-REASONING_ENGINE_RES=projects/REDACTED_PROJECT_NUMBER/locations/us-central1/reasoningEngines/1988251824309665792
+REASONING_ENGINE_RES=projects/${PROJECT_NUMBER}/locations/us-central1/reasoningEngines/1988251824309665792
 ```
 
 ---

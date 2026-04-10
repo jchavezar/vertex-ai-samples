@@ -69,7 +69,7 @@ uv run python deploy.py
 ## Step 2: Grant Permissions
 
 ```bash
-export PROJECT_NUMBER=REDACTED_PROJECT_NUMBER
+export PROJECT_NUMBER=${PROJECT_NUMBER}
 export PROJECT_ID=sharepoint-wif-agent
 
 # Grant Discovery Engine access to Agent Engine SA
@@ -83,7 +83,7 @@ gcloud projects add-iam-policy-binding $PROJECT_ID \
 ## Step 3: Register Authorization in Agentspace
 
 ```bash
-export PROJECT_NUMBER=REDACTED_PROJECT_NUMBER
+export PROJECT_NUMBER=${PROJECT_NUMBER}
 export AUTH_ID=sharepoint-auth
 export CLIENT_ID=your-client-id
 export CLIENT_SECRET=your-client-secret
