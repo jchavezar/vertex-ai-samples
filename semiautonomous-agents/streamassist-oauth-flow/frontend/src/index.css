@@ -1,14 +1,14 @@
 :root {
-  --bg: #0f1117;
-  --bg-card: #1a1d27;
-  --bg-input: #252830;
-  --text: #e4e6eb;
-  --text-dim: #8b8d94;
-  --accent: #4a9eff;
-  --accent-hover: #3a8eef;
-  --green: #34d399;
-  --yellow: #fbbf24;
-  --border: #2a2d37;
+  --bg: #f8f9fa;
+  --bg-card: #ffffff;
+  --bg-input: #f1f3f4;
+  --text: #1a1a2e;
+  --text-dim: #5f6368;
+  --accent: #1a73e8;
+  --accent-hover: #1565c0;
+  --green: #0d904f;
+  --yellow: #e37400;
+  --border: #dadce0;
   --radius: 10px;
 }
 
@@ -267,7 +267,7 @@ header h1 { font-size: 1.3rem; }
   border-radius: 4px;
   font-size: 0.85em;
 }
-.message-text strong { color: #fff; }
+.message-text strong { color: var(--text); font-weight: 600; }
 
 /* Loading */
 .loading-bubble {
@@ -475,9 +475,9 @@ header h1 { font-size: 1.3rem; }
   overflow: hidden;
 }
 
-.trace-entry:hover { border-color: #3a3d47; }
+.trace-entry:hover { border-color: #b0b3b8; }
 .trace-entry.trace-success { border-left: 3px solid var(--green); }
-.trace-entry.trace-error { border-left: 3px solid #f87171; }
+.trace-entry.trace-error { border-left: 3px solid #d93025; }
 .trace-entry.trace-pending { border-left: 3px solid var(--yellow); }
 
 .trace-header {
@@ -497,7 +497,7 @@ header h1 { font-size: 1.3rem; }
 }
 
 .trace-icon-success { color: var(--green); }
-.trace-icon-error { color: #f87171; }
+.trace-icon-error { color: #d93025; }
 .trace-icon-pending { color: var(--yellow); animation: pulse 1.2s ease-in-out infinite; }
 
 .trace-stage {
@@ -549,7 +549,7 @@ header h1 { font-size: 1.3rem; }
   font-family: 'Consolas', 'Monaco', monospace;
   font-size: 0.7rem;
   line-height: 1.5;
-  color: #a5d6ff;
+  color: #1a73e8;
   overflow-x: auto;
   margin: 0;
   white-space: pre-wrap;
