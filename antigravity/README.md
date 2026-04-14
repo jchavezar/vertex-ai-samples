@@ -236,6 +236,12 @@
       <a href="../semiautonomous-agents/">ACCESS_TERMINAL &rarr;</a>
     </td>
     <td width="50%" valign="top">
+      <img src="assets/header_adk.svg" width="100%" />
+      <br/><br/>
+      <strong>PROJECT: ADK SECRET MANAGER DEMO</strong><br/>
+      Semiautonomous agent demo showcasing secure secret handling with Google ADK and Secret Manager. Light theme UI.<br/>
+      <br/>
+      <a href="../semiautonomous-agents/adk-secret-manager-demo/">ACCESS_TERMINAL &rarr;</a>
     </td>
   </tr>
 </table>

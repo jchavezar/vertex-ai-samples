@@ -1,0 +1,352 @@
+* {
+  box-sizing: border-box;
+}
+
+:root {
+  --bg-color: #F9FAFB;
+  --text-color: #1F2937;
+  --border-color: #E5E7EB;
+  --sidebar-bg: #FFFFFF;
+  --input-bg: #FFFFFF;
+  --accent-color: #6366F1; /* Indigo */
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+}
+
+.claude-replica {
+  display: flex;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+}
+
+/* Sidebar */
+.sidebar {
+  width: 280px;
+  background-color: var(--sidebar-bg);
+  border-right: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+  padding: 1.5rem;
+  height: 100%;
+}
+
+.sidebar-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.logo {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--accent-color);
+  white-space: nowrap;
+}
+
+.new-chat-btn {
+  background: none;
+  border: 1px solid var(--border-color);
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  font-size: 0.85rem;
+  color: var(--text-color);
+  transition: background-color 0.2s;
+  white-space: nowrap;
+}
+
+.new-chat-btn:hover {
+  background-color: #F3F4F6;
+}
+
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 2rem;
+}
+
+.nav-item {
+  background: none;
+  border: none;
+  text-align: left;
+  padding: 0.5rem;
+  cursor: pointer;
+  border-radius: 0.25rem;
+  font-size: 0.95rem;
+  color: #4B5563;
+}
+
+.nav-item:hover, .nav-item.active {
+  background-color: #F3F4F6;
+  color: var(--text-color);
+}
+
+.sidebar-footer {
+  margin-top: auto;
+  border-top: 1px solid var(--border-color);
+  padding-top: 1rem;
+}
+
+.status-indicator {
+  font-size: 0.75rem;
+  color: #4B5563;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.status-indicator.connected::before {
+  content: '';
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  background-color: #10B981;
+  border-radius: 50%;
+}
+
+/* Main Content */
+.main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  background-color: var(--bg-color);
+}
+
+.chat-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 2rem;
+  overflow: hidden;
+  align-items: center;
+  justify-content: center;
+}
+
+.welcome-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  width: 100%;
+  max-width: 800px;
+}
+
+.welcome-screen h1 {
+  font-family: 'Georgia', serif;
+  font-size: 3rem;
+  font-weight: 500;
+  margin-bottom: 1rem;
+  color: var(--text-color);
+}
+
+.welcome-screen p {
+  color: #4B5563;
+  margin-bottom: 2rem;
+}
+
+.input-box-container {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.input-box {
+  background-color: var(--input-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 1.5rem;
+  padding: 0.5rem 1rem;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+textarea {
+  flex: 1;
+  border: none;
+  outline: none;
+  resize: none;
+  height: 24px;
+  font-size: 0.875rem;
+  font-family: inherit;
+  background: transparent;
+  padding: 0.25rem;
+  color: var(--text-color);
+  min-width: 0;
+}
+
+textarea::placeholder {
+  color: #9CA3AF;
+  font-size: 0.875rem;
+}
+
+.icon-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.5rem;
+  color: #9CA3AF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+}
+
+.icon-btn:hover {
+  background-color: #F3F4F6;
+  color: var(--text-color);
+}
+
+.attach-btn {
+  font-size: 1.25rem;
+}
+
+.send-btn {
+  color: var(--accent-color);
+}
+
+.send-btn:disabled {
+  color: #D1D5DB;
+  cursor: not-allowed;
+  background: none;
+}
+
+.suggestion-pills {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.pill {
+  background-color: #FFFFFF;
+  border: 1px solid var(--border-color);
+  padding: 0.5rem 1rem;
+  border-radius: 1rem;
+  cursor: pointer;
+  font-size: 0.875rem;
+  color: var(--text-color);
+  transition: background-color 0.2s;
+}
+
+.pill:hover {
+  background-color: #F3F4F6;
+}
+
+/* Chat History */
+.chat-history {
+  width: 100%;
+  max-width: 800px;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+.messages-list {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  padding: 1rem 0;
+}
+
+.message-item {
+  display: flex;
+  gap: 1rem;
+  max-width: 85%;
+}
+
+.message-item.user {
+  align-self: flex-end;
+  flex-direction: row-reverse;
+}
+
+.message-item.assistant {
+  align-self: flex-start;
+}
+
+.message-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 0.875rem;
+  flex-shrink: 0;
+}
+
+.message-item.user .message-avatar {
+  background-color: #DBEAFE;
+  color: #1E40AF;
+}
+
+.message-item.assistant .message-avatar {
+  background-color: var(--accent-color);
+  color: #FFFFFF;
+}
+
+.message-content-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.message-sender {
+  font-size: 0.75rem;
+  color: #6B7280;
+  font-weight: 600;
+}
+
+.message-item.user .message-sender {
+  text-align: right;
+}
+
+.message-text {
+  font-size: 0.95rem;
+  line-height: 1.6;
+  padding: 0.75rem 1rem;
+  border-radius: 0.75rem;
+}
+
+.message-item.user .message-text {
+  background-color: #E5E7EB;
+  color: var(--text-color);
+}
+
+.message-item.assistant .message-text {
+  background-color: transparent;
+  color: var(--text-color);
+  padding: 0.75rem 0;
+}
+
+.sticky-input-area {
+  padding: 1rem 0;
+  border-top: 1px solid var(--border-color);
+  background-color: var(--bg-color);
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+.sticky-input-area .input-box {
+  max-width: 800px;
+}
