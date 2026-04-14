@@ -9,36 +9,41 @@
 ## The Pattern
 
 ```
-┌─────────────────────────────────────────────────────────────────────┐
-│  Google Cloud (vtxdemos)                                            │
-│                                                                     │
-│  ┌──────────────┐    ┌──────────────────┐    ┌───────────────────┐  │
-│  │ Secret       │    │ Vertex AI        │    │ Google Search     │  │
-│  │ Manager      │    │ Gemini 2.5 Flash │    │ Grounding         │  │
-│  │              │    │                  │    │                   │  │
-│  │ servicenow-  │    │ LlmAgent with    │    │ Real-time web     │  │
-│  │ credentials  │    │ MCP + web_search │    │ results           │  │
-│  └──────┬───────┘    └────────┬─────────┘    └────────┬──────────┘  │
-│         │                     │                       │             │
-└─────────┼─────────────────────┼───────────────────────┼─────────────┘
-          │                     │                       │
-          ▼                     ▼                       ▼
-   ┌──────────────┐    ┌──────────────────┐    ┌───────────────────┐
-   │ ServiceNow   │    │ FastAPI Backend  │    │ React Frontend    │
-   │ MCP Server   │◄───│ (SSE streaming)  │───►│ (Vite + TS)       │
-   │ (FastMCP/SSE)│    │ port 8001        │    │ port 5185         │
-   │ port 9090    │    └──────────────────┘    └───────────────────┘
-   │              │
-   │  list, search│
-   │  create, upd │
-   └──────┬───────┘
-          │
-          ▼
-   ┌──────────────┐
-   │ ServiceNow   │
-   │ Instance     │
-   │ (REST API)   │
-   └──────────────┘
+┌──────────────────────────────────────────────────────────────────────────┐
+│  Google Cloud (vtxdemos)                                                 │
+│                                                                          │
+│  ┌──────────────┐    ┌──────────────────────────────────────────────┐    │
+│  │ Secret       │    │ ADK LlmAgent (Gemini 2.5 Flash)             │    │
+│  │ Manager      │    │                                              │    │
+│  │              │    │  Tools:                                       │    │
+│  │ servicenow-  │    │  ┌─────────────────┐  ┌──────────────────┐   │    │
+│  │ credentials  │──► │  │ web_search()    │  │ MCP Tools (x6)   │   │    │
+│  │              │    │  │ Google Search   │  │ list_incidents    │   │    │
+│  └──────────────┘    │  │ Grounding       │  │ search_incidents  │   │    │
+│                      │  │                 │  │ get_incident      │   │    │
+│                      │  └────────┬────────┘  │ create_incident   │   │    │
+│                      │           │           │ update_incident   │   │    │
+│                      │           │           │ add_work_note     │   │    │
+│                      │           │           └────────┬──────────┘   │    │
+│                      └───────────┼────────────────────┼──────────────┘    │
+│                                  │                    │                   │
+│         ┌────────────────────────┘                    │                   │
+│         ▼                                             ▼                   │
+│  ┌──────────────┐                            ┌──────────────┐            │
+│  │ Vertex AI    │                            │ ServiceNow   │            │
+│  │ Gemini API   │                            │ MCP Server   │            │
+│  │ + Google     │                            │ (FastMCP/SSE)│            │
+│  │   Search     │                            │ port 9090    │            │
+│  └──────────────┘                            └──────┬───────┘            │
+│                                                     │                    │
+└─────────────────────────────────────────────────────┼────────────────────┘
+                                                      │
+                                                      ▼
+   ┌──────────────────┐                        ┌──────────────┐
+   │ React Frontend   │◄──── SSE ────────────► │ ServiceNow   │
+   │ (Vite + TS)      │     FastAPI :8001      │ Instance     │
+   │ port 5185        │                        │ (REST API)   │
+   └──────────────────┘                        └──────────────┘
 ```
 
 ## How It Works
