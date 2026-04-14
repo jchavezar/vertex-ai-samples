@@ -13,7 +13,8 @@ function App() {
   const [loading, setLoading] = useState(false)
   const [projectId, setProjectId] = useState('vtxdemos')
   const [region, setRegion] = useState('global')
-  const [token, setToken] = useState('')
+  // Token state is kept for UI but not used for request
+  const [token, setToken] = useState('') 
 
   const handleSend = async () => {
     if (!prompt.trim()) return
@@ -27,16 +28,14 @@ function App() {
     setMessages(prev => [...prev, assistantMessage])
 
     try {
-      const url = `https://aiplatform.googleapis.com/v1/projects/${projectId}/locations/${region}/endpoints/openapi/chat/completions`
+      // Call local backend instead of direct Vertex API
+      const url = `http://localhost:8000/api/chat`
       const res = await fetch(url, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          model: 'google/gemma-4-26b-a4b-it-maas',
-          stream: true,
           messages: [{ role: 'user', content: prompt }]
         })
       })
@@ -59,6 +58,9 @@ function App() {
             if (dataStr === '[DONE]') break
             try {
               const data = JSON.parse(dataStr)
+              if (data.error) {
+                throw new Error(data.error)
+              }
               const content = data.choices[0]?.delta?.content || ''
               setMessages(prev => {
                 const last = prev[prev.length - 1]
@@ -109,7 +111,7 @@ function App() {
           </div>
           <div className="input-group">
             <label>Access Token</label>
-            <input type="password" value={token} onChange={e => setToken(e.target.value)} placeholder="Paste token..." />
+            <input type="password" value={token} onChange={e => setToken(e.target.value)} placeholder="Using ADC via Backend" disabled={true} />
           </div>
         </div>
       </div>
@@ -132,7 +134,7 @@ function App() {
                       }
                     }}
                   />
-                  <button className="icon-btn send-btn" onClick={handleSend} disabled={loading || !token || !prompt.trim()}>
+                  <button className="icon-btn send-btn" onClick={handleSend} disabled={loading || !prompt.trim()}>
                     <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
                       <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"></path>
                     </svg>
@@ -190,7 +192,7 @@ function App() {
                       }
                     }}
                   />
-                  <button className="icon-btn send-btn" onClick={handleSend} disabled={loading || !token || !prompt.trim()}>
+                  <button className="icon-btn send-btn" onClick={handleSend} disabled={loading || !prompt.trim()}>
                     <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
                       <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"></path>
                     </svg>

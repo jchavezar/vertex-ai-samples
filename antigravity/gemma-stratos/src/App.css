@@ -16,7 +16,7 @@ html, body {
   padding: 0;
   height: 100%;
   width: 100%;
-  overflow: hidden; /* Prevent body scroll */
+  overflow: hidden;
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
   background-color: var(--bg-color);
   color: var(--text-color);
@@ -140,7 +140,7 @@ html, body {
   justify-content: center;
   height: 100%;
   width: 100%;
-  max-width: 800px;
+  max-width: 1000px; /* Increased from 800px */
 }
 
 .welcome-screen h1 {
@@ -233,7 +233,7 @@ textarea {
 /* Chat History */
 .chat-history {
   width: 100%;
-  max-width: 800px;
+  max-width: 1000px; /* Increased from 800px */
   display: flex;
   flex-direction: column;
   height: 100%;
@@ -330,5 +330,5 @@ textarea {
 }
 
 .sticky-input-area .input-box {
-  max-width: 800px;
+  max-width: 1000px; /* Increased from 800px */
 }
