@@ -49,10 +49,10 @@ flowchart TB
     Entra --> |"auth code"| CB
     CB --> |"acquireAndStore"| DE
 
-    style Browser fill:#1a1d27,color:#e4e6eb,stroke:#2a2d37
-    style Backend fill:#1a2332,color:#e4e6eb,stroke:#2a4d6e
-    style GCP fill:#1a2e1a,color:#e4e6eb,stroke:#2a5d2a
-    style Microsoft fill:#2e1a1a,color:#e4e6eb,stroke:#5d2a2a
+    style Browser fill:#e8f0fe,color:#1a1a2e,stroke:#4285f4
+    style Backend fill:#fce8e6,color:#1a1a2e,stroke:#ea4335
+    style GCP fill:#e6f4ea,color:#1a1a2e,stroke:#34a853
+    style Microsoft fill:#fff3e0,color:#1a1a2e,stroke:#f9ab00
 ```
 
 ---
@@ -77,15 +77,15 @@ flowchart LR
         direction TB
         B1["User types question"] --> B2["acquireTokenSilent<br/>→ fresh Entra JWT"]
         B2 --> B3["STS Exchange<br/>Entra JWT → GCP token"]
-        B3 --> B4["StreamAssist API<br/>with dataStoreSpecs"]
+        B3 --> B4["StreamAssist API<br/>federated search"]
         B4 --> B5["Federated Search<br/>uses stored refresh token"]
         B5 --> B6["Grounded answer<br/>+ source citations"]
     end
 
     once --> every
 
-    style once fill:#1a2332,color:#e4e6eb,stroke:#4a9eff
-    style every fill:#1a2e1a,color:#e4e6eb,stroke:#34d399
+    style once fill:#e8f0fe,color:#1a1a2e,stroke:#4285f4
+    style every fill:#e6f4ea,color:#1a1a2e,stroke:#34a853
 ```
 
 ---
