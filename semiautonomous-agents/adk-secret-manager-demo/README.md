@@ -19,7 +19,7 @@ graph TD
     Agent -->|5. Call Tool| Tool[secure_data_fetch]
     Tool -->|6. Get Secret| SM[Google Secret Manager]
     SM -->|7. Return API Key| Tool
-    Tool -->|8. Fetch Data (Simulated)| Data[Secure Source]
+    Tool -->|8. Fetch Data Simulated| Data[Secure Source]
     Data -->|9. Return Result| Tool
     Tool -->|10. Return Summary| Agent
     Agent -->|11. Stream Response| FE
