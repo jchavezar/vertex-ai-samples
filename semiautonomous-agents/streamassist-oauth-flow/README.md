@@ -247,7 +247,7 @@ These are the non-obvious constraints that aren't in any public documentation. E
 | 1 | **WIF token for `acquireAndStoreRefreshToken`** | The token identifies the user. If you use ADC instead of WIF, `acquireAccessToken` later returns 404 because the identity doesn't match. |
 | 2 | **`session` field, not `assistToken`** | StreamAssist returns `assistToken` in responses but rejects it as input. Use `sessionInfo.session` (a resource name) for follow-up queries. |
 | 3 | **Natural language queries only** | Keyword queries like `"Apex Financial"` are silently skipped (`NON_ASSIST_SEEKING_QUERY_IGNORED`). Always use full questions. |
-| 4 | **All 5 entity types in `dataStoreSpecs`** | `file`, `page`, `comment`, `event`, `attachment` — each is a separate data store named `{connector}_{type}`. Missing any means missing results. |
+| 4 | **`dataStoreSpecs` is optional** | StreamAssist searches all connected data stores by default. You can specify individual entity types (`file`, `page`, `comment`, `event`, `attachment`) to narrow scope, but it's not required. |
 | 5 | **`oauth2AllowIdTokenImplicitFlow: true`** | Required in the Portal App's Entra manifest for WIF to accept the id_token. Without it, STS exchange silently fails. |
 
 ---
@@ -559,152 +559,205 @@ Portal App (7868d053)           Connector App (22c127d8)
 
 ---
 
-## Building Your Own UI (Customer Replication Guide)
+## Building Your Own UI
 
-This section explains how to build a custom frontend that uses StreamAssist with per-user SharePoint OAuth — **without the Gemini Enterprise UI**.
+How to replicate this with your own frontend — step by step with example values.
 
-### Prerequisites
+### Entra ID Setup (2 App Registrations)
 
-1. **Two Entra App Registrations** — Portal App (MSAL login) and Connector App (SharePoint consent). See [Configuration](#configuration) above.
-2. **Workforce Identity Federation (WIF)** pool + provider configured to accept Entra JWTs.
-3. **Discovery Engine** with a SharePoint connector and StreamAssist engine.
+You need **two** Entra apps. They serve different purposes:
 
-### The Two-Chain Pattern
+| | **Portal App** (login) | **Connector App** (SharePoint) |
+|---|---|---|
+| **Purpose** | MSAL sign-in → Entra JWT for WIF | OAuth consent → auth code for refresh token |
+| **Type** | SPA | Web |
+| **Client ID** | `7868d053-aaaa-bbbb-cccc-111111111111` | `22c127d8-dddd-eeee-ffff-222222222222` |
+| **Redirect URI** | `http://localhost:5174` | `https://vertexaisearch.cloud.google.com/oauth-redirect` |
+| **Expose an API** | `api://7868d053-.../user_impersonation` | — |
+| **API permissions** | — | `SharePoint > AllSites.Read`, `Sites.Search.All` |
+| **Admin consent** | — | Yes, grant for tenant |
 
-Your UI must implement two independent auth chains that converge at `acquireAndStoreRefreshToken`:
+> **Critical manifest setting** for the Portal App:
+> ```json
+> "oauth2AllowIdTokenImplicitFlow": true
+> ```
+> Without this, WIF silently rejects the id_token.
+
+### GCP Setup
+
+| Resource | Value |
+|----------|-------|
+| WIF Pool | `sp-wif-pool-v2` |
+| WIF Provider | `ge-login-provider`, OIDC, issuer: `https://login.microsoftonline.com/{tenant}/v2.0` |
+| Provider audience | `api://7868d053-...` (must match Portal App) |
+| Attribute mapping | `google.subject = assertion.sub` |
+| IAM | `principalSet://...` → `roles/discoveryengine.editor` |
+| Engine | StreamAssist engine, e.g. `gemini-enterprise` |
+| Connector | SharePoint connector, e.g. `sharepoint-data-def-connector` |
+
+### The Token Flow
+
+Two chains converge at one API call. Here's what each token is, where it comes from, and where it goes:
 
 ```
-Chain A (Identity)                Chain B (Consent)
-──────────────────                ──────────────────
-1. MSAL login (Portal App)       1. OAuth popup (Connector App)
-2. Entra id_token                2. User grants SharePoint permissions
-3. STS exchange → GCP token      3. Auth code via redirect
-         │                                 │
-         └─────────┐    ┌─────────────────┘
-                    ▼    ▼
-        acquireAndStoreRefreshToken
-        (GCP token = who, auth code = what)
-                    │
-            stored refresh token
-                    │
-            StreamAssist search
+┌─────────────────────────────────────────────────────────────────┐
+│                     CHAIN A — Identity                         │
+│                                                                │
+│  ① MSAL.js loginPopup()                                       │
+│     → entra_jwt = "eyJ0eXAiOiJKV1Qi..."                       │
+│       (aud: api://7868d053-..., sub: user-uuid)                │
+│                                                                │
+│  ② POST sts.googleapis.com/v1/token                            │
+│     body: { subjectToken: entra_jwt, audience: "//iam..." }    │
+│     → gcp_token = "ya29.c.c0ASRK0G..."                        │
+│       (identifies user as WIF principal in GCP)                │
+├─────────────────────────────────────────────────────────────────┤
+│                     CHAIN B — Consent                          │
+│                                                                │
+│  ③ Popup → login.microsoftonline.com/authorize                 │
+│     client_id: 22c127d8-...  (Connector App, NOT Portal App)  │
+│     redirect_uri: vertexaisearch.cloud.google.com/oauth-redirect│
+│     scope: AllSites.Read Sites.Search.All                      │
+│     state: base64({"origin":"https://yourapp.com",...})         │
+│                                                                │
+│  ④ User consents → Microsoft redirects with auth code          │
+│     → fullRedirectUrl = "https://vertexaisearch.../oauth-redir │
+│       ect?code=0.AW8B_aNG3m...&state=eyJvcm..."               │
+├─────────────────────────────────────────────────────────────────┤
+│                  CONVERGENCE — Store Token                      │
+│                                                                │
+│  ⑤ POST discoveryengine.googleapis.com/.../                    │
+│       acquireAndStoreRefreshToken                              │
+│     headers: { Authorization: "Bearer {gcp_token}" }  ← ②     │
+│     body: { fullRedirectUri: "{fullRedirectUrl}" }     ← ④     │
+│                                                                │
+│     Discovery Engine extracts the auth code, exchanges it      │
+│     for a SharePoint refresh token, and stores it mapped       │
+│     to the WIF identity from the GCP token.                    │
+└─────────────────────────────────────────────────────────────────┘
 ```
 
-### Critical Implementation Details
+### Step-by-Step Code
 
-#### 1. Redirect URI — Use Google's Page
-
-The `redirect_uri` for the OAuth consent flow **must** be:
-```
-https://vertexaisearch.cloud.google.com/oauth-redirect
-```
-Discovery Engine's `acquireAndStoreRefreshToken` hardcodes this as the expected redirect URI. If you use a different URI, the token exchange fails with a redirect URI mismatch error.
-
-#### 2. Handling the Redirect — postMessage vs Polling
-
-Google's redirect page (`vertexaisearch.cloud.google.com/oauth-redirect`) receives the auth code from Microsoft and attempts to send it back to your app via `postMessage`:
-
-```js
-// What Google's redirect page sends:
-window.opener.postMessage({
-  fullRedirectUrl: "https://vertexaisearch.cloud.google.com/oauth-redirect?code=...&state=...",
-  code: "...",
-  state: "..."
-}, origin);
-```
-
-**COOP Caveat:** If your app is NOT hosted on `vertexaisearch.cloud.google.com` (i.e., during development on `localhost`), the redirect page's `Cross-Origin-Opener-Policy: same-origin` header blocks `window.opener.postMessage()`. Your app will NOT receive the message.
-
-**Workaround — Popup-Closed Polling:**
+**Step 1 — MSAL login (frontend)**
 
 ```ts
-// Poll for popup closure, then check if consent succeeded
-const interval = setInterval(async () => {
-  if (popup.closed) {
-    clearInterval(interval);
-    // Wait briefly for token storage to complete
-    await new Promise(r => setTimeout(r, 1500));
-    // Check if the refresh token was stored
-    const resp = await fetch('/api/sharepoint/check-connection', {
-      headers: { 'X-Entra-Id-Token': token },
-    });
-    const { connected } = await resp.json();
-    // connected === true means consent succeeded
-  }
-}, 500);
+// authConfig.ts
+const CLIENT_ID = "7868d053-aaaa-bbbb-cccc-111111111111";  // Portal App
+const TENANT_ID = "de46a3fd-xxxx-yyyy-zzzz-333333333333";
+
+export const msalConfig = {
+  auth: { clientId: CLIENT_ID, authority: `https://login.microsoftonline.com/${TENANT_ID}` },
+};
+export const loginRequest = {
+  scopes: [`api://${CLIENT_ID}/user_impersonation`, "openid", "profile", "email"],
+};
+
+// Login → get entra_jwt
+const resp = await instance.loginPopup(loginRequest);
+const entra_jwt = resp.idToken;   // ← this is the Entra JWT
 ```
 
-#### 3. The Exchange Endpoint
-
-When `postMessage` works (same-origin deployment), your backend needs an exchange endpoint:
+**Step 2 — STS exchange (backend)**
 
 ```python
-@app.post("/api/oauth/exchange")
-async def oauth_exchange(request: Request, body: ExchangeRequest):
-    # Get the Entra JWT → exchange for WIF/GCP token (Chain A)
-    gcp_token = _exchange_token(entra_jwt)
-
-    # Pass the full redirect URL containing the auth code (Chain B)
-    resp = requests.post(
-        f"{CONNECTOR_URL}/dataConnector:acquireAndStoreRefreshToken",
-        headers=_gcp_headers(gcp_token),  # WIF token, NOT ADC
-        json={"fullRedirectUri": body.fullRedirectUrl},
-    )
+# entra_jwt comes from the X-Entra-Id-Token header
+def exchange_token(entra_jwt: str) -> str:
+    resp = requests.post("https://sts.googleapis.com/v1/token", json={
+        "audience": "//iam.googleapis.com/locations/global/workforcePools/sp-wif-pool-v2/providers/ge-login-provider",
+        "grantType": "urn:ietf:params:oauth:grant-type:token-exchange",
+        "subjectToken": entra_jwt,                                    # ← from Step 1
+        "subjectTokenType": "urn:ietf:params:oauth:token-type:id_token",
+        "requestedTokenType": "urn:ietf:params:oauth:token-type:access_token",
+        "scope": "https://www.googleapis.com/auth/cloud-platform",
+    })
+    return resp.json()["access_token"]   # ← this is the gcp_token
 ```
 
-#### 4. WIF Token — Never ADC
-
-The GCP token used for `acquireAndStoreRefreshToken` **must** come from WIF (Entra JWT → STS exchange), not from Application Default Credentials (ADC/service account). The token identifies the user — if you store the refresh token under a service account identity, `acquireAccessToken` later returns 404 because the requesting WIF identity doesn't match.
-
-#### 5. State Parameter Encoding
-
-The `vertexaisearch.cloud.google.com/oauth-redirect` page expects the OAuth `state` parameter to contain JSON with:
-- `origin` — the origin to postMessage back to
-- `useBroadcastChannel` — `"false"` to use postMessage instead of BroadcastChannel
-
-The state must be **base64-encoded** — the redirect page decodes it and throws `Illegal base64 character` if given raw JSON:
+**Step 3 — Generate consent URL (backend)**
 
 ```python
 import base64, json
-state = base64.b64encode(json.dumps({
-    "origin": origin, "useBroadcastChannel": "false", "nonce": nonce
-}).encode()).decode()
-```
 
-#### 6. All 5 Entity Types in dataStoreSpecs
+CONNECTOR_CLIENT_ID = "22c127d8-dddd-eeee-ffff-222222222222"   # Connector App
+# ⚠️  redirect_uri MUST be this exact URL — Discovery Engine hardcodes it
+REDIRECT_URI = "https://vertexaisearch.cloud.google.com/oauth-redirect"
 
-StreamAssist requires all 5 entity types in every search request:
-
-```python
-ENTITY_TYPES = ["file", "page", "comment", "event", "attachment"]
-payload = {
-    "query": {"text": query},
-    "dataStoreSpecs": [
-        {"dataStore": f"{ds_base}_{et}"} for et in ENTITY_TYPES
-    ],
+params = {
+    "client_id": CONNECTOR_CLIENT_ID,
+    "response_type": "code",
+    "redirect_uri": REDIRECT_URI,
+    "scope": "openid offline_access https://contoso.sharepoint.com/AllSites.Read",
+    "state": base64.b64encode(json.dumps({          # ⚠️  must be base64, not raw JSON
+        "origin": "https://yourapp.com",
+        "useBroadcastChannel": "false"
+    }).encode()).decode(),
 }
+url = f"https://login.microsoftonline.com/{TENANT_ID}/oauth2/v2.0/authorize?{urlencode(params)}"
 ```
 
-#### 7. Session Continuity
+**Step 4 — Handle the redirect**
 
-StreamAssist returns `assistToken` in responses — **do not use it as input**. Use `sessionInfo.session` instead:
+Google's redirect page at `vertexaisearch.cloud.google.com/oauth-redirect` receives the auth code and sends it back via `postMessage`:
+
+```ts
+window.addEventListener("message", async (event) => {
+  if (!event.data?.fullRedirectUrl) return;
+  // event.data.fullRedirectUrl = "https://vertexaisearch.../oauth-redirect?code=0.AW8B...&state=..."
+  await fetch("/api/oauth/exchange", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "X-Entra-Id-Token": entra_jwt },
+    body: JSON.stringify({ fullRedirectUrl: event.data.fullRedirectUrl }),
+  });
+});
+```
+
+> **COOP caveat:** If your app runs on a different origin than `vertexaisearch.cloud.google.com` (e.g. `localhost`), the redirect page's `Cross-Origin-Opener-Policy: same-origin` blocks `postMessage`. Use popup-closed polling as fallback — detect `popup.closed`, then call `check-connection` to verify.
+
+**Step 5 — Store the refresh token (backend)**
 
 ```python
-session_name = chunk.get("sessionInfo", {}).get("session")
-# Use this as the "session" field in follow-up requests
+# gcp_token from Step 2 (WIF, NOT service account)
+# fullRedirectUrl from Step 4 (contains the auth code)
+
+CONNECTOR_URL = "https://discoveryengine.googleapis.com/v1alpha/projects/REDACTED_PROJECT_NUMBER/locations/global/collections/sharepoint-data-def-connector"
+
+resp = requests.post(
+    f"{CONNECTOR_URL}/dataConnector:acquireAndStoreRefreshToken",
+    headers={"Authorization": f"Bearer {gcp_token}", "Content-Type": "application/json"},
+    json={"fullRedirectUri": fullRedirectUrl},
+)
+# Discovery Engine stores the SharePoint refresh token under this WIF identity
 ```
 
-### Minimal Implementation Checklist
+> **⚠️  The `gcp_token` MUST come from WIF (Step 2), not from ADC/service account.** The token identifies the user. If stored under a service account, `acquireAccessToken` later returns 404 — identity mismatch.
 
-- [ ] MSAL.js login with Portal App → Entra id_token
-- [ ] Backend STS exchange: Entra JWT → GCP token (WIF)
-- [ ] Backend `/auth-url`: generate OAuth URL with Connector App + vertexaisearch redirect_uri
-- [ ] Frontend: open OAuth URL in popup
-- [ ] Handle popup close → poll `check-connection` (COOP fallback)
-- [ ] Handle postMessage → call `/exchange` endpoint (same-origin only)
-- [ ] Backend `/exchange`: WIF token + fullRedirectUrl → `acquireAndStoreRefreshToken`
-- [ ] Backend `/search`: WIF token + query + 5 entity types → StreamAssist
-- [ ] Frontend: display grounded answer + source citations
+**Step 6 — Search (backend)**
+
+```python
+STREAMASSIST_URL = "https://discoveryengine.googleapis.com/v1alpha/projects/REDACTED_PROJECT_NUMBER/locations/global/collections/default_collection/engines/gemini-enterprise/assistants/default_assistant:streamAssist"
+
+resp = requests.post(STREAMASSIST_URL, headers={
+    "Authorization": f"Bearer {gcp_token}",       # ← WIF token from Step 2
+    "Content-Type": "application/json",
+}, json={
+    "query": {"text": "What documents do we have about Apex Financial?"},
+})
+# Returns grounded answer + SharePoint source URLs with per-user ACLs
+```
+
+> `dataStoreSpecs` is optional — StreamAssist searches all connected data stores by default. Use natural language queries; keyword-only queries are silently ignored (`NON_ASSIST_SEEKING_QUERY_IGNORED`).
+
+### Key Gotchas
+
+| Gotcha | What Happens |
+|--------|-------------|
+| `redirect_uri` not `vertexaisearch.cloud.google.com/oauth-redirect` | `acquireAndStoreRefreshToken` fails with redirect URI mismatch |
+| ADC token instead of WIF token | Token stored under service account → `acquireAccessToken` returns 404 |
+| `state` not base64-encoded | Redirect page throws `Illegal base64 character` |
+| `oauth2AllowIdTokenImplicitFlow` not set | STS exchange silently fails — no GCP token |
+| Keyword query (e.g. `"Apex Financial"`) | Returns `NON_ASSIST_SEEKING_QUERY_IGNORED` — use natural language |
+| COOP blocks postMessage on localhost | Popup can't send auth code back — use popup-closed polling fallback |
 
 ---
 

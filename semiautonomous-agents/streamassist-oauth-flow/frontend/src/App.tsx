@@ -61,10 +61,10 @@ const STAGE_INFO: Record<string, { description: string; chain?: string }> = {
     chain: 'A+B',
   },
   'Search': {
-    description: 'Calls StreamAssist with all 5 entity types (file, page, comment, event, attachment). StreamAssist does federated real-time search — it uses the stored refresh token to query SharePoint with the user\'s ACLs. Results are grounded with source citations.',
+    description: 'Calls StreamAssist for federated real-time search. Uses the stored refresh token to query SharePoint with the user\'s ACLs. dataStoreSpecs is optional — StreamAssist searches all connected stores by default. Requires natural language queries — keywords are silently ignored.',
   },
   'StreamAssist': {
-    description: 'Discovery Engine StreamAssist API performs federated real-time search against SharePoint. Uses the stored refresh token (from acquireAndStoreRefreshToken) to enforce per-user ACLs. Requires natural language queries — keyword-only queries are silently ignored.',
+    description: 'Discovery Engine StreamAssist API performs federated real-time search against SharePoint. Uses the stored refresh token (from acquireAndStoreRefreshToken) to enforce per-user ACLs. Requires natural language queries — keyword-only queries return NON_ASSIST_SEEKING_QUERY_IGNORED.',
   },
 };
 
