@@ -88,6 +88,151 @@ flowchart LR
 
 ---
 
+## Code Walkthrough — Auth Cycle
+
+Each step maps to a numbered arrow in the architecture diagram above.
+
+### Step 1 · MSAL Login → Entra JWT
+
+The frontend authenticates via MSAL.js against the **Portal App** registration. The `api://{client-id}/user_impersonation` scope is critical — it sets the `aud` claim that WIF validates.
+
+```ts
+// authConfig.ts — MSAL configuration
+export const loginRequest = {
+  scopes: [
+    `api://${CLIENT_ID}/user_impersonation`,  // aud claim for WIF
+    'openid', 'profile', 'email',
+  ],
+};
+```
+
+```ts
+// App.tsx — acquire token silently (or popup fallback)
+const getToken = async (): Promise<string | null> => {
+  try {
+    const resp = await instance.acquireTokenSilent({
+      ...loginRequest, account: accounts[0],
+    });
+    return resp.idToken;  // Entra JWT — sent as X-Entra-Id-Token header
+  } catch {
+    return (await instance.acquireTokenPopup(loginRequest)).idToken;
+  }
+};
+```
+
+### Step 2 · STS Token Exchange — Entra JWT → GCP Token
+
+The backend exchanges the Entra JWT for a GCP access token via [Workforce Identity Federation](https://cloud.google.com/iam/docs/workforce-identity-federation). The `audience` must match the WIF provider, and `subjectTokenType` must be `id_token`.
+
+```python
+# main.py — _exchange_token()
+def _exchange_token(entra_jwt: str) -> Optional[str]:
+    resp = requests.post("https://sts.googleapis.com/v1/token", json={
+        "audience": (
+            f"//iam.googleapis.com/locations/global/workforcePools"
+            f"/{WIF_POOL_ID}/providers/{WIF_PROVIDER_ID}"
+        ),
+        "grantType": "urn:ietf:params:oauth:grant-type:token-exchange",
+        "requestedTokenType": "urn:ietf:params:oauth:token-type:access_token",
+        "scope": "https://www.googleapis.com/auth/cloud-platform",
+        "subjectToken": entra_jwt,           # the Entra id_token from Step 1
+        "subjectTokenType": "urn:ietf:params:oauth:token-type:id_token",
+    }, timeout=10)
+    return resp.json().get("access_token") if resp.ok else None
+```
+
+### Step 3 · SharePoint OAuth Consent (one-time)
+
+The user clicks **Connect SharePoint** → popup opens Microsoft login for the **Connector App**. The backend generates the auth URL, storing the Entra JWT by nonce so it can be retrieved in the callback.
+
+```python
+# main.py — get_auth_url()
+@app.get("/api/sharepoint/auth-url")
+async def get_auth_url(request: Request):
+    nonce = secrets.token_urlsafe(16)
+    _pending_consents[nonce] = entra_jwt     # store JWT for callback
+
+    params = {
+        "client_id": CONNECTOR_CLIENT_ID,    # Connector App (not Portal App)
+        "response_type": "code",
+        "redirect_uri": REDIRECT_URI,        # /api/oauth/callback
+        "scope": SP_SCOPES,                  # SharePoint AllSites.Read + Sites.Search.All
+        "state": json.dumps({"origin": origin, "nonce": nonce}),
+    }
+    url = f"https://login.microsoftonline.com/{TENANT_ID}/oauth2/v2.0/authorize?{urlencode(params)}"
+    return {"auth_url": url}
+```
+
+### Step 4 · OAuth Callback → `acquireAndStoreRefreshToken`
+
+Microsoft redirects to `/api/oauth/callback` with an auth code. The backend retrieves the stored Entra JWT by nonce, exchanges it for a WIF/GCP token (Step 2 again), then calls Discovery Engine to store the SharePoint refresh token **under that WIF identity**.
+
+```python
+# main.py — oauth_callback()
+@app.get("/api/oauth/callback")
+async def oauth_callback(request: Request):
+    nonce = state.get("nonce", "")
+    entra_jwt = _pending_consents.pop(nonce, None)  # retrieve stored JWT
+    gcp_token = _exchange_token(entra_jwt)           # WIF token (not ADC!)
+
+    # Store the SharePoint refresh token under this WIF identity
+    resp = requests.post(
+        f"{CONNECTOR_URL}/dataConnector:acquireAndStoreRefreshToken",
+        headers=_gcp_headers(gcp_token),
+        json={"fullRedirectUri": str(request.url)},  # contains the auth code
+    )
+    # postMessage back to frontend → "SharePoint Connected!"
+```
+
+> **Why WIF, not ADC?** The token identifies the user. If you use ADC (service account), `acquireAccessToken` later returns 404 because the identity that stored the token doesn't match the identity requesting it.
+
+### Step 5 · StreamAssist Federated Search
+
+Every search query goes through the same STS exchange (Steps 1-2), then calls StreamAssist with all 5 data store entity types. StreamAssist uses the stored refresh token to query SharePoint with the user's ACLs.
+
+```python
+# main.py — _stream_assist()
+def _stream_assist(gcp_token, query, session_token=None):
+    ds_base = f"{BASE}/default_collection/dataStores/{CONNECTOR_ID}"
+    payload = {
+        "query": {"text": query},
+        "dataStoreSpecs": [
+            {"dataStore": f"{ds_base}_{et}"}
+            for et in ["file", "page", "comment", "event", "attachment"]
+        ],
+    }
+    if session_token:
+        payload["session"] = session_token   # NOT "assistToken" — that field is rejected
+
+    resp = requests.post(STREAMASSIST_URL, headers=_gcp_headers(gcp_token),
+                         json=payload, timeout=60)
+```
+
+### Step 6 · Session Continuity
+
+StreamAssist returns an opaque `assistToken` in responses — **but rejects it as input**. For follow-up queries, use `sessionInfo.session` (a resource name like `projects/.../sessions/...`).
+
+```python
+# main.py — extracting session from response
+for chunk in chunks:
+    session_name = chunk.get("sessionInfo", {}).get("session") or session_name
+    #                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    #                        Use this, NOT chunk["assistToken"]
+```
+
+```ts
+// App.tsx — sending session on follow-up queries
+const resp = await fetch('/api/search', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json', 'X-Entra-Id-Token': token },
+  body: JSON.stringify({ query: q, session_token: sessionToken }),
+  //                                ^^^^^^^^^^^^^ sessionInfo.session from previous response
+});
+if (data.session_token) setSessionToken(data.session_token);
+```
+
+---
+
 ## What Makes It Work
 
 These are the non-obvious constraints that aren't in any public documentation. Each one was discovered through trial-and-error.
@@ -206,15 +351,161 @@ cd frontend && npm install && npm run dev
 
 ## API
 
-The backend exposes 5 endpoints. That's it.
+The backend exposes 5 endpoints. Click any to see the implementation.
 
-| Endpoint | Method | Purpose |
-|----------|--------|---------|
-| `/health` | GET | Health check |
-| `/api/sharepoint/auth-url` | GET | Generate Microsoft OAuth URL for consent popup |
-| `/api/oauth/callback` | GET | OAuth redirect target — stores refresh token via WIF |
-| `/api/sharepoint/check-connection` | GET | Verify user has a stored SharePoint token |
-| `/api/search` | POST | StreamAssist federated search with session continuity |
+<details>
+<summary><code>GET</code> <strong><code>/health</code></strong> — Health check</summary>
+
+```python
+@app.get("/health")
+async def health():
+    return {"status": "healthy"}
+```
+
+</details>
+
+<details>
+<summary><code>GET</code> <strong><code>/api/sharepoint/auth-url</code></strong> — Generate Microsoft OAuth URL for consent popup</summary>
+
+Stores the caller's Entra JWT by nonce so the callback can retrieve it later for WIF exchange.
+
+```python
+@app.get("/api/sharepoint/auth-url")
+async def get_auth_url(request: Request):
+    entra_jwt = request.headers.get("X-Entra-Id-Token")
+    nonce = secrets.token_urlsafe(16)
+    _pending_consents[nonce] = entra_jwt          # store for callback
+
+    params = {
+        "client_id": CONNECTOR_CLIENT_ID,          # Connector App, not Portal App
+        "response_type": "code",
+        "redirect_uri": REDIRECT_URI,              # /api/oauth/callback
+        "scope": SP_SCOPES,                        # AllSites.Read + Sites.Search.All
+        "state": json.dumps({"origin": origin, "nonce": nonce}),
+        "prompt": "login",
+    }
+    url = f"https://login.microsoftonline.com/{TENANT_ID}/oauth2/v2.0/authorize?{urlencode(params)}"
+    return {"auth_url": url}
+```
+
+**Frontend caller:**
+```ts
+const resp = await fetch(`/api/sharepoint/auth-url?login_hint=${username}`, {
+  headers: { 'X-Entra-Id-Token': token },
+});
+const { auth_url } = await resp.json();
+popup.location.href = auth_url;
+```
+
+</details>
+
+<details>
+<summary><code>GET</code> <strong><code>/api/oauth/callback</code></strong> — OAuth redirect target — stores refresh token via WIF</summary>
+
+Microsoft redirects here with an auth code. The nonce in `state` retrieves the stored Entra JWT → WIF exchange → `acquireAndStoreRefreshToken` stores the SharePoint refresh token under that WIF identity.
+
+```python
+@app.get("/api/oauth/callback")
+async def oauth_callback(request: Request):
+    state = json.loads(request.query_params.get("state", "{}"))
+    nonce = state.get("nonce", "")
+
+    # Retrieve stored Entra JWT → exchange for GCP token via WIF
+    entra_jwt = _pending_consents.pop(nonce, None)
+    gcp_token = _exchange_token(entra_jwt)          # WIF token, NOT ADC
+
+    # Store SharePoint refresh token under this WIF identity
+    resp = requests.post(
+        f"{CONNECTOR_URL}/dataConnector:acquireAndStoreRefreshToken",
+        headers=_gcp_headers(gcp_token),
+        json={"fullRedirectUri": str(request.url)},  # contains the auth code
+    )
+
+    # postMessage back to frontend popup → "SharePoint Connected!"
+    return _callback_page("SharePoint Connected!", ...)
+```
+
+> **Why WIF, not ADC?** If you use ADC here, `acquireAccessToken` later returns 404 — the identity that *stored* the token doesn't match the identity *requesting* it.
+
+</details>
+
+<details>
+<summary><code>GET</code> <strong><code>/api/sharepoint/check-connection</code></strong> — Verify user has a stored SharePoint token</summary>
+
+Exchanges the Entra JWT for a WIF/GCP token, then calls `acquireAccessToken` to check if a SharePoint refresh token exists for this identity.
+
+```python
+@app.get("/api/sharepoint/check-connection")
+async def check_connection(request: Request):
+    gcp_token = _get_gcp_token(request)             # Entra JWT → WIF → GCP token
+    if not gcp_token:
+        return {"connected": False}
+
+    resp = requests.post(
+        f"{CONNECTOR_URL}/dataConnector:acquireAccessToken",
+        headers=_gcp_headers(gcp_token),
+        json={},
+    )
+    return {"connected": resp.ok and bool(resp.json().get("accessToken"))}
+```
+
+**Frontend caller** (on mount):
+```ts
+const resp = await fetch('/api/sharepoint/check-connection', {
+  headers: { 'X-Entra-Id-Token': token },
+});
+const { connected } = await resp.json();
+```
+
+</details>
+
+<details>
+<summary><code>POST</code> <strong><code>/api/search</code></strong> — StreamAssist federated search with session continuity</summary>
+
+Calls StreamAssist with all 5 entity types. Uses `session` (not `assistToken`) for follow-up queries.
+
+```python
+@app.post("/api/search")
+async def search(request: Request, body: SearchRequest):
+    gcp_token = _get_gcp_token(request)
+    return await asyncio.to_thread(_stream_assist, gcp_token, body.query, body.session_token)
+
+def _stream_assist(gcp_token, query, session_token=None):
+    ds_base = f"{BASE}/default_collection/dataStores/{CONNECTOR_ID}"
+    payload = {
+        "query": {"text": query},
+        "dataStoreSpecs": [
+            {"dataStore": f"{ds_base}_{et}"}
+            for et in ["file", "page", "comment", "event", "attachment"]
+        ],
+    }
+    if session_token:
+        payload["session"] = session_token           # NOT "assistToken"
+
+    resp = requests.post(STREAMASSIST_URL, headers=_gcp_headers(gcp_token),
+                         json=payload, timeout=60)
+
+    # Parse: skip thought chunks, extract text + sources + session name
+    for chunk in chunks:
+        session_name = chunk.get("sessionInfo", {}).get("session") or session_name
+        for reply in chunk.get("answer", {}).get("replies", []):
+            content = reply.get("groundedContent", {}).get("content", {})
+            if not content.get("thought") and content.get("text"):
+                answer_parts.append(content["text"])
+
+    return {"answer": "".join(answer_parts), "sources": unique, "session_token": session_name}
+```
+
+**Frontend caller:**
+```ts
+const resp = await fetch('/api/search', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json', 'X-Entra-Id-Token': token },
+  body: JSON.stringify({ query: q, session_token: sessionToken }),
+});
+```
+
+</details>
 
 ---
 
