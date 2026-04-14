@@ -96,6 +96,21 @@ function App() {
           <div className="status-dot" />
           <span>Connected</span>
         </div>
+        <a href="https://www.linkedin.com/in/jchavezar" target="_blank" rel="noopener noreferrer" className="signature">
+          <svg viewBox="0 0 180 50" width="140" height="40" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="sig-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stopColor="#9ca3af" />
+                <stop offset="50%" stopColor="#6b7280" />
+                <stop offset="100%" stopColor="#9ca3af" />
+              </linearGradient>
+            </defs>
+            <text x="90" y="18" textAnchor="middle" fill="url(#sig-grad)" fontSize="10" fontFamily="Georgia, serif" fontStyle="italic" letterSpacing="0.5">Made with</text>
+            <text x="90" y="18" textAnchor="middle" dx="38" fill="url(#sig-grad)" fontSize="10">&#x1F64F;</text>
+            <text x="90" y="36" textAnchor="middle" fill="#4b5563" fontSize="16" fontFamily="Georgia, serif" fontWeight="600" fontStyle="italic" letterSpacing="1">by Jesus</text>
+            <line x1="30" y1="43" x2="150" y2="43" stroke="url(#sig-grad)" strokeWidth="0.5" opacity="0.5" />
+          </svg>
+        </a>
       </aside>
 
       <main className="main">
