@@ -97,7 +97,7 @@ function App() {
           <span>Connected</span>
         </div>
         <a href="https://www.linkedin.com/in/jchavezar" target="_blank" rel="noopener noreferrer" className="signature">
-          <svg viewBox="0 0 180 50" width="140" height="40" xmlns="http://www.w3.org/2000/svg">
+          <svg viewBox="0 0 180 50" width="200" height="56" xmlns="http://www.w3.org/2000/svg">
             <defs>
               <linearGradient id="sig-grad" x1="0%" y1="0%" x2="100%" y2="0%">
                 <stop offset="0%" stopColor="#9ca3af" />
