@@ -28,10 +28,12 @@ interface TraceEntry {
   description?: string;
 }
 
-const STAGE_INFO: Record<string, { description: string; chain?: string }> = {
+const STAGE_INFO: Record<string, { description: string; chain?: string; exampleInput?: any; exampleOutput?: any }> = {
   'MSAL Login': {
     description: 'Authenticates against the Portal App registration in Entra ID. The id_token\'s aud claim must match the WIF provider\'s audience (api://{client-id}). Requires oauth2AllowIdTokenImplicitFlow: true in the app manifest.',
     chain: 'A',
+    exampleInput: { authority: 'https://login.microsoftonline.com/{tenant-id}', clientId: '{portal-app-client-id}', scopes: ['openid', 'profile', 'email'] },
+    exampleOutput: { idToken: 'eyJ0eXAiOiJKV1Qi...', account: 'user@tenant.onmicrosoft.com' },
   },
   'Check Connection': {
     description: 'Calls acquireAccessToken via WIF to check if a stored SharePoint refresh token exists for this user\'s WIF identity. Returns 404 if no token is stored or if it was stored under a different identity (e.g., ADC).',
@@ -39,32 +41,48 @@ const STAGE_INFO: Record<string, { description: string; chain?: string }> = {
   'STS Token Exchange': {
     description: 'Exchanges the Entra JWT for a GCP access token via Workforce Identity Federation (WIF). Maps the Entra sub claim to a GCP principal. This GCP token identifies the user to Discovery Engine — it is NOT a service account.',
     chain: 'A',
+    exampleInput: { audience: '//iam.googleapis.com/locations/global/workforcePools/{pool}/providers/{provider}', subjectToken: 'eyJ0eXAiOiJKV1Qi...', subjectTokenType: 'urn:ietf:params:oauth:token-type:id_token' },
+    exampleOutput: { access_token: 'ya29.d.b0AXv0zT...', token_type: 'Bearer', expires_in: 3600 },
   },
   'acquireAccessToken': {
     description: 'Discovery Engine checks if it holds a stored SharePoint refresh token for this WIF identity. If the token was stored using ADC instead of WIF, this returns 404 — identity mismatch.',
     chain: 'A',
+    exampleInput: { connector: '{connector-id}/dataConnector:acquireAccessToken', body: '(empty — identity from GCP token)', gcpToken: 'ya29.d.b0AXv0zT...' },
+    exampleOutput: { connected: true, hasAccessToken: true },
   },
   'Get Auth URL': {
     description: 'Generates the Microsoft OAuth consent URL using the Connector App (not Portal App). Stores the Entra JWT by nonce so the callback can retrieve it later. redirect_uri must be vertexaisearch.cloud.google.com/oauth-redirect — Discovery Engine hardcodes this.',
     chain: 'B',
+    exampleInput: { client_id: '{connector-app-client-id}', redirect_uri: 'https://vertexaisearch.cloud.google.com/oauth-redirect', scope: 'openid offline_access https://{tenant}.sharepoint.com/AllSites.Read' },
+    exampleOutput: { auth_url: 'https://login.microsoftonline.com/{tenant-id}/oauth2/v2.0/authorize?client_id=...&redirect_uri=https://vertexaisearch.cloud.google.com/oauth-redirect&...' },
   },
   'OAuth Consent Popup': {
     description: 'Opens Microsoft login for SharePoint consent using the Connector App. The redirect goes to Google\'s vertexaisearch.cloud.google.com/oauth-redirect page, which captures the auth code and sends it back via postMessage.',
     chain: 'B',
+    exampleInput: { redirectTo: 'https://login.microsoftonline.com/{tenant-id}/oauth2/v2.0/authorize?...' },
+    exampleOutput: { callback: 'https://vertexaisearch.cloud.google.com/oauth-redirect?code=0.AW8B_aFG...&state=eyJvcml...&session_state=003f0cba-...' },
   },
   'OAuth Redirect (postMessage)': {
     description: 'Google\'s redirect page receives the auth code from Microsoft and sends {fullRedirectUrl, code, state} back via postMessage. COOP caveat: if your app is NOT on the same origin as vertexaisearch.cloud.google.com, postMessage is blocked. Use the popup-closed fallback with check-connection polling.',
     chain: 'B',
+    exampleInput: { fullRedirectUrl: 'https://vertexaisearch.cloud.google.com/oauth-redirect?code=0.AW8B...&state=eyJvcml...' },
+    exampleOutput: { type: 'sharepoint-oauth-callback', success: true },
   },
   'acquireAndStoreRefreshToken': {
     description: 'CONVERGENCE POINT — Chain A (WIF identity from GCP token) meets Chain B (auth code from OAuth consent). Discovery Engine exchanges the auth code for a SharePoint refresh token and stores it mapped to this WIF identity. Future searches use this stored token for per-user ACLs.',
     chain: 'A+B',
+    exampleInput: { endpoint: '{connector-id}/dataConnector:acquireAndStoreRefreshToken', fullRedirectUri: 'https://vertexaisearch.cloud.google.com/oauth-redirect?code=0.AW8B...', gcpToken: 'ya29.d.b0AXv0zT... (WIF token — NOT service account)' },
+    exampleOutput: { success: true },
   },
   'Search': {
     description: 'Calls StreamAssist for federated real-time search. Uses the stored refresh token to query SharePoint with the user\'s ACLs. dataStoreSpecs is optional — StreamAssist searches all connected stores by default. Requires natural language queries — keywords are silently ignored.',
+    exampleInput: { query: 'What are the latest financial reports?', session_token: null },
+    exampleOutput: { answer_length: 1246, sources_count: 5, session_token: 'projects/.../sessions/178690...' },
   },
   'StreamAssist': {
     description: 'Discovery Engine StreamAssist API performs federated real-time search against SharePoint. Uses the stored refresh token (from acquireAndStoreRefreshToken) to enforce per-user ACLs. Requires natural language queries — keyword-only queries return NON_ASSIST_SEEKING_QUERY_IGNORED.',
+    exampleInput: { query: 'What are the latest financial reports?', dataStoreSpecs: '(optional)' },
+    exampleOutput: { answer: '...grounded response...', sources: ['sharepoint-file-1.pdf', 'sharepoint-page-2.aspx'], session: 'projects/.../sessions/...' },
   },
 };
 
@@ -669,6 +687,18 @@ GCP access token                │
                       {expandedTraces.has(stage) && (
                         <div className="trace-body">
                           <div className="trace-description">{info.description}</div>
+                          {info.exampleInput && (
+                            <div className="trace-section">
+                              <div className="trace-label">INPUT</div>
+                              <pre className="trace-json">{JSON.stringify(info.exampleInput, null, 2)}</pre>
+                            </div>
+                          )}
+                          {info.exampleOutput && (
+                            <div className="trace-section">
+                              <div className="trace-label">OUTPUT</div>
+                              <pre className="trace-json">{JSON.stringify(info.exampleOutput, null, 2)}</pre>
+                            </div>
+                          )}
                         </div>
                       )}
                     </div>
