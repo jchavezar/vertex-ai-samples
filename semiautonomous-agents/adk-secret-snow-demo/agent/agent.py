@@ -3,6 +3,8 @@ SecretOps Agent — Google ADK + ServiceNow MCP + Secret Manager.
 
 Credentials are loaded from Google Secret Manager at runtime,
 injected into a ServiceNow MCP server, and exposed as agent tools.
+Google Search is available via ADK's built-in google_search tool
+wrapped as an AgentTool.
 """
 import os
 import json
@@ -11,10 +13,10 @@ import asyncio
 import subprocess
 from contextlib import AsyncExitStack
 
-from google import genai
-from google.genai import types as genai_types
 from google.adk.agents import LlmAgent
 from google.adk.runners import InMemoryRunner
+from google.adk.tools import google_search
+from google.adk.tools.agent_tool import AgentTool
 from google.adk.tools.mcp_tool import McpToolset, SseConnectionParams
 from google.cloud import secretmanager
 
@@ -31,13 +33,13 @@ MODEL = "gemini-2.5-flash"
 INSTRUCTION = """\
 You are SecretOps, an IT operations assistant.
 
-Capabilities:
-- Search the web for real-time information using the web_search tool.
-- Create, search, list, and update ServiceNow incidents.
+Capabilities (use your tools accordingly):
+- Search the web for real-time information using the google_search_agent tool.
+- Create, search, list, and update ServiceNow incidents via MCP tools.
 - Add work notes to existing incidents.
 
 Workflow for new incidents:
-1. If the user asks to find information online, use web_search first.
+1. If the user asks to find information online, use google_search_agent first.
 2. Search existing incidents for duplicates.
 3. Create the incident with a detailed description.
 4. Report the incident number and summary.
@@ -45,22 +47,13 @@ Workflow for new incidents:
 Always confirm before creating or updating incidents.\
 """
 
-
-async def web_search(query: str) -> str:
-    """Search the web for real-time information using Google Search grounding.
-
-    Args:
-        query: The search query to find current information about.
-    """
-    client = genai.Client(vertexai=True, project=PROJECT_ID, location="us-central1")
-    response = await client.aio.models.generate_content(
-        model=MODEL,
-        contents=query,
-        config=genai_types.GenerateContentConfig(
-            tools=[genai_types.Tool(google_search=genai_types.GoogleSearch())],
-        ),
-    )
-    return response.text
+google_search_agent = LlmAgent(
+    name="google_search_agent",
+    model=MODEL,
+    description="Searches the internet for real-time information using Google Search.",
+    instruction="Search the web and return detailed, factual results with sources.",
+    tools=[google_search],
+)
 
 
 def _load_credentials():
@@ -99,7 +92,7 @@ async def _start_mcp_server() -> subprocess.Popen:
 
 
 async def create_agent() -> tuple[InMemoryRunner, AsyncExitStack, subprocess.Popen]:
-    """Build the ADK agent with ServiceNow MCP tools."""
+    """Build the ADK agent with ServiceNow MCP tools and Google Search."""
     _inject_credentials()
 
     mcp_process = await _start_mcp_server()
@@ -116,7 +109,7 @@ async def create_agent() -> tuple[InMemoryRunner, AsyncExitStack, subprocess.Pop
         name="SecretOpsAgent",
         model=MODEL,
         instruction=INSTRUCTION,
-        tools=[web_search] + mcp_tools,
+        tools=[AgentTool(agent=google_search_agent)] + mcp_tools,
     )
 
     runner = InMemoryRunner(agent=agent, app_name="secretops")
