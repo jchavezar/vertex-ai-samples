@@ -1,0 +1,15 @@
+[project]
+name = "adk-secret-snow-demo"
+version = "0.1.0"
+description = "SecretOps: Google ADK + Secret Manager + ServiceNow MCP + Google Search"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi>=0.135.3",
+    "fastmcp>=2.5.0",
+    "google-adk>=1.30.0",
+    "google-cloud-secret-manager>=2.27.0",
+    "python-dotenv>=1.1.0",
+    "requests>=2.32.0",
+    "uvicorn>=0.44.0",
+]
