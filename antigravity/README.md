@@ -199,6 +199,13 @@
       <a href="./internal_components_portal_local/">ACCESS_TERMINAL &rarr;</a>
     </td>
     <td width="50%" valign="top">
+      <img src="assets/header_adk.svg" width="100%" />
+      <br/><br/>
+      <strong>PROJECT: GEMMA STRATOS</strong><br/>
+      Minimalistic testing UI for Gemma 4. Features a Claude-like chat interface with markdown support and streaming responses.<br/>
+      <br/>
+      <a href="./gemma-stratos/">ACCESS_TERMINAL &rarr;</a>
+    </td>
   <!-- ROW 12: TAX DEMOS (CONSOLIDATED) -->
   <tr>
     <td width="50%" valign="top">

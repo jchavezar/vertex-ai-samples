@@ -1,0 +1,11 @@
+[project]
+name = "gemma-stratos"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "google-auth>=2.49.2",
+    "httpx>=0.28.1",
+    "requests>=2.33.1",
+]
