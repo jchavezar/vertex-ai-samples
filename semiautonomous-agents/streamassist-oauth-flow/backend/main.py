@@ -11,6 +11,7 @@ Flow:
 import os
 import json
 import time
+import base64
 import secrets
 import requests
 from urllib.parse import urlencode
@@ -35,7 +36,7 @@ WIF_POOL_ID = os.environ["WIF_POOL_ID"]
 WIF_PROVIDER_ID = os.environ["WIF_PROVIDER_ID"]
 CONNECTOR_CLIENT_ID = os.environ["CONNECTOR_CLIENT_ID"]
 TENANT_ID = os.environ["TENANT_ID"]
-REDIRECT_URI = os.environ.get("REDIRECT_URI", "http://localhost:8003/api/oauth/callback")
+REDIRECT_URI = os.environ.get("REDIRECT_URI", "https://vertexaisearch.cloud.google.com/oauth-redirect")
 SP_SCOPES = "openid offline_access https://CONTOSO.sharepoint.com/AllSites.Read https://CONTOSO.sharepoint.com/Sites.Search.All"
 
 BASE = f"https://discoveryengine.googleapis.com/v1alpha/projects/{PROJECT_NUMBER}/locations/global/collections"
@@ -122,7 +123,7 @@ async def get_auth_url(request: Request):
         "redirect_uri": REDIRECT_URI,
         "scope": SP_SCOPES,
         "response_mode": "query",
-        "state": json.dumps({"origin": origin, "nonce": nonce}),
+        "state": base64.b64encode(json.dumps({"origin": origin, "useBroadcastChannel": "false", "nonce": nonce}).encode()).decode(),
         "prompt": "login",
     }
     login_hint = request.query_params.get("login_hint", "")
@@ -135,7 +136,11 @@ async def get_auth_url(request: Request):
 
 @app.get("/api/oauth/callback")
 async def oauth_callback(request: Request):
-    state = json.loads(request.query_params.get("state", "{}"))
+    raw_state = request.query_params.get("state", "")
+    try:
+        state = json.loads(base64.b64decode(raw_state).decode())
+    except Exception:
+        state = json.loads(raw_state) if raw_state else {}
     origin = state.get("origin", "*")
     nonce = state.get("nonce", "")
     msg = {"type": "sharepoint-oauth-callback"}
@@ -174,6 +179,46 @@ async def oauth_callback(request: Request):
                           {**msg, "success": False, "error": resp.text[:200]}, origin)
 
 
+class ExchangeRequest(BaseModel):
+    fullRedirectUrl: str
+
+
+@app.post("/api/oauth/exchange")
+async def oauth_exchange(request: Request, body: ExchangeRequest):
+    entra_jwt = request.headers.get("X-Entra-Id-Token")
+    if not entra_jwt:
+        return {"success": False, "error": "Missing X-Entra-Id-Token header"}
+
+    trace = []
+    gcp_token = _exchange_token(entra_jwt, trace)
+    if not gcp_token:
+        import google.auth
+        import google.auth.transport.requests as gr
+        cred, _ = google.auth.default(scopes=["https://www.googleapis.com/auth/cloud-platform"])
+        cred.refresh(gr.Request())
+        gcp_token = cred.token
+
+    start = time.time()
+    resp = requests.post(
+        f"{CONNECTOR_URL}/dataConnector:acquireAndStoreRefreshToken",
+        headers=_gcp_headers(gcp_token),
+        json={"fullRedirectUri": body.fullRedirectUrl},
+        timeout=30,
+    )
+    trace.append({
+        "stage": "acquireAndStoreRefreshToken",
+        "endpoint": f"POST {CONNECTOR_ID}/dataConnector:acquireAndStoreRefreshToken",
+        "status": resp.status_code,
+        "duration_ms": round((time.time() - start) * 1000),
+        "input": {"fullRedirectUri": body.fullRedirectUrl[:80] + "..."},
+        "output": {"success": resp.ok} if resp.ok else {"error": resp.text[:200]},
+    })
+
+    if resp.ok:
+        return {"success": True, "_trace": trace}
+    return {"success": False, "error": resp.text[:200], "_trace": trace}
+
+
 @app.get("/api/sharepoint/check-connection")
 async def check_connection(request: Request):
     trace = []
@@ -194,7 +239,12 @@ async def check_connection(request: Request):
         "endpoint": f"POST {CONNECTOR_ID}/dataConnector:acquireAccessToken",
         "status": resp.status_code,
         "duration_ms": round((time.time() - start) * 1000),
-        "input": {},
+        "input": {
+            "connector": CONNECTOR_ID,
+            "api": "dataConnector:acquireAccessToken",
+            "body": "(empty — identity comes from GCP token in Authorization header)",
+            "gcpToken": gcp_token[:40] + "...",
+        },
         "output": {"connected": connected, "hasAccessToken": connected},
     })
     return {"connected": connected, "_trace": trace}

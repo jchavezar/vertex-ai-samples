@@ -10,6 +10,8 @@
 
 Search SharePoint documents via StreamAssist **without the Gemini Enterprise UI**. Users sign in with Microsoft, authorize SharePoint once, then ask natural language questions. StreamAssist does **federated search** (real-time, not indexed) with per-user ACL enforcement.
 
+![Demo](docs/demo.gif)
+
 ---
 
 ## Architecture
@@ -514,17 +516,19 @@ const resp = await fetch('/api/search', {
 ```
 streamassist-oauth-flow/
 ├── backend/
-│   ├── main.py              # 175 lines — complete backend
+│   ├── main.py              # Complete backend — OAuth + WIF + StreamAssist
 │   ├── .env                 # GCP + Entra configuration
 │   └── pyproject.toml
 ├── frontend/
 │   ├── src/
-│   │   ├── App.tsx          # 265 lines — chat UI + OAuth flow
+│   │   ├── App.tsx          # Chat UI + OAuth flow + debug sidebar
 │   │   ├── authConfig.ts    # MSAL configuration
 │   │   ├── main.tsx         # React entry point
-│   │   └── index.css        # Dark theme styles
+│   │   └── index.css        # Dark theme + sidebar styles
 │   ├── .env                 # VITE_CLIENT_ID + VITE_TENANT_ID
 │   └── package.json
+├── docs/
+│   └── demo.gif             # Demo walkthrough
 └── README.md
 ```
 
@@ -552,6 +556,155 @@ Portal App (7868d053)           Connector App (22c127d8)
 | Connector App | SharePoint consent — provides auth code for refresh token storage |
 | WIF Pool (`sp-wif-pool-v2`) | Maps Entra JWT `sub` claim to GCP identity |
 | Discovery Engine (`gemini-enterprise`) | StreamAssist engine with SharePoint connector |
+
+---
+
+## Building Your Own UI (Customer Replication Guide)
+
+This section explains how to build a custom frontend that uses StreamAssist with per-user SharePoint OAuth — **without the Gemini Enterprise UI**.
+
+### Prerequisites
+
+1. **Two Entra App Registrations** — Portal App (MSAL login) and Connector App (SharePoint consent). See [Configuration](#configuration) above.
+2. **Workforce Identity Federation (WIF)** pool + provider configured to accept Entra JWTs.
+3. **Discovery Engine** with a SharePoint connector and StreamAssist engine.
+
+### The Two-Chain Pattern
+
+Your UI must implement two independent auth chains that converge at `acquireAndStoreRefreshToken`:
+
+```
+Chain A (Identity)                Chain B (Consent)
+──────────────────                ──────────────────
+1. MSAL login (Portal App)       1. OAuth popup (Connector App)
+2. Entra id_token                2. User grants SharePoint permissions
+3. STS exchange → GCP token      3. Auth code via redirect
+         │                                 │
+         └─────────┐    ┌─────────────────┘
+                    ▼    ▼
+        acquireAndStoreRefreshToken
+        (GCP token = who, auth code = what)
+                    │
+            stored refresh token
+                    │
+            StreamAssist search
+```
+
+### Critical Implementation Details
+
+#### 1. Redirect URI — Use Google's Page
+
+The `redirect_uri` for the OAuth consent flow **must** be:
+```
+https://vertexaisearch.cloud.google.com/oauth-redirect
+```
+Discovery Engine's `acquireAndStoreRefreshToken` hardcodes this as the expected redirect URI. If you use a different URI, the token exchange fails with a redirect URI mismatch error.
+
+#### 2. Handling the Redirect — postMessage vs Polling
+
+Google's redirect page (`vertexaisearch.cloud.google.com/oauth-redirect`) receives the auth code from Microsoft and attempts to send it back to your app via `postMessage`:
+
+```js
+// What Google's redirect page sends:
+window.opener.postMessage({
+  fullRedirectUrl: "https://vertexaisearch.cloud.google.com/oauth-redirect?code=...&state=...",
+  code: "...",
+  state: "..."
+}, origin);
+```
+
+**COOP Caveat:** If your app is NOT hosted on `vertexaisearch.cloud.google.com` (i.e., during development on `localhost`), the redirect page's `Cross-Origin-Opener-Policy: same-origin` header blocks `window.opener.postMessage()`. Your app will NOT receive the message.
+
+**Workaround — Popup-Closed Polling:**
+
+```ts
+// Poll for popup closure, then check if consent succeeded
+const interval = setInterval(async () => {
+  if (popup.closed) {
+    clearInterval(interval);
+    // Wait briefly for token storage to complete
+    await new Promise(r => setTimeout(r, 1500));
+    // Check if the refresh token was stored
+    const resp = await fetch('/api/sharepoint/check-connection', {
+      headers: { 'X-Entra-Id-Token': token },
+    });
+    const { connected } = await resp.json();
+    // connected === true means consent succeeded
+  }
+}, 500);
+```
+
+#### 3. The Exchange Endpoint
+
+When `postMessage` works (same-origin deployment), your backend needs an exchange endpoint:
+
+```python
+@app.post("/api/oauth/exchange")
+async def oauth_exchange(request: Request, body: ExchangeRequest):
+    # Get the Entra JWT → exchange for WIF/GCP token (Chain A)
+    gcp_token = _exchange_token(entra_jwt)
+
+    # Pass the full redirect URL containing the auth code (Chain B)
+    resp = requests.post(
+        f"{CONNECTOR_URL}/dataConnector:acquireAndStoreRefreshToken",
+        headers=_gcp_headers(gcp_token),  # WIF token, NOT ADC
+        json={"fullRedirectUri": body.fullRedirectUrl},
+    )
+```
+
+#### 4. WIF Token — Never ADC
+
+The GCP token used for `acquireAndStoreRefreshToken` **must** come from WIF (Entra JWT → STS exchange), not from Application Default Credentials (ADC/service account). The token identifies the user — if you store the refresh token under a service account identity, `acquireAccessToken` later returns 404 because the requesting WIF identity doesn't match.
+
+#### 5. State Parameter Encoding
+
+The `vertexaisearch.cloud.google.com/oauth-redirect` page expects the OAuth `state` parameter to contain JSON with:
+- `origin` — the origin to postMessage back to
+- `useBroadcastChannel` — `"false"` to use postMessage instead of BroadcastChannel
+
+The state must be **base64-encoded** — the redirect page decodes it and throws `Illegal base64 character` if given raw JSON:
+
+```python
+import base64, json
+state = base64.b64encode(json.dumps({
+    "origin": origin, "useBroadcastChannel": "false", "nonce": nonce
+}).encode()).decode()
+```
+
+#### 6. All 5 Entity Types in dataStoreSpecs
+
+StreamAssist requires all 5 entity types in every search request:
+
+```python
+ENTITY_TYPES = ["file", "page", "comment", "event", "attachment"]
+payload = {
+    "query": {"text": query},
+    "dataStoreSpecs": [
+        {"dataStore": f"{ds_base}_{et}"} for et in ENTITY_TYPES
+    ],
+}
+```
+
+#### 7. Session Continuity
+
+StreamAssist returns `assistToken` in responses — **do not use it as input**. Use `sessionInfo.session` instead:
+
+```python
+session_name = chunk.get("sessionInfo", {}).get("session")
+# Use this as the "session" field in follow-up requests
+```
+
+### Minimal Implementation Checklist
+
+- [ ] MSAL.js login with Portal App → Entra id_token
+- [ ] Backend STS exchange: Entra JWT → GCP token (WIF)
+- [ ] Backend `/auth-url`: generate OAuth URL with Connector App + vertexaisearch redirect_uri
+- [ ] Frontend: open OAuth URL in popup
+- [ ] Handle popup close → poll `check-connection` (COOP fallback)
+- [ ] Handle postMessage → call `/exchange` endpoint (same-origin only)
+- [ ] Backend `/exchange`: WIF token + fullRedirectUrl → `acquireAndStoreRefreshToken`
+- [ ] Backend `/search`: WIF token + query + 5 entity types → StreamAssist
+- [ ] Frontend: display grounded answer + source citations
 
 ---
 

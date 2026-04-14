@@ -34,9 +34,7 @@ body {
 .app {
   flex: 1;
   min-width: 0;
-  max-width: 860px;
-  margin: 0 auto;
-  padding: 20px 24px;
+  padding: 20px 40px;
   height: 100vh;
   display: flex;
   flex-direction: column;
@@ -44,16 +42,13 @@ body {
 
 .app-layout.with-sidebar .app {
   margin: 0;
-  margin-left: auto;
-  margin-right: 0;
 }
 
 /* Header */
 header {
   display: flex;
   align-items: baseline;
-  gap: 16px;
-  flex-wrap: wrap;
+  gap: 12px;
   padding-bottom: 16px;
   border-bottom: 1px solid var(--border);
   flex-shrink: 0;
@@ -565,3 +560,139 @@ header h1 { font-size: 1.3rem; }
 
 .trace-json::-webkit-scrollbar { width: 4px; height: 4px; }
 .trace-json::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+/* Flow overview */
+.flow-overview {
+  border-bottom: 1px solid var(--border);
+  padding: 0;
+}
+
+.flow-overview summary {
+  padding: 12px 16px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--accent);
+  cursor: pointer;
+  user-select: none;
+}
+
+.flow-overview summary:hover {
+  background: rgba(74, 158, 255, 0.06);
+}
+
+.flow-content {
+  padding: 0 12px 12px;
+}
+
+.flow-ascii {
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 12px;
+  font-family: 'Consolas', 'Monaco', monospace;
+  font-size: 0.65rem;
+  line-height: 1.5;
+  color: var(--text-dim);
+  overflow-x: auto;
+  white-space: pre;
+  margin: 0;
+}
+
+.flow-gotchas {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.gotcha {
+  font-size: 0.7rem;
+  color: var(--text-dim);
+  line-height: 1.4;
+  padding: 6px 8px;
+  background: rgba(251, 191, 36, 0.06);
+  border-radius: 4px;
+  border-left: 2px solid var(--yellow);
+}
+
+.gotcha code {
+  background: var(--bg-input);
+  padding: 1px 4px;
+  border-radius: 3px;
+  font-size: 0.65rem;
+}
+
+.gotcha-icon {
+  color: var(--yellow);
+  font-weight: 700;
+  margin-right: 4px;
+}
+
+/* Chain labels */
+.trace-chain {
+  font-size: 0.6rem;
+  font-weight: 700;
+  padding: 1px 5px;
+  border-radius: 3px;
+  flex-shrink: 0;
+  letter-spacing: 0.5px;
+}
+
+.chain-A {
+  background: rgba(74, 158, 255, 0.15);
+  color: var(--accent);
+}
+
+.chain-B {
+  background: rgba(251, 191, 36, 0.15);
+  color: var(--yellow);
+}
+
+.chain-AB {
+  background: rgba(52, 211, 153, 0.15);
+  color: var(--green);
+}
+
+/* Trace description */
+.trace-description {
+  font-size: 0.72rem;
+  color: var(--text-dim);
+  line-height: 1.5;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 4px;
+}
+
+/* Ghost trace entries (unfired stages) */
+.trace-entry.trace-ghost {
+  border-left: 3px dashed var(--border);
+  opacity: 0.55;
+}
+
+.trace-entry.trace-ghost:hover {
+  opacity: 0.85;
+}
+
+.trace-icon-ghost {
+  color: var(--text-dim);
+  font-size: 0.7rem;
+}
+
+.ghost-divider {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.6rem;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  padding: 8px 4px 4px;
+  opacity: 0.5;
+}
+
+.ghost-divider::before,
+.ghost-divider::after {
+  content: '';
+  flex: 1;
+  border-top: 1px dashed var(--border);
+}

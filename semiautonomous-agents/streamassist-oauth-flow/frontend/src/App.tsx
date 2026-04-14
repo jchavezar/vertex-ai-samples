@@ -25,7 +25,48 @@ interface TraceEntry {
   duration_ms?: number;
   input?: any;
   output?: any;
+  description?: string;
 }
+
+const STAGE_INFO: Record<string, { description: string; chain?: string }> = {
+  'MSAL Login': {
+    description: 'Authenticates against the Portal App registration in Entra ID. The id_token\'s aud claim must match the WIF provider\'s audience (api://{client-id}). Requires oauth2AllowIdTokenImplicitFlow: true in the app manifest.',
+    chain: 'A',
+  },
+  'Check Connection': {
+    description: 'Calls acquireAccessToken via WIF to check if a stored SharePoint refresh token exists for this user\'s WIF identity. Returns 404 if no token is stored or if it was stored under a different identity (e.g., ADC).',
+  },
+  'STS Token Exchange': {
+    description: 'Exchanges the Entra JWT for a GCP access token via Workforce Identity Federation (WIF). Maps the Entra sub claim to a GCP principal. This GCP token identifies the user to Discovery Engine — it is NOT a service account.',
+    chain: 'A',
+  },
+  'acquireAccessToken': {
+    description: 'Discovery Engine checks if it holds a stored SharePoint refresh token for this WIF identity. If the token was stored using ADC instead of WIF, this returns 404 — identity mismatch.',
+    chain: 'A',
+  },
+  'Get Auth URL': {
+    description: 'Generates the Microsoft OAuth consent URL using the Connector App (not Portal App). Stores the Entra JWT by nonce so the callback can retrieve it later. redirect_uri must be vertexaisearch.cloud.google.com/oauth-redirect — Discovery Engine hardcodes this.',
+    chain: 'B',
+  },
+  'OAuth Consent Popup': {
+    description: 'Opens Microsoft login for SharePoint consent using the Connector App. The redirect goes to Google\'s vertexaisearch.cloud.google.com/oauth-redirect page, which captures the auth code and sends it back via postMessage.',
+    chain: 'B',
+  },
+  'OAuth Redirect (postMessage)': {
+    description: 'Google\'s redirect page receives the auth code from Microsoft and sends {fullRedirectUrl, code, state} back via postMessage. COOP caveat: if your app is NOT on the same origin as vertexaisearch.cloud.google.com, postMessage is blocked. Use the popup-closed fallback with check-connection polling.',
+    chain: 'B',
+  },
+  'acquireAndStoreRefreshToken': {
+    description: 'CONVERGENCE POINT — Chain A (WIF identity from GCP token) meets Chain B (auth code from OAuth consent). Discovery Engine exchanges the auth code for a SharePoint refresh token and stores it mapped to this WIF identity. Future searches use this stored token for per-user ACLs.',
+    chain: 'A+B',
+  },
+  'Search': {
+    description: 'Calls StreamAssist with all 5 entity types (file, page, comment, event, attachment). StreamAssist does federated real-time search — it uses the stored refresh token to query SharePoint with the user\'s ACLs. Results are grounded with source citations.',
+  },
+  'StreamAssist': {
+    description: 'Discovery Engine StreamAssist API performs federated real-time search against SharePoint. Uses the stored refresh token (from acquireAndStoreRefreshToken) to enforce per-user ACLs. Requires natural language queries — keyword-only queries are silently ignored.',
+  },
+};
 
 export default function App() {
   const { instance, accounts } = useMsal();
@@ -131,9 +172,44 @@ export default function App() {
     }
   };
 
-  // ─── Listen for postMessage from OAuth callback ───────────
+  // ─── Listen for postMessage from OAuth redirect page ──────
   useEffect(() => {
-    const handler = (event: MessageEvent) => {
+    const handler = async (event: MessageEvent) => {
+      // Handle vertexaisearch.cloud.google.com/oauth-redirect postMessage
+      if (event.data?.fullRedirectUrl) {
+        const traceId = addTrace('OAuth Redirect (postMessage)', {
+          fullRedirectUrl: event.data.fullRedirectUrl.substring(0, 80) + '...',
+        });
+        const start = Date.now();
+        try {
+          const token = await getToken();
+          const resp = await fetch('/api/oauth/exchange', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              ...(token ? { 'X-Entra-Id-Token': token } : {}),
+            },
+            body: JSON.stringify({ fullRedirectUrl: event.data.fullRedirectUrl }),
+          });
+          const data = await resp.json();
+          if (data.success) {
+            setSpConnected(true);
+            localStorage.setItem(spKey, '1');
+            updateTrace(traceId, { status: 'success', duration_ms: Date.now() - start, output: { success: true } });
+          } else {
+            setAuthStatus(`Authorization failed: ${data.error || 'Unknown'}`);
+            updateTrace(traceId, { status: 'error', duration_ms: Date.now() - start, output: { error: data.error } });
+          }
+          addBackendTraces(data._trace);
+        } catch (err: any) {
+          setAuthStatus(`Exchange failed: ${err.message}`);
+          updateTrace(traceId, { status: 'error', duration_ms: Date.now() - start, output: { error: err.message } });
+        }
+        setAuthInProgress(false);
+        return;
+      }
+
+      // Legacy: handle our own callback page postMessage
       if (event.data?.type !== 'sharepoint-oauth-callback') return;
       if (event.data.success) {
         setSpConnected(true);
@@ -153,7 +229,7 @@ export default function App() {
     };
     window.addEventListener('message', handler);
     return () => window.removeEventListener('message', handler);
-  }, [spKey]);
+  }, [spKey, getToken, addTrace, updateTrace, addBackendTraces]);
 
   // ─── Check connection on mount ────────────────────────────
   useEffect(() => {
@@ -492,6 +568,41 @@ export default function App() {
             <h3>Auth Pipeline</h3>
             <button className="btn-small" onClick={() => { setTraces([]); setExpandedTraces(new Set()); }}>Clear</button>
           </div>
+          <details className="flow-overview">
+            <summary>How It Works — Two-Chain Convergence</summary>
+            <div className="flow-content">
+              <pre className="flow-ascii">{`Chain A (Identity)          Chain B (Consent)
+─────────────────          ──────────────────
+MSAL Login                 Connect SharePoint
+    │                           │
+Entra id_token             OAuth popup
+    │                       (Connector App)
+STS Exchange                    │
+(WIF Pool)                 Microsoft login
+    │                       + consent
+GCP access token                │
+    │                      auth code via
+    │                      redirect page
+    │                           │
+    └────────┐    ┌─────────────┘
+             ▼    ▼
+   acquireAndStoreRefreshToken
+   (GCP token identifies user,
+    auth code provides consent)
+             │
+     stored refresh token
+             │
+     StreamAssist Search
+    (per-user SharePoint ACLs)`}</pre>
+              <div className="flow-gotchas">
+                <div className="gotcha"><span className="gotcha-icon">!</span> <strong>redirect_uri</strong> must be <code>vertexaisearch.cloud.google.com/oauth-redirect</code> — Discovery Engine hardcodes this</div>
+                <div className="gotcha"><span className="gotcha-icon">!</span> <strong>WIF token, not ADC</strong> — using a service account token causes identity mismatch (acquireAccessToken returns 404)</div>
+                <div className="gotcha"><span className="gotcha-icon">!</span> <strong>COOP blocks postMessage</strong> from cross-origin popups — use popup-closed polling as fallback</div>
+                <div className="gotcha"><span className="gotcha-icon">!</span> <strong>oauth2AllowIdTokenImplicitFlow: true</strong> required in Portal App manifest for WIF</div>
+                <div className="gotcha"><span className="gotcha-icon">!</span> <strong>Natural language only</strong> — keyword queries return <code>NON_ASSIST_SEEKING_QUERY_IGNORED</code></div>
+              </div>
+            </div>
+          </details>
           {traces.length === 0 && (
             <div className="sidebar-empty">
               <p>No traces yet.</p>
@@ -499,32 +610,72 @@ export default function App() {
             </div>
           )}
           <div className="trace-list">
-            {traces.map((trace) => (
-              <div key={trace.id} className={`trace-entry trace-${trace.status}`} onClick={() => toggleTrace(trace.id)}>
-                <div className="trace-header">
-                  <span className={`trace-status-icon trace-icon-${trace.status}`}>{statusIcon(trace.status)}</span>
-                  <span className="trace-stage">{trace.stage}</span>
-                  {trace.duration_ms != null && <span className="trace-duration">{trace.duration_ms}ms</span>}
-                  <span className="trace-chevron">{expandedTraces.has(trace.id) ? '\u25BC' : '\u25B6'}</span>
-                </div>
-                {expandedTraces.has(trace.id) && (
-                  <div className="trace-body">
-                    {trace.input && (
-                      <div className="trace-section">
-                        <div className="trace-label">INPUT</div>
-                        <pre className="trace-json">{formatJson(trace.input)}</pre>
-                      </div>
-                    )}
-                    {trace.output && (
-                      <div className="trace-section">
-                        <div className="trace-label">OUTPUT</div>
-                        <pre className="trace-json">{formatJson(trace.output)}</pre>
-                      </div>
-                    )}
+            {traces.map((trace) => {
+              const info = STAGE_INFO[trace.stage];
+              return (
+                <div key={trace.id} className={`trace-entry trace-${trace.status}`} onClick={() => toggleTrace(trace.id)}>
+                  <div className="trace-header">
+                    <span className={`trace-status-icon trace-icon-${trace.status}`}>{statusIcon(trace.status)}</span>
+                    {info?.chain && <span className={`trace-chain chain-${info.chain.replace('+', '')}`}>{info.chain}</span>}
+                    <span className="trace-stage">{trace.stage}</span>
+                    {trace.duration_ms != null && <span className="trace-duration">{trace.duration_ms}ms</span>}
+                    <span className="trace-chevron">{expandedTraces.has(trace.id) ? '\u25BC' : '\u25B6'}</span>
                   </div>
-                )}
-              </div>
-            ))}
+                  {expandedTraces.has(trace.id) && (
+                    <div className="trace-body">
+                      {info?.description && (
+                        <div className="trace-description">{info.description}</div>
+                      )}
+                      {trace.input && (
+                        <div className="trace-section">
+                          <div className="trace-label">INPUT</div>
+                          <pre className="trace-json">{formatJson(trace.input)}</pre>
+                        </div>
+                      )}
+                      {trace.output && (
+                        <div className="trace-section">
+                          <div className="trace-label">OUTPUT</div>
+                          <pre className="trace-json">{formatJson(trace.output)}</pre>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+            {(() => {
+              const firedStages = new Set(traces.map(t => t.stage));
+              const ghostStages = Object.entries(STAGE_INFO).filter(([s]) => !firedStages.has(s));
+              if (ghostStages.length === 0) return null;
+              return (
+                <>
+                  {ghostStages.length > 0 && traces.length > 0 && (
+                    <div className="ghost-divider">not yet triggered</div>
+                  )}
+                  {ghostStages.map(([stage, info]) => (
+                    <div key={stage} className="trace-entry trace-ghost" onClick={() => {
+                      setExpandedTraces(prev => {
+                        const next = new Set(prev);
+                        next.has(stage) ? next.delete(stage) : next.add(stage);
+                        return next;
+                      });
+                    }}>
+                      <div className="trace-header">
+                        <span className="trace-status-icon trace-icon-ghost">{'\u25CB'}</span>
+                        {info.chain && <span className={`trace-chain chain-${info.chain.replace('+', '')}`}>{info.chain}</span>}
+                        <span className="trace-stage">{stage}</span>
+                        <span className="trace-chevron">{expandedTraces.has(stage) ? '\u25BC' : '\u25B6'}</span>
+                      </div>
+                      {expandedTraces.has(stage) && (
+                        <div className="trace-body">
+                          <div className="trace-description">{info.description}</div>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </>
+              );
+            })()}
             <div ref={traceEndRef} />
           </div>
         </aside>
