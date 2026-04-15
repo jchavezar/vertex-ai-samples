@@ -6,100 +6,137 @@
 ![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black)
 ![FastAPI](https://img.shields.io/badge/FastAPI-0.115-009688?logo=fastapi&logoColor=white)
 ![GCP](https://img.shields.io/badge/Google_Cloud-Powered-4285F4?logo=google-cloud&logoColor=white)
-![Version](https://img.shields.io/badge/Version-1.0.0-lightgrey)
-
-Search SharePoint documents via StreamAssist **without the Gemini Enterprise UI**. Users sign in with Microsoft, authorize SharePoint once, then ask natural language questions. StreamAssist does **federated search** (real-time, not indexed) with per-user ACL enforcement.
 
 ![Demo](docs/demo.gif)
 
 ---
 
-## Architecture
+## vs `ge-sharepoint-cloudid`
 
-```mermaid
-flowchart TB
-    subgraph Browser["Browser (localhost:5174)"]
-        MSAL["MSAL.js<br/>Entra ID Login"]
-        Chat["Chat UI<br/>React + Vite"]
-    end
-
-    subgraph Backend["FastAPI Backend (localhost:8003)"]
-        STS["STS Exchange<br/>Entra JWT → GCP Token"]
-        CB["OAuth Callback<br/>Store Refresh Token"]
-        SA["StreamAssist Client<br/>Federated Search"]
-    end
-
-    subgraph GCP["Google Cloud"]
-        WIF["Workforce Identity<br/>Federation"]
-        DE["Discovery Engine<br/>StreamAssist API"]
-    end
-
-    subgraph Microsoft["Microsoft"]
-        Entra["Entra ID<br/>2 App Registrations"]
-        SP["SharePoint Online<br/>Per-user ACLs"]
-    end
-
-    MSAL --> |"1 · id_token"| STS
-    STS --> |"2 · token exchange"| WIF
-    WIF --> |"3 · gcp_token"| SA
-    SA --> |"4 · streamAssist"| DE
-    DE <--> |"5 · federated search"| SP
-    Chat --> |"query"| SA
-    MSAL --> |"consent popup"| Entra
-    Entra --> |"auth code"| CB
-    CB --> |"acquireAndStore"| DE
-
-    style Browser fill:#e8f0fe,color:#1a1a2e,stroke:#4285f4
-    style Backend fill:#fce8e6,color:#1a1a2e,stroke:#ea4335
-    style GCP fill:#e6f4ea,color:#1a1a2e,stroke:#34a853
-    style Microsoft fill:#fff3e0,color:#1a1a2e,stroke:#f9ab00
-```
+| | **This project** | ge-sharepoint-cloudid |
+|---|---|---|
+| Identity | Entra ID (MSAL.js) | Google Cloud Identity (GIS) |
+| Token chain | **Entra JWT → STS → GCP token** | Google auth code → GCP token |
+| WIF | **Yes (Pool + Provider)** | No |
+| Entra apps | **2 (Portal + Connector)** | 1 (Connector only) |
+| Auth library | **`@azure/msal-browser`** | Google Identity Services |
 
 ---
 
-## Auth Lifecycle
+## The Flow
 
-The complete lifecycle from first visit to search results — inspired by the event-driven pattern from [Claude Code Hooks](https://docs.anthropic.com/en/docs/claude-code/hooks).
+### High-Level Phases
 
 ```mermaid
 flowchart LR
-    subgraph once["One-Time Consent"]
+    subgraph A["Chain A · Identity"]
         direction TB
-        A1["MSAL Login<br/>Portal App"] --> A2["Get Auth URL<br/>(stores Entra JWT by nonce)"]
-        A2 --> A3["Popup → Microsoft<br/>User grants consent"]
-        A3 --> A4["/api/oauth/callback<br/>Receives auth code"]
-        A4 --> A5["Nonce → Entra JWT<br/>→ WIF/STS → GCP token"]
-        A5 --> A6["acquireAndStore<br/>RefreshToken"]
-        A6 --> A7["postMessage → Frontend<br/>SharePoint Connected!"]
+        A1["① MSAL Login"] --> A2["② STS Exchange"]
+        A2 --> A3["GCP access_token"]
     end
 
-    subgraph every["Every Search Query"]
+    subgraph B["Chain B · Consent"]
         direction TB
-        B1["User types question"] --> B2["acquireTokenSilent<br/>→ fresh Entra JWT"]
-        B2 --> B3["STS Exchange<br/>Entra JWT → GCP token"]
-        B3 --> B4["StreamAssist API<br/>federated search"]
-        B4 --> B5["Federated Search<br/>uses stored refresh token"]
-        B5 --> B6["Grounded answer<br/>+ source citations"]
+        B1["③ Connect SharePoint"] --> B2["④ Microsoft popup"]
+        B2 --> B3["Auth code via redirect"]
     end
 
-    once --> every
+    subgraph C["⑤ Convergence"]
+        direction TB
+        C1["acquireAndStore\nRefreshToken"] --> C2["Refresh token stored\nunder WIF identity"]
+    end
 
-    style once fill:#e8f0fe,color:#1a1a2e,stroke:#4285f4
-    style every fill:#e6f4ea,color:#1a1a2e,stroke:#34a853
+    subgraph D["⑥ Search"]
+        direction TB
+        D1["StreamAssist API"] --> D2["Grounded answer\n+ source documents"]
+    end
+
+    A --> C
+    B --> C
+    C --> D
+
+    style A fill:#e8f0fe,color:#1a1a2e,stroke:#4285f4
+    style B fill:#fff3e0,color:#1a1a2e,stroke:#f9ab00
+    style C fill:#fce8e6,color:#1a1a2e,stroke:#ea4335
+    style D fill:#e6f4ea,color:#1a1a2e,stroke:#34a853
+```
+
+### Sequence — What Actually Gets Sent Where
+
+```mermaid
+sequenceDiagram
+    actor User
+    participant FE as Frontend<br/>React + MSAL
+    participant BE as Backend<br/>FastAPI
+    participant WIF as GCP<br/>WIF / STS
+    participant M as Microsoft<br/>Entra ID
+    participant DE as Discovery<br/>Engine
+
+    note over User,DE: Chain A — Identity (every session)
+
+    User->>FE: Click "Sign in with Microsoft"
+    FE->>M: MSAL loginPopup (scope: user_impersonation)
+    M-->>User: Pick Microsoft account
+    User->>M: Login
+    M-->>FE: id_token (Entra JWT)
+
+    note over User,DE: Chain B — SharePoint Consent (one-time)
+
+    User->>FE: Click "Connect SharePoint"
+    FE->>BE: GET /api/sharepoint/auth-url
+    BE-->>FE: Microsoft OAuth URL + nonce
+    FE->>M: Open popup → login.microsoftonline.com
+    M-->>User: Microsoft login + consent
+    User->>M: Grant SharePoint permissions
+    M-->>BE: GET /api/oauth/callback?code=...&state=...
+
+    note over User,DE: ⑤ Convergence — Identity meets Consent
+
+    BE->>BE: Retrieve stored Entra JWT by nonce
+    BE->>WIF: POST sts.googleapis.com/v1/token (Entra JWT)
+    WIF-->>BE: GCP access_token (WIF identity)
+    BE->>DE: POST acquireAndStoreRefreshToken<br/>(GCP token + Microsoft auth code)
+    DE-->>BE: ✓ Refresh token stored
+    BE-->>FE: Callback HTML (close popup)
+
+    note over User,DE: ⑥ Search — Every query after setup
+
+    User->>FE: "What are the latest financial reports?"
+    FE->>FE: acquireTokenSilent → fresh Entra JWT
+    FE->>BE: POST /api/search + X-Entra-Id-Token header
+    BE->>WIF: POST sts.googleapis.com/v1/token (Entra JWT)
+    WIF-->>BE: GCP access_token
+    BE->>DE: POST streamAssist (GCP token = identity)
+    DE->>M: SharePoint query (stored refresh token)
+    M-->>DE: Documents matching user's ACLs
+    DE-->>BE: Grounded answer + references
+    BE-->>FE: {answer, sources, session_token}
+    FE-->>User: Rendered answer + source cards
 ```
 
 ---
 
-## Code Walkthrough — Auth Cycle
+## Step-by-Step Code
 
-Each step maps to a numbered arrow in the architecture diagram above.
+Each numbered step maps to the diagrams above. The table links jump to the exact source lines.
 
-### Step 1 · MSAL Login → Entra JWT
+---
 
-The frontend authenticates via MSAL.js against the **Portal App** registration. The `api://{client-id}/user_impersonation` scope is critical — it sets the `aud` claim that WIF validates.
+### ① MSAL Login → Entra JWT
+
+The user clicks **Sign in with Microsoft**. MSAL opens a popup, user logs in, and MSAL returns an `id_token` (Entra JWT). The `api://{client-id}/user_impersonation` scope sets the `aud` claim that WIF validates.
+
+| | File | Lines |
+|---|---|---|
+| **MSAL config** | [`authConfig.ts`](frontend/src/authConfig.ts#L8-L28) | Client ID, authority, scopes |
+| **Login handler** | [`App.tsx` — handleLogin](frontend/src/App.tsx#L169-L191) | MSAL popup + trace |
+| **Token acquisition** | [`App.tsx` — getToken](frontend/src/App.tsx#L154-L167) | Silent → popup fallback |
+
+> [!IMPORTANT]
+> The Portal App's Entra manifest must have `"oauth2AllowIdTokenImplicitFlow": true`. Without it, WIF silently rejects the id_token and STS exchange fails with no useful error.
 
 ```ts
-// authConfig.ts — MSAL configuration
+// frontend/src/authConfig.ts:20
 export const loginRequest = {
   scopes: [
     `api://${CLIENT_ID}/user_impersonation`,  // aud claim for WIF
@@ -108,114 +145,162 @@ export const loginRequest = {
 };
 ```
 
-```ts
-// App.tsx — acquire token silently (or popup fallback)
-const getToken = async (): Promise<string | null> => {
-  try {
-    const resp = await instance.acquireTokenSilent({
-      ...loginRequest, account: accounts[0],
-    });
-    return resp.idToken;  // Entra JWT — sent as X-Entra-Id-Token header
-  } catch {
-    return (await instance.acquireTokenPopup(loginRequest)).idToken;
-  }
-};
-```
+---
 
-### Step 2 · STS Token Exchange — Entra JWT → GCP Token
+### ② STS Token Exchange — Entra JWT → GCP Token
 
-The backend exchanges the Entra JWT for a GCP access token via [Workforce Identity Federation](https://cloud.google.com/iam/docs/workforce-identity-federation). The `audience` must match the WIF provider, and `subjectTokenType` must be `id_token`.
+Backend exchanges the Entra JWT for a GCP access token via [Workforce Identity Federation](https://cloud.google.com/iam/docs/workforce-identity-federation). The `audience` must match the WIF provider, and `subjectTokenType` must be `id_token`.
+
+| | File | Lines |
+|---|---|---|
+| **STS exchange** | [`main.py` — _exchange_token](backend/main.py#L52-L78) | Entra JWT → WIF → GCP token |
+| **Token extraction** | [`main.py` — _get_gcp_token](backend/main.py#L89-L91) | Header → exchange pipeline |
+| **Frontend header** | [`App.tsx:370`](frontend/src/App.tsx#L370) | Sends `X-Entra-Id-Token` header |
+
+> [!IMPORTANT]
+> This WIF-based GCP token IS the user's identity for Discovery Engine. Using ADC (service account) instead causes `acquireAccessToken` to return 404 later — identity mismatch between who stored the token and who requests it.
 
 ```python
-# main.py — _exchange_token()
-def _exchange_token(entra_jwt: str) -> Optional[str]:
-    resp = requests.post("https://sts.googleapis.com/v1/token", json={
-        "audience": (
-            f"//iam.googleapis.com/locations/global/workforcePools"
-            f"/{WIF_POOL_ID}/providers/{WIF_PROVIDER_ID}"
-        ),
+# backend/main.py:52
+def _exchange_token(entra_jwt: str, trace: list | None = None) -> Optional[str]:
+    body = {
+        "audience": f"//iam.googleapis.com/locations/global/workforcePools/{WIF_POOL_ID}/providers/{WIF_PROVIDER_ID}",
         "grantType": "urn:ietf:params:oauth:grant-type:token-exchange",
         "requestedTokenType": "urn:ietf:params:oauth:token-type:access_token",
         "scope": "https://www.googleapis.com/auth/cloud-platform",
-        "subjectToken": entra_jwt,           # the Entra id_token from Step 1
+        "subjectToken": entra_jwt,
         "subjectTokenType": "urn:ietf:params:oauth:token-type:id_token",
-    }, timeout=10)
+    }
+    resp = requests.post("https://sts.googleapis.com/v1/token", json=body, timeout=10)
     return resp.json().get("access_token") if resp.ok else None
 ```
 
-### Step 3 · SharePoint OAuth Consent (one-time)
+---
 
-The user clicks **Connect SharePoint** → popup opens Microsoft login for the **Connector App**. The backend generates the auth URL, storing the Entra JWT by nonce so it can be retrieved in the callback.
+### ③ Connect SharePoint — Get Auth URL
+
+User clicks **Connect SharePoint**. Backend generates a Microsoft OAuth URL for the **Connector App** (separate from the Portal App). The backend stores the Entra JWT by nonce so the callback can retrieve it.
+
+| | File | Lines |
+|---|---|---|
+| **Backend** | [`main.py` — /api/sharepoint/auth-url](backend/main.py#L110-L134) | Generates Microsoft OAuth URL |
+| **State encoding** | [`main.py:126`](backend/main.py#L126) | Base64-encoded JSON with nonce + origin |
+| **Frontend** | [`App.tsx` — handleConsent](frontend/src/App.tsx#L312-L347) | Opens popup, polls for close |
+
+> [!TIP]
+> The `redirect_uri` must be exactly `vertexaisearch.cloud.google.com/oauth-redirect` — this is what `acquireAndStoreRefreshToken` expects internally. Register this exact URI in your Entra **Connector App**.
 
 ```python
-# main.py — get_auth_url()
-@app.get("/api/sharepoint/auth-url")
-async def get_auth_url(request: Request):
-    nonce = secrets.token_urlsafe(16)
-    _pending_consents[nonce] = entra_jwt     # store JWT for callback
-
-    params = {
-        "client_id": CONNECTOR_CLIENT_ID,    # Connector App (not Portal App)
-        "response_type": "code",
-        "redirect_uri": REDIRECT_URI,        # /api/oauth/callback
-        "scope": SP_SCOPES,                  # SharePoint AllSites.Read + Sites.Search.All
-        "state": json.dumps({"origin": origin, "nonce": nonce}),
-    }
-    url = f"https://login.microsoftonline.com/{TENANT_ID}/oauth2/v2.0/authorize?{urlencode(params)}"
-    return {"auth_url": url}
+# backend/main.py:120
+params = {
+    "client_id": CONNECTOR_CLIENT_ID,    # Connector App (NOT Portal App)
+    "response_type": "code",
+    "redirect_uri": REDIRECT_URI,        # vertexaisearch.cloud.google.com/oauth-redirect
+    "scope": SP_SCOPES,                  # AllSites.Read + Sites.Search.All
+    "state": base64.b64encode(json.dumps({
+        "origin": origin, "useBroadcastChannel": "false", "nonce": nonce,
+    }).encode()).decode(),
+}
 ```
 
-### Step 4 · OAuth Callback → `acquireAndStoreRefreshToken`
+---
 
-Microsoft redirects to `/api/oauth/callback` with an auth code. The backend retrieves the stored Entra JWT by nonce, exchanges it for a WIF/GCP token (Step 2 again), then calls Discovery Engine to store the SharePoint refresh token **under that WIF identity**.
+### ④ Microsoft Consent → OAuth Callback
+
+User logs in to Microsoft and grants SharePoint permissions. Microsoft redirects to `vertexaisearch.cloud.google.com/oauth-redirect` with an auth code. The callback retrieves the stored Entra JWT by nonce, exchanges it for a WIF/GCP token (② again), then calls `acquireAndStoreRefreshToken`.
+
+| | File | Lines |
+|---|---|---|
+| **Backend** | [`main.py` — /api/oauth/callback](backend/main.py#L137-L179) | Receives auth code from Microsoft |
+| **WIF exchange** | [`main.py:159-160`](backend/main.py#L159-L160) | Nonce → stored JWT → GCP token |
+| **Store token** | [`main.py:168-173`](backend/main.py#L168-L173) | `acquireAndStoreRefreshToken` call |
+| **ADC fallback** | [`main.py:161-166`](backend/main.py#L161-L166) | Falls back to ADC if nonce expired |
+
+> [!NOTE]
+> `vertexaisearch.cloud.google.com` sets Cross-Origin-Opener-Policy, which blocks `postMessage`. The frontend uses popup-closed polling as a fallback — see [`App.tsx:285-310`](frontend/src/App.tsx#L285-L310).
 
 ```python
-# main.py — oauth_callback()
-@app.get("/api/oauth/callback")
-async def oauth_callback(request: Request):
-    nonce = state.get("nonce", "")
-    entra_jwt = _pending_consents.pop(nonce, None)  # retrieve stored JWT
-    gcp_token = _exchange_token(entra_jwt)           # WIF token (not ADC!)
+# backend/main.py:159
+entra_jwt = _pending_consents.pop(nonce, None)
+gcp_token = _exchange_token(entra_jwt) if entra_jwt else None
 
-    # Store the SharePoint refresh token under this WIF identity
-    resp = requests.post(
-        f"{CONNECTOR_URL}/dataConnector:acquireAndStoreRefreshToken",
-        headers=_gcp_headers(gcp_token),
-        json={"fullRedirectUri": str(request.url)},  # contains the auth code
-    )
-    # postMessage back to frontend → "SharePoint Connected!"
+# Store SharePoint refresh token under this WIF identity
+resp = requests.post(
+    f"{CONNECTOR_URL}/dataConnector:acquireAndStoreRefreshToken",
+    headers=_gcp_headers(gcp_token),         # WIF token = identity (from ②)
+    json={"fullRedirectUri": str(request.url)},  # contains Microsoft auth code (from ④)
+)
+# Discovery Engine stores SharePoint refresh token under this WIF identity
 ```
 
-> **Why WIF, not ADC?** The token identifies the user. If you use ADC (service account), `acquireAccessToken` later returns 404 because the identity that stored the token doesn't match the identity requesting it.
+---
 
-### Step 5 · StreamAssist Federated Search
+### ⑤ Convergence — Identity Meets Consent
 
-Every search query goes through the same STS exchange (Steps 1-2), then calls StreamAssist with all 5 data store entity types. StreamAssist uses the stored refresh token to query SharePoint with the user's ACLs.
+**Chain A** (WIF/GCP token = who you are) meets **Chain B** (auth code = SharePoint access you granted). Discovery Engine extracts the Microsoft auth code from `fullRedirectUri`, exchanges it for a SharePoint refresh token, and stores it **mapped to the WIF identity** from the GCP token in the `Authorization` header.
+
+> [!IMPORTANT]
+> After this one-time step, the user never sees Microsoft consent again. The WIF token (not ADC) is critical — if stored under a service account, `acquireAccessToken` returns 404 because the identity that stored the token doesn't match the identity requesting it.
+
+---
+
+### ⑥ StreamAssist Federated Search
+
+Every search re-does the STS exchange (① → ②) to get a fresh GCP token, then calls StreamAssist with all 5 data store entity types. Discovery Engine uses the stored refresh token (from ⑤) to query SharePoint with the user's ACLs.
+
+| | File | Lines |
+|---|---|---|
+| **Search endpoint** | [`main.py` — /api/search](backend/main.py#L260-L271) | Extracts token, delegates to thread |
+| **StreamAssist** | [`main.py` — _stream_assist](backend/main.py#L274-L336) | API call + response parsing |
+| **Frontend** | [`App.tsx` — handleSearch](frontend/src/App.tsx#L349-L396) | Submit query, render answer |
+| **Source cards** | [`App.tsx:532-549`](frontend/src/App.tsx#L532-L549) | Clickable SharePoint document cards |
+
+> [!TIP]
+> StreamAssist returns `assistToken` in responses but **rejects it as input**. For follow-up queries, use `sessionInfo.session` (a resource name like `projects/.../sessions/...`). See [`main.py:305`](backend/main.py#L305).
+
+<details>
+<summary>StreamAssist payload structure</summary>
 
 ```python
-# main.py — _stream_assist()
-def _stream_assist(gcp_token, query, session_token=None):
-    ds_base = f"{BASE}/default_collection/dataStores/{CONNECTOR_ID}"
-    payload = {
-        "query": {"text": query},
-        "dataStoreSpecs": [
-            {"dataStore": f"{ds_base}_{et}"}
-            for et in ["file", "page", "comment", "event", "attachment"]
-        ],
-    }
-    if session_token:
-        payload["session"] = session_token   # NOT "assistToken" — that field is rejected
+# backend/main.py:276
+payload = {
+    "query": {"text": query},
+    "dataStoreSpecs": [
+        {"dataStore": f"{ds_base}_{et}"}
+        for et in ["file", "page", "comment", "event", "attachment"]
+    ],
+}
+if session_token:
+    payload["session"] = session_token   # NOT "assistToken" — that field is rejected
 
-    resp = requests.post(STREAMASSIST_URL, headers=_gcp_headers(gcp_token),
-                         json=payload, timeout=60)
+resp = requests.post(STREAMASSIST_URL, headers=_gcp_headers(gcp_token), json=payload, timeout=60)
 ```
 
-### Step 6 · Session Continuity
+</details>
 
-StreamAssist returns an opaque `assistToken` in responses — **but rejects it as input**. For follow-up queries, use `sessionInfo.session` (a resource name like `projects/.../sessions/...`).
+<details>
+<summary>Source extraction from grounding metadata</summary>
 
 ```python
-# main.py — extracting session from response
+# backend/main.py:306
+for reply in chunk.get("answer", {}).get("replies", []):
+    gc = reply.get("groundedContent", {})
+    content = gc.get("content", {})
+    if not content.get("thought") and content.get("text"):
+        answer_parts.append(content["text"])
+    for ref in gc.get("textGroundingMetadata", {}).get("references", []):
+        s = json.loads(ref.get("content", "{}"))
+        if s.get("url"):
+            sources.append({"title": s.get("title"), "url": s["url"], ...})
+```
+
+</details>
+
+<details>
+<summary>Session continuity — use session, not assistToken</summary>
+
+```python
+# backend/main.py:305
 for chunk in chunks:
     session_name = chunk.get("sessionInfo", {}).get("session") or session_name
     #                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -223,551 +308,270 @@ for chunk in chunks:
 ```
 
 ```ts
-// App.tsx — sending session on follow-up queries
-const resp = await fetch('/api/search', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json', 'X-Entra-Id-Token': token },
-  body: JSON.stringify({ query: q, session_token: sessionToken }),
-  //                                ^^^^^^^^^^^^^ sessionInfo.session from previous response
-});
+// frontend/src/App.tsx:387
 if (data.session_token) setSessionToken(data.session_token);
 ```
 
----
-
-## What Makes It Work
-
-These are the non-obvious constraints that aren't in any public documentation. Each one was discovered through trial-and-error.
-
-> [!WARNING]
-> **Read these before attempting setup.** Skipping any single item causes silent failures — the API returns HTTP 200 with plausible-looking answers from training data, not your SharePoint.
-
-| # | Constraint | Why It Matters |
-|---|-----------|----------------|
-| 1 | **WIF token for `acquireAndStoreRefreshToken`** | The token identifies the user. If you use ADC instead of WIF, `acquireAccessToken` later returns 404 because the identity doesn't match. |
-| 2 | **`session` field, not `assistToken`** | StreamAssist returns `assistToken` in responses but rejects it as input. Use `sessionInfo.session` (a resource name) for follow-up queries. |
-| 3 | **Natural language queries only** | Keyword queries like `"Apex Financial"` are silently skipped (`NON_ASSIST_SEEKING_QUERY_IGNORED`). Always use full questions. |
-| 4 | **`dataStoreSpecs` is optional** | StreamAssist searches all connected data stores by default. You can specify individual entity types (`file`, `page`, `comment`, `event`, `attachment`) to narrow scope, but it's not required. |
-| 5 | **`oauth2AllowIdTokenImplicitFlow: true`** | Required in the Portal App's Entra manifest for WIF to accept the id_token. Without it, STS exchange silently fails. |
-
----
-
-## Configuration
-
-<details>
-<summary><strong>Microsoft Entra ID</strong> — 2 app registrations required</summary>
-
-### Portal App (MSAL login)
-
-The frontend uses this to sign users in and get Entra ID tokens for WIF exchange.
-
-| Setting | Value |
-|---------|-------|
-| App type | Single-page application |
-| Redirect URI | `http://localhost:5174` |
-| Supported account types | Single tenant |
-| Expose an API | `api://{client-id}/user_impersonation` |
-| Manifest flag | `"oauth2AllowIdTokenImplicitFlow": true` |
-| Token configuration | Add `email` optional claim to ID token |
-
-### Connector App (SharePoint OAuth)
-
-Discovery Engine uses this to access SharePoint on behalf of users.
-
-| Setting | Value |
-|---------|-------|
-| App type | Web |
-| Redirect URI | `http://localhost:8003/api/oauth/callback` |
-| Client secret | Generate one, add to `.env` |
-| API permissions | `SharePoint > AllSites.Read`, `SharePoint > Sites.Search.All` |
-| Admin consent | Grant admin consent for the tenant |
-
-</details>
-
-<details>
-<summary><strong>Google Cloud</strong> — WIF + Discovery Engine</summary>
-
-### Workforce Identity Federation
-
-| Resource | Configuration |
-|----------|--------------|
-| Pool | Name: `sp-wif-pool-v2`, session duration: 1h |
-| Provider | Name: `ge-login-provider`, OIDC, issuer: `https://login.microsoftonline.com/{tenant}/v2.0` |
-| Audience | `api://{portal-app-client-id}` (must match Portal App) |
-| Attribute mapping | `google.subject = assertion.sub` |
-| IAM binding | `principalSet://...` → `roles/discoveryengine.editor` on the project |
-
-### Discovery Engine
-
-| Resource | Configuration |
-|----------|--------------|
-| Engine | Type: `GENERIC`, name: `gemini-enterprise` |
-| Connector | SharePoint connector, ID: `sharepoint-data-def-connector` |
-| Data stores | 5 auto-created: `{connector}_file`, `_page`, `_comment`, `_event`, `_attachment` |
-| Entity types | All 5 must be included in `dataStoreSpecs` for search |
-
-</details>
-
-<details>
-<summary><strong>Environment Variables</strong></summary>
-
-**Backend `.env`**
-
-```env
-PROJECT_NUMBER=REDACTED_PROJECT_NUMBER
-ENGINE_ID=gemini-enterprise
-CONNECTOR_ID=sharepoint-data-def-connector
-WIF_POOL_ID=sp-wif-pool-v2
-WIF_PROVIDER_ID=ge-login-provider
-CONNECTOR_CLIENT_ID=22c127d8-...
-TENANT_ID=de46a3fd-...
-```
-
-**Frontend `.env`**
-
-```env
-VITE_CLIENT_ID=7868d053-...    # Portal App
-VITE_TENANT_ID=de46a3fd-...
-```
-
 </details>
 
 ---
 
-## Quick Start
-
-```bash
-# Backend
-cd backend && uv sync && uv run uvicorn main:app --reload --port 8003
-
-# Frontend (new terminal)
-cd frontend && npm install && npm run dev
-# → http://localhost:5174
-```
-
-1. Sign in with Microsoft (MSAL popup)
-2. Click **Connect SharePoint** (one-time OAuth consent)
-3. Ask a natural language question about your documents
-
----
-
-## API
-
-The backend exposes 5 endpoints. Click any to see the implementation.
-
-<details>
-<summary><code>GET</code> <strong><code>/health</code></strong> — Health check</summary>
-
-```python
-@app.get("/health")
-async def health():
-    return {"status": "healthy"}
-```
-
-</details>
-
-<details>
-<summary><code>GET</code> <strong><code>/api/sharepoint/auth-url</code></strong> — Generate Microsoft OAuth URL for consent popup</summary>
-
-Stores the caller's Entra JWT by nonce so the callback can retrieve it later for WIF exchange.
-
-```python
-@app.get("/api/sharepoint/auth-url")
-async def get_auth_url(request: Request):
-    entra_jwt = request.headers.get("X-Entra-Id-Token")
-    nonce = secrets.token_urlsafe(16)
-    _pending_consents[nonce] = entra_jwt          # store for callback
-
-    params = {
-        "client_id": CONNECTOR_CLIENT_ID,          # Connector App, not Portal App
-        "response_type": "code",
-        "redirect_uri": REDIRECT_URI,              # /api/oauth/callback
-        "scope": SP_SCOPES,                        # AllSites.Read + Sites.Search.All
-        "state": json.dumps({"origin": origin, "nonce": nonce}),
-        "prompt": "login",
-    }
-    url = f"https://login.microsoftonline.com/{TENANT_ID}/oauth2/v2.0/authorize?{urlencode(params)}"
-    return {"auth_url": url}
-```
-
-**Frontend caller:**
-```ts
-const resp = await fetch(`/api/sharepoint/auth-url?login_hint=${username}`, {
-  headers: { 'X-Entra-Id-Token': token },
-});
-const { auth_url } = await resp.json();
-popup.location.href = auth_url;
-```
-
-</details>
-
-<details>
-<summary><code>GET</code> <strong><code>/api/oauth/callback</code></strong> — OAuth redirect target — stores refresh token via WIF</summary>
-
-Microsoft redirects here with an auth code. The nonce in `state` retrieves the stored Entra JWT → WIF exchange → `acquireAndStoreRefreshToken` stores the SharePoint refresh token under that WIF identity.
-
-```python
-@app.get("/api/oauth/callback")
-async def oauth_callback(request: Request):
-    state = json.loads(request.query_params.get("state", "{}"))
-    nonce = state.get("nonce", "")
-
-    # Retrieve stored Entra JWT → exchange for GCP token via WIF
-    entra_jwt = _pending_consents.pop(nonce, None)
-    gcp_token = _exchange_token(entra_jwt)          # WIF token, NOT ADC
-
-    # Store SharePoint refresh token under this WIF identity
-    resp = requests.post(
-        f"{CONNECTOR_URL}/dataConnector:acquireAndStoreRefreshToken",
-        headers=_gcp_headers(gcp_token),
-        json={"fullRedirectUri": str(request.url)},  # contains the auth code
-    )
-
-    # postMessage back to frontend popup → "SharePoint Connected!"
-    return _callback_page("SharePoint Connected!", ...)
-```
-
-> **Why WIF, not ADC?** If you use ADC here, `acquireAccessToken` later returns 404 — the identity that *stored* the token doesn't match the identity *requesting* it.
-
-</details>
-
-<details>
-<summary><code>GET</code> <strong><code>/api/sharepoint/check-connection</code></strong> — Verify user has a stored SharePoint token</summary>
-
-Exchanges the Entra JWT for a WIF/GCP token, then calls `acquireAccessToken` to check if a SharePoint refresh token exists for this identity.
-
-```python
-@app.get("/api/sharepoint/check-connection")
-async def check_connection(request: Request):
-    gcp_token = _get_gcp_token(request)             # Entra JWT → WIF → GCP token
-    if not gcp_token:
-        return {"connected": False}
-
-    resp = requests.post(
-        f"{CONNECTOR_URL}/dataConnector:acquireAccessToken",
-        headers=_gcp_headers(gcp_token),
-        json={},
-    )
-    return {"connected": resp.ok and bool(resp.json().get("accessToken"))}
-```
-
-**Frontend caller** (on mount):
-```ts
-const resp = await fetch('/api/sharepoint/check-connection', {
-  headers: { 'X-Entra-Id-Token': token },
-});
-const { connected } = await resp.json();
-```
-
-</details>
-
-<details>
-<summary><code>POST</code> <strong><code>/api/search</code></strong> — StreamAssist federated search with session continuity</summary>
-
-Calls StreamAssist with all 5 entity types. Uses `session` (not `assistToken`) for follow-up queries.
-
-```python
-@app.post("/api/search")
-async def search(request: Request, body: SearchRequest):
-    gcp_token = _get_gcp_token(request)
-    return await asyncio.to_thread(_stream_assist, gcp_token, body.query, body.session_token)
-
-def _stream_assist(gcp_token, query, session_token=None):
-    ds_base = f"{BASE}/default_collection/dataStores/{CONNECTOR_ID}"
-    payload = {
-        "query": {"text": query},
-        "dataStoreSpecs": [
-            {"dataStore": f"{ds_base}_{et}"}
-            for et in ["file", "page", "comment", "event", "attachment"]
-        ],
-    }
-    if session_token:
-        payload["session"] = session_token           # NOT "assistToken"
-
-    resp = requests.post(STREAMASSIST_URL, headers=_gcp_headers(gcp_token),
-                         json=payload, timeout=60)
-
-    # Parse: skip thought chunks, extract text + sources + session name
-    for chunk in chunks:
-        session_name = chunk.get("sessionInfo", {}).get("session") or session_name
-        for reply in chunk.get("answer", {}).get("replies", []):
-            content = reply.get("groundedContent", {}).get("content", {})
-            if not content.get("thought") and content.get("text"):
-                answer_parts.append(content["text"])
-
-    return {"answer": "".join(answer_parts), "sources": unique, "session_token": session_name}
-```
-
-**Frontend caller:**
-```ts
-const resp = await fetch('/api/search', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json', 'X-Entra-Id-Token': token },
-  body: JSON.stringify({ query: q, session_token: sessionToken }),
-});
-```
-
-</details>
-
----
-
-## Project Structure
+## Quick Reference
 
 ```
 streamassist-oauth-flow/
 ├── backend/
-│   ├── main.py              # Complete backend — OAuth + WIF + StreamAssist
-│   ├── .env                 # GCP + Entra configuration
+│   ├── main.py              # All endpoints — OAuth + WIF + StreamAssist (340 lines)
+│   ├── .env.example         # Required env vars template
 │   └── pyproject.toml
 ├── frontend/
 │   ├── src/
-│   │   ├── App.tsx          # Chat UI + OAuth flow + debug sidebar
-│   │   ├── authConfig.ts    # MSAL configuration
-│   │   ├── main.tsx         # React entry point
+│   │   ├── App.tsx          # Chat UI + MSAL auth + debug sidebar
+│   │   ├── authConfig.ts    # MSAL configuration + scopes
+│   │   ├── main.tsx         # React entry point with MsalProvider
 │   │   └── index.css        # Dark theme + sidebar styles
-│   ├── .env                 # VITE_CLIENT_ID + VITE_TENANT_ID
+│   ├── .env.example
 │   └── package.json
 ├── docs/
-│   └── demo.gif             # Demo walkthrough
+│   └── demo.gif
 └── README.md
 ```
 
 ---
 
-## Identity Chain
+## Setup
 
-Two Entra apps, one WIF pool, one token exchange — zero stored credentials.
+### Run
 
-```
-Portal App (7868d053)           Connector App (22c127d8)
-       │                               │
- MSAL login → id_token           OAuth consent → auth code
-       │                               │
- STS exchange (WIF)              acquireAndStoreRefreshToken
-       │                               │
- GCP access token                stored refresh token
-       │                               │
- StreamAssist API  ◄──── uses stored token to query SharePoint
+```bash
+# Backend
+cd backend && cp .env.example .env  # fill in values
+uv sync && uv run python main.py    # port 8003
+
+# Frontend
+cd frontend && cp .env.example .env  # set VITE_CLIENT_ID + VITE_TENANT_ID
+npm install && npm run dev           # port 5174
 ```
 
-| Component | Purpose |
-|-----------|---------|
-| Portal App | MSAL login — provides Entra JWT for WIF exchange |
-| Connector App | SharePoint consent — provides auth code for refresh token storage |
-| WIF Pool (`sp-wif-pool-v2`) | Maps Entra JWT `sub` claim to GCP identity |
-| Discovery Engine (`gemini-enterprise`) | StreamAssist engine with SharePoint connector |
+### Environment Variables
+
+| Variable | Where | Description |
+|----------|-------|-------------|
+| `PROJECT_NUMBER` | backend | GCP project number |
+| `ENGINE_ID` | backend | Discovery Engine app ID |
+| `CONNECTOR_ID` | backend | SharePoint connector ID |
+| `WIF_POOL_ID` | backend | Workforce Identity Federation pool ID |
+| `WIF_PROVIDER_ID` | backend | WIF OIDC provider ID |
+| `CONNECTOR_CLIENT_ID` | backend | Entra Connector App client ID |
+| `TENANT_ID` | backend | Entra tenant ID |
+| `VITE_CLIENT_ID` | frontend | Entra Portal App client ID |
+| `VITE_TENANT_ID` | frontend | Entra tenant ID |
 
 ---
 
-## Building Your Own UI
+## Prerequisites
 
-How to replicate this with your own frontend — step by step with example values.
+> [!NOTE]
+> Four things need to be configured before running: two Entra app registrations, a WIF pool/provider, and a Gemini Enterprise app with SharePoint connector. Expand each section below for step-by-step instructions.
 
-### Entra ID Setup (2 App Registrations)
+<details>
+<summary><strong>1. Microsoft Entra ID — Portal App (MSAL login)</strong></summary>
 
-You need **two** Entra apps. They serve different purposes:
+The Portal App handles user sign-in via MSAL.js. Its `id_token` is exchanged for a GCP token through WIF.
 
-| | **Portal App** (login) | **Connector App** (SharePoint) |
-|---|---|---|
-| **Purpose** | MSAL sign-in → Entra JWT for WIF | OAuth consent → auth code for refresh token |
-| **Type** | SPA | Web |
-| **Client ID** | `7868d053-aaaa-bbbb-cccc-111111111111` | `22c127d8-dddd-eeee-ffff-222222222222` |
-| **Redirect URI** | `http://localhost:5174` | `https://vertexaisearch.cloud.google.com/oauth-redirect` |
-| **Expose an API** | `api://7868d053-.../user_impersonation` | — |
-| **API permissions** | — | `SharePoint > AllSites.Read`, `Sites.Search.All` |
-| **Admin consent** | — | Yes, grant for tenant |
-
-> **Critical manifest setting** for the Portal App:
-> ```json
-> "oauth2AllowIdTokenImplicitFlow": true
-> ```
-> Without this, WIF silently rejects the id_token.
-
-### GCP Setup
-
-| Resource | Value |
-|----------|-------|
-| WIF Pool | `sp-wif-pool-v2` |
-| WIF Provider | `ge-login-provider`, OIDC, issuer: `https://login.microsoftonline.com/{tenant}/v2.0` |
-| Provider audience | `api://7868d053-...` (must match Portal App) |
-| Attribute mapping | `google.subject = assertion.sub` |
-| IAM | `principalSet://...` → `roles/discoveryengine.editor` |
-| Engine | StreamAssist engine, e.g. `gemini-enterprise` |
-| Connector | SharePoint connector, e.g. `sharepoint-data-def-connector` |
-
-### The Token Flow
-
-Two chains converge at one API call. Here's what each token is, where it comes from, and where it goes:
+#### Create App Registration
 
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│                     CHAIN A — Identity                         │
-│                                                                │
-│  ① MSAL.js loginPopup()                                       │
-│     → entra_jwt = "eyJ0eXAiOiJKV1Qi..."                       │
-│       (aud: api://7868d053-..., sub: user-uuid)                │
-│                                                                │
-│  ② POST sts.googleapis.com/v1/token                            │
-│     body: { subjectToken: entra_jwt, audience: "//iam..." }    │
-│     → gcp_token = "ya29.c.c0ASRK0G..."                        │
-│       (identifies user as WIF principal in GCP)                │
-├─────────────────────────────────────────────────────────────────┤
-│                     CHAIN B — Consent                          │
-│                                                                │
-│  ③ Popup → login.microsoftonline.com/authorize                 │
-│     client_id: 22c127d8-...  (Connector App, NOT Portal App)  │
-│     redirect_uri: vertexaisearch.cloud.google.com/oauth-redirect│
-│     scope: AllSites.Read Sites.Search.All                      │
-│     state: base64({"origin":"https://yourapp.com",...})         │
-│                                                                │
-│  ④ User consents → Microsoft redirects with auth code          │
-│     → fullRedirectUrl = "https://vertexaisearch.../oauth-redir │
-│       ect?code=0.AW8B_aNG3m...&state=eyJvcm..."               │
-├─────────────────────────────────────────────────────────────────┤
-│                  CONVERGENCE — Store Token                      │
-│                                                                │
-│  ⑤ POST discoveryengine.googleapis.com/.../                    │
-│       acquireAndStoreRefreshToken                              │
-│     headers: { Authorization: "Bearer {gcp_token}" }  ← ②     │
-│     body: { fullRedirectUri: "{fullRedirectUrl}" }     ← ④     │
-│                                                                │
-│     Discovery Engine extracts the auth code, exchanges it      │
-│     for a SharePoint refresh token, and stores it mapped       │
-│     to the WIF identity from the GCP token.                    │
-└─────────────────────────────────────────────────────────────────┘
+Entra Admin Center → App registrations → New registration
+→ Name: "SP-Portal"
+→ Supported account types: Single tenant
+→ Redirect URI: Single-page application → http://localhost:5174
 ```
 
-### Step-by-Step Code
+#### Expose an API
 
-**Step 1 — MSAL login (frontend)**
-
-```ts
-// authConfig.ts
-const CLIENT_ID = "7868d053-aaaa-bbbb-cccc-111111111111";  // Portal App
-const TENANT_ID = "de46a3fd-xxxx-yyyy-zzzz-333333333333";
-
-export const msalConfig = {
-  auth: { clientId: CLIENT_ID, authority: `https://login.microsoftonline.com/${TENANT_ID}` },
-};
-export const loginRequest = {
-  scopes: [`api://${CLIENT_ID}/user_impersonation`, "openid", "profile", "email"],
-};
-
-// Login → get entra_jwt
-const resp = await instance.loginPopup(loginRequest);
-const entra_jwt = resp.idToken;   // ← this is the Entra JWT
+```
+App registration → Expose an API → Add a scope
+→ Application ID URI: api://{client-id} (accept default)
+→ Scope name: user_impersonation
+→ Who can consent: Admins and users
 ```
 
-**Step 2 — STS exchange (backend)**
+This creates the `api://{client-id}/user_impersonation` scope that sets the `aud` claim WIF validates.
 
-```python
-# entra_jwt comes from the X-Entra-Id-Token header
-def exchange_token(entra_jwt: str) -> str:
-    resp = requests.post("https://sts.googleapis.com/v1/token", json={
-        "audience": "//iam.googleapis.com/locations/global/workforcePools/sp-wif-pool-v2/providers/ge-login-provider",
-        "grantType": "urn:ietf:params:oauth:grant-type:token-exchange",
-        "subjectToken": entra_jwt,                                    # ← from Step 1
-        "subjectTokenType": "urn:ietf:params:oauth:token-type:id_token",
-        "requestedTokenType": "urn:ietf:params:oauth:token-type:access_token",
-        "scope": "https://www.googleapis.com/auth/cloud-platform",
-    })
-    return resp.json()["access_token"]   # ← this is the gcp_token
+#### Edit Manifest
+
+```
+App registration → Manifest → Find and set:
+"oauth2AllowIdTokenImplicitFlow": true
 ```
 
-**Step 3 — Generate consent URL (backend)**
+> [!IMPORTANT]
+> Without this flag, WIF silently rejects the `id_token`. The STS exchange returns a generic error with no indication that this setting is the problem.
 
-```python
-import base64, json
+#### Token Configuration
 
-CONNECTOR_CLIENT_ID = "22c127d8-dddd-eeee-ffff-222222222222"   # Connector App
-# ⚠️  redirect_uri MUST be this exact URL — Discovery Engine hardcodes it
-REDIRECT_URI = "https://vertexaisearch.cloud.google.com/oauth-redirect"
-
-params = {
-    "client_id": CONNECTOR_CLIENT_ID,
-    "response_type": "code",
-    "redirect_uri": REDIRECT_URI,
-    "scope": "openid offline_access https://contoso.sharepoint.com/AllSites.Read",
-    "state": base64.b64encode(json.dumps({          # ⚠️  must be base64, not raw JSON
-        "origin": "https://yourapp.com",
-        "useBroadcastChannel": "false"
-    }).encode()).decode(),
-}
-url = f"https://login.microsoftonline.com/{TENANT_ID}/oauth2/v2.0/authorize?{urlencode(params)}"
+```
+App registration → Token configuration → Add optional claim
+→ Token type: ID
+→ Claim: email
 ```
 
-**Step 4 — Handle the redirect**
+Note down:
+- **Application (client) ID** → `VITE_CLIENT_ID`
+- **Directory (tenant) ID** → `VITE_TENANT_ID` and `TENANT_ID`
 
-Google's redirect page at `vertexaisearch.cloud.google.com/oauth-redirect` receives the auth code and sends it back via `postMessage`:
+</details>
 
-```ts
-window.addEventListener("message", async (event) => {
-  if (!event.data?.fullRedirectUrl) return;
-  // event.data.fullRedirectUrl = "https://vertexaisearch.../oauth-redirect?code=0.AW8B...&state=..."
-  await fetch("/api/oauth/exchange", {
-    method: "POST",
-    headers: { "Content-Type": "application/json", "X-Entra-Id-Token": entra_jwt },
-    body: JSON.stringify({ fullRedirectUrl: event.data.fullRedirectUrl }),
-  });
-});
+<details>
+<summary><strong>2. Microsoft Entra ID — Connector App (SharePoint OAuth)</strong></summary>
+
+The Connector App handles SharePoint consent. Discovery Engine uses it to access SharePoint on behalf of users.
+
+#### Create App Registration
+
+```
+Entra Admin Center → App registrations → New registration
+→ Name: "SP-Connector"
+→ Supported account types: Single tenant
+→ Redirect URI: Web → https://vertexaisearch.cloud.google.com/oauth-redirect
 ```
 
-> **COOP caveat:** If your app runs on a different origin than `vertexaisearch.cloud.google.com` (e.g. `localhost`), the redirect page's `Cross-Origin-Opener-Policy: same-origin` blocks `postMessage`. Use popup-closed polling as fallback — detect `popup.closed`, then call `check-connection` to verify.
+> [!IMPORTANT]
+> The redirect URI **must** be exactly `https://vertexaisearch.cloud.google.com/oauth-redirect`. Also add `https://vertexaisearch.cloud.google.com/console/oauth/sharepoint_oauth.html` as a second redirect URI.
 
-**Step 5 — Store the refresh token (backend)**
+#### Add API Permissions
 
-```python
-# gcp_token from Step 2 (WIF, NOT service account)
-# fullRedirectUrl from Step 4 (contains the auth code)
-
-CONNECTOR_URL = "https://discoveryengine.googleapis.com/v1alpha/projects/REDACTED_PROJECT_NUMBER/locations/global/collections/sharepoint-data-def-connector"
-
-resp = requests.post(
-    f"{CONNECTOR_URL}/dataConnector:acquireAndStoreRefreshToken",
-    headers={"Authorization": f"Bearer {gcp_token}", "Content-Type": "application/json"},
-    json={"fullRedirectUri": fullRedirectUrl},
-)
-# Discovery Engine stores the SharePoint refresh token under this WIF identity
+```
+App registration → API permissions → Add a permission
+→ APIs my organization uses → SharePoint
+→ Delegated permissions:
+  ✓ AllSites.Read
+  ✓ Sites.Search.All
+→ Add a permission → Microsoft Graph
+→ Delegated permissions:
+  ✓ offline_access
+  ✓ openid
 ```
 
-> **⚠️  The `gcp_token` MUST come from WIF (Step 2), not from ADC/service account.** The token identifies the user. If stored under a service account, `acquireAccessToken` later returns 404 — identity mismatch.
+Then click **Grant admin consent for {tenant}**.
 
-**Step 6 — Search (backend)**
+#### Create Client Secret
 
-```python
-STREAMASSIST_URL = "https://discoveryengine.googleapis.com/v1alpha/projects/REDACTED_PROJECT_NUMBER/locations/global/collections/default_collection/engines/gemini-enterprise/assistants/default_assistant:streamAssist"
-
-resp = requests.post(STREAMASSIST_URL, headers={
-    "Authorization": f"Bearer {gcp_token}",       # ← WIF token from Step 2
-    "Content-Type": "application/json",
-}, json={
-    "query": {"text": "What documents do we have about Apex Financial?"},
-})
-# Returns grounded answer + SharePoint source URLs with per-user ACLs
+```
+App registration → Certificates & secrets → New client secret
+→ Copy the Value (not the Secret ID)
 ```
 
-> `dataStoreSpecs` is optional — StreamAssist searches all connected data stores by default. Use natural language queries; keyword-only queries are silently ignored (`NON_ASSIST_SEEKING_QUERY_IGNORED`).
+Note down:
+- **Application (client) ID** → `CONNECTOR_CLIENT_ID`
 
-### Key Gotchas
+</details>
 
-| Gotcha | What Happens |
-|--------|-------------|
-| `redirect_uri` not `vertexaisearch.cloud.google.com/oauth-redirect` | `acquireAndStoreRefreshToken` fails with redirect URI mismatch |
-| ADC token instead of WIF token | Token stored under service account → `acquireAccessToken` returns 404 |
-| `state` not base64-encoded | Redirect page throws `Illegal base64 character` |
-| `oauth2AllowIdTokenImplicitFlow` not set | STS exchange silently fails — no GCP token |
-| Keyword query (e.g. `"Apex Financial"`) | Returns `NON_ASSIST_SEEKING_QUERY_IGNORED` — use natural language |
-| COOP blocks postMessage on localhost | Popup can't send auth code back — use popup-closed polling fallback |
+<details>
+<summary><strong>3. Google Cloud — Workforce Identity Federation</strong></summary>
+
+WIF maps Entra ID tokens to GCP identities. This is the key difference from `ge-sharepoint-cloudid` — users sign in with Microsoft, and WIF translates that into a GCP identity.
+
+#### Create Workforce Pool
+
+```bash
+gcloud iam workforce-pools create sp-wif-pool \
+  --location=global \
+  --organization=ORGANIZATION_ID \
+  --session-duration=3600s
+```
+
+#### Create OIDC Provider
+
+```bash
+gcloud iam workforce-pools providers create-oidc ge-login-provider \
+  --workforce-pool=sp-wif-pool \
+  --location=global \
+  --issuer-uri="https://login.microsoftonline.com/TENANT_ID/v2.0" \
+  --client-id="api://PORTAL_APP_CLIENT_ID" \
+  --attribute-mapping="google.subject=assertion.sub"
+```
+
+> [!IMPORTANT]
+> The `--client-id` (audience) must be `api://{portal-app-client-id}` — matching the Portal App's "Expose an API" URI. This is what the `aud` claim in the Entra JWT is set to.
+
+#### Grant IAM Permissions
+
+```bash
+gcloud projects add-iam-policy-binding PROJECT_ID \
+  --member="principalSet://iam.googleapis.com/locations/global/workforcePools/sp-wif-pool/*" \
+  --role="roles/discoveryengine.editor"
+```
+
+Note down:
+- Pool ID → `WIF_POOL_ID`
+- Provider ID → `WIF_PROVIDER_ID`
+
+</details>
+
+<details>
+<summary><strong>4. Gemini Enterprise — Search App + SharePoint Connector</strong></summary>
+
+#### Create a Search App
+
+```
+Cloud Console → Agent Builder → Apps → Create App
+→ Type: Search
+→ Enterprise features: ON (required for StreamAssist)
+→ App name: "sharepoint-portal"
+→ Region: global
+```
+
+Note down the **Engine ID** from the app URL → `ENGINE_ID`.
+
+#### Add SharePoint Online Connector
+
+```
+Agent Builder → Data Stores → Create Data Store
+→ Source: SharePoint Online
+→ SharePoint URL: https://TENANT.sharepoint.com
+→ Entity types: Select all (file, page, comment, event, attachment)
+→ Authentication: OAuth (will configure redirect URI)
+```
+
+Note down the **Connector ID** → `CONNECTOR_ID`.
+
+#### Connect the Data Store to Your App
+
+```
+Agent Builder → Apps → your app → Data Stores
+→ Add the SharePoint data store you just created
+```
+
+> [!TIP]
+> The connector creates 5 sub-data-stores automatically: `{CONNECTOR_ID}_file`, `_page`, `_comment`, `_event`, `_attachment`. The backend queries all 5 via `dataStoreSpecs`.
+
+#### How Federated Search Works
+
+Unlike indexed connectors that crawl and store documents, the SharePoint **federated connector** queries SharePoint in real-time at search time:
+
+```
+User query → StreamAssist → Discovery Engine → SharePoint Online (live) → Results
+```
+
+- No data is copied into Google Cloud
+- Per-user ACLs are enforced via the stored refresh token
+- Results are always current (no sync delay)
+- The `acquireAndStoreRefreshToken` API maps each user's SharePoint credentials to their WIF identity
+
+</details>
 
 ---
 
-## Key Difference from `sharepoint_wif_portal`
+## Gotchas
 
-| | `sharepoint_wif_portal` | `streamassist-oauth-flow` |
-|---|---|---|
-| **Auth flow** | Google's oauth-redirect + postMessage relay | Direct OAuth callback on our backend |
-| **Token storage** | ADC or WIF | WIF only (correct identity mapping) |
-| **Search** | StreamAssist + Graph Search + Gemini | StreamAssist only (federated) |
-| **Backend size** | ~800 lines | 175 lines |
-| **Endpoints** | 8+ | 5 |
-| **Agent support** | InsightComparator ADK agent | Not needed — StreamAssist handles everything |
+| # | Issue | Detail |
+|---|-------|--------|
+| 1 | **WIF token, not ADC** | `acquireAndStoreRefreshToken` must use a WIF token. ADC stores the token under the service account identity → `acquireAccessToken` returns 404. [-> code](backend/main.py#L159-L160) |
+| 2 | **`oauth2AllowIdTokenImplicitFlow`** | Must be `true` in the Portal App's Entra manifest. Without it, WIF silently rejects the id_token. |
+| 3 | **COOP blocks postMessage** | `vertexaisearch.cloud.google.com` sets Cross-Origin-Opener-Policy. Frontend uses popup-closed polling as fallback. [-> code](frontend/src/App.tsx#L285-L310) |
+| 4 | **redirect_uri is hardcoded** | `acquireAndStoreRefreshToken` always uses `vertexaisearch.cloud.google.com/oauth-redirect` internally. Your Connector App must register this exact URI. |
+| 5 | **`state` must be base64** | The redirect page at `vertexaisearch.cloud.google.com` expects base64-encoded state. Raw JSON throws `Illegal base64 character`. [-> code](backend/main.py#L126) |
+| 6 | **Natural language only** | Keyword queries return `NON_ASSIST_SEEKING_QUERY_IGNORED`. Always phrase as questions. |
+| 7 | **`session` not `assistToken`** | StreamAssist returns `assistToken` but rejects it as input. Use `sessionInfo.session` for follow-ups. [-> code](backend/main.py#L305) |
