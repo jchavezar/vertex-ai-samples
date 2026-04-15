@@ -26,7 +26,7 @@ MCP_URL = os.getenv("SERVICENOW_MCP_URL", "")
 # Discovery Engine configuration
 DATA_STORE_ID = os.getenv("DATA_STORE_ID", "")
 DISCOVERY_ENGINE_ID = os.getenv("DISCOVERY_ENGINE_ID", "")
-PROJECT_NUMBER = os.getenv("PROJECT_NUMBER", "REDACTED_PROJECT_NUMBER")
+PROJECT_NUMBER = os.environ["PROJECT_NUMBER"]
 
 # WIF configuration (for SharePoint auth)
 WIF_POOL_ID = os.getenv("WIF_POOL_ID", "")

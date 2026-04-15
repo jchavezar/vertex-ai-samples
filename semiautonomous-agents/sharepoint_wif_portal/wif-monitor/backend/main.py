@@ -18,7 +18,7 @@ from google import genai
 load_dotenv()
 
 PROJECT_ID = os.getenv("PROJECT_ID", "sharepoint-wif-agent")
-PROJECT_NUMBER = os.getenv("PROJECT_NUMBER", "REDACTED_PROJECT_NUMBER")
+PROJECT_NUMBER = os.environ["PROJECT_NUMBER"]
 LOCATION = os.getenv("LOCATION", "us-central1")
 
 app = FastAPI(title="WIF Auth Monitor")
@@ -33,9 +33,9 @@ log_client = cloud_logging.Client(project=PROJECT_ID)
 genai_client = genai.Client(vertexai=True, project=PROJECT_ID, location=LOCATION)
 
 # ===== Microsoft Graph API (Entra ID) =====
-AZURE_CLIENT_ID = os.getenv("AZURE_CLIENT_ID", "REDACTED_PORTAL_CLIENT_ID")
-AZURE_CLIENT_SECRET = os.getenv("AZURE_CLIENT_SECRET", "")
-AZURE_TENANT_ID = os.getenv("AZURE_TENANT_ID", "REDACTED_TENANT_ID")
+AZURE_CLIENT_ID = os.environ.get("AZURE_CLIENT_ID", "")
+AZURE_CLIENT_SECRET = os.environ.get("AZURE_CLIENT_SECRET", "")
+AZURE_TENANT_ID = os.environ.get("AZURE_TENANT_ID", "")
 GRAPH_BASE = "https://graph.microsoft.com/v1.0"
 
 _msal_app = None
@@ -73,26 +73,24 @@ def graph_get(path: str, params: dict | None = None):
     resp.raise_for_status()
     return resp.json()
 
-SYSTEM_PROMPT = """You are a WIF (Workload Identity Federation) authentication expert analyzing audit logs for a SharePoint + Google Discovery Engine integration.
+SYSTEM_PROMPT = f"""You are a WIF (Workload Identity Federation) authentication expert analyzing audit logs for a SharePoint + Google Discovery Engine integration.
 
 Architecture overview:
-- 1 Azure App Registration (client-id: REDACTED_PORTAL_CLIENT_ID) used for user auth via MSAL
-- WIF Pool: sp-wif-pool-v2 with 2 providers:
-  - ge-login-provider (aud: 7868d053... bare) — accepts ID Tokens for Gemini Enterprise login
-  - entra-provider (aud: api://7868d053...) — accepts Access Tokens for Custom Portal (StreamAssist direct)
+- 1 Azure App Registration (client-id: {AZURE_CLIENT_ID}) used for user auth via MSAL
+- WIF Pool with 2 providers:
+  - ge-login-provider (aud: bare client-id) — accepts ID Tokens for Gemini Enterprise login
+  - entra-provider (aud: api://client-id) — accepts Access Tokens for Custom Portal (StreamAssist direct)
 - A SEPARATE Connector App Registration — used by Discovery Engine to connect to SharePoint (with Sites.Search.All, AllSites.Read delegated permissions)
 
 Auth flow (Custom Portal path — the one used in production):
-1. User logs in via MSAL in React frontend → Entra ID issues Access Token with aud: api://7868d053...
+1. User logs in via MSAL in React frontend → Entra ID issues Access Token
 2. Frontend sends Access Token to custom Portal backend (FastAPI on Cloud Run) via X-Entra-Id-Token header
 3. Portal backend calls STS (sts.googleapis.com/v1/token) to exchange Entra JWT for GCP Access Token — this is the WIF token exchange
-4. GCP token carries user identity as principal in workforcePools/sp-wif-pool-v2/subject/...
+4. GCP token carries user identity as principal in workforcePools/.../subject/...
 5. Portal backend calls StreamAssist API DIRECTLY with GCP token + dataStoreSpecs — NOT through Agent Engine
 6. Discovery Engine calls AcquireAccessToken on the SharePoint Connector — this is where it gets the Connector App's credentials
 7. Connector App queries SharePoint ON BEHALF of the user (delegated permissions) — SharePoint enforces ACLs based on user identity
 8. Only documents the user is authorized to see are returned
-
-Note: There is also a Gemini Enterprise direct login path using ge-login-provider (aud: bare client-id with ID Tokens), but the custom portal uses the entra-provider (aud: api://client-id with Access Tokens).
 
 Key insight: AcquireAccessToken proves the mapping between the WIF identity (Portal App) and the Connector App. Same principalSubject appears in both StreamAssist and AcquireAccessToken calls.
 
@@ -231,25 +229,25 @@ class ChatRequest(BaseModel):
 
 
 CONNECTOR_INFO = {
-    "name": "sharepoint-data-def-connector",
+    "name": os.environ.get("CONNECTOR_ID", "sharepoint-data-def-connector"),
     "type": "THIRD_PARTY_FEDERATED",
     "dataSource": "sharepoint",
-    "tenant_id": "REDACTED_TENANT_ID",
-    "instance_uri": "https://CONTOSO.sharepoint.com",
+    "tenant_id": AZURE_TENANT_ID,
+    "instance_uri": f"https://{os.environ.get('SHAREPOINT_DOMAIN', '')}",
     "auth_type": "OAUTH",
     "connectorModes": ["FEDERATED", "ACTIONS"],
 }
 
 WIF_INFO = {
-    "pool": "sp-wif-pool-v2",
+    "pool": os.environ.get("WIF_POOL_ID", ""),
     "providers": {
         "ge-login-provider": {
-            "audience": "REDACTED_PORTAL_CLIENT_ID",
+            "audience": AZURE_CLIENT_ID,
             "tokenType": "ID Token",
             "use": "Gemini Enterprise UI login",
         },
         "entra-provider": {
-            "audience": "api://REDACTED_PORTAL_CLIENT_ID",
+            "audience": f"api://{AZURE_CLIENT_ID}",
             "tokenType": "Access Token",
             "use": "Custom Portal backend — StreamAssist direct call via WIF exchange",
         },
@@ -257,8 +255,8 @@ WIF_INFO = {
     "attributeMapping": {
         "google.subject": "assertion.sub",
     },
-    "tenant_id": "REDACTED_TENANT_ID",
-    "issuer": "https://sts.windows.net/REDACTED_TENANT_ID/",
+    "tenant_id": AZURE_TENANT_ID,
+    "issuer": f"https://sts.windows.net/{AZURE_TENANT_ID}/",
 }
 
 
@@ -389,7 +387,7 @@ def microsoft_consent_grants(app_id: str | None = None):
     """Get OAuth2 permission grants (delegated consent) for an app — proves ACL enforcement."""
     try:
         # First find the service principal (enterprise app) for the given app_id
-        target_app_id = app_id or "REDACTED_CONNECTOR_CLIENT_ID"  # default to discovered connector
+        target_app_id = app_id or os.environ.get("CONNECTOR_CLIENT_ID", "")
         sp_data = graph_get(
             "/servicePrincipals",
             {"$filter": f"appId eq '{target_app_id}'", "$select": "id,appId,displayName"},
@@ -573,12 +571,12 @@ def get_mapping():
             "mapping_mechanism": "Same principalSubject appears in both StreamAssist and AcquireAccessToken audit logs",
             "acl_enforcement": "Connector uses delegated permissions (Sites.Search.All) — queries SharePoint as the WIF user, not as itself",
             "flow": [
-                "1. User authenticates via MSAL in React frontend → Entra ID issues Access Token with aud: api://7868d053...",
+                "1. User authenticates via MSAL in React frontend → Entra ID issues Access Token",
                 "2. Frontend sends Access Token to custom Portal backend (FastAPI on Cloud Run) via X-Entra-Id-Token header",
                 "3. Portal backend calls STS (sts.googleapis.com/v1/token) → exchanges Entra JWT for GCP Access Token",
-                "4. GCP token carries user identity as principal: .../workforcePools/sp-wif-pool-v2/subject/{hash}",
+                "4. GCP token carries user identity as principal in workforcePools/.../subject/{hash}",
                 "5. Portal backend calls StreamAssist API directly with GCP token + dataStoreSpecs",
-                "6. Discovery Engine calls AcquireAccessToken on the Connector (sharepoint-data-def-connector)",
+                "6. Discovery Engine calls AcquireAccessToken on the SharePoint Connector",
                 "7. Connector authenticates to SharePoint using its OWN client-id + secret (separate app registration)",
                 "8. But scoped to the USER's identity via delegated permissions → SharePoint enforces ACLs",
             ],

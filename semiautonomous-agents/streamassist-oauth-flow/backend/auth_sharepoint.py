@@ -58,8 +58,8 @@ def capture_code():
     auth_url = build_auth_url()
     captured_url = None
 
-    username = os.environ.get("SP_USERNAME", "admin@CONTOSO.onmicrosoft.com")
-    password = os.environ.get("SP_PASSWORD", "(?:REDACTED_PASSWORD)")
+    username = os.environ.get("SP_USERNAME", "")
+    password = os.environ.get("SP_PASSWORD", "")
 
     print("[1] Opening browser for Microsoft authentication...")
     print("    You only need to complete MFA (Authenticator app) in the browser.")

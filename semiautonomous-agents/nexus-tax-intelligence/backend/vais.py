@@ -5,7 +5,7 @@ import google.auth
 from google.auth.transport.requests import Request
 from typing import Dict, Any
 
-PROJECT_ID = os.getenv("VAIS_PROJECT_ID", "REDACTED_PROJECT_NUMBER")
+PROJECT_ID = os.environ["VAIS_PROJECT_ID"]
 LOCATION = os.getenv("VAIS_LOCATION", "global")
 COLLECTION = os.getenv("VAIS_COLLECTION", "default_collection")
 ENGINE = os.getenv("VAIS_ENGINE", "pwc")

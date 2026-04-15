@@ -5,9 +5,10 @@ from pathlib import Path
 
 GRAPH_BASE = "https://graph.microsoft.com/v1.0"
 
-# SharePoint site: Financial Document
-SITE_ID = "REDACTED_SITE_ID"
-DRIVE_ID = "REDACTED_DRIVE_ID"
+import os
+
+SITE_ID = os.environ.get("SHAREPOINT_SITE_ID", "")
+DRIVE_ID = os.environ.get("SHAREPOINT_DRIVE_ID", "")
 
 CACHE_DIR = Path(__file__).parent / ".cache"
 

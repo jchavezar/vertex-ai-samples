@@ -37,7 +37,8 @@ WIF_PROVIDER_ID = os.environ["WIF_PROVIDER_ID"]
 CONNECTOR_CLIENT_ID = os.environ["CONNECTOR_CLIENT_ID"]
 TENANT_ID = os.environ["TENANT_ID"]
 REDIRECT_URI = os.environ.get("REDIRECT_URI", "https://vertexaisearch.cloud.google.com/oauth-redirect")
-SP_SCOPES = "openid offline_access https://CONTOSO.sharepoint.com/AllSites.Read https://CONTOSO.sharepoint.com/Sites.Search.All"
+SP_DOMAIN = os.environ.get("SHAREPOINT_DOMAIN", "contoso.sharepoint.com")
+SP_SCOPES = f"openid offline_access https://{SP_DOMAIN}/AllSites.Read https://{SP_DOMAIN}/Sites.Search.All"
 
 BASE = f"https://discoveryengine.googleapis.com/v1alpha/projects/{PROJECT_NUMBER}/locations/global/collections"
 CONNECTOR_URL = f"{BASE}/{CONNECTOR_ID}"

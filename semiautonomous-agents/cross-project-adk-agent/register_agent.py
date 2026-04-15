@@ -22,7 +22,7 @@ load_dotenv()
 
 # Project B: Gemini Enterprise / Agentspace
 GE_PROJECT_ID = os.environ.get("GE_PROJECT_ID", "vtxdemos")
-GE_PROJECT_NUMBER = os.environ.get("GE_PROJECT_NUMBER", "REDACTED_PROJECT_NUMBER")
+GE_PROJECT_NUMBER = os.environ["GE_PROJECT_NUMBER"]
 AS_APP = os.environ.get("AS_APP", "")
 
 # Agent Engine resource from deploy.py

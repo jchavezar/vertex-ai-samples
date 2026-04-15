@@ -9,7 +9,7 @@ JWT = os.environ.get("TEST_JWT", "")
 
 WIF_POOL_ID = os.environ.get("WIF_POOL_ID", "entra-id-oidc-pool-d")
 WIF_PROVIDER_ID = os.environ.get("WIF_PROVIDER_ID", "entra-id-oidc-pool-provider-de")
-PROJECT_NUMBER = os.environ.get("PROJECT_NUMBER", "REDACTED_PROJECT_NUMBER")
+PROJECT_NUMBER = os.environ["PROJECT_NUMBER"]
 ENGINE_ID = os.environ.get("ENGINE_ID", "deloitte-demo")
 
 print("=" * 60)

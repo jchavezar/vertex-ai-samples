@@ -3,6 +3,7 @@
 Quick test script for the deployed Router Agent.
 Usage: uv run python test_agent.py "your message here"
 """
+import os
 import sys
 import vertexai
 
@@ -20,7 +21,7 @@ def main():
     client = vertexai.Client()
 
     agent = client.agent_engines.get(
-        name=f"projects/REDACTED_PROJECT_NUMBER/locations/{LOCATION}/reasoningEngines/{AGENT_ID}"
+        name=f"projects/{os.environ['PROJECT_NUMBER']}/locations/{LOCATION}/reasoningEngines/{AGENT_ID}"
     )
 
     for chunk in agent.stream_query(user_id="cli-test", message=message):

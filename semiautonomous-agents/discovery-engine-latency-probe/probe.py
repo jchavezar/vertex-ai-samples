@@ -28,7 +28,7 @@ from dotenv import load_dotenv
 env_path = Path(__file__).parent.parent / "sharepoint_wif_portal" / ".env"
 load_dotenv(env_path)
 
-PROJECT_NUMBER = os.environ["PROJECT_NUMBER"]   # REDACTED_PROJECT_NUMBER
+PROJECT_NUMBER = os.environ["PROJECT_NUMBER"]
 ENGINE_ID      = os.environ["ENGINE_ID"]        # gemini-enterprise
 WIF_POOL_ID    = os.environ["WIF_POOL_ID"]
 WIF_PROVIDER_ID = os.environ["WIF_PROVIDER_ID"]

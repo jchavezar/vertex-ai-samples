@@ -33,7 +33,7 @@ load_dotenv()
 
 # Configuration
 PROJECT_ID = os.environ.get("PROJECT_ID", "sharepoint-wif-agent")
-PROJECT_NUMBER = os.environ.get("PROJECT_NUMBER", "REDACTED_PROJECT_NUMBER")
+PROJECT_NUMBER = os.environ["PROJECT_NUMBER"]
 LOCATION = os.environ.get("LOCATION", "us-central1")
 REASONING_ENGINE_RES = os.environ.get("REASONING_ENGINE_RES", "")
 ENGINE_ID = os.environ.get("ENGINE_ID", "gemini-enterprise")

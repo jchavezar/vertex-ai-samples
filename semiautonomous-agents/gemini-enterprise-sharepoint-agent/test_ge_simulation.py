@@ -11,7 +11,7 @@ import subprocess
 load_dotenv()
 
 PROJECT_ID = os.environ.get("PROJECT_ID", "deloitte-plantas")
-PROJECT_NUMBER = os.environ.get("PROJECT_NUMBER", "REDACTED_PROJECT_NUMBER")
+PROJECT_NUMBER = os.environ["PROJECT_NUMBER"]
 LOCATION = os.environ.get("LOCATION", "us-central1")
 REASONING_ENGINE_ID = os.environ.get("REASONING_ENGINE_ID", "5479245222963576832")
 AUTH_ID = os.environ.get("AUTH_ID", "sharepointauth")

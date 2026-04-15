@@ -13,12 +13,12 @@ export REPOSITORY="cloud-run-images"
 
 # Environment variables for the service
 ENV_VARS=(
-    "PROJECT_NUMBER=REDACTED_PROJECT_NUMBER"
+    "PROJECT_NUMBER=${PROJECT_NUMBER}"
     "ENGINE_ID=gemini-enterprise"
     "DATA_STORE_ID=sharepoint-data-def-connector_file"
     "WIF_POOL_ID=sp-wif-pool-v2"
     "WIF_PROVIDER_ID=entra-provider"
-    "REASONING_ENGINE_RES=projects/REDACTED_PROJECT_NUMBER/locations/us-central1/reasoningEngines/1988251824309665792"
+    "REASONING_ENGINE_RES=${REASONING_ENGINE_RES}"
 )
 
 # ============================================

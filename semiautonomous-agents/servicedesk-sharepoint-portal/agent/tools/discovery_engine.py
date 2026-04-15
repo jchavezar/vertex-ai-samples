@@ -52,7 +52,7 @@ class DiscoveryEngineClient:
         wif_pool_id: str = None,
         wif_provider_id: str = None,
     ):
-        self.project_number = project_number or os.environ.get("PROJECT_NUMBER", "REDACTED_PROJECT_NUMBER")
+        self.project_number = project_number or os.environ["PROJECT_NUMBER"]
         self.location = location
         self.engine_id = engine_id or os.environ.get("DISCOVERY_ENGINE_ID")
         self.data_store_id = data_store_id or os.environ.get("DATA_STORE_ID")

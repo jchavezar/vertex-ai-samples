@@ -14,11 +14,10 @@ from pathlib import Path
 CACHE_DIR = Path(__file__).parent / "sharepoint_mcp" / ".cache"
 CACHE_DIR.mkdir(parents=True, exist_ok=True)
 
-# ms365 MCP app registration
-CLIENT_ID = "REDACTED_CLIENT_ID"
-TENANT_ID = "REDACTED_TENANT_ID"
+CLIENT_ID = os.environ.get("MS365_CLIENT_ID", "")
+TENANT_ID = os.environ.get("MS365_TENANT_ID", "")
 
-DRIVE_ID = "REDACTED_DRIVE_ID"
+DRIVE_ID = os.environ.get("SHAREPOINT_DRIVE_ID", "")
 GRAPH_BASE = "https://graph.microsoft.com/v1.0"
 
 DOCUMENTS = [
