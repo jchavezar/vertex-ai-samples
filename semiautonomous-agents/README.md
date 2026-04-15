@@ -151,64 +151,60 @@ Probes, harnesses, and scaffolding for validating infrastructure and auth flows.
 
 ---
 
-## Architecture
+## Shared Toolkit
 
 > [!NOTE]
-> Every project connects to the same Google Cloud backbone. Identity flows bridge Microsoft Entra or Google Cloud Identity to Vertex AI services. MCP servers expose external APIs as tools that any agent can use.
+> Each project is **standalone** — they don't connect to each other. They draw from the same set of Google Cloud building blocks, picking what they need.
 
 ```mermaid
-graph LR
-    subgraph Identity["Identity Layer"]
-        ENTRA[Microsoft Entra ID]
-        WIF[Workforce Identity Federation]
-        GIS[Google Cloud Identity]
+block-beta
+    columns 4
+
+    block:UI["🖥️ Frontend"]:4
+        REACT["React 19 + Vite"]
+        GE["Gemini Enterprise UI"]
     end
 
-    subgraph Agents["Agent Layer"]
-        ADK[Google ADK Agents]
-        AE[Agent Engine]
-        A2A[A2A Protocol]
+    block:AUTH["🔐 Identity"]:4
+        MSAL["MSAL.js"]
+        WIF["WIF + STS"]
+        GIS["Google Identity Services"]
     end
 
-    subgraph Data["Data & Retrieval"]
-        DE[Discovery Engine]
-        PG[Cloud SQL pgvector]
-        FS[Firestore]
+    block:AGENT["🤖 Agent Frameworks"]:4
+        ADK["Google ADK"]
+        AE["Agent Engine"]
+        A2A["A2A Protocol"]
+        MCP["MCP (FastMCP)"]
     end
 
-    subgraph MCP["MCP Servers"]
-        GW[Google Workspace]
-        MS[Microsoft 365]
-        PL[Plaid / Amex]
-        KB[Knowledge Base]
+    block:DATA["💾 Data & Retrieval"]:4
+        DE["Discovery Engine"]
+        PG["Cloud SQL pgvector"]
+        FS["Firestore"]
+        SM["Secret Manager"]
     end
 
-    subgraph UI["Frontends"]
-        REACT[React 19 + Vite]
-        GE[Gemini Enterprise]
+    block:EXT["🌐 External APIs"]:4
+        GW["Google Workspace"]
+        MS["Microsoft 365 / SharePoint"]
+        PL["Plaid"]
+        AX["Amex"]
     end
-
-    ENTRA --> WIF --> AE
-    GIS --> DE
-    ADK --> AE
-    A2A --> ADK
-    AE --> DE & PG & FS
-    AE --> MCP
-    REACT --> AE
-    REACT --> DE
-    GE --> AE
 ```
 
 <details>
-<summary><strong>Identity flow comparison</strong></summary>
+<summary><strong>Which projects use what</strong></summary>
 
-| | WIF Path | Google Cloud Identity Path |
-|---|---|---|
-| Identity | Entra ID (MSAL.js) | Google Identity Services |
-| Token chain | Entra JWT → STS → GCP token | Google auth code → GCP token |
-| WIF required | Yes (Pool + Provider) | No |
-| Entra apps | 2 (Portal + Connector) | 1 (Connector only) |
-| Projects | sharepoint_wif_portal, streamassist-oauth-flow | ge-sharepoint-cloudid |
+| Component | Used By |
+|:----------|:--------|
+| **WIF + STS** | sharepoint_wif_portal, streamassist-oauth-flow, gemini-enterprise-sharepoint-agent |
+| **Google Identity Services** | ge-sharepoint-cloudid |
+| **Discovery Engine** | sharepoint_wif_portal, streamassist-oauth-flow, ge-sharepoint-cloudid, gemini-enterprise-sharepoint-agent, nexus-tax-intelligence, servicedesk-sharepoint-portal, discovery-engine-latency-probe |
+| **Agent Engine** | sharepoint_wif_portal, servicenow-mcp-portal, cross-project-adk-agent, observability-orchestra, vertex-multi-agent-workbench |
+| **MCP (FastMCP)** | gworkspace-mcp-server, ms365-mcp-server, plaid-mcp-server, amex-mcp, knowledge-base-mcp, adk-secret-snow-demo |
+| **pgvector** | hierarchical-rag-pgvector, multimodal-doc-search |
+| **A2A Protocol** | a2a-protocol-dojo |
 
 </details>
 
