@@ -1,0 +1,17 @@
+[project]
+name = "cortex-retriever"
+version = "1.0.0"
+description = "ADK agent: SharePoint via Discovery Engine + Google Search, for Gemini Enterprise"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "google-adk==1.30.0",
+    "google-cloud-aiplatform[agent_engines]",
+    "google-cloud-discoveryengine>=0.13.0",
+    "google-auth>=2.0.0",
+    "requests>=2.31.0",
+    "python-dotenv>=1.0.0",
+]
+
+[tool.setuptools.packages.find]
+include = ["agent*"]

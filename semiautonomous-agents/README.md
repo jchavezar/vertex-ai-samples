@@ -10,7 +10,7 @@
 
 <p align="center">
   <a href="https://github.com/jchavezar/vertex-ai-samples"><img src="https://img.shields.io/badge/Vertex_AI-Samples-4285F4?style=for-the-badge&logo=googlecloud&logoColor=white" alt="Vertex AI Samples" /></a>
-  <a href="#whats-here"><img src="https://img.shields.io/badge/projects-27-34A853?style=for-the-badge" alt="27 Projects" /></a>
+  <a href="#whats-here"><img src="https://img.shields.io/badge/projects-28-34A853?style=for-the-badge" alt="28 Projects" /></a>
   <a href="#-mcp-servers"><img src="https://img.shields.io/badge/MCP_Servers-6-FF6F00?style=for-the-badge" alt="MCP Servers" /></a>
   <a href="https://github.com/jchavezar/vertex-ai-samples/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-Apache_2.0-blue?style=for-the-badge" alt="License" /></a>
 </p>
@@ -59,6 +59,7 @@
 
 | Date | Project | What Changed |
 |:-----|:--------|:-------------|
+| Apr 16 | [**cortex-retriever**](./cortex-retriever/) | **NEW** — Agent-only ADK project for Gemini Enterprise — SharePoint + Google Search, zero UI |
 | Apr 14 | [**ge-sharepoint-cloudid**](./ge-sharepoint-cloudid/) | **NEW** — SharePoint search via native Google Cloud Identity (no WIF) |
 | Apr 12 | [**a2a-protocol-dojo**](./a2a-protocol-dojo/) | Interactive A2A protocol tutorial with streamed agent communication |
 | Apr 10 | [**knowledge-base-mcp**](./knowledge-base-mcp/) | Session ingestion pipeline + backfill tools |
@@ -69,7 +70,7 @@
 
 ## What's Here
 
-27 projects across 6 categories. Every project runs on **Google Cloud** with **Vertex AI** as the backbone.
+28 projects across 6 categories. Every project runs on **Google Cloud** with **Vertex AI** as the backbone.
 
 ```
 Google ADK ██████████████████████████████ 15    React 19   ████████████████████████  11
@@ -92,6 +93,7 @@ Full-stack portals bridging Microsoft identity to Google Cloud search infrastruc
 | [**gemini-enterprise-sharepoint-agent**](./gemini-enterprise-sharepoint-agent/) | ADK Agent registered in Gemini Enterprise — searches SharePoint via Discovery Engine + WIF | ![Python](https://img.shields.io/badge/-Python-3776AB?logo=python&logoColor=white&style=flat-square) ![ADK](https://img.shields.io/badge/-ADK-4285F4?style=flat-square) ![WIF](https://img.shields.io/badge/-WIF-34A853?style=flat-square) |
 | [**streamassist-oauth-flow**](./streamassist-oauth-flow/) | Custom StreamAssist portal — users authorize once, then chat with SharePoint-grounded answers | ![Python](https://img.shields.io/badge/-Python-3776AB?logo=python&logoColor=white&style=flat-square) ![React](https://img.shields.io/badge/-React-61DAFB?logo=react&logoColor=black&style=flat-square) ![WIF](https://img.shields.io/badge/-WIF-34A853?style=flat-square) |
 | [**ge-sharepoint-cloudid**](./ge-sharepoint-cloudid/) | Federated SharePoint search via Google Cloud Identity — no WIF, no STS, no MSAL | ![Python](https://img.shields.io/badge/-Python-3776AB?logo=python&logoColor=white&style=flat-square) ![React](https://img.shields.io/badge/-React-61DAFB?logo=react&logoColor=black&style=flat-square) ![GIS](https://img.shields.io/badge/-GIS-4285F4?style=flat-square) |
+| [**cortex-retriever**](./cortex-retriever/) | Agent-only — ADK agent for Gemini Enterprise, searches SharePoint + Google, zero UI | ![Python](https://img.shields.io/badge/-Python-3776AB?logo=python&logoColor=white&style=flat-square) ![ADK](https://img.shields.io/badge/-ADK-4285F4?style=flat-square) ![WIF](https://img.shields.io/badge/-WIF-34A853?style=flat-square) |
 
 ## 🔌 MCP Servers
 
@@ -198,10 +200,10 @@ block-beta
 
 | Component | Used By |
 |:----------|:--------|
-| **WIF + STS** | sharepoint_wif_portal, streamassist-oauth-flow, gemini-enterprise-sharepoint-agent |
+| **WIF + STS** | sharepoint_wif_portal, streamassist-oauth-flow, gemini-enterprise-sharepoint-agent, cortex-retriever |
 | **Google Identity Services** | ge-sharepoint-cloudid |
-| **Discovery Engine** | sharepoint_wif_portal, streamassist-oauth-flow, ge-sharepoint-cloudid, gemini-enterprise-sharepoint-agent, nexus-tax-intelligence, servicedesk-sharepoint-portal, discovery-engine-latency-probe |
-| **Agent Engine** | sharepoint_wif_portal, servicenow-mcp-portal, cross-project-adk-agent, observability-orchestra, vertex-multi-agent-workbench |
+| **Discovery Engine** | sharepoint_wif_portal, streamassist-oauth-flow, ge-sharepoint-cloudid, gemini-enterprise-sharepoint-agent, cortex-retriever, nexus-tax-intelligence, servicedesk-sharepoint-portal, discovery-engine-latency-probe |
+| **Agent Engine** | sharepoint_wif_portal, cortex-retriever, servicenow-mcp-portal, cross-project-adk-agent, observability-orchestra, vertex-multi-agent-workbench |
 | **MCP (FastMCP)** | gworkspace-mcp-server, ms365-mcp-server, plaid-mcp-server, amex-mcp, knowledge-base-mcp, adk-secret-snow-demo |
 | **pgvector** | hierarchical-rag-pgvector, multimodal-doc-search |
 | **A2A Protocol** | a2a-protocol-dojo |
