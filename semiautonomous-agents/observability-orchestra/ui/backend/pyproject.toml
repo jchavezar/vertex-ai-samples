@@ -1,0 +1,11 @@
+[project]
+name = "observability-orchestra-ui"
+version = "0.1.0"
+requires-python = ">=3.11"
+dependencies = [
+    "fastapi>=0.115.0",
+    "uvicorn[standard]>=0.34.0",
+    "sse-starlette>=2.0.0",
+    "google-cloud-aiplatform[agent_engines]>=1.88.0",
+    "python-dotenv>=1.0.0",
+]

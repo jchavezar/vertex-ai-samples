@@ -1,0 +1,25 @@
+[project]
+name = "amex-mcp"
+version = "0.1.0"
+description = "Amex statement sync + Gemini enrichment pipeline with MCP server"
+requires-python = ">=3.11"
+dependencies = [
+    "fastapi>=0.115.0",
+    "fastmcp>=2.0.0",
+    "google-cloud-firestore>=2.19.0",
+    "google-cloud-secret-manager>=2.21.0",
+    "google-genai>=1.0.0",
+    "requests>=2.32.0",
+    "uvicorn[standard]>=0.34.0",
+]
+
+[project.optional-dependencies]
+browser = [
+    "playwright>=1.49.0",
+]
+
+[tool.setuptools.packages.find]
+include = ["amex_job*", "enrichment*", "mcp_server*", "api*", "tools*"]
+
+[tool.uv]
+dev-dependencies = []

@@ -36,7 +36,7 @@ const STAGE_INFO: Record<string, { description: string; chain?: string; exampleI
     exampleOutput: { idToken: 'eyJ0eXAiOiJKV1Qi...', account: 'user@tenant.onmicrosoft.com' },
   },
   'Check Connection': {
-    description: 'Calls acquireAccessToken via WIF to check if a stored SharePoint refresh token exists for this user\'s WIF identity. Returns 404 if no token is stored or if it was stored under a different identity (e.g., ADC).',
+    description: 'Calls acquireAccessToken via WIF to check if a stored Outlook refresh token exists for this user\'s WIF identity. Returns 404 if no token is stored or if it was stored under a different identity (e.g., ADC).',
   },
   'STS Token Exchange': {
     description: 'Exchanges the Entra JWT for a GCP access token via Workforce Identity Federation (WIF). Maps the Entra sub claim to a GCP principal. This GCP token identifies the user to Discovery Engine — it is NOT a service account.',
@@ -45,7 +45,7 @@ const STAGE_INFO: Record<string, { description: string; chain?: string; exampleI
     exampleOutput: { access_token: 'ya29.d.b0AXv0zT...', token_type: 'Bearer', expires_in: 3600 },
   },
   'acquireAccessToken': {
-    description: 'Discovery Engine checks if it holds a stored SharePoint refresh token for this WIF identity. If the token was stored using ADC instead of WIF, this returns 404 — identity mismatch.',
+    description: 'Discovery Engine checks if it holds a stored Outlook refresh token for this WIF identity. If the token was stored using ADC instead of WIF, this returns 404 — identity mismatch.',
     chain: 'A',
     exampleInput: { connector: '{connector-id}/dataConnector:acquireAccessToken', body: '(empty — identity from GCP token)', gcpToken: 'ya29.d.b0AXv0zT...' },
     exampleOutput: { connected: true, hasAccessToken: true },
@@ -53,11 +53,11 @@ const STAGE_INFO: Record<string, { description: string; chain?: string; exampleI
   'Get Auth URL': {
     description: 'Generates the Microsoft OAuth consent URL using the Connector App (not Portal App). Stores the Entra JWT by nonce so the callback can retrieve it later. redirect_uri must be vertexaisearch.cloud.google.com/oauth-redirect — Discovery Engine hardcodes this.',
     chain: 'B',
-    exampleInput: { client_id: '{connector-app-client-id}', redirect_uri: 'https://vertexaisearch.cloud.google.com/oauth-redirect', scope: 'openid offline_access https://{tenant}.sharepoint.com/AllSites.Read' },
+    exampleInput: { client_id: '{connector-app-client-id}', redirect_uri: 'https://vertexaisearch.cloud.google.com/oauth-redirect', scope: 'openid offline_access https://graph.microsoft.com/Mail.Read https://graph.microsoft.com/Calendars.Read' },
     exampleOutput: { auth_url: 'https://login.microsoftonline.com/{tenant-id}/oauth2/v2.0/authorize?client_id=...&redirect_uri=https://vertexaisearch.cloud.google.com/oauth-redirect&...' },
   },
   'OAuth Consent Popup': {
-    description: 'Opens Microsoft login for SharePoint consent using the Connector App. The redirect goes to Google\'s vertexaisearch.cloud.google.com/oauth-redirect page, which captures the auth code and sends it back via postMessage.',
+    description: 'Opens Microsoft login for Outlook consent using the Connector App. The redirect goes to Google\'s vertexaisearch.cloud.google.com/oauth-redirect page, which captures the auth code and sends it back via postMessage.',
     chain: 'B',
     exampleInput: { redirectTo: 'https://login.microsoftonline.com/{tenant-id}/oauth2/v2.0/authorize?...' },
     exampleOutput: { callback: 'https://vertexaisearch.cloud.google.com/oauth-redirect?code=0.AW8B_aFG...&state=eyJvcml...&session_state=003f0cba-...' },
@@ -66,23 +66,23 @@ const STAGE_INFO: Record<string, { description: string; chain?: string; exampleI
     description: 'Google\'s redirect page receives the auth code from Microsoft and sends {fullRedirectUrl, code, state} back via postMessage. COOP caveat: if your app is NOT on the same origin as vertexaisearch.cloud.google.com, postMessage is blocked. Use the popup-closed fallback with check-connection polling.',
     chain: 'B',
     exampleInput: { fullRedirectUrl: 'https://vertexaisearch.cloud.google.com/oauth-redirect?code=0.AW8B...&state=eyJvcml...' },
-    exampleOutput: { type: 'sharepoint-oauth-callback', success: true },
+    exampleOutput: { type: 'outlook-oauth-callback', success: true },
   },
   'acquireAndStoreRefreshToken': {
-    description: 'CONVERGENCE POINT — Chain A (WIF identity from GCP token) meets Chain B (auth code from OAuth consent). Discovery Engine exchanges the auth code for a SharePoint refresh token and stores it mapped to this WIF identity. Future searches use this stored token for per-user ACLs.',
+    description: 'CONVERGENCE POINT — Chain A (WIF identity from GCP token) meets Chain B (auth code from OAuth consent). Discovery Engine exchanges the auth code for an Outlook refresh token and stores it mapped to this WIF identity. Future searches use this stored token for per-user ACLs.',
     chain: 'A+B',
     exampleInput: { endpoint: '{connector-id}/dataConnector:acquireAndStoreRefreshToken', fullRedirectUri: 'https://vertexaisearch.cloud.google.com/oauth-redirect?code=0.AW8B...', gcpToken: 'ya29.d.b0AXv0zT... (WIF token — NOT service account)' },
     exampleOutput: { success: true },
   },
   'Search': {
-    description: 'Calls StreamAssist for federated real-time search. Uses the stored refresh token to query SharePoint with the user\'s ACLs. dataStoreSpecs is optional — StreamAssist searches all connected stores by default. Requires natural language queries — keywords are silently ignored.',
+    description: 'Calls StreamAssist for federated real-time search. Uses the stored refresh token to query Outlook with the user\'s ACLs. dataStoreSpecs is optional — StreamAssist searches all connected stores by default. Requires natural language queries — keywords are silently ignored.',
     exampleInput: { query: 'What are the latest financial reports?', session_token: null },
     exampleOutput: { answer_length: 1246, sources_count: 5, session_token: 'projects/.../sessions/178690...' },
   },
   'StreamAssist': {
-    description: 'Discovery Engine StreamAssist API performs federated real-time search against SharePoint. Uses the stored refresh token (from acquireAndStoreRefreshToken) to enforce per-user ACLs. Requires natural language queries — keyword-only queries return NON_ASSIST_SEEKING_QUERY_IGNORED.',
-    exampleInput: { query: 'What are the latest financial reports?', dataStoreSpecs: '(optional)' },
-    exampleOutput: { answer: '...grounded response...', sources: ['sharepoint-file-1.pdf', 'sharepoint-page-2.aspx'], session: 'projects/.../sessions/...' },
+    description: 'Discovery Engine StreamAssist API performs federated real-time search against Outlook. Uses the stored refresh token (from acquireAndStoreRefreshToken) to enforce per-user ACLs. Requires natural language queries — keyword-only queries return NON_ASSIST_SEEKING_QUERY_IGNORED.',
+    exampleInput: { query: 'What meetings do I have this week?', dataStoreSpecs: '(optional)' },
+    exampleOutput: { answer: '...grounded response...', sources: ['email-subject-1', 'calendar-event-2'], session: 'projects/.../sessions/...' },
   },
 };
 
@@ -90,9 +90,9 @@ export default function App() {
   const { instance, accounts } = useMsal();
   const isAuthenticated = useIsAuthenticated();
   const username = accounts[0]?.username || '';
-  const spKey = `sp_connected_${username}`;
+  const olKey = `outlook_connected_${username}`;
 
-  const [spConnected, setSpConnected] = useState(false);
+  const [olConnected, setOlConnected] = useState(false);
   const [connectionChecked, setConnectionChecked] = useState(false);
   const [authInProgress, setAuthInProgress] = useState(false);
   const [authStatus, setAuthStatus] = useState('');
@@ -211,8 +211,8 @@ export default function App() {
           });
           const data = await resp.json();
           if (data.success) {
-            setSpConnected(true);
-            localStorage.setItem(spKey, '1');
+            setOlConnected(true);
+            localStorage.setItem(olKey, '1');
             updateTrace(traceId, { status: 'success', duration_ms: Date.now() - start, output: { success: true } });
           } else {
             setAuthStatus(`Authorization failed: ${data.error || 'Unknown'}`);
@@ -228,10 +228,10 @@ export default function App() {
       }
 
       // Legacy: handle our own callback page postMessage
-      if (event.data?.type !== 'sharepoint-oauth-callback') return;
+      if (event.data?.type !== 'outlook-oauth-callback') return;
       if (event.data.success) {
-        setSpConnected(true);
-        localStorage.setItem(spKey, '1');
+        setOlConnected(true);
+        localStorage.setItem(olKey, '1');
         setTraces(prev => [...prev, {
           id: crypto.randomUUID(), stage: 'OAuth Callback (postMessage)', status: 'success',
           timestamp: Date.now(), input: { type: event.data.type }, output: { success: true },
@@ -247,7 +247,7 @@ export default function App() {
     };
     window.addEventListener('message', handler);
     return () => window.removeEventListener('message', handler);
-  }, [spKey, getToken, addTrace, updateTrace, addBackendTraces]);
+  }, [olKey, getToken, addTrace, updateTrace, addBackendTraces]);
 
   // ─── Check connection on mount ────────────────────────────
   useEffect(() => {
@@ -256,15 +256,15 @@ export default function App() {
       const token = await getToken();
       if (!token) { setConnectionChecked(true); return; }
 
-      const traceId = addTrace('Check Connection', { endpoint: '/api/sharepoint/check-connection', idToken: token.substring(0, 30) + '...' });
+      const traceId = addTrace('Check Connection', { endpoint: '/api/outlook/check-connection', idToken: token.substring(0, 30) + '...' });
       const start = Date.now();
       try {
-        const resp = await fetch('/api/sharepoint/check-connection', {
+        const resp = await fetch('/api/outlook/check-connection', {
           headers: { 'X-Entra-Id-Token': token },
         });
         const data = await resp.json();
-        setSpConnected(data.connected);
-        data.connected ? localStorage.setItem(spKey, '1') : localStorage.removeItem(spKey);
+        setOlConnected(data.connected);
+        data.connected ? localStorage.setItem(olKey, '1') : localStorage.removeItem(olKey);
         updateTrace(traceId, {
           status: data.connected ? 'success' : 'error',
           duration_ms: Date.now() - start,
@@ -272,47 +272,53 @@ export default function App() {
         });
         addBackendTraces(data._trace);
       } catch (err: any) {
-        setSpConnected(false);
-        localStorage.removeItem(spKey);
+        setOlConnected(false);
+        localStorage.removeItem(olKey);
         updateTrace(traceId, { status: 'error', duration_ms: Date.now() - start, output: { error: err.message } });
       } finally {
         setConnectionChecked(true);
       }
     })();
-  }, [isAuthenticated, getToken, spKey]);
+  }, [isAuthenticated, getToken, olKey]);
 
   // ─── Poll for popup closure (fallback) ────────────────────
   useEffect(() => {
     if (!authInProgress || !consentPopupRef.current) return;
+    const startTime = Date.now();
     const interval = setInterval(async () => {
       const popup = consentPopupRef.current;
-      if (!popup || popup.closed) {
+      let closed = !popup;
+      if (popup) {
+        try { closed = popup.closed; } catch { closed = true; }
+      }
+      const timedOut = Date.now() - startTime > 120000;
+      if (closed || timedOut) {
         clearInterval(interval);
         consentPopupRef.current = null;
         await new Promise(r => setTimeout(r, 1500));
         const token = await getToken();
         if (token) {
-          const resp = await fetch('/api/sharepoint/check-connection', {
+          const resp = await fetch('/api/outlook/check-connection', {
             headers: { 'X-Entra-Id-Token': token },
           });
           const data = await resp.json();
           if (data.connected) {
-            setSpConnected(true);
-            localStorage.setItem(spKey, '1');
+            setOlConnected(true);
+            localStorage.setItem(olKey, '1');
           }
           addBackendTraces(data._trace);
         }
         setAuthInProgress(false);
         setAuthStatus('');
       }
-    }, 500);
+    }, 2000);
     return () => clearInterval(interval);
-  }, [authInProgress, getToken, spKey]);
+  }, [authInProgress, getToken, olKey]);
 
   const handleConsent = async () => {
     setAuthInProgress(true);
     setAuthStatus('Opening consent...');
-    const popup = window.open('about:blank', 'sp_consent', 'width=600,height=700,left=200,top=100');
+    const popup = window.open('about:blank', 'ol_consent', 'width=600,height=700,left=200,top=100');
     consentPopupRef.current = popup;
     if (!popup) {
       setAuthStatus('Popup blocked. Please allow popups.');
@@ -323,9 +329,9 @@ export default function App() {
       const token = await getToken();
       const hint = username ? `?login_hint=${encodeURIComponent(username)}` : '';
 
-      const traceId = addTrace('Get Auth URL', { endpoint: `/api/sharepoint/auth-url${hint}`, idToken: token?.substring(0, 30) + '...' });
+      const traceId = addTrace('Get Auth URL', { endpoint: `/api/outlook/auth-url${hint}`, idToken: token?.substring(0, 30) + '...' });
       const start = Date.now();
-      const resp = await fetch(`/api/sharepoint/auth-url${hint}`, {
+      const resp = await fetch(`/api/outlook/auth-url${hint}`, {
         headers: token ? { 'X-Entra-Id-Token': token } : {},
       });
       const data = await resp.json();
@@ -456,49 +462,16 @@ export default function App() {
     <div className={`app-layout ${showDebug ? 'with-sidebar' : ''}`}>
       <div className="app">
         <header>
-          <h1>SharePoint Portal</h1>
+          <h1>Outlook Portal</h1>
           <span className="subtitle">Powered by Gemini Enterprise StreamAssist</span>
           {isAuthenticated && (
             <div className="user-info">
               {username}
-              {spConnected && (
-                <button className="btn-small" onClick={() => { setSpConnected(false); localStorage.removeItem(spKey); }}>
-                  Reconnect SP
+              {olConnected && (
+                <button className="btn-small" onClick={() => { setOlConnected(false); localStorage.removeItem(olKey); }}>
+                  Reconnect Outlook
                 </button>
               )}
-              <button className="btn-small" onClick={async () => {
-                setSessionToken(null);
-                setMessages([]);
-                setTraces([]);
-                setExpandedTraces(new Set());
-                setConnectionChecked(false);
-                localStorage.removeItem(spKey);
-
-                // Force fresh MSAL token (interactive if silent fails)
-                let token: string | null = null;
-                try {
-                  if (accounts[0]) {
-                    await instance.acquireTokenSilent({ ...loginRequest, account: accounts[0], forceRefresh: true });
-                    token = (await instance.acquireTokenSilent({ ...loginRequest, account: accounts[0] })).idToken;
-                  }
-                } catch {
-                  try {
-                    token = (await instance.acquireTokenPopup(loginRequest)).idToken;
-                  } catch { /* user cancelled */ }
-                }
-
-                // Re-check SP connection with fresh token
-                if (token) {
-                  const resp = await fetch('/api/sharepoint/check-connection', { headers: { 'X-Entra-Id-Token': token } });
-                  const data = await resp.json();
-                  setSpConnected(data.connected);
-                  data.connected ? localStorage.setItem(spKey, '1') : localStorage.removeItem(spKey);
-                  addBackendTraces(data._trace);
-                } else {
-                  setSpConnected(false);
-                }
-                setConnectionChecked(true);
-              }}>Clear Session</button>
               <button className="btn-small" onClick={() => instance.logoutPopup()}>Logout</button>
             </div>
           )}
@@ -514,7 +487,7 @@ export default function App() {
         {!isAuthenticated && (
           <section className="card login-card">
             <h2>Sign in to get started</h2>
-            <p>Sign in with your Microsoft account to search SharePoint documents.</p>
+            <p>Sign in with your Microsoft account to search your Outlook emails and calendar.</p>
             <button className="btn-primary" onClick={handleLogin}>
               Sign in with Microsoft
             </button>
@@ -524,25 +497,25 @@ export default function App() {
         {isAuthenticated && !connectionChecked && (
           <div className="empty-state" style={{ marginTop: 80 }}>
             <div className="dot-pulse" />
-            <p>Checking SharePoint connection...</p>
+            <p>Checking Outlook connection...</p>
           </div>
         )}
 
         {isAuthenticated && connectionChecked && (
           <>
-            {!spConnected && (
+            {!olConnected && (
               <div className="auth-banner">
                 <div className="auth-banner-content">
-                  <span>SharePoint requires a one-time authorization to access your documents.</span>
+                  <span>Outlook requires a one-time authorization to access your emails and calendar.</span>
                   <button className="btn-primary btn-consent" onClick={handleConsent} disabled={authInProgress}>
-                    {authInProgress ? 'Authorizing...' : 'Connect SharePoint'}
+                    {authInProgress ? 'Authorizing...' : 'Connect Outlook'}
                   </button>
                 </div>
                 {authStatus && <div className="auth-status">{authStatus}</div>}
               </div>
             )}
 
-            {spConnected && (
+            {olConnected && (
               <div className="search-container">
                 <div className="messages-area">
                   {messages.length === 0 && !loading && (
@@ -552,8 +525,8 @@ export default function App() {
                           <circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" />
                         </svg>
                       </div>
-                      <p>Search your SharePoint documents</p>
-                      <span className="empty-hint">Ask questions about contracts, reports, or any document in your SharePoint site.</span>
+                      <p>Search your Outlook emails and calendar</p>
+                      <span className="empty-hint">Ask questions about your emails, meetings, or any content in your Outlook mailbox.</span>
                     </div>
                   )}
 
@@ -573,7 +546,7 @@ export default function App() {
                                     <span className="source-title">{src.title}</span>
                                     {src.description && <span className="source-desc">{src.description}</span>}
                                     <span className="source-meta">
-                                      SharePoint {src.entity_type && `\u00B7 ${src.entity_type}`} {src.file_type && `\u00B7 ${src.file_type.toUpperCase()}`}
+                                      Outlook {src.entity_type && `\u00B7 ${src.entity_type}`} {src.file_type && `\u00B7 ${src.file_type.toUpperCase()}`}
                                     </span>
                                   </div>
                                 </a>
@@ -590,7 +563,7 @@ export default function App() {
                       <div className="avatar avatar-ai">G</div>
                       <div className="message-bubble">
                         <div className="loading-bubble">
-                          <div className="dot-pulse" /><span>Searching SharePoint...</span>
+                          <div className="dot-pulse" /><span>Searching Outlook...</span>
                         </div>
                       </div>
                     </div>
@@ -601,7 +574,7 @@ export default function App() {
                 <form className="search-input" onSubmit={(e) => { e.preventDefault(); handleSearch(); }}>
                   <input
                     type="text" value={query} onChange={(e) => setQuery(e.target.value)}
-                    placeholder="Ask about your SharePoint documents..." disabled={loading}
+                    placeholder="Ask about your emails and calendar..." disabled={loading}
                   />
                   <button type="submit" className="btn-primary btn-search" disabled={loading || !query.trim()}>
                     {loading ? 'Searching...' : 'Search'}
@@ -624,7 +597,7 @@ export default function App() {
             <div className="flow-content">
               <pre className="flow-ascii">{`Chain A (Identity)          Chain B (Consent)
 ─────────────────          ──────────────────
-MSAL Login                 Connect SharePoint
+MSAL Login                 Connect Outlook
     │                           │
 Entra id_token             OAuth popup
     │                       (Connector App)
@@ -644,7 +617,7 @@ GCP access token                │
      stored refresh token
              │
      StreamAssist Search
-    (per-user SharePoint ACLs)`}</pre>
+    (per-user Outlook ACLs)`}</pre>
               <div className="flow-gotchas">
                 <div className="gotcha"><span className="gotcha-icon">!</span> <strong>redirect_uri</strong> must be <code>vertexaisearch.cloud.google.com/oauth-redirect</code> — Discovery Engine hardcodes this</div>
                 <div className="gotcha"><span className="gotcha-icon">!</span> <strong>WIF token, not ADC</strong> — using a service account token causes identity mismatch (acquireAccessToken returns 404)</div>

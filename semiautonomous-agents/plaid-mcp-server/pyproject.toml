@@ -1,0 +1,15 @@
+[project]
+name = "plaid-mcp-server"
+version = "0.1.0"
+description = "Plaid Finance MCP Server - Access bank transactions, balances, and subscription tracking"
+requires-python = ">=3.11"
+dependencies = [
+    "fastmcp>=0.1.0",
+    "plaid-python>=29.0.0",
+    "requests>=2.31.0",
+    "uvicorn>=0.27.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

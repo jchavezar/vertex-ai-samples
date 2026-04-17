@@ -1,0 +1,11 @@
+__pycache__
+*.pyc
+*.egg-info
+.git
+tmp/
+backfill.py
+scheduler.sh
+deploy.sh
+deploy_mcp.sh
+uv.lock
+*.md

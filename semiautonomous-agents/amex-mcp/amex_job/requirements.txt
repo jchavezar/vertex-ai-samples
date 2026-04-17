@@ -1,0 +1,4 @@
+playwright==1.44.0
+google-cloud-secret-manager
+google-cloud-firestore
+python-dateutil
