@@ -1,0 +1,13 @@
+# Downloaded media corpus (regenerate via `python envato/pipeline.py --harvest`)
+envato/assets/
+data/local_cache/
+
+# Embedding artifacts (regenerate via `python envato/pipeline.py --embed`)
+envato/index/
+*.npz
+*.npy
+
+# Local logs / scratch
+*.log
+nohup.out
+server_pid.txt

@@ -1,0 +1,228 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Envato Vibe — Multimodal Search powered by Gemini Embeddings 2</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Inter', sans-serif; background: #f7f7f5; }
+    .grad { background: linear-gradient(135deg, #82B536 0%, #5DA1A8 50%, #2E5266 100%); }
+    .pill { transition: all .15s ease; }
+    .pill:hover { transform: translateY(-1px); }
+    .card { transition: all .2s ease; }
+    .card:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(0,0,0,.12); }
+    .skeleton { background: linear-gradient(90deg,#eee,#f5f5f5,#eee); background-size: 400% 100%; animation: shine 1.4s infinite; }
+    @keyframes shine { 0% { background-position: 100% 0 } 100% { background-position: 0 0 } }
+    .rescue { background: linear-gradient(135deg, #fff 0%, #fffaf0 100%); border: 1px solid #f3d27a; }
+    .badge-low { background: #fef3c7; color: #92400e; }
+    .badge-ok  { background: #d1fae5; color: #065f46; }
+  </style>
+</head>
+<body class="text-slate-800">
+
+<header class="grad text-white">
+  <div class="max-w-7xl mx-auto px-6 py-5 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <div class="w-9 h-9 rounded-lg bg-white/15 flex items-center justify-center font-bold">E</div>
+      <div>
+        <div class="text-xl font-extrabold tracking-tight">Envato Vibe</div>
+        <div class="text-xs text-white/80">Multimodal search · powered by Gemini Embeddings 2 + Vector Search</div>
+      </div>
+    </div>
+    <nav class="hidden md:flex gap-6 text-sm font-medium text-white/90">
+      <a class="hover:text-white" href="#">Photos</a>
+      <a class="hover:text-white" href="#">Videos</a>
+      <a class="hover:text-white" href="#">Graphics</a>
+      <a class="hover:text-white" href="#">Templates</a>
+      <a class="hover:text-white" href="#">Music</a>
+    </nav>
+    <div class="text-xs bg-white/15 rounded-full px-3 py-1">{{ asset_count }} demo assets indexed</div>
+  </div>
+</header>
+
+<section class="grad">
+  <div class="max-w-4xl mx-auto px-6 pb-10 text-white">
+    <h1 class="text-3xl md:text-4xl font-extrabold leading-tight">Search the way you actually think</h1>
+    <p class="mt-2 text-white/85">Type a vibe, a brief, an emotion — even something we've never tagged. Type something we don't have, and watch the search recover.</p>
+
+    <form id="search-form" class="mt-6 flex gap-2 bg-white rounded-2xl shadow-2xl p-2">
+      <input id="q" autofocus placeholder="Try: 'cozy nostalgia in a coffee shop' or 'futuristic neon hexagon background'"
+             class="flex-1 text-slate-900 px-4 py-3 rounded-xl focus:outline-none">
+      <button class="bg-slate-900 text-white px-6 py-3 rounded-xl font-semibold hover:bg-black">Search</button>
+    </form>
+
+    <div class="mt-3 flex flex-wrap gap-2 text-xs">
+      <button data-q="cozy nostalgic morning vibes in a coffee shop" class="ex pill bg-white/15 px-3 py-1 rounded-full">cozy nostalgia ☕</button>
+      <button data-q="futuristic cyberpunk neon hexagon background" class="ex pill bg-white/15 px-3 py-1 rounded-full">cyberpunk hexagons (no exact match!)</button>
+      <button data-q="diverse startup team collaborating" class="ex pill bg-white/15 px-3 py-1 rounded-full">startup teamwork</button>
+      <button data-q="cinematic mountain sunrise drone shot" class="ex pill bg-white/15 px-3 py-1 rounded-full">cinematic mountains</button>
+      <button data-q="伝統的な日本のお茶のひととき" class="ex pill bg-white/15 px-3 py-1 rounded-full">日本のお茶 (Japanese)</button>
+      <button data-q="fondo abstracto gradiente cinematográfico" class="ex pill bg-white/15 px-3 py-1 rounded-full">español</button>
+      <button data-q="podcast recording vibe" class="ex pill bg-white/15 px-3 py-1 rounded-full">podcast vibe</button>
+    </div>
+
+    <div class="mt-3 flex gap-2 text-xs">
+      <label class="text-white/80">Modality:</label>
+      <select id="modality" class="bg-white/15 text-white text-xs rounded px-2 py-1">
+        <option value="all">All</option>
+        <option value="photo">Photos</option>
+        <option value="video">Stock Video</option>
+        <option value="graphic">Graphics</option>
+        <option value="audio">Music & Audio</option>
+      </select>
+      <label class="ml-4 text-white/80">Visual upload:</label>
+      <input type="file" id="visual" class="text-xs text-white file:mr-2 file:rounded file:px-2 file:py-1 file:border-0 file:bg-white/20 file:text-white">
+    </div>
+  </div>
+</section>
+
+<main class="max-w-7xl mx-auto px-6 py-8">
+  <div id="meta" class="text-sm text-slate-500 mb-4"></div>
+  <div id="rescue-panel"></div>
+  <div id="grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"></div>
+</main>
+
+<footer class="border-t border-slate-200 mt-10">
+  <div class="max-w-7xl mx-auto px-6 py-6 text-xs text-slate-500 flex items-center justify-between">
+    <div>Demo built on <code class="bg-slate-100 px-1 rounded">gemini-embedding-2-preview</code> · cosine over fused 3072-dim vectors</div>
+    <a href="https://cloud.google.com/vertex-ai/docs/vector-search" class="hover:text-slate-700">Vertex AI Vector Search →</a>
+  </div>
+</footer>
+
+<script>
+const $ = sel => document.querySelector(sel);
+const grid = $('#grid'), rescue = $('#rescue-panel'), meta = $('#meta');
+
+function card(item, badge="") {
+  const score = (item.score ?? 0).toFixed(3);
+  const href = '/assets/' + item.local_path.replace(/^assets\//,'');
+  const cat = item.category;
+  let media;
+  if (cat === 'video') {
+    media = `<video class="w-full h-full object-cover" src="${href}" poster="${item.thumb_url}"
+                    muted loop playsinline preload="metadata"
+                    onmouseenter="this.play().catch(()=>{})"
+                    onmouseleave="this.pause()"></video>
+             <span class="absolute top-2 right-2 text-[10px] bg-pink-600 text-white px-1.5 py-0.5 rounded">▶ MP4</span>`;
+  } else if (cat === 'audio') {
+    media = `<div class="w-full h-full flex flex-col items-center justify-center
+                    bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 text-white p-3">
+               <svg viewBox="0 0 24 24" class="w-10 h-10 opacity-90 mb-2" fill="currentColor"><path d="M12 3v10.55a4 4 0 1 0 2 3.45V7h4V3z"/></svg>
+               <audio controls preload="none" src="${href}" class="w-full max-w-[220px]" onclick="event.stopPropagation();event.preventDefault();"></audio>
+             </div>
+             <span class="absolute top-2 right-2 text-[10px] bg-purple-700 text-white px-1.5 py-0.5 rounded">♪ MP3</span>`;
+  } else {
+    media = `<img loading="lazy" src="${item.thumb_url}" class="w-full h-full object-cover">`;
+  }
+  return `
+    <a href="${href}" target="_blank" class="card block bg-white rounded-xl overflow-hidden border border-slate-200">
+      <div class="relative aspect-[4/3] bg-slate-100">
+        ${media}
+        <span class="absolute top-2 left-2 text-[10px] uppercase tracking-wider bg-white/90 text-slate-700 px-2 py-0.5 rounded">${cat}</span>
+        ${badge ? `<span class="absolute top-2 right-2 text-[10px] font-semibold px-2 py-0.5 rounded ${badge.cls}">${badge.text}</span>` : ''}
+        <span class="absolute bottom-2 right-2 text-[10px] bg-black/60 text-white px-1.5 py-0.5 rounded">cos ${score}</span>
+      </div>
+      <div class="p-3">
+        <div class="text-xs font-semibold text-slate-900 truncate">${item.asset_id} · ${item.sub_category}</div>
+        <div class="text-xs text-slate-500 line-clamp-2 mt-1">${item.caption}</div>
+      </div>
+    </a>`;
+}
+
+function renderResults(payload) {
+  rescue.innerHTML = '';
+  grid.innerHTML = '';
+  const t = payload.timings_ms || {};
+  meta.innerHTML = `
+    <span class="font-medium">"${payload.query}"</span> ·
+    best cos <span class="font-mono">${payload.best_score}</span> ·
+    embed ${t.embed} ms · search ${t.search} ms${t.rescue ? ' · rescue ' + t.rescue + ' ms':''}
+    · <span class="${payload.low_confidence ? 'badge-low':'badge-ok'} px-2 py-0.5 rounded text-[11px] font-semibold">
+        ${payload.low_confidence ? 'LOW CONFIDENCE — rescue triggered' : 'STRONG MATCH'}
+      </span>`;
+
+  if (payload.low_confidence && payload.rescue) {
+    // Generation CTA — straight from the EBC briefing's "Connection to
+    // generation" note: low-confidence results are explicitly positioned as
+    // the moment to surface a "didn't find it? generate it" CTA.
+    const genCta = `
+      <section class="rounded-2xl p-4 mb-6 bg-gradient-to-r from-slate-900 to-indigo-900 text-white flex items-center justify-between">
+        <div>
+          <div class="text-sm font-bold">Didn't find it? Generate it.</div>
+          <div class="text-xs text-white/70 mt-1">Library has no strong match for "${payload.query}" — Imagen / Veo / Lyria can produce one on demand.</div>
+        </div>
+        <button class="bg-white text-slate-900 text-xs font-semibold px-3 py-2 rounded-lg hover:bg-slate-100">Generate with AI →</button>
+      </section>`;
+    const blocks = payload.rescue.strategies.map(strategy => {
+      const items = (strategy.items || []).map(it => {
+        if (strategy.kind === 'concept_neighbours') {
+          return `<div class="bg-white rounded-lg p-3 border border-amber-200">
+            <div class="text-xs font-semibold text-amber-700 mb-2">"${it.phrase}"</div>
+            ${card(it.asset)}
+          </div>`;
+        }
+        if (strategy.kind === 'catalog_detour') {
+          return `<div class="bg-white rounded-lg p-3 border border-amber-200">
+            <div class="text-xs font-semibold text-amber-700 mb-2 uppercase">${it.modality}</div>
+            ${card(it.asset)}
+          </div>`;
+        }
+        return `<div>${card(it.asset)}</div>`;
+      }).join('');
+      return `
+        <section class="rescue rounded-2xl p-4 mb-6">
+          <div class="flex items-center gap-2 mb-3">
+            <span class="text-amber-700 font-bold">✨ Rescue:</span>
+            <span class="font-semibold text-slate-900">${strategy.headline}</span>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">${items}</div>
+        </section>`;
+    }).join('');
+    rescue.innerHTML = genCta + blocks;
+  }
+
+  if (payload.results.length === 0 && !payload.low_confidence) {
+    grid.innerHTML = `<div class="col-span-full text-center text-slate-500 py-12">No matches. Try a different vibe.</div>`;
+  } else if (payload.results.length) {
+    grid.innerHTML = payload.results.map(r => card(r)).join('');
+  }
+}
+
+async function runSearch(q) {
+  meta.innerHTML = `Searching for <span class="font-medium">"${q}"</span> …`;
+  grid.innerHTML = Array.from({length: 8}).map(() => `<div class="skeleton aspect-[4/3] rounded-xl"></div>`).join('');
+  rescue.innerHTML = '';
+  const mod = $('#modality').value;
+  const r = await fetch(`/api/search?q=${encodeURIComponent(q)}&modality=${mod}`);
+  const p = await r.json();
+  renderResults(p);
+}
+
+$('#search-form').addEventListener('submit', e => {
+  e.preventDefault();
+  const q = $('#q').value.trim(); if (q) runSearch(q);
+});
+document.querySelectorAll('.ex').forEach(b => b.addEventListener('click', () => {
+  $('#q').value = b.dataset.q; runSearch(b.dataset.q);
+}));
+
+$('#visual').addEventListener('change', async e => {
+  const f = e.target.files[0]; if (!f) return;
+  meta.innerHTML = `Embedding upload <span class="font-medium">${f.name}</span> …`;
+  grid.innerHTML = Array.from({length: 8}).map(() => `<div class="skeleton aspect-[4/3] rounded-xl"></div>`).join('');
+  const fd = new FormData(); fd.append('file', f);
+  const r = await fetch('/api/visual', { method: 'POST', body: fd });
+  const p = await r.json();
+  meta.innerHTML = `Visual search <span class="font-medium">${p.filename}</span> · best cos ${p.best_score} · embed ${p.timings_ms.embed} ms`;
+  grid.innerHTML = p.results.map(r => card(r)).join('');
+  rescue.innerHTML = '';
+});
+
+// initial load: a friendly seed query
+runSearch('cozy nostalgic morning vibes in a coffee shop');
+</script>
+</body>
+</html>

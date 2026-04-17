@@ -1,0 +1,6 @@
+google-genai>=1.73.0
+numpy>=1.26
+pandas>=2.2
+scikit-learn>=1.5
+pillow>=10.3
+requests>=2.32
