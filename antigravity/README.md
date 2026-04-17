@@ -244,6 +244,19 @@
       <a href="../semiautonomous-agents/adk-secret-manager-demo/">ACCESS_TERMINAL &rarr;</a>
     </td>
   </tr>
+  <!-- ROW 14: CREATIVE NEXUS -->
+  <tr>
+    <td width="50%" valign="top">
+      <img src="assets/header_search.svg" width="100%" />
+      <br/><br/>
+      <strong>PROJECT: SOVEREIGN ELEMENTS</strong><br/>
+      Advanced clone of Envato Elements search experience. Features rich aesthetics, dynamic hover effects, and a mock search engine backend.<br/>
+      <br/>
+      <a href="./sovereign-elements/">ACCESS_TERMINAL &rarr;</a>
+    </td>
+    <td width="50%" valign="top">
+    </td>
+  </tr>
 </table>
 
 <br/>
