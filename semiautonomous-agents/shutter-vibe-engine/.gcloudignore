@@ -1,0 +1,31 @@
+# Don't ship local media corpus or scratch files into Cloud Build
+.git/
+.venv/
+__pycache__/
+*.pyc
+
+# Heavy local data — pipeline regenerates from public sources
+envato/assets/
+envato/index/
+envato/segments_cache/
+data/local_cache/
+*.npz
+*.npy
+
+# Logs / scratch
+*.log
+nohup.out
+server_pid.txt
+
+# Local-only research notebooks/scratch
+research/
+findings/
+# (demos/ is needed — Dockerfile copies demos/_client.py)
+
+# Don't include the v1 user-facing app sources in the ingest build —
+# ingest only needs ingest_handler.py + pipeline_v2.py + _client.py.
+envato/app.py
+envato/app_v2.py
+envato/templates/
+envato/static/
+envato/pipeline.py

@@ -1,3 +1,16 @@
+# ===========================================================
+# Shutter Vibe Engine — .gitignore
+# ===========================================================
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.venv/
+venv/
+*.egg-info/
+
 # Downloaded media corpus (regenerate via `python envato/pipeline.py --harvest`)
 envato/assets/
 data/local_cache/
@@ -7,7 +20,21 @@ envato/index/
 *.npz
 *.npy
 
-# Local logs / scratch
+# v2 segment-level caches (regenerate via `python envato/pipeline_v2.py`)
+envato/segments_cache/
+envato/scratch/
+
+# Local logs / scratch / one-off benchmarks
 *.log
 nohup.out
 server_pid.txt
+bench_results.json
+test_*_queries.py
+bench_*.py
+
+# Secrets / credentials — never commit
+.env
+.env.*
+*.env
+*-credentials.json
+service-account*.json
