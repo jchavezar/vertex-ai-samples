@@ -1362,3 +1362,68 @@
     bottom: 16px;
   }
 }
+
+/* ===========================================================================
+ * Mode toggle (Demo / En vivo) — sits in the panel header
+ * ========================================================================= */
+.andesia-mode-toggle {
+  display: inline-flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.14);
+  border-radius: 999px;
+  padding: 3px;
+  margin-left: auto;
+  margin-right: 8px;
+  gap: 2px;
+}
+.andesia-mode-toggle__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px;
+  border: none;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.78);
+  font: 600 12px/1 'Rawson Pro', system-ui, sans-serif;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 160ms ease, color 160ms ease;
+}
+.andesia-mode-toggle__btn .material-symbols-outlined {
+  font-size: 16px;
+}
+.andesia-mode-toggle__btn:hover {
+  color: #fff;
+}
+.andesia-mode-toggle__btn.is-active {
+  background: #fff;
+  color: #0076a9;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.18);
+}
+
+/* Live-mode inline error banner inside the chat body */
+.andesia-live-error {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 8px 0;
+  padding: 10px 12px;
+  background: #fef2f2;
+  color: #991b1b;
+  border: 1px solid #fecaca;
+  border-radius: 10px;
+  font: 500 13px/1.4 'Rawson Pro', system-ui, sans-serif;
+}
+.andesia-live-error .material-symbols-outlined {
+  font-size: 18px;
+}
+
+@media (max-width: 560px) {
+  .andesia-mode-toggle {
+    margin-right: 4px;
+  }
+  .andesia-mode-toggle__btn {
+    padding: 5px 9px;
+    font-size: 11px;
+  }
+}

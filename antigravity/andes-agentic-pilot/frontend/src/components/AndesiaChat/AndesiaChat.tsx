@@ -61,6 +61,19 @@ const TOOL_RUNNING_TIME_MS = 520; // visual "running" time before flipping to su
 const HANDOFF_PAUSE_MS = 350;
 const SYSTEM_EVENT_PAUSE_MS = 400;
 
+const API_BASE =
+  (import.meta as unknown as { env?: { VITE_API_BASE?: string } }).env
+    ?.VITE_API_BASE || 'http://localhost:8000';
+
+type ChatMode = 'demo' | 'live';
+
+const LIVE_SUGGESTIONS = [
+  '¿Qué requisitos tiene el crédito social?',
+  '¿Cómo solicito el bono Bodas de Oro?',
+  '¿Qué beneficios tengo si soy pensionado?',
+  'Quiero saber sobre la sucursal virtual',
+];
+
 const SYSTEM_EVENT_LABEL: Record<string, { label: string; icon: string }> = {
   session_start: { label: 'Sesión iniciada · SSO Keycloak', icon: 'login' },
   memory_loaded: { label: 'Memory Bank cargada (5 hechos del afiliado)', icon: 'psychology' },
@@ -102,9 +115,14 @@ function formatCLP(n: number): string {
 
 export default function AndesiaChat() {
   const [open, setOpen] = useState(false);
+  const [mode, setMode] = useState<ChatMode>('demo');
   const [messages, setMessages] = useState<DisplayMessage[]>([]);
   const [isPlaying, setIsPlaying] = useState(false);
   const [hasFinished, setHasFinished] = useState(false);
+  const [liveInput, setLiveInput] = useState('');
+  const [isLiveStreaming, setIsLiveStreaming] = useState(false);
+  const [liveError, setLiveError] = useState<string | null>(null);
+  const liveAbortRef = useRef<AbortController | null>(null);
 
   // Inspector state — replaced fully on each new agent turn,
   // mutated incrementally as reasoning/tool calls/citations animate in.
@@ -162,6 +180,7 @@ export default function AndesiaChat() {
   const resetState = useCallback(() => {
     setMessages([]);
     setHasFinished(false);
+    setLiveError(null);
     setInspectorState({
       activeRole: null,
       recentRoles: [],
@@ -171,6 +190,222 @@ export default function AndesiaChat() {
       toolCount: 0,
       handoffCount: 0,
     });
+  }, []);
+
+  /* ---- Mode switch ------------------------------------------------- */
+  const handleSetMode = useCallback(
+    (next: ChatMode) => {
+      if (next === mode) return;
+      // cancel any in-flight stream / playback
+      cancelRef.current = true;
+      liveAbortRef.current?.abort();
+      liveAbortRef.current = null;
+      setIsPlaying(false);
+      setIsLiveStreaming(false);
+      setMode(next);
+      resetState();
+      // re-arm playback cancellation flag so demo can run after switching back
+      setTimeout(() => {
+        cancelRef.current = false;
+      }, 50);
+    },
+    [mode, resetState],
+  );
+
+  /* ---- Live submission --------------------------------------------- */
+  const sendLiveMessage = useCallback(
+    async (text: string) => {
+      const trimmed = text.trim();
+      if (!trimmed || isLiveStreaming) return;
+      setLiveError(null);
+
+      // Build chat history from on-screen messages (live mode only).
+      const history: Array<{ role: 'user' | 'assistant'; content: string }> = [];
+      for (const m of messages) {
+        if (m.kind === 'user') history.push({ role: 'user', content: m.text });
+        else if (m.kind === 'agent')
+          history.push({ role: 'assistant', content: m.fullText || m.text });
+      }
+      history.push({ role: 'user', content: trimmed });
+
+      // Optimistic UI: append the user's message + a streaming agent bubble.
+      const userId = `live-u-${Date.now()}`;
+      const agentId = `live-a-${Date.now()}`;
+      setMessages((m) => [
+        ...m,
+        { kind: 'user', id: userId, text: trimmed },
+        {
+          kind: 'agent',
+          id: agentId,
+          role: 'concierge',
+          label: 'Andesia · Gemini en vivo',
+          color: colorFor('azul'),
+          text: '',
+          fullText: '',
+          isStreaming: true,
+        },
+      ]);
+
+      // Reset inspector for live mode and mark active.
+      setInspectorState({
+        activeRole: 'concierge',
+        recentRoles: ['concierge'],
+        reasoning: [
+          {
+            step_index: 1,
+            text: `Enviando consulta a ${import.meta.env.MODE === 'production' ? 'Vertex AI' : 'Gemini (Vertex AI)'} · streaming SSE`,
+            duration_ms: 0,
+          },
+        ],
+        toolCalls: [],
+        citations: [],
+        toolCount: 0,
+        handoffCount: 0,
+      });
+
+      setIsLiveStreaming(true);
+      const ctl = new AbortController();
+      liveAbortRef.current = ctl;
+      const t0 = performance.now();
+
+      try {
+        const res = await fetch(`${API_BASE}/api/chat`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ messages: history }),
+          signal: ctl.signal,
+        });
+        if (!res.ok || !res.body) {
+          throw new Error(`HTTP ${res.status}`);
+        }
+
+        const reader = res.body.getReader();
+        const decoder = new TextDecoder('utf-8');
+        let buffer = '';
+        let acc = '';
+        let firstTokenAt: number | null = null;
+
+        while (true) {
+          const { value, done } = await reader.read();
+          if (done) break;
+          buffer += decoder.decode(value, { stream: true });
+
+          // Parse SSE frames: each frame ends with "\n\n".
+          let frameEnd = buffer.indexOf('\n\n');
+          while (frameEnd !== -1) {
+            const frame = buffer.slice(0, frameEnd);
+            buffer = buffer.slice(frameEnd + 2);
+            const dataLine = frame
+              .split('\n')
+              .find((l) => l.startsWith('data:'));
+            if (dataLine) {
+              const json = dataLine.replace(/^data:\s?/, '');
+              try {
+                const evt = JSON.parse(json) as { type: string; [k: string]: unknown };
+                if (evt.type === 'text' && typeof evt.text === 'string') {
+                  if (firstTokenAt === null) {
+                    firstTokenAt = performance.now();
+                    setInspectorState((prev) => ({
+                      ...prev,
+                      reasoning: [
+                        ...prev.reasoning,
+                        {
+                          step_index: prev.reasoning.length + 1,
+                          text: `Primer token recibido (TTFB: ${Math.round((firstTokenAt as number) - t0)} ms)`,
+                          duration_ms: Math.round((firstTokenAt as number) - t0),
+                        },
+                      ],
+                    }));
+                  }
+                  acc += evt.text;
+                  setMessages((m) =>
+                    m.map((x) =>
+                      x.id === agentId && x.kind === 'agent'
+                        ? { ...x, text: acc, fullText: acc }
+                        : x,
+                    ),
+                  );
+                } else if (evt.type === 'meta') {
+                  const modelName = String(evt.model ?? 'gemini');
+                  setInspectorState((prev) => ({
+                    ...prev,
+                    reasoning: [
+                      ...prev.reasoning,
+                      {
+                        step_index: prev.reasoning.length + 1,
+                        text: `Modelo: ${modelName} · backend: ${String(evt.backend ?? 'vertex-ai')}`,
+                        duration_ms: 0,
+                      },
+                    ],
+                  }));
+                } else if (evt.type === 'error') {
+                  throw new Error(String(evt.message ?? 'stream error'));
+                }
+              } catch (parseErr) {
+                console.warn('SSE parse error', parseErr, json);
+              }
+            }
+            frameEnd = buffer.indexOf('\n\n');
+          }
+        }
+
+        const total = Math.round(performance.now() - t0);
+        setInspectorState((prev) => ({
+          ...prev,
+          reasoning: [
+            ...prev.reasoning,
+            {
+              step_index: prev.reasoning.length + 1,
+              text: `Respuesta completa · ${total} ms · ${acc.length} caracteres`,
+              duration_ms: total,
+            },
+          ],
+        }));
+        setMessages((m) =>
+          m.map((x) =>
+            x.id === agentId && x.kind === 'agent'
+              ? { ...x, isStreaming: false }
+              : x,
+          ),
+        );
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : String(err);
+        if (msg !== 'AbortError' && !msg.includes('aborted')) {
+          setLiveError(`No se pudo contactar a Andesia: ${msg}`);
+          setMessages((m) =>
+            m.map((x) =>
+              x.id === agentId && x.kind === 'agent'
+                ? {
+                    ...x,
+                    text: `⚠️ Error: ${msg}. Verifica que el backend esté corriendo en ${API_BASE}.`,
+                    fullText: '',
+                    isStreaming: false,
+                  }
+                : x,
+            ),
+          );
+        }
+      } finally {
+        setIsLiveStreaming(false);
+        setInspectorState((prev) => ({ ...prev, activeRole: null }));
+        liveAbortRef.current = null;
+      }
+    },
+    [isLiveStreaming, messages],
+  );
+
+  const handleLiveSubmit = useCallback(
+    (e: React.FormEvent) => {
+      e.preventDefault();
+      const text = liveInput;
+      setLiveInput('');
+      void sendLiveMessage(text);
+    },
+    [liveInput, sendLiveMessage],
+  );
+
+  const handleStopLive = useCallback(() => {
+    liveAbortRef.current?.abort();
   }, []);
 
   /* ---- The big playback engine ----------------------------------------- */
@@ -396,6 +631,30 @@ export default function AndesiaChat() {
                 powered by Vertex AI · ADK
               </span>
             </div>
+            <div className="andesia-mode-toggle" role="tablist" aria-label="Modo de Andesia">
+              <button
+                type="button"
+                role="tab"
+                aria-selected={mode === 'demo'}
+                className={`andesia-mode-toggle__btn ${mode === 'demo' ? 'is-active' : ''}`}
+                onClick={() => handleSetMode('demo')}
+                title="Reproducir guion del keynote (multi-agente)"
+              >
+                <span className="material-symbols-outlined">movie</span>
+                Demo
+              </button>
+              <button
+                type="button"
+                role="tab"
+                aria-selected={mode === 'live'}
+                className={`andesia-mode-toggle__btn ${mode === 'live' ? 'is-active' : ''}`}
+                onClick={() => handleSetMode('live')}
+                title="Conversación real con Gemini en Vertex AI"
+              >
+                <span className="material-symbols-outlined">forum</span>
+                En vivo
+              </button>
+            </div>
             <div className="andesia-panel__actions">
               <button
                 type="button"
@@ -410,13 +669,17 @@ export default function AndesiaChat() {
 
           <div className="andesia-panel__body" ref={bodyRef}>
             {!hasContent ? (
-              <EmptyLauncher onPlay={playConversation} disabled={isPlaying} />
+              mode === 'demo' ? (
+                <EmptyLauncher onPlay={playConversation} disabled={isPlaying} />
+              ) : (
+                <LiveLauncher onPick={(s) => void sendLiveMessage(s)} disabled={isLiveStreaming} />
+              )
             ) : (
               <>
                 {messages.map((m) => (
                   <MessageView key={m.id} msg={m} />
                 ))}
-                {hasFinished && !isPlaying && (
+                {mode === 'demo' && hasFinished && !isPlaying && (
                   <div style={{ display: 'flex', justifyContent: 'center', marginTop: 8 }}>
                     <button
                       type="button"
@@ -428,36 +691,91 @@ export default function AndesiaChat() {
                     </button>
                   </div>
                 )}
+                {mode === 'live' && liveError && (
+                  <div className="andesia-live-error">
+                    <span className="material-symbols-outlined">error</span>
+                    {liveError}
+                  </div>
+                )}
               </>
             )}
           </div>
 
           <footer className="andesia-panel__footer">
-            <form
-              className="andesia-input"
-              onSubmit={(e) => {
-                e.preventDefault();
-              }}
-            >
-              <input
-                className="andesia-input__field"
-                placeholder={isPlaying ? 'Andesia está respondiendo…' : 'Escribe tu consulta (demo · solo lectura)'}
-                disabled
-                aria-disabled="true"
-              />
-              <button
-                type="submit"
-                className="andesia-input__send"
-                disabled
-                aria-label="Enviar"
-              >
-                <span className="material-symbols-outlined">send</span>
-              </button>
-            </form>
-            <div className="andesia-footer__hint">
-              <span className="material-symbols-outlined">shield_lock</span>
-              Conversación demo · datos sintéticos · keynote 20-abril-2026
-            </div>
+            {mode === 'demo' ? (
+              <>
+                <form
+                  className="andesia-input"
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                  }}
+                >
+                  <input
+                    className="andesia-input__field"
+                    placeholder={
+                      isPlaying
+                        ? 'Andesia está respondiendo…'
+                        : 'Escribe tu consulta (demo · solo lectura)'
+                    }
+                    disabled
+                    aria-disabled="true"
+                  />
+                  <button
+                    type="submit"
+                    className="andesia-input__send"
+                    disabled
+                    aria-label="Enviar"
+                  >
+                    <span className="material-symbols-outlined">send</span>
+                  </button>
+                </form>
+                <div className="andesia-footer__hint">
+                  <span className="material-symbols-outlined">shield_lock</span>
+                  Conversación demo · datos sintéticos · keynote 20-abril-2026
+                </div>
+              </>
+            ) : (
+              <>
+                <form className="andesia-input" onSubmit={handleLiveSubmit}>
+                  <input
+                    className="andesia-input__field"
+                    placeholder={
+                      isLiveStreaming
+                        ? 'Andesia está respondiendo…'
+                        : 'Pregúntale a Andesia (Gemini en vivo)'
+                    }
+                    value={liveInput}
+                    onChange={(e) => setLiveInput(e.target.value)}
+                    disabled={isLiveStreaming}
+                    autoFocus
+                  />
+                  {isLiveStreaming ? (
+                    <button
+                      type="button"
+                      className="andesia-input__send"
+                      onClick={handleStopLive}
+                      aria-label="Detener"
+                      title="Detener generación"
+                    >
+                      <span className="material-symbols-outlined">stop</span>
+                    </button>
+                  ) : (
+                    <button
+                      type="submit"
+                      className="andesia-input__send"
+                      disabled={!liveInput.trim()}
+                      aria-label="Enviar"
+                    >
+                      <span className="material-symbols-outlined">send</span>
+                    </button>
+                  )}
+                </form>
+                <div className="andesia-footer__hint">
+                  <span className="material-symbols-outlined">network_intelligence</span>
+                  Modo en vivo · Gemini en Vertex AI · streaming SSE
+                </div>
+              </>
+            )}
           </footer>
         </section>
 
@@ -496,6 +814,45 @@ function EmptyLauncher({ onPlay, disabled }: { onPlay: () => void; disabled: boo
         <span className="andesia-empty__chip">bono bodas de oro</span>
         <span className="andesia-empty__chip">document AI</span>
         <span className="andesia-empty__chip">voz live</span>
+      </div>
+    </div>
+  );
+}
+
+function LiveLauncher({
+  onPick,
+  disabled,
+}: {
+  onPick: (s: string) => void;
+  disabled: boolean;
+}) {
+  return (
+    <div className="andesia-empty">
+      <div className="andesia-empty__hero" style={{ background: 'linear-gradient(135deg,#0076a9,#326295)' }}>
+        <span className="material-symbols-outlined">forum</span>
+      </div>
+      <div className="andesia-empty__title">Conversación en vivo</div>
+      <div className="andesia-empty__sub">
+        Hablas directamente con un agente Gemini desplegado en Vertex AI, con
+        contexto del catálogo de productos y beneficios de Caja Los Andes.
+        Las respuestas se generan en tiempo real (streaming).
+      </div>
+      <div className="andesia-empty__chips" style={{ flexDirection: 'column', alignItems: 'stretch' }}>
+        {LIVE_SUGGESTIONS.map((s) => (
+          <button
+            key={s}
+            type="button"
+            className="andesia-empty__chip"
+            style={{ cursor: 'pointer', textAlign: 'left' }}
+            onClick={() => onPick(s)}
+            disabled={disabled}
+          >
+            <span className="material-symbols-outlined" style={{ fontSize: 16, marginRight: 6, verticalAlign: 'middle' }}>
+              arrow_forward
+            </span>
+            {s}
+          </button>
+        ))}
       </div>
     </div>
   );
