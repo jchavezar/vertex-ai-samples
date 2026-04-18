@@ -42,11 +42,14 @@ from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from PIL import Image
+from google.cloud import storage
 
 ROOT = Path(__file__).resolve().parent
 sys.path.insert(0, str(ROOT.parent / "demos"))
-from _client import CLIENT, MM_MODEL, TEXT_MODEL  # noqa: E402
+sys.path.insert(0, str(ROOT.parent)) # for data import
+from _client import CLIENT, MM_MODEL, TEXT_MODEL, embed_text  # noqa: E402
 from google.genai import types  # noqa: E402
+from data.stock_corpus import CORPUS # noqa: E402
 
 CONFIDENCE_FLOOR = 0.42   # below this we treat the result set as "low signal"
 HARD_FLOOR = 0.20         # below this we don't even show the weak hits
@@ -105,24 +108,61 @@ def _resolve_endpoint():
 
 
 # ---------------------------------------------------------------------------
-# Boot — load metadata + local NPZ (used as hydration source + fallback)
+# Boot — load metadata + live embeddings (fallback to in-memory corpus)
 # ---------------------------------------------------------------------------
-NPZ = ROOT / "index" / "asset_index.npz"
-if not NPZ.exists():
-    raise SystemExit("Run envato/pipeline.py first to build the index.")
-
-_data = np.load(NPZ, allow_pickle=True)
-ASSET_IDS: list[str] = list(_data["ids"].tolist())
-FUSED_VECS: np.ndarray = _data["fused"].astype("float32")  # already L2 normed
+print("[boot] Generating live embeddings for corpus...")
+captions = [a.caption for a in CORPUS]
+FUSED_VECS = embed_text(captions, task_type=None, output_dim=None, model=MM_MODEL)
+ASSET_IDS = [a.asset_id for a in CORPUS]
 ID_TO_IDX = {aid: i for i, aid in enumerate(ASSET_IDS)}
 
-MANIFEST = {a["asset_id"]: a for a in
-            json.loads((ROOT / "assets" / "manifest.json").read_text())}
+GCS_PHOTOS = [
+    "px-photo-10194706.jpg", "px-photo-1047525.jpg", "px-photo-10562331.jpg", "px-photo-1083807.jpg",
+    "px-photo-11305224.jpg", "px-photo-11731196.jpg", "px-photo-11757214.jpg", "px-photo-11884525.jpg"
+]
+GCS_GRAPHICS = [
+    "pb-illustration-10098221.png", "pb-illustration-1084082.jpg", "pb-illustration-1311251.jpg", "pb-illustration-1353825.png",
+    "pb-illustration-1430105.png", "pb-illustration-1564428.png", "pb-illustration-1732847.jpg", "pb-illustration-1814372.jpg"
+]
 
-print(f"[boot] loaded {len(ASSET_IDS)} assets  fused={FUSED_VECS.shape}")
+MANIFEST = {}
+photo_idx = 0
+graphic_idx = 0
+
+for a in CORPUS:
+    item = {
+        "asset_id": a.asset_id,
+        "title": a.caption,
+        "category": a.kind,
+        "catalog": a.catalog,
+        "tags": list(a.tags),
+    }
+    if a.kind == "photo":
+        fname = GCS_PHOTOS[photo_idx % len(GCS_PHOTOS)]
+        item["thumb_url"] = f"http://localhost:8090/api/assets/photos/{fname}"
+        photo_idx += 1
+    elif a.kind == "graphic":
+        fname = GCS_GRAPHICS[graphic_idx % len(GCS_GRAPHICS)]
+        item["thumb_url"] = f"http://localhost:8090/api/assets/graphics/{fname}"
+        graphic_idx += 1
+    else:
+        item["thumb_url"] = "/website_template_mockup.png" if a.kind == "template" else "/abstract_graphic.png"
+    MANIFEST[a.asset_id] = item
+
+print(f"[boot] loaded {len(ASSET_IDS)} assets from corpus. fused={FUSED_VECS.shape}")
 _resolve_endpoint()
 
 app = FastAPI(title="Envato Vibe")
+
+from fastapi.middleware.cors import CORSMiddleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 app.mount("/assets", StaticFiles(directory=str(ROOT / "assets")), name="assets")
 app.mount("/static", StaticFiles(directory=str(ROOT / "static")), name="static")
 templates = Jinja2Templates(directory=str(ROOT / "templates"))
@@ -225,8 +265,6 @@ def hydrate(hits: list[tuple[str, float]]) -> list[dict]:
         # Audio has no rendered thumbnail — the UI swaps in a waveform glyph.
         if item.get("category") == "audio":
             item["thumb_url"] = ""
-        else:
-            item["thumb_url"] = f"/assets/thumbnails/{aid}.webp"
         out.append(item)
     return out
 
@@ -331,11 +369,41 @@ def stats():
     }
 
 
+@app.get("/api/assets/{modality}/{filename}")
+async def proxy_asset(modality: str, filename: str):
+    bucket_name = os.environ.get("ENVATO_GCS_BUCKET", "envato-vibe-demo")
+    client = storage.Client()
+    bucket = client.bucket(bucket_name)
+    blob = bucket.blob(f"assets/{modality}/{filename}")
+    
+    try:
+        content = blob.download_as_bytes()
+        content_type = "image/jpeg" if filename.endswith(".jpg") else "image/png"
+        from fastapi.responses import Response
+        return Response(content=content, media_type=content_type)
+    except Exception as e:
+        print(f"[proxy] failed to fetch {modality}/{filename}: {e}")
+        from fastapi import HTTPException
+        raise HTTPException(status_code=404, detail="Asset not found")
+
+
 @app.get("/api/search")
 def api_search(q: str,
                modality: Literal["photo", "video", "graphic", "audio", "all"] = "all",
                k: int = 12):
     t0 = time.perf_counter()
+    if not q.strip():
+        # Return default assets if query is empty
+        default_hits = [(ASSET_IDS[i], 0.0) for i in range(min(k, len(ASSET_IDS)))]
+        return {
+            "query": q,
+            "modality": modality,
+            "best_score": 0.0,
+            "low_confidence": True,
+            "results": hydrate(default_hits),
+            "timings_ms": {"embed": 0.0, "search": 0.0, "total": (time.perf_counter() - t0) * 1000}
+        }
+    
     q_vec = embed_query_mm(q)
     embed_ms = (time.perf_counter() - t0) * 1000
 
