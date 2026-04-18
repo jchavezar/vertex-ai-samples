@@ -1,11 +1,13 @@
 [project]
 name = "backend"
-version = "0.1.0"
-description = "Add your description here"
+version = "0.2.0"
+description = "Caja Los Andes agentic pilot — FastAPI backend (ADK + Vertex AI Search)."
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
     "fastapi>=0.136.0",
     "google-genai>=1.73.1",
+    "google-auth>=2.34.0",
+    "httpx>=0.27.0",
     "uvicorn>=0.44.0",
 ]

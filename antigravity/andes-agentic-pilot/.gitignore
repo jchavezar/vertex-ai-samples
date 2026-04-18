@@ -1,0 +1,7 @@
+# Site extraction artifacts (re-generate via clone-website skill)
+frontend/scraped/
+
+# Local dev
+.env
+.env.local
+*.log

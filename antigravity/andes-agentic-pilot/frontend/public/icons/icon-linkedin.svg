@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   inkscape:version="1.0 (4035a4fb49, 2020-05-01)"
+   sodipodi:docname="icon-linkedin.svg"
+   id="svg6"
+   version="1.1"
+   fill="none"
+   viewBox="0 0 15 15"
+   height="15"
+   width="15">
+  <metadata
+     id="metadata12">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs
+     id="defs10" />
+  <sodipodi:namedview
+     inkscape:current-layer="svg6"
+     inkscape:window-maximized="1"
+     inkscape:window-y="-8"
+     inkscape:window-x="-8"
+     inkscape:cy="6.7874109"
+     inkscape:cx="7.5"
+     inkscape:zoom="56.133333"
+     showgrid="false"
+     id="namedview8"
+     inkscape:window-height="1009"
+     inkscape:window-width="1920"
+     inkscape:pageshadow="2"
+     inkscape:pageopacity="0"
+     guidetolerance="10"
+     gridtolerance="10"
+     objecttolerance="10"
+     borderopacity="1"
+     bordercolor="#666666"
+     pagecolor="#ffffff" />
+  <path
+     style="fill:#0076a9;fill-opacity:1"
+     id="path2"
+     fill="#3E4545"
+     d="M5.35547 4.93204H8.31437V6.24711C8.75273 5.47998 9.73902 4.60327 11.2733 4.60327C14.4514 4.60327 14.9993 6.68546 14.9993 9.3156V14.7951H11.9308V9.97314C11.9308 8.76766 11.9308 7.343 10.287 7.343C8.64314 7.343 8.42395 8.54848 8.42395 9.86355V14.7951H5.35547V4.93204V4.93204Z" />
+  <path
+     style="fill:#0076a9;fill-opacity:1"
+     id="path4"
+     fill="#3E4545"
+     d="M0.314889 4.93151H3.38339V14.9041H0.314889V4.93151ZM1.84913 0C2.83543 0 3.60256 0.767124 3.60256 1.75343C3.60256 2.73973 2.83543 3.50685 1.84913 3.50685C0.862828 3.50685 0.0957145 2.73973 0.0957145 1.75343C-0.0138746 0.767124 0.862828 0 1.84913 0Z" />
+</svg>

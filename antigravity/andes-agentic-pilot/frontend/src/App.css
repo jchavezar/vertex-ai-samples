@@ -1,412 +1,1224 @@
-:root {
-  --primary-navy: #006796; /* Extracted exact colors from extraction */
-  --primary-yellow: #E0A900; /* Extracted exact gold from extraction */
-  --accent-cyan: #00A3C4;
-  --white: #ffffff;
-  --bg-white: #ffffff;
-  --text-dark: #333333;
-  --gray-light: #f5f7f9;
-  --gray-border: #e0e0e0;
-}
+/* =============================================================================
+   Caja Los Andes — page styles (high-fidelity replica of cajalosandes.cl)
+   Tokens are inherited from index.css (--ds-color-*, --ds-spacing-*, etc.).
+   Naming: .cla-<block>__<element>--<modifier>
+   Container : 1332px max — exact match for the real ds-grid.css (.container).
+   Semi-fluid between 1024–1432px : width = calc(100% - 64px) (32px gutter).
+   Above 1432px : caps at 1332px (centred).
+   ============================================================================= */
 
-@font-face {
-  font-family: 'CCLA Icons';
-  src: url('/fonts/ccla.ttf') format('truetype');
-}
-
-body {
-  margin: 0;
-  font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; /* Standard web fonts for clean look */
-  background-color: var(--bg-white);
-  color: var(--text-dark);
-}
-
-.app-container {
+.cla-app {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+  background: var(--cla-bg);
 }
 
-/* Top Bar */
-.top-bar {
-  background-color: var(--primary-navy);
-  color: var(--white);
-  padding: 10px 40px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 14px;
-}
-
-.top-bar .logo-section {
-  display: flex;
-  align-items: center;
-}
-
-.top-bar .logo-section .corporate-logo {
-  height: 35px;
-  max-width: 150px;
-}
-
-.top-bar .nav-links span {
-  margin-left: 20px;
-  cursor: pointer;
-  opacity: 0.8;
-}
-
-.top-bar .nav-links span:hover {
-  opacity: 1;
-}
-
-/* Sub Header Nav */
-.main-header {
-  background-color: var(--white);
-  border-bottom: 1px solid var(--gray-border);
-  padding: 15px 40px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.main-nav a {
-  color: var(--text-dark);
-  text-decoration: none;
-  margin-right: 20px;
-  font-size: 16px;
-  padding: 5px 0;
-}
-
-.main-nav a:hover, .main-nav a.active {
-  color: var(--primary-navy);
-  font-weight: bold;
-  border-bottom: 2px solid var(--primary-navy);
-}
-
-.ingresar-btn {
-  background-color: var(--primary-yellow);
-  color: var(--text-dark);
-  border: none;
-  padding: 8px 30px;
-  border-radius: 20px;
-  font-weight: bold;
-  cursor: pointer;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-/* Breadcrumb */
-.breadcrumb {
-  background-color: var(--gray-light);
-  padding: 10px 40px;
-  font-size: 13px;
-  color: #666;
-}
-
-.breadcrumb span {
-  cursor: pointer;
-}
-
-/* Main Content */
-.main-content {
-  display: flex;
-  padding: 20px;
+/* Mirrors the real Modyo .container exactly (ds-grid.css lines 440-645):
+ *   width: 100%; max-width: 1332px (wide ≥ 1432px viewport)
+ *   width: calc(100% - 64px); margin: 0 32px (semi-fluid 1024–1432px)
+ * No max-width override per section — header/nav/hero all share this width. */
+.cla-container {
   width: 100%;
-  box-sizing: border-box;
-  flex: 1;
+  max-width: 1332px;
+  margin: 0 auto;
+  padding: 0;
 }
 
-.text-section {
-  flex: 1;
-  padding-right: 40px;
+@media (min-width: 64em) and (max-width: 1432px) {
+  .cla-container {
+    width: calc(100% - 64px);
+    max-width: none;
+    margin: 0 32px;
+  }
 }
 
-.text-section .back-arrow {
-  font-size: 20px;
-  color: var(--primary-navy);
-  cursor: pointer;
-  margin-bottom: 10px;
+@media (max-width: 64em) {
+  .cla-container {
+    padding: 0 16px;
+  }
 }
 
-.text-section h1 {
-  color: var(--primary-navy);
-  font-size: 32px;
-  margin-bottom: 15px;
-}
+/* ---------- Generic buttons (mimic ds-button variant=primary color=blue) --- */
 
-.text-section p {
+.cla-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 2px solid transparent;
+  border-radius: 999px;
+  padding: 10px 24px;
+  font-family: var(--ds-font-family);
+  font-weight: 700;
   font-size: 16px;
-  line-height: 1.6;
-  color: #555;
+  line-height: 1.2;
+  white-space: nowrap;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease,
+    box-shadow 0.15s ease, transform 0.15s ease;
+  text-decoration: none;
+  cursor: pointer;
 }
 
-.visual-section {
+.cla-btn--primary {
+  background: var(--cla-blue);
+  color: #fff;
+  border-color: var(--cla-blue);
+}
+
+.cla-btn--primary:hover {
+  background: var(--cla-blue-dark);
+  border-color: var(--cla-blue-dark);
+  box-shadow: 0 4px 14px rgba(0, 118, 169, 0.25);
+}
+
+.cla-btn--secondary {
+  background: #fff;
+  color: var(--cla-blue);
+  border-color: var(--cla-blue);
+}
+
+.cla-btn--secondary:hover {
+  background: var(--ds-color-primary-c-6, #def4ff);
+}
+
+.cla-btn--ghost {
+  background: transparent;
+  color: var(--cla-blue);
+  border-color: var(--cla-border);
+}
+
+.cla-btn--ghost:hover {
+  background: var(--cla-bg-alt);
+}
+
+.cla-btn--sm {
+  padding: 6px 16px;
+  font-size: 13px;
+}
+
+.cla-btn--fluid {
+  width: 100%;
+}
+
+/* ---------- Top utility ribbon (above the blue header) -------------------- *
+ * Tiny dark strip with the right-aligned "Centro de ayuda" link.            */
+
+.cla-topbar {
+  background: var(--ds-color-complementary-x-1, #326295);
+  color: #fff;
+  font-family: var(--ds-font-family);
+}
+
+.cla-topbar__inner {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  min-height: 32px;
+  padding: 0;
+}
+
+.cla-topbar__right {
+  display: inline-flex;
+  align-items: center;
+  gap: 22px;
+}
+
+.cla-topbar__help {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: rgba(255, 255, 255, 0.86);
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.1px;
+  padding: 4px 0;
+  transition: color 0.15s ease;
+}
+
+.cla-topbar__help:hover { color: #fff; }
+.cla-topbar__help .material-symbols-outlined { font-size: 16px; }
+
+/* ---------- Segment items (used inside the blue header) ------------------ *
+ * Matches header-desk-pub__selector-segmentos__item from the real CSS:
+ *   font-size: 18px / line-height: 24px / weight: 400 / Rawson Pro
+ *   height: 48px / radius: 8px / padding: 0 8px / margin: 0 4px
+ *   active: white bg + black text                                           */
+
+.cla-segments__list {
+  list-style: none;
+  margin: 0 12px;
+  padding: 0;
+  display: flex;
+  align-items: stretch;
+  gap: 0;
   flex: 1;
-  position: relative;
-  display: flex;
   justify-content: center;
+}
+
+.cla-segments__item {
+  display: inline-flex;
+  align-items: center;
+  box-sizing: border-box;
+  height: 48px;
+  padding: 0 8px;
+  color: var(--ds-color-monochromatic-w-1, #ffffff);
+  font-family: var(--ds-font-family);
+  font-weight: var(--ds-weight-font-regular, 400);
+  font-size: var(--ds-size-font-s-3, 18px);
+  line-height: var(--ds-size-line-height-s-3, 24px);
+  letter-spacing: 0;
+  border-radius: 8px;
+  margin: 0 4px;
+  border: 2px solid transparent;
+  white-space: nowrap;
+  transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+}
+
+.cla-segments__item:hover {
+  color: #fff;
+  background: var(--ds-color-primary-c-0, #00648f);
+  border-color: #fff;
+  padding: 0 6px;
+}
+
+.cla-segments__item.is-active {
+  background: var(--ds-color-monochromatic-w-1, #ffffff);
+  color: var(--ds-color-monochromatic-b-1, #000);
+}
+
+.cla-segments__item--alt {
+  opacity: 0.92;
+}
+
+/* ---------- Main white header (logo + AI search + Mi Portal) --------------- */
+
+.cla-header {
+  /* Mirrors header-desk-pub--trabajadores: solid primary blue */
+  background: var(--ds-color-primary-c-1, #0076a9);
+  color: #fff;
+  position: sticky;
+  top: 0;
+  z-index: 60;
+}
+
+.cla-header__inner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  min-height: 80px;
+  padding: 16px 0;
+}
+
+.cla-header__logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 16px;
+  flex-shrink: 0;
+}
+
+.cla-header__logo-link {
+  display: inline-flex;
   align-items: center;
 }
 
-.circle-img-container {
-  width: 250px;
-  height: 250px;
-  border-radius: 50%;
-  border: 4px solid var(--accent-cyan);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  overflow: hidden;
-  background-color: #eee;
+.cla-header__logo img {
+  /* "CAJA LOS ANDES" wordmark SVG (logo-cchs-wordmark.svg) — already white,
+     no inversion needed. Native artwork is 173x40, render at native height. */
+  height: 40px;
+  width: auto;
+  display: block;
 }
 
-.circle-img {
-  color: #666;
+.cla-header__divider {
+  display: inline-block;
+  width: 2px;
+  height: 24px;
+  background: var(--ds-color-primary-c-2, #008ec4);
+  margin: 0 16px;
+}
+
+.cla-header__tapp {
+  display: inline-flex;
+  align-items: center;
+  color: #fff;
+}
+
+.cla-header__tapp svg {
+  width: 56px;
+  height: 24px;
+  display: block;
+}
+
+.cla-header__cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--ds-color-secondary-a-3, #f9be00);
+  color: var(--ds-color-monochromatic-b-1, #000);
+  border-radius: 999px;
+  padding: 10px 22px;
+  font-family: var(--ds-font-family);
+  font-weight: 500;
+  font-size: var(--ds-size-font-s-3, 18px);
+  line-height: var(--ds-size-line-height-s-3, 24px);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.18);
+  transition: background 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
+  flex-shrink: 0;
+}
+
+.cla-header__cta:hover {
+  background: var(--ds-color-secondary-a-2, #d59608);
+  transform: translateY(-1px);
+}
+
+.cla-header__cta .material-symbols-outlined {
   font-size: 18px;
 }
 
-.wavy-line {
-  position: absolute;
-  top: 0;
-  right: -20px;
-  width: 100px;
-  height: 100%;
-  /* Mocking wavy line with repeated border, but ideal would be SVG background or real asset */
-  border-left: 2px solid var(--accent-cyan);
-  opacity: 0.5;
+/* ---------- Primary nav (mega-menu) ---------------------------------------- */
+
+.cla-nav {
+  background: #fff;
+  border-bottom: 1px solid var(--cla-border);
+  box-shadow: 0 4px 12px rgba(15, 35, 60, 0.04);
+  position: sticky;
+  top: 88px;
+  z-index: 55;
 }
 
-/* Bottom Icons Section */
-.bottom-icons {
+.cla-nav__inner {
   display: flex;
-  justify-content: space-around;
-  padding: 30px 40px;
-  background-color: #fafbfc;
-  border-top: 1px solid var(--gray-border);
-}
-
-.icon-box {
-  background-color: var(--white);
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
   align-items: center;
-  justify-content: center;
-  text-align: center;
-  width: 160px;
-  height: 160px;
-  color: var(--text-dark);
-  font-size: 14px;
-  cursor: pointer;
-  transition: transform 0.2s ease;
-}
-
-.icon-box:hover {
-  transform: translateY(-5px);
-}
-
-.icon-box i {
-  font-family: 'CCLA Icons';
-  font-size: 32px;
-  color: var(--accent-cyan);
-  margin-bottom: 10px;
-}
-
-.icon-box img {
-  width: 32px;
-  height: 32px;
-  margin-bottom: 10px;
-}
-
-/* Cookie Banner */
-.cookie-banner {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  background-color: rgba(255, 255, 255, 0.95);
-  box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
-  padding: 15px 40px;
-  display: flex;
   justify-content: space-between;
-  align-items: center;
-  box-sizing: border-box;
-  font-size: 12px;
-  color: #666;
-  border-top: 1px solid var(--gray-border);
+  gap: 16px;
 }
 
-.cookie-banner span {
-  flex: 1;
+.cla-nav__search {
+  flex: 0 0 320px;
+  max-width: 320px;
+  margin-left: auto;
 }
 
-.banner-buttons {
+.cla-nav__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
   display: flex;
-  gap: 10px;
-  margin: 0 20px;
+  align-items: stretch;
+  gap: 4px;
 }
 
-.banner-buttons button {
-  padding: 8px 15px;
-  border-radius: 5px;
-  border: none;
-  cursor: pointer;
-  font-size: 13px;
+.cla-nav__item {
+  position: static;
 }
 
-.accept-btn { background-color: var(--primary-navy); color: var(--white); }
-.reject-btn { background-color: #bbb; color: var(--white); }
-.config-btn { background-color: var(--white); border: 1px solid #999 !important; color: #333; }
-
-.close-banner {
-  cursor: pointer;
-  font-size: 16px;
-  color: #999;
+.cla-nav__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 16px 9px;
+  color: var(--ds-color-monochromatic-b-1, #000);
+  font-family: var(--ds-font-family);
+  font-weight: var(--ds-weight-font-medium, 500);
+  font-size: var(--ds-size-font-s-3, 18px);
+  line-height: var(--ds-size-line-height-s-3, 24px);
+  border-bottom: 3px solid transparent;
+  transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease;
 }
 
-/* Agent Widget */
-.agent-widget {
-  position: fixed;
-  bottom: 80px; /* Shifted up to clear cookie banner */
-  right: 20px;
-  width: 300px;
-  background-color: var(--white);
-  border-radius: 10px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-  border: 1px solid var(--accent-cyan);
-  z-index: 1000;
+.cla-nav__link:hover {
+  color: var(--cla-blue);
+  background: var(--ds-color-complementary-g-6, #f6f7f7);
 }
 
-.agent-header {
-  background-color: var(--accent-cyan);
-  color: var(--white);
-  padding: 10px;
-  border-top-left-radius: 10px;
-  border-top-right-radius: 10px;
-  font-weight: bold;
+.cla-nav__link.is-active {
+  color: var(--cla-blue);
+  border-bottom-color: var(--cla-blue);
 }
 
-.futuristic-ai-hub {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  width: 350px;
-  background: rgba(255, 255, 255, 0.7); /* Glassmorphism */
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  border-radius: 20px;
-  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+.cla-nav__chev {
+  font-size: 18px !important;
+  transition: transform 0.18s ease;
+}
+
+.cla-nav__item.is-open .cla-nav__chev {
+  transform: rotate(180deg);
+}
+
+.cla-nav__mega {
+  position: absolute;
+  left: 0;
+  right: 0;
+  background: #fff;
+  border-top: 1px solid var(--cla-border);
+  border-bottom: 1px solid var(--cla-border);
+  box-shadow: 0 16px 32px rgba(15, 35, 60, 0.10);
+  padding: 28px 0 36px;
+  animation: cla-fade-in 0.18s ease both;
+}
+
+@keyframes cla-fade-in {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: none; }
+}
+
+.cla-nav__mega-grid {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 40px;
+}
+
+.cla-nav__mega-banner {
+  background: var(--ds-color-primary-c-6, #def4ff);
+  border-radius: 16px;
+  padding: 16px;
   display: flex;
   flex-direction: column;
-  z-index: 1000;
-  font-family: 'Segoe UI', sans-serif;
-  overflow: hidden;
-  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  gap: 12px;
 }
 
-.futuristic-ai-hub:hover {
-  box-shadow: 0 14px 45px rgba(31, 38, 135, 0.45);
-  transform: translateY(-5px);
+.cla-nav__mega-banner img {
+  width: 100%;
+  height: 140px;
+  object-fit: cover;
+  border-radius: 12px;
 }
 
-.hub-header {
-  background: linear-gradient(135deg, #006796 0%, #00a3c4 100%); /* Vibrant gradient */
-  color: white;
-  padding: 15px;
-  font-weight: bold;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.pulse-indicator {
-  width: 10px;
-  height: 10px;
-  background-color: #00ff88; /* Neon green pulse */
-  border-radius: 50%;
-  box-shadow: 0 0 0 rgba(0, 255, 136, 0.4);
-  animation: pulse 2s infinite;
-}
-
-@keyframes pulse {
-  0% { box-shadow: 0 0 0 0 rgba(0, 255, 136, 0.4); }
-  70% { box-shadow: 0 0 0 10px rgba(0, 255, 136, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(0, 255, 136, 0); }
-}
-
-.hub-body {
-  padding: 15px;
-  max-height: 300px;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.message {
-  padding: 10px 15px;
-  border-radius: 15px;
-  max-width: 80%;
+.cla-nav__mega-banner p {
+  color: var(--cla-blue-deep);
   font-size: 14px;
+  font-weight: 600;
   line-height: 1.4;
 }
 
-.message.incoming {
-  background: rgba(0, 103, 150, 0.1);
-  color: #333;
+.cla-nav__mega-banner-cta {
   align-self: flex-start;
-  border-bottom-left-radius: 2px;
-}
-
-.hub-footer {
-  padding: 15px;
-  border-top: 1px solid rgba(0,0,0,0.05);
-  display: flex;
-  gap: 8px;
+  display: inline-flex;
   align-items: center;
-}
-
-.hub-footer input {
-  flex: 1;
-  padding: 10px 15px;
-  border-radius: 20px;
-  border: 1px solid rgba(0,0,0,0.1);
-  background: rgba(255,255,255,0.9);
+  gap: 4px;
+  color: var(--cla-blue);
+  font-weight: 700;
   font-size: 14px;
-  outline: none;
-  transition: all 0.2s;
 }
 
-.hub-footer input:focus {
-  border-color: #006796;
-  box-shadow: 0 0 5px rgba(0,103,150,0.2);
+.cla-nav__mega-banner-cta .material-symbols-outlined {
+  font-size: 18px;
 }
 
-.hub-footer button {
-  background: #006796;
-  color: white;
-  border: none;
-  width: 36px;
-  height: 36px;
+.cla-nav__mega-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 6px 24px;
+  align-content: start;
+}
+
+.cla-nav__mega-list a {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  color: var(--cla-text);
+  font-family: var(--ds-font-family);
+  font-size: var(--ds-size-font-s-3, 18px);
+  line-height: var(--ds-size-line-height-s-3, 24px);
+  font-weight: var(--ds-weight-font-regular, 400);
+  transition: background 0.12s ease, color 0.12s ease;
+}
+
+.cla-nav__mega-list a:hover {
+  background: var(--ds-color-complementary-g-6, #f6f7f7);
+  color: var(--cla-blue);
+}
+
+.cla-nav__mega-tag {
+  display: inline-flex;
+  align-items: center;
+  background: var(--ds-color-secondary-a-3, #f9be00);
+  color: var(--cla-ink);
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  padding: 2px 8px;
+  border-radius: 999px;
+}
+
+/* ---------- Hero / full-width carousel slide ------------------------------- *
+ * Replicates the visible "ALIVIA HOY tus gastos financieros" slide rendered
+ * by ds-banner-carousel on cajalosandes.cl. Single-slide static replica with
+ * left/right chevron controls and a "1 / 2" page counter.                    */
+
+.cla-hero {
+  padding: 24px 0 16px;
+  background: #fff;
+}
+
+.cla-carousel {
+  position: relative;
+  border-radius: 28px;
+  overflow: hidden;
+  background: linear-gradient(140deg, #4ec0e8 0%, #1896d3 60%, #008ec4 100%);
+  min-height: 360px;
+  box-shadow: 0 12px 28px rgba(0, 116, 169, 0.18);
+}
+
+.cla-carousel__slide {
+  display: grid;
+  grid-template-columns: 1.05fr 1fr;
+  gap: 0;
+  align-items: stretch;
+  min-height: 360px;
+}
+
+.cla-carousel__copy {
+  padding: 56px 64px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 22px;
+  color: #fff;
+}
+
+.cla-carousel__title {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  font-family: var(--ds-font-family);
+  color: #fff;
+  line-height: 1;
+  letter-spacing: -0.01em;
+}
+
+/* Hero headline — matches the ds-banner-carousel headline used on the live
+ *   site (Rawson Pro, 76-84px bold for the strong line, 36-40px light for
+ *   the descriptor). Tokens: --ds-size-font-s-7 = 64px (line 76px). */
+.cla-carousel__title-strong {
+  font-weight: var(--ds-weight-font-bold, 700);
+  font-size: 84px;
+  line-height: 0.95;
+  text-transform: uppercase;
+  letter-spacing: -0.01em;
+}
+
+.cla-carousel__title-soft {
+  font-weight: var(--ds-weight-font-light, 300);
+  font-size: var(--ds-size-font-s-5, 36px);
+  line-height: 1.1;
+  text-transform: uppercase;
+  letter-spacing: 0.01em;
+  margin-top: 10px;
+}
+
+.cla-carousel__badges {
+  list-style: none;
+  margin: 4px 0 0 0;
+  padding: 0;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.cla-carousel__badges li {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--ds-color-secondary-a-3, #f9be00);
+  color: var(--cla-ink);
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.cla-carousel__badges .material-symbols-outlined {
+  font-size: 16px;
+  color: var(--cla-blue-dark);
+}
+
+.cla-carousel__cta {
+  align-self: flex-start;
+  background: #fff;
+  color: var(--ds-color-primary-c-0, #00648f);
+  border: 2px solid #fff;
+  font-weight: 700;
+  padding: 12px 28px;
+  border-radius: 999px;
+  font-size: 16px;
+  margin-top: 10px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18);
+}
+
+.cla-carousel__cta:hover {
+  background: var(--ds-color-primary-c-6, #def4ff);
+}
+
+.cla-carousel__visual {
+  position: relative;
+  overflow: hidden;
+}
+
+.cla-carousel__visual::before {
+  /* Soft fade between text panel and image so the seam is invisible */
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    rgba(24, 150, 211, 0.55) 0%,
+    rgba(24, 150, 211, 0.0) 28%,
+    rgba(0, 0, 0, 0) 100%
+  );
+  z-index: 1;
+}
+
+.cla-carousel__visual img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.cla-carousel__arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
+  background: rgba(255, 255, 255, 0.0);
+  border: 0;
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+  transition: background 0.15s ease;
+}
+
+.cla-carousel__arrow:hover {
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.cla-carousel__arrow .material-symbols-outlined {
+  font-size: 36px;
+}
+
+.cla-carousel__arrow--prev { left: 16px; }
+.cla-carousel__arrow--next { right: 16px; }
+
+.cla-carousel__counter {
+  position: absolute;
+  bottom: 16px;
+  right: 24px;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  background: rgba(0, 0, 0, 0.18);
+  padding: 4px 10px;
+  border-radius: 999px;
+  z-index: 2;
+}
+
+/* ---------- Quick-access icon tile row ------------------------------------ */
+
+.cla-quick {
+  padding: 28px 0 36px;
+  background: #fff;
+}
+
+.cla-quick__grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 16px;
+}
+
+.cla-quick__tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 20px 8px;
+  border-radius: 16px;
+  background: #fff;
+  border: 1px solid var(--ds-color-complementary-g-5, #dfe3e5);
+  color: var(--ds-color-primary-c-0, #00648f);
+  text-align: center;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+.cla-quick__tile:hover {
+  border-color: var(--ds-color-primary-c-2, #008ec4);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 18px rgba(0, 116, 169, 0.14);
+}
+
+.cla-quick__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: var(--ds-color-primary-c-6, #def4ff);
+  color: var(--ds-color-primary-c-1, #0076a9);
+}
+
+.cla-quick__icon .material-symbols-outlined {
+  font-size: 32px;
+  font-variation-settings: 'wght' 500;
+}
+
+.cla-quick__label {
+  font-family: var(--ds-font-family);
+  font-size: var(--ds-size-font-s-2, 16px);
+  font-weight: var(--ds-weight-font-medium, 500);
+  color: var(--ds-color-primary-c-0, #00648f);
+  line-height: 1.2;
+}
+
+/* ---------- Cross-service banner (BEX) ------------------------------------- */
+
+.cla-banner {
+  padding: 24px 0 48px;
+}
+
+.cla-banner__card {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  border: 1px solid #dfe3e5;
+  border-radius: 22px;
+  overflow: hidden;
+  background: #fff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+}
+
+.cla-banner__image {
+  background-size: cover;
+  background-position: center;
+  min-height: 280px;
+}
+
+.cla-banner__copy {
+  padding: 32px 36px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 14px;
+}
+
+.cla-banner__copy h3 {
+  font-size: 28px;
+  color: var(--cla-blue-deep);
+  font-weight: 700;
+}
+
+.cla-banner__copy p {
+  font-size: 16px;
+  color: var(--cla-text);
+  line-height: 1.5;
+  max-width: 480px;
+}
+
+.cla-banner__copy .cla-btn {
+  align-self: flex-start;
+}
+
+/* ---------- ds-card-info clones (Tapp + Urgencia Dental) ------------------- */
+
+.cla-cards {
+  padding: 0 0 48px;
+}
+
+.cla-cards__grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+}
+
+.cla-card-info {
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  border: 1px solid var(--ds-color-complementary-g-5, #dfe3e5);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  transition: box-shadow 0.18s ease, transform 0.18s ease;
+}
+
+.cla-card-info:hover {
+  box-shadow: var(--ds-shadow-s-2);
+  transform: translateY(-2px);
+}
+
+.cla-card-info__img {
+  width: 100%;
+  height: 220px;
+  object-fit: cover;
+}
+
+.cla-card-info__body {
+  padding: 24px 24px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.cla-card-info__body h4 {
+  font-size: 23px;
+  color: var(--cla-blue-deep);
+  font-weight: 700;
+}
+
+.cla-card-info__body p {
+  color: var(--cla-text);
+  font-size: 16px;
+  line-height: 1.45;
+  margin-bottom: 8px;
+}
+
+/* ---------- Afiliación / Sucursal Virtual band ----------------------------- */
+
+.cla-afiliacion {
+  padding: 64px 0;
+  background: linear-gradient(120deg, var(--cla-blue) 0%, var(--cla-blue-dark) 100%);
+  color: #fff;
+}
+
+.cla-afiliacion__inner {
+  display: grid;
+  grid-template-columns: 1.05fr 0.95fr;
+  align-items: center;
+  gap: 48px;
+}
+
+.cla-afiliacion__copy {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.cla-afiliacion__eyebrow {
+  display: inline-block;
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+  font-weight: 600;
+  font-size: 12px;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  padding: 6px 14px;
+  border-radius: 999px;
+  align-self: flex-start;
+}
+
+.cla-afiliacion__copy h2 {
+  color: #fff;
+  font-size: 40px;
+  letter-spacing: -0.01em;
+  line-height: 1.1;
+}
+
+.cla-afiliacion__copy p {
+  color: rgba(255, 255, 255, 0.92);
+  font-size: 17px;
+  max-width: 520px;
+  line-height: 1.5;
+}
+
+.cla-afiliacion__cta {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.cla-afiliacion__cta .cla-btn--primary {
+  background: var(--ds-color-secondary-a-3, #f9be00);
+  border-color: var(--ds-color-secondary-a-3, #f9be00);
+  color: var(--cla-ink);
+}
+
+.cla-afiliacion__cta .cla-btn--primary:hover {
+  background: var(--ds-color-secondary-a-2, #d59608);
+  border-color: var(--ds-color-secondary-a-2, #d59608);
+}
+
+.cla-afiliacion__cta .cla-btn--secondary {
+  background: transparent;
+  border-color: #fff;
+  color: #fff;
+}
+
+.cla-afiliacion__cta .cla-btn--secondary:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.cla-afiliacion__visual {
   display: flex;
   justify-content: center;
-  align-items: center;
-  cursor: pointer;
+  position: relative;
+}
+
+.cla-afiliacion__visual::before {
+  content: '';
+  position: absolute;
+  inset: -16px;
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.06);
+  filter: blur(20px);
+}
+
+.cla-afiliacion__visual img {
+  position: relative;
+  max-width: 420px;
+  border-radius: 18px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.25);
+}
+
+/* ---------- Footer (mirror of ds-footer--trabajadores) --------------------- */
+
+.ds-footer {
+  background: #fff;
+  border-top: 1px solid var(--cla-border);
+  color: var(--cla-text);
+  margin-top: auto;
+}
+
+.ds-footer__grid {
+  display: grid;
+  grid-template-columns: 1.2fr 1.4fr 1fr 1fr;
+  gap: 40px;
+  padding: 48px 0;
+}
+
+.ds-footer__brand h4 {
+  color: var(--cla-blue-deep);
   font-size: 16px;
-  transition: background 0.2s;
+  margin-bottom: 8px;
 }
 
-.hub-footer button:hover {
-  background: #005a84;
+.ds-footer__brand p {
+  color: var(--cla-muted);
+  font-size: 14px;
+  line-height: 1.5;
+  max-width: 320px;
 }
 
-.hub-footer .voice-btn {
-  background: transparent;
-  color: #006796;
-  border: 1px solid #006796;
+.ds-footer__logos {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  margin-bottom: 18px;
 }
 
-.hub-footer .voice-btn:hover {
-  background: rgba(0,103,150,0.05);
+.ds-footer__logos img {
+  height: 60px;
+  width: auto;
+}
+
+.ds-footer__col h4 {
+  color: var(--cla-blue-deep);
+  font-size: 16px;
+  margin-bottom: 14px;
+  font-weight: 700;
+}
+
+.ds-footer__sub-title {
+  margin-top: 24px !important;
+}
+
+.ds-footer__col ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ds-footer__col a {
+  color: var(--cla-text);
+  font-size: 13.5px;
+  font-weight: 500;
+  transition: color 0.12s ease;
+}
+
+.ds-footer__col a:hover {
+  color: var(--cla-blue);
+  text-decoration: underline;
+}
+
+.ds-footer__sellos {
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: wrap;
+  gap: 12px !important;
+  align-items: center;
+  margin-top: 4px;
+}
+
+.ds-footer__sellos li {
+  display: inline-flex;
+}
+
+.ds-footer__sellos img {
+  height: 56px;
+  width: auto;
+  object-fit: contain;
+}
+
+.ds-footer__social {
+  display: flex !important;
+  flex-direction: row !important;
+  gap: 8px !important;
+}
+
+.ds-footer__social a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: var(--ds-color-complementary-g-6, #f6f7f7);
+  transition: background 0.12s ease, transform 0.12s ease;
+}
+
+.ds-footer__social a:hover {
+  background: var(--ds-color-primary-c-6, #def4ff);
+  transform: translateY(-2px);
+}
+
+.ds-footer__social img {
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+}
+
+.ds-footer__stores {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 12px !important;
+}
+
+.ds-footer__store {
+  display: inline-flex !important;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  border: 1px solid var(--ds-color-complementary-g-5, #dfe3e5);
+  border-radius: 12px;
+  font-weight: 700 !important;
+  color: var(--cla-ink) !important;
+  transition: border-color 0.12s ease, background 0.12s ease;
+}
+
+.ds-footer__store:hover {
+  border-color: var(--cla-blue);
+  background: var(--ds-color-primary-c-6, #def4ff);
+}
+
+.ds-footer__store img {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+}
+
+.ds-footer__suseso {
+  background: var(--cla-ink);
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 13px;
+  text-align: center;
+  padding: 14px 16px;
+}
+
+/* ---------- Cookie banner --------------------------------------------------- */
+
+.cla-cookies {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: #fff;
+  border-top: 1px solid var(--cla-border);
+  box-shadow: 0 -8px 24px rgba(15, 35, 60, 0.10);
+  z-index: 100;
+  padding: 16px 0;
+}
+
+.cla-cookies__inner {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+.cla-cookies p {
+  flex: 1;
+  font-size: 13.5px;
+  color: var(--cla-text);
+  min-width: 280px;
+}
+
+.cla-cookies__buttons {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* ---------- Responsive ------------------------------------------------------ */
+
+@media (max-width: 1100px) {
+  .cla-header__inner {
+    gap: 16px;
+  }
+  .cla-nav__link {
+    padding: 16px 10px;
+    font-size: 14px;
+  }
+  .cla-nav__search {
+    flex: 0 0 240px;
+    max-width: 240px;
+  }
+  .cla-nav__mega-grid {
+    grid-template-columns: 240px 1fr;
+  }
+  .cla-carousel__copy {
+    padding: 40px 36px;
+  }
+  .cla-carousel__title-strong {
+    font-size: 52px;
+  }
+  .cla-carousel__title-soft {
+    font-size: 24px;
+  }
+  .cla-banner__copy h3 {
+    font-size: 24px;
+  }
+  .cla-afiliacion__copy h2 {
+    font-size: 32px;
+  }
+  .ds-footer__grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 32px;
+  }
+}
+
+@media (max-width: 900px) {
+  .cla-segments__inner {
+    flex-wrap: wrap;
+    min-height: auto;
+    padding: 8px 0;
+  }
+  .cla-segments__list {
+    overflow-x: auto;
+    flex-wrap: nowrap;
+  }
+  .cla-segments__item {
+    white-space: nowrap;
+  }
+  .cla-header__inner {
+    gap: 12px;
+    padding: 14px 16px;
+    min-height: auto;
+  }
+  .cla-nav {
+    position: static;
+  }
+  .cla-nav__inner {
+    flex-wrap: wrap;
+  }
+  .cla-nav__search {
+    flex: 1 1 100%;
+    max-width: 100%;
+    margin-left: 0;
+    order: -1;
+    margin-bottom: 8px;
+  }
+  .cla-nav__list {
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    width: 100%;
+  }
+  .cla-nav__item {
+    flex-shrink: 0;
+  }
+  .cla-nav__mega {
+    position: static;
+  }
+  .cla-nav__mega-grid {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+  .cla-nav__mega-list {
+    grid-template-columns: 1fr;
+  }
+  .cla-carousel__slide {
+    grid-template-columns: 1fr;
+  }
+  .cla-carousel__visual {
+    min-height: 200px;
+    position: relative;
+  }
+  .cla-carousel__copy {
+    padding: 28px 24px;
+  }
+  .cla-quick__grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .cla-banner__card,
+  .cla-cards__grid,
+  .cla-afiliacion__inner {
+    grid-template-columns: 1fr;
+  }
+  .cla-banner__image {
+    min-height: 200px;
+  }
+  .ds-footer__grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 560px) {
+  .cla-header__logo img {
+    height: 52px;
+  }
+  .cla-header__tapp {
+    font-size: 18px;
+  }
+  .cla-header__cta {
+    padding: 8px 14px;
+    font-size: 13px;
+  }
+  .cla-header__cta span:first-child {
+    display: none; /* hide the icon on tiny screens */
+  }
+  .cla-card-info__body h4 {
+    font-size: 20px;
+  }
+  .cla-carousel__title-strong {
+    font-size: 38px;
+  }
+  .cla-carousel__title-soft {
+    font-size: 18px;
+  }
+  .cla-quick__grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .cla-banner__copy {
+    padding: 24px 20px;
+  }
+  .cla-afiliacion__copy h2 {
+    font-size: 26px;
+  }
 }
