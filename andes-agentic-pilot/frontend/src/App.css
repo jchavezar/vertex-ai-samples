@@ -1,0 +1,412 @@
+:root {
+  --primary-navy: #006796; /* Extracted exact colors from extraction */
+  --primary-yellow: #E0A900; /* Extracted exact gold from extraction */
+  --accent-cyan: #00A3C4;
+  --white: #ffffff;
+  --bg-white: #ffffff;
+  --text-dark: #333333;
+  --gray-light: #f5f7f9;
+  --gray-border: #e0e0e0;
+}
+
+@font-face {
+  font-family: 'CCLA Icons';
+  src: url('/fonts/ccla.ttf') format('truetype');
+}
+
+body {
+  margin: 0;
+  font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; /* Standard web fonts for clean look */
+  background-color: var(--bg-white);
+  color: var(--text-dark);
+}
+
+.app-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* Top Bar */
+.top-bar {
+  background-color: var(--primary-navy);
+  color: var(--white);
+  padding: 10px 40px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 14px;
+}
+
+.top-bar .logo-section {
+  display: flex;
+  align-items: center;
+}
+
+.top-bar .logo-section .corporate-logo {
+  height: 35px;
+  max-width: 150px;
+}
+
+.top-bar .nav-links span {
+  margin-left: 20px;
+  cursor: pointer;
+  opacity: 0.8;
+}
+
+.top-bar .nav-links span:hover {
+  opacity: 1;
+}
+
+/* Sub Header Nav */
+.main-header {
+  background-color: var(--white);
+  border-bottom: 1px solid var(--gray-border);
+  padding: 15px 40px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.main-nav a {
+  color: var(--text-dark);
+  text-decoration: none;
+  margin-right: 20px;
+  font-size: 16px;
+  padding: 5px 0;
+}
+
+.main-nav a:hover, .main-nav a.active {
+  color: var(--primary-navy);
+  font-weight: bold;
+  border-bottom: 2px solid var(--primary-navy);
+}
+
+.ingresar-btn {
+  background-color: var(--primary-yellow);
+  color: var(--text-dark);
+  border: none;
+  padding: 8px 30px;
+  border-radius: 20px;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Breadcrumb */
+.breadcrumb {
+  background-color: var(--gray-light);
+  padding: 10px 40px;
+  font-size: 13px;
+  color: #666;
+}
+
+.breadcrumb span {
+  cursor: pointer;
+}
+
+/* Main Content */
+.main-content {
+  display: flex;
+  padding: 20px;
+  width: 100%;
+  box-sizing: border-box;
+  flex: 1;
+}
+
+.text-section {
+  flex: 1;
+  padding-right: 40px;
+}
+
+.text-section .back-arrow {
+  font-size: 20px;
+  color: var(--primary-navy);
+  cursor: pointer;
+  margin-bottom: 10px;
+}
+
+.text-section h1 {
+  color: var(--primary-navy);
+  font-size: 32px;
+  margin-bottom: 15px;
+}
+
+.text-section p {
+  font-size: 16px;
+  line-height: 1.6;
+  color: #555;
+}
+
+.visual-section {
+  flex: 1;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.circle-img-container {
+  width: 250px;
+  height: 250px;
+  border-radius: 50%;
+  border: 4px solid var(--accent-cyan);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  background-color: #eee;
+}
+
+.circle-img {
+  color: #666;
+  font-size: 18px;
+}
+
+.wavy-line {
+  position: absolute;
+  top: 0;
+  right: -20px;
+  width: 100px;
+  height: 100%;
+  /* Mocking wavy line with repeated border, but ideal would be SVG background or real asset */
+  border-left: 2px solid var(--accent-cyan);
+  opacity: 0.5;
+}
+
+/* Bottom Icons Section */
+.bottom-icons {
+  display: flex;
+  justify-content: space-around;
+  padding: 30px 40px;
+  background-color: #fafbfc;
+  border-top: 1px solid var(--gray-border);
+}
+
+.icon-box {
+  background-color: var(--white);
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  width: 160px;
+  height: 160px;
+  color: var(--text-dark);
+  font-size: 14px;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.icon-box:hover {
+  transform: translateY(-5px);
+}
+
+.icon-box i {
+  font-family: 'CCLA Icons';
+  font-size: 32px;
+  color: var(--accent-cyan);
+  margin-bottom: 10px;
+}
+
+.icon-box img {
+  width: 32px;
+  height: 32px;
+  margin-bottom: 10px;
+}
+
+/* Cookie Banner */
+.cookie-banner {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background-color: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+  padding: 15px 40px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-sizing: border-box;
+  font-size: 12px;
+  color: #666;
+  border-top: 1px solid var(--gray-border);
+}
+
+.cookie-banner span {
+  flex: 1;
+}
+
+.banner-buttons {
+  display: flex;
+  gap: 10px;
+  margin: 0 20px;
+}
+
+.banner-buttons button {
+  padding: 8px 15px;
+  border-radius: 5px;
+  border: none;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.accept-btn { background-color: var(--primary-navy); color: var(--white); }
+.reject-btn { background-color: #bbb; color: var(--white); }
+.config-btn { background-color: var(--white); border: 1px solid #999 !important; color: #333; }
+
+.close-banner {
+  cursor: pointer;
+  font-size: 16px;
+  color: #999;
+}
+
+/* Agent Widget */
+.agent-widget {
+  position: fixed;
+  bottom: 80px; /* Shifted up to clear cookie banner */
+  right: 20px;
+  width: 300px;
+  background-color: var(--white);
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  border: 1px solid var(--accent-cyan);
+  z-index: 1000;
+}
+
+.agent-header {
+  background-color: var(--accent-cyan);
+  color: var(--white);
+  padding: 10px;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+  font-weight: bold;
+}
+
+.futuristic-ai-hub {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 350px;
+  background: rgba(255, 255, 255, 0.7); /* Glassmorphism */
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 20px;
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+  display: flex;
+  flex-direction: column;
+  z-index: 1000;
+  font-family: 'Segoe UI', sans-serif;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.futuristic-ai-hub:hover {
+  box-shadow: 0 14px 45px rgba(31, 38, 135, 0.45);
+  transform: translateY(-5px);
+}
+
+.hub-header {
+  background: linear-gradient(135deg, #006796 0%, #00a3c4 100%); /* Vibrant gradient */
+  color: white;
+  padding: 15px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.pulse-indicator {
+  width: 10px;
+  height: 10px;
+  background-color: #00ff88; /* Neon green pulse */
+  border-radius: 50%;
+  box-shadow: 0 0 0 rgba(0, 255, 136, 0.4);
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% { box-shadow: 0 0 0 0 rgba(0, 255, 136, 0.4); }
+  70% { box-shadow: 0 0 0 10px rgba(0, 255, 136, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(0, 255, 136, 0); }
+}
+
+.hub-body {
+  padding: 15px;
+  max-height: 300px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.message {
+  padding: 10px 15px;
+  border-radius: 15px;
+  max-width: 80%;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.message.incoming {
+  background: rgba(0, 103, 150, 0.1);
+  color: #333;
+  align-self: flex-start;
+  border-bottom-left-radius: 2px;
+}
+
+.hub-footer {
+  padding: 15px;
+  border-top: 1px solid rgba(0,0,0,0.05);
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.hub-footer input {
+  flex: 1;
+  padding: 10px 15px;
+  border-radius: 20px;
+  border: 1px solid rgba(0,0,0,0.1);
+  background: rgba(255,255,255,0.9);
+  font-size: 14px;
+  outline: none;
+  transition: all 0.2s;
+}
+
+.hub-footer input:focus {
+  border-color: #006796;
+  box-shadow: 0 0 5px rgba(0,103,150,0.2);
+}
+
+.hub-footer button {
+  background: #006796;
+  color: white;
+  border: none;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background 0.2s;
+}
+
+.hub-footer button:hover {
+  background: #005a84;
+}
+
+.hub-footer .voice-btn {
+  background: transparent;
+  color: #006796;
+  border: 1px solid #006796;
+}
+
+.hub-footer .voice-btn:hover {
+  background: rgba(0,103,150,0.05);
+}
