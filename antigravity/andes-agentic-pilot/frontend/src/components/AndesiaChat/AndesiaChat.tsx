@@ -63,7 +63,7 @@ const SYSTEM_EVENT_PAUSE_MS = 400;
 
 const API_BASE =
   (import.meta as unknown as { env?: { VITE_API_BASE?: string } }).env
-    ?.VITE_API_BASE || 'http://localhost:8000';
+    ?.VITE_API_BASE ?? 'http://localhost:8000';
 
 type ChatMode = 'demo' | 'live';
 

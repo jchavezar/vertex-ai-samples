@@ -1,0 +1,14 @@
+**/node_modules
+**/__pycache__
+**/.venv
+**/dist
+**/build
+**/.pytest_cache
+**/.mypy_cache
+**/.ruff_cache
+**/*.pyc
+frontend/scraped/
+docs/
+.git/
+.gitignore
+README.md

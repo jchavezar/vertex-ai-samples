@@ -19,7 +19,8 @@ from typing import Any, AsyncIterator, Literal
 import httpx
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import StreamingResponse
+from fastapi.responses import FileResponse, StreamingResponse
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
 # Optional Google ADK imports — preserved for the existing /api/ask path. We
@@ -72,7 +73,11 @@ ALLOWED_ORIGINS = [
     "http://127.0.0.1:5180",
     "http://localhost:5173",
     "http://localhost:4173",
+    "https://caja-los-andes.sonrobots.net",
 ]
+
+# Path to bundled SPA (set by Dockerfile to /app/static).
+SPA_DIR = os.getenv("SPA_DIR", "")
 
 
 # --------------------------------------------------------------------------- #
@@ -415,7 +420,33 @@ async def health() -> dict[str, str]:
     return {"status": "ok"}
 
 
+# --------------------------------------------------------------------------- #
+# Static SPA mount (production only — Dockerfile sets SPA_DIR=/app/static)     #
+# Mounted last so /api/* takes precedence.                                     #
+# --------------------------------------------------------------------------- #
+
+
+if SPA_DIR and os.path.isdir(SPA_DIR):
+    _spa_index = os.path.join(SPA_DIR, "index.html")
+
+    # Serve the built assets at /assets/* etc.
+    app.mount(
+        "/assets",
+        StaticFiles(directory=os.path.join(SPA_DIR, "assets")),
+        name="assets",
+    )
+
+    @app.get("/{full_path:path}", include_in_schema=False)
+    async def spa_fallback(full_path: str) -> FileResponse:
+        # Try a real file first (favicon, fonts, icons, images at root).
+        candidate = os.path.join(SPA_DIR, full_path)
+        if full_path and os.path.isfile(candidate):
+            return FileResponse(candidate)
+        # Otherwise hand the SPA shell back so React Router (or future routes) work.
+        return FileResponse(_spa_index)
+
+
 if __name__ == "__main__":  # pragma: no cover
     import uvicorn
 
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host="0.0.0.0", port=int(os.getenv("PORT", "8000")))
