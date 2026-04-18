@@ -53,9 +53,12 @@ CCLA_DE_COLLECTION = os.getenv("CCLA_DE_COLLECTION", "default_collection")
 CCLA_DE_SERVING_CONFIG = os.getenv("CCLA_DE_SERVING_CONFIG", "default_search")
 
 # Vertex AI / Gemini config for the live chat endpoint.
+# Default to gemini-3-flash-preview in the global region — Gemini 2.5 and below
+# are being deprecated. Override via env vars for keynote experiments
+# (e.g. GEMINI_MODEL=gemini-3.1-pro-preview for richer reasoning).
 VERTEX_PROJECT = os.getenv("VERTEX_PROJECT", "vtxdemos")
-VERTEX_LOCATION = os.getenv("VERTEX_LOCATION", "us-central1")
-GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-2.5-pro")
+VERTEX_LOCATION = os.getenv("VERTEX_LOCATION", "global")
+GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-3-flash-preview")
 
 DISCOVERY_ENGINE_URL = (
     "https://discoveryengine.googleapis.com/v1alpha"
