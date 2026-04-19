@@ -168,6 +168,10 @@
         </div>
       `;
       tile.addEventListener('click', () => {
+        if (window.Create && typeof window.Create.open === 'function') {
+          window.Create.open(t.key, t);
+          return;
+        }
         const el = document.createElement('div');
         el.className = 'lh-toast';
         el.textContent = `${t.label} — coming soon`;
@@ -209,6 +213,15 @@
     if (!card) return;
     card.addEventListener('mouseenter', () => card.classList.add('is-hover'));
     card.addEventListener('mouseleave', () => card.classList.remove('is-hover'));
+    card.style.cursor = 'pointer';
+    card.addEventListener('click', (e) => {
+      const li = e.target.closest('.lh-aicard__item');
+      const wantedKey = li ? (AI_TOOLS.find(t => t.label === li.querySelector('.lh-aicard__name')?.textContent)?.key) : null;
+      const key = wantedKey || 'imagegen';
+      if (window.Create && typeof window.Create.open === 'function') {
+        window.Create.open(key);
+      }
+    });
   }
 
   // ---------- tooltip (small label following the cursor) ----------

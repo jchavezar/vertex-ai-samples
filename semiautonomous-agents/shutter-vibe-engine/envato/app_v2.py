@@ -1555,6 +1555,218 @@ def api_build_kit(datapoint_id: str, q: str | None = None):
     })
 
 
+NANO_BANANA_MODEL = os.environ.get("ENVATO_NANO_BANANA_MODEL", "gemini-3.1-flash-image-preview")
+LYRIA_MODEL = os.environ.get("ENVATO_LYRIA_MODEL", "lyria-3-clip-preview")
+VEO_MODEL = os.environ.get("ENVATO_VEO_MODEL", "veo-3.1-lite-generate-001")
+CHIRP_VOICE = os.environ.get("ENVATO_CHIRP_VOICE", "en-US-Chirp3-HD-Charon")
+GEMINI_TTS_MODEL = os.environ.get("ENVATO_GEMINI_TTS_MODEL", "gemini-3.1-flash-tts-preview")
+GEMINI_TTS_VOICE = os.environ.get("ENVATO_GEMINI_TTS_VOICE", "Kore")
+
+
+class CreateImageReq(BaseModel):
+    prompt: str
+
+
+@app.post("/api/create/image")
+def api_create_image(req: CreateImageReq):
+    """Generate an image with Nano Banana (gemini-3.1-flash-image-preview, global region)
+    from a prompt. Returns the PNG bytes as base64 so the panel can render inline."""
+    import base64
+    t0 = now_ms()
+    prompt = (req.prompt or "").strip()
+    if not prompt:
+        raise HTTPException(400, "prompt is required")
+    cfg = types.GenerateContentConfig(response_modalities=["TEXT", "IMAGE"])
+    resp = GLOBAL_CLIENT.models.generate_content(
+        model=NANO_BANANA_MODEL, contents=prompt, config=cfg,
+    )
+    img_b64 = None
+    mime = "image/png"
+    text_out = []
+    for p in (resp.candidates[0].content.parts or []):
+        if getattr(p, "inline_data", None) and p.inline_data.data:
+            img_b64 = base64.b64encode(p.inline_data.data).decode("ascii")
+            mime = p.inline_data.mime_type or "image/png"
+            break
+        if getattr(p, "text", None):
+            text_out.append(p.text)
+    if not img_b64:
+        raise HTTPException(502, f"no image returned (text='{' '.join(text_out)[:200]}')")
+    return JSONResponse({
+        "model": NANO_BANANA_MODEL,
+        "mime": mime,
+        "image_b64": img_b64,
+        "prompt": prompt,
+        "elapsed_ms": round(ms_since(t0), 2),
+    })
+
+
+class CreateMusicReq(BaseModel):
+    prompt: str
+
+
+@app.post("/api/create/music")
+def api_create_music(req: CreateMusicReq):
+    """Generate music with Lyria 3 (lyria-3-clip-preview, global region) from a prompt.
+    Returns base64 MP3 bytes plus the model's auto-generated caption."""
+    import base64
+    import google.auth
+    import google.auth.transport.requests
+    import requests as _requests
+
+    t0 = now_ms()
+    prompt = (req.prompt or "").strip()
+    if not prompt:
+        raise HTTPException(400, "prompt is required")
+
+    creds, _proj = google.auth.default(scopes=["https://www.googleapis.com/auth/cloud-platform"])
+    creds.refresh(google.auth.transport.requests.Request())
+    url = f"https://aiplatform.googleapis.com/v1beta1/projects/{PROJECT}/locations/global/interactions"
+    body = {"model": LYRIA_MODEL, "input": [{"type": "text", "text": prompt}]}
+    r = _requests.post(
+        url,
+        headers={"Authorization": f"Bearer {creds.token}", "Content-Type": "application/json"},
+        json=body, timeout=180,
+    )
+    if r.status_code >= 400:
+        raise HTTPException(r.status_code, f"lyria error: {r.text[:400]}")
+    j = r.json()
+    audio_b64 = None
+    mime = "audio/mpeg"
+    caption = ""
+    for o in (j.get("outputs") or []):
+        if o.get("type") == "audio" and o.get("data"):
+            audio_b64 = o["data"]
+            mime = o.get("mime_type") or mime
+        elif o.get("type") == "text" and o.get("text"):
+            caption = o["text"]
+    if not audio_b64:
+        raise HTTPException(502, "lyria returned no audio")
+    return JSONResponse({
+        "model": LYRIA_MODEL,
+        "mime": mime,
+        "audio_b64": audio_b64,
+        "caption": caption,
+        "prompt": prompt,
+        "elapsed_ms": round(ms_since(t0), 2),
+    })
+
+
+class CreateVideoReq(BaseModel):
+    prompt: str
+    aspect_ratio: str | None = "16:9"
+
+
+@app.post("/api/create/video")
+def api_create_video(req: CreateVideoReq):
+    """Generate a short video with Veo 3 (veo-3.0-generate-001, us-central1) from a prompt.
+    Polls the LRO and returns base64 MP4 bytes inline."""
+    import base64, time as _time
+    t0 = now_ms()
+    prompt = (req.prompt or "").strip()
+    if not prompt:
+        raise HTTPException(400, "prompt is required")
+    src = types.GenerateVideosSource(prompt=prompt)
+    cfg = types.GenerateVideosConfig(
+        aspect_ratio=(req.aspect_ratio or "16:9"),
+        number_of_videos=1,
+        duration_seconds=8,
+        person_generation="allow_all",
+        generate_audio=True,
+        resolution="720p",
+    )
+    op = CLIENT.models.generate_videos(model=VEO_MODEL, source=src, config=cfg)
+    deadline = _time.time() + 240  # 4-min cap
+    while not getattr(op, "done", False):
+        if _time.time() > deadline:
+            raise HTTPException(504, "veo generation timed out after 240s")
+        _time.sleep(5)
+        op = CLIENT.operations.get(op)
+    if not op.result or not op.result.generated_videos:
+        raise HTTPException(502, "veo returned no videos")
+    gv = op.result.generated_videos[0]
+    if not gv.video or not gv.video.video_bytes:
+        raise HTTPException(502, "veo result missing video_bytes")
+    video_b64 = base64.b64encode(gv.video.video_bytes).decode("ascii")
+    return JSONResponse({
+        "model": VEO_MODEL,
+        "mime": gv.video.mime_type or "video/mp4",
+        "video_b64": video_b64,
+        "prompt": prompt,
+        "elapsed_ms": round(ms_since(t0), 2),
+    })
+
+
+class CreateVoiceReq(BaseModel):
+    prompt: str
+    voice: str | None = None
+    language_code: str | None = None
+
+
+def _pcm_to_wav(pcm: bytes, channels: int = 1, rate: int = 24000, sample_width: int = 2) -> bytes:
+    import io, wave
+    buf = io.BytesIO()
+    with wave.open(buf, "wb") as wf:
+        wf.setnchannels(channels)
+        wf.setsampwidth(sample_width)
+        wf.setframerate(rate)
+        wf.writeframes(pcm)
+    return buf.getvalue()
+
+
+@app.post("/api/create/voice")
+def api_create_voice(req: CreateVoiceReq):
+    """Synthesize speech with Gemini 3.1 Flash TTS (audio-tag aware).
+    Returns base64 WAV (PCM 24kHz mono) inline."""
+    import base64
+    t0 = now_ms()
+    text = (req.prompt or "").strip()
+    if not text:
+        raise HTTPException(400, "prompt is required")
+    voice_name = (req.voice or GEMINI_TTS_VOICE).strip()
+    cfg = types.GenerateContentConfig(
+        response_modalities=["AUDIO"],
+        speech_config=types.SpeechConfig(
+            voice_config=types.VoiceConfig(
+                prebuilt_voice_config=types.PrebuiltVoiceConfig(voice_name=voice_name),
+            ),
+        ),
+    )
+    try:
+        resp = GLOBAL_CLIENT.models.generate_content(
+            model=GEMINI_TTS_MODEL, contents=text, config=cfg,
+        )
+    except Exception as e:
+        raise HTTPException(502, f"gemini tts error: {e}")
+    if not resp.candidates:
+        pf = getattr(resp, "prompt_feedback", None)
+        reason = getattr(pf, "block_reason", None)
+        msg = getattr(pf, "block_reason_message", "") or ""
+        if reason:
+            raise HTTPException(400, f"gemini tts blocked ({reason}): {msg[:240]}")
+        raise HTTPException(502, "gemini tts: empty response")
+    pcm = None
+    try:
+        for part in (resp.candidates[0].content.parts or []):
+            inline = getattr(part, "inline_data", None)
+            if inline and getattr(inline, "data", None):
+                pcm = inline.data
+                break
+    except Exception as e:
+        raise HTTPException(502, f"gemini tts parse error: {e}")
+    if not pcm:
+        raise HTTPException(502, "gemini tts: no audio in response parts")
+    wav = _pcm_to_wav(pcm)
+    return JSONResponse({
+        "model": GEMINI_TTS_MODEL,
+        "voice": voice_name,
+        "mime": "audio/wav",
+        "audio_b64": base64.b64encode(wav).decode("ascii"),
+        "prompt": text,
+        "elapsed_ms": round(ms_since(t0), 2),
+    })
+
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run("app_v2:app", host="0.0.0.0", port=8090, reload=False)
