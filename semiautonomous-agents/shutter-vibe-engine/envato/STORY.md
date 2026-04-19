@@ -5,7 +5,7 @@
 
 ![Hero — vibe search across five modalities](./docs/hero.gif)
 
-<sub>↑ "tropical beach getaway" → one query, five matched media types, ranked in a shared 3072-dim embedding space.</sub>
+<sub>↑ "tropical beach getaway" → one query, five matched media types, ranked in a shared 3072-dim embedding space. **[▶ Watch the full 41-second demo (MP4)](./docs/hero.mp4)**</sub>
 
 ---
 
@@ -21,25 +21,13 @@ The fix isn't more tags. It's a **shared embedding space** where text, image, au
 
 ## The "aha" in 90 seconds
 
-```
-            ┌────────────────────────────────────────────────┐
-   query →  │  gemini-embedding-2  →  [3072-dim vector]      │
-            └────────────────────────────────────────────────┘
-                                   │
-                                   ▼
-            ┌────────────────────────────────────────────────┐
-            │  Vertex AI Vector Search  (STREAM_UPDATE)      │
-            │  ─────────────────────────────────────────     │
-            │  📷 photo-7421   🎵 music-1188   🎬 clip-3302  │
-            │  🔊 sfx-902      🎨 illus-554                  │
-            │  ← all sit in the SAME 3072-dim space →        │
-            └────────────────────────────────────────────────┘
-                                   │
-                                   ▼
-                    one query · five modalities ranked
-```
-
 The trick: **embed the bytes, not the tags.** A wave-crash MP3 and a beach JPG produce vectors that are close in cosine distance — because Gemini Embeddings 2 was trained to put semantically related media near each other regardless of modality.
+
+Here are 300 real assets from this demo, projected from 3072-dim down to 2D with UMAP:
+
+![Embedding space — UMAP projection of 300 real assets](./docs/embedding_space.png)
+
+<sub>Photos, videos, and graphics overlap heavily in semantic space — that's why a "tropical beach" query pulls a sunset photo *and* a drone clip *and* a palm-tree illustration in one shot. Music sits in its own region (audio is harder to align), but with LLM-generated scene captions concatenated to its embedding, *"sunset at the beach"* still surfaces world-percussion rather than synthwave. **No re-training. No per-modality model.** One embedding API + one vector index does all of it.</sub>
 
 That single property unlocks every feature in this repo.
 
