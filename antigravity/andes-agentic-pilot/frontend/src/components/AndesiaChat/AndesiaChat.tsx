@@ -127,6 +127,9 @@ export default function AndesiaChat() {
   const [isLiveStreaming, setIsLiveStreaming] = useState(false);
   const [liveError, setLiveError] = useState<string | null>(null);
   const liveAbortRef = useRef<AbortController | null>(null);
+  /* Map tool name → wallclock start time for the still-running call so
+   * tool_call_end can report a real duration. */
+  const toolStartsRef = useRef<Map<string, number>>(new Map());
 
   // Inspector state — replaced fully on each new agent turn,
   // mutated incrementally as reasoning/tool calls/citations animate in.
@@ -345,6 +348,7 @@ export default function AndesiaChat() {
                 } else if (evt.type === 'tool_call') {
                   const tool = String(evt.tool ?? 'tool');
                   const query = String(evt.query ?? '');
+                  toolStartsRef.current.set(tool, performance.now());
                   setInspectorState((prev) => ({
                     ...prev,
                     toolCount: prev.toolCount + 1,
@@ -355,7 +359,7 @@ export default function AndesiaChat() {
                         name: tool === 'google_search' ? 'Google Search' : tool,
                         args: { query },
                         result: 'Buscando…',
-                        status: 'success' as const,
+                        status: 'running' as const,
                         latency_ms: 0,
                       } as ToolCall,
                     ],
@@ -368,10 +372,76 @@ export default function AndesiaChat() {
                       },
                     ],
                   }));
+                } else if (evt.type === 'tool_call_end') {
+                  const tool = String(evt.tool ?? '');
+                  const count = Number(evt.count ?? 0);
+                  const summary = String(evt.summary ?? `${count} resultados`);
+                  const resultPayload =
+                    (evt.result && typeof evt.result === 'object'
+                      ? (evt.result as Record<string, unknown>)
+                      : { summary }) as Record<string, unknown>;
+                  const startedAt = toolStartsRef.current.get(tool);
+                  toolStartsRef.current.delete(tool);
+                  const elapsed = startedAt
+                    ? Math.max(0, Math.round(performance.now() - startedAt))
+                    : 0;
+                  setInspectorState((prev) => {
+                    const next = prev.toolCalls.map((tc) => {
+                      const matches =
+                        (tool === 'vertex_search' && tc.name === 'vertex_search') ||
+                        (tool === 'google_search' && tc.name === 'Google Search');
+                      if (matches && tc.status === 'running') {
+                        return {
+                          ...tc,
+                          status: count > 0 ? ('success' as const) : ('error' as const),
+                          result: resultPayload,
+                          latency_ms: elapsed,
+                        } as ToolCall;
+                      }
+                      return tc;
+                    });
+                    return {
+                      ...prev,
+                      toolCalls: next,
+                      reasoning: [
+                        ...prev.reasoning,
+                        {
+                          step_index: prev.reasoning.length + 1,
+                          text: `${tool} → ${summary}`,
+                          duration_ms: elapsed,
+                        },
+                      ],
+                    };
+                  });
+                } else if (evt.type === 'done') {
+                  // Sweep any tool_call that never received an explicit
+                  // tool_call_end (Gemini doesn't always emit web_search_queries
+                  // even when it grounded). Flip them to success so the UI
+                  // doesn't leave stale "running" pills.
+                  setInspectorState((prev) => {
+                    if (!prev.toolCalls.some((tc) => tc.status === 'running')) return prev;
+                    const next = prev.toolCalls.map((tc) =>
+                      tc.status === 'running'
+                        ? ({
+                            ...tc,
+                            status: 'success' as const,
+                            result: { summary: 'Sin evidencia explícita devuelta por la herramienta.' },
+                            latency_ms: tc.latency_ms || 0,
+                          } as ToolCall)
+                        : tc,
+                    );
+                    return { ...prev, toolCalls: next };
+                  });
+                  toolStartsRef.current.clear();
                 } else if (evt.type === 'citation') {
                   const source = String(evt.source ?? '');
                   const title = String(evt.title ?? 'Fuente');
                   const uri = String(evt.uri ?? '');
+                  const snippet = String(evt.snippet ?? '').trim();
+                  const fallback =
+                    source === 'vertex_ai_search'
+                      ? 'Fragmento extraído del corpus Caja Los Andes'
+                      : 'Fragmento extraído desde Google Search';
                   setInspectorState((prev) => ({
                     ...prev,
                     citations: [
@@ -384,11 +454,9 @@ export default function AndesiaChat() {
                             : 'cdn_pdf',
                         source_title: title,
                         source_url: uri,
-                        paragraph_excerpt:
-                          source === 'vertex_ai_search'
-                            ? 'Caja Los Andes (cajalosandes.cl)'
-                            : 'Google Search',
+                        paragraph_excerpt: snippet || fallback,
                         similarity_score: 0.9,
+                        chunk_id: `${source}-${prev.citations.length + 1}`,
                       } as Citation,
                     ],
                   }));
@@ -441,7 +509,24 @@ export default function AndesiaChat() {
         }
       } finally {
         setIsLiveStreaming(false);
-        setInspectorState((prev) => ({ ...prev, activeRole: null }));
+        setInspectorState((prev) => {
+          const hasRunning = prev.toolCalls.some((tc) => tc.status === 'running');
+          if (!hasRunning) return { ...prev, activeRole: null };
+          return {
+            ...prev,
+            activeRole: null,
+            toolCalls: prev.toolCalls.map((tc) =>
+              tc.status === 'running'
+                ? ({
+                    ...tc,
+                    status: 'success' as const,
+                    result: { summary: 'Stream cerrado sin evidencia explícita.' },
+                  } as ToolCall)
+                : tc,
+            ),
+          };
+        });
+        toolStartsRef.current.clear();
         liveAbortRef.current = null;
       }
     },

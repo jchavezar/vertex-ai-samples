@@ -18,7 +18,10 @@ import base64
 import json
 import logging
 import os
+import re
 import uuid
+from datetime import datetime
+from zoneinfo import ZoneInfo
 
 logging.basicConfig(
     level=os.getenv("LOG_LEVEL", "INFO"),
@@ -197,6 +200,152 @@ def _get_http_client() -> httpx.AsyncClient:
             ),
         )
     return _HTTP_CLIENT
+
+
+# ── Discovery Engine REST helper ──────────────────────────────────────────────
+# Why REST instead of `Tool(retrieval=Retrieval(vertex_ai_search=...))`:
+#   - The Gemini retrieval tool is silently NOT invoked in our prod tests
+#     (0 grounding chunks for known-good queries that return hits via REST).
+#   - REST lets us inject the snippets directly into the prompt as "DATOS DEL
+#     CLIENTE", forcing the model to use real CCLA content instead of guessing.
+#   - Extra ~1.3s per call is acceptable; reliability matters more than latency.
+
+_DE_TOKEN_CACHE: dict[str, Any] = {"token": None, "exp": 0.0}
+
+
+def _de_access_token() -> str:
+    """Cache an ADC access token for ~50min to avoid per-request refresh cost."""
+    import google.auth as _ga
+    import google.auth.transport.requests as _gar
+    now = time.time()
+    if _DE_TOKEN_CACHE["token"] and now < _DE_TOKEN_CACHE["exp"]:
+        return _DE_TOKEN_CACHE["token"]
+    creds, _ = _ga.default()
+    creds.refresh(_gar.Request())
+    _DE_TOKEN_CACHE["token"] = creds.token
+    _DE_TOKEN_CACHE["exp"] = now + 50 * 60
+    return creds.token
+
+
+# Per-(query) snippet cache so repeated questions don't re-hit Discovery Engine.
+_DE_RESULT_CACHE: dict[str, tuple[float, list[dict[str, str]]]] = {}
+_DE_CACHE_TTL_S = 300.0  # 5 minutes
+
+
+_ES_STOPWORDS = {
+    # articles, prepositions, conjunctions
+    "a","al","ante","bajo","con","contra","de","del","desde","durante","en",
+    "entre","hacia","hasta","mediante","para","por","según","sin","sobre","tras",
+    "el","la","lo","los","las","un","una","unos","unas",
+    "y","e","o","u","ni","pero","mas","sino","que","como","si","aunque","porque",
+    # interrogatives + common conversational fillers
+    "qué","cuál","cuáles","cómo","cuándo","dónde","quién","quiénes","cuánto","cuántos",
+    "necesito","puedo","quiero","tengo","hay","sé","saber","decir","favor","gracias",
+    "me","te","se","mi","tu","su","mis","tus","sus","les","le",
+    # generic verbs/forms
+    "es","son","está","están","fue","fueron","será","ha","he","han","hemos",
+    "voy","vas","va","vamos","hago","haces","hace","hacer",
+    "este","esta","esto","ese","esa","eso","aquel","aquella",
+    "muy","más","menos","también","pues","aquí","ahí","allá","ya","aún","todavía",
+    "después","antes","sigue","siguiente","luego","entonces",
+    "yo","tú","él","ella","nosotros","ustedes","ellos","ellas",
+}
+
+
+def _distill_search_query(text: str, *, max_terms: int = 6) -> str:
+    """Discovery Engine returns 0 hits for long conversational Spanish queries
+    (e.g. "¿Cómo postulo al bono Bodas de Oro y qué pasos sigue después?").
+
+    We strip Spanish stopwords + question punctuation and keep the most
+    content-bearing tokens, preserving order so phrase matches still work."""
+    if not text:
+        return text
+    cleaned = re.sub(r"[¿?¡!.,;:()\[\]{}\"']+", " ", text)
+    cleaned = re.sub(r"\s+", " ", cleaned).strip()
+    tokens = cleaned.split(" ")
+    kept: list[str] = []
+    for tok in tokens:
+        low = tok.lower()
+        if low in _ES_STOPWORDS or len(low) < 2:
+            continue
+        kept.append(tok)
+        if len(kept) >= max_terms:
+            break
+    distilled = " ".join(kept).strip()
+    return distilled or cleaned  # never return empty
+
+
+async def _discovery_engine_search(
+    query: str,
+    *,
+    k: int = 4,
+    datastore_id: str | None = None,
+) -> list[dict[str, str]]:
+    """Hit the CCLA Discovery Engine datastore directly via REST.
+
+    Returns a list of {title, uri, snippet} dicts. Empty list on any failure
+    (callers must tolerate empty grounding rather than fabricating answers).
+
+    Strategy: try the original query first (so phrase matches like exact
+    product names still hit). If empty, retry with a keyword-distilled
+    version since DE handles short keyword queries far better than long
+    conversational Spanish with `¿...?` and stopwords."""
+    q = (query or "").strip()
+    if not q:
+        return []
+    cache_key = f"{datastore_id or 'default'}::{q.lower()[:200]}::{k}"
+    cached = _DE_RESULT_CACHE.get(cache_key)
+    if cached and (time.time() - cached[0]) < _DE_CACHE_TTL_S:
+        return cached[1]
+    # Engine ID and datastore ID differ; /search hits the datastore.
+    ds_id = datastore_id or os.getenv(
+        "CCLA_DE_DATASTORE", "caja-los-andes_1776511935295"
+    )
+    url = (
+        f"https://discoveryengine.googleapis.com/v1/projects/{CCLA_DE_PROJECT}"
+        f"/locations/{CCLA_DE_LOCATION}/collections/{CCLA_DE_COLLECTION}"
+        f"/dataStores/{ds_id}/servingConfigs/default_search:search"
+    )
+    headers = {
+        "Authorization": f"Bearer {_de_access_token()}",
+        "X-Goog-User-Project": "vtxdemos",
+        "Content-Type": "application/json",
+    }
+    log = logging.getLogger("andesia.de")
+
+    async def _hit(query_str: str) -> list[dict[str, str]]:
+        body = {"query": query_str, "pageSize": k}
+        try:
+            client = _get_http_client()
+            r = await client.post(url, headers=headers, json=body, timeout=10.0)
+            r.raise_for_status()
+            results = r.json().get("results") or []
+        except Exception as exc:
+            log.warning("Discovery Engine search failed for %r: %s", query_str[:80], exc)
+            return []
+        out: list[dict[str, str]] = []
+        for item in results:
+            d = (item.get("document") or {}).get("derivedStructData") or {}
+            snippets = " ".join(
+                (s.get("snippet", "") or "") for s in (d.get("snippets") or [])
+            )
+            link = d.get("link") or d.get("formattedUrl") or ""
+            title = d.get("title") or ""
+            out.append({
+                "title": str(title)[:200],
+                "uri": str(link),
+                "snippet": str(snippets)[:600],
+            })
+        return out
+
+    out = await _hit(q)
+    if not out:
+        distilled = _distill_search_query(q)
+        if distilled and distilled.lower() != q.lower():
+            log.info("DE retry with distilled query: %r → %r", q[:80], distilled)
+            out = await _hit(distilled)
+    _DE_RESULT_CACHE[cache_key] = (time.time(), out)
+    return out
 
 
 class ClientDisconnected(Exception):
@@ -502,6 +651,37 @@ del catálogo de productos y beneficios de Caja Los Andes.
 """
 
 
+_MES_ES = {
+    1: "enero", 2: "febrero", 3: "marzo", 4: "abril", 5: "mayo", 6: "junio",
+    7: "julio", 8: "agosto", 9: "septiembre", 10: "octubre", 11: "noviembre", 12: "diciembre",
+}
+
+
+def _today_chile_preamble() -> str:
+    """Build a date-aware preamble so Gemini doesn't anchor 'recent' queries
+    to its training cutoff (typically 2024–2025). The model must search using
+    the *current* year when the user asks for 'noticias recientes', 'novedades',
+    'últimos', etc."""
+    try:
+        now = datetime.now(ZoneInfo("America/Santiago"))
+    except Exception:
+        now = datetime.utcnow()
+    fecha_larga = f"{now.day} de {_MES_ES.get(now.month, '')} de {now.year}"
+    return (
+        f"## Fecha actual\n"
+        f"Hoy es **{fecha_larga}** (zona horaria America/Santiago, año en curso "
+        f"{now.year}). Cuando el usuario pregunte por algo 'reciente', 'último', "
+        f"'ahora' o 'novedades', tus búsquedas DEBEN usar el año {now.year} "
+        f"(o referencias relativas como 'este año', 'este mes'). NUNCA acotes "
+        f"queries a 2024 o 2025 — esos años ya pasaron.\n"
+    )
+
+
+def _andesia_system_instruction() -> str:
+    """Compose the live system prompt with today's date prepended."""
+    return _today_chile_preamble() + "\n" + ANDESIA_SYSTEM_INSTRUCTION
+
+
 class ChatMessage(BaseModel):
     role: Literal["user", "assistant"]
     content: str
@@ -548,36 +728,40 @@ def _sse(event_type: str, payload: dict[str, Any]) -> bytes:
 
 
 def _build_grounding_tools() -> list[Any]:
-    """Return both built-in grounding tools: Google Search + Vertex AI Search
-    (CCLA cajalosandes.cl engine). Gemini decides which to call per turn."""
+    """Return only the built-in google_search tool.
+
+    We intentionally DROPPED `Tool(retrieval=Retrieval(vertex_ai_search=...))`
+    because Gemini 3 (global) silently does not invoke it — verified with
+    /tmp/chatbot_replica.py: 0 vertex chunks across multiple known-good queries.
+    Grounding on the CCLA corpus is now done explicitly via REST in
+    `_discovery_engine_search()` and injected into the prompt as hard context.
+    `google_search` stays as a fallback for queries the corpus can't answer."""
     if genai_types is None:
         return []
     tools: list[Any] = []
-
-    # 1) Google Search (built-in, no setup beyond Gemini 3 support)
     try:
         tools.append(genai_types.Tool(google_search=genai_types.GoogleSearch()))
     except Exception:
         pass
-
-    # 2) Vertex AI Search retrieval — grounds answers on the cajalosandes.cl
-    #    Discovery Engine app (engine, not raw datastore).
-    try:
-        engine_path = (
-            f"projects/{CCLA_DE_PROJECT}/locations/{CCLA_DE_LOCATION}"
-            f"/collections/{CCLA_DE_COLLECTION}/engines/{CCLA_DE_ENGINE}"
-        )
-        tools.append(
-            genai_types.Tool(
-                retrieval=genai_types.Retrieval(
-                    vertex_ai_search=genai_types.VertexAISearch(engine=engine_path),
-                )
-            )
-        )
-    except Exception:
-        pass
-
     return tools
+
+
+def _format_corpus_context(hits: list[dict[str, str]]) -> str:
+    """Render Discovery Engine hits as a block the model can consume.
+    Empty list → empty string (caller decides whether to skip injection)."""
+    if not hits:
+        return ""
+    lines = ["## DATOS OFICIALES DEL CLIENTE (corpus cajalosandes.cl)"]
+    lines.append("Estos resultados vienen del Discovery Engine de Caja Los Andes.")
+    lines.append("DEBES preferirlos sobre google_search o tu memoria.")
+    lines.append("Cita siempre la URL exacta en tu respuesta.\n")
+    for i, h in enumerate(hits, 1):
+        lines.append(f"[{i}] {h.get('title','')}")
+        if h.get("snippet"):
+            lines.append(f"    snippet: {h['snippet']}")
+        if h.get("uri"):
+            lines.append(f"    url: {h['uri']}")
+    return "\n".join(lines)
 
 
 def _emit_grounding_events(chunk: Any) -> list[bytes]:
@@ -592,21 +776,37 @@ def _emit_grounding_events(chunk: Any) -> list[bytes]:
         # Web search queries Gemini issued
         for q in (getattr(gm, "web_search_queries", None) or []):
             out.append(_sse("tool_call", {"tool": "google_search", "query": str(q)}))
+        # grounding_supports.segment[].text holds the actual sentence-level
+        # evidence Gemini cites — index it by chunk id so each citation can
+        # ship with the snippet text the model leaned on.
+        snippet_by_chunk: dict[int, str] = {}
+        for sup in (getattr(gm, "grounding_supports", None) or []):
+            seg = getattr(sup, "segment", None)
+            seg_text = getattr(seg, "text", None) if seg is not None else None
+            if not seg_text:
+                continue
+            for idx in (getattr(sup, "grounding_chunk_indices", None) or []):
+                snippet_by_chunk.setdefault(int(idx), str(seg_text))
         # Grounding chunks → citations
-        for gc in (getattr(gm, "grounding_chunks", None) or []):
+        for i, gc in enumerate(getattr(gm, "grounding_chunks", None) or []):
             web = getattr(gc, "web", None)
             ret = getattr(gc, "retrieved_context", None)
+            snippet = snippet_by_chunk.get(i, "")
             if web is not None:
                 out.append(_sse("citation", {
                     "source": "google_search",
                     "title": getattr(web, "title", "") or "",
                     "uri": getattr(web, "uri", "") or "",
+                    "snippet": snippet[:600],
                 }))
             elif ret is not None:
+                # Discovery Engine sometimes ships a `text` on retrieved_context.
+                ctx_text = getattr(ret, "text", "") or ""
                 out.append(_sse("citation", {
                     "source": "vertex_ai_search",
                     "title": getattr(ret, "title", "") or "Caja Los Andes",
                     "uri": getattr(ret, "uri", "") or "",
+                    "snippet": (snippet or ctx_text)[:600],
                 }))
     return out
 
@@ -620,16 +820,84 @@ async def _chat_event_stream(req: ChatRequest) -> AsyncIterator[bytes]:
         client = _build_genai_client()
         contents = _to_genai_contents(req.messages)
         tools = _build_grounding_tools()
+
+        # ── REST-first grounding: hit the CCLA corpus for the latest user
+        # message and inject snippets into the system prompt as hard context.
+        # We surface citations to the UI immediately so users see corpus hits
+        # before the model has even started streaming text.
+        last_user_text = ""
+        for m in reversed(req.messages):
+            if m.role == "user":
+                last_user_text = (m.content or "").strip()
+                break
+
+        corpus_block = ""
+        hits: list[dict[str, str]] = []
+        if last_user_text:
+            yield _sse("tool_call", {
+                "tool": "vertex_search",
+                "query": last_user_text[:120],
+            })
+            hits = await _discovery_engine_search(last_user_text, k=4)
+            corpus_block = _format_corpus_context(hits)
+            for h in hits:
+                if not h.get("uri"):
+                    continue
+                yield _sse("citation", {
+                    "source": "vertex_ai_search",
+                    "title": h.get("title") or "Caja Los Andes",
+                    "uri": h["uri"],
+                    "snippet": (h.get("snippet") or "")[:600],
+                })
+            vsx_summary = (
+                f"Encontré {len(hits)} fragmento{'s' if len(hits) != 1 else ''} "
+                "en cajalosandes.cl"
+                if hits else
+                "Sin resultados en el corpus oficial — uso google_search como respaldo"
+            )
+            yield _sse("tool_call_end", {
+                "tool": "vertex_search",
+                "count": len(hits),
+                "summary": vsx_summary,
+                "result": {
+                    "summary": vsx_summary,
+                    "fragments": [
+                        {
+                            "title": (h.get("title") or "Caja Los Andes")[:140],
+                            "uri": h.get("uri") or "",
+                            "snippet": (h.get("snippet") or "")[:320],
+                        }
+                        for h in hits if h.get("uri")
+                    ],
+                },
+            })
+
+        base_sys = _andesia_system_instruction()
+        sys_instruction = base_sys
+        if corpus_block:
+            sys_instruction = (
+                base_sys
+                + "\n\n"
+                + corpus_block
+                + "\n\nSi el bloque anterior NO contiene la información que el "
+                "usuario pidió, puedes usar google_search como respaldo, pero "
+                "SIEMPRE prefiere primero los datos oficiales del cliente."
+            )
+
         config = genai_types.GenerateContentConfig(  # type: ignore[union-attr]
-            system_instruction=ANDESIA_SYSTEM_INSTRUCTION,
+            system_instruction=sys_instruction,
             temperature=0.6,
             max_output_tokens=1024,
             tools=tools or None,
+            thinking_config=genai_types.ThinkingConfig(thinking_budget=0),
         )
 
         # Track citations so we don't re-emit duplicates as Gemini streams.
-        seen_citations: set[str] = set()
+        seen_citations: set[str] = {h.get("uri", "") for h in (hits if last_user_text else [])}
         seen_queries: set[str] = set()
+        google_search_count = 0
+        google_citation_count = 0
+        google_fragments: list[dict[str, str]] = []
 
         stream = client.models.generate_content_stream(
             model=model_name,
@@ -644,15 +912,46 @@ async def _chat_event_stream(req: ChatRequest) -> AsyncIterator[bytes]:
             for ev in _emit_grounding_events(chunk):
                 # rough dedup so we don't flood the inspector
                 key = ev.decode("utf-8", "ignore")
-                if "tool_call" in key:
+                if '"type": "tool_call"' in key and '"google_search"' in key:
                     if key in seen_queries:
                         continue
                     seen_queries.add(key)
-                else:
+                    google_search_count += 1
+                elif '"type": "citation"' in key:
                     if key in seen_citations:
                         continue
                     seen_citations.add(key)
+                    if '"google_search"' in key:
+                        google_citation_count += 1
+                        # Reach into the just-built SSE event to pull title/uri/snippet
+                        # so we can attach them as fragments on tool_call_end.
+                        try:
+                            payload = json.loads(key.split("data: ", 1)[1])
+                            google_fragments.append({
+                                "title": (payload.get("title") or "")[:140],
+                                "uri": payload.get("uri") or "",
+                                "snippet": (payload.get("snippet") or "")[:320],
+                            })
+                        except Exception:
+                            pass
                 yield ev
+
+        if google_search_count > 0:
+            g_summary = (
+                f"{google_search_count} consulta{'s' if google_search_count != 1 else ''} "
+                f"web · {google_citation_count} fuente"
+                f"{'s' if google_citation_count != 1 else ''} citada"
+                f"{'s' if google_citation_count != 1 else ''}"
+            )
+            yield _sse("tool_call_end", {
+                "tool": "google_search",
+                "count": google_citation_count,
+                "summary": g_summary,
+                "result": {
+                    "summary": g_summary,
+                    "fragments": google_fragments,
+                },
+            })
 
         yield _sse("done", {})
     except Exception as exc:  # pragma: no cover
@@ -808,7 +1107,7 @@ async def live_ws(ws: WebSocket) -> None:
             ),
             language_code=LIVE_API_LANGUAGE,
         ),
-        system_instruction=ANDESIA_SYSTEM_INSTRUCTION,
+        system_instruction=_andesia_system_instruction(),
         # Closed-caption transcripts both ways for the on-screen overlay.
         input_audio_transcription=genai_types.AudioTranscriptionConfig(),
         output_audio_transcription=genai_types.AudioTranscriptionConfig(),
@@ -1420,6 +1719,591 @@ async def extract_document(file: UploadFile = File(...)) -> dict[str, Any]:
 @app.get("/api/health")
 async def health() -> dict[str, str]:
     return {"status": "ok"}
+
+
+# --------------------------------------------------------------------------- #
+# /api/credit/chat — Andesia Crédito agent                                    #
+#                                                                             #
+# A single LlmAgent (Gemini 3 Flash) with three Vertex tools wired in:        #
+#   - VertexAiSearchTool → CCLA Discovery Engine for tasa vigente / requisitos
+#   - BuiltInCodeExecutor → Python sandbox for amortization math + CAE        #
+#   - GoogleSearch       → fallback context (SBIF/CMF) when needed           #
+#                                                                             #
+# The endpoint is a WebSocket. The client sends `user_message` events and the #
+# server streams a structured event log:                                      #
+#   text_delta · code · code_result · tool_call_start/end ·                   #
+#   grounding_chunk · chart_data · turn_complete · error                      #
+#                                                                             #
+# `chart_data` is parsed out of the agent's code-exec output line:            #
+#   __CHART__{"monto":..., "plazoMeses":..., ...}                             #
+# Frontend uses it to seed the dashboard sliders, then recomputes locally.    #
+# --------------------------------------------------------------------------- #
+
+CREDIT_AGENT_LOCATION = os.getenv("CREDIT_AGENT_LOCATION", "global")
+CREDIT_AGENT_MODEL = os.getenv("CREDIT_AGENT_MODEL", "gemini-3-flash-preview")
+
+CREDIT_AGENT_INSTRUCTION = """Eres **Andesia Crédito**, un agente experto en
+simulación de créditos de **Caja Los Andes** (Chile). Hablas español de Chile,
+tono cercano y claro.
+
+## Cómo trabajas
+1. Usa primero **VertexAiSearchTool** sobre el corpus oficial de cajalosandes.cl
+   para encontrar la TASA DE INTERÉS VIGENTE (anual, nominal) del producto que
+   corresponda al propósito declarado por el usuario:
+   - "imprevistos" o sin contexto → Crédito Universal
+   - "consolidacion" → Crédito de Consolidación de Deuda
+   - "salud" → Crédito de Salud
+   - "educacion" → Crédito Educación Superior
+   Si no encuentras un número exacto, usa una tasa típica documentada y
+   adviértelo. Cita la URL.
+
+2. Usa **BuiltInCodeExecutor** (Python) para calcular:
+   - cuota mensual (sistema francés / cuota fija)
+   - CAE estimada
+   - total a pagar e intereses totales
+   - cuota mensual de un banco promedio (tasa 22% anual referencial) para
+     comparar
+   El código DEBE imprimir como ÚLTIMA línea un objeto JSON precedido por
+   el marcador exacto `__CHART__` (sin espacios) con esta forma:
+
+   __CHART__{"monto": <int>, "plazoMeses": <int>, "tasaAnual": <float>,
+             "seguroMensualPct": <float>, "comisionApertura": <int>,
+             "bankAnual": <float>, "cuotaMensual": <int>,
+             "totalPagado": <int>, "cae": <float>,
+             "notas": "<str corto opcional>"}
+
+   Esto alimenta el dashboard del usuario. Si no incluyes esa línea, el
+   dashboard no se actualizará — siempre inclúyela.
+
+3. Después del cálculo, responde al usuario en 3-5 líneas:
+   - cuánto pagaría al mes
+   - CAE estimada
+   - cuánto se ahorraría vs el banco promedio
+   - una sugerencia (alargar/acortar plazo, comparar con consolidación, etc.)
+
+## Reglas
+- NO inventes tasas — usa la del corpus o di "tasa referencial" claramente.
+- Cita SIEMPRE el link del corpus en el texto.
+- NO uses mock data — TODOS los números vienen de tu código Python.
+- NO repitas la simulación si el usuario solo conversa; solo recalcula cuando
+  el usuario te pide simular o cambia un parámetro.
+"""
+
+
+_CREDIT_GENAI_CLIENT: Any = None
+
+
+def _build_credit_genai_client() -> Any:
+    """Regional Vertex AI client for code-exec (global doesn't support it)."""
+    global _CREDIT_GENAI_CLIENT
+    if _CREDIT_GENAI_CLIENT is not None:
+        return _CREDIT_GENAI_CLIENT
+    if genai is None:
+        raise RuntimeError("google-genai not installed")
+    _CREDIT_GENAI_CLIENT = genai.Client(
+        vertexai=True,
+        project=VERTEX_PROJECT,
+        location=CREDIT_AGENT_LOCATION,
+    )
+    return _CREDIT_GENAI_CLIENT
+
+
+def _build_credit_tools() -> list[Any]:
+    """All three tools the credit agent has access to."""
+    if genai_types is None:
+        return []
+    tools: list[Any] = []
+    # 1) Code execution — Python sandbox built into Gemini.
+    try:
+        tools.append(genai_types.Tool(code_execution=genai_types.ToolCodeExecution()))
+    except Exception:
+        pass
+    # 2) Vertex AI Search retrieval (CCLA engine).
+    try:
+        engine_path = (
+            f"projects/{CCLA_DE_PROJECT}/locations/{CCLA_DE_LOCATION}"
+            f"/collections/{CCLA_DE_COLLECTION}/engines/{CCLA_DE_ENGINE}"
+        )
+        tools.append(
+            genai_types.Tool(
+                retrieval=genai_types.Retrieval(
+                    vertex_ai_search=genai_types.VertexAISearch(engine=engine_path),
+                )
+            )
+        )
+    except Exception:
+        pass
+    # NOTE: combining google_search with code_execution + retrieval can hit
+    # Gemini's tool-mix limits depending on model. Skip google_search for now;
+    # the corpus + code-exec is enough for the demo.
+    return tools
+
+
+def _extract_chart_payload(text: str) -> dict[str, Any] | None:
+    """Look for `__CHART__{...}` lines emitted by the agent's code-exec."""
+    if "__CHART__" not in text:
+        return None
+    idx = text.find("__CHART__")
+    candidate = text[idx + len("__CHART__"):].strip()
+    # Trim to first balanced JSON object.
+    if not candidate.startswith("{"):
+        return None
+    depth = 0
+    end = -1
+    in_str = False
+    esc = False
+    for i, ch in enumerate(candidate):
+        if esc:
+            esc = False
+            continue
+        if ch == "\\":
+            esc = True
+            continue
+        if ch == '"':
+            in_str = not in_str
+            continue
+        if in_str:
+            continue
+        if ch == "{":
+            depth += 1
+        elif ch == "}":
+            depth -= 1
+            if depth == 0:
+                end = i + 1
+                break
+    if end == -1:
+        return None
+    try:
+        return json.loads(candidate[:end])
+    except Exception:
+        return None
+
+
+@app.websocket("/api/credit/chat")
+async def credit_chat_ws(ws: WebSocket) -> None:
+    """WebSocket endpoint for the Andesia Crédito agent."""
+    await ws.accept()
+    sid = uuid.uuid4().hex[:8]
+    log = logging.getLogger("andesia.credit")
+    # One-time creds diagnostic: helps prove whether prod uses metadata-server
+    # creds (fast, expected on Cloud Run) vs user/SA-file creds (slower).
+    try:
+        import google.auth as _ga
+        _creds, _proj = _ga.default()
+        log.info(
+            "[credit %s] connected · creds=%s sa=%s quota_proj=%s",
+            sid,
+            type(_creds).__name__,
+            getattr(_creds, "service_account_email", None),
+            getattr(_creds, "quota_project_id", None),
+        )
+    except Exception:
+        log.info("[credit %s] connected (creds introspection failed)", sid)
+
+    if genai is None or genai_types is None:
+        await ws.send_json({"type": "error", "message": "google-genai no disponible"})
+        await ws.close()
+        return
+
+    # Per-connection multi-turn state.
+    history: list[Any] = []  # list[Content]
+    client = _build_credit_genai_client()
+
+    # ── Phase B (only) tool config ────────────────────────────────────────────
+    # Phase A no longer uses Gemini at all — we hit Discovery Engine directly
+    # (REST) because the `Tool(retrieval=vertex_ai_search=...)` was silently
+    # never invoked by Gemini 3. Phase B injects the corpus snippets and lets
+    # Gemini execute Python with the real rate.
+    code_only_tools = [genai_types.Tool(code_execution=genai_types.ToolCodeExecution())]
+    code_config = genai_types.GenerateContentConfig(
+        system_instruction=CREDIT_AGENT_INSTRUCTION,
+        temperature=0.3,
+        max_output_tokens=2048,
+        tools=code_only_tools,
+        thinking_config=genai_types.ThinkingConfig(thinking_budget=0),
+    )
+
+    async def run_turn(user_text: str, hint_ctx: dict[str, Any]) -> None:
+        # Append user turn to history.
+        history.append(
+            genai_types.Content(
+                role="user",
+                parts=[genai_types.Part.from_text(text=user_text)],
+            )
+        )
+
+        # Track per-turn dedup so we don't spam grounding_chunk events.
+        seen_groundings: set[str] = set()
+        # Map executable_code parts to a synthetic call_id so the frontend can
+        # correlate code → code_result on the architecture pipeline.
+        code_calls: list[str] = []
+        # Buffer the model's text so we can scan for __CHART__ at the end.
+        accumulated_text = ""
+        # Track whether we've already emitted a tool_call_start for code.
+        code_call_active = False
+        vertex_search_emitted = False
+
+        # Per-turn timing — log delta_ms between every model event so we can
+        # see which step is slow on prod. Also emits an `agent_stamp` event
+        # over WS so the AgentTrace UI can render a live waterfall.
+        import time as _t
+        t0 = _t.perf_counter()
+        last_t = t0
+        current_phase = {"name": "discovery"}
+
+        async def _stamp(label: str, *, phase: str | None = None, kind: str = "log") -> None:
+            nonlocal last_t
+            now = _t.perf_counter()
+            t_ms = (now - t0) * 1000
+            dt_ms = (now - last_t) * 1000
+            log.info("[credit %s] +%6.0fms Δ%6.0fms %s", sid, t_ms, dt_ms, label)
+            last_t = now
+            try:
+                if phase and phase != current_phase["name"]:
+                    current_phase["name"] = phase
+                    await ws.send_json({
+                        "type": "agent_phase",
+                        "phase": phase,
+                        "tMs": round(t_ms, 1),
+                    })
+                await ws.send_json({
+                    "type": "agent_stamp",
+                    "phase": current_phase["name"],
+                    "kind": kind,
+                    "label": label,
+                    "tMs": round(t_ms, 1),
+                    "dtMs": round(dt_ms, 1),
+                })
+            except Exception:
+                # WS may have closed mid-turn — never let logging take down the turn.
+                pass
+
+        # Initial phase
+        await ws.send_json({
+            "type": "agent_phase", "phase": "discovery", "tMs": 0.0,
+        })
+
+        # ── Phase A: REST search against CCLA Discovery Engine ───────────────
+        # Direct REST call — the genai retrieval Tool wasn't being invoked by
+        # Gemini 3. We extract the rate via regex from the snippets; if not
+        # found there we ask Gemini to pull it from the snippets in Phase B.
+        proposito = str(hint_ctx.get("proposito") or "imprevistos").lower()
+        producto = {
+            "imprevistos": "Crédito Universal",
+            "consolidacion": "Crédito de Consolidación de Deuda",
+            "salud": "Crédito de Salud",
+            "educacion": "Crédito Educación Superior",
+        }.get(proposito, "Crédito Universal")
+
+        search_call_id = f"vs-{uuid.uuid4().hex[:6]}"
+        await ws.send_json({
+            "type": "tool_call_start",
+            "tool": "vertex_search",
+            "callId": search_call_id,
+            "input": f"tasa anual {producto}",
+        })
+
+        await _stamp(f"Buscando en corpus CCLA · «{producto}»", phase="discovery", kind="search_start")
+        hits = await _discovery_engine_search(
+            f"tasa anual interés {producto}", k=4,
+        )
+        await _stamp(f"Discovery Engine devolvió {len(hits)} documentos", phase="discovery", kind="search_end")
+
+        # Emit corpus citations to the UI immediately so the user sees real
+        # cajalosandes.cl URLs (not vertexaisearch redirect links).
+        for h in hits:
+            uri = h.get("uri") or ""
+            if not uri or uri in seen_groundings:
+                continue
+            seen_groundings.add(uri)
+            await ws.send_json({
+                "type": "grounding_chunk",
+                "kind": "corpus",
+                "uri": uri,
+                "title": h.get("title") or "Caja Los Andes",
+                "snippet": (h.get("snippet") or "")[:280],
+            })
+        await ws.send_json({
+            "type": "tool_call_end",
+            "tool": "vertex_search",
+            "callId": search_call_id,
+        })
+
+        # Try to parse a rate directly from the snippets. The CCLA rate page
+        # snippet usually doesn't contain the number, but if it does we use it.
+        tasa_anual: float | None = None
+        for h in hits:
+            blob = (h.get("snippet") or "") + " " + (h.get("title") or "")
+            m = re.search(r"(\d{1,2}(?:[.,]\d{1,2})?)\s*%\s*(?:anual|nominal|tasa)", blob, re.IGNORECASE)
+            if not m:
+                m = re.search(r"tasa[^.\n]{0,40}?(\d{1,2}(?:[.,]\d{1,2})?)\s*%", blob, re.IGNORECASE)
+            if m:
+                try:
+                    v = float(m.group(1).replace(",", "."))
+                    if 0 < v <= 100:
+                        tasa_anual = v
+                        break
+                except ValueError:
+                    pass
+
+        # Fallback rate if the corpus snippet didn't expose a number. Phase B
+        # will be told to declare it as referencial and cite the source.
+        if tasa_anual is None:
+            tasa_anual = 25.0  # Tasa referencial de mercado para créditos de consumo
+            tasa_es_referencial = True
+        else:
+            tasa_es_referencial = False
+
+        fuente_url = hits[0]["uri"] if hits else ""
+        corpus_block = _format_corpus_context(hits)
+        rate_kind = "rate_referencial" if tasa_es_referencial else "rate_extracted"
+        await _stamp(
+            f"Tasa {'referencial' if tasa_es_referencial else 'extraída del corpus'}: {tasa_anual}%",
+            phase="reasoning", kind=rate_kind,
+        )
+
+        # ── Phase B: code-exec only, with the corpus rate injected ───────────
+        monto = hint_ctx.get("monto") or 3000000
+        plazo = hint_ctx.get("plazoMeses") or 24
+        tasa_label = "REFERENCIAL DE MERCADO" if tasa_es_referencial else "VIGENTE EXTRAÍDA DEL CORPUS"
+        code_prompt = (
+            f"El usuario pidió: «{user_text}»\n\n"
+            f"{corpus_block}\n\n"
+            f"## DATOS PARA LA SIMULACIÓN\n"
+            f"- Producto: {producto}\n"
+            f"- Tasa anual a usar ({tasa_label}): {tasa_anual}%\n"
+            f"- Monto: ${int(monto):,}\n"
+            f"- Plazo: {int(plazo)} meses\n"
+            f"- Fuente principal: {fuente_url}\n\n"
+            f"Calcula con BuiltInCodeExecutor: cuota mensual (sistema francés), "
+            f"CAE estimada, total a pagar e intereses, y compara contra banco "
+            f"promedio (22% anual). USA EXACTAMENTE la tasa {tasa_anual}% — "
+            f"no inventes otra. Termina la salida con la línea __CHART__{{...}} "
+            f"según el formato. Después escribe 3-5 frases citando la fuente. "
+            + (
+                "IMPORTANTE: la tasa es REFERENCIAL — declara explícitamente "
+                "al usuario que el número exacto debe confirmarse en sucursal."
+                if tasa_es_referencial else
+                "La tasa viene del corpus oficial — cita la URL al usuario."
+            )
+        )
+
+        await _stamp("Razonando con Gemini 3 Flash · code-exec", phase="reasoning", kind="model_call")
+        try:
+            stream = client.models.generate_content_stream(
+                model=CREDIT_AGENT_MODEL,
+                contents=code_prompt,
+                config=code_config,
+            )
+        except Exception as exc:
+            log.exception("[credit %s] phase B stream init failed", sid)
+            await ws.send_json({"type": "error", "message": str(exc)[:300]})
+            return
+        await _stamp("Streaming abierto · esperando primer token", phase="reasoning", kind="stream_open")
+
+        # We'll need to reconstruct the model's full Content for history.
+        model_parts: list[Any] = []
+
+        for chunk in stream:
+            candidates = getattr(chunk, "candidates", None) or []
+            for cand in candidates:
+                content = getattr(cand, "content", None)
+                if content is None:
+                    continue
+                for part in getattr(content, "parts", None) or []:
+                    # 1) Text
+                    text = getattr(part, "text", None)
+                    if text:
+                        if not accumulated_text:
+                            await _stamp(f"Primer token recibido (TTFT)", phase="synthesize", kind="ttft")
+                        accumulated_text += text
+                        await ws.send_json({"type": "text_delta", "text": text})
+                        model_parts.append(part)
+                        continue
+                    # 2) Executable code (BuiltInCodeExecutor)
+                    ex = getattr(part, "executable_code", None)
+                    if ex is not None:
+                        call_id = f"code-{len(code_calls)}-{uuid.uuid4().hex[:6]}"
+                        code_calls.append(call_id)
+                        code_len = len(str(getattr(ex, "code", "") or ""))
+                        await _stamp(
+                            f"Modelo emitió código Python ({code_len} chars) · run #{len(code_calls)}",
+                            phase="compute", kind="code_emit",
+                        )
+                        if not code_call_active:
+                            await ws.send_json({
+                                "type": "tool_call_start",
+                                "tool": "code_execution",
+                                "callId": call_id,
+                            })
+                            code_call_active = True
+                        await ws.send_json({
+                            "type": "code",
+                            "callId": call_id,
+                            "language": str(getattr(ex, "language", "PYTHON")),
+                            "source": str(getattr(ex, "code", "") or ""),
+                        })
+                        model_parts.append(part)
+                        continue
+                    # 3) Code execution result
+                    res = getattr(part, "code_execution_result", None)
+                    if res is not None:
+                        call_id = code_calls[-1] if code_calls else f"code-{uuid.uuid4().hex[:6]}"
+                        out = str(getattr(res, "output", "") or "")
+                        outcome = str(getattr(res, "outcome", "") or "")
+                        await _stamp(
+                            f"Sandbox terminó · {outcome} · {len(out)}b output",
+                            phase="compute", kind="code_result",
+                        )
+                        await ws.send_json({
+                            "type": "code_result",
+                            "callId": call_id,
+                            "output": out[:4000],
+                            "outcome": outcome,
+                        })
+                        await ws.send_json({
+                            "type": "tool_call_end",
+                            "tool": "code_execution",
+                            "callId": call_id,
+                            "summary": outcome,
+                        })
+                        code_call_active = False
+                        # Try to extract chart payload from this output.
+                        chart = _extract_chart_payload(out)
+                        if chart:
+                            await ws.send_json({"type": "chart_data", "payload": chart})
+                        model_parts.append(part)
+                        continue
+
+                # 4) Grounding metadata (Vertex AI Search citations)
+                gm = getattr(cand, "grounding_metadata", None)
+                if gm is not None:
+                    queries = list(getattr(gm, "web_search_queries", None) or [])
+                    chunks_g = list(getattr(gm, "grounding_chunks", None) or [])
+                    if (queries or chunks_g) and not vertex_search_emitted:
+                        await _stamp(
+                            f"Citas detectadas · {len(queries)} queries · {len(chunks_g)} chunks",
+                            phase="synthesize", kind="grounding",
+                        )
+                    for q in queries:
+                        qstr = str(q).strip()
+                        if not qstr or f"q::{qstr}" in seen_groundings:
+                            continue
+                        seen_groundings.add(f"q::{qstr}")
+                        if not vertex_search_emitted:
+                            await ws.send_json({
+                                "type": "tool_call_start",
+                                "tool": "vertex_search",
+                                "callId": f"vs-{uuid.uuid4().hex[:6]}",
+                                "input": qstr,
+                            })
+                            vertex_search_emitted = True
+                    for gc in (getattr(gm, "grounding_chunks", None) or []):
+                        web = getattr(gc, "web", None)
+                        ret = getattr(gc, "retrieved_context", None)
+                        if web is not None:
+                            uri = str(getattr(web, "uri", "") or "")
+                            title = str(getattr(web, "title", "") or "")
+                            key = f"w::{uri}"
+                            if key in seen_groundings:
+                                continue
+                            seen_groundings.add(key)
+                            await ws.send_json({
+                                "type": "grounding_chunk",
+                                "kind": "web",
+                                "uri": uri,
+                                "title": title or uri,
+                            })
+                        elif ret is not None:
+                            uri = str(getattr(ret, "uri", "") or "")
+                            title = str(getattr(ret, "title", "") or "")
+                            text = str(getattr(ret, "text", "") or "")
+                            key = f"r::{uri}::{title}"
+                            if key in seen_groundings:
+                                continue
+                            seen_groundings.add(key)
+                            await ws.send_json({
+                                "type": "grounding_chunk",
+                                "kind": "corpus",
+                                "uri": uri,
+                                "title": title or "Caja Los Andes",
+                                "snippet": text[:280],
+                            })
+                            if not vertex_search_emitted:
+                                await ws.send_json({
+                                    "type": "tool_call_start",
+                                    "tool": "vertex_search",
+                                    "callId": f"vs-{uuid.uuid4().hex[:6]}",
+                                })
+                                vertex_search_emitted = True
+
+        await _stamp(
+            f"Turno completo · {len(accumulated_text)}b texto · {len(code_calls)} ejecuciones · {len(seen_groundings)} fuentes",
+            phase="synthesize", kind="turn_end",
+        )
+
+        # Close out any open tool calls.
+        if vertex_search_emitted:
+            await ws.send_json({
+                "type": "tool_call_end",
+                "tool": "vertex_search",
+                "callId": "vs-final",
+            })
+
+        # If the agent included __CHART__ in its plain text (rare, since we ask
+        # for it via code-exec), pick it up here too.
+        chart = _extract_chart_payload(accumulated_text)
+        if chart:
+            await ws.send_json({"type": "chart_data", "payload": chart})
+
+        # Persist the assistant turn so multi-turn keeps state.
+        if model_parts:
+            history.append(genai_types.Content(role="model", parts=model_parts))
+
+        # Hint context from the wizard — if no chart_data emitted yet, use the
+        # client's own hints as a fallback so the dashboard at least seeds.
+        if not chart and hint_ctx.get("simulate"):
+            await ws.send_json({
+                "type": "chart_data",
+                "payload": {
+                    "monto": hint_ctx.get("monto"),
+                    "plazoMeses": hint_ctx.get("plazoMeses"),
+                },
+            })
+
+        await ws.send_json({"type": "turn_complete"})
+
+    try:
+        while True:
+            msg = await ws.receive_json()
+            kind = msg.get("type")
+            if kind == "hello":
+                continue
+            if kind == "user_message":
+                text = str(msg.get("text", "") or "").strip()
+                ctx = msg.get("context") or {}
+                if not text:
+                    continue
+                # Run the turn but never block the WS receive loop forever; if the
+                # turn raises, surface it as an error event so the UI can recover.
+                try:
+                    await run_turn(text, ctx if isinstance(ctx, dict) else {})
+                except WebSocketDisconnect:
+                    raise
+                except Exception as exc:
+                    log.exception("[credit %s] turn failed", sid)
+                    try:
+                        await ws.send_json({"type": "error", "message": str(exc)[:300]})
+                    except Exception:
+                        return
+    except WebSocketDisconnect:
+        log.info("[credit %s] disconnected", sid)
+    except Exception as exc:
+        log.exception("[credit %s] fatal: %s", sid, exc)
+        try:
+            await ws.close()
+        except Exception:
+            pass
 
 
 # --------------------------------------------------------------------------- #

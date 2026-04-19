@@ -317,14 +317,15 @@
 .cla-nav__link {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  padding: 16px 9px;
+  gap: 3px;
+  padding: 16px 7px;
   color: var(--ds-color-monochromatic-b-1, #000);
   font-family: var(--ds-font-family);
   font-weight: var(--ds-weight-font-medium, 500);
-  font-size: var(--ds-size-font-s-3, 18px);
-  line-height: var(--ds-size-line-height-s-3, 24px);
+  font-size: 15px;
+  line-height: 22px;
   border-bottom: 3px solid transparent;
+  white-space: nowrap;
   transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease;
 }
 
@@ -345,6 +346,118 @@
 
 .cla-nav__item.is-open .cla-nav__chev {
   transform: rotate(180deg);
+}
+
+/* === Agentic nav item — "Simula tu Crédito" with shiny AGENTE badge ===
+ * Goal: visually telegraph "this is the new AI thing" without being garish.
+ * Sparkle (Gemini-style 4-pt star) rotates slowly, gradient pill shimmers,
+ * NUEVO pip pulses in amber. Info button gates the architecture modal. */
+.cla-nav__item--agent .cla-nav__link {
+  position: relative;
+  padding-right: 8px;
+  gap: 6px;
+}
+
+.cla-nav__agent-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 7px 2px 4px;
+  border-radius: 999px;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: #fff;
+  background: linear-gradient(
+    100deg,
+    #2b6df0 0%,
+    #1ec8d6 25%,
+    #7c4dff 50%,
+    #1ec8d6 75%,
+    #2b6df0 100%
+  );
+  background-size: 280% 100%;
+  animation: cla-agent-shimmer 3.6s linear infinite;
+  box-shadow:
+    0 2px 8px rgba(43, 109, 240, 0.35),
+    0 0 0 1px rgba(255, 255, 255, 0.12) inset;
+}
+
+.cla-nav__agent-spark {
+  width: 11px;
+  height: 11px;
+  fill: #fff;
+  filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.7));
+  animation: cla-agent-spin 6s linear infinite;
+  transform-origin: 50% 50%;
+}
+
+.cla-nav__agent-text {
+  font-size: 9.5px;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.18);
+}
+
+.cla-nav__agent-pip {
+  display: inline-block;
+  margin-left: 2px;
+  padding: 1px 5px;
+  background: linear-gradient(135deg, #ffb648, #ff7a18);
+  color: #2a1500;
+  border-radius: 999px;
+  font-size: 8.5px;
+  letter-spacing: 0.08em;
+  animation: cla-agent-pip-pulse 1.8s ease-in-out infinite;
+}
+
+.cla-nav__agent-info {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  margin-left: 2px;
+  background: rgba(43, 109, 240, 0.08);
+  border: 1px solid rgba(43, 109, 240, 0.18);
+  border-radius: 999px;
+  color: #2b6df0;
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.cla-nav__agent-info:hover {
+  background: rgba(43, 109, 240, 0.16);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(43, 109, 240, 0.22);
+}
+
+.cla-nav__agent-info .material-symbols-outlined {
+  font-size: 12px !important;
+}
+
+/* Hide the verbose AGENTE word at narrower viewports — keep spark + NUEVO pip. */
+@media (max-width: 1280px) {
+  .cla-nav__agent-text { display: none; }
+}
+
+@keyframes cla-agent-shimmer {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 280% 50%; }
+}
+
+@keyframes cla-agent-spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes cla-agent-pip-pulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(255, 122, 24, 0.55);
+    transform: scale(1);
+  }
+  50% {
+    box-shadow: 0 0 0 5px rgba(255, 122, 24, 0);
+    transform: scale(1.04);
+  }
 }
 
 .cla-nav__mega {

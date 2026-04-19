@@ -4,6 +4,8 @@ import SearchBar from './components/SearchBar';
 import DocumentAISection from './components/DocumentAI';
 import HeroShowcase from './components/HeroShowcase';
 import { AndesiaChat } from './components/AndesiaChat';
+import { CreditSimulator, CreditAgentArchitecture } from './components/CreditSimulator';
+import type { CreditEvent } from './components/CreditSimulator';
 
 /* -----------------------------------------------------------------------------
  * Caja Los Andes — high-fidelity public-site replica
@@ -59,12 +61,19 @@ interface NavItem {
   href: string;
   banner?: { image: string; paragraph: string };
   submenu?: { label: string; href: string; tag?: string }[];
+  /* Agentic items (no real URL) — open an in-page experience instead of navigating. */
+  agent?: 'credit';
 }
 
 const primaryNav: NavItem[] = [
   { label: 'Inicio', href: 'https://www.cajalosandes.cl' },
   {
-    label: 'Licencias Médicas',
+    label: 'Simulador',
+    href: '#',
+    agent: 'credit',
+  },
+  {
+    label: 'Licencias',
     href: 'https://www.cajalosandes.cl/licencias-medicas',
     banner: {
       image: '/images/licencias.webp',
@@ -309,7 +318,13 @@ function MainHeader() {
   );
 }
 
-function PrimaryNav() {
+function PrimaryNav({
+  onOpenCredit,
+  onOpenAgentInfo,
+}: {
+  onOpenCredit: () => void;
+  onOpenAgentInfo: () => void;
+}) {
   const [openIdx, setOpenIdx] = useState<number | null>(null);
 
   return (
@@ -319,7 +334,7 @@ function PrimaryNav() {
           {primaryNav.map((item, idx) => (
             <li
               key={item.label}
-              className={`cla-nav__item${openIdx === idx ? ' is-open' : ''}`}
+              className={`cla-nav__item${openIdx === idx ? ' is-open' : ''}${item.agent ? ' cla-nav__item--agent' : ''}`}
               onMouseEnter={() => item.submenu && setOpenIdx(idx)}
               onMouseLeave={() => setOpenIdx((cur) => (cur === idx ? null : cur))}
             >
@@ -328,8 +343,45 @@ function PrimaryNav() {
                 className={`cla-nav__link${idx === 0 ? ' is-active' : ''}`}
                 aria-haspopup={item.submenu ? 'true' : undefined}
                 aria-expanded={openIdx === idx}
+                onClick={
+                  item.agent === 'credit'
+                    ? (e) => {
+                        e.preventDefault();
+                        onOpenCredit();
+                      }
+                    : undefined
+                }
               >
                 {item.label}
+                {item.agent === 'credit' && (
+                  <>
+                    <span className="cla-nav__agent-badge" aria-label="Agente de IA — Nuevo">
+                      <svg
+                        className="cla-nav__agent-spark"
+                        viewBox="0 0 24 24"
+                        aria-hidden
+                      >
+                        <path d="M12 2 L13.5 9.2 L20.7 10.5 L13.5 11.8 L12 19 L10.5 11.8 L3.3 10.5 L10.5 9.2 Z" />
+                      </svg>
+                      <span className="cla-nav__agent-text">AGENTE</span>
+                      <span className="cla-nav__agent-pip">NUEVO</span>
+                    </span>
+                    <button
+                      type="button"
+                      className="cla-nav__agent-info"
+                      aria-label="Ver arquitectura del agente"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        onOpenAgentInfo();
+                      }}
+                    >
+                      <span className="material-symbols-outlined" aria-hidden>
+                        info
+                      </span>
+                    </button>
+                  </>
+                )}
                 {item.submenu && (
                   <span className="material-symbols-outlined cla-nav__chev" aria-hidden>
                     expand_more
@@ -692,12 +744,20 @@ function CookieBanner({ onClose }: { onClose: () => void }) {
 
 function App() {
   const [showCookies, setShowCookies] = useState(true);
+  const [creditOpen, setCreditOpen] = useState(false);
+  const [archOpen, setArchOpen] = useState(false);
+  /* Events from the credit agent — shared so the architecture pipeline
+   * can animate in sync with the simulator's WebSocket. */
+  const [creditEvents, setCreditEvents] = useState<CreditEvent[]>([]);
 
   return (
     <div className="cla-app">
       <TopUtilityBar />
       <MainHeader />
-      <PrimaryNav />
+      <PrimaryNav
+        onOpenCredit={() => setCreditOpen(true)}
+        onOpenAgentInfo={() => setArchOpen(true)}
+      />
       <main>
         <Hero />
         <QuickTiles />
@@ -710,6 +770,17 @@ function App() {
       <Footer />
       {showCookies && <CookieBanner onClose={() => setShowCookies(false)} />}
       <AndesiaChat />
+      <CreditSimulator
+        open={creditOpen}
+        onClose={() => setCreditOpen(false)}
+        onOpenArchitecture={() => setArchOpen(true)}
+        onEvents={setCreditEvents}
+      />
+      <CreditAgentArchitecture
+        open={archOpen}
+        onClose={() => setArchOpen(false)}
+        events={creditEvents}
+      />
     </div>
   );
 }

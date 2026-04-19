@@ -73,6 +73,47 @@ function shortType(t: Citation['source_type']): string {
   }
 }
 
+interface ToolFragment {
+  title: string;
+  uri: string;
+  snippet: string;
+}
+
+function extractFragments(result: ToolCall['result']): {
+  summary: string | null;
+  fragments: ToolFragment[];
+} {
+  if (!result || typeof result !== 'object') {
+    return { summary: typeof result === 'string' ? result : null, fragments: [] };
+  }
+  const obj = result as Record<string, unknown>;
+  const summary = typeof obj.summary === 'string' ? obj.summary : null;
+  const raw = Array.isArray(obj.fragments) ? (obj.fragments as unknown[]) : [];
+  const fragments: ToolFragment[] = raw
+    .map((item) => {
+      if (!item || typeof item !== 'object') return null;
+      const f = item as Record<string, unknown>;
+      const snippet = typeof f.snippet === 'string' ? f.snippet.trim() : '';
+      if (!snippet) return null;
+      return {
+        title: typeof f.title === 'string' ? f.title : '',
+        uri: typeof f.uri === 'string' ? f.uri : '',
+        snippet,
+      };
+    })
+    .filter((x): x is ToolFragment => x !== null);
+  return { summary, fragments };
+}
+
+function hostFromUri(uri: string): string {
+  if (!uri) return '';
+  try {
+    return new URL(uri).hostname.replace(/^www\./, '');
+  } catch {
+    return uri.replace(/^https?:\/\//, '').split('/')[0];
+  }
+}
+
 export default function AndesiaInspector({ state, isPlaying }: AndesiaInspectorProps) {
   const { activeRole, recentRoles, reasoning, toolCalls, citations, toolCount, handoffCount } = state;
   const [openCitation, setOpenCitation] = useState<Citation | null>(null);
@@ -186,14 +227,65 @@ export default function AndesiaInspector({ state, isPlaying }: AndesiaInspectorP
                   <pre className="andesia-tool__args">
                     {truncate(formatJsonPretty(tc.args), 320)}
                   </pre>
-                  {tc.status === 'success' && (
-                    <pre className="andesia-tool__result">
-                      {truncate(formatJsonPretty(tc.result), 220)}
-                    </pre>
+                  {tc.status !== 'running' && (() => {
+                    const { summary, fragments } = extractFragments(tc.result);
+                    if (fragments.length === 0) {
+                      return (
+                        <pre className="andesia-tool__result">
+                          {truncate(
+                            summary ?? formatJsonPretty(tc.result),
+                            260,
+                          )}
+                        </pre>
+                      );
+                    }
+                    return (
+                      <div className="andesia-tool__evidence">
+                        {summary && (
+                          <div className="andesia-tool__evidence-summary">
+                            {summary}
+                          </div>
+                        )}
+                        <ul className="andesia-tool__frags">
+                          {fragments.map((f, i) => (
+                            <li key={`${tc.id}-frag-${i}`} className="andesia-tool__frag">
+                              <div className="andesia-tool__frag-head">
+                                <span className="andesia-tool__frag-idx">{i + 1}</span>
+                                {f.uri ? (
+                                  <a
+                                    className="andesia-tool__frag-title"
+                                    href={f.uri}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    title={f.uri}
+                                  >
+                                    {truncate(f.title || hostFromUri(f.uri) || 'Fuente', 80)}
+                                  </a>
+                                ) : (
+                                  <span className="andesia-tool__frag-title">
+                                    {truncate(f.title || 'Fragmento', 80)}
+                                  </span>
+                                )}
+                                {f.uri && (
+                                  <span className="andesia-tool__frag-host">
+                                    {hostFromUri(f.uri)}
+                                  </span>
+                                )}
+                              </div>
+                              <div className="andesia-tool__frag-snippet">
+                                "{truncate(f.snippet, 240)}"
+                              </div>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    );
+                  })()}
+                  {tc.latency_ms > 0 && (
+                    <span className="andesia-tool__latency">
+                      {`⏱ ${tc.latency_ms}ms`}
+                    </span>
                   )}
-                  <span className="andesia-tool__latency">
-                    {`⏱ ${tc.latency_ms}ms`}
-                  </span>
                 </div>
               ))}
             </div>
