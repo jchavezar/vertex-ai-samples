@@ -1,0 +1,484 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Vibe Search · Vertex AI</title>
+<link rel="stylesheet" href="/static/styles_v2.css?v=11" />
+</head>
+<body>
+
+<!-- Custom cursor (desktop only, JS-driven) -->
+<div class="cursor" id="cursor" aria-hidden="true">
+  <div class="cursor__dot"></div>
+  <div class="cursor__ring"></div>
+  <div class="cursor__label" id="cursorLabel"></div>
+</div>
+
+<!-- ============ HEADER ============ -->
+<header class="topbar">
+  <div class="topbar__inner">
+    <a class="brand" href="/" aria-label="Vibe Search">
+      <span class="brand__mark" aria-hidden="true">
+        <svg viewBox="0 0 32 32" width="26" height="26"><path d="M16 2 C 9 8, 5 16, 5 22 c 0 5 4 8 11 8 7 0 11 -3 11 -8 0 -6 -4 -14 -11 -20 z M16 11 c 4 4, 6 9, 6 12 0 3 -2 4 -6 4 -4 0 -6 -1 -6 -4 0 -3 2 -8 6 -12 z" fill="#83E509"/></svg>
+      </span>
+      <span class="brand__word">vibe search</span>
+    </a>
+
+    <nav class="topnav" aria-label="primary">
+      <a href="#" class="topnav__item topnav__item--ai" data-cursor="link">
+        <span class="ai-dot"></span> Gen AI <span class="caret">▾</span>
+      </a>
+      <a href="#" class="topnav__item" data-cursor="link">Video Templates <span class="caret">▾</span></a>
+      <a href="#" class="topnav__item" data-cursor="link">Stock Video <span class="caret">▾</span></a>
+      <a href="#" class="topnav__item" data-cursor="link">Audio <span class="caret">▾</span></a>
+      <a href="#" class="topnav__item" data-cursor="link">Graphics <span class="caret">▾</span></a>
+      <a href="#" class="topnav__item" data-cursor="link">Design Templates <span class="caret">▾</span></a>
+      <a href="#" class="topnav__item" data-cursor="link">Photos <span class="caret">▾</span></a>
+      <a href="#" class="topnav__item" data-cursor="link">3D <span class="caret">▾</span></a>
+      <a href="#" class="topnav__item" data-cursor="link">More <span class="caret">▾</span></a>
+    </nav>
+
+    <div class="topbar__right">
+      <a href="#" class="topbar__link" data-cursor="link">License</a>
+      <a href="#" class="topbar__link" data-cursor="link">Enterprise</a>
+      <a href="#" class="topbar__link" data-cursor="link">Pricing</a>
+      <a href="#" class="cta cta--green" id="ctaUnlimited" data-cursor="link">Get unlimited downloads</a>
+      <a href="#" class="topbar__avatar" aria-label="account" data-cursor="link"></a>
+    </div>
+  </div>
+</header>
+
+<!-- ============ HERO + SEARCH ============ -->
+<section class="hero">
+  <div class="hero__inner">
+    <div class="search">
+      <div class="search__pill" id="searchPill">
+        <button type="button" class="search__cat" id="catBtn" aria-haspopup="listbox" aria-expanded="false" data-cursor="link">
+          <span id="catLabel">All Items</span>
+          <span class="caret">▾</span>
+        </button>
+        <div class="cat-menu" id="catMenu" hidden>
+          <button data-mod="all" class="is-active">All Items</button>
+          <button data-mod="photo">Photos</button>
+          <button data-mod="video">Video</button>
+          <button data-mod="audio">Audio (Music + SFX)</button>
+          <button data-mod="graphic">Graphics</button>
+        </div>
+        <div class="search__divider"></div>
+        <span class="search__icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="18" height="18"><circle cx="11" cy="11" r="6.5" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M16 16l4.5 4.5" stroke="currentColor" stroke-width="1.7" fill="none" stroke-linecap="round"/></svg>
+        </span>
+        <input
+          type="text"
+          class="search__input"
+          id="searchInput"
+          placeholder="Search 27M+ creative assets — try 'lo-fi coffee shop morning'"
+          autocomplete="off"
+          spellcheck="false"
+          data-cursor="text"
+        />
+        <button type="button" class="search__clear" id="searchClear" aria-label="Clear" hidden data-cursor="link">×</button>
+        <button type="button" class="search__icon-btn" id="soundsLikeBtn" title="Search by sound (Sounds Like)" data-cursor="link" aria-label="Sounds-like search">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 12 V 12 M7 8 V 16 M11 4 V 20 M15 8 V 16 M19 11 V 13"/></svg>
+        </button>
+        <button type="button" class="search__icon-btn" id="imageToAnyBtn" title="Search by image (Image-to-Anything)" data-cursor="link" aria-label="Image-to-anything">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 16 l5 -5 4 4 3 -3 6 6" /><circle cx="9" cy="10" r="1.4" fill="currentColor" stroke="none"/></svg>
+        </button>
+        <span class="ai-chip ai-chip--inline" title="Powered by Vertex AI Vector Search 2.0 + Gemini Embeddings 2"><span class="sparkle">✦</span> AI</span>
+        <button type="button" class="search__go cta cta--green" id="searchGo" data-cursor="link">Search</button>
+
+        <!-- Suggest dropdown -->
+        <div class="suggest" id="suggest" hidden>
+          <div class="suggest__hint" id="suggestHint">
+            Got a song in mind? <a href="#" id="soundsLikeLinkInline">Search with "Sounds Like" →</a>
+          </div>
+          <ul class="suggest__list" id="suggestList"></ul>
+          <div class="suggest__footer">
+            <span class="ai-chip"><span class="sparkle">✦</span> Powered by Vertex AI · Gemini Embeddings 2</span>
+            <span class="suggest__timing" id="suggestTiming"></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="search__subhint">
+        Got a song in mind?
+        <a href="#" id="soundsLikeLink" data-cursor="link">Search with "Sounds Like" →</a>
+        <span class="dot-sep">·</span>
+        <a href="#" id="imageToAnyLink" data-cursor="link">Try "Image-to-Anything" →</a>
+        <span class="dot-sep">·</span>
+        <span class="hint-muted">Powered by Vertex AI Vector Search 2.0 + Gemini Embeddings 2</span>
+      </div>
+
+      <!-- Vibe Slider — biases the query embedding along learned perceptual axes -->
+      <div id="vibeSliderRoot"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ LANDING HERO (bento, default state) ============ -->
+<section class="lh-root" id="landingHero" aria-label="Browse by category">
+  <div class="lh-cursor" id="lhCursor" aria-hidden="true">
+    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M5 12 h14 M13 6 l6 6 -6 6"/>
+    </svg>
+  </div>
+
+  <!-- Unlimited Creativity hero banner (above the bento) -->
+  <div class="lh-banner" id="lhBanner">
+    <div class="lh-banner__copy">
+      <h1 class="lh-banner__title">Unlimited creativity,<br/><em>all in one place.</em></h1>
+      <p class="lh-banner__sub">27M+ assets &middot; vector-indexed by Gemini Embeddings 2 &middot; powered by Vertex AI Vector Search 2.0.</p>
+    </div>
+    <div class="lh-banner__cta-wrap">
+      <a href="#" class="cta cta--green lh-banner__cta" data-cursor="link">Subscribe to vibe search</a>
+      <span class="lh-banner__hint"><span class="sparkle">&#10022;</span> Try a search above &mdash; results in &lt;200ms</span>
+    </div>
+  </div>
+
+  <header class="lh-section-head">
+    <h2 class="lh-h2">Every type of asset, for any type of project</h2>
+  </header>
+
+  <div class="lh-bento" id="lhBento"></div>
+
+  <header class="lh-section-head lh-section-head--sub">
+    <h2 class="lh-h2 lh-h2--small">Suite of AI tools
+      <span class="lh-pill"><span class="lh-spark">&#10022;</span> Powered by Vertex AI</span>
+    </h2>
+  </header>
+
+  <div class="lh-tools-wrap">
+    <div class="lh-tools" id="lhTools"></div>
+  </div>
+
+  <header class="lh-section-head lh-section-head--sub">
+    <h2 class="lh-h2 lh-h2--small">Curated Collections</h2>
+  </header>
+  <div class="lh-collections" id="lhCollections"></div>
+
+  <div class="lh-why">
+    <div class="lh-why__copy">
+      <span class="lh-why__dot"></span>
+      <h2 class="lh-why__title">Every category, covered</h2>
+      <p class="lh-why__sub">Make your best work yet with a comprehensive vector-indexed library of high-quality creative assets &mdash; video, audio, photos, graphics, templates &mdash; powered by Gemini Embeddings 2 + Vertex AI Vector Search 2.0.</p>
+    </div>
+    <div class="lh-why__art" aria-hidden="true"></div>
+  </div>
+
+  <div class="lh-tooltip" id="lhTooltip" hidden></div>
+</section>
+
+<!-- ============ LANDING (default state) ============ -->
+<section class="landing" id="landing">
+  <div class="landing__hero">
+    <div class="landing__hero-left">
+      <div class="landing__hero-deco" aria-hidden="true"></div>
+      <h1>Unlimited<br/>creativity, <em>powered<br/>by Vertex AI.</em></h1>
+      <p>Per-segment vector search across photo, video, music, SFX and graphics — Gemini Embeddings 2 + Vertex AI Vector Search 2.0.</p>
+      <div class="landing__chips">
+        <button class="qchip" data-q="coffee shop morning" data-cursor="link">coffee shop morning</button>
+        <button class="qchip" data-q="aerial drone forest sunrise" data-cursor="link">aerial drone forest sunrise</button>
+        <button class="qchip" data-q="lo-fi piano focus" data-cursor="link">lo-fi piano focus</button>
+        <button class="qchip" data-q="whoosh transition" data-cursor="link">whoosh transition</button>
+        <button class="qchip" data-q="neon retro 80s grid" data-cursor="link">neon retro 80s grid</button>
+        <button class="qchip" data-q="hands typing on keyboard" data-cursor="link">hands typing on keyboard</button>
+      </div>
+    </div>
+    <aside class="landing__hero-card">
+      <div class="landing__price-top">From</div>
+      <div class="landing__price"><strong>$16.50</strong><span>/month</span></div>
+      <ul class="landing__bullets">
+        <li>Unlimited downloads of 27+ million creative assets</li>
+        <li><em>AI Tools:</em> video, image, audio</li>
+        <li>Lifetime commercial license</li>
+      </ul>
+      <a href="#" class="cta cta--green cta--block" data-cursor="link">Subscribe to download</a>
+      <div class="ai-chip ai-chip--inline ai-chip--center"><span class="sparkle">✦</span> Powered by Vertex AI</div>
+    </aside>
+  </div>
+
+  <h2 class="landing__h2">Every type of asset, for any type of project</h2>
+
+  <!-- horizontal carousel of category tiles -->
+  <div class="catreel-wrap">
+    <button class="reel-arrow reel-arrow--prev" id="catReelPrev" aria-label="Scroll left" data-cursor="left">
+      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6 l-6 6 6 6"/></svg>
+    </button>
+    <button class="reel-arrow reel-arrow--next" id="catReelNext" aria-label="Scroll right" data-cursor="right">
+      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6 l6 6 -6 6"/></svg>
+    </button>
+    <div class="catreel" id="catreel"></div>
+  </div>
+
+  <h2 class="landing__h2 landing__h2--small">Suite of AI tools <span class="ai-chip ai-chip--inline"><span class="sparkle">✦</span> Powered by Vertex AI</span></h2>
+  <div class="aitools" id="aitools"></div>
+</section>
+
+<!-- ============ RESULTS ============ -->
+<main class="results" id="results" hidden>
+
+  <!-- Rescue banner -->
+  <div class="rescue" id="rescueBanner" hidden></div>
+
+  <!-- Results header -->
+  <div class="results__head">
+    <div>
+      <h2 class="results__title" id="resultsTitle"></h2>
+      <p class="results__sub" id="resultsSub"></p>
+    </div>
+    <div class="results__sort">
+      Sort by <strong>Relevant</strong> <span class="caret">▾</span>
+    </div>
+  </div>
+
+  <!-- Refinement chips (derived from caption.objects/tags) -->
+  <div class="refine-wrap">
+    <div class="refine" id="refineBar"></div>
+  </div>
+
+  <div class="results__body">
+
+    <!-- ======= LEFT FILTERS ======= -->
+    <aside class="filters" id="filters">
+      <div class="filters__head">
+        <button class="filters__toggle" id="filtersToggle" data-cursor="link">Hide Filters</button>
+      </div>
+
+      <div class="filters__group">
+        <h4>Modality</h4>
+        <label class="rad"><input type="radio" name="modality" value="all" checked> <span>All</span></label>
+        <label class="rad"><input type="radio" name="modality" value="photo"> <span>Photos</span></label>
+        <label class="rad"><input type="radio" name="modality" value="video"> <span>Video</span></label>
+        <label class="rad"><input type="radio" name="modality" value="audio"> <span>Audio</span></label>
+        <label class="rad"><input type="radio" name="modality" value="graphic"> <span>Graphics</span></label>
+      </div>
+
+      <div class="filters__group" id="tempoGroup" hidden>
+        <h4>Tempo</h4>
+        <label class="rad"><input type="radio" name="tempo" value="" checked> <span>Any</span></label>
+        <label class="rad"><input type="radio" name="tempo" value="slow"> <span>Slow (&lt;80 bpm)</span></label>
+        <label class="rad"><input type="radio" name="tempo" value="mid"> <span>Mid (80–110)</span></label>
+        <label class="rad"><input type="radio" name="tempo" value="upbeat"> <span>Upbeat (110–140)</span></label>
+        <label class="rad"><input type="radio" name="tempo" value="fast"> <span>Fast (140+)</span></label>
+      </div>
+
+      <div class="filters__group" id="lengthGroup" hidden>
+        <h4>Length</h4>
+        <label class="rad"><input type="radio" name="length" value="" checked> <span>Any</span></label>
+        <label class="rad"><input type="radio" name="length" value="short"> <span>Short (&lt;10s)</span></label>
+        <label class="rad"><input type="radio" name="length" value="mid"> <span>Mid (10–30s)</span></label>
+        <label class="rad"><input type="radio" name="length" value="long"> <span>Long (30s–2m)</span></label>
+        <label class="rad"><input type="radio" name="length" value="epic"> <span>Epic (2m+)</span></label>
+      </div>
+
+      <div class="filters__group">
+        <h4>Colors</h4>
+        <div class="swatches" id="swatches"></div>
+        <button class="filters__clear" id="colorClear" hidden>clear color</button>
+      </div>
+
+      <div class="filters__group filters__group--hint">
+        <div class="ai-chip ai-chip--inline"><span class="sparkle">✦</span> Vertex AI</div>
+        <p class="muted">Filters re-rank the same vector results — they don't re-query. Try switching modalities mid-search.</p>
+      </div>
+    </aside>
+
+    <!-- ======= RESULTS COLUMN ======= -->
+    <section class="resultcols" id="resultCols">
+      <!-- modality blocks injected here -->
+    </section>
+  </div>
+
+  <!-- Loading overlay -->
+  <div class="loader" id="loader" hidden>
+    <div class="loader__bar"></div>
+    <div class="loader__msg">Embedding query · searching 3072-d space…</div>
+  </div>
+</main>
+
+<!-- ============ IMAGE-TO-ANYTHING MODAL ============ -->
+<div class="modal" id="imageToAnyModal" hidden>
+  <div class="modal__backdrop" data-close></div>
+  <div class="modal__panel">
+    <button class="modal__close" data-close aria-label="Close">×</button>
+    <div class="ai-chip ai-chip--big"><span class="sparkle">✦</span> Image → Anything · Vertex AI</div>
+    <h3>Drop any image — get matching photos, video, music, SFX &amp; graphics.</h3>
+    <p class="modal__hint">Your image is embedded with Gemini Embeddings 2, then queried against the same vector space across every modality. This is the cross-modality wow moment.</p>
+    <div class="dropzone" id="i2aDrop">
+      <div class="dropzone__inner">
+        <div class="dropzone__icon">⤓</div>
+        <p>Drag &amp; drop an image here, or</p>
+        <label class="cta cta--ghost">
+          Choose image
+          <input type="file" id="i2aFile" accept="image/*" hidden />
+        </label>
+      </div>
+    </div>
+    <div class="modal__status" id="i2aStatus"></div>
+  </div>
+</div>
+
+<!-- ============ SOUNDS-LIKE MODAL ============ -->
+<div class="modal" id="soundsLikeModal" hidden>
+  <div class="modal__backdrop" data-close></div>
+  <div class="modal__panel">
+    <button class="modal__close" data-close aria-label="Close">×</button>
+    <div class="ai-chip ai-chip--big"><span class="sparkle">✦</span> Sounds Like · Vertex AI</div>
+    <h3>Drop an audio clip — find the closest tracks &amp; SFX.</h3>
+    <p class="modal__hint">Audio is embedded segment-wise — we return the matching <em>moments</em>, not whole files.</p>
+    <div class="dropzone" id="slDrop">
+      <div class="dropzone__inner">
+        <div class="dropzone__icon">♪</div>
+        <p>Drag &amp; drop an mp3 / wav, or</p>
+        <label class="cta cta--ghost">
+          Choose audio
+          <input type="file" id="slFile" accept="audio/*" hidden />
+        </label>
+      </div>
+    </div>
+    <div class="modal__status" id="slStatus"></div>
+  </div>
+</div>
+
+<!-- ============ DETAIL MODAL ============ -->
+<div class="modal" id="detailModal" hidden>
+  <div class="modal__backdrop" data-close></div>
+  <div class="modal__panel modal__panel--wide">
+    <button class="modal__close" data-close aria-label="Close">×</button>
+    <div class="detail" id="detailBody"></div>
+  </div>
+</div>
+
+<!-- ============ AUTO-INGEST FLOATING PANEL ============ -->
+<div class="ingest is-collapsed" id="ingest">
+  <div class="ingest__head" id="ingestHead">
+    <span class="ai-chip ai-chip--mini"><span class="sparkle">✦</span></span>
+    <span>Auto-Ingest</span>
+    <span class="ingest__toggle" id="ingestToggle">▾</span>
+  </div>
+  <div class="ingest__body" id="ingestBody">
+    <div class="dropzone dropzone--mini" id="ingestDrop">
+      <p>Drop any file →<br/><span class="muted">auto-segment · caption · embed · index</span></p>
+      <label class="cta cta--ghost cta--sm">
+        Choose file
+        <input type="file" id="ingestFile" hidden />
+      </label>
+    </div>
+    <ul class="ingest__feed" id="ingestFeed"></ul>
+    <div class="ingest__manage">
+      <div class="ingest__manage-head">
+        <span>Your uploads</span>
+        <button class="ingest__refresh" id="manageRefresh" title="Refresh">↻</button>
+      </div>
+      <ul class="ingest__manage-list" id="manageList"></ul>
+    </div>
+  </div>
+</div>
+
+<!-- Floating attribution badge — sits below Auto-Ingest panel -->
+<a class="jcz-attrib" href="https://www.linkedin.com/in/jchavezar/" target="_blank" rel="noopener noreferrer">
+  <span class="jcz-attrib__spark">✦</span>
+  <span class="jcz-attrib__by">Built by</span>
+  <span class="jcz-attrib__name">Jesus Chavez</span>
+  <span class="jcz-attrib__arrow">↗</span>
+</a>
+
+<!-- ============ LIVE STATS PANEL ============ -->
+<div class="stats is-collapsed" id="stats">
+  <div class="stats__head" id="statsHead">
+    <span class="ai-chip ai-chip--mini"><span class="sparkle">✦</span></span>
+    <span>Live Stats</span>
+    <button class="stats__big" id="statsBigBtn" title="Big-text mode (EBC)">A+</button>
+    <span class="stats__toggle" id="statsToggle">▾</span>
+  </div>
+  <div class="stats__body" id="statsBody">
+    <div class="stats__row stats__row--hero">
+      <div class="stats__hero-num" id="stat_segments">—</div>
+      <div class="stats__hero-lbl">segments indexed</div>
+    </div>
+    <div class="stats__row">
+      <span class="stats__k">last 24h uploads</span>
+      <strong id="stat_uploads">—</strong>
+    </div>
+    <div class="stats__row stats__row--latency">
+      <span class="stats__k">query latency</span>
+      <span><strong id="stat_p50">—</strong> <small>p50</small> · <strong id="stat_p95">—</strong> <small>p95</small></span>
+    </div>
+    <div class="stats__row stats__row--col">
+      <span class="stats__k">by modality</span>
+      <div class="stats__bars" id="stat_bars"></div>
+    </div>
+    <div class="stats__row stats__row--col">
+      <span class="stats__k">recent queries</span>
+      <ul class="stats__recent" id="stat_recent"></ul>
+    </div>
+  </div>
+</div>
+
+<!-- ============ TALK TO THIS ASSET — slide-in side panel ============ -->
+<aside class="assetchat" id="assetChat" hidden aria-label="Talk to this asset">
+  <header class="assetchat__head">
+    <span class="ai-chip ai-chip--mini"><span class="sparkle">✦</span></span>
+    <span class="assetchat__title">Talk to this Asset</span>
+    <span class="assetchat__mode" id="assetChatMode">live</span>
+    <button class="assetchat__close" id="assetChatClose" aria-label="Close" title="Close">×</button>
+  </header>
+  <div class="assetchat__preview" id="assetChatPreview"></div>
+  <div class="assetchat__meta" id="assetChatMeta"></div>
+  <div class="assetchat__transcript" id="assetChatTranscript"></div>
+  <div class="assetchat__status" id="assetChatStatus">Idle</div>
+  <div class="assetchat__controls" id="assetChatControls">
+    <button class="assetchat__mic" id="assetChatMic" type="button" title="Hold to talk · click to toggle">
+      <span class="assetchat__mic-dot"></span>
+      <span class="assetchat__mic-lbl">Talk</span>
+    </button>
+    <div class="assetchat__textwrap">
+      <input type="text" class="assetchat__textinput" id="assetChatText" placeholder="Or type a message and press Enter…" autocomplete="off"/>
+      <button class="assetchat__send" id="assetChatSend" type="button" title="Send">↵</button>
+    </div>
+    <div class="assetchat__modeswitch">
+      <button class="assetchat__modebtn is-active" id="assetChatLiveBtn" type="button">Live voice</button>
+      <button class="assetchat__modebtn" id="assetChatTextBtn" type="button">Text mode</button>
+    </div>
+  </div>
+</aside>
+
+<!-- ============ BUILD A KIT — slide-in side panel ============ -->
+<aside class="kit-panel" id="kitPanel" hidden aria-label="Build a Kit"></aside>
+
+<!-- ============ CREATE WITH AI — slide-in side panel (Nano Banana etc.) ============ -->
+<aside class="create-panel" id="createPanel" hidden aria-label="Create with AI">
+  <header class="create-panel__head">
+    <span class="ai-chip ai-chip--mini"><span class="sparkle">✦</span></span>
+    <span class="create-panel__title" id="createPanelTitle">ImageGen</span>
+    <span class="create-panel__model" id="createPanelModel">Nano Banana · gemini-3.1-flash-image-preview</span>
+    <button class="create-panel__close" id="createPanelClose" aria-label="Close" title="Close">×</button>
+  </header>
+  <nav class="create-panel__tabs" id="createPanelTabs" aria-label="Pick an AI tool"></nav>
+  <div class="create-panel__body">
+    <label class="create-panel__lbl" for="createPanelPrompt">Prompt</label>
+    <textarea class="create-panel__prompt" id="createPanelPrompt" rows="3" placeholder="cinematic photograph of a lo-fi coffee shop, soft morning light, 35mm…"></textarea>
+    <div class="create-panel__opts" id="createPanelVoiceOpts" hidden>
+      <label class="create-panel__opt-lbl" for="createPanelVoice">Voice</label>
+      <select class="create-panel__select" id="createPanelVoice"></select>
+    </div>
+    <div class="create-panel__actions">
+      <button class="create-panel__go" id="createPanelGo" type="button">Generate ✦</button>
+      <button class="create-panel__demo" id="createPanelDemo" type="button" title="Fill prompt with a demo example">Use demo prompt</button>
+      <span class="create-panel__status" id="createPanelStatus">Idle</span>
+    </div>
+    <div class="create-panel__output" id="createPanelOutput"></div>
+  </div>
+</aside>
+
+<!-- Toast container -->
+<div class="toasts" id="toasts"></div>
+
+<script src="/static/app_v2.js?v=11" defer></script>
+<script src="/static/landing_v2.js?v=11" defer></script>
+<script src="/static/vibe_slider.js?v=11" defer></script>
+<script src="/static/kit_panel.js?v=11" defer></script>
+<script src="/static/create_panel.js?v=11" defer></script>
+</body>
+</html>

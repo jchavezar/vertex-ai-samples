@@ -1,0 +1,61 @@
+name: Deploy Multimodal Search site
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "semiautonomous-agents/shutter-vibe-engine/multimodal-search/site/**"
+      - ".github/workflows/deploy-multimodal-search-site.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+defaults:
+  run:
+    working-directory: semiautonomous-agents/shutter-vibe-engine/multimodal-search/site
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: semiautonomous-agents/shutter-vibe-engine/multimodal-search/site/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund
+
+      - name: Build site
+        run: npm run build
+
+      - name: Wrap dist in /multimodal-search so it serves at <repo>/multimodal-search/
+        run: |
+          mkdir -p ../wrap
+          mv dist ../wrap/multimodal-search
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: semiautonomous-agents/shutter-vibe-engine/multimodal-search/wrap
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

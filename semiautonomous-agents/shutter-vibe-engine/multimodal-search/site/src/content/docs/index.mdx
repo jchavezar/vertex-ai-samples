@@ -1,0 +1,96 @@
+---
+title: Type a vibe. Get the kit.
+description: One text box. Five modalities. Photos, videos, music, SFX, and graphics ranked by how a query feels — not what words it contains. Built on Gemini Embeddings 2 + Vertex AI Vector Search.
+template: splash
+hero:
+  tagline: |
+    One search box. Five modalities. Photos, videos, music, SFX, and graphics ranked
+    by **how a query feels** — not what words it contains.
+  actions:
+    - text: Watch the 15-second demo ▶
+      link: "#hero-clip"
+      icon: right-arrow
+      variant: primary
+    - text: Replicate this in 5 min
+      link: ./replicate/
+      icon: external
+      variant: secondary
+---
+
+<a id="hero-clip"></a>
+<img class="vibe-hero" src="img/hero.gif" alt="One query, five modalities ranked side by side" />
+<small class="vibe-hero-cap">
+  ↑ <em>"tropical beach getaway"</em> → one query, five matched media types, ranked in a shared 3072-dim embedding space.
+  &nbsp;<a href="img/hero.mp4">▶ Watch the full 41-second demo (MP4)</a>
+</small>
+
+<div class="vibe-stats">
+  <div><strong>5</strong><span>media types, one query</span></div>
+  <div><strong>3072-d</strong><span>shared embedding space</span></div>
+  <div><strong>~7s</strong><span>upload → searchable</span></div>
+</div>
+
+## The villain: keyword search is broken for vibes
+
+Stock-media catalogs are tagged by humans. Tags miss vibes.
+
+Search *"tropical beach getaway"* on a keyword engine and you get whatever was literally tagged `beach`, `tropical`, or `getaway`. You **don't** get the lo-fi guitar track that *sounds like* sunset, or the wave-crash SFX that *feels like* the photo, or the kinetic palm-tree drone clip nobody bothered to tag `getaway`.
+
+The fix isn't more tags. It's a **shared embedding space** where text, image, audio, and video all live next to each other — so a single query vector can pull the nearest neighbour from every modality at once.
+
+## The "aha" in 90 seconds
+
+The trick: **embed the bytes, not the tags.** A wave-crash MP3 and a beach JPG produce vectors that are close in cosine distance — because Gemini Embeddings 2 was trained to put semantically related media near each other regardless of modality.
+
+Here are 300 real assets from this demo, projected from 3072-dim down to 2D with UMAP:
+
+<img class="vibe-hero" src="img/embedding_space.png" alt="UMAP projection of 300 multimodal assets in shared embedding space" />
+
+<div class="vibe-callout">
+  Photos, videos, and graphics overlap heavily in semantic space — that's why a "tropical beach" query pulls a sunset photo <em>and</em> a drone clip <em>and</em> a palm-tree illustration in one shot. Music sits in its own region (audio is harder to align), but with LLM-generated scene captions concatenated to its embedding, <em>"sunset at the beach"</em> still surfaces world-percussion rather than synthwave. <strong>No re-training. No per-modality model.</strong> One embedding API + one vector index does all of it.
+</div>
+
+## What you can do with one embedding space
+
+<div class="vibe-comic">
+  <figure>
+    <h4>Type a vibe</h4>
+    <p>"Sunset at the beach" → text becomes a 3072-dim vector → 5 nearest neighbours, one per modality.</p>
+  </figure>
+  <figure>
+    <h4>Drop a photo</h4>
+    <p>Image bytes embed into the same space. Returns the music and SFX that <em>feel like</em> that photo.</p>
+  </figure>
+  <figure>
+    <h4>Hum a melody</h4>
+    <p>5 seconds of audio → vector → returns visually-matched photos and clips that share the mood.</p>
+  </figure>
+  <figure>
+    <h4>Build a kit</h4>
+    <p>Pick one asset, blend its vector with your query, get a curated photo + clip + track + SFX + graphic.</p>
+  </figure>
+</div>
+
+## See it move
+
+<img class="vibe-hero" src="img/landing.png" alt="Vibe Search landing page" />
+<small class="vibe-hero-cap">Landing — bento layout with drop-zone and AI tools panel.</small>
+
+<img class="vibe-hero" src="img/search_results.png" alt="Search results across five modalities" />
+<small class="vibe-hero-cap">Results — five modalities ranked side by side.</small>
+
+## What this is *not*
+
+- Not a replacement for any specific stock-media product. This is a **reference architecture** showing how a catalog *could* feel if it were re-indexed in a shared embedding space.
+- Not a benchmark. The *"works on my vibes"* numbers are vibes-based, literally. For your domain, evaluate.
+- Not a one-click product. You will edit `.env`, you will provision a Vector Search index, you will pay for a Cloud Run instance.
+
+<div class="vibe-cta">
+  <a href="./how-it-works/">How it actually works →</a>
+  <a class="vibe-cta--ghost" href="./replicate/">Replicate this in 5 minutes →</a>
+</div>
+
+---
+
+Built by [Jesus Chavez](https://www.linkedin.com/in/jchavezar/) — Customer Engineer, Google Cloud.
+Powered by **Gemini 3** · **Vertex AI Vector Search** · **Cloud Run** · **Firestore** · **Eventarc**.
