@@ -1,0 +1,40 @@
+# .gcloudignore variant for the envato-vibe-ingest (Eventarc handler) build.
+# Keeps pipeline/build.py + app/ingest.py + demos/_client.py; excludes UI sources.
+.git/
+.venv/
+__pycache__/
+*.pyc
+
+# Heavy local data
+envato/assets/
+envato/segments_cache/
+data/local_cache/
+*.npz
+*.npy
+
+# Logs / scratch
+*.log
+nohup.out
+server_pid.txt
+
+# Unrelated code
+research/
+findings/
+antigravity/
+
+# v1 / archived
+envato/archive/
+
+# Docs / site
+envato/docs/
+envato/site/
+
+# UI-only sources — ingest doesn't serve HTML
+envato/app/main.py
+envato/app/templates/
+envato/app/static/
+envato/app/requirements.txt
+
+# Other dockerfiles
+envato/deploy/Dockerfile.app
+envato/deploy/.gcloudignore.app

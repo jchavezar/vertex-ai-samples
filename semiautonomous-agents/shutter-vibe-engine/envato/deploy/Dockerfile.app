@@ -5,12 +5,16 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 WORKDIR /app
 
-COPY envato/requirements.ingest.txt ./requirements.txt
+COPY envato/app/requirements.txt ./requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
 
+# `_client.py` lives outside `envato/` (shared across demos in this repo).
+# main.py picks it up via the /app/demos fallback.
 COPY demos/_client.py /app/demos/_client.py
-COPY envato/pipeline_v2.py /app/envato/pipeline_v2.py
-COPY envato/ingest_handler.py /app/envato/ingest_handler.py
+
+COPY envato/app/main.py        /app/envato/app/main.py
+COPY envato/app/templates      /app/envato/app/templates
+COPY envato/app/static         /app/envato/app/static
 
 ENV PYTHONUNBUFFERED=1 \
     GOOGLE_GENAI_USE_VERTEXAI=True \
@@ -20,4 +24,5 @@ ENV PYTHONUNBUFFERED=1 \
     PORT=8080
 
 EXPOSE 8080
-CMD ["uvicorn", "envato.ingest_handler:app", "--host", "0.0.0.0", "--port", "8080"]
+WORKDIR /app/envato/app
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8080"]

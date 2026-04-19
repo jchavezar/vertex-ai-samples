@@ -11,9 +11,41 @@ SERVICE="envato-vibe-ingest"
 TRIGGER="envato-vibe-ingest-trigger"
 
 # Resolve repo root regardless of where this is invoked from.
+# This script lives at envato/deploy/, so REPO_ROOT is two levels up.
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-REPO_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
+REPO_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
+IMAGE="gcr.io/${PROJECT}/${SERVICE}:latest"
+DOCKERFILE_REL="envato/deploy/Dockerfile.ingest"
+GCLOUDIGNORE_SRC="${SCRIPT_DIR}/.gcloudignore.ingest"
 cd "${REPO_ROOT}"
+
+if [[ ! -f "${DOCKERFILE_REL}" ]]; then
+  echo "ERROR: ${DOCKERFILE_REL} not found under repo root (${REPO_ROOT})." >&2
+  exit 1
+fi
+if [[ ! -f "${GCLOUDIGNORE_SRC}" ]]; then
+  echo "ERROR: ${GCLOUDIGNORE_SRC} not found." >&2
+  exit 1
+fi
+
+# Stage our ingest-specific .gcloudignore at REPO_ROOT for the build, restore after.
+RESTORED=0
+restore_gcloudignore() {
+  if [[ "${RESTORED}" -eq 0 ]]; then
+    if [[ -f .gcloudignore.bak ]]; then
+      mv .gcloudignore.bak .gcloudignore
+    else
+      rm -f .gcloudignore
+    fi
+    RESTORED=1
+  fi
+}
+trap 'restore_gcloudignore; rm -f "${BUILD_CFG:-}"' EXIT
+
+if [[ -f .gcloudignore ]]; then
+  cp .gcloudignore .gcloudignore.bak
+fi
+cp "${GCLOUDIGNORE_SRC}" .gcloudignore
 
 echo "→ Granting Eventarc/Pub-Sub the right to invoke our service"
 PROJECT_NUM=$(gcloud projects describe "${PROJECT}" --format='value(projectNumber)')
@@ -22,9 +54,26 @@ gcloud projects add-iam-policy-binding "${PROJECT}" \
   --member="serviceAccount:${GCS_AGENT}" \
   --role="roles/pubsub.publisher" --condition=None --quiet >/dev/null
 
-echo "→ Building + deploying ${SERVICE}"
+# Build the image with an explicit Dockerfile path (the auto-detected
+# Dockerfile at REPO_ROOT no longer exists after the envato/ reorg).
+BUILD_CFG="$(mktemp -t envato-vibe-ingest-cloudbuild.XXXXXX.yaml)"
+cat >"${BUILD_CFG}" <<EOF
+steps:
+- name: gcr.io/cloud-builders/docker
+  args: ['build', '-f', '${DOCKERFILE_REL}', '-t', '${IMAGE}', '.']
+images:
+- '${IMAGE}'
+options:
+  logging: CLOUD_LOGGING_ONLY
+EOF
+trap 'rm -f "${BUILD_CFG}"' EXIT
+
+echo "→ Building image ${IMAGE} (${DOCKERFILE_REL})"
+gcloud builds submit . --project "${PROJECT}" --config "${BUILD_CFG}"
+
+echo "→ Deploying ${SERVICE} from ${IMAGE}"
 gcloud run deploy "${SERVICE}" \
-  --source . \
+  --image "${IMAGE}" \
   --region "${REGION}" \
   --project "${PROJECT}" \
   --service-account "${SA}" \

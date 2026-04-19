@@ -61,7 +61,13 @@ from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
 
 ROOT = Path(__file__).resolve().parent
-sys.path.insert(0, str(ROOT.parent / "demos"))
+# `_client.py` lives at <repo>/semiautonomous-agents/shutter-vibe-engine/demos/.
+# Locally that's `ROOT.parent.parent.parent / "demos"`; in the Docker image it
+# is COPYed to `/app/demos` (see deploy/Dockerfile.app).
+for _cand in (ROOT.parent.parent.parent / "demos", Path("/app/demos")):
+    if _cand.exists():
+        sys.path.insert(0, str(_cand))
+        break
 
 from _client import CLIENT  # noqa: E402  shared genai.Client (us-central1)
 from google import genai  # noqa: E402

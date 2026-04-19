@@ -5,13 +5,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 WORKDIR /app
 
-COPY envato/requirements.app.txt ./requirements.txt
+COPY envato/deploy/requirements.ingest.txt ./requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY demos/_client.py /app/demos/_client.py
-COPY envato/app_v2.py /app/envato/app_v2.py
-COPY envato/templates /app/envato/templates
-COPY envato/static /app/envato/static
+COPY demos/_client.py             /app/demos/_client.py
+COPY envato/pipeline/build.py     /app/envato/pipeline/build.py
+COPY envato/app/ingest.py         /app/envato/app/ingest.py
 
 ENV PYTHONUNBUFFERED=1 \
     GOOGLE_GENAI_USE_VERTEXAI=True \
@@ -21,4 +20,5 @@ ENV PYTHONUNBUFFERED=1 \
     PORT=8080
 
 EXPOSE 8080
-CMD ["uvicorn", "envato.app_v2:app", "--host", "0.0.0.0", "--port", "8080"]
+WORKDIR /app/envato/app
+CMD ["uvicorn", "ingest:app", "--host", "0.0.0.0", "--port", "8080"]

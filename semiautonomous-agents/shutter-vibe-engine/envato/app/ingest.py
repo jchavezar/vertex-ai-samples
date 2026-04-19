@@ -27,9 +27,9 @@ from pathlib import Path
 from fastapi import FastAPI, Request, Response
 
 ROOT = Path(__file__).resolve().parent
-sys.path.insert(0, str(ROOT))
+sys.path.insert(0, str(ROOT.parent / "pipeline"))
 
-from pipeline_v2 import (  # noqa: E402
+from build import (  # noqa: E402
     GCS, VS, GCS_BUCKET, process_asset,
 )
 

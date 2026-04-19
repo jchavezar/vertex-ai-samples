@@ -21,36 +21,44 @@ SERVICE="envato-vibe-app"
 IMAGE="gcr.io/${PROJECT}/${SERVICE}:latest"
 
 # Resolve repo root regardless of where this is invoked from.
+# This script lives at envato/deploy/, so REPO_ROOT is two levels up.
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-REPO_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
+REPO_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
+DOCKERFILE_REL="envato/deploy/Dockerfile.app"
+GCLOUDIGNORE_SRC="${SCRIPT_DIR}/.gcloudignore.app"
 cd "${REPO_ROOT}"
 
-if [[ ! -f Dockerfile.app ]]; then
-  echo "ERROR: Dockerfile.app not found at repo root (${REPO_ROOT})." >&2
+if [[ ! -f "${DOCKERFILE_REL}" ]]; then
+  echo "ERROR: ${DOCKERFILE_REL} not found under repo root (${REPO_ROOT})." >&2
   exit 1
 fi
-if [[ ! -f .gcloudignore.app ]]; then
-  echo "ERROR: .gcloudignore.app not found at repo root (${REPO_ROOT})." >&2
+if [[ ! -f "${GCLOUDIGNORE_SRC}" ]]; then
+  echo "ERROR: ${GCLOUDIGNORE_SRC} not found." >&2
   exit 1
 fi
 
-# Generate an inline Cloud Build config that points at Dockerfile.app.
+# Generate an inline Cloud Build config that points at envato/deploy/Dockerfile.app.
 BUILD_CFG="$(mktemp -t envato-vibe-app-cloudbuild.XXXXXX.yaml)"
 cat >"${BUILD_CFG}" <<EOF
 steps:
 - name: gcr.io/cloud-builders/docker
-  args: ['build', '-f', 'Dockerfile.app', '-t', '${IMAGE}', '.']
+  args: ['build', '-f', '${DOCKERFILE_REL}', '-t', '${IMAGE}', '.']
 images:
 - '${IMAGE}'
 options:
   logging: CLOUD_LOGGING_ONLY
 EOF
 
-# Swap .gcloudignore so the ingest exclusions don't drop our app sources.
+# .gcloudignore is auto-detected from the source root. Stage our app-specific
+# ignore for the duration of `builds submit`, then restore.
 RESTORED=0
 restore_gcloudignore() {
-  if [[ "${RESTORED}" -eq 0 && -f .gcloudignore.bak ]]; then
-    mv .gcloudignore.bak .gcloudignore
+  if [[ "${RESTORED}" -eq 0 ]]; then
+    if [[ -f .gcloudignore.bak ]]; then
+      mv .gcloudignore.bak .gcloudignore
+    else
+      rm -f .gcloudignore
+    fi
     RESTORED=1
   fi
   rm -f "${BUILD_CFG}"
@@ -60,7 +68,7 @@ trap restore_gcloudignore EXIT
 if [[ -f .gcloudignore ]]; then
   cp .gcloudignore .gcloudignore.bak
 fi
-cp .gcloudignore.app .gcloudignore
+cp "${GCLOUDIGNORE_SRC}" .gcloudignore
 
 echo "→ Building image ${IMAGE} (Dockerfile.app)"
 gcloud builds submit . \
