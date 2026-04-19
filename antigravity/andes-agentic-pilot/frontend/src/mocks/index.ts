@@ -228,22 +228,6 @@ export type {
   KpiCard,
 } from './andesInsights';
 
-/* === 12. VITRINA IA (Nano Banana Pro) ======================================== */
-export {
-  VITRINA_CARDS,
-  getCardById,
-  getCardsByPersona,
-  getCardsByTriggerType,
-} from './vitrinaIA';
-export type {
-  VitrinaCard,
-  CardSize,
-  GenModel,
-  BrandElements,
-  GenerationMetadata,
-  ShareAssets,
-} from './vitrinaIA';
-
 /* === 13. SEARCH SUGGESTIONS ================================================== */
 export {
   SEARCH_SUGGESTIONS,

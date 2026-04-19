@@ -4,6 +4,7 @@ import {
   useMemo,
   useRef,
   useState,
+  type ChangeEvent,
   type DragEvent,
 } from 'react';
 import {
@@ -371,6 +372,32 @@ function BoundingBoxOverlay({
   );
 }
 
+const API_BASE =
+  (import.meta.env.VITE_API_BASE as string | undefined) ?? '';
+
+/* Live extraction result returned by /api/extract (Gemini 3 Flash). */
+interface LiveField {
+  label: string;
+  value: string;
+  confidence: number;
+  category?: string;
+}
+interface LiveExtraction {
+  doc_type?: string;
+  summary?: string;
+  fields?: LiveField[];
+  totals?: LiveField[];
+  warnings?: string[];
+}
+interface LiveResponse {
+  filename?: string;
+  mime?: string;
+  bytes?: number;
+  elapsed_ms?: number;
+  model?: string;
+  extraction: LiveExtraction;
+}
+
 export default function DocumentAISection() {
   const [stage, setStage] = useState<Stage>('idle');
   const [activeDoc, setActiveDoc] = useState<ProcessedDocument | null>(null);
@@ -378,9 +405,20 @@ export default function DocumentAISection() {
   const [revealedFields, setRevealedFields] = useState<number>(0);
   const [hover, setHover] = useState(false);
   const [docScale, setDocScale] = useState(1);
+  /* "Live" mode — user uploaded a real file, we render the actual bytes and
+     send them to Gemini 3 Flash for extraction. Mutually exclusive with the
+     chip-driven mock flow. */
+  const [liveFile, setLiveFile] = useState<File | null>(null);
+  const [livePreviewUrl, setLivePreviewUrl] = useState<string | null>(null);
+  const [liveStage, setLiveStage] = useState<'idle' | 'extracting' | 'done' | 'error'>('idle');
+  const [liveResponse, setLiveResponse] = useState<LiveResponse | null>(null);
+  const [liveError, setLiveError] = useState<string | null>(null);
+  const [liveElapsed, setLiveElapsed] = useState<number>(0);
   const dropRef = useRef<HTMLDivElement>(null);
   const docContainerRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const timeoutsRef = useRef<number[]>([]);
+  const liveTickRef = useRef<number | null>(null);
 
   const clearTimers = useCallback(() => {
     timeoutsRef.current.forEach((t) => window.clearTimeout(t));
@@ -457,19 +495,110 @@ export default function DocumentAISection() {
     setRevealedFields(0);
   }, [clearTimers]);
 
-  /* ---- DnD wiring (chips simulate same path) ----------------------------- */
+  /* ---- LIVE upload path: real file → Gemini 3 Flash extraction ---------- */
+
+  const stopLiveTick = useCallback(() => {
+    if (liveTickRef.current !== null) {
+      window.clearInterval(liveTickRef.current);
+      liveTickRef.current = null;
+    }
+  }, []);
+
+  const resetLive = useCallback(() => {
+    stopLiveTick();
+    setLiveResponse(null);
+    setLiveError(null);
+    setLiveStage('idle');
+    setLiveElapsed(0);
+    setLivePreviewUrl((prev) => {
+      if (prev) URL.revokeObjectURL(prev);
+      return null;
+    });
+    setLiveFile(null);
+  }, [stopLiveTick]);
+
+  useEffect(() => {
+    return () => {
+      stopLiveTick();
+      if (livePreviewUrl) URL.revokeObjectURL(livePreviewUrl);
+    };
+    // intentionally only on unmount
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const handleLiveUpload = useCallback(
+    async (file: File) => {
+      // Tear down any previous mock state — live mode owns the screen now.
+      clearTimers();
+      setStage('idle');
+      setActiveDoc(null);
+      // And reset live state cleanly.
+      stopLiveTick();
+      if (livePreviewUrl) URL.revokeObjectURL(livePreviewUrl);
+      const url = URL.createObjectURL(file);
+      setLiveFile(file);
+      setLivePreviewUrl(url);
+      setLiveResponse(null);
+      setLiveError(null);
+      setLiveStage('extracting');
+      setLiveElapsed(0);
+
+      const t0 = performance.now();
+      liveTickRef.current = window.setInterval(() => {
+        setLiveElapsed(Math.round(performance.now() - t0));
+      }, 100);
+
+      try {
+        const fd = new FormData();
+        fd.append('file', file);
+        const resp = await fetch(`${API_BASE}/api/extract`, {
+          method: 'POST',
+          body: fd,
+        });
+        if (!resp.ok) {
+          const body = await resp.text();
+          throw new Error(`HTTP ${resp.status}: ${body.slice(0, 200)}`);
+        }
+        const data = (await resp.json()) as LiveResponse;
+        stopLiveTick();
+        setLiveElapsed(Math.round(performance.now() - t0));
+        setLiveResponse(data);
+        setLiveStage('done');
+      } catch (err) {
+        stopLiveTick();
+        setLiveStage('error');
+        setLiveError((err as Error).message);
+      }
+    },
+    [clearTimers, livePreviewUrl, stopLiveTick],
+  );
+
+  /* ---- DnD + click-to-browse wiring -------------------------------------- */
 
   const onDragOver = (e: DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     setHover(true);
   };
+  const onDragEnter = (e: DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+  };
   const onDragLeave = () => setHover(false);
   const onDrop = (e: DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     setHover(false);
-    if (stage !== 'idle') return;
-    // Real file ignored — we always pick the liquidación as the canonical demo.
-    startProcessing(LIQUIDACION_PENSION_MARIA);
+    const f = e.dataTransfer?.files?.[0];
+    if (f) void handleLiveUpload(f);
+  };
+
+  const openFilePicker = useCallback(() => {
+    fileInputRef.current?.click();
+  }, []);
+
+  const onFileInputChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const f = e.target.files?.[0];
+    if (f) void handleLiveUpload(f);
+    // reset so re-selecting the same file fires onChange again
+    e.target.value = '';
   };
 
   /* ---- Derived values for the right column ------------------------------- */
@@ -492,13 +621,13 @@ export default function DocumentAISection() {
         <header className="docai-header">
           <span className="docai-pill">
             <span className="docai-pill__dot" />
-            Powered by Vertex AI Document AI
+            Powered by Gemini 3 Flash · Vertex AI
           </span>
           <h2 id="docai-title" className="docai-title">
             Sube tu documento — y olvídate del formulario
           </h2>
           <p className="docai-subtitle">
-            Document AI extrae los datos en segundos. Tú solo confirmas.
+            Gemini 3 Flash hace OCR + comprensión semántica en una sola llamada. Tú solo confirmas.
           </p>
         </header>
 
@@ -514,13 +643,94 @@ export default function DocumentAISection() {
               .filter(Boolean)
               .join(' ')}
             onDragOver={onDragOver}
+            onDragEnter={onDragEnter}
             onDragLeave={onDragLeave}
             onDrop={onDrop}
-            role="button"
-            tabIndex={0}
             aria-label="Zona de carga de documentos"
           >
-            {stage === 'idle' && (
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*,application/pdf"
+              hidden
+              onChange={onFileInputChange}
+            />
+            {/* LIVE preview — user uploaded a real file. Renders the actual
+                bytes (image as <img>, PDF in an <object>) instead of a mock. */}
+            {liveFile && livePreviewUrl && (
+              <>
+                <div className="docai-doc-toolbar">
+                  <button
+                    type="button"
+                    className="docai-toolbtn docai-toolbtn--primary"
+                    onClick={openFilePicker}
+                  >
+                    <span className="material-symbols-outlined" aria-hidden style={{ fontSize: 16 }}>
+                      upload_file
+                    </span>
+                    Cambiar archivo
+                  </button>
+                  <button
+                    type="button"
+                    className="docai-toolbtn"
+                    onClick={resetLive}
+                  >
+                    Volver
+                  </button>
+                </div>
+                <div className="docai-live-stage">
+                  {liveFile.type.startsWith('image/') ? (
+                    <img
+                      src={livePreviewUrl}
+                      alt={liveFile.name}
+                      className="docai-live-image"
+                    />
+                  ) : (
+                    <object
+                      data={livePreviewUrl}
+                      type={liveFile.type || 'application/pdf'}
+                      className="docai-live-pdf"
+                    >
+                      <div className="docai-live-pdf__fallback">
+                        <span className="material-symbols-outlined" aria-hidden style={{ fontSize: 48 }}>
+                          picture_as_pdf
+                        </span>
+                        <div>{liveFile.name}</div>
+                        <div style={{ fontSize: 11, opacity: 0.7 }}>
+                          {(liveFile.size / 1024).toFixed(1)} KB
+                        </div>
+                      </div>
+                    </object>
+                  )}
+                  {liveStage === 'extracting' && (
+                    <div className="docai-scan" aria-hidden="true">
+                      <div className="docai-scan__glow" />
+                      <div className="docai-scan__line" />
+                    </div>
+                  )}
+                </div>
+                <div className="docai-status">
+                  <span
+                    className={
+                      liveStage === 'done'
+                        ? 'docai-status__dot docai-status__dot--ok'
+                        : liveStage === 'error'
+                        ? 'docai-status__dot docai-status__dot--err'
+                        : 'docai-status__dot'
+                    }
+                  />
+                  {liveStage === 'extracting' &&
+                    `Gemini 3 Flash analizando ${liveFile.name} · ${(liveElapsed / 1000).toFixed(1)} s`}
+                  {liveStage === 'done' && liveResponse &&
+                    `Listo · ${liveResponse.extraction?.fields?.length ?? 0} campos · ${(
+                      (liveResponse.elapsed_ms ?? liveElapsed) / 1000
+                    ).toFixed(2)} s · ${liveResponse.model ?? 'gemini-3-flash'}`}
+                  {liveStage === 'error' && `Error: ${liveError ?? 'desconocido'}`}
+                </div>
+              </>
+            )}
+
+            {!liveFile && stage === 'idle' && (
               <div className="docai-dropzone__empty">
                 <div className="docai-dropzone__icon" aria-hidden="true">
                   <span className="material-symbols-outlined">cloud_upload</span>
@@ -529,8 +739,19 @@ export default function DocumentAISection() {
                   Arrastra tu liquidación, licencia o cédula aquí
                 </div>
                 <div className="docai-dropzone__hint-sub">
-                  PDF o JPG · hasta 10 MB · procesado on-device en Chile (us-central1)
+                  PDF o JPG · hasta 10 MB · procesado por Gemini 3 Flash
                 </div>
+                <button
+                  type="button"
+                  className="docai-pickbtn"
+                  onClick={openFilePicker}
+                >
+                  <span className="material-symbols-outlined" aria-hidden style={{ fontSize: 18 }}>
+                    upload_file
+                  </span>
+                  Seleccionar archivo
+                </button>
+                <div className="docai-dropzone__or">o prueba uno de los ejemplos</div>
                 <div className="docai-dropzone__chips" role="group" aria-label="Ejemplos">
                   {CHIPS.map((c) => (
                     <button
@@ -552,15 +773,22 @@ export default function DocumentAISection() {
               </div>
             )}
 
-            {stage !== 'idle' && activeDoc && (
+            {!liveFile && stage !== 'idle' && activeDoc && (
               <>
                 <div className="docai-doc-toolbar">
                   <button
                     type="button"
                     className="docai-toolbtn"
+                    onClick={openFilePicker}
+                  >
+                    Subir otro
+                  </button>
+                  <button
+                    type="button"
+                    className="docai-toolbtn"
                     onClick={reset}
                   >
-                    Probar otro
+                    Volver
                   </button>
                 </div>
                 <div className="docai-doc-stage" ref={docContainerRef}>
@@ -614,7 +842,92 @@ export default function DocumentAISection() {
 
           {/* ===== RIGHT — Results ===== */}
           <div className="docai-results">
-            {!showRightContent && (
+            {/* LIVE extraction results from Gemini 3 Flash */}
+            {liveFile && (
+              <>
+                <div className="docai-results__header">
+                  <div>
+                    <h3 className="docai-results__heading">
+                      {liveResponse?.extraction?.doc_type ?? 'Analizando documento…'}
+                    </h3>
+                    <div className="docai-results__filename">{liveFile.name}</div>
+                  </div>
+                  <span className="docai-results__meta">
+                    <span className="material-symbols-outlined" aria-hidden style={{ fontSize: 14 }}>
+                      bolt
+                    </span>
+                    {liveResponse?.model ?? 'gemini-3-flash-preview'}
+                  </span>
+                </div>
+
+                {liveStage === 'extracting' && (
+                  <div className="docai-live-loading">
+                    <div className="docai-live-spinner" aria-hidden />
+                    <div>
+                      <div className="docai-live-loading__title">Extrayendo con Gemini 3 Flash…</div>
+                      <div className="docai-live-loading__sub">
+                        OCR + comprensión semántica en una sola llamada · {(liveElapsed / 1000).toFixed(1)} s
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {liveStage === 'error' && (
+                  <div className="docai-warning">
+                    <strong>No se pudo extraer:</strong> {liveError ?? 'error desconocido'}
+                  </div>
+                )}
+
+                {liveStage === 'done' && liveResponse && (
+                  <>
+                    {liveResponse.extraction?.summary && (
+                      <p className="docai-live-summary">{liveResponse.extraction.summary}</p>
+                    )}
+
+                    {liveResponse.extraction?.fields && liveResponse.extraction.fields.length > 0 && (
+                      <div className="docai-table" aria-live="polite">
+                        <div className="docai-table__head">
+                          <div>Campo</div>
+                          <div>Valor</div>
+                          <div>Conf.</div>
+                        </div>
+                        {liveResponse.extraction.fields.map((f, i) => (
+                          <div className="docai-table__row" key={`live-${i}`}>
+                            <div className="docai-table__label">{f.label}</div>
+                            <div className="docai-table__value">{f.value}</div>
+                            <div>
+                              <span className={confidenceClass(f.confidence ?? 0.9)}>
+                                {Math.round((f.confidence ?? 0.9) * 100)}%
+                              </span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    {liveResponse.extraction?.totals && liveResponse.extraction.totals.length > 0 && (
+                      <div className="docai-totals">
+                        <div className="docai-totals__title">Totales detectados</div>
+                        {liveResponse.extraction.totals.map((t, i) => (
+                          <div className="docai-totals__row" key={`tot-${i}`}>
+                            <span className="docai-totals__label">{t.label}</span>
+                            <span className="docai-totals__value">{t.value}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    {liveResponse.extraction?.warnings && liveResponse.extraction.warnings.length > 0 && (
+                      <div className="docai-warning">
+                        <strong>Atención:</strong> {liveResponse.extraction.warnings.join(' · ')}
+                      </div>
+                    )}
+                  </>
+                )}
+              </>
+            )}
+
+            {!liveFile && !showRightContent && (
               <div className="docai-results__placeholder">
                 <span
                   className="material-symbols-outlined docai-results__placeholder-icon"
@@ -628,7 +941,7 @@ export default function DocumentAISection() {
               </div>
             )}
 
-            {showRightContent && activeDoc && (
+            {!liveFile && showRightContent && activeDoc && (
               <>
                 <div className="docai-results__header">
                   <div>

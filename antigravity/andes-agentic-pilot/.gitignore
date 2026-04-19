@@ -1,7 +1,32 @@
 # Site extraction artifacts (re-generate via clone-website skill)
 frontend/scraped/
 
-# Local dev
-.env
-.env.local
+# Internal research / strategy notes (not needed at runtime)
+docs/
+
+# Python
+**/.venv/
+**/__pycache__/
+*.pyc
+*.pyo
+
+# Node / Vite
+**/node_modules/
+**/dist/
+**/dist-ssr/
 *.log
+npm-debug.log*
+
+# Secrets / local env
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+service-account*.json
+credentials*.json
+
+# OS / editor
+.DS_Store
+.vscode/
+.idea/

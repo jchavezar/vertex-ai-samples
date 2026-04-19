@@ -486,6 +486,80 @@
   to { visibility: hidden; }
 }
 
+/* ---------- Shimmer "thinking" effect (Claude-style ink sweep) ----------- */
+
+/* ---------- Thinking indicator (Claude Code style, ES) ------------------ */
+
+.andesia-thinking-container {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.andesia-thinking-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background: linear-gradient(135deg, #0f233c 0%, #163a5f 100%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  border-bottom-left-radius: 4px;
+  font-family: 'SF Mono', Monaco, 'Cascadia Code', ui-monospace, monospace;
+}
+
+.andesia-thinking-icon-wrapper {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.andesia-thinking-icon {
+  font-size: 18px !important;
+  color: #ffd166;
+  animation: andesia-pulse-pump 1.2s ease-in-out infinite;
+  filter: drop-shadow(0 0 4px rgba(255, 209, 102, 0.55));
+}
+
+@keyframes andesia-pulse-pump {
+  0%, 100% { transform: scale(1) rotate(0deg);   opacity: 0.85; }
+  25%      { transform: scale(1.2) rotate(15deg); opacity: 1;    }
+  50%      { transform: scale(0.9) rotate(-10deg); opacity: 0.7; }
+  75%      { transform: scale(1.15) rotate(5deg);  opacity: 1;    }
+}
+
+.andesia-thinking-word {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #ffd166;
+  letter-spacing: 0.02em;
+  animation: andesia-word-fade 0.3s ease-out;
+}
+
+@keyframes andesia-word-fade {
+  0%   { opacity: 0; transform: translateY(-4px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+.andesia-thinking-status {
+  font-size: 0.82rem;
+  color: rgba(255, 255, 255, 0.55);
+  font-weight: 400;
+}
+
+.andesia-thinking-timer {
+  font-size: 0.7rem;
+  color: var(--cla-muted, #586264);
+  padding-left: 28px;
+  font-family: 'SF Mono', Monaco, ui-monospace, monospace;
+  opacity: 0.6;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .andesia-thinking-icon { animation: none; }
+  .andesia-thinking-word { animation: none; }
+}
+
 /* ---------- Typing dots -------------------------------------------------- */
 
 .andesia-typing {

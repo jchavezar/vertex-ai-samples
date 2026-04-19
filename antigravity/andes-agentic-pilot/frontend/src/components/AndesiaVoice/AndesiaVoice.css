@@ -1,0 +1,433 @@
+/* ─── AndesiaVoice — floating Live API widget ─────────────────────────── */
+
+.andesia-voice {
+  position: fixed;
+  inset: auto 24px 24px auto;
+  width: 360px;
+  max-height: 80vh;
+  background: linear-gradient(160deg, #0b1c33 0%, #14365b 100%);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 18px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
+  padding: 22px 22px 18px;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  font-family: 'Inter', system-ui, sans-serif;
+  animation: av-fade-in 0.3s ease-out;
+}
+
+@keyframes av-fade-in {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.andesia-voice__close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 32px; height: 32px;
+  background: rgba(255, 255, 255, 0.06);
+  border: none;
+  border-radius: 50%;
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.andesia-voice__close:hover { background: rgba(255, 255, 255, 0.14); }
+
+/* ── animated orb ─────────────────────────────────────────────────────── */
+.andesia-voice__orb {
+  position: relative;
+  width: 110px; height: 110px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #9be7ff 0%, #338cff 50%, #003a7a 100%);
+  box-shadow: 0 0 40px rgba(120, 200, 255, 0.55);
+  margin-top: 4px;
+}
+.andesia-voice__orb span {
+  position: absolute;
+  inset: -8px;
+  border: 2px solid rgba(155, 231, 255, 0.55);
+  border-radius: 50%;
+  opacity: 0;
+}
+.andesia-voice__orb--listening span,
+.andesia-voice__orb--speaking  span {
+  animation: av-ring 1.6s ease-out infinite;
+}
+.andesia-voice__orb span:nth-child(2) { animation-delay: 0.5s; }
+.andesia-voice__orb span:nth-child(3) { animation-delay: 1.0s; }
+@keyframes av-ring {
+  0%   { transform: scale(0.85); opacity: 0.7; }
+  100% { transform: scale(1.6);  opacity: 0;   }
+}
+.andesia-voice__orb--connecting {
+  animation: av-pulse 1.0s ease-in-out infinite alternate;
+}
+.andesia-voice__orb--error {
+  background: radial-gradient(circle at 35% 35%, #ffb3a4 0%, #ff5a3a 50%, #7a0a0a 100%);
+}
+@keyframes av-pulse {
+  from { transform: scale(0.95); opacity: 0.9; }
+  to   { transform: scale(1.05); opacity: 1;   }
+}
+
+/* ── status row ───────────────────────────────────────────────────────── */
+.andesia-voice__status {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  font-size: 14px;
+  color: #d8e8ff;
+}
+.andesia-voice__dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: #6fcf97;
+}
+.andesia-voice__dot--connecting { background: #ffd166; animation: av-blink 0.8s linear infinite; }
+.andesia-voice__dot--listening  { background: #6fcf97; animation: av-blink 1.2s linear infinite; }
+.andesia-voice__dot--speaking   { background: #59c6ff; animation: av-blink 0.6s linear infinite; }
+.andesia-voice__dot--error      { background: #ff5a3a; }
+@keyframes av-blink {
+  50% { opacity: 0.35; }
+}
+
+.andesia-voice__meta {
+  margin: 0;
+  font-size: 11px;
+  letter-spacing: 0.5px;
+  color: rgba(216, 232, 255, 0.6);
+  text-transform: uppercase;
+}
+
+/* ── grounding toggle ──────────────────────────────────────────────────── */
+.andesia-voice__toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  color: rgba(216, 232, 255, 0.8);
+  cursor: pointer;
+  user-select: none;
+  margin: 2px 0 6px;
+}
+.andesia-voice__toggle input { display: none; }
+.andesia-voice__toggle-track {
+  position: relative;
+  width: 30px;
+  height: 16px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.18);
+  transition: background 0.18s ease;
+}
+.andesia-voice__toggle-thumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #fff;
+  transition: transform 0.18s ease;
+}
+.andesia-voice__toggle.is-on .andesia-voice__toggle-track {
+  background: #59c6ff;
+}
+.andesia-voice__toggle.is-on .andesia-voice__toggle-thumb {
+  transform: translateX(14px);
+}
+.andesia-voice__toggle-label {
+  font-weight: 600;
+  color: #fff;
+}
+
+.andesia-voice__error {
+  margin: 0;
+  font-size: 12px;
+  color: #ffd1c8;
+  background: rgba(255, 90, 58, 0.15);
+  border: 1px solid rgba(255, 90, 58, 0.35);
+  border-radius: 8px;
+  padding: 6px 10px;
+  width: 100%;
+  text-align: center;
+}
+
+/* ── transcript bubbles ───────────────────────────────────────────────── */
+.andesia-voice__transcripts {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  max-height: 220px;
+  overflow-y: auto;
+  margin-top: 6px;
+  padding-right: 4px;
+}
+.andesia-voice__bubble {
+  border-radius: 12px;
+  padding: 8px 12px;
+  font-size: 13px;
+  line-height: 1.4;
+}
+.andesia-voice__bubble--user {
+  background: rgba(255, 255, 255, 0.08);
+  align-self: flex-end;
+  max-width: 85%;
+}
+.andesia-voice__bubble--agent {
+  background: rgba(89, 198, 255, 0.18);
+  border: 1px solid rgba(89, 198, 255, 0.32);
+  align-self: flex-start;
+  max-width: 85%;
+}
+.andesia-voice__bubble-label {
+  display: block;
+  font-size: 10px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: rgba(216, 232, 255, 0.55);
+  margin-bottom: 2px;
+}
+.andesia-voice__bubble p {
+  margin: 0;
+  white-space: pre-wrap;
+}
+
+.andesia-voice__hint {
+  margin: 0;
+  text-align: center;
+  font-size: 11px;
+  color: rgba(216, 232, 255, 0.55);
+}
+
+/* ── debug overlay ───────────────────────────────────────────────────────── */
+.andesia-voice__debug-toggle {
+  align-self: flex-end;
+  background: rgba(255, 255, 255, 0.08);
+  color: #d8e8ff;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 999px;
+  padding: 2px 10px;
+  font-size: 10px;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  cursor: pointer;
+  margin-top: 4px;
+}
+.andesia-voice__debug-toggle:hover { background: rgba(255, 255, 255, 0.18); }
+
+.andesia-voice__debug {
+  width: 100%;
+  background: rgba(0, 0, 0, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 10px;
+  padding: 8px 10px;
+  font-family: 'SF Mono', Menlo, monospace;
+  font-size: 10.5px;
+  color: #cfe2ff;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 220px;
+  overflow-y: auto;
+}
+.andesia-voice__debug-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+  align-items: baseline;
+}
+.andesia-voice__debug-row span { color: rgba(207, 226, 255, 0.55); }
+.andesia-voice__debug-row b { color: #ffffff; font-weight: 600; }
+.andesia-voice__debug-err { color: #ffd1c8; }
+.andesia-voice__debug-events {
+  font-size: 9.5px;
+  line-height: 1.35;
+  color: rgba(207, 226, 255, 0.75);
+  border-top: 1px dashed rgba(255, 255, 255, 0.12);
+  padding-top: 6px;
+}
+
+/* ── Live grounding side panel ──────────────────────────────────────────── */
+/* Floats to the LEFT of the orb panel, animating in from the right edge.
+   Visible only when grounding is ON and we have queries / chunks to show. */
+.andesia-grounding {
+  position: fixed;
+  bottom: 24px;
+  right: calc(24px + 360px + 12px); /* sit flush with .andesia-voice */
+  width: 340px;
+  max-height: 80vh;
+  background: linear-gradient(160deg, #0e2742 0%, #1a4474 100%);
+  color: #d8e8ff;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 18px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
+  padding: 18px 18px 16px;
+  z-index: 9998;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  font-family: 'Inter', system-ui, sans-serif;
+  overflow-y: auto;
+  animation: av-grounding-in 0.32s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+@keyframes av-grounding-in {
+  from { opacity: 0; transform: translateX(20px); }
+  to   { opacity: 1; transform: translateX(0);    }
+}
+
+.andesia-grounding__header {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+.andesia-grounding__icon {
+  font-size: 22px;
+  color: #59c6ff;
+  flex-shrink: 0;
+}
+.andesia-grounding__title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1.2;
+}
+.andesia-grounding__sub {
+  font-size: 10px;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  color: rgba(216, 232, 255, 0.55);
+  margin-top: 2px;
+}
+
+.andesia-grounding__section {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.andesia-grounding__section-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10px;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  color: rgba(216, 232, 255, 0.7);
+  font-weight: 600;
+}
+.andesia-grounding__pulse {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #ffd166;
+  animation: av-blink 0.8s linear infinite;
+  margin-left: 4px;
+}
+
+.andesia-grounding__queries {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.andesia-grounding__query {
+  font-size: 12px;
+  color: #fff;
+  background: rgba(89, 198, 255, 0.14);
+  border: 1px solid rgba(89, 198, 255, 0.32);
+  border-radius: 8px;
+  padding: 6px 10px;
+  font-style: italic;
+  line-height: 1.35;
+}
+
+.andesia-grounding__chunks {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.andesia-grounding__chunk {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  padding: 8px 10px;
+}
+.andesia-grounding__chunk-head {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  margin-bottom: 2px;
+}
+.andesia-grounding__chunk-kind {
+  font-size: 9px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 999px;
+  flex-shrink: 0;
+}
+.andesia-grounding__chunk-kind--web {
+  background: rgba(89, 198, 255, 0.22);
+  color: #9be7ff;
+  border: 1px solid rgba(89, 198, 255, 0.4);
+}
+.andesia-grounding__chunk-kind--corpus {
+  background: rgba(120, 220, 150, 0.22);
+  color: #b6f3c8;
+  border: 1px solid rgba(120, 220, 150, 0.4);
+}
+.andesia-grounding__chunk-title {
+  font-size: 12px;
+  color: #fff;
+  font-weight: 600;
+  text-decoration: none;
+  word-break: break-word;
+  line-height: 1.3;
+}
+.andesia-grounding__chunk-title:hover {
+  text-decoration: underline;
+  color: #9be7ff;
+}
+.andesia-grounding__chunk-snippet {
+  margin: 4px 0 0;
+  font-size: 11px;
+  line-height: 1.4;
+  color: rgba(216, 232, 255, 0.75);
+}
+
+.andesia-grounding__empty {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: rgba(216, 232, 255, 0.7);
+  padding: 6px 0;
+}
+
+@media (max-width: 800px) {
+  .andesia-grounding {
+    right: 24px;
+    bottom: calc(24px + 80vh + 8px);
+    max-height: 30vh;
+    width: 360px;
+  }
+}

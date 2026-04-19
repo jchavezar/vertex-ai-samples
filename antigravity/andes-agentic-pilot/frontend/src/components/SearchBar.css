@@ -58,8 +58,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
+  width: 30px;
+  height: 30px;
   border-radius: 50%;
   border: 0;
   background: transparent;
@@ -171,6 +171,33 @@
   padding: 8px 0;
   overflow-y: auto;
   flex: 1;
+  position: relative;
+}
+
+/* Subtle barber-pole strip at top while a newer query is in flight,
+ * so the user knows results will refresh without losing the current set. */
+.cla-search__results.is-refreshing::before {
+  content: '';
+  position: sticky;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: block;
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    rgba(26, 115, 232, 0) 0%,
+    rgba(26, 115, 232, 0.7) 50%,
+    rgba(26, 115, 232, 0) 100%
+  );
+  background-size: 200% 100%;
+  animation: cla-results-refresh 1.1s linear infinite;
+  z-index: 1;
+}
+
+@keyframes cla-results-refresh {
+  from { background-position: 200% 0; }
+  to   { background-position: -200% 0; }
 }
 
 .cla-search__result {
@@ -275,4 +302,222 @@
     left: 0;
     width: 100%;
   }
+}
+
+
+/* ─── AI features (chips · overview · cites · mic) ─────────────────── */
+
+.cla-search__mic {
+  border: none;
+  background: transparent;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  margin-right: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--cla-blue, #0a4f9e);
+  transition: background 0.15s;
+}
+.cla-search__mic:hover {
+  background: rgba(10, 79, 158, 0.08);
+}
+.cla-search__mic .material-symbols-outlined {
+  font-size: 18px;
+}
+
+/* Chips of suggested questions */
+.cla-search__chips {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 18px 6px;
+  border-bottom: 1px solid var(--cla-border, rgba(0,0,0,0.06));
+}
+.cla-search__chips-icon {
+  color: #b07300;
+  font-size: 20px !important;
+  flex: 0 0 auto;
+  margin-top: 4px;
+}
+.cla-search__chips-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  flex: 1;
+}
+.cla-search__chip {
+  background: linear-gradient(135deg, #fff7e0 0%, #ffe7a8 100%);
+  color: #4a3000;
+  border: 1px solid rgba(176, 115, 0, 0.25);
+  border-radius: 999px;
+  padding: 6px 12px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+.cla-search__chip:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(176, 115, 0, 0.25);
+}
+
+/* AI Overview block */
+.cla-search__overview {
+  padding: 14px 18px 12px;
+  background: linear-gradient(135deg, #f0f7ff 0%, #e3eeff 100%);
+  border-bottom: 1px solid var(--cla-border, rgba(0,0,0,0.06));
+}
+.cla-search__overview-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+.cla-search__overview-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: linear-gradient(135deg, #0a4f9e 0%, #1a73c7 100%);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  text-transform: uppercase;
+}
+.cla-search__overview-badge .material-symbols-outlined {
+  font-size: 14px !important;
+}
+.cla-search__overview-meta {
+  font-size: 10.5px;
+  color: var(--cla-muted, #5a6779);
+  letter-spacing: 0.3px;
+}
+.cla-search__overview-text {
+  margin: 0 0 8px;
+  font-size: 14px;
+  line-height: 1.55;
+  color: #1a2e44;
+}
+.cla-search__caret {
+  display: inline-block;
+  width: 7px;
+  height: 14px;
+  background: #0a4f9e;
+  margin-left: 2px;
+  vertical-align: -2px;
+  animation: cla-blink 0.9s steps(2) infinite;
+}
+@keyframes cla-blink { 50% { opacity: 0; } }
+
+.cla-search__cite {
+  display: inline-block;
+  background: #0a4f9e;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  min-width: 16px;
+  text-align: center;
+  border-radius: 4px;
+  margin: 0 1px;
+  padding: 0 4px;
+  text-decoration: none;
+  vertical-align: 2px;
+  line-height: 14px;
+}
+.cla-search__cite:hover { background: #1a73c7; }
+
+.cla-search__overview-cites {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 6px;
+  align-items: center;
+  font-size: 11.5px;
+  margin-top: 6px;
+}
+.cla-search__overview-cites-label {
+  color: var(--cla-muted, #5a6779);
+  font-weight: 600;
+  margin-right: 4px;
+}
+.cla-search__cite-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: #fff;
+  color: #1a2e44;
+  border: 1px solid #d6e1f0;
+  border-radius: 999px;
+  padding: 2px 8px 2px 4px;
+  font-size: 11.5px;
+  text-decoration: none;
+  max-width: 240px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.cla-search__cite-pill:hover { border-color: #0a4f9e; color: #0a4f9e; }
+.cla-search__cite-num {
+  background: #0a4f9e;
+  color: #fff;
+  font-weight: 700;
+  font-size: 10px;
+  padding: 1px 5px;
+  border-radius: 999px;
+}
+
+
+/* ── Claude-style thinking placeholder while AI Overview is buffering ────── */
+.cla-search__overview-thinking {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  font-weight: 500;
+  margin-top: 4px;
+}
+.cla-search__claude-spinner {
+  display: inline-block;
+  font-size: 16px;
+  color: #E87C6D;
+  animation: cla-spinner-glow 0.6s ease-in-out infinite alternate;
+}
+.cla-search__claude-spinner::before {
+  content: '✳';
+  animation: cla-spinner-morph 0.9s steps(1) infinite;
+}
+@keyframes cla-spinner-morph {
+  0%, 12%      { content: '✳'; }
+  12.1%, 24%   { content: '✻'; }
+  24.1%, 36%   { content: '❋'; }
+  36.1%, 48%   { content: '✽'; }
+  48.1%, 60%   { content: '※'; }
+  60.1%, 72%   { content: '✷'; }
+  72.1%, 84%   { content: '✸'; }
+  84.1%, 100%  { content: '✳'; }
+}
+@keyframes cla-spinner-glow {
+  0%   { opacity: 0.6; transform: scale(0.9); }
+  100% { opacity: 1;   transform: scale(1.1); }
+}
+.cla-search__sweep-text {
+  background: linear-gradient(
+    90deg,
+    #0a4f9e 0%, #0a4f9e 35%,
+    #FFD93D 50%,
+    #0a4f9e 65%, #0a4f9e 100%
+  );
+  background-size: 300% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  animation: cla-text-sweep 1.8s ease-in-out infinite;
+}
+@keyframes cla-text-sweep {
+  0%   { background-position: 100% 0; }
+  100% { background-position: -100% 0; }
 }

@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import './App.css';
 import SearchBar from './components/SearchBar';
-import VitrinaSection from './components/VitrinaIA';
 import DocumentAISection from './components/DocumentAI';
+import HeroShowcase from './components/HeroShowcase';
 import { AndesiaChat } from './components/AndesiaChat';
 
 /* -----------------------------------------------------------------------------
@@ -86,7 +86,7 @@ const primaryNav: NavItem[] = [
     label: 'Créditos',
     href: 'https://www.cajalosandes.cl/creditos',
     banner: {
-      image: '/images/credito.webp',
+      image: '/images/generated/credito-hipotecario.png',
       paragraph:
         'Aprende a gestionar tus finanzas para escoger la alternativa que realmente necesitas',
     },
@@ -161,7 +161,7 @@ const primaryNav: NavItem[] = [
     label: 'Apoyo Social',
     href: 'https://www.cajalosandes.cl/apoyo-social',
     banner: {
-      image: '/images/apoyo.webp',
+      image: '/images/generated/bodas-de-oro.png',
       paragraph: 'Creamos beneficios que te ayuden en tu vida.',
     },
     submenu: [
@@ -432,7 +432,7 @@ function Hero() {
               </a>
             </div>
             <div className="cla-carousel__visual" aria-hidden>
-              <img src="/images/apoyo.webp" alt="" />
+              <img src="/images/generated/hero-familia.png" alt="" />
             </div>
           </article>
 
@@ -701,7 +701,7 @@ function App() {
       <main>
         <Hero />
         <QuickTiles />
-        <VitrinaSection />
+        <HeroShowcase />
         <CrossServiceBanner />
         <CardsCopec />
         <Afiliacion />

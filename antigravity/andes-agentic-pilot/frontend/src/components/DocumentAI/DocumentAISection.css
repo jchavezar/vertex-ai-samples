@@ -807,3 +807,160 @@
   color: #92400E;
   line-height: 1.4;
 }
+
+/* ── Live mode (real file → Gemini 3 Flash) ─────────────────────────────── */
+
+.docai-pickbtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 16px 0 8px;
+  padding: 10px 18px;
+  border-radius: 999px;
+  border: none;
+  background: linear-gradient(135deg, var(--cla-blue) 0%, var(--cla-blue-dark) 100%);
+  color: #fff;
+  font-family: var(--ds-font-family);
+  font-weight: 700;
+  font-size: 14px;
+  letter-spacing: 0.2px;
+  cursor: pointer;
+  box-shadow: 0 6px 18px rgba(0, 92, 184, 0.28);
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+.docai-pickbtn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 22px rgba(0, 92, 184, 0.34);
+}
+.docai-dropzone__or {
+  margin: 4px 0 8px;
+  font-size: 11px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: var(--cla-muted);
+}
+
+.docai-toolbtn--primary {
+  background: var(--cla-blue);
+  color: #fff;
+  border-color: var(--cla-blue);
+}
+.docai-toolbtn--primary:hover {
+  background: var(--cla-blue-dark);
+  border-color: var(--cla-blue-dark);
+}
+
+.docai-live-stage {
+  position: relative;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #0a1929;
+  border-radius: 8px;
+  overflow: hidden;
+  margin: 8px 0;
+  min-height: 360px;
+}
+.docai-live-image {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  background: #fff;
+}
+.docai-live-pdf {
+  width: 100%;
+  height: 100%;
+  min-height: 480px;
+  background: #fff;
+  border: none;
+}
+.docai-live-pdf__fallback {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  color: #cfe2ff;
+  text-align: center;
+  padding: 24px;
+}
+
+.docai-live-loading {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 18px;
+  background: linear-gradient(135deg, #f3f8ff 0%, #e8f0fe 100%);
+  border: 1px solid #cfe2ff;
+  border-radius: 12px;
+  margin-top: 8px;
+}
+.docai-live-loading__title {
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--cla-blue-dark);
+}
+.docai-live-loading__sub {
+  font-size: 12px;
+  color: var(--cla-muted);
+  margin-top: 2px;
+}
+.docai-live-spinner {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 3px solid rgba(0, 92, 184, 0.18);
+  border-top-color: var(--cla-blue);
+  animation: docai-spin 0.8s linear infinite;
+  flex-shrink: 0;
+}
+@keyframes docai-spin {
+  to { transform: rotate(360deg); }
+}
+
+.docai-live-summary {
+  margin: 10px 0;
+  padding: 10px 14px;
+  background: #f8fafc;
+  border-left: 3px solid var(--cla-blue);
+  border-radius: 4px;
+  font-size: 13px;
+  color: #1f2937;
+  line-height: 1.45;
+}
+
+.docai-totals {
+  margin-top: 14px;
+  padding: 12px 14px;
+  background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+  border: 1px solid #6ee7b7;
+  border-radius: 10px;
+}
+.docai-totals__title {
+  font-size: 11px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: #047857;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+.docai-totals__row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 4px 0;
+  font-size: 14px;
+}
+.docai-totals__label {
+  color: #064e3b;
+  font-weight: 500;
+}
+.docai-totals__value {
+  color: #064e3b;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.docai-status__dot--err {
+  background: #ef4444;
+}

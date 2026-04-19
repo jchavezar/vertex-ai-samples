@@ -67,11 +67,15 @@ const API_BASE =
 
 type ChatMode = 'demo' | 'live';
 
+// These queries are tuned to force the Vertex AI Search retrieval tool — they
+// ask for specific, current facts (requisitos, montos, plazos, oficinas) that
+// Andesia must look up in cajalosandes.cl rather than answering from memory.
+// Watch the inspector for `tool_call` + `citation` events as the agent streams.
 const LIVE_SUGGESTIONS = [
-  '¿Qué requisitos tiene el crédito social?',
-  '¿Cómo solicito el bono Bodas de Oro?',
-  '¿Qué beneficios tengo si soy pensionado?',
-  'Quiero saber sobre la sucursal virtual',
+  '¿Qué requisitos y documentos necesito para solicitar el crédito social?',
+  '¿Cómo postulo al bono Bodas de Oro y qué pasos sigue después?',
+  '¿Qué cubre el Fondo de Emergencia y quiénes pueden acceder?',
+  '¿Qué centros recreacionales tiene Caja Los Andes y cómo reservo?',
 ];
 
 const SYSTEM_EVENT_LABEL: Record<string, { label: string; icon: string }> = {
@@ -336,6 +340,56 @@ export default function AndesiaChat() {
                         text: `Modelo: ${modelName} · backend: ${String(evt.backend ?? 'vertex-ai')}`,
                         duration_ms: 0,
                       },
+                    ],
+                  }));
+                } else if (evt.type === 'tool_call') {
+                  const tool = String(evt.tool ?? 'tool');
+                  const query = String(evt.query ?? '');
+                  setInspectorState((prev) => ({
+                    ...prev,
+                    toolCount: prev.toolCount + 1,
+                    toolCalls: [
+                      ...prev.toolCalls,
+                      {
+                        id: `${tool}-${prev.toolCalls.length + 1}`,
+                        name: tool === 'google_search' ? 'Google Search' : tool,
+                        args: { query },
+                        result: 'Buscando…',
+                        status: 'success' as const,
+                        latency_ms: 0,
+                      } as ToolCall,
+                    ],
+                    reasoning: [
+                      ...prev.reasoning,
+                      {
+                        step_index: prev.reasoning.length + 1,
+                        text: `Tool: ${tool} · "${query}"`,
+                        duration_ms: 0,
+                      },
+                    ],
+                  }));
+                } else if (evt.type === 'citation') {
+                  const source = String(evt.source ?? '');
+                  const title = String(evt.title ?? 'Fuente');
+                  const uri = String(evt.uri ?? '');
+                  setInspectorState((prev) => ({
+                    ...prev,
+                    citations: [
+                      ...prev.citations,
+                      {
+                        id: `cit-${prev.citations.length + 1}`,
+                        source_type:
+                          source === 'vertex_ai_search'
+                            ? 'reglamento_ccla'
+                            : 'cdn_pdf',
+                        source_title: title,
+                        source_url: uri,
+                        paragraph_excerpt:
+                          source === 'vertex_ai_search'
+                            ? 'Caja Los Andes (cajalosandes.cl)'
+                            : 'Google Search',
+                        similarity_score: 0.9,
+                      } as Citation,
                     ],
                   }));
                 } else if (evt.type === 'error') {
@@ -837,6 +891,24 @@ function LiveLauncher({
         contexto del catálogo de productos y beneficios de Caja Los Andes.
         Las respuestas se generan en tiempo real (streaming).
       </div>
+      <div
+        className="andesia-empty__hint"
+        style={{
+          fontSize: 11,
+          letterSpacing: 0.4,
+          textTransform: 'uppercase',
+          color: 'rgba(20,54,91,0.65)',
+          margin: '4px 0 6px',
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: 6,
+        }}
+      >
+        <span className="material-symbols-outlined" style={{ fontSize: 14 }}>
+          travel_explore
+        </span>
+        Estas consultas usan grounding en cajalosandes.cl (verás tool_calls + citas)
+      </div>
       <div className="andesia-empty__chips" style={{ flexDirection: 'column', alignItems: 'stretch' }}>
         {LIVE_SUGGESTIONS.map((s) => (
           <button
@@ -854,6 +926,70 @@ function LiveLauncher({
           </button>
         ))}
       </div>
+    </div>
+  );
+}
+
+// Claude Code style — palabras de "pensando" que rotan cada 2-4s
+const THINKING_WORDS_ES = [
+  'Incubando',
+  'Ideando',
+  'Ponderando',
+  'Reflexionando',
+  'Sintetizando',
+  'Conectando',
+  'Explorando',
+  'Analizando',
+  'Razonando',
+  'Contemplando',
+  'Procesando',
+  'Buscando',
+  'Fundamentando',
+  'Descubriendo',
+  'Tejiendo',
+  'Ensamblando',
+  'Cristalizando',
+];
+
+function ThinkingIndicator() {
+  const [word, setWord] = useState(THINKING_WORDS_ES[0]);
+  const [tick, setTick] = useState(0); // forces word-fade re-trigger
+  const [seconds, setSeconds] = useState(0);
+
+  useEffect(() => {
+    const pickWord = () => {
+      const idx = Math.floor(Math.random() * THINKING_WORDS_ES.length);
+      setWord(THINKING_WORDS_ES[idx]);
+      setTick((t) => t + 1);
+    };
+    const interval = window.setInterval(
+      pickWord,
+      2000 + Math.random() * 2000,
+    );
+    const timer = window.setInterval(() => setSeconds((s) => s + 1), 1000);
+    return () => {
+      window.clearInterval(interval);
+      window.clearInterval(timer);
+    };
+  }, []);
+
+  return (
+    <div className="andesia-thinking-container">
+      <div className="andesia-thinking-indicator">
+        <span className="andesia-thinking-icon-wrapper">
+          <span
+            className="material-symbols-outlined andesia-thinking-icon"
+            aria-hidden="true"
+          >
+            auto_awesome
+          </span>
+        </span>
+        <span key={tick} className="andesia-thinking-word">
+          {word}…
+        </span>
+        <span className="andesia-thinking-status">(pensando)</span>
+      </div>
+      <div className="andesia-thinking-timer">{seconds}s</div>
     </div>
   );
 }
@@ -922,8 +1058,14 @@ function MessageView({ msg }: { msg: DisplayMessage }) {
         <span>{msg.label}</span>
       </div>
       <div className="andesia-msg__bubble">
-        <RichText text={msg.text} />
-        {msg.isStreaming && <span className="andesia-msg__caret" aria-hidden="true" />}
+        {msg.isStreaming && msg.text.length === 0 ? (
+          <ThinkingIndicator />
+        ) : (
+          <>
+            <RichText text={msg.text} />
+            {msg.isStreaming && <span className="andesia-msg__caret" aria-hidden="true" />}
+          </>
+        )}
       </div>
 
       {!msg.isStreaming && msg.uiCard && <UiCard card={msg.uiCard} />}
