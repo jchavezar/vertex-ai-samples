@@ -1,0 +1,131 @@
+/* Magazine-style accents on top of Starlight defaults. */
+:root {
+  --sl-color-accent-low: #1a73e81a;
+  --sl-color-accent: #1a73e8;
+  --sl-color-accent-high: #0a2a6b;
+}
+
+:root[data-theme="dark"] {
+  --sl-color-accent-low: #1a73e833;
+  --sl-color-accent: #8ab4f8;
+  --sl-color-accent-high: #c9dafc;
+}
+
+/* Hero image: full bleed within the article column. */
+.envato-hero {
+  display: block;
+  width: 100%;
+  border-radius: 12px;
+  margin: 1rem 0 2rem;
+  box-shadow: 0 24px 48px -16px rgba(15, 23, 42, 0.45);
+}
+
+/* Pull-quote / sub-caption under hero. */
+.envato-hero-cap {
+  display: block;
+  font-size: 0.92rem;
+  color: var(--sl-color-gray-3);
+  margin-top: -1rem;
+  margin-bottom: 2rem;
+  line-height: 1.55;
+}
+
+/* Comic-strip 2x2 grid for "what you can do with one embedding space". */
+.envato-comic {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  margin: 1.5rem 0 2rem;
+}
+.envato-comic figure {
+  margin: 0;
+  border: 1px solid var(--sl-color-gray-5);
+  border-radius: 12px;
+  padding: 18px 20px;
+  background: var(--sl-color-bg-nav);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.envato-comic figure h4 {
+  margin: 0;
+  font-size: 0.9rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--sl-color-accent);
+}
+.envato-comic figure p {
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: var(--sl-color-text);
+}
+@media (max-width: 700px) {
+  .envato-comic { grid-template-columns: 1fr; }
+}
+
+/* Big stat row under the hero. */
+.envato-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  margin: 1.5rem 0;
+}
+.envato-stats div {
+  border: 1px solid var(--sl-color-gray-5);
+  border-radius: 12px;
+  padding: 18px 16px;
+  text-align: center;
+}
+.envato-stats strong {
+  font-size: 1.6rem;
+  line-height: 1;
+  color: var(--sl-color-accent);
+  display: block;
+  margin-bottom: 6px;
+}
+.envato-stats span {
+  font-size: 0.85rem;
+  color: var(--sl-color-gray-3);
+  letter-spacing: 0.02em;
+}
+@media (max-width: 700px) {
+  .envato-stats { grid-template-columns: 1fr; }
+}
+
+/* Pull-quote callout. */
+.envato-callout {
+  border-left: 4px solid var(--sl-color-accent);
+  padding: 12px 18px;
+  margin: 1.5rem 0;
+  background: var(--sl-color-bg-nav);
+  border-radius: 0 8px 8px 0;
+  font-size: 1.05rem;
+  line-height: 1.55;
+}
+
+/* CTA row at the bottom of pages. */
+.envato-cta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 2rem 0 1rem;
+}
+.envato-cta a {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid var(--sl-color-accent);
+  background: var(--sl-color-accent);
+  color: var(--sl-color-bg);
+  padding: 10px 18px;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+.envato-cta a.envato-cta--ghost {
+  background: transparent;
+  color: var(--sl-color-accent);
+}
+.envato-cta a:hover { filter: brightness(1.05); }
