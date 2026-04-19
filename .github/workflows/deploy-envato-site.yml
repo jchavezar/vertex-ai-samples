@@ -39,11 +39,16 @@ jobs:
       - name: Build site
         run: npm run build
 
+      - name: Wrap dist in /envato so it serves at <repo>/envato/
+        run: |
+          mkdir -p ../wrap
+          mv dist ../wrap/envato
+
       - uses: actions/configure-pages@v5
 
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: semiautonomous-agents/shutter-vibe-engine/envato/site/dist
+          path: semiautonomous-agents/shutter-vibe-engine/envato/wrap
 
   deploy:
     needs: build
