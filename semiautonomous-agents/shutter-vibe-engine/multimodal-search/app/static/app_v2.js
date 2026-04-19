@@ -1663,7 +1663,7 @@ function init() {
   showLanding();
   pingHealth();
   refreshStats();
-  setInterval(refreshStats, 5000);
+  setInterval(refreshStats, 15000);
 }
 document.addEventListener('DOMContentLoaded', init);
 })();

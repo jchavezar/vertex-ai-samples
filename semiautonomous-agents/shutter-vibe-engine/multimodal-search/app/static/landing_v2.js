@@ -103,9 +103,13 @@
   }
 
   // ---------- render: bento grid ----------
+  // The bento HTML is server-rendered in the template so cards paint on
+  // first HTML parse (no defer-script wait). If the mount is already
+  // populated, skip — patchCounts() will still update real numbers.
   function renderBento() {
     const mount = $('#lhBento');
     if (!mount) return;
+    if (mount.children.length) return;
     mount.innerHTML = '';
 
     BENTO_LAYOUT.forEach(card => {

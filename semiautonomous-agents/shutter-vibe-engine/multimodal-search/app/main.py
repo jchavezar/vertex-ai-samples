@@ -38,6 +38,7 @@ import os
 import re
 import subprocess
 import sys
+import threading
 import time
 import uuid
 from datetime import timedelta
@@ -302,9 +303,23 @@ app.mount("/static", StaticFiles(directory=str(ROOT / "static")), name="static")
 templates = Jinja2Templates(directory=str(ROOT / "templates"))
 
 
+def _warm_vector_search() -> None:
+    """Fire one cheap find_neighbors per modality to warm gRPC + shards.
+    First-query latency on a cold replica is ~5-10s; warm is ~50-150ms.
+    Runs in a background thread so startup doesn't block."""
+    from concurrent.futures import ThreadPoolExecutor
+    rng = np.random.default_rng(42)
+    q = rng.standard_normal(3072).astype(np.float32)
+    q = q / max(np.linalg.norm(q), 1e-9)
+    with ThreadPoolExecutor(max_workers=4) as ex:
+        for m in ("photo", "video", "audio", "graphic"):
+            ex.submit(lambda mod=m: vs_find_neighbors(q, k=1, modality=mod))
+
+
 @app.on_event("startup")
 def _warm_caches() -> None:
     warm_recent_queries()
+    threading.Thread(target=_warm_vector_search, daemon=True).start()
 
 
 # ---------------------------------------------------------------------------
@@ -810,6 +825,136 @@ async def api_image_to_anything(file: UploadFile = File(...), limit: int = 20):
     return JSONResponse(_do_search("(uploaded image)", q_vec, "all", limit,
                                    None, None, None,
                                    t0_total=t0, t_embed_ms=embed_ms))
+
+
+@app.get("/api/visualize")
+def api_visualize(q: str,
+                  modality: Literal["all", "photo", "video", "audio", "graphic"] = "all",
+                  limit: int = 30,
+                  tempo: Literal["slow", "mid", "upbeat", "fast"] | None = None,
+                  length: Literal["short", "mid", "long", "epic"] | None = None,
+                  vibe_warm: float = 0.0,
+                  vibe_energy: float = 0.0,
+                  vibe_cinematic: float = 0.0,
+                  vibe_busy: float = 0.0):
+    """Compute a 3D PCA projection of the query + result vectors so the UI
+    can render a similarity scatter. Re-runs the search to keep the endpoint
+    stateless, then reads raw datapoint vectors via the IndexEndpoint."""
+    if not q or not q.strip():
+        raise HTTPException(400, "missing query")
+    t0 = now_ms()
+    q_vec = embed_text(q)
+    vibe = {
+        "warm": max(-1.0, min(1.0, float(vibe_warm))),
+        "energy": max(-1.0, min(1.0, float(vibe_energy))),
+        "cinematic": max(-1.0, min(1.0, float(vibe_cinematic))),
+        "busy": max(-1.0, min(1.0, float(vibe_busy))),
+    }
+    # Apply same vibe bias as /api/search so points line up with what the
+    # user is actually seeing on screen.
+    if any(abs(v) > 0.01 for v in vibe.values()):
+        try:
+            deltas = compute_vibe_deltas()
+            biased = q_vec.astype(np.float32, copy=True)
+            for axis, value in vibe.items():
+                if abs(value) <= 0.01 or axis not in deltas:
+                    continue
+                biased = biased + (0.35 * value) * deltas[axis]
+            n = float(np.linalg.norm(biased))
+            if n > 0:
+                q_vec = (biased / n).astype(np.float32)
+        except Exception as exc:
+            print(f"[viz] vibe bias failed: {exc}")
+
+    mod = None if modality == "all" else modality
+    if modality == "all":
+        hits = vs_fanout_all(q_vec, k=limit, tempo=tempo, length=length)
+    else:
+        hits = vs_find_neighbors(q_vec, k=limit, modality=mod,
+                                 tempo=tempo, length=length)
+    hits = hits[:limit]
+    if not hits:
+        return JSONResponse({"query": q, "points": [], "total_ms": ms_since(t0)})
+
+    score_by_id = {dp_id: float(s) for dp_id, s in hits}
+    ep = endpoint()
+    try:
+        dps = ep.read_index_datapoints(
+            deployed_index_id=DEPLOYED_INDEX_ID,
+            ids=[dp_id for dp_id, _ in hits],
+        )
+    except Exception as exc:
+        raise HTTPException(502, f"read_index_datapoints failed: {exc}")
+
+    vecs: list[np.ndarray] = []
+    ordered_ids: list[str] = []
+    for dp in dps:
+        fv = getattr(dp, "feature_vector", None)
+        if fv is None:
+            continue
+        v = np.asarray(fv, dtype=np.float32)
+        if v.shape[0] == 0:
+            continue
+        vecs.append(v)
+        ordered_ids.append(getattr(dp, "datapoint_id", "") or getattr(dp, "id", ""))
+    if not vecs:
+        return JSONResponse({"query": q, "points": [], "total_ms": ms_since(t0)})
+
+    # Hydrate metadata for the points we successfully fetched vectors for.
+    fake_hits = [(dp_id, score_by_id.get(dp_id, 0.0)) for dp_id in ordered_ids]
+    docs = hydrate_segments(fake_hits)
+    doc_by_id = {d["datapoint_id"]: d for d in docs}
+
+    # PCA centered on the query — query lands at origin, results fan out
+    # in the directions they differ most. Distance from origin tracks how
+    # far the result is from the query in embedding space.
+    R = np.stack(vecs, axis=0)                              # (N, D)
+    D = R - q_vec[None, :]                                  # (N, D)
+    # Truncated SVD via covariance trick for D in (N<<D_dim).
+    # Compute right-singular vectors of D using eigh on D @ D.T (N x N).
+    DDt = D @ D.T
+    eigvals, eigvecs = np.linalg.eigh(DDt)                  # ascending
+    order = np.argsort(eigvals)[::-1]
+    top = order[:3]
+    # Project: U_k = eigvecs[:, top]; coords = U_k * sqrt(eigvals[top]).
+    sing = np.sqrt(np.clip(eigvals[top], 0, None))
+    coords = eigvecs[:, top] * sing[None, :]                # (N, 3)
+
+    # Normalize into a unit-ish cube so Three.js camera defaults look good,
+    # but preserve relative distances (uniform scale, not min-max stretch).
+    max_abs = float(np.max(np.abs(coords))) or 1.0
+    coords = coords / max_abs                               # in [-1, 1]
+
+    points = []
+    for i, dp_id in enumerate(ordered_ids):
+        d = doc_by_id.get(dp_id) or {}
+        points.append({
+            "id": dp_id,
+            "asset_id": d.get("asset_id", ""),
+            "modality": d.get("modality", ""),
+            "kind": d.get("kind", ""),
+            "score": round(score_by_id.get(dp_id, 0.0), 4),
+            "thumbnail_url": d.get("thumbnail_url"),
+            "caption": (d.get("caption_text") or "")[:140],
+            "x": round(float(coords[i, 0]), 4),
+            "y": round(float(coords[i, 1]), 4),
+            "z": round(float(coords[i, 2]), 4),
+        })
+
+    # Record top-3 explained-variance ratio so the UI can show how much of
+    # the structure the projection actually preserves.
+    total_var = float(np.sum(np.clip(eigvals, 0, None)))
+    explained = float(np.sum(np.clip(eigvals[top], 0, None)) / total_var) if total_var > 0 else 0.0
+
+    return JSONResponse({
+        "query": q,
+        "modality": modality,
+        "points": points,
+        "query_point": {"x": 0.0, "y": 0.0, "z": 0.0},
+        "explained_variance": round(explained, 4),
+        "dim": int(R.shape[1]),
+        "total_ms": round(ms_since(t0), 2),
+    })
 
 
 @app.get("/api/segment/{datapoint_id}")

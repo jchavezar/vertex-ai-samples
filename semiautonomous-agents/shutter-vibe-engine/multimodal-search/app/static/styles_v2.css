@@ -91,15 +91,14 @@ ul { list-style: none; padding: 0; margin: 0; }
   pointer-events: none;
 }
 .cursor__dot {
-  width: 6px; height: 6px;
-  background: var(--ink);
-  margin-left: -3px; margin-top: -3px;
-  opacity: .9;
+  width: 0; height: 0;
+  opacity: 0;
 }
 .cursor__ring {
-  width: 28px; height: 28px;
-  border: 1.5px solid rgba(22,24,29,.45);
-  margin-left: -14px; margin-top: -14px;
+  width: 22px; height: 22px;
+  background: var(--green);
+  border: 0;
+  margin-left: -11px; margin-top: -11px;
 }
 .cursor__label {
   position: absolute; left: 16px; top: 16px;
@@ -119,8 +118,8 @@ ul { list-style: none; padding: 0; margin: 0; }
 .cursor.is-link .cursor__ring {
   width: 44px; height: 44px;
   margin-left: -22px; margin-top: -22px;
-  background: rgba(22,24,29,.06);
-  border-color: rgba(22,24,29,.5);
+  background: rgba(131,229,9,.10);
+  border-color: var(--green);
 }
 /* state: hovering a card → arrow points right (open) */
 .cursor.is-open .cursor__dot { opacity: 0; }
@@ -2779,9 +2778,13 @@ ul { list-style: none; padding: 0; margin: 0; }
 .card__action--kit { font-size: 14px; }
 .audiorow__kit { margin-left: 6px; }
 
-/* ============ Floating attribution badge — below Auto-Ingest panel ============ */
-.jcz-attrib {
+/* ============ Floating attribution group — below Auto-Ingest panel ============ */
+.jcz-attrib-group {
   position: fixed; right: 18px; bottom: 18px; z-index: 91;
+  display: inline-flex; align-items: center; gap: 8px;
+  transition: right .28s cubic-bezier(.2,.8,.2,1);
+}
+.jcz-attrib {
   display: inline-flex; align-items: center; gap: 8px;
   padding: 8px 14px 8px 12px; border-radius: 999px;
   background: linear-gradient(135deg, #16181D 0%, #1F232B 100%);
@@ -2790,27 +2793,32 @@ ul { list-style: none; padding: 0; margin: 0; }
   letter-spacing: -0.01em; text-decoration: none;
   border: 1px solid rgba(155, 228, 63, 0.25);
   box-shadow: 0 4px 14px rgba(20,22,28,.20), 0 12px 28px rgba(20,22,28,.18);
-  transition: transform .22s cubic-bezier(.2,.8,.2,1), box-shadow .22s, border-color .22s;
+  transition: transform .22s cubic-bezier(.2,.8,.2,1), box-shadow .22s, border-color .22s, color .22s;
 }
 .jcz-attrib:hover {
   transform: translateY(-2px); border-color: #9BE43F;
   box-shadow: 0 6px 18px rgba(20,22,28,.24), 0 16px 36px rgba(155,228,63,.18);
 }
+.jcz-attrib--icon {
+  width: 36px; height: 36px; padding: 0;
+  justify-content: center; color: rgba(255,255,255,.78);
+}
+.jcz-attrib--icon:hover { color: #9BE43F; }
 .jcz-attrib__spark { color: #9BE43F; font-size: 13px; line-height: 1; transition: transform .22s; }
 .jcz-attrib:hover .jcz-attrib__spark { transform: rotate(90deg) scale(1.15); }
 .jcz-attrib__by    { color: rgba(255,255,255,.55); font-weight: 500; }
 .jcz-attrib__name  { color: #fff; font-weight: 700; letter-spacing: -0.012em; }
 .jcz-attrib__arrow { color: rgba(255,255,255,.55); font-size: 10px; margin-left: 2px; transition: color .22s, transform .22s; }
 .jcz-attrib:hover .jcz-attrib__arrow { color: #9BE43F; transform: translate(2px,-2px); }
-/* Slide the badge left when any right-side panel is open so it stays visible. */
-.jcz-attrib { transition: right .28s cubic-bezier(.2,.8,.2,1), transform .22s, box-shadow .22s, border-color .22s; }
-body:has(.assetchat:not([hidden]))    .jcz-attrib { right: calc(min(96vw, 420px) + 18px); }
-body:has(.create-panel:not([hidden])) .jcz-attrib { right: calc(min(96vw, 460px) + 18px); }
-body:has(.kit-panel:not([hidden]))    .jcz-attrib { right: calc(min(96vw, 480px) + 18px); }
+/* Slide the group left when any right-side panel is open so it stays visible. */
+body:has(.assetchat:not([hidden]))    .jcz-attrib-group { right: calc(min(96vw, 420px) + 18px); }
+body:has(.create-panel:not([hidden])) .jcz-attrib-group { right: calc(min(96vw, 460px) + 18px); }
+body:has(.kit-panel:not([hidden]))    .jcz-attrib-group { right: calc(min(96vw, 480px) + 18px); }
 @media (max-width: 640px) {
-  body:has(.assetchat:not([hidden])) .jcz-attrib,
-  body:has(.create-panel:not([hidden])) .jcz-attrib,
-  body:has(.kit-panel:not([hidden])) .jcz-attrib { display: none; }
+  body:has(.assetchat:not([hidden])) .jcz-attrib-group,
+  body:has(.create-panel:not([hidden])) .jcz-attrib-group,
+  body:has(.kit-panel:not([hidden])) .jcz-attrib-group { display: none; }
+  .jcz-attrib-group .jcz-attrib--icon { display: none; }
 }
 
 /* ============ Create with AI — slide-in side panel (Nano Banana etc.) ============ */
@@ -2928,3 +2936,253 @@ body:has(.kit-panel:not([hidden]))    .jcz-attrib { right: calc(min(96vw, 480px)
   letter-spacing: -0.01em;
 }
 .create-panel__demo:hover { background: rgba(155,228,63,.16); }
+
+/* ============ 3D SIMILARITY VIZ ============ */
+.viz3d-btn {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 7px 12px; border-radius: 999px;
+  background: var(--ink); color: #fff;
+  border: 1px solid var(--ink);
+  font-size: 12px; font-weight: 600; letter-spacing: -0.01em;
+  cursor: pointer; transition: all .14s ease;
+  margin-right: 8px;
+}
+.viz3d-btn:hover {
+  background: var(--green); color: var(--green-ink);
+  border-color: var(--green);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px -8px rgba(131,229,9,.5);
+}
+.viz3d-btn svg { transition: transform .25s ease; }
+.viz3d-btn:hover svg { transform: rotate(120deg); }
+.viz3d-btn .ai-chip { padding: 1px 6px; font-size: 10px; }
+.ai-chip--inverse { background: rgba(255,255,255,.16); color: #fff; }
+.viz3d-btn:hover .ai-chip--inverse { background: rgba(0,0,0,.12); color: var(--green-ink); }
+.results__sort { display: inline-flex; align-items: center; gap: 4px; }
+.results__sort-divider { color: var(--ink-4); margin: 0 4px; }
+.results__sort-lbl { font-size: 13px; }
+
+/* Modal frame */
+.viz3d {
+  position: fixed; inset: 0; z-index: 200;
+  display: flex; align-items: center; justify-content: center;
+  animation: viz3dFadeIn .18s ease-out;
+}
+@keyframes viz3dFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+.viz3d__backdrop {
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse at center, rgba(8,12,16,.78) 0%, rgba(0,0,0,.94) 80%);
+  backdrop-filter: blur(14px) saturate(1.1);
+  -webkit-backdrop-filter: blur(14px) saturate(1.1);
+}
+.viz3d__panel {
+  position: relative;
+  width: min(1180px, 94vw);
+  height: min(780px, 88vh);
+  background: linear-gradient(180deg, rgba(22,26,32,.92) 0%, rgba(14,16,20,.96) 100%);
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 18px;
+  box-shadow:
+    0 30px 80px rgba(0,0,0,.6),
+    0 0 0 1px rgba(131,229,9,.06),
+    inset 0 1px 0 rgba(255,255,255,.04);
+  display: flex; flex-direction: column; overflow: hidden;
+  animation: viz3dPanelIn .22s cubic-bezier(.2,.7,.3,1.05);
+}
+@keyframes viz3dPanelIn {
+  from { transform: scale(.96) translateY(8px); opacity: 0; }
+  to   { transform: scale(1) translateY(0); opacity: 1; }
+}
+.viz3d__head {
+  display: flex; align-items: center; gap: 18px;
+  padding: 14px 18px;
+  border-bottom: 1px solid rgba(255,255,255,.06);
+  color: #fff;
+}
+.viz3d__title {
+  display: flex; align-items: center; gap: 10px;
+  font-weight: 700; font-size: 14px; letter-spacing: -0.01em;
+}
+.viz3d__sub {
+  margin-left: 6px;
+  font-size: 11.5px; font-weight: 500; color: rgba(255,255,255,.55);
+  letter-spacing: 0;
+}
+.viz3d__legend {
+  margin-left: auto;
+  display: flex; align-items: center; gap: 12px;
+  font-size: 11px; color: rgba(255,255,255,.6); letter-spacing: 0;
+  text-transform: lowercase;
+}
+.viz3d__legend-item {
+  display: inline-flex; align-items: center; gap: 5px;
+}
+.viz3d__dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  box-shadow: 0 0 8px currentColor;
+}
+.viz3d__dot--q       { background: #fff; color: #fff; }
+.viz3d__dot--photo   { background: #83E509; color: #83E509; }
+.viz3d__dot--video   { background: #6FE3FF; color: #6FE3FF; }
+.viz3d__dot--audio   { background: #FFB347; color: #FFB347; }
+.viz3d__dot--graphic { background: #FF7AD9; color: #FF7AD9; }
+
+.viz3d__close {
+  width: 30px; height: 30px; border-radius: 50%;
+  background: rgba(255,255,255,.06); color: #fff;
+  border: 1px solid rgba(255,255,255,.08);
+  font-size: 18px; line-height: 0; cursor: pointer;
+  display: inline-flex; align-items: center; justify-content: center;
+  transition: all .12s ease;
+}
+.viz3d__close:hover { background: rgba(255,255,255,.14); transform: rotate(90deg); }
+
+/* Stage holds canvas + overlays */
+.viz3d__stage {
+  position: relative; flex: 1; min-height: 0;
+  background:
+    radial-gradient(circle at 30% 30%, rgba(131,229,9,.05), transparent 50%),
+    radial-gradient(circle at 70% 70%, rgba(111,227,255,.04), transparent 50%);
+}
+.viz3d__canvas {
+  position: absolute; inset: 0;
+  width: 100% !important; height: 100% !important;
+  display: block;
+}
+.viz3d__loading {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 14px; z-index: 2;
+  color: rgba(255,255,255,.7);
+}
+.viz3d__spinner {
+  width: 38px; height: 38px; border-radius: 50%;
+  border: 2px solid rgba(131,229,9,.2);
+  border-top-color: #83E509;
+  animation: viz3dSpin .8s linear infinite;
+}
+@keyframes viz3dSpin {
+  to { transform: rotate(360deg); }
+}
+.viz3d__loading-msg {
+  font-size: 13px; letter-spacing: -0.01em;
+}
+.viz3d__hint {
+  position: absolute; left: 14px; bottom: 12px;
+  font-size: 11px; color: rgba(255,255,255,.42); letter-spacing: 0;
+  pointer-events: none;
+}
+
+/* Tooltip */
+.viz3d__tooltip {
+  position: absolute; z-index: 5; pointer-events: none;
+  width: 220px;
+  background: rgba(20,22,26,.96);
+  border: 1px solid rgba(131,229,9,.22);
+  border-radius: 10px;
+  padding: 10px 12px;
+  color: #fff; font-size: 12px; letter-spacing: -0.01em;
+  box-shadow: 0 18px 38px rgba(0,0,0,.6);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+.viz3d-tip__head {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 6px;
+}
+.viz3d-tip__mod {
+  text-transform: lowercase; font-size: 10px; font-weight: 700;
+  padding: 2px 7px; border-radius: 999px;
+  background: rgba(255,255,255,.08); color: rgba(255,255,255,.85);
+  letter-spacing: .04em;
+}
+.viz3d-tip__mod--photo   { background: rgba(131,229,9,.18); color: #C2F484; }
+.viz3d-tip__mod--video   { background: rgba(111,227,255,.18); color: #B7F0FF; }
+.viz3d-tip__mod--audio   { background: rgba(255,179,71,.18); color: #FFD79B; }
+.viz3d-tip__mod--graphic { background: rgba(255,122,217,.18); color: #FFB6E8; }
+.viz3d-tip__score {
+  font-weight: 700; color: #83E509; font-size: 13px;
+}
+.viz3d-tip__cap {
+  color: #fff; line-height: 1.35;
+  display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.viz3d-tip__id {
+  margin-top: 6px; font-size: 10px;
+  color: rgba(255,255,255,.42);
+  font-family: ui-monospace, SF Mono, Menlo, monospace;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
+@media (max-width: 720px) {
+  .viz3d__panel { width: 96vw; height: 90vh; border-radius: 12px; }
+  .viz3d__legend { display: none; }
+  .viz3d__sub { display: none; }
+}
+
+/* Floating dock for spread + fit controls (3D viz) */
+.viz3d__dock {
+  position: absolute; right: 14px; bottom: 12px; z-index: 4;
+  display: flex; flex-direction: column; gap: 8px;
+  padding: 10px 12px;
+  background: rgba(20,22,26,.78);
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 12px;
+  box-shadow: 0 14px 36px rgba(0,0,0,.55);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  min-width: 230px;
+}
+.viz3d__dock-row {
+  display: flex; align-items: center; gap: 10px;
+}
+.viz3d__dock-row--btns { gap: 6px; }
+.viz3d__dock-lbl {
+  font-size: 10.5px; font-weight: 700; color: rgba(255,255,255,.65);
+  text-transform: uppercase; letter-spacing: .08em;
+  width: 50px;
+}
+.viz3d__dock-val {
+  font-size: 11px; color: #83E509; font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  min-width: 36px; text-align: right;
+}
+.viz3d__slider {
+  flex: 1; -webkit-appearance: none; appearance: none;
+  height: 3px; border-radius: 999px;
+  background: linear-gradient(90deg, rgba(131,229,9,.6), rgba(255,255,255,.12));
+  outline: none; cursor: pointer;
+}
+.viz3d__slider::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none;
+  width: 14px; height: 14px; border-radius: 50%;
+  background: #83E509;
+  border: 2px solid #0E1014;
+  box-shadow: 0 0 8px rgba(131,229,9,.6);
+  cursor: grab;
+}
+.viz3d__slider::-moz-range-thumb {
+  width: 14px; height: 14px; border-radius: 50%;
+  background: #83E509;
+  border: 2px solid #0E1014;
+  cursor: grab;
+}
+.viz3d__dock-btn {
+  flex: 1;
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  padding: 7px 10px; border-radius: 8px;
+  background: rgba(255,255,255,.04);
+  border: 1px solid rgba(255,255,255,.08);
+  color: rgba(255,255,255,.85);
+  font-size: 11px; font-weight: 600; letter-spacing: -0.01em;
+  cursor: pointer; transition: all .12s ease;
+}
+.viz3d__dock-btn:hover {
+  background: rgba(131,229,9,.14);
+  border-color: rgba(131,229,9,.35);
+  color: #C2F484;
+}
