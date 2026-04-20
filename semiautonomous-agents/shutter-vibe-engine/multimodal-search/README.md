@@ -7,6 +7,12 @@
 
 ![hero](./docs/hero.gif)
 
+## Architecture
+
+![architecture](./docs/architecture.svg)
+
+Mermaid source: [`site/src/content/docs/architecture.md`](./site/src/content/docs/architecture.md) · PNG: [`docs/architecture.png`](./docs/architecture.png)
+
 ---
 
 ## Repository layout
