@@ -276,7 +276,11 @@ def _stream_assist(gcp_token: str, query: str, session_token: Optional[str] = No
     ds_base = f"{BASE}/default_collection/dataStores/{CONNECTOR_ID}"
     payload = {
         "query": {"text": query},
-        "dataStoreSpecs": [{"dataStore": f"{ds_base}_{et}"} for et in ENTITY_TYPES],
+        "toolsSpec": {
+            "vertexAiSearchSpec": {
+                "dataStoreSpecs": [{"dataStore": f"{ds_base}_{et}"} for et in ENTITY_TYPES],
+            }
+        },
     }
     if session_token:
         payload["session"] = session_token
