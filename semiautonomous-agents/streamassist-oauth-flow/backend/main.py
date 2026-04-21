@@ -273,7 +273,7 @@ async def search(request: Request, body: SearchRequest):
 
 
 def _stream_assist(gcp_token: str, query: str, session_token: Optional[str] = None, trace: list | None = None) -> dict:
-    ds_base = f"{BASE}/default_collection/dataStores/{CONNECTOR_ID}"
+    ds_base = f"projects/{PROJECT_NUMBER}/locations/global/collections/default_collection/dataStores/{CONNECTOR_ID}"
     payload = {
         "query": {"text": query},
         "toolsSpec": {
