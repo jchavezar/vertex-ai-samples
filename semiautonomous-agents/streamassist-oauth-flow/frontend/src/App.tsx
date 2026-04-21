@@ -15,6 +15,7 @@ interface Message {
   role: 'user' | 'assistant';
   text: string;
   sources?: Source[];
+  duration_ms?: number;
 }
 
 interface TraceEntry {
@@ -103,13 +104,21 @@ export default function App() {
   const [traces, setTraces] = useState<TraceEntry[]>([]);
   const [showDebug, setShowDebug] = useState(true);
   const [expandedTraces, setExpandedTraces] = useState<Set<string>>(new Set());
+  const [elapsedMs, setElapsedMs] = useState(0);
   const consentPopupRef = useRef<Window | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const traceEndRef = useRef<HTMLDivElement>(null);
+  const searchStartRef = useRef<number>(0);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, loading]);
+
+  useEffect(() => {
+    if (!loading) return;
+    const id = setInterval(() => setElapsedMs(Date.now() - searchStartRef.current), 50);
+    return () => clearInterval(id);
+  }, [loading]);
 
   useEffect(() => {
     traceEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -354,6 +363,8 @@ export default function App() {
 
     setMessages(prev => [...prev, { role: 'user', text: q }]);
     setQuery('');
+    setElapsedMs(0);
+    searchStartRef.current = Date.now();
     setLoading(true);
 
     const traceId = addTrace('Search', {
@@ -362,7 +373,7 @@ export default function App() {
       session_token: sessionToken,
       idToken: token.substring(0, 30) + '...',
     });
-    const start = Date.now();
+    const start = searchStartRef.current;
 
     try {
       const resp = await fetch('/api/search', {
@@ -371,29 +382,33 @@ export default function App() {
         body: JSON.stringify({ query: q, session_token: sessionToken }),
       });
       const data = await resp.json();
+      const elapsed = Date.now() - start;
 
       if (data.error) {
-        setMessages(prev => [...prev, { role: 'assistant', text: `Error: ${data.error}` }]);
-        updateTrace(traceId, { status: 'error', duration_ms: Date.now() - start, output: { error: data.error } });
+        setMessages(prev => [...prev, { role: 'assistant', text: `Error: ${data.error}`, duration_ms: elapsed }]);
+        updateTrace(traceId, { status: 'error', duration_ms: elapsed, output: { error: data.error } });
       } else {
         setMessages(prev => [...prev, {
-          role: 'assistant', text: data.answer || 'No answer generated.', sources: data.sources,
+          role: 'assistant', text: data.answer || 'No answer generated.', sources: data.sources, duration_ms: elapsed,
         }]);
         updateTrace(traceId, {
           status: 'success',
-          duration_ms: Date.now() - start,
+          duration_ms: elapsed,
           output: { answer_length: data.answer?.length, sources_count: data.sources?.length, session_token: data.session_token },
         });
         if (data.session_token) setSessionToken(data.session_token);
       }
       addBackendTraces(data._trace);
     } catch (err: any) {
-      setMessages(prev => [...prev, { role: 'assistant', text: `Network error: ${err.message}` }]);
-      updateTrace(traceId, { status: 'error', duration_ms: Date.now() - start, output: { error: err.message } });
+      const elapsed = Date.now() - start;
+      setMessages(prev => [...prev, { role: 'assistant', text: `Network error: ${err.message}`, duration_ms: elapsed }]);
+      updateTrace(traceId, { status: 'error', duration_ms: elapsed, output: { error: err.message } });
     } finally {
       setLoading(false);
     }
   };
+
+  const fmtElapsed = (ms: number) => (ms < 1000 ? `${ms} ms` : `${(ms / 1000).toFixed(2)} s`);
 
   const renderMarkdown = (text: string) => {
     const lines = text.split('\n');
@@ -561,6 +576,11 @@ export default function App() {
                     <div key={i} className={`message message-${msg.role}`}>
                       {msg.role === 'assistant' && <div className="avatar avatar-ai">G</div>}
                       <div className="message-bubble">
+                        {msg.role === 'assistant' && msg.duration_ms !== undefined && (
+                          <div style={{ fontSize: '0.72rem', color: '#8b95a8', marginBottom: '4px', fontFamily: 'monospace' }}>
+                            ⏱ {fmtElapsed(msg.duration_ms)}
+                          </div>
+                        )}
                         <div className="message-text">{msg.role === 'assistant' ? renderMarkdown(msg.text) : msg.text}</div>
                         {msg.sources && msg.sources.length > 0 && (
                           <div className="sources">
@@ -590,7 +610,11 @@ export default function App() {
                       <div className="avatar avatar-ai">G</div>
                       <div className="message-bubble">
                         <div className="loading-bubble">
-                          <div className="dot-pulse" /><span>Searching SharePoint...</span>
+                          <div className="dot-pulse" />
+                          <span>Searching SharePoint...</span>
+                          <span style={{ marginLeft: 'auto', fontFamily: 'monospace', fontSize: '0.85rem', color: '#8b95a8' }}>
+                            ⏱ {fmtElapsed(elapsedMs)}
+                          </span>
                         </div>
                       </div>
                     </div>
