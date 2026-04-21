@@ -42,7 +42,61 @@ EXT_TO_CATEGORY = {
     ".mp3": "audio", ".wav": "audio", ".m4a": "audio", ".ogg": "audio",
 }
 
+# Stills where the extension can't tell us photo-vs-illustration. PNGs from
+# AI image generators are photo-like, but PNGs from designers are usually
+# logos/illustrations — same extension. Same for webp. We re-classify these
+# by content with a tiny Gemini call instead of trusting the suffix.
+AMBIGUOUS_STILL_EXTS = {".png", ".webp", ".jpg", ".jpeg"}
+
 INGEST_PREFIX = "ingest/"
+
+CLASSIFIER_MODEL = "gemini-3.1-flash-lite-preview"  # cheapest still-image model
+_CLASSIFIER_CLIENT = None
+
+
+def _classifier_client():
+    """Global region — flash-lite preview only lives there."""
+    global _CLASSIFIER_CLIENT
+    if _CLASSIFIER_CLIENT is None:
+        from google import genai
+        _CLASSIFIER_CLIENT = genai.Client(
+            vertexai=True,
+            project=os.environ.get("GOOGLE_CLOUD_PROJECT", "vtxdemos"),
+            location="global",
+        )
+    return _CLASSIFIER_CLIENT
+
+
+def classify_still(image_bytes: bytes, mime: str) -> str:
+    """Return 'photo' or 'graphic' based on what's in the pixels.
+
+    Photo  = photograph, AI-generated photoreal image, video frame still.
+    Graphic = logo, icon, illustration, diagram, screenshot, UI mockup,
+              vector art, anything with flat color regions or transparency.
+
+    On any error → fall back to 'photo' (the safer default for stock catalogs:
+    a misclassified graphic in the photo bucket is less surprising than a
+    misclassified photo hidden under graphics)."""
+    from google.genai import types
+    try:
+        resp = _classifier_client().models.generate_content(
+            model=CLASSIFIER_MODEL,
+            contents=[
+                types.Part.from_bytes(data=image_bytes, mime_type=mime),
+                "Is this a photograph (or AI-generated photo-like image), "
+                "or a graphic (logo, icon, illustration, diagram, screenshot, "
+                "UI element)? Answer with exactly one word: 'photo' or 'graphic'.",
+            ],
+            config=types.GenerateContentConfig(
+                temperature=0.0, max_output_tokens=8,
+            ),
+        )
+        out = (resp.text or "").strip().lower()
+        if "graphic" in out: return "graphic"
+        if "photo"   in out: return "photo"
+    except Exception as exc:
+        print(f"[classify] failed, defaulting to photo: {exc}")
+    return "photo"
 
 
 def _slug(s: str) -> str:
@@ -84,6 +138,21 @@ async def handle_event(request: Request) -> Response:
     src_blob = storage_client.bucket(bucket).blob(name)
     if not src_blob.exists():
         return Response(status_code=204)
+
+    # For ambiguous still extensions (.png, .webp, .jpg) re-classify by
+    # content. The download_as_bytes is cheap relative to the embedding/
+    # captioning that follows and avoids a second GCS round-trip.
+    if ext in AMBIGUOUS_STILL_EXTS:
+        try:
+            head = src_blob.download_as_bytes()
+            mime = "image/png" if ext == ".png" else (
+                "image/webp" if ext == ".webp" else "image/jpeg")
+            classified = classify_still(head, mime)
+            if classified != category:
+                print(f"[ingest] reclassify {ext} {category} → {classified}")
+                category = classified
+        except Exception as exc:
+            print(f"[ingest] classify skipped, keeping ext default: {exc}")
 
     # Download to a temp local path that pipeline_v2 expects under ROOT.
     sub = {"photo": "photos", "graphic": "graphics",

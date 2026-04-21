@@ -32,7 +32,9 @@ multimodal-search/site/
 
 # Ingest-only sources — not needed for the user-facing app
 multimodal-search/app/ingest.py
-multimodal-search/pipeline/
+# pipeline/ excluded EXCEPT build.py — the live /api/snippet endpoint reads it.
+multimodal-search/pipeline/*
+!multimodal-search/pipeline/build.py
 
 # Other dockerfiles / requirements
 multimodal-search/deploy/Dockerfile.ingest

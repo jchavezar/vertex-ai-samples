@@ -187,13 +187,15 @@ def extract_video_segment(src: Path, start: float, end: float, out_dir: Path,
     """Returns (clip_path, thumb_path) — both webp/mp4."""
     clip = out_dir / f"{dp_id}.mp4"
     thumb = out_dir / f"{dp_id}.webp"
-    if not clip.exists():
+    if not clip.exists() or clip.stat().st_size == 0:
+        clip.unlink(missing_ok=True)
         run(["ffmpeg", "-y", "-loglevel", "error",
              "-ss", f"{start}", "-to", f"{end}", "-i", str(src),
              "-c:v", "libx264", "-preset", "veryfast", "-crf", "26",
              "-vf", "scale='min(720,iw)':-2", "-an",
              str(clip)])
-    if not thumb.exists():
+    if not thumb.exists() or thumb.stat().st_size == 0:
+        thumb.unlink(missing_ok=True)
         mid = (start + end) / 2
         png = out_dir / f"{dp_id}.png"
         run(["ffmpeg", "-y", "-loglevel", "error",
@@ -209,7 +211,8 @@ def extract_audio_segment(src: Path, start: float, end: float, out_dir: Path,
                           dp_id: str) -> tuple[Path, Path]:
     clip = out_dir / f"{dp_id}.mp3"
     thumb = out_dir / f"{dp_id}.webp"
-    if not clip.exists():
+    if not clip.exists() or clip.stat().st_size == 0:
+        clip.unlink(missing_ok=True)
         run(["ffmpeg", "-y", "-loglevel", "error",
              "-ss", f"{start}", "-to", f"{end}", "-i", str(src),
              "-c:a", "libmp3lame", "-b:a", "128k", str(clip)])

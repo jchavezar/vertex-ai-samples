@@ -91,6 +91,13 @@ FIRESTORE_UPLOADS = "uploads"
 EMBED_MODEL = "gemini-embedding-2-preview"
 RESCUE_MODEL = "gemini-3.1-flash-lite-preview"  # global region
 
+# Pluggable search backend. 'vector-search' = Vertex AI Vector Search
+# (production path, ~$137/mo, sub-100ms). 'bigquery' = BigQuery VECTOR_SEARCH
+# (cost path, ~$0/mo, ~1-2s). See backends/README.md.
+SEARCH_BACKEND = os.environ.get("SEARCH_BACKEND", "vector-search").lower()
+if SEARCH_BACKEND not in ("vector-search", "bigquery"):
+    raise ValueError(f"SEARCH_BACKEND must be 'vector-search' or 'bigquery', got {SEARCH_BACKEND!r}")
+
 # "Talk to this Asset" — Gemini Live API + text fallback chat models.
 # Vertex AI uses the dash-suffixed preview model id; these can change with
 # the SDK / region — keep in sync with google-genai release notes.
@@ -115,6 +122,32 @@ ASSET_CHAT_SYSTEM = (
 # Confidence scoring — same shape as v1 but expressed against cosine similarity.
 LOW_CONFIDENCE_FLOOR = 0.45     # below this we trigger rescue
 ZERO_RESULT_FANOUT_K = 24
+
+# Display floors: drop hits below these similarities before showing them.
+# Per-modality because text↔image cosine sits higher than text↔video/audio
+# (cross-modal gap). Below the floor, neighbors are noise — see the "bmw → bernese"
+# case where 0.37 hits were semantically unrelated.
+DISPLAY_FLOOR = {
+    "photo":   float(os.environ.get("FLOOR_PHOTO",   "0.40")),
+    "graphic": float(os.environ.get("FLOOR_GRAPHIC", "0.40")),
+    "video":   float(os.environ.get("FLOOR_VIDEO",   "0.36")),
+    "audio":   float(os.environ.get("FLOOR_AUDIO",   "0.32")),
+    "music":   float(os.environ.get("FLOOR_MUSIC",   "0.32")),
+    "sfx":     float(os.environ.get("FLOOR_SFX",     "0.32")),
+}
+DEFAULT_DISPLAY_FLOOR = 0.36
+
+
+def apply_display_floor(hits: list[tuple[str, float]],
+                        modality: str | None,
+                        override: float | None = None,
+                        ) -> list[tuple[str, float]]:
+    """Drop hits whose cosine similarity is below the floor.
+    `override`, when set, replaces the per-modality default — used by the
+    UI threshold slider so users can sweep noise live."""
+    floor = (override if override is not None
+             else DISPLAY_FLOOR.get(modality or "", DEFAULT_DISPLAY_FLOOR))
+    return [(dp, s) for dp, s in hits if s >= floor]
 
 # In-memory telemetry buffers
 LATENCIES_MS = collections.deque(maxlen=200)
@@ -401,11 +434,11 @@ def _restrict(name: str, allow: list[str]):
     return Namespace(name=name, allow_tokens=allow)
 
 
-def vs_find_neighbors(q_vec: np.ndarray, *, k: int = 20,
-                      modality: str | None = None,
-                      tempo: str | None = None,
-                      length: str | None = None) -> list[tuple[str, float]]:
-    """Returns [(datapoint_id, cosine_similarity), ...] ordered best-first."""
+def _vs_find_neighbors_native(q_vec: np.ndarray, *, k: int = 20,
+                               modality: str | None = None,
+                               tempo: str | None = None,
+                               length: str | None = None) -> list[tuple[str, float]]:
+    """Vertex AI Vector Search implementation."""
     ep = endpoint()
     restricts = []
     if modality and modality != "all":
@@ -432,6 +465,31 @@ def vs_find_neighbors(q_vec: np.ndarray, *, k: int = 20,
         return []
     # find_neighbors returns COSINE_DISTANCE → similarity = 1 - distance.
     return [(n.id, 1.0 - float(n.distance)) for n in response[0]]
+
+
+def _bq_backend():
+    """Lazy import — only loaded when SEARCH_BACKEND=bigquery."""
+    import sys
+    repo_root = Path(__file__).resolve().parent.parent
+    bq_path = str(repo_root / "backends" / "bigquery")
+    if bq_path not in sys.path:
+        sys.path.insert(0, bq_path)
+    import backend as _bq  # backends/bigquery/backend.py
+    return _bq
+
+
+def vs_find_neighbors(q_vec: np.ndarray, *, k: int = 20,
+                      modality: str | None = None,
+                      tempo: str | None = None,
+                      length: str | None = None) -> list[tuple[str, float]]:
+    """Returns [(datapoint_id, cosine_similarity), ...] ordered best-first.
+
+    Dispatches to the configured backend (Vector Search or BigQuery)."""
+    if SEARCH_BACKEND == "bigquery":
+        return _bq_backend().find_neighbors(
+            q_vec, k=k, modality=modality, tempo=tempo, length=length)
+    return _vs_find_neighbors_native(
+        q_vec, k=k, modality=modality, tempo=tempo, length=length)
 
 
 # ---------------------------------------------------------------------------
@@ -664,7 +722,8 @@ FANOUT_MODALITIES = ("photo", "video", "audio", "graphic")
 
 
 def vs_fanout_all(q_vec: np.ndarray, *, k: int,
-                  tempo: str | None, length: str | None
+                  tempo: str | None, length: str | None,
+                  floor_override: float | None = None,
                   ) -> list[tuple[str, float]]:
     """Per-modality fan-out for cross-modal 'all' searches. Issues one
     restricted vs_find_neighbors call per modality in parallel, then merges
@@ -677,8 +736,8 @@ def vs_fanout_all(q_vec: np.ndarray, *, k: int,
                    for m in FANOUT_MODALITIES}
         per_mod = {m: f.result() for m, f in futures.items()}
     merged: dict[str, float] = {}
-    for hits in per_mod.values():
-        for dp_id, score in hits:
+    for mod, hits in per_mod.items():
+        for dp_id, score in apply_display_floor(hits, mod, override=floor_override):
             if dp_id not in merged or score > merged[dp_id]:
                 merged[dp_id] = score
     return sorted(merged.items(), key=lambda x: -x[1])
@@ -687,7 +746,8 @@ def vs_fanout_all(q_vec: np.ndarray, *, k: int,
 def _do_search(q_text: str, q_vec: np.ndarray, modality: str, limit: int,
                tempo: str | None, length: str | None,
                color: str | None, *, t0_total: float,
-               t_embed_ms: float, vibe: dict | None = None) -> dict:
+               t_embed_ms: float, vibe: dict | None = None,
+               floor_override: float | None = None) -> dict:
     mod = None if modality == "all" else modality
 
     # ---- Vibe slider bias: nudge the query embedding along learned axes ----
@@ -719,14 +779,19 @@ def _do_search(q_text: str, q_vec: np.ndarray, modality: str, limit: int,
 
     t1 = now_ms()
     if modality == "all":
-        hits = vs_fanout_all(q_vec, k=limit, tempo=tempo, length=length)
+        hits = vs_fanout_all(q_vec, k=limit, tempo=tempo, length=length,
+                             floor_override=floor_override)
     else:
         hits = vs_find_neighbors(q_vec, k=limit, modality=mod,
                                  tempo=tempo, length=length)
+        hits = apply_display_floor(hits, mod, override=floor_override)
     vs_ms = ms_since(t1)
 
     hits, rescue_label = maybe_rescue(q_text, hits, limit=limit,
                                       modality=mod, tempo=tempo, length=length)
+    # After rescue, re-apply floor to whatever rewrite path produced.
+    if modality != "all":
+        hits = apply_display_floor(hits, mod, override=floor_override)
 
     t3 = now_ms()
     results = hydrate_segments(hits, rescue_strategy=rescue_label)
@@ -740,6 +805,76 @@ def _do_search(q_text: str, q_vec: np.ndarray, modality: str, limit: int,
     LATENCIES_MS.append(total_ms)
     record_recent_query(q_text, len(results), rescue_label, total_ms)
 
+    # Telemetry for the in-app "How it works" panel. Cheap (~5ms, ~1KB):
+    # 32 floats + a few strings. Always inline so every search becomes a
+    # teaching moment without a second API round-trip.
+    restricts_applied = []
+    if mod and mod != "all":
+        restricts_applied.append({"namespace": "modality",
+                                  "allow": ["audio", "sfx"] if mod == "audio" else [mod]})
+    if tempo:
+        restricts_applied.append({"namespace": "tempo_bucket", "allow": [tempo]})
+    if length:
+        restricts_applied.append({"namespace": "length_bucket", "allow": [length]})
+
+    trace = {
+        "embed": {
+            "model": EMBED_MODEL,
+            "input_kind": "text",
+            "input_chars": len(q_text),
+            "output_dim": int(q_vec.shape[0]),
+            "output_norm": round(float(np.linalg.norm(q_vec)), 6),
+            "preview_first32": [round(float(x), 5) for x in q_vec[:32].tolist()],
+            "vibe_applied": vibe_applied,
+            "latency_ms": round(t_embed_ms, 2),
+        },
+        "vector_search": (
+            {
+                "backend": "vector-search",
+                "endpoint_display_name": ENDPOINT_DISPLAY_NAME,
+                "deployed_index_id": DEPLOYED_INDEX_ID,
+                "algorithm": "TREE_AH (ScaNN, approx. nearest neighbours)",
+                "distance_metric": "COSINE_DISTANCE → 1 − distance = cosine similarity",
+                "update_mode": "STREAM_UPDATE",
+                "k": int(limit),
+                "restricts": restricts_applied,
+                "fanout": list(FANOUT_MODALITIES) if (mod is None or modality == "all") else None,
+                "display_floor_used": (
+                    {m: DISPLAY_FLOOR.get(m, DEFAULT_DISPLAY_FLOOR) for m in FANOUT_MODALITIES}
+                    if floor_override is None
+                    else {"override": floor_override}
+                ),
+                "latency_ms": round(vs_ms, 2),
+            } if SEARCH_BACKEND == "vector-search" else
+            {
+                "backend": "bigquery",
+                "table": os.environ.get("BQ_TABLE", "vtxdemos.envato_vibe.segments"),
+                "algorithm": "VECTOR_SEARCH brute-force (use_brute_force=true)",
+                "distance_metric": "COSINE → 1 − distance = cosine similarity",
+                "update_mode": "TABLE INSERT (re-runnable backfill)",
+                "k": int(limit),
+                "restricts": restricts_applied,
+                "fanout": list(FANOUT_MODALITIES) if (mod is None or modality == "all") else None,
+                "display_floor_used": (
+                    {m: DISPLAY_FLOOR.get(m, DEFAULT_DISPLAY_FLOOR) for m in FANOUT_MODALITIES}
+                    if floor_override is None
+                    else {"override": floor_override}
+                ),
+                "latency_ms": round(vs_ms, 2),
+            }
+        ),
+        "hydrate": {
+            "store": "Firestore",
+            "collection": FIRESTORE_SEGMENTS,
+            "lookups": len(hits),
+            "latency_ms": round(hydrate_ms, 2),
+        },
+        "top_neighbors_raw": [
+            {"datapoint_id": dp, "cosine_similarity": round(float(s), 4)}
+            for dp, s in hits[:8]
+        ],
+    }
+
     return {
         "query": q_text,
         "query_embed_ms": round(t_embed_ms, 2),
@@ -749,6 +884,7 @@ def _do_search(q_text: str, q_vec: np.ndarray, modality: str, limit: int,
         "result_count": len(results),
         "rescue": rescue_label,
         "vibe_applied": vibe_applied,
+        "trace": trace,
         "results": results,
         "grouped": group_by_modality(results),
     }
@@ -760,6 +896,184 @@ def _do_search(q_text: str, q_vec: np.ndarray, modality: str, limit: int,
 @app.get("/", response_class=HTMLResponse)
 def home(request: Request):
     return templates.TemplateResponse(request, "index_v2.html", {})
+
+
+# ---------------------------------------------------------------------------
+# Code snippet endpoint — powers the clickable architecture diagram in the
+# "How it works" panel. Reads source live from disk so snippets don't drift.
+# Each component returns a list of "tabs": code snippets and/or markdown notes.
+# ---------------------------------------------------------------------------
+SNIPPET_REPO_ROOT = ROOT.parent  # multimodal-search/
+
+# Tab schema: {"kind": "code", "label", "file", "function", "why"}
+#         or {"kind": "note", "label", "body_md"}
+SNIPPETS: dict[str, dict] = {
+    "embed": {
+        "title": "Multimodal Embedding · gemini-embedding-2-preview",
+        "tabs": [
+            {"kind": "code", "label": "Query · text only",
+             "file": "app/main.py", "function": "embed_text",
+             "why": "Typed-query path. One Part: the text. Lands in the SAME 3072-d space as indexed assets, which is why text→image and text→video work without a second model."},
+            {"kind": "code", "label": "Query · image only",
+             "file": "app/main.py", "function": "embed_image",
+             "why": "Image-to-anything upload path. One Part: the image bytes — NO text fusion here, because at query time the user uploaded an image without typing anything. If they also typed, we'd send [text, image] like the index-time fusion tab does."},
+            {"kind": "code", "label": "Query · audio only",
+             "file": "app/main.py", "function": "embed_audio",
+             "why": "Sounds-like upload path. One Part: the audio bytes — same reasoning, no caption available at query time. See the ⚠ Audio caveat tab for why this path is weaker for music than for speech."},
+            {"kind": "code", "label": "Index-time fusion (text + bytes)",
+             "file": "pipeline/build.py", "function": "embed_segment",
+             "why": "**This is the fusion call.** `contents=[text, media]` — caption text and media bytes go into ONE embed_content call and come back as a SINGLE 3072-d vector. That's the unique Gemini-Embedding-2 trick: text and media co-embedded, not averaged after the fact. Possible at index time because gemini-3-flash-preview already produced the structured caption."},
+            {"kind": "note", "label": "Query vs index fusion",
+             "body_md": "Good question — the fusion is asymmetric, on purpose:\n\n| Side | Inputs available | Call shape | Fused? |\n|---|---|---|---|\n| **Query** (typed) | text only | `[text]` | n/a |\n| **Query** (image upload) | image bytes only | `[image]` | no |\n| **Query** (audio upload) | audio bytes only | `[audio]` | no |\n| **Index** (every asset) | caption text + media bytes | `[text, media]` | **YES — one call, one vector** |\n\nGemini Embedding 2 supports `[text, media]` co-embedding in a single call. We use it where it matters most — at **index time**, where every asset has a `gemini-3-flash-preview` caption available. The query side stays single-modal because that's what the user actually gave us.\n\n> **Could we fuse on the query side too?** Yes — if the user types AND uploads, we could send `[query_text, uploaded_image]` in one call. The current code doesn't (each path is a separate route). It's a one-line change in `_do_search` if we ever expose a combined input in the UI."},
+            {"kind": "note", "label": "⚠ Audio caveat",
+             "body_md": "**Per Vertex AI's own docs:**\n\n> *\"Audio support is optimized for speech. Ambient sound and music might not perform at the highest quality.\"*\n\nThe Gemini audio tower descends from **USM (Universal Speech Model)** — trained primarily on speech. For our music & SFX corpus this means:\n\n- The **caption text** (mood/genre/instruments/BPM, generated by `gemini-3-flash-preview`) carries most of the semantic signal\n- The raw audio bytes are a weak secondary nudge — they can shift ranking but rarely reorder it dramatically\n- Music retrieval would degrade sharply if captions got worse\n- Spoken content (lyrics) likely IS captured (USM lineage)\n\n**Honest fix for production music search:** swap a contrastive music↔text model — **CLAP**, **MuLan**, or **MERT** — into the audio tower, then average the two vectors per segment. Or store a separate `audio_acoustic` datapoint and average at query time.\n\n— [Vertex AI multimodal embeddings docs](https://docs.cloud.google.com/vertex-ai/generative-ai/docs/embeddings/get-multimodal-embeddings)"},
+        ],
+    },
+
+    "vs_find_neighbors": {
+        "title": "Vector Search 2.0 · TREE_AH + COSINE",
+        "tabs": [
+            {"kind": "code", "label": "find_neighbors",
+             "file": "app/main.py", "function": "vs_find_neighbors",
+             "why": "The actual ANN call. TREE_AH (ScaNN) over COSINE_DISTANCE with optional namespace restricts. Returns (datapoint_id, similarity) — sub-100ms over millions of points."},
+            {"kind": "code", "label": "Cross-modal fanout",
+             "file": "app/main.py", "function": "vs_fanout_all",
+             "why": "When modality=all, run one restricted query per modality in parallel and merge. Without this, music (~60% of corpus) crowds out photo/video/graphic results."},
+            {"kind": "code", "label": "Per-modality floor",
+             "file": "app/main.py", "function": "apply_display_floor",
+             "why": "Cosine floor per modality. Below the floor, neighbours are noise (the 'bmw → bernese' problem). Floors differ because text↔image cosine sits higher than text↔video↔audio (cross-modal gap)."},
+            {"kind": "note", "label": "Why STREAM_UPDATE",
+             "body_md": "The index is configured for **STREAM_UPDATE**, not BATCH_UPDATE.\n\n| Mode | Cost | Time-to-searchable |\n|---|---|---|\n| BATCH_UPDATE | 1× | hours (full rebuild) |\n| STREAM_UPDATE | ~1.5–2× | seconds (incremental) |\n\nNew assets dropped into GCS are searchable in a few seconds via Eventarc → ingest → upsert_datapoints. Costs ~2× per write but lets the demo feel live."},
+        ],
+    },
+
+    "vs_fanout_all": {
+        "title": "Cross-modal fanout",
+        "tabs": [
+            {"kind": "code", "label": "vs_fanout_all",
+             "file": "app/main.py", "function": "vs_fanout_all",
+             "why": "Parallel per-modality restricted queries → merge by raw cosine. Prevents one dominant modality from crowding out the rest."},
+        ],
+    },
+
+    "apply_display_floor": {
+        "title": "Per-modality noise floor",
+        "tabs": [
+            {"kind": "code", "label": "apply_display_floor",
+             "file": "app/main.py", "function": "apply_display_floor",
+             "why": "Drop neighbours below the per-modality cosine floor. Text↔image sits higher than text↔video↔audio (cross-modal gap), so floors differ."},
+            {"kind": "note", "label": "The 'bmw → bernese' incident",
+             "body_md": "Without per-modality floors, querying **'bmw'** returned a Bernese mountain dog at rank 12 — at ~37% cosine similarity, which is the noise floor for short queries.\n\nThe model wasn't 'wrong' — it was returning the closest random thing in 3072-d space when nothing real was nearby. Per-modality floors hide these noise hits without sacrificing real cross-modal hits.\n\nSliders in the UI let you raise/lower the floor live to see how this changes the result mix."},
+        ],
+    },
+
+    "hydrate_segments": {
+        "title": "Hydrate · Firestore lookup",
+        "tabs": [
+            {"kind": "code", "label": "hydrate_segments",
+             "file": "app/main.py", "function": "hydrate_segments",
+             "why": "Vector Search only returns datapoint_ids + scores. Firestore stores the rich metadata (caption, GCS URIs, duration, license) keyed by the same id. One batched get_all per query."},
+            {"kind": "note", "label": "Why Firestore",
+             "body_md": "Vector Search 2.0 stores vectors + small string `restricts`. It can't hold:\n\n- thumbnail / clip / original GCS URIs\n- structured caption (nested `{scene, mood, objects}`)\n- duration, license, contributor, ingest timestamp\n\nFirestore is the side store for that — sub-100ms point reads by datapoint_id, JSON-native, no schema migrations as we add fields. Could swap for Cloud SQL / Redis / BigQuery; Firestore is just the lowest-friction fit."},
+        ],
+    },
+
+    "api_search": {
+        "title": "Search API · FastAPI",
+        "tabs": [
+            {"kind": "code", "label": "api_search (route)",
+             "file": "app/main.py", "function": "api_search",
+             "why": "The HTTP surface. Validates the query, embeds it, packages vibe slider values, dispatches to _do_search."},
+            {"kind": "code", "label": "_do_search (orchestration)",
+             "file": "app/main.py", "function": "_do_search",
+             "why": "Orchestrates: vibe-bias the query vector along learned axes → fanout or single-modality search → noise floor → optional rescue → Firestore hydrate → palette filter → return with full live trace."},
+        ],
+    },
+
+    "embed_segment": {
+        "title": "Index-time pipeline (Ingest)",
+        "tabs": [
+            {"kind": "code", "label": "embed_segment",
+             "file": "pipeline/build.py", "function": "embed_segment",
+             "why": "The fusion step. Caption text + media bytes (image/video/audio) → ONE 3072-d vector via gemini-embedding-2-preview. Routes by `kind`."},
+            {"kind": "code", "label": "caption_to_text (the fusion text)",
+             "file": "pipeline/build.py", "function": "caption_to_text",
+             "why": "The exact string sent alongside the media bytes. Per-modality templates flatten the structured JSON caption into a single line of natural language."},
+            {"kind": "note", "label": "Caption shapes per modality",
+             "body_md": "Every embed call is `[text, media_bytes]`. Here is exactly what the `text` looks like for each `kind` — same shape that the embedding model sees, fused with the bytes into one 3072-d vector.\n\n**📷 photo / graphic**\n```\n{scene}. Mood: {mood}. Colors: {color1, color2, color3}. Objects: {obj1, obj2, ...}. Theme: {sub_category}.\n```\n_Example:_\n```\nGolden-hour skyline reflected in still water. Mood: serene, contemplative. Colors: amber, teal, charcoal. Objects: skyline, river, bridge. Theme: cityscapes.\n```\n\n**🎬 video**\n```\n{scene}. {action}. Mood: {mood}. Camera: {camera}. Colors: {...}. Objects: {...}. Theme: {sub_category}.\n```\n_Example:_\n```\nBlack BMW X3 drifting through a wet alpine pass. Tight cornering, spray kicking off rear tyres. Mood: aggressive, cinematic. Camera: low tracking, anamorphic. Colors: graphite, asphalt-grey, fog-white. Objects: car, road, mountains. Theme: automotive.\n```\n\n**🎵 music**\n```\n{genre} track, {mood} mood, {energy} energy, ~{bpm} BPM. Instruments: {...}. Theme: {sub_category}. Fits scenes: {...}.\n```\n_Example:_\n```\nLo-fi hip-hop track, mellow mood, low energy, ~78 BPM. Instruments: rhodes piano, vinyl crackle, soft drums, upright bass. Theme: chillhop. Fits scenes: coffee shop morning, rainy window, late-night study.\n```\n\n**💥 sfx**\n```\nSound effect — {category} from {source} in {environment}. Theme: {sub_category}. Fits scenes: {...}.\n```\n_Example:_\n```\nSound effect — impact from heavy metal door in concrete corridor. Theme: foley. Fits scenes: warehouse chase, industrial reveal.\n```\n\n> The structured JSON (the `cap` dict) comes from `gemini-3-flash-preview`. The flattening above is what actually gets embedded — model-friendly natural language, not raw JSON."},
+            {"kind": "code", "label": "caption_segment (router)",
+             "file": "pipeline/build.py", "function": "caption_segment",
+             "why": "Dispatches to per-modality captioning prompts run by gemini-3-flash-preview. Each returns the structured JSON dict that caption_to_text then flattens."},
+            {"kind": "note", "label": "Per-modality routing",
+             "body_md": "Each `kind` routes its bytes differently into the SAME embedding endpoint:\n\n| Kind | Bytes sent | MIME |\n|---|---|---|\n| photo, graphic | thumbnail (the still) | `image/webp` |\n| video | the actual segment clip | `video/mp4` |\n| music, sfx | the actual segment clip | `audio/mpeg` |\n\nAll go through `gemini-embedding-2-preview` with the caption text concatenated, so every modality lands in **one shared 3072-d space**. That's why a single text query can retrieve photos AND videos AND audio in one fanout."},
+        ],
+    },
+
+    "caption_segment": {
+        "title": "Captioning · gemini-3-flash-preview",
+        "tabs": [
+            {"kind": "code", "label": "caption_segment",
+             "file": "pipeline/build.py", "function": "caption_segment",
+             "why": "Per-modality structured captions (JSON) generated at index time. The caption is what makes audio retrieval work — see the 'Embedding → Audio caveat' tab."},
+        ],
+    },
+}
+
+
+def _extract_function(file_path: Path, func_name: str) -> tuple[str, int, int]:
+    """Return (source, start_line, end_line) for a top-level function."""
+    import ast
+    src = file_path.read_text()
+    tree = ast.parse(src)
+    for node in tree.body:
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)) and node.name == func_name:
+            start = node.lineno
+            end = node.end_lineno or start
+            lines = src.splitlines()[start - 1:end]
+            return "\n".join(lines), start, end
+    raise KeyError(func_name)
+
+
+@app.get("/api/snippet/{component}")
+def api_snippet(component: str):
+    if component not in SNIPPETS:
+        raise HTTPException(404, f"unknown component '{component}'. "
+                                  f"Known: {sorted(SNIPPETS.keys())}")
+    spec = SNIPPETS[component]
+    out_tabs = []
+    for tab in spec["tabs"]:
+        if tab["kind"] == "code":
+            abs_path = SNIPPET_REPO_ROOT / tab["file"]
+            if not abs_path.exists():
+                out_tabs.append({**tab, "error": f"source file missing: {tab['file']}"})
+                continue
+            try:
+                source, start, end = _extract_function(abs_path, tab["function"])
+            except KeyError:
+                out_tabs.append({**tab, "error": f"function {tab['function']} not found"})
+                continue
+            out_tabs.append({
+                "kind": "code",
+                "label": tab["label"],
+                "file": tab["file"],
+                "function": tab["function"],
+                "line_start": start,
+                "line_end": end,
+                "why": tab["why"],
+                "source": source,
+                "language": "python",
+            })
+        else:  # note
+            out_tabs.append({
+                "kind": "note",
+                "label": tab["label"],
+                "body_md": tab["body_md"],
+            })
+    return {
+        "component": component,
+        "title": spec["title"],
+        "tabs": out_tabs,
+    }
 
 
 @app.get("/api/health")
@@ -778,6 +1092,7 @@ def api_search(q: str,
                tempo: Literal["slow", "mid", "upbeat", "fast"] | None = None,
                length: Literal["short", "mid", "long", "epic"] | None = None,
                color: str | None = None,
+               floor: float | None = None,
                vibe_warm: float = 0.0,
                vibe_energy: float = 0.0,
                vibe_cinematic: float = 0.0,
@@ -794,9 +1109,10 @@ def api_search(q: str,
         "cinematic": max(-1.0, min(1.0, float(vibe_cinematic))),
         "busy": max(-1.0, min(1.0, float(vibe_busy))),
     }
+    floor_clamped = None if floor is None else max(0.0, min(1.0, float(floor)))
     return JSONResponse(_do_search(q, q_vec, modality, limit, tempo, length,
                                    color, t0_total=t0, t_embed_ms=embed_ms,
-                                   vibe=vibe))
+                                   vibe=vibe, floor_override=floor_clamped))
 
 
 @app.post("/api/search/sounds-like")
@@ -868,7 +1184,33 @@ def api_visualize(q: str,
 
     mod = None if modality == "all" else modality
     if modality == "all":
-        hits = vs_fanout_all(q_vec, k=limit, tempo=tempo, length=length)
+        # Balance modalities for the 3D viz so the user can SEE cross-modal
+        # clustering (text↔audio cosine often outscores text↔image, so a raw
+        # top-N merge collapses the scatter to mostly audio). Quota per
+        # modality first, then top up with any extras to reach `limit`.
+        from concurrent.futures import ThreadPoolExecutor
+        with ThreadPoolExecutor(max_workers=len(FANOUT_MODALITIES)) as ex:
+            futs = {m: ex.submit(vs_find_neighbors, q_vec, k=limit,
+                                 modality=m, tempo=tempo, length=length)
+                    for m in FANOUT_MODALITIES}
+            per_mod = {m: f.result() for m, f in futs.items()}
+        per_quota = max(1, limit // len(FANOUT_MODALITIES))
+        picked: dict[str, float] = {}
+        for m in FANOUT_MODALITIES:
+            for dp_id, s in per_mod[m][:per_quota]:
+                if dp_id not in picked or s > picked[dp_id]:
+                    picked[dp_id] = s
+        if len(picked) < limit:
+            leftover = []
+            for m in FANOUT_MODALITIES:
+                leftover.extend(per_mod[m][per_quota:])
+            leftover.sort(key=lambda x: -x[1])
+            for dp_id, s in leftover:
+                if len(picked) >= limit:
+                    break
+                if dp_id not in picked:
+                    picked[dp_id] = s
+        hits = sorted(picked.items(), key=lambda x: -x[1])
     else:
         hits = vs_find_neighbors(q_vec, k=limit, modality=mod,
                                  tempo=tempo, length=length)
@@ -989,6 +1331,37 @@ async def api_upload(file: UploadFile = File(...)):
     except Exception as exc:
         print(f"[upload] could not write uploads doc: {exc}")
     return {"object_name": blob_path, "eta_seconds": 8}
+
+
+@app.get("/api/warmup")
+def api_warmup():
+    """Pre-warm clients so the first user search doesn't pay cold-start.
+
+    Cloud Run scale-to-zero pattern: hit this from a Scheduler job every
+    5-10 min to keep at least one instance warm without paying for min=1
+    idle time.
+    """
+    out = {"backend": SEARCH_BACKEND}
+    t0 = time.time()
+    try:
+        fs().collection(FIRESTORE_SEGMENTS).limit(1).get()
+        out["firestore_ms"] = round((time.time() - t0) * 1000, 1)
+    except Exception as exc:
+        out["firestore_error"] = str(exc)[:120]
+    if SEARCH_BACKEND == "bigquery":
+        try:
+            out.update(_bq_backend().warmup())
+        except Exception as exc:
+            out["bq_error"] = str(exc)[:120]
+    else:
+        try:
+            t1 = time.time()
+            endpoint()  # cache the endpoint object
+            out["vector_search_ms"] = round((time.time() - t1) * 1000, 1)
+        except Exception as exc:
+            out["vector_search_error"] = str(exc)[:120]
+    out["total_ms"] = round((time.time() - t0) * 1000, 1)
+    return out
 
 
 @app.get("/api/stats")

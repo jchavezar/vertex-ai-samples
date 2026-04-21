@@ -15,12 +15,18 @@ COPY demos/_client.py /app/demos/_client.py
 COPY multimodal-search/app/main.py        /app/multimodal-search/app/main.py
 COPY multimodal-search/app/templates      /app/multimodal-search/app/templates
 COPY multimodal-search/app/static         /app/multimodal-search/app/static
+# pipeline/build.py is read live at runtime by /api/snippet so the
+# "How it works" panel shows the real index-time source (embed_segment, etc.)
+COPY multimodal-search/pipeline/build.py  /app/multimodal-search/pipeline/build.py
+# BigQuery backend (optional path — only loaded when SEARCH_BACKEND=bigquery).
+COPY multimodal-search/backends           /app/multimodal-search/backends
 
 ENV PYTHONUNBUFFERED=1 \
     GOOGLE_GENAI_USE_VERTEXAI=True \
     GOOGLE_CLOUD_PROJECT=vtxdemos \
     GOOGLE_CLOUD_LOCATION=us-central1 \
     ENVATO_GCS_BUCKET=envato-vibe-demo \
+    SEARCH_BACKEND=vector-search \
     PORT=8080
 
 EXPOSE 8080

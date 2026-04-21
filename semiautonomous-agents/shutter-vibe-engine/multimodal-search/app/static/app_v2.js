@@ -52,7 +52,7 @@ const clampScore = s => Math.max(0, Math.min(1, Number(s) || 0));
 const state = {
   query: '',
   modality: 'all',
-  filters: { tempo: '', length: '', color: '' },
+  filters: { tempo: '', length: '', color: '', floor: 0.20 },
   refineActive: new Set(),
   lastResp: null,
   inflight: null,
@@ -417,6 +417,44 @@ document.addEventListener('change', e => {
   if (t.name === 'length') { state.filters.length = t.value; if (state.query) runSearch({ showLoader: true }); }
 });
 
+// ----- Quality floor slider (live, client-side similarity threshold) -----
+// Pure DOM filter on data-sim attributes — zero network, instant feedback.
+// The backend is told floor=0 so we always have the full set to filter from.
+(function setupFloorSlider() {
+  const slider  = $('#floorSlider');
+  const readout = $('#floorReadout');
+  const hidden  = $('#floorHidden');
+  if (!slider || !readout) return;
+  state.filters.floor = 0;  // server returns everything; we filter client-side
+
+  function applyFilter() {
+    const cutoff = parseFloat(slider.value) || 0;
+    let total = 0, drop = 0;
+    document.querySelectorAll('[data-sim]').forEach(node => {
+      total += 1;
+      const s = parseFloat(node.dataset.sim) || 0;
+      const below = s < cutoff;
+      node.classList.toggle('is-below-floor', below);
+      if (below) drop += 1;
+    });
+    // Hide entire modality blocks if all their cards are filtered out.
+    document.querySelectorAll('.modblock').forEach(block => {
+      const cards = block.querySelectorAll('[data-sim]');
+      const visible = Array.from(cards).filter(c => !c.classList.contains('is-below-floor'));
+      block.classList.toggle('is-empty-by-floor', cards.length > 0 && visible.length === 0);
+    });
+    readout.textContent = `${(cutoff * 100).toFixed(0)}%`;
+    if (hidden) {
+      hidden.textContent = total === 0 ? '' :
+        (drop === 0 ? 'showing all' : `${drop}/${total} hidden`);
+    }
+  }
+  slider.addEventListener('input', applyFilter);
+  // Re-apply after every search render so new cards inherit the current cutoff.
+  window.__applyFloorFilter = applyFilter;
+  applyFilter();
+})();
+
 $('#filtersToggle')?.addEventListener('click', () => {
   const f = $('#filters');
   const collapsed = f.classList.toggle('is-collapsed');
@@ -443,6 +481,11 @@ async function fetchSearch({ q, modality = state.modality, limit = 20, suggestOn
   if (state.filters.tempo)  params.set('tempo',  state.filters.tempo);
   if (state.filters.length) params.set('length', state.filters.length);
   if (state.filters.color)  params.set('color',  state.filters.color);
+  // Always send floor (even 0 = "show everything") so the user-set value
+  // overrides the per-modality auto floor on the backend.
+  if (typeof state.filters.floor === 'number') {
+    params.set('floor', state.filters.floor.toFixed(2));
+  }
 
   // Vibe-slider bias (warm/energy/cinematic/busy, each in [-1, 1]).
   // window.__vibe is owned by static/vibe_slider.js. Only attach axes with
@@ -562,6 +605,8 @@ function renderResults(resp) {
     resultCols.appendChild(el('div', { class: 'modblock--empty' },
       'No results in the chosen modality. Try switching to "All" in the left filters.'));
   }
+  // Re-apply the live floor filter to the freshly-rendered DOM.
+  if (typeof window.__applyFloorFilter === 'function') window.__applyFloorFilter();
 }
 
 function groupResults(results = []) {
@@ -627,7 +672,11 @@ function renderCardGrid(items, cls) {
 function renderCard(r, cls) {
   const card = el('article', {
     class: `card card--${cls}`,
-    dataset: { id: r.datapoint_id, cursor: cls === 'video' ? 'play' : 'open' },
+    dataset: {
+      id: r.datapoint_id,
+      cursor: cls === 'video' ? 'play' : 'open',
+      sim: clampScore(r.score).toFixed(4),
+    },
   });
   const media = el('div', { class: 'card__media' });
 
@@ -757,7 +806,7 @@ function renderAudioRow(r) {
 
   const row = el('div', {
     class: 'audiorow',
-    dataset: { id: r.datapoint_id, cursor: 'listen' },
+    dataset: { id: r.datapoint_id, cursor: 'listen', sim: clampScore(r.score).toFixed(4) },
   });
 
   // play
@@ -1651,6 +1700,303 @@ const AssetChat = (() => {
   });
 
   return { open, close };
+})();
+
+// ===========================================================
+// "HOW IT WORKS" panel — live trace + clickable architecture diagram.
+// Trace is read from state.lastResp.trace (always inline on /api/search).
+// Mermaid is lazy-loaded on first open. Code snippets fetched on click.
+// ===========================================================
+const HiW = (() => {
+  const panel = document.getElementById('hiwPanel');
+  const stagesEl = document.getElementById('hiwStages');
+  const subEl = document.getElementById('hiwSub');
+  const mermaidEl = document.getElementById('hiwMermaid');
+  const diagLoading = document.getElementById('hiwDiagramLoading');
+  const codeOverlay = document.getElementById('hiwCode');
+  const codeTitle = document.getElementById('hiwCodeTitle');
+  const codeSub = document.getElementById('hiwCodeSub');
+  const codeTabs = document.getElementById('hiwCodeTabs');
+  const codeBody = document.getElementById('hiwCodeBody');
+  let mermaidReady = false;
+  let mermaidRenderedSrc = null;  // raw text we kept aside for re-rendering
+
+  const escapeHtml = (s) => String(s).replace(/[&<>"']/g, c => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
+  }[c]));
+
+  const fmtFloat = (x) => Number(x).toFixed(4).replace(/^-?0/, m => m);
+
+  function renderVecPreview(values) {
+    if (!Array.isArray(values) || !values.length) return '';
+    const max = Math.max(...values.map(v => Math.abs(v)));
+    return `<div class="hiw-vec">${values.map(v => {
+      const cls = v > 0.01 ? 'is-pos' : v < -0.01 ? 'is-neg' : '';
+      return `<span class="${cls}" title="dim value">${fmtFloat(v)}</span>`;
+    }).join('')}</div>`;
+  }
+
+  function renderTrace(trace, totalMs) {
+    if (!trace) {
+      stagesEl.innerHTML = '<li class="hiw__placeholder">Run a search first to see the live trace.</li>';
+      return;
+    }
+    const e = trace.embed || {};
+    const v = trace.vector_search || {};
+    const h = trace.hydrate || {};
+    const tn = trace.top_neighbors_raw || [];
+
+    const restrictsHtml = (v.restricts || []).length
+      ? (v.restricts.map(r => `<code>${escapeHtml(r.namespace)} ∈ {${r.allow.join(', ')}}</code>`).join(' '))
+      : '<em style="color:rgba(255,255,255,.5)">none</em>';
+
+    const fanoutHtml = v.fanout
+      ? v.fanout.map(m => `<code>${escapeHtml(m)}</code>`).join(' ')
+      : '<em style="color:rgba(255,255,255,.5)">single-modality</em>';
+
+    const vibeHtml = e.vibe_applied && Object.keys(e.vibe_applied).length
+      ? Object.entries(e.vibe_applied).map(([k, val]) => `<code>${k}: ${val > 0 ? '+' : ''}${val}</code>`).join(' ')
+      : '<em style="color:rgba(255,255,255,.5)">none</em>';
+
+    const neighborsHtml = tn.length
+      ? `<ul class="hiw-neighbors">${tn.map(n =>
+          `<li><code>${escapeHtml(n.datapoint_id)}</code><b>${(n.cosine_similarity * 100).toFixed(1)}%</b></li>`
+        ).join('')}</ul>`
+      : '';
+
+    stagesEl.innerHTML = `
+      <li class="hiw-stage">
+        <div class="hiw-stage__head">
+          <span class="hiw-stage__num">1</span>
+          <span class="hiw-stage__title">Embed query (text → 3072-d vector)</span>
+          <span class="hiw-stage__lat">${(e.latency_ms ?? 0).toFixed(0)} ms</span>
+        </div>
+        <dl class="hiw-stage__rows">
+          <dt>model</dt><dd><code>${escapeHtml(e.model || '?')}</code></dd>
+          <dt>input</dt><dd>${e.input_chars} chars · <code>${escapeHtml(e.input_kind || 'text')}</code></dd>
+          <dt>output</dt><dd>${e.output_dim}-d · L2 norm = <b>${(e.output_norm ?? 1).toFixed(4)}</b> (unit vector)</dd>
+          <dt>vibe bias</dt><dd>${vibeHtml}</dd>
+          <dt>preview</dt><dd>${renderVecPreview(e.preview_first32)}</dd>
+        </dl>
+      </li>
+
+      <li class="hiw-stage">
+        <div class="hiw-stage__head">
+          <span class="hiw-stage__num">2</span>
+          <span class="hiw-stage__title">Vector Search · find_neighbors</span>
+          <span class="hiw-stage__lat">${(v.latency_ms ?? 0).toFixed(0)} ms</span>
+        </div>
+        <dl class="hiw-stage__rows">
+          <dt>endpoint</dt><dd><code>${escapeHtml(v.endpoint_display_name || '?')}</code></dd>
+          <dt>deployed index</dt><dd><code>${escapeHtml(v.deployed_index_id || '?')}</code></dd>
+          <dt>algorithm</dt><dd>${escapeHtml(v.algorithm || '?')}</dd>
+          <dt>metric</dt><dd>${escapeHtml(v.distance_metric || '?')}</dd>
+          <dt>update mode</dt><dd><code>${escapeHtml(v.update_mode || '?')}</code></dd>
+          <dt>top-K</dt><dd>${v.k}</dd>
+          <dt>restricts</dt><dd>${restrictsHtml}</dd>
+          <dt>fanout</dt><dd>${fanoutHtml}</dd>
+        </dl>
+      </li>
+
+      <li class="hiw-stage">
+        <div class="hiw-stage__head">
+          <span class="hiw-stage__num">3</span>
+          <span class="hiw-stage__title">Hydrate metadata · Firestore</span>
+          <span class="hiw-stage__lat">${(h.latency_ms ?? 0).toFixed(0)} ms</span>
+        </div>
+        <dl class="hiw-stage__rows">
+          <dt>store</dt><dd>${escapeHtml(h.store || 'Firestore')}</dd>
+          <dt>collection</dt><dd><code>${escapeHtml(h.collection || '?')}</code></dd>
+          <dt>lookups</dt><dd>${h.lookups} (one batched <code>get_all</code> by datapoint_id)</dd>
+        </dl>
+      </li>
+
+      <li class="hiw-stage">
+        <div class="hiw-stage__head">
+          <span class="hiw-stage__num">4</span>
+          <span class="hiw-stage__title">Top neighbours · raw cosine</span>
+          <span class="hiw-stage__lat">total ${(totalMs ?? 0).toFixed(0)} ms</span>
+        </div>
+        ${neighborsHtml || '<em style="color:rgba(255,255,255,.5);font-size:12px">no neighbours</em>'}
+      </li>
+    `;
+  }
+
+  async function ensureMermaid() {
+    if (mermaidReady) return window.mermaid;
+    diagLoading.textContent = 'Loading mermaid…';
+    const mod = await import('https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs');
+    const mermaid = mod.default;
+    mermaid.initialize({ startOnLoad: false, theme: 'default', securityLevel: 'loose', flowchart: { htmlLabels: true } });
+    window.mermaid = mermaid;
+    mermaidReady = true;
+    return mermaid;
+  }
+
+  async function renderDiagram() {
+    if (mermaidRenderedSrc === mermaidEl.dataset.rendered) return;
+    const mermaid = await ensureMermaid();
+    if (!mermaidRenderedSrc) mermaidRenderedSrc = mermaidEl.textContent;
+    diagLoading.hidden = true;
+    mermaidEl.removeAttribute('data-processed');
+    mermaidEl.innerHTML = mermaidRenderedSrc;
+    try {
+      await mermaid.run({ nodes: [mermaidEl] });
+      mermaidEl.dataset.rendered = mermaidRenderedSrc;
+    } catch (err) {
+      console.error('mermaid render failed', err);
+      diagLoading.hidden = false;
+      diagLoading.textContent = 'Diagram failed to render — see console.';
+    }
+  }
+
+  // Tiny markdown subset for note tabs: **bold**, _em_, `code`, > quote,
+  // [text](url), fenced ```code blocks```, GFM tables, line breaks.
+  function renderNoteMd(md) {
+    const lines = String(md || '').split('\n');
+    const out = [];
+    let inQuote = false, inFence = false, fenceBuf = [];
+    const flushQuote = () => { if (inQuote) { out.push('</blockquote>'); inQuote = false; } };
+    const inline = (t) => escapeHtml(t)
+      .replace(/`([^`]+)`/g, '<code>$1</code>')
+      .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+      .replace(/(^|\s)_([^_]+)_/g, '$1<em>$2</em>')
+      .replace(/\[([^\]]+)\]\((https?:[^)]+)\)/g,
+        '<a href="$2" target="_blank" rel="noopener">$1</a>');
+
+    const isTableSep = (s) => /^\s*\|?(\s*:?-{2,}:?\s*\|)+\s*:?-{2,}:?\s*\|?\s*$/.test(s);
+    const splitRow = (s) => s.replace(/^\s*\|/, '').replace(/\|\s*$/, '').split('|').map(c => c.trim());
+
+    let i = 0;
+    while (i < lines.length) {
+      const raw = lines[i];
+      const line = raw.replace(/\s+$/, '');
+
+      // Fenced code block
+      if (/^```/.test(line)) {
+        if (!inFence) { inFence = true; fenceBuf = []; i++; continue; }
+        flushQuote();
+        out.push(`<pre class="hiw-md-pre"><code>${escapeHtml(fenceBuf.join('\n'))}</code></pre>`);
+        inFence = false; fenceBuf = []; i++; continue;
+      }
+      if (inFence) { fenceBuf.push(raw); i++; continue; }
+
+      // GFM table — header line followed by separator line
+      if (line.includes('|') && i + 1 < lines.length && isTableSep(lines[i + 1])) {
+        flushQuote();
+        const header = splitRow(line);
+        i += 2; // skip header + separator
+        const rows = [];
+        while (i < lines.length && lines[i].includes('|') && lines[i].trim() !== '') {
+          rows.push(splitRow(lines[i])); i++;
+        }
+        out.push('<table class="hiw-md-table"><thead><tr>' +
+          header.map(h => `<th>${inline(h)}</th>`).join('') + '</tr></thead><tbody>' +
+          rows.map(r => '<tr>' + r.map(c => `<td>${inline(c)}</td>`).join('') + '</tr>').join('') +
+          '</tbody></table>');
+        continue;
+      }
+
+      if (/^>\s?/.test(line)) {
+        if (!inQuote) { out.push('<blockquote>'); inQuote = true; }
+        out.push(inline(line.replace(/^>\s?/, '')) + '<br/>');
+      } else if (line === '') {
+        flushQuote();
+        out.push('<p></p>');
+      } else {
+        flushQuote();
+        out.push(`<p>${inline(line)}</p>`);
+      }
+      i++;
+    }
+    flushQuote();
+    if (inFence) {
+      out.push(`<pre class="hiw-md-pre"><code>${escapeHtml(fenceBuf.join('\n'))}</code></pre>`);
+    }
+    return out.join('');
+  }
+
+  function renderTab(tab) {
+    if (tab.kind === 'note') {
+      return `<div class="hiw-code__note">${renderNoteMd(tab.body_md)}</div>`;
+    }
+    if (tab.error) {
+      return `<div class="hiw-code__why">${escapeHtml(tab.error)}</div>`;
+    }
+    const sub = `${tab.file} · ${tab.function}() · L${tab.line_start}-${tab.line_end}`;
+    return `
+      <div class="hiw-code__sub">${escapeHtml(sub)}</div>
+      <p class="hiw-code__why">${escapeHtml(tab.why || '')}</p>
+      <pre class="hiw-code__src"><code>${escapeHtml(tab.source || '')}</code></pre>
+    `;
+  }
+
+  function selectTab(tabs, idx) {
+    codeTabs.querySelectorAll('.hiw-code__tab').forEach((b, i) => {
+      b.classList.toggle('is-active', i === idx);
+      b.setAttribute('aria-selected', i === idx ? 'true' : 'false');
+    });
+    codeBody.innerHTML = renderTab(tabs[idx]);
+  }
+
+  async function showSnippet(component) {
+    codeOverlay.hidden = false;
+    codeTitle.textContent = '…';
+    codeSub.textContent = '';
+    codeTabs.innerHTML = '';
+    codeBody.innerHTML = '<div class="hiw-code__why">loading…</div>';
+    try {
+      const r = await fetch(`/api/snippet/${encodeURIComponent(component)}`);
+      if (!r.ok) throw new Error(`HTTP ${r.status}`);
+      const data = await r.json();
+      codeTitle.textContent = data.title || component;
+      codeSub.textContent = `${data.tabs.length} tab${data.tabs.length === 1 ? '' : 's'}`;
+      codeTabs.innerHTML = data.tabs.map((t, i) => {
+        const isNote = t.kind === 'note';
+        return `<button class="hiw-code__tab${isNote ? ' is-note' : ''}" role="tab" data-idx="${i}">${escapeHtml(t.label || `Tab ${i+1}`)}</button>`;
+      }).join('');
+      codeTabs.querySelectorAll('.hiw-code__tab').forEach((btn, i) => {
+        btn.addEventListener('click', () => selectTab(data.tabs, i));
+      });
+      selectTab(data.tabs, 0);
+    } catch (err) {
+      codeTitle.textContent = 'Failed to load';
+      codeBody.innerHTML = `<div class="hiw-code__why">${escapeHtml(String(err.message || err))}</div>`;
+    }
+  }
+
+  // Mermaid `click NODE call hiwOpenSnippet("...")` → calls window.hiwOpenSnippet
+  window.hiwOpenSnippet = (component) => showSnippet(component);
+
+  function open() {
+    panel.hidden = false;
+    document.body.style.overflow = 'hidden';
+    const resp = state.lastResp || null;
+    subEl.textContent = resp
+      ? `Trace of "${resp.query}" · ${resp.result_count} results in ${(resp.total_ms || 0).toFixed(0)} ms`
+      : 'Run a search to see the live trace.';
+    renderTrace(resp && resp.trace, resp && resp.total_ms);
+    renderDiagram();
+  }
+  function close() {
+    panel.hidden = true;
+    document.body.style.overflow = '';
+    codeOverlay.hidden = true;
+  }
+
+  document.getElementById('howItWorksBtn')?.addEventListener('click', open);
+  panel.querySelectorAll('[data-hiw-close]').forEach(el => el.addEventListener('click', close));
+  codeOverlay.querySelectorAll('[data-hiw-code-close]').forEach(el =>
+    el.addEventListener('click', () => { codeOverlay.hidden = true; })
+  );
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      if (!codeOverlay.hidden) codeOverlay.hidden = true;
+      else if (!panel.hidden) close();
+    }
+  });
+
+  return { open, close, showSnippet };
 })();
 
 // ===========================================================

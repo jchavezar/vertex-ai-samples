@@ -4,6 +4,7 @@ google-genai==1.73.1
 google-cloud-storage==3.10.1
 google-cloud-firestore==2.27.0
 google-cloud-aiplatform==1.148.0
+google-cloud-bigquery==3.40.0
 google-cloud-texttospeech==2.30.0
 Jinja2==3.1.6
 python-multipart==0.0.26

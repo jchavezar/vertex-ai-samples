@@ -6,7 +6,7 @@
 <title>Vibe Search · Vertex AI</title>
 <link rel="preconnect" href="https://images.pexels.com" crossorigin />
 <link rel="dns-prefetch" href="https://images.pexels.com" />
-<link rel="stylesheet" href="/static/styles_v2.css?v=19" />
+<link rel="stylesheet" href="/static/styles_v2.css?v=23" />
 </head>
 <body>
 
@@ -310,6 +310,15 @@
         <span class="ai-chip ai-chip--mini ai-chip--inverse"><span class="sparkle">✦</span></span>
       </button>
       <span class="results__sort-divider">·</span>
+      <button type="button" class="viz3d-btn" id="howItWorksBtn" data-cursor="link" title="Show the live trace of this search: model id, embedding, vector search call, top neighbours">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="9"/>
+          <path d="M12 8v4l3 2"/>
+        </svg>
+        <span>How it works</span>
+        <span class="ai-chip ai-chip--mini ai-chip--inverse"><span class="sparkle">✦</span></span>
+      </button>
+      <span class="results__sort-divider">·</span>
       <span class="results__sort-lbl">Sort by <strong>Relevant</strong> <span class="caret">▾</span></span>
     </div>
   </div>
@@ -358,6 +367,27 @@
         <h4>Colors</h4>
         <div class="swatches" id="swatches"></div>
         <button class="filters__clear" id="colorClear" hidden>clear color</button>
+      </div>
+
+      <div class="filters__group" id="floorGroup">
+        <h4>Quality floor</h4>
+        <div class="floor-bigreadout">
+          <span class="floor-bigreadout__num" id="floorReadout">0%</span>
+          <span class="floor-bigreadout__lbl">show ≥</span>
+        </div>
+        <input type="range" id="floorSlider" class="floor-slider"
+               min="0" max="0.70" step="0.01" value="0" />
+        <div class="floor-axis">
+          <span>0%</span><span>35%</span><span>70%</span>
+        </div>
+        <div class="floor-axis floor-axis--labels">
+          <span>show all</span><span>balanced</span><span>strict</span>
+        </div>
+        <div class="floor-hidden" id="floorHidden">showing all</div>
+        <p class="muted" style="margin-top:8px;font-size:11px;line-height:1.4">
+          Hides cards below this cosine % — same number shown in each card's
+          score badge. Try <strong>"bmw"</strong> and drag past <strong>40%</strong>.
+        </p>
       </div>
 
       <div class="filters__group filters__group--hint">
@@ -483,6 +513,110 @@
       </div>
 
       <div class="viz3d__hint">Drag to orbit · scroll to zoom · hover for detail · click a point to dive in</div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ "HOW IT WORKS" EXPLAINER PANEL ============ -->
+<!-- Shows the live trace of the most recent search: model id, embedding shape,
+     vector search call, top neighbours. Architecture diagram is interactive —
+     click any component to see the actual source code from the repo. -->
+<div class="hiw" id="hiwPanel" hidden>
+  <div class="hiw__backdrop" data-hiw-close></div>
+  <aside class="hiw__panel" role="dialog" aria-modal="true" aria-labelledby="hiwTitle">
+    <header class="hiw__head">
+      <div class="hiw__title">
+        <span class="ai-chip ai-chip--mini"><span class="sparkle">✦</span></span>
+        <span id="hiwTitle">How this search worked</span>
+        <span class="hiw__sub" id="hiwSub">Run a search to see the live trace.</span>
+      </div>
+      <button class="hiw__close" data-hiw-close aria-label="Close" title="Close">×</button>
+    </header>
+
+    <div class="hiw__body" id="hiwBody">
+      <!-- Stages: rendered by JS into hiwStages -->
+      <section class="hiw__section">
+        <h3 class="hiw__h3">Live trace · current query</h3>
+        <ol class="hiw__stages" id="hiwStages">
+          <li class="hiw__placeholder">Type a query and hit Search — the actual model id, embedding dim, vector-search call and top cosine scores will show up here.</li>
+        </ol>
+      </section>
+
+      <section class="hiw__section">
+        <h3 class="hiw__h3">Why this stack is unusual</h3>
+        <ul class="hiw__why">
+          <li><strong>One model, all modalities.</strong> <code>gemini-embedding-2-preview</code> embeds text, images, video frames and audio bytes into the SAME 3072-d space. Cross-modal search is free — text→video isn't a separate model.</li>
+          <li><strong>3072 dimensions.</strong> Most embedding models ship 512–1536. More dims = richer semantics + better discrimination on weak queries.</li>
+          <li><strong>True multimodal at indexing.</strong> Index-time calls send media bytes <em>and</em> caption text in one <code>embed_content</code> call. Captions alone would lose lighting, motion, timbre.</li>
+          <li><strong>Vector Search 2.0 STREAM_UPDATE.</strong> Newly-indexed assets are searchable in seconds (vs hours for BATCH_UPDATE). TREE_AH (ScaNN) keeps lookups sub-100 ms.</li>
+          <li><strong>Per-modality cosine floors.</strong> Text↔image cosine is naturally higher than text↔video↔audio (cross-modal gap). Floors per modality kill noise without hiding real cross-modal hits.</li>
+        </ul>
+      </section>
+
+      <section class="hiw__section">
+        <h3 class="hiw__h3">Architecture · click any component for the real source</h3>
+        <div class="hiw__diagram-wrap">
+          <pre class="mermaid hiw__mermaid" id="hiwMermaid">
+flowchart TB
+    UI["Browser UI<br/>index_v2.html"]:::cr
+    APP["FastAPI<br/>api_search"]:::cr
+    EMB["gemini-embedding-2-preview<br/>3072-d multimodal"]:::vertex
+    VS[("Vector Search 2.0<br/>TREE_AH · COSINE")]:::vertex
+    FANOUT["vs_fanout_all<br/>cross-modal merge"]:::cr
+    FLOOR["apply_display_floor<br/>per-modality noise cut"]:::cr
+    FS[("Firestore<br/>segment metadata")]:::store
+    INGEST["Eventarc handler<br/>embed_segment"]:::cr
+    GCS[("GCS<br/>media + thumbs")]:::store
+    CAP["gemini-3-flash-preview<br/>captioning"]:::vertex
+
+    UI -- "GET /api/search?q=" --> APP
+    APP -- "embed text" --> EMB
+    APP -- "find_neighbors" --> VS
+    APP --> FANOUT
+    FANOUT --> FLOOR
+    APP -- "hydrate by id" --> FS
+    APP -- "signed URLs" --> GCS
+
+    GCS == "object.finalized" ==> INGEST
+    INGEST -- "media bytes + caption" --> EMB
+    INGEST -- "caption" --> CAP
+    INGEST -- "upsert vector" --> VS
+    INGEST -- "write doc" --> FS
+
+    classDef vertex fill:#E8F0FE,stroke:#1A73E8,color:#0A2A6B,stroke-width:2px
+    classDef store fill:#FEF7E0,stroke:#F4B400,color:#5A3E00,stroke-width:2px
+    classDef cr fill:#E6F4EA,stroke:#0F9D58,color:#0A4724,stroke-width:2px
+
+    click APP call hiwOpenSnippet("api_search")
+    click EMB call hiwOpenSnippet("embed")
+    click VS call hiwOpenSnippet("vs_find_neighbors")
+    click FANOUT call hiwOpenSnippet("vs_fanout_all")
+    click FLOOR call hiwOpenSnippet("apply_display_floor")
+    click FS call hiwOpenSnippet("hydrate_segments")
+    click INGEST call hiwOpenSnippet("embed_segment")
+    click CAP call hiwOpenSnippet("caption_segment")
+          </pre>
+          <div class="hiw__diagram-loading" id="hiwDiagramLoading">Loading diagram…</div>
+        </div>
+        <p class="hiw__hint">Tip: every box is clickable. The code shown is read live from the deployed container — no drift from production.</p>
+      </section>
+    </div>
+  </aside>
+
+  <!-- Code snippet overlay (over the panel) -->
+  <div class="hiw-code" id="hiwCode" hidden>
+    <div class="hiw-code__backdrop" data-hiw-code-close></div>
+    <div class="hiw-code__sheet" role="dialog" aria-modal="true" aria-labelledby="hiwCodeTitle">
+      <header class="hiw-code__head">
+        <div class="hiw-code__titlewrap">
+          <span class="ai-chip ai-chip--mini"><span class="sparkle">✦</span></span>
+          <h4 class="hiw-code__title" id="hiwCodeTitle">…</h4>
+          <span class="hiw-code__sub" id="hiwCodeSub"></span>
+        </div>
+        <button class="hiw-code__close" data-hiw-code-close aria-label="Close" title="Close">×</button>
+      </header>
+      <nav class="hiw-code__tabs" id="hiwCodeTabs" role="tablist"></nav>
+      <div class="hiw-code__body" id="hiwCodeBody"></div>
     </div>
   </div>
 </div>
@@ -626,11 +760,11 @@
 <!-- Toast container -->
 <div class="toasts" id="toasts"></div>
 
-<script src="/static/app_v2.js?v=19" defer></script>
-<script src="/static/landing_v2.js?v=19" defer></script>
-<script src="/static/vibe_slider.js?v=19" defer></script>
-<script src="/static/kit_panel.js?v=19" defer></script>
-<script src="/static/create_panel.js?v=19" defer></script>
-<script src="/static/viz3d.js?v=19" type="module"></script>
+<script src="/static/app_v2.js?v=23" defer></script>
+<script src="/static/landing_v2.js?v=23" defer></script>
+<script src="/static/vibe_slider.js?v=23" defer></script>
+<script src="/static/kit_panel.js?v=23" defer></script>
+<script src="/static/create_panel.js?v=23" defer></script>
+<script src="/static/viz3d.js?v=23" type="module"></script>
 </body>
 </html>
