@@ -19,13 +19,13 @@ from dotenv import load_dotenv
 load_dotenv()
 
 PROJECT_NUMBER = os.environ["PROJECT_NUMBER"]
-CONNECTOR_ID = os.environ.get("CONNECTOR_ID", "sharepoint-data-def-connector")
+CONNECTOR_ID = os.environ["CONNECTOR_ID"]
 CONNECTOR_CLIENT_ID = os.environ["CONNECTOR_CLIENT_ID"]
 TENANT_ID = os.environ["TENANT_ID"]
 WIF_POOL_ID = os.environ["WIF_POOL_ID"]
 WIF_PROVIDER_ID = os.environ["WIF_PROVIDER_ID"]
-ENGINE_ID = os.environ.get("ENGINE_ID", "gemini-enterprise")
-DATA_STORE_ID = os.environ.get("DATA_STORE_ID", "sharepoint-data-def-connector_file")
+ENGINE_ID = os.environ["ENGINE_ID"]
+DATA_STORE_ID = os.environ["DATA_STORE_ID"]
 GOOGLE_REDIRECT_URI = "https://vertexaisearch.cloud.google.com/oauth-redirect"
 CONNECTOR_URL = f"https://discoveryengine.googleapis.com/v1alpha/projects/{PROJECT_NUMBER}/locations/global/collections/{CONNECTOR_ID}"
 BASE_URL = f"https://discoveryengine.googleapis.com/v1alpha/projects/{PROJECT_NUMBER}/locations/global/collections/default_collection/engines/{ENGINE_ID}"

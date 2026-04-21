@@ -359,13 +359,21 @@ npm install && npm run dev           # port 5174
 |----------|-------|-------------|
 | `PROJECT_NUMBER` | backend | GCP project number |
 | `ENGINE_ID` | backend | Discovery Engine app ID |
-| `CONNECTOR_ID` | backend | SharePoint connector ID |
+| `CONNECTOR_ID` | backend | SharePoint connector ID (parent connector, not a child data store) |
+| `DATA_STORE_ID` | backend | A child data store ID, e.g. `{CONNECTOR_ID}_file` — only used by `auth_sharepoint.py` |
 | `WIF_POOL_ID` | backend | Workforce Identity Federation pool ID |
 | `WIF_PROVIDER_ID` | backend | WIF OIDC provider ID |
 | `CONNECTOR_CLIENT_ID` | backend | Entra Connector App client ID |
+| `CONNECTOR_CLIENT_SECRET` | backend | Entra Connector App client secret |
 | `TENANT_ID` | backend | Entra tenant ID |
+| `SHAREPOINT_DOMAIN` | backend | Your SharePoint host, e.g. `contoso.sharepoint.com` |
+| `BACKEND_PORT` | backend | Defaults to `8003` |
+| `SP_USERNAME` / `SP_PASSWORD` | backend | *Optional.* Auto-fills the Microsoft login when running the `auth_sharepoint.py` Playwright bootstrap CLI. Leave blank to type credentials manually. |
 | `VITE_CLIENT_ID` | frontend | Entra Portal App client ID |
 | `VITE_TENANT_ID` | frontend | Entra tenant ID |
+
+> [!NOTE]
+> `backend/auth_sharepoint.py` is an optional one-shot CLI that drives the Microsoft consent flow with Playwright instead of the in-app popup. Use it for headless bootstrapping (CI, scripts) — not required for normal portal use, where the `Connect SharePoint` button in the UI handles consent.
 
 ---
 
