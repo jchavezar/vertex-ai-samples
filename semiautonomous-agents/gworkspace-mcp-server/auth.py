@@ -2,19 +2,27 @@
 Google OAuth Authentication Manager
 
 Uses authorization code flow with loopback redirect for user authentication.
+Tokens persist in Google Secret Manager so they survive Cloud Run cold starts
+and are shared across MCP clients (Claude Code, gemini-cli, etc.).
 """
 import os
 import time
+import json
 import logging
 import threading
-import webbrowser
 import urllib.parse
-from http.server import HTTPServer, BaseHTTPRequestHandler
 from typing import Optional, Dict, Any
-from dataclasses import dataclass
+from dataclasses import dataclass, asdict
 import requests
 
 logger = logging.getLogger("gworkspace-mcp.auth")
+
+# Optional Secret Manager — only used when GWORKSPACE_SECRET_ID is set
+try:
+    from google.cloud import secretmanager
+    _SM_AVAILABLE = True
+except ImportError:
+    _SM_AVAILABLE = False
 
 # Google Workspace OAuth scopes
 GOOGLE_SCOPES = [
@@ -31,6 +39,7 @@ GOOGLE_SCOPES = [
     "https://www.googleapis.com/auth/documents.readonly",
     "https://www.googleapis.com/auth/spreadsheets.readonly",
     "https://www.googleapis.com/auth/spreadsheets",
+    "https://www.googleapis.com/auth/photoslibrary.readonly",
 ]
 
 
@@ -46,13 +55,17 @@ class AuthState:
 class GoogleAuthManager:
     """
     Manages Google Workspace authentication using authorization code flow.
-    Uses a manual copy-paste approach for cloud deployment compatibility.
+
+    Uses a loopback redirect URI (Google's officially supported flow). The user
+    opens the auth URL on any machine; after consent Google redirects to
+    http://localhost:<port>/?code=... — the page won't load (nothing listens),
+    but the user copies the code from the browser URL bar.
     """
 
     AUTH_URL = "https://accounts.google.com/o/oauth2/v2/auth"
     TOKEN_URL = "https://oauth2.googleapis.com/token"
     USERINFO_URL = "https://www.googleapis.com/oauth2/v2/userinfo"
-    REDIRECT_URI = "urn:ietf:wg:oauth:2.0:oob"  # Manual copy-paste flow
+    REDIRECT_URI = "http://localhost:8765/"
 
     def __init__(self, client_id: str, client_secret: str = ""):
         self.client_id = client_id
@@ -60,6 +73,45 @@ class GoogleAuthManager:
         self.state = AuthState()
         self._auth_code: Optional[str] = None
         self._lock = threading.Lock()
+
+        self._secret_id = os.getenv("GWORKSPACE_SECRET_ID", "")
+        self._secret_project = os.getenv("GOOGLE_CLOUD_PROJECT", "")
+        self._sm_client = None
+        if self._secret_id and self._secret_project and _SM_AVAILABLE:
+            try:
+                self._sm_client = secretmanager.SecretManagerServiceClient()
+                self._load_from_secret()
+            except Exception as e:
+                logger.warning(f"Secret Manager unavailable: {e}")
+
+    def _secret_name(self) -> str:
+        return f"projects/{self._secret_project}/secrets/{self._secret_id}"
+
+    def _load_from_secret(self) -> None:
+        try:
+            resp = self._sm_client.access_secret_version(
+                request={"name": f"{self._secret_name()}/versions/latest"}
+            )
+            data = json.loads(resp.payload.data.decode("utf-8"))
+            self.state.access_token = data.get("access_token")
+            self.state.refresh_token = data.get("refresh_token")
+            self.state.expires_at = data.get("expires_at")
+            self.state.user_info = data.get("user_info")
+            logger.info("Loaded tokens from Secret Manager")
+        except Exception as e:
+            logger.info(f"No existing tokens in Secret Manager: {e}")
+
+    def _save_to_secret(self) -> None:
+        if not self._sm_client:
+            return
+        try:
+            payload = json.dumps(asdict(self.state)).encode("utf-8")
+            self._sm_client.add_secret_version(
+                request={"parent": self._secret_name(), "payload": {"data": payload}}
+            )
+            logger.info("Persisted tokens to Secret Manager")
+        except Exception as e:
+            logger.error(f"Failed to persist tokens to Secret Manager: {e}")
 
     def get_auth_url(self) -> str:
         """Generate the authorization URL for manual auth flow."""
@@ -103,6 +155,7 @@ class GoogleAuthManager:
                 self.state.expires_at = time.time() + token_data.get("expires_in", 3600)
                 self._fetch_user_info()
 
+            self._save_to_secret()
             logger.info("Authentication successful")
             return True
 
@@ -154,6 +207,7 @@ class GoogleAuthManager:
 
             self.state.access_token = token_data["access_token"]
             self.state.expires_at = time.time() + token_data.get("expires_in", 3600)
+            self._save_to_secret()
             logger.info("Token refreshed successfully")
             return True
 
