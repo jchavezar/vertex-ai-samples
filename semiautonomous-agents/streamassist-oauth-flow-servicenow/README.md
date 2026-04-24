@@ -45,36 +45,60 @@ End-to-end: MSAL login → STS exchange → ServiceNow OAuth consent → grounde
 | Per-user ACL enforcement | Native ServiceNow ACLs/roles via Table API | SharePoint per-user permissions via Microsoft Graph |
 | **Identical otherwise** | WIF pool/provider, Entra Portal App, MSAL flow, STS exchange, engine `workforceIdentityPoolProvider`, license seats, `acquireAndStoreRefreshToken`, streamAssist payload shape | … |
 
-## Two ways to run
+## Two ways to run — pick one
 
-### A) Quick demo — single-pane HTML tester (no backend)
+This repo ships **two complete frontends** that exercise the exact same auth chain and call the exact same Discovery Engine APIs. They produce identical results — the only difference is how much infrastructure they spin up.
 
-Vanilla JS, runs entirely in the browser. Best for understanding the API contract.
+|  | 🟢 **Easy frontend** *(`tester/`)* | 🔵 **Robust frontend** *(`frontend/` + `backend/`)* |
+|---|---|---|
+| **What it is** | One self-contained HTML file with a tiny Python wrapper | React + TypeScript app + FastAPI backend |
+| **Stack** | Vanilla JS · `python3 -m http.server` style | React 19 · Vite · TypeScript · MSAL.js · FastAPI · uv |
+| **Backend?** | ❌ no — calls all GCP APIs directly from the browser | ✅ yes — FastAPI on `:8003` handles OAuth callback, STS exchange, `acquireAndStoreRefreshToken`, streamAssist proxying |
+| **OAuth callback handling** | Browser captures redirect via `postMessage` from vertexaisearch | Backend `/api/oauth/callback` receives the redirect and forwards `fullRedirectUri` to DE |
+| **Pipeline / debug visibility** | Always-visible right panel showing every API request + decoded JSON response | React debug sidebar with collapsible per-stage trace cards |
+| **Lines of code** | ~640 in one HTML file | ~340 backend + ~700 frontend |
+| **Best for** | • Demos & screenshots<br>• Understanding what the API actually wants<br>• Quick proofs that ServiceNow is wired correctly<br>• Sharing a "click and watch what happens" link with a customer | • Production-style deployment<br>• Customer fork-and-modify starting point<br>• Anything where you want a real backend (per-user storage, server-side OAuth state, sessions, logging…) |
+| **Run it** | `cd tester && cp .env.example .env && python3 serve.py` → `:5176` | Two terminals: `cd backend && uv sync && uv run python main.py` (`:8003`) + `cd frontend && npm install && npm run dev` (`:5174`) |
+| **What `serve.py` is** | A 50-line HTTP server that reads `tester/.env` and substitutes `<PLACEHOLDER>` strings into `index.html` before serving — keeps secrets out of the committed file | Not used (Vite serves the frontend, FastAPI serves the backend) |
+
+**Both** end up making the same three GCP API calls under the hood:
+
+1. `POST sts.googleapis.com/v1/token` — STS exchange (Microsoft id_token → GCP access_token)
+2. `POST .../dataConnector:acquireAndStoreRefreshToken` — link the WIF principal to a SN refresh_token
+3. `POST .../engines/.../streamAssist` — federated search
+
+If a query works on one frontend, it works on the other.
+
+### A) Easy frontend — `tester/`
 
 ```bash
 cd tester
-cp .env.example .env       # fill in 10 values
+cp .env.example .env       # fill in 10 values (see table below)
 python3 serve.py           # → http://localhost:5176
 ```
 
-### B) Full app — FastAPI backend + React/MSAL frontend
+Open the URL, click through Login → Exchange → Connect → Search. Watch the right-side panel for the live API trace.
 
-Same architecture as `streamassist-oauth-flow` but pointed at ServiceNow.
+### B) Robust frontend — `backend/` + `frontend/`
 
 ```bash
-# Backend (port 8003)
+# Terminal 1 — Backend (port 8003)
 cd backend
 cp .env.example .env       # fill in PROJECT_NUMBER, ENGINE_ID, CONNECTOR_ID,
                            #         WIF_*, TENANT_ID, SERVICENOW_*, SN_OAUTH_*
 uv sync
 uv run python main.py
 
-# Frontend (port 5174)
-cd ../frontend
+# Terminal 2 — Frontend (port 5174)
+cd frontend
 cp .env.example .env       # fill in VITE_CLIENT_ID, VITE_TENANT_ID
 npm install
 npm run dev
 ```
+
+Open `http://localhost:5174`, sign in with Microsoft, click **Connect ServiceNow**, ask a question.
+
+> Tip for customers: start with the **easy frontend** to verify your ServiceNow OAuth app + WIF + connector are all set up correctly. Once a query returns grounded results there, switch to the **robust frontend** as your production starting point.
 
 ## Quickstart (tester only)
 
