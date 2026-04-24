@@ -34,7 +34,9 @@ Everything else — STS exchange, `acquireAndStoreRefreshToken`, streamAssist pa
 
 ![Demo](docs/demo-us.gif)
 
-End-to-end: MSAL login → STS exchange → SharePoint consent → grounded answer with source cards. All API calls hit `us-discoveryengine.googleapis.com`.
+▶ **Higher-quality video:** [docs/demo-us.mp4](docs/demo-us.mp4) *(open raw to play)*
+
+End-to-end: MSAL login → STS exchange → SharePoint consent → grounded answer with source cards. All API calls hit `us-discoveryengine.googleapis.com`. Sensitive identifiers in the recording are redacted.
 
 ## The proof in three signals
 
