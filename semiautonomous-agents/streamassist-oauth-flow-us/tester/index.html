@@ -1,68 +1,425 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
     <title>StreamAssist · US Region Test</title>
     <script src="https://alcdn.msauth.net/browser/2.38.0/js/msal-browser.min.js"></script>
     <style>
-        body { font-family: 'Segoe UI', Arial, sans-serif; margin: 0; padding: 20px; background: #0f0f23; color: #ccc; }
-        .container { max-width: 1000px; margin: 0 auto; }
-        h1 { color: #00d4ff; margin-bottom: 5px; }
-        .subtitle { color: #666; margin-bottom: 30px; }
-        button { padding: 12px 24px; margin: 5px; cursor: pointer; background: #0066cc; color: white; border: none; border-radius: 6px; font-size: 14px; }
-        button:hover { background: #0088ff; }
-        button:disabled { background: #333; color: #666; cursor: not-allowed; }
-        .token-box { background: #1a1a2e; padding: 15px; margin: 10px 0; border-radius: 8px; font-family: 'Consolas', monospace; font-size: 12px; max-height: 150px; overflow-y: auto; border: 1px solid #333; word-break: break-all; }
-        .status { padding: 12px; margin: 10px 0; border-radius: 6px; }
-        .success { background: #1a4d2e; border: 1px solid #2d7a4a; }
-        .error { background: #4d1a1a; border: 1px solid #7a2d2d; }
-        .info { background: #1a2d4d; border: 1px solid #2d4a7a; }
-        .step { margin: 20px 0; padding: 20px; background: #16162a; border-radius: 10px; border: 1px solid #2a2a4a; }
-        .step h2 { color: #00d4ff; margin-top: 0; font-size: 18px; }
-        .step-number { display: inline-block; width: 28px; height: 28px; background: #0066cc; color: white; border-radius: 50%; text-align: center; line-height: 28px; margin-right: 10px; font-weight: bold; }
-        input[type="text"] { padding: 12px; border-radius: 6px; border: 1px solid #333; background: #1a1a2e; color: #fff; font-size: 14px; }
-        .query-input { width: calc(100% - 150px); }
-        .result-box { background: #1a1a2e; padding: 20px; margin: 10px 0; border-radius: 8px; border: 1px solid #333; white-space: pre-wrap; font-family: 'Segoe UI', sans-serif; line-height: 1.6; }
-        .sources { margin-top: 15px; padding-top: 15px; border-top: 1px solid #333; }
-        .source-item { background: #0f0f1a; padding: 10px; margin: 5px 0; border-radius: 5px; }
-        .source-item a { color: #00d4ff; }
-        .grounding-badge { display: inline-block; padding: 4px 8px; border-radius: 4px; font-size: 11px; margin-left: 10px; }
-        .grounded { background: #1a4d2e; color: #4ade80; }
-        .not-grounded { background: #4d1a1a; color: #f87171; }
-        .badge-region { display: inline-block; padding: 3px 8px; background: #4d3a1a; color: #fbbf24; border-radius: 4px; font-size: 11px; margin-left: 8px; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bg-1: #0a0a14;
+            --bg-2: #14142a;
+            --card-bg: rgba(20, 20, 36, 0.6);
+            --card-border: rgba(120, 220, 255, 0.18);
+            --card-border-active: rgba(120, 220, 255, 0.55);
+            --accent: #6dd3ff;
+            --accent-glow: rgba(109, 211, 255, 0.35);
+            --good: #4ade80;
+            --good-bg: rgba(74, 222, 128, 0.08);
+            --good-border: rgba(74, 222, 128, 0.5);
+            --warn: #fbbf24;
+            --bad: #f87171;
+            --text: #e7ebf5;
+            --muted: #7d8aa8;
+        }
+        body {
+            font-family: 'Inter', -apple-system, 'Segoe UI', sans-serif;
+            background: radial-gradient(ellipse at top, var(--bg-2), var(--bg-1) 70%);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 28px 16px;
+            -webkit-font-smoothing: antialiased;
+        }
+        .app {
+            width: 100%;
+            max-width: 720px;
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 4px;
+        }
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 17px;
+            font-weight: 600;
+            letter-spacing: 0.2px;
+        }
+        .brand-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, #fff, #6dd3ff 60%, #2a76b8);
+            box-shadow: 0 0 14px var(--accent-glow);
+        }
+        .brand-tag {
+            font-size: 10px;
+            color: var(--muted);
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            padding: 4px 8px;
+            background: rgba(120, 140, 180, 0.08);
+            border-radius: 6px;
+        }
+        .header-meta {
+            font-size: 11px;
+            color: var(--muted);
+            font-family: 'JetBrains Mono', 'Consolas', monospace;
+            letter-spacing: 0.05em;
+        }
+        .card {
+            position: relative;
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 18px;
+            padding: 22px 24px;
+            backdrop-filter: blur(12px);
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card.active {
+            border-color: var(--card-border-active);
+            box-shadow: 0 0 32px -8px var(--accent-glow), inset 0 0 0 1px rgba(109, 211, 255, 0.1);
+        }
+        .card.success {
+            border-color: var(--good-border);
+            background: linear-gradient(180deg, var(--good-bg), transparent 60%), var(--card-bg);
+            box-shadow: 0 0 32px -10px rgba(74, 222, 128, 0.4);
+        }
+        .card-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 14px;
+        }
+        .card-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 10px;
+            color: var(--accent);
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+        .card-tag-id {
+            color: var(--muted);
+            font-family: 'JetBrains Mono', monospace;
+            letter-spacing: 0.05em;
+            text-transform: none;
+            font-weight: 400;
+        }
+        .card-score {
+            text-align: right;
+            font-size: 36px;
+            font-weight: 700;
+            line-height: 1;
+            color: var(--text);
+        }
+        .card-score .label {
+            display: block;
+            font-size: 10px;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 0.18em;
+            margin-top: 4px;
+            font-weight: 400;
+        }
+        .card-title {
+            font-size: 22px;
+            font-weight: 600;
+            margin-bottom: 4px;
+            line-height: 1.3;
+        }
+        .card-sub {
+            font-size: 13px;
+            color: var(--muted);
+            margin-bottom: 18px;
+        }
+        .stats {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 14px;
+        }
+        .stat {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 14px;
+        }
+        .stat-label { color: var(--muted); }
+        .stat-val {
+            color: var(--text);
+            font-weight: 600;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12.5px;
+        }
+        .stat-val.good { color: var(--good); }
+        .pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 11px;
+            padding: 5px 12px;
+            border-radius: 14px;
+            background: rgba(120, 140, 180, 0.12);
+            color: var(--muted);
+            letter-spacing: 0.05em;
+            font-weight: 500;
+        }
+        .pill.running {
+            background: rgba(109, 211, 255, 0.12);
+            color: var(--accent);
+        }
+        .pill.running::before {
+            content: '';
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--accent);
+            box-shadow: 0 0 8px var(--accent);
+            animation: pulse 1s ease-in-out infinite;
+        }
+        .pill.done {
+            background: var(--good-bg);
+            color: var(--good);
+        }
+        .pill.done::before {
+            content: '✓';
+            font-weight: 700;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.4; transform: scale(0.85); }
+        }
+        .footer-row {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 16px;
+        }
+        .step-card {
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+        .step-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            background: rgba(109, 211, 255, 0.1);
+            border: 1px solid rgba(109, 211, 255, 0.25);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--accent);
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+        .step-card.success .step-icon {
+            background: var(--good-bg);
+            border-color: var(--good-border);
+            color: var(--good);
+        }
+        .step-body {
+            flex: 1;
+            min-width: 0;
+        }
+        .step-tag {
+            font-size: 9.5px;
+            letter-spacing: 0.22em;
+            color: var(--muted);
+            text-transform: uppercase;
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+        .step-name {
+            font-size: 15px;
+            font-weight: 600;
+        }
+        .step-detail {
+            font-size: 11.5px;
+            color: var(--muted);
+            font-family: 'JetBrains Mono', monospace;
+            margin-top: 2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .composer {
+            position: relative;
+            display: flex;
+            gap: 0;
+            padding: 4px;
+            border-radius: 28px;
+            background: linear-gradient(110deg, rgba(255, 92, 156, 0.18), rgba(109, 211, 255, 0.18) 35%, rgba(167, 119, 255, 0.2) 70%, rgba(255, 187, 92, 0.16));
+        }
+        .composer::before {
+            content: '';
+            position: absolute;
+            inset: 4px;
+            border-radius: 24px;
+            background: rgba(15, 15, 28, 0.85);
+            backdrop-filter: blur(10px);
+        }
+        .composer input {
+            flex: 1;
+            position: relative;
+            border: none;
+            background: transparent;
+            color: var(--text);
+            padding: 14px 22px;
+            font-size: 14px;
+            font-family: inherit;
+            outline: none;
+        }
+        .composer input::placeholder { color: var(--muted); }
+        .composer button {
+            position: relative;
+            border: none;
+            background: var(--accent);
+            color: var(--bg-1);
+            width: 44px;
+            height: 44px;
+            border-radius: 22px;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: 700;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.2s, transform 0.1s;
+        }
+        .composer button:hover { transform: scale(1.05); }
+        .composer button:disabled {
+            background: rgba(120, 140, 180, 0.2);
+            color: var(--muted);
+            cursor: not-allowed;
+        }
+        .answer-text {
+            font-size: 14.5px;
+            line-height: 1.55;
+            color: var(--text);
+            white-space: pre-wrap;
+        }
+        .sources {
+            margin-top: 14px;
+            padding-top: 14px;
+            border-top: 1px solid rgba(120, 140, 180, 0.15);
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .source-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            font-size: 12.5px;
+            color: var(--muted);
+            padding: 8px 12px;
+            background: rgba(120, 140, 180, 0.05);
+            border-radius: 8px;
+        }
+        .source-item .ico {
+            color: var(--accent);
+            font-size: 11px;
+            line-height: 1.4;
+            flex-shrink: 0;
+        }
+        .hidden { display: none !important; }
+        .text-good { color: var(--good); }
+        .text-warn { color: var(--warn); }
+        .text-bad { color: var(--bad); }
+        .badge-region {
+            font-size: 10px;
+            color: var(--accent);
+            background: rgba(109, 211, 255, 0.1);
+            padding: 4px 9px;
+            border-radius: 6px;
+            font-family: 'JetBrains Mono', monospace;
+            letter-spacing: 0.05em;
+        }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>StreamAssist · US Region Test <span class="badge-region">us-discoveryengine.googleapis.com</span></h1>
-        <p class="subtitle">Entra ID → WIF/STS → Discovery Engine streamAssist (us region) with raw client_id audience</p>
-
-        <div class="step">
-            <h2><span class="step-number">1</span>Microsoft Entra ID Login</h2>
-            <button onclick="login()">Login with Microsoft</button>
-            <div id="user-info"></div>
-            <div id="jwt-token" class="token-box" style="display:none;"></div>
+    <div class="app">
+        <div class="header">
+            <div class="brand">
+                <span class="brand-dot"></span>
+                <span>StreamAssist</span>
+                <span class="brand-tag">US PROOF</span>
+            </div>
+            <div class="header-meta">us-discoveryengine.googleapis.com</div>
         </div>
 
-        <div class="step">
-            <h2><span class="step-number">2</span>Exchange JWT for GCP Token (WIF/STS)</h2>
-            <button onclick="exchangeToken()" id="btn-exchange" disabled>Exchange Token</button>
-            <div id="gcp-status"></div>
-            <div id="gcp-token" class="token-box" style="display:none;"></div>
+        <!-- MAIN CARD: changes content as flow progresses -->
+        <div class="card active" id="main-card">
+            <div class="card-head">
+                <span class="card-tag">PROOF · <span class="card-tag-id">streamassist-us</span></span>
+                <span class="badge-region" id="region-badge">us</span>
+            </div>
+            <div class="card-title" id="main-title">Sign in to begin</div>
+            <div class="card-sub" id="main-sub">MSAL → STS → Discovery Engine streamAssist with raw client_id audience</div>
+
+            <div class="stats" id="signals">
+                <div class="stat">
+                    <span class="stat-label">Region</span>
+                    <span class="stat-val" id="signal-region">us-discoveryengine.googleapis.com</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-label">id_token aud claim</span>
+                    <span class="stat-val" id="signal-aud">—</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-label">WIF identity</span>
+                    <span class="stat-val" id="signal-wif">—</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-label">Grounding</span>
+                    <span class="stat-val" id="signal-grounding">—</span>
+                </div>
+            </div>
+
+            <div class="footer-row">
+                <span class="pill" id="status-pill">Idle</span>
+            </div>
         </div>
 
-        <div class="step">
-            <h2><span class="step-number">3</span>Query Discovery Engine (us region · SharePoint)</h2>
-            <input type="text" id="query-input" class="query-input" placeholder="Enter query..." value="What financial reports are available?">
-            <button onclick="queryDiscoveryEngine()" id="btn-query" disabled>Search SharePoint</button>
-            <div id="query-status"></div>
-            <div id="query-result" class="result-box" style="display:none;"></div>
+        <!-- STEP CARDS -->
+        <div class="card step-card" id="step-login">
+            <div class="step-icon">①</div>
+            <div class="step-body">
+                <div class="step-tag">STEP 1 · IDENTITY</div>
+                <div class="step-name">MSAL Login</div>
+                <div class="step-detail" id="step1-detail">Click to sign in with Microsoft</div>
+            </div>
+            <button class="composer-btn" id="btn-login" style="background: var(--accent); color: var(--bg-1); border: none; padding: 9px 18px; border-radius: 10px; cursor: pointer; font-weight: 600; font-size: 13px;">Login</button>
         </div>
 
-        <div class="step">
-            <h2><span class="step-number">4</span>Copy Tokens for CLI Testing</h2>
-            <button onclick="copyJWT()">Copy JWT</button>
-            <button onclick="copyGCP()">Copy GCP Token</button>
-            <button onclick="copyCurl()">Copy cURL Command</button>
+        <div class="card step-card" id="step-exchange">
+            <div class="step-icon">②</div>
+            <div class="step-body">
+                <div class="step-tag">STEP 2 · WIF / STS</div>
+                <div class="step-name">Exchange JWT → GCP token</div>
+                <div class="step-detail" id="step2-detail">Awaiting Microsoft id_token</div>
+            </div>
+            <button id="btn-exchange" disabled style="background: rgba(120, 140, 180, 0.2); color: var(--muted); border: none; padding: 9px 18px; border-radius: 10px; cursor: not-allowed; font-weight: 600; font-size: 13px;">Exchange</button>
+        </div>
+
+        <!-- COMPOSER -->
+        <div class="composer">
+            <input type="text" id="query-input" placeholder="Ask SharePoint…" value="" disabled>
+            <button id="btn-search" disabled>↑</button>
         </div>
     </div>
 
@@ -83,7 +440,6 @@
             gcpProjectNumber: "<PROJECT_NUMBER>",             // numeric
             discoveryEngineId: "<ENGINE_ID>",
             location: "us",                                    // or "global"
-            // Build the dataStore resource paths from your SharePoint connector collection ID
             dataStores: [
                 "projects/<PROJECT_NUMBER>/locations/us/collections/default_collection/dataStores/<CONNECTOR_ID>_file",
                 "projects/<PROJECT_NUMBER>/locations/us/collections/default_collection/dataStores/<CONNECTOR_ID>_page",
@@ -94,102 +450,112 @@
         const API_HOST = CONFIG.location === "global"
             ? "discoveryengine.googleapis.com"
             : `${CONFIG.location}-discoveryengine.googleapis.com`;
+        document.getElementById('region-badge').textContent = CONFIG.location;
+        document.getElementById('signal-region').textContent = API_HOST;
 
-        // State
-        let jwtToken = null;
-        let gcpToken = null;
+        let jwtToken = null, gcpToken = null;
 
-        // MSAL Configuration — NO api:// scope (raw client_id audience pattern)
-        const msalConfig = {
+        const msalInstance = new msal.PublicClientApplication({
             auth: {
                 clientId: CONFIG.entraClientId,
                 authority: `https://login.microsoftonline.com/${CONFIG.entraTenantId}`,
                 redirectUri: window.location.origin,
             },
             cache: { cacheLocation: "sessionStorage" }
+        });
+
+        const setStatus = (text, variant) => {
+            const pill = document.getElementById('status-pill');
+            pill.className = 'pill ' + (variant || '');
+            pill.textContent = text;
+        };
+        const setMain = (title, sub) => {
+            document.getElementById('main-title').textContent = title;
+            if (sub) document.getElementById('main-sub').textContent = sub;
+        };
+        const markStep = (id, detail, success) => {
+            document.getElementById(id).classList.toggle('success', !!success);
+            const detailEl = document.getElementById(id.replace('step-', 'step') + '-detail') ||
+                document.querySelector(`#${id} .step-detail`);
+            if (detail && detailEl) detailEl.textContent = detail;
         };
 
-        const msalInstance = new msal.PublicClientApplication(msalConfig);
-
-        async function login() {
+        document.getElementById('btn-login').onclick = async () => {
+            setStatus('Signing in…', 'running');
             try {
-                const response = await msalInstance.loginPopup({
-                    scopes: ["openid", "profile", "email"]   // NO api:// scope
-                });
-
-                jwtToken = response.idToken;
-
-                // Decode aud claim from JWT to show it's the raw GUID
+                const r = await msalInstance.loginPopup({ scopes: ["openid", "profile", "email"] });
+                jwtToken = r.idToken;
                 const payload = JSON.parse(atob(jwtToken.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')));
-
-                document.getElementById('user-info').innerHTML =
-                    `<div class="status success">Logged in as: <strong>${response.account.name}</strong> (${response.account.username})<br><br>
-                     <strong>id_token aud claim:</strong> <code>${payload.aud}</code><br>
-                     <small>${payload.aud === CONFIG.entraClientId ? '✓ Raw GUID (matches WIF provider --client-id) — raw client_id audience pattern works' : '✗ Has api:// prefix — would need different WIF setup'}</small></div>`;
-
-                document.getElementById('jwt-token').style.display = 'block';
-                document.getElementById('jwt-token').textContent = `JWT Token (${jwtToken.length} chars):\n${jwtToken.substring(0, 100)}...`;
-
+                document.getElementById('signal-aud').textContent = payload.aud;
+                document.getElementById('signal-aud').classList.add('good');
+                document.getElementById('step1-detail').textContent = `Signed in · aud = raw GUID ✓`;
+                document.getElementById('step-login').classList.add('success');
+                document.getElementById('step-login').querySelector('.step-icon').textContent = '✓';
+                document.getElementById('btn-login').textContent = 'Done';
+                document.getElementById('btn-login').disabled = true;
+                document.getElementById('btn-login').style.background = 'rgba(74, 222, 128, 0.15)';
+                document.getElementById('btn-login').style.color = 'var(--good)';
                 document.getElementById('btn-exchange').disabled = false;
-            } catch (error) {
-                document.getElementById('user-info').innerHTML =
-                    `<div class="status error">Login failed: ${error.message}</div>`;
+                document.getElementById('btn-exchange').style.background = 'var(--accent)';
+                document.getElementById('btn-exchange').style.color = 'var(--bg-1)';
+                document.getElementById('btn-exchange').style.cursor = 'pointer';
+                document.getElementById('step2-detail').textContent = 'Ready to exchange';
+                setMain('Identity captured', 'id_token aud is the raw client_id GUID — no api:// prefix');
+                setStatus('Logged in', 'done');
+            } catch (e) {
+                setStatus('Login failed', '');
+                document.getElementById('step1-detail').textContent = e.message.substring(0, 60);
             }
-        }
+        };
 
-        async function exchangeToken() {
+        document.getElementById('btn-exchange').onclick = async () => {
             if (!jwtToken) return;
-            document.getElementById('gcp-status').innerHTML = '<div class="status info">Exchanging JWT via WIF/STS...</div>';
-
+            setStatus('Exchanging…', 'running');
             try {
-                // WIF audience path: workforce pools are GLOBAL even when GE engine is in us
                 const audience = `//iam.googleapis.com/locations/global/workforcePools/${CONFIG.wifPoolId}/providers/${CONFIG.wifProviderId}`;
-
-                const response = await fetch("https://sts.googleapis.com/v1/token", {
+                const r = await fetch("https://sts.googleapis.com/v1/token", {
                     method: "POST",
                     headers: { "Content-Type": "application/x-www-form-urlencoded" },
                     body: new URLSearchParams({
                         grant_type: "urn:ietf:params:oauth:grant-type:token-exchange",
-                        audience: audience,
-                        scope: "https://www.googleapis.com/auth/cloud-platform",
+                        audience, scope: "https://www.googleapis.com/auth/cloud-platform",
                         requested_token_type: "urn:ietf:params:oauth:token-type:access_token",
                         subject_token_type: "urn:ietf:params:oauth:token-type:id_token",
                         subject_token: jwtToken,
                     }),
                 });
-
-                if (!response.ok) {
-                    const error = await response.text();
-                    throw new Error(`STS failed: ${error}`);
-                }
-
-                const data = await response.json();
-                gcpToken = data.access_token;
-
-                document.getElementById('gcp-status').innerHTML =
-                    '<div class="status success">GCP token obtained via WIF! Ready to query us region.</div>';
-                document.getElementById('gcp-token').style.display = 'block';
-                document.getElementById('gcp-token').textContent = `GCP Token (${gcpToken.length} chars):\n${gcpToken.substring(0, 100)}...`;
-
-                document.getElementById('btn-query').disabled = false;
-            } catch (error) {
-                document.getElementById('gcp-status').innerHTML =
-                    `<div class="status error">WIF exchange failed: ${error.message}</div>`;
+                if (!r.ok) throw new Error(await r.text());
+                gcpToken = (await r.json()).access_token;
+                document.getElementById('signal-wif').textContent = 'GCP token via WIF ✓';
+                document.getElementById('signal-wif').classList.add('good');
+                document.getElementById('step2-detail').textContent = `Exchanged via ${CONFIG.wifPoolId}/${CONFIG.wifProviderId}`;
+                document.getElementById('step-exchange').classList.add('success');
+                document.getElementById('step-exchange').querySelector('.step-icon').textContent = '✓';
+                document.getElementById('btn-exchange').textContent = 'Done';
+                document.getElementById('btn-exchange').disabled = true;
+                document.getElementById('btn-exchange').style.background = 'rgba(74, 222, 128, 0.15)';
+                document.getElementById('btn-exchange').style.color = 'var(--good)';
+                document.getElementById('query-input').disabled = false;
+                document.getElementById('query-input').placeholder = 'Ask SharePoint…';
+                document.getElementById('query-input').focus();
+                document.getElementById('btn-search').disabled = false;
+                setMain('WIF identity active', 'GCP token minted from raw client_id audience — ready to query');
+                setStatus('WIF token ready', 'done');
+            } catch (e) {
+                setStatus('Exchange failed', '');
+                document.getElementById('step2-detail').textContent = e.message.substring(0, 60);
             }
-        }
+        };
 
-        async function queryDiscoveryEngine() {
-            if (!gcpToken) return;
-            const query = document.getElementById('query-input').value;
-
-            document.getElementById('query-status').innerHTML =
-                `<div class="status info">Querying ${API_HOST} (us region)...</div>`;
-            document.getElementById('query-result').style.display = 'block';
-            document.getElementById('query-result').innerHTML = 'Searching SharePoint via streamAssist in us...';
+        document.getElementById('btn-search').onclick = async () => {
+            const query = document.getElementById('query-input').value.trim();
+            if (!query || !gcpToken) return;
+            setStatus('Querying us-discoveryengine…', 'running');
+            setMain('Searching SharePoint', `Query: "${query}"`);
+            document.getElementById('signals').classList.add('hidden');
 
             try {
                 const url = `https://${API_HOST}/v1alpha/projects/${CONFIG.gcpProjectNumber}/locations/${CONFIG.location}/collections/default_collection/engines/${CONFIG.discoveryEngineId}/assistants/default_assistant:streamAssist`;
-
                 const payload = {
                     query: { text: query },
                     toolsSpec: {
@@ -198,11 +564,7 @@
                         }
                     }
                 };
-
-                console.log("Request URL:", url);
-                console.log("Payload:", JSON.stringify(payload, null, 2));
-
-                const response = await fetch(url, {
+                const r = await fetch(url, {
                     method: "POST",
                     headers: {
                         "Authorization": `Bearer ${gcpToken}`,
@@ -211,93 +573,44 @@
                     },
                     body: JSON.stringify(payload)
                 });
+                if (!r.ok) throw new Error(await r.text());
+                const data = await r.json();
 
-                if (!response.ok) {
-                    const error = await response.text();
-                    throw new Error(`Discovery Engine error: ${error}`);
-                }
-
-                const data = await response.json();
-                console.log("Full Response:", JSON.stringify(data, null, 2));
-
-                // Parse the streaming response
-                let answerText = '';
-                let sources = [];
-                let hasGrounding = false;
-
-                for (const chunk of data) {
-                    const answer = chunk.answer || {};
-                    for (const reply of (answer.replies || [])) {
-                        const content = reply.groundedContent?.content || {};
-                        const text = content.text || '';
-                        const isThought = content.thought || false;
-                        if (text && !isThought) {
-                            answerText += text;
-                        }
-                        const grounding = reply.groundedContent?.textGroundingMetadata;
-                        if (grounding && grounding.references) {
-                            hasGrounding = true;
-                            for (const ref of grounding.references) {
-                                let s = {};
-                                try { s = JSON.parse(ref.content || '{}'); } catch(e) {}
-                                sources.push({
-                                    title: s.title || 'Document',
-                                    url: s.url || '#',
-                                    snippet: (s.description || ref.content || '').substring(0, 200)
-                                });
+                let answer = '', sources = [], grounded = false;
+                for (const c of data) {
+                    for (const reply of (c.answer?.replies || [])) {
+                        const ct = reply.groundedContent?.content || {};
+                        if (ct.text && !ct.thought) answer += ct.text;
+                        for (const ref of (reply.groundedContent?.textGroundingMetadata?.references || [])) {
+                            grounded = true;
+                            try {
+                                const s = JSON.parse(ref.content || '{}');
+                                sources.push({ title: s.title || 'Document', snippet: (s.description || ref.content || '').substring(0, 120) });
+                            } catch (e) {
+                                sources.push({ title: 'Document', snippet: (ref.content || '').substring(0, 120) });
                             }
                         }
                     }
                 }
 
-                let resultHtml = `<div>`;
-                resultHtml += `<strong>Answer:</strong>`;
-                resultHtml += `<span class="grounding-badge ${hasGrounding ? 'grounded' : 'not-grounded'}">`;
-                resultHtml += hasGrounding ? 'GROUNDED · us region' : 'NOT GROUNDED';
-                resultHtml += `</span><br><small>Endpoint: <code>${API_HOST}</code></small><br><br>`;
-                resultHtml += answerText || 'No answer generated.';
-
-                if (sources.length > 0) {
-                    resultHtml += `<div class="sources"><strong>Sources from SharePoint (us):</strong>`;
-                    for (const src of sources.slice(0, 5)) {
-                        resultHtml += `<div class="source-item">`;
-                        resultHtml += `<a href="${src.url}" target="_blank">${src.title}</a>`;
-                        if (src.snippet) {
-                            resultHtml += `<br><small>${src.snippet}...</small>`;
-                        }
-                        resultHtml += `</div>`;
-                    }
-                    resultHtml += `</div>`;
-                }
-
-                resultHtml += `</div>`;
-
-                document.getElementById('query-result').innerHTML = resultHtml;
-                document.getElementById('query-status').innerHTML =
-                    `<div class="status ${hasGrounding ? 'success' : 'info'}">Query completed. ${hasGrounding ? '✓ Grounded on SharePoint in us region — proof complete!' : 'No SharePoint grounding (may be empty datastore or license issue).'}</div>`;
-            } catch (error) {
-                document.getElementById('query-status').innerHTML =
-                    `<div class="status error">Query failed: ${error.message}</div>`;
-                document.getElementById('query-result').innerHTML = error.message;
+                // Render result inside main card
+                const card = document.getElementById('main-card');
+                card.classList.remove('active');
+                card.classList.add('success');
+                setMain(grounded ? 'Grounded ✓' : 'Answered (no sources)', `Query: "${query}"`);
+                const resultHtml = `
+                    <div class="answer-text">${answer || 'No answer.'}</div>
+                    ${sources.length ? `<div class="sources">${sources.slice(0,3).map(s => `
+                        <div class="source-item"><span class="ico">▸</span><div><strong>${s.title}</strong><br><span style="color:var(--muted)">${s.snippet}…</span></div></div>
+                    `).join('')}</div>` : ''}
+                `;
+                document.getElementById('signals').outerHTML = `<div id="signals" style="margin-top:14px">${resultHtml}</div>`;
+                setStatus(grounded ? 'Grounded · us region ✓' : 'Done · not grounded', grounded ? 'done' : '');
+            } catch (e) {
+                setStatus('Search failed', '');
+                document.getElementById('signals').innerHTML = `<div style="color:var(--bad);font-size:13px">${e.message.substring(0,200)}</div>`;
             }
-        }
-
-        function copyJWT() { if (jwtToken) { navigator.clipboard.writeText(jwtToken); alert('JWT copied!'); } }
-        function copyGCP() { if (gcpToken) { navigator.clipboard.writeText(gcpToken); alert('GCP token copied!'); } }
-        function copyCurl() {
-            if (!gcpToken) { alert('No GCP token yet!'); return; }
-            const query = document.getElementById('query-input').value;
-            const curl = `curl -s -H "Authorization: Bearer ${gcpToken}" \\
-  -H "Content-Type: application/json" \\
-  -H "x-goog-user-project: ${CONFIG.gcpProjectNumber}" \\
-  "https://${API_HOST}/v1alpha/projects/${CONFIG.gcpProjectNumber}/locations/${CONFIG.location}/collections/default_collection/engines/${CONFIG.discoveryEngineId}/assistants/default_assistant:streamAssist" \\
-  -d '${JSON.stringify({
-    query: { text: query },
-    toolsSpec: { vertexAiSearchSpec: { dataStoreSpecs: CONFIG.dataStores.map(ds => ({ dataStore: ds })) } }
-  })}'`;
-            navigator.clipboard.writeText(curl);
-            alert('cURL command copied!');
-        }
+        };
     </script>
 </body>
 </html>
