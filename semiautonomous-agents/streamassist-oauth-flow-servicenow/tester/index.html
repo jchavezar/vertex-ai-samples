@@ -300,18 +300,37 @@ function tokenPreview(t) { return t ? t.substring(0,40) + '…' : '(none)'; }
 document.getElementById('btn-login').onclick = async () => {
   markCardActive('card-1');
   const t0 = performance.now();
-  addTrace({ stage: 'MSAL · loginPopup', endpoint: `https://login.microsoftonline.com/${CONFIG.entraTenantId}/oauth2/v2.0/authorize`,
-    input: { client_id: CONFIG.entraClientId, scopes: ['openid','profile','email'], note: 'Raw-client_id pattern: NO api:// scope' } });
+  addTrace({ stage: '① MSAL · loginPopup  →  Microsoft Entra',
+    endpoint: `POST https://login.microsoftonline.com/${CONFIG.entraTenantId}/oauth2/v2.0/authorize`,
+    input: {
+      who_calls: 'browser (the tester page)',
+      what_we_send: { client_id: CONFIG.entraClientId, scopes: ['openid','profile','email'] },
+      why: 'Authenticate the user against Microsoft Entra. Return an id_token whose `aud` claim equals the raw client_id GUID (no api:// prefix) — this is the audience the WIF provider is configured to accept.'
+    } });
   try {
     const r = await msalInstance.loginPopup({ scopes: ["openid","profile","email"] });
     jwtToken = r.idToken;
     const payload = JSON.parse(atob(jwtToken.split('.')[1].replace(/-/g,'+').replace(/_/g,'/')));
+    const header = JSON.parse(atob(jwtToken.split('.')[0].replace(/-/g,'+').replace(/_/g,'/')));
     const dur = Math.round(performance.now() - t0);
-    addTrace({ stage: 'MSAL · loginPopup', endpoint: 'https://login.microsoftonline.com/.../oauth2/v2.0/token',
-      ok: true, status: 200, durationMs: dur,
-      output: { account: r.account.username, idToken: tokenPreview(jwtToken),
-                aud: payload.aud, iss: payload.iss, sub: payload.sub.substring(0,20)+'…',
-                note: payload.aud === CONFIG.entraClientId ? 'aud = raw GUID ✓' : 'aud has api:// prefix' } });
+    addTrace({ stage: '① MSAL · loginPopup  →  ✓ id_token received',
+      endpoint: 'Microsoft Entra responded with the id_token', ok: true, status: 200, durationMs: dur,
+      output: {
+        what_we_got: 'A signed JWT (Microsoft id_token) — held in browser memory as `jwtToken`',
+        token_preview: tokenPreview(jwtToken),
+        decoded_header: header,
+        decoded_payload: {
+          aud: payload.aud,
+          iss: payload.iss,
+          sub: payload.sub,
+          oid: payload.oid,
+          tid: payload.tid,
+          email: payload.email || payload.preferred_username,
+          name: payload.name,
+          exp: payload.exp + ' (' + new Date(payload.exp*1000).toISOString() + ')',
+        },
+        audience_check: payload.aud === CONFIG.entraClientId ? '✓ aud = raw GUID — matches WIF provider --client-id' : '✗ aud has api:// prefix'
+      } });
     document.getElementById('detail-1').textContent = `${r.account.username} · aud = raw GUID ✓`;
     markCardSuccess('card-1');
     document.getElementById('btn-login').textContent = 'Done';
@@ -319,13 +338,15 @@ document.getElementById('btn-login').onclick = async () => {
     document.getElementById('btn-login').classList.add('done');
     document.getElementById('btn-exchange').disabled = false;
     document.getElementById('detail-2').textContent = 'Ready to exchange';
-    // Annotation showing where this output goes next
-    addTrace({ stage: '↳ next: id_token will be the subject_token of STS exchange',
-      endpoint: '(no API call — frontend keeps id_token in memory)', ok: true, status: 'flow',
-      input: null,
-      output: { jwtToken_in_memory: tokenPreview(jwtToken), nextCall: 'STS · token-exchange uses this as subject_token' } });
+    // Hand-off annotation
+    addTrace({ stage: '   ↳ data flow: id_token will become the `subject_token` of the STS exchange (next step)',
+      endpoint: '(no network call — handoff in browser memory)', ok: true, status: 'flow',
+      output: {
+        flow: '`window.jwtToken` (Microsoft id_token) → consumed by Step ② as the `subject_token` parameter',
+        why: 'Workforce Identity Federation needs an EXTERNAL identity proof to exchange for a Google identity. The Microsoft id_token IS that proof.'
+      } });
   } catch (e) {
-    addTrace({ stage: 'MSAL · loginPopup', ok: false, durationMs: Math.round(performance.now() - t0),
+    addTrace({ stage: '① MSAL · loginPopup', ok: false, durationMs: Math.round(performance.now() - t0),
       output: { error: e.message } });
     document.getElementById('detail-1').textContent = `Failed: ${e.message}`;
   }
@@ -338,16 +359,27 @@ document.getElementById('btn-exchange').onclick = async () => {
   markCardActive('card-2');
   const audience = `//iam.googleapis.com/locations/global/workforcePools/${CONFIG.wifPoolId}/providers/${CONFIG.wifProviderId}`;
   const t0 = performance.now();
-  addTrace({ stage: 'STS · token-exchange', endpoint: 'POST https://sts.googleapis.com/v1/token',
+  addTrace({ stage: '② STS · token-exchange  →  Google STS (Workforce Identity Federation)',
+    endpoint: 'POST https://sts.googleapis.com/v1/token',
     input: {
-      grant_type: 'urn:ietf:params:oauth:grant-type:token-exchange',
-      audience,
-      requested_token_type: 'urn:ietf:params:oauth:token-type:access_token',
-      subject_token_type: 'urn:ietf:params:oauth:token-type:id_token',
-      subject_token: tokenPreview(jwtToken),
-      scope: 'https://www.googleapis.com/auth/cloud-platform',
-    }
-  });
+      who_calls: 'browser (using id_token from Step ①)',
+      what_we_send: {
+        grant_type: 'urn:ietf:params:oauth:grant-type:token-exchange',
+        audience: audience + '   ← which WIF provider we want Google to validate against',
+        requested_token_type: 'urn:ietf:params:oauth:token-type:access_token  (we want an access_token back)',
+        subject_token_type: 'urn:ietf:params:oauth:token-type:id_token  (declare what we are sending)',
+        subject_token: tokenPreview(jwtToken) + '  ← the ENTIRE Microsoft id_token from Step ①',
+        scope: 'https://www.googleapis.com/auth/cloud-platform',
+      },
+      what_STS_does_internally: [
+        '1. Look up the WIF provider named in `audience`',
+        '2. Validate the id_token signature against the provider\'s OIDC issuer (login.microsoftonline.com/.../v2.0/.well-known/jwks)',
+        '3. Check id_token.aud matches provider --client-id setting (the raw GUID)',
+        '4. Extract id_token.sub (Microsoft user identifier)',
+        '5. Map it to a WIF principal: principal://iam.googleapis.com/.../subject/<sha256(sub)>',
+        '6. Mint a Google access_token whose internal identity record points at that WIF principal',
+      ]
+    } });
   try {
     const r = await fetch("https://sts.googleapis.com/v1/token", {
       method: "POST",
@@ -365,18 +397,32 @@ document.getElementById('btn-exchange').onclick = async () => {
     const dur = Math.round(performance.now() - t0);
     if (!r.ok) throw new Error(JSON.stringify(data));
     gcpToken = data.access_token;
-    addTrace({ stage: 'STS · token-exchange', endpoint: 'POST https://sts.googleapis.com/v1/token',
+    addTrace({ stage: '② STS · token-exchange  →  ✓ GCP access_token received',
+      endpoint: 'STS responded with the Google access_token',
       ok: true, status: r.status, durationMs: dur,
-      output: { access_token: tokenPreview(gcpToken), token_type: data.token_type,
-                expires_in: data.expires_in, principal: `principal://iam.googleapis.com/.../workforcePools/${CONFIG.wifPoolId}/subject/<sub-hash>` } });
+      output: {
+        what_we_got: 'A Google access_token (`ya29.d.…`) — held in browser memory as `gcpToken`. This is OPAQUE — not a JWT, can\'t be decoded client-side.',
+        token_preview: tokenPreview(gcpToken),
+        token_type: data.token_type,
+        expires_in: data.expires_in + ' seconds',
+        underlying_identity: `principal://iam.googleapis.com/locations/global/workforcePools/${CONFIG.wifPoolId}/subject/<sha256-of-MS-sub>`,
+        what_this_token_can_do: 'Authenticate API calls to Google Cloud as the WIF principal. Discovery Engine will see this principal whenever the token is sent as a Bearer.'
+      } });
     document.getElementById('detail-2').textContent = `WIF token via ${CONFIG.wifPoolId}/${CONFIG.wifProviderId} ✓`;
     markCardSuccess('card-2');
     document.getElementById('btn-exchange').textContent = 'Done';
     document.getElementById('btn-exchange').disabled = true;
     document.getElementById('btn-exchange').classList.add('done');
-    addTrace({ stage: '↳ next: WIF GCP token will be the Bearer for ALL Discovery Engine calls',
-      endpoint: '(no API call — frontend keeps gcpToken in memory)', ok: true, status: 'flow',
-      output: { gcpToken_in_memory: tokenPreview(gcpToken), nextCalls: ['acquireAccessToken (probe)', 'acquireAndStoreRefreshToken (store SN token)', 'streamAssist (search)'] } });
+    addTrace({ stage: '   ↳ data flow: GCP token will be the `Authorization: Bearer` for ALL upcoming Discovery Engine calls',
+      endpoint: '(no network call — handoff in browser memory)', ok: true, status: 'flow',
+      output: {
+        flow: '`window.gcpToken` (Google access_token) → consumed by Steps ③ ④ ⑤ as the Bearer header',
+        upcoming_calls_using_this_token: [
+          'acquireAccessToken (probe — does the WIF principal already have a stored SN token?)',
+          'acquireAndStoreRefreshToken (store SN refresh_token, KEY = WIF principal)',
+          'streamAssist (search — DE will look up the SN token by the same WIF principal)'
+        ]
+      } });
 
     // Probe if SN already connected (acquireAccessToken)
     await checkSnConnection();
