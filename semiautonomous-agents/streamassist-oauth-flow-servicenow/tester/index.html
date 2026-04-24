@@ -401,13 +401,32 @@ document.getElementById('btn-exchange').onclick = async () => {
       endpoint: 'STS responded with the Google access_token',
       ok: true, status: r.status, durationMs: dur,
       output: {
-        what_we_got: 'A Google access_token (`ya29.d.…`) — held in browser memory as `gcpToken`. This is OPAQUE — not a JWT, can\'t be decoded client-side.',
+        what_we_got: 'A Google access_token (`ya29.d.…`) — held in browser memory as `gcpToken`. This is OPAQUE — not a JWT, can\'t be `atob`-decoded client-side. To inspect it, call Google\'s tokeninfo endpoint (next trace).',
         token_preview: tokenPreview(gcpToken),
         token_type: data.token_type,
         expires_in: data.expires_in + ' seconds',
         underlying_identity: `principal://iam.googleapis.com/locations/global/workforcePools/${CONFIG.wifPoolId}/subject/<sha256-of-MS-sub>`,
         what_this_token_can_do: 'Authenticate API calls to Google Cloud as the WIF principal. Discovery Engine will see this principal whenever the token is sent as a Bearer.'
       } });
+
+    // Decode the opaque GCP token via tokeninfo for visibility
+    try {
+      const tinfoStart = performance.now();
+      const tinfoResp = await fetch(`https://oauth2.googleapis.com/tokeninfo?access_token=${encodeURIComponent(gcpToken)}`);
+      const tinfo = await tinfoResp.json();
+      const tinfoDur = Math.round(performance.now() - tinfoStart);
+      addTrace({ stage: '   ↳ decode GCP token via Google tokeninfo (read-only inspection)',
+        endpoint: 'GET https://oauth2.googleapis.com/tokeninfo?access_token=…',
+        ok: tinfoResp.ok, status: tinfoResp.status, durationMs: tinfoDur,
+        input: {
+          why: 'The GCP access_token is opaque. Google\'s tokeninfo endpoint reveals what\'s INSIDE it — audience, scope, expiry, and (for WIF tokens) the federated principal. Same metadata Discovery Engine sees when you call it.',
+          what_we_send: 'Just the access_token as a query param. No Authorization header needed.'
+        },
+        output: tinfo
+      });
+    } catch (tinfoErr) {
+      addTrace({ stage: '   ↳ decode GCP token (failed)', ok: false, output: { error: tinfoErr.message } });
+    }
     document.getElementById('detail-2').textContent = `WIF token via ${CONFIG.wifPoolId}/${CONFIG.wifProviderId} ✓`;
     markCardSuccess('card-2');
     document.getElementById('btn-exchange').textContent = 'Done';
@@ -456,13 +475,21 @@ async function checkSnConnection() {
     if (r.ok && data.refreshTokenInfo) {
       // Case 1: token stored under THIS WIF identity → 200 + refreshTokenInfo populated
       snConnected = true;
-      addTrace({ stage: 'DE · acquireAccessToken — ✓ TOKEN FOUND for your WIF identity',
+      addTrace({ stage: '③ DE · acquireAccessToken — ✓ TOKEN FOUND for your WIF identity',
         endpoint: 'POST .../dataConnector:acquireAccessToken',
         ok: true, status: 200, durationMs: dur,
         output: {
-          interpretation: 'A SN refresh_token IS stored on this connector keyed to your WIF identity. streamAssist will use it automatically.',
-          refreshTokenInfo: { name: data.refreshTokenInfo.name, scopes: data.refreshTokenInfo.scopes || [] },
-          accessToken_minted: data.accessToken ? tokenPreview(data.accessToken) : '(not in response)'
+          interpretation: 'A SN refresh_token IS stored on this connector keyed to your WIF identity. streamAssist will use it automatically — you are done.',
+          your_responsibility_from_here: 'Just send your `gcpToken` (WIF GCP access_token) as the Bearer to streamAssist. Nothing else. No SN tokens required from you.',
+          what_DE_will_do_during_streamAssist: [
+            '1. Decode your Bearer → see your WIF principal (same one as right now)',
+            '2. Look up the SN refresh_token shown below by that principal',
+            '3. Call SN /oauth_token.do to refresh → SN access_token (server-side)',
+            '4. Call SN /api/now/table/{incident,kb_knowledge,…} with the SN access_token',
+            '5. Return grounded answer — you never see any SN tokens'
+          ],
+          refreshTokenInfo_DEs_record: { name: data.refreshTokenInfo.name, scopes: data.refreshTokenInfo.scopes || [] },
+          accessToken_DE_just_minted_for_diagnostic: data.accessToken ? tokenPreview(data.accessToken) + ' ← this is a SN access_token DE just got from /oauth_token.do, shown only as proof storage works. You DO NOT use this anywhere.' : '(not in response)'
         } });
       document.getElementById('detail-3').textContent = 'Already connected ✓';
       markCardSuccess('card-3');
