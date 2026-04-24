@@ -45,7 +45,38 @@ End-to-end: MSAL login → STS exchange → ServiceNow OAuth consent → grounde
 | Per-user ACL enforcement | Native ServiceNow ACLs/roles via Table API | SharePoint per-user permissions via Microsoft Graph |
 | **Identical otherwise** | WIF pool/provider, Entra Portal App, MSAL flow, STS exchange, engine `workforceIdentityPoolProvider`, license seats, `acquireAndStoreRefreshToken`, streamAssist payload shape | … |
 
-## Quickstart
+## Two ways to run
+
+### A) Quick demo — single-pane HTML tester (no backend)
+
+Vanilla JS, runs entirely in the browser. Best for understanding the API contract.
+
+```bash
+cd tester
+cp .env.example .env       # fill in 10 values
+python3 serve.py           # → http://localhost:5176
+```
+
+### B) Full app — FastAPI backend + React/MSAL frontend
+
+Same architecture as `streamassist-oauth-flow` but pointed at ServiceNow.
+
+```bash
+# Backend (port 8003)
+cd backend
+cp .env.example .env       # fill in PROJECT_NUMBER, ENGINE_ID, CONNECTOR_ID,
+                           #         WIF_*, TENANT_ID, SERVICENOW_*, SN_OAUTH_*
+uv sync
+uv run python main.py
+
+# Frontend (port 5174)
+cd ../frontend
+cp .env.example .env       # fill in VITE_CLIENT_ID, VITE_TENANT_ID
+npm install
+npm run dev
+```
+
+## Quickstart (tester only)
 
 ```bash
 cd tester
@@ -92,15 +123,37 @@ Open `http://localhost:5176`, click through the 4 steps:
 
 ```
 streamassist-oauth-flow-servicenow/
-├── README.md                # this file — overview + sibling diff
-├── FLOW.md                  # full end-to-end flow doc (mirrors siblings)
-├── tester/
-│   ├── index.html           # single-pane HTML: 4 steps left, live API pipeline right
-│   └── serve.py             # tiny HTTP server on :5176
-├── docs/
-│   ├── demo-grounded.png    # screenshot of the grounded SN answer
-│   └── screenshots/         # ServiceNow Application Registry setup steps
-└── .gitignore
+├── README.md                  # this file — overview + sibling diff
+├── FLOW.md                    # full end-to-end flow doc
+├── REPLICATE.md               # copy-paste shell commands to reproduce everything
+├── AUTH_SEQUENCE.md           # mermaid sequence + bridge diagrams
+│
+├── backend/                   # FastAPI backend (port 8003)
+│   ├── main.py                # STS exchange, /api/servicenow/auth-url, /api/oauth/callback,
+│   │                          # /api/oauth/exchange (acquireAndStoreRefreshToken),
+│   │                          # /api/servicenow/check-connection, /api/search (streamAssist)
+│   ├── .env.example
+│   ├── pyproject.toml
+│   └── uv.lock
+│
+├── frontend/                  # React + MSAL (port 5174)
+│   ├── src/
+│   │   ├── App.tsx            # MSAL login + 4-step UI + debug sidebar
+│   │   ├── authConfig.ts      # MSAL config (no api:// scope — raw client_id)
+│   │   └── main.tsx
+│   ├── .env.example
+│   ├── index.html
+│   ├── package.json
+│   └── vite.config.ts
+│
+├── tester/                    # alternative single-pane HTML tester (port 5176)
+│   ├── index.html             # vanilla JS, no backend needed, live pipeline panel
+│   ├── serve.py               # tiny HTTP server with .env value injection
+│   └── .env.example
+│
+└── docs/
+    ├── demo-grounded.png      # screenshot of grounded SN answer
+    └── flow-diagram.html      # interactive click-through visual diagram
 ```
 
 ## The proof in three signals
