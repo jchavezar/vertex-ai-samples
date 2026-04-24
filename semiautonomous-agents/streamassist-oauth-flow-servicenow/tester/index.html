@@ -319,6 +319,11 @@ document.getElementById('btn-login').onclick = async () => {
     document.getElementById('btn-login').classList.add('done');
     document.getElementById('btn-exchange').disabled = false;
     document.getElementById('detail-2').textContent = 'Ready to exchange';
+    // Annotation showing where this output goes next
+    addTrace({ stage: '↳ next: id_token will be the subject_token of STS exchange',
+      endpoint: '(no API call — frontend keeps id_token in memory)', ok: true, status: 'flow',
+      input: null,
+      output: { jwtToken_in_memory: tokenPreview(jwtToken), nextCall: 'STS · token-exchange uses this as subject_token' } });
   } catch (e) {
     addTrace({ stage: 'MSAL · loginPopup', ok: false, durationMs: Math.round(performance.now() - t0),
       output: { error: e.message } });
@@ -369,6 +374,9 @@ document.getElementById('btn-exchange').onclick = async () => {
     document.getElementById('btn-exchange').textContent = 'Done';
     document.getElementById('btn-exchange').disabled = true;
     document.getElementById('btn-exchange').classList.add('done');
+    addTrace({ stage: '↳ next: WIF GCP token will be the Bearer for ALL Discovery Engine calls',
+      endpoint: '(no API call — frontend keeps gcpToken in memory)', ok: true, status: 'flow',
+      output: { gcpToken_in_memory: tokenPreview(gcpToken), nextCalls: ['acquireAccessToken (probe)', 'acquireAndStoreRefreshToken (store SN token)', 'streamAssist (search)'] } });
 
     // Probe if SN already connected (acquireAccessToken)
     await checkSnConnection();
@@ -384,8 +392,13 @@ document.getElementById('btn-exchange').onclick = async () => {
 async function checkSnConnection() {
   const url = `https://${API_HOST}/v1alpha/projects/${CONFIG.gcpProjectNumber}/locations/${CONFIG.location}/collections/${CONFIG.connectorId}/dataConnector:acquireAccessToken`;
   const t0 = performance.now();
-  addTrace({ stage: 'DE · acquireAccessToken (probe)', endpoint: 'POST ' + url,
-    input: { headers: { Authorization: 'Bearer ' + tokenPreview(gcpToken), 'X-Goog-User-Project': CONFIG.gcpProjectNumber }, body: '{}' } });
+  addTrace({ stage: 'DE · acquireAccessToken (probe — does this user already have a stored SN token?)',
+    endpoint: 'POST ' + url,
+    input: {
+      headers: { Authorization: 'Bearer ' + tokenPreview(gcpToken), 'X-Goog-User-Project': CONFIG.gcpProjectNumber, 'Content-Type': 'application/json' },
+      body: '{}',
+      what_DE_does: 'Looks up SN refresh_token by WIF identity (decoded from your bearer). Returns 404 if none stored, 200+refreshTokenInfo if stored, 200+empty if stored under a DIFFERENT identity.'
+    } });
   try {
     const r = await fetch(url, {
       method: 'POST',
@@ -395,19 +408,41 @@ async function checkSnConnection() {
     const data = await r.json();
     const dur = Math.round(performance.now() - t0);
     if (r.ok && data.refreshTokenInfo) {
+      // Case 1: token stored under THIS WIF identity → 200 + refreshTokenInfo populated
       snConnected = true;
-      addTrace({ stage: 'DE · acquireAccessToken', endpoint: 'POST .../dataConnector:acquireAccessToken',
+      addTrace({ stage: 'DE · acquireAccessToken — ✓ TOKEN FOUND for your WIF identity',
+        endpoint: 'POST .../dataConnector:acquireAccessToken',
         ok: true, status: 200, durationMs: dur,
-        output: { refreshTokenInfo: { name: data.refreshTokenInfo.name, scopes: data.refreshTokenInfo.scopes || [] } } });
+        output: {
+          interpretation: 'A SN refresh_token IS stored on this connector keyed to your WIF identity. streamAssist will use it automatically.',
+          refreshTokenInfo: { name: data.refreshTokenInfo.name, scopes: data.refreshTokenInfo.scopes || [] },
+          accessToken_minted: data.accessToken ? tokenPreview(data.accessToken) : '(not in response)'
+        } });
       document.getElementById('detail-3').textContent = 'Already connected ✓';
       markCardSuccess('card-3');
       document.getElementById('btn-connect').textContent = 'Done';
       document.getElementById('btn-connect').classList.add('done');
       enableSearch();
+    } else if (r.ok) {
+      // Case 3 (Narahari's bug): 200 OK but EMPTY body → token stored under DIFFERENT identity
+      addTrace({ stage: 'DE · acquireAccessToken — ⚠ 200 OK with EMPTY body',
+        endpoint: 'POST .../dataConnector:acquireAccessToken',
+        ok: false, status: 200, durationMs: dur,
+        output: {
+          interpretation: 'No SN token stored under YOUR WIF identity — but the connector itself responded OK. This typically means the refresh_token was stored under a DIFFERENT identity (e.g. ADC / service account) when acquireAndStoreRefreshToken was called.',
+          fix: 'Re-run acquireAndStoreRefreshToken with the SAME bearer token you are using here (a WIF-exchanged GCP token, not ADC).',
+          response_body: data
+        } });
+      document.getElementById('detail-3').textContent = 'Not connected yet — click Connect';
     } else {
-      addTrace({ stage: 'DE · acquireAccessToken', endpoint: 'POST .../dataConnector:acquireAccessToken',
+      // Case 2: 404 NOT_FOUND → no token at all
+      addTrace({ stage: 'DE · acquireAccessToken — ✗ no token stored yet',
+        endpoint: 'POST .../dataConnector:acquireAccessToken',
         ok: false, status: r.status, durationMs: dur,
-        output: { error: data.error?.message || 'no token stored — Connect ServiceNow first' } });
+        output: {
+          interpretation: '404 = no SN refresh_token has been stored on this connector for any identity yet. You need to run the per-user consent flow.',
+          error: data.error?.message || 'authorization not found'
+        } });
       document.getElementById('detail-3').textContent = 'Not connected yet — click Connect';
     }
   } catch (e) {
@@ -470,9 +505,32 @@ function promptForManualUrl() {
 async function convergeSnAuth(fullRedirectUrl) {
   // Convergence step: send {fullRedirectUri} to acquireAndStoreRefreshToken with our WIF GCP token
   const url = `https://${API_HOST}/v1alpha/projects/${CONFIG.gcpProjectNumber}/locations/${CONFIG.location}/collections/${CONFIG.connectorId}/dataConnector:acquireAndStoreRefreshToken`;
+
+  // First, log a clear "captured auth code" annotation
+  // Extract the code param so the customer can see it explicitly
+  let codeParam = '';
+  try { codeParam = new URL(fullRedirectUrl).searchParams.get('code') || ''; } catch {}
+  addTrace({ stage: '↓ AUTH CODE captured from ServiceNow redirect',
+    endpoint: 'browser captured the URL after SN redirected',
+    ok: true, status: 'captured',
+    input: { from: 'window.opener postMessage (or popup-closed polling fallback)' },
+    output: {
+      fullRedirectUri: fullRedirectUrl,
+      extractedCode: codeParam ? (codeParam.substring(0, 24) + '… (' + codeParam.length + ' chars, single-use)') : '(no code in URL)'
+    } });
+
   const t0 = performance.now();
+  // Show the FULL fullRedirectUri (not truncated) so the customer can see exactly what is sent
   addTrace({ stage: 'DE · acquireAndStoreRefreshToken', endpoint: 'POST ' + url,
-    input: { headers: { Authorization: 'Bearer ' + tokenPreview(gcpToken), 'X-Goog-User-Project': CONFIG.gcpProjectNumber }, body: { fullRedirectUri: fullRedirectUrl.substring(0,80) + '…' } } });
+    input: {
+      headers: {
+        Authorization: 'Bearer ' + tokenPreview(gcpToken),
+        'X-Goog-User-Project': CONFIG.gcpProjectNumber,
+        'Content-Type': 'application/json'
+      },
+      body: { fullRedirectUri: fullRedirectUrl },
+      note: 'DE extracts the `code` from fullRedirectUri, calls SN /oauth_token.do, stores the resulting refresh_token under the WIF identity from the bearer token'
+    } });
   try {
     const r = await fetch(url, {
       method: 'POST',
@@ -484,7 +542,10 @@ async function convergeSnAuth(fullRedirectUrl) {
     if (!r.ok) throw new Error(data.error?.message || JSON.stringify(data));
     addTrace({ stage: 'DE · acquireAndStoreRefreshToken', endpoint: 'POST .../dataConnector:acquireAndStoreRefreshToken',
       ok: true, status: r.status, durationMs: dur,
-      output: data?.name ? { stored: true, name: data.name } : { stored: true } });
+      output: {
+        result: data?.name ? { stored: true, name: data.name } : { stored: true, body: data },
+        whatHappened: 'SN refresh_token now stored server-side at DE, keyed by your WIF identity hash. streamAssist (next step) will use it automatically — you never see the refresh_token client-side.'
+      } });
     snConnected = true;
     document.getElementById('detail-3').textContent = 'Per-user SN refresh token stored ✓';
     markCardSuccess('card-3');
@@ -535,6 +596,22 @@ document.getElementById('btn-search').onclick = async () => {
     query: { text: q },
     toolsSpec: { vertexAiSearchSpec: { dataStoreSpecs: dataStores.map(ds => ({ dataStore: ds })) } }
   };
+  // Pre-call annotation: explain the token chain about to fire
+  addTrace({ stage: '↓ ABOUT TO CALL streamAssist — token chain in play',
+    endpoint: '(no API call — explainer)', ok: true, status: 'flow',
+    output: {
+      step1_yourBearer: 'WIF GCP token from STS exchange · ' + tokenPreview(gcpToken),
+      step2_discoveryEngineWillDoInternally: [
+        '1. Decode your bearer token → resolve WIF identity (subject hash)',
+        '2. Look up YOUR ServiceNow refresh_token stored under that identity (via the convergeSnAuth call earlier)',
+        '3. Call ' + CONFIG.snInstanceUri + '/oauth_token.do with that refresh_token → get a fresh SN access_token',
+        '4. Issue federated Table API queries to ' + CONFIG.snInstanceUri + '/api/now/table/{incident,kb_knowledge,...} with that SN access_token',
+        '5. ServiceNow ACLs filter records to what YOU can see',
+        '6. Feed matching records to Gemini for grounded synthesis'
+      ],
+      youNeverSee: 'The SN refresh_token and SN access_token never leave the Discovery Engine server — only the grounded answer + source references come back to your browser.'
+    } });
+
   const t0 = performance.now();
   addTrace({ stage: 'DE · streamAssist', endpoint: 'POST ' + url,
     input: { headers: { Authorization: 'Bearer ' + tokenPreview(gcpToken), 'X-Goog-User-Project': CONFIG.gcpProjectNumber }, body } });
