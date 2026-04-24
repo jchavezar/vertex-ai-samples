@@ -1,7 +1,7 @@
 """SharePoint Portal — Gemini Enterprise StreamAssist (US region) with per-user OAuth.
 
 Same flow as streamassist-oauth-flow but targets a Discovery Engine app in `us`
-regional location. Proves that the Deloitte-style raw-client_id WIF audience
+regional location. Proves that the raw-client_id raw-client_id WIF audience
 works identically in `us` as it does in `global`.
 
 Flow:

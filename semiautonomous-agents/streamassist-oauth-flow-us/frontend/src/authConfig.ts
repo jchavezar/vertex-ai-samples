@@ -17,7 +17,7 @@ export const msalConfig = {
   },
 };
 
-// Deloitte-pattern scopes: NO `api://...` URI scope.
+// Raw-client_id pattern scopes: NO `api://...` URI scope.
 // MSAL on the v2.0 endpoint issues an id_token whose `aud` claim is the raw
 // client_id GUID (not `api://{guid}`), which matches the WIF provider's
 // `--client-id="{RAW_GUID}"` config. Same pattern works in `global` and `us`.

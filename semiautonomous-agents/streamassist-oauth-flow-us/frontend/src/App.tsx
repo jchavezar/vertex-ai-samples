@@ -31,7 +31,7 @@ interface TraceEntry {
 
 const STAGE_INFO: Record<string, { description: string; chain?: string; exampleInput?: any; exampleOutput?: any }> = {
   'MSAL Login': {
-    description: 'Authenticates against the Portal App registration in Entra ID. Deloitte-pattern: NO api:// scope is requested — MSAL on the v2.0 endpoint issues an id_token whose aud claim is the raw client_id GUID. WIF provider is configured with --client-id="{RAW_GUID}" (no api:// prefix), so the audiences match. Same pattern works in `global` and `us`.',
+    description: 'Authenticates against the Portal App registration in Entra ID. Raw-client_id pattern: NO api:// scope is requested — MSAL on the v2.0 endpoint issues an id_token whose aud claim is the raw client_id GUID. WIF provider is configured with --client-id="{RAW_GUID}" (no api:// prefix), so the audiences match. Same pattern works in `global` and `us`.',
     chain: 'A',
     exampleInput: { authority: 'https://login.microsoftonline.com/{tenant-id}', clientId: '{portal-app-client-id}', scopes: ['openid', 'profile', 'email'] },
     exampleOutput: { idToken: 'eyJ0eXAiOiJKV1Qi...', account: 'user@tenant.onmicrosoft.com' },

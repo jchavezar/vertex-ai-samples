@@ -7,13 +7,13 @@
 ![FastAPI](https://img.shields.io/badge/FastAPI-0.115-009688?logo=fastapi&logoColor=white)
 ![GCP](https://img.shields.io/badge/Google_Cloud-us--region-4285F4?logo=google-cloud&logoColor=white)
 
-**Live page:** [jchavezar.github.io/vertex-ai-samples/streamassist-oauth-flow-us](https://jchavezar.github.io/vertex-ai-samples/streamassist-oauth-flow-us/)
+**Full flow doc:** [FLOW.md](FLOW.md) — single-file end-to-end reference
 
 ---
 
 ## Why this project exists
 
-A customer claimed Gemini Enterprise + SharePoint federated connector + WIF only worked in `global` location after switching from `us`. This portal is a working counter-example: same flow as [`streamassist-oauth-flow`](../streamassist-oauth-flow/), but the engine and connector live in `us`, and the WIF provider uses **raw client_id audience** (no `api://` prefix) — the same pattern Deloitte's Entra app was configured with.
+A customer claimed Gemini Enterprise + SharePoint federated connector + WIF only worked in `global` location after switching from `us`. This portal is a working counter-example: same flow as [`streamassist-oauth-flow`](../streamassist-oauth-flow/), but the engine and connector live in `us`, and the WIF provider uses **raw client_id audience** (no `api://` prefix) — matching the customer's Entra app pattern.
 
 If this works (it does — see the [demo](#demo)), the customer's "must use global" conclusion was a misconfiguration, not a regional limitation.
 
@@ -32,7 +32,7 @@ Everything else — STS exchange, `acquireAndStoreRefreshToken`, streamAssist pa
 
 ## Demo
 
-![Demo](docs/hero.gif)
+![Demo](docs/demo-us.gif)
 
 End-to-end: MSAL login → STS exchange → SharePoint consent → grounded answer with source cards. All API calls hit `us-discoveryengine.googleapis.com`.
 
@@ -42,7 +42,7 @@ End-to-end: MSAL login → STS exchange → SharePoint consent → grounded answ
 2. **Decoded id_token** has `aud` = raw client_id GUID (not `api://...`)
 3. **streamAssist response** is grounded — `textGroundingMetadata.references` populated with SharePoint sources
 
-See [the proof page](https://jchavezar.github.io/vertex-ai-samples/streamassist-oauth-flow-us/) for screenshots of each.
+See [FLOW.md](FLOW.md) for the full step-by-step + the four mandatory configurations.
 
 ## Quickstart
 
@@ -102,9 +102,10 @@ streamassist-oauth-flow-us/
 │   │   ├── authConfig.ts    # MSAL scopes: NO api:// — just openid/profile/email
 │   │   └── main.tsx
 │   └── .env.example
+├── tester/                  # single-file HTML auth-chain tester (port 5175)
 ├── docs/
-│   └── hero.gif
-├── site/                    # Astro + Starlight, published to gh-pages
+│   └── demo-us.gif
+├── FLOW.md                  # full end-to-end flow doc
 └── README.md
 ```
 

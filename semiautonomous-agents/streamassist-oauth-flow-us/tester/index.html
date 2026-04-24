@@ -71,6 +71,10 @@
         // - WIF provider must be configured with --client-id="<RAW_PORTAL_GUID>" (no api:// prefix)
         // - Engine must have workforceIdentityPoolProvider set to this pool/provider (Console: Set up identity)
         // - Each user must have a license on this engine and have completed acquireAndStoreRefreshToken once
+        // Fill these in for your environment.
+        // - WIF provider must be configured with --client-id="<RAW_PORTAL_GUID>" (no api:// prefix)
+        // - Engine must have workforceIdentityPoolProvider set to this pool/provider (Console: Set up identity)
+        // - Each user must have a license on this engine and have completed acquireAndStoreRefreshToken once
         const CONFIG = {
             entraClientId: "<PORTAL_APP_CLIENT_ID>",          // raw GUID, no api://
             entraTenantId: "<TENANT_ID>",
@@ -95,7 +99,7 @@
         let jwtToken = null;
         let gcpToken = null;
 
-        // MSAL Configuration — NO api:// scope (Deloitte pattern)
+        // MSAL Configuration — NO api:// scope (raw client_id audience pattern)
         const msalConfig = {
             auth: {
                 clientId: CONFIG.entraClientId,
@@ -121,7 +125,7 @@
                 document.getElementById('user-info').innerHTML =
                     `<div class="status success">Logged in as: <strong>${response.account.name}</strong> (${response.account.username})<br><br>
                      <strong>id_token aud claim:</strong> <code>${payload.aud}</code><br>
-                     <small>${payload.aud === CONFIG.entraClientId ? '✓ Raw GUID (matches WIF provider --client-id) — Deloitte pattern works in us region too' : '✗ Has api:// prefix — would need different WIF setup'}</small></div>`;
+                     <small>${payload.aud === CONFIG.entraClientId ? '✓ Raw GUID (matches WIF provider --client-id) — raw client_id audience pattern works' : '✗ Has api:// prefix — would need different WIF setup'}</small></div>`;
 
                 document.getElementById('jwt-token').style.display = 'block';
                 document.getElementById('jwt-token').textContent = `JWT Token (${jwtToken.length} chars):\n${jwtToken.substring(0, 100)}...`;
