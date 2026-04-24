@@ -1,0 +1,7 @@
+# Vite cache (regenerated on dev)
+frontend/.vite/
+
+# Astro build artifacts (if site re-added)
+site/.astro/
+site/dist/
+site/node_modules/

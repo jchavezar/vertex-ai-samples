@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>StreamAssist · US Region Test</title>
+    <script src="https://alcdn.msauth.net/browser/2.38.0/js/msal-browser.min.js"></script>
+    <style>
+        body { font-family: 'Segoe UI', Arial, sans-serif; margin: 0; padding: 20px; background: #0f0f23; color: #ccc; }
+        .container { max-width: 1000px; margin: 0 auto; }
+        h1 { color: #00d4ff; margin-bottom: 5px; }
+        .subtitle { color: #666; margin-bottom: 30px; }
+        button { padding: 12px 24px; margin: 5px; cursor: pointer; background: #0066cc; color: white; border: none; border-radius: 6px; font-size: 14px; }
+        button:hover { background: #0088ff; }
+        button:disabled { background: #333; color: #666; cursor: not-allowed; }
+        .token-box { background: #1a1a2e; padding: 15px; margin: 10px 0; border-radius: 8px; font-family: 'Consolas', monospace; font-size: 12px; max-height: 150px; overflow-y: auto; border: 1px solid #333; word-break: break-all; }
+        .status { padding: 12px; margin: 10px 0; border-radius: 6px; }
+        .success { background: #1a4d2e; border: 1px solid #2d7a4a; }
+        .error { background: #4d1a1a; border: 1px solid #7a2d2d; }
+        .info { background: #1a2d4d; border: 1px solid #2d4a7a; }
+        .step { margin: 20px 0; padding: 20px; background: #16162a; border-radius: 10px; border: 1px solid #2a2a4a; }
+        .step h2 { color: #00d4ff; margin-top: 0; font-size: 18px; }
+        .step-number { display: inline-block; width: 28px; height: 28px; background: #0066cc; color: white; border-radius: 50%; text-align: center; line-height: 28px; margin-right: 10px; font-weight: bold; }
+        input[type="text"] { padding: 12px; border-radius: 6px; border: 1px solid #333; background: #1a1a2e; color: #fff; font-size: 14px; }
+        .query-input { width: calc(100% - 150px); }
+        .result-box { background: #1a1a2e; padding: 20px; margin: 10px 0; border-radius: 8px; border: 1px solid #333; white-space: pre-wrap; font-family: 'Segoe UI', sans-serif; line-height: 1.6; }
+        .sources { margin-top: 15px; padding-top: 15px; border-top: 1px solid #333; }
+        .source-item { background: #0f0f1a; padding: 10px; margin: 5px 0; border-radius: 5px; }
+        .source-item a { color: #00d4ff; }
+        .grounding-badge { display: inline-block; padding: 4px 8px; border-radius: 4px; font-size: 11px; margin-left: 10px; }
+        .grounded { background: #1a4d2e; color: #4ade80; }
+        .not-grounded { background: #4d1a1a; color: #f87171; }
+        .badge-region { display: inline-block; padding: 3px 8px; background: #4d3a1a; color: #fbbf24; border-radius: 4px; font-size: 11px; margin-left: 8px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>StreamAssist · US Region Test <span class="badge-region">us-discoveryengine.googleapis.com</span></h1>
+        <p class="subtitle">Entra ID → WIF/STS → Discovery Engine streamAssist (us region) with raw client_id audience</p>
+
+        <div class="step">
+            <h2><span class="step-number">1</span>Microsoft Entra ID Login</h2>
+            <button onclick="login()">Login with Microsoft</button>
+            <div id="user-info"></div>
+            <div id="jwt-token" class="token-box" style="display:none;"></div>
+        </div>
+
+        <div class="step">
+            <h2><span class="step-number">2</span>Exchange JWT for GCP Token (WIF/STS)</h2>
+            <button onclick="exchangeToken()" id="btn-exchange" disabled>Exchange Token</button>
+            <div id="gcp-status"></div>
+            <div id="gcp-token" class="token-box" style="display:none;"></div>
+        </div>
+
+        <div class="step">
+            <h2><span class="step-number">3</span>Query Discovery Engine (us region · SharePoint)</h2>
+            <input type="text" id="query-input" class="query-input" placeholder="Enter query..." value="What financial reports are available?">
+            <button onclick="queryDiscoveryEngine()" id="btn-query" disabled>Search SharePoint</button>
+            <div id="query-status"></div>
+            <div id="query-result" class="result-box" style="display:none;"></div>
+        </div>
+
+        <div class="step">
+            <h2><span class="step-number">4</span>Copy Tokens for CLI Testing</h2>
+            <button onclick="copyJWT()">Copy JWT</button>
+            <button onclick="copyGCP()">Copy GCP Token</button>
+            <button onclick="copyCurl()">Copy cURL Command</button>
+        </div>
+    </div>
+
+    <script>
+        // Fill these in for your environment.
+        // - WIF provider must be configured with --client-id="<RAW_PORTAL_GUID>" (no api:// prefix)
+        // - Engine must have workforceIdentityPoolProvider set to this pool/provider (Console: Set up identity)
+        // - Each user must have a license on this engine and have completed acquireAndStoreRefreshToken once
+        const CONFIG = {
+            entraClientId: "<PORTAL_APP_CLIENT_ID>",          // raw GUID, no api://
+            entraTenantId: "<TENANT_ID>",
+            wifPoolId: "<WIF_POOL_ID>",
+            wifProviderId: "<WIF_PROVIDER_ID>",
+            gcpProjectNumber: "<PROJECT_NUMBER>",             // numeric
+            discoveryEngineId: "<ENGINE_ID>",
+            location: "us",                                    // or "global"
+            // Build the dataStore resource paths from your SharePoint connector collection ID
+            dataStores: [
+                "projects/<PROJECT_NUMBER>/locations/us/collections/default_collection/dataStores/<CONNECTOR_ID>_file",
+                "projects/<PROJECT_NUMBER>/locations/us/collections/default_collection/dataStores/<CONNECTOR_ID>_page",
+                "projects/<PROJECT_NUMBER>/locations/us/collections/default_collection/dataStores/<CONNECTOR_ID>_attachment"
+            ]
+        };
+
+        const API_HOST = CONFIG.location === "global"
+            ? "discoveryengine.googleapis.com"
+            : `${CONFIG.location}-discoveryengine.googleapis.com`;
+
+        // State
+        let jwtToken = null;
+        let gcpToken = null;
+
+        // MSAL Configuration — NO api:// scope (Deloitte pattern)
+        const msalConfig = {
+            auth: {
+                clientId: CONFIG.entraClientId,
+                authority: `https://login.microsoftonline.com/${CONFIG.entraTenantId}`,
+                redirectUri: window.location.origin,
+            },
+            cache: { cacheLocation: "sessionStorage" }
+        };
+
+        const msalInstance = new msal.PublicClientApplication(msalConfig);
+
+        async function login() {
+            try {
+                const response = await msalInstance.loginPopup({
+                    scopes: ["openid", "profile", "email"]   // NO api:// scope
+                });
+
+                jwtToken = response.idToken;
+
+                // Decode aud claim from JWT to show it's the raw GUID
+                const payload = JSON.parse(atob(jwtToken.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')));
+
+                document.getElementById('user-info').innerHTML =
+                    `<div class="status success">Logged in as: <strong>${response.account.name}</strong> (${response.account.username})<br><br>
+                     <strong>id_token aud claim:</strong> <code>${payload.aud}</code><br>
+                     <small>${payload.aud === CONFIG.entraClientId ? '✓ Raw GUID (matches WIF provider --client-id) — Deloitte pattern works in us region too' : '✗ Has api:// prefix — would need different WIF setup'}</small></div>`;
+
+                document.getElementById('jwt-token').style.display = 'block';
+                document.getElementById('jwt-token').textContent = `JWT Token (${jwtToken.length} chars):\n${jwtToken.substring(0, 100)}...`;
+
+                document.getElementById('btn-exchange').disabled = false;
+            } catch (error) {
+                document.getElementById('user-info').innerHTML =
+                    `<div class="status error">Login failed: ${error.message}</div>`;
+            }
+        }
+
+        async function exchangeToken() {
+            if (!jwtToken) return;
+            document.getElementById('gcp-status').innerHTML = '<div class="status info">Exchanging JWT via WIF/STS...</div>';
+
+            try {
+                // WIF audience path: workforce pools are GLOBAL even when GE engine is in us
+                const audience = `//iam.googleapis.com/locations/global/workforcePools/${CONFIG.wifPoolId}/providers/${CONFIG.wifProviderId}`;
+
+                const response = await fetch("https://sts.googleapis.com/v1/token", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                    body: new URLSearchParams({
+                        grant_type: "urn:ietf:params:oauth:grant-type:token-exchange",
+                        audience: audience,
+                        scope: "https://www.googleapis.com/auth/cloud-platform",
+                        requested_token_type: "urn:ietf:params:oauth:token-type:access_token",
+                        subject_token_type: "urn:ietf:params:oauth:token-type:id_token",
+                        subject_token: jwtToken,
+                    }),
+                });
+
+                if (!response.ok) {
+                    const error = await response.text();
+                    throw new Error(`STS failed: ${error}`);
+                }
+
+                const data = await response.json();
+                gcpToken = data.access_token;
+
+                document.getElementById('gcp-status').innerHTML =
+                    '<div class="status success">GCP token obtained via WIF! Ready to query us region.</div>';
+                document.getElementById('gcp-token').style.display = 'block';
+                document.getElementById('gcp-token').textContent = `GCP Token (${gcpToken.length} chars):\n${gcpToken.substring(0, 100)}...`;
+
+                document.getElementById('btn-query').disabled = false;
+            } catch (error) {
+                document.getElementById('gcp-status').innerHTML =
+                    `<div class="status error">WIF exchange failed: ${error.message}</div>`;
+            }
+        }
+
+        async function queryDiscoveryEngine() {
+            if (!gcpToken) return;
+            const query = document.getElementById('query-input').value;
+
+            document.getElementById('query-status').innerHTML =
+                `<div class="status info">Querying ${API_HOST} (us region)...</div>`;
+            document.getElementById('query-result').style.display = 'block';
+            document.getElementById('query-result').innerHTML = 'Searching SharePoint via streamAssist in us...';
+
+            try {
+                const url = `https://${API_HOST}/v1alpha/projects/${CONFIG.gcpProjectNumber}/locations/${CONFIG.location}/collections/default_collection/engines/${CONFIG.discoveryEngineId}/assistants/default_assistant:streamAssist`;
+
+                const payload = {
+                    query: { text: query },
+                    toolsSpec: {
+                        vertexAiSearchSpec: {
+                            dataStoreSpecs: CONFIG.dataStores.map(ds => ({ dataStore: ds }))
+                        }
+                    }
+                };
+
+                console.log("Request URL:", url);
+                console.log("Payload:", JSON.stringify(payload, null, 2));
+
+                const response = await fetch(url, {
+                    method: "POST",
+                    headers: {
+                        "Authorization": `Bearer ${gcpToken}`,
+                        "Content-Type": "application/json",
+                        "X-Goog-User-Project": CONFIG.gcpProjectNumber
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    const error = await response.text();
+                    throw new Error(`Discovery Engine error: ${error}`);
+                }
+
+                const data = await response.json();
+                console.log("Full Response:", JSON.stringify(data, null, 2));
+
+                // Parse the streaming response
+                let answerText = '';
+                let sources = [];
+                let hasGrounding = false;
+
+                for (const chunk of data) {
+                    const answer = chunk.answer || {};
+                    for (const reply of (answer.replies || [])) {
+                        const content = reply.groundedContent?.content || {};
+                        const text = content.text || '';
+                        const isThought = content.thought || false;
+                        if (text && !isThought) {
+                            answerText += text;
+                        }
+                        const grounding = reply.groundedContent?.textGroundingMetadata;
+                        if (grounding && grounding.references) {
+                            hasGrounding = true;
+                            for (const ref of grounding.references) {
+                                let s = {};
+                                try { s = JSON.parse(ref.content || '{}'); } catch(e) {}
+                                sources.push({
+                                    title: s.title || 'Document',
+                                    url: s.url || '#',
+                                    snippet: (s.description || ref.content || '').substring(0, 200)
+                                });
+                            }
+                        }
+                    }
+                }
+
+                let resultHtml = `<div>`;
+                resultHtml += `<strong>Answer:</strong>`;
+                resultHtml += `<span class="grounding-badge ${hasGrounding ? 'grounded' : 'not-grounded'}">`;
+                resultHtml += hasGrounding ? 'GROUNDED · us region' : 'NOT GROUNDED';
+                resultHtml += `</span><br><small>Endpoint: <code>${API_HOST}</code></small><br><br>`;
+                resultHtml += answerText || 'No answer generated.';
+
+                if (sources.length > 0) {
+                    resultHtml += `<div class="sources"><strong>Sources from SharePoint (us):</strong>`;
+                    for (const src of sources.slice(0, 5)) {
+                        resultHtml += `<div class="source-item">`;
+                        resultHtml += `<a href="${src.url}" target="_blank">${src.title}</a>`;
+                        if (src.snippet) {
+                            resultHtml += `<br><small>${src.snippet}...</small>`;
+                        }
+                        resultHtml += `</div>`;
+                    }
+                    resultHtml += `</div>`;
+                }
+
+                resultHtml += `</div>`;
+
+                document.getElementById('query-result').innerHTML = resultHtml;
+                document.getElementById('query-status').innerHTML =
+                    `<div class="status ${hasGrounding ? 'success' : 'info'}">Query completed. ${hasGrounding ? '✓ Grounded on SharePoint in us region — proof complete!' : 'No SharePoint grounding (may be empty datastore or license issue).'}</div>`;
+            } catch (error) {
+                document.getElementById('query-status').innerHTML =
+                    `<div class="status error">Query failed: ${error.message}</div>`;
+                document.getElementById('query-result').innerHTML = error.message;
+            }
+        }
+
+        function copyJWT() { if (jwtToken) { navigator.clipboard.writeText(jwtToken); alert('JWT copied!'); } }
+        function copyGCP() { if (gcpToken) { navigator.clipboard.writeText(gcpToken); alert('GCP token copied!'); } }
+        function copyCurl() {
+            if (!gcpToken) { alert('No GCP token yet!'); return; }
+            const query = document.getElementById('query-input').value;
+            const curl = `curl -s -H "Authorization: Bearer ${gcpToken}" \\
+  -H "Content-Type: application/json" \\
+  -H "x-goog-user-project: ${CONFIG.gcpProjectNumber}" \\
+  "https://${API_HOST}/v1alpha/projects/${CONFIG.gcpProjectNumber}/locations/${CONFIG.location}/collections/default_collection/engines/${CONFIG.discoveryEngineId}/assistants/default_assistant:streamAssist" \\
+  -d '${JSON.stringify({
+    query: { text: query },
+    toolsSpec: { vertexAiSearchSpec: { dataStoreSpecs: CONFIG.dataStores.map(ds => ({ dataStore: ds })) } }
+  })}'`;
+            navigator.clipboard.writeText(curl);
+            alert('cURL command copied!');
+        }
+    </script>
+</body>
+</html>
