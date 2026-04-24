@@ -149,7 +149,7 @@ header p{color:var(--muted);margin-top:10px;font-size:15px}
     </div>
     <div class="identity-card">
       <div class="label">Microsoft Entra User</div>
-      <div class="val">admin@sockcop.onmicrosoft.com</div>
+      <div class="val">jchavez@contoso.onmicrosoft.com</div>
       <div class="val muted">tid = de46a3fd-…  ·  sub = lPYtalJY…</div>
     </div>
 
@@ -160,7 +160,7 @@ header p{color:var(--muted);margin-top:10px;font-size:15px}
 
     <div class="token gcp" id="tok-gcp" style="opacity:.3">
       <div class="name">🎫 GCP access_token (WIF)</div>
-      <div class="val">ya29.d.s0AXBLAmx…  (opaque)<br>principal = .../subject/&lt;sha256(MS sub)&gt;</div>
+      <div class="val">ya29.d.s0AXBLAm9KqHRfTcWxJpZeBmYvNgL3dPq8…  (opaque)<br>principal = .../subject/&lt;sha256(MS sub)&gt;</div>
     </div>
   </div>
 
@@ -200,7 +200,7 @@ header p{color:var(--muted);margin-top:10px;font-size:15px}
     <div class="lane-head">
       <span class="lane-dot"></span>
       <span class="lane-title">ServiceNow</span>
-      <span class="lane-sub">dev380493.service-now.com</span>
+      <span class="lane-sub">deloitteusprjstaging.service-now.com</span>
     </div>
     <div class="identity-card">
       <div class="label">SN User (own identity universe)</div>
@@ -215,12 +215,12 @@ header p{color:var(--muted);margin-top:10px;font-size:15px}
 
     <div class="token sn" id="tok-sn-code" style="opacity:.3">
       <div class="name">🎫 SN auth_code (single-use)</div>
-      <div class="val">Zhxq_j8xA9LZ_xvz…  ·  granted by SN user `admin`</div>
+      <div class="val">Zhxq_j8xA9LZ_xvz…  ·  granted by SN user admin</div>
     </div>
 
     <div class="token sn" id="tok-sn-refresh" style="opacity:.3">
       <div class="name">🎫 SN refresh_token (long-lived)</div>
-      <div class="val">scope = useraccount  ·  acts as SN user `admin`</div>
+      <div class="val">scope = useraccount  ·  acts as SN user admin</div>
     </div>
   </div>
 </div>
@@ -251,13 +251,13 @@ const PHASES = [
     desc: 'Three independent resources exist. They are NOT connected yet — that\'s what the rest of the flow does. Do this once per tenant.',
     code: `<span class="c">// 1. Microsoft Entra Portal App (MSAL login)</span>
 <span class="k">portal_app</span> = entra.create_app(
-  redirect_uri=<span class="s">"http://localhost:5176"</span>,
+  redirect_uri=<span class="s">"https://your-portal.example.com"</span>,
   <span class="c">// no api:// scope exposed → id_token aud will be the raw GUID</span>
 )
 
 <span class="c">// 2. Workforce Identity Pool + OIDC Provider</span>
 <span class="k">wif_provider</span> = gcp.iam.workforce_pools.create_provider(
-  pool_id=<span class="s">"sp-wif-pool-v2"</span>,
+  pool_id=<span class="s">"sn-wif-pool-prod"</span>,
   client_id=portal_app.client_id,  <span class="c">// raw GUID — must match MS id_token's aud</span>
   issuer_uri=<span class="s">"https://login.microsoftonline.com/.../v2.0"</span>,
 )
@@ -293,10 +293,10 @@ discoveryengine.set_workforce_identity_provider(engine, wif_provider)`,
 
 <span class="c">// Decoded payload looks like:</span>
 {
-  <span class="h">"aud"</span>: <span class="s">"7868d053-cf9c-…"</span>,    <span class="c">// raw GUID — matches WIF provider --client-id</span>
+  <span class="h">"aud"</span>: <span class="s">"7f3a91be-2d4e-4a1c-9b8f-…"</span>,    <span class="c">// raw GUID — matches WIF provider --client-id</span>
   <span class="h">"iss"</span>: <span class="s">"login.microsoftonline.com/&lt;tenant&gt;/v2.0"</span>,
-  <span class="h">"sub"</span>: <span class="s">"lPYtalJY2gBCgz3m4e6kdrPbIOq…"</span>,  <span class="c">// MS user identifier</span>
-  <span class="h">"email"</span>: <span class="s">"admin@sockcop.onmicrosoft.com"</span>,
+  <span class="h">"sub"</span>: <span class="s">"mP3xQrLm9zN7vK4uH8jY6tBdF2sWqX0nLr…"</span>,  <span class="c">// MS user identifier</span>
+  <span class="h">"email"</span>: <span class="s">"jchavez@contoso.onmicrosoft.com"</span>,
   <span class="h">"exp"</span>: <span class="s">"1777057274"</span>,
 }`,
     highlight: ['lane-ms'],
@@ -314,7 +314,7 @@ discoveryengine.set_workforce_identity_provider(engine, wif_provider)`,
   headers: { <span class="h">"Content-Type"</span>: <span class="s">"application/x-www-form-urlencoded"</span> },
   body: <span class="k">new</span> URLSearchParams({
     grant_type: <span class="s">"urn:ietf:params:oauth:grant-type:token-exchange"</span>,
-    audience:   <span class="s">"//iam.googleapis.com/locations/global/workforcePools/sp-wif-pool-v2/providers/ge-login-provider"</span>,
+    audience:   <span class="s">"//iam.googleapis.com/locations/global/workforcePools/sn-wif-pool-prod/providers/entra-id-oidc"</span>,
     requested_token_type: <span class="s">"urn:ietf:params:oauth:token-type:access_token"</span>,
     subject_token_type:   <span class="s">"urn:ietf:params:oauth:token-type:id_token"</span>,
     subject_token: jwtToken,    <span class="c">// the MS id_token from Phase 1</span>
@@ -323,7 +323,7 @@ discoveryengine.set_workforce_identity_provider(engine, wif_provider)`,
 });
 
 <span class="k">const</span> { access_token: gcpToken } = <span class="k">await</span> response.json();
-<span class="c">// gcpToken = "ya29.d.s0AXBLAmx…" — opaque, not a JWT.
+<span class="c">// gcpToken = "ya29.d.s0AXBLAm9KqHRfTcWxJpZeBmYvNgL3dPq8…" — opaque, not a JWT.
 // Internally Google maps it to WIF principal:
 //   principal://iam.googleapis.com/.../subject/&lt;sha256(MS sub)&gt;</span>`,
     highlight: ['lane-ms'],
@@ -334,10 +334,10 @@ discoveryengine.set_workforce_identity_provider(engine, wif_provider)`,
   {
     id: 3,
     label: 'PHASE 3 · SN OAUTH CONSENT (one-time per user)',
-    title: 'User clicks "Connect ServiceNow" → SN popup → user logs in to SN as `admin`',
-    desc: 'The browser opens an OAuth popup pointed at <code>https://&lt;instance&gt;.service-now.com/oauth_auth.do</code>. <strong>ServiceNow has no idea about Entra/WIF — to ServiceNow this is just an OAuth client request from an unknown user.</strong> SN shows its own login screen, the user types SN credentials (username/password), then clicks Allow on the consent screen. SN issues an auth code keyed to its own user `admin`.',
+    title: 'User clicks "Connect ServiceNow" → SN popup → user logs in to SN as admin',
+    desc: 'The browser opens an OAuth popup pointed at <code>https://&lt;instance&gt;.service-now.com/oauth_auth.do</code>. <strong>ServiceNow has no idea about Entra/WIF — to ServiceNow this is just an OAuth client request from an unknown user.</strong> SN shows its own login screen, the user types SN credentials (username/password), then clicks Allow on the consent screen. SN issues an auth code keyed to its own user admin.',
     code: `<span class="c">// browser opens popup</span>
-window.open(<span class="s">"https://dev380493.service-now.com/oauth_auth.do?"</span> +
+window.open(<span class="s">"https://deloitteusprjstaging.service-now.com/oauth_auth.do?"</span> +
   <span class="s">"response_type=code"</span> +
   <span class="s">"&client_id="</span> + SN_OAUTH_CLIENT_ID +     <span class="c">// SN OAuth app id</span>
   <span class="s">"&redirect_uri=https://vertexaisearch.cloud.google.com/oauth-redirect"</span> +
@@ -346,10 +346,10 @@ window.open(<span class="s">"https://dev380493.service-now.com/oauth_auth.do?"</
 
 <span class="c">// what happens INSIDE the popup (separate from the Entra/WIF universe):
 //   1. SN sees no session → shows login form
-//   2. User types `admin` / password → SN authenticates against its OWN user table
+//   2. User types admin / password → SN authenticates against its OWN user table
 //   3. SN sees client_id → shows "Allow this app to access your data?"
 //   4. User clicks Allow
-//   5. SN mints auth_code FOR ITS OWN USER `admin`
+//   5. SN mints auth_code FOR ITS OWN USER admin
 //   6. SN redirects to vertexaisearch.cloud.google.com/oauth-redirect?code=...&state=...
 //   7. The vertexaisearch page postMessages the full URL back to opener</span>`,
     highlight: ['lane-sn'],
@@ -388,7 +388,7 @@ sn_resp = <span class="k">http.post</span>(<span class="s">"https://&lt;instance
   client_secret: SN_OAUTH_CLIENT_SECRET,
   redirect_uri:  <span class="s">"https://vertexaisearch.cloud.google.com/oauth-redirect"</span>,
 })
-sn_refresh_token = sn_resp.refresh_token   <span class="c">// SN issued this for SN user `admin`
+sn_refresh_token = sn_resp.refresh_token   <span class="c">// SN issued this for SN user admin
 
 // (C) Bridge — store the link in DE's database</span>
 <span class="k">INSERT INTO</span> connector_user_tokens (caller_identity, sn_refresh_token)
@@ -402,7 +402,7 @@ sn_refresh_token = sn_resp.refresh_token   <span class="c">// SN issued this for
     id: 5,
     label: 'PHASE 5 · streamAssist (every search after the bridge exists)',
     title: 'User asks a question — DE uses the bridge to query SN on their behalf',
-    desc: 'Browser sends ONLY the WIF GCP token. DE decodes it, looks up the bridge to find the user\'s SN refresh_token, refreshes for an SN access_token, queries the SN Table API as SN user `admin`, ServiceNow ACLs filter the results, and Gemini synthesizes a grounded answer. <strong>The browser never sees any SN tokens.</strong>',
+    desc: 'Browser sends ONLY the WIF GCP token. DE decodes it, looks up the bridge to find the user\'s SN refresh_token, refreshes for an SN access_token, queries the SN Table API as SN user admin, ServiceNow ACLs filter the results, and Gemini synthesizes a grounded answer. <strong>The browser never sees any SN tokens.</strong>',
     code: `<span class="c">// browser-side — JUST the WIF token, nothing else</span>
 <span class="k">await</span> fetch(<span class="s">"…/engines/&lt;engine&gt;/assistants/default_assistant:streamAssist"</span>, {
   method: <span class="s">"POST"</span>,
@@ -422,7 +422,7 @@ sn_token  = <span class="k">SELECT</span> sn_refresh_token <span class="k">FROM<
 sn_access = <span class="k">http.post</span>(<span class="s">"…/oauth_token.do"</span>, refresh_token=sn_token, …)
 records   = <span class="k">http.get</span>(<span class="s">"…/api/now/table/incident"</span>,
               headers={<span class="h">"Authorization"</span>: <span class="s">"Bearer "</span> + sn_access})
-            <span class="c">// → SN evaluates ACLs as user `admin` → returns visible records</span>
+            <span class="c">// → SN evaluates ACLs as user admin → returns visible records</span>
 
 <span class="c">// DE feeds records to Gemini → grounded answer with source citations</span>`,
     highlight: ['lane-ms','lane-de','lane-sn'],
@@ -432,16 +432,80 @@ records   = <span class="k">http.get</span>(<span class="s">"…/api/now/table/i
   },
 ];
 
+// ============== REALISTIC MOCK DATA ==============
+const MOCK = {
+  // Microsoft Entra
+  msUser: 'jchavez@contoso.onmicrosoft.com',
+  msTid:  '7f3a91be-2d4e-4a1c-9b8f-1a2b3c4d5e6f',
+  msSub:  'mP3xQrLm9zN7vK4uH8jY6tBdF2sWqX0nLr-CzAKb_QE',
+  msOid:  '8c2d7f31-6a4b-4e91-a5c8-3f1e9d72b5a4',
+  // MS id_token (truncated but realistic JWT with header.payload.sig)
+  msIdTokenPreview: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6IlYzYUw4QkdHMjlYNVRrTm…',
+
+  // GCP via WIF
+  wifPool: 'sn-wif-pool-prod',
+  wifProvider: 'entra-id-oidc',
+  gcpTokenPreview: 'ya29.d.s0AXBLAm9KqHRfTcWxJpZeBmYvNgL3dPq8…',
+  wifPrincipalHash: 'a7f2e9b14d8c63',
+
+  // Discovery Engine
+  projectNumber: '744983026323',
+  engineId: 'gemini-enterprise-prod',
+  snConnectorId: 'servicenow-prod-connector',
+
+  // ServiceNow
+  snInstance: 'deloitteusprjstaging.service-now.com',
+  snUser: 'svc_ge_federation',
+  snOAuthClient: '15a3a4dd79fe441a8e3801756d008088',
+  snAuthCodePreview: 'wQk7NmZpLvB3xJtRf8sH2yA6eD0cF9gK1iU5oX4nC…',
+  snRefreshTokenPreview: 'rT8bM2nP5kJ9wQzL4hF7vY1cE3gA6dN0sR…',
+  snAccessTokenPreview: 'aZ4xK7mP9qB2nL5tF8jH1vR3yE6cW0sQ…',
+};
+
 // ============== STATE & RENDER ==============
 let phaseIdx = 0;
 
+// Update the swim-lane content based on current phase
+function updateMockData() {
+  // ID identity cards always show real-looking values
+  const lanes = document.querySelectorAll('.lane.ms .identity-card .val');
+  if (lanes[0]) lanes[0].textContent = MOCK.msUser;
+  if (lanes[1]) lanes[1].textContent = `tid = ${MOCK.msTid.substring(0,16)}…  ·  sub = ${MOCK.msSub.substring(0,16)}…`;
+
+  // SN identity cards
+  const snLanes = document.querySelectorAll('.lane.sn .identity-card .val');
+  if (snLanes[0]) snLanes[0].textContent = MOCK.snUser;
+  if (snLanes[2]) snLanes[2].textContent = MOCK.snOAuthClient.substring(0,28) + '…';
+  if (snLanes[3]) snLanes[3].textContent = `redirect_uri = vertexaisearch.cloud.google.com/oauth-redirect`;
+
+  // DE connector card
+  const deLanes = document.querySelectorAll('.lane.de .identity-card .val');
+  if (deLanes[0]) deLanes[0].textContent = MOCK.snConnectorId;
+  if (deLanes[1]) deLanes[1].textContent = `dataSource = servicenow  ·  mode = FEDERATED`;
+
+  // Token bubbles — show their realistic preview values
+  const tokMS = document.querySelector('#tok-ms .val');
+  if (tokMS) tokMS.innerHTML = `aud = &lt;raw GUID&gt;  ·  iss = ${MOCK.msTid.substring(0,8)}…/v2.0<br>sub = ${MOCK.msSub.substring(0,16)}…<br><span style="color:var(--gcp)">${MOCK.msIdTokenPreview}</span>`;
+
+  const tokGCP = document.querySelector('#tok-gcp .val');
+  if (tokGCP) tokGCP.innerHTML = `<span style="color:var(--gcp)">${MOCK.gcpTokenPreview}</span><br>identity → principal://iam.googleapis.com/.../subject/${MOCK.wifPrincipalHash}…`;
+
+  const tokSNCode = document.querySelector('#tok-sn-code .val');
+  if (tokSNCode) tokSNCode.innerHTML = `<span style="color:var(--sn)">${MOCK.snAuthCodePreview}</span><br>granted by SN user ${MOCK.snUser}  ·  single-use`;
+
+  const tokSNRefresh = document.querySelector('#tok-sn-refresh .val');
+  if (tokSNRefresh) tokSNRefresh.innerHTML = `<span style="color:var(--sn)">${MOCK.snRefreshTokenPreview}</span><br>scope = useraccount  ·  acts as SN user ${MOCK.snUser}<br>lifespan = 100 days`;
+}
+
+
 function render() {
+  updateMockData();
   const p = PHASES[phaseIdx];
   document.getElementById('step-num').textContent = p.label;
   document.getElementById('step-title').textContent = p.title;
   document.getElementById('step-desc').innerHTML = p.desc;
   document.getElementById('step-code').innerHTML = p.code;
-  document.getElementById('step-counter').textContent = `Phase ${typeof p.id === 'string' ? p.id : p.id} of 5`;
+  document.getElementById('step-counter').textContent = `Phase ${phaseIdx} of ${PHASES.length - 1}`;
   document.getElementById('prev').disabled = phaseIdx === 0;
   document.getElementById('next').disabled = phaseIdx === PHASES.length - 1;
 
@@ -467,8 +531,8 @@ function render() {
     bridgeRows.innerHTML = '<tr class="empty-row"><td colspan="2">— empty — no users have completed `acquireAndStoreRefreshToken` yet</td></tr>';
   } else if (p.bridge === 'add-row' || p.bridge === 'lookup') {
     bridgeRows.innerHTML = `<tr class="${p.bridge === 'add-row' ? 'new-row' : ''}">
-      <td>principal://iam.googleapis.com/<br>locations/global/workforcePools/sp-wif-pool-v2/<br>subject/&lt;sha256(MS sub)&gt;</td>
-      <td>SN refresh_token issued by SN<br>for user <strong>admin</strong><br>(stored opaque, ~256 chars)</td>
+      <td>principal://iam.googleapis.com/<br>locations/global/workforcePools/${MOCK.wifPool}/<br>providers/${MOCK.wifProvider}/<br>subject/<span style="color:var(--gcp)">${MOCK.wifPrincipalHash}…</span></td>
+      <td><span style="color:var(--sn)">${MOCK.snRefreshTokenPreview}</span><br><span style="color:var(--muted)">issued by SN for user <strong>${MOCK.snUser}</strong><br>scope=useraccount · stored ${new Date().toISOString().split('T')[0]}</span></td>
     </tr>`;
   }
 
