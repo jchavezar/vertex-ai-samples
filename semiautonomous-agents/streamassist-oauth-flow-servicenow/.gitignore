@@ -1,0 +1,7 @@
+# Vite/Node caches if added later
+node_modules/
+.vite/
+
+# Local env (placeholders only in checked-in files)
+.env
+*.local

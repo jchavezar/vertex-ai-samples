@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>StreamAssist · ServiceNow · WIF</title>
+<script src="https://alcdn.msauth.net/browser/2.38.0/js/msal-browser.min.js"></script>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  :root{
+    --bg-1:#0a0a14;--bg-2:#14142a;
+    --card-bg:rgba(20,20,36,.6);--card-border:rgba(120,220,255,.18);--card-border-active:rgba(120,220,255,.55);
+    --accent:#6dd3ff;--accent-glow:rgba(109,211,255,.35);
+    --good:#4ade80;--good-bg:rgba(74,222,128,.08);--good-border:rgba(74,222,128,.5);
+    --warn:#fbbf24;--bad:#f87171;
+    --text:#e7ebf5;--muted:#7d8aa8;
+    --code-bg:#0d0d18;
+  }
+  body{font-family:'Inter',-apple-system,'Segoe UI',sans-serif;background:radial-gradient(ellipse at top,var(--bg-2),var(--bg-1) 70%);color:var(--text);min-height:100vh;padding:20px 24px;-webkit-font-smoothing:antialiased}
+  .layout{display:grid;grid-template-columns:minmax(360px,440px) 1fr;gap:20px;max-width:1500px;margin:0 auto}
+  /* HEADER */
+  .header{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;padding:0 4px;margin-bottom:4px}
+  .brand{display:flex;align-items:center;gap:12px;font-size:18px;font-weight:600}
+  .brand-dot{width:10px;height:10px;border-radius:50%;background:radial-gradient(circle at 30% 30%,#fff,#6dd3ff 60%,#2a76b8);box-shadow:0 0 14px var(--accent-glow)}
+  .brand-tag{font-size:10px;color:var(--muted);letter-spacing:.18em;text-transform:uppercase;padding:4px 9px;background:rgba(120,140,180,.08);border-radius:6px}
+  .meta{font-size:11px;color:var(--muted);font-family:'JetBrains Mono','Consolas',monospace;letter-spacing:.05em}
+  /* LEFT: STEP CARDS */
+  .left{display:flex;flex-direction:column;gap:14px}
+  .card{background:var(--card-bg);border:1px solid var(--card-border);border-radius:16px;padding:18px 20px;backdrop-filter:blur(12px);transition:border-color .3s,box-shadow .3s}
+  .card.success{border-color:var(--good-border);background:linear-gradient(180deg,var(--good-bg),transparent 60%),var(--card-bg)}
+  .card.active{border-color:var(--card-border-active);box-shadow:0 0 28px -8px var(--accent-glow)}
+  .step{display:flex;align-items:center;gap:14px}
+  .step-icon{width:34px;height:34px;border-radius:9px;background:rgba(109,211,255,.1);border:1px solid rgba(109,211,255,.25);display:flex;align-items:center;justify-content:center;color:var(--accent);font-size:13px;flex-shrink:0;font-weight:600}
+  .card.success .step-icon{background:var(--good-bg);border-color:var(--good-border);color:var(--good)}
+  .step-body{flex:1;min-width:0}
+  .step-tag{font-size:9.5px;letter-spacing:.22em;color:var(--muted);text-transform:uppercase;font-weight:600}
+  .step-name{font-size:14.5px;font-weight:600;margin-top:1px}
+  .step-detail{font-size:11.5px;color:var(--muted);font-family:'JetBrains Mono',monospace;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .step-btn{background:var(--accent);color:var(--bg-1);border:none;padding:8px 16px;border-radius:9px;cursor:pointer;font-weight:600;font-size:12.5px;transition:opacity .2s}
+  .step-btn:disabled{background:rgba(120,140,180,.18);color:var(--muted);cursor:not-allowed}
+  .step-btn.done{background:rgba(74,222,128,.15);color:var(--good)}
+  /* COMPOSER */
+  .composer{position:relative;display:flex;padding:4px;border-radius:24px;background:linear-gradient(110deg,rgba(255,92,156,.18),rgba(109,211,255,.18) 35%,rgba(167,119,255,.2) 70%,rgba(255,187,92,.16))}
+  .composer::before{content:'';position:absolute;inset:4px;border-radius:20px;background:rgba(15,15,28,.85)}
+  .composer input{flex:1;position:relative;border:none;background:transparent;color:var(--text);padding:12px 18px;font-size:13.5px;font-family:inherit;outline:none}
+  .composer input::placeholder{color:var(--muted)}
+  .composer button{position:relative;border:none;background:var(--accent);color:var(--bg-1);width:38px;height:38px;border-radius:19px;cursor:pointer;font-size:16px;font-weight:700;display:flex;align-items:center;justify-content:center}
+  .composer button:disabled{background:rgba(120,140,180,.2);color:var(--muted);cursor:not-allowed}
+  /* RIGHT: PIPELINE */
+  .right{display:flex;flex-direction:column;gap:8px}
+  .pipeline-head{display:flex;justify-content:space-between;align-items:center;padding:0 4px;margin-bottom:4px}
+  .pipeline-title{font-size:14px;font-weight:600;color:var(--text)}
+  .pipeline-sub{font-size:11px;color:var(--muted);font-family:'JetBrains Mono',monospace}
+  .clear-btn{font-size:11px;color:var(--muted);background:transparent;border:1px solid rgba(120,140,180,.2);padding:5px 10px;border-radius:6px;cursor:pointer}
+  .pipeline{display:flex;flex-direction:column;gap:8px;max-height:calc(100vh - 120px);overflow-y:auto;padding-right:4px}
+  .pipeline::-webkit-scrollbar{width:6px}
+  .pipeline::-webkit-scrollbar-thumb{background:rgba(120,140,180,.2);border-radius:3px}
+  .trace{background:var(--card-bg);border:1px solid var(--card-border);border-radius:12px;padding:14px 16px}
+  .trace.ok{border-color:var(--good-border)}
+  .trace.err{border-color:rgba(248,113,113,.5)}
+  .trace.run{border-color:var(--card-border-active);box-shadow:0 0 16px -8px var(--accent-glow)}
+  .trace-head{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+  .trace-status{font-size:13px;font-weight:700;width:18px;text-align:center}
+  .trace.ok .trace-status{color:var(--good)}
+  .trace.err .trace-status{color:var(--bad)}
+  .trace.run .trace-status{color:var(--accent)}
+  .trace-stage{font-size:13.5px;font-weight:600;flex:1}
+  .trace-time{font-size:10.5px;color:var(--muted);font-family:'JetBrains Mono',monospace}
+  .trace-endpoint{font-size:11px;color:var(--accent);font-family:'JetBrains Mono',monospace;margin-bottom:8px;word-break:break-all;background:rgba(109,211,255,.04);padding:5px 8px;border-radius:6px}
+  .trace-block{margin-top:6px}
+  .trace-block-label{font-size:9.5px;letter-spacing:.18em;color:var(--muted);text-transform:uppercase;font-weight:600;margin-bottom:4px}
+  .trace-block pre{background:var(--code-bg);border:1px solid rgba(120,140,180,.1);padding:8px 10px;border-radius:6px;font-family:'JetBrains Mono',monospace;font-size:10.5px;color:#b9c4d8;overflow-x:auto;white-space:pre-wrap;word-break:break-all;max-height:160px;overflow-y:auto}
+  .empty{color:var(--muted);font-size:12px;text-align:center;padding:30px 20px;border:1px dashed rgba(120,140,180,.18);border-radius:10px}
+  .pill{display:inline-flex;align-items:center;gap:5px;font-size:10.5px;padding:3px 9px;border-radius:11px;background:rgba(120,140,180,.12);color:var(--muted);font-weight:500}
+  .pill.run{background:rgba(109,211,255,.12);color:var(--accent)}
+  .pill.run::before{content:'';width:5px;height:5px;border-radius:50%;background:var(--accent);box-shadow:0 0 6px var(--accent);animation:pulse 1s infinite}
+  .pill.done{background:var(--good-bg);color:var(--good)}
+  .pill.done::before{content:'✓';font-weight:700}
+  @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.85)}}
+  /* RESULT */
+  .result-wrap{margin-top:0}
+  .result{background:var(--card-bg);border:1px solid var(--good-border);border-radius:16px;padding:18px 22px;background:linear-gradient(180deg,var(--good-bg),transparent 60%),var(--card-bg);box-shadow:0 0 24px -10px rgba(74,222,128,.4)}
+  .result-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+  .result-title{font-size:18px;font-weight:600}
+  .result-q{font-size:12.5px;color:var(--muted);margin-bottom:14px}
+  .result-text{font-size:13.5px;line-height:1.55;white-space:pre-wrap}
+  .sources{margin-top:14px;padding-top:14px;border-top:1px solid rgba(120,140,180,.15);display:flex;flex-direction:column;gap:7px}
+  .src{display:flex;gap:9px;font-size:11.5px;color:var(--muted);padding:8px 11px;background:rgba(120,140,180,.05);border-radius:8px}
+  .src .ico{color:var(--accent);flex-shrink:0}
+  .src strong{color:var(--text);font-weight:600}
+</style>
+</head>
+<body>
+<div class="layout">
+  <div class="header">
+    <div class="brand">
+      <span class="brand-dot"></span>
+      <span>StreamAssist</span>
+      <span class="brand-tag">SERVICENOW · WIF</span>
+    </div>
+    <div class="meta" id="meta-host">discoveryengine.googleapis.com · global</div>
+  </div>
+
+  <!-- LEFT -->
+  <div class="left">
+    <!-- Step 1: MSAL -->
+    <div class="card" id="card-1">
+      <div class="step">
+        <div class="step-icon">①</div>
+        <div class="step-body">
+          <div class="step-tag">STEP 1 · IDENTITY</div>
+          <div class="step-name">MSAL Login (Microsoft Entra)</div>
+          <div class="step-detail" id="detail-1">Click to sign in with Microsoft</div>
+        </div>
+        <button class="step-btn" id="btn-login">Login</button>
+      </div>
+    </div>
+
+    <!-- Step 2: STS -->
+    <div class="card" id="card-2">
+      <div class="step">
+        <div class="step-icon">②</div>
+        <div class="step-body">
+          <div class="step-tag">STEP 2 · WIF / STS</div>
+          <div class="step-name">Exchange JWT → GCP token</div>
+          <div class="step-detail" id="detail-2">Awaiting Microsoft id_token</div>
+        </div>
+        <button class="step-btn" id="btn-exchange" disabled>Exchange</button>
+      </div>
+    </div>
+
+    <!-- Step 3: SN Consent -->
+    <div class="card" id="card-3">
+      <div class="step">
+        <div class="step-icon">③</div>
+        <div class="step-body">
+          <div class="step-tag">STEP 3 · SERVICENOW OAUTH</div>
+          <div class="step-name">Connect ServiceNow</div>
+          <div class="step-detail" id="detail-3">Per-user consent → store refresh_token</div>
+        </div>
+        <button class="step-btn" id="btn-connect" disabled>Connect</button>
+      </div>
+    </div>
+
+    <!-- Step 4: Search -->
+    <div class="card" id="card-4">
+      <div class="step">
+        <div class="step-icon">④</div>
+        <div class="step-body">
+          <div class="step-tag">STEP 4 · SEARCH</div>
+          <div class="step-name">streamAssist (federated SN query)</div>
+          <div class="step-detail" id="detail-4">Awaiting SharePoint/ServiceNow connection</div>
+        </div>
+        <span class="pill" id="pill-status">Idle</span>
+      </div>
+    </div>
+
+    <!-- Composer -->
+    <div class="composer">
+      <input type="text" id="query" placeholder="Ask ServiceNow…" disabled>
+      <button id="btn-search" disabled>↑</button>
+    </div>
+
+    <!-- Result (hidden until grounded) -->
+    <div class="result-wrap" id="result-wrap" style="display:none">
+      <div class="result">
+        <div class="result-head">
+          <div class="result-title" id="result-title">Grounded ✓</div>
+          <span class="pill done">us-discoveryengine ✓</span>
+        </div>
+        <div class="result-q" id="result-q"></div>
+        <div class="result-text" id="result-text"></div>
+        <div class="sources" id="sources"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT: Pipeline -->
+  <div class="right">
+    <div class="pipeline-head">
+      <div>
+        <div class="pipeline-title">Live API Pipeline</div>
+        <div class="pipeline-sub">Each request → endpoint, input, output</div>
+      </div>
+      <button class="clear-btn" onclick="clearTraces()">Clear</button>
+    </div>
+    <div class="pipeline" id="pipeline">
+      <div class="empty">Pipeline traces appear here as you click each step on the left.</div>
+    </div>
+  </div>
+</div>
+
+<script>
+// =================================================================
+// CONFIG — fill these in for your environment
+// =================================================================
+const CONFIG = {
+  // Entra Portal App (MSAL login). Same one used in streamassist-oauth-flow / -us.
+  entraClientId: "<PORTAL_APP_CLIENT_ID>",
+  entraTenantId: "<TENANT_ID>",
+
+  // GCP
+  gcpProjectNumber: "<PROJECT_NUMBER>",
+  location: "global",                 // or "us"
+  // WIF — pool stays at /locations/global/ regardless of engine region
+  wifPoolId: "<WIF_POOL_ID>",
+  wifProviderId: "<WIF_PROVIDER_ID>", // raw client_id audience pattern (no api://)
+
+  // The Discovery Engine app + the ServiceNow connector
+  engineId: "<ENGINE_ID>",
+  connectorId: "<SERVICENOW_CONNECTOR_ID>",
+
+  // ServiceNow OAuth (the new app you registered in System OAuth → Application Registry)
+  snInstanceUri: "<https://YOUR_INSTANCE.service-now.com>",
+  snClientId: "<SN_OAUTH_CLIENT_ID>",
+  // ServiceNow datastore entities exposed by the federated connector
+  snEntities: ["knowledge", "incident", "catalog", "users", "attachment"],
+};
+
+const API_HOST = CONFIG.location === "global"
+  ? "discoveryengine.googleapis.com"
+  : `${CONFIG.location}-discoveryengine.googleapis.com`;
+document.getElementById('meta-host').textContent = `${API_HOST} · ${CONFIG.location}`;
+
+let jwtToken = null, gcpToken = null, snConnected = false;
+let consentPopup = null, consentNonce = null;
+
+const msalInstance = new msal.PublicClientApplication({
+  auth: {
+    clientId: CONFIG.entraClientId,
+    authority: `https://login.microsoftonline.com/${CONFIG.entraTenantId}`,
+    redirectUri: window.location.origin,
+  },
+  cache: { cacheLocation: "sessionStorage" }
+});
+
+const setStatus = (text, variant) => {
+  const p = document.getElementById('pill-status');
+  p.className = 'pill ' + (variant || '');
+  p.textContent = text;
+};
+const markCardSuccess = (id) => {
+  const c = document.getElementById(id);
+  c.classList.add('success'); c.classList.remove('active');
+  c.querySelector('.step-icon').textContent = '✓';
+};
+const markCardActive = (id) => {
+  document.getElementById(id).classList.add('active');
+};
+
+// ---- Pipeline trace ----
+function addTrace({ stage, endpoint, status, input, output, durationMs, ok }) {
+  const empty = document.querySelector('.pipeline .empty');
+  if (empty) empty.remove();
+  const wrap = document.getElementById('pipeline');
+  const trace = document.createElement('div');
+  trace.className = 'trace ' + (ok === false ? 'err' : ok === true ? 'ok' : 'run');
+  trace.innerHTML = `
+    <div class="trace-head">
+      <span class="trace-status">${ok === false ? '✗' : ok === true ? '✓' : '·'}</span>
+      <span class="trace-stage">${stage}</span>
+      <span class="trace-time">${durationMs != null ? durationMs + 'ms' : ''} ${status != null ? '· ' + status : ''}</span>
+    </div>
+    <div class="trace-endpoint">${endpoint || '(internal)'}</div>
+    ${input ? `<div class="trace-block"><div class="trace-block-label">Input</div><pre>${escapeJson(input)}</pre></div>` : ''}
+    ${output ? `<div class="trace-block"><div class="trace-block-label">Output</div><pre>${escapeJson(output)}</pre></div>` : ''}
+  `;
+  wrap.appendChild(trace);
+  wrap.scrollTop = wrap.scrollHeight;
+  return trace;
+}
+function clearTraces() {
+  document.getElementById('pipeline').innerHTML = '<div class="empty">Pipeline traces appear here as you click each step on the left.</div>';
+}
+function escapeJson(o) {
+  const s = typeof o === 'string' ? o : JSON.stringify(o, null, 2);
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+function tokenPreview(t) { return t ? t.substring(0,40) + '…' : '(none)'; }
+
+// =================================================================
+// STEP 1: MSAL Login
+// =================================================================
+document.getElementById('btn-login').onclick = async () => {
+  markCardActive('card-1');
+  const t0 = performance.now();
+  addTrace({ stage: 'MSAL · loginPopup', endpoint: `https://login.microsoftonline.com/${CONFIG.entraTenantId}/oauth2/v2.0/authorize`,
+    input: { client_id: CONFIG.entraClientId, scopes: ['openid','profile','email'], note: 'Raw-client_id pattern: NO api:// scope' } });
+  try {
+    const r = await msalInstance.loginPopup({ scopes: ["openid","profile","email"] });
+    jwtToken = r.idToken;
+    const payload = JSON.parse(atob(jwtToken.split('.')[1].replace(/-/g,'+').replace(/_/g,'/')));
+    const dur = Math.round(performance.now() - t0);
+    addTrace({ stage: 'MSAL · loginPopup', endpoint: 'https://login.microsoftonline.com/.../oauth2/v2.0/token',
+      ok: true, status: 200, durationMs: dur,
+      output: { account: r.account.username, idToken: tokenPreview(jwtToken),
+                aud: payload.aud, iss: payload.iss, sub: payload.sub.substring(0,20)+'…',
+                note: payload.aud === CONFIG.entraClientId ? 'aud = raw GUID ✓' : 'aud has api:// prefix' } });
+    document.getElementById('detail-1').textContent = `${r.account.username} · aud = raw GUID ✓`;
+    markCardSuccess('card-1');
+    document.getElementById('btn-login').textContent = 'Done';
+    document.getElementById('btn-login').disabled = true;
+    document.getElementById('btn-login').classList.add('done');
+    document.getElementById('btn-exchange').disabled = false;
+    document.getElementById('detail-2').textContent = 'Ready to exchange';
+  } catch (e) {
+    addTrace({ stage: 'MSAL · loginPopup', ok: false, durationMs: Math.round(performance.now() - t0),
+      output: { error: e.message } });
+    document.getElementById('detail-1').textContent = `Failed: ${e.message}`;
+  }
+};
+
+// =================================================================
+// STEP 2: STS Token Exchange (WIF)
+// =================================================================
+document.getElementById('btn-exchange').onclick = async () => {
+  markCardActive('card-2');
+  const audience = `//iam.googleapis.com/locations/global/workforcePools/${CONFIG.wifPoolId}/providers/${CONFIG.wifProviderId}`;
+  const t0 = performance.now();
+  addTrace({ stage: 'STS · token-exchange', endpoint: 'POST https://sts.googleapis.com/v1/token',
+    input: {
+      grant_type: 'urn:ietf:params:oauth:grant-type:token-exchange',
+      audience,
+      requested_token_type: 'urn:ietf:params:oauth:token-type:access_token',
+      subject_token_type: 'urn:ietf:params:oauth:token-type:id_token',
+      subject_token: tokenPreview(jwtToken),
+      scope: 'https://www.googleapis.com/auth/cloud-platform',
+    }
+  });
+  try {
+    const r = await fetch("https://sts.googleapis.com/v1/token", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({
+        grant_type: "urn:ietf:params:oauth:grant-type:token-exchange",
+        audience,
+        scope: "https://www.googleapis.com/auth/cloud-platform",
+        requested_token_type: "urn:ietf:params:oauth:token-type:access_token",
+        subject_token_type: "urn:ietf:params:oauth:token-type:id_token",
+        subject_token: jwtToken,
+      })
+    });
+    const data = await r.json();
+    const dur = Math.round(performance.now() - t0);
+    if (!r.ok) throw new Error(JSON.stringify(data));
+    gcpToken = data.access_token;
+    addTrace({ stage: 'STS · token-exchange', endpoint: 'POST https://sts.googleapis.com/v1/token',
+      ok: true, status: r.status, durationMs: dur,
+      output: { access_token: tokenPreview(gcpToken), token_type: data.token_type,
+                expires_in: data.expires_in, principal: `principal://iam.googleapis.com/.../workforcePools/${CONFIG.wifPoolId}/subject/<sub-hash>` } });
+    document.getElementById('detail-2').textContent = `WIF token via ${CONFIG.wifPoolId}/${CONFIG.wifProviderId} ✓`;
+    markCardSuccess('card-2');
+    document.getElementById('btn-exchange').textContent = 'Done';
+    document.getElementById('btn-exchange').disabled = true;
+    document.getElementById('btn-exchange').classList.add('done');
+
+    // Probe if SN already connected (acquireAccessToken)
+    await checkSnConnection();
+    document.getElementById('btn-connect').disabled = false;
+  } catch (e) {
+    addTrace({ stage: 'STS · token-exchange', ok: false, durationMs: Math.round(performance.now() - t0), output: { error: e.message } });
+  }
+};
+
+// =================================================================
+// Check if user has stored ServiceNow token (acquireAccessToken probe)
+// =================================================================
+async function checkSnConnection() {
+  const url = `https://${API_HOST}/v1alpha/projects/${CONFIG.gcpProjectNumber}/locations/${CONFIG.location}/collections/${CONFIG.connectorId}/dataConnector:acquireAccessToken`;
+  const t0 = performance.now();
+  addTrace({ stage: 'DE · acquireAccessToken (probe)', endpoint: 'POST ' + url,
+    input: { headers: { Authorization: 'Bearer ' + tokenPreview(gcpToken), 'X-Goog-User-Project': CONFIG.gcpProjectNumber }, body: '{}' } });
+  try {
+    const r = await fetch(url, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${gcpToken}`, 'Content-Type': 'application/json', 'X-Goog-User-Project': CONFIG.gcpProjectNumber },
+      body: '{}'
+    });
+    const data = await r.json();
+    const dur = Math.round(performance.now() - t0);
+    if (r.ok && data.refreshTokenInfo) {
+      snConnected = true;
+      addTrace({ stage: 'DE · acquireAccessToken', endpoint: 'POST .../dataConnector:acquireAccessToken',
+        ok: true, status: 200, durationMs: dur,
+        output: { refreshTokenInfo: { name: data.refreshTokenInfo.name, scopes: data.refreshTokenInfo.scopes || [] } } });
+      document.getElementById('detail-3').textContent = 'Already connected ✓';
+      markCardSuccess('card-3');
+      document.getElementById('btn-connect').textContent = 'Done';
+      document.getElementById('btn-connect').classList.add('done');
+      enableSearch();
+    } else {
+      addTrace({ stage: 'DE · acquireAccessToken', endpoint: 'POST .../dataConnector:acquireAccessToken',
+        ok: false, status: r.status, durationMs: dur,
+        output: { error: data.error?.message || 'no token stored — Connect ServiceNow first' } });
+      document.getElementById('detail-3').textContent = 'Not connected yet — click Connect';
+    }
+  } catch (e) {
+    addTrace({ stage: 'DE · acquireAccessToken', ok: false, output: { error: e.message } });
+  }
+}
+
+// =================================================================
+// STEP 3: Connect ServiceNow (per-user OAuth)
+// =================================================================
+document.getElementById('btn-connect').onclick = async () => {
+  if (!gcpToken) return;
+  markCardActive('card-3');
+  consentNonce = Math.random().toString(36).slice(2);
+  const state = btoa(JSON.stringify({ origin: window.location.origin, useBroadcastChannel: 'false', nonce: consentNonce }));
+  const params = new URLSearchParams({
+    client_id: CONFIG.snClientId,
+    response_type: 'code',
+    redirect_uri: 'https://vertexaisearch.cloud.google.com/oauth-redirect',
+    state,
+  });
+  const authUrl = `${CONFIG.snInstanceUri}/oauth_auth.do?${params.toString()}`;
+  addTrace({ stage: 'OAuth · open ServiceNow consent popup',
+    endpoint: 'GET ' + authUrl.split('?')[0],
+    input: { client_id: CONFIG.snClientId, redirect_uri: 'https://vertexaisearch.cloud.google.com/oauth-redirect', state: state.substring(0,30)+'…' } });
+  consentPopup = window.open(authUrl, 'sn_consent', 'width=600,height=700,left=200,top=100');
+
+  setStatus('Awaiting consent…', 'run');
+
+  // Listen for postMessage from vertexaisearch
+  const onMsg = async (event) => {
+    if (!event.data?.fullRedirectUrl) return;
+    window.removeEventListener('message', onMsg);
+    await convergeSnAuth(event.data.fullRedirectUrl);
+  };
+  window.addEventListener('message', onMsg);
+
+  // Fallback: poll for popup-closed (COOP can block postMessage)
+  const popupCheck = setInterval(async () => {
+    if (!consentPopup || consentPopup.closed) {
+      clearInterval(popupCheck);
+      window.removeEventListener('message', onMsg);
+      // Probe again — token might have been stored client-side via vertexaisearch
+      await new Promise(r => setTimeout(r, 1500));
+      await checkSnConnection();
+      if (!snConnected) {
+        addTrace({ stage: 'OAuth · popup closed (COOP fallback)', ok: false,
+          output: { error: 'Could not capture redirect URL via postMessage; user may need to retry, or paste the redirect URL manually below.' } });
+        promptForManualUrl();
+      }
+    }
+  }, 500);
+};
+
+function promptForManualUrl() {
+  const url = prompt('COOP blocked postMessage. Paste the full URL the popup ended up on (vertexaisearch.cloud.google.com/oauth-redirect?code=…&state=…):');
+  if (url) convergeSnAuth(url);
+}
+
+async function convergeSnAuth(fullRedirectUrl) {
+  // Convergence step: send {fullRedirectUri} to acquireAndStoreRefreshToken with our WIF GCP token
+  const url = `https://${API_HOST}/v1alpha/projects/${CONFIG.gcpProjectNumber}/locations/${CONFIG.location}/collections/${CONFIG.connectorId}/dataConnector:acquireAndStoreRefreshToken`;
+  const t0 = performance.now();
+  addTrace({ stage: 'DE · acquireAndStoreRefreshToken', endpoint: 'POST ' + url,
+    input: { headers: { Authorization: 'Bearer ' + tokenPreview(gcpToken), 'X-Goog-User-Project': CONFIG.gcpProjectNumber }, body: { fullRedirectUri: fullRedirectUrl.substring(0,80) + '…' } } });
+  try {
+    const r = await fetch(url, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${gcpToken}`, 'Content-Type': 'application/json', 'X-Goog-User-Project': CONFIG.gcpProjectNumber },
+      body: JSON.stringify({ fullRedirectUri: fullRedirectUrl })
+    });
+    const data = await r.json();
+    const dur = Math.round(performance.now() - t0);
+    if (!r.ok) throw new Error(data.error?.message || JSON.stringify(data));
+    addTrace({ stage: 'DE · acquireAndStoreRefreshToken', endpoint: 'POST .../dataConnector:acquireAndStoreRefreshToken',
+      ok: true, status: r.status, durationMs: dur,
+      output: data?.name ? { stored: true, name: data.name } : { stored: true } });
+    snConnected = true;
+    document.getElementById('detail-3').textContent = 'Per-user SN refresh token stored ✓';
+    markCardSuccess('card-3');
+    document.getElementById('btn-connect').textContent = 'Done';
+    document.getElementById('btn-connect').disabled = true;
+    document.getElementById('btn-connect').classList.add('done');
+    setStatus('Connected', 'done');
+    enableSearch();
+  } catch (e) {
+    addTrace({ stage: 'DE · acquireAndStoreRefreshToken', ok: false, durationMs: Math.round(performance.now() - t0), output: { error: e.message } });
+    setStatus('Connect failed', '');
+  }
+}
+
+function enableSearch() {
+  document.getElementById('query').disabled = false;
+  document.getElementById('btn-search').disabled = false;
+  document.getElementById('detail-4').textContent = 'Ready — type a question';
+}
+
+// =================================================================
+// STEP 4: streamAssist Search
+// =================================================================
+document.getElementById('btn-search').onclick = async () => {
+  const q = document.getElementById('query').value.trim();
+  if (!q || !gcpToken) return;
+  markCardActive('card-4');
+  setStatus('Querying…', 'run');
+  document.getElementById('result-wrap').style.display = 'none';
+  const url = `https://${API_HOST}/v1alpha/projects/${CONFIG.gcpProjectNumber}/locations/${CONFIG.location}/collections/default_collection/engines/${CONFIG.engineId}/assistants/default_assistant:streamAssist`;
+  const dataStores = CONFIG.snEntities.map(e =>
+    `projects/${CONFIG.gcpProjectNumber}/locations/${CONFIG.location}/collections/default_collection/dataStores/${CONFIG.connectorId}_${e}`);
+  const body = {
+    query: { text: q },
+    toolsSpec: { vertexAiSearchSpec: { dataStoreSpecs: dataStores.map(ds => ({ dataStore: ds })) } }
+  };
+  const t0 = performance.now();
+  addTrace({ stage: 'DE · streamAssist', endpoint: 'POST ' + url,
+    input: { headers: { Authorization: 'Bearer ' + tokenPreview(gcpToken), 'X-Goog-User-Project': CONFIG.gcpProjectNumber }, body } });
+  try {
+    const r = await fetch(url, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${gcpToken}`, 'Content-Type': 'application/json', 'X-Goog-User-Project': CONFIG.gcpProjectNumber },
+      body: JSON.stringify(body)
+    });
+    const data = await r.json();
+    const dur = Math.round(performance.now() - t0);
+    if (!r.ok) throw new Error(data.error?.message || JSON.stringify(data));
+
+    let answer = '', sources = [], grounded = false;
+    for (const c of data) {
+      for (const reply of (c.answer?.replies || [])) {
+        const ct = reply.groundedContent?.content || {};
+        if (ct.text && !ct.thought) answer += ct.text;
+        for (const ref of (reply.groundedContent?.textGroundingMetadata?.references || [])) {
+          grounded = true;
+          let s = {};
+          try { s = JSON.parse(ref.content || '{}'); } catch {}
+          sources.push({ title: s.title || s.short_description || s.name || 'Document', snippet: (s.description || ref.content || '').substring(0,150) });
+        }
+      }
+    }
+    addTrace({ stage: 'DE · streamAssist', endpoint: 'POST .../streamAssist',
+      ok: true, status: r.status, durationMs: dur,
+      output: { grounded, answer_len: answer.length, sources_count: sources.length, sources: sources.slice(0,3).map(s=>s.title) } });
+
+    document.getElementById('result-title').textContent = grounded ? 'Grounded ✓' : 'Answered (no sources)';
+    document.getElementById('result-q').textContent = `Query: "${q}"`;
+    document.getElementById('result-text').textContent = answer || 'No answer returned.';
+    const srcEl = document.getElementById('sources');
+    srcEl.innerHTML = sources.slice(0,5).map(s =>
+      `<div class="src"><span class="ico">▸</span><div><strong>${s.title}</strong><br><span style="color:var(--muted)">${s.snippet}…</span></div></div>`
+    ).join('');
+    document.getElementById('result-wrap').style.display = 'block';
+    markCardSuccess('card-4');
+    setStatus(grounded ? 'Grounded ✓' : 'Done', grounded ? 'done' : '');
+  } catch (e) {
+    addTrace({ stage: 'DE · streamAssist', ok: false, durationMs: Math.round(performance.now() - t0), output: { error: e.message } });
+    setStatus('Search failed', '');
+  }
+};
+</script>
+</body>
+</html>
