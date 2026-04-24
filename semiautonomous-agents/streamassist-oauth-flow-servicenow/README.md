@@ -16,6 +16,16 @@ Sister project to [`streamassist-oauth-flow`](../streamassist-oauth-flow) and [`
 
 End-to-end proof: a WIF-authenticated user signs in once with Microsoft Entra, grants ServiceNow consent once, then asks natural-language questions and gets **grounded answers from ServiceNow records** (incidents, knowledge articles, catalog items) with per-user ACLs enforced by ServiceNow's Table API.
 
+## Interactive flow diagram
+
+For a click-through visual explanation of how WIF/Entra and ServiceNow identities get bridged via Discovery Engine: open [`docs/flow-diagram.html`](docs/flow-diagram.html) in a browser. 6 phases, animated swim lanes for each identity universe, code samples for every step, and a live bridge-table visualization showing how `acquireAndStoreRefreshToken` links the two universes.
+
+```bash
+# serve docs/ on a separate port
+python3 -m http.server 5177 --directory docs &
+open http://localhost:5177/flow-diagram.html
+```
+
 ## Demo
 
 ![Demo](docs/demo-grounded.png)

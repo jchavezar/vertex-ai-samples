@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>StreamAssist · ServiceNow · WIF — Interactive Flow</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg-1:#08080f;--bg-2:#13132a;
+  --text:#e7ebf5;--muted:#7d8aa8;--dim:#475066;
+  --code-bg:#0d0d18;
+  /* universe colors */
+  --ms:#5d8cf7;        /* Microsoft blue */
+  --ms-bg:rgba(93,140,247,.08);--ms-border:rgba(93,140,247,.4);
+  --gcp:#6dd3ff;       /* Google cyan */
+  --gcp-bg:rgba(109,211,255,.08);--gcp-border:rgba(109,211,255,.4);
+  --sn:#fbbf24;        /* ServiceNow gold */
+  --sn-bg:rgba(251,191,36,.08);--sn-border:rgba(251,191,36,.4);
+  --de:#a78bfa;        /* Discovery Engine purple */
+  --de-bg:rgba(167,139,250,.08);--de-border:rgba(167,139,250,.5);
+  --good:#4ade80;
+}
+body{font-family:'Inter',-apple-system,'Segoe UI',sans-serif;background:radial-gradient(ellipse at top,var(--bg-2),var(--bg-1) 70%);color:var(--text);min-height:100vh;padding:32px 24px;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1500px;margin:0 auto}
+
+/* HEADER */
+header{margin-bottom:28px;text-align:center}
+header h1{font-size:32px;font-weight:700;letter-spacing:-.5px}
+header h1 .ms{color:var(--ms)}
+header h1 .gcp{color:var(--gcp)}
+header h1 .sn{color:var(--sn)}
+header h1 .de{color:var(--de)}
+header p{color:var(--muted);margin-top:10px;font-size:15px}
+
+/* PHASE NAV */
+.phase-nav{display:flex;gap:10px;margin:32px 0 24px;justify-content:center;flex-wrap:wrap}
+.phase-btn{padding:11px 18px;border-radius:10px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.02);color:var(--muted);cursor:pointer;font-family:inherit;font-size:13px;font-weight:600;letter-spacing:.02em;transition:all .2s}
+.phase-btn:hover{color:var(--text);border-color:rgba(255,255,255,.18)}
+.phase-btn.active{background:linear-gradient(135deg,var(--de-bg),var(--gcp-bg));border-color:var(--de-border);color:var(--text);box-shadow:0 0 24px -8px var(--de)}
+.phase-btn .num{display:inline-block;width:22px;height:22px;line-height:22px;text-align:center;border-radius:50%;background:rgba(255,255,255,.06);margin-right:8px;font-size:11px}
+.phase-btn.active .num{background:var(--de);color:var(--bg-1)}
+
+/* SWIM LANES */
+.stage{display:grid;grid-template-columns:1fr 1.4fr 1fr;gap:18px;align-items:start;margin-bottom:28px}
+.lane{border-radius:14px;padding:18px 18px 22px;min-height:480px;position:relative;backdrop-filter:blur(10px)}
+.lane.ms{background:linear-gradient(180deg,var(--ms-bg),transparent 70%);border:1px solid var(--ms-border)}
+.lane.de{background:linear-gradient(180deg,var(--de-bg),transparent 70%);border:1px solid var(--de-border)}
+.lane.sn{background:linear-gradient(180deg,var(--sn-bg),transparent 70%);border:1px solid var(--sn-border)}
+.lane-head{display:flex;align-items:center;gap:10px;margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid rgba(255,255,255,.06)}
+.lane-dot{width:10px;height:10px;border-radius:50%}
+.lane.ms .lane-dot{background:var(--ms);box-shadow:0 0 12px var(--ms)}
+.lane.de .lane-dot{background:var(--de);box-shadow:0 0 12px var(--de)}
+.lane.sn .lane-dot{background:var(--sn);box-shadow:0 0 12px var(--sn)}
+.lane-title{font-size:14px;font-weight:600}
+.lane-sub{font-size:11px;color:var(--muted);font-family:'JetBrains Mono','Consolas',monospace;margin-left:auto}
+
+/* IDENTITY BADGES */
+.identity-card{padding:12px 14px;border-radius:10px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);margin-bottom:10px}
+.lane.ms .identity-card{border-color:var(--ms-border)}
+.lane.sn .identity-card{border-color:var(--sn-border)}
+.identity-card .label{font-size:9.5px;letter-spacing:.18em;color:var(--muted);text-transform:uppercase;margin-bottom:4px;font-weight:600}
+.identity-card .val{font-size:13px;font-family:'JetBrains Mono',monospace;color:var(--text);word-break:break-all}
+.identity-card .val.muted{color:var(--muted);font-size:11px}
+
+/* TOKEN BUBBLES */
+.token{display:flex;flex-direction:column;gap:4px;padding:10px 12px;border-radius:8px;background:var(--code-bg);border:1px dashed rgba(255,255,255,.12);margin-bottom:8px;font-family:'JetBrains Mono',monospace;font-size:11.5px}
+.token .name{color:var(--text);font-weight:600;font-size:11px;letter-spacing:.05em}
+.token .val{color:var(--muted);word-break:break-all;line-height:1.45}
+.token.ms{border-color:var(--ms);box-shadow:0 0 16px -8px var(--ms)}
+.token.gcp{border-color:var(--gcp);box-shadow:0 0 16px -8px var(--gcp)}
+.token.sn{border-color:var(--sn);box-shadow:0 0 16px -8px var(--sn)}
+
+/* BRIDGE TABLE */
+.bridge{margin-top:14px;padding:14px 16px;border-radius:10px;background:linear-gradient(135deg,rgba(167,139,250,.12),rgba(109,211,255,.06));border:1.5px solid var(--de-border);box-shadow:0 0 28px -10px var(--de)}
+.bridge .label{font-size:9.5px;letter-spacing:.22em;color:var(--de);text-transform:uppercase;font-weight:700;margin-bottom:8px}
+.bridge table{width:100%;border-collapse:collapse;font-size:11px;font-family:'JetBrains Mono',monospace}
+.bridge th{text-align:left;padding:6px 8px;background:rgba(255,255,255,.04);color:var(--muted);font-weight:600;font-size:9.5px;letter-spacing:.1em;text-transform:uppercase}
+.bridge td{padding:8px;border-top:1px solid rgba(255,255,255,.05);word-break:break-all;color:var(--text)}
+.bridge .empty-row{color:var(--dim);font-style:italic}
+.bridge .new-row{background:rgba(74,222,128,.08);animation:flash 1.2s ease-out}
+@keyframes flash{0%{background:rgba(74,222,128,.4)}100%{background:rgba(74,222,128,.08)}}
+
+/* ARROWS / FLOW LINES */
+.flow{display:none;color:var(--muted);font-size:12px;text-align:center;padding:10px;font-family:'JetBrains Mono',monospace}
+.flow.show{display:block}
+.flow-arrow{display:inline-block;margin:0 6px;color:var(--gcp)}
+
+/* STEP PANEL */
+.step-panel{margin-top:24px;padding:24px 28px;border-radius:16px;background:linear-gradient(180deg,rgba(167,139,250,.04),transparent),rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.06)}
+.step-panel h2{font-size:18px;font-weight:600;margin-bottom:6px}
+.step-panel .step-num{display:inline-block;font-size:11px;color:var(--de);letter-spacing:.2em;font-weight:700;margin-bottom:6px}
+.step-panel p{color:var(--muted);font-size:14px;line-height:1.55;margin:8px 0}
+.step-panel .codeblock{margin:14px 0;padding:14px 18px;background:var(--code-bg);border-radius:8px;font-family:'JetBrains Mono',monospace;font-size:12px;color:#b9c4d8;overflow-x:auto;border-left:3px solid var(--de);white-space:pre}
+.step-panel .codeblock .k{color:#ff8e9d}
+.step-panel .codeblock .s{color:#7ee787}
+.step-panel .codeblock .c{color:var(--dim);font-style:italic}
+.step-panel .codeblock .h{color:var(--gcp)}
+.step-panel .nav{margin-top:18px;display:flex;gap:10px;justify-content:space-between;align-items:center}
+.step-panel .nav .step-counter{color:var(--muted);font-size:12px;font-family:'JetBrains Mono',monospace}
+.step-panel .nav button{padding:8px 16px;border-radius:8px;border:1px solid var(--de-border);background:transparent;color:var(--text);cursor:pointer;font-family:inherit;font-size:13px;font-weight:600;transition:all .2s}
+.step-panel .nav button:hover{background:var(--de-bg)}
+.step-panel .nav button:disabled{color:var(--dim);border-color:rgba(255,255,255,.06);cursor:not-allowed}
+.step-panel .nav button.primary{background:var(--de);color:var(--bg-1);border-color:var(--de)}
+
+/* HIGHLIGHTING */
+.dim{opacity:.18;filter:grayscale(.5);transition:all .4s}
+.glow{animation:glow 1.6s ease-in-out infinite}
+@keyframes glow{0%,100%{filter:brightness(1)}50%{filter:brightness(1.35)}}
+
+/* CALLOUTS */
+.callout{margin-top:14px;padding:12px 16px;border-radius:10px;background:rgba(74,222,128,.06);border-left:3px solid var(--good);font-size:13px;line-height:1.55;color:var(--text)}
+.callout strong{color:var(--good)}
+.warn{background:rgba(251,191,36,.06);border-left-color:var(--sn)}
+.warn strong{color:var(--sn)}
+
+/* TOOLTIPS */
+.tip{display:inline-block;padding:1px 7px;border-radius:5px;background:rgba(109,211,255,.1);color:var(--gcp);font-size:10.5px;font-family:'JetBrains Mono',monospace;letter-spacing:.05em;font-weight:600}
+
+/* responsive */
+@media (max-width:980px){.stage{grid-template-columns:1fr}.lane{min-height:auto}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1>StreamAssist · <span class="sn">ServiceNow</span> · <span class="ms">WIF</span> · <span class="de">Discovery Engine</span></h1>
+  <p>Interactive flow — how a user authenticated by <span class="ms">Microsoft Entra</span> queries data in <span class="sn">ServiceNow</span> via <span class="de">Discovery Engine</span> using <span class="gcp">Google WIF</span> as the identity bridge.</p>
+</header>
+
+<!-- PHASE NAV -->
+<div class="phase-nav">
+  <button class="phase-btn active" data-phase="0"><span class="num">A</span>One-time setup</button>
+  <button class="phase-btn" data-phase="1"><span class="num">1</span>MSAL login</button>
+  <button class="phase-btn" data-phase="2"><span class="num">2</span>STS exchange</button>
+  <button class="phase-btn" data-phase="3"><span class="num">3</span>SN consent popup</button>
+  <button class="phase-btn" data-phase="4"><span class="num">4</span>acquireAndStoreRefreshToken</button>
+  <button class="phase-btn" data-phase="5"><span class="num">5</span>streamAssist (search)</button>
+</div>
+
+<!-- SWIM LANES -->
+<div class="stage">
+  <!-- LANE 1: Microsoft / WIF / browser -->
+  <div class="lane ms" id="lane-ms">
+    <div class="lane-head">
+      <span class="lane-dot"></span>
+      <span class="lane-title">Microsoft Entra · Browser · WIF</span>
+      <span class="lane-sub">login.microsoftonline.com · sts.googleapis.com</span>
+    </div>
+    <div class="identity-card">
+      <div class="label">Microsoft Entra User</div>
+      <div class="val">admin@sockcop.onmicrosoft.com</div>
+      <div class="val muted">tid = de46a3fd-…  ·  sub = lPYtalJY…</div>
+    </div>
+
+    <div class="token ms" id="tok-ms" style="opacity:.3">
+      <div class="name">🎫 MS id_token (JWT)</div>
+      <div class="val">aud = 7868d053-…  (raw GUID, no api://)<br>iss = login.microsoftonline.com/.../v2.0</div>
+    </div>
+
+    <div class="token gcp" id="tok-gcp" style="opacity:.3">
+      <div class="name">🎫 GCP access_token (WIF)</div>
+      <div class="val">ya29.d.s0AXBLAmx…  (opaque)<br>principal = .../subject/&lt;sha256(MS sub)&gt;</div>
+    </div>
+  </div>
+
+  <!-- LANE 2: Discovery Engine -->
+  <div class="lane de" id="lane-de">
+    <div class="lane-head">
+      <span class="lane-dot"></span>
+      <span class="lane-title">Discovery Engine</span>
+      <span class="lane-sub">discoveryengine.googleapis.com</span>
+    </div>
+    <div class="identity-card">
+      <div class="label">DE Connector</div>
+      <div class="val">servicenow-connector-…</div>
+      <div class="val muted">dataSource = servicenow  ·  mode = FEDERATED</div>
+    </div>
+
+    <!-- THE BRIDGE TABLE -->
+    <div class="bridge" id="bridge">
+      <div class="label">Bridge Table  ·  DE-internal storage</div>
+      <table>
+        <thead>
+          <tr><th>caller_identity (WIF principal)</th><th>sn_refresh_token (issued by SN)</th></tr>
+        </thead>
+        <tbody id="bridge-rows">
+          <tr class="empty-row"><td colspan="2">— empty — no users have completed `acquireAndStoreRefreshToken` yet</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout" id="de-callout" style="display:none">
+      <strong>What just happened:</strong> <span id="de-callout-text"></span>
+    </div>
+  </div>
+
+  <!-- LANE 3: ServiceNow -->
+  <div class="lane sn" id="lane-sn">
+    <div class="lane-head">
+      <span class="lane-dot"></span>
+      <span class="lane-title">ServiceNow</span>
+      <span class="lane-sub">dev380493.service-now.com</span>
+    </div>
+    <div class="identity-card">
+      <div class="label">SN User (own identity universe)</div>
+      <div class="val">admin</div>
+      <div class="val muted">role = admin  ·  ACLs = full Table API access</div>
+    </div>
+    <div class="identity-card">
+      <div class="label">SN OAuth App (registered separately)</div>
+      <div class="val">k1a3jud3wl4xryip…</div>
+      <div class="val muted">redirect_uri = vertexaisearch.cloud.google.com/oauth-redirect</div>
+    </div>
+
+    <div class="token sn" id="tok-sn-code" style="opacity:.3">
+      <div class="name">🎫 SN auth_code (single-use)</div>
+      <div class="val">Zhxq_j8xA9LZ_xvz…  ·  granted by SN user `admin`</div>
+    </div>
+
+    <div class="token sn" id="tok-sn-refresh" style="opacity:.3">
+      <div class="name">🎫 SN refresh_token (long-lived)</div>
+      <div class="val">scope = useraccount  ·  acts as SN user `admin`</div>
+    </div>
+  </div>
+</div>
+
+<!-- STEP PANEL -->
+<div class="step-panel" id="step-panel">
+  <div class="step-num" id="step-num">PHASE A · ONE-TIME SETUP</div>
+  <h2 id="step-title">Before any user logs in</h2>
+  <p id="step-desc">Three resources exist independently. None know about each other yet.</p>
+  <div class="codeblock" id="step-code"></div>
+  <div id="step-extra"></div>
+  <div class="nav">
+    <button id="prev">← Prev</button>
+    <span class="step-counter" id="step-counter">Phase A of 6</span>
+    <button id="next" class="primary">Next →</button>
+  </div>
+</div>
+
+</div>
+
+<script>
+// ============== PHASES ==============
+const PHASES = [
+  {
+    id: 'A',
+    label: 'PHASE A · ONE-TIME SETUP (admin / CSM)',
+    title: 'Before any user logs in',
+    desc: 'Three independent resources exist. They are NOT connected yet — that\'s what the rest of the flow does. Do this once per tenant.',
+    code: `<span class="c">// 1. Microsoft Entra Portal App (MSAL login)</span>
+<span class="k">portal_app</span> = entra.create_app(
+  redirect_uri=<span class="s">"http://localhost:5176"</span>,
+  <span class="c">// no api:// scope exposed → id_token aud will be the raw GUID</span>
+)
+
+<span class="c">// 2. Workforce Identity Pool + OIDC Provider</span>
+<span class="k">wif_provider</span> = gcp.iam.workforce_pools.create_provider(
+  pool_id=<span class="s">"sp-wif-pool-v2"</span>,
+  client_id=portal_app.client_id,  <span class="c">// raw GUID — must match MS id_token's aud</span>
+  issuer_uri=<span class="s">"https://login.microsoftonline.com/.../v2.0"</span>,
+)
+
+<span class="c">// 3. ServiceNow OAuth Application Registry</span>
+<span class="k">sn_app</span> = servicenow.oauth_entity.insert(
+  redirect_url=<span class="s">"https://vertexaisearch.cloud.google.com/oauth-redirect"</span>,
+)
+
+<span class="c">// 4. Discovery Engine ServiceNow connector + engine WIF binding</span>
+<span class="k">de_connector</span> = discoveryengine.setUpDataConnector(
+  dataSource=<span class="s">"servicenow"</span>,
+  params={ instance_uri, client_id: sn_app.client_id, client_secret, ... },
+)
+discoveryengine.set_workforce_identity_provider(engine, wif_provider)`,
+    highlight: ['lane-ms','lane-de','lane-sn'],
+    bridge: 'empty',
+    tokens: [],
+    callout: null,
+  },
+  {
+    id: 1,
+    label: 'PHASE 1 · USER IDENTITY (every session)',
+    title: 'User signs in to Microsoft via MSAL popup',
+    desc: 'The browser asks Microsoft to authenticate the user. Microsoft returns a signed JWT (id_token) whose `aud` claim is the raw client_id GUID — exactly what the WIF provider was configured to accept.',
+    code: `<span class="c">// browser-side</span>
+<span class="k">const</span> response = <span class="k">await</span> msalInstance.loginPopup({
+  scopes: [<span class="s">"openid"</span>, <span class="s">"profile"</span>, <span class="s">"email"</span>],  <span class="c">// NO api:// scope</span>
+});
+
+<span class="c">// response.idToken is a JWT signed by Microsoft Entra</span>
+<span class="k">const</span> jwtToken = response.idToken;
+
+<span class="c">// Decoded payload looks like:</span>
+{
+  <span class="h">"aud"</span>: <span class="s">"7868d053-cf9c-…"</span>,    <span class="c">// raw GUID — matches WIF provider --client-id</span>
+  <span class="h">"iss"</span>: <span class="s">"login.microsoftonline.com/&lt;tenant&gt;/v2.0"</span>,
+  <span class="h">"sub"</span>: <span class="s">"lPYtalJY2gBCgz3m4e6kdrPbIOq…"</span>,  <span class="c">// MS user identifier</span>
+  <span class="h">"email"</span>: <span class="s">"admin@sockcop.onmicrosoft.com"</span>,
+  <span class="h">"exp"</span>: <span class="s">"1777057274"</span>,
+}`,
+    highlight: ['lane-ms'],
+    bridge: 'empty',
+    tokens: ['tok-ms'],
+    callout: null,
+  },
+  {
+    id: 2,
+    label: 'PHASE 2 · WIF · STS EXCHANGE',
+    title: 'Browser exchanges the MS id_token for a Google access_token',
+    desc: 'The browser POSTs the MS id_token to Google STS along with the WIF provider audience. Google validates the JWT signature against Microsoft\'s public keys, checks the `aud` claim matches the provider\'s configured `--client-id`, and mints a Google access_token whose underlying identity is the WIF principal `principal://.../subject/<sha256(MS sub)>`.',
+    code: `<span class="k">const</span> response = <span class="k">await</span> fetch(<span class="s">"https://sts.googleapis.com/v1/token"</span>, {
+  method: <span class="s">"POST"</span>,
+  headers: { <span class="h">"Content-Type"</span>: <span class="s">"application/x-www-form-urlencoded"</span> },
+  body: <span class="k">new</span> URLSearchParams({
+    grant_type: <span class="s">"urn:ietf:params:oauth:grant-type:token-exchange"</span>,
+    audience:   <span class="s">"//iam.googleapis.com/locations/global/workforcePools/sp-wif-pool-v2/providers/ge-login-provider"</span>,
+    requested_token_type: <span class="s">"urn:ietf:params:oauth:token-type:access_token"</span>,
+    subject_token_type:   <span class="s">"urn:ietf:params:oauth:token-type:id_token"</span>,
+    subject_token: jwtToken,    <span class="c">// the MS id_token from Phase 1</span>
+    scope: <span class="s">"https://www.googleapis.com/auth/cloud-platform"</span>,
+  }),
+});
+
+<span class="k">const</span> { access_token: gcpToken } = <span class="k">await</span> response.json();
+<span class="c">// gcpToken = "ya29.d.s0AXBLAmx…" — opaque, not a JWT.
+// Internally Google maps it to WIF principal:
+//   principal://iam.googleapis.com/.../subject/&lt;sha256(MS sub)&gt;</span>`,
+    highlight: ['lane-ms'],
+    bridge: 'empty',
+    tokens: ['tok-ms','tok-gcp'],
+    callout: null,
+  },
+  {
+    id: 3,
+    label: 'PHASE 3 · SN OAUTH CONSENT (one-time per user)',
+    title: 'User clicks "Connect ServiceNow" → SN popup → user logs in to SN as `admin`',
+    desc: 'The browser opens an OAuth popup pointed at <code>https://&lt;instance&gt;.service-now.com/oauth_auth.do</code>. <strong>ServiceNow has no idea about Entra/WIF — to ServiceNow this is just an OAuth client request from an unknown user.</strong> SN shows its own login screen, the user types SN credentials (username/password), then clicks Allow on the consent screen. SN issues an auth code keyed to its own user `admin`.',
+    code: `<span class="c">// browser opens popup</span>
+window.open(<span class="s">"https://dev380493.service-now.com/oauth_auth.do?"</span> +
+  <span class="s">"response_type=code"</span> +
+  <span class="s">"&client_id="</span> + SN_OAUTH_CLIENT_ID +     <span class="c">// SN OAuth app id</span>
+  <span class="s">"&redirect_uri=https://vertexaisearch.cloud.google.com/oauth-redirect"</span> +
+  <span class="s">"&state="</span> + base64(<span class="s">"{nonce}"</span>)
+);
+
+<span class="c">// what happens INSIDE the popup (separate from the Entra/WIF universe):
+//   1. SN sees no session → shows login form
+//   2. User types `admin` / password → SN authenticates against its OWN user table
+//   3. SN sees client_id → shows "Allow this app to access your data?"
+//   4. User clicks Allow
+//   5. SN mints auth_code FOR ITS OWN USER `admin`
+//   6. SN redirects to vertexaisearch.cloud.google.com/oauth-redirect?code=...&state=...
+//   7. The vertexaisearch page postMessages the full URL back to opener</span>`,
+    highlight: ['lane-sn'],
+    bridge: 'empty',
+    tokens: ['tok-ms','tok-gcp','tok-sn-code'],
+    callout: { type: 'warn', text: 'The SN auth_code represents SN user <code>admin</code>, NOT the Entra user. ServiceNow doesn\'t know who initiated this. Two universes still completely separate.' },
+  },
+  {
+    id: 4,
+    label: 'PHASE 4 · acquireAndStoreRefreshToken — THE BRIDGE',
+    title: 'Browser hands the SN auth code to Discovery Engine, which links it to the WIF principal',
+    desc: 'This is where the two universes get linked. The browser calls DE with TWO things: the WIF GCP token (Bearer header) and the SN redirect URL (body). DE does three things server-side: (A) decodes the Bearer to identify the caller\'s WIF principal, (B) does a normal OAuth code-for-token exchange with SN, (C) <strong>stores the SN refresh_token in its bridge table, keyed by the caller\'s WIF principal.</strong> The two identities are now linked, but neither side is aware of the other — only DE knows.',
+    code: `<span class="c">// browser-side call</span>
+<span class="k">await</span> fetch(<span class="s">"…/dataConnector:acquireAndStoreRefreshToken"</span>, {
+  method: <span class="s">"POST"</span>,
+  headers: {
+    <span class="h">"Authorization"</span>: <span class="s">"Bearer "</span> + gcpToken,    <span class="c">// ← WIF caller identity</span>
+    <span class="h">"Content-Type"</span>: <span class="s">"application/json"</span>,
+  },
+  body: JSON.stringify({
+    fullRedirectUri: <span class="s">"…/oauth-redirect?code="</span> + sn_auth_code,  <span class="c">// ← SN auth code</span>
+  }),
+});
+
+<span class="c">// Server-side, DE does THREE things:
+
+// (A) Identify caller (Google universe)</span>
+caller = <span class="k">decode_bearer</span>(authorization_header)
+<span class="c">// caller = principal://iam.googleapis.com/.../subject/sha256(MS sub)
+
+// (B) Exchange SN auth_code → SN refresh_token (ServiceNow universe — totally separate OAuth)</span>
+sn_resp = <span class="k">http.post</span>(<span class="s">"https://&lt;instance&gt;.service-now.com/oauth_token.do"</span>, {
+  grant_type:    <span class="s">"authorization_code"</span>,
+  code:          sn_auth_code,
+  client_id:     SN_OAUTH_CLIENT_ID,
+  client_secret: SN_OAUTH_CLIENT_SECRET,
+  redirect_uri:  <span class="s">"https://vertexaisearch.cloud.google.com/oauth-redirect"</span>,
+})
+sn_refresh_token = sn_resp.refresh_token   <span class="c">// SN issued this for SN user `admin`
+
+// (C) Bridge — store the link in DE's database</span>
+<span class="k">INSERT INTO</span> connector_user_tokens (caller_identity, sn_refresh_token)
+<span class="k">VALUES</span> (caller, sn_refresh_token);`,
+    highlight: ['lane-de'],
+    bridge: 'add-row',
+    tokens: ['tok-ms','tok-gcp','tok-sn-code','tok-sn-refresh'],
+    callout: { type: 'good', text: '<strong>Bridge created.</strong> The WIF principal is now linked to the SN refresh_token. Discovery Engine is the ONLY place that knows about this link. Microsoft doesn\'t know. ServiceNow doesn\'t know.' },
+  },
+  {
+    id: 5,
+    label: 'PHASE 5 · streamAssist (every search after the bridge exists)',
+    title: 'User asks a question — DE uses the bridge to query SN on their behalf',
+    desc: 'Browser sends ONLY the WIF GCP token. DE decodes it, looks up the bridge to find the user\'s SN refresh_token, refreshes for an SN access_token, queries the SN Table API as SN user `admin`, ServiceNow ACLs filter the results, and Gemini synthesizes a grounded answer. <strong>The browser never sees any SN tokens.</strong>',
+    code: `<span class="c">// browser-side — JUST the WIF token, nothing else</span>
+<span class="k">await</span> fetch(<span class="s">"…/engines/&lt;engine&gt;/assistants/default_assistant:streamAssist"</span>, {
+  method: <span class="s">"POST"</span>,
+  headers: {
+    <span class="h">"Authorization"</span>: <span class="s">"Bearer "</span> + gcpToken,   <span class="c">// SAME WIF token from Phase 2</span>
+  },
+  body: JSON.stringify({
+    query: { text: <span class="s">"list any open incidents"</span> },
+    toolsSpec: { vertexAiSearchSpec: { dataStoreSpecs: [...] } },
+  }),
+});
+
+<span class="c">// Server-side, DE:</span>
+caller    = <span class="k">decode_bearer</span>(authorization_header)            <span class="c">// WIF principal again</span>
+sn_token  = <span class="k">SELECT</span> sn_refresh_token <span class="k">FROM</span> bridge <span class="k">WHERE</span>
+              caller_identity = caller                       <span class="c">// look up bridge row</span>
+sn_access = <span class="k">http.post</span>(<span class="s">"…/oauth_token.do"</span>, refresh_token=sn_token, …)
+records   = <span class="k">http.get</span>(<span class="s">"…/api/now/table/incident"</span>,
+              headers={<span class="h">"Authorization"</span>: <span class="s">"Bearer "</span> + sn_access})
+            <span class="c">// → SN evaluates ACLs as user `admin` → returns visible records</span>
+
+<span class="c">// DE feeds records to Gemini → grounded answer with source citations</span>`,
+    highlight: ['lane-ms','lane-de','lane-sn'],
+    bridge: 'lookup',
+    tokens: ['tok-ms','tok-gcp','tok-sn-code','tok-sn-refresh'],
+    callout: { type: 'good', text: '<strong>The browser only ever sends the WIF GCP token to DE.</strong> DE handles the SN side entirely server-side using the bridge table built in Phase 4.' },
+  },
+];
+
+// ============== STATE & RENDER ==============
+let phaseIdx = 0;
+
+function render() {
+  const p = PHASES[phaseIdx];
+  document.getElementById('step-num').textContent = p.label;
+  document.getElementById('step-title').textContent = p.title;
+  document.getElementById('step-desc').innerHTML = p.desc;
+  document.getElementById('step-code').innerHTML = p.code;
+  document.getElementById('step-counter').textContent = `Phase ${typeof p.id === 'string' ? p.id : p.id} of 5`;
+  document.getElementById('prev').disabled = phaseIdx === 0;
+  document.getElementById('next').disabled = phaseIdx === PHASES.length - 1;
+
+  // phase nav active
+  document.querySelectorAll('.phase-btn').forEach((b, i) => b.classList.toggle('active', i === phaseIdx));
+
+  // dim/highlight lanes
+  ['lane-ms','lane-de','lane-sn'].forEach(id => {
+    const el = document.getElementById(id);
+    el.classList.toggle('dim', !p.highlight.includes(id));
+  });
+
+  // tokens visibility
+  ['tok-ms','tok-gcp','tok-sn-code','tok-sn-refresh'].forEach(id => {
+    const el = document.getElementById(id);
+    el.style.opacity = p.tokens.includes(id) ? '1' : '.3';
+    el.classList.toggle('glow', p.tokens.includes(id) && id === p.tokens[p.tokens.length - 1]);
+  });
+
+  // bridge table state
+  const bridgeRows = document.getElementById('bridge-rows');
+  if (p.bridge === 'empty') {
+    bridgeRows.innerHTML = '<tr class="empty-row"><td colspan="2">— empty — no users have completed `acquireAndStoreRefreshToken` yet</td></tr>';
+  } else if (p.bridge === 'add-row' || p.bridge === 'lookup') {
+    bridgeRows.innerHTML = `<tr class="${p.bridge === 'add-row' ? 'new-row' : ''}">
+      <td>principal://iam.googleapis.com/<br>locations/global/workforcePools/sp-wif-pool-v2/<br>subject/&lt;sha256(MS sub)&gt;</td>
+      <td>SN refresh_token issued by SN<br>for user <strong>admin</strong><br>(stored opaque, ~256 chars)</td>
+    </tr>`;
+  }
+
+  // callout
+  const cEl = document.getElementById('de-callout');
+  if (p.callout) {
+    cEl.style.display = 'block';
+    cEl.className = 'callout ' + (p.callout.type === 'warn' ? 'warn' : '');
+    document.getElementById('de-callout-text').innerHTML = p.callout.text;
+  } else {
+    cEl.style.display = 'none';
+  }
+}
+
+// ============== NAV ==============
+document.getElementById('prev').onclick = () => { if (phaseIdx > 0) { phaseIdx--; render(); } };
+document.getElementById('next').onclick = () => { if (phaseIdx < PHASES.length - 1) { phaseIdx++; render(); } };
+document.querySelectorAll('.phase-btn').forEach((b, i) => {
+  b.onclick = () => { phaseIdx = i; render(); };
+});
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight') document.getElementById('next').click();
+  if (e.key === 'ArrowLeft')  document.getElementById('prev').click();
+});
+
+render();
+</script>
+</body>
+</html>
