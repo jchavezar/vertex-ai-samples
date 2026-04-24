@@ -76,6 +76,13 @@
   .pill.done{background:var(--good-bg);color:var(--good)}
   .pill.done::before{content:'✓';font-weight:700}
   @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.85)}}
+  @keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+  .searching{display:flex;align-items:center;gap:14px;padding:18px 22px;background:linear-gradient(180deg,rgba(109,211,255,.06),transparent 60%),var(--card-bg);border:1px solid var(--card-border-active);border-radius:16px;box-shadow:0 0 28px -10px var(--accent-glow);margin-top:0}
+  .searching .spinner{width:28px;height:28px;border-radius:50%;border:2.5px solid rgba(109,211,255,.15);border-top-color:var(--accent);animation:spin .9s linear infinite;flex-shrink:0}
+  .searching .label{flex:1}
+  .searching .label .t1{font-size:13.5px;font-weight:600;color:var(--text)}
+  .searching .label .t2{font-size:11.5px;color:var(--muted);font-family:'JetBrains Mono',monospace;margin-top:3px}
+  .searching .timer{font-size:18px;font-weight:600;color:var(--accent);font-family:'JetBrains Mono',monospace;font-variant-numeric:tabular-nums}
   /* RESULT */
   .result-wrap{margin-top:0}
   .result{background:var(--card-bg);border:1px solid var(--good-border);border-radius:16px;padding:18px 22px;background:linear-gradient(180deg,var(--good-bg),transparent 60%),var(--card-bg);box-shadow:0 0 24px -10px rgba(74,222,128,.4)}
@@ -158,6 +165,16 @@
     <div class="composer">
       <input type="text" id="query" placeholder="Ask ServiceNow…" disabled>
       <button id="btn-search" disabled>↑</button>
+    </div>
+
+    <!-- Searching overlay (hidden until search starts; replaced by result on completion) -->
+    <div class="searching" id="searching" style="display:none">
+      <div class="spinner"></div>
+      <div class="label">
+        <div class="t1" id="searching-t1">Querying Discovery Engine streamAssist…</div>
+        <div class="t2" id="searching-t2">→ federated SN query · waiting for grounded response</div>
+      </div>
+      <div class="timer" id="searching-timer">0.0s</div>
     </div>
 
     <!-- Result (hidden until grounded) -->
@@ -497,6 +514,20 @@ document.getElementById('btn-search').onclick = async () => {
   markCardActive('card-4');
   setStatus('Querying…', 'run');
   document.getElementById('result-wrap').style.display = 'none';
+  // Show loading panel + start ticking timer
+  const loadEl = document.getElementById('searching');
+  const timerEl = document.getElementById('searching-timer');
+  loadEl.style.display = 'flex';
+  document.getElementById('searching-t1').textContent = `Querying Discovery Engine streamAssist…`;
+  document.getElementById('searching-t2').textContent = `→ POST ${API_HOST}/.../engines/${CONFIG.engineId}/...:streamAssist`;
+  const tStart = performance.now();
+  const ticker = setInterval(() => {
+    const s = ((performance.now() - tStart) / 1000);
+    timerEl.textContent = s.toFixed(1) + 's';
+  }, 100);
+  const stopTicker = () => { clearInterval(ticker); loadEl.style.display = 'none'; };
+  document.getElementById('btn-search').disabled = true;
+  document.getElementById('query').disabled = true;
   const url = `https://${API_HOST}/v1alpha/projects/${CONFIG.gcpProjectNumber}/locations/${CONFIG.location}/collections/default_collection/engines/${CONFIG.engineId}/assistants/default_assistant:streamAssist`;
   const dataStores = CONFIG.snEntities.map(e =>
     `projects/${CONFIG.gcpProjectNumber}/locations/${CONFIG.location}/collections/default_collection/dataStores/${CONFIG.connectorId}_${e}`);
@@ -543,10 +574,15 @@ document.getElementById('btn-search').onclick = async () => {
     ).join('');
     document.getElementById('result-wrap').style.display = 'block';
     markCardSuccess('card-4');
-    setStatus(grounded ? 'Grounded ✓' : 'Done', grounded ? 'done' : '');
+    setStatus(grounded ? `Grounded ✓ · ${(dur/1000).toFixed(1)}s` : `Done · no grounding · ${(dur/1000).toFixed(1)}s`, grounded ? 'done' : '');
+    stopTicker();
   } catch (e) {
     addTrace({ stage: 'DE · streamAssist', ok: false, durationMs: Math.round(performance.now() - t0), output: { error: e.message } });
     setStatus('Search failed', '');
+    stopTicker();
+  } finally {
+    document.getElementById('btn-search').disabled = false;
+    document.getElementById('query').disabled = false;
   }
 };
 </script>

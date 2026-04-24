@@ -38,18 +38,35 @@ End-to-end: MSAL login → STS exchange → ServiceNow OAuth consent → grounde
 ## Quickstart
 
 ```bash
-# 1. Update tester/index.html with your environment values (CONFIG block at bottom)
-#    or copy from .env.example into your own setup.
-
-# 2. Start the tester (no backend needed — vanilla JS calls all APIs from the browser)
-cd tester && python3 serve.py    # → http://localhost:5176
-
-# 3. Open the page, click through the 4 steps:
-#    ① Login with Microsoft (MSAL)
-#    ② Exchange JWT → GCP token (WIF/STS)
-#    ③ Connect ServiceNow (per-user OAuth consent)
-#    ④ Type a question → Search
+cd tester
+cp .env.example .env       # then fill in your values (10 keys — see below)
+python3 serve.py           # → http://localhost:5176
 ```
+
+`serve.py` reads `.env` at request time and injects the values into `index.html` as it serves the page. **Never commit a real `.env`** — it's in `.gitignore`.
+
+### Required `.env` keys
+
+| Key | Where to get it |
+|---|---|
+| `PORTAL_APP_CLIENT_ID` | The MSAL Portal App client_id (raw GUID, no `api://` prefix). Same as the SharePoint siblings |
+| `TENANT_ID` | Your Microsoft Entra tenant ID |
+| `PROJECT_NUMBER` | Your GCP project number (numeric) |
+| `WIF_POOL_ID` | Workforce Identity Pool ID (at `locations/global/`) |
+| `WIF_PROVIDER_ID` | OIDC Provider ID inside the pool — must have `--client-id="<RAW_PORTAL_GUID>"` (no `api://`) |
+| `ENGINE_ID` | Discovery Engine app ID |
+| `LOCATION` | `global` or `us` |
+| `SERVICENOW_CONNECTOR_ID` | The collection ID from `setUpDataConnector` (e.g. `servicenow-connector-1777047657`) |
+| `SERVICENOW_INSTANCE_URI` | `https://YOUR_INSTANCE.service-now.com` |
+| `SN_OAUTH_CLIENT_ID` | client_id of the OAuth app you registered in ServiceNow → System OAuth → Application Registry |
+
+### Use the page
+
+Open `http://localhost:5176`, click through the 4 steps:
+1. **Login** with Microsoft (MSAL)
+2. **Exchange** JWT → GCP token (WIF/STS)
+3. **Connect** ServiceNow (per-user OAuth consent — one-time per user)
+4. Type a question → **Search** — watch the live timer + grounded answer with SN source citations
 
 ## What you need to provision
 
