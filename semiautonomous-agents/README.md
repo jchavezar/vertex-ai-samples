@@ -10,7 +10,7 @@
 
 <p align="center">
   <a href="https://github.com/jchavezar/vertex-ai-samples"><img src="https://img.shields.io/badge/Vertex_AI-Samples-4285F4?style=for-the-badge&logo=googlecloud&logoColor=white" alt="Vertex AI Samples" /></a>
-  <a href="#whats-here"><img src="https://img.shields.io/badge/projects-33-34A853?style=for-the-badge" alt="33 Projects" /></a>
+  <a href="#whats-here"><img src="https://img.shields.io/badge/projects-37-34A853?style=for-the-badge" alt="37 Projects" /></a>
   <a href="#-mcp-servers"><img src="https://img.shields.io/badge/MCP_Servers-6-FF6F00?style=for-the-badge" alt="MCP Servers" /></a>
   <a href="https://github.com/jchavezar/vertex-ai-samples/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-Apache_2.0-blue?style=for-the-badge" alt="License" /></a>
 </p>
@@ -22,6 +22,35 @@
 ---
 
 ## Featured
+
+### 🌟 Shutter Vibe Engine — Multimodal Search
+
+> Type a *vibe*, get the photo + video + music + SFX + graphic that share that mood. **Gemini Embeddings 2 + Vertex Vector Search** across a single 3072-dim space.
+
+<p align="center">
+  <a href="./shutter-vibe-engine/multimodal-search/">
+    <video src="./shutter-vibe-engine/multimodal-search/docs/hero.mp4" width="100%" autoplay loop muted playsinline poster="./shutter-vibe-engine/multimodal-search/docs/embedding_space.png">
+      <img src="./shutter-vibe-engine/multimodal-search/docs/hero.gif" width="100%" alt="Multimodal vibe search demo — type a vibe, see photos/videos/music/SFX/graphics ranked by semantic similarity" />
+    </video>
+  </a>
+</p>
+
+<p align="center">
+  <a href="https://jchavezar.github.io/vertex-ai-samples/multimodal-search/"><img src="https://img.shields.io/badge/Live_demo-→-4285F4?style=for-the-badge" alt="Live demo" /></a>
+  &nbsp;
+  <a href="./shutter-vibe-engine/multimodal-search/"><img src="https://img.shields.io/badge/Code-→-181717?style=for-the-badge&logo=github&logoColor=white" alt="Code" /></a>
+</p>
+
+<details>
+<summary><strong>What's actually happening — the 3072-dim embedding space</strong></summary>
+<br/>
+<p align="center">
+  <a href="./shutter-vibe-engine/multimodal-search/"><img src="./shutter-vibe-engine/multimodal-search/docs/embedding_space.png" width="100%" alt="3072-d embedding space — query and 5 modalities collapsed onto one PCA plane" /></a>
+</p>
+<p align="center"><em>One vector per asset — text, image, video, audio, vector graphic — all sharing the same coordinate system. Closeness in 3072-d space = vibe match.</em></p>
+</details>
+
+---
 
 <table>
 <tr>
@@ -48,6 +77,13 @@
 <a href="./sharepoint_wif_portal/"><img src="./sharepoint_wif_portal/assets/portal-demo.gif" width="100%" /></a>
 </td>
 </tr>
+<tr>
+<td colspan="2" align="center">
+<a href="./streamassist-oauth-flow-us/"><strong>StreamAssist OAuth Flow — US Region</strong></a><br/>
+<em>Same per-user OAuth + WIF + Discovery Engine pattern, deployed in <code>us</code> region for low-latency demos</em><br/><br/>
+<a href="./streamassist-oauth-flow-us/"><img src="./streamassist-oauth-flow-us/docs/demo-us.gif" width="60%" /></a>
+</td>
+</tr>
 </table>
 
 ---
@@ -61,6 +97,12 @@
 
 | Date | Project | What Changed |
 |:-----|:--------|:-------------|
+| Apr 25 | [**docparse-rag-agent**](./docparse-rag-agent/) | **NEW** — ADK + Vertex AI RAG Engine + Gemini 3 → Gemini Enterprise. 92.9% composite on the 216-question docparse eval (vs 81% for DE streamAssist on the same markdown). Cross-project, shared ALL_USERS. |
+| Apr 23 | [**docparse**](./docparse/) | **NEW** — Multimodal PDF parsing with Gemini Vision — region detection, OCR, structured extraction to markdown |
+| Apr 23 | [**report-generator**](./report-generator/) | **NEW** — Multi-agent research → write → render pipeline turning a topic into a cited PDF (ADK + Gemini 3 Flash + WeasyPrint) |
+| Apr 23 | [**streamassist-oauth-flow-us**](./streamassist-oauth-flow-us/) | **NEW** — `us` regional variant of the StreamAssist OAuth portal — Gemini Enterprise + SharePoint federated connector + WIF |
+| Apr 23 | [**vector-search-canvas**](./vector-search-canvas/) | **NEW** — Interactive tuning sandbox for Vector Search 2.0 — TREE_AH vs BRUTE_FORCE knobs side-by-side |
+| Apr 23 | [**GEMINI_ENTERPRISE_SHAREPOINT_FLOW.md**](./GEMINI_ENTERPRISE_SHAREPOINT_FLOW.md) | **DOC** — End-to-end reference for the four mandatory configurations behind GE + SharePoint + WIF |
 | Apr 19 | [**shutter-vibe-engine/multimodal-search**](./shutter-vibe-engine/multimodal-search/) | **NEW** — Multimodal vibe search across photos, video, music, SFX, graphics. Gemini Embeddings 2 + Vertex Vector Search. [Live site →](https://jchavezar.github.io/vertex-ai-samples/multimodal-search/) |
 | Apr 18 | [**light_mcp_cloud_portal**](./light_mcp_cloud_portal/) | **NEW** — Lightweight MCP cloud portal scaffold |
 | Apr 17 | [**streamanswer-oauth-flow**](./streamanswer-oauth-flow/) | **NEW** — StreamAnswer OAuth flow variant |
@@ -76,13 +118,13 @@
 
 ## What's Here
 
-33 projects across 6 categories. Every project runs on **Google Cloud** with **Vertex AI** as the backbone.
+37 projects across 6 categories. Every project runs on **Google Cloud** with **Vertex AI** as the backbone.
 
 ```
-Google ADK ██████████████████████████████ 15    React 19   ████████████████████████  11
-FastAPI    ████████████████████████       11    Vertex AI  ██████████████████████████████ 15
+Google ADK ████████████████████████████████ 16    React 19   ██████████████████████████ 12
+FastAPI    ████████████████████████████     14    Vertex AI  ████████████████████████████████████ 18
 MCP (FastMCP) ████████████               6     Agent Engine ██████████               5
-Discovery Engine ██████████████           7     pgvector   ████                      2
+Discovery Engine ████████████████          8     pgvector   ████                      2
 ```
 
 ---
@@ -103,6 +145,9 @@ Full-stack portals bridging Microsoft identity to Google Cloud search infrastruc
 | [**outlook-streamassist-oauth-flow**](./outlook-streamassist-oauth-flow/) | StreamAssist portal for Outlook — per-user OAuth, zero credential storage | ![Python](https://img.shields.io/badge/-Python-3776AB?logo=python&logoColor=white&style=flat-square) ![React](https://img.shields.io/badge/-React-61DAFB?logo=react&logoColor=black&style=flat-square) ![OAuth](https://img.shields.io/badge/-OAuth-EB5424?style=flat-square) |
 | [**streamanswer-oauth-flow**](./streamanswer-oauth-flow/) | StreamAnswer OAuth-flow variant of the StreamAssist portal | ![Python](https://img.shields.io/badge/-Python-3776AB?logo=python&logoColor=white&style=flat-square) ![React](https://img.shields.io/badge/-React-61DAFB?logo=react&logoColor=black&style=flat-square) ![OAuth](https://img.shields.io/badge/-OAuth-EB5424?style=flat-square) |
 | [**light_mcp_cloud_portal**](./light_mcp_cloud_portal/) | Lightweight portal scaffold around MCP cloud APIs | ![Python](https://img.shields.io/badge/-Python-3776AB?logo=python&logoColor=white&style=flat-square) ![React](https://img.shields.io/badge/-React-61DAFB?logo=react&logoColor=black&style=flat-square) ![MCP](https://img.shields.io/badge/-MCP-FF6F00?style=flat-square) |
+| [**streamassist-oauth-flow-us**](./streamassist-oauth-flow-us/) | `us` regional variant — Gemini Enterprise + SharePoint federated connector + WIF | ![Python](https://img.shields.io/badge/-Python-3776AB?logo=python&logoColor=white&style=flat-square) ![React](https://img.shields.io/badge/-React-61DAFB?logo=react&logoColor=black&style=flat-square) ![WIF](https://img.shields.io/badge/-WIF-34A853?style=flat-square) |
+
+> 📘 **Reference doc** — [GEMINI_ENTERPRISE_SHAREPOINT_FLOW.md](./GEMINI_ENTERPRISE_SHAREPOINT_FLOW.md): the four mandatory configurations and replication checklist behind every GE + SharePoint federated portal in this section.
 
 ## 🔌 MCP Servers
 
@@ -124,6 +169,8 @@ Retrieval-augmented generation pipelines with different chunking and embedding s
 |:--------|:---------|:------|
 | [**hierarchical-rag-pgvector**](./hierarchical-rag-pgvector/) | Parent-child chunking with Cloud SQL pgvector — precision retrieval without losing document context | ![Python](https://img.shields.io/badge/-Python-3776AB?logo=python&logoColor=white&style=flat-square) ![React](https://img.shields.io/badge/-React-61DAFB?logo=react&logoColor=black&style=flat-square) ![pgvector](https://img.shields.io/badge/-pgvector-336791?style=flat-square) |
 | [**multimodal-doc-search**](./multimodal-doc-search/) | Multimodal document intelligence — images, tables, and text in a unified semantic search + chat | ![Python](https://img.shields.io/badge/-Python-3776AB?logo=python&logoColor=white&style=flat-square) ![React](https://img.shields.io/badge/-React-61DAFB?logo=react&logoColor=black&style=flat-square) ![pgvector](https://img.shields.io/badge/-pgvector-336791?style=flat-square) |
+| [**docparse**](./docparse/) | Multimodal PDF parsing with Gemini Vision — region detection, OCR, structured extraction to markdown | ![Python](https://img.shields.io/badge/-Python-3776AB?logo=python&logoColor=white&style=flat-square) ![Gemini](https://img.shields.io/badge/-Gemini_Vision-4285F4?style=flat-square) ![Vertex_AI](https://img.shields.io/badge/-Vertex_AI-4285F4?style=flat-square) |
+| [**docparse-rag-agent**](./docparse-rag-agent/) | ADK agent over a Vertex AI RAG Engine corpus of docparse markdown — registered cross-project in Gemini Enterprise. **92.9% composite** on the 216-question docparse eval | ![Python](https://img.shields.io/badge/-Python-3776AB?logo=python&logoColor=white&style=flat-square) ![ADK](https://img.shields.io/badge/-ADK-4285F4?style=flat-square) ![RAG_Engine](https://img.shields.io/badge/-RAG_Engine-4285F4?style=flat-square) ![Gemini](https://img.shields.io/badge/-Gemini_3-4285F4?style=flat-square) |
 
 ## 🤖 Agent Platforms
 
@@ -137,6 +184,7 @@ Multi-agent orchestration, protocol tutorials, and observability.
 | [**cross-project-adk-agent**](./cross-project-adk-agent/) | Deploy an ADK agent in Project A, register and use it from Project B's Gemini Enterprise | ![Python](https://img.shields.io/badge/-Python-3776AB?logo=python&logoColor=white&style=flat-square) ![ADK](https://img.shields.io/badge/-ADK-4285F4?style=flat-square) |
 | [**adk-secret-snow-demo**](./adk-secret-snow-demo/) | IT ops agent — Secret Manager credentials, ServiceNow MCP, Google Search grounding | ![Python](https://img.shields.io/badge/-Python-3776AB?logo=python&logoColor=white&style=flat-square) ![ADK](https://img.shields.io/badge/-ADK-4285F4?style=flat-square) ![MCP](https://img.shields.io/badge/-MCP-FF6F00?style=flat-square) |
 | [**adk-secret-manager-demo**](./adk-secret-manager-demo/) | Semiautonomous agent with secure secret handling via Google Secret Manager + Vertex AI | ![Python](https://img.shields.io/badge/-Python-3776AB?logo=python&logoColor=white&style=flat-square) ![ADK](https://img.shields.io/badge/-ADK-4285F4?style=flat-square) |
+| [**report-generator**](./report-generator/) | Multi-agent research → write → render — turns a topic into a cited PDF via google_search + WeasyPrint | ![Python](https://img.shields.io/badge/-Python-3776AB?logo=python&logoColor=white&style=flat-square) ![ADK](https://img.shields.io/badge/-ADK-4285F4?style=flat-square) ![Gemini](https://img.shields.io/badge/-Gemini_3_Flash-4285F4?style=flat-square) |
 
 ## 🌆 Consumer & Domain Apps
 
@@ -160,6 +208,7 @@ Probes, harnesses, and scaffolding for validating infrastructure and auth flows.
 | [**discovery-engine-latency-probe**](./discovery-engine-latency-probe/) | StreamAssist latency benchmarking under real-world auth conditions | ![Python](https://img.shields.io/badge/-Python-3776AB?logo=python&logoColor=white&style=flat-square) |
 | [**streamassist-wif-auth-tester**](./streamassist-wif-auth-tester/) | Interactive tester for the Entra ID → WIF/STS → Discovery Engine auth chain | ![Python](https://img.shields.io/badge/-Python-3776AB?logo=python&logoColor=white&style=flat-square) ![Flask](https://img.shields.io/badge/-Flask-000?logo=flask&style=flat-square) |
 | [**nextjs-test-harness**](./nextjs-test-harness/) | Next.js scaffold for frontend experimentation | ![TypeScript](https://img.shields.io/badge/-TypeScript-3178C6?logo=typescript&logoColor=white&style=flat-square) ![Next.js](https://img.shields.io/badge/-Next.js-000?logo=next.js&style=flat-square) |
+| [**vector-search-canvas**](./vector-search-canvas/) | Interactive sandbox — TREE_AH vs BRUTE_FORCE side-by-side, expose every Vector Search 2.0 knob | ![Python](https://img.shields.io/badge/-Python-3776AB?logo=python&logoColor=white&style=flat-square) ![FastAPI](https://img.shields.io/badge/-FastAPI-009688?logo=fastapi&logoColor=white&style=flat-square) ![Vector_Search](https://img.shields.io/badge/-Vector_Search-FF6F00?style=flat-square) |
 
 ---
 
@@ -210,12 +259,15 @@ block-beta
 
 | Component | Used By |
 |:----------|:--------|
-| **WIF + STS** | sharepoint_wif_portal, streamassist-oauth-flow, gemini-enterprise-sharepoint-agent, cortex-retriever |
+| **WIF + STS** | sharepoint_wif_portal, streamassist-oauth-flow, streamassist-oauth-flow-us, gemini-enterprise-sharepoint-agent, cortex-retriever |
 | **Google Identity Services** | ge-sharepoint-cloudid |
-| **Discovery Engine** | sharepoint_wif_portal, streamassist-oauth-flow, ge-sharepoint-cloudid, gemini-enterprise-sharepoint-agent, cortex-retriever, nexus-tax-intelligence, servicedesk-sharepoint-portal, discovery-engine-latency-probe |
+| **Discovery Engine** | sharepoint_wif_portal, streamassist-oauth-flow, streamassist-oauth-flow-us, ge-sharepoint-cloudid, gemini-enterprise-sharepoint-agent, cortex-retriever, nexus-tax-intelligence, servicedesk-sharepoint-portal, discovery-engine-latency-probe |
+| **Vertex Vector Search** | shutter-vibe-engine/multimodal-search, vector-search-canvas |
 | **Agent Engine** | sharepoint_wif_portal, cortex-retriever, servicenow-mcp-portal, cross-project-adk-agent, observability-orchestra, vertex-multi-agent-workbench |
 | **MCP (FastMCP)** | gworkspace-mcp-server, ms365-mcp-server, plaid-mcp-server, amex-mcp, knowledge-base-mcp, adk-secret-snow-demo |
 | **pgvector** | hierarchical-rag-pgvector, multimodal-doc-search |
+| **Gemini Vision (PDF/multimodal)** | docparse, multimodal-doc-search |
+| **Multi-agent (ADK SequentialAgent)** | report-generator |
 | **A2A Protocol** | a2a-protocol-dojo |
 
 </details>

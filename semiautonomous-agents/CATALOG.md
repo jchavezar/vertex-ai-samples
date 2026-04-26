@@ -36,7 +36,10 @@ When you start a new project, **add a row here first** — even before the READM
 - [`ge-sharepoint-cloudid/`](./ge-sharepoint-cloudid/) — SharePoint search via Google Cloud Identity (no WIF, no STS). **Tags:** `cloud-id` `sharepoint` `discovery-engine`
 - [`cortex-retriever/`](./cortex-retriever/) — Agent-only ADK for Gemini Enterprise — SharePoint + Google. **Tags:** `adk` `gemini-enterprise` `wif`
 - [`light_mcp_cloud_portal/`](./light_mcp_cloud_portal/) — Lightweight portal scaffold around MCP cloud APIs. **Tags:** `mcp` `portal` `react`
+- [`streamassist-oauth-flow-us/`](./streamassist-oauth-flow-us/) — `us` regional variant of `streamassist-oauth-flow` — Gemini Enterprise + SharePoint federated connector + WIF. **Tags:** `streamassist` `sharepoint` `wif` `discovery-engine` `us-region`
 - [`sharepoint-wif-portal/`](./sharepoint-wif-portal/) — Docs-only WIP variant of `sharepoint_wif_portal`. **Status:** docs only, no code yet.
+
+**Reference doc:** [`GEMINI_ENTERPRISE_SHAREPOINT_FLOW.md`](./GEMINI_ENTERPRISE_SHAREPOINT_FLOW.md) — the four mandatory configurations + replication checklist + failure-mode lookup behind every GE + SharePoint federated portal in this section.
 
 ### MCP servers
 - [`gworkspace-mcp-server/`](./gworkspace-mcp-server/) — Gmail / Drive / Calendar / Docs / Sheets / Photos. **Tags:** `mcp` `google-workspace`
@@ -48,6 +51,8 @@ When you start a new project, **add a row here first** — even before the READM
 ### RAG & document intelligence
 - [`hierarchical-rag-pgvector/`](./hierarchical-rag-pgvector/) — Parent-child chunking with Cloud SQL pgvector. **Tags:** `rag` `pgvector`
 - [`multimodal-doc-search/`](./multimodal-doc-search/) — Images + tables + text in one semantic index. **Tags:** `rag` `multimodal` `pgvector`
+- [`docparse/`](./docparse/) — Multimodal PDF parsing with Gemini Vision: region detection, OCR, structured extraction to markdown. **Tags:** `pdf-parsing` `gemini-vision` `document-extraction` `vertex-ai`
+- [`docparse-rag-agent/`](./docparse-rag-agent/) — ADK agent over a Vertex AI RAG Engine corpus of docparse markdown. Deployed to Agent Engine, registered in Gemini Enterprise (cross-project), shared ALL_USERS. **92.9% composite on 216-question eval** (vs 81% for DE streamAssist). **Tags:** `adk` `rag-engine` `gemini-3-flash` `agent-engine` `gemini-enterprise` `cross-project`
 
 ### Agent platforms
 - [`vertex-multi-agent-workbench/`](./vertex-multi-agent-workbench/) — Multi-model (Gemini + Claude) workbench, MCP, ADK + LangGraph. **Tags:** `adk` `multi-agent`
@@ -56,6 +61,7 @@ When you start a new project, **add a row here first** — even before the READM
 - [`cross-project-adk-agent/`](./cross-project-adk-agent/) — ADK in Project A registered from Project B. **Tags:** `adk` `cross-project`
 - [`adk-secret-snow-demo/`](./adk-secret-snow-demo/) — IT-ops agent: Secret Manager + ServiceNow MCP + grounding. **Tags:** `adk` `secret-manager` `servicenow`
 - [`adk-secret-manager-demo/`](./adk-secret-manager-demo/) — Secure secret handling via Google Secret Manager. **Tags:** `adk` `secret-manager`
+- [`report-generator/`](./report-generator/) — ADK SequentialAgent: research → write → render. Topic in, cited PDF out (google_search → WeasyPrint). **Tags:** `adk` `multi-agent` `gemini-3-flash` `weasyprint` `pdf-rendering`
 
 ### Consumer & domain apps
 - [`vibes_nyc/`](./vibes_nyc/) — Mood-to-venue NYC underground spots. **Tags:** `consumer` `gemini` `vibe-search`
@@ -68,3 +74,4 @@ When you start a new project, **add a row here first** — even before the READM
 - [`discovery-engine-latency-probe/`](./discovery-engine-latency-probe/) — StreamAssist latency benchmarks. **Tags:** `latency` `discovery-engine`
 - [`streamassist-wif-auth-tester/`](./streamassist-wif-auth-tester/) — Interactive Entra→WIF→DE auth chain tester. **Tags:** `wif` `auth` `test`
 - [`nextjs-test-harness/`](./nextjs-test-harness/) — Frontend experimentation scaffold. **Tags:** `nextjs` `frontend`
+- [`vector-search-canvas/`](./vector-search-canvas/) — Self-study sandbox: TREE_AH vs BRUTE_FORCE side-by-side, every Vector Search 2.0 knob exposed. **Customer / context:** Vector Search 2.0 talk 2026-04-20. **Tags:** `vertex-vector-search` `tree-ah` `brute-force` `algorithm-tuning` `fastapi`
