@@ -9,7 +9,7 @@
 ![delta](https://img.shields.io/badge/%CE%94_vs_baseline-%2B11.9pts-EA8600?style=for-the-badge)
 ![questions](https://img.shields.io/badge/questions-216-5A6373?style=for-the-badge)
 
-<sub>Last run: 2026-04-25  ·  Eval corpus: Accenture-Metaverse + SE-Competitive-Intelligence</sub>
+<sub>Last run: 2026-04-26  ·  Eval corpus: Accenture-Metaverse + SE-Competitive-Intelligence</sub>
 
 </div>
 
@@ -88,10 +88,10 @@ Composite per category × strategy:
 
 ```mermaid
 flowchart LR
-    Q[216 Q&A pairs<br/>hand-crafted from 2 PDFs] --> R[run each strategy<br/>against the same 216 questions]
-    R --> J[Claude Opus 4.5<br/>scores each Q&A pair]
-    J --> S[correctness ∈ 0.0–1.0<br/>completeness ∈ 0.0–1.0<br/>verdict ∈ correct, partial, wrong, refused]
-    S --> A[aggregate to composite<br/>= correctness+completeness / 2]
+    Q[216 Q and A pairs<br/>hand-crafted from 2 PDFs] --> R[run each strategy<br/>through the same 216 questions]
+    R --> J[Claude Opus 4.5<br/>scores each Q and A pair]
+    J --> S[correctness 0.0 to 1.0<br/>completeness 0.0 to 1.0<br/>verdict: correct / partial / wrong / refused]
+    S --> A[aggregate to composite<br/>correctness plus completeness over 2]
 ```
 
 **Composite formula:** `composite = mean( (correctness + completeness) / 2 )` across all answered questions.

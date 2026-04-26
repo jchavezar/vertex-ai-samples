@@ -76,23 +76,29 @@ docparse/
 
 ```mermaid
 flowchart LR
-    USER([end user]) -->|chat| GE[Gemini Enterprise app]
-    GE -->|streamAssist| AGENT
-    AGENT -->|VertexAiRagRetrieval| RAG[(RAG Engine corpus<br/>per-page chunks)]
-    RAG --> AGENT
-    AGENT -->|grounded answer| GE
+    USER([end user])
 
-    subgraph EXTRACTION[Stage 1 · extractor — Cloud Run]
-        IN[(GCS in)] -->|object.finalized| EA{{Eventarc}}
-        EA --> CR[docparse service<br/>region-detect, chart-extract,<br/>photo-caption, page-OCR<br/>via Gemini 3]
-        CR --> OUT[(GCS out<br/>foo.txt + foo.report.json)]
+    subgraph EXTRACTION[Stage 1 — extractor on Cloud Run]
+        IN[(GCS bucket<br/>docparse-in)]
+        EA{{Eventarc trigger}}
+        CR[docparse service<br/>Gemini 3 vision<br/>region detect / OCR<br/>chart + photo extract]
+        OUT[(GCS bucket<br/>docparse-out)]
+        IN -->|object finalized| EA --> CR --> OUT
     end
 
-    OUT -.deploy.sh: split per-page + import.-> RAG
+    RAG[(Vertex AI<br/>RAG Engine corpus<br/>per-page chunks)]
 
-    subgraph SERVE[Stage 2 · agent — Vertex AI Agent Engine]
+    subgraph SERVE[Stage 2 — agent on Vertex AI Agent Engine]
         AGENT[ADK agent<br/>gemini-3-flash-preview]
     end
+
+    GE[Gemini Enterprise app]
+
+    OUT -->|deploy.sh splits per-page<br/>and imports| RAG
+    USER -->|chat| GE
+    GE -->|streamAssist| AGENT
+    AGENT <-->|VertexAiRagRetrieval| RAG
+    AGENT -->|grounded answer| GE
 
     classDef bucket fill:#e8f0fe,stroke:#1a73e8,color:#000
     classDef service fill:#fef7e0,stroke:#f9ab00,color:#000
