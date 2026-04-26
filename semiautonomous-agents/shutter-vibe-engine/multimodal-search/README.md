@@ -23,7 +23,7 @@ The same FastAPI app ships with **two interchangeable search backends**. Pick th
 | Monthly cost (this demo) | ~**$137** (24 × 7 e2-standard-2) | ~**$2** (scale-to-zero + 50 MB table) |
 | Setup effort | Index build + endpoint deploy (~30 min) | Single SQL `CREATE TABLE` + JSONL load |
 | Filters | Restricts (string match) | SQL `WHERE` push-down |
-| Live URL | `envato-vibe-app` (now on BQ) | `envato-vibe-app-bq` |
+| Live URL | `your-vibe-app` (now on BQ) | `your-vibe-app-bq` |
 
 **Switch in one env var:**
 

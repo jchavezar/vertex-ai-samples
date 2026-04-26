@@ -38,3 +38,9 @@ bench_*.py
 *.env
 *-credentials.json
 service-account*.json
+
+# Internal-only docs (do not commit)
+HANDOFF.md
+demo_script.md
+query_bank.md
+research/

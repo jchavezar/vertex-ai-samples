@@ -39,8 +39,8 @@ The BigQuery path costs ~1.5 % of the Vector Search path while keeping every UI 
 |---|---|---:|
 | BigQuery storage | ~50 MB (vectors as `ARRAY<FLOAT64>` + 5 string cols + `ingest_ts`) | < **$0.01** |
 | BigQuery queries | brute-force scan ≤ 50 MB · ~30 k queries/mo = ~1.5 GB · first 1 TB free | **~$0** |
-| Cloud Run app `envato-vibe-app` | 2 vCPU / 2 GiB, `min=0`, kept warm by Scheduler | **~$1** |
-| Cloud Run app `envato-vibe-app-bq` | identical, kept as a sibling for comparison | **~$1** |
+| Cloud Run app `your-vibe-app` | 2 vCPU / 2 GiB, `min=0`, kept warm by Scheduler | **~$1** |
+| Cloud Run app `your-vibe-app-bq` | identical, kept as a sibling for comparison | **~$1** |
 | Cloud Scheduler | 2 jobs × `*/5 * * * *` = 8,640 invocations/mo each | $0.20 |
 | Cloud Run ingest | unchanged | < $1 |
 | Embeddings (ingest) | unchanged (2,103 one-shot) | < $1 |
@@ -62,7 +62,7 @@ The BigQuery path costs ~1.5 % of the Vector Search path while keeping every UI 
   │  ▼                      │                │  ▼   warmup every 5 min │
   │  Vector Search endpoint │                │  BigQuery VECTOR_SEARCH │
   │  ▼ (e2-standard-2 24×7) │                │  ▼ (serverless)         │
-  │  Index 9202325185...    │                │  envato_vibe.segments   │
+  │  Index 9202325185...    │                │  your_vibe.segments   │
   │  Endpoint 5466002155... │                │  CLUSTER BY modality    │
   └─────────────────────────┘                └─────────────────────────┘
    $137 / mo                                  $2 / mo
@@ -114,4 +114,4 @@ Until then, **stay on Path B**. The reverse migration is `bash deploy/deploy_app
 - **Vector Search node price**: [Vertex AI Vector Search pricing](https://cloud.google.com/vertex-ai/pricing#matchingengine) → `automaticResources` defaults to `e2-standard-2`, billed per node-hour.
 - **Cloud Run pricing**: [Cloud Run pricing](https://cloud.google.com/run/pricing) — vCPU + memory only billed during request handling at `min=0`.
 - **BigQuery pricing**: [BigQuery on-demand pricing](https://cloud.google.com/bigquery/pricing#on_demand_pricing) — first 1 TB queries / mo free; storage at $0.02/GB-mo.
-- **Live state**: `gcloud run services describe envato-vibe-app --region=us-central1 --project=vtxdemos` confirms `SEARCH_BACKEND=bigquery`, `min-instances=0`.
+- **Live state**: `gcloud run services describe your-vibe-app --region=us-central1 --project=vtxdemos` confirms `SEARCH_BACKEND=bigquery`, `min-instances=0`.

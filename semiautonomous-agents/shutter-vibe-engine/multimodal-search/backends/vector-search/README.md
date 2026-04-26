@@ -50,7 +50,7 @@ The app dispatches to this backend when `SEARCH_BACKEND=vector-search` (default)
 
 ```bash
 VS_ENDPOINT_ID=546600215516282880
-VS_DEPLOYED_ID=envato_vibe_multimodal
+VS_DEPLOYED_ID=your_vibe_multimodal
 ```
 
 Search code: `app/main.py` → `_vs_find_neighbors_native()`

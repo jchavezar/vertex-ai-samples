@@ -37,7 +37,7 @@ Cost-optimized nearest-neighbor lookup over **BigQuery `VECTOR_SEARCH`** (brute 
 
 ```bash
 # 1. Create the dataset + table
-bq --project_id=vtxdemos --location=us-central1 mk -d envato_vibe
+bq --project_id=vtxdemos --location=us-central1 mk -d your_vibe
 bq --project_id=vtxdemos query --nouse_legacy_sql < backends/bigquery/sql/schema.sql
 
 # 2a. If you already have a Vector Search index (Path A), copy it over:
@@ -49,20 +49,20 @@ SEARCH_BACKEND=bigquery python pipeline/build.py
 
 # 3. Grant the Cloud Run runner SA read access
 gcloud projects add-iam-policy-binding vtxdemos \
-  --member="serviceAccount:envato-vibe-runner@vtxdemos.iam.gserviceaccount.com" \
+  --member="serviceAccount:your-vibe-runner@vtxdemos.iam.gserviceaccount.com" \
   --role="roles/bigquery.dataViewer" --condition=None
 gcloud projects add-iam-policy-binding vtxdemos \
-  --member="serviceAccount:envato-vibe-runner@vtxdemos.iam.gserviceaccount.com" \
+  --member="serviceAccount:your-vibe-runner@vtxdemos.iam.gserviceaccount.com" \
   --role="roles/bigquery.jobUser" --condition=None
 
 # 4. Deploy the app (reuses the existing VS-built image)
 bash backends/bigquery/deploy/deploy_app_bq.sh
 
 # 5. Optional: scale-to-zero with warm cache (every 5 min, near-zero cost)
-gcloud scheduler jobs create http envato-vibe-bq-warmup \
+gcloud scheduler jobs create http your-vibe-bq-warmup \
   --project vtxdemos --location us-central1 \
   --schedule '*/5 * * * *' \
-  --uri https://envato-vibe-app-bq-oyntfgdwsq-uc.a.run.app/api/warmup \
+  --uri https://your-vibe-app-bq-oyntfgdwsq-uc.a.run.app/api/warmup \
   --http-method GET
 ```
 
@@ -70,7 +70,7 @@ gcloud scheduler jobs create http envato-vibe-bq-warmup \
 
 ```bash
 SEARCH_BACKEND=bigquery
-BQ_TABLE=vtxdemos.envato_vibe.segments    # PROJECT.DATASET.TABLE
+BQ_TABLE=<PROJECT>.your_vibe.segments    # PROJECT.DATASET.TABLE
 GOOGLE_CLOUD_PROJECT=vtxdemos
 ```
 
@@ -79,7 +79,7 @@ GOOGLE_CLOUD_PROJECT=vtxdemos
 ```sql
 SELECT base.datapoint_id AS id, distance
 FROM VECTOR_SEARCH(
-  (SELECT datapoint_id, embedding FROM `vtxdemos.envato_vibe.segments`
+  (SELECT datapoint_id, embedding FROM `<PROJECT>.your_vibe.segments`
    WHERE modality = @modality),                  -- push-down on clustered col
   'embedding',
   (SELECT @q AS embedding),
@@ -104,7 +104,7 @@ Cold = first request after Cloud Run scaled to zero. Scheduler keep-alive every 
 
 ## Status in this repo
 
-> **Live as of 2026-04-20.** Both `envato-vibe-app` and `envato-vibe-app-bq` Cloud Run services run this backend. The Vector Search index has been torn down. See [`docs/COST_ANALYSIS.md`](../../docs/COST_ANALYSIS.md) for the full delta.
+> **Live as of 2026-04-20.** Both `your-vibe-app` and `your-vibe-app-bq` Cloud Run services run this backend. The Vector Search index has been torn down. See [`docs/COST_ANALYSIS.md`](../../docs/COST_ANALYSIS.md) for the full delta.
 
 ## See also
 
