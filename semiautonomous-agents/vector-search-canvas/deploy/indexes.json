@@ -1,0 +1,9 @@
+{
+  "project": "vtxdemos",
+  "location": "us-central1",
+  "tree_ah_index": "projects/254356041555/locations/us-central1/indexes/8603346434835611648",
+  "brute_index": "projects/254356041555/locations/us-central1/indexes/2317447254933241856",
+  "endpoint": "projects/254356041555/locations/us-central1/indexEndpoints/2832177026406809600",
+  "deployed_tree": "vs_canvas_tree_ah",
+  "deployed_brute": "vs_canvas_brute"
+}

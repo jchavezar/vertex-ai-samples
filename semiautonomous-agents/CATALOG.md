@@ -37,6 +37,7 @@ When you start a new project, **add a row here first** — even before the READM
 - [`cortex-retriever/`](./cortex-retriever/) — Agent-only ADK for Gemini Enterprise — SharePoint + Google. **Tags:** `adk` `gemini-enterprise` `wif`
 - [`light_mcp_cloud_portal/`](./light_mcp_cloud_portal/) — Lightweight portal scaffold around MCP cloud APIs. **Tags:** `mcp` `portal` `react`
 - [`streamassist-oauth-flow-us/`](./streamassist-oauth-flow-us/) — `us` regional variant of `streamassist-oauth-flow` — Gemini Enterprise + SharePoint federated connector + WIF. **Tags:** `streamassist` `sharepoint` `wif` `discovery-engine` `us-region`
+- [`streamassist-oauth-flow-servicenow/`](./streamassist-oauth-flow-servicenow/) — Sister to the SharePoint streamassist projects: same WIF identity chain, **ServiceNow** as the federated source (incidents, KB articles, catalog) with native ServiceNow ACLs. Two frontends shipped (vanilla HTML tester + React/FastAPI). **Tags:** `streamassist` `servicenow` `wif` `discovery-engine` `gemini-enterprise` `oauth`
 - [`sharepoint-wif-portal/`](./sharepoint-wif-portal/) — Docs-only WIP variant of `sharepoint_wif_portal`. **Status:** docs only, no code yet.
 
 **Reference doc:** [`GEMINI_ENTERPRISE_SHAREPOINT_FLOW.md`](./GEMINI_ENTERPRISE_SHAREPOINT_FLOW.md) — the four mandatory configurations + replication checklist + failure-mode lookup behind every GE + SharePoint federated portal in this section.

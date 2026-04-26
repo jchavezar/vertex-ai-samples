@@ -10,7 +10,7 @@
 
 <p align="center">
   <a href="https://github.com/jchavezar/vertex-ai-samples"><img src="https://img.shields.io/badge/Vertex_AI-Samples-4285F4?style=for-the-badge&logo=googlecloud&logoColor=white" alt="Vertex AI Samples" /></a>
-  <a href="#whats-here"><img src="https://img.shields.io/badge/projects-37-34A853?style=for-the-badge" alt="37 Projects" /></a>
+  <a href="#whats-here"><img src="https://img.shields.io/badge/projects-38-34A853?style=for-the-badge" alt="38 Projects" /></a>
   <a href="#-mcp-servers"><img src="https://img.shields.io/badge/MCP_Servers-6-FF6F00?style=for-the-badge" alt="MCP Servers" /></a>
   <a href="https://github.com/jchavezar/vertex-ai-samples/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-Apache_2.0-blue?style=for-the-badge" alt="License" /></a>
 </p>
@@ -23,36 +23,17 @@
 
 ## Featured
 
-### 🌟 Shutter Vibe Engine — Multimodal Search
-
-> Type a *vibe*, get the photo + video + music + SFX + graphic that share that mood. **Gemini Embeddings 2 + Vertex Vector Search** across a single 3072-dim space.
-
-<p align="center">
-  <a href="./shutter-vibe-engine/multimodal-search/">
-    <video src="./shutter-vibe-engine/multimodal-search/docs/hero.mp4" width="100%" autoplay loop muted playsinline poster="./shutter-vibe-engine/multimodal-search/docs/embedding_space.png">
-      <img src="./shutter-vibe-engine/multimodal-search/docs/hero.gif" width="100%" alt="Multimodal vibe search demo — type a vibe, see photos/videos/music/SFX/graphics ranked by semantic similarity" />
-    </video>
-  </a>
-</p>
-
-<p align="center">
-  <a href="https://jchavezar.github.io/vertex-ai-samples/multimodal-search/"><img src="https://img.shields.io/badge/Live_demo-→-4285F4?style=for-the-badge" alt="Live demo" /></a>
-  &nbsp;
-  <a href="./shutter-vibe-engine/multimodal-search/"><img src="https://img.shields.io/badge/Code-→-181717?style=for-the-badge&logo=github&logoColor=white" alt="Code" /></a>
-</p>
-
-<details>
-<summary><strong>What's actually happening — the 3072-dim embedding space</strong></summary>
-<br/>
-<p align="center">
-  <a href="./shutter-vibe-engine/multimodal-search/"><img src="./shutter-vibe-engine/multimodal-search/docs/embedding_space.png" width="100%" alt="3072-d embedding space — query and 5 modalities collapsed onto one PCA plane" /></a>
-</p>
-<p align="center"><em>One vector per asset — text, image, video, audio, vector graphic — all sharing the same coordinate system. Closeness in 3072-d space = vibe match.</em></p>
-</details>
-
----
-
 <table>
+<tr>
+<td colspan="2" align="center">
+<a href="./shutter-vibe-engine/multimodal-search/"><strong>🌟 Shutter Vibe Engine — Multimodal Search</strong></a><br/>
+<em>Type a vibe → photo + video + music + SFX + graphic ranked by mood. Gemini Embeddings 2 + Vertex Vector Search across one 3072-d space.</em><br/><br/>
+<a href="./shutter-vibe-engine/multimodal-search/"><img src="./shutter-vibe-engine/multimodal-search/docs/hero.gif" width="80%" alt="Shutter vibe engine — multimodal search demo" /></a><br/><br/>
+<a href="https://jchavezar.github.io/vertex-ai-samples/multimodal-search/"><img src="https://img.shields.io/badge/Live_demo-→-4285F4?style=flat-square" alt="Live demo" /></a>
+&nbsp;
+<a href="./shutter-vibe-engine/multimodal-search/"><img src="https://img.shields.io/badge/Code-→-181717?style=flat-square&logo=github&logoColor=white" alt="Code" /></a>
+</td>
+</tr>
 <tr>
 <td width="50%" align="center">
 <a href="./streamassist-oauth-flow/"><strong>StreamAssist OAuth Flow</strong></a><br/>
@@ -78,10 +59,15 @@
 </td>
 </tr>
 <tr>
-<td colspan="2" align="center">
-<a href="./streamassist-oauth-flow-us/"><strong>StreamAssist OAuth Flow — US Region</strong></a><br/>
-<em>Same per-user OAuth + WIF + Discovery Engine pattern, deployed in <code>us</code> region for low-latency demos</em><br/><br/>
-<a href="./streamassist-oauth-flow-us/"><img src="./streamassist-oauth-flow-us/docs/demo-us.gif" width="60%" /></a>
+<td width="50%" align="center">
+<a href="./streamassist-oauth-flow-us/"><strong>StreamAssist · US Region</strong></a><br/>
+<em>Same OAuth + WIF + Discovery Engine pattern, deployed in <code>us</code> for low-latency demos</em><br/><br/>
+<a href="./streamassist-oauth-flow-us/"><img src="./streamassist-oauth-flow-us/docs/demo-us.gif" width="100%" /></a>
+</td>
+<td width="50%" align="center">
+<a href="./streamassist-oauth-flow-servicenow/"><strong>StreamAssist · ServiceNow · WIF</strong></a><br/>
+<em>Same WIF chain, ServiceNow swapped in for SharePoint — incidents, KBs, catalog as the federated source</em><br/><br/>
+<a href="./streamassist-oauth-flow-servicenow/"><img src="./streamassist-oauth-flow-servicenow/docs/demo-grounded.png" width="100%" /></a>
 </td>
 </tr>
 </table>
@@ -98,6 +84,7 @@
 | Date | Project | What Changed |
 |:-----|:--------|:-------------|
 | Apr 25 | [**docparse**](./docparse/) | **MAJOR** — Folded the RAG agent into `docparse/agent/`, added `eval/` with full leaderboard, single `./deploy.sh` provisions extractor + corpus + agent + GE registration end-to-end. **92.9% composite** on 216-q eval. |
+| Apr 24 | [**streamassist-oauth-flow-servicenow**](./streamassist-oauth-flow-servicenow/) | **NEW** — Sister to the SharePoint streamassist projects: same WIF identity chain, **ServiceNow** as the federated data source (incidents, KB articles, catalog with native ACLs) |
 | Apr 23 | [**report-generator**](./report-generator/) | **NEW** — Multi-agent research → write → render pipeline turning a topic into a cited PDF (ADK + Gemini 3 Flash + WeasyPrint) |
 | Apr 23 | [**streamassist-oauth-flow-us**](./streamassist-oauth-flow-us/) | **NEW** — `us` regional variant of the StreamAssist OAuth portal — Gemini Enterprise + SharePoint federated connector + WIF |
 | Apr 23 | [**vector-search-canvas**](./vector-search-canvas/) | **NEW** — Interactive tuning sandbox for Vector Search 2.0 — TREE_AH vs BRUTE_FORCE knobs side-by-side |
@@ -117,13 +104,13 @@
 
 ## What's Here
 
-37 projects across 6 categories. Every project runs on **Google Cloud** with **Vertex AI** as the backbone.
+38 projects across 6 categories. Every project runs on **Google Cloud** with **Vertex AI** as the backbone.
 
 ```
-Google ADK ████████████████████████████████ 16    React 19   ██████████████████████████ 12
-FastAPI    ████████████████████████████     14    Vertex AI  ████████████████████████████████████ 18
+Google ADK ████████████████████████████████ 16    React 19   ████████████████████████████ 13
+FastAPI    ██████████████████████████████   15    Vertex AI  ████████████████████████████████████ 18
 MCP (FastMCP) ████████████               6     Agent Engine ██████████               5
-Discovery Engine ████████████████          8     pgvector   ████                      2
+Discovery Engine ██████████████████        9     pgvector   ████                      2
 ```
 
 ---
@@ -145,8 +132,9 @@ Full-stack portals bridging Microsoft identity to Google Cloud search infrastruc
 | [**streamanswer-oauth-flow**](./streamanswer-oauth-flow/) | StreamAnswer OAuth-flow variant of the StreamAssist portal | ![Python](https://img.shields.io/badge/-Python-3776AB?logo=python&logoColor=white&style=flat-square) ![React](https://img.shields.io/badge/-React-61DAFB?logo=react&logoColor=black&style=flat-square) ![OAuth](https://img.shields.io/badge/-OAuth-EB5424?style=flat-square) |
 | [**light_mcp_cloud_portal**](./light_mcp_cloud_portal/) | Lightweight portal scaffold around MCP cloud APIs | ![Python](https://img.shields.io/badge/-Python-3776AB?logo=python&logoColor=white&style=flat-square) ![React](https://img.shields.io/badge/-React-61DAFB?logo=react&logoColor=black&style=flat-square) ![MCP](https://img.shields.io/badge/-MCP-FF6F00?style=flat-square) |
 | [**streamassist-oauth-flow-us**](./streamassist-oauth-flow-us/) | `us` regional variant — Gemini Enterprise + SharePoint federated connector + WIF | ![Python](https://img.shields.io/badge/-Python-3776AB?logo=python&logoColor=white&style=flat-square) ![React](https://img.shields.io/badge/-React-61DAFB?logo=react&logoColor=black&style=flat-square) ![WIF](https://img.shields.io/badge/-WIF-34A853?style=flat-square) |
+| [**streamassist-oauth-flow-servicenow**](./streamassist-oauth-flow-servicenow/) | Same WIF chain, **ServiceNow** swapped in as federated source — incidents, KB articles, catalog with native ACLs | ![Python](https://img.shields.io/badge/-Python-3776AB?logo=python&logoColor=white&style=flat-square) ![React](https://img.shields.io/badge/-React-61DAFB?logo=react&logoColor=black&style=flat-square) ![ServiceNow](https://img.shields.io/badge/-ServiceNow-81B5A1?logo=servicenow&logoColor=white&style=flat-square) ![WIF](https://img.shields.io/badge/-WIF-34A853?style=flat-square) |
 
-> 📘 **Reference doc** — [GEMINI_ENTERPRISE_SHAREPOINT_FLOW.md](./GEMINI_ENTERPRISE_SHAREPOINT_FLOW.md): the four mandatory configurations and replication checklist behind every GE + SharePoint federated portal in this section.
+> 📘 **Reference doc** — [GEMINI_ENTERPRISE_SHAREPOINT_FLOW.md](./GEMINI_ENTERPRISE_SHAREPOINT_FLOW.md): the four mandatory configurations and replication checklist behind every GE + SharePoint federated portal in this section. The ServiceNow variant follows the same pattern with the deltas documented in its own [`FLOW.md`](./streamassist-oauth-flow-servicenow/FLOW.md).
 
 ## 🔌 MCP Servers
 
@@ -257,9 +245,10 @@ block-beta
 
 | Component | Used By |
 |:----------|:--------|
-| **WIF + STS** | sharepoint_wif_portal, streamassist-oauth-flow, streamassist-oauth-flow-us, gemini-enterprise-sharepoint-agent, cortex-retriever |
+| **WIF + STS** | sharepoint_wif_portal, streamassist-oauth-flow, streamassist-oauth-flow-us, streamassist-oauth-flow-servicenow, gemini-enterprise-sharepoint-agent, cortex-retriever |
 | **Google Identity Services** | ge-sharepoint-cloudid |
-| **Discovery Engine** | sharepoint_wif_portal, streamassist-oauth-flow, streamassist-oauth-flow-us, ge-sharepoint-cloudid, gemini-enterprise-sharepoint-agent, cortex-retriever, nexus-tax-intelligence, servicedesk-sharepoint-portal, discovery-engine-latency-probe |
+| **Discovery Engine** | sharepoint_wif_portal, streamassist-oauth-flow, streamassist-oauth-flow-us, streamassist-oauth-flow-servicenow, ge-sharepoint-cloudid, gemini-enterprise-sharepoint-agent, cortex-retriever, nexus-tax-intelligence, servicedesk-sharepoint-portal, discovery-engine-latency-probe |
+| **ServiceNow (federated)** | streamassist-oauth-flow-servicenow, servicedesk-sharepoint-portal, servicenow-mcp-portal, adk-secret-snow-demo |
 | **Vertex Vector Search** | shutter-vibe-engine/multimodal-search, vector-search-canvas |
 | **Agent Engine** | sharepoint_wif_portal, cortex-retriever, servicenow-mcp-portal, cross-project-adk-agent, observability-orchestra, vertex-multi-agent-workbench |
 | **MCP (FastMCP)** | gworkspace-mcp-server, ms365-mcp-server, plaid-mcp-server, amex-mcp, knowledge-base-mcp, adk-secret-snow-demo |

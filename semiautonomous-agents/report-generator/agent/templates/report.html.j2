@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>{{ report.topic }}</title>
+  <link rel="stylesheet" href="report.css" />
+</head>
+<body>
+
+<section class="cover">
+  <div class="cover-eyebrow">Research Brief · {{ generated_date }}</div>
+  <h1 class="cover-title">{{ report.topic }}</h1>
+  {% if report.subtitle %}<p class="cover-subtitle">{{ report.subtitle }}</p>{% endif %}
+  <p class="cover-audience">Prepared for: <em>{{ report.audience }}</em></p>
+  <div class="cover-rule"></div>
+  <p class="cover-summary">{{ report.executive_summary }}</p>
+</section>
+
+{% if report.key_takeaways %}
+<section class="takeaways-page">
+  <h2>Key Takeaways</h2>
+  <ol class="takeaways-list">
+    {% for t in report.key_takeaways %}<li>{{ t }}</li>{% endfor %}
+  </ol>
+</section>
+{% endif %}
+
+<section class="toc-page">
+  <h2 class="toc-title">Contents</h2>
+  <nav class="toc">
+    <ol>
+      {% for s in report.sections %}
+      <li><a href="#sec-{{ loop.index }}">{{ s.heading }}</a></li>
+      {% endfor %}
+      {% if report.open_questions %}<li><a href="#open-questions">Open Questions</a></li>{% endif %}
+      <li><a href="#sources">Sources</a></li>
+    </ol>
+  </nav>
+</section>
+
+<main class="body">
+  {% for section in report.sections %}
+  <section id="sec-{{ loop.index }}" class="report-section">
+    <header class="section-header">
+      <span class="section-number">{{ "%02d"|format(loop.index) }}</span>
+      <h2>{{ section.heading }}</h2>
+    </header>
+    {% if section.summary %}<p class="section-lede">{{ section.summary }}</p>{% endif %}
+    {% for block in section.blocks %}
+      {% if block.type == "callout" %}
+        <aside class="callout">{{ block.text|md|safe }}</aside>
+      {% elif block.type == "quote" %}
+        <blockquote>{{ block.text|md|safe }}</blockquote>
+      {% elif block.type == "list" %}
+        <div class="block-list">{{ block.text|md|safe }}</div>
+      {% elif block.type == "code" %}
+        <pre class="code-block"><code>{{ block.text }}</code></pre>
+      {% elif block.type == "metric" and block.data %}
+        <div class="metric-card">
+          <div class="metric-value">{{ block.data.get("value", "") }}</div>
+          <div class="metric-label">{{ block.data.get("label", "") }}</div>
+          {% if block.data.get("delta") %}
+            <div class="metric-delta delta-{{ block.data.get('trend', 'flat') }}">{{ block.data.get("delta") }}</div>
+          {% endif %}
+          {% if block.text %}<div class="metric-note">{{ block.text|md|safe }}</div>{% endif %}
+        </div>
+      {% elif block.type == "metrics_grid" and block.data %}
+        <div class="metrics-grid">
+          {% for m in block.data.get("metrics", []) %}
+          <div class="metric-card">
+            <div class="metric-value">{{ m.get("value", "") }}</div>
+            <div class="metric-label">{{ m.get("label", "") }}</div>
+            {% if m.get("delta") %}
+              <div class="metric-delta delta-{{ m.get('trend', 'flat') }}">{{ m.get("delta") }}</div>
+            {% endif %}
+          </div>
+          {% endfor %}
+          {% if block.text %}<div class="metrics-caption">{{ block.text|md|safe }}</div>{% endif %}
+        </div>
+      {% elif block.type == "table" and block.data %}
+        <figure class="data-table">
+          <table>
+            {% if block.data.get("headers") %}
+            <thead><tr>
+              {% for h in block.data.get("headers", []) %}<th>{{ h }}</th>{% endfor %}
+            </tr></thead>
+            {% endif %}
+            <tbody>
+              {% for row in block.data.get("rows", []) %}
+              <tr>{% for cell in row %}<td>{{ cell }}</td>{% endfor %}</tr>
+              {% endfor %}
+            </tbody>
+          </table>
+          {% if block.data.get("caption") or block.text %}
+          <figcaption>{{ block.data.get("caption", "") or block.text }}</figcaption>
+          {% endif %}
+        </figure>
+      {% elif block.type == "chart" and block.data %}
+        <figure class="chart-figure">
+          {{ render_chart(block.data)|safe }}
+          {% if block.text %}<figcaption>{{ block.text|md|safe }}</figcaption>{% endif %}
+        </figure>
+      {% elif block.type == "comparison" and block.data %}
+        <div class="comparison-grid cols-{{ block.data.get('items', [])|length }}">
+          {% for item in block.data.get("items", []) %}
+          <div class="comparison-card">
+            <h4 class="comparison-name">{{ item.get("name", "") }}</h4>
+            {% if item.get("highlights") %}
+            <ul class="comparison-highlights">
+              {% for h in item.get("highlights", []) %}<li>{{ h }}</li>{% endfor %}
+            </ul>
+            {% endif %}
+            {% if item.get("verdict") %}
+            <div class="comparison-verdict">{{ item.get("verdict") }}</div>
+            {% endif %}
+          </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="paragraph">{{ block.text|md|safe }}</div>
+      {% endif %}
+    {% endfor %}
+  </section>
+  {% endfor %}
+
+  {% if report.open_questions %}
+  <section id="open-questions" class="report-section open-questions">
+    <header class="section-header">
+      <span class="section-number">??</span>
+      <h2>Open Questions</h2>
+    </header>
+    <ul>
+      {% for q in report.open_questions %}<li>{{ q }}</li>{% endfor %}
+    </ul>
+  </section>
+  {% endif %}
+
+  <section id="sources" class="report-section sources">
+    <header class="section-header">
+      <span class="section-number">§</span>
+      <h2>Sources</h2>
+    </header>
+    <ol class="source-list">
+      {% for s in report.sources %}
+      <li>
+        <span class="source-tier tier-{{ s.credibility_tier }}">{{ s.credibility_tier }}</span>
+        <a class="source-title" href="{{ s.url }}">{{ s.title }}</a>
+        <span class="source-meta">
+          {{ s.domain }}{% if s.author %} · {{ s.author }}{% endif %}{% if s.publication_date %} · {{ s.publication_date }}{% endif %}
+        </span>
+        {% if s.snippet %}<div class="source-snippet">{{ s.snippet }}</div>{% endif %}
+      </li>
+      {% endfor %}
+    </ol>
+  </section>
+</main>
+
+<footer class="colophon">
+  Generated by report-generator · {{ generated_at }} · {{ report.sources|length }} sources
+</footer>
+
+</body>
+</html>

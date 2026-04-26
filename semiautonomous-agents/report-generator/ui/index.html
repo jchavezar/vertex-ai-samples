@@ -1,0 +1,780 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Report Generator</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/cytoscape@3.30.0/dist/cytoscape.min.js"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          ink: { 950: '#0a0e1a', 900: '#0f1530', 800: '#162043', 700: '#1f2b5c' },
+          accent: { 400: '#7aa2ff', 500: '#5685ff', 600: '#3b6bff' },
+          gold: { 400: '#f1c34a', 500: '#e9b126' },
+        },
+        fontFamily: {
+          sans: ['Inter', 'ui-sans-serif', 'system-ui'],
+          serif: ['"Source Serif 4"', 'Georgia', 'serif'],
+        },
+      },
+    },
+  };
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap" rel="stylesheet">
+<style>
+  body {
+    background:
+      radial-gradient(1000px 600px at 8% -10%, rgba(86,133,255,0.18), transparent 60%),
+      radial-gradient(900px 500px at 110% 20%, rgba(241,195,74,0.12), transparent 60%),
+      linear-gradient(180deg, #060916 0%, #0a0e1a 100%);
+    min-height: 100vh;
+    color: #e7ecff;
+  }
+  .glass {
+    background: rgba(15, 21, 48, 0.55);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border: 1px solid rgba(122, 162, 255, 0.18);
+  }
+  .chat-bubble-user {
+    background: linear-gradient(135deg, rgba(86,133,255,0.22), rgba(122,162,255,0.10));
+    border: 1px solid rgba(122,162,255,0.35);
+  }
+  .chat-bubble-agent {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+  }
+  .pulse-dot::before {
+    content: '';
+    display: inline-block;
+    width: 8px; height: 8px; border-radius: 999px;
+    background: #5685ff;
+    margin-right: 8px;
+    box-shadow: 0 0 0 0 rgba(86,133,255,.7);
+    animation: pulse 1.6s infinite;
+  }
+  @keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(86,133,255,0.7); }
+    70% { box-shadow: 0 0 0 12px rgba(86,133,255,0); }
+    100% { box-shadow: 0 0 0 0 rgba(86,133,255,0); }
+  }
+  .skeleton {
+    background: linear-gradient(90deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.10) 50%, rgba(255,255,255,0.04) 100%);
+    background-size: 200% 100%;
+    animation: shine 1.4s linear infinite;
+  }
+  @keyframes shine { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
+  /* ----- Claude ink-blot waiting animation ----- */
+  .ink-blot {
+    width: 22px; height: 22px;
+    display: inline-block;
+    position: relative;
+    color: #cf6a3a;            /* Claude clay/orange */
+    filter: drop-shadow(0 0 8px rgba(207, 106, 58, 0.45));
+  }
+  .ink-blot svg { width: 100%; height: 100%; display: block; }
+  .ink-blot .blob {
+    fill: currentColor;
+    transform-origin: 50% 50%;
+    animation: ink-morph 2.4s ease-in-out infinite,
+               ink-spin 9s linear infinite,
+               ink-breathe 2.4s ease-in-out infinite;
+  }
+  @keyframes ink-morph {
+    0%, 100% {
+      d: path("M50,12 C70,12 88,28 88,50 C88,70 70,88 50,88 C30,88 12,70 12,50 C12,28 30,12 50,12 Z");
+    }
+    25% {
+      d: path("M52,10 C76,16 90,34 86,54 C82,76 60,92 40,86 C18,80 8,58 14,38 C20,18 36,6 52,10 Z");
+    }
+    50% {
+      d: path("M50,14 C72,8 92,30 86,52 C82,74 56,94 36,84 C16,76 10,52 18,34 C26,16 38,18 50,14 Z");
+    }
+    75% {
+      d: path("M48,8 C68,14 94,28 88,50 C84,72 64,90 44,86 C20,80 6,60 12,40 C18,18 32,4 48,8 Z");
+    }
+  }
+  @keyframes ink-spin   { to { transform: rotate(360deg); } }
+  @keyframes ink-breathe {
+    0%, 100% { transform: scale(0.92); opacity: 0.85; }
+    50%      { transform: scale(1.06); opacity: 1; }
+  }
+  .ink-blot.idle .blob {
+    animation: none;
+    opacity: 0.55;
+    transform: scale(0.85);
+  }
+  .modal-backdrop { background: rgba(4,6,16,0.7); backdrop-filter: blur(8px); }
+  #cy { width: 100%; height: 100%; }
+  textarea, input, select {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.10);
+    color: #e7ecff;
+  }
+  textarea:focus, input:focus, select:focus { outline: 1px solid #5685ff; }
+  .btn-primary {
+    background: linear-gradient(135deg, #3b6bff, #5685ff);
+    border: 1px solid rgba(122,162,255,0.4);
+    box-shadow: 0 8px 24px -8px rgba(86,133,255,0.6);
+  }
+  .btn-primary:hover { filter: brightness(1.08); }
+  .btn-ghost {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.10);
+  }
+  .btn-ghost:hover { background: rgba(255,255,255,0.07); }
+  .scroll-smooth-y { scroll-behavior: smooth; }
+  .field-label { font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: #97a3c8; }
+  .stage-pill {
+    font-size: 11px; padding: 3px 8px; border-radius: 999px;
+    border: 1px solid rgba(122,162,255,0.4);
+    background: rgba(86,133,255,0.12);
+    color: #c8d6ff;
+  }
+  .stage-pill.done { background: rgba(34,197,94,0.12); border-color: rgba(34,197,94,0.4); color: #b6f5cf; }
+  .stage-pill.active {
+    background: rgba(241,195,74,0.18); border-color: rgba(241,195,74,0.7); color: #ffe5a3;
+    box-shadow: 0 0 0 0 rgba(241,195,74,0.45);
+    animation: pill-pulse 1.6s ease-in-out infinite;
+  }
+  @keyframes pill-pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(241,195,74,0.0); }
+    50%      { box-shadow: 0 0 0 6px rgba(241,195,74,0.18); }
+  }
+  .stage-pill .timer { opacity: 0.7; margin-left: 6px; font-variant-numeric: tabular-nums; }
+  .heartbeat-bar {
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #5685ff, transparent);
+    background-size: 30% 100%;
+    animation: hb-slide 1.6s linear infinite;
+  }
+  @keyframes hb-slide {
+    0%   { background-position: -30% 0; }
+    100% { background-position: 130% 0; }
+  }
+</style>
+</head>
+<body class="font-sans">
+<div class="max-w-[1400px] mx-auto px-6 py-6">
+
+  <!-- Header -->
+  <header class="flex items-center justify-between mb-6">
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-accent-500 to-gold-500 grid place-items-center text-ink-950 font-bold">R</div>
+      <div>
+        <h1 class="text-xl font-semibold tracking-tight">Deep Research Report Generator</h1>
+        <p class="text-xs text-slate-400">ADK · Gemini 3 · Google Search · WeasyPrint + python-docx</p>
+      </div>
+    </div>
+    <div class="flex items-center gap-2">
+      <button id="btn-graph" class="btn-ghost px-3 py-2 rounded-lg text-sm flex items-center gap-2">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="6" cy="6" r="2.4"/><circle cx="18" cy="6" r="2.4"/><circle cx="6" cy="18" r="2.4"/><circle cx="18" cy="18" r="2.4"/><path d="M6 8.4v7.2M8.4 6h7.2M8.4 18h7.2M18 8.4v7.2"/></svg>
+        Pipeline diagram
+      </button>
+      <button id="btn-reset" class="btn-ghost px-3 py-2 rounded-lg text-sm">New report</button>
+    </div>
+  </header>
+
+  <!-- Main layout: chat + brief side -->
+  <div class="grid grid-cols-12 gap-6">
+
+    <!-- Chat -->
+    <section class="col-span-12 lg:col-span-8 glass rounded-2xl p-5 flex flex-col" style="min-height: 70vh;">
+      <div class="flex items-center justify-between mb-3">
+        <div class="flex items-center gap-2 text-sm text-slate-300">
+          <span id="status-dot" class="ink-blot idle" aria-hidden="true">
+            <svg viewBox="0 0 100 100">
+              <path class="blob"
+                d="M50,12 C70,12 88,28 88,50 C88,70 70,88 50,88 C30,88 12,70 12,50 C12,28 30,12 50,12 Z" />
+            </svg>
+          </span>
+          <span id="status-text">Ready</span>
+        </div>
+        <div id="stage-pills" class="flex flex-wrap gap-2"></div>
+      </div>
+      <div id="messages" class="flex-1 overflow-y-auto pr-1 space-y-3 scroll-smooth-y"></div>
+
+      <div id="results" class="hidden mt-4 grid grid-cols-2 gap-3"></div>
+
+      <div id="heartbeat" class="hidden mt-3">
+        <div class="flex items-center justify-between text-[11px] text-slate-400 mb-1">
+          <span>Pipeline running — <span id="hb-stage">starting…</span></span>
+          <span>elapsed <span id="hb-elapsed">0s</span> · last event <span id="hb-since">0s</span> ago</span>
+        </div>
+        <div class="heartbeat-bar rounded-full"></div>
+      </div>
+
+      <div class="mt-4 flex items-end gap-2">
+        <textarea id="input" rows="2" placeholder="Tell me about the report you'd like — topic, audience, anything specific…"
+                  class="flex-1 rounded-xl px-3 py-2 text-sm resize-none"></textarea>
+        <button id="btn-send" class="btn-primary px-4 py-3 rounded-xl text-sm font-medium">Send</button>
+      </div>
+      <p class="mt-2 text-xs text-slate-500">Tip: hit Enter to send, Shift+Enter for newline.</p>
+    </section>
+
+    <!-- Brief panel -->
+    <aside class="col-span-12 lg:col-span-4 glass rounded-2xl p-5 self-start">
+      <div class="flex items-center justify-between mb-3">
+        <h2 class="text-sm font-semibold tracking-wide uppercase text-slate-300">Report brief</h2>
+        <span id="brief-status" class="text-xs text-slate-500">Awaiting intake…</span>
+      </div>
+      <div id="brief" class="space-y-3 text-sm">
+        <div class="text-slate-400 text-sm italic">The intake editor will fill this in as you chat.</div>
+      </div>
+      <button id="btn-generate" disabled
+              class="mt-5 w-full btn-primary disabled:opacity-40 disabled:cursor-not-allowed px-4 py-3 rounded-xl text-sm font-medium">
+        Generate report
+      </button>
+    </aside>
+  </div>
+</div>
+
+<!-- Diagram modal -->
+<div id="modal" class="hidden fixed inset-0 z-50 modal-backdrop p-6">
+  <div class="glass max-w-6xl mx-auto rounded-2xl h-full flex flex-col overflow-hidden">
+    <div class="flex items-center justify-between px-5 py-3 border-b border-white/10">
+      <div>
+        <h3 class="font-semibold">Agent pipeline</h3>
+        <p class="text-xs text-slate-400">Click a node to inspect. Live progress lights up active steps.</p>
+      </div>
+      <div class="flex gap-2">
+        <button id="btn-fit" class="btn-ghost px-3 py-1.5 rounded-lg text-xs">Fit</button>
+        <button id="btn-close-modal" class="btn-ghost px-3 py-1.5 rounded-lg text-xs">Close</button>
+      </div>
+    </div>
+    <div class="flex-1 grid grid-cols-12">
+      <div class="col-span-9 relative" id="cy-wrap"><div id="cy"></div></div>
+      <aside class="col-span-3 border-l border-white/10 p-4 overflow-y-auto">
+        <h4 class="text-xs uppercase tracking-wider text-slate-400 mb-2">Selected</h4>
+        <div id="node-info" class="text-sm text-slate-300">Select a node…</div>
+        <h4 class="text-xs uppercase tracking-wider text-slate-400 mt-6 mb-2">Recent activity</h4>
+        <ul id="activity" class="space-y-1 text-xs text-slate-400 max-h-80 overflow-y-auto"></ul>
+      </aside>
+    </div>
+  </div>
+</div>
+
+<script>
+// ---------- State ----------
+const state = {
+  intakeSessionId: null,
+  brief: null,
+  cy: null,
+  generating: false,
+  activeNode: null,
+};
+
+// ---------- DOM helpers ----------
+const $ = (id) => document.getElementById(id);
+const messagesEl = $('messages');
+const inputEl = $('input');
+const briefEl = $('brief');
+const briefStatus = $('brief-status');
+const btnGenerate = $('btn-generate');
+const stagePillsEl = $('stage-pills');
+const resultsEl = $('results');
+const statusText = $('status-text');
+const statusDot = $('status-dot');
+const activityEl = $('activity');
+
+function appendMessage(role, text, opts = {}) {
+  const wrap = document.createElement('div');
+  wrap.className = role === 'user'
+    ? 'self-end ml-auto max-w-[80%] chat-bubble-user rounded-2xl px-4 py-3'
+    : 'max-w-[85%] chat-bubble-agent rounded-2xl px-4 py-3';
+  if (opts.author) {
+    const a = document.createElement('div');
+    a.className = 'text-[11px] uppercase tracking-wider text-slate-400 mb-1';
+    a.textContent = opts.author;
+    wrap.appendChild(a);
+  }
+  const p = document.createElement('div');
+  p.className = 'whitespace-pre-wrap text-sm leading-relaxed';
+  p.textContent = text;
+  wrap.appendChild(p);
+  if (opts.id) wrap.id = opts.id;
+  messagesEl.appendChild(wrap);
+  messagesEl.scrollTop = messagesEl.scrollHeight;
+  return p;
+}
+
+function appendActivity(label) {
+  const li = document.createElement('li');
+  li.className = 'pulse-dot';
+  li.textContent = label;
+  activityEl.prepend(li);
+  while (activityEl.children.length > 40) activityEl.removeChild(activityEl.lastChild);
+}
+
+function setStatus(text, mode = 'idle') {
+  // mode: 'idle' | 'thinking' | 'working'
+  statusText.textContent = text;
+  statusDot.classList.remove('idle');
+  if (mode === 'idle') {
+    statusDot.classList.add('idle');
+    statusDot.style.color = '#5685ff';        // calm accent when resting
+  } else if (mode === 'working') {
+    statusDot.style.color = '#f1c34a';        // gold while generating
+  } else {
+    statusDot.style.color = '#cf6a3a';        // Claude clay while thinking
+  }
+}
+
+// ---------- Intake (chat) ----------
+async function sendIntake(message) {
+  appendMessage('user', message);
+  inputEl.value = '';
+  inputEl.disabled = true;
+  $('btn-send').disabled = true;
+  setStatus('Thinking…', 'thinking');
+
+  let bubbleText = appendMessage('agent', '', { author: 'Intake editor' });
+  bubbleText.innerHTML = `
+    <span class="ink-blot inline-flex align-middle" style="width:18px;height:18px;color:#cf6a3a;">
+      <svg viewBox="0 0 100 100"><path class="blob"
+        d="M50,12 C70,12 88,28 88,50 C88,70 70,88 50,88 C30,88 12,70 12,50 C12,28 30,12 50,12 Z"/></svg>
+    </span>
+    <span class="ml-2 text-slate-400 text-sm">thinking…</span>`;
+  let buffer = '';
+  let firstToken = true;
+
+  try {
+    const res = await fetch('/api/intake', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message, session_id: state.intakeSessionId }),
+    });
+    if (!res.ok || !res.body) throw new Error('intake request failed');
+
+    const reader = res.body.getReader();
+    const dec = new TextDecoder();
+    let leftover = '';
+
+    while (true) {
+      const { value, done } = await reader.read();
+      if (done) break;
+      const chunk = leftover + dec.decode(value, { stream: true });
+      const events = chunk.split(/\r?\n\r?\n/);
+      leftover = events.pop() || '';
+      for (const evtRaw of events) {
+        if (!evtRaw.trim()) continue;
+        const lines = evtRaw.split(/\r?\n/);
+        let evtName = 'message';
+        let dataLines = [];
+        for (const ln of lines) {
+          if (ln.startsWith('event:')) evtName = ln.slice(6).trim();
+          else if (ln.startsWith('data:')) dataLines.push(ln.slice(5).trim());
+        }
+        const dataStr = dataLines.join('\n');
+        let data;
+        try { data = JSON.parse(dataStr); } catch { data = dataStr; }
+
+        if (evtName === 'session') state.intakeSessionId = data.session_id;
+        else if (evtName === 'token') {
+          if (firstToken) { bubbleText.innerHTML = ''; firstToken = false; }
+          buffer += data.text;
+          bubbleText.textContent = buffer;
+          messagesEl.scrollTop = messagesEl.scrollHeight;
+        } else if (evtName === 'brief') {
+          state.brief = data;
+          renderBrief(data);
+          briefStatus.textContent = 'Ready to generate';
+          btnGenerate.disabled = false;
+        } else if (evtName === 'error') {
+          appendMessage('agent', `Error: ${data.error || data}`, { author: 'system' });
+        }
+      }
+    }
+  } catch (e) {
+    appendMessage('agent', `Network error: ${e.message}`, { author: 'system' });
+  } finally {
+    inputEl.disabled = false;
+    $('btn-send').disabled = false;
+    setStatus('Ready');
+    inputEl.focus();
+  }
+}
+
+// ---------- Brief panel ----------
+function renderBrief(b) {
+  briefEl.innerHTML = '';
+  const fields = [
+    ['Topic', b.topic],
+    ['Audience', b.audience],
+    ['Angle', b.angle || '—'],
+    ['Length', b.length],
+    ['Tone', b.tone],
+    ['Visuals', (b.visuals || []).join(', ') || '—'],
+    ['Formats', (b.formats || []).join(', ')],
+    ['Citation', b.citation_style],
+    ['OneDrive upload', b.upload_to_onedrive ? 'yes' : 'no'],
+    ['Notes', b.notes || '—'],
+  ];
+  for (const [k, v] of fields) {
+    const row = document.createElement('div');
+    row.innerHTML = `<div class="field-label">${k}</div><div class="text-slate-100">${escapeHtml(String(v))}</div>`;
+    briefEl.appendChild(row);
+  }
+}
+
+function escapeHtml(s) {
+  return s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+// ---------- Generation ----------
+const PIPELINE_STAGES = ['Planner', 'ResearchLoop', 'SectionPlanner', 'Writer', 'CitationReplacer', 'Renderers'];
+
+function renderStagePills() {
+  stagePillsEl.innerHTML = '';
+  for (const s of PIPELINE_STAGES) {
+    const el = document.createElement('span');
+    el.className = 'stage-pill';
+    el.id = `pill-${s}`;
+    el.textContent = s;
+    stagePillsEl.appendChild(el);
+  }
+}
+
+function pillState(name, state) {
+  const el = $(`pill-${name}`);
+  if (!el) return;
+  el.classList.remove('active', 'done');
+  if (state) el.classList.add(state);
+  // clear timer on done
+  if (state !== 'active') {
+    const t = el.querySelector('.timer'); if (t) t.remove();
+  }
+}
+
+let stageTickHandle = null;
+function startStageTimer(name) {
+  const el = $(`pill-${name}`);
+  if (!el) return;
+  let t = el.querySelector('.timer');
+  if (!t) {
+    t = document.createElement('span');
+    t.className = 'timer';
+    el.appendChild(t);
+  }
+  const startedAt = performance.now();
+  if (stageTickHandle) clearInterval(stageTickHandle);
+  const tick = () => {
+    const s = (performance.now() - startedAt) / 1000;
+    t.textContent = s < 60 ? `${s.toFixed(1)}s` : `${Math.floor(s/60)}m${Math.floor(s%60)}s`;
+  };
+  tick();
+  stageTickHandle = setInterval(tick, 200);
+}
+function stopStageTimer() {
+  if (stageTickHandle) { clearInterval(stageTickHandle); stageTickHandle = null; }
+}
+
+async function generate() {
+  if (!state.brief || state.generating) return;
+  state.generating = true;
+  state.lastEventAt = performance.now();
+  state.genStartAt = performance.now();
+  btnGenerate.disabled = true;
+  resultsEl.classList.add('hidden');
+  resultsEl.innerHTML = '';
+  renderStagePills();
+  $('heartbeat').classList.remove('hidden');
+  $('hb-stage').textContent = 'starting…';
+  startHeartbeatTicker();
+  appendMessage('agent', `Starting research on: ${state.brief.topic}`, { author: 'pipeline' });
+  setStatus('Generating report…', 'working');
+
+  // Make sure graph is loaded for highlighting
+  await ensureGraph();
+
+  try {
+    const res = await fetch('/api/generate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ brief: state.brief }),
+    });
+    if (!res.ok || !res.body) throw new Error('generate request failed');
+
+    const reader = res.body.getReader();
+    const dec = new TextDecoder();
+    let leftover = '';
+
+    while (true) {
+      const { value, done } = await reader.read();
+      if (done) break;
+      const chunk = leftover + dec.decode(value, { stream: true });
+      const events = chunk.split(/\r?\n\r?\n/);
+      leftover = events.pop() || '';
+      for (const evtRaw of events) {
+        if (!evtRaw.trim()) continue;
+        const lines = evtRaw.split(/\r?\n/);
+        let evtName = 'message';
+        let dataLines = [];
+        for (const ln of lines) {
+          if (ln.startsWith('event:')) evtName = ln.slice(6).trim();
+          else if (ln.startsWith('data:')) dataLines.push(ln.slice(5).trim());
+        }
+        let data; try { data = JSON.parse(dataLines.join('\n')); } catch { data = {}; }
+
+        if (evtName === 'agent') {
+          state.lastEventAt = performance.now();
+          handleAgentEvent(data);
+        } else if (evtName === 'heartbeat') {
+          // server is alive — just refresh the "last server beat" marker
+          state.lastBeatAt = performance.now();
+        } else if (evtName === 'graph') {
+          // graph already cached
+        } else if (evtName === 'result') {
+          showResults(data);
+        } else if (evtName === 'error') {
+          appendMessage('agent', `Pipeline error: ${data.error}`, { author: 'system' });
+        }
+      }
+    }
+  } catch (e) {
+    appendMessage('agent', `Generation failed: ${e.message}`, { author: 'system' });
+  } finally {
+    state.generating = false;
+    btnGenerate.disabled = false;
+    setStatus('Ready');
+    stopHeartbeatTicker();
+    stopStageTimer();
+    $('heartbeat').classList.add('hidden');
+  }
+}
+
+function handleAgentEvent(data) {
+  const author = data.author || 'agent';
+  appendActivity(author + (data.text ? `: ${data.text.slice(0, 80)}` : ''));
+  highlightNode(author);
+
+  // Mark prior pipeline stage done if we moved on.
+  const idx = PIPELINE_STAGES.indexOf(author);
+  if (idx >= 0) {
+    PIPELINE_STAGES.slice(0, idx).forEach(s => pillState(s, 'done'));
+    pillState(author, 'active');
+    startStageTimer(author);
+    $('hb-stage').textContent = author;
+  }
+
+  if (data.text) {
+    appendMessage('agent', data.text, { author });
+  }
+}
+
+let heartbeatTickHandle = null;
+function startHeartbeatTicker() {
+  if (heartbeatTickHandle) clearInterval(heartbeatTickHandle);
+  state.lastBeatAt = performance.now();
+  heartbeatTickHandle = setInterval(() => {
+    const elapsed = (performance.now() - state.genStartAt) / 1000;
+    const since = (performance.now() - state.lastEventAt) / 1000;
+    $('hb-elapsed').textContent = elapsed < 60
+      ? `${elapsed.toFixed(0)}s`
+      : `${Math.floor(elapsed/60)}m${Math.floor(elapsed%60)}s`;
+    $('hb-since').textContent = `${since.toFixed(0)}s`;
+  }, 250);
+}
+function stopHeartbeatTicker() {
+  if (heartbeatTickHandle) { clearInterval(heartbeatTickHandle); heartbeatTickHandle = null; }
+}
+
+function showResults(data) {
+  resultsEl.innerHTML = '';
+  resultsEl.classList.remove('hidden');
+  PIPELINE_STAGES.forEach(s => pillState(s, 'done'));
+
+  const items = [
+    { name: data.pdf_name, path: data.pdf_path, label: 'PDF', icon: '📄', color: 'from-rose-500/20 to-pink-500/10' },
+    { name: data.docx_name, path: data.docx_path, label: 'Word', icon: '📝', color: 'from-sky-500/20 to-indigo-500/10' },
+  ];
+  for (const it of items) {
+    if (!it.name) continue;
+    const card = document.createElement('div');
+    card.className = `bg-gradient-to-br ${it.color} border border-white/10 rounded-xl p-4`;
+    card.innerHTML = `
+      <div class="text-2xl mb-2">${it.icon}</div>
+      <div class="text-xs uppercase tracking-wider text-slate-400">${it.label}</div>
+      <div class="text-sm font-medium truncate" title="${escapeHtml(it.name)}">${escapeHtml(it.name)}</div>
+      <div class="mt-3 flex gap-2">
+        <a class="btn-primary px-3 py-1.5 rounded-lg text-xs" href="/api/files/${encodeURIComponent(it.name)}" target="_blank">Download</a>
+        ${it.label === 'Word' && state.brief?.upload_to_onedrive
+          ? `<button data-name="${escapeHtml(it.name)}" class="btn-ghost px-3 py-1.5 rounded-lg text-xs upload-btn">Upload to OneDrive</button>`
+          : ''}
+      </div>
+    `;
+    resultsEl.appendChild(card);
+  }
+  for (const btn of resultsEl.querySelectorAll('.upload-btn')) {
+    btn.addEventListener('click', async () => {
+      btn.disabled = true; btn.textContent = 'Uploading…';
+      try {
+        const r = await fetch('/api/ms365-upload', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ filename: btn.dataset.name }),
+        });
+        const data = await r.json();
+        const card = btn.closest('div');
+        if (r.ok && data.ok) {
+          btn.textContent = 'Uploaded ✓';
+          const linkRow = document.createElement('div');
+          linkRow.className = 'mt-2 text-xs';
+          if (data.web_url) {
+            linkRow.innerHTML = `<a href="${data.web_url}" target="_blank"
+              class="text-accent-400 hover:text-accent-500 underline break-all">Open in OneDrive →</a>`;
+          } else {
+            linkRow.innerHTML = `<span class="text-slate-400">Uploaded to OneDrive ${escapeHtml(data.folder)}/${escapeHtml(data.filename)} — open onedrive.live.com to view.</span>`;
+          }
+          card.appendChild(linkRow);
+        } else {
+          btn.textContent = 'Failed';
+          btn.disabled = false;
+          const err = document.createElement('div');
+          err.className = 'mt-2 text-xs text-rose-300';
+          err.textContent = data.message || data.hint || 'Upload failed';
+          card.appendChild(err);
+        }
+      } catch (e) {
+        btn.textContent = 'Network error';
+        btn.disabled = false;
+      }
+    });
+  }
+}
+
+// ---------- Diagram (Cytoscape) ----------
+async function ensureGraph() {
+  if (state.cy) return;
+  const r = await fetch('/api/agent-graph');
+  const g = await r.json();
+  buildCy(g);
+}
+
+function buildCy(g) {
+  const elements = [];
+  for (const n of g.nodes) {
+    elements.push({ data: { id: n.id, label: n.label, kind: n.kind, description: n.description } });
+  }
+  for (const e of g.edges) {
+    elements.push({
+      data: {
+        id: `${e.source}->${e.target}-${e.kind}`,
+        source: e.source, target: e.target, kind: e.kind,
+      },
+    });
+  }
+  state.cy = cytoscape({
+    container: document.getElementById('cy'),
+    elements,
+    layout: { name: 'breadthfirst', directed: true, padding: 24, spacingFactor: 1.2 },
+    style: [
+      {
+        selector: 'node',
+        style: {
+          'shape': 'round-rectangle',
+          'width': 'label', 'height': 36, 'padding': '12px',
+          'background-color': '#162043',
+          'border-color': '#5685ff', 'border-width': 1.2,
+          'color': '#e7ecff',
+          'label': 'data(label)',
+          'font-family': 'Inter',
+          'font-size': 12,
+          'text-valign': 'center', 'text-halign': 'center',
+          'text-margin-y': 0,
+          'transition-property': 'background-color, border-color, border-width',
+          'transition-duration': '180ms',
+        },
+      },
+      { selector: 'node[kind = "sequential"]', style: { 'background-color': '#1f2b5c', 'border-color': '#7aa2ff' }},
+      { selector: 'node[kind = "loop"]',       style: { 'background-color': '#3a2455', 'border-color': '#c084fc' }},
+      { selector: 'node[kind = "parallel"]',   style: { 'background-color': '#1c3b3b', 'border-color': '#34d399' }},
+      { selector: 'node[kind = "pdfrenderer"], node[kind = "docxrenderer"]', style: { 'background-color': '#3a2c12', 'border-color': '#f1c34a' }},
+      { selector: 'node.active', style: { 'background-color': '#5685ff', 'border-color': '#fff', 'border-width': 3 }},
+      { selector: 'node.done',   style: { 'background-color': '#1d3a2a', 'border-color': '#34d399' }},
+      {
+        selector: 'edge',
+        style: {
+          'curve-style': 'bezier',
+          'target-arrow-shape': 'triangle',
+          'line-color': '#3a4a7a',
+          'target-arrow-color': '#3a4a7a',
+          'width': 1.5, 'opacity': 0.7,
+        },
+      },
+      { selector: 'edge[kind = "contains"]', style: { 'line-style': 'dashed', 'opacity': 0.45 }},
+      { selector: 'edge.flowing', style: {
+          'line-color': '#5685ff', 'target-arrow-color': '#5685ff', 'width': 3,
+          'line-dash-pattern': [8, 4], 'line-style': 'dashed',
+        }
+      },
+    ],
+  });
+
+  state.cy.on('tap', 'node', (e) => {
+    const n = e.target.data();
+    document.getElementById('node-info').innerHTML = `
+      <div class="text-base font-semibold">${escapeHtml(n.label)}</div>
+      <div class="text-xs uppercase text-slate-400 mt-1">${escapeHtml(n.kind)}</div>
+      <div class="mt-3 text-slate-300 leading-relaxed">${escapeHtml(n.description || '—')}</div>
+    `;
+  });
+}
+
+let dashOffsetTimer = null;
+function highlightNode(name) {
+  if (!state.cy) return;
+  const node = state.cy.$id(name);
+  if (!node || node.empty()) return;
+
+  if (state.activeNode && state.activeNode !== name) {
+    const prev = state.cy.$id(state.activeNode);
+    if (!prev.empty()) { prev.removeClass('active'); prev.addClass('done'); }
+  }
+  state.activeNode = name;
+  node.removeClass('done').addClass('active');
+
+  state.cy.edges().removeClass('flowing');
+  node.connectedEdges().filter('[kind="flow"], [kind="contains"]').addClass('flowing');
+
+  // Animate marching-ants on flowing edges.
+  if (dashOffsetTimer) clearInterval(dashOffsetTimer);
+  let offset = 0;
+  dashOffsetTimer = setInterval(() => {
+    offset = (offset + 2) % 24;
+    state.cy.edges('.flowing').style('line-dash-offset', offset);
+  }, 80);
+}
+
+// ---------- Modal ----------
+$('btn-graph').addEventListener('click', async () => {
+  $('modal').classList.remove('hidden');
+  await ensureGraph();
+  setTimeout(() => state.cy && state.cy.fit(undefined, 30), 60);
+});
+$('btn-close-modal').addEventListener('click', () => $('modal').classList.add('hidden'));
+$('btn-fit').addEventListener('click', () => state.cy && state.cy.fit(undefined, 30));
+
+// ---------- Wire up ----------
+$('btn-send').addEventListener('click', () => {
+  const v = inputEl.value.trim();
+  if (v) sendIntake(v);
+});
+inputEl.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); $('btn-send').click(); }
+});
+btnGenerate.addEventListener('click', generate);
+$('btn-reset').addEventListener('click', () => location.reload());
+
+// ---------- Boot ----------
+appendMessage('agent', "Hi — I'll help you scope and generate a deep-research report. What topic should we cover?", { author: 'Intake editor' });
+ensureGraph();  // pre-load topology
+inputEl.focus();
+</script>
+</body>
+</html>

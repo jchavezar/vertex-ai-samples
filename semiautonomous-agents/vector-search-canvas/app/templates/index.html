@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Vector Search Canvas</title>
+<link rel="stylesheet" href="/static/styles.css?v=1">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <span class="brand__dot"></span>
+    <span class="brand__name">Vector Search Canvas</span>
+    <span class="brand__sub">flip a switch · watch the call · see the cost</span>
+  </div>
+  <div class="env">
+    <span class="env__chip">{{ config.project }} / {{ config.location }}</span>
+    <span id="health" class="env__chip env__chip--warn">checking…</span>
+  </div>
+</header>
+
+<main class="grid">
+
+  <!-- ───────────── Query bar ───────────── -->
+  <section class="bar">
+    <input id="q" class="bar__input" type="text"
+           placeholder="try: a calm peaceful sunset over mountains"
+           value="a calm peaceful sunset over mountains">
+    <button id="go" class="bar__go">Search</button>
+  </section>
+
+  <!-- ───────────── Toggles ───────────── -->
+  <section class="panel toggles">
+    <h2 class="panel__h">Toggles <span class="panel__sub">— each maps 1:1 to a kwarg</span></h2>
+
+    <div class="toggle">
+      <label class="toggle__label">Algorithm</label>
+      <div class="seg" data-name="algorithm">
+        <button class="seg__btn is-active" data-v="both">both (compare)</button>
+        <button class="seg__btn" data-v="tree_ah">TREE_AH only</button>
+        <button class="seg__btn" data-v="brute_force">BRUTE_FORCE only</button>
+      </div>
+      <p class="toggle__hint">TREE_AH = ScaNN approximate, fast. BRUTE_FORCE = exact, slow but ground-truth.</p>
+    </div>
+
+    <div class="toggle">
+      <label class="toggle__label">k = <span id="k-val">20</span></label>
+      <input id="k" class="slider" type="range" min="1" max="100" value="20">
+      <p class="toggle__hint"><code>num_neighbors</code> — how many you ask for. Latency rises slowly with k.</p>
+    </div>
+
+    <div class="toggle">
+      <label class="toggle__label">leaf_nodes_to_search % override = <span id="leaf-val">0</span></label>
+      <input id="leaf" class="slider" type="range" min="0" max="100" value="0">
+      <p class="toggle__hint">0 = use the index default (10%). Higher = more accurate, slower. <em>tree_ah only.</em></p>
+    </div>
+
+    <div class="toggle">
+      <label class="toggle__label">crowding = <span id="crowd-val">0</span></label>
+      <input id="crowd" class="slider" type="range" min="0" max="10" value="0">
+      <p class="toggle__hint"><code>per_crowding_attribute_num_neighbors</code>. Caps how many results share an attribute (here: modality). 0 = off.</p>
+    </div>
+
+    <div class="toggle">
+      <label class="toggle__label">Restrict <code>modality</code> (allow)</label>
+      <div class="chips" data-name="modality_allow">
+        <button class="chip" data-v="photo">photo</button>
+        <button class="chip" data-v="video">video</button>
+        <button class="chip" data-v="audio">audio</button>
+        <button class="chip" data-v="sfx">sfx</button>
+      </div>
+      <p class="toggle__hint">Hard filter at search time. Empty = no filter. Combines with deny.</p>
+    </div>
+
+    <div class="toggle">
+      <label class="toggle__label">Restrict <code>modality</code> (deny)</label>
+      <div class="chips" data-name="modality_deny">
+        <button class="chip" data-v="photo">photo</button>
+        <button class="chip" data-v="video">video</button>
+        <button class="chip" data-v="audio">audio</button>
+        <button class="chip" data-v="sfx">sfx</button>
+      </div>
+    </div>
+
+    <div class="toggle toggle--row">
+      <label class="switch">
+        <input id="returnfull" type="checkbox">
+        <span class="switch__track"></span>
+        <span class="switch__label">return_full_datapoint</span>
+      </label>
+      <p class="toggle__hint">Echo the embedding back. Costs bandwidth. Off by default.</p>
+    </div>
+  </section>
+
+  <!-- ───────────── Code preview ───────────── -->
+  <section class="panel code">
+    <h2 class="panel__h">The call <span class="panel__sub">— this is what your code does</span></h2>
+<pre id="code" class="code__block">endpoint.find_neighbors(...)</pre>
+
+    <div class="metrics">
+      <div class="metric">
+        <div class="metric__label">embed</div>
+        <div class="metric__val" id="m-embed">–</div>
+        <div class="metric__unit">ms</div>
+      </div>
+      <div class="metric">
+        <div class="metric__label">approx</div>
+        <div class="metric__val" id="m-approx">–</div>
+        <div class="metric__unit">ms</div>
+      </div>
+      <div class="metric">
+        <div class="metric__label">exact</div>
+        <div class="metric__val" id="m-exact">–</div>
+        <div class="metric__unit">ms</div>
+      </div>
+      <div class="metric metric--big">
+        <div class="metric__label">recall@k</div>
+        <div class="metric__val" id="m-recall">–</div>
+        <div class="metric__unit"><span id="m-overlap"></span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ───────────── Results ───────────── -->
+  <section class="panel results">
+    <div class="cols">
+      <div class="col">
+        <h3 class="col__h"><span class="dot dot--approx"></span>APPROX (TREE_AH)</h3>
+        <ul id="list-approx" class="hits"></ul>
+      </div>
+      <div class="col">
+        <h3 class="col__h"><span class="dot dot--exact"></span>EXACT (BRUTE_FORCE)</h3>
+        <ul id="list-exact" class="hits"></ul>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<script src="/static/canvas.js?v=1"></script>
+</body>
+</html>
