@@ -72,14 +72,24 @@ The chart's structure has already been identified:
 
 Your job: read the numeric values for each series at each x_category. Return a ChartData object where:
 - Use the EXACT `x_categories` and series names listed above. Do not change, reorder, or relabel them.
-- `series[i].values[j]` is the value of series i at x_category j. Length of every `values` array MUST equal {n_categories}.
+- `series[i].values[j]` is the value of series i at x_category j (NUMERIC). Length of every `values` array MUST equal {n_categories}.
+- `series[i].value_labels[j]` is the LITERAL TEXT shown on the chart for that cell (string), preserving the printed format. Length MUST equal {n_categories} when populated.
 - For stacked bar / pie / donut charts in % unit: the segments at each x position should sum to ~100. Verify before returning; if a stack doesn't sum to 100 the values are wrong.
 - For grouped bars: each series is a within-group dimension; values[j] is the bar height for that series at group j.
-- If a value is not legible in the image, use null (NOT 0, NOT a guess).
+- If a value is not legible in the image, use null (NOT 0, NOT a guess) — for both `values` and `value_labels`.
 - Map series to colors using the legend; do not confuse adjacent colors.
 - Read EVERY data label visible. Cross-check against axis ticks for unlabelled bars.
 - Write a one-sentence `summary` of the headline insight.
-- Set `legend_visible` to the same value the schema pass returned ({legend_visible})."""
+- Set `legend_visible` to the same value the schema pass returned ({legend_visible}).
+
+CRITICAL — RANGES, UNITS, ANNOTATIONS:
+- If a chart shows a cell as a RANGE (e.g. "560-850", "$1,370-$1,700", "1.0-1.1%", "(0.6)-1.2%", "490 to 720"):
+    * Set `values[j]` to the MIDPOINT (e.g. 705 for "560-850"), so downstream math still works.
+    * Set `value_labels[j]` to the LITERAL printed text VERBATIM (e.g. "560-850" or "$560-850" or "1.0-1.1%"). NEVER collapse to a single number in value_labels.
+- If a chart shows a unit suffix (%, $, B, M, K) on the printed value, INCLUDE it in `value_labels[j]` (e.g. "53%", "$749B", "2,343").
+- For SINGLE-VALUE cells like "53", set value_labels[j] to "53" (verbatim including any unit shown).
+- For LIST-style cells (e.g. "$3.3B / 16 awards"), use the literal text in value_labels and a representative number in values.
+- NEVER infer or compute a value the chart doesn't print. NEVER replace a printed range with a midpoint in value_labels."""
 
 
 CHART_RETRY_PROMPT = """You previously extracted this chart but the following automated validators failed:

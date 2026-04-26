@@ -18,3 +18,10 @@ out/
 .DS_Store
 .idea/
 .vscode/
+
+# Secrets
+.env
+
+# Eval scratch
+eval/runs/
+eval/per_page_local/

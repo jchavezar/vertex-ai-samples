@@ -1,7 +1,11 @@
 #!/usr/bin/env bash
 # One-shot setup: buckets + service account + Cloud Run + Eventarc trigger.
 # Idempotent — re-run after edits.
+#
+# Run from anywhere — cds to its own directory so the Cloud Build context
+# always points at extractor/ (where Dockerfile + src/ live).
 set -euo pipefail
+cd "$(dirname "${BASH_SOURCE[0]}")"
 
 PROJECT="${PROJECT:-my-project}"
 REGION="${REGION:-us-central1}"

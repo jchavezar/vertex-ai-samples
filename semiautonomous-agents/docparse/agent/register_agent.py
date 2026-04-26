@@ -22,11 +22,14 @@ import json
 import os
 import subprocess
 import sys
+from pathlib import Path
 
 import requests
 from dotenv import load_dotenv
 
-load_dotenv()
+# Walk up to docparse/.env (one level above agent/)
+_HERE = Path(__file__).resolve().parent
+load_dotenv(_HERE.parent / ".env")
 
 
 GE_PROJECT_ID = os.environ["GE_PROJECT_ID"]

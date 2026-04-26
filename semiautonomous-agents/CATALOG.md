@@ -51,8 +51,7 @@ When you start a new project, **add a row here first** — even before the READM
 ### RAG & document intelligence
 - [`hierarchical-rag-pgvector/`](./hierarchical-rag-pgvector/) — Parent-child chunking with Cloud SQL pgvector. **Tags:** `rag` `pgvector`
 - [`multimodal-doc-search/`](./multimodal-doc-search/) — Images + tables + text in one semantic index. **Tags:** `rag` `multimodal` `pgvector`
-- [`docparse/`](./docparse/) — Multimodal PDF parsing with Gemini Vision: region detection, OCR, structured extraction to markdown. **Tags:** `pdf-parsing` `gemini-vision` `document-extraction` `vertex-ai`
-- [`docparse-rag-agent/`](./docparse-rag-agent/) — ADK agent over a Vertex AI RAG Engine corpus of docparse markdown. Deployed to Agent Engine, registered in Gemini Enterprise (cross-project), shared ALL_USERS. **92.9% composite on 216-question eval** (vs 81% for DE streamAssist). [Full eval →](./docparse-rag-agent/EVAL.md). **Tags:** `adk` `rag-engine` `gemini-3-flash` `agent-engine` `gemini-enterprise` `cross-project`
+- [`docparse/`](./docparse/) — End-to-end PDF → Markdown → RAG agent in Gemini Enterprise. Cloud Run extractor with Gemini-3 vision (region detection, OCR, structured chart/photo extraction) + ADK agent on Vertex AI RAG Engine, registered cross-project in GE with ALL_USERS sharing. One-button `./deploy.sh`. **92.9% composite on 216-question eval** (vs 81% for DE streamAssist, vs 64% for raw-PDF RAG). [Full eval →](./docparse/eval/RESULTS.md). **Tags:** `pdf-parsing` `gemini-vision` `adk` `rag-engine` `gemini-3-flash` `agent-engine` `gemini-enterprise` `cross-project`
 
 ### Agent platforms
 - [`vertex-multi-agent-workbench/`](./vertex-multi-agent-workbench/) — Multi-model (Gemini + Claude) workbench, MCP, ADK + LangGraph. **Tags:** `adk` `multi-agent`

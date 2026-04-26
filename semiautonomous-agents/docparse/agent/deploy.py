@@ -4,6 +4,8 @@
     uv run python deploy.py new         # force fresh deployment (mints a new resource id)
     uv run python deploy.py update      # update REASONING_ENGINE_RES (must be set)
 
+Reads .env from the parent docparse/ directory.
+
 Required env vars (typically loaded from .env via dotenv):
 
     DEPLOY_PROJECT_ID         GCP project that hosts the Agent Engine
@@ -29,13 +31,16 @@ Why the env_vars below matter:
 import os
 import subprocess
 import sys
+from pathlib import Path
 
 import vertexai
 from dotenv import load_dotenv
 from vertexai import agent_engines
 from vertexai.preview import reasoning_engines
 
-load_dotenv()
+# Walk up to docparse/.env (one level above agent/)
+_HERE = Path(__file__).resolve().parent
+load_dotenv(_HERE.parent / ".env")
 
 PROJECT_ID = os.environ["DEPLOY_PROJECT_ID"]
 LOCATION = os.environ.get("DEPLOY_LOCATION", "us-central1")
@@ -83,7 +88,7 @@ def _ensure_bucket():
 def _build_app():
     """Wrap root_agent in an ADK app with tracing on."""
     # Imported here so the agent module reads the (now-loaded) env vars.
-    from agent import root_agent
+    from docparse_agent import root_agent
     return reasoning_engines.AdkApp(agent=root_agent, enable_tracing=True)
 
 
@@ -98,7 +103,7 @@ def deploy():
         display_name=DISPLAY_NAME,
         description=DESCRIPTION,
         requirements=["google-cloud-aiplatform[adk,agent_engines]"],
-        extra_packages=["agent"],
+        extra_packages=["docparse_agent"],
         env_vars=RUNTIME_ENV_VARS,
     )
     print(f"\n=== Deployed ===")
@@ -118,7 +123,7 @@ def update(resource_name: str):
         resource_name=resource_name,
         agent_engine=_build_app(),
         requirements=["google-cloud-aiplatform[adk,agent_engines]"],
-        extra_packages=["agent"],
+        extra_packages=["docparse_agent"],
         env_vars=RUNTIME_ENV_VARS,  # MUST re-supply on every update
     )
     print(f"updated: {remote.resource_name}")

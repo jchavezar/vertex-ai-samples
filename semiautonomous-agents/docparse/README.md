@@ -2,21 +2,73 @@
 
 # docparse
 
-**Chart-aware PDF → Markdown for Gemini Enterprise / Vertex AI Search**
+**Chart-aware PDF → Markdown → RAG agent inside Gemini Enterprise**
 
-GCS upload triggers a Cloud Run service that parses any PDF into LLM-ready Markdown — preserving headings, body, photos, and **structured chart data** that the default GCS-connector pipeline (Document AI Layout Parser) loses.
+A two-stage pipeline that turns PDF reports into a Gemini Enterprise agent: a Cloud Run service extracts each page (preserving chart structure as Markdown tables), and an ADK agent answers questions over the extracted markdown via Vertex AI RAG Engine. Deployed end-to-end with one script.
 
-<a href="./docs/EXTRACTION-DETAILS.md"><img src="https://img.shields.io/badge/-Read%20the%20deep%20dive%20%E2%86%92-1A73E8?style=for-the-badge&logoColor=white" alt="Read the deep dive"></a>
+[![composite](https://img.shields.io/badge/eval%20composite-92.9%25-137333?style=for-the-badge)](./eval/RESULTS.md)
+[![vs DE streamAssist](https://img.shields.io/badge/vs%20DE%20streamAssist-%2B11.9pts-1A73E8?style=for-the-badge)](./eval/RESULTS.md)
+[![one-button deploy](https://img.shields.io/badge/-./deploy.sh-EA8600?style=for-the-badge)](./deploy.sh)
 
 </div>
 
 ---
 
-## Why
+## TL;DR
 
-The first-party **GCS connector** in Gemini Enterprise / Vertex AI Search routes unstructured PDFs through **Document AI Layout Parser**. As of April 2026, image annotation is still in Preview and produces only "a descriptive block of text" for charts — no axes, no series, no values. A 100-cell stacked bar chart becomes useless prose.
+```bash
+cp .env.example .env && $EDITOR .env       # fill in PROJECT
+./deploy.sh                                 # provisions everything
+gcloud storage cp ~/Reports/*.pdf gs://${PROJECT}-docparse-in/
+                                            # ...then chat in your Gemini Enterprise app
+```
 
-`docparse` replaces that step: each PDF is decomposed page-by-page using the Gemini 3 model family, and every chart is reconstructed as a **structured Markdown table** that downstream RAG can actually reason over.
+That's the whole flow. `deploy.sh` runs eight steps (buckets → extractor → ingestion → chunking → RAG corpus → agent → registration), each idempotent. **The full eval that justifies this stack lives in [`eval/RESULTS.md`](./eval/RESULTS.md)**.
+
+---
+
+## Why this exists
+
+Gemini Enterprise's first-party **GCS connector** routes PDFs through Document AI Layout Parser. As of April 2026, it produces "a descriptive block of text" for charts — no axes, no series, no values. A 100-cell stacked bar chart becomes useless prose, and questions like *"What was Q1 2020 mentions?"* can never be answered.
+
+`docparse` does two things instead:
+
+1. **Extract** every page with the Gemini 3 family — region detection, body OCR, **structured chart tables**, photo captions, diagram-as-mermaid. Output is one Markdown file per PDF.
+2. **Serve** that markdown through an ADK agent backed by Vertex AI RAG Engine, registered cross-project in your Gemini Enterprise app.
+
+We benchmarked this stack against 7 alternatives on a 216-question eval. **It scored 92.9% composite — +12 points over Discovery Engine `streamAssist` on the same markdown, +29 points over raw-PDF ingestion.** [Full table here](./eval/RESULTS.md).
+
+---
+
+## Folder layout
+
+```
+docparse/
+├── README.md           ← you are here
+├── deploy.sh           ← one-button orchestrator (extractor + corpus + agent + GE registration)
+├── .env.example        ← every env var; copy to .env
+│
+├── extractor/          ← stage 1: PDF → Markdown (Cloud Run + Eventarc)
+│   ├── deploy.sh           ← step 1-3 of deploy.sh
+│   ├── Dockerfile
+│   ├── pyproject.toml
+│   └── src/docparse/...
+│
+├── agent/              ← stage 2: Markdown → answers (ADK + Agent Engine + GE)
+│   ├── deploy.py           ← step 7 of deploy.sh
+│   ├── register_agent.py   ← step 8 of deploy.sh
+│   ├── pyproject.toml
+│   └── docparse_agent/
+│       └── agent.py        ← the actual ADK Agent (~30 lines)
+│
+└── eval/               ← evaluation harness + the leaderboard that justifies the stack
+    ├── RESULTS.md          ← 8 strategies × 216 questions, with sample answers
+    ├── questions.json      ← 216 ground-truth Q&A pairs
+    ├── run_rag_engine.py   ← strategy runner
+    ├── judge.py            ← Claude-based grader
+    ├── build_per_page.py   ← markdown → per-page chunks (used by deploy.sh too)
+    └── build_results_md.py ← regenerates RESULTS.md from judged/ JSONs
+```
 
 ---
 
@@ -24,225 +76,186 @@ The first-party **GCS connector** in Gemini Enterprise / Vertex AI Search routes
 
 ```mermaid
 flowchart LR
-    U[User / system] -->|upload PDF| IN[(GCS bucket<br/><your-project>-docparse-in)]
-    IN -->|object.finalized| EA{{Eventarc}}
-    EA -->|CloudEvent| CR[Cloud Run<br/>docparse service]
+    USER([end user]) -->|chat| GE[Gemini Enterprise app]
+    GE -->|streamAssist| AGENT
+    AGENT -->|VertexAiRagRetrieval| RAG[(RAG Engine corpus<br/>per-page chunks)]
+    RAG --> AGENT
+    AGENT -->|grounded answer| GE
 
-    subgraph CR_inner[Async pipeline per PDF]
-        direction TB
-        R[render pages<br/>pypdfium2] --> D[detect regions<br/>gemini-3.1-flash-lite]
-        D --> P[page OCR<br/>gemini-3-flash]
-        D --> S[chart extract<br/>gemini-3.1-pro]
-        D --> H[photo caption<br/>gemini-3.1-flash-lite]
-        P --> M[stitch markdown]
-        S --> M
-        H --> M
+    subgraph EXTRACTION[Stage 1 · extractor — Cloud Run]
+        IN[(GCS in)] -->|object.finalized| EA{{Eventarc}}
+        EA --> CR[docparse service<br/>region-detect, chart-extract,<br/>photo-caption, page-OCR<br/>via Gemini 3]
+        CR --> OUT[(GCS out<br/>foo.txt + foo.report.json)]
     end
 
-    CR --> CR_inner
-    CR_inner -->|.md + .report.json| OUT[(GCS bucket<br/><your-project>-docparse-out)]
-    OUT -->|GCS source| GE[Gemini Enterprise<br/>datastore + engine]
-    GE -->|RAG queries| Q[End users]
+    OUT -.deploy.sh: split per-page + import.-> RAG
+
+    subgraph SERVE[Stage 2 · agent — Vertex AI Agent Engine]
+        AGENT[ADK agent<br/>gemini-3-flash-preview]
+    end
 
     classDef bucket fill:#e8f0fe,stroke:#1a73e8,color:#000
     classDef service fill:#fef7e0,stroke:#f9ab00,color:#000
-    classDef ext fill:#e6f4ea,stroke:#137333,color:#000
-    class IN,OUT bucket
-    class CR,CR_inner service
-    class GE ext
+    classDef ge fill:#e6f4ea,stroke:#137333,color:#000
+    class IN,OUT,RAG bucket
+    class CR,AGENT service
+    class GE ge
 ```
 
-| Stage | Model | Why this tier |
-|---|---|---|
-| Region detection | `gemini-3.1-flash-lite-preview` | bbox finding, layout perception |
-| Page OCR (text → markdown) | `gemini-3-flash-preview` | text reflow, no reasoning needed |
-| Chart / diagram extraction | `gemini-3.1-pro-preview` | series mapping, value precision, validators |
-| Photo captioning | `gemini-3.1-flash-lite-preview` | alt-text only |
+**The two stages are decoupled.** You can use the extractor on its own (the markdown is in your GCS bucket), or you can point the agent at a corpus of markdown you produced some other way. `deploy.sh all` provisions both; `deploy.sh extractor` and `deploy.sh agent` run them independently.
 
 ---
 
-## Performance (24-page mixed PDF, 3 charts, 12 photos)
+## Why this configuration won — the eval in 60 seconds
 
-| Metric | Result |
-|---|---|
-| **End-to-end (upload → markdown in output bucket)** | **~3 min 23 s** |
-| Local `parse_pdf_async` only | ~3 min |
-| Page 11 stacked bar (100 cells, 20 industries × 5 categories) | All 100 correct, every stack sums to 100 |
-| Page 5 simple bar (10 cells) | All 10 correct |
-| Page 15 grouped bar (40 cells) | All 40 correct |
-| Total LLM calls | ~64 (1 warm-up · 24 detect · 24 page-OCR · 3 chart · 12 photo) |
+We tested 8 combinations of extraction × indexing × retrieval. Headline numbers:
 
-For the why-and-how behind these numbers, see [the deep dive](./docs/EXTRACTION-DETAILS.md).
+| Stack | Composite |
+|---|---:|
+| 🥇 **docparse markdown + per-page chunks → RAG Engine → Gemini 3 flash** *(this repo)* | **92.9%** |
+| docparse markdown + whole-doc chunks → RAG Engine → Gemini 3 flash | 87.4% |
+| docparse markdown → Discovery Engine `streamAssist` (any parser config) | 75–81% |
+| **raw PDFs** → RAG Engine → Gemini 3 flash *(no docparse)* | **63.8%** |
 
----
+Two axes, both matter independently:
+- **Extraction layer:** docparse vs raw PDF = +29 pts
+- **Retrieval layer:** RAG Engine + Gemini vs Discovery Engine `streamAssist` = +6 pts on the same markdown
 
-## Quick start (use the deployed service)
+Per-question type, the win is concentrated in math (+18 pts) and chart-cell lookups (+16 pts) — the two categories that defeat naive RAG. Page-anchored questions are also +3 because the per-page chunker prepends `# <doc> — Page N` so "on page 11" matches via plain embedding.
 
-```bash
-# Drop a PDF in the input bucket
-gcloud storage cp ./my-doc.pdf gs://<your-project>-docparse-in/
-
-# Tail logs
-gcloud beta run services logs tail docparse \
-  --region=us-central1 --project=<your-project>
-
-# Fetch the markdown when it lands (~2-3 min). NOTE the .txt extension —
-# Discovery Engine ingests by file extension and rejects .md, so we write
-# markdown content to a .txt file. The body is still markdown.
-gcloud storage cp gs://<your-project>-docparse-out/my-doc.txt ./
-```
+**Full eval (leaderboard, per-category, 6 sample showcases, all 216 questions with verdicts): [`eval/RESULTS.md`](./eval/RESULTS.md)**.
 
 ---
 
-## Reproduce in your own GCP project
+## Deploy
 
-### 1. Prerequisites
+### Prerequisites
 
-| Requirement | Notes |
-|---|---|
-| **GCP project with billing enabled** | replaces `<your-project>` below |
-| **Vertex AI access in `global` region** | preview Gemini 3 models live there |
-| **Permissions to enable APIs + create IAM bindings** | Owner or equivalent |
-| `gcloud` CLI ≥ 481 with `application-default login` | |
-| `uv` (Astral) for local development | optional |
+- A GCP project with billing enabled.
+- An authenticated `gcloud` session: `gcloud auth login && gcloud auth application-default login`.
+- `uv` installed: `curl -LsSf https://astral.sh/uv/install.sh | sh`.
+- (Optional) A Gemini Enterprise app you want to register the agent in.
 
-### 2. APIs the service needs
-
-```text
-run.googleapis.com
-eventarc.googleapis.com
-cloudbuild.googleapis.com
-artifactregistry.googleapis.com
-aiplatform.googleapis.com
-storage.googleapis.com
-discoveryengine.googleapis.com   # only for the Gemini Enterprise step
-```
-
-`deploy/setup.sh` enables these for you.
-
-### 3. Clone, configure, deploy
-
-```bash
-git clone <this-repo>
-cd vertex-ai-samples/semiautonomous-agents/docparse
-
-# Override defaults if you want different bucket/region/project:
-PROJECT=my-project \
-REGION=us-central1 \
-INPUT_BUCKET=my-docparse-in \
-OUTPUT_BUCKET=my-docparse-out \
-  ./deploy/setup.sh
-```
-
-The script is **idempotent** — re-run after edits. It creates:
-
-- 2 GCS buckets (input + output)
-- 1 Artifact Registry repo
-- 1 service account (`docparse-runner`) with the minimal roles below
-- 1 Cloud Run service (`docparse`) — 2 vCPU / 2 GiB / concurrency 1 / max 10 instances
-- 1 Eventarc trigger on `object.finalized` of the input bucket
-
-### 4. IAM bindings the script applies
-
-| Member | Role | Scope | Why |
-|---|---|---|---|
-| `docparse-runner@<project>` | `roles/storage.objectViewer` | input bucket | download PDFs |
-| `docparse-runner@<project>` | `roles/storage.objectAdmin` | output bucket | write markdowns |
-| `docparse-runner@<project>` | `roles/aiplatform.user` | project | call Gemini |
-| `docparse-runner@<project>` | `roles/run.invoker` | project | Eventarc invokes Cloud Run as this SA |
-| `docparse-runner@<project>` | `roles/eventarc.eventReceiver` | project | Eventarc dispatches to it |
-| GCS service agent (`service-<N>@gs-project-accounts`) | `roles/pubsub.publisher` | project | GCS object events flow via Pub/Sub |
-| Eventarc service agent (`service-<N>@gcp-sa-eventarc`) | `roles/storage.legacyBucketReader` | input bucket | Eventarc validates the bucket on trigger create |
-| Default compute SA (`<N>-compute@developer`) | `roles/cloudbuild.builds.builder` | project | `gcloud builds submit` source upload |
-| Discovery Engine SA (`service-<N>@gcp-sa-discoveryengine`) | `roles/storage.admin` | output bucket | only required for **Streaming** datastores — they create a Pub/Sub notification on the bucket which needs `storage.buckets.update` |
-
-> **First-time-in-project gotcha:** the GCS, Eventarc, and Discovery Engine service agents may not exist until you call `gcloud beta services identity create --service=<api>`. `setup.sh` does this for you; if you run the gcloud commands by hand, do those first or the IAM bindings fail with `Service account ... does not exist`.
-
-### 5. Wire the output bucket into Gemini Enterprise
-
-```bash
-# Grant the GE service agent in your GE project read on the output bucket
-GE_PROJECT_NUM=$(gcloud projects describe <ge-project> --format='value(projectNumber)')
-gcloud storage buckets add-iam-policy-binding gs://my-docparse-out \
-  --member="serviceAccount:service-${GE_PROJECT_NUM}@gcp-sa-discoveryengine.iam.gserviceaccount.com" \
-  --role="roles/storage.objectViewer" \
-  --project=<docparse-project>
-
-# Create a datastore in your GE project pointing at the output bucket
-DATASTORE_ID=docparse_md_$(date +%s)
-curl -X POST -H "Authorization: Bearer $(gcloud auth print-access-token)" \
-  -H "X-Goog-User-Project: <ge-project>" -H "Content-Type: application/json" \
-  "https://discoveryengine.googleapis.com/v1/projects/<ge-project>/locations/global/collections/default_collection/dataStores?dataStoreId=${DATASTORE_ID}" \
-  -d '{
-    "displayName": "docparse markdowns",
-    "industryVertical": "GENERIC",
-    "solutionTypes": ["SOLUTION_TYPE_SEARCH"],
-    "contentConfig": "CONTENT_REQUIRED"
-  }'
-
-# Import the markdowns
-curl -X POST -H "Authorization: Bearer $(gcloud auth print-access-token)" \
-  -H "X-Goog-User-Project: <ge-project>" -H "Content-Type: application/json" \
-  "https://discoveryengine.googleapis.com/v1/projects/<ge-project>/locations/global/collections/default_collection/dataStores/${DATASTORE_ID}/branches/0/documents:import" \
-  -d '{
-    "gcsSource": {"inputUris": ["gs://my-docparse-out/*.txt"], "dataSchema": "content"},
-    "reconciliationMode": "INCREMENTAL"
-  }'
-```
-
-> **Attaching to an existing engine:** the cleanest path is the Gemini Enterprise console — open the engine, go to **Connected data stores → Add**, and pick the datastore you just created. The v1 REST `engines.patch` endpoint will refuse this on engines created with a single datastore (`FAILED_PRECONDITION`); the console handles it correctly.
-
-### 6. Test it
-
-```bash
-gcloud storage cp ./any.pdf gs://my-docparse-in/
-# Wait ~2-3 min, then:
-gcloud storage ls gs://my-docparse-out/
-```
-
----
-
-## Local development
+### Steps
 
 ```bash
 cd docparse
-uv sync
+cp .env.example .env
+$EDITOR .env                    # set PROJECT, optionally GE_PROJECT_ID + AS_APP
 
-# Run the parser as a CLI (no GCS, no Cloud Run)
-uv run docparse ./any.pdf -o ./out
+./deploy.sh                     # all eight steps end-to-end
+```
 
-# Run the FastAPI service locally
-OUTPUT_BUCKET=my-docparse-out \
-  uv run uvicorn docparse.service:app --port 8080
+The script writes `RAG_CORPUS_NAME` and `REASONING_ENGINE_RES` back into `.env` after creation, so subsequent runs are idempotent (no duplicate corpora, agent updates instead of recreating).
+
+### Use the pipeline
+
+After `./deploy.sh`:
+
+```bash
+gcloud storage cp ~/your-report.pdf gs://${PROJECT}-docparse-in/
+# Eventarc fires → Cloud Run extracts → markdown lands in gs://${PROJECT}-docparse-out/
+# Re-run the agent step to import new pages and update the corpus:
+./deploy.sh agent
+```
+
+Then open your Gemini Enterprise app — the `docparse RAG agent` is in the agent picker, shared with `ALL_USERS`. Citations link straight back to the source GCS URI for the page that grounded each fact.
+
+### Run just one stage
+
+```bash
+./deploy.sh extractor    # buckets, IAM, Cloud Run, Eventarc
+./deploy.sh agent        # per-page split → RAG corpus → Agent Engine
+./deploy.sh register     # cross-project register in Gemini Enterprise
 ```
 
 ---
 
-## Repository layout
+## How the agent passes grounding back to the chat UI
+
+There's no special grounding API between layers. Each layer treats grounding as a first-class structured field and just preserves it.
 
 ```
-docparse/
-├── src/docparse/
-│   ├── pipeline.py        # async fan-out orchestration
-│   ├── render.py          # pypdfium2 page rendering + bbox utilities
-│   ├── detect.py          # per-page region detection (lite + flash fallback)
-│   ├── extract.py         # page OCR + chart/table/diagram/photo extractors
-│   ├── prompts.py         # all Gemini prompts
-│   ├── gemini.py          # async client, warm-up, thinking config, retries
-│   ├── schemas.py         # Pydantic schemas for structured outputs
-│   ├── storage.py         # GCS download/upload helpers
-│   ├── service.py         # FastAPI handler for Eventarc CloudEvents
-│   └── cli.py             # `docparse` command
-├── Dockerfile
-├── deploy/setup.sh
-├── docs/
-│   └── EXTRACTION-DETAILS.md   # the full design rationale
-├── pyproject.toml
-└── README.md (this file)
+RAG retrieval API
+   ↓ chunks[] = { text, source_metadata{ uri, ... } }
+ADK tool wrapper (VertexAiRagRetrieval)
+   ↓ packages chunks as a function_response
+Gemini 3 flash
+   ↓ answer text + groundingMetadata{ chunks, supports → segment offsets }
+ADK Event
+   ↓ groundingMetadata preserved verbatim
+Agent Engine stream_query
+   ↓ JSON event to caller
+Gemini Enterprise streamAssist
+   ↓ rewrites to textGroundingMetadata{ references[], segments[] }
+GE web UI
+   ↓ footnote markers + globe-icon citation chips with source GCS URI
 ```
 
-<div align="center">
+If the model didn't actually use any retrieved chunk, no `groundingMetadata` is emitted, no citations appear in the UI. The absence of a citation is a real signal — not a UI bug.
 
-<a href="./docs/EXTRACTION-DETAILS.md"><img src="https://img.shields.io/badge/-Continue%20to%20the%20deep%20dive%20%E2%86%92-1A73E8?style=for-the-badge&logoColor=white" alt="Continue to the deep dive"></a>
+---
 
-</div>
+## Critical gotcha: Gemini 3 preview is `global`-only
+
+Agent Engine deploys to a regional endpoint (e.g. `us-central1`). If you set `model="gemini-3-flash-preview"` and don't override the runtime location, the genai client builds the API URL from `us-central1` and 404s. Fix is in [`agent/deploy.py`](./agent/deploy.py):
+
+```python
+RUNTIME_ENV_VARS = {
+    "GOOGLE_CLOUD_LOCATION": "global",
+    "GOOGLE_GENAI_USE_VERTEXAI": "true",
+    ...
+}
+```
+
+These env vars are **not** persisted by `agent_engines.update()` — re-supply on every update call. Verify with:
+
+```bash
+gcloud ai reasoning-engines describe <id> --region=<region>
+# look for deploymentSpec.env — both vars must be present
+```
+
+---
+
+## Observability
+
+`enable_tracing=True` on the ADK app emits OpenTelemetry spans to Cloud Trace:
+
+```
+https://console.cloud.google.com/traces/list?project=<DEPLOY_PROJECT_ID>
+```
+
+Filter by service name containing `reasoning` or `agent`, time range last 15 min. You'll see a span waterfall: agent root → tool call to RAG retrieval → Gemini generate. Each model call shows tokens, latency, prompt/response.
+
+---
+
+## Re-running the eval
+
+The eval is a one-off harness against a specific corpus, not production code. To benchmark a new strategy:
+
+```bash
+cd eval/
+
+# 1. Run your strategy through the 216 questions → runs/<your-label>.json
+uv run --with google-genai python run_rag_engine.py \
+    "projects/.../locations/us-central1/ragCorpora/..." your-label
+
+# 2. Judge it with Claude → judged/<your-label>.json
+uv run --with 'anthropic[vertex]' python judge.py runs/your-label.json your-label
+
+# 3. Regenerate the leaderboard markdown
+python build_results_md.py
+```
+
+The 216 ground-truth Q&A pairs in `questions.json` are tied to two specific PDFs (Accenture-Metaverse + SE-Competitive-Intelligence). To eval against a different corpus, replace `questions.json` with your own ground truth and the harness still works.
+
+---
+
+## What's not covered (honest limits)
+
+- **Live vision at query time.** The agent answers chart and photo questions from text retrieved at runtime, not by looking at pixel data. Vision work happens once at extraction. If docparse misreads a chart cell, the agent will confidently repeat the wrong value.
+- **Cross-document reasoning.** Questions in the eval are mostly within-doc lookups. "Compare X in report A vs report B" hasn't been stress-tested.
+- **Languages other than English.** Not in the eval.
+- **Scanned / handwritten / low-quality PDFs.** Docparse expects clean digital reports.
+
+The next ~5pt improvement would come from a re-ranker on top of `top_k=20` retrieval — see the [`eval/RESULTS.md` "what's not covered"](./eval/RESULTS.md) section for the headroom analysis.

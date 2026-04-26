@@ -63,6 +63,52 @@ def _escape_cell(s: str) -> str:
     return str(s).replace("|", "\\|").replace("\n", " ").strip()
 
 
+def _cell_label(s, i: int) -> str | None:
+    """Pick the most retrieval-friendly label for series s at index i.
+    Prefers the literal printed text (value_labels) over the numeric value
+    so ranges / units / annotations are preserved verbatim."""
+    if i < len(s.value_labels) and s.value_labels[i]:
+        return s.value_labels[i]
+    if i < len(s.values) and s.values[i] is not None:
+        return _fmt_num(s.values[i])
+    return None
+
+
+def _chart_narrative(c: ChartData) -> str:
+    """Generate per-row narrative sentences so retrieval can match
+    'what was X for Y' style questions directly. Without this, a question
+    about a single chart cell embeds far from the chunk centroid (which is
+    dominated by surrounding body text + the chart title), and GE refuses
+    'I cannot find...' even though the value is in the markdown table.
+
+    Format:
+      Single-series:  "For <category>, <series_name> was <value>."
+      Multi-series:   "For <category> — <series_1>: <value_1>; <series_2>: ..."
+    """
+    if not c.x_categories or not c.series:
+        return ""
+
+    is_single = len(c.series) == 1
+    series_label = c.series[0].name if is_single else ""
+    lines: list[str] = []
+    for i, cat in enumerate(c.x_categories):
+        if is_single:
+            label = _cell_label(c.series[0], i)
+            if label is None:
+                continue
+            lines.append(f"For {cat}, {series_label} was {label}.")
+        else:
+            parts = []
+            for s in c.series:
+                label = _cell_label(s, i)
+                if label is None:
+                    continue
+                parts.append(f"{s.name}: {label}")
+            if parts:
+                lines.append(f"For {cat} — {'; '.join(parts)}.")
+    return "\n".join(lines)
+
+
 def _chart_to_markdown(c: ChartData) -> str:
     lines: list[str] = []
     title = c.title or "Untitled chart"
@@ -77,6 +123,14 @@ def _chart_to_markdown(c: ChartData) -> str:
     lines.append(f"**Summary:** {c.summary}")
     lines.append("")
 
+    # NOTE: per-row narrative (`_chart_narrative`) tested 2026-04-25 — kept the
+    # function for future use but DISABLED in the markdown. It did add the
+    # narrative to the index successfully, but streamAssist's agentic router
+    # still refused chart-cell lookups (it routes them as "needs computation /
+    # web search" rather than corpus retrieval). Net composite went 80.9% → 78.3%
+    # because added text shifted chunk boundaries enough to disrupt other
+    # questions. The fix is in the assistant config (system instruction +
+    # agent settings), not the markdown.
     if c.x_categories and c.series:
         x_label = c.x_axis_label or "Category"
         headers = [x_label] + [s.name for s in c.series]
@@ -85,8 +139,7 @@ def _chart_to_markdown(c: ChartData) -> str:
         for i in range(n):
             row = [c.x_categories[i]]
             for s in c.series:
-                v = s.values[i] if i < len(s.values) else None
-                row.append("" if v is None else _fmt_num(v))
+                row.append(_cell_label(s, i) or "")
             rows.append(row)
         lines.append(_md_table(headers, rows))
         lines.append("")
@@ -281,8 +334,38 @@ async def extract_structured(page: RenderedPage, region: Region) -> ExtractedReg
         else:
             md = ""
     except Exception as e:  # noqa: BLE001
-        md = f"> **[{region.type.value} extraction failed: {e}]**\n"
-        confidence = 0.0
+        # OCR fallback: when the structured extractor times out / errors out
+        # entirely, transcribe the cropped region as raw text so we still
+        # preserve content (vs emitting a useless `[failed]` marker).
+        # Loses structure (no markdown table for a chart) but the LLM at
+        # retrieval time can still reason over the raw text.
+        confidence = 0.2
+        try:
+            cropped = crop_region(page.image, region.bbox)
+            fallback_text = await call_vision(
+                model=FLASH_MODEL,
+                prompt=(
+                    f"Transcribe ALL readable text from this image VERBATIM, including every "
+                    f"axis label, data label, legend entry, table cell, and annotation. "
+                    f"Preserve numeric ranges (e.g. '560-850') and units ('%', '$') exactly "
+                    f"as printed. Do not interpret, summarize, or reformat. "
+                    f"Original error: {type(e).__name__}"
+                ),
+                image_bytes=image_to_png_bytes(cropped, max_dim=1600),
+                response_model=None,
+                timeout_s=45.0,
+                thinking_budget=0,
+            )
+            md = (
+                f"> **[{region.type.value} structured extraction failed; OCR fallback below]**\n\n"
+                + (fallback_text or "").strip() + "\n"
+            )
+        except Exception as e2:  # noqa: BLE001
+            md = (
+                f"> **[{region.type.value} extraction failed (both structured and OCR): "
+                f"{type(e).__name__} / {type(e2).__name__}]**\n"
+            )
+            confidence = 0.0
 
     return ExtractedRegion(
         page=page.page_num,

@@ -50,7 +50,21 @@ class ChartType(str, Enum):
 class ChartSeries(BaseModel):
     name: str
     color_hex: str | None = None
-    values: list[float | None]
+    values: list[float | None] = Field(
+        description="Numeric value per x_category. For ranges (e.g. '560-850'), "
+                    "use the midpoint here so downstream math still works.",
+    )
+    value_labels: list[str | None] = Field(
+        default_factory=list,
+        description="Literal text label as shown on the chart per x_category. "
+                    "For single values, the number as printed (e.g. '53' or '53%'). "
+                    "For ranges, the literal text (e.g. '560-850' or '$560-$850'). "
+                    "For lists or annotated values, the literal label. "
+                    "MUST have the same length as values when populated; the "
+                    "markdown stitcher prefers value_labels over values when "
+                    "rendering, so ranges are preserved verbatim. "
+                    "If empty, values are rendered as plain numbers.",
+    )
 
 
 class ChartSchemaOnly(BaseModel):

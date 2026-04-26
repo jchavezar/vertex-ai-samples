@@ -97,8 +97,7 @@
 
 | Date | Project | What Changed |
 |:-----|:--------|:-------------|
-| Apr 25 | [**docparse-rag-agent**](./docparse-rag-agent/) | **NEW** — ADK + Vertex AI RAG Engine + Gemini 3 → Gemini Enterprise. 92.9% composite on the 216-question docparse eval (vs 81% for DE streamAssist on the same markdown). Cross-project, shared ALL_USERS. |
-| Apr 23 | [**docparse**](./docparse/) | **NEW** — Multimodal PDF parsing with Gemini Vision — region detection, OCR, structured extraction to markdown |
+| Apr 25 | [**docparse**](./docparse/) | **MAJOR** — Folded the RAG agent into `docparse/agent/`, added `eval/` with full leaderboard, single `./deploy.sh` provisions extractor + corpus + agent + GE registration end-to-end. **92.9% composite** on 216-q eval. |
 | Apr 23 | [**report-generator**](./report-generator/) | **NEW** — Multi-agent research → write → render pipeline turning a topic into a cited PDF (ADK + Gemini 3 Flash + WeasyPrint) |
 | Apr 23 | [**streamassist-oauth-flow-us**](./streamassist-oauth-flow-us/) | **NEW** — `us` regional variant of the StreamAssist OAuth portal — Gemini Enterprise + SharePoint federated connector + WIF |
 | Apr 23 | [**vector-search-canvas**](./vector-search-canvas/) | **NEW** — Interactive tuning sandbox for Vector Search 2.0 — TREE_AH vs BRUTE_FORCE knobs side-by-side |
@@ -169,8 +168,7 @@ Retrieval-augmented generation pipelines with different chunking and embedding s
 |:--------|:---------|:------|
 | [**hierarchical-rag-pgvector**](./hierarchical-rag-pgvector/) | Parent-child chunking with Cloud SQL pgvector — precision retrieval without losing document context | ![Python](https://img.shields.io/badge/-Python-3776AB?logo=python&logoColor=white&style=flat-square) ![React](https://img.shields.io/badge/-React-61DAFB?logo=react&logoColor=black&style=flat-square) ![pgvector](https://img.shields.io/badge/-pgvector-336791?style=flat-square) |
 | [**multimodal-doc-search**](./multimodal-doc-search/) | Multimodal document intelligence — images, tables, and text in a unified semantic search + chat | ![Python](https://img.shields.io/badge/-Python-3776AB?logo=python&logoColor=white&style=flat-square) ![React](https://img.shields.io/badge/-React-61DAFB?logo=react&logoColor=black&style=flat-square) ![pgvector](https://img.shields.io/badge/-pgvector-336791?style=flat-square) |
-| [**docparse**](./docparse/) | Multimodal PDF parsing with Gemini Vision — region detection, OCR, structured extraction to markdown | ![Python](https://img.shields.io/badge/-Python-3776AB?logo=python&logoColor=white&style=flat-square) ![Gemini](https://img.shields.io/badge/-Gemini_Vision-4285F4?style=flat-square) ![Vertex_AI](https://img.shields.io/badge/-Vertex_AI-4285F4?style=flat-square) |
-| [**docparse-rag-agent**](./docparse-rag-agent/) | ADK agent over a Vertex AI RAG Engine corpus of docparse markdown — registered cross-project in Gemini Enterprise. **92.9% composite** on the 216-question docparse eval | ![Python](https://img.shields.io/badge/-Python-3776AB?logo=python&logoColor=white&style=flat-square) ![ADK](https://img.shields.io/badge/-ADK-4285F4?style=flat-square) ![RAG_Engine](https://img.shields.io/badge/-RAG_Engine-4285F4?style=flat-square) ![Gemini](https://img.shields.io/badge/-Gemini_3-4285F4?style=flat-square) |
+| [**docparse**](./docparse/) | End-to-end PDF → Markdown → RAG agent inside Gemini Enterprise. Cloud Run extractor (Gemini-3 vision: regions, OCR, charts, photos) + ADK agent on Vertex AI RAG Engine, registered cross-project in GE. One-button `./deploy.sh`. **[92.9% composite](./docparse/eval/RESULTS.md)** on 216-q eval | ![Python](https://img.shields.io/badge/-Python-3776AB?logo=python&logoColor=white&style=flat-square) ![Gemini](https://img.shields.io/badge/-Gemini_3-4285F4?style=flat-square) ![ADK](https://img.shields.io/badge/-ADK-4285F4?style=flat-square) ![RAG_Engine](https://img.shields.io/badge/-RAG_Engine-4285F4?style=flat-square) |
 
 ## 🤖 Agent Platforms
 
