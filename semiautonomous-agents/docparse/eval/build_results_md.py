@@ -114,13 +114,14 @@ def bar(pct, width=20):
     return "█" * filled + "░" * (width - filled)
 
 def redact(text: str) -> str:
-    """Redact customer names for public display (strikethrough + replacement)."""
+    """Redact customer names for public display using Unicode block masking."""
     if not text: return text
-    # Replace specific company/report names
-    text = re.sub(r"\bAccenture\b", "~~Accenture~~ Customer A", text, flags=re.IGNORECASE)
-    text = re.sub(r"\bAccenture's\b", "~~Accenture's~~ Customer A's", text, flags=re.IGNORECASE)
-    text = re.sub(r"\bAccenture-Metaverse[^ ]*", "[REDACTED]", text)
-    text = re.sub(r"\bSE-Competitive[^ ]*", "[REDACTED]", text)
+    # Replace with blocks that preserve shape but hide identity
+    text = re.sub(r"\bAccenture\b", "A██████re", text, flags=re.IGNORECASE)
+    text = re.sub(r"\bAccenture's\b", "A██████re's", text, flags=re.IGNORECASE)
+    # Full file names get bracketed placeholders
+    text = re.sub(r"\bAccenture-Metaverse[^ ]*", "[Report-A]", text)
+    text = re.sub(r"\bSE-Competitive[^ ]*", "[Report-B]", text)
     return text
 
 # ---------- Build doc ----------
