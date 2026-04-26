@@ -332,19 +332,26 @@ lines.append("")
 # === Full question bank ===
 lines.append("## 7 · Full question bank")
 lines.append("")
-lines.append("All 216 questions, grouped by category. Each row shows the verdict from the four most representative strategies — the winner, the best DE config, the vanilla RAG, and the no-extraction ablation.")
+lines.append("All 216 questions, grouped by category. Each row shows the verdict from the four most representative stacks. Headers describe the actual stack — see [Strategy details](#5--strategy-details) for the underlying config codename.")
 lines.append("")
 lines.append("Verdict legend: ✅ correct · 🟡 partial · ❌ wrong · 🤷 refused · ⚠️ error")
 lines.append("")
-SHOWN = ["rag_md_v2", "rag_md", "digital_v2", "rag_pdf"]
+# (label, header label shown in the table)
+SHOWN = [
+    ("rag_md_v2",  "🥇 docparse md<br>+ RAG Engine<br>per-page chunks"),
+    ("rag_md",     "🥈 docparse md<br>+ RAG Engine<br>whole-doc chunks"),
+    ("digital_v2", "docparse md<br>+ Discovery Engine<br>streamAssist"),
+    ("rag_pdf",    "raw PDF<br>+ RAG Engine<br>(no extraction)"),
+]
 
 for c in CAT_ORDER:
     cat_qs = sorted([qid for qid, cc in qid_to_cat.items() if cc == c])
     lines.append(f"<details>")
     lines.append(f"<summary><b>{CAT_EMOJI[c]} {c} — {len(cat_qs)} questions</b></summary>")
     lines.append("")
-    lines.append("| # | Question | Ground truth | 🥇 v2 | 🥈 md | DE+ | PDF |")
-    lines.append("|---:|---|---|:---:|:---:|:---:|:---:|")
+    header_cells = ["# ", "Question", "Ground truth"] + [h for _, h in SHOWN]
+    lines.append("| " + " | ".join(header_cells) + " |")
+    lines.append("|---:|---|---|" + "|".join([":---:"] * len(SHOWN)) + "|")
     for qid in cat_qs:
         q = qs[qid]
         gt = (q["a"] or "").replace("\n", " ").replace("|", "\\|")
@@ -352,7 +359,7 @@ for c in CAT_ORDER:
         qtxt = (q["q"] or "").replace("\n", " ").replace("|", "\\|")
         if len(qtxt) > 110: qtxt = qtxt[:107] + "…"
         verdicts = []
-        for label in SHOWN:
+        for label, _ in SHOWN:
             r = runs[label].get(qid)
             if not r:
                 verdicts.append("·")

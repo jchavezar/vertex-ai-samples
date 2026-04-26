@@ -502,14 +502,14 @@ Six questions hand-picked to show how the same query produces wildly different o
 
 ## 7 · Full question bank
 
-All 216 questions, grouped by category. Each row shows the verdict from the four most representative strategies — the winner, the best DE config, the vanilla RAG, and the no-extraction ablation.
+All 216 questions, grouped by category. Each row shows the verdict from the four most representative stacks. Headers describe the actual stack — see [Strategy details](#5--strategy-details) for the underlying config codename.
 
 Verdict legend: ✅ correct · 🟡 partial · ❌ wrong · 🤷 refused · ⚠️ error
 
 <details>
 <summary><b>📄 page-anchored — 90 questions</b></summary>
 
-| # | Question | Ground truth | 🥇 v2 | 🥈 md | DE+ | PDF |
+| #  | Question | Ground truth | 🥇 docparse md<br>+ RAG Engine<br>per-page chunks | 🥈 docparse md<br>+ RAG Engine<br>whole-doc chunks | docparse md<br>+ Discovery Engine<br>streamAssist | raw PDF<br>+ RAG Engine<br>(no extraction) |
 |---:|---|---|:---:|:---:|:---:|:---:|
 | 21 | How does Accenture's metaverse vision describe the metaverse on page 6? | As a continuum that spans the spectrum of digitally enhanced worlds, realities and business model… | ✅ | ✅ | ✅ | ✅ |
 | 25 | Who is quoted on page 9 representing Carrefour Group, and what is their title? | Nicolas Safis, Innovation Director at Carrefour Group | 🤷 | 🤷 | 🤷 | 🤷 |
@@ -607,7 +607,7 @@ Verdict legend: ✅ correct · 🟡 partial · ❌ wrong · 🤷 refused · ⚠�
 <details>
 <summary><b>📝 text-lookup — 61 questions</b></summary>
 
-| # | Question | Ground truth | 🥇 v2 | 🥈 md | DE+ | PDF |
+| #  | Question | Ground truth | 🥇 docparse md<br>+ RAG Engine<br>per-page chunks | 🥈 docparse md<br>+ RAG Engine<br>whole-doc chunks | docparse md<br>+ Discovery Engine<br>streamAssist | raw PDF<br>+ RAG Engine<br>(no extraction) |
 |---:|---|---|:---:|:---:|:---:|:---:|
 | 1 | What is the title of the Accenture report? | Metaverse: evolution, then revolution | ✅ | ✅ | ✅ | ✅ |
 | 2 | What is the subtitle / tagline of the Accenture metaverse report? | Gradually, then suddenly: The metaverse is changing the way we experience the internet | ✅ | ✅ | ❌ | ❌ |
@@ -676,7 +676,7 @@ Verdict legend: ✅ correct · 🟡 partial · ❌ wrong · 🤷 refused · ⚠�
 <details>
 <summary><b>🧮 math/aggregation — 42 questions</b></summary>
 
-| # | Question | Ground truth | 🥇 v2 | 🥈 md | DE+ | PDF |
+| #  | Question | Ground truth | 🥇 docparse md<br>+ RAG Engine<br>per-page chunks | 🥈 docparse md<br>+ RAG Engine<br>whole-doc chunks | docparse md<br>+ Discovery Engine<br>streamAssist | raw PDF<br>+ RAG Engine<br>(no extraction) |
 |---:|---|---|:---:|:---:|:---:|:---:|
 | 7 | What was the total mentions of metaverse-related keywords in 2020 Q1? | 585 | ✅ | ✅ | 🤷 | 🤷 |
 | 8 | What was the total metaverse mentions in 2020 Q2? | 1117 | ✅ | ✅ | 🤷 | ❌ |
@@ -726,7 +726,7 @@ Verdict legend: ✅ correct · 🟡 partial · ❌ wrong · 🤷 refused · ⚠�
 <details>
 <summary><b>📊 chart-cell — 18 questions</b></summary>
 
-| # | Question | Ground truth | 🥇 v2 | 🥈 md | DE+ | PDF |
+| #  | Question | Ground truth | 🥇 docparse md<br>+ RAG Engine<br>per-page chunks | 🥈 docparse md<br>+ RAG Engine<br>whole-doc chunks | docparse md<br>+ Discovery Engine<br>streamAssist | raw PDF<br>+ RAG Engine<br>(no extraction) |
 |---:|---|---|:---:|:---:|:---:|:---:|
 | 18 | By what percentage did metaverse-related keyword mentions increase from 2020 Q1 to 2022 Q2? | 212% | ✅ | ✅ | ❌ | ✅ |
 | 119 | What was global IT services growth in CY 2021 per the Global IT Services Growth chart on page 9? | 9.2% | ✅ | ✅ | ✅ | ❌ |
@@ -752,7 +752,7 @@ Verdict legend: ✅ correct · 🟡 partial · ❌ wrong · 🤷 refused · ⚠�
 <details>
 <summary><b>🖼️ photo/vision — 4 questions</b></summary>
 
-| # | Question | Ground truth | 🥇 v2 | 🥈 md | DE+ | PDF |
+| #  | Question | Ground truth | 🥇 docparse md<br>+ RAG Engine<br>per-page chunks | 🥈 docparse md<br>+ RAG Engine<br>whole-doc chunks | docparse md<br>+ Discovery Engine<br>streamAssist | raw PDF<br>+ RAG Engine<br>(no extraction) |
 |---:|---|---|:---:|:---:|:---:|:---:|
 | 86 | What is depicted in the cover image of the Accenture metaverse report? | Two women in purple dresses walking hand-in-hand through a futuristic blue tunnel toward a glowin… | ✅ | 🟡 | ❌ | 🤷 |
 | 87 | What is shown in the photo on page 7 (Technology and creativity)? | An industrial machine (turbine/rocket engine) being inspected by workers in hard hats with augmen… | 🟡 | 🤷 | ❌ | 🤷 |
@@ -764,7 +764,7 @@ Verdict legend: ✅ correct · 🟡 partial · ❌ wrong · 🤷 refused · ⚠�
 <details>
 <summary><b>🔀 diagram — 1 questions</b></summary>
 
-| # | Question | Ground truth | 🥇 v2 | 🥈 md | DE+ | PDF |
+| #  | Question | Ground truth | 🥇 docparse md<br>+ RAG Engine<br>per-page chunks | 🥈 docparse md<br>+ RAG Engine<br>whole-doc chunks | docparse md<br>+ Discovery Engine<br>streamAssist | raw PDF<br>+ RAG Engine<br>(no extraction) |
 |---:|---|---|:---:|:---:|:---:|:---:|
 | 105 | Which four third-party advisors are referenced in the page 5 Pricing Trends diagram? | ISG, Everest Group, Avasant, Source Global Research | ✅ | ✅ | ✅ | 🟡 |
 
