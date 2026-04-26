@@ -49,14 +49,14 @@ def _classify(qtext: str) -> str:
 
 STRATEGY_ORDER = ["rag_md_v2", "rag_md", "digital_v2", "digital", "ocr", "layout", "digital_200", "rag_pdf"]
 STRATEGY_DESC = {
-    "rag_md_v2":   "docparse markdown + per-page chunks + top_k=20 + exhaustive prompt → RAG Engine → gemini-3-flash-preview (the production agent)",
-    "rag_md":      "docparse markdown (whole-doc) → RAG Engine corpus → gemini-3-flash-preview",
-    "digital_v2":  "docparse markdown → DE digitalParsingConfig chunk-500 → streamAssist + maximal config (system instruction, web off, agents deleted)",
-    "digital":     "docparse markdown → DE digitalParsingConfig chunk-500 → streamAssist (default assistant)",
-    "ocr":         "docparse markdown → DE ocrParsingConfig chunk-500 → streamAssist",
-    "layout":      "docparse markdown → DE layoutParsingConfig chunk-500 → streamAssist",
-    "digital_200": "docparse markdown → DE digitalParsingConfig chunk-200 (smaller chunks) → streamAssist",
-    "rag_pdf":     "raw PDFs (NO docparse) → RAG Engine corpus → gemini-3-flash-preview",
+    "rag_md_v2":   "docparse markdown → Vertex AI RAG Engine (72 per-page files) → gemini-3-flash-preview + retrieval tool (top_k=20, exhaustive prompt)",
+    "rag_md":      "docparse markdown → Vertex AI RAG Engine (2 whole-doc files, auto-chunked) → gemini-3-flash-preview + retrieval tool",
+    "digital_v2":  "docparse markdown → Vertex AI Search (digitalParsingConfig, chunk 500) → Gemini Enterprise streamAssist + maximal config (system instruction, web off, agents deleted)",
+    "digital":     "docparse markdown → Vertex AI Search (digitalParsingConfig, chunk 500) → Gemini Enterprise streamAssist (default)",
+    "ocr":         "docparse markdown → Vertex AI Search (ocrParsingConfig, chunk 500) → Gemini Enterprise streamAssist",
+    "layout":      "docparse markdown → Vertex AI Search (layoutParsingConfig + image annotation, chunk 500) → Gemini Enterprise streamAssist",
+    "digital_200": "docparse markdown → Vertex AI Search (digitalParsingConfig, chunk 200) → Gemini Enterprise streamAssist",
+    "rag_pdf":     "raw PDFs (NO extraction) → Vertex AI RAG Engine (built-in PDF chunker) → gemini-3-flash-preview + retrieval tool",
 }
 STRATEGY_TAG = {
     "rag_md_v2":   "🥇 winner",
@@ -363,6 +363,32 @@ for qid in SHOWCASE_IDS:
 lines.append("---")
 lines.append("")
 
+# === All 8 configurations tested ===
+lines.append("## 6a · All 8 configurations tested")
+lines.append("")
+lines.append("Every extraction × indexing × parser combination we benchmarked.")
+lines.append("")
+lines.append("| # | Strategy | Extraction | Indexing product | Parser / chunking | Answering | Composite |")
+lines.append("|---:|---|---|---|---|---|---:|")
+configs_table = [
+    ("1", "rag_md_v2",  "docparse markdown", "Vertex AI RAG Engine", "72 per-page files, chunk 1000/overlap 100", "gemini-3-flash + retrieval tool, top_k=20"),
+    ("2", "rag_md",     "docparse markdown", "Vertex AI RAG Engine", "2 full files, auto-chunked 500/overlap 100", "gemini-3-flash + retrieval tool, top_k=5"),
+    ("3", "digital_v2", "docparse markdown", "Vertex AI Search (GCS connector)", "digitalParsingConfig, chunk 500, + system instr + web off + agents deleted", "Gemini Enterprise streamAssist"),
+    ("4", "digital",    "docparse markdown", "Vertex AI Search (GCS connector)", "digitalParsingConfig, chunk 500, default config", "Gemini Enterprise streamAssist"),
+    ("5", "ocr",        "docparse markdown", "Vertex AI Search (GCS connector)", "**ocrParsingConfig**, chunk 500", "Gemini Enterprise streamAssist"),
+    ("6", "layout",     "docparse markdown", "Vertex AI Search (GCS connector)", "**layoutParsingConfig** + image annotation, chunk 500", "Gemini Enterprise streamAssist"),
+    ("7", "digital_200","docparse markdown", "Vertex AI Search (GCS connector)", "digitalParsingConfig, **chunk 200**", "Gemini Enterprise streamAssist"),
+    ("8", "rag_pdf",    "**raw PDFs (no extraction)**", "Vertex AI RAG Engine", "PDFs direct-import, RAG's built-in PDF chunker", "gemini-3-flash + retrieval tool"),
+]
+for rank, label, ext, idx, parse, ans in configs_table:
+    comp, _, _ = composite(list(runs[label].values()))
+    lines.append(f"| {rank} | `{label}` | {ext} | {idx} | {parse} | {ans} | **{comp*100:.1f}%** |")
+lines.append("")
+lines.append("**The 1P baseline = rows 3-7** (Vertex AI Search → Gemini Enterprise). Rows 1-2 and 8 use Vertex AI RAG Engine instead (bypassing Vertex AI Search).")
+lines.append("")
+lines.append("---")
+lines.append("")
+
 # === Full question bank ===
 lines.append("## 7 · Full question bank")
 lines.append("")
@@ -371,23 +397,23 @@ lines.append("")
 lines.append("**Stack descriptions (what each column tests):**")
 lines.append("")
 lines.append("<table>")
-lines.append("<tr><th>Column</th><th>Extraction</th><th>Indexing</th><th>Retrieval + answer</th></tr>")
-lines.append("<tr><td>¹ <b>per-page chunks</b></td><td>docparse markdown</td><td>RAG Engine<br>72 files (one per page)</td><td>gemini-3-flash + retrieval tool, top_k=20</td></tr>")
-lines.append("<tr><td>² <b>whole-doc chunks</b></td><td>docparse markdown</td><td>RAG Engine<br>2 files (default chunker)</td><td>gemini-3-flash + retrieval tool, top_k=5</td></tr>")
-lines.append("<tr><td>³ <b>Discovery Engine</b></td><td>docparse markdown</td><td>DE GCS datastore<br>default chunker</td><td>streamAssist (agentic planner)<br><i>This is the 1P GCS-connector baseline</i></td></tr>")
-lines.append("<tr><td>⁴ <b>raw PDF + RAG</b></td><td><b>NO extraction</b><br>(ablation test)</td><td>RAG Engine corpus<br>PDFs direct-imported</td><td>gemini-3-flash + retrieval tool<br><i>NOT the GCS connector — tests RAG Engine's built-in PDF chunker</i></td></tr>")
+lines.append("<tr><th>Column</th><th>Extraction</th><th>Indexing product</th><th>Parser / chunking</th><th>Answering</th></tr>")
+lines.append("<tr><td>¹ <b>per-page</b></td><td>docparse markdown</td><td>Vertex AI RAG Engine</td><td>72 per-page files<br>chunk 1000/overlap 100</td><td>gemini-3-flash + retrieval tool, top_k=20</td></tr>")
+lines.append("<tr><td>² <b>whole-doc</b></td><td>docparse markdown</td><td>Vertex AI RAG Engine</td><td>2 full files, auto-chunked<br>chunk 500/overlap 100</td><td>gemini-3-flash + retrieval tool, top_k=5</td></tr>")
+lines.append("<tr><td>³ <b>GCS→GE (1P)</b></td><td>docparse markdown</td><td><b>Vertex AI Search</b><br>GCS connector → datastore</td><td>digitalParsingConfig<br>chunk 500<br>+ system instruction tweaks</td><td><b>Gemini Enterprise</b> streamAssist<br><i>(the out-of-the-box experience)</i></td></tr>")
+lines.append("<tr><td>⁴ <b>raw PDF</b></td><td><b>NO extraction</b><br>(ablation)</td><td>Vertex AI RAG Engine</td><td>PDFs direct-imported<br>RAG's built-in PDF chunker</td><td>gemini-3-flash + retrieval tool<br><i>(NOT Vertex AI Search — isolates extraction quality)</i></td></tr>")
 lines.append("</table>")
 lines.append("")
-lines.append("**Key takeaway:** Strategy ③ is the 1P experience (GCS connector → DE → streamAssist). Strategy ④ isolates whether you even need docparse — the answer is yes (+29 pts).")
+lines.append("**The 1P baseline is column ③:** upload markdown to GCS → Vertex AI Search indexes it with its GCS connector → Gemini Enterprise streamAssist answers. Columns ①②④ bypass Vertex AI Search and use Vertex AI RAG Engine directly. We also tested 4 other Vertex AI Search parser configs (ocr, layout, digital_200) — see [Strategy details](#5--strategy-details) for those.")
 lines.append("")
 lines.append("**Verdict legend:** ✅ correct · 🟡 partial · ❌ wrong · 🤷 refused · ⚠️ error")
 lines.append("")
 # (label, header label shown in the table)
 SHOWN = [
-    ("rag_md_v2",  "🥇 docparse md<br>RAG Engine<br>per-page chunks¹"),
-    ("rag_md",     "🥈 docparse md<br>RAG Engine<br>whole-doc chunks²"),
-    ("digital_v2", "docparse md<br>Discovery Engine<br>streamAssist³"),
-    ("rag_pdf",    "raw PDF<br>RAG Engine<br>no extraction⁴"),
+    ("rag_md_v2",  "🥇 docparse md<br>RAG Engine<br>per-page¹"),
+    ("rag_md",     "🥈 docparse md<br>RAG Engine<br>whole-doc²"),
+    ("digital_v2", "docparse md<br>GCS connector (1P)<br>Gemini Enterprise³"),
+    ("rag_pdf",    "raw PDF<br>RAG Engine<br>ablation⁴"),
 ]
 
 for c in CAT_ORDER:

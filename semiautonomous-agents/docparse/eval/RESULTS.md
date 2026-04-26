@@ -140,7 +140,7 @@ Click any strategy to expand its stack description, score breakdown, and a sampl
 <details>
 <summary><b>🥇 winner — <code>rag_md_v2</code> — 92.9%</b></summary>
 
-**Stack:** docparse markdown + per-page chunks + top_k=20 + exhaustive prompt → RAG Engine → gemini-3-flash-preview (the production agent)
+**Stack:** docparse markdown → Vertex AI RAG Engine (72 per-page files) → gemini-3-flash-preview + retrieval tool (top_k=20, exhaustive prompt)
 
 **Scores:** correctness 92.9% · completeness 93.0% · composite **92.9%**
 
@@ -174,7 +174,7 @@ Click any strategy to expand its stack description, score breakdown, and a sampl
 <details>
 <summary><b>🥈 RAG Engine, vanilla chunks — <code>rag_md</code> — 87.4%</b></summary>
 
-**Stack:** docparse markdown (whole-doc) → RAG Engine corpus → gemini-3-flash-preview
+**Stack:** docparse markdown → Vertex AI RAG Engine (2 whole-doc files, auto-chunked) → gemini-3-flash-preview + retrieval tool
 
 **Scores:** correctness 88.4% · completeness 86.5% · composite **87.4%**
 
@@ -208,7 +208,7 @@ Click any strategy to expand its stack description, score breakdown, and a sampl
 <details>
 <summary><b>🥉 best DE config — <code>digital_v2</code> — 81.2%</b></summary>
 
-**Stack:** docparse markdown → DE digitalParsingConfig chunk-500 → streamAssist + maximal config (system instruction, web off, agents deleted)
+**Stack:** docparse markdown → Vertex AI Search (digitalParsingConfig, chunk 500) → Gemini Enterprise streamAssist + maximal config (system instruction, web off, agents deleted)
 
 **Scores:** correctness 81.3% · completeness 81.1% · composite **81.2%**
 
@@ -242,7 +242,7 @@ Click any strategy to expand its stack description, score breakdown, and a sampl
 <details>
 <summary><b>DE baseline — <code>digital</code> — 81.0%</b></summary>
 
-**Stack:** docparse markdown → DE digitalParsingConfig chunk-500 → streamAssist (default assistant)
+**Stack:** docparse markdown → Vertex AI Search (digitalParsingConfig, chunk 500) → Gemini Enterprise streamAssist (default)
 
 **Scores:** correctness 80.9% · completeness 81.1% · composite **81.0%**
 
@@ -276,7 +276,7 @@ Click any strategy to expand its stack description, score breakdown, and a sampl
 <details>
 <summary><b>DE alt parser — <code>ocr</code> — 80.8%</b></summary>
 
-**Stack:** docparse markdown → DE ocrParsingConfig chunk-500 → streamAssist
+**Stack:** docparse markdown → Vertex AI Search (ocrParsingConfig, chunk 500) → Gemini Enterprise streamAssist
 
 **Scores:** correctness 81.0% · completeness 80.6% · composite **80.8%**
 
@@ -310,7 +310,7 @@ Click any strategy to expand its stack description, score breakdown, and a sampl
 <details>
 <summary><b>DE alt parser — <code>layout</code> — 75.2%</b></summary>
 
-**Stack:** docparse markdown → DE layoutParsingConfig chunk-500 → streamAssist
+**Stack:** docparse markdown → Vertex AI Search (layoutParsingConfig + image annotation, chunk 500) → Gemini Enterprise streamAssist
 
 **Scores:** correctness 75.3% · completeness 75.1% · composite **75.2%**
 
@@ -344,7 +344,7 @@ Click any strategy to expand its stack description, score breakdown, and a sampl
 <details>
 <summary><b>smaller chunks — <code>digital_200</code> — 69.4%</b></summary>
 
-**Stack:** docparse markdown → DE digitalParsingConfig chunk-200 (smaller chunks) → streamAssist
+**Stack:** docparse markdown → Vertex AI Search (digitalParsingConfig, chunk 200) → Gemini Enterprise streamAssist
 
 **Scores:** correctness 69.6% · completeness 69.3% · composite **69.4%**
 
@@ -378,7 +378,7 @@ Click any strategy to expand its stack description, score breakdown, and a sampl
 <details>
 <summary><b>ablation: no extraction — <code>rag_pdf</code> — 63.8%</b></summary>
 
-**Stack:** raw PDFs (NO docparse) → RAG Engine corpus → gemini-3-flash-preview
+**Stack:** raw PDFs (NO extraction) → Vertex AI RAG Engine (built-in PDF chunker) → gemini-3-flash-preview + retrieval tool
 
 **Scores:** correctness 63.5% · completeness 64.2% · composite **63.8%**
 
@@ -519,6 +519,25 @@ Six questions hand-picked to show how the same query produces wildly different o
 
 ---
 
+## 6a · All 8 configurations tested
+
+Every extraction × indexing × parser combination we benchmarked.
+
+| # | Strategy | Extraction | Indexing product | Parser / chunking | Answering | Composite |
+|---:|---|---|---|---|---|---:|
+| 1 | `rag_md_v2` | docparse markdown | Vertex AI RAG Engine | 72 per-page files, chunk 1000/overlap 100 | gemini-3-flash + retrieval tool, top_k=20 | **92.9%** |
+| 2 | `rag_md` | docparse markdown | Vertex AI RAG Engine | 2 full files, auto-chunked 500/overlap 100 | gemini-3-flash + retrieval tool, top_k=5 | **87.4%** |
+| 3 | `digital_v2` | docparse markdown | Vertex AI Search (GCS connector) | digitalParsingConfig, chunk 500, + system instr + web off + agents deleted | Gemini Enterprise streamAssist | **81.2%** |
+| 4 | `digital` | docparse markdown | Vertex AI Search (GCS connector) | digitalParsingConfig, chunk 500, default config | Gemini Enterprise streamAssist | **81.0%** |
+| 5 | `ocr` | docparse markdown | Vertex AI Search (GCS connector) | **ocrParsingConfig**, chunk 500 | Gemini Enterprise streamAssist | **80.8%** |
+| 6 | `layout` | docparse markdown | Vertex AI Search (GCS connector) | **layoutParsingConfig** + image annotation, chunk 500 | Gemini Enterprise streamAssist | **75.2%** |
+| 7 | `digital_200` | docparse markdown | Vertex AI Search (GCS connector) | digitalParsingConfig, **chunk 200** | Gemini Enterprise streamAssist | **69.4%** |
+| 8 | `rag_pdf` | **raw PDFs (no extraction)** | Vertex AI RAG Engine | PDFs direct-import, RAG's built-in PDF chunker | gemini-3-flash + retrieval tool | **63.8%** |
+
+**The 1P baseline = rows 3-7** (Vertex AI Search → Gemini Enterprise). Rows 1-2 and 8 use Vertex AI RAG Engine instead (bypassing Vertex AI Search).
+
+---
+
 ## 7 · Full question bank
 
 All 216 questions, grouped by category. Each row shows the verdict from the four most representative stacks. See [Strategy details](#5--strategy-details) for full config.
@@ -526,21 +545,21 @@ All 216 questions, grouped by category. Each row shows the verdict from the four
 **Stack descriptions (what each column tests):**
 
 <table>
-<tr><th>Column</th><th>Extraction</th><th>Indexing</th><th>Retrieval + answer</th></tr>
-<tr><td>¹ <b>per-page chunks</b></td><td>docparse markdown</td><td>RAG Engine<br>72 files (one per page)</td><td>gemini-3-flash + retrieval tool, top_k=20</td></tr>
-<tr><td>² <b>whole-doc chunks</b></td><td>docparse markdown</td><td>RAG Engine<br>2 files (default chunker)</td><td>gemini-3-flash + retrieval tool, top_k=5</td></tr>
-<tr><td>³ <b>Discovery Engine</b></td><td>docparse markdown</td><td>DE GCS datastore<br>default chunker</td><td>streamAssist (agentic planner)<br><i>This is the 1P GCS-connector baseline</i></td></tr>
-<tr><td>⁴ <b>raw PDF + RAG</b></td><td><b>NO extraction</b><br>(ablation test)</td><td>RAG Engine corpus<br>PDFs direct-imported</td><td>gemini-3-flash + retrieval tool<br><i>NOT the GCS connector — tests RAG Engine's built-in PDF chunker</i></td></tr>
+<tr><th>Column</th><th>Extraction</th><th>Indexing product</th><th>Parser / chunking</th><th>Answering</th></tr>
+<tr><td>¹ <b>per-page</b></td><td>docparse markdown</td><td>Vertex AI RAG Engine</td><td>72 per-page files<br>chunk 1000/overlap 100</td><td>gemini-3-flash + retrieval tool, top_k=20</td></tr>
+<tr><td>² <b>whole-doc</b></td><td>docparse markdown</td><td>Vertex AI RAG Engine</td><td>2 full files, auto-chunked<br>chunk 500/overlap 100</td><td>gemini-3-flash + retrieval tool, top_k=5</td></tr>
+<tr><td>³ <b>GCS→GE (1P)</b></td><td>docparse markdown</td><td><b>Vertex AI Search</b><br>GCS connector → datastore</td><td>digitalParsingConfig<br>chunk 500<br>+ system instruction tweaks</td><td><b>Gemini Enterprise</b> streamAssist<br><i>(the out-of-the-box experience)</i></td></tr>
+<tr><td>⁴ <b>raw PDF</b></td><td><b>NO extraction</b><br>(ablation)</td><td>Vertex AI RAG Engine</td><td>PDFs direct-imported<br>RAG's built-in PDF chunker</td><td>gemini-3-flash + retrieval tool<br><i>(NOT Vertex AI Search — isolates extraction quality)</i></td></tr>
 </table>
 
-**Key takeaway:** Strategy ③ is the 1P experience (GCS connector → DE → streamAssist). Strategy ④ isolates whether you even need docparse — the answer is yes (+29 pts).
+**The 1P baseline is column ③:** upload markdown to GCS → Vertex AI Search indexes it with its GCS connector → Gemini Enterprise streamAssist answers. Columns ①②④ bypass Vertex AI Search and use Vertex AI RAG Engine directly. We also tested 4 other Vertex AI Search parser configs (ocr, layout, digital_200) — see [Strategy details](#5--strategy-details) for those.
 
 **Verdict legend:** ✅ correct · 🟡 partial · ❌ wrong · 🤷 refused · ⚠️ error
 
 <details>
 <summary><b>📄 page-anchored — 90 questions</b></summary>
 
-| #  | Question | Ground truth | 🥇 docparse md<br>RAG Engine<br>per-page chunks¹ | 🥈 docparse md<br>RAG Engine<br>whole-doc chunks² | docparse md<br>Discovery Engine<br>streamAssist³ | raw PDF<br>RAG Engine<br>no extraction⁴ |
+| #  | Question | Ground truth | 🥇 docparse md<br>RAG Engine<br>per-page¹ | 🥈 docparse md<br>RAG Engine<br>whole-doc² | docparse md<br>GCS connector (1P)<br>Gemini Enterprise³ | raw PDF<br>RAG Engine<br>ablation⁴ |
 |---:|---|---|:---:|:---:|:---:|:---:|
 | 21 | How does ~~Accenture~~ Customer A's metaverse vision describe the metaverse on page 6? | As a continuum that spans the spectrum of digitally enhanced worlds, realities and business model… | ✅ | ✅ | ✅ | ✅ |
 | 25 | Who is quoted on page 9 representing Carrefour Group, and what is their title? | Nicolas Safis, Innovation Director at Carrefour Group | 🤷 | 🤷 | 🤷 | 🤷 |
@@ -638,7 +657,7 @@ All 216 questions, grouped by category. Each row shows the verdict from the four
 <details>
 <summary><b>📝 text-lookup — 61 questions</b></summary>
 
-| #  | Question | Ground truth | 🥇 docparse md<br>RAG Engine<br>per-page chunks¹ | 🥈 docparse md<br>RAG Engine<br>whole-doc chunks² | docparse md<br>Discovery Engine<br>streamAssist³ | raw PDF<br>RAG Engine<br>no extraction⁴ |
+| #  | Question | Ground truth | 🥇 docparse md<br>RAG Engine<br>per-page¹ | 🥈 docparse md<br>RAG Engine<br>whole-doc² | docparse md<br>GCS connector (1P)<br>Gemini Enterprise³ | raw PDF<br>RAG Engine<br>ablation⁴ |
 |---:|---|---|:---:|:---:|:---:|:---:|
 | 1 | What is the title of the ~~Accenture~~ Customer A report? | Metaverse: evolution, then revolution | ✅ | ✅ | ✅ | ✅ |
 | 2 | What is the subtitle / tagline of the ~~Accenture~~ Customer A metaverse report? | Gradually, then suddenly: The metaverse is changing the way we experience the internet | ✅ | ✅ | ❌ | ❌ |
@@ -707,7 +726,7 @@ All 216 questions, grouped by category. Each row shows the verdict from the four
 <details>
 <summary><b>🧮 math/aggregation — 42 questions</b></summary>
 
-| #  | Question | Ground truth | 🥇 docparse md<br>RAG Engine<br>per-page chunks¹ | 🥈 docparse md<br>RAG Engine<br>whole-doc chunks² | docparse md<br>Discovery Engine<br>streamAssist³ | raw PDF<br>RAG Engine<br>no extraction⁴ |
+| #  | Question | Ground truth | 🥇 docparse md<br>RAG Engine<br>per-page¹ | 🥈 docparse md<br>RAG Engine<br>whole-doc² | docparse md<br>GCS connector (1P)<br>Gemini Enterprise³ | raw PDF<br>RAG Engine<br>ablation⁴ |
 |---:|---|---|:---:|:---:|:---:|:---:|
 | 7 | What was the total mentions of metaverse-related keywords in 2020 Q1? | 585 | ✅ | ✅ | 🤷 | 🤷 |
 | 8 | What was the total metaverse mentions in 2020 Q2? | 1117 | ✅ | ✅ | 🤷 | ❌ |
@@ -757,7 +776,7 @@ All 216 questions, grouped by category. Each row shows the verdict from the four
 <details>
 <summary><b>📊 chart-cell — 18 questions</b></summary>
 
-| #  | Question | Ground truth | 🥇 docparse md<br>RAG Engine<br>per-page chunks¹ | 🥈 docparse md<br>RAG Engine<br>whole-doc chunks² | docparse md<br>Discovery Engine<br>streamAssist³ | raw PDF<br>RAG Engine<br>no extraction⁴ |
+| #  | Question | Ground truth | 🥇 docparse md<br>RAG Engine<br>per-page¹ | 🥈 docparse md<br>RAG Engine<br>whole-doc² | docparse md<br>GCS connector (1P)<br>Gemini Enterprise³ | raw PDF<br>RAG Engine<br>ablation⁴ |
 |---:|---|---|:---:|:---:|:---:|:---:|
 | 18 | By what percentage did metaverse-related keyword mentions increase from 2020 Q1 to 2022 Q2? | 212% | ✅ | ✅ | ❌ | ✅ |
 | 119 | What was global IT services growth in CY 2021 per the Global IT Services Growth chart on page 9? | 9.2% | ✅ | ✅ | ✅ | ❌ |
@@ -783,7 +802,7 @@ All 216 questions, grouped by category. Each row shows the verdict from the four
 <details>
 <summary><b>🖼️ photo/vision — 4 questions</b></summary>
 
-| #  | Question | Ground truth | 🥇 docparse md<br>RAG Engine<br>per-page chunks¹ | 🥈 docparse md<br>RAG Engine<br>whole-doc chunks² | docparse md<br>Discovery Engine<br>streamAssist³ | raw PDF<br>RAG Engine<br>no extraction⁴ |
+| #  | Question | Ground truth | 🥇 docparse md<br>RAG Engine<br>per-page¹ | 🥈 docparse md<br>RAG Engine<br>whole-doc² | docparse md<br>GCS connector (1P)<br>Gemini Enterprise³ | raw PDF<br>RAG Engine<br>ablation⁴ |
 |---:|---|---|:---:|:---:|:---:|:---:|
 | 86 | What is depicted in the cover image of the ~~Accenture~~ Customer A metaverse report? | Two women in purple dresses walking hand-in-hand through a futuristic blue tunnel toward a glowin… | ✅ | 🟡 | ❌ | 🤷 |
 | 87 | What is shown in the photo on page 7 (Technology and creativity)? | An industrial machine (turbine/rocket engine) being inspected by workers in hard hats with augmen… | 🟡 | 🤷 | ❌ | 🤷 |
@@ -795,7 +814,7 @@ All 216 questions, grouped by category. Each row shows the verdict from the four
 <details>
 <summary><b>🔀 diagram — 1 questions</b></summary>
 
-| #  | Question | Ground truth | 🥇 docparse md<br>RAG Engine<br>per-page chunks¹ | 🥈 docparse md<br>RAG Engine<br>whole-doc chunks² | docparse md<br>Discovery Engine<br>streamAssist³ | raw PDF<br>RAG Engine<br>no extraction⁴ |
+| #  | Question | Ground truth | 🥇 docparse md<br>RAG Engine<br>per-page¹ | 🥈 docparse md<br>RAG Engine<br>whole-doc² | docparse md<br>GCS connector (1P)<br>Gemini Enterprise³ | raw PDF<br>RAG Engine<br>ablation⁴ |
 |---:|---|---|:---:|:---:|:---:|:---:|
 | 105 | Which four third-party advisors are referenced in the page 5 Pricing Trends diagram? | ISG, Everest Group, Avasant, Source Global Research | ✅ | ✅ | ✅ | 🟡 |
 
