@@ -36,7 +36,7 @@ Gemini Enterprise's first-party **GCS connector** routes PDFs through Document A
 1. **Extract** every page with the Gemini 3 family — region detection, body OCR, **structured chart tables**, photo captions, diagram-as-mermaid. Output is one Markdown file per PDF.
 2. **Serve** that markdown through an ADK agent backed by Vertex AI RAG Engine, registered cross-project in your Gemini Enterprise app.
 
-We benchmarked this stack against 7 alternatives on a 216-question eval. **It scored 92.9% composite — +12 points over Discovery Engine `streamAssist` on the same markdown, +29 points over raw-PDF ingestion.** [Full table here](./eval/RESULTS.md).
+We benchmarked this stack against 7 alternatives on a 216-question eval covering two enterprise PDF reports (one consulting industry analysis, one competitive-intelligence pricing report). **It scored 92.9% composite — +12 points over Discovery Engine `streamAssist` on the same markdown, +29 points over raw-PDF ingestion.** [Full table here](./eval/RESULTS.md).
 
 ---
 
@@ -253,7 +253,7 @@ uv run --with 'anthropic[vertex]' python judge.py runs/your-label.json your-labe
 python build_results_md.py
 ```
 
-The 216 ground-truth Q&A pairs in `questions.json` are tied to two specific PDFs (Accenture-Metaverse + SE-Competitive-Intelligence). To eval against a different corpus, replace `questions.json` with your own ground truth and the harness still works.
+The 216 ground-truth Q&A pairs in `questions.json` are tied to two specific enterprise reports (filenames redacted — one is a metaverse/industry-trends analysis, the other is a competitive-intelligence pricing report). To eval against a different corpus, replace `questions.json` with your own ground truth and the harness still works.
 
 ---
 

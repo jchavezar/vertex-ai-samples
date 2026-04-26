@@ -113,6 +113,16 @@ def bar(pct, width=20):
     filled = round(pct / 100 * width)
     return "█" * filled + "░" * (width - filled)
 
+def redact(text: str) -> str:
+    """Redact customer names for public display (strikethrough + replacement)."""
+    if not text: return text
+    # Replace specific company/report names
+    text = re.sub(r"\bAccenture\b", "~~Accenture~~ Customer A", text, flags=re.IGNORECASE)
+    text = re.sub(r"\bAccenture's\b", "~~Accenture's~~ Customer A's", text, flags=re.IGNORECASE)
+    text = re.sub(r"\bAccenture-Metaverse[^ ]*", "[REDACTED]", text)
+    text = re.sub(r"\bSE-Competitive[^ ]*", "[REDACTED]", text)
+    return text
+
 # ---------- Build doc ----------
 lines = []
 
@@ -132,7 +142,7 @@ lines.append(f"![score](https://img.shields.io/badge/composite-{top_pct}%25-1373
 lines.append(f"![delta](https://img.shields.io/badge/%CE%94_vs_baseline-%2B11.9pts-EA8600?style=for-the-badge)")
 lines.append(f"![questions](https://img.shields.io/badge/questions-216-5A6373?style=for-the-badge)")
 lines.append("")
-lines.append(f"<sub>Last run: {date.today().isoformat()}  ·  Eval corpus: Accenture-Metaverse + SE-Competitive-Intelligence</sub>")
+lines.append(f"<sub>Last run: {date.today().isoformat()}  ·  Eval corpus: 2 enterprise reports (industry analysis + competitive-intelligence pricing)</sub>")
 lines.append("")
 lines.append("</div>")
 lines.append("")
@@ -144,7 +154,7 @@ lines.append("| | |")
 lines.append("|---|---|")
 lines.append(f"| 🥇 **Winner** | `rag_md_v2` — docparse markdown · per-page chunks · RAG Engine · Gemini 3 flash · top_k=20 · exhaustive system prompt |")
 lines.append(f"| 🎯 **Composite score** | **{top_pct}%** (correctness {top_cor*100:.1f}%, completeness {top_com*100:.1f}%) |")
-lines.append(f"| 🔍 **Eval set** | 216 hand-crafted Q&A pairs across 2 PDFs (1 consulting report, 1 industry-pricing report) |")
+lines.append(f"| 🔍 **Eval set** | 216 hand-crafted Q&A pairs across 2 enterprise PDFs (metaverse/industry trends analysis + competitive-intelligence pricing report, customer names redacted) |")
 lines.append(f"| ⚖️ **Judge** | `claude-opus-4-5@20251101` via AnthropicVertex (different model family — avoids self-preference bias) |")
 lines.append(f"| 📐 **Composite** | (correctness + completeness) / 2, both 0.0–1.0 |")
 lines.append(f"| 🏗️ **Production stack lives in** | [`docparse-rag-agent/`](./README.md) |")
@@ -286,9 +296,9 @@ for label in STRATEGY_ORDER:
         lines.append("**Sample failures (random 3):**")
         lines.append("")
         for r in fails:
-            ans_short = (r.get("sa_answer","") or "")[:200].replace("\n"," ").replace("|","\\|")
-            gt_short = r["a"][:140].replace("\n"," ").replace("|","\\|")
-            lines.append(f"- **Q{r['id']}**: _{r['q'][:120]}_  ")
+            ans_short = redact((r.get("sa_answer","") or ""))[:200].replace("\n"," ").replace("|","\\|")
+            gt_short = redact(r["a"])[:140].replace("\n"," ").replace("|","\\|")
+            lines.append(f"- **Q{r['id']}**: _{redact(r['q'][:120])}_  ")
             lines.append(f"  GT: `{gt_short}`  ")
             lines.append(f"  Got: `{ans_short}`  → **{r['verdict']}**")
     lines.append("")
@@ -312,9 +322,9 @@ for qid in SHOWCASE_IDS:
     cat = qid_to_cat.get(qid, "?")
     lines.append(f"### {CAT_EMOJI.get(cat,'•')} Q{qid} · `{cat}`")
     lines.append("")
-    lines.append(f"> **{q['q']}**")
+    lines.append(f"> **{redact(q['q'])}**")
     lines.append(f"> ")
-    lines.append(f"> **Ground truth:** {q['a']}")
+    lines.append(f"> **Ground truth:** {redact(q['a'])}")
     lines.append("")
     lines.append("| Strategy | Verdict | Answer |")
     lines.append("|---|---|---|")
@@ -322,7 +332,7 @@ for qid in SHOWCASE_IDS:
         r = runs[label].get(qid)
         if not r: continue
         v_emoji = {"correct": "✅", "partial": "🟡", "wrong": "❌", "refused": "🤷", "error": "⚠️"}.get(r["verdict"], "?")
-        ans = (r.get("sa_answer","") or "").strip().replace("\n", " ").replace("|", "\\|")
+        ans = redact((r.get("sa_answer","") or "")).strip().replace("\n", " ").replace("|", "\\|")
         if len(ans) > 200: ans = ans[:197] + "…"
         lines.append(f"| `{label}` | {v_emoji} {r['verdict']} | {ans} |")
     lines.append("")
@@ -332,16 +342,28 @@ lines.append("")
 # === Full question bank ===
 lines.append("## 7 · Full question bank")
 lines.append("")
-lines.append("All 216 questions, grouped by category. Each row shows the verdict from the four most representative stacks. Headers describe the actual stack — see [Strategy details](#5--strategy-details) for the underlying config codename.")
+lines.append("All 216 questions, grouped by category. Each row shows the verdict from the four most representative stacks. See [Strategy details](#5--strategy-details) for full config.")
 lines.append("")
-lines.append("Verdict legend: ✅ correct · 🟡 partial · ❌ wrong · 🤷 refused · ⚠️ error")
+lines.append("**Stack descriptions (what each column tests):**")
+lines.append("")
+lines.append("<table>")
+lines.append("<tr><th>Column</th><th>Extraction</th><th>Indexing</th><th>Retrieval + answer</th></tr>")
+lines.append("<tr><td>¹ <b>per-page chunks</b></td><td>docparse markdown</td><td>RAG Engine<br>72 files (one per page)</td><td>gemini-3-flash + retrieval tool, top_k=20</td></tr>")
+lines.append("<tr><td>² <b>whole-doc chunks</b></td><td>docparse markdown</td><td>RAG Engine<br>2 files (default chunker)</td><td>gemini-3-flash + retrieval tool, top_k=5</td></tr>")
+lines.append("<tr><td>³ <b>Discovery Engine</b></td><td>docparse markdown</td><td>DE GCS datastore<br>default chunker</td><td>streamAssist (agentic planner)<br><i>This is the 1P GCS-connector baseline</i></td></tr>")
+lines.append("<tr><td>⁴ <b>raw PDF + RAG</b></td><td><b>NO extraction</b><br>(ablation test)</td><td>RAG Engine corpus<br>PDFs direct-imported</td><td>gemini-3-flash + retrieval tool<br><i>NOT the GCS connector — tests RAG Engine's built-in PDF chunker</i></td></tr>")
+lines.append("</table>")
+lines.append("")
+lines.append("**Key takeaway:** Strategy ③ is the 1P experience (GCS connector → DE → streamAssist). Strategy ④ isolates whether you even need docparse — the answer is yes (+29 pts).")
+lines.append("")
+lines.append("**Verdict legend:** ✅ correct · 🟡 partial · ❌ wrong · 🤷 refused · ⚠️ error")
 lines.append("")
 # (label, header label shown in the table)
 SHOWN = [
-    ("rag_md_v2",  "🥇 docparse md<br>+ RAG Engine<br>per-page chunks"),
-    ("rag_md",     "🥈 docparse md<br>+ RAG Engine<br>whole-doc chunks"),
-    ("digital_v2", "docparse md<br>+ Discovery Engine<br>streamAssist"),
-    ("rag_pdf",    "raw PDF<br>+ RAG Engine<br>(no extraction)"),
+    ("rag_md_v2",  "🥇 docparse md<br>RAG Engine<br>per-page chunks¹"),
+    ("rag_md",     "🥈 docparse md<br>RAG Engine<br>whole-doc chunks²"),
+    ("digital_v2", "docparse md<br>Discovery Engine<br>streamAssist³"),
+    ("rag_pdf",    "raw PDF<br>RAG Engine<br>no extraction⁴"),
 ]
 
 for c in CAT_ORDER:
@@ -354,9 +376,9 @@ for c in CAT_ORDER:
     lines.append("|---:|---|---|" + "|".join([":---:"] * len(SHOWN)) + "|")
     for qid in cat_qs:
         q = qs[qid]
-        gt = (q["a"] or "").replace("\n", " ").replace("|", "\\|")
+        gt = redact((q["a"] or "")).replace("\n", " ").replace("|", "\\|")
         if len(gt) > 100: gt = gt[:97] + "…"
-        qtxt = (q["q"] or "").replace("\n", " ").replace("|", "\\|")
+        qtxt = redact((q["q"] or "")).replace("\n", " ").replace("|", "\\|")
         if len(qtxt) > 110: qtxt = qtxt[:107] + "…"
         verdicts = []
         for label, _ in SHOWN:

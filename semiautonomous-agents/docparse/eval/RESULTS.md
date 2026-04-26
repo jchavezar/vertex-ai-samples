@@ -9,7 +9,7 @@
 ![delta](https://img.shields.io/badge/%CE%94_vs_baseline-%2B11.9pts-EA8600?style=for-the-badge)
 ![questions](https://img.shields.io/badge/questions-216-5A6373?style=for-the-badge)
 
-<sub>Last run: 2026-04-26  ·  Eval corpus: Accenture-Metaverse + SE-Competitive-Intelligence</sub>
+<sub>Last run: 2026-04-26  ·  Eval corpus: 2 enterprise reports (industry analysis + competitive-intelligence pricing)</sub>
 
 </div>
 
@@ -19,7 +19,7 @@
 |---|---|
 | 🥇 **Winner** | `rag_md_v2` — docparse markdown · per-page chunks · RAG Engine · Gemini 3 flash · top_k=20 · exhaustive system prompt |
 | 🎯 **Composite score** | **92.9%** (correctness 92.9%, completeness 93.0%) |
-| 🔍 **Eval set** | 216 hand-crafted Q&A pairs across 2 PDFs (1 consulting report, 1 industry-pricing report) |
+| 🔍 **Eval set** | 216 hand-crafted Q&A pairs across 2 enterprise PDFs (metaverse/industry trends analysis + competitive-intelligence pricing report, customer names redacted) |
 | ⚖️ **Judge** | `claude-opus-4-5@20251101` via AnthropicVertex (different model family — avoids self-preference bias) |
 | 📐 **Composite** | (correctness + completeness) / 2, both 0.0–1.0 |
 | 🏗️ **Production stack lives in** | [`docparse-rag-agent/`](./README.md) |
@@ -208,9 +208,9 @@ Click any strategy to expand its stack description, score breakdown, and a sampl
 
 **Sample failures (random 3):**
 
-- **Q2**: _What is the subtitle / tagline of the Accenture metaverse report?_  
+- **Q2**: _What is the subtitle / tagline of the ~~Accenture~~ Customer A metaverse report?_  
   GT: `Gradually, then suddenly: The metaverse is changing the way we experience the internet`  
-  Got: `The subtitle of the Accenture metaverse report is "evolution, then revolution".`  → **wrong**
+  Got: `The subtitle of the ~~Accenture~~ Customer A metaverse report is "evolution, then revolution".`  → **wrong**
 - **Q4**: _What is the user-led cultural force behind the Internet of Ownership called?_  
   GT: `Web3`  
   Got: ``  → **refused**
@@ -242,9 +242,9 @@ Click any strategy to expand its stack description, score breakdown, and a sampl
 
 **Sample failures (random 3):**
 
-- **Q2**: _What is the subtitle / tagline of the Accenture metaverse report?_  
+- **Q2**: _What is the subtitle / tagline of the ~~Accenture~~ Customer A metaverse report?_  
   GT: `Gradually, then suddenly: The metaverse is changing the way we experience the internet`  
-  Got: `The subtitle of the Accenture metaverse report is "Metaverse: evolution, then revolution".`  → **wrong**
+  Got: `The subtitle of the ~~Accenture~~ Customer A metaverse report is "Metaverse: evolution, then revolution".`  → **wrong**
 - **Q7**: _What was the total mentions of metaverse-related keywords in 2020 Q1?_  
   GT: `585`  
   Got: `I am sorry, but I was unable to find an answer to your question. Would you like me to search for a different set of keywords or provide more context?`  → **refused**
@@ -310,9 +310,9 @@ Click any strategy to expand its stack description, score breakdown, and a sampl
 
 **Sample failures (random 3):**
 
-- **Q2**: _What is the subtitle / tagline of the Accenture metaverse report?_  
+- **Q2**: _What is the subtitle / tagline of the ~~Accenture~~ Customer A metaverse report?_  
   GT: `Gradually, then suddenly: The metaverse is changing the way we experience the internet`  
-  Got: `The subtitle of the Accenture metaverse report is "Metaverse: evolution, then revolution".`  → **wrong**
+  Got: `The subtitle of the ~~Accenture~~ Customer A metaverse report is "Metaverse: evolution, then revolution".`  → **wrong**
 - **Q7**: _What was the total mentions of metaverse-related keywords in 2020 Q1?_  
   GT: `585`  
   Got: ``  → **refused**
@@ -344,9 +344,9 @@ Click any strategy to expand its stack description, score breakdown, and a sampl
 
 **Sample failures (random 3):**
 
-- **Q1**: _What is the title of the Accenture report?_  
+- **Q1**: _What is the title of the ~~Accenture~~ Customer A report?_  
   GT: `Metaverse: evolution, then revolution`  
-  Got: `I was unable to retrieve the title of the Accenture report from internal sources due to an internal system error. I will now try to find this information using a public search.I apologize for the prev`  → **refused**
+  Got: `I was unable to retrieve the title of the ~~Accenture~~ Customer A report from internal sources due to an internal system error. I will now try to find this information using a public search.I apologi`  → **refused**
 - **Q4**: _What is the user-led cultural force behind the Internet of Ownership called?_  
   GT: `Web3`  
   Got: `I am sorry, but I was unable to find any information about the user-led cultural force behind the Internet of Ownership. You may be able to find the answer by searching on the web.`  → **refused**
@@ -378,12 +378,12 @@ Click any strategy to expand its stack description, score breakdown, and a sampl
 
 **Sample failures (random 3):**
 
-- **Q2**: _What is the subtitle / tagline of the Accenture metaverse report?_  
+- **Q2**: _What is the subtitle / tagline of the ~~Accenture~~ Customer A metaverse report?_  
   GT: `Gradually, then suddenly: The metaverse is changing the way we experience the internet`  
   Got: `The subtitle is "evolution, then revolution."`  → **wrong**
-- **Q6**: _According to Accenture, what is created when virtual places are linked to the real world via digital twins?_  
+- **Q6**: _According to ~~Accenture~~ Customer A, what is created when virtual places are linked to the real world via digital twins?_  
   GT: `A 'Mirror World'`  
-  Got: `According to Accenture, linking virtual places to the real world via digital twins creates the **Metaverse Continuum**, a spectrum of digitally enhanced worlds, realities, and business models that spa`  → **wrong**
+  Got: `According to ~~Accenture~~ Customer A, linking virtual places to the real world via digital twins creates the **Metaverse Continuum**, a spectrum of digitally enhanced worlds, realities, and business `  → **wrong**
 - **Q7**: _What was the total mentions of metaverse-related keywords in 2020 Q1?_  
   GT: `585`  
   Got: `The provided sources do not specify the total number of metaverse-related keyword mentions in 2020 Q1. They only note that an analysis of more than 100 metaverse-related keywords was conducted on earn`  → **refused**
@@ -404,7 +404,7 @@ Six questions hand-picked to show how the same query produces wildly different o
 
 | Strategy | Verdict | Answer |
 |---|---|---|
-| `rag_md_v2` | ✅ correct | Based on Accenture's analysis of earning call transcripts, there were a total of 585 mentions of metaverse-related keywords in 2020 Q1. |
+| `rag_md_v2` | ✅ correct | Based on ~~Accenture~~ Customer A's analysis of earning call transcripts, there were a total of 585 mentions of metaverse-related keywords in 2020 Q1. |
 | `rag_md` | ✅ correct | The total mentions of metaverse-related keywords in earning call transcripts for 2020 Q1 was 585. |
 | `digital_v2` | 🤷 refused | I am sorry, but I could not find any information about the total mentions of metaverse-related keywords in 2020 Q1. I have searched through the available enterprise data sources and was unable to f… |
 | `digital` | 🤷 refused | I am sorry, but I was unable to find an answer to your question. Would you like me to search for a different set of keywords or provide more context? |
@@ -442,9 +442,9 @@ Six questions hand-picked to show how the same query produces wildly different o
 | `rag_md` | ❌ wrong | According to the report, the three key areas of the metaverse are **consumer**, **enterprise**, and **industrial**. |
 | `digital_v2` | ✅ correct | Based on the report, the three industries that have already begun their metaverse journeys are automotive, retail, and banking.  --- ### Industry Examples 🏨  \| Industry \| Metaverse Implementation… |
 | `digital` | ✅ correct | According to the report, the three industries that have already begun their metaverse journeys are automotive, retail, and banking.  The report highlights the following activities in each of these … |
-| `ocr` | ✅ correct | According to a report by Accenture, the three industries that have already begun their metaverse journeys are automotive, retail, and banking.  --- ### Industry Applications  \| Industry \| Metaver… |
-| `layout` | ✅ correct | According to the report "Accenture-Metaverse-Evolution-Before-Revolution," the three industries that have already begun their metaverse journeys are automotive, retail, and banking.  ### Industries… |
-| `digital_200` | ✅ correct | According to the "Accenture-Metaverse-Evolution-Before-Revolution" report, the three industries that have already begun their metaverse journeys are automotive, retail, and banking. |
+| `ocr` | ✅ correct | According to a report by ~~Accenture~~ Customer A, the three industries that have already begun their metaverse journeys are automotive, retail, and banking.  --- ### Industry Applications  \| Indu… |
+| `layout` | ✅ correct | According to the report "~~Accenture~~ Customer A-Metaverse-Evolution-Before-Revolution," the three industries that have already begun their metaverse journeys are automotive, retail, and banking. … |
+| `digital_200` | ✅ correct | According to the "~~Accenture~~ Customer A-Metaverse-Evolution-Before-Revolution" report, the three industries that have already begun their metaverse journeys are automotive, retail, and banking. |
 | `rag_pdf` | ❌ wrong | The report identifies the following three key areas that have already begun their metaverse journeys:  *   **Consumer** *   **Enterprise** *   **Industrial** |
 
 ### 📝 Q100 · `text-lookup`
@@ -458,7 +458,7 @@ Six questions hand-picked to show how the same query produces wildly different o
 | `rag_md_v2` | ✅ correct | The title of the report is **Sales Excellence Market Observations & Pricing Trends** and it was published in **June 2025**. |
 | `rag_md` | 🟡 partial | The title of the report is **Sales Excellence Market Observations & Pricing Trends**, published in **June 2025**. |
 | `digital_v2` | 🟡 partial | The title of the Sales Excellence report is "Sales Excellence Market Observations & Pricing Trends" and it was published in June 2025. |
-| `digital` | 🟡 partial | The Sales Excellence report is titled "SE-Competitive Intelligence-Market Observations & Pricing Trends" and was published in June 2025. |
+| `digital` | 🟡 partial | The Sales Excellence report is titled "[REDACTED] Intelligence-Market Observations & Pricing Trends" and was published in June 2025. |
 | `ocr` | 🟡 partial | The title of the report is "Sales Excellence Market Observations & Pricing Trends" and it was published in June 2025. |
 | `layout` | 🟡 partial | The title of the Sales Excellence report is "Sales Excellence Market Observations & Pricing Trends". It was published in June 2025. |
 | `digital_200` | 🟡 partial | The title of the Sales Excellence report is "Sales Excellence Market Observations & Pricing Trends" and it was published in June 2025. |
@@ -474,8 +474,8 @@ Six questions hand-picked to show how the same query produces wildly different o
 |---|---|---|
 | `rag_md_v2` | ✅ correct | Per the chart on page 16, the 2024 price movement for India was (1.0)-1.1%. |
 | `rag_md` | 🟡 partial | The 2024 price movement for India was (1.0)% to 1.1%. |
-| `digital_v2` | ❌ wrong | According to the "SE-Competitive Intelligence-Market Observations & Pricing Trends" document, the 2024 price movement for India was between -1.0% and 1.1%.  This information is from a table in the … |
-| `digital` | 🟡 partial | Based on the "SE-Competitive Intelligence-Market Observations & Pricing Trends_Jun 2025_vf (1)" document, the pricing trends in 2024 for India showed a movement between -1.0% and 1.1%.  Here is a b… |
+| `digital_v2` | ❌ wrong | According to the "[REDACTED] Intelligence-Market Observations & Pricing Trends" document, the 2024 price movement for India was between -1.0% and 1.1%.  This information is from a table in the "Pri… |
+| `digital` | 🟡 partial | Based on the "[REDACTED] Intelligence-Market Observations & Pricing Trends_Jun 2025_vf (1)" document, the pricing trends in 2024 for India showed a movement between -1.0% and 1.1%.  Here is a break… |
 | `ocr` | 🤷 refused | I am sorry, I cannot answer your question. I was unable to find a document referencing the "2024 price movement for India". If you have the document, you can upload it and I can answer your question. |
 | `layout` | 🤷 refused | I am sorry, but I was unable to find any document containing a "page 16 map" with information about the "2024 price movement for India."  To help me find the right information for you, could you pl… |
 | `digital_200` | 🤷 refused | I am sorry, but I could not find any information regarding "2024 price movement for India per the page 16 map". |
@@ -491,10 +491,10 @@ Six questions hand-picked to show how the same query produces wildly different o
 |---|---|---|
 | `rag_md_v2` | 🟡 partial | Globant offers **8** SDLC AI Pods. As listed on page 21, these pods include:  *   **Build E2E:** Creates digital solutions from scratch (Application Development End To End). *   **AMS E2E:** Modern… |
 | `rag_md` | 🟡 partial | Globant offers 8 SDLC AI Pods: Build E2E, AMS E2E, Product Definition, SW Architecture, UX Design, Web Development, Test Automation, and AI-Driven Quality Control. |
-| `digital_v2` | 🟡 partial | Based on the document "SE-Competitive Intelligence-Market Observations & Pricing Trends_Jun 2025_vf (1)", Globant offers eight SDLC AI Pods.  The SDLC AI Pods listed are: *   Build E2E *   AMS E2E … |
-| `digital` | 🟡 partial | Based on the document "SE-Competitive Intelligence-Market Observations & Pricing Trends_Jun 2025_vf (1)", Globant offers 8 SDLC AI Pods.  Here is a list of the SDLC AI Pods offered: - Build E2E - A… |
-| `ocr` | 🟡 partial | Based on the document "SE-Competitive Intelligence-Market Observations & Pricing Trends_Jun 2025_vf (1)," Globant offers 8 SDLC AI Pods.  ### Globant's SDLC AI Pods  \| AI Pod Name \| Description \… |
-| `layout` | 🟡 partial | Based on the document "SE-Competitive Intelligence-Market Observations & Pricing Trends_Jun 2025_vf", Globant offers eight SDLC AI Pods.  --- ### Globant's SDLC AI Pods  \| AI Pod Name \| Descripti… |
+| `digital_v2` | 🟡 partial | Based on the document "[REDACTED] Intelligence-Market Observations & Pricing Trends_Jun 2025_vf (1)", Globant offers eight SDLC AI Pods.  The SDLC AI Pods listed are: *   Build E2E *   AMS E2E *   … |
+| `digital` | 🟡 partial | Based on the document "[REDACTED] Intelligence-Market Observations & Pricing Trends_Jun 2025_vf (1)", Globant offers 8 SDLC AI Pods.  Here is a list of the SDLC AI Pods offered: - Build E2E - AMS E… |
+| `ocr` | 🟡 partial | Based on the document "[REDACTED] Intelligence-Market Observations & Pricing Trends_Jun 2025_vf (1)," Globant offers 8 SDLC AI Pods.  ### Globant's SDLC AI Pods  \| AI Pod Name \| Description \| \|… |
+| `layout` | 🟡 partial | Based on the document "[REDACTED] Intelligence-Market Observations & Pricing Trends_Jun 2025_vf", Globant offers eight SDLC AI Pods.  --- ### Globant's SDLC AI Pods  \| AI Pod Name \| Description \… |
 | `digital_200` | ❌ wrong | Based on the document I found, Globant offers 6 SDLC AI Pods.  Here is a breakdown of the SDLC AI Pods offered:  \| AI Pod Name \| Description \| \|---\|---\| \| Build E2E \| Creates digital soluti… |
 | `rag_pdf` | ❌ wrong | Globant offers 8 SDLC AI Pods. |
 
@@ -502,19 +502,31 @@ Six questions hand-picked to show how the same query produces wildly different o
 
 ## 7 · Full question bank
 
-All 216 questions, grouped by category. Each row shows the verdict from the four most representative stacks. Headers describe the actual stack — see [Strategy details](#5--strategy-details) for the underlying config codename.
+All 216 questions, grouped by category. Each row shows the verdict from the four most representative stacks. See [Strategy details](#5--strategy-details) for full config.
 
-Verdict legend: ✅ correct · 🟡 partial · ❌ wrong · 🤷 refused · ⚠️ error
+**Stack descriptions (what each column tests):**
+
+<table>
+<tr><th>Column</th><th>Extraction</th><th>Indexing</th><th>Retrieval + answer</th></tr>
+<tr><td>¹ <b>per-page chunks</b></td><td>docparse markdown</td><td>RAG Engine<br>72 files (one per page)</td><td>gemini-3-flash + retrieval tool, top_k=20</td></tr>
+<tr><td>² <b>whole-doc chunks</b></td><td>docparse markdown</td><td>RAG Engine<br>2 files (default chunker)</td><td>gemini-3-flash + retrieval tool, top_k=5</td></tr>
+<tr><td>³ <b>Discovery Engine</b></td><td>docparse markdown</td><td>DE GCS datastore<br>default chunker</td><td>streamAssist (agentic planner)<br><i>This is the 1P GCS-connector baseline</i></td></tr>
+<tr><td>⁴ <b>raw PDF + RAG</b></td><td><b>NO extraction</b><br>(ablation test)</td><td>RAG Engine corpus<br>PDFs direct-imported</td><td>gemini-3-flash + retrieval tool<br><i>NOT the GCS connector — tests RAG Engine's built-in PDF chunker</i></td></tr>
+</table>
+
+**Key takeaway:** Strategy ③ is the 1P experience (GCS connector → DE → streamAssist). Strategy ④ isolates whether you even need docparse — the answer is yes (+29 pts).
+
+**Verdict legend:** ✅ correct · 🟡 partial · ❌ wrong · 🤷 refused · ⚠️ error
 
 <details>
 <summary><b>📄 page-anchored — 90 questions</b></summary>
 
-| #  | Question | Ground truth | 🥇 docparse md<br>+ RAG Engine<br>per-page chunks | 🥈 docparse md<br>+ RAG Engine<br>whole-doc chunks | docparse md<br>+ Discovery Engine<br>streamAssist | raw PDF<br>+ RAG Engine<br>(no extraction) |
+| #  | Question | Ground truth | 🥇 docparse md<br>RAG Engine<br>per-page chunks¹ | 🥈 docparse md<br>RAG Engine<br>whole-doc chunks² | docparse md<br>Discovery Engine<br>streamAssist³ | raw PDF<br>RAG Engine<br>no extraction⁴ |
 |---:|---|---|:---:|:---:|:---:|:---:|
-| 21 | How does Accenture's metaverse vision describe the metaverse on page 6? | As a continuum that spans the spectrum of digitally enhanced worlds, realities and business model… | ✅ | ✅ | ✅ | ✅ |
+| 21 | How does ~~Accenture~~ Customer A's metaverse vision describe the metaverse on page 6? | As a continuum that spans the spectrum of digitally enhanced worlds, realities and business model… | ✅ | ✅ | ✅ | ✅ |
 | 25 | Who is quoted on page 9 representing Carrefour Group, and what is their title? | Nicolas Safis, Innovation Director at Carrefour Group | 🤷 | 🤷 | 🤷 | 🤷 |
 | 50 | Who at Ready Player Me is quoted on page 13 calling avatars 'the new face of digital identity'? | Sercan Altundaş, SDK & Integrations Team Leader, Ready Player Me | ✅ | ✅ | ✅ | ✅ |
-| 51 | Who is David Treat at Accenture, per page 14? | Senior Managing Director, co-lead of Accenture's Metaverse Continuum Business Group | ✅ | ✅ | 🤷 | ✅ |
+| 51 | Who is David Treat at ~~Accenture~~ Customer A, per page 14? | Senior Managing Director, co-lead of ~~Accenture~~ Customer A's Metaverse Continuum Business Group | ✅ | ✅ | 🤷 | ✅ |
 | 69 | Who at Microsoft is quoted on page 17 about education being a perfect metaverse use case? | Jeff Sanders, Chief Architect, Microsoft | ✅ | ✅ | ✅ | ✅ |
 | 106 | What single phrase does ISG's quadrant on page 5 use to describe its outlook? | Cautious Outlook | ✅ | ✅ | ✅ | ✅ |
 | 107 | What phrase characterizes Everest Group's quadrant on page 5? | Muted Pricing | ✅ | ✅ | ✅ | ❌ |
@@ -607,25 +619,25 @@ Verdict legend: ✅ correct · 🟡 partial · ❌ wrong · 🤷 refused · ⚠�
 <details>
 <summary><b>📝 text-lookup — 61 questions</b></summary>
 
-| #  | Question | Ground truth | 🥇 docparse md<br>+ RAG Engine<br>per-page chunks | 🥈 docparse md<br>+ RAG Engine<br>whole-doc chunks | docparse md<br>+ Discovery Engine<br>streamAssist | raw PDF<br>+ RAG Engine<br>(no extraction) |
+| #  | Question | Ground truth | 🥇 docparse md<br>RAG Engine<br>per-page chunks¹ | 🥈 docparse md<br>RAG Engine<br>whole-doc chunks² | docparse md<br>Discovery Engine<br>streamAssist³ | raw PDF<br>RAG Engine<br>no extraction⁴ |
 |---:|---|---|:---:|:---:|:---:|:---:|
-| 1 | What is the title of the Accenture report? | Metaverse: evolution, then revolution | ✅ | ✅ | ✅ | ✅ |
-| 2 | What is the subtitle / tagline of the Accenture metaverse report? | Gradually, then suddenly: The metaverse is changing the way we experience the internet | ✅ | ✅ | ❌ | ❌ |
-| 3 | What does Accenture call the layer of the metaverse that adds a sense of space to the digital world? | Internet of Place | ✅ | ✅ | ✅ | ✅ |
+| 1 | What is the title of the ~~Accenture~~ Customer A report? | Metaverse: evolution, then revolution | ✅ | ✅ | ✅ | ✅ |
+| 2 | What is the subtitle / tagline of the ~~Accenture~~ Customer A metaverse report? | Gradually, then suddenly: The metaverse is changing the way we experience the internet | ✅ | ✅ | ❌ | ❌ |
+| 3 | What does ~~Accenture~~ Customer A call the layer of the metaverse that adds a sense of space to the digita… | Internet of Place | ✅ | ✅ | ✅ | ✅ |
 | 4 | What is the user-led cultural force behind the Internet of Ownership called? | Web3 | ✅ | ✅ | 🤷 | ✅ |
 | 5 | Name three real-time 3D creation tools mentioned in the report. | Unreal Engine and Unity (the report mentions only these two by name in this context) | 🟡 | 🟡 | 🟡 | 🟡 |
-| 6 | According to Accenture, what is created when virtual places are linked to the real world via digital twins? | A 'Mirror World' | ✅ | ✅ | ✅ | ❌ |
+| 6 | According to ~~Accenture~~ Customer A, what is created when virtual places are linked to the real world via… | A 'Mirror World' | ✅ | ✅ | ✅ | ❌ |
 | 22 | Which three industries does the report say have already begun their metaverse journeys? | Automotive, retail, and banking | ✅ | ❌ | ✅ | ❌ |
 | 23 | What are 'phygital' launches according to the report? | Launches of new vehicle models that combine physical and digital, with augmented reality and digi… | ✅ | ❌ | 🟡 | ❌ |
 | 24 | What does CBDC stand for in the metaverse report? | Central Bank Digital Currencies | ✅ | ✅ | ✅ | ✅ |
-| 26 | According to the Accenture Business Trends Survey (April-May 2022), what share of revenues do executives be… | 4.2% | ✅ | ✅ | ✅ | ✅ |
+| 26 | According to the ~~Accenture~~ Customer A Business Trends Survey (April-May 2022), what share of revenues d… | 4.2% | ✅ | ✅ | ✅ | ✅ |
 | 27 | What dollar value does the 4.2% revenue share from metaverse represent? | $1 trillion | ✅ | ✅ | ✅ | ✅ |
-| 28 | What percentage of 3,200 executives in the Accenture CxO survey agree the metaverse will have an important … | 89% | ✅ | ✅ | ✅ | ✅ |
+| 28 | What percentage of 3,200 executives in the ~~Accenture~~ Customer A CxO survey agree the metaverse will hav… | 89% | ✅ | ✅ | ✅ | ✅ |
 | 35 | In Figure 2, what is the percentage of Capital Markets - Pvt. Equity executives interested in Digital twin? | 13% | ✅ | ✅ | ✅ | ❌ |
 | 40 | Which industries have Consumer metaverse services experiences interest above 35%? | Capital Markets - Pvt. Equity (38%), Communications/Media/Tech (38%), Energy (36%), Health (41%),… | ✅ | ✅ | ✅ | ❌ |
 | 41 | Which industries have Digital twin interest of 10% or more? | Capital Markets - Pvt. Equity (13%), Chemicals (24%), High-Tech (16%), Industrial (12%), Public S… | ✅ | ✅ | ✅ | ❌ |
-| 43 | What is the sample size (n) for the Accenture CxO Survey shown in Figure 2? | n=3200 | ✅ | ✅ | ✅ | ✅ |
-| 44 | What percentage of 325 respondents in Accenture's focus group expect the metaverse to provide real-world sh… | 71% | ✅ | ✅ | ✅ | ✅ |
+| 43 | What is the sample size (n) for the ~~Accenture~~ Customer A CxO Survey shown in Figure 2? | n=3200 | ✅ | ✅ | ✅ | ✅ |
+| 44 | What percentage of 325 respondents in ~~Accenture~~ Customer A's focus group expect the metaverse to provid… | 71% | ✅ | ✅ | ✅ | ✅ |
 | 45 | What Chinese tech company unveiled the autonomous Robo-01 car on its metaverse app Xirang? | Baidu | ✅ | ✅ | ✅ | ✅ |
 | 46 | How many views did the Robo-01 hashtag gain on Weibo, per the report? | Almost 40 million views | ✅ | ✅ | 🤷 | ✅ |
 | 47 | How many visits had Pet Simulator's 'Adopt Me' game on Roblox accumulated as of June 2022? | Over 28 billion visits | ✅ | ✅ | 🤷 | ✅ |
@@ -639,27 +651,27 @@ Verdict legend: ✅ correct · 🟡 partial · ❌ wrong · 🤷 refused · ⚠�
 | 58 | What percentage of Gen X is interested in 'In-game currency'? | 38% | ✅ | ✅ | ✅ | ❌ |
 | 59 | What percentage of Boomers is interested in 'In-game currency'? | 18% | ✅ | ✅ | ✅ | ❌ |
 | 61 | In which categories does Gen X interest exceed 50%? | Two categories: 'Working with co-workers in a virtual or AR worlds' (53%) and 'Shopping for real-… | ✅ | ✅ | ✅ | ❌ |
-| 64 | What is the source and sample size of Figure 3? | Accenture Consumer Pulse Survey, Feb 2022; 11,000+ consumers over 16 countries | ✅ | 🤷 | ✅ | 🟡 |
+| 64 | What is the source and sample size of Figure 3? | ~~Accenture~~ Customer A Consumer Pulse Survey, Feb 2022; 11,000+ consumers over 16 countries | ✅ | 🤷 | ✅ | 🟡 |
 | 65 | Which two organizations partnered on a Value Partnership for hospital radiology operations? | Mater Private Hospital and Siemens Healthineers | 🤷 | ✅ | 🤷 | ❌ |
 | 66 | What did the Mater Private Hospital and Siemens Healthineers digital twin help shorten? | MRI wait times for patients | 🤷 | 🤷 | 🤷 | ✅ |
-| 67 | What is Accenture's enterprise metaverse called? | The Nth floor | ✅ | ✅ | ✅ | ✅ |
-| 68 | What is the name of the virtual campus inside Accenture's Nth floor? | One Accenture Park | ✅ | ✅ | ✅ | ✅ |
-| 70 | Which company is Accenture working with on digital twins for manufacturing operations in confectionary, foo… | Mars | ✅ | ✅ | ✅ | ✅ |
+| 67 | What is ~~Accenture~~ Customer A's enterprise metaverse called? | The Nth floor | ✅ | ✅ | ✅ | ✅ |
+| 68 | What is the name of the virtual campus inside ~~Accenture~~ Customer A's Nth floor? | One ~~Accenture~~ Customer A Park | ✅ | ✅ | ✅ | ✅ |
+| 70 | Which company is ~~Accenture~~ Customer A working with on digital twins for manufacturing operations in con… | Mars | ✅ | ✅ | ✅ | ✅ |
 | 71 | What food-industry problem did Mars test using a digital twin? | Over-filling of packages | ✅ | ✅ | ✅ | ✅ |
-| 72 | Roughly how many gallons of SAF does the Shell/Accenture/Amex GBT pilot offer at launch? | Around 1 million gallons of sustainable aviation fuel (SAF) | ✅ | ✅ | ✅ | 🤷 |
-| 73 | How many London-to-New-York flights would the SAF in the Shell/Accenture pilot power? | Almost 15,000 individual business traveler flights | ✅ | 🤷 | ✅ | ✅ |
+| 72 | Roughly how many gallons of SAF does the Shell/~~Accenture~~ Customer A/Amex GBT pilot offer at launch? | Around 1 million gallons of sustainable aviation fuel (SAF) | ✅ | ✅ | ✅ | 🤷 |
+| 73 | How many London-to-New-York flights would the SAF in the Shell/~~Accenture~~ Customer A pilot power? | Almost 15,000 individual business traveler flights | ✅ | 🤷 | ✅ | ✅ |
 | 74 | What is GF (Gerando Falcões) and what is its mission? | A non-profit (NPO) committed to eliminating poverty in Brazilian favelas, transforming communitie… | ✅ | ✅ | ✅ | ✅ |
-| 75 | What is the name of Gerando Falcões' favela-transformation initiative on Roblox launched with Accenture? | Mission FavelaX (also referred to as 'Favela 3D' platform with the favela 'Favela Mars') | 🟡 | 🟡 | 🟡 | 🟡 |
-| 76 | What three rules does Accenture's conclusion offer for reaping value from the metaverse? | Be creative and keep it simple; Start small and focused; Engage with early building blocks | ✅ | ❌ | ✅ | ❌ |
-| 77 | How many in-depth video interviews with metaverse subject matter experts did Accenture conduct? | 20 in-depth video interviews | ✅ | ✅ | ✅ | ✅ |
-| 78 | How many C-suite executives did Accenture talk to between April and September 2022? | Nearly 50 C-suite executives | ✅ | ✅ | 🤷 | ✅ |
-| 79 | How many earnings call transcripts of how many companies did Accenture analyze for metaverse keywords? | More than 100,000 earnings call transcripts of 11,407 companies on the S&P Global Index | ✅ | ✅ | ✅ | ✅ |
-| 80 | What sample size did the Accenture CxO survey reach in April-May 2022? | 3,200 C-level executives across 15 countries | ✅ | ✅ | ✅ | 🟡 |
-| 81 | What sample size did the Accenture Business Trends Survey reach in May-June 2022? | 3,450 C-level executives across 22 countries (companies $500M+ in global revenue, 26 industries) | ✅ | 🟡 | 🟡 | 🟡 |
-| 82 | What sample size did the Accenture Consumer Pulse Survey reach in February 2022? | 11,311 consumers from 16 countries | ✅ | ✅ | ✅ | ✅ |
-| 83 | Who are the four authors of the Accenture metaverse report? | Mark Curtis, David Treat, Katie Burke, Raghav Narsalay | ✅ | ✅ | ✅ | ✅ |
-| 84 | What is Mark Curtis's title at Accenture? | Managing Director, Metaverse Continuum Business Group | ✅ | ✅ | ✅ | ✅ |
-| 85 | What is Raghav Narsalay's title at Accenture? | Managing Director, Accenture Research | ✅ | ✅ | ✅ | ✅ |
+| 75 | What is the name of Gerando Falcões' favela-transformation initiative on Roblox launched with ~~Accenture~~… | Mission FavelaX (also referred to as 'Favela 3D' platform with the favela 'Favela Mars') | 🟡 | 🟡 | 🟡 | 🟡 |
+| 76 | What three rules does ~~Accenture~~ Customer A's conclusion offer for reaping value from the metaverse? | Be creative and keep it simple; Start small and focused; Engage with early building blocks | ✅ | ❌ | ✅ | ❌ |
+| 77 | How many in-depth video interviews with metaverse subject matter experts did ~~Accenture~~ Customer A conduct? | 20 in-depth video interviews | ✅ | ✅ | ✅ | ✅ |
+| 78 | How many C-suite executives did ~~Accenture~~ Customer A talk to between April and September 2022? | Nearly 50 C-suite executives | ✅ | ✅ | 🤷 | ✅ |
+| 79 | How many earnings call transcripts of how many companies did ~~Accenture~~ Customer A analyze for metaverse… | More than 100,000 earnings call transcripts of 11,407 companies on the S&P Global Index | ✅ | ✅ | ✅ | ✅ |
+| 80 | What sample size did the ~~Accenture~~ Customer A CxO survey reach in April-May 2022? | 3,200 C-level executives across 15 countries | ✅ | ✅ | ✅ | 🟡 |
+| 81 | What sample size did the ~~Accenture~~ Customer A Business Trends Survey reach in May-June 2022? | 3,450 C-level executives across 22 countries (companies $500M+ in global revenue, 26 industries) | ✅ | 🟡 | 🟡 | 🟡 |
+| 82 | What sample size did the ~~Accenture~~ Customer A Consumer Pulse Survey reach in February 2022? | 11,311 consumers from 16 countries | ✅ | ✅ | ✅ | ✅ |
+| 83 | Who are the four authors of the ~~Accenture~~ Customer A metaverse report? | Mark Curtis, David Treat, Katie Burke, Raghav Narsalay | ✅ | ✅ | ✅ | ✅ |
+| 84 | What is Mark Curtis's title at ~~Accenture~~ Customer A? | Managing Director, Metaverse Continuum Business Group | ✅ | ✅ | ✅ | ✅ |
+| 85 | What is Raghav Narsalay's title at ~~Accenture~~ Customer A? | Managing Director, ~~Accenture~~ Customer A Research | ✅ | ✅ | ✅ | ✅ |
 | 90 | How does the report describe what blockchain-enabled traceability gives customers in supply chains? | A better understanding of where their products come from | ✅ | ❌ | ✅ | ❌ |
 | 100 | What is the title of the Sales Excellence report and what month/year is it published? | Sales Excellence Market Observations & Pricing Trends, Competitive & Market Intelligence, June 2025 | ✅ | 🟡 | 🟡 | 🟡 |
 | 102 | How many sections are in the SE report agenda? | 7 (Executive Summary, Market Dynamics, Pricing Trends and Outlook, Pricing Models Realignment, Co… | ✅ | 🟡 | ✅ | 🤷 |
@@ -676,7 +688,7 @@ Verdict legend: ✅ correct · 🟡 partial · ❌ wrong · 🤷 refused · ⚠�
 <details>
 <summary><b>🧮 math/aggregation — 42 questions</b></summary>
 
-| #  | Question | Ground truth | 🥇 docparse md<br>+ RAG Engine<br>per-page chunks | 🥈 docparse md<br>+ RAG Engine<br>whole-doc chunks | docparse md<br>+ Discovery Engine<br>streamAssist | raw PDF<br>+ RAG Engine<br>(no extraction) |
+| #  | Question | Ground truth | 🥇 docparse md<br>RAG Engine<br>per-page chunks¹ | 🥈 docparse md<br>RAG Engine<br>whole-doc chunks² | docparse md<br>Discovery Engine<br>streamAssist³ | raw PDF<br>RAG Engine<br>no extraction⁴ |
 |---:|---|---|:---:|:---:|:---:|:---:|
 | 7 | What was the total mentions of metaverse-related keywords in 2020 Q1? | 585 | ✅ | ✅ | 🤷 | 🤷 |
 | 8 | What was the total metaverse mentions in 2020 Q2? | 1117 | ✅ | ✅ | 🤷 | ❌ |
@@ -706,11 +718,11 @@ Verdict legend: ✅ correct · 🟡 partial · ❌ wrong · 🤷 refused · ⚠�
 | 60 | Which generation has the highest interest across all categories in Figure 3? | Millennials (consistently highest in every category) | ✅ | ✅ | ✅ | 🟡 |
 | 62 | Which category has the lowest Boomer interest? | In-game currency (18%) | ✅ | ✅ | 🤷 | ❌ |
 | 63 | What is the average Millennial interest across all 10 categories in Figure 3? | Approximately 57.6% (mean of 63, 61, 59, 59, 58, 55, 54, 54, 56, 56) | ✅ | ✅ | ✅ | ❌ |
-| 89 | What does Accenture call the combined era of immersive technologies and new ownership in Tech Vision 2022? | The Metaverse Continuum | ✅ | ✅ | ✅ | ✅ |
+| 89 | What does ~~Accenture~~ Customer A call the combined era of immersive technologies and new ownership in Tec… | The Metaverse Continuum | ✅ | ✅ | ✅ | ✅ |
 | 120 | What was the peak global IT services growth shown on page 9 and in which year? | 11.4% in CY 2022 | ✅ | ✅ | ✅ | ❌ |
 | 125 | According to the Barclays CIO Survey 1H25 Avg, what is the expected total IT spending growth for 2025E? | 3.3% | ✅ | ✅ | ✅ | ❌ |
 | 126 | According to the Barclays CIO Survey 2H24 Avg, what was the expected total IT spending growth for 2025E? | 3.8% | ✅ | ✅ | ✅ | ❌ |
-| 133 | Per the Barclays CIO Survey on page 12, which IT services provider was most considered by CIOs for new cont… | Accenture (with 30 respondents in 1H25) | ✅ | ✅ | ✅ | ✅ |
+| 133 | Per the Barclays CIO Survey on page 12, which IT services provider was most considered by CIOs for new cont… | ~~Accenture~~ Customer A (with 30 respondents in 1H25) | ✅ | ✅ | ✅ | ✅ |
 | 172 | On page 24, in what order does GCC pricing differential go from highest to lowest? | ODC (100) > GCC USD/EUR (80-85) > GCC INR (75-80) > IDB (55-65) | ✅ | ✅ | ✅ | ✅ |
 | 173 | On average, how many $10M+ TCV deals do enterprises sign in the five years prior to a Mega Deal per page 26? | 8 deals | ✅ | ✅ | ✅ | ✅ |
 | 180 | Per page 28, what was the 2024 indexed deal TCV for Application Development & Maintenance compared to 2021=… | 77-82 (a 18-23% reduction) | ✅ | ✅ | ✅ | ✅ |
@@ -726,7 +738,7 @@ Verdict legend: ✅ correct · 🟡 partial · ❌ wrong · 🤷 refused · ⚠�
 <details>
 <summary><b>📊 chart-cell — 18 questions</b></summary>
 
-| #  | Question | Ground truth | 🥇 docparse md<br>+ RAG Engine<br>per-page chunks | 🥈 docparse md<br>+ RAG Engine<br>whole-doc chunks | docparse md<br>+ Discovery Engine<br>streamAssist | raw PDF<br>+ RAG Engine<br>(no extraction) |
+| #  | Question | Ground truth | 🥇 docparse md<br>RAG Engine<br>per-page chunks¹ | 🥈 docparse md<br>RAG Engine<br>whole-doc chunks² | docparse md<br>Discovery Engine<br>streamAssist³ | raw PDF<br>RAG Engine<br>no extraction⁴ |
 |---:|---|---|:---:|:---:|:---:|:---:|
 | 18 | By what percentage did metaverse-related keyword mentions increase from 2020 Q1 to 2022 Q2? | 212% | ✅ | ✅ | ❌ | ✅ |
 | 119 | What was global IT services growth in CY 2021 per the Global IT Services Growth chart on page 9? | 9.2% | ✅ | ✅ | ✅ | ❌ |
@@ -752,11 +764,11 @@ Verdict legend: ✅ correct · 🟡 partial · ❌ wrong · 🤷 refused · ⚠�
 <details>
 <summary><b>🖼️ photo/vision — 4 questions</b></summary>
 
-| #  | Question | Ground truth | 🥇 docparse md<br>+ RAG Engine<br>per-page chunks | 🥈 docparse md<br>+ RAG Engine<br>whole-doc chunks | docparse md<br>+ Discovery Engine<br>streamAssist | raw PDF<br>+ RAG Engine<br>(no extraction) |
+| #  | Question | Ground truth | 🥇 docparse md<br>RAG Engine<br>per-page chunks¹ | 🥈 docparse md<br>RAG Engine<br>whole-doc chunks² | docparse md<br>Discovery Engine<br>streamAssist³ | raw PDF<br>RAG Engine<br>no extraction⁴ |
 |---:|---|---|:---:|:---:|:---:|:---:|
-| 86 | What is depicted in the cover image of the Accenture metaverse report? | Two women in purple dresses walking hand-in-hand through a futuristic blue tunnel toward a glowin… | ✅ | 🟡 | ❌ | 🤷 |
+| 86 | What is depicted in the cover image of the ~~Accenture~~ Customer A metaverse report? | Two women in purple dresses walking hand-in-hand through a futuristic blue tunnel toward a glowin… | ✅ | 🟡 | ❌ | 🤷 |
 | 87 | What is shown in the photo on page 7 (Technology and creativity)? | An industrial machine (turbine/rocket engine) being inspected by workers in hard hats with augmen… | 🟡 | 🤷 | ❌ | 🤷 |
-| 88 | What is shown in the photo on page 16 of the Accenture report? | A side profile of a woman with a blue holographic / wireframe digital face overlay representing a… | ✅ | 🤷 | ❌ | 🤷 |
+| 88 | What is shown in the photo on page 16 of the ~~Accenture~~ Customer A report? | A side profile of a woman with a blue holographic / wireframe digital face overlay representing a… | ✅ | 🤷 | ❌ | 🤷 |
 | 101 | What confidentiality marking appears on the SE report cover? | FOR INTERNAL USE ONLY | ✅ | ✅ | ✅ | ❌ |
 
 </details>
@@ -764,7 +776,7 @@ Verdict legend: ✅ correct · 🟡 partial · ❌ wrong · 🤷 refused · ⚠�
 <details>
 <summary><b>🔀 diagram — 1 questions</b></summary>
 
-| #  | Question | Ground truth | 🥇 docparse md<br>+ RAG Engine<br>per-page chunks | 🥈 docparse md<br>+ RAG Engine<br>whole-doc chunks | docparse md<br>+ Discovery Engine<br>streamAssist | raw PDF<br>+ RAG Engine<br>(no extraction) |
+| #  | Question | Ground truth | 🥇 docparse md<br>RAG Engine<br>per-page chunks¹ | 🥈 docparse md<br>RAG Engine<br>whole-doc chunks² | docparse md<br>Discovery Engine<br>streamAssist³ | raw PDF<br>RAG Engine<br>no extraction⁴ |
 |---:|---|---|:---:|:---:|:---:|:---:|
 | 105 | Which four third-party advisors are referenced in the page 5 Pricing Trends diagram? | ISG, Everest Group, Avasant, Source Global Research | ✅ | ✅ | ✅ | 🟡 |
 
