@@ -6,6 +6,8 @@
 
 A 100-line ADK agent that wraps a Vertex AI RAG Engine corpus and exposes itself as a first-class agent inside Gemini Enterprise. Validated against the [`docparse`](../docparse/) eval suite — **92.9% composite on 216 questions**, vs 87.4% for vanilla RAG and 81% for Discovery Engine `streamAssist` over the same markdown.
 
+<a href="./EVAL.md"><img src="https://img.shields.io/badge/-Full%20eval%20%E2%86%92%208%20strategies%2C%20216%20questions-1A73E8?style=for-the-badge&logoColor=white" alt="Full eval"></a>
+
 </div>
 
 ---
@@ -52,6 +54,8 @@ Discovery Engine's `streamAssist` over the same markdown ceiling'd at **81%**. M
 | page-anchored (90q) | 89% | **92%** | +3 |
 | text lookup (61q) | 85% | 90% | +5 |
 | **overall** | **81%** | **92.9%** | **+12** |
+
+[**→ Full eval results, methodology, and per-question verdicts for all 8 strategies in `EVAL.md`**](./EVAL.md)
 
 Two ingredients matter:
 
@@ -308,6 +312,7 @@ jsonPayload.trace_id!=""
 
 ## File reference
 
+- [`EVAL.md`](./EVAL.md) — full evaluation results: 8 strategies × 216 questions, leaderboard, per-category breakdown, methodology, sample showcase, and the entire question bank with verdicts
 - [`agent/agent.py`](./agent/agent.py) — the ADK agent (model + retrieval tool + instruction)
 - [`deploy.py`](./deploy.py) — Agent Engine create/update with the global-region env vars
 - [`register_agent.py`](./register_agent.py) — cross-project GE registration + auto-share
