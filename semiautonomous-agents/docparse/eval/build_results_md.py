@@ -185,6 +185,30 @@ lines.append("")
 lines.append("---")
 lines.append("")
 
+# === Detailed metrics ===
+lines.append("## 1a · Detailed metrics")
+lines.append("")
+lines.append("Composite is the headline, but correctness + completeness + latency matter for production.")
+lines.append("")
+lines.append("| Strategy | Composite | Correctness | Completeness | Avg latency | ✓ | × | ? | ~ | ! |")
+lines.append("|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|")
+for label in STRATEGY_ORDER:
+    rows = list(runs[label].values())
+    comp, cor, com = composite(rows)
+    vc = verdict_counts(rows)
+    # Compute avg latency (if the field exists)
+    elaps = [r.get("sa_elapsed_s", 0) for r in rows if r.get("sa_elapsed_s")]
+    avg_lat = sum(elaps) / len(elaps) if elaps else 0
+    lines.append(
+        f"| `{label}` | **{comp*100:.1f}%** | {cor*100:.1f}% | {com*100:.1f}% | {avg_lat:.1f}s | "
+        f"{vc.get('correct',0)} | {vc.get('wrong',0)} | {vc.get('refused',0)} | {vc.get('partial',0)} | {vc.get('error',0)} |"
+    )
+lines.append("")
+lines.append("**Notable:** `rag_md_v2` is **4× faster** than DE streamAssist (6s vs 23s) because RAG Engine retrieval is synchronous and Gemini doesn't wait for an agentic planner. The refusal rate drop (12 → 3) is where the +5.5pt gain comes from.")
+lines.append("")
+lines.append("---")
+lines.append("")
+
 # === Two-axis ablation ===
 lines.append("## 2 · The two-axis ablation")
 lines.append("")

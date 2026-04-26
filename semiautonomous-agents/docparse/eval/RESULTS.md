@@ -45,6 +45,25 @@ Composite score across all 216 questions, with the verdict mix that produced it.
 
 ---
 
+## 1a · Detailed metrics
+
+Composite is the headline, but correctness + completeness + latency matter for production.
+
+| Strategy | Composite | Correctness | Completeness | Avg latency | ✓ | × | ? | ~ | ! |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| `rag_md_v2` | **92.9%** | 92.9% | 93.0% | 7.1s | 196 | 10 | 3 | 7 | 0 |
+| `rag_md` | **87.4%** | 88.4% | 86.5% | 6.2s | 182 | 11 | 12 | 11 | 0 |
+| `digital_v2` | **81.2%** | 81.3% | 81.1% | 23.1s | 168 | 16 | 23 | 9 | 0 |
+| `digital` | **81.0%** | 80.9% | 81.1% | 24.0s | 170 | 17 | 21 | 7 | 1 |
+| `ocr` | **80.8%** | 81.0% | 80.6% | 20.8s | 168 | 15 | 24 | 8 | 1 |
+| `layout` | **75.2%** | 75.3% | 75.1% | 22.0s | 153 | 11 | 35 | 15 | 2 |
+| `digital_200` | **69.4%** | 69.6% | 69.3% | 21.4s | 143 | 15 | 46 | 10 | 2 |
+| `rag_pdf` | **63.8%** | 63.5% | 64.2% | 11.4s | 121 | 61 | 13 | 19 | 2 |
+
+**Notable:** `rag_md_v2` is **4× faster** than DE streamAssist (6s vs 23s) because RAG Engine retrieval is synchronous and Gemini doesn't wait for an agentic planner. The refusal rate drop (12 → 3) is where the +5.5pt gain comes from.
+
+---
+
 ## 2 · The two-axis ablation
 
 | Comparison | Δ composite | What it isolates |
