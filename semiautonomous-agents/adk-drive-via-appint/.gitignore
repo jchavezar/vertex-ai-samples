@@ -1,0 +1,8 @@
+.venv/
+.env
+__pycache__/
+*.pyc
+.pytest_cache/
+uv.lock
+.adk/
+nohup.out
