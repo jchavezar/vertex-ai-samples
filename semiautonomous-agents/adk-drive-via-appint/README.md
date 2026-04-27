@@ -9,17 +9,17 @@ No Application Integration in the runtime path — it's `GoogleApiToolset("drive
 ```mermaid
 flowchart LR
     U[User] -->|asks question| W[ADK Web Dev UI]
-    W -->|prompt + tool calls| A[Agent: drive_assistant]
+    W -->|prompt and tool calls| A[Agent drive_assistant]
     A -->|drive.files.list / get / export| T[GoogleApiToolset]
     T -->|access_token| D[Google Drive API v3]
 
-    subgraph First call only
-      A -. needs OAuth .-> W
-      W -->|open popup| G[Google Sign-In]
-      G -->|auth code| W
-      W -->|exchange| O[OAuth token endpoint]
-      O -->|access + refresh tokens| W
-      W -->|cached in session| A
+    subgraph oauth ["First call only"]
+      A2[Agent] -.->|needs OAuth| W2[Dev UI]
+      W2 -->|open popup| G[Google Sign-In]
+      G -->|auth code| W2
+      W2 -->|exchange| O[OAuth token endpoint]
+      O -->|access and refresh tokens| W2
+      W2 -->|cached in session| A2
     end
 
     style A fill:#e8f0fe,color:#1a1a2e,stroke:#4285f4
