@@ -1,0 +1,10 @@
+node_modules/
+dist/
+.env
+backend/.env
+frontend/.env
+backend/.venv/
+__pycache__/
+*.pyc
+uv.lock
+package-lock.json
