@@ -106,33 +106,32 @@ class DiscoveryEngineClient:
             logger.exception("WIF token exchange failed")
             return self._get_service_credentials()
 
+    # SharePoint federated connector entity types — all data stores derived from
+    # the connector. Hardcoded so the GE chat-UI toggle (which is a client-side
+    # filter on dataStoreSpecs) cannot strip SharePoint from queries. WIF/ACL
+    # enforcement is unaffected — that lives at the engine level, not here.
+    _SHAREPOINT_ENTITIES = ["file", "page", "comment", "event", "attachment"]
+    _SHAREPOINT_CONNECTOR_PREFIX = "sharepoint-data-def-connector"
+
     def _get_dynamic_datastores(self) -> List[Dict[str, str]]:
-        """Fetch configured datastores from engine widget config."""
-        try:
-            admin_token = self._get_service_credentials()
-            url = (
-                f"https://discoveryengine.googleapis.com/v1alpha/"
-                f"projects/{self.project_number}/locations/{self.location}/"
-                f"collections/default_collection/engines/{self.engine_id}/"
-                f"widgetConfigs/default_search_widget_config"
-            )
-            headers = {
-                "Authorization": f"Bearer {admin_token}",
-                "Content-Type": "application/json",
-                "X-Goog-User-Project": self.project_number,
+        """Always return the full SharePoint federated connector data-store list.
+
+        Previously this fetched from widget_config, which respects the GE chat-UI
+        toggle and silently drops SharePoint when the user disables it. That
+        broke per-user search even though WIF authentication and the connector
+        bridge were still intact. The toggle is purely client-side; we just
+        ignore it.
+        """
+        return [
+            {
+                "dataStore": (
+                    f"projects/{self.project_number}/locations/{self.location}/"
+                    f"collections/default_collection/dataStores/"
+                    f"{self._SHAREPOINT_CONNECTOR_PREFIX}_{entity}"
+                )
             }
-
-            resp = requests.get(url, headers=headers, timeout=10)
-            if resp.status_code == 200:
-                datastore_specs = []
-                for comp in resp.json().get("collectionComponents", [{}]):
-                    for ds_comp in comp.get("dataStoreComponents", []):
-                        datastore_specs.append({"dataStore": ds_comp["name"]})
-                return datastore_specs
-
-        except Exception as e:
-            logger.warning(f"Could not fetch dynamic datastores: {e}")
-        return []
+            for entity in self._SHAREPOINT_ENTITIES
+        ]
 
     def _extract_sources(self, response_json: Any) -> List[SourceDocument]:
         """Extract grounding sources from Discovery Engine response."""
@@ -204,7 +203,16 @@ class DiscoveryEngineClient:
                 )
             }]
 
-        payload = {"query": {"text": query}}
+        # Wrap the query so streamAssist's heuristic doesn't classify it as
+        # NON_ASSIST_SEEKING_QUERY_IGNORED. Bare keywords ("jennifer") and short
+        # questions ("who is X?") get SKIPPED with zero docs returned. The
+        # agent's LLM tends to extract single-word keywords for searches, so we
+        # rewrap into a full sentence here. Verified against the live API.
+        wrapped_query = f"Find information about {query} in SharePoint documents"
+        payload = {
+            "query": {"parts": [{"text": wrapped_query}]},
+            "assistSkippingMode": "REQUEST_ASSIST",
+        }
         if datastore_specs:
             payload["toolsSpec"] = {"vertexAiSearchSpec": {"dataStoreSpecs": datastore_specs}}
 
@@ -215,8 +223,16 @@ class DiscoveryEngineClient:
             f"assistants/default_assistant:streamAssist"
         )
 
+        logger.info(f"streamAssist URL: {url}")
+        logger.info(f"streamAssist Bearer prefix: {access_token[:25]}...")
+        import json as _json
+        logger.info(f"streamAssist FULL PAYLOAD: {_json.dumps(payload)[:500]}")
+
         try:
             response = requests.post(url, headers=headers, json=payload, timeout=60)
+
+            logger.info(f"streamAssist HTTP {response.status_code}, body length: {len(response.text)}")
+            logger.info(f"streamAssist response body (first 1000 chars): {response.text[:1000]}")
 
             if response.status_code != 200:
                 logger.error(f"Discovery Engine error {response.status_code}: {response.text[:300]}")

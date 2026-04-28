@@ -112,85 +112,99 @@ def _detect_auth_id(tool_context: ToolContext) -> tuple[str | None, str | None]:
 > [!IMPORTANT]
 > Agentspace injects tokens with **no consistent prefix** — sometimes `temp:auth_id`, sometimes bare `auth_id`. The `eyJ` + dot + length check catches JWTs regardless of key naming convention. This means you can change the authorization ID freely without touching agent code.
 
-### 2. WIF Token Exchange (Entra JWT → GCP Token)
+### 2. WIF Token Exchange (Entra JWT → GCP Token) — must use a **V1-issuer provider**
 
-The Microsoft JWT is exchanged for a GCP access token via Google's Security Token Service. The GCP token carries the user's identity through WIF:
+The Microsoft JWT injected by Agentspace is a **V1 Azure AD token** (issuer `https://sts.windows.net/{tenant}/`, audience `api://{client_id}`). This is different from the V2 tokens that MSAL.js frontends issue (`https://login.microsoftonline.com/{tenant}/v2.0`, raw GUID audience). Using a V2-only WIF provider here will fail every request with `invalid_grant`. Provision a sibling provider for V1:
+
+```bash
+gcloud iam workforce-pools providers create-oidc ge-login-provider-v1 \
+  --workforce-pool=<pool> --location=global \
+  --issuer-uri="https://sts.windows.net/<TENANT_ID>/" \
+  --client-id="api://<PORTAL_APP_CLIENT_ID>" \
+  --attribute-mapping="google.subject=assertion.sub" \
+  --web-sso-response-type=id-token \
+  --web-sso-assertion-claims-behavior=only-id-token-claims
+```
+
+Then in the agent, the exchange is identical to the standard WIF pattern:
 
 ```python
 # agent/discovery_engine.py — exchange_wif_token()
-
-def exchange_wif_token(self, microsoft_jwt: str) -> str:
-    audience = (
-        f"//iam.googleapis.com/locations/global/workforcePools/"
-        f"{self.wif_pool_id}/providers/{self.wif_provider_id}"
-    )
-
-    payload = {
-        "audience": audience,
-        "grantType": "urn:ietf:params:oauth:grant-type:token-exchange",
-        "requestedTokenType": "urn:ietf:params:oauth:token-type:access_token",
-        "scope": "https://www.googleapis.com/auth/cloud-platform",
-        "subjectToken": microsoft_jwt,
-        "subjectTokenType": "urn:ietf:params:oauth:token-type:jwt",
-    }
-
-    response = requests.post(
-        "https://sts.googleapis.com/v1/token", json=payload, timeout=10
-    )
-    return response.json().get("access_token")
+payload = {
+    "audience": f"//iam.googleapis.com/locations/global/workforcePools/{POOL}/providers/{PROVIDER_V1}",
+    "grantType": "urn:ietf:params:oauth:grant-type:token-exchange",
+    "requestedTokenType": "urn:ietf:params:oauth:token-type:access_token",
+    "scope": "https://www.googleapis.com/auth/cloud-platform",
+    "subjectToken": microsoft_jwt,
+    "subjectTokenType": "urn:ietf:params:oauth:token-type:jwt",
+}
+resp = requests.post("https://sts.googleapis.com/v1/token", json=payload)
 ```
 
-> [!NOTE]
-> If WIF is not configured or the exchange fails, the client falls back to the Agent Engine's service account credentials. This means the agent still works, but searches won't be ACL-aware.
+> [!IMPORTANT]
+> **V1 vs V2 is the most common silent failure.** STS rejects with `invalid_grant: issuer does not match` (wrong issuer) or `invalid_grant: audience does not match` (wrong client_id format). The error never surfaces to the GE chat UI — the agent quietly falls back to its SA token and returns "no results found".
 
-### 3. StreamAssist Search with DataStoreSpecs
-
-The GCP token (now carrying user identity) is used to call Discovery Engine's StreamAssist API. The `dataStoreSpecs` parameter restricts the search to the SharePoint federated connector:
+### 3. StreamAssist Search — exact payload shape that survives the skip heuristic
 
 ```python
 # agent/discovery_engine.py — search()
 
-payload = {"query": {"text": query}}
-if datastore_specs:
-    payload["toolsSpec"] = {
-        "vertexAiSearchSpec": {"dataStoreSpecs": datastore_specs}
-    }
+# 1. Wrap bare keywords/short questions into a full sentence. The agent's LLM
+#    tends to extract single words ("jennifer") for the search; streamAssist's
+#    heuristic classifies those as NON_ASSIST_SEEKING_QUERY_IGNORED and returns
+#    state=SKIPPED with zero documents.
+wrapped_query = f"Find information about {query} in SharePoint documents"
+
+payload = {
+    # 2. MUST use query.parts (NOT query.text). The simple text shape also
+    #    triggers the skip heuristic. The parts envelope bypasses it.
+    "query": {"parts": [{"text": wrapped_query}]},
+    "assistSkippingMode": "REQUEST_ASSIST",
+    "toolsSpec": {"vertexAiSearchSpec": {"dataStoreSpecs": datastore_specs}},
+}
 
 response = requests.post(
     f"https://discoveryengine.googleapis.com/v1alpha/"
-    f"projects/{self.project_number}/locations/{self.location}/"
-    f"collections/default_collection/engines/{self.engine_id}/"
-    f"assistants/default_assistant:streamAssist",
+    f"projects/{p}/locations/{l}/collections/default_collection/"
+    f"engines/{e}/assistants/default_assistant:streamAssist",
     headers={"Authorization": f"Bearer {access_token}", ...},
     json=payload,
 )
 ```
 
 > [!IMPORTANT]
-> Without `dataStoreSpecs`, Discovery Engine returns answers from its general model — **not** from SharePoint. There is no error — you just get generic responses with no source citations. This is the most common silent failure.
+> All three pieces matter independently:
+> 1. **`query.parts`** — `{text}` shape gets skipped, `{parts: [{text}]}` doesn't.
+> 2. **Wrapped sentence** — bare words get skipped even with `parts`. Wrap into "Find information about X in SharePoint documents".
+> 3. **`assistSkippingMode: REQUEST_ASSIST`** — required field; `ASSIST_SKIPPING_MODE_UNSPECIFIED` does NOT disable the skip (counter-intuitive but verified against live API).
+>
+> Without all three, you'll get `{"answer": {"state": "SKIPPED", "assistSkippedReasons": ["NON_ASSIST_SEEKING_QUERY_IGNORED"]}}` and zero source citations. The agent's LLM will then fabricate "I couldn't find anything in SharePoint" — but no actual search happened.
 
-### 4. Dynamic Datastore Discovery
+### 4. Hardcoded Datastores — what makes this **toggle-independent**
 
-Instead of hardcoding the full datastore path, the agent first tries to fetch configured datastores from the engine's widget config:
+The previous version of this code fetched datastores dynamically from the engine's `widget_config`. **That endpoint reflects whatever the user has toggled in the GE chat UI.** When the user disabled the SharePoint toggle, the datastore vanished from `dataStoreSpecs` and the search silently returned nothing — even though WIF auth and the connector bridge were both intact.
+
+The fix is to ignore `widget_config` entirely and hardcode the connector's entity datastores in the agent:
 
 ```python
 # agent/discovery_engine.py — _get_dynamic_datastores()
 
-url = (
-    f"https://discoveryengine.googleapis.com/v1alpha/"
-    f"projects/{self.project_number}/locations/{self.location}/"
-    f"collections/default_collection/engines/{self.engine_id}/"
-    f"widgetConfigs/default_search_widget_config"
-)
-resp = requests.get(url, headers={"Authorization": f"Bearer {admin_token}", ...})
+_SHAREPOINT_ENTITIES = ["file", "page", "comment", "event", "attachment"]
+_SHAREPOINT_CONNECTOR_PREFIX = "sharepoint-data-def-connector"
 
-datastore_specs = []
-for comp in resp.json().get("collectionComponents", [{}]):
-    for ds_comp in comp.get("dataStoreComponents", []):
-        datastore_specs.append({"dataStore": ds_comp["name"]})
+def _get_dynamic_datastores(self) -> List[Dict[str, str]]:
+    return [
+        {"dataStore": (
+            f"projects/{self.project_number}/locations/{self.location}/"
+            f"collections/default_collection/dataStores/"
+            f"{self._SHAREPOINT_CONNECTOR_PREFIX}_{entity}"
+        )}
+        for entity in self._SHAREPOINT_ENTITIES
+    ]
 ```
 
-Falls back to the `DATA_STORE_ID` environment variable if the widget config isn't accessible.
+> [!IMPORTANT]
+> **The GE chat-UI data-source toggle is purely a *client-side filter* on `dataStoreSpecs`.** It does NOT control authorization, JWT injection, or the underlying connector bridge. By hardcoding the SharePoint datastores in the agent's tool, the toggle becomes a UX illusion — SharePoint is always queried, ACL enforcement still works server-side via the WIF user identity. This is the single change that makes the agent toggle-independent.
 
 ### 5. Google Search (Built-in ADK Tool)
 
