@@ -97,7 +97,6 @@ sequenceDiagram
     participant Drive as Drive API v3
 
     User->>UI: open localhost:3000
-    UI->>UI: load page; GIS script attached in &lt;head&gt;
 
     User->>UI: click "Connect Google Drive"
     UI->>GIS: initTokenClient({client_id, scope: drive.readonly})
