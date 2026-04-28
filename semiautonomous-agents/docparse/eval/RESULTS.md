@@ -9,7 +9,7 @@
 ![delta](https://img.shields.io/badge/%CE%94_vs_baseline-%2B11.9pts-EA8600?style=for-the-badge)
 ![questions](https://img.shields.io/badge/questions-216-5A6373?style=for-the-badge)
 
-<sub>Last run: 2026-04-26  ·  Eval corpus: 2 enterprise reports (industry analysis + competitive-intelligence pricing)</sub>
+<sub>Last run: 2026-04-28  ·  Eval corpus: 2 enterprise reports (industry analysis + competitive-intelligence pricing)</sub>
 
 </div>
 
@@ -42,6 +42,25 @@ Composite score across all 216 questions, with the verdict mix that produced it.
 | 8 | **`rag_pdf`** | **63.8%** | `█████████████░░░░░░░` | 121 | 61 | 13 | 19 |
 
 **Read this as:** the gap between the top three (~81–93%) is the engine + retrieval matters; the gap between top and bottom (63.8% for `rag_pdf`) is the extraction matters. Both axes stack.
+
+---
+
+## 1b · What each strategy is
+
+The full stack behind each strategy name.
+
+| Strategy | Full stack description |
+|---|---|
+| `rag_md_v2` | docparse markdown → **Vertex AI RAG Engine** (72 per-page files, chunk 1000) → **gemini-3-flash-preview** (direct retrieval tool, top_k=20) → **ADK Agent** deployed to Agent Engine → registered in **Gemini Enterprise** |
+| `rag_md` | docparse markdown → **Vertex AI RAG Engine** (2 whole-doc files, auto-chunked 500) → **gemini-3-flash-preview** (direct retrieval tool, top_k=5) |
+| `digital_v2` | docparse markdown → **Vertex AI Search** (GCS connector, digitalParsingConfig, chunk 500) → **Gemini Enterprise streamAssist** + maximal config (system instruction, web grounding off, managed agents deleted) |
+| `digital` | docparse markdown → **Vertex AI Search** (GCS connector, digitalParsingConfig, chunk 500) → **Gemini Enterprise streamAssist** (default assistant config) |
+| `ocr` | docparse markdown → **Vertex AI Search** (GCS connector, **ocrParsingConfig**, chunk 500) → **Gemini Enterprise streamAssist** |
+| `layout` | docparse markdown → **Vertex AI Search** (GCS connector, **layoutParsingConfig + image annotation**, chunk 500) → **Gemini Enterprise streamAssist** |
+| `digital_200` | docparse markdown → **Vertex AI Search** (GCS connector, digitalParsingConfig, **chunk 200**) → **Gemini Enterprise streamAssist** |
+| `rag_pdf` | **raw PDFs (NO docparse extraction)** → **Vertex AI RAG Engine** (PDFs direct-imported, RAG's built-in PDF chunker) → **gemini-3-flash-preview** (direct retrieval tool) — ablation test to isolate extraction quality |
+
+**The 1P baseline = strategies 3–7** (Vertex AI Search → Gemini Enterprise, the out-of-the-box GCS-connector experience). Strategies 1–2 and 8 bypass Vertex AI Search and use Vertex AI RAG Engine directly.
 
 ---
 

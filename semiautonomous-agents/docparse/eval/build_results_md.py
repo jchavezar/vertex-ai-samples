@@ -186,6 +186,31 @@ lines.append("")
 lines.append("---")
 lines.append("")
 
+# === What each strategy is ===
+lines.append("## 1b · What each strategy is")
+lines.append("")
+lines.append("The full stack behind each strategy name.")
+lines.append("")
+lines.append("| Strategy | Full stack description |")
+lines.append("|---|---|")
+stack_descriptions = [
+    ("rag_md_v2",  "docparse markdown → **Vertex AI RAG Engine** (72 per-page files, chunk 1000) → **gemini-3-flash-preview** (direct retrieval tool, top_k=20) → **ADK Agent** deployed to Agent Engine → registered in **Gemini Enterprise**"),
+    ("rag_md",     "docparse markdown → **Vertex AI RAG Engine** (2 whole-doc files, auto-chunked 500) → **gemini-3-flash-preview** (direct retrieval tool, top_k=5)"),
+    ("digital_v2", "docparse markdown → **Vertex AI Search** (GCS connector, digitalParsingConfig, chunk 500) → **Gemini Enterprise streamAssist** + maximal config (system instruction, web grounding off, managed agents deleted)"),
+    ("digital",    "docparse markdown → **Vertex AI Search** (GCS connector, digitalParsingConfig, chunk 500) → **Gemini Enterprise streamAssist** (default assistant config)"),
+    ("ocr",        "docparse markdown → **Vertex AI Search** (GCS connector, **ocrParsingConfig**, chunk 500) → **Gemini Enterprise streamAssist**"),
+    ("layout",     "docparse markdown → **Vertex AI Search** (GCS connector, **layoutParsingConfig + image annotation**, chunk 500) → **Gemini Enterprise streamAssist**"),
+    ("digital_200","docparse markdown → **Vertex AI Search** (GCS connector, digitalParsingConfig, **chunk 200**) → **Gemini Enterprise streamAssist**"),
+    ("rag_pdf",    "**raw PDFs (NO docparse extraction)** → **Vertex AI RAG Engine** (PDFs direct-imported, RAG's built-in PDF chunker) → **gemini-3-flash-preview** (direct retrieval tool) — ablation test to isolate extraction quality"),
+]
+for label, desc in stack_descriptions:
+    lines.append(f"| `{label}` | {desc} |")
+lines.append("")
+lines.append("**The 1P baseline = strategies 3–7** (Vertex AI Search → Gemini Enterprise, the out-of-the-box GCS-connector experience). Strategies 1–2 and 8 bypass Vertex AI Search and use Vertex AI RAG Engine directly.")
+lines.append("")
+lines.append("---")
+lines.append("")
+
 # === Detailed metrics ===
 lines.append("## 1a · Detailed metrics")
 lines.append("")
