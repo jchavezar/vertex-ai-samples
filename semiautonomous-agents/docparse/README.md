@@ -29,11 +29,17 @@ gcloud storage cp my-report.pdf gs://${PROJECT}-docparse-in/
 
 # 4. Wait ~3-7 minutes per PDF, then check the markdown
 gcloud storage ls gs://${PROJECT}-docparse-out/
-
-# 5. Ask questions in your Gemini Enterprise app
 ```
 
-That's the whole workflow. Steps 3-5 are everything a non-technical user needs after `./deploy.sh` runs once per project.
+After step 4 the **ADK agent is already deployed** to Vertex AI Agent Engine and can be called via API directly. To make it appear inside your **Gemini Enterprise app** (so users can chat with it from the GE UI), do one more step:
+
+```bash
+# 5. (only if you have a GE app) — register the agent and grant cross-project IAM
+$EDITOR .env                         # add GE_PROJECT_ID, GE_PROJECT_NUMBER, AS_APP
+./deploy.sh register
+```
+
+Full GE-registration walkthrough (4 fields + cross-project IAM grant): [`agent/REGISTER_IN_GE.md`](./agent/REGISTER_IN_GE.md). Skip if you only need the standalone agent.
 
 ---
 
