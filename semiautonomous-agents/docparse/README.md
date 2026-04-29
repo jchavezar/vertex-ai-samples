@@ -15,7 +15,7 @@ Upload a PDF → get an answer. No code required after deploy.
 
 ---
 
-## Quick start (for the customer)
+## Quick start
 
 ```bash
 # 1. Set your project
