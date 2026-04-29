@@ -215,7 +215,7 @@ A **1,000-document corpus** costs ~$2k one-time to extract, then ~$2/month to st
 - A GCP project with billing enabled.
 - `gcloud auth login && gcloud auth application-default login`
 - `uv` installed: `curl -LsSf https://astral.sh/uv/install.sh | sh`
-- (Optional) A Gemini Enterprise app to register the agent in.
+- (Optional) A Gemini Enterprise app to register the agent in. See [`agent/REGISTER_IN_GE.md`](./agent/REGISTER_IN_GE.md) — 4 steps, ~5 min.
 
 ---
 
