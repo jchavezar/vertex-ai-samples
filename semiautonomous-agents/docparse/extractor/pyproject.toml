@@ -8,6 +8,7 @@ dependencies = [
     "fastapi>=0.136.1",
     "google-auth>=2.49.2",
     "google-cloud-storage>=3.10.1",
+    "google-cloud-tasks>=2.16.0",
     "google-genai>=1.73.1",
     "httpx>=0.28.1",
     "pillow>=12.2.0",

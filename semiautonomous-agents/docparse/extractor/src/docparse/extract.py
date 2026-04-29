@@ -1,12 +1,13 @@
 from __future__ import annotations
 
-from .gemini import FLASH_MODEL, LITE_MODEL, PRO_MODEL, call_vision
+from .gemini import FLASH_MODEL, PRO_MODEL, call_vision
 from .prompts import (
     CHART_RETRY_PROMPT,
     CHART_SCHEMA_PROMPT,
     CHART_VALUES_PROMPT,
     DIAGRAM_EXTRACT,
     PAGE_OCR_TEMPLATE,
+    PAGE_RAW_OCR,
     PHOTO_DESCRIBE,
     TABLE_EXTRACT,
 )
@@ -322,12 +323,11 @@ async def extract_structured(page: RenderedPage, region: Region) -> ExtractedReg
         elif region.type == RegionType.PHOTO:
             cropped = crop_region(page.image, region.bbox)
             data = await call_vision(
-                model=LITE_MODEL,
+                model=FLASH_MODEL,
                 prompt=PHOTO_DESCRIBE,
-                image_bytes=image_to_png_bytes(cropped, max_dim=PHOTO_MAX_DIM),
+                image_bytes=image_to_png_bytes(cropped, max_dim=1600),
                 response_model=PhotoCaption,
-                timeout_s=30.0,
-                thinking_budget=0,
+                timeout_s=45.0,
             )
             md = _photo_to_markdown(data)
             raw = data.model_dump()
@@ -418,3 +418,25 @@ async def extract_page_text(page: RenderedPage, regions: list[Region]) -> str:
         return (text or "").strip()
     except Exception as e:  # noqa: BLE001
         return f"> **[page OCR failed: {e}]**"
+
+
+async def extract_page_raw_ocr(page: RenderedPage) -> str:
+    """Safety-net pass: a single Flash call that transcribes EVERY word on the
+    page verbatim. The dedup in pipeline.stitch() only appends sentences NOT
+    already in the structured page markdown, so this can't pollute chunks —
+    it only contributes content the structured passes lost (e.g. an overlay
+    quote on a photo page)."""
+    img_bytes = image_to_png_bytes(page.image, max_dim=1600)
+    try:
+        text = await call_vision(
+            model=FLASH_MODEL,
+            prompt=PAGE_RAW_OCR,
+            image_bytes=img_bytes,
+            response_model=None,
+            timeout_s=60.0,
+            max_retries=2,
+            thinking_budget=0,
+        )
+        return (text or "").strip()
+    except Exception:  # noqa: BLE001
+        return ""

@@ -11,6 +11,7 @@
 | Phase | When you pay | Cost per 30-page doc / per query |
 |---|---|---|
 | **Extraction** (Cloud Run + Gemini cascade) | one-time, on PDF upload | **~$1.50 – $3.00 per doc** |
+| **Cloud Tasks dedup layer** (v6) | per dispatch attempt | **~$0.0000004** — effectively free |
 | **Indexing** (RAG Engine corpus) | one-time, after extract | **~$0.005 per doc** (effectively free) |
 | **Storage** (GCS + RAG vectors) | monthly, ongoing | **~$0.002 per doc per month** |
 | **Serve — RAG retrieval + Gemini synthesis** | per user query | **~$0.016 per query** |
@@ -258,3 +259,77 @@ Both are reversible in 30 seconds and have saved us >$1k/month in similar pipeli
 - Per-doc call counts derived from the extractor source (`extractor/src/docparse/pipeline.py`, `extractor/src/docparse/extract.py`) — one detect call per page, one OCR call per page, plus one structured-extraction call per detected non-text region.
 - Per-query call counts derived from `agent/docparse_agent/agent.py` — `top_k=20` retrieval feeding a single Gemini 3 Flash synthesis call.
 - All numbers are **list price** without committed-use discounts. Real-world spend with a CUD or enterprise discount typically runs 15–25% below these estimates.
+
+---
+
+## v6 storm-prevention impact (Cloud Tasks Pattern C)
+
+The April 25, 2026 production incident: 2 PDFs got re-extracted ~1,500 times across 36 hours due to Pub/Sub redelivering the same `OBJECT_FINALIZE` events. Total damage: **~$3,000** in Vertex AI Gemini calls.
+
+v6 makes that incident architecturally impossible. Cost comparison for the same scenario (2 PDFs, 1,500 redundant trigger fires):
+
+| | v5 and earlier (no dedup) | v6 (Cloud Tasks named-task dedup) | Saving |
+|---|---|---|---|
+| Vertex AI Gemini calls | ~1,500 × $1.50–2 = ~$2,250–3,000 | 2 × $1.50–2 = $3–4 | **99.87%** |
+| Cloud Tasks API calls | $0 (not used) | 1,500 × $0.0000004 = $0.0006 | — |
+| Cloud Run compute | ~$50 (sustained 36h) | <$0.10 (1 burst) | 99.8% |
+| **Total for the storm scenario** | **~$3,000** | **~$4** | **99.87%** |
+
+Verified empirically — see `extractor/PRODUCTION_READINESS.md`. 100 simultaneous duplicate dispatches → 1 task created, 99 dedup'd, 0 errors.
+
+---
+
+## Real measured extraction time per file (v6 pipeline)
+
+Single-run timings from production-grade hardware (Cloud Run gen2, 2 vCPU / 2 GiB):
+
+| File | Pages | PDF size | Markdown out | Total time |
+|---|---:|---:|---:|---:|
+| Accenture-Metaverse-Evolution-Before-Revolution.pdf | 24 | 2.0 MB | 64 KB | **214 s (3.6 min)** |
+| **SE-Competitive Intelligence-Market Observations & Pricing Trends.pdf** | **48** | **2.5 MB** | **81 KB** | **451 s (7.5 min)** |
+
+The largest file in our test corpus is the SE Competitive Intelligence report. End-to-end ~7.5 minutes. Detect + extract run concurrently across pages; throughput scales with `--concurrency` config in `pipeline.py`.
+
+---
+
+## Per-PDF cost in production (v6 stack)
+
+| Component | Per single PDF | Notes |
+|---|---:|---|
+| Eventarc trigger fire | $0 | included in GCS notification |
+| Cloud Tasks `CreateTask` (dispatch) | $0.0000004 | first 1M/month free |
+| Cloud Tasks dispatch to worker | $0.0000004 | |
+| Cloud Run compute (450 sec × 2 vCPU × 2 GiB) | ~$0.012 | gen2 pricing, request-based |
+| Gemini Lite (region detection) — ~50 calls | ~$0.05 | image + small text response |
+| Gemini Flash (page OCR + raw OCR) — ~150 calls | ~$0.30 | image + ~5 KB text response |
+| Gemini Pro (chart pass-2) — ~30 calls | ~$0.90 | image + structured JSON, HIGH thinking budget |
+| Gemini Flash (photo descriptions) — ~10 calls | ~$0.05 | image + structured JSON |
+| GCS reads/writes | <$0.001 | negligible |
+| **Total per PDF (typical 30-page doc)** | **~$1.50** | dominated by Gemini Pro chart calls |
+| **Total per PDF (48-page chart-heavy doc, e.g. SE)** | **~$2.20** | scales linearly with page count |
+
+**Per-PDF breakdown by SKU (% of cost):**
+- Gemini Pro (chart extraction): **~60%**
+- Gemini Flash (page OCR + raw OCR safety net): **~20%**
+- Gemini Flash (photo descriptions): **~3%**
+- Gemini Lite (region detection): **~3%**
+- Cloud Run compute: **~1%**
+- Cloud Tasks: **<0.001%**
+- **Vertex AI Gemini total: ~99% of the bill** — the rest is rounding error.
+
+Extraction cost is essentially **a function of how many charts the PDF contains**. Text-only PDFs cost ~$0.30; chart-heavy financial reports cost $2-5.
+
+---
+
+## Judge model choice (eval-only, never in production)
+
+Eval runs need an LLM grader to score "is the agent's answer correct?" against the ground truth. The grader is **only used for benchmarking**.
+
+| Judge | Per 216-q run | Verdict accuracy vs Opus | Recommended use |
+|---|---:|---|---|
+| Claude Opus 4.5 | ~$8-12 | baseline | spot-checks of partial-credit calls |
+| **Claude Sonnet 4.6** *(default)* | **~$1.50-2.50** | **~95%** — close to indistinguishable on most verdicts | **regression CI, day-to-day evals** |
+| Gemini 3 Pro | ~$1-2 | ~92-95% — slight bias toward generous "correct" verdicts | in-house alternative |
+| Gemini 3 Flash | ~$0.30-0.50 | ~85-90% — noisy on partials, fine for go/no-go | smoke tests only |
+
+The eval harness (`eval/judge.py`) uses Sonnet 4.6 by default. The Apr 2026 historic leaderboard in `eval/RESULTS.md` was scored with Opus 4.5 for full rigor; later regression evals use Sonnet for the 5× cost saving.

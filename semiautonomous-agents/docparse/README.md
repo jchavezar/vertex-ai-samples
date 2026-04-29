@@ -2,41 +2,143 @@
 
 # docparse
 
-**Chart-aware PDF → Markdown → RAG agent inside Gemini Enterprise**
+**Chart-aware PDF → Markdown → RAG agent inside Gemini Enterprise.**
 
-A two-stage pipeline that turns PDF reports into a Gemini Enterprise agent: a Cloud Run service extracts each page (preserving chart structure as Markdown tables), and an ADK agent answers questions over the extracted markdown via Vertex AI RAG Engine. Deployed end-to-end with one script.
+A storm-proof Cloud Run pipeline that turns PDFs into a Gemini Enterprise agent.
+Upload a PDF → get an answer. No code required after deploy.
 
-[![composite](https://img.shields.io/badge/eval%20composite-92.9%25-137333?style=for-the-badge)](./eval/RESULTS.md)
-[![vs DE streamAssist](https://img.shields.io/badge/vs%20DE%20streamAssist-%2B11.9pts-1A73E8?style=for-the-badge)](./eval/RESULTS.md)
+[![composite](https://img.shields.io/badge/eval%20composite-92.2%25-137333?style=for-the-badge)](./eval/RESULTS.md)
+[![storm-proof](https://img.shields.io/badge/storm--proof-Cloud%20Tasks%20dedup-1A73E8?style=for-the-badge)](./extractor/PRODUCTION_READINESS.md)
 [![one-button deploy](https://img.shields.io/badge/-./deploy.sh-EA8600?style=for-the-badge)](./deploy.sh)
 
 </div>
 
 ---
 
-## TL;DR
+## Quick start (for the customer)
 
 ```bash
-cp .env.example .env && $EDITOR .env       # fill in PROJECT
-./deploy.sh                                 # provisions everything
-gcloud storage cp ~/Reports/*.pdf gs://${PROJECT}-docparse-in/
-                                            # ...then chat in your Gemini Enterprise app
+# 1. Set your project
+export PROJECT=your-gcp-project
+
+# 2. Run the deploy script (provisions everything: buckets, Cloud Run, Cloud Tasks, Eventarc, IAM)
+./deploy.sh
+
+# 3. Upload a PDF
+gcloud storage cp my-report.pdf gs://${PROJECT}-docparse-in/
+
+# 4. Wait ~3-7 minutes per PDF, then check the markdown
+gcloud storage ls gs://${PROJECT}-docparse-out/
+
+# 5. Ask questions in your Gemini Enterprise app
 ```
 
-That's the whole flow. `deploy.sh` runs eight steps (buckets → extractor → ingestion → chunking → RAG corpus → agent → registration), each idempotent. **The full eval that justifies this stack lives in [`eval/RESULTS.md`](./eval/RESULTS.md)**.
+That's the whole workflow. Steps 3-5 are everything a non-technical user needs after `./deploy.sh` runs once per project.
 
 ---
 
-## Why this exists
+## How it works (visual)
 
-Gemini Enterprise's first-party **GCS connector** routes PDFs through Document AI Layout Parser. As of April 2026, it produces "a descriptive block of text" for charts — no axes, no series, no values. A 100-cell stacked bar chart becomes useless prose, and questions like *"What was Q1 2020 mentions?"* can never be answered.
+### Stage 1 — Cloud architecture: PDF in, markdown out
 
-`docparse` does two things instead:
+```mermaid
+flowchart LR
+    USER([User uploads PDF])
+    IN[(GCS bucket<br/>docparse-in)]
+    EA{{Eventarc<br/>OBJECT_FINALIZE}}
+    DISP["Cloud Run<br/>/dispatch"]
+    TQ[(Cloud Tasks queue<br/>NAMED tasks → dedup)]
+    WORK["Cloud Run<br/>/work"]
+    GEM[Vertex AI<br/>Gemini 3 Lite/Flash/Pro]
+    OUT[(GCS bucket<br/>docparse-out)]
+    RAG[(Vertex AI<br/>RAG Engine corpus)]
+    AGENT[ADK agent<br/>gemini-3-flash]
+    GE[Gemini Enterprise app]
 
-1. **Extract** every page with the Gemini 3 family — region detection, body OCR, **structured chart tables**, photo captions, diagram-as-mermaid. Output is one Markdown file per PDF.
-2. **Serve** that markdown through an ADK agent backed by Vertex AI RAG Engine, registered cross-project in your Gemini Enterprise app.
+    USER -->|gcloud storage cp| IN
+    IN -->|object finalized| EA --> DISP
+    DISP -->|enqueue named task| TQ
+    TQ -->|OIDC POST| WORK
+    WORK <-->|OCR + chart + photo| GEM
+    WORK -->|markdown .txt| OUT
+    OUT -->|per-page chunks| RAG
+    USER -->|chat| GE
+    GE --> AGENT
+    AGENT <--> RAG
+    AGENT -->|grounded answer| GE
 
-We benchmarked this stack against 7 alternatives on a 216-question eval covering two enterprise PDF reports (one consulting industry analysis, one competitive-intelligence pricing report). **It scored 92.9% composite — +12 points over Discovery Engine `streamAssist` on the same markdown, +29 points over raw-PDF ingestion.** [Full table here](./eval/RESULTS.md).
+    classDef bucket fill:#e8f0fe,stroke:#1a73e8,color:#000
+    classDef compute fill:#fef7e0,stroke:#f9ab00,color:#000
+    classDef queue fill:#fce8e6,stroke:#c5221f,color:#000
+    classDef llm fill:#e6f4ea,stroke:#137333,color:#000
+    class IN,OUT,RAG bucket
+    class DISP,WORK,AGENT compute
+    class TQ queue
+    class GEM,GE llm
+```
+
+**Storm-proof.** `(bucket, object, generation) → sha256 → task name`. Pub/Sub redelivers the same OBJECT_FINALIZE event 100×, only 1 task is created, 99 hit `ALREADY_EXISTS`. Verified — see [`extractor/PRODUCTION_READINESS.md`](./extractor/PRODUCTION_READINESS.md).
+
+### Stage 2 — Inside `/work`: how a single PDF gets extracted
+
+```mermaid
+flowchart TB
+    PDF([PDF arrives])
+    RENDER["pypdfium2 render<br/>+ extract text layer"]
+    DETECT[Gemini Lite<br/>region detector]
+
+    subgraph PARALLEL[Per-page parallel fan-out]
+        OCR[Gemini Flash<br/>page OCR]
+        CHART[Gemini Pro<br/>chart 2-pass]
+        TABLE[Gemini Flash<br/>table extract]
+        DIAG[Gemini Pro<br/>diagram extract]
+        PHOTO[Gemini Flash<br/>photo describe]
+        RAW[Gemini Flash<br/>raw OCR safety net]
+    end
+
+    DEDUP["Python regex<br/>sentence-level dedup<br/>vs. PDF text layer"]
+    STITCH["Python<br/>stitch markdown"]
+    OUT[(Markdown .txt<br/>uploaded to GCS)]
+
+    PDF --> RENDER
+    RENDER -->|page images + text layer| DETECT
+    DETECT -->|bboxes per page| OCR & CHART & TABLE & DIAG & PHOTO & RAW
+    OCR --> DEDUP
+    CHART --> DEDUP
+    TABLE --> DEDUP
+    DIAG --> DEDUP
+    PHOTO --> DEDUP
+    RAW --> DEDUP
+    RENDER -->|text layer| DEDUP
+    DEDUP --> STITCH
+    STITCH --> OUT
+
+    classDef python fill:#dbeafe,stroke:#1e40af,color:#000
+    classDef llm fill:#fef3c7,stroke:#b45309,color:#000
+    classDef io fill:#dcfce7,stroke:#166534,color:#000
+    class RENDER,DEDUP,STITCH python
+    class DETECT,OCR,CHART,TABLE,DIAG,PHOTO,RAW llm
+    class PDF,OUT io
+```
+
+**Blue boxes = pure Python.** `pypdfium2` rasterizes pages and pulls the embedded text layer for free; the dedup and stitch are deterministic regex/string ops.
+
+**Yellow boxes = Vertex AI Gemini calls.** Each page is detected once, then each detected region (chart, table, diagram, photo) gets routed to the right Gemini model. Page OCR + raw-OCR safety net run in parallel.
+
+**Why both Python and LLM?** The PDF text layer captures what the document already encodes (cheap, exact, deterministic). The LLM captures what the document only shows visually (chart values, photo descriptions, diagram structure). Sentence-level dedup means we never pay to OCR something the text layer already gave us, and the LLM's reflowed prose stays clean instead of being padded with duplicates.
+
+---
+
+## What goes into each region type
+
+| Region detected | Sent to | Why this model | Output shape |
+|---|---|---|---|
+| **body / heading / quote** | Gemini Flash (page OCR) | Reflows multi-column text, picks heading levels from layout cues | clean markdown paragraphs |
+| **table** | Gemini Flash + bbox crop | Schema-constrained `headers` + `rows`, JSON-validated | markdown table |
+| **chart** | Gemini Flash (schema) → **Gemini Pro** (values) | Two-pass: first commits to legend/categories, second reads values | structured `### Title` + value table + low-confidence flags |
+| **diagram** | Gemini Pro full page | Mermaid where graph-like, prose where spatial | mermaid block or structured prose |
+| **photo** | Gemini Flash + bbox crop | Detailed description (subjects, AR vs holographic vs tablet, overlay text verbatim) | `> **Image:** ...` block + overlay text |
+| *(any sentence the LLM dropped)* | **Python** sentence-dedup against text layer | `text_in_bbox` from pypdfium2 captures it for free | appended to page markdown |
 
 ---
 
@@ -44,224 +146,108 @@ We benchmarked this stack against 7 alternatives on a 216-question eval covering
 
 ```
 docparse/
-├── README.md           ← you are here
-├── deploy.sh           ← one-button orchestrator (extractor + corpus + agent + GE registration)
-├── .env.example        ← every env var; copy to .env
+├── README.md                ← this file
+├── COSTS.md                 ← end-to-end cost model + storm-prevention impact
+├── deploy.sh                ← orchestrator (extractor + RAG corpus + agent + GE registration)
+├── .gitignore               ← excludes .venv/, __pycache__/ (keeps _archive/ in git)
 │
-├── extractor/          ← stage 1: PDF → Markdown (Cloud Run + Eventarc)
-│   ├── deploy.sh           ← step 1-3 of deploy.sh
+├── extractor/               ← Stage 1: PDF → Markdown (Cloud Run + Cloud Tasks)
+│   ├── deploy.sh                ← provisions Cloud Run + Cloud Tasks queue + Eventarc trigger
 │   ├── Dockerfile
 │   ├── pyproject.toml
-│   └── src/docparse/...
+│   ├── PRODUCTION_READINESS.md  ← storm-test + e2e verification (proof v6 can ship)
+│   └── src/docparse/
+│       ├── service.py           ← /dispatch + /work FastAPI endpoints
+│       ├── tasks.py             ← Cloud Tasks named-task dedup
+│       ├── pipeline.py          ← orchestrates per-page fan-out + sentence-dedup stitch
+│       ├── extract.py           ← per-region structured extractors (chart/table/photo/diagram)
+│       ├── detect.py            ← region detector (Gemini Lite)
+│       ├── prompts.py           ← all Gemini prompts in one file
+│       ├── schemas.py           ← Pydantic schemas for chart/table/diagram/photo
+│       ├── render.py            ← pypdfium2 rasterize + text-layer extract
+│       ├── hybrid.py            ← text_layer_usable predicate + TEXT_TYPES set
+│       ├── storage.py           ← GCS helpers + idempotency check
+│       ├── validators.py        ← chart-extraction sanity validators
+│       ├── gemini.py            ← Vertex AI client + retry logic
+│       ├── discovery.py         ← optional: streaming push to Gemini Enterprise datastore
+│       └── cli.py               ← `docparse` CLI for local extraction
 │
-├── agent/              ← stage 2: Markdown → answers (ADK + Agent Engine + GE)
-│   ├── deploy.py           ← step 7 of deploy.sh
-│   ├── register_agent.py   ← step 8 of deploy.sh
-│   ├── pyproject.toml
+├── agent/                   ← Stage 2: Markdown → answers (ADK + Agent Engine + GE)
+│   ├── deploy.py                ← deploys agent to Vertex AI Agent Engine
+│   ├── register_agent.py        ← registers agent in your Gemini Enterprise app
 │   └── docparse_agent/
-│       └── agent.py        ← the actual ADK Agent (~30 lines)
+│       └── agent.py             ← ADK Agent wired to VertexAiRagRetrieval (~30 lines)
 │
-└── eval/               ← evaluation harness + the leaderboard that justifies the stack
-    ├── RESULTS.md          ← 8 strategies × 216 questions, with sample answers
-    ├── questions.json      ← 216 ground-truth Q&A pairs
-    ├── run_rag_engine.py   ← strategy runner
-    ├── judge.py            ← Claude-based grader
-    ├── build_per_page.py   ← markdown → per-page chunks (used by deploy.sh too)
-    └── build_results_md.py ← regenerates RESULTS.md from judged/ JSONs
+├── eval/                    ← evaluation harness (the leaderboard that justifies this stack)
+│   ├── RESULTS.md               ← 8 strategies × 216 questions, sample answers
+│   ├── dashboard.html           ← interactive leaderboard — double-click to open, no server needed
+│   ├── questions.json           ← 216 ground-truth Q&A
+│   ├── run_rag_engine.py        ← strategy runner
+│   ├── judge.py                 ← LLM grader (default: Claude Sonnet 4.6 — see COSTS.md)
+│   ├── build_per_page.py        ← markdown → per-page chunks
+│   └── build_results_md.py      ← regenerates RESULTS.md from judged/ JSONs
+│
+└── _archive/                ← preserved-but-off-prod-path research code (committed to git)
+    ├── advanced_dev_iterations/ ← Set-of-Mark, multi-vote chart, Vega-Lite self-judge prototypes
+    └── storm_test.py            ← reproducible storm-prevention test
 ```
 
 ---
 
-## Architecture
+## What the customer pays per PDF
 
-```mermaid
-flowchart LR
-    USER([end user])
+(Full math in [`COSTS.md`](./COSTS.md). Headline numbers below.)
 
-    subgraph EXTRACTION[Stage 1 — extractor on Cloud Run]
-        IN[(GCS bucket<br/>docparse-in)]
-        EA{{Eventarc trigger}}
-        CR[docparse service<br/>Gemini 3 vision<br/>region detect / OCR<br/>chart + photo extract]
-        OUT[(GCS bucket<br/>docparse-out)]
-        IN -->|object finalized| EA --> CR --> OUT
-    end
+| Component | Per single PDF | Notes |
+|---|---:|---|
+| Vertex AI Gemini calls | $1.50 (text-heavy) – $2.20 (chart-heavy 48p) | dominated by Gemini Pro chart pass-2 |
+| Cloud Run compute | <$0.02 | gen2, 2 vCPU, request-billed |
+| Cloud Tasks | $0 | first 1M tasks/month free |
+| Eventarc + Pub/Sub + GCS | <$0.01 | rounding error |
+| **Total per PDF** | **~$1.50–$2.20** | one-time per upload |
 
-    RAG[(Vertex AI<br/>RAG Engine corpus<br/>per-page chunks)]
-
-    subgraph SERVE[Stage 2 — agent on Vertex AI Agent Engine]
-        AGENT[ADK agent<br/>gemini-3-flash-preview]
-    end
-
-    GE[Gemini Enterprise app]
-
-    OUT -->|deploy.sh splits per-page<br/>and imports| RAG
-    USER -->|chat| GE
-    GE -->|streamAssist| AGENT
-    AGENT <-->|VertexAiRagRetrieval| RAG
-    AGENT -->|grounded answer| GE
-
-    classDef bucket fill:#e8f0fe,stroke:#1a73e8,color:#000
-    classDef service fill:#fef7e0,stroke:#f9ab00,color:#000
-    classDef ge fill:#e6f4ea,stroke:#137333,color:#000
-    class IN,OUT,RAG bucket
-    class CR,AGENT service
-    class GE ge
-```
-
-**The two stages are decoupled.** You can use the extractor on its own (the markdown is in your GCS bucket), or you can point the agent at a corpus of markdown you produced some other way. `deploy.sh all` provisions both; `deploy.sh extractor` and `deploy.sh agent` run them independently.
+A **1,000-document corpus** costs ~$2k one-time to extract, then ~$2/month to store, plus ~$50/month for the always-on agent. Serving cost is ~$0.016/query (Gemini Flash + RAG retrieval).
 
 ---
 
-## Why this configuration won — the eval in 60 seconds
-
-We tested 8 combinations of extraction × indexing × retrieval. Headline numbers:
-
-| Stack | Composite |
-|---|---:|
-| 🥇 **docparse markdown + per-page chunks → RAG Engine → Gemini 3 flash** *(this repo)* | **92.9%** |
-| docparse markdown + whole-doc chunks → RAG Engine → Gemini 3 flash | 87.4% |
-| docparse markdown → Discovery Engine `streamAssist` (any parser config) | 75–81% |
-| **raw PDFs** → RAG Engine → Gemini 3 flash *(no docparse)* | **63.8%** |
-
-Two axes, both matter independently:
-- **Extraction layer:** docparse vs raw PDF = +29 pts
-- **Retrieval layer:** RAG Engine + Gemini vs Discovery Engine `streamAssist` = +6 pts on the same markdown
-
-Per-question type, the win is concentrated in math (+18 pts) and chart-cell lookups (+16 pts) — the two categories that defeat naive RAG. Page-anchored questions are also +3 because the per-page chunker prepends `# <doc> — Page N` so "on page 11" matches via plain embedding.
-
-**Full eval (leaderboard, per-category, 6 sample showcases, all 216 questions with verdicts): [`eval/RESULTS.md`](./eval/RESULTS.md)**.
-
----
-
-## Deploy
-
-### Prerequisites
+## Prerequisites
 
 - A GCP project with billing enabled.
-- An authenticated `gcloud` session: `gcloud auth login && gcloud auth application-default login`.
-- `uv` installed: `curl -LsSf https://astral.sh/uv/install.sh | sh`.
-- (Optional) A Gemini Enterprise app you want to register the agent in.
-
-### Steps
-
-```bash
-cd docparse
-cp .env.example .env
-$EDITOR .env                    # set PROJECT, optionally GE_PROJECT_ID + AS_APP
-
-./deploy.sh                     # all eight steps end-to-end
-```
-
-The script writes `RAG_CORPUS_NAME` and `REASONING_ENGINE_RES` back into `.env` after creation, so subsequent runs are idempotent (no duplicate corpora, agent updates instead of recreating).
-
-### Use the pipeline
-
-After `./deploy.sh`:
-
-```bash
-gcloud storage cp ~/your-report.pdf gs://${PROJECT}-docparse-in/
-# Eventarc fires → Cloud Run extracts → markdown lands in gs://${PROJECT}-docparse-out/
-# Re-run the agent step to import new pages and update the corpus:
-./deploy.sh agent
-```
-
-Then open your Gemini Enterprise app — the `docparse RAG agent` is in the agent picker, shared with `ALL_USERS`. Citations link straight back to the source GCS URI for the page that grounded each fact.
-
-### Run just one stage
-
-```bash
-./deploy.sh extractor    # buckets, IAM, Cloud Run, Eventarc
-./deploy.sh agent        # per-page split → RAG corpus → Agent Engine
-./deploy.sh register     # cross-project register in Gemini Enterprise
-```
+- `gcloud auth login && gcloud auth application-default login`
+- `uv` installed: `curl -LsSf https://astral.sh/uv/install.sh | sh`
+- (Optional) A Gemini Enterprise app to register the agent in.
 
 ---
 
-## How the agent passes grounding back to the chat UI
+## Re-evaluating the pipeline
 
-There's no special grounding API between layers. Each layer treats grounding as a first-class structured field and just preserves it.
-
-```
-RAG retrieval API
-   ↓ chunks[] = { text, source_metadata{ uri, ... } }
-ADK tool wrapper (VertexAiRagRetrieval)
-   ↓ packages chunks as a function_response
-Gemini 3 flash
-   ↓ answer text + groundingMetadata{ chunks, supports → segment offsets }
-ADK Event
-   ↓ groundingMetadata preserved verbatim
-Agent Engine stream_query
-   ↓ JSON event to caller
-Gemini Enterprise streamAssist
-   ↓ rewrites to textGroundingMetadata{ references[], segments[] }
-GE web UI
-   ↓ footnote markers + globe-icon citation chips with source GCS URI
-```
-
-If the model didn't actually use any retrieved chunk, no `groundingMetadata` is emitted, no citations appear in the UI. The absence of a citation is a real signal — not a UI bug.
-
----
-
-## Critical gotcha: Gemini 3 preview is `global`-only
-
-Agent Engine deploys to a regional endpoint (e.g. `us-central1`). If you set `model="gemini-3-flash-preview"` and don't override the runtime location, the genai client builds the API URL from `us-central1` and 404s. Fix is in [`agent/deploy.py`](./agent/deploy.py):
-
-```python
-RUNTIME_ENV_VARS = {
-    "GOOGLE_CLOUD_LOCATION": "global",
-    "GOOGLE_GENAI_USE_VERTEXAI": "true",
-    ...
-}
-```
-
-These env vars are **not** persisted by `agent_engines.update()` — re-supply on every update call. Verify with:
+If you change any extraction prompt or schema, re-run the eval to make sure you haven't regressed:
 
 ```bash
-gcloud ai reasoning-engines describe <id> --region=<region>
-# look for deploymentSpec.env — both vars must be present
+cd eval
+./run_eval.sh <new_corpus_id> <label>     # runs 216-q + judge
+open dashboard.html                         # compare side-by-side, no server needed
 ```
+
+The judge defaults to **Claude Sonnet 4.6** (~$1.50-2.50 per 216-q run, ~5× cheaper than Opus with ~95% the verdict accuracy). See `eval/judge.py` to swap.
 
 ---
 
-## Observability
-
-`enable_tracing=True` on the ADK app emits OpenTelemetry spans to Cloud Trace:
-
-```
-https://console.cloud.google.com/traces/list?project=<DEPLOY_PROJECT_ID>
-```
-
-Filter by service name containing `reasoning` or `agent`, time range last 15 min. You'll see a span waterfall: agent root → tool call to RAG retrieval → Gemini generate. Each model call shows tokens, latency, prompt/response.
-
----
-
-## Re-running the eval
-
-The eval is a one-off harness against a specific corpus, not production code. To benchmark a new strategy:
+## Operations
 
 ```bash
-cd eval/
+# Tail extractor logs
+gcloud beta run services logs tail docparse --region=us-central1 --project=$PROJECT
 
-# 1. Run your strategy through the 216 questions → runs/<your-label>.json
-uv run --with google-genai python run_rag_engine.py \
-    "projects/.../locations/us-central1/ragCorpora/..." your-label
+# Inspect Cloud Tasks queue
+gcloud tasks list --queue=docparse-extract --location=us-central1 --project=$PROJECT
 
-# 2. Judge it with Claude → judged/<your-label>.json
-uv run --with 'anthropic[vertex]' python judge.py runs/your-label.json your-label
+# Pause processing (e.g., during incident)
+gcloud tasks queues pause docparse-extract --location=us-central1 --project=$PROJECT
 
-# 3. Regenerate the leaderboard markdown
-python build_results_md.py
+# Force re-extract a PDF (re-uploading bumps the GCS object generation)
+gcloud storage cp my-report.pdf gs://${PROJECT}-docparse-in/
+
+# Replace the agent corpus
+cd eval && python build_per_page.py && ./reindex.sh
 ```
-
-The 216 ground-truth Q&A pairs in `questions.json` are tied to two specific enterprise reports (filenames redacted — one is a metaverse/industry-trends analysis, the other is a competitive-intelligence pricing report). To eval against a different corpus, replace `questions.json` with your own ground truth and the harness still works.
-
----
-
-## What's not covered (honest limits)
-
-- **Live vision at query time.** The agent answers chart and photo questions from text retrieved at runtime, not by looking at pixel data. Vision work happens once at extraction. If docparse misreads a chart cell, the agent will confidently repeat the wrong value.
-- **Cross-document reasoning.** Questions in the eval are mostly within-doc lookups. "Compare X in report A vs report B" hasn't been stress-tested.
-- **Languages other than English.** Not in the eval.
-- **Scanned / handwritten / low-quality PDFs.** Docparse expects clean digital reports.
-
-The next ~5pt improvement would come from a re-ranker on top of `top_k=20` retrieval — see the [`eval/RESULTS.md` "what's not covered"](./eval/RESULTS.md) section for the headroom analysis.
