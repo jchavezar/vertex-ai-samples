@@ -108,9 +108,30 @@ def deploy():
     )
     print(f"\n=== Deployed ===")
     print(f"resource_name: {remote.resource_name}")
-    print(f"\nNext: REASONING_ENGINE_RES={remote.resource_name}")
-    print(f"Then: uv run python register_agent.py")
+    _persist_engine_id(remote.resource_name)
+    print(f"Next: ./deploy.sh register   (only if you want it inside Gemini Enterprise)")
     return remote
+
+
+def _persist_engine_id(resource_name: str) -> None:
+    """Write REASONING_ENGINE_RES back into ../.env so subsequent deploy.sh
+    invocations (and register_agent.py) pick it up automatically — no manual
+    copy-paste required."""
+    env_path = _HERE.parent / ".env"
+    if not env_path.exists():
+        print(f"  (no .env at {env_path}; export REASONING_ENGINE_RES manually)")
+        return
+    lines = env_path.read_text().splitlines()
+    found = False
+    for i, line in enumerate(lines):
+        if line.startswith("REASONING_ENGINE_RES="):
+            lines[i] = f"REASONING_ENGINE_RES={resource_name}"
+            found = True
+            break
+    if not found:
+        lines.append(f"REASONING_ENGINE_RES={resource_name}")
+    env_path.write_text("\n".join(lines) + "\n")
+    print(f"  wrote REASONING_ENGINE_RES → {env_path}")
 
 
 def update(resource_name: str):

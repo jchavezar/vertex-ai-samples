@@ -17,29 +17,94 @@ Upload a PDF → get an answer. No code required after deploy.
 
 ## Quick start
 
+End-to-end, from cloning the repo to asking the first question. ~10-15 min wall time.
+
+### 1. Clone + install prerequisites (one-time on your machine)
+
 ```bash
-# 1. Set your project
-export PROJECT=your-gcp-project
+# Clone
+git clone git@github.com:jchavezar/vertex-ai-samples.git
+cd vertex-ai-samples/semiautonomous-agents/docparse
 
-# 2. Run the deploy script (provisions everything: buckets, Cloud Run, Cloud Tasks, Eventarc, IAM)
-./deploy.sh
+# uv (Python package manager — used by the deploy + agent code)
+curl -LsSf https://astral.sh/uv/install.sh | sh
 
-# 3. Upload a PDF
-gcloud storage cp my-report.pdf gs://${PROJECT}-docparse-in/
-
-# 4. Wait ~3-7 minutes per PDF, then check the markdown
-gcloud storage ls gs://${PROJECT}-docparse-out/
+# gcloud (skip if you already have it):  https://cloud.google.com/sdk/docs/install
+gcloud auth login                      # sign in
+gcloud auth application-default login  # ADC for Vertex AI calls
 ```
 
-After step 4 the **ADK agent is already deployed** to Vertex AI Agent Engine and can be called via API directly. To make it appear inside your **Gemini Enterprise app** (so users can chat with it from the GE UI), do one more step:
+### 2. Configure your project
 
 ```bash
-# 5. (only if you have a GE app) — register the agent and grant cross-project IAM
-$EDITOR .env                         # add GE_PROJECT_ID, GE_PROJECT_NUMBER, AS_APP
+cp .env.example .env
+$EDITOR .env                           # set PROJECT=your-gcp-project (this is the ONLY required field)
+```
+
+The other fields in `.env.example` have safe defaults. Bucket names default to `${PROJECT}-docparse-in/out`, region defaults to `us-central1`, etc.
+
+### 3. Provision everything + deploy the extractor
+
+```bash
+./deploy.sh extractor
+```
+
+What this does (~5 min):
+- Enables required APIs in your project (Cloud Run, Eventarc, Cloud Tasks, Vertex AI, Discovery Engine, ...)
+- Creates input + output GCS buckets
+- Creates a service account with the right IAM (extractor + Cloud Tasks + Vertex AI)
+- Provisions the Cloud Tasks queue (with bounded retry — see `extractor/PRODUCTION_READINESS.md`)
+- Builds the Docker image and deploys to Cloud Run
+- Wires the Eventarc trigger from the input bucket to `/dispatch`
+
+### 4. Upload PDFs
+
+```bash
+gcloud storage cp my-report.pdf gs://${PROJECT}-docparse-in/
+```
+
+Each PDF triggers an extraction. Watch progress (optional):
+
+```bash
+gcloud beta run services logs tail docparse --region=us-central1 --project=$PROJECT
+```
+
+A typical 30-page PDF takes 3-5 min; a chart-heavy 48-page PDF takes ~7 min.
+
+### 5. Build the RAG corpus + deploy the agent
+
+```bash
+./deploy.sh agent
+```
+
+What this does (~5-10 min):
+- Waits up to 5 min for `.txt` files in the output bucket
+- Splits each markdown into per-page chunks
+- Creates a Vertex AI RAG Engine corpus + imports the chunks
+- Deploys the ADK agent to Vertex AI Agent Engine
+- Writes `RAG_CORPUS_NAME` and `REASONING_ENGINE_RES` back to `.env` automatically
+
+After this, the agent is **callable via the Vertex AI Agent Engine API**. If that's all you need, stop here.
+
+### 6. (Optional) Register inside your Gemini Enterprise app
+
+```bash
+$EDITOR .env                           # set GE_PROJECT_ID, GE_PROJECT_NUMBER, AS_APP
 ./deploy.sh register
 ```
 
-Full GE-registration walkthrough (4 fields + cross-project IAM grant): [`agent/REGISTER_IN_GE.md`](./agent/REGISTER_IN_GE.md). Skip if you only need the standalone agent.
+Step-by-step walkthrough (where to find each value, what cross-project IAM grant is needed): [`agent/REGISTER_IN_GE.md`](./agent/REGISTER_IN_GE.md).
+
+### 7. Ask a question
+
+- **Standalone (no GE):** call the Agent Engine via the Vertex AI SDK using `REASONING_ENGINE_RES` from `.env`.
+- **Inside GE:** open your app's chat in the browser → enable the **docparse RAG agent** tool from the `+ Tools` menu → ask a question grounded in your uploaded PDFs.
+
+---
+
+### One-shot variant
+
+If you already added all your variables to `.env` (including the optional GE ones) and have a PDF ready to upload, `./deploy.sh` (no arg) runs steps 3 → 6 sequentially in one go.
 
 ---
 
