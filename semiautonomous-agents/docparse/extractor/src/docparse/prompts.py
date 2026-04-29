@@ -101,13 +101,34 @@ Re-read the chart image (in bbox {bbox} on the attached page) and produce a corr
 TABLE_EXTRACT = """Extract this table verbatim. Preserve column order and row order. Empty cells become empty strings. Return JSON matching the schema."""
 
 
-PHOTO_DESCRIBE = """Describe this image for a screen-reader user in one or two sentences.
+PHOTO_DESCRIBE = """Describe this image in detail. Your output is consumed by a retrieval system AND a screen-reader user, so be specific and complete.
 
-`alt_text`: visual description only — what the photo depicts. Do not include any text shown in the image.
+`alt_text`: a 3-5 sentence detailed visual description. Include:
+- subjects (count, attire colors, posture, distinguishing features),
+- setting (environment, lighting, mood, background elements),
+- action (what subjects are doing, gestures),
+- technology elements: distinguish PRECISELY between physical screens (tablet, laptop, phone) vs. AR overlays (digital readings/info floating in mid-air around real objects) vs. holographic projections (free-floating 3D images) vs. wireframe / digital-twin overlays (geometry rendered on top of a person/object) vs. HUD displays. Do not call AR overlays "tablets". Do not call holograms "screens".
+- composition (camera angle, framing, focal point),
+- dominant colors and emotional tone.
+Describe directly — do NOT prefix with "The image shows…".
 
-`overlay_text`: ONLY decorative overlay — large standalone statistics (e.g., "71%"), single-word taglines, watermarks, brand marks. Do NOT include article copy that is painted on the image (titles, body paragraphs, pull quotes, captions); that is captured separately in the page markdown. If there is no decorative overlay, set this to null.
+`overlay_text`: ANY text painted on the image, transcribed VERBATIM. Includes:
+- decorative overlay (single big statistics like "71%", taglines, watermarks),
+- pull quotes / blockquotes overlaid on the photo,
+- attribution lines ("— Name, Title, Company"),
+- body paragraphs or captions painted on the image.
+Capture pull quotes and attributions verbatim. Set null only if there is genuinely zero readable text on the image.
 
 `caption`: a printed caption underneath the photo (e.g., "Figure X: ..."), if any."""
+
+
+PAGE_RAW_OCR = """Transcribe every word visible on this page in reading order. Include all body text, headings, pull quotes, attributions, captions, callouts, sidebars, table cells, chart axis/data labels, and any text overlaid on photos or graphics.
+
+Skip page numbers and the running document title that appears at the very top of every page.
+
+Preserve numeric formats VERBATIM ("$749B", "(1.0)-1.1%", "212%", "13").
+
+Output the text only — no commentary, no markdown headers, no fences."""
 
 
 DIAGRAM_EXTRACT = """This is a non-chart diagram (flowchart, architecture, process, schematic, etc.).
