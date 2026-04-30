@@ -8,13 +8,53 @@ Version: 1.2.0
 Date: 2026-04-05
 """
 import os
+import subprocess
+from datetime import datetime, timedelta
 from typing import Optional
+
 import vertexai
 from vertexai import agent_engines
+from google.auth import credentials as ga_credentials
 
 PROJECT_ID = os.environ.get("PROJECT_ID", "sharepoint-wif-agent")
 LOCATION = os.environ.get("LOCATION", "us-central1")
 REASONING_ENGINE_RES = os.environ.get("REASONING_ENGINE_RES", "")
+
+
+class _GcloudUserCredentials(ga_credentials.Credentials):
+    """Self-refreshing credentials backed by `gcloud auth print-access-token`.
+
+    Local-dev quirk: ADC may resolve to a different identity than the gcloud
+    user (e.g. ADC = @google.com, gcloud = @altostrat.com). Using a static
+    token from `print-access-token` once works for ~1h then 401s with
+    "Token expired. ACCESS_TOKEN_TYPE_UNSUPPORTED". This subclass implements
+    refresh() so the auth library re-runs gcloud whenever expiry approaches.
+    """
+
+    def __init__(self, quota_project_id: Optional[str] = None) -> None:
+        super().__init__()
+        self._quota_project_id = quota_project_id
+        # Initial fetch so .token is populated before first call.
+        self.refresh(None)
+
+    @property
+    def quota_project_id(self) -> Optional[str]:  # used by google-auth for X-Goog-User-Project
+        return self._quota_project_id
+
+    def with_quota_project(self, quota_project_id: str) -> "_GcloudUserCredentials":
+        return _GcloudUserCredentials(quota_project_id=quota_project_id)
+
+    def refresh(self, request) -> None:  # `request` is the google-auth transport; we don't need it
+        tok = subprocess.check_output(
+            ["gcloud", "auth", "print-access-token"],
+            stderr=subprocess.DEVNULL, timeout=10,
+        ).decode().strip()
+        if not tok:
+            raise RuntimeError("gcloud auth print-access-token returned empty")
+        self.token = tok
+        # gcloud user-account tokens last ~1h; expire ours early so google-auth
+        # refreshes proactively rather than racing the server-side expiry.
+        self.expiry = datetime.utcnow() + timedelta(minutes=50)
 
 
 class AgentClient:
@@ -27,11 +67,8 @@ class AgentClient:
     def _ensure_initialized(self):
         """Initialize Vertex AI and load agent.
 
-        Local-dev quirk: ADC may resolve to a different identity than the
-        gcloud user (e.g. ADC = @google.com, gcloud = @altostrat.com). If ADC
-        lacks aiplatform.reasoningEngines.get on the agent's project, fall
-        back to a credential built from `gcloud auth print-access-token` so
-        we use the gcloud user's identity without mutating ADC.
+        Uses a self-refreshing gcloud-user credential so the SDK doesn't
+        cache an expired bearer token.
         """
         if not REASONING_ENGINE_RES:
             raise ValueError("REASONING_ENGINE_RES not set in environment")
@@ -39,14 +76,7 @@ class AgentClient:
         if not self._initialized:
             credentials = None
             try:
-                import subprocess
-                from google.oauth2.credentials import Credentials
-                tok = subprocess.check_output(
-                    ["gcloud", "auth", "print-access-token"],
-                    stderr=subprocess.DEVNULL, timeout=10,
-                ).decode().strip()
-                if tok:
-                    credentials = Credentials(token=tok, quota_project_id=PROJECT_ID)
+                credentials = _GcloudUserCredentials(quota_project_id=PROJECT_ID)
             except Exception:
                 credentials = None  # fall through to ADC
 
