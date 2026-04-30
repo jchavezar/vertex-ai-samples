@@ -1,0 +1,48 @@
+%%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#4285f4'}}}%%
+
+flowchart TB
+    subgraph INTERNET["Internet"]
+        CLIENT["Browser Client"]
+    end
+
+    subgraph CLOUD_RUN["Cloud Run Service"]
+        subgraph CONTAINER["Container"]
+            subgraph SUPERVISORD["supervisord"]
+                direction TB
+
+                subgraph NGINX_PROC["nginx process"]
+                    NGINX["nginx<br/>Port 8080<br/><br/>Routes:<br/>/ → React SPA<br/>/api/* → FastAPI<br/>/health → Backend"]
+                end
+
+                subgraph BACKEND_PROC["backend process"]
+                    UVICORN["uvicorn<br/>Port 8000<br/><br/>Features:<br/>WIF Exchange<br/>streamAssist<br/>Session Mgmt"]
+                end
+            end
+
+            STATIC["Static Files<br/>/usr/share/nginx/html<br/><br/>React Build<br/>index.html<br/>assets/"]
+        end
+    end
+
+    subgraph GCP_SERVICES["GCP Services"]
+        SECRET["Secret Manager<br/><br/>PROJECT_NUMBER<br/>ENGINE_ID<br/>DATA_STORE_ID<br/>WIF_POOL_ID"]
+
+        IAM["IAM<br/><br/>Service Account<br/>WIF Principal<br/>Roles"]
+
+        DISCOVERY["Discovery Engine"]
+        AGENT_ENGINE["Agent Engine"]
+    end
+
+    CLIENT -->|"HTTPS :443"| NGINX
+    NGINX -->|"Static"| STATIC
+    NGINX -->|"/api/*"| UVICORN
+
+    SECRET -.->|"Env Vars"| CONTAINER
+    IAM -.->|"Permissions"| CONTAINER
+
+    UVICORN --> DISCOVERY
+    UVICORN --> AGENT_ENGINE
+
+    style NGINX fill:#34a853,color:#fff
+    style UVICORN fill:#4285f4,color:#fff
+    style STATIC fill:#ea4335,color:#fff
+    style SECRET fill:#fbbc04,color:#000

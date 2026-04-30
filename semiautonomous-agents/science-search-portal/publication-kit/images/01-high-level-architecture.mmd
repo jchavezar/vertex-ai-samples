@@ -1,0 +1,97 @@
+%%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#4285f4', 'primaryTextColor': '#fff', 'primaryBorderColor': '#1a73e8', 'lineColor': '#5f6368', 'secondaryColor': '#34a853', 'tertiaryColor': '#fbbc04', 'background': '#ffffff'}}}%%
+
+flowchart TB
+    subgraph USERS["ENTERPRISE USERS"]
+        direction LR
+        USER_PORTAL["Portal User"]
+        USER_GE["Gemini Enterprise User"]
+    end
+
+    subgraph MICROSOFT["MICROSOFT ENTRA ID"]
+        direction TB
+        MSAL["MSAL<br/>Auth Library"]
+        ENTRA["Entra ID<br/>OAuth 2.0"]
+
+        subgraph TOKENS["Issued Tokens"]
+            direction LR
+            ID_TOK["ID Token<br/>aud: client-id"]
+            ACCESS_TOK["Access Token<br/>aud: api://client-id"]
+        end
+
+        MSAL --> ENTRA
+        ENTRA --> TOKENS
+    end
+
+    subgraph INTERFACES["USER INTERFACES"]
+        direction LR
+        REACT["React Portal<br/>Custom SPA"]
+        AGENTSPACE["Gemini Enterprise<br/>Agentspace"]
+    end
+
+    subgraph GCP["GOOGLE CLOUD PLATFORM"]
+        subgraph WIF_LAYER["WORKFORCE IDENTITY FEDERATION"]
+            WIF_POOL["WIF Pool<br/>sp-wif-pool-v2"]
+            GE_PROV["ge-login-provider<br/>aud: client-id"]
+            ENTRA_PROV["entra-provider<br/>aud: api://client-id"]
+            STS["Security Token Service<br/>sts.googleapis.com"]
+
+            WIF_POOL --> GE_PROV
+            WIF_POOL --> ENTRA_PROV
+            GE_PROV --> STS
+            ENTRA_PROV --> STS
+        end
+
+        subgraph COMPUTE["CLOUD RUN"]
+            NGINX["nginx :8080"]
+            FASTAPI["FastAPI :8000"]
+            NGINX --> FASTAPI
+        end
+
+        subgraph DISCOVERY["DISCOVERY ENGINE"]
+            GE_ENGINE["Gemini Enterprise<br/>streamAssist API"]
+            SP_CONNECTOR["SharePoint Connector<br/>Federated"]
+            DATA_STORE["Data Store"]
+
+            GE_ENGINE --> SP_CONNECTOR
+            SP_CONNECTOR --> DATA_STORE
+        end
+
+        subgraph AGENT["AGENT ENGINE"]
+            ADK_APP["ADK Agent<br/>InsightComparator"]
+            GEMINI["Gemini 2.5<br/>Flash Lite"]
+            ADK_APP --> GEMINI
+        end
+
+        GOOGLE_SEARCH["Google Search<br/>Grounding"]
+    end
+
+    subgraph M365["MICROSOFT 365"]
+        SPO["SharePoint Online<br/>Documents"]
+    end
+
+    %% Connections
+    USERS --> MSAL
+    ACCESS_TOK --> REACT
+    ID_TOK --> AGENTSPACE
+
+    REACT --> NGINX
+    FASTAPI --> STS
+    FASTAPI --> GE_ENGINE
+
+    AGENTSPACE --> GE_PROV
+    AGENTSPACE --> ADK_APP
+
+    ADK_APP --> GE_ENGINE
+    GEMINI --> GOOGLE_SEARCH
+
+    DATA_STORE <--> SPO
+
+    classDef microsoft fill:#0078d4,color:#fff
+    classDef google fill:#4285f4,color:#fff
+    classDef identity fill:#fbbc04,color:#000
+    classDef agent fill:#34a853,color:#fff
+
+    class MSAL,ENTRA,ID_TOK,ACCESS_TOK,SPO microsoft
+    class GE_ENGINE,GEMINI,DATA_STORE,AGENTSPACE,GOOGLE_SEARCH google
+    class WIF_POOL,GE_PROV,ENTRA_PROV,STS identity
+    class ADK_APP,SP_CONNECTOR agent

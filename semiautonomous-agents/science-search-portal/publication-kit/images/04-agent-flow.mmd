@@ -1,0 +1,43 @@
+%%{init: {'theme': 'base', 'themeVariables': { 'actorBkg': '#34a853', 'actorTextColor': '#fff'}}}%%
+
+sequenceDiagram
+    autonumber
+
+    participant User as User
+    participant GE_UI as Gemini Enterprise
+    participant Agent as InsightComparator
+    participant Tool as compare_insights
+    participant DE as Discovery Engine
+    participant STS as Google STS
+    participant SPO as SharePoint
+    participant Gemini as Gemini Model
+    participant Google as Google Search
+
+    User->>GE_UI: "Compare our policy with industry"
+
+    Note over GE_UI: User authorized agent<br/>Token in state: temp:sharepointauth2
+
+    GE_UI->>Agent: Invoke with message
+    Agent->>Agent: Detect auth key in state
+    Agent->>Tool: compare_insights(query, context)
+
+    Note over Tool: Extract MS JWT from<br/>tool_context.state
+
+    par Internal Search
+        Tool->>STS: Exchange JWT
+        STS-->>Tool: GCP Token
+        Tool->>DE: streamAssist + dataStoreSpecs
+        DE->>SPO: Query with user identity
+        SPO-->>DE: ACL-filtered docs
+        DE-->>Tool: SharePoint findings
+    and External Search
+        Tool->>Gemini: Generate with googleSearch
+        Gemini->>Google: Web search
+        Google-->>Gemini: Results
+        Gemini-->>Tool: Web findings
+    end
+
+    Tool-->>Agent: Internal + External findings
+    Agent->>Agent: Synthesize comparison
+    Agent-->>GE_UI: Formatted response
+    GE_UI-->>User: Display comparison

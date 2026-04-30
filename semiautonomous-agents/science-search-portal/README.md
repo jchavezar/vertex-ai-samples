@@ -1,0 +1,308 @@
+# Amgen Science Search Portal
+
+> *Amgen-themed rebrand of `sharepoint_wif_portal`. Zero credential storage. Per-user SharePoint ACLs. The agent's Discovery Engine call is hardened to ignore the GE chat-UI SharePoint toggle.*
+
+![Python](https://img.shields.io/badge/Python-3.12+-3776AB?logo=python&logoColor=white)
+![Node](https://img.shields.io/badge/Node-18+-339933?logo=node.js&logoColor=white)
+![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black)
+![FastAPI](https://img.shields.io/badge/FastAPI-0.135-009688?logo=fastapi&logoColor=white)
+![GCP](https://img.shields.io/badge/Google_Cloud-Powered-4285F4?logo=google-cloud&logoColor=white)
+
+> Screenshots in `assets/` were generated for the original purple theme and have not been re-captured for the Amgen rebrand yet. Run the dev server (`cd frontend && npm run dev`) to preview the new look.
+
+## What changed vs. `sharepoint_wif_portal`
+
+1. **Visual rebrand to Amgen** — Open Sans typeface, Amgen blue (`#0063C3`) primary, deep blue + teal accents, Amgen wordmark in the sidebar.
+2. **Agent toggle-independence** — `agent/discovery_engine.py:_get_dynamic_datastores()` now returns a hardcoded list of the five SharePoint federated entity-typed datastores (file/page/comment/event/attachment) instead of fetching from `widgetConfigs`. The GE chat-UI SharePoint toggle is purely client-side; relying on widget config silently dropped SharePoint when the toggle was off. Pattern lifted from `cortex-retriever/agent/discovery_engine.py`.
+3. **Agent identity** — `AmgenScienceSearch` (was `InsightComparator`), system instruction recast for Amgen science / R&D context.
+
+The Discovery Engine, SharePoint connector, WIF pool/provider, and Entra tenant are all reused from the source project — no new GCP infra needed for the demo.
+
+> [!WARNING]
+> **Read [`docs/00-AUTH-CHAIN.md`](docs/00-AUTH-CHAIN.md) before starting setup.**
+> The authentication chain (Entra JWT → WIF/STS → `dataStoreSpecs` → SharePoint) is not publicly documented. Skipping it causes silent failures — Gemini returns HTTP 200 with plausible-looking answers sourced from its training data, not your SharePoint.
+
+---
+
+## The Problem
+
+Discovery Engine's federated SharePoint connector requires an exact chain of undocumented configuration — a specific Entra manifest flag, two WIF providers with different token audiences, and a required API field that returns HTTP 200 silently without it. This guide exists because the product team does not yet maintain public documentation for this chain. [`00-AUTH-CHAIN.md`](docs/00-AUTH-CHAIN.md) preserves the result so you don't have to.
+
+---
+
+## Contents
+
+- [The Problem](#the-problem)
+- [What You're Building](#what-youre-building)
+- [What Makes This Different](#what-makes-this-different)
+- [Quick Start](#quick-start)
+- [Choose Your Path](#choose-your-path)
+- [Prerequisites](#prerequisites)
+- [Built & Tested With](#built--tested-with)
+- [Architecture](#architecture)
+- [Documentation](#documentation)
+- [Token Flow](#token-flow)
+- [Project Structure](#project-structure)
+- [Backend API](#backend-api)
+- [Configuration](#configuration)
+- [Testing](#testing)
+- [Troubleshooting](#troubleshooting)
+- [Roadmap](#roadmap)
+
+---
+
+## What You're Building
+
+A full-stack enterprise search portal that bridges Microsoft Entra ID identities to Google Cloud — no credential storage, no service account impersonation, per-user SharePoint ACL enforcement at query time.
+
+🔐 **Zero credential storage** — WIF exchanges Entra JWTs for scoped GCP tokens at runtime; no secrets stored, no service account impersonation
+
+👤 **Per-user ACL enforcement** — SharePoint permissions enforced at query time by Gemini Enterprise, not by your application logic
+
+⚡ **Concurrent search** — InsightComparator ADK agent searches SharePoint (internal, ACL-aware) and Google (public web) in parallel, then synthesizes both
+
+![/btw demo: instant Gemini response while SharePoint query is still processing](assets/portal-btw-demo.gif)
+*Use `/btw` for instant answers while waiting for SharePoint results*
+
+☁️ **Deploy anywhere** — same codebase runs locally and on Cloud Run behind GLB + IAP; only environment variables change
+
+---
+
+## What Makes This Different
+
+| Approach | Credential storage | ACL enforcement | Federated identity |
+|---|---|---|---|
+| Service account impersonation | Stored secrets | App-level | No |
+| Direct Graph API | Stored secrets | App-level | No |
+| **This portal (WIF)** | **None** | **SharePoint-native** | **Yes** |
+
+---
+
+## Quick Start
+
+> Haven't done infrastructure yet? Start at [01-SETUP-GCP.md](docs/01-SETUP-GCP.md).
+>
+> These commands assume infrastructure is complete (Entra ID, WIF, Discovery Engine) — see [Choose Your Path](#choose-your-path) for the full phase map.
+
+```bash
+# 1. Configure environment
+cp .env.example .env          # fill in GCP + Entra values
+cp frontend/.env.example frontend/.env   # fill in VITE_CLIENT_ID + VITE_TENANT_ID
+
+# 2. Start backend
+cd backend && uv sync && uv run uvicorn main:app --reload
+
+# 3. Start frontend (new terminal)
+cd frontend && npm install && npm run dev
+# → http://localhost:5173
+```
+
+---
+
+## Choose Your Path
+
+Not every deployment needs all four phases. Pick the track that matches your goal.
+
+```mermaid
+flowchart LR
+    P1["Phase 1\nInfrastructure\n(01–04)"]
+
+    P1 --> P2["Phase 2\nCustom Portal\n(05–07)"]
+    P1 --> P3["Phase 3\nADK Agent\n(08–09)"]
+    P2 --> P4["Phase 4\nCloud Run\n(10)"]
+    P3 --> P4
+
+    style P1 fill:#4285F4,color:#fff
+    style P2 fill:#34A853,color:#fff
+    style P3 fill:#FBBC04,color:#000
+    style P4 fill:#EA4335,color:#fff
+
+    click P1 "https://github.com/jchavezar/vertex-ai-samples/blob/main/semiautonomous-agents/sharepoint_wif_portal/docs/01-SETUP-GCP.md" "Phase 1: GCP Setup"
+    click P2 "https://github.com/jchavezar/vertex-ai-samples/blob/main/semiautonomous-agents/sharepoint_wif_portal/docs/05-LOCAL-DEV.md" "Phase 2: Local Development"
+    click P3 "https://github.com/jchavezar/vertex-ai-samples/blob/main/semiautonomous-agents/sharepoint_wif_portal/docs/08-ADK-AGENT.md" "Phase 3: ADK Agent"
+    click P4 "https://github.com/jchavezar/vertex-ai-samples/blob/main/semiautonomous-agents/sharepoint_wif_portal/docs/10-CLOUD-DEPLOYMENT.md" "Phase 4: Cloud Run"
+```
+
+| Goal | Phases needed |
+|------|--------------|
+| Custom React portal querying SharePoint via WIF | 1 → 2 → 4 |
+| ADK agent available in Gemini Enterprise UI | 1 → 3 |
+| Both portal and agent, production-ready | 1 → 2 → 3 → 4 |
+
+---
+
+## Prerequisites
+
+| Requirement | Notes |
+|-------------|-------|
+| **GCP project** with billing enabled | Owner or Editor role |
+| **Microsoft Azure subscription** | With permissions to register Entra apps |
+| **SharePoint Online tenant** | Sites you want to make searchable |
+| **Python 3.12+** | [Download](https://python.org) |
+| **uv** (Python package manager) | `curl -LsSf https://astral.sh/uv/install.sh \| sh` |
+| **Node 18+** | For building the frontend |
+
+---
+
+## Built & Tested With
+
+> All library versions are pinned exactly in `pyproject.toml` and `package.json`. Use `uv sync` and `npm ci` to reproduce the exact environment.
+
+**Backend (Python)**
+
+| Library | Version |
+|---------|---------|
+| `fastapi` | 0.135.3 |
+| `google-cloud-aiplatform` | 1.145.0 |
+| `google-auth` | 2.49.1 |
+| `pydantic` | 2.12.5 |
+| `uvicorn` | 0.43.0 |
+| `sse-starlette` | 3.3.4 |
+
+**Agent (Python)**
+
+| Library | Version |
+|---------|---------|
+| `google-cloud-aiplatform[adk,agent_engines]` | 1.145.0 |
+| `google-adk` | 1.28.1 |
+| `google-cloud-discoveryengine` | 0.13.12 |
+| `google-auth` | 2.49.1 |
+| `httpx` | 0.28.1 |
+
+**Frontend (Node)**
+
+| Library | Version |
+|---------|---------|
+| `react` | 19.2.4 |
+| `@azure/msal-browser` | 4.30.0 |
+| `@azure/msal-react` | 3.0.29 |
+| `react-markdown` | 10.1.0 |
+| `vite` | 8.0.3 |
+| `typescript` | 5.9.3 |
+
+---
+
+## Architecture
+
+```mermaid
+flowchart TB
+    Portal["Custom Portal<br/>React + Vite"] & GE["Gemini Enterprise"] --> Entra["Microsoft Entra ID"]
+    Entra --> WIF["Workforce Identity Federation<br/>2 providers: login + agent"]
+    WIF --> STS["Google STS<br/>Token Exchange"]
+    STS --> Backend["FastAPI Backend<br/>/api/chat · /api/quick · /api/agent"]
+    Backend --> DE["Discovery Engine<br/>streamAssist + ACLs"]
+    Backend --> AE["Agent Engine<br/>InsightComparator"]
+    DE --> SP["SharePoint Online"]
+    DE --> GS["Google Search"]
+```
+
+---
+
+## Documentation
+
+Follow this order. Each phase builds on the previous.
+
+| # | Document | Depends On | What It Sets Up |
+|---|----------|------------|-----------------|
+| ⚠️ | [**00-AUTH-CHAIN.md**](docs/00-AUTH-CHAIN.md) | — | **Read first — the undocumented auth chain** |
+| 01 | [01-SETUP-GCP.md](docs/01-SETUP-GCP.md) | — | GCP project, APIs, IAM |
+| 02 | [02-SETUP-ENTRA.md](docs/02-SETUP-ENTRA.md) | 01 | Microsoft Entra ID app registration |
+| 03 | [03-SETUP-WIF.md](docs/03-SETUP-WIF.md) | 01, 02 | WIF pool + two providers |
+| 04 | [04-SETUP-DISCOVERY.md](docs/04-SETUP-DISCOVERY.md) | 01–03 | Discovery Engine + SharePoint connector |
+| 05 | [05-LOCAL-DEV.md](docs/05-LOCAL-DEV.md) | 01–04 | Backend + frontend running locally |
+| 06 | [06-AGENT-ENGINE.md](docs/06-AGENT-ENGINE.md) | 05 | Agent Engine basics |
+| 07 | [07-FRONTEND-FEATURES.md](docs/07-FRONTEND-FEATURES.md) | 05–06 | Chat, `/btw`, sessions |
+| 08 | [08-ADK-AGENT.md](docs/08-ADK-AGENT.md) | 01–04 | Deploy InsightComparator agent |
+| 09 | [09-AGENT-PANEL.md](docs/09-AGENT-PANEL.md) | 05, 08 | Agent Panel in custom UI |
+| 10 | [10-CLOUD-DEPLOYMENT.md](docs/10-CLOUD-DEPLOYMENT.md) | 01–09 | Cloud Run + GLB + IAP |
+| — | [TESTING.md](docs/TESTING.md) | 10 | Full testing workflow |
+
+---
+
+## Token Flow
+
+Two parallel flows — Custom Portal uses MSAL + backend STS exchange; Gemini Enterprise uses its own login provider:
+
+| Flow | Token Audience | WIF Provider | Purpose |
+|------|---------------|--------------|---------|
+| Custom Portal | `api://{client-id}` | `entra-agent-provider` | Backend STS exchange → streamAssist |
+| Gemini Enterprise | `{client-id}` (no prefix) | `entra-login-provider` | GE user authentication |
+
+> For detailed sequence diagrams, see [07-FRONTEND-FEATURES.md](docs/07-FRONTEND-FEATURES.md) and [09-AGENT-PANEL.md](docs/09-AGENT-PANEL.md).
+
+---
+
+## Project Structure
+
+```
+sharepoint_wif_portal/
+├── frontend/                  # React UI (port 5173)
+│   ├── src/App.tsx            # Main app with MSAL auth
+│   └── ...
+├── backend/                   # FastAPI (port 8000)
+│   ├── main.py                # streamAssist + WIF exchange
+│   └── pyproject.toml
+├── agent/                     # ADK Agent for Agent Engine
+│   ├── agent.py               # InsightComparator agent
+│   ├── discovery_engine.py    # WIF client
+│   └── __init__.py
+├── scripts/                   # Registration & testing scripts
+│   ├── register_auth.sh       # Register OAuth to Agentspace
+│   └── register_agent.sh      # Register agent to Agentspace
+├── docs/                      # Step-by-step setup guides
+└── test_ui/                   # Token capture UI for testing
+```
+
+---
+
+## Backend API
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/chat` | POST | streamAssist + WIF (main chat) |
+| `/api/quick` | POST | Gemini + Google Search |
+| `/api/sessions` | GET/POST | Conversation management |
+| `/api/agent` | POST | Agent Engine SDK query |
+| `/api/agent/info` | GET | Agent information |
+
+---
+
+## Configuration
+
+See [`.env.example`](.env.example) for all variables. Full details in [03-SETUP-WIF.md](docs/03-SETUP-WIF.md) (WIF providers) and [05-LOCAL-DEV.md](docs/05-LOCAL-DEV.md) (environment setup).
+
+---
+
+## Testing
+
+| Step | Command | Purpose |
+|------|---------|---------|
+| 1 | `uv run python test_local.py` | Test before deployment |
+| 2 | `uv run python deploy.py` | Deploy to Agent Engine |
+| 3 | `uv run python test_remote.py` | Test after deployment |
+| 4a | `./scripts/register_auth.sh` | Register OAuth |
+| 4b | `./scripts/register_agent.sh` | Register agent |
+| 5 | Gemini Enterprise UI | End-to-end test |
+
+---
+
+## Troubleshooting
+
+| Issue | Solution |
+|-------|----------|
+| `audience does not match` | Use correct WIF provider for token type — see WIF Providers table above |
+| SharePoint 403 | Check `WIF_PROVIDER_ID=entra-provider` for agent |
+| Agent not visible in GE | Set `sharingConfig.scope = ALL_USERS` |
+| Authorization loop | Add `user_impersonation` scope |
+| No sources returned | Check `dataStoreSpecs` in request — see [00-AUTH-CHAIN.md](docs/00-AUTH-CHAIN.md) |
+
+---
+
+## Roadmap
+
+- [x] Custom React portal with WIF auth (Entra → GCP token exchange)
+- [x] InsightComparator ADK agent (SharePoint + Google Search in parallel)
+- [x] Cloud Run + GLB + IAP production deployment
+- [x] Microsoft 365 MCP server for Claude Code integration
+- [ ] Multi-tenant support
+- [ ] Support for additional federated connectors (Confluence, Salesforce)

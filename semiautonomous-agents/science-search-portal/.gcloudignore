@@ -1,0 +1,20 @@
+# Cloud Build ignore file
+# Override .gitignore to include .env files needed for build
+
+# Standard ignores
+.git/
+.gitignore
+__pycache__/
+*.pyc
+*.pyo
+node_modules/
+.pytest_cache/
+.venv/
+venv/
+
+# Do NOT ignore .env files - needed for frontend build
+# (Unlike .gitignore, we include .env here)
+
+# Ignore local dev files
+*.log
+.DS_Store
