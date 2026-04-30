@@ -1,0 +1,8 @@
+# Eval data with customer information - never commit these!
+dashboard.html
+runs/*.json
+
+# Backup/temp files that might contain unredacted data
+*.backup
+*_full.json
+*_unredacted.*
