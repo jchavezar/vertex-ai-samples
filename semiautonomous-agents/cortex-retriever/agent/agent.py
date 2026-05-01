@@ -66,6 +66,17 @@ async def search_sharepoint(query: str, tool_context: ToolContext) -> dict:
     """
     auth_id, microsoft_jwt = _detect_auth_id(tool_context)
     logger.info(f"SharePoint search: auth_id={auth_id}, token_present={bool(microsoft_jwt)}")
+    if microsoft_jwt:
+        try:
+            import base64 as _b64, json as _json
+            payload_b64 = microsoft_jwt.split(".")[1]
+            payload_b64 += "=" * (4 - len(payload_b64) % 4)
+            claims = _json.loads(_b64.urlsafe_b64decode(payload_b64))
+            interesting = {k: claims.get(k) for k in ["iss","aud","sub","email","upn","unique_name","preferred_username","name","oid","tid","appid","scp"] if k in claims}
+            logger.info(f"JWT CLAIMS: {_json.dumps(interesting)}")
+            logger.info(f"JWT RAW (first 200 chars): {microsoft_jwt[:200]}...")
+        except Exception as e:
+            logger.warning(f"jwt decode failed: {e}")
 
     client = DiscoveryEngineClient(
         project_number=PROJECT_NUMBER,
