@@ -206,6 +206,58 @@ def _get_dynamic_datastores(self) -> List[Dict[str, str]]:
 > [!IMPORTANT]
 > **The GE chat-UI data-source toggle is purely a *client-side filter* on `dataStoreSpecs`.** It does NOT control authorization, JWT injection, or the underlying connector bridge. By hardcoding the SharePoint datastores in the agent's tool, the toggle becomes a UX illusion — SharePoint is always queried, ACL enforcement still works server-side via the WIF user identity. This is the single change that makes the agent toggle-independent.
 
+<details>
+<summary><b>Alternative: Dynamic connector discovery (works across any attached connector)</b></summary>
+
+If you have multiple connectors (SharePoint + ServiceNow + Outlook) or the connector ID changes between environments, hardcoding the full datastore paths is brittle. Here's a toggle-independent pattern that auto-discovers all attached connectors by listing collections and reading each connector's entities:
+
+```python
+def _get_all_connector_datastores(self):
+    """Dynamically discover all federated connector datastores (toggle-independent)."""
+    admin_token = self._get_service_credentials()  # SA token for config reads
+    headers = {
+        "Authorization": f"Bearer {admin_token}",
+        "Content-Type": "application/json",
+        "X-Goog-User-Project": self.project_number,
+    }
+    
+    datastores = []
+    
+    # 1. List all collections (each connector creates its own collection)
+    collections_url = (
+        f"https://discoveryengine.googleapis.com/v1alpha/"
+        f"projects/{self.project_number}/locations/{self.location}/collections"
+    )
+    collections_resp = requests.get(collections_url, headers=headers, timeout=10)
+    
+    for coll in collections_resp.json().get('collections', []):
+        # Skip non-connector collections (e.g., default_collection)
+        if 'dataConnector' not in coll:
+            continue
+        
+        coll_name = coll['name'].split('/')[-1]
+        
+        # 2. Get the connector's entities (each entity = one datastore)
+        connector_url = (
+            f"https://discoveryengine.googleapis.com/v1alpha/"
+            f"projects/{self.project_number}/locations/{self.location}/"
+            f"collections/{coll_name}"
+        )
+        connector_resp = requests.get(connector_url, headers=headers, timeout=10)
+        
+        dc = connector_resp.json().get('dataConnector', {})
+        for entity in dc.get('entities', []):
+            datastores.append({"dataStore": entity['dataStore']})
+    
+    return datastores
+```
+
+**Trade-off:** This adds ~200ms latency per query (two extra GET calls) but works across any connector type. For a single-connector deployment, the hardcoded list is faster and simpler. For multi-connector or env-agnostic agents, the dynamic pattern is worth it.
+
+**Why this is also toggle-independent:** The connector's `entities` list is server-side config, never modified by the GE chat toggle. Only `widget_config` (which we're avoiding) reflects toggle state.
+
+</details>
+
 ### 5. Google Search (Built-in ADK Tool)
 
 For public web queries, the agent uses ADK's built-in `GoogleSearchTool` — no custom code needed:
