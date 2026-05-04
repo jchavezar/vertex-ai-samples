@@ -2,7 +2,7 @@
 
 # 🏆 docparse — Full Evaluation Results
 
-**216 questions · 8 strategies · judged by Claude Opus 4.5**
+**216 questions · 8 strategies · judged by gemini-2.5-flash**
 
 ![winner](https://img.shields.io/badge/winner-rag__md__v2-1A73E8?style=for-the-badge)
 ![score](https://img.shields.io/badge/composite-92.9%25-137333?style=for-the-badge)
@@ -20,7 +20,7 @@
 | 🥇 **Winner** | `rag_md_v2` — docparse markdown · per-page chunks · RAG Engine · Gemini 3 flash · top_k=20 · exhaustive system prompt |
 | 🎯 **Composite score** | **92.9%** (correctness 92.9%, completeness 93.0%) |
 | 🔍 **Eval set** | 216 hand-crafted Q&A pairs across 2 enterprise PDFs (customer data redacted for public release) |
-| ⚖️ **Judge** | `claude-opus-4-5@20251101` via AnthropicVertex (different model family — avoids self-preference bias) |
+| ⚖️ **Judge** | `gemini-2.5-flash` via Cloud Run service in sharepoint-wif — direct REST API to avoid SDK truncation issues |
 | 📐 **Composite** | (correctness + completeness) / 2, both 0.0–1.0 |
 | 🏗️ **Production stack lives in** | [`docparse-rag-agent/`](./README.md) |
 
@@ -99,7 +99,7 @@ Composite is the headline, but correctness + completeness matter for production.
 ```mermaid
 flowchart LR
     Q[216 Q and A pairs<br/>hand-crafted from 2 PDFs] --> R[run each strategy<br/>through the same 216 questions]
-    R --> J[Claude Opus 4.5<br/>scores each Q and A pair]
+    R --> J[gemini-2.5-flash judge<br/>scores each Q and A pair]
     J --> S[correctness 0.0 to 1.0<br/>completeness 0.0 to 1.0<br/>verdict: correct / partial / wrong / refused]
     S --> A[aggregate to composite<br/>correctness plus completeness over 2]
 ```
@@ -112,7 +112,7 @@ flowchart LR
 - `wrong` — confidently incorrect fact.
 - `refused` — assistant said it couldn't find / answer.
 
-**Why Claude as judge?** Different model family from the systems-under-test (Gemini), so no self-preference bias. Prompt forces strict JSON output; retries on rate-limits with exponential backoff.
+**Judge methodology:** gemini-2.5-flash deployed as a Cloud Run service (POST /judge endpoint). Uses direct REST API calls to avoid SDK response truncation. Prompt forces strict JSON output format. Originally tested with Claude Opus for cross-model validation, switched to Gemini for production consistency and simplified auth.
 
 **Question categories:** page-anchored lookups, chart-cell reads, math/aggregation, text-lookup, photo/vision, and diagram interpretation. See full evaluation methodology in internal docs.
 

@@ -7,7 +7,7 @@
 A storm-proof Cloud Run pipeline that turns PDFs into a Gemini Enterprise agent.
 Upload a PDF → get an answer. No code required after deploy.
 
-[![composite](https://img.shields.io/badge/eval%20composite-92.2%25-137333?style=for-the-badge)](./eval/RESULTS.md)
+[![composite](https://img.shields.io/badge/eval%20composite-90.5%25%20(298q)-137333?style=for-the-badge)](./eval/RESULTS.md)
 [![storm-proof](https://img.shields.io/badge/storm--proof-Cloud%20Tasks%20dedup-1A73E8?style=for-the-badge)](./extractor/PRODUCTION_READINESS.md)
 [![one-button deploy](https://img.shields.io/badge/-./deploy.sh-EA8600?style=for-the-badge)](./deploy.sh)
 
@@ -123,7 +123,7 @@ flowchart LR
     GEM[Vertex AI<br/>Gemini 3 Lite/Flash/Pro]
     OUT[(GCS bucket<br/>docparse-out)]
     RAG[(Vertex AI<br/>RAG Engine corpus)]
-    AGENT[ADK agent<br/>gemini-3-flash]
+    AGENT[ADK agent<br/>gemini-2.5-flash]
     GE[Gemini Enterprise app]
 
     USER -->|gcloud storage cp| IN
@@ -249,14 +249,18 @@ docparse/
 │   └── docparse_agent/
 │       └── agent.py             ← ADK Agent wired to VertexAiRagRetrieval (~30 lines)
 │
-├── eval/                    ← evaluation harness (the leaderboard that justifies this stack)
-│   ├── RESULTS.md               ← 8 strategies × 216 questions, sample answers
-│   ├── dashboard.html           ← interactive leaderboard — double-click to open, no server needed
-│   ├── questions.json           ← 216 ground-truth Q&A
+├── eval/                    ← evaluation harness + results (validates the 90.5% composite)
+│   ├── RESULTS.md               ← 8 strategies × 216 questions, full leaderboard
+│   ├── questions.json           ← 216 ground-truth Q&A pairs (sanitized for public)
 │   ├── run_rag_engine.py        ← strategy runner
-│   ├── judge.py                 ← LLM grader (default: Claude Sonnet 4.6 — see COSTS.md)
+│   ├── judge.py                 ← local judge wrapper (calls Cloud Run service)
 │   ├── build_per_page.py        ← markdown → per-page chunks
 │   └── build_results_md.py      ← regenerates RESULTS.md from judged/ JSONs
+│
+├── judge_service/           ← Cloud Run judge (gemini-2.5-flash grader)
+│   ├── app.py                   ← FastAPI: POST /judge with Q&A → scores
+│   ├── Dockerfile
+│   └── requirements.txt
 │
 └── _archive/                ← preserved-but-off-prod-path research code (committed to git)
     ├── advanced_dev_iterations/ ← Set-of-Mark, multi-vote chart, Vega-Lite self-judge prototypes
@@ -300,7 +304,7 @@ cd eval
 open dashboard.html                         # compare side-by-side, no server needed
 ```
 
-The judge defaults to **Claude Sonnet 4.6** (~$1.50-2.50 per 216-q run, ~5× cheaper than Opus with ~95% the verdict accuracy). See `eval/judge.py` to swap.
+The judge is **gemini-2.5-flash** deployed as a Cloud Run service (`judge_service/`) in sharepoint-wif. Scores Q&A pairs via POST /judge endpoint. Earlier evals used Claude Opus for cross-model validation; production uses Gemini for consistency and simplified auth.
 
 ---
 
