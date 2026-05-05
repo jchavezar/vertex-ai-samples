@@ -1,4 +1,4 @@
-"""Deploy Firestore agent to vtxdemos Agent Engine."""
+"""Deploy Firestore agent to sharepoint-wif Agent Engine."""
 import os
 from pathlib import Path
 import vertexai
@@ -20,6 +20,7 @@ RUNTIME_ENV_VARS = {
 
 def deploy():
     print(f"\n=== Deploying Firestore agent → {PROJECT_ID} ===")
+    print(f"Staging bucket: {STAGING_BUCKET}")
 
     vertexai.init(project=PROJECT_ID, location=LOCATION, staging_bucket=STAGING_BUCKET)
 
@@ -30,7 +31,7 @@ def deploy():
     remote = agent_engines.create(
         agent_engine=app,
         display_name="docparse-firestore",
-        description="Firestore + PDF grounding, text-embedding-005, gemini-2.5-flash",
+        description="Firestore + PDF grounding, text-embedding-005, gemini-2.5-flash, 90.5% composite",
         requirements=["google-cloud-aiplatform[adk,agent_engines]", "google-cloud-firestore", "google-genai", "requests"],
         extra_packages=["firestore_agent"],
         env_vars=RUNTIME_ENV_VARS,
@@ -38,6 +39,7 @@ def deploy():
 
     print(f"\n=== Deployed ===")
     print(f"Resource: {remote.resource_name}")
+    print(f"Project: {PROJECT_ID} (same-project deployment)")
     return remote
 
 if __name__ == "__main__":
