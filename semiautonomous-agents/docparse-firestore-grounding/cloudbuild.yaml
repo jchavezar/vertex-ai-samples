@@ -1,0 +1,64 @@
+# Deploy Firestore agent via Cloud Build (uses build service account, no ADC conflicts)
+steps:
+  # Step 1: Deploy the agent
+  - name: 'python:3.12'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        pip install uv --quiet
+        cd /workspace
+        uv run --with "google-cloud-aiplatform[adk,agent_engines]" \
+          --with google-cloud-firestore \
+          --with google-genai \
+          --with requests \
+          python deploy_firestore.py > /workspace/deploy_output.txt 2>&1
+        cat /workspace/deploy_output.txt
+
+  # Step 2: Extract reasoning engine resource name and register in GE
+  - name: 'python:3.12'
+    entrypoint: 'python3'
+    args:
+      - '-c'
+      - |
+        import re, subprocess, json, requests
+
+        # Extract resource name from deployment output
+        with open('/workspace/deploy_output.txt') as f:
+          output = f.read()
+          match = re.search(r'(projects/\d+/locations/[\w-]+/reasoningEngines/\d+)', output)
+          if not match:
+            print("❌ Could not find reasoning engine resource in output")
+            exit(1)
+          REASONING_ENGINE_RES = match.group(1)
+
+        print(f"Found: {REASONING_ENGINE_RES}")
+
+        # Register in sharepoint-wif GE
+        token = subprocess.check_output(["gcloud", "auth", "print-access-token"], text=True).strip()
+
+        url = "https://discoveryengine.googleapis.com/v1alpha/projects/984359513632/locations/global/collections/default_collection/engines/acc_1776970890534/assistants/default_assistant/agents"
+
+        payload = {
+            "displayName": "docparse Firestore (PDF grounding)",
+            "description": "Firestore + text-embedding-005 + gemini-2.5-flash",
+            "icon": {"uri": "https://fonts.gstatic.com/s/i/short-term/release/googlesymbols/find_in_page/default/24px.svg"},
+            "adk_agent_definition": {
+                "tool_settings": {"tool_description": "Firestore variant with PDF grounding"},
+                "provisioned_reasoning_engine": {"reasoning_engine": REASONING_ENGINE_RES}
+            }
+        }
+
+        headers = {"Authorization": f"Bearer {token}", "Content-Type": "application/json", "x-goog-user-project": "sharepoint-wif"}
+        r = requests.post(url, headers=headers, data=json.dumps(payload))
+
+        if r.status_code == 200:
+          agent_name = r.json()["name"]
+          # Share ALL_USERS
+          share_url = f"https://discoveryengine.googleapis.com/v1alpha/{agent_name}?updateMask=sharingConfig"
+          requests.patch(share_url, headers=headers, data=json.dumps({"sharingConfig": {"scope": "ALL_USERS"}}))
+          print(f"✅ Registered and shared")
+        else:
+          print(f"❌ Registration failed: {r.status_code}")
+
+timeout: 1800s
