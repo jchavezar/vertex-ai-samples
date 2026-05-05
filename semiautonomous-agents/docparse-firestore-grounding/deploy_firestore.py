@@ -5,9 +5,9 @@ import vertexai
 from vertexai import agent_engines
 from vertexai.preview import reasoning_engines
 
-PROJECT_ID = "vtxdemos"
+PROJECT_ID = "sharepoint-wif"
 LOCATION = "us-central1"
-STAGING_BUCKET = f"gs://{PROJECT_ID}-staging-agent-engine"
+STAGING_BUCKET = "gs://sharepoint-wif-agent-staging"
 
 RUNTIME_ENV_VARS = {
     "GOOGLE_CLOUD_LOCATION": "global",

@@ -17,10 +17,12 @@ steps:
 
   # Step 2: Extract reasoning engine resource name and register in GE
   - name: 'python:3.12'
-    entrypoint: 'python3'
+    entrypoint: 'bash'
     args:
       - '-c'
       - |
+        pip install requests --quiet
+        python3 << 'PYEOF'
         import re, subprocess, json, requests
 
         # Extract resource name from deployment output
@@ -60,5 +62,6 @@ steps:
           print(f"✅ Registered and shared")
         else:
           print(f"❌ Registration failed: {r.status_code}")
+        PYEOF
 
 timeout: 1800s
