@@ -111,6 +111,12 @@ If you get "couldn't find any issues", verify:
 - Check the authenticated user has Browse Projects permission
 - Try a more specific query: "show me issues in project SMP"
 
+**Tools stop working after a few hours:**
+- The tool registry cache expires periodically
+- **Fix:** Console → (connector) → Actions tab → **Reload custom actions** → wait 30s
+- No re-authentication needed - just reload to refresh the tools cache
+- This is a known limitation of custom MCP servers in Gemini Enterprise
+
 ## Important URLs
 
 - Discovery doc: https://mcp.atlassian.com/.well-known/oauth-authorization-server
