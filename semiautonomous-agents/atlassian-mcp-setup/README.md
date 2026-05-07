@@ -80,40 +80,23 @@ After OAuth completes:
 
 Should see: "Data connector actions updated successfully."
 
-## Step 5: Create Custom Agent (REQUIRED)
+## Step 5: Test
 
-**Why:** The default GE assistant has a bug where custom MCP tools don't appear in its tool registry. You must use a custom agent.
+1. Open your Gemini Enterprise chat
+2. Start a new chat
+3. Ask: `list 5 jira issues` or `show me recent jira bugs`
 
-1. Go to: Agents → **New agent**
-2. Choose: **No-code agent builder**
-3. Name: `Jira Assistant`
-4. Instructions:
-   ```
-   You are a Jira assistant. When users ask about Jira issues, tickets, bugs, or projects, use the searchJiraIssuesUsingJql and getJiraIssue tools.
-   
-   For "list N issues" queries, call searchJiraIssuesUsingJql with JQL like "order by created DESC" and maxResults=N.
-   
-   Format results as a table with: Key, Summary, Status, Assignee.
-   ```
-5. Tools: In the dropdown, select your jiramcp connector → check:
-   - `searchJiraIssuesUsingJql`
-   - `getJiraIssue`
-6. Data sources: (none needed for tools)
-7. Click **Create**
+Should return issues from sockcop.atlassian.net (e.g., SMP-912, SMP-911, etc.).
 
-## Step 6: Test
-
-1. Go to your Gemini Enterprise chat
-2. In the left sidebar → **Agents** → click **Jira Assistant**
-3. Ask: `list 5 jira issues`
-
-Should return real issues from sockcop.atlassian.net (e.g., SMP-912, SMP-911, etc.).
+If you get "couldn't find any issues", verify:
+- Your Atlassian site has issues in accessible projects
+- The authenticated user has Browse Projects permission
 
 ## Troubleshooting
 
 **"Connector unavailable" error:**
 - Check Actions tab shows tools as **Enabled** (green checkmark)
-- Confirm you're querying the **custom agent**, not the default chat
+- Click **Reload custom actions** if tools list is empty
 
 **403 FORBIDDEN errors in logs:**
 - You enabled Confluence tools but OAuth token only has Jira scopes
@@ -123,9 +106,10 @@ Should return real issues from sockcop.atlassian.net (e.g., SMP-912, SMP-911, et
 - Too many tools enabled causes slow initial sync
 - Disable all but the 2 core tools: `searchJiraIssuesUsingJql` and `getJiraIssue`
 
-**The one-time success mystery:**
-- The assistant CAN work occasionally but it's unreliable
-- Custom agents are the supported path for MCP tool calling
+**"Couldn't find any issues" (empty results):**
+- Verify your Jira site actually has issues: visit sockcop.atlassian.net directly
+- Check the authenticated user has Browse Projects permission
+- Try a more specific query: "show me issues in project SMP"
 
 ## Important URLs
 

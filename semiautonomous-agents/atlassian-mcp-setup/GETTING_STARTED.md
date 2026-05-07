@@ -6,7 +6,7 @@
 2. GE Console → New data store → Custom MCP → paste values from `./show_config_values.sh`
 3. OAuth login with `admin@jesusarguelles.demo.altostrat.com` → check **Jira only**
 4. Actions tab → Reload custom actions → enable 2-5 Jira tools
-5. **Must create custom agent** (default assistant won't work)
+5. Test in default chat
 
 ## Full Steps
 
@@ -44,25 +44,17 @@ Connector → Actions tab → **Reload custom actions** → check:
 
 Click **Enable actions**.
 
-### 5. Create Agent
+### 5. Test
 
-**CRITICAL:** Default assistant doesn't support custom MCP. You MUST create an agent.
+Open Gemini Enterprise chat → new chat → ask "list 5 jira issues"
 
-Agents → New agent → Name: "Jira" → Tools: select jiramcp connector → Create
-
-### 6. Test
-
-Chat with **Jira agent** (not default chat) → ask "list 5 jira issues"
-
-## Why It Failed Without Agent
-
-Custom MCP tools don't populate in the default assistant's `toolRegistry`. They show "Enabled" in console but `widgetListTools` returns empty. Only custom agents can call them.
+The assistant should call the Jira tools and return results from your sockcop.atlassian.net instance.
 
 ## Common Errors
 
-- **500 timeout:** Confluence tools enabled but no Confluence scopes → disable them
+- **500 timeout:** Confluence tools enabled but no Confluence scopes → disable all Confluence tools in Actions tab
 - **403 FORBIDDEN:** Not logged in as Atlassian admin → use admin@jesusarguelles.demo.altostrat.com
-- **Empty results:** Querying default assistant instead of custom agent
+- **Empty results:** No issues exist in Jira, or user lacks Browse Projects permission on sockcop.atlassian.net
 
 ## Files
 
