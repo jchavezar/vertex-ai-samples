@@ -8,3 +8,7 @@ __pycache__/
 *.pyc
 questions/_partial_*.json
 questions/_smoke*.json
+
+# Whitelist the canonical published run so GitHub viewers can see results.
+!sample-run/
+!sample-run/**

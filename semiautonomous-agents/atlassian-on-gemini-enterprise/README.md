@@ -89,6 +89,8 @@ python report.py --run runs/_smoke
 
 See [`eval/README.md`](./eval/README.md) for full reproduction recipe and [`eval/question_categories.md`](./eval/question_categories.md) for the 10 question categories and what each one tests.
 
+**Live sample run results:** [`eval/sample-run/`](./eval/sample-run/) — a real 478-question run committed to the repo (judged data, all answers, full report). View the rendered HTML report via htmlpreview: https://htmlpreview.github.io/?https://github.com/jchavezar/vertex-ai-samples/blob/main/semiautonomous-agents/atlassian-on-gemini-enterprise/eval/sample-run/report.html
+
 ---
 
 ## Interpretation guide
