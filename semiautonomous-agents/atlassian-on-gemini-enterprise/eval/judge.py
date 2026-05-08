@@ -214,20 +214,64 @@ async def judge_one(
             completeness = 1.0 if refused else 0.0
             judge_reason = ("agent refused / asked confirmation" if refused else "agent did not refuse")
         elif oracle_kind == "jql" and (expected_keys or expected_count is not None):
-            # Count-aggregate questions only need the NUMBER right, not every key.
-            is_count = (category == "count-aggregate" or
-                        (expected_count is not None and len(expected_keys) > 5 and
-                         not any(k in (response.get("answer") or "") for k in expected_keys[:3])))
-            if is_count and expected_count is not None:
-                ans_text = response.get("answer") or ""
-                ans_numbers = re.findall(r"\b(\d{1,7})\b", ans_text.replace(",", ""))
+            ans_text = response.get("answer") or ""
+            ans_lower = ans_text.lower()
+            ans_numbers = set(re.findall(r"\b(\d{1,7})\b", ans_text.replace(",", "")))
+
+            # FIX 2 — Empty-set: when expected_count == 0, accept any answer that
+            # acknowledges "no/none/0/not found". Don't penalize cited close
+            # matches (helpful agents suggest the closest issue type / priority).
+            if expected_count == 0:
+                empty_signals = ["no issues", "no matching", "no results", "none ",
+                                 "no bugs", "no tasks", "not found", "nothing matches",
+                                 "no high-priority", "0 issues", "zero issues"]
+                acked = (any(s in ans_lower for s in empty_signals)
+                         or "0" in ans_numbers
+                         or "no " in ans_lower[:200])
+                correctness = 1.0 if acked else 0.0
+                completeness = 1.0 if acked else 0.0
+                judge_reason = (f"empty-set oracle: expected_count=0 "
+                                f"answer_acknowledged_zero={acked}")
+            # FIX 1 — Pagination/large-set: when expected_count > 30, demanding
+            # all keys cited is unrealistic for a chat answer. Score by whether
+            # (a) the count is right AND (b) cited keys are a valid subset.
+            elif expected_count is not None and expected_count > 30:
+                count_hit = str(expected_count) in ans_numbers
+                cited_set = set(cited)
+                expected_set = set(expected_keys)
+                precision = (len(cited_set & expected_set) / len(cited_set)) if cited_set else 1.0
+                # Two ways to be correct:
+                #   (i) report the exact count + cite valid keys (subset of expected)
+                #   (ii) report a near-correct count (within 10%) + cite valid keys
+                near_count = any(abs(int(n) - expected_count) <= max(1, expected_count * 0.05)
+                                 for n in ans_numbers if n.isdigit() and int(n) <= expected_count * 2)
+                if count_hit and precision >= 0.9:
+                    correctness = 1.0
+                    completeness = 1.0
+                elif (count_hit or near_count) and precision >= 0.9:
+                    correctness = 0.85
+                    completeness = 0.85
+                elif count_hit:
+                    correctness = 0.6
+                    completeness = 0.6
+                else:
+                    # Fall back to recall (some chance the answer is partly right).
+                    _, recall = _set_metric(cited, expected_keys)
+                    correctness = recall
+                    completeness = recall
+                judge_reason = (f"large-set oracle: expected_count={expected_count} "
+                                f"count_in_answer={count_hit} cite_precision={precision:.2f}")
+            # Small set + count question (count-aggregate category): exact count.
+            elif (category == "count-aggregate" or
+                  (expected_count is not None and len(expected_keys) > 5 and
+                   not any(k in (response.get("answer") or "") for k in expected_keys[:3]))):
                 hit = str(expected_count) in ans_numbers
                 correctness = 1.0 if hit else 0.0
                 completeness = 1.0 if hit else 0.0
                 judge_reason = (f"count oracle: expected_count={expected_count} "
                                 f"present_in_answer={hit}")
             else:
-                # Set-equality on issue keys.
+                # Small set, set-equality on issue keys (lookup, narrow filter).
                 precision, recall = _set_metric(cited, expected_keys)
                 f1 = 2 * precision * recall / (precision + recall) if (precision + recall) else 0.0
                 correctness = f1

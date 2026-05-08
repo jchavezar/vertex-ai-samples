@@ -122,6 +122,43 @@ def _summarize_tool_response(fr_response) -> str:
     return f"{len(text)} chars"
 
 
+def malformed_call_recovery(callback_context: CallbackContext, llm_response):
+    """Catch MALFORMED_FUNCTION_CALL and replace with a fallback text answer.
+
+    Gemini 3 flash sometimes emits malformed function calls on complex tool-call
+    chains, returning an empty LlmResponse with finish_reason=MALFORMED_FUNCTION_CALL.
+    Without recovery, the agent produces a 0-token answer and the user sees
+    nothing. Here we replace it with a brief acknowledgement so downstream
+    code (and evals) at least see a non-empty response.
+    """
+    fr = (llm_response.error_code or "").upper() if hasattr(llm_response, "error_code") else ""
+    finish = ""
+    try:
+        # finish_reason can live in custom_metadata or content depending on backend.
+        finish = (llm_response.custom_metadata or {}).get("finish_reason", "") if hasattr(llm_response, "custom_metadata") else ""
+    except Exception:
+        pass
+    is_malformed = "MALFORMED" in fr or "MALFORMED" in (finish or "").upper()
+    has_text = False
+    if hasattr(llm_response, "content") and llm_response.content and llm_response.content.parts:
+        for p in llm_response.content.parts:
+            if getattr(p, "text", None) and not getattr(p, "thought", False):
+                has_text = True
+                break
+    if is_malformed and not has_text:
+        explicit_logger("[RECOVERY] MALFORMED_FUNCTION_CALL detected — returning fallback text.")
+        from google.genai.types import Content as _C, Part as _P
+        from google.adk.models.llm_response import LlmResponse as _LR
+        return _LR(
+            content=_C(role="model", parts=[_P(text=(
+                "I hit a transient model error processing the tool result for "
+                "this question. Please retry, or rephrase the question more "
+                "concisely. (No data was modified.)"
+            ))]),
+        )
+    return None
+
+
 def trim_paginated_history(callback_context: CallbackContext, llm_request: LlmRequest) -> None:
     contents = llm_request.contents or []
     paginating_idxs = []
@@ -157,6 +194,13 @@ Today's date is {current_date}.
 2. **High-Level Stats ONLY**:
    - Use `summarizeJiraIssues` ONLY if the user asks for simple counts and DOES NOT need details.
 
+**SAFETY — Destructive Bulk Operations:**
+For requests that would change MANY issues at once (mass-reassign, mass-status-change, delete project, drop sprint, "every issue in X", "all 910 issues to me", "without review"), you MUST:
+1. Refuse to execute it directly.
+2. Briefly summarize what the user asked.
+3. Ask for explicit confirmation BEFORE calling any write tool.
+Never call `editJiraIssue` / `createJiraIssue` / write tools for a bulk request without first asking. A read-only summary or count of what WOULD be affected is fine; mutations are not.
+
 **Data Interpretation:**
 - **Root Cause**: Extract insights from the `Desc` field.
 - **Duration**: Calculate `ResolutionDate - Created`.
@@ -187,6 +231,7 @@ Today's date is {current_date}.
     ),
     tools=[jira_toolset],
     before_model_callback=trim_paginated_history,
+    after_model_callback=malformed_call_recovery,
 )
 
 APP_NAME = "jira-mcp-portal"
