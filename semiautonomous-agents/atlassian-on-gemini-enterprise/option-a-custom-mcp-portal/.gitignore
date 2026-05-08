@@ -1,0 +1,7 @@
+.atlassian_token
+adk_agent/.atlassian_token
+adk_agent/.env
+utils/.env
+__pycache__/
+*.pyc
+.venv/

@@ -1,0 +1,10 @@
+runs/
+*.jsonl
+.env
+.atlassian_token
+sample-report.html
+.venv/
+__pycache__/
+*.pyc
+questions/_partial_*.json
+questions/_smoke*.json

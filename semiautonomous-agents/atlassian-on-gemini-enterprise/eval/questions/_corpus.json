@@ -1,0 +1,18 @@
+{
+  "site": "https://sockcop.atlassian.net",
+  "projects": [
+    {
+      "key": "SMP",
+      "name": "Sample Project: Welcome to Jira!",
+      "total_issues": 910,
+      "issues_last_30d": 0,
+      "sample_keys": [
+        "SMP-912",
+        "SMP-911",
+        "SMP-910",
+        "SMP-909",
+        "SMP-908"
+      ]
+    }
+  ]
+}
