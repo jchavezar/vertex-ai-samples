@@ -110,6 +110,24 @@ def comp_bar(va: float | None, vb: float | None, max_v: float = 1.0) -> str:
     )
 
 
+def _load_answers(run_dir: Path, pipeline: str) -> dict[str, dict[str, Any]]:
+    """Pull answer text + tool calls out of responses_<pipeline>.jsonl by id."""
+    path = run_dir / f"responses_{pipeline}.jsonl"
+    out: dict[str, dict[str, Any]] = {}
+    if not path.exists():
+        return out
+    for line in path.read_text().splitlines():
+        line = line.strip()
+        if not line:
+            continue
+        try:
+            r = json.loads(line)
+            out[r["id"]] = r
+        except Exception:
+            pass
+    return out
+
+
 def render(run_dir: Path, judged_a: list[dict], judged_b: list[dict],
            qs_by_id: dict[str, dict]) -> tuple[str, dict[str, Any]]:
     agg_a = aggregate(judged_a)
@@ -246,27 +264,64 @@ def render(run_dir: Path, judged_a: list[dict], judged_b: list[dict],
         )
     halluc_html += '</table>' if halluc_cases else '<p class="muted">No hallucinations &gt; 20% detected. Nice.</p>'
 
-    # Random sample answers
-    common_ids = sorted(by_id_a.keys() & by_id_b.keys())
-    random.seed(42)
-    sample_ids = random.sample(common_ids, min(20, len(common_ids)))
-    samples_html = ''
-    for qid in sample_ids:
+    # Pull answer text from responses_*.jsonl (judged JSON only has scores).
+    ans_a_by_id = _load_answers(run_dir, "a")
+    ans_b_by_id = _load_answers(run_dir, "b")
+
+    def _render_sample_block(qid: str) -> str:
         q = qs_by_id.get(qid, {})
         a = by_id_a.get(qid, {})
         b = by_id_b.get(qid, {})
-        # Pull answer text from raw responses if present (we only stored citations etc.).
-        ans_a = (q.get("_runner_a_answer") or a.get("answer") or "(see raw response file)")[:1500]
-        ans_b = (q.get("_runner_b_answer") or b.get("answer") or "(see raw response file)")[:1500]
-        samples_html += (
+        rA = ans_a_by_id.get(qid, {})
+        rB = ans_b_by_id.get(qid, {})
+        ans_a = (rA.get("answer") or rA.get("error") or "(no answer captured)")[:2500]
+        ans_b = (rB.get("answer") or rB.get("error") or "(no answer captured)")[:2500]
+        oracle_line = ""
+        if q.get("expected_keys") is not None:
+            ek = q.get("expected_keys", [])
+            ek_preview = ", ".join(ek[:6]) + (f" …(+{len(ek)-6})" if len(ek) > 6 else "")
+            oracle_line += f"<b>Expected keys:</b> {escape(ek_preview) or '<i>none</i>'}<br>"
+        if q.get("expected_count") is not None:
+            oracle_line += f"<b>Expected count:</b> {q['expected_count']}<br>"
+        if q.get("jql"):
+            oracle_line += f"<b>Oracle JQL:</b> <code>{escape(q['jql'])}</code><br>"
+        if q.get("expected_themes"):
+            oracle_line += f"<b>Expected themes:</b> {escape(', '.join(q['expected_themes']))}<br>"
+        return (
             f'<details class="sample"><summary><b>{qid}</b> · '
             f'<span class="cat">{escape(q.get("category",""))}</span> · '
-            f'A:{a.get("verdict","?")} B:{b.get("verdict","?")} · {escape((q.get("q") or "")[:140])}'
-            f'</summary><div class="sample-body"><div class="sample-col"><h4>Option A · {a.get("verdict","?")}</h4>'
-            f'<pre>{escape(ans_a)}</pre><p class="muted">{escape(a.get("judge_reason",""))}</p></div>'
-            f'<div class="sample-col"><h4>Option B · {b.get("verdict","?")}</h4>'
-            f'<pre>{escape(ans_b)}</pre><p class="muted">{escape(b.get("judge_reason",""))}</p></div></div></details>'
+            f'A:<span class="vbadge v-{a.get("verdict","?")}">{a.get("verdict","?")}</span> '
+            f'B:<span class="vbadge v-{b.get("verdict","?")}">{b.get("verdict","?")}</span> · '
+            f'{escape((q.get("q") or "")[:160])}'
+            f'</summary>'
+            f'<div class="sample-oracle">{oracle_line}</div>'
+            f'<div class="sample-body">'
+            f'<div class="sample-col"><h4>Option A · <span class="vbadge v-{a.get("verdict","?")}">{a.get("verdict","?")}</span> · '
+            f'{a.get("latency_s",0):.1f}s · {a.get("n_tool_calls",0)} tool calls</h4>'
+            f'<pre>{escape(ans_a)}</pre>'
+            f'<p class="muted"><b>Cited:</b> {escape(", ".join(a.get("cited_keys", [])[:8]) or "—")}</p>'
+            f'<p class="muted"><b>Judge:</b> {escape(a.get("judge_reason",""))}</p></div>'
+            f'<div class="sample-col"><h4>Option B · <span class="vbadge v-{b.get("verdict","?")}">{b.get("verdict","?")}</span> · '
+            f'{b.get("latency_s",0):.1f}s · {b.get("n_tool_calls",0)} tool calls</h4>'
+            f'<pre>{escape(ans_b)}</pre>'
+            f'<p class="muted"><b>Cited:</b> {escape(", ".join(b.get("cited_keys", [])[:8]) or "—")}</p>'
+            f'<p class="muted"><b>Judge:</b> {escape(b.get("judge_reason",""))}</p>'
+            f'</div></div></details>'
         )
+
+    # Failure spotlight — every question where AT LEAST ONE pipeline lost.
+    failure_verdicts = {"wrong", "hallucinated", "error"}
+    common_ids = sorted(by_id_a.keys() & by_id_b.keys())
+    failure_ids = [qid for qid in common_ids
+                   if by_id_a.get(qid, {}).get("verdict") in failure_verdicts
+                   or by_id_b.get(qid, {}).get("verdict") in failure_verdicts]
+    failures_html = "".join(_render_sample_block(qid) for qid in failure_ids)
+    failures_count_html = f'<p class="muted">{len(failure_ids)} of {len(common_ids)} questions had at least one pipeline fail. Click to expand each.</p>'
+
+    # Random sample (for spot-checking correct answers too).
+    random.seed(42)
+    sample_ids = random.sample(common_ids, min(20, len(common_ids)))
+    samples_html = "".join(_render_sample_block(qid) for qid in sample_ids)
 
     # Failure-mode taxonomy
     fail_html = '<table class="fail"><tr><th>Category</th>' + "".join(f'<th>A {v}</th><th>B {v}</th>' for v in ["wrong", "hallucinated", "refused", "error"]) + '</tr>'
@@ -320,6 +375,15 @@ def render(run_dir: Path, judged_a: list[dict], judged_b: list[dict],
     .sample-col h4 {font-size:0.85rem;color:#475569;margin-bottom:0.5rem}
     .sample-col pre {background:#f8fafc;padding:0.75rem;border-radius:6px;font-size:0.8rem;white-space:pre-wrap;max-height:300px;overflow:auto;border:1px solid #e2e8f0}
     .muted {color:#94a3b8;font-size:0.8rem;margin-top:0.5rem}
+    .vbadge {display:inline-block;padding:1px 8px;border-radius:10px;font-size:0.75rem;font-weight:700;text-transform:uppercase}
+    .v-correct {background:#d1fae5;color:#065f46}
+    .v-partial {background:#fef3c7;color:#92400e}
+    .v-wrong {background:#fee2e2;color:#991b1b}
+    .v-hallucinated {background:#fecaca;color:#7f1d1d;border:1px solid #b91c1c}
+    .v-refused {background:#e5e7eb;color:#374151}
+    .v-error {background:#1f2937;color:#f9fafb}
+    .sample-oracle {background:#fafafa;border-left:3px solid #3b82f6;padding:0.75rem 1rem;margin-top:0.75rem;font-size:0.8rem;line-height:1.6}
+    .sample-oracle code {background:#e2e8f0;padding:1px 6px;border-radius:3px;font-size:0.75rem}
     """
 
     html = f"""<!DOCTYPE html>
@@ -352,7 +416,12 @@ def render(run_dir: Path, judged_a: list[dict], judged_b: list[dict],
 
 <section><h2>Failure-Mode Taxonomy by Category</h2>{fail_html}</section>
 
-<section><h2>Sample Answers (20 random)</h2>{samples_html}</section>
+<section><h2>Failures — every question with at least one pipeline mistake</h2>
+{failures_count_html}
+{failures_html}
+</section>
+
+<section><h2>Spot-Check (20 random answers)</h2>{samples_html}</section>
 
 <section><h2>Methodology</h2>
 <p>10 dimensions per question. Deterministic dimensions (correctness for jql-derivable Qs, completeness, citation accuracy, hallucination rate, pagination completeness, refusal correctness, tool efficiency, latency) computed from the runner's structured output and the Jira REST oracle. Two analytical dimensions (analytical_correctness, jql_correctness) use Claude Opus on Vertex.</p>
