@@ -2,6 +2,58 @@
   "site": "https://sockcop.atlassian.net",
   "projects": [
     {
+      "key": "BUGS",
+      "name": "Software Bug Triage",
+      "total_issues": 100,
+      "issues_last_30d": 100,
+      "sample_keys": [
+        "BUGS-100",
+        "BUGS-99",
+        "BUGS-98",
+        "BUGS-97",
+        "BUGS-96"
+      ]
+    },
+    {
+      "key": "CRM",
+      "name": "Customer Support",
+      "total_issues": 100,
+      "issues_last_30d": 100,
+      "sample_keys": [
+        "CRM-100",
+        "CRM-99",
+        "CRM-98",
+        "CRM-97",
+        "CRM-96"
+      ]
+    },
+    {
+      "key": "OPS",
+      "name": "Infrastructure & SRE",
+      "total_issues": 100,
+      "issues_last_30d": 100,
+      "sample_keys": [
+        "OPS-100",
+        "OPS-99",
+        "OPS-98",
+        "OPS-97",
+        "OPS-96"
+      ]
+    },
+    {
+      "key": "PLAT",
+      "name": "Platform Engineering",
+      "total_issues": 100,
+      "issues_last_30d": 100,
+      "sample_keys": [
+        "PLAT-100",
+        "PLAT-99",
+        "PLAT-98",
+        "PLAT-97",
+        "PLAT-96"
+      ]
+    },
+    {
       "key": "SMP",
       "name": "Sample Project: Welcome to Jira!",
       "total_issues": 910,
@@ -16,6 +68,2391 @@
     }
   ],
   "deep": [
+    {
+      "project": "BUGS",
+      "samples": {
+        "recent": [
+          {
+            "key": "BUGS-100",
+            "summary": "Add input datetime normalization with deprecation warnings",
+            "status": "To Do",
+            "priority": "Medium",
+            "issuetype": "Subtask",
+            "assignee": "Jesus",
+            "labels": [
+              "eval-corpus"
+            ],
+            "description": "Parse incoming dates accepting: ISO 8601, Unix timestamp, common formats. Convert all to UTC internally. Log warning when receiving non-UTC datetime. Include deprecation notice in API response headers for old format usage.",
+            "created": "2026-05-09T11:00:57.071-0400",
+            "resolutiondate": null
+          },
+          {
+            "key": "BUGS-99",
+            "summary": "Implement datetime serializer with ISO 8601 UTC output",
+            "status": "To Do",
+            "priority": "Medium",
+            "issuetype": "Subtask",
+            "assignee": "Jesus",
+            "labels": [
+              "eval-corpus"
+            ],
+            "description": "Create custom JSON serializer that outputs all datetime as ISO 8601 with Z suffix. Configure as default for all API responses. Add unit tests covering edge cases: null, min date, far future, DST transitions.",
+            "created": "2026-05-09T11:00:56.176-0400",
+            "resolutiondate": null
+          },
+          {
+            "key": "BUGS-98",
+            "summary": "Audit all API responses for datetime field consistency",
+            "status": "To Do",
+            "priority": "Medium",
+            "issuetype": "Subtask",
+            "assignee": "Jesus",
+            "labels": [
+              "eval-corpus"
+            ],
+            "description": "Create script that calls all endpoints and validates datetime format in responses. Document current state of each field. Categorize fixes by risk level. Identify any database columns storing local time that need migration.",
+            "created": "2026-05-09T11:00:55.309-0400",
+            "resolutiondate": null
+          },
+          {
+            "key": "BUGS-97",
+            "summary": "Fix API returning inconsistent timezone handling for date fields",
+            "status": "To Do",
+            "priority": "High",
+            "issuetype": "Story",
+            "assignee": "Jesus",
+            "labels": [
+              "api-v2",
+              "bug",
+              "data-consistency",
+              "eval-corpus"
+            ],
+            "description": "Our API has inconsistent timezone handling that confuses integrations. Some endpoints return dates in UTC (correct), some in server timezone (incorrect), and some without any timezone indicator (ambiguous).Examples of current broken behavior:- created_at: '2024-01-15T10:30:00Z' (UTC with Z suffix - correct)- updated_at: '2024-01-15 05:30:00' (server time, no TZ - wrong)- due_date: '2024-01-20' (date only - sometimes wrong due to TZ)This causes bugs for integrations in different timezones. A due date set as January 20 in PST might appear as January 21 in UTC.Acceptance criteria:- All datetime fields returned in ISO 8601 format with Z suffix- All datetimes stored and returned in UTC- Date-only fields (due_date) clearly documented as timezone-agnostic- Accept multiple input formats but normalize to UTC- API clients receive consistent format regardless of server location- Add X-Request-Timezone header support for user-local rendering- Deprecation warning for clients sending non-UTC dates",
+            "created": "2026-05-09T11:00:54.355-0400",
+            "resolutiondate": null
+          },
+          {
+            "key": "BUGS-96",
+            "summary": "Create tutorial guides for common integration scenarios",
+            "status": "To Do",
+            "priority": "Medium",
+            "issuetype": "Subtask",
+            "assignee": "Jesus",
+            "labels": [
+              "eval-corpus"
+            ],
+            "description": "Write step-by-step guides: 'Building a Slack integration', 'Importing issues from CSV', 'Setting up CI/CD notifications', 'Creating a custom dashboard'. Include complete code samples and expected outputs. Link to relevant reference docs.",
+            "created": "2026-05-09T11:00:53.550-0400",
+            "resolutiondate": null
+          },
+          {
+            "key": "BUGS-95",
+            "summary": "Write code examples for all major endpoints",
+            "status": "To Do",
+            "priority": "Medium",
+            "issuetype": "Subtask",
+            "assignee": "Jesus",
+            "labels": [
+              "eval-corpus"
+            ],
+            "description": "Create example snippets in 5 languages for each endpoint. Use httpsnippet library for consistent generation. Include error handling in examples. Test all examples in CI to ensure they work. Add copy button to each snippet.",
+            "created": "2026-05-09T11:00:52.670-0400",
+            "resolutiondate": null
+          },
+          {
+            "key": "BUGS-94",
+            "summary": "Set up Stoplight or Redocly for OpenAPI documentation",
+            "status": "To Do",
+            "priority": "Medium",
+            "issuetype": "Subtask",
+            "assignee": "Jesus",
+            "labels": [
+              "eval-corpus"
+            ],
+            "description": "Evaluate Stoplight, Redocly, and ReadMe for API portal. Deploy chosen solution integrated with our OpenAPI spec. Configure CI to update docs on spec changes. Set up custom domain (docs.bugtracker.example).",
+            "created": "2026-05-09T11:00:51.660-0400",
+            "resolutiondate": null
+          },
+          {
+            "key": "BUGS-93",
+            "summary": "Create interactive API documentation portal with code examples",
+            "status": "To Do",
+            "priority": "Medium",
+            "issuetype": "Story",
+            "assignee": "Jesus",
+            "labels": [
+              "api-v2",
+              "developer-experience",
+              "documentation",
+              "eval-corpus"
+            ],
+            "description": "Our current API docs are a static Markdown file that's frequently out of date. Developers struggle to understand how to use the API and resort to trial-and-error or support tickets.We need a modern API portal that:- Stays in sync with actual API implementation- Provides interactive 'try it' functionality- Shows examples in multiple languages- Documents error scenarios, not just happy pathsCompetitor analysis: Stripe, Twilio, and GitHub have best-in-class API docs that we should emulate.Acceptance criteria:- Auto-generated from OpenAPI spec (single source of truth)- Interactive API console with authenticated requests- Code examples in Python, JavaScript, Ruby, Go, cURL- Searchable with good SEO for discoverability- Guides section for common use cases- Changelog with RSS feed for API updates- Response time: docs site loads in <2 seconds",
+            "created": "2026-05-09T11:00:50.562-0400",
+            "resolutiondate": null
+          },
+          {
+            "key": "BUGS-92",
+            "summary": "Add GraphQL subscription support for real-time updates",
+            "status": "To Do",
+            "priority": "Medium",
+            "issuetype": "Subtask",
+            "assignee": "Jesus",
+            "labels": [
+              "eval-corpus"
+            ],
+            "description": "Implement subscriptions using WebSocket transport. Support issueUpdated(projectId) subscription. Use Redis pub/sub to distribute events across server instances. Handle connection cleanup and reconnection gracefully.",
+            "created": "2026-05-09T11:00:49.457-0400",
+            "resolutiondate": null
+          },
+          {
+            "key": "BUGS-91",
+            "summary": "Implement query complexity analysis and limits",
+            "status": "To Do",
+            "priority": "Medium",
+            "issuetype": "Subtask",
+            "assignee": "Jesus",
+            "labels": [
+              "eval-corpus"
+            ],
+            "description": "Assign complexity scores: simple field = 1, connection = 10 + (first * 2). Calculate total complexity before execution. Reject queries over 500 points with helpful error. Include complexity in response extensions for client debugging.",
+            "created": "2026-05-09T11:00:48.457-0400",
+            "resolutiondate": null
+          }
+        ],
+        "To Do": [
+          {
+            "key": "BUGS-100",
+            "summary": "Add input datetime normalization with deprecation warnings",
+            "status": "To Do",
+            "priority": "Medium",
+            "issuetype": "Subtask",
+            "assignee": "Jesus",
+            "labels": [
+              "eval-corpus"
+            ],
+            "description": "Parse incoming dates accepting: ISO 8601, Unix timestamp, common formats. Convert all to UTC internally. Log warning when receiving non-UTC datetime. Include deprecation notice in API response headers for old format usage.",
+            "created": "2026-05-09T11:00:57.071-0400",
+            "resolutiondate": null
+          },
+          {
+            "key": "BUGS-99",
+            "summary": "Implement datetime serializer with ISO 8601 UTC output",
+            "status": "To Do",
+            "priority": "Medium",
+            "issuetype": "Subtask",
+            "assignee": "Jesus",
+            "labels": [
+              "eval-corpus"
+            ],
+            "description": "Create custom JSON serializer that outputs all datetime as ISO 8601 with Z suffix. Configure as default for all API responses. Add unit tests covering edge cases: null, min date, far future, DST transitions.",
+            "created": "2026-05-09T11:00:56.176-0400",
+            "resolutiondate": null
+          },
+          {
+            "key": "BUGS-98",
+            "summary": "Audit all API responses for datetime field consistency",
+            "status": "To Do",
+            "priority": "Medium",
+            "issuetype": "Subtask",
+            "assignee": "Jesus",
+            "labels": [
+              "eval-corpus"
+            ],
+            "description": "Create script that calls all endpoints and validates datetime format in responses. Document current state of each field. Categorize fixes by risk level. Identify any database columns storing local time that need migration.",
+            "created": "2026-05-09T11:00:55.309-0400",
+            "resolutiondate": null
+          },
+          {
+            "key": "BUGS-97",
+            "summary": "Fix API returning inconsistent timezone handling for date fields",
+            "status": "To Do",
+            "priority": "High",
+            "issuetype": "Story",
+            "assignee": "Jesus",
+            "labels": [
+              "api-v2",
+              "bug",
+              "data-consistency",
+              "eval-corpus"
+            ],
+            "description": "Our API has inconsistent timezone handling that confuses integrations. Some endpoints return dates in UTC (correct), some in server timezone (incorrect), and some without any timezone indicator (ambiguous).Examples of current broken behavior:- created_at: '2024-01-15T10:30:00Z' (UTC with Z suffix - correct)- updated_at: '2024-01-15 05:30:00' (server time, no TZ - wrong)- due_date: '2024-01-20' (date only - sometimes wrong due to TZ)This causes bugs for integrations in different timezones. A due date set as January 20 in PST might appear as January 21 in UTC.Acceptance criteria:- All datetime fields returned in ISO 8601 format with Z suffix- All datetimes stored and returned in UTC- Date-only fields (due_date) clearly documented as timezone-agnostic- Accept multiple input formats but normalize to UTC- API clients receive consistent format regardless of server location- Add X-Request-Timezone header support for user-local rendering- Deprecation warning for clients sending non-UTC dates",
+            "created": "2026-05-09T11:00:54.355-0400",
+            "resolutiondate": null
+          },
+          {
+            "key": "BUGS-96",
+            "summary": "Create tutorial guides for common integration scenarios",
+            "status": "To Do",
+            "priority": "Medium",
+            "issuetype": "Subtask",
+            "assignee": "Jesus",
+            "labels": [
+              "eval-corpus"
+            ],
+            "description": "Write step-by-step guides: 'Building a Slack integration', 'Importing issues from CSV', 'Setting up CI/CD notifications', 'Creating a custom dashboard'. Include complete code samples and expected outputs. Link to relevant reference docs.",
+            "created": "2026-05-09T11:00:53.550-0400",
+            "resolutiondate": null
+          },
+          {
+            "key": "BUGS-95",
+            "summary": "Write code examples for all major endpoints",
+            "status": "To Do",
+            "priority": "Medium",
+            "issuetype": "Subtask",
+            "assignee": "Jesus",
+            "labels": [
+              "eval-corpus"
+            ],
+            "description": "Create example snippets in 5 languages for each endpoint. Use httpsnippet library for consistent generation. Include error handling in examples. Test all examples in CI to ensure they work. Add copy button to each snippet.",
+            "created": "2026-05-09T11:00:52.670-0400",
+            "resolutiondate": null
+          },
+          {
+            "key": "BUGS-94",
+            "summary": "Set up Stoplight or Redocly for OpenAPI documentation",
+            "status": "To Do",
+            "priority": "Medium",
+            "issuetype": "Subtask",
+            "assignee": "Jesus",
+            "labels": [
+              "eval-corpus"
+            ],
+            "description": "Evaluate Stoplight, Redocly, and ReadMe for API portal. Deploy chosen solution integrated with our OpenAPI spec. Configure CI to update docs on spec changes. Set up custom domain (docs.bugtracker.example).",
+            "created": "2026-05-09T11:00:51.660-0400",
+            "resolutiondate": null
+          },
+          {
+            "key": "BUGS-93",
+            "summary": "Create interactive API documentation portal with code examples",
+            "status": "To Do",
+            "priority": "Medium",
+            "issuetype": "Story",
+            "assignee": "Jesus",
+            "labels": [
+              "api-v2",
+              "developer-experience",
+              "documentation",
+              "eval-corpus"
+            ],
+            "description": "Our current API docs are a static Markdown file that's frequently out of date. Developers struggle to understand how to use the API and resort to trial-and-error or support tickets.We need a modern API portal that:- Stays in sync with actual API implementation- Provides interactive 'try it' functionality- Shows examples in multiple languages- Documents error scenarios, not just happy pathsCompetitor analysis: Stripe, Twilio, and GitHub have best-in-class API docs that we should emulate.Acceptance criteria:- Auto-generated from OpenAPI spec (single source of truth)- Interactive API console with authenticated requests- Code examples in Python, JavaScript, Ruby, Go, cURL- Searchable with good SEO for discoverability- Guides section for common use cases- Changelog with RSS feed for API updates- Response time: docs site loads in <2 seconds",
+            "created": "2026-05-09T11:00:50.562-0400",
+            "resolutiondate": null
+          },
+          {
+            "key": "BUGS-92",
+            "summary": "Add GraphQL subscription support for real-time updates",
+            "status": "To Do",
+            "priority": "Medium",
+            "issuetype": "Subtask",
+            "assignee": "Jesus",
+            "labels": [
+              "eval-corpus"
+            ],
+            "description": "Implement subscriptions using WebSocket transport. Support issueUpdated(projectId) subscription. Use Redis pub/sub to distribute events across server instances. Handle connection cleanup and reconnection gracefully.",
+            "created": "2026-05-09T11:00:49.457-0400",
+            "resolutiondate": null
+          },
+          {
+            "key": "BUGS-91",
+            "summary": "Implement query complexity analysis and limits",
+            "status": "To Do",
+            "priority": "Medium",
+            "issuetype": "Subtask",
+            "assignee": "Jesus",
+            "labels": [
+              "eval-corpus"
+            ],
+            "description": "Assign complexity scores: simple field = 1, connection = 10 + (first * 2). Calculate total complexity before execution. Reject queries over 500 points with helpful error. Include complexity in response extensions for client debugging.",
+            "created": "2026-05-09T11:00:48.457-0400",
+            "resolutiondate": null
+          }
+        ],
+        "High": [
+          {
+            "key": "BUGS-97",
+            "summary": "Fix API returning inconsistent timezone handling for date fields",
+            "status": "To Do",
+            "priority": "High",
+            "issuetype": "Story",
+            "assignee": "Jesus",
+            "labels": [
+              "api-v2",
+              "bug",
+              "data-consistency",
+              "eval-corpus"
+            ],
+            "description": "Our API has inconsistent timezone handling that confuses integrations. Some endpoints return dates in UTC (correct), some in server timezone (incorrect), and some without any timezone indicator (ambiguous).Examples of current broken behavior:- created_at: '2024-01-15T10:30:00Z' (UTC with Z suffix - correct)- updated_at: '2024-01-15 05:30:00' (server time, no TZ - wrong)- due_date: '2024-01-20' (date only - sometimes wrong due to TZ)This causes bugs for integrations in different timezones. A due date set as January 20 in PST might appear as January 21 in UTC.Acceptance criteria:- All datetime fields returned in ISO 8601 format with Z suffix- All datetimes stored and returned in UTC- Date-only fields (due_date) clearly documented as timezone-agnostic- Accept multiple input formats but normalize to UTC- API clients receive consistent format regardless of server location- Add X-Request-Timezone header support for user-local rendering- Deprecation warning for clients sending non-UTC dates",
+            "created": "2026-05-09T11:00:54.355-0400",
+            "resolutiondate": null
+          },
+          {
+            "key": "BUGS-85",
+            "summary": "Fix rate limiter incorrectly counting OPTIONS preflight requests",
+            "status": "To Do",
+            "priority": "High",
+            "issuetype": "Story",
+            "assignee": "Jesus",
+            "labels": [
+              "api-v2",
+              "bug",
+              "eval-corpus",
+              "rate-limiting"
+            ],
+            "description": "Our rate limiter counts CORS preflight OPTIONS requests against the user's quota. This means that a single browser-based API call actually consumes 2 quota units (OPTIONS + actual request). Users are hitting rate limits at half the expected request volume.The issue particularly affects SPA integrations which trigger preflight for every non-simple request. One customer integration sends 50 actual requests but consumes 100 rate limit quota.Additionally, the rate limit headers aren't being set on OPTIONS responses, so client-side rate limiting logic can't adapt.Current limits: 100 requests/minute for free tier, 1000/minute for paidExpected behavior: OPTIONS shouldn't count, paid tier should have higher limitsAcceptance criteria:- OPTIONS requests excluded from rate limiting- X-RateLimit-* headers present on all responses including OPTIONS- Add X-RateLimit-Resource header to distinguish endpoints- Rate limits configurable per API key / OAuth scope- Return 429 with Retry-After header when limited- Rate limit by API key, not by IP (except for unauthenticated)- Add rate limit dashboard for users to monitor usage",
+            "created": "2026-05-09T11:00:42.645-0400",
+            "resolutiondate": null
+          },
+          {
+            "key": "BUGS-77",
+            "summary": "Design and implement consistent REST API v2 resource structure",
+            "status": "To Do",
+            "priority": "High",
+            "issuetype": "Story",
+            "assignee": "Jesus",
+            "labels": [
+              "api-v2",
+              "architecture",
+              "eval-corpus"
+            ],
+            "description": "API v1 has inconsistent naming conventions, mixed pluralization, and non-RESTful endpoint design that confuses developers. For example, we have /issue/{id} (singular) but /projects/{id} (plural). Some endpoints use query params for IDs, others use path params. Error responses vary wildly.API v2 needs a clean, consistent design following REST best practices and JSON:API or similar specification.Inconsistencies to fix:- /api/v1/issue/{id} vs /api/v1/getProject?id={id}- Error responses: sometimes {error: string}, sometimes {message: string, code: int}- Mixed camelCase and snake_case in same response- No HATEOAS links for navigation- No pagination consistency (some use page/limit, some offset/count)Acceptance criteria:- All resources use plural nouns: /issues, /projects, /users- Consistent error response format across all endpoints- snake_case for all JSON fields- Pagination using cursor-based approach with next/prev links- Include hypermedia links for discoverability- API versioning via URL path (/api/v2/)- Design documented in OpenAPI 3.1 spec",
+            "created": "2026-05-09T11:00:34.673-0400",
+            "resolutiondate": null
+          },
+          {
+            "key": "BUGS-72",
+            "summary": "Fix issue list scroll performance jank on both mobile platforms",
+            "status": "To Do",
+            "priority": "High",
+            "issuetype": "Story",
+            "assignee": "Jesus",
+            "labels": [
+              "eval-corpus",
+              "mobile-android",
+              "mobile-ios",
+              "performance"
+            ],
+            "description": "The issue list screen exhibits noticeable stutter and frame drops when scrolling, especially when issues contain inline images or code blocks. Frame rate drops to 15-20fps on mid-range devices.Profiling reveals several causes:1. Rich text rendering (markdown) happens on main thread during scroll2. Avatar images are loaded synchronously, blocking scroll3. Cell height calculation is expensive and not cached4. Too many reused cells (100+ item list holds 50 cells in memory)User feedback: 'Scrolling feels like an Android phone from 2015'This issue affects user perception of app quality significantly and impacts our App Store ratings.Acceptance criteria:- Maintain 60fps scrolling on devices 3 years old or newer- Pre-render markdown off main thread- Skeleton loading for images during scroll- Cell heights cached after first layout- Virtual list rendering (only visible cells instantiated)- No scrolling-related ANRs on Android",
+            "created": "2026-05-09T11:00:30.041-0400",
+            "resolutiondate": null
+          },
+          {
+            "key": "BUGS-60",
+            "summary": "Fix excessive battery drain from background sync on both platforms",
+            "status": "To Do",
+            "priority": "High",
+            "issuetype": "Story",
+            "assignee": "Jesus",
+            "labels": [
+              "eval-corpus",
+              "mobile-android",
+              "mobile-ios",
+              "performance"
+            ],
+            "description": "Users have reported that our mobile apps drain battery significantly even when not in use. iOS users see our app in the battery usage list consuming 15-20% of daily battery. Android users report the app keeps the device awake.Investigation reveals multiple issues:1. Background sync runs every 5 minutes regardless of user settings2. Sync wakes the radio even when there's no new data3. Location services are requested but not used (legacy code)4. WebSocket connection kept alive in background unnecessarilyApple has warned us about excessive background activity and may reject our next update.Acceptance criteria:- Background sync respects system low-power mode- Sync frequency: 15min normal, 30min low-power, off when battery <20%- Remove unused location permission request- Close WebSocket when app is backgrounded >30 seconds- Battery usage should drop by 70% in background- Add background activity settings in app preferences",
+            "created": "2026-05-09T11:00:18.220-0400",
+            "resolutiondate": null
+          },
+          {
+            "key": "BUGS-56",
+            "summary": "Android app network requests fail silently on poor connections",
+            "status": "To Do",
+            "priority": "High",
+            "issuetype": "Story",
+            "assignee": "Jesus",
+            "labels": [
+              "eval-corpus",
+              "mobile-android",
+              "network",
+              "ux"
+            ],
+            "description": "Users on poor network connections (3G, spotty WiFi) report that the Android app appears to hang indefinitely when loading data. There's no error message, no retry button, and no indication that the request failed. Users have to force-quit and restart the app.The issue is that our network layer uses OkHttp with a 60-second timeout, but we don't handle the timeout exception at the UI layer. The loading spinner continues indefinitely after the request fails.Additionally, we're not implementing any retry logic for transient failures. Users have to manually retry by pull-to-refresh, but this also fails silently.Acceptance criteria:- Timeout reduced to 15 seconds with clear error message- Automatic retry with exponential backoff (3 attempts)- 'Retry' button shown after all retries exhausted- Offline mode detection with appropriate UI state- Network quality indicator in app header- Cache last successful data and show stale data with warning",
+            "created": "2026-05-09T11:00:13.842-0400",
+            "resolutiondate": null
+          },
+          {
+            "key": "BUGS-35",
+            "summary": "Search relevance scoring ignores issue severity and recency",
+            "status": "To Do",
+            "priority": "High",
+            "issuetype": "Story",
+            "assignee": "Jesus",
+            "labels": [
+              "eval-corpus",
+              "relevance",
+              "search"
+            ],
+            "description": "Users complain that searching for common terms like 'login error' returns ancient, closed issues instead of recent active bugs. Our current search uses basic BM25 without any boost for recency, severity, or issue state.Example search: 'payment failed' returns a 2019 closed issue as the first result, while there are 3 open P1 issues from this week on page 2.User feedback from support ticket #4521: 'I have to add date filters to every search just to find relevant bugs. This wastes so much time.'We need a relevance tuning system that considers:- Text match (current, keep as baseline)- Recency decay (issues older than 90 days score lower)- Issue state (open issues rank higher than closed)- Severity (P1/P2 issues get a boost)- User interaction (issues you created or are assigned to rank higher)Acceptance criteria:- Implement function_score query with configurable boosters- A/B test new relevance vs old with click-through metrics- Power users can adjust relevance weights in preferences- Search explain mode for debugging relevance scores- 40% improvement in 'first result clicked' metric",
+            "created": "2026-05-09T10:59:55.779-0400",
+            "resolutiondate": null
+          },
+          {
+            "key": "BUGS-18",
+            "summary": "MFA enrollment flow crashes on Android 12+ devices with biometric API",
+            "status": "To Do",
+            "priority": "High",
+            "issuetype": "Story",
+            "assignee": "Jesus",
+            "labels": [
+              "auth",
+              "crash",
+              "eval-corpus",
+              "mobile-android"
+            ],
+            "description": "Users attempting to enroll in biometric MFA on Android 12 and 13 devices experience a crash when the biometric prompt appears. The crash occurs in the native BiometricPrompt callback, with a SecurityException about 'caller not allowed to perform this operation'.This affects approximately 34% of our Android user base. The issue started after our update to AndroidX Biometric library 1.2.0, which has stricter requirements around the crypto object initialization.Stack trace shows: 'java.lang.SecurityException: android.permission.USE_BIOMETRIC denied' even though the permission is declared and granted.The actual issue is that we're calling BiometricPrompt.authenticate() from a background thread after a network call, but Android 12 requires this to be called from the main thread with proper Activity context.Acceptance criteria:- MFA enrollment works on all Android 12+ devices- Biometric prompt appears correctly with app branding- Graceful fallback to PIN/pattern if biometric unavailable- No ANR warnings from main thread operations- Telemetry for enrollment success/failure rates by Android version",
+            "created": "2026-05-09T10:59:40.621-0400",
+            "resolutiondate": null
+          },
+          {
+            "key": "BUGS-14",
+            "summary": "Session invalidation not propagating to mobile apps after password change",
+            "status": "To Do",
+            "priority": "High",
+            "issuetype": "Story",
+            "assignee": "Jesus",
+            "labels": [
+              "auth",
+              "eval-corpus",
+              "mobile-android",
+              "mobile-ios",
+              "security"
+            ],
+            "description": "When users change their password on the web app, their mobile sessions are supposed to be invalidated. However, the mobile apps continue to work with their existing tokens until they naturally expire (24 hours). This is a security concern as users expect password changes to immediately log out all devices.Investigation shows the session revocation event is published to Redis, but the mobile apps don't have a persistent connection to receive it. They only check session validity on app foreground, and even then, the check uses a cached endpoint response.User report: 'I changed my password because I thought my phone was stolen, but my old phone still had access to my account for hours'Acceptance criteria:- Mobile apps should invalidate sessions within 5 minutes of password change- Implement push notification for session revocation- Add silent push for iOS and high-priority FCM for Android- Fall back to polling every 5 minutes if push isn't available- User should see 'Session expired, please log in again' message, not a generic error",
+            "created": "2026-05-09T10:59:37.144-0400",
+            "resolutiondate": null
+          },
+          {
+            "key": "BUGS-6",
+            "summary": "Memory leak in auth state subscription causing dashboard crashes",
+            "status": "To Do",
+            "priority": "High",
+            "issuetype": "Story",
+            "assignee": "Jesus",
+            "labels": [
+              "auth",
+              "dashboard",
+              "eval-corpus",
+              "memory-leak"
+            ],
+            "description": "The dashboard component subscribes to auth state changes but fails to unsubscribe on unmount when users navigate away quickly. Over time, this leads to thousands of orphaned subscriptions that consume memory and eventually crash the tab.We've received 47 crash reports this month with heap snapshots showing AuthStateManager holding references to unmounted React components. The issue is most pronounced for users who frequently switch between dashboard and other views.Technical investigation shows the useAuthState hook is missing cleanup in its useEffect. Additionally, the AuthStateManager singleton uses a Set for subscribers but the cleanup function references a different object due to closure issues.Acceptance criteria:- Fix the useEffect cleanup to properly unsubscribe- Refactor AuthStateManager to use WeakRef where possible- Add memory leak detection to our CI pipeline- Dashboard should maintain stable memory usage over 1 hour of active use- Add logging when subscription count exceeds reasonable threshold (>50)",
+            "created": "2026-05-09T10:59:30.164-0400",
+            "resolutiondate": null
+          }
+        ],
+        "Subtask": [
+          {
+            "key": "BUGS-100",
+            "summary": "Add input datetime normalization with deprecation warnings",
+            "status": "To Do",
+            "priority": "Medium",
+            "issuetype": "Subtask",
+            "assignee": "Jesus",
+            "labels": [
+              "eval-corpus"
+            ],
+            "description": "Parse incoming dates accepting: ISO 8601, Unix timestamp, common formats. Convert all to UTC internally. Log warning when receiving non-UTC datetime. Include deprecation notice in API response headers for old format usage.",
+            "created": "2026-05-09T11:00:57.071-0400",
+            "resolutiondate": null
+          },
+          {
+            "key": "BUGS-99",
+            "summary": "Implement datetime serializer with ISO 8601 UTC output",
+            "status": "To Do",
+            "priority": "Medium",
+            "issuetype": "Subtask",
+            "assignee": "Jesus",
+            "labels": [
+              "eval-corpus"
+            ],
+            "description": "Create custom JSON serializer that outputs all datetime as ISO 8601 with Z suffix. Configure as default for all API responses. Add unit tests covering edge cases: null, min date, far future, DST transitions.",
+            "created": "2026-05-09T11:00:56.176-0400",
+            "resolutiondate": null
+          },
+          {
+            "key": "BUGS-98",
+            "summary": "Audit all API responses for datetime field consistency",
+            "status": "To Do",
+            "priority": "Medium",
+            "issuetype": "Subtask",
+            "assignee": "Jesus",
+            "labels": [
+              "eval-corpus"
+            ],
+            "description": "Create script that calls all endpoints and validates datetime format in responses. Document current state of each field. Categorize fixes by risk level. Identify any database columns storing local time that need migration.",
+            "created": "2026-05-09T11:00:55.309-0400",
+            "resolutiondate": null
+          },
+          {
+            "key": "BUGS-96",
+            "summary": "Create tutorial guides for common integration scenarios",
+            "status": "To Do",
+            "priority": "Medium",
+            "issuetype": "Subtask",
+            "assignee": "Jesus",
+            "labels": [
+              "eval-corpus"
+            ],
+            "description": "Write step-by-step guides: 'Building a Slack integration', 'Importing issues from CSV', 'Setting up CI/CD notifications', 'Creating a custom dashboard'. Include complete code samples and expected outputs. Link to relevant reference docs.",
+            "created": "2026-05-09T11:00:53.550-0400",
+            "resolutiondate": null
+          },
+          {
+            "key": "BUGS-95",
+            "summary": "Write code examples for all major endpoints",
+            "status": "To Do",
+            "priority": "Medium",
+            "issuetype": "Subtask",
+            "assignee": "Jesus",
+            "labels": [
+              "eval-corpus"
+            ],
+            "description": "Create example snippets in 5 languages for each endpoint. Use httpsnippet library for consistent generation. Include error handling in examples. Test all examples in CI to ensure they work. Add copy button to each snippet.",
+            "created": "2026-05-09T11:00:52.670-0400",
+            "resolutiondate": null
+          },
+          {
+            "key": "BUGS-94",
+            "summary": "Set up Stoplight or Redocly for OpenAPI documentation",
+            "status": "To Do",
+            "priority": "Medium",
+            "issuetype": "Subtask",
+            "assignee": "Jesus",
+            "labels": [
+              "eval-corpus"
+            ],
+            "description": "Evaluate Stoplight, Redocly, and ReadMe for API portal. Deploy chosen solution integrated with our OpenAPI spec. Configure CI to update docs on spec changes. Set up custom domain (docs.bugtracker.example).",
+            "created": "2026-05-09T11:00:51.660-0400",
+            "resolutiondate": null
+          },
+          {
+            "key": "BUGS-92",
+            "summary": "Add GraphQL subscription support for real-time updates",
+            "status": "To Do",
+            "priority": "Medium",
+            "issuetype": "Subtask",
+            "assignee": "Jesus",
+            "labels": [
+              "eval-corpus"
+            ],
+            "description": "Implement subscriptions using WebSocket transport. Support issueUpdated(projectId) subscription. Use Redis pub/sub to distribute events across server instances. Handle connection cleanup and reconnection gracefully.",
+            "created": "2026-05-09T11:00:49.457-0400",
+            "resolutiondate": null
+          },
+          {
+            "key": "BUGS-91",
+            "summary": "Implement query complexity analysis and limits",
+            "status": "To Do",
+            "priority": "Medium",
+            "issuetype": "Subtask",
+            "assignee": "Jesus",
+            "labels": [
+              "eval-corpus"
+            ],
+            "description": "Assign complexity scores: simple field = 1, connection = 10 + (first * 2). Calculate total complexity before execution. Reject queries over 500 points with helpful error. Include complexity in response extensions for client debugging.",
+            "created": "2026-05-09T11:00:48.457-0400",
+            "resolutiondate": null
+          },
+          {
+            "key": "BUGS-90",
+            "summary": "Design GraphQL schema and implement resolvers",
+            "status": "To Do",
+            "priority": "Medium",
+            "issuetype": "Subtask",
+            "assignee": "Jesus",
+            "labels": [
+              "eval-corpus"
+            ],
+            "description": "Define types for all domain models with appropriate nullability. Implement dataloaders to prevent N+1 queries. Add filter input types for common query patterns. Support field-level authorization where needed.",
+            "created": "2026-05-09T11:00:47.442-0400",
+            "resolutiondate": null
+          },
+          {
+            "key": "BUGS-88",
+            "summary": "Build user-facing rate limit monitoring dashboard",
+            "status": "To Do",
+            "priority": "Medium",
+            "issuetype": "Subtask",
+            "assignee": "Jesus",
+            "labels": [
+              "eval-corpus"
+            ],
+            "description": "Show current usage vs limit in developer settings. Display graph of usage over last 24 hours. Warn when approaching limits. Show which endpoints consume the most quota. Link to upgrade options when consistently near limit.",
+            "created": "2026-05-09T11:00:45.571-0400",
+            "resolutiondate": null
+          }
+        ]
+      }
+    },
+    {
+      "project": "CRM",
+      "samples": {
+        "recent": [
+          {
+            "key": "CRM-100",
+            "summary": "Create alerting integration with PagerDuty and engineering Slack",
+            "status": "To Do",
+            "priority": "Medium",
+            "issuetype": "Subtask",
+            "assignee": "Jesus",
+            "labels": [
+              "eval-corpus"
+            ],
+            "description": "PagerDuty for P1 patterns (>5x baseline in critical category). Slack for P2 (2-5x baseline). Include sample ticket links and suggested investigation queries.",
+            "created": "2026-05-09T11:07:30.842-0400",
+            "resolutiondate": null
+          },
+          {
+            "key": "CRM-99",
+            "summary": "Implement anomaly detection algorithm with baseline comparison",
+            "status": "To Do",
+            "priority": "Medium",
+            "issuetype": "Subtask",
+            "assignee": "Jesus",
+            "labels": [
+              "eval-corpus"
+            ],
+            "description": "Calculate dynamic baseline per segment. Detect statistically significant deviations. Account for expected patterns (launches, marketing events). Tunable threshold.",
+            "created": "2026-05-09T11:07:29.800-0400",
+            "resolutiondate": null
+          },
+          {
+            "key": "CRM-98",
+            "summary": "Build ticket volume monitoring with segment breakdowns",
+            "status": "To Do",
+            "priority": "Medium",
+            "issuetype": "Subtask",
+            "assignee": "Jesus",
+            "labels": [
+              "eval-corpus"
+            ],
+            "description": "Streaming pipeline from ticket creation events. Aggregate by 5-minute windows. Segment by category, app version, OS, and geography. Store for trend analysis.",
+            "created": "2026-05-09T11:07:28.774-0400",
+            "resolutiondate": null
+          },
+          {
+            "key": "CRM-97",
+            "summary": "Create Technical Issue Pattern Detection for Proactive Engineering Alerts",
+            "status": "To Do",
+            "priority": "Low",
+            "issuetype": "Story",
+            "assignee": "Jesus",
+            "labels": [
+              "eval-corpus",
+              "feature-requests",
+              "monitoring"
+            ],
+            "description": "We sometimes detect emerging issues through ticket volume spikes before monitoring catches them. Need automated pattern detection to alert engineering proactively.Acceptance Criteria:- Real-time monitoring of ticket volume by category, app version, and device type- Alert when ticket volume exceeds 2x baseline for any segment- Alert includes: sample tickets, common keywords, affected user count estimate- Engineering on-call receives PagerDuty alert for critical patterns- Dashboard showing current patterns vs. baseline- Tunable sensitivity to reduce false alarmsRecent example: Android 14 update caused login failures, detected 4 hours before monitoring showed API errors because failures were client-side.Baseline calculation: rolling 7-day average by hour of week (account for normal patterns like Sunday dips).",
+            "created": "2026-05-09T11:07:27.832-0400",
+            "resolutiondate": null
+          },
+          {
+            "key": "CRM-96",
+            "summary": "Build ticket-to-incident linking and duplicate prevention",
+            "status": "To Do",
+            "priority": "Medium",
+            "issuetype": "Subtask",
+            "assignee": "Jesus",
+            "labels": [
+              "eval-corpus"
+            ],
+            "description": "Agent sees banner when active incident matches ticket keywords. One-click link to incident. Linked tickets auto-updated when incident resolves. Track tickets avoided.",
+            "created": "2026-05-09T11:07:26.832-0400",
+            "resolutiondate": null
+          },
+          {
+            "key": "CRM-95",
+            "summary": "Integrate incident detection with PagerDuty and manual escalation",
+            "status": "To Do",
+            "priority": "Medium",
+            "issuetype": "Subtask",
+            "assignee": "Jesus",
+            "labels": [
+              "eval-corpus"
+            ],
+            "description": "Auto-create incident from PagerDuty alerts tagged 'customer-facing'. Manual creation flow for support-detected issues. Severity mapping. Auto-resolve when PagerDuty resolves.",
+            "created": "2026-05-09T11:07:25.689-0400",
+            "resolutiondate": null
+          },
+          {
+            "key": "CRM-94",
+            "summary": "Evaluate and implement status page solution (Statuspage.io vs custom)",
+            "status": "To Do",
+            "priority": "Medium",
+            "issuetype": "Subtask",
+            "assignee": "Jesus",
+            "labels": [
+              "eval-corpus"
+            ],
+            "description": "Criteria: cost, customization, API access, subscriber management, incident update workflow. Document decision rationale. Target launch in 3 weeks.",
+            "created": "2026-05-09T11:07:24.484-0400",
+            "resolutiondate": null
+          },
+          {
+            "key": "CRM-93",
+            "summary": "Build Known Issues Status Page with Customer Subscription",
+            "status": "To Do",
+            "priority": "Medium",
+            "issuetype": "Story",
+            "assignee": "Jesus",
+            "labels": [
+              "customer-experience",
+              "eval-corpus",
+              "feature-requests"
+            ],
+            "description": "When there's a widespread issue (API outage, payment processor down), we get flooded with duplicate tickets. Need public status page where customers can see known issues and subscribe for updates.Acceptance Criteria:- Public status page showing active incidents and scheduled maintenance- Customers can subscribe via email or push notification to specific incident- Incident updates automatically sent to subscribers- Link to status page shown on support contact form when related incident active- Agent can link ticket to incident, preventing duplicate triage- Historical incidents visible for 90 days with postmortem summariesIntegrate with existing PagerDuty for incident detection. Manual escalation path for customer-reported issues that become incidents.Consider: Statuspage.io vs. custom build. Leaning toward Statuspage for speed, evaluate custom for future.",
+            "created": "2026-05-09T11:07:23.444-0400",
+            "resolutiondate": null
+          },
+          {
+            "key": "CRM-92",
+            "summary": "Integrate form data into support ticket display and search",
+            "status": "To Do",
+            "priority": "Medium",
+            "issuetype": "Subtask",
+            "assignee": "Jesus",
+            "labels": [
+              "eval-corpus"
+            ],
+            "description": "Structured display in ticket view. Filterable in agent queue (e.g., all iOS 16 issues). Include in escalation data sent to engineering. Analytics on common environments.",
+            "created": "2026-05-09T11:07:22.348-0400",
+            "resolutiondate": null
+          },
+          {
+            "key": "CRM-91",
+            "summary": "Design and implement technical environment collection form",
+            "status": "To Do",
+            "priority": "Medium",
+            "issuetype": "Subtask",
+            "assignee": "Jesus",
+            "labels": [
+              "eval-corpus"
+            ],
+            "description": "Clean UI that doesn't overwhelm users. Progressive disclosure for technical details. Validation on required fields. Save partial completion if user abandons.",
+            "created": "2026-05-09T11:07:21.410-0400",
+            "resolutiondate": null
+          }
+        ],
+        "To Do": [
+          {
+            "key": "CRM-100",
+            "summary": "Create alerting integration with PagerDuty and engineering Slack",
+            "status": "To Do",
+            "priority": "Medium",
+            "issuetype": "Subtask",
+            "assignee": "Jesus",
+            "labels": [
+              "eval-corpus"
+            ],
+            "description": "PagerDuty for P1 patterns (>5x baseline in critical category). Slack for P2 (2-5x baseline). Include sample ticket links and suggested investigation queries.",
+            "created": "2026-05-09T11:07:30.842-0400",
+            "resolutiondate": null
+          },
+          {
+            "key": "CRM-99",
+            "summary": "Implement anomaly detection algorithm with baseline comparison",
+            "status": "To Do",
+            "priority": "Medium",
+            "issuetype": "Subtask",
+            "assignee": "Jesus",
+            "labels": [
+              "eval-corpus"
+            ],
+            "description": "Calculate dynamic baseline per segment. Detect statistically significant deviations. Account for expected patterns (launches, marketing events). Tunable threshold.",
+            "created": "2026-05-09T11:07:29.800-0400",
+            "resolutiondate": null
+          },
+          {
+            "key": "CRM-98",
+            "summary": "Build ticket volume monitoring with segment breakdowns",
+            "status": "To Do",
+            "priority": "Medium",
+            "issuetype": "Subtask",
+            "assignee": "Jesus",
+            "labels": [
+              "eval-corpus"
+            ],
+            "description": "Streaming pipeline from ticket creation events. Aggregate by 5-minute windows. Segment by category, app version, OS, and geography. Store for trend analysis.",
+            "created": "2026-05-09T11:07:28.774-0400",
+            "resolutiondate": null
+          },
+          {
+            "key": "CRM-97",
+            "summary": "Create Technical Issue Pattern Detection for Proactive Engineering Alerts",
+            "status": "To Do",
+            "priority": "Low",
+            "issuetype": "Story",
+            "assignee": "Jesus",
+            "labels": [
+              "eval-corpus",
+              "feature-requests",
+              "monitoring"
+            ],
+            "description": "We sometimes detect emerging issues through ticket volume spikes before monitoring catches them. Need automated pattern detection to alert engineering proactively.Acceptance Criteria:- Real-time monitoring of ticket volume by category, app version, and device type- Alert when ticket volume exceeds 2x baseline for any segment- Alert includes: sample tickets, common keywords, affected user count estimate- Engineering on-call receives PagerDuty alert for critical patterns- Dashboard showing current patterns vs. baseline- Tunable sensitivity to reduce false alarmsRecent example: Android 14 update caused login failures, detected 4 hours before monitoring showed API errors because failures were client-side.Baseline calculation: rolling 7-day average by hour of week (account for normal patterns like Sunday dips).",
+            "created": "2026-05-09T11:07:27.832-0400",
+            "resolutiondate": null
+          },
+          {
+            "key": "CRM-96",
+            "summary": "Build ticket-to-incident linking and duplicate prevention",
+            "status": "To Do",
+            "priority": "Medium",
+            "issuetype": "Subtask",
+            "assignee": "Jesus",
+            "labels": [
+              "eval-corpus"
+            ],
+            "description": "Agent sees banner when active incident matches ticket keywords. One-click link to incident. Linked tickets auto-updated when incident resolves. Track tickets avoided.",
+            "created": "2026-05-09T11:07:26.832-0400",
+            "resolutiondate": null
+          },
+          {
+            "key": "CRM-95",
+            "summary": "Integrate incident detection with PagerDuty and manual escalation",
+            "status": "To Do",
+            "priority": "Medium",
+            "issuetype": "Subtask",
+            "assignee": "Jesus",
+            "labels": [
+              "eval-corpus"
+            ],
+            "description": "Auto-create incident from PagerDuty alerts tagged 'customer-facing'. Manual creation flow for support-detected issues. Severity mapping. Auto-resolve when PagerDuty resolves.",
+            "created": "2026-05-09T11:07:25.689-0400",
+            "resolutiondate": null
+          },
+          {
+            "key": "CRM-94",
+            "summary": "Evaluate and implement status page solution (Statuspage.io vs custom)",
+            "status": "To Do",
+            "priority": "Medium",
+            "issuetype": "Subtask",
+            "assignee": "Jesus",
+            "labels": [
+              "eval-corpus"
+            ],
+            "description": "Criteria: cost, customization, API access, subscriber management, incident update workflow. Document decision rationale. Target launch in 3 weeks.",
+            "created": "2026-05-09T11:07:24.484-0400",
+            "resolutiondate": null
+          },
+          {
+            "key": "CRM-93",
+            "summary": "Build Known Issues Status Page with Customer Subscription",
+            "status": "To Do",
+            "priority": "Medium",
+            "issuetype": "Story",
+            "assignee": "Jesus",
+            "labels": [
+              "customer-experience",
+              "eval-corpus",
+              "feature-requests"
+            ],
+            "description": "When there's a widespread issue (API outage, payment processor down), we get flooded with duplicate tickets. Need public status page where customers can see known issues and subscribe for updates.Acceptance Criteria:- Public status page showing active incidents and scheduled maintenance- Customers can subscribe via email or push notification to specific incident- Incident updates automatically sent to subscribers- Link to status page shown on support contact form when related incident active- Agent can link ticket to incident, preventing duplicate triage- Historical incidents visible for 90 days with postmortem summariesIntegrate with existing PagerDuty for incident detection. Manual escalation path for customer-reported issues that become incidents.Consider: Statuspage.io vs. custom build. Leaning toward Statuspage for speed, evaluate custom for future.",
+            "created": "2026-05-09T11:07:23.444-0400",
+            "resolutiondate": null
+          },
+          {
+            "key": "CRM-92",
+            "summary": "Integrate form data into support ticket display and search",
+            "status": "To Do",
+            "priority": "Medium",
+            "issuetype": "Subtask",
+            "assignee": "Jesus",
+            "labels": [
+              "eval-corpus"
+            ],
+            "description": "Structured display in ticket view. Filterable in agent queue (e.g., all iOS 16 issues). Include in escalation data sent to engineering. Analytics on common environments.",
+            "created": "2026-05-09T11:07:22.348-0400",
+            "resolutiondate": null
+          },
+          {
+            "key": "CRM-91",
+            "summary": "Design and implement technical environment collection form",
+            "status": "To Do",
+            "priority": "Medium",
+            "issuetype": "Subtask",
+            "assignee": "Jesus",
+            "labels": [
+              "eval-corpus"
+            ],
+            "description": "Clean UI that doesn't overwhelm users. Progressive disclosure for technical details. Validation on required fields. Save partial completion if user abandons.",
+            "created": "2026-05-09T11:07:21.410-0400",
+            "resolutiondate": null
+          }
+        ],
+        "High": [
+          {
+            "key": "CRM-85",
+            "summary": "Develop Automated Troubleshooting Guides Based on Error Messages",
+            "status": "To Do",
+            "priority": "High",
+            "issuetype": "Story",
+            "assignee": "Jesus",
+            "labels": [
+              "automation",
+              "eval-corpus",
+              "feature-requests"
+            ],
+            "description": "Users report errors with screenshot of error message but no context. Agents spend time looking up error codes. We should auto-match error messages to known issues and troubleshooting steps.Acceptance Criteria:- When ticket contains screenshot or text matching known error pattern, auto-suggest troubleshooting guide- Knowledge base of 50+ common errors with step-by-step resolution- Agent can apply suggested guide with one click and customize for specific user- Guide effectiveness tracked: was issue resolved after guide sent?- Engineering can add new error patterns and guides via admin interface- OCR for error message extraction from screenshotsExisting KB has 120 articles but aren't error-code indexed. Knowledge team will create new guides; engineering builds matching system.Note: error messages vary by language - need to handle localization.",
+            "created": "2026-05-09T11:07:14.510-0400",
+            "resolutiondate": null
+          },
+          {
+            "key": "CRM-81",
+            "summary": "Create Engineering Escalation Workflow for Reproducible Bugs",
+            "status": "To Do",
+            "priority": "High",
+            "issuetype": "Story",
+            "assignee": "Jesus",
+            "labels": [
+              "eval-corpus",
+              "feature-requests",
+              "tooling"
+            ],
+            "description": "Support agents identify reproducible bugs but lack a clear path to engineering. Bugs get logged in spreadsheets, emailed to eng-support@, or mentioned in Slack - inconsistent and often lost. Need formal escalation with tracking.Acceptance Criteria:- Agent can create 'Bug Escalation' from any support ticket with repro steps template- Escalation auto-creates Jira ticket in engineering backlog with support ticket link- Bidirectional sync: engineering updates visible to support, support can add customer context- SLA tracking: engineering acknowledges within 24 hours, provides timeline within 72 hours- Support agent notified when bug fixed, with release notes to share with affected customers- Dashboard showing escalation volume, resolution times, and top bug categoriesEngineering team agreed to triage bug escalations in daily standup. Current process averages 2 weeks to acknowledgment.Template should include: affected user count, severity assessment, workaround if any, related tickets.",
+            "created": "2026-05-09T11:07:09.936-0400",
+            "resolutiondate": null
+          },
+          {
+            "key": "CRM-60",
+            "summary": "Develop Refund Fraud Detection Model with Machine Learning",
+            "status": "To Do",
+            "priority": "High",
+            "issuetype": "Story",
+            "assignee": "Jesus",
+            "labels": [
+              "eval-corpus",
+              "fraud-prevention",
+              "refunds"
+            ],
+            "description": "Current refund fraud rate is estimated at 4% but we're catching less than half. Patterns include: item-not-received claims after confirmed delivery, serial refunders across multiple accounts, return of counterfeit/different items.Acceptance Criteria:- ML model scores each refund request 0-100 for fraud likelihood- High-risk requests (>75) routed to fraud specialist queue with 48-hour hold- Model considers: customer history, order details, claim type, shipping data, device fingerprint- False positive rate <2% (measured by overturned decisions in 30 days)- Model explainability: top 3 risk factors shown to reviewing agent- Weekly model performance review and quarterly retrainingData science team will build model; this story covers integration and operational tooling.Privacy note: model inputs must be documented for GDPR compliance. No demographic data as input.",
+            "created": "2026-05-09T11:06:48.840-0400",
+            "resolutiondate": null
+          },
+          {
+            "key": "CRM-56",
+            "summary": "Create Customer-Facing Refund Status Tracking Portal",
+            "status": "To Do",
+            "priority": "High",
+            "issuetype": "Story",
+            "assignee": "Jesus",
+            "labels": [
+              "eval-corpus",
+              "refunds",
+              "self-service"
+            ],
+            "description": "Customers submit refund requests and then have no visibility into status, leading to 'where is my refund' follow-up tickets that consume 15% of agent capacity. Need self-service status tracking.Acceptance Criteria:- Refund status page accessible from order history and confirmation emails- Status stages: Received \u2192 Under Review \u2192 Approved/Denied \u2192 Processing \u2192 Complete- Estimated completion date shown for each stage based on historical averages- Push notification (email + app notification if opted in) when status changes- If denied, clear explanation of reason with appeal option- Link to contact support pre-populated with refund reference numberDesign should match existing order tracking UI patterns. Analytics: track page views vs. support contact rate.Edge case: partial refunds should show which items refunded and which pending.",
+            "created": "2026-05-09T11:06:45.064-0400",
+            "resolutiondate": null
+          },
+          {
+            "key": "CRM-35",
+            "summary": "Develop Automated Account Lockout Detection and Self-Service Unlock",
+            "status": "To Do",
+            "priority": "High",
+            "issuetype": "Story",
+            "assignee": "Jesus",
+            "labels": [
+              "account-recovery",
+              "eval-corpus",
+              "self-service"
+            ],
+            "description": "Users who fail login 5 times get locked out with a generic error message and must email support. Most lockouts are legitimate users who forgot their password, not attackers. Need clearer messaging and self-service unlock for obvious cases.Acceptance Criteria:- Clear error message explaining account is locked and why ('too many failed attempts')- Self-service unlock via email link if lockout was from user's known device- Self-service unlock via SMS if available as fallback- Support agent can see lockout history and reason in ticket context- Lockout remains for suspicious patterns (multiple IPs, known VPN ranges, TOR exit nodes)- Metrics dashboard showing lockout rates by causeCurrent lockout rate is ~2,000/day, we believe 80% are recoverable via self-service.Note from security: maintain current 30-minute lockout window for non-self-service cases to slow credential stuffing.",
+            "created": "2026-05-09T11:06:23.430-0400",
+            "resolutiondate": null
+          },
+          {
+            "key": "CRM-31",
+            "summary": "Create Identity Verification Workflow for High-Risk Account Changes",
+            "status": "To Do",
+            "priority": "High",
+            "issuetype": "Story",
+            "assignee": "Jesus",
+            "labels": [
+              "account-recovery",
+              "eval-corpus",
+              "fraud-prevention"
+            ],
+            "description": "We've had 12 account takeover incidents in the past quarter where bad actors changed email addresses after phishing passwords. Need additional verification for sensitive account changes.Acceptance Criteria:- Email address change requires re-authentication + confirmation from BOTH old and new email- If old email inaccessible, require government ID upload with 24-hour manual review- Password change from new device requires email confirmation- Phone number change requires confirmation to old phone number if on file- All high-risk changes create audit log entry visible to support agents- Users can view 'Recent security activity' in account settingsProduct approved 24-hour delay for ID verification cases. Legal provided required disclosure language.Technical consideration: ID verification service (Jumio) has 99.5% SLA, need graceful degradation if service unavailable.",
+            "created": "2026-05-09T11:06:18.786-0400",
+            "resolutiondate": null
+          },
+          {
+            "key": "CRM-10",
+            "summary": "Create Escalation Workflow for Complex Multi-Transaction Disputes",
+            "status": "To Do",
+            "priority": "High",
+            "issuetype": "Story",
+            "assignee": "Jesus",
+            "labels": [
+              "billing-support",
+              "escalation",
+              "eval-corpus"
+            ],
+            "description": "We're seeing a 23% increase in disputes involving subscription billing errors where users were charged for 3+ months incorrectly. Current workflow treats each charge as separate, causing agents to create duplicate refunds or miss related transactions.Acceptance Criteria:- System identifies related transactions when dispute is filed (same subscription, recurring payment pattern)- Single ticket view shows all potentially affected transactions with bulk action capabilities- Escalation to billing supervisor required for disputes totaling >$200 across transactions- Audit log captures all agent actions for compliance review- Integration with accounting system to flag bulk refunds for monthly reconciliationNote: Legal reviewed and confirmed we can proactively refund related charges without separate user requests if error is confirmed on our side.",
+            "created": "2026-05-09T11:05:58.360-0400",
+            "resolutiondate": null
+          },
+          {
+            "key": "CRM-6",
+            "summary": "Build Self-Service Dispute Submission Portal for End Users",
+            "status": "To Do",
+            "priority": "High",
+            "issuetype": "Story",
+            "assignee": "Jesus",
+            "labels": [
+              "billing-support",
+              "eval-corpus",
+              "self-service"
+            ],
+            "description": "Users currently have to email support@marketplace.com or use live chat to initiate billing disputes, leading to inconsistent information capture and longer resolution times. We need a structured web form that guides users through dispute submission and automatically categorizes the dispute type.Acceptance Criteria:- Form accessible from Order History page with 'Report a problem' button on each transaction- Required fields: dispute reason (dropdown), affected transaction(s), expected resolution, supporting screenshots- Auto-populate known transaction details to reduce user friction- Confirmation email sent within 30 seconds of submission- Form should work on mobile web with file upload from camera roll- Rate limit: max 3 disputes per user per 24 hours to prevent abuseUser research showed 67% of disputes are for 'charged but order not received' - optimize flow for this case.",
+            "created": "2026-05-09T11:05:53.968-0400",
+            "resolutiondate": null
+          }
+        ],
+        "Subtask": [
+          {
+            "key": "CRM-100",
+            "summary": "Create alerting integration with PagerDuty and engineering Slack",
+            "status": "To Do",
+            "priority": "Medium",
+            "issuetype": "Subtask",
+            "assignee": "Jesus",
+            "labels": [
+              "eval-corpus"
+            ],
+            "description": "PagerDuty for P1 patterns (>5x baseline in critical category). Slack for P2 (2-5x baseline). Include sample ticket links and suggested investigation queries.",
+            "created": "2026-05-09T11:07:30.842-0400",
+            "resolutiondate": null
+          },
+          {
+            "key": "CRM-99",
+            "summary": "Implement anomaly detection algorithm with baseline comparison",
+            "status": "To Do",
+            "priority": "Medium",
+            "issuetype": "Subtask",
+            "assignee": "Jesus",
+            "labels": [
+              "eval-corpus"
+            ],
+            "description": "Calculate dynamic baseline per segment. Detect statistically significant deviations. Account for expected patterns (launches, marketing events). Tunable threshold.",
+            "created": "2026-05-09T11:07:29.800-0400",
+            "resolutiondate": null
+          },
+          {
+            "key": "CRM-98",
+            "summary": "Build ticket volume monitoring with segment breakdowns",
+            "status": "To Do",
+            "priority": "Medium",
+            "issuetype": "Subtask",
+            "assignee": "Jesus",
+            "labels": [
+              "eval-corpus"
+            ],
+            "description": "Streaming pipeline from ticket creation events. Aggregate by 5-minute windows. Segment by category, app version, OS, and geography. Store for trend analysis.",
+            "created": "2026-05-09T11:07:28.774-0400",
+            "resolutiondate": null
+          },
+          {
+            "key": "CRM-96",
+            "summary": "Build ticket-to-incident linking and duplicate prevention",
+            "status": "To Do",
+            "priority": "Medium",
+            "issuetype": "Subtask",
+            "assignee": "Jesus",
+            "labels": [
+              "eval-corpus"
+            ],
+            "description": "Agent sees banner when active incident matches ticket keywords. One-click link to incident. Linked tickets auto-updated when incident resolves. Track tickets avoided.",
+            "created": "2026-05-09T11:07:26.832-0400",
+            "resolutiondate": null
+          },
+          {
+            "key": "CRM-95",
+            "summary": "Integrate incident detection with PagerDuty and manual escalation",
+            "status": "To Do",
+            "priority": "Medium",
+            "issuetype": "Subtask",
+            "assignee": "Jesus",
+            "labels": [
+              "eval-corpus"
+            ],
+            "description": "Auto-create incident from PagerDuty alerts tagged 'customer-facing'. Manual creation flow for support-detected issues. Severity mapping. Auto-resolve when PagerDuty resolves.",
+            "created": "2026-05-09T11:07:25.689-0400",
+            "resolutiondate": null
+          },
+          {
+            "key": "CRM-94",
+            "summary": "Evaluate and implement status page solution (Statuspage.io vs custom)",
+            "status": "To Do",
+            "priority": "Medium",
+            "issuetype": "Subtask",
+            "assignee": "Jesus",
+            "labels": [
+              "eval-corpus"
+            ],
+            "description": "Criteria: cost, customization, API access, subscriber management, incident update workflow. Document decision rationale. Target launch in 3 weeks.",
+            "created": "2026-05-09T11:07:24.484-0400",
+            "resolutiondate": null
+          },
+          {
+            "key": "CRM-92",
+            "summary": "Integrate form data into support ticket display and search",
+            "status": "To Do",
+            "priority": "Medium",
+            "issuetype": "Subtask",
+            "assignee": "Jesus",
+            "labels": [
+              "eval-corpus"
+            ],
+            "description": "Structured display in ticket view. Filterable in agent queue (e.g., all iOS 16 issues). Include in escalation data sent to engineering. Analytics on common environments.",
+            "created": "2026-05-09T11:07:22.348-0400",
+            "resolutiondate": null
+          },
+          {
+            "key": "CRM-91",
+            "summary": "Design and implement technical environment collection form",
+            "status": "To Do",
+            "priority": "Medium",
+            "issuetype": "Subtask",
+            "assignee": "Jesus",
+            "labels": [
+              "eval-corpus"
+            ],
+            "description": "Clean UI that doesn't overwhelm users. Progressive disclosure for technical details. Validation on required fields. Save partial completion if user abandons.",
+            "created": "2026-05-09T11:07:21.410-0400",
+            "resolutiondate": null
+          },
+          {
+            "key": "CRM-90",
+            "summary": "Build environment auto-detection library for web and mobile",
+            "status": "To Do",
+            "priority": "Medium",
+            "issuetype": "Subtask",
+            "assignee": "Jesus",
+            "labels": [
+              "eval-corpus"
+            ],
+            "description": "Client-side JavaScript for web, native APIs for mobile. Handle privacy settings that block detection. Fallback to manual entry. Test across major browsers and devices.",
+            "created": "2026-05-09T11:07:20.420-0400",
+            "resolutiondate": null
+          },
+          {
+            "key": "CRM-88",
+            "summary": "Create guide suggestion UI in agent ticket interface",
+            "status": "To Do",
+            "priority": "Medium",
+            "issuetype": "Subtask",
+            "assignee": "Jesus",
+            "labels": [
+              "eval-corpus"
+            ],
+            "description": "Non-intrusive suggestion panel. Show matched error, confidence, and suggested guide. One-click apply populates response template. Track suggestion acceptance rate.",
+            "created": "2026-05-09T11:07:18.393-0400",
+            "resolutiondate": null
+          }
+        ]
+      }
+    },
+    {
+      "project": "OPS",
+      "samples": {
+        "recent": [
+          {
+            "key": "OPS-100",
+            "summary": "Implement rollback script requirement and testing",
+            "status": "To Do",
+            "priority": "Medium",
+            "issuetype": "Subtask",
+            "assignee": "Jesus",
+            "labels": [
+              "eval-corpus"
+            ],
+            "description": "Update migration framework to require up and down scripts. Add CI stage that applies migration then rolls back. Verify final state matches initial state. Fail if rollback incomplete.",
+            "created": "2026-05-09T11:13:15.594-0400",
+            "resolutiondate": null
+          },
+          {
+            "key": "OPS-99",
+            "summary": "Build migration analyzer for lock detection",
+            "status": "To Do",
+            "priority": "Medium",
+            "issuetype": "Subtask",
+            "assignee": "Jesus",
+            "labels": [
+              "eval-corpus"
+            ],
+            "description": "Create tool that parses migration SQL and identifies locking statements. Flag ALTER TABLE, CREATE INDEX non-concurrently. Integrate into PR checks. Suggest safer alternatives.",
+            "created": "2026-05-09T11:13:14.468-0400",
+            "resolutiondate": null
+          },
+          {
+            "key": "OPS-98",
+            "summary": "Create migration review process and tooling",
+            "status": "To Do",
+            "priority": "Medium",
+            "issuetype": "Subtask",
+            "assignee": "Jesus",
+            "labels": [
+              "eval-corpus"
+            ],
+            "description": "Define which databases require review. Create Jira ticket template for migration requests. Build CI check that blocks migrations without approval. Document review SLA (24 hours).",
+            "created": "2026-05-09T11:13:13.357-0400",
+            "resolutiondate": null
+          },
+          {
+            "key": "OPS-97",
+            "summary": "Implement database schema migration governance and rollback procedures",
+            "status": "To Do",
+            "priority": "High",
+            "issuetype": "Story",
+            "assignee": "Jesus",
+            "labels": [
+              "ci-cd",
+              "databases",
+              "eval-corpus"
+            ],
+            "description": "Database migrations are a top cause of incidents. Teams deploy migrations without review, lock tables during peak hours, and lack rollback scripts. Last month's 47-minute outage was caused by an unreviewed ALTER TABLE on a 2TB table.We need migration review process, automated lock detection, and mandatory rollback scripts.Acceptance Criteria:- All schema migrations require DBA review for tier-1 databases- CI automatically detects migrations that acquire ACCESS EXCLUSIVE locks- Rollback scripts required and tested for all migrations- Migration execution timed to avoid peak hours- Post-migration validation automatedProcess Change: This requires developer workflow changes. Need to socialize with tech leads before enforcement.",
+            "created": "2026-05-09T11:13:12.058-0400",
+            "resolutiondate": null
+          },
+          {
+            "key": "OPS-96",
+            "summary": "Configure slow query alerting with intelligent thresholds",
+            "status": "To Do",
+            "priority": "Medium",
+            "issuetype": "Subtask",
+            "assignee": "Jesus",
+            "labels": [
+              "eval-corpus"
+            ],
+            "description": "Create Prometheus recording rules for query duration percentiles. Alert on queries exceeding baseline by 3x. Suppress alerts for known slow queries (reports, etc). Route to database owner.",
+            "created": "2026-05-09T11:13:11.232-0400",
+            "resolutiondate": null
+          },
+          {
+            "key": "OPS-95",
+            "summary": "Build query performance Grafana dashboard",
+            "status": "To Do",
+            "priority": "Medium",
+            "issuetype": "Subtask",
+            "assignee": "Jesus",
+            "labels": [
+              "eval-corpus"
+            ],
+            "description": "Create dashboard showing: top queries by total time, mean time, calls. Include wait event breakdown. Add lock monitoring panel. Configure time range filters.",
+            "created": "2026-05-09T11:13:10.441-0400",
+            "resolutiondate": null
+          },
+          {
+            "key": "OPS-94",
+            "summary": "Enable pg_stat_statements on all PostgreSQL clusters",
+            "status": "To Do",
+            "priority": "Medium",
+            "issuetype": "Subtask",
+            "assignee": "Jesus",
+            "labels": [
+              "eval-corpus"
+            ],
+            "description": "Add shared_preload_libraries configuration. Restart databases during maintenance window. Configure statement tracking parameters. Verify low overhead (<2% CPU impact).",
+            "created": "2026-05-09T11:13:09.372-0400",
+            "resolutiondate": null
+          },
+          {
+            "key": "OPS-93",
+            "summary": "Deploy database query performance monitoring and slow query alerting",
+            "status": "To Do",
+            "priority": "Medium",
+            "issuetype": "Story",
+            "assignee": "Jesus",
+            "labels": [
+              "databases",
+              "eval-corpus",
+              "observability"
+            ],
+            "description": "Database performance issues are discovered when users complain or during incidents. We lack visibility into query performance trends, missing indexes, and problematic query patterns. Teams resort to running EXPLAIN ANALYZE manually during incidents.Need always-on query monitoring with alerting on new slow queries and performance regression detection.Acceptance Criteria:- Query performance metrics collected for all PostgreSQL clusters- Slow query threshold configured (>1s warning, >5s critical)- Alerts fire on new slow queries not seen before- Dashboard shows query execution stats, wait events, and lock contention- Weekly report of top 10 slowest queries sent to database ownersTool Selection: Evaluating pganalyze vs self-hosted pg_stat_statements + custom dashboards. pganalyze has better UX but adds vendor dependency.",
+            "created": "2026-05-09T11:13:08.335-0400",
+            "resolutiondate": null
+          },
+          {
+            "key": "OPS-92",
+            "summary": "Implement cross-region restore validation",
+            "status": "To Do",
+            "priority": "Medium",
+            "issuetype": "Subtask",
+            "assignee": "Jesus",
+            "labels": [
+              "eval-corpus"
+            ],
+            "description": "Configure backup replication to us-west-2 region. Test restore procedure in DR region. Validate application can connect via regional endpoints. Document DNS failover steps.",
+            "created": "2026-05-09T11:13:07.242-0400",
+            "resolutiondate": null
+          },
+          {
+            "key": "OPS-91",
+            "summary": "Document and test manual failover procedures",
+            "status": "To Do",
+            "priority": "Medium",
+            "issuetype": "Subtask",
+            "assignee": "Jesus",
+            "labels": [
+              "eval-corpus"
+            ],
+            "description": "Update runbooks with current tool versions and commands. Schedule DR drill with on-call team. Execute failover to standby cluster. Measure RTO and document gaps.",
+            "created": "2026-05-09T11:13:06.046-0400",
+            "resolutiondate": null
+          }
+        ],
+        "To Do": [
+          {
+            "key": "OPS-100",
+            "summary": "Implement rollback script requirement and testing",
+            "status": "To Do",
+            "priority": "Medium",
+            "issuetype": "Subtask",
+            "assignee": "Jesus",
+            "labels": [
+              "eval-corpus"
+            ],
+            "description": "Update migration framework to require up and down scripts. Add CI stage that applies migration then rolls back. Verify final state matches initial state. Fail if rollback incomplete.",
+            "created": "2026-05-09T11:13:15.594-0400",
+            "resolutiondate": null
+          },
+          {
+            "key": "OPS-99",
+            "summary": "Build migration analyzer for lock detection",
+            "status": "To Do",
+            "priority": "Medium",
+            "issuetype": "Subtask",
+            "assignee": "Jesus",
+            "labels": [
+              "eval-corpus"
+            ],
+            "description": "Create tool that parses migration SQL and identifies locking statements. Flag ALTER TABLE, CREATE INDEX non-concurrently. Integrate into PR checks. Suggest safer alternatives.",
+            "created": "2026-05-09T11:13:14.468-0400",
+            "resolutiondate": null
+          },
+          {
+            "key": "OPS-98",
+            "summary": "Create migration review process and tooling",
+            "status": "To Do",
+            "priority": "Medium",
+            "issuetype": "Subtask",
+            "assignee": "Jesus",
+            "labels": [
+              "eval-corpus"
+            ],
+            "description": "Define which databases require review. Create Jira ticket template for migration requests. Build CI check that blocks migrations without approval. Document review SLA (24 hours).",
+            "created": "2026-05-09T11:13:13.357-0400",
+            "resolutiondate": null
+          },
+          {
+            "key": "OPS-97",
+            "summary": "Implement database schema migration governance and rollback procedures",
+            "status": "To Do",
+            "priority": "High",
+            "issuetype": "Story",
+            "assignee": "Jesus",
+            "labels": [
+              "ci-cd",
+              "databases",
+              "eval-corpus"
+            ],
+            "description": "Database migrations are a top cause of incidents. Teams deploy migrations without review, lock tables during peak hours, and lack rollback scripts. Last month's 47-minute outage was caused by an unreviewed ALTER TABLE on a 2TB table.We need migration review process, automated lock detection, and mandatory rollback scripts.Acceptance Criteria:- All schema migrations require DBA review for tier-1 databases- CI automatically detects migrations that acquire ACCESS EXCLUSIVE locks- Rollback scripts required and tested for all migrations- Migration execution timed to avoid peak hours- Post-migration validation automatedProcess Change: This requires developer workflow changes. Need to socialize with tech leads before enforcement.",
+            "created": "2026-05-09T11:13:12.058-0400",
+            "resolutiondate": null
+          },
+          {
+            "key": "OPS-96",
+            "summary": "Configure slow query alerting with intelligent thresholds",
+            "status": "To Do",
+            "priority": "Medium",
+            "issuetype": "Subtask",
+            "assignee": "Jesus",
+            "labels": [
+              "eval-corpus"
+            ],
+            "description": "Create Prometheus recording rules for query duration percentiles. Alert on queries exceeding baseline by 3x. Suppress alerts for known slow queries (reports, etc). Route to database owner.",
+            "created": "2026-05-09T11:13:11.232-0400",
+            "resolutiondate": null
+          },
+          {
+            "key": "OPS-95",
+            "summary": "Build query performance Grafana dashboard",
+            "status": "To Do",
+            "priority": "Medium",
+            "issuetype": "Subtask",
+            "assignee": "Jesus",
+            "labels": [
+              "eval-corpus"
+            ],
+            "description": "Create dashboard showing: top queries by total time, mean time, calls. Include wait event breakdown. Add lock monitoring panel. Configure time range filters.",
+            "created": "2026-05-09T11:13:10.441-0400",
+            "resolutiondate": null
+          },
+          {
+            "key": "OPS-94",
+            "summary": "Enable pg_stat_statements on all PostgreSQL clusters",
+            "status": "To Do",
+            "priority": "Medium",
+            "issuetype": "Subtask",
+            "assignee": "Jesus",
+            "labels": [
+              "eval-corpus"
+            ],
+            "description": "Add shared_preload_libraries configuration. Restart databases during maintenance window. Configure statement tracking parameters. Verify low overhead (<2% CPU impact).",
+            "created": "2026-05-09T11:13:09.372-0400",
+            "resolutiondate": null
+          },
+          {
+            "key": "OPS-93",
+            "summary": "Deploy database query performance monitoring and slow query alerting",
+            "status": "To Do",
+            "priority": "Medium",
+            "issuetype": "Story",
+            "assignee": "Jesus",
+            "labels": [
+              "databases",
+              "eval-corpus",
+              "observability"
+            ],
+            "description": "Database performance issues are discovered when users complain or during incidents. We lack visibility into query performance trends, missing indexes, and problematic query patterns. Teams resort to running EXPLAIN ANALYZE manually during incidents.Need always-on query monitoring with alerting on new slow queries and performance regression detection.Acceptance Criteria:- Query performance metrics collected for all PostgreSQL clusters- Slow query threshold configured (>1s warning, >5s critical)- Alerts fire on new slow queries not seen before- Dashboard shows query execution stats, wait events, and lock contention- Weekly report of top 10 slowest queries sent to database ownersTool Selection: Evaluating pganalyze vs self-hosted pg_stat_statements + custom dashboards. pganalyze has better UX but adds vendor dependency.",
+            "created": "2026-05-09T11:13:08.335-0400",
+            "resolutiondate": null
+          },
+          {
+            "key": "OPS-92",
+            "summary": "Implement cross-region restore validation",
+            "status": "To Do",
+            "priority": "Medium",
+            "issuetype": "Subtask",
+            "assignee": "Jesus",
+            "labels": [
+              "eval-corpus"
+            ],
+            "description": "Configure backup replication to us-west-2 region. Test restore procedure in DR region. Validate application can connect via regional endpoints. Document DNS failover steps.",
+            "created": "2026-05-09T11:13:07.242-0400",
+            "resolutiondate": null
+          },
+          {
+            "key": "OPS-91",
+            "summary": "Document and test manual failover procedures",
+            "status": "To Do",
+            "priority": "Medium",
+            "issuetype": "Subtask",
+            "assignee": "Jesus",
+            "labels": [
+              "eval-corpus"
+            ],
+            "description": "Update runbooks with current tool versions and commands. Schedule DR drill with on-call team. Execute failover to standby cluster. Measure RTO and document gaps.",
+            "created": "2026-05-09T11:13:06.046-0400",
+            "resolutiondate": null
+          }
+        ],
+        "High": [
+          {
+            "key": "OPS-97",
+            "summary": "Implement database schema migration governance and rollback procedures",
+            "status": "To Do",
+            "priority": "High",
+            "issuetype": "Story",
+            "assignee": "Jesus",
+            "labels": [
+              "ci-cd",
+              "databases",
+              "eval-corpus"
+            ],
+            "description": "Database migrations are a top cause of incidents. Teams deploy migrations without review, lock tables during peak hours, and lack rollback scripts. Last month's 47-minute outage was caused by an unreviewed ALTER TABLE on a 2TB table.We need migration review process, automated lock detection, and mandatory rollback scripts.Acceptance Criteria:- All schema migrations require DBA review for tier-1 databases- CI automatically detects migrations that acquire ACCESS EXCLUSIVE locks- Rollback scripts required and tested for all migrations- Migration execution timed to avoid peak hours- Post-migration validation automatedProcess Change: This requires developer workflow changes. Need to socialize with tech leads before enforcement.",
+            "created": "2026-05-09T11:13:12.058-0400",
+            "resolutiondate": null
+          },
+          {
+            "key": "OPS-85",
+            "summary": "Migrate legacy MongoDB clusters to AWS DocumentDB",
+            "status": "To Do",
+            "priority": "High",
+            "issuetype": "Story",
+            "assignee": "Jesus",
+            "labels": [
+              "databases",
+              "eval-corpus",
+              "networking"
+            ],
+            "description": "We maintain 3 self-managed MongoDB clusters on EC2 that require significant operational overhead. Two incidents this year were caused by replica set elections during maintenance. AWS DocumentDB provides managed failover, automated backups, and reduced operational burden.Targeting user-profiles, session-store, and analytics-events clusters. Combined data size is 890GB.Acceptance Criteria:- All 3 MongoDB clusters migrated to DocumentDB- Application compatibility validated (DocumentDB has some MongoDB feature gaps)- Zero data loss during migration- Old clusters decommissioned within 30 days of cutover- Operational runbooks updated for DocumentDB specificsBlocker: DocumentDB doesn't support MongoDB 5.0 features. Need to audit aggregation pipelines for compatibility.",
+            "created": "2026-05-09T11:12:59.912-0400",
+            "resolutiondate": null
+          },
+          {
+            "key": "OPS-81",
+            "summary": "Implement PgBouncer connection pooling across all PostgreSQL clusters",
+            "status": "To Do",
+            "priority": "High",
+            "issuetype": "Story",
+            "assignee": "Jesus",
+            "labels": [
+              "databases",
+              "eval-corpus",
+              "k8s-prod"
+            ],
+            "description": "Our application pods maintain direct connections to PostgreSQL. With 400+ pods per service and multiple replicas, we're hitting PostgreSQL's max_connections limit. Current workaround of raising max_connections to 2000 causes memory issues.PgBouncer will pool connections at the infrastructure level, dramatically reducing database connection count while maintaining application compatibility.Acceptance Criteria:- PgBouncer deployed in front of all production PostgreSQL clusters- Connection count reduced from ~3000 to under 200 per cluster- Application connection strings migrated to PgBouncer endpoints- Transaction mode pooling enabled where application-compatible- Monitoring dashboards show pool utilization and wait timesTesting Note: Session-based features (advisory locks, temp tables) need session mode. Audit applications first.",
+            "created": "2026-05-09T11:12:56.290-0400",
+            "resolutiondate": null
+          },
+          {
+            "key": "OPS-64",
+            "summary": "Scale and optimize self-hosted GitLab runner infrastructure",
+            "status": "To Do",
+            "priority": "High",
+            "issuetype": "Story",
+            "assignee": "Jesus",
+            "labels": [
+              "ci-cd",
+              "eval-corpus",
+              "k8s-prod"
+            ],
+            "description": "Our 24 self-hosted runners are constantly at capacity. Jobs queue for 5-10 minutes during peak hours (10am-12pm, 2pm-4pm PST). Autoscaling exists but is too slow - VMs take 3 minutes to provision and register.Need to move to a model with warm runner pools and faster scaling. Also investigating spot instances for cost optimization on non-critical jobs.Acceptance Criteria:- Job queue wait time p95 under 60 seconds- Runner pool auto-scales within 30 seconds based on queue depth- Spot instances used for test jobs (70% cost reduction)- Runner provisioning automated via Terraform- Runner health monitoring with automatic replacementCapacity Planning: Peak demand is ~80 concurrent jobs. Need pool of 100 to handle bursts.",
+            "created": "2026-05-09T11:12:40.106-0400",
+            "resolutiondate": null
+          },
+          {
+            "key": "OPS-60",
+            "summary": "Implement distributed caching for build artifacts and dependencies",
+            "status": "To Do",
+            "priority": "High",
+            "issuetype": "Story",
+            "assignee": "Jesus",
+            "labels": [
+              "ci-cd",
+              "eval-corpus",
+              "performance"
+            ],
+            "description": "Teams download the same dependencies and rebuild the same unchanged code on every pipeline run. A 47-minute build spends 12 minutes downloading npm/maven/pip packages and 8 minutes rebuilding unchanged modules.We need a shared cache layer that persists across pipeline runs. Considering Buildkite's cache approach or self-hosted Artifactory with CI integration.Acceptance Criteria:- Dependencies cached and restored across pipeline runs- Build artifacts (compiled code, Docker layers) cached by hash- Cache hit rate above 80% for typical feature branch builds- Build times reduced by 15+ minutes on average- Cache storage costs under $2k/monthTechnical Consideration: Cache invalidation is hard. Need clear hash keys based on dependency file contents.",
+            "created": "2026-05-09T11:12:36.172-0400",
+            "resolutiondate": null
+          },
+          {
+            "key": "OPS-52",
+            "summary": "Implement pipeline analytics to identify flaky tests and bottlenecks",
+            "status": "To Do",
+            "priority": "High",
+            "issuetype": "Story",
+            "assignee": "Jesus",
+            "labels": [
+              "ci-cd",
+              "eval-corpus",
+              "observability"
+            ],
+            "description": "Before we can fix the problems, we need visibility into what's actually failing. Currently we rely on anecdotal reports from frustrated developers. We need systematic tracking of test flakiness, stage duration trends, and resource utilization.Goal is a dashboard that answers: 'What's making our pipelines slow and unreliable?' with actionable data that teams can act on.Acceptance Criteria:- All pipeline runs emit structured telemetry to our observability stack- Dashboard showing flaky test ranking with failure rates- Stage duration percentiles tracked over time- Runner resource utilization visible per job type- Weekly report auto-generated for engineering leadershipData Sources: GitLab CI job traces, runner prometheus metrics, test result XML files",
+            "created": "2026-05-09T11:12:28.263-0400",
+            "resolutiondate": null
+          },
+          {
+            "key": "OPS-47",
+            "summary": "Optimize Elasticsearch cluster and implement log tiering",
+            "status": "To Do",
+            "priority": "High",
+            "issuetype": "Story",
+            "assignee": "Jesus",
+            "labels": [
+              "databases",
+              "eval-corpus",
+              "observability"
+            ],
+            "description": "Beyond reducing log volume, we need to optimize how we store and query logs. Hot data (last 7 days) needs fast SSDs while older data can live on cheaper storage. Currently everything is on expensive gp3 EBS volumes.We're also not leveraging index lifecycle management effectively - indices grow unbounded until manually cleaned up. Implement proper ILM policies and consider frozen tier for compliance retention.Acceptance Criteria:- Hot tier on NVMe instances, warm tier on gp3, cold tier on S3- ILM policies managing index lifecycle automatically- Query performance unchanged for last 7 days of data- Storage costs reduced by 40% ($19k/month savings)- Retention compliance maintained at 90 days hot, 1 year searchableMigration Plan: In-place migration risky. Proposing parallel cluster build and log router cutover.",
+            "created": "2026-05-09T11:12:23.401-0400",
+            "resolutiondate": null
+          },
+          {
+            "key": "OPS-35",
+            "summary": "Build unified SLO dashboard and error budget tracking system",
+            "status": "To Do",
+            "priority": "High",
+            "issuetype": "Story",
+            "assignee": "Jesus",
+            "labels": [
+              "eval-corpus",
+              "observability",
+              "reliability"
+            ],
+            "description": "We have SLOs defined in Google Docs that nobody references. When asked about service reliability, teams give different answers. We need a single source of truth for SLO definitions with automated tracking and error budget consumption visibility.This is critical for our move to an error-budget-based release process. Teams should be able to see their remaining error budget and make informed decisions about deploying risky changes.Acceptance Criteria:- All tier-1 and tier-2 services have SLOs defined in code- Real-time SLO dashboard accessible to all engineers- Weekly error budget reports auto-generated and sent to team leads- Alerting on error budget burn rate (fast-burn and slow-burn)- Historical SLO achievement visible for past 12 monthsTool Selection: Evaluating Sloth vs custom Prometheus recording rules. Sloth has better UX but adds operational complexity.",
+            "created": "2026-05-09T11:12:11.183-0400",
+            "resolutiondate": null
+          },
+          {
+            "key": "OPS-31",
+            "summary": "Implement structured logging standards and reduce log volume by 60%",
+            "status": "To Do",
+            "priority": "High",
+            "issuetype": "Story",
+            "assignee": "Jesus",
+            "labels": [
+              "ci-cd",
+              "eval-corpus",
+              "observability"
+            ],
+            "description": "Our Elasticsearch cluster is costing $47k/month and growing. Analysis shows 60% of log volume is duplicative, malformed, or debug-level logs that shouldn't be in production. Teams are logging entire request/response bodies including PII.We need to implement structured logging standards, deploy a log processing pipeline to drop/sample noisy logs, and add proper log levels enforcement in CI.Acceptance Criteria:- All services emit JSON structured logs with standard fields- Log volume reduced from 2.3TB/day to under 1TB/day- PII automatically redacted from logs- CI fails for services emitting unstructured logs- Log search latency improved by 40% due to better indexingDependencies: Need buy-in from all service teams. @engineering-leads meeting scheduled for Thursday.",
+            "created": "2026-05-09T11:12:07.274-0400",
+            "resolutiondate": null
+          },
+          {
+            "key": "OPS-18",
+            "summary": "Post-upgrade monitoring and alerting validation",
+            "status": "To Do",
+            "priority": "High",
+            "issuetype": "Story",
+            "assignee": "Jesus",
+            "labels": [
+              "eval-corpus",
+              "k8s-prod",
+              "observability"
+            ],
+            "description": "After the upgrade, we need to ensure all our observability tooling is correctly capturing metrics from the new cluster version. Kubernetes 1.29 changes several metric names and labels in kube-state-metrics and the kubelet.Our existing Grafana dashboards and Prometheus alerts may break silently - showing no data rather than erroring. We've been burned by this before during the 1.24 upgrade when container_cpu_usage_seconds_total labels changed.Acceptance Criteria:- All 23 Kubernetes dashboards validated and updated- Alert rules tested against new metric names- kube-state-metrics upgraded to compatible version- Dead metrics cleaned up from Prometheus to reduce cardinality- On-call runbooks updated with new troubleshooting commandsTechnical Notes: The kubelet /metrics/cadvisor endpoint is being deprecated. Need to migrate to /metrics/resource.",
+            "created": "2026-05-09T11:11:54.058-0400",
+            "resolutiondate": null
+          }
+        ],
+        "Subtask": [
+          {
+            "key": "OPS-100",
+            "summary": "Implement rollback script requirement and testing",
+            "status": "To Do",
+            "priority": "Medium",
+            "issuetype": "Subtask",
+            "assignee": "Jesus",
+            "labels": [
+              "eval-corpus"
+            ],
+            "description": "Update migration framework to require up and down scripts. Add CI stage that applies migration then rolls back. Verify final state matches initial state. Fail if rollback incomplete.",
+            "created": "2026-05-09T11:13:15.594-0400",
+            "resolutiondate": null
+          },
+          {
+            "key": "OPS-99",
+            "summary": "Build migration analyzer for lock detection",
+            "status": "To Do",
+            "priority": "Medium",
+            "issuetype": "Subtask",
+            "assignee": "Jesus",
+            "labels": [
+              "eval-corpus"
+            ],
+            "description": "Create tool that parses migration SQL and identifies locking statements. Flag ALTER TABLE, CREATE INDEX non-concurrently. Integrate into PR checks. Suggest safer alternatives.",
+            "created": "2026-05-09T11:13:14.468-0400",
+            "resolutiondate": null
+          },
+          {
+            "key": "OPS-98",
+            "summary": "Create migration review process and tooling",
+            "status": "To Do",
+            "priority": "Medium",
+            "issuetype": "Subtask",
+            "assignee": "Jesus",
+            "labels": [
+              "eval-corpus"
+            ],
+            "description": "Define which databases require review. Create Jira ticket template for migration requests. Build CI check that blocks migrations without approval. Document review SLA (24 hours).",
+            "created": "2026-05-09T11:13:13.357-0400",
+            "resolutiondate": null
+          },
+          {
+            "key": "OPS-96",
+            "summary": "Configure slow query alerting with intelligent thresholds",
+            "status": "To Do",
+            "priority": "Medium",
+            "issuetype": "Subtask",
+            "assignee": "Jesus",
+            "labels": [
+              "eval-corpus"
+            ],
+            "description": "Create Prometheus recording rules for query duration percentiles. Alert on queries exceeding baseline by 3x. Suppress alerts for known slow queries (reports, etc). Route to database owner.",
+            "created": "2026-05-09T11:13:11.232-0400",
+            "resolutiondate": null
+          },
+          {
+            "key": "OPS-95",
+            "summary": "Build query performance Grafana dashboard",
+            "status": "To Do",
+            "priority": "Medium",
+            "issuetype": "Subtask",
+            "assignee": "Jesus",
+            "labels": [
+              "eval-corpus"
+            ],
+            "description": "Create dashboard showing: top queries by total time, mean time, calls. Include wait event breakdown. Add lock monitoring panel. Configure time range filters.",
+            "created": "2026-05-09T11:13:10.441-0400",
+            "resolutiondate": null
+          },
+          {
+            "key": "OPS-94",
+            "summary": "Enable pg_stat_statements on all PostgreSQL clusters",
+            "status": "To Do",
+            "priority": "Medium",
+            "issuetype": "Subtask",
+            "assignee": "Jesus",
+            "labels": [
+              "eval-corpus"
+            ],
+            "description": "Add shared_preload_libraries configuration. Restart databases during maintenance window. Configure statement tracking parameters. Verify low overhead (<2% CPU impact).",
+            "created": "2026-05-09T11:13:09.372-0400",
+            "resolutiondate": null
+          },
+          {
+            "key": "OPS-92",
+            "summary": "Implement cross-region restore validation",
+            "status": "To Do",
+            "priority": "Medium",
+            "issuetype": "Subtask",
+            "assignee": "Jesus",
+            "labels": [
+              "eval-corpus"
+            ],
+            "description": "Configure backup replication to us-west-2 region. Test restore procedure in DR region. Validate application can connect via regional endpoints. Document DNS failover steps.",
+            "created": "2026-05-09T11:13:07.242-0400",
+            "resolutiondate": null
+          },
+          {
+            "key": "OPS-91",
+            "summary": "Document and test manual failover procedures",
+            "status": "To Do",
+            "priority": "Medium",
+            "issuetype": "Subtask",
+            "assignee": "Jesus",
+            "labels": [
+              "eval-corpus"
+            ],
+            "description": "Update runbooks with current tool versions and commands. Schedule DR drill with on-call team. Execute failover to standby cluster. Measure RTO and document gaps.",
+            "created": "2026-05-09T11:13:06.046-0400",
+            "resolutiondate": null
+          },
+          {
+            "key": "OPS-90",
+            "summary": "Create automated DR test pipeline for PostgreSQL",
+            "status": "To Do",
+            "priority": "Medium",
+            "issuetype": "Subtask",
+            "assignee": "Jesus",
+            "labels": [
+              "eval-corpus"
+            ],
+            "description": "Build CI job that triggers weekly restore of latest backup to DR cluster. Validate restore completes successfully. Run read queries to verify data integrity. Report results to compliance dashboard.",
+            "created": "2026-05-09T11:13:05.146-0400",
+            "resolutiondate": null
+          },
+          {
+            "key": "OPS-88",
+            "summary": "Execute data migration using DMS with validation",
+            "status": "To Do",
+            "priority": "Medium",
+            "issuetype": "Subtask",
+            "assignee": "Jesus",
+            "labels": [
+              "eval-corpus"
+            ],
+            "description": "Configure DMS replication tasks for each cluster. Monitor replication lag. Validate document counts match. Run application validation suite. Execute cutover during maintenance window.",
+            "created": "2026-05-09T11:13:03.007-0400",
+            "resolutiondate": null
+          }
+        ]
+      }
+    },
+    {
+      "project": "PLAT",
+      "samples": {
+        "recent": [
+          {
+            "key": "PLAT-100",
+            "summary": "Develop FinOps training curriculum and schedule sessions",
+            "status": "To Do",
+            "priority": "Medium",
+            "issuetype": "Subtask",
+            "assignee": "Jesus",
+            "labels": [
+              "eval-corpus"
+            ],
+            "description": "Create training materials covering: how to read cost dashboards, interpreting rightsizing recommendations, spot instance considerations, and making cost-aware architecture decisions. Schedule monthly lunch-and-learn.",
+            "created": "2026-05-09T11:19:01.287-0400",
+            "resolutiondate": null
+          },
+          {
+            "key": "PLAT-99",
+            "summary": "Add cost estimation to architecture review process",
+            "status": "To Do",
+            "priority": "Medium",
+            "issuetype": "Subtask",
+            "assignee": "Jesus",
+            "labels": [
+              "eval-corpus"
+            ],
+            "description": "Update the architecture review template to require cost estimates for new services. Create a cost estimation guide with rules of thumb (e.g., typical API service costs $X/month at Y requests/second).",
+            "created": "2026-05-09T11:19:00.391-0400",
+            "resolutiondate": null
+          },
+          {
+            "key": "PLAT-98",
+            "summary": "Design FinOps review meeting format and materials",
+            "status": "To Do",
+            "priority": "Medium",
+            "issuetype": "Subtask",
+            "assignee": "Jesus",
+            "labels": [
+              "eval-corpus"
+            ],
+            "description": "Create the agenda template for monthly FinOps reviews. Include: overall spend trends, biggest movers, optimization wins, upcoming initiatives. Prepare first month's materials as example.",
+            "created": "2026-05-09T11:18:59.581-0400",
+            "resolutiondate": null
+          },
+          {
+            "key": "PLAT-97",
+            "summary": "Establish FinOps review process and governance model",
+            "status": "To Do",
+            "priority": "Low",
+            "issuetype": "Story",
+            "assignee": "Jesus",
+            "labels": [
+              "cost-optimization",
+              "eval-corpus",
+              "process"
+            ],
+            "description": "Tooling alone won't change behavior. We need organizational processes that make cost efficiency part of how teams operate. This includes regular reviews, accountability mechanisms, and integration into existing planning processes.Acceptance Criteria:- Monthly FinOps review meeting established with eng leadership- Cost efficiency metrics added to team health dashboards- Architecture review checklist includes cost estimation for new services- Quarterly cost targets set per team based on growth projections- Recognition program for teams achieving significant savings- FinOps training materials and lunch-and-learn scheduledWe should frame this positively - it's about making informed tradeoffs, not penny-pinching. Teams should understand the cost of their choices so they can make better decisions.",
+            "created": "2026-05-09T11:18:58.547-0400",
+            "resolutiondate": null
+          },
+          {
+            "key": "PLAT-96",
+            "summary": "Create cleanup automation with audit logging",
+            "status": "To Do",
+            "priority": "Medium",
+            "issuetype": "Subtask",
+            "assignee": "Jesus",
+            "labels": [
+              "eval-corpus"
+            ],
+            "description": "Implement the actual cleanup after grace period expires. Log all deletions to audit trail. Exclude any resources with protected-from-cleanup annotation.",
+            "created": "2026-05-09T11:18:57.699-0400",
+            "resolutiondate": null
+          },
+          {
+            "key": "PLAT-95",
+            "summary": "Implement notification and grace period workflow",
+            "status": "To Do",
+            "priority": "Medium",
+            "issuetype": "Subtask",
+            "assignee": "Jesus",
+            "labels": [
+              "eval-corpus"
+            ],
+            "description": "Before deletion, notify owning team via Slack. Track grace period state in a ConfigMap or database. Allow teams to extend grace period via Slack reaction or kubectl command.",
+            "created": "2026-05-09T11:18:56.756-0400",
+            "resolutiondate": null
+          },
+          {
+            "key": "PLAT-94",
+            "summary": "Build idle resource detection scanner",
+            "status": "To Do",
+            "priority": "Medium",
+            "issuetype": "Subtask",
+            "assignee": "Jesus",
+            "labels": [
+              "eval-corpus"
+            ],
+            "description": "Create a job that scans for: namespaces with no pod activity, PVCs not mounted to any pod, LoadBalancer services with no traffic, preview environments for merged PRs. Use Prometheus and Kubernetes API data.",
+            "created": "2026-05-09T11:18:55.778-0400",
+            "resolutiondate": null
+          },
+          {
+            "key": "PLAT-93",
+            "summary": "Implement idle resource detection and cleanup automation",
+            "status": "To Do",
+            "priority": "Medium",
+            "issuetype": "Story",
+            "assignee": "Jesus",
+            "labels": [
+              "automation",
+              "cost-optimization",
+              "eval-corpus"
+            ],
+            "description": "We're paying for resources that aren't being used - abandoned namespaces, orphaned PVCs, unused load balancers, forgotten preview environments. We need automated detection and cleanup with appropriate safety guardrails.Acceptance Criteria:- Daily scan identifying resources with zero traffic/usage for >14 days- Classification into: safe-to-delete, needs-review, protected- Slack notification to owning team before any deletion- 7-day grace period with ability to extend- Automatic deletion of resources not claimed during grace period- Monthly report showing resources cleaned up and savings achievedThe preview environment cleanup is highest priority. We have 200+ preview environments from merged PRs that are still running. That alone is probably $15K/month.",
+            "created": "2026-05-09T11:18:54.935-0400",
+            "resolutiondate": null
+          },
+          {
+            "key": "PLAT-92",
+            "summary": "Add Backstage integration for cost visibility",
+            "status": "To Do",
+            "priority": "Medium",
+            "issuetype": "Subtask",
+            "assignee": "Jesus",
+            "labels": [
+              "eval-corpus"
+            ],
+            "description": "Build a Backstage plugin that embeds cost summary in the team and service entity pages. Show current month spend, trend, and link to detailed Grafana dashboard.",
+            "created": "2026-05-09T11:18:54.078-0400",
+            "resolutiondate": null
+          },
+          {
+            "key": "PLAT-91",
+            "summary": "Implement budget tracking and alert system",
+            "status": "To Do",
+            "priority": "Medium",
+            "issuetype": "Subtask",
+            "assignee": "Jesus",
+            "labels": [
+              "eval-corpus"
+            ],
+            "description": "Store team budgets in Backstage entity annotations. Create a job that compares current spend to budget and triggers Slack alerts at configurable thresholds.",
+            "created": "2026-05-09T11:18:53.115-0400",
+            "resolutiondate": null
+          }
+        ],
+        "To Do": [
+          {
+            "key": "PLAT-100",
+            "summary": "Develop FinOps training curriculum and schedule sessions",
+            "status": "To Do",
+            "priority": "Medium",
+            "issuetype": "Subtask",
+            "assignee": "Jesus",
+            "labels": [
+              "eval-corpus"
+            ],
+            "description": "Create training materials covering: how to read cost dashboards, interpreting rightsizing recommendations, spot instance considerations, and making cost-aware architecture decisions. Schedule monthly lunch-and-learn.",
+            "created": "2026-05-09T11:19:01.287-0400",
+            "resolutiondate": null
+          },
+          {
+            "key": "PLAT-99",
+            "summary": "Add cost estimation to architecture review process",
+            "status": "To Do",
+            "priority": "Medium",
+            "issuetype": "Subtask",
+            "assignee": "Jesus",
+            "labels": [
+              "eval-corpus"
+            ],
+            "description": "Update the architecture review template to require cost estimates for new services. Create a cost estimation guide with rules of thumb (e.g., typical API service costs $X/month at Y requests/second).",
+            "created": "2026-05-09T11:19:00.391-0400",
+            "resolutiondate": null
+          },
+          {
+            "key": "PLAT-98",
+            "summary": "Design FinOps review meeting format and materials",
+            "status": "To Do",
+            "priority": "Medium",
+            "issuetype": "Subtask",
+            "assignee": "Jesus",
+            "labels": [
+              "eval-corpus"
+            ],
+            "description": "Create the agenda template for monthly FinOps reviews. Include: overall spend trends, biggest movers, optimization wins, upcoming initiatives. Prepare first month's materials as example.",
+            "created": "2026-05-09T11:18:59.581-0400",
+            "resolutiondate": null
+          },
+          {
+            "key": "PLAT-97",
+            "summary": "Establish FinOps review process and governance model",
+            "status": "To Do",
+            "priority": "Low",
+            "issuetype": "Story",
+            "assignee": "Jesus",
+            "labels": [
+              "cost-optimization",
+              "eval-corpus",
+              "process"
+            ],
+            "description": "Tooling alone won't change behavior. We need organizational processes that make cost efficiency part of how teams operate. This includes regular reviews, accountability mechanisms, and integration into existing planning processes.Acceptance Criteria:- Monthly FinOps review meeting established with eng leadership- Cost efficiency metrics added to team health dashboards- Architecture review checklist includes cost estimation for new services- Quarterly cost targets set per team based on growth projections- Recognition program for teams achieving significant savings- FinOps training materials and lunch-and-learn scheduledWe should frame this positively - it's about making informed tradeoffs, not penny-pinching. Teams should understand the cost of their choices so they can make better decisions.",
+            "created": "2026-05-09T11:18:58.547-0400",
+            "resolutiondate": null
+          },
+          {
+            "key": "PLAT-96",
+            "summary": "Create cleanup automation with audit logging",
+            "status": "To Do",
+            "priority": "Medium",
+            "issuetype": "Subtask",
+            "assignee": "Jesus",
+            "labels": [
+              "eval-corpus"
+            ],
+            "description": "Implement the actual cleanup after grace period expires. Log all deletions to audit trail. Exclude any resources with protected-from-cleanup annotation.",
+            "created": "2026-05-09T11:18:57.699-0400",
+            "resolutiondate": null
+          },
+          {
+            "key": "PLAT-95",
+            "summary": "Implement notification and grace period workflow",
+            "status": "To Do",
+            "priority": "Medium",
+            "issuetype": "Subtask",
+            "assignee": "Jesus",
+            "labels": [
+              "eval-corpus"
+            ],
+            "description": "Before deletion, notify owning team via Slack. Track grace period state in a ConfigMap or database. Allow teams to extend grace period via Slack reaction or kubectl command.",
+            "created": "2026-05-09T11:18:56.756-0400",
+            "resolutiondate": null
+          },
+          {
+            "key": "PLAT-94",
+            "summary": "Build idle resource detection scanner",
+            "status": "To Do",
+            "priority": "Medium",
+            "issuetype": "Subtask",
+            "assignee": "Jesus",
+            "labels": [
+              "eval-corpus"
+            ],
+            "description": "Create a job that scans for: namespaces with no pod activity, PVCs not mounted to any pod, LoadBalancer services with no traffic, preview environments for merged PRs. Use Prometheus and Kubernetes API data.",
+            "created": "2026-05-09T11:18:55.778-0400",
+            "resolutiondate": null
+          },
+          {
+            "key": "PLAT-93",
+            "summary": "Implement idle resource detection and cleanup automation",
+            "status": "To Do",
+            "priority": "Medium",
+            "issuetype": "Story",
+            "assignee": "Jesus",
+            "labels": [
+              "automation",
+              "cost-optimization",
+              "eval-corpus"
+            ],
+            "description": "We're paying for resources that aren't being used - abandoned namespaces, orphaned PVCs, unused load balancers, forgotten preview environments. We need automated detection and cleanup with appropriate safety guardrails.Acceptance Criteria:- Daily scan identifying resources with zero traffic/usage for >14 days- Classification into: safe-to-delete, needs-review, protected- Slack notification to owning team before any deletion- 7-day grace period with ability to extend- Automatic deletion of resources not claimed during grace period- Monthly report showing resources cleaned up and savings achievedThe preview environment cleanup is highest priority. We have 200+ preview environments from merged PRs that are still running. That alone is probably $15K/month.",
+            "created": "2026-05-09T11:18:54.935-0400",
+            "resolutiondate": null
+          },
+          {
+            "key": "PLAT-92",
+            "summary": "Add Backstage integration for cost visibility",
+            "status": "To Do",
+            "priority": "Medium",
+            "issuetype": "Subtask",
+            "assignee": "Jesus",
+            "labels": [
+              "eval-corpus"
+            ],
+            "description": "Build a Backstage plugin that embeds cost summary in the team and service entity pages. Show current month spend, trend, and link to detailed Grafana dashboard.",
+            "created": "2026-05-09T11:18:54.078-0400",
+            "resolutiondate": null
+          },
+          {
+            "key": "PLAT-91",
+            "summary": "Implement budget tracking and alert system",
+            "status": "To Do",
+            "priority": "Medium",
+            "issuetype": "Subtask",
+            "assignee": "Jesus",
+            "labels": [
+              "eval-corpus"
+            ],
+            "description": "Store team budgets in Backstage entity annotations. Create a job that compares current spend to budget and triggers Slack alerts at configurable thresholds.",
+            "created": "2026-05-09T11:18:53.115-0400",
+            "resolutiondate": null
+          }
+        ],
+        "High": [
+          {
+            "key": "PLAT-89",
+            "summary": "Build team cost dashboards with budget alerts",
+            "status": "To Do",
+            "priority": "High",
+            "issuetype": "Story",
+            "assignee": "Jesus",
+            "labels": [
+              "cost-optimization",
+              "eval-corpus",
+              "observability"
+            ],
+            "description": "Teams need to see their own costs in real-time and get alerted when they're trending over budget. Currently this information is only available to finance at month-end. Self-service cost visibility will change behavior.Acceptance Criteria:- Per-team Grafana dashboard showing daily, weekly, monthly costs- Cost breakdown by service, namespace, and resource type- Trend analysis showing cost growth rate- Budget configuration via team metadata in Backstage- Slack alerts when team reaches 80% and 100% of budget- Drill-down capability to individual pod cost contributionThis should integrate with Backstage so teams see their costs alongside their service catalog. The Kubecost Grafana plugin will be the data source.",
+            "created": "2026-05-09T11:18:50.998-0400",
+            "resolutiondate": null
+          },
+          {
+            "key": "PLAT-85",
+            "summary": "Enable spot instances for stateless workload tiers",
+            "status": "To Do",
+            "priority": "High",
+            "issuetype": "Story",
+            "assignee": "Jesus",
+            "labels": [
+              "cost-optimization",
+              "eval-corpus",
+              "infrastructure"
+            ],
+            "description": "We're running everything on on-demand instances, but many stateless workloads could run on spot with proper interruption handling. This is potentially our largest savings opportunity - spot is 60-70% cheaper than on-demand for our instance types.Acceptance Criteria:- Node pools created with spot instances in each cluster- Karpenter provisioner configured for spot with on-demand fallback- Pod disruption budgets validated for all workloads before migration- Graceful shutdown handling library added to platform-libs- Monitoring dashboard for spot interruption frequency and handling- Runbook for handling spot capacity issues during peak demandStart with our batch processing workloads - they're already designed for interruption. Then move to stateless APIs with good load balancing. Never put stateful workloads on spot.",
+            "created": "2026-05-09T11:18:46.878-0400",
+            "resolutiondate": null
+          },
+          {
+            "key": "PLAT-81",
+            "summary": "Implement automated resource rightsizing recommendations",
+            "status": "To Do",
+            "priority": "High",
+            "issuetype": "Story",
+            "assignee": "Jesus",
+            "labels": [
+              "automation",
+              "cost-optimization",
+              "eval-corpus"
+            ],
+            "description": "Most workloads are significantly over-provisioned because teams set resource requests based on worst-case scenarios and never revisit them. We need automated analysis that identifies rightsizing opportunities and makes it easy for teams to act.Acceptance Criteria:- Weekly report generated per team showing rightsizing opportunities- Recommendations based on p95 actual usage over 14-day window- Safety margin configurable per workload criticality tier- One-click PR generation to apply recommended resource changes- Projected savings calculated and shown for each recommendation- Excludes workloads marked with rightsizing-exempt annotationVPA in recommendation mode would be the obvious choice but it doesn't handle memory well for JVM workloads (which is half our fleet). We need something smarter that understands different workload types.",
+            "created": "2026-05-09T11:18:43.183-0400",
+            "resolutiondate": null
+          },
+          {
+            "key": "PLAT-64",
+            "summary": "Implement automatic permission expiration and access reviews",
+            "status": "To Do",
+            "priority": "High",
+            "issuetype": "Story",
+            "assignee": "Jesus",
+            "labels": [
+              "compliance",
+              "eval-corpus",
+              "rbac"
+            ],
+            "description": "All self-service permissions should be time-bounded to prevent permission accumulation. Additionally, we need periodic access reviews where team leads certify that their team's permissions are still needed.Acceptance Criteria:- All self-service permissions have mandatory expiration (max 90 days)- Users receive reminders at 14 days and 3 days before expiration- Team leads receive monthly access review digest- One-click certification or revocation from access review- Escalation to manager if access review not completed within 7 days- Dashboard showing access review completion rates by teamThis is a SOC2 requirement we've been manually fulfilling with spreadsheets. Automating this will save the security team ~8 hours per quarter and improve accuracy.",
+            "created": "2026-05-09T11:18:27.881-0400",
+            "resolutiondate": null
+          },
+          {
+            "key": "PLAT-60",
+            "summary": "Build Backstage plugin for RBAC self-service portal",
+            "status": "To Do",
+            "priority": "High",
+            "issuetype": "Story",
+            "assignee": "Jesus",
+            "labels": [
+              "eval-corpus",
+              "frontend",
+              "rbac"
+            ],
+            "description": "Create the user interface in Backstage where team members request access and team leads approve requests. This should feel native to Backstage and integrate with our existing entity model where teams own services.Acceptance Criteria:- Backstage plugin installable via our standard plugin mechanism- UI for requesting access to namespaces, services, or specific resources- Approval workflow with email notifications to approvers- Real-time status updates on pending requests- Audit log viewer showing all permission changes for a team's resources- Mobile-friendly design for approvals on the goWe've seen other companies fail at RBAC self-service because the UI was too complicated. Keep it simple - request access, see what you have, approve requests for your team. That's it.",
+            "created": "2026-05-09T11:18:24.228-0400",
+            "resolutiondate": null
+          },
+          {
+            "key": "PLAT-35",
+            "summary": "Implement scheduled batch job template with Argo Workflows",
+            "status": "To Do",
+            "priority": "High",
+            "issuetype": "Story",
+            "assignee": "Jesus",
+            "labels": [
+              "developer-experience",
+              "eval-corpus",
+              "templates"
+            ],
+            "description": "We have dozens of cron-style batch jobs running on legacy infrastructure that need migration to Kubernetes. Teams are reluctant to migrate because there's no clear path. This template will provide a paved road for batch workloads using Argo Workflows with our standard retry, alerting, and cost attribution patterns.Acceptance Criteria:- Template generates CronWorkflow manifests with timezone support- Built-in retry logic with exponential backoff (configurable)- Slack notifications on failure integrated with team channels- Cost attribution labels automatically applied based on team ownership- Support for both container-based and Python script-based jobs- Artifact passing between workflow steps using our MinIO clusterPrioritize Python script support first - that covers 80% of existing batch jobs. Container-based can be a follow-up iteration.",
+            "created": "2026-05-09T11:18:01.236-0400",
+            "resolutiondate": null
+          },
+          {
+            "key": "PLAT-31",
+            "summary": "Build ML model serving template with Seldon Core integration",
+            "status": "To Do",
+            "priority": "High",
+            "issuetype": "Story",
+            "assignee": "Jesus",
+            "labels": [
+              "developer-experience",
+              "eval-corpus",
+              "templates"
+            ],
+            "description": "The ML platform team has standardized on Seldon Core for model serving, but every new model deployment requires significant platform team involvement. We need a golden path that lets data scientists deploy models with minimal friction while ensuring they follow our inference gateway and monitoring standards.Acceptance Criteria:- Template supports Python model packaging with conda/pip dependencies- Generates SeldonDeployment manifests with A/B testing support- Integrates with our existing model registry (MLflow)- Includes load testing harness using Locust- Pre-configured Grafana dashboard for inference latency and throughput- GPU resource request configuration with sensible defaults and guardrailsNote: We need to coordinate with the ML platform team on Seldon version. They're planning an upgrade to 1.15 next quarter which changes the inference protocol. Template should be forward-compatible.",
+            "created": "2026-05-09T11:17:57.471-0400",
+            "resolutiondate": null
+          },
+          {
+            "key": "PLAT-18",
+            "summary": "Update mTLS policies for Istio 1.20 PeerAuthentication changes",
+            "status": "To Do",
+            "priority": "High",
+            "issuetype": "Story",
+            "assignee": "Jesus",
+            "labels": [
+              "eval-corpus",
+              "security",
+              "service-mesh"
+            ],
+            "description": "Istio 1.20 changes how PeerAuthentication policies are evaluated when multiple policies apply to a workload. Our current setup relies on namespace-wide STRICT mTLS with service-specific overrides, which could break with the new precedence rules.Acceptance Criteria:- Audit all existing PeerAuthentication resources across clusters- Identify any services relying on implicit policy inheritance- Update policies to be explicit about their scope where needed- Test updated policies in canary cluster before production rollout- Update platform documentation on mTLS policy best practicesWe had an incident last year (INC-2847) where a misconfigured PeerAuthentication took down inter-service communication for the checkout flow. We need to be extra careful here and involve the security team in the review.",
+            "created": "2026-05-09T11:17:46.049-0400",
+            "resolutiondate": null
+          },
+          {
+            "key": "PLAT-10",
+            "summary": "Update platform Helm charts for Gateway API compatibility",
+            "status": "To Do",
+            "priority": "High",
+            "issuetype": "Story",
+            "assignee": "Jesus",
+            "labels": [
+              "eval-corpus",
+              "helm-charts",
+              "service-mesh"
+            ],
+            "description": "Istio 1.18+ moves toward Kubernetes Gateway API as the preferred ingress model. Our internal platform-ingress Helm chart needs updates to support both the legacy Istio Gateway and the new Gateway API resources during the transition period.Acceptance Criteria:- platform-ingress chart version 3.0 supports conditional rendering of Gateway API vs Istio Gateway- Feature flag via values.yaml: useGatewayAPI: true|false- Existing consumers can upgrade chart version without breaking changes when flag is false- Documentation updated with migration guide for teams wanting to adopt Gateway API early- Integration tests added to chart CI pipeline covering both modesThis is blocking multiple teams who have been waiting for Gateway API support. The payments team specifically needs HTTPRoute for their header-based routing requirements that are awkward with VirtualService.",
+            "created": "2026-05-09T11:17:38.937-0400",
+            "resolutiondate": null
+          },
+          {
+            "key": "PLAT-6",
+            "summary": "Establish canary cluster for Istio 1.16 testing",
+            "status": "To Do",
+            "priority": "High",
+            "issuetype": "Story",
+            "assignee": "Jesus",
+            "labels": [
+              "eval-corpus",
+              "infrastructure",
+              "service-mesh"
+            ],
+            "description": "Spin up a dedicated canary cluster running Istio 1.16 to validate the first upgrade hop. This cluster will mirror production traffic at 1% using traffic mirroring from the us-east-1 primary cluster. We've had issues in the past with memory consumption changes between Istio versions, so this needs thorough resource profiling.Acceptance Criteria:- EKS cluster provisioned via existing Terraform modules with Istio 1.16 installed- Traffic mirroring configured for 3 representative services (user-api, order-service, inventory-service)- Prometheus and Grafana dashboards cloned and pointed at canary cluster- Runbook created for comparing metrics between canary and production- Chaos testing with Gremlin to validate circuit breaker behavior hasn't regressedWe should use the existing cluster-bootstrap module but override the Istio version. Make sure to enable access logging to S3 for later analysis.",
+            "created": "2026-05-09T11:17:35.146-0400",
+            "resolutiondate": null
+          }
+        ],
+        "Subtask": [
+          {
+            "key": "PLAT-100",
+            "summary": "Develop FinOps training curriculum and schedule sessions",
+            "status": "To Do",
+            "priority": "Medium",
+            "issuetype": "Subtask",
+            "assignee": "Jesus",
+            "labels": [
+              "eval-corpus"
+            ],
+            "description": "Create training materials covering: how to read cost dashboards, interpreting rightsizing recommendations, spot instance considerations, and making cost-aware architecture decisions. Schedule monthly lunch-and-learn.",
+            "created": "2026-05-09T11:19:01.287-0400",
+            "resolutiondate": null
+          },
+          {
+            "key": "PLAT-99",
+            "summary": "Add cost estimation to architecture review process",
+            "status": "To Do",
+            "priority": "Medium",
+            "issuetype": "Subtask",
+            "assignee": "Jesus",
+            "labels": [
+              "eval-corpus"
+            ],
+            "description": "Update the architecture review template to require cost estimates for new services. Create a cost estimation guide with rules of thumb (e.g., typical API service costs $X/month at Y requests/second).",
+            "created": "2026-05-09T11:19:00.391-0400",
+            "resolutiondate": null
+          },
+          {
+            "key": "PLAT-98",
+            "summary": "Design FinOps review meeting format and materials",
+            "status": "To Do",
+            "priority": "Medium",
+            "issuetype": "Subtask",
+            "assignee": "Jesus",
+            "labels": [
+              "eval-corpus"
+            ],
+            "description": "Create the agenda template for monthly FinOps reviews. Include: overall spend trends, biggest movers, optimization wins, upcoming initiatives. Prepare first month's materials as example.",
+            "created": "2026-05-09T11:18:59.581-0400",
+            "resolutiondate": null
+          },
+          {
+            "key": "PLAT-96",
+            "summary": "Create cleanup automation with audit logging",
+            "status": "To Do",
+            "priority": "Medium",
+            "issuetype": "Subtask",
+            "assignee": "Jesus",
+            "labels": [
+              "eval-corpus"
+            ],
+            "description": "Implement the actual cleanup after grace period expires. Log all deletions to audit trail. Exclude any resources with protected-from-cleanup annotation.",
+            "created": "2026-05-09T11:18:57.699-0400",
+            "resolutiondate": null
+          },
+          {
+            "key": "PLAT-95",
+            "summary": "Implement notification and grace period workflow",
+            "status": "To Do",
+            "priority": "Medium",
+            "issuetype": "Subtask",
+            "assignee": "Jesus",
+            "labels": [
+              "eval-corpus"
+            ],
+            "description": "Before deletion, notify owning team via Slack. Track grace period state in a ConfigMap or database. Allow teams to extend grace period via Slack reaction or kubectl command.",
+            "created": "2026-05-09T11:18:56.756-0400",
+            "resolutiondate": null
+          },
+          {
+            "key": "PLAT-94",
+            "summary": "Build idle resource detection scanner",
+            "status": "To Do",
+            "priority": "Medium",
+            "issuetype": "Subtask",
+            "assignee": "Jesus",
+            "labels": [
+              "eval-corpus"
+            ],
+            "description": "Create a job that scans for: namespaces with no pod activity, PVCs not mounted to any pod, LoadBalancer services with no traffic, preview environments for merged PRs. Use Prometheus and Kubernetes API data.",
+            "created": "2026-05-09T11:18:55.778-0400",
+            "resolutiondate": null
+          },
+          {
+            "key": "PLAT-92",
+            "summary": "Add Backstage integration for cost visibility",
+            "status": "To Do",
+            "priority": "Medium",
+            "issuetype": "Subtask",
+            "assignee": "Jesus",
+            "labels": [
+              "eval-corpus"
+            ],
+            "description": "Build a Backstage plugin that embeds cost summary in the team and service entity pages. Show current month spend, trend, and link to detailed Grafana dashboard.",
+            "created": "2026-05-09T11:18:54.078-0400",
+            "resolutiondate": null
+          },
+          {
+            "key": "PLAT-91",
+            "summary": "Implement budget tracking and alert system",
+            "status": "To Do",
+            "priority": "Medium",
+            "issuetype": "Subtask",
+            "assignee": "Jesus",
+            "labels": [
+              "eval-corpus"
+            ],
+            "description": "Store team budgets in Backstage entity annotations. Create a job that compares current spend to budget and triggers Slack alerts at configurable thresholds.",
+            "created": "2026-05-09T11:18:53.115-0400",
+            "resolutiondate": null
+          },
+          {
+            "key": "PLAT-90",
+            "summary": "Create Grafana dashboard template for team costs",
+            "status": "To Do",
+            "priority": "Medium",
+            "issuetype": "Subtask",
+            "assignee": "Jesus",
+            "labels": [
+              "eval-corpus"
+            ],
+            "description": "Build a parameterized dashboard that shows team costs with drill-down by service. Include comparison to previous periods and trend extrapolation. Use Kubecost as data source.",
+            "created": "2026-05-09T11:18:52.091-0400",
+            "resolutiondate": null
+          },
+          {
+            "key": "PLAT-88",
+            "summary": "Create spot migration runbook and dashboard",
+            "status": "To Do",
+            "priority": "Medium",
+            "issuetype": "Subtask",
+            "assignee": "Jesus",
+            "labels": [
+              "eval-corpus"
+            ],
+            "description": "Document the process for migrating workloads to spot, including PDB validation, testing procedures, and rollback steps. Build Grafana dashboard showing spot vs on-demand distribution and interruption rates.",
+            "created": "2026-05-09T11:18:50.088-0400",
+            "resolutiondate": null
+          }
+        ]
+      }
+    },
     {
       "project": "SMP",
       "samples": {
