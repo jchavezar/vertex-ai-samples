@@ -115,30 +115,6 @@
             "description": "this is the second task. ",
             "created": "2026-01-07T13:01:42.540-0500",
             "resolutiondate": "2026-01-07T13:02:21.310-0500"
-          },
-          {
-            "key": "SMP-902",
-            "summary": "Barry Task 2",
-            "status": "Done",
-            "priority": "Medium",
-            "issuetype": "Task",
-            "assignee": null,
-            "labels": [],
-            "description": "this is the second second task",
-            "created": "2026-01-07T13:01:33.836-0500",
-            "resolutiondate": "2026-01-07T13:02:19.180-0500"
-          },
-          {
-            "key": "SMP-901",
-            "summary": "Barry Task 1",
-            "status": "Done",
-            "priority": "Medium",
-            "issuetype": "Task",
-            "assignee": null,
-            "labels": [],
-            "description": "this is the first task",
-            "created": "2026-01-07T13:01:27.933-0500",
-            "resolutiondate": "2026-01-07T13:02:16.979-0500"
           }
         ],
         "To Do": [
@@ -236,30 +212,6 @@
             "labels": [],
             "description": "Stalling when hot reported by customer. Constant.\nFix: Tightened loose fasteners to torque spec.",
             "created": "2026-01-06T23:00:19.835-0500",
-            "resolutiondate": null
-          },
-          {
-            "key": "SMP-798",
-            "summary": "[RE Himalayan] Cold Valve Clearance",
-            "status": "To Do",
-            "priority": "Medium",
-            "issuetype": "Task",
-            "assignee": null,
-            "labels": [],
-            "description": "Valve clearance tight reported by customer. Cold start only.\nFix: Diagnosed wiring fault and repaired harness.",
-            "created": "2026-01-06T23:00:18.500-0500",
-            "resolutiondate": null
-          },
-          {
-            "key": "SMP-797",
-            "summary": "[KTM 890 Adventure] Load Sprocket Wear",
-            "status": "To Do",
-            "priority": "Medium",
-            "issuetype": "Task",
-            "assignee": null,
-            "labels": [],
-            "description": "Sprocket wear hooked reported by customer. Under load.\nFix: Cleaned and lubricated affected area.",
-            "created": "2026-01-06T23:00:17.549-0500",
             "resolutiondate": null
           }
         ],
@@ -379,38 +331,6 @@
             "description": "Description\nLocalize the default error messages and dialogs provided by the Flet framework into Spanish and French.ScopeConnection errors.Validation messages.Default file picker labels.Languages\nES, FR",
             "created": "2025-11-21T11:26:49.291-0500",
             "resolutiondate": null
-          },
-          {
-            "key": "SMP-92",
-            "summary": "Bug: AnimatedSwitcher transition chopped on high refresh rate",
-            "status": "In Progress",
-            "priority": "Medium",
-            "issuetype": "Task",
-            "assignee": "sockcop",
-            "labels": [
-              "animation",
-              "bug",
-              "performance"
-            ],
-            "description": "Description\nThe AnimatedSwitcher transition animation appears chopped or skips frames on displays with refresh rates higher than 60Hz.Hardware\nMonitor: 144Hz refresh rate.Observation\nAnimation seems locked to 60fps, causing visual jitter.",
-            "created": "2025-11-21T11:26:45.855-0500",
-            "resolutiondate": null
-          },
-          {
-            "key": "SMP-89",
-            "summary": "Bug: DatePicker locale not updating dynamically",
-            "status": "In Progress",
-            "priority": "Medium",
-            "issuetype": "Task",
-            "assignee": "Jesus",
-            "labels": [
-              "bug",
-              "datepicker",
-              "i18n"
-            ],
-            "description": "Description\nThe DatePicker component does not update its language/locale when the app's locale is changed dynamically at runtime.StepsInit app in 'en'.Open DatePicker (English).Change app locale to 'es'.Open DatePicker.Result\nStill in English.",
-            "created": "2025-11-21T11:26:43.411-0500",
-            "resolutiondate": null
           }
         ],
         "Done": [
@@ -509,30 +429,6 @@
             "description": "Caliper seizure reported by customer. Constant.\nFix: Tightened loose fasteners to torque spec.",
             "created": "2026-01-06T23:06:51.716-0500",
             "resolutiondate": "2026-01-06T23:08:10.856-0500"
-          },
-          {
-            "key": "SMP-895",
-            "summary": "[RE Continental GT 650] Intermittent Cam Rattle",
-            "status": "Done",
-            "priority": "Medium",
-            "issuetype": "Task",
-            "assignee": null,
-            "labels": [],
-            "description": "Cam chain rattle reported by customer. Intermittent.\nFix: Updated ECU firmware to latest version.",
-            "created": "2026-01-06T23:06:50.913-0500",
-            "resolutiondate": "2026-01-06T23:08:10.092-0500"
-          },
-          {
-            "key": "SMP-894",
-            "summary": "[RE Classic 350] Cold Master Leak",
-            "status": "Done",
-            "priority": "Medium",
-            "issuetype": "Task",
-            "assignee": null,
-            "labels": [],
-            "description": "Master cylinder leak reported by customer. Cold start only.\nFix: Replaced faulty component under warranty.",
-            "created": "2026-01-06T23:06:49.980-0500",
-            "resolutiondate": "2026-01-06T23:08:09.272-0500"
           }
         ],
         "High": [
@@ -680,30 +576,6 @@
             "labels": [],
             "description": "",
             "created": "2025-11-21T11:46:59.438-0500",
-            "resolutiondate": null
-          },
-          {
-            "key": "SMP-202",
-            "summary": "Check AndroidManifest.xml template",
-            "status": "To Do",
-            "priority": "Medium",
-            "issuetype": "Subtask",
-            "assignee": null,
-            "labels": [],
-            "description": "",
-            "created": "2025-11-21T11:46:57.253-0500",
-            "resolutiondate": null
-          },
-          {
-            "key": "SMP-201",
-            "summary": "Write async reproduction script",
-            "status": "To Do",
-            "priority": "Medium",
-            "issuetype": "Subtask",
-            "assignee": null,
-            "labels": [],
-            "description": "",
-            "created": "2025-11-21T11:46:55.338-0500",
             "resolutiondate": null
           }
         ]

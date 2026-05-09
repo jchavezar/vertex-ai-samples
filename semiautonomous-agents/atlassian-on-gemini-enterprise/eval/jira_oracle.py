@@ -296,6 +296,94 @@ async def corpus_stats(client: httpx.AsyncClient | None = None) -> dict[str, Any
             await client.aclose()  # type: ignore[union-attr]
 
 
+# --- Deep mining for grounded analytical themes ---------------------------
+
+async def sample_issues_with_desc(project_key: str, n: int = 50,
+                                   jql_extra: str = "",
+                                   client: httpx.AsyncClient | None = None) -> list[dict[str, Any]]:
+    """Fetch N issues with full descriptions, status, priority, type, summary."""
+    own_client = client is None
+    if own_client:
+        client = httpx.AsyncClient()
+    try:
+        jql = f"project = {project_key}" + (f" AND {jql_extra}" if jql_extra else "") + " ORDER BY created DESC"
+        # We need description so use richer field set + smaller page (descriptions are heavy).
+        params = {"jql": jql, "fields": "summary,status,priority,issuetype,description,assignee,created,resolutiondate,labels", "maxResults": min(n, 100)}
+        resp = await _request(client, "GET", "/rest/api/3/search/jql", params=params)
+        if resp.status_code != 200:
+            return []
+        items: list[dict[str, Any]] = []
+        for issue in resp.json().get("issues", [])[:n]:
+            f = issue.get("fields", {}) or {}
+            desc_raw = f.get("description")
+            # description may be ADF (dict) or plain string. Extract text.
+            desc_text = ""
+            if isinstance(desc_raw, dict):
+                # Walk ADF doc
+                def _walk(node: Any) -> str:
+                    if isinstance(node, dict):
+                        if node.get("type") == "text" and "text" in node:
+                            return node["text"]
+                        return "".join(_walk(c) for c in node.get("content", []) or [])
+                    return ""
+                desc_text = _walk(desc_raw)
+            elif isinstance(desc_raw, str):
+                desc_text = desc_raw
+            items.append({
+                "key": issue.get("key"),
+                "summary": (f.get("summary") or "")[:200],
+                "status": (f.get("status") or {}).get("name"),
+                "priority": (f.get("priority") or {}).get("name"),
+                "issuetype": (f.get("issuetype") or {}).get("name"),
+                "assignee": ((f.get("assignee") or {}).get("displayName")) if f.get("assignee") else None,
+                "labels": f.get("labels") or [],
+                "description": desc_text[:1200],
+                "created": f.get("created"),
+                "resolutiondate": f.get("resolutiondate"),
+            })
+        return items
+    finally:
+        if own_client:
+            await client.aclose()  # type: ignore[union-attr]
+
+
+async def deep_corpus(client: httpx.AsyncClient | None = None,
+                      n_per_bucket: int = 12) -> dict[str, Any]:
+    """Build a richer corpus that the analytical-question generator can ground in.
+
+    Includes: corpus_stats + per-status / per-priority / per-type sample issue
+    text. Used as input to the question generator so themes match real content.
+    """
+    own_client = client is None
+    if own_client:
+        client = httpx.AsyncClient()
+    try:
+        base = await corpus_stats(client)
+        out: dict[str, Any] = {**base, "deep": []}
+        for proj in base.get("projects", []):
+            pk = proj["key"]
+            # Summary buckets we want grounded text for.
+            buckets: list[tuple[str, str]] = [
+                ("recent", ""),
+                ("To Do", 'status = "To Do"'),
+                ("In Progress", 'status = "In Progress"'),
+                ("Done", 'status = "Done"'),
+                ("High", 'priority = High'),
+                ("Bug", 'issuetype = Bug'),
+                ("Subtask", 'issuetype = Subtask'),
+            ]
+            samples: dict[str, list[dict[str, Any]]] = {}
+            for label, jql_extra in buckets:
+                items = await sample_issues_with_desc(pk, n=n_per_bucket, jql_extra=jql_extra, client=client)
+                if items:
+                    samples[label] = items
+            out["deep"].append({"project": pk, "samples": samples})
+        return out
+    finally:
+        if own_client:
+            await client.aclose()  # type: ignore[union-attr]
+
+
 # --- Convenience for ground-truth synthesis ---------------------------------
 
 async def ground_truth_for(question: dict[str, Any], client: httpx.AsyncClient | None = None) -> dict[str, Any]:

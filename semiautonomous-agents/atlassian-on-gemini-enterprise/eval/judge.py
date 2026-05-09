@@ -61,7 +61,9 @@ ANALYTICAL_TPL = """Score this analytical answer 0.0-1.0 against expected themes
 QUESTION:
 {q}
 
-EXPECTED THEMES (the answer should address these — wording can vary):
+EXPECTED THEMES (HINTS for what a good answer touches — these were
+pre-imagined; the agent answers from REAL data and may surface different
+but equally valid themes):
 {themes}
 
 ASSISTANT'S ANSWER:
@@ -69,9 +71,22 @@ ASSISTANT'S ANSWER:
 
 CITED ISSUE KEYS (from answer): {cited}
 
+Scoring policy:
+- The expected themes are HINTS, not a checklist. Score based on whether the
+  answer addresses the SPIRIT of the question with answers grounded in real
+  data — even if the specific themes named differ from the hints.
+- A grounded, on-topic answer that surfaces real themes from the corpus
+  should score 0.8-1.0 even if it doesn't mention the pre-imagined themes
+  (because those themes were guessed without seeing the data).
+- An off-topic answer that talks about a different domain entirely → 0.1-0.3.
+- An empty answer or "I cannot access" → 0.
+- A partial answer that covers ~half of what's asked → 0.4-0.7.
+- Be GENEROUS to grounded answers. Penalize only when the agent clearly
+  failed to address the question or used the wrong data.
+
 Score:
-- analytical_correctness: Does the answer address the expected themes with reasonable accuracy? Empty/refused = 0; off-topic = 0.1-0.3; partial = 0.4-0.7; comprehensive = 1.0.
-- analytical_completeness: How many of the expected themes are covered? Fraction.
+- analytical_correctness: Does the answer address the question with grounded reasoning?
+- analytical_completeness: Does it cover the breadth the question asks for?
 
 Return ONLY: {{"analytical_correctness": 0.0-1.0, "analytical_completeness": 0.0-1.0, "reason": "<one sentence>"}}"""
 

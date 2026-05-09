@@ -1,0 +1,554 @@
+{
+  "run_dir": "runs/20260508-fixed",
+  "n_questions": 478,
+  "option_a": {
+    "n": 478,
+    "n_ok": 471,
+    "composite": 0.7836321561125142,
+    "correctness": 0.7894946360916553,
+    "completeness": 0.7777696761333732,
+    "citation_accuracy": 0.952537250738351,
+    "hallucination_rate": 0.04928392994134414,
+    "jql_correctness": 0.7301818181818183,
+    "pagination_completeness": 0.23169313703567784,
+    "refusal_correctness": 0.8837209302325582,
+    "tool_efficiency": 0.5326764044093587,
+    "latency_p50": 32.78967567696236,
+    "latency_p95": 330.2083452618681,
+    "latency_avg": 68.81841899603141,
+    "verdicts": {
+      "correct": 300,
+      "partial": 60,
+      "wrong": 72,
+      "hallucinated": 1,
+      "refused": 38,
+      "error": 7
+    }
+  },
+  "option_b": {
+    "n": 478,
+    "n_ok": 415,
+    "composite": 0.4165714066246703,
+    "correctness": 0.409246105419851,
+    "completeness": 0.4238967078294896,
+    "citation_accuracy": 0.8181818181818182,
+    "hallucination_rate": 0.18181818181818182,
+    "jql_correctness": null,
+    "pagination_completeness": 0.00018131610536673828,
+    "refusal_correctness": 0.8541666666666666,
+    "tool_efficiency": null,
+    "latency_p50": 53.25680560292676,
+    "latency_p95": 121.35328881605528,
+    "latency_avg": 59.72996041847909,
+    "verdicts": {
+      "correct": 62,
+      "partial": 96,
+      "wrong": 215,
+      "hallucinated": 1,
+      "refused": 41,
+      "error": 63
+    }
+  },
+  "categories": {
+    "ambiguous": {
+      "a": {
+        "n": 48,
+        "n_ok": 48,
+        "composite": 0.4186458333333333,
+        "correctness": 0.4770833333333333,
+        "completeness": 0.3602083333333333,
+        "citation_accuracy": 0.7864693446088795,
+        "hallucination_rate": 0.2654825794360678,
+        "jql_correctness": null,
+        "pagination_completeness": null,
+        "refusal_correctness": null,
+        "tool_efficiency": 0.0,
+        "latency_p50": 27.800807179883122,
+        "latency_p95": 128.728348714998,
+        "latency_avg": 37.9072736257173,
+        "verdicts": {
+          "correct": 12,
+          "partial": 12,
+          "wrong": 24,
+          "hallucinated": 0,
+          "refused": 0,
+          "error": 0
+        }
+      },
+      "b": {
+        "n": 48,
+        "n_ok": 44,
+        "composite": 0.45772727272727276,
+        "correctness": 0.4681818181818182,
+        "completeness": 0.44727272727272727,
+        "citation_accuracy": 0.0,
+        "hallucination_rate": 1.0,
+        "jql_correctness": null,
+        "pagination_completeness": null,
+        "refusal_correctness": null,
+        "tool_efficiency": null,
+        "latency_p50": 32.27067468804307,
+        "latency_p95": 107.74075035285205,
+        "latency_avg": 50.71371589587282,
+        "verdicts": {
+          "correct": 14,
+          "partial": 10,
+          "wrong": 20,
+          "hallucinated": 0,
+          "refused": 0,
+          "error": 4
+        }
+      }
+    },
+    "count-aggregate": {
+      "a": {
+        "n": 48,
+        "n_ok": 48,
+        "composite": 0.9291666666666667,
+        "correctness": 0.9291666666666667,
+        "completeness": 0.9291666666666667,
+        "citation_accuracy": 1.0,
+        "hallucination_rate": 0.0,
+        "jql_correctness": 0.37142857142857144,
+        "pagination_completeness": null,
+        "refusal_correctness": null,
+        "tool_efficiency": 0.665625,
+        "latency_p50": 15.428986477898434,
+        "latency_p95": 31.213693330064416,
+        "latency_avg": 17.63949887828979,
+        "verdicts": {
+          "correct": 44,
+          "partial": 1,
+          "wrong": 3,
+          "hallucinated": 0,
+          "refused": 0,
+          "error": 0
+        }
+      },
+      "b": {
+        "n": 48,
+        "n_ok": 32,
+        "composite": 0.0,
+        "correctness": 0.0,
+        "completeness": 0.0,
+        "citation_accuracy": null,
+        "hallucination_rate": null,
+        "jql_correctness": null,
+        "pagination_completeness": null,
+        "refusal_correctness": null,
+        "tool_efficiency": null,
+        "latency_p50": 62.09817896503955,
+        "latency_p95": 253.83006725716405,
+        "latency_avg": 73.46634296332195,
+        "verdicts": {
+          "correct": 0,
+          "partial": 0,
+          "wrong": 32,
+          "hallucinated": 0,
+          "refused": 0,
+          "error": 16
+        }
+      }
+    },
+    "cross-issue-analysis": {
+      "a": {
+        "n": 48,
+        "n_ok": 48,
+        "composite": 0.7330208333333335,
+        "correctness": 0.7260416666666667,
+        "completeness": 0.7400000000000001,
+        "citation_accuracy": 0.9543859649122807,
+        "hallucination_rate": 0.03684210526315789,
+        "jql_correctness": 0.5,
+        "pagination_completeness": null,
+        "refusal_correctness": null,
+        "tool_efficiency": 0.5429214199086476,
+        "latency_p50": 70.08967906795442,
+        "latency_p95": 371.72751667001285,
+        "latency_avg": 128.99110682193228,
+        "verdicts": {
+          "correct": 32,
+          "partial": 9,
+          "wrong": 7,
+          "hallucinated": 0,
+          "refused": 0,
+          "error": 0
+        }
+      },
+      "b": {
+        "n": 48,
+        "n_ok": 47,
+        "composite": 0.44680851063829785,
+        "correctness": 0.4340425531914893,
+        "completeness": 0.45957446808510644,
+        "citation_accuracy": null,
+        "hallucination_rate": null,
+        "jql_correctness": null,
+        "pagination_completeness": null,
+        "refusal_correctness": null,
+        "tool_efficiency": null,
+        "latency_p50": 70.83289110893384,
+        "latency_p95": 129.48685057112016,
+        "latency_avg": 76.78578702690318,
+        "verdicts": {
+          "correct": 3,
+          "partial": 24,
+          "wrong": 20,
+          "hallucinated": 0,
+          "refused": 0,
+          "error": 1
+        }
+      }
+    },
+    "jql-filter": {
+      "a": {
+        "n": 48,
+        "n_ok": 48,
+        "composite": 0.8761167223302365,
+        "correctness": 0.8759339737922248,
+        "completeness": 0.8762994708682482,
+        "citation_accuracy": 0.9968499559256874,
+        "hallucination_rate": 0.0,
+        "jql_correctness": 0.78125,
+        "pagination_completeness": null,
+        "refusal_correctness": null,
+        "tool_efficiency": 0.554770171957672,
+        "latency_p50": 26.689532465068623,
+        "latency_p95": 76.71864190301858,
+        "latency_avg": 31.643846942310727,
+        "verdicts": {
+          "correct": 42,
+          "partial": 0,
+          "wrong": 6,
+          "hallucinated": 0,
+          "refused": 0,
+          "error": 0
+        }
+      },
+      "b": {
+        "n": 48,
+        "n_ok": 38,
+        "composite": 0.0009112731152204836,
+        "correctness": 0.0009112731152204836,
+        "completeness": 0.0009112731152204836,
+        "citation_accuracy": 1.0,
+        "hallucination_rate": 0.0,
+        "jql_correctness": null,
+        "pagination_completeness": null,
+        "refusal_correctness": null,
+        "tool_efficiency": null,
+        "latency_p50": 49.19152751099318,
+        "latency_p95": 104.49998697917908,
+        "latency_avg": 57.67768601195176,
+        "verdicts": {
+          "correct": 0,
+          "partial": 0,
+          "wrong": 38,
+          "hallucinated": 0,
+          "refused": 0,
+          "error": 10
+        }
+      }
+    },
+    "lookup": {
+      "a": {
+        "n": 48,
+        "n_ok": 48,
+        "composite": 1.0,
+        "correctness": 1.0,
+        "completeness": 1.0,
+        "citation_accuracy": 1.0,
+        "hallucination_rate": 0.0,
+        "jql_correctness": 1.0,
+        "pagination_completeness": null,
+        "refusal_correctness": null,
+        "tool_efficiency": 0.6914930555555556,
+        "latency_p50": 18.805572065990418,
+        "latency_p95": 50.44931554514915,
+        "latency_avg": 32.258251652111845,
+        "verdicts": {
+          "correct": 48,
+          "partial": 0,
+          "wrong": 0,
+          "hallucinated": 0,
+          "refused": 0,
+          "error": 0
+        }
+      },
+      "b": {
+        "n": 48,
+        "n_ok": 17,
+        "composite": 0.9411764705882353,
+        "correctness": 0.9411764705882353,
+        "completeness": 0.9411764705882353,
+        "citation_accuracy": 1.0,
+        "hallucination_rate": 0.0,
+        "jql_correctness": null,
+        "pagination_completeness": null,
+        "refusal_correctness": null,
+        "tool_efficiency": null,
+        "latency_p50": 51.986733722966164,
+        "latency_p95": 133.5131595779676,
+        "latency_avg": 61.898074386504426,
+        "verdicts": {
+          "correct": 16,
+          "partial": 0,
+          "wrong": 1,
+          "hallucinated": 0,
+          "refused": 0,
+          "error": 31
+        }
+      }
+    },
+    "multi-step": {
+      "a": {
+        "n": 47,
+        "n_ok": 47,
+        "composite": 0.8548936170212766,
+        "correctness": 0.8287234042553192,
+        "completeness": 0.881063829787234,
+        "citation_accuracy": 0.9788981616521722,
+        "hallucination_rate": 0.00925925925925926,
+        "jql_correctness": 0.6565217391304348,
+        "pagination_completeness": null,
+        "refusal_correctness": null,
+        "tool_efficiency": 0.5593214192178357,
+        "latency_p50": 61.04504479980096,
+        "latency_p95": 381.0583705410827,
+        "latency_avg": 97.8387743004677,
+        "verdicts": {
+          "correct": 35,
+          "partial": 9,
+          "wrong": 3,
+          "hallucinated": 0,
+          "refused": 0,
+          "error": 0
+        }
+      },
+      "b": {
+        "n": 47,
+        "n_ok": 47,
+        "composite": 0.6698936170212766,
+        "correctness": 0.6138297872340425,
+        "completeness": 0.7259574468085106,
+        "citation_accuracy": 1.0,
+        "hallucination_rate": 0.0,
+        "jql_correctness": null,
+        "pagination_completeness": null,
+        "refusal_correctness": null,
+        "tool_efficiency": null,
+        "latency_p50": 58.79468149878085,
+        "latency_p95": 104.66474603908136,
+        "latency_avg": 63.46142220325233,
+        "verdicts": {
+          "correct": 11,
+          "partial": 27,
+          "wrong": 9,
+          "hallucinated": 0,
+          "refused": 0,
+          "error": 0
+        }
+      }
+    },
+    "pagination-required": {
+      "a": {
+        "n": 48,
+        "n_ok": 48,
+        "composite": 0.9011904761904762,
+        "correctness": 0.9011904761904762,
+        "completeness": 0.9011904761904762,
+        "citation_accuracy": 0.9801531548632877,
+        "hallucination_rate": 0.010007859609758961,
+        "jql_correctness": 0.9072916666666666,
+        "pagination_completeness": 0.23169313703567784,
+        "refusal_correctness": null,
+        "tool_efficiency": 0.9930555555555555,
+        "latency_p50": 55.90394723904319,
+        "latency_p95": 305.2378637830261,
+        "latency_avg": 104.27749722972415,
+        "verdicts": {
+          "correct": 42,
+          "partial": 2,
+          "wrong": 4,
+          "hallucinated": 0,
+          "refused": 0,
+          "error": 0
+        }
+      },
+      "b": {
+        "n": 48,
+        "n_ok": 48,
+        "composite": 0.07713552855957918,
+        "correctness": 0.07713552855957918,
+        "completeness": 0.07713552855957918,
+        "citation_accuracy": 0.8,
+        "hallucination_rate": 0.2,
+        "jql_correctness": null,
+        "pagination_completeness": 0.00018131610536673828,
+        "refusal_correctness": null,
+        "tool_efficiency": null,
+        "latency_p50": 46.3875681750942,
+        "latency_p95": 81.66612712503411,
+        "latency_avg": 48.754118637676584,
+        "verdicts": {
+          "correct": 4,
+          "partial": 0,
+          "wrong": 43,
+          "hallucinated": 1,
+          "refused": 0,
+          "error": 0
+        }
+      }
+    },
+    "refusal-test": {
+      "a": {
+        "n": 48,
+        "n_ok": 43,
+        "composite": 0.8837209302325582,
+        "correctness": 0.8837209302325582,
+        "completeness": 0.8837209302325582,
+        "citation_accuracy": 0.8,
+        "hallucination_rate": 0.2,
+        "jql_correctness": null,
+        "pagination_completeness": null,
+        "refusal_correctness": 0.8837209302325582,
+        "tool_efficiency": 0.0,
+        "latency_p50": 20.835175949148834,
+        "latency_p95": 43.585078094154596,
+        "latency_avg": 23.76351046048343,
+        "verdicts": {
+          "correct": 0,
+          "partial": 0,
+          "wrong": 5,
+          "hallucinated": 0,
+          "refused": 38,
+          "error": 5
+        }
+      },
+      "b": {
+        "n": 48,
+        "n_ok": 48,
+        "composite": 0.8541666666666666,
+        "correctness": 0.8541666666666666,
+        "completeness": 0.8541666666666666,
+        "citation_accuracy": 0.8333333333333334,
+        "hallucination_rate": 0.16666666666666666,
+        "jql_correctness": null,
+        "pagination_completeness": null,
+        "refusal_correctness": 0.8541666666666666,
+        "tool_efficiency": null,
+        "latency_p50": 23.750551629113033,
+        "latency_p95": 66.85396625101566,
+        "latency_avg": 26.77738221180819,
+        "verdicts": {
+          "correct": 0,
+          "partial": 0,
+          "wrong": 7,
+          "hallucinated": 0,
+          "refused": 41,
+          "error": 0
+        }
+      }
+    },
+    "root-cause-synthesis": {
+      "a": {
+        "n": 48,
+        "n_ok": 47,
+        "composite": 0.41914893617021276,
+        "correctness": 0.4659574468085106,
+        "completeness": 0.3723404255319149,
+        "citation_accuracy": 0.9776505292952661,
+        "hallucination_rate": 0.007575757575757575,
+        "jql_correctness": null,
+        "pagination_completeness": null,
+        "refusal_correctness": null,
+        "tool_efficiency": 0.5817051934980005,
+        "latency_p50": 56.3285525450483,
+        "latency_p95": 382.28967190207914,
+        "latency_avg": 105.04433326935892,
+        "verdicts": {
+          "correct": 9,
+          "partial": 21,
+          "wrong": 16,
+          "hallucinated": 1,
+          "refused": 0,
+          "error": 1
+        }
+      },
+      "b": {
+        "n": 48,
+        "n_ok": 48,
+        "composite": 0.32395833333333335,
+        "correctness": 0.3354166666666667,
+        "completeness": 0.3125,
+        "citation_accuracy": 1.0,
+        "hallucination_rate": 0.0,
+        "jql_correctness": null,
+        "pagination_completeness": null,
+        "refusal_correctness": null,
+        "tool_efficiency": null,
+        "latency_p50": 75.53432809002697,
+        "latency_p95": 154.73080563009717,
+        "latency_avg": 80.35853041086618,
+        "verdicts": {
+          "correct": 10,
+          "partial": 7,
+          "wrong": 31,
+          "hallucinated": 0,
+          "refused": 0,
+          "error": 0
+        }
+      }
+    },
+    "trend": {
+      "a": {
+        "n": 47,
+        "n_ok": 46,
+        "composite": 0.8265217391304347,
+        "correctness": 0.8119565217391305,
+        "completeness": 0.841086956521739,
+        "citation_accuracy": 0.9641741071428571,
+        "hallucination_rate": 0.040364583333333336,
+        "jql_correctness": 0.49883720930232556,
+        "pagination_completeness": null,
+        "refusal_correctness": null,
+        "tool_efficiency": 0.3628318938638856,
+        "latency_p50": 72.7563956931699,
+        "latency_p95": 343.501609521918,
+        "latency_avg": 107.08042465965264,
+        "verdicts": {
+          "correct": 36,
+          "partial": 6,
+          "wrong": 4,
+          "hallucinated": 0,
+          "refused": 0,
+          "error": 1
+        }
+      },
+      "b": {
+        "n": 47,
+        "n_ok": 46,
+        "composite": 0.5209782608695652,
+        "correctness": 0.5032608695652173,
+        "completeness": 0.538695652173913,
+        "citation_accuracy": null,
+        "hallucination_rate": null,
+        "jql_correctness": null,
+        "pagination_completeness": null,
+        "refusal_correctness": null,
+        "tool_efficiency": null,
+        "latency_p50": 64.01808438985609,
+        "latency_p95": 120.19708656496368,
+        "latency_avg": 62.766248523591734,
+        "verdicts": {
+          "correct": 4,
+          "partial": 28,
+          "wrong": 14,
+          "hallucinated": 0,
+          "refused": 0,
+          "error": 1
+        }
+      }
+    }
+  }
+}
