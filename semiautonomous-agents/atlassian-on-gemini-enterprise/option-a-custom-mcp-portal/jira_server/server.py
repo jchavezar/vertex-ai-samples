@@ -125,6 +125,35 @@ async def list_tools() -> list[Tool]:
                  },
                  "required": ["jql"]
              }
+             ),
+        Tool(name="getIssueComments", description="Retrieves all comments on a single Jira issue. Returns each comment with author, created timestamp, and body text.",
+             inputSchema={
+                 "type": "object",
+                 "properties": {
+                     "issueKey": {"type": "string", "description": "Issue key like SMP-912 or BUGS-100"},
+                     "maxResults": {"type": "integer", "default": 50}
+                 },
+                 "required": ["issueKey"]
+             }
+             ),
+        Tool(name="getIssueWorklogs", description="Retrieves all worklogs (time-tracking entries) on a single Jira issue. Returns each worklog with author, time spent, and comment.",
+             inputSchema={
+                 "type": "object",
+                 "properties": {
+                     "issueKey": {"type": "string", "description": "Issue key like SMP-912 or BUGS-100"},
+                     "maxResults": {"type": "integer", "default": 50}
+                 },
+                 "required": ["issueKey"]
+             }
+             ),
+        Tool(name="getIssueLinks", description="Retrieves all issue links (Blocks, Duplicate, Relates, Cloners) on a single Jira issue, in both directions (inward and outward).",
+             inputSchema={
+                 "type": "object",
+                 "properties": {
+                     "issueKey": {"type": "string", "description": "Issue key like SMP-912 or BUGS-100"}
+                 },
+                 "required": ["issueKey"]
+             }
              )
     ]
 
@@ -317,6 +346,96 @@ async def call_tool(name: str, arguments: dict) -> list[TextContent]:
                 res.append(f"ISSUE: Key={i['key']} | Status={f.get('status',{}).get('name')} | Created={created} | ResolutionDate={resolution_date} | Updated={updated} | Summary={f.get('summary')} | Desc={desc_trunc} | URL={site_url}/browse/{i['key']}")
 
             return [TextContent(type="text", text="\n".join(res))]
+
+        elif name == "getIssueComments":
+            issue_key = arguments.get("issueKey")
+            max_results = arguments.get("maxResults", 50)
+            if not issue_key:
+                raise ValueError("issueKey required")
+            data = jira.issue(issue_key, fields="comment")
+            comments = (data.get("fields", {}).get("comment", {}) or {}).get("comments", []) or []
+            comments = comments[:max_results]
+            if not comments:
+                return [TextContent(type="text", text=f"No comments on {issue_key}.")]
+            lines = [f"COMMENTS on [{issue_key}]({site_url}/browse/{issue_key}) — {len(comments)} total:"]
+            for c in comments:
+                author = (c.get("author") or {}).get("displayName") or "Unknown"
+                created = c.get("created", "")
+                # body may be ADF dict or string
+                body_raw = c.get("body")
+                body_text = ""
+                if isinstance(body_raw, dict):
+                    def _walk(node):
+                        if isinstance(node, dict):
+                            if node.get("type") == "text" and "text" in node:
+                                return node["text"]
+                            return "".join(_walk(x) for x in (node.get("content") or []))
+                        return ""
+                    body_text = _walk(body_raw)
+                elif isinstance(body_raw, str):
+                    body_text = body_raw
+                lines.append(f"---\n[{created}] {author}: {body_text[:800]}")
+            return [TextContent(type="text", text="\n".join(lines))]
+
+        elif name == "getIssueWorklogs":
+            issue_key = arguments.get("issueKey")
+            max_results = arguments.get("maxResults", 50)
+            if not issue_key:
+                raise ValueError("issueKey required")
+            wl_data = jira.issue_worklog(issue_key)
+            worklogs = (wl_data.get("worklogs") or [])[:max_results]
+            if not worklogs:
+                return [TextContent(type="text", text=f"No worklogs on {issue_key}.")]
+            total_seconds = 0
+            lines = [f"WORKLOGS on [{issue_key}]({site_url}/browse/{issue_key}) — {len(worklogs)} entries:"]
+            for w in worklogs:
+                author = (w.get("author") or {}).get("displayName") or "Unknown"
+                started = w.get("started", "")
+                ts = w.get("timeSpent", "")
+                ts_secs = w.get("timeSpentSeconds", 0)
+                total_seconds += ts_secs
+                cmt_raw = w.get("comment")
+                cmt = ""
+                if isinstance(cmt_raw, dict):
+                    def _walk(node):
+                        if isinstance(node, dict):
+                            if node.get("type") == "text" and "text" in node:
+                                return node["text"]
+                            return "".join(_walk(x) for x in (node.get("content") or []))
+                        return ""
+                    cmt = _walk(cmt_raw)
+                elif isinstance(cmt_raw, str):
+                    cmt = cmt_raw
+                lines.append(f"---\n[{started}] {author}: {ts} :: {cmt[:300]}")
+            hours = total_seconds / 3600
+            lines.append(f"\nTOTAL TIME LOGGED: {hours:.1f}h ({total_seconds}s) across {len(worklogs)} entries")
+            return [TextContent(type="text", text="\n".join(lines))]
+
+        elif name == "getIssueLinks":
+            issue_key = arguments.get("issueKey")
+            if not issue_key:
+                raise ValueError("issueKey required")
+            data = jira.issue(issue_key, fields="issuelinks")
+            links = (data.get("fields", {}) or {}).get("issuelinks", []) or []
+            if not links:
+                return [TextContent(type="text", text=f"No links on {issue_key}.")]
+            lines = [f"ISSUE LINKS on [{issue_key}]({site_url}/browse/{issue_key}) — {len(links)} links:"]
+            for l in links:
+                t = (l.get("type") or {})
+                tname = t.get("name", "?")
+                if "outwardIssue" in l:
+                    o = l["outwardIssue"]
+                    relation = t.get("outward", "")
+                    other = o.get("key")
+                    summary = (o.get("fields", {}) or {}).get("summary", "")
+                    lines.append(f"- {tname} ({relation}) → [{other}]({site_url}/browse/{other}): {summary}")
+                if "inwardIssue" in l:
+                    i = l["inwardIssue"]
+                    relation = t.get("inward", "")
+                    other = i.get("key")
+                    summary = (i.get("fields", {}) or {}).get("summary", "")
+                    lines.append(f"- {tname} ({relation}) ← [{other}]({site_url}/browse/{other}): {summary}")
+            return [TextContent(type="text", text="\n".join(lines))]
 
         raise ValueError("Unknown tool")
     except Exception as e:
