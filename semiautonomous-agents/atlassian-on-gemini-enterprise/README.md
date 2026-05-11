@@ -2,33 +2,84 @@
 
 Production-grade reference implementations for putting Atlassian Jira behind a chat agent, with a 500-question comparative evaluation.
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│  Option A — Custom MCP Portal                                   │
-│                                                                   │
-│  User chat → Vertex AI Agent Engine (Gemini 2.5 Flash + ADK)    │
-│            → Cloud Run MCP server (FastAPI, your code)           │
-│            → Atlassian Jira REST API                             │
-│                                                                   │
-│  Tools: What you build (7 tools — search, report, comments, etc)│
-│  Control: Full (model, prompt, pagination logic, formatting)    │
-│  Setup: ~2h | Ops: You manage Cloud Run + AE                    │
-│  Eval result: 94.5% composite, 1.0% hallucination               │
-└─────────────────────────────────────────────────────────────────┘
+## Option A — Custom MCP Portal (what we built)
 
-┌─────────────────────────────────────────────────────────────────┐
-│  Option B — Atlassian Remote MCP                                │
-│                                                                   │
-│  User chat → Your LLM consumer (GE, Claude Code, OpenAI, etc.)  │
-│            → Atlassian Rovo MCP (mcp.atlassian.com/v1/mcp)     │
-│            → Atlassian Jira REST API                             │
-│                                                                   │
-│  Tools: What Atlassian ships (~37 tools)                        │
-│  Control: None — Atlassian operates                             │
-│  Setup: ~30 min | Ops: Zero                                     │
-│  Eval result (Claude Code): 87.1% composite, 68.9% hallucination│
-└─────────────────────────────────────────────────────────────────┘
+```mermaid
+graph LR
+    User[User in GE chat] --> GE[Gemini Enterprise]
+    GE --> AE[Vertex AI Agent Engine<br/>Gemini 2.5 Flash + ADK]
+    AE --> MCP[Cloud Run MCP Server<br/>FastAPI - your code<br/>7 tools]
+    MCP --> Jira[Atlassian Jira<br/>REST API]
+    
+    style AE fill:#e3f2fd
+    style MCP fill:#fff3e0
+    style Jira fill:#f3e5f5
 ```
+
+**You control:** model choice, prompt, pagination logic, tool implementation, formatting  
+**You operate:** Cloud Run + Agent Engine  
+**Setup:** ~2h | **Eval:** 94.5% composite, 1.0% hallucination
+
+## Option B — Atlassian Remote MCP (their product)
+
+```mermaid
+graph LR
+    User[User in any MCP consumer] --> Consumer[Your LLM<br/>GE / Claude Code / OpenAI]
+    Consumer --> Rovo[Atlassian Rovo MCP<br/>mcp.atlassian.com<br/>~37 tools]
+    Rovo --> Jira[Atlassian Jira<br/>REST API]
+    
+    style Consumer fill:#e8f5e9
+    style Rovo fill:#fff3e0
+    style Jira fill:#f3e5f5
+```
+
+**You control:** nothing — Atlassian operates the MCP  
+**You operate:** nothing  
+**Setup:** ~30 min | **Eval:** 87.1% composite, 68.9% hallucination
+
+---
+
+## Detailed Option A flow (every hop)
+
+```mermaid
+sequenceDiagram
+    participant User
+    participant GE as Gemini Enterprise
+    participant AE as Agent Engine<br/>(ADK + Gemini 2.5)
+    participant CR as Cloud Run MCP<br/>(FastAPI)
+    participant Jira as Atlassian Jira<br/>REST API
+
+    User->>GE: "List high-priority BUGS"
+    GE->>AE: streamAssist (agentsSpec routing)
+    activate AE
+    Note over AE: Session lookup (~1-2s)
+    Note over AE: Thinking tokens (~3-5s)
+    AE->>AE: Model decides tool
+    AE->>CR: SSE /sse<br/>searchJiraIssuesUsingJql
+    activate CR
+    CR->>Jira: GET /rest/api/3/search/jql
+    activate Jira
+    Jira-->>CR: 10 issues JSON
+    deactivate Jira
+    Note over CR: Format as MCP response
+    CR-->>AE: function_response
+    deactivate CR
+    Note over AE: Model synthesizes (~2-4s)
+    AE-->>GE: Final answer + citations
+    deactivate AE
+    GE-->>User: "Here are 10 high-priority..."
+```
+
+**Typical latency breakdown:**
+- GE → AE routing: ~0.5s
+- Session + thinking: ~4-7s
+- Tool decision: ~2-3s
+- Cloud Run MCP round-trip: ~2-4s
+- Jira REST: ~1-3s
+- Final synthesis: ~2-5s
+- **Total p50: ~24s**
+
+The thinking tokens + Agent Engine session overhead account for ~40% of latency. Removing `thinking_config` would drop to ~16-18s but lose reasoning transparency.
 
 ---
 
