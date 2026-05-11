@@ -198,6 +198,8 @@ Full guide: [`eval/README.md`](./eval/README.md)
 
 [View the report ↗](https://htmlpreview.github.io/?https://github.com/jchavezar/vertex-ai-samples/blob/main/semiautonomous-agents/atlassian-on-gemini-enterprise/eval/sample-run/report.html)
 
+> **Note:** The published `sample-run/` is a hybrid (479 questions from gemini-3-flash-preview + 21 re-run with gemini-2.5-flash). A full clean re-run with 2.5 on all 500 questions is in progress to get true latency numbers. The deployed agent is already on gemini-2.5-flash.
+
 Key finding: Gemini has **60× lower hallucination** (1.0% vs 68.9%). For a production Jira agent, citing fake issue keys is worse than being slower — broken URLs erode trust. Claude wins on reasoning (epic-tree, comments, narrative); Gemini wins on correctness (counts, JQL, pagination).
 
 Full eval methodology + per-category breakdown: [`eval/README.md`](./eval/README.md)
