@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import random
 import statistics
 from collections import Counter, defaultdict
@@ -130,6 +131,13 @@ def _load_answers(run_dir: Path, pipeline: str) -> dict[str, dict[str, Any]]:
 
 def render(run_dir: Path, judged_a: list[dict], judged_b: list[dict],
            qs_by_id: dict[str, dict]) -> tuple[str, dict[str, Any]]:
+    # Pipeline labels — overridable via env so the same data can be re-rendered
+    # with different framings (e.g., Gemini vs Claude+Rovo).
+    label_a = os.environ.get("REPORT_LABEL_A", "Option A — Custom MCP Portal (Vertex AI Agent + Gemini)")
+    label_b = os.environ.get("REPORT_LABEL_B", "Option B — Atlassian Rovo Direct MCP")
+    short_a = os.environ.get("REPORT_SHORT_A", "Option A")
+    short_b = os.environ.get("REPORT_SHORT_B", "Option B")
+
     agg_a = aggregate(judged_a)
     agg_b = aggregate(judged_b)
     cat_a = by_category(judged_a)
@@ -157,7 +165,7 @@ def render(run_dir: Path, judged_a: list[dict], judged_b: list[dict],
         ("Refusal correctness", agg_a["refusal_correctness"], agg_b["refusal_correctness"]),
         ("Tool efficiency", agg_a["tool_efficiency"], agg_b["tool_efficiency"]),
     ]
-    head_html = '<table class="scoreboard"><tr><th></th><th>Option A</th><th>Option B</th></tr>'
+    head_html = f'<table class="scoreboard"><tr><th></th><th>{escape(short_a)}</th><th>{escape(short_b)}</th></tr>'
     for label, va, vb in headline_rows:
         head_html += f'<tr><td>{escape(label)}</td><td>{_pct(va)}</td><td>{_pct(vb)}</td></tr>'
     head_html += (
@@ -169,7 +177,7 @@ def render(run_dir: Path, judged_a: list[dict], judged_b: list[dict],
 
     # Verdict bars
     verdict_html = '<div class="verdicts">'
-    for label, agg in (("Option A", agg_a), ("Option B", agg_b)):
+    for label, agg in ((short_a, agg_a), (short_b, agg_b)):
         total = sum(agg["verdicts"].values()) or 1
         verdict_html += f'<div class="verdict-col"><h4>{label}</h4>'
         for v in VERDICTS:
@@ -184,7 +192,7 @@ def render(run_dir: Path, judged_a: list[dict], judged_b: list[dict],
     verdict_html += '</div>'
 
     # Per-category bars
-    cat_rows = '<table class="cats"><tr><th>Category</th><th>n</th><th>Option A composite</th><th>Option B composite</th><th>Δ</th></tr>'
+    cat_rows = f'<table class="cats"><tr><th>Category</th><th>n</th><th>{escape(short_a)} composite</th><th>{escape(short_b)} composite</th><th>Δ</th></tr>'
     for cat in all_cats:
         a = cat_a.get(cat, {"composite": None, "n": 0})
         b = cat_b.get(cat, {"composite": None, "n": 0})
@@ -296,12 +304,12 @@ def render(run_dir: Path, judged_a: list[dict], judged_b: list[dict],
             f'</summary>'
             f'<div class="sample-oracle">{oracle_line}</div>'
             f'<div class="sample-body">'
-            f'<div class="sample-col"><h4>Option A · <span class="vbadge v-{a.get("verdict","?")}">{a.get("verdict","?")}</span> · '
+            f'<div class="sample-col"><h4>{escape(short_a)} · <span class="vbadge v-{a.get("verdict","?")}">{a.get("verdict","?")}</span> · '
             f'{a.get("latency_s",0):.1f}s · {a.get("n_tool_calls",0)} tool calls</h4>'
             f'<pre>{escape(ans_a)}</pre>'
             f'<p class="muted"><b>Cited:</b> {escape(", ".join(a.get("cited_keys", [])[:8]) or "—")}</p>'
             f'<p class="muted"><b>Judge:</b> {escape(a.get("judge_reason",""))}</p></div>'
-            f'<div class="sample-col"><h4>Option B · <span class="vbadge v-{b.get("verdict","?")}">{b.get("verdict","?")}</span> · '
+            f'<div class="sample-col"><h4>{escape(short_b)} · <span class="vbadge v-{b.get("verdict","?")}">{b.get("verdict","?")}</span> · '
             f'{b.get("latency_s",0):.1f}s · {b.get("n_tool_calls",0)} tool calls</h4>'
             f'<pre>{escape(ans_b)}</pre>'
             f'<p class="muted"><b>Cited:</b> {escape(", ".join(b.get("cited_keys", [])[:8]) or "—")}</p>'
@@ -387,12 +395,13 @@ def render(run_dir: Path, judged_a: list[dict], judged_b: list[dict],
     """
 
     html = f"""<!DOCTYPE html>
-<html lang="en"><head><meta charset="UTF-8"><title>Atlassian on GE — Comparative Eval</title>
+<html lang="en"><head><meta charset="UTF-8"><title>Comparative Eval — {short_a} vs {short_b}</title>
 <style>{css}</style></head><body><div class="container">
 <div class="hero">
-  <h1>Atlassian on Gemini Enterprise — Option A vs Option B</h1>
-  <p>{summary['n_questions']} questions · run dir <code>{escape(str(run_dir))}</code></p>
-  <p>Option A = Custom MCP Portal (Agent Engine + Cloud Run MCP) · Option B = Direct Remote MCP (mcp.atlassian.com)</p>
+  <h1>Comparative Jira-AI Eval</h1>
+  <h2 style="font-size:1.1rem;font-weight:400;opacity:0.95;margin-top:0.5rem">{short_a} <span style="opacity:0.7">vs</span> {short_b}</h2>
+  <p>{summary['n_questions']} grounded questions · run dir <code>{escape(str(run_dir))}</code></p>
+  <p style="font-size:0.85rem;opacity:0.8;margin-top:0.75rem">{escape(label_a)}<br>{escape(label_b)}</p>
 </div>
 
 <section><h2>Headline Scoreboard</h2>{head_html}</section>
@@ -402,8 +411,8 @@ def render(run_dir: Path, judged_a: list[dict], judged_b: list[dict],
 <section><h2>Per-Category Composite</h2>{cat_rows}</section>
 
 <section><h2>Latency Distribution (10 buckets, side-by-side)</h2>{hist_html}
-  <p class="muted"><span style="display:inline-block;width:12px;height:12px;background:#3b82f6;margin-right:4px"></span> Option A
-  &nbsp;&nbsp;<span style="display:inline-block;width:12px;height:12px;background:#a855f7;margin-right:4px"></span> Option B</p>
+  <p class="muted"><span style="display:inline-block;width:12px;height:12px;background:#3b82f6;margin-right:4px"></span> {escape(short_a)}
+  &nbsp;&nbsp;<span style="display:inline-block;width:12px;height:12px;background:#a855f7;margin-right:4px"></span> {escape(short_b)}</p>
 </section>
 
 <section><h2>Win / Loss (correctness, common questions)</h2>{wl_html}</section>
