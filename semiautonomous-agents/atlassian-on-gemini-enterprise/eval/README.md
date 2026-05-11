@@ -1,99 +1,128 @@
-# Comparative Eval Harness
+# Comparative Evaluation Harness
 
-Reproducible benchmark of Jira-AI assistants. 500 grounded questions across 20 categories on a multi-project Jira corpus (~1,310 issues), scored on 10 dimensions by Claude Opus.
+500 grounded Jira questions × 20 categories, scored on 10 dimensions by Claude Opus.
 
-Latest result: see [`sample-run/`](./sample-run/).
+**Latest result:** [`sample-run/`](./sample-run/) — Gemini 2.5 + Custom MCP **94.5%** vs Claude Code + Rovo MCP **87.1%**
 
-## What gets measured
+[**View the report** ↗](https://htmlpreview.github.io/?https://github.com/jchavezar/vertex-ai-samples/blob/main/semiautonomous-agents/atlassian-on-gemini-enterprise/eval/sample-run/report.html)
 
-| Dimension | Source | Notes |
-|---|---|---|
-| `correctness` | Set-equality of cited keys vs `expected_keys` (deterministic) OR Claude Opus vs `expected_themes` (analytical) | F1 when set-derivable |
-| `completeness` | Recall against expected | |
-| `citation_accuracy` | Fraction of cited issue keys that EXIST in Jira | Bulk JQL `key in (...)` |
-| `hallucination_rate` | Cited keys NOT returned by any tool call | The metric that matters most for Jira agents |
-| `jql_correctness` | Claude Opus equivalence of generated JQL vs oracle JQL | When the agent emits a JQL tool call |
-| `pagination_completeness` | Coverage of `expected_keys` in answer | For `pagination-required` |
-| `refusal_correctness` | Did refusal-test category get refused/clarified? | Boolean |
-| `tool_efficiency` | `min_tool_calls / actual_tool_calls`, capped at 1 | |
-| `latency_s` | Wall-clock | |
-| `n_tool_calls` | Count | |
+---
 
-Verdicts: `correct | partial | wrong | hallucinated | refused | error`. The `hallucinated` bucket exists because for ticketing agents, a confident answer with fake issue keys is worse than no answer (broken URLs).
+## What gets tested
 
-## Question categories
+**20 categories across 3 buckets:**
 
-20 categories deliberately picked to cover production-readiness — see [`question_categories.md`](./question_categories.md) for the full taxonomy. Headline groups:
+| Bucket | Categories |
+|---|---|
+| **Read-side correctness** (10) | lookup, jql-filter, count-aggregate, pagination-required, root-cause-synthesis, cross-issue-analysis, trend, ambiguous, multi-step, epic-tree |
+| **Production features** (5) | multi-project, issue-links, components-versions, comments-worklogs, golden-anti-regression |
+| **Safety / robustness** (5) | refusal-test, prompt-injection, pii-sensitive, typo-robustness, tool-efficiency |
 
-- **Read-side correctness** — `lookup`, `jql-filter`, `count-aggregate`, `pagination-required`, `multi-step`, `cross-issue-analysis`, `root-cause-synthesis`, `trend`, `ambiguous`, `multi-step`
-- **Production patterns** — `multi-project`, `epic-tree`, `issue-links`, `components-versions`, `comments-worklogs`
-- **Safety / robustness** — `refusal-test`, `prompt-injection`, `pii-sensitive`, `typo-robustness`, `tool-efficiency`, `golden-anti-regression`
+Full taxonomy: [`question_categories.md`](./question_categories.md)
 
-## File layout
+**10 dimensions per question:**
 
-```
-eval/
-├── README.md                this file
-├── question_categories.md
-├── requirements.txt, .env.example, .gitignore
-├── jira_oracle.py           Jira REST helpers (Basic auth + API token)
-├── build_corpus.py          create test projects + populate them
-├── generate_questions.py    LLM-generates questions grounded in real issue text
-├── runners/
-│   ├── run_option_a.py      :streamQuery to Vertex AI Agent Engine
-│   ├── run_option_b.py      streamAssist via GE datastore (legacy)
-│   └── orchestrator.py      parallel A+B; asyncio.Semaphore(6) per pipeline
-├── judge.py                 multi-dim Claude Opus judge (auto-skips deterministic dims)
-├── report.py                pure-CSS HTML side-by-side, no JS
-└── sample-run/              the latest committed run (open report.html)
-```
+correctness · completeness · citation accuracy · hallucination rate · JQL correctness · pagination completeness · refusal correctness · tool efficiency · latency · cost
+
+Verdicts: `correct | partial | wrong | hallucinated | refused | error`
+
+---
 
 ## Quick reproduction
 
 ```bash
 source .venv/bin/activate
 
-# (one-time) populate the test corpus
+# (one-time) create test corpus: 4 Jira projects + ~400 issues
 python build_corpus.py
 
-# generate questions grounded in real Jira data
+# generate 500 grounded questions
 python generate_questions.py --n 25 --out questions/main.json
 
-# run both pipelines (parallel, asyncio.Semaphore(6) per pipeline)
-python -m runners.orchestrator --questions questions/main.json --out runs/<ts>
+# run both pipelines in parallel
+python -m runners.orchestrator --questions questions/main.json --out runs/<timestamp>
 
-# judge both
+# judge both pipelines
 python judge.py runs/<ts>/responses_a.jsonl --pipeline a --questions runs/<ts>/questions.json --out runs/<ts>/judged_a.json
 python judge.py runs/<ts>/responses_b.jsonl --pipeline b --questions runs/<ts>/questions.json --out runs/<ts>/judged_b.json
 
-# render report (REPORT_SHORT_A/B labels are env-overridable)
+# render HTML report
 python report.py --run runs/<ts> --questions runs/<ts>/questions.json
+
+# open it
 xdg-open runs/<ts>/report.html
 ```
 
-Smoke takes ~3 min for 5 questions; full 500 takes ~30-90 min for orchestrator + ~5 min for judge depending on concurrency.
+Takes ~30-90 min depending on concurrency settings.
+
+---
 
 ## Configuration
 
-Edit `eval/.env` (template in `.env.example`):
+Edit `.env` (template in `.env.example`):
 
-- `OPTION_A_AGENT_ID` — registered agent ID for the custom-MCP-portal Agent Engine.
-- `OPTION_B_DATASTORE_ID` — Atlassian Rovo datastore ID created in Phase 2 of `option-b-direct-remote-mcp/`.
-- `ATLASSIAN_EMAIL` + `ATLASSIAN_API_TOKEN` — for `jira_oracle.py` (oracle / question generation / citation existence checks). Get an API token at https://id.atlassian.com/manage-profile/security/api-tokens.
-- `JUDGE_MODEL`, `JUDGE_REGION`, `JUDGE_PROJECT` — defaults to `claude-opus-4-5@20251101` on `us-east5` in `vtxdemos`.
-- `EVAL_CONCURRENCY`, `JUDGE_CONCURRENCY` — semaphore sizes per pipeline (defaults: 6 / 4).
+```
+GE_PROJECT_ID=vtxdemos
+GE_PROJECT_NUMBER=254356041555
+OPTION_A_AGENT_ID=1666248848999186432
+OPTION_B_DATASTORE_ID=mcp-jira_1778158685439_mcp_data
 
-## Methodology notes
+ATLASSIAN_SITE_URL=https://sockcop.atlassian.net
+ATLASSIAN_EMAIL=admin@jesusarguelles.demo.altostrat.com
+ATLASSIAN_API_TOKEN=<from id.atlassian.com/manage-profile/security/api-tokens>
 
-- **Grounded questions** — generator passes real issue descriptions (sampled per status/priority/type bucket via `deep_corpus()`) to Claude so themes match real corpus content, not pre-imagined generic ones.
-- **Hybrid oracle** — JQL-derivable questions get programmatic ground truth (run JQL, store `expected_keys` + `expected_count`); analytical ones get LLM-judged with `expected_themes`.
-- **Deterministic dims skip the LLM** — judge only invokes Claude for analytical-correctness and JQL-equivalence; everything else is computed in code (cheaper, faster, exactly reproducible).
-- **No Vertex GenAI Eval Service** — every existing eval in this codebase (docparse, multimodal-doc-nexus, multi-agent-workbench) hand-rolls a Claude judge for the same reasons (domain-specific dimensions, pinned prompts, reproducibility).
+JUDGE_REGION=us-east5
+JUDGE_MODEL=claude-opus-4-5@20251101
+EVAL_CONCURRENCY=6
+```
 
-## Cost estimate
+---
 
-For ~500 questions × 2 pipelines:
-- Vertex Gemini (Option A's model) — covered by your project's TPM, no direct charge.
-- Atlassian REST hits (oracle + ground truth) — well under any rate limit, free.
-- Judge: Claude Opus 4.5 on Vertex × ~50% analytical questions × 2 pipelines ≈ ~$10-15.
-- Cloud Run MCP server (Option A) — pennies.
+## Files
+
+| File | What |
+|---|---|
+| `build_corpus.py` | Creates 4 Jira projects (BUGS, CRM, OPS, PLAT) with realistic content |
+| `generate_questions.py` | Generates questions grounded in real issue text via `deep_corpus()` |
+| `jira_oracle.py` | Jira REST helpers (Basic auth) — used for ground-truth synthesis + existence checks |
+| `runners/orchestrator.py` | Runs both pipelines in parallel with asyncio.Semaphore |
+| `runners/run_option_a.py` | Calls Vertex AI Agent Engine via `:streamQuery` |
+| `runners/run_option_b.py` | Calls GE streamAssist with MCP datastore routing (legacy — current run uses Claude sub-agents) |
+| `judge.py` | Multi-dimensional judge — deterministic dims computed in code, analytical ones LLM-judged |
+| `report.py` | Pure-CSS HTML side-by-side report with collapsible sections for all 500 questions |
+| `sample-run/` | Latest committed run (Gemini 94.5%, Claude 87.1%) |
+
+---
+
+## Test corpus
+
+5 Jira projects on `sockcop.atlassian.net`:
+
+| Project | Issues | Type | Created |
+|---|---|---|---|
+| **SMP** | 910 | Motorcycle service tickets | Pre-existing |
+| **BUGS** | 100 | Software bug triage | Built by eval |
+| **CRM** | 100 | Customer support | Built by eval |
+| **OPS** | 100 | SRE / infrastructure | Built by eval |
+| **PLAT** | 100 | Platform engineering | Built by eval |
+
+All eval-created issues tagged `eval-corpus` for cleanup. To delete the 4 test projects: `DELETE /rest/api/3/project/{BUGS,CRM,OPS,PLAT}`.
+
+---
+
+## Methodology
+
+- **Grounded questions** — generator samples real issue descriptions (not invented generic ones) via `jira_oracle.deep_corpus()`. Themes come from actual issue text.
+- **Hybrid oracle** — JQL-derivable Qs get programmatic ground truth (run JQL, capture exact `expected_keys`); analytical Qs get LLM-judged with `expected_themes`.
+- **Deterministic scoring** — judge computes correctness/completeness/citation-accuracy/hallucination/pagination/refusal/efficiency in code; only analytical-correctness + JQL-correctness invoke the LLM. Cheaper, faster, reproducible.
+
+---
+
+## Cost estimate (500 questions × 2 pipelines)
+
+- Vertex Gemini (Option A agent): covered by project TPM
+- Atlassian REST (oracle): free
+- Claude Opus judge: ~$10-15 (only on analytical Qs)
+- Cloud Run MCP: pennies
+
+Total per full run: ~$15.
