@@ -432,6 +432,11 @@ def render(run_dir: Path, judged_a: list[dict], judged_b: list[dict],
 
 <section><h2>Spot-Check (20 random answers)</h2>{samples_html}</section>
 
+<section><h2>All 500 Questions (collapsible)</h2>
+<p class="muted">Every question in the eval, sorted by ID. Click to expand and see both pipelines' answers side-by-side.</p>
+{"".join(_render_sample_block(qid) for qid in sorted(common_ids))}
+</section>
+
 <section><h2>Methodology</h2>
 <p>10 dimensions per question. Deterministic dimensions (correctness for jql-derivable Qs, completeness, citation accuracy, hallucination rate, pagination completeness, refusal correctness, tool efficiency, latency) computed from the runner's structured output and the Jira REST oracle. Two analytical dimensions (analytical_correctness, jql_correctness) use Claude Opus on Vertex.</p>
 <p>Verdicts: <code>correct</code> · <code>partial</code> · <code>wrong</code> · <code>hallucinated</code> · <code>refused</code> · <code>error</code>. The <code>hallucinated</code> bucket is added because plausible-but-fake issue keys are the critical failure mode for AI ticketing assistants.</p>
