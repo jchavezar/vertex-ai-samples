@@ -9,16 +9,16 @@ from google.adk.agents.callback_context import CallbackContext
 from google.adk.models.llm_request import LlmRequest
 from google.adk.sessions import InMemorySessionService
 from google.adk.runners import Runner
-from google.genai.types import Content, Part, GenerateContentConfig, ThinkingConfig
+from google.genai.types import Content, Part, GenerateContentConfig, ThinkingConfig, ThinkingLevel
 from google.adk.tools.mcp_tool.mcp_toolset import MCPToolset, SseConnectionParams
 from google.adk.agents.readonly_context import ReadonlyContext
 from dotenv import load_dotenv
 
 load_dotenv(verbose=True)
-# gemini-2.5-flash is stable (GA) and served in us-central1 — same region as
-# the AE itself, so no override needed. (Previous version used gemini-3-flash-preview
-# which was global-only; we kept hitting MALFORMED_FUNCTION_CALL on complex
-# analytical queries. 2.5 is more stable and likely faster on tail latency.)
+# gemini-3-flash-preview (global region) — memory says "prefer Gemini 3 models".
+# Quality tested at 91.3% composite. Override location to global for model calls;
+# deploy script's load_dotenv(override=True) restores us-central1 for AE APIs.
+os.environ["GOOGLE_CLOUD_LOCATION"] = "global"
 current_date = datetime.now().strftime("%Y-%m-%d")
 
 MCP_SERVER_URL = os.getenv(
@@ -178,7 +178,7 @@ def trim_paginated_history(callback_context: CallbackContext, llm_request: LlmRe
 
 root_agent = Agent(
     name="root_agent",
-    model="gemini-2.5-flash",
+    model="gemini-3-flash-preview",
     description="You are a Jira assistant Agent capable of deep data analysis.",
     instruction=f"""You are a helpful and proactive Jira Knowledge Assistant.
 Today's date is {current_date}.
@@ -258,8 +258,11 @@ The site has multiple Jira projects (e.g. SMP, BUGS, CRM, OPS, PLAT). When the u
 - "Completed/Resolved..." → apply to `resolutiondate` or `status changed to Done`
 """,
     generate_content_config=GenerateContentConfig(
-        temperature=0.0,
-        thinking_config=ThinkingConfig(include_thoughts=True),
+        temperature=0.3,  # non-zero for faster sampling (was 0.0)
+        thinking_config=ThinkingConfig(
+            include_thoughts=True,
+            thinking_level=ThinkingLevel.MINIMAL,  # fastest thinking mode
+        ),
     ),
     tools=[jira_toolset],
     before_model_callback=trim_paginated_history,

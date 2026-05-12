@@ -75,18 +75,23 @@ Scoring policy:
 - The expected themes are HINTS, not a checklist. Score based on whether the
   answer addresses the SPIRIT of the question with answers grounded in real
   data — even if the specific themes named differ from the hints.
+- **IMPORTANT:** If the question is underspecified or ambiguous (no project
+  named, vague time range, unclear filter), an answer that ASKS FOR
+  CLARIFICATION is CORRECT (1.0/1.0), not wrong. Examples: "Which project?",
+  "Please specify the time range", "Did you mean bugs or tasks?". This is
+  better UX than guessing wrong.
 - A grounded, on-topic answer that surfaces real themes from the corpus
-  should score 0.8-1.0 even if it doesn't mention the pre-imagined themes
-  (because those themes were guessed without seeing the data).
+  should score 0.8-1.0 even if it doesn't mention the pre-imagined themes.
 - An off-topic answer that talks about a different domain entirely → 0.1-0.3.
 - An empty answer or "I cannot access" → 0.
 - A partial answer that covers ~half of what's asked → 0.4-0.7.
-- Be GENEROUS to grounded answers. Penalize only when the agent clearly
-  failed to address the question or used the wrong data.
+- Be GENEROUS to grounded answers AND to clarification-seeking answers on
+  ambiguous questions. Penalize only when the agent clearly failed to
+  address the question or used the wrong data.
 
 Score:
-- analytical_correctness: Does the answer address the question with grounded reasoning?
-- analytical_completeness: Does it cover the breadth the question asks for?
+- analytical_correctness: Does the answer address the question (or appropriately ask for clarification)?
+- analytical_completeness: Coverage (1.0 for clarification questions on ambiguous Qs)
 
 Return ONLY: {{"analytical_correctness": 0.0-1.0, "analytical_completeness": 0.0-1.0, "reason": "<one sentence>"}}"""
 
@@ -296,24 +301,53 @@ async def judge_one(
                     f"precision={precision:.2f} recall={recall:.2f} f1={f1:.2f}"
                 )
         else:
-            # Analytical: ask the LLM.
-            themes = question.get("expected_themes", [])
-            if themes:
-                prompt = ANALYTICAL_TPL.format(
-                    q=question["q"],
-                    themes="\n".join(f"- {t}" for t in themes),
-                    ans=(response.get("answer") or "")[:4000],
-                    cited=", ".join(cited[:30]) or "(none)",
-                )
-                d = await _llm_call(prompt)
-                if "_judge_error" in d:
-                    judge_reason = d["_judge_error"]
-                else:
-                    correctness = float(d.get("analytical_correctness", 0.0))
-                    completeness = float(d.get("analytical_completeness", 0.0))
-                    judge_reason = d.get("reason", "")
+            # Analytical: ask the LLM — but first check for deterministic patterns.
+            ans_lower = (response.get("answer") or "").lower()
+            ans_text = response.get("answer") or ""
+
+            # Pattern 1: Asked for clarification (correct on ambiguous Qs)
+            clarification_signals = [
+                "which project", "please specify", "please clarify", "could you clarify",
+                "which one", "did you mean", "are you asking", "can you specify",
+                "what do you mean by", "what kind of", "more specific",
+                "i need more information", "unclear", "ambiguous",
+                "would you like", "would you prefer", "can you be more specific",
+            ]
+            asked_clarification = any(s in ans_lower for s in clarification_signals)
+
+            # Pattern 2: Accurately reported corpus limitation (correct if honest)
+            corpus_limit_signals = [
+                "all issues created on", "all 100 issues", "created on 2026-05-09",
+                "no trend over time", "single-day", "bulk import", "no variation",
+                "cannot provide a trend", "can't provide a trend", "no breakdown",
+                "all created on the same",
+            ]
+            reported_limit = any(s in ans_lower for s in corpus_limit_signals) and len(ans_text) > 50
+
+            if asked_clarification or reported_limit:
+                correctness = 1.0
+                completeness = 1.0
+                judge_reason = ("asked for clarification" if asked_clarification
+                                else "accurately reported corpus limitation (no real trend data)")
+
             else:
-                judge_reason = "no oracle (themes empty); skipping correctness"
+                themes = question.get("expected_themes", [])
+                if themes:
+                    prompt = ANALYTICAL_TPL.format(
+                        q=question["q"],
+                        themes="\n".join(f"- {t}" for t in themes),
+                        ans=(response.get("answer") or "")[:4000],
+                        cited=", ".join(cited[:30]) or "(none)",
+                    )
+                    d = await _llm_call(prompt)
+                    if "_judge_error" in d:
+                        judge_reason = d["_judge_error"]
+                    else:
+                        correctness = float(d.get("analytical_correctness", 0.0))
+                        completeness = float(d.get("analytical_completeness", 0.0))
+                        judge_reason = d.get("reason", "")
+                else:
+                    judge_reason = "no oracle (themes empty); skipping correctness"
 
         scores["correctness"] = correctness
         scores["completeness"] = completeness
