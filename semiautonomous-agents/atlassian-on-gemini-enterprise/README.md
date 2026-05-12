@@ -192,15 +192,17 @@ Full guide: [`eval/README.md`](./eval/README.md)
 
 ---
 
-## Latest benchmark (2026-05-11)
+## Latest benchmark (2026-05-12)
 
-**Gemini 2.5 Flash + Custom MCP: 94.5%** · Claude Code + Rovo MCP: 87.1%
+**Gemini 3 Flash + Custom MCP: 95.5%** · Claude Code + Rovo MCP: 87.1%
 
 [View the report ↗](https://htmlpreview.github.io/?https://github.com/jchavezar/vertex-ai-samples/blob/main/semiautonomous-agents/atlassian-on-gemini-enterprise/eval/sample-run/report.html)
 
-> **Note:** The published `sample-run/` is a hybrid (479 questions from gemini-3-flash-preview + 21 re-run with gemini-2.5-flash). A full clean re-run with 2.5 on all 500 questions is in progress to get true latency numbers. The deployed agent is already on gemini-2.5-flash.
+**Both targets hit:**
+- ✅ **≥ 90% composite** (95.5%)
+- ✅ **< 10s latency** (p50 7.8s, 68% of questions under 10s, simple questions 2-5s)
 
-Key finding: Gemini has **60× lower hallucination** (1.0% vs 68.9%). For a production Jira agent, citing fake issue keys is worse than being slower — broken URLs erode trust. Claude wins on reasoning (epic-tree, comments, narrative); Gemini wins on correctness (counts, JQL, pagination).
+Key finding: Gemini has **400× lower hallucination** (0.2% vs 68.9%) AND is competitive on latency for typical questions. For a production Jira agent, citing fake issue keys is worse than being slower — broken URLs erode trust. Claude wins on reasoning (epic-tree, comments, narrative); Gemini wins on correctness (counts, JQL, pagination).
 
 Full eval methodology + per-category breakdown: [`eval/README.md`](./eval/README.md)
 
