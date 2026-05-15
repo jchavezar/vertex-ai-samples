@@ -161,6 +161,35 @@ python3 agent.py             # interactive REPL against the deployed Cloud Run M
 
 The agent loads `.atlassian_token` (when present) as the `ATLASSIAN_OAUTH_TOKEN` env-var fallback used by `get_access_token` in `agent.py`.
 
+### 8. (Optional) Register MCP Server in Agent Registry
+
+**Why:** Enables Agent Gateway governance, IAP enforcement, and cross-agent reuse.
+
+**Not required** for the agent to work - this adds enterprise governance capabilities.
+
+```bash
+export MCP_SERVER_URL=https://jira-mcp-server-254356041555.us-central1.run.app
+export GOOGLE_CLOUD_PROJECT=vtxdemos
+export GOOGLE_CLOUD_LOCATION=us-central1
+export MCP_SERVICE_DISPLAY_NAME=jira-mcp
+
+python register_mcp_in_registry.py
+```
+
+Saves the registry resource name to add to your `.env`:
+```
+MCP_SERVICE_RESOURCE=projects/254356041555/locations/us-central1/services/jira-mcp
+```
+
+**Benefits:**
+- **Agent Gateway:** Enforce IAP/VPC-SC on MCP calls (requires gateway setup - see `agent-gateway-demo` project)
+- **Discoverability:** Other agents can find and reuse this MCP server
+- **Audit:** Centralized logging of all MCP tool calls
+
+**Trade-off:** Adds governance overhead. Only use if you need multi-agent orchestration or compliance controls.
+
+For full Agent Gateway setup (IAP egressor, auth manager, DPoP), see: `semiautonomous-agents/agent-gateway-demo/`
+
 ---
 
 ## How OAuth is wired (one-paragraph mental model)

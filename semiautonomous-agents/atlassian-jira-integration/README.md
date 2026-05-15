@@ -1,6 +1,22 @@
-# Atlassian Jira + AI — Two Patterns + Head-to-Head Benchmark
+# Atlassian Jira + Gemini Enterprise Integration
 
-Production-grade reference implementations for putting Atlassian Jira behind a chat agent, with a 500-question comparative evaluation.
+Complete reference for integrating Atlassian Jira with Google Gemini Enterprise, including two implementation approaches and a 500-question comparative evaluation.
+
+---
+
+## 🚀 Quick Start (For Customers)
+
+**Want to connect your Jira to Gemini Enterprise in 15 minutes?**
+
+→ **START HERE: [`docs/SETUP_GUIDE.md`](docs/SETUP_GUIDE.md)**
+
+Follow 6 simple steps using the console UI (no coding required).
+
+---
+
+## 📖 Full Documentation
+
+This repository contains two approaches with complete evaluation data.
 
 ## Option A — Custom MCP Portal (what we built)
 
@@ -100,32 +116,45 @@ The thinking tokens + Agent Engine session overhead account for ~40% of latency.
 
 ---
 
-## Repo structure
+## 🗂️ Repository Structure
 
 ```
-atlassian-on-gemini-enterprise/
-├── README.md                       (this file)
-├── option-a-custom-mcp-portal/     Vertex AI Agent + Cloud Run MCP
-│   ├── README.md                   step-by-step setup (7 steps)
-│   ├── PAGINATION.md               deep-dive on pagination callback
-│   ├── adk_agent/                  agent.py + deploy script
-│   ├── jira_server/                FastAPI MCP server + Dockerfile
-│   ├── register.py                 registers agent + OAuth in GE
-│   └── utils/                      token helpers
-├── option-b-direct-remote-mcp/     Atlassian Rovo as GE MCP datastore
-│   ├── README.md                   step-by-step (DCR + console flow)
-│   ├── dcr_register.py             Dynamic Client Registration (RFC 7591)
-│   ├── register_datastore.py       creates the MCP datastore via API
-│   └── enable_actions_checklist.md console-only steps (Reload / Enable)
-└── eval/                           500-question comparative benchmark
-    ├── README.md                   methodology + reproduction
-    ├── sample-run/                 latest results (report.html here)
-    ├── build_corpus.py             creates 4 test Jira projects + ~400 issues
-    ├── generate_questions.py       grounded question generation
-    ├── jira_oracle.py              Jira REST oracle (ground truth)
-    ├── judge.py                    multi-dimensional Claude Opus judge
-    ├── report.py                   pure-CSS HTML side-by-side report
-    └── runners/                    orchestrator + pipeline callers
+atlassian-jira-integration/
+├── README.md                        ← You are here (overview + comparison)
+│
+├── docs/                            ← Documentation
+│   ├── SETUP_GUIDE.md              ← START HERE for customers (6-step console guide)
+│   ├── GETTING_STARTED.md          ← TL;DR quick reference
+│   └── REFERENCE.md                ← Technical deep-dive
+│
+├── option-a-custom-mcp-portal/      ← Build your own MCP (94.5% accuracy)
+│   ├── README.md                    - Full setup guide (7 steps)
+│   ├── PAGINATION.md                - Pagination deep-dive
+│   ├── adk_agent/                   - Agent code (Python + ADK)
+│   ├── jira_server/                 - MCP server (FastAPI + Dockerfile)
+│   ├── register.py                  - Deploy agent + register in GE
+│   └── utils/                       - OAuth token helpers
+│
+├── option-b-direct-remote-mcp/      ← Use Atlassian Remote MCP (87.1% accuracy)
+│   ├── README.md                    - Technical setup (Python scripts)
+│   ├── dcr_register.py              - Dynamic Client Registration
+│   ├── register_datastore.py        - API-driven connector creation
+│   ├── reauth_helper.py             - Print credentials for console
+│   └── enable_actions_checklist.md  - Console UI steps
+│
+├── eval/                            ← 500-question benchmark
+│   ├── README.md                    - Methodology + how to run
+│   ├── sample-run/                  - Latest results (HTML report here)
+│   ├── build_corpus.py              - Creates test Jira data
+│   ├── generate_questions.py        - Question generation
+│   ├── jira_oracle.py               - Ground truth via Jira REST
+│   ├── judge.py                     - Claude Opus scoring
+│   ├── report.py                    - HTML report generator
+│   └── runners/                     - Test harness for both options
+│
+└── scripts/                         ← Helper utilities
+    ├── register_oauth_client.sh     - Bash DCR wrapper
+    └── show_config_values.sh        - Display config for console
 ```
 
 ---
