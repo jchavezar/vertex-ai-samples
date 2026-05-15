@@ -8,8 +8,10 @@ if [ -f .env.local ]; then
   source .env.local
 fi
 
-# We explicitly define the absolute Cloud Run backend URL
-BACKEND_URL="https://mcp-sharepoint-server-REDACTED_PROJECT_NUMBER.us-central1.run.app/chat"
+# Backend Cloud Run service URL.
+# IMPORTANT: This MUST point at `pwc-zero-leak-proxy`, NOT `mcp-sharepoint-server`
+# (which belongs to `internal_components_portal_remote`'s shared FastMCP SSE server).
+BACKEND_URL="https://pwc-zero-leak-proxy-254356041555.us-central1.run.app/chat"
 
 echo "Using Backend URL: $BACKEND_URL"
 

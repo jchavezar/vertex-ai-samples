@@ -1,0 +1,10 @@
+[project]
+name = "the-paperclip-detective"
+version = "0.1.0"
+description = "Forensic ADK agent — figures out how attached files reach a Gemini Enterprise-registered agent"
+requires-python = ">=3.11"
+dependencies = [
+    "google-cloud-aiplatform[adk,agent_engines]>=1.79.0",
+    "python-dotenv>=1.0.0",
+    "requests>=2.32.0",
+]

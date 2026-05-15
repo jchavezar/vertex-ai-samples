@@ -11,9 +11,9 @@ from pydantic import BaseModel
 
 PROJECT = os.environ.get("DOCPARSE_PROJECT", "my-project")
 LOCATION = os.environ.get("DOCPARSE_LOCATION", "global")
-LITE_MODEL = os.environ.get("DOCPARSE_LITE", "gemini-3.1-flash-lite-preview")
-FLASH_MODEL = os.environ.get("DOCPARSE_FLASH", "gemini-3-flash-preview")
-PRO_MODEL = os.environ.get("DOCPARSE_PRO", "gemini-3.1-pro-preview")
+LITE_MODEL = os.environ.get("DOCPARSE_LITE", "gemini-2.5-flash-lite")
+FLASH_MODEL = os.environ.get("DOCPARSE_FLASH", "gemini-2.5-flash")
+PRO_MODEL = os.environ.get("DOCPARSE_PRO", "gemini-2.5-pro")
 
 _client: genai.Client | None = None
 

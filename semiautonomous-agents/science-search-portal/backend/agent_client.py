@@ -17,7 +17,7 @@ from vertexai import agent_engines
 from google.auth import credentials as ga_credentials
 
 PROJECT_ID = os.environ.get("PROJECT_ID", "sharepoint-wif-agent")
-LOCATION = os.environ.get("LOCATION", "us-central1")
+LOCATION = os.environ.get("AGENT_LOCATION") or os.environ.get("LOCATION", "us-central1")
 REASONING_ENGINE_RES = os.environ.get("REASONING_ENGINE_RES", "")
 
 

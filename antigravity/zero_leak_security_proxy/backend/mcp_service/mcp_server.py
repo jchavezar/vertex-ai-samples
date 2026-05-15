@@ -115,16 +115,20 @@ def emit_project_card(
     return "SUCCESS: Project card queued for frontend display."
 
 @mcp.tool()
-def read_document_content(item_id: str) -> str:
+def read_document_content(item_id: str, drive_id: Optional[str] = None) -> str:
     """
     Reads the full text content of a specified SharePoint document.
-    
+
     Args:
         item_id: The unique identifier for the file in SharePoint.
+        drive_id: The driveId of the document, returned by `search_documents`.
+            REQUIRED when the document lives in a different SharePoint site
+            than the default. Always pass the `driveId` field from the matching
+            search hit to guarantee the read works across sites.
     """
-    logger.info(f"[MCP TOOL] read_document_content | Item ID: {item_id}")
+    logger.info(f"[MCP TOOL] read_document_content | Item ID: {item_id} | Drive: {(drive_id or 'default')[:10]}")
     try:
-        return _get_sharepoint().get_document_content(item_id)
+        return _get_sharepoint().get_document_content(item_id, drive_id=drive_id)
     except Exception as e:
         logger.error(f"[MCP TOOL] read_document_content | FAILED: {str(e)}")
         return f"Error reading document: {str(e)}"
@@ -133,11 +137,15 @@ def read_document_content(item_id: str) -> str:
 def read_multiple_documents(item_ids: List[str]) -> str:
     """
     Reads the full content of multiple SharePoint documents in parallel.
-    Use this when you have multiple relevant IDs from the search tool. This is 
+    Use this when you have multiple relevant IDs from the search tool. This is
     much faster than calling read_document_content sequentially on each ID.
-    
+
+    NOTE: This batched form uses the default configured drive. For docs that
+    live in a non-default SharePoint site, call `read_document_content` per
+    item passing the `driveId` from the search result instead.
+
     Args:
-        item_ids: A list of unique identifiers for files.
+        item_ids: A list of unique identifiers for files in the default drive.
     """
     logger.info(f"[MCP TOOL] read_multiple_documents | Item Count: {len(item_ids)}")
     try:

@@ -56,14 +56,15 @@ DESCRIPTION = (
 
 # Env vars passed to the deployed container (NOT the local environment).
 RUNTIME_ENV_VARS = {
-    # See the doctstring at the top — these two are mandatory for
-    # Gemini 3 preview models to be reachable from us-central1 deploys.
+    # Gemini client routing (applies to both 2.5 GA and 3.x preview)
     "GOOGLE_CLOUD_LOCATION": "global",
     "GOOGLE_GENAI_USE_VERTEXAI": "true",
-    # Forwarded to agent/agent.py.
+    "GOOGLE_CLOUD_PROJECT": PROJECT_ID,
+    # Agent config
     "RAG_CORPUS_NAME": os.environ["RAG_CORPUS_NAME"],
-    "AGENT_MODEL": os.environ.get("AGENT_MODEL", "gemini-3-flash-preview"),
+    "AGENT_MODEL": os.environ.get("AGENT_MODEL", "gemini-2.5-flash"),
     "AGENT_TOP_K": os.environ.get("AGENT_TOP_K", "20"),
+    "AGENT_USE_RERANKER": os.environ.get("AGENT_USE_RERANKER", "true"),
 }
 
 

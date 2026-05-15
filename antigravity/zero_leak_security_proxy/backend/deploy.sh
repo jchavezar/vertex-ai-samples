@@ -1,7 +1,13 @@
 #!/bin/bash
 set -e
 
-echo "🚀 Deploying Security Proxy Backend to Cloud Run..."
+# IMPORTANT: This service MUST stay named `pwc-zero-leak-proxy`.
+# Do NOT rename to `mcp-sharepoint-server` — that name is owned by
+# `internal_components_portal_remote`'s shared FastMCP SSE server, and
+# deploying this FastAPI proxy under that name will break the portal apps.
+SERVICE_NAME="pwc-zero-leak-proxy"
+
+echo "🚀 Deploying Security Proxy Backend to Cloud Run as ${SERVICE_NAME}..."
 
 # Set Google GenAI variables specifically for the cloud deployment
 # This will prevent the "Missing key inputs" error in the SDK
@@ -49,14 +55,15 @@ fi
 
 # Deploying with --allow-unauthenticated because MSAL authentication
 # is enforced strictly by zero-leak validation in main.py
-gcloud run deploy mcp-sharepoint-server \
+gcloud run deploy "$SERVICE_NAME" \
   --source . \
   --project $PROJECT_ID \
   --region $LOCATION \
   --allow-unauthenticated \
   --set-env-vars="$ENV_VARS" \
-  --memory 1Gi \
-  --min-instances=0 \
+  --memory 2Gi \
+  --cpu 2 \
+  --min-instances=1 \
   --max-instances=5 \
   --quiet
 

@@ -158,6 +158,17 @@ npm run dev
 
 Deploying to Cloud Run uses optimized scripts that pass Build-Time environment variables securely without leaking `.env` secrets into the image registries.
 
+### 🚧 Deployment Isolation
+
+This project deploys to **two dedicated Cloud Run services** in `vtxdemos / us-central1`:
+
+| Component | Service Name | Public URL |
+|---|---|---|
+| Backend (FastAPI Security Proxy) | `pwc-zero-leak-proxy` | `https://pwc-zero-leak-proxy-254356041555.us-central1.run.app` |
+| Frontend (React + MSAL) | `security-proxy-frontend` | `https://security-proxy-frontend-254356041555.us-central1.run.app` |
+
+> **Do NOT rename the backend service to `mcp-sharepoint-server`.** That name is the deploy target of `internal_components_portal_remote/backend/`, which ships a FastMCP SSE server consumed by other apps in the repo. Sharing the name caused a production collision where the last `gcloud run deploy` overwrote a working revision and broke `/chat`. See `_archive/` history for the original incident.
+
 **Deploy Backend:**
 ```bash
 cd backend

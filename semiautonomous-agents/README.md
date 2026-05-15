@@ -10,7 +10,7 @@
 
 <p align="center">
   <a href="https://github.com/jchavezar/vertex-ai-samples"><img src="https://img.shields.io/badge/Vertex_AI-Samples-4285F4?style=for-the-badge&logo=googlecloud&logoColor=white" alt="Vertex AI Samples" /></a>
-  <a href="#whats-here"><img src="https://img.shields.io/badge/projects-38-34A853?style=for-the-badge" alt="38 Projects" /></a>
+  <a href="#whats-here"><img src="https://img.shields.io/badge/projects-39-34A853?style=for-the-badge" alt="39 Projects" /></a>
   <a href="#-mcp-servers"><img src="https://img.shields.io/badge/MCP_Servers-6-FF6F00?style=for-the-badge" alt="MCP Servers" /></a>
   <a href="https://github.com/jchavezar/vertex-ai-samples/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-Apache_2.0-blue?style=for-the-badge" alt="License" /></a>
 </p>
@@ -36,9 +36,9 @@
 </tr>
 <tr>
 <td width="50%" align="center">
-<a href="./streamassist-oauth-flow/"><strong>StreamAssist OAuth Flow</strong></a><br/>
+<a href="./streamassist-oauth-flow-sharepoint/"><strong>StreamAssist · SharePoint · OAuth</strong></a><br/>
 <em>WIF-powered SharePoint search with full auth trace sidebar</em><br/><br/>
-<a href="./streamassist-oauth-flow/"><img src="./streamassist-oauth-flow/docs/demo.gif" width="100%" /></a>
+<a href="./streamassist-oauth-flow-sharepoint/"><img src="./streamassist-oauth-flow-sharepoint/docs/demo.gif" width="100%" /></a>
 </td>
 <td width="50%" align="center">
 <a href="./ge-sharepoint-cloudid/"><strong>SharePoint — Google Cloud Identity</strong></a><br/>
@@ -83,6 +83,8 @@
 
 | Date | Project | What Changed |
 |:-----|:--------|:-------------|
+| Apr 27 | [**streamassist-oauth-flow-sharepoint-servicenow**](./streamassist-oauth-flow-sharepoint-servicenow/) | **NEW** — Combined portal: SharePoint + ServiceNow + Google Search in one Discovery Engine app, three independent toggles, anti-hallucination guardrails |
+| Apr 27 | [**streamassist-oauth-flow-sharepoint**](./streamassist-oauth-flow-sharepoint/) | **RENAME** — `streamassist-oauth-flow` → `streamassist-oauth-flow-sharepoint` for consistency with sibling `-servicenow` and `-sharepoint-servicenow` projects |
 | Apr 25 | [**docparse**](./docparse/) | **MAJOR** — Folded the RAG agent into `docparse/agent/`, added `eval/` with full leaderboard, single `./deploy.sh` provisions extractor + corpus + agent + GE registration end-to-end. **92.9% composite** on 216-q eval. |
 | Apr 24 | [**streamassist-oauth-flow-servicenow**](./streamassist-oauth-flow-servicenow/) | **NEW** — Sister to the SharePoint streamassist projects: same WIF identity chain, **ServiceNow** as the federated data source (incidents, KB articles, catalog with native ACLs) |
 | Apr 23 | [**report-generator**](./report-generator/) | **NEW** — Multi-agent research → write → render pipeline turning a topic into a cited PDF (ADK + Gemini 3 Flash + WeasyPrint) |
@@ -98,13 +100,13 @@
 | Apr 12 | [**a2a-protocol-dojo**](./a2a-protocol-dojo/) | Interactive A2A protocol tutorial with streamed agent communication |
 | Apr 10 | [**knowledge-base-mcp**](./knowledge-base-mcp/) | Session ingestion pipeline + backfill tools |
 | Apr 8 | [**adk-secret-snow-demo**](./adk-secret-snow-demo/) | Switched to ADK built-in `google_search` with `AgentTool` |
-| Apr 5 | [**streamassist-oauth-flow**](./streamassist-oauth-flow/) | HD demo GIF + sequence diagrams + expandable prerequisites |
+| Apr 5 | [**streamassist-oauth-flow-sharepoint**](./streamassist-oauth-flow-sharepoint/) | HD demo GIF + sequence diagrams + expandable prerequisites *(formerly `streamassist-oauth-flow`)* |
 
 ---
 
 ## What's Here
 
-38 projects across 6 categories. Every project runs on **Google Cloud** with **Vertex AI** as the backbone.
+39 projects across 6 categories. Every project runs on **Google Cloud** with **Vertex AI** as the backbone.
 
 ```
 Google ADK ████████████████████████████████ 16    React 19   ████████████████████████████ 13
@@ -125,7 +127,7 @@ Full-stack portals bridging Microsoft identity to Google Cloud search infrastruc
 | [**servicedesk-sharepoint-portal**](./servicedesk-sharepoint-portal/) | Discovery Engine (SharePoint) + ServiceNow MCP in a single agent portal | ![Python](https://img.shields.io/badge/-Python-3776AB?logo=python&logoColor=white&style=flat-square) ![React](https://img.shields.io/badge/-React-61DAFB?logo=react&logoColor=black&style=flat-square) ![MCP](https://img.shields.io/badge/-MCP-FF6F00?style=flat-square) |
 | [**servicenow-mcp-portal**](./servicenow-mcp-portal/) | Agent Engine + ServiceNow via MCP with MSAL-authenticated React frontend | ![Python](https://img.shields.io/badge/-Python-3776AB?logo=python&logoColor=white&style=flat-square) ![React](https://img.shields.io/badge/-React-61DAFB?logo=react&logoColor=black&style=flat-square) ![MCP](https://img.shields.io/badge/-MCP-FF6F00?style=flat-square) |
 | [**gemini-enterprise-sharepoint-agent**](./gemini-enterprise-sharepoint-agent/) | ADK Agent registered in Gemini Enterprise — searches SharePoint via Discovery Engine + WIF | ![Python](https://img.shields.io/badge/-Python-3776AB?logo=python&logoColor=white&style=flat-square) ![ADK](https://img.shields.io/badge/-ADK-4285F4?style=flat-square) ![WIF](https://img.shields.io/badge/-WIF-34A853?style=flat-square) |
-| [**streamassist-oauth-flow**](./streamassist-oauth-flow/) | Custom StreamAssist portal — users authorize once, then chat with SharePoint-grounded answers | ![Python](https://img.shields.io/badge/-Python-3776AB?logo=python&logoColor=white&style=flat-square) ![React](https://img.shields.io/badge/-React-61DAFB?logo=react&logoColor=black&style=flat-square) ![WIF](https://img.shields.io/badge/-WIF-34A853?style=flat-square) |
+| [**streamassist-oauth-flow-sharepoint**](./streamassist-oauth-flow-sharepoint/) | Custom StreamAssist portal — users authorize once, then chat with SharePoint-grounded answers *(formerly `streamassist-oauth-flow`)* | ![Python](https://img.shields.io/badge/-Python-3776AB?logo=python&logoColor=white&style=flat-square) ![React](https://img.shields.io/badge/-React-61DAFB?logo=react&logoColor=black&style=flat-square) ![WIF](https://img.shields.io/badge/-WIF-34A853?style=flat-square) |
 | [**ge-sharepoint-cloudid**](./ge-sharepoint-cloudid/) | Federated SharePoint search via Google Cloud Identity — no WIF, no STS, no MSAL | ![Python](https://img.shields.io/badge/-Python-3776AB?logo=python&logoColor=white&style=flat-square) ![React](https://img.shields.io/badge/-React-61DAFB?logo=react&logoColor=black&style=flat-square) ![GIS](https://img.shields.io/badge/-GIS-4285F4?style=flat-square) |
 | [**cortex-retriever**](./cortex-retriever/) | Agent-only — ADK agent for Gemini Enterprise, searches SharePoint + Google, zero UI | ![Python](https://img.shields.io/badge/-Python-3776AB?logo=python&logoColor=white&style=flat-square) ![ADK](https://img.shields.io/badge/-ADK-4285F4?style=flat-square) ![WIF](https://img.shields.io/badge/-WIF-34A853?style=flat-square) |
 | [**outlook-streamassist-oauth-flow**](./outlook-streamassist-oauth-flow/) | StreamAssist portal for Outlook — per-user OAuth, zero credential storage | ![Python](https://img.shields.io/badge/-Python-3776AB?logo=python&logoColor=white&style=flat-square) ![React](https://img.shields.io/badge/-React-61DAFB?logo=react&logoColor=black&style=flat-square) ![OAuth](https://img.shields.io/badge/-OAuth-EB5424?style=flat-square) |
@@ -133,6 +135,7 @@ Full-stack portals bridging Microsoft identity to Google Cloud search infrastruc
 | [**light_mcp_cloud_portal**](./light_mcp_cloud_portal/) | Lightweight portal scaffold around MCP cloud APIs | ![Python](https://img.shields.io/badge/-Python-3776AB?logo=python&logoColor=white&style=flat-square) ![React](https://img.shields.io/badge/-React-61DAFB?logo=react&logoColor=black&style=flat-square) ![MCP](https://img.shields.io/badge/-MCP-FF6F00?style=flat-square) |
 | [**streamassist-oauth-flow-us**](./streamassist-oauth-flow-us/) | `us` regional variant — Gemini Enterprise + SharePoint federated connector + WIF | ![Python](https://img.shields.io/badge/-Python-3776AB?logo=python&logoColor=white&style=flat-square) ![React](https://img.shields.io/badge/-React-61DAFB?logo=react&logoColor=black&style=flat-square) ![WIF](https://img.shields.io/badge/-WIF-34A853?style=flat-square) |
 | [**streamassist-oauth-flow-servicenow**](./streamassist-oauth-flow-servicenow/) | Same WIF chain, **ServiceNow** swapped in as federated source — incidents, KB articles, catalog with native ACLs | ![Python](https://img.shields.io/badge/-Python-3776AB?logo=python&logoColor=white&style=flat-square) ![React](https://img.shields.io/badge/-React-61DAFB?logo=react&logoColor=black&style=flat-square) ![ServiceNow](https://img.shields.io/badge/-ServiceNow-81B5A1?logo=servicenow&logoColor=white&style=flat-square) ![WIF](https://img.shields.io/badge/-WIF-34A853?style=flat-square) |
+| [**streamassist-oauth-flow-sharepoint-servicenow**](./streamassist-oauth-flow-sharepoint-servicenow/) | **Combined** — SharePoint + ServiceNow + Google Search in one portal with three independent toggles, anti-hallucination guardrails | ![Python](https://img.shields.io/badge/-Python-3776AB?logo=python&logoColor=white&style=flat-square) ![React](https://img.shields.io/badge/-React-61DAFB?logo=react&logoColor=black&style=flat-square) ![SharePoint](https://img.shields.io/badge/-SharePoint-0078D4?logo=microsoftsharepoint&logoColor=white&style=flat-square) ![ServiceNow](https://img.shields.io/badge/-ServiceNow-81B5A1?logo=servicenow&logoColor=white&style=flat-square) ![WIF](https://img.shields.io/badge/-WIF-34A853?style=flat-square) |
 
 > 📘 **Reference doc** — [GEMINI_ENTERPRISE_SHAREPOINT_FLOW.md](./GEMINI_ENTERPRISE_SHAREPOINT_FLOW.md): the four mandatory configurations and replication checklist behind every GE + SharePoint federated portal in this section. The ServiceNow variant follows the same pattern with the deltas documented in its own [`FLOW.md`](./streamassist-oauth-flow-servicenow/FLOW.md).
 
@@ -245,10 +248,10 @@ block-beta
 
 | Component | Used By |
 |:----------|:--------|
-| **WIF + STS** | sharepoint_wif_portal, streamassist-oauth-flow, streamassist-oauth-flow-us, streamassist-oauth-flow-servicenow, gemini-enterprise-sharepoint-agent, cortex-retriever |
+| **WIF + STS** | sharepoint_wif_portal, streamassist-oauth-flow-sharepoint, streamassist-oauth-flow-us, streamassist-oauth-flow-servicenow, streamassist-oauth-flow-sharepoint-servicenow, gemini-enterprise-sharepoint-agent, cortex-retriever |
 | **Google Identity Services** | ge-sharepoint-cloudid |
-| **Discovery Engine** | sharepoint_wif_portal, streamassist-oauth-flow, streamassist-oauth-flow-us, streamassist-oauth-flow-servicenow, ge-sharepoint-cloudid, gemini-enterprise-sharepoint-agent, cortex-retriever, nexus-tax-intelligence, servicedesk-sharepoint-portal, discovery-engine-latency-probe |
-| **ServiceNow (federated)** | streamassist-oauth-flow-servicenow, servicedesk-sharepoint-portal, servicenow-mcp-portal, adk-secret-snow-demo |
+| **Discovery Engine** | sharepoint_wif_portal, streamassist-oauth-flow-sharepoint, streamassist-oauth-flow-us, streamassist-oauth-flow-servicenow, streamassist-oauth-flow-sharepoint-servicenow, ge-sharepoint-cloudid, gemini-enterprise-sharepoint-agent, cortex-retriever, nexus-tax-intelligence, servicedesk-sharepoint-portal, discovery-engine-latency-probe |
+| **ServiceNow (federated)** | streamassist-oauth-flow-servicenow, streamassist-oauth-flow-sharepoint-servicenow, servicedesk-sharepoint-portal, servicenow-mcp-portal, adk-secret-snow-demo |
 | **Vertex Vector Search** | shutter-vibe-engine/multimodal-search, vector-search-canvas |
 | **Agent Engine** | sharepoint_wif_portal, cortex-retriever, servicenow-mcp-portal, cross-project-adk-agent, observability-orchestra, vertex-multi-agent-workbench |
 | **MCP (FastMCP)** | gworkspace-mcp-server, ms365-mcp-server, plaid-mcp-server, amex-mcp, knowledge-base-mcp, adk-secret-snow-demo |

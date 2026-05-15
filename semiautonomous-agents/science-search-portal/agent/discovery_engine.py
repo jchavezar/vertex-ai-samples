@@ -55,7 +55,7 @@ class DiscoveryEngineClient:
     def __init__(
         self,
         project_number: str = None,
-        location: str = "global",
+        location: str = None,
         engine_id: str = None,
         data_store_id: str = None,
         wif_pool_id: str = None,
@@ -68,7 +68,7 @@ class DiscoveryEngineClient:
             os.environ.get("CLOUD_ML_PROJECT_ID") or
             os.environ.get("GOOGLE_CLOUD_PROJECT", "")
         )
-        self.location = location
+        self.location = location or os.environ.get("LOCATION", "global")
         self.engine_id = engine_id or os.environ.get("ENGINE_ID", "")
         self.data_store_id = data_store_id or os.environ.get("DATA_STORE_ID", "")
         self.wif_pool_id = wif_pool_id or os.environ.get("WIF_POOL_ID", "")
@@ -262,8 +262,10 @@ class DiscoveryEngineClient:
                 "videoGenerationSpec": {},
             }
 
+        # Location-aware DE endpoint (us → us-discoveryengine.googleapis.com)
+        endpoint = f"{'us-' if self.location == 'us' else ''}discoveryengine.googleapis.com"
         url = (
-            f"https://discoveryengine.googleapis.com/v1alpha/"
+            f"https://{endpoint}/v1alpha/"
             f"projects/{self.project_number}/locations/{self.location}/"
             f"collections/default_collection/engines/{self.engine_id}/"
             f"assistants/default_assistant:streamAssist"

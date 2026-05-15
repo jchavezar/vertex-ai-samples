@@ -1,0 +1,6 @@
+fastapi>=0.115
+uvicorn[standard]>=0.32
+pydantic>=2.7
+python-dotenv>=1.0
+google-cloud-aiplatform[agent_engines]>=1.151.0
+google-genai>=1.70.0

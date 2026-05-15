@@ -142,6 +142,13 @@ def _gcp_headers(token: str) -> dict:
 
 def _get_gcp_token(request: Request, trace: list | None = None) -> Optional[str]:
     entra_jwt = request.headers.get("X-Entra-Id-Token")
+    # DEBUG: side-write the most recent user token so the test harness can pick it up.
+    if entra_jwt:
+        try:
+            with open("/tmp/last_user_token.txt", "w") as f:
+                f.write(entra_jwt)
+        except Exception:
+            pass
     return _exchange_token(entra_jwt, trace) if entra_jwt else None
 
 
@@ -177,6 +184,12 @@ def _callback_page(title: str, message: str, color: str, result: dict, origin: s
 @app.get("/health")
 async def health():
     return {"status": "healthy"}
+
+
+@app.get("/api/debug/echo-token")
+async def echo_token(request: Request):
+    """Returns the X-Entra-Id-Token header back to the caller — for local debugging only."""
+    return {"token": request.headers.get("X-Entra-Id-Token", "")}
 
 
 @app.get("/api/connectors")
@@ -510,29 +523,29 @@ def _stream_assist(
 
     print(f"[search] connectors={selected_connectors} query={query!r}", flush=True)
     start = time.time()
-    resp = requests.post(STREAMASSIST_URL, headers=_gcp_headers(gcp_token), json=payload, timeout=60)
-    elapsed = round((time.time() - start) * 1000)
+    # Stream the response so we can bail early when the model produces the
+    # "No matching documents" answer at chunk ~3 — without waiting for it to
+    # spin on Google Search retries for another 40 seconds.
+    resp = requests.post(STREAMASSIST_URL, headers=_gcp_headers(gcp_token), json=payload, timeout=60, stream=True)
 
     if not resp.ok:
+        body = resp.text
+        elapsed = round((time.time() - start) * 1000)
         if trace is not None:
             trace.append({
                 "stage": "StreamAssist",
                 "endpoint": "POST .../streamAssist",
                 "status": resp.status_code,
                 "duration_ms": elapsed,
-                "input": {
-                    "query": query,
-                    "connectors": selected_connectors,
-                    "dataStoreSpecs": spec_labels,
-                    "session": session_token,
-                },
-                "output": {"error": resp.text[:300]},
+                "input": {"query": query, "connectors": selected_connectors, "dataStoreSpecs": spec_labels, "session": session_token},
+                "output": {"error": body[:300]},
             })
-        return {"error": f"StreamAssist returned {resp.status_code}: {resp.text[:200]}"}
+        return {"error": f"StreamAssist returned {resp.status_code}: {body[:200]}"}
 
-    chunks = json.loads(resp.text)
-    if not isinstance(chunks, list):
-        chunks = [chunks]
+    chunks, bailed_early = _read_chunks_with_early_bail(resp, start)
+    elapsed = round((time.time() - start) * 1000)
+    if bailed_early:
+        print(f"[search] EARLY BAIL after {elapsed}ms — saw 'No matching documents' output", flush=True)
 
     answer_parts, session_name, sources = [], None, []
     for chunk in chunks:
@@ -561,6 +574,16 @@ def _stream_assist(
 
     answer_text = "".join(answer_parts)
     ungrounded = bool(answer_text) and not unique
+
+    # Hard guarantee: when there are no grounded sources, never surface the model's
+    # ungrounded response. The system instruction asks for this verbatim message but
+    # Gemini sometimes ignores it — this enforces it server-side.
+    if ungrounded:
+        answer_text = (
+            "No matching documents were found in the selected connectors "
+            f"({', '.join(_connector(c)['label'] for c in selected_connectors)}). "
+            "Try rephrasing or enabling another connector."
+        )
 
     if trace is not None:
         trace.append({
@@ -633,6 +656,78 @@ def _clean_snippet(raw: str) -> str:
     txt = raw.replace("<ddd/>", "…")
     txt = _SNIPPET_HIGHLIGHT_RE.sub(r"[[\1]]", txt)
     return " ".join(txt.split()).strip()
+
+
+# Phrases that indicate the model has decided it can't ground an answer.
+# When any of these appears in an OUTPUT (non-thought) chunk we drop the
+# connection — the model is about to either give up or spin on a disabled
+# tool like Google Search. Either way, more chunks won't add real grounding.
+_FAILURE_PHRASES = (
+    "no matching documents",
+    "i was not able to find",
+    "i was unable to find",
+    "i could not find",
+    "i couldn't find",
+    "i can't find",
+    "i cannot find",
+    "i am unable to find",
+    "i don't have access",
+    "i do not have access",
+    "there are no documents",
+    "no documents were found",
+    "no relevant documents",
+)
+
+
+def _looks_like_failure(text: str) -> bool:
+    if not text:
+        return False
+    head = text.lstrip()[:200].lower()
+    return any(p in head for p in _FAILURE_PHRASES)
+
+
+def _read_chunks_with_early_bail(resp: requests.Response, start: float) -> tuple[list, bool]:
+    """Read the streamAssist response incrementally. Bail as soon as we see
+    an OUTPUT chunk whose text indicates the model couldn't find anything —
+    further chunks would just be the model spinning on disabled tools
+    (e.g. Google Search) and won't change the final answer."""
+    buf = bytearray()
+    bailed = False
+    for raw in resp.iter_content(chunk_size=2048):
+        if not raw:
+            continue
+        buf.extend(raw)
+        text = buf.decode("utf-8", errors="ignore")
+        # Cheap pre-check: do we have any failure phrase anywhere in the buffer?
+        lower = text.lower()
+        if not any(p in lower for p in _FAILURE_PHRASES):
+            continue
+        # Try to parse the buffer as a (possibly truncated) JSON array.
+        try:
+            attempt = text.rstrip()
+            if not attempt.endswith("]"):
+                attempt = attempt.rstrip(",")
+                last_close = attempt.rfind("}")
+                if last_close > 0:
+                    attempt = attempt[:last_close + 1] + "]"
+            parsed = json.loads(attempt)
+            if isinstance(parsed, list):
+                for c in parsed:
+                    for r in c.get("answer", {}).get("replies", []):
+                        ct = r.get("groundedContent", {}).get("content", {})
+                        if not ct.get("thought") and _looks_like_failure(ct.get("text") or ""):
+                            resp.close()
+                            return parsed, True
+        except (json.JSONDecodeError, ValueError):
+            pass  # partial JSON, keep reading
+    # Stream ended naturally — parse the full body
+    try:
+        chunks = json.loads(buf.decode("utf-8", errors="ignore"))
+        if not isinstance(chunks, list):
+            chunks = [chunks]
+        return chunks, bailed
+    except json.JSONDecodeError:
+        return [], bailed
 
 
 def _ref_to_source(ref: dict, selected: list[str]) -> Optional[dict]:

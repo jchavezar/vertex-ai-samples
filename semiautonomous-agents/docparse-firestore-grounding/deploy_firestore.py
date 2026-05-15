@@ -12,34 +12,32 @@ STAGING_BUCKET = "gs://sharepoint-wif-agent-staging"
 RUNTIME_ENV_VARS = {
     "GOOGLE_CLOUD_LOCATION": "global",
     "GOOGLE_GENAI_USE_VERTEXAI": "true",
-    "GOOGLE_CLOUD_PROJECT": "sharepoint-wif",
+    # GOOGLE_CLOUD_PROJECT auto-set by Agent Engine (reserved)
     "FIRESTORE_COLLECTION": "docparse_chunks",
+    "FIRESTORE_PROJECT": "sharepoint-wif",  # Custom var for Firestore client
     "AGENT_MODEL": "gemini-2.5-flash",
     "AGENT_TOP_K": "20",
 }
 
 def deploy():
     print(f"\n=== Deploying Firestore agent → {PROJECT_ID} ===")
-    print(f"Staging bucket: {STAGING_BUCKET}")
 
     vertexai.init(project=PROJECT_ID, location=LOCATION, staging_bucket=STAGING_BUCKET)
 
-    from firestore_agent import root_agent
-
-    app = reasoning_engines.AdkApp(agent=root_agent, enable_tracing=True)
+    # Import simple query wrapper (no AdkApp, direct query() method)
+    from firestore_agent.simple_query_wrapper import root_agent
 
     remote = agent_engines.create(
-        agent_engine=app,
-        display_name="docparse-firestore",
-        description="Firestore + PDF grounding, text-embedding-005, gemini-2.5-flash, 90.5% composite",
+        agent_engine=root_agent,
+        display_name="docparse-firestore-keyword",
+        description="Firestore + keyword retrieval + gemini-2.5-flash [WORKING]",
         requirements=["google-cloud-aiplatform[adk,agent_engines]", "google-cloud-firestore", "google-genai", "requests"],
         extra_packages=["firestore_agent"],
         env_vars=RUNTIME_ENV_VARS,
     )
 
-    print(f"\n=== Deployed ===")
+    print(f"\n✅ DEPLOYED")
     print(f"Resource: {remote.resource_name}")
-    print(f"Project: {PROJECT_ID} (same-project deployment)")
     return remote
 
 if __name__ == "__main__":

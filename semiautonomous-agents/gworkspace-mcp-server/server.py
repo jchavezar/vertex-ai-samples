@@ -50,9 +50,11 @@ def gworkspace_login() -> str:
 **Step 1:** Open this URL in your browser:
 {auth_data['auth_url']}
 
-**Step 2:** Sign in with your Google Workspace account and grant permissions
+**Step 2:** Sign in with your Google Workspace account and grant permissions.
 
-**Step 3:** After granting permissions, Google will show you an authorization code. Copy it.
+**Step 3:** Google will redirect you to `http://localhost:8765/?code=...&scope=...`.
+The page will fail to load — that's expected. Copy the `code` value from the URL bar
+(the long string between `code=` and the next `&`).
 
 **Step 4:** Run the `gworkspace_complete_login` tool with the code:
 ```

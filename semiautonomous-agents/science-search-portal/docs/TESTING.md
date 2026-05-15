@@ -3,7 +3,7 @@
 **Version:** 2.1.0  
 **Last Updated:** 2026-04-05
 
-**Navigation**: [Index](00-INDEX.md) | [09-Panel](09-AGENT-PANEL.md) | [10-Deploy](10-CLOUD-DEPLOYMENT.md) | **Testing**
+**Navigation**: [README](../README.md) | [SETUP](SETUP.md) | [SECURITY_FLOW](SECURITY_FLOW.md) | [DEMO_SCRIPT](DEMO_SCRIPT.md) | **TESTING**
 
 ---
 

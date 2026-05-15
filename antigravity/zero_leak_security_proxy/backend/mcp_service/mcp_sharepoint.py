@@ -50,8 +50,13 @@ class SharePointMCP:
         if not self.site_id or not self.drive_id:
             logger.error("CRITICAL: SITE_ID or DRIVE_ID missing from environment. SharePoint integration will fail.")
         
-        # Configure Vision-ready MarkItDown
-        self._md = MarkItDown(image_description_callback=self._neural_vision_callback)
+        # Vision callback (one Gemini call per image) makes read_multiple_documents
+        # run for 30-60s on multi-image PDFs, breaking ADK's MCP session timeout
+        # mid-stream. Off by default; flip ENABLE_NEURAL_VISION=1 to re-enable.
+        if os.getenv("ENABLE_NEURAL_VISION", "0") == "1":
+            self._md = MarkItDown(image_description_callback=self._neural_vision_callback)
+        else:
+            self._md = MarkItDown()
         
         if token:
             self.token = token
@@ -99,25 +104,35 @@ class SharePointMCP:
     def search_documents(self, query: str = "*", limit: int = 5):
         """Parallel Fan-out Search for finding documents across the sharepoint index."""
         logger.info(f"Searching SharePoint for: {query} (limit: {limit})")
+
+        # Tenant-wide search by default — Graph respects the user's ACL via the
+        # delegated token, so only sites/files they can read are returned. Set
+        # SHAREPOINT_SCOPE_TO_DRIVE=1 to fall back to the legacy single-drive
+        # behavior (path filter scoped to the configured SITE_ID/DRIVE_ID).
+        scope_to_drive = os.getenv("SHAREPOINT_SCOPE_TO_DRIVE", "0") == "1"
         drive_web_url = None
-        try:
-            drive_web_url = self.get_drive_web_url()
-            logger.info(f"Drive Web URL: {drive_web_url}")
-        except Exception as e:
-            logger.error(f"Failed to get drive web url: {e}")
+        if scope_to_drive:
+            try:
+                drive_web_url = self.get_drive_web_url()
+                logger.info(f"Drive Web URL (scoped): {drive_web_url}")
+            except Exception as e:
+                logger.error(f"Failed to get drive web url: {e}")
 
         url = f"{self.base_url}/search/query"
         headers = {"Authorization": f"Bearer {self.token}", "Content-Type": "application/json"}
-        
+
         # Query Expansion Angles
-        search_queries = []
-        search_queries.append(f'{query} path:"{drive_web_url}"' if drive_web_url else query)
+        def _scoped(q: str) -> str:
+            return f'{q} path:"{drive_web_url}"' if drive_web_url else q
+        search_queries = [_scoped(query)]
         words = [w for w in query.split() if len(w) > 2]
         if len(words) > 1:
-            broad_q = " OR ".join(words[:4])
-            search_queries.append(f'({broad_q}) path:"{drive_web_url}"' if drive_web_url else broad_q)
-        if len(words) > 0 and drive_web_url:
-            search_queries.append(f'{words[0]}* path:"{drive_web_url.rstrip("/")}/*"')
+            search_queries.append(_scoped("(" + " OR ".join(words[:4]) + ")"))
+        if len(words) > 0:
+            wildcard = f'{words[0]}*'
+            search_queries.append(
+                f'{wildcard} path:"{drive_web_url.rstrip("/")}/*"' if drive_web_url else wildcard
+            )
 
         from concurrent.futures import ThreadPoolExecutor
         all_hits = {}
@@ -141,13 +156,18 @@ class SharePointMCP:
                             res = hit.get('resource', {})
                             iid = res.get('id')
                             if iid:
+                                pref = res.get('parentReference', {}) or {}
                                 all_hits[iid] = {
                                     "id": iid,
                                     "name": res.get('name'),
                                     "webUrl": res.get('webUrl'),
                                     "summary": res.get('summary'),
                                     "filetype": res.get('filetype'),
-                                    "folder": res.get('parentReference', {}).get('path')
+                                    "folder": pref.get('path'),
+                                    # Per-result drive/site so reads work cross-site
+                                    # without any pre-configured SITE_ID/DRIVE_ID.
+                                    "driveId": pref.get('driveId'),
+                                    "siteId": (pref.get('siteId') or '').split(',')[0] or None,
                                 }
             except Exception as e:
                 logger.warning(f"Fan-out branch failed: {str(e)}")
@@ -191,9 +211,17 @@ class SharePointMCP:
 
     # --- EXTRACTION & READING METHODS ---
 
-    def get_document_content(self, item_id: str, native: bool = False):
-        """Downloads, converts and optionally returns native bytes for direct model ingestion."""
-        url = f"{self.base_url}/sites/{self.site_id}/drives/{self.drive_id}/items/{item_id}"
+    def get_document_content(self, item_id: str, native: bool = False, drive_id: Optional[str] = None):
+        """Downloads, converts and optionally returns native bytes for direct model ingestion.
+
+        drive_id is the per-document driveId (from search results); if omitted
+        we fall back to the configured drive. Using /drives/{drive_id}/items/...
+        works across any SharePoint site the caller has access to.
+        """
+        effective_drive = drive_id or self.drive_id
+        if not effective_drive:
+            return "Error: no drive_id provided and no default DRIVE_ID configured."
+        url = f"{self.base_url}/drives/{effective_drive}/items/{item_id}"
         headers = {"Authorization": f"Bearer {self.token}"}
         try:
             response = requests.get(url, headers=headers)

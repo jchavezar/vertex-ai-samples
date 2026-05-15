@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GA vs Preview Models: docparse Benchmark</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 2rem;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        .hero {
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+            color: white;
+            padding: 3rem 2rem;
+            text-align: center;
+        }
+        .hero h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+        .hero p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        .content {
+            padding: 2rem;
+        }
+        .section {
+            margin-bottom: 2rem;
+        }
+        .section h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #1e3a8a;
+            margin-bottom: 1rem;
+            border-bottom: 2px solid #3b82f6;
+            padding-bottom: 0.5rem;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+        th, td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        th {
+            background: #f3f4f6;
+            font-weight: 600;
+            color: #374151;
+        }
+        tr:hover {
+            background: #f9fafb;
+        }
+        .metric {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-weight: 600;
+            font-size: 0.875rem;
+        }
+        .metric.high { background: #d1fae5; color: #065f46; }
+        .metric.medium { background: #fef3c7; color: #92400e; }
+        .metric.low { background: #fee2e2; color: #991b1b; }
+        .winner { background: #ecfdf5; font-weight: 600; }
+        .takeaway {
+            background: #eff6ff;
+            border-left: 4px solid #3b82f6;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-top: 2rem;
+        }
+        .takeaway h3 {
+            color: #1e3a8a;
+            font-size: 1.25rem;
+            margin-bottom: 0.5rem;
+        }
+        .takeaway p {
+            color: #1e40af;
+            line-height: 1.6;
+        }
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-left: 0.5rem;
+        }
+        .badge.ga { background: #dbeafe; color: #1e40af; }
+        .badge.preview { background: #e0e7ff; color: #4338ca; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="hero">
+            <h1>GA Models vs Preview Models</h1>
+            <p>docparse agent benchmark: Can Gemini 2.5-flash (GA) match Gemini 3-flash-preview performance?</p>
+        </div>
+
+        <div class="content">
+            <div class="section">
+                <h2>Overall Performance</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Strategy</th>
+                            <th>Model</th>
+                            <th>Composite</th>
+                            <th>Correctness</th>
+                            <th>Completeness</th>
+                            <th>Avg Latency</th>
+                            <th>Correct</th>
+                            <th>Partial</th>
+                            <th>Wrong</th>
+                            <th>Refused</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="winner">
+                            <td>rag_md_v2 <span class="badge preview">PREVIEW</span></td>
+                            <td>gemini-3-flash-preview</td>
+                            <td><span class="metric high">92.9%</span></td>
+                            <td>92.9%</td>
+                            <td>93.0%</td>
+                            <td>7.1s</td>
+                            <td>196</td>
+                            <td>7</td>
+                            <td>10</td>
+                            <td>3</td>
+                        </tr>
+                        <tr class="">
+                            <td>agent_ga_flash <span class="badge ga">GA</span></td>
+                            <td>gemini-2.5-flash</td>
+                            <td><span class="metric medium">87.7%</span></td>
+                            <td>89.0%</td>
+                            <td>86.4%</td>
+                            <td>3.3s</td>
+                            <td>182</td>
+                            <td>14</td>
+                            <td>5</td>
+                            <td>15</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="section">
+                <h2>Performance by Category</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Category</th>
+                            <th>Preview (3-flash-preview)</th>
+                            <th>GA (2.5-flash)</th>
+                            <th>Delta</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+
+                        <tr>
+                            <td>comparison (n=10)</td>
+                            <td>92.2%</td>
+                            <td>87.8%</td>
+                            <td><span class="metric medium">-4.4%</span></td>
+                        </tr>
+
+                        <tr>
+                            <td>filter (n=4)</td>
+                            <td>98.8%</td>
+                            <td>95.0%</td>
+                            <td><span class="metric medium">-3.8%</span></td>
+                        </tr>
+
+                        <tr>
+                            <td>inference (n=6)</td>
+                            <td>100.0%</td>
+                            <td>98.3%</td>
+                            <td><span class="metric medium">-1.7%</span></td>
+                        </tr>
+
+                        <tr>
+                            <td>lookup (n=186)</td>
+                            <td>92.5%</td>
+                            <td>87.0%</td>
+                            <td><span class="metric low">-5.5%</span></td>
+                        </tr>
+
+                        <tr>
+                            <td>math (n=4)</td>
+                            <td>99.4%</td>
+                            <td>96.9%</td>
+                            <td><span class="metric medium">-2.5%</span></td>
+                        </tr>
+
+                        <tr>
+                            <td>visual (n=6)</td>
+                            <td>91.2%</td>
+                            <td>87.1%</td>
+                            <td><span class="metric medium">-4.1%</span></td>
+                        </tr>
+
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="takeaway">
+                <h3>Can the customer use GA models and still hit 90%?</h3>
+                <p>
+The GA model (gemini-2.5-flash) achieved 87.7% composite score vs 92.9%
+for the preview model (gemini-3-flash-preview), a delta of -5.2 percentage points.
+
+<strong>✗ NO</strong> — The customer CANNOT use GA models and still hit 90% composite.
+
+Key differences:
+• GA model does not support thinking_level (extended reasoning)
+• Latency: 3.3s (GA) vs 7.1s (preview)
+• Correct answers: 182 (GA) vs 196 (preview)
+
+Both strategies use the same RAG Engine corpus and retrieval settings (top_k=20, vector_distance_threshold=0.5).
+The primary difference is the model: GA 2.5-flash vs Preview 3-flash-preview.
+</p>
+            </div>
+
+            <div class="section">
+                <h2>Methodology</h2>
+                <p><strong>Dataset:</strong> 216 questions across 5 categories (lookup, comparison, inference, math, visual)</p>
+                <p><strong>Corpus:</strong> Same RAG Engine corpus (projects/254356041555/locations/us-central1/ragCorpora/8818611020344852480)</p>
+                <p><strong>Retrieval:</strong> top_k=20, vector_distance_threshold=0.5, text-embedding-005</p>
+                <p><strong>Judge:</strong> Claude Opus 4.5 on Vertex AI (us-east5)</p>
+                <p><strong>Date:</strong> eval generated on 2026-04-30</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

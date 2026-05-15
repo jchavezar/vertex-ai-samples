@@ -1,131 +1,205 @@
-# Atlassian MCP + Gemini Enterprise Integration
+# Atlassian Jira Integration with Gemini Enterprise - Customer Guide
 
-Complete guide to integrate Atlassian Rovo MCP server (Jira/Confluence) with Gemini Enterprise.
+Complete step-by-step guide to connect your Atlassian Jira instance to Google Gemini Enterprise using the Atlassian Remote MCP Server.
+
+## What You'll Get
+
+After setup, users can ask questions in Gemini Enterprise chat like:
+- "Show me 10 recent bugs"
+- "List issues assigned to me"
+- "What's the status of PROJ-123?"
+- "Create a new bug for the login issue"
+
+The assistant will search your Jira instance and return real data.
 
 ## Prerequisites
 
-- Atlassian account with admin access to your Jira/Confluence site
-- Gemini Enterprise app created in vtxdemos project
-- Email for Atlassian login: `admin@jesusarguelles.demo.altostrat.com`
+- **Atlassian:** Admin access to your Jira Cloud site (e.g., yourcompany.atlassian.net)
+- **Google Cloud:** Gemini Enterprise app already created in your GCP project
+- **Terminal access:** Ability to run a single curl command
+- **Time:** ~15 minutes
 
-## Step 1: Register OAuth Client
+## Step 1: Register OAuth Client (One-Time)
 
-Run the script:
+Open a terminal and run this command:
+
 ```bash
-cd ~/semiautonomous-agents/atlassian-mcp-setup
-./register_oauth_client.sh
+curl -X POST https://cf.mcp.atlassian.com/v1/register \
+  -H "Content-Type: application/json" \
+  -d '{"redirect_uris":["https://vertexaisearch.cloud.google.com/oauth-redirect"],"client_name":"your-company-gemini-jira","token_endpoint_auth_method":"client_secret_basic","grant_types":["authorization_code","refresh_token"],"response_types":["code"]}'
 ```
 
-This will output:
-- `client_id` - copy this
-- `client_secret` - copy this
-
-These credentials are saved to `/tmp/atlassian_oauth_creds.json`.
-
-## Step 2: Create Custom MCP Data Store in GE Console
-
-Go to: https://console.cloud.google.com/gemini-enterprise → Apps → (your app) → Data stores → **New data store**
-
-Select: **Custom MCP Server**
-
-Fill the form:
-```
-MCP Server URL: https://mcp.atlassian.com/v1/mcp
-Authorization URL: https://mcp.atlassian.com/v1/authorize
-Authorization URL Parameters: (leave blank)
-Token URL: https://cf.mcp.atlassian.com/v1/token
-Client ID: (paste from step 1)
-Client Secret: (paste from step 1)
-Scopes: read:jira-work write:jira-work read:jira-user read:me offline_access
+**Save the response** - you'll need `client_id` and `client_secret`. Example:
+```json
+{
+  "client_id": "abc123xyz",
+  "client_secret": "secret456def",
+  ...
+}
 ```
 
-**IMPORTANT:** Do NOT add Confluence scopes even if you want Confluence access. Confluence requires admin privileges we don't have.
+**Note:** This is NOT creating an app at developer.atlassian.com. The Atlassian Remote MCP server has its own separate OAuth system. Apps from developer.atlassian.com will NOT work.
 
-Click **Continue** → **Login**
+## Step 2: Create Custom MCP Data Store in Console
 
-## Step 3: OAuth Consent Flow
+1. Go to: [Google Cloud Console](https://console.cloud.google.com) → **Gemini Enterprise** → **Apps**
+2. Click your app name
+3. Click **Connected data stores** (left sidebar)
+4. Click **New data store** button
+5. Select: **Custom MCP Server**
 
-**Screen 1: MCP Consent**
+## Step 3: Configure the MCP Connection
+
+Fill in these exact values:
+
+| Field | Value |
+|-------|-------|
+| **MCP Server URL** | `https://mcp.atlassian.com/v1/mcp` |
+| **Authorization URL** | `https://mcp.atlassian.com/v1/authorize` |
+| **Authorization URL Parameters** | (leave blank) |
+| **Token URL** | `https://cf.mcp.atlassian.com/v1/token` |
+| **Client ID** | Paste from Step 1 |
+| **Client Secret** | Paste from Step 1 |
+| **Scopes** | `read:jira-work write:jira-work read:jira-user read:me offline_access` |
+
+**Critical:** The Token URL MUST include `cf.` - using `auth.atlassian.com` will fail with "invalid_client".
+
+Click **Continue**, then **Login**.
+
+## Step 4: Complete OAuth Authorization
+
+Three screens will appear:
+
+**Screen 1: MCP Server Consent**
+- Shows "Atlassian Rovo MCP server is requesting access"
 - Check: **Jira** ✓
-- Uncheck: **Confluence** ✗
-- Uncheck: **Compass** ✗
+- Optional: Check Confluence if you want Confluence access ✓
+- Uncheck: Compass (unless you use it)
 - Click **Approve**
 
 **Screen 2: Atlassian Login**
-- Email: `admin@jesusarguelles.demo.altostrat.com`
-- Password: (enter your Argolis password)
-- Click **Log in** / **Continue**
+- Enter your Atlassian admin email
+- Enter password
+- Click **Log in**
 
-**Screen 3: Site Consent**
-- Select site: **sockcop.atlassian.net**
-- Review permissions (View/Update jira-work, View me)
+**Screen 3: Site & Permissions Consent**
+- Select your Atlassian site (e.g., yourcompany.atlassian.net)
+- Review requested permissions:
+  - View jira-work
+  - Update jira-work
+  - View me
 - Click **Accept**
 
-OAuth popup will close automatically.
+The popup closes automatically. You should see "Connector created successfully" in the console.
 
-## Step 4: Enable Jira Actions
+## Step 5: Enable Jira Tools
 
-After OAuth completes:
+1. In the data stores list, click your new **Custom MCP Server** connector
+2. Click the **Actions** tab
+3. Click **Reload custom actions** button (waits ~5-10 seconds)
+4. You'll see a list of ~30-37 tools
 
-1. Go to: (your connector) → **Actions** tab
-2. Click **Reload custom actions** (waits ~5s, discovers 37 tools)
-3. **Check ONLY these Jira tools:**
-   - `searchJiraIssuesUsingJql` ✓
-   - `getJiraIssue` ✓
-   - `createJiraIssue` (optional)
-   - `editJiraIssue` (optional)
-   - `getVisibleJiraProjects` (optional)
-4. **Uncheck all Confluence/Compass tools** (they cause 403 errors)
-5. Click **Enable actions**
+**Check these essential Jira tools:**
+- ✓ `searchJiraIssuesUsingJql` - Search for issues
+- ✓ `getJiraIssue` - Get details of specific issue
+- ✓ `getVisibleJiraProjects` - List accessible projects
+- ✓ `createJiraIssue` - Create new issues (optional)
+- ✓ `editJiraIssue` - Update issues (optional)
 
-Should see: "Data connector actions updated successfully."
+**Uncheck all Confluence tools** if you don't need Confluence (they require admin permissions).
 
-## Step 5: Test
+5. Click **Enable actions** button
+6. Should see: "Data connector actions updated successfully"
 
-1. Open your Gemini Enterprise chat
-2. Start a new chat
-3. Ask: `list 5 jira issues` or `show me recent jira bugs`
+## Step 6: Test the Integration
 
-Should return issues from sockcop.atlassian.net (e.g., SMP-912, SMP-911, etc.).
+1. Go to your Gemini Enterprise chat interface
+2. Click **New chat** (important - don't reuse old chats)
+3. Ask: `"List 5 recent Jira issues"`
 
-If you get "couldn't find any issues", verify:
-- Your Atlassian site has issues in accessible projects
-- The authenticated user has Browse Projects permission
+**Expected:** The assistant searches your Jira and returns issue keys, summaries, and status.
 
-## Troubleshooting
+**If you get empty results:**
+- Make sure the authenticated user can see issues in Jira (check at yourcompany.atlassian.net)
+- Try: `"What Jira projects can I access?"` first
+- Then: `"Show me 5 issues from project [PROJECT_KEY]"`
 
-**"Connector unavailable" error:**
-- Check Actions tab shows tools as **Enabled** (green checkmark)
-- Click **Reload custom actions** if tools list is empty
+## Known Issues & Workarounds
 
-**403 FORBIDDEN errors in logs:**
-- You enabled Confluence tools but OAuth token only has Jira scopes
-- Go back to Actions tab, uncheck all Confluence tools, click Enable actions again
+### Tools Stop Working After Hours
 
-**500 timeout:**
-- Too many tools enabled causes slow initial sync
-- Disable all but the 2 core tools: `searchJiraIssuesUsingJql` and `getJiraIssue`
+**Symptom:** Queries that worked earlier return "Jira connector unavailable" after a few hours.
 
-**"Couldn't find any issues" (empty results):**
-- Verify your Jira site actually has issues: visit sockcop.atlassian.net directly
-- Check the authenticated user has Browse Projects permission
-- Try a more specific query: "show me issues in project SMP"
+**Cause:** Tool registry cache expires.
 
-**Tools stop working after a few hours:**
-- The tool registry cache expires periodically
-- **Fix:** Console → (connector) → Actions tab → **Reload custom actions** → wait 30s
-- No re-authentication needed - just reload to refresh the tools cache
-- This is a known limitation of custom MCP servers in Gemini Enterprise
+**Fix:**
+1. Console → Data stores → (your MCP connector) → Actions tab
+2. Click **Reload custom actions**
+3. Wait 30 seconds
+4. Try your query again (no need to re-enable or re-authenticate)
 
-## Important URLs
+This is a known limitation of custom MCP servers in Gemini Enterprise.
 
-- Discovery doc: https://mcp.atlassian.com/.well-known/oauth-authorization-server
-- OAuth registration: https://cf.mcp.atlassian.com/v1/register
-- MCP endpoint: https://mcp.atlassian.com/v1/mcp
+### 403 Forbidden Errors in Logs
 
-## Saved Configuration
+**Symptom:** Queries timeout or fail. Logs show "403 FORBIDDEN" for Confluence API.
 
-Current working config for agentspace-testing engine:
-- Connector collection: `jiramcp_1778106767686`
-- Client ID: `E7rKFMHq_CC3dgN9`
-- Enabled actions: 2 core Jira tools only
+**Cause:** Confluence tools are enabled but you don't have Confluence admin permissions.
+
+**Fix:**
+- Actions tab → uncheck all Confluence tools → Enable actions again
+- Or add Confluence admin scopes during OAuth consent
+
+### "Invalid Client" Error
+
+**Symptom:** OAuth popup shows "The provided client secret is invalid"
+
+**Cause:** Used credentials from developer.atlassian.com instead of dynamic client registration.
+
+**Fix:**
+- Re-run Step 1 to get fresh credentials from `cf.mcp.atlassian.com/v1/register`
+- Update the connector with new client_id/secret via Re-authenticate dialog
+
+## Architecture Summary
+
+```
+Your Users
+    ↓
+Gemini Enterprise Chat
+    ↓
+Custom MCP Data Store (configured above)
+    ↓
+Atlassian Remote MCP Server (mcp.atlassian.com)
+    ↓
+Your Jira Instance (yourcompany.atlassian.net)
+```
+
+**You manage:** Gemini Enterprise app, OAuth credentials  
+**Atlassian manages:** The MCP server infrastructure  
+**Google manages:** The connector, tool routing, chat UI
+
+## Security Notes
+
+- Each user authenticates with **their own** Atlassian account during first use
+- Access tokens are scoped to what that user can see in Jira
+- The shared client_id/secret are used only for OAuth handshake
+- Tokens refresh automatically every 24 hours
+
+## Support
+
+If issues persist:
+- Check connector status: Console → Data stores → (connector) → should show "Active"
+- View logs: Click **View logs** link on connector page
+- Contact Google Cloud Support with your connector ID
+
+## Complete Files Reference
+
+This guide is part of a larger reference implementation. For automation scripts:
+- See: `semiautonomous-agents/atlassian-on-gemini-enterprise/option-b-direct-remote-mcp/`
+- Python scripts for API-driven setup
+- Evaluation harness for testing
+
+For quick bash version:
+- See: `semiautonomous-agents/atlassian-mcp-setup/`  
+- Simpler bash scripts
+- Quick start guide

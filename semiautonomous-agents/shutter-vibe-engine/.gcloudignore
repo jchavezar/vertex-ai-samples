@@ -1,0 +1,40 @@
+# .gcloudignore variant for the vibe-search-ingest (Eventarc handler) build.
+# Keeps pipeline/build.py + app/ingest.py + demos/_client.py; excludes UI sources.
+.git/
+.venv/
+__pycache__/
+*.pyc
+
+# Heavy local data
+multimodal-search/assets/
+multimodal-search/segments_cache/
+data/local_cache/
+*.npz
+*.npy
+
+# Logs / scratch
+*.log
+nohup.out
+server_pid.txt
+
+# Unrelated code
+research/
+findings/
+antigravity/
+
+# v1 / archived
+multimodal-search/archive/
+
+# Docs / site
+multimodal-search/docs/
+multimodal-search/site/
+
+# UI-only sources — ingest doesn't serve HTML
+multimodal-search/app/main.py
+multimodal-search/app/templates/
+multimodal-search/app/static/
+multimodal-search/app/requirements.txt
+
+# Other dockerfiles
+multimodal-search/deploy/Dockerfile.app
+multimodal-search/deploy/.gcloudignore.app

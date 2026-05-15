@@ -20,6 +20,7 @@ app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], all
 
 PROJECT_NUMBER = os.environ.get("PROJECT_NUMBER")
 ENGINE_ID = os.environ.get("ENGINE_ID")
+LOCATION = os.environ.get("LOCATION", "global")  # DE location: us or global
 WIF_POOL_ID = os.environ.get("WIF_POOL_ID")
 WIF_PROVIDER_ID = os.environ.get("WIF_PROVIDER_ID")
 DATA_STORE_ID = os.environ.get("DATA_STORE_ID")
@@ -35,7 +36,9 @@ _missing = [k for k, v in _required.items() if not v]
 if _missing:
     raise ValueError(f"Missing required environment variables: {', '.join(_missing)}. See .env.example")
 
-BASE_URL = f"https://discoveryengine.googleapis.com/v1alpha/projects/{PROJECT_NUMBER}/locations/global/collections/default_collection/engines/{ENGINE_ID}"
+# Location-aware DE endpoint (us → us-discoveryengine.googleapis.com, global → discoveryengine.googleapis.com)
+DE_ENDPOINT = f"{'us-' if LOCATION == 'us' else ''}discoveryengine.googleapis.com"
+BASE_URL = f"https://{DE_ENDPOINT}/v1alpha/projects/{PROJECT_NUMBER}/locations/{LOCATION}/collections/default_collection/engines/{ENGINE_ID}"
 
 
 class ChatRequest(BaseModel):
@@ -288,7 +291,7 @@ async def get_session(session_id: str, request: Request):
         return {"error": "Authentication required"}
 
     resp = requests.get(
-        f"https://discoveryengine.googleapis.com/v1alpha/{session_id}",
+        f"https://{DE_ENDPOINT}/v1alpha/{session_id}",
         headers={"Authorization": f"Bearer {gcp_token}"},
         timeout=10
     )
@@ -344,14 +347,15 @@ def _do_chat_sync(gcp_token: str, query: str, session_id: str | None, sharepoint
 
     # Restrict to SharePoint when enabled. Fan out to all 5 federated-connector
     # entity-type datastores (file/page/comment/event/attachment).
+    # Prefix is derived from DATA_STORE_ID (strip the _file suffix).
     if sharepoint_only:
         sp_entities = ["file", "page", "comment", "event", "attachment"]
-        sp_prefix = "sharepoint-data-def-connector"
+        sp_prefix = DATA_STORE_ID.rsplit("_", 1)[0] if "_" in DATA_STORE_ID else DATA_STORE_ID
         payload["toolsSpec"] = {
             "vertexAiSearchSpec": {
                 "dataStoreSpecs": [
                     {"dataStore": (
-                        f"projects/{PROJECT_NUMBER}/locations/global/"
+                        f"projects/{PROJECT_NUMBER}/locations/{LOCATION}/"
                         f"collections/default_collection/dataStores/{sp_prefix}_{entity}"
                     )}
                     for entity in sp_entities
@@ -598,11 +602,13 @@ async def whoami(request: Request):
 # This is the app DE impersonates *as the user* against Microsoft Graph.
 SHAREPOINT_CONNECTOR_APP_CLIENT_ID = "22c127d8-f3e5-4bbe-8b06-c37da3159068"
 
-# Federated SharePoint connector resource path. Lives under the "sharepoint-data-def-connector"
-# collection — see docs/SECURITY_FLOW.md and the chat dataStoreSpecs above.
+# Federated SharePoint connector resource path. Derived from DATA_STORE_ID by
+# stripping the entity suffix (_file). E.g., "sharepoint-us-connector-1776980200_file"
+# → collection "sharepoint-us-connector-1776980200".
+CONNECTOR_COLLECTION = DATA_STORE_ID.rsplit("_", 1)[0] if "_" in DATA_STORE_ID else DATA_STORE_ID
 SHAREPOINT_CONNECTOR_PATH = (
-    f"projects/{PROJECT_NUMBER}/locations/global/"
-    f"collections/sharepoint-data-def-connector/dataConnector"
+    f"projects/{PROJECT_NUMBER}/locations/{LOCATION}/"
+    f"collections/{CONNECTOR_COLLECTION}/dataConnector"
 )
 
 
@@ -646,7 +652,7 @@ async def connector_info(request: Request):
         # 1) GET dataConnector → admin_filter.Site list
         try:
             r = requests.get(
-                f"https://discoveryengine.googleapis.com/v1alpha/{SHAREPOINT_CONNECTOR_PATH}",
+                f"https://{DE_ENDPOINT}/v1alpha/{SHAREPOINT_CONNECTOR_PATH}",
                 headers={"Authorization": f"Bearer {gcp_token}"},
                 timeout=10,
             )
@@ -665,7 +671,7 @@ async def connector_info(request: Request):
         # 2) acquireAccessToken → returns scopes bound to the user's OAuth refresh token
         try:
             r = requests.post(
-                f"https://discoveryengine.googleapis.com/v1alpha/{SHAREPOINT_CONNECTOR_PATH}:acquireAccessToken",
+                f"https://{DE_ENDPOINT}/v1alpha/{SHAREPOINT_CONNECTOR_PATH}:acquireAccessToken",
                 headers={"Authorization": f"Bearer {gcp_token}", "Content-Type": "application/json"},
                 json={},
                 timeout=10,
@@ -845,7 +851,7 @@ def _acquire_sp_user_token(gcp_token: str) -> str | None:
     """Call dataConnector:acquireAccessToken to get the user's SharePoint token."""
     try:
         r = requests.post(
-            f"https://discoveryengine.googleapis.com/v1alpha/{SHAREPOINT_CONNECTOR_PATH}:acquireAccessToken",
+            f"https://{DE_ENDPOINT}/v1alpha/{SHAREPOINT_CONNECTOR_PATH}:acquireAccessToken",
             headers={"Authorization": f"Bearer {gcp_token}", "Content-Type": "application/json"},
             json={},
             timeout=10,
@@ -961,3 +967,18 @@ async def pdf_proxy(request: Request, url: str):
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
+
+
+@app.get("/api/_debug")
+async def debug_config():
+    """Debug endpoint — backend config inspection."""
+    return {
+        "LOCATION": LOCATION,
+        "PROJECT_NUMBER": PROJECT_NUMBER,
+        "ENGINE_ID": ENGINE_ID,
+        "DATA_STORE_ID": DATA_STORE_ID,
+        "DE_ENDPOINT": DE_ENDPOINT,
+        "BASE_URL": BASE_URL,
+        "CONNECTOR_COLLECTION": CONNECTOR_COLLECTION,
+        "SHAREPOINT_CONNECTOR_PATH": SHAREPOINT_CONNECTOR_PATH,
+    }

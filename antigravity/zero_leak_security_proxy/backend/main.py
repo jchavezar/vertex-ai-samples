@@ -44,6 +44,18 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+@app.on_event("startup")
+async def _prewarm_mcp() -> None:
+    # First MCP discovery spawns a Python subprocess + initializes FastMCP,
+    # which blows past ADK's default 5s session timeout on a cold container
+    # (especially with FastMCP's pypi version-check call). Pre-warm at boot
+    # so the first user request hits a populated cache.
+    try:
+        await get_agent_with_mcp_tools(token=None, model_name="gemini-3-flash-preview")
+        logger.info(">>> [STARTUP] MCP cache pre-warmed (default token, gemini-3-flash-preview).")
+    except Exception as e:
+        logger.warning(f">>> [STARTUP] MCP pre-warm failed (will retry on first request): {e}")
+
 session_service = InMemorySessionService()
 
 class ChatRequest(BaseModel):
@@ -73,10 +85,10 @@ async def _chat_stream(messages: list, model_name: str, token: str = None):
     pub_sess_id = f"pub_{current_request_id}"
 
     prompt = messages[-1]['content']
-    # Ensure session exists
+    # Ensure session exists (capture the return so .events works on a fresh session)
     session = await session_service.get_session(app_name="PWC_Security_Proxy", user_id="default_user", session_id=sess_id)
     if not session:
-        await session_service.create_session(app_name="PWC_Security_Proxy", user_id="default_user", session_id=sess_id)
+        session = await session_service.create_session(app_name="PWC_Security_Proxy", user_id="default_user", session_id=sess_id)
 
     import asyncio
     from agents.public_agent import get_public_agent
@@ -102,8 +114,9 @@ async def _chat_stream(messages: list, model_name: str, token: str = None):
             pub_session.events.append(evt)
     # ------------------------------------------------
     
-    # Use gemini-2.5-flash for ultra-fast response for Public Web Consensus and to avoid 429s
-    pub_agent = get_public_agent("gemini-2.5-flash")
+    # gemini-3.1-flash-lite is GA and noticeably faster than 2.5-flash for the
+    # Public Web Consensus (lower TTFT, comparable groundedness via google_search).
+    pub_agent = get_public_agent("gemini-3.1-flash-lite")
     pub_runner = Runner(
         app_name="Public_Research_Proxy", 
         agent=pub_agent, 
@@ -305,6 +318,251 @@ async def _chat_stream(messages: list, model_name: str, token: str = None):
     yield AIStreamProtocol.data({"type": "telemetry", "data": latency_metrics, "reasoning": reasoning_steps, "tokens": total_tokens})
     yield AIStreamProtocol.data({"type": "status", "message": "Transmission complete.", "icon": "check-circle", "pulse": False})
 
+
+# =====================================================================
+# FAST CHAT MODE: single-shot RAG (no ReAct loop). Target latency 4-8s.
+# =====================================================================
+# Architecture:
+#   parallel:
+#     ├─ Public Web Consensus (gemini-3.1-flash-lite, google_search)
+#     └─ 1× search_documents → parallel read top 3 (3K char cap)
+#           └─ 1× synthesize (gemini-3.1-flash-lite, thinking_budget=0,
+#                             emit_project_card as the only tool)
+#
+# Same UX (cards, <redact> masking, public panel). No multi-step LLM loop.
+
+FAST_SYNTHESIS_INSTRUCTIONS = """You are a Zero-Leak Governance Agent for PWC. You answer the user's question STRICTLY from the documents provided in the prompt — do NOT use general knowledge to fill gaps.
+
+OUTPUT FORMAT (in this order):
+1. A concise generalized synthesis (2-5 short paragraphs or a short bullet list). Use ranges for figures, never lift exact PII into this text.
+2. After the synthesis, call `emit_project_card` ONCE per document that DIRECTLY answers the question. Do NOT emit cards for tangential or "same-repo" documents.
+
+PII MASKING (mandatory, applies to ALL card fields):
+- In `original_context`, `factual_information`, `key_metrics`, and `insights`, wrap every specific number, salary, name, account, address, or PII token in `<redact>...</redact>` tags exactly as it appears in the source.
+- Example: "Base Salary: <redact>$625,000</redact>", "CFO: <redact>Jennifer Walsh</redact>".
+
+NO-RESULT RULE:
+- If none of the provided documents directly answer the user, write ONE line: "No documents in the secure index match this query." and emit ZERO cards. Do NOT fabricate from public knowledge.
+"""
+
+
+def _fast_search_and_read(token: str, query: str, search_limit: int = 5, read_count: int = 3, char_cap: int = 3000):
+    """Synchronous: 1 search + parallel reads of top N hits, truncated. Returns (hits, docs)."""
+    sp = SharePointMCP(token=token)
+    hits = sp.search_documents(query=query, limit=search_limit) or []
+    if not hits:
+        return [], []
+    # Read top N in parallel; truncate aggressively.
+    from concurrent.futures import ThreadPoolExecutor
+    targets = hits[:read_count]
+    def _read_one(h):
+        try:
+            content = sp.get_document_content(h["id"], drive_id=h.get("driveId"))
+            if not isinstance(content, str) or not content.strip():
+                return None
+            return {
+                "name": h.get("name"),
+                "url": h.get("webUrl"),
+                "id": h["id"],
+                "driveId": h.get("driveId"),
+                "summary": h.get("summary"),
+                "content": content[:char_cap],
+            }
+        except Exception as e:
+            logger.warning(f"[fast read] {h.get('name')}: {e}")
+            return None
+    with ThreadPoolExecutor(max_workers=read_count) as ex:
+        docs = [d for d in ex.map(_read_one, targets) if d]
+    return hits, docs
+
+
+async def _chat_stream_fast(messages: list, model_name: str, token: str = None):
+    """Single-shot RAG: search → parallel reads → 1 Gemini call streaming text + cards."""
+    set_user_token(token)
+    import time, asyncio, uuid
+    from google import genai
+    from google.genai import types as g_types
+
+    start_time = time.time()
+    last_phase_time = {"public": start_time, "sharepoint": start_time}
+    latency_metrics = []
+    reasoning_steps = []
+    total_tokens = {"prompt": 0, "candidates": 0, "total": 0}
+
+    def log_latency(tag, step_name):
+        now = time.time()
+        dur = now - last_phase_time[tag]
+        if dur > 0.01:
+            prefix = "[Enterprise] " if tag == "sharepoint" else "[Public Web] "
+            latency_metrics.append({"step": prefix + step_name, "duration_s": round(dur, 2)})
+        last_phase_time[tag] = now
+
+    prompt = messages[-1]["content"]
+    queue = asyncio.Queue()
+
+    # ----- Public Web Consensus (parallel, reuse existing pattern) -----
+    pub_sess_id = f"pub_{uuid.uuid4()}"
+    pub_session = await session_service.get_session(app_name="Public_Research_Proxy", user_id="default_user", session_id=pub_sess_id)
+    if not pub_session:
+        pub_session = await session_service.create_session(app_name="Public_Research_Proxy", user_id="default_user", session_id=pub_sess_id)
+    from google.adk.events import Event
+    if len(messages) > 1:
+        for m in messages[:-1]:
+            role = "user" if m.get("role") == "user" else "model"
+            content_obj = g_types.Content(role=role, parts=[g_types.Part.from_text(text=m.get("content", ""))])
+            pub_session.events.append(Event(author=role, content=content_obj))
+
+    from agents.public_agent import get_public_agent
+    pub_agent = get_public_agent("gemini-3.1-flash-lite")
+    pub_runner = Runner(app_name="Public_Research_Proxy", agent=pub_agent, session_service=session_service)
+    pub_msg = g_types.Content(role="user", parts=[g_types.Part.from_text(text=prompt)])
+
+    async def stream_pub():
+        try:
+            async for event in pub_runner.run_async(user_id="default_user", session_id=pub_sess_id, new_message=pub_msg):
+                await queue.put({"tag": "public", "type": "data", "event": event})
+        except Exception as e:
+            logger.error(f"Fast public agent failed: {e}")
+        finally:
+            await queue.put({"tag": "public", "type": "done"})
+
+    asyncio.create_task(stream_pub())
+
+    # Initial UI events
+    yield AIStreamProtocol.data({"type": "public_insight", "message": "Public Web Consensus", "data": "", "icon": "globe", "pulse": True})
+    yield AIStreamProtocol.data({"type": "status", "message": "Searching secure index...", "icon": "search", "pulse": True})
+
+    # ----- SharePoint single-shot retrieval (run in thread to not block loop) -----
+    search_t0 = time.time()
+    loop = asyncio.get_event_loop()
+    hits, docs = await loop.run_in_executor(None, _fast_search_and_read, token, prompt)
+    log_latency("sharepoint", f"Search + Read ({len(docs)} docs)")
+    yield AIStreamProtocol.data({"type": "status", "message": f"Retrieved {len(docs)} document(s). Synthesizing...", "icon": "cpu", "pulse": True})
+
+    if docs:
+        # Build context block
+        context_blocks = []
+        for i, d in enumerate(docs, 1):
+            context_blocks.append(
+                f"=== Document {i} ===\n"
+                f"name: {d['name']}\n"
+                f"url: {d['url']}\n"
+                f"id: {d['id']}\n"
+                f"driveId: {d['driveId']}\n"
+                f"content (first {len(d['content'])} chars):\n{d['content']}"
+            )
+        retrieved = "\n\n".join(context_blocks)
+        user_msg = (
+            f"User question: {prompt}\n\n"
+            f"Retrieved documents from the secure SharePoint index (the user is authorized to read all of these):\n\n"
+            f"{retrieved}\n\n"
+            f"Answer strictly from these documents. Emit one project_card per document that directly answers the question; emit none if none fit."
+        )
+    else:
+        user_msg = (
+            f"User question: {prompt}\n\n"
+            f"The secure SharePoint search returned ZERO documents. Per the no-result rule, respond with exactly: "
+            f'"No documents in the secure index match this query." and emit zero cards.'
+        )
+
+    # ----- Synthesize via direct Gemini call (no ADK, no ReAct) -----
+    project_id = os.environ.get("GOOGLE_CLOUD_PROJECT", "vtxdemos")
+    location = os.environ.get("GOOGLE_GENAI_LOCATION", "global")
+    client = genai.Client(vertexai=True, project=project_id, location=location)
+
+    emit_card_decl = g_types.FunctionDeclaration(
+        name="emit_project_card",
+        description="Display a relevant document as a card in the UI. Call ONCE per document that directly answers the question.",
+        parameters=g_types.Schema(
+            type=g_types.Type.OBJECT,
+            properties={
+                "title": g_types.Schema(type=g_types.Type.STRING, description="Generalized card title; no PII"),
+                "industry": g_types.Schema(type=g_types.Type.STRING),
+                "factual_information": g_types.Schema(type=g_types.Type.STRING, description="Factual summary; wrap PII/specific numbers in <redact>...</redact>"),
+                "original_context": g_types.Schema(type=g_types.Type.STRING, description="Source quote; wrap PII/numbers in <redact>...</redact>"),
+                "insights": g_types.Schema(type=g_types.Type.ARRAY, items=g_types.Schema(type=g_types.Type.STRING)),
+                "key_metrics": g_types.Schema(type=g_types.Type.ARRAY, items=g_types.Schema(type=g_types.Type.STRING), description="Each metric MUST wrap numbers in <redact>...</redact>"),
+                "document_name": g_types.Schema(type=g_types.Type.STRING),
+                "document_url": g_types.Schema(type=g_types.Type.STRING),
+                "document_weight": g_types.Schema(type=g_types.Type.INTEGER, description="0-100 relevance score"),
+                "redacted_entities": g_types.Schema(type=g_types.Type.ARRAY, items=g_types.Schema(type=g_types.Type.STRING)),
+                "pii_detected": g_types.Schema(type=g_types.Type.BOOLEAN),
+                "governance_recommendation": g_types.Schema(type=g_types.Type.STRING),
+            },
+            required=["title", "factual_information", "document_name"],
+        ),
+    )
+
+    config = g_types.GenerateContentConfig(
+        system_instruction=FAST_SYNTHESIS_INSTRUCTIONS,
+        tools=[g_types.Tool(function_declarations=[emit_card_decl])],
+        thinking_config=g_types.ThinkingConfig(thinking_budget=0),
+        temperature=0.2,
+    )
+
+    contents = [g_types.Content(role="user", parts=[g_types.Part.from_text(text=user_msg)])]
+
+    synth_t0 = time.time()
+    final_text_buf: list[str] = []
+    try:
+        stream = await client.aio.models.generate_content_stream(
+            model="gemini-3.1-flash-lite",
+            contents=contents,
+            config=config,
+        )
+        async for chunk in stream:
+            # Drain any public-side events accumulated so far (non-blocking)
+            while True:
+                try:
+                    obj = queue.get_nowait()
+                except asyncio.QueueEmpty:
+                    break
+                # Re-emit public_insight text from public agent events
+                if obj.get("type") == "data":
+                    try:
+                        edata = obj["event"].model_dump()
+                        for p in (edata.get("content") or {}).get("parts", []) or []:
+                            txt = p.get("text")
+                            if txt:
+                                # accumulate streamed public text
+                                yield AIStreamProtocol.data({
+                                    "type": "public_insight",
+                                    "message": "Public Web Consensus",
+                                    "data": txt,
+                                    "icon": "globe",
+                                    "pulse": True,
+                                })
+                    except Exception:
+                        pass
+
+            if not chunk.candidates:
+                continue
+            usage = getattr(chunk, "usage_metadata", None)
+            if usage:
+                total_tokens["prompt"] += getattr(usage, "prompt_token_count", 0) or 0
+                total_tokens["candidates"] += getattr(usage, "candidates_token_count", 0) or 0
+                total_tokens["total"] += getattr(usage, "total_token_count", 0) or 0
+            for part in chunk.candidates[0].content.parts or []:
+                if getattr(part, "text", None):
+                    final_text_buf.append(part.text)
+                    yield AIStreamProtocol.text(part.text)
+                fc = getattr(part, "function_call", None)
+                if fc and fc.name == "emit_project_card":
+                    args = dict(fc.args or {})
+                    yield AIStreamProtocol.data({"type": "project_card", "data": args})
+    except Exception as e:
+        logger.error(f"Fast synthesis failed: {e}")
+        yield AIStreamProtocol.text(f"\n\n[Fast synthesis error: {e}]")
+
+    log_latency("sharepoint", "Single-shot Synthesis")
+
+    # Final telemetry + finish
+    total_time = time.time() - start_time
+    latency_metrics.append({"step": "[Total] Turnaround Time", "duration_s": round(total_time, 2)})
+    yield AIStreamProtocol.data({"type": "telemetry", "data": latency_metrics, "reasoning": reasoning_steps, "tokens": total_tokens})
+    yield AIStreamProtocol.data({"type": "status", "message": "Transmission complete.", "icon": "check-circle", "pulse": False})
+
+
 from utils.auth_context import set_user_token
 
 @app.get("/health")
@@ -322,7 +580,9 @@ async def auth_error_stream(message: str):
 async def chat_endpoint(request: Request):
     data = await request.json()
     model_name = data.get("model", "gemini-2.5-flash")
-    
+    # mode: "chat" (default, fast single-shot) or "deep" (legacy ReAct)
+    mode = (data.get("mode") or "chat").lower()
+
     auth_header = request.headers.get("Authorization")
     token = None
     if auth_header and auth_header.startswith("Bearer "):
@@ -330,7 +590,9 @@ async def chat_endpoint(request: Request):
         if extracted and extracted not in ["null", "undefined"]:
             token = extracted
 
-    return StreamingResponse(_chat_stream(data.get("messages", []), model_name, token), media_type="text/plain; charset=utf-8")
+    handler = _chat_stream if mode == "deep" else _chat_stream_fast
+    logger.info(f"/chat mode={mode} → {handler.__name__}")
+    return StreamingResponse(handler(data.get("messages", []), model_name, token), media_type="text/plain; charset=utf-8")
 
 @app.get("/api/sharepoint/list")
 async def list_sharepoint_folder(request: Request, folder_id: str = "root"):

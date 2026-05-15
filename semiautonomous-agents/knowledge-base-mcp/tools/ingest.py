@@ -1,10 +1,27 @@
 """Ingest tool — clean, extract, and load JSONL transcripts via MCP."""
 
+import json
 import os
 import tempfile
 import logging
 
 logger = logging.getLogger(__name__)
+
+
+def _session_id_from_content(jsonl_content: str) -> str:
+    """Extract sessionId from the first parseable JSONL line."""
+    for line in jsonl_content.splitlines():
+        line = line.strip()
+        if not line:
+            continue
+        try:
+            msg = json.loads(line)
+            sid = msg.get("sessionId") or msg.get("session_id")
+            if sid:
+                return sid
+        except Exception:
+            continue
+    return ""
 
 
 def _resolve_path(path: str) -> str:
@@ -41,21 +58,40 @@ def _session_id_from_path(jsonl_path: str) -> str:
 def register_ingest_tools(mcp, firestore_client, embedding_service):
 
     @mcp.tool()
-    async def ingest_session(jsonl_path: str, dry_run: bool = False) -> str:
+    async def ingest_session(
+        jsonl_path: str = "",
+        jsonl_content: str = "",
+        dry_run: bool = False,
+    ) -> str:
         """Ingest a Claude Code JSONL transcript into the knowledge base.
 
         Runs the full pipeline: parse -> chunk -> extract (Gemini on Vertex AI)
         -> embed -> store in Firestore.
 
-        Supports both local paths and gs:// paths (downloads from GCS first).
+        Accepts EITHER a path OR raw content. The server cannot read files on
+        the calling client's filesystem — for client-local files (e.g. paths
+        like /home/...), pass `jsonl_content` with the file's contents.
+
         Skips sessions that have already been ingested.
 
         Args:
-            jsonl_path: Absolute path or gs:// URI to the JSONL transcript file.
+            jsonl_path: Absolute path on the SERVER, or `gs://...` URI.
+                Use this for paths the server can read (gs://, server-local).
+            jsonl_content: Raw JSONL transcript as a string. Use this for
+                CLIENT-local files. session_id is parsed from the content.
             dry_run: If True, extract and report but don't write to Firestore.
         """
-        # Check idempotency — skip if already ingested
-        session_id = _session_id_from_path(jsonl_path)
+        if not jsonl_path and not jsonl_content:
+            return "Error: provide either `jsonl_path` or `jsonl_content`."
+
+        # Determine session_id (for idempotency check)
+        if jsonl_content:
+            session_id = _session_id_from_content(jsonl_content)
+            if not session_id:
+                return "Error: could not parse sessionId from jsonl_content."
+        else:
+            session_id = _session_id_from_path(jsonl_path)
+
         if not dry_run:
             try:
                 if await firestore_client.session_exists(session_id):
@@ -66,8 +102,21 @@ def register_ingest_tools(mcp, firestore_client, embedding_service):
             except Exception as e:
                 logger.warning(f"Could not check session existence: {e}")
 
-        # Resolve GCS paths
-        local_path = _resolve_path(jsonl_path)
+        # Materialize content to a server-local file
+        cleanup_path = None
+        if jsonl_content:
+            tmp = tempfile.NamedTemporaryFile(
+                suffix=f"_{session_id}.jsonl", mode="w", delete=False
+            )
+            tmp.write(jsonl_content)
+            tmp.close()
+            local_path = tmp.name
+            cleanup_path = local_path
+        else:
+            local_path = _resolve_path(jsonl_path)
+            if local_path != jsonl_path:
+                cleanup_path = local_path
+
         try:
             if not os.path.exists(local_path):
                 return f"Error: File not found: {jsonl_path}"
@@ -124,9 +173,9 @@ def register_ingest_tools(mcp, firestore_client, embedding_service):
             logger.error(f"Ingestion failed: {e}", exc_info=True)
             return f"Error during ingestion: {e}"
         finally:
-            # Clean up temp files from GCS downloads
-            if local_path != jsonl_path and os.path.exists(local_path):
-                os.unlink(local_path)
+            # Clean up server-local temp files (GCS downloads or content writes)
+            if cleanup_path and os.path.exists(cleanup_path):
+                os.unlink(cleanup_path)
 
     @mcp.tool()
     async def ingest_all_sessions(sessions_dir: str, dry_run: bool = True) -> str:

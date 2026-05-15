@@ -102,6 +102,7 @@ function App() {
   const [showTopology, setShowTopology] = useState(false);
   const [activeAppTab, setActiveAppTab] = useState("proxy");
   const [chatMode, setChatMode] = useState<'default'|'wide'|'overlay'>('default');
+  const [deepMode, setDeepMode] = useState<boolean>(false); // Deep Dive toggle
   const {
     messages,
     input,
@@ -115,24 +116,47 @@ function App() {
     tokenUsage,
     publicInsight,
     isPublicInsightStreaming
-  } = useTerminalChat(token, selectedModel);
+  } = useTerminalChat(token, selectedModel, deepMode ? 'deep' : 'chat');
   const projectCards = useDashboardStore((s) => s.projectCards);
   const [isPublicInsightExpanded, setIsPublicInsightExpanded] = useState(true);
   const [hasCollapsedForQuery, setHasCollapsedForQuery] = useState(false);
+
+  // Live latency counter: ticks while isLoading=true. When streaming stops,
+  // the final value is captured into `lastElapsedMs` so the user can still
+  // see how long the most recent query took after the loading pill is gone.
+  const [elapsedMs, setElapsedMs] = useState(0);
+  const [lastElapsedMs, setLastElapsedMs] = useState<number | null>(null);
+  useEffect(() => {
+    if (!isLoading) return;
+    const start = performance.now();
+    setElapsedMs(0);
+    const id = setInterval(() => setElapsedMs(performance.now() - start), 100);
+    return () => {
+      clearInterval(id);
+      setLastElapsedMs(performance.now() - start);
+    };
+  }, [isLoading]);
 
   useEffect(() => {
     if (messages.length === 0) {
       setIsPublicInsightExpanded(true);
       setHasCollapsedForQuery(false);
+      setElapsedMs(0);
+      setLastElapsedMs(null);
     }
   }, [messages.length]);
 
+  // Auto-collapse the public consensus panel as soon as streaming is done OR
+  // we get any project card — whichever happens first. Avoids the dead black
+  // panel dominating the layout after a query finishes (especially when the
+  // SharePoint side returns no cards).
   useEffect(() => {
-    if (projectCards.length > 0 && !hasCollapsedForQuery) {
+    if (hasCollapsedForQuery) return;
+    if (projectCards.length > 0 || (!isLoading && messages.length > 0)) {
       setIsPublicInsightExpanded(false);
       setHasCollapsedForQuery(true);
     }
-  }, [projectCards.length, hasCollapsedForQuery]);
+  }, [projectCards.length, isLoading, messages.length, hasCollapsedForQuery]);
 
   const endOfMessagesRef = useRef<HTMLDivElement>(null);
   const dataSectionRef = useRef<HTMLDivElement>(null);
@@ -526,6 +550,26 @@ function App() {
                       gemini-2.5-flash
                     </option>
                   </select>
+                  {lastElapsedMs !== null && !isLoading && (
+                    <span
+                      title="End-to-end latency of the most recent query"
+                      style={{
+                        marginLeft: "8px",
+                        padding: "3px 10px",
+                        borderRadius: "999px",
+                        background: "rgba(208, 74, 2, 0.08)",
+                        border: "1px solid rgba(208, 74, 2, 0.25)",
+                        color: "var(--pwc-orange)",
+                        fontSize: "11px",
+                        fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace",
+                        fontWeight: 700,
+                        fontVariantNumeric: "tabular-nums",
+                        letterSpacing: "0.02em",
+                      }}
+                    >
+                      ⏱ Last: {(lastElapsedMs / 1000).toFixed(1)}s
+                    </span>
+                  )}
                 </div>
 
                 <div className="chat-messages">
@@ -605,13 +649,39 @@ function App() {
                       rows={1}
                       placeholder="Ask a question..."
                     />
-                    <button
-                      type="submit"
-                      className="pwc-btn"
-                      disabled={isLoading || !input.trim()}
-                    >
-                      Send
-                    </button>
+                    <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                      <button
+                        type="button"
+                        onClick={() => setDeepMode(v => !v)}
+                        title={deepMode
+                          ? "Deep Dive: full ReAct agent reads PDFs end-to-end (~30-60s)."
+                          : "Deep Dive OFF: fast single-shot retrieval (~5-8s). Click to enable for cross-document research."}
+                        disabled={isLoading}
+                        style={{
+                          padding: '6px 12px',
+                          borderRadius: '999px',
+                          border: deepMode ? '1px solid var(--pwc-orange)' : '1px solid #cbd5e1',
+                          background: deepMode ? 'var(--pwc-orange)' : 'transparent',
+                          color: deepMode ? '#fff' : '#475569',
+                          fontSize: '11px',
+                          fontWeight: 700,
+                          cursor: isLoading ? 'not-allowed' : 'pointer',
+                          letterSpacing: '0.04em',
+                          transition: 'all 0.15s ease',
+                          whiteSpace: 'nowrap',
+                          opacity: isLoading ? 0.5 : 1,
+                        }}
+                      >
+                        {deepMode ? '◉ DEEP DIVE' : '○ Deep Dive'}
+                      </button>
+                      <button
+                        type="submit"
+                        className="pwc-btn"
+                        disabled={isLoading || !input.trim()}
+                      >
+                        Send
+                      </button>
+                    </div>
                   </form>
                 </div>
               </section>
@@ -762,24 +832,38 @@ function App() {
                               {thoughtStatus?.message || 'Synthesizing Intelligence...'}
                             </span>
                           </div>
+                          <div style={{
+                            marginLeft: '8px',
+                            paddingLeft: '12px',
+                            borderLeft: '1px solid #e2e8f0',
+                            fontVariantNumeric: 'tabular-nums',
+                            fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
+                            fontSize: '13px',
+                            color: 'var(--pwc-orange)',
+                            fontWeight: 700,
+                            minWidth: '54px',
+                            textAlign: 'right',
+                          }}>
+                            {(elapsedMs / 1000).toFixed(1)}s
+                          </div>
                         </div>
                       </div>
                     )}
 
-                <div style={{ 
+                <div style={{
                   marginBottom: projectCards.length > 0 && (publicInsight || isLoading) ? '24px' : '0',
-                  flexGrow: projectCards.length === 0 && (messages.length > 0 || isLoading) ? 1 : 0,
+                  flexGrow: isPublicInsightExpanded && projectCards.length === 0 && (messages.length > 0 || isLoading) ? 1 : 0,
                   display: 'flex',
                   flexDirection: 'column'
                 }}>
                     {(publicInsight || (isLoading && messages.length > 0)) && (
-                      <div className={`pwc-card ${isLoading && !publicInsight ? 'pwc-insight-streaming' : 'pwc-insight-settled'}`} style={{ 
-                          background: 'linear-gradient(135deg, #1E1E1E 0%, #2A2A2A 100%)', 
+                      <div className={`pwc-card ${isLoading && !publicInsight ? 'pwc-insight-streaming' : 'pwc-insight-settled'}`} style={{
+                          background: 'linear-gradient(135deg, #1E1E1E 0%, #2A2A2A 100%)',
                           border: `1px solid ${isLoading && !publicInsight ? 'rgba(94, 174, 253, 0.8)' : 'rgba(94, 174, 253, 0.3)'}`,
                           boxShadow: isLoading && !publicInsight ? '0 0 40px rgba(94, 174, 253, 0.3)' : '0 8px 32px rgba(0, 0, 0, 0.15)',
                           borderRadius: '16px',
                           overflow: 'hidden',
-                          flexGrow: 1,
+                          flexGrow: isPublicInsightExpanded ? 1 : 0,
                           display: 'flex',
                           flexDirection: 'column',
                           cursor: 'pointer', 

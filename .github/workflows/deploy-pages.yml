@@ -1,0 +1,70 @@
+name: Deploy GitHub Pages (multi-site)
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "semiautonomous-agents/shutter-vibe-engine/multimodal-search/site/**"
+      - "semiautonomous-agents/streamassist-oauth-flow-us/site/**"
+      - ".github/workflows/deploy-pages.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      # ── Site 1: multimodal-search ──────────────────────────────────────────
+      - name: multimodal-search · install
+        working-directory: semiautonomous-agents/shutter-vibe-engine/multimodal-search/site
+        run: npm ci --no-audit --no-fund
+      - name: multimodal-search · build
+        working-directory: semiautonomous-agents/shutter-vibe-engine/multimodal-search/site
+        run: npm run build
+
+      # ── Site 2: streamassist-oauth-flow-us ─────────────────────────────────
+      - name: streamassist-us · install
+        working-directory: semiautonomous-agents/streamassist-oauth-flow-us/site
+        run: npm install --no-audit --no-fund
+      - name: streamassist-us · build
+        working-directory: semiautonomous-agents/streamassist-oauth-flow-us/site
+        run: npm run build
+
+      # ── Combine both dists under their respective subpaths ────────────────
+      - name: Combine into single artifact
+        run: |
+          mkdir -p artifact/multimodal-search
+          cp -r semiautonomous-agents/shutter-vibe-engine/multimodal-search/site/dist/* artifact/multimodal-search/
+          mkdir -p artifact/streamassist-oauth-flow-us
+          cp -r semiautonomous-agents/streamassist-oauth-flow-us/site/dist/* artifact/streamassist-oauth-flow-us/
+          ls -la artifact/
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: artifact
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

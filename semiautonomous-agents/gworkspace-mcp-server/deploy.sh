@@ -62,7 +62,7 @@ gcloud run deploy $SERVICE_NAME \
     --region $REGION \
     --platform managed \
     --no-allow-unauthenticated \
-    --set-env-vars="GOOGLE_CLIENT_ID=$GOOGLE_CLIENT_ID,GOOGLE_CLIENT_SECRET=$GOOGLE_CLIENT_SECRET" \
+    --set-env-vars="GOOGLE_CLIENT_ID=$GOOGLE_CLIENT_ID,GOOGLE_CLIENT_SECRET=$GOOGLE_CLIENT_SECRET,GWORKSPACE_SECRET_ID=gworkspace-mcp-tokens,GOOGLE_CLOUD_PROJECT=$PROJECT_ID" \
     --memory=512Mi \
     --cpu=1 \
     --min-instances=0 \

@@ -1,0 +1,18 @@
+[project]
+name = "agent-gateway-demo-agent"
+version = "0.1.0"
+description = "ADK agent for the Agent Gateway + 3LO demo"
+requires-python = ">=3.11"
+dependencies = [
+    "google-cloud-aiplatform[adk,agent_engines]>=1.151.0",
+    "google-genai>=1.70.0",
+    "google-adk>=1.28.0",
+    "httpx>=0.27.0",
+    "python-dotenv>=1.0.0",
+]
+
+[project.optional-dependencies]
+agent-identity = ["google-adk[agent-identity]"]
+
+[tool.uv]
+package = false

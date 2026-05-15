@@ -3,7 +3,7 @@ FROM python:3.11-slim
 WORKDIR /app
 
 # Install dependencies
-RUN pip install --no-cache-dir fastmcp requests uvicorn google-cloud-storage
+RUN pip install --no-cache-dir fastmcp requests uvicorn google-cloud-storage google-cloud-secret-manager
 
 # Copy application code
 COPY . .

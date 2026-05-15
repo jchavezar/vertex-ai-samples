@@ -30,7 +30,7 @@ When you start a new project, **add a row here first** — even before the READM
 - [`servicedesk-sharepoint-portal/`](./servicedesk-sharepoint-portal/) — SharePoint search + ServiceNow MCP in one agent. **Tags:** `wif` `sharepoint` `servicenow` `mcp`
 - [`servicenow-mcp-portal/`](./servicenow-mcp-portal/) — Agent Engine + ServiceNow via MCP, MSAL React frontend. **Tags:** `agent-engine` `servicenow` `msal`
 - [`gemini-enterprise-sharepoint-agent/`](./gemini-enterprise-sharepoint-agent/) — ADK agent registered in Gemini Enterprise, SharePoint via WIF. **Tags:** `gemini-enterprise` `adk` `wif`
-- [`streamassist-oauth-flow/`](./streamassist-oauth-flow/) — Custom StreamAssist portal with per-user OAuth. **Tags:** `streamassist` `oauth` `sharepoint`
+- [`streamassist-oauth-flow-sharepoint/`](./streamassist-oauth-flow-sharepoint/) — Custom StreamAssist portal with per-user OAuth *(formerly `streamassist-oauth-flow`)*. **Tags:** `streamassist` `oauth` `sharepoint`
 - [`outlook-streamassist-oauth-flow/`](./outlook-streamassist-oauth-flow/) — Same shape as above, but for Outlook mail context. **Tags:** `streamassist` `oauth` `outlook`
 - [`streamanswer-oauth-flow/`](./streamanswer-oauth-flow/) — Variant of the StreamAssist OAuth pattern. **Tags:** `oauth` `streamanswer`
 - [`ge-sharepoint-cloudid/`](./ge-sharepoint-cloudid/) — SharePoint search via Google Cloud Identity (no WIF, no STS). **Tags:** `cloud-id` `sharepoint` `discovery-engine`
@@ -38,6 +38,7 @@ When you start a new project, **add a row here first** — even before the READM
 - [`light_mcp_cloud_portal/`](./light_mcp_cloud_portal/) — Lightweight portal scaffold around MCP cloud APIs. **Tags:** `mcp` `portal` `react`
 - [`streamassist-oauth-flow-us/`](./streamassist-oauth-flow-us/) — `us` regional variant of `streamassist-oauth-flow` — Gemini Enterprise + SharePoint federated connector + WIF. **Tags:** `streamassist` `sharepoint` `wif` `discovery-engine` `us-region`
 - [`streamassist-oauth-flow-servicenow/`](./streamassist-oauth-flow-servicenow/) — Sister to the SharePoint streamassist projects: same WIF identity chain, **ServiceNow** as the federated source (incidents, KB articles, catalog) with native ServiceNow ACLs. Two frontends shipped (vanilla HTML tester + React/FastAPI). **Tags:** `streamassist` `servicenow` `wif` `discovery-engine` `gemini-enterprise` `oauth`
+- [`streamassist-oauth-flow-sharepoint-servicenow/`](./streamassist-oauth-flow-sharepoint-servicenow/) — **Combined portal** — SharePoint + ServiceNow + Google Search in a single Discovery Engine app. Three independent UI toggles (each connector and web grounding can be flipped per query), anti-hallucination guardrails, per-user ACLs honored on both connectors. **Tags:** `streamassist` `sharepoint` `servicenow` `google-search` `wif` `discovery-engine` `gemini-enterprise`
 - [`sharepoint-wif-portal/`](./sharepoint-wif-portal/) — Docs-only WIP variant of `sharepoint_wif_portal`. **Status:** docs only, no code yet.
 
 **Reference doc:** [`GEMINI_ENTERPRISE_SHAREPOINT_FLOW.md`](./GEMINI_ENTERPRISE_SHAREPOINT_FLOW.md) — the four mandatory configurations + replication checklist + failure-mode lookup behind every GE + SharePoint federated portal in this section.

@@ -1,66 +1,102 @@
-"""Custom Firestore retrieval tool with PDF grounding for GE.
-
-Queries Firestore vector search, builds GroundingMetadata pointing to PDF URIs
-so Gemini Enterprise UI renders clickable citations to source PDFs.
-"""
+"""Firestore retrieval with VECTOR SEARCH and grounding metadata."""
 import os
+import json
 from google.cloud import firestore
-from google import genai
-from google.genai import types
+from google.cloud.firestore_v1.base_vector_query import DistanceMeasure
 from google.adk.tools import FunctionTool
 
 
 def retrieve_with_pdf_grounding(query: str) -> str:
-    """Retrieve chunks from Firestore and return formatted context.
+    """
+    Search the docparse PDF knowledge base using semantic vector search.
 
-    This is the text the outer agent will see. The grounding metadata
-    is built separately in the agent wrapper.
+    CRITICAL: Call this tool for EVERY user question before answering.
+    This tool retrieves data from extracted PDF reports with page-level citations.
 
     Args:
-        query: User's question
+        query: The user's question or search query
 
     Returns:
-        Concatenated chunk text for synthesis
+        JSON string with retrieved chunks and grounding metadata
     """
-    project = os.environ.get("GOOGLE_CLOUD_PROJECT", "sharepoint-wif")
+    project = os.environ.get("FIRESTORE_PROJECT", "sharepoint-wif")
     collection_name = os.environ.get("FIRESTORE_COLLECTION", "docparse_chunks")
-    top_k = int(os.environ.get("AGENT_TOP_K", "20"))
 
-    db = firestore.Client(project=project)
-    genai_client = genai.Client(vertexai=True, project=project, location="global")
-
-    # 1. Embed query with gemini-embeddings-002
     try:
-        resp = genai_client.models.embed_content(
-            model="gemini-embeddings-002",
-            contents=types.EmbedContentRequest(content=types.Content(parts=[types.Part(text=query)])))
-        q_embedding = resp.embeddings[0].values
-    except Exception as e:
-        return f"Embedding failed: {type(e).__name__}: {str(e)[:200]}"
+        from google import genai
+        from google.genai import types
 
-    # 2. Firestore vector search
-    try:
-        collection = db.collection(collection_name)
-        results = collection.find_nearest(
-            vector_field="embedding",
-            query_vector=firestore.VectorValue(q_embedding),
-            limit=top_k,
-            distance_measure=firestore.DistanceMeasure.COSINE
+        # STEP 1: Embed the query
+        client = genai.Client(
+            vertexai=True,
+            project=project,
+            location="global"
         )
 
+        embed_response = client.models.embed_content(
+            model="text-embedding-005",
+            contents=query
+        )
+        query_embedding = embed_response.embeddings[0].values
+
+        # STEP 2: Vector search in Firestore
+        db = firestore.Client(project=project)
+        collection = db.collection(collection_name)
+
+        # Use find_nearest for vector search
+        # query_embedding is already a list of floats from the embed API
+        vector_query = collection.find_nearest(
+            vector_field="embedding",
+            query_vector=query_embedding,
+            distance_measure=DistanceMeasure.COSINE,
+            limit=10
+        )
+
+        results = vector_query.get()
+
         chunks = []
+        grounding_chunks = []
+
         for doc in results:
             data = doc.to_dict()
-            chunks.append(data.get("text", ""))
+            doc_id = doc.id
+            original_text = data.get("text", "")
+
+            # Parse doc_id: <docname>_p<page>
+            parts = doc_id.rsplit("_p", 1)
+            doc_name = parts[0].replace("_", " ")
+            page_num = parts[1] if len(parts) > 1 else "unknown"
+
+            chunks.append(original_text)
+            grounding_chunks.append({
+                "text": original_text[:500],
+                "title": f"{doc_name} - Page {page_num}",
+                "uri": f"gs://sharepoint-wif-docparse/{doc_id}.pdf#page={page_num}"
+            })
 
         if not chunks:
-            return "No relevant chunks found in Firestore."
+            return json.dumps({
+                "status": "no_results",
+                "message": "No matching documents found in knowledge base",
+                "chunks": [],
+                "grounding": []
+            })
 
-        return "\n\n---\n\n".join(chunks)
+        # Return top 5 chunks with grounding metadata
+        return json.dumps({
+            "status": "success",
+            "chunks": chunks[:5],
+            "grounding": grounding_chunks[:5],
+            "total_found": len(chunks)
+        })
 
     except Exception as e:
-        return f"Firestore search failed: {type(e).__name__}: {str(e)[:200]}"
+        return json.dumps({
+            "status": "error",
+            "message": f"{type(e).__name__}: {str(e)[:300]}",
+            "chunks": [],
+            "grounding": []
+        })
 
 
-# Wrap as ADK FunctionTool
 firestore_retrieval_tool = FunctionTool(retrieve_with_pdf_grounding)

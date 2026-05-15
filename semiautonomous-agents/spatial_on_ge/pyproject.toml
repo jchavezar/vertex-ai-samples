@@ -1,0 +1,17 @@
+[project]
+name = "spatial-on-ge"
+version = "0.1.0"
+description = "Spatial Understanding ADK agent for Gemini Enterprise (vtxdemos)"
+requires-python = ">=3.11"
+dependencies = [
+    "google-cloud-aiplatform[adk,agent_engines]>=1.88.0",
+    "google-adk>=1.0.0",
+    "google-genai>=1.0.0",
+    "pydantic>=2.0",
+    "Pillow>=10.0",
+    "python-dotenv>=1.0.0",
+    "requests>=2.31.0",
+]
+
+[tool.uv]
+package = false

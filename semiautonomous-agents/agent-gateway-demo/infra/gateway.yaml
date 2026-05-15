@@ -1,0 +1,26 @@
+# Agent Gateway resource (Google-managed, AGENT_TO_ANYWHERE).
+# Apply with infra/10_create_gateway.sh.
+#
+# WARNING: binding an agent to this gateway is PERMANENT for the
+# (project, region) tuple. Once the first agent is bound, EVERY future
+# agent in this project/region routes through this gateway forever.
+
+name: my-agent-gateway
+
+protocols:
+  - MCP
+
+googleManaged:
+  governedAccessPath: AGENT_TO_ANYWHERE
+  iapConfig:
+    # Keep audit-only until validated. Flip to enforce by replacing this
+    # whole block with `iapConfig: {}` (or whatever the docs prescribe)
+    # via `gcloud ... import` once the audit logs show no DENYs we care
+    # about. The literal "ENFORCE" / null / unset is unverified in public
+    # docs as of build time.
+    iamEnforcementMode: DRY_RUN
+
+# Registries this gateway draws governance from. Default registry is
+# created automatically when the agentregistry API is enabled.
+registries:
+  - projects/PROJECT_ID/locations/us-central1/agentRegistries/default

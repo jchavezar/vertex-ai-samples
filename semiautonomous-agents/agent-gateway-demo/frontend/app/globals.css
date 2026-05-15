@@ -1,0 +1,6 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html, body { background:#0b0c10; color:#e6e6e6; }
+code, pre { font-family: ui-monospace, SFMono-Regular, monospace; font-size: 12px; }
