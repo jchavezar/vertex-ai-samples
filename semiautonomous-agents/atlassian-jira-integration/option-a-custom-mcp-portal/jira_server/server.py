@@ -472,7 +472,101 @@ async def handle_messages(request: Request, session_id: str):
         raise HTTPException(status_code=404, detail="Session expired")
     return ASGIResponse(sessions[session_id].handle_post_message)
 
+# --- 6. StreamableHTTP endpoint for GE custom MCP datastores ---
+@app.post("/mcp")
+async def handle_mcp_jsonrpc(request: Request):
+    """Handle JSON-RPC requests from GE custom MCP datastores (StreamableHTTP transport).
+
+    This endpoint allows the same MCP server to be used both:
+    - Via SSE (/sse) for Agent Engine (Option A)
+    - Via StreamableHTTP (/mcp) for GE custom MCP datastores (Option C)
+    """
+    try:
+        body = await request.json()
+        method = body.get("method")
+        params = body.get("params", {})
+        request_id = body.get("id")
+
+        logger.info(f"JSON-RPC request: method={method} id={request_id}")
+
+        if method == "initialize":
+            return {
+                "jsonrpc": "2.0",
+                "id": request_id,
+                "result": {
+                    "protocolVersion": "2024-11-05",
+                    "serverInfo": {
+                        "name": "jira-multi-tenant",
+                        "version": "1.0.0"
+                    },
+                    "capabilities": {
+                        "tools": {}
+                    }
+                }
+            }
+
+        elif method == "tools/list":
+            tools_list = await list_tools()
+            tools_dict = [
+                {
+                    "name": t.name,
+                    "description": t.description,
+                    "inputSchema": t.inputSchema
+                }
+                for t in tools_list
+            ]
+            return {
+                "jsonrpc": "2.0",
+                "id": request_id,
+                "result": {"tools": tools_dict}
+            }
+
+        elif method == "tools/call":
+            tool_name = params.get("name")
+            tool_args = params.get("arguments", {})
+
+            logger.info(f"Calling tool: {tool_name} with args: {tool_args}")
+
+            result = await call_tool(tool_name, tool_args)
+
+            # Convert TextContent to JSON-RPC format
+            content_list = []
+            for item in result:
+                if hasattr(item, 'text'):
+                    content_list.append({
+                        "type": "text",
+                        "text": item.text
+                    })
+
+            return {
+                "jsonrpc": "2.0",
+                "id": request_id,
+                "result": {"content": content_list}
+            }
+
+        else:
+            return {
+                "jsonrpc": "2.0",
+                "id": request_id,
+                "error": {
+                    "code": -32601,
+                    "message": f"Method not found: {method}"
+                }
+            }
+
+    except Exception as e:
+        logger.error(f"MCP JSON-RPC error: {e}")
+        return {
+            "jsonrpc": "2.0",
+            "id": body.get("id") if 'body' in locals() else None,
+            "error": {
+                "code": -32603,
+                "message": str(e)
+            }
+        }
+
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8080))
     uvicorn.run(app, host="0.0.0.0", port=port)
 # Revision Trigger Thu Jan  8 13:44:22 EST 2026
+# Revision Mon May 18 18:12:34 EDT 2026

@@ -63,6 +63,7 @@ When you start a new project, **add a row here first** — even before the READM
 - [`adk-secret-snow-demo/`](./adk-secret-snow-demo/) — IT-ops agent: Secret Manager + ServiceNow MCP + grounding. **Tags:** `adk` `secret-manager` `servicenow`
 - [`adk-secret-manager-demo/`](./adk-secret-manager-demo/) — Secure secret handling via Google Secret Manager. **Tags:** `adk` `secret-manager`
 - [`report-generator/`](./report-generator/) — ADK SequentialAgent: research → write → render. Topic in, cited PDF out (google_search → WeasyPrint). **Tags:** `adk` `multi-agent` `gemini-3-flash` `weasyprint` `pdf-rendering`
+- [`agent-gateway-handson/`](./agent-gateway-handson/) — Console-first walkthrough of Google's Agent Gateway: one MCP server on Cloud Run, IAP + Model Armor authz extensions, IAP IAM bound via raw `curl` (no helper script). Owner-on-project assumed. Companion to the public `cloud-networking-solutions/agent-gateway` demo, minus all Terraform. **Tags:** `agent-gateway` `mcp` `iap` `model-armor` `adk` `cloud-run` `walkthrough`
 
 ### Consumer & domain apps
 - [`vibes_nyc/`](./vibes_nyc/) — Mood-to-venue NYC underground spots. **Tags:** `consumer` `gemini` `vibe-search`
