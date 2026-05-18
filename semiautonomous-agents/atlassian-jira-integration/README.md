@@ -177,3 +177,22 @@ atlassian-jira-integration/
 **Last updated:** May 2026  
 **Target:** Gemini Enterprise + Atlassian Jira Cloud  
 **Status:** Production-ready (Option A), Preview (Option B)
+
+---
+
+## 💰 Cost Optimization (NEW: Option C)
+
+**Want the accuracy of custom MCP without Agent Engine costs?**
+
+→ **[Option C: Custom MCP Direct](option-c-custom-mcp-direct/README.md)**
+
+Connects your Cloud Run MCP server directly to Gemini Enterprise as a custom MCP datastore:
+- **70% cost savings** ($0.05/1K vs $0.17/1K)
+- Same 7 custom tools (your code)
+- No Agent Engine/ADK charges
+- 1-hour setup
+
+**Trade-off:** Uses GE assistant's default prompts instead of custom ADK agent.
+
+See **[COMPARISON.md](COMPARISON.md)** for full breakdown.
+
