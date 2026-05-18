@@ -65,7 +65,11 @@ option-a-custom-mcp-portal/
 
 ## Step-by-step setup
 
-Assumed values (substitute yours): project `vtxdemos`, project number `254356041555`, region `us-central1`, GE engine `jira-testing_1778158449701`. Service account `vtxdemos@vtxdemos.iam.gserviceaccount.com` (Owner) — key at `~/.secrets/vtxdemos-sa.json`. Deployment container at `~/vertex-ai-samples/.deployment-container/`.
+**Replace these placeholders with your values:**
+- `YOUR_PROJECT_ID` - Your Google Cloud project ID
+- `YOUR_PROJECT_NUMBER` - Your project number (get via: `gcloud projects describe YOUR_PROJECT_ID --format="value(projectNumber)"`)
+- `YOUR_GE_ENGINE_ID` - Your Gemini Enterprise engine ID
+- Region: `us-central1` (or your preferred region)
 
 ### 1. Create an Atlassian OAuth 2.0 (3LO) app
 
@@ -78,7 +82,7 @@ Assumed values (substitute yours): project `vtxdemos`, project number `254356041
 ### 2. Build & deploy the MCP server to Cloud Run
 
 ```
-PROJECT=vtxdemos
+PROJECT=YOUR_PROJECT_ID
 REGION=us-central1
 IMAGE=us-central1-docker.pkg.dev/$PROJECT/cloud-run-source-deploy/jira-mcp-server:latest
 cd jira_server
@@ -93,46 +97,39 @@ Note the service URL — typically `https://jira-mcp-server-<project_number>.us-
 ### 3. Configure `adk_agent/.env`
 
 ```
-GOOGLE_CLOUD_PROJECT=vtxdemos
+GOOGLE_CLOUD_PROJECT=YOUR_PROJECT_ID
 GOOGLE_CLOUD_LOCATION=us-central1
-GOOGLE_CLOUD_QUOTA_PROJECT=vtxdemos
+GOOGLE_CLOUD_QUOTA_PROJECT=YOUR_PROJECT_ID
 GOOGLE_GENAI_USE_VERTEXAI=True
-MCP_SERVER_URL=https://jira-mcp-server-254356041555.us-central1.run.app/sse
+MCP_SERVER_URL=https://jira-mcp-server-YOUR_PROJECT_NUMBER.us-central1.run.app/sse
 AGENTSPACE_AUTH_ID=jira-mcp-portal-auth
 ATLASSIAN_CLIENT_ID=<from step 1>
 ATLASSIAN_CLIENT_SECRET=<from step 1>
-STAGING_BUCKET=gs://vtxdemos-staging
+STAGING_BUCKET=gs://YOUR_PROJECT_ID-staging
 ```
 
 `AGENTSPACE_AUTH_ID` must match the auth resource ID created in step 5.
 
 ### 4. Deploy the ADK Agent to Vertex AI Agent Engine
 
-```
+```bash
 cd adk_agent
-sudo docker run --rm -v $(pwd):/workspace -w /workspace -v ~/.secrets/vtxdemos-sa.json:/secrets/sa-key.json:ro -e GOOGLE_APPLICATION_CREDENTIALS=/secrets/sa-key.json deployment-container:latest python deploy_agent_engine.py
+python deploy_agent_engine.py
 ```
 
-Output ends with the resource name, e.g. `projects/254356041555/locations/us-central1/reasoningEngines/<RE_ID>`. Copy `<RE_ID>` for the next step.
+**Save the Reasoning Engine ID** from the output (e.g., `1234567890123456789`).
 
-### 5. Register the Atlassian OAuth + agent in Gemini Enterprise
+### 5. Register in Gemini Enterprise
 
-Edit the constants at the top of `register.py` (or set them in `.env`):
-
-```
-GE_PROJECT_ID=vtxdemos
-GE_PROJECT_NUMBER=254356041555
-AS_APP=jira-testing_1778158449701
-REASONING_ENGINE_RES=projects/254356041555/locations/us-central1/reasoningEngines/<RE_ID from step 4>
-AGENTSPACE_AUTH_ID=jira-mcp-portal-auth   # MUST match adk_agent/.env
-```
-
-Run:
-
-```
+```bash
 cd ..
-sudo docker run --rm -v $(pwd):/workspace -w /workspace -v ~/.secrets/vtxdemos-sa.json:/secrets/sa-key.json:ro -e GOOGLE_APPLICATION_CREDENTIALS=/secrets/sa-key.json deployment-container:latest python register.py all
+python register.py agent
 ```
+
+**When prompted, enter:**
+- Reasoning Engine ID (from Step 4)
+- Atlassian Client ID (from Step 1)
+- Atlassian Client Secret (from Step 1)
 
 This does three things:
 
@@ -168,8 +165,8 @@ The agent loads `.atlassian_token` (when present) as the `ATLASSIAN_OAUTH_TOKEN`
 **Not required** for the agent to work - this adds enterprise governance capabilities.
 
 ```bash
-export MCP_SERVER_URL=https://jira-mcp-server-254356041555.us-central1.run.app
-export GOOGLE_CLOUD_PROJECT=vtxdemos
+export MCP_SERVER_URL=https://jira-mcp-server-YOUR_PROJECT_NUMBER.us-central1.run.app
+export GOOGLE_CLOUD_PROJECT=YOUR_PROJECT_ID
 export GOOGLE_CLOUD_LOCATION=us-central1
 export MCP_SERVICE_DISPLAY_NAME=jira-mcp
 
@@ -178,7 +175,7 @@ python register_mcp_in_registry.py
 
 Saves the registry resource name to add to your `.env`:
 ```
-MCP_SERVICE_RESOURCE=projects/254356041555/locations/us-central1/services/jira-mcp
+MCP_SERVICE_RESOURCE=projects/YOUR_PROJECT_NUMBER/locations/us-central1/services/jira-mcp
 ```
 
 **Benefits:**
@@ -211,10 +208,10 @@ Change OAuth scopes / endpoints → re-run `register.py auth` to PATCH the auth 
 ## Cleanup
 
 ```
-gcloud run services delete jira-mcp-server --region=us-central1 --project=vtxdemos --quiet
-curl -X DELETE -H "Authorization: Bearer $(gcloud auth print-access-token)" -H "x-goog-user-project: vtxdemos" "https://us-central1-aiplatform.googleapis.com/v1beta1/projects/254356041555/locations/us-central1/reasoningEngines/<RE_ID>?force=true"
-curl -X DELETE -H "Authorization: Bearer $(gcloud auth print-access-token)" -H "x-goog-user-project: vtxdemos" "https://discoveryengine.googleapis.com/v1alpha/projects/254356041555/locations/global/collections/default_collection/engines/jira-testing_1778158449701/assistants/default_assistant/agents/<AGENT_ID>"
-curl -X DELETE -H "Authorization: Bearer $(gcloud auth print-access-token)" -H "x-goog-user-project: vtxdemos" "https://discoveryengine.googleapis.com/v1alpha/projects/254356041555/locations/global/authorizations/jira-mcp-portal-auth"
+gcloud run services delete jira-mcp-server --region=us-central1 --project=YOUR_PROJECT_ID --quiet
+curl -X DELETE -H "Authorization: Bearer $(gcloud auth print-access-token)" -H "x-goog-user-project: YOUR_PROJECT_ID" "https://us-central1-aiplatform.googleapis.com/v1beta1/projects/YOUR_PROJECT_NUMBER/locations/us-central1/reasoningEngines/<RE_ID>?force=true"
+curl -X DELETE -H "Authorization: Bearer $(gcloud auth print-access-token)" -H "x-goog-user-project: YOUR_PROJECT_ID" "https://discoveryengine.googleapis.com/v1alpha/projects/YOUR_PROJECT_NUMBER/locations/global/collections/default_collection/engines/YOUR_GE_ENGINE_ID/assistants/default_assistant/agents/<AGENT_ID>"
+curl -X DELETE -H "Authorization: Bearer $(gcloud auth print-access-token)" -H "x-goog-user-project: YOUR_PROJECT_ID" "https://discoveryengine.googleapis.com/v1alpha/projects/YOUR_PROJECT_NUMBER/locations/global/authorizations/jira-mcp-portal-auth"
 ```
 
 ---

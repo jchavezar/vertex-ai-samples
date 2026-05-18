@@ -8,11 +8,11 @@ This file is the hand-off checklist for the human running through it.
 Prerequisites
 - `python dcr_register.py` has succeeded and `~/.secrets/atlassian-rovo-dcr-ge.json` exists.
 - `python register_datastore.py` has succeeded and the datastore name was printed (e.g. `jiramcp-rovo-1778188383_mcp_data`).
-- You have the engine's URL handy: `https://console.cloud.google.com/gen-app-builder/engines/jira-testing_1778158449701/data?project=vtxdemos`.
+- You have the engine's URL handy: `https://console.cloud.google.com/gen-app-builder/engines/YOUR_GE_ENGINE_ID/data?project=YOUR_PROJECT_ID`.
 
 Steps
 
-1. Open Cloud Console → AI Applications → **Engine `jira-testing`** (project `vtxdemos`).
+1. Open Cloud Console → AI Applications → **Engine `your-ge-engine`** (project `YOUR_PROJECT_ID`).
 2. Click the **Data stores** tab.
 3. If the new datastore (`mcp_data`, displayed under collection name `jiramcp-rovo-<timestamp>`) is not listed under this engine, click **Edit data stores** → search for the new id → check it → save. (See note at bottom on single-datastore engines.)
 4. Click the new datastore name to open it.
@@ -39,7 +39,7 @@ Steps
    - **Client Secret** → same file.
 10. Click **Connect**. A popup opens at `mcp.atlassian.com/v1/authorize`.
 11. Approve the Atlassian consent screen.
-12. On the standard 3LO consent that follows (`api.atlassian.com/oauth2/authorize/server/consent`), choose **`sockcop.atlassian.net`** and approve.
+12. On the standard 3LO consent that follows (`api.atlassian.com/oauth2/authorize/server/consent`), choose **`yourcompany.atlassian.net`** and approve.
 13. The popup closes. The connector flips to **ACTIVE** and tools are now callable from GE chat.
 
 Verification
@@ -47,7 +47,7 @@ Verification
 - Expect the assistant to call `searchJiraIssuesUsingJql` with a JQL like `project = SOCKCOP AND statusCategory != Done` and return a numbered list.
 
 Single-datastore engine note
-- `jira-testing_1778158449701` was originally provisioned in single-datastore mode. The DE public API will refuse to add or swap a second datastore on it (`FAILED_PRECONDITION: Engines linked to a single data store cannot change their linked data store`). The console UI has an internal admin path that **can** swap, hence step 3.
+- `YOUR_GE_ENGINE_ID` was originally provisioned in single-datastore mode. The DE public API will refuse to add or swap a second datastore on it (`FAILED_PRECONDITION: Engines linked to a single data store cannot change their linked data store`). The console UI has an internal admin path that **can** swap, hence step 3.
 - If the console also refuses, two options: (a) use the previously-attached MCP datastore (`mcp-jira_1778158685439_mcp_data`) — it's the same connector kind on the same MCP server and was already working; (b) create a fresh engine in multi-datastore mode and attach the new datastore there.
 
 Common failure modes

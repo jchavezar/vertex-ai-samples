@@ -34,7 +34,7 @@ This option connects Atlassian's official Remote MCP server (`https://mcp.atlass
                             |
                             v
    +-----------------------------------------------+
-   |   Engine: jira-testing_1778158449701          |
+   |   Engine: YOUR_GE_ENGINE_ID          |
    |   Collection: default_collection              |
    |     dataStores/                               |
    |       <OPTION_B_DATASTORE_ID>_mcp_data  <----- this option
@@ -122,7 +122,7 @@ This calls `POST .../locations/global:setUpDataConnector`, which:
    `default_collection` (because we send `entities: [{entityName:
    "mcp_data"}]`).
 4. PATCHes the engine to add the new entity datastore to its
-   `dataStoreIds`. **NOTE:** the engine `jira-testing_1778158449701` is in
+   `dataStoreIds`. **NOTE:** the engine `YOUR_GE_ENGINE_ID` is in
    single-datastore mode and the public DE API refuses both add and swap
    on it (`FAILED_PRECONDITION`). The script reports this clearly; the
    datastore is fully wired regardless. To swap, use the console (Step 3).
@@ -134,9 +134,9 @@ prints its info and re-attempts the engine attach.
 
 | Var | Default | Purpose |
 |---|---|---|
-| `GE_PROJECT_ID` | `vtxdemos` | x-goog-user-project header |
-| `GE_PROJECT_NUMBER` | `254356041555` | resource path |
-| `GE_ENGINE_ID` | `jira-testing_1778158449701` | engine to attach to |
+| `GE_PROJECT_ID` | `YOUR_PROJECT_ID` | x-goog-user-project header |
+| `GE_PROJECT_NUMBER` | `YOUR_PROJECT_NUMBER` | resource path |
+| `GE_ENGINE_ID` | `YOUR_GE_ENGINE_ID` | engine to attach to |
 | `DATASTORE_ID` | `jiramcp-rovo-<unix-ts>` | per-MCP collection id |
 | `COLLECTION_DISPLAY_NAME` | `Jira MCP (Atlassian Rovo)` | console label |
 | `SWAP_EXISTING` | unset | if `1`, attempt PATCH that replaces existing dataStoreIds (still subject to single-DS lock) |
@@ -157,11 +157,11 @@ matching the ground-truth shape from the prior session.
 Follow [`enable_actions_checklist.md`](./enable_actions_checklist.md). In
 short:
 
-1. Console → AI Applications → Engine `jira-testing` → Data stores → click the new `mcp_data`.
+1. Console → AI Applications → Engine `your-ge-engine` → Data stores → click the new `mcp_data`.
 2. **Actions** tab → **Reload custom actions** → wait → check the tools you want.
 3. Click **Enable actions**.
 4. **Re-authenticate** dialog → run `python reauth_helper.py` to print the DCR pair → paste into the dialog → Connect.
-5. Approve the Atlassian consent popup → pick `sockcop.atlassian.net` → done.
+5. Approve the Atlassian consent popup → pick `yourcompany.atlassian.net` → done.
 
 If the engine is locked to its existing single datastore, also use the
 console's **Edit data stores** button on the engine's Data stores tab to
@@ -170,7 +170,7 @@ than the public DE API.)
 
 ## Step 4 — Verify
 
-In the GE web console, open the chat surface for engine `jira-testing` (no
+In the GE web console, open the chat surface for engine `your-ge-engine` (no
 agent picked) and ask:
 
 ```
@@ -203,11 +203,11 @@ Delete the per-MCP collection (which removes its DataConnector and the
 auto-created entity datastore in default_collection):
 
 ```
-TOKEN=$(GOOGLE_APPLICATION_CREDENTIALS=~/.secrets/vtxdemos-sa.json gcloud auth application-default print-access-token)
+TOKEN=$(GOOGLE_APPLICATION_CREDENTIALS=~/.secrets/YOUR_PROJECT_ID-sa.json gcloud auth application-default print-access-token)
 curl -X DELETE \
   -H "Authorization: Bearer $TOKEN" \
-  -H "x-goog-user-project: vtxdemos" \
-  "https://discoveryengine.googleapis.com/v1alpha/projects/254356041555/locations/global/collections/<OPTION_B_DATASTORE_ID>"
+  -H "x-goog-user-project: YOUR_PROJECT_ID" \
+  "https://discoveryengine.googleapis.com/v1alpha/projects/YOUR_PROJECT_NUMBER/locations/global/collections/<OPTION_B_DATASTORE_ID>"
 ```
 
 Delete the DCR client (Atlassian doesn't expose a deletion endpoint as of
