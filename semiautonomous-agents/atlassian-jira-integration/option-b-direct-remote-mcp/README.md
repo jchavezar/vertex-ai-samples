@@ -1,17 +1,27 @@
-# Option B — Atlassian Remote MCP as a Gemini Enterprise custom MCP datastore
+# Option B — Atlassian Remote MCP (Evaluation Baseline)
 
-This option wires Atlassian's official Remote MCP server
-(`https://mcp.atlassian.com/v1/mcp`) directly into a Gemini Enterprise engine
-as a **custom MCP datastore**. The user chats with the engine in the GE
-console (no agent picked) and the assistant can call Atlassian Rovo tools
-(`searchJiraIssuesUsingJql`, `getJiraIssue`, `createJiraIssue`,
-`getConfluencePage`, etc.) through the connector that GE manages on their
-behalf.
+> **⚠️ NOTE:** This approach has **87.1% accuracy and 68.9% hallucination rate**. It's included for evaluation comparison only.
+>
+> **For production deployment, use:** [GETTING_STARTED.md](../GETTING_STARTED.md) (Option A: 94.5% accuracy, 1% hallucination)
 
-This sits side-by-side with the Option A custom MCP portal agent on the same
-engine `jira-testing_1778158449701` (project `vtxdemos`, location `global`).
-Option A is a `agents/` resource (an ADK agent on Agent Runtime); Option B is
-a `dataStores/` resource (a managed connector). They do not collide.
+---
+
+This option connects Atlassian's official Remote MCP server (`https://mcp.atlassian.com/v1/mcp`) directly to Gemini Enterprise as a custom MCP datastore.
+
+**What it does:**
+- Users chat in GE (no agent selection needed)
+- Assistant calls Atlassian's 37 pre-built tools
+- Zero infrastructure to manage
+
+**Why it's not recommended for production:**
+- 68.9% hallucination rate (invents fake issue keys)
+- Tool registry cache expires (requires manual "Reload custom actions" every few hours)
+- Limited customization of prompts/formatting
+
+**Use cases:**
+- Evaluation baseline
+- Quick prototypes
+- Understanding Atlassian's MCP capabilities
 
 ## Architecture
 
@@ -52,27 +62,28 @@ a `dataStores/` resource (a managed connector). They do not collide.
    +-----------------------------------------------+
 ```
 
-## Prerequisites
+## Two Setup Paths
 
-- Owner role on project `vtxdemos`. The repo expects a service account key at
-  `~/.secrets/vtxdemos-sa.json` (or Application Default Credentials with the
-  right project).
-- Python with `google-auth` and `requests`. If your local Python doesn't have
-  these, run any script via the deployment container at
-  `~/vertex-ai-samples/.deployment-container/`:
-  ```
-  cd <this dir> && sudo docker run --rm \
-    -v "$(pwd):/workspace" -w /workspace \
-    -v ~/.secrets/vtxdemos-sa.json:/secrets/sa-key.json:ro \
-    -v ~/.secrets/atlassian-rovo-dcr-ge.json:/root/.secrets/atlassian-rovo-dcr-ge.json:ro \
-    -e GOOGLE_APPLICATION_CREDENTIALS=/secrets/sa-key.json \
-    deployment-container:latest python <script>.py
-  ```
-- A target Atlassian site you can grant access to (e.g. `sockcop.atlassian.net`).
+**Path 1: Console UI (Recommended for most users)**
 
-Copy `.env.example` → `.env` and fill the values you know up front. The
-remaining ones (DCR id, datastore id) are filled by the scripts and printed
-on each successful run.
+→ See [`enable_actions_checklist.md`](enable_actions_checklist.md)
+
+Pure console clicks - no scripts, no Docker, no service accounts. Just:
+1. Run one curl command for OAuth registration
+2. Follow console UI steps to create connector
+3. Enable tools in Actions tab
+
+**Path 2: Automation Scripts (For developers)**
+
+Python scripts for API-driven setup. Useful for:
+- Automated deployment pipelines
+- Creating multiple connectors programmatically
+- Infrastructure-as-code workflows
+
+Prerequisites for automation path:
+- Python with `google-auth` and `requests`
+- Service account with Owner role
+- `.env` file configured
 
 ## Step 1 — Mint the DCR client
 
