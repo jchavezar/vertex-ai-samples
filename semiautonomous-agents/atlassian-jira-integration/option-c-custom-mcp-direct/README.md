@@ -15,17 +15,17 @@ This works **only when the MCP server follows the five-part recipe** in §3. Wit
 
 ```mermaid
 flowchart TB
-  user(["👤 User in GE chat<br/>or streamAssist API"]):::user
-  ge["🟦 Gemini Enterprise<br/><sub>auto-spawned custom_mcp_agent</sub><br/><sub><b>no ADK, no Agent Engine</b></sub>"]:::ge
-  store[("📦 GE Custom MCP datastore<br/><sub>actionConfig.actionParams</sub><br/><sub>+ mcp_agent_instructions</sub>")]:::store
-  cr["🟧 Cloud Run jira-mcp-server<br/><sub>reuses option-a's image</sub><br/><sub>StreamableHTTP /mcp endpoint</sub>"]:::cr
-  jira[("🟦 Atlassian Jira REST<br/><sub>api.atlassian.com</sub>")]:::jira
+  user(["👤 User in GE chat or streamAssist API"]):::user
+  ge["🟦 Gemini Enterprise — auto-spawned custom_mcp_agent · no ADK"]:::ge
+  store[("📦 GE Custom MCP datastore — actionParams + mcp_agent_instructions")]:::store
+  cr["🟧 Cloud Run jira-mcp-server — StreamableHTTP /mcp endpoint"]:::cr
+  jira[("🟦 Atlassian Jira REST — api.atlassian.com")]:::jira
 
   user --> ge
   ge ==> store
   store -.->|OAuth 3LO popup on 1st call| jira
   store ==> cr
-  cr ==>|Authorization: Bearer &lt;jira-oauth&gt;| jira
+  cr ==>|Authorization: Bearer jira-oauth| jira
 
   classDef user fill:#FBBC04,stroke:#F29900,stroke-width:3px,color:#000
   classDef ge fill:#4285F4,stroke:#1967D2,stroke-width:3px,color:#fff

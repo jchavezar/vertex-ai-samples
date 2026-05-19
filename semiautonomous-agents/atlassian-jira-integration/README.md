@@ -8,22 +8,22 @@ Three working ways to connect Atlassian Jira to Gemini Enterprise. Pick the opti
 
 ```mermaid
 flowchart LR
-  user(["👤<br/>User in GE chat"]):::user
+  user(["👤 User in GE chat"]):::user
 
-  subgraph A["⭐ Option A — Custom MCP + ADK Agent &nbsp;<br/><sub>94.5% accuracy · 1% hallucination · $0.17/1K</sub>"]
+  subgraph A ["⭐ Option A — Custom MCP + ADK Agent"]
     direction TB
-    ge_a["Gemini Enterprise"]:::ge --> ae["ADK Agent on<br/><b>Agent Engine</b><br/><sub>Gemini 3 Flash</sub>"]:::ae
-    ae --> mcp_a["Cloud Run MCP<br/><sub>7 custom Jira tools</sub>"]:::cr
+    ge_a["Gemini Enterprise"]:::ge --> ae["ADK Agent on Agent Engine"]:::ae
+    ae --> mcp_a["Cloud Run MCP — 7 tools"]:::cr
   end
 
-  subgraph C["💰 Option C — Custom MCP, direct &nbsp;<br/><sub>same MCP, 70% cheaper · $0.05/1K</sub>"]
+  subgraph C ["💰 Option C — Custom MCP, direct"]
     direction TB
-    ge_c["Gemini Enterprise<br/><sub>BYO_MCP datastore</sub>"]:::ge --> mcp_c["Cloud Run MCP<br/><sub>7 custom Jira tools</sub>"]:::cr
+    ge_c["Gemini Enterprise — BYO_MCP"]:::ge --> mcp_c["Cloud Run MCP — 7 tools"]:::cr
   end
 
-  subgraph B["⚡ Option B — Atlassian Remote MCP &nbsp;<br/><sub>15-min setup · 69% hallucination ⚠</sub>"]
+  subgraph B ["⚡ Option B — Atlassian Remote MCP"]
     direction TB
-    ge_b["Gemini Enterprise"]:::ge --> rmcp["mcp.atlassian.com<br/><sub>37 tools, hosted</sub>"]:::rmcp
+    ge_b["Gemini Enterprise"]:::ge --> rmcp["mcp.atlassian.com — 37 tools"]:::rmcp
   end
 
   user --> A
@@ -44,6 +44,12 @@ flowchart LR
   style C fill:#FFF3E0,stroke:#FF6F00,stroke-width:3px,color:#000
   style B fill:#FCE8E8,stroke:#D93025,stroke-width:2px,stroke-dasharray:5 3,color:#000
 ```
+
+| Option | Accuracy | Hallucination | Cost / 1K | Setup |
+|---|---:|---:|---:|---:|
+| **⭐ A — Custom MCP + ADK** | **94.5 %** | **1.0 %** | $0.17 | ~45 min |
+| **💰 C — Custom MCP, direct** | TBD | TBD | **$0.05** | ~30 min |
+| **⚡ B — Atlassian Remote** | 87.1 % | 68.9 % ⚠ | $0 | ~15 min |
 
 ---
 

@@ -13,11 +13,11 @@ Connects Atlassian's hosted Remote MCP server (`https://mcp.atlassian.com/v1/mcp
 ```mermaid
 flowchart TB
   user(["👤 User in GE chat"]):::user
-  ge["🟦 Gemini Enterprise<br/><sub>streamAssist · no agent layer</sub>"]:::ge
-  store[("📦 GE Custom MCP datastore<br/><sub>collections/&lt;id&gt;/dataConnector<br/>dataSource: custom_mcp</sub>")]:::store
-  rmcp["🔵 mcp.atlassian.com/v1/mcp<br/><b>Atlassian Remote MCP</b><br/><sub>37 hosted tools</sub>"]:::rmcp
-  jira[("🟦 Atlassian Jira REST<br/><sub>api.atlassian.com</sub>")]:::jira
-  auth[("🔐 actionParams<br/><sub>auth_uri: mcp.atlassian.com/v1/authorize</sub><br/><sub><b>token_uri: cf.mcp.atlassian.com/v1/token</b></sub><br/><sub>client_id/secret: from DCR mint</sub>")]:::auth
+  ge["🟦 Gemini Enterprise — streamAssist, no agent layer"]:::ge
+  store[("📦 GE Custom MCP datastore — dataSource: custom_mcp")]:::store
+  rmcp["🔵 mcp.atlassian.com/v1/mcp — 37 hosted tools"]:::rmcp
+  jira[("🟦 Atlassian Jira REST — api.atlassian.com")]:::jira
+  auth[("🔐 actionParams — token_uri: cf.mcp.atlassian.com/v1/token + DCR creds")]:::auth
 
   user --> ge
   ge ==> store

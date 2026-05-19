@@ -11,16 +11,16 @@ You run the MCP server, you run the agent (Vertex AI Agent Engine + ADK), Gemini
 ```mermaid
 flowchart TB
   user(["👤 User in GE chat"]):::user
-  ge["🟦 Gemini Enterprise<br/><sub>app: jira-testing</sub>"]:::ge
-  ae["🤖 Vertex AI Agent Engine<br/><b>ADK · Gemini 3 Flash</b><br/><sub>before_model_callback</sub>"]:::ae
-  cr["🟧 Cloud Run MCP server<br/><sub>FastAPI + SSE</sub><br/><sub>multi-tenant per Bearer token</sub>"]:::cr
-  jira[("🟦 Atlassian Jira REST<br/><sub>api.atlassian.com</sub>")]:::jira
-  auth[("🔐 Discovery Engine<br/>authorizations/<br/>atlassian-jira-oauth")]:::auth
+  ge["🟦 Gemini Enterprise — app: jira-testing"]:::ge
+  ae["🤖 Vertex AI Agent Engine · ADK · Gemini 3 Flash"]:::ae
+  cr["🟧 Cloud Run MCP — FastAPI + SSE, multi-tenant"]:::cr
+  jira[("🟦 Atlassian Jira REST — api.atlassian.com")]:::jira
+  auth[("🔐 Discovery Engine authorizations/atlassian-jira-oauth")]:::auth
 
   user --> ge
   ge ==>|routes to registered agent| ae
   ge -.->|OAuth popup on 1st call| auth
-  ae ==>|MCP/SSE +<br/>Authorization: Bearer &lt;jira-oauth&gt;| cr
+  ae ==>|MCP/SSE + Bearer jira-oauth| cr
   cr ==> jira
   auth -.->|injects token| ae
 
