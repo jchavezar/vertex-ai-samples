@@ -4,7 +4,7 @@
 [![Hallucination](https://img.shields.io/badge/hallucination-1.0%25-success)]()
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue)]()
 
-Three working ways to connect Atlassian Jira to Gemini Enterprise. Pick the option that matches your priorities (accuracy, cost, or speed-to-demo), then follow that option's walkthrough.
+Five working ways to connect Atlassian Jira to Gemini Enterprise. Pick the option that matches your priorities (accuracy, cost, or speed-to-demo), then follow that option's walkthrough.
 
 ```mermaid
 flowchart LR
@@ -28,6 +28,11 @@ flowchart LR
     ge_c["Gemini Enterprise — BYO_MCP"]:::ge --> mcp_c["Cloud Run MCP — 7 tools"]:::cr
   end
 
+  subgraph D ["🚀 Option D — GE federated Jira Cloud (main chat)"]
+    direction TB
+    ge_d["Gemini Enterprise — federated jira_cloud"]:::ge --> fed["10 per-entity datastores (GE-managed)"]:::fed
+  end
+
   subgraph B ["⚡ Option B — Atlassian Remote MCP (main chat)"]
     direction TB
     ge_b["Gemini Enterprise"]:::ge --> rmcp["mcp.atlassian.com — 37 tools"]:::rmcp
@@ -36,22 +41,26 @@ flowchart LR
   user --> A
   user --> E
   user --> C
+  user --> D
   user --> B
 
   A --> jira[("Atlassian Jira REST")]:::jira
   E --> jira
   C --> jira
+  D --> jira
   B --> jira
 
   classDef user fill:#FBBC04,stroke:#F29900,stroke-width:3px,color:#000
   classDef ge fill:#4285F4,stroke:#1967D2,stroke-width:2px,color:#fff
   classDef ae fill:#1A73E8,stroke:#174EA6,stroke-width:2px,color:#fff
   classDef cr fill:#FF6F00,stroke:#E65100,stroke-width:2px,color:#fff
+  classDef fed fill:#F9A825,stroke:#E65100,stroke-width:2px,color:#000
   classDef rmcp fill:#0052CC,stroke:#003D99,stroke-width:2px,color:#fff
   classDef jira fill:#0052CC,stroke:#003D99,stroke-width:2px,color:#fff
   style A fill:#E8F0FE,stroke:#1A73E8,stroke-width:3px,color:#000
   style E fill:#F3E5F5,stroke:#7B1FA2,stroke-width:3px,color:#000
   style C fill:#FFF3E0,stroke:#FF6F00,stroke-width:3px,color:#000
+  style D fill:#FFF8E1,stroke:#F9A825,stroke-width:3px,color:#000
   style B fill:#FCE8E8,stroke:#D93025,stroke-width:2px,stroke-dasharray:5 3,color:#000
 ```
 
@@ -60,30 +69,32 @@ flowchart LR
 | **⭐ A — Custom MCP + ADK** | **94.5 %** | **1.0 %** | $0.17 | ~45 min |
 | **🧪 E — ADK wrapped in MCP** | *pending eval* | *pending eval* | ~$0.22 | ~30 min |
 | **💰 C — Custom MCP, direct** | 47.7 % | 31.2 % | **$0.05** | ~30 min |
+| **🚀 D — GE federated Jira Cloud** | 47.6 % | 40.4 % | **$0** | **~5 min** |
 | **⚡ B — Atlassian Remote** | 87.1 % | 68.9 % ⚠ | $0 | ~15 min |
 
 ---
 
 ## Pick an option
 
-| | **Option A**<br/>Custom MCP + ADK Agent | **Option E**<br/>ADK wrapped in custom MCP | **Option C**<br/>Custom MCP, direct to GE | **Option B**<br/>Atlassian Remote MCP |
-|---|:---:|:---:|:---:|:---:|
-| **Composite accuracy** *(500-q eval)* | **94.5 %** | *pending* (hypothesis 80–95 %) | 47.7 % (56.9 % refusal-credited) | 87.1 % |
-| **Hallucination rate** | **1.0 %** | *pending* (hypothesis ≈1 %) | 31.2 % | 68.9 % |
-| **Cost / 1K requests** | $0.17 | ≈ $0.22 | **$0.05** | $0 (hosted) |
-| **GE consumption surface** | Agent picker (sidebar) | **Main chat (no agent picker)** | **Main chat (no agent picker)** | **Main chat (no agent picker)** |
-| **Infrastructure you run** | Cloud Run + Agent Engine | Cloud Run × 2 + Agent Engine | Cloud Run | None |
-| **Setup time** | ~45 min | ~30 min | ~30 min | ~15 min |
-| **Tool count GE sees** | 7 (your code) | **2 (search + fetch)** | 7 (your code) | 37 (Atlassian's) |
-| **Prompt control** | Full (ADK) | **Full (ADK behind wrapper)** | GE-assistant default | None |
-| **Pagination** | Custom callback | **Custom callback (inherits A)** | GE default | Atlassian default |
-| **Walkthrough** | [option-a/README.md](option-a-custom-mcp-portal/README.md) | [option-e/README.md](option-e-adk-wrapped-in-mcp/README.md) | [option-c/README.md](option-c-custom-mcp-direct/README.md) | [option-b/README.md](option-b-direct-remote-mcp/README.md) |
+| | **Option A**<br/>Custom MCP + ADK Agent | **Option E**<br/>ADK wrapped in custom MCP | **Option C**<br/>Custom MCP, direct to GE | **Option D**<br/>GE federated Jira Cloud | **Option B**<br/>Atlassian Remote MCP |
+|---|:---:|:---:|:---:|:---:|:---:|
+| **Composite accuracy** *(500-q eval)* | **94.5 %** | *pending* (hypothesis 80–95 %) | 47.7 % (56.9 % refusal-credited) | 47.6 % | 87.1 % |
+| **Hallucination rate** | **1.0 %** | *pending* (hypothesis ≈1 %) | 31.2 % | 40.4 % | 68.9 % |
+| **Cost / 1K requests** | $0.17 | ≈ $0.22 | $0.05 | **$0 (GE included)** | $0 (hosted) |
+| **GE consumption surface** | Agent picker (sidebar) | **Main chat (no agent picker)** | **Main chat (no agent picker)** | **Main chat (no agent picker)** | **Main chat (no agent picker)** |
+| **Infrastructure you run** | Cloud Run + Agent Engine | Cloud Run × 2 + Agent Engine | Cloud Run | **None** | None |
+| **Setup time** | ~45 min | ~30 min | ~30 min | **~5 min** | ~15 min |
+| **Tool count GE sees** | 7 (your code) | **2 (search + fetch)** | 7 (your code) | 10 datastores (GE-managed) | 37 (Atlassian's) |
+| **Prompt control** | Full (ADK) | **Full (ADK behind wrapper)** | GE-assistant default | **None — GE owns it** | None |
+| **Pagination** | Custom callback | **Custom callback (inherits A)** | GE default | GE default (sample cap ≈ 50) | Atlassian default |
+| **Walkthrough** | [option-a/README.md](option-a-custom-mcp-portal/README.md) | [option-e/README.md](option-e-adk-wrapped-in-mcp/README.md) | [option-c/README.md](option-c-custom-mcp-direct/README.md) | [option-d/README.md](option-d-jira-cloud-federated/README.md) | [option-b/README.md](option-b-direct-remote-mcp/README.md) |
 
 ### Decision guide
 
 - **Pick A** if it's a production ticketing system — you can't tolerate fake issue keys, and you want pagination + custom output shapes.
 - **Pick E** if you want Option A's accuracy AND main-chat delivery (no agent picker required). Adds one Cloud Run hop on top of A — see [option-e/README.md](option-e-adk-wrapped-in-mcp/README.md).
 - **Pick C** if your workload is mostly lookups / counts / single-tool reads (where C scores 92–100%), you want strong refusal/prompt-injection safety (92% each), and you're cost-sensitive enough that ~70% savings vs A justify giving up multi-step reasoning (where C scores 0–30%).
+- **Pick D** if you want the **fastest possible setup** (5-minute wizard, zero infra) and your workload is point-lookups (100%) + small project-level counts ≤100 (80%). Federated has hard ceilings on counts >100, no comments/worklogs (0%), and no auto-MCP-agent for multi-step (4%) or PII guardrails (28%). See [option-d/FINDINGS.md](option-d-jira-cloud-federated/FINDINGS.md).
 - **Pick B** if you're prototyping or just evaluating Atlassian's hosted MCP. Not recommended for production — 69 % of answers cite invented issue keys.
 
 > All three options share the same OAuth model (Atlassian 3LO) and the same Gemini Enterprise app. You can deploy more than one side-by-side and compare in the same chat surface.
@@ -107,17 +118,19 @@ A 500-question grounded benchmark across 20 categories, scored on 10 dimensions 
 
 ### Headline results
 
-| Metric | **Option A**<br/>Custom + ADK | **Option C**<br/>Custom direct | **Option B**<br/>Atlassian Remote |
-|---|---:|---:|---:|
-| **Composite accuracy** | **94.5 %** | 47.7 % | 87.1 % |
-| **Hallucination rate** *(lower is better)* | **1.0 %** | 31.2 % | 68.9 % |
-| **Correctness** *(per-question avg)* | 96.2 % | 52.7 % | 89.4 % |
-| **Completeness** | 92.8 % | 53.2 % | 84.8 % |
-| **Citation accuracy** | high | high *(KeyLink in 318/500)* | low |
-| **JQL correctness** | 95 %+ | not directly measurable *(GE planner abstracts JQL)* | 78 % |
-| **Refusal correctness** | high | **96 %** *(refusal-test + prompt-injection ≥ 92 %)* | low |
-| **Latency p50** | 24 s | 29 s | 5–10 s |
-| **Cost / 1K requests** | $0.17 | $0.05 | $0 (hosted) |
+| Metric | **Option A**<br/>Custom + ADK | **Option C**<br/>Custom direct | **Option D**<br/>GE federated | **Option B**<br/>Atlassian Remote |
+|---|---:|---:|---:|---:|
+| **Composite accuracy** | **94.5 %** | 47.7 % | 47.6 % | 87.1 % |
+| **Hallucination rate** *(lower is better)* | **1.0 %** | 31.2 % | 40.4 % | 68.9 % |
+| **Correctness** *(per-question avg)* | 96.2 % | 52.7 % | ~42 % | 89.4 % |
+| **Completeness** | 92.8 % | 53.2 % | ~42 % | 84.8 % |
+| **Citation accuracy** | high | high *(KeyLink in 318/500)* | medium *(URI from federated grounding)* | low |
+| **JQL correctness** | 95 %+ | not directly measurable *(GE planner abstracts JQL)* | n/a *(no JQL — federated)* | 78 % |
+| **Refusal correctness** | high | **96 %** *(refusal-test + prompt-injection ≥ 92 %)* | 92 % refusal-test, 96 % prompt-injection, 28 % PII | low |
+| **Latency p50** | 24 s | 29 s | 20 s | 5–10 s |
+| **Cost / 1K requests** | $0.17 | $0.05 | **$0 (GE included)** | $0 (hosted) |
+
+> **Option D nuance — sample-size and tool-loop limits.** Federation pulls a ~50-document sample per query, so counts >100 systematically under-report (e.g. SMP=910 answered as "50" in some queries, correctly answered as "910" in others). And without an auto-MCP-agent in front, federated never retries when entity routing returns 0 — so `comments-worklogs` and `multi-step` collapse to 0–4%. Detailed per-category breakdown in [option-d/FINDINGS.md](option-d-jira-cloud-federated/FINDINGS.md).
 
 > **Option C nuance — judge methodology underweights refusals.** Option C correctly refuses 23/25 prompt-injection and 23/25 destructive-action requests, but the judge marks 23 of those as `wrong` (it was designed before refusal-heavy behavior existed in this benchmark). Crediting valid refusals lifts the composite to **56.9 %**. Detailed per-category breakdown in [option-c/FINDINGS.md](option-c-custom-mcp-direct/FINDINGS.md).
 
@@ -189,6 +202,10 @@ atlassian-jira-integration/
 ├── option-c-custom-mcp-direct/       ← Custom MCP via GE BYO_MCP (no ADK)
 │   ├── README.md                       walkthrough + the 5-part recipe
 │   └── (reuses option-a/jira_server)
+│
+├── option-d-jira-cloud-federated/    ← GE federated jira_cloud connector (no Cloud Run, no MCP)
+│   ├── README.md                       5-min wizard + granular OAuth scopes gotcha
+│   └── FINDINGS.md                     500-Q eval + architectural ceilings
 │
 ├── eval/                              500-question comparative benchmark
 ├── docs/REFERENCE.md                  consolidated tech reference

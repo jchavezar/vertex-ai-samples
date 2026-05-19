@@ -10,12 +10,14 @@
 
 Same 500 questions across 20 categories. Both runs judged by Claude Opus on identical rubrics.
 
-| | Option A (ADK) | Option C (GE BYO\_MCP) | Δ |
-|---|---:|---:|---:|
-| **Overall accuracy** *(refusal-credited)* | **95.3 %** | 56.9 % | **−38.4 pp** |
-| **Hallucinations** | **0 / 500** | 156 / 500 (31.2 %) | +156 |
-| **p50 latency** | ~24 s | 29 s | +5 s |
-| **Cost / 1K queries** | $0.17 | $0.05 | −$0.12 |
+| | Option A (ADK) | Option C (GE BYO\_MCP) | Option D (GE federated) | Δ A → C | Δ A → D |
+|---|---:|---:|---:|---:|---:|
+| **Overall accuracy** *(refusal-credited)* | **95.3 %** | 56.9 % | 47.6 % | **−38.4 pp** | **−47.7 pp** |
+| **Hallucinations** | **0 / 500** | 156 / 500 (31.2 %) | 202 / 500 (40.4 %) | +156 | +202 |
+| **p50 latency** | ~24 s | 29 s | 20 s | +5 s | −4 s |
+| **Cost / 1K queries** | $0.17 | $0.05 | $0 (GE-included) | −$0.12 | −$0.17 |
+
+**Option D footnote**: Federated `jira_cloud` is the *most* GE-managed option — no MCP server, no `mcp_agent_instructions`, no tool-loop. It scores ~9pp **below** C because it lacks even the silent auto-MCP-agent that C has. The gap is concentrated in (a) count-aggregate >100 (federated sample cap) and (b) entity-split silent zeros on comments/worklogs. Full breakdown in [`../option-d-jira-cloud-federated/FINDINGS.md`](../option-d-jira-cloud-federated/FINDINGS.md).
 
 ### Bucket-level
 
@@ -157,5 +159,6 @@ GCLOUD_ACCOUNT=admin@yourcompany.com ./.venv/bin/python judge.py runs/<ts>/respo
 ## 5. Related documents
 
 - [`../option-c-custom-mcp-direct/FINDINGS.md`](../option-c-custom-mcp-direct/FINDINGS.md) — full Option C writeup including the five-part recipe that makes BYO\_MCP silent in the first place
+- [`../option-d-jira-cloud-federated/FINDINGS.md`](../option-d-jira-cloud-federated/FINDINGS.md) — full Option D writeup; the GE-federated `jira_cloud` connector has no MCP / no auto-MCP-agent at all, and scores ~9pp below C as a result
 - [`../option-a-custom-mcp-portal/PAGINATION.md`](../option-a-custom-mcp-portal/PAGINATION.md) — deep dive on why ADK's `before_model_callback` is irreplaceable for multi-turn pagination
 - [`../README.md`](../README.md) — top-level integration overview and option-picker
