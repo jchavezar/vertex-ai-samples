@@ -69,7 +69,7 @@ flowchart LR
 | **⭐ A — Custom MCP + ADK** | **94.5 %** | **1.0 %** | $0.17 | ~45 min |
 | **🧪 E — ADK wrapped in MCP** | *pending eval* | *pending eval* | ~$0.22 | ~30 min |
 | **💰 C — Custom MCP, direct** | 47.7 % | 31.2 % | **$0.05** | ~30 min |
-| **🚀 D — GE federated Jira Cloud** | 47.6 % | 40.4 % | **$0** | **~5 min** |
+| **🚀 D — GE federated Jira Cloud** | 46.6 % | 40.4 % | **~$0.02** | **~5 min** |
 | **⚡ B — Atlassian Remote** | 87.1 % | 68.9 % ⚠ | $0 | ~15 min |
 
 ---
@@ -78,9 +78,9 @@ flowchart LR
 
 | | **Option A**<br/>Custom MCP + ADK Agent | **Option E**<br/>ADK wrapped in custom MCP | **Option C**<br/>Custom MCP, direct to GE | **Option D**<br/>GE federated Jira Cloud | **Option B**<br/>Atlassian Remote MCP |
 |---|:---:|:---:|:---:|:---:|:---:|
-| **Composite accuracy** *(500-q eval)* | **94.5 %** | *pending* (hypothesis 80–95 %) | 47.7 % (56.9 % refusal-credited) | 47.6 % | 87.1 % |
+| **Composite accuracy** *(500-q eval)* | **94.5 %** | *pending* (hypothesis 80–95 %) | 47.7 % (56.9 % refusal-credited) | 41.6 % (46.6 % refusal-credited) | 87.1 % |
 | **Hallucination rate** | **1.0 %** | *pending* (hypothesis ≈1 %) | 31.2 % | 40.4 % | 68.9 % |
-| **Cost / 1K requests** | $0.17 | ≈ $0.22 | $0.05 | **$0 (GE included)** | $0 (hosted) |
+| **Cost / 1K requests** | $0.17 | ≈ $0.22 | $0.05 | **≈ $0.02 (GE included)** | $0 (hosted) |
 | **GE consumption surface** | Agent picker (sidebar) | **Main chat (no agent picker)** | **Main chat (no agent picker)** | **Main chat (no agent picker)** | **Main chat (no agent picker)** |
 | **Infrastructure you run** | Cloud Run + Agent Engine | Cloud Run × 2 + Agent Engine | Cloud Run | **None** | None |
 | **Setup time** | ~45 min | ~30 min | ~30 min | **~5 min** | ~15 min |
@@ -94,7 +94,7 @@ flowchart LR
 - **Pick A** if it's a production ticketing system — you can't tolerate fake issue keys, and you want pagination + custom output shapes.
 - **Pick E** if you want Option A's accuracy AND main-chat delivery (no agent picker required). Adds one Cloud Run hop on top of A — see [option-e/README.md](option-e-adk-wrapped-in-mcp/README.md).
 - **Pick C** if your workload is mostly lookups / counts / single-tool reads (where C scores 92–100%), you want strong refusal/prompt-injection safety (92% each), and you're cost-sensitive enough that ~70% savings vs A justify giving up multi-step reasoning (where C scores 0–30%).
-- **Pick D** if you want the **fastest possible setup** (5-minute wizard, zero infra) and your workload is point-lookups (100%) + small project-level counts ≤100 (80%). Federated has hard ceilings on counts >100, no comments/worklogs (0%), and no auto-MCP-agent for multi-step (4%) or PII guardrails (28%). See [option-d/FINDINGS.md](option-d-jira-cloud-federated/FINDINGS.md).
+- **Pick D** if you want the **fastest possible setup** (5-minute wizard, zero infra) and your workload is point-lookups (100%) + small project-level counts ≤100 (80%). Federated has hard ceilings on counts >100, no comments/worklogs (0%), and no auto-MCP-agent for multi-step (4%) or PII guardrails (8%). See [option-d/FINDINGS.md](option-d-jira-cloud-federated/FINDINGS.md).
 - **Pick B** if you're prototyping or just evaluating Atlassian's hosted MCP. Not recommended for production — 69 % of answers cite invented issue keys.
 
 > All three options share the same OAuth model (Atlassian 3LO) and the same Gemini Enterprise app. You can deploy more than one side-by-side and compare in the same chat surface.
@@ -120,15 +120,15 @@ A 500-question grounded benchmark across 20 categories, scored on 10 dimensions 
 
 | Metric | **Option A**<br/>Custom + ADK | **Option C**<br/>Custom direct | **Option D**<br/>GE federated | **Option B**<br/>Atlassian Remote |
 |---|---:|---:|---:|---:|
-| **Composite accuracy** | **94.5 %** | 47.7 % | 47.6 % | 87.1 % |
+| **Composite accuracy** | **94.5 %** | 47.7 % | 46.6 % | 87.1 % |
 | **Hallucination rate** *(lower is better)* | **1.0 %** | 31.2 % | 40.4 % | 68.9 % |
 | **Correctness** *(per-question avg)* | 96.2 % | 52.7 % | ~42 % | 89.4 % |
 | **Completeness** | 92.8 % | 53.2 % | ~42 % | 84.8 % |
 | **Citation accuracy** | high | high *(KeyLink in 318/500)* | medium *(URI from federated grounding)* | low |
 | **JQL correctness** | 95 %+ | not directly measurable *(GE planner abstracts JQL)* | n/a *(no JQL — federated)* | 78 % |
-| **Refusal correctness** | high | **96 %** *(refusal-test + prompt-injection ≥ 92 %)* | 92 % refusal-test, 96 % prompt-injection, 28 % PII | low |
+| **Refusal correctness** | high | **96 %** *(refusal-test + prompt-injection ≥ 92 %)* | 92 % refusal-test, 96 % prompt-injection, 8 % PII | low |
 | **Latency p50** | 24 s | 29 s | 20 s | 5–10 s |
-| **Cost / 1K requests** | $0.17 | $0.05 | **$0 (GE included)** | $0 (hosted) |
+| **Cost / 1K requests** | $0.17 | $0.05 | **≈ $0.02 (GE included)** | $0 (hosted) |
 
 > **Option D nuance — sample-size and tool-loop limits.** Federation pulls a ~50-document sample per query, so counts >100 systematically under-report (e.g. SMP=910 answered as "50" in some queries, correctly answered as "910" in others). And without an auto-MCP-agent in front, federated never retries when entity routing returns 0 — so `comments-worklogs` and `multi-step` collapse to 0–4%. Detailed per-category breakdown in [option-d/FINDINGS.md](option-d-jira-cloud-federated/FINDINGS.md).
 
