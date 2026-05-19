@@ -10,27 +10,36 @@ Three working ways to connect Atlassian Jira to Gemini Enterprise. Pick the opti
 flowchart LR
   user(["👤 User in GE chat"]):::user
 
-  subgraph A ["⭐ Option A — Custom MCP + ADK Agent"]
+  subgraph A ["⭐ Option A — Custom MCP + ADK Agent (agent picker)"]
     direction TB
     ge_a["Gemini Enterprise"]:::ge --> ae["ADK Agent on Agent Engine"]:::ae
     ae --> mcp_a["Cloud Run MCP — 7 tools"]:::cr
   end
 
-  subgraph C ["💰 Option C — Custom MCP, direct"]
+  subgraph E ["🧪 Option E — ADK wrapped in custom MCP (main chat)"]
+    direction TB
+    ge_e["Gemini Enterprise — BYO_MCP"]:::ge --> wrap["Cloud Run wrapper — search + fetch"]:::cr
+    wrap --> ae_e["ADK Agent on Agent Engine"]:::ae
+    ae_e --> mcp_e["Cloud Run MCP — 7 tools"]:::cr
+  end
+
+  subgraph C ["💰 Option C — Custom MCP, direct (main chat)"]
     direction TB
     ge_c["Gemini Enterprise — BYO_MCP"]:::ge --> mcp_c["Cloud Run MCP — 7 tools"]:::cr
   end
 
-  subgraph B ["⚡ Option B — Atlassian Remote MCP"]
+  subgraph B ["⚡ Option B — Atlassian Remote MCP (main chat)"]
     direction TB
     ge_b["Gemini Enterprise"]:::ge --> rmcp["mcp.atlassian.com — 37 tools"]:::rmcp
   end
 
   user --> A
+  user --> E
   user --> C
   user --> B
 
   A --> jira[("Atlassian Jira REST")]:::jira
+  E --> jira
   C --> jira
   B --> jira
 
@@ -41,6 +50,7 @@ flowchart LR
   classDef rmcp fill:#0052CC,stroke:#003D99,stroke-width:2px,color:#fff
   classDef jira fill:#0052CC,stroke:#003D99,stroke-width:2px,color:#fff
   style A fill:#E8F0FE,stroke:#1A73E8,stroke-width:3px,color:#000
+  style E fill:#F3E5F5,stroke:#7B1FA2,stroke-width:3px,color:#000
   style C fill:#FFF3E0,stroke:#FF6F00,stroke-width:3px,color:#000
   style B fill:#FCE8E8,stroke:#D93025,stroke-width:2px,stroke-dasharray:5 3,color:#000
 ```
@@ -48,6 +58,7 @@ flowchart LR
 | Option | Accuracy | Hallucination | Cost / 1K | Setup |
 |---|---:|---:|---:|---:|
 | **⭐ A — Custom MCP + ADK** | **94.5 %** | **1.0 %** | $0.17 | ~45 min |
+| **🧪 E — ADK wrapped in MCP** | *pending eval* | *pending eval* | ~$0.22 | ~30 min |
 | **💰 C — Custom MCP, direct** | 47.7 % | 31.2 % | **$0.05** | ~30 min |
 | **⚡ B — Atlassian Remote** | 87.1 % | 68.9 % ⚠ | $0 | ~15 min |
 
@@ -55,21 +66,23 @@ flowchart LR
 
 ## Pick an option
 
-| | **Option A**<br/>Custom MCP + ADK Agent | **Option C**<br/>Custom MCP, direct to GE | **Option B**<br/>Atlassian Remote MCP |
-|---|:---:|:---:|:---:|
-| **Composite accuracy** *(500-q eval)* | **94.5 %** | 47.7 % (56.9 % refusal-credited) | 87.1 % |
-| **Hallucination rate** | **1.0 %** | 31.2 % | 68.9 % |
-| **Cost / 1K requests** | $0.17 | **$0.05** | $0 (hosted) |
-| **Infrastructure you run** | Cloud Run + Agent Engine | Cloud Run | None |
-| **Setup time** | ~45 min | ~30 min | ~15 min |
-| **Tool count** | 7 (your code) | 7 (your code) | 37 (Atlassian's) |
-| **Prompt control** | Full (ADK) | GE-assistant default | None |
-| **Pagination** | Custom callback | GE default | Atlassian default |
-| **Walkthrough** | [option-a/README.md](option-a-custom-mcp-portal/README.md) | [option-c/README.md](option-c-custom-mcp-direct/README.md) | [option-b/README.md](option-b-direct-remote-mcp/README.md) |
+| | **Option A**<br/>Custom MCP + ADK Agent | **Option E**<br/>ADK wrapped in custom MCP | **Option C**<br/>Custom MCP, direct to GE | **Option B**<br/>Atlassian Remote MCP |
+|---|:---:|:---:|:---:|:---:|
+| **Composite accuracy** *(500-q eval)* | **94.5 %** | *pending* (hypothesis 80–95 %) | 47.7 % (56.9 % refusal-credited) | 87.1 % |
+| **Hallucination rate** | **1.0 %** | *pending* (hypothesis ≈1 %) | 31.2 % | 68.9 % |
+| **Cost / 1K requests** | $0.17 | ≈ $0.22 | **$0.05** | $0 (hosted) |
+| **GE consumption surface** | Agent picker (sidebar) | **Main chat (no agent picker)** | **Main chat (no agent picker)** | **Main chat (no agent picker)** |
+| **Infrastructure you run** | Cloud Run + Agent Engine | Cloud Run × 2 + Agent Engine | Cloud Run | None |
+| **Setup time** | ~45 min | ~30 min | ~30 min | ~15 min |
+| **Tool count GE sees** | 7 (your code) | **2 (search + fetch)** | 7 (your code) | 37 (Atlassian's) |
+| **Prompt control** | Full (ADK) | **Full (ADK behind wrapper)** | GE-assistant default | None |
+| **Pagination** | Custom callback | **Custom callback (inherits A)** | GE default | Atlassian default |
+| **Walkthrough** | [option-a/README.md](option-a-custom-mcp-portal/README.md) | [option-e/README.md](option-e-adk-wrapped-in-mcp/README.md) | [option-c/README.md](option-c-custom-mcp-direct/README.md) | [option-b/README.md](option-b-direct-remote-mcp/README.md) |
 
 ### Decision guide
 
 - **Pick A** if it's a production ticketing system — you can't tolerate fake issue keys, and you want pagination + custom output shapes.
+- **Pick E** if you want Option A's accuracy AND main-chat delivery (no agent picker required). Adds one Cloud Run hop on top of A — see [option-e/README.md](option-e-adk-wrapped-in-mcp/README.md).
 - **Pick C** if your workload is mostly lookups / counts / single-tool reads (where C scores 92–100%), you want strong refusal/prompt-injection safety (92% each), and you're cost-sensitive enough that ~70% savings vs A justify giving up multi-step reasoning (where C scores 0–30%).
 - **Pick B** if you're prototyping or just evaluating Atlassian's hosted MCP. Not recommended for production — 69 % of answers cite invented issue keys.
 
