@@ -1,66 +1,32 @@
-# Option B — Atlassian Remote MCP (Evaluation Baseline)
+# Option B — Atlassian Remote MCP (hosted)
 
-> **⚠️ NOTE:** This approach has **87.1% accuracy and 68.9% hallucination rate**. It's included for evaluation comparison only.
->
-> **For production deployment, use:** [GETTING_STARTED.md](../GETTING_STARTED.md) (Option A: 94.5% accuracy, 1% hallucination)
+Connects Atlassian's hosted Remote MCP server (`https://mcp.atlassian.com/v1/mcp`) directly to Gemini Enterprise as a custom MCP datastore. **Zero infrastructure**, 37 pre-built tools, ~15 min to set up.
+
+> ⚠️ **Production caveat: 68.9 % hallucination rate** in our 500-question eval (invents fake issue keys). Include `"Always cite the exact issue key returned by the tool"` in the connector's `mcp_agent_instructions` to mitigate — but for production, prefer Option A or C. See [parent README](../README.md) for the side-by-side.
+
+**Good fits:** evaluation baseline, quick prototypes, understanding Atlassian's MCP surface.
 
 ---
 
-This option connects Atlassian's official Remote MCP server (`https://mcp.atlassian.com/v1/mcp`) directly to Gemini Enterprise as a custom MCP datastore.
-
-**What it does:**
-- Users chat in GE (no agent selection needed)
-- Assistant calls Atlassian's 37 pre-built tools
-- Zero infrastructure to manage
-
-**Why it's not recommended for production:**
-- 68.9% hallucination rate (invents fake issue keys)
-- Tool registry cache expires (requires manual "Reload custom actions" every few hours)
-- Limited customization of prompts/formatting
-
-**Use cases:**
-- Evaluation baseline
-- Quick prototypes
-- Understanding Atlassian's MCP capabilities
-
 ## Architecture
 
+```mermaid
+flowchart TB
+  user[User in GE chat]
+  ge[Gemini Enterprise<br/>streamAssist · no agent]
+  store[(GE Custom MCP datastore<br/>collections/&lt;id&gt;/dataConnector<br/>dataSource: custom_mcp)]
+  rmcp[mcp.atlassian.com/v1/mcp<br/>Atlassian Remote MCP<br/>37 tools]
+  jira[(Atlassian Jira REST<br/>api.atlassian.com)]
+  auth[(actionParams<br/>auth_uri: mcp.atlassian.com/v1/authorize<br/>token_uri: cf.mcp.atlassian.com/v1/token<br/>client_id/secret: from DCR mint)]
+
+  user --> ge
+  ge --> store
+  store <-.->|OAuth 2.1: DCR + 3LO popup| auth
+  store --> rmcp
+  rmcp --> jira
 ```
-                 +----------------------+
-                 |  GE web console chat |
-                 +----------+-----------+
-                            |
-                  streamAssist (no agent)
-                            |
-                            v
-   +-----------------------------------------------+
-   |   Engine: YOUR_GE_ENGINE_ID          |
-   |   Collection: default_collection              |
-   |     dataStores/                               |
-   |       <OPTION_B_DATASTORE_ID>_mcp_data  <----- this option
-   +-----------+-----------------------------------+
-               |
-               | (per-MCP collection holds the singleton DataConnector)
-               v
-   +-----------------------------------------------+
-   |  collections/<OPTION_B_DATASTORE_ID>/         |
-   |      dataConnector                            |
-   |        dataSource: custom_mcp                 |
-   |        actionConfig.actionParams:             |
-   |          instance_uri = mcp.atlassian.com/v1/mcp
-   |          auth_uri     = mcp.atlassian.com/v1/authorize
-   |          token_uri    = cf.mcp.atlassian.com/v1/token  (cf. is mandatory)
-   |          client_id/secret  = from RFC 7591 DCR mint
-   |          scopes      = read/write Jira + Confluence + offline_access
-   +-----------+-----------------------------------+
-               |
-               | OAuth 2.1 (DCR + 3LO popup → user picks Atlassian site)
-               v
-   +-----------------------------------------------+
-   |  Atlassian Remote MCP                         |
-   |  (proxies to api.atlassian.com / Jira REST)   |
-   +-----------------------------------------------+
-```
+
+**Why the `cf.` subdomain?** The token endpoint must be `https://cf.mcp.atlassian.com/v1/token`. Pointing at the apex `mcp.atlassian.com/v1/token` returns `invalid_client` even with correctly-minted DCR credentials. The `cf.` host is Cloudflare-fronted and is the only endpoint Atlassian's MCP backend actually validates against.
 
 ## Two Setup Paths
 
@@ -216,6 +182,35 @@ this writing — they expire after disuse). Remove the local file:
 ```
 rm ~/.secrets/atlassian-rovo-dcr-ge.json
 ```
+
+## Evaluation results — Option B specifically
+
+| Dimension | Score | vs Option A |
+|---|---:|---:|
+| **Composite accuracy** | 87.1 % | −7.4 pts |
+| **Hallucination rate** *(lower is better)* | **68.9 %** ⚠ | +67.9 pts |
+| Correctness | 89.4 % | −6.8 pts |
+| Completeness | 84.8 % | −8.0 pts |
+| Citation accuracy | low | — |
+| JQL correctness | 78 % | −17 pts |
+| Pagination completeness | Atlassian default | — |
+| Latency p50 | 5–10 s | −15 s (faster than A) |
+| Cost / 1K requests | $0 (hosted) | $0.17 saved |
+
+**Why hallucination is high:** GE's assistant calls Atlassian's tools, gets back issue summaries with no key in the body, and the assistant fills in plausible-looking keys (`PROJ-123`-shaped strings that don't exist). Without consumer-side citation rules, the model isn't held accountable for using the actual returned data.
+
+**Mitigations** (each helps but none fully closes the gap to Option A):
+- Add `mcp_agent_instructions` to the connector telling the model: *"Cite only issue keys explicitly returned by the tool. Never invent keys. If a tool result is empty, say so."*
+- Reload custom actions when tool cache expires (every few hours).
+- For high-stakes queries, ask twice and compare answers — if the keys differ, both are suspect.
+
+Even with all of the above, expect ~30 % hallucination. For production, use Option A or C instead.
+
+**Why latency is good:** single LLM call inside GE's assistant, no agent layer.
+
+Full per-category breakdown + side-by-side comparison vs Option A: [`../eval/sample-run/report.html`](../eval/sample-run/report.html).
+
+---
 
 ## Files
 

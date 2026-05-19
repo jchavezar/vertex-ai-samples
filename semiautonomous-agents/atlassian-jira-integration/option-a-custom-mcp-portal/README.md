@@ -1,40 +1,31 @@
-# Option A — Custom MCP Portal (your code, your agent)
+# Option A — Custom MCP + ADK Agent
 
-You run the MCP server, you run the agent (Vertex AI Agent Engine + ADK), Gemini Enterprise just routes chats to it. Maximum control, maximum customisation.
+You run the MCP server, you run the agent (Vertex AI Agent Engine + ADK), Gemini Enterprise just routes chats to it. Maximum control over prompts, pagination, and formatting.
 
-See the [parent README](../README.md) for the comparison vs Option B (direct remote MCP).
-For the deep dive on context-bounded pagination, see [PAGINATION.md](./PAGINATION.md).
+**94.5 % accuracy, 1 % hallucination** on a 500-question eval. See [parent README](../README.md) for the comparison vs Options B and C.
 
 ---
 
 ## Architecture
 
-```
-                        ┌──────────────────────────┐
-   user in GE chat ───▶ │  Gemini Enterprise app   │
-                        │  (jira-testing engine)   │
-                        └────────────┬─────────────┘
-                                     │  routes to registered agent
-                                     ▼
-                        ┌──────────────────────────┐
-                        │  Vertex AI Agent Engine  │  ◀── deploy_agent_engine.py
-                        │  (ADK, gemini-3-flash)   │
-                        │  ─ before_model_callback │  (PAGINATION.md)
-                        │  ─ thinking_config       │
-                        └────────────┬─────────────┘
-                                     │  MCP/SSE + Authorization: Bearer <jira-oauth>
-                                     ▼
-                        ┌──────────────────────────┐
-                        │  Cloud Run MCP server    │  ◀── jira_server/Dockerfile
-                        │  (FastAPI + atlassian-py)│
-                        │  Multi-tenant per-token  │
-                        └────────────┬─────────────┘
-                                     │  api.atlassian.com/ex/jira/{cloudId}
-                                     ▼
-                              Atlassian Cloud
+```mermaid
+flowchart TB
+  user[User in GE chat]
+  ge[Gemini Enterprise<br/>app: jira-testing]
+  ae[Vertex AI Agent Engine<br/>ADK · Gemini 3 Flash<br/>before_model_callback]
+  cr[Cloud Run MCP server<br/>FastAPI + SSE<br/>multi-tenant per Bearer token]
+  jira[(Atlassian Jira REST<br/>api.atlassian.com)]
+  auth[(Discovery Engine<br/>authorizations/<br/>jira-mcp-portal-auth)]
+
+  user --> ge
+  ge -->|routes to registered agent| ae
+  ge <-.->|OAuth popup on 1st call| auth
+  ae -->|MCP/SSE +<br/>Authorization: Bearer &lt;jira-oauth&gt;| cr
+  cr --> jira
+  auth -.injects token.-> ae
 ```
 
-OAuth: Gemini Enterprise drives an Atlassian 3LO popup the first time a user asks the agent a question (server-side OAuth, registered in Discovery Engine via `register.py`). The token is injected into the ADK session state and the agent passes it to the MCP server in the `Authorization` header.
+**OAuth flow:** Gemini Enterprise drives an Atlassian 3LO popup the first time a user asks the agent a question. The token is injected into the ADK session state, then passed to the MCP server in the `Authorization` header. ACL enforcement is end-to-end — each user only sees the Jira issues their own account can see.
 
 ---
 
@@ -42,176 +33,217 @@ OAuth: Gemini Enterprise drives an Atlassian 3LO popup the first time a user ask
 
 ```
 option-a-custom-mcp-portal/
-├── README.md                       ← you are here
-├── PAGINATION.md                   ← context-bounding callback explained
-├── register.py                     ← registers Atlassian OAuth + agent in GE
+├── README.md                       ← you are here (walkthrough + design)
+├── PAGINATION.md                   ← context-bounding callback deep dive
+├── register.py                     ← registers OAuth + agent in GE
+├── register_mcp_in_registry.py     ← (optional) Agent Registry for governance
 ├── adk_agent/
-│   ├── agent.py                    ← ADK Agent + before_model_callback
+│   ├── agent.py                    ← LlmAgent + before_model_callback
 │   ├── deploy_agent_engine.py      ← create/update the Agent Engine
 │   ├── requirements.txt
-│   ├── .env                        ← project / region / OAuth client id+secret
-│   └── .atlassian_token            ← (optional) personal token for local test
+│   ├── .env                        ← generated in Step 3 below
+│   └── .env.example
 ├── jira_server/
-│   ├── server.py                   ← MCP server (FastAPI + SSE)
+│   ├── server.py                   ← 7 Jira tools + SSE transport
 │   ├── Dockerfile
 │   ├── requirements.txt
-│   └── start_server.sh             ← local-dev runner
+│   └── start_server.sh             ← local dev runner
 └── utils/
-    ├── oauth_oneshot.py            ← one-shot OAuth flow → ATLASSIAN_OAUTH_TOKEN
-    └── get_access_token.py         ← original tkinter version
+    ├── oauth_oneshot.py            ← one-shot OAuth → ATLASSIAN_OAUTH_TOKEN
+    └── get_access_token.py         ← tkinter variant
 ```
 
 ---
 
-## Step-by-step setup
+## Prerequisites
 
-**Replace these placeholders with your values:**
-- `YOUR_PROJECT_ID` - Your Google Cloud project ID
-- `YOUR_PROJECT_NUMBER` - Your project number (get via: `gcloud projects describe YOUR_PROJECT_ID --format="value(projectNumber)"`)
-- `YOUR_GE_ENGINE_ID` - Your Gemini Enterprise engine ID
-- Region: `us-central1` (or your preferred region)
+- Google Cloud project with **Gemini Enterprise** enabled
+- Atlassian Jira Cloud site with admin access
+- `gcloud` CLI authed with **Owner** on the project
+- Python 3.10+ with pip
 
-### 1. Create an Atlassian OAuth 2.0 (3LO) app
+Roles needed: `roles/aiplatform.user`, `roles/run.admin`, `roles/storage.admin`.
 
-`https://developer.atlassian.com/console/myapps/` → **Create** → **OAuth 2.0 integration**.
+---
 
-- **Permissions** → Add **Jira API** → grant `read:jira-work`, `read:jira-user`, `write:jira-work`. (`offline_access` is automatic, not in this list.)
-- **Authorization** → Callback URL: `https://vertexaisearch.cloud.google.com/oauth-redirect`. (Add `http://localhost:8765/callback` too if you also want to mint personal tokens locally with `utils/oauth_oneshot.py`.)
-- **Settings** → copy `Client ID` and `Secret`.
+## Walkthrough
 
-### 2. Build & deploy the MCP server to Cloud Run
+### Step 0 — Set your variables (do this once)
 
-```
-PROJECT=YOUR_PROJECT_ID
-REGION=us-central1
-IMAGE=us-central1-docker.pkg.dev/$PROJECT/cloud-run-source-deploy/jira-mcp-server:latest
-cd jira_server
-gcloud builds submit --tag $IMAGE --project=$PROJECT --region=$REGION
-gcloud run deploy jira-mcp-server --image=$IMAGE --region=$REGION --project=$PROJECT --allow-unauthenticated --port=8080 --memory=1Gi --cpu=2 --timeout=600 --max-instances=5
-```
-
-The server is multi-tenant — it reads the per-request `Authorization: Bearer <token>` header and uses that token to call Jira. No secret to embed at deploy time. (If your org policy forbids `--allow-unauthenticated`, deploy private and grant `roles/run.invoker` to the Agent Engine service accounts; you'll also need to add a Cloud Run ID-token auth path in the agent.)
-
-Note the service URL — typically `https://jira-mcp-server-<project_number>.us-central1.run.app`.
-
-### 3. Configure `adk_agent/.env`
-
-```
-GOOGLE_CLOUD_PROJECT=YOUR_PROJECT_ID
-GOOGLE_CLOUD_LOCATION=us-central1
-GOOGLE_CLOUD_QUOTA_PROJECT=YOUR_PROJECT_ID
-GOOGLE_GENAI_USE_VERTEXAI=True
-MCP_SERVER_URL=https://jira-mcp-server-YOUR_PROJECT_NUMBER.us-central1.run.app/sse
-AGENTSPACE_AUTH_ID=jira-mcp-portal-auth
-ATLASSIAN_CLIENT_ID=<from step 1>
-ATLASSIAN_CLIENT_SECRET=<from step 1>
-STAGING_BUCKET=gs://YOUR_PROJECT_ID-staging
-```
-
-`AGENTSPACE_AUTH_ID` must match the auth resource ID created in step 5.
-
-### 4. Deploy the ADK Agent to Vertex AI Agent Engine
+Paste this block, **edit the 3 lines marked `← EDIT`**, then run it. Every later command reads from these — you'll never re-type your project id.
 
 ```bash
-cd adk_agent
+export PROJECT_ID="my-gcp-project"                                  # ← EDIT
+export ATLASSIAN_CLIENT_ID="paste-after-step-1"                     # ← EDIT (Step 1)
+export ATLASSIAN_CLIENT_SECRET="paste-after-step-1"                 # ← EDIT (Step 1)
+
+# Derived
+export PROJECT_NUMBER=$(gcloud projects describe "$PROJECT_ID" --format='value(projectNumber)')
+export REGION="us-central1"
+export REPO_ROOT="$(pwd)"   # run from atlassian-jira-integration/
+```
+
+> If `PROJECT_NUMBER` is empty, your gcloud auth can't see the project — fix that before continuing.
+
+### Step 1 — Create the Atlassian OAuth app
+
+1. <https://developer.atlassian.com/console/myapps/> → **Create → OAuth 2.0 integration**
+2. Name: `gemini-jira-agent`
+3. **Permissions → Jira API:** `read:jira-work`, `write:jira-work`, `read:jira-user`
+4. **Authorization → Callback URL:** `https://vertexaisearch.cloud.google.com/oauth-redirect`
+5. **Settings → Copy** Client ID + Secret → paste back into the Step 0 block and re-run that block.
+
+### Step 2 — Deploy the MCP server to Cloud Run
+
+```bash
+cd "$REPO_ROOT/option-a-custom-mcp-portal/jira_server"
+
+gcloud run deploy jira-mcp-server \
+  --source . \
+  --project "$PROJECT_ID" \
+  --region "$REGION" \
+  --allow-unauthenticated \
+  --port 8080 --memory 1Gi --cpu 2 --timeout 600 --max-instances 5
+
+export MCP_SERVER_URL=$(gcloud run services describe jira-mcp-server \
+  --project "$PROJECT_ID" --region "$REGION" --format='value(status.url)')/sse
+echo "MCP URL: $MCP_SERVER_URL"
+```
+
+The server is multi-tenant — it reads the per-request `Authorization: Bearer <token>` header and uses that token to call Jira. No secret embedded at deploy time. If org policy forbids `--allow-unauthenticated`, deploy private and grant `roles/run.invoker` to the Agent Engine SA.
+
+### Step 3 — Write the agent's `.env` (one heredoc, all variables substituted)
+
+```bash
+cat > "$REPO_ROOT/option-a-custom-mcp-portal/adk_agent/.env" <<EOF
+# Google Cloud — all three keys are the same value; libraries look for different names.
+GOOGLE_CLOUD_PROJECT=${PROJECT_ID}
+GOOGLE_CLOUD_QUOTA_PROJECT=${PROJECT_ID}
+GOOGLE_CLOUD_PROJECT_NUMBER=${PROJECT_NUMBER}
+GOOGLE_CLOUD_LOCATION=${REGION}
+GOOGLE_GENAI_USE_VERTEXAI=True
+STAGING_BUCKET=gs://${PROJECT_ID}-agent-staging
+
+MCP_SERVER_URL=${MCP_SERVER_URL}
+MCP_SERVICE_RESOURCE=projects/${PROJECT_NUMBER}/locations/${REGION}/services/jira-mcp-server
+
+ATLASSIAN_CLIENT_ID=${ATLASSIAN_CLIENT_ID}
+ATLASSIAN_CLIENT_SECRET=${ATLASSIAN_CLIENT_SECRET}
+
+AGENTSPACE_AUTH_ID=atlassian-jira-oauth
+EOF
+
+chmod 600 "$REPO_ROOT/option-a-custom-mcp-portal/adk_agent/.env"
+```
+
+That heredoc IS the whole config. No script hides what's happening — you can see `${PROJECT_ID}` lands in 3 places, `${PROJECT_NUMBER}` in 2, `${REGION}` in 1. To change a value, edit the exports at the top of Step 0 and re-run this heredoc.
+
+### Step 4 — Deploy the ADK agent to Vertex AI Agent Engine
+
+```bash
+cd "$REPO_ROOT/option-a-custom-mcp-portal/adk_agent"
+pip install -r requirements.txt
 python deploy_agent_engine.py
 ```
 
-**Save the Reasoning Engine ID** from the output (e.g., `1234567890123456789`).
+Save the Reasoning Engine ID printed at the end.
 
-### 5. Register in Gemini Enterprise
+### Step 5 — Register OAuth + agent in Gemini Enterprise
 
 ```bash
-cd ..
-python register.py agent
+cd "$REPO_ROOT/option-a-custom-mcp-portal"
+python register.py all
 ```
 
-**When prompted, enter:**
-- Reasoning Engine ID (from Step 4)
-- Atlassian Client ID (from Step 1)
-- Atlassian Client Secret (from Step 1)
-
-This does three things:
+Reads `adk_agent/.env`, no prompts. Three things happen:
 
 1. **`register_auth`** — creates a Discovery Engine `Authorization` resource pointing at Atlassian's OAuth endpoints with your client credentials.
-2. **`register_agent`** — registers your reasoning engine as a GE agent under the `jira-testing` engine, wiring `authorization_config.tool_authorizations` to that auth resource. This is what triggers the consent popup on first user request.
+2. **`register_agent`** — registers your reasoning engine as a GE agent, wiring `authorization_config.tool_authorizations` to that auth resource. This is what triggers the consent popup on first user request.
 3. **`share_agent`** — sets sharing scope to `ALL_USERS` so the agent shows up in everyone's picker.
 
-### 6. Test in the GE web UI
+Save the Agent ID printed.
 
-1. Open the GE app `jira-testing` in the cloud console.
-2. Pick **"Jira MCP Portal"** in the agent picker.
-3. Ask "List 5 Jira issues created this week."
-4. Atlassian consent popup → log in → choose your Jira site → accept.
-5. Answer comes back with issue keys as clickable Markdown links.
+### Step 6 — Test
 
-### 7. (Optional) Local end-to-end test
+1. Open the Gemini Enterprise app in the cloud console.
+2. Agent picker → **"Jira MCP Portal"** (or whatever display name you set).
+3. *"List 5 Jira issues created this week."*
+4. **First time:** Atlassian consent popup → log in → pick your site → accept → popup closes.
+5. **After:** answers with issue keys as clickable Markdown links.
 
-Without going through GE — useful while iterating on `agent.py`:
-
+Expected output:
 ```
-cd utils
-python3 oauth_oneshot.py     # opens a browser, mints a token, saves to adk_agent/.atlassian_token
+Here are 5 recent issues:
+1. [SMP-16](https://your-site.atlassian.net/browse/SMP-16) — Dropdown value reset after update()
+   Status: To Do | Assignee: Unassigned
+2. ...
+```
+
+---
+
+## (Optional) Local end-to-end test
+
+Useful while iterating on `agent.py` without a full redeploy:
+
+```bash
+cd "$REPO_ROOT/option-a-custom-mcp-portal/utils"
+python3 oauth_oneshot.py     # opens browser, mints token, saves to adk_agent/.atlassian_token
+
 cd ../adk_agent
 python3 agent.py             # interactive REPL against the deployed Cloud Run MCP
 ```
 
-The agent loads `.atlassian_token` (when present) as the `ATLASSIAN_OAUTH_TOKEN` env-var fallback used by `get_access_token` in `agent.py`.
+The agent loads `.atlassian_token` (when present) as the `ATLASSIAN_OAUTH_TOKEN` fallback used by `get_access_token` in `agent.py`.
 
-### 8. (Optional) Register MCP Server in Agent Registry
+## (Optional) Register the MCP in Agent Registry
 
-**Why:** Enables Agent Gateway governance, IAP enforcement, and cross-agent reuse.
-
-**Not required** for the agent to work - this adds enterprise governance capabilities.
+For Agent Gateway / IAP / cross-agent reuse:
 
 ```bash
-export MCP_SERVER_URL=https://jira-mcp-server-YOUR_PROJECT_NUMBER.us-central1.run.app
-export GOOGLE_CLOUD_PROJECT=YOUR_PROJECT_ID
-export GOOGLE_CLOUD_LOCATION=us-central1
-export MCP_SERVICE_DISPLAY_NAME=jira-mcp
-
+cd "$REPO_ROOT/option-a-custom-mcp-portal"
 python register_mcp_in_registry.py
 ```
 
-Saves the registry resource name to add to your `.env`:
-```
-MCP_SERVICE_RESOURCE=projects/YOUR_PROJECT_NUMBER/locations/us-central1/services/jira-mcp
-```
-
-**Benefits:**
-- **Agent Gateway:** Enforce IAP/VPC-SC on MCP calls (requires gateway setup - see `agent-gateway-demo` project)
-- **Discoverability:** Other agents can find and reuse this MCP server
-- **Audit:** Centralized logging of all MCP tool calls
-
-**Trade-off:** Adds governance overhead. Only use if you need multi-agent orchestration or compliance controls.
-
-For full Agent Gateway setup (IAP egressor, auth manager, DPoP), see: `semiautonomous-agents/agent-gateway-demo/`
+Adds a registry resource at `projects/${PROJECT_NUMBER}/locations/${REGION}/services/jira-mcp-server`. Not required for the agent to work — only adds enterprise governance. Full Agent Gateway setup lives in [`../../agent-gateway-demo/`](../../agent-gateway-demo/).
 
 ---
 
-## How OAuth is wired (one-paragraph mental model)
+## How OAuth is wired (mental model)
 
-The Discovery Engine `authorizations/jira-mcp-portal-auth` resource holds your Atlassian client_id/secret + auth and token URLs. When a user first asks the agent a question, GE sees `authorization_config.tool_authorizations` on the agent registration, checks if that user has a valid token for that auth resource, and if not opens the popup. After consent it stores the token and injects it into the ADK session state under a key prefixed with the auth ID. The agent's `get_access_token()` (in `agent.py`) finds it (auto-detects the prefix or scans for JWT-shaped strings) and `mcp_header_provider()` puts it into the MCP request as `Authorization: Bearer <token>`. The MCP server's `AuthMiddleware` extracts it and calls Jira on behalf of that user — fully multi-tenant, ACL-aware.
+The Discovery Engine `authorizations/atlassian-jira-oauth` resource holds your Atlassian client_id/secret + auth and token URLs. When a user first asks the agent a question, GE:
+
+1. Sees `authorization_config.tool_authorizations` on the agent registration
+2. Checks if that user has a valid token for that auth resource — if not, opens the consent popup
+3. After consent, stores the token and injects it into the ADK session state under a key prefixed with the auth ID
+
+The agent's `get_access_token()` in `agent.py` finds it (auto-detects the prefix or scans for JWT-shaped strings) and `mcp_header_provider()` puts it into the MCP request as `Authorization: Bearer <token>`. The MCP server's `AuthMiddleware` extracts it and calls Jira on behalf of that user — fully multi-tenant, ACL-aware.
 
 ---
 
-## Updating the agent later
+## Updating later
 
-Edit `adk_agent/agent.py` → re-run step 4 (the script does an in-place update of the same display name). No need to re-register on the GE side.
-
-Edit the MCP server (`jira_server/`) → re-run step 2 (Cloud Run accepts a new revision; the agent picks it up immediately, no AE redeploy needed).
-
-Change OAuth scopes / endpoints → re-run `register.py auth` to PATCH the auth resource. New users get the new flow on first use.
+| Change | What to re-run |
+|---|---|
+| Edit `adk_agent/agent.py` | Step 4 (in-place update, same display name) — no GE re-register needed |
+| Edit `jira_server/server.py` | Step 2 (Cloud Run accepts new revision; agent picks it up immediately) |
+| Change OAuth scopes/endpoints | `python register.py auth` to PATCH the auth resource — new users get the new flow |
 
 ---
 
 ## Cleanup
 
-```
-gcloud run services delete jira-mcp-server --region=us-central1 --project=YOUR_PROJECT_ID --quiet
-curl -X DELETE -H "Authorization: Bearer $(gcloud auth print-access-token)" -H "x-goog-user-project: YOUR_PROJECT_ID" "https://us-central1-aiplatform.googleapis.com/v1beta1/projects/YOUR_PROJECT_NUMBER/locations/us-central1/reasoningEngines/<RE_ID>?force=true"
-curl -X DELETE -H "Authorization: Bearer $(gcloud auth print-access-token)" -H "x-goog-user-project: YOUR_PROJECT_ID" "https://discoveryengine.googleapis.com/v1alpha/projects/YOUR_PROJECT_NUMBER/locations/global/collections/default_collection/engines/YOUR_GE_ENGINE_ID/assistants/default_assistant/agents/<AGENT_ID>"
-curl -X DELETE -H "Authorization: Bearer $(gcloud auth print-access-token)" -H "x-goog-user-project: YOUR_PROJECT_ID" "https://discoveryengine.googleapis.com/v1alpha/projects/YOUR_PROJECT_NUMBER/locations/global/authorizations/jira-mcp-portal-auth"
+```bash
+gcloud run services delete jira-mcp-server \
+  --region "$REGION" --project "$PROJECT_ID" --quiet
+
+# Replace <RE_ID> and <AGENT_ID> with values you saved
+TOKEN=$(gcloud auth print-access-token)
+curl -X DELETE -H "Authorization: Bearer $TOKEN" -H "x-goog-user-project: $PROJECT_ID" \
+  "https://${REGION}-aiplatform.googleapis.com/v1beta1/projects/${PROJECT_NUMBER}/locations/${REGION}/reasoningEngines/<RE_ID>?force=true"
+curl -X DELETE -H "Authorization: Bearer $TOKEN" -H "x-goog-user-project: $PROJECT_ID" \
+  "https://discoveryengine.googleapis.com/v1alpha/projects/${PROJECT_NUMBER}/locations/global/collections/default_collection/engines/<GE_ENGINE_ID>/assistants/default_assistant/agents/<AGENT_ID>"
+curl -X DELETE -H "Authorization: Bearer $TOKEN" -H "x-goog-user-project: $PROJECT_ID" \
+  "https://discoveryengine.googleapis.com/v1alpha/projects/${PROJECT_NUMBER}/locations/global/authorizations/atlassian-jira-oauth"
 ```
 
 ---
@@ -220,9 +252,40 @@ curl -X DELETE -H "Authorization: Bearer $(gcloud auth print-access-token)" -H "
 
 | Symptom | Likely cause | Fix |
 |---|---|---|
-| Empty answer, `state: SUCCEEDED`, no popup | Both `auth_scheme` on MCPToolset AND `tool_authorizations` on agent — they conflict | Remove `auth_scheme`/`auth_credential` from MCPToolset (this repo already does this) |
+| Empty answer, `state: SUCCEEDED`, no popup | Both `auth_scheme` on MCPToolset AND `tool_authorizations` on agent — they conflict | Remove `auth_scheme`/`auth_credential` from MCPToolset (this repo already does) |
 | `'MCPSessionManager' object has no attribute '_session_lock'` | `google-adk` < 1.32 has a runtime bug | Pin `google-adk>=1.32.0` in `adk_agent/requirements.txt` |
 | `429 RESOURCE_EXHAUSTED` after a few pagination pages | Per-minute Gemini TPM exhausted by replayed tool history | See [PAGINATION.md](./PAGINATION.md) — `before_model_callback` is the fix |
-| Generic LLM answer instead of Jira data ("here are 5 dog training issues") | Tools didn't load (check AE error logs) — agent fell back to base-model knowledge | Tail `gcloud logging read 'resource.type="aiplatform.googleapis.com/ReasoningEngine"' ...` |
-| `invalid_client` from Atlassian | You used DCR (`cf.mcp.atlassian.com/v1/register`) credentials with `auth.atlassian.com` URLs | Option A uses standard developer.atlassian.com creds with `auth.atlassian.com` URLs. DCR is for Option B only |
-| `404 Publisher Model gemini-3-flash-preview not found` in `us-central1` | Preview models are not provisioned in every region — `gemini-3-flash-preview` is `global`-only as of 2026-05 | `agent.py` overrides `os.environ["GOOGLE_CLOUD_LOCATION"] = "global"` after `load_dotenv` so the model client hits the global endpoint. The AE itself stays in `us-central1`; the deploy script's later `load_dotenv(override=True)` restores `us-central1` for the Agent Engine create/update API. |
+| Generic LLM answer instead of Jira data ("here are 5 dog training issues") | Tools didn't load — agent fell back to base-model knowledge | `gcloud logging read 'resource.type="aiplatform.googleapis.com/ReasoningEngine"' --freshness=5m` |
+| `invalid_client` from Atlassian | Used DCR (`cf.mcp.atlassian.com/v1/register`) credentials with `auth.atlassian.com` URLs | Option A uses standard developer.atlassian.com creds with `auth.atlassian.com` URLs. DCR is for Option B only |
+| `404 Publisher Model gemini-3-flash-preview not found` in `us-central1` | Preview models aren't in every region — `gemini-3-flash-preview` is `global`-only as of 2026-05 | `agent.py` overrides `GOOGLE_CLOUD_LOCATION=global` after `load_dotenv`; the deploy script restores `us-central1` for the AE create/update API |
+| GE shows "Action Confirmed" popup before every search | Tool declared without `ToolAnnotations`; GE defaults to treating any `tools/call` as a write | All `Tool(...)` in `jira_server/server.py` pass `annotations=READ_ONLY`. Redeploy, then GE console → data store → **Actions → Reload custom actions** |
+
+---
+
+## Evaluation results — Option A specifically
+
+| Dimension | Score | vs Option B baseline |
+|---|---:|---:|
+| **Composite accuracy** | **94.5 %** | +7.4 pts |
+| **Hallucination rate** *(lower is better)* | **1.0 %** | −67.9 pts |
+| Correctness | 96.2 % | +6.8 pts |
+| Completeness | 92.8 % | +8.0 pts |
+| Citation accuracy | high | — |
+| JQL correctness | 95 %+ | +17 pts |
+| Pagination completeness | high *(via callback)* | — |
+| Refusal correctness | high | — |
+| Latency p50 | 24 s | +15 s slower |
+| Cost / 1K requests | $0.17 | (B is $0) |
+
+**Why A wins on correctness:** the ADK agent prompt enforces "cite the exact issue key returned by the tool, never paraphrase"; the MCP server returns issue keys verbatim; pagination is bounded by the `before_model_callback` (see PAGINATION.md). All three combine to drive hallucination to ~1 %.
+
+**Why A is slower:** the ADK agent makes ≥2 LLM calls per turn (think + answer), often more for multi-step queries. Option B is a single LLM call inside GE's assistant.
+
+Full per-category breakdown + raw answers + judge rationale: [`../eval/sample-run/report.html`](../eval/sample-run/report.html).
+
+---
+
+## Design deep dives
+
+- [**PAGINATION.md**](./PAGINATION.md) — the `before_model_callback` that strips tool history to stay under TPM
+- [Parent README](../README.md) — comparison vs Option B (Atlassian-hosted) and Option C (no ADK)

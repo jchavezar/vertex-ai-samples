@@ -1,198 +1,186 @@
-# Atlassian Jira + Gemini Enterprise Integration
-
-Production-ready integration for connecting Atlassian Jira to Google Gemini Enterprise using a custom MCP server and ADK agent.
+# Atlassian Jira + Gemini Enterprise
 
 [![Accuracy](https://img.shields.io/badge/accuracy-94.5%25-success)]()
 [![Hallucination](https://img.shields.io/badge/hallucination-1.0%25-success)]()
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue)]()
 
-## What You Get
-
-After setup, users can interact with Jira directly in Gemini Enterprise chat:
-
-- **"Show me 10 high-priority bugs"** → Returns real issues with keys, summaries, status
-- **"What's blocking the mobile release?"** → Searches across projects
-- **"Create a bug: login button broken on staging"** → Creates issue in Jira
-- **"Update SMP-123 to In Progress"** → Transitions issues
-
-**94.5% accuracy, 1% hallucination rate** - production-ready based on 500-question evaluation.
-
----
-
-## 🚀 Quick Start
-
-**Ready to deploy?**
-
-→ **[GETTING_STARTED.md](GETTING_STARTED.md)** - Complete 7-step guide (~2 hours)
-
-**Key steps:**
-1. Create Atlassian OAuth app
-2. Deploy Cloud Run MCP server
-3. (Optional) Register in Agent Registry
-4. Deploy ADK agent to Agent Engine
-5. Register agent in Gemini Enterprise
-6. Test with real queries
-
----
-
-## Architecture
+Three working ways to connect Atlassian Jira to Gemini Enterprise. Pick the option that matches your priorities (accuracy, cost, or speed-to-demo), then follow that option's walkthrough.
 
 ```mermaid
-graph LR
-    User[User in GE chat] --> GE[Gemini Enterprise]
-    GE --> Agent[ADK Agent<br/>Agent Engine<br/>Gemini 2.5 Flash]
-    Agent --> MCP[MCP Server<br/>Cloud Run<br/>FastAPI]
-    MCP --> Jira[Atlassian Jira<br/>REST API]
-    
-    style Agent fill:#e3f2fd
-    style MCP fill:#fff3e0
-    style Jira fill:#f3e5f5
+flowchart LR
+  user[User in GE chat]
+
+  subgraph A[Option A — Custom MCP + ADK Agent]
+    direction TB
+    ge_a[Gemini Enterprise] --> ae[ADK Agent on<br/>Agent Engine]
+    ae --> mcp_a[Cloud Run MCP<br/>7 Jira tools]
+  end
+
+  subgraph B[Option B — Atlassian Remote MCP]
+    direction TB
+    ge_b[Gemini Enterprise] --> rmcp[mcp.atlassian.com<br/>37 tools, hosted]
+  end
+
+  subgraph C[Option C — Custom MCP, direct to GE]
+    direction TB
+    ge_c[Gemini Enterprise<br/>BYO_MCP datastore] --> mcp_c[Cloud Run MCP<br/>7 Jira tools]
+  end
+
+  user --> A
+  user --> B
+  user --> C
+
+  A --> jira[(Atlassian Jira REST)]
+  B --> jira
+  C --> jira
 ```
 
-**Flow:**
-1. User asks question in GE
-2. GE routes to registered agent (your ADK agent on Agent Engine)
-3. Agent calls MCP server with user's OAuth token
-4. MCP server queries Jira REST API
-5. Agent synthesizes response with citations
-6. User sees formatted answer in chat
+---
 
-**Why this approach:**
-- **You control:** Prompts, formatting, pagination, error handling
-- **Production-grade:** 94.5% accuracy, 1% hallucination (500-question benchmark)
-- **Multi-tenant:** Each user's OAuth token enforces Jira ACLs
-- **Scalable:** Cloud Run auto-scales, Agent Engine manages sessions
+## Pick an option
+
+| | **Option A**<br/>Custom MCP + ADK Agent | **Option C**<br/>Custom MCP, direct to GE | **Option B**<br/>Atlassian Remote MCP |
+|---|:---:|:---:|:---:|
+| **Composite accuracy** *(500-q eval)* | **94.5 %** | TBD | 87.1 % |
+| **Hallucination rate** | **1.0 %** | TBD | 68.9 % |
+| **Cost / 1K requests** | $0.17 | **$0.05** | $0 (hosted) |
+| **Infrastructure you run** | Cloud Run + Agent Engine | Cloud Run | None |
+| **Setup time** | ~45 min | ~30 min | ~15 min |
+| **Tool count** | 7 (your code) | 7 (your code) | 37 (Atlassian's) |
+| **Prompt control** | Full (ADK) | GE-assistant default | None |
+| **Pagination** | Custom callback | GE default | Atlassian default |
+| **Walkthrough** | [option-a/README.md](option-a-custom-mcp-portal/README.md) | [option-c/README.md](option-c-custom-mcp-direct/README.md) | [option-b/README.md](option-b-direct-remote-mcp/README.md) |
+
+### Decision guide
+
+- **Pick A** if it's a production ticketing system — you can't tolerate fake issue keys, and you want pagination + custom output shapes.
+- **Pick C** if you have the same correctness needs as A but want to skip Agent Engine charges (70% cheaper) and accept GE's default assistant prompts.
+- **Pick B** if you're prototyping or just evaluating Atlassian's hosted MCP. Not recommended for production — 69 % of answers cite invented issue keys.
+
+> All three options share the same OAuth model (Atlassian 3LO) and the same Gemini Enterprise app. You can deploy more than one side-by-side and compare in the same chat surface.
+
+---
+
+## What it does
+
+Once any option is deployed, users ask Jira questions in Gemini Enterprise chat:
+
+- *"Show me 10 high-priority bugs"* → real issues with keys, summaries, status
+- *"What's blocking the mobile release?"* → cross-project search
+- *"Create a bug: login button broken on staging"* → opens a new issue
+- *"Update SMP-123 to In Progress"* → transitions
 
 ---
 
 ## Evaluation
 
-We benchmarked this approach (custom MCP) against Atlassian's Remote MCP server across 500 questions.
+A 500-question grounded benchmark across 20 categories, scored on 10 dimensions by Claude Opus. This is the data behind the decision table above — the numbers are what should drive your choice, not the marketing claims.
 
-| Metric | Custom MCP (This repo) | Atlassian Remote MCP |
-|--------|----------------------|----------------------|
-| **Composite accuracy** | **94.5%** | 87.1% |
-| **Hallucination rate** | **1.0%** | 68.9% |
-| **Correctness** | 96.2% | 89.4% |
-| **Completeness** | 92.8% | 84.8% |
-| **Latency (p50)** | 24s | 5-10s |
+### Headline results
 
-**Critical finding:** Atlassian's MCP invents fake issue keys 69% of the time without consumer-side guardrails. This repo's approach bakes citation discipline into the agent prompt.
+| Metric | **Option A**<br/>Custom + ADK | **Option C**<br/>Custom direct | **Option B**<br/>Atlassian Remote |
+|---|---:|---:|---:|
+| **Composite accuracy** | **94.5 %** | TBD | 87.1 % |
+| **Hallucination rate** *(lower is better)* | **1.0 %** | TBD | 68.9 % |
+| **Correctness** | 96.2 % | TBD | 89.4 % |
+| **Completeness** | 92.8 % | TBD | 84.8 % |
+| **Citation accuracy** | high | TBD | low |
+| **JQL correctness** | 95 %+ | TBD | 78 % |
+| **Latency p50** | 24 s | TBD | 5–10 s |
+| **Cost / 1K requests** | $0.17 | $0.05 | $0 (hosted) |
 
-**Full results:** See [`eval/sample-run/report.html`](eval/sample-run/report.html) for interactive comparison with per-category breakdowns.
+> **Critical finding:** Atlassian's hosted Remote MCP **invents fake issue keys in 69 % of answers** when used without consumer-side guardrails. Both custom-MCP options (A and C) bake citation discipline in — A via the ADK agent prompt, C via the connector's `mcp_agent_instructions`. **This is the single biggest reason not to use Option B for anything that matters.**
+
+### Methodology — what we actually tested
+
+- **Corpus:** 50 real Jira projects with ~50 issues each, populated by `eval/build_corpus.py` (deterministic for reproducibility).
+- **Questions:** 500 generated by `eval/generate_questions.py` across **20 categories** in 3 buckets:
+
+  | Bucket | Categories |
+  |---|---|
+  | Read-side correctness (10) | lookup, jql-filter, count-aggregate, pagination-required, root-cause-synthesis, cross-issue-analysis, trend, ambiguous, multi-step, epic-tree |
+  | Production features (5) | multi-project, issue-links, components-versions, comments-worklogs, golden-anti-regression |
+  | Safety / robustness (5) | refusal-test, prompt-injection, pii-sensitive, typo-robustness, tool-efficiency |
+
+  Full taxonomy: [`eval/question_categories.md`](eval/question_categories.md).
+
+- **Ground truth:** `eval/jira_oracle.py` queries the Jira REST directly with deterministic JQL, building a per-question expected answer.
+- **Judge:** `eval/judge.py` calls Claude Opus with the question + the agent's answer + the oracle's answer, scoring each of the **10 dimensions** below:
+
+  `correctness · completeness · citation accuracy · hallucination rate · JQL correctness · pagination completeness · refusal correctness · tool efficiency · latency · cost`
+
+  Verdicts: `correct | partial | wrong | hallucinated | refused | error`.
+
+- **Runners:** `eval/runners/` — one harness per option. A runs against the deployed Agent Engine, B against the GE chat surface with the Atlassian MCP wired in, C against the GE chat surface with the custom MCP datastore.
+
+### Reproduce
+
+```bash
+cd eval
+pip install -r requirements.txt
+python build_corpus.py            # ~10 min to populate Jira
+python generate_questions.py      # writes questions/*.jsonl
+python runners/run_a.py           # ~2 h depending on TPM
+python runners/run_b.py           # ~30 min
+python judge.py questions/ responses_a.jsonl responses_b.jsonl
+python report.py                  # writes report.html
+```
+
+### Where the results live
+
+- **Interactive comparison report:** [`eval/sample-run/report.html`](eval/sample-run/report.html) — per-category breakdowns, side-by-side answers, judge rationale
+- **Raw judged scores:** [`eval/sample-run/judged_a.json`](eval/sample-run/judged_a.json), [`judged_b.json`](eval/sample-run/judged_b.json)
+- **Summary JSON:** [`eval/sample-run/summary.json`](eval/sample-run/summary.json)
+- **Methodology README:** [`eval/README.md`](eval/README.md)
 
 ---
 
-## Repository Structure
+## Repository layout
 
 ```
 atlassian-jira-integration/
+├── README.md                         ← you are here
 │
-├── README.md                    ← You are here (overview)
-├── GETTING_STARTED.md          ← START HERE (7-step deployment guide)
+├── option-a-custom-mcp-portal/       ← Custom MCP + ADK agent on Agent Engine
+│   ├── README.md                       walkthrough + architecture + design notes
+│   ├── PAGINATION.md                   deep dive on the context-bounding callback
+│   ├── adk_agent/                      ADK Agent + before_model_callback
+│   ├── jira_server/                    Cloud Run MCP server (FastAPI + SSE)
+│   ├── register.py                     register OAuth + agent in GE
+│   └── utils/                          local OAuth helpers
 │
-├── option-a-custom-mcp-portal/  ← Main implementation (what you'll deploy)
-│   ├── README.md                - Technical deep-dive
-│   ├── PAGINATION.md            - Context-bounding callback explained
-│   ├── adk_agent/               - Agent code (Python + ADK)
-│   │   ├── agent.py             - Agent logic with before_model_callback
-│   │   └── deploy_agent_engine.py - Deploy to Vertex AI
-│   ├── jira_server/             - MCP server (FastAPI)
-│   │   ├── server.py            - 7 Jira tools + SSE transport
-│   │   └── Dockerfile           - Cloud Run deployment
-│   ├── register.py              - Register OAuth + agent in GE
-│   ├── register_mcp_in_registry.py - (Optional) Agent Registry
-│   └── utils/                   - OAuth helpers for local testing
+├── option-b-direct-remote-mcp/       ← Atlassian-hosted MCP (baseline)
+│   ├── README.md                       walkthrough + DCR + GE wiring
+│   ├── dcr_register.py                 RFC 7591 dynamic client registration
+│   └── register_datastore.py           API-driven datastore create
 │
-├── option-b-direct-remote-mcp/  ← Atlassian Remote (comparison baseline)
-│   ├── README.md                - How to configure (technical)
-│   ├── dcr_register.py          - Dynamic client registration
-│   ├── register_datastore.py    - API-driven setup
-│   └── enable_actions_checklist.md - Console steps
+├── option-c-custom-mcp-direct/       ← Custom MCP via GE BYO_MCP (no ADK)
+│   ├── README.md                       walkthrough + the 5-part recipe
+│   └── (reuses option-a/jira_server)
 │
-├── eval/                        ← 500-question comparative benchmark
-│   ├── README.md                - Methodology
-│   ├── sample-run/              - Latest results
-│   │   └── report.html          - Interactive comparison report
-│   ├── build_corpus.py          - Creates test Jira data
-│   ├── generate_questions.py    - Question generator
-│   ├── jira_oracle.py           - Ground truth via Jira REST
-│   ├── judge.py                 - Claude Opus scoring
-│   └── runners/                 - Test harness
-│
-├── docs/                        ← Additional documentation
-│   └── REFERENCE.md             - Technical reference
-│
-└── scripts/                     ← Utilities
-    ├── register_oauth_client.sh - Bash DCR helper
-    └── show_config_values.sh    - Display config values
+├── eval/                              500-question comparative benchmark
+├── docs/REFERENCE.md                  consolidated tech reference
+└── scripts/                           OAuth + config helpers
 ```
 
 ---
 
-## Key Features
+## Prerequisites (any option)
 
-✅ **Production-ready accuracy** - 94.5% composite, validated across 500 questions  
-✅ **Low hallucination** - 1% vs 69% with off-the-shelf alternatives  
-✅ **Multi-tenant** - Per-user OAuth enforces Jira permissions  
-✅ **Paginated** - Handles large result sets without context overflow  
-✅ **Customizable** - Full control over prompts and formatting  
-✅ **Observable** - Cloud Logging + Agent Engine traces  
-✅ **Scalable** - Cloud Run auto-scales, Agent Engine manages state  
-
----
-
-## Prerequisites
-
-- Google Cloud project with Gemini Enterprise
+- Google Cloud project with **Gemini Enterprise** enabled
 - Atlassian Jira Cloud site with admin access
-- `gcloud` CLI configured
+- `gcloud` CLI authed with **Owner** on the project
 - Python 3.10+ with pip
-
-**Permissions needed:**
-- `roles/aiplatform.user` - Deploy Agent Engine
-- `roles/run.admin` - Deploy Cloud Run
-- `roles/storage.admin` - Artifact Registry (for Docker images)
+- IAM roles needed for A and C: `roles/aiplatform.user`, `roles/run.admin`, `roles/storage.admin`. Option B needs no GCP services beyond GE itself.
 
 ---
 
-## Support
+## Related projects
 
-**Setup issues:** See [GETTING_STARTED.md](GETTING_STARTED.md) troubleshooting section  
-**Technical questions:** See [option-a-custom-mcp-portal/README.md](option-a-custom-mcp-portal/README.md)  
-**Evaluation:** See [eval/README.md](eval/README.md)  
-**Bug reports:** File GitHub issue with logs
-
----
-
-## Related Projects
-
-- **[agent-gateway-demo/](../agent-gateway-demo/)** - Add Agent Gateway for IAP enforcement
-- **[streamassist-oauth-flow-sharepoint/](../streamassist-oauth-flow-sharepoint/)** - Similar pattern for SharePoint
-- **[observability-orchestra/](../observability-orchestra/)** - Multi-tenant agent with OAuth
+- [`agent-gateway-demo/`](../agent-gateway-demo/) — Add Agent Gateway + IAP enforcement in front of any of these
+- [`streamassist-oauth-flow-sharepoint/`](../streamassist-oauth-flow-sharepoint/) — Same OAuth pattern for SharePoint
+- [`observability-orchestra/`](../observability-orchestra/) — Multi-tenant OAuth agent reference
 
 ---
 
-**Authors:** Google Cloud AI Demos Team  
-**Last updated:** May 2026  
-**Target:** Gemini Enterprise + Atlassian Jira Cloud  
-**Status:** Production-ready (Option A), Preview (Option B)
-
----
-
-## 💰 Cost Optimization (NEW: Option C)
-
-**Want the accuracy of custom MCP without Agent Engine costs?**
-
-→ **[Option C: Custom MCP Direct](option-c-custom-mcp-direct/README.md)**
-
-Connects your Cloud Run MCP server directly to Gemini Enterprise as a custom MCP datastore:
-- **70% cost savings** ($0.05/1K vs $0.17/1K)
-- Same 7 custom tools (your code)
-- No Agent Engine/ADK charges
-- 1-hour setup
-
-**Trade-off:** Uses GE assistant's default prompts instead of custom ADK agent.
-
-See **[COMPARISON.md](COMPARISON.md)** for full breakdown.
-
+**Authors:** Google Cloud AI Demos Team — **Last updated:** May 2026 — **Target:** Gemini Enterprise + Atlassian Jira Cloud
