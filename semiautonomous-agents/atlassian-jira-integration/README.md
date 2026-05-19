@@ -3,11 +3,8 @@
 [![Accuracy](https://img.shields.io/badge/accuracy-94.5%25-success)]()
 [![Hallucination](https://img.shields.io/badge/hallucination-1.0%25-success)]()
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue)]()
-[![Live setup](https://img.shields.io/badge/live%20setup-→%20interactive%20page-4285F4?style=flat-square&logo=googlechrome&logoColor=white)](https://jchavezar.github.io/vertex-ai-samples/atlassian-jira-integration/)
 
 Three working ways to connect Atlassian Jira to Gemini Enterprise. Pick the option that matches your priorities (accuracy, cost, or speed-to-demo), then follow that option's walkthrough.
-
-> 💡 **Tip:** the [**live setup page**](https://jchavezar.github.io/vertex-ai-samples/atlassian-jira-integration/) renders the Option A walkthrough with editable inputs at the top — type your `PROJECT_ID` once and every code block updates live. No copy-paste editing of placeholders per step.
 
 ```mermaid
 flowchart LR

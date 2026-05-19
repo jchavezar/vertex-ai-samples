@@ -6,7 +6,6 @@ on:
     paths:
       - "semiautonomous-agents/shutter-vibe-engine/multimodal-search/site/**"
       - "semiautonomous-agents/streamassist-oauth-flow-us/site/**"
-      - "semiautonomous-agents/atlassian-jira-integration/site/**"
       - ".github/workflows/deploy-pages.yml"
   workflow_dispatch:
 
@@ -52,8 +51,6 @@ jobs:
           cp -r semiautonomous-agents/shutter-vibe-engine/multimodal-search/site/dist/* artifact/multimodal-search/
           mkdir -p artifact/streamassist-oauth-flow-us
           cp -r semiautonomous-agents/streamassist-oauth-flow-us/site/dist/* artifact/streamassist-oauth-flow-us/
-          mkdir -p artifact/atlassian-jira-integration
-          cp -r semiautonomous-agents/atlassian-jira-integration/site/* artifact/atlassian-jira-integration/
           ls -la artifact/
 
       - uses: actions/configure-pages@v5
