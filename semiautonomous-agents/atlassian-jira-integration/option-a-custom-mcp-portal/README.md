@@ -10,19 +10,28 @@ You run the MCP server, you run the agent (Vertex AI Agent Engine + ADK), Gemini
 
 ```mermaid
 flowchart TB
-  user[User in GE chat]
-  ge[Gemini Enterprise<br/>app: jira-testing]
-  ae[Vertex AI Agent Engine<br/>ADK · Gemini 3 Flash<br/>before_model_callback]
-  cr[Cloud Run MCP server<br/>FastAPI + SSE<br/>multi-tenant per Bearer token]
-  jira[(Atlassian Jira REST<br/>api.atlassian.com)]
-  auth[(Discovery Engine<br/>authorizations/<br/>jira-mcp-portal-auth)]
+  user(["👤 User in GE chat"]):::user
+  ge["🟦 Gemini Enterprise<br/><sub>app: jira-testing</sub>"]:::ge
+  ae["🤖 Vertex AI Agent Engine<br/><b>ADK · Gemini 3 Flash</b><br/><sub>before_model_callback</sub>"]:::ae
+  cr["🟧 Cloud Run MCP server<br/><sub>FastAPI + SSE</sub><br/><sub>multi-tenant per Bearer token</sub>"]:::cr
+  jira[("🟦 Atlassian Jira REST<br/><sub>api.atlassian.com</sub>")]:::jira
+  auth[("🔐 Discovery Engine<br/>authorizations/<br/>atlassian-jira-oauth")]:::auth
 
   user --> ge
-  ge -->|routes to registered agent| ae
-  ge <-.->|OAuth popup on 1st call| auth
-  ae -->|MCP/SSE +<br/>Authorization: Bearer &lt;jira-oauth&gt;| cr
-  cr --> jira
-  auth -.injects token.-> ae
+  ge ==>|routes to registered agent| ae
+  ge -.->|OAuth popup on 1st call| auth
+  ae ==>|MCP/SSE +<br/>Authorization: Bearer &lt;jira-oauth&gt;| cr
+  cr ==> jira
+  auth -.->|injects token| ae
+
+  classDef user fill:#FBBC04,stroke:#F29900,stroke-width:3px,color:#000
+  classDef ge fill:#4285F4,stroke:#1967D2,stroke-width:2px,color:#fff
+  classDef ae fill:#1A73E8,stroke:#174EA6,stroke-width:3px,color:#fff
+  classDef cr fill:#FF6F00,stroke:#E65100,stroke-width:3px,color:#fff
+  classDef jira fill:#0052CC,stroke:#003D99,stroke-width:2px,color:#fff
+  classDef auth fill:#34A853,stroke:#188038,stroke-width:2px,color:#fff
+  linkStyle 1,3,4 stroke:#1A73E8,stroke-width:3px
+  linkStyle 2,5 stroke:#34A853,stroke-width:2px,stroke-dasharray:5 3
 ```
 
 **OAuth flow:** Gemini Enterprise drives an Atlassian 3LO popup the first time a user asks the agent a question. The token is injected into the ADK session state, then passed to the MCP server in the `Authorization` header. ACL enforcement is end-to-end — each user only sees the Jira issues their own account can see.

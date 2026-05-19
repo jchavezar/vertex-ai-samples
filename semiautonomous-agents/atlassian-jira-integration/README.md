@@ -3,36 +3,49 @@
 [![Accuracy](https://img.shields.io/badge/accuracy-94.5%25-success)]()
 [![Hallucination](https://img.shields.io/badge/hallucination-1.0%25-success)]()
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue)]()
+[![Live setup](https://img.shields.io/badge/live%20setup-→%20interactive%20page-4285F4?style=flat-square&logo=googlechrome&logoColor=white)](https://jchavezar.github.io/vertex-ai-samples/atlassian-jira-integration/)
 
 Three working ways to connect Atlassian Jira to Gemini Enterprise. Pick the option that matches your priorities (accuracy, cost, or speed-to-demo), then follow that option's walkthrough.
 
+> 💡 **Tip:** the [**live setup page**](https://jchavezar.github.io/vertex-ai-samples/atlassian-jira-integration/) renders the Option A walkthrough with editable inputs at the top — type your `PROJECT_ID` once and every code block updates live. No copy-paste editing of placeholders per step.
+
 ```mermaid
 flowchart LR
-  user[User in GE chat]
+  user(["👤<br/>User in GE chat"]):::user
 
-  subgraph A[Option A — Custom MCP + ADK Agent]
+  subgraph A["⭐ Option A — Custom MCP + ADK Agent &nbsp;<br/><sub>94.5% accuracy · 1% hallucination · $0.17/1K</sub>"]
     direction TB
-    ge_a[Gemini Enterprise] --> ae[ADK Agent on<br/>Agent Engine]
-    ae --> mcp_a[Cloud Run MCP<br/>7 Jira tools]
+    ge_a["Gemini Enterprise"]:::ge --> ae["ADK Agent on<br/><b>Agent Engine</b><br/><sub>Gemini 3 Flash</sub>"]:::ae
+    ae --> mcp_a["Cloud Run MCP<br/><sub>7 custom Jira tools</sub>"]:::cr
   end
 
-  subgraph B[Option B — Atlassian Remote MCP]
+  subgraph C["💰 Option C — Custom MCP, direct &nbsp;<br/><sub>same MCP, 70% cheaper · $0.05/1K</sub>"]
     direction TB
-    ge_b[Gemini Enterprise] --> rmcp[mcp.atlassian.com<br/>37 tools, hosted]
+    ge_c["Gemini Enterprise<br/><sub>BYO_MCP datastore</sub>"]:::ge --> mcp_c["Cloud Run MCP<br/><sub>7 custom Jira tools</sub>"]:::cr
   end
 
-  subgraph C[Option C — Custom MCP, direct to GE]
+  subgraph B["⚡ Option B — Atlassian Remote MCP &nbsp;<br/><sub>15-min setup · 69% hallucination ⚠</sub>"]
     direction TB
-    ge_c[Gemini Enterprise<br/>BYO_MCP datastore] --> mcp_c[Cloud Run MCP<br/>7 Jira tools]
+    ge_b["Gemini Enterprise"]:::ge --> rmcp["mcp.atlassian.com<br/><sub>37 tools, hosted</sub>"]:::rmcp
   end
 
   user --> A
-  user --> B
   user --> C
+  user --> B
 
-  A --> jira[(Atlassian Jira REST)]
-  B --> jira
+  A --> jira[("Atlassian Jira REST")]:::jira
   C --> jira
+  B --> jira
+
+  classDef user fill:#FBBC04,stroke:#F29900,stroke-width:3px,color:#000
+  classDef ge fill:#4285F4,stroke:#1967D2,stroke-width:2px,color:#fff
+  classDef ae fill:#1A73E8,stroke:#174EA6,stroke-width:2px,color:#fff
+  classDef cr fill:#FF6F00,stroke:#E65100,stroke-width:2px,color:#fff
+  classDef rmcp fill:#0052CC,stroke:#003D99,stroke-width:2px,color:#fff
+  classDef jira fill:#0052CC,stroke:#003D99,stroke-width:2px,color:#fff
+  style A fill:#E8F0FE,stroke:#1A73E8,stroke-width:3px,color:#000
+  style C fill:#FFF3E0,stroke:#FF6F00,stroke-width:3px,color:#000
+  style B fill:#FCE8E8,stroke:#D93025,stroke-width:2px,stroke-dasharray:5 3,color:#000
 ```
 
 ---

@@ -12,18 +12,27 @@ Connects Atlassian's hosted Remote MCP server (`https://mcp.atlassian.com/v1/mcp
 
 ```mermaid
 flowchart TB
-  user[User in GE chat]
-  ge[Gemini Enterprise<br/>streamAssist · no agent]
-  store[(GE Custom MCP datastore<br/>collections/&lt;id&gt;/dataConnector<br/>dataSource: custom_mcp)]
-  rmcp[mcp.atlassian.com/v1/mcp<br/>Atlassian Remote MCP<br/>37 tools]
-  jira[(Atlassian Jira REST<br/>api.atlassian.com)]
-  auth[(actionParams<br/>auth_uri: mcp.atlassian.com/v1/authorize<br/>token_uri: cf.mcp.atlassian.com/v1/token<br/>client_id/secret: from DCR mint)]
+  user(["👤 User in GE chat"]):::user
+  ge["🟦 Gemini Enterprise<br/><sub>streamAssist · no agent layer</sub>"]:::ge
+  store[("📦 GE Custom MCP datastore<br/><sub>collections/&lt;id&gt;/dataConnector<br/>dataSource: custom_mcp</sub>")]:::store
+  rmcp["🔵 mcp.atlassian.com/v1/mcp<br/><b>Atlassian Remote MCP</b><br/><sub>37 hosted tools</sub>"]:::rmcp
+  jira[("🟦 Atlassian Jira REST<br/><sub>api.atlassian.com</sub>")]:::jira
+  auth[("🔐 actionParams<br/><sub>auth_uri: mcp.atlassian.com/v1/authorize</sub><br/><sub><b>token_uri: cf.mcp.atlassian.com/v1/token</b></sub><br/><sub>client_id/secret: from DCR mint</sub>")]:::auth
 
   user --> ge
-  ge --> store
-  store <-.->|OAuth 2.1: DCR + 3LO popup| auth
-  store --> rmcp
-  rmcp --> jira
+  ge ==> store
+  store -.->|OAuth 2.1: DCR + 3LO popup| auth
+  store ==> rmcp
+  rmcp ==> jira
+
+  classDef user fill:#FBBC04,stroke:#F29900,stroke-width:3px,color:#000
+  classDef ge fill:#4285F4,stroke:#1967D2,stroke-width:2px,color:#fff
+  classDef store fill:#9C27B0,stroke:#6A1B9A,stroke-width:2px,color:#fff
+  classDef rmcp fill:#0052CC,stroke:#003D99,stroke-width:3px,color:#fff
+  classDef jira fill:#0052CC,stroke:#003D99,stroke-width:2px,color:#fff
+  classDef auth fill:#D93025,stroke:#A50E0E,stroke-width:2px,color:#fff
+  linkStyle 1,3,4 stroke:#1A73E8,stroke-width:3px
+  linkStyle 2 stroke:#D93025,stroke-width:2px,stroke-dasharray:5 3
 ```
 
 **Why the `cf.` subdomain?** The token endpoint must be `https://cf.mcp.atlassian.com/v1/token`. Pointing at the apex `mcp.atlassian.com/v1/token` returns `invalid_client` even with correctly-minted DCR credentials. The `cf.` host is Cloudflare-fronted and is the only endpoint Atlassian's MCP backend actually validates against.

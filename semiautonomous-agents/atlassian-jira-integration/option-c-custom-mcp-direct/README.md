@@ -15,17 +15,25 @@ This works **only when the MCP server follows the five-part recipe** in §3. Wit
 
 ```mermaid
 flowchart TB
-  user[User in GE chat<br/>or streamAssist API]
-  ge[Gemini Enterprise<br/>auto-spawned custom_mcp_agent<br/>«no ADK, no Agent Engine»]
-  store[(GE Custom MCP datastore<br/>actionConfig.actionParams<br/>+ mcp_agent_instructions)]
-  cr[Cloud Run jira-mcp-server<br/>reuses option-a's image<br/>StreamableHTTP /mcp endpoint]
-  jira[(Atlassian Jira REST<br/>api.atlassian.com)]
+  user(["👤 User in GE chat<br/>or streamAssist API"]):::user
+  ge["🟦 Gemini Enterprise<br/><sub>auto-spawned custom_mcp_agent</sub><br/><sub><b>no ADK, no Agent Engine</b></sub>"]:::ge
+  store[("📦 GE Custom MCP datastore<br/><sub>actionConfig.actionParams</sub><br/><sub>+ mcp_agent_instructions</sub>")]:::store
+  cr["🟧 Cloud Run jira-mcp-server<br/><sub>reuses option-a's image</sub><br/><sub>StreamableHTTP /mcp endpoint</sub>"]:::cr
+  jira[("🟦 Atlassian Jira REST<br/><sub>api.atlassian.com</sub>")]:::jira
 
   user --> ge
-  ge --> store
-  store <-.->|OAuth 3LO popup on 1st call| jira
-  store --> cr
-  cr -->|Authorization: Bearer &lt;jira-oauth&gt;| jira
+  ge ==> store
+  store -.->|OAuth 3LO popup on 1st call| jira
+  store ==> cr
+  cr ==>|Authorization: Bearer &lt;jira-oauth&gt;| jira
+
+  classDef user fill:#FBBC04,stroke:#F29900,stroke-width:3px,color:#000
+  classDef ge fill:#4285F4,stroke:#1967D2,stroke-width:3px,color:#fff
+  classDef store fill:#9C27B0,stroke:#6A1B9A,stroke-width:2px,color:#fff
+  classDef cr fill:#FF6F00,stroke:#E65100,stroke-width:3px,color:#fff
+  classDef jira fill:#0052CC,stroke:#003D99,stroke-width:2px,color:#fff
+  linkStyle 1,3,4 stroke:#FF6F00,stroke-width:3px
+  linkStyle 2 stroke:#34A853,stroke-width:2px,stroke-dasharray:5 3
 ```
 
 Two consumption surfaces, both work:
