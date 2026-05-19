@@ -433,7 +433,7 @@ async def judge_one(
 async def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("input_jsonl", help="runs/<ts>/responses_<a|b>.jsonl")
-    ap.add_argument("--pipeline", required=True, choices=["a", "b"])
+    ap.add_argument("--pipeline", required=True, choices=["a", "b", "c", "d", "e", "f", "g"])
     ap.add_argument("--questions", required=True, help="questions/main.json")
     ap.add_argument("--out", required=True, help="judged_<a|b>.json")
     args = ap.parse_args()

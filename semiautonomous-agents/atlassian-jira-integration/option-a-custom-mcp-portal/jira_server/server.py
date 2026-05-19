@@ -8,7 +8,7 @@ from fastapi import FastAPI, Request, Response, HTTPException
 from starlette.middleware.base import BaseHTTPMiddleware
 from mcp.server import Server
 from mcp.server.sse import SseServerTransport
-from mcp.types import Tool, TextContent, ImageContent, EmbeddedResource
+from mcp.types import Tool, ToolAnnotations, TextContent, ImageContent, EmbeddedResource
 from atlassian import Jira
 import logging
 
@@ -89,21 +89,39 @@ def get_jira_client() -> tuple[Jira, str]:
     except Exception as e:
         raise ValueError(f"Jira Connection Error: {str(e)}")
 
+READ_ONLY = ToolAnnotations(
+    readOnlyHint=True,
+    destructiveHint=False,
+    idempotentHint=True,
+    openWorldHint=True,
+)
+
 @mcp_server.list_tools()
 async def list_tools() -> list[Tool]:
     return [
-        Tool(name="getVisibleJiraProjects", description="Get projects list.", inputSchema={"type": "object"}),
-        Tool(name="searchJiraIssuesUsingJql", description="Fetch issues. Call repeatedly with nextPageToken for full analysis.",
+        Tool(name="getVisibleJiraProjects", description="Get projects list.", inputSchema={"type": "object"},
+             annotations=READ_ONLY),
+        Tool(name="searchJiraIssuesUsingJql", description="Search Jira issues by JQL. Read-only retrieval. Auto-paginates internally — set maxResults up to 2000 in a single call; the tool fetches all pages server-side and returns the combined results. The LLM does NOT need to loop with nextPageToken.",
              inputSchema={
                  "type": "object",
                  "properties": {
-                     "jql": {"type": "string"},
-                     "maxResults": {"type": "integer", "default": 50},
-                     "nextPageToken": {"type": "string"},
-                     "startAt": {"type": "integer", "default": 0}
+                     "jql": {
+                         "type": "string",
+                         "description": "JQL query string.",
+                         "additionalProperties": {"ok_to_display_for_confirmation": False},
+                     },
+                     "maxResults": {"type": "integer", "default": 200,
+                         "description": "Total issues to return across all internally-fetched pages. Max 2000. Use 500-2000 for 'list all' / 'show me everything' queries.",
+                         "additionalProperties": {"ok_to_display_for_confirmation": False}},
+                     "nextPageToken": {"type": "string",
+                         "description": "Optional. Only set if a prior call returned HasMore=True AND you need more than maxResults issues. Usually leave unset.",
+                         "additionalProperties": {"ok_to_display_for_confirmation": False}},
+                     "startAt": {"type": "integer", "default": 0,
+                         "additionalProperties": {"ok_to_display_for_confirmation": False}}
                  },
                  "required": ["jql"]
-             }
+             },
+             annotations=READ_ONLY,
              ),
         Tool(name="summarizeJiraIssues", description="Server-side aggregation for large datasets. Returns statistical counts (Status, Priority, Type) without returning raw issues.",
              inputSchema={
@@ -113,7 +131,8 @@ async def list_tools() -> list[Tool]:
                      "maxResults": {"type": "integer", "default": 1000}
                  },
                  "required": ["jql"]
-             }
+             },
+             annotations=READ_ONLY,
              ),
         Tool(name="getJiraIssuesReport", description="Generates a detailed report of issues including ID, Duration (calculated), and Summary. Handles pagination internally to return all matching results up to maxResults. Supports 'nextPageToken' for fetching subsequent batches.",
              inputSchema={
@@ -124,7 +143,8 @@ async def list_tools() -> list[Tool]:
                      "nextPageToken": {"type": "string"}
                  },
                  "required": ["jql"]
-             }
+             },
+             annotations=READ_ONLY,
              ),
         Tool(name="getIssueComments", description="Retrieves all comments on a single Jira issue. Returns each comment with author, created timestamp, and body text.",
              inputSchema={
@@ -134,7 +154,8 @@ async def list_tools() -> list[Tool]:
                      "maxResults": {"type": "integer", "default": 50}
                  },
                  "required": ["issueKey"]
-             }
+             },
+             annotations=READ_ONLY,
              ),
         Tool(name="getIssueWorklogs", description="Retrieves all worklogs (time-tracking entries) on a single Jira issue. Returns each worklog with author, time spent, and comment.",
              inputSchema={
@@ -144,7 +165,8 @@ async def list_tools() -> list[Tool]:
                      "maxResults": {"type": "integer", "default": 50}
                  },
                  "required": ["issueKey"]
-             }
+             },
+             annotations=READ_ONLY,
              ),
         Tool(name="getIssueLinks", description="Retrieves all issue links (Blocks, Duplicate, Relates, Cloners) on a single Jira issue, in both directions (inward and outward).",
              inputSchema={
@@ -153,7 +175,61 @@ async def list_tools() -> list[Tool]:
                      "issueKey": {"type": "string", "description": "Issue key like SMP-912 or BUGS-100"}
                  },
                  "required": ["issueKey"]
-             }
+             },
+             annotations=READ_ONLY,
+             ),
+        # --- Canonical search/fetch retrieval primitives (OpenAI deep-research pattern) ---
+        # Hosts that recognize this convention (ChatGPT Deep Research, Claude Research, possibly GE)
+        # route these as silent federated retrieval — no per-call confirmation.
+        Tool(name="search",
+             description="Search Jira issues by free-text query. Returns a SearchResultPage with a list of {id, title, text} results.",
+             inputSchema={
+                 "type": "object",
+                 "properties": {
+                     "query": {"type": "string", "description": "Free-text search query."}
+                 },
+                 "required": ["query"]
+             },
+             outputSchema={
+                 "type": "object",
+                 "properties": {
+                     "results": {
+                         "type": "array",
+                         "items": {
+                             "type": "object",
+                             "properties": {
+                                 "id": {"type": "string"},
+                                 "title": {"type": "string"},
+                                 "text": {"type": "string"}
+                             },
+                             "required": ["id", "title", "text"]
+                         }
+                     }
+                 },
+                 "required": ["results"]
+             },
+             annotations=READ_ONLY,
+             ),
+        Tool(name="fetch",
+             description="Fetch a single Jira issue by its issue key. Returns a FetchResult with {id, title, text, url}.",
+             inputSchema={
+                 "type": "object",
+                 "properties": {
+                     "id": {"type": "string", "description": "Jira issue key, e.g. SMP-912."}
+                 },
+                 "required": ["id"]
+             },
+             outputSchema={
+                 "type": "object",
+                 "properties": {
+                     "id": {"type": "string"},
+                     "title": {"type": "string"},
+                     "text": {"type": "string"},
+                     "url": {"type": "string"}
+                 },
+                 "required": ["id", "title", "text"]
+             },
+             annotations=READ_ONLY,
              )
     ]
 
@@ -162,7 +238,40 @@ async def call_tool(name: str, arguments: dict) -> list[TextContent]:
     try:
         jira, site_url = get_jira_client()
 
-        if name == "getVisibleJiraProjects":
+        if name == "search":
+            # Canonical OpenAI deep-research "search" primitive.
+            query = arguments.get("query", "")
+            # Build a permissive JQL from the free-text query.
+            terms = [t for t in query.split() if t]
+            jql = " AND ".join([f'text ~ "{t}"' for t in terms]) if terms else "order by created DESC"
+            data = jira.enhanced_jql(jql, limit=20, fields="summary,status")
+            issues = data.get("issues", [])
+            results = [
+                {
+                    "id": i["key"],
+                    "title": i["fields"].get("summary", ""),
+                    "text": f"{i['key']}: {i['fields'].get('summary','')} [{i['fields'].get('status',{}).get('name','')}]",
+                }
+                for i in issues
+            ]
+            import json as _json
+            return [TextContent(type="text", text=_json.dumps({"results": results}))]
+
+        elif name == "fetch":
+            # Canonical OpenAI deep-research "fetch" primitive.
+            issue_key = arguments.get("id", "")
+            issue = jira.issue(issue_key)
+            f = issue.get("fields", {})
+            payload = {
+                "id": issue_key,
+                "title": f.get("summary", ""),
+                "text": f.get("description") or f.get("summary", ""),
+                "url": f"{site_url}/browse/{issue_key}",
+            }
+            import json as _json
+            return [TextContent(type="text", text=_json.dumps(payload))]
+
+        elif name == "getVisibleJiraProjects":
             projects = jira.projects()
             return [TextContent(type="text", text="\n".join([f"{p['key']}: {p['name']}" for p in projects]))]
 
@@ -305,24 +414,35 @@ async def call_tool(name: str, arguments: dict) -> list[TextContent]:
 
         elif name == "searchJiraIssuesUsingJql":
             jql = arguments.get("jql")
-            max_results = arguments.get("maxResults", 50)
-            kwargs = {
-                "limit": max_results,
-                "fields": "summary,status,created,issuetype,priority,resolutiondate,updated,description"
-            }
+            max_results = min(arguments.get("maxResults", 200), 2000)
             next_page_token = arguments.get("nextPageToken")
-            if next_page_token:
-                kwargs["nextPageToken"] = next_page_token
-            
-            data = jira.enhanced_jql(jql, **kwargs)
-            issues = data.get('issues', [])
-            resp_next_token = data.get('nextPageToken')
-            has_more = bool(resp_next_token)
+
+            # Auto-paginate INTERNALLY up to max_results so the chat LLM
+            # doesn't have to (it won't reliably loop). Each API page is up to 100.
+            BATCH = 100
+            fields = "summary,status,created,issuetype,priority,resolutiondate,updated,description"
+            issues = []
+            cur_token = next_page_token
+            while len(issues) < max_results:
+                kwargs = {"limit": min(BATCH, max_results - len(issues)), "fields": fields}
+                if cur_token:
+                    kwargs["nextPageToken"] = cur_token
+                data = jira.enhanced_jql(jql, **kwargs)
+                page = data.get('issues', [])
+                if not page:
+                    break
+                issues.extend(page)
+                cur_token = data.get('nextPageToken')
+                if not cur_token:
+                    break
+
+            resp_next_token = cur_token
+            has_more = bool(resp_next_token) and len(issues) >= max_results
 
             if not issues:
                 return [TextContent(type="text", text="No results found.")]
 
-            res = [f"METADATA: PageCount={len(issues)}, HasMore={has_more}, NextToken={resp_next_token or 'NONE'}\n"]
+            res = [f"METADATA: TotalReturned={len(issues)}, HasMore={has_more}, NextToken={resp_next_token or 'NONE'}\n"]
             
             def extract_adf(node):
                 try:
@@ -343,7 +463,25 @@ async def call_tool(name: str, arguments: dict) -> list[TextContent]:
                 desc_text = desc_raw if isinstance(desc_raw, str) else extract_adf(desc_raw)
                 desc_trunc = desc_text[:500].replace('\n', ' ') + "..." if len(desc_text) > 500 else desc_text.replace('\n', ' ')
                 
-                res.append(f"ISSUE: Key={i['key']} | Status={f.get('status',{}).get('name')} | Created={created} | ResolutionDate={resolution_date} | Updated={updated} | Summary={f.get('summary')} | Desc={desc_trunc} | URL={site_url}/browse/{i['key']}")
+                # KeyLink is pre-formatted markdown so the chat LLM only has to copy it through.
+                issue_url = f"{site_url}/browse/{i['key']}"
+                # Split bracketed summary like "[Ducati Diavel 1260] Load Cam Rattle"
+                # into separate Model + Title so the chat renderer doesn't mis-parse
+                # the [brackets] as a broken markdown link.
+                summary_raw = f.get('summary') or ""
+                model_val = ""
+                title_val = summary_raw
+                import re as _re
+                m = _re.match(r"^\[([^\]]+)\]\s*(.*)$", summary_raw)
+                if m:
+                    model_val = m.group(1).strip()
+                    title_val = m.group(2).strip()
+                res.append(
+                    f"ISSUE: KeyLink=[{i['key']}]({issue_url}) | Key={i['key']} | URL={issue_url} | "
+                    f"Status={f.get('status',{}).get('name')} | Created={created} | "
+                    f"ResolutionDate={resolution_date} | Updated={updated} | "
+                    f"Model={model_val} | Title={title_val} | Desc={desc_trunc}"
+                )
 
             return [TextContent(type="text", text="\n".join(res))]
 
@@ -494,7 +632,7 @@ async def handle_mcp_jsonrpc(request: Request):
                 "jsonrpc": "2.0",
                 "id": request_id,
                 "result": {
-                    "protocolVersion": "2024-11-05",
+                    "protocolVersion": "2025-06-18",
                     "serverInfo": {
                         "name": "jira-multi-tenant",
                         "version": "1.0.0"
@@ -508,11 +646,7 @@ async def handle_mcp_jsonrpc(request: Request):
         elif method == "tools/list":
             tools_list = await list_tools()
             tools_dict = [
-                {
-                    "name": t.name,
-                    "description": t.description,
-                    "inputSchema": t.inputSchema
-                }
+                t.model_dump(by_alias=True, exclude_none=True)
                 for t in tools_list
             ]
             return {

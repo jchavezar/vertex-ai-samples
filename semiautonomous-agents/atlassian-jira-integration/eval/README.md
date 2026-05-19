@@ -66,6 +66,7 @@ GE_PROJECT_ID=vtxdemos
 GE_PROJECT_NUMBER=254356041555
 OPTION_A_AGENT_ID=1666248848999186432
 OPTION_B_DATASTORE_ID=mcp-jira_1778158685439_mcp_data
+OPTION_G_DATASTORE_ID=custom-mcp-jira_1779142849168_mcp_data   # Custom MCP via streamAssist (no ADK)
 
 ATLASSIAN_SITE_URL=https://sockcop.atlassian.net
 ATLASSIAN_EMAIL=admin@jesusarguelles.demo.altostrat.com
@@ -74,6 +75,38 @@ ATLASSIAN_API_TOKEN=<from id.atlassian.com/manage-profile/security/api-tokens>
 JUDGE_REGION=us-east5
 JUDGE_MODEL=claude-opus-4-5@20251101
 EVAL_CONCURRENCY=6
+```
+
+---
+
+## Option G — streamAssist + Custom MCP (no ADK)
+
+Added 2026-05-19. Same Cloud Run MCP server as Option A, but consumed via GE's `streamAssist` endpoint directly — no Agent Engine, no ADK agent. See [`../option-c-custom-mcp-direct/README.md`](../option-c-custom-mcp-direct/README.md) for the five-part recipe that makes this silent (no per-call confirmation popup).
+
+Runner: [`runners/run_option_g.py`](./runners/run_option_g.py)
+
+```bash
+# Smoke test (5 questions)
+GCLOUD_ACCOUNT=admin@yourcompany.com \
+  ./.venv/bin/python -m runners.orchestrator \
+    --questions questions/_smoke.json --smoke 5 --only g \
+    --out runs/_smoke-g --concurrency 3
+
+# Full 500
+GCLOUD_ACCOUNT=admin@yourcompany.com \
+  ./.venv/bin/python -m runners.orchestrator \
+    --questions questions/main.json --only g \
+    --out runs/$(date +%Y%m%d-%H%M%S)-option-g-full --concurrency 6
+```
+
+**Auth gotcha**: `GCLOUD_ACCOUNT` must be the gcloud-active user that completed the Atlassian OAuth 3LO in the GE console (i.e., the user the connector's refresh token is bound to). On GCE the default ADC resolves to the compute SA, which has no Jira refresh token tied to the connector — the runner returns "I am currently unable to retrieve" answers. The `_common._gcp_token()` helper reads `GCLOUD_ACCOUNT` and shells out to `gcloud auth print-access-token --account ...` to force the right identity.
+
+Judge + report the same way as Options A/B:
+
+```bash
+./.venv/bin/python judge.py runs/<ts>-option-g-full/responses_g.jsonl \
+  --pipeline g --questions runs/<ts>-option-g-full/questions.json \
+  --out runs/<ts>-option-g-full/judged_g.json
 ```
 
 ---

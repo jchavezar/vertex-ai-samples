@@ -68,7 +68,7 @@ async def main() -> None:
     ap.add_argument("--questions", required=True, help="path to questions/main.json")
     ap.add_argument("--out", required=True, help="run output dir, e.g. runs/_smoke")
     ap.add_argument("--smoke", type=int, default=0, help="run only first N questions")
-    ap.add_argument("--only", choices=["a", "b", "c", "d", "e", "f", "both"], default="both")
+    ap.add_argument("--only", choices=["a", "b", "c", "d", "e", "f", "g", "both"], default="both")
     ap.add_argument("--concurrency", type=int, default=int(os.environ.get("EVAL_CONCURRENCY", "6")))
     args = ap.parse_args()
 
@@ -106,6 +106,10 @@ async def main() -> None:
             from runners.run_option_f import run_one as run_f_one
             sem_f = asyncio.Semaphore(args.concurrency)
             tasks.append(_run_pipeline("f", run_f_one, qs, out / "responses_f.jsonl", raw, sem_f, client))
+        if args.only == "g":
+            from runners.run_option_g import run_one as run_g_one
+            sem_g = asyncio.Semaphore(args.concurrency)
+            tasks.append(_run_pipeline("g", run_g_one, qs, out / "responses_g.jsonl", raw, sem_g, client))
         await asyncio.gather(*tasks)
 
     print(f"\nDone. Outputs in {out}.", flush=True)

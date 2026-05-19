@@ -51,7 +51,7 @@ Two consumption surfaces, both work:
 | MCP server | Custom (your code) | **Custom (your code)** | Atlassian Rovo (hosted) |
 | Front layer | ADK on Agent Engine | **None — direct GE** | None — direct GE |
 | Confirmation popup | n/a (agent owns dispatch) | **No (after recipe)** | No |
-| Hallucination rate (sample-run) | ~1% | TBD (see eval/) | 68.9% |
+| Hallucination rate (500-Q eval) | ~1% | 31.2% | 68.9% |
 | Pagination depth | 1000+ rows (`before_model_callback`) | ~200 rows (server auto-pages, then LLM compresses) | Single page |
 | Cost per 1K queries | ~$0.17 | **~$0.05** | ~$0.03 |
 | Custom prompts/formatting | Full | Limited (mcp_agent_instructions only) | None |
@@ -367,19 +367,24 @@ Full request shape is non-negotiable — copy it from the GE Console's browser D
 
 ## 7. Evaluation results — Option C specifically
 
+500-question Claude-Opus-judged eval, 2026-05-19. Full writeup in [../OPTION_C_FINDINGS.md](../OPTION_C_FINDINGS.md).
+
 | Dimension | Score | vs Option A | vs Option B |
 |---|---:|---:|---:|
-| Composite accuracy | TBD *(pending re-run)* | — | — |
-| **Hallucination rate** *(lower is better)* | TBD — **expected ≪ B** | — | — |
-| Citation accuracy | high *(via `mcp_agent_instructions`)* | ≈ A | ≫ B |
-| JQL correctness | inherits from MCP server | ≈ A | — |
-| Pagination | ~200 rows (server auto-pages, GE LLM compresses) | weaker than A | similar to B |
-| Latency p50 | similar to B *(no agent layer)* | faster than A | similar |
+| Composite accuracy | **47.7 %** *(56.9 % refusal-credited)* | −47 pp | −39 pp |
+| **Hallucination rate** *(lower is better)* | **31.2 %** | +30 pp (worse than expected) | −38 pp (better) |
+| Citation accuracy | high *(KeyLink in 318/500 answers)* | ≈ A | ≫ B |
+| Refusal correctness | **96 %** *(refusal-test 92 %, prompt-injection 92 %)* | ≈ A | ≫ B |
+| JQL correctness | not directly measured *(GE planner abstracts JQL)* | — | — |
+| Pagination | 92 % on `pagination-required` *(server auto-pages, GE LLM compresses)* | weaker than A | better than B |
+| Latency p50 | **29 s** | +5 s | +20 s |
 | **Cost / 1K requests** | **$0.05** ⭐ | −$0.12 (70 % savings) | — |
 
-**Why correctness should match A:** the MCP server is identical (the same Cloud Run binary). What's different is the *renderer* — GE's assistant LLM, not your ADK agent. The `mcp_agent_instructions` field on the connector enforces the same citation rules as A's agent prompt, so hallucination should land near A's 1 %.
+**Where Option C wins (≥92 %):** `lookup`, `count-aggregate`, `pagination-required`, `typo-robustness`, `golden-anti-regression`, `refusal-test`, `prompt-injection`. Anything single-tool or safety-related — strong.
 
-**Why pagination is weaker than A:** GE's assistant doesn't have the `before_model_callback` that strips tool history to stay under TPM. For ≤200-row results that's fine; for very-long-list synthesis you want A.
+**Where Option C loses (≤32 %):** `multi-step` (0 %), `comments-worklogs` (0 %), `cross-issue-analysis` (8 %), `pii-sensitive` (8 %), `root-cause-synthesis` (12 %), `tool-efficiency` (32 %), `ambiguous` (36 %). Anything requiring multi-tool chaining or cross-page synthesis — weak. **This is the architectural ceiling** — GE's auto-MCP-agent owns the tool loop and doesn't have ADK's `before_model_callback` to stay coherent across long sequences.
+
+**Why hallucination didn't land at A's ~1 %:** the hallucinations aren't web-search fallbacks (disabled). They're the LLM inventing plausible-looking issue keys when the tool returns ambiguous/empty data on multi-step questions where the planner gave up. The system prompt added in `assistant.generationConfig.systemInstruction` (see §4.3) reduces this but doesn't eliminate it. Bringing hallucination down to A's ~1 % needs the ADK agent owning the tool loop, not better prompts.
 
 ### How the eval runner works (eval Option G)
 

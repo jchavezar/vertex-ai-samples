@@ -48,7 +48,7 @@ flowchart LR
 | Option | Accuracy | Hallucination | Cost / 1K | Setup |
 |---|---:|---:|---:|---:|
 | **⭐ A — Custom MCP + ADK** | **94.5 %** | **1.0 %** | $0.17 | ~45 min |
-| **💰 C — Custom MCP, direct** | TBD | TBD | **$0.05** | ~30 min |
+| **💰 C — Custom MCP, direct** | 47.7 % | 31.2 % | **$0.05** | ~30 min |
 | **⚡ B — Atlassian Remote** | 87.1 % | 68.9 % ⚠ | $0 | ~15 min |
 
 ---
@@ -57,8 +57,8 @@ flowchart LR
 
 | | **Option A**<br/>Custom MCP + ADK Agent | **Option C**<br/>Custom MCP, direct to GE | **Option B**<br/>Atlassian Remote MCP |
 |---|:---:|:---:|:---:|
-| **Composite accuracy** *(500-q eval)* | **94.5 %** | TBD | 87.1 % |
-| **Hallucination rate** | **1.0 %** | TBD | 68.9 % |
+| **Composite accuracy** *(500-q eval)* | **94.5 %** | 47.7 % (56.9 % refusal-credited) | 87.1 % |
+| **Hallucination rate** | **1.0 %** | 31.2 % | 68.9 % |
 | **Cost / 1K requests** | $0.17 | **$0.05** | $0 (hosted) |
 | **Infrastructure you run** | Cloud Run + Agent Engine | Cloud Run | None |
 | **Setup time** | ~45 min | ~30 min | ~15 min |
@@ -70,7 +70,7 @@ flowchart LR
 ### Decision guide
 
 - **Pick A** if it's a production ticketing system — you can't tolerate fake issue keys, and you want pagination + custom output shapes.
-- **Pick C** if you have the same correctness needs as A but want to skip Agent Engine charges (70% cheaper) and accept GE's default assistant prompts.
+- **Pick C** if your workload is mostly lookups / counts / single-tool reads (where C scores 92–100%), you want strong refusal/prompt-injection safety (92% each), and you're cost-sensitive enough that ~70% savings vs A justify giving up multi-step reasoning (where C scores 0–30%).
 - **Pick B** if you're prototyping or just evaluating Atlassian's hosted MCP. Not recommended for production — 69 % of answers cite invented issue keys.
 
 > All three options share the same OAuth model (Atlassian 3LO) and the same Gemini Enterprise app. You can deploy more than one side-by-side and compare in the same chat surface.
@@ -96,14 +96,17 @@ A 500-question grounded benchmark across 20 categories, scored on 10 dimensions 
 
 | Metric | **Option A**<br/>Custom + ADK | **Option C**<br/>Custom direct | **Option B**<br/>Atlassian Remote |
 |---|---:|---:|---:|
-| **Composite accuracy** | **94.5 %** | TBD | 87.1 % |
-| **Hallucination rate** *(lower is better)* | **1.0 %** | TBD | 68.9 % |
-| **Correctness** | 96.2 % | TBD | 89.4 % |
-| **Completeness** | 92.8 % | TBD | 84.8 % |
-| **Citation accuracy** | high | TBD | low |
-| **JQL correctness** | 95 %+ | TBD | 78 % |
-| **Latency p50** | 24 s | TBD | 5–10 s |
+| **Composite accuracy** | **94.5 %** | 47.7 % | 87.1 % |
+| **Hallucination rate** *(lower is better)* | **1.0 %** | 31.2 % | 68.9 % |
+| **Correctness** *(per-question avg)* | 96.2 % | 52.7 % | 89.4 % |
+| **Completeness** | 92.8 % | 53.2 % | 84.8 % |
+| **Citation accuracy** | high | high *(KeyLink in 318/500)* | low |
+| **JQL correctness** | 95 %+ | not directly measurable *(GE planner abstracts JQL)* | 78 % |
+| **Refusal correctness** | high | **96 %** *(refusal-test + prompt-injection ≥ 92 %)* | low |
+| **Latency p50** | 24 s | 29 s | 5–10 s |
 | **Cost / 1K requests** | $0.17 | $0.05 | $0 (hosted) |
+
+> **Option C nuance — judge methodology underweights refusals.** Option C correctly refuses 23/25 prompt-injection and 23/25 destructive-action requests, but the judge marks 23 of those as `wrong` (it was designed before refusal-heavy behavior existed in this benchmark). Crediting valid refusals lifts the composite to **56.9 %**. Detailed per-category breakdown in [OPTION_C_FINDINGS.md](OPTION_C_FINDINGS.md).
 
 > **Critical finding:** Atlassian's hosted Remote MCP **invents fake issue keys in 69 % of answers** when used without consumer-side guardrails. Both custom-MCP options (A and C) bake citation discipline in — A via the ADK agent prompt, C via the connector's `mcp_agent_instructions`. **This is the single biggest reason not to use Option B for anything that matters.**
 

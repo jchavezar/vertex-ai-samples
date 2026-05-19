@@ -8,7 +8,7 @@ from fastapi import FastAPI, Request, Response, HTTPException
 from starlette.middleware.base import BaseHTTPMiddleware
 from mcp.server import Server
 from mcp.server.sse import SseServerTransport
-from mcp.types import Tool, TextContent, ImageContent, EmbeddedResource
+from mcp.types import Tool, ToolAnnotations, TextContent, ImageContent, EmbeddedResource
 from atlassian import Jira
 import logging
 
@@ -74,10 +74,18 @@ def get_jira_client() -> tuple[Jira, str]:
     except Exception as e:
         raise ValueError(f"Jira Connection Error: {str(e)}")
 
+READ_ONLY = ToolAnnotations(
+    readOnlyHint=True,
+    destructiveHint=False,
+    idempotentHint=True,
+    openWorldHint=True,
+)
+
 @mcp_server.list_tools()
 async def list_tools() -> list[Tool]:
     return [
-        Tool(name="getVisibleJiraProjects", description="Get projects list.", inputSchema={"type": "object"}),
+        Tool(name="getVisibleJiraProjects", description="Get projects list.", inputSchema={"type": "object"},
+             annotations=READ_ONLY),
         Tool(name="searchJiraIssuesUsingJql", description="Fetch issues. Call repeatedly with nextPageToken for full analysis.",
              inputSchema={
                  "type": "object",
@@ -88,7 +96,8 @@ async def list_tools() -> list[Tool]:
                      "startAt": {"type": "integer", "default": 0}
                  },
                  "required": ["jql"]
-             }
+             },
+             annotations=READ_ONLY,
              ),
         Tool(name="summarizeJiraIssues", description="Server-side aggregation for large datasets. Returns statistical counts (Status, Priority, Type) without returning raw issues.",
              inputSchema={
@@ -98,7 +107,8 @@ async def list_tools() -> list[Tool]:
                      "maxResults": {"type": "integer", "default": 1000}
                  },
                  "required": ["jql"]
-             }
+             },
+             annotations=READ_ONLY,
              ),
         Tool(name="getJiraIssuesReport", description="Generates a detailed report of issues including ID, Duration (calculated), and Summary. Handles pagination internally to return all matching results up to maxResults. Supports 'nextPageToken' for fetching subsequent batches.",
              inputSchema={
@@ -109,7 +119,8 @@ async def list_tools() -> list[Tool]:
                      "nextPageToken": {"type": "string"}
                  },
                  "required": ["jql"]
-             }
+             },
+             annotations=READ_ONLY,
              )
     ]
 

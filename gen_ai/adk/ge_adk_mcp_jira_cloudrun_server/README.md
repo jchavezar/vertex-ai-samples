@@ -234,6 +234,32 @@ Add your deployed Agent Engine as a generic **Tool** in your Gemini App.
 *   **Token Passing:** The Agent reads the token dynamically from its environment (or session context) and passes it securely via HTTP Headers (`Authorization: Bearer ...`) to the Cloud Run server.
 *   **Logs:** The Agent code strips sensitive token data from logs.
 
+## ✅ Suppressing the Gemini Enterprise "Action Confirmation" Dialog
+
+When this MCP server is registered as a **Custom MCP** data store in Gemini Enterprise (not consumed via Agent Engine), GE shows a per-call confirmation popup (e.g., the "JQL Query" preview with ✓/✗ buttons) before executing every tool. That popup fires because GE treats any `tools/call` as a side-effecting action by default.
+
+The MCP spec (protocol 2025-06-18+) lets the server hint that a tool is read-only via `ToolAnnotations`. GE honors these hints and silently executes read-only calls.
+
+In `jira_server/server.py` every tool is declared with:
+
+```python
+from mcp.types import Tool, ToolAnnotations
+
+READ_ONLY = ToolAnnotations(
+    readOnlyHint=True,
+    destructiveHint=False,
+    idempotentHint=True,
+    openWorldHint=True,   # tool reaches the live Jira API
+)
+
+Tool(name="searchJiraIssuesUsingJql", description=..., inputSchema={...},
+     annotations=READ_ONLY)
+```
+
+After redeploying the Cloud Run service, go to the GE console → your `custom-mcp-jira` data store → **Actions** tab → click **Reload custom actions** so GE re-reads `tools/list` and picks up the new annotations. The JQL confirmation popup will be gone.
+
+If you ever add a write tool (e.g., `createJiraIssue`, `transitionJiraIssue`), declare a separate annotations object with `readOnlyHint=False, destructiveHint=True` so GE keeps prompting on those.
+
 ## 📝 Requirements
 
 *   Python 3.12+

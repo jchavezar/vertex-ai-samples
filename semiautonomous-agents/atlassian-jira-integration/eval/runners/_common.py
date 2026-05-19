@@ -50,6 +50,19 @@ KEY_RE = re.compile(r"\b([A-Z][A-Z0-9_]+-\d+)\b")
 
 
 def _gcp_token() -> str:
+    # Prefer a specific gcloud user account when set — needed for Option G
+    # (BYO custom MCP) where GE injects the OAuth Jira token tied to the
+    # identity that completed the 3LO in the GE chat UI. ADC may resolve to a
+    # different user (e.g. compute SA on GCE) with no Jira refresh token
+    # bound to the connector, producing "I am currently unable to retrieve" answers.
+    gcloud_acct = os.environ.get("GCLOUD_ACCOUNT")
+    if gcloud_acct:
+        import subprocess
+        out = subprocess.run(
+            ["gcloud", "auth", "print-access-token", "--account", gcloud_acct],
+            capture_output=True, text=True, check=True,
+        )
+        return out.stdout.strip()
     creds, _ = google.auth.default(scopes=["https://www.googleapis.com/auth/cloud-platform"])
     creds.refresh(google.auth.transport.requests.Request())
     return creds.token  # type: ignore[return-value]
