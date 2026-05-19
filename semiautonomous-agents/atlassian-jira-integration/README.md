@@ -106,7 +106,7 @@ A 500-question grounded benchmark across 20 categories, scored on 10 dimensions 
 | **Latency p50** | 24 s | 29 s | 5–10 s |
 | **Cost / 1K requests** | $0.17 | $0.05 | $0 (hosted) |
 
-> **Option C nuance — judge methodology underweights refusals.** Option C correctly refuses 23/25 prompt-injection and 23/25 destructive-action requests, but the judge marks 23 of those as `wrong` (it was designed before refusal-heavy behavior existed in this benchmark). Crediting valid refusals lifts the composite to **56.9 %**. Detailed per-category breakdown in [OPTION_C_FINDINGS.md](OPTION_C_FINDINGS.md).
+> **Option C nuance — judge methodology underweights refusals.** Option C correctly refuses 23/25 prompt-injection and 23/25 destructive-action requests, but the judge marks 23 of those as `wrong` (it was designed before refusal-heavy behavior existed in this benchmark). Crediting valid refusals lifts the composite to **56.9 %**. Detailed per-category breakdown in [option-c/FINDINGS.md](option-c-custom-mcp-direct/FINDINGS.md).
 
 > **Critical finding:** Atlassian's hosted Remote MCP **invents fake issue keys in 69 % of answers** when used without consumer-side guardrails. Both custom-MCP options (A and C) bake citation discipline in — A via the ADK agent prompt, C via the connector's `mcp_agent_instructions`. **This is the single biggest reason not to use Option B for anything that matters.**
 

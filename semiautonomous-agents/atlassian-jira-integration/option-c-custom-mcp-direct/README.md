@@ -367,7 +367,7 @@ Full request shape is non-negotiable — copy it from the GE Console's browser D
 
 ## 7. Evaluation results — Option C specifically
 
-500-question Claude-Opus-judged eval, 2026-05-19. Full writeup in [../OPTION_C_FINDINGS.md](../OPTION_C_FINDINGS.md).
+500-question Claude-Opus-judged eval, 2026-05-19. Full writeup in [FINDINGS.md](./FINDINGS.md).
 
 | Dimension | Score | vs Option A | vs Option B |
 |---|---:|---:|---:|

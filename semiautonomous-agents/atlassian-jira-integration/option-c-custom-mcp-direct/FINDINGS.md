@@ -10,9 +10,7 @@
 
 `option-c-custom-mcp-direct/` was previously documented as "deploy your Cloud Run MCP + register as a custom MCP data store + done." In practice it produced this every time the chat tried to call a tool:
 
-> ![JQL Query confirmation popup](docs/popup.png)
->
-> *Every `searchJiraIssuesUsingJql` call → ✓/✗ confirmation dialog before execution.*
+> Every `searchJiraIssuesUsingJql` call surfaced a JQL confirmation dialog with ✓/✗ buttons before execution — making the chat unusable for normal Q&A.
 
 `mcp.atlassian.com/v1/mcp` (Option B) doesn't trigger the popup; the user's custom MCP does. Both register with the same `dataSource: custom_mcp`, same `connectorModes: [ACTIONS, FEDERATED]`, same `bapConfig`. **Same code path, different behavior** — the question was *why*.
 
