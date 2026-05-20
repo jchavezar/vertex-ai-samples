@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Jira × Gemini Enterprise — 5-option comparison</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root {
+    --bg:#0b1220; --panel:#111a2e; --panel2:#152038; --border:#26314a; --text:#e7ecf3; --muted:#94a3b8;
+    --pass:#16a34a; --fail:#dc2626; --warn:#f59e0b; --halluc:#9333ea; --refuse:#0ea5e9; --err:#475569;
+    --accent:#60a5fa; --star:#fbbf24;
+  }
+  *,*::before,*::after{box-sizing:border-box}
+  html,body{margin:0;background:var(--bg);color:var(--text);font:14px/1.45 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+  body{min-height:100vh}
+  header{padding:24px 28px;background:linear-gradient(180deg,#162243 0%,#0b1220 100%);border-bottom:1px solid var(--border)}
+  header h1{margin:0;font-size:22px;font-weight:600;letter-spacing:.2px}
+  header .sub{color:var(--muted);font-size:13px;margin-top:6px}
+  main{padding:24px 28px;max-width:1600px;margin:0 auto}
+  section{margin-bottom:36px}
+  h2{font-size:16px;font-weight:600;color:#cbd5e1;margin:0 0 12px;letter-spacing:.5px;text-transform:uppercase}
+
+  /* Summary cards */
+  .cards{display:grid;grid-template-columns:repeat(5,1fr);gap:12px}
+  .card{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:16px;position:relative;overflow:hidden}
+  .card.star{border-color:var(--star)}
+  .card.star::before{content:"";position:absolute;top:0;left:0;right:0;height:3px;background:var(--star)}
+  .card .label{color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.5px}
+  .card .name{font-size:16px;font-weight:600;margin-top:4px}
+  .card .sub{font-size:11px;color:var(--muted);margin-top:2px;min-height:30px}
+  .card .acc{font-size:32px;font-weight:700;margin-top:8px;color:var(--accent)}
+  .card .acc small{font-size:14px;color:var(--muted);font-weight:400}
+  .card .metrics{display:grid;grid-template-columns:repeat(2,1fr);gap:6px;margin-top:10px;font-size:11px}
+  .card .metrics div{color:var(--muted)}
+  .card .metrics strong{color:var(--text);font-weight:600}
+
+  /* Comparison table */
+  table.cmp{border-collapse:collapse;width:100%;background:var(--panel);border-radius:10px;overflow:hidden;border:1px solid var(--border)}
+  table.cmp th, table.cmp td{padding:10px 12px;text-align:left;border-bottom:1px solid var(--border);font-size:13px}
+  table.cmp th{background:var(--panel2);color:#cbd5e1;font-weight:600}
+  table.cmp tbody tr:hover{background:#172547}
+  table.cmp td.num{text-align:right;font-variant-numeric:tabular-nums}
+
+  /* Heatmap */
+  .heatmap{display:grid;grid-template-columns:200px repeat(5,1fr);gap:0;background:var(--panel);border:1px solid var(--border);border-radius:10px;overflow:hidden}
+  .heatmap .h{padding:10px 12px;background:var(--panel2);font-weight:600;color:#cbd5e1;font-size:12px;border-bottom:1px solid var(--border);text-align:center}
+  .heatmap .hl{text-align:left}
+  .heatmap .cat{padding:8px 12px;font-size:12px;border-bottom:1px solid var(--border);color:#cbd5e1}
+  .heatmap .cell{padding:8px 6px;text-align:center;font-size:12px;border-bottom:1px solid var(--border);font-variant-numeric:tabular-nums;font-weight:600}
+
+  /* Filters */
+  .filters{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+  .filters input, .filters select{background:var(--panel);color:var(--text);border:1px solid var(--border);border-radius:6px;padding:8px 10px;font-size:13px}
+  .filters input{min-width:280px}
+  .filters .chip{background:var(--panel2);padding:6px 10px;border-radius:999px;font-size:12px;color:var(--muted);cursor:pointer;user-select:none;border:1px solid var(--border)}
+  .filters .chip.active{background:var(--accent);color:#0b1220;border-color:var(--accent);font-weight:600}
+
+  /* Question rows */
+  .qrow{background:var(--panel);border:1px solid var(--border);border-radius:8px;margin-bottom:8px;overflow:hidden}
+  .qrow .head{display:grid;grid-template-columns:80px 160px 1fr repeat(5,80px);gap:8px;padding:10px 12px;align-items:center;cursor:pointer;font-size:13px;border-bottom:1px solid transparent}
+  .qrow .head:hover{background:#172547}
+  .qrow.open .head{border-bottom:1px solid var(--border);background:#172547}
+  .qrow .qid{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--muted);font-size:12px}
+  .qrow .cat{font-size:11px;color:#cbd5e1;padding:3px 8px;background:var(--panel2);border-radius:4px;display:inline-block}
+  .qrow .qtext{color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .qrow .body{display:none;padding:0;background:var(--panel2)}
+  .qrow.open .body{display:block}
+  .qrow .qfull{padding:14px 16px;border-bottom:1px solid var(--border);font-size:13px;color:#e7ecf3;background:#0e162b}
+  .qrow .qfull .meta{font-size:12px;color:var(--muted);margin-top:8px;display:flex;gap:14px;flex-wrap:wrap}
+  .qrow .qfull .meta span{display:inline-block}
+  .qrow .qfull .meta code{background:#1a2440;padding:1px 6px;border-radius:4px;font-size:11px}
+  .qrow .ans-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:0}
+  .qrow .ans{padding:12px 14px;border-right:1px solid var(--border);min-height:140px;font-size:12.5px}
+  .qrow .ans:last-child{border-right:none}
+  .qrow .ans .ah{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+  .qrow .ans .name{font-weight:600;color:#cbd5e1;font-size:12px}
+  .qrow .ans .vbadge{font-size:10px;padding:2px 7px;border-radius:999px;font-weight:600;text-transform:uppercase;letter-spacing:.3px}
+  .qrow .ans .body-text{color:#cbd5e1;line-height:1.45;max-height:260px;overflow:auto;white-space:pre-wrap;word-break:break-word;font-size:12px}
+  .qrow .ans .meta{font-size:11px;color:var(--muted);margin-top:8px;display:flex;justify-content:space-between}
+  .qrow .ans.passed{background:rgba(22,163,74,.06)}
+  .qrow .ans.failed{background:rgba(220,38,38,.06)}
+
+  /* Verdict badge dot in head */
+  .vdot{width:14px;height:14px;border-radius:50%;display:inline-block;margin:0 auto}
+  .v-correct{background:var(--pass)}
+  .v-partial{background:var(--warn)}
+  .v-wrong{background:var(--fail)}
+  .v-hallucinated{background:var(--halluc)}
+  .v-refused{background:var(--refuse)}
+  .v-error{background:var(--err)}
+  .v-missing{background:#1a2440;border:1px dashed #475569}
+
+  .vb-correct{background:rgba(22,163,74,.18);color:#86efac}
+  .vb-partial{background:rgba(245,158,11,.18);color:#fcd34d}
+  .vb-wrong{background:rgba(220,38,38,.18);color:#fca5a5}
+  .vb-hallucinated{background:rgba(147,51,234,.18);color:#d8b4fe}
+  .vb-refused{background:rgba(14,165,233,.18);color:#7dd3fc}
+  .vb-error{background:rgba(71,85,105,.4);color:#cbd5e1}
+  .vb-missing{background:rgba(71,85,105,.25);color:#94a3b8}
+
+  /* Legend */
+  .legend{display:flex;gap:12px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin-top:10px}
+  .legend span{display:inline-flex;align-items:center;gap:6px}
+
+  .header-grid{display:grid;grid-template-columns:80px 160px 1fr repeat(5,80px);gap:8px;padding:10px 12px;background:var(--panel2);font-size:11px;font-weight:600;color:#94a3b8;text-transform:uppercase;letter-spacing:.4px;border-radius:8px 8px 0 0;border:1px solid var(--border);border-bottom:none}
+  .header-grid div{text-align:center}
+  .header-grid div:first-child, .header-grid div:nth-child(2), .header-grid div:nth-child(3){text-align:left}
+
+  .footer{color:var(--muted);font-size:12px;padding:24px 28px;text-align:center;border-top:1px solid var(--border)}
+  a{color:var(--accent);text-decoration:none}
+  a:hover{text-decoration:underline}
+
+  /* Small screens: pivot to cards */
+  @media (max-width:1100px){
+    .cards{grid-template-columns:1fr 1fr}
+    .heatmap{grid-template-columns:160px repeat(5,1fr)}
+    .qrow .head, .header-grid{grid-template-columns:70px 120px 1fr repeat(5,52px);gap:4px;font-size:12px}
+    .qrow .ans-grid{grid-template-columns:1fr}
+    .qrow .ans{border-right:none;border-bottom:1px solid var(--border)}
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1>Atlassian Jira × Gemini Enterprise — 5-option comparison</h1>
+  <div class="sub">500 grounded Jira questions × 20 categories, scored by Claude Opus. Every cell in this report is a real model answer — click any row to see all five side-by-side.</div>
+</header>
+
+<main>
+  <section>
+    <h2>Headline</h2>
+    <div id="cards" class="cards"></div>
+  </section>
+
+  <section>
+    <h2>Comparison table</h2>
+    <table class="cmp" id="cmpTable"></table>
+  </section>
+
+  <section>
+    <h2>Per-category accuracy (refusal-credited on safety categories)</h2>
+    <div id="heatmap" class="heatmap"></div>
+    <div class="legend">
+      <span><span class="vdot v-correct"></span> ≥ 90%</span>
+      <span><span class="vdot v-partial"></span> 60–89%</span>
+      <span><span class="vdot v-wrong"></span> &lt; 60%</span>
+    </div>
+  </section>
+
+  <section>
+    <h2>All 500 questions — click a row to expand</h2>
+    <div class="filters">
+      <input id="search" placeholder="Search question text or id…" />
+      <select id="catFilter">
+        <option value="">All categories</option>
+      </select>
+      <select id="verdictFilter">
+        <option value="">All verdicts</option>
+        <option value="correct">Correct</option>
+        <option value="partial">Partial</option>
+        <option value="wrong">Wrong</option>
+        <option value="hallucinated">Hallucinated</option>
+        <option value="refused">Refused</option>
+        <option value="error">Error</option>
+      </select>
+      <select id="verdictPipeline">
+        <option value="">filter on any pipeline</option>
+      </select>
+      <span class="chip" id="onlyDisagree">Only show disagreements</span>
+      <span class="chip" id="onlyEFails">Only Option E failures</span>
+      <span style="color:var(--muted);font-size:12px" id="count"></span>
+    </div>
+    <div class="header-grid">
+      <div>ID</div><div>Category</div><div>Question</div>
+      <div>A</div><div>B</div><div>C</div><div>D</div><div>E ⭐</div>
+    </div>
+    <div id="rows"></div>
+  </section>
+</main>
+
+<div class="footer">
+  Generated <span id="gen"></span> · Source code: <a href="https://github.com/jchavezar/vertex-ai-samples/tree/main/semiautonomous-agents/atlassian-jira-integration">atlassian-jira-integration</a> · See <a href="../QUESTION_TYPES.md">QUESTION_TYPES.md</a> for the category taxonomy.
+</div>
+
+<script>
+const PIPELINES = ['A','B','C','D','E'];
+
+async function load() {
+  const r = await fetch('data.json');
+  return r.json();
+}
+
+function pctColor(p) {
+  if (p === null || p === undefined) return 'var(--err)';
+  if (p >= 90) return 'var(--pass)';
+  if (p >= 60) return 'var(--warn)';
+  return 'var(--fail)';
+}
+
+function renderCards(data) {
+  const el = document.getElementById('cards');
+  el.innerHTML = PIPELINES.map(k => {
+    const s = data.summary[k];
+    const star = k === 'E' ? ' star' : '';
+    return `
+      <div class="card${star}">
+        <div class="label">${s.label}</div>
+        <div class="name">${s.sub}</div>
+        <div class="sub">${s.model} · ${s.surface}</div>
+        <div class="acc">${s.accuracy_pct}<small>%</small></div>
+        <div class="metrics">
+          <div>Pass <strong>${s.pass}/${s.total}</strong></div>
+          <div>Hallucinated <strong>${s.hallucinated}</strong></div>
+          <div>Errors <strong>${s.error}</strong></div>
+          <div>Refused <strong>${s.refused}</strong></div>
+          <div>p50 lat <strong>${s.p50_latency_s ?? '—'}s</strong></div>
+          <div>p90 lat <strong>${s.p90_latency_s ?? '—'}s</strong></div>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function renderCmp(data) {
+  const rows = [
+    ['Overall accuracy',     k => data.summary[k].accuracy_pct + ' %'],
+    ['Pass / total',         k => data.summary[k].pass + ' / ' + data.summary[k].total],
+    ['Hallucinations',       k => data.summary[k].hallucinated],
+    ['Errors',               k => data.summary[k].error],
+    ['Valid refusals',       k => data.summary[k].refused],
+    ['p50 latency',          k => (data.summary[k].p50_latency_s ?? '—') + ' s'],
+    ['p90 latency',          k => (data.summary[k].p90_latency_s ?? '—') + ' s'],
+    ['LLM model',            k => data.summary[k].model],
+    ['Consumption surface',  k => data.summary[k].surface],
+  ];
+  let h = '<thead><tr><th></th>' +
+    PIPELINES.map(k => `<th>${data.summary[k].label}<br><span style="font-weight:400;color:var(--muted);font-size:11px">${data.summary[k].sub}</span></th>`).join('') +
+    '</tr></thead><tbody>';
+  for (const [label, fn] of rows) {
+    h += '<tr><td>' + label + '</td>' +
+      PIPELINES.map(k => `<td class="num">${fn(k)}</td>`).join('') + '</tr>';
+  }
+  h += '</tbody>';
+  document.getElementById('cmpTable').innerHTML = h;
+}
+
+function renderHeatmap(data) {
+  const cats = Object.keys(data.summary.A.per_category).sort();
+  let h = '<div class="h hl">Category</div>' +
+    PIPELINES.map(k => `<div class="h">${data.summary[k].label.replace(' ⭐','')}</div>`).join('');
+  for (const c of cats) {
+    h += `<div class="cat">${c}</div>`;
+    for (const k of PIPELINES) {
+      const v = data.summary[k].per_category[c];
+      const bg = pctColor(v.pct);
+      h += `<div class="cell" style="background:${bg};color:#fff;opacity:.92">${v.pct}%</div>`;
+    }
+  }
+  document.getElementById('heatmap').innerHTML = h;
+}
+
+function escapeHtml(s) {
+  return (s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function summary(s, maxLen=120) {
+  if (!s) return '<em style="color:var(--muted)">(empty)</em>';
+  s = s.trim().replace(/\s+/g,' ');
+  if (s.length <= maxLen) return escapeHtml(s);
+  return escapeHtml(s.slice(0,maxLen)) + '…';
+}
+
+function renderRows(data, state) {
+  const el = document.getElementById('rows');
+  let filtered = data.questions;
+  if (state.search) {
+    const q = state.search.toLowerCase();
+    filtered = filtered.filter(r => r.q.toLowerCase().includes(q) || r.id.includes(q));
+  }
+  if (state.cat) filtered = filtered.filter(r => r.category === state.cat);
+  if (state.verdict) {
+    if (state.pipeline) {
+      filtered = filtered.filter(r => r.pipelines[state.pipeline].verdict === state.verdict);
+    } else {
+      filtered = filtered.filter(r => PIPELINES.some(k => r.pipelines[k].verdict === state.verdict));
+    }
+  }
+  if (state.onlyDisagree) {
+    filtered = filtered.filter(r => {
+      const v = PIPELINES.map(k => r.pipelines[k].pass);
+      return v.some(x => x) && v.some(x => !x);
+    });
+  }
+  if (state.onlyEFails) {
+    filtered = filtered.filter(r => !r.pipelines.E.pass);
+  }
+
+  document.getElementById('count').textContent = `${filtered.length} of ${data.questions.length} questions`;
+
+  el.innerHTML = filtered.slice(0, state.limit).map(r => {
+    const dots = PIPELINES.map(k => {
+      const v = r.pipelines[k].verdict;
+      return `<div title="${k}: ${v}"><span class="vdot v-${v}"></span></div>`;
+    }).join('');
+    return `
+      <div class="qrow" data-id="${r.id}">
+        <div class="head">
+          <div class="qid">${r.id}</div>
+          <div><span class="cat">${r.category}</span></div>
+          <div class="qtext">${escapeHtml(r.q)}</div>
+          ${dots}
+        </div>
+        <div class="body">
+          <div class="qfull">
+            <div><strong>${escapeHtml(r.q)}</strong></div>
+            <div class="meta">
+              <span>Oracle: <code>${r.oracle}</code></span>
+              ${r.jql ? `<span>JQL: <code>${escapeHtml(r.jql)}</code></span>` : ''}
+              ${r.expected_count !== null && r.expected_count !== undefined ? `<span>Expected count: <code>${r.expected_count}</code></span>` : ''}
+              ${r.expected_keys_total ? `<span>Expected keys (${r.expected_keys_total}): <code>${escapeHtml(r.expected_keys_sample.join(', '))}${r.expected_keys_total > r.expected_keys_sample.length ? ',…' : ''}</code></span>` : ''}
+              ${r.expected_themes ? `<span>Themes: <code>${escapeHtml(r.expected_themes.join(' / '))}</code></span>` : ''}
+              ${r.min_tool_calls ? `<span>Min tool calls: <code>${r.min_tool_calls}</code></span>` : ''}
+              ${r.tags && r.tags.length ? `<span>Tags: <code>${escapeHtml(r.tags.join(', '))}</code></span>` : ''}
+            </div>
+          </div>
+          <div class="ans-grid">
+            ${PIPELINES.map(k => {
+              const p = r.pipelines[k];
+              const cls = p.pass ? 'passed' : 'failed';
+              return `
+                <div class="ans ${cls}">
+                  <div class="ah">
+                    <span class="name">${data.summary[k].label.replace(' ⭐','')}</span>
+                    <span class="vbadge vb-${p.verdict}">${p.verdict}</span>
+                  </div>
+                  <div class="body-text">${escapeHtml(p.answer || (p.error ? '[error] ' + p.error : '(no answer)'))}</div>
+                  <div class="meta">
+                    <span>${p.latency_s != null ? p.latency_s.toFixed(1)+'s' : '—'}</span>
+                    <span>${p.n_tool_calls != null ? p.n_tool_calls+' tool calls' : ''}</span>
+                  </div>
+                </div>`;
+            }).join('')}
+          </div>
+        </div>
+      </div>`;
+  }).join('');
+
+  if (filtered.length > state.limit) {
+    el.insertAdjacentHTML('beforeend',
+      `<div style="text-align:center;padding:12px;color:var(--muted)">Showing first ${state.limit}. Use filters to narrow.</div>`);
+  }
+
+  el.querySelectorAll('.qrow .head').forEach(h => {
+    h.addEventListener('click', () => h.parentElement.classList.toggle('open'));
+  });
+}
+
+(async () => {
+  const data = await load();
+  document.getElementById('gen').textContent = data.generated_at;
+  // Populate cat filter
+  const cats = [...new Set(data.questions.map(r => r.category))].sort();
+  const cs = document.getElementById('catFilter');
+  for (const c of cats) {
+    const o = document.createElement('option');
+    o.value = c; o.textContent = c;
+    cs.appendChild(o);
+  }
+  const vp = document.getElementById('verdictPipeline');
+  for (const k of PIPELINES) {
+    const o = document.createElement('option');
+    o.value = k; o.textContent = 'on ' + data.summary[k].label.replace(' ⭐','');
+    vp.appendChild(o);
+  }
+
+  renderCards(data);
+  renderCmp(data);
+  renderHeatmap(data);
+
+  const state = {
+    search: '',
+    cat: '',
+    verdict: '',
+    pipeline: '',
+    onlyDisagree: false,
+    onlyEFails: false,
+    limit: 500,
+  };
+  const update = () => renderRows(data, state);
+  document.getElementById('search').addEventListener('input', e => { state.search = e.target.value; update(); });
+  document.getElementById('catFilter').addEventListener('change', e => { state.cat = e.target.value; update(); });
+  document.getElementById('verdictFilter').addEventListener('change', e => { state.verdict = e.target.value; update(); });
+  document.getElementById('verdictPipeline').addEventListener('change', e => { state.pipeline = e.target.value; update(); });
+  document.getElementById('onlyDisagree').addEventListener('click', e => {
+    state.onlyDisagree = !state.onlyDisagree;
+    e.target.classList.toggle('active', state.onlyDisagree);
+    update();
+  });
+  document.getElementById('onlyEFails').addEventListener('click', e => {
+    state.onlyEFails = !state.onlyEFails;
+    e.target.classList.toggle('active', state.onlyEFails);
+    update();
+  });
+  update();
+})();
+</script>
+</body>
+</html>

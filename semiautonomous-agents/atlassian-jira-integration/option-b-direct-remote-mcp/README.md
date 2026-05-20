@@ -194,30 +194,25 @@ rm ~/.secrets/atlassian-rovo-dcr-ge.json
 
 ## Evaluation results — Option B specifically
 
-| Dimension | Score | vs Option A |
-|---|---:|---:|
-| **Composite accuracy** | 87.1 % | −7.4 pts |
-| **Hallucination rate** *(lower is better)* | **68.9 %** ⚠ | +67.9 pts |
-| Correctness | 89.4 % | −6.8 pts |
-| Completeness | 84.8 % | −8.0 pts |
-| Citation accuracy | low | — |
-| JQL correctness | 78 % | −17 pts |
-| Pagination completeness | Atlassian default | — |
-| Latency p50 | 5–10 s | −15 s (faster than A) |
-| Cost / 1K requests | $0 (hosted) | $0.17 saved |
+The latest 500-question run was Claude Sonnet (sub-agent) + Atlassian Rovo MCP with strict citation discipline applied via Claude system prompt:
 
-**Why hallucination is high:** GE's assistant calls Atlassian's tools, gets back issue summaries with no key in the body, and the assistant fills in plausible-looking keys (`PROJ-123`-shaped strings that don't exist). Without consumer-side citation rules, the model isn't held accountable for using the actual returned data.
+| Dimension | Score | vs Option A | vs Option E |
+|---|---:|---:|---:|
+| **Composite accuracy** | 80.8 % | −12.2 pts | −7.2 pts |
+| **Hallucination rate** | 1.8 % | +1.8 pts | −1.2 pts |
+| Latency p50 / p90 | 2.0 / 5.0 s | much faster | much faster |
+| Cost / 1K queries | $0 (hosted) | $9.97 saved | $6.23 saved |
 
-**Mitigations** (each helps but none fully closes the gap to Option A):
+**The 1.8 % hallucination above was achieved by Claude + an explicit "never cite a key not returned by a tool" rule.** Earlier tests with Gemini + Rovo (no consumer-side rule) hit **68.9 %** hallucination — the MCP doesn't enforce citation discipline server-side, so the model can invent plausible `PROJ-NNN` keys.
+
+**Mitigations to make Option B production-viable:**
 - Add `mcp_agent_instructions` to the connector telling the model: *"Cite only issue keys explicitly returned by the tool. Never invent keys. If a tool result is empty, say so."*
-- Reload custom actions when tool cache expires (every few hours).
+- Reload custom actions when the tool registry cache expires (every few hours).
 - For high-stakes queries, ask twice and compare answers — if the keys differ, both are suspect.
 
-Even with all of the above, expect ~30 % hallucination. For production, use Option A or C instead.
+**Why latency is best in class:** single LLM call inside GE's assistant, no agent layer.
 
-**Why latency is good:** single LLM call inside GE's assistant, no agent layer.
-
-Full per-category breakdown + side-by-side comparison vs Option A: [`../eval/sample-run/report.html`](../eval/sample-run/report.html).
+Full per-question side-by-side comparison vs A/C/D/E: [`../eval/comparison-site/index.html`](../eval/comparison-site/index.html).
 
 ---
 

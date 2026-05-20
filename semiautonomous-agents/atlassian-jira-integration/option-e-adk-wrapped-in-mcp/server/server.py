@@ -1,40 +1,36 @@
-"""Option E — ADK-wrapped-in-MCP server.
+"""Option E (rewrite) — MCP wrapper exposing ONE `ask_jira_expert` tool.
 
-Cloud Run MCP server that GE consumes as a *custom MCP data store* (so it
-shows up in GE's main chat surface — no agent picker needed). Internally,
-every tool call delegates to the existing Option A ADK agent running on
-Vertex AI Agent Engine via `stream_query`. The ADK agent owns the real tool
-loop (Jira MCP, before/after callbacks, 3500-char system prompt) and its
-polished answer text becomes the MCP tool result that GE renders.
+The old design exposed `search(query)` + `fetch(id)` which triggered GE's
+deep-research pattern and caused it to call the wrapper 22+ times per
+question, hitting the 300s timeout. The new design exposes a single
+opaque tool — GE sees one read-only tool, calls it ONCE per question,
+and we do all the multi-step Jira reasoning inside `agent_loop.py`
+using google.genai function-calling against gemini-3.5-flash.
+
+The result text the model produces is returned as the MCP tool result
+verbatim, so GE just renders it.
 
 Architecture:
-    GE main chat --> custom_mcp datastore --> THIS Cloud Run /mcp
-                                                  |
-                                                  | vertexai.agent_engines.stream_query
-                                                  v
-                                            Vertex AI Agent Engine (Option A)
-                                                  |
-                                                  | MCP/SSE
-                                                  v
-                                            Cloud Run jira-mcp-server (Jira tools)
-
-The five-part GE-silent-dispatch recipe is applied here verbatim (see
-`option-c-custom-mcp-direct/FINDINGS.md` §3):
-  1. /mcp StreamableHTTP handler serializes the FULL Tool object via model_dump
-  2. initialize returns protocolVersion 2025-06-18
-  3. Every read tool declares ToolAnnotations(readOnlyHint=True, ...)
-  4. Every read tool has an outputSchema
-  5. Canonical search(query) + fetch(id) primitives exposed
+    GE main chat
+        -> custom MCP datastore
+        -> THIS Cloud Run /mcp (ask_jira_expert)
+                |
+                v   in-process google.genai function-calling loop
+            gemini-3.5-flash + 7 Jira function declarations
+                |
+                v   tools/call HTTP -> jira-mcp-server
+            Atlassian Jira REST
 """
 from __future__ import annotations
 
 import asyncio
 import contextvars
+import hashlib
 import json
 import logging
 import os
-import re
 import time
+from collections import OrderedDict
 from typing import Any
 
 import uvicorn
@@ -44,40 +40,20 @@ from starlette.middleware.base import BaseHTTPMiddleware
 from mcp.server import Server
 from mcp.types import Tool, ToolAnnotations, TextContent
 
-import vertexai
-from vertexai import agent_engines
+from agent_loop import run_agent_loop
 
-# --- 0. Logging ---
+# --- Logging ----------------------------------------------------------------
 logging.basicConfig(
     level=os.environ.get("LOG_LEVEL", "INFO"),
     format="%(asctime)s [%(levelname)s] %(message)s",
 )
 logger = logging.getLogger("option-e-mcp-wrapper")
 
-# --- 1. Config ---
-GCP_PROJECT = os.environ.get("GCP_PROJECT", "vtxdemos")
-GCP_LOCATION = os.environ.get("GCP_LOCATION", "us-central1")
-# Option A's deployed Agent Engine. Resource name format:
-# projects/<num>/locations/<region>/reasoningEngines/<id>
-AGENT_ENGINE_RESOURCE = os.environ.get(
-    "AGENT_ENGINE_RESOURCE",
-    "projects/254356041555/locations/us-central1/reasoningEngines/1666248848999186432",
-)
-# Must match `AGENTSPACE_AUTH_ID` baked into the Option A agent
-# (option-a-custom-mcp-portal/adk_agent/agent.py:29). The agent's
-# `get_access_token()` accepts any state key equal to or starting with this id,
-# bare or with the `temp:` prefix. We use `temp:<auth_id>` per the
-# Vertex SDK gotchas memo (state with `temp:` prefix syncs through
-# `create_session`).
-AGENTSPACE_AUTH_ID = os.environ.get("AGENTSPACE_AUTH_ID", "jira-mcp-portal-auth")
-# User id sent to the agent. Per-request session, so this can be a constant
-# (the OAuth token in state is what actually scopes the data access).
-WRAPPER_USER_ID = os.environ.get("WRAPPER_USER_ID", "ge-mcp-wrapper")
-# Max time we wait for the AE stream to drain before returning what we have.
-AGENT_STREAM_TIMEOUT_S = float(os.environ.get("AGENT_STREAM_TIMEOUT_S", "300"))
-
-# --- 2. Auth middleware (capture Jira OAuth bearer from /mcp request) ---
-# Mirrors option-a-custom-mcp-portal/jira_server/server.py:30-47.
+# --- Bearer capture middleware ---------------------------------------------
+# Mirrors option-a-custom-mcp-portal/jira_server/server.py:30-47. GE sends
+# the per-user Jira OAuth token in the `Authorization` header on every /mcp
+# request; we stash it in a contextvar so the agent loop can pass it into
+# the inner jira-mcp-server HTTP calls.
 _user_auth_var: contextvars.ContextVar[str | None] = contextvars.ContextVar(
     "user_auth", default=None
 )
@@ -96,25 +72,8 @@ class AuthMiddleware(BaseHTTPMiddleware):
         return await call_next(request)
 
 
-# --- 3. Vertex AI / Agent Engine bootstrap ---
-vertexai.init(project=GCP_PROJECT, location=GCP_LOCATION)
-
-# The remote AdkApp handle. Cached at module load. agent_engines.get() is
-# a metadata fetch; actual stream_query negotiates per-call.
-_agent: Any | None = None
-
-
-def _get_agent():
-    global _agent
-    if _agent is None:
-        logger.info("Resolving Agent Engine: %s", AGENT_ENGINE_RESOURCE)
-        _agent = agent_engines.get(AGENT_ENGINE_RESOURCE)
-        logger.info("Agent Engine resolved: %s", getattr(_agent, "resource_name", "?"))
-    return _agent
-
-
-# --- 4. MCP server & tool surface ---
-mcp_server = Server("jira-adk-wrapper")
+# --- MCP server & tool surface ---------------------------------------------
+mcp_server = Server("jira-ask-expert-wrapper")
 
 READ_ONLY = ToolAnnotations(
     readOnlyHint=True,
@@ -126,256 +85,158 @@ READ_ONLY = ToolAnnotations(
 
 @mcp_server.list_tools()
 async def list_tools() -> list[Tool]:
-    """Two tools — the canonical search/fetch primitives. GE's auto-MCP-agent
-    treats this connector as retrieval-shaped and dispatches both silently
-    (no per-call confirmation popup) when the 5-part recipe is intact."""
+    """Exactly ONE tool. We deliberately do NOT expose `search` or `fetch`
+    — those names trigger GE's deep-research pattern matching and cause
+    it to iterate 20+ times. A single opaque `ask_jira_expert` keeps GE
+    in the "call once, get answer" mode."""
     return [
         Tool(
-            name="search",
+            name="ask_jira_expert",
             description=(
-                "Search Jira via the deep-orchestration ADK agent. Use for any "
-                "Jira-related question — counts, lookups, JQL filters, "
-                "comments/worklogs/links lookups, multi-step analysis. The ADK "
-                "agent picks tools, paginates, formats markdown tables with "
-                "clickable issue keys, and synthesizes a complete answer. "
-                "Returns a SearchResultPage whose single result wraps the "
-                "agent's full polished answer."
+                "Ask the Jira expert assistant a question. Call this tool "
+                "EXACTLY ONCE per user turn with the user's full original "
+                "question verbatim. The tool runs all multi-step Jira "
+                "reasoning internally (JQL search, pagination, comments, "
+                "worklogs, issue links, multi-project lookups, refusals, "
+                "PII redaction, prompt-injection defense) and returns a "
+                "complete polished answer in one round-trip. The returned "
+                "`answer` is markdown-formatted with [KEY](URL) issue links "
+                "and is ready to surface to the user verbatim. DO NOT call "
+                "this tool more than once per turn. DO NOT refine, rewrite, "
+                "shorten, decompose, or translate the question — the inner "
+                "agent's planner needs the exact original phrasing."
             ),
             inputSchema={
                 "type": "object",
                 "properties": {
-                    "query": {
+                    "question": {
                         "type": "string",
                         "description": (
-                            "The user's full question, verbatim. Do not "
-                            "rewrite or shorten it — the ADK agent's planner "
-                            "needs the original phrasing."
+                            "The user's full ORIGINAL question, verbatim. "
+                            "Do not rewrite, shorten, decompose, or translate. "
+                            "The inner agent needs the exact original phrasing."
                         ),
                     }
                 },
-                "required": ["query"],
-            },
-            outputSchema={
-                "type": "object",
-                "properties": {
-                    "results": {
-                        "type": "array",
-                        "items": {
-                            "type": "object",
-                            "properties": {
-                                "id": {"type": "string"},
-                                "title": {"type": "string"},
-                                "text": {"type": "string"},
-                            },
-                            "required": ["id", "title", "text"],
-                        },
-                    }
-                },
-                "required": ["results"],
-            },
-            annotations=READ_ONLY,
-        ),
-        Tool(
-            name="fetch",
-            description=(
-                "Fetch detailed info for a specific Jira issue via the ADK "
-                "agent. The agent will call the per-issue tools "
-                "(getIssueComments / getIssueWorklogs / getIssueLinks) as "
-                "needed to assemble a complete profile. Returns a "
-                "FetchResult containing the agent's answer text."
-            ),
-            inputSchema={
-                "type": "object",
-                "properties": {
-                    "id": {
-                        "type": "string",
-                        "description": "Jira issue key, e.g. SMP-912.",
-                    }
-                },
-                "required": ["id"],
-            },
-            outputSchema={
-                "type": "object",
-                "properties": {
-                    "id": {"type": "string"},
-                    "title": {"type": "string"},
-                    "text": {"type": "string"},
-                    "url": {"type": "string"},
-                },
-                "required": ["id", "title", "text"],
+                "required": ["question"],
             },
             annotations=READ_ONLY,
         ),
     ]
 
 
-_KEY_RE = re.compile(r"\b([A-Z][A-Z0-9_]+-\d+)\b")
+# --- Simple TTL+LRU cache (in-process) -------------------------------------
+CACHE_ENABLED = os.environ.get("CACHE_ENABLED", "1") != "0"
+CACHE_TTL_S = float(os.environ.get("CACHE_TTL_S", "300"))
+CACHE_MAX = int(os.environ.get("CACHE_MAX", "100"))
+_cache: "OrderedDict[str, tuple[float, str]]" = OrderedDict()
 
 
-async def _run_adk_agent(message: str, jira_bearer: str | None) -> str:
-    """Open a fresh AE session with the Jira OAuth token in state, stream the
-    query, accumulate non-thought text parts, return the final answer string.
-
-    A fresh session per call is intentional: GE may multiplex requests from
-    different users and we don't want one user's Jira token in another user's
-    session state. Sessions are cheap (AE-side in-memory)."""
-    agent = _get_agent()
-
-    state: dict[str, str] = {}
-    if jira_bearer:
-        # The Option A agent's `get_access_token` scans state for keys equal
-        # to or prefixed with AGENTSPACE_AUTH_ID (with or without `temp:`).
-        # Use `temp:<id>` per Vertex SDK memo on state sync.
-        state[f"temp:{AGENTSPACE_AUTH_ID}"] = jira_bearer
-        logger.debug(
-            "Session state seeded with key temp:%s (token %s...)",
-            AGENTSPACE_AUTH_ID, jira_bearer[:8],
-        )
-    else:
-        logger.warning(
-            "No Jira bearer captured — relying on the AE agent's "
-            "ATLASSIAN_EMAIL/ATLASSIAN_API_TOKEN env-var fallback."
-        )
-
-    # `create_session` accepts `state` and the SDK syncs it to the deployed
-    # runtime (confirmed in `~/.claude/.../memory/agent_engine_gotchas.md`).
-    loop = asyncio.get_running_loop()
-
-    def _create_session_sync():
-        return agent.create_session(user_id=WRAPPER_USER_ID, state=state)
-
-    session = await loop.run_in_executor(None, _create_session_sync)
-    session_id = session["id"] if isinstance(session, dict) else getattr(session, "id", None)
-    if not session_id:
-        raise RuntimeError(f"AE create_session returned no id: {session!r}")
-    logger.debug("AE session id: %s", session_id)
-
-    # `stream_query` is sync-generator on the AdkApp wrapper. Pump it in a
-    # thread and accumulate non-thought text parts. AE streams ADK events
-    # of shape {"content": {"role": "model"|"user", "parts": [{...}]}, ...}.
-    answer_parts: list[str] = []
-
-    def _drain_stream():
-        for event in agent.stream_query(
-            user_id=WRAPPER_USER_ID, session_id=session_id, message=message
-        ):
-            content = (event or {}).get("content") or {}
-            for part in content.get("parts", []) or []:
-                if part.get("thought"):
-                    continue
-                text = part.get("text")
-                if text and content.get("role") in (None, "model"):
-                    answer_parts.append(text)
-        return "".join(answer_parts)
-
-    try:
-        answer = await asyncio.wait_for(
-            loop.run_in_executor(None, _drain_stream),
-            timeout=AGENT_STREAM_TIMEOUT_S,
-        )
-    except asyncio.TimeoutError:
-        logger.error("AE stream_query timed out after %.0fs", AGENT_STREAM_TIMEOUT_S)
-        partial = "".join(answer_parts).strip()
-        if partial:
-            return partial + "\n\n[NOTE: ADK agent timed out; partial answer above.]"
-        raise
-
-    return answer
+def _cache_key(question: str) -> str:
+    norm = (question or "").lower().strip()
+    return hashlib.sha256(norm.encode("utf-8")).hexdigest()
 
 
+def _cache_get(question: str) -> str | None:
+    if not CACHE_ENABLED:
+        return None
+    k = _cache_key(question)
+    if k not in _cache:
+        return None
+    ts, val = _cache[k]
+    if (time.time() - ts) > CACHE_TTL_S:
+        _cache.pop(k, None)
+        return None
+    # Refresh LRU order.
+    _cache.move_to_end(k)
+    return val
+
+
+def _cache_put(question: str, answer: str) -> None:
+    if not CACHE_ENABLED or not answer:
+        return
+    k = _cache_key(question)
+    _cache[k] = (time.time(), answer)
+    _cache.move_to_end(k)
+    while len(_cache) > CACHE_MAX:
+        _cache.popitem(last=False)
+
+
+# --- Tool dispatch ----------------------------------------------------------
 @mcp_server.call_tool()
 async def call_tool(name: str, arguments: dict) -> list[TextContent]:
-    jira_bearer = _user_auth_var.get()
-    try:
-        if name == "search":
-            query = (arguments or {}).get("query") or ""
-            if not query.strip():
-                return [TextContent(type="text", text=json.dumps({"results": []}))]
-            t0 = time.perf_counter()
-            answer = await _run_adk_agent(query, jira_bearer)
-            elapsed = time.perf_counter() - t0
-            logger.info("search OK %.1fs (%d chars)", elapsed, len(answer))
-
-            # Wrap the agent's polished answer in a SearchResultPage. The text
-            # field IS what GE renders to the user.
-            cited_keys = sorted(set(_KEY_RE.findall(answer)))
-            result_id = cited_keys[0] if cited_keys else "agent-answer"
-            title = (answer.strip().splitlines() or ["Jira answer"])[0][:200]
-            return [
-                TextContent(
-                    type="text",
-                    text=json.dumps(
-                        {
-                            "results": [
-                                {"id": result_id, "title": title, "text": answer}
-                            ]
-                        }
-                    ),
-                )
-            ]
-
-        elif name == "fetch":
-            issue_id = (arguments or {}).get("id") or ""
-            if not issue_id.strip():
-                return [
-                    TextContent(
-                        type="text",
-                        text=json.dumps(
-                            {"id": "", "title": "", "text": "Missing issue id."}
-                        ),
-                    )
-                ]
-            prompt = (
-                f"Give me complete details for Jira issue {issue_id}: title, "
-                f"status, priority, assignee, reporter, created, updated, "
-                f"description, and any comments, worklogs, or links. "
-                f"Format with a markdown table where possible."
-            )
-            t0 = time.perf_counter()
-            answer = await _run_adk_agent(prompt, jira_bearer)
-            elapsed = time.perf_counter() - t0
-            logger.info("fetch OK %.1fs (%d chars) for %s", elapsed, len(answer), issue_id)
-
-            title = (answer.strip().splitlines() or [issue_id])[0][:200]
-            return [
-                TextContent(
-                    type="text",
-                    text=json.dumps(
-                        {
-                            "id": issue_id,
-                            "title": title,
-                            "text": answer,
-                            # The agent emits canonical browse URLs inside `answer`;
-                            # we don't have a site host independent of that here.
-                            "url": "",
-                        }
-                    ),
-                )
-            ]
-
+    if name != "ask_jira_expert":
         return [
             TextContent(
-                type="text", text=f"Error: unknown tool {name!r}"
+                type="text",
+                text=f"Error: unknown tool {name!r}",
             )
         ]
 
+    question = ((arguments or {}).get("question") or "").strip()
+    if not question:
+        return [
+            TextContent(
+                type="text",
+                text="Please provide a question.",
+            )
+        ]
+
+    cached = _cache_get(question)
+    if cached is not None:
+        logger.info("CACHE HIT for question[:60]=%r", question[:60])
+        return [
+            TextContent(type="text", text=cached)
+        ]
+
+    jira_bearer = _user_auth_var.get()
+    logger.info(
+        "ask_jira_expert START bearer=%s question[:120]=%r",
+        "yes" if jira_bearer else "no",
+        question[:120],
+    )
+
+    t0 = time.perf_counter()
+    loop = asyncio.get_running_loop()
+    try:
+        answer = await loop.run_in_executor(
+            None, run_agent_loop, question, jira_bearer
+        )
     except Exception as exc:
-        logger.exception("tool %s failed: %s", name, exc)
-        return [TextContent(type="text", text=f"Error: {exc}")]
+        logger.exception("agent_loop raised: %s", exc)
+        return [
+            TextContent(
+                type="text",
+                text=f"Error: agent loop crashed: {exc}",
+            )
+        ]
+    elapsed = time.perf_counter() - t0
+    logger.info("ask_jira_expert DONE %.1fs (%d chars)", elapsed, len(answer or ""))
+
+    _cache_put(question, answer)
+    return [
+        TextContent(type="text", text=answer)
+    ]
 
 
-# --- 5. FastAPI + StreamableHTTP /mcp endpoint ---
-app = FastAPI(title="Option E — ADK-wrapped-in-MCP")
+# --- FastAPI app + /mcp StreamableHTTP endpoint -----------------------------
+app = FastAPI(title="Option E — ask_jira_expert MCP wrapper")
 app.add_middleware(AuthMiddleware)
 
 
 @app.get("/")
 async def root():
     return {
-        "service": "option-e-adk-wrapped-in-mcp",
-        "agent_engine": AGENT_ENGINE_RESOURCE,
+        "service": "option-e-ask-jira-expert",
         "mcp_endpoint": "/mcp",
-        "auth_id": AGENTSPACE_AUTH_ID,
+        "tool": "ask_jira_expert",
+        "model": os.environ.get("MODEL_NAME", "gemini-3.5-flash"),
+        "cache": {
+            "enabled": CACHE_ENABLED,
+            "ttl_s": CACHE_TTL_S,
+            "max": CACHE_MAX,
+            "size": len(_cache),
+        },
     }
 
 
@@ -386,15 +247,11 @@ async def healthz():
 
 @app.post("/mcp")
 async def handle_mcp(request: Request):
-    """JSON-RPC over StreamableHTTP. Same handler shape as Option A's
-    `/mcp` endpoint (option-a-custom-mcp-portal/jira_server/server.py:613-700).
-
-    The five-part recipe is critical:
-      - initialize returns protocolVersion 2025-06-18
-      - tools/list uses `t.model_dump(by_alias=True, exclude_none=True)` so
-        annotations + outputSchema flow through (GE keys silent dispatch on
-        these fields)
-      - tools/call returns the agent's answer wrapped as TextContent."""
+    """JSON-RPC over StreamableHTTP. Same shape as before:
+      - initialize: protocolVersion 2025-06-18
+      - tools/list: full Tool.model_dump (preserves annotations + outputSchema)
+      - tools/call: invokes call_tool(), returns TextContent as JSON-RPC content
+    """
     body: dict[str, Any] | None = None
     try:
         body = await request.json()
@@ -410,8 +267,8 @@ async def handle_mcp(request: Request):
                 "result": {
                     "protocolVersion": "2025-06-18",
                     "serverInfo": {
-                        "name": "jira-adk-wrapper",
-                        "version": "1.0.0",
+                        "name": "jira-ask-expert-wrapper",
+                        "version": "2.0.0",
                     },
                     "capabilities": {"tools": {}},
                 },
@@ -434,7 +291,7 @@ async def handle_mcp(request: Request):
             logger.info(
                 "tools/call name=%s args=%s",
                 tool_name,
-                {k: (v[:80] if isinstance(v, str) else v) for k, v in tool_args.items()},
+                {k: (v[:120] if isinstance(v, str) else v) for k, v in tool_args.items()},
             )
             result = await call_tool(tool_name, tool_args)
             content_list = [

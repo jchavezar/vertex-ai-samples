@@ -404,7 +404,7 @@ GCLOUD_ACCOUNT=admin@yourcompany.com \
     --concurrency 6
 ```
 
-Methodology + judging + report rendering: [`../eval/README.md`](../eval/README.md). Side-by-side report (when Option G run completes): [`../eval/sample-run/report.html`](../eval/sample-run/report.html).
+Methodology + judging + report rendering: [`../eval/README.md`](../eval/README.md). Interactive 5-option side-by-side report: [`../eval/comparison-site/index.html`](../eval/comparison-site/index.html).
 
 ---
 

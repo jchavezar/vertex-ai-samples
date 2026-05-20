@@ -107,10 +107,46 @@ Return ONLY: {{"jql_correctness": 0.0-1.0, "reason": "<one sentence why>"}}"""
 
 
 _CLIENT: AsyncAnthropicVertex | None = None
+def _user_credentials():
+    """Use the gcloud-user token (admin@jesusarguelles.altostrat.com) for
+    AsyncAnthropicVertex so we don't depend on ADC quota-project which lacks
+    aiplatform.endpoints.predict on vtxdemos/us-east5/anthropic.
+
+    Returns a custom Credentials subclass that re-runs gcloud on refresh so
+    long-running judge passes don't hit token expiry."""
+    import subprocess
+    from datetime import datetime, timedelta
+    from google.oauth2.credentials import Credentials
+
+    acct = os.environ.get("GCLOUD_ACCOUNT") or os.environ.get("JUDGE_GCLOUD_ACCOUNT")
+
+    def _fresh_token() -> str:
+        args = ["gcloud", "auth", "print-access-token"]
+        if acct:
+            args += ["--account", acct]
+        out = subprocess.run(args, capture_output=True, text=True, check=True)
+        return out.stdout.strip()
+
+    class _GcloudCredentials(Credentials):
+        def refresh(self, request):  # type: ignore[override]
+            self.token = _fresh_token()
+            # gcloud tokens are good for ~1h; mark expiry 50 min out.
+            self.expiry = datetime.utcnow() + timedelta(minutes=50)
+
+    creds = _GcloudCredentials(token=_fresh_token())
+    creds.expiry = datetime.utcnow() + timedelta(minutes=50)
+    return creds
+
+
 def llm() -> AsyncAnthropicVertex:
     global _CLIENT
     if _CLIENT is None:
-        _CLIENT = AsyncAnthropicVertex(region=REGION, project_id=PROJECT)
+        try:
+            _CLIENT = AsyncAnthropicVertex(
+                region=REGION, project_id=PROJECT, credentials=_user_credentials()
+            )
+        except Exception:
+            _CLIENT = AsyncAnthropicVertex(region=REGION, project_id=PROJECT)
     return _CLIENT
 
 
@@ -433,7 +469,7 @@ async def judge_one(
 async def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("input_jsonl", help="runs/<ts>/responses_<a|b>.jsonl")
-    ap.add_argument("--pipeline", required=True, choices=["a", "b", "c", "d", "e", "f", "g", "h", "i"])
+    ap.add_argument("--pipeline", required=True, choices=["a", "b", "c", "d", "e", "f", "g", "h", "i", "al"])
     ap.add_argument("--questions", required=True, help="questions/main.json")
     ap.add_argument("--out", required=True, help="judged_<a|b>.json")
     args = ap.parse_args()

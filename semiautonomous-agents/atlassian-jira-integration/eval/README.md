@@ -2,9 +2,18 @@
 
 500 grounded Jira questions × 20 categories, scored on 10 dimensions by Claude Opus.
 
-**Latest result:** [`sample-run/`](./sample-run/) — Gemini 2.5 + Custom MCP **94.5%** vs Claude Code + Rovo MCP **87.1%**
+**Latest results (2026-05-20)** — refusal-credited on safety categories:
 
-[**View the report** ↗](https://htmlpreview.github.io/?https://github.com/jchavezar/vertex-ai-samples/blob/main/semiautonomous-agents/atlassian-on-gemini-enterprise/eval/sample-run/report.html)
+| Pipeline | Accuracy | Hallucination | p50 latency |
+|---|---:|---:|---:|
+| **Option A** — Custom MCP + ADK (Gemini 2.5) | **93.0 %** | 0.0 % | 24.7 s |
+| **Option E** ⭐ — `google.genai` loop in MCP wrapper (gemini-3.1-flash-lite) | **88.0 %** | 3.0 % | 24.5 s |
+| Option B — Atlassian Rovo (Claude Sonnet sub-agent) | 80.8 % | 1.8 % | 2.0 s |
+| Option C — Custom MCP via GE BYO_MCP (no ADK) | 52.0 % | 31.2 % | 28.9 s |
+| Option D — GE federated `jira_cloud` | 41.4 % | 40.4 % | 20.2 s |
+
+> **Interactive 5-option side-by-side**: open [`comparison-site/index.html`](comparison-site/index.html) — every question, every answer, every verdict, filterable.
+> **Category taxonomy with examples**: [`QUESTION_TYPES.md`](QUESTION_TYPES.md).
 
 ---
 
@@ -122,8 +131,9 @@ Judge + report the same way as Options A/B:
 | `runners/run_option_a.py` | Calls Vertex AI Agent Engine via `:streamQuery` |
 | `runners/run_option_b.py` | Calls GE streamAssist with MCP datastore routing (legacy — current run uses Claude sub-agents) |
 | `judge.py` | Multi-dimensional judge — deterministic dims computed in code, analytical ones LLM-judged |
-| `report.py` | Pure-CSS HTML side-by-side report with collapsible sections for all 500 questions |
-| `sample-run/` | Latest committed run (Gemini 94.5%, Claude 87.1%) |
+| `report.py` | Pure-CSS HTML side-by-side report (per-run A vs B style) |
+| `QUESTION_TYPES.md` | The 20 categories with concrete examples + per-category Option E scores |
+| `comparison-site/` | Single-page 5-option HTML comparison; `python3 comparison-site/build_data.py` regenerates from runs |
 
 ---
 
@@ -151,11 +161,11 @@ All eval-created issues tagged `eval-corpus` for cleanup. To delete the 4 test p
 
 ---
 
-## Cost estimate (500 questions × 2 pipelines)
+## Cost estimate (500 questions × 1 pipeline)
 
-- Vertex Gemini (Option A agent): covered by project TPM
+- Vertex Gemini (Option A agent or E genai loop): covered by project TPM
 - Atlassian REST (oracle): free
-- Claude Opus judge: ~$10-15 (only on analytical Qs)
+- Claude Opus judge: ~$10–15 (only on analytical Qs)
 - Cloud Run MCP: pennies
 
-Total per full run: ~$15.
+Total per full run: ~$15. For at-scale (4,000-user) pricing per option, see [`../docs/PRICING.md`](../docs/PRICING.md).

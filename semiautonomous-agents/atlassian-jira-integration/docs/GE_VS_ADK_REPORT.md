@@ -142,9 +142,9 @@ The 38pp gap **is not a model quality issue** — it's a missing-platform-featur
 - **Same MCP server** for both options: [`option-a-custom-mcp-portal/jira_server/server.py`](../option-a-custom-mcp-portal/jira_server/server.py) deployed to Cloud Run. 9 tools (search, fetch, searchJiraIssuesUsingJql, getJiraIssue, getJiraIssuesReport, summarizeJiraIssues, getIssueComments, getIssueWorklogs, getIssueLinks).
 - **Same 500 questions** in [`eval/questions/main.json`](../eval/questions/main.json), 25 per category × 20 categories, grounded against the actual Jira corpus (5 projects, 1,310 issues on `sockcop.atlassian.net`).
 - **Same judge**: Claude Opus 4.5 (`claude-opus-4-5@20251101`) on the same 10-dimension rubric. Refusal credit applied uniformly to both options on `refusal-test`, `prompt-injection`, `pii-sensitive`.
-- **Option A run data**: [`eval/sample-run/`](../eval/sample-run/) (judged 2026-05-12)
+- **Option A run data**: [`eval/runs/20260511-gemini25/`](../eval/runs/20260511-gemini25/) (judged 2026-05-11)
 - **Option C run data**: [`eval/runs/20260519-101102-option-g-full-si/`](../eval/runs/20260519-101102-option-g-full-si/) (judged 2026-05-19)
-- **Side-by-side report**: [`eval/sample-run/report.html`](../eval/sample-run/report.html) — interactive per-question A vs B comparison (will be regenerated with C once the comparison report supports >2 pipelines)
+- **Interactive 5-option side-by-side**: [`eval/comparison-site/index.html`](../eval/comparison-site/index.html) — every question, every answer, every verdict (A, B, C, D, E)
 
 ### Reproduce
 

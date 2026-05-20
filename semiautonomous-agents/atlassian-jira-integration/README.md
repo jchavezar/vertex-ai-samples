@@ -1,10 +1,15 @@
 # Atlassian Jira + Gemini Enterprise
 
-[![Accuracy](https://img.shields.io/badge/accuracy-94.5%25-success)]()
-[![Hallucination](https://img.shields.io/badge/hallucination-1.0%25-success)]()
+[![Accuracy](https://img.shields.io/badge/accuracy-93%25_A_/_88%25_E-success)]()
+[![Hallucination](https://img.shields.io/badge/hallucination-0%25_A_/_3%25_E-success)]()
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue)]()
 
 Five working ways to connect Atlassian Jira to Gemini Enterprise. Pick the option that matches your priorities (accuracy, cost, or speed-to-demo), then follow that option's walkthrough.
+
+> **Reading guide**: this README compares all 5 options at the architectural level. For the deep dives:
+> - **Eval taxonomy** — what the 500 questions actually test: [`eval/QUESTION_TYPES.md`](eval/QUESTION_TYPES.md)
+> - **Side-by-side answers** for every question, every option: [`eval/comparison-site/`](eval/comparison-site/) (open `index.html`)
+> - **Pricing math at 4,000 users**: [`docs/PRICING.md`](docs/PRICING.md)
 
 ```mermaid
 flowchart LR
@@ -64,40 +69,43 @@ flowchart LR
   style B fill:#FCE8E8,stroke:#D93025,stroke-width:2px,stroke-dasharray:5 3,color:#000
 ```
 
-| Option | Accuracy | Hallucination | Cost / 1K | Setup |
+| Option | Accuracy | Hallucination | Cost / 1K queries | Setup |
 |---|---:|---:|---:|---:|
-| **⭐ A — Custom MCP + ADK** | **94.5 %** | **1.0 %** | $0.17 | ~45 min |
-| **🧪 E — ADK wrapped in MCP** | *pending eval* | *pending eval* | ~$0.22 | ~30 min |
-| **💰 C — Custom MCP, direct** | 47.7 % | 31.2 % | **$0.05** | ~30 min |
-| **🚀 D — GE federated Jira Cloud** | 46.6 % | 40.4 % | **~$0.02** | **~5 min** |
-| **⚡ B — Atlassian Remote** | 87.1 % | 68.9 % ⚠ | $0 | ~15 min |
+| **A — Custom MCP + ADK** | **93.0 %** | **0.0 %** | $9.97 | ~45 min |
+| **⭐ E — google.genai loop wrapped as MCP** | **88.0 %** | 3.0 % | **$6.23** | ~30 min |
+| **B — Atlassian Remote (Rovo)** | 80.8 % | 1.8 % (with Claude guardrails) | $0 (hosted) | ~15 min |
+| **C — Custom MCP direct (no ADK)** | 52.0 % | 31.2 % | $0.55 | ~30 min |
+| **D — GE federated jira_cloud** | 41.4 % | 40.4 % | **~$0** | **~5 min** |
+
+> Numbers from the 500-question eval, 2026-05-20. "Cost / 1K queries" is the all-in per-1K compute + LLM bill; full math at [`docs/PRICING.md`](docs/PRICING.md).
 
 ---
 
 ## Pick an option
 
-| | **Option A**<br/>Custom MCP + ADK Agent | **Option E**<br/>ADK wrapped in custom MCP | **Option C**<br/>Custom MCP, direct to GE | **Option D**<br/>GE federated Jira Cloud | **Option B**<br/>Atlassian Remote MCP |
+| | **Option A**<br/>Custom MCP + ADK Agent | **⭐ Option E**<br/>google.genai loop in MCP wrapper | **Option C**<br/>Custom MCP, direct to GE | **Option D**<br/>GE federated Jira Cloud | **Option B**<br/>Atlassian Remote MCP |
 |---|:---:|:---:|:---:|:---:|:---:|
-| **Composite accuracy** *(500-q eval)* | **94.5 %** | *pending* (hypothesis 80–95 %) | 47.7 % (56.9 % refusal-credited) | 41.6 % (46.6 % refusal-credited) | 87.1 % |
-| **Hallucination rate** | **1.0 %** | *pending* (hypothesis ≈1 %) | 31.2 % | 40.4 % | 68.9 % |
-| **Cost / 1K requests** | $0.17 | ≈ $0.22 | $0.05 | **≈ $0.02 (GE included)** | $0 (hosted) |
-| **GE consumption surface** | Agent picker (sidebar) | **Main chat (no agent picker)** | **Main chat (no agent picker)** | **Main chat (no agent picker)** | **Main chat (no agent picker)** |
-| **Infrastructure you run** | Cloud Run + Agent Engine | Cloud Run × 2 + Agent Engine | Cloud Run | **None** | None |
+| **Composite accuracy** *(500-q eval, refusal-credited)* | **93.0 %** | **88.0 %** | 52.0 % | 41.4 % | 80.8 % |
+| **Hallucination rate** | **0.0 %** | 3.0 % | 31.2 % | 40.4 % | 1.8 % (with Claude guardrails) |
+| **Cost / 1K queries** (all-in) | $9.97 | **$6.23** | $0.55 | ~$0 (GE-bundled) | $0 (hosted) |
+| **GE consumption surface** | Agent picker (sidebar) | **Main chat (BYO_MCP)** | **Main chat (BYO_MCP)** | **Main chat (federated)** | **Main chat** |
+| **Infrastructure you run** | Cloud Run + Agent Engine | Cloud Run × 2 | Cloud Run | **None** | None |
+| **LLM model** | Gemini 2.5 Flash (ADK) | gemini-3.1-flash-lite | GE built-in chat LLM | GE built-in chat LLM | Claude Sonnet (sub-agent) |
 | **Setup time** | ~45 min | ~30 min | ~30 min | **~5 min** | ~15 min |
-| **Tool count GE sees** | 7 (your code) | **2 (search + fetch)** | 7 (your code) | 10 datastores (GE-managed) | 37 (Atlassian's) |
-| **Prompt control** | Full (ADK) | **Full (ADK behind wrapper)** | GE-assistant default | **None — GE owns it** | None |
-| **Pagination** | Custom callback | **Custom callback (inherits A)** | GE default | GE default (sample cap ≈ 50) | Atlassian default |
+| **Tool count GE sees** | 7 (your code) | **1 (`ask_jira_expert`)** | 7 (your code) | 10 datastores (GE-managed) | 37 (Atlassian's) |
+| **Prompt control** | Full (ADK system prompt) | **Full (genai system prompt)** | Connector `mcp_agent_instructions` | **None — GE owns it** | None |
+| **Pagination** | Custom callback | **Custom (genai-loop internal)** | GE default | GE default (sample cap ≈ 50) | Atlassian default |
 | **Walkthrough** | [option-a/README.md](option-a-custom-mcp-portal/README.md) | [option-e/README.md](option-e-adk-wrapped-in-mcp/README.md) | [option-c/README.md](option-c-custom-mcp-direct/README.md) | [option-d/README.md](option-d-jira-cloud-federated/README.md) | [option-b/README.md](option-b-direct-remote-mcp/README.md) |
 
 ### Decision guide
 
-- **Pick A** if it's a production ticketing system — you can't tolerate fake issue keys, and you want pagination + custom output shapes.
-- **Pick E** if you want Option A's accuracy AND main-chat delivery (no agent picker required). Adds one Cloud Run hop on top of A — see [option-e/README.md](option-e-adk-wrapped-in-mcp/README.md).
-- **Pick C** if your workload is mostly lookups / counts / single-tool reads (where C scores 92–100%), you want strong refusal/prompt-injection safety (92% each), and you're cost-sensitive enough that ~70% savings vs A justify giving up multi-step reasoning (where C scores 0–30%).
-- **Pick D** if you want the **fastest possible setup** (5-minute wizard, zero infra) and your workload is point-lookups (100%) + small project-level counts ≤100 (80%). Federated has hard ceilings on counts >100, no comments/worklogs (0%), and no auto-MCP-agent for multi-step (4%) or PII guardrails (8%). See [option-d/FINDINGS.md](option-d-jira-cloud-federated/FINDINGS.md).
-- **Pick B** if you're prototyping or just evaluating Atlassian's hosted MCP. Not recommended for production — 69 % of answers cite invented issue keys.
+- **Pick E (recommended for production)** if you want main-chat delivery (no agent picker) at near-A accuracy and ~37 % lower cost. The Cloud Run wrapper runs a `google.genai` function-calling loop with Option A's verbatim system prompt — single MCP tool from GE's perspective, full agent reasoning inside.
+- **Pick A** if the agent-picker sidebar is acceptable and you want every last accuracy point. 93 % composite, 0 hallucinations.
+- **Pick C** for low-cost lookups + counts (≥90 % on `count-aggregate`, `lookup`, `golden-anti-regression`) where multi-step reasoning isn't needed (it scores 0–30 % there). Strong safety profile (≥92 % on refusal-test and prompt-injection).
+- **Pick D** for fastest setup (5-min wizard, zero infra). Point-lookups work; anything that requires counting > sample size, comments/worklogs, or multi-step chaining collapses to 0–8 %. See [option-d/FINDINGS.md](option-d-jira-cloud-federated/FINDINGS.md).
+- **Pick B** for prototyping only. Hallucination is 1.8 % with the Claude+Rovo setup we tested, but Atlassian's hosted MCP doesn't enforce any citation discipline server-side — without a guarded consumer, the same setup ran 69 % hallucination in earlier tests.
 
-> All three options share the same OAuth model (Atlassian 3LO) and the same Gemini Enterprise app. You can deploy more than one side-by-side and compare in the same chat surface.
+> All five options share the same OAuth model (Atlassian 3LO) and the same Gemini Enterprise app. You can deploy more than one side-by-side and compare in the same chat surface.
 
 ---
 
@@ -116,25 +124,24 @@ Once any option is deployed, users ask Jira questions in Gemini Enterprise chat:
 
 A 500-question grounded benchmark across 20 categories, scored on 10 dimensions by Claude Opus. This is the data behind the decision table above — the numbers are what should drive your choice, not the marketing claims.
 
-### Headline results
+### Headline results (refusal-credited on safety categories)
 
-| Metric | **Option A**<br/>Custom + ADK | **Option C**<br/>Custom direct | **Option D**<br/>GE federated | **Option B**<br/>Atlassian Remote |
-|---|---:|---:|---:|---:|
-| **Composite accuracy** | **94.5 %** | 47.7 % | 46.6 % | 87.1 % |
-| **Hallucination rate** *(lower is better)* | **1.0 %** | 31.2 % | 40.4 % | 68.9 % |
-| **Correctness** *(per-question avg)* | 96.2 % | 52.7 % | ~42 % | 89.4 % |
-| **Completeness** | 92.8 % | 53.2 % | ~42 % | 84.8 % |
-| **Citation accuracy** | high | high *(KeyLink in 318/500)* | medium *(URI from federated grounding)* | low |
-| **JQL correctness** | 95 %+ | not directly measurable *(GE planner abstracts JQL)* | n/a *(no JQL — federated)* | 78 % |
-| **Refusal correctness** | high | **96 %** *(refusal-test + prompt-injection ≥ 92 %)* | 92 % refusal-test, 96 % prompt-injection, 8 % PII | low |
-| **Latency p50** | 24 s | 29 s | 20 s | 5–10 s |
-| **Cost / 1K requests** | $0.17 | $0.05 | **≈ $0.02 (GE included)** | $0 (hosted) |
+| Metric | **Option A**<br/>Custom + ADK | **⭐ Option E**<br/>genai loop in MCP wrap | **Option C**<br/>Custom direct | **Option D**<br/>GE federated | **Option B**<br/>Atlassian Rovo |
+|---|---:|---:|---:|---:|---:|
+| **Composite accuracy** | **93.0 %** | **88.0 %** | 52.0 % | 41.4 % | 80.8 % |
+| **Hallucination rate** *(lower is better)* | **0.0 %** | 3.0 % | 31.2 % | 40.4 % | 1.8 % |
+| **Valid refusals** *(safety categories)* | 24 | 24 | 24 | 23 | 23 |
+| **Latency p50 / p90** | 24.7 / 72.3 s | 24.5 / 70.5 s | 28.9 / 91.1 s | 20.2 / 64.2 s | 2.0 / 5.0 s |
+| **All-in cost / 1K queries** | $9.97 | **$6.23** | $0.55 | ~$0 (GE-bundled) | $0 (hosted) |
+| **Per-category breakdown** | see [comparison-site](eval/comparison-site/) | see [comparison-site](eval/comparison-site/) | see [option-c/FINDINGS.md](option-c-custom-mcp-direct/FINDINGS.md) | see [option-d/FINDINGS.md](option-d-jira-cloud-federated/FINDINGS.md) | see [comparison-site](eval/comparison-site/) |
 
-> **Option D nuance — sample-size and tool-loop limits.** Federation pulls a ~50-document sample per query, so counts >100 systematically under-report (e.g. SMP=910 answered as "50" in some queries, correctly answered as "910" in others). And without an auto-MCP-agent in front, federated never retries when entity routing returns 0 — so `comments-worklogs` and `multi-step` collapse to 0–4%. Detailed per-category breakdown in [option-d/FINDINGS.md](option-d-jira-cloud-federated/FINDINGS.md).
+> **Option E recipe** — single MCP tool (`ask_jira_expert`) exposed to GE; the Cloud Run service runs a `google.genai` function-calling loop internally with the same 3,500-char system prompt as Option A. Trades ~5 pp accuracy for ~37 % cost reduction and main-chat delivery. Full details in [option-e/README.md](option-e-adk-wrapped-in-mcp/README.md).
 
-> **Option C nuance — judge methodology underweights refusals.** Option C correctly refuses 23/25 prompt-injection and 23/25 destructive-action requests, but the judge marks 23 of those as `wrong` (it was designed before refusal-heavy behavior existed in this benchmark). Crediting valid refusals lifts the composite to **56.9 %**. Detailed per-category breakdown in [option-c/FINDINGS.md](option-c-custom-mcp-direct/FINDINGS.md).
+> **Option D nuance** — Federation pulls a ~50-document sample per query, so counts > 100 systematically under-report. Without an auto-MCP-agent in front, federated never retries when entity routing returns 0 — `comments-worklogs` and `multi-step` collapse to 0–4 %.
 
-> **Critical finding:** Atlassian's hosted Remote MCP **invents fake issue keys in 69 % of answers** when used without consumer-side guardrails. Both custom-MCP options (A and C) bake citation discipline in — A via the ADK agent prompt, C via the connector's `mcp_agent_instructions`. **This is the single biggest reason not to use Option B for anything that matters.**
+> **Option C nuance** — The judge marks correct refusals on safety categories as `refused`. Crediting valid refusals as success (the numbers above) lifts the strict-correct 47.7 % score to 52.0 %.
+
+> **Option B nuance** — The 1.8 % hallucination above is with Claude Sonnet sub-agents and explicit citation discipline. The same Atlassian MCP without consumer-side guardrails has run 69 % hallucination in earlier tests. The MCP is fine; consumers need to enforce "never cite a key not returned by a tool call."
 
 ### Methodology — what we actually tested
 
@@ -173,9 +180,10 @@ python report.py                  # writes report.html
 
 ### Where the results live
 
-- **Interactive comparison report:** [`eval/sample-run/report.html`](eval/sample-run/report.html) — per-category breakdowns, side-by-side answers, judge rationale
-- **Raw judged scores:** [`eval/sample-run/judged_a.json`](eval/sample-run/judged_a.json), [`judged_b.json`](eval/sample-run/judged_b.json)
-- **Summary JSON:** [`eval/sample-run/summary.json`](eval/sample-run/summary.json)
+- **Interactive 5-option comparison site:** [`eval/comparison-site/index.html`](eval/comparison-site/index.html) — every question, every answer, every verdict, side-by-side. Filter by category, verdict, or "disagreements only".
+- **Question taxonomy:** [`eval/QUESTION_TYPES.md`](eval/QUESTION_TYPES.md) — what each of the 20 categories tests, with concrete question + expected-answer examples.
+- **Pricing math:** [`docs/PRICING.md`](docs/PRICING.md) — 4,000-user forecast grounded in official Google rate cards.
+- **Raw judged scores:** `eval/runs/<ts>/judged_*.json` for each pipeline run.
 - **Methodology README:** [`eval/README.md`](eval/README.md)
 
 ---
@@ -207,8 +215,22 @@ atlassian-jira-integration/
 │   ├── README.md                       5-min wizard + granular OAuth scopes gotcha
 │   └── FINDINGS.md                     500-Q eval + architectural ceilings
 │
+├── option-e-adk-wrapped-in-mcp/      ← ⭐ google.genai loop in a Cloud Run MCP wrapper
+│   ├── README.md                       walkthrough + architecture
+│   ├── server/                         FastAPI + MCP + genai function-calling loop
+│   └── register_datastore.py           GE BYO_MCP datastore creation
+│
 ├── eval/                              500-question comparative benchmark
-├── docs/REFERENCE.md                  consolidated tech reference
+│   ├── QUESTION_TYPES.md               taxonomy with examples (per-category)
+│   ├── comparison-site/                interactive 5-option HTML report
+│   └── runs/                           per-run responses + judged scores
+│
+├── docs/
+│   ├── PRICING.md                      4,000-user pricing forecast (this option, all 5)
+│   ├── GE_VS_ADK_REPORT.md             A vs C vs D — for the GE product team
+│   ├── ATLASSIAN_CALL_2026-05-12.md    Findings & recommendations for Atlassian
+│   └── REFERENCE.md                    consolidated tech reference (Rovo MCP setup)
+│
 └── scripts/                           OAuth + config helpers
 ```
 

@@ -2,7 +2,7 @@
 
 You run the MCP server, you run the agent (Vertex AI Agent Engine + ADK), Gemini Enterprise just routes chats to it. Maximum control over prompts, pagination, and formatting.
 
-**94.5 % accuracy, 1 % hallucination** on a 500-question eval. See [parent README](../README.md) for the comparison vs Options B and C.
+**93.0 % accuracy, 0.0 % hallucination** on the latest 500-question eval (2026-05-20, refusal-credited on safety categories). See [parent README](../README.md) for the comparison vs Options B, C, D, E, and [`../eval/comparison-site/`](../eval/comparison-site/) for the interactive side-by-side.
 
 ---
 
@@ -275,22 +275,17 @@ curl -X DELETE -H "Authorization: Bearer $TOKEN" -H "x-goog-user-project: $PROJE
 
 | Dimension | Score | vs Option B baseline |
 |---|---:|---:|
-| **Composite accuracy** | **94.5 %** | +7.4 pts |
-| **Hallucination rate** *(lower is better)* | **1.0 %** | −67.9 pts |
-| Correctness | 96.2 % | +6.8 pts |
-| Completeness | 92.8 % | +8.0 pts |
-| Citation accuracy | high | — |
-| JQL correctness | 95 %+ | +17 pts |
-| Pagination completeness | high *(via callback)* | — |
-| Refusal correctness | high | — |
-| Latency p50 | 24 s | +15 s slower |
-| Cost / 1K requests | $0.17 | (B is $0) |
+| **Composite accuracy** *(refusal-credited)* | **93.0 %** | +12.2 pts |
+| **Hallucination rate** *(lower is better)* | **0.0 %** | −1.8 pts |
+| Latency p50 | 24.7 s | +22 s slower |
+| Latency p90 | 72.3 s | — |
+| Cost / 1K queries (all-in) | $9.97 | (B is $0 hosted) |
 
-**Why A wins on correctness:** the ADK agent prompt enforces "cite the exact issue key returned by the tool, never paraphrase"; the MCP server returns issue keys verbatim; pagination is bounded by the `before_model_callback` (see PAGINATION.md). All three combine to drive hallucination to ~1 %.
+**Why A wins on correctness:** the ADK agent prompt enforces "cite the exact issue key returned by the tool, never paraphrase"; the MCP server returns issue keys verbatim; pagination is bounded by the `before_model_callback` (see PAGINATION.md). All three combine to drive hallucination to 0 %.
 
 **Why A is slower:** the ADK agent makes ≥2 LLM calls per turn (think + answer), often more for multi-step queries. Option B is a single LLM call inside GE's assistant.
 
-Full per-category breakdown + raw answers + judge rationale: [`../eval/sample-run/report.html`](../eval/sample-run/report.html).
+Full per-question side-by-side comparison vs B, C, D, E: [`../eval/comparison-site/index.html`](../eval/comparison-site/index.html).
 
 ---
 
