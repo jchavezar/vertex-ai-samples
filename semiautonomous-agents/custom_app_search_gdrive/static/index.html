@@ -1,0 +1,1231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Paramount Drive Search — Vertex AI</title>
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #F6F9FF;
+      --surface: #FFFFFF;
+      --border: #E4EAF6;
+      --border-focus: #0057E7;
+      --text-primary: #090F1E;
+      --text-secondary: #4B5773;
+      --text-muted: #8D99B3;
+      --navy: #003087;
+      --blue: #0057E7;
+      --blue-mid: #0044BB;
+      --blue-light: #EAF0FF;
+      --gold: #F5D100;
+      --success: #059669;
+      --error: #DC2626;
+      --shadow-xs: 0 1px 2px rgba(0,0,0,.05);
+      --shadow-sm: 0 1px 4px rgba(0,48,135,.07), 0 1px 2px rgba(0,0,0,.04);
+      --shadow-md: 0 4px 20px rgba(0,48,135,.10), 0 1px 4px rgba(0,0,0,.04);
+      --shadow-lg: 0 16px 48px rgba(0,48,135,.14), 0 4px 8px rgba(0,0,0,.05);
+      --shadow-glow: 0 0 0 4px rgba(0,87,231,.13);
+      --radius: 16px;
+      --radius-sm: 10px;
+      --log-bg: #07101E;
+      --log-border: #1A2D45;
+      --log-muted: #3A5070;
+      --tr: 200ms cubic-bezier(.4,0,.2,1);
+    }
+
+    html, body { height: 100%; }
+    body {
+      font-family: "Google Sans", "Inter", -apple-system, system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text-primary);
+      display: flex; flex-direction: column; height: 100%;
+    }
+
+    /* ─── HEADER ─────────────────────────────────────────────────── */
+    header {
+      position: sticky; top: 0; z-index: 200;
+      background: rgba(255,255,255,.96);
+      backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 28px; height: 60px;
+      display: flex; align-items: center; justify-content: space-between;
+      flex-shrink: 0;
+    }
+    .logo-link { display: flex; align-items: center; text-decoration: none; color: var(--navy); }
+    .header-right { display: flex; align-items: center; gap: 12px; }
+
+    .auth-flow-btn {
+      display: flex; align-items: center; gap: 7px;
+      padding: 8px 18px;
+      background: rgba(255,255,255,.92);
+      color: var(--navy);
+      border: 1px solid rgba(0,87,231,.16);
+      border-radius: 999px; cursor: pointer;
+      font-size: 12px; font-weight: 600; font-family: inherit; letter-spacing: .02em;
+      box-shadow: 0 1px 4px rgba(0,48,135,.08), inset 0 0 0 1px rgba(255,255,255,.7);
+      transition: all var(--tr); backdrop-filter: blur(8px);
+    }
+    .auth-flow-btn:hover {
+      background: var(--blue-light);
+      border-color: rgba(0,87,231,.4);
+      color: var(--blue);
+      box-shadow: 0 4px 14px rgba(0,87,231,.14), inset 0 0 0 1px rgba(255,255,255,.7);
+      transform: translateY(-1px);
+    }
+
+    .user-chip {
+      display: flex; align-items: center; gap: 10px;
+      padding: 5px 14px 5px 5px;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 999px; box-shadow: var(--shadow-xs);
+    }
+    .user-initials {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--navy), var(--blue));
+      color: #fff; font-size: 11px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .user-name-sm { font-size: 13px; font-weight: 600; }
+    .user-email-sm { font-size: 11px; color: var(--text-secondary); }
+    .sign-out-btn {
+      background: none; border: none; color: var(--text-muted);
+      font-size: 11px; cursor: pointer; text-decoration: underline;
+      transition: color var(--tr); margin-left: 4px;
+    }
+    .sign-out-btn:hover { color: var(--error); }
+
+    /* ─── LAYOUT ─────────────────────────────────────────────────── */
+    .page-body { flex: 1; display: flex; overflow: hidden; min-height: 0; }
+
+    .search-col {
+      flex: 1; overflow-y: auto; display: flex; flex-direction: column; align-items: stretch;
+      background:
+        radial-gradient(ellipse 90% 40% at 50% -8%, rgba(0,87,231,.06) 0%, transparent 70%),
+        var(--bg);
+    }
+    .search-col::-webkit-scrollbar { width: 0; }
+
+    /* ─── SIGN-IN SCREEN ─────────────────────────────────────────── */
+    #signin-screen {
+      flex: 1; display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      padding: 60px 24px;
+    }
+
+    .signin-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      box-shadow: var(--shadow-lg);
+      padding: 52px 60px 48px;
+      text-align: center;
+      max-width: 460px; width: 100%;
+      position: relative; overflow: hidden;
+    }
+    .signin-card::before {
+      content: "";
+      position: absolute; top: 0; left: 0; right: 0; height: 3px;
+      background: linear-gradient(90deg, var(--navy) 0%, var(--blue) 55%, var(--gold) 100%);
+    }
+    .signin-logo-wrap { margin: 0 auto 28px; color: var(--navy); }
+    .signin-card h2 {
+      font-size: 26px; font-weight: 800; letter-spacing: -.4px;
+      color: var(--text-primary); margin-bottom: 10px; line-height: 1.25;
+    }
+    .signin-card > p {
+      font-size: 13.5px; color: var(--text-secondary); line-height: 1.65; margin-bottom: 28px;
+    }
+    .signin-features { display: flex; flex-direction: column; gap: 9px; margin-bottom: 30px; text-align: left; }
+    .signin-feature { display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--text-secondary); }
+    .signin-feature-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--blue); flex-shrink: 0; }
+    .signin-divider {
+      display: flex; align-items: center; gap: 14px;
+      margin-bottom: 22px;
+      font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: .07em;
+    }
+    .signin-divider::before, .signin-divider::after { content: ""; flex: 1; height: 1px; background: var(--border); }
+    .signin-trust {
+      margin-top: 24px; font-size: 11px; color: var(--text-muted);
+      display: flex; align-items: center; justify-content: center; gap: 5px;
+    }
+
+    /* ─── SEARCH SCREEN ─────────────────────────────────────────── */
+    #search-screen {
+      display: none; flex-direction: column;
+      width: 100%; max-width: 780px;
+      margin: 0 auto;
+      padding: 36px 28px 80px;
+    }
+
+    .search-bar-wrap { position: relative; margin-bottom: 28px; }
+    .search-bar {
+      width: 100%; padding: 16px 62px 16px 22px;
+      font-size: 15px; font-family: inherit;
+      border: 1.5px solid transparent;
+      border-radius: 999px;
+      background: var(--surface);
+      color: var(--text-primary); outline: none;
+      box-shadow: var(--shadow-md);
+      transition: border-color var(--tr), box-shadow var(--tr);
+    }
+    .search-bar:focus {
+      border-color: var(--blue);
+      box-shadow: var(--shadow-md), var(--shadow-glow);
+    }
+    .search-bar::placeholder { color: var(--text-muted); }
+    .search-btn {
+      position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
+      width: 40px; height: 40px;
+      background: linear-gradient(135deg, var(--navy), var(--blue));
+      border: none; border-radius: 50%; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 4px 14px rgba(0,87,231,.38);
+      transition: transform var(--tr), box-shadow var(--tr), opacity var(--tr);
+    }
+    .search-btn:hover { opacity: .9; transform: translateY(-50%) scale(1.06); box-shadow: 0 6px 22px rgba(0,87,231,.48); }
+    .search-btn svg { width: 17px; height: 17px; }
+
+    #status-row { display: none; font-size: 12px; color: var(--text-muted); margin-bottom: 16px; padding: 0 2px; }
+
+    /* ─── SUMMARY CARD (the WOW piece — dark/premium) ─────────────── */
+    #summary-card {
+      display: none;
+      background: linear-gradient(140deg, #001640 0%, #002478 60%, #001A5C 100%);
+      border: 1px solid rgba(0,87,231,.25);
+      border-radius: var(--radius);
+      padding: 22px 26px 24px;
+      margin-bottom: 16px;
+      position: relative; overflow: hidden;
+    }
+    /* Paramount stars row */
+    #summary-card::before {
+      content: "★  ★  ★  ★  ★  ★  ★  ★";
+      position: absolute; top: 14px; right: 20px;
+      font-size: 7px; letter-spacing: 3px;
+      color: rgba(245,209,0,.4);
+      pointer-events: none; user-select: none;
+    }
+    /* Blue orb glow bottom-right */
+    #summary-card::after {
+      content: "";
+      position: absolute; bottom: -40px; right: -40px;
+      width: 160px; height: 160px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(0,87,231,.22) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .summary-label {
+      font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
+      color: var(--gold); margin-bottom: 10px;
+      display: flex; align-items: center; gap: 7px; position: relative; z-index: 1;
+    }
+    #summary-text {
+      font-size: 14px; line-height: 1.78;
+      color: rgba(255,255,255,.88);
+      position: relative; z-index: 1;
+    }
+
+    /* ─── RESULTS ────────────────────────────────────────────────── */
+    #results-list { display: flex; flex-direction: column; gap: 6px; }
+
+    .result-card {
+      background: var(--surface);
+      border: 1px solid transparent;
+      border-radius: var(--radius);
+      padding: 18px 22px;
+      box-shadow: var(--shadow-xs);
+      transition: box-shadow var(--tr), border-color var(--tr), transform var(--tr);
+      animation: fadeUp .22s ease both;
+    }
+    .result-card:hover {
+      box-shadow: var(--shadow-md);
+      border-color: rgba(0,87,231,.1);
+      transform: translateY(-2px);
+    }
+    @keyframes fadeUp { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+
+    .result-header { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 7px; }
+    .result-icon { font-size: 22px; flex-shrink: 0; margin-top: 1px; }
+    .result-title-wrap { flex: 1; min-width: 0; }
+    .result-title {
+      font-size: 14px; font-weight: 600; color: var(--navy);
+      text-decoration: none; line-height: 1.45;
+      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+      transition: color var(--tr);
+    }
+    .result-title:hover { color: var(--blue); text-decoration: underline; }
+    .result-meta { display: flex; align-items: center; gap: 5px; margin-top: 4px; }
+    .badge {
+      display: inline-flex; align-items: center; gap: 3px;
+      font-size: 10px; font-weight: 600; padding: 2px 8px;
+      border-radius: 999px; background: var(--blue-light);
+      color: var(--navy); border: 1px solid rgba(0,87,231,.14);
+    }
+    .result-snippet {
+      font-size: 13px; color: var(--text-secondary); line-height: 1.65; margin-left: 34px;
+      display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+    }
+    .result-snippet b { color: var(--navy); font-weight: 600; background: rgba(245,209,0,.28); border-radius: 2px; padding: 0 1px; }
+
+    /* skeletons */
+    #skeleton-list { display: none; flex-direction: column; gap: 6px; }
+    .skeleton-card { background: var(--surface); border-radius: var(--radius); padding: 18px 22px; box-shadow: var(--shadow-xs); }
+    .skel { background: linear-gradient(90deg, #F1F5F9 25%, #E8EDF5 50%, #F1F5F9 75%); background-size: 200% 100%; border-radius: 6px; animation: shimmer 1.4s infinite; }
+    @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+    .skel-row { display:flex; align-items:center; gap:10px; margin-bottom:8px; }
+    .skel-circle { width:26px; height:26px; border-radius:50%; flex-shrink:0; }
+    .skel-title { height:14px; flex:1; max-width:55%; }
+    .skel-line { height:11px; width:100%; margin-bottom:5px; }
+    .skel-line.short { width:70%; }
+
+    /* error / empty */
+    .error-banner { background:#FEF2F2; border:1px solid #FECACA; border-radius:var(--radius-sm); padding:12px 16px; color:var(--error); font-size:13px; display:flex; align-items:flex-start; gap:8px; margin-bottom:14px; }
+    .empty-state { text-align:center; padding:64px 24px; color:var(--text-secondary); }
+    .empty-state .ei { font-size:40px; margin-bottom:14px; opacity:.35; }
+    .empty-state h3 { font-size:17px; font-weight:700; margin-bottom:6px; color:var(--text-primary); }
+    .empty-state p { font-size:13px; line-height:1.65; max-width:280px; margin:0 auto; }
+
+    /* ─── LOG PANEL (right, dark) ───────────────────────────────── */
+    .log-col {
+      width: 380px; flex-shrink: 0;
+      background: var(--log-bg); border-left: 1px solid #0E1D30;
+      display: flex; flex-direction: column; overflow: hidden;
+    }
+    .log-header {
+      padding: 13px 16px; border-bottom: 1px solid var(--log-border);
+      display: flex; align-items: center; justify-content: space-between; flex-shrink: 0;
+    }
+    .log-header-left { display:flex; align-items:center; gap:8px; }
+    .log-live-dot { width:7px; height:7px; border-radius:50%; background:#22C55E; box-shadow:0 0 8px #22C55E; animation:blink 2s infinite; }
+    .log-live-dot.idle { background:var(--log-muted); box-shadow:none; animation:none; }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
+    .log-title { font-size:11px; font-weight:700; color:#8096B0; letter-spacing:.08em; text-transform:uppercase; }
+    .log-counter { font-size:10px; color:var(--log-muted); font-family:"JetBrains Mono",monospace; }
+    .log-clear-btn { background:none; border:1px solid var(--log-border); color:var(--log-muted); font-size:10px; padding:3px 8px; border-radius:4px; cursor:pointer; transition:all var(--tr); font-family:inherit; }
+    .log-clear-btn:hover { border-color:#3A5070; color:#7090A8; }
+    .log-body { flex:1; overflow-y:auto; padding:8px 0; scroll-behavior:smooth; }
+    .log-body::-webkit-scrollbar { width:3px; }
+    .log-body::-webkit-scrollbar-thumb { background:#1A2D45; border-radius:4px; }
+    .log-empty { display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%; gap:10px; color:var(--log-muted); font-size:12px; text-align:center; padding:24px; }
+    .log-empty-icon { font-size:30px; opacity:.25; }
+    .log-entry { padding:7px 14px; border-bottom:1px solid rgba(255,255,255,.03); animation:logSlide .2s ease both; }
+    .log-entry:hover { background:rgba(255,255,255,.02); }
+    @keyframes logSlide { from{opacity:0;transform:translateX(8px)} to{opacity:1;transform:translateX(0)} }
+    .log-entry-top { display:flex; align-items:center; gap:6px; margin-bottom:3px; }
+    .log-ts { font-size:10px; font-family:"JetBrains Mono",monospace; color:var(--log-muted); flex-shrink:0; }
+    .log-tag { font-size:9px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; padding:1px 5px; border-radius:3px; flex-shrink:0; }
+    .tag-AUTH  { background:#0B1A4A; color:#60A5FA; }
+    .tag-TOKEN { background:#0C1E3A; color:#38BDF8; }
+    .tag-SA    { background:#0C1E3A; color:#93C5FD; }
+    .tag-API   { background:#052E1C; color:#34D399; }
+    .tag-ACL   { background:#0D2818; color:#6EE7B7; }
+    .tag-PARSE { background:#2D1500; color:#FBD38D; }
+    .tag-DONE  { background:#052E16; color:#86EFAC; }
+    .tag-ERROR { background:#450A0A; color:#FCA5A5; }
+    .tag-SYS   { background:#101E30; color:#607080; }
+    .log-level-dot { width:6px; height:6px; border-radius:50%; flex-shrink:0; margin-top:1px; }
+    .level-info    { background:#3B82F6; }
+    .level-success { background:#22C55E; }
+    .level-error   { background:#EF4444; }
+    .level-warning { background:#F59E0B; }
+    .log-msg { font-size:11.5px; color:#6E8DA8; line-height:1.4; flex:1; }
+    .log-detail { display:none; margin-top:6px; background:#030A14; border:1px solid #0E1D30; border-radius:6px; padding:10px 12px; font-size:10px; font-family:"JetBrains Mono",monospace; color:#7DD3FC; line-height:1.7; white-space:pre; overflow-x:auto; overflow-y:auto; max-height:220px; }
+    .log-entry.expanded .log-detail { display:block; }
+    .log-detail::-webkit-scrollbar { width:3px; height:3px; }
+    .log-detail::-webkit-scrollbar-thumb { background:#1A2D45; }
+    .log-chevron { font-size:8px; color:#2A4060; flex-shrink:0; transition:transform var(--tr); margin-left:auto; }
+    .log-entry.expanded .log-chevron { transform:rotate(90deg); color:#607080; }
+    .log-entry[data-has-detail="true"]:not(.expanded):hover .log-msg { color:#94A3B8; }
+
+    /* ─── AUTH OVERLAY ───────────────────────────────────────────── */
+    .auth-overlay {
+      position:fixed; inset:0; z-index:1000;
+      background:rgba(9,15,30,.55); backdrop-filter:blur(10px);
+      display:none; align-items:center; justify-content:center; padding:20px;
+      animation:overlayIn .2s ease;
+    }
+    .auth-overlay.open { display:flex; }
+    @keyframes overlayIn { from{opacity:0} to{opacity:1} }
+    .auth-modal { background:var(--surface); border:1px solid var(--border); border-radius:20px; width:100%; max-width:860px; max-height:90vh; overflow-y:auto; box-shadow:var(--shadow-lg); animation:modalUp .28s cubic-bezier(.34,1.56,.64,1); }
+    @keyframes modalUp { from{opacity:0;transform:translateY(24px) scale(.97)} to{opacity:1;transform:translateY(0) scale(1)} }
+    .auth-modal::-webkit-scrollbar { width:4px; }
+    .auth-modal::-webkit-scrollbar-thumb { background:var(--border); border-radius:4px; }
+    .auth-modal-header { display:flex; align-items:center; justify-content:space-between; padding:22px 28px 18px; border-bottom:1px solid var(--border); }
+    .auth-modal-title { font-size:17px; font-weight:800; color:var(--navy); display:flex; align-items:center; gap:12px; }
+    .auth-modal-title .title-icon { width:36px; height:36px; border-radius:10px; background:linear-gradient(135deg,#003087,#0057E7); display:flex; align-items:center; justify-content:center; color:#fff; }
+    .auth-modal-subtitle { font-size:12px; color:var(--text-muted); font-weight:400; margin-top:2px; }
+    .auth-close-btn { width:34px; height:34px; border-radius:50%; background:var(--bg); border:1px solid var(--border); color:var(--text-muted); font-size:16px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all var(--tr); }
+    .auth-close-btn:hover { background:var(--blue-light); color:var(--navy); border-color:rgba(0,87,231,.3); }
+    .auth-actors { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; padding:24px 28px 8px; }
+    .actor-card { background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:14px 10px; text-align:center; position:relative; box-shadow:var(--shadow-xs); }
+    .actor-card::after { content:""; position:absolute; bottom:-8px; left:50%; transform:translateX(-50%); width:2px; height:8px; background:var(--border); }
+    .actor-icon { width:30px; height:30px; margin:0 auto 8px; }
+    .actor-icon svg { width:30px; height:30px; display:block; }
+    .actor-name { font-size:11px; font-weight:700; color:var(--text-secondary); text-transform:uppercase; letter-spacing:.05em; }
+    .actor-sub  { font-size:10px; color:var(--text-muted); margin-top:2px; }
+    .actor-card.c-browser { border-color:rgba(0,87,231,.28); background:linear-gradient(145deg,#EAF0FF,var(--surface)); }
+    .actor-card.c-backend { border-color:rgba(14,116,144,.28); background:linear-gradient(145deg,#E0F7FA,var(--surface)); }
+    .actor-card.c-google  { border-color:rgba(220,38,38,.22); background:linear-gradient(145deg,#FEF2F2,var(--surface)); }
+    .actor-card.c-vertex  { border-color:rgba(124,58,237,.22); background:linear-gradient(145deg,#F5F3FF,var(--surface)); }
+    .actor-name.c-browser { color:var(--blue); }
+    .actor-name.c-backend { color:#0E7490; }
+    .actor-name.c-google  { color:#DC2626; }
+    .actor-name.c-vertex  { color:#7C3AED; }
+    .auth-steps { padding:4px 28px 28px; display:flex; flex-direction:column; gap:4px; }
+    .auth-step { display:grid; grid-template-columns:28px 1fr; gap:12px; align-items:start; opacity:0; transform:translateX(-12px); animation:stepIn .4s ease forwards; }
+    @keyframes stepIn { to{opacity:1;transform:translateX(0)} }
+    .step-num { width:26px; height:26px; border-radius:50%; font-size:11px; font-weight:800; display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-top:10px; color:#fff; }
+    .step-body { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:12px 16px; position:relative; overflow:hidden; box-shadow:var(--shadow-xs); }
+    .step-body::before { content:""; position:absolute; left:0; top:0; bottom:0; width:3px; border-radius:3px 0 0 3px; }
+    .step-row { display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-bottom:4px; }
+    .step-tag { font-size:9px; font-weight:800; letter-spacing:.07em; text-transform:uppercase; padding:2px 6px; border-radius:4px; }
+    .step-arrow { font-size:14px; color:var(--text-muted); }
+    .step-from, .step-to { font-size:11px; font-weight:700; padding:2px 8px; border-radius:999px; white-space:nowrap; }
+    .step-title { font-size:13px; font-weight:700; color:var(--text-primary); }
+    .step-desc  { font-size:12px; color:var(--text-secondary); line-height:1.55; margin-top:4px; }
+    .step-data  { margin-top:8px; padding:8px 10px; background:#F8FAFC; border:1px solid var(--border); border-radius:8px; font-family:"JetBrains Mono",monospace; font-size:10px; color:var(--navy); line-height:1.6; }
+    .s-auth  .step-body::before{background:#0057E7} .s-auth  .step-num{background:#003087} .s-auth  .step-tag,.s-auth  .step-from,.s-auth  .step-to{background:var(--blue-light);color:var(--blue)}
+    .s-token .step-body::before{background:#0EA5E9} .s-token .step-num{background:#0369A1} .s-token .step-tag,.s-token .step-from,.s-token .step-to{background:#E0F7FA;color:#0369A1}
+    .s-verify .step-body::before{background:#F59E0B} .s-verify .step-num{background:#B45309} .s-verify .step-tag,.s-verify .step-from,.s-verify .step-to{background:#FFFBEB;color:#B45309}
+    .s-api   .step-body::before{background:#10B981} .s-api   .step-num{background:#047857} .s-api   .step-tag,.s-api   .step-from,.s-api   .step-to{background:#F0FDF4;color:#047857}
+    .s-acl   .step-body::before{background:#8B5CF6} .s-acl   .step-num{background:#6D28D9} .s-acl   .step-tag,.s-acl   .step-from,.s-acl   .step-to{background:#F5F3FF;color:#6D28D9}
+    .auth-callout { margin:0 28px 24px; background:linear-gradient(135deg,#F0FDF4,#EAF0FF); border:1px solid rgba(16,185,129,.25); border-radius:14px; padding:16px 20px; display:flex; gap:14px; align-items:flex-start; }
+    .callout-icon { flex-shrink:0; }
+    .callout-title { font-size:13px; font-weight:700; color:#047857; margin-bottom:4px; }
+    .callout-desc  { font-size:12px; color:var(--text-secondary); line-height:1.6; }
+
+    /* ─── MODAL TABS ────────────────────────────────────────────────── */
+    .modal-tabs { display:flex; gap:2px; padding:0 28px; border-bottom:1px solid var(--border); background:var(--surface); }
+    .modal-tab {
+      display:flex; align-items:center; gap:7px;
+      padding:11px 18px 12px; margin-bottom:-1px;
+      font-size:12px; font-weight:600; font-family:inherit; letter-spacing:.02em;
+      color:var(--text-muted); border:none; background:transparent;
+      border-bottom:2px solid transparent;
+      cursor:pointer; border-radius:6px 6px 0 0;
+      transition:all var(--tr);
+    }
+    .modal-tab:hover { color:var(--text-secondary); background:var(--bg); }
+    .modal-tab.active { color:var(--blue); border-bottom-color:var(--blue); background:var(--blue-light); }
+    .modal-tab svg { width:14px; height:14px; flex-shrink:0; }
+    .tab-panel { display:none; }
+    .tab-panel.active { display:block; }
+
+    /* ─── SEQUENCE DIAGRAM ───────────────────────────────────────────── */
+    .seq-diagram-wrap { padding:20px 20px 24px; overflow-x:auto; }
+    .seq-svg { width:100%; height:auto; display:block; }
+    .seq-line {
+      stroke-dasharray:var(--len,600);
+      stroke-dashoffset:var(--len,600);
+      transition:none;
+    }
+    .seq-label { opacity:0; transition:none; }
+    .seq-act-box { opacity:0; transition:none; }
+    .diagram-animate .seq-line { animation:seqDraw 0.45s ease forwards; }
+    .diagram-animate .seq-label { animation:seqFade 0.3s ease 0.2s forwards; }
+    .diagram-animate .seq-act-box { animation:seqFade 0.3s ease forwards; }
+    @keyframes seqDraw { to { stroke-dashoffset:0; } }
+    @keyframes seqFade { to { opacity:1; } }
+
+    /* ─── FILE TYPE ICONS ────────────────────────────────────────────── */
+    .result-icon { flex-shrink:0; margin-top:1px; width:28px; height:28px; }
+    .result-icon svg { width:28px; height:28px; display:block; }
+
+    /* ─── FOOTER ─────────────────────────────────────────────────── */
+    footer { flex-shrink:0; text-align:center; padding:13px 24px; font-size:11px; color:var(--text-muted); border-top:1px solid var(--border); background:rgba(255,255,255,.85); }
+    .vais-badge { display:inline-flex; align-items:center; gap:6px; padding:3px 12px; background:linear-gradient(135deg,var(--navy),var(--blue)); color:#fff; border-radius:999px; font-size:10px; font-weight:600; }
+
+    /* ─── RESPONSIVE ─────────────────────────────────────────────── */
+    @media (max-width:900px) { .log-col { width:300px; } }
+    @media (max-width:680px) {
+      .page-body { flex-direction:column; }
+      .log-col { width:100%; height:260px; border-left:none; border-top:1px solid #0E1D30; }
+      #search-screen { padding:24px 16px 40px; }
+    }
+  </style>
+</head>
+<body>
+
+<script>
+  window.APP_CONFIG = {
+    clientId: "254356041555-9b04u6obh8efjp6erog7fj12fnviop71.apps.googleusercontent.com"
+  };
+</script>
+
+<!-- ── Header ── -->
+<header>
+  <a href="#" class="logo-link">
+    <!-- Paramount+ official logo SVG, fill="currentColor" so CSS controls color -->
+    <svg width="110" height="25" viewBox="0 0 118 27" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-label="Paramount+">
+      <path d="M30.0123 6.87832C30.0123 2.23446 25.0793 0 19.2194 0C12.9509 0 7.19935 2.77345 5.08794 7.07256C4.5066 8.2123 4.20497 9.48068 4.20497 10.7696C4.18306 11.8875 4.48597 12.9835 5.08794 13.9084C5.99283 15.2411 7.60796 16.0799 9.97717 16.0799C12.8852 16.0799 15.1899 14.4886 15.1899 11.7151C15.1899 11.7151 15.2325 10.942 14.3276 10.942C13.5954 10.942 13.4008 11.4579 13.4227 11.7151C13.531 13.8866 12.2381 15.6283 9.93335 15.6283C7.34887 15.6283 6.27126 13.435 6.27126 11.0925C6.27126 6.29816 9.89081 3.11692 13.6599 1.74048C15.4271 1.07413 17.2794 0.751252 19.1743 0.773121C23.4396 0.773121 26.929 2.40684 26.929 6.79342C26.929 10.448 23.8482 13.565 20.1642 13.8441L20.3151 13.3501C21.0691 10.6629 21.9959 7.71833 23.5028 5.54691C23.5892 5.41698 23.74 5.20216 23.9127 4.98733L23.6974 4.72876C23.3739 4.92172 23.0723 5.13783 22.7706 5.37324C15.7055 10.8764 15.4903 26.3555 6.07661 26.3555C5.75436 26.3555 5.43082 26.3349 5.10728 26.2912C3.14669 25.9683 2.1129 24.6575 2.1129 22.8308C2.1129 22.4655 2.2418 21.9702 2.2418 21.6911C2.26371 21.1752 1.83318 20.7237 1.315 20.7237H1.20801C0.367575 20.7237 0.0234079 21.3888 0.00149465 22.3356C-0.062956 25.0653 1.96208 26.6565 5.08536 26.9576C5.42953 26.9794 5.77499 27 6.14107 27C13.4872 27 17.9884 21.4544 19.9064 14.7253C20.8758 14.6185 21.8451 14.4024 22.7706 14.1245C26.1788 13.1765 30.0123 10.8983 30.0123 6.87832Z"/>
+      <path d="M99.9819 8.48828H97.3974L96.8148 9.84285L95.8029 12.1223H94.5964L94.2303 12.8967H95.4794L93.9712 16.2285C92.8949 18.571 91.214 20.8724 90.2447 20.8724C90.0294 20.8724 89.9005 20.7862 89.9005 20.5713C89.9005 20.3552 89.965 20.1623 90.2022 19.5602C90.5038 18.8514 91.0001 17.8185 91.3661 17.0659C91.9049 15.9699 92.766 14.2719 92.766 13.4332C92.766 12.5944 92.2272 11.9281 91.1715 11.9281C89.9869 11.9281 88.9093 12.6382 87.9193 13.6686L88.5664 12.121H86.1314L84.1502 16.635C83.3536 18.2262 81.7372 20.8698 80.7253 20.8698C80.5101 20.8698 80.4237 20.7411 80.4237 20.5263C80.4456 20.3334 80.4882 20.161 80.5745 19.9667C80.6609 19.7725 81.8455 17.0003 81.8455 17.0003L83.9994 12.0773H81.3711L79.2816 16.8717C78.6358 18.3549 76.9975 20.8711 75.9418 20.8711C75.7691 20.8929 75.5976 20.763 75.5757 20.5701V20.4839C75.5757 20.2266 75.7691 19.7532 75.9199 19.4084L77.0181 17.0003L79.2804 12.0773H76.674L76.1571 13.1952C75.7691 13.9477 75.1233 14.8289 74.0895 14.8289C73.5932 14.8289 73.3573 14.6359 73.2491 14.4417C73.0982 12.7861 72.0426 11.9049 70.4919 11.9049C68.3379 11.9049 66.8079 13.1733 65.7947 14.7221C65.127 15.7963 64.6101 16.936 64.244 18.1401C63.3172 19.667 62.3492 20.8492 61.5732 20.8492C61.3786 20.8492 61.2496 20.7411 61.2496 20.4839C61.2496 20.2266 61.5087 19.6464 61.5951 19.4303L63.2966 15.8194C63.771 14.7028 64.0932 13.9709 64.0932 13.2402C64.0932 12.4658 63.5544 11.9075 62.6714 11.9075C61.443 11.9075 60.1076 12.6176 59.0519 13.7779C59.0957 13.5837 59.0957 13.4126 59.0957 13.2183C59.0957 12.359 58.6652 11.9075 57.7809 11.9075C56.6608 11.9075 55.4981 12.5751 54.4424 13.7779L55.132 12.1005H52.7615L50.7584 16.6157C49.811 18.7447 48.2809 20.8518 47.4185 20.8518C47.2252 20.8518 47.0963 20.7437 47.0963 20.4864C47.0963 20.0787 47.5487 19.0676 47.7215 18.6598L50.3717 12.6626C50.565 12.2111 49.2941 11.9307 47.6789 11.9307C46.02 11.9307 44.3185 12.7475 43.0694 13.8011C42.1864 14.5317 41.5394 14.8971 41.2158 14.8971C41.0444 14.8971 40.9786 14.8109 40.9786 14.7041C40.9786 14.3388 41.8616 13.3058 41.8616 12.5108C41.8616 12.1455 41.6683 11.9088 41.172 11.9088C40.2246 11.9088 39.1044 12.8118 38.2859 13.7573L38.9755 12.1017H36.6488L34.6457 16.617C33.6983 18.746 32.1244 20.9598 31.2634 20.9598C31.0687 20.9598 30.9398 20.8531 30.9398 20.5945C30.9398 20.1867 31.3703 19.1975 31.6075 18.6803L34.2577 12.6613C34.4511 12.2098 33.1801 11.9294 31.565 11.9294C29.1739 11.9294 26.8472 13.5425 25.6188 15.1968C24.2614 16.981 23.3359 18.872 23.314 20.4208C23.2921 21.6673 23.9392 22.4418 25.2308 22.4418C26.6745 22.4418 27.8372 21.302 28.5049 20.4427C28.4623 20.6151 28.4404 20.7862 28.4185 20.9585C28.4185 21.8179 28.7627 22.4418 29.8184 22.4418C30.7439 22.4418 31.9723 21.6673 32.9636 20.4427L32.167 22.2707H34.687L37.1645 16.6607C37.983 14.8328 38.9098 13.8873 39.1676 13.8873C39.2539 13.8873 39.2978 13.931 39.2978 13.994C39.2978 14.1883 38.9098 14.7041 38.9098 15.1762C38.9098 15.6496 39.1676 16.015 39.8572 16.015C40.396 16.015 40.998 15.7564 41.5368 15.4129C40.2658 17.1328 39.4035 18.9389 39.4035 20.4234C39.3816 21.6699 40.0286 22.4443 41.3215 22.4443C42.6788 22.4443 43.9498 21.1541 44.6381 20.2948C44.6162 20.4877 44.5956 20.682 44.5956 20.8968C44.5956 21.7355 45.07 22.4443 46.0393 22.4443C47.1156 22.4443 47.978 21.778 49.0556 20.4671L48.259 22.2732H50.8434L53.2127 16.9206C54.2464 14.5986 55.6463 13.3521 56.3359 13.3521C56.5087 13.3303 56.6595 13.4602 56.6801 13.6326V13.6969C56.6582 13.9554 56.5731 14.2127 56.4648 14.4494L53.0618 22.2964H55.7108L58.1238 16.8357C59.1576 14.4919 60.2996 13.3521 61.1607 13.3521C61.4198 13.3521 61.5268 13.482 61.5268 13.7599C61.5049 14.0609 61.4185 14.3619 61.2896 14.6205L58.9629 19.5641C58.7477 20.0375 58.6188 20.552 58.5749 21.0692C58.5749 21.8217 58.9836 22.4881 60.1475 22.4881C61.6557 22.4881 62.7965 21.3483 64.0893 19.6503V20.0156C64.1976 21.3702 64.9504 22.5524 66.9548 22.5524C69.324 22.5524 71.2421 20.9187 72.4048 18.3176C72.8366 17.3927 73.1369 16.4253 73.2452 15.4142C73.5043 15.5441 73.8046 15.6084 74.0856 15.5866C74.4736 15.5866 74.8603 15.5004 75.2058 15.3074L74.7959 16.1886C74.3215 17.1778 73.8046 18.2739 73.396 19.1988C73.1382 19.7352 72.9874 20.3372 72.9436 20.9392C72.9436 21.8642 73.4605 22.5305 74.5162 22.5305C75.5719 22.5305 77.0156 21.5413 78.0493 20.1443H78.0713C78.0068 20.4234 77.963 20.7244 77.963 21.0254C77.963 21.7998 78.2002 22.5305 79.2778 22.5305C80.5268 22.5305 81.4962 21.6275 82.4436 20.4877L81.647 22.2938H84.2534L86.3428 17.5638C87.5275 14.8984 88.7121 13.2852 89.8116 13.2852C90.0062 13.2852 90.1557 13.4139 90.1777 13.6081V13.6724C90.1777 14.124 89.5306 15.3499 88.9505 16.5745C88.4117 17.6924 88.0018 18.5517 87.7221 19.2193C87.463 19.7776 87.3122 20.3797 87.2696 21.0036C87.2696 21.8204 87.7221 22.4443 88.7353 22.4443C90.2434 22.4443 91.7722 20.983 92.5907 19.8857C92.3973 20.4234 92.311 20.9611 92.2891 21.5194C92.2891 23.0245 93.194 23.777 94.4649 23.777C95.3054 23.777 96.1239 23.4979 96.8135 23.0026C97.8047 22.3144 98.6014 21.2827 99.2691 20.3372L98.8166 19.9063C98.1915 20.7875 97.5031 21.6262 96.7916 22.142C96.4036 22.4649 95.9511 22.636 95.4562 22.6579C94.9174 22.6579 94.5732 22.3774 94.5732 21.6905C94.5732 21.0023 94.8967 20.0774 95.3917 18.8309C95.4136 18.8103 96.1239 17.219 96.7916 15.6921C97.351 14.4018 97.9117 13.1553 98.0187 12.8967H99.7202L100.066 12.1223H98.3848L99.9819 8.48828ZM26.5017 20.8929C26.1357 20.8929 25.8766 20.7643 25.8766 20.2909C25.8985 19.0225 26.9529 16.7649 28.2677 14.9588C29.1932 13.7123 30.3997 12.7874 31.6926 12.7874L30.0556 16.442C28.8284 19.1949 27.493 20.8929 26.5017 20.8929ZM42.6157 20.8929C42.2496 20.8929 41.9918 20.7643 41.9699 20.2909C41.9905 19.0225 43.0462 16.7649 44.361 14.9588C45.2865 13.7123 46.493 12.7874 47.7859 12.7874L46.1489 16.442C44.8998 19.2592 43.6289 20.8929 42.6157 20.8929ZM71.2227 13.7779C71.1583 15.1749 69.9299 18.5504 68.4874 20.5713C67.9061 21.3882 67.4098 21.6249 66.9793 21.6249C66.3761 21.6249 66.2033 21.1296 66.2897 20.399C66.4186 19.1306 67.4743 16.1642 68.9386 14.1214C69.6063 13.1965 70.0588 12.8093 70.5769 12.8093C71.0938 12.8093 71.2446 13.2402 71.2227 13.7779Z"/>
+      <path d="M111.428 12.1244L113.799 6.65723H110.991L108.619 12.1244H102.65L101.656 14.418H107.624L105.253 19.8852H108.061L110.433 14.418H116.401L117.396 12.1244H111.428Z"/>
+    </svg>
+  </a>
+  <div class="header-right">
+    <button class="auth-flow-btn" onclick="openAuthFlow()">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="3" y="6" width="8" height="7" rx="1.5" stroke="currentColor" stroke-width="1.4"/><path d="M5 6V4.5a2 2 0 0 1 4 0V6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><circle cx="7" cy="9.5" r="1" fill="currentColor"/></svg>
+      Auth Flow
+    </button>
+    <div id="header-user" style="display:none">
+      <div class="user-chip">
+        <div class="user-initials" id="user-initials"></div>
+        <div>
+          <div class="user-name-sm" id="header-name"></div>
+          <div class="user-email-sm" id="header-email"></div>
+        </div>
+        <button class="sign-out-btn" onclick="signOut()">Sign out</button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ── Auth Flow Overlay ── -->
+<div class="auth-overlay" id="auth-overlay" onclick="handleOverlayClick(event)">
+  <div class="auth-modal" id="auth-modal">
+    <div class="auth-modal-header">
+      <div>
+        <div class="auth-modal-title">
+          <div class="title-icon">
+            <svg width="20" height="20" viewBox="0 0 118 27" fill="white" xmlns="http://www.w3.org/2000/svg">
+              <path d="M30.0123 6.87832C30.0123 2.23446 25.0793 0 19.2194 0C12.9509 0 7.19935 2.77345 5.08794 7.07256C4.5066 8.2123 4.20497 9.48068 4.20497 10.7696C4.18306 11.8875 4.48597 12.9835 5.08794 13.9084C5.99283 15.2411 7.60796 16.0799 9.97717 16.0799C12.8852 16.0799 15.1899 14.4886 15.1899 11.7151C15.1899 11.7151 15.2325 10.942 14.3276 10.942C13.5954 10.942 13.4008 11.4579 13.4227 11.7151C13.531 13.8866 12.2381 15.6283 9.93335 15.6283C7.34887 15.6283 6.27126 13.435 6.27126 11.0925C6.27126 6.29816 9.89081 3.11692 13.6599 1.74048C15.4271 1.07413 17.2794 0.751252 19.1743 0.773121C23.4396 0.773121 26.929 2.40684 26.929 6.79342C26.929 10.448 23.8482 13.565 20.1642 13.8441L20.3151 13.3501C21.0691 10.6629 21.9959 7.71833 23.5028 5.54691C23.5892 5.41698 23.74 5.20216 23.9127 4.98733L23.6974 4.72876C23.3739 4.92172 23.0723 5.13783 22.7706 5.37324C15.7055 10.8764 15.4903 26.3555 6.07661 26.3555C5.75436 26.3555 5.43082 26.3349 5.10728 26.2912C3.14669 25.9683 2.1129 24.6575 2.1129 22.8308C2.1129 22.4655 2.2418 21.9702 2.2418 21.6911C2.26371 21.1752 1.83318 20.7237 1.315 20.7237H1.20801C0.367575 20.7237 0.0234079 21.3888 0.00149465 22.3356C-0.062956 25.0653 1.96208 26.6565 5.08536 26.9576C5.42953 26.9794 5.77499 27 6.14107 27C13.4872 27 17.9884 21.4544 19.9064 14.7253C20.8758 14.6185 21.8451 14.4024 22.7706 14.1245C26.1788 13.1765 30.0123 10.8983 30.0123 6.87832Z"/>
+            </svg>
+          </div>
+          <div>
+            <div>Authentication &amp; Authorization Flow</div>
+            <div class="auth-modal-subtitle">End-to-end cycle · Browser → Google Auth → Vertex AI Search</div>
+          </div>
+        </div>
+      </div>
+      <button class="auth-close-btn" onclick="closeAuthFlow()">✕</button>
+    </div>
+
+    <!-- Tab navigation -->
+    <div class="modal-tabs">
+      <button class="modal-tab active" data-tab="steps" onclick="switchTab('steps')">
+        <svg viewBox="0 0 14 14" fill="currentColor"><rect x="0" y="1" width="14" height="2" rx="1"/><rect x="0" y="6" width="10" height="2" rx="1"/><rect x="0" y="11" width="12" height="2" rx="1"/></svg>
+        Steps
+      </button>
+      <button class="modal-tab" data-tab="diagram" onclick="switchTab('diagram')">
+        <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="1" y="1" width="4" height="3" rx="1"/><rect x="9" y="1" width="4" height="3" rx="1"/><rect x="1" y="10" width="4" height="3" rx="1"/><rect x="9" y="10" width="4" height="3" rx="1"/><line x1="5" y1="2.5" x2="9" y2="2.5"/><line x1="11" y1="4" x2="11" y2="10"/><line x1="3" y1="4" x2="3" y2="10"/><line x1="5" y1="11.5" x2="9" y2="11.5"/></svg>
+        Flow Diagram
+      </button>
+    </div>
+
+    <!-- Steps tab -->
+    <div id="tab-steps" class="tab-panel active">
+    <div class="auth-actors">
+      <div class="actor-card c-browser">
+        <div class="actor-icon">
+          <svg viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="14" cy="14" r="11" stroke="#5DA8FF" stroke-width="1.6"/>
+            <ellipse cx="14" cy="14" rx="5.5" ry="11" stroke="#5DA8FF" stroke-width="1.4"/>
+            <line x1="3" y1="14" x2="25" y2="14" stroke="#5DA8FF" stroke-width="1.4"/>
+            <line x1="5" y1="9" x2="23" y2="9" stroke="#5DA8FF" stroke-width="1.2" opacity=".6"/>
+            <line x1="5" y1="19" x2="23" y2="19" stroke="#5DA8FF" stroke-width="1.2" opacity=".6"/>
+          </svg>
+        </div>
+        <div class="actor-name c-browser">Browser</div><div class="actor-sub">Your web app</div>
+      </div>
+      <div class="actor-card c-backend">
+        <div class="actor-icon">
+          <svg viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="4" y="5" width="20" height="6" rx="3" stroke="#22D3EE" stroke-width="1.5"/>
+            <rect x="4" y="13" width="20" height="6" rx="3" stroke="#22D3EE" stroke-width="1.5" opacity=".7"/>
+            <circle cx="20" cy="8" r="1.4" fill="#22D3EE"/>
+            <circle cx="20" cy="16" r="1.4" fill="#22D3EE" opacity=".7"/>
+            <line x1="14" y1="20" x2="14" y2="23" stroke="#22D3EE" stroke-width="1.4" opacity=".5"/>
+            <line x1="9" y1="23" x2="19" y2="23" stroke="#22D3EE" stroke-width="1.4" opacity=".5"/>
+          </svg>
+        </div>
+        <div class="actor-name c-backend">FastAPI Backend</div><div class="actor-sub">Cloud Run</div>
+      </div>
+      <div class="actor-card c-google">
+        <div class="actor-icon">
+          <svg viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M14 3 L23 7 L23 15 C23 20 19 24 14 26 C9 24 5 20 5 15 L5 7 Z" stroke="#F87171" stroke-width="1.5" stroke-linejoin="round"/>
+            <circle cx="14" cy="14" r="2.5" fill="#F87171"/>
+            <line x1="14" y1="17" x2="14" y2="20" stroke="#F87171" stroke-width="1.6"/>
+          </svg>
+        </div>
+        <div class="actor-name c-google">Google Auth</div><div class="actor-sub">accounts.google.com</div>
+      </div>
+      <div class="actor-card c-vertex">
+        <div class="actor-icon">
+          <svg viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M14 3 L16 11 L24 14 L16 17 L14 25 L12 17 L4 14 L12 11 Z" fill="#A78BFA" opacity=".9"/>
+            <path d="M21 5 L22 9 L26 10 L22 11 L21 15 L20 11 L16 10 L20 9 Z" fill="#A78BFA" opacity=".45"/>
+          </svg>
+        </div>
+        <div class="actor-name c-vertex">Vertex AI Search</div><div class="actor-sub">Discovery Engine</div>
+      </div>
+    </div>
+
+    <div class="auth-steps">
+      <div class="auth-step s-auth" style="animation-delay:.05s">
+        <div class="step-num">1</div>
+        <div class="step-body">
+          <div class="step-row"><span class="step-tag">AUTH</span><span class="step-from">🌐 Browser</span><span class="step-arrow">→</span><span class="step-to">🔐 Google Auth</span></div>
+          <div class="step-title">User clicks "Sign in with Google"</div>
+          <div class="step-desc">Google Identity Services opens a popup consent screen. The user authenticates and grants the <code>cloud-platform</code> scope.</div>
+        </div>
+      </div>
+      <div class="auth-step s-auth" style="animation-delay:.15s">
+        <div class="step-num">2</div>
+        <div class="step-body">
+          <div class="step-row"><span class="step-tag">AUTH</span><span class="step-from">🔐 Google Auth</span><span class="step-arrow">→</span><span class="step-to">🌐 Browser</span></div>
+          <div class="step-title">Google returns ID Token + Access Token</div>
+          <div class="step-desc">Two tokens issued and held <strong>in memory only</strong>. The <strong>ID token</strong> is a signed JWT identifying the user. The <strong>access token</strong> is short-lived for calling GCP APIs.</div>
+          <div class="step-data">ID Token:     eyJhbGci… (JWT — contains email, name, sub)
+Access Token: ya29.a0ARrd… (OAuth2 — scope: cloud-platform)
+Expires in:   3600s</div>
+        </div>
+      </div>
+      <div class="auth-step s-token" style="animation-delay:.25s">
+        <div class="step-num">3</div>
+        <div class="step-body">
+          <div class="step-row"><span class="step-tag">TOKEN</span><span class="step-from">🌐 Browser</span><span class="step-arrow">→</span><span class="step-to">⚙️ FastAPI</span></div>
+          <div class="step-title">Query + both tokens POSTed to backend</div>
+          <div class="step-desc">On every search, the browser POSTs the query, ID token, and access token to <code>/api/search</code> over HTTPS. The backend never stores tokens.</div>
+          <div class="step-data">POST /api/search
+{ "query": "…", "credential": "&lt;id_token&gt;", "access_token": "&lt;ya29…&gt;" }</div>
+        </div>
+      </div>
+      <div class="auth-step s-verify" style="animation-delay:.35s">
+        <div class="step-num">4</div>
+        <div class="step-body">
+          <div class="step-row"><span class="step-tag">VERIFY</span><span class="step-from">⚙️ FastAPI</span><span class="step-arrow">→</span><span class="step-to">🔐 Google Auth</span></div>
+          <div class="step-title">Backend verifies the ID token signature</div>
+          <div class="step-desc">Uses <code>google-auth</code> to verify the JWT cryptographic signature against Google's public keys. Confirms the token was issued for this app and is not expired.</div>
+          <div class="step-data">google.oauth2.id_token.verify_oauth2_token(credential, request, CLIENT_ID)
+→ { "email": "user@paramount.com", "sub": "…", "exp": … }</div>
+        </div>
+      </div>
+      <div class="auth-step s-verify" style="animation-delay:.45s">
+        <div class="step-num">5</div>
+        <div class="step-body">
+          <div class="step-row"><span class="step-tag">VERIFY</span><span class="step-from">⚙️ FastAPI</span><span class="step-arrow">→</span><span class="step-to">🔐 Google Auth</span></div>
+          <div class="step-title">Backend validates the access token</div>
+          <div class="step-desc">Calls <code>/oauth2/v3/tokeninfo</code> to confirm the access token is valid and the email matches the ID token. Prevents token substitution attacks.</div>
+          <div class="step-data">GET https://www.googleapis.com/oauth2/v3/tokeninfo?access_token=ya29…
+→ { "email": "user@paramount.com", "scope": "…cloud-platform…" }</div>
+        </div>
+      </div>
+      <div class="auth-step s-api" style="animation-delay:.55s">
+        <div class="step-num">6</div>
+        <div class="step-body">
+          <div class="step-row"><span class="step-tag">API</span><span class="step-from">⚙️ FastAPI</span><span class="step-arrow">→</span><span class="step-to">🔍 Vertex AI Search</span></div>
+          <div class="step-title">Two parallel calls using the user's own token</div>
+          <div class="step-desc">Fires two Discovery Engine requests simultaneously — one fast (no summary, returns results immediately) and one for AI summary generation. Both use <code>Authorization: Bearer &lt;user_access_token&gt;</code>.</div>
+          <div class="step-data">POST discoveryengine.googleapis.com/…/default_search:search
+Authorization: Bearer ya29… ← user's own token (NOT service account)
+{ "query": "…", "userInfo": { "userId": "user@paramount.com" } }</div>
+        </div>
+      </div>
+      <div class="auth-step s-acl" style="animation-delay:.65s">
+        <div class="step-num">7</div>
+        <div class="step-body">
+          <div class="step-row"><span class="step-tag">ACL</span><span class="step-from">🔍 Vertex AI Search</span><span class="step-arrow">↺</span><span class="step-to">Google Drive ACL</span></div>
+          <div class="step-title">Server-side ACL enforcement</div>
+          <div class="step-desc">Vertex AI Search checks Drive permissions server-side. Only files the user has <strong>read access to</strong> are returned — even if other files exist in the datastore. No client-side filtering.</div>
+        </div>
+      </div>
+      <div class="auth-step s-api" style="animation-delay:.75s">
+        <div class="step-num">8</div>
+        <div class="step-body">
+          <div class="step-row"><span class="step-tag">STREAM</span><span class="step-from">⚙️ FastAPI</span><span class="step-arrow">→</span><span class="step-to">🌐 Browser</span></div>
+          <div class="step-title">Results stream immediately — summary follows</div>
+          <div class="step-desc">File results arrive via SSE as soon as the fast call completes. The AI summary populates the summary card separately once generation finishes.</div>
+          <div class="step-data">data: {"type":"results", "data": { results: […] }}
+data: {"type":"summary", "data": { summaryText: "…" }}</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="auth-callout">
+      <div class="callout-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M12 2 L20 6 L20 13 C20 18 16 22 12 24 C8 22 4 18 4 13 L4 6 Z" fill="#DCFCE7" stroke="#059669" stroke-width="1.4"/><path d="M8 12 L11 15 L16 9" stroke="#059669" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <div>
+        <div class="callout-title">Zero service-account exposure on search</div>
+        <div class="callout-desc">The Discovery Engine API call is made exclusively with the signed-in user's OAuth token. No service account key or environment credential is used. If the token is invalid, the search fails — it cannot fall back to elevated credentials. ACL enforcement is fully server-side at Google.</div>
+      </div>
+    </div>
+    </div><!-- /tab-steps -->
+
+    <!-- Diagram tab -->
+    <div id="tab-diagram" class="tab-panel">
+      <div class="seq-diagram-wrap">
+        <svg class="seq-svg" viewBox="0 0 760 490" fill="none" xmlns="http://www.w3.org/2000/svg" font-family="'Google Sans',Inter,-apple-system,sans-serif">
+          <defs>
+            <filter id="glow-b" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="3" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+            <filter id="glow-g" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="2.5" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+            <marker id="ah-b" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="5" markerHeight="5" orient="auto"><path d="M0,1 L7,4 L0,7 Z" fill="#0057E7"/></marker>
+            <marker id="ah-br" viewBox="0 0 8 8" refX="1" refY="4" markerWidth="5" markerHeight="5" orient="auto"><path d="M8,1 L1,4 L8,7 Z" fill="#5DA8FF"/></marker>
+            <marker id="ah-c" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="5" markerHeight="5" orient="auto"><path d="M0,1 L7,4 L0,7 Z" fill="#38BDF8"/></marker>
+            <marker id="ah-cr" viewBox="0 0 8 8" refX="1" refY="4" markerWidth="5" markerHeight="5" orient="auto"><path d="M8,1 L1,4 L8,7 Z" fill="#38BDF8"/></marker>
+            <marker id="ah-y" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="5" markerHeight="5" orient="auto"><path d="M0,1 L7,4 L0,7 Z" fill="#FBBF24"/></marker>
+            <marker id="ah-g" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="5" markerHeight="5" orient="auto"><path d="M0,1 L7,4 L0,7 Z" fill="#34D399"/></marker>
+            <marker id="ah-gr" viewBox="0 0 8 8" refX="1" refY="4" markerWidth="5" markerHeight="5" orient="auto"><path d="M8,1 L1,4 L8,7 Z" fill="#34D399"/></marker>
+          </defs>
+
+          <!-- ── Subtle background grid ── -->
+          <rect width="760" height="490" rx="12" fill="#F0F5FF"/>
+          <path d="M0,80 H760 M0,140 H760 M0,200 H760 M0,260 H760 M0,320 H760 M0,380 H760 M0,440 H760" stroke="#DDE6F5" stroke-width="1"/>
+          <path d="M95,12 V490 M272,12 V490 M488,12 V490 M665,12 V490" stroke="#DDE6F5" stroke-width="1"/>
+
+          <!-- ── Actor boxes ── -->
+          <!-- Browser x=95 -->
+          <rect x="23" y="12" width="144" height="52" rx="10" fill="#FFFFFF" stroke="#0057E7" stroke-width="1.5"/>
+          <rect x="23" y="12" width="144" height="52" rx="10" fill="url(#grad-b)" opacity=".15"/>
+          <g transform="translate(95,32)" stroke="#5DA8FF" stroke-width="1.3" fill="none">
+            <circle r="9"/><ellipse rx="4.5" ry="9"/><line x1="-9" x2="9"/><line x1="-8" y1="-4" x2="8" y2="-4" opacity=".5"/><line x1="-8" y1="4" x2="8" y2="4" opacity=".5"/>
+          </g>
+          <text x="95" y="54" text-anchor="middle" font-size="10.5" font-weight="700" fill="#5DA8FF">Browser</text>
+
+          <!-- FastAPI x=272 -->
+          <rect x="200" y="12" width="144" height="52" rx="10" fill="#FFFFFF" stroke="#22D3EE" stroke-width="1.5"/>
+          <g transform="translate(272,31)" fill="none" stroke="#22D3EE">
+            <rect x="-11" y="-11" width="22" height="8" rx="2.5" stroke-width="1.3"/><rect x="-11" y="-1" width="22" height="8" rx="2.5" stroke-width="1.3" opacity=".65"/><circle cx="7" cy="-7" r="1.5" fill="#22D3EE"/><circle cx="7" cy="3" r="1.5" fill="#22D3EE" opacity=".65"/>
+          </g>
+          <text x="272" y="54" text-anchor="middle" font-size="10.5" font-weight="700" fill="#22D3EE">FastAPI Backend</text>
+
+          <!-- Google Auth x=488 -->
+          <rect x="416" y="12" width="144" height="52" rx="10" fill="#FFFFFF" stroke="#F87171" stroke-width="1.5"/>
+          <g transform="translate(488,32)" fill="none">
+            <path d="M0,-11 L9,-7 L9,2 C9,7 5,11 0,13 C-5,11 -9,7 -9,2 L-9,-7 Z" stroke="#F87171" stroke-width="1.3"/><circle cx="0" cy="1" r="2.5" fill="#F87171"/><line x1="0" y1="4" x2="0" y2="7" stroke="#F87171" stroke-width="1.5"/>
+          </g>
+          <text x="488" y="54" text-anchor="middle" font-size="10.5" font-weight="700" fill="#F87171">Google Auth</text>
+
+          <!-- Vertex AI x=665 -->
+          <rect x="593" y="12" width="144" height="52" rx="10" fill="#FFFFFF" stroke="#A78BFA" stroke-width="1.5"/>
+          <g transform="translate(665,33)">
+            <path d="M0,-12 L2.5,-3 L12,0 L2.5,3 L0,12 L-2.5,3 L-12,0 L-2.5,-3 Z" fill="#A78BFA" opacity=".85"/>
+            <path d="M6,-7 L7.5,-3 L12,-2 L7.5,-1 L6,3 L4.5,-1 L0,-2 L4.5,-3 Z" fill="#A78BFA" opacity=".4"/>
+          </g>
+          <text x="665" y="54" text-anchor="middle" font-size="10.5" font-weight="700" fill="#A78BFA">Vertex AI Search</text>
+
+          <!-- ── Lifelines ── -->
+          <line x1="95" y1="64" x2="95" y2="480" stroke="#B8C8E8" stroke-width="1.5" stroke-dasharray="4,5"/>
+          <line x1="272" y1="64" x2="272" y2="480" stroke="#B8C8E8" stroke-width="1.5" stroke-dasharray="4,5"/>
+          <line x1="488" y1="64" x2="488" y2="480" stroke="#B8C8E8" stroke-width="1.5" stroke-dasharray="4,5"/>
+          <line x1="665" y1="64" x2="665" y2="480" stroke="#B8C8E8" stroke-width="1.5" stroke-dasharray="4,5"/>
+
+          <!-- ── Activation boxes (appear with step) ── -->
+          <rect class="seq-act-box" x="92" y="88" width="6" height="140" rx="3" fill="#0057E7" opacity=".5" style="animation-delay:.1s"/>
+          <rect class="seq-act-box" x="269" y="186" width="6" height="256" rx="3" fill="#22D3EE" opacity=".4" style="animation-delay:.5s"/>
+          <rect class="seq-act-box" x="485" y="88" width="6" height="212" rx="3" fill="#F87171" opacity=".35" style="animation-delay:.1s"/>
+          <rect class="seq-act-box" x="662" y="328" width="6" height="70" rx="3" fill="#A78BFA" opacity=".4" style="animation-delay:1.1s"/>
+
+          <!-- ── Step 1: Browser → Google Auth (sign in) ── -->
+          <g style="animation-delay:.12s">
+            <line class="seq-line" x1="99" y1="103" x2="481" y2="103" stroke="#0057E7" stroke-width="1.8" marker-end="url(#ah-b)" style="--len:382" filter="url(#glow-b)"/>
+            <text class="seq-label" x="290" y="98" text-anchor="middle" font-size="10" fill="#1D4ED8" style="animation-delay:.5s"><tspan font-weight="800">1 </tspan>Sign in with Google</text>
+          </g>
+          <!-- Step 2: Google Auth → Browser (tokens returned) -->
+          <g style="animation-delay:.35s">
+            <line class="seq-line" x1="481" y1="148" x2="99" y2="148" stroke="#5DA8FF" stroke-width="1.5" stroke-dasharray="6,3" marker-end="url(#ah-br)" style="--len:382"/>
+            <text class="seq-label" x="290" y="143" text-anchor="middle" font-size="10" fill="#1E40AF" style="animation-delay:.7s"><tspan font-weight="800">2 </tspan>ID Token + Access Token</text>
+          </g>
+          <!-- Step 3: Browser → FastAPI (POST query + tokens) -->
+          <g style="animation-delay:.6s">
+            <line class="seq-line" x1="99" y1="197" x2="265" y2="197" stroke="#38BDF8" stroke-width="1.8" marker-end="url(#ah-c)" style="--len:166" filter="url(#glow-g)"/>
+            <text class="seq-label" x="182" y="191" text-anchor="middle" font-size="10" fill="#7DD3FC" style="animation-delay:.9s"><tspan font-weight="800">3 </tspan>POST /api/search + tokens</text>
+          </g>
+          <!-- Step 4: FastAPI → Google Auth (verify ID token) -->
+          <g style="animation-delay:.85s">
+            <line class="seq-line" x1="276" y1="244" x2="481" y2="244" stroke="#FBBF24" stroke-width="1.6" marker-end="url(#ah-y)" style="--len:205"/>
+            <text class="seq-label" x="379" y="239" text-anchor="middle" font-size="10" fill="#A16207" style="animation-delay:1.1s"><tspan font-weight="800">4 </tspan>verify_oauth2_token()</text>
+          </g>
+          <!-- Step 5: FastAPI → Google Auth (validate access token) -->
+          <g style="animation-delay:1.05s">
+            <line class="seq-line" x1="276" y1="288" x2="481" y2="288" stroke="#FBBF24" stroke-width="1.4" stroke-dasharray="5,3" marker-end="url(#ah-y)" style="--len:205"/>
+            <text class="seq-label" x="379" y="283" text-anchor="middle" font-size="10" fill="#A16207" opacity=".8" style="animation-delay:1.25s"><tspan font-weight="800">5 </tspan>GET /tokeninfo</text>
+          </g>
+          <!-- Step 6: FastAPI → Vertex AI (parallel search calls) -->
+          <g style="animation-delay:1.25s">
+            <line class="seq-line" x1="276" y1="337" x2="658" y2="337" stroke="#34D399" stroke-width="2" marker-end="url(#ah-g)" style="--len:382" filter="url(#glow-g)"/>
+            <line class="seq-line" x1="276" y1="349" x2="658" y2="349" stroke="#34D399" stroke-width="1.4" stroke-dasharray="4,4" marker-end="url(#ah-g)" style="--len:382" filter="url(#glow-g)"/>
+            <text class="seq-label" x="467" y="330" text-anchor="middle" font-size="10" fill="#047857" style="animation-delay:1.5s"><tspan font-weight="800">6 </tspan>search ×2 parallel (fast + summary)</text>
+          </g>
+          <!-- Step 7: Vertex AI → FastAPI (ACL results) -->
+          <g style="animation-delay:1.5s">
+            <line class="seq-line" x1="658" y1="393" x2="276" y2="393" stroke="#34D399" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#ah-gr)" style="--len:382"/>
+            <text class="seq-label" x="467" y="387" text-anchor="middle" font-size="10" fill="#047857" style="animation-delay:1.75s"><tspan font-weight="800">7 </tspan>ACL-filtered results + AI summary</text>
+          </g>
+          <!-- Step 8: FastAPI → Browser (SSE stream) -->
+          <g style="animation-delay:1.75s">
+            <line class="seq-line" x1="265" y1="438" x2="99" y2="438" stroke="#38BDF8" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#ah-cr)" style="--len:166"/>
+            <text class="seq-label" x="182" y="432" text-anchor="middle" font-size="10" fill="#7DD3FC" style="animation-delay:2s"><tspan font-weight="800">8 </tspan>SSE: results stream → summary</text>
+          </g>
+
+          <!-- ── Step number circles (right side legend) ── -->
+          <g transform="translate(0,0)">
+            <circle cx="51" cy="103" r="9" fill="#003087" stroke="#0057E7" stroke-width="1"/>
+            <text x="51" y="107" text-anchor="middle" font-size="9" font-weight="800" fill="#fff">1</text>
+            <circle cx="51" cy="148" r="9" fill="#003087" stroke="#5DA8FF" stroke-width="1"/>
+            <text x="51" y="152" text-anchor="middle" font-size="9" font-weight="800" fill="#fff">2</text>
+          </g>
+          <g>
+            <circle cx="238" cy="197" r="9" fill="#0C2030" stroke="#38BDF8" stroke-width="1"/>
+            <text x="238" y="201" text-anchor="middle" font-size="9" font-weight="800" fill="#fff">3</text>
+            <circle cx="238" cy="244" r="9" fill="#1C1000" stroke="#FBBF24" stroke-width="1"/>
+            <text x="238" y="248" text-anchor="middle" font-size="9" font-weight="800" fill="#fff">4</text>
+            <circle cx="238" cy="288" r="9" fill="#1C1000" stroke="#FBBF24" stroke-width="1"/>
+            <text x="238" y="292" text-anchor="middle" font-size="9" font-weight="800" fill="#fff">5</text>
+            <circle cx="238" cy="337" r="9" fill="#022C22" stroke="#34D399" stroke-width="1"/>
+            <text x="238" y="341" text-anchor="middle" font-size="9" font-weight="800" fill="#fff">6</text>
+            <circle cx="238" cy="393" r="9" fill="#022C22" stroke="#34D399" stroke-width="1"/>
+            <text x="238" y="397" text-anchor="middle" font-size="9" font-weight="800" fill="#fff">7</text>
+            <circle cx="238" cy="438" r="9" fill="#0C2030" stroke="#38BDF8" stroke-width="1"/>
+            <text x="238" y="442" text-anchor="middle" font-size="9" font-weight="800" fill="#fff">8</text>
+          </g>
+        </svg>
+      </div>
+    </div><!-- /tab-diagram -->
+
+  </div><!-- /auth-modal -->
+</div><!-- /auth-overlay -->
+
+<!-- ── Page body ── -->
+<div class="page-body">
+
+  <!-- LEFT: search area -->
+  <div class="search-col" id="search-col">
+
+    <!-- Sign-in screen -->
+    <div id="signin-screen">
+      <div class="signin-card">
+        <!-- Paramount+ logo, large, navy -->
+        <div class="signin-logo-wrap" style="color:#003087">
+          <svg width="200" height="46" viewBox="0 0 118 27" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-label="Paramount+">
+            <path d="M30.0123 6.87832C30.0123 2.23446 25.0793 0 19.2194 0C12.9509 0 7.19935 2.77345 5.08794 7.07256C4.5066 8.2123 4.20497 9.48068 4.20497 10.7696C4.18306 11.8875 4.48597 12.9835 5.08794 13.9084C5.99283 15.2411 7.60796 16.0799 9.97717 16.0799C12.8852 16.0799 15.1899 14.4886 15.1899 11.7151C15.1899 11.7151 15.2325 10.942 14.3276 10.942C13.5954 10.942 13.4008 11.4579 13.4227 11.7151C13.531 13.8866 12.2381 15.6283 9.93335 15.6283C7.34887 15.6283 6.27126 13.435 6.27126 11.0925C6.27126 6.29816 9.89081 3.11692 13.6599 1.74048C15.4271 1.07413 17.2794 0.751252 19.1743 0.773121C23.4396 0.773121 26.929 2.40684 26.929 6.79342C26.929 10.448 23.8482 13.565 20.1642 13.8441L20.3151 13.3501C21.0691 10.6629 21.9959 7.71833 23.5028 5.54691C23.5892 5.41698 23.74 5.20216 23.9127 4.98733L23.6974 4.72876C23.3739 4.92172 23.0723 5.13783 22.7706 5.37324C15.7055 10.8764 15.4903 26.3555 6.07661 26.3555C5.75436 26.3555 5.43082 26.3349 5.10728 26.2912C3.14669 25.9683 2.1129 24.6575 2.1129 22.8308C2.1129 22.4655 2.2418 21.9702 2.2418 21.6911C2.26371 21.1752 1.83318 20.7237 1.315 20.7237H1.20801C0.367575 20.7237 0.0234079 21.3888 0.00149465 22.3356C-0.062956 25.0653 1.96208 26.6565 5.08536 26.9576C5.42953 26.9794 5.77499 27 6.14107 27C13.4872 27 17.9884 21.4544 19.9064 14.7253C20.8758 14.6185 21.8451 14.4024 22.7706 14.1245C26.1788 13.1765 30.0123 10.8983 30.0123 6.87832Z"/>
+            <path d="M99.9819 8.48828H97.3974L96.8148 9.84285L95.8029 12.1223H94.5964L94.2303 12.8967H95.4794L93.9712 16.2285C92.8949 18.571 91.214 20.8724 90.2447 20.8724C90.0294 20.8724 89.9005 20.7862 89.9005 20.5713C89.9005 20.3552 89.965 20.1623 90.2022 19.5602C90.5038 18.8514 91.0001 17.8185 91.3661 17.0659C91.9049 15.9699 92.766 14.2719 92.766 13.4332C92.766 12.5944 92.2272 11.9281 91.1715 11.9281C89.9869 11.9281 88.9093 12.6382 87.9193 13.6686L88.5664 12.121H86.1314L84.1502 16.635C83.3536 18.2262 81.7372 20.8698 80.7253 20.8698C80.5101 20.8698 80.4237 20.7411 80.4237 20.5263C80.4456 20.3334 80.4882 20.161 80.5745 19.9667C80.6609 19.7725 81.8455 17.0003 81.8455 17.0003L83.9994 12.0773H81.3711L79.2816 16.8717C78.6358 18.3549 76.9975 20.8711 75.9418 20.8711C75.7691 20.8929 75.5976 20.763 75.5757 20.5701V20.4839C75.5757 20.2266 75.7691 19.7532 75.9199 19.4084L77.0181 17.0003L79.2804 12.0773H76.674L76.1571 13.1952C75.7691 13.9477 75.1233 14.8289 74.0895 14.8289C73.5932 14.8289 73.3573 14.6359 73.2491 14.4417C73.0982 12.7861 72.0426 11.9049 70.4919 11.9049C68.3379 11.9049 66.8079 13.1733 65.7947 14.7221C65.127 15.7963 64.6101 16.936 64.244 18.1401C63.3172 19.667 62.3492 20.8492 61.5732 20.8492C61.3786 20.8492 61.2496 20.7411 61.2496 20.4839C61.2496 20.2266 61.5087 19.6464 61.5951 19.4303L63.2966 15.8194C63.771 14.7028 64.0932 13.9709 64.0932 13.2402C64.0932 12.4658 63.5544 11.9075 62.6714 11.9075C61.443 11.9075 60.1076 12.6176 59.0519 13.7779C59.0957 13.5837 59.0957 13.4126 59.0957 13.2183C59.0957 12.359 58.6652 11.9075 57.7809 11.9075C56.6608 11.9075 55.4981 12.5751 54.4424 13.7779L55.132 12.1005H52.7615L50.7584 16.6157C49.811 18.7447 48.2809 20.8518 47.4185 20.8518C47.2252 20.8518 47.0963 20.7437 47.0963 20.4864C47.0963 20.0787 47.5487 19.0676 47.7215 18.6598L50.3717 12.6626C50.565 12.2111 49.2941 11.9307 47.6789 11.9307C46.02 11.9307 44.3185 12.7475 43.0694 13.8011C42.1864 14.5317 41.5394 14.8971 41.2158 14.8971C41.0444 14.8971 40.9786 14.8109 40.9786 14.7041C40.9786 14.3388 41.8616 13.3058 41.8616 12.5108C41.8616 12.1455 41.6683 11.9088 41.172 11.9088C40.2246 11.9088 39.1044 12.8118 38.2859 13.7573L38.9755 12.1017H36.6488L34.6457 16.617C33.6983 18.746 32.1244 20.9598 31.2634 20.9598C31.0687 20.9598 30.9398 20.8531 30.9398 20.5945C30.9398 20.1867 31.3703 19.1975 31.6075 18.6803L34.2577 12.6613C34.4511 12.2098 33.1801 11.9294 31.565 11.9294C29.1739 11.9294 26.8472 13.5425 25.6188 15.1968C24.2614 16.981 23.3359 18.872 23.314 20.4208C23.2921 21.6673 23.9392 22.4418 25.2308 22.4418C26.6745 22.4418 27.8372 21.302 28.5049 20.4427C28.4623 20.6151 28.4404 20.7862 28.4185 20.9585C28.4185 21.8179 28.7627 22.4418 29.8184 22.4418C30.7439 22.4418 31.9723 21.6673 32.9636 20.4427L32.167 22.2707H34.687L37.1645 16.6607C37.983 14.8328 38.9098 13.8873 39.1676 13.8873C39.2539 13.8873 39.2978 13.931 39.2978 13.994C39.2978 14.1883 38.9098 14.7041 38.9098 15.1762C38.9098 15.6496 39.1676 16.015 39.8572 16.015C40.396 16.015 40.998 15.7564 41.5368 15.4129C40.2658 17.1328 39.4035 18.9389 39.4035 20.4234C39.3816 21.6699 40.0286 22.4443 41.3215 22.4443C42.6788 22.4443 43.9498 21.1541 44.6381 20.2948C44.6162 20.4877 44.5956 20.682 44.5956 20.8968C44.5956 21.7355 45.07 22.4443 46.0393 22.4443C47.1156 22.4443 47.978 21.778 49.0556 20.4671L48.259 22.2732H50.8434L53.2127 16.9206C54.2464 14.5986 55.6463 13.3521 56.3359 13.3521C56.5087 13.3303 56.6595 13.4602 56.6801 13.6326V13.6969C56.6582 13.9554 56.5731 14.2127 56.4648 14.4494L53.0618 22.2964H55.7108L58.1238 16.8357C59.1576 14.4919 60.2996 13.3521 61.1607 13.3521C61.4198 13.3521 61.5268 13.482 61.5268 13.7599C61.5049 14.0609 61.4185 14.3619 61.2896 14.6205L58.9629 19.5641C58.7477 20.0375 58.6188 20.552 58.5749 21.0692C58.5749 21.8217 58.9836 22.4881 60.1475 22.4881C61.6557 22.4881 62.7965 21.3483 64.0893 19.6503V20.0156C64.1976 21.3702 64.9504 22.5524 66.9548 22.5524C69.324 22.5524 71.2421 20.9187 72.4048 18.3176C72.8366 17.3927 73.1369 16.4253 73.2452 15.4142C73.5043 15.5441 73.8046 15.6084 74.0856 15.5866C74.4736 15.5866 74.8603 15.5004 75.2058 15.3074L74.7959 16.1886C74.3215 17.1778 73.8046 18.2739 73.396 19.1988C73.1382 19.7352 72.9874 20.3372 72.9436 20.9392C72.9436 21.8642 73.4605 22.5305 74.5162 22.5305C75.5719 22.5305 77.0156 21.5413 78.0493 20.1443H78.0713C78.0068 20.4234 77.963 20.7244 77.963 21.0254C77.963 21.7998 78.2002 22.5305 79.2778 22.5305C80.5268 22.5305 81.4962 21.6275 82.4436 20.4877L81.647 22.2938H84.2534L86.3428 17.5638C87.5275 14.8984 88.7121 13.2852 89.8116 13.2852C90.0062 13.2852 90.1557 13.4139 90.1777 13.6081V13.6724C90.1777 14.124 89.5306 15.3499 88.9505 16.5745C88.4117 17.6924 88.0018 18.5517 87.7221 19.2193C87.463 19.7776 87.3122 20.3797 87.2696 21.0036C87.2696 21.8204 87.7221 22.4443 88.7353 22.4443C90.2434 22.4443 91.7722 20.983 92.5907 19.8857C92.3973 20.4234 92.311 20.9611 92.2891 21.5194C92.2891 23.0245 93.194 23.777 94.4649 23.777C95.3054 23.777 96.1239 23.4979 96.8135 23.0026C97.8047 22.3144 98.6014 21.2827 99.2691 20.3372L98.8166 19.9063C98.1915 20.7875 97.5031 21.6262 96.7916 22.142C96.4036 22.4649 95.9511 22.636 95.4562 22.6579C94.9174 22.6579 94.5732 22.3774 94.5732 21.6905C94.5732 21.0023 94.8967 20.0774 95.3917 18.8309C95.4136 18.8103 96.1239 17.219 96.7916 15.6921C97.351 14.4018 97.9117 13.1553 98.0187 12.8967H99.7202L100.066 12.1223H98.3848L99.9819 8.48828ZM26.5017 20.8929C26.1357 20.8929 25.8766 20.7643 25.8766 20.2909C25.8985 19.0225 26.9529 16.7649 28.2677 14.9588C29.1932 13.7123 30.3997 12.7874 31.6926 12.7874L30.0556 16.442C28.8284 19.1949 27.493 20.8929 26.5017 20.8929ZM42.6157 20.8929C42.2496 20.8929 41.9918 20.7643 41.9699 20.2909C41.9905 19.0225 43.0462 16.7649 44.361 14.9588C45.2865 13.7123 46.493 12.7874 47.7859 12.7874L46.1489 16.442C44.8998 19.2592 43.6289 20.8929 42.6157 20.8929ZM71.2227 13.7779C71.1583 15.1749 69.9299 18.5504 68.4874 20.5713C67.9061 21.3882 67.4098 21.6249 66.9793 21.6249C66.3761 21.6249 66.2033 21.1296 66.2897 20.399C66.4186 19.1306 67.4743 16.1642 68.9386 14.1214C69.6063 13.1965 70.0588 12.8093 70.5769 12.8093C71.0938 12.8093 71.2446 13.2402 71.2227 13.7779Z"/>
+            <path d="M111.428 12.1244L113.799 6.65723H110.991L108.619 12.1244H102.65L101.656 14.418H107.624L105.253 19.8852H108.061L110.433 14.418H116.401L117.396 12.1244H111.428Z"/>
+          </svg>
+        </div>
+        <h2>Enterprise Drive Search</h2>
+        <p>AI-powered semantic search across your Google Drive, secured by your Paramount identity and enforced by Drive ACL.</p>
+        <div class="signin-features">
+          <div class="signin-feature"><div class="signin-feature-dot"></div>Semantic search — finds meaning, not just keywords</div>
+          <div class="signin-feature"><div class="signin-feature-dot"></div>ACL-enforced — only your files, server-side</div>
+          <div class="signin-feature"><div class="signin-feature-dot"></div>Real-time AI summary powered by Vertex AI</div>
+        </div>
+        <div class="signin-divider">Sign in to continue</div>
+        <div id="g_id_onload" data-client_id="" data-callback="handleCredentialResponse" data-auto_prompt="false"></div>
+        <div class="g_id_signin" data-type="standard" data-shape="pill" data-theme="outline" data-text="sign_in_with" data-size="large" data-logo_alignment="left"></div>
+        <div class="signin-trust">🔒 Protected by Google OAuth 2.0 · Tokens never stored</div>
+      </div>
+    </div>
+
+    <!-- Search screen -->
+    <div id="search-screen">
+      <div class="search-bar-wrap">
+        <input type="text" id="search-input" class="search-bar" placeholder="Search your Paramount Drive…" autocomplete="off" spellcheck="true" />
+        <button class="search-btn" id="search-btn" onclick="doSearch()" title="Search">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+        </button>
+      </div>
+
+      <div id="error-banner" class="error-banner" style="display:none">
+        <span style="font-size:17px;flex-shrink:0">⚠️</span>
+        <span id="error-text"></span>
+      </div>
+
+      <div id="status-row"></div>
+      <div id="summary-card">
+        <div class="summary-label"><span>★</span> AI Summary</div>
+        <div id="summary-text"></div>
+      </div>
+      <div id="skeleton-list"></div>
+      <div id="results-list"></div>
+    </div>
+
+  </div>
+
+  <!-- RIGHT: live log panel -->
+  <div class="log-col">
+    <div class="log-header">
+      <div class="log-header-left">
+        <div class="log-live-dot idle" id="log-dot"></div>
+        <span class="log-title">Event Log</span>
+        <span class="log-counter" id="log-counter">0 events</span>
+      </div>
+      <button class="log-clear-btn" onclick="clearLog()">Clear</button>
+    </div>
+    <div class="log-body" id="log-body">
+      <div class="log-empty" id="log-empty">
+        <div class="log-empty-icon">📋</div>
+        <div>Run a search to see<br>the live event stream</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ── Footer ── -->
+<footer>
+  <span class="vais-badge">⚡ Powered by Vertex AI Search</span>
+</footer>
+
+<script>
+  // ── State ──────────────────────────────────────────────────────
+  let _credential   = null;
+  let _accessToken  = null;
+  let _searching    = false;
+  let _logCount     = 0;
+  let _tokenClient  = null;
+
+  // ── GSI init ───────────────────────────────────────────────────
+  window.addEventListener("load", () => {
+    const cid = window.APP_CONFIG?.clientId || "";
+    document.getElementById("g_id_onload").setAttribute("data-client_id", cid);
+    if (window.google?.accounts) { initGSI(cid); }
+    else {
+      document.querySelector('script[src*="accounts.google.com/gsi/client"]')
+        ?.addEventListener("load", () => initGSI(cid));
+    }
+    logSys("App loaded — waiting for Google Sign-In");
+  });
+
+  function initGSI(cid) {
+    google.accounts.id.initialize({ client_id: cid, callback: handleCredentialResponse });
+    google.accounts.id.renderButton(
+      document.querySelector(".g_id_signin"),
+      { theme: "outline", size: "large", shape: "pill", text: "sign_in_with", logo_alignment: "left" }
+    );
+    _tokenClient = google.accounts.oauth2.initTokenClient({
+      client_id: cid,
+      scope: "https://www.googleapis.com/auth/cloud-platform",
+      callback: handleTokenResponse,
+    });
+  }
+
+  // ── Auth ───────────────────────────────────────────────────────
+  function handleCredentialResponse(resp) {
+    _credential = resp.credential;
+    const p = JSON.parse(atob(_credential.split(".")[1]));
+    const name     = p.name  || "User";
+    const email    = p.email || "";
+    const initials = name.split(" ").map(w => w[0]).join("").slice(0,2).toUpperCase();
+
+    document.getElementById("user-initials").textContent = initials;
+    document.getElementById("header-name").textContent   = name;
+    document.getElementById("header-email").textContent  = email;
+    document.getElementById("header-user").style.display = "flex";
+
+    logEntry("success", "AUTH", "AUTH",
+      `ID token verified — ${email}`,
+      { name, email, token_prefix: _credential.slice(0,20) + "…" }
+    );
+    logEntry("info", "token_req", "TOKEN",
+      "Requesting OAuth access token (cloud-platform scope)…",
+      { scope: "https://www.googleapis.com/auth/cloud-platform", prompt: "none" }
+    );
+    _tokenClient.requestAccessToken({ prompt: "" });
+  }
+
+  function handleTokenResponse(tokenResp) {
+    if (tokenResp.error) {
+      logEntry("error", "token_err", "TOKEN", `Access token error: ${tokenResp.error}`);
+      return;
+    }
+    _accessToken = tokenResp.access_token;
+    logEntry("success", "token_ok", "TOKEN",
+      `Access token granted — expires in ${tokenResp.expires_in}s`,
+      { token_prefix: _accessToken.slice(0,16) + "…", expires_in: tokenResp.expires_in + "s", scope: tokenResp.scope }
+    );
+    document.getElementById("signin-screen").style.display = "none";
+    document.getElementById("search-screen").style.display = "flex";
+    setTimeout(() => document.getElementById("search-input").focus(), 80);
+  }
+
+  function signOut() {
+    logSys("Signed out — session cleared");
+    _credential  = null;
+    _accessToken = null;
+    google.accounts.id.disableAutoSelect();
+    if (_tokenClient) google.accounts.oauth2.revoke(_accessToken || "", () => {});
+    document.getElementById("header-user").style.display    = "none";
+    document.getElementById("signin-screen").style.display  = "flex";
+    document.getElementById("search-screen").style.display  = "none";
+    clearResults();
+    document.getElementById("search-input").value = "";
+    setLogDot(false);
+  }
+
+  // ── Search ─────────────────────────────────────────────────────
+  document.addEventListener("keydown", e => {
+    if (e.key === "Enter" && document.activeElement === document.getElementById("search-input"))
+      doSearch();
+  });
+
+  async function doSearch() {
+    const query = document.getElementById("search-input").value.trim();
+    if (!query || _searching) return;
+    if (!_credential || !_accessToken) { showError("Session expired — please sign in again."); signOut(); return; }
+
+    _searching = true;
+    clearResults();
+    showSkeletons(5);
+    hideError();
+    setLogDot(true);
+
+    logEntry("info", "SEARCH", "SYS", `New query: "${query}"`, { query, page_size: 10 });
+
+    try {
+      const resp = await fetch("/api/search", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ query, credential: _credential, access_token: _accessToken, page_size: 10 }),
+      });
+
+      if (resp.status === 401) {
+        _credential = null;
+        logEntry("error", "401", "AUTH", "Token rejected by server — please sign in again");
+        showError("Session expired. Please sign in again."); signOut(); return;
+      }
+      if (!resp.ok) {
+        const err = await resp.json().catch(() => ({ detail: resp.statusText }));
+        throw new Error(err.detail || "Search failed.");
+      }
+
+      const reader  = resp.body.getReader();
+      const decoder = new TextDecoder();
+      let   buffer  = "";
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split("\n");
+        buffer = lines.pop();
+        for (const line of lines) {
+          if (!line.startsWith("data: ")) continue;
+          try {
+            const ev = JSON.parse(line.slice(6));
+            handleStreamEvent(ev);
+          } catch (_) {}
+        }
+      }
+    } catch (err) {
+      hideSkeletons();
+      logEntry("error", "ERR", "SYS", err.message);
+      showError(err.message || "An unexpected error occurred.");
+    } finally {
+      _searching = false;
+      setLogDot(false);
+    }
+  }
+
+  function handleStreamEvent(ev) {
+    if (ev.type === "log") {
+      logEntry(ev.level, ev.step, ev.tag, ev.message, ev.detail);
+    } else if (ev.type === "results") {
+      hideSkeletons();
+      renderResults(ev.data);
+    } else if (ev.type === "summary") {
+      renderSummary(ev.data?.summaryText || "");
+    } else if (ev.type === "error") {
+      hideSkeletons();
+      logEntry("error", "ERR", "SYS", ev.message);
+      showError(ev.message);
+    }
+  }
+
+  // ── Render results ─────────────────────────────────────────────
+  function renderResults(data) {
+    const { results = [], total = 0 } = data;
+    const sr = document.getElementById("status-row");
+    if (results.length > 0) {
+      sr.textContent = `About ${total.toLocaleString()} result${total !== 1 ? "s" : ""}`;
+      sr.style.display = "block";
+    }
+    document.getElementById("summary-text").innerHTML =
+      `<span style="color:rgba(255,255,255,.38);font-style:italic">Generating AI summary…</span>`;
+    document.getElementById("summary-card").style.display = "block";
+
+    const list = document.getElementById("results-list");
+    if (results.length === 0) {
+      list.innerHTML = `<div class="empty-state"><div class="ei">🔍</div><h3>No results found</h3><p>Try different keywords, or check your Drive access.</p></div>`;
+      return;
+    }
+    list.innerHTML = results.map((r, i) => `
+      <div class="result-card" style="animation-delay:${i*35}ms">
+        <div class="result-header">
+          <div class="result-icon">${getFileIcon(r.mime_type)}</div>
+          <div class="result-title-wrap">
+            ${r.link
+              ? `<a href="${escAttr(r.link)}" target="_blank" rel="noopener noreferrer" class="result-title">${escHtml(r.title)}</a>`
+              : `<span class="result-title" style="color:var(--text-primary)">${escHtml(r.title)}</span>`}
+            <div class="result-meta"><span class="badge">📂 ${escHtml(r.source)}</span></div>
+          </div>
+        </div>
+        ${r.snippet ? `<p class="result-snippet">${safeSnippet(r.snippet)}</p>` : ""}
+      </div>`).join("");
+  }
+
+  function renderSummary(text) {
+    const card = document.getElementById("summary-card");
+    const el   = document.getElementById("summary-text");
+    if (!text?.trim()) {
+      card.style.display = "none";
+      return;
+    }
+    el.textContent = text;
+    card.style.display = "block";
+  }
+
+  // ── Log panel ──────────────────────────────────────────────────
+  function logSys(msg) { logEntry("info", "—", "SYS", msg); }
+
+  function logEntry(level, step, tag, msg, detail) {
+    _logCount++;
+    const body  = document.getElementById("log-body");
+    const empty = document.getElementById("log-empty");
+    if (empty) empty.style.display = "none";
+
+    document.getElementById("log-counter").textContent = `${_logCount} event${_logCount !== 1 ? "s" : ""}`;
+
+    const now = new Date();
+    const ts  = now.toTimeString().slice(0,8) + "." + String(now.getMilliseconds()).padStart(3,"0");
+    const hasDetail = detail && Object.keys(detail).length > 0;
+
+    const el = document.createElement("div");
+    el.className = "log-entry";
+    if (hasDetail) el.dataset.hasDetail = "true";
+    el.innerHTML = `
+      <div class="log-entry-top">
+        <span class="log-ts">${escHtml(ts)}</span>
+        <span class="log-tag tag-${escHtml(tag || "SYS")}">${escHtml(tag || "SYS")}</span>
+        <div class="log-level-dot level-${escHtml(level || "info")}"></div>
+        <span class="log-msg">${escHtml(msg || "")}</span>
+        ${hasDetail ? `<span class="log-chevron">▶</span>` : ""}
+      </div>
+      ${hasDetail ? `<div class="log-detail">${colorJson(detail)}</div>` : ""}
+    `;
+    if (hasDetail) el.addEventListener("click", () => el.classList.toggle("expanded"));
+    body.appendChild(el);
+    body.scrollTop = body.scrollHeight;
+  }
+
+  function clearLog() {
+    _logCount = 0;
+    document.getElementById("log-counter").textContent = "0 events";
+    const body = document.getElementById("log-body");
+    body.innerHTML = `<div class="log-empty" id="log-empty"><div class="log-empty-icon">📋</div><div>Run a search to see<br>the live event stream</div></div>`;
+    setLogDot(false);
+  }
+
+  function setLogDot(active) {
+    document.getElementById("log-dot").classList.toggle("idle", !active);
+  }
+
+  // ── Skeleton helpers ──────────────────────────────────────────
+  function showSkeletons(n) {
+    const el = document.getElementById("skeleton-list");
+    el.innerHTML = Array.from({length: n}, () => `
+      <div class="skeleton-card">
+        <div class="skel-row"><div class="skel skel-circle"></div><div class="skel skel-title"></div></div>
+        <div class="skel skel-line"></div><div class="skel skel-line short"></div>
+      </div>`).join("");
+    el.style.display = "flex";
+  }
+  function hideSkeletons() {
+    const el = document.getElementById("skeleton-list");
+    el.style.display = "none"; el.innerHTML = "";
+  }
+
+  // ── Error helpers ─────────────────────────────────────────────
+  function showError(msg) {
+    document.getElementById("error-text").textContent = msg;
+    document.getElementById("error-banner").style.display = "flex";
+  }
+  function hideError() { document.getElementById("error-banner").style.display = "none"; }
+  function clearResults() {
+    document.getElementById("results-list").innerHTML = "";
+    document.getElementById("summary-card").style.display = "none";
+    document.getElementById("status-row").style.display   = "none";
+  }
+
+  // ── XSS safety ───────────────────────────────────────────────
+  function escHtml(s) {
+    return String(s ?? "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+  }
+  function escAttr(s) {
+    const str = String(s ?? "");
+    return (str.startsWith("http://") || str.startsWith("https://")) ? escHtml(str) : "#";
+  }
+  function colorJson(obj) {
+    const raw = JSON.stringify(obj, null, 2);
+    return raw.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, match => {
+      let cls = "color:#c084fc";
+      if (/^"/.test(match)) {
+        cls = /:$/.test(match) ? "color:#7dd3fc" : "color:#86efac";
+      } else if (/true|false/.test(match)) {
+        cls = "color:#fb923c";
+      } else if (/null/.test(match)) {
+        cls = "color:#94a3b8";
+      }
+      return `<span style="${cls}">${escHtml(match)}</span>`;
+    });
+  }
+  function safeSnippet(s) {
+    const decoded = String(s ?? "")
+      .replace(/&lt;/g, "<").replace(/&gt;/g, ">")
+      .replace(/&amp;/g, "&").replace(/&quot;/g, '"').replace(/&nbsp;/g, " ");
+    return decoded.replace(/<(?!\/?(?:b|em)\b)[^>]+>/gi, "");
+  }
+
+  // ── File type icons ───────────────────────────────────────────
+  function getFileIcon(mime) {
+    const m = (mime || "").toLowerCase();
+    if (m.includes("spreadsheet")) return `<svg viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="3" y="3" width="22" height="22" rx="4" fill="#E8F5E9" stroke="#34A853" stroke-width="1.5"/><line x1="3" y1="10" x2="25" y2="10" stroke="#34A853" stroke-width="1.2"/><line x1="3" y1="17" x2="25" y2="17" stroke="#34A853" stroke-width="1.2"/><line x1="10" y1="3" x2="10" y2="25" stroke="#34A853" stroke-width="1.2"/><line x1="17" y1="3" x2="17" y2="25" stroke="#34A853" stroke-width="1.2"/></svg>`;
+    if (m.includes("presentation")) return `<svg viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="3" y="5" width="22" height="16" rx="3" fill="#FFF3E0" stroke="#FBBC04" stroke-width="1.5"/><line x1="14" y1="21" x2="14" y2="25" stroke="#FBBC04" stroke-width="1.5"/><line x1="10" y1="25" x2="18" y2="25" stroke="#FBBC04" stroke-width="1.5"/><rect x="7" y="9" width="14" height="8" rx="2" fill="#FBBC04" opacity=".2"/><line x1="7" y1="11" x2="21" y2="11" stroke="#FBBC04" stroke-width="1.2"/><line x1="7" y1="14" x2="16" y2="14" stroke="#FBBC04" stroke-width="1.2"/></svg>`;
+    if (m.includes("document")) return `<svg viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="5" y="2" width="18" height="24" rx="3" fill="#E8F0FE" stroke="#4285F4" stroke-width="1.5"/><line x1="9" y1="9" x2="19" y2="9" stroke="#4285F4" stroke-width="1.3"/><line x1="9" y1="13" x2="19" y2="13" stroke="#4285F4" stroke-width="1.3"/><line x1="9" y1="17" x2="15" y2="17" stroke="#4285F4" stroke-width="1.3"/></svg>`;
+    if (m.includes("pdf")) return `<svg viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="4" y="2" width="20" height="24" rx="3" fill="#FCE8E6" stroke="#EA4335" stroke-width="1.5"/><text x="7" y="19" font-size="9" font-weight="800" fill="#EA4335" font-family="sans-serif">PDF</text></svg>`;
+    if (m.includes("folder")) return `<svg viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 8 Q3 6 5 6 L11 6 L13 8 L23 8 Q25 8 25 10 L25 22 Q25 24 23 24 L5 24 Q3 24 3 22 Z" fill="#FFF9C4" stroke="#F9AB00" stroke-width="1.5"/></svg>`;
+    if (m.includes("image")) return `<svg viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="3" y="5" width="22" height="18" rx="3" fill="#F3E8FD" stroke="#A142F4" stroke-width="1.5"/><circle cx="9.5" cy="11.5" r="2" fill="#A142F4" opacity=".55"/><path d="M3 19 L9 13 L14 18 L18 14 L25 20" stroke="#A142F4" stroke-width="1.4" stroke-linejoin="round"/></svg>`;
+    return `<svg viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="5" y="2" width="18" height="24" rx="3" fill="#F1F5F9" stroke="#94A3B8" stroke-width="1.5"/><line x1="9" y1="9" x2="19" y2="9" stroke="#94A3B8" stroke-width="1.3"/><line x1="9" y1="13" x2="19" y2="13" stroke="#94A3B8" stroke-width="1.3"/><line x1="9" y1="17" x2="15" y2="17" stroke="#94A3B8" stroke-width="1.3"/></svg>`;
+  }
+
+  // ── Tab navigation ────────────────────────────────────────────
+  function switchTab(name) {
+    document.querySelectorAll(".modal-tab").forEach(btn =>
+      btn.classList.toggle("active", btn.dataset.tab === name)
+    );
+    document.querySelectorAll(".tab-panel").forEach(p => p.classList.remove("active"));
+    const panel = document.getElementById("tab-" + name);
+    if (!panel) return;
+    panel.classList.add("active");
+    if (name === "diagram") {
+      const svg = panel.querySelector(".seq-svg");
+      if (svg) {
+        svg.classList.remove("diagram-animate");
+        requestAnimationFrame(() => requestAnimationFrame(() => svg.classList.add("diagram-animate")));
+      }
+    }
+  }
+
+  // ── Auth Flow overlay ─────────────────────────────────────────
+  function openAuthFlow() {
+    document.getElementById("auth-overlay").classList.add("open");
+    document.addEventListener("keydown", handleEscKey);
+  }
+  function closeAuthFlow() {
+    document.getElementById("auth-overlay").classList.remove("open");
+    document.removeEventListener("keydown", handleEscKey);
+  }
+  function handleOverlayClick(e) {
+    if (e.target === document.getElementById("auth-overlay")) closeAuthFlow();
+  }
+  function handleEscKey(e) {
+    if (e.key === "Escape") closeAuthFlow();
+  }
+</script>
+</body>
+</html>
