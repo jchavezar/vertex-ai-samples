@@ -1,0 +1,13 @@
+# Only the runtime artifacts end up in the image. Block everything else.
+*
+
+!Dockerfile
+!requirements.txt
+!server.py
+!race_runner.py
+!index.html
+!data.json
+!sample_50_ids.json
+!reference_answers.json
+!claude_code_answers.json
+!validation_sample.json

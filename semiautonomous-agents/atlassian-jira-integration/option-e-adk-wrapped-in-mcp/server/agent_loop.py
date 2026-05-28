@@ -403,7 +403,15 @@ def run_agent_loop(question: str, jira_bearer: str | None) -> str:
     caller is expected to run this in a thread executor when invoked from
     an async FastAPI handler.
     """
+    t_start = time.perf_counter()
+    trace_id = uuid.uuid4().hex[:8]
+    logger.info(
+        "[t=0.00s] TRACE=%s run_agent_loop ARRIVED model=%s question[:80]=%r",
+        trace_id, MODEL_NAME, question[:80],
+    )
+
     client = _get_client()
+    logger.info("[t=%.2fs] TRACE=%s client_ready", time.perf_counter() - t_start, trace_id)
 
     # Persistent contents history. Start with the user question.
     contents: list[types.Content] = [
@@ -419,11 +427,15 @@ def run_agent_loop(question: str, jira_bearer: str | None) -> str:
         ),
         tools=[types.Tool(function_declarations=JIRA_FUNCTION_DECLS)],
     )
+    logger.info("[t=%.2fs] TRACE=%s config_built", time.perf_counter() - t_start, trace_id)
 
     # Reuse one httpx.Client across all tool calls within this turn.
     with httpx.Client() as http_client:
         for iteration in range(1, MAX_LOOP_ITERATIONS + 1):
-            logger.info("agent_loop iter=%d (history len=%d)", iteration, len(contents))
+            logger.info(
+                "[t=%.2fs] TRACE=%s iter=%d gen_start (history len=%d)",
+                time.perf_counter() - t_start, trace_id, iteration, len(contents),
+            )
             t0 = time.perf_counter()
             try:
                 response = client.models.generate_content(
@@ -446,8 +458,10 @@ def run_agent_loop(question: str, jira_bearer: str | None) -> str:
                 # Some safety blocks yield empty content. Fall back to .text.
                 final = (response.text or "").strip()
                 logger.info(
-                    "iter=%d empty parts; finish=%s text_len=%d",
-                    iteration, getattr(candidate, "finish_reason", "?"), len(final),
+                    "[t=%.2fs] TRACE=%s iter=%d gen_done empty_parts finish=%s text_len=%d TOTAL_WALL=%.2fs",
+                    time.perf_counter() - t_start, trace_id, iteration,
+                    getattr(candidate, "finish_reason", "?"), len(final),
+                    time.perf_counter() - t_start,
                 )
                 return final or "The model returned no answer."
 
@@ -466,9 +480,9 @@ def run_agent_loop(question: str, jira_bearer: str | None) -> str:
                     text_chunks.append(part.text)
 
             logger.info(
-                "iter=%d gen=%.1fs fcalls=%d text_chars=%d finish=%s",
-                iteration, gen_elapsed, len(function_calls),
-                sum(len(t) for t in text_chunks),
+                "[t=%.2fs] TRACE=%s iter=%d gen_done gen_elapsed=%.2fs fcalls=%d text_chars=%d finish=%s",
+                time.perf_counter() - t_start, trace_id, iteration, gen_elapsed,
+                len(function_calls), sum(len(t) for t in text_chunks),
                 getattr(candidate, "finish_reason", "?"),
             )
 
@@ -477,16 +491,30 @@ def run_agent_loop(question: str, jira_bearer: str | None) -> str:
                 answer = "".join(text_chunks).strip()
                 if not answer:
                     # No tool calls and no text — degenerate empty response.
+                    logger.info(
+                        "[t=%.2fs] TRACE=%s FINAL_EMPTY TOTAL_WALL=%.2fs",
+                        time.perf_counter() - t_start, trace_id,
+                        time.perf_counter() - t_start,
+                    )
                     return "The model returned an empty answer."
+                logger.info(
+                    "[t=%.2fs] TRACE=%s FINAL_TEXT len=%d TOTAL_WALL=%.2fs",
+                    time.perf_counter() - t_start, trace_id, len(answer),
+                    time.perf_counter() - t_start,
+                )
                 return answer
 
             # Execute every requested function call sequentially and feed
             # the responses back as a single user turn.
+            tool_t0 = time.perf_counter()
             response_parts: list[types.Part] = []
             for fc in function_calls:
                 fname = fc.name or ""
                 fargs = dict(fc.args or {})
-                logger.info("iter=%d call %s args=%s", iteration, fname, _short(fargs))
+                logger.info(
+                    "[t=%.2fs] TRACE=%s iter=%d tool_call_start name=%s args=%s",
+                    time.perf_counter() - t_start, trace_id, iteration, fname, _short(fargs),
+                )
                 tool_text = _call_jira_mcp_tool(
                     http_client, fname, fargs, jira_bearer
                 )
@@ -496,6 +524,11 @@ def run_agent_loop(question: str, jira_bearer: str | None) -> str:
                         response={"result": tool_text},
                     )
                 )
+            tool_elapsed = time.perf_counter() - tool_t0
+            logger.info(
+                "[t=%.2fs] TRACE=%s iter=%d tool_done tool_elapsed=%.2fs n_calls=%d",
+                time.perf_counter() - t_start, trace_id, iteration, tool_elapsed, len(function_calls),
+            )
             contents.append(types.Content(role="user", parts=response_parts))
 
     # Loop exhausted — return whatever the model said last, plus a note.

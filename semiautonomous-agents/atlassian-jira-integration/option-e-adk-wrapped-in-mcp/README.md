@@ -1,10 +1,14 @@
 # Option E — `google.genai` agent loop wrapped as a custom MCP
 
+*Numbers as of 2026-05-27, judge_v6 (gemini-3-flash-preview + Haiku 4.5 escalation), n=172 v2 corpus.*
+
 > The folder is named `option-e-adk-wrapped-in-mcp` for historical reasons. **The v2 implementation no longer uses ADK or Agent Engine** — it runs a `google.genai` function-calling loop directly inside a Cloud Run container. The name stuck; the implementation didn't. See [`server/agent_loop.py`](server/agent_loop.py).
 
 A Cloud Run service that, from GE's perspective, is an ordinary BYO custom MCP data store (so it appears in the main chat surface with no agent picker required). Internally, every call goes through a tight `google.genai` function-calling loop with seven Jira tools. The model produces a polished final answer that GE renders unchanged.
 
-The point of this design: get **Option A's accuracy and main-chat delivery** without paying for Agent Engine runtime + Sessions billing.
+The point of this design: get **near Option A's accuracy and main-chat delivery** without paying for Agent Engine runtime + Sessions billing.
+
+**v6 eval (172 v2 questions, 2026-05-27):** **90.5 % accuracy (v6 headline)** at **$5.91/1K** (E with `gemini-3.1-flash-lite`) or **93.7 %** at **$20.00/1K** (EG variant with `gemini-3.5-flash`). E sits between A (94.7 %) and C (87.9 %) on accuracy — the genai-loop architecture closes most of the gap to ADK while delivering in the main chat surface. Latency p50 **20.6 s** (p90 45.3 s) — faster than A and C on the v6 corpus.
 
 ---
 
@@ -39,7 +43,7 @@ flowchart TB
 
 **Latency budget**: GE → wrapper (~100 ms) + wrapper → Gemini (4 turns × ~5 s = ~20 s) + per-turn wrapper → Jira MCP (~1–2 s × ~3 turns) + wrapper → GE return (~100 ms). Measured **p50 ≈ 24.5 s, p90 ≈ 70 s**.
 
-**Cost** (4,000-user moderate workload, 880K queries/month): **$5,484/mo total** vs Option A's $8,770/mo. Full breakdown in [docs/PRICING.md](../docs/PRICING.md).
+**Cost** (4,000-user moderate workload, 880K queries/month): **$5,193/mo total** vs Option A's $8,967/mo. Full breakdown in [docs/PRICING.md](../docs/PRICING.md).
 
 ---
 
@@ -52,8 +56,8 @@ flowchart TB
 | Agent Engine | Yes | **No** |
 | Sessions billing | Yes ($0.25/1K events) | **No** ($0 — in-process history) |
 | LLM model | Gemini 2.5 Flash (ADK) | gemini-3.1-flash-lite |
-| Cost / 1K queries | ~$22 | **$6.23** |
-| 500-q accuracy | 94.8 % (had ADK's full overhead) | **88.0 %** (5 pp lower, 70 % cheaper) |
+| Cost / 1K queries | ~$22 | **$5.91** |
+| v6 headline (172q) | 94.8 % *(had ADK's full overhead)* | **90.5 %** *(~4 pp lower, ~73 % cheaper)* |
 
 v1 still works and the code is in git history; v2 is the production design.
 
@@ -234,7 +238,7 @@ python3 comparison-site/build_data.py
 
 | Env var | Default | Effect |
 |---|---|---|
-| `MODEL_NAME` | `gemini-3.5-flash` | Set to `gemini-3.1-flash-lite` for the cost-optimized config (88 % accuracy, $6.23/1K). `gemini-3-flash-preview` is the accuracy-max variant (~93 %, more expensive). |
+| `MODEL_NAME` | `gemini-3.5-flash` | Set to `gemini-3.1-flash-lite` for the cost-optimized config (88 % accuracy, $5.91/1K). `gemini-3-flash-preview` is the accuracy-max variant (~93 %, more expensive). Note Gemini 3.5 Flash itself is **$1.50 in / $9.00 out per 1M** — ~6× the per-token cost of 3.1-flash-lite; the production deployment overrides the default to 3.1-flash-lite via `--set-env-vars MODEL_NAME=gemini-3.1-flash-lite`. |
 | `MAX_LOOP_ITERATIONS` | `10` | Hard cap on inner tool-call loop. Typical questions use 2–6; pagination-heavy multi-step hits 8–10. |
 | `AGENT_STREAM_TIMEOUT_S` | `300` | Total wrapper timeout. The genai loop returns partial answers if it hits this. |
 | `JIRA_MCP_TIMEOUT_S` | `180` | Per-tool-call timeout to the inner Jira MCP. |

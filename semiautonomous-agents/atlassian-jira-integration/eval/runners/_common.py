@@ -16,8 +16,18 @@ import os
 import re
 import time
 from dataclasses import dataclass, field, asdict
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
+
+
+def utc_iso_now() -> str:
+    """UTC ISO 8601 timestamp with millis + 'Z' suffix.
+
+    Example: 2026-05-21T12:42:35.123Z
+    """
+    n = datetime.now(timezone.utc)
+    return n.strftime("%Y-%m-%dT%H:%M:%S.") + f"{n.microsecond // 1000:03d}Z"
 
 import google.auth
 import google.auth.transport.requests
@@ -88,6 +98,14 @@ class RunnerResult:
     elapsed_s: float = 0.0
     error: str | None = None
     raw_path: str | None = None
+    # Per-question wall-clock timestamps (UTC ISO 8601, e.g.
+    # "2026-05-21T12:42:35.123Z"). Populated by the orchestrator's wrapper —
+    # see runners/orchestrator.py `_wrapped()`. Older runs that never set
+    # these get them filled in by runners/backfill_timestamps.py with
+    # evaluated_at_estimated=True.
+    started_at_iso: str | None = None
+    finished_at_iso: str | None = None
+    evaluated_at_estimated: bool = False
 
     def to_jsonl_line(self) -> str:
         return json.dumps(asdict(self), default=str, ensure_ascii=False)

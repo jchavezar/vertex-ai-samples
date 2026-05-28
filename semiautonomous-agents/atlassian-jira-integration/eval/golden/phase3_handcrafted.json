@@ -1,0 +1,4720 @@
+[
+  {
+    "id": "q5000",
+    "q": "Show me all High priority OPS issues currently unresolved that involve either CI/CD or observability work.",
+    "category": "multi-step",
+    "tags": [
+      "multi-dimensional",
+      "filter",
+      "real-power-user"
+    ],
+    "intent": "key_recall",
+    "jql": "project = OPS AND priority = High AND resolution = Unresolved AND labels in (\"ci-cd\",\"observability\")",
+    "expected_keys": [
+      "OPS-97",
+      "OPS-64",
+      "OPS-60",
+      "OPS-52",
+      "OPS-47",
+      "OPS-35",
+      "OPS-31",
+      "OPS-18",
+      "OPS-10"
+    ],
+    "expected_count": 9,
+    "golden_facts": {
+      "count": 9,
+      "keys": [
+        "OPS-97",
+        "OPS-64",
+        "OPS-60",
+        "OPS-52",
+        "OPS-47",
+        "OPS-35",
+        "OPS-31",
+        "OPS-18",
+        "OPS-10"
+      ],
+      "by_priority": {
+        "High": 9
+      },
+      "by_project": {
+        "OPS": 9
+      },
+      "by_issuetype": {
+        "Story": 9
+      },
+      "samples": [
+        {
+          "key": "OPS-97",
+          "summary": "Implement database schema migration governance and rollback procedures",
+          "priority": "High",
+          "status": "To Do"
+        },
+        {
+          "key": "OPS-64",
+          "summary": "Scale and optimize self-hosted GitLab runner infrastructure",
+          "priority": "High",
+          "status": "To Do"
+        },
+        {
+          "key": "OPS-60",
+          "summary": "Implement distributed caching for build artifacts and dependencies",
+          "priority": "High",
+          "status": "To Do"
+        },
+        {
+          "key": "OPS-52",
+          "summary": "Implement pipeline analytics to identify flaky tests and bottlenecks",
+          "priority": "High",
+          "status": "To Do"
+        },
+        {
+          "key": "OPS-47",
+          "summary": "Optimize Elasticsearch cluster and implement log tiering",
+          "priority": "High",
+          "status": "To Do"
+        },
+        {
+          "key": "OPS-35",
+          "summary": "Build unified SLO dashboard and error budget tracking system",
+          "priority": "High",
+          "status": "To Do"
+        },
+        {
+          "key": "OPS-31",
+          "summary": "Implement structured logging standards and reduce log volume by 60%",
+          "priority": "High",
+          "status": "To Do"
+        },
+        {
+          "key": "OPS-18",
+          "summary": "Post-upgrade monitoring and alerting validation",
+          "priority": "High",
+          "status": "To Do"
+        },
+        {
+          "key": "OPS-10",
+          "summary": "Update Helm chart repository for Kubernetes 1.29 compatibility",
+          "priority": "High",
+          "status": "To Do"
+        }
+      ],
+      "by_component": {
+        "k8s-prod": 4,
+        "k8s-staging": 4,
+        "networking": 4,
+        "databases": 3,
+        "observability": 2,
+        "ci-cd": 1
+      },
+      "by_label": {
+        "ci-cd": 6,
+        "observability": 5,
+        "k8s-prod": 3,
+        "databases": 2,
+        "performance": 1,
+        "reliability": 1
+      }
+    }
+  },
+  {
+    "id": "q5001",
+    "q": "Which BUGS stories are tagged 'api-v2' and were created in May 2026?",
+    "category": "multi-step",
+    "tags": [
+      "multi-dimensional",
+      "filter",
+      "real-power-user"
+    ],
+    "intent": "key_recall",
+    "jql": "project = BUGS AND issuetype = Story AND labels = \"api-v2\" AND created >= \"2026-05-01\" AND created < \"2026-06-01\"",
+    "expected_keys": [
+      "BUGS-97",
+      "BUGS-93",
+      "BUGS-89",
+      "BUGS-85",
+      "BUGS-81",
+      "BUGS-77",
+      "BUGS-47",
+      "BUGS-39",
+      "BUGS-22"
+    ],
+    "expected_count": 9,
+    "golden_facts": {
+      "count": 9,
+      "keys": [
+        "BUGS-97",
+        "BUGS-93",
+        "BUGS-89",
+        "BUGS-85",
+        "BUGS-81",
+        "BUGS-77",
+        "BUGS-47",
+        "BUGS-39",
+        "BUGS-22"
+      ],
+      "by_priority": {
+        "High": 3,
+        "Medium": 4,
+        "Highest": 1,
+        "Low": 1
+      },
+      "by_project": {
+        "BUGS": 9
+      },
+      "by_issuetype": {
+        "Story": 9
+      },
+      "samples": [
+        {
+          "key": "BUGS-97",
+          "summary": "Fix API returning inconsistent timezone handling for date fields",
+          "priority": "High",
+          "status": "To Do"
+        },
+        {
+          "key": "BUGS-93",
+          "summary": "Create interactive API documentation portal with code examples",
+          "priority": "Medium",
+          "status": "To Do"
+        },
+        {
+          "key": "BUGS-89",
+          "summary": "Add GraphQL endpoint as alternative to REST for complex queries",
+          "priority": "Medium",
+          "status": "To Do"
+        },
+        {
+          "key": "BUGS-85",
+          "summary": "Fix rate limiter incorrectly counting OPTIONS preflight requests",
+          "priority": "High",
+          "status": "To Do"
+        },
+        {
+          "key": "BUGS-81",
+          "summary": "Implement webhook system for real-time issue event notifications",
+          "priority": "Highest",
+          "status": "To Do"
+        },
+        {
+          "key": "BUGS-77",
+          "summary": "Design and implement consistent REST API v2 resource structure",
+          "priority": "High",
+          "status": "To Do"
+        },
+        {
+          "key": "BUGS-47",
+          "summary": "Add semantic search capability for similar bug detection",
+          "priority": "Low",
+          "status": "To Do"
+        },
+        {
+          "key": "BUGS-39",
+          "summary": "Implement real-time search index updates for newly created issues",
+          "priority": "Medium",
+          "status": "To Do"
+        },
+        {
+          "key": "BUGS-22",
+          "summary": "Implement rate limiting bypass detection for credential stuffing attacks",
+          "priority": "Medium",
+          "status": "To Do"
+        }
+      ],
+      "by_component": {
+        "dashboard": 5,
+        "search": 3,
+        "mobile-ios": 3,
+        "mobile-android": 3,
+        "billing": 3,
+        "auth": 1
+      },
+      "by_label": {
+        "api-v2": 9,
+        "bug": 2,
+        "search": 2,
+        "data-consistency": 1,
+        "developer-experience": 1,
+        "documentation": 1,
+        "graphql": 1,
+        "rate-limiting": 1,
+        "integration": 1,
+        "webhooks": 1,
+        "architecture": 1,
+        "ml": 1,
+        "infrastructure": 1,
+        "auth": 1,
+        "security": 1
+      }
+    }
+  },
+  {
+    "id": "q5002",
+    "q": "List CRM tickets in the 'refunds' or 'billing-support' components that are tagged as either an initiative or 'automation'.",
+    "category": "multi-step",
+    "tags": [
+      "multi-dimensional",
+      "filter",
+      "real-power-user"
+    ],
+    "intent": "key_recall",
+    "jql": "project = CRM AND component in (\"refunds\",\"billing-support\") AND labels in (\"initiative\",\"automation\")",
+    "expected_keys": [
+      "CRM-85",
+      "CRM-52",
+      "CRM-2"
+    ],
+    "expected_count": 3,
+    "golden_facts": {
+      "count": 3,
+      "keys": [
+        "CRM-85",
+        "CRM-52",
+        "CRM-2"
+      ],
+      "by_priority": {
+        "High": 1,
+        "Highest": 2
+      },
+      "by_project": {
+        "CRM": 3
+      },
+      "by_issuetype": {
+        "Story": 3
+      },
+      "samples": [
+        {
+          "key": "CRM-85",
+          "summary": "Develop Automated Troubleshooting Guides Based on Error Messages",
+          "priority": "High",
+          "status": "To Do"
+        },
+        {
+          "key": "CRM-52",
+          "summary": "Implement Instant Refund Eligibility Engine for Low-Risk Orders",
+          "priority": "Highest",
+          "status": "To Do"
+        },
+        {
+          "key": "CRM-2",
+          "summary": "Implement Automated Transaction Evidence Retrieval for Dispute Cases",
+          "priority": "Highest",
+          "status": "To Do"
+        }
+      ],
+      "by_component": {
+        "billing-support": 3,
+        "feature-requests": 2,
+        "refunds": 1
+      },
+      "by_label": {
+        "automation": 3,
+        "feature-requests": 1,
+        "refunds": 1,
+        "billing-support": 1
+      }
+    }
+  },
+  {
+    "id": "q5003",
+    "q": "Find every PLAT story (not subtask) at High or Highest priority that mentions service mesh or RBAC.",
+    "category": "multi-step",
+    "tags": [
+      "multi-dimensional",
+      "filter",
+      "real-power-user"
+    ],
+    "intent": "key_recall",
+    "jql": "project = PLAT AND issuetype = Story AND priority in (High, Highest) AND (text ~ \"service mesh\" OR text ~ \"RBAC\")",
+    "expected_keys": [
+      "PLAT-60",
+      "PLAT-56",
+      "PLAT-52"
+    ],
+    "expected_count": 3,
+    "golden_facts": {
+      "count": 3,
+      "keys": [
+        "PLAT-60",
+        "PLAT-56",
+        "PLAT-52"
+      ],
+      "by_priority": {
+        "High": 1,
+        "Highest": 2
+      },
+      "by_project": {
+        "PLAT": 3
+      },
+      "by_issuetype": {
+        "Story": 3
+      },
+      "samples": [
+        {
+          "key": "PLAT-60",
+          "summary": "Build Backstage plugin for RBAC self-service portal",
+          "priority": "High",
+          "status": "To Do"
+        },
+        {
+          "key": "PLAT-56",
+          "summary": "Implement RBAC API service with OPA policy engine",
+          "priority": "Highest",
+          "status": "To Do"
+        },
+        {
+          "key": "PLAT-52",
+          "summary": "Design self-service RBAC model with permission boundaries",
+          "priority": "Highest",
+          "status": "To Do"
+        }
+      ],
+      "by_component": {
+        "developer-experience": 3,
+        "platform-libs": 1,
+        "service-mesh": 1,
+        "rbac": 1
+      },
+      "by_label": {
+        "rbac": 3,
+        "frontend": 1,
+        "backend": 1,
+        "design": 1
+      }
+    }
+  },
+  {
+    "id": "q5004",
+    "q": "Compare the number of High and Highest priority issues between BUGS and CRM \u2014 which project has more and by how much?",
+    "category": "cross-issue-analysis",
+    "tags": [
+      "comparative",
+      "cross-project",
+      "real-power-user"
+    ],
+    "intent": "comparative",
+    "jql": "project in (BUGS, CRM) AND priority in (High, Highest)",
+    "expected_keys": [
+      "CRM-85",
+      "CRM-81",
+      "CRM-77",
+      "CRM-60",
+      "CRM-56",
+      "CRM-52",
+      "CRM-35",
+      "CRM-31",
+      "CRM-27",
+      "CRM-10",
+      "CRM-6",
+      "CRM-2",
+      "BUGS-97",
+      "BUGS-85",
+      "BUGS-81",
+      "BUGS-77",
+      "BUGS-72",
+      "BUGS-64",
+      "BUGS-60",
+      "BUGS-56",
+      "BUGS-52",
+      "BUGS-35",
+      "BUGS-27",
+      "BUGS-18",
+      "BUGS-14",
+      "BUGS-10",
+      "BUGS-6",
+      "BUGS-2"
+    ],
+    "expected_count": 28,
+    "golden_facts": {
+      "count": 28,
+      "keys": [
+        "CRM-85",
+        "CRM-81",
+        "CRM-77",
+        "CRM-60",
+        "CRM-56",
+        "CRM-52",
+        "CRM-35",
+        "CRM-31",
+        "CRM-27",
+        "CRM-10",
+        "CRM-6",
+        "CRM-2",
+        "BUGS-97",
+        "BUGS-85",
+        "BUGS-81",
+        "BUGS-77",
+        "BUGS-72",
+        "BUGS-64",
+        "BUGS-60",
+        "BUGS-56",
+        "BUGS-52",
+        "BUGS-35",
+        "BUGS-27",
+        "BUGS-18",
+        "BUGS-14",
+        "BUGS-10",
+        "BUGS-6",
+        "BUGS-2"
+      ],
+      "by_priority": {
+        "High": 18,
+        "Highest": 10
+      },
+      "by_project": {
+        "CRM": 12,
+        "BUGS": 16
+      },
+      "by_issuetype": {
+        "Story": 28
+      },
+      "samples": [
+        {
+          "key": "CRM-85",
+          "summary": "Develop Automated Troubleshooting Guides Based on Error Messages",
+          "priority": "High",
+          "status": "To Do"
+        },
+        {
+          "key": "CRM-81",
+          "summary": "Create Engineering Escalation Workflow for Reproducible Bugs",
+          "priority": "High",
+          "status": "To Do"
+        },
+        {
+          "key": "CRM-77",
+          "summary": "Implement In-App Crash Report Submission with Automatic Context Capture",
+          "priority": "Highest",
+          "status": "To Do"
+        },
+        {
+          "key": "CRM-60",
+          "summary": "Develop Refund Fraud Detection Model with Machine Learning",
+          "priority": "High",
+          "status": "To Do"
+        },
+        {
+          "key": "CRM-56",
+          "summary": "Create Customer-Facing Refund Status Tracking Portal",
+          "priority": "High",
+          "status": "To Do"
+        },
+        {
+          "key": "CRM-52",
+          "summary": "Implement Instant Refund Eligibility Engine for Low-Risk Orders",
+          "priority": "Highest",
+          "status": "To Do"
+        },
+        {
+          "key": "CRM-35",
+          "summary": "Develop Automated Account Lockout Detection and Self-Service Unlock",
+          "priority": "High",
+          "status": "To Do"
+        },
+        {
+          "key": "CRM-31",
+          "summary": "Create Identity Verification Workflow for High-Risk Account Changes",
+          "priority": "High",
+          "status": "To Do"
+        },
+        {
+          "key": "CRM-27",
+          "summary": "Implement SMS-Based Account Recovery as Alternative to Email",
+          "priority": "Highest",
+          "status": "To Do"
+        },
+        {
+          "key": "CRM-10",
+          "summary": "Create Escalation Workflow for Complex Multi-Transaction Disputes",
+          "priority": "High",
+          "status": "To Do"
+        }
+      ],
+      "by_component": {
+        "billing-support": 5,
+        "feature-requests": 5,
+        "account-recovery": 5,
+        "refunds": 3,
+        "payments": 2
+      },
+      "by_label": {
+        "feature-requests": 3,
+        "refunds": 3,
+        "account-recovery": 3,
+        "automation": 2,
+        "fraud-prevention": 2,
+        "self-service": 2,
+        "tooling": 1,
+        "mobile": 1,
+        "security": 1,
+        "billing-support": 1,
+        "escalation": 1
+      }
+    }
+  },
+  {
+    "id": "q5005",
+    "q": "Across all four engineering projects (BUGS/CRM/OPS/PLAT), which one has the most subtasks and which has the fewest?",
+    "category": "cross-issue-analysis",
+    "tags": [
+      "comparative",
+      "cross-project",
+      "real-power-user"
+    ],
+    "intent": "comparative",
+    "jql": "project in (BUGS, CRM, OPS, PLAT) AND issuetype = Subtask",
+    "expected_keys": [
+      "PLAT-100",
+      "PLAT-99",
+      "PLAT-98",
+      "PLAT-96",
+      "PLAT-95",
+      "PLAT-94",
+      "PLAT-92",
+      "PLAT-91",
+      "PLAT-90",
+      "PLAT-88",
+      "PLAT-87",
+      "PLAT-86",
+      "PLAT-84",
+      "PLAT-83",
+      "PLAT-82",
+      "PLAT-80",
+      "PLAT-79",
+      "PLAT-78",
+      "PLAT-75",
+      "PLAT-74",
+      "PLAT-73",
+      "PLAT-71",
+      "PLAT-70",
+      "PLAT-69",
+      "PLAT-67",
+      "PLAT-66",
+      "PLAT-65",
+      "PLAT-63",
+      "PLAT-62",
+      "PLAT-61",
+      "PLAT-59",
+      "PLAT-58",
+      "PLAT-57",
+      "PLAT-55",
+      "PLAT-54",
+      "PLAT-53",
+      "PLAT-50",
+      "PLAT-49",
+      "PLAT-48",
+      "PLAT-46",
+      "PLAT-45",
+      "PLAT-44",
+      "PLAT-42",
+      "PLAT-41",
+      "PLAT-40",
+      "PLAT-38",
+      "PLAT-37",
+      "PLAT-36",
+      "PLAT-34",
+      "PLAT-33"
+    ],
+    "expected_count": 200,
+    "golden_facts": {
+      "count": 200,
+      "keys": [
+        "PLAT-100",
+        "PLAT-99",
+        "PLAT-98",
+        "PLAT-96",
+        "PLAT-95",
+        "PLAT-94",
+        "PLAT-92",
+        "PLAT-91",
+        "PLAT-90",
+        "PLAT-88",
+        "PLAT-87",
+        "PLAT-86",
+        "PLAT-84",
+        "PLAT-83",
+        "PLAT-82",
+        "PLAT-80",
+        "PLAT-79",
+        "PLAT-78",
+        "PLAT-75",
+        "PLAT-74",
+        "PLAT-73",
+        "PLAT-71",
+        "PLAT-70",
+        "PLAT-69",
+        "PLAT-67",
+        "PLAT-66",
+        "PLAT-65",
+        "PLAT-63",
+        "PLAT-62",
+        "PLAT-61",
+        "PLAT-59",
+        "PLAT-58",
+        "PLAT-57",
+        "PLAT-55",
+        "PLAT-54",
+        "PLAT-53",
+        "PLAT-50",
+        "PLAT-49",
+        "PLAT-48",
+        "PLAT-46",
+        "PLAT-45",
+        "PLAT-44",
+        "PLAT-42",
+        "PLAT-41",
+        "PLAT-40",
+        "PLAT-38",
+        "PLAT-37",
+        "PLAT-36",
+        "PLAT-34",
+        "PLAT-33",
+        "PLAT-32",
+        "PLAT-30",
+        "PLAT-29",
+        "PLAT-28",
+        "PLAT-25",
+        "PLAT-24",
+        "PLAT-23",
+        "PLAT-21",
+        "PLAT-20",
+        "PLAT-19",
+        "PLAT-17",
+        "PLAT-16",
+        "PLAT-15",
+        "PLAT-13",
+        "PLAT-12",
+        "PLAT-11",
+        "PLAT-9",
+        "PLAT-8",
+        "PLAT-7",
+        "PLAT-5",
+        "PLAT-4",
+        "PLAT-3",
+        "OPS-100",
+        "OPS-99",
+        "OPS-98",
+        "OPS-96",
+        "OPS-95",
+        "OPS-94",
+        "OPS-92",
+        "OPS-91",
+        "OPS-90",
+        "OPS-88",
+        "OPS-87",
+        "OPS-86",
+        "OPS-84",
+        "OPS-83",
+        "OPS-82",
+        "OPS-80",
+        "OPS-79",
+        "OPS-78",
+        "OPS-75",
+        "OPS-74",
+        "OPS-73",
+        "OPS-71",
+        "OPS-70",
+        "OPS-69",
+        "OPS-67",
+        "OPS-66",
+        "OPS-65",
+        "OPS-63",
+        "OPS-62",
+        "OPS-61",
+        "OPS-59",
+        "OPS-58",
+        "OPS-57",
+        "OPS-55",
+        "OPS-54",
+        "OPS-53",
+        "OPS-50",
+        "OPS-49",
+        "OPS-48",
+        "OPS-46",
+        "OPS-45",
+        "OPS-44",
+        "OPS-42",
+        "OPS-41",
+        "OPS-40",
+        "OPS-38",
+        "OPS-37",
+        "OPS-36",
+        "OPS-34",
+        "OPS-33",
+        "OPS-32",
+        "OPS-30",
+        "OPS-29",
+        "OPS-28",
+        "OPS-25",
+        "OPS-24",
+        "OPS-23",
+        "OPS-21",
+        "OPS-20",
+        "OPS-19",
+        "OPS-17",
+        "OPS-16",
+        "OPS-15",
+        "OPS-13",
+        "OPS-12",
+        "OPS-11",
+        "OPS-9",
+        "OPS-8",
+        "OPS-7",
+        "OPS-5",
+        "OPS-4",
+        "OPS-3",
+        "CRM-100",
+        "CRM-99",
+        "CRM-98",
+        "CRM-96",
+        "CRM-95",
+        "CRM-94",
+        "CRM-92",
+        "CRM-91",
+        "CRM-90",
+        "CRM-88",
+        "CRM-87",
+        "CRM-86",
+        "CRM-84",
+        "CRM-83",
+        "CRM-82",
+        "CRM-80",
+        "CRM-79",
+        "CRM-78",
+        "CRM-75",
+        "CRM-74",
+        "CRM-73",
+        "CRM-71",
+        "CRM-70",
+        "CRM-69",
+        "CRM-67",
+        "CRM-66",
+        "CRM-65",
+        "CRM-63",
+        "CRM-62",
+        "CRM-61",
+        "CRM-59",
+        "CRM-58",
+        "CRM-57",
+        "CRM-55",
+        "CRM-54",
+        "CRM-53",
+        "CRM-50",
+        "CRM-49",
+        "CRM-48",
+        "CRM-46",
+        "CRM-45",
+        "CRM-44",
+        "CRM-42",
+        "CRM-41",
+        "CRM-40",
+        "CRM-38",
+        "CRM-37",
+        "CRM-36",
+        "CRM-34",
+        "CRM-33",
+        "CRM-32",
+        "CRM-30",
+        "CRM-29",
+        "CRM-28",
+        "CRM-25",
+        "CRM-24"
+      ],
+      "by_priority": {
+        "Medium": 200
+      },
+      "by_project": {
+        "PLAT": 72,
+        "OPS": 72,
+        "CRM": 56
+      },
+      "by_issuetype": {
+        "Subtask": 200
+      },
+      "samples": [
+        {
+          "key": "PLAT-100",
+          "summary": "Develop FinOps training curriculum and schedule sessions",
+          "priority": "Medium",
+          "status": "To Do"
+        },
+        {
+          "key": "PLAT-99",
+          "summary": "Add cost estimation to architecture review process",
+          "priority": "Medium",
+          "status": "To Do"
+        },
+        {
+          "key": "PLAT-98",
+          "summary": "Design FinOps review meeting format and materials",
+          "priority": "Medium",
+          "status": "To Do"
+        },
+        {
+          "key": "PLAT-96",
+          "summary": "Create cleanup automation with audit logging",
+          "priority": "Medium",
+          "status": "To Do"
+        },
+        {
+          "key": "PLAT-95",
+          "summary": "Implement notification and grace period workflow",
+          "priority": "Medium",
+          "status": "To Do"
+        },
+        {
+          "key": "PLAT-94",
+          "summary": "Build idle resource detection scanner",
+          "priority": "Medium",
+          "status": "To Do"
+        },
+        {
+          "key": "PLAT-92",
+          "summary": "Add Backstage integration for cost visibility",
+          "priority": "Medium",
+          "status": "To Do"
+        },
+        {
+          "key": "PLAT-91",
+          "summary": "Implement budget tracking and alert system",
+          "priority": "Medium",
+          "status": "To Do"
+        },
+        {
+          "key": "PLAT-90",
+          "summary": "Create Grafana dashboard template for team costs",
+          "priority": "Medium",
+          "status": "To Do"
+        },
+        {
+          "key": "PLAT-88",
+          "summary": "Create spot migration runbook and dashboard",
+          "priority": "Medium",
+          "status": "To Do"
+        }
+      ]
+    }
+  },
+  {
+    "id": "q5006",
+    "q": "How does the priority mix of the OPS project compare to the PLAT project \u2014 give me percentages by priority level.",
+    "category": "cross-issue-analysis",
+    "tags": [
+      "comparative",
+      "cross-project",
+      "real-power-user"
+    ],
+    "intent": "comparative",
+    "jql": "project in (OPS, PLAT)",
+    "expected_keys": [
+      "PLAT-100",
+      "PLAT-99",
+      "PLAT-98",
+      "PLAT-97",
+      "PLAT-96",
+      "PLAT-95",
+      "PLAT-94",
+      "PLAT-93",
+      "PLAT-92",
+      "PLAT-91",
+      "PLAT-90",
+      "PLAT-89",
+      "PLAT-88",
+      "PLAT-87",
+      "PLAT-86",
+      "PLAT-85",
+      "PLAT-84",
+      "PLAT-83",
+      "PLAT-82",
+      "PLAT-81",
+      "PLAT-80",
+      "PLAT-79",
+      "PLAT-78",
+      "PLAT-77",
+      "PLAT-76",
+      "PLAT-75",
+      "PLAT-74",
+      "PLAT-73",
+      "PLAT-72",
+      "PLAT-71",
+      "PLAT-70",
+      "PLAT-69",
+      "PLAT-68",
+      "PLAT-67",
+      "PLAT-66",
+      "PLAT-65",
+      "PLAT-64",
+      "PLAT-63",
+      "PLAT-62",
+      "PLAT-61",
+      "PLAT-60",
+      "PLAT-59",
+      "PLAT-58",
+      "PLAT-57",
+      "PLAT-56",
+      "PLAT-55",
+      "PLAT-54",
+      "PLAT-53",
+      "PLAT-52",
+      "PLAT-51"
+    ],
+    "expected_count": 200,
+    "golden_facts": {
+      "count": 200,
+      "keys": [
+        "PLAT-100",
+        "PLAT-99",
+        "PLAT-98",
+        "PLAT-97",
+        "PLAT-96",
+        "PLAT-95",
+        "PLAT-94",
+        "PLAT-93",
+        "PLAT-92",
+        "PLAT-91",
+        "PLAT-90",
+        "PLAT-89",
+        "PLAT-88",
+        "PLAT-87",
+        "PLAT-86",
+        "PLAT-85",
+        "PLAT-84",
+        "PLAT-83",
+        "PLAT-82",
+        "PLAT-81",
+        "PLAT-80",
+        "PLAT-79",
+        "PLAT-78",
+        "PLAT-77",
+        "PLAT-76",
+        "PLAT-75",
+        "PLAT-74",
+        "PLAT-73",
+        "PLAT-72",
+        "PLAT-71",
+        "PLAT-70",
+        "PLAT-69",
+        "PLAT-68",
+        "PLAT-67",
+        "PLAT-66",
+        "PLAT-65",
+        "PLAT-64",
+        "PLAT-63",
+        "PLAT-62",
+        "PLAT-61",
+        "PLAT-60",
+        "PLAT-59",
+        "PLAT-58",
+        "PLAT-57",
+        "PLAT-56",
+        "PLAT-55",
+        "PLAT-54",
+        "PLAT-53",
+        "PLAT-52",
+        "PLAT-51",
+        "PLAT-50",
+        "PLAT-49",
+        "PLAT-48",
+        "PLAT-47",
+        "PLAT-46",
+        "PLAT-45",
+        "PLAT-44",
+        "PLAT-43",
+        "PLAT-42",
+        "PLAT-41",
+        "PLAT-40",
+        "PLAT-39",
+        "PLAT-38",
+        "PLAT-37",
+        "PLAT-36",
+        "PLAT-35",
+        "PLAT-34",
+        "PLAT-33",
+        "PLAT-32",
+        "PLAT-31",
+        "PLAT-30",
+        "PLAT-29",
+        "PLAT-28",
+        "PLAT-27",
+        "PLAT-26",
+        "PLAT-25",
+        "PLAT-24",
+        "PLAT-23",
+        "PLAT-22",
+        "PLAT-21",
+        "PLAT-20",
+        "PLAT-19",
+        "PLAT-18",
+        "PLAT-17",
+        "PLAT-16",
+        "PLAT-15",
+        "PLAT-14",
+        "PLAT-13",
+        "PLAT-12",
+        "PLAT-11",
+        "PLAT-10",
+        "PLAT-9",
+        "PLAT-8",
+        "PLAT-7",
+        "PLAT-6",
+        "PLAT-5",
+        "PLAT-4",
+        "PLAT-3",
+        "PLAT-2",
+        "PLAT-1",
+        "OPS-100",
+        "OPS-99",
+        "OPS-98",
+        "OPS-97",
+        "OPS-96",
+        "OPS-95",
+        "OPS-94",
+        "OPS-93",
+        "OPS-92",
+        "OPS-91",
+        "OPS-90",
+        "OPS-89",
+        "OPS-88",
+        "OPS-87",
+        "OPS-86",
+        "OPS-85",
+        "OPS-84",
+        "OPS-83",
+        "OPS-82",
+        "OPS-81",
+        "OPS-80",
+        "OPS-79",
+        "OPS-78",
+        "OPS-77",
+        "OPS-76",
+        "OPS-75",
+        "OPS-74",
+        "OPS-73",
+        "OPS-72",
+        "OPS-71",
+        "OPS-70",
+        "OPS-69",
+        "OPS-68",
+        "OPS-67",
+        "OPS-66",
+        "OPS-65",
+        "OPS-64",
+        "OPS-63",
+        "OPS-62",
+        "OPS-61",
+        "OPS-60",
+        "OPS-59",
+        "OPS-58",
+        "OPS-57",
+        "OPS-56",
+        "OPS-55",
+        "OPS-54",
+        "OPS-53",
+        "OPS-52",
+        "OPS-51",
+        "OPS-50",
+        "OPS-49",
+        "OPS-48",
+        "OPS-47",
+        "OPS-46",
+        "OPS-45",
+        "OPS-44",
+        "OPS-43",
+        "OPS-42",
+        "OPS-41",
+        "OPS-40",
+        "OPS-39",
+        "OPS-38",
+        "OPS-37",
+        "OPS-36",
+        "OPS-35",
+        "OPS-34",
+        "OPS-33",
+        "OPS-32",
+        "OPS-31",
+        "OPS-30",
+        "OPS-29",
+        "OPS-28",
+        "OPS-27",
+        "OPS-26",
+        "OPS-25",
+        "OPS-24",
+        "OPS-23",
+        "OPS-22",
+        "OPS-21",
+        "OPS-20",
+        "OPS-19",
+        "OPS-18",
+        "OPS-17",
+        "OPS-16",
+        "OPS-15",
+        "OPS-14",
+        "OPS-13",
+        "OPS-12",
+        "OPS-11",
+        "OPS-10",
+        "OPS-9",
+        "OPS-8",
+        "OPS-7",
+        "OPS-6",
+        "OPS-5",
+        "OPS-4",
+        "OPS-3",
+        "OPS-2",
+        "OPS-1"
+      ],
+      "by_priority": {
+        "Medium": 165,
+        "Low": 2,
+        "High": 22,
+        "Highest": 11
+      },
+      "by_project": {
+        "PLAT": 100,
+        "OPS": 100
+      },
+      "by_issuetype": {
+        "Subtask": 144,
+        "Story": 48,
+        "Epic": 8
+      },
+      "samples": [
+        {
+          "key": "PLAT-100",
+          "summary": "Develop FinOps training curriculum and schedule sessions",
+          "priority": "Medium",
+          "status": "To Do"
+        },
+        {
+          "key": "PLAT-99",
+          "summary": "Add cost estimation to architecture review process",
+          "priority": "Medium",
+          "status": "To Do"
+        },
+        {
+          "key": "PLAT-98",
+          "summary": "Design FinOps review meeting format and materials",
+          "priority": "Medium",
+          "status": "To Do"
+        },
+        {
+          "key": "PLAT-97",
+          "summary": "Establish FinOps review process and governance model",
+          "priority": "Low",
+          "status": "To Do"
+        },
+        {
+          "key": "PLAT-96",
+          "summary": "Create cleanup automation with audit logging",
+          "priority": "Medium",
+          "status": "To Do"
+        },
+        {
+          "key": "PLAT-95",
+          "summary": "Implement notification and grace period workflow",
+          "priority": "Medium",
+          "status": "To Do"
+        },
+        {
+          "key": "PLAT-94",
+          "summary": "Build idle resource detection scanner",
+          "priority": "Medium",
+          "status": "To Do"
+        },
+        {
+          "key": "PLAT-93",
+          "summary": "Implement idle resource detection and cleanup automation",
+          "priority": "Medium",
+          "status": "To Do"
+        },
+        {
+          "key": "PLAT-92",
+          "summary": "Add Backstage integration for cost visibility",
+          "priority": "Medium",
+          "status": "To Do"
+        },
+        {
+          "key": "PLAT-91",
+          "summary": "Implement budget tracking and alert system",
+          "priority": "Medium",
+          "status": "To Do"
+        }
+      ],
+      "by_component": {
+        "cost-optimization": 2,
+        "platform-libs": 1,
+        "developer-experience": 1
+      },
+      "by_label": {
+        "cost-optimization": 2,
+        "process": 1,
+        "automation": 1
+      }
+    }
+  },
+  {
+    "id": "q5007",
+    "q": "Summarize the work captured under the 'API v2 Modernization' initiative (BUGS-76) \u2014 what are the major workstreams in its subtasks?",
+    "category": "root-cause-synthesis",
+    "tags": [
+      "synthesis",
+      "epic",
+      "real-power-user"
+    ],
+    "intent": "synthesis",
+    "jql": "\"Epic Link\" = BUGS-76 OR parent = BUGS-76",
+    "expected_keys": [
+      "BUGS-97",
+      "BUGS-93",
+      "BUGS-89",
+      "BUGS-85",
+      "BUGS-81",
+      "BUGS-77"
+    ],
+    "expected_count": 6,
+    "golden_facts": {
+      "count": 6,
+      "keys": [
+        "BUGS-97",
+        "BUGS-93",
+        "BUGS-89",
+        "BUGS-85",
+        "BUGS-81",
+        "BUGS-77"
+      ],
+      "by_priority": {
+        "High": 3,
+        "Medium": 2,
+        "Highest": 1
+      },
+      "by_project": {
+        "BUGS": 6
+      },
+      "by_issuetype": {
+        "Story": 6
+      },
+      "samples": [
+        {
+          "key": "BUGS-97",
+          "summary": "Fix API returning inconsistent timezone handling for date fields",
+          "priority": "High",
+          "status": "To Do"
+        },
+        {
+          "key": "BUGS-93",
+          "summary": "Create interactive API documentation portal with code examples",
+          "priority": "Medium",
+          "status": "To Do"
+        },
+        {
+          "key": "BUGS-89",
+          "summary": "Add GraphQL endpoint as alternative to REST for complex queries",
+          "priority": "Medium",
+          "status": "To Do"
+        },
+        {
+          "key": "BUGS-85",
+          "summary": "Fix rate limiter incorrectly counting OPTIONS preflight requests",
+          "priority": "High",
+          "status": "To Do"
+        },
+        {
+          "key": "BUGS-81",
+          "summary": "Implement webhook system for real-time issue event notifications",
+          "priority": "Highest",
+          "status": "To Do"
+        },
+        {
+          "key": "BUGS-77",
+          "summary": "Design and implement consistent REST API v2 resource structure",
+          "priority": "High",
+          "status": "To Do"
+        }
+      ],
+      "by_component": {
+        "search": 3,
+        "dashboard": 3,
+        "mobile-ios": 2,
+        "mobile-android": 2,
+        "auth": 1,
+        "billing": 1
+      },
+      "by_label": {
+        "api-v2": 6,
+        "bug": 2,
+        "data-consistency": 1,
+        "developer-experience": 1,
+        "documentation": 1,
+        "graphql": 1,
+        "rate-limiting": 1,
+        "integration": 1,
+        "webhooks": 1,
+        "architecture": 1
+      }
+    }
+  },
+  {
+    "id": "q5008",
+    "q": "Looking at all High-priority OPS issues, what are the recurring themes \u2014 is it more about reliability, performance, or cost?",
+    "category": "root-cause-synthesis",
+    "tags": [
+      "synthesis",
+      "themes",
+      "real-power-user"
+    ],
+    "intent": "synthesis",
+    "jql": "project = OPS AND priority = High",
+    "expected_keys": [
+      "OPS-97",
+      "OPS-85",
+      "OPS-81",
+      "OPS-64",
+      "OPS-60",
+      "OPS-52",
+      "OPS-47",
+      "OPS-35",
+      "OPS-31",
+      "OPS-18",
+      "OPS-10",
+      "OPS-6"
+    ],
+    "expected_count": 12,
+    "golden_facts": {
+      "count": 12,
+      "keys": [
+        "OPS-97",
+        "OPS-85",
+        "OPS-81",
+        "OPS-64",
+        "OPS-60",
+        "OPS-52",
+        "OPS-47",
+        "OPS-35",
+        "OPS-31",
+        "OPS-18",
+        "OPS-10",
+        "OPS-6"
+      ],
+      "by_priority": {
+        "High": 12
+      },
+      "by_project": {
+        "OPS": 12
+      },
+      "by_issuetype": {
+        "Story": 12
+      },
+      "samples": [
+        {
+          "key": "OPS-97",
+          "summary": "Implement database schema migration governance and rollback procedures",
+          "priority": "High",
+          "status": "To Do"
+        },
+        {
+          "key": "OPS-85",
+          "summary": "Migrate legacy MongoDB clusters to AWS DocumentDB",
+          "priority": "High",
+          "status": "To Do"
+        },
+        {
+          "key": "OPS-81",
+          "summary": "Implement PgBouncer connection pooling across all PostgreSQL clusters",
+          "priority": "High",
+          "status": "To Do"
+        },
+        {
+          "key": "OPS-64",
+          "summary": "Scale and optimize self-hosted GitLab runner infrastructure",
+          "priority": "High",
+          "status": "To Do"
+        },
+        {
+          "key": "OPS-60",
+          "summary": "Implement distributed caching for build artifacts and dependencies",
+          "priority": "High",
+          "status": "To Do"
+        },
+        {
+          "key": "OPS-52",
+          "summary": "Implement pipeline analytics to identify flaky tests and bottlenecks",
+          "priority": "High",
+          "status": "To Do"
+        },
+        {
+          "key": "OPS-47",
+          "summary": "Optimize Elasticsearch cluster and implement log tiering",
+          "priority": "High",
+          "status": "To Do"
+        },
+        {
+          "key": "OPS-35",
+          "summary": "Build unified SLO dashboard and error budget tracking system",
+          "priority": "High",
+          "status": "To Do"
+        },
+        {
+          "key": "OPS-31",
+          "summary": "Implement structured logging standards and reduce log volume by 60%",
+          "priority": "High",
+          "status": "To Do"
+        },
+        {
+          "key": "OPS-18",
+          "summary": "Post-upgrade monitoring and alerting validation",
+          "priority": "High",
+          "status": "To Do"
+        }
+      ],
+      "by_component": {
+        "networking": 6,
+        "k8s-prod": 4,
+        "k8s-staging": 4,
+        "databases": 3,
+        "observability": 2,
+        "ci-cd": 1
+      },
+      "by_label": {
+        "ci-cd": 5,
+        "observability": 5,
+        "databases": 4,
+        "k8s-prod": 3,
+        "networking": 1,
+        "performance": 1,
+        "reliability": 1
+      }
+    }
+  },
+  {
+    "id": "q5009",
+    "q": "Across CRM's 'account-recovery' component, what self-service capabilities are being built and what's still manual?",
+    "category": "root-cause-synthesis",
+    "tags": [
+      "synthesis",
+      "component",
+      "real-power-user"
+    ],
+    "intent": "synthesis",
+    "jql": "project = CRM AND component = \"account-recovery\"",
+    "expected_keys": [
+      "CRM-97",
+      "CRM-81",
+      "CRM-77",
+      "CRM-60",
+      "CRM-39",
+      "CRM-35",
+      "CRM-18",
+      "CRM-14",
+      "CRM-10",
+      "CRM-6"
+    ],
+    "expected_count": 10,
+    "golden_facts": {
+      "count": 10,
+      "keys": [
+        "CRM-97",
+        "CRM-81",
+        "CRM-77",
+        "CRM-60",
+        "CRM-39",
+        "CRM-35",
+        "CRM-18",
+        "CRM-14",
+        "CRM-10",
+        "CRM-6"
+      ],
+      "by_priority": {
+        "Low": 1,
+        "High": 5,
+        "Highest": 1,
+        "Medium": 3
+      },
+      "by_project": {
+        "CRM": 10
+      },
+      "by_issuetype": {
+        "Story": 10
+      },
+      "samples": [
+        {
+          "key": "CRM-97",
+          "summary": "Create Technical Issue Pattern Detection for Proactive Engineering Alerts",
+          "priority": "Low",
+          "status": "To Do"
+        },
+        {
+          "key": "CRM-81",
+          "summary": "Create Engineering Escalation Workflow for Reproducible Bugs",
+          "priority": "High",
+          "status": "To Do"
+        },
+        {
+          "key": "CRM-77",
+          "summary": "Implement In-App Crash Report Submission with Automatic Context Capture",
+          "priority": "Highest",
+          "status": "To Do"
+        },
+        {
+          "key": "CRM-60",
+          "summary": "Develop Refund Fraud Detection Model with Machine Learning",
+          "priority": "High",
+          "status": "To Do"
+        },
+        {
+          "key": "CRM-39",
+          "summary": "Build Support Agent Account Recovery Toolkit with Verification Checklist",
+          "priority": "Medium",
+          "status": "To Do"
+        },
+        {
+          "key": "CRM-35",
+          "summary": "Develop Automated Account Lockout Detection and Self-Service Unlock",
+          "priority": "High",
+          "status": "To Do"
+        },
+        {
+          "key": "CRM-18",
+          "summary": "Develop Agent Training Module for Common Billing Dispute Patterns",
+          "priority": "Medium",
+          "status": "To Do"
+        },
+        {
+          "key": "CRM-14",
+          "summary": "Integrate Real-Time Chargeback Alerts from Payment Processors",
+          "priority": "Medium",
+          "status": "To Do"
+        },
+        {
+          "key": "CRM-10",
+          "summary": "Create Escalation Workflow for Complex Multi-Transaction Disputes",
+          "priority": "High",
+          "status": "To Do"
+        },
+        {
+          "key": "CRM-6",
+          "summary": "Build Self-Service Dispute Submission Portal for End Users",
+          "priority": "High",
+          "status": "To Do"
+        }
+      ],
+      "by_component": {
+        "account-recovery": 10,
+        "refunds": 4,
+        "feature-requests": 4,
+        "billing-support": 2
+      },
+      "by_label": {
+        "billing-support": 4,
+        "feature-requests": 3,
+        "tooling": 2,
+        "account-recovery": 2,
+        "self-service": 2,
+        "monitoring": 1,
+        "mobile": 1,
+        "fraud-prevention": 1,
+        "refunds": 1,
+        "training": 1,
+        "payments": 1,
+        "escalation": 1
+      }
+    }
+  },
+  {
+    "id": "q5010",
+    "q": "Which PLAT issues are currently blocking other PLAT issues, and what's the dependency chain?",
+    "category": "issue-links",
+    "tags": [
+      "dependency",
+      "cross-issue",
+      "real-power-user"
+    ],
+    "intent": "key_recall",
+    "jql": "project = PLAT AND issueLinkType = \"blocks\"",
+    "expected_keys": [
+      "PLAT-93",
+      "PLAT-85",
+      "PLAT-64",
+      "PLAT-56",
+      "PLAT-52",
+      "PLAT-43",
+      "PLAT-18",
+      "PLAT-2"
+    ],
+    "expected_count": 8,
+    "golden_facts": {
+      "count": 8,
+      "keys": [
+        "PLAT-93",
+        "PLAT-85",
+        "PLAT-64",
+        "PLAT-56",
+        "PLAT-52",
+        "PLAT-43",
+        "PLAT-18",
+        "PLAT-2"
+      ],
+      "by_priority": {
+        "Medium": 2,
+        "High": 3,
+        "Highest": 3
+      },
+      "by_project": {
+        "PLAT": 8
+      },
+      "by_issuetype": {
+        "Story": 8
+      },
+      "samples": [
+        {
+          "key": "PLAT-93",
+          "summary": "Implement idle resource detection and cleanup automation",
+          "priority": "Medium",
+          "status": "To Do"
+        },
+        {
+          "key": "PLAT-85",
+          "summary": "Enable spot instances for stateless workload tiers",
+          "priority": "High",
+          "status": "To Do"
+        },
+        {
+          "key": "PLAT-64",
+          "summary": "Implement automatic permission expiration and access reviews",
+          "priority": "High",
+          "status": "To Do"
+        },
+        {
+          "key": "PLAT-56",
+          "summary": "Implement RBAC API service with OPA policy engine",
+          "priority": "Highest",
+          "status": "To Do"
+        },
+        {
+          "key": "PLAT-52",
+          "summary": "Design self-service RBAC model with permission boundaries",
+          "priority": "Highest",
+          "status": "To Do"
+        },
+        {
+          "key": "PLAT-43",
+          "summary": "Create template versioning and migration tooling",
+          "priority": "Medium",
+          "status": "To Do"
+        },
+        {
+          "key": "PLAT-18",
+          "summary": "Update mTLS policies for Istio 1.20 PeerAuthentication changes",
+          "priority": "High",
+          "status": "To Do"
+        },
+        {
+          "key": "PLAT-2",
+          "summary": "Audit existing Istio resources for deprecated API versions",
+          "priority": "Highest",
+          "status": "To Do"
+        }
+      ],
+      "by_component": {
+        "developer-experience": 5,
+        "cost-optimization": 4,
+        "service-mesh": 3,
+        "rbac": 3,
+        "platform-libs": 1
+      },
+      "by_label": {
+        "rbac": 3,
+        "cost-optimization": 2,
+        "service-mesh": 2,
+        "automation": 1,
+        "infrastructure": 1,
+        "compliance": 1,
+        "backend": 1,
+        "design": 1,
+        "developer-experience": 1,
+        "tooling": 1,
+        "security": 1,
+        "audit": 1
+      },
+      "links": [
+        {
+          "from": "PLAT-93",
+          "type": "blocks",
+          "to": "PLAT-43"
+        },
+        {
+          "from": "PLAT-85",
+          "type": "is duplicated by",
+          "to": "PLAT-64"
+        },
+        {
+          "from": "PLAT-85",
+          "type": "blocks",
+          "to": "PLAT-64"
+        },
+        {
+          "from": "PLAT-85",
+          "type": "is blocked by",
+          "to": "PLAT-2"
+        },
+        {
+          "from": "PLAT-64",
+          "type": "duplicates",
+          "to": "PLAT-85"
+        },
+        {
+          "from": "PLAT-64",
+          "type": "blocks",
+          "to": "PLAT-43"
+        },
+        {
+          "from": "PLAT-64",
+          "type": "is blocked by",
+          "to": "PLAT-85"
+        },
+        {
+          "from": "PLAT-56",
+          "type": "blocks",
+          "to": "PLAT-43"
+        },
+        {
+          "from": "PLAT-52",
+          "type": "is blocked by",
+          "to": "PLAT-18"
+        },
+        {
+          "from": "PLAT-43",
+          "type": "is blocked by",
+          "to": "PLAT-93"
+        },
+        {
+          "from": "PLAT-43",
+          "type": "is blocked by",
+          "to": "PLAT-56"
+        },
+        {
+          "from": "PLAT-43",
+          "type": "is blocked by",
+          "to": "PLAT-64"
+        },
+        {
+          "from": "PLAT-43",
+          "type": "is duplicated by",
+          "to": "PLAT-72"
+        },
+        {
+          "from": "PLAT-18",
+          "type": "blocks",
+          "to": "PLAT-52"
+        },
+        {
+          "from": "PLAT-2",
+          "type": "blocks",
+          "to": "PLAT-85"
+        }
+      ]
+    }
+  },
+  {
+    "id": "q5011",
+    "q": "Are any OPS issues blocking work in other projects, or vice versa?",
+    "category": "issue-links",
+    "tags": [
+      "dependency",
+      "cross-project",
+      "real-power-user"
+    ],
+    "intent": "analytical",
+    "jql": "project = OPS AND issueLinkType in (\"blocks\",\"is blocked by\")",
+    "expected_keys": [
+      "OPS-60",
+      "OPS-56",
+      "OPS-47",
+      "OPS-39",
+      "OPS-27"
+    ],
+    "expected_count": 5,
+    "golden_facts": {
+      "count": 5,
+      "keys": [
+        "OPS-60",
+        "OPS-56",
+        "OPS-47",
+        "OPS-39",
+        "OPS-27"
+      ],
+      "by_priority": {
+        "High": 2,
+        "Highest": 2,
+        "Medium": 1
+      },
+      "by_project": {
+        "OPS": 5
+      },
+      "by_issuetype": {
+        "Story": 5
+      },
+      "samples": [
+        {
+          "key": "OPS-60",
+          "summary": "Implement distributed caching for build artifacts and dependencies",
+          "priority": "High",
+          "status": "To Do"
+        },
+        {
+          "key": "OPS-56",
+          "summary": "Quarantine and fix top 50 flaky tests causing pipeline retries",
+          "priority": "Highest",
+          "status": "To Do"
+        },
+        {
+          "key": "OPS-47",
+          "summary": "Optimize Elasticsearch cluster and implement log tiering",
+          "priority": "High",
+          "status": "To Do"
+        },
+        {
+          "key": "OPS-39",
+          "summary": "Deploy distributed tracing with automatic instrumentation",
+          "priority": "Medium",
+          "status": "To Do"
+        },
+        {
+          "key": "OPS-27",
+          "summary": "Implement Prometheus federation and remote write to reduce cluster load",
+          "priority": "Highest",
+          "status": "To Do"
+        }
+      ],
+      "by_component": {
+        "ci-cd": 4,
+        "databases": 2,
+        "k8s-staging": 2,
+        "networking": 1,
+        "observability": 1
+      },
+      "by_label": {
+        "observability": 3,
+        "ci-cd": 2,
+        "databases": 2,
+        "performance": 1,
+        "testing": 1,
+        "networking": 1
+      },
+      "links": [
+        {
+          "from": "OPS-60",
+          "type": "blocks",
+          "to": "OPS-56"
+        },
+        {
+          "from": "OPS-56",
+          "type": "duplicates",
+          "to": "OPS-22"
+        },
+        {
+          "from": "OPS-56",
+          "type": "is blocked by",
+          "to": "OPS-60"
+        },
+        {
+          "from": "OPS-47",
+          "type": "blocks",
+          "to": "OPS-27"
+        },
+        {
+          "from": "OPS-47",
+          "type": "is duplicated by",
+          "to": "OPS-31"
+        },
+        {
+          "from": "OPS-39",
+          "type": "is blocked by",
+          "to": "OPS-27"
+        },
+        {
+          "from": "OPS-27",
+          "type": "is blocked by",
+          "to": "OPS-47"
+        },
+        {
+          "from": "OPS-27",
+          "type": "blocks",
+          "to": "OPS-39"
+        },
+        {
+          "from": "OPS-27",
+          "type": "relates to",
+          "to": "OPS-43"
+        }
+      ]
+    }
+  },
+  {
+    "id": "q5012",
+    "q": "Show me the full blockers tree for PLAT-43 \u2014 who blocks it, and who do those blockers block in turn?",
+    "category": "issue-links",
+    "tags": [
+      "dependency",
+      "single-issue-tree",
+      "real-power-user"
+    ],
+    "intent": "analytical",
+    "jql": "key = PLAT-43",
+    "expected_keys": [
+      "PLAT-43"
+    ],
+    "expected_count": 1,
+    "golden_facts": {
+      "count": 1,
+      "keys": [
+        "PLAT-43"
+      ],
+      "by_priority": {
+        "Medium": 1
+      },
+      "by_project": {
+        "PLAT": 1
+      },
+      "by_issuetype": {
+        "Story": 1
+      },
+      "samples": [
+        {
+          "key": "PLAT-43",
+          "summary": "Create template versioning and migration tooling",
+          "priority": "Medium",
+          "status": "To Do"
+        }
+      ],
+      "by_component": {
+        "cost-optimization": 1,
+        "developer-experience": 1
+      },
+      "by_label": {
+        "developer-experience": 1,
+        "tooling": 1
+      },
+      "links": [
+        {
+          "from": "PLAT-43",
+          "type": "is blocked by",
+          "to": "PLAT-93"
+        },
+        {
+          "from": "PLAT-43",
+          "type": "is blocked by",
+          "to": "PLAT-56"
+        },
+        {
+          "from": "PLAT-43",
+          "type": "is blocked by",
+          "to": "PLAT-64"
+        },
+        {
+          "from": "PLAT-43",
+          "type": "is duplicated by",
+          "to": "PLAT-72"
+        }
+      ]
+    }
+  },
+  {
+    "id": "q5013",
+    "q": "Who currently has the most High and Highest priority unresolved tickets across all engineering projects?",
+    "category": "cross-issue-analysis",
+    "tags": [
+      "workload",
+      "ownership",
+      "real-power-user"
+    ],
+    "intent": "analytical",
+    "jql": "project in (BUGS, CRM, OPS, PLAT) AND priority in (High, Highest) AND resolution = Unresolved",
+    "expected_keys": [
+      "PLAT-89",
+      "PLAT-85",
+      "PLAT-81",
+      "PLAT-77",
+      "PLAT-64",
+      "PLAT-60",
+      "PLAT-56",
+      "PLAT-52",
+      "PLAT-35",
+      "PLAT-31",
+      "PLAT-27",
+      "PLAT-18",
+      "PLAT-10",
+      "PLAT-6",
+      "PLAT-2",
+      "OPS-97",
+      "OPS-89",
+      "OPS-85",
+      "OPS-81",
+      "OPS-77",
+      "OPS-64",
+      "OPS-60",
+      "OPS-56",
+      "OPS-52",
+      "OPS-47",
+      "OPS-35",
+      "OPS-31",
+      "OPS-27",
+      "OPS-18",
+      "OPS-14",
+      "OPS-10",
+      "OPS-6",
+      "OPS-2",
+      "CRM-85",
+      "CRM-81",
+      "CRM-77",
+      "CRM-60",
+      "CRM-56",
+      "CRM-52",
+      "CRM-35",
+      "CRM-31",
+      "CRM-27",
+      "CRM-10",
+      "CRM-6",
+      "CRM-2",
+      "BUGS-97",
+      "BUGS-85",
+      "BUGS-81",
+      "BUGS-77",
+      "BUGS-72"
+    ],
+    "expected_count": 61,
+    "golden_facts": {
+      "count": 61,
+      "keys": [
+        "PLAT-89",
+        "PLAT-85",
+        "PLAT-81",
+        "PLAT-77",
+        "PLAT-64",
+        "PLAT-60",
+        "PLAT-56",
+        "PLAT-52",
+        "PLAT-35",
+        "PLAT-31",
+        "PLAT-27",
+        "PLAT-18",
+        "PLAT-10",
+        "PLAT-6",
+        "PLAT-2",
+        "OPS-97",
+        "OPS-89",
+        "OPS-85",
+        "OPS-81",
+        "OPS-77",
+        "OPS-64",
+        "OPS-60",
+        "OPS-56",
+        "OPS-52",
+        "OPS-47",
+        "OPS-35",
+        "OPS-31",
+        "OPS-27",
+        "OPS-18",
+        "OPS-14",
+        "OPS-10",
+        "OPS-6",
+        "OPS-2",
+        "CRM-85",
+        "CRM-81",
+        "CRM-77",
+        "CRM-60",
+        "CRM-56",
+        "CRM-52",
+        "CRM-35",
+        "CRM-31",
+        "CRM-27",
+        "CRM-10",
+        "CRM-6",
+        "CRM-2",
+        "BUGS-97",
+        "BUGS-85",
+        "BUGS-81",
+        "BUGS-77",
+        "BUGS-72",
+        "BUGS-64",
+        "BUGS-60",
+        "BUGS-56",
+        "BUGS-52",
+        "BUGS-35",
+        "BUGS-27",
+        "BUGS-18",
+        "BUGS-14",
+        "BUGS-10",
+        "BUGS-6",
+        "BUGS-2"
+      ],
+      "by_priority": {
+        "High": 40,
+        "Highest": 21
+      },
+      "by_project": {
+        "PLAT": 15,
+        "OPS": 18,
+        "CRM": 12,
+        "BUGS": 16
+      },
+      "by_issuetype": {
+        "Story": 61
+      },
+      "samples": [
+        {
+          "key": "PLAT-89",
+          "summary": "Build team cost dashboards with budget alerts",
+          "priority": "High",
+          "status": "To Do"
+        },
+        {
+          "key": "PLAT-85",
+          "summary": "Enable spot instances for stateless workload tiers",
+          "priority": "High",
+          "status": "To Do"
+        },
+        {
+          "key": "PLAT-81",
+          "summary": "Implement automated resource rightsizing recommendations",
+          "priority": "High",
+          "status": "To Do"
+        },
+        {
+          "key": "PLAT-77",
+          "summary": "Deploy Kubecost for granular Kubernetes cost allocation",
+          "priority": "Highest",
+          "status": "To Do"
+        },
+        {
+          "key": "PLAT-64",
+          "summary": "Implement automatic permission expiration and access reviews",
+          "priority": "High",
+          "status": "To Do"
+        },
+        {
+          "key": "PLAT-60",
+          "summary": "Build Backstage plugin for RBAC self-service portal",
+          "priority": "High",
+          "status": "To Do"
+        },
+        {
+          "key": "PLAT-56",
+          "summary": "Implement RBAC API service with OPA policy engine",
+          "priority": "Highest",
+          "status": "To Do"
+        },
+        {
+          "key": "PLAT-52",
+          "summary": "Design self-service RBAC model with permission boundaries",
+          "priority": "Highest",
+          "status": "To Do"
+        },
+        {
+          "key": "PLAT-35",
+          "summary": "Implement scheduled batch job template with Argo Workflows",
+          "priority": "High",
+          "status": "To Do"
+        },
+        {
+          "key": "PLAT-31",
+          "summary": "Build ML model serving template with Seldon Core integration",
+          "priority": "High",
+          "status": "To Do"
+        }
+      ],
+      "by_component": {
+        "developer-experience": 6,
+        "service-mesh": 5,
+        "rbac": 4,
+        "cost-optimization": 3,
+        "platform-libs": 2
+      },
+      "by_label": {
+        "cost-optimization": 4,
+        "rbac": 4,
+        "developer-experience": 2,
+        "templates": 2,
+        "observability": 1,
+        "infrastructure": 1,
+        "automation": 1,
+        "tooling": 1,
+        "compliance": 1,
+        "frontend": 1,
+        "backend": 1,
+        "design": 1
+      }
+    }
+  },
+  {
+    "id": "q5014",
+    "q": "Among unresolved BUGS issues, list the 5 with the oldest creation date \u2014 they're at risk of stalling.",
+    "category": "multi-step",
+    "tags": [
+      "workload",
+      "aging",
+      "real-power-user"
+    ],
+    "intent": "analytical",
+    "jql": "project = BUGS AND resolution = Unresolved ORDER BY created ASC",
+    "expected_keys": [
+      "BUGS-1",
+      "BUGS-2",
+      "BUGS-3",
+      "BUGS-4",
+      "BUGS-5",
+      "BUGS-6",
+      "BUGS-7",
+      "BUGS-8",
+      "BUGS-9",
+      "BUGS-10",
+      "BUGS-11",
+      "BUGS-12",
+      "BUGS-13",
+      "BUGS-14",
+      "BUGS-15",
+      "BUGS-16",
+      "BUGS-17",
+      "BUGS-18",
+      "BUGS-19",
+      "BUGS-20",
+      "BUGS-21",
+      "BUGS-22",
+      "BUGS-23",
+      "BUGS-24",
+      "BUGS-25",
+      "BUGS-26",
+      "BUGS-27",
+      "BUGS-28",
+      "BUGS-29",
+      "BUGS-30",
+      "BUGS-31",
+      "BUGS-32",
+      "BUGS-33",
+      "BUGS-34",
+      "BUGS-35",
+      "BUGS-36",
+      "BUGS-37",
+      "BUGS-38",
+      "BUGS-39",
+      "BUGS-40",
+      "BUGS-41",
+      "BUGS-42",
+      "BUGS-43",
+      "BUGS-44",
+      "BUGS-45",
+      "BUGS-46",
+      "BUGS-47",
+      "BUGS-48",
+      "BUGS-49",
+      "BUGS-50"
+    ],
+    "expected_count": 100,
+    "golden_facts": {
+      "count": 100,
+      "keys": [
+        "BUGS-1",
+        "BUGS-2",
+        "BUGS-3",
+        "BUGS-4",
+        "BUGS-5",
+        "BUGS-6",
+        "BUGS-7",
+        "BUGS-8",
+        "BUGS-9",
+        "BUGS-10",
+        "BUGS-11",
+        "BUGS-12",
+        "BUGS-13",
+        "BUGS-14",
+        "BUGS-15",
+        "BUGS-16",
+        "BUGS-17",
+        "BUGS-18",
+        "BUGS-19",
+        "BUGS-20",
+        "BUGS-21",
+        "BUGS-22",
+        "BUGS-23",
+        "BUGS-24",
+        "BUGS-25",
+        "BUGS-26",
+        "BUGS-27",
+        "BUGS-28",
+        "BUGS-29",
+        "BUGS-30",
+        "BUGS-31",
+        "BUGS-32",
+        "BUGS-33",
+        "BUGS-34",
+        "BUGS-35",
+        "BUGS-36",
+        "BUGS-37",
+        "BUGS-38",
+        "BUGS-39",
+        "BUGS-40",
+        "BUGS-41",
+        "BUGS-42",
+        "BUGS-43",
+        "BUGS-44",
+        "BUGS-45",
+        "BUGS-46",
+        "BUGS-47",
+        "BUGS-48",
+        "BUGS-49",
+        "BUGS-50",
+        "BUGS-51",
+        "BUGS-52",
+        "BUGS-53",
+        "BUGS-54",
+        "BUGS-55",
+        "BUGS-56",
+        "BUGS-57",
+        "BUGS-58",
+        "BUGS-59",
+        "BUGS-60",
+        "BUGS-61",
+        "BUGS-62",
+        "BUGS-63",
+        "BUGS-64",
+        "BUGS-65",
+        "BUGS-66",
+        "BUGS-67",
+        "BUGS-68",
+        "BUGS-69",
+        "BUGS-70",
+        "BUGS-71",
+        "BUGS-72",
+        "BUGS-73",
+        "BUGS-74",
+        "BUGS-75",
+        "BUGS-76",
+        "BUGS-77",
+        "BUGS-78",
+        "BUGS-79",
+        "BUGS-80",
+        "BUGS-81",
+        "BUGS-82",
+        "BUGS-83",
+        "BUGS-84",
+        "BUGS-85",
+        "BUGS-86",
+        "BUGS-87",
+        "BUGS-88",
+        "BUGS-89",
+        "BUGS-90",
+        "BUGS-91",
+        "BUGS-92",
+        "BUGS-93",
+        "BUGS-94",
+        "BUGS-95",
+        "BUGS-96",
+        "BUGS-97",
+        "BUGS-98",
+        "BUGS-99",
+        "BUGS-100"
+      ],
+      "by_priority": {
+        "Medium": 82,
+        "Highest": 6,
+        "High": 10,
+        "Low": 2
+      },
+      "by_project": {
+        "BUGS": 100
+      },
+      "by_issuetype": {
+        "Epic": 4,
+        "Story": 24,
+        "Subtask": 72
+      },
+      "samples": [
+        {
+          "key": "BUGS-1",
+          "summary": "Authentication System Reliability and Security Hardening Initiative",
+          "priority": "Medium",
+          "status": "To Do"
+        },
+        {
+          "key": "BUGS-2",
+          "summary": "Fix race condition in concurrent OAuth token refresh flow",
+          "priority": "Highest",
+          "status": "To Do"
+        },
+        {
+          "key": "BUGS-3",
+          "summary": "Implement BroadcastChannel API for cross-tab coordination",
+          "priority": "Medium",
+          "status": "To Do"
+        },
+        {
+          "key": "BUGS-4",
+          "summary": "Add refresh token mutex with timeout handling",
+          "priority": "Medium",
+          "status": "To Do"
+        },
+        {
+          "key": "BUGS-5",
+          "summary": "Write integration tests for multi-tab token scenarios",
+          "priority": "Medium",
+          "status": "To Do"
+        },
+        {
+          "key": "BUGS-6",
+          "summary": "Memory leak in auth state subscription causing dashboard crashes",
+          "priority": "High",
+          "status": "To Do"
+        },
+        {
+          "key": "BUGS-7",
+          "summary": "Refactor useAuthState hook with proper cleanup",
+          "priority": "Medium",
+          "status": "To Do"
+        },
+        {
+          "key": "BUGS-8",
+          "summary": "Implement subscription limit and warning system",
+          "priority": "Medium",
+          "status": "To Do"
+        },
+        {
+          "key": "BUGS-9",
+          "summary": "Add automated memory profiling to CI for auth flows",
+          "priority": "Medium",
+          "status": "To Do"
+        },
+        {
+          "key": "BUGS-10",
+          "summary": "SSO SAML assertion parsing fails for enterprise customers with custom attributes",
+          "priority": "Highest",
+          "status": "To Do"
+        }
+      ],
+      "by_component": {
+        "mobile-ios": 2,
+        "mobile-android": 1,
+        "auth": 1,
+        "billing": 1,
+        "search": 1
+      },
+      "by_label": {
+        "auth": 3,
+        "initiative": 1,
+        "security": 1,
+        "race-condition": 1,
+        "dashboard": 1,
+        "memory-leak": 1,
+        "enterprise": 1,
+        "sso": 1
+      }
+    }
+  },
+  {
+    "id": "q5015",
+    "q": "How many Story-type issues across the engineering projects are at High or Highest priority right now, broken down by project?",
+    "category": "cross-issue-analysis",
+    "tags": [
+      "planning",
+      "groupby",
+      "real-power-user"
+    ],
+    "intent": "count_or_groupby",
+    "jql": "project in (BUGS, CRM, OPS, PLAT) AND issuetype = Story AND priority in (High, Highest)",
+    "expected_keys": [
+      "PLAT-89",
+      "PLAT-85",
+      "PLAT-81",
+      "PLAT-77",
+      "PLAT-64",
+      "PLAT-60",
+      "PLAT-56",
+      "PLAT-52",
+      "PLAT-35",
+      "PLAT-31",
+      "PLAT-27",
+      "PLAT-18",
+      "PLAT-10",
+      "PLAT-6",
+      "PLAT-2",
+      "OPS-97",
+      "OPS-89",
+      "OPS-85",
+      "OPS-81",
+      "OPS-77",
+      "OPS-64",
+      "OPS-60",
+      "OPS-56",
+      "OPS-52",
+      "OPS-47",
+      "OPS-35",
+      "OPS-31",
+      "OPS-27",
+      "OPS-18",
+      "OPS-14",
+      "OPS-10",
+      "OPS-6",
+      "OPS-2",
+      "CRM-85",
+      "CRM-81",
+      "CRM-77",
+      "CRM-60",
+      "CRM-56",
+      "CRM-52",
+      "CRM-35",
+      "CRM-31",
+      "CRM-27",
+      "CRM-10",
+      "CRM-6",
+      "CRM-2",
+      "BUGS-97",
+      "BUGS-85",
+      "BUGS-81",
+      "BUGS-77",
+      "BUGS-72"
+    ],
+    "expected_count": 61,
+    "golden_facts": {
+      "count": 61,
+      "keys": [
+        "PLAT-89",
+        "PLAT-85",
+        "PLAT-81",
+        "PLAT-77",
+        "PLAT-64",
+        "PLAT-60",
+        "PLAT-56",
+        "PLAT-52",
+        "PLAT-35",
+        "PLAT-31",
+        "PLAT-27",
+        "PLAT-18",
+        "PLAT-10",
+        "PLAT-6",
+        "PLAT-2",
+        "OPS-97",
+        "OPS-89",
+        "OPS-85",
+        "OPS-81",
+        "OPS-77",
+        "OPS-64",
+        "OPS-60",
+        "OPS-56",
+        "OPS-52",
+        "OPS-47",
+        "OPS-35",
+        "OPS-31",
+        "OPS-27",
+        "OPS-18",
+        "OPS-14",
+        "OPS-10",
+        "OPS-6",
+        "OPS-2",
+        "CRM-85",
+        "CRM-81",
+        "CRM-77",
+        "CRM-60",
+        "CRM-56",
+        "CRM-52",
+        "CRM-35",
+        "CRM-31",
+        "CRM-27",
+        "CRM-10",
+        "CRM-6",
+        "CRM-2",
+        "BUGS-97",
+        "BUGS-85",
+        "BUGS-81",
+        "BUGS-77",
+        "BUGS-72",
+        "BUGS-64",
+        "BUGS-60",
+        "BUGS-56",
+        "BUGS-52",
+        "BUGS-35",
+        "BUGS-27",
+        "BUGS-18",
+        "BUGS-14",
+        "BUGS-10",
+        "BUGS-6",
+        "BUGS-2"
+      ],
+      "by_priority": {
+        "High": 40,
+        "Highest": 21
+      },
+      "by_project": {
+        "PLAT": 15,
+        "OPS": 18,
+        "CRM": 12,
+        "BUGS": 16
+      },
+      "by_issuetype": {
+        "Story": 61
+      },
+      "samples": [
+        {
+          "key": "PLAT-89",
+          "summary": "Build team cost dashboards with budget alerts",
+          "priority": "High",
+          "status": "To Do"
+        },
+        {
+          "key": "PLAT-85",
+          "summary": "Enable spot instances for stateless workload tiers",
+          "priority": "High",
+          "status": "To Do"
+        },
+        {
+          "key": "PLAT-81",
+          "summary": "Implement automated resource rightsizing recommendations",
+          "priority": "High",
+          "status": "To Do"
+        },
+        {
+          "key": "PLAT-77",
+          "summary": "Deploy Kubecost for granular Kubernetes cost allocation",
+          "priority": "Highest",
+          "status": "To Do"
+        },
+        {
+          "key": "PLAT-64",
+          "summary": "Implement automatic permission expiration and access reviews",
+          "priority": "High",
+          "status": "To Do"
+        },
+        {
+          "key": "PLAT-60",
+          "summary": "Build Backstage plugin for RBAC self-service portal",
+          "priority": "High",
+          "status": "To Do"
+        },
+        {
+          "key": "PLAT-56",
+          "summary": "Implement RBAC API service with OPA policy engine",
+          "priority": "Highest",
+          "status": "To Do"
+        },
+        {
+          "key": "PLAT-52",
+          "summary": "Design self-service RBAC model with permission boundaries",
+          "priority": "Highest",
+          "status": "To Do"
+        },
+        {
+          "key": "PLAT-35",
+          "summary": "Implement scheduled batch job template with Argo Workflows",
+          "priority": "High",
+          "status": "To Do"
+        },
+        {
+          "key": "PLAT-31",
+          "summary": "Build ML model serving template with Seldon Core integration",
+          "priority": "High",
+          "status": "To Do"
+        }
+      ],
+      "by_component": {
+        "developer-experience": 6,
+        "service-mesh": 5,
+        "rbac": 4,
+        "cost-optimization": 3,
+        "platform-libs": 2
+      },
+      "by_label": {
+        "cost-optimization": 4,
+        "rbac": 4,
+        "developer-experience": 2,
+        "templates": 2,
+        "observability": 1,
+        "infrastructure": 1,
+        "automation": 1,
+        "tooling": 1,
+        "compliance": 1,
+        "frontend": 1,
+        "backend": 1,
+        "design": 1
+      }
+    }
+  },
+  {
+    "id": "q5016",
+    "q": "Find every Epic across our engineering projects that has fewer than 3 subtasks \u2014 these epics may be under-broken-down.",
+    "category": "cross-issue-analysis",
+    "tags": [
+      "compliance",
+      "planning",
+      "real-power-user"
+    ],
+    "intent": "analytical",
+    "jql": "project in (BUGS, CRM, OPS, PLAT) AND issuetype = Epic",
+    "expected_keys": [
+      "PLAT-76",
+      "PLAT-51",
+      "PLAT-26",
+      "PLAT-1",
+      "OPS-76",
+      "OPS-51",
+      "OPS-26",
+      "OPS-1",
+      "CRM-76",
+      "CRM-51",
+      "CRM-26",
+      "CRM-1",
+      "BUGS-76",
+      "BUGS-51",
+      "BUGS-26",
+      "BUGS-1"
+    ],
+    "expected_count": 16,
+    "golden_facts": {
+      "count": 16,
+      "keys": [
+        "PLAT-76",
+        "PLAT-51",
+        "PLAT-26",
+        "PLAT-1",
+        "OPS-76",
+        "OPS-51",
+        "OPS-26",
+        "OPS-1",
+        "CRM-76",
+        "CRM-51",
+        "CRM-26",
+        "CRM-1",
+        "BUGS-76",
+        "BUGS-51",
+        "BUGS-26",
+        "BUGS-1"
+      ],
+      "by_priority": {
+        "Medium": 16
+      },
+      "by_project": {
+        "PLAT": 4,
+        "OPS": 4,
+        "CRM": 4,
+        "BUGS": 4
+      },
+      "by_issuetype": {
+        "Epic": 16
+      },
+      "samples": [
+        {
+          "key": "PLAT-76",
+          "summary": "Cloud Cost Optimization and FinOps Automation Initiative",
+          "priority": "Medium",
+          "status": "To Do"
+        },
+        {
+          "key": "PLAT-51",
+          "summary": "RBAC System Modernization and Self-Service Enablement",
+          "priority": "Medium",
+          "status": "To Do"
+        },
+        {
+          "key": "PLAT-26",
+          "summary": "Developer Portal Golden Path Template Expansion",
+          "priority": "Medium",
+          "status": "To Do"
+        },
+        {
+          "key": "PLAT-1",
+          "summary": "Service Mesh Migration from Istio 1.14 to 1.20",
+          "priority": "Medium",
+          "status": "To Do"
+        },
+        {
+          "key": "OPS-76",
+          "summary": "Database Infrastructure Resilience and Migration Program",
+          "priority": "Medium",
+          "status": "To Do"
+        },
+        {
+          "key": "OPS-51",
+          "summary": "CI/CD Pipeline Reliability and Performance Overhaul",
+          "priority": "Medium",
+          "status": "To Do"
+        },
+        {
+          "key": "OPS-26",
+          "summary": "Observability Platform Modernization and Cost Optimization",
+          "priority": "Medium",
+          "status": "To Do"
+        },
+        {
+          "key": "OPS-1",
+          "summary": "Kubernetes Cluster Upgrade Initiative Q1 2024",
+          "priority": "Medium",
+          "status": "To Do"
+        },
+        {
+          "key": "CRM-76",
+          "summary": "Enhance App Crash and Technical Issue Reporting Pipeline",
+          "priority": "Medium",
+          "status": "To Do"
+        },
+        {
+          "key": "CRM-51",
+          "summary": "Improve Refund Processing Efficiency and Customer Experience",
+          "priority": "Medium",
+          "status": "To Do"
+        }
+      ],
+      "by_label": {
+        "initiative": 10,
+        "cost-reduction": 1,
+        "security-hardening": 1,
+        "developer-experience": 1,
+        "infrastructure-modernization": 1,
+        "databases": 1,
+        "ci-cd": 1,
+        "observability": 1,
+        "kubernetes-upgrade": 1,
+        "technical-support": 1,
+        "refund-optimization": 1
+      }
+    }
+  },
+  {
+    "id": "q5017",
+    "q": "Show me all CRM Story-type issues at High or Highest priority \u2014 these are the candidates for the next sprint.",
+    "category": "jql-filter",
+    "tags": [
+      "planning",
+      "sprint",
+      "real-power-user"
+    ],
+    "intent": "key_recall",
+    "jql": "project = CRM AND issuetype = Story AND priority in (High, Highest)",
+    "expected_keys": [
+      "CRM-85",
+      "CRM-81",
+      "CRM-77",
+      "CRM-60",
+      "CRM-56",
+      "CRM-52",
+      "CRM-35",
+      "CRM-31",
+      "CRM-27",
+      "CRM-10",
+      "CRM-6",
+      "CRM-2"
+    ],
+    "expected_count": 12,
+    "golden_facts": {
+      "count": 12,
+      "keys": [
+        "CRM-85",
+        "CRM-81",
+        "CRM-77",
+        "CRM-60",
+        "CRM-56",
+        "CRM-52",
+        "CRM-35",
+        "CRM-31",
+        "CRM-27",
+        "CRM-10",
+        "CRM-6",
+        "CRM-2"
+      ],
+      "by_priority": {
+        "High": 8,
+        "Highest": 4
+      },
+      "by_project": {
+        "CRM": 12
+      },
+      "by_issuetype": {
+        "Story": 12
+      },
+      "samples": [
+        {
+          "key": "CRM-85",
+          "summary": "Develop Automated Troubleshooting Guides Based on Error Messages",
+          "priority": "High",
+          "status": "To Do"
+        },
+        {
+          "key": "CRM-81",
+          "summary": "Create Engineering Escalation Workflow for Reproducible Bugs",
+          "priority": "High",
+          "status": "To Do"
+        },
+        {
+          "key": "CRM-77",
+          "summary": "Implement In-App Crash Report Submission with Automatic Context Capture",
+          "priority": "Highest",
+          "status": "To Do"
+        },
+        {
+          "key": "CRM-60",
+          "summary": "Develop Refund Fraud Detection Model with Machine Learning",
+          "priority": "High",
+          "status": "To Do"
+        },
+        {
+          "key": "CRM-56",
+          "summary": "Create Customer-Facing Refund Status Tracking Portal",
+          "priority": "High",
+          "status": "To Do"
+        },
+        {
+          "key": "CRM-52",
+          "summary": "Implement Instant Refund Eligibility Engine for Low-Risk Orders",
+          "priority": "Highest",
+          "status": "To Do"
+        },
+        {
+          "key": "CRM-35",
+          "summary": "Develop Automated Account Lockout Detection and Self-Service Unlock",
+          "priority": "High",
+          "status": "To Do"
+        },
+        {
+          "key": "CRM-31",
+          "summary": "Create Identity Verification Workflow for High-Risk Account Changes",
+          "priority": "High",
+          "status": "To Do"
+        },
+        {
+          "key": "CRM-27",
+          "summary": "Implement SMS-Based Account Recovery as Alternative to Email",
+          "priority": "Highest",
+          "status": "To Do"
+        },
+        {
+          "key": "CRM-10",
+          "summary": "Create Escalation Workflow for Complex Multi-Transaction Disputes",
+          "priority": "High",
+          "status": "To Do"
+        }
+      ],
+      "by_component": {
+        "billing-support": 5,
+        "feature-requests": 5,
+        "account-recovery": 5,
+        "refunds": 3,
+        "payments": 2
+      },
+      "by_label": {
+        "feature-requests": 3,
+        "refunds": 3,
+        "account-recovery": 3,
+        "automation": 2,
+        "fraud-prevention": 2,
+        "self-service": 2,
+        "tooling": 1,
+        "mobile": 1,
+        "security": 1,
+        "billing-support": 1,
+        "escalation": 1
+      }
+    }
+  },
+  {
+    "id": "q5018",
+    "q": "Of the issues under the 'Service Mesh Migration' epic (PLAT-1), which are the high-priority ones to tackle first?",
+    "category": "epic-tree",
+    "tags": [
+      "planning",
+      "epic",
+      "real-power-user"
+    ],
+    "intent": "key_recall",
+    "jql": "parent = PLAT-1 AND priority in (High, Highest) ORDER BY priority DESC",
+    "expected_keys": [
+      "PLAT-2",
+      "PLAT-18",
+      "PLAT-10",
+      "PLAT-6"
+    ],
+    "expected_count": 4,
+    "golden_facts": {
+      "count": 4,
+      "keys": [
+        "PLAT-2",
+        "PLAT-18",
+        "PLAT-10",
+        "PLAT-6"
+      ],
+      "by_priority": {
+        "Highest": 1,
+        "High": 3
+      },
+      "by_project": {
+        "PLAT": 4
+      },
+      "by_issuetype": {
+        "Story": 4
+      },
+      "samples": [
+        {
+          "key": "PLAT-2",
+          "summary": "Audit existing Istio resources for deprecated API versions",
+          "priority": "Highest",
+          "status": "To Do"
+        },
+        {
+          "key": "PLAT-18",
+          "summary": "Update mTLS policies for Istio 1.20 PeerAuthentication changes",
+          "priority": "High",
+          "status": "To Do"
+        },
+        {
+          "key": "PLAT-10",
+          "summary": "Update platform Helm charts for Gateway API compatibility",
+          "priority": "High",
+          "status": "To Do"
+        },
+        {
+          "key": "PLAT-6",
+          "summary": "Establish canary cluster for Istio 1.16 testing",
+          "priority": "High",
+          "status": "To Do"
+        }
+      ],
+      "by_component": {
+        "cost-optimization": 3,
+        "rbac": 2,
+        "service-mesh": 2,
+        "platform-libs": 1
+      },
+      "by_label": {
+        "service-mesh": 4,
+        "audit": 1,
+        "security": 1,
+        "helm-charts": 1,
+        "infrastructure": 1
+      }
+    }
+  },
+  {
+    "id": "q5019",
+    "q": "Give me every Highest-priority issue across the four engineering projects, grouped by project \u2014 these are our top-of-mind risks right now.",
+    "category": "cross-issue-analysis",
+    "tags": [
+      "risk",
+      "highest-priority",
+      "real-power-user"
+    ],
+    "intent": "key_recall",
+    "jql": "project in (BUGS, CRM, OPS, PLAT) AND priority = Highest ORDER BY project, key",
+    "expected_keys": [
+      "CRM-2",
+      "CRM-27",
+      "CRM-52",
+      "CRM-77",
+      "OPS-2",
+      "OPS-14",
+      "OPS-27",
+      "OPS-56",
+      "OPS-77",
+      "OPS-89",
+      "PLAT-2",
+      "PLAT-27",
+      "PLAT-52",
+      "PLAT-56",
+      "PLAT-77",
+      "BUGS-2",
+      "BUGS-10",
+      "BUGS-27",
+      "BUGS-52",
+      "BUGS-64",
+      "BUGS-81"
+    ],
+    "expected_count": 21,
+    "golden_facts": {
+      "count": 21,
+      "keys": [
+        "CRM-2",
+        "CRM-27",
+        "CRM-52",
+        "CRM-77",
+        "OPS-2",
+        "OPS-14",
+        "OPS-27",
+        "OPS-56",
+        "OPS-77",
+        "OPS-89",
+        "PLAT-2",
+        "PLAT-27",
+        "PLAT-52",
+        "PLAT-56",
+        "PLAT-77",
+        "BUGS-2",
+        "BUGS-10",
+        "BUGS-27",
+        "BUGS-52",
+        "BUGS-64",
+        "BUGS-81"
+      ],
+      "by_priority": {
+        "Highest": 21
+      },
+      "by_project": {
+        "CRM": 4,
+        "OPS": 6,
+        "PLAT": 5,
+        "BUGS": 6
+      },
+      "by_issuetype": {
+        "Story": 21
+      },
+      "samples": [
+        {
+          "key": "CRM-2",
+          "summary": "Implement Automated Transaction Evidence Retrieval for Dispute Cases",
+          "priority": "Highest",
+          "status": "To Do"
+        },
+        {
+          "key": "CRM-27",
+          "summary": "Implement SMS-Based Account Recovery as Alternative to Email",
+          "priority": "Highest",
+          "status": "To Do"
+        },
+        {
+          "key": "CRM-52",
+          "summary": "Implement Instant Refund Eligibility Engine for Low-Risk Orders",
+          "priority": "Highest",
+          "status": "To Do"
+        },
+        {
+          "key": "CRM-77",
+          "summary": "Implement In-App Crash Report Submission with Automatic Context Capture",
+          "priority": "Highest",
+          "status": "To Do"
+        },
+        {
+          "key": "OPS-2",
+          "summary": "Audit and remediate deprecated Kubernetes API usage across all workloads",
+          "priority": "Highest",
+          "status": "To Do"
+        },
+        {
+          "key": "OPS-14",
+          "summary": "Production Kubernetes 1.29 upgrade with zero-downtime deployment",
+          "priority": "Highest",
+          "status": "To Do"
+        },
+        {
+          "key": "OPS-27",
+          "summary": "Implement Prometheus federation and remote write to reduce cluster load",
+          "priority": "Highest",
+          "status": "To Do"
+        },
+        {
+          "key": "OPS-56",
+          "summary": "Quarantine and fix top 50 flaky tests causing pipeline retries",
+          "priority": "Highest",
+          "status": "To Do"
+        },
+        {
+          "key": "OPS-77",
+          "summary": "Upgrade production PostgreSQL clusters from 12 to 16",
+          "priority": "Highest",
+          "status": "To Do"
+        },
+        {
+          "key": "OPS-89",
+          "summary": "Implement and validate disaster recovery procedures for all databases",
+          "priority": "Highest",
+          "status": "To Do"
+        }
+      ],
+      "by_component": {
+        "k8s-staging": 4,
+        "feature-requests": 3,
+        "ci-cd": 3,
+        "billing-support": 2,
+        "networking": 2,
+        "databases": 2,
+        "payments": 1,
+        "refunds": 1,
+        "account-recovery": 1,
+        "observability": 1
+      },
+      "by_label": {
+        "compliance": 3,
+        "databases": 3,
+        "automation": 2,
+        "k8s-prod": 2,
+        "billing-support": 1,
+        "account-recovery": 1,
+        "security": 1,
+        "refunds": 1,
+        "feature-requests": 1,
+        "mobile": 1,
+        "k8s-staging": 1,
+        "maintenance-window": 1,
+        "observability": 1,
+        "ci-cd": 1,
+        "testing": 1
+      }
+    }
+  },
+  {
+    "id": "q5020",
+    "q": "List all OPS Highest-priority issues created in May 2026 \u2014 these are the top-of-mind production-risk items.",
+    "category": "jql-filter",
+    "tags": [
+      "risk",
+      "highest-priority",
+      "real-power-user"
+    ],
+    "intent": "key_recall",
+    "jql": "project = OPS AND priority = Highest AND created >= \"2026-05-01\" AND created < \"2026-06-01\"",
+    "expected_keys": [
+      "OPS-89",
+      "OPS-77",
+      "OPS-56",
+      "OPS-27",
+      "OPS-14",
+      "OPS-2"
+    ],
+    "expected_count": 6,
+    "golden_facts": {
+      "count": 6,
+      "keys": [
+        "OPS-89",
+        "OPS-77",
+        "OPS-56",
+        "OPS-27",
+        "OPS-14",
+        "OPS-2"
+      ],
+      "by_priority": {
+        "Highest": 6
+      },
+      "by_project": {
+        "OPS": 6
+      },
+      "by_issuetype": {
+        "Story": 6
+      },
+      "samples": [
+        {
+          "key": "OPS-89",
+          "summary": "Implement and validate disaster recovery procedures for all databases",
+          "priority": "Highest",
+          "status": "To Do"
+        },
+        {
+          "key": "OPS-77",
+          "summary": "Upgrade production PostgreSQL clusters from 12 to 16",
+          "priority": "Highest",
+          "status": "To Do"
+        },
+        {
+          "key": "OPS-56",
+          "summary": "Quarantine and fix top 50 flaky tests causing pipeline retries",
+          "priority": "Highest",
+          "status": "To Do"
+        },
+        {
+          "key": "OPS-27",
+          "summary": "Implement Prometheus federation and remote write to reduce cluster load",
+          "priority": "Highest",
+          "status": "To Do"
+        },
+        {
+          "key": "OPS-14",
+          "summary": "Production Kubernetes 1.29 upgrade with zero-downtime deployment",
+          "priority": "Highest",
+          "status": "To Do"
+        },
+        {
+          "key": "OPS-2",
+          "summary": "Audit and remediate deprecated Kubernetes API usage across all workloads",
+          "priority": "Highest",
+          "status": "To Do"
+        }
+      ],
+      "by_component": {
+        "k8s-staging": 4,
+        "ci-cd": 3,
+        "networking": 2,
+        "databases": 2,
+        "observability": 1
+      },
+      "by_label": {
+        "compliance": 3,
+        "databases": 3,
+        "k8s-prod": 2,
+        "ci-cd": 1,
+        "testing": 1,
+        "observability": 1,
+        "maintenance-window": 1,
+        "k8s-staging": 1
+      }
+    }
+  },
+  {
+    "id": "q5021",
+    "q": "Walk me through the four 'initiative'-tagged epics across BUGS/CRM/OPS/PLAT \u2014 what's the high-level theme of each program?",
+    "category": "root-cause-synthesis",
+    "tags": [
+      "synthesis",
+      "initiative",
+      "real-power-user"
+    ],
+    "intent": "synthesis",
+    "jql": "project in (BUGS, CRM, OPS, PLAT) AND issuetype = Epic AND labels = \"initiative\"",
+    "expected_keys": [
+      "PLAT-76",
+      "PLAT-51",
+      "PLAT-26",
+      "PLAT-1",
+      "OPS-76",
+      "OPS-51",
+      "OPS-26",
+      "OPS-1",
+      "CRM-76",
+      "CRM-51",
+      "CRM-26",
+      "CRM-1",
+      "BUGS-76",
+      "BUGS-51",
+      "BUGS-26",
+      "BUGS-1"
+    ],
+    "expected_count": 16,
+    "golden_facts": {
+      "count": 16,
+      "keys": [
+        "PLAT-76",
+        "PLAT-51",
+        "PLAT-26",
+        "PLAT-1",
+        "OPS-76",
+        "OPS-51",
+        "OPS-26",
+        "OPS-1",
+        "CRM-76",
+        "CRM-51",
+        "CRM-26",
+        "CRM-1",
+        "BUGS-76",
+        "BUGS-51",
+        "BUGS-26",
+        "BUGS-1"
+      ],
+      "by_priority": {
+        "Medium": 16
+      },
+      "by_project": {
+        "PLAT": 4,
+        "OPS": 4,
+        "CRM": 4,
+        "BUGS": 4
+      },
+      "by_issuetype": {
+        "Epic": 16
+      },
+      "samples": [
+        {
+          "key": "PLAT-76",
+          "summary": "Cloud Cost Optimization and FinOps Automation Initiative",
+          "priority": "Medium",
+          "status": "To Do"
+        },
+        {
+          "key": "PLAT-51",
+          "summary": "RBAC System Modernization and Self-Service Enablement",
+          "priority": "Medium",
+          "status": "To Do"
+        },
+        {
+          "key": "PLAT-26",
+          "summary": "Developer Portal Golden Path Template Expansion",
+          "priority": "Medium",
+          "status": "To Do"
+        },
+        {
+          "key": "PLAT-1",
+          "summary": "Service Mesh Migration from Istio 1.14 to 1.20",
+          "priority": "Medium",
+          "status": "To Do"
+        },
+        {
+          "key": "OPS-76",
+          "summary": "Database Infrastructure Resilience and Migration Program",
+          "priority": "Medium",
+          "status": "To Do"
+        },
+        {
+          "key": "OPS-51",
+          "summary": "CI/CD Pipeline Reliability and Performance Overhaul",
+          "priority": "Medium",
+          "status": "To Do"
+        },
+        {
+          "key": "OPS-26",
+          "summary": "Observability Platform Modernization and Cost Optimization",
+          "priority": "Medium",
+          "status": "To Do"
+        },
+        {
+          "key": "OPS-1",
+          "summary": "Kubernetes Cluster Upgrade Initiative Q1 2024",
+          "priority": "Medium",
+          "status": "To Do"
+        },
+        {
+          "key": "CRM-76",
+          "summary": "Enhance App Crash and Technical Issue Reporting Pipeline",
+          "priority": "Medium",
+          "status": "To Do"
+        },
+        {
+          "key": "CRM-51",
+          "summary": "Improve Refund Processing Efficiency and Customer Experience",
+          "priority": "Medium",
+          "status": "To Do"
+        }
+      ],
+      "by_label": {
+        "initiative": 10,
+        "cost-reduction": 1,
+        "security-hardening": 1,
+        "developer-experience": 1,
+        "infrastructure-modernization": 1,
+        "databases": 1,
+        "ci-cd": 1,
+        "observability": 1,
+        "kubernetes-upgrade": 1,
+        "technical-support": 1,
+        "refund-optimization": 1
+      }
+    }
+  },
+  {
+    "id": "q5022",
+    "q": "Give me the 5 most important takeaways from the 'Cloud Cost Optimization' initiative (PLAT-76) and its subtasks.",
+    "category": "root-cause-synthesis",
+    "tags": [
+      "synthesis",
+      "epic",
+      "real-power-user"
+    ],
+    "intent": "synthesis",
+    "jql": "key = PLAT-76 OR parent = PLAT-76",
+    "expected_keys": [
+      "PLAT-97",
+      "PLAT-93",
+      "PLAT-89",
+      "PLAT-85",
+      "PLAT-81",
+      "PLAT-77",
+      "PLAT-76"
+    ],
+    "expected_count": 7,
+    "golden_facts": {
+      "count": 7,
+      "keys": [
+        "PLAT-97",
+        "PLAT-93",
+        "PLAT-89",
+        "PLAT-85",
+        "PLAT-81",
+        "PLAT-77",
+        "PLAT-76"
+      ],
+      "by_priority": {
+        "Low": 1,
+        "Medium": 2,
+        "High": 3,
+        "Highest": 1
+      },
+      "by_project": {
+        "PLAT": 7
+      },
+      "by_issuetype": {
+        "Story": 6,
+        "Epic": 1
+      },
+      "samples": [
+        {
+          "key": "PLAT-97",
+          "summary": "Establish FinOps review process and governance model",
+          "priority": "Low",
+          "status": "To Do"
+        },
+        {
+          "key": "PLAT-93",
+          "summary": "Implement idle resource detection and cleanup automation",
+          "priority": "Medium",
+          "status": "To Do"
+        },
+        {
+          "key": "PLAT-89",
+          "summary": "Build team cost dashboards with budget alerts",
+          "priority": "High",
+          "status": "To Do"
+        },
+        {
+          "key": "PLAT-85",
+          "summary": "Enable spot instances for stateless workload tiers",
+          "priority": "High",
+          "status": "To Do"
+        },
+        {
+          "key": "PLAT-81",
+          "summary": "Implement automated resource rightsizing recommendations",
+          "priority": "High",
+          "status": "To Do"
+        },
+        {
+          "key": "PLAT-77",
+          "summary": "Deploy Kubecost for granular Kubernetes cost allocation",
+          "priority": "Highest",
+          "status": "To Do"
+        },
+        {
+          "key": "PLAT-76",
+          "summary": "Cloud Cost Optimization and FinOps Automation Initiative",
+          "priority": "Medium",
+          "status": "To Do"
+        }
+      ],
+      "by_component": {
+        "service-mesh": 4,
+        "cost-optimization": 3,
+        "platform-libs": 2,
+        "developer-experience": 2,
+        "rbac": 1
+      },
+      "by_label": {
+        "cost-optimization": 6,
+        "automation": 2,
+        "process": 1,
+        "observability": 1,
+        "infrastructure": 1,
+        "tooling": 1,
+        "cost-reduction": 1,
+        "initiative": 1
+      }
+    }
+  },
+  {
+    "id": "q5023",
+    "q": "What's the architectural direction of the OPS Kubernetes Cluster Upgrade initiative (OPS-1) based on its subtasks?",
+    "category": "root-cause-synthesis",
+    "tags": [
+      "synthesis",
+      "epic",
+      "real-power-user"
+    ],
+    "intent": "synthesis",
+    "jql": "key = OPS-1 OR parent = OPS-1",
+    "expected_keys": [
+      "OPS-22",
+      "OPS-18",
+      "OPS-14",
+      "OPS-10",
+      "OPS-6",
+      "OPS-2",
+      "OPS-1"
+    ],
+    "expected_count": 7,
+    "golden_facts": {
+      "count": 7,
+      "keys": [
+        "OPS-22",
+        "OPS-18",
+        "OPS-14",
+        "OPS-10",
+        "OPS-6",
+        "OPS-2",
+        "OPS-1"
+      ],
+      "by_priority": {
+        "Medium": 2,
+        "High": 3,
+        "Highest": 2
+      },
+      "by_project": {
+        "OPS": 7
+      },
+      "by_issuetype": {
+        "Story": 6,
+        "Epic": 1
+      },
+      "samples": [
+        {
+          "key": "OPS-22",
+          "summary": "Document upgrade process and update disaster recovery procedures",
+          "priority": "Medium",
+          "status": "To Do"
+        },
+        {
+          "key": "OPS-18",
+          "summary": "Post-upgrade monitoring and alerting validation",
+          "priority": "High",
+          "status": "To Do"
+        },
+        {
+          "key": "OPS-14",
+          "summary": "Production Kubernetes 1.29 upgrade with zero-downtime deployment",
+          "priority": "Highest",
+          "status": "To Do"
+        },
+        {
+          "key": "OPS-10",
+          "summary": "Update Helm chart repository for Kubernetes 1.29 compatibility",
+          "priority": "High",
+          "status": "To Do"
+        },
+        {
+          "key": "OPS-6",
+          "summary": "Upgrade staging Kubernetes cluster to version 1.29",
+          "priority": "High",
+          "status": "To Do"
+        },
+        {
+          "key": "OPS-2",
+          "summary": "Audit and remediate deprecated Kubernetes API usage across all workloads",
+          "priority": "Highest",
+          "status": "To Do"
+        },
+        {
+          "key": "OPS-1",
+          "summary": "Kubernetes Cluster Upgrade Initiative Q1 2024",
+          "priority": "Medium",
+          "status": "To Do"
+        }
+      ],
+      "by_component": {
+        "k8s-staging": 4,
+        "networking": 3,
+        "k8s-prod": 2,
+        "databases": 1,
+        "observability": 1,
+        "ci-cd": 1
+      },
+      "by_label": {
+        "k8s-prod": 5,
+        "k8s-staging": 2,
+        "documentation": 1,
+        "observability": 1,
+        "maintenance-window": 1,
+        "ci-cd": 1,
+        "upgrade": 1,
+        "compliance": 1,
+        "initiative": 1,
+        "kubernetes-upgrade": 1
+      }
+    }
+  },
+  {
+    "id": "q5024",
+    "q": "Has PLAT-43 ever been blocked, and if so, by which issues is it blocked right now?",
+    "category": "issue-links",
+    "tags": [
+      "history",
+      "audit",
+      "real-power-user"
+    ],
+    "intent": "analytical",
+    "jql": "key = PLAT-43",
+    "expected_keys": [
+      "PLAT-43"
+    ],
+    "expected_count": 1,
+    "golden_facts": {
+      "count": 1,
+      "keys": [
+        "PLAT-43"
+      ],
+      "by_priority": {
+        "Medium": 1
+      },
+      "by_project": {
+        "PLAT": 1
+      },
+      "by_issuetype": {
+        "Story": 1
+      },
+      "samples": [
+        {
+          "key": "PLAT-43",
+          "summary": "Create template versioning and migration tooling",
+          "priority": "Medium",
+          "status": "To Do"
+        }
+      ],
+      "by_component": {
+        "cost-optimization": 1,
+        "developer-experience": 1
+      },
+      "by_label": {
+        "developer-experience": 1,
+        "tooling": 1
+      },
+      "links": [
+        {
+          "from": "PLAT-43",
+          "type": "is blocked by",
+          "to": "PLAT-93"
+        },
+        {
+          "from": "PLAT-43",
+          "type": "is blocked by",
+          "to": "PLAT-56"
+        },
+        {
+          "from": "PLAT-43",
+          "type": "is blocked by",
+          "to": "PLAT-64"
+        },
+        {
+          "from": "PLAT-43",
+          "type": "is duplicated by",
+          "to": "PLAT-72"
+        }
+      ]
+    }
+  },
+  {
+    "id": "q5025",
+    "q": "When was BUGS-76 (the API v2 Modernization epic) created, and how many child issues does it have today?",
+    "category": "epic-tree",
+    "tags": [
+      "history",
+      "audit",
+      "real-power-user"
+    ],
+    "intent": "analytical",
+    "jql": "key = BUGS-76 OR parent = BUGS-76",
+    "expected_keys": [
+      "BUGS-97",
+      "BUGS-93",
+      "BUGS-89",
+      "BUGS-85",
+      "BUGS-81",
+      "BUGS-77",
+      "BUGS-76"
+    ],
+    "expected_count": 7,
+    "golden_facts": {
+      "count": 7,
+      "keys": [
+        "BUGS-97",
+        "BUGS-93",
+        "BUGS-89",
+        "BUGS-85",
+        "BUGS-81",
+        "BUGS-77",
+        "BUGS-76"
+      ],
+      "by_priority": {
+        "High": 3,
+        "Medium": 3,
+        "Highest": 1
+      },
+      "by_project": {
+        "BUGS": 7
+      },
+      "by_issuetype": {
+        "Story": 6,
+        "Epic": 1
+      },
+      "samples": [
+        {
+          "key": "BUGS-97",
+          "summary": "Fix API returning inconsistent timezone handling for date fields",
+          "priority": "High",
+          "status": "To Do"
+        },
+        {
+          "key": "BUGS-93",
+          "summary": "Create interactive API documentation portal with code examples",
+          "priority": "Medium",
+          "status": "To Do"
+        },
+        {
+          "key": "BUGS-89",
+          "summary": "Add GraphQL endpoint as alternative to REST for complex queries",
+          "priority": "Medium",
+          "status": "To Do"
+        },
+        {
+          "key": "BUGS-85",
+          "summary": "Fix rate limiter incorrectly counting OPTIONS preflight requests",
+          "priority": "High",
+          "status": "To Do"
+        },
+        {
+          "key": "BUGS-81",
+          "summary": "Implement webhook system for real-time issue event notifications",
+          "priority": "Highest",
+          "status": "To Do"
+        },
+        {
+          "key": "BUGS-77",
+          "summary": "Design and implement consistent REST API v2 resource structure",
+          "priority": "High",
+          "status": "To Do"
+        },
+        {
+          "key": "BUGS-76",
+          "summary": "API v2 Modernization and Developer Experience Initiative",
+          "priority": "Medium",
+          "status": "To Do"
+        }
+      ],
+      "by_component": {
+        "search": 3,
+        "dashboard": 3,
+        "mobile-ios": 2,
+        "mobile-android": 2,
+        "auth": 1,
+        "billing": 1
+      },
+      "by_label": {
+        "api-v2": 6,
+        "bug": 2,
+        "data-consistency": 1,
+        "developer-experience": 1,
+        "documentation": 1,
+        "graphql": 1,
+        "rate-limiting": 1,
+        "integration": 1,
+        "webhooks": 1,
+        "architecture": 1,
+        "api": 1,
+        "initiative": 1
+      }
+    }
+  },
+  {
+    "id": "q5026",
+    "q": "Across BUGS, which mobile-related tickets (mobile-android or mobile-ios labels) are at High priority or above?",
+    "category": "jql-filter",
+    "tags": [
+      "filter",
+      "label",
+      "real-power-user"
+    ],
+    "intent": "key_recall",
+    "jql": "project = BUGS AND labels in (\"mobile-android\",\"mobile-ios\") AND priority in (High, Highest)",
+    "expected_keys": [
+      "BUGS-72",
+      "BUGS-64",
+      "BUGS-60",
+      "BUGS-56",
+      "BUGS-52",
+      "BUGS-18",
+      "BUGS-14"
+    ],
+    "expected_count": 7,
+    "golden_facts": {
+      "count": 7,
+      "keys": [
+        "BUGS-72",
+        "BUGS-64",
+        "BUGS-60",
+        "BUGS-56",
+        "BUGS-52",
+        "BUGS-18",
+        "BUGS-14"
+      ],
+      "by_priority": {
+        "High": 5,
+        "Highest": 2
+      },
+      "by_project": {
+        "BUGS": 7
+      },
+      "by_issuetype": {
+        "Story": 7
+      },
+      "samples": [
+        {
+          "key": "BUGS-72",
+          "summary": "Fix issue list scroll performance jank on both mobile platforms",
+          "priority": "High",
+          "status": "To Do"
+        },
+        {
+          "key": "BUGS-64",
+          "summary": "Push notification deep links open wrong issue on Android",
+          "priority": "Highest",
+          "status": "To Do"
+        },
+        {
+          "key": "BUGS-60",
+          "summary": "Fix excessive battery drain from background sync on both platforms",
+          "priority": "High",
+          "status": "To Do"
+        },
+        {
+          "key": "BUGS-56",
+          "summary": "Android app network requests fail silently on poor connections",
+          "priority": "High",
+          "status": "To Do"
+        },
+        {
+          "key": "BUGS-52",
+          "summary": "iOS app crashes when viewing issues with large attachments",
+          "priority": "Highest",
+          "status": "To Do"
+        },
+        {
+          "key": "BUGS-18",
+          "summary": "MFA enrollment flow crashes on Android 12+ devices with biometric API",
+          "priority": "High",
+          "status": "To Do"
+        },
+        {
+          "key": "BUGS-14",
+          "summary": "Session invalidation not propagating to mobile apps after password change",
+          "priority": "High",
+          "status": "To Do"
+        }
+      ],
+      "by_component": {
+        "api-v2": 3,
+        "auth": 3,
+        "dashboard": 3,
+        "billing": 2,
+        "mobile-ios": 2,
+        "mobile-android": 1
+      },
+      "by_label": {
+        "mobile-android": 6,
+        "mobile-ios": 4,
+        "performance": 2,
+        "crash": 2,
+        "auth": 2,
+        "bug": 1,
+        "notifications": 1,
+        "network": 1,
+        "ux": 1,
+        "security": 1
+      }
+    }
+  },
+  {
+    "id": "q5027",
+    "q": "What 'developer-experience'-tagged work is in flight across PLAT and OPS, grouped by project?",
+    "category": "multi-project",
+    "tags": [
+      "filter",
+      "label",
+      "real-power-user"
+    ],
+    "intent": "count_or_groupby",
+    "jql": "project in (PLAT, OPS) AND labels = \"developer-experience\"",
+    "expected_keys": [
+      "PLAT-47",
+      "PLAT-43",
+      "PLAT-39",
+      "PLAT-35",
+      "PLAT-31",
+      "PLAT-27",
+      "PLAT-26"
+    ],
+    "expected_count": 7,
+    "golden_facts": {
+      "count": 7,
+      "keys": [
+        "PLAT-47",
+        "PLAT-43",
+        "PLAT-39",
+        "PLAT-35",
+        "PLAT-31",
+        "PLAT-27",
+        "PLAT-26"
+      ],
+      "by_priority": {
+        "Low": 1,
+        "Medium": 3,
+        "High": 2,
+        "Highest": 1
+      },
+      "by_project": {
+        "PLAT": 7
+      },
+      "by_issuetype": {
+        "Story": 6,
+        "Epic": 1
+      },
+      "samples": [
+        {
+          "key": "PLAT-47",
+          "summary": "Document golden path philosophy and contribution guidelines",
+          "priority": "Low",
+          "status": "To Do"
+        },
+        {
+          "key": "PLAT-43",
+          "summary": "Create template versioning and migration tooling",
+          "priority": "Medium",
+          "status": "To Do"
+        },
+        {
+          "key": "PLAT-39",
+          "summary": "Add template testing framework to CI pipeline",
+          "priority": "Medium",
+          "status": "To Do"
+        },
+        {
+          "key": "PLAT-35",
+          "summary": "Implement scheduled batch job template with Argo Workflows",
+          "priority": "High",
+          "status": "To Do"
+        },
+        {
+          "key": "PLAT-31",
+          "summary": "Build ML model serving template with Seldon Core integration",
+          "priority": "High",
+          "status": "To Do"
+        },
+        {
+          "key": "PLAT-27",
+          "summary": "Create Kafka consumer service golden path template",
+          "priority": "Highest",
+          "status": "To Do"
+        },
+        {
+          "key": "PLAT-26",
+          "summary": "Developer Portal Golden Path Template Expansion",
+          "priority": "Medium",
+          "status": "To Do"
+        }
+      ],
+      "by_component": {
+        "developer-experience": 5,
+        "platform-libs": 2,
+        "cost-optimization": 2,
+        "rbac": 2,
+        "service-mesh": 1
+      },
+      "by_label": {
+        "developer-experience": 7,
+        "templates": 3,
+        "documentation": 1,
+        "tooling": 1,
+        "testing": 1,
+        "initiative": 1
+      }
+    }
+  },
+  {
+    "id": "q5028",
+    "q": "How many issues were created across all engineering projects in the second week of May 2026 (May 8-14)?",
+    "category": "trend",
+    "tags": [
+      "volume",
+      "trend",
+      "real-power-user"
+    ],
+    "intent": "count_or_groupby",
+    "jql": "project in (BUGS, CRM, OPS, PLAT) AND created >= \"2026-05-08\" AND created <= \"2026-05-14\"",
+    "expected_keys": [
+      "PLAT-100",
+      "PLAT-99",
+      "PLAT-98",
+      "PLAT-97",
+      "PLAT-96",
+      "PLAT-95",
+      "PLAT-94",
+      "PLAT-93",
+      "PLAT-92",
+      "PLAT-91",
+      "PLAT-90",
+      "PLAT-89",
+      "PLAT-88",
+      "PLAT-87",
+      "PLAT-86",
+      "PLAT-85",
+      "PLAT-84",
+      "PLAT-83",
+      "PLAT-82",
+      "PLAT-81",
+      "PLAT-80",
+      "PLAT-79",
+      "PLAT-78",
+      "PLAT-77",
+      "PLAT-76",
+      "PLAT-75",
+      "PLAT-74",
+      "PLAT-73",
+      "PLAT-72",
+      "PLAT-71",
+      "PLAT-70",
+      "PLAT-69",
+      "PLAT-68",
+      "PLAT-67",
+      "PLAT-66",
+      "PLAT-65",
+      "PLAT-64",
+      "PLAT-63",
+      "PLAT-62",
+      "PLAT-61",
+      "PLAT-60",
+      "PLAT-59",
+      "PLAT-58",
+      "PLAT-57",
+      "PLAT-56",
+      "PLAT-55",
+      "PLAT-54",
+      "PLAT-53",
+      "PLAT-52",
+      "PLAT-51"
+    ],
+    "expected_count": 200,
+    "golden_facts": {
+      "count": 200,
+      "keys": [
+        "PLAT-100",
+        "PLAT-99",
+        "PLAT-98",
+        "PLAT-97",
+        "PLAT-96",
+        "PLAT-95",
+        "PLAT-94",
+        "PLAT-93",
+        "PLAT-92",
+        "PLAT-91",
+        "PLAT-90",
+        "PLAT-89",
+        "PLAT-88",
+        "PLAT-87",
+        "PLAT-86",
+        "PLAT-85",
+        "PLAT-84",
+        "PLAT-83",
+        "PLAT-82",
+        "PLAT-81",
+        "PLAT-80",
+        "PLAT-79",
+        "PLAT-78",
+        "PLAT-77",
+        "PLAT-76",
+        "PLAT-75",
+        "PLAT-74",
+        "PLAT-73",
+        "PLAT-72",
+        "PLAT-71",
+        "PLAT-70",
+        "PLAT-69",
+        "PLAT-68",
+        "PLAT-67",
+        "PLAT-66",
+        "PLAT-65",
+        "PLAT-64",
+        "PLAT-63",
+        "PLAT-62",
+        "PLAT-61",
+        "PLAT-60",
+        "PLAT-59",
+        "PLAT-58",
+        "PLAT-57",
+        "PLAT-56",
+        "PLAT-55",
+        "PLAT-54",
+        "PLAT-53",
+        "PLAT-52",
+        "PLAT-51",
+        "PLAT-50",
+        "PLAT-49",
+        "PLAT-48",
+        "PLAT-47",
+        "PLAT-46",
+        "PLAT-45",
+        "PLAT-44",
+        "PLAT-43",
+        "PLAT-42",
+        "PLAT-41",
+        "PLAT-40",
+        "PLAT-39",
+        "PLAT-38",
+        "PLAT-37",
+        "PLAT-36",
+        "PLAT-35",
+        "PLAT-34",
+        "PLAT-33",
+        "PLAT-32",
+        "PLAT-31",
+        "PLAT-30",
+        "PLAT-29",
+        "PLAT-28",
+        "PLAT-27",
+        "PLAT-26",
+        "PLAT-25",
+        "PLAT-24",
+        "PLAT-23",
+        "PLAT-22",
+        "PLAT-21",
+        "PLAT-20",
+        "PLAT-19",
+        "PLAT-18",
+        "PLAT-17",
+        "PLAT-16",
+        "PLAT-15",
+        "PLAT-14",
+        "PLAT-13",
+        "PLAT-12",
+        "PLAT-11",
+        "PLAT-10",
+        "PLAT-9",
+        "PLAT-8",
+        "PLAT-7",
+        "PLAT-6",
+        "PLAT-5",
+        "PLAT-4",
+        "PLAT-3",
+        "PLAT-2",
+        "PLAT-1",
+        "OPS-100",
+        "OPS-99",
+        "OPS-98",
+        "OPS-97",
+        "OPS-96",
+        "OPS-95",
+        "OPS-94",
+        "OPS-93",
+        "OPS-92",
+        "OPS-91",
+        "OPS-90",
+        "OPS-89",
+        "OPS-88",
+        "OPS-87",
+        "OPS-86",
+        "OPS-85",
+        "OPS-84",
+        "OPS-83",
+        "OPS-82",
+        "OPS-81",
+        "OPS-80",
+        "OPS-79",
+        "OPS-78",
+        "OPS-77",
+        "OPS-76",
+        "OPS-75",
+        "OPS-74",
+        "OPS-73",
+        "OPS-72",
+        "OPS-71",
+        "OPS-70",
+        "OPS-69",
+        "OPS-68",
+        "OPS-67",
+        "OPS-66",
+        "OPS-65",
+        "OPS-64",
+        "OPS-63",
+        "OPS-62",
+        "OPS-61",
+        "OPS-60",
+        "OPS-59",
+        "OPS-58",
+        "OPS-57",
+        "OPS-56",
+        "OPS-55",
+        "OPS-54",
+        "OPS-53",
+        "OPS-52",
+        "OPS-51",
+        "OPS-50",
+        "OPS-49",
+        "OPS-48",
+        "OPS-47",
+        "OPS-46",
+        "OPS-45",
+        "OPS-44",
+        "OPS-43",
+        "OPS-42",
+        "OPS-41",
+        "OPS-40",
+        "OPS-39",
+        "OPS-38",
+        "OPS-37",
+        "OPS-36",
+        "OPS-35",
+        "OPS-34",
+        "OPS-33",
+        "OPS-32",
+        "OPS-31",
+        "OPS-30",
+        "OPS-29",
+        "OPS-28",
+        "OPS-27",
+        "OPS-26",
+        "OPS-25",
+        "OPS-24",
+        "OPS-23",
+        "OPS-22",
+        "OPS-21",
+        "OPS-20",
+        "OPS-19",
+        "OPS-18",
+        "OPS-17",
+        "OPS-16",
+        "OPS-15",
+        "OPS-14",
+        "OPS-13",
+        "OPS-12",
+        "OPS-11",
+        "OPS-10",
+        "OPS-9",
+        "OPS-8",
+        "OPS-7",
+        "OPS-6",
+        "OPS-5",
+        "OPS-4",
+        "OPS-3",
+        "OPS-2",
+        "OPS-1"
+      ],
+      "by_priority": {
+        "Medium": 165,
+        "Low": 2,
+        "High": 22,
+        "Highest": 11
+      },
+      "by_project": {
+        "PLAT": 100,
+        "OPS": 100
+      },
+      "by_issuetype": {
+        "Subtask": 144,
+        "Story": 48,
+        "Epic": 8
+      },
+      "samples": [
+        {
+          "key": "PLAT-100",
+          "summary": "Develop FinOps training curriculum and schedule sessions",
+          "priority": "Medium",
+          "status": "To Do"
+        },
+        {
+          "key": "PLAT-99",
+          "summary": "Add cost estimation to architecture review process",
+          "priority": "Medium",
+          "status": "To Do"
+        },
+        {
+          "key": "PLAT-98",
+          "summary": "Design FinOps review meeting format and materials",
+          "priority": "Medium",
+          "status": "To Do"
+        },
+        {
+          "key": "PLAT-97",
+          "summary": "Establish FinOps review process and governance model",
+          "priority": "Low",
+          "status": "To Do"
+        },
+        {
+          "key": "PLAT-96",
+          "summary": "Create cleanup automation with audit logging",
+          "priority": "Medium",
+          "status": "To Do"
+        },
+        {
+          "key": "PLAT-95",
+          "summary": "Implement notification and grace period workflow",
+          "priority": "Medium",
+          "status": "To Do"
+        },
+        {
+          "key": "PLAT-94",
+          "summary": "Build idle resource detection scanner",
+          "priority": "Medium",
+          "status": "To Do"
+        },
+        {
+          "key": "PLAT-93",
+          "summary": "Implement idle resource detection and cleanup automation",
+          "priority": "Medium",
+          "status": "To Do"
+        },
+        {
+          "key": "PLAT-92",
+          "summary": "Add Backstage integration for cost visibility",
+          "priority": "Medium",
+          "status": "To Do"
+        },
+        {
+          "key": "PLAT-91",
+          "summary": "Implement budget tracking and alert system",
+          "priority": "Medium",
+          "status": "To Do"
+        }
+      ],
+      "by_component": {
+        "cost-optimization": 2,
+        "platform-libs": 1,
+        "developer-experience": 1
+      },
+      "by_label": {
+        "cost-optimization": 2,
+        "process": 1,
+        "automation": 1
+      }
+    }
+  },
+  {
+    "id": "q5029",
+    "q": "For the BUGS project, give me a priority breakdown of the issues created on May 9, 2026 \u2014 that was a high-volume day.",
+    "category": "trend",
+    "tags": [
+      "volume",
+      "groupby",
+      "real-power-user"
+    ],
+    "intent": "count_or_groupby",
+    "jql": "project = BUGS AND created >= \"2026-05-09\" AND created < \"2026-05-10\"",
+    "expected_keys": [
+      "BUGS-100",
+      "BUGS-99",
+      "BUGS-98",
+      "BUGS-97",
+      "BUGS-96",
+      "BUGS-95",
+      "BUGS-94",
+      "BUGS-93",
+      "BUGS-92",
+      "BUGS-91",
+      "BUGS-90",
+      "BUGS-89",
+      "BUGS-88",
+      "BUGS-87",
+      "BUGS-86",
+      "BUGS-85",
+      "BUGS-84",
+      "BUGS-83",
+      "BUGS-82",
+      "BUGS-81",
+      "BUGS-80",
+      "BUGS-79",
+      "BUGS-78",
+      "BUGS-77",
+      "BUGS-76",
+      "BUGS-75",
+      "BUGS-74",
+      "BUGS-73",
+      "BUGS-72",
+      "BUGS-71",
+      "BUGS-70",
+      "BUGS-69",
+      "BUGS-68",
+      "BUGS-67",
+      "BUGS-66",
+      "BUGS-65",
+      "BUGS-64",
+      "BUGS-63",
+      "BUGS-62",
+      "BUGS-61",
+      "BUGS-60",
+      "BUGS-59",
+      "BUGS-58",
+      "BUGS-57",
+      "BUGS-56",
+      "BUGS-55",
+      "BUGS-54",
+      "BUGS-53",
+      "BUGS-52",
+      "BUGS-51"
+    ],
+    "expected_count": 100,
+    "golden_facts": {
+      "count": 100,
+      "keys": [
+        "BUGS-100",
+        "BUGS-99",
+        "BUGS-98",
+        "BUGS-97",
+        "BUGS-96",
+        "BUGS-95",
+        "BUGS-94",
+        "BUGS-93",
+        "BUGS-92",
+        "BUGS-91",
+        "BUGS-90",
+        "BUGS-89",
+        "BUGS-88",
+        "BUGS-87",
+        "BUGS-86",
+        "BUGS-85",
+        "BUGS-84",
+        "BUGS-83",
+        "BUGS-82",
+        "BUGS-81",
+        "BUGS-80",
+        "BUGS-79",
+        "BUGS-78",
+        "BUGS-77",
+        "BUGS-76",
+        "BUGS-75",
+        "BUGS-74",
+        "BUGS-73",
+        "BUGS-72",
+        "BUGS-71",
+        "BUGS-70",
+        "BUGS-69",
+        "BUGS-68",
+        "BUGS-67",
+        "BUGS-66",
+        "BUGS-65",
+        "BUGS-64",
+        "BUGS-63",
+        "BUGS-62",
+        "BUGS-61",
+        "BUGS-60",
+        "BUGS-59",
+        "BUGS-58",
+        "BUGS-57",
+        "BUGS-56",
+        "BUGS-55",
+        "BUGS-54",
+        "BUGS-53",
+        "BUGS-52",
+        "BUGS-51",
+        "BUGS-50",
+        "BUGS-49",
+        "BUGS-48",
+        "BUGS-47",
+        "BUGS-46",
+        "BUGS-45",
+        "BUGS-44",
+        "BUGS-43",
+        "BUGS-42",
+        "BUGS-41",
+        "BUGS-40",
+        "BUGS-39",
+        "BUGS-38",
+        "BUGS-37",
+        "BUGS-36",
+        "BUGS-35",
+        "BUGS-34",
+        "BUGS-33",
+        "BUGS-32",
+        "BUGS-31",
+        "BUGS-30",
+        "BUGS-29",
+        "BUGS-28",
+        "BUGS-27",
+        "BUGS-26",
+        "BUGS-25",
+        "BUGS-24",
+        "BUGS-23",
+        "BUGS-22",
+        "BUGS-21",
+        "BUGS-20",
+        "BUGS-19",
+        "BUGS-18",
+        "BUGS-17",
+        "BUGS-16",
+        "BUGS-15",
+        "BUGS-14",
+        "BUGS-13",
+        "BUGS-12",
+        "BUGS-11",
+        "BUGS-10",
+        "BUGS-9",
+        "BUGS-8",
+        "BUGS-7",
+        "BUGS-6",
+        "BUGS-5",
+        "BUGS-4",
+        "BUGS-3",
+        "BUGS-2",
+        "BUGS-1"
+      ],
+      "by_priority": {
+        "Medium": 82,
+        "High": 10,
+        "Highest": 6,
+        "Low": 2
+      },
+      "by_project": {
+        "BUGS": 100
+      },
+      "by_issuetype": {
+        "Subtask": 72,
+        "Story": 24,
+        "Epic": 4
+      },
+      "samples": [
+        {
+          "key": "BUGS-100",
+          "summary": "Add input datetime normalization with deprecation warnings",
+          "priority": "Medium",
+          "status": "To Do"
+        },
+        {
+          "key": "BUGS-99",
+          "summary": "Implement datetime serializer with ISO 8601 UTC output",
+          "priority": "Medium",
+          "status": "To Do"
+        },
+        {
+          "key": "BUGS-98",
+          "summary": "Audit all API responses for datetime field consistency",
+          "priority": "Medium",
+          "status": "To Do"
+        },
+        {
+          "key": "BUGS-97",
+          "summary": "Fix API returning inconsistent timezone handling for date fields",
+          "priority": "High",
+          "status": "To Do"
+        },
+        {
+          "key": "BUGS-96",
+          "summary": "Create tutorial guides for common integration scenarios",
+          "priority": "Medium",
+          "status": "To Do"
+        },
+        {
+          "key": "BUGS-95",
+          "summary": "Write code examples for all major endpoints",
+          "priority": "Medium",
+          "status": "To Do"
+        },
+        {
+          "key": "BUGS-94",
+          "summary": "Set up Stoplight or Redocly for OpenAPI documentation",
+          "priority": "Medium",
+          "status": "To Do"
+        },
+        {
+          "key": "BUGS-93",
+          "summary": "Create interactive API documentation portal with code examples",
+          "priority": "Medium",
+          "status": "To Do"
+        },
+        {
+          "key": "BUGS-92",
+          "summary": "Add GraphQL subscription support for real-time updates",
+          "priority": "Medium",
+          "status": "To Do"
+        },
+        {
+          "key": "BUGS-91",
+          "summary": "Implement query complexity analysis and limits",
+          "priority": "Medium",
+          "status": "To Do"
+        }
+      ],
+      "by_component": {
+        "auth": 1,
+        "search": 1,
+        "dashboard": 1,
+        "mobile-ios": 1
+      },
+      "by_label": {
+        "api-v2": 2,
+        "bug": 1,
+        "data-consistency": 1,
+        "developer-experience": 1,
+        "documentation": 1
+      }
+    }
+  }
+]

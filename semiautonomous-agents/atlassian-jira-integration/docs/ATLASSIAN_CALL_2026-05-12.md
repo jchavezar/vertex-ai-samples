@@ -1,8 +1,95 @@
 # Atlassian Rovo MCP — Integration Findings & Recommendations
 
+> **SUPERSEDED — historical snapshot for the 2026-05-12 call.** Numbers in
+> this document reflect the eval state on that date and the 2026-05-21
+> dual-judge update. For current canonical figures, see the root
+> [`README.md`](../README.md) and [`docs/REFERENCE.md`](./REFERENCE.md),
+> both judged under **judge_v6** (gemini-3-flash-preview + Haiku 4.5
+> escalation, n=172 v2 corpus, 2026-05-27).
+
 **For:** Atlassian product call, 2026-05-12  
 **From:** Jesus Chavez (Google), testing Rovo MCP integration with Google Vertex AI  
 **Summary:** Your MCP is production-grade on quality + latency. One auth gap blocks Google ADK integration. Fix is straightforward.
+
+> **Reading note (added 2026-05-20)**: this document was written for the 2026-05-12 Atlassian call and reflects the eval state at that date. The accuracy / hallucination / latency numbers below are correct for that run. The cost-per-1K-query figures in this document are NOT updated to the current pricing model — see [`PRICING.md`](./PRICING.md) for the current, verified-against-live-rate-card numbers ($10.20/1K for A, $0.23/1K for C, $0/1K for B, $5.91/1K for E, ~$0 for D).
+
+---
+
+## POST-MEETING UPDATES (as of 2026-05-21)
+
+The recommendations to Atlassian remain unchanged. The Google-side eval
+methodology has been substantially overhauled since the call; updated
+numbers below replace the headline figures in *§Key Findings* and
+*§Appendix — Data* with the v2 benchmark results.
+
+### Methodology overhaul
+
+- **Question set rebuilt** — replaced 500 templated questions with **172
+  curated questions** (templated repeats removed, 30 hand-crafted
+  realistic complex queries added). Per-category counts in
+  [`REFERENCE.md §1.1`](./REFERENCE.md#11-question-set--evalquestionsmain_v2json).
+- **Dual-judge consensus** — every answer is judged by **both**
+  `gemini-3.5-flash` and `claude-sonnet-4-6`, each with live Jira tool
+  access via the v4 oracle MCP. Headline = both judges agree on
+  `verdict == "correct"` (strict); credible = either marks correct.
+  Removes the single-judge-bias risk that drove the 1.0 %–68.9 %
+  hallucination spread in the v1 run.
+- **MCP server fix** — added `assignee` / `reporter` to the
+  `searchJiraIssuesUsingJql` and `getJiraIssue` response payloads so the
+  v4 judge can verify "who is assigned to X" without falling back to
+  speculation. Applied before v2 runs.
+- **Option A regression + fix** — the initial v2-A run scored 1.7 % strict
+  because the deployed Agent Engine had a stale Atlassian OAuth token in
+  its env (tool calls were 401'ing silently). Redeployed with a fresh
+  token; the same code path now scores **68.0 % strict / 83.7 % credible**
+  — the highest of any pipeline.
+
+### New winners (v2 dual-judge, 172 questions)
+
+| Pipeline | Strict | Credible | p50 | p90 | $ / 1K |
+|---|---:|---:|---:|---:|---:|
+| **A** (Custom MCP + ADK, Gemini 2.5) | **68.0 %** | **83.7 %** | 24.7 s | 58.0 s | $10.20 |
+| **AL** (Custom MCP + ADK, flash-lite) | 64.0 % | 83.7 % | 30.8 s | 82.0 s | **$5.30** |
+| **C** (Custom MCP direct via GE BYO_MCP) | 58.1 % | 82.0 % | 49.3 s | 110.6 s | $0.23 |
+| **AG** (ADK + gemini-3.5-flash) | 57.0 % | 79.7 % | 33.9 s | 83.8 s | $25.00 |
+| **B** (Atlassian Rovo, hosted) | 57.0 % | 81.4 % | 35.3 s | 68.6 s | $0 |
+| **E** (genai loop in MCP wrapper) | 55.8 % | 82.0 % | 32.9 s | 67.5 s | $5.91 |
+| **D** (GE federated) | 43.6 % | 62.2 % | 21.2 s | 57.4 s | ~$0 |
+
+**Takeaways for Atlassian:**
+
+- The headline shifts from "Custom (Gemini) > Rovo (Claude)" to "every
+  pipeline that has the same MCP server clusters at 80–84 % credible". The
+  consumption layer (ADK vs GE planner vs genai loop) drives the **strict**
+  number more than the MCP server does.
+- **Option B (Rovo) holds 81.4 % credible accuracy**, statistically tied
+  with A/AL/C/E. The Rovo MCP is genuinely competitive once the consumer
+  has citation discipline — *the original recommendation* "publish a
+  citation-discipline best practice" stands and is the cheapest single
+  Atlassian-side improvement.
+- **B's latency on count/aggregate is the new finding**. On the 906-issue
+  SMP count, B p50 is **113–156 s**; C with the same question + same
+  server-side `summarizeJiraIssues` tool is **~14 s**. Root cause: GE's
+  `custom_mcp_agent` sub-planner loops over Rovo's ~40-tool catalog
+  without auto-pagination — ~10 sequential paginated tool calls with an
+  LLM "should I continue?" decision between each. Detailed evidence in
+  [`/tmp/test_b_vs_g.log`](file:///tmp/test_b_vs_g.log) and
+  [`REFERENCE.md §2`](./REFERENCE.md#2-latency-breakdown-by-question-category).
+  **Atlassian-side mitigation**: expose a server-side aggregation /
+  `summarizeIssues` tool that paginates internally (mirrors the custom
+  MCP's `summarizeJiraIssues`). Would reduce the 2-minute count to
+  one-shot ~5 s.
+- The original "Add Basic auth fallback" ask (Action Item below) is
+  unchanged — still the single biggest unlock for Google ADK customers.
+
+### Compatibility with the v1 numbers
+
+The v1 87.1 % composite for Claude + Rovo translates to **57.0 % strict /
+81.4 % credible** under the v2 dual-judge consensus. The credible number
+matches v1 within 6 pp; the strict number is structurally lower because
+the v2 judge is harsher on partials. **Both v1 and v2 agree** that Rovo
+delivers usable answers ~80 % of the time; v2 just exposes more of the
+"partial / wrong on edges" cases that v1 lumped under correct.
 
 ---
 

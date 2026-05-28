@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Gemini Enterprise streamAssist Inspector</title>
+  <link rel="stylesheet" href="/static/styles.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.10.0/styles/atom-one-dark.min.css" />
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.10.0/highlight.min.js"></script>
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <div class="logo">GE</div>
+      <div>
+        <div class="title">streamAssist Inspector</div>
+        <div id="engine-line" class="subtitle">loading engine…</div>
+      </div>
+    </div>
+    <div class="right">
+      <span id="session-badge" class="badge" title="session id">session: —</span>
+      <label class="toggle"><input id="thoughts" type="checkbox" /> show thoughts</label>
+      <button id="export-btn" class="btn ghost">Export session</button>
+      <button id="clear-btn" class="btn ghost">Clear</button>
+
+      <!-- Auth area: signed-out shows "Sign in", signed-in shows avatar + email + Sign out -->
+      <div id="auth-area" class="auth-area">
+        <button id="signin-btn" class="btn primary hidden" type="button">Sign in with Google</button>
+        <div id="signin-fallback" class="signin-fallback hidden" title="OAuth client not configured on the server">
+          OAuth not configured
+        </div>
+        <div id="user-chip" class="user-chip hidden">
+          <img id="user-avatar" class="user-avatar" alt="" />
+          <span id="user-email" class="user-email"></span>
+          <button id="signout-btn" class="btn ghost" type="button">Sign out</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Toast container for transient notices -->
+  <div id="toast-host" class="toast-host" aria-live="polite"></div>
+
+  <!-- Auth banner: shows whether SA or user-OAuth mode is in effect -->
+  <div id="auth-banner" class="auth-banner hidden"></div>
+
+  <main id="split" class="split">
+    <section class="pane chat-pane">
+      <div id="messages" class="messages"></div>
+      <button id="to-bottom" class="to-bottom hidden">↓</button>
+      <form id="composer" class="composer">
+        <textarea
+          id="input"
+          placeholder="Ask Gemini Enterprise about your Jira data…  (Enter to send, Shift+Enter for newline)"
+          rows="1"
+        ></textarea>
+        <button
+          id="connect-jira-btn"
+          class="btn ghost"
+          type="button"
+          disabled
+          title="Sign in with Google first"
+        >Connect Jira</button>
+        <button id="send" class="btn primary" type="submit">Send</button>
+      </form>
+    </section>
+
+    <div id="splitter" class="splitter"></div>
+
+    <section class="pane inspector-pane">
+      <nav class="tabs" role="tablist">
+        <button class="tab active" data-tab="events" role="tab">
+          REST API Events
+          <span id="tab-badge-events" class="tab-badge hidden">0</span>
+        </button>
+        <button class="tab" data-tab="logs" role="tab">
+          Cloud Logging Tail
+          <span id="tab-badge-logs" class="tab-badge hidden">0</span>
+        </button>
+      </nav>
+
+      <!-- Tab 1: REST API Events (existing UI) -->
+      <div class="tab-panel active" data-panel="events">
+        <div class="inspector-head">
+          <div class="inspector-title">Event timeline</div>
+          <div class="filters">
+            <label><input type="checkbox" data-type="request" checked /> request</label>
+            <label><input type="checkbox" data-type="chat" checked /> chat</label>
+            <label><input type="checkbox" data-type="raw" checked /> raw</label>
+            <label><input type="checkbox" data-type="error" checked /> error</label>
+            <label><input type="checkbox" data-type="done" checked /> done</label>
+            <label><input type="checkbox" data-type="trace" checked /> trace</label>
+            <label><input type="checkbox" data-type="auth_mode" checked /> auth_mode</label>
+          </div>
+          <div class="filters">
+            <input id="search" type="search" placeholder="filter JSON…" />
+            <label class="toggle"><input id="newest-first" type="checkbox" /> newest first</label>
+          </div>
+        </div>
+
+        <details id="reasoning-panel" class="reasoning" open>
+          <summary>Grounding reasoning</summary>
+          <ol id="reasoning-list" class="reasoning-list"></ol>
+        </details>
+
+        <div id="events" class="events"></div>
+      </div>
+
+      <!-- Tab 2: Cloud Logging Tail (NEW) -->
+      <div class="tab-panel" data-panel="logs">
+        <div class="inspector-head">
+          <div class="logs-headline">
+            <div>
+              <div class="inspector-title">Cloud Logging tail</div>
+              <div id="logs-trace-line" class="subtitle">waiting for a streamAssist call…</div>
+            </div>
+            <div class="logs-actions">
+              <button id="copy-trace" class="btn ghost" disabled>Copy trace ID</button>
+              <a id="open-explorer" class="btn ghost disabled" target="_blank" rel="noreferrer">Open in Logs Explorer ↗</a>
+            </div>
+          </div>
+          <div id="logs-counter" class="logs-counter">
+            <span class="counter-pill total">0 entries</span>
+            <span class="counter-pill otel">0 OTel</span>
+            <span class="counter-pill audit">0 audit</span>
+            <span class="counter-pill other">0 other</span>
+            <span id="logs-status" class="counter-status">idle</span>
+          </div>
+          <div class="filters">
+            <label><input type="checkbox" data-logfilter="audit" checked /> audit</label>
+            <label><input type="checkbox" data-logfilter="user.message" checked /> user.message</label>
+            <label><input type="checkbox" data-logfilter="choice" checked /> choice</label>
+            <label><input type="checkbox" data-logfilter="function_call" /> function_call only</label>
+          </div>
+          <div class="filters">
+            <input id="logs-search" type="search" placeholder="substring search…" />
+          </div>
+        </div>
+
+        <div id="logs-skeleton" class="logs-skeleton hidden">
+          <div class="skeleton-typing"><span></span><span></span><span></span></div>
+          <div class="skeleton-text">Waiting for first log entry…</div>
+          <div class="skeleton-caption">Polling every 2s — first entry typically appears in 5-15s.</div>
+        </div>
+
+        <div id="log-entries" class="log-entries"></div>
+        <div id="log-footer" class="log-footer hidden"></div>
+      </div>
+    </section>
+  </main>
+
+  <script type="module" src="/static/app.js"></script>
+</body>
+</html>

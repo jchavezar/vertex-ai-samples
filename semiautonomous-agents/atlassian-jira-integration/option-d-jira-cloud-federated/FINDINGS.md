@@ -1,6 +1,16 @@
 # Option D — Federated Jira Cloud connector: Findings
 
-**Headline:** 46.6% accuracy on the 500-question benchmark *(41.6% as-judged, +5.0pp refusal-credit lift)* · **40.4% hallucination** · p50 latency ~8s on cache-warm queries · cost **~$0.02/1K (GE included)**. Setup is the 5-minute wizard in [`README.md`](./README.md); detailed wins/losses in [§6](#6-per-category-breakdown).
+*Numbers as of 2026-05-27, judge_v6 (gemini-3-flash-preview + Haiku 4.5 escalation), n=172 v2 corpus.*
+
+**v6 headline (172 v2 questions, 2026-05-27):** **77.5 % accuracy (v6 headline)** · 0 hallucinated verdicts · p50 latency **20.2 s** (p90 **64.2 s**) · cost **~$0/1K queries** (bundled in the GE seat — federated grounding SKU may apply on top; see [`../docs/PRICING.md`](../docs/PRICING.md) §3).
+
+D's v6 headline of 77.5 % is the lowest of the read-mostly pipelines (A 94.7 %, B 94.5 %, E 90.5 %, C 87.9 %) — federation has no MCP auto-agent in front to retry on empty result sets, so the chat LLM either pulls the answer straight from federation or fabricates. The failure mode is silent zeros, not subjective grading disagreement.
+
+The **DG variant** (D path + `gemini-3.5-flash` override via `streamAssist.generationSpec.modelId`) scores **86.0 %** at **$4.00/1K** — the model swap recovers ~8.5 pp on multi-step questions but cannot escape the federation-returns-empty failure mode that defines D's ceiling.
+
+Historical v1/v2 numbers (Claude-Opus single judge → dual-judge consensus) are retained throughout this document for the per-category narrative; the headline above is the current `judge_v6` weighted-tier score.
+
+Setup is the 5-minute wizard in [`README.md`](./README.md); detailed wins/losses in [§6](#6-per-category-breakdown).
 
 ---
 
@@ -143,7 +153,7 @@ Sorted by refusal-credited accuracy desc. 25 questions per category. `Halluc` = 
 | Hallucination rate | **1.0%** | 31.2% | **40.4%** | 68.9% |
 | Setup time | ~45 min | ~30 min | **~5 min wizard + 20 min warm-up** | ~15 min |
 | Infra you run | Cloud Run + AE | Cloud Run | **None** | None |
-| Cost / 1K | $0.17 | $0.05 | **~$0.02** | $0 (hosted) |
+| Cost / 1K | $10.20 | $0.23 | **~$0** (GE-bundled) | $0 (hosted) |
 | Connector control | Full | Full (5-part recipe) | **None — GE owns it** | None |
 
 **Pick Option D when:**
@@ -156,7 +166,7 @@ Sorted by refusal-credited accuracy desc. 25 questions per category. `Halluc` = 
 - Your count-aggregate questions exceed ~100 — federated sample window caps the answer.
 - You need defensible safety guardrails — D refuses correctly on `refusal-test` (92%) but **leaks PII or hallucinates on `pii-sensitive` (28%)** because there's no auto-MCP-agent layer enforcing redaction.
 
-**Promote to C or A when**: hallucination rate becomes a problem in production. C drops it from 40% → 31%; A drops it from 40% → 1%. Both cost more setup; A also costs $0.17/1K. The federated path has no further knobs to pull.
+**Promote to C or A when**: hallucination rate becomes a problem in production. C drops it from 40% → 31%; A drops it from 40% → 1%. Both cost more setup; A also costs $10.20/1K queries (vs ~$0/1K for D). The federated path has no further knobs to pull.
 
 ---
 

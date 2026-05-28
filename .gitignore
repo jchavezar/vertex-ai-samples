@@ -55,3 +55,4 @@ output.json
 test_out.txt
 .tmp-testing/
 
+semiautonomous-agents/atlassian-jira-integration/eval/TEST_CARD.md

@@ -1,0 +1,1482 @@
+{
+  "q0125": {
+    "jql": "project in (BUGS, CRM, OPS, PLAT, SMP)",
+    "issue_count": 1310,
+    "expected_count_from_question": 1310,
+    "by_project": {
+      "SMP": 910,
+      "PLAT": 100,
+      "OPS": 100,
+      "CRM": 100,
+      "BUGS": 100
+    },
+    "by_priority": {
+      "High": 44,
+      "Medium": 1237,
+      "Low": 8,
+      "Highest": 21
+    },
+    "by_status": {
+      "To Do": 826,
+      "Done": 452,
+      "In Progress": 32
+    },
+    "by_type": {
+      "Task": 780,
+      "Epic": 44,
+      "Subtask": 390,
+      "Story": 96
+    },
+    "sample_keys": [
+      "SMP-912",
+      "SMP-911",
+      "SMP-910",
+      "SMP-909",
+      "SMP-908",
+      "SMP-907",
+      "SMP-905",
+      "SMP-903",
+      "SMP-902",
+      "SMP-901"
+    ],
+    "golden_answer": "There are 1310 issue(s) matching the query. By project: SMP=910, PLAT=100, OPS=100, CRM=100, BUGS=100 By priority: Medium=1237, High=44, Highest=21, Low=8",
+    "kind": "count_or_groupby",
+    "question_id": "q0125"
+  },
+  "q0127": {
+    "jql": "status = \"To Do\" AND created >= -30d",
+    "issue_count": 400,
+    "expected_count_from_question": 400,
+    "by_project": {
+      "PLAT": 100,
+      "OPS": 100,
+      "CRM": 100,
+      "BUGS": 100
+    },
+    "by_priority": {
+      "Medium": 331,
+      "Low": 8,
+      "High": 40,
+      "Highest": 21
+    },
+    "by_status": {
+      "To Do": 400
+    },
+    "by_type": {
+      "Subtask": 288,
+      "Story": 96,
+      "Epic": 16
+    },
+    "sample_keys": [
+      "PLAT-100",
+      "PLAT-99",
+      "PLAT-98",
+      "PLAT-97",
+      "PLAT-96",
+      "PLAT-95",
+      "PLAT-94",
+      "PLAT-93",
+      "PLAT-92",
+      "PLAT-91"
+    ],
+    "golden_answer": "There are 400 issue(s) matching the query. By project: PLAT=100, OPS=100, CRM=100, BUGS=100 By status: To Do=400",
+    "kind": "count_or_groupby",
+    "question_id": "q0127"
+  },
+  "q0129": {
+    "jql": "text ~ \"PagerDuty\"",
+    "issue_count": 8,
+    "expected_count_from_question": 8,
+    "by_project": {
+      "OPS": 3,
+      "CRM": 5
+    },
+    "by_priority": {
+      "Medium": 6,
+      "Highest": 1,
+      "Low": 1
+    },
+    "by_status": {
+      "To Do": 8
+    },
+    "by_type": {
+      "Story": 4,
+      "Subtask": 4
+    },
+    "sample_keys": [
+      "OPS-43",
+      "OPS-21",
+      "OPS-14",
+      "CRM-100",
+      "CRM-97",
+      "CRM-95",
+      "CRM-93",
+      "CRM-17"
+    ],
+    "golden_answer": "There are 8 issue(s) matching the query. By project: CRM=5, OPS=3",
+    "kind": "count_or_groupby",
+    "question_id": "q0129"
+  },
+  "q0130": {
+    "jql": "priority = Medium",
+    "issue_count": 1237,
+    "expected_count_from_question": 1237,
+    "by_project": {
+      "SMP": 906,
+      "PLAT": 83,
+      "OPS": 82,
+      "CRM": 84,
+      "BUGS": 82
+    },
+    "by_priority": {
+      "Medium": 1237
+    },
+    "by_status": {
+      "To Do": 753,
+      "Done": 452,
+      "In Progress": 32
+    },
+    "by_type": {
+      "Task": 776,
+      "Epic": 44,
+      "Subtask": 390,
+      "Story": 27
+    },
+    "sample_keys": [
+      "SMP-911",
+      "SMP-909",
+      "SMP-907",
+      "SMP-903",
+      "SMP-902",
+      "SMP-901",
+      "SMP-900",
+      "SMP-899",
+      "SMP-898",
+      "SMP-897"
+    ],
+    "golden_answer": "There are 1237 issue(s) matching the query. By project: SMP=906, CRM=84, PLAT=83, OPS=82, BUGS=82 By priority: Medium=1237 By status: To Do=753, Done=452, In Progress=32",
+    "kind": "count_or_groupby",
+    "question_id": "q0130"
+  },
+  "q0132": {
+    "jql": "type = Subtask AND project in (BUGS, CRM)",
+    "issue_count": 144,
+    "expected_count_from_question": 144,
+    "by_project": {
+      "CRM": 72,
+      "BUGS": 72
+    },
+    "by_priority": {
+      "Medium": 144
+    },
+    "by_status": {
+      "To Do": 144
+    },
+    "by_type": {
+      "Subtask": 144
+    },
+    "sample_keys": [
+      "CRM-100",
+      "CRM-99",
+      "CRM-98",
+      "CRM-96",
+      "CRM-95",
+      "CRM-94",
+      "CRM-92",
+      "CRM-91",
+      "CRM-90",
+      "CRM-88"
+    ],
+    "golden_answer": "There are 144 issue(s) matching the query. By project: CRM=72, BUGS=72",
+    "kind": "count_or_groupby",
+    "question_id": "q0132"
+  },
+  "q0136": {
+    "jql": "created >= -30d",
+    "issue_count": 400,
+    "expected_count_from_question": 400,
+    "by_project": {
+      "PLAT": 100,
+      "OPS": 100,
+      "CRM": 100,
+      "BUGS": 100
+    },
+    "by_priority": {
+      "Medium": 331,
+      "Low": 8,
+      "High": 40,
+      "Highest": 21
+    },
+    "by_status": {
+      "To Do": 400
+    },
+    "by_type": {
+      "Subtask": 288,
+      "Story": 96,
+      "Epic": 16
+    },
+    "sample_keys": [
+      "PLAT-100",
+      "PLAT-99",
+      "PLAT-98",
+      "PLAT-97",
+      "PLAT-96",
+      "PLAT-95",
+      "PLAT-94",
+      "PLAT-93",
+      "PLAT-92",
+      "PLAT-91"
+    ],
+    "golden_answer": "There are 400 issue(s) matching the query. By project: PLAT=100, OPS=100, CRM=100, BUGS=100",
+    "kind": "count_or_groupby",
+    "question_id": "q0136"
+  },
+  "q0138": {
+    "jql": "priority = High",
+    "issue_count": 44,
+    "expected_count_from_question": 44,
+    "by_project": {
+      "SMP": 4,
+      "PLAT": 10,
+      "OPS": 12,
+      "CRM": 8,
+      "BUGS": 10
+    },
+    "by_priority": {
+      "High": 44
+    },
+    "by_status": {
+      "To Do": 44
+    },
+    "by_type": {
+      "Task": 4,
+      "Story": 40
+    },
+    "sample_keys": [
+      "SMP-912",
+      "SMP-910",
+      "SMP-908",
+      "SMP-905",
+      "PLAT-89",
+      "PLAT-85",
+      "PLAT-81",
+      "PLAT-64",
+      "PLAT-60",
+      "PLAT-35"
+    ],
+    "golden_answer": "There are 44 issue(s) matching the query. By project: OPS=12, PLAT=10, BUGS=10, CRM=8, SMP=4 By priority: High=44",
+    "kind": "count_or_groupby",
+    "question_id": "q0138"
+  },
+  "q0140": {
+    "jql": "priority = Low AND project in (BUGS, CRM, OPS, PLAT)",
+    "issue_count": 8,
+    "expected_count_from_question": 8,
+    "by_project": {
+      "PLAT": 2,
+      "CRM": 4,
+      "BUGS": 2
+    },
+    "by_priority": {
+      "Low": 8
+    },
+    "by_status": {
+      "To Do": 8
+    },
+    "by_type": {
+      "Story": 8
+    },
+    "sample_keys": [
+      "PLAT-97",
+      "PLAT-47",
+      "CRM-97",
+      "CRM-72",
+      "CRM-47",
+      "CRM-22",
+      "BUGS-47",
+      "BUGS-43"
+    ],
+    "golden_answer": "There are 8 issue(s) matching the query. By project: CRM=4, PLAT=2, BUGS=2 By priority: Low=8",
+    "kind": "comparison_groupby",
+    "question_id": "q0140"
+  },
+  "q0143": {
+    "jql": "created >= -30d",
+    "issue_count": 400,
+    "expected_count_from_question": 400,
+    "by_project": {
+      "PLAT": 100,
+      "OPS": 100,
+      "CRM": 100,
+      "BUGS": 100
+    },
+    "by_priority": {
+      "Medium": 331,
+      "Low": 8,
+      "High": 40,
+      "Highest": 21
+    },
+    "by_status": {
+      "To Do": 400
+    },
+    "by_type": {
+      "Subtask": 288,
+      "Story": 96,
+      "Epic": 16
+    },
+    "sample_keys": [
+      "PLAT-100",
+      "PLAT-99",
+      "PLAT-98",
+      "PLAT-97",
+      "PLAT-96",
+      "PLAT-95",
+      "PLAT-94",
+      "PLAT-93",
+      "PLAT-92",
+      "PLAT-91"
+    ],
+    "golden_answer": "There are 400 issue(s) matching the query. By project: PLAT=100, OPS=100, CRM=100, BUGS=100",
+    "kind": "count_or_groupby",
+    "question_id": "q0143"
+  },
+  "q0150": {
+    "jql": "project = BUGS AND created >= -30d ORDER BY created ASC",
+    "issue_count": 100,
+    "by_day": {
+      "2026-05-09": 100
+    },
+    "distinct_days": 1,
+    "golden_answer": "All 100 matching issues were created on 2026-05-09. There is no meaningful day-over-day trend because the corpus was bulk-created in a single session.",
+    "kind": "time_bucket",
+    "question_id": "q0150"
+  },
+  "q0151": {
+    "jql": "project = CRM AND created >= -30d ORDER BY created ASC",
+    "issue_count": 100,
+    "expected_count_from_question": 100,
+    "by_project": {
+      "CRM": 100
+    },
+    "by_priority": {
+      "Medium": 84,
+      "Highest": 4,
+      "High": 8,
+      "Low": 4
+    },
+    "by_status": {
+      "To Do": 100
+    },
+    "by_type": {
+      "Epic": 4,
+      "Story": 24,
+      "Subtask": 72
+    },
+    "sample_keys": [
+      "CRM-1",
+      "CRM-2",
+      "CRM-3",
+      "CRM-4",
+      "CRM-5",
+      "CRM-6",
+      "CRM-7",
+      "CRM-8",
+      "CRM-9",
+      "CRM-10"
+    ],
+    "golden_answer": "There are 100 issue(s) matching the query.",
+    "kind": "count_or_groupby",
+    "question_id": "q0151"
+  },
+  "q0152": {
+    "jql": "project = OPS AND created >= -30d ORDER BY created ASC",
+    "issue_count": 100,
+    "by_day": {
+      "2026-05-09": 100
+    },
+    "distinct_days": 1,
+    "golden_answer": "All 100 matching issues were created on 2026-05-09. There is no meaningful day-over-day trend because the corpus was bulk-created in a single session.",
+    "kind": "time_bucket",
+    "question_id": "q0152"
+  },
+  "q0153": {
+    "jql": "project = PLAT AND created >= -30d ORDER BY created ASC",
+    "issue_count": 100,
+    "by_day": {
+      "2026-05-09": 100
+    },
+    "distinct_days": 1,
+    "golden_answer": "All 100 matching issues were created on 2026-05-09. There is no meaningful day-over-day trend because the corpus was bulk-created in a single session.",
+    "kind": "time_bucket",
+    "question_id": "q0153"
+  },
+  "q0154": {
+    "jql": "project in (BUGS, CRM) AND created >= -30d ORDER BY created ASC",
+    "issue_count": 200,
+    "by_day": {
+      "2026-05-09": 200
+    },
+    "distinct_days": 1,
+    "golden_answer": "All 200 matching issues were created on 2026-05-09. There is no meaningful day-over-day trend because the corpus was bulk-created in a single session.",
+    "kind": "time_bucket",
+    "question_id": "q0154"
+  },
+  "q0155": {
+    "jql": "priority = High AND created >= -30d ORDER BY created ASC",
+    "issue_count": 40,
+    "by_day": {
+      "2026-05-09": 40
+    },
+    "distinct_days": 1,
+    "golden_answer": "All 40 matching issues were created on 2026-05-09. There is no meaningful day-over-day trend because the corpus was bulk-created in a single session.",
+    "kind": "time_bucket",
+    "question_id": "q0155"
+  },
+  "q0156": {
+    "jql": "project = BUGS AND created >= -30d ORDER BY created ASC",
+    "issue_count": 100,
+    "by_day": {
+      "2026-05-09": 100
+    },
+    "distinct_days": 1,
+    "golden_answer": "All 100 matching issues were created on 2026-05-09. There is no meaningful day-over-day trend because the corpus was bulk-created in a single session.",
+    "kind": "time_bucket",
+    "question_id": "q0156"
+  },
+  "q0157": {
+    "jql": "project = CRM AND status = \"To Do\" AND created >= -30d ORDER BY created ASC",
+    "issue_count": 100,
+    "by_day": {
+      "2026-05-09": 100
+    },
+    "distinct_days": 1,
+    "golden_answer": "All 100 matching issues were created on 2026-05-09. There is no meaningful day-over-day trend because the corpus was bulk-created in a single session.",
+    "kind": "time_bucket",
+    "question_id": "q0157"
+  },
+  "q0158": {
+    "jql": "project = BUGS AND priority = Medium AND created >= -30d ORDER BY created ASC",
+    "issue_count": 82,
+    "by_day": {
+      "2026-05-09": 82
+    },
+    "distinct_days": 1,
+    "golden_answer": "All 82 matching issues were created on 2026-05-09. There is no meaningful day-over-day trend because the corpus was bulk-created in a single session.",
+    "kind": "time_bucket",
+    "question_id": "q0158"
+  },
+  "q0159": {
+    "jql": "project in (OPS, PLAT) AND created >= -30d ORDER BY created ASC",
+    "issue_count": 200,
+    "by_day": {
+      "2026-05-09": 200
+    },
+    "distinct_days": 1,
+    "golden_answer": "All 200 matching issues were created on 2026-05-09. There is no meaningful day-over-day trend because the corpus was bulk-created in a single session.",
+    "kind": "time_bucket",
+    "question_id": "q0159"
+  },
+  "q0160": {
+    "jql": "project = OPS AND created >= -30d ORDER BY created ASC",
+    "issue_count": 100,
+    "by_day": {
+      "2026-05-09": 100
+    },
+    "distinct_days": 1,
+    "golden_answer": "All 100 matching issues were created on 2026-05-09. There is no meaningful day-over-day trend because the corpus was bulk-created in a single session.",
+    "kind": "time_bucket",
+    "question_id": "q0160"
+  },
+  "q0161": {
+    "jql": "project = BUGS AND issuetype = Subtask AND created >= -30d ORDER BY created ASC",
+    "issue_count": 72,
+    "by_day": {
+      "2026-05-09": 72
+    },
+    "distinct_days": 1,
+    "golden_answer": "All 72 matching issues were created on 2026-05-09. There is no meaningful day-over-day trend because the corpus was bulk-created in a single session.",
+    "kind": "time_bucket",
+    "question_id": "q0161"
+  },
+  "q0162": {
+    "jql": "project in (BUGS, CRM, OPS, PLAT) AND created >= -30d ORDER BY created ASC",
+    "issue_count": 400,
+    "by_day": {
+      "2026-05-09": 400
+    },
+    "distinct_days": 1,
+    "golden_answer": "All 400 matching issues were created on 2026-05-09. There is no meaningful day-over-day trend because the corpus was bulk-created in a single session.",
+    "kind": "time_bucket",
+    "question_id": "q0162"
+  },
+  "q0163": {
+    "jql": "project = CRM AND created >= -28d ORDER BY created ASC",
+    "issue_count": 100,
+    "by_day": {
+      "2026-05-09": 100
+    },
+    "distinct_days": 1,
+    "golden_answer": "All 100 matching issues were created on 2026-05-09. There is no meaningful day-over-day trend because the corpus was bulk-created in a single session.",
+    "kind": "time_bucket",
+    "question_id": "q0163"
+  },
+  "q0165": {
+    "jql": "project = CRM AND priority = High AND created >= -30d ORDER BY created ASC",
+    "issue_count": 8,
+    "by_day": {
+      "2026-05-09": 8
+    },
+    "distinct_days": 1,
+    "golden_answer": "All 8 matching issues were created on 2026-05-09. There is no meaningful day-over-day trend because the corpus was bulk-created in a single session.",
+    "kind": "time_bucket",
+    "question_id": "q0165"
+  },
+  "q0166": {
+    "jql": "project = BUGS AND created >= -30d ORDER BY created ASC",
+    "issue_count": 100,
+    "by_day": {
+      "2026-05-09": 100
+    },
+    "distinct_days": 1,
+    "golden_answer": "All 100 matching issues were created on 2026-05-09. There is no meaningful day-over-day trend because the corpus was bulk-created in a single session.",
+    "kind": "time_bucket",
+    "question_id": "q0166"
+  },
+  "q0168": {
+    "jql": "project = BUGS AND created >= -14d ORDER BY created ASC",
+    "issue_count": 100,
+    "by_day": {
+      "2026-05-09": 100
+    },
+    "distinct_days": 1,
+    "golden_answer": "All 100 matching issues were created on 2026-05-09. There is no meaningful day-over-day trend because the corpus was bulk-created in a single session.",
+    "kind": "time_bucket",
+    "question_id": "q0168"
+  },
+  "q0169": {
+    "jql": "project = CRM AND priority = Low AND created >= -30d ORDER BY created ASC",
+    "issue_count": 4,
+    "by_day": {
+      "2026-05-09": 4
+    },
+    "distinct_days": 1,
+    "golden_answer": "All 4 matching issues were created on 2026-05-09. There is no meaningful day-over-day trend because the corpus was bulk-created in a single session.",
+    "kind": "time_bucket",
+    "question_id": "q0169"
+  },
+  "q0170": {
+    "jql": "project in (BUGS, OPS) AND created >= -30d ORDER BY created ASC",
+    "issue_count": 200,
+    "by_day": {
+      "2026-05-09": 200
+    },
+    "distinct_days": 1,
+    "golden_answer": "All 200 matching issues were created on 2026-05-09. There is no meaningful day-over-day trend because the corpus was bulk-created in a single session.",
+    "kind": "time_bucket",
+    "question_id": "q0170"
+  },
+  "q0171": {
+    "jql": "project = CRM AND issuetype = Subtask AND created >= -30d ORDER BY created ASC",
+    "issue_count": 72,
+    "by_day": {
+      "2026-05-09": 72
+    },
+    "distinct_days": 1,
+    "golden_answer": "All 72 matching issues were created on 2026-05-09. There is no meaningful day-over-day trend because the corpus was bulk-created in a single session.",
+    "kind": "time_bucket",
+    "question_id": "q0171"
+  },
+  "q0173": {
+    "jql": "project in (BUGS, CRM, OPS, PLAT) AND priority = High AND created >= -30d ORDER BY created ASC",
+    "issue_count": 40,
+    "by_day": {
+      "2026-05-09": 40
+    },
+    "distinct_days": 1,
+    "golden_answer": "All 40 matching issues were created on 2026-05-09. There is no meaningful day-over-day trend because the corpus was bulk-created in a single session.",
+    "kind": "time_bucket",
+    "question_id": "q0173"
+  },
+  "q0174": {
+    "jql": "project = OPS AND priority = Medium AND created >= -30d ORDER BY created ASC",
+    "issue_count": 82,
+    "by_day": {
+      "2026-05-09": 82
+    },
+    "distinct_days": 1,
+    "golden_answer": "All 82 matching issues were created on 2026-05-09. There is no meaningful day-over-day trend because the corpus was bulk-created in a single session.",
+    "kind": "time_bucket",
+    "question_id": "q0174"
+  },
+  "q0214": {
+    "_skipped": "no JQL on the question",
+    "kind": "count_or_groupby",
+    "question_id": "q0214"
+  },
+  "q0225": {
+    "jql": "project = BUGS AND priority = High",
+    "issue_count": 10,
+    "expected_count_from_question": 10,
+    "by_project": {
+      "BUGS": 10
+    },
+    "by_priority": {
+      "High": 10
+    },
+    "by_status": {
+      "To Do": 10
+    },
+    "by_type": {
+      "Story": 10
+    },
+    "sample_keys": [
+      "BUGS-97",
+      "BUGS-85",
+      "BUGS-77",
+      "BUGS-72",
+      "BUGS-60",
+      "BUGS-56",
+      "BUGS-35",
+      "BUGS-18",
+      "BUGS-14",
+      "BUGS-6"
+    ],
+    "golden_answer": "There are 10 issue(s) matching the query. By priority: High=10",
+    "kind": "count_or_groupby",
+    "question_id": "q0225"
+  },
+  "q0226": {
+    "subject_key": "CRM-100",
+    "subject_type": "Subtask",
+    "subject_summary": "Create alerting integration with PagerDuty and engineering Slack",
+    "parent_key": "CRM-97",
+    "parent_summary": "Create Technical Issue Pattern Detection for Proactive Engineering Alerts",
+    "epic_link": null,
+    "subtask_keys": [],
+    "golden_answer": "CRM-100 (Subtask) \u2014 \"Create alerting integration with PagerDuty and engineering Slack\" \u2014 belongs to parent CRM-97 (\"Create Technical Issue Pattern Detection for Proactive Engineering Alerts\").",
+    "kind": "parent_lookup",
+    "question_id": "q0226"
+  },
+  "q0227": {
+    "jql": "project in (BUGS, CRM) AND status = \"To Do\"",
+    "issue_count": 200,
+    "expected_count_from_question": 200,
+    "by_project": {
+      "CRM": 100,
+      "BUGS": 100
+    },
+    "by_priority": {
+      "Medium": 166,
+      "Low": 6,
+      "High": 18,
+      "Highest": 10
+    },
+    "by_status": {
+      "To Do": 200
+    },
+    "by_type": {
+      "Subtask": 144,
+      "Story": 48,
+      "Epic": 8
+    },
+    "sample_keys": [
+      "CRM-100",
+      "CRM-99",
+      "CRM-98",
+      "CRM-97",
+      "CRM-96",
+      "CRM-95",
+      "CRM-94",
+      "CRM-93",
+      "CRM-92",
+      "CRM-91"
+    ],
+    "golden_answer": "There are 200 issue(s) matching the query. By project: CRM=100, BUGS=100 By status: To Do=200",
+    "kind": "count_or_groupby",
+    "question_id": "q0227"
+  },
+  "q0230": {
+    "jql": "project = PLAT",
+    "issue_count": 100,
+    "expected_count_from_question": 100,
+    "by_project": {
+      "PLAT": 100
+    },
+    "by_priority": {
+      "Medium": 83,
+      "Low": 2,
+      "High": 10,
+      "Highest": 5
+    },
+    "by_status": {
+      "To Do": 100
+    },
+    "by_type": {
+      "Subtask": 72,
+      "Story": 24,
+      "Epic": 4
+    },
+    "sample_keys": [
+      "PLAT-100",
+      "PLAT-99",
+      "PLAT-98",
+      "PLAT-97",
+      "PLAT-96",
+      "PLAT-95",
+      "PLAT-94",
+      "PLAT-93",
+      "PLAT-92",
+      "PLAT-91"
+    ],
+    "golden_answer": "There are 100 issue(s) matching the query.",
+    "kind": "count_or_groupby",
+    "question_id": "q0230"
+  },
+  "q0231": {
+    "jql": "project in (BUGS, CRM, OPS) AND priority = High",
+    "issue_count": 30,
+    "expected_count_from_question": 30,
+    "by_project": {
+      "OPS": 12,
+      "CRM": 8,
+      "BUGS": 10
+    },
+    "by_priority": {
+      "High": 30
+    },
+    "by_status": {
+      "To Do": 30
+    },
+    "by_type": {
+      "Story": 30
+    },
+    "sample_keys": [
+      "OPS-97",
+      "OPS-85",
+      "OPS-81",
+      "OPS-64",
+      "OPS-60",
+      "OPS-52",
+      "OPS-47",
+      "OPS-35",
+      "OPS-31",
+      "OPS-18"
+    ],
+    "golden_answer": "There are 30 issue(s) matching the query. By project: OPS=12, BUGS=10, CRM=8 By priority: High=30",
+    "kind": "comparison_groupby",
+    "question_id": "q0231"
+  },
+  "q0234": {
+    "jql": "project = BUGS AND priority = Medium",
+    "issue_count": 82,
+    "expected_count_from_question": 82,
+    "by_project": {
+      "BUGS": 82
+    },
+    "by_priority": {
+      "Medium": 82
+    },
+    "by_status": {
+      "To Do": 82
+    },
+    "by_type": {
+      "Subtask": 72,
+      "Story": 6,
+      "Epic": 4
+    },
+    "sample_keys": [
+      "BUGS-100",
+      "BUGS-99",
+      "BUGS-98",
+      "BUGS-96",
+      "BUGS-95",
+      "BUGS-94",
+      "BUGS-93",
+      "BUGS-92",
+      "BUGS-91",
+      "BUGS-90"
+    ],
+    "golden_answer": "There are 82 issue(s) matching the query. By priority: Medium=82",
+    "kind": "count_or_groupby",
+    "question_id": "q0234"
+  },
+  "q0236": {
+    "jql": "project = CRM AND status = \"To Do\"",
+    "issue_count": 100,
+    "expected_count_from_question": 100,
+    "by_project": {
+      "CRM": 100
+    },
+    "by_priority": {
+      "Medium": 84,
+      "Low": 4,
+      "High": 8,
+      "Highest": 4
+    },
+    "by_status": {
+      "To Do": 100
+    },
+    "by_type": {
+      "Subtask": 72,
+      "Story": 24,
+      "Epic": 4
+    },
+    "sample_keys": [
+      "CRM-100",
+      "CRM-99",
+      "CRM-98",
+      "CRM-97",
+      "CRM-96",
+      "CRM-95",
+      "CRM-94",
+      "CRM-93",
+      "CRM-92",
+      "CRM-91"
+    ],
+    "golden_answer": "There are 100 issue(s) matching the query. By status: To Do=100",
+    "kind": "comparison_groupby",
+    "question_id": "q0236"
+  },
+  "q0237": {
+    "subject_key": "BUGS-100",
+    "subject_type": "Subtask",
+    "subject_summary": "Add input datetime normalization with deprecation warnings",
+    "parent_key": "BUGS-97",
+    "parent_summary": "Fix API returning inconsistent timezone handling for date fields",
+    "epic_link": null,
+    "subtask_keys": [],
+    "golden_answer": "BUGS-100 (Subtask) \u2014 \"Add input datetime normalization with deprecation warnings\" \u2014 belongs to parent BUGS-97 (\"Fix API returning inconsistent timezone handling for date fields\").",
+    "kind": "parent_lookup",
+    "question_id": "q0237"
+  },
+  "q0241": {
+    "jql": "project in (OPS, PLAT) AND created >= -30d",
+    "issue_count": 200,
+    "expected_count_from_question": 200,
+    "by_project": {
+      "PLAT": 100,
+      "OPS": 100
+    },
+    "by_priority": {
+      "Medium": 165,
+      "Low": 2,
+      "High": 22,
+      "Highest": 11
+    },
+    "by_status": {
+      "To Do": 200
+    },
+    "by_type": {
+      "Subtask": 144,
+      "Story": 48,
+      "Epic": 8
+    },
+    "sample_keys": [
+      "PLAT-100",
+      "PLAT-99",
+      "PLAT-98",
+      "PLAT-97",
+      "PLAT-96",
+      "PLAT-95",
+      "PLAT-94",
+      "PLAT-93",
+      "PLAT-92",
+      "PLAT-91"
+    ],
+    "golden_answer": "There are 200 issue(s) matching the query. By project: PLAT=100, OPS=100",
+    "kind": "comparison_groupby",
+    "question_id": "q0241"
+  },
+  "q0242": {
+    "jql": "project = SMP AND status = \"To Do\"",
+    "issue_count": 426,
+    "expected_count_from_question": 426,
+    "by_project": {
+      "SMP": 426
+    },
+    "by_priority": {
+      "High": 4,
+      "Medium": 422
+    },
+    "by_status": {
+      "To Do": 426
+    },
+    "by_type": {
+      "Task": 296,
+      "Epic": 28,
+      "Subtask": 102
+    },
+    "sample_keys": [
+      "SMP-912",
+      "SMP-911",
+      "SMP-910",
+      "SMP-909",
+      "SMP-908",
+      "SMP-907",
+      "SMP-905",
+      "SMP-799",
+      "SMP-798",
+      "SMP-797"
+    ],
+    "golden_answer": "There are 426 issue(s) matching the query. By status: To Do=426",
+    "kind": "count_or_groupby",
+    "question_id": "q0242"
+  },
+  "q0247": {
+    "jql": "project in (BUGS, CRM) AND priority = Medium",
+    "issue_count": 166,
+    "expected_count_from_question": 166,
+    "by_project": {
+      "CRM": 84,
+      "BUGS": 82
+    },
+    "by_priority": {
+      "Medium": 166
+    },
+    "by_status": {
+      "To Do": 166
+    },
+    "by_type": {
+      "Subtask": 144,
+      "Story": 14,
+      "Epic": 8
+    },
+    "sample_keys": [
+      "CRM-100",
+      "CRM-99",
+      "CRM-98",
+      "CRM-96",
+      "CRM-95",
+      "CRM-94",
+      "CRM-93",
+      "CRM-92",
+      "CRM-91",
+      "CRM-90"
+    ],
+    "golden_answer": "There are 166 issue(s) matching the query. By project: CRM=84, BUGS=82 By priority: Medium=166",
+    "kind": "comparison_groupby",
+    "question_id": "q0247"
+  },
+  "q0265": {
+    "jql": "project in (CRM, OPS) AND status != Done",
+    "issue_count": 200,
+    "expected_count_from_question": 200,
+    "by_project": {
+      "OPS": 100,
+      "CRM": 100
+    },
+    "by_priority": {
+      "Medium": 166,
+      "High": 20,
+      "Highest": 10,
+      "Low": 4
+    },
+    "by_status": {
+      "To Do": 200
+    },
+    "by_type": {
+      "Subtask": 144,
+      "Story": 48,
+      "Epic": 8
+    },
+    "sample_keys": [
+      "OPS-100",
+      "OPS-99",
+      "OPS-98",
+      "OPS-97",
+      "OPS-96",
+      "OPS-95",
+      "OPS-94",
+      "OPS-93",
+      "OPS-92",
+      "OPS-91"
+    ],
+    "golden_answer": "There are 200 issue(s) matching the query. By project: OPS=100, CRM=100",
+    "kind": "count_or_groupby",
+    "question_id": "q0265"
+  },
+  "q0274": {
+    "jql": "project in (BUGS, CRM, OPS, PLAT)",
+    "issue_count": 400,
+    "expected_count_from_question": 400,
+    "by_project": {
+      "PLAT": 100,
+      "OPS": 100,
+      "CRM": 100,
+      "BUGS": 100
+    },
+    "by_priority": {
+      "Medium": 331,
+      "Low": 8,
+      "High": 40,
+      "Highest": 21
+    },
+    "by_status": {
+      "To Do": 400
+    },
+    "by_type": {
+      "Subtask": 288,
+      "Story": 96,
+      "Epic": 16
+    },
+    "sample_keys": [
+      "PLAT-100",
+      "PLAT-99",
+      "PLAT-98",
+      "PLAT-97",
+      "PLAT-96",
+      "PLAT-95",
+      "PLAT-94",
+      "PLAT-93",
+      "PLAT-92",
+      "PLAT-91"
+    ],
+    "golden_answer": "There are 400 issue(s) matching the query. By project: PLAT=100, OPS=100, CRM=100, BUGS=100",
+    "kind": "count_or_groupby",
+    "question_id": "q0274"
+  },
+  "q0277": {
+    "subject_key": "BUGS-98",
+    "subject_type": "Subtask",
+    "subject_summary": "Audit all API responses for datetime field consistency",
+    "parent_key": "BUGS-97",
+    "parent_summary": "Fix API returning inconsistent timezone handling for date fields",
+    "epic_link": null,
+    "subtask_keys": [],
+    "golden_answer": "BUGS-98 (Subtask) \u2014 \"Audit all API responses for datetime field consistency\" \u2014 belongs to parent BUGS-97 (\"Fix API returning inconsistent timezone handling for date fields\").",
+    "kind": "parent_lookup",
+    "question_id": "q0277"
+  },
+  "q0282": {
+    "subject_key": "CRM-100",
+    "subject_type": "Subtask",
+    "subject_summary": "Create alerting integration with PagerDuty and engineering Slack",
+    "parent_key": "CRM-97",
+    "parent_summary": "Create Technical Issue Pattern Detection for Proactive Engineering Alerts",
+    "epic_link": null,
+    "subtask_keys": [],
+    "golden_answer": "CRM-100 (Subtask) \u2014 \"Create alerting integration with PagerDuty and engineering Slack\" \u2014 belongs to parent CRM-97 (\"Create Technical Issue Pattern Detection for Proactive Engineering Alerts\").",
+    "kind": "parent_lookup",
+    "question_id": "q0282"
+  },
+  "q0286": {
+    "subject_key": "BUGS-96",
+    "subject_type": "Subtask",
+    "subject_summary": "Create tutorial guides for common integration scenarios",
+    "parent_key": "BUGS-93",
+    "parent_summary": "Create interactive API documentation portal with code examples",
+    "epic_link": null,
+    "subtask_keys": [],
+    "golden_answer": "BUGS-96 (Subtask) \u2014 \"Create tutorial guides for common integration scenarios\" \u2014 belongs to parent BUGS-93 (\"Create interactive API documentation portal with code examples\").",
+    "kind": "parent_lookup",
+    "question_id": "q0286"
+  },
+  "q0290": {
+    "subject_key": "BUGS-72",
+    "subject_type": "Story",
+    "subject_summary": "Fix issue list scroll performance jank on both mobile platforms",
+    "parent_key": "BUGS-51",
+    "parent_summary": "Mobile Application Stability and Performance Initiative",
+    "epic_link": null,
+    "subtask_keys": [
+      "BUGS-73",
+      "BUGS-74",
+      "BUGS-75"
+    ],
+    "golden_answer": "BUGS-72 (Story) \u2014 \"Fix issue list scroll performance jank on both mobile platforms\" \u2014 belongs to parent BUGS-51 (\"Mobile Application Stability and Performance Initiative\").",
+    "kind": "parent_lookup",
+    "question_id": "q0290"
+  },
+  "q0292": {
+    "subject_key": "CRM-81",
+    "subject_type": "Story",
+    "subject_summary": "Create Engineering Escalation Workflow for Reproducible Bugs",
+    "parent_key": "CRM-76",
+    "parent_summary": "Enhance App Crash and Technical Issue Reporting Pipeline",
+    "epic_link": null,
+    "subtask_keys": [
+      "CRM-82",
+      "CRM-83",
+      "CRM-84"
+    ],
+    "golden_answer": "CRM-81 (Story) \u2014 \"Create Engineering Escalation Workflow for Reproducible Bugs\" \u2014 belongs to parent CRM-76 (\"Enhance App Crash and Technical Issue Reporting Pipeline\").",
+    "kind": "parent_lookup",
+    "question_id": "q0292"
+  },
+  "q0294": {
+    "subject_key": "SMP-912",
+    "subject_type": "Task",
+    "subject_summary": "Quality Audit: https://acme-print-496544730367.us-central1.run.app/",
+    "parent_key": null,
+    "parent_summary": null,
+    "epic_link": null,
+    "subtask_keys": [],
+    "golden_answer": "SMP-912 (Task) has no parent issue, epic link, or subtasks.",
+    "kind": "parent_lookup",
+    "question_id": "q0294"
+  },
+  "q0296": {
+    "subject_key": "BUGS-94",
+    "subject_type": "Subtask",
+    "subject_summary": "Set up Stoplight or Redocly for OpenAPI documentation",
+    "parent_key": "BUGS-93",
+    "parent_summary": "Create interactive API documentation portal with code examples",
+    "epic_link": null,
+    "subtask_keys": [],
+    "golden_answer": "BUGS-94 (Subtask) \u2014 \"Set up Stoplight or Redocly for OpenAPI documentation\" \u2014 belongs to parent BUGS-93 (\"Create interactive API documentation portal with code examples\").",
+    "kind": "parent_lookup",
+    "question_id": "q0296"
+  },
+  "q0312": {
+    "subject_key": "CRM-98",
+    "link_count": 0,
+    "links": [],
+    "golden_answer": "CRM-98 has no issue links (no dependencies, duplicates, or related issues).",
+    "kind": "issue_links_fetch",
+    "question_id": "q0312"
+  },
+  "q0325": {
+    "jql": "project = BUGS AND component IS NOT EMPTY",
+    "issue_count": 24,
+    "by_component": {
+      "auth": 6,
+      "search": 5,
+      "dashboard": 10,
+      "mobile-ios": 9,
+      "mobile-android": 6,
+      "billing": 7,
+      "api-v2": 5
+    },
+    "sample_keys": [
+      "BUGS-97",
+      "BUGS-93",
+      "BUGS-89",
+      "BUGS-85",
+      "BUGS-81",
+      "BUGS-77",
+      "BUGS-72",
+      "BUGS-68",
+      "BUGS-64",
+      "BUGS-60"
+    ],
+    "golden_answer": "24 issue(s) match the filter. Components: dashboard=10, mobile-ios=9, billing=7, auth=6, mobile-android=6, search=5, api-v2=5",
+    "kind": "schema_filter",
+    "question_id": "q0325"
+  },
+  "q0326": {
+    "jql": "project = PLAT AND component IS NOT EMPTY",
+    "issue_count": 24,
+    "by_component": {
+      "cost-optimization": 11,
+      "platform-libs": 7,
+      "developer-experience": 11,
+      "rbac": 9,
+      "service-mesh": 10
+    },
+    "sample_keys": [
+      "PLAT-97",
+      "PLAT-93",
+      "PLAT-89",
+      "PLAT-85",
+      "PLAT-81",
+      "PLAT-77",
+      "PLAT-72",
+      "PLAT-68",
+      "PLAT-64",
+      "PLAT-60"
+    ],
+    "golden_answer": "24 issue(s) match the filter. Components: cost-optimization=11, developer-experience=11, service-mesh=10, rbac=9, platform-libs=7",
+    "kind": "schema_filter",
+    "question_id": "q0326"
+  },
+  "q0329": {
+    "jql": "project = BUGS AND priority = High AND fixVersion IS NOT EMPTY",
+    "issue_count": 0,
+    "by_component": {},
+    "sample_keys": [],
+    "golden_answer": "0 issue(s) match the filter. Components: ",
+    "kind": "schema_filter",
+    "question_id": "q0329"
+  },
+  "q0333": {
+    "jql": "project = BUGS AND fixVersion IS EMPTY AND priority = High",
+    "issue_count": 10,
+    "by_component": {
+      "auth": 5,
+      "search": 2,
+      "dashboard": 4,
+      "mobile-android": 3,
+      "api-v2": 2,
+      "billing": 2,
+      "mobile-ios": 2
+    },
+    "sample_keys": [
+      "BUGS-97",
+      "BUGS-85",
+      "BUGS-77",
+      "BUGS-72",
+      "BUGS-60",
+      "BUGS-56",
+      "BUGS-35",
+      "BUGS-18",
+      "BUGS-14",
+      "BUGS-6"
+    ],
+    "golden_answer": "10 issue(s) match the filter. Components: auth=5, dashboard=4, mobile-android=3, search=2, api-v2=2, billing=2, mobile-ios=2",
+    "kind": "schema_filter",
+    "question_id": "q0333"
+  },
+  "q0334": {
+    "jql": "project = OPS AND component IS EMPTY",
+    "issue_count": 76,
+    "by_component": {
+      "(none)": 76
+    },
+    "sample_keys": [
+      "OPS-100",
+      "OPS-99",
+      "OPS-98",
+      "OPS-96",
+      "OPS-95",
+      "OPS-94",
+      "OPS-92",
+      "OPS-91",
+      "OPS-90",
+      "OPS-88"
+    ],
+    "golden_answer": "76 issue(s) match the filter. Components: (none)=76",
+    "kind": "schema_filter",
+    "question_id": "q0334"
+  },
+  "q0336": {
+    "jql": "project = CRM AND text ~ \"PagerDuty\" AND component IS NOT EMPTY",
+    "issue_count": 2,
+    "by_component": {
+      "account-recovery": 1,
+      "refunds": 1,
+      "billing-support": 1,
+      "feature-requests": 1
+    },
+    "sample_keys": [
+      "CRM-97",
+      "CRM-93"
+    ],
+    "golden_answer": "2 issue(s) match the filter. Components: account-recovery=1, refunds=1, billing-support=1, feature-requests=1",
+    "kind": "schema_filter",
+    "question_id": "q0336"
+  },
+  "q0339": {
+    "jql": "project = BUGS AND priority = Medium AND component IS EMPTY",
+    "issue_count": 76,
+    "by_component": {
+      "(none)": 76
+    },
+    "sample_keys": [
+      "BUGS-100",
+      "BUGS-99",
+      "BUGS-98",
+      "BUGS-96",
+      "BUGS-95",
+      "BUGS-94",
+      "BUGS-92",
+      "BUGS-91",
+      "BUGS-90",
+      "BUGS-88"
+    ],
+    "golden_answer": "76 issue(s) match the filter. Components: (none)=76",
+    "kind": "schema_filter",
+    "question_id": "q0339"
+  },
+  "q0340": {
+    "jql": "project = CRM AND text ~ \"fraud\" AND fixVersion IS NOT EMPTY",
+    "issue_count": 0,
+    "by_component": {},
+    "sample_keys": [],
+    "golden_answer": "0 issue(s) match the filter. Components: ",
+    "kind": "schema_filter",
+    "question_id": "q0340"
+  },
+  "q0343": {
+    "jql": "project = BUGS AND text ~ \"mobile\" AND fixVersion IS EMPTY",
+    "issue_count": 7,
+    "by_component": {
+      "api-v2": 3,
+      "auth": 2,
+      "dashboard": 2,
+      "search": 1,
+      "billing": 1,
+      "mobile-ios": 1,
+      "(none)": 2
+    },
+    "sample_keys": [
+      "BUGS-72",
+      "BUGS-68",
+      "BUGS-60",
+      "BUGS-52",
+      "BUGS-51",
+      "BUGS-17",
+      "BUGS-14"
+    ],
+    "golden_answer": "7 issue(s) match the filter. Components: api-v2=3, auth=2, dashboard=2, (none)=2, search=1, billing=1, mobile-ios=1",
+    "kind": "schema_filter",
+    "question_id": "q0343"
+  },
+  "q0345": {
+    "jql": "project = CRM AND text ~ \"account\" AND component IS NOT EMPTY",
+    "issue_count": 10,
+    "by_component": {
+      "account-recovery": 5,
+      "refunds": 4,
+      "billing-support": 5,
+      "feature-requests": 4,
+      "payments": 2
+    },
+    "sample_keys": [
+      "CRM-97",
+      "CRM-60",
+      "CRM-52",
+      "CRM-47",
+      "CRM-43",
+      "CRM-39",
+      "CRM-35",
+      "CRM-31",
+      "CRM-27",
+      "CRM-10"
+    ],
+    "golden_answer": "10 issue(s) match the filter. Components: account-recovery=5, billing-support=5, refunds=4, feature-requests=4, payments=2",
+    "kind": "schema_filter",
+    "question_id": "q0345"
+  },
+  "q0349": {
+    "jql": "project = CRM AND text ~ \"incident\" AND fixVersion IS EMPTY",
+    "issue_count": 5,
+    "by_component": {
+      "(none)": 3,
+      "billing-support": 2,
+      "feature-requests": 1,
+      "payments": 1
+    },
+    "sample_keys": [
+      "CRM-96",
+      "CRM-95",
+      "CRM-94",
+      "CRM-93",
+      "CRM-31"
+    ],
+    "golden_answer": "5 issue(s) match the filter. Components: (none)=3, billing-support=2, feature-requests=1, payments=1",
+    "kind": "schema_filter",
+    "question_id": "q0349"
+  },
+  "q0351": {
+    "subject_key": "CRM-85",
+    "worklog_count": 0,
+    "total_time_seconds": 0,
+    "total_time_human": "0h 0m",
+    "entries": [],
+    "golden_answer": "No time has been logged on CRM-85.",
+    "kind": "worklog_fetch",
+    "question_id": "q0351"
+  },
+  "q0352": {
+    "subject_key": "OPS-100",
+    "comment_count": 0,
+    "comments": [],
+    "golden_answer": "OPS-100 has no comments.",
+    "kind": "comments_fetch",
+    "question_id": "q0352"
+  },
+  "q0354": {
+    "subject_key": "BUGS-85",
+    "worklog_count": 0,
+    "total_time_seconds": 0,
+    "total_time_human": "0h 0m",
+    "entries": [],
+    "golden_answer": "No time has been logged on BUGS-85.",
+    "kind": "worklog_fetch",
+    "question_id": "q0354"
+  },
+  "q0358": {
+    "subject_key": "CRM-56",
+    "worklog_count": 0,
+    "total_time_seconds": 0,
+    "total_time_human": "0h 0m",
+    "entries": [],
+    "golden_answer": "No time has been logged on CRM-56.",
+    "kind": "worklog_fetch",
+    "question_id": "q0358"
+  },
+  "q0359": {
+    "subject_key": "BUGS-77",
+    "comment_count": 1,
+    "comments": [
+      {
+        "author": "Jesus",
+        "created": "2026-05-09",
+        "body_snippet": "Patched and deployed. Confirming with affected users."
+      }
+    ],
+    "golden_answer": "BUGS-77 has 1 comment(s). Recent activity:\n- Jesus (2026-05-09): Patched and deployed. Confirming with affected users.",
+    "kind": "comments_fetch",
+    "question_id": "q0359"
+  },
+  "q0363": {
+    "subject_key": "CRM-97",
+    "comment_count": 0,
+    "comments": [],
+    "golden_answer": "CRM-97 has no comments.",
+    "kind": "comments_fetch",
+    "question_id": "q0363"
+  },
+  "q0364": {
+    "subject_key": "BUGS-60",
+    "worklog_count": 0,
+    "total_time_seconds": 0,
+    "total_time_human": "0h 0m",
+    "entries": [],
+    "golden_answer": "No time has been logged on BUGS-60.",
+    "kind": "worklog_fetch",
+    "question_id": "q0364"
+  },
+  "q0367": {
+    "subject_key": "OPS-97",
+    "comment_count": 0,
+    "comments": [],
+    "golden_answer": "OPS-97 has no comments.",
+    "kind": "comments_fetch",
+    "question_id": "q0367"
+  },
+  "q0368": {
+    "subject_key": "CRM-100",
+    "worklog_count": 0,
+    "total_time_seconds": 0,
+    "total_time_human": "0h 0m",
+    "entries": [],
+    "golden_answer": "No time has been logged on CRM-100.",
+    "kind": "worklog_fetch",
+    "question_id": "q0368"
+  },
+  "q0370": {
+    "subject_key": "CRM-31",
+    "worklog_count": 0,
+    "total_time_seconds": 0,
+    "total_time_human": "0h 0m",
+    "entries": [],
+    "golden_answer": "No time has been logged on CRM-31.",
+    "kind": "worklog_fetch",
+    "question_id": "q0370"
+  },
+  "q0371": {
+    "subject_key": "PLAT-97",
+    "comment_count": 1,
+    "comments": [
+      {
+        "author": "Jesus",
+        "created": "2026-05-09",
+        "body_snippet": "Spike to investigate. ETA: 3 days."
+      }
+    ],
+    "golden_answer": "PLAT-97 has 1 comment(s). Recent activity:\n- Jesus (2026-05-09): Spike to investigate. ETA: 3 days.",
+    "kind": "comments_fetch",
+    "question_id": "q0371"
+  }
+}

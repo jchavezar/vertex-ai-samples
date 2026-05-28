@@ -1,5 +1,12 @@
 # Final Run — 2026-05-12
 
+> **DEPRECATED — historical snapshot.** This run pre-dates the v2 corpus
+> and the judge_v6 rubric. For current canonical numbers, see
+> [`../README.md`](../README.md) and the root
+> [`../../README.md`](../../README.md), both judged under **judge_v6**
+> (gemini-3-flash-preview + Haiku 4.5 escalation, n=172 v2 corpus,
+> 2026-05-27).
+
 **Gemini 3 Flash + Custom MCP: 95.5%** · Claude Code + Rovo MCP: 87.1%
 
 [**View the report** ↗](https://htmlpreview.github.io/?https://github.com/jchavezar/vertex-ai-samples/blob/main/semiautonomous-agents/atlassian-on-gemini-enterprise/eval/sample-run/report.html)

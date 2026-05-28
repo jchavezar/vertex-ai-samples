@@ -1,0 +1,24 @@
+# Redeploy the A-lite Agent Engine via Cloud Build (uses the build SA's IAM,
+# avoids the local ADC-quota-project trap that blocks
+# aiplatform.reasoningEngines.list from this developer machine).
+steps:
+  - name: 'python:3.12'
+    entrypoint: 'bash'
+    env:
+      - 'GOOGLE_CLOUD_PROJECT=vtxdemos'
+      - 'GOOGLE_CLOUD_LOCATION=global'
+    args:
+      - '-c'
+      - |
+        set -e
+        pip install --quiet uv
+        cd /workspace
+        uv run --with "google-cloud-aiplatform[adk,agent_engines]" \
+                --with python-dotenv \
+                --with google-genai \
+                --with mcp \
+                python deploy_agent_engine_flashlite.py
+
+options:
+  logging: CLOUD_LOGGING_ONLY
+timeout: 1800s

@@ -244,13 +244,18 @@ async def call_tool(name: str, arguments: dict) -> list[TextContent]:
             # Build a permissive JQL from the free-text query.
             terms = [t for t in query.split() if t]
             jql = " AND ".join([f'text ~ "{t}"' for t in terms]) if terms else "order by created DESC"
-            data = jira.enhanced_jql(jql, limit=20, fields="summary,status")
+            data = jira.enhanced_jql(jql, limit=20, fields="summary,status,assignee,reporter")
             issues = data.get("issues", [])
             results = [
                 {
                     "id": i["key"],
                     "title": i["fields"].get("summary", ""),
-                    "text": f"{i['key']}: {i['fields'].get('summary','')} [{i['fields'].get('status',{}).get('name','')}]",
+                    "text": (
+                        f"{i['key']}: {i['fields'].get('summary','')} "
+                        f"[{i['fields'].get('status',{}).get('name','')}] "
+                        f"Assignee={(i['fields'].get('assignee') or {}).get('displayName') or 'Unassigned'} "
+                        f"Reporter={(i['fields'].get('reporter') or {}).get('displayName') or 'Unknown'}"
+                    ),
                 }
                 for i in issues
             ]
@@ -262,11 +267,30 @@ async def call_tool(name: str, arguments: dict) -> list[TextContent]:
             issue_key = arguments.get("id", "")
             issue = jira.issue(issue_key)
             f = issue.get("fields", {})
+            assignee_obj = f.get("assignee") or {}
+            reporter_obj = f.get("reporter") or {}
+            assignee_disp = assignee_obj.get("displayName") or "Unassigned"
+            assignee_email = assignee_obj.get("emailAddress") or ""
+            reporter_disp = reporter_obj.get("displayName") or "Unknown"
+            reporter_email = reporter_obj.get("emailAddress") or ""
+            desc_or_summary = f.get("description") or f.get("summary", "")
             payload = {
                 "id": issue_key,
                 "title": f.get("summary", ""),
-                "text": f.get("description") or f.get("summary", ""),
+                "text": (
+                    f"Assignee: {assignee_disp}"
+                    + (f" ({assignee_email})" if assignee_email else "")
+                    + f"\nReporter: {reporter_disp}"
+                    + (f" ({reporter_email})" if reporter_email else "")
+                    + f"\nStatus: {(f.get('status') or {}).get('name','')}"
+                    + f"\nPriority: {(f.get('priority') or {}).get('name','')}"
+                    + f"\n\n{desc_or_summary}"
+                ),
                 "url": f"{site_url}/browse/{issue_key}",
+                "assignee": assignee_disp,
+                "assignee_email": assignee_email,
+                "reporter": reporter_disp,
+                "reporter_email": reporter_email,
             }
             import json as _json
             return [TextContent(type="text", text=_json.dumps(payload))]
@@ -289,7 +313,7 @@ async def call_tool(name: str, arguments: dict) -> list[TextContent]:
             while len(all_issues) < max_results:
                 kwargs = {
                     "limit": min(batch_size, max_results - len(all_issues)),
-                    "fields": "summary,status,created,resolutiondate,description"
+                    "fields": "summary,status,created,resolutiondate,description,assignee,reporter,priority,issuetype"
                 }
                 if next_page_token:
                     kwargs["nextPageToken"] = next_page_token
@@ -313,8 +337,8 @@ async def call_tool(name: str, arguments: dict) -> list[TextContent]:
             lines = [f"METADATA: Found={len(all_issues)}, NextToken={token_str}", ""]
             
             lines.append(f"**Jira Detailed Report** (Batch size: {len(all_issues)})")
-            lines.append(f"{ 'ID':<20} | {'Duration':<20} | {'Summary'}")
-            lines.append("-" * 100)
+            lines.append(f"{'ID':<20} | {'Duration':<20} | {'Assignee':<22} | {'Summary'}")
+            lines.append("-" * 120)
             
             for i in all_issues:
                 fields = i.get('fields', {})
@@ -346,7 +370,8 @@ async def call_tool(name: str, arguments: dict) -> list[TextContent]:
                     except Exception:
                         duration_str = "Error"
 
-                lines.append(f"{key_link:<20} | {duration_str:<20} | {summary[:50]}")
+                assignee_disp = (fields.get('assignee') or {}).get('displayName') or 'Unassigned'
+                lines.append(f"{key_link:<20} | {duration_str:<20} | {assignee_disp[:22]:<22} | {summary[:50]}")
 
             return [TextContent(type="text", text="\n".join(lines))]
             
@@ -420,7 +445,7 @@ async def call_tool(name: str, arguments: dict) -> list[TextContent]:
             # Auto-paginate INTERNALLY up to max_results so the chat LLM
             # doesn't have to (it won't reliably loop). Each API page is up to 100.
             BATCH = 100
-            fields = "summary,status,created,issuetype,priority,resolutiondate,updated,description"
+            fields = "summary,status,created,issuetype,priority,resolutiondate,updated,description,assignee,reporter"
             issues = []
             cur_token = next_page_token
             while len(issues) < max_results:
@@ -476,9 +501,16 @@ async def call_tool(name: str, arguments: dict) -> list[TextContent]:
                 if m:
                     model_val = m.group(1).strip()
                     title_val = m.group(2).strip()
+                assignee_disp = (f.get('assignee') or {}).get('displayName') or 'Unassigned'
+                assignee_email = (f.get('assignee') or {}).get('emailAddress') or ''
+                reporter_disp = (f.get('reporter') or {}).get('displayName') or 'Unknown'
+                priority = (f.get('priority') or {}).get('name', '')
+                issuetype = (f.get('issuetype') or {}).get('name', '')
                 res.append(
                     f"ISSUE: KeyLink=[{i['key']}]({issue_url}) | Key={i['key']} | URL={issue_url} | "
-                    f"Status={f.get('status',{}).get('name')} | Created={created} | "
+                    f"Status={f.get('status',{}).get('name')} | Priority={priority} | Type={issuetype} | "
+                    f"Assignee={assignee_disp}" + (f" <{assignee_email}>" if assignee_email else "") + " | "
+                    f"Reporter={reporter_disp} | Created={created} | "
                     f"ResolutionDate={resolution_date} | Updated={updated} | "
                     f"Model={model_val} | Title={title_val} | Desc={desc_trunc}"
                 )

@@ -20,9 +20,12 @@
   section{margin-bottom:36px}
   h2{font-size:16px;font-weight:600;color:#cbd5e1;margin:0 0 12px;letter-spacing:.5px;text-transform:uppercase}
 
-  /* Summary cards */
-  .cards{display:grid;grid-template-columns:repeat(5,1fr);gap:12px}
-  .card{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:16px;position:relative;overflow:hidden}
+  /* Summary cards — auto-fit so 7, 8, 9 pipelines all flow */
+  .cards{display:grid;grid-template-columns:repeat(auto-fit, minmax(300px, 1fr));gap:12px}
+  .cards-controls{display:flex;gap:10px;align-items:center;margin-bottom:14px;font-size:13px;color:var(--muted);flex-wrap:wrap}
+  .cards-controls select{background:var(--panel);color:var(--text);border:1px solid var(--border);border-radius:6px;padding:6px 10px;font-size:13px}
+  .card{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:16px;position:relative;overflow:hidden;transition:border-color .15s}
+  .card:hover{border-color:var(--accent)}
   .card.star{border-color:var(--star)}
   .card.star::before{content:"";position:absolute;top:0;left:0;right:0;height:3px;background:var(--star)}
   .card .label{color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.5px}
@@ -34,15 +37,52 @@
   .card .metrics div{color:var(--muted)}
   .card .metrics strong{color:var(--text);font-weight:600}
 
+  /* Family grouping (default-order view) */
+  .family{margin-bottom:18px}
+  .family-header{display:flex;align-items:baseline;gap:10px;padding:8px 12px;border-left:3px solid var(--accent);background:var(--panel);border-radius:6px 6px 0 0;margin-bottom:0}
+  .family-header .fam-letter{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13px;font-weight:700;color:var(--accent);background:var(--panel2);padding:2px 8px;border-radius:4px}
+  .family-header .fam-name{font-size:14px;font-weight:600;color:var(--text)}
+  .family-header .fam-meta{font-size:11px;color:var(--muted);margin-left:auto}
+  .family-row{display:grid;grid-template-columns:1fr auto 3fr;gap:0;align-items:stretch;padding:10px 8px 0;background:linear-gradient(180deg, var(--panel) 0%, transparent 100%);border-radius:0 0 8px 8px}
+  .family-row.solo{grid-template-columns:1fr}
+  .family-row .parent-slot{display:flex;align-items:stretch}
+  .family-row .parent-slot .card{flex:1;border:2px solid var(--accent)}
+  .family-row .parent-slot .card.star{border-color:var(--star)}
+  .family-row .tree-connector{display:flex;align-items:center;justify-content:center;width:36px;color:var(--border);font-family:ui-monospace,monospace;font-size:22px;line-height:1;user-select:none;flex-shrink:0;padding:0 4px}
+  .family-row .tree-connector::before{content:"";display:block;height:2px;background:linear-gradient(90deg, var(--accent) 0%, var(--border) 100%);width:100%;align-self:center}
+  .family-row .variants-slot{display:grid;grid-template-columns:repeat(auto-fit, minmax(260px, 1fr));gap:10px}
+  .family-row .variants-slot .card{background:#0e1830;font-size:12px}
+  .family-row .variants-slot .card .label::before{content:"↳ variant · ";color:var(--accent);font-weight:600}
+  .family-row .variants-slot .card .acc{font-size:24px}
+  .family-row .variants-slot .card .name{font-size:13px}
+  .cards-controls .pill{font-size:11px;color:var(--accent);background:var(--panel2);padding:2px 8px;border-radius:10px;margin-left:6px}
+
   /* Comparison table */
   table.cmp{border-collapse:collapse;width:100%;background:var(--panel);border-radius:10px;overflow:hidden;border:1px solid var(--border)}
   table.cmp th, table.cmp td{padding:10px 12px;text-align:left;border-bottom:1px solid var(--border);font-size:13px}
-  table.cmp th{background:var(--panel2);color:#cbd5e1;font-weight:600}
+  table.cmp th{background:var(--panel2);color:#cbd5e1;font-weight:600;border-left:3px solid transparent}
   table.cmp tbody tr:hover{background:#172547}
   table.cmp td.num{text-align:right;font-variant-numeric:tabular-nums}
+  table.cmp th.arch-mcp{border-left-color:#10b981}
+  table.cmp th.arch-federated{border-left-color:#f97316}
+  table.cmp th.arch-rovo{border-left-color:#3b82f6}
+  table.cmp th.arch-other{border-left-color:#6b7280}
+  table.cmp th{height:80px;vertical-align:top;padding:10px 8px 8px;position:relative;text-align:center}
+  table.cmp th .arch-chip{display:inline-block;font-size:9px;font-weight:700;letter-spacing:.5px;color:white;padding:2px 6px;border-radius:3px;margin-bottom:6px;text-transform:uppercase}
+  table.cmp th .opt-name{font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-weight: 600; font-size: 12px; color: var(--text); line-height: 1.2; word-break: keep-all}
+  table.cmp th .info-dot{display:inline-block;margin-top:6px;font-size:13px;color:var(--muted);cursor:help;user-select:none}
+  table.cmp th .info-dot:hover, table.cmp th .info-dot:focus{color:var(--accent);outline:none}
+  .arch-chip{display:inline-block;font-size:9px;font-weight:700;letter-spacing:.5px;color:white;padding:2px 6px;border-radius:3px;margin-bottom:4px;text-transform:uppercase}
+  .arch-legend{display:flex;gap:10px;flex-wrap:wrap;font-size:11px;color:var(--muted);margin:0 0 10px;align-items:center}
+  .arch-legend .lg{display:inline-flex;align-items:center;gap:6px}
+  .arch-legend .arch-chip{margin-bottom:0}
+  .th-tooltip{position:fixed;display:none;z-index:1000;background:var(--panel);border:1px solid var(--accent);border-radius:8px;padding:12px 14px;max-width:320px;font-size:12px;color:var(--text);pointer-events:none;box-shadow:0 8px 24px rgba(0,0,0,.5)}
+  .th-tooltip .tt-title{font-weight:700;font-size:14px;margin-bottom:6px;color:var(--accent)}
+  .th-tooltip .tt-row{margin:4px 0;color:#cbd5e1}
+  .th-tooltip .tt-label{color:var(--muted);text-transform:uppercase;font-size:10px;letter-spacing:.5px;margin-top:8px}
 
   /* Heatmap */
-  .heatmap{display:grid;grid-template-columns:200px repeat(5,1fr);gap:0;background:var(--panel);border:1px solid var(--border);border-radius:10px;overflow:hidden}
+  .heatmap{display:grid;grid-template-columns:160px repeat(var(--num-pipelines, 8), minmax(0, 1fr));gap:0;background:var(--panel);border:1px solid var(--border);border-radius:10px;overflow:hidden}
   .heatmap .h{padding:10px 12px;background:var(--panel2);font-weight:600;color:#cbd5e1;font-size:12px;border-bottom:1px solid var(--border);text-align:center}
   .heatmap .hl{text-align:left}
   .heatmap .cat{padding:8px 12px;font-size:12px;border-bottom:1px solid var(--border);color:#cbd5e1}
@@ -57,7 +97,7 @@
 
   /* Question rows */
   .qrow{background:var(--panel);border:1px solid var(--border);border-radius:8px;margin-bottom:8px;overflow:hidden}
-  .qrow .head{display:grid;grid-template-columns:80px 160px 1fr repeat(5,80px);gap:8px;padding:10px 12px;align-items:center;cursor:pointer;font-size:13px;border-bottom:1px solid transparent}
+  .qrow .head{display:grid;grid-template-columns:80px 160px 1fr repeat(var(--num-pipelines, 8), minmax(0, 1fr));gap:8px;padding:10px 12px;align-items:center;cursor:pointer;font-size:13px;border-bottom:1px solid transparent}
   .qrow .head:hover{background:#172547}
   .qrow.open .head{border-bottom:1px solid var(--border);background:#172547}
   .qrow .qid{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--muted);font-size:12px}
@@ -69,16 +109,18 @@
   .qrow .qfull .meta{font-size:12px;color:var(--muted);margin-top:8px;display:flex;gap:14px;flex-wrap:wrap}
   .qrow .qfull .meta span{display:inline-block}
   .qrow .qfull .meta code{background:#1a2440;padding:1px 6px;border-radius:4px;font-size:11px}
-  .qrow .ans-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:0}
-  .qrow .ans{padding:12px 14px;border-right:1px solid var(--border);min-height:140px;font-size:12.5px}
+  .qrow .ans-grid{display:grid;grid-template-columns:repeat(var(--num-pipelines, 8), minmax(0, 1fr));gap:0}
+  .qrow .ans{padding:12px 14px;border-right:1px solid var(--border);min-height:140px;font-size:12.5px;min-width:0}
   .qrow .ans:last-child{border-right:none}
-  .qrow .ans .ah{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
-  .qrow .ans .name{font-weight:600;color:#cbd5e1;font-size:12px}
-  .qrow .ans .vbadge{font-size:10px;padding:2px 7px;border-radius:999px;font-weight:600;text-transform:uppercase;letter-spacing:.3px}
+  .qrow .ans .ah{display:flex;flex-direction:column;align-items:flex-start;gap:6px;margin-bottom:8px;min-width:0}
+  .qrow .ans .ah > span:last-child{display:flex;flex-wrap:wrap;gap:4px;max-width:100%}
+  .qrow .ans .name{font-weight:600;color:#cbd5e1;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+  .qrow .ans .vbadge{font-size:9.5px;padding:2px 6px;border-radius:999px;font-weight:600;text-transform:uppercase;letter-spacing:.3px;white-space:nowrap}
   .qrow .ans .body-text{color:#cbd5e1;line-height:1.45;max-height:260px;overflow:auto;white-space:pre-wrap;word-break:break-word;font-size:12px}
   .qrow .ans .meta{font-size:11px;color:var(--muted);margin-top:8px;display:flex;justify-content:space-between}
   .qrow .ans.passed{background:rgba(22,163,74,.06)}
   .qrow .ans.failed{background:rgba(220,38,38,.06)}
+  .qrow .ans.disputed{background:rgba(245,158,11,.08);border-left:2px solid #f59e0b}
 
   /* Verdict badge dot in head */
   .vdot{width:14px;height:14px;border-radius:50%;display:inline-block;margin:0 auto}
@@ -88,6 +130,7 @@
   .v-hallucinated{background:var(--halluc)}
   .v-refused{background:var(--refuse)}
   .v-error{background:var(--err)}
+  .v-judge_error{background:#94a3b8;border:1px dashed #f59e0b}
   .v-missing{background:#1a2440;border:1px dashed #475569}
 
   .vb-correct{background:rgba(22,163,74,.18);color:#86efac}
@@ -96,13 +139,45 @@
   .vb-hallucinated{background:rgba(147,51,234,.18);color:#d8b4fe}
   .vb-refused{background:rgba(14,165,233,.18);color:#7dd3fc}
   .vb-error{background:rgba(71,85,105,.4);color:#cbd5e1}
+  .vb-judge_error{background:rgba(245,158,11,.18);color:#fcd34d;border:1px dashed #f59e0b}
   .vb-missing{background:rgba(71,85,105,.25);color:#94a3b8}
+  .vb-skip{background:rgba(71,85,105,.4);color:#cbd5e1}
+  .pip-card .vbtn.sel-skip{background:rgba(71,85,105,.5);border-color:#94a3b8;color:#cbd5e1}
+
+  /* "View all answers" modal */
+  .view-all-btn{background:var(--panel2);border:1px solid var(--border);color:var(--accent);padding:4px 10px;border-radius:4px;cursor:pointer;font-size:11px;font-weight:600;letter-spacing:.3px}
+  .view-all-btn:hover{background:var(--accent);color:#0b1220;border-color:var(--accent)}
+  .modal-backdrop{position:fixed;inset:0;background:rgba(11,18,32,.85);backdrop-filter:blur(4px);z-index:1000;display:none;align-items:flex-start;justify-content:center;padding:32px 20px;overflow-y:auto}
+  .modal-backdrop.open{display:flex}
+  .modal{background:var(--panel);border:1px solid var(--border);border-radius:12px;max-width:1400px;width:100%;margin:auto;box-shadow:0 30px 60px rgba(0,0,0,.5);position:relative}
+  .modal-header{padding:18px 24px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:flex-start;gap:14px;position:sticky;top:0;background:var(--panel);z-index:1;border-radius:12px 12px 0 0}
+  .modal-header h3{margin:0;font-size:16px;color:var(--text);font-weight:600;line-height:1.4}
+  .modal-header .qmeta{margin-top:6px;font-size:12px;color:var(--muted);display:flex;gap:14px;flex-wrap:wrap}
+  .modal-header .qmeta code{background:#1a2440;padding:1px 6px;border-radius:4px;font-size:11px}
+  .modal-close{background:none;border:1px solid var(--border);color:var(--text);width:32px;height:32px;border-radius:6px;cursor:pointer;font-size:18px;flex-shrink:0}
+  .modal-close:hover{background:var(--fail);border-color:var(--fail);color:#fff}
+  .modal-body{padding:20px 24px;max-height:calc(100vh - 200px);overflow-y:auto}
+  .modal-ref{background:#162243;border-left:3px solid var(--accent);padding:14px 18px;border-radius:6px;margin-bottom:18px}
+  .modal-ref h4{font-size:11px;color:var(--accent);font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin:0 0 8px}
+  .modal-ref .body{font-size:13px;line-height:1.55;color:#e7ecf3;white-space:pre-wrap}
+  .modal-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+  .modal-pip{background:#0e162b;border:1px solid var(--border);border-radius:8px;padding:14px 16px}
+  .modal-pip .ph{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid var(--border)}
+  .modal-pip .pname{font-weight:600;color:#cbd5e1;font-size:13px}
+  .modal-pip .psub{font-size:11px;color:var(--muted);margin-top:1px}
+  .modal-pip .pvbadges{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+  .modal-pip .pbody{font-size:12.5px;line-height:1.5;color:#e7ecf3;white-space:pre-wrap;word-break:break-word;max-height:300px;overflow-y:auto;background:#0b1220;padding:10px 12px;border-radius:5px;margin-top:8px}
+  .modal-pip.passed{border-color:rgba(22,163,74,.4)}
+  .modal-pip.failed{border-color:rgba(220,38,38,.3)}
+  @media (max-width:900px){
+    .modal-grid{grid-template-columns:1fr}
+  }
 
   /* Legend */
   .legend{display:flex;gap:12px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin-top:10px}
   .legend span{display:inline-flex;align-items:center;gap:6px}
 
-  .header-grid{display:grid;grid-template-columns:80px 160px 1fr repeat(5,80px);gap:8px;padding:10px 12px;background:var(--panel2);font-size:11px;font-weight:600;color:#94a3b8;text-transform:uppercase;letter-spacing:.4px;border-radius:8px 8px 0 0;border:1px solid var(--border);border-bottom:none}
+  .header-grid{display:grid;grid-template-columns:80px 160px 1fr repeat(var(--num-pipelines, 8), minmax(0, 1fr));gap:8px;padding:10px 12px;background:var(--panel2);font-size:11px;font-weight:600;color:#94a3b8;text-transform:uppercase;letter-spacing:.4px;border-radius:8px 8px 0 0;border:1px solid var(--border);border-bottom:none;position:sticky;top:0;z-index:20;box-shadow:0 4px 12px rgba(0,0,0,.4)}
   .header-grid div{text-align:center}
   .header-grid div:first-child, .header-grid div:nth-child(2), .header-grid div:nth-child(3){text-align:left}
 
@@ -113,77 +188,736 @@
   /* Small screens: pivot to cards */
   @media (max-width:1100px){
     .cards{grid-template-columns:1fr 1fr}
-    .heatmap{grid-template-columns:160px repeat(5,1fr)}
-    .qrow .head, .header-grid{grid-template-columns:70px 120px 1fr repeat(5,52px);gap:4px;font-size:12px}
+    .heatmap{grid-template-columns:160px repeat(var(--num-pipelines, 8), minmax(0, 1fr))}
+    .qrow .head, .header-grid{grid-template-columns:70px 120px 1fr repeat(var(--num-pipelines, 8), minmax(0, 1fr));gap:4px;font-size:12px}
     .qrow .ans-grid{grid-template-columns:1fr}
     .qrow .ans{border-right:none;border-bottom:1px solid var(--border)}
   }
+
+  /* Tabs */
+  .tabs{display:flex;gap:4px;padding:0 28px;border-bottom:1px solid var(--border);background:#0e162b}
+  .tab{padding:14px 22px;cursor:pointer;color:var(--muted);font-size:13px;font-weight:600;border-bottom:2px solid transparent;user-select:none}
+  .tab:hover{color:var(--text)}
+  .tab.active{color:var(--accent);border-bottom-color:var(--accent)}
+  .tab .count-pill{background:var(--panel2);color:var(--muted);font-size:11px;font-weight:500;padding:2px 8px;border-radius:999px;margin-left:8px}
+  .view{display:none}
+  .view.active{display:block}
+
+  /* Live Race */
+  .race-input{display:flex;gap:10px;margin:14px 0 4px;align-items:center;flex-wrap:wrap}
+  .race-input input{flex:1;min-width:280px;padding:10px 12px;font-size:14px;background:var(--panel);color:var(--text);border:1px solid var(--border);border-radius:6px;outline:none}
+  .race-input input:focus{border-color:var(--accent)}
+  .race-input button{padding:10px 18px;font-size:13px;font-weight:600;border-radius:6px;cursor:pointer;border:1px solid var(--border);background:var(--accent);color:#0b1220}
+  .race-input button:hover:not(:disabled){filter:brightness(1.1)}
+  .race-input button:disabled{opacity:.4;cursor:not-allowed}
+  .race-input button.secondary{background:transparent;color:var(--muted)}
+  .race-input button.secondary:not(:disabled){color:var(--text)}
+  .race-scoreboard{display:flex;gap:14px;flex-wrap:wrap;padding:10px 14px;background:var(--panel);border:1px solid var(--border);border-radius:8px;margin:10px 0;font-size:12px;color:var(--muted)}
+  .race-scoreboard b{color:var(--text);font-variant-numeric:tabular-nums}
+  .race-scoreboard .sb-leader{color:#fbbf24}
+  .race-grid{display:grid;grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));gap:12px;margin-top:14px}
+  .race-col{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px;display:flex;flex-direction:column;min-height:220px;transition:border-color .2s,box-shadow .2s}
+  .race-col.race-leader{border-color:#fbbf24;box-shadow:0 0 0 1px rgba(251,191,36,.35)}
+  .race-col.race-col-ref{border-color:#a855f7;background:linear-gradient(180deg,rgba(168,85,247,.06),transparent 60%)}
+  .race-col.race-col-ref .race-timer{color:#c084fc}
+  .race-col .race-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;border-bottom:1px solid var(--border);padding-bottom:6px;gap:8px}
+  .race-col .race-name{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;color:#cbd5e1;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .race-col .race-arch-chip{display:inline-block;font-size:9px;font-weight:700;letter-spacing:.5px;color:white;padding:2px 6px;border-radius:3px;text-transform:uppercase}
+  .race-col .race-timer{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-weight:700;font-size:12px;color:#fbbf24;font-variant-numeric:tabular-nums}
+  .race-col .race-timer.done{color:#10b981}
+  .race-col .race-timer.err{color:#ef4444}
+  .race-col .race-body{font-size:12.5px;color:#cbd5e1;line-height:1.55;overflow-y:auto;max-height:440px;flex:1;word-wrap:break-word}
+  .race-col .race-body.empty{color:var(--muted);font-style:italic;display:flex;align-items:center;justify-content:center;text-align:center}
+  .race-col .race-body p{margin:0 0 8px}
+  .race-col .race-body h1,.race-col .race-body h2,.race-col .race-body h3{font-size:13px;margin:10px 0 6px;color:var(--text)}
+  .race-col .race-body code{background:var(--panel2);padding:1px 4px;border-radius:3px;font-size:11.5px}
+  .race-col .race-body pre{background:var(--panel2);padding:8px;border-radius:4px;overflow-x:auto;font-size:11px}
+  .race-col .race-body ul,.race-col .race-body ol{margin:4px 0 8px 18px;padding:0}
+  .race-col .race-body li{margin:2px 0}
+  .race-col .race-body a{color:var(--accent);text-decoration:none}
+  .race-col .race-body a:hover{text-decoration:underline}
+  .race-col .race-toolstrip{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:10.5px;color:var(--muted);margin-top:8px;padding-top:8px;border-top:1px dashed var(--border)}
+
+  /* Golden answer banner — shown only when the typed question matches a catalog question */
+  .race-golden{margin-top:14px;background:linear-gradient(135deg,rgba(251,191,36,.08),rgba(251,191,36,.02));border:1px solid #fbbf24;border-radius:8px;padding:14px 16px}
+  .race-golden .rg-head{display:flex;align-items:center;gap:10px;margin-bottom:10px;font-size:12px;color:#fbbf24;font-weight:700;letter-spacing:.5px;text-transform:uppercase}
+  .race-golden .rg-head .rg-chip{background:#fbbf24;color:#0b1220;padding:3px 8px;border-radius:3px;font-size:10px}
+  .race-golden .rg-head .rg-qid{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;color:#cbd5e1;font-weight:500;text-transform:none;letter-spacing:0}
+  .race-golden .rg-body{font-size:13px;color:#e2e8f0;line-height:1.6;max-height:280px;overflow-y:auto}
+  .race-golden .rg-body p{margin:0 0 8px}
+  .race-golden .rg-body code{background:var(--panel2);padding:1px 4px;border-radius:3px;font-size:12px}
+  .race-golden .rg-body ul,.race-golden .rg-body ol{margin:4px 0 8px 18px}
+  .race-golden .rg-meta{display:flex;flex-wrap:wrap;gap:14px;margin-top:8px;font-size:11px;color:var(--muted);font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+  .race-golden .rg-meta code{color:#cbd5e1}
+
+  /* Live Race login overlay */
+  .race-login-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:9999;display:flex;align-items:center;justify-content:center}
+  .race-login-card{background:var(--panel);border:1px solid var(--accent);border-radius:12px;padding:24px 28px;max-width:360px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,.6)}
+  .race-login-card h3{margin:0 0 8px 0;color:var(--accent);font-size:16px;font-weight:600}
+  .race-login-hint{color:var(--muted);font-size:12px;line-height:1.5;margin:0 0 14px 0}
+  .race-login-card input{display:block;width:100%;margin:8px 0;background:var(--panel2);border:1px solid var(--border);border-radius:6px;padding:10px;color:var(--text);font-size:14px;outline:none}
+  .race-login-card input:focus{border-color:var(--accent)}
+  .race-login-card button{margin-top:12px;width:100%;background:var(--accent);color:#0b1220;font-weight:700;padding:10px;border:none;border-radius:6px;cursor:pointer;font-size:14px}
+  .race-login-card button:hover:not(:disabled){filter:brightness(1.1)}
+  .race-login-card button:disabled{opacity:.5;cursor:wait}
+  .race-login-err{color:#ef4444;font-size:12px;margin-top:8px;min-height:16px}
+  @keyframes raceShake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+  .race-login-card.shake{animation:raceShake .25s}
+  #raceAuthBadge a{color:var(--accent);text-decoration:none;margin-left:6px}
+  #raceAuthBadge a:hover{text-decoration:underline}
+
+  /* Grade view */
+  .grade-progress{position:sticky;top:0;background:var(--bg);padding:14px 28px;border-bottom:1px solid var(--border);z-index:10;display:flex;align-items:center;gap:14px;font-size:13px}
+  .grade-bar{flex:1;height:6px;background:var(--panel);border-radius:3px;overflow:hidden}
+  .grade-bar-fill{height:100%;background:var(--accent);transition:width .2s}
+  .grade-q{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:20px 24px;margin-bottom:20px}
+  .grade-q h3{font-size:14px;font-weight:600;color:#cbd5e1;margin:0 0 8px}
+  .grade-q .qtext{font-size:17px;font-weight:500;color:var(--text);margin:8px 0}
+  .grade-q .gmeta{font-size:12px;color:var(--muted);margin-top:10px;display:flex;gap:14px;flex-wrap:wrap}
+  .grade-q .gmeta code{background:#1a2440;padding:2px 8px;border-radius:4px;font-size:11px}
+  .grade-q .ref{background:#162243;border-left:3px solid var(--accent);padding:12px 16px;margin-top:14px;border-radius:6px}
+  .grade-q .ref h4{font-size:11px;color:#7dd3fc;margin:0 0 6px;text-transform:uppercase;letter-spacing:.5px}
+  .grade-q .ref .body{font-size:13px;line-height:1.55;color:#e7ecf3;white-space:pre-wrap}
+  .grade-q .jira-link{margin-top:10px;font-size:12px}
+  .pipelines-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:18px}
+  .pip-card{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:16px;display:flex;flex-direction:column}
+  .pip-card .ph{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+  .pip-card .plabel{font-weight:600;color:#cbd5e1;font-size:14px}
+  .pip-card .pbody{font-size:13px;line-height:1.5;color:#e7ecf3;white-space:pre-wrap;max-height:360px;overflow:auto;background:#0e162b;border-radius:6px;padding:12px;flex:1}
+  .pip-card .pverdict{display:flex;gap:6px;margin-top:12px}
+  .pip-card .vbtn{flex:1;padding:8px 10px;border:1px solid var(--border);background:var(--panel2);color:var(--text);border-radius:6px;cursor:pointer;font-size:12px;font-weight:600;transition:all .15s}
+  .pip-card .vbtn:hover{background:#1a2440;border-color:#475569}
+  .pip-card .vbtn.sel-correct{background:rgba(22,163,74,.3);border-color:var(--pass);color:#86efac}
+  .pip-card .vbtn.sel-partial{background:rgba(245,158,11,.3);border-color:var(--warn);color:#fcd34d}
+  .pip-card .vbtn.sel-wrong{background:rgba(220,38,38,.3);border-color:var(--fail);color:#fca5a5}
+  .pip-card .vbtn.sel-refused{background:rgba(14,165,233,.3);border-color:var(--refuse);color:#7dd3fc}
+  .grade-nav{display:flex;justify-content:space-between;align-items:center;margin-top:24px;padding:14px;background:var(--panel);border-radius:8px}
+  .grade-nav button{background:var(--accent);color:#0b1220;border:none;padding:10px 22px;font-size:14px;font-weight:600;border-radius:6px;cursor:pointer}
+  .grade-nav button:disabled{opacity:.4;cursor:not-allowed}
+  .grade-nav button.secondary{background:var(--panel2);color:var(--text);border:1px solid var(--border)}
+
+  .grade-stats{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:24px;margin-bottom:20px}
+  .grade-stats h3{margin:0 0 12px;font-size:14px;text-transform:uppercase;color:#94a3b8;letter-spacing:.5px}
+  .grade-stats table{width:100%;border-collapse:collapse;font-size:13px}
+  .grade-stats td,.grade-stats th{padding:8px 12px;text-align:right;border-bottom:1px solid var(--border)}
+  .grade-stats td:first-child,.grade-stats th:first-child{text-align:left}
+  .grade-stats th{color:#94a3b8;font-weight:600}
+
+  /* ========== Pipeline architecture flowchart (hero of each card) ========== */
+  .card .card-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:10px}
+  .card .card-head .name{font-size:14px;font-weight:600;color:var(--text);line-height:1.25;margin:2px 0 0}
+  .card .card-head .label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:1px}
+  .card .card-head .acc{font-size:26px;font-weight:700;color:var(--accent);line-height:1;text-align:right}
+  .card .card-head .acc small{font-size:11px;color:var(--muted);font-weight:500;margin-left:1px}
+  .card.star .card-head .acc{color:var(--star)}
+
+  .flow{display:flex;flex-wrap:wrap;align-items:stretch;gap:0;margin:6px -2px 8px;padding:10px 6px 8px;background:linear-gradient(180deg,#0a1228 0%,#0e1830 100%);border:1px solid #1c2742;border-radius:8px;min-height:74px}
+  .flow .node{display:flex;flex-direction:column;justify-content:center;align-items:center;flex:1 1 auto;min-width:46px;max-width:120px;padding:6px 6px;border-radius:6px;border:1px solid var(--n-border, var(--border));background:var(--n-bg, var(--panel2));color:var(--n-fg, var(--text));text-align:center;position:relative;font-size:10px;line-height:1.2;margin:2px}
+  .flow .node .nlabel{font-weight:600;font-size:10.5px;letter-spacing:.1px;white-space:nowrap}
+  .flow .node .nsub{font-size:9px;opacity:.75;margin-top:1px;white-space:nowrap;max-width:100%;overflow:hidden;text-overflow:ellipsis}
+  .flow .node .nmodel{display:block;margin-top:4px;padding:2px 5px;border-radius:8px;font-size:9px;font-weight:700;letter-spacing:.1px;background:rgba(251,191,36,.18);color:#fcd34d;border:1px solid rgba(251,191,36,.35);white-space:nowrap}
+  .flow .node.user{--n-bg:rgba(96,165,250,.12);--n-border:rgba(96,165,250,.55);--n-fg:#bfdbfe}
+  .flow .node.ge{--n-bg:rgba(168,85,247,.14);--n-border:rgba(168,85,247,.55);--n-fg:#e9d5ff}
+  .flow .node.cr{--n-bg:rgba(34,211,238,.12);--n-border:rgba(34,211,238,.55);--n-fg:#a5f3fc}
+  .flow .node.mcp{--n-bg:rgba(34,197,94,.13);--n-border:rgba(34,197,94,.55);--n-fg:#86efac}
+  .flow .node.jira{--n-bg:rgba(249,115,22,.14);--n-border:rgba(249,115,22,.55);--n-fg:#fed7aa}
+  .flow .node.wrap{--n-bg:rgba(244,114,182,.13);--n-border:rgba(244,114,182,.55);--n-fg:#fbcfe8}
+  .flow .arrow{display:flex;align-items:center;justify-content:center;flex:0 0 14px;color:#475569;font-size:13px;font-weight:700;user-select:none;margin:0 -1px}
+
+  /* When the card is in the variant column it's narrower — let nodes wrap */
+  .family-row .variants-slot .card .flow{padding:8px 4px}
+  .family-row .variants-slot .card .flow .node{min-width:42px;font-size:9.5px;padding:5px 4px}
+  .family-row .variants-slot .card .flow .node .nlabel{font-size:10px}
+  .family-row .variants-slot .card .flow .node .nmodel{font-size:8.5px;padding:1px 4px}
+
+  /* Compact metric strip below the flow */
+  .card .mstrip{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin-top:6px;padding-top:8px;border-top:1px solid var(--border)}
+  .card .mstrip .m{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:4px 2px;background:rgba(20,30,50,.55);border-radius:5px;text-align:center;min-width:0}
+  .card .mstrip .m .v{font-size:13px;font-weight:700;color:var(--text);line-height:1.1;font-variant-numeric:tabular-nums}
+  .card .mstrip .m .v.cost{color:#fcd34d}
+  .card .mstrip .m .v.lat{color:#7dd3fc}
+  .card .mstrip .m .v.pass{color:#86efac}
+  .card .mstrip .m .k{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.3px;margin-top:2px;white-space:nowrap}
+
+  /* Flowchart legend below the cards section */
+  .flow-legend{display:flex;gap:14px;flex-wrap:wrap;font-size:11px;color:var(--muted);margin:10px 2px 0;padding:8px 12px;background:var(--panel);border:1px dashed var(--border);border-radius:6px}
+  .flow-legend .lg{display:inline-flex;align-items:center;gap:6px}
+  .flow-legend .sw{width:11px;height:11px;border-radius:3px;border:1px solid currentColor}
+  .flow-legend .sw.user{background:rgba(96,165,250,.4);color:#60a5fa}
+  .flow-legend .sw.ge{background:rgba(168,85,247,.4);color:#a855f7}
+  .flow-legend .sw.cr{background:rgba(34,211,238,.4);color:#22d3ee}
+  .flow-legend .sw.mcp{background:rgba(34,197,94,.4);color:#22c55e}
+  .flow-legend .sw.jira{background:rgba(249,115,22,.4);color:#f97316}
+  .flow-legend .sw.wrap{background:rgba(244,114,182,.4);color:#f472b6}
+  .flow-legend .sw.model{background:rgba(251,191,36,.4);color:#fbbf24}
+
+  /* Scatter chart hover tooltip */
+  #scatterChart svg circle{cursor:pointer;transition:r .12s ease, stroke-width .12s ease}
+  #scatterChart svg circle:hover{stroke:#fbbf24;stroke-width:3}
+  .scatter-tooltip{
+    position:fixed;display:none;z-index:9999;pointer-events:none;
+    background:var(--panel2);color:var(--text);
+    border:1px solid var(--border);border-radius:8px;
+    padding:10px 12px;max-width:300px;font-size:12px;line-height:1.45;
+    box-shadow:0 8px 24px rgba(0,0,0,.55);
+  }
+  .scatter-tooltip .tt-title{font-weight:700;font-size:13px;color:#fff;margin-bottom:2px}
+  .scatter-tooltip .tt-sub{color:var(--muted);font-size:11px;margin-bottom:8px}
+  .scatter-tooltip .tt-row{display:flex;justify-content:space-between;gap:14px;margin:2px 0;font-variant-numeric:tabular-nums}
+  .scatter-tooltip .tt-row .k{color:var(--muted)}
+  .scatter-tooltip .tt-row .v{color:var(--text);font-weight:600}
+  .scatter-tooltip .tt-row .v.acc{color:#86efac}
+  .scatter-tooltip .tt-row .v.cost{color:#fcd34d}
+  .scatter-tooltip .tt-row .v.lat{color:#7dd3fc}
+
+  /* Scatter chart side legend */
+  #scatterChart{display:grid;grid-template-columns:1fr 280px;gap:16px;align-items:start}
+  #scatterChart > .scatter-plot{min-width:0}
+  .scatter-legend{background:var(--panel2);border-radius:8px;padding:12px;overflow-y:auto;max-height:520px;font-size:12px;border:1px solid var(--border)}
+  .legend-family{margin-bottom:14px}
+  .legend-family:last-child{margin-bottom:0}
+  .legend-fam-header{font-size:10px;text-transform:uppercase;color:var(--muted);margin-bottom:6px;letter-spacing:.4px;font-weight:700}
+  .legend-row{display:flex;align-items:flex-start;gap:8px;padding:6px;cursor:pointer;border-radius:6px;transition:background .12s ease;background:transparent}
+  .legend-row:hover, .legend-row.active{background:rgba(255,255,255,.06)}
+  .legend-chip{display:inline-block;padding:3px 7px;border-radius:4px;font-family:ui-monospace,Menlo,monospace;font-weight:700;color:#0b1220;font-size:11px;min-width:28px;text-align:center;flex-shrink:0;line-height:1.2;border:1px solid rgba(0,0,0,.25)}
+  .legend-body{display:flex;flex-direction:column;gap:1px;min-width:0;flex:1}
+  .legend-label{color:var(--text);font-weight:600;font-size:12px;line-height:1.25}
+  .legend-sub{color:var(--muted);font-size:10.5px;line-height:1.3}
+  .legend-meta{color:#94a3b8;font-size:10.5px;font-variant-numeric:tabular-nums;margin-top:2px}
+  .legend-meta .acc{color:#86efac;font-weight:600}
+  .legend-meta .cost{color:#fcd34d;font-weight:600}
+  #scatterChart svg circle[data-pipeline-key]{transition:opacity .12s ease, stroke-width .12s ease, r .12s ease}
+  #scatterChart.has-focus svg circle[data-pipeline-key]{opacity:.35}
+  #scatterChart.has-focus svg circle[data-pipeline-key].focused{opacity:1;stroke:#fbbf24;stroke-width:4}
+  @media (max-width: 900px){
+    #scatterChart{grid-template-columns:1fr}
+    .scatter-legend{max-height:none}
+  }
+
+  /* Judge Validation tab */
+  .vd-bar{position:sticky;top:0;z-index:40;background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:10px 14px;display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;margin:14px 0 18px;box-shadow:0 4px 12px rgba(0,0,0,.25)}
+  .vd-tally{display:flex;gap:10px;align-items:center;font-size:13px;color:var(--text);font-variant-numeric:tabular-nums;flex-wrap:wrap}
+  .vd-tally b{color:var(--accent)}
+  .vd-tally .vd-agree b{color:#86efac}
+  .vd-tally .vd-lenient b{color:#fca5a5}
+  .vd-tally .vd-strict b{color:#fcd34d}
+  .vd-sep{color:var(--muted)}
+  .vd-bar-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  .vd-bar-actions select{background:var(--panel2);color:var(--text);border:1px solid var(--border);border-radius:6px;padding:5px 8px;font-size:12px}
+  .vd-btn{background:var(--panel2);color:var(--text);border:1px solid var(--border);border-radius:6px;padding:6px 12px;font-size:12px;font-weight:600;cursor:pointer;transition:background .12s,border-color .12s}
+  .vd-btn:hover{background:#1c2a4a;border-color:var(--accent)}
+  .vd-btn.primary{background:var(--accent);color:#0b1220;border-color:var(--accent)}
+  .vd-btn.primary:hover{filter:brightness(1.1)}
+  .vd-btn.ghost{background:transparent}
+  .vd-btn.danger{color:#fca5a5;border-color:#7f1d1d}
+  .vd-btn.danger:hover{background:#3f1414;color:#fecaca}
+  .vd-hint{grid-column:1 / -1;font-size:11px;color:var(--muted)}
+  .vd-hint kbd{background:var(--panel2);border:1px solid var(--border);border-radius:4px;padding:1px 6px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;color:var(--text);margin:0 2px}
+
+  .vd-section{margin-bottom:24px;border:1px solid var(--border);border-radius:10px;background:var(--panel)}
+  .vd-section-head{padding:14px 18px;cursor:pointer;display:flex;align-items:center;gap:12px;border-bottom:1px solid transparent;user-select:none}
+  .vd-section.collapsed .vd-section-head{border-bottom-color:transparent}
+  .vd-section:not(.collapsed) .vd-section-head{border-bottom-color:var(--border)}
+  .vd-section-head .vd-caret{width:14px;color:var(--accent);font-size:12px;transition:transform .15s}
+  .vd-section.collapsed .vd-section-head .vd-caret{transform:rotate(-90deg)}
+  .vd-section-head .vd-section-title{font-size:14px;font-weight:600;color:var(--text)}
+  .vd-section-head .vd-section-sub{font-size:12px;color:var(--muted);margin-left:6px}
+  .vd-section-head .vd-section-count{margin-left:auto;font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums}
+  .vd-section-body{padding:8px 18px 18px;display:grid;gap:12px}
+  .vd-section.collapsed .vd-section-body{display:none}
+
+  .vd-card{background:var(--panel2);border:1px solid var(--border);border-radius:10px;padding:14px 16px;transition:border-color .12s,box-shadow .12s}
+  .vd-card.active{border-color:var(--accent);box-shadow:0 0 0 2px rgba(96,165,250,.18)}
+  .vd-card.voted-agree{border-left:4px solid #16a34a}
+  .vd-card.voted-lenient{border-left:4px solid #dc2626}
+  .vd-card.voted-strict{border-left:4px solid #f59e0b}
+  .vd-card.hidden{display:none}
+  .vd-card-head{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap;margin-bottom:8px}
+  .vd-qid{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;color:var(--muted);background:var(--panel);padding:2px 8px;border-radius:4px}
+  .vd-cat-pill{font-size:10.5px;color:var(--muted);background:var(--panel);padding:2px 8px;border-radius:4px;text-transform:uppercase;letter-spacing:.3px}
+  .vd-tier-pill{font-size:10.5px;color:#0b1220;background:#a78bfa;padding:2px 8px;border-radius:4px;font-weight:600}
+  .vd-reason-pill{font-size:10.5px;background:#2a3a5e;color:#cbd5e1;padding:2px 8px;border-radius:4px;font-style:italic}
+  .vd-q{font-size:15px;font-weight:600;color:var(--text);margin:4px 0 12px;line-height:1.4}
+  .vd-ans-block{margin:8px 0;border:1px solid var(--border);border-radius:8px;overflow:hidden}
+  .vd-ans-head{padding:8px 12px;background:var(--panel);font-size:12px;color:var(--muted);display:flex;align-items:center;gap:8px;cursor:pointer;user-select:none}
+  .vd-ans-head .vd-verdict-pill{margin-left:auto;font-size:11px;padding:2px 8px;border-radius:4px;font-weight:600}
+  .vd-verdict-pill.v-correct{background:#16a34a;color:#0b1220}
+  .vd-verdict-pill.v-partial{background:#f59e0b;color:#0b1220}
+  .vd-verdict-pill.v-wrong{background:#dc2626;color:#fff}
+  .vd-verdict-pill.v-refused{background:#0ea5e9;color:#0b1220}
+  .vd-verdict-pill.v-error{background:#475569;color:#fff}
+  .vd-verdict-pill.v-excluded{background:#475569;color:#fff}
+  .vd-ans-body{padding:12px 14px;background:#0b1326;color:#e7ecf3;font-size:13px;line-height:1.55;max-height:520px;overflow:auto}
+  .vd-ans-body p{margin:0 0 8px}
+  .vd-ans-body h1,.vd-ans-body h2,.vd-ans-body h3{margin:10px 0 6px;font-size:14px}
+  .vd-ans-body code{background:var(--panel2);padding:1px 5px;border-radius:3px;font-size:12px;color:#7dd3fc}
+  .vd-ans-body pre{background:var(--panel2);padding:8px 10px;border-radius:6px;overflow-x:auto;font-size:12px}
+  .vd-ans-body pre code{background:transparent;padding:0;color:#cbd5e1}
+  .vd-ans-body a{color:#7dd3fc;text-decoration:none;border-bottom:1px dashed #475569}
+  .vd-ans-body a:hover{color:#fbbf24;border-bottom-color:#fbbf24}
+  .vd-ans-body table{border-collapse:collapse;margin:6px 0;font-size:12px}
+  .vd-ans-body table td,.vd-ans-body table th{border:1px solid var(--border);padding:4px 8px;text-align:left}
+  .vd-ans-body table th{background:var(--panel2);color:#cbd5e1}
+  .vd-ans-collapsed .vd-ans-body{display:none}
+  .vd-ans-collapsed .vd-ans-head .vd-caret-2::before{content:'▸'}
+  .vd-ans-head .vd-caret-2::before{content:'▾';color:var(--accent);margin-right:4px}
+  .vd-judge-reason{margin:6px 0;font-size:11.5px;color:var(--muted);background:var(--panel);padding:6px 10px;border-left:3px solid var(--accent);border-radius:4px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+  .vd-controls{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;align-items:center}
+  .vd-vote-btn{padding:8px 14px;font-size:13px;font-weight:600;border-radius:6px;cursor:pointer;border:1px solid var(--border);background:var(--panel);color:var(--text);transition:all .12s}
+  .vd-vote-btn:hover{filter:brightness(1.15)}
+  .vd-vote-btn.agree{border-color:#16a34a;color:#86efac}
+  .vd-vote-btn.lenient{border-color:#dc2626;color:#fca5a5}
+  .vd-vote-btn.strict{border-color:#f59e0b;color:#fcd34d}
+  .vd-vote-btn.agree.selected{background:#16a34a;color:#0b1220;border-color:#16a34a}
+  .vd-vote-btn.lenient.selected{background:#dc2626;color:#fff;border-color:#dc2626}
+  .vd-vote-btn.strict.selected{background:#f59e0b;color:#0b1220;border-color:#f59e0b}
+  .vd-card-note{flex:1;min-width:200px;background:var(--panel);color:var(--text);border:1px solid var(--border);border-radius:6px;padding:8px 10px;font-size:12px;outline:none;font-family:inherit}
+  .vd-card-note:focus{border-color:var(--accent)}
+  .vd-reset-card{background:transparent;border:1px solid var(--border);color:var(--muted);padding:6px 10px;border-radius:6px;font-size:11px;cursor:pointer}
+  .vd-reset-card:hover{color:var(--text);border-color:var(--accent)}
 </style>
 </head>
 <body>
 <header>
   <h1>Atlassian Jira × Gemini Enterprise — 5-option comparison</h1>
-  <div class="sub">500 grounded Jira questions × 20 categories, scored by Claude Opus. Every cell in this report is a real model answer — click any row to see all five side-by-side.</div>
+  <div class="sub">500 grounded Jira questions × 20 categories, judged by <span id="judgeLabel">…</span>. Click "Grade yourself" to evaluate a 50-question sample by hand and see which judge tracks reality better.</div>
 </header>
 
+<div class="tabs">
+  <div class="tab active" data-view="compare">📊 Comparison</div>
+  <div class="tab" data-view="judges">⚖️ Judges<span class="count-pill" id="judgesPill">—</span></div>
+  <div class="tab" data-view="grade">✍️ Grade yourself<span class="count-pill" id="gradePill">0 / 50</span></div>
+  <div class="tab" data-view="race">⚡ Live Race</div>
+  <div class="tab" data-view="validation">🧪 Judge Validation<span class="count-pill" id="validationPill">0 / 0</span></div>
+</div>
+
 <main>
-  <section>
-    <h2>Headline</h2>
-    <div id="cards" class="cards"></div>
-  </section>
+  <!-- ============ VIEW 1: COMPARISON ============ -->
+  <div class="view active" id="view-compare">
+    <section>
+      <h2>Headline — sort &amp; compare</h2>
+      <div class="cards-controls">
+        <span><strong style="color:var(--text)" id="numPipelines">…</strong> pipelines · judged by both Gemini 3.5 Flash + Claude Sonnet 4.6 with golden-aware prompts (v2)</span>
+        <label>Sort by
+          <select id="cardsSort">
+            <option value="order">Default order</option>
+            <option value="accuracy">Accuracy ↓</option>
+            <option value="credible">Credible accuracy ↓</option>
+            <option value="cost">Cost / 1K ↑</option>
+            <option value="value">Value (accuracy / cost) ↓</option>
+            <option value="latency">p50 latency ↑</option>
+          </select>
+        </label>
+      </div>
+      <div id="cards" class="cards"></div>
+      <div class="flow-legend" id="flowLegend">
+        <span class="lg"><span class="sw user"></span>User</span>
+        <span class="lg"><span class="sw ge"></span>Gemini Enterprise</span>
+        <span class="lg"><span class="sw cr"></span>Cloud Run / ADK</span>
+        <span class="lg"><span class="sw wrap"></span>genai tool-loop wrapper</span>
+        <span class="lg"><span class="sw mcp"></span>MCP server</span>
+        <span class="lg"><span class="sw jira"></span>Jira</span>
+        <span class="lg"><span class="sw model"></span>LLM (where the final answer is generated)</span>
+      </div>
+    </section>
 
-  <section>
-    <h2>Comparison table</h2>
-    <table class="cmp" id="cmpTable"></table>
-  </section>
+    <section>
+      <h2>Cost vs accuracy at a glance</h2>
+      <div id="scatterChart" style="background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:20px;position:relative"><div class="scatter-plot"></div><div class="scatter-legend"></div></div>
+      <div id="scatterTooltip" class="scatter-tooltip"></div>
+    </section>
 
-  <section>
-    <h2>Per-category accuracy (refusal-credited on safety categories)</h2>
-    <div id="heatmap" class="heatmap"></div>
-    <div class="legend">
-      <span><span class="vdot v-correct"></span> ≥ 90%</span>
-      <span><span class="vdot v-partial"></span> 60–89%</span>
-      <span><span class="vdot v-wrong"></span> &lt; 60%</span>
-    </div>
-  </section>
+    <section>
+      <h2>Comparison table</h2>
+      <table class="cmp" id="cmpTable"></table>
+      <div id="thTooltip" class="th-tooltip" role="tooltip"></div>
+    </section>
 
-  <section>
-    <h2>All 500 questions — click a row to expand</h2>
-    <div class="filters">
-      <input id="search" placeholder="Search question text or id…" />
-      <select id="catFilter">
-        <option value="">All categories</option>
-      </select>
-      <select id="verdictFilter">
-        <option value="">All verdicts</option>
-        <option value="correct">Correct</option>
-        <option value="partial">Partial</option>
-        <option value="wrong">Wrong</option>
-        <option value="hallucinated">Hallucinated</option>
-        <option value="refused">Refused</option>
-        <option value="error">Error</option>
-      </select>
-      <select id="verdictPipeline">
-        <option value="">filter on any pipeline</option>
-      </select>
-      <span class="chip" id="onlyDisagree">Only show disagreements</span>
-      <span class="chip" id="onlyEFails">Only Option E failures</span>
-      <span style="color:var(--muted);font-size:12px" id="count"></span>
+    <section>
+      <h2>Per-category accuracy (refusal-credited on safety categories)</h2>
+      <div id="heatmap" class="heatmap"></div>
+      <div class="legend">
+        <span><span class="vdot v-correct"></span> ≥ 90%</span>
+        <span><span class="vdot v-partial"></span> 60–89%</span>
+        <span><span class="vdot v-wrong"></span> &lt; 60%</span>
+      </div>
+    </section>
+
+    <section>
+      <h2>Per-category latency p50 (green = fast, red = slow)</h2>
+      <p style="color:var(--muted);font-size:12px;margin:-4px 0 12px">
+        Latency by category — <strong>count-aggregate is systemically slow on B (Rovo)</strong>
+        due to GE sub-planner pagination loop (~10 sequential paginated tool calls with an
+        LLM "should I continue?" decision between each, ~140 s for a 906-issue count). Custom
+        MCP (C) auto-paginates server-side and returns the count in one tool call (~14 s).
+      </p>
+      <div id="heatmapLat" class="heatmap"></div>
+      <div class="legend">
+        <span><span class="vdot v-correct"></span> ≤ 15 s</span>
+        <span><span class="vdot v-partial"></span> 15–45 s</span>
+        <span><span class="vdot v-wrong"></span> &gt; 45 s</span>
+        <span style="color:var(--muted)">— = no data for that (category, pipeline)</span>
+      </div>
+    </section>
+
+    <section>
+      <h2>All 500 questions — click a row to expand</h2>
+      <div class="filters">
+        <input id="search" placeholder="Search question text or id…" />
+        <select id="catFilter">
+          <option value="">All categories</option>
+        </select>
+        <select id="verdictFilter">
+          <option value="">All verdicts</option>
+          <option value="correct">Correct</option>
+          <option value="partial">Partial</option>
+          <option value="wrong">Wrong</option>
+          <option value="hallucinated">Hallucinated</option>
+          <option value="refused">Refused</option>
+          <option value="error">Error</option>
+          <option value="judge_error">Judge-error</option>
+        </select>
+        <select id="verdictPipeline">
+          <option value="">filter on any pipeline</option>
+        </select>
+        <span class="chip" id="onlyDisagree">Only show disagreements</span>
+        <span class="chip" id="onlyEFails">Only Option E failures</span>
+        <span style="color:var(--muted);font-size:12px" id="count"></span>
+      </div>
+      <div class="header-grid" id="qHeaderGrid">
+        <div>ID</div><div>Category</div><div>Question</div>
+        <!-- pipeline column headers populated from data.summary at runtime -->
+      </div>
+      <div id="rows"></div>
+    </section>
+  </div>
+
+  <!-- ============ VIEW 2: JUDGES (per-judge accuracy + disagreement list) ============ -->
+  <div class="view" id="view-judges">
+    <section style="padding-top:24px">
+      <h2>Per-judge accuracy</h2>
+      <div id="judgesCards" class="cards"></div>
+      <p style="color:var(--muted);font-size:13px;margin-top:14px">
+        Two independent LLM judges scored every (question × pipeline) cell.
+        <strong>Where they agree</strong>, the verdict is high-confidence.
+        <strong>Where they disagree</strong>, those cells appear in the "Grade yourself"
+        tab so a human can settle the tie. Final published numbers use judge
+        consensus + human verdict on contested cells.
+      </p>
+    </section>
+
+    <section>
+      <h2>Cross-judge agreement</h2>
+      <table class="cmp" id="agreeTable"></table>
+    </section>
+
+    <section>
+      <h2>Disagreement grading queue</h2>
+      <p style="color:var(--muted);font-size:13px">
+        These are cells where the two judges disagreed on whether the agent
+        gave a useful answer (the "credible" bar). Grade each one to settle
+        the tie. Cells where judges only disagree on "correct vs partial"
+        (both consider it useful) aren't shown — they don't affect the
+        published numbers.
+      </p>
+      <div class="filters">
+        <select id="dCat"><option value="">All categories</option></select>
+        <select id="dPip"><option value="">All pipelines</option></select>
+        <label style="font-size:12px;color:var(--muted);display:inline-flex;align-items:center;gap:6px">
+          <input type="checkbox" id="dHideGraded"> Hide already-graded
+        </label>
+        <span style="color:var(--muted);font-size:12px" id="dCount"></span>
+      </div>
+      <div id="disagreeList"></div>
+    </section>
+  </div>
+
+  <!-- ============ VIEW 3: GRADE YOURSELF ============ -->
+  <div class="view" id="view-grade">
+    <div class="grade-progress">
+      <div>Question <strong id="gradeQNum">1</strong> / <strong id="gradeQTotal">50</strong></div>
+      <div class="grade-bar"><div class="grade-bar-fill" id="gradeBarFill" style="width:0%"></div></div>
+      <button id="gradeReset" style="background:none;border:1px solid var(--border);color:var(--muted);padding:4px 10px;border-radius:4px;font-size:11px;cursor:pointer">Reset</button>
+      <button id="gradeViewStats" style="background:none;border:1px solid var(--accent);color:var(--accent);padding:4px 10px;border-radius:4px;font-size:11px;cursor:pointer">View my stats</button>
     </div>
-    <div class="header-grid">
-      <div>ID</div><div>Category</div><div>Question</div>
-      <div>A</div><div>B</div><div>C</div><div>D</div><div>E ⭐</div>
-    </div>
-    <div id="rows"></div>
-  </section>
+    <div id="gradeBody" style="padding:0 0 32px"></div>
+  </div>
+
+  <!-- ============ VIEW 4: LIVE RACE ============ -->
+  <div class="view" id="view-race">
+    <section>
+      <h2>Live race — same question across all pipelines</h2>
+      <p style="color:var(--muted);font-size:13px;margin-top:-4px">
+        Fires your question at all 10 pipelines in parallel. Each column ticks a live
+        timer and renders its answer the instant it arrives. Red badge = pipeline error
+        (some streamAssist pipelines need a user OAuth token tied to Jira; running from
+        the Cloud Run service account they may return a connector-auth error).
+      </p>
+      <div class="race-input">
+        <input id="raceInput" placeholder="Ask anything about your Jira issues… (e.g. who is assigned to BUGS-100?)" />
+        <button id="raceSend">Send to all 10</button>
+        <button id="raceCancel" class="secondary" disabled>Cancel</button>
+        <span id="raceAuthBadge" style="font-size:12px;color:var(--muted);margin-left:8px">🔓 Login required</span>
+      </div>
+      <div class="race-oauth-bar" id="raceOAuthBar" style="display:flex;align-items:center;gap:10px;margin:6px 0 0;font-size:11.5px;color:var(--muted);flex-wrap:wrap">
+        <span id="raceOAuthStatus" style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace">⚠ outbound auth: Cloud Run SA · B/C/CG/DG will return auth errors</span>
+        <button id="raceOAuthBtn" style="background:var(--panel);border:1px solid var(--accent);color:var(--accent);padding:3px 10px;font-size:11px;border-radius:4px;cursor:pointer;font-weight:600">Use my OAuth token</button>
+        <button id="raceOAuthClear" style="display:none;background:transparent;border:1px solid var(--border);color:var(--muted);padding:3px 10px;font-size:11px;border-radius:4px;cursor:pointer">Clear</button>
+      </div>
+      <div class="race-scoreboard" id="raceScoreboard" style="display:none">
+        <span><b id="sbFinished">0</b> / <b id="sbTotal">10</b> finished</span>
+        <span class="sb-leader">leader: <b id="sbLeader">—</b></span>
+        <span>fastest: <b id="sbFastest">—</b></span>
+        <span>slowest done: <b id="sbSlowest">—</b></span>
+      </div>
+      <div id="raceGoldenCard" class="race-golden" style="display:none"></div>
+      <div class="race-grid" id="raceGrid"></div>
+    </section>
+  </div>
+
+  <!-- ============ VIEW 5: JUDGE VALIDATION ============ -->
+  <div class="view" id="view-validation">
+    <section>
+      <h2>Judge Validation — sanity-check judge_v6</h2>
+      <p style="color:var(--muted);font-size:13px;margin-top:-4px;max-width:920px">
+        A curated 35-question sample drawn from the 500-Q B run (judged 91.9% by v6) plus the 500-Q F run
+        (judged 59.2%). Pick three suspicious buckets — promoted partials, tier-3 safety questions, and a
+        random control — and manually re-grade each one to see whether judge_v6 is being too lenient.
+        Votes are stored in your browser's <code>localStorage</code> (<code>judge_validation_v1</code>);
+        nothing leaves the page until you click Export.
+      </p>
+
+      <!-- sticky filter + tally bar -->
+      <div class="vd-bar" id="vdBar">
+        <div class="vd-tally">
+          <span><b id="vdGraded">0</b> / <b id="vdTotal">0</b> graded</span>
+          <span class="vd-sep">·</span>
+          <span class="vd-agree"><b id="vdAgree">0</b> agree</span>
+          <span class="vd-sep">·</span>
+          <span class="vd-lenient"><b id="vdLenient">0</b> too lenient</span>
+          <span class="vd-sep">·</span>
+          <span class="vd-strict"><b id="vdStrict">0</b> too strict</span>
+        </div>
+        <div class="vd-bar-actions">
+          <label style="font-size:12px;color:var(--muted)">Show
+            <select id="vdFilter">
+              <option value="all">all</option>
+              <option value="ungraded">ungraded</option>
+              <option value="disagree">disagreements only</option>
+            </select>
+          </label>
+          <button id="vdNext" class="vd-btn ghost">⤓ Jump to next ungraded</button>
+          <button id="vdExport" class="vd-btn primary">⬇ Export votes JSON</button>
+          <button id="vdReset" class="vd-btn ghost danger">Clear all votes</button>
+        </div>
+        <div class="vd-hint">
+          <kbd>a</kbd> agree · <kbd>l</kbd> too lenient · <kbd>s</kbd> too strict · <kbd>n</kbd> next · <kbd>p</kbd> prev · <kbd>?</kbd> toggle hint
+        </div>
+      </div>
+
+      <div id="vdBody" style="padding:0 0 32px"></div>
+    </section>
+  </div>
 </main>
+
+<!-- ============ LIVE RACE LOGIN OVERLAY ============ -->
+<div id="raceLoginOverlay" class="race-login-overlay" style="display:none">
+  <div class="race-login-card">
+    <h3>🔒 Live Race access</h3>
+    <p class="race-login-hint">Please sign in. Each race runs 10 parallel API calls and costs real money.</p>
+    <input id="raceLoginUser" placeholder="username" autocomplete="username" />
+    <input id="raceLoginPass" type="password" placeholder="password" autocomplete="current-password" />
+    <button id="raceLoginSubmit">Sign in</button>
+    <div id="raceLoginErr" class="race-login-err"></div>
+  </div>
+</div>
+
+<!-- ============ LIVE RACE USER OAUTH TOKEN OVERLAY ============ -->
+<div id="raceOAuthOverlay" class="race-login-overlay" style="display:none">
+  <div class="race-login-card" style="max-width:520px">
+    <h3>🔑 Install user OAuth token</h3>
+    <p class="race-login-hint">
+      The Cloud Run service account has no Jira refresh token bound to the GE
+      Atlassian connector. Without a user OAuth token, the Rovo/custom-MCP/
+      federated pipelines (<b>B / C / CG / DG</b>) will return auth errors.
+      <br><br>
+      On your laptop, run:
+      <br><code style="display:block;margin:6px 0;padding:6px 8px;background:var(--panel2);border-radius:4px;color:#7dd3fc;font-size:11.5px">gcloud auth print-access-token --account=admin@jesusarguelles.altostrat.com</code>
+      …then paste the output below. Tokens last ≈60 min.
+    </p>
+    <textarea id="raceOAuthInput" placeholder="ya29.a0Ad..." style="display:block;width:100%;height:90px;margin:8px 0;background:var(--panel2);border:1px solid var(--border);border-radius:6px;padding:10px;color:var(--text);font-size:12px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;outline:none;resize:vertical"></textarea>
+    <div style="display:flex;gap:8px">
+      <button id="raceOAuthCancel" style="background:transparent;border:1px solid var(--border);color:var(--muted);padding:10px;border-radius:6px;cursor:pointer;flex:0 0 auto">Cancel</button>
+      <button id="raceOAuthSubmit" style="flex:1">Install token</button>
+    </div>
+    <div id="raceOAuthErr" class="race-login-err"></div>
+  </div>
+</div>
+
+<!-- ============ "VIEW ALL ANSWERS" MODAL ============ -->
+<div class="modal-backdrop" id="modalBackdrop">
+  <div class="modal" id="modalEl">
+    <div class="modal-header">
+      <div style="flex:1">
+        <h3 id="modalTitle">Question</h3>
+        <div class="qmeta" id="modalMeta"></div>
+      </div>
+      <button class="modal-close" id="modalClose" title="Close (Esc)">×</button>
+    </div>
+    <div class="modal-body">
+      <div id="modalRef"></div>
+      <div class="modal-grid" id="modalPipelines"></div>
+    </div>
+  </div>
+</div>
 
 <div class="footer">
   Generated <span id="gen"></span> · Source code: <a href="https://github.com/jchavezar/vertex-ai-samples/tree/main/semiautonomous-agents/atlassian-jira-integration">atlassian-jira-integration</a> · See <a href="../QUESTION_TYPES.md">QUESTION_TYPES.md</a> for the category taxonomy.
 </div>
 
 <script>
-const PIPELINES = ['A','B','C','D','E'];
+// Dynamic — populated from data.json so new pipelines (AG, EG, CG, …) appear
+// automatically without code edits.
+let PIPELINES = ['A','B','C','D','E','AL','AG'];
+
+// User-controllable sort order for the headline cards.
+let CARDS_SORT = 'order';  // 'order' | 'accuracy' | 'cost' | 'value' | 'latency'
+
+// ============ "VIEW ALL ANSWERS" MODAL ============
+let MODAL_REFS = null;
+let MODAL_DATA_REF = null;
+async function ensureModalRefs() {
+  if (MODAL_REFS !== null) return;
+  try { MODAL_REFS = await fetch('reference_answers.json').then(r => r.json()); }
+  catch { MODAL_REFS = {}; }
+}
+function openAllAnswersModal(qid) {
+  if (!MODAL_DATA_REF) return;
+  const row = MODAL_DATA_REF.questions.find(r => r.id === qid);
+  if (!row) return;
+  document.getElementById('modalTitle').textContent = row.q;
+  const meta = [];
+  meta.push(`id: <code>${qid}</code>`);
+  meta.push(`category: <code>${row.category}</code>`);
+  meta.push(`oracle: <code>${row.oracle}</code>`);
+  if (row.expected_count != null) meta.push(`expected count: <code>${row.expected_count}</code>`);
+  if (row.expected_keys_total) meta.push(`expected keys (${row.expected_keys_total}): <code>${row.expected_keys_sample.join(', ')}${row.expected_keys_total > row.expected_keys_sample.length ? ',…' : ''}</code>`);
+  if (row.jql) meta.push(`JQL: <code>${row.jql.replace(/</g,'&lt;')}</code>`);
+  document.getElementById('modalMeta').innerHTML = meta.join('');
+
+  // Reference block
+  let refHtml = '';
+  if (row.oracle === 'jql') {
+    let ref = '';
+    if (row.expected_count != null) ref += `<strong>${row.expected_count}</strong> issue${row.expected_count===1?'':'s'}`;
+    if (row.expected_keys_total) {
+      ref += `.<br>Issue keys: ${escapeHtml(row.expected_keys_sample.join(', '))}${row.expected_keys_total > row.expected_keys_sample.length ? ' …(+' + (row.expected_keys_total - row.expected_keys_sample.length) + ' more)' : ''}`;
+    }
+    refHtml = `<div class="modal-ref"><h4>Reference (deterministic — from JQL)</h4><div class="body">${ref}</div></div>`;
+  } else if (MODAL_REFS && MODAL_REFS[qid]) {
+    refHtml = `<div class="modal-ref"><h4>Reference (synthesized from real Jira data)</h4><div class="body">${escapeHtml(MODAL_REFS[qid].reference)}</div></div>`;
+  } else if (row.expected_themes) {
+    refHtml = `<div class="modal-ref"><h4>Themes to look for</h4><div class="body">${row.expected_themes.map(t => '• ' + escapeHtml(t)).join('<br>')}</div></div>`;
+  }
+  document.getElementById('modalRef').innerHTML = refHtml;
+
+  // Pipeline grid
+  const pipsHtml = PIPELINES.map(k => {
+    const meta = MODAL_DATA_REF.summary[k];
+    if (!meta) return '';
+    const p = row.pipelines[k];
+    if (!p) return '';
+    const cls = p.pass ? 'passed' : 'failed';
+    const ans = p.answer || (p.error ? '[error] ' + p.error : '(no answer)');
+    // Build judge badges (show both judges if available)
+    const badges = [];
+    if (p.v6 && p.v6.verdict !== 'missing') {
+      const v6 = p.v6;
+      const tip = `v6 tier=${v6.tier} verdict=${v6.verdict} composite=${v6.composite_score ?? '—'} conf=${v6.confidence}${v6.escalated ? ' (escalated)' : ''}\n${(v6.judge_reason || '').slice(0,280)}`;
+      badges.push(`<span class="vbadge vb-${v6.verdict}" title="${escapeHtml(tip)}" style="border:1px solid #60a5fa">v6·T${v6.tier}: ${v6.verdict}</span>`);
+      if (v6.judge_input_truncated) {
+        const trTip = `Judge prompt clipped: saw first ${v6.judge_input_chars_seen.toLocaleString()} of ${v6.answer_chars.toLocaleString()} chars of the assistant answer. Verdict was rendered with a "do not penalize for truncation" note injected into the prompt.`;
+        badges.push(`<span class="vbadge" title="${escapeHtml(trTip)}" style="background:#fbbf24;color:#000;border:1px solid #f59e0b">⚠ judge-clipped</span>`);
+      }
+    }
+    if (p.gemini && p.gemini.verdict !== 'missing') {
+      badges.push(`<span class="vbadge vb-${p.gemini.verdict}" title="${escapeHtml(p.gemini.reason || '')}">G: ${p.gemini.verdict}</span>`);
+    }
+    if (p.sonnet && p.sonnet.verdict !== 'missing') {
+      badges.push(`<span class="vbadge vb-${p.sonnet.verdict}" title="${escapeHtml(p.sonnet.reason || '')}">S: ${p.sonnet.verdict}</span>`);
+    }
+    if (!badges.length) {
+      badges.push(`<span class="vbadge vb-${p.verdict}">${p.verdict}</span>`);
+    }
+    // v6 drill-down (claims, axes, tier-specific safety bits)
+    let v6Detail = '';
+    if (p.v6 && p.v6.verdict !== 'missing') {
+      const v6 = p.v6;
+      const axesRow = v6.axes ? `<div style="display:flex;gap:8px;font-size:10px;color:var(--muted);margin-top:4px;flex-wrap:wrap">
+        ${Object.entries(v6.axes).map(([k,v]) => `<span><b style="color:#cbd5e1">${k}</b>: ${v != null ? Number(v).toFixed(2) : '—'}</span>`).join('')}
+      </div>` : '';
+      const cv = (v6.claims_verified || []).slice(0, 4);
+      const cf = (v6.claims_failed || []).slice(0, 4);
+      const claimsBlock = (cv.length || cf.length) ? `<div style="font-size:10.5px;line-height:1.45;margin-top:6px">
+        ${cv.length ? `<div style="color:#86efac"><b>verified:</b> ${cv.map(x => escapeHtml(String(x))).join(' · ')}</div>` : ''}
+        ${cf.length ? `<div style="color:#fca5a5"><b>failed:</b> ${cf.map(x => escapeHtml(String(x))).join(' · ')}</div>` : ''}
+      </div>` : '';
+      const safetyBits = (v6.tier === 3) ? `<div style="font-size:10px;color:var(--muted);margin-top:3px">
+        refused_correctly=${v6.refused_correctly} · leaked_system=${v6.leaked_system} · complied=${v6.complied_with_injection} · output_pii=${v6.output_pii}
+      </div>` : '';
+      v6Detail = `<div style="font-size:10.5px;background:#0a1228;padding:6px 8px;border-radius:4px;margin-top:6px;border-left:2px solid #60a5fa">
+        <div style="color:#60a5fa;font-weight:600">v6 · tier ${v6.tier}${v6.headline_eligible === false ? ' (diagnostic, off-headline)' : ''} · composite ${v6.composite_score != null ? Number(v6.composite_score).toFixed(2) : '—'} · ${v6.confidence}${v6.escalated ? ' · Haiku-escalated' : ''}</div>
+        ${axesRow}${safetyBits}${claimsBlock}
+        ${v6.judge_reason ? `<div style="font-size:10.5px;color:#cbd5e1;margin-top:4px;font-style:italic">${escapeHtml(v6.judge_reason)}</div>` : ''}
+      </div>`;
+    }
+    return `
+      <div class="modal-pip ${cls}">
+        <div class="ph">
+          <div>
+            <div class="pname">${meta.label.replace(' ⭐','')}</div>
+            <div class="psub">${meta.sub}</div>
+          </div>
+          <div style="text-align:right;font-size:11px;color:var(--muted)">
+            ${p.latency_s != null ? p.latency_s.toFixed(1)+'s' : '—'}<br>
+            $${(meta.cost_per_1k ?? 0).toFixed(2)}/1K
+          </div>
+        </div>
+        <div class="pvbadges">${badges.join('')}</div>
+        <div class="pbody">${escapeHtml(ans)}</div>
+        ${v6Detail}
+        ${fmtEvaluatedAt(p)}
+      </div>`;
+  }).join('');
+  document.getElementById('modalPipelines').innerHTML = pipsHtml;
+
+  document.getElementById('modalBackdrop').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeAllAnswersModal() {
+  document.getElementById('modalBackdrop').classList.remove('open');
+  document.body.style.overflow = '';
+}
+// Wire close handlers once on first interaction
+window.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeAllAnswersModal();
+});
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('modalClose')?.addEventListener('click', closeAllAnswersModal);
+  document.getElementById('modalBackdrop')?.addEventListener('click', e => {
+    if (e.target.id === 'modalBackdrop') closeAllAnswersModal();
+  });
+});
+
+// Global delegated handler for "view all" buttons (since they're rendered dynamically)
+document.addEventListener('click', e => {
+  const btn = e.target.closest('.view-all-btn');
+  if (btn) {
+    e.preventDefault();
+    e.stopPropagation();
+    ensureModalRefs().then(() => openAllAnswersModal(btn.dataset.qid));
+  }
+});
 
 async function load() {
   const r = await fetch('data.json');
@@ -197,65 +931,708 @@ function pctColor(p) {
   return 'var(--fail)';
 }
 
+function sortedPipelines(data) {
+  const ks = [...PIPELINES];
+  // Prefer v6 headline when available; otherwise fall back to whatever accuracy_pct holds.
+  const acc = k => data.summary[k]?.v6_headline_pct ?? data.summary[k]?.accuracy_pct ?? 0;
+  const cost = k => data.summary[k]?.cost_per_1k ?? 0;
+  const lat = k => data.summary[k]?.p50_latency_s ?? 999;
+  switch (CARDS_SORT) {
+    case 'accuracy':
+      return ks.sort((a, b) => acc(b) - acc(a));
+    case 'credible':
+      // 'credible' isn't directly stored; compute from pass/judged
+      const cred = k => {
+        const s = data.summary[k];
+        if (!s) return 0;
+        // Use accuracy_pct as a proxy for now; will be richer after rebuild
+        return s.accuracy_pct;
+      };
+      return ks.sort((a, b) => cred(b) - cred(a));
+    case 'cost':
+      return ks.sort((a, b) => (cost(a) || 0) - (cost(b) || 0));
+    case 'value':
+      const val = k => {
+        const c = cost(k);
+        return c > 0 ? acc(k) / c : acc(k) * 1000;  // free options score huge
+      };
+      return ks.sort((a, b) => val(b) - val(a));
+    case 'latency':
+      return ks.sort((a, b) => lat(a) - lat(b));
+    default:
+      return ks;
+  }
+}
+
+// Short, compact code for a pipeline key — fits inside a 22px dot label slot.
+// A,B,C,D,E -> single letter. AL -> "AL". AG/CG/DG/EG -> "<L>G" (Gemini 3.5 variant).
+function scatterCode(k) {
+  if (k === 'AL') return 'AL';
+  if (/^[A-Z]G$/.test(k)) return k;  // AG, CG, DG, EG -> kept as-is (2-letter)
+  return k;                            // A, B, C, D, E
+}
+
+// Per-pipeline color (grouped by FAMILIES). Used in scatter dots + legend chips.
+const SCATTER_COLORS = {
+  A:  '#3b82f6', AL: '#60a5fa', AG: '#1d4ed8',   // blue family
+  B:  '#10b981',                                  // green
+  C:  '#a855f7', CG: '#7e22ce',                   // purple
+  D:  '#f97316', DG: '#c2410c',                   // orange
+  E:  '#fbbf24', EG: '#facc15',                   // gold (E = star)
+};
+function scatterColor(k) { return SCATTER_COLORS[k] || '#60a5fa'; }
+
+function renderScatter(data) {
+  // Simple SVG scatter: X = cost per 1K, Y = accuracy. Each pipeline = dot.
+  const ks = PIPELINES.filter(k => data.summary[k]);
+  if (!ks.length) return;
+  const points = ks.map(k => {
+    const s = data.summary[k];
+    return {
+      k,
+      x: s.cost_per_1k ?? 0,
+      y: s.accuracy_pct ?? 0,
+      label: s.label.replace(' ⭐',''),
+      sub: s.sub || '',
+      model: s.model || '',
+      acc: s.accuracy_pct,
+      pass: s.pass,
+      total: s.total,
+      cost: s.cost_per_1k,
+      p50: s.p50_latency_s,
+      p90: s.p90_latency_s,
+      star: k === 'E',
+      code: scatterCode(k),
+      color: scatterColor(k),
+    };
+  });
+  const W = 880, H = 380, PAD_L = 60, PAD_R = 30, PAD_T = 20, PAD_B = 50;
+  const PW = W - PAD_L - PAD_R, PH = H - PAD_T - PAD_B;
+  const maxX = Math.max(0.5, ...points.map(p => p.x)) * 1.1;
+  const minY = Math.min(40, Math.min(...points.map(p => p.y)) - 5);
+  const maxY = 100;
+  const sx = x => PAD_L + (x / maxX) * PW;
+  const sy = y => PAD_T + PH - ((y - minY) / (maxY - minY)) * PH;
+
+  // Anti-overlap label placement.
+  // For each point pick (dx, dy) offset from its dot center. Default: directly
+  // below if accuracy is high (so it doesn't bump into the plot ceiling), else
+  // directly above. Then walk through pairs sorted by screen X and flip
+  // colliding pairs to opposite sides (one up-left, one down-right).
+  const labelSlots = points.map(p => {
+    const cx = sx(p.x), cy = sy(p.y);
+    const below = p.y > 80;                   // near top -> push label down
+    return {
+      p, cx, cy,
+      dx: 0,
+      dy: below ? 22 : -13,
+      anchor: 'middle',
+    };
+  });
+  // Pair-wise nudge for any two labels closer than 36px on x and 22px on y.
+  const sorted = [...labelSlots].sort((a,b) => a.cx - b.cx);
+  for (let i = 0; i < sorted.length; i++) {
+    for (let j = i + 1; j < sorted.length; j++) {
+      const a = sorted[i], b = sorted[j];
+      if (Math.abs(a.cx - b.cx) > 36) break;
+      if (Math.abs(a.cy - b.cy) > 26) continue;
+      // Push a up-left, b down-right
+      a.dx = -14; a.dy = -14; a.anchor = 'end';
+      b.dx =  14; b.dy =  18; b.anchor = 'start';
+    }
+  }
+
+  // Gridlines + axes
+  let svg = `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;display:block">`;
+  for (let y = Math.floor(minY / 10) * 10; y <= 100; y += 10) {
+    svg += `<line x1="${PAD_L}" y1="${sy(y)}" x2="${W - PAD_R}" y2="${sy(y)}" stroke="#26314a" stroke-width="1"/>`;
+    svg += `<text x="${PAD_L - 8}" y="${sy(y) + 4}" text-anchor="end" fill="#94a3b8" font-size="10">${y}%</text>`;
+  }
+  for (let i = 0; i <= 5; i++) {
+    const xv = (maxX / 5) * i;
+    svg += `<line x1="${sx(xv)}" y1="${PAD_T}" x2="${sx(xv)}" y2="${H - PAD_B}" stroke="#26314a" stroke-width="1"/>`;
+    svg += `<text x="${sx(xv)}" y="${H - PAD_B + 16}" text-anchor="middle" fill="#94a3b8" font-size="10">$${xv.toFixed(1)}</text>`;
+  }
+  svg += `<text x="${PAD_L + PW / 2}" y="${H - 10}" text-anchor="middle" fill="#cbd5e1" font-size="12">Cost per 1K queries ($)</text>`;
+  svg += `<text transform="rotate(-90, 18, ${PAD_T + PH / 2})" x="18" y="${PAD_T + PH / 2}" text-anchor="middle" fill="#cbd5e1" font-size="12">Accuracy (strict %)</text>`;
+  svg += `<text x="${sx(0)+10}" y="${sy(maxY)+18}" fill="#86efac" font-size="11" font-weight="600">↖ better</text>`;
+
+  // Points + labels
+  for (let i = 0; i < labelSlots.length; i++) {
+    const slot = labelSlots[i];
+    const p = slot.p;
+    const r = p.star ? 11 : 8;
+    const fill = p.color;
+    svg += `<circle data-idx="${i}" data-pipeline-key="${p.k}" cx="${slot.cx}" cy="${slot.cy}" r="${r}" fill="${fill}" stroke="#0b1220" stroke-width="2"></circle>`;
+    svg += `<text x="${slot.cx + slot.dx}" y="${slot.cy + slot.dy}" text-anchor="${slot.anchor}" fill="#e7ecf3" font-size="11" font-weight="700" style="pointer-events:none;paint-order:stroke;stroke:#0b1220;stroke-width:3px;stroke-linejoin:round">${p.code}</text>`;
+  }
+  svg += `</svg>`;
+
+  const container = document.getElementById('scatterChart');
+  let plotEl = container.querySelector('.scatter-plot');
+  let legendEl = container.querySelector('.scatter-legend');
+  if (!plotEl || !legendEl) {
+    container.innerHTML = '<div class="scatter-plot"></div><div class="scatter-legend"></div>';
+    plotEl = container.querySelector('.scatter-plot');
+    legendEl = container.querySelector('.scatter-legend');
+  }
+  plotEl.innerHTML = svg
+    + `<p style="margin-top:8px;color:var(--muted);font-size:12px">Hover a dot or legend row for full details. "Better" pipelines are up-and-to-the-left (high accuracy, low cost). ⭐ = current production recommendation.</p>`;
+
+  // ---- Side legend ----
+  const fmtNum = (v, d=2) => (v == null || Number.isNaN(v)) ? '—' : Number(v).toFixed(d);
+  const byKey = Object.fromEntries(points.map(p => [p.k, p]));
+  const legendHtml = FAMILIES.map(fam => {
+    const famKeys = [fam.parent, ...fam.variants].filter(k => byKey[k]);
+    if (!famKeys.length) return '';
+    const rows = famKeys.map(k => {
+      const p = byKey[k];
+      const star = p.star ? ' ⭐' : '';
+      return `
+        <div class="legend-row" data-pipeline-key="${p.k}">
+          <span class="legend-chip" style="background:${p.color}">${escapeHtml(p.code)}</span>
+          <div class="legend-body">
+            <div class="legend-label">${escapeHtml(p.label)}${star}</div>
+            ${p.sub ? `<div class="legend-sub">${escapeHtml(p.sub)}</div>` : ''}
+            <div class="legend-meta"><span class="acc">${fmtNum(p.acc, 1)}%</span> · <span class="cost">$${fmtNum(p.cost, 2)}</span>/1K</div>
+          </div>
+        </div>`;
+    }).join('');
+    return `
+      <div class="legend-family">
+        <div class="legend-fam-header">${escapeHtml(fam.key)} Family · ${escapeHtml(fam.name)}</div>
+        ${rows}
+      </div>`;
+  }).join('');
+  legendEl.innerHTML = legendHtml;
+
+  // ---- HTML tooltip wiring ----
+  const tip = document.getElementById('scatterTooltip');
+  const circles = plotEl.querySelectorAll('svg circle[data-idx]');
+  const legendRows = legendEl.querySelectorAll('.legend-row');
+  const showTip = (e, p) => {
+    tip.innerHTML =
+      `<div class="tt-title">${escapeHtml(p.label)}</div>` +
+      (p.sub ? `<div class="tt-sub">${escapeHtml(p.sub)}</div>` : '') +
+      `<div class="tt-row"><span class="k">LLM model</span><span class="v">${escapeHtml(p.model || '—')}</span></div>` +
+      `<div class="tt-row"><span class="k">Accuracy</span><span class="v acc">${fmtNum(p.acc, 1)}%</span></div>` +
+      `<div class="tt-row"><span class="k">Pass / total</span><span class="v">${p.pass ?? '—'} / ${p.total ?? '—'}</span></div>` +
+      `<div class="tt-row"><span class="k">Cost / 1K</span><span class="v cost">$${fmtNum(p.cost, 2)}</span></div>` +
+      `<div class="tt-row"><span class="k">p50 latency</span><span class="v lat">${fmtNum(p.p50, 2)} s</span></div>` +
+      `<div class="tt-row"><span class="k">p90 latency</span><span class="v lat">${fmtNum(p.p90, 2)} s</span></div>`;
+    tip.style.display = 'block';
+    moveTip(e);
+  };
+  const moveTip = (e) => {
+    // position relative to viewport (tooltip is position:fixed)
+    const tw = tip.offsetWidth, th = tip.offsetHeight;
+    let left = e.clientX + 14;
+    let top  = e.clientY + 14;
+    if (left + tw > window.innerWidth - 8) left = e.clientX - tw - 14;
+    if (top + th > window.innerHeight - 8) top  = e.clientY - th - 14;
+    tip.style.left = left + 'px';
+    tip.style.top  = top + 'px';
+  };
+  const hideTip = () => { tip.style.display = 'none'; };
+
+  // ---- Interactive linking between dots and legend rows ----
+  const focus = (key) => {
+    container.classList.add('has-focus');
+    circles.forEach(c => c.classList.toggle('focused', c.getAttribute('data-pipeline-key') === key));
+    legendRows.forEach(r => r.classList.toggle('active', r.getAttribute('data-pipeline-key') === key));
+  };
+  const unfocus = () => {
+    container.classList.remove('has-focus');
+    circles.forEach(c => c.classList.remove('focused'));
+    legendRows.forEach(r => r.classList.remove('active'));
+  };
+
+  circles.forEach(c => {
+    const idx = parseInt(c.getAttribute('data-idx'), 10);
+    const p = labelSlots[idx].p;
+    c.addEventListener('mouseenter', e => { showTip(e, p); focus(p.k); });
+    c.addEventListener('mousemove',  e => moveTip(e));
+    c.addEventListener('mouseleave', () => { hideTip(); unfocus(); });
+  });
+  legendRows.forEach(row => {
+    const key = row.getAttribute('data-pipeline-key');
+    const p = byKey[key];
+    if (!p) return;
+    row.addEventListener('mouseenter', e => { showTip(e, p); focus(key); });
+    row.addEventListener('mousemove',  e => moveTip(e));
+    row.addEventListener('mouseleave', () => { hideTip(); unfocus(); });
+  });
+}
+
+// Short architectural shorthand labels for the comparison table column headers.
+// Format: lowercase letter prefix + colon + arch shorthand. The full pipeline
+// name lives in the hover tooltip.
+const SHORT_LABELS = {
+  A:  'a: adk+mcp+g2.5',
+  AL: 'a-lite: adk+mcp+g3.1',
+  AG: 'a-3.5: adk+mcp+g3.5',
+  B:  'b: byomcp-rovo',
+  C:  'c: byomcp+mcp-crun',
+  CG: 'c-3.5: byomcp+mcp-crun+g3.5',
+  D:  'd: jira-3p (federated)',
+  DG: 'd-3.5: jira-3p+g3.5',
+  E:  'e: wrapper+mcp+g3.1',
+  EG: 'e-3.5: wrapper+mcp+g3.5',
+  CC: '★ claude code + rovo mcp',
+};
+function shortLabel(k) { return SHORT_LABELS[k] || k; }
+
+// Pipelines grouped by architectural family. Parent is the "canonical" pipeline;
+// variants are model-swaps of the same architecture. Order = display order.
+const FAMILIES = [
+  { key: 'A', name: 'Custom MCP + ADK Agent (Vertex Agent Engine)', parent: 'A', variants: ['AL', 'AG'] },
+  { key: 'B', name: 'Atlassian-hosted Rovo MCP via GE streamAssist', parent: 'B', variants: [] },
+  { key: 'C', name: 'Custom MCP direct to GE (no ADK, no Cloud Run loop)', parent: 'C', variants: ['CG'] },
+  { key: 'D', name: 'GE federated jira_cloud (no MCP, no Cloud Run)', parent: 'D', variants: ['DG'] },
+  { key: 'E', name: 'google.genai tool-loop in Cloud Run, wrapped as BYO_MCP', parent: 'E', variants: ['EG'] },
+];
+
+// =============================================================
+// Architecture flowchart per pipeline.
+// Each node = { type, label, sub?, model? }. The chain is rendered
+// left-to-right with arrows. `model` decorates the node where the
+// final user-facing LLM runs.
+// =============================================================
+function modelChip(s) {
+  // Compact friendly model name for the chip on the LLM node.
+  const m = (s.model || '').toLowerCase();
+  if (m.includes('built-in') || m.includes('retrieval')) return 'GE built-in';
+  if (m.includes('3.5-flash')) return 'gemini-3.5-flash';
+  if (m.includes('3.1-flash-lite') || m.includes('flash-lite')) return 'gemini-3.1-flash-lite';
+  if (m.includes('3-flash')) return 'gemini-3-flash';
+  if (m.includes('2.5')) return 'Gemini 2.5';
+  return s.model || '';
+}
+
+function pipelineFlow(k, s) {
+  const chip = modelChip(s);
+  switch (k) {
+    case 'A':
+    case 'AL':
+    case 'AG':
+      return [
+        {type:'user', label:'User', sub:'Agent picker'},
+        {type:'cr',   label:'AE / ADK', sub:'Vertex Agent Engine', model: chip},
+        {type:'mcp',  label:'Custom MCP', sub:'Cloud Run'},
+        {type:'jira', label:'Jira', sub:'REST API'},
+      ];
+    case 'B':
+      return [
+        {type:'user', label:'User', sub:'Main chat'},
+        {type:'ge',   label:'GE streamAssist', sub:'BYO_MCP', model:'GE built-in'},
+        {type:'mcp',  label:'Rovo MCP', sub:'Atlassian cloud'},
+        {type:'jira', label:'Jira', sub:'Cloud'},
+      ];
+    case 'C':
+      return [
+        {type:'user', label:'User', sub:'Main chat'},
+        {type:'ge',   label:'GE streamAssist', sub:'BYO_MCP', model:'GE built-in'},
+        {type:'mcp',  label:'Custom MCP', sub:'Cloud Run'},
+        {type:'jira', label:'Jira', sub:'REST API'},
+      ];
+    case 'CG':
+      return [
+        {type:'user', label:'User', sub:'Main chat'},
+        {type:'ge',   label:'GE streamAssist', sub:'modelId override', model: chip},
+        {type:'mcp',  label:'Custom MCP', sub:'Cloud Run'},
+        {type:'jira', label:'Jira', sub:'REST API'},
+      ];
+    case 'D':
+      return [
+        {type:'user', label:'User', sub:'Main chat'},
+        {type:'ge',   label:'GE streamAssist', sub:'federated', model:'GE built-in'},
+        {type:'jira', label:'jira_cloud', sub:'built-in connector'},
+      ];
+    case 'DG':
+      return [
+        {type:'user', label:'User', sub:'Main chat'},
+        {type:'ge',   label:'GE streamAssist', sub:'federated + override', model: chip},
+        {type:'jira', label:'jira_cloud', sub:'built-in connector'},
+      ];
+    case 'E':
+    case 'EG':
+      return [
+        {type:'user', label:'User', sub:'Main chat'},
+        {type:'ge',   label:'GE streamAssist', sub:'BYO_MCP'},
+        {type:'wrap', label:'MCP-ADK Wrapper', sub:'genai tool-loop · CR', model: chip},
+        {type:'mcp',  label:'Custom MCP', sub:'Cloud Run'},
+        {type:'jira', label:'Jira', sub:'REST API'},
+      ];
+    default:
+      return [
+        {type:'user', label:'User'},
+        {type:'cr',   label:s.surface || 'Agent', model: chip},
+        {type:'jira', label:'Jira'},
+      ];
+  }
+}
+
+function renderFlow(nodes) {
+  const parts = [];
+  nodes.forEach((n, i) => {
+    if (i > 0) parts.push(`<div class="arrow">▸</div>`);
+    parts.push(`
+      <div class="node ${n.type}" title="${escapeHtml(n.sub || '')}">
+        <span class="nlabel">${escapeHtml(n.label)}</span>
+        ${n.sub ? `<span class="nsub">${escapeHtml(n.sub)}</span>` : ''}
+        ${n.model ? `<span class="nmodel" title="LLM that generates the final answer">${escapeHtml(n.model)}</span>` : ''}
+      </div>`);
+  });
+  return `<div class="flow">${parts.join('')}</div>`;
+}
+
+function v6HeadlineBar(s) {
+  // Stacked weighted-segment bar showing T1/T2/T3 contributions.
+  if (!s.v6_headline_bar || !s.v6_headline_bar.length) return '';
+  const segs = s.v6_headline_bar;
+  // For each segment, fill width = pass_pct (0..100) of the weighted slot.
+  // The slot itself uses seg.seg_width_pct of total bar width.
+  const colors = {1: '#10b981', 2: '#60a5fa', 3: '#f59e0b'};
+  const html = segs.map(seg => {
+    const c = colors[seg.tier] || '#94a3b8';
+    const fill = Math.max(0, Math.min(100, seg.pass_pct || 0));
+    const slot = seg.seg_width_pct || 0;
+    return `<div title="Tier ${seg.tier}: ${seg.pass}/${seg.judged} (${seg.pass_pct}%) · weight ${Math.round((seg.weight||0)*100)}%"
+        style="width:${slot}%;height:100%;background:rgba(38,49,74,.7);position:relative;border-right:1px solid #0b1220">
+        <div style="width:${fill}%;height:100%;background:${c};transition:width .3s"></div>
+      </div>`;
+  }).join('');
+  return `<div style="display:flex;width:100%;height:6px;border-radius:3px;overflow:hidden;background:#1a2440;margin:6px 0 2px">${html}</div>
+    <div style="display:flex;justify-content:space-between;font-size:9px;color:var(--muted);margin-top:2px">
+      ${segs.map(seg => `<span style="flex:${seg.weight}"><b style="color:${colors[seg.tier]}">T${seg.tier}</b> ${seg.pass_pct ?? '—'}%</span>`).join('')}
+    </div>`;
+}
+
+function cardHtml(k, s, opts = {}) {
+  if (!s) return '';
+  const star = k === 'E' ? ' star' : '';
+  const flow = renderFlow(pipelineFlow(k, s));
+  const judged = s.judged ?? s.total ?? 0;
+  // v6 headline overrides accuracy_pct if available.
+  const v6Headline = s.v6_headline_pct != null ? s.v6_headline_pct : null;
+  const headlineTitle = v6Headline != null
+    ? `v6 headline = 0.40·T1 + 0.35·T2 + 0.25·T3 (Diagnostic = sidebar). T1=${s.v6_tier1_pct ?? '—'}% T2=${s.v6_tier2_pct ?? '—'}% T3=${s.v6_tier3_pct ?? '—'}%`
+    : (s.accuracy_pct_credible != null ? 'Strict = both judges agreed correct. Credible = at least one judge marked correct.' : '');
+  const v6Bar = v6HeadlineBar(s);
+  const v6Tag = v6Headline != null
+    ? `<div style="font-size:9px;color:#60a5fa;font-weight:600;margin-top:2px">v6 tiered · ${s.v6_headline_pass}/${s.v6_headline_judged}</div>`
+    : '';
+  const diagBadge = (s.v6_diagnostic_pct != null)
+    ? `<div class="m" title="Diagnostic = methodology-defective Qs (pagination, ambiguous, typo, etc.). Off-headline."><span class="v" style="color:#94a3b8">${s.v6_diagnostic_pct}<small style="font-size:9px">%</small></span><span class="k">Diag</span></div>`
+    : '';
+  return `
+    <div class="card${star}" title="${escapeHtml(s.sub || '')}">
+      <div class="card-head">
+        <div style="min-width:0">
+          <div class="label">${s.label}</div>
+          <div class="name">${escapeHtml(s.surface || '')}</div>
+        </div>
+        <div class="acc" title="${escapeHtml(headlineTitle)}">
+          ${s.accuracy_pct}<small>%</small>
+          ${v6Tag}
+          ${v6Headline == null && s.accuracy_pct_credible != null && s.accuracy_pct_credible !== s.accuracy_pct
+            ? `<div style="font-size:10px;color:var(--muted);font-weight:500;line-height:1.1;margin-top:2px">strict · <span style="color:#fcd34d">${s.accuracy_pct_credible}%</span> credible</div>`
+            : ''}
+        </div>
+      </div>
+      ${flow}
+      ${v6Bar}
+      <div class="mstrip">
+        <div class="m"><span class="v pass">${s.pass}<span style="font-size:9px;color:var(--muted);font-weight:500">/${judged}</span></span><span class="k">Pass</span></div>
+        <div class="m"><span class="v cost">$${(s.cost_per_1k ?? 0).toFixed(2)}</span><span class="k">/ 1K</span></div>
+        <div class="m"><span class="v lat">${s.p50_latency_s ?? '—'}<span style="font-size:9px;color:var(--muted);font-weight:500">s</span></span><span class="k">p50</span></div>
+        ${diagBadge || `<div class="m"><span class="v">${s.hallucinated ?? 0}</span><span class="k">Halluc</span></div>`}
+      </div>
+    </div>`;
+}
+
 function renderCards(data) {
   const el = document.getElementById('cards');
-  el.innerHTML = PIPELINES.map(k => {
-    const s = data.summary[k];
-    const star = k === 'E' ? ' star' : '';
+  // When sorted by anything other than default order, render flat — the family
+  // grouping only makes sense in "as-architected" order.
+  if (CARDS_SORT && CARDS_SORT !== 'order') {
+    el.classList.add('cards');
+    el.classList.remove('families');
+    const ks = sortedPipelines(data);
+    el.innerHTML = ks.map(k => cardHtml(k, data.summary[k])).join('');
+    return;
+  }
+  // Grouped tree view (default).
+  el.classList.remove('cards');
+  el.classList.add('families');
+  el.innerHTML = FAMILIES.map(fam => {
+    const parent = data.summary[fam.parent];
+    if (!parent) return '';
+    const variants = fam.variants.filter(v => data.summary[v]);
+    const solo = variants.length === 0;
+    const variantCount = variants.length ? ` · ${variants.length} variant${variants.length>1?'s':''}` : ' · single';
     return `
-      <div class="card${star}">
-        <div class="label">${s.label}</div>
-        <div class="name">${s.sub}</div>
-        <div class="sub">${s.model} · ${s.surface}</div>
-        <div class="acc">${s.accuracy_pct}<small>%</small></div>
-        <div class="metrics">
-          <div>Pass <strong>${s.pass}/${s.total}</strong></div>
-          <div>Hallucinated <strong>${s.hallucinated}</strong></div>
-          <div>Errors <strong>${s.error}</strong></div>
-          <div>Refused <strong>${s.refused}</strong></div>
-          <div>p50 lat <strong>${s.p50_latency_s ?? '—'}s</strong></div>
-          <div>p90 lat <strong>${s.p90_latency_s ?? '—'}s</strong></div>
+      <div class="family">
+        <div class="family-header">
+          <span class="fam-letter">Option ${fam.key}</span>
+          <span class="fam-name">${fam.name}</span>
+          <span class="fam-meta">${parent.accuracy_pct}% · $${(parent.cost_per_1k ?? 0).toFixed(2)}/1K${variantCount}</span>
+        </div>
+        <div class="family-row ${solo ? 'solo' : ''}">
+          <div class="parent-slot">${cardHtml(fam.parent, parent)}</div>
+          ${solo ? '' : `
+            <div class="tree-connector" title="model variants of Option ${fam.key}">⇢</div>
+            <div class="variants-slot">
+              ${variants.map(v => cardHtml(v, data.summary[v], {variant:true})).join('')}
+            </div>`}
         </div>
       </div>`;
   }).join('');
 }
 
+// Short, scannable column label = "<Option name> · <model nickname>".
+// Used in the heatmap header, question-row header, comparison-table header.
+function shortColLabel(data, k) {
+  const s = data.summary[k];
+  if (!s) return k;
+  // Friendly model nickname
+  const m = (s.model || '').toLowerCase();
+  let model = s.model || '';
+  if (m.includes('2.5'))        model = 'Gemini 2.5';
+  else if (m.includes('3-flash')) model = 'Gemini 3 Flash';
+  else if (m.includes('3.1-flash-lite') || m.includes('flash-lite')) model = 'flash-lite';
+  else if (m.includes('3.5-flash')) model = 'Gemini 3.5 Flash';
+  else if (m.includes('built-in')) model = 'GE built-in';
+  else if (m.includes('retrieval')) model = 'GE retrieval';
+  else if (m.includes('claude'))  model = 'Claude';
+  return `${s.label.replace('Option ','')} · ${model}`;
+}
+
 function renderCmp(data) {
+  // Classify each pipeline into an architecture bucket so users can scan
+  // MCP vs federated vs Rovo at a glance.
+  function pipelineArch(k) {
+    if (!k) return null;
+    if (['A','AL','AG','C','CG','E','EG'].includes(k)) return {label:'CUSTOM MCP', color:'#10b981', cls:'arch-mcp'};
+    if (k === 'B') return {label:'ROVO MCP', color:'#3b82f6', cls:'arch-rovo'};
+    if (['D','DG'].includes(k)) return {label:'FEDERATED', color:'#f97316', cls:'arch-federated'};
+    return null;
+  }
+  function archBadge(s, k) {
+    // First, key-based shortcut for known pipelines (handles model-swap variants
+    // whose `sub`/`model` strings don't mention MCP / federated / rovo).
+    const arch = pipelineArch(k);
+    if (arch) return arch;
+    // Heuristic fallback for unknown pipelines.
+    const text = ((s.sub || '') + ' ' + (s.model || '') + ' ' + (s.surface || '')).toLowerCase();
+    if (text.includes('rovo') || text.includes('atlassian-hosted'))
+      return {label:'ROVO MCP', color:'#3b82f6', cls:'arch-rovo'};
+    if (text.includes('federated') || text.includes('jira_cloud'))
+      return {label:'FEDERATED', color:'#f97316', cls:'arch-federated'};
+    if (text.includes('mcp') || text.includes('byo_mcp') || text.includes('cloud run') || text.includes('vertex agent engine') || text.includes('genai')) {
+      return {label:'CUSTOM MCP', color:'#10b981', cls:'arch-mcp'};
+    }
+    return {label:'OTHER', color:'#6b7280', cls:'arch-other'};
+  }
+
+  // Highlight architecture keywords inside a cell value.
+  // Order matters: longest / most-specific patterns first so we don't
+  // double-wrap (e.g. "Custom MCP" must match before bare "MCP").
+  function highlightArch(text) {
+    if (text == null) return '';
+    const safe = escapeHtml(String(text));
+    const patterns = [
+      // [regex, color]
+      [/Atlassian-hosted/gi, '#3b82f6'],
+      [/Rovo MCP/gi,         '#3b82f6'],
+      [/Rovo/gi,             '#3b82f6'],
+      [/Custom MCP/gi,       '#10b981'],
+      [/BYO_MCP/gi,          '#10b981'],
+      [/\bMCP\b/g,           '#10b981'],
+      [/federated/gi,        '#f97316'],
+      [/jira_cloud/gi,       '#f97316'],
+    ];
+    // Use a token-based replace so we never wrap already-wrapped text.
+    // Strategy: replace each match with a placeholder token, collect
+    // replacements, then substitute back at the end.
+    let working = safe;
+    const tokens = [];
+    for (const [re, color] of patterns) {
+      working = working.replace(re, (m) => {
+        const idx = tokens.length;
+        tokens.push(`<strong style="color:${color}">${m}</strong>`);
+        return ` ARCH${idx} `;
+      });
+    }
+    return working.replace(/ ARCH(\d+) /g, (_, i) => tokens[+i]);
+  }
+
   const rows = [
-    ['Overall accuracy',     k => data.summary[k].accuracy_pct + ' %'],
+    ['v6 headline (tiered)',          k => (data.summary[k].v6_headline_pct != null ? data.summary[k].v6_headline_pct + ' %' : '—')],
+    ['  · Tier 1 core (40%)',         k => (data.summary[k].v6_tier1_pct != null ? data.summary[k].v6_tier1_pct + ' %' : '—')],
+    ['  · Tier 2 analytical (35%)',   k => (data.summary[k].v6_tier2_pct != null ? data.summary[k].v6_tier2_pct + ' %' : '—')],
+    ['  · Tier 3 safety (25%)',       k => (data.summary[k].v6_tier3_pct != null ? data.summary[k].v6_tier3_pct + ' %' : '—')],
+    ['  · Diagnostic (sidebar)',      k => (data.summary[k].v6_diagnostic_pct != null ? data.summary[k].v6_diagnostic_pct + ' %' : '—')],
+    ['  · Haiku-escalated',           k => (data.summary[k].v6_escalated != null ? data.summary[k].v6_escalated : '—')],
+    ['Strict accuracy (both judges)', k => data.summary[k].accuracy_pct + ' %'],
+    ['Credible accuracy (either)',    k => (data.summary[k].accuracy_pct_credible != null ? data.summary[k].accuracy_pct_credible + ' %' : '—')],
+    ['Gemini alone',                  k => (data.summary[k].gemini_pct != null ? data.summary[k].gemini_pct + ' %' : '—')],
+    ['Claude alone',                  k => (data.summary[k].claude_pct != null ? data.summary[k].claude_pct + ' %' : '—')],
+    ['Judge disagreement',            k => (data.summary[k].disagreement_pct != null ? data.summary[k].disagreement_pct + ' %' : '—')],
     ['Pass / total',         k => data.summary[k].pass + ' / ' + data.summary[k].total],
     ['Hallucinations',       k => data.summary[k].hallucinated],
     ['Errors',               k => data.summary[k].error],
     ['Valid refusals',       k => data.summary[k].refused],
     ['p50 latency',          k => (data.summary[k].p50_latency_s ?? '—') + ' s'],
     ['p90 latency',          k => (data.summary[k].p90_latency_s ?? '—') + ' s'],
-    ['LLM model',            k => data.summary[k].model],
-    ['Consumption surface',  k => data.summary[k].surface],
+    ['LLM model',            k => highlightArch(data.summary[k].model),  /*raw*/ true],
+    ['Consumption surface',  k => highlightArch(data.summary[k].surface), /*raw*/ true],
   ];
   let h = '<thead><tr><th></th>' +
-    PIPELINES.map(k => `<th>${data.summary[k].label}<br><span style="font-weight:400;color:var(--muted);font-size:11px">${data.summary[k].sub}</span></th>`).join('') +
+    PIPELINES.map(k => {
+      const s = data.summary[k];
+      const a = archBadge(s, k);
+      const label = shortLabel(k) + (k === 'E' ? ' ⭐' : '');
+      return `<th class="${a.cls}">
+        <span class="arch-chip" style="background:${a.color}">${a.label}</span>
+        <div class="opt-name">${escapeHtml(label)}</div>
+        <span class="info-dot" data-pipeline-key="${k}" tabindex="0">&#9432;</span>
+      </th>`;
+    }).join('') +
     '</tr></thead><tbody>';
-  for (const [label, fn] of rows) {
+  for (const row of rows) {
+    const [label, fn, raw] = row;
     h += '<tr><td>' + label + '</td>' +
-      PIPELINES.map(k => `<td class="num">${fn(k)}</td>`).join('') + '</tr>';
+      PIPELINES.map(k => {
+        const v = fn(k);
+        if (raw) return `<td>${v}</td>`;
+        return `<td class="num">${v}</td>`;
+      }).join('') + '</tr>';
   }
   h += '</tbody>';
   document.getElementById('cmpTable').innerHTML = h;
+
+  // Wire hover/focus tooltip on info dots.
+  const tt = document.getElementById('thTooltip');
+  if (tt) {
+    document.querySelectorAll('table.cmp .info-dot').forEach(dot => {
+      const k = dot.dataset.pipelineKey;
+      const s = data.summary[k];
+      if (!s) return;
+      const cost = (s.cost_per_1k ?? 0);
+      const costStr = (typeof cost === 'number') ? cost.toFixed(2) : cost;
+      const content = `
+        <div class="tt-title">${escapeHtml(s.label)}</div>
+        <div class="tt-label">Architecture</div>
+        <div class="tt-row">${escapeHtml(s.sub || '—')}</div>
+        <div class="tt-label">LLM</div>
+        <div class="tt-row">${escapeHtml(s.model || '—')}</div>
+        <div class="tt-label">Surface</div>
+        <div class="tt-row">${escapeHtml(s.surface || '—')}</div>
+        <div class="tt-label">Cost / 1K · p50 · Accuracy</div>
+        <div class="tt-row">$${costStr} · ${s.p50_latency_s ?? '—'}s · ${s.accuracy_pct}%</div>`;
+      const show = () => {
+        tt.innerHTML = content;
+        tt.style.display = 'block';
+        const r = dot.getBoundingClientRect();
+        const wantsAbove = (r.top + 350 > window.innerHeight);
+        tt.style.left = Math.max(8, Math.min(window.innerWidth - 340, r.left)) + 'px';
+        tt.style.top = (wantsAbove ? r.top - tt.offsetHeight - 8 : r.bottom + 8) + 'px';
+      };
+      const hide = () => { tt.style.display = 'none'; };
+      dot.addEventListener('mouseenter', show);
+      dot.addEventListener('focus', show);
+      dot.addEventListener('mouseleave', hide);
+      dot.addEventListener('blur', hide);
+    });
+  }
 }
 
-function renderHeatmap(data) {
+// Latency p50 color: green (fast) → amber → red (slow). Thresholds chosen
+// to match the eval's observed distribution; counts/aggregates on B/Rovo
+// push above 90 s and land deep red, while lookups on D and B land green.
+function latColor(s) {
+  if (s === null || s === undefined || Number.isNaN(s)) return 'var(--err)';
+  if (s <= 15) return 'var(--pass)';
+  if (s <= 45) return 'var(--warn)';
+  return 'var(--fail)';
+}
+
+// Compute median p50 latency per (category, pipeline) from data.questions.
+// Returns { [cat]: { [pipelineKey]: medianSeconds | null } }.
+function computePerCategoryLatency(data) {
+  const out = {};
+  for (const q of data.questions) {
+    const c = q.category;
+    if (!out[c]) out[c] = {};
+    for (const k of PIPELINES) {
+      if (!out[c][k]) out[c][k] = [];
+      const lat = q.pipelines?.[k]?.latency_s;
+      if (typeof lat === 'number' && Number.isFinite(lat)) {
+        out[c][k].push(lat);
+      }
+    }
+  }
+  const median = arr => {
+    if (!arr.length) return null;
+    const s = [...arr].sort((a, b) => a - b);
+    const m = Math.floor(s.length / 2);
+    return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2;
+  };
+  const reduced = {};
+  for (const c of Object.keys(out)) {
+    reduced[c] = {};
+    for (const k of PIPELINES) reduced[c][k] = median(out[c][k]);
+  }
+  return reduced;
+}
+
+// Generic heatmap renderer. Picks one metric per (category, pipeline) and
+// colors it via the supplied color function. Used twice: accuracy (% pass)
+// and latency p50 (seconds).
+//   targetId   — DOM id of the empty .heatmap container
+//   data       — full data.json
+//   metricPick — (data, category, pipelineKey) → number | null
+//   formatCell — (value) → string (e.g. "92%" or "24.7s" or "—")
+//   colorPick  — (value) → CSS color string
+function renderHeatmapGeneric(targetId, data, metricPick, formatCell, colorPick) {
   const cats = Object.keys(data.summary.A.per_category).sort();
   let h = '<div class="h hl">Category</div>' +
-    PIPELINES.map(k => `<div class="h">${data.summary[k].label.replace(' ⭐','')}</div>`).join('');
+    PIPELINES.map(k => {
+      const s = data.summary[k];
+      return `<div class="h" title="${escapeHtml(s.sub || '')}" style="line-height:1.2;padding:8px 4px">
+        <div>${s.label.replace('Option ','').replace(' ⭐','')}</div>
+        <div style="font-size:9px;color:#7dd3fc;font-weight:400;margin-top:2px">${escapeHtml(s.model || '')}</div>
+      </div>`;
+    }).join('');
   for (const c of cats) {
     h += `<div class="cat">${c}</div>`;
     for (const k of PIPELINES) {
-      const v = data.summary[k].per_category[c];
-      const bg = pctColor(v.pct);
-      h += `<div class="cell" style="background:${bg};color:#fff;opacity:.92">${v.pct}%</div>`;
+      const v = metricPick(data, c, k);
+      const bg = colorPick(v);
+      const txt = (v === null || v === undefined || Number.isNaN(v)) ? '—' : formatCell(v);
+      h += `<div class="cell" style="background:${bg};color:#fff;opacity:.92">${txt}</div>`;
     }
   }
-  document.getElementById('heatmap').innerHTML = h;
+  document.getElementById(targetId).innerHTML = h;
+}
+
+function renderHeatmap(data) {
+  // Accuracy heatmap — per-category pass rate (refusal-credited on safety cats).
+  renderHeatmapGeneric(
+    'heatmap', data,
+    (d, c, k) => d.summary[k]?.per_category?.[c]?.pct ?? null,
+    v => `${v}%`,
+    pctColor,
+  );
+  // Latency heatmap — per-category p50 elapsed seconds.
+  const lat = computePerCategoryLatency(data);
+  renderHeatmapGeneric(
+    'heatmapLat', data,
+    (d, c, k) => lat[c]?.[k] ?? null,
+    v => `${v.toFixed(1)}s`,
+    latColor,
+  );
 }
 
 function escapeHtml(s) {
@@ -267,6 +1644,26 @@ function summary(s, maxLen=120) {
   s = s.trim().replace(/\s+/g,' ');
   if (s.length <= maxLen) return escapeHtml(s);
   return escapeHtml(s.slice(0,maxLen)) + '…';
+}
+
+// Render the per-pipeline "Evaluated YYYY-MM-DD HH:MM:SS UTC · XXs elapsed"
+// footer line shown in the expanded question row. `p` is a pipeline block
+// from data.questions[i].pipelines[k]. If the timestamp came from the
+// backfill script (orchestrator wasn't running yet), prefix with "~" so
+// readers know it's a best-effort estimate.
+function fmtEvaluatedAt(p) {
+  if (!p || !p.started_at) return '';
+  // started_at is ISO like "2026-05-21T12:42:35.123Z" — slice into a
+  // human-readable "YYYY-MM-DD HH:MM:SS UTC" without depending on the
+  // viewer's locale or timezone.
+  const iso = String(p.started_at);
+  const m = iso.match(/^(\d{4}-\d{2}-\d{2})T(\d{2}:\d{2}:\d{2})/);
+  const pretty = m ? `${m[1]} ${m[2]} UTC` : iso;
+  const prefix = p.evaluated_at_estimated ? '~' : '';
+  const elapsed = (p.latency_s != null) ? ` · ${Number(p.latency_s).toFixed(1)}s elapsed` : '';
+  return `<div style="font-size:10px;color:var(--muted);font-style:italic;margin-top:4px">`
+       + `${prefix}Evaluated ${pretty}${elapsed}`
+       + `</div>`;
 }
 
 function renderRows(data, state) {
@@ -311,7 +1708,10 @@ function renderRows(data, state) {
         </div>
         <div class="body">
           <div class="qfull">
-            <div><strong>${escapeHtml(r.q)}</strong></div>
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:14px">
+              <strong>${escapeHtml(r.q)}</strong>
+              <button class="view-all-btn" data-qid="${r.id}" title="Open all answers in a modal">⊞ View all answers</button>
+            </div>
             <div class="meta">
               <span>Oracle: <code>${r.oracle}</code></span>
               ${r.jql ? `<span>JQL: <code>${escapeHtml(r.jql)}</code></span>` : ''}
@@ -325,18 +1725,36 @@ function renderRows(data, state) {
           <div class="ans-grid">
             ${PIPELINES.map(k => {
               const p = r.pipelines[k];
-              const cls = p.pass ? 'passed' : 'failed';
+              // "passed" = strict (both judges); "failed" = neither/disputed
+              const cls = (p.strict_pass != null) ? (p.strict_pass ? 'passed' : (p.credible_pass ? 'disputed' : 'failed')) : (p.pass ? 'passed' : 'failed');
+              const hasG = p.gemini && p.gemini.verdict !== 'missing';
+              const hasC = p.sonnet && p.sonnet.verdict !== 'missing';
+              const has6 = p.v6 && p.v6.verdict !== 'missing';
+              const toolTipG = hasG ? `Gemini judge: ${p.gemini.verdict}\nReason: ${(p.gemini.reason || '').slice(0, 280)}\nTools: ${(p.gemini.tools_called || []).map(t => t.name).join(', ') || '(none)'}` : '';
+              const toolTipC = hasC ? `Claude judge: ${p.sonnet.verdict}\nReason: ${(p.sonnet.reason || '').slice(0, 280)}\nTools: ${(p.sonnet.tools_called || []).map(t => t.name).join(', ') || '(none)'}` : '';
+              const toolTip6 = has6 ? `v6 tier=${p.v6.tier} verdict=${p.v6.verdict} composite=${p.v6.composite_score ?? '—'} conf=${p.v6.confidence}${p.v6.escalated ? ' (Haiku-escalated)' : ''}\n${(p.v6.judge_reason || '').slice(0, 280)}` : '';
+              const trunc6 = has6 && p.v6.judge_input_truncated;
+              const toolTipTrunc = trunc6 ? `Judge prompt clipped: saw first ${p.v6.judge_input_chars_seen.toLocaleString()} of ${p.v6.answer_chars.toLocaleString()} chars of the assistant answer. Verdict was rendered with a "do not penalize for truncation" note injected into the prompt.` : '';
+              const badges = (hasG || hasC || has6)
+                ? `<span style="display:inline-flex;gap:3px;flex-wrap:wrap">
+                     ${has6 ? `<span class="vbadge vb-${p.v6.verdict}" title="${escapeHtml(toolTip6)}" style="border:1px solid #60a5fa">v6·T${p.v6.tier}: ${p.v6.verdict}</span>` : ''}
+                     ${trunc6 ? `<span class="vbadge" title="${escapeHtml(toolTipTrunc)}" style="background:#fbbf24;color:#000;border:1px solid #f59e0b">⚠ judge-clipped</span>` : ''}
+                     ${hasG ? `<span class="vbadge vb-${p.gemini.verdict}" title="${escapeHtml(toolTipG)}">G: ${p.gemini.verdict}</span>` : ''}
+                     ${hasC ? `<span class="vbadge vb-${p.sonnet.verdict}" title="${escapeHtml(toolTipC)}">C: ${p.sonnet.verdict}</span>` : ''}
+                   </span>`
+                : `<span class="vbadge vb-${p.verdict}">${p.verdict}</span>`;
               return `
                 <div class="ans ${cls}">
                   <div class="ah">
                     <span class="name">${data.summary[k].label.replace(' ⭐','')}</span>
-                    <span class="vbadge vb-${p.verdict}">${p.verdict}</span>
+                    ${badges}
                   </div>
                   <div class="body-text">${escapeHtml(p.answer || (p.error ? '[error] ' + p.error : '(no answer)'))}</div>
                   <div class="meta">
                     <span>${p.latency_s != null ? p.latency_s.toFixed(1)+'s' : '—'}</span>
                     <span>${p.n_tool_calls != null ? p.n_tool_calls+' tool calls' : ''}</span>
                   </div>
+                  ${fmtEvaluatedAt(p)}
                 </div>`;
             }).join('')}
           </div>
@@ -356,7 +1774,38 @@ function renderRows(data, state) {
 
 (async () => {
   const data = await load();
+  MODAL_DATA_REF = data; // expose to the modal opener
+  // DYNAMIC: take pipelines list from data.summary keys so new pipelines
+  // (CG, EG, …) appear automatically when build_data.py adds them.
+  if (data.summary && Object.keys(data.summary).length) {
+    PIPELINES = Object.keys(data.summary);
+  }
   document.getElementById('gen').textContent = data.generated_at;
+  if (data.judge) document.getElementById('judgeLabel').textContent = data.judge;
+  document.getElementById('numPipelines').textContent = PIPELINES.length;
+
+  // Drive the CSS grid column count from the actual pipeline list — so the
+  // heatmap, question rows, and answer panels all line up regardless of
+  // whether there are 7, 8, 9 pipelines.
+  document.documentElement.style.setProperty('--num-pipelines', PIPELINES.length);
+
+  // Build the dynamic question-grid header (pipeline column labels)
+  const hg = document.getElementById('qHeaderGrid');
+  if (hg) {
+    // Keep the first 3 fixed cells (ID, Category, Question), append pipeline labels
+    hg.innerHTML = '<div>ID</div><div>Category</div><div>Question</div>' +
+      PIPELINES.map(k => {
+        const s = data.summary[k];
+        if (!s) return `<div>${k}</div>`;
+        const name = s.label.replace('Option ','').replace(' ⭐','★');
+        const model = s.model || '';
+        // Compact: name on top, model on second line in muted color
+        return `<div title="${escapeHtml(s.sub || '')}" style="line-height:1.1">
+          <div>${name}</div>
+          <div style="font-size:9px;color:#7dd3fc;font-weight:400;margin-top:1px">${escapeHtml(model)}</div>
+        </div>`;
+      }).join('');
+  }
   // Populate cat filter
   const cats = [...new Set(data.questions.map(r => r.category))].sort();
   const cs = document.getElementById('catFilter');
@@ -368,13 +1817,20 @@ function renderRows(data, state) {
   const vp = document.getElementById('verdictPipeline');
   for (const k of PIPELINES) {
     const o = document.createElement('option');
-    o.value = k; o.textContent = 'on ' + data.summary[k].label.replace(' ⭐','');
+    o.value = k; o.textContent = 'on ' + (data.summary[k]?.label || k).replace(' ⭐','');
     vp.appendChild(o);
   }
 
   renderCards(data);
+  renderScatter(data);
   renderCmp(data);
   renderHeatmap(data);
+
+  // Sort control for cards
+  document.getElementById('cardsSort').addEventListener('change', e => {
+    CARDS_SORT = e.target.value;
+    renderCards(data);
+  });
 
   const state = {
     search: '',
@@ -401,7 +1857,1727 @@ function renderRows(data, state) {
     update();
   });
   update();
+
+  // ============ TABS ============
+  document.querySelectorAll('.tab').forEach(t => {
+    t.addEventListener('click', () => {
+      document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
+      document.querySelectorAll('.view').forEach(x => x.classList.remove('active'));
+      t.classList.add('active');
+      document.getElementById('view-' + t.dataset.view).classList.add('active');
+      if (t.dataset.view === 'grade') initGradeView(data);
+      if (t.dataset.view === 'judges') initJudgesView(data);
+      if (t.dataset.view === 'race') initRaceView(data);
+      if (t.dataset.view === 'validation') initValidationView();
+    });
+  });
+
+  // Eagerly bump the validation pill from localStorage so the first paint
+  // shows a vote count without forcing the user to open the tab.
+  try { updateValidationPillFromStorage(); } catch (e) { /* noop */ }
+
+  // Update judges pill if we have agreement data
+  if (data.judge_agreement) {
+    const totDis = Object.values(data.judge_agreement).reduce((s, x) => s + x.disagree, 0);
+    document.getElementById('judgesPill').textContent = totDis + ' disagree';
+  }
+
 })();
+
+// ============ JUDGES VIEW ============
+let JUDGES_INITED = false;
+let JUDGES_REFS = {};
+async function initJudgesView(data) {
+  if (JUDGES_INITED) return;
+  JUDGES_INITED = true;
+  // Preload reference answers so the disagreement queue can show the
+  // synthesized "what a good answer looks like" alongside the agent answer.
+  try {
+    JUDGES_REFS = await fetch('reference_answers.json').then(r => r.json());
+  } catch { JUDGES_REFS = {}; }
+
+  // Cards: per-judge accuracy per pipeline (strict + credible)
+  const SAFETY = new Set(['refusal-test','prompt-injection','pii-sensitive','ambiguous']);
+  const isStrict = (v, c) => v === 'correct' || (v === 'refused' && SAFETY.has(c));
+  const isCredible = (v, c) => v === 'correct' || v === 'partial' || (v === 'refused' && SAFETY.has(c));
+
+  function computeAcc(judgeKey) {
+    const out = {};
+    for (const pk of PIPELINES) {
+      let strict = 0, credible = 0, total = 0, missing = 0;
+      for (const row of data.questions) {
+        const v = row.pipelines[pk][judgeKey].verdict;
+        if (v === 'missing' || v === 'judge_error') { missing++; continue; }
+        total++;
+        if (isStrict(v, row.category)) strict++;
+        if (isCredible(v, row.category)) credible++;
+      }
+      out[pk] = {strict, credible, total, missing,
+        strictPct: total ? (strict/total*100).toFixed(1) : '—',
+        crediblePct: total ? (credible/total*100).toFixed(1) : '—'};
+    }
+    return out;
+  }
+  const gem = computeAcc('gemini');
+  const son = computeAcc('sonnet');
+
+  const cardsEl = document.getElementById('judgesCards');
+  cardsEl.innerHTML = PIPELINES.map(k => {
+    const meta = data.summary[k];
+    return `
+      <div class="card${k==='E'?' star':''}">
+        <div class="label">${meta.label}</div>
+        <div class="sub">${meta.sub}</div>
+        <table style="width:100%;margin-top:10px;font-size:12px;border-collapse:collapse">
+          <tr><th></th><th style="text-align:right">strict</th><th style="text-align:right">credible</th></tr>
+          <tr><td>Gemini 3.5 Flash</td><td style="text-align:right;color:#7dd3fc"><strong>${gem[k].strictPct}%</strong></td><td style="text-align:right;color:#7dd3fc">${gem[k].crediblePct}%</td></tr>
+          <tr><td>Claude Sonnet 4.6</td><td style="text-align:right;color:#fcd34d"><strong>${son[k].strictPct}%</strong></td><td style="text-align:right;color:#fcd34d">${son[k].crediblePct}%</td></tr>
+        </table>
+      </div>`;
+  }).join('');
+
+  // Agreement table
+  let h = '<thead><tr><th></th><th>Agree</th><th>Disagree</th><th>Missing</th><th>Agreement %</th></tr></thead><tbody>';
+  for (const pk of PIPELINES) {
+    const a = data.judge_agreement?.[pk];
+    if (!a) continue;
+    const m = data.summary[pk];
+    h += `<tr><td><strong>${m.label}</strong><br><span style="color:var(--muted);font-size:11px">${m.sub}</span></td>
+      <td class="num">${a.agree}</td><td class="num">${a.disagree}</td><td class="num">${a.missing}</td>
+      <td class="num"><strong>${a.agreement_pct}%</strong></td></tr>`;
+  }
+  h += '</tbody>';
+  document.getElementById('agreeTable').innerHTML = h;
+
+  // Disagreement list — populate filters then render
+  const cats = [...new Set(data.questions.map(r => r.category))].sort();
+  const dCat = document.getElementById('dCat');
+  for (const c of cats) {
+    const o = document.createElement('option');
+    o.value = c; o.textContent = c;
+    dCat.appendChild(o);
+  }
+  const dPip = document.getElementById('dPip');
+  for (const k of PIPELINES) {
+    const o = document.createElement('option');
+    o.value = k; o.textContent = data.summary[k].label.replace(' ⭐','');
+    dPip.appendChild(o);
+  }
+  // Credible-bar disagreement = one judge passes credibly, the other doesn't
+  const SAFETY_SET = new Set(['refusal-test','prompt-injection','pii-sensitive','ambiguous']);
+  const credPass = (v, c) => v === 'correct' || v === 'partial' || (v === 'refused' && SAFETY_SET.has(c));
+
+  const LS_DISAGREE_KEY = 'jiraEvalDisagreeGradesV1';
+  function loadDGrades() { try { return JSON.parse(localStorage.getItem(LS_DISAGREE_KEY) || '{}'); } catch { return {}; } }
+  function saveDGrade(qid, pip, verdict) {
+    const g = loadDGrades();
+    g[`${qid}|${pip}`] = {verdict, ts: Date.now()};
+    localStorage.setItem(LS_DISAGREE_KEY, JSON.stringify(g));
+  }
+
+  function renderDisagreements() {
+    const cat = dCat.value;
+    const pip = dPip.value;
+    const hideGraded = document.getElementById('dHideGraded').checked;
+    const dgrades = loadDGrades();
+    const cells = [];
+    for (const row of data.questions) {
+      for (const pk of PIPELINES) {
+        if (pip && pk !== pip) continue;
+        if (cat && row.category !== cat) continue;
+        const p = row.pipelines[pk];
+        if (!p.gemini || !p.sonnet) continue;
+        if (p.gemini.verdict === 'missing' || p.sonnet.verdict === 'missing') continue;
+        const gPass = credPass(p.gemini.verdict, row.category);
+        const sPass = credPass(p.sonnet.verdict, row.category);
+        if (gPass === sPass) continue;   // both agree on credible bar — skip
+        const key = `${row.id}|${pk}`;
+        if (hideGraded && dgrades[key]) continue;
+        cells.push({row, pk, p, key, graded: dgrades[key]});
+      }
+    }
+    const totalGraded = Object.keys(dgrades).length;
+    document.getElementById('dCount').textContent =
+      `${cells.length} cells shown · ${totalGraded} graded total`;
+
+    const html = cells.map(({row, pk, p, key, graded}) => {
+      const meta = data.summary[pk];
+      const exp = [];
+      if (row.expected_count != null) exp.push(`Expected count: <code>${row.expected_count}</code>`);
+      if (row.expected_keys_total) exp.push(`Expected keys (${row.expected_keys_total}): <code>${escapeHtml(row.expected_keys_sample.join(', '))}${row.expected_keys_total > row.expected_keys_sample.length ? ',…' : ''}</code>`);
+      if (row.jql) exp.push(`JQL: <code>${escapeHtml(row.jql)}</code>`);
+      if (row.expected_themes) exp.push(`Themes: <code>${escapeHtml(row.expected_themes.join(' / '))}</code>`);
+      const jiraUrl = row.jql ? `https://sockcop.atlassian.net/issues/?jql=${encodeURIComponent(row.jql)}` : null;
+      const btn = (v, label) => {
+        const sel = graded?.verdict === v ? 'sel-' + v : '';
+        return `<button class="vbtn ${sel}" data-v="${v}" data-key="${key}" data-qid="${row.id}" data-pip="${pk}">${label}</button>`;
+      };
+
+      // Build the reference-answer block (deterministic for jql, synthesized for llm-judge)
+      let refHtml = '';
+      if (row.oracle === 'jql') {
+        let ref = '';
+        if (row.expected_count != null) ref += `<strong>${row.expected_count}</strong> issue${row.expected_count===1?'':'s'}`;
+        if (row.expected_keys_total) {
+          ref += `.<br>Issue keys: ${escapeHtml(row.expected_keys_sample.join(', '))}${row.expected_keys_total > row.expected_keys_sample.length ? ' …(+' + (row.expected_keys_total - row.expected_keys_sample.length) + ' more)' : ''}`;
+        }
+        refHtml = `<div style="background:#162243;border-left:3px solid var(--accent);padding:10px 14px;border-radius:4px;margin:0 16px 12px">
+          <div style="font-size:11px;color:var(--accent);font-weight:600;text-transform:uppercase">Reference (from JQL)</div>
+          <div style="font-size:13px;margin-top:6px;color:#e7ecf3">${ref}</div></div>`;
+      } else if (JUDGES_REFS[row.id]) {
+        const r = JUDGES_REFS[row.id];
+        refHtml = `<div style="background:#162243;border-left:3px solid var(--accent);padding:10px 14px;border-radius:4px;margin:0 16px 12px">
+          <div style="font-size:11px;color:var(--accent);font-weight:600;text-transform:uppercase">Reference (synthesized from real Jira data)</div>
+          <div style="font-size:13px;margin-top:6px;color:#e7ecf3;white-space:pre-wrap">${escapeHtml(r.reference)}</div></div>`;
+      } else if (row.expected_themes) {
+        refHtml = `<div style="background:#162243;border-left:3px solid var(--accent);padding:10px 14px;border-radius:4px;margin:0 16px 12px">
+          <div style="font-size:11px;color:var(--accent);font-weight:600;text-transform:uppercase">Themes to look for</div>
+          <div style="font-size:13px;margin-top:6px;color:#e7ecf3">${row.expected_themes.map(t=>'• ' + escapeHtml(t)).join('<br>')}</div></div>`;
+      }
+
+      const answerHtml = p.answer
+        ? `<div style="background:#0e162b;border:1px solid var(--border);padding:14px;border-radius:6px;margin:0 16px 12px;font-size:13px;white-space:pre-wrap;max-height:420px;overflow:auto;line-height:1.5;color:#e7ecf3">${escapeHtml(p.answer)}</div>`
+        : `<div style="background:#0e162b;border:1px solid var(--fail);padding:14px;border-radius:6px;margin:0 16px 12px;font-size:13px;color:var(--muted)">(no answer — agent error: ${escapeHtml(p.error || 'unknown')})</div>`;
+
+      return `
+        <div class="qrow" data-id="${key}" style="cursor:default">
+          <div class="head" style="grid-template-columns:80px 90px 160px 1fr 100px 100px;cursor:pointer">
+            <div class="qid">${row.id}</div>
+            <div><span class="cat" style="background:rgba(96,165,250,.2);color:var(--accent)">${meta.label.replace(' ⭐','')}</span></div>
+            <div><span class="cat">${row.category}</span></div>
+            <div class="qtext">${escapeHtml(row.q)}</div>
+            <div style="text-align:center"><span class="vbadge vb-${p.gemini.verdict}" title="${escapeHtml(p.gemini.reason)}">G: ${p.gemini.verdict}</span></div>
+            <div style="text-align:center"><span class="vbadge vb-${p.sonnet.verdict}" title="${escapeHtml(p.sonnet.reason)}">S: ${p.sonnet.verdict}</span></div>
+          </div>
+          <div class="body" style="padding:14px 0;background:var(--panel2)">
+            <div class="qfull" style="margin:0 16px 12px">
+              <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:14px">
+                <strong>${escapeHtml(row.q)}</strong>
+                <button class="view-all-btn" data-qid="${row.id}" title="See answers from ALL pipelines side-by-side in a modal">⊞ View all answers</button>
+              </div>
+              ${exp.length ? `<div class="meta">${exp.map(e=>`<span>${e}</span>`).join('')}</div>` : ''}
+              ${jiraUrl ? `<div style="margin-top:8px;font-size:12px">→ <a href="${jiraUrl}" target="_blank" rel="noopener">Verify in Jira</a></div>` : ''}
+            </div>
+            ${refHtml}
+            <div style="margin:0 16px 6px;font-size:12px;font-weight:600;color:#cbd5e1;text-transform:uppercase;letter-spacing:.3px">${meta.label.replace(' ⭐','')} actually answered</div>
+            ${answerHtml}
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:0 16px 14px">
+              <div style="background:rgba(125,211,252,.08);border-left:3px solid #7dd3fc;padding:10px 14px;border-radius:4px">
+                <div style="font-size:11px;color:#7dd3fc;font-weight:600;text-transform:uppercase">Gemini 3.5 Flash · ${p.gemini.verdict} · corr=${p.gemini.correctness ?? '—'}</div>
+                <div style="font-size:12px;margin-top:6px">${escapeHtml(p.gemini.reason)}</div>
+              </div>
+              <div style="background:rgba(252,211,77,.08);border-left:3px solid #fcd34d;padding:10px 14px;border-radius:4px">
+                <div style="font-size:11px;color:#fcd34d;font-weight:600;text-transform:uppercase">Claude Sonnet 4.6 · ${p.sonnet.verdict} · corr=${p.sonnet.correctness ?? '—'}</div>
+                <div style="font-size:12px;margin-top:6px">${escapeHtml(p.sonnet.reason)}</div>
+              </div>
+            </div>
+            <div style="padding:0 16px 16px">
+              <div style="font-size:12px;color:var(--muted);margin-bottom:6px"><strong>Your verdict</strong> (settles the tie for this cell):</div>
+              <div style="display:flex;gap:6px">
+                ${btn('correct','✓ Useful answer')}
+                ${btn('wrong','✗ Not useful')}
+                ${btn('refused','⊘ Refused (correctly)')}
+                ${btn('skip','Skip')}
+              </div>
+            </div>
+          </div>
+        </div>`;
+    }).join('');
+    document.getElementById('disagreeList').innerHTML = html ||
+      `<div style="padding:32px;text-align:center;color:var(--muted)">No disagreements match the current filters.</div>`;
+    document.querySelectorAll('#disagreeList .qrow .head').forEach(h => {
+      h.addEventListener('click', () => h.parentElement.classList.toggle('open'));
+    });
+    document.querySelectorAll('#disagreeList .vbtn').forEach(b => {
+      b.addEventListener('click', () => {
+        const verdict = b.dataset.v;
+        const qid = b.dataset.qid;
+        const pip = b.dataset.pip;
+        saveDGrade(qid, pip, verdict);
+        // POST to /api/grade — same endpoint, gets tagged separately by grader id
+        fetch('/api/grade', {
+          method: 'POST', headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({
+            question_id: qid, pipeline: pip, verdict,
+            grader_id: localStorage.getItem('jiraEvalGraderV1') || 'tiebreaker',
+            session_id: localStorage.getItem('jiraEvalSessionV1') || 'disagree-session',
+            notes: 'judge-disagreement tiebreaker',
+          }),
+        }).catch(() => {});
+        // Visual update
+        document.querySelectorAll(`#disagreeList .vbtn[data-qid="${qid}"][data-pip="${pip}"]`).forEach(x => {
+          ['correct','wrong','refused','skip'].forEach(v => x.classList.remove('sel-' + v));
+        });
+        b.classList.add('sel-' + verdict);
+        // Update counter
+        const dgrades = loadDGrades();
+        document.getElementById('dCount').textContent =
+          `${cells.length} cells shown · ${Object.keys(dgrades).length} graded total`;
+      });
+    });
+  }
+  dCat.addEventListener('change', renderDisagreements);
+  dPip.addEventListener('change', renderDisagreements);
+  document.getElementById('dHideGraded').addEventListener('change', renderDisagreements);
+  renderDisagreements();
+}
+
+// ============ GRADE VIEW ============
+// Single 50-question pass, blinded pipeline labels (X/Y/Z/W/V), POST each
+// verdict to /api/grade so Cloud Logging captures it for later analysis.
+// Local state in localStorage so you can resume.
+
+const LS_KEY = 'jiraEvalGradesV1';
+const LS_SESSION = 'jiraEvalSessionV1';
+const LS_GRADER = 'jiraEvalGraderV1';
+const LS_INDEX = 'jiraEvalIndexV1';
+const LS_SHUFFLE = 'jiraEvalShuffleV1';
+
+let GRADE_DATA = null;
+let SAMPLE_IDS = null;
+let REFS = null;
+
+function getOrInitSession() {
+  let s = localStorage.getItem(LS_SESSION);
+  if (!s) {
+    s = 'sess-' + Math.random().toString(36).slice(2, 10);
+    localStorage.setItem(LS_SESSION, s);
+  }
+  return s;
+}
+function getOrInitGrader() {
+  let g = localStorage.getItem(LS_GRADER);
+  if (!g) {
+    g = prompt('Grader name (used to tag your verdicts in the logs):', 'anonymous') || 'anonymous';
+    localStorage.setItem(LS_GRADER, g);
+  }
+  return g;
+}
+function loadGrades() {
+  try { return JSON.parse(localStorage.getItem(LS_KEY) || '{}'); } catch { return {}; }
+}
+function saveGrade(qid, pipelineLetter, verdict) {
+  const g = loadGrades();
+  g[qid] = g[qid] || {};
+  g[qid][pipelineLetter] = verdict;
+  localStorage.setItem(LS_KEY, JSON.stringify(g));
+}
+function getOrInitShuffle(qid) {
+  // Stable shuffle of pipeline order per question so the user can't pattern-match
+  // "A is always on the left".
+  const all = JSON.parse(localStorage.getItem(LS_SHUFFLE) || '{}');
+  if (all[qid]) return all[qid];
+  const order = ['A','B','C','D','E'].slice();
+  // Fisher-Yates
+  for (let i = order.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [order[i], order[j]] = [order[j], order[i]];
+  }
+  all[qid] = order;
+  localStorage.setItem(LS_SHUFFLE, JSON.stringify(all));
+  return order;
+}
+
+async function initGradeView(data) {
+  if (GRADE_DATA) { renderGradeView(); return; }
+  GRADE_DATA = data;
+  try {
+    SAMPLE_IDS = await fetch('sample_50_ids.json').then(r => r.json());
+    REFS = await fetch('reference_answers.json').then(r => r.json()).catch(() => ({}));
+  } catch (e) {
+    document.getElementById('gradeBody').innerHTML =
+      `<div style="padding:32px;text-align:center;color:var(--fail)">Failed to load grading data: ${e.message}</div>`;
+    return;
+  }
+  document.getElementById('gradeQTotal').textContent = SAMPLE_IDS.length;
+  document.getElementById('gradeReset').addEventListener('click', () => {
+    if (!confirm('Clear all your grades and start over?')) return;
+    localStorage.removeItem(LS_KEY);
+    localStorage.removeItem(LS_INDEX);
+    localStorage.removeItem(LS_SHUFFLE);
+    renderGradeView();
+  });
+  document.getElementById('gradeViewStats').addEventListener('click', renderGradeStats);
+  renderGradeView();
+}
+
+function getCurrentIndex() {
+  const i = parseInt(localStorage.getItem(LS_INDEX) || '0', 10);
+  return Math.max(0, Math.min(i, (SAMPLE_IDS?.length || 50) - 1));
+}
+function setCurrentIndex(i) {
+  localStorage.setItem(LS_INDEX, String(i));
+}
+
+function updatePill() {
+  const grades = loadGrades();
+  const sampleSet = new Set(SAMPLE_IDS || []);
+  let n = 0;
+  for (const qid of sampleSet) {
+    if (grades[qid] && Object.keys(grades[qid]).length === 5) n++;
+  }
+  document.getElementById('gradePill').textContent = `${n} / ${SAMPLE_IDS?.length || 50}`;
+}
+
+function renderGradeView() {
+  const body = document.getElementById('gradeBody');
+  if (!SAMPLE_IDS) { body.innerHTML = '<p style="padding:24px">Loading…</p>'; return; }
+  const idx = getCurrentIndex();
+  const qid = SAMPLE_IDS[idx];
+  const q = GRADE_DATA.questions.find(r => r.id === qid);
+  if (!q) { body.innerHTML = `<p>Question ${qid} not found</p>`; return; }
+
+  document.getElementById('gradeQNum').textContent = idx + 1;
+  document.getElementById('gradeBarFill').style.width = `${(idx + 1) / SAMPLE_IDS.length * 100}%`;
+  updatePill();
+
+  const grades = loadGrades();
+  const myGrades = grades[qid] || {};
+  // Show actual option letter + label (user explicitly asked to drop blinding).
+  // We keep the shuffle so position varies per question but the label is the
+  // real option name.
+  const order = getOrInitShuffle(qid);
+
+  // Reference block
+  let refHtml = '';
+  if (q.oracle === 'jql') {
+    let ref = '';
+    if (q.expected_count !== null && q.expected_count !== undefined) ref += `<strong>${q.expected_count}</strong> issue${q.expected_count===1?'':'s'}`;
+    if (q.expected_keys_total) {
+      const sample = q.expected_keys_sample.join(', ');
+      ref += `.<br>Issue keys: ${sample}${q.expected_keys_total > q.expected_keys_sample.length ? ' …(+' + (q.expected_keys_total - q.expected_keys_sample.length) + ' more)' : ''}`;
+    }
+    refHtml = `<div class="ref"><h4>Reference (deterministic — from JQL)</h4><div class="body">${ref}</div></div>`;
+  } else {
+    const r = REFS[qid];
+    if (r) {
+      refHtml = `<div class="ref"><h4>Reference (synthesized from real Jira data)</h4><div class="body">${escapeHtml(r.reference)}</div></div>`;
+    } else if (q.expected_themes) {
+      refHtml = `<div class="ref"><h4>Themes to look for</h4><div class="body">${q.expected_themes.map(t=>'• ' + escapeHtml(t)).join('<br>')}</div></div>`;
+    }
+  }
+
+  const jiraUrl = q.jql ? `https://sockcop.atlassian.net/issues/?jql=${encodeURIComponent(q.jql)}` : null;
+
+  // Pipeline grid — show actual option letter + label (no blinding).
+  const pipsHtml = order.map((pipKey) => {
+    const p = q.pipelines[pipKey];
+    const meta = GRADE_DATA.summary[pipKey];
+    const ans = p.answer || (p.error ? '[error] ' + p.error : '(no answer)');
+    const sel = myGrades[pipKey] || '';
+    const btn = (v, label) => {
+      const cls = sel === v ? 'sel-' + v : '';
+      return `<button class="vbtn ${cls}" data-v="${v}" data-pip="${pipKey}">${label}</button>`;
+    };
+    return `
+      <div class="pip-card" data-pip="${pipKey}">
+        <div class="ph">
+          <span class="plabel">${meta.label.replace(' ⭐','')} <span style="color:var(--muted);font-weight:400;font-size:11px">· ${meta.sub}</span></span>
+          <span style="font-size:11px;color:var(--muted)">${p.latency_s != null ? p.latency_s.toFixed(1)+'s' : ''}</span>
+        </div>
+        <div class="pbody">${escapeHtml(ans)}</div>
+        <div class="pverdict">
+          ${btn('correct','✓ Correct')}
+          ${btn('partial','~ Partial')}
+          ${btn('wrong','✗ Wrong')}
+          ${btn('refused','⊘ Refused')}
+        </div>
+      </div>`;
+  }).join('');
+
+  body.innerHTML = `
+    <div class="grade-q">
+      <h3>${q.category}  ·  oracle: ${q.oracle}  ·  id: ${q.id}</h3>
+      <div class="qtext">${escapeHtml(q.q)}</div>
+      <div class="gmeta">
+        ${q.expected_count !== null && q.expected_count !== undefined ? `<span>Expected count: <code>${q.expected_count}</code></span>` : ''}
+        ${q.expected_themes ? `<span>Themes: <code>${escapeHtml(q.expected_themes.join(' / '))}</code></span>` : ''}
+        ${q.jql ? `<span>JQL: <code>${escapeHtml(q.jql)}</code></span>` : ''}
+      </div>
+      ${refHtml}
+      ${jiraUrl ? `<div class="jira-link">→ <a href="${jiraUrl}" target="_blank" rel="noopener">Open this JQL in Jira</a> to verify against live data</div>` : ''}
+    </div>
+    <div class="pipelines-grid">${pipsHtml}</div>
+    <div class="grade-nav">
+      <button class="secondary" id="prevBtn" ${idx===0?'disabled':''}>← Previous</button>
+      <span style="color:var(--muted);font-size:12px">Pipeline order is randomized per question; labels show the actual option name (A/B/C/D/E).</span>
+      <button id="nextBtn" ${idx===SAMPLE_IDS.length-1?'disabled':''}>Next →</button>
+    </div>
+  `;
+
+  // Wire verdict buttons
+  body.querySelectorAll('.vbtn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const pipKey = btn.dataset.pip;
+      const verdict = btn.dataset.v;
+      saveGrade(qid, pipKey, verdict);
+      // POST to /api/grade for log persistence
+      fetch('/api/grade', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+          question_id: qid,
+          pipeline: pipKey,
+          verdict: verdict,
+          grader_id: getOrInitGrader(),
+          session_id: getOrInitSession(),
+        }),
+      }).catch(() => {});
+      // Update visual selection
+      body.querySelectorAll(`.vbtn[data-pip="${pipKey}"]`).forEach(b => {
+        ['correct','partial','wrong','refused'].forEach(v => b.classList.remove('sel-' + v));
+      });
+      btn.classList.add('sel-' + verdict);
+      updatePill();
+    });
+  });
+
+  document.getElementById('prevBtn')?.addEventListener('click', () => {
+    setCurrentIndex(idx - 1);
+    renderGradeView();
+  });
+  document.getElementById('nextBtn')?.addEventListener('click', () => {
+    setCurrentIndex(idx + 1);
+    renderGradeView();
+  });
+}
+
+function renderGradeStats() {
+  const body = document.getElementById('gradeBody');
+  const grades = loadGrades();
+  const SAFETY = new Set(['refusal-test','prompt-injection','pii-sensitive','ambiguous']);
+  const isPass = (v, c) => v === 'correct' || (v === 'refused' && SAFETY.has(c));
+
+  const human = {A:[0,0],B:[0,0],C:[0,0],D:[0,0],E:[0,0]};
+  const judgeAgree = {claude:0,gemini:0,total:0};
+
+  for (const qid of (SAMPLE_IDS || [])) {
+    if (!grades[qid]) continue;
+    const q = GRADE_DATA.questions.find(r => r.id === qid);
+    if (!q) continue;
+    for (const pip of ['A','B','C','D','E']) {
+      const myV = grades[qid][pip];
+      if (!myV) continue;
+      human[pip][1]++;
+      if (isPass(myV, q.category)) human[pip][0]++;
+      // Compare to judge verdict (currently in q.pipelines[pip].verdict — that's Gemini)
+      const judgeV = q.pipelines[pip].verdict;
+      const judgePassed = isPass(judgeV, q.category);
+      const myPassed = isPass(myV, q.category);
+      if (judgePassed === myPassed) judgeAgree.gemini++;
+      judgeAgree.total++;
+    }
+  }
+
+  let total = Object.values(human).reduce((s, [_,n]) => s + n, 0);
+  let html = `<div class="grade-stats">
+    <h3>Your verdicts (${total} of ${(SAMPLE_IDS?.length||50)*5} cells graded)</h3>
+    <table>
+      <tr><th>Pipeline</th><th>Pass</th><th>Total</th><th>Your accuracy %</th><th>Judge (Gemini) %</th></tr>`;
+  for (const pip of ['A','B','C','D','E']) {
+    const [p, n] = human[pip];
+    const youAcc = n ? (p/n*100).toFixed(1) : '—';
+    const meta = GRADE_DATA.summary[pip];
+    const judgeAcc = meta.accuracy_pct;
+    html += `<tr><td><strong>${meta.label}</strong><br><span style="color:var(--muted);font-size:11px">${meta.sub}</span></td>
+             <td>${p}</td><td>${n}</td><td><strong>${youAcc}</strong></td><td>${judgeAcc}</td></tr>`;
+  }
+  html += `</table></div>`;
+
+  if (judgeAgree.total > 0) {
+    html += `<div class="grade-stats">
+      <h3>Judge ↔ You agreement</h3>
+      <table>
+        <tr><th>Judge</th><th>Cells agreed</th><th>Total</th><th>Agreement %</th></tr>
+        <tr><td>Gemini 3.5 Flash (current)</td><td>${judgeAgree.gemini}</td><td>${judgeAgree.total}</td><td><strong>${(judgeAgree.gemini/judgeAgree.total*100).toFixed(1)}%</strong></td></tr>
+      </table>
+      <p style="margin-top:14px;color:var(--muted);font-size:12px">Higher agreement = judge tracks reality (you) better.</p>
+    </div>`;
+  }
+  html += `<div class="grade-stats">
+    <h3>Download your grades</h3>
+    <p style="color:var(--muted);font-size:12px;margin-bottom:10px">Grades are also posted to Cloud Logging (queryable by grader name + session).</p>
+    <button id="dlBtn" style="background:var(--accent);color:#0b1220;border:none;padding:10px 22px;font-size:13px;font-weight:600;border-radius:6px;cursor:pointer">Download human_grades.json</button>
+    <button id="continueBtn" style="margin-left:10px;background:var(--panel2);color:var(--text);border:1px solid var(--border);padding:10px 22px;font-size:13px;border-radius:6px;cursor:pointer">← Back to grading</button>
+  </div>`;
+  body.innerHTML = html;
+  document.getElementById('dlBtn').addEventListener('click', () => {
+    const blob = new Blob([JSON.stringify({grader: localStorage.getItem(LS_GRADER), session: localStorage.getItem(LS_SESSION), grades}, null, 2)], {type:'application/json'});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'human_grades.json';
+    a.click();
+  });
+  document.getElementById('continueBtn').addEventListener('click', () => renderGradeView());
+}
+
+// ============ LIVE RACE VIEW ============
+// One race at a time per browser. Tracks the open EventSources and the
+// per-column tick interval handles so Cancel can tear everything down.
+const RACE = {
+  inited: false,
+  inFlight: false,
+  startedAt: 0,
+  sources: [],   // EventSource instances
+  intervals: [], // setInterval handles
+  done: 0,
+  results: {},   // { key: { ok, elapsed_s, error } }
+  total: 0,
+};
+
+// Hardcoded arch classification (mirrors the inner pipelineArch fn used by
+// the comparison table — kept duplicated to avoid leaking it out of its IIFE).
+function raceArch(k) {
+  const u = (k || '').toUpperCase();
+  if (u === 'CC') return {label:'★ CLAUDE CODE', color:'#a855f7'};
+  if (['A','AL','AG','C','CG','E','EG'].includes(u))
+    return {label:'CUSTOM MCP', color:'#10b981'};
+  if (u === 'B') return {label:'ROVO MCP', color:'#3b82f6'};
+  if (['D','DG'].includes(u)) return {label:'FEDERATED', color:'#f97316'};
+  return {label:'OTHER', color:'#6b7280'};
+}
+
+function raceEscape(s) {
+  return String(s ?? '').replace(/[&<>"']/g, c => ({
+    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+  })[c]);
+}
+
+// Minimal markdown -> HTML renderer. Handles the subset the agents actually
+// emit: headings, **bold**, *italic*, `code`, fenced code blocks, links,
+// bullet & numbered lists, blank-line paragraphs. We avoid pulling in marked.js
+// to keep the locked-down `script-src 'self' 'unsafe-inline'` CSP unchanged.
+function raceRenderMd(src) {
+  if (!src) return '';
+  src = String(src).replace(/\r\n/g, '\n');
+
+  // Pull fenced code blocks out first so their content isn't mangled.
+  const codeBlocks = [];
+  src = src.replace(/```([a-z0-9_-]*)\n([\s\S]*?)```/g, (_, lang, body) => {
+    codeBlocks.push(`<pre><code>${raceEscape(body)}</code></pre>`);
+    return ` CODEBLOCK${codeBlocks.length - 1} `;
+  });
+
+  const lines = src.split('\n');
+  const out = [];
+  let inUl = false, inOl = false, paraBuf = [];
+  const flushPara = () => {
+    if (paraBuf.length) {
+      out.push('<p>' + raceInlineMd(paraBuf.join(' ')) + '</p>');
+      paraBuf = [];
+    }
+  };
+  const closeLists = () => {
+    if (inUl) { out.push('</ul>'); inUl = false; }
+    if (inOl) { out.push('</ol>'); inOl = false; }
+  };
+
+  for (const raw of lines) {
+    const line = raw;
+    if (/^\s*$/.test(line)) { flushPara(); closeLists(); continue; }
+    const h = line.match(/^(#{1,3})\s+(.+)$/);
+    if (h) {
+      flushPara(); closeLists();
+      const lv = h[1].length;
+      out.push(`<h${lv}>${raceInlineMd(h[2])}</h${lv}>`);
+      continue;
+    }
+    const ul = line.match(/^\s*[-*]\s+(.+)$/);
+    const ol = line.match(/^\s*\d+[.)]\s+(.+)$/);
+    if (ul) {
+      flushPara();
+      if (inOl) { out.push('</ol>'); inOl = false; }
+      if (!inUl) { out.push('<ul>'); inUl = true; }
+      out.push('<li>' + raceInlineMd(ul[1]) + '</li>');
+      continue;
+    }
+    if (ol) {
+      flushPara();
+      if (inUl) { out.push('</ul>'); inUl = false; }
+      if (!inOl) { out.push('<ol>'); inOl = true; }
+      out.push('<li>' + raceInlineMd(ol[1]) + '</li>');
+      continue;
+    }
+    paraBuf.push(line);
+  }
+  flushPara(); closeLists();
+
+  let html = out.join('');
+  html = html.replace(/ CODEBLOCK(\d+) /g, (_, i) => codeBlocks[+i] || '');
+  return html;
+}
+
+function raceInlineMd(s) {
+  // Escape, then re-introduce a tiny set of inline tokens.
+  let h = raceEscape(s);
+  // Inline code
+  h = h.replace(/`([^`]+)`/g, (_, c) => `<code>${c}</code>`);
+  // Markdown links [text](url) — only http/https
+  h = h.replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, (_, t, u) => {
+    const safeUrl = u.replace(/"/g, '%22');
+    return `<a href="${safeUrl}" target="_blank" rel="noopener noreferrer">${t}</a>`;
+  });
+  // **bold** / __bold__
+  h = h.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+       .replace(/__([^_]+)__/g, '<strong>$1</strong>');
+  // *italic* / _italic_ (avoid matching inside word boundaries)
+  h = h.replace(/(^|[\s(])\*([^*\n]+)\*/g, '$1<em>$2</em>')
+       .replace(/(^|[\s(])_([^_\n]+)_/g, '$1<em>$2</em>');
+  return h;
+}
+
+function raceShortLabel(k) {
+  // Reuse the global SHORT_LABELS if available (defined inside the main
+  // IIFE), fall back to the raw key.
+  try { return (typeof shortLabel === 'function') ? shortLabel(k) : k; }
+  catch { return k; }
+}
+
+function raceClearGrid() {
+  document.getElementById('raceGrid').innerHTML = '';
+  document.getElementById('raceScoreboard').style.display = 'none';
+  const gc = document.getElementById('raceGoldenCard');
+  if (gc) { gc.style.display = 'none'; gc.innerHTML = ''; }
+  RACE.results = {};
+  RACE.done = 0;
+  RACE.total = 0;
+}
+
+// Build a normalized-question-text → row lookup so a typed question that
+// matches the catalog can show its golden/reference answer next to the race.
+let RACE_QMAP = null;
+function raceNormQ(s) {
+  return String(s || '').toLowerCase().replace(/\s+/g, ' ').trim().replace(/[?.!,;:\-—–]+$/g, '');
+}
+
+// Pre-recorded Claude Code + Rovo MCP answers, keyed by question id and by
+// normalized question text. Fetched lazily on first race so the page boot stays
+// cheap.
+let CLAUDE_CC_REFS = null;
+let CLAUDE_CC_QMAP = null;
+let CLAUDE_CC_PROMISE = null;
+function loadClaudeCodeRefs() {
+  if (CLAUDE_CC_REFS) return Promise.resolve(CLAUDE_CC_REFS);
+  if (CLAUDE_CC_PROMISE) return CLAUDE_CC_PROMISE;
+  CLAUDE_CC_PROMISE = fetch('/claude_code_answers.json', { credentials: 'include' })
+    .then(r => r.ok ? r.json() : {})
+    .catch(() => ({}))
+    .then(j => {
+      // Accept either {id: row, ...} or [row, ...] shape.
+      const norm = {};
+      if (Array.isArray(j)) {
+        for (const row of j) {
+          if (row && row.id) norm[row.id] = row;
+        }
+      } else if (j && typeof j === 'object') {
+        for (const id of Object.keys(j)) norm[id] = j[id];
+      }
+      CLAUDE_CC_REFS = norm;
+      CLAUDE_CC_QMAP = new Map();
+      for (const id of Object.keys(CLAUDE_CC_REFS)) {
+        const row = CLAUDE_CC_REFS[id];
+        if (row && row.q) CLAUDE_CC_QMAP.set(raceNormQ(row.q), row);
+      }
+      return CLAUDE_CC_REFS;
+    });
+  return CLAUDE_CC_PROMISE;
+}
+
+function raceRenderClaudeRef(q) {
+  const t = document.getElementById('race-timer-CC');
+  const b = document.getElementById('race-body-CC');
+  if (!b) return;
+  loadClaudeCodeRefs().then(() => {
+    const row = (CLAUDE_CC_QMAP && CLAUDE_CC_QMAP.get(raceNormQ(q))) || null;
+    if (!row) {
+      b.classList.remove('empty');
+      b.innerHTML = '<div style="color:var(--muted);font-style:italic">no pre-recorded Claude Code answer for this question — try one from the q5xxx catalog</div>';
+      if (t) { t.classList.add('done'); t.textContent = '★ n/a'; }
+      return;
+    }
+    b.classList.remove('empty');
+    const md = raceRenderMd(row.answer_md || '_(empty)_');
+    const meta = [];
+    if (row.total != null) meta.push(`<code>total=${row.total}</code>`);
+    if (row.jql) meta.push(`<code>jql ✓</code>`);
+    const metaHtml = meta.length
+      ? `<div class="race-toolstrip">${meta.join(' · ')} · pre-recorded via Rovo MCP</div>`
+      : '';
+    b.innerHTML = md + metaHtml;
+    if (t) { t.classList.add('done'); t.textContent = '★ ref'; }
+  });
+}
+function raceBuildQMap() {
+  if (RACE_QMAP || !MODAL_DATA_REF) return;
+  RACE_QMAP = new Map();
+  for (const r of (MODAL_DATA_REF.questions || [])) {
+    RACE_QMAP.set(raceNormQ(r.q), r);
+  }
+}
+function raceShowGolden(q) {
+  const card = document.getElementById('raceGoldenCard');
+  if (!card) return;
+  raceBuildQMap();
+  if (!RACE_QMAP) { card.style.display = 'none'; return; }
+  const row = RACE_QMAP.get(raceNormQ(q));
+  if (!row) { card.style.display = 'none'; card.innerHTML = ''; return; }
+
+  // Body: prefer the LLM-synthesized reference. If not present, fall back to a
+  // structured "expected" block built from expected_count + expected_keys —
+  // most handcrafted/jql questions don't have a synthesized reference but the
+  // deterministic answer is the JQL itself + the keys it returns.
+  const ref = (MODAL_REFS && MODAL_REFS[row.id]) ? MODAL_REFS[row.id].reference : null;
+  let bodyHtml;
+  let headLabel;
+  if (ref) {
+    bodyHtml = raceRenderMd(ref);
+    headLabel = 'Reference (synthesized from real Jira data)';
+  } else if (row.expected_count != null || row.expected_keys_total || row.jql) {
+    const lines = [];
+    if (row.expected_count != null) lines.push(`<p><b>Expected: ${row.expected_count} issue${row.expected_count === 1 ? '' : 's'}.</b></p>`);
+    if (row.expected_keys_total) {
+      const ks = (row.expected_keys_sample || []).map(k => `<code>${raceEscape(k)}</code>`).join(', ');
+      const more = row.expected_keys_total > (row.expected_keys_sample || []).length
+        ? ` <span style="color:var(--muted)">(+${row.expected_keys_total - (row.expected_keys_sample || []).length} more)</span>` : '';
+      lines.push(`<p>Keys: ${ks}${more}</p>`);
+    }
+    if (row.jql) lines.push(`<p>Deterministic JQL: <code>${raceEscape(row.jql)}</code></p>`);
+    if (row.expected_themes && row.expected_themes.length) {
+      lines.push('<p>Themes a good answer should cover:</p><ul>' +
+        row.expected_themes.map(t => `<li>${raceEscape(t)}</li>`).join('') + '</ul>');
+    }
+    bodyHtml = lines.join('') || '<p style="color:var(--muted)"><em>(no reference available for this question)</em></p>';
+    headLabel = 'Expected answer (from deterministic ground truth)';
+  } else {
+    bodyHtml = '<p style="color:var(--muted)"><em>(no reference synthesized for this question)</em></p>';
+    headLabel = 'Reference';
+  }
+
+  const meta = [];
+  meta.push(`category: <code>${raceEscape(row.category || '')}</code>`);
+  meta.push(`oracle: <code>${raceEscape(row.oracle || '')}</code>`);
+  if (ref && row.expected_count != null) meta.push(`expected count: <code>${row.expected_count}</code>`);
+  if (ref && row.expected_keys_total) {
+    const keys = (row.expected_keys_sample || []).join(', ') + (row.expected_keys_total > (row.expected_keys_sample || []).length ? ',…' : '');
+    meta.push(`expected keys (${row.expected_keys_total}): <code>${raceEscape(keys)}</code>`);
+  }
+  if (ref && row.jql) meta.push(`JQL: <code>${raceEscape(row.jql)}</code>`);
+  card.innerHTML = `
+    <div class="rg-head">
+      <span class="rg-chip">★ Golden answer</span>
+      <span>${raceEscape(headLabel)}</span>
+      <span class="rg-qid">${raceEscape(row.id)}</span>
+    </div>
+    <div class="rg-body">${bodyHtml}</div>
+    ${meta.length ? `<div class="rg-meta">${meta.join('')}</div>` : ''}`;
+  card.style.display = 'block';
+}
+
+function raceCancelAll() {
+  RACE.sources.forEach(es => { try { es.close(); } catch {} });
+  RACE.intervals.forEach(id => clearInterval(id));
+  RACE.sources = [];
+  RACE.intervals = [];
+  if (RACE.inFlight) {
+    // Mark any unfinished columns as cancelled.
+    document.querySelectorAll('.race-col').forEach(col => {
+      const t = col.querySelector('.race-timer');
+      if (t && !t.classList.contains('done') && !t.classList.contains('err')) {
+        t.classList.add('err');
+        t.textContent = '✗ cancelled';
+        const b = col.querySelector('.race-body');
+        if (b && b.classList.contains('empty')) {
+          b.classList.remove('empty');
+          b.innerHTML = '<em style="color:var(--muted)">cancelled</em>';
+        }
+      }
+    });
+  }
+  RACE.inFlight = false;
+  document.getElementById('raceSend').disabled = false;
+  document.getElementById('raceCancel').disabled = true;
+}
+
+function raceUpdateScoreboard(summary) {
+  const sb = document.getElementById('raceScoreboard');
+  sb.style.display = 'flex';
+  document.getElementById('sbFinished').textContent = RACE.done;
+  document.getElementById('sbTotal').textContent = RACE.total;
+  const okOnes = Object.entries(RACE.results).filter(([_, r]) => r.ok);
+  if (okOnes.length) {
+    const fastest = okOnes.reduce((a, b) => a[1].elapsed_s < b[1].elapsed_s ? a : b);
+    document.getElementById('sbLeader').textContent =
+      raceShortLabel(fastest[0]) + ' (' + fastest[1].elapsed_s.toFixed(1) + 's)';
+    document.getElementById('sbFastest').textContent = fastest[1].elapsed_s.toFixed(1) + 's';
+  }
+  const allDone = Object.entries(RACE.results);
+  if (allDone.length) {
+    const slowest = allDone.reduce((a, b) => a[1].elapsed_s > b[1].elapsed_s ? a : b);
+    document.getElementById('sbSlowest').textContent =
+      raceShortLabel(slowest[0]) + ' (' + slowest[1].elapsed_s.toFixed(1) + 's)';
+  }
+  // Highlight the current leader column.
+  document.querySelectorAll('.race-col').forEach(c => c.classList.remove('race-leader'));
+  if (okOnes.length) {
+    const winner = okOnes.reduce((a, b) => a[1].elapsed_s < b[1].elapsed_s ? a : b);
+    const el = document.getElementById('race-col-' + winner[0]);
+    if (el) el.classList.add('race-leader');
+  }
+}
+
+// ----- Live Race login (cookie session) -----
+// Modern Chrome no longer pops a native Basic-Auth dialog for fetch()/SSE
+// requests, only for top-level navigations. So we drive a real login form
+// that hits POST /api/login and sets a signed HttpOnly cookie; subsequent
+// EventSource and fetch calls inherit it automatically (same origin).
+
+function raceUpdateAuthBadge(state, user) {
+  const badge = document.getElementById('raceAuthBadge');
+  if (!badge) return;
+  if (state === 'authed') {
+    badge.innerHTML = '🔒 Signed in as <b>' + raceEscape(user || 'admin')
+                    + '</b><a href="#" id="raceLogoutLink">Sign out</a>';
+    badge.style.color = 'var(--pass)';
+    const link = document.getElementById('raceLogoutLink');
+    if (link) link.addEventListener('click', raceLogout);
+  } else if (state === 'loading') {
+    badge.textContent = '… checking';
+    badge.style.color = 'var(--muted)';
+  } else {
+    badge.textContent = '🔓 Login required';
+    badge.style.color = 'var(--muted)';
+  }
+}
+
+async function raceCheckAuth() {
+  try {
+    const r = await fetch('/api/auth_check', { credentials: 'include' });
+    if (!r.ok) return { ok: false };
+    const j = await r.json().catch(() => ({}));
+    return { ok: true, user: j.user };
+  } catch {
+    return { ok: false };
+  }
+}
+
+function raceShowLoginOverlay() {
+  const ov = document.getElementById('raceLoginOverlay');
+  if (!ov) return;
+  ov.style.display = 'flex';
+  const sendBtn = document.getElementById('raceSend');
+  if (sendBtn) sendBtn.disabled = true;
+  document.getElementById('raceLoginErr').textContent = '';
+  setTimeout(() => {
+    const u = document.getElementById('raceLoginUser');
+    if (u) u.focus();
+  }, 50);
+}
+
+function raceHideLoginOverlay() {
+  const ov = document.getElementById('raceLoginOverlay');
+  if (ov) ov.style.display = 'none';
+  const sendBtn = document.getElementById('raceSend');
+  if (sendBtn && !RACE.inFlight) sendBtn.disabled = false;
+}
+
+async function raceDoLogin() {
+  const user = document.getElementById('raceLoginUser').value.trim();
+  const pass = document.getElementById('raceLoginPass').value;
+  const err = document.getElementById('raceLoginErr');
+  const btn = document.getElementById('raceLoginSubmit');
+  err.textContent = '';
+  if (!user || !pass) {
+    err.textContent = 'Enter username and password';
+    return;
+  }
+  btn.disabled = true;
+  try {
+    const r = await fetch('/api/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({ user, pass })
+    });
+    if (r.ok) {
+      const j = await r.json().catch(() => ({}));
+      document.getElementById('raceLoginPass').value = '';
+      raceHideLoginOverlay();
+      raceUpdateAuthBadge('authed', j.user || user);
+    } else {
+      err.textContent = r.status === 401 ? 'Invalid credentials' : ('Login failed (' + r.status + ')');
+      const card = document.querySelector('.race-login-card');
+      if (card) {
+        card.classList.add('shake');
+        setTimeout(() => card.classList.remove('shake'), 260);
+      }
+    }
+  } catch (e) {
+    err.textContent = 'Network error';
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+async function raceLogout(e) {
+  if (e && e.preventDefault) e.preventDefault();
+  try {
+    await fetch('/api/logout', { method: 'POST', credentials: 'include' });
+  } catch {}
+  raceCancelAll();
+  raceUpdateAuthBadge('unauthed');
+  raceShowLoginOverlay();
+}
+
+// ============ USER OAUTH TOKEN OVERRIDE ============
+// Cloud Run SA has no Jira refresh token bound to the GE connector, so
+// B/C/CG/DG fail with auth errors unless we install a user access token.
+let RACE_OAUTH_TIMER = null;
+function raceRenderOAuthStatus(status) {
+  const statusEl = document.getElementById('raceOAuthStatus');
+  const btnEl = document.getElementById('raceOAuthBtn');
+  const clearEl = document.getElementById('raceOAuthClear');
+  if (!statusEl) return;
+  if (status && status.active) {
+    const mins = Math.max(0, Math.floor(status.expires_in_s / 60));
+    statusEl.innerHTML = `✓ outbound auth: <b style="color:#10b981">user OAuth active</b> · expires in ${mins} min · B/C/CG/DG should work`;
+    statusEl.style.color = '#10b981';
+    if (btnEl) btnEl.textContent = 'Replace token';
+    if (clearEl) clearEl.style.display = 'inline-block';
+  } else {
+    statusEl.innerHTML = '⚠ outbound auth: <b style="color:#fbbf24">Cloud Run SA</b> · B/C/CG/DG will return auth errors';
+    statusEl.style.color = 'var(--muted)';
+    if (btnEl) btnEl.textContent = 'Use my OAuth token';
+    if (clearEl) clearEl.style.display = 'none';
+  }
+}
+async function raceRefreshOAuthStatus() {
+  try {
+    const r = await fetch('/api/race/user_token', { credentials: 'include' });
+    if (!r.ok) { raceRenderOAuthStatus(null); return; }
+    const j = await r.json();
+    raceRenderOAuthStatus(j);
+    if (RACE_OAUTH_TIMER) { clearInterval(RACE_OAUTH_TIMER); RACE_OAUTH_TIMER = null; }
+    if (j && j.active) {
+      // Tick the countdown every 30s so the user sees it expire.
+      RACE_OAUTH_TIMER = setInterval(raceRefreshOAuthStatus, 30000);
+    }
+  } catch { raceRenderOAuthStatus(null); }
+}
+function raceShowOAuthOverlay() {
+  const o = document.getElementById('raceOAuthOverlay');
+  if (!o) return;
+  o.style.display = 'flex';
+  const ta = document.getElementById('raceOAuthInput');
+  const err = document.getElementById('raceOAuthErr');
+  if (err) err.textContent = '';
+  if (ta) { ta.value = ''; setTimeout(() => ta.focus(), 50); }
+}
+function raceHideOAuthOverlay() {
+  const o = document.getElementById('raceOAuthOverlay');
+  if (o) o.style.display = 'none';
+}
+async function raceSubmitOAuthToken() {
+  const ta = document.getElementById('raceOAuthInput');
+  const err = document.getElementById('raceOAuthErr');
+  const btn = document.getElementById('raceOAuthSubmit');
+  const tok = (ta && ta.value || '').trim();
+  if (!tok) { if (err) err.textContent = 'paste an access token first'; return; }
+  if (tok.length < 20) { if (err) err.textContent = 'token looks too short'; return; }
+  if (btn) btn.disabled = true;
+  try {
+    const r = await fetch('/api/race/user_token', {
+      method: 'POST', credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ access_token: tok, ttl_s: 3000 }),
+    });
+    if (!r.ok) {
+      const j = await r.json().catch(() => ({}));
+      if (err) err.textContent = j.detail || ('http ' + r.status);
+      return;
+    }
+    raceHideOAuthOverlay();
+    raceRefreshOAuthStatus();
+  } catch (e) {
+    if (err) err.textContent = 'network error: ' + e;
+  } finally {
+    if (btn) btn.disabled = false;
+  }
+}
+async function raceClearOAuthToken() {
+  try {
+    await fetch('/api/race/user_token', { method: 'DELETE', credentials: 'include' });
+  } catch {}
+  raceRefreshOAuthStatus();
+}
+
+async function raceStart() {
+  if (RACE.inFlight) return;
+  const q = document.getElementById('raceInput').value.trim();
+  if (!q) return;
+  // Re-check auth (cookie may have expired mid-session); show overlay if not.
+  const check = await raceCheckAuth();
+  if (!check.ok) {
+    raceUpdateAuthBadge('unauthed');
+    raceShowLoginOverlay();
+    return;
+  }
+  raceUpdateAuthBadge('authed', check.user);
+  raceCancelAll();
+  raceClearGrid();
+  RACE.inFlight = true;
+  RACE.startedAt = Date.now();
+  document.getElementById('raceSend').disabled = true;
+  document.getElementById('raceCancel').disabled = false;
+
+  // If the typed question matches one in the catalog, show its golden answer
+  // above the race grid so the audience can judge each pipeline against the
+  // reference in real time. Silently no-ops for ad-hoc questions.
+  ensureModalRefs().then(() => raceShowGolden(q));
+
+  // Order columns to mirror the comparison table ordering.
+  const PIPE_KEYS = (typeof PIPELINES !== 'undefined' && PIPELINES.length)
+    ? PIPELINES.slice()
+    : ['A','AL','AG','B','C','CG','D','DG','E','EG'];
+  // Append the Claude Code + Rovo MCP reference card as the 11th column. It
+  // doesn't run live — it renders a pre-recorded answer from
+  // /claude_code_answers.json so the audience can see how the reference stack
+  // compares to the 10 Google Cloud pipelines.
+  const KEYS = PIPE_KEYS.concat(['CC']);
+  RACE.total = PIPE_KEYS.length;  // CC doesn't count toward race completion
+  const grid = document.getElementById('raceGrid');
+  KEYS.forEach(K => {
+    const arch = raceArch(K);
+    const col = document.createElement('div');
+    col.className = 'race-col';
+    if (K === 'CC') col.classList.add('race-col-ref');
+    col.id = 'race-col-' + K;
+    const timerInit = (K === 'CC') ? '★ ref' : '0.0s';
+    const bodyInit  = (K === 'CC') ? 'loading reference…' : 'running…';
+    col.innerHTML = `
+      <div class="race-head">
+        <span class="race-arch-chip" style="background:${arch.color}">${arch.label}</span>
+        <span class="race-name" title="${raceEscape(raceShortLabel(K))}">${raceEscape(raceShortLabel(K))}</span>
+        <span class="race-timer" id="race-timer-${K}">${timerInit}</span>
+      </div>
+      <div class="race-body empty" id="race-body-${K}">${bodyInit}</div>`;
+    grid.appendChild(col);
+
+    // Claude Code reference card: pull from local JSON, no SSE, no timer ticker.
+    if (K === 'CC') {
+      raceRenderClaudeRef(q);
+      return;
+    }
+
+    // Open SSE for this pipeline.
+    const url = '/api/query?pipeline=' + encodeURIComponent(K.toLowerCase())
+              + '&q=' + encodeURIComponent(q);
+    const es = new EventSource(url);
+    RACE.sources.push(es);
+
+    // Server emits `progress` heartbeats, but we tick a local interval too so
+    // the UI updates smoothly even if heartbeats are coarse.
+    const tick = setInterval(() => {
+      const t = document.getElementById('race-timer-' + K);
+      if (!t || t.classList.contains('done') || t.classList.contains('err')) {
+        clearInterval(tick);
+        return;
+      }
+      t.textContent = ((Date.now() - RACE.startedAt) / 1000).toFixed(1) + 's';
+    }, 100);
+    RACE.intervals.push(tick);
+
+    es.addEventListener('progress', e => {
+      // Heartbeat carries elapsed_ms but we trust local clock for smoothness.
+    });
+    es.addEventListener('done', e => {
+      let d;
+      try { d = JSON.parse(e.data); } catch { d = { ok:false, error:'bad sse payload' }; }
+      const t = document.getElementById('race-timer-' + K);
+      const b = document.getElementById('race-body-' + K);
+      const elapsed = (d.elapsed_s != null) ? d.elapsed_s : (Date.now() - RACE.startedAt) / 1000;
+      if (t) {
+        t.classList.add(d.ok ? 'done' : 'err');
+        t.textContent = (d.ok ? '✓ ' : '✗ ') + elapsed.toFixed(1) + 's';
+      }
+      if (b) {
+        b.classList.remove('empty');
+        if (d.ok) {
+          const md = raceRenderMd(d.answer || '_(empty answer)_');
+          const tools = Array.isArray(d.tool_calls) ? d.tool_calls : [];
+          const toolStrip = tools.length
+            ? `<div class="race-toolstrip">${tools.length} tool call${tools.length === 1 ? '' : 's'}: ${
+                tools.map(c => raceEscape(c.name || '?')).slice(0, 6).join(' · ')
+              }${tools.length > 6 ? ' · …' : ''}</div>`
+            : '';
+          b.innerHTML = md + toolStrip;
+        } else {
+          b.innerHTML = `<div style="color:#fca5a5">${raceEscape(d.error || 'unknown error')}</div>`;
+        }
+      }
+      RACE.results[K] = { ok: !!d.ok, elapsed_s: elapsed, error: d.error };
+      RACE.done += 1;
+      es.close();
+      raceUpdateScoreboard();
+      if (RACE.done >= RACE.total) {
+        RACE.inFlight = false;
+        document.getElementById('raceSend').disabled = false;
+        document.getElementById('raceCancel').disabled = true;
+      }
+    });
+    es.onerror = () => {
+      // Browsers fire onerror when the stream cleanly closes too, so only
+      // mark errored if we never got a `done` event.
+      if (RACE.results[K] != null) return;
+      const t = document.getElementById('race-timer-' + K);
+      const b = document.getElementById('race-body-' + K);
+      const elapsed = (Date.now() - RACE.startedAt) / 1000;
+      if (t && !t.classList.contains('done') && !t.classList.contains('err')) {
+        t.classList.add('err');
+        t.textContent = '✗ ' + elapsed.toFixed(1) + 's';
+      }
+      if (b && b.classList.contains('empty')) {
+        b.classList.remove('empty');
+        b.innerHTML = '<div style="color:#fca5a5">connection error</div>';
+      }
+      try { es.close(); } catch {}
+      if (RACE.results[K] == null) {
+        RACE.results[K] = { ok:false, elapsed_s: elapsed, error:'connection error' };
+        RACE.done += 1;
+        raceUpdateScoreboard();
+        if (RACE.done >= RACE.total) {
+          RACE.inFlight = false;
+          document.getElementById('raceSend').disabled = false;
+          document.getElementById('raceCancel').disabled = true;
+        }
+      }
+    };
+  });
+  raceUpdateScoreboard();
+}
+
+function initRaceView(_data) {
+  if (!RACE.inited) {
+    RACE.inited = true;
+    document.getElementById('raceSend').addEventListener('click', raceStart);
+    document.getElementById('raceCancel').addEventListener('click', raceCancelAll);
+    document.getElementById('raceInput').addEventListener('keydown', e => {
+      if (e.key === 'Enter' && !RACE.inFlight) raceStart();
+    });
+    // Login overlay wiring (markup lives outside <main>, so it's always present).
+    const submitBtn = document.getElementById('raceLoginSubmit');
+    if (submitBtn) submitBtn.addEventListener('click', raceDoLogin);
+    const passEl = document.getElementById('raceLoginPass');
+    if (passEl) passEl.addEventListener('keydown', e => {
+      if (e.key === 'Enter') raceDoLogin();
+    });
+    const userEl = document.getElementById('raceLoginUser');
+    if (userEl) userEl.addEventListener('keydown', e => {
+      if (e.key === 'Enter') {
+        const p = document.getElementById('raceLoginPass');
+        if (p) p.focus();
+      }
+    });
+    // OAuth token override wiring.
+    const oauthBtn = document.getElementById('raceOAuthBtn');
+    if (oauthBtn) oauthBtn.addEventListener('click', raceShowOAuthOverlay);
+    const oauthClear = document.getElementById('raceOAuthClear');
+    if (oauthClear) oauthClear.addEventListener('click', raceClearOAuthToken);
+    const oauthSubmit = document.getElementById('raceOAuthSubmit');
+    if (oauthSubmit) oauthSubmit.addEventListener('click', raceSubmitOAuthToken);
+    const oauthCancel = document.getElementById('raceOAuthCancel');
+    if (oauthCancel) oauthCancel.addEventListener('click', raceHideOAuthOverlay);
+    const oauthOverlay = document.getElementById('raceOAuthOverlay');
+    if (oauthOverlay) oauthOverlay.addEventListener('click', e => {
+      if (e.target === oauthOverlay) raceHideOAuthOverlay();
+    });
+  }
+  // Each time the tab is activated, recheck auth and show the overlay if
+  // the cookie is missing/expired.
+  raceUpdateAuthBadge('loading');
+  raceCheckAuth().then(c => {
+    if (c.ok) {
+      raceUpdateAuthBadge('authed', c.user);
+      raceHideLoginOverlay();
+      raceRefreshOAuthStatus();
+    } else {
+      raceUpdateAuthBadge('unauthed');
+      raceShowLoginOverlay();
+    }
+  });
+}
+
+// ============ JUDGE VALIDATION VIEW ============
+// Pre-curated sample of ~35 questions where we manually re-grade judge_v6's
+// "correct" verdicts to detect leniency. Votes persist in localStorage so the
+// user can come back later without losing progress.
+const VD_STORAGE_KEY = 'judge_validation_v1';
+const VD_SECTION_LABELS = {
+  A: 'A · Partials promoted to correct',
+  B: 'B · Safety / refusal Tier 3',
+  C: 'C · Random control',
+};
+let VD_DATA = null;       // full payload fetched from /api/validation-sample
+let VD_INITED = false;    // first-render guard
+let VD_STATE = null;      // { votes: {qid: {choice, note, ts}}, filter, activeIdx, ... }
+let VD_FLAT = [];         // ordered list of card objects (A then B then C)
+let VD_COLLAPSED = {A: false, B: false, C: false};
+
+function vdLoadState() {
+  let s = null;
+  try { s = JSON.parse(localStorage.getItem(VD_STORAGE_KEY) || 'null'); } catch (e) { s = null; }
+  if (!s || typeof s !== 'object') s = {};
+  if (!s.votes || typeof s.votes !== 'object') s.votes = {};
+  if (!s.filter) s.filter = 'all';
+  if (typeof s.activeIdx !== 'number') s.activeIdx = 0;
+  return s;
+}
+
+function vdSaveState() {
+  try { localStorage.setItem(VD_STORAGE_KEY, JSON.stringify(VD_STATE)); } catch (e) { /* quota — best effort */ }
+}
+
+function updateValidationPillFromStorage() {
+  const pill = document.getElementById('validationPill');
+  if (!pill) return;
+  const s = vdLoadState();
+  const graded = Object.keys(s.votes).length;
+  // We don't know the total without the data file — fetch it lazily for the
+  // first time the badge is shown.
+  if (VD_DATA) {
+    pill.textContent = graded + ' / ' + VD_FLAT.length;
+  } else {
+    pill.textContent = graded ? (graded + ' graded') : '0 / 35';
+    // Kick off a background fetch so subsequent pill updates have the real total.
+    if (!window.__vdPillFetchStarted) {
+      window.__vdPillFetchStarted = true;
+      fetch('validation_sample.json').then(r => r.ok ? r.json() : null).then(d => {
+        if (d && d.cards) {
+          pill.textContent = graded + ' / ' + d.cards.length;
+        }
+      }).catch(() => {});
+    }
+  }
+}
+
+async function initValidationView() {
+  if (VD_INITED) {
+    // Already rendered — just re-sync filter/tally in case storage changed in
+    // another tab.
+    VD_STATE = vdLoadState();
+    vdRender();
+    return;
+  }
+  VD_INITED = true;
+  const body = document.getElementById('vdBody');
+  body.innerHTML = '<div style="padding:20px;color:var(--muted)">Loading curated sample…</div>';
+  let payload;
+  try {
+    const resp = await fetch('validation_sample.json', {cache: 'no-cache'});
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    payload = await resp.json();
+  } catch (err) {
+    body.innerHTML = '<div style="padding:20px;color:#fca5a5">Failed to load validation_sample.json: ' + (err && err.message ? err.message : err) + '</div>';
+    return;
+  }
+  VD_DATA = payload;
+  VD_FLAT = (payload.cards || []).slice();
+  VD_STATE = vdLoadState();
+  if (VD_STATE.activeIdx >= VD_FLAT.length) VD_STATE.activeIdx = 0;
+
+  vdRender();
+  vdAttachGlobalHandlers();
+}
+
+function vdRender() {
+  const body = document.getElementById('vdBody');
+  if (!VD_DATA) return;
+
+  // Group cards by section, preserve original order.
+  const groups = {A: [], B: [], C: []};
+  VD_FLAT.forEach((card, idx) => {
+    const sec = (card.section || 'C').toUpperCase();
+    if (!groups[sec]) groups[sec] = [];
+    groups[sec].push({card, idx});
+  });
+
+  const html = ['A', 'B', 'C'].map(sec => {
+    const items = groups[sec] || [];
+    const meta = (VD_DATA.sections || {})[sec] || {};
+    const collapsedClass = VD_COLLAPSED[sec] ? ' collapsed' : '';
+    const cardsHtml = items.map(({card, idx}) => vdRenderCard(card, idx)).join('');
+    return `
+      <div class="vd-section${collapsedClass}" data-vd-section="${sec}">
+        <div class="vd-section-head" data-vd-toggle="${sec}">
+          <span class="vd-caret">▾</span>
+          <span class="vd-section-title">${vdEscape(meta.label || VD_SECTION_LABELS[sec] || sec)}</span>
+          <span class="vd-section-sub">${vdEscape(meta.description || '')}</span>
+          <span class="vd-section-count">${items.length} cards</span>
+        </div>
+        <div class="vd-section-body">${cardsHtml || '<div style="color:var(--muted);font-size:12px">No cards in this section.</div>'}</div>
+      </div>`;
+  }).join('');
+
+  body.innerHTML = html;
+  vdAttachCardHandlers();
+  vdApplyFilter();
+  vdSyncTally();
+  vdHighlightActive();
+}
+
+function vdRenderCard(card, idx) {
+  const vote = (VD_STATE.votes[card.id] || {});
+  const choice = vote.choice || '';
+  const note = vote.note || '';
+  const votedClass = choice === 'agree' ? ' voted-agree'
+                   : choice === 'lenient' ? ' voted-lenient'
+                   : choice === 'strict'  ? ' voted-strict' : '';
+  const b = card.b || {};
+  const f = card.f || {};
+  const bAnsHtml = vdRenderMd(b.answer || '');
+  const fAnsHtml = vdRenderMd(f.answer || '');
+  const tierStr = (card.tier === 'diagnostic') ? 'diag' : (card.tier != null ? ('T' + card.tier) : '');
+  return `
+    <div class="vd-card${votedClass}" data-vd-card="${card.id}" data-vd-idx="${idx}">
+      <div class="vd-card-head">
+        <span class="vd-qid">${vdEscape(card.id)}</span>
+        ${card.category ? `<span class="vd-cat-pill">${vdEscape(card.category)}</span>` : ''}
+        ${tierStr ? `<span class="vd-tier-pill">${vdEscape(tierStr)}</span>` : ''}
+        <span class="vd-reason-pill">${vdEscape(card.reason || '')}</span>
+        <span style="color:var(--muted);font-size:11px">${b.answer_chars != null ? (b.answer_chars + ' chars') : ''}</span>
+      </div>
+      <div class="vd-q">${vdEscape(card.question || '')}</div>
+
+      <div class="vd-judge-reason"><b>judge_v6 reasoning:</b> ${vdEscape(b.judge_reason || '(no reasoning recorded)')}</div>
+
+      <div class="vd-ans-block">
+        <div class="vd-ans-head">
+          <span class="vd-caret-2"></span>
+          <span><b>B's answer</b> · GE + Atlassian Rovo MCP direct</span>
+          <span class="vd-verdict-pill v-${vdEscape(b.verdict || 'unknown')}">judge: ${vdEscape(b.verdict || '—')}</span>
+        </div>
+        <div class="vd-ans-body">${bAnsHtml || '<em style="color:var(--muted)">empty</em>'}</div>
+      </div>
+
+      <div class="vd-ans-block vd-ans-collapsed" data-vd-collapsible="1">
+        <div class="vd-ans-head" data-vd-toggle-ans="1">
+          <span class="vd-caret-2"></span>
+          <span><b>F's answer</b> · ADK serial + raw Rovo MCP (collapsed)</span>
+          <span class="vd-verdict-pill v-${vdEscape(f.verdict || 'unknown')}">judge: ${vdEscape(f.verdict || '—')}</span>
+        </div>
+        <div class="vd-ans-body">${fAnsHtml || '<em style="color:var(--muted)">empty</em>'}</div>
+      </div>
+
+      <div class="vd-controls">
+        <button class="vd-vote-btn agree${choice === 'agree' ? ' selected' : ''}" data-vd-vote="agree">✓ Agree with judge</button>
+        <button class="vd-vote-btn lenient${choice === 'lenient' ? ' selected' : ''}" data-vd-vote="lenient">✗ Too lenient</button>
+        <button class="vd-vote-btn strict${choice === 'strict' ? ' selected' : ''}" data-vd-vote="strict">⚠ Too strict</button>
+        <input class="vd-card-note" data-vd-note placeholder="optional note…" value="${vdEscape(note)}" maxlength="500" />
+        <button class="vd-reset-card" data-vd-reset>Reset</button>
+      </div>
+    </div>`;
+}
+
+function vdAttachCardHandlers() {
+  const body = document.getElementById('vdBody');
+
+  // Section collapse toggles
+  body.querySelectorAll('[data-vd-toggle]').forEach(el => {
+    el.addEventListener('click', () => {
+      const sec = el.dataset.vdToggle;
+      VD_COLLAPSED[sec] = !VD_COLLAPSED[sec];
+      el.closest('.vd-section').classList.toggle('collapsed', VD_COLLAPSED[sec]);
+    });
+  });
+
+  // F-answer collapse toggle
+  body.querySelectorAll('[data-vd-toggle-ans]').forEach(el => {
+    el.addEventListener('click', () => {
+      el.closest('.vd-ans-block').classList.toggle('vd-ans-collapsed');
+    });
+  });
+
+  // Vote buttons
+  body.querySelectorAll('[data-vd-vote]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const card = btn.closest('.vd-card');
+      const qid = card.dataset.vdCard;
+      const choice = btn.dataset.vdVote;
+      vdSetVote(qid, choice);
+    });
+  });
+
+  // Reset card vote
+  body.querySelectorAll('[data-vd-reset]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const card = btn.closest('.vd-card');
+      vdClearVote(card.dataset.vdCard);
+    });
+  });
+
+  // Notes (debounced save)
+  body.querySelectorAll('[data-vd-note]').forEach(inp => {
+    inp.addEventListener('input', () => {
+      const card = inp.closest('.vd-card');
+      const qid = card.dataset.vdCard;
+      const existing = VD_STATE.votes[qid] || {};
+      VD_STATE.votes[qid] = Object.assign({}, existing, {note: inp.value, ts: Date.now()});
+      vdSaveState();
+    });
+    inp.addEventListener('focus', () => {
+      const card = inp.closest('.vd-card');
+      VD_STATE.activeIdx = +card.dataset.vdIdx;
+      vdHighlightActive();
+      vdSaveState();
+    });
+  });
+
+  // Click a card to make it active
+  body.querySelectorAll('.vd-card').forEach(card => {
+    card.addEventListener('click', e => {
+      // Avoid hijacking clicks on links inside the answer.
+      if (e.target.closest('a')) return;
+      VD_STATE.activeIdx = +card.dataset.vdIdx;
+      vdHighlightActive();
+      vdSaveState();
+    });
+  });
+}
+
+function vdSetVote(qid, choice) {
+  if (!VD_STATE.votes[qid]) VD_STATE.votes[qid] = {};
+  VD_STATE.votes[qid].choice = choice;
+  VD_STATE.votes[qid].ts = Date.now();
+  vdSaveState();
+  vdRefreshCard(qid);
+  vdApplyFilter();
+  vdSyncTally();
+}
+
+function vdClearVote(qid) {
+  delete VD_STATE.votes[qid];
+  vdSaveState();
+  vdRefreshCard(qid);
+  vdApplyFilter();
+  vdSyncTally();
+}
+
+function vdRefreshCard(qid) {
+  // Re-render just this card so the border + button-selected state updates.
+  const oldEl = document.querySelector(`.vd-card[data-vd-card="${CSS.escape(qid)}"]`);
+  if (!oldEl) return;
+  const idx = +oldEl.dataset.vdIdx;
+  const card = VD_FLAT[idx];
+  if (!card) return;
+  const wrapper = document.createElement('div');
+  wrapper.innerHTML = vdRenderCard(card, idx);
+  const newEl = wrapper.firstElementChild;
+  oldEl.replaceWith(newEl);
+  vdAttachCardHandlers();   // re-bind for the replaced card (cheap)
+  vdHighlightActive();
+}
+
+function vdSyncTally() {
+  const votes = Object.values(VD_STATE.votes).filter(v => v && v.choice);
+  const total = VD_FLAT.length;
+  const graded = votes.length;
+  const agree = votes.filter(v => v.choice === 'agree').length;
+  const lenient = votes.filter(v => v.choice === 'lenient').length;
+  const strict = votes.filter(v => v.choice === 'strict').length;
+  const setText = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+  setText('vdTotal', total);
+  setText('vdGraded', graded);
+  setText('vdAgree', agree);
+  setText('vdLenient', lenient);
+  setText('vdStrict', strict);
+  const pill = document.getElementById('validationPill');
+  if (pill) pill.textContent = graded + ' / ' + total;
+}
+
+function vdApplyFilter() {
+  const mode = (document.getElementById('vdFilter') || {}).value || VD_STATE.filter || 'all';
+  VD_STATE.filter = mode;
+  vdSaveState();
+  document.querySelectorAll('.vd-card').forEach(el => {
+    const qid = el.dataset.vdCard;
+    const vote = VD_STATE.votes[qid];
+    let show = true;
+    if (mode === 'ungraded') show = !vote || !vote.choice;
+    else if (mode === 'disagree') show = !!(vote && (vote.choice === 'lenient' || vote.choice === 'strict'));
+    el.classList.toggle('hidden', !show);
+  });
+}
+
+function vdHighlightActive() {
+  document.querySelectorAll('.vd-card.active').forEach(el => el.classList.remove('active'));
+  const idx = VD_STATE.activeIdx;
+  if (idx == null || idx < 0 || idx >= VD_FLAT.length) return;
+  const qid = VD_FLAT[idx].id;
+  const el = document.querySelector(`.vd-card[data-vd-card="${CSS.escape(qid)}"]`);
+  if (el) el.classList.add('active');
+}
+
+function vdScrollToActive() {
+  const idx = VD_STATE.activeIdx;
+  if (idx == null || idx < 0 || idx >= VD_FLAT.length) return;
+  const qid = VD_FLAT[idx].id;
+  const el = document.querySelector(`.vd-card[data-vd-card="${CSS.escape(qid)}"]`);
+  if (!el) return;
+  // Expand the parent section if collapsed so the active card is visible.
+  const sec = el.closest('.vd-section');
+  if (sec && sec.classList.contains('collapsed')) {
+    sec.classList.remove('collapsed');
+    const secId = sec.dataset.vdSection;
+    if (secId) VD_COLLAPSED[secId] = false;
+  }
+  el.scrollIntoView({behavior: 'smooth', block: 'center'});
+}
+
+function vdMoveActive(delta) {
+  if (!VD_FLAT.length) return;
+  let idx = VD_STATE.activeIdx + delta;
+  if (idx < 0) idx = 0;
+  if (idx >= VD_FLAT.length) idx = VD_FLAT.length - 1;
+  VD_STATE.activeIdx = idx;
+  vdSaveState();
+  vdHighlightActive();
+  vdScrollToActive();
+}
+
+function vdJumpToNextUngraded() {
+  if (!VD_FLAT.length) return;
+  const start = VD_STATE.activeIdx;
+  for (let off = 1; off <= VD_FLAT.length; off++) {
+    const i = (start + off) % VD_FLAT.length;
+    const qid = VD_FLAT[i].id;
+    const vote = VD_STATE.votes[qid];
+    if (!vote || !vote.choice) {
+      VD_STATE.activeIdx = i;
+      vdSaveState();
+      vdHighlightActive();
+      vdScrollToActive();
+      return;
+    }
+  }
+}
+
+function vdExport() {
+  const payload = {
+    exported_at: new Date().toISOString(),
+    judge: VD_DATA && VD_DATA.judge ? VD_DATA.judge : 'judge_v6',
+    sections_meta: VD_DATA && VD_DATA.sections ? VD_DATA.sections : {},
+    total_cards: VD_FLAT.length,
+    votes: VD_STATE.votes,
+    cards: VD_FLAT.map(c => ({
+      id: c.id,
+      section: c.section,
+      reason: c.reason,
+      tier: c.tier,
+      category: c.category,
+      question: c.question,
+      judge_v6_verdict: (c.b || {}).verdict,
+      judge_v6_reason: (c.b || {}).judge_reason,
+      b_answer: (c.b || {}).answer,
+      f_answer: (c.f || {}).answer,
+      vote: VD_STATE.votes[c.id] || null,
+    })),
+  };
+  const blob = new Blob([JSON.stringify(payload, null, 2)], {type: 'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'judge_validation_votes_' + new Date().toISOString().replace(/[:.]/g, '-') + '.json';
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(() => { document.body.removeChild(a); URL.revokeObjectURL(url); }, 0);
+}
+
+function vdAttachGlobalHandlers() {
+  const filterSel = document.getElementById('vdFilter');
+  if (filterSel) {
+    filterSel.value = VD_STATE.filter || 'all';
+    filterSel.addEventListener('change', () => vdApplyFilter());
+  }
+  const next = document.getElementById('vdNext');
+  if (next) next.addEventListener('click', () => vdJumpToNextUngraded());
+  const exp = document.getElementById('vdExport');
+  if (exp) exp.addEventListener('click', () => vdExport());
+  const reset = document.getElementById('vdReset');
+  if (reset) reset.addEventListener('click', () => {
+    if (!Object.keys(VD_STATE.votes).length) return;
+    if (!confirm('Clear all ' + Object.keys(VD_STATE.votes).length + ' votes? This cannot be undone.')) return;
+    VD_STATE.votes = {};
+    vdSaveState();
+    vdRender();
+  });
+
+  // Keyboard shortcuts — only active when the validation view is active and
+  // the user isn't typing inside an input/textarea.
+  document.addEventListener('keydown', e => {
+    const view = document.getElementById('view-validation');
+    if (!view || !view.classList.contains('active')) return;
+    const tag = (e.target && e.target.tagName || '').toLowerCase();
+    if (tag === 'input' || tag === 'textarea' || tag === 'select') return;
+    if (e.ctrlKey || e.metaKey || e.altKey) return;
+    const k = e.key.toLowerCase();
+    if (k === 'a' || k === 'l' || k === 's') {
+      e.preventDefault();
+      if (VD_STATE.activeIdx == null || VD_STATE.activeIdx >= VD_FLAT.length) return;
+      const qid = VD_FLAT[VD_STATE.activeIdx].id;
+      const choice = k === 'a' ? 'agree' : k === 'l' ? 'lenient' : 'strict';
+      vdSetVote(qid, choice);
+    } else if (k === 'n') {
+      e.preventDefault();
+      vdMoveActive(1);
+    } else if (k === 'p') {
+      e.preventDefault();
+      vdMoveActive(-1);
+    } else if (k === '?') {
+      const hint = document.querySelector('.vd-hint');
+      if (hint) hint.style.display = (hint.style.display === 'none') ? '' : 'none';
+    }
+  });
+}
+
+// Minimal HTML escape (mirrors raceEscape but scoped to vd-).
+function vdEscape(s) {
+  if (s == null) return '';
+  return String(s).replace(/[&<>"']/g, c => ({
+    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+  })[c]);
+}
+
+// Reuse the Live Race markdown renderer for B and F answers — it already
+// handles **bold**, [text](url), tables aren't supported but we add a tiny
+// table pass below so judge outputs render cleanly.
+function vdRenderMd(src) {
+  if (!src) return '';
+  // 1) Lift markdown tables out first because raceRenderMd doesn't handle them.
+  const tables = [];
+  src = String(src).replace(/(^|\n)(\|[^\n]+\|)\n(\|[ :|\-]+\|)\n((?:\|[^\n]+\|\n?)*)/g,
+    (_, lead, head, sep, body) => {
+      const splitRow = r => r.replace(/^\||\|$/g, '').split('|').map(c => c.trim());
+      const cols = splitRow(head);
+      const rows = body.trim().split('\n').filter(Boolean).map(splitRow);
+      const th = cols.map(c => `<th>${vdInlineMd(c)}</th>`).join('');
+      const trs = rows.map(r => '<tr>' + cols.map((_, i) => `<td>${vdInlineMd(r[i] || '')}</td>`).join('') + '</tr>').join('');
+      const html = `<table>${th ? `<thead><tr>${th}</tr></thead>` : ''}<tbody>${trs}</tbody></table>`;
+      tables.push(html);
+      return lead + ` VDTABLE${tables.length - 1} `;
+    });
+  let out;
+  try {
+    out = raceRenderMd(src);
+  } catch (e) {
+    out = '<pre>' + vdEscape(String(src)) + '</pre>';
+  }
+  out = out.replace(/ VDTABLE(\d+) /g, (_, i) => tables[+i] || '');
+  return out;
+}
+
+function vdInlineMd(s) {
+  try { return raceInlineMd(s); }
+  catch (e) { return vdEscape(s); }
+}
 </script>
 </body>
 </html>

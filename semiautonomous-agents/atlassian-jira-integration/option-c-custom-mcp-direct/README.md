@@ -1,13 +1,12 @@
 # Option C — Custom MCP Server + GE direct (no ADK, no Agent Engine)
 
+*Numbers as of 2026-05-27, judge_v6 (gemini-3-flash-preview + Haiku 4.5 escalation), n=172 v2 corpus.*
+
 Same Cloud Run MCP server as Option A. No Agent Engine, no ADK agent in front. GE's chat surface (and the `streamAssist` API) calls the MCP directly via the **BYO\_MCP** custom-data-store path. Tools execute silently (no per-call confirmation popup) and answers come back grounded with clickable issue links.
 
 This works **only when the MCP server follows the five-part recipe** in §3. Without it, every tool call triggers a JQL ✓/✗ confirmation dialog and the chat surface becomes unusable.
 
-**Verified end-to-end on 2026-05-19:**
-- Chat UI: silent retrieval, clickable `[SMP-XXX](URL)` links, grounded tables
-- StreamAssist API: 19-chunk streaming response, zero `actionInvocation`, clean markdown
-- 500-question eval: see `eval/runs/<latest>-option-g-full/` and `eval/README.md`
+**Current eval (judge_v6, 172 v2 questions, 2026-05-27):** **87.9 % accuracy (v6 headline)**. The gemini-3.5-flash override variant (CG) scores **94.0 %** on the same corpus. See `eval/runs/v2-*-c/` and `eval/README.md`.
 
 ---
 
@@ -51,9 +50,10 @@ Two consumption surfaces, both work:
 | MCP server | Custom (your code) | **Custom (your code)** | Atlassian Rovo (hosted) |
 | Front layer | ADK on Agent Engine | **None — direct GE** | None — direct GE |
 | Confirmation popup | n/a (agent owns dispatch) | **No (after recipe)** | No |
-| Hallucination rate (500-Q eval) | ~1% | 31.2% | 68.9% |
+| Accuracy (v6 headline) | 94.7 % | 87.9 % (CG 94.0 %) | 94.5 % |
+| Hallucination verdicts | 0 | 0 | 0 |
 | Pagination depth | 1000+ rows (`before_model_callback`) | ~200 rows (server auto-pages, then LLM compresses) | Single page |
-| Cost per 1K queries | ~$0.17 | **~$0.05** | ~$0.03 |
+| Cost per 1K queries | ~$10.20 | **~$0.23** | $0 (hosted) |
 | Custom prompts/formatting | Full | Limited (mcp_agent_instructions only) | None |
 | Best for | Production ticketing, complex analysis | **Search/lookup with cost discipline** | Quick prototypes |
 
@@ -367,22 +367,37 @@ Full request shape is non-negotiable — copy it from the GE Console's browser D
 
 ## 7. Evaluation results — Option C specifically
 
-500-question Claude-Opus-judged eval, 2026-05-19. Full writeup in [FINDINGS.md](./FINDINGS.md).
+### v6 headline (172 v2 questions, judge_v6, 2026-05-27)
+
+Full writeup in [FINDINGS.md](./FINDINGS.md).
 
 | Dimension | Score | vs Option A | vs Option B |
 |---|---:|---:|---:|
-| Composite accuracy | **47.7 %** *(56.9 % refusal-credited)* | −47 pp | −39 pp |
-| **Hallucination rate** *(lower is better)* | **31.2 %** | +30 pp (worse than expected) | −38 pp (better) |
-| Citation accuracy | high *(KeyLink in 318/500 answers)* | ≈ A | ≫ B |
-| Refusal correctness | **96 %** *(refusal-test 92 %, prompt-injection 92 %)* | ≈ A | ≫ B |
-| JQL correctness | not directly measured *(GE planner abstracts JQL)* | — | — |
-| Pagination | 92 % on `pagination-required` *(server auto-pages, GE LLM compresses)* | weaker than A | better than B |
-| Latency p50 | **29 s** | +5 s | +20 s |
-| **Cost / 1K requests** | **$0.05** ⭐ | −$0.12 (70 % savings) | — |
+| **Accuracy (v6 headline)** | **87.9 %** | −6.8 pp | −6.6 pp |
+| **Hallucinations** *(verdict count)* | 0 / 172 | 0 | 0 |
+| Latency p50 / p90 | **28.9 s / 91.1 s** | +4.2 / +18.8 | −6.4 / +22.5 |
+| **Cost / 1K queries** | **$0.23** ⭐ | −$9.97 (98 % savings) | — |
 
-**Where Option C wins (≥92 %):** `lookup`, `count-aggregate`, `pagination-required`, `typo-robustness`, `golden-anti-regression`, `refusal-test`, `prompt-injection`. Anything single-tool or safety-related — strong.
+Under judge_v6 C lands a few points behind A and B — the GE planner
+extracts most of the value from the custom MCP tools but doesn't chain
+tool calls the way ADK does, so multi-step / cross-issue questions drop
+verdicts from `correct` to `partial`. The CG variant (same pipeline,
+gemini-3.5-flash override) recovers most of the gap at **94.0 %**.
 
-**Where Option C loses (≤32 %):** `multi-step` (0 %), `comments-worklogs` (0 %), `cross-issue-analysis` (8 %), `pii-sensitive` (8 %), `root-cause-synthesis` (12 %), `tool-efficiency` (32 %), `ambiguous` (36 %). Anything requiring multi-tool chaining or cross-page synthesis — weak. **This is the architectural ceiling** — GE's auto-MCP-agent owns the tool loop and doesn't have ADK's `before_model_callback` to stay coherent across long sequences.
+### Latency caveat — server-side pagination doesn't fully fix the planner serialization
+
+Custom MCP (C) auto-paginates internally up to `maxResults=2000`, which
+is what lets the SMP 906-issue count return in ~14 s end-to-end vs B's
+113–156 s. **But** for compound queries that require multiple distinct
+JQL searches (different filters, different projects), the GE planner
+still serializes one tool call per LLM turn, which is why C's p50
+`pagination-required` is **112.8 s** (the bumper above which it has
+limited workarounds). Detailed per-category latency in
+[`../docs/REFERENCE.md §2`](../docs/REFERENCE.md#2-latency-breakdown-by-question-category).
+
+For workloads that need multi-step chaining at low latency, **promote to
+Option A** — the `before_model_callback` keeps prompts linear and the
+ADK planner makes parallel tool calls; p50 24.7 s on the same eval.
 
 **Why hallucination didn't land at A's ~1 %:** the hallucinations aren't web-search fallbacks (disabled). They're the LLM inventing plausible-looking issue keys when the tool returns ambiguous/empty data on multi-step questions where the planner gave up. The system prompt added in `assistant.generationConfig.systemInstruction` (see §4.3) reduces this but doesn't eliminate it. Bringing hallucination down to A's ~1 % needs the ADK agent owning the tool loop, not better prompts.
 
@@ -410,15 +425,18 @@ Methodology + judging + report rendering: [`../eval/README.md`](../eval/README.m
 
 ## 8. Cost comparison
 
+Per-1K queries, using the realistic active-time model from [`../docs/PRICING.md`](../docs/PRICING.md) (Jira MCP billed only during tool calls, ~6 s per query at 2 vCPU + 1 GiB):
+
 | | Option A | **Option C** |
 |---|---|---|
-| Agent Engine | ~$0.10/1K | $0 |
-| ADK API calls | ~$0.02/1K | $0 |
-| Cloud Run | ~$0.05/1K | ~$0.05/1K |
+| Gemini LLM tokens | $6.75/1K (Gemini 2.5 Flash basis) | $0 (bundled in GE seat) |
+| Agent Engine compute | $0.72/1K | $0 |
+| Agent Engine Sessions | $2.50/1K | $0 |
+| Jira MCP Cloud Run | $0.23/1K | $0.23/1K |
 | GE streamAssist | included | included |
-| **Total** | **~$0.17/1K** | **~$0.05/1K** |
+| **Total** | **~$10.20/1K** | **~$0.23/1K** |
 
-~70% cost reduction by dropping the Agent Engine layer.
+~98 % cost reduction by dropping the Agent Engine + LLM layer (the trade-off is the lower accuracy + higher hallucination documented in [FINDINGS.md](./FINDINGS.md)).
 
 ---
 

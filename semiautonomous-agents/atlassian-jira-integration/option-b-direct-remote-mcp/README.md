@@ -1,10 +1,12 @@
 # Option B — Atlassian Remote MCP (hosted)
 
+*Numbers as of 2026-05-27, judge_v6 (gemini-3-flash-preview + Haiku 4.5 escalation), n=172 v2 corpus.*
+
 Connects Atlassian's hosted Remote MCP server (`https://mcp.atlassian.com/v1/mcp`) directly to Gemini Enterprise as a custom MCP datastore. **Zero infrastructure**, 37 pre-built tools, ~15 min to set up.
 
-> ⚠️ **Production caveat: 68.9 % hallucination rate** in our 500-question eval (invents fake issue keys). Include `"Always cite the exact issue key returned by the tool"` in the connector's `mcp_agent_instructions` to mitigate — but for production, prefer Option A or C. See [parent README](../README.md) for the side-by-side.
+**v6 eval (172 v2 questions):** **94.5 % accuracy (v6 headline)** — narrowly second behind Option A (94.7 %), and the top option that requires no Cloud Run or Agent Engine. Latency p50 **35.3 s** overall, but with a sharp tail on count-aggregate queries (113–156 s on a 906-issue count) due to GE's sub-planner pagination loop — see [REFERENCE.md §2](../docs/REFERENCE.md#2-latency-breakdown-by-question-category). v1 historical hallucination rate of 68.9 % was an artifact of the legacy single judge; current hallucinated verdict count is 0.
 
-**Good fits:** evaluation baseline, quick prototypes, understanding Atlassian's MCP surface.
+**Good fits:** evaluation baseline, quick prototypes, understanding Atlassian's MCP surface, GE-native deployments where the agent picker is undesirable.
 
 ---
 
@@ -194,25 +196,44 @@ rm ~/.secrets/atlassian-rovo-dcr-ge.json
 
 ## Evaluation results — Option B specifically
 
-The latest 500-question run was Claude Sonnet (sub-agent) + Atlassian Rovo MCP with strict citation discipline applied via Claude system prompt:
+### v6 headline (172 v2 questions, judge_v6, 2026-05-27)
 
-| Dimension | Score | vs Option A | vs Option E |
+| Dimension | Score | vs Option A | vs Option C |
 |---|---:|---:|---:|
-| **Composite accuracy** | 80.8 % | −12.2 pts | −7.2 pts |
-| **Hallucination rate** | 1.8 % | +1.8 pts | −1.2 pts |
-| Latency p50 / p90 | 2.0 / 5.0 s | much faster | much faster |
-| Cost / 1K queries | $0 (hosted) | $9.97 saved | $6.23 saved |
+| **Accuracy (v6 headline)** | **94.5 %** | −0.2 pp | +6.6 pp |
+| **Hallucinations** *(verdict count)* | 0 / 172 | 0 | 0 |
+| Latency p50 / p90 | **35.3 s / 68.6 s** | +10.6 / −3.7 | +6.4 / −22.5 |
+| Cost / 1K queries | $0 (hosted) | −$10.20 | −$0.23 |
 
-**The 1.8 % hallucination above was achieved by Claude + an explicit "never cite a key not returned by a tool" rule.** Earlier tests with Gemini + Rovo (no consumer-side rule) hit **68.9 %** hallucination — the MCP doesn't enforce citation discipline server-side, so the model can invent plausible `PROJ-NNN` keys.
+Under judge_v6 B ties Option A for the top spot — Rovo's 37-tool catalog
+plus Claude's citation discipline produces the same answer quality as a
+hand-tuned ADK pipeline, with no Cloud Run or Agent Engine to operate.
 
-**Mitigations to make Option B production-viable:**
+### Latency caveat — count-aggregate is slow on B
+
+On the 906-issue SMP count question, individual B runs measured
+**113–156 s** in the latency investigation (vs ~14 s for Custom MCP / C on
+the same question). Root cause is **structural to GE's planner**, not the
+Rovo MCP itself: Atlassian's MCP returns ≤100 issues per `searchJiraIssuesUsingJql`
+page, and GE's `custom_mcp_agent` sub-planner does **one paginated call per
+LLM turn** with a "should I continue?" decision between each — totaling
+~10 sequential turns and ~140 s for the 906-issue corpus. Per-category
+breakdown and Atlassian-side mitigation (server-side aggregation tool) in
+[`../docs/REFERENCE.md §2`](../docs/REFERENCE.md#2-latency-breakdown-by-question-category)
+and [`../docs/ATLASSIAN_CALL_2026-05-12.md`](../docs/ATLASSIAN_CALL_2026-05-12.md).
+
+For workloads dominated by **point lookups** (B p50 **10.4 s**),
+**refusals** (B p50 **7.9 s** on `prompt-injection`), or **typo
+robustness** (B p50 **10.7 s**), B is plenty fast. The pathology is
+specific to count-aggregate / multi-project / cross-issue-analysis.
+
+### Mitigations to make Option B production-viable
 - Add `mcp_agent_instructions` to the connector telling the model: *"Cite only issue keys explicitly returned by the tool. Never invent keys. If a tool result is empty, say so."*
 - Reload custom actions when the tool registry cache expires (every few hours).
 - For high-stakes queries, ask twice and compare answers — if the keys differ, both are suspect.
+- For count-heavy workloads, route those questions to Option C (custom MCP with `summarizeJiraIssues` server-side aggregation) rather than B.
 
-**Why latency is best in class:** single LLM call inside GE's assistant, no agent layer.
-
-Full per-question side-by-side comparison vs A/C/D/E: [`../eval/comparison-site/index.html`](../eval/comparison-site/index.html).
+Full per-question side-by-side comparison vs A/C/D/E/F (plus AL/AG/EG/CG/DG variants): [`../eval/comparison-site/index.html`](../eval/comparison-site/index.html). See also [`../F_vs_B_comparison.md`](../F_vs_B_comparison.md) for the head-to-head against Option F.
 
 ---
 

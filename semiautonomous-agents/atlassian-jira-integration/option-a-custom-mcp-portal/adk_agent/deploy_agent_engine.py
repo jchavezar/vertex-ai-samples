@@ -21,14 +21,45 @@ importlib.reload(agent)
 
 load_dotenv(override=True)
 
+
+# Use the gcloud-user token (admin@jesusarguelles.altostrat.com via
+# GCLOUD_ACCOUNT env var) to avoid the local ADC quota-project trap that
+# blocks aiplatform.reasoningEngines.* on this machine.
+def _user_credentials():
+    import subprocess
+    from datetime import datetime, timedelta
+    from google.oauth2.credentials import Credentials
+
+    acct = os.environ.get("GCLOUD_ACCOUNT")
+
+    def _fresh_token() -> str:
+        args = ["gcloud", "auth", "print-access-token"]
+        if acct:
+            args += ["--account", acct]
+        return subprocess.run(args, capture_output=True, text=True, check=True).stdout.strip()
+
+    class _GcloudCredentials(Credentials):
+        def refresh(self, request):  # type: ignore[override]
+            self.token = _fresh_token()
+            self.expiry = datetime.utcnow() + timedelta(minutes=50)
+
+    creds = _GcloudCredentials(token=_fresh_token())
+    creds.expiry = datetime.utcnow() + timedelta(minutes=50)
+    return creds
+
+
+_user_creds = _user_credentials()
+
 # Initialize Vertex AI SDK
 vertexai.init(
     project=os.getenv("GOOGLE_CLOUD_PROJECT"),
     location=os.getenv("GOOGLE_CLOUD_LOCATION"),
+    credentials=_user_creds,
 )
 client = vertexai.Client(
     project=os.getenv("GOOGLE_CLOUD_PROJECT"),
     location=os.getenv("GOOGLE_CLOUD_LOCATION"),
+    credentials=_user_creds,
 )
 
 # Wrap the agent from agent.py

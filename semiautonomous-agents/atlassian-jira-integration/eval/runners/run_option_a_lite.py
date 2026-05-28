@@ -24,9 +24,13 @@ import httpx
 
 from . import _common as C
 
+_FLASHLITE_ID = os.environ.get(
+    "OPTION_A_FLASHLITE_AGENT_ID",
+    "1830381745770332160",  # jira-mcp-portal-flashlite (gemini-3.1-flash-lite, global region)
+)
 OPTION_A_AE_RESOURCE = os.environ.get(
     "OPTION_A_LITE_AE_RESOURCE",
-    f"projects/{C.GE_PROJECT_NUMBER}/locations/us-central1/reasoningEngines/659586580142358528",
+    f"projects/{C.GE_PROJECT_NUMBER}/locations/us-central1/reasoningEngines/{_FLASHLITE_ID}",
 )
 AE_REGION = OPTION_A_AE_RESOURCE.split("/locations/")[1].split("/")[0]
 AE_STREAM_URL = (

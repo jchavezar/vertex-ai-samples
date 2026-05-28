@@ -51,11 +51,21 @@ async def _run_pipeline(
 
     async def _wrapped(q: dict[str, Any]) -> None:
         async with sem:
+            started_iso = C.utc_iso_now()
             t0 = time.time()
             try:
                 result = await runner(q, client, raw_dir)
             except Exception as exc:  # belt + suspenders
                 result = C.RunnerResult(id=q["id"], pipeline=name, ok=False, answer="", error=f"runner crash: {exc}")
+            finished_iso = C.utc_iso_now()
+            # Stamp wall-clock timestamps on every record so the comparison
+            # site can show "evaluated at" per question per pipeline. The
+            # orchestrator wraps every runner here, so this single hook
+            # covers all options (a, b, c, d, e, f, g, h, i, al, ag, eg, cg, dg).
+            if not result.started_at_iso:
+                result.started_at_iso = started_iso
+            if not result.finished_at_iso:
+                result.finished_at_iso = finished_iso
             C.append_jsonl(out_jsonl, result.to_jsonl_line())
             tag = "OK" if result.ok else "ERR"
             print(f"[{name}] {tag} {q['id']:>6}  {result.elapsed_s:5.1f}s  {(result.error or result.answer[:60])}", flush=True)
@@ -68,7 +78,7 @@ async def main() -> None:
     ap.add_argument("--questions", required=True, help="path to questions/main.json")
     ap.add_argument("--out", required=True, help="run output dir, e.g. runs/_smoke")
     ap.add_argument("--smoke", type=int, default=0, help="run only first N questions")
-    ap.add_argument("--only", choices=["a", "b", "c", "d", "e", "f", "g", "h", "i", "al", "both"], default="both")
+    ap.add_argument("--only", choices=["a", "b", "c", "d", "e", "f", "g", "h", "i", "al", "ag", "eg", "cg", "dg", "both"], default="both")
     ap.add_argument("--concurrency", type=int, default=int(os.environ.get("EVAL_CONCURRENCY", "6")))
     args = ap.parse_args()
 
@@ -122,6 +132,22 @@ async def main() -> None:
             from runners.run_option_a_lite import run_one as run_al_one
             sem_al = asyncio.Semaphore(args.concurrency)
             tasks.append(_run_pipeline("al", run_al_one, qs, out / "responses_al.jsonl", raw, sem_al, client))
+        if args.only == "ag":
+            from runners.run_option_a_gemini35 import run_one as run_ag_one
+            sem_ag = asyncio.Semaphore(args.concurrency)
+            tasks.append(_run_pipeline("ag", run_ag_one, qs, out / "responses_ag.jsonl", raw, sem_ag, client))
+        if args.only == "eg":
+            from runners.run_option_e_gemini35 import run_one as run_eg_one
+            sem_eg = asyncio.Semaphore(args.concurrency)
+            tasks.append(_run_pipeline("eg", run_eg_one, qs, out / "responses_eg.jsonl", raw, sem_eg, client))
+        if args.only == "cg":
+            from runners.run_option_c_gemini35 import run_one as run_cg_one
+            sem_cg = asyncio.Semaphore(args.concurrency)
+            tasks.append(_run_pipeline("cg", run_cg_one, qs, out / "responses_cg.jsonl", raw, sem_cg, client))
+        if args.only == "dg":
+            from runners.run_option_d_gemini35 import run_one as run_dg_one
+            sem_dg = asyncio.Semaphore(args.concurrency)
+            tasks.append(_run_pipeline("dg", run_dg_one, qs, out / "responses_dg.jsonl", raw, sem_dg, client))
         await asyncio.gather(*tasks)
 
     print(f"\nDone. Outputs in {out}.", flush=True)

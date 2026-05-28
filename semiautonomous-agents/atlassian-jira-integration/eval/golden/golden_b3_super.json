@@ -1,0 +1,2041 @@
+{
+  "q0201": {
+    "question_id": "q0201",
+    "category": "ambiguous",
+    "n_real_issues": 0,
+    "issue_keys_used": [],
+    "golden_answer": "[unanswerable: no relevant Jira data found]",
+    "intent": "unanswerable",
+    "synthesis_error": false
+  },
+  "q0120": {
+    "question_id": "q0120",
+    "category": "root-cause-synthesis",
+    "n_real_issues": 15,
+    "issue_keys_used": [
+      "CRM-100",
+      "CRM-97",
+      "CRM-95",
+      "CRM-93",
+      "CRM-92",
+      "CRM-82",
+      "CRM-78",
+      "CRM-77",
+      "CRM-70",
+      "CRM-69",
+      "CRM-68",
+      "CRM-65",
+      "CRM-62",
+      "CRM-60",
+      "CRM-57"
+    ],
+    "golden_answer": "Based on the provided Jira issues, the requested PagerDuty integration points focus on proactive incident detection and automated synchronization between support and engineering:\n\n*   **P1 Pattern Alerting:** CRM-100 requests an integration to trigger PagerDuty alerts when ticket volumes for critical categories exceed 5x the baseline. This is part of a broader effort (CRM-97) to detect emerging technical issues through ticket spikes before traditional monitoring catches them.\n*   **Incident Auto-Creation:** CRM-95 requests the automatic creation of incidents from PagerDuty alerts, specifically those tagged as \"customer-facing.\"\n*   **Bidirectional Syncing and Mapping:** CRM-95 also specifies the need for severity mapping between systems and an auto-resolve feature where the internal incident is closed once the PagerDuty alert is resolved.\n*   **Manual Escalation:** CRM-95 includes a manual flow for support to escalate detected issues to PagerDuty.\n\nThese integrations aim to reduce response times for widespread outages and ensure engineering is alerted to customer-reported patterns in real-time.",
+    "synthesizer_model": "gemini-3-flash-preview",
+    "resynth": true
+  },
+  "q0372": {
+    "question_id": "q0372",
+    "category": "comments-worklogs",
+    "n_real_issues": 1,
+    "issue_keys_used": [
+      "BUGS-99"
+    ],
+    "golden_answer": "There are no worklogs recorded on BUGS-99. While the issue summary and description specify the requirements for implementing a datetime serializer with ISO 8601 UTC output and Z suffix, the issue status is currently \"To Do\" and no worklog entries are present in the provided data.",
+    "synthesizer_model": "gemini-3-flash-preview"
+  },
+  "q0121": {
+    "question_id": "q0121",
+    "category": "root-cause-synthesis",
+    "n_real_issues": 7,
+    "issue_keys_used": [
+      "BUGS-98",
+      "BUGS-70",
+      "BUGS-69",
+      "BUGS-59",
+      "BUGS-49",
+      "BUGS-43",
+      "BUGS-26"
+    ],
+    "golden_answer": "Based on the provided BUGS project descriptions, database and storage issues center on data consistency, offline persistence, and search scalability.\n\n**Data Consistency and Migration**\nA significant audit is required to ensure datetime field consistency across API responses. This includes identifying database columns incorrectly storing local time and planning necessary migrations to a standardized format (BUGS-98).\n\n**Local Persistence and Offline Storage**\nThe system requires robust local storage to support offline functionality. This involves implementing a local issue queue using Room (Android) and CoreData (iOS) to store entities and attachment references (BUGS-69). Additionally, issue lists and details must be cached locally to allow for \"offline mode\" displays (BUGS-59).\n\n**Attachment and File Management**\nStorage issues include the need for a chunked upload system (1MB chunks) to handle large attachments over poor connectivity. Files must be stored in the application documents directory with proper issue referencing and post-sync cleanup (BUGS-70).\n\n**Search Infrastructure and Scaling**\nThe bug database has grown to over 2 million issues, causing P95 search latency to degrade to 4.2 seconds (BUGS-26). To optimize performance and relevance, the Elasticsearch mapping must be updated to include a `dense_vector` field for embeddings. This requires a batch processing job to backfill 2.3M issues and an additional 1.2GB of storage (BUGS-49). Furthermore, the search syntax parser currently crashes when handling complex boolean queries (BUGS-43).",
+    "synthesizer_model": "gemini-3-flash-preview",
+    "resynth": true
+  },
+  "q0373": {
+    "question_id": "q0373",
+    "category": "comments-worklogs",
+    "n_real_issues": 1,
+    "issue_keys_used": [
+      "CRM-94"
+    ],
+    "golden_answer": "Based on the provided Jira issue text for CRM-94, there are no comments recorded regarding the status page evaluation. The issue description outlines the criteria for evaluating Statuspage.io versus a custom solution\u2014including cost, customization, API access, subscriber management, and incident update workflow\u2014and notes a target launch in three weeks, but no actual comments or discussion logs are included in the data.",
+    "synthesizer_model": "gemini-3-flash-preview"
+  },
+  "q0202": {
+    "question_id": "q0202",
+    "category": "ambiguous",
+    "n_real_issues": 0,
+    "issue_keys_used": [],
+    "golden_answer": "[unanswerable: no relevant Jira data found]",
+    "intent": "unanswerable",
+    "synthesis_error": false
+  },
+  "q0203": {
+    "question_id": "q0203",
+    "category": "ambiguous",
+    "n_real_issues": 0,
+    "issue_keys_used": [],
+    "golden_answer": "[unanswerable: no relevant Jira data found]",
+    "intent": "unanswerable",
+    "synthesis_error": false
+  },
+  "q0204": {
+    "question_id": "q0204",
+    "category": "ambiguous",
+    "n_real_issues": 0,
+    "issue_keys_used": [],
+    "golden_answer": "[unanswerable: no relevant Jira data found]",
+    "intent": "unanswerable",
+    "synthesis_error": false
+  },
+  "q0374": {
+    "question_id": "q0374",
+    "category": "comments-worklogs",
+    "n_real_issues": 1,
+    "issue_keys_used": [
+      "BUGS-95"
+    ],
+    "golden_answer": "The provided Jira issue BUGS-95, titled \"Write code examples for all major endpoints,\" contains a description of the required tasks but does not list any worklogs. The description specifies that example snippets should be created in five languages for each endpoint using the httpsnippet library, include error handling, be tested in CI, and feature a copy button. However, there is no record of time spent or specific worklog entries associated with this issue in the provided text.",
+    "synthesizer_model": "gemini-3-flash-preview"
+  },
+  "q0451": {
+    "question_id": "q0451",
+    "category": "tool-efficiency",
+    "n_real_issues": 1,
+    "issue_keys_used": [
+      "PLAT-100"
+    ],
+    "golden_answer": "The title of PLAT-100 is \"Develop FinOps training curriculum and schedule sessions\".",
+    "synthesizer_model": "gemini-3-flash-preview"
+  },
+  "q0235": {
+    "question_id": "q0235",
+    "category": "multi-step",
+    "n_real_issues": 20,
+    "issue_keys_used": [
+      "SMP-145",
+      "SMP-114",
+      "SMP-103",
+      "SMP-90",
+      "SMP-80",
+      "SMP-69",
+      "SMP-54",
+      "SMP-50",
+      "SMP-39",
+      "SMP-37",
+      "SMP-34",
+      "SMP-27",
+      "SMP-25",
+      "SMP-18",
+      "SMP-15",
+      "PLAT-63",
+      "PLAT-60",
+      "PLAT-2",
+      "CRM-97",
+      "CRM-94"
+    ],
+    "golden_answer": "Issues mentioning mobile app problems across projects include SMP-145, SMP-114, SMP-103, SMP-90, SMP-80, SMP-69, SMP-54, SMP-50, SMP-39, SMP-34, SMP-27, SMP-25, SMP-18, SMP-15, and PLAT-63.\n\nSpecific platforms mentioned are iOS and Android.\n\nMain mobile issues for iOS include rendering problems such as linear gradients not appearing (SMP-34) and the need to debug the Metal rendering backend (SMP-114). Accessibility is impacted by VoiceOver ignoring semantics labels (SMP-90). Functional bugs include client_storage clearing unexpectedly on Safari (SMP-103) and build failures due to signing certificate errors in Xcode (SMP-27).\n\nMain mobile issues for Android include crashes when using CupertinoActionSheet due to missing assets or font rendering issues (SMP-80), which also necessitates verifying Cupertino font bundling (SMP-145). Performance issues include jerky switch animations on low-end devices (SMP-39) and potential benefits from Impeller (SMP-25). Usability is hindered by the on-screen keyboard covering TextFields (SMP-15).\n\nGeneral mobile issues affecting both platforms include touch targets being too small for Chip delete icons (SMP-54), touch drag events failing to trigger scrolls in certain Column/Container configurations (SMP-69), and memory leaks in ListViews with many items (SMP-18). New mobile features being addressed include adding long-press support (SMP-50) and mobile-friendly approval workflows (PLAT-63).",
+    "synthesizer_model": "gemini-3-flash-preview"
+  },
+  "q0233": {
+    "question_id": "q0233",
+    "category": "multi-step",
+    "n_real_issues": 20,
+    "issue_keys_used": [
+      "CRM-63",
+      "CRM-60",
+      "CRM-55",
+      "CRM-53",
+      "CRM-52",
+      "CRM-51",
+      "CRM-50",
+      "CRM-47",
+      "CRM-46",
+      "CRM-44",
+      "CRM-43",
+      "CRM-42",
+      "CRM-41",
+      "CRM-40",
+      "CRM-39",
+      "CRM-38",
+      "CRM-37",
+      "CRM-35",
+      "CRM-34",
+      "CRM-33"
+    ],
+    "golden_answer": "The CRM issues identify two primary fraud categories: refund fraud and account takeover (ATO). \n\nRefund fraud patterns (CRM-60) include \"item-not-received\" claims despite confirmed delivery, serial refunders operating across multiple accounts, and the return of counterfeit or incorrect items. The business impact is high, with an estimated 4% fraud rate where less than half is currently detected. To mitigate this, the system will implement ML scoring (CRM-60), a fraud specialist review queue (CRM-63), and an eligibility engine that auto-approves only low-risk, low-value orders under $25 (CRM-52).\n\nAccount takeover patterns (CRM-47) involve multiple recovery requests from the same IP range, attempts following data breach announcements, and the use of VPNs, proxies, or TOR exit nodes. Security risks also include inconsistent manual verification (CRM-39). Impact is managed through IP reputation checks (CRM-47), account risk scoring (CRM-40), and standardized agent verification toolkits including Jumio ID verification (CRM-33, CRM-39).\n\nRanking by implied business impact:\n1. Refund Fraud: Ranked highest due to direct financial loss (4% rate) and the \"Highest\" priority assigned to the eligibility engine (CRM-52) and \"High\" priority for the ML detection model (CRM-60).\n2. Account Takeover: Ranked second as a \"Low\" to \"High\" priority (CRM-47, CRM-35), focusing on security integrity and reducing support volume through automated lockouts and self-service recovery.",
+    "synthesizer_model": "gemini-3-flash-preview"
+  },
+  "q0123": {
+    "question_id": "q0123",
+    "category": "root-cause-synthesis",
+    "n_real_issues": 15,
+    "issue_keys_used": [
+      "BUGS-97",
+      "BUGS-89",
+      "BUGS-84",
+      "BUGS-81",
+      "BUGS-73",
+      "BUGS-72",
+      "BUGS-71",
+      "BUGS-68",
+      "BUGS-60",
+      "BUGS-59",
+      "BUGS-57",
+      "BUGS-56",
+      "BUGS-52",
+      "BUGS-51",
+      "BUGS-50"
+    ],
+    "golden_answer": "Mobile issues in BUGS are primarily caused by performance bottlenecks during issue list scrolling, where frame rates drop to 15-20fps on mid-range devices (BUGS-72). According to BUGS-72 and BUGS-73, these rendering issues are driven by:\n\n*   **Main Thread Rendering:** Rich text (markdown) rendering currently occurs on the main thread during scrolling, leading to noticeable stutter and jank.\n*   **Complex Content:** Performance is specifically degraded when issues contain inline images or code blocks.\n*   **Lack of Caching:** The system lacks asynchronous rendering and a caching mechanism for rendered output.\n\nTo resolve these bottlenecks, the development team is tasked with moving markdown rendering to a background thread, implementing a cache keyed by content hash, and showing plain text previews while rendering to achieve a target render time of under 50ms (BUGS-73).",
+    "synthesizer_model": "gemini-3-flash-preview",
+    "resynth": true
+  },
+  "q0122": {
+    "question_id": "q0122",
+    "category": "root-cause-synthesis",
+    "n_real_issues": 20,
+    "issue_keys_used": [
+      "CRM-100",
+      "CRM-99",
+      "CRM-98",
+      "CRM-96",
+      "CRM-95",
+      "CRM-94",
+      "CRM-93",
+      "CRM-92",
+      "CRM-91",
+      "CRM-90",
+      "CRM-89",
+      "CRM-88",
+      "CRM-87",
+      "CRM-86",
+      "CRM-84",
+      "CRM-83",
+      "CRM-82",
+      "CRM-80",
+      "CRM-79",
+      "CRM-78"
+    ],
+    "golden_answer": "The medium priority issues in the CRM project address several critical incident management gaps, primarily focusing on detection, communication, and resolution efficiency. \n\nTo improve detection and alerting, the issues cover building ticket volume monitoring with segment breakdowns (CRM-98), implementing anomaly detection with dynamic baselines (CRM-99), and creating alerting integrations with PagerDuty and Slack (CRM-100). CRM-95 specifically addresses incident creation through PagerDuty alerts or manual escalation, including severity mapping.\n\nCommunication gaps are addressed through the implementation of a public status page (CRM-93, CRM-94) that allows customers to see known issues and subscribe for updates, reducing duplicate ticket volume. \n\nEfficiency in handling incidents is improved through ticket-to-incident linking and duplicate prevention (CRM-96), which provides agents with banners for active incidents and auto-updates linked tickets upon resolution. Furthermore, the issues address the gap between support and engineering through bidirectional ticket synchronization (CRM-83), automatic bug ticket creation (CRM-82), and escalation tracking with SLA monitoring (CRM-84). \n\nFinally, technical context gaps are addressed by implementing standardized environment collection forms (CRM-89, CRM-91), auto-detection libraries (CRM-90), and integrating Sentry crash data (CRM-78) or OCR for error message extraction from screenshots (CRM-86) to provide engineering with better diagnostic data.",
+    "synthesizer_model": "gemini-3-flash-preview"
+  },
+  "q0452": {
+    "question_id": "q0452",
+    "category": "tool-efficiency",
+    "n_real_issues": 1,
+    "issue_keys_used": [
+      "CRM-99"
+    ],
+    "golden_answer": "The summary for CRM-99 is \"Implement anomaly detection algorithm with baseline comparison.\" This subtask involves calculating dynamic baselines per segment, detecting statistically significant deviations, and accounting for expected patterns like launches and marketing events with a tunable threshold.",
+    "synthesizer_model": "gemini-3-flash-preview"
+  },
+  "q0238": {
+    "question_id": "q0238",
+    "category": "multi-step",
+    "n_real_issues": 13,
+    "issue_keys_used": [
+      "PLAT-59",
+      "CRM-64",
+      "CRM-49",
+      "CRM-28",
+      "CRM-27",
+      "CRM-6",
+      "CRM-2",
+      "BUGS-88",
+      "BUGS-87",
+      "BUGS-86",
+      "BUGS-85",
+      "BUGS-76",
+      "BUGS-22"
+    ],
+    "golden_answer": "The identified issues related to rate limiting are PLAT-59, CRM-49, CRM-28, BUGS-88, BUGS-87, BUGS-86, BUGS-85, BUGS-76, and BUGS-22.\n\nThe specific problems described include: incorrect quota calculation where CORS preflight OPTIONS requests are counted against user limits, causing users to hit limits at twice the expected rate (BUGS-85, BUGS-86); vulnerability to credential stuffing attacks because current IP-based limiting is bypassed by residential proxy networks (BUGS-22); lack of developer transparency regarding usage limits and headers (BUGS-87, BUGS-88); and the need for robust limiting logic for account recovery and third-party integrations like Okta and Twilio (CRM-49, CRM-28, PLAT-59).\n\nPrioritization should focus on BUGS-85 (High priority) and BUGS-22 (Medium priority but high security impact). BUGS-85 should be the top priority because it directly impacts legitimate user experience by incorrectly exhausting quotas, leading to premature API failures. BUGS-22 is the next priority as it addresses a 400% increase in credential stuffing attacks that bypass current defenses. While BUGS-76 is an Epic for modernization, resolving the functional defects in BUGS-85 and the security gaps in BUGS-22 provides the most immediate benefit to system stability and user trust.",
+    "synthesizer_model": "gemini-3-flash-preview"
+  },
+  "q0205": {
+    "question_id": "q0205",
+    "category": "ambiguous",
+    "n_real_issues": 15,
+    "issue_keys_used": [
+      "SMP-154",
+      "SMP-135",
+      "SMP-91",
+      "SMP-70",
+      "SMP-66",
+      "SMP-55",
+      "SMP-50",
+      "SMP-41",
+      "SMP-30",
+      "SMP-25",
+      "SMP-22",
+      "SMP-20",
+      "SMP-13",
+      "PLAT-99",
+      "PLAT-94"
+    ],
+    "golden_answer": "Based on the provided Jira issues, the following API-related tasks and bugs were identified:\n\n**New API Features and Designs**\n*   **SMP-154:** Implement Windows cursor API.\n*   **SMP-135:** Design Shortcut API.\n*   **SMP-91:** Add a declarative Shortcut/KeyboardListener API for global key bindings to replace the low-level `on_keyboard_event`.\n*   **SMP-70:** Add API support for `SystemMouseCursors` custom icons.\n*   **SMP-50:** Add `on_long_press` API to the Container component.\n*   **SMP-41:** Implement a new Badge component API for notifications.\n*   **SMP-30:** Add an `on_hover` event API to the Card component.\n*   **SMP-22:** Implement a native Drag and Drop API (`Draggable`, `DragTarget`) for Containers.\n*   **SMP-20:** Develop a `MethodChannel` API to allow custom plugins to interact with native platform APIs.\n\n**Bugs and Technical Issues**\n*   **SMP-66:** A bug where `UserControl.build()` is called twice, causing redundant API calls if they are placed within the build method.\n*   **SMP-25:** Risk of breaking changes in the Flutter API due to an SDK upgrade to version 3.19.\n*   **SMP-13:** A `FilePicker` bug on Windows caused by a Win32 API quirk or path normalization issue.\n\n**Infrastructure and Tooling**\n*   **PLAT-99:** Update architecture reviews to include cost estimation for new API services.\n*   **PLAT-94:** Use Kubernetes API data to build an idle resource detection scanner.",
+    "synthesizer_model": "gemini-3-flash-preview",
+    "resynth": true
+  },
+  "q0206": {
+    "question_id": "q0206",
+    "category": "ambiguous",
+    "n_real_issues": 0,
+    "issue_keys_used": [],
+    "golden_answer": "[unanswerable: no relevant Jira data found]",
+    "intent": "unanswerable",
+    "synthesis_error": false
+  },
+  "q0453": {
+    "question_id": "q0453",
+    "category": "tool-efficiency",
+    "n_real_issues": 1,
+    "issue_keys_used": [
+      "OPS-98"
+    ],
+    "golden_answer": "The status of OPS-98 is To Do. It is a medium priority subtask focused on creating a migration review process and tooling.",
+    "synthesizer_model": "gemini-3-flash-preview"
+  },
+  "q0126": {
+    "question_id": "q0126",
+    "category": "cross-issue-analysis",
+    "n_real_issues": 20,
+    "issue_keys_used": [
+      "SMP-912",
+      "SMP-910",
+      "SMP-908",
+      "SMP-905",
+      "PLAT-89",
+      "PLAT-85",
+      "PLAT-81",
+      "PLAT-64",
+      "PLAT-60",
+      "PLAT-35",
+      "PLAT-31",
+      "PLAT-18",
+      "PLAT-10",
+      "PLAT-6",
+      "OPS-97",
+      "OPS-85",
+      "OPS-81",
+      "OPS-64",
+      "OPS-60",
+      "OPS-52"
+    ],
+    "golden_answer": "Based on the provided issues, the PLAT project has the most High priority issues currently in To Do status, with a total of 10 issues (PLAT-89, PLAT-85, PLAT-81, PLAT-64, PLAT-60, PLAT-35, PLAT-31, PLAT-18, PLAT-10, and PLAT-6).\n\nIn comparison, the OPS project has 6 issues (OPS-97, OPS-85, OPS-81, OPS-64, OPS-60, and OPS-52), and the SMP project has 4 issues (SMP-912, SMP-910, SMP-908, and SMP-905) that meet these criteria. There are no issues listed for BUGS, CRM, or other projects.",
+    "synthesizer_model": "gemini-3-flash-preview"
+  },
+  "q0100": {
+    "question_id": "q0100",
+    "category": "root-cause-synthesis",
+    "n_real_issues": 15,
+    "issue_keys_used": [
+      "BUGS-100",
+      "BUGS-99",
+      "BUGS-98",
+      "BUGS-97",
+      "BUGS-94",
+      "BUGS-93",
+      "BUGS-89",
+      "BUGS-85",
+      "BUGS-81",
+      "BUGS-77",
+      "BUGS-76",
+      "BUGS-75",
+      "BUGS-48",
+      "BUGS-20",
+      "BUGS-18"
+    ],
+    "golden_answer": "Based on the provided JIRA issues, the common root causes behind API-related bugs in the BUGS project include:\n\n*   **Inconsistent Timezone and Datetime Handling:** The API suffers from inconsistent timezone management, where endpoints return dates in UTC, server time, or without any timezone indicator (BUGS-97). There is also a lack of standardized formatting, necessitating a transition to ISO 8601 UTC output and the normalization of incoming datetime formats (BUGS-98, BUGS-99, BUGS-100).\n*   **REST Design Inconsistencies:** API v1 contains inconsistent naming conventions, mixed pluralization (e.g., singular `/issue/` vs. plural `/projects/`), and non-standard endpoint designs. Error responses also vary significantly across the platform (BUGS-77, BUGS-76).\n*   **Rate Limiter Logic Errors:** The rate limiter incorrectly counts CORS preflight `OPTIONS` requests against a user's quota. This causes users to hit limits at twice the expected rate because each browser-based call consumes two units (BUGS-85).\n*   **Poor Documentation and Discoverability:** Current documentation is static and frequently out of date, leading developers to rely on trial-and-error. This has prompted a move toward interactive portals and OpenAPI specifications (BUGS-93, BUGS-94).\n*   **Inefficient Data Fetching:** The current REST structure requires multiple calls (4+) to fetch related data, leading to the implementation of GraphQL to resolve complex query inefficiencies (BUGS-89).\n*   **Platform-Specific API Implementation:** On Android, version-specific changes in biometric APIs cause crashes and security exceptions on newer OS versions (BUGS-18, BUGS-20).",
+    "synthesizer_model": "gemini-3-flash-preview",
+    "resynth": true
+  },
+  "q0240": {
+    "question_id": "q0240",
+    "category": "multi-step",
+    "n_real_issues": 8,
+    "issue_keys_used": [
+      "CRM-85",
+      "CRM-81",
+      "CRM-60",
+      "CRM-56",
+      "CRM-35",
+      "CRM-31",
+      "CRM-10",
+      "CRM-6"
+    ],
+    "golden_answer": "The high priority issues in the CRM project that involve customer self-service features are CRM-35, CRM-56, CRM-6, and CRM-85. Ranked by potential ticket deflection impact, the top issue is CRM-35 (Automated Account Lockout Detection and Self-Service Unlock), as it addresses the common issue of legitimate users being locked out and forced to email support. The second is CRM-56 (Customer-Facing Refund Status Tracking Portal), which specifically targets \"where is my refund\" follow-up tickets that currently consume 15% of agent capacity. The third is CRM-6 (Self-Service Dispute Submission Portal for End Users), which replaces manual emails and live chats with a structured web form to improve information capture and categorization. The fourth is CRM-85 (Automated Troubleshooting Guides Based on Error Messages), which reduces agent time spent looking up error codes by auto-suggesting troubleshooting steps directly to users or agents based on error patterns. Other high priority issues like CRM-81, CRM-60, CRM-31, and CRM-10 focus on internal workflows, fraud detection, or security verification rather than direct customer self-service features.",
+    "synthesizer_model": "gemini-3-flash-preview"
+  },
+  "q0207": {
+    "question_id": "q0207",
+    "category": "ambiguous",
+    "n_real_issues": 15,
+    "issue_keys_used": [
+      "SMP-69",
+      "SMP-54",
+      "SMP-50",
+      "SMP-18",
+      "PLAT-63",
+      "PLAT-60",
+      "CRM-90",
+      "CRM-89",
+      "CRM-58",
+      "CRM-7",
+      "CRM-6",
+      "BUGS-72",
+      "BUGS-68",
+      "BUGS-60",
+      "BUGS-52"
+    ],
+    "golden_answer": "The following mobile-specific problems and tasks were identified across the provided JIRA issues:\n\n**Performance and Stability**\n*   **BUGS-72:** Scroll performance jank and frame drops (15-20fps) on mobile platforms due to main-thread rich text rendering.\n*   **BUGS-60:** Excessive battery drain (15-20% daily) on iOS and Android caused by frequent background syncs.\n*   **BUGS-52:** iOS app crashes when viewing issues with attachments larger than 15MB due to memory exhaustion.\n*   **SMP-18:** ListView memory leaks and crashes on mobile when populating over 1000 items.\n\n**UI/UX Bugs**\n*   **SMP-69:** Column component fails to scroll on some mobile viewports when placed inside a fixed-height container.\n*   **SMP-54:** Chip delete icons are difficult to tap on mobile; requires increasing the hit target to 48x48dp.\n\n**Feature Development and Design**\n*   **BUGS-68:** Need to implement offline issue creation and a sync queue for mobile users with poor connectivity.\n*   **SMP-50:** Adding `on_long_press` to Containers to support mobile context menus.\n*   **CRM-7:** Designing a dispute submission form using a mobile-first approach.\n*   **CRM-58:** Implementing a mobile-responsive refund tracking UI.\n*   **CRM-90:** Building an environment auto-detection library using native APIs for mobile.\n*   **PLAT-63:** Integrating one-click mobile approvals via email notifications.",
+    "synthesizer_model": "gemini-3-flash-preview",
+    "resynth": true
+  },
+  "q0455": {
+    "question_id": "q0455",
+    "category": "tool-efficiency",
+    "n_real_issues": 1,
+    "issue_keys_used": [
+      "BUGS-97"
+    ],
+    "golden_answer": "Based on the provided Jira issue text, BUGS-97 does not have an assigned user. The issue details only specify the type as a Story, the priority as High, the status as To Do, and the components as auth and search.",
+    "synthesizer_model": "gemini-3-flash-preview"
+  },
+  "q0239": {
+    "question_id": "q0239",
+    "category": "multi-step",
+    "n_real_issues": 20,
+    "issue_keys_used": [
+      "PLAT-99",
+      "PLAT-94",
+      "PLAT-85",
+      "PLAT-75",
+      "PLAT-72",
+      "PLAT-67",
+      "PLAT-59",
+      "PLAT-56",
+      "PLAT-46",
+      "PLAT-40",
+      "PLAT-26",
+      "PLAT-12",
+      "PLAT-11",
+      "PLAT-10",
+      "PLAT-6",
+      "PLAT-2",
+      "PLAT-1",
+      "BUGS-100",
+      "BUGS-99",
+      "BUGS-98"
+    ],
+    "golden_answer": "Based on the provided Jira issues, the BUGS and PLAT projects overlap in their focus on standardizing API behavior, managing version transitions, and improving security through identity and access APIs.\n\nThe BUGS project focuses on API consistency regarding data formats, specifically standardizing datetime fields across all responses. This includes auditing current responses (BUGS-98), implementing a universal ISO 8601 UTC serializer (BUGS-99), and adding input normalization with deprecation warnings in API headers (BUGS-100).\n\nThe PLAT project addresses API design through infrastructure and service management. A major roadmap item is the service mesh migration (PLAT-1), which requires managing breaking API changes in Gateway and VirtualService CRDs. This involves auditing deprecated API versions (PLAT-2) and updating Helm charts for Kubernetes Gateway API compatibility (PLAT-10, PLAT-11, PLAT-12). PLAT also focuses on building new API-driven services for RBAC using OPA (PLAT-56), SOC2 compliance reporting (PLAT-75), and access certification (PLAT-67).\n\nThe combined API roadmap includes:\n1. Standardizing data serialization (ISO 8601) and implementing deprecation notices for legacy formats.\n2. Migrating infrastructure APIs from legacy Istio CRDs to the Kubernetes Gateway API.\n3. Expanding the Developer Portal to support non-REST patterns, such as event-driven and ML model serving, moving beyond the current 60% REST coverage (PLAT-26).\n4. Integrating external identity APIs (Okta) and building internal gRPC APIs for centralized permission evaluation.",
+    "synthesizer_model": "gemini-3-flash-preview"
+  },
+  "q0243": {
+    "question_id": "q0243",
+    "category": "multi-step",
+    "n_real_issues": 5,
+    "issue_keys_used": [
+      "CRM-96",
+      "CRM-95",
+      "CRM-94",
+      "CRM-93",
+      "CRM-31"
+    ],
+    "golden_answer": "The incident management workflow begins with detection through two primary channels: automated PagerDuty alerts tagged as customer-facing or manual escalation by support staff for identified issues. Once an incident is created, it is mapped by severity. To manage customer communication, incidents and scheduled maintenance are published to a public status page where customers can subscribe for email or push notification updates. Internally, agents use a linking system that identifies active incidents matching ticket keywords via a banner. This allows for one-click linking of support tickets to incidents to prevent duplicates and track avoided tickets. The workflow concludes with resolution; when a PagerDuty alert resolves, the incident auto-resolves, which subsequently triggers automatic updates to all linked support tickets and sends automated updates to status page subscribers. For specific high-risk security incidents like account takeovers, the workflow requires specialized identity verification including re-authentication, dual-email confirmation, or manual government ID review.",
+    "synthesizer_model": "gemini-3-flash-preview"
+  },
+  "q0124": {
+    "question_id": "q0124",
+    "category": "root-cause-synthesis",
+    "n_real_issues": 20,
+    "issue_keys_used": [
+      "CRM-100",
+      "CRM-99",
+      "CRM-98",
+      "CRM-97",
+      "CRM-96",
+      "CRM-95",
+      "CRM-94",
+      "CRM-93",
+      "CRM-92",
+      "CRM-91",
+      "CRM-90",
+      "CRM-89",
+      "CRM-88",
+      "CRM-87",
+      "CRM-86",
+      "CRM-85",
+      "CRM-84",
+      "CRM-83",
+      "CRM-82",
+      "CRM-81"
+    ],
+    "golden_answer": "The technical work prioritized across the provided CRM issues focuses on four main categories: automated issue detection, incident communication, technical data collection, and engineering workflow integration.\n\nFirst, the team is building proactive monitoring and anomaly detection systems (CRM-97, CRM-99). This includes streaming pipelines to monitor ticket volume spikes by segment (CRM-98) and integrating alerts with PagerDuty and Slack (CRM-100).\n\nSecond, there is a focus on incident management and customer communication. This involves building a public status page with subscription capabilities (CRM-93, CRM-94) and implementing ticket-to-incident linking to prevent duplicate reports (CRM-96, CRM-95).\n\nThird, the work emphasizes improving technical data collection and error identification. This includes building libraries for auto-detecting user environments (CRM-90, CRM-89), creating standardized collection forms (CRM-91, CRM-92), and developing an OCR pipeline and fuzzy matching engine to extract and identify error codes from screenshots (CRM-85, CRM-86, CRM-87).\n\nFinally, the team is formalizing the engineering escalation process. This involves creating a bidirectional sync between support tickets and Jira (CRM-81, CRM-82, CRM-83) and building dashboards to track escalation SLAs and statuses (CRM-84).",
+    "synthesizer_model": "gemini-3-flash-preview"
+  },
+  "q0101": {
+    "question_id": "q0101",
+    "category": "root-cause-synthesis",
+    "n_real_issues": 7,
+    "issue_keys_used": [
+      "BUGS-72",
+      "BUGS-68",
+      "BUGS-60",
+      "BUGS-52",
+      "BUGS-51",
+      "BUGS-17",
+      "BUGS-14"
+    ],
+    "golden_answer": "The mobile app issues in the BUGS project stem from several critical technical deficiencies:\n\n*   **Main Thread Congestion:** Scroll performance jank and frame drops (15-20fps) on the issue list are caused by performing rich text (markdown) rendering on the main thread during scrolling, particularly when handling inline images and code blocks (BUGS-72).\n*   **Inefficient Resource Management:** Excessive battery drain (15-20% daily) is driven by an aggressive background sync frequency of every five minutes (BUGS-60). Additionally, the iOS app crashes when viewing large attachments (>15MB) because the system attempts to load the entire file into memory rather than using a buffered approach, leading to memory exhaustion (BUGS-52).\n*   **Session and Security Flaws:** Security vulnerabilities exist because session invalidation fails to propagate to mobile devices after password changes, allowing tokens to remain valid for up to 24 hours (BUGS-14). Furthermore, the app lacks user-friendly handling for expired sessions, currently relying on generic 401 errors (BUGS-17).\n*   **Connectivity and Architectural Gaps:** The app lacks an offline sync queue, causing it to fail when users have poor connectivity (BUGS-68). These collective issues have resulted in high crash rates (2.3% on iOS; 3.8% on Android) and declining app store ratings (BUGS-51).",
+    "synthesizer_model": "gemini-3-flash-preview",
+    "resynth": true
+  },
+  "q0456": {
+    "question_id": "q0456",
+    "category": "tool-efficiency",
+    "n_real_issues": 1,
+    "issue_keys_used": [
+      "SMP-912"
+    ],
+    "golden_answer": "The issue type for SMP-912 is Task.",
+    "synthesizer_model": "gemini-3-flash-preview"
+  },
+  "q0208": {
+    "question_id": "q0208",
+    "category": "ambiguous",
+    "n_real_issues": 0,
+    "issue_keys_used": [],
+    "golden_answer": "[unanswerable: no relevant Jira data found]",
+    "intent": "unanswerable",
+    "synthesis_error": false
+  },
+  "q0458": {
+    "question_id": "q0458",
+    "category": "tool-efficiency",
+    "n_real_issues": 1,
+    "issue_keys_used": [
+      "PLAT-98"
+    ],
+    "golden_answer": "The priority for PLAT-98 is Medium.",
+    "synthesizer_model": "gemini-3-flash-preview"
+  },
+  "q0209": {
+    "question_id": "q0209",
+    "category": "ambiguous",
+    "n_real_issues": 0,
+    "issue_keys_used": [],
+    "golden_answer": "[unanswerable: no relevant Jira data found]",
+    "intent": "unanswerable",
+    "synthesis_error": false
+  },
+  "q0102": {
+    "question_id": "q0102",
+    "category": "root-cause-synthesis",
+    "n_real_issues": 15,
+    "issue_keys_used": [
+      "CRM-100",
+      "CRM-99",
+      "CRM-98",
+      "CRM-97",
+      "CRM-96",
+      "CRM-95",
+      "CRM-94",
+      "CRM-93",
+      "CRM-92",
+      "CRM-91",
+      "CRM-90",
+      "CRM-89",
+      "CRM-88",
+      "CRM-87",
+      "CRM-86"
+    ],
+    "golden_answer": "Based on the provided Jira issues, systemic gaps in the customer support workflow center on manual processes, lack of automation, and poor integration between support and engineering.\n\n**Key patterns indicating systemic gaps include:**\n\n*   **Inefficient Technical Data Collection:** Agents currently average two back-and-forth messages to collect basic device and OS information. Issues CRM-89, CRM-90, and CRM-91 highlight the need for automated environment detection and standardized collection forms to prevent these delays.\n*   **Manual Error Identification:** There is a reliance on manual review of screenshots and error codes. CRM-86 and CRM-87 indicate a gap in automated OCR extraction and fuzzy pattern matching for error messages.\n*   **Lack of Incident Visibility and Duplicate Management:** The workflow suffers from \"floods\" of duplicate tickets during outages because there is no public status page (CRM-93, CRM-94) or internal tool to link tickets to active incidents (CRM-96).\n*   **Delayed Engineering Escalation:** Engineering is often notified of issues only after ticket volumes spike, rather than through proactive monitoring. CRM-97, CRM-98, and CRM-100 identify gaps in real-time anomaly detection, automated PagerDuty/Slack alerting, and formal escalation paths for support-detected issues.\n*   **Missing Agent Guidance:** Agents lack real-time, automated suggestions for resolving technical issues, necessitating the development of a guide suggestion UI and response templates (CRM-88).",
+    "synthesizer_model": "gemini-3-flash-preview",
+    "resynth": true
+  },
+  "q0131": {
+    "question_id": "q0131",
+    "category": "cross-issue-analysis",
+    "n_real_issues": 17,
+    "issue_keys_used": [
+      "BUGS-75",
+      "BUGS-72",
+      "BUGS-69",
+      "BUGS-68",
+      "BUGS-64",
+      "BUGS-62",
+      "BUGS-61",
+      "BUGS-60",
+      "BUGS-56",
+      "BUGS-52",
+      "BUGS-51",
+      "BUGS-21",
+      "BUGS-20",
+      "BUGS-18",
+      "BUGS-17",
+      "BUGS-15",
+      "BUGS-14"
+    ],
+    "golden_answer": "Mobile app issues in the BUGS project can be categorized into five primary concern types:\n\nScroll Performance: BUGS-72 and BUGS-75 address stuttering and frame drops on the issue list screen. Causes include main-thread markdown rendering, synchronous image loading, and expensive cell height calculations. Solutions involve implementing height estimation, caching, and iOS prefetching APIs.\n\nBattery Drain and Background Activity: BUGS-60, BUGS-61, and BUGS-62 focus on excessive battery consumption. Issues include frequent background syncs, unnecessary radio wakeups, and legacy location services. Remediation includes intelligent sync scheduling based on battery state using WorkManager (Android) and BGAppRefreshTask (iOS), and disconnecting WebSockets in the background.\n\nNetwork and Offline Capabilities: BUGS-56, BUGS-68, and BUGS-69 address poor connectivity. The Android app fails silently on timeouts, leading to the implementation of offline issue creation via a local sync queue using Room and CoreData.\n\nPlatform-Specific Bugs and Stability: BUGS-52 identifies iOS-specific crashes when loading large attachments into memory. BUGS-64, BUGS-18, BUGS-20, and BUGS-21 focus on Android-specific issues, including deep link navigation errors, biometric MFA crashes on Android 12+, and the need for version-specific API handling and testing.\n\nSecurity and Session Management: BUGS-14, BUGS-15, and BUGS-17 address failures in propagating session revocations to mobile devices. Solutions include implementing high-priority push notifications to trigger token validation and improving the session expiry UI.",
+    "synthesizer_model": "gemini-3-flash-preview"
+  },
+  "q0244": {
+    "question_id": "q0244",
+    "category": "multi-step",
+    "n_real_issues": 20,
+    "issue_keys_used": [
+      "BUGS-99",
+      "BUGS-98",
+      "BUGS-95",
+      "BUGS-84",
+      "BUGS-81",
+      "BUGS-78",
+      "BUGS-67",
+      "BUGS-64",
+      "BUGS-46",
+      "BUGS-45",
+      "BUGS-43",
+      "BUGS-37",
+      "BUGS-35",
+      "BUGS-32",
+      "BUGS-31",
+      "BUGS-27",
+      "BUGS-21",
+      "BUGS-16",
+      "BUGS-15",
+      "BUGS-14"
+    ],
+    "golden_answer": "Issues from the BUGS project mentioning testing or validation are grouped as follows:\n\nUnit Tests: BUGS-99 requires unit tests for a datetime serializer covering edge cases like null values and DST transitions. BUGS-46 calls for a unit test suite for a parser, including edge cases like nested queries and fuzz testing. BUGS-32 requires unit tests for pagination offset logic.\n\nIntegration and Instrumented Tests: BUGS-98 involves validating API response formats via a script. BUGS-67 requires instrumented Espresso tests for deep linking across different app states. BUGS-21 requires instrumented tests for MFA enrollment using Espresso and UiAutomator, including mocked biometrics.\n\nCI Testing: BUGS-95 specifies that code examples must be tested in CI to ensure functionality. BUGS-78 requires OpenAPI spec validation using swagger-cli. BUGS-21 mentions mocking results specifically for CI environments.\n\nOther Testing/Validation: BUGS-84 includes a \"test button\" for webhook delivery. BUGS-45 implements a validation pass for parentheses before parsing. BUGS-37 involves A/B testing for search relevance.\n\nTest coverage gaps include a lack of automated testing for deep link navigation (BUGS-64), missing validation for complex search syntax (BUGS-43), and the absence of automated session revocation testing for mobile (BUGS-14). There is also a noted gap in manual QA checklists for physical Android devices (BUGS-21).",
+    "synthesizer_model": "gemini-3-flash-preview"
+  },
+  "q0245": {
+    "question_id": "q0245",
+    "category": "multi-step",
+    "n_real_issues": 20,
+    "issue_keys_used": [
+      "PLAT-89",
+      "PLAT-85",
+      "PLAT-81",
+      "PLAT-64",
+      "PLAT-60",
+      "PLAT-35",
+      "PLAT-31",
+      "PLAT-18",
+      "PLAT-10",
+      "PLAT-6",
+      "OPS-97",
+      "OPS-85",
+      "OPS-81",
+      "OPS-64",
+      "OPS-60",
+      "OPS-52",
+      "OPS-47",
+      "OPS-35",
+      "OPS-31",
+      "OPS-18"
+    ],
+    "golden_answer": "Analysis of High priority issues across the PLAT and OPS projects (no High priority issues were provided for BUGS or CRM) reveals three dominant cross-cutting themes:\n\n1. Cost Optimization and Resource Efficiency: This is the most prevalent theme, focusing on reducing cloud spend through spot instance migration (PLAT-85, OPS-64), automated resource rightsizing (PLAT-81), log volume reduction and tiering (OPS-31, OPS-47), and the creation of cost-visibility dashboards (PLAT-89).\n\n2. Infrastructure Modernization and Stability: Multiple issues address upgrading and standardizing core infrastructure. This includes Istio and Kubernetes version upgrades (PLAT-18, PLAT-10, PLAT-6, OPS-18), migrating legacy databases to managed services (OPS-85), and implementing connection pooling to prevent database exhaustion (OPS-81).\n\n3. Governance and Developer Experience: There is a significant focus on creating \"golden paths\" and self-service portals. This includes RBAC self-service and permission expiration (PLAT-64, PLAT-60), standardized templates for batch jobs and ML models (PLAT-35, PLAT-31), and formalizing database migration governance to prevent outages (OPS-97).\n\nRecommendation: The organization should first address Infrastructure Modernization and Stability (specifically OPS-81 and OPS-97). These issues directly address root causes of recent outages and immediate scaling bottlenecks. Following this, Cost Optimization should be prioritized to curb the high monthly expenditures identified in OPS-31 and PLAT-85. Governance and Developer Experience should follow to ensure long-term sustainability of these improvements.",
+    "synthesizer_model": "gemini-3-flash-preview"
+  },
+  "q0210": {
+    "question_id": "q0210",
+    "category": "ambiguous",
+    "n_real_issues": 15,
+    "issue_keys_used": [
+      "SMP-908",
+      "SMP-907",
+      "SMP-193",
+      "SMP-186",
+      "SMP-136",
+      "SMP-129",
+      "SMP-82",
+      "PLAT-97",
+      "PLAT-92",
+      "PLAT-89",
+      "PLAT-87",
+      "PLAT-80",
+      "PLAT-79",
+      "PLAT-77",
+      "PLAT-75"
+    ],
+    "golden_answer": "Based on the available Jira issues, there are several integration-related tasks across different projects:\n\n**Feature and Tooling Integrations:**\n*   **SMP-82:** Adding a Map component with Google Maps or OpenStreetMap integration.\n*   **PLAT-92:** Adding a Backstage integration for cost visibility via a plugin.\n*   **PLAT-80:** Setting up Okta SAML SSO integration for role-based access.\n*   **PLAT-79:** Configuring AWS Cost and Usage Report (CUR) integration for Kubecost.\n*   **SMP-186:** Integrating `flutter_svg` into the Image widget.\n*   **SMP-129:** Verifying `xclip` integration.\n\n**Testing and Process Integrations:**\n*   **SMP-193:** Running integration tests with Flutter 3.19.\n*   **SMP-136:** Checking Flutter Semantics integration.\n*   **PLAT-97:** Integrating FinOps review processes into existing organizational planning.\n*   **PLAT-87:** Documenting an integration guide for a new graceful shutdown library.\n*   **PLAT-75:** Including digital signatures for SOC2 report integrity verification.",
+    "synthesizer_model": "gemini-3-flash-preview",
+    "resynth": true
+  },
+  "q0103": {
+    "question_id": "q0103",
+    "category": "root-cause-synthesis",
+    "n_real_issues": 4,
+    "issue_keys_used": [
+      "BUGS-100",
+      "BUGS-99",
+      "BUGS-98",
+      "BUGS-97"
+    ],
+    "golden_answer": "The BUGS project suffers from inconsistent timezone handling across its API endpoints, which currently return date fields in three different ways: correct UTC with a Z suffix, incorrect server local time, and ambiguous formats lacking any timezone indicator. This inconsistency confuses integrations and stems from a lack of standardization in how datetimes are parsed, stored, and serialized. Specifically, some database columns are storing local time instead of UTC, and the system lacks a unified normalization process for incoming data and a consistent serialization standard for outgoing responses. The common technical root cause is the absence of a project-wide requirement to handle all datetimes as ISO 8601 UTC. To resolve these issues, the project must implement a custom JSON serializer that enforces the ISO 8601 format with a Z suffix, normalize all incoming datetimes to UTC internally, and migrate database columns that currently store local time.",
+    "synthesizer_model": "gemini-3-flash-preview"
+  },
+  "q0459": {
+    "question_id": "q0459",
+    "category": "tool-efficiency",
+    "n_real_issues": 1,
+    "issue_keys_used": [
+      "BUGS-96"
+    ],
+    "golden_answer": "The description for BUGS-96 is to write step-by-step guides for \"Building a Slack integration\", \"Importing issues from CSV\", \"Setting up CI/CD notifications\", and \"Creating a custom dashboard\". These guides should include complete code samples, expected outputs, and links to relevant reference documentation.",
+    "synthesizer_model": "gemini-3-flash-preview"
+  },
+  "q0133": {
+    "question_id": "q0133",
+    "category": "cross-issue-analysis",
+    "n_real_issues": 20,
+    "issue_keys_used": [
+      "OPS-96",
+      "OPS-95",
+      "OPS-93",
+      "OPS-88",
+      "OPS-84",
+      "OPS-81",
+      "OPS-80",
+      "OPS-75",
+      "OPS-67",
+      "OPS-64",
+      "OPS-61",
+      "OPS-45",
+      "OPS-43",
+      "OPS-35",
+      "OPS-27",
+      "OPS-26",
+      "OPS-23",
+      "OPS-21",
+      "OPS-18",
+      "OPS-17"
+    ],
+    "golden_answer": "Based on the provided Jira issues, all planned monitoring and alerting work is concentrated in the OPS project; no CRM issues were provided. \n\nKey initiatives include implementing proactive anomaly detection for infrastructure metrics using Prometheus recording rules for statistical deviations like z-scores (OPS-43, OPS-45). Database monitoring is a major focus, with plans to deploy always-on query performance monitoring, build Grafana dashboards for query trends, and configure intelligent alerting for slow queries that exceed baselines (OPS-93, OPS-95, OPS-96).\n\nInfrastructure reliability work includes building a unified SLO dashboard for error budget tracking (OPS-35) and a real-time deployment status dashboard that alerts on stuck rollouts (OPS-75). To address scaling issues, the team is implementing Prometheus federation and remote write to prevent OOM restarts and ensure alerting reliability (OPS-27). \n\nFollowing a Kubernetes 1.29 upgrade, the team will validate that alerting rules fire correctly and confirm that PagerDuty receives notifications (OPS-21). This includes auditing existing dashboards and alerts for broken metric names or labels (OPS-18). Other planned monitoring includes tracking PgBouncer connection counts (OPS-84), DMS replication lag (OPS-88), distributed cache hit rates (OPS-61), and spot instance interruption rates (OPS-67). These efforts fall under the broader epic for Observability Platform Modernization (OPS-26).",
+    "synthesizer_model": "gemini-3-flash-preview"
+  },
+  "q0119": {
+    "question_id": "q0119",
+    "category": "root-cause-synthesis",
+    "n_real_issues": 15,
+    "issue_keys_used": [
+      "CRM-100",
+      "CRM-99",
+      "CRM-98",
+      "CRM-97",
+      "CRM-96",
+      "CRM-95",
+      "CRM-94",
+      "CRM-93",
+      "CRM-92",
+      "CRM-91",
+      "CRM-90",
+      "CRM-89",
+      "CRM-88",
+      "CRM-87",
+      "CRM-86"
+    ],
+    "golden_answer": "Based on the provided Jira issues, the troubleshooting automation gaps in the CRM focus on four primary areas:\n\n*   **Automated Error Extraction and Matching:** There is a lack of automated processing for user-submitted screenshots and error text. CRM-86 and CRM-87 highlight the need for an OCR pipeline to extract error codes from images and a fuzzy-matching engine to index error patterns and regex for version-specific issues.\n*   **Proactive Troubleshooting Guidance:** Agents currently lack automated assistance during ticket handling. CRM-88 and CRM-89 address the need for a UI that suggests specific troubleshooting guides and response templates based on matched errors, as well as a standardized form to collect technical environment data (OS, app version, network) to eliminate manual back-and-forth.\n*   **Known Issue Identification and Linking:** There is a gap in connecting incoming tickets to existing incidents. CRM-96 and CRM-93 describe the need for keyword-based banners to alert agents of active incidents, duplicate prevention, and a public status page to reduce ticket volume during outages.\n*   **Anomaly and Pattern Detection:** The system lacks real-time monitoring to identify emerging technical issues. CRM-97, CRM-98, and CRM-99 identify the need for streaming pipelines and algorithms to detect statistically significant volume spikes by segment (category, geography, OS) and alert engineering via PagerDuty or Slack (CRM-100).",
+    "synthesizer_model": "gemini-3-flash-preview",
+    "resynth": true
+  },
+  "q0211": {
+    "question_id": "q0211",
+    "category": "ambiguous",
+    "n_real_issues": 0,
+    "issue_keys_used": [],
+    "golden_answer": "[unanswerable: no relevant Jira data found]",
+    "intent": "unanswerable",
+    "synthesis_error": false
+  },
+  "q0461": {
+    "question_id": "q0461",
+    "category": "tool-efficiency",
+    "n_real_issues": 1,
+    "issue_keys_used": [
+      "CRM-97"
+    ],
+    "golden_answer": "The provided text for CRM-97 does not contain information regarding when the issue was created. The data includes the issue key, type, priority, status, components, summary, description, and acceptance criteria, but it omits the creation date and time.",
+    "synthesizer_model": "gemini-3-flash-preview"
+  },
+  "q0134": {
+    "question_id": "q0134",
+    "category": "cross-issue-analysis",
+    "n_real_issues": 20,
+    "issue_keys_used": [
+      "BUGS-98",
+      "BUGS-97",
+      "BUGS-96",
+      "BUGS-95",
+      "BUGS-94",
+      "BUGS-93",
+      "BUGS-83",
+      "BUGS-78",
+      "BUGS-77",
+      "BUGS-76",
+      "BUGS-70",
+      "BUGS-54",
+      "BUGS-48",
+      "BUGS-47",
+      "BUGS-43",
+      "BUGS-41",
+      "BUGS-39",
+      "BUGS-35",
+      "BUGS-31",
+      "BUGS-30"
+    ],
+    "golden_answer": "The following issues in the BUGS project are related to documentation work:\n\nBUGS-96 involves creating tutorial guides for common integration scenarios, such as Slack and CI/CD notifications, including code samples and links to reference docs.\n\nBUGS-95 focuses on writing code examples for all major endpoints in five languages, including error handling and CI testing.\n\nBUGS-94 covers setting up an API portal using tools like Stoplight or Redocly to host OpenAPI documentation on a custom domain.\n\nBUGS-93 is a story to create an interactive API documentation portal that stays in sync with the implementation and provides \"try it\" functionality and multi-language examples.\n\nBUGS-83 includes a requirement to document HMAC verification steps in developer docs and provide verification snippets.\n\nBUGS-78 involves creating a comprehensive OpenAPI 3.1 specification for all v2 endpoints to enable automatic documentation generation.\n\nBUGS-76 is an epic for API v2 modernization that includes delivering a developer portal with interactive docs to improve the developer experience.\n\nAdditionally, BUGS-98 involves documenting the current state of datetime fields across all API endpoints as part of an audit.",
+    "synthesizer_model": "gemini-3-flash-preview"
+  },
+  "q0104": {
+    "question_id": "q0104",
+    "category": "root-cause-synthesis",
+    "n_real_issues": 8,
+    "issue_keys_used": [
+      "CRM-85",
+      "CRM-81",
+      "CRM-60",
+      "CRM-56",
+      "CRM-35",
+      "CRM-31",
+      "CRM-10",
+      "CRM-6"
+    ],
+    "golden_answer": "The primary security and fraud concerns identified in high-priority CRM issues include refund fraud, account takeovers, and unauthorized access due to account lockouts. CRM-60 highlights a need for a machine learning model to detect refund fraud patterns such as serial refunders, counterfeit returns, and false \"item-not-received\" claims. CRM-31 addresses account takeover incidents resulting from phishing by proposing a new identity verification workflow for sensitive changes, requiring re-authentication and confirmation from both old and new email addresses or government ID uploads. Additionally, CRM-35 focuses on improving the handling of account lockouts; it aims to distinguish between legitimate users and attackers by replacing generic error messages with clear explanations and providing a self-service unlock mechanism via email to reduce the burden on support staff. These issues collectively emphasize the need for automated detection, stricter verification for high-risk account changes, and improved self-service options for legitimate users.",
+    "synthesizer_model": "gemini-3-flash-preview"
+  },
+  "q0105": {
+    "question_id": "q0105",
+    "category": "root-cause-synthesis",
+    "n_real_issues": 15,
+    "issue_keys_used": [
+      "CRM-100",
+      "CRM-95",
+      "CRM-93",
+      "CRM-92",
+      "CRM-82",
+      "CRM-78",
+      "CRM-77",
+      "CRM-70",
+      "CRM-69",
+      "CRM-68",
+      "CRM-65",
+      "CRM-62",
+      "CRM-60",
+      "CRM-57",
+      "CRM-54"
+    ],
+    "golden_answer": "Delayed responses to customer issues are driven by several integration and alerting gaps across the CRM ecosystem:\n\n*   **Lack of Automated Incident Detection and Alerting:** There is currently no integration with **PagerDuty** or **Slack** to alert engineering of critical patterns, such as ticket volumes exceeding 5x the baseline (CRM-100). Furthermore, the system lacks **automatic incident creation** from PagerDuty alerts tagged as \"customer-facing,\" which currently requires manual escalation (CRM-95).\n*   **Manual Bug and Crash Reporting:** Support agents must manually create bug tickets because there is no automated **Jira integration** (CRM-82). Additionally, the lack of **Sentry integration** and in-app crash reporting means technical context (logs, device state) is missing, forcing users to email support manually after a crash (CRM-77, CRM-78).\n*   **Inefficient Volume Management:** The absence of a **Known Issues Status Page** leads to agents being flooded with duplicate tickets during widespread outages (CRM-93).\n*   **Manual Logistics and Fraud Workflows:** Agents spend excessive time (8\u201310 minutes per return) manually generating labels via carrier websites because **carrier APIs** and **warehouse management systems** are not integrated (CRM-68, CRM-70). Similarly, the lack of **ML model integration** for refund fraud detection and automated **Stripe/PayPal** processing forces manual review of high-volume refund requests (CRM-60, CRM-54).\n*   **Proactive Monitoring Gaps:** There is a lack of automated **shipping delay detection** logic to identify lost or delayed packages via carrier APIs (CRM-65).",
+    "synthesizer_model": "gemini-3-flash-preview",
+    "resynth": true
+  },
+  "q0212": {
+    "question_id": "q0212",
+    "category": "ambiguous",
+    "n_real_issues": 15,
+    "issue_keys_used": [
+      "SMP-893",
+      "SMP-886",
+      "SMP-873",
+      "SMP-864",
+      "SMP-863",
+      "SMP-852",
+      "SMP-849",
+      "SMP-835",
+      "SMP-833",
+      "SMP-823",
+      "SMP-820",
+      "SMP-791",
+      "SMP-790",
+      "SMP-787",
+      "SMP-721"
+    ],
+    "golden_answer": "",
+    "synthesizer_model": "gemini-3-flash-preview",
+    "resynth": true
+  },
+  "q0135": {
+    "question_id": "q0135",
+    "category": "cross-issue-analysis",
+    "n_real_issues": 20,
+    "issue_keys_used": [
+      "CRM-63",
+      "CRM-60",
+      "CRM-55",
+      "CRM-53",
+      "CRM-52",
+      "CRM-51",
+      "CRM-50",
+      "CRM-47",
+      "CRM-46",
+      "CRM-44",
+      "CRM-43",
+      "CRM-42",
+      "CRM-41",
+      "CRM-40",
+      "CRM-39",
+      "CRM-38",
+      "CRM-37",
+      "CRM-35",
+      "CRM-34",
+      "CRM-33"
+    ],
+    "golden_answer": "The CRM project contains several fraud and security issues primarily focused on refund fraud and account security. Refund fraud is a significant concern, with an estimated 4% fraud rate involving item-not-received claims, serial refunders, and counterfeit returns. To address this, the project includes the development of a machine learning detection model (CRM-60), a fraud specialist review queue with explainability (CRM-63), and an eligibility rules engine with a fraud \"kill switch\" (CRM-53).\n\nSecurity issues also center on account takeover and recovery. There are patterns of fraudulent recovery attempts from specific IP ranges, VPNs, and TOR nodes, necessitating automated detection and blocking (CRM-47). The project aims to standardize identity verification through a support agent toolkit (CRM-39), government ID verification via Jumio (CRM-33), and a knowledge-based verification system (CRM-41). Additionally, the project addresses account lockouts by implementing automated detection and self-service unlock flows to distinguish between legitimate users and attackers (CRM-35). To improve account resilience, the system will implement backup code generation (CRM-43) and secure storage using bcrypt (CRM-44). Monitoring is supported through various dashboards for lockout analytics (CRM-38), fraud indicators (CRM-55), and a manual review queue for flagged recovery attempts (CRM-50).",
+    "synthesizer_model": "gemini-3-flash-preview"
+  },
+  "q0248": {
+    "question_id": "q0248",
+    "category": "multi-step",
+    "n_real_issues": 20,
+    "issue_keys_used": [
+      "SMP-830",
+      "SMP-778",
+      "SMP-764",
+      "SMP-722",
+      "SMP-712",
+      "SMP-710",
+      "SMP-672",
+      "SMP-662",
+      "SMP-660",
+      "SMP-609",
+      "SMP-602",
+      "SMP-597",
+      "SMP-594",
+      "SMP-591",
+      "SMP-581",
+      "SMP-565",
+      "SMP-564",
+      "SMP-554",
+      "SMP-550",
+      "SMP-547"
+    ],
+    "golden_answer": "The provided Jira issues do not mention background sync or mobile performance problems, as the data pertains to motorcycle maintenance rather than mobile software. However, several issues describe battery drain and related electrical failures. Reported problems include constant battery drain (SMP-830), parasitic draw while parked (SMP-764, SMP-602, SMP-594), and charging system failures (SMP-591). Other issues mention checking the battery or fuses in response to stalling (SMP-722, SMP-672), switchgear failures (SMP-712, SMP-710, SMP-662, SMP-660, SMP-581), overheating (SMP-565, SMP-564, SMP-554, SMP-550, SMP-547), or IMU errors (SMP-609).\n\nRecommended solutions for these battery-related issues include adjusting components to factory specifications, upgrading starter wiring, and replacing voltage regulators or stators. Specific fixes for parasitic drain include disconnecting aftermarket accessories like USB chargers or replacing stock batteries with AGM units and installing tender leads. For system glitches following battery issues, solutions include performing calibration ride procedures or disconnecting the battery for ten minutes to reset modules. In many cases where the battery was checked for unrelated symptoms like sticking buttons or overheating, the actual solutions involved replacing mechanical parts like switchgear assemblies or radiator fans.",
+    "synthesizer_model": "gemini-3-flash-preview"
+  },
+  "q0280": {
+    "question_id": "q0280",
+    "category": "epic-tree",
+    "n_real_issues": 3,
+    "issue_keys_used": [
+      "CRM-88",
+      "CRM-87",
+      "CRM-86"
+    ],
+    "golden_answer": "The subtasks for CRM-85, which include CRM-86, CRM-87, and CRM-88, are all currently in the To Do status. These subtasks involve implementing an OCR pipeline for error message extraction from screenshots, building an error pattern matching engine with fuzzy search, and creating a guide suggestion UI in the agent ticket interface. All three subtasks are assigned a medium priority level.",
+    "synthesizer_model": "gemini-3-flash-preview"
+  },
+  "q0106": {
+    "question_id": "q0106",
+    "category": "root-cause-synthesis",
+    "n_real_issues": 15,
+    "issue_keys_used": [
+      "BUGS-100",
+      "BUGS-99",
+      "BUGS-98",
+      "BUGS-97",
+      "BUGS-94",
+      "BUGS-93",
+      "BUGS-89",
+      "BUGS-85",
+      "BUGS-81",
+      "BUGS-77",
+      "BUGS-76",
+      "BUGS-75",
+      "BUGS-48",
+      "BUGS-20",
+      "BUGS-18"
+    ],
+    "golden_answer": "Based on the provided JIRA issues, developer confusion regarding the API stems from the following documentation and structural deficiencies:\n\n*   **Inadequate Documentation Tools:** Current documentation is a static Markdown file that is frequently outdated, forcing developers to rely on trial-and-error (BUGS-93). There is a lack of an interactive portal, \"try it\" functionality, and integrated code examples (BUGS-93, BUGS-94).\n*   **Inconsistent Resource Naming and Structure:** API v1 suffers from inconsistent naming conventions, such as mixed pluralization (e.g., `/issue/{id}` vs. `/projects/{id}`) and non-RESTful designs where some endpoints use query parameters for IDs while others use path parameters (BUGS-77, BUGS-76).\n*   **Ambiguous Datetime Handling:** Inconsistent timezone handling confuses integrations. Endpoints return a mix of UTC, server-local time, and ambiguous formats lacking timezone indicators (BUGS-97).\n*   **Inconsistent Error Responses:** Error formats vary wildly across the API, complicating error handling for developers (BUGS-77).\n*   **Unexpected Rate Limiting:** Browser-based SPA integrations are hitting rate limits twice as fast as expected because the system incorrectly counts CORS OPTIONS preflight requests against the user's quota (BUGS-85).\n*   **Missing Modern Features:** Developers are frustrated by the lack of a webhook system, which forces inefficient polling (BUGS-81), and the absence of a GraphQL endpoint for complex queries, which currently requires multiple REST calls to fetch related data (BUGS-89).",
+    "synthesizer_model": "gemini-3-flash-preview",
+    "resynth": true
+  },
+  "q0137": {
+    "question_id": "q0137",
+    "category": "cross-issue-analysis",
+    "n_real_issues": 4,
+    "issue_keys_used": [
+      "BUGS-100",
+      "BUGS-99",
+      "BUGS-98",
+      "BUGS-97"
+    ],
+    "golden_answer": "The BUGS project must address inconsistent timezone handling where API endpoints currently return a mix of UTC with the Z suffix, server local time without a timezone indicator, and ambiguous date-only formats. To resolve this, a custom JSON serializer must be implemented to ensure all API responses default to ISO 8601 format with a UTC Z suffix, including coverage for null values and DST transitions. Input datetime normalization is required to parse various formats like Unix timestamps and ISO 8601, converting them to UTC internally while issuing deprecation warnings for non-UTC inputs. Additionally, an audit of all API responses is necessary to validate consistency, document the current state of fields, and identify database columns storing local time that require migration to UTC.",
+    "synthesizer_model": "gemini-3-flash-preview"
+  },
+  "q0213": {
+    "question_id": "q0213",
+    "category": "ambiguous",
+    "n_real_issues": 0,
+    "issue_keys_used": [],
+    "golden_answer": "[unanswerable: no relevant Jira data found]",
+    "intent": "unanswerable",
+    "synthesis_error": false
+  },
+  "q0249": {
+    "question_id": "q0249",
+    "category": "multi-step",
+    "n_real_issues": 16,
+    "issue_keys_used": [
+      "BUGS-100",
+      "BUGS-99",
+      "BUGS-98",
+      "BUGS-97",
+      "BUGS-94",
+      "BUGS-93",
+      "BUGS-89",
+      "BUGS-85",
+      "BUGS-81",
+      "BUGS-77",
+      "BUGS-76",
+      "BUGS-75",
+      "BUGS-48",
+      "BUGS-20",
+      "BUGS-18",
+      "BUGS-3"
+    ],
+    "golden_answer": "Based on the provided Jira issues, the API v2 redesign effort is primarily organized under the BUGS-76 Epic (API v2 Modernization and Developer Experience Initiative). The specific issues identified as part of this effort include BUGS-77, BUGS-81, BUGS-89, BUGS-93, and BUGS-94.\n\nRegarding API concerns, naming is addressed in BUGS-77, which focuses on fixing inconsistent naming conventions and mixed pluralization (e.g., singular /issue/{id} vs plural /projects/{id}) to ensure a clean, consistent RESTful design. Error handling is also addressed in BUGS-77, noting that current error responses vary wildly and need to follow a consistent specification like JSON:API. While versioning is the overarching goal of the v2 initiative (BUGS-76), specific versioning logic is mentioned in BUGS-100, which requires including deprecation notices in API response headers for old datetime formats.\n\nThe v2 API roadmap, as outlined in BUGS-76 and its related stories, includes: designing a consistent REST resource structure (BUGS-77), implementing a GraphQL endpoint as an alternative for complex queries (BUGS-89), building a comprehensive webhook system for real-time notifications (BUGS-81), and launching a modern developer portal with interactive documentation and code examples (BUGS-93, BUGS-94). Additionally, the roadmap involves standardizing datetime handling across all endpoints to use ISO 8601 UTC format (BUGS-97, BUGS-98, BUGS-99, BUGS-100).",
+    "synthesizer_model": "gemini-3-flash-preview"
+  },
+  "q0215": {
+    "question_id": "q0215",
+    "category": "ambiguous",
+    "n_real_issues": 0,
+    "issue_keys_used": [],
+    "golden_answer": "[unanswerable: no relevant Jira data found]",
+    "intent": "unanswerable",
+    "synthesis_error": false
+  },
+  "q0284": {
+    "question_id": "q0284",
+    "category": "epic-tree",
+    "n_real_issues": 4,
+    "issue_keys_used": [
+      "OPS-100",
+      "OPS-99",
+      "OPS-98",
+      "OPS-97"
+    ],
+    "golden_answer": "The hierarchy for OPS-97, a Story titled \"Implement database schema migration governance and rollback procedures,\" includes three child subtasks. These child issues are OPS-98 (Create migration review process and tooling), OPS-99 (Build migration analyzer for lock detection), and OPS-100 (Implement rollback script requirement and testing). All three subtasks are currently in the To Do status with Medium priority.",
+    "synthesizer_model": "gemini-3-flash-preview"
+  },
+  "q0139": {
+    "question_id": "q0139",
+    "category": "cross-issue-analysis",
+    "n_real_issues": 5,
+    "issue_keys_used": [
+      "CRM-96",
+      "CRM-95",
+      "CRM-94",
+      "CRM-93",
+      "CRM-31"
+    ],
+    "golden_answer": "The CRM project is developing several incident management features focused on detection, communication, and resolution. Key features include a ticket-to-incident linking system that displays banners to agents when active incidents match ticket keywords, allowing for one-click linking and automatic ticket updates upon incident resolution. The project also includes incident detection integration with PagerDuty to auto-create incidents from customer-facing alerts and a manual escalation flow for support-detected issues, featuring severity mapping and auto-resolution. To improve customer communication and reduce duplicate tickets, the team is implementing a public Known Issues Status Page where customers can view active incidents or scheduled maintenance and subscribe for updates via email or push notifications. This involves evaluating third-party solutions like Statuspage.io against a custom build based on cost, customization, and API access. Additionally, the project is addressing account takeover incidents by creating an identity verification workflow for high-risk account changes, requiring re-authentication and confirmation from multiple email addresses or government ID verification.",
+    "synthesizer_model": "gemini-3-flash-preview"
+  },
+  "q0107": {
+    "question_id": "q0107",
+    "category": "root-cause-synthesis",
+    "n_real_issues": 10,
+    "issue_keys_used": [
+      "BUGS-97",
+      "BUGS-85",
+      "BUGS-77",
+      "BUGS-72",
+      "BUGS-60",
+      "BUGS-56",
+      "BUGS-35",
+      "BUGS-18",
+      "BUGS-14",
+      "BUGS-6"
+    ],
+    "golden_answer": "High priority bugs in the BUGS project reveal several recurring technical debt patterns. Inconsistent API design is a major theme, evidenced by BUGS-97\u2019s fragmented timezone handling across endpoints and BUGS-77\u2019s critique of inconsistent naming conventions and non-RESTful structures in API v1. Mobile performance and stability issues are also prevalent, including frame rate drops during scrolling due to main-thread rendering (BUGS-72), excessive battery drain from inefficient background sync (BUGS-60), and memory leaks from unhandled subscriptions (BUGS-6). \n\nNetwork and integration handling gaps are identified in BUGS-56, where the Android app fails to handle timeout exceptions at the UI layer, and BUGS-85, where the rate limiter incorrectly penalizes users for CORS preflight requests. Security-related technical debt appears in BUGS-14, which describes a failure to propagate session invalidation to mobile devices, and BUGS-18, involving crashes with biometric API updates. Finally, search functionality suffers from outdated logic that ignores recency and severity (BUGS-35).",
+    "synthesizer_model": "gemini-3-flash-preview"
+  },
+  "q0462": {
+    "question_id": "q0462",
+    "category": "tool-efficiency",
+    "n_real_issues": 1,
+    "issue_keys_used": [
+      "OPS-100"
+    ],
+    "golden_answer": "Jira issue OPS-100 is a medium priority subtask currently in the To Do status. The summary of the issue is to implement rollback script requirement and testing. According to the description, the task involves updating the migration framework to require both up and down scripts. It also requires adding a CI stage that applies a migration and then rolls it back to verify that the final state matches the initial state. The process should fail if the rollback is incomplete.",
+    "synthesizer_model": "gemini-3-flash-preview"
+  },
+  "q0465": {
+    "question_id": "q0465",
+    "category": "tool-efficiency",
+    "n_real_issues": 1,
+    "issue_keys_used": [
+      "SMP-908"
+    ],
+    "golden_answer": "SMP-908 is a high-priority task currently in the To Do status. The summary is Quality Audit: https://vistaprint-clone-496544730367.us-central1.run.app. According to the description, the audit identified critical issues regarding content accuracy, functional integrity, and visual consistency, including significant misspellings, currency inconsistencies, and non-functional navigation. Specific findings include a typographical error where \"Embossed Glos\" is located in the product grid.",
+    "synthesizer_model": "gemini-3-flash-preview"
+  },
+  "q0164": {
+    "question_id": "q0164",
+    "category": "trend",
+    "n_real_issues": 20,
+    "issue_keys_used": [
+      "PLAT-1",
+      "PLAT-2",
+      "PLAT-3",
+      "PLAT-4",
+      "PLAT-5",
+      "PLAT-6",
+      "PLAT-7",
+      "PLAT-8",
+      "PLAT-9",
+      "PLAT-10",
+      "PLAT-11",
+      "PLAT-12",
+      "PLAT-13",
+      "PLAT-14",
+      "PLAT-15",
+      "PLAT-16",
+      "PLAT-17",
+      "PLAT-18",
+      "PLAT-19",
+      "PLAT-20"
+    ],
+    "golden_answer": "Based on the provided Jira issue text, it is impossible to determine if there is a spike or dip in PLAT project issue creation in the last 30 days. The data includes 20 issues (PLAT-1 through PLAT-20) related to a service mesh migration from Istio 1.14 to 1.20, including stories, subtasks, and an epic. However, the provided text does not include creation dates, timestamps, or any chronological metadata for these issues. Consequently, there is no evidence available to calculate monthly counts or identify trends in issue creation frequency.",
+    "synthesizer_model": "gemini-3-flash-preview"
+  },
+  "q0216": {
+    "question_id": "q0216",
+    "category": "ambiguous",
+    "n_real_issues": 0,
+    "issue_keys_used": [],
+    "golden_answer": "[unanswerable: no relevant Jira data found]",
+    "intent": "unanswerable",
+    "synthesis_error": false
+  },
+  "q0287": {
+    "question_id": "q0287",
+    "category": "epic-tree",
+    "n_real_issues": 3,
+    "issue_keys_used": [
+      "BUGS-88",
+      "BUGS-87",
+      "BUGS-86"
+    ],
+    "golden_answer": "The child issues of BUGS-85 related to rate limiting are BUGS-86, BUGS-87, and BUGS-88. BUGS-86 involves excluding OPTIONS requests from the rate limit middleware while ensuring CORS headers remain. BUGS-87 focuses on implementing comprehensive rate limit headers such as X-RateLimit-Limit, X-RateLimit-Remaining, and X-RateLimit-Reset. BUGS-88 covers building a user-facing rate limit monitoring dashboard to display usage, limits, and endpoint consumption.",
+    "synthesizer_model": "gemini-3-flash-preview"
+  },
+  "q0466": {
+    "question_id": "q0466",
+    "category": "tool-efficiency",
+    "n_real_issues": 1,
+    "issue_keys_used": [
+      "BUGS-100"
+    ],
+    "golden_answer": "There are no labels listed for BUGS-100 in the provided issue text. The issue only specifies its type as a subtask, its priority as medium, and its status as to do.",
+    "synthesizer_model": "gemini-3-flash-preview"
+  },
+  "q0109": {
+    "question_id": "q0109",
+    "category": "root-cause-synthesis",
+    "n_real_issues": 15,
+    "issue_keys_used": [
+      "CRM-100",
+      "CRM-99",
+      "CRM-98",
+      "CRM-97",
+      "CRM-96",
+      "CRM-95",
+      "CRM-94",
+      "CRM-93",
+      "CRM-92",
+      "CRM-91",
+      "CRM-90",
+      "CRM-89",
+      "CRM-88",
+      "CRM-87",
+      "CRM-86"
+    ],
+    "golden_answer": "Based on the provided Jira issues, the underlying causes of customer self-service gaps center on a lack of visibility into known issues and the absence of automated data collection tools.\n\nSpecifically, the gaps are caused by:\n*   **Lack of Status Visibility:** There is currently no public status page for widespread issues like API outages or payment processor failures. This forces customers to submit duplicate tickets to learn about known service interruptions (CRM-93, CRM-94).\n*   **Manual Technical Data Collection:** Customers cannot currently provide environment details (OS, app version, device info) through a standardized form. This results in an average of two unnecessary back-and-forth messages between the customer and support agents to gather basic troubleshooting information (CRM-89, CRM-91).\n*   **Inefficient Error Reporting:** There is a lack of automated tools to extract error codes from screenshots (CRM-86) or match error patterns to existing troubleshooting guides (CRM-87, CRM-88), preventing customers from receiving immediate, automated solutions to technical errors.\n*   **Delayed Incident Awareness:** Engineering and support lack real-time, automated pattern detection for ticket spikes, meaning customers cannot be proactively alerted to emerging technical issues before they submit a ticket (CRM-97, CRM-100).",
+    "synthesizer_model": "gemini-3-flash-preview",
+    "resynth": true
+  },
+  "q0108": {
+    "question_id": "q0108",
+    "category": "root-cause-synthesis",
+    "n_real_issues": 20,
+    "issue_keys_used": [
+      "CRM-100",
+      "CRM-99",
+      "CRM-98",
+      "CRM-96",
+      "CRM-95",
+      "CRM-94",
+      "CRM-92",
+      "CRM-91",
+      "CRM-90",
+      "CRM-88",
+      "CRM-87",
+      "CRM-86",
+      "CRM-84",
+      "CRM-83",
+      "CRM-82",
+      "CRM-80",
+      "CRM-79",
+      "CRM-78",
+      "CRM-75",
+      "CRM-74"
+    ],
+    "golden_answer": "The team is addressing operational inefficiencies by automating incident detection and response through PagerDuty and Slack integrations, utilizing anomaly detection with dynamic baselines to identify significant ticket volume deviations. They are streamlining the support-to-engineering workflow by implementing bidirectional ticket syncing, automatic bug creation in Jira, and ticket-to-incident linking to prevent duplicates and auto-update linked tickets upon resolution. \n\nTo improve agent efficiency, the team is building tools for error pattern matching, OCR for screenshot text extraction, and a guide suggestion UI to populate response templates. They are also enhancing data collection through environment auto-detection, structured technical forms, and user journey capture for crash context. \n\nFurthermore, the team is evaluating status page solutions to improve incident communication and implementing similar case searches and approval routing logic to ensure decision consistency. Finally, they are addressing visibility gaps by building escalation tracking dashboards with SLA monitoring and ticket volume monitoring segmented by geography, OS, and app version.",
+    "synthesizer_model": "gemini-3-flash-preview"
+  },
+  "q0350": {
+    "question_id": "q0350",
+    "category": "comments-worklogs",
+    "n_real_issues": 1,
+    "issue_keys_used": [
+      "BUGS-97"
+    ],
+    "golden_answer": "Based on the provided Jira issue text for BUGS-97, there are no comments recorded. The issue contains a summary and a description detailing inconsistent timezone handling across API endpoints\u2014specifically noting that some return UTC, some return server time without a timezone indicator, and some return dates without any suffix\u2014but no comment history is included in the data.",
+    "synthesizer_model": "gemini-3-flash-preview"
+  },
+  "q0217": {
+    "question_id": "q0217",
+    "category": "ambiguous",
+    "n_real_issues": 0,
+    "issue_keys_used": [],
+    "golden_answer": "[unanswerable: no relevant Jira data found]",
+    "intent": "unanswerable",
+    "synthesis_error": false
+  },
+  "q0141": {
+    "question_id": "q0141",
+    "category": "cross-issue-analysis",
+    "n_real_issues": 7,
+    "issue_keys_used": [
+      "CRM-56",
+      "CRM-37",
+      "CRM-35",
+      "CRM-27",
+      "CRM-26",
+      "CRM-6",
+      "CRM-1"
+    ],
+    "golden_answer": "The CRM project is developing several self-service features to reduce support ticket volume. Key initiatives include a customer-facing refund status tracking portal that allows users to view progress through stages like review and processing directly from their order history. For account access, the project is building automated lockout detection with a self-service unlock flow via email links and an SMS-based account recovery option for users who cannot access their email. Additionally, the project includes a self-service dispute submission portal featuring a structured web form accessible from the order history page, allowing users to report problems and initiate billing disputes without contacting support directly. These features aim to modernize the account recovery flow and streamline billing dispute resolution.",
+    "synthesizer_model": "gemini-3-flash-preview"
+  },
+  "q0467": {
+    "question_id": "q0467",
+    "category": "tool-efficiency",
+    "n_real_issues": 1,
+    "issue_keys_used": [
+      "CRM-100"
+    ],
+    "golden_answer": "The current status of CRM-100 is To Do.",
+    "synthesizer_model": "gemini-3-flash-preview"
+  },
+  "q0110": {
+    "question_id": "q0110",
+    "category": "root-cause-synthesis",
+    "n_real_issues": 15,
+    "issue_keys_used": [
+      "BUGS-100",
+      "BUGS-99",
+      "BUGS-98",
+      "BUGS-97",
+      "BUGS-96",
+      "BUGS-95",
+      "BUGS-94",
+      "BUGS-93",
+      "BUGS-92",
+      "BUGS-91",
+      "BUGS-90",
+      "BUGS-89",
+      "BUGS-88",
+      "BUGS-87",
+      "BUGS-86"
+    ],
+    "golden_answer": "Based on the provided JIRA issues, the design flaws causing rate-limiting problems center on the inefficient handling of CORS and preflight requests, as well as a lack of transparency for developers.\n\nThe primary technical flaws identified are:\n*   **Counting Preflight Requests:** The rate-limiting middleware currently includes `OPTIONS` requests in the quota. **BUGS-86** identifies the need to exclude these requests to ensure they do not consume a user's limit and suggests caching preflight responses to reduce load.\n*   **Lack of Visibility:** There is currently no way for users to monitor their consumption. **BUGS-88** and **BUGS-87** address this by proposing a user-facing monitoring dashboard and the implementation of comprehensive response headers (`X-RateLimit-Limit`, `X-RateLimit-Remaining`, and `X-RateLimit-Reset`) to communicate usage and reset times.\n*   **Inefficient Data Fetching:** The current REST-only architecture requires multiple API calls (4+) to retrieve related data, such as issues with comments and attachments. **BUGS-89** and **BUGS-91** suggest that adding a GraphQL endpoint with query complexity analysis would allow users to fetch data more efficiently in a single request, reducing the total number of calls against their rate limit.",
+    "synthesizer_model": "gemini-3-flash-preview",
+    "resynth": true
+  },
+  "q0353": {
+    "question_id": "q0353",
+    "category": "comments-worklogs",
+    "n_real_issues": 1,
+    "issue_keys_used": [
+      "PLAT-98"
+    ],
+    "golden_answer": "Based on the provided Jira issue text for PLAT-98, there are no comments recorded for this issue. The issue details only include the summary, description, status, priority, and issue type.",
+    "synthesizer_model": "gemini-3-flash-preview"
+  },
+  "q0218": {
+    "question_id": "q0218",
+    "category": "ambiguous",
+    "n_real_issues": 0,
+    "issue_keys_used": [],
+    "golden_answer": "[unanswerable: no relevant Jira data found]",
+    "intent": "unanswerable",
+    "synthesis_error": false
+  },
+  "q0469": {
+    "question_id": "q0469",
+    "category": "tool-efficiency",
+    "n_real_issues": 1,
+    "issue_keys_used": [
+      "OPS-97"
+    ],
+    "golden_answer": "OPS-97 is a high-priority story currently in the To Do status, categorized under the databases and k8s-prod components. The summary of the issue is to implement database schema migration governance and rollback procedures. According to the description, unreviewed migrations are a primary cause of incidents, including a recent 47-minute outage caused by an unreviewed ALTER TABLE on a 2TB table. The goal is to establish a migration review process, automated lock detection, and mandatory rollback scripts. The acceptance criteria specify that all schema migrations for tier-1 systems must require a DBA review.",
+    "synthesizer_model": "gemini-3-flash-preview"
+  },
+  "q0142": {
+    "question_id": "q0142",
+    "category": "cross-issue-analysis",
+    "n_real_issues": 12,
+    "issue_keys_used": [
+      "BUGS-92",
+      "BUGS-91",
+      "BUGS-70",
+      "BUGS-68",
+      "BUGS-60",
+      "BUGS-57",
+      "BUGS-56",
+      "BUGS-22",
+      "BUGS-18",
+      "BUGS-14",
+      "BUGS-10",
+      "BUGS-2"
+    ],
+    "golden_answer": "Network and connectivity issues in the BUGS project primarily center on handling poor or nonexistent connections for mobile users. BUGS-56 identifies a high-priority issue where Android network requests fail silently on poor connections (3G or spotty WiFi) because OkHttp timeout exceptions are not handled at the UI layer, causing the app to hang. To address this, BUGS-57 involves implementing a centralized NetworkExceptionHandler to map OkHttp exceptions like timeouts and lost connections to user-friendly UI states.\n\nThe project is also focused on improving functionality in low-connectivity environments. BUGS-68 introduces offline issue creation with a sync queue for users in locations like warehouses or data centers, while BUGS-70 implements a chunked upload system (1MB chunks) for large attachments to ensure reliability when connectivity is poor. \n\nAdditionally, connectivity management includes real-time updates and background synchronization. BUGS-92 requires implementing GraphQL subscriptions via WebSocket transport with graceful connection cleanup and reconnection. BUGS-60 addresses excessive battery drain caused by background sync processes that run every five minutes and wake the radio even when no new data is available. Finally, BUGS-14 notes a failure in propagating session invalidation to mobile apps, as they continue to use existing tokens despite revocation events being published to Redis.",
+    "synthesizer_model": "gemini-3-flash-preview"
+  },
+  "q0355": {
+    "question_id": "q0355",
+    "category": "comments-worklogs",
+    "n_real_issues": 1,
+    "issue_keys_used": [
+      "CRM-60"
+    ],
+    "golden_answer": "Based on the provided text for CRM-60, there are no comments discussing the refund fraud detection model. The issue contains a summary, description, and acceptance criteria regarding the development of the machine learning model, but no comment section or specific user comments are included in the data.",
+    "synthesizer_model": "gemini-3-flash-preview"
+  },
+  "q0111": {
+    "question_id": "q0111",
+    "category": "root-cause-synthesis",
+    "n_real_issues": 15,
+    "issue_keys_used": [
+      "CRM-100",
+      "CRM-99",
+      "CRM-98",
+      "CRM-97",
+      "CRM-96",
+      "CRM-95",
+      "CRM-94",
+      "CRM-93",
+      "CRM-92",
+      "CRM-91",
+      "CRM-90",
+      "CRM-89",
+      "CRM-88",
+      "CRM-87",
+      "CRM-86"
+    ],
+    "golden_answer": "Based on the provided Jira issues, the following monitoring and detection capabilities are currently missing:\n\n*   **Ticket Volume Spike and Anomaly Detection:** The system lacks automated monitoring to detect ticket volume spikes (CRM-97, CRM-98). Missing capabilities include a streaming pipeline to aggregate tickets in 5-minute windows (CRM-98) and an anomaly detection algorithm that compares real-time data against dynamic baselines while accounting for marketing events or launches (CRM-99).\n*   **Granular Segment Tracking:** There is a lack of real-time monitoring segmented by specific technical metadata, including **app version**, **OS/device type**, geography, and category (CRM-97, CRM-98). Currently, agents must manually ask for this environment data (CRM-89), and the system needs to implement auto-detection libraries and structured collection forms to enable filtering by these segments (CRM-90, CRM-92).\n*   **Proactive Engineering Alerts:** The organization lacks a proactive alerting pipeline to notify engineering of emerging issues before standard monitoring catches them (CRM-97). Missing features include automated integrations with **PagerDuty** for P1 patterns (>5x baseline) and **Slack** for P2 patterns (2-5x baseline), including investigation queries and sample ticket links (CRM-100).\n*   **Error Pattern Recognition:** The system cannot currently extract error messages from screenshots via OCR (CRM-86) or use fuzzy matching/regex to identify specific error codes and version-specific patterns (CRM-87).",
+    "synthesizer_model": "gemini-3-flash-preview",
+    "resynth": true
+  },
+  "q0219": {
+    "question_id": "q0219",
+    "category": "ambiguous",
+    "n_real_issues": 0,
+    "issue_keys_used": [],
+    "golden_answer": "[unanswerable: no relevant Jira data found]",
+    "intent": "unanswerable",
+    "synthesis_error": false
+  },
+  "q0471": {
+    "question_id": "q0471",
+    "category": "tool-efficiency",
+    "n_real_issues": 1,
+    "issue_keys_used": [
+      "SMP-910"
+    ],
+    "golden_answer": "The provided issue text for SMP-910 does not contain information regarding an assignee. The data only specifies the issue key, type, priority, status, summary, and description.",
+    "synthesizer_model": "gemini-3-flash-preview"
+  },
+  "q0112": {
+    "question_id": "q0112",
+    "category": "root-cause-synthesis",
+    "n_real_issues": 15,
+    "issue_keys_used": [
+      "BUGS-100",
+      "BUGS-99",
+      "BUGS-98",
+      "BUGS-97",
+      "BUGS-94",
+      "BUGS-93",
+      "BUGS-89",
+      "BUGS-85",
+      "BUGS-81",
+      "BUGS-77",
+      "BUGS-76",
+      "BUGS-75",
+      "BUGS-48",
+      "BUGS-20",
+      "BUGS-18"
+    ],
+    "golden_answer": "Based on the provided JIRA issues, specifically **BUGS-77**, the REST API v2 design requires fixing several structural and naming inconsistencies to improve developer experience. The necessary fixes include:\n\n*   **Naming Conventions and Pluralization:** Standardizing resource naming to resolve mixed singular and plural patterns, such as the current inconsistency between `/issue/{id}` and `/projects/{id}`.\n*   **Endpoint Design:** Moving away from non-RESTful designs and ensuring consistent use of path parameters versus query parameters for IDs.\n*   **Error Handling:** Standardizing error responses, which currently vary significantly across the API.\n*   **Timezone and Datetime Handling:** Addressing inconsistent datetime formats and timezone handling (e.g., mixing UTC, server time, and ambiguous strings without indicators). As detailed in **BUGS-97**, **BUGS-98**, **BUGS-99**, and **BUGS-100**, the API must be updated to normalize all input to UTC, use ISO 8601 with the \"Z\" suffix for all outputs, and provide deprecation warnings for legacy formats.\n*   **Rate Limiting:** Fixing the rate limiter to stop incorrectly counting CORS OPTIONS preflight requests against user quotas (**BUGS-85**).\n\nThese fixes are part of a broader modernization initiative (**BUGS-76**) to resolve technical debt and improve the overall consistency of the resource structure.",
+    "synthesizer_model": "gemini-3-flash-preview",
+    "resynth": true
+  },
+  "q0356": {
+    "question_id": "q0356",
+    "category": "comments-worklogs",
+    "n_real_issues": 1,
+    "issue_keys_used": [
+      "BUGS-72"
+    ],
+    "golden_answer": "Based on the provided text for BUGS-72, there are no worklogs recorded for the scroll performance fix. The issue is currently in the \"To Do\" status and the description focuses on the technical causes of the frame drops, such as rich text rendering and synchronous image loading, rather than documenting any completed work or time spent.",
+    "synthesizer_model": "gemini-3-flash-preview"
+  },
+  "q0144": {
+    "question_id": "q0144",
+    "category": "cross-issue-analysis",
+    "n_real_issues": 19,
+    "issue_keys_used": [
+      "CRM-95",
+      "CRM-94",
+      "CRM-93",
+      "CRM-92",
+      "CRM-84",
+      "CRM-81",
+      "CRM-76",
+      "CRM-74",
+      "CRM-72",
+      "CRM-62",
+      "CRM-39",
+      "CRM-37",
+      "CRM-32",
+      "CRM-31",
+      "CRM-22",
+      "CRM-18",
+      "CRM-12",
+      "CRM-10",
+      "CRM-1"
+    ],
+    "golden_answer": "CRM faces several escalation and workflow automation issues across engineering, billing, and account security. A primary concern is the lack of a formal engineering escalation path for reproducible bugs; agents currently use inconsistent methods like spreadsheets and Slack, leading to lost issues. To address this, CRM-81 and CRM-95 focus on creating structured \"Bug Escalation\" workflows, integrating incident detection with PagerDuty, and mapping severity levels. CRM-84 and CRM-76 aim to improve these processes through SLA monitoring dashboards and better triage for app crashes.\n\nIn billing and refunds, issues include inconsistent supervisor escalations for policy exceptions and manual tracking of dispute SLAs. CRM-72 and CRM-12 introduce structured approval routing for refunds, while CRM-22 and CRM-74 implement automated SLA tracking and Slack notifications for overdue approvals. CRM-10 addresses the inefficiency of treating multi-transaction disputes as separate tickets by creating a consolidated escalation workflow.\n\nRegarding account security, there is a lack of standardized identity verification, leading to inconsistent outcomes in account recovery. CRM-39 and CRM-31 introduce standardized verification checklists and mandatory ID uploads for high-risk changes. Automation issues also exist in email management; CRM-32 and CRM-37 require new logic to auto-escalate to fraud review or ID verification if security checks, such as dual-email confirmations or login attempts, fail. Finally, CRM-93 and CRM-1 address the need for automated public status pages and evidence gathering to reduce duplicate tickets during widespread outages.",
+    "synthesizer_model": "gemini-3-flash-preview"
+  },
+  "q0472": {
+    "question_id": "q0472",
+    "category": "tool-efficiency",
+    "n_real_issues": 1,
+    "issue_keys_used": [
+      "BUGS-98"
+    ],
+    "golden_answer": "The summary of BUGS-98 is \"Audit all API responses for datetime field consistency.\"",
+    "synthesizer_model": "gemini-3-flash-preview"
+  },
+  "q0220": {
+    "question_id": "q0220",
+    "category": "ambiguous",
+    "n_real_issues": 15,
+    "issue_keys_used": [
+      "SMP-65",
+      "PLAT-72",
+      "PLAT-64",
+      "PLAT-55",
+      "PLAT-53",
+      "PLAT-52",
+      "PLAT-51",
+      "PLAT-21",
+      "PLAT-18",
+      "OPS-87",
+      "OPS-71",
+      "OPS-69",
+      "OPS-68",
+      "OPS-12",
+      "OPS-10"
+    ],
+    "golden_answer": "The security-related issues across the JIRA projects include:\n\n*   **Vulnerability Management:** SMP-65 addresses security vulnerabilities in `pubspec.yaml` dependencies (specifically `http` and `xml`). OPS-71 and OPS-68 focus on automating security scanning (SAST, dependency, and container scanning) within shared pipeline templates to fail pipelines on critical CVEs.\n*   **RBAC and Access Control:** PLAT-51 is an Epic for modernizing the RBAC system. Related tasks include designing a self-service model with permission boundaries (PLAT-52), inventorying existing permissions by risk level (PLAT-53), implementing automatic permission expiration (PLAT-64), and creating an RBAC audit and compliance dashboard (PLAT-72).\n*   **Infrastructure and Network Security:** PLAT-18 and PLAT-21 involve updating mTLS policies for Istio 1.20 and coordinating an AppSec review. OPS-10 and OPS-12 cover migrating from deprecated PodSecurityPolicies to Pod Security Standards for Kubernetes 1.29. OPS-87 includes configuring security groups, encryption at rest, and audit logging for DocumentDB clusters.\n*   **Reviews and Compliance:** PLAT-55 involves facilitating design reviews with security leadership for risk analysis and sign-off.\n\nNote: The requested issues CRM-31 and CRM-60 were not found in the provided data.",
+    "synthesizer_model": "gemini-3-flash-preview",
+    "resynth": true
+  },
+  "q0145": {
+    "question_id": "q0145",
+    "category": "cross-issue-analysis",
+    "n_real_issues": 20,
+    "issue_keys_used": [
+      "SMP-912",
+      "SMP-910",
+      "SMP-908",
+      "SMP-905",
+      "PLAT-89",
+      "PLAT-85",
+      "PLAT-81",
+      "PLAT-64",
+      "PLAT-60",
+      "PLAT-35",
+      "PLAT-31",
+      "PLAT-18",
+      "PLAT-10",
+      "PLAT-6",
+      "OPS-97",
+      "OPS-85",
+      "OPS-81",
+      "OPS-64",
+      "OPS-60",
+      "OPS-52"
+    ],
+    "golden_answer": "The following issues are currently in the To Do status with High priority, grouped by project:\n\n**Project: SMP**\nThere are 4 issues:\n- SMP-912: Quality Audit: https://acme-print-496544730367.us-central1.run.app/\n- SMP-910: https://acme-print-496544730367.us-central1.run.app/\n- SMP-908: Quality Audit: https://vistaprint-clone-496544730367.us-central1.run.app\n- SMP-905: Website Quality Audit: https://vistaprint-clone-496544730367.us-central1.run.app\n\n**Project: PLAT**\nThere are 10 issues:\n- PLAT-89: Build team cost dashboards with budget alerts\n- PLAT-85: Enable spot instances for stateless workload tiers\n- PLAT-81: Implement automated resource rightsizing recommendations\n- PLAT-64: Implement automatic permission expiration and access reviews\n- PLAT-60: Build Backstage plugin for RBAC self-service portal\n- PLAT-35: Implement scheduled batch job template with Argo Workflows\n- PLAT-31: Build ML model serving template with Seldon Core integration\n- PLAT-18: Update mTLS policies for Istio 1.20 PeerAuthentication changes\n- PLAT-10: Update platform Helm charts for Gateway API compatibility\n- PLAT-6: Establish canary cluster for Istio 1.16 testing\n\n**Project: OPS**\nThere are 6 issues:\n- OPS-97: Implement database schema migration governance and rollback procedures\n- OPS-85: Migrate legacy MongoDB clusters to AWS DocumentDB\n- OPS-81: Implement PgBouncer connection pooling across all PostgreSQL clusters\n- OPS-64: Scale and optimize self-hosted GitLab runner infrastructure\n- OPS-60: Implement distributed caching for build artifacts and dependencies\n- OPS-52: Implement pipeline analytics to identify flaky tests and bottlenecks",
+    "synthesizer_model": "gemini-3-flash-preview"
+  },
+  "q0113": {
+    "question_id": "q0113",
+    "category": "root-cause-synthesis",
+    "n_real_issues": 14,
+    "issue_keys_used": [
+      "BUGS-72",
+      "BUGS-68",
+      "BUGS-60",
+      "BUGS-52",
+      "BUGS-51",
+      "BUGS-47",
+      "BUGS-43",
+      "BUGS-27",
+      "BUGS-26",
+      "BUGS-18",
+      "BUGS-17",
+      "BUGS-14",
+      "BUGS-10",
+      "BUGS-2"
+    ],
+    "golden_answer": "Based on the provided JIRA issues, the root causes of mobile app battery and performance issues are:\n\n*   **Excessive Background Activity (BUGS-60):** Battery drain is caused by background sync processes running too frequently (every 5 minutes). On Android, this specifically results in the app keeping the device awake.\n*   **Main Thread Rendering (BUGS-72):** Performance \"jank\" and stuttering during list scrolling are caused by rich text (markdown) rendering occurring on the main thread.\n*   **Frame Rate Drops (BUGS-72):** Scrolling performance degrades to 15-20fps on mid-range devices, particularly when issues contain code blocks or inline images.\n*   **Memory Exhaustion (BUGS-52):** On iOS, the app crashes when viewing large attachments (over 15MB) because the entire file is loaded into memory before displaying a preview.\n*   **General Stability Issues (BUGS-51):** High crash rates (2.3% on iOS and 3.8% on Android) contribute to overall poor performance and declining user ratings.",
+    "synthesizer_model": "gemini-3-flash-preview",
+    "resynth": true
+  },
+  "q0221": {
+    "question_id": "q0221",
+    "category": "ambiguous",
+    "n_real_issues": 0,
+    "issue_keys_used": [],
+    "golden_answer": "[unanswerable: no relevant Jira data found]",
+    "intent": "unanswerable",
+    "synthesis_error": false
+  },
+  "q0357": {
+    "question_id": "q0357",
+    "category": "comments-worklogs",
+    "n_real_issues": 1,
+    "issue_keys_used": [
+      "SMP-912"
+    ],
+    "golden_answer": "Based on the provided issue text for SMP-912, there are no comments recorded for this task. The issue contains a summary regarding a quality audit and a description detailing typographical, grammatical, and data consistency errors, but it does not list any comment history.",
+    "synthesizer_model": "gemini-3-flash-preview"
+  },
+  "q0146": {
+    "question_id": "q0146",
+    "category": "cross-issue-analysis",
+    "n_real_issues": 9,
+    "issue_keys_used": [
+      "BUGS-72",
+      "BUGS-63",
+      "BUGS-61",
+      "BUGS-60",
+      "BUGS-51",
+      "BUGS-43",
+      "BUGS-26",
+      "BUGS-18",
+      "BUGS-16"
+    ],
+    "golden_answer": "Performance optimization issues in the BUGS project primarily involve mobile scroll performance, battery drain, and search latency. BUGS-72 identifies scroll performance jank on mobile platforms where frame rates drop to 15-20fps due to main-thread markdown rendering, synchronous avatar loading, and expensive cell height calculations. BUGS-60, BUGS-61, and BUGS-63 address excessive battery drain caused by background sync processes that run every five minutes and wake the radio unnecessarily. Proposed solutions include implementing intelligent sync scheduling based on battery state, adding user-configurable sync frequencies, and pausing polling when the app is in the background (BUGS-16). Additionally, BUGS-26 highlights a significant degradation in search performance, with P95 latency increasing from 800ms to 4.2 seconds as the database grew. BUGS-51 notes a general decline in mobile performance and stability, with crash rates exceeding targets and users reporting slow performance compared to the web version.",
+    "synthesizer_model": "gemini-3-flash-preview"
+  },
+  "q0474": {
+    "question_id": "q0474",
+    "category": "tool-efficiency",
+    "n_real_issues": 1,
+    "issue_keys_used": [
+      "CRM-96"
+    ],
+    "golden_answer": "Issue CRM-96 is a medium priority subtask currently in the To Do status. The summary of the issue is to build ticket-to-incident linking and duplicate prevention. According to the description, the goal is for agents to see a banner when an active incident matches ticket keywords, allowing for a one-click link to the incident. Linked tickets should be automatically updated when an incident resolves, and the system should track tickets avoided.",
+    "synthesizer_model": "gemini-3-flash-preview"
+  },
+  "q0360": {
+    "question_id": "q0360",
+    "category": "comments-worklogs",
+    "n_real_issues": 1,
+    "issue_keys_used": [
+      "OPS-99"
+    ],
+    "golden_answer": "Based on the provided issue text for OPS-99, there are no worklogs recorded. The issue description focuses on the requirements for building a migration analyzer for lock detection, but it does not contain any data regarding time spent or specific worklog entries.",
+    "synthesizer_model": "gemini-3-flash-preview"
+  },
+  "q0114": {
+    "question_id": "q0114",
+    "category": "root-cause-synthesis",
+    "n_real_issues": 15,
+    "issue_keys_used": [
+      "CRM-100",
+      "CRM-99",
+      "CRM-98",
+      "CRM-97",
+      "CRM-96",
+      "CRM-95",
+      "CRM-94",
+      "CRM-93",
+      "CRM-92",
+      "CRM-91",
+      "CRM-90",
+      "CRM-89",
+      "CRM-88",
+      "CRM-87",
+      "CRM-86"
+    ],
+    "golden_answer": "Based on the provided Jira issues (CRM-86 through CRM-100), there are no identified fraud detection gaps. The current system issues and planned tasks focus exclusively on technical issue monitoring, incident management, and support efficiency.\n\nThe existing gaps addressed in these tickets include:\n*   **Technical Environment Data:** Lack of automated collection for device, OS, and app versions, leading to excessive back-and-forth (CRM-89, CRM-90, CRM-91).\n*   **Incident Awareness:** Absence of a public status page to reduce duplicate tickets during outages (CRM-93, CRM-94) and a lack of automated ticket-to-incident linking for agents (CRM-96).\n*   **Proactive Monitoring:** Inability to detect emerging technical issues through ticket volume spikes before traditional monitoring catches them (CRM-97, CRM-98).\n*   **Error Identification:** Difficulty extracting error codes from user screenshots (CRM-86) and matching them to troubleshooting guides (CRM-87, CRM-88).\n*   **Alerting Infrastructure:** Need for automated anomaly detection and integration with PagerDuty/Slack for engineering escalations (CRM-95, CRM-99, CRM-100).\n\nThe provided data does not mention refund fraud rates, item-not-received claims, serial refunders, or ML model scoring for fraud.",
+    "synthesizer_model": "gemini-3-flash-preview",
+    "resynth": true
+  },
+  "q0222": {
+    "question_id": "q0222",
+    "category": "ambiguous",
+    "n_real_issues": 0,
+    "issue_keys_used": [],
+    "golden_answer": "[unanswerable: no relevant Jira data found]",
+    "intent": "unanswerable",
+    "synthesis_error": false
+  },
+  "q0147": {
+    "question_id": "q0147",
+    "category": "cross-issue-analysis",
+    "n_real_issues": 18,
+    "issue_keys_used": [
+      "SMP-615",
+      "SMP-330",
+      "PLAT-95",
+      "PLAT-93",
+      "PLAT-91",
+      "PLAT-89",
+      "PLAT-38",
+      "PLAT-35",
+      "PLAT-17",
+      "PLAT-14",
+      "OPS-74",
+      "CRM-100",
+      "CRM-81",
+      "CRM-74",
+      "CRM-47",
+      "CRM-12",
+      "CRM-5",
+      "BUGS-96"
+    ],
+    "golden_answer": "Based on the provided Jira issues, the projects with issues related to Slack integration are PLAT, OPS, CRM, and BUGS. \n\nIn the PLAT project, issues include PLAT-95 (notifying teams via Slack before deletion), PLAT-93 (Slack notifications for idle resource detection), PLAT-91 (Slack alerts for budget tracking), PLAT-38 (Slack notifications for Argo Workflow failures), and PLAT-17 (Slack integration for progress updates). \n\nIn the OPS project, OPS-74 involves setting up Slack notifications for pending deployment approvals. \n\nIn the CRM project, issues include CRM-100 (alerting integration with engineering Slack), CRM-81 (addressing bugs mentioned in Slack), CRM-74 (Slack notifications to approvers), CRM-12 (Slack notifications for supervisor refund approvals), and CRM-5 (Slack alerts for evidence compilation failures). \n\nIn the BUGS project, BUGS-96 includes a task to create a tutorial guide for building a Slack integration. \n\nWhile issues SMP-615 and SMP-330 mention \"slack,\" they refer to physical cable slack in vehicle throttles rather than the Slack software integration.",
+    "synthesizer_model": "gemini-3-flash-preview"
+  },
+  "q0361": {
+    "question_id": "q0361",
+    "category": "comments-worklogs",
+    "n_real_issues": 1,
+    "issue_keys_used": [
+      "CRM-81"
+    ],
+    "golden_answer": "Based on the provided text for CRM-81, there are no comments recorded regarding the engineering escalation workflow. The issue contains a summary and a description outlining the need for a formal escalation process to replace inconsistent methods like spreadsheets and Slack, but it does not include a comments section or any specific user remarks.",
+    "synthesizer_model": "gemini-3-flash-preview"
+  },
+  "q0223": {
+    "question_id": "q0223",
+    "category": "ambiguous",
+    "n_real_issues": 0,
+    "issue_keys_used": [],
+    "golden_answer": "[unanswerable: no relevant Jira data found]",
+    "intent": "unanswerable",
+    "synthesis_error": false
+  },
+  "q0148": {
+    "question_id": "q0148",
+    "category": "cross-issue-analysis",
+    "n_real_issues": 20,
+    "issue_keys_used": [
+      "SMP-589",
+      "SMP-588",
+      "SMP-587",
+      "SMP-586",
+      "SMP-535",
+      "SMP-474",
+      "SMP-453",
+      "SMP-452",
+      "SMP-451",
+      "SMP-450",
+      "SMP-449",
+      "SMP-440",
+      "SMP-434",
+      "SMP-431",
+      "SMP-430",
+      "SMP-429",
+      "SMP-428",
+      "SMP-427",
+      "SMP-426",
+      "SMP-425"
+    ],
+    "golden_answer": "Based on the provided Jira issues, there are no machine learning related features being developed. The current projects and tasks focus exclusively on general maintenance for various motorcycle fleets, root cause analysis for mechanical and electrical defects, recall campaigns for cooling systems and shaft drives, and specific repair tasks such as addressing brake line abrasion, fluid leaks, and engine component seizures. There is no mention of refund fraud detection models, ML scoring, or pattern detection in the provided data.",
+    "synthesizer_model": "gemini-3-flash-preview"
+  },
+  "q0115": {
+    "question_id": "q0115",
+    "category": "root-cause-synthesis",
+    "n_real_issues": 7,
+    "issue_keys_used": [
+      "BUGS-72",
+      "BUGS-68",
+      "BUGS-60",
+      "BUGS-52",
+      "BUGS-51",
+      "BUGS-17",
+      "BUGS-14"
+    ],
+    "golden_answer": "Based on the provided Jira issues, the BUGS project mobile applications face the following network and error handling problems:\n\n*   **Lack of Offline Support:** The app currently requires active network connectivity to create issues. This forces users in poor-connectivity environments (like warehouses or data centers) to take manual notes and delay reporting until they have a stable connection (BUGS-68).\n*   **Poor Session Error Handling:** The apps currently use generic 401 error handling when a session expires. There is a need to replace these generic errors with a \"friendly\" UI, such as a specific modal that explains the session revocation and offers re-authentication options (BUGS-17).\n*   **Session Invalidation Failures:** There is a security flaw where session invalidation does not propagate to mobile devices after a password change. Mobile apps continue to function with existing tokens for up to 24 hours instead of being immediately logged out (BUGS-14).\n*   **Inefficient Sync Logic:** The background sync process is poorly optimized, running every five minutes regardless of network status or app usage, leading to excessive battery drain and keeping devices awake (BUGS-60).",
+    "synthesizer_model": "gemini-3-flash-preview",
+    "resynth": true
+  },
+  "q0116": {
+    "question_id": "q0116",
+    "category": "root-cause-synthesis",
+    "n_real_issues": 9,
+    "issue_keys_used": [
+      "CRM-46",
+      "CRM-44",
+      "CRM-43",
+      "CRM-38",
+      "CRM-37",
+      "CRM-35",
+      "CRM-34",
+      "CRM-31",
+      "CRM-27"
+    ],
+    "golden_answer": "The CRM account security issues focus on mitigating account takeovers (ATOs) and improving recovery workflows for legitimate users. \n\nThe primary vulnerability being addressed is **account takeover via phishing**, where attackers change account email addresses after stealing passwords. To counter this, the system is implementing a high-risk identity verification workflow requiring re-authentication and confirmation from both the old and new email addresses (CRM-31).\n\nAdditionally, the system is addressing **recovery failures and support bottlenecks** caused by users losing access to their primary email or phone. New features include:\n*   **SMS-based recovery** as an alternative to email to prevent multi-day manual ID verification (CRM-27).\n*   **Offline backup codes** for users in areas with unreliable service, featuring secure bcrypt storage and a dedicated UI for PDF export (CRM-43, CRM-44, CRM-46).\n*   **Self-service unlock flows** to replace manual support tickets when users are locked out after five failed login attempts (CRM-35, CRM-37).\n\nTo improve **monitoring and transparency**, the CRM is adding a user-facing security activity log (CRM-34) and a security team dashboard to track lockout spikes and potential fraud (CRM-38). These updates aim to balance robust protection against unauthorized access with streamlined recovery for legitimate users.",
+    "synthesizer_model": "gemini-3-flash-preview",
+    "resynth": true
+  },
+  "q0224": {
+    "question_id": "q0224",
+    "category": "ambiguous",
+    "n_real_issues": 0,
+    "issue_keys_used": [],
+    "golden_answer": "[unanswerable: no relevant Jira data found]",
+    "intent": "unanswerable",
+    "synthesis_error": false
+  },
+  "q0362": {
+    "question_id": "q0362",
+    "category": "comments-worklogs",
+    "n_real_issues": 1,
+    "issue_keys_used": [
+      "PLAT-100"
+    ],
+    "golden_answer": "Based on the provided Jira issue text for PLAT-100, there are no worklogs recorded for this issue. The issue is a subtask titled \"Develop FinOps training curriculum and schedule sessions\" with a status of \"To Do,\" and the description focuses on training materials and scheduling without listing any logged time or worklog entries.",
+    "synthesizer_model": "gemini-3-flash-preview"
+  },
+  "q0149": {
+    "question_id": "q0149",
+    "category": "cross-issue-analysis",
+    "n_real_issues": 3,
+    "issue_keys_used": [
+      "BUGS-89",
+      "BUGS-77",
+      "BUGS-48"
+    ],
+    "golden_answer": "The planned REST API improvements in the BUGS project focus on establishing a consistent and standardized version 2 resource structure. This involves moving away from the inconsistent naming conventions, mixed pluralization, and non-RESTful endpoint designs found in version 1, such as the conflicting use of singular and plural paths and inconsistent parameter types. The goal is to implement a clean design following REST best practices and specifications like JSON:API to ensure uniform error responses. Additionally, the project plans to expand API capabilities by adding a GraphQL endpoint to address the inefficiencies of REST for complex queries and N+1 patterns, and by deploying a new service that exposes REST endpoints for batch and single-document embedding generation using sentence transformers.",
+    "synthesizer_model": "gemini-3-flash-preview"
+  },
+  "q0167": {
+    "question_id": "q0167",
+    "category": "trend",
+    "n_real_issues": 20,
+    "issue_keys_used": [
+      "OPS-1",
+      "OPS-2",
+      "OPS-3",
+      "OPS-4",
+      "OPS-5",
+      "OPS-6",
+      "OPS-7",
+      "OPS-8",
+      "OPS-9",
+      "OPS-10",
+      "OPS-11",
+      "OPS-12",
+      "OPS-13",
+      "OPS-14",
+      "OPS-15",
+      "OPS-16",
+      "OPS-17",
+      "OPS-18",
+      "OPS-19",
+      "OPS-20"
+    ],
+    "golden_answer": "Based on the provided Jira data, there are 20 issues in the OPS project (OPS-1 through OPS-20), all of which are currently in the To Do status. These issues are part of the Kubernetes Cluster Upgrade Initiative Q1 2024. There are no issues provided for the PLAT project. Because the data only reflects the current state of these 20 OPS issues and does not include historical timestamps, creation dates, or previous status changes, it is not possible to determine a trend over the last month. The data shows a static count of 20 To Do issues for OPS and 0 for PLAT.",
+    "synthesizer_model": "gemini-3-flash-preview"
+  },
+  "q0117": {
+    "question_id": "q0117",
+    "category": "root-cause-synthesis",
+    "n_real_issues": 15,
+    "issue_keys_used": [
+      "CRM-100",
+      "CRM-99",
+      "CRM-98",
+      "CRM-97",
+      "CRM-96",
+      "CRM-95",
+      "CRM-94",
+      "CRM-93",
+      "CRM-92",
+      "CRM-91",
+      "CRM-90",
+      "CRM-89",
+      "CRM-88",
+      "CRM-87",
+      "CRM-86"
+    ],
+    "golden_answer": "Based on the provided Jira issues, common causes of support ticket escalation problems include:\n\n*   **Lack of Standardized Technical Data:** Agents currently spend an average of two back-and-forth messages requesting device info, OS versions, and app versions (CRM-89). This is exacerbated by the absence of automated environment detection (CRM-90) and structured data integration into agent views (CRM-92).\n*   **Inefficient Error Identification:** There is a lack of automated tools to extract error messages from screenshots (CRM-86) or match error patterns and codes to troubleshooting guides (CRM-87, CRM-88).\n*   **Duplicate Ticket Flooding:** Widespread issues, such as API outages, cause ticket surges because there is no public status page for customers to check known issues (CRM-93, CRM-94). Additionally, agents lack tools to link tickets to active incidents or prevent duplicates (CRM-96).\n*   **Delayed Engineering Awareness:** Engineering is often alerted to emerging issues only after ticket volumes spike, rather than through proactive monitoring (CRM-97). This is due to a lack of real-time volume tracking by segment (CRM-98), anomaly detection algorithms (CRM-99), and automated alerting integrations with PagerDuty or Slack (CRM-100, CRM-95).",
+    "synthesizer_model": "gemini-3-flash-preview",
+    "resynth": true
+  },
+  "q0365": {
+    "question_id": "q0365",
+    "category": "comments-worklogs",
+    "n_real_issues": 1,
+    "issue_keys_used": [
+      "CRM-35"
+    ],
+    "golden_answer": "Based on the provided Jira issue text for CRM-35, there are no comments recorded. The issue description outlines the current problem where users receive a generic error message after five failed login attempts and must email support for assistance. It also details the proposed solution, which includes implementing clearer error messaging that explains the lockout is due to too many failed attempts and providing a self-service unlock feature via an email link. However, no specific user comments or discussion logs are present in the data.",
+    "synthesizer_model": "gemini-3-flash-preview"
+  },
+  "q0172": {
+    "question_id": "q0172",
+    "category": "trend",
+    "n_real_issues": 20,
+    "issue_keys_used": [
+      "PLAT-1",
+      "PLAT-2",
+      "PLAT-3",
+      "PLAT-4",
+      "PLAT-5",
+      "PLAT-6",
+      "PLAT-7",
+      "PLAT-8",
+      "PLAT-9",
+      "PLAT-10",
+      "PLAT-11",
+      "PLAT-12",
+      "PLAT-13",
+      "PLAT-14",
+      "PLAT-15",
+      "PLAT-16",
+      "PLAT-17",
+      "PLAT-18",
+      "PLAT-19",
+      "PLAT-20"
+    ],
+    "golden_answer": "The provided text for the PLAT project does not contain any creation dates, timestamps, or monthly counts for the issues (PLAT-1 through PLAT-20). Because there is no temporal data associated with when these issues were reported or created, it is impossible to determine if the issue creation slope is flat, increasing, or decreasing. The data only lists the issue keys, types, priorities, statuses, summaries, and descriptions.",
+    "synthesizer_model": "gemini-3-flash-preview"
+  },
+  "q0366": {
+    "question_id": "q0366",
+    "category": "comments-worklogs",
+    "n_real_issues": 1,
+    "issue_keys_used": [
+      "BUGS-96"
+    ],
+    "golden_answer": "There are no worklogs recorded on BUGS-96. While the issue description outlines the requirement to create tutorial guides for scenarios such as Slack integration, CSV imports, CI/CD notifications, and custom dashboards, the issue status is currently set to To Do and no worklog entries are present in the provided data.",
+    "synthesizer_model": "gemini-3-flash-preview"
+  },
+  "q0228": {
+    "question_id": "q0228",
+    "category": "multi-step",
+    "n_real_issues": 20,
+    "issue_keys_used": [
+      "OPS-100",
+      "OPS-99",
+      "OPS-98",
+      "OPS-97",
+      "OPS-96",
+      "OPS-95",
+      "OPS-94",
+      "OPS-93",
+      "OPS-92",
+      "OPS-91",
+      "OPS-90",
+      "OPS-89",
+      "OPS-88",
+      "OPS-87",
+      "OPS-86",
+      "OPS-85",
+      "OPS-84",
+      "OPS-83",
+      "OPS-82",
+      "OPS-81"
+    ],
+    "golden_answer": "The OPS project contains issues categorized into three priority levels: Highest, High, and Medium.\n\nHighest priority concerns focus on disaster recovery (DR) and compliance (OPS-89). The main operational themes involve validating outdated DR procedures, automating monthly restore tests for SOC2 compliance, and ensuring manual failover runbooks are functional after previous test failures.\n\nHigh priority concerns center on infrastructure stability and risk mitigation (OPS-97, OPS-85, OPS-81). Key themes include implementing database schema migration governance to prevent outages caused by unreviewed changes or table locking, migrating self-managed MongoDB clusters to AWS DocumentDB to reduce operational overhead from replica set elections, and deploying PgBouncer connection pooling to resolve memory issues caused by excessive direct database connections.\n\nMedium priority concerns involve observability, performance monitoring, and execution of migration tasks (OPS-93 and various subtasks). Operational themes include deploying query performance monitoring and slow query alerting to replace manual EXPLAIN ANALYZE workflows, configuring pg_stat_statements and Grafana dashboards for visibility, and performing technical subtasks for the higher-level migration and DR stories, such as auditing application compatibility, configuring backups, and implementing automated lock detection in CI/CD pipelines.",
+    "synthesizer_model": "gemini-3-flash-preview"
+  },
+  "q0369": {
+    "question_id": "q0369",
+    "category": "comments-worklogs",
+    "n_real_issues": 1,
+    "issue_keys_used": [
+      "BUGS-56"
+    ],
+    "golden_answer": "Based on the provided text for BUGS-56, there are no comments recorded for this issue. The issue description details that the Android app fails silently on poor connections due to unhandled timeout exceptions in the UI layer, but the data does not include a comments section or any specific remarks from users or developers.",
+    "synthesizer_model": "gemini-3-flash-preview"
+  },
+  "q0200": {
+    "question_id": "q0200",
+    "category": "ambiguous",
+    "n_real_issues": 0,
+    "issue_keys_used": [],
+    "golden_answer": "[unanswerable: no relevant Jira data found]",
+    "intent": "unanswerable",
+    "synthesis_error": false
+  },
+  "q0229": {
+    "question_id": "q0229",
+    "category": "multi-step",
+    "n_real_issues": 8,
+    "issue_keys_used": [
+      "PLAT-35",
+      "CRM-89",
+      "CRM-23",
+      "CRM-3",
+      "BUGS-100",
+      "BUGS-99",
+      "BUGS-98",
+      "BUGS-97"
+    ],
+    "golden_answer": "Issues mentioning datetime or timezone include PLAT-35, CRM-89, CRM-23, CRM-3, BUGS-100, BUGS-99, BUGS-98, and BUGS-97. The BUGS project has the most datetime-related issues with four, followed by CRM with three, and PLAT with one.\n\nThe specific problems described across these projects involve inconsistent timezone handling and formatting. The BUGS project identifies issues where API responses return a mix of UTC, server time, and ambiguous formats without timezone indicators. To resolve this, the project requires auditing all API responses, implementing a custom JSON serializer for ISO 8601 UTC output with a Z suffix, and normalizing input datetimes to UTC while issuing deprecation warnings for non-UTC formats.\n\nThe CRM project focuses on business logic and data collection, specifically implementing SLA timers that calculate business hours using the customer's timezone for display and UTC for storage. It also requires auto-detecting user timezones in technical environment forms and including UTC timestamps with timezone annotations in legal evidence packets. The PLAT project involves infrastructure migration, requiring that new CronWorkflow templates for Argo Workflows include timezone support for scheduled batch jobs.",
+    "synthesizer_model": "gemini-3-flash-preview"
+  },
+  "q0118": {
+    "question_id": "q0118",
+    "category": "root-cause-synthesis",
+    "n_real_issues": 20,
+    "issue_keys_used": [
+      "BUGS-100",
+      "BUGS-99",
+      "BUGS-98",
+      "BUGS-97",
+      "BUGS-96",
+      "BUGS-95",
+      "BUGS-94",
+      "BUGS-93",
+      "BUGS-92",
+      "BUGS-91",
+      "BUGS-90",
+      "BUGS-89",
+      "BUGS-88",
+      "BUGS-87",
+      "BUGS-86",
+      "BUGS-85",
+      "BUGS-84",
+      "BUGS-83",
+      "BUGS-82",
+      "BUGS-81"
+    ],
+    "golden_answer": "The recurring technical patterns across the \"To Do\" issues in the BUGS project center on four primary areas: datetime inconsistency, inadequate API documentation, inefficient data fetching, and flawed rate limiting.\n\nDatetime handling is a major problem, with issues BUGS-97 through BUGS-100 highlighting inconsistent timezone handling where endpoints return a mix of UTC, server time, and ambiguous formats without indicators. This requires a transition to ISO 8601 UTC standards, internal normalization, and new serialization logic.\n\nAPI documentation is currently insufficient, consisting of outdated static Markdown files (BUGS-93). This has led to recurring problems with developer integration, necessitating a move toward interactive portals (Stoplight/Redocly), automated OpenAPI synchronization, and multi-language code examples (BUGS-94, BUGS-95, BUGS-96).\n\nInefficient data fetching is identified as a bottleneck for mobile and dashboard components. The current REST API requires multiple calls for related data, leading to N+1 query patterns (BUGS-89). The proposed solution involves implementing a GraphQL endpoint and a real-time webhook system (BUGS-81) to replace resource-heavy polling.\n\nFinally, the rate limiter is technically flawed, incorrectly counting CORS preflight OPTIONS requests against user quotas (BUGS-85). This causes users to hit limits twice as fast as expected, requiring middleware adjustments to exclude OPTIONS requests and the implementation of clearer rate limit headers and monitoring dashboards (BUGS-86, BUGS-87, BUGS-88).",
+    "synthesizer_model": "gemini-3-flash-preview"
+  },
+  "q0232": {
+    "question_id": "q0232",
+    "category": "multi-step",
+    "n_real_issues": 20,
+    "issue_keys_used": [
+      "BUGS-98",
+      "BUGS-97",
+      "BUGS-96",
+      "BUGS-95",
+      "BUGS-94",
+      "BUGS-93",
+      "BUGS-83",
+      "BUGS-78",
+      "BUGS-77",
+      "BUGS-76",
+      "BUGS-70",
+      "BUGS-54",
+      "BUGS-48",
+      "BUGS-47",
+      "BUGS-43",
+      "BUGS-41",
+      "BUGS-39",
+      "BUGS-31",
+      "BUGS-30",
+      "BUGS-28"
+    ],
+    "golden_answer": "The following bugs and tasks related to API documentation are identified within the provided data:\n\nOpenAPI Specification: BUGS-78 involves creating a comprehensive OpenAPI 3.1 specification for all v2 endpoints, including schemas and error formats. BUGS-94 focuses on the technical setup of an API portal using tools like Stoplight or Redocly to host this spec.\n\nCode Examples: BUGS-95 requires writing code snippets in five languages for all major endpoints with error handling. BUGS-83 specifically requires providing verification snippets for HMAC signature generation in multiple languages.\n\nTutorial Guides: BUGS-96 covers the creation of step-by-step integration guides for scenarios like Slack integrations, CSV imports, and CI/CD notifications, including complete code samples.\n\nInteractive Portal: BUGS-93 is a story to create an interactive documentation portal that replaces static Markdown files, providing \"try it\" functionality and multi-language examples. This is part of the broader BUGS-76 initiative to modernize the developer experience.\n\nCompleteness Assessment: The documentation effort is currently in the early stages or \"To Do\" phase. The existing documentation is described as a frequently out-of-date static Markdown file (BUGS-93) that lacks modern features, leading to developer confusion. While the planned effort is comprehensive\u2014covering formal specifications, multi-language snippets, interactive tools, and integration tutorials\u2014it is currently incomplete as these tasks are not yet started. Additionally, BUGS-98 and BUGS-97 indicate that the underlying API behavior for datetime fields is inconsistent and requires auditing before it can be accurately documented.",
+    "synthesizer_model": "gemini-3-flash-preview"
+  },
+  "q0128": {
+    "question_id": "q0128",
+    "category": "cross-issue-analysis",
+    "n_real_issues": 16,
+    "issue_keys_used": [
+      "BUGS-100",
+      "BUGS-99",
+      "BUGS-98",
+      "BUGS-97",
+      "BUGS-94",
+      "BUGS-93",
+      "BUGS-89",
+      "BUGS-85",
+      "BUGS-81",
+      "BUGS-77",
+      "BUGS-76",
+      "BUGS-75",
+      "BUGS-48",
+      "BUGS-20",
+      "BUGS-18",
+      "BUGS-3"
+    ],
+    "golden_answer": "The BUGS project contains several API-related issues focused on timezone handling, architectural modernization, documentation, and functional bugs. \n\nA significant cluster of issues involves inconsistent datetime handling. The API currently returns dates in a mix of UTC, server time, and ambiguous formats without timezone indicators. Planned fixes include implementing a custom JSON serializer for ISO 8601 UTC output, adding input normalization with deprecation warnings for non-UTC formats, and auditing all endpoints for consistency.\n\nArchitectural issues include the development of REST API v2 to address inconsistent naming and non-RESTful designs in v1. There are also plans to implement a GraphQL endpoint to solve N+1 query patterns and a webhook system for real-time notifications to replace polling.\n\nFunctional bugs and technical improvements include a rate limiter error that incorrectly counts CORS preflight OPTIONS requests against user quotas. Documentation issues highlight that current static Markdown files are outdated; the project aims to deploy an interactive portal using tools like Stoplight or Redocly. \n\nOther API-specific tasks involve implementing the BroadcastChannel API for cross-tab coordination, handling Android version-specific biometric APIs to prevent crashes on Android 12+, and exposing a REST API for a new embedding generation service.",
+    "synthesizer_model": "gemini-3-flash-preview"
+  },
+  "q0246": {
+    "question_id": "q0246",
+    "category": "multi-step",
+    "n_real_issues": 15,
+    "issue_keys_used": [
+      "CRM-95",
+      "CRM-93",
+      "CRM-92",
+      "CRM-84",
+      "CRM-81",
+      "CRM-74",
+      "CRM-72",
+      "CRM-39",
+      "CRM-37",
+      "CRM-32",
+      "CRM-22",
+      "CRM-18",
+      "CRM-12",
+      "CRM-10",
+      "CRM-1"
+    ],
+    "golden_answer": "CRM issues related to escalation workflows include CRM-81, CRM-95, CRM-10, CRM-1, CRM-84, CRM-92, CRM-72, CRM-12, CRM-74, CRM-39, CRM-37, and CRM-32. The escalation path from support to engineering is defined in CRM-81, where support agents identify reproducible bugs and create a formal \"Bug Escalation\" from a support ticket using a reproduction steps template. This action automatically creates a Jira ticket in the engineering backlog. CRM-92 further supports this by ensuring structured form data and environment analytics are included in the escalation data sent to engineering. CRM-95 also outlines an escalation path for incidents, allowing for manual creation of incidents from support-detected issues or auto-creation via PagerDuty alerts.\n\nSeveral process gaps are identified across these issues. CRM-81 notes that agents currently lack a clear path to engineering, leading to bugs being lost in spreadsheets, emails, or Slack. CRM-10 highlights that complex multi-transaction disputes are handled as separate items, causing duplicate refunds or missed transactions. CRM-39 and CRM-72 identify inconsistencies in how agents handle account recovery and refund exceptions due to a lack of standardized verification and documentation. CRM-22 and CRM-84 point to a lack of automated tracking and alerting for SLAs, meaning breaches are often only caught after customer complaints. Finally, CRM-18 identifies a training gap where new agents struggle to know when to escalate billing disputes.",
+    "synthesizer_model": "gemini-3-flash-preview"
+  },
+  "q0464": {
+    "question_id": "q0464",
+    "category": "tool-efficiency",
+    "n_real_issues": 1,
+    "issue_keys_used": [
+      "PLAT-99"
+    ],
+    "golden_answer": "The provided text for PLAT-99 does not contain information regarding the reporter of the issue. The data only includes the issue key, type, priority, status, summary, and description.",
+    "synthesizer_model": "gemini-3-flash-preview"
+  }
+}

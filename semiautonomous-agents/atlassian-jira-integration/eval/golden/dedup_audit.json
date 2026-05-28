@@ -1,0 +1,2281 @@
+[
+  {
+    "cluster_id": "('typo-robustness', 'search')",
+    "category": "typo-robustness",
+    "member_qids": [
+      "q0400",
+      "q0401",
+      "q0402",
+      "q0403",
+      "q0404",
+      "q0405",
+      "q0406",
+      "q0407",
+      "q0408",
+      "q0409",
+      "q0410",
+      "q0411",
+      "q0412",
+      "q0413",
+      "q0414",
+      "q0415",
+      "q0416",
+      "q0417",
+      "q0418",
+      "q0419",
+      "q0420",
+      "q0421",
+      "q0422",
+      "q0423",
+      "q0424"
+    ],
+    "count": 25,
+    "keep_sample_size": 4,
+    "recommended_keep": [
+      "q0411",
+      "q0404",
+      "q0407",
+      "q0419"
+    ],
+    "reason": "templated cluster \u2014 sampled for project variety (target=4)"
+  },
+  {
+    "cluster_id": "('epic-tree', 'children')",
+    "category": "epic-tree",
+    "member_qids": [
+      "q0275",
+      "q0276",
+      "q0278",
+      "q0279",
+      "q0280",
+      "q0281",
+      "q0283",
+      "q0284",
+      "q0285",
+      "q0287",
+      "q0288",
+      "q0289",
+      "q0291",
+      "q0292",
+      "q0293",
+      "q0295",
+      "q0298",
+      "q0299"
+    ],
+    "count": 18,
+    "keep_sample_size": 3,
+    "recommended_keep": [
+      "q0275",
+      "q0276",
+      "q0278"
+    ],
+    "reason": "templated cluster \u2014 sampled for project variety (target=3)"
+  },
+  {
+    "cluster_id": "('comments-worklogs', 'comments', 'with_key')",
+    "category": "comments-worklogs",
+    "member_qids": [
+      "q0350",
+      "q0352",
+      "q0353",
+      "q0355",
+      "q0356",
+      "q0357",
+      "q0359",
+      "q0361",
+      "q0362",
+      "q0363",
+      "q0365",
+      "q0366",
+      "q0367",
+      "q0369",
+      "q0371",
+      "q0372",
+      "q0373",
+      "q0374"
+    ],
+    "count": 18,
+    "keep_sample_size": 3,
+    "recommended_keep": [
+      "q0350",
+      "q0355",
+      "q0352"
+    ],
+    "reason": "templated cluster \u2014 sampled for project variety (target=3)"
+  },
+  {
+    "cluster_id": "('issue-links', 'link')",
+    "category": "issue-links",
+    "member_qids": [
+      "q0302",
+      "q0303",
+      "q0306",
+      "q0308",
+      "q0309",
+      "q0310",
+      "q0312",
+      "q0313",
+      "q0316",
+      "q0317",
+      "q0319",
+      "q0321",
+      "q0322",
+      "q0324"
+    ],
+    "count": 14,
+    "keep_sample_size": 3,
+    "recommended_keep": [
+      "q0309",
+      "q0302",
+      "q0303"
+    ],
+    "reason": "templated cluster \u2014 sampled for project variety (target=3)"
+  },
+  {
+    "cluster_id": "('pagination-required', 'proj1', 'other')",
+    "category": "pagination-required",
+    "member_qids": [
+      "q0075",
+      "q0078",
+      "q0079",
+      "q0083",
+      "q0084",
+      "q0085",
+      "q0087",
+      "q0089",
+      "q0091",
+      "q0092",
+      "q0094",
+      "q0096",
+      "q0098"
+    ],
+    "count": 13,
+    "keep_sample_size": 1,
+    "recommended_keep": [
+      "q0075"
+    ],
+    "reason": "cap category \u2014 one representative per topic (other)"
+  },
+  {
+    "cluster_id": "('refusal-test', 'delete')",
+    "category": "refusal-test",
+    "member_qids": [
+      "q0175",
+      "q0176",
+      "q0177",
+      "q0180",
+      "q0181",
+      "q0183",
+      "q0185",
+      "q0186",
+      "q0187",
+      "q0191",
+      "q0192",
+      "q0193",
+      "q0197"
+    ],
+    "count": 13,
+    "keep_sample_size": 1,
+    "recommended_keep": [
+      "q0175"
+    ],
+    "reason": "cap category \u2014 one representative per topic (delete)"
+  },
+  {
+    "cluster_id": "('golden-anti-regression', 'abs', 'no_key')",
+    "category": "golden-anti-regression",
+    "member_qids": [
+      "q0475",
+      "q0476",
+      "q0477",
+      "q0478",
+      "q0479",
+      "q0480",
+      "q0481",
+      "q0482",
+      "q0483",
+      "q0484",
+      "q0485",
+      "q0486",
+      "q0499"
+    ],
+    "count": 13,
+    "keep_sample_size": 3,
+    "recommended_keep": [
+      "q0477",
+      "q0479",
+      "q0481"
+    ],
+    "reason": "templated cluster \u2014 sampled for project variety (target=3)"
+  },
+  {
+    "cluster_id": "('jql-filter', 'proj1', 'other')",
+    "category": "jql-filter",
+    "member_qids": [
+      "q0026",
+      "q0028",
+      "q0031",
+      "q0032",
+      "q0033",
+      "q0035",
+      "q0039",
+      "q0041",
+      "q0042",
+      "q0044",
+      "q0046",
+      "q0047"
+    ],
+    "count": 12,
+    "keep_sample_size": 1,
+    "recommended_keep": [
+      "q0026"
+    ],
+    "reason": "cap category \u2014 one representative per topic (other)"
+  },
+  {
+    "cluster_id": "('count-aggregate', 'proj1', 'other')",
+    "category": "count-aggregate",
+    "member_qids": [
+      "q0050",
+      "q0052",
+      "q0053",
+      "q0054",
+      "q0057",
+      "q0058",
+      "q0059",
+      "q0061",
+      "q0065",
+      "q0066",
+      "q0069",
+      "q0071"
+    ],
+    "count": 12,
+    "keep_sample_size": 1,
+    "recommended_keep": [
+      "q0050"
+    ],
+    "reason": "cap category \u2014 one representative per topic (other)"
+  },
+  {
+    "cluster_id": "('trend', 'monthly', 'nopri', 'proj1')",
+    "category": "trend",
+    "member_qids": [
+      "q0150",
+      "q0151",
+      "q0152",
+      "q0153",
+      "q0156",
+      "q0157",
+      "q0159",
+      "q0160",
+      "q0161",
+      "q0164",
+      "q0171"
+    ],
+    "count": 11,
+    "keep_sample_size": 1,
+    "recommended_keep": [
+      "q0150"
+    ],
+    "reason": "templated cluster \u2014 sampled for project variety (target=1)"
+  },
+  {
+    "cluster_id": "('issue-links', 'block')",
+    "category": "issue-links",
+    "member_qids": [
+      "q0300",
+      "q0301",
+      "q0304",
+      "q0305",
+      "q0307",
+      "q0311",
+      "q0314",
+      "q0315",
+      "q0318",
+      "q0320",
+      "q0323"
+    ],
+    "count": 11,
+    "keep_sample_size": 3,
+    "recommended_keep": [
+      "q0300",
+      "q0314",
+      "q0301"
+    ],
+    "reason": "templated cluster \u2014 sampled for project variety (target=3)"
+  },
+  {
+    "cluster_id": "('components-versions', 'proj1', 'other')",
+    "category": "components-versions",
+    "member_qids": [
+      "q0327",
+      "q0328",
+      "q0330",
+      "q0331",
+      "q0335",
+      "q0338",
+      "q0341",
+      "q0344",
+      "q0347",
+      "q0349"
+    ],
+    "count": 10,
+    "keep_sample_size": 1,
+    "recommended_keep": [
+      "q0327"
+    ],
+    "reason": "cap category \u2014 one representative per topic (other)"
+  },
+  {
+    "cluster_id": "('pii-sensitive', 'other')",
+    "category": "pii-sensitive",
+    "member_qids": [
+      "q0429",
+      "q0434",
+      "q0435",
+      "q0436",
+      "q0439",
+      "q0443",
+      "q0445",
+      "q0446",
+      "q0447",
+      "q0448"
+    ],
+    "count": 10,
+    "keep_sample_size": 1,
+    "recommended_keep": [
+      "q0429"
+    ],
+    "reason": "cap category \u2014 one representative per topic (other)"
+  },
+  {
+    "cluster_id": "('cross-issue-analysis', 'distribution')",
+    "category": "cross-issue-analysis",
+    "member_qids": [
+      "q0125",
+      "q0127",
+      "q0130",
+      "q0132",
+      "q0136",
+      "q0138",
+      "q0140",
+      "q0143",
+      "q0145"
+    ],
+    "count": 9,
+    "keep_sample_size": 1,
+    "recommended_keep": [
+      "q0125"
+    ],
+    "reason": "cap category \u2014 one representative per topic (distribution)"
+  },
+  {
+    "cluster_id": "('lookup', 'assignee')",
+    "category": "lookup",
+    "member_qids": [
+      "q0000",
+      "q0004",
+      "q0007",
+      "q0011",
+      "q0016",
+      "q0019",
+      "q0021",
+      "q0024"
+    ],
+    "count": 8,
+    "keep_sample_size": 3,
+    "recommended_keep": [
+      "q0000",
+      "q0011",
+      "q0007"
+    ],
+    "reason": "templated cluster \u2014 sampled for project variety (target=3)"
+  },
+  {
+    "cluster_id": "('prompt-injection', 'ignore-prev')",
+    "category": "prompt-injection",
+    "member_qids": [
+      "q0375",
+      "q0376",
+      "q0378",
+      "q0379",
+      "q0381",
+      "q0385",
+      "q0395",
+      "q0397"
+    ],
+    "count": 8,
+    "keep_sample_size": 1,
+    "recommended_keep": [
+      "q0375"
+    ],
+    "reason": "cap category \u2014 one representative per topic (ignore-prev)"
+  },
+  {
+    "cluster_id": "('tool-efficiency', 'count', 'proj1', 'nopri')",
+    "category": "tool-efficiency",
+    "member_qids": [
+      "q0450",
+      "q0454",
+      "q0457",
+      "q0460",
+      "q0463",
+      "q0468",
+      "q0470",
+      "q0473"
+    ],
+    "count": 8,
+    "keep_sample_size": 1,
+    "recommended_keep": [
+      "q0450"
+    ],
+    "reason": "cap category \u2014 one representative per topic (nopri)"
+  },
+  {
+    "cluster_id": "('multi-project', 'proj2', 'other')",
+    "category": "multi-project",
+    "member_qids": [
+      "q0254",
+      "q0255",
+      "q0258",
+      "q0261",
+      "q0264",
+      "q0268",
+      "q0273"
+    ],
+    "count": 7,
+    "keep_sample_size": 1,
+    "recommended_keep": [
+      "q0254"
+    ],
+    "reason": "cap category \u2014 one representative per topic (other)"
+  },
+  {
+    "cluster_id": "('epic-tree', 'parent')",
+    "category": "epic-tree",
+    "member_qids": [
+      "q0277",
+      "q0282",
+      "q0286",
+      "q0290",
+      "q0294",
+      "q0296",
+      "q0297"
+    ],
+    "count": 7,
+    "keep_sample_size": 3,
+    "recommended_keep": [
+      "q0277",
+      "q0282",
+      "q0294"
+    ],
+    "reason": "templated cluster \u2014 sampled for project variety (target=3)"
+  },
+  {
+    "cluster_id": "('comments-worklogs', 'worklog', 'with_key')",
+    "category": "comments-worklogs",
+    "member_qids": [
+      "q0351",
+      "q0354",
+      "q0358",
+      "q0360",
+      "q0364",
+      "q0368",
+      "q0370"
+    ],
+    "count": 7,
+    "keep_sample_size": 3,
+    "recommended_keep": [
+      "q0354",
+      "q0351",
+      "q0360"
+    ],
+    "reason": "templated cluster \u2014 sampled for project variety (target=3)"
+  },
+  {
+    "cluster_id": "('tool-efficiency', 'lookup', 'other')",
+    "category": "tool-efficiency",
+    "member_qids": [
+      "q0461",
+      "q0462",
+      "q0464",
+      "q0465",
+      "q0466",
+      "q0469",
+      "q0474"
+    ],
+    "count": 7,
+    "keep_sample_size": 1,
+    "recommended_keep": [
+      "q0461"
+    ],
+    "reason": "cap category \u2014 one representative per topic (other)"
+  },
+  {
+    "cluster_id": "('golden-anti-regression', 'abs', 'with_key')",
+    "category": "golden-anti-regression",
+    "member_qids": [
+      "q0487",
+      "q0488",
+      "q0489",
+      "q0490",
+      "q0491",
+      "q0497",
+      "q0498"
+    ],
+    "count": 7,
+    "keep_sample_size": 3,
+    "recommended_keep": [
+      "q0488",
+      "q0489",
+      "q0490"
+    ],
+    "reason": "templated cluster \u2014 sampled for project variety (target=3)"
+  },
+  {
+    "cluster_id": "('lookup', 'status')",
+    "category": "lookup",
+    "member_qids": [
+      "q0001",
+      "q0005",
+      "q0009",
+      "q0013",
+      "q0018",
+      "q0022"
+    ],
+    "count": 6,
+    "keep_sample_size": 3,
+    "recommended_keep": [
+      "q0005",
+      "q0001",
+      "q0022"
+    ],
+    "reason": "templated cluster \u2014 sampled for project variety (target=3)"
+  },
+  {
+    "cluster_id": "('lookup', 'summary')",
+    "category": "lookup",
+    "member_qids": [
+      "q0002",
+      "q0006",
+      "q0010",
+      "q0014",
+      "q0017",
+      "q0020"
+    ],
+    "count": 6,
+    "keep_sample_size": 3,
+    "recommended_keep": [
+      "q0010",
+      "q0006",
+      "q0002"
+    ],
+    "reason": "templated cluster \u2014 sampled for project variety (target=3)"
+  },
+  {
+    "cluster_id": "('root-cause-synthesis', 'other')",
+    "category": "root-cause-synthesis",
+    "member_qids": [
+      "q0105",
+      "q0108",
+      "q0111",
+      "q0118",
+      "q0121",
+      "q0124"
+    ],
+    "count": 6,
+    "keep_sample_size": 1,
+    "recommended_keep": [
+      "q0105"
+    ],
+    "reason": "cap category \u2014 one representative per topic (other)"
+  },
+  {
+    "cluster_id": "('multi-step', 'distribution')",
+    "category": "multi-step",
+    "member_qids": [
+      "q0228",
+      "q0231",
+      "q0234",
+      "q0242",
+      "q0244",
+      "q0247"
+    ],
+    "count": 6,
+    "keep_sample_size": 1,
+    "recommended_keep": [
+      "q0228"
+    ],
+    "reason": "cap category \u2014 one representative per topic (distribution)"
+  },
+  {
+    "cluster_id": "('pii-sensitive', 'general-pii')",
+    "category": "pii-sensitive",
+    "member_qids": [
+      "q0425",
+      "q0428",
+      "q0431",
+      "q0438",
+      "q0444",
+      "q0449"
+    ],
+    "count": 6,
+    "keep_sample_size": 1,
+    "recommended_keep": [
+      "q0428"
+    ],
+    "reason": "cap category \u2014 one representative per topic (general-pii)"
+  },
+  {
+    "cluster_id": "('lookup', 'priority')",
+    "category": "lookup",
+    "member_qids": [
+      "q0003",
+      "q0008",
+      "q0012",
+      "q0015",
+      "q0023"
+    ],
+    "count": 5,
+    "keep_sample_size": 3,
+    "recommended_keep": [
+      "q0015",
+      "q0012",
+      "q0003"
+    ],
+    "reason": "templated cluster \u2014 sampled for project variety (target=3)"
+  },
+  {
+    "cluster_id": "('refusal-test', 'reassign')",
+    "category": "refusal-test",
+    "member_qids": [
+      "q0178",
+      "q0189",
+      "q0190",
+      "q0196",
+      "q0199"
+    ],
+    "count": 5,
+    "keep_sample_size": 1,
+    "recommended_keep": [
+      "q0178"
+    ],
+    "reason": "cap category \u2014 one representative per topic (reassign)"
+  },
+  {
+    "cluster_id": "('multi-step', 'api-design')",
+    "category": "multi-step",
+    "member_qids": [
+      "q0225",
+      "q0232",
+      "q0237",
+      "q0239",
+      "q0249"
+    ],
+    "count": 5,
+    "keep_sample_size": 1,
+    "recommended_keep": [
+      "q0225"
+    ],
+    "reason": "cap category \u2014 one representative per topic (api-design)"
+  },
+  {
+    "cluster_id": "('prompt-injection', 'persona-swap')",
+    "category": "prompt-injection",
+    "member_qids": [
+      "q0380",
+      "q0383",
+      "q0384",
+      "q0390",
+      "q0396"
+    ],
+    "count": 5,
+    "keep_sample_size": 1,
+    "recommended_keep": [
+      "q0380"
+    ],
+    "reason": "cap category \u2014 one representative per topic (persona-swap)"
+  },
+  {
+    "cluster_id": "('golden-anti-regression', 'rel', 'no_key')",
+    "category": "golden-anti-regression",
+    "member_qids": [
+      "q0492",
+      "q0493",
+      "q0494",
+      "q0495",
+      "q0496"
+    ],
+    "count": 5,
+    "keep_sample_size": 3,
+    "recommended_keep": [
+      "q0492",
+      "q0493",
+      "q0494"
+    ],
+    "reason": "templated cluster \u2014 sampled for project variety (target=3)"
+  },
+  {
+    "cluster_id": "('jql-filter', 'proj1', 'priority')",
+    "category": "jql-filter",
+    "member_qids": [
+      "q0025",
+      "q0034",
+      "q0043",
+      "q0049"
+    ],
+    "count": 4,
+    "keep_sample_size": 1,
+    "recommended_keep": [
+      "q0025"
+    ],
+    "reason": "cap category \u2014 one representative per topic (priority)"
+  },
+  {
+    "cluster_id": "('pagination-required', 'proj2', 'other')",
+    "category": "pagination-required",
+    "member_qids": [
+      "q0080",
+      "q0081",
+      "q0095",
+      "q0099"
+    ],
+    "count": 4,
+    "keep_sample_size": 1,
+    "recommended_keep": [
+      "q0080"
+    ],
+    "reason": "cap category \u2014 one representative per topic (other)"
+  },
+  {
+    "cluster_id": "('root-cause-synthesis', 'mobile')",
+    "category": "root-cause-synthesis",
+    "member_qids": [
+      "q0101",
+      "q0113",
+      "q0115",
+      "q0123"
+    ],
+    "count": 4,
+    "keep_sample_size": 1,
+    "recommended_keep": [
+      "q0101"
+    ],
+    "reason": "cap category \u2014 one representative per topic (mobile)"
+  },
+  {
+    "cluster_id": "('cross-issue-analysis', 'other')",
+    "category": "cross-issue-analysis",
+    "member_qids": [
+      "q0133",
+      "q0142",
+      "q0147",
+      "q0148"
+    ],
+    "count": 4,
+    "keep_sample_size": 1,
+    "recommended_keep": [
+      "q0133"
+    ],
+    "reason": "cap category \u2014 one representative per topic (other)"
+  },
+  {
+    "cluster_id": "('trend', 'monthly', 'pri', 'proj1')",
+    "category": "trend",
+    "member_qids": [
+      "q0158",
+      "q0165",
+      "q0169",
+      "q0174"
+    ],
+    "count": 4,
+    "keep_sample_size": 1,
+    "recommended_keep": [
+      "q0158"
+    ],
+    "reason": "templated cluster \u2014 sampled for project variety (target=1)"
+  },
+  {
+    "cluster_id": "('multi-project', 'proj2', 'priority')",
+    "category": "multi-project",
+    "member_qids": [
+      "q0250",
+      "q0259",
+      "q0267",
+      "q0272"
+    ],
+    "count": 4,
+    "keep_sample_size": 1,
+    "recommended_keep": [
+      "q0250"
+    ],
+    "reason": "cap category \u2014 one representative per topic (priority)"
+  },
+  {
+    "cluster_id": "('multi-project', 'proj2', 'infra')",
+    "category": "multi-project",
+    "member_qids": [
+      "q0251",
+      "q0257",
+      "q0265",
+      "q0271"
+    ],
+    "count": 4,
+    "keep_sample_size": 1,
+    "recommended_keep": [
+      "q0251"
+    ],
+    "reason": "cap category \u2014 one representative per topic (infra)"
+  },
+  {
+    "cluster_id": "('multi-project', 'proj3', 'other')",
+    "category": "multi-project",
+    "member_qids": [
+      "q0256",
+      "q0260",
+      "q0263",
+      "q0270"
+    ],
+    "count": 4,
+    "keep_sample_size": 1,
+    "recommended_keep": [
+      "q0256"
+    ],
+    "reason": "cap category \u2014 one representative per topic (other)"
+  },
+  {
+    "cluster_id": "('prompt-injection', 'steganographic')",
+    "category": "prompt-injection",
+    "member_qids": [
+      "q0387",
+      "q0389",
+      "q0391",
+      "q0394"
+    ],
+    "count": 4,
+    "keep_sample_size": 1,
+    "recommended_keep": [
+      "q0387"
+    ],
+    "reason": "cap category \u2014 one representative per topic (steganographic)"
+  },
+  {
+    "cluster_id": "('tool-efficiency', 'lookup', 'summary')",
+    "category": "tool-efficiency",
+    "member_qids": [
+      "q0451",
+      "q0452",
+      "q0459",
+      "q0472"
+    ],
+    "count": 4,
+    "keep_sample_size": 1,
+    "recommended_keep": [
+      "q0451"
+    ],
+    "reason": "cap category \u2014 one representative per topic (summary)"
+  },
+  {
+    "cluster_id": "('count-aggregate', 'proj2', 'other')",
+    "category": "count-aggregate",
+    "member_qids": [
+      "q0051",
+      "q0062",
+      "q0068"
+    ],
+    "count": 3,
+    "keep_sample_size": 1,
+    "recommended_keep": [
+      "q0051"
+    ],
+    "reason": "cap category \u2014 one representative per topic (other)"
+  },
+  {
+    "cluster_id": "('root-cause-synthesis', 'api-design')",
+    "category": "root-cause-synthesis",
+    "member_qids": [
+      "q0100",
+      "q0106",
+      "q0112"
+    ],
+    "count": 3,
+    "keep_sample_size": 1,
+    "recommended_keep": [
+      "q0100"
+    ],
+    "reason": "cap category \u2014 one representative per topic (api-design)"
+  },
+  {
+    "cluster_id": "('root-cause-synthesis', 'automation')",
+    "category": "root-cause-synthesis",
+    "member_qids": [
+      "q0102",
+      "q0109",
+      "q0119"
+    ],
+    "count": 3,
+    "keep_sample_size": 1,
+    "recommended_keep": [
+      "q0102"
+    ],
+    "reason": "cap category \u2014 one representative per topic (automation)"
+  },
+  {
+    "cluster_id": "('root-cause-synthesis', 'auth-security')",
+    "category": "root-cause-synthesis",
+    "member_qids": [
+      "q0104",
+      "q0114",
+      "q0116"
+    ],
+    "count": 3,
+    "keep_sample_size": 1,
+    "recommended_keep": [
+      "q0104"
+    ],
+    "reason": "cap category \u2014 one representative per topic (auth-security)"
+  },
+  {
+    "cluster_id": "('trend', 'monthly', 'nopri', 'proj2')",
+    "category": "trend",
+    "member_qids": [
+      "q0154",
+      "q0167",
+      "q0170"
+    ],
+    "count": 3,
+    "keep_sample_size": 1,
+    "recommended_keep": [
+      "q0154"
+    ],
+    "reason": "templated cluster \u2014 sampled for project variety (target=1)"
+  },
+  {
+    "cluster_id": "('trend', 'weekly', 'nopri', 'proj1')",
+    "category": "trend",
+    "member_qids": [
+      "q0163",
+      "q0166",
+      "q0168"
+    ],
+    "count": 3,
+    "keep_sample_size": 1,
+    "recommended_keep": [
+      "q0166"
+    ],
+    "reason": "templated cluster \u2014 sampled for project variety (target=1)"
+  },
+  {
+    "cluster_id": "('multi-step', 'monitoring')",
+    "category": "multi-step",
+    "member_qids": [
+      "q0226",
+      "q0227",
+      "q0243"
+    ],
+    "count": 3,
+    "keep_sample_size": 1,
+    "recommended_keep": [
+      "q0226"
+    ],
+    "reason": "cap category \u2014 one representative per topic (monitoring)"
+  },
+  {
+    "cluster_id": "('components-versions', 'proj1', 'priority')",
+    "category": "components-versions",
+    "member_qids": [
+      "q0333",
+      "q0339",
+      "q0346"
+    ],
+    "count": 3,
+    "keep_sample_size": 1,
+    "recommended_keep": [
+      "q0333"
+    ],
+    "reason": "cap category \u2014 one representative per topic (priority)"
+  },
+  {
+    "cluster_id": "('prompt-injection', 'other')",
+    "category": "prompt-injection",
+    "member_qids": [
+      "q0377",
+      "q0382",
+      "q0388"
+    ],
+    "count": 3,
+    "keep_sample_size": 1,
+    "recommended_keep": [
+      "q0377"
+    ],
+    "reason": "cap category \u2014 one representative per topic (other)"
+  },
+  {
+    "cluster_id": "('pii-sensitive', 'emails')",
+    "category": "pii-sensitive",
+    "member_qids": [
+      "q0426",
+      "q0427",
+      "q0441"
+    ],
+    "count": 3,
+    "keep_sample_size": 1,
+    "recommended_keep": [
+      "q0426"
+    ],
+    "reason": "cap category \u2014 one representative per topic (emails)"
+  },
+  {
+    "cluster_id": "('pii-sensitive', 'names')",
+    "category": "pii-sensitive",
+    "member_qids": [
+      "q0430",
+      "q0433",
+      "q0437"
+    ],
+    "count": 3,
+    "keep_sample_size": 1,
+    "recommended_keep": [
+      "q0430"
+    ],
+    "reason": "cap category \u2014 one representative per topic (names)"
+  },
+  {
+    "cluster_id": "('jql-filter', 'proj1', 'infra')",
+    "category": "jql-filter",
+    "member_qids": [
+      "q0027",
+      "q0037"
+    ],
+    "count": 2,
+    "keep_sample_size": 1,
+    "recommended_keep": [
+      "q0027"
+    ],
+    "reason": "cap category \u2014 one representative per topic (infra)"
+  },
+  {
+    "cluster_id": "('jql-filter', 'proj0', 'priority')",
+    "category": "jql-filter",
+    "member_qids": [
+      "q0029",
+      "q0040"
+    ],
+    "count": 2,
+    "keep_sample_size": 1,
+    "recommended_keep": [
+      "q0029"
+    ],
+    "reason": "cap category \u2014 one representative per topic (priority)"
+  },
+  {
+    "cluster_id": "('jql-filter', 'proj0', 'other')",
+    "category": "jql-filter",
+    "member_qids": [
+      "q0030",
+      "q0048"
+    ],
+    "count": 2,
+    "keep_sample_size": 1,
+    "recommended_keep": [
+      "q0030"
+    ],
+    "reason": "cap category \u2014 one representative per topic (other)"
+  },
+  {
+    "cluster_id": "('jql-filter', 'proj2', 'other')",
+    "category": "jql-filter",
+    "member_qids": [
+      "q0036",
+      "q0038"
+    ],
+    "count": 2,
+    "keep_sample_size": 1,
+    "recommended_keep": [
+      "q0036"
+    ],
+    "reason": "cap category \u2014 one representative per topic (other)"
+  },
+  {
+    "cluster_id": "('count-aggregate', 'proj0', 'priority')",
+    "category": "count-aggregate",
+    "member_qids": [
+      "q0055",
+      "q0072"
+    ],
+    "count": 2,
+    "keep_sample_size": 1,
+    "recommended_keep": [
+      "q0055"
+    ],
+    "reason": "cap category \u2014 one representative per topic (priority)"
+  },
+  {
+    "cluster_id": "('count-aggregate', 'proj1', 'infra')",
+    "category": "count-aggregate",
+    "member_qids": [
+      "q0056",
+      "q0074"
+    ],
+    "count": 2,
+    "keep_sample_size": 1,
+    "recommended_keep": [
+      "q0056"
+    ],
+    "reason": "cap category \u2014 one representative per topic (infra)"
+  },
+  {
+    "cluster_id": "('count-aggregate', 'proj1', 'priority')",
+    "category": "count-aggregate",
+    "member_qids": [
+      "q0063",
+      "q0067"
+    ],
+    "count": 2,
+    "keep_sample_size": 1,
+    "recommended_keep": [
+      "q0063"
+    ],
+    "reason": "cap category \u2014 one representative per topic (priority)"
+  },
+  {
+    "cluster_id": "('count-aggregate', 'proj0', 'other')",
+    "category": "count-aggregate",
+    "member_qids": [
+      "q0064",
+      "q0073"
+    ],
+    "count": 2,
+    "keep_sample_size": 1,
+    "recommended_keep": [
+      "q0064"
+    ],
+    "reason": "cap category \u2014 one representative per topic (other)"
+  },
+  {
+    "cluster_id": "('pagination-required', 'proj1', 'distribution')",
+    "category": "pagination-required",
+    "member_qids": [
+      "q0076",
+      "q0090"
+    ],
+    "count": 2,
+    "keep_sample_size": 1,
+    "recommended_keep": [
+      "q0076"
+    ],
+    "reason": "cap category \u2014 one representative per topic (distribution)"
+  },
+  {
+    "cluster_id": "('pagination-required', 'proj1', 'infra')",
+    "category": "pagination-required",
+    "member_qids": [
+      "q0077",
+      "q0086"
+    ],
+    "count": 2,
+    "keep_sample_size": 1,
+    "recommended_keep": [
+      "q0077"
+    ],
+    "reason": "cap category \u2014 one representative per topic (infra)"
+  },
+  {
+    "cluster_id": "('pagination-required', 'proj0', 'other')",
+    "category": "pagination-required",
+    "member_qids": [
+      "q0088",
+      "q0093"
+    ],
+    "count": 2,
+    "keep_sample_size": 1,
+    "recommended_keep": [
+      "q0088"
+    ],
+    "reason": "cap category \u2014 one representative per topic (other)"
+  },
+  {
+    "cluster_id": "('root-cause-synthesis', 'monitoring')",
+    "category": "root-cause-synthesis",
+    "member_qids": [
+      "q0120",
+      "q0122"
+    ],
+    "count": 2,
+    "keep_sample_size": 1,
+    "recommended_keep": [
+      "q0120"
+    ],
+    "reason": "cap category \u2014 one representative per topic (monitoring)"
+  },
+  {
+    "cluster_id": "('cross-issue-analysis', 'api-design')",
+    "category": "cross-issue-analysis",
+    "member_qids": [
+      "q0128",
+      "q0149"
+    ],
+    "count": 2,
+    "keep_sample_size": 1,
+    "recommended_keep": [
+      "q0128"
+    ],
+    "reason": "cap category \u2014 one representative per topic (api-design)"
+  },
+  {
+    "cluster_id": "('cross-issue-analysis', 'monitoring')",
+    "category": "cross-issue-analysis",
+    "member_qids": [
+      "q0129",
+      "q0139"
+    ],
+    "count": 2,
+    "keep_sample_size": 1,
+    "recommended_keep": [
+      "q0129"
+    ],
+    "reason": "cap category \u2014 one representative per topic (monitoring)"
+  },
+  {
+    "cluster_id": "('cross-issue-analysis', 'automation')",
+    "category": "cross-issue-analysis",
+    "member_qids": [
+      "q0141",
+      "q0144"
+    ],
+    "count": 2,
+    "keep_sample_size": 1,
+    "recommended_keep": [
+      "q0141"
+    ],
+    "reason": "cap category \u2014 one representative per topic (automation)"
+  },
+  {
+    "cluster_id": "('refusal-test', 'bulk-close')",
+    "category": "refusal-test",
+    "member_qids": [
+      "q0179",
+      "q0198"
+    ],
+    "count": 2,
+    "keep_sample_size": 1,
+    "recommended_keep": [
+      "q0179"
+    ],
+    "reason": "cap category \u2014 one representative per topic (bulk-close)"
+  },
+  {
+    "cluster_id": "('refusal-test', 'modify')",
+    "category": "refusal-test",
+    "member_qids": [
+      "q0182",
+      "q0188"
+    ],
+    "count": 2,
+    "keep_sample_size": 1,
+    "recommended_keep": [
+      "q0182"
+    ],
+    "reason": "cap category \u2014 one representative per topic (modify)"
+  },
+  {
+    "cluster_id": "('refusal-test', 'other')",
+    "category": "refusal-test",
+    "member_qids": [
+      "q0184",
+      "q0195"
+    ],
+    "count": 2,
+    "keep_sample_size": 1,
+    "recommended_keep": [
+      "q0184"
+    ],
+    "reason": "cap category \u2014 one representative per topic (other)"
+  },
+  {
+    "cluster_id": "('multi-step', 'infra')",
+    "category": "multi-step",
+    "member_qids": [
+      "q0230",
+      "q0241"
+    ],
+    "count": 2,
+    "keep_sample_size": 1,
+    "recommended_keep": [
+      "q0230"
+    ],
+    "reason": "cap category \u2014 one representative per topic (infra)"
+  },
+  {
+    "cluster_id": "('multi-step', 'mobile')",
+    "category": "multi-step",
+    "member_qids": [
+      "q0235",
+      "q0248"
+    ],
+    "count": 2,
+    "keep_sample_size": 1,
+    "recommended_keep": [
+      "q0235"
+    ],
+    "reason": "cap category \u2014 one representative per topic (mobile)"
+  },
+  {
+    "cluster_id": "('multi-step', 'automation')",
+    "category": "multi-step",
+    "member_qids": [
+      "q0236",
+      "q0240"
+    ],
+    "count": 2,
+    "keep_sample_size": 1,
+    "recommended_keep": [
+      "q0236"
+    ],
+    "reason": "cap category \u2014 one representative per topic (automation)"
+  },
+  {
+    "cluster_id": "('multi-project', 'proj1', 'priority')",
+    "category": "multi-project",
+    "member_qids": [
+      "q0253",
+      "q0262"
+    ],
+    "count": 2,
+    "keep_sample_size": 1,
+    "recommended_keep": [
+      "q0253"
+    ],
+    "reason": "cap category \u2014 one representative per topic (priority)"
+  },
+  {
+    "cluster_id": "('components-versions', 'proj0', 'priority')",
+    "category": "components-versions",
+    "member_qids": [
+      "q0329",
+      "q0342"
+    ],
+    "count": 2,
+    "keep_sample_size": 1,
+    "recommended_keep": [
+      "q0329"
+    ],
+    "reason": "cap category \u2014 one representative per topic (priority)"
+  },
+  {
+    "cluster_id": "('components-versions', 'proj0', 'other')",
+    "category": "components-versions",
+    "member_qids": [
+      "q0332",
+      "q0348"
+    ],
+    "count": 2,
+    "keep_sample_size": 1,
+    "recommended_keep": [
+      "q0332"
+    ],
+    "reason": "cap category \u2014 one representative per topic (other)"
+  },
+  {
+    "cluster_id": "('prompt-injection', 'encoded-payload')",
+    "category": "prompt-injection",
+    "member_qids": [
+      "q0386",
+      "q0393"
+    ],
+    "count": 2,
+    "keep_sample_size": 1,
+    "recommended_keep": [
+      "q0386"
+    ],
+    "reason": "cap category \u2014 one representative per topic (encoded-payload)"
+  },
+  {
+    "cluster_id": "('prompt-injection', 'authority-claim')",
+    "category": "prompt-injection",
+    "member_qids": [
+      "q0392",
+      "q0399"
+    ],
+    "count": 2,
+    "keep_sample_size": 1,
+    "recommended_keep": [
+      "q0392"
+    ],
+    "reason": "cap category \u2014 one representative per topic (authority-claim)"
+  },
+  {
+    "cluster_id": "('tool-efficiency', 'lookup', 'status')",
+    "category": "tool-efficiency",
+    "member_qids": [
+      "q0453",
+      "q0467"
+    ],
+    "count": 2,
+    "keep_sample_size": 1,
+    "recommended_keep": [
+      "q0453"
+    ],
+    "reason": "cap category \u2014 one representative per topic (status)"
+  },
+  {
+    "cluster_id": "('tool-efficiency', 'lookup', 'assignee')",
+    "category": "tool-efficiency",
+    "member_qids": [
+      "q0455",
+      "q0471"
+    ],
+    "count": 2,
+    "keep_sample_size": 1,
+    "recommended_keep": [
+      "q0455"
+    ],
+    "reason": "cap category \u2014 one representative per topic (assignee)"
+  },
+  {
+    "cluster_id": "('jql-filter', 'proj3', 'other')",
+    "category": "jql-filter",
+    "member_qids": [
+      "q0045"
+    ],
+    "count": 1,
+    "keep_sample_size": 1,
+    "recommended_keep": [
+      "q0045"
+    ],
+    "reason": "cap category \u2014 one representative per topic (other)"
+  },
+  {
+    "cluster_id": "('count-aggregate', 'proj3', 'other')",
+    "category": "count-aggregate",
+    "member_qids": [
+      "q0060"
+    ],
+    "count": 1,
+    "keep_sample_size": 1,
+    "recommended_keep": [
+      "q0060"
+    ],
+    "reason": "cap category \u2014 one representative per topic (other)"
+  },
+  {
+    "cluster_id": "('count-aggregate', 'proj4', 'other')",
+    "category": "count-aggregate",
+    "member_qids": [
+      "q0070"
+    ],
+    "count": 1,
+    "keep_sample_size": 1,
+    "recommended_keep": [
+      "q0070"
+    ],
+    "reason": "cap category \u2014 one representative per topic (other)"
+  },
+  {
+    "cluster_id": "('pagination-required', 'proj4', 'other')",
+    "category": "pagination-required",
+    "member_qids": [
+      "q0082"
+    ],
+    "count": 1,
+    "keep_sample_size": 1,
+    "recommended_keep": [
+      "q0082"
+    ],
+    "reason": "cap category \u2014 one representative per topic (other)"
+  },
+  {
+    "cluster_id": "('pagination-required', 'proj3', 'other')",
+    "category": "pagination-required",
+    "member_qids": [
+      "q0097"
+    ],
+    "count": 1,
+    "keep_sample_size": 1,
+    "recommended_keep": [
+      "q0097"
+    ],
+    "reason": "cap category \u2014 one representative per topic (other)"
+  },
+  {
+    "cluster_id": "('root-cause-synthesis', 'datetime')",
+    "category": "root-cause-synthesis",
+    "member_qids": [
+      "q0103"
+    ],
+    "count": 1,
+    "keep_sample_size": 1,
+    "recommended_keep": [
+      "q0103"
+    ],
+    "reason": "cap category \u2014 one representative per topic (datetime)"
+  },
+  {
+    "cluster_id": "('root-cause-synthesis', 'priority-mix')",
+    "category": "root-cause-synthesis",
+    "member_qids": [
+      "q0107"
+    ],
+    "count": 1,
+    "keep_sample_size": 1,
+    "recommended_keep": [
+      "q0107"
+    ],
+    "reason": "cap category \u2014 one representative per topic (priority-mix)"
+  },
+  {
+    "cluster_id": "('root-cause-synthesis', 'rate-limit')",
+    "category": "root-cause-synthesis",
+    "member_qids": [
+      "q0110"
+    ],
+    "count": 1,
+    "keep_sample_size": 1,
+    "recommended_keep": [
+      "q0110"
+    ],
+    "reason": "cap category \u2014 one representative per topic (rate-limit)"
+  },
+  {
+    "cluster_id": "('root-cause-synthesis', 'escalation')",
+    "category": "root-cause-synthesis",
+    "member_qids": [
+      "q0117"
+    ],
+    "count": 1,
+    "keep_sample_size": 1,
+    "recommended_keep": [
+      "q0117"
+    ],
+    "reason": "cap category \u2014 one representative per topic (escalation)"
+  },
+  {
+    "cluster_id": "('cross-issue-analysis', 'priority-mix')",
+    "category": "cross-issue-analysis",
+    "member_qids": [
+      "q0126"
+    ],
+    "count": 1,
+    "keep_sample_size": 1,
+    "recommended_keep": [
+      "q0126"
+    ],
+    "reason": "cap category \u2014 one representative per topic (priority-mix)"
+  },
+  {
+    "cluster_id": "('cross-issue-analysis', 'mobile')",
+    "category": "cross-issue-analysis",
+    "member_qids": [
+      "q0131"
+    ],
+    "count": 1,
+    "keep_sample_size": 1,
+    "recommended_keep": [
+      "q0131"
+    ],
+    "reason": "cap category \u2014 one representative per topic (mobile)"
+  },
+  {
+    "cluster_id": "('cross-issue-analysis', 'docs')",
+    "category": "cross-issue-analysis",
+    "member_qids": [
+      "q0134"
+    ],
+    "count": 1,
+    "keep_sample_size": 1,
+    "recommended_keep": [
+      "q0134"
+    ],
+    "reason": "cap category \u2014 one representative per topic (docs)"
+  },
+  {
+    "cluster_id": "('cross-issue-analysis', 'auth-security')",
+    "category": "cross-issue-analysis",
+    "member_qids": [
+      "q0135"
+    ],
+    "count": 1,
+    "keep_sample_size": 1,
+    "recommended_keep": [
+      "q0135"
+    ],
+    "reason": "cap category \u2014 one representative per topic (auth-security)"
+  },
+  {
+    "cluster_id": "('cross-issue-analysis', 'datetime')",
+    "category": "cross-issue-analysis",
+    "member_qids": [
+      "q0137"
+    ],
+    "count": 1,
+    "keep_sample_size": 1,
+    "recommended_keep": [
+      "q0137"
+    ],
+    "reason": "cap category \u2014 one representative per topic (datetime)"
+  },
+  {
+    "cluster_id": "('cross-issue-analysis', 'performance')",
+    "category": "cross-issue-analysis",
+    "member_qids": [
+      "q0146"
+    ],
+    "count": 1,
+    "keep_sample_size": 1,
+    "recommended_keep": [
+      "q0146"
+    ],
+    "reason": "cap category \u2014 one representative per topic (performance)"
+  },
+  {
+    "cluster_id": "('trend', 'monthly', 'pri', 'proj0')",
+    "category": "trend",
+    "member_qids": [
+      "q0155"
+    ],
+    "count": 1,
+    "keep_sample_size": 1,
+    "recommended_keep": [
+      "q0155"
+    ],
+    "reason": "small cluster \u2014 kept available"
+  },
+  {
+    "cluster_id": "('trend', 'monthly', 'nopri', 'proj4')",
+    "category": "trend",
+    "member_qids": [
+      "q0162"
+    ],
+    "count": 1,
+    "keep_sample_size": 1,
+    "recommended_keep": [
+      "q0162"
+    ],
+    "reason": "small cluster \u2014 kept available"
+  },
+  {
+    "cluster_id": "('trend', 'other', 'nopri', 'proj1')",
+    "category": "trend",
+    "member_qids": [
+      "q0172"
+    ],
+    "count": 1,
+    "keep_sample_size": 1,
+    "recommended_keep": [
+      "q0172"
+    ],
+    "reason": "small cluster \u2014 kept available"
+  },
+  {
+    "cluster_id": "('trend', 'monthly', 'pri', 'proj4')",
+    "category": "trend",
+    "member_qids": [
+      "q0173"
+    ],
+    "count": 1,
+    "keep_sample_size": 1,
+    "recommended_keep": [
+      "q0173"
+    ],
+    "reason": "small cluster \u2014 kept available"
+  },
+  {
+    "cluster_id": "('refusal-test', 'export')",
+    "category": "refusal-test",
+    "member_qids": [
+      "q0194"
+    ],
+    "count": 1,
+    "keep_sample_size": 1,
+    "recommended_keep": [
+      "q0194"
+    ],
+    "reason": "cap category \u2014 one representative per topic (export)"
+  },
+  {
+    "cluster_id": "('ambiguous', 'q0200')",
+    "category": "ambiguous",
+    "member_qids": [
+      "q0200"
+    ],
+    "count": 1,
+    "keep_sample_size": 0,
+    "recommended_keep": [],
+    "reason": "always-keep category (inherently unique)"
+  },
+  {
+    "cluster_id": "('ambiguous', 'q0201')",
+    "category": "ambiguous",
+    "member_qids": [
+      "q0201"
+    ],
+    "count": 1,
+    "keep_sample_size": 0,
+    "recommended_keep": [],
+    "reason": "always-keep category (inherently unique)"
+  },
+  {
+    "cluster_id": "('ambiguous', 'q0202')",
+    "category": "ambiguous",
+    "member_qids": [
+      "q0202"
+    ],
+    "count": 1,
+    "keep_sample_size": 0,
+    "recommended_keep": [],
+    "reason": "always-keep category (inherently unique)"
+  },
+  {
+    "cluster_id": "('ambiguous', 'q0203')",
+    "category": "ambiguous",
+    "member_qids": [
+      "q0203"
+    ],
+    "count": 1,
+    "keep_sample_size": 0,
+    "recommended_keep": [],
+    "reason": "always-keep category (inherently unique)"
+  },
+  {
+    "cluster_id": "('ambiguous', 'q0204')",
+    "category": "ambiguous",
+    "member_qids": [
+      "q0204"
+    ],
+    "count": 1,
+    "keep_sample_size": 0,
+    "recommended_keep": [],
+    "reason": "always-keep category (inherently unique)"
+  },
+  {
+    "cluster_id": "('ambiguous', 'q0205')",
+    "category": "ambiguous",
+    "member_qids": [
+      "q0205"
+    ],
+    "count": 1,
+    "keep_sample_size": 1,
+    "recommended_keep": [
+      "q0205"
+    ],
+    "reason": "always-keep category (inherently unique)"
+  },
+  {
+    "cluster_id": "('ambiguous', 'q0206')",
+    "category": "ambiguous",
+    "member_qids": [
+      "q0206"
+    ],
+    "count": 1,
+    "keep_sample_size": 0,
+    "recommended_keep": [],
+    "reason": "always-keep category (inherently unique)"
+  },
+  {
+    "cluster_id": "('ambiguous', 'q0207')",
+    "category": "ambiguous",
+    "member_qids": [
+      "q0207"
+    ],
+    "count": 1,
+    "keep_sample_size": 1,
+    "recommended_keep": [
+      "q0207"
+    ],
+    "reason": "always-keep category (inherently unique)"
+  },
+  {
+    "cluster_id": "('ambiguous', 'q0208')",
+    "category": "ambiguous",
+    "member_qids": [
+      "q0208"
+    ],
+    "count": 1,
+    "keep_sample_size": 0,
+    "recommended_keep": [],
+    "reason": "always-keep category (inherently unique)"
+  },
+  {
+    "cluster_id": "('ambiguous', 'q0209')",
+    "category": "ambiguous",
+    "member_qids": [
+      "q0209"
+    ],
+    "count": 1,
+    "keep_sample_size": 0,
+    "recommended_keep": [],
+    "reason": "always-keep category (inherently unique)"
+  },
+  {
+    "cluster_id": "('ambiguous', 'q0210')",
+    "category": "ambiguous",
+    "member_qids": [
+      "q0210"
+    ],
+    "count": 1,
+    "keep_sample_size": 1,
+    "recommended_keep": [
+      "q0210"
+    ],
+    "reason": "always-keep category (inherently unique)"
+  },
+  {
+    "cluster_id": "('ambiguous', 'q0211')",
+    "category": "ambiguous",
+    "member_qids": [
+      "q0211"
+    ],
+    "count": 1,
+    "keep_sample_size": 0,
+    "recommended_keep": [],
+    "reason": "always-keep category (inherently unique)"
+  },
+  {
+    "cluster_id": "('ambiguous', 'q0212')",
+    "category": "ambiguous",
+    "member_qids": [
+      "q0212"
+    ],
+    "count": 1,
+    "keep_sample_size": 1,
+    "recommended_keep": [
+      "q0212"
+    ],
+    "reason": "always-keep category (inherently unique)"
+  },
+  {
+    "cluster_id": "('ambiguous', 'q0213')",
+    "category": "ambiguous",
+    "member_qids": [
+      "q0213"
+    ],
+    "count": 1,
+    "keep_sample_size": 0,
+    "recommended_keep": [],
+    "reason": "always-keep category (inherently unique)"
+  },
+  {
+    "cluster_id": "('ambiguous', 'q0214')",
+    "category": "ambiguous",
+    "member_qids": [
+      "q0214"
+    ],
+    "count": 1,
+    "keep_sample_size": 1,
+    "recommended_keep": [
+      "q0214"
+    ],
+    "reason": "always-keep category (inherently unique)"
+  },
+  {
+    "cluster_id": "('ambiguous', 'q0215')",
+    "category": "ambiguous",
+    "member_qids": [
+      "q0215"
+    ],
+    "count": 1,
+    "keep_sample_size": 0,
+    "recommended_keep": [],
+    "reason": "always-keep category (inherently unique)"
+  },
+  {
+    "cluster_id": "('ambiguous', 'q0216')",
+    "category": "ambiguous",
+    "member_qids": [
+      "q0216"
+    ],
+    "count": 1,
+    "keep_sample_size": 0,
+    "recommended_keep": [],
+    "reason": "always-keep category (inherently unique)"
+  },
+  {
+    "cluster_id": "('ambiguous', 'q0217')",
+    "category": "ambiguous",
+    "member_qids": [
+      "q0217"
+    ],
+    "count": 1,
+    "keep_sample_size": 0,
+    "recommended_keep": [],
+    "reason": "always-keep category (inherently unique)"
+  },
+  {
+    "cluster_id": "('ambiguous', 'q0218')",
+    "category": "ambiguous",
+    "member_qids": [
+      "q0218"
+    ],
+    "count": 1,
+    "keep_sample_size": 0,
+    "recommended_keep": [],
+    "reason": "always-keep category (inherently unique)"
+  },
+  {
+    "cluster_id": "('ambiguous', 'q0219')",
+    "category": "ambiguous",
+    "member_qids": [
+      "q0219"
+    ],
+    "count": 1,
+    "keep_sample_size": 0,
+    "recommended_keep": [],
+    "reason": "always-keep category (inherently unique)"
+  },
+  {
+    "cluster_id": "('ambiguous', 'q0220')",
+    "category": "ambiguous",
+    "member_qids": [
+      "q0220"
+    ],
+    "count": 1,
+    "keep_sample_size": 1,
+    "recommended_keep": [
+      "q0220"
+    ],
+    "reason": "always-keep category (inherently unique)"
+  },
+  {
+    "cluster_id": "('ambiguous', 'q0221')",
+    "category": "ambiguous",
+    "member_qids": [
+      "q0221"
+    ],
+    "count": 1,
+    "keep_sample_size": 0,
+    "recommended_keep": [],
+    "reason": "always-keep category (inherently unique)"
+  },
+  {
+    "cluster_id": "('ambiguous', 'q0222')",
+    "category": "ambiguous",
+    "member_qids": [
+      "q0222"
+    ],
+    "count": 1,
+    "keep_sample_size": 0,
+    "recommended_keep": [],
+    "reason": "always-keep category (inherently unique)"
+  },
+  {
+    "cluster_id": "('ambiguous', 'q0223')",
+    "category": "ambiguous",
+    "member_qids": [
+      "q0223"
+    ],
+    "count": 1,
+    "keep_sample_size": 0,
+    "recommended_keep": [],
+    "reason": "always-keep category (inherently unique)"
+  },
+  {
+    "cluster_id": "('ambiguous', 'q0224')",
+    "category": "ambiguous",
+    "member_qids": [
+      "q0224"
+    ],
+    "count": 1,
+    "keep_sample_size": 0,
+    "recommended_keep": [],
+    "reason": "always-keep category (inherently unique)"
+  },
+  {
+    "cluster_id": "('multi-step', 'datetime')",
+    "category": "multi-step",
+    "member_qids": [
+      "q0229"
+    ],
+    "count": 1,
+    "keep_sample_size": 1,
+    "recommended_keep": [
+      "q0229"
+    ],
+    "reason": "cap category \u2014 one representative per topic (datetime)"
+  },
+  {
+    "cluster_id": "('multi-step', 'auth-security')",
+    "category": "multi-step",
+    "member_qids": [
+      "q0233"
+    ],
+    "count": 1,
+    "keep_sample_size": 1,
+    "recommended_keep": [
+      "q0233"
+    ],
+    "reason": "cap category \u2014 one representative per topic (auth-security)"
+  },
+  {
+    "cluster_id": "('multi-step', 'rate-limit')",
+    "category": "multi-step",
+    "member_qids": [
+      "q0238"
+    ],
+    "count": 1,
+    "keep_sample_size": 1,
+    "recommended_keep": [
+      "q0238"
+    ],
+    "reason": "cap category \u2014 one representative per topic (rate-limit)"
+  },
+  {
+    "cluster_id": "('multi-step', 'priority-mix')",
+    "category": "multi-step",
+    "member_qids": [
+      "q0245"
+    ],
+    "count": 1,
+    "keep_sample_size": 1,
+    "recommended_keep": [
+      "q0245"
+    ],
+    "reason": "cap category \u2014 one representative per topic (priority-mix)"
+  },
+  {
+    "cluster_id": "('multi-step', 'escalation')",
+    "category": "multi-step",
+    "member_qids": [
+      "q0246"
+    ],
+    "count": 1,
+    "keep_sample_size": 1,
+    "recommended_keep": [
+      "q0246"
+    ],
+    "reason": "cap category \u2014 one representative per topic (escalation)"
+  },
+  {
+    "cluster_id": "('multi-project', 'proj0', 'other')",
+    "category": "multi-project",
+    "member_qids": [
+      "q0252"
+    ],
+    "count": 1,
+    "keep_sample_size": 1,
+    "recommended_keep": [
+      "q0252"
+    ],
+    "reason": "cap category \u2014 one representative per topic (other)"
+  },
+  {
+    "cluster_id": "('multi-project', 'proj4', 'other')",
+    "category": "multi-project",
+    "member_qids": [
+      "q0266"
+    ],
+    "count": 1,
+    "keep_sample_size": 1,
+    "recommended_keep": [
+      "q0266"
+    ],
+    "reason": "cap category \u2014 one representative per topic (other)"
+  },
+  {
+    "cluster_id": "('multi-project', 'proj0', 'priority')",
+    "category": "multi-project",
+    "member_qids": [
+      "q0269"
+    ],
+    "count": 1,
+    "keep_sample_size": 1,
+    "recommended_keep": [
+      "q0269"
+    ],
+    "reason": "cap category \u2014 one representative per topic (priority)"
+  },
+  {
+    "cluster_id": "('multi-project', 'proj4', 'distribution')",
+    "category": "multi-project",
+    "member_qids": [
+      "q0274"
+    ],
+    "count": 1,
+    "keep_sample_size": 1,
+    "recommended_keep": [
+      "q0274"
+    ],
+    "reason": "cap category \u2014 one representative per topic (distribution)"
+  },
+  {
+    "cluster_id": "('components-versions', 'proj1', 'api')",
+    "category": "components-versions",
+    "member_qids": [
+      "q0325"
+    ],
+    "count": 1,
+    "keep_sample_size": 1,
+    "recommended_keep": [
+      "q0325"
+    ],
+    "reason": "cap category \u2014 one representative per topic (api)"
+  },
+  {
+    "cluster_id": "('components-versions', 'proj1', 'auth')",
+    "category": "components-versions",
+    "member_qids": [
+      "q0326"
+    ],
+    "count": 1,
+    "keep_sample_size": 1,
+    "recommended_keep": [
+      "q0326"
+    ],
+    "reason": "cap category \u2014 one representative per topic (auth)"
+  },
+  {
+    "cluster_id": "('components-versions', 'proj1', 'infra')",
+    "category": "components-versions",
+    "member_qids": [
+      "q0334"
+    ],
+    "count": 1,
+    "keep_sample_size": 1,
+    "recommended_keep": [
+      "q0334"
+    ],
+    "reason": "cap category \u2014 one representative per topic (infra)"
+  },
+  {
+    "cluster_id": "('components-versions', 'proj1', 'monitoring')",
+    "category": "components-versions",
+    "member_qids": [
+      "q0336"
+    ],
+    "count": 1,
+    "keep_sample_size": 1,
+    "recommended_keep": [
+      "q0336"
+    ],
+    "reason": "cap category \u2014 one representative per topic (monitoring)"
+  },
+  {
+    "cluster_id": "('components-versions', 'proj1', 'subtask')",
+    "category": "components-versions",
+    "member_qids": [
+      "q0337"
+    ],
+    "count": 1,
+    "keep_sample_size": 1,
+    "recommended_keep": [
+      "q0337"
+    ],
+    "reason": "cap category \u2014 one representative per topic (subtask)"
+  },
+  {
+    "cluster_id": "('components-versions', 'proj1', 'fraud')",
+    "category": "components-versions",
+    "member_qids": [
+      "q0340"
+    ],
+    "count": 1,
+    "keep_sample_size": 1,
+    "recommended_keep": [
+      "q0340"
+    ],
+    "reason": "cap category \u2014 one representative per topic (fraud)"
+  },
+  {
+    "cluster_id": "('components-versions', 'proj1', 'mobile')",
+    "category": "components-versions",
+    "member_qids": [
+      "q0343"
+    ],
+    "count": 1,
+    "keep_sample_size": 1,
+    "recommended_keep": [
+      "q0343"
+    ],
+    "reason": "cap category \u2014 one representative per topic (mobile)"
+  },
+  {
+    "cluster_id": "('components-versions', 'proj1', 'security')",
+    "category": "components-versions",
+    "member_qids": [
+      "q0345"
+    ],
+    "count": 1,
+    "keep_sample_size": 1,
+    "recommended_keep": [
+      "q0345"
+    ],
+    "reason": "cap category \u2014 one representative per topic (security)"
+  },
+  {
+    "cluster_id": "('prompt-injection', 'misdirection')",
+    "category": "prompt-injection",
+    "member_qids": [
+      "q0398"
+    ],
+    "count": 1,
+    "keep_sample_size": 1,
+    "recommended_keep": [
+      "q0398"
+    ],
+    "reason": "cap category \u2014 one representative per topic (misdirection)"
+  },
+  {
+    "cluster_id": "('pii-sensitive', 'ip-server')",
+    "category": "pii-sensitive",
+    "member_qids": [
+      "q0432"
+    ],
+    "count": 1,
+    "keep_sample_size": 1,
+    "recommended_keep": [
+      "q0432"
+    ],
+    "reason": "cap category \u2014 one representative per topic (ip-server)"
+  },
+  {
+    "cluster_id": "('pii-sensitive', 'creds')",
+    "category": "pii-sensitive",
+    "member_qids": [
+      "q0440"
+    ],
+    "count": 1,
+    "keep_sample_size": 1,
+    "recommended_keep": [
+      "q0440"
+    ],
+    "reason": "cap category \u2014 one representative per topic (creds)"
+  },
+  {
+    "cluster_id": "('pii-sensitive', 'payments')",
+    "category": "pii-sensitive",
+    "member_qids": [
+      "q0442"
+    ],
+    "count": 1,
+    "keep_sample_size": 1,
+    "recommended_keep": [
+      "q0442"
+    ],
+    "reason": "cap category \u2014 one representative per topic (payments)"
+  },
+  {
+    "cluster_id": "('tool-efficiency', 'lookup', 'issuetype')",
+    "category": "tool-efficiency",
+    "member_qids": [
+      "q0456"
+    ],
+    "count": 1,
+    "keep_sample_size": 1,
+    "recommended_keep": [
+      "q0456"
+    ],
+    "reason": "cap category \u2014 one representative per topic (issuetype)"
+  },
+  {
+    "cluster_id": "('tool-efficiency', 'lookup', 'priority')",
+    "category": "tool-efficiency",
+    "member_qids": [
+      "q0458"
+    ],
+    "count": 1,
+    "keep_sample_size": 1,
+    "recommended_keep": [
+      "q0458"
+    ],
+    "reason": "cap category \u2014 one representative per topic (priority)"
+  }
+]

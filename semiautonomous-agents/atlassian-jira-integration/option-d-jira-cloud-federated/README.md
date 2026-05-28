@@ -1,11 +1,15 @@
 # Option D — Federated Jira Cloud connector (GE-managed, no MCP)
 
+*Numbers as of 2026-05-27, judge_v6 (gemini-3-flash-preview + Haiku 4.5 escalation), n=172 v2 corpus.*
+
 Use Gemini Enterprise's built-in `jira_cloud` *federated* connector (data source: `jira`). No Cloud Run, no Agent Engine, no custom MCP — GE handles auth, indexing-free federation against Jira's REST API, citation extraction, and answer synthesis. Setup is a 5-minute wizard in the GE console.
+
+**v6 eval (172 v2 questions, 2026-05-27):** **77.5 % accuracy (v6 headline)**, latency p50 **20.2 s** / p90 64.2 s, cost **~$0** (GE-bundled; grounding SKU may apply). The gemini-3.5-flash override variant (DG) scores **86.0 %** on the same corpus. D is the fastest pipeline on simple lookups (p50 **7.1 s**), comments (**9.0 s**), and refusals (**7.0 s**) — no MCP planner loop at all — but lowest accuracy of the read-mostly pipelines because federation has no tool-loop retry and silently returns empty result sets on multi-step queries. See [FINDINGS.md](./FINDINGS.md) for the architectural ceilings.
 
 **Verified end-to-end on 2026-05-19:**
 - Chat UI: clickable `[SMP-XXX](URL)` links, grounded answers, `groundingChunks` cite the right per-entity datastore
 - StreamAssist API: same payload shape as B/C but `dataStoreSpecs` points at the 10 per-entity federated datastores
-- 500-question eval: see [`FINDINGS.md`](./FINDINGS.md) and `eval/runs/<latest>-option-h-full/`
+- Current eval: see [`FINDINGS.md`](./FINDINGS.md) and `eval/runs/v2-*-d/`
 
 ---
 
@@ -47,7 +51,7 @@ No Cloud Run, no ADK, no Agent Engine. The whole connector is GE-managed; you on
 | Front layer | ADK on Agent Engine | None — direct GE | **None — direct GE** | None — direct GE |
 | Infrastructure you run | Cloud Run + Agent Engine | Cloud Run | **None** | None |
 | Setup time | ~45 min | ~30 min | **~5 min** | ~15 min |
-| Cost / 1K queries | $0.17 | $0.05 | **$0** (GE included) | $0 (hosted MCP) |
+| Cost / 1K queries | $10.20 | $0.23 | **~$0** (GE included; grounding SKU may apply) | $0 (hosted MCP) |
 | Best for | Production ticketing, complex analysis | Cost-disciplined search/lookup | **Fast time-to-demo · GE-native users** | Quick prototypes |
 
 Headline trade-off: Option D is the **cheapest and fastest to set up**, but federation has architectural ceilings that hosted MCP and custom MCP don't: count-aggregate is capped by the sample size GE pulls per federated query (50 by default), and entity types that Jira doesn't expose as first-class indexed documents (comments, worklogs) return empty or hallucinated answers.

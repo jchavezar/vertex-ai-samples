@@ -1,0 +1,5 @@
+.oauth_client_id
+.oauth_client_secret
+.session_secret
+sample_event_capture.json
+__pycache__/

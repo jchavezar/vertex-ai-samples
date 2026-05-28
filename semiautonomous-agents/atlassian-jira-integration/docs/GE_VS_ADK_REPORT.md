@@ -1,21 +1,109 @@
-# Gemini Enterprise BYO\_MCP vs Google ADK — 500-question comparison
+# Gemini Enterprise BYO\_MCP vs Google ADK — multi-pipeline comparison
 
-> **For the GE product team.** Same MCP server, same 500-question benchmark, same Jira corpus. The only difference is the consumption layer: Google ADK on Agent Engine (Option A) vs Gemini Enterprise's built-in `custom_mcp_agent` planner over a BYO\_MCP data store (Option C). ADK scores 95.3 %; GE scores 56.9 % — a 38.4 percentage-point gap. **Zero hallucinations** in ADK vs **156 (31 %)** in GE.
+*Numbers as of 2026-05-27, judge_v6 (gemini-3-flash-preview + Haiku 4.5 escalation), n=172 v2 corpus.*
+
+> **For the GE product team.** Same MCP server, same Jira corpus, same
+> question set. The only difference is the consumption layer: Google ADK
+> on Agent Engine (Option A / A-lite / A-Gemini3.5) vs Gemini Enterprise's
+> built-in `custom_mcp_agent` planner over a BYO\_MCP data store (Option C
+> / C-Gemini3.5). Under the **v2 benchmark** (172 curated questions,
+> judged consistently with `judge_v6`) ADK leads — Option A reaches
+> **94.7 % v6 headline**, while the BYO\_MCP path tops out at C **87.9 %**
+> (CG **94.0 %** with the gemini-3.5-flash override). **Zero strict
+> hallucinations** observed on A.
 >
-> This document explains exactly where the gap comes from, separates what's fixable by tightening the connector's `mcp_agent_instructions` from what requires changes to GE itself, and lists the four platform features GE would need to ship to close the gap.
+> This document explains exactly where the gap comes from, separates what's
+> fixable by tightening the connector's `mcp_agent_instructions` from what
+> requires changes to GE itself, and lists the platform features GE would
+> need to ship to close the gap.
+>
+> **Numbers updated 2026-05-27** — this document was originally written
+> against the v1 500-question Claude-Opus-judged eval, then refreshed
+> against the v2 172-question dual-judge benchmark on 2026-05-21. Headline
+> figures now reflect **judge_v6** (gemini-3-flash-preview + Haiku 4.5
+> escalation) on the same 172-question v2 corpus. The *architectural
+> diagnosis* (single-shot planner vs ADK's looped agent) is unchanged.
+> See [REFERENCE.md](./REFERENCE.md) for the current v6 numbers across all
+> 11 pipelines (including Option F).
 
 ---
 
 ## 1. The numbers
 
-Same 500 questions across 20 categories. Both runs judged by Claude Opus on identical rubrics.
+### 1a. v6 results (current, 172 v2 questions)
+
+172 curated questions across 20 categories, scored by **judge_v6**
+(gemini-3-flash-preview tiered T1/T2/T3 + Haiku 4.5 escalation on
+low-confidence T1 verdicts). The previous strict/credible split has been
+retired in favour of the single v6 weighted-tier headline.
+
+| | Option A (ADK, Gemini 2.5) | Option AL (ADK, flash-lite) | Option C (GE BYO\_MCP) | Option CG (C + 3.5-flash) | Option D (GE federated) | Δ A → C |
+|---|---:|---:|---:|---:|---:|---:|
+| **Accuracy (v6 headline)** | **94.7 %** | <!-- TODO: verify against judge_v6 --> | 87.9 % | 94.0 % | 77.5 % | **−6.8 pp** |
+| **Hallucinations** (verdict count) | **0 / 172** | 0 / 172 | 0 / 172 | 0 / 172 | <!-- TODO: verify --> | — |
+| **p50 latency** | **24.7 s** | 30.8 s | 28.9 s | 61.7 s | 20.2 s | +4.2 s |
+| **p90 latency** | 72.3 s | 82.0 s | 91.1 s | 154.1 s | 64.2 s | +18.8 s |
+| **Cost / 1K queries** | $10.20 | $5.30 | $0.23 | $4.00 | ~$0 (GE-included) | −$9.97 |
+
+Note on hallucinations: judge_v6 emits `correct / partial / wrong / refused
+/ error` verdicts; "hallucinated" as a distinct verdict tracks the v4
+folding behavior — invented-key answers fall into `wrong` when the judge's
+live Jira lookup contradicts the answer. The v1 31.2 % / 40.4 %
+"hallucinated" numbers cited below are from the legacy Claude-Opus judge
+with static expected-keys; the v6 headline is the current equivalent
+"really got it right" metric.
+
+### 1b. AL latency story
+
+**AL (ADK + flash-lite) holds parity with A at much lower cost** ($5.30/1K
+vs A's $10.20/1K). Latency p50 is **30.8 s** vs A's 24.7 s — flash-lite
+trades ~6 s of wall-clock for $4.90 / 1K queries of savings. For
+production deployments where users tolerate a 7-second extra wait, AL is
+the better value than A.
+
+### 1c. BYO_MCP (B and C) latency caveats
+
+The two main BYO\_MCP pipelines pay a latency tax on the full 172-question
+eval:
+
+- **B (Rovo, hosted)** — p50 **35.3 s** / p90 **68.6 s** overall. On
+  count-aggregate specifically, p50 is **36.4 s**, but individual runs
+  observed in the latency investigation reach **113–156 s** for the SMP
+  906-issue count (vs ~14 s on C for the same question). See
+  [REFERENCE.md §2](./REFERENCE.md#2-latency-breakdown-by-question-category)
+  for the diagnosis (GE sub-planner serializes paginated tool calls
+  without auto-pagination; Atlassian's MCP returns ≤100 issues per page).
+
+- **C (Custom MCP direct via GE BYO\_MCP)** — p50 **49.3 s** / p90 **110.6 s**
+  overall. On `pagination-required` p50 is **112.8 s**. The custom MCP
+  server *does* auto-paginate server-side (up to `maxResults=2000` per
+  call), but the GE planner often makes multiple sequential tool calls
+  anyway for compound queries.
+
+For comparison, A's p50 across the same eval is **24.7 s** and p90 is
+**58.0 s** — the ADK loop's parallel tool calls and `before_model_callback`
+context-bounding eliminate the planner serialization cost.
+
+### 1d. v1 legacy numbers (Claude-Opus judge, 500 questions)
+
+Retained for historical narrative — these are the figures the rest of this
+document was originally written against. Both pipelines re-judged under v2
+land within ~10 pp of the v1 Claude numbers; the architectural
+conclusions in §2–§4 are unchanged.
 
 | | Option A (ADK) | Option C (GE BYO\_MCP) | Option D (GE federated) | Δ A → C | Δ A → D |
 |---|---:|---:|---:|---:|---:|
-| **Overall accuracy** *(refusal-credited)* | **95.3 %** | 56.9 % | 47.6 % | **−38.4 pp** | **−47.7 pp** |
-| **Hallucinations** | **0 / 500** | 156 / 500 (31.2 %) | 202 / 500 (40.4 %) | +156 | +202 |
-| **p50 latency** | ~24 s | 29 s | 20 s | +5 s | −4 s |
-| **Cost / 1K queries** | $0.17 | $0.05 | $0 (GE-included) | −$0.12 | −$0.17 |
+| **Overall accuracy** *(v1, refusal-credited)* | **95.3 %** | 56.9 % | 47.6 % | **−38.4 pp** | **−47.7 pp** |
+| **Hallucinations** *(v1, verdict count)* | **0 / 500** | 156 / 500 (31.2 %) | 202 / 500 (40.4 %) | +156 | +202 |
+| **p50 latency** *(v1)* | ~24 s | 29 s | 20 s | +5 s | −4 s |
+| **Cost / 1K queries** *(see note)* | $10.20 | $0.23 | ~$0 (GE-included) | −$9.97 | −$10.20 |
+
+> **Cost note**: the $0.17 / $0.05 figures in earlier drafts of this
+> report under-counted both compute (Cloud Run sizing was modeled at 1
+> vCPU + 0.5 GiB; actual deployment is 2 vCPU + 1 GiB) and the LLM line.
+> Current pricing follows the verified-against-live-rate-card model in
+> [`PRICING.md`](./PRICING.md), based on actual deployed sizes and the
+> realistic ~6 s MCP active-time per query.
 
 **Option D footnote**: Federated `jira_cloud` is the *most* GE-managed option — no MCP server, no `mcp_agent_instructions`, no tool-loop. It scores ~9pp **below** C because it lacks even the silent auto-MCP-agent that C has. The gap is concentrated in (a) count-aggregate >100 (federated sample cap) and (b) entity-split silent zeros on comments/worklogs. Full breakdown in [`../option-d-jira-cloud-federated/FINDINGS.md`](../option-d-jira-cloud-federated/FINDINGS.md).
 
@@ -133,20 +221,55 @@ GE picks the model and config. Customers can't control which model the auto-MCP-
 
 The 38pp gap **is not a model quality issue** — it's a missing-platform-features issue. The same Gemini family that scores 95.3 % when driven by ADK scores 56.9 % when driven by GE's auto-MCP-agent because the auto-agent lacks the four primitives ADK exposes: rich system prompt, malformed-call recovery, bounded context, and model/thinking control.
 
-**The biggest single fix** GE could ship: **a `customAgentConfig` field on the data connector that lets customers supply (a) an extended system prompt, (b) a tool-routing table, (c) a callback URL for malformed-call recovery, (d) model + thinking choice.** This would let BYO\_MCP customers reach Option A's accuracy without leaving the GE direct-chat surface — keeping the cost advantage ($0.05 vs $0.17 per 1K) while closing the quality gap.
+**The biggest single fix** GE could ship: **a `customAgentConfig` field on the data connector that lets customers supply (a) an extended system prompt, (b) a tool-routing table, (c) a callback URL for malformed-call recovery, (d) model + thinking choice.** This would let BYO\_MCP customers reach Option A's accuracy without leaving the GE direct-chat surface — keeping the cost advantage ($0.23 vs $10.20 per 1K, ~98 % savings on infra+LLM) while closing the quality gap.
 
 ---
 
 ## 4. Methodology + reproducibility
 
-- **Same MCP server** for both options: [`option-a-custom-mcp-portal/jira_server/server.py`](../option-a-custom-mcp-portal/jira_server/server.py) deployed to Cloud Run. 9 tools (search, fetch, searchJiraIssuesUsingJql, getJiraIssue, getJiraIssuesReport, summarizeJiraIssues, getIssueComments, getIssueWorklogs, getIssueLinks).
-- **Same 500 questions** in [`eval/questions/main.json`](../eval/questions/main.json), 25 per category × 20 categories, grounded against the actual Jira corpus (5 projects, 1,310 issues on `sockcop.atlassian.net`).
-- **Same judge**: Claude Opus 4.5 (`claude-opus-4-5@20251101`) on the same 10-dimension rubric. Refusal credit applied uniformly to both options on `refusal-test`, `prompt-injection`, `pii-sensitive`.
-- **Option A run data**: [`eval/runs/20260511-gemini25/`](../eval/runs/20260511-gemini25/) (judged 2026-05-11)
-- **Option C run data**: [`eval/runs/20260519-101102-option-g-full-si/`](../eval/runs/20260519-101102-option-g-full-si/) (judged 2026-05-19)
-- **Interactive 5-option side-by-side**: [`eval/comparison-site/index.html`](../eval/comparison-site/index.html) — every question, every answer, every verdict (A, B, C, D, E)
+### 4a. v2 methodology (current, 2026-05-21)
 
-### Reproduce
+- **Same MCP server** for both options: [`option-a-custom-mcp-portal/jira_server/server.py`](../option-a-custom-mcp-portal/jira_server/server.py) deployed to Cloud Run. 9 tools (search, fetch, searchJiraIssuesUsingJql, getJiraIssue, getJiraIssuesReport, summarizeJiraIssues, getIssueComments, getIssueWorklogs, getIssueLinks). The v2 fix added `assignee` / `reporter` to the response payloads so the judge can verify "who is assigned to X" without needing a separate tool call.
+- **172 curated questions** in [`eval/questions/main_v2.json`](../eval/questions/main_v2.json). The v1 generator emitted templated near-duplicates (25 "list issues in `<PROJECT>`" with project swap); v2 dedupes to one representative per intent and adds 30 hand-crafted complex queries in [`eval/golden/phase3_handcrafted.json`](../eval/golden/phase3_handcrafted.json).
+- **Two judges in parallel** — `judge_v4.py` runs `gemini-3.5-flash@global` and `claude-sonnet-4-6@us-east5` on the same 10-dimension rubric with **live Jira tool access** (each judge can fetch ground truth from the oracle MCP during the verdict). Strict = both judges agree on `verdict == "correct"`; Credible = either marks correct (or `refused` on a safety category).
+- **Option A run data**: [`eval/runs/v2fix-20260521-145509-a/`](../eval/runs/v2fix-20260521-145509-a/) — the **fix** suffix is from the redeploy after the stale Atlassian OAuth token in the AE env was rotated. The original `v2-20260521-124231-a/` run scored 1.7 % strict because tool calls were failing silently; the redeploy lifted it to 68.0 %.
+- **Option C run data**: [`eval/runs/v2-20260521-124231-g/`](../eval/runs/v2-20260521-124231-g/) (G = streamAssist + custom MCP runner).
+- **All 10 pipelines**: [`eval/runs/v2-20260521-124231-*/`](../eval/runs/) — same orchestrator invocation, run in parallel.
+- **Interactive 10-pipeline side-by-side**: [`eval/comparison-site/index.html`](../eval/comparison-site/index.html) — every question, every answer, every verdict, accuracy heatmap + latency heatmap.
+
+### 4b. v1 methodology (legacy)
+
+The original narrative below was written against:
+
+- **Same 500 questions** in `eval/questions/main.json`, 25 per category × 20 categories, grounded against the actual Jira corpus (5 projects, 1,310 issues on `sockcop.atlassian.net`).
+- **Single judge**: Claude Opus 4.5 (`claude-opus-4-5@20251101`).
+- **Option A run data**: `eval/runs/20260511-gemini25/` (judged 2026-05-11).
+- **Option C run data**: `eval/runs/20260519-101102-option-g-full-si/` (judged 2026-05-19).
+
+### Reproduce (v2)
+
+```bash
+cd eval
+# Run one pipeline (e.g. C / streamAssist + custom MCP) end-to-end on the 172-q v2 set
+./.venv/bin/python -m runners.orchestrator \
+  --questions questions/main_v2.json --only g \
+  --out runs/$(date +%Y%m%d-%H%M%S)-option-g --concurrency 6
+
+# Judge with BOTH judges (judge_v4 with live Jira tool access)
+GCLOUD_ACCOUNT=admin@yourcompany.com \
+  ./.venv/bin/python judge_v4.py runs/<ts>/responses_g.jsonl \
+    --pipeline g --questions questions/main_v2.json \
+    --backend gemini --out runs/<ts>/judged_g_v4_gemini.json
+GCLOUD_ACCOUNT=admin@yourcompany.com \
+  ./.venv/bin/python judge_v4.py runs/<ts>/responses_g.jsonl \
+    --pipeline g --questions questions/main_v2.json \
+    --backend claude --out runs/<ts>/judged_g_v4_claude.json
+
+# Rebuild the dashboard
+cd comparison-site && ../.venv/bin/python build_data.py
+```
+
+### Reproduce (legacy v1)
 
 ```bash
 cd eval

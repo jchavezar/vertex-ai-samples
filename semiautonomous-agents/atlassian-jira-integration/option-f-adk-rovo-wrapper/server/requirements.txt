@@ -1,0 +1,8 @@
+fastapi>=0.124.1,<1
+uvicorn[standard]>=0.32.1
+mcp>=1.22.0
+google-adk>=1.32.0
+google-genai>=1.75.0
+google-auth>=2.43.0
+google-cloud-aiplatform>=1.148.1
+httpx>=0.28.1

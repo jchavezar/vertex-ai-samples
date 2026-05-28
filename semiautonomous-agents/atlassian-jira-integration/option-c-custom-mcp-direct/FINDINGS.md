@@ -1,6 +1,51 @@
 # Option C — BYO Custom MCP in Gemini Enterprise: Findings
 
-**Headline:** 56.9% accuracy on the 500-question benchmark · 31.2% hallucination · p50 latency 29s · cost $0.05 per 1K · no per-call confirmation popup. Setup is the 5-part recipe in [§3](#3-the-five-part-recipe); detailed wins/losses in [§6](#6-per-category-breakdown).
+*Numbers as of 2026-05-27, judge_v6 (gemini-3-flash-preview + Haiku 4.5 escalation), n=172 v2 corpus.*
+
+**v6 headline (172 v2 questions, 2026-05-27):** **87.9 % accuracy (v6 headline)** · 0 hallucinated verdicts · p50 latency **28.9 s** (p90 91.1 s) · cost **$0.23 per 1K queries** · no per-call confirmation popup. The gemini-3.5-flash override variant (CG) scores **94.0 %** on the same corpus.
+
+Historical v1/v2 numbers (Claude-Opus single judge → dual-judge consensus) are retained in the per-category sections below for narrative continuity; the headline above is the current `judge_v6` weighted-tier score.
+
+Setup is the 5-part recipe in [§3](#3-the-five-part-recipe); detailed wins/losses in [§6](#6-per-category-breakdown).
+
+## 0. The systemic count-aggregate latency finding
+
+> **Count/aggregate questions are systematically slow on Option B (Rovo).**
+> Investigation traced the 1.5-min latency to GE's `custom_mcp_agent`
+> sub-planner looping over Rovo's ~40-tool catalog without auto-pagination.
+> Atlassian's MCP returns ≤100 issues per page, forcing the planner to
+> make ~10 sequential paginated tool calls with an LLM "should I continue?"
+> decision between each, totaling ~140 s for a 906-issue count. Custom
+> MCP (Option C) auto-paginates server-side up to 2000 issues and returns
+> the count in one tool call (~14 s). **For count/aggregate workloads, C
+> is ~10× faster than B.**
+
+Evidence file: [`/tmp/test_b_vs_g.log`](file:///tmp/test_b_vs_g.log) —
+raw 6-run output (3× B, 3× C, same SMP-priority-Medium question, 906
+true issues):
+
+| Run | Pipeline | Elapsed | Answer count |
+|---|---|---:|---:|
+| 1 | B | 113.8 s | 906 ✓ |
+| 2 | C | 16.4 s | 906 ✓ |
+| 3 | B | 156.2 s | 806 ✗ (planner stopped paginating) |
+| 4 | C | 13.8 s | "over 200" (compressed) |
+| 5 | B | 153.0 s | *(empty / failed)* |
+| 6 | C | 14.1 s | "200 issues (more may exist)" |
+
+The C answers benefit from the custom MCP's `summarizeJiraIssues` tool,
+which paginates server-side and returns a one-shot aggregate
+(`Analyzed 906 issues … Medium: 906` in ~4 s on the direct MCP probe in
+[`/tmp/test_direct_mcp_v2.log`](file:///tmp/test_direct_mcp_v2.log)).
+
+This is a **server-design takeaway**, not just a benchmark observation:
+**custom MCP servers that pre-aggregate large result sets server-side
+beat tool-loop planners by 10× on count workloads**, even when the
+planner is sophisticated. Atlassian-side mitigation would be to expose a
+`summarizeIssues` / `aggregate` tool in Rovo with internal pagination
+(currently each per-page call is exposed as a separate planner round).
+
+---
 
 ---
 
@@ -148,7 +193,7 @@ Sorted by accuracy desc. Refusal-credited. 25 questions per category.
 | Hallucination | ~1% | 31.2% | 68.9% |
 | Multi-step reasoning | Strong | Weak (planner gives up after 1st tool) | Weak |
 | Refusal / safety | High | **96%** | Low |
-| Cost / 1K queries | $0.17 | **$0.05** | $0.03 |
+| Cost / 1K queries | $10.20 | **$0.23** | $0 (hosted) |
 | Best for | Production ticketing, complex analysis | Search/lookup with cost discipline; refusal-heavy workloads | Quick prototypes |
 
 **Pick Option C when**: your workload is mostly lookups / counts / single-tool reads + refusal/safety matters + you want ~70% cost savings vs A. **Pick Option A when**: you need multi-step reasoning, cross-page synthesis, or <2% hallucination.

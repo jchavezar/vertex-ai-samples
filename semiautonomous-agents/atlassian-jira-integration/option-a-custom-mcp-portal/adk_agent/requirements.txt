@@ -1,6 +1,8 @@
+cloudpickle
 google-adk==1.32.0
+google-auth>=2.43.0
+google-cloud-aiplatform>=1.148.1
 google-genai>=1.52.0
 mcp>=1.22.0
+pydantic
 python-dotenv==1.2.1
-google-cloud-aiplatform>=1.148.1
-google-auth>=2.43.0

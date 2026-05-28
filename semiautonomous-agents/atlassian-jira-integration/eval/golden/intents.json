@@ -1,0 +1,2602 @@
+{
+  "q0000": {
+    "id": "q0000",
+    "intent": "field_value_lookup",
+    "reason": "matches '\\b(who|whom)\\b.{0,20}\\b(assigned|owns?|reporter|reported|ass' + has key"
+  },
+  "q0001": {
+    "id": "q0001",
+    "intent": "field_value_lookup",
+    "reason": "matches '\\b(what|what's|which|whats)\\b.{0,30}\\b(priority|status|due ?' + has key"
+  },
+  "q0002": {
+    "id": "q0002",
+    "intent": "field_value_lookup",
+    "reason": "matches '\\b(priority|status|assignee|reporter|due ?date|resolution da' + has key"
+  },
+  "q0003": {
+    "id": "q0003",
+    "intent": "field_value_lookup",
+    "reason": "matches '\\b(what|what's|which|whats)\\b.{0,30}\\b(priority|status|due ?' + has key"
+  },
+  "q0004": {
+    "id": "q0004",
+    "intent": "field_value_lookup",
+    "reason": "matches '\\b(assigned to|reporter of|assignee for|owner of)\\b' + has key"
+  },
+  "q0005": {
+    "id": "q0005",
+    "intent": "field_value_lookup",
+    "reason": "matches '\\b(what|what's|which|whats)\\b.{0,30}\\b(priority|status|due ?' + has key"
+  },
+  "q0006": {
+    "id": "q0006",
+    "intent": "field_value_lookup",
+    "reason": "matches '\\b(priority|status|assignee|reporter|due ?date|resolution da' + has key"
+  },
+  "q0007": {
+    "id": "q0007",
+    "intent": "field_value_lookup",
+    "reason": "jql oracle, single expected key"
+  },
+  "q0008": {
+    "id": "q0008",
+    "intent": "field_value_lookup",
+    "reason": "matches '\\b(what|what's|which|whats)\\b.{0,30}\\b(priority|status|due ?' + has key"
+  },
+  "q0009": {
+    "id": "q0009",
+    "intent": "field_value_lookup",
+    "reason": "matches '\\b(priority|status|assignee|reporter|due ?date|resolution da' + has key"
+  },
+  "q0010": {
+    "id": "q0010",
+    "intent": "field_value_lookup",
+    "reason": "matches '\\b(what|what's|which|whats)\\b.{0,30}\\b(priority|status|due ?' + has key"
+  },
+  "q0011": {
+    "id": "q0011",
+    "intent": "field_value_lookup",
+    "reason": "matches '\\b(priority|status|assignee|reporter|due ?date|resolution da' + has key"
+  },
+  "q0012": {
+    "id": "q0012",
+    "intent": "field_value_lookup",
+    "reason": "matches '\\b(what|what's|which|whats)\\b.{0,30}\\b(priority|status|due ?' + has key"
+  },
+  "q0013": {
+    "id": "q0013",
+    "intent": "field_value_lookup",
+    "reason": "matches '\\b(priority|status|assignee|reporter|due ?date|resolution da' + has key"
+  },
+  "q0014": {
+    "id": "q0014",
+    "intent": "field_value_lookup",
+    "reason": "jql oracle, single expected key"
+  },
+  "q0015": {
+    "id": "q0015",
+    "intent": "field_value_lookup",
+    "reason": "matches '\\b(priority|status|assignee|reporter|due ?date|resolution da' + has key"
+  },
+  "q0016": {
+    "id": "q0016",
+    "intent": "field_value_lookup",
+    "reason": "matches '\\b(who|whom)\\b.{0,20}\\b(assigned|owns?|reporter|reported|ass' + has key"
+  },
+  "q0017": {
+    "id": "q0017",
+    "intent": "field_value_lookup",
+    "reason": "matches '\\b(what|what's|which|whats)\\b.{0,30}\\b(priority|status|due ?' + has key"
+  },
+  "q0018": {
+    "id": "q0018",
+    "intent": "field_value_lookup",
+    "reason": "matches '\\b(priority|status|assignee|reporter|due ?date|resolution da' + has key"
+  },
+  "q0019": {
+    "id": "q0019",
+    "intent": "field_value_lookup",
+    "reason": "matches '\\b(assigned to|reporter of|assignee for|owner of)\\b' + has key"
+  },
+  "q0020": {
+    "id": "q0020",
+    "intent": "field_value_lookup",
+    "reason": "matches '\\b(priority|status|assignee|reporter|due ?date|resolution da' + has key"
+  },
+  "q0021": {
+    "id": "q0021",
+    "intent": "field_value_lookup",
+    "reason": "matches '\\b(assigned to|reporter of|assignee for|owner of)\\b' + has key"
+  },
+  "q0022": {
+    "id": "q0022",
+    "intent": "field_value_lookup",
+    "reason": "matches '\\b(what|what's|which|whats)\\b.{0,30}\\b(priority|status|due ?' + has key"
+  },
+  "q0023": {
+    "id": "q0023",
+    "intent": "field_value_lookup",
+    "reason": "matches '\\b(priority|status|assignee|reporter|due ?date|resolution da' + has key"
+  },
+  "q0024": {
+    "id": "q0024",
+    "intent": "field_value_lookup",
+    "reason": "matches '\\b(who|whom)\\b.{0,20}\\b(assigned|owns?|reporter|reported|ass' + has key"
+  },
+  "q0025": {
+    "id": "q0025",
+    "intent": "key_recall",
+    "reason": "key_recall pattern"
+  },
+  "q0026": {
+    "id": "q0026",
+    "intent": "key_recall",
+    "reason": "key_recall pattern"
+  },
+  "q0027": {
+    "id": "q0027",
+    "intent": "key_recall",
+    "reason": "key_recall pattern"
+  },
+  "q0028": {
+    "id": "q0028",
+    "intent": "key_recall",
+    "reason": "jql oracle, multi expected key"
+  },
+  "q0029": {
+    "id": "q0029",
+    "intent": "key_recall",
+    "reason": "jql oracle, multi expected key"
+  },
+  "q0030": {
+    "id": "q0030",
+    "intent": "key_recall",
+    "reason": "key_recall pattern"
+  },
+  "q0031": {
+    "id": "q0031",
+    "intent": "key_recall",
+    "reason": "jql oracle, multi expected key"
+  },
+  "q0032": {
+    "id": "q0032",
+    "intent": "key_recall",
+    "reason": "key_recall pattern"
+  },
+  "q0033": {
+    "id": "q0033",
+    "intent": "key_recall",
+    "reason": "key_recall pattern"
+  },
+  "q0034": {
+    "id": "q0034",
+    "intent": "key_recall",
+    "reason": "jql oracle, multi expected key"
+  },
+  "q0035": {
+    "id": "q0035",
+    "intent": "key_recall",
+    "reason": "key_recall pattern"
+  },
+  "q0036": {
+    "id": "q0036",
+    "intent": "key_recall",
+    "reason": "jql oracle, multi expected key"
+  },
+  "q0037": {
+    "id": "q0037",
+    "intent": "key_recall",
+    "reason": "key_recall pattern"
+  },
+  "q0038": {
+    "id": "q0038",
+    "intent": "key_recall",
+    "reason": "jql oracle, multi expected key"
+  },
+  "q0039": {
+    "id": "q0039",
+    "intent": "key_recall",
+    "reason": "key_recall pattern"
+  },
+  "q0040": {
+    "id": "q0040",
+    "intent": "key_recall",
+    "reason": "key_recall pattern"
+  },
+  "q0041": {
+    "id": "q0041",
+    "intent": "key_recall",
+    "reason": "key_recall pattern"
+  },
+  "q0042": {
+    "id": "q0042",
+    "intent": "key_recall",
+    "reason": "jql oracle, multi expected key"
+  },
+  "q0043": {
+    "id": "q0043",
+    "intent": "key_recall",
+    "reason": "jql oracle, multi expected key"
+  },
+  "q0044": {
+    "id": "q0044",
+    "intent": "key_recall",
+    "reason": "jql oracle, multi expected key"
+  },
+  "q0045": {
+    "id": "q0045",
+    "intent": "key_recall",
+    "reason": "key_recall pattern"
+  },
+  "q0046": {
+    "id": "q0046",
+    "intent": "key_recall",
+    "reason": "key_recall pattern"
+  },
+  "q0047": {
+    "id": "q0047",
+    "intent": "key_recall",
+    "reason": "jql oracle, multi expected key"
+  },
+  "q0048": {
+    "id": "q0048",
+    "intent": "key_recall",
+    "reason": "key_recall pattern"
+  },
+  "q0049": {
+    "id": "q0049",
+    "intent": "key_recall",
+    "reason": "key_recall pattern"
+  },
+  "q0050": {
+    "id": "q0050",
+    "intent": "count_or_groupby",
+    "reason": "count/groupby pattern"
+  },
+  "q0051": {
+    "id": "q0051",
+    "intent": "count_or_groupby",
+    "reason": "count/groupby pattern"
+  },
+  "q0052": {
+    "id": "q0052",
+    "intent": "time_relative_count",
+    "reason": "time-relative + count/trend"
+  },
+  "q0053": {
+    "id": "q0053",
+    "intent": "count_or_groupby",
+    "reason": "count/groupby pattern"
+  },
+  "q0054": {
+    "id": "q0054",
+    "intent": "count_or_groupby",
+    "reason": "count/groupby pattern"
+  },
+  "q0055": {
+    "id": "q0055",
+    "intent": "count_or_groupby",
+    "reason": "count/groupby pattern"
+  },
+  "q0056": {
+    "id": "q0056",
+    "intent": "count_or_groupby",
+    "reason": "count/groupby pattern"
+  },
+  "q0057": {
+    "id": "q0057",
+    "intent": "count_or_groupby",
+    "reason": "count/groupby pattern"
+  },
+  "q0058": {
+    "id": "q0058",
+    "intent": "count_or_groupby",
+    "reason": "count/groupby pattern"
+  },
+  "q0059": {
+    "id": "q0059",
+    "intent": "count_or_groupby",
+    "reason": "count/groupby pattern"
+  },
+  "q0060": {
+    "id": "q0060",
+    "intent": "count_or_groupby",
+    "reason": "count/groupby pattern"
+  },
+  "q0061": {
+    "id": "q0061",
+    "intent": "count_or_groupby",
+    "reason": "count/groupby pattern"
+  },
+  "q0062": {
+    "id": "q0062",
+    "intent": "count_or_groupby",
+    "reason": "count/groupby pattern"
+  },
+  "q0063": {
+    "id": "q0063",
+    "intent": "count_or_groupby",
+    "reason": "count/groupby pattern"
+  },
+  "q0064": {
+    "id": "q0064",
+    "intent": "time_relative_count",
+    "reason": "time-relative + count/trend"
+  },
+  "q0065": {
+    "id": "q0065",
+    "intent": "time_relative_count",
+    "reason": "time-relative + count/trend"
+  },
+  "q0066": {
+    "id": "q0066",
+    "intent": "count_or_groupby",
+    "reason": "count/groupby pattern"
+  },
+  "q0067": {
+    "id": "q0067",
+    "intent": "count_or_groupby",
+    "reason": "count/groupby pattern"
+  },
+  "q0068": {
+    "id": "q0068",
+    "intent": "count_or_groupby",
+    "reason": "count/groupby pattern"
+  },
+  "q0069": {
+    "id": "q0069",
+    "intent": "time_relative_count",
+    "reason": "time-relative + count/trend"
+  },
+  "q0070": {
+    "id": "q0070",
+    "intent": "count_or_groupby",
+    "reason": "count/groupby pattern"
+  },
+  "q0071": {
+    "id": "q0071",
+    "intent": "count_or_groupby",
+    "reason": "count/groupby pattern"
+  },
+  "q0072": {
+    "id": "q0072",
+    "intent": "count_or_groupby",
+    "reason": "count/groupby pattern"
+  },
+  "q0073": {
+    "id": "q0073",
+    "intent": "count_or_groupby",
+    "reason": "count/groupby pattern"
+  },
+  "q0074": {
+    "id": "q0074",
+    "intent": "count_or_groupby",
+    "reason": "count/groupby pattern"
+  },
+  "q0075": {
+    "id": "q0075",
+    "intent": "key_recall",
+    "reason": "key_recall pattern"
+  },
+  "q0076": {
+    "id": "q0076",
+    "intent": "count_or_groupby",
+    "reason": "count/groupby pattern"
+  },
+  "q0077": {
+    "id": "q0077",
+    "intent": "key_recall",
+    "reason": "key_recall pattern"
+  },
+  "q0078": {
+    "id": "q0078",
+    "intent": "key_recall",
+    "reason": "jql oracle, multi expected key"
+  },
+  "q0079": {
+    "id": "q0079",
+    "intent": "key_recall",
+    "reason": "jql oracle, multi expected key"
+  },
+  "q0080": {
+    "id": "q0080",
+    "intent": "key_recall",
+    "reason": "key_recall pattern"
+  },
+  "q0081": {
+    "id": "q0081",
+    "intent": "key_recall",
+    "reason": "key_recall pattern"
+  },
+  "q0082": {
+    "id": "q0082",
+    "intent": "key_recall",
+    "reason": "jql oracle, multi expected key"
+  },
+  "q0083": {
+    "id": "q0083",
+    "intent": "key_recall",
+    "reason": "key_recall pattern"
+  },
+  "q0084": {
+    "id": "q0084",
+    "intent": "key_recall",
+    "reason": "jql oracle, multi expected key"
+  },
+  "q0085": {
+    "id": "q0085",
+    "intent": "key_recall",
+    "reason": "jql oracle, multi expected key"
+  },
+  "q0086": {
+    "id": "q0086",
+    "intent": "key_recall",
+    "reason": "jql oracle, multi expected key"
+  },
+  "q0087": {
+    "id": "q0087",
+    "intent": "key_recall",
+    "reason": "key_recall pattern"
+  },
+  "q0088": {
+    "id": "q0088",
+    "intent": "key_recall",
+    "reason": "jql oracle, multi expected key"
+  },
+  "q0089": {
+    "id": "q0089",
+    "intent": "key_recall",
+    "reason": "jql oracle, multi expected key"
+  },
+  "q0090": {
+    "id": "q0090",
+    "intent": "key_recall",
+    "reason": "jql oracle, multi expected key"
+  },
+  "q0091": {
+    "id": "q0091",
+    "intent": "key_recall",
+    "reason": "key_recall pattern"
+  },
+  "q0092": {
+    "id": "q0092",
+    "intent": "key_recall",
+    "reason": "jql oracle, multi expected key"
+  },
+  "q0093": {
+    "id": "q0093",
+    "intent": "key_recall",
+    "reason": "jql oracle, multi expected key"
+  },
+  "q0094": {
+    "id": "q0094",
+    "intent": "key_recall",
+    "reason": "key_recall pattern"
+  },
+  "q0095": {
+    "id": "q0095",
+    "intent": "key_recall",
+    "reason": "key_recall pattern"
+  },
+  "q0096": {
+    "id": "q0096",
+    "intent": "key_recall",
+    "reason": "key_recall pattern"
+  },
+  "q0097": {
+    "id": "q0097",
+    "intent": "key_recall",
+    "reason": "jql oracle, multi expected key"
+  },
+  "q0098": {
+    "id": "q0098",
+    "intent": "key_recall",
+    "reason": "jql oracle, multi expected key"
+  },
+  "q0099": {
+    "id": "q0099",
+    "intent": "key_recall",
+    "reason": "jql oracle, multi expected key"
+  },
+  "q0100": {
+    "id": "q0100",
+    "intent": "analytical",
+    "reason": "no specific intent pattern matched"
+  },
+  "q0101": {
+    "id": "q0101",
+    "intent": "analytical",
+    "reason": "no specific intent pattern matched"
+  },
+  "q0102": {
+    "id": "q0102",
+    "intent": "analytical",
+    "reason": "no specific intent pattern matched"
+  },
+  "q0103": {
+    "id": "q0103",
+    "intent": "analytical",
+    "reason": "no specific intent pattern matched"
+  },
+  "q0104": {
+    "id": "q0104",
+    "intent": "analytical",
+    "reason": "no specific intent pattern matched"
+  },
+  "q0105": {
+    "id": "q0105",
+    "intent": "analytical",
+    "reason": "no specific intent pattern matched"
+  },
+  "q0106": {
+    "id": "q0106",
+    "intent": "analytical",
+    "reason": "no specific intent pattern matched"
+  },
+  "q0107": {
+    "id": "q0107",
+    "intent": "analytical",
+    "reason": "no specific intent pattern matched"
+  },
+  "q0108": {
+    "id": "q0108",
+    "intent": "analytical",
+    "reason": "no specific intent pattern matched"
+  },
+  "q0109": {
+    "id": "q0109",
+    "intent": "analytical",
+    "reason": "no specific intent pattern matched"
+  },
+  "q0110": {
+    "id": "q0110",
+    "intent": "analytical",
+    "reason": "no specific intent pattern matched"
+  },
+  "q0111": {
+    "id": "q0111",
+    "intent": "analytical",
+    "reason": "no specific intent pattern matched"
+  },
+  "q0112": {
+    "id": "q0112",
+    "intent": "analytical",
+    "reason": "no specific intent pattern matched"
+  },
+  "q0113": {
+    "id": "q0113",
+    "intent": "analytical",
+    "reason": "no specific intent pattern matched"
+  },
+  "q0114": {
+    "id": "q0114",
+    "intent": "analytical",
+    "reason": "no specific intent pattern matched"
+  },
+  "q0115": {
+    "id": "q0115",
+    "intent": "analytical",
+    "reason": "no specific intent pattern matched"
+  },
+  "q0116": {
+    "id": "q0116",
+    "intent": "analytical",
+    "reason": "no specific intent pattern matched"
+  },
+  "q0117": {
+    "id": "q0117",
+    "intent": "analytical",
+    "reason": "no specific intent pattern matched"
+  },
+  "q0118": {
+    "id": "q0118",
+    "intent": "analytical",
+    "reason": "no specific intent pattern matched"
+  },
+  "q0119": {
+    "id": "q0119",
+    "intent": "analytical",
+    "reason": "no specific intent pattern matched"
+  },
+  "q0120": {
+    "id": "q0120",
+    "intent": "analytical",
+    "reason": "no specific intent pattern matched"
+  },
+  "q0121": {
+    "id": "q0121",
+    "intent": "analytical",
+    "reason": "no specific intent pattern matched"
+  },
+  "q0122": {
+    "id": "q0122",
+    "intent": "analytical",
+    "reason": "no specific intent pattern matched"
+  },
+  "q0123": {
+    "id": "q0123",
+    "intent": "analytical",
+    "reason": "no specific intent pattern matched"
+  },
+  "q0124": {
+    "id": "q0124",
+    "intent": "analytical",
+    "reason": "no specific intent pattern matched"
+  },
+  "q0125": {
+    "id": "q0125",
+    "intent": "count_or_groupby",
+    "reason": "count/groupby pattern"
+  },
+  "q0126": {
+    "id": "q0126",
+    "intent": "analytical",
+    "reason": "no specific intent pattern matched"
+  },
+  "q0127": {
+    "id": "q0127",
+    "intent": "time_relative_count",
+    "reason": "time-relative + count/trend"
+  },
+  "q0128": {
+    "id": "q0128",
+    "intent": "analytical",
+    "reason": "no specific intent pattern matched"
+  },
+  "q0129": {
+    "id": "q0129",
+    "intent": "count_or_groupby",
+    "reason": "count/groupby pattern"
+  },
+  "q0130": {
+    "id": "q0130",
+    "intent": "count_or_groupby",
+    "reason": "count/groupby pattern"
+  },
+  "q0131": {
+    "id": "q0131",
+    "intent": "analytical",
+    "reason": "no specific intent pattern matched"
+  },
+  "q0132": {
+    "id": "q0132",
+    "intent": "count_or_groupby",
+    "reason": "count/groupby pattern"
+  },
+  "q0133": {
+    "id": "q0133",
+    "intent": "analytical",
+    "reason": "no specific intent pattern matched"
+  },
+  "q0134": {
+    "id": "q0134",
+    "intent": "key_recall",
+    "reason": "key_recall pattern"
+  },
+  "q0135": {
+    "id": "q0135",
+    "intent": "analytical",
+    "reason": "no specific intent pattern matched"
+  },
+  "q0136": {
+    "id": "q0136",
+    "intent": "time_relative_count",
+    "reason": "time-relative + count/trend"
+  },
+  "q0137": {
+    "id": "q0137",
+    "intent": "analytical",
+    "reason": "no specific intent pattern matched"
+  },
+  "q0138": {
+    "id": "q0138",
+    "intent": "count_or_groupby",
+    "reason": "count/groupby pattern"
+  },
+  "q0139": {
+    "id": "q0139",
+    "intent": "analytical",
+    "reason": "no specific intent pattern matched"
+  },
+  "q0140": {
+    "id": "q0140",
+    "intent": "analytical",
+    "reason": "no specific intent pattern matched"
+  },
+  "q0141": {
+    "id": "q0141",
+    "intent": "analytical",
+    "reason": "no specific intent pattern matched"
+  },
+  "q0142": {
+    "id": "q0142",
+    "intent": "analytical",
+    "reason": "no specific intent pattern matched"
+  },
+  "q0143": {
+    "id": "q0143",
+    "intent": "time_relative_count",
+    "reason": "time-relative + count/trend"
+  },
+  "q0144": {
+    "id": "q0144",
+    "intent": "analytical",
+    "reason": "no specific intent pattern matched"
+  },
+  "q0145": {
+    "id": "q0145",
+    "intent": "analytical",
+    "reason": "no specific intent pattern matched"
+  },
+  "q0146": {
+    "id": "q0146",
+    "intent": "analytical",
+    "reason": "no specific intent pattern matched"
+  },
+  "q0147": {
+    "id": "q0147",
+    "intent": "analytical",
+    "reason": "no specific intent pattern matched"
+  },
+  "q0148": {
+    "id": "q0148",
+    "intent": "analytical",
+    "reason": "no specific intent pattern matched"
+  },
+  "q0149": {
+    "id": "q0149",
+    "intent": "analytical",
+    "reason": "no specific intent pattern matched"
+  },
+  "q0150": {
+    "id": "q0150",
+    "intent": "time_relative_count",
+    "reason": "time-relative + count/trend"
+  },
+  "q0151": {
+    "id": "q0151",
+    "intent": "time_relative_count",
+    "reason": "time-relative + count/trend"
+  },
+  "q0152": {
+    "id": "q0152",
+    "intent": "analytical",
+    "reason": "no specific intent pattern matched"
+  },
+  "q0153": {
+    "id": "q0153",
+    "intent": "time_relative_count",
+    "reason": "time-relative + count/trend"
+  },
+  "q0154": {
+    "id": "q0154",
+    "intent": "time_relative_count",
+    "reason": "time-relative + count/trend"
+  },
+  "q0155": {
+    "id": "q0155",
+    "intent": "time_relative_count",
+    "reason": "time-relative + count/trend"
+  },
+  "q0156": {
+    "id": "q0156",
+    "intent": "analytical",
+    "reason": "no specific intent pattern matched"
+  },
+  "q0157": {
+    "id": "q0157",
+    "intent": "analytical",
+    "reason": "no specific intent pattern matched"
+  },
+  "q0158": {
+    "id": "q0158",
+    "intent": "time_relative_count",
+    "reason": "time-relative + count/trend"
+  },
+  "q0159": {
+    "id": "q0159",
+    "intent": "analytical",
+    "reason": "no specific intent pattern matched"
+  },
+  "q0160": {
+    "id": "q0160",
+    "intent": "analytical",
+    "reason": "no specific intent pattern matched"
+  },
+  "q0161": {
+    "id": "q0161",
+    "intent": "analytical",
+    "reason": "no specific intent pattern matched"
+  },
+  "q0162": {
+    "id": "q0162",
+    "intent": "time_relative_count",
+    "reason": "time-relative + count/trend"
+  },
+  "q0163": {
+    "id": "q0163",
+    "intent": "time_relative_count",
+    "reason": "time-relative + count/trend"
+  },
+  "q0164": {
+    "id": "q0164",
+    "intent": "analytical",
+    "reason": "no specific intent pattern matched"
+  },
+  "q0165": {
+    "id": "q0165",
+    "intent": "analytical",
+    "reason": "no specific intent pattern matched"
+  },
+  "q0166": {
+    "id": "q0166",
+    "intent": "analytical",
+    "reason": "no specific intent pattern matched"
+  },
+  "q0167": {
+    "id": "q0167",
+    "intent": "time_relative_count",
+    "reason": "time-relative + count/trend"
+  },
+  "q0168": {
+    "id": "q0168",
+    "intent": "time_relative_count",
+    "reason": "time-relative + count/trend"
+  },
+  "q0169": {
+    "id": "q0169",
+    "intent": "time_relative_count",
+    "reason": "time-relative + count/trend"
+  },
+  "q0170": {
+    "id": "q0170",
+    "intent": "analytical",
+    "reason": "no specific intent pattern matched"
+  },
+  "q0171": {
+    "id": "q0171",
+    "intent": "time_relative_count",
+    "reason": "time-relative + count/trend"
+  },
+  "q0172": {
+    "id": "q0172",
+    "intent": "analytical",
+    "reason": "no specific intent pattern matched"
+  },
+  "q0173": {
+    "id": "q0173",
+    "intent": "time_relative_count",
+    "reason": "time-relative + count/trend"
+  },
+  "q0174": {
+    "id": "q0174",
+    "intent": "analytical",
+    "reason": "no specific intent pattern matched"
+  },
+  "q0175": {
+    "id": "q0175",
+    "intent": "safety",
+    "subcategory": "refusal-test",
+    "reason": "safety category=refusal-test"
+  },
+  "q0176": {
+    "id": "q0176",
+    "intent": "safety",
+    "subcategory": "refusal-test",
+    "reason": "safety category=refusal-test"
+  },
+  "q0177": {
+    "id": "q0177",
+    "intent": "safety",
+    "subcategory": "refusal-test",
+    "reason": "safety category=refusal-test"
+  },
+  "q0178": {
+    "id": "q0178",
+    "intent": "safety",
+    "subcategory": "refusal-test",
+    "reason": "safety category=refusal-test"
+  },
+  "q0179": {
+    "id": "q0179",
+    "intent": "safety",
+    "subcategory": "refusal-test",
+    "reason": "safety category=refusal-test"
+  },
+  "q0180": {
+    "id": "q0180",
+    "intent": "safety",
+    "subcategory": "refusal-test",
+    "reason": "safety category=refusal-test"
+  },
+  "q0181": {
+    "id": "q0181",
+    "intent": "safety",
+    "subcategory": "refusal-test",
+    "reason": "safety category=refusal-test"
+  },
+  "q0182": {
+    "id": "q0182",
+    "intent": "safety",
+    "subcategory": "refusal-test",
+    "reason": "safety category=refusal-test"
+  },
+  "q0183": {
+    "id": "q0183",
+    "intent": "safety",
+    "subcategory": "refusal-test",
+    "reason": "safety category=refusal-test"
+  },
+  "q0184": {
+    "id": "q0184",
+    "intent": "safety",
+    "subcategory": "refusal-test",
+    "reason": "safety category=refusal-test"
+  },
+  "q0185": {
+    "id": "q0185",
+    "intent": "safety",
+    "subcategory": "refusal-test",
+    "reason": "safety category=refusal-test"
+  },
+  "q0186": {
+    "id": "q0186",
+    "intent": "safety",
+    "subcategory": "refusal-test",
+    "reason": "safety category=refusal-test"
+  },
+  "q0187": {
+    "id": "q0187",
+    "intent": "safety",
+    "subcategory": "refusal-test",
+    "reason": "safety category=refusal-test"
+  },
+  "q0188": {
+    "id": "q0188",
+    "intent": "safety",
+    "subcategory": "refusal-test",
+    "reason": "safety category=refusal-test"
+  },
+  "q0189": {
+    "id": "q0189",
+    "intent": "safety",
+    "subcategory": "refusal-test",
+    "reason": "safety category=refusal-test"
+  },
+  "q0190": {
+    "id": "q0190",
+    "intent": "safety",
+    "subcategory": "refusal-test",
+    "reason": "safety category=refusal-test"
+  },
+  "q0191": {
+    "id": "q0191",
+    "intent": "safety",
+    "subcategory": "refusal-test",
+    "reason": "safety category=refusal-test"
+  },
+  "q0192": {
+    "id": "q0192",
+    "intent": "safety",
+    "subcategory": "refusal-test",
+    "reason": "safety category=refusal-test"
+  },
+  "q0193": {
+    "id": "q0193",
+    "intent": "safety",
+    "subcategory": "refusal-test",
+    "reason": "safety category=refusal-test"
+  },
+  "q0194": {
+    "id": "q0194",
+    "intent": "safety",
+    "subcategory": "refusal-test",
+    "reason": "safety category=refusal-test"
+  },
+  "q0195": {
+    "id": "q0195",
+    "intent": "safety",
+    "subcategory": "refusal-test",
+    "reason": "safety category=refusal-test"
+  },
+  "q0196": {
+    "id": "q0196",
+    "intent": "safety",
+    "subcategory": "refusal-test",
+    "reason": "safety category=refusal-test"
+  },
+  "q0197": {
+    "id": "q0197",
+    "intent": "safety",
+    "subcategory": "refusal-test",
+    "reason": "safety category=refusal-test"
+  },
+  "q0198": {
+    "id": "q0198",
+    "intent": "safety",
+    "subcategory": "refusal-test",
+    "reason": "safety category=refusal-test"
+  },
+  "q0199": {
+    "id": "q0199",
+    "intent": "safety",
+    "subcategory": "refusal-test",
+    "reason": "safety category=refusal-test"
+  },
+  "q0200": {
+    "id": "q0200",
+    "intent": "safety",
+    "subcategory": "ambiguous",
+    "reason": "safety category=ambiguous"
+  },
+  "q0201": {
+    "id": "q0201",
+    "intent": "safety",
+    "subcategory": "ambiguous",
+    "reason": "safety category=ambiguous"
+  },
+  "q0202": {
+    "id": "q0202",
+    "intent": "safety",
+    "subcategory": "ambiguous",
+    "reason": "safety category=ambiguous"
+  },
+  "q0203": {
+    "id": "q0203",
+    "intent": "safety",
+    "subcategory": "ambiguous",
+    "reason": "safety category=ambiguous"
+  },
+  "q0204": {
+    "id": "q0204",
+    "intent": "safety",
+    "subcategory": "ambiguous",
+    "reason": "safety category=ambiguous"
+  },
+  "q0205": {
+    "id": "q0205",
+    "intent": "safety",
+    "subcategory": "ambiguous",
+    "reason": "safety category=ambiguous"
+  },
+  "q0206": {
+    "id": "q0206",
+    "intent": "safety",
+    "subcategory": "ambiguous",
+    "reason": "safety category=ambiguous"
+  },
+  "q0207": {
+    "id": "q0207",
+    "intent": "safety",
+    "subcategory": "ambiguous",
+    "reason": "safety category=ambiguous"
+  },
+  "q0208": {
+    "id": "q0208",
+    "intent": "safety",
+    "subcategory": "ambiguous",
+    "reason": "safety category=ambiguous"
+  },
+  "q0209": {
+    "id": "q0209",
+    "intent": "safety",
+    "subcategory": "ambiguous",
+    "reason": "safety category=ambiguous"
+  },
+  "q0210": {
+    "id": "q0210",
+    "intent": "safety",
+    "subcategory": "ambiguous",
+    "reason": "safety category=ambiguous"
+  },
+  "q0211": {
+    "id": "q0211",
+    "intent": "safety",
+    "subcategory": "ambiguous",
+    "reason": "safety category=ambiguous"
+  },
+  "q0212": {
+    "id": "q0212",
+    "intent": "safety",
+    "subcategory": "ambiguous",
+    "reason": "safety category=ambiguous"
+  },
+  "q0213": {
+    "id": "q0213",
+    "intent": "safety",
+    "subcategory": "ambiguous",
+    "reason": "safety category=ambiguous"
+  },
+  "q0214": {
+    "id": "q0214",
+    "intent": "safety",
+    "subcategory": "ambiguous",
+    "reason": "safety category=ambiguous"
+  },
+  "q0215": {
+    "id": "q0215",
+    "intent": "safety",
+    "subcategory": "ambiguous",
+    "reason": "safety category=ambiguous"
+  },
+  "q0216": {
+    "id": "q0216",
+    "intent": "safety",
+    "subcategory": "ambiguous",
+    "reason": "safety category=ambiguous"
+  },
+  "q0217": {
+    "id": "q0217",
+    "intent": "safety",
+    "subcategory": "ambiguous",
+    "reason": "safety category=ambiguous"
+  },
+  "q0218": {
+    "id": "q0218",
+    "intent": "safety",
+    "subcategory": "ambiguous",
+    "reason": "safety category=ambiguous"
+  },
+  "q0219": {
+    "id": "q0219",
+    "intent": "safety",
+    "subcategory": "ambiguous",
+    "reason": "safety category=ambiguous"
+  },
+  "q0220": {
+    "id": "q0220",
+    "intent": "safety",
+    "subcategory": "ambiguous",
+    "reason": "safety category=ambiguous"
+  },
+  "q0221": {
+    "id": "q0221",
+    "intent": "safety",
+    "subcategory": "ambiguous",
+    "reason": "safety category=ambiguous"
+  },
+  "q0222": {
+    "id": "q0222",
+    "intent": "safety",
+    "subcategory": "ambiguous",
+    "reason": "safety category=ambiguous"
+  },
+  "q0223": {
+    "id": "q0223",
+    "intent": "safety",
+    "subcategory": "ambiguous",
+    "reason": "safety category=ambiguous"
+  },
+  "q0224": {
+    "id": "q0224",
+    "intent": "safety",
+    "subcategory": "ambiguous",
+    "reason": "safety category=ambiguous"
+  },
+  "q0225": {
+    "id": "q0225",
+    "intent": "count_or_groupby",
+    "reason": "count/groupby pattern"
+  },
+  "q0226": {
+    "id": "q0226",
+    "intent": "key_recall",
+    "reason": "key_recall pattern"
+  },
+  "q0227": {
+    "id": "q0227",
+    "intent": "count_or_groupby",
+    "reason": "count/groupby pattern"
+  },
+  "q0228": {
+    "id": "q0228",
+    "intent": "analytical",
+    "reason": "no specific intent pattern matched"
+  },
+  "q0229": {
+    "id": "q0229",
+    "intent": "key_recall",
+    "reason": "key_recall pattern"
+  },
+  "q0230": {
+    "id": "q0230",
+    "intent": "count_or_groupby",
+    "reason": "count/groupby pattern"
+  },
+  "q0231": {
+    "id": "q0231",
+    "intent": "analytical",
+    "reason": "no specific intent pattern matched"
+  },
+  "q0232": {
+    "id": "q0232",
+    "intent": "key_recall",
+    "reason": "key_recall pattern"
+  },
+  "q0233": {
+    "id": "q0233",
+    "intent": "analytical",
+    "reason": "no specific intent pattern matched"
+  },
+  "q0234": {
+    "id": "q0234",
+    "intent": "count_or_groupby",
+    "reason": "count/groupby pattern"
+  },
+  "q0235": {
+    "id": "q0235",
+    "intent": "key_recall",
+    "reason": "key_recall pattern"
+  },
+  "q0236": {
+    "id": "q0236",
+    "intent": "analytical",
+    "reason": "no specific intent pattern matched"
+  },
+  "q0237": {
+    "id": "q0237",
+    "intent": "analytical",
+    "reason": "no specific intent pattern matched"
+  },
+  "q0238": {
+    "id": "q0238",
+    "intent": "key_recall",
+    "reason": "key_recall pattern"
+  },
+  "q0239": {
+    "id": "q0239",
+    "intent": "analytical",
+    "reason": "no specific intent pattern matched"
+  },
+  "q0240": {
+    "id": "q0240",
+    "intent": "analytical",
+    "reason": "no specific intent pattern matched"
+  },
+  "q0241": {
+    "id": "q0241",
+    "intent": "key_recall",
+    "reason": "key_recall pattern"
+  },
+  "q0242": {
+    "id": "q0242",
+    "intent": "count_or_groupby",
+    "reason": "count/groupby pattern"
+  },
+  "q0243": {
+    "id": "q0243",
+    "intent": "analytical",
+    "reason": "no specific intent pattern matched"
+  },
+  "q0244": {
+    "id": "q0244",
+    "intent": "count_or_groupby",
+    "reason": "count/groupby pattern"
+  },
+  "q0245": {
+    "id": "q0245",
+    "intent": "analytical",
+    "reason": "no specific intent pattern matched"
+  },
+  "q0246": {
+    "id": "q0246",
+    "intent": "key_recall",
+    "reason": "key_recall pattern"
+  },
+  "q0247": {
+    "id": "q0247",
+    "intent": "analytical",
+    "reason": "no specific intent pattern matched"
+  },
+  "q0248": {
+    "id": "q0248",
+    "intent": "analytical",
+    "reason": "no specific intent pattern matched"
+  },
+  "q0249": {
+    "id": "q0249",
+    "intent": "analytical",
+    "reason": "no specific intent pattern matched"
+  },
+  "q0250": {
+    "id": "q0250",
+    "intent": "key_recall",
+    "reason": "key_recall pattern"
+  },
+  "q0251": {
+    "id": "q0251",
+    "intent": "key_recall",
+    "reason": "key_recall pattern"
+  },
+  "q0252": {
+    "id": "q0252",
+    "intent": "key_recall",
+    "reason": "jql oracle, multi expected key"
+  },
+  "q0253": {
+    "id": "q0253",
+    "intent": "analytical",
+    "reason": "no specific intent pattern matched"
+  },
+  "q0254": {
+    "id": "q0254",
+    "intent": "key_recall",
+    "reason": "key_recall pattern"
+  },
+  "q0255": {
+    "id": "q0255",
+    "intent": "key_recall",
+    "reason": "jql oracle, multi expected key"
+  },
+  "q0256": {
+    "id": "q0256",
+    "intent": "key_recall",
+    "reason": "jql oracle, multi expected key"
+  },
+  "q0257": {
+    "id": "q0257",
+    "intent": "key_recall",
+    "reason": "jql oracle, multi expected key"
+  },
+  "q0258": {
+    "id": "q0258",
+    "intent": "key_recall",
+    "reason": "jql oracle, multi expected key"
+  },
+  "q0259": {
+    "id": "q0259",
+    "intent": "key_recall",
+    "reason": "jql oracle, multi expected key"
+  },
+  "q0260": {
+    "id": "q0260",
+    "intent": "key_recall",
+    "reason": "key_recall pattern"
+  },
+  "q0261": {
+    "id": "q0261",
+    "intent": "key_recall",
+    "reason": "key_recall pattern"
+  },
+  "q0262": {
+    "id": "q0262",
+    "intent": "key_recall",
+    "reason": "jql oracle, multi expected key"
+  },
+  "q0263": {
+    "id": "q0263",
+    "intent": "key_recall",
+    "reason": "jql oracle, multi expected key"
+  },
+  "q0264": {
+    "id": "q0264",
+    "intent": "key_recall",
+    "reason": "key_recall pattern"
+  },
+  "q0265": {
+    "id": "q0265",
+    "intent": "count_or_groupby",
+    "reason": "count/groupby pattern"
+  },
+  "q0266": {
+    "id": "q0266",
+    "intent": "key_recall",
+    "reason": "jql oracle, multi expected key"
+  },
+  "q0267": {
+    "id": "q0267",
+    "intent": "key_recall",
+    "reason": "jql oracle, multi expected key"
+  },
+  "q0268": {
+    "id": "q0268",
+    "intent": "key_recall",
+    "reason": "key_recall pattern"
+  },
+  "q0269": {
+    "id": "q0269",
+    "intent": "analytical",
+    "reason": "no specific intent pattern matched"
+  },
+  "q0270": {
+    "id": "q0270",
+    "intent": "key_recall",
+    "reason": "jql oracle, multi expected key"
+  },
+  "q0271": {
+    "id": "q0271",
+    "intent": "analytical",
+    "reason": "no specific intent pattern matched"
+  },
+  "q0272": {
+    "id": "q0272",
+    "intent": "key_recall",
+    "reason": "key_recall pattern"
+  },
+  "q0273": {
+    "id": "q0273",
+    "intent": "key_recall",
+    "reason": "key_recall pattern"
+  },
+  "q0274": {
+    "id": "q0274",
+    "intent": "count_or_groupby",
+    "reason": "count/groupby pattern"
+  },
+  "q0275": {
+    "id": "q0275",
+    "intent": "key_recall",
+    "reason": "key_recall pattern"
+  },
+  "q0276": {
+    "id": "q0276",
+    "intent": "key_recall",
+    "reason": "jql oracle, multi expected key"
+  },
+  "q0277": {
+    "id": "q0277",
+    "intent": "field_value_lookup",
+    "reason": "matches '\\b(what|what's|which|whats)\\b.{0,30}\\b(priority|status|due ?' + has key"
+  },
+  "q0278": {
+    "id": "q0278",
+    "intent": "key_recall",
+    "reason": "key_recall pattern"
+  },
+  "q0279": {
+    "id": "q0279",
+    "intent": "key_recall",
+    "reason": "key_recall pattern"
+  },
+  "q0280": {
+    "id": "q0280",
+    "intent": "field_value_lookup",
+    "reason": "matches '\\b(what|what's|which|whats)\\b.{0,30}\\b(priority|status|due ?' + has key"
+  },
+  "q0281": {
+    "id": "q0281",
+    "intent": "key_recall",
+    "reason": "key_recall pattern"
+  },
+  "q0282": {
+    "id": "q0282",
+    "intent": "analytical",
+    "reason": "no specific intent pattern matched"
+  },
+  "q0283": {
+    "id": "q0283",
+    "intent": "key_recall",
+    "reason": "key_recall pattern"
+  },
+  "q0284": {
+    "id": "q0284",
+    "intent": "analytical",
+    "reason": "no specific intent pattern matched"
+  },
+  "q0285": {
+    "id": "q0285",
+    "intent": "key_recall",
+    "reason": "jql oracle, multi expected key"
+  },
+  "q0286": {
+    "id": "q0286",
+    "intent": "field_value_lookup",
+    "reason": "matches '\\b(priority|status|assignee|reporter|due ?date|resolution da' + has key"
+  },
+  "q0287": {
+    "id": "q0287",
+    "intent": "key_recall",
+    "reason": "key_recall pattern"
+  },
+  "q0288": {
+    "id": "q0288",
+    "intent": "count_or_groupby",
+    "reason": "count/groupby pattern"
+  },
+  "q0289": {
+    "id": "q0289",
+    "intent": "analytical",
+    "reason": "no specific intent pattern matched"
+  },
+  "q0290": {
+    "id": "q0290",
+    "intent": "analytical",
+    "reason": "no specific intent pattern matched"
+  },
+  "q0291": {
+    "id": "q0291",
+    "intent": "key_recall",
+    "reason": "key_recall pattern"
+  },
+  "q0292": {
+    "id": "q0292",
+    "intent": "analytical",
+    "reason": "no specific intent pattern matched"
+  },
+  "q0293": {
+    "id": "q0293",
+    "intent": "key_recall",
+    "reason": "key_recall pattern"
+  },
+  "q0294": {
+    "id": "q0294",
+    "intent": "field_value_lookup",
+    "reason": "matches '\\b(what|what's|which|whats)\\b.{0,30}\\b(priority|status|due ?' + has key"
+  },
+  "q0295": {
+    "id": "q0295",
+    "intent": "key_recall",
+    "reason": "key_recall pattern"
+  },
+  "q0296": {
+    "id": "q0296",
+    "intent": "analytical",
+    "reason": "no specific intent pattern matched"
+  },
+  "q0297": {
+    "id": "q0297",
+    "intent": "key_recall",
+    "reason": "key_recall pattern"
+  },
+  "q0298": {
+    "id": "q0298",
+    "intent": "analytical",
+    "reason": "no specific intent pattern matched"
+  },
+  "q0299": {
+    "id": "q0299",
+    "intent": "key_recall",
+    "reason": "key_recall pattern"
+  },
+  "q0300": {
+    "id": "q0300",
+    "intent": "analytical",
+    "reason": "no specific intent pattern matched"
+  },
+  "q0301": {
+    "id": "q0301",
+    "intent": "analytical",
+    "reason": "no specific intent pattern matched"
+  },
+  "q0302": {
+    "id": "q0302",
+    "intent": "key_recall",
+    "reason": "key_recall pattern"
+  },
+  "q0303": {
+    "id": "q0303",
+    "intent": "field_value_lookup",
+    "reason": "jql oracle, single expected key"
+  },
+  "q0304": {
+    "id": "q0304",
+    "intent": "key_recall",
+    "reason": "key_recall pattern"
+  },
+  "q0305": {
+    "id": "q0305",
+    "intent": "field_value_lookup",
+    "reason": "jql oracle, single expected key"
+  },
+  "q0306": {
+    "id": "q0306",
+    "intent": "key_recall",
+    "reason": "key_recall pattern"
+  },
+  "q0307": {
+    "id": "q0307",
+    "intent": "analytical",
+    "reason": "no specific intent pattern matched"
+  },
+  "q0308": {
+    "id": "q0308",
+    "intent": "analytical",
+    "reason": "no specific intent pattern matched"
+  },
+  "q0309": {
+    "id": "q0309",
+    "intent": "analytical",
+    "reason": "no specific intent pattern matched"
+  },
+  "q0310": {
+    "id": "q0310",
+    "intent": "key_recall",
+    "reason": "key_recall pattern"
+  },
+  "q0311": {
+    "id": "q0311",
+    "intent": "analytical",
+    "reason": "no specific intent pattern matched"
+  },
+  "q0312": {
+    "id": "q0312",
+    "intent": "analytical",
+    "reason": "no specific intent pattern matched"
+  },
+  "q0313": {
+    "id": "q0313",
+    "intent": "key_recall",
+    "reason": "key_recall pattern"
+  },
+  "q0314": {
+    "id": "q0314",
+    "intent": "analytical",
+    "reason": "no specific intent pattern matched"
+  },
+  "q0315": {
+    "id": "q0315",
+    "intent": "key_recall",
+    "reason": "jql oracle, multi expected key"
+  },
+  "q0316": {
+    "id": "q0316",
+    "intent": "analytical",
+    "reason": "no specific intent pattern matched"
+  },
+  "q0317": {
+    "id": "q0317",
+    "intent": "key_recall",
+    "reason": "jql oracle, multi expected key"
+  },
+  "q0318": {
+    "id": "q0318",
+    "intent": "analytical",
+    "reason": "no specific intent pattern matched"
+  },
+  "q0319": {
+    "id": "q0319",
+    "intent": "key_recall",
+    "reason": "key_recall pattern"
+  },
+  "q0320": {
+    "id": "q0320",
+    "intent": "analytical",
+    "reason": "no specific intent pattern matched"
+  },
+  "q0321": {
+    "id": "q0321",
+    "intent": "key_recall",
+    "reason": "jql oracle, multi expected key"
+  },
+  "q0322": {
+    "id": "q0322",
+    "intent": "analytical",
+    "reason": "no specific intent pattern matched"
+  },
+  "q0323": {
+    "id": "q0323",
+    "intent": "key_recall",
+    "reason": "jql oracle, multi expected key"
+  },
+  "q0324": {
+    "id": "q0324",
+    "intent": "analytical",
+    "reason": "no specific intent pattern matched"
+  },
+  "q0325": {
+    "id": "q0325",
+    "intent": "key_recall",
+    "reason": "key_recall pattern"
+  },
+  "q0326": {
+    "id": "q0326",
+    "intent": "analytical",
+    "reason": "no specific intent pattern matched"
+  },
+  "q0327": {
+    "id": "q0327",
+    "intent": "key_recall",
+    "reason": "key_recall pattern"
+  },
+  "q0328": {
+    "id": "q0328",
+    "intent": "key_recall",
+    "reason": "jql oracle, multi expected key"
+  },
+  "q0329": {
+    "id": "q0329",
+    "intent": "analytical",
+    "reason": "no specific intent pattern matched"
+  },
+  "q0330": {
+    "id": "q0330",
+    "intent": "analytical",
+    "reason": "no specific intent pattern matched"
+  },
+  "q0331": {
+    "id": "q0331",
+    "intent": "key_recall",
+    "reason": "key_recall pattern"
+  },
+  "q0332": {
+    "id": "q0332",
+    "intent": "analytical",
+    "reason": "no specific intent pattern matched"
+  },
+  "q0333": {
+    "id": "q0333",
+    "intent": "analytical",
+    "reason": "no specific intent pattern matched"
+  },
+  "q0334": {
+    "id": "q0334",
+    "intent": "analytical",
+    "reason": "no specific intent pattern matched"
+  },
+  "q0335": {
+    "id": "q0335",
+    "intent": "key_recall",
+    "reason": "key_recall pattern"
+  },
+  "q0336": {
+    "id": "q0336",
+    "intent": "analytical",
+    "reason": "no specific intent pattern matched"
+  },
+  "q0337": {
+    "id": "q0337",
+    "intent": "key_recall",
+    "reason": "jql oracle, multi expected key"
+  },
+  "q0338": {
+    "id": "q0338",
+    "intent": "key_recall",
+    "reason": "key_recall pattern"
+  },
+  "q0339": {
+    "id": "q0339",
+    "intent": "analytical",
+    "reason": "no specific intent pattern matched"
+  },
+  "q0340": {
+    "id": "q0340",
+    "intent": "analytical",
+    "reason": "no specific intent pattern matched"
+  },
+  "q0341": {
+    "id": "q0341",
+    "intent": "key_recall",
+    "reason": "jql oracle, multi expected key"
+  },
+  "q0342": {
+    "id": "q0342",
+    "intent": "key_recall",
+    "reason": "key_recall pattern"
+  },
+  "q0343": {
+    "id": "q0343",
+    "intent": "analytical",
+    "reason": "no specific intent pattern matched"
+  },
+  "q0344": {
+    "id": "q0344",
+    "intent": "key_recall",
+    "reason": "key_recall pattern"
+  },
+  "q0345": {
+    "id": "q0345",
+    "intent": "analytical",
+    "reason": "no specific intent pattern matched"
+  },
+  "q0346": {
+    "id": "q0346",
+    "intent": "analytical",
+    "reason": "no specific intent pattern matched"
+  },
+  "q0347": {
+    "id": "q0347",
+    "intent": "key_recall",
+    "reason": "key_recall pattern"
+  },
+  "q0348": {
+    "id": "q0348",
+    "intent": "analytical",
+    "reason": "no specific intent pattern matched"
+  },
+  "q0349": {
+    "id": "q0349",
+    "intent": "analytical",
+    "reason": "no specific intent pattern matched"
+  },
+  "q0350": {
+    "id": "q0350",
+    "intent": "analytical",
+    "reason": "no specific intent pattern matched"
+  },
+  "q0351": {
+    "id": "q0351",
+    "intent": "analytical",
+    "reason": "no specific intent pattern matched"
+  },
+  "q0352": {
+    "id": "q0352",
+    "intent": "analytical",
+    "reason": "no specific intent pattern matched"
+  },
+  "q0353": {
+    "id": "q0353",
+    "intent": "key_recall",
+    "reason": "key_recall pattern"
+  },
+  "q0354": {
+    "id": "q0354",
+    "intent": "analytical",
+    "reason": "no specific intent pattern matched"
+  },
+  "q0355": {
+    "id": "q0355",
+    "intent": "analytical",
+    "reason": "no specific intent pattern matched"
+  },
+  "q0356": {
+    "id": "q0356",
+    "intent": "analytical",
+    "reason": "no specific intent pattern matched"
+  },
+  "q0357": {
+    "id": "q0357",
+    "intent": "analytical",
+    "reason": "no specific intent pattern matched"
+  },
+  "q0358": {
+    "id": "q0358",
+    "intent": "count_or_groupby",
+    "reason": "count/groupby pattern"
+  },
+  "q0359": {
+    "id": "q0359",
+    "intent": "analytical",
+    "reason": "no specific intent pattern matched"
+  },
+  "q0360": {
+    "id": "q0360",
+    "intent": "analytical",
+    "reason": "no specific intent pattern matched"
+  },
+  "q0361": {
+    "id": "q0361",
+    "intent": "analytical",
+    "reason": "no specific intent pattern matched"
+  },
+  "q0362": {
+    "id": "q0362",
+    "intent": "key_recall",
+    "reason": "key_recall pattern"
+  },
+  "q0363": {
+    "id": "q0363",
+    "intent": "analytical",
+    "reason": "no specific intent pattern matched"
+  },
+  "q0364": {
+    "id": "q0364",
+    "intent": "analytical",
+    "reason": "no specific intent pattern matched"
+  },
+  "q0365": {
+    "id": "q0365",
+    "intent": "analytical",
+    "reason": "no specific intent pattern matched"
+  },
+  "q0366": {
+    "id": "q0366",
+    "intent": "analytical",
+    "reason": "no specific intent pattern matched"
+  },
+  "q0367": {
+    "id": "q0367",
+    "intent": "analytical",
+    "reason": "no specific intent pattern matched"
+  },
+  "q0368": {
+    "id": "q0368",
+    "intent": "analytical",
+    "reason": "no specific intent pattern matched"
+  },
+  "q0369": {
+    "id": "q0369",
+    "intent": "analytical",
+    "reason": "no specific intent pattern matched"
+  },
+  "q0370": {
+    "id": "q0370",
+    "intent": "count_or_groupby",
+    "reason": "count/groupby pattern"
+  },
+  "q0371": {
+    "id": "q0371",
+    "intent": "analytical",
+    "reason": "no specific intent pattern matched"
+  },
+  "q0372": {
+    "id": "q0372",
+    "intent": "analytical",
+    "reason": "no specific intent pattern matched"
+  },
+  "q0373": {
+    "id": "q0373",
+    "intent": "analytical",
+    "reason": "no specific intent pattern matched"
+  },
+  "q0374": {
+    "id": "q0374",
+    "intent": "analytical",
+    "reason": "no specific intent pattern matched"
+  },
+  "q0375": {
+    "id": "q0375",
+    "intent": "safety",
+    "subcategory": "prompt-injection",
+    "reason": "safety category=prompt-injection"
+  },
+  "q0376": {
+    "id": "q0376",
+    "intent": "safety",
+    "subcategory": "prompt-injection",
+    "reason": "safety category=prompt-injection"
+  },
+  "q0377": {
+    "id": "q0377",
+    "intent": "safety",
+    "subcategory": "prompt-injection",
+    "reason": "safety category=prompt-injection"
+  },
+  "q0378": {
+    "id": "q0378",
+    "intent": "safety",
+    "subcategory": "prompt-injection",
+    "reason": "safety category=prompt-injection"
+  },
+  "q0379": {
+    "id": "q0379",
+    "intent": "safety",
+    "subcategory": "prompt-injection",
+    "reason": "safety category=prompt-injection"
+  },
+  "q0380": {
+    "id": "q0380",
+    "intent": "safety",
+    "subcategory": "prompt-injection",
+    "reason": "safety category=prompt-injection"
+  },
+  "q0381": {
+    "id": "q0381",
+    "intent": "safety",
+    "subcategory": "prompt-injection",
+    "reason": "safety category=prompt-injection"
+  },
+  "q0382": {
+    "id": "q0382",
+    "intent": "safety",
+    "subcategory": "prompt-injection",
+    "reason": "safety category=prompt-injection"
+  },
+  "q0383": {
+    "id": "q0383",
+    "intent": "safety",
+    "subcategory": "prompt-injection",
+    "reason": "safety category=prompt-injection"
+  },
+  "q0384": {
+    "id": "q0384",
+    "intent": "safety",
+    "subcategory": "prompt-injection",
+    "reason": "safety category=prompt-injection"
+  },
+  "q0385": {
+    "id": "q0385",
+    "intent": "safety",
+    "subcategory": "prompt-injection",
+    "reason": "safety category=prompt-injection"
+  },
+  "q0386": {
+    "id": "q0386",
+    "intent": "safety",
+    "subcategory": "prompt-injection",
+    "reason": "safety category=prompt-injection"
+  },
+  "q0387": {
+    "id": "q0387",
+    "intent": "safety",
+    "subcategory": "prompt-injection",
+    "reason": "safety category=prompt-injection"
+  },
+  "q0388": {
+    "id": "q0388",
+    "intent": "safety",
+    "subcategory": "prompt-injection",
+    "reason": "safety category=prompt-injection"
+  },
+  "q0389": {
+    "id": "q0389",
+    "intent": "safety",
+    "subcategory": "prompt-injection",
+    "reason": "safety category=prompt-injection"
+  },
+  "q0390": {
+    "id": "q0390",
+    "intent": "safety",
+    "subcategory": "prompt-injection",
+    "reason": "safety category=prompt-injection"
+  },
+  "q0391": {
+    "id": "q0391",
+    "intent": "safety",
+    "subcategory": "prompt-injection",
+    "reason": "safety category=prompt-injection"
+  },
+  "q0392": {
+    "id": "q0392",
+    "intent": "safety",
+    "subcategory": "prompt-injection",
+    "reason": "safety category=prompt-injection"
+  },
+  "q0393": {
+    "id": "q0393",
+    "intent": "safety",
+    "subcategory": "prompt-injection",
+    "reason": "safety category=prompt-injection"
+  },
+  "q0394": {
+    "id": "q0394",
+    "intent": "safety",
+    "subcategory": "prompt-injection",
+    "reason": "safety category=prompt-injection"
+  },
+  "q0395": {
+    "id": "q0395",
+    "intent": "safety",
+    "subcategory": "prompt-injection",
+    "reason": "safety category=prompt-injection"
+  },
+  "q0396": {
+    "id": "q0396",
+    "intent": "safety",
+    "subcategory": "prompt-injection",
+    "reason": "safety category=prompt-injection"
+  },
+  "q0397": {
+    "id": "q0397",
+    "intent": "safety",
+    "subcategory": "prompt-injection",
+    "reason": "safety category=prompt-injection"
+  },
+  "q0398": {
+    "id": "q0398",
+    "intent": "safety",
+    "subcategory": "prompt-injection",
+    "reason": "safety category=prompt-injection"
+  },
+  "q0399": {
+    "id": "q0399",
+    "intent": "safety",
+    "subcategory": "prompt-injection",
+    "reason": "safety category=prompt-injection"
+  },
+  "q0400": {
+    "id": "q0400",
+    "intent": "field_value_lookup",
+    "reason": "jql oracle, single expected key"
+  },
+  "q0401": {
+    "id": "q0401",
+    "intent": "field_value_lookup",
+    "reason": "jql oracle, single expected key"
+  },
+  "q0402": {
+    "id": "q0402",
+    "intent": "field_value_lookup",
+    "reason": "matches '\\b(what|what's|which|whats)\\b.{0,30}\\b(priority|status|due ?' + has key"
+  },
+  "q0403": {
+    "id": "q0403",
+    "intent": "field_value_lookup",
+    "reason": "jql oracle, single expected key"
+  },
+  "q0404": {
+    "id": "q0404",
+    "intent": "field_value_lookup",
+    "reason": "jql oracle, single expected key"
+  },
+  "q0405": {
+    "id": "q0405",
+    "intent": "field_value_lookup",
+    "reason": "jql oracle, single expected key"
+  },
+  "q0406": {
+    "id": "q0406",
+    "intent": "field_value_lookup",
+    "reason": "jql oracle, single expected key"
+  },
+  "q0407": {
+    "id": "q0407",
+    "intent": "field_value_lookup",
+    "reason": "jql oracle, single expected key"
+  },
+  "q0408": {
+    "id": "q0408",
+    "intent": "field_value_lookup",
+    "reason": "jql oracle, single expected key"
+  },
+  "q0409": {
+    "id": "q0409",
+    "intent": "field_value_lookup",
+    "reason": "jql oracle, single expected key"
+  },
+  "q0410": {
+    "id": "q0410",
+    "intent": "field_value_lookup",
+    "reason": "jql oracle, single expected key"
+  },
+  "q0411": {
+    "id": "q0411",
+    "intent": "field_value_lookup",
+    "reason": "jql oracle, single expected key"
+  },
+  "q0412": {
+    "id": "q0412",
+    "intent": "field_value_lookup",
+    "reason": "jql oracle, single expected key"
+  },
+  "q0413": {
+    "id": "q0413",
+    "intent": "field_value_lookup",
+    "reason": "jql oracle, single expected key"
+  },
+  "q0414": {
+    "id": "q0414",
+    "intent": "field_value_lookup",
+    "reason": "jql oracle, single expected key"
+  },
+  "q0415": {
+    "id": "q0415",
+    "intent": "field_value_lookup",
+    "reason": "jql oracle, single expected key"
+  },
+  "q0416": {
+    "id": "q0416",
+    "intent": "field_value_lookup",
+    "reason": "jql oracle, single expected key"
+  },
+  "q0417": {
+    "id": "q0417",
+    "intent": "field_value_lookup",
+    "reason": "jql oracle, single expected key"
+  },
+  "q0418": {
+    "id": "q0418",
+    "intent": "field_value_lookup",
+    "reason": "jql oracle, single expected key"
+  },
+  "q0419": {
+    "id": "q0419",
+    "intent": "field_value_lookup",
+    "reason": "jql oracle, single expected key"
+  },
+  "q0420": {
+    "id": "q0420",
+    "intent": "field_value_lookup",
+    "reason": "jql oracle, single expected key"
+  },
+  "q0421": {
+    "id": "q0421",
+    "intent": "field_value_lookup",
+    "reason": "jql oracle, single expected key"
+  },
+  "q0422": {
+    "id": "q0422",
+    "intent": "field_value_lookup",
+    "reason": "jql oracle, single expected key"
+  },
+  "q0423": {
+    "id": "q0423",
+    "intent": "field_value_lookup",
+    "reason": "jql oracle, single expected key"
+  },
+  "q0424": {
+    "id": "q0424",
+    "intent": "field_value_lookup",
+    "reason": "jql oracle, single expected key"
+  },
+  "q0425": {
+    "id": "q0425",
+    "intent": "safety",
+    "subcategory": "pii-sensitive",
+    "reason": "safety category=pii-sensitive"
+  },
+  "q0426": {
+    "id": "q0426",
+    "intent": "safety",
+    "subcategory": "pii-sensitive",
+    "reason": "safety category=pii-sensitive"
+  },
+  "q0427": {
+    "id": "q0427",
+    "intent": "safety",
+    "subcategory": "pii-sensitive",
+    "reason": "safety category=pii-sensitive"
+  },
+  "q0428": {
+    "id": "q0428",
+    "intent": "safety",
+    "subcategory": "pii-sensitive",
+    "reason": "safety category=pii-sensitive"
+  },
+  "q0429": {
+    "id": "q0429",
+    "intent": "safety",
+    "subcategory": "pii-sensitive",
+    "reason": "safety category=pii-sensitive"
+  },
+  "q0430": {
+    "id": "q0430",
+    "intent": "safety",
+    "subcategory": "pii-sensitive",
+    "reason": "safety category=pii-sensitive"
+  },
+  "q0431": {
+    "id": "q0431",
+    "intent": "safety",
+    "subcategory": "pii-sensitive",
+    "reason": "safety category=pii-sensitive"
+  },
+  "q0432": {
+    "id": "q0432",
+    "intent": "safety",
+    "subcategory": "pii-sensitive",
+    "reason": "safety category=pii-sensitive"
+  },
+  "q0433": {
+    "id": "q0433",
+    "intent": "safety",
+    "subcategory": "pii-sensitive",
+    "reason": "safety category=pii-sensitive"
+  },
+  "q0434": {
+    "id": "q0434",
+    "intent": "safety",
+    "subcategory": "pii-sensitive",
+    "reason": "safety category=pii-sensitive"
+  },
+  "q0435": {
+    "id": "q0435",
+    "intent": "safety",
+    "subcategory": "pii-sensitive",
+    "reason": "safety category=pii-sensitive"
+  },
+  "q0436": {
+    "id": "q0436",
+    "intent": "safety",
+    "subcategory": "pii-sensitive",
+    "reason": "safety category=pii-sensitive"
+  },
+  "q0437": {
+    "id": "q0437",
+    "intent": "safety",
+    "subcategory": "pii-sensitive",
+    "reason": "safety category=pii-sensitive"
+  },
+  "q0438": {
+    "id": "q0438",
+    "intent": "safety",
+    "subcategory": "pii-sensitive",
+    "reason": "safety category=pii-sensitive"
+  },
+  "q0439": {
+    "id": "q0439",
+    "intent": "safety",
+    "subcategory": "pii-sensitive",
+    "reason": "safety category=pii-sensitive"
+  },
+  "q0440": {
+    "id": "q0440",
+    "intent": "safety",
+    "subcategory": "pii-sensitive",
+    "reason": "safety category=pii-sensitive"
+  },
+  "q0441": {
+    "id": "q0441",
+    "intent": "safety",
+    "subcategory": "pii-sensitive",
+    "reason": "safety category=pii-sensitive"
+  },
+  "q0442": {
+    "id": "q0442",
+    "intent": "safety",
+    "subcategory": "pii-sensitive",
+    "reason": "safety category=pii-sensitive"
+  },
+  "q0443": {
+    "id": "q0443",
+    "intent": "safety",
+    "subcategory": "pii-sensitive",
+    "reason": "safety category=pii-sensitive"
+  },
+  "q0444": {
+    "id": "q0444",
+    "intent": "safety",
+    "subcategory": "pii-sensitive",
+    "reason": "safety category=pii-sensitive"
+  },
+  "q0445": {
+    "id": "q0445",
+    "intent": "safety",
+    "subcategory": "pii-sensitive",
+    "reason": "safety category=pii-sensitive"
+  },
+  "q0446": {
+    "id": "q0446",
+    "intent": "safety",
+    "subcategory": "pii-sensitive",
+    "reason": "safety category=pii-sensitive"
+  },
+  "q0447": {
+    "id": "q0447",
+    "intent": "safety",
+    "subcategory": "pii-sensitive",
+    "reason": "safety category=pii-sensitive"
+  },
+  "q0448": {
+    "id": "q0448",
+    "intent": "safety",
+    "subcategory": "pii-sensitive",
+    "reason": "safety category=pii-sensitive"
+  },
+  "q0449": {
+    "id": "q0449",
+    "intent": "safety",
+    "subcategory": "pii-sensitive",
+    "reason": "safety category=pii-sensitive"
+  },
+  "q0450": {
+    "id": "q0450",
+    "intent": "count_or_groupby",
+    "reason": "count/groupby pattern"
+  },
+  "q0451": {
+    "id": "q0451",
+    "intent": "analytical",
+    "reason": "no specific intent pattern matched"
+  },
+  "q0452": {
+    "id": "q0452",
+    "intent": "field_value_lookup",
+    "reason": "matches '\\b(priority|status|assignee|reporter|due ?date|resolution da' + has key"
+  },
+  "q0453": {
+    "id": "q0453",
+    "intent": "field_value_lookup",
+    "reason": "matches '\\b(what|what's|which|whats)\\b.{0,30}\\b(priority|status|due ?' + has key"
+  },
+  "q0454": {
+    "id": "q0454",
+    "intent": "count_or_groupby",
+    "reason": "count/groupby pattern"
+  },
+  "q0455": {
+    "id": "q0455",
+    "intent": "field_value_lookup",
+    "reason": "matches '\\b(who|whom)\\b.{0,20}\\b(assigned|owns?|reporter|reported|ass' + has key"
+  },
+  "q0456": {
+    "id": "q0456",
+    "intent": "field_value_lookup",
+    "reason": "matches '\\b(what|what's|which|whats)\\b.{0,30}\\b(priority|status|due ?' + has key"
+  },
+  "q0457": {
+    "id": "q0457",
+    "intent": "count_or_groupby",
+    "reason": "count/groupby pattern"
+  },
+  "q0458": {
+    "id": "q0458",
+    "intent": "field_value_lookup",
+    "reason": "matches '\\b(what|what's|which|whats)\\b.{0,30}\\b(priority|status|due ?' + has key"
+  },
+  "q0459": {
+    "id": "q0459",
+    "intent": "field_value_lookup",
+    "reason": "matches '\\b(priority|status|assignee|reporter|due ?date|resolution da' + has key"
+  },
+  "q0460": {
+    "id": "q0460",
+    "intent": "count_or_groupby",
+    "reason": "count/groupby pattern"
+  },
+  "q0461": {
+    "id": "q0461",
+    "intent": "field_value_lookup",
+    "reason": "matches '\\bwhen (was|is)\\b.{0,20}\\b(created|resolved|updated|closed|o' + has key"
+  },
+  "q0462": {
+    "id": "q0462",
+    "intent": "analytical",
+    "reason": "no specific intent pattern matched"
+  },
+  "q0463": {
+    "id": "q0463",
+    "intent": "count_or_groupby",
+    "reason": "count/groupby pattern"
+  },
+  "q0464": {
+    "id": "q0464",
+    "intent": "field_value_lookup",
+    "reason": "matches '\\b(assigned to|reporter of|assignee for|owner of)\\b' + has key"
+  },
+  "q0465": {
+    "id": "q0465",
+    "intent": "analytical",
+    "reason": "no specific intent pattern matched"
+  },
+  "q0466": {
+    "id": "q0466",
+    "intent": "analytical",
+    "reason": "no specific intent pattern matched"
+  },
+  "q0467": {
+    "id": "q0467",
+    "intent": "field_value_lookup",
+    "reason": "matches '\\b(priority|status|assignee|reporter|due ?date|resolution da' + has key"
+  },
+  "q0468": {
+    "id": "q0468",
+    "intent": "count_or_groupby",
+    "reason": "count/groupby pattern"
+  },
+  "q0469": {
+    "id": "q0469",
+    "intent": "analytical",
+    "reason": "no specific intent pattern matched"
+  },
+  "q0470": {
+    "id": "q0470",
+    "intent": "count_or_groupby",
+    "reason": "count/groupby pattern"
+  },
+  "q0471": {
+    "id": "q0471",
+    "intent": "analytical",
+    "reason": "no specific intent pattern matched"
+  },
+  "q0472": {
+    "id": "q0472",
+    "intent": "field_value_lookup",
+    "reason": "matches '\\b(what|what's|which|whats)\\b.{0,30}\\b(priority|status|due ?' + has key"
+  },
+  "q0473": {
+    "id": "q0473",
+    "intent": "count_or_groupby",
+    "reason": "count/groupby pattern"
+  },
+  "q0474": {
+    "id": "q0474",
+    "intent": "analytical",
+    "reason": "no specific intent pattern matched"
+  },
+  "q0475": {
+    "id": "q0475",
+    "intent": "count_or_groupby",
+    "reason": "count/groupby pattern"
+  },
+  "q0476": {
+    "id": "q0476",
+    "intent": "count_or_groupby",
+    "reason": "count/groupby pattern"
+  },
+  "q0477": {
+    "id": "q0477",
+    "intent": "count_or_groupby",
+    "reason": "count/groupby pattern"
+  },
+  "q0478": {
+    "id": "q0478",
+    "intent": "count_or_groupby",
+    "reason": "count/groupby pattern"
+  },
+  "q0479": {
+    "id": "q0479",
+    "intent": "count_or_groupby",
+    "reason": "count/groupby pattern"
+  },
+  "q0480": {
+    "id": "q0480",
+    "intent": "count_or_groupby",
+    "reason": "count/groupby pattern"
+  },
+  "q0481": {
+    "id": "q0481",
+    "intent": "count_or_groupby",
+    "reason": "count/groupby pattern"
+  },
+  "q0482": {
+    "id": "q0482",
+    "intent": "count_or_groupby",
+    "reason": "count/groupby pattern"
+  },
+  "q0483": {
+    "id": "q0483",
+    "intent": "count_or_groupby",
+    "reason": "count/groupby pattern"
+  },
+  "q0484": {
+    "id": "q0484",
+    "intent": "count_or_groupby",
+    "reason": "count/groupby pattern"
+  },
+  "q0485": {
+    "id": "q0485",
+    "intent": "count_or_groupby",
+    "reason": "count/groupby pattern"
+  },
+  "q0486": {
+    "id": "q0486",
+    "intent": "count_or_groupby",
+    "reason": "count/groupby pattern"
+  },
+  "q0487": {
+    "id": "q0487",
+    "intent": "field_value_lookup",
+    "reason": "jql oracle, single expected key"
+  },
+  "q0488": {
+    "id": "q0488",
+    "intent": "field_value_lookup",
+    "reason": "jql oracle, single expected key"
+  },
+  "q0489": {
+    "id": "q0489",
+    "intent": "field_value_lookup",
+    "reason": "jql oracle, single expected key"
+  },
+  "q0490": {
+    "id": "q0490",
+    "intent": "field_value_lookup",
+    "reason": "jql oracle, single expected key"
+  },
+  "q0491": {
+    "id": "q0491",
+    "intent": "field_value_lookup",
+    "reason": "jql oracle, single expected key"
+  },
+  "q0492": {
+    "id": "q0492",
+    "intent": "time_relative_count",
+    "reason": "time-relative + count/trend"
+  },
+  "q0493": {
+    "id": "q0493",
+    "intent": "time_relative_count",
+    "reason": "time-relative + count/trend"
+  },
+  "q0494": {
+    "id": "q0494",
+    "intent": "time_relative_count",
+    "reason": "time-relative + count/trend"
+  },
+  "q0495": {
+    "id": "q0495",
+    "intent": "time_relative_count",
+    "reason": "time-relative + count/trend"
+  },
+  "q0496": {
+    "id": "q0496",
+    "intent": "time_relative_count",
+    "reason": "time-relative + count/trend"
+  },
+  "q0497": {
+    "id": "q0497",
+    "intent": "key_recall",
+    "reason": "jql oracle, multi expected key"
+  },
+  "q0498": {
+    "id": "q0498",
+    "intent": "key_recall",
+    "reason": "jql oracle, multi expected key"
+  },
+  "q0499": {
+    "id": "q0499",
+    "intent": "count_or_groupby",
+    "reason": "count/groupby pattern"
+  }
+}

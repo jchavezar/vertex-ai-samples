@@ -1,8 +1,12 @@
 # Option A — Custom MCP + ADK Agent
 
+*Numbers as of 2026-05-27, judge_v6 (gemini-3-flash-preview + Haiku 4.5 escalation), n=172 v2 corpus.*
+
 You run the MCP server, you run the agent (Vertex AI Agent Engine + ADK), Gemini Enterprise just routes chats to it. Maximum control over prompts, pagination, and formatting.
 
-**93.0 % accuracy, 0.0 % hallucination** on the latest 500-question eval (2026-05-20, refusal-credited on safety categories). See [parent README](../README.md) for the comparison vs Options B, C, D, E, and [`../eval/comparison-site/`](../eval/comparison-site/) for the interactive side-by-side.
+**94.7 % accuracy (v6 headline), 0 hallucinations** on the 172-question v2 eval. This is the **highest** v6 score across all 11 pipelines, narrowly ahead of Option B (94.5 %). See [parent README](../README.md) for the comparison vs Options B, C, D, E, F (plus AL/AG/EG/CG/DG model-swap variants), and [`../eval/comparison-site/`](../eval/comparison-site/) for the interactive side-by-side with both per-category heatmaps (accuracy + p50 latency).
+
+> **Operational note (added 2026-05-21)** — the first v2-A run scored badly because the deployed Agent Engine had a stale Atlassian OAuth token in its env (tool calls were 401'ing silently and the agent fell back to memory answers). Redeployed with a fresh token (`v2fix-20260521-145509-a/`) and the same code path immediately recovered to the headline number. If you see a sudden accuracy collapse on this pipeline, **check the AE env for token rotation first** before debugging anything else.
 
 ---
 
@@ -273,19 +277,23 @@ curl -X DELETE -H "Authorization: Bearer $TOKEN" -H "x-goog-user-project: $PROJE
 
 ## Evaluation results — Option A specifically
 
-| Dimension | Score | vs Option B baseline |
-|---|---:|---:|
-| **Composite accuracy** *(refusal-credited)* | **93.0 %** | +12.2 pts |
-| **Hallucination rate** *(lower is better)* | **0.0 %** | −1.8 pts |
-| Latency p50 | 24.7 s | +22 s slower |
-| Latency p90 | 72.3 s | — |
-| Cost / 1K queries (all-in) | $9.97 | (B is $0 hosted) |
+### v6 headline (172 v2 questions, judge_v6, 2026-05-27)
 
-**Why A wins on correctness:** the ADK agent prompt enforces "cite the exact issue key returned by the tool, never paraphrase"; the MCP server returns issue keys verbatim; pagination is bounded by the `before_model_callback` (see PAGINATION.md). All three combine to drive hallucination to 0 %.
+| Dimension | Score | vs Option B | vs Option C |
+|---|---:|---:|---:|
+| **Accuracy (v6 headline)** | **94.7 %** | +0.2 pp | +6.8 pp |
+| **Hallucinations** *(verdict count)* | **0 / 172** | 0 | 0 |
+| Latency p50 | 24.7 s | −10.6 s | −4.2 s |
+| Latency p90 | 72.3 s | +3.7 s | −18.8 s |
+| Cost / 1K queries (all-in) | $10.20 | (B is $0 hosted) | +$9.97 |
 
-**Why A is slower:** the ADK agent makes ≥2 LLM calls per turn (think + answer), often more for multi-step queries. Option B is a single LLM call inside GE's assistant.
+**Why A wins on correctness:** the ADK agent prompt enforces "cite the exact issue key returned by the tool, never paraphrase"; the MCP server returns issue keys verbatim (and now exposes `assignee` / `reporter` after the pre-v2 fix); pagination is bounded by the `before_model_callback` (see PAGINATION.md). All three combine to drive hallucinated verdicts to 0.
 
-Full per-question side-by-side comparison vs B, C, D, E: [`../eval/comparison-site/index.html`](../eval/comparison-site/index.html).
+**Why A is slower than B:** the ADK agent makes ≥2 LLM calls per turn (think + answer), often more for multi-step queries. Option B is a single LLM call inside GE's assistant — but B pays a different latency tax (see `REFERENCE.md §2` — B's `count-aggregate` runs hit 113–156 s because of GE's sub-planner pagination loop).
+
+**Why AL exists**: A-lite (same architecture, `gemini-3.1-flash-lite`) at **$5.30/1K** trades ~6 s of latency for ~48 % cost savings vs A. If your users tolerate the extra wall-clock, AL is the better value than A.
+
+Full per-question side-by-side comparison vs B/C/D/E/F and the AL/AG/EG/CG/DG variants: [`../eval/comparison-site/index.html`](../eval/comparison-site/index.html).
 
 ---
 

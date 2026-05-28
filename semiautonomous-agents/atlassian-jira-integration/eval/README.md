@@ -1,19 +1,26 @@
 # Comparative Evaluation Harness
 
-500 grounded Jira questions × 20 categories, scored on 10 dimensions by Claude Opus.
+*Numbers as of 2026-05-27, judge_v6 (gemini-3-flash-preview + Haiku 4.5 escalation), n=172 v2 corpus.*
 
-**Latest results (2026-05-20)** — refusal-credited on safety categories:
+172 grounded Jira questions × 20 categories (the v2 curated corpus; 500q
+for Option F's own super-set), scored on 10 dimensions by **judge_v6** —
+gemini-3-flash-preview tiered T1/T2/T3 with Haiku 4.5 low-confidence
+escalation.
 
-| Pipeline | Accuracy | Hallucination | p50 latency |
+**Latest results (2026-05-27, judge_v6 headline):**
+
+| Pipeline | Accuracy (v6 headline) | Hallucination | p50 latency |
 |---|---:|---:|---:|
-| **Option A** — Custom MCP + ADK (Gemini 2.5) | **93.0 %** | 0.0 % | 24.7 s |
-| **Option E** ⭐ — `google.genai` loop in MCP wrapper (gemini-3.1-flash-lite) | **88.0 %** | 3.0 % | 24.5 s |
-| Option B — Atlassian Rovo (Claude Sonnet sub-agent) | 80.8 % | 1.8 % | 2.0 s |
-| Option C — Custom MCP via GE BYO_MCP (no ADK) | 52.0 % | 31.2 % | 28.9 s |
-| Option D — GE federated `jira_cloud` | 41.4 % | 40.4 % | 20.2 s |
+| **Option A** — Custom MCP + ADK (Gemini 2.5) | **94.7 %** | 0.0 % | 24.7 s |
+| **Option B** — Atlassian Rovo (Claude Sonnet sub-agent) | **94.5 %** | 1.4 % | 35.3 s |
+| Option E — `google.genai` loop in MCP wrapper (gemini-3.1-flash-lite) | 90.5 % | 3.4 % | 20.6 s |
+| Option C — Custom MCP via GE BYO_MCP (no ADK) | 87.9 % | 3.4 % | 28.9 s |
+| Option D — GE federated `jira_cloud` | 77.5 % | 8.5 % | 20.2 s |
+| Option F — ADK + Rovo MCP wrapper | 58.1 % (172-subset) / 41.0 % (500q) | <!-- TODO: verify against judge_v6 --> | 22.6 s (500q) |
 
-> **Interactive 5-option side-by-side**: open [`comparison-site/index.html`](comparison-site/index.html) — every question, every answer, every verdict, filterable.
+> **Interactive side-by-side**: open [`comparison-site/index.html`](comparison-site/index.html) — every question, every answer, every verdict, filterable.
 > **Category taxonomy with examples**: [`QUESTION_TYPES.md`](QUESTION_TYPES.md).
+> **F vs B head-to-head**: [`../F_vs_B_comparison.md`](../F_vs_B_comparison.md).
 
 ---
 
@@ -81,8 +88,9 @@ ATLASSIAN_SITE_URL=https://sockcop.atlassian.net
 ATLASSIAN_EMAIL=admin@jesusarguelles.demo.altostrat.com
 ATLASSIAN_API_TOKEN=<from id.atlassian.com/manage-profile/security/api-tokens>
 
-JUDGE_REGION=us-east5
-JUDGE_MODEL=claude-opus-4-5@20251101
+JUDGE_REGION=global
+JUDGE_MODEL=gemini-3-flash-preview          # judge_v6 primary
+JUDGE_ESCALATION_MODEL=claude-haiku-4-5     # Tier-1 low-confidence escalation
 EVAL_CONCURRENCY=6
 ```
 
@@ -133,7 +141,8 @@ Judge + report the same way as Options A/B:
 | `judge.py` | Multi-dimensional judge — deterministic dims computed in code, analytical ones LLM-judged |
 | `report.py` | Pure-CSS HTML side-by-side report (per-run A vs B style) |
 | `QUESTION_TYPES.md` | The 20 categories with concrete examples + per-category Option E scores |
-| `comparison-site/` | Single-page 5-option HTML comparison; `python3 comparison-site/build_data.py` regenerates from runs |
+| `comparison-site/` | Single-page multi-option HTML comparison; `python3 comparison-site/build_data.py` regenerates from runs |
+| `judge_v6.py` | Tiered judge (T1/T2/T3) on gemini-3-flash-preview + Haiku 4.5 escalation |
 
 ---
 
@@ -165,7 +174,7 @@ All eval-created issues tagged `eval-corpus` for cleanup. To delete the 4 test p
 
 - Vertex Gemini (Option A agent or E genai loop): covered by project TPM
 - Atlassian REST (oracle): free
-- Claude Opus judge: ~$10–15 (only on analytical Qs)
+- judge_v6 (gemini-3-flash-preview + occasional Haiku 4.5 escalation): ~$5–10 per full run
 - Cloud Run MCP: pennies
 
-Total per full run: ~$15. For at-scale (4,000-user) pricing per option, see [`../docs/PRICING.md`](../docs/PRICING.md).
+Total per full run: ~$10. For at-scale (4,000-user) pricing per option, see [`../docs/PRICING.md`](../docs/PRICING.md).
