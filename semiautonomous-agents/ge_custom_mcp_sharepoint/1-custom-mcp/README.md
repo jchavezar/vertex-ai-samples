@@ -5,11 +5,11 @@ You own the code. Cloud Run hosts a FastMCP server exposing 7 canonical read too
 ```mermaid
 flowchart LR
   user(["User in GE chat"]):::user
-  ge["Gemini Enterprise — BYO_MCP datastore"]:::ge
-  cr["Cloud Run — FastMCP /mcp"]:::cr
-  graph[("Microsoft Graph /sites /drives /search")]:::sp
+  ge["Gemini Enterprise<br/>BYO_MCP datastore"]:::ge
+  cr["Cloud Run<br/>FastMCP /mcp"]:::cr
+  msgraph[("Microsoft Graph<br/>/sites /drives /search")]:::sp
 
-  user --> ge -->|Authorization: Bearer <user_token>| cr --> graph
+  user --> ge -->|"Authorization: Bearer user_token"| cr --> msgraph
 
   classDef user fill:#FBBC04,stroke:#F29900,stroke-width:3px,color:#000
   classDef ge fill:#4285F4,stroke:#1967D2,stroke-width:2px,color:#fff
@@ -57,24 +57,16 @@ The 5-part recipe is documented in `~/.claude/projects/.../memory/ge_custom_mcp_
 ### Deploy
 
 ```bash
-# 1. Configure Entra app for OAuth authorization-code flow (TODO: see auth.py docstring)
-export AZURE_CLIENT_ID="<your-entra-app-id>"
-export AZURE_TENANT_ID="<your-tenant-id>"
-export AZURE_REDIRECT_URI="https://<ge-redirect-host>/oauth/callback"
-
-# 2. Configure GCP target
-export GOOGLE_CLOUD_PROJECT="vtxdemos"
-export GOOGLE_CLOUD_LOCATION="us-central1"
-
-# 3. Build + deploy Cloud Run
+# 1. Build + deploy Cloud Run (uses vtxdemos / us-central1 by default)
 ./deploy.sh
 
-# 4. Register in Agent Registry (used by GE BYO_MCP)
-export MCP_SERVER_URL="https://sharepoint-mcp-XXXXX-uc.a.run.app/mcp"
-./register_in_ge.sh
+# 2. Register the datastore on a GE engine
+GE_ENGINE_ID=sp-mcp-comparison MCP_SERVER_URL=https://ge-custom-sharepoint-mcp-oyntfgdwsq-uc.a.run.app/mcp ./register_in_ge.sh
 ```
 
-After registration the connector will appear in Gemini Enterprise as a BYO_MCP datastore. Attach it to your GE app; the silent-search recipe (annotations + outputSchema + canonical search/fetch) means tool calls dispatch without per-call confirmation popups.
+`register_in_ge.sh` pulls the Entra `client_secret` from Secret Manager (`entra-ms365-mcp-client-secret`, project `vtxdemos`) and POSTs `setUpDataConnector` to Discovery Engine. The Entra app (`MS365 MCP Server`, client `030b6aac-63d1-40e9-8d80-7ce928b839b8`, tenant `de46a3fd-0d68-4b25-8343-6eb5d71afce9`) already has the GE redirect URI registered, so the connector auto-enters `ACTIVE` once GE finishes the OAuth handshake.
+
+After registration the connector appears in Gemini Enterprise as a BYO_MCP datastore. Open the GE chat, click the connector row in the Sources popup, complete the Microsoft sign-in — the chain icon flips from broken to solid and GE caches the tool list in `dataConnector.dynamicTools`. The silent-search recipe (annotations + outputSchema + canonical `search`/`fetch`) means subsequent tool calls dispatch without per-call confirmation popups.
 
 ---
 

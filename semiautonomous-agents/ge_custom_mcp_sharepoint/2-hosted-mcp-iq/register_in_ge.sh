@@ -33,9 +33,15 @@ TENANT_ID="de46a3fd-0d68-4b25-8343-6eb5d71afce9"
 CLIENT_ID="030b6aac-63d1-40e9-8d80-7ce928b839b8"
 AUTH_URI="https://login.microsoftonline.com/${TENANT_ID}/oauth2/v2.0/authorize"
 TOKEN_URI="https://login.microsoftonline.com/${TENANT_ID}/oauth2/v2.0/token"
-# Graph scopes already consented on the MS365 MCP Server app. Iterate to
-# the agent365 resource if MS rejects Graph-audience tokens.
-SCOPES="openid profile email offline_access https://graph.microsoft.com/Sites.ReadWrite.All https://graph.microsoft.com/Files.ReadWrite.All https://graph.microsoft.com/User.Read"
+# agent365 requires its own resource scope (McpServers.SharePoint.All) —
+# Graph scopes alone return 403 "Scope 'McpServers.SharePoint.All' is not
+# present in the request." Verified 2026-05-29 by minting a delegated
+# token with this exact scope and successfully calling tools/list on
+# https://agent365.svc.cloud.microsoft/agents/servers/mcp_SharePointRemoteServer.
+# The "Agent Tools" service principal (appId ea9ffc3e-8a23-4a7d-836d-234d7c7565c1)
+# must exist in the tenant; create it once via
+# POST https://graph.microsoft.com/v1.0/servicePrincipals {"appId":"ea9ffc3e-..."}.
+SCOPES="openid profile email offline_access https://agent365.svc.cloud.microsoft/McpServers.SharePoint.All"
 
 CLIENT_SECRET=$(gcloud secrets versions access latest --secret=entra-ms365-mcp-client-secret --project=vtxdemos)
 if [[ -z "$CLIENT_SECRET" ]]; then echo "Failed to read entra-ms365-mcp-client-secret from Secret Manager" >&2; exit 1; fi
