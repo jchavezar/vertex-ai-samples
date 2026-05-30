@@ -74,28 +74,64 @@ Configure Gemini Enterprise's main chat console to leverage this MCP server as a
 
 1. **Run Automated Datastore Registration:**
    ```bash
-   EXPORT GE_PROJECT_ID="<your-gcp-project-id>"
-   EXPORT GE_PROJECT_NUMBER="<your-gcp-project-number>"
-   EXPORT GE_ENGINE_ID="<your-gemini-enterprise-engine-id>"
-   EXPORT MCP_SERVICE_URL="https://docparse-firestore-mcp-<hash>.run.app"
+   export GE_PROJECT_ID="vtxdemos"
+   export GE_PROJECT_NUMBER="254356041555"
+   export GE_ENGINE_ID="docparse_1780161524773"
+   export MCP_SERVICE_URL="https://docparse-firestore-mcp-254356041555.us-central1.run.app"
    
-   uv run register_datastore.py
+   python3 register_datastore.py
    ```
 
 ---
 
-### 📍 Step 4: Register Agent in Gemini Enterprise Panel
+### 📍 Step 4: Register Agent in Gemini Enterprise Panel (Optional)
 
-Ensure the Firestore RAG agent is active inside the chat sidebar/agent picker panel of Gemini Enterprise.
+Ensure the Firestore RAG agent is active inside the chat sidebar/agent picker panel of Gemini Enterprise if utilizing a custom ADK Reasoning Engine orchestrator.
 
 1. **Deploy ADK Reasoning Engine & Set Variable:**
    Ensure `REASONING_ENGINE_RES` is set in your env.
 2. **Run Agent Registration Script:**
    ```bash
-   EXPORT AS_APP="<your-gemini-enterprise-app-id>"
+   export AS_APP="docparse_1780161524773"
    
-   uv run register_agent.py
+   python3 register_agent.py
    ```
+
+---
+
+## 🛠️ Customer Environment Variables Guide
+
+To deploy this solution to your own customer target environment, create a local `.env` file in the root of the project and customize the parameters listed below:
+
+### 1️⃣ Cloud Infrastructure Config
+| Environment Variable | Description | Example / Recommended Value |
+| :--- | :--- | :--- |
+| `GE_PROJECT_ID` | Your target GCP Project ID | `your-customer-project-id` |
+| `GE_PROJECT_NUMBER` | Your target GCP Project Number (numeric ID) | `123456789012` |
+| `GE_ENGINE_ID` | Your Gemini Enterprise application/engine ID | `docparse_1780161524773` |
+| `GE_LOCATION` | Discovery Engine location | `global` |
+
+### 2️⃣ Firestore Database Configuration
+| Environment Variable | Description | Example / Recommended Value |
+| :--- | :--- | :--- |
+| `FIRESTORE_PROJECT` | The GCP Project containing the Firestore database | `your-customer-project-id` |
+| `FIRESTORE_COLLECTION` | Firestore Collection where page chunks are stored | `docparse_chunks` |
+
+### 3️⃣ Security & OAuth 2.0 Settings
+For Gemini Enterprise to securely invoke your Cloud Run MCP instance, you must configure a Google OAuth Client for Web Applications:
+1. Go to **APIs & Services** > **Credentials** in the GCP Console.
+2. Click **Create Credentials** > **OAuth client ID** > **Web application**.
+3. Add your Gemini Enterprise redirect URIs to the Authorized Redirect URIs list.
+4. Set the following environment variables:
+
+| Environment Variable | Description | Example / Recommended Value |
+| :--- | :--- | :--- |
+| `GOOGLE_CLIENT_ID` | OAuth 2.0 Web Client ID | `123456-abcdef.apps.googleusercontent.com` |
+| `GOOGLE_CLIENT_SECRET` | OAuth 2.0 Web Client Secret | `GOCSPX-dummysecretabcdef123456` |
+| `ALLOWED_DOMAIN` | Optional email domain restriction for incoming calls | `yourcustomercompany.com` |
+
+> [!IMPORTANT]
+> **Zero-Leak Protection:** Under no circumstances should you commit your finalized `.env` file to source control. The `.gitignore` file is fully pre-configured to block any `.env` commits automatically.
 
 ---
 
@@ -106,3 +142,4 @@ Ensure the Firestore RAG agent is active inside the chat sidebar/agent picker pa
 * **`register_datastore.py`**: Connects the MCP server as a `custom_mcp` Datastore in Gemini Enterprise.
 * **`register_agent.py`**: Adds your agent to the Gemini Enterprise Chat agent picker panel.
 * **`RESEARCH_MCP_TOOLBOX.md`**: Comparison and template setups for Google's `mcp-toolbox` (formerly Gen AI Toolbox for Databases) vs. FastMCP.
+

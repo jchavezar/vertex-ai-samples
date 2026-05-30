@@ -1,0 +1,15 @@
+<!-- page: 1 -->
+# Annual Financial Report — Page 1
+
+This is the first page of the sample report. It contains some high-level details about the performance of vtxdemos.
+In 2026, the company generated $50M in revenue, reflecting a 12% year-over-year growth. Our cloud operations scaled significantly.
+
+<!-- page: 2 -->
+# Annual Financial Report — Page 2
+
+This is the second page of the sample report.
+We have successfully deployed Firestore vector search capabilities. The model text-embedding-005 was used to build high-performance index databases.
+Our key milestones:
+- 98.2% retrieval accuracy under heavy load.
+- Seamless integration with Gemini Enterprise custom data connectors.
+- Microsecond latency on Cloud Run.

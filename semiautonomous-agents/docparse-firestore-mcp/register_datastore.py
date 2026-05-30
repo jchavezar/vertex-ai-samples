@@ -78,6 +78,13 @@ def _base_url() -> str:
     )
 
 
+GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID", "REPLACE_WITH_YOUR_GOOGLE_CLIENT_ID")
+GOOGLE_CLIENT_SECRET = os.environ.get("GOOGLE_CLIENT_SECRET", "REPLACE_WITH_YOUR_GOOGLE_CLIENT_SECRET")
+GOOGLE_AUTH_URI = "https://accounts.google.com/o/oauth2/v2/auth"
+GOOGLE_TOKEN_URI = "https://oauth2.googleapis.com/token"
+GOOGLE_SCOPES = "openid profile email"
+
+
 def _data_connector() -> dict:
     return {
         "dataSource": "custom_mcp",
@@ -90,7 +97,12 @@ def _data_connector() -> dict:
             "createBapConnection": True,
             "actionParams": {
                 "instance_uri": INSTANCE_URI,
-                "auth_type": "OIDC",  # Standard OIDC Bearer tokens for Cloud Run
+                "auth_type": "OAUTH",
+                "auth_uri": GOOGLE_AUTH_URI,
+                "token_uri": GOOGLE_TOKEN_URI,
+                "scopes": GOOGLE_SCOPES,
+                "client_id": GOOGLE_CLIENT_ID,
+                "client_secret": GOOGLE_CLIENT_SECRET,
                 "mcp_server_source": "BYO_MCP",
                 "registry_mcp_server_name": "",
                 "mcp_server_description": (
@@ -138,20 +150,48 @@ def _get_datastore(name: str) -> dict | None:
 
 
 def _wait_lro(op_name: str, timeout_s: int = 180) -> dict:
+    """Poll an LRO. Tolerates 404s as some setup ops vanish from the surface."""
     op_url = f"https://discoveryengine.googleapis.com/v1alpha/{op_name}"
     deadline = time.time() + timeout_s
+    not_found_streak = 0
     while time.time() < deadline:
         resp = requests.get(op_url, headers=_headers(), timeout=30)
         if resp.status_code == 200:
+            not_found_streak = 0
             body = resp.json()
             if body.get("done"):
                 if "error" in body:
                     raise RuntimeError(f"LRO failed: {body['error']}")
                 return body
         elif resp.status_code == 404:
-            pass
-        time.sleep(5)
-    raise TimeoutError(f"LRO {op_name} timed out after {timeout_s}s")
+            not_found_streak += 1
+            if not_found_streak >= 5:
+                print("  LRO no longer queryable (5x 404) — assuming completed")
+                return {"done": True, "_inferred": True}
+        else:
+            print(f"  LRO poll non-200 ({resp.status_code}): {resp.text[:200]}")
+        time.sleep(3)
+    raise TimeoutError(f"LRO {op_name} did not complete in {timeout_s}s")
+
+
+def attach_to_engine(short_id: str) -> bool:
+    """PATCH the engine to add the new entity datastore to its dataStoreIds."""
+    engine = _get_engine()
+    existing = list(engine.get("dataStoreIds", []))
+    if short_id in existing:
+        print(f"  Engine already references {short_id}; skipping PATCH")
+        return True
+    new_ids = existing + [short_id]
+    url = f"{_engine_url()}?updateMask=dataStoreIds"
+    print(f"PATCH {url}\n  dataStoreIds += {short_id}")
+    resp = requests.patch(
+        url, headers=_headers(), json={"dataStoreIds": new_ids}, timeout=30
+    )
+    if resp.status_code == 200:
+        print("  PATCH OK")
+        return True
+    print(f"  PATCH FAILED ({resp.status_code}): {resp.text[:600]}")
+    return False
 
 
 def main():
@@ -170,63 +210,47 @@ def main():
         print(f"[!] Could not find Engine '{GE_ENGINE_ID}': {e}")
         sys.exit(1)
 
-    # 1. Create Datastore
-    ds_url = f"{_base_url()}/collections/{COLLECTION_ID}/dataStores?dataStoreId={DATASTORE_ID}"
-    ds_body = {
-        "displayName": COLLECTION_DISPLAY_NAME,
-        "industryVertical": "GENERIC",
-        "solutionTypes": ["SOLUTION_TYPE_CHAT"],
-        "contentConfig": "CONTENT_CONFIG_DATA_CONNECTOR",
+    entity_name = _entity_ds_name(DATASTORE_ID)
+    existing_ds = _get_datastore(entity_name)
+    if existing_ds is not None:
+        print("\nDatastore already exists — skipping create.")
+        print(f"  name          : {existing_ds['name']}")
+        print(f"  connectorName : {existing_ds.get('connectorName')}")
+        attached = attach_to_engine(f"{DATASTORE_ID}_mcp_data")
+        if attached:
+            print(f"  engine attach : OK ({GE_ENGINE_ID})")
+        return
+
+    # Use setUpDataConnector API
+    v1_url = f"{_base_url()}:setUpDataConnector"
+    v1_body = {
+        "collectionId": DATASTORE_ID,
+        "collectionDisplayName": COLLECTION_DISPLAY_NAME,
+        "dataConnector": _data_connector(),
     }
-    
-    print(f"[*] Creating custom datastore '{DATASTORE_ID}'...")
-    resp = requests.post(ds_url, headers=_headers(), json=ds_body, timeout=30)
-    if resp.status_code == 409:
-        print(f"[+] Datastore '{DATASTORE_ID}' already exists.")
+
+    print(f"[*] Registering datastore using setUpDataConnector (V1) at {v1_url}...")
+    resp = requests.post(v1_url, headers=_headers(), json=v1_body, timeout=60)
+    print(f"  status: {resp.status_code}")
+    if resp.status_code in (200, 201):
+        body = resp.json()
+        op = body.get("name", "")
+        print(f"  LRO: {op}")
+        if op:
+            print(f"[*] Waiting for Data Connector setup LRO to complete...")
+            _wait_lro(op)
+            print(f"[+] Setup LRO finished successfully.")
     else:
-        resp.raise_for_status()
-        lro = resp.json()
-        print(f"[*] Waiting for Datastore creation LRO to complete...")
-        _wait_lro(lro["name"])
-        print(f"[+] Datastore created successfully.")
+        print(f"[!] setUpDataConnector failed ({resp.status_code}): {resp.text}")
+        sys.exit(1)
 
-    # 2. Configure Data Connector
-    connector_url = f"{_base_url()}/collections/{COLLECTION_ID}/dataStores/{DATASTORE_ID}/dataConnector"
-    connector_body = _data_connector()
-
-    print(f"[*] Configuring Data Connector for '{DATASTORE_ID}'...")
-    resp = requests.post(connector_url, headers=_headers(), json=connector_body, timeout=30)
-    if resp.status_code == 409:
-         print(f"[*] Data connector already configured, patching instead...")
-         patch_url = f"{connector_url}?update_mask=actionConfig"
-         resp = requests.patch(patch_url, headers=_headers(), json=connector_body, timeout=30)
-         resp.raise_for_status()
-         lro = resp.json()
+    # Attach to engine
+    print(f"[*] Attaching datastore entity {DATASTORE_ID}_mcp_data to Engine '{GE_ENGINE_ID}'...")
+    attached = attach_to_engine(f"{DATASTORE_ID}_mcp_data")
+    if attached:
+        print(f"[+] Datastore attached successfully.")
     else:
-         resp.raise_for_status()
-         lro = resp.json()
-
-    print(f"[*] Waiting for Data Connector configuration LRO to complete...")
-    _wait_lro(lro["name"])
-    print(f"[+] Data Connector configured successfully.")
-
-    # 3. Add Datastore to Gemini Enterprise Engine
-    sub_ds_name = _entity_ds_name(DATASTORE_ID)
-    current_ds_names = engine.get("dataStoreIds", [])
-
-    if sub_ds_name in current_ds_names:
-        print(f"[+] Datastore already attached to Engine.")
-    else:
-        current_ds_names.append(sub_ds_name)
-        patch_engine_body = {"dataStoreIds": current_ds_names}
-        patch_engine_url = f"{_engine_url()}?updateMask=dataStoreIds"
-        print(f"[*] Attaching datastore entity to Engine '{GE_ENGINE_ID}'...")
-        resp = requests.patch(patch_engine_url, headers=_headers(), json=patch_engine_body, timeout=30)
-        resp.raise_for_status()
-        lro = resp.json()
-        print(f"[*] Waiting for Engine patch LRO to complete...")
-        _wait_lro(lro["name"])
-        print(f"[+] Datastore attached to Engine successfully.")
+        print(f"[!] Could not attach datastore to engine.")
 
     print(f"\n[+] Registration finished!")
     print(f"    Go to the Gemini Enterprise Admin Console to authorize and activate.")
