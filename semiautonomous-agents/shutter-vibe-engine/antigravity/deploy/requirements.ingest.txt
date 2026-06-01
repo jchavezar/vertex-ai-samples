@@ -1,0 +1,8 @@
+fastapi==0.136.0
+uvicorn[standard]==0.44.0
+google-genai==1.73.1
+google-cloud-storage==3.10.1
+google-cloud-firestore==2.27.0
+google-cloud-aiplatform==1.148.0
+numpy>=2.0
+Pillow>=11.0
