@@ -253,6 +253,7 @@
       Advanced clone of Envato Elements search experience. Features rich aesthetics, dynamic hover effects, and a mock search engine backend.<br/>
       <br/>
       <a href="./sovereign-elements/">ACCESS_TERMINAL &rarr;</a>
+    </td>
     <td width="50%" valign="top">
       <img src="assets/header_search.svg" width="100%" />
       <br/><br/>
@@ -260,6 +261,19 @@
       High-fidelity clone of Caja de los Andes targeting executive sales demos. Integrates futuristic AI Quantum Hub and Gemini Live API mocks.<br/>
       <br/>
       <a href="./andes-agentic-pilot/">ACCESS_TERMINAL &rarr;</a>
+    </td>
+  </tr>
+  <!-- ROW 15: SHUTTER VIBE ENGINE -->
+  <tr>
+    <td width="50%" valign="top">
+      <img src="assets/header_search.svg" width="100%" />
+      <br/><br/>
+      <strong>PROJECT: SHUTTER VIBE ENGINE</strong><br/>
+      Futuristic multi-modal search and serverless video ingestion pipeline. Powered by Google Cloud (FastAPI, FFmpeg, Eventarc, Vertex AI Embeddings, Firestore).<br/>
+      <br/>
+      <a href="../semiautonomous-agents/shutter-vibe-engine/antigravity/">ACCESS_TERMINAL &rarr;</a>
+    </td>
+    <td width="50%" valign="top">
     </td>
   </tr>
 </table>
