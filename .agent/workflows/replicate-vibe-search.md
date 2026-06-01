@@ -14,11 +14,12 @@ Populate the empty target workspace with the pre-packaged application files to s
 
 // turbo
 ```bash
-mkdir -p multimodal-search/app multimodal-search/pipeline demos multimodal-search/backends
+mkdir -p multimodal-search/app multimodal-search/pipeline demos multimodal-search/backends multimodal-search/deploy
 cp -r antigravity/src/app/* multimodal-search/app/
 cp -r antigravity/src/pipeline/* multimodal-search/pipeline/
 cp -r antigravity/src/demos/* demos/
 cp -r antigravity/src/backends/* multimodal-search/backends/
+cp -r antigravity/deploy/* multimodal-search/deploy/
 ```
 
 ---
@@ -145,8 +146,8 @@ Build and push the main FastAPI web application image to GCR via Cloud Build usi
 // turbo
 ```bash
 set -a; [ -f .env ] && . .env; set +a
-cp antigravity/deploy/.gcloudignore.app .gcloudignore
-gcloud builds submit . --project="\$GOOGLE_CLOUD_PROJECT" --config="antigravity/deploy/cloudbuild.app.yaml"
+cp multimodal-search/deploy/.gcloudignore.app .gcloudignore
+gcloud builds submit . --project="\$GOOGLE_CLOUD_PROJECT" --config="multimodal-search/deploy/cloudbuild.app.yaml"
 rm -f .gcloudignore
 ```
 
@@ -167,6 +168,7 @@ gcloud run deploy envato-vibe-app \
   --service-account="\$SA_EMAIL" \
   --memory="2Gi" --cpu="2" --timeout="600" \
   --allow-unauthenticated \
+  --ingress=all \
   --set-env-vars="GOOGLE_GENAI_USE_VERTEXAI=True,GOOGLE_CLOUD_PROJECT=\${GOOGLE_CLOUD_PROJECT},GOOGLE_CLOUD_LOCATION=\${GOOGLE_CLOUD_LOCATION},ENVATO_GCS_BUCKET=\${ENVATO_GCS_BUCKET},SEARCH_BACKEND=\${SEARCH_BACKEND}"
 ```
 
@@ -178,8 +180,8 @@ Build and push the event-driven ingest worker image to GCR via Cloud Build using
 // turbo
 ```bash
 set -a; [ -f .env ] && . .env; set +a
-cp antigravity/deploy/.gcloudignore.ingest .gcloudignore
-gcloud builds submit . --project="\$GOOGLE_CLOUD_PROJECT" --config="antigravity/deploy/cloudbuild.ingest.yaml"
+cp multimodal-search/deploy/.gcloudignore.ingest .gcloudignore
+gcloud builds submit . --project="\$GOOGLE_CLOUD_PROJECT" --config="multimodal-search/deploy/cloudbuild.ingest.yaml"
 rm -f .gcloudignore
 ```
 

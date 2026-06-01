@@ -48,7 +48,10 @@ import numpy as np
 from PIL import Image
 
 ROOT = Path(__file__).resolve().parent
-sys.path.insert(0, str(ROOT.parent / "demos"))
+for _cand in (ROOT.parent.parent / "demos", Path("/app/demos"), ROOT.parent / "demos"):
+    if _cand.exists():
+        sys.path.insert(0, str(_cand))
+        break
 from _client import CLIENT  # noqa: E402
 from google import genai  # noqa: E402
 from google.genai import types  # noqa: E402

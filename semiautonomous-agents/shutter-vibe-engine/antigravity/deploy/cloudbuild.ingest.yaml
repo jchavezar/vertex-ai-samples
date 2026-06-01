@@ -1,6 +1,6 @@
 steps:
 - name: gcr.io/cloud-builders/docker
-  args: ['build', '-f', 'antigravity/deploy/Dockerfile.ingest', '-t', 'gcr.io/$PROJECT_ID/envato-vibe-ingest:latest', '.']
+  args: ['build', '-f', 'multimodal-search/deploy/Dockerfile.ingest', '-t', 'gcr.io/$PROJECT_ID/envato-vibe-ingest:latest', '.']
 images:
 - 'gcr.io/$PROJECT_ID/envato-vibe-ingest:latest'
 options:
