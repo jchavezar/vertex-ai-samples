@@ -12,9 +12,12 @@ It contains the exact working frontend source code, backend python servers, cont
 antigravity/
 ├── README.md               # This master onboarding & bootstrap guide
 ├── WORKFLOW.md             # Declarative, sequential & parallel workflow for Antigravity
-├── run_workflow.py         # Threaded python interactive variable prompter & deployer
 ├── verify_replication.py   # Automated frontend & server router integrity check
 ├── SKILLS.md               # Model selections, SDK requirements, and security guidelines
+├── .agent/                 # Portable Antigravity rules, workflows, and skills folder
+│   ├── rules/              # Global agent guidelines (general-instructions.md)
+│   ├── skills/             # Custom agent capabilities (replicating-vibe-search/SKILL.md)
+│   └── workflows/          # Interactive deployment workflows (replicate-vibe-search.md)
 ├── subagents/              # AI specialist instructions
 │   ├── ui_copier.md        # Specs for cloning and adapting index_v2.html, app_v2.js, etc.
 │   └── pipeline_builder.md # Specs for provisioning buckets and Cloud Run services
@@ -45,7 +48,7 @@ https://github.com/jchavezar/vertex-ai-samples/tree/main/semiautonomous-agents/s
 
 Download or clone these capsule files into our workspace under an `./antigravity` folder. 
 
-Once you have retrieved the folder, read the master onboarding guide in `./antigravity/README.md`. First, run Step 1 (Workspace Bootstrapping) to extract all source files into our root. Then, execute the programmatic deployment workflow defined in `./antigravity/WORKFLOW.md` to deploy the application.
+Once you have retrieved the folder, read the master onboarding guide in `./antigravity/README.md`. Copy `./antigravity/.agent` to the root `.agent` folder of your workspace. Then, type `/` in your chat and trigger the `/replicate-vibe-search` workflow.
 ```
 
 ---
@@ -54,23 +57,26 @@ Once you have retrieved the folder, read the master onboarding guide in `./antig
 
 To replicate this application from scratch in your new GCP environment, initiate your pair-programming session with **Antigravity** and execute the following 3 steps:
 
-### Step 1: Workspace Bootstrapping (Self-Copy)
-Instruct Antigravity to structure the target workspace:
-> *"Extract the working source files from `./antigravity/src/` and structure them in our root directory. Copy `src/app/` to `multimodal-search/app/`, `src/pipeline/` to `multimodal-search/pipeline/`, `src/backends/` to `multimodal-search/backends/`, and `src/demos/` to `demos/` so our workspace perfectly matches the reference framework."*
+### Step 1: Activate Antigravity Customizations
+Instruct Antigravity to copy the workspace settings, rules, skills, and workflows from the capsule:
+> *"Copy the `./antigravity/.agent` folder and its contents directly into our workspace root `.agent` folder to register the global rules, specialized skills, and workflows."*
 
-### Step 2: Interactive Parameter Configuration
-Instruct Antigravity to initiate the interactive deployment:
-> *"Read and execute the programmatic deployment workflow defined in `./antigravity/WORKFLOW.md`."*
+Once the copy is done, your Antigravity Customizations panel will light up with the `/replicate-vibe-search` workflow!
 
-Alternatively, you can run the interactive setup script directly:
-```bash
-python antigravity/run_workflow.py
-```
-This script will collect your project configurations (GCP Project ID, region, target GCS bucket, service account), enable APIs, bind IAM policies, build both container images in parallel via Cloud Build, deploy them to Cloud Run, and configure the GCS Eventarc ingestion trigger.
+### Step 2: Trigger Native Interactive Workflow
+Initiate the interactive replication sequence inside the Antigravity session:
+* Type `/` in the chat, select `/replicate-vibe-search`, and press Enter.
+
+Antigravity will guide you step-by-step through the native commands to:
+1. Bootstrap the workspace folder structure (`multimodal-search/app/` etc.).
+2. Generate your `.env` workspace parameters.
+3. Configure GCP APIs, IAM Service Accounts, and Cloud Storage Bucket structures.
+4. Build both frontend and ingestion containers via Cloud Build and deploy them to Cloud Run.
+5. Create GCS Eventarc triggers and print the final active Web Service URL!
 
 ### Step 3: Deployment Verification & Ingestion Test
-Once the deployment script reports success:
-1. Open the deployed application URL.
+Once the workflow reports success:
+1. Open the deployed application URL returned by the workflow.
 2. Drop a sample video or audio clip into your GCS ingestion bucket folder:
    ```bash
    gcloud storage cp some-sample.mp4 gs://<YOUR_BUCKET_NAME>/ingest/
