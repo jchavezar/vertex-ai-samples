@@ -39,9 +39,9 @@ If running manually, execute this command block to create a default `.env` file:
 // turbo
 ```bash
 cat <<EOF > .env
-GOOGLE_CLOUD_PROJECT=\$(gcloud config get-value project 2>/dev/null || echo "your-project-id")
+GOOGLE_CLOUD_PROJECT=\s\$(gcloud config get-value project 2>/dev/null || echo "your-project-id")
 GOOGLE_CLOUD_LOCATION=us-central1
-ENVATO_GCS_BUCKET=\$(gcloud config get-value project 2>/dev/null || echo "your-project-id")-vibe-engine-data
+ENVATO_GCS_BUCKET=\s\$(gcloud config get-value project 2>/dev/null || echo "your-project-id")-vibe-engine-data
 ENVATO_SA_NAME=envato-vibe-runner
 SEARCH_BACKEND=vector-search
 EOF

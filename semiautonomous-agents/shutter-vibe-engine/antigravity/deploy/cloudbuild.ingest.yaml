@@ -1,0 +1,7 @@
+steps:
+- name: gcr.io/cloud-builders/docker
+  args: ['build', '-f', 'antigravity/deploy/Dockerfile.ingest', '-t', 'gcr.io/$PROJECT_ID/envato-vibe-ingest:latest', '.']
+images:
+- 'gcr.io/$PROJECT_ID/envato-vibe-ingest:latest'
+options:
+  logging: CLOUD_LOGGING_ONLY
