@@ -259,7 +259,7 @@ search_tool = FunctionTool(func=vertex_ai_search)
 # Define our conversational grounded agent using allowed enterprise models
 root_agent = Agent(
     name="gsuite_search_chatbot",
-    model=GeminiGlobal(model="gemini-2.5-flash"),  # Standardized to compliant, blazing-fast Gemini model
+    model=GeminiGlobal(model="gemini-3.5-flash"),  # Standardized to compliant, blazing-fast Gemini model
     description=(
         "A conversational search chatbot that answers questions based on "
         "your Google Workspace (Google Drive) and GCS files."
