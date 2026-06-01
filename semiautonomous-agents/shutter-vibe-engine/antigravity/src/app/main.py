@@ -81,9 +81,9 @@ PROJECT = os.environ.get("GOOGLE_CLOUD_PROJECT", "vtxdemos")
 LOCATION = os.environ.get("GOOGLE_CLOUD_LOCATION", "us-central1")
 GCS_BUCKET = os.environ.get("ENVATO_GCS_BUCKET", "envato-vibe-demo")
 
-INDEX_DISPLAY_NAME = "envato-vibe-multimodal"
-ENDPOINT_DISPLAY_NAME = "envato-vibe-endpoint"
-DEPLOYED_INDEX_ID = "envato_vibe_multimodal"
+INDEX_DISPLAY_NAME = os.environ.get("INDEX_DISPLAY_NAME", "envato-vibe-multimodal")
+ENDPOINT_DISPLAY_NAME = os.environ.get("ENDPOINT_DISPLAY_NAME", "envato-vibe-endpoint")
+DEPLOYED_INDEX_ID = os.environ.get("DEPLOYED_INDEX_ID", "envato_vibe_multimodal")
 
 FIRESTORE_SEGMENTS = "segments"
 FIRESTORE_UPLOADS = "uploads"

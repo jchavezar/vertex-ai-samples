@@ -67,8 +67,8 @@ GLOBAL_CLIENT = genai.Client(vertexai=True,
 PROJECT = os.environ.get("GOOGLE_CLOUD_PROJECT", "vtxdemos")
 LOCATION = os.environ.get("GOOGLE_CLOUD_LOCATION", "us-central1")
 GCS_BUCKET = os.environ.get("ENVATO_GCS_BUCKET", "envato-vibe-demo")
-INDEX_DISPLAY_NAME = "envato-vibe-multimodal"
-ENDPOINT_DISPLAY_NAME = "envato-vibe-endpoint"
+INDEX_DISPLAY_NAME = os.environ.get("INDEX_DISPLAY_NAME", "envato-vibe-multimodal")
+ENDPOINT_DISPLAY_NAME = os.environ.get("ENDPOINT_DISPLAY_NAME", "envato-vibe-endpoint")
 FIRESTORE_COLLECTION = "segments"
 
 EMBED_MODEL = "gemini-embedding-2-preview"

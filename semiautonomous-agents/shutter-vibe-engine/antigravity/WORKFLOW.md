@@ -36,6 +36,9 @@ The agent will prompt you for the following environment parameters and write the
 *   **ENVATO_GCS_BUCKET**: The Cloud Storage bucket name (e.g., `your-project-vibe-engine-data`).
 *   **ENVATO_SA_NAME**: The name of the Service Account (e.g., `envato-vibe-runner`).
 *   **SEARCH_BACKEND**: The database backend (`vector-search` or `bigquery`).
+*   **INDEX_DISPLAY_NAME**: The display name of your Vertex AI Vector Search index (e.g., `envato-vibe-multimodal`).
+*   **ENDPOINT_DISPLAY_NAME**: The display name of your Vertex AI Vector Search index endpoint (e.g., `envato-vibe-endpoint`).
+*   **DEPLOYED_INDEX_ID**: The deployed index ID (e.g., `envato_vibe_multimodal`).
 
 If running manually, execute this command block to create a default `.env` file:
 
@@ -46,6 +49,9 @@ GOOGLE_CLOUD_LOCATION=us-central1
 ENVATO_GCS_BUCKET=\$(gcloud config get-value project 2>/dev/null || echo "your-project-id")-vibe-engine-data
 ENVATO_SA_NAME=envato-vibe-runner
 SEARCH_BACKEND=vector-search
+INDEX_DISPLAY_NAME=envato-vibe-multimodal
+ENDPOINT_DISPLAY_NAME=envato-vibe-endpoint
+DEPLOYED_INDEX_ID=envato_vibe_multimodal
 EOF
 echo ".env file generated successfully. Please verify its values."
 ```
@@ -169,7 +175,7 @@ gcloud run deploy envato-vibe-app \
   --memory="2Gi" --cpu="2" --timeout="600" \
   --allow-unauthenticated \
   --ingress=all \
-  --set-env-vars="GOOGLE_GENAI_USE_VERTEXAI=True,GOOGLE_CLOUD_PROJECT=\${GOOGLE_CLOUD_PROJECT},GOOGLE_CLOUD_LOCATION=\${GOOGLE_CLOUD_LOCATION},ENVATO_GCS_BUCKET=\${ENVATO_GCS_BUCKET},SEARCH_BACKEND=\${SEARCH_BACKEND}"
+  --set-env-vars="GOOGLE_GENAI_USE_VERTEXAI=True,GOOGLE_CLOUD_PROJECT=\${GOOGLE_CLOUD_PROJECT},GOOGLE_CLOUD_LOCATION=\${GOOGLE_CLOUD_LOCATION},ENVATO_GCS_BUCKET=\${ENVATO_GCS_BUCKET},SEARCH_BACKEND=\${SEARCH_BACKEND},INDEX_DISPLAY_NAME=\${INDEX_DISPLAY_NAME:-envato-vibe-multimodal},ENDPOINT_DISPLAY_NAME=\${ENDPOINT_DISPLAY_NAME:-envato-vibe-endpoint},DEPLOYED_INDEX_ID=\${DEPLOYED_INDEX_ID:-envato_vibe_multimodal}"
 ```
 
 ---
@@ -203,25 +209,19 @@ gcloud run deploy envato-vibe-ingest \
   --service-account="\$SA_EMAIL" \
   --memory="2Gi" --cpu="2" --timeout="600" \
   --no-allow-unauthenticated \
-  --set-env-vars="GOOGLE_CLOUD_PROJECT=\${GOOGLE_CLOUD_PROJECT},GOOGLE_CLOUD_LOCATION=\${GOOGLE_CLOUD_LOCATION},ENVATO_GCS_BUCKET=\${ENVATO_GCS_BUCKET},GOOGLE_GENAI_USE_VERTEXAI=True"
+  --set-env-vars="GOOGLE_CLOUD_PROJECT=\${GOOGLE_CLOUD_PROJECT},GOOGLE_CLOUD_LOCATION=\${GOOGLE_CLOUD_LOCATION},ENVATO_GCS_BUCKET=\${ENVATO_GCS_BUCKET},GOOGLE_GENAI_USE_VERTEXAI=True,INDEX_DISPLAY_NAME=\${INDEX_DISPLAY_NAME:-envato-vibe-multimodal},ENDPOINT_DISPLAY_NAME=\${ENDPOINT_DISPLAY_NAME:-envato-vibe-endpoint},DEPLOYED_INDEX_ID=\${DEPLOYED_INDEX_ID:-envato_vibe_multimodal}"
 
-# Configure Eventarc GCS Trigger
+# Configure Eventarc GCS Trigger by deleting first then creating (filters cannot be updated on existing trigger)
 TRIGGER_NAME="envato-vibe-ingest-trigger"
-if gcloud eventarc triggers describe "\$TRIGGER_NAME" --location="\$GOOGLE_CLOUD_LOCATION" --project="\$GOOGLE_CLOUD_PROJECT" >/dev/null 2>&1; then
-  gcloud eventarc triggers update "\$TRIGGER_NAME" \
-    --location="\$GOOGLE_CLOUD_LOCATION" --project="\$GOOGLE_CLOUD_PROJECT" \
-    --destination-run-service="envato-vibe-ingest" \
-    --destination-run-region="\$GOOGLE_CLOUD_LOCATION" \
-    --service-account="\$SA_EMAIL"
-else
-  gcloud eventarc triggers create "\$TRIGGER_NAME" \
-    --location="\$GOOGLE_CLOUD_LOCATION" --project="\$GOOGLE_CLOUD_PROJECT" \
-    --destination-run-service="envato-vibe-ingest" \
-    --destination-run-region="\$GOOGLE_CLOUD_LOCATION" \
-    --event-filters="type=google.cloud.storage.object.v1.finalized" \
-    --event-filters="bucket=\${ENVATO_GCS_BUCKET}" \
-    --service-account="\$SA_EMAIL"
-fi
+gcloud eventarc triggers delete "\$TRIGGER_NAME" --location="\$GOOGLE_CLOUD_LOCATION" --project="\$GOOGLE_CLOUD_PROJECT" --quiet || true
+
+gcloud eventarc triggers create "\$TRIGGER_NAME" \
+  --location="\$GOOGLE_CLOUD_LOCATION" --project="\$GOOGLE_CLOUD_PROJECT" \
+  --destination-run-service="envato-vibe-ingest" \
+  --destination-run-region="\$GOOGLE_CLOUD_LOCATION" \
+  --event-filters="type=google.cloud.storage.object.v1.finalized" \
+  --event-filters="bucket=\${ENVATO_GCS_BUCKET}" \
+  --service-account="\$SA_EMAIL"
 ```
 
 ---
