@@ -14,10 +14,8 @@ Populate the empty target workspace with the pre-packaged application files to s
 
 // turbo
 ```bash
-mkdir -p multimodal-search/app/templates multimodal-search/app/static multimodal-search/pipeline demos multimodal-search/backends
+mkdir -p multimodal-search/app multimodal-search/pipeline demos multimodal-search/backends
 cp -r antigravity/src/app/* multimodal-search/app/
-cp -r antigravity/src/templates/* multimodal-search/app/templates/
-cp -r antigravity/src/static/* multimodal-search/app/static/
 cp -r antigravity/src/pipeline/* multimodal-search/pipeline/
 cp -r antigravity/src/demos/* demos/
 cp -r antigravity/src/backends/* multimodal-search/backends/
@@ -26,6 +24,10 @@ cp -r antigravity/src/backends/* multimodal-search/backends/
 ---
 
 ## 2. Interactive Parameter Configuration
+
+> [!IMPORTANT]
+> **Agent Instruction**: Stop and explicitly prompt the user for each of the variables below in the chat. Proactively run `gcloud config get-value project` to recommend as the default `GOOGLE_CLOUD_PROJECT`. Once the user confirms the values, use your `write_to_file` tool to create the `.env` file in the workspace root with those variables.
+
 The agent will prompt you for the following environment parameters and write them to a local `.env` file in the root directory:
 
 *   **GOOGLE_CLOUD_PROJECT**: Your target Google Cloud Project ID.
@@ -39,9 +41,9 @@ If running manually, execute this command block to create a default `.env` file:
 // turbo
 ```bash
 cat <<EOF > .env
-GOOGLE_CLOUD_PROJECT=\s\$(gcloud config get-value project 2>/dev/null || echo "your-project-id")
+GOOGLE_CLOUD_PROJECT=\$(gcloud config get-value project 2>/dev/null || echo "your-project-id")
 GOOGLE_CLOUD_LOCATION=us-central1
-ENVATO_GCS_BUCKET=\s\$(gcloud config get-value project 2>/dev/null || echo "your-project-id")-vibe-engine-data
+ENVATO_GCS_BUCKET=\$(gcloud config get-value project 2>/dev/null || echo "your-project-id")-vibe-engine-data
 ENVATO_SA_NAME=envato-vibe-runner
 SEARCH_BACKEND=vector-search
 EOF

@@ -28,8 +28,8 @@ antigravity/
 │   └── requirements.ingest.txt
 └── src/                    # 100% of the working application source files
     ├── app/                # FastAPI web server and GCS/Firestore ingest handlers
-    ├── templates/          # High-fidelity, premium index_v2.html template
-    ├── static/             # styles_v2.css, app_v2.js, viz3d.js, sliders, and panels
+    │   ├── templates/      # High-fidelity, premium index_v2.html template
+    │   └── static/         # styles_v2.css, app_v2.js, viz3d.js, sliders, and panels
     ├── pipeline/           # build.py embeddings pipeline logic
     ├── backends/           # Vector Search & BigQuery pluggable dispatch backends
     └── demos/              # _client.py shared connection utility
