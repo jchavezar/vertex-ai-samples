@@ -225,11 +225,12 @@ fi
 ---
 
 ## 10. UI Replication & Integrity Verification
-Execute local verification checks to validate files are structured perfectly.
+Execute local verification checks to validate files are structured perfectly and run active browsing checks directly against the deployed Cloud Run endpoint.
 
 // turbo
 ```bash
 python antigravity/verify_replication.py
+python antigravity/verify_browsing.py
 ```
 
 ---
