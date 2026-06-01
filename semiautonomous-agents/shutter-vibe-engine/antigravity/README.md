@@ -34,6 +34,22 @@ antigravity/
 
 ---
 
+## 💡 One-Click AI Handoff (From an Empty Workspace)
+
+If starting in a completely empty workspace directory, you can simply feed **Antigravity** this direct URL and let it automatically clone the replication capsule and bootstrap the project:
+
+### Copy-Paste Prompt for Your New Session:
+```text
+Please fetch our complete Shutter Vibe Engine replication capsule directly from this GitHub directory:
+https://github.com/jchavezar/vertex-ai-samples/tree/main/semiautonomous-agents/shutter-vibe-engine/antigravity
+
+Download or clone these capsule files into our workspace under an `./antigravity` folder. 
+
+Once you have retrieved the folder, read the master onboarding guide in `./antigravity/README.md`. First, run Step 1 (Workspace Bootstrapping) to extract all source files into our root. Then, execute the programmatic deployment workflow defined in `./antigravity/WORKFLOW.md` to deploy the application.
+```
+
+---
+
 ## 🚀 The Replication & Deployment Steps
 
 To replicate this application from scratch in your new GCP environment, initiate your pair-programming session with **Antigravity** and execute the following 3 steps:
