@@ -298,6 +298,128 @@ curl -sN -X POST http://localhost:8088/api/chat \
 
 Expect: `function_call` event → `function_response` with HTTP 401 from Drive → model text explaining the auth error. Three SSE events = pipeline OK end-to-end. Then check Cloud Logging for the agent itself.
 
+## 🎓 How to Fish: Local Running & Cloud Deployment Mechanics
+
+To replicate this architecture in your own environment, it is crucial to understand the distinction between running your agent **locally inside your Python process** (for testing/development) and **deploying it to Google Cloud's managed Agent Runtime** (for production).
+
+By seeing the exact API calls and mechanics, you can integrate this into any enterprise CI/CD workflow without needing automated scripts.
+
+---
+
+### 💻 Mode A: Running Your Agent Locally (Development Sandbox)
+
+When you are developing, your agent runs directly inside your local Python interpreter. It connects to Gemini and Discovery Engine APIs over HTTPS, but the orchestration loop, tool callbacks, and function executions happen on your machine.
+
+This is powered by the Google ADK's **`InMemoryRunner`**.
+
+```python
+import asyncio
+from google.adk.runners import InMemoryRunner
+from google.genai.types import Content, Part
+from agent.agent import root_agent
+
+async def main():
+    # 1. Instantiate the in-memory runner pointing to your local agent definition
+    runner = InMemoryRunner(agent=root_agent, app_name="local-grounding-agent")
+    
+    # 2. Create a secure local session with an OAuth access token (simulating frontend login)
+    session = await runner.session_service.create_session(
+        app_name="local-grounding-agent",
+        user_id="test-developer@company.com",
+        state={
+            "drive_access_token": "YA29.your_gsuite_oauth_token",
+            "temp:drive_access_token": "YA29.your_gsuite_oauth_token"
+        },
+    )
+    
+    # 3. Stream a user message and capture text outputs, tool calls, and results
+    query = "What is our company's Q4 sales data?"
+    content = Content(parts=[Part(text=query)], role="user")
+    
+    print(f"User Prompt: {query}\n")
+    async for event in runner.run_async(
+        user_id="test-developer@company.com", 
+        session_id=session.id, 
+        new_message=content
+    ):
+        if event.content and event.content.parts:
+            for part in event.content.parts:
+                # Print Gemini's generated thoughts/text response chunks
+                if part.text:
+                    print(part.text, end="", flush=True)
+                    
+                # Print when the agent calls your custom search tool
+                if part.function_call:
+                    print(f"\n[Tool Invocated]: {part.function_call.name} with {part.function_call.args}")
+
+if __name__ == "__main__":
+    asyncio.run(main())
+```
+
+---
+
+### ☁️ Mode B: Deploying Your Agent to the Cloud (Production Runtime)
+
+When you are ready to deploy, your Python code is serialized (pickled), containerized, and uploaded to Google Cloud's serverless **Vertex AI Reasoning Engine** (which serves as the server-side **Agent Runtime**).
+
+You deploy the agent programmatically using the official Google Cloud Vertex AI SDK:
+
+```python
+import vertexai
+from vertexai import agent_engines
+from agent.agent import root_agent
+
+# 1. Initialize your Google Cloud environment context
+vertexai.init(project="your-gcp-project-id", location="us-central1")
+
+# 2. Package and deploy your local agent to the serverless Reasoning Engine runtime
+deployed_engine = agent_engines.deploy(
+    root_agent,
+    requirements=[
+        "google-adk",
+        "google-genai",
+        "requests",
+        "urllib3"
+    ]
+)
+
+print(f"\nDeployment Succeeded!")
+print(f"Your Deployed Agent Resource Path: {deployed_engine.resource_name}")
+# Output format: projects/{project_number}/locations/us-central1/reasoningEngines/{engine_id}
+```
+
+---
+
+### 🌐 Mode C: Connecting the FastAPI Gateway to your Cloud Agent
+
+Once your agent is running in Google's cloud sandbox (Mode B), your FastAPI backend proxy (`backend/main.py`) does not need to run any local agent loops. Instead, it retrieves a remote reference to your deployed engine using its resource URI and streams user requests down to it:
+
+```python
+from fastapi import FastAPI
+from fastapi.responses import StreamingResponse
+from vertexai import agent_engines
+
+app = FastAPI()
+
+# 1. Retrieve the deployed engine instance directly from Vertex AI
+AGENT_ENGINE_RESOURCE = "projects/123456789/locations/us-central1/reasoningEngines/987654321"
+engine = agent_engines.get(AGENT_ENGINE_RESOURCE)
+
+@app.post("/api/chat")
+async def chat_proxy(body: ChatRequest):
+    # 2. Forward queries to the server-side Cloud Runtime and stream response events
+    return StreamingResponse(
+        engine.stream_query(
+            user_id=body.user_id,
+            session_id=body.session_id,
+            message=body.message
+        ),
+        media_type="text/event-stream"
+    )
+```
+
+Using this approach, you maintain a clean, performant, and securely decoupled client-server architecture.
+
 ## Troubleshooting
 
 <details>
