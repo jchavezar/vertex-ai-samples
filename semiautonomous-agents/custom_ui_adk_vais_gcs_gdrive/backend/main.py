@@ -1,6 +1,6 @@
 """
 main.py
-FastAPI proxy between custom Next.js UI and the deployed Agent Engine.
+Next-Gen Production-Ready FastAPI proxy between custom Next.js UI and the deployed Agent Engine.
 """
 from __future__ import annotations
 
@@ -8,34 +8,46 @@ import asyncio
 import json
 import logging
 import os
+import time
 from typing import AsyncIterator
 
 import requests
 import google.auth
 import google.auth.transport.requests
 import vertexai
-import time
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
 from vertexai import agent_engines
+from urllib3.util import Retry
+from requests.adapters import HTTPAdapter
 
+# Load env overrides safely
 load_dotenv(override=True)
 
+# Setup production logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s | %(message)s")
-log = logging.getLogger("backend")
+log = logging.getLogger("backend-gateway")
 
-# Env configuration
-PROJECT = os.environ["GOOGLE_CLOUD_PROJECT"]
-LOCATION = os.environ.get("DEPLOY_LOCATION", "us-central1")
+# Environment Configuration with Resilient, Backward-Compatible Fallbacks
+PROJECT = os.environ.get("GOOGLE_CLOUD_PROJECT", "vais-acl-demo").strip()
+LOCATION = os.environ.get("DEPLOY_LOCATION", "us-central1").strip()
 AGENT_ENGINE_RESOURCE = os.environ.get("AGENT_ENGINE_RESOURCE", "").strip()
-FRONTEND_ORIGIN = os.environ.get("FRONTEND_ORIGIN", "http://localhost:3000")
+FRONTEND_ORIGIN = os.environ.get("FRONTEND_ORIGIN", "http://localhost:3000").strip()
 
+# Target Search Datastore Params
+GCP_PROJECT_NUMBER = os.environ.get("GCP_PROJECT_NUMBER", "254356041555").strip()
+DISCOVERY_ENGINE_ID = os.environ.get("DISCOVERY_ENGINE_ID", "csearch-gdrive-acl_1780275206896").strip()
+SEARCH_LOCATION = "global"
+COLLECTION_ID = "default_collection"
+
+# Initialize Vertex AI SDK
 vertexai.init(project=PROJECT, location=LOCATION)
 
-app = FastAPI(title="adk-search-chatbot backend")
+# Initialize FastAPI App
+app = FastAPI(title="adk-search-chatbot backend gateway")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[FRONTEND_ORIGIN],
@@ -44,26 +56,50 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Establish a resilient HTTP session pool with automatic retries for Discovery Engine Search
+_http_pool = requests.Session()
+_retries = Retry(
+    total=3,
+    backoff_factor=1.5,
+    status_forcelist=[500, 502, 503, 504],
+    raise_on_status=False
+)
+_http_pool.mount("https://", HTTPAdapter(max_retries=_retries))
+
+# Background Eager Loading of Reasoning Engine Instance
+_engine_cache: object | None = None
+
+def _engine():
+    global _engine_cache
+    if _engine_cache is None:
+        if not AGENT_ENGINE_RESOURCE:
+            raise HTTPException(503, "AGENT_ENGINE_RESOURCE not configured on backend")
+        log.info(f"Loading Reasoning Engine resource: {AGENT_ENGINE_RESOURCE}")
+        _engine_cache = agent_engines.get(AGENT_ENGINE_RESOURCE)
+    return _engine_cache
+
 @app.on_event("startup")
 def startup_event():
     import threading
     def load():
         try:
-            log.info("Eager loading Reasoning Engine: %s", AGENT_ENGINE_RESOURCE)
+            log.info("Eager loading Reasoning Engine on background thread: %s", AGENT_ENGINE_RESOURCE)
             _engine()
-            log.info("Reasoning Engine successfully loaded.")
+            log.info("Reasoning Engine successfully loaded and cached.")
         except Exception as e:
             log.error("Failed to eager load Reasoning Engine during startup: %s", e)
     threading.Thread(target=load, daemon=True).start()
 
+# Resilient Service Account (ADC) Token Cache
 _gcp_token_cache: str | None = None
 _gcp_token_expiry: float = 0.0
 
 def _get_cached_gcp_token() -> str:
     global _gcp_token_cache, _gcp_token_expiry
-    # Refresh token if it is expired or about to expire in 5 minutes
-    if _gcp_token_cache is None or time.time() > _gcp_token_expiry - 300:
-        log.info("Fetching and caching a fresh GCP ADC token.")
+    now = time.time()
+    # Refresh token if missing or expiring within 5 minutes (300s)
+    if _gcp_token_cache is None or now > _gcp_token_expiry - 300:
+        log.info("Fetching a fresh GCP ADC token.")
         creds, _ = google.auth.default(
             scopes=["https://www.googleapis.com/auth/cloud-platform"]
         )
@@ -71,32 +107,22 @@ def _get_cached_gcp_token() -> str:
         creds.refresh(auth_req)
         _gcp_token_cache = creds.token
         
-        # Safe parsing of credentials expiry
+        # Safely extract token expiry timestamp
         if getattr(creds, "expiry", None):
             try:
-                from datetime import datetime
+                from datetime import datetime, timezone
                 if isinstance(creds.expiry, datetime):
                     _gcp_token_expiry = creds.expiry.timestamp()
                 else:
-                    expiry_dt = datetime.fromisoformat(str(creds.expiry).replace("Z", "+00:00"))
+                    expiry_str = str(creds.expiry).replace("Z", "+00:00")
+                    expiry_dt = datetime.fromisoformat(expiry_str)
                     _gcp_token_expiry = expiry_dt.timestamp()
             except Exception as e:
                 log.warning("Failed parsing token expiry, defaulting to 55 minutes: %s", e)
-                _gcp_token_expiry = time.time() + 3300
+                _gcp_token_expiry = now + 3300
         else:
-            _gcp_token_expiry = time.time() + 3300
+            _gcp_token_expiry = now + 3300
     return _gcp_token_cache
-
-_engine_cache: object | None = None
-
-
-def _engine():
-    global _engine_cache
-    if _engine_cache is None:
-        if not AGENT_ENGINE_RESOURCE:
-            raise HTTPException(503, "AGENT_ENGINE_RESOURCE not configured on backend")
-        _engine_cache = agent_engines.get(AGENT_ENGINE_RESOURCE)
-    return _engine_cache
 
 
 class SearchRequest(BaseModel):
@@ -108,33 +134,24 @@ class SearchRequest(BaseModel):
 def search_datastores(body: SearchRequest):
     """Query Vertex AI Search (Discovery Engine) live for GDrive and GCS files."""
     try:
-        # 1. Obtain GCP access credentials via ADC (with caching)
         gcp_token = _get_cached_gcp_token()
-        
-        # 2. Extract configuration
-        # csearch-gdrive-acl_1780275206896 is located in global
-        proj_number = "254356041555"
-        engine_id = "csearch-gdrive-acl_1780275206896"
-        location = "global"
-        collection_id = "default_collection"
         
         api_url = (
             f"https://discoveryengine.googleapis.com/v1alpha"
-            f"/projects/{proj_number}/locations/{location}"
-            f"/collections/{collection_id}/engines/{engine_id}"
+            f"/projects/{GCP_PROJECT_NUMBER}/locations/{SEARCH_LOCATION}"
+            f"/collections/{COLLECTION_ID}/engines/{DISCOVERY_ENGINE_ID}"
             f"/servingConfigs/default_search:search"
         )
         
-        # Use client-side Google Workspace OAuth token if provided, falling back to Service Account (GCS only)
+        # Select appropriate token (Client Drive OAuth token, falling back to Service Account for global datasets)
         token_to_use = body.access_token if body.access_token else gcp_token
         
         headers = {
             "Authorization": f"Bearer {token_to_use}",
             "Content-Type": "application/json",
-            "X-Goog-User-Project": proj_number,
+            "X-Goog-User-Project": GCP_PROJECT_NUMBER,
         }
         
-        # Build search body
         request_body = {
             "query": body.query or "",
             "pageSize": 20,
@@ -144,21 +161,20 @@ def search_datastores(body: SearchRequest):
             }
         }
         
-        log.info("Sending Search request to Discovery Engine for query: %s (using %s token)", 
+        log.info("Sending Search request to Discovery Engine for query: '%s' (using %s token)", 
                  body.query, "user OAuth" if body.access_token else "GCP service account")
-        response = requests.post(api_url, headers=headers, json=request_body)
-        
+                 
+        # Execute post request via persistent session with strict 10s timeout
+        response = _http_pool.post(api_url, headers=headers, json=request_body, timeout=10.0)
         log.info("Discovery Engine API search response status: %s", response.status_code)
         
         if response.status_code != 200:
-            log.error("Discovery Engine API search failed: %s - %s", response.status_code, response.text)
+            log.error("Discovery Engine API search failed [%s]: %s", response.status_code, response.text)
             return {"results": []}
             
         data = response.json()
         raw_results = data.get("results", [])
         log.info("Discovery Engine returned %s raw search results", len(raw_results))
-        if not raw_results:
-            log.info("Raw response from Discovery Engine: %s", json.dumps(data)[:500])
         
         parsed_results = []
         for i, item in enumerate(raw_results):
@@ -171,7 +187,7 @@ def search_datastores(body: SearchRequest):
             link = derived_data.get("link") or f"https://drive.google.com/open?id={doc_id}"
             mime_type = derived_data.get("mimeType") or "application/octet-stream"
             
-            # Extract snippet
+            # Extract preview snippet
             snippet = ""
             snippets_list = derived_data.get("snippets", [])
             if snippets_list and isinstance(snippets_list, list):
@@ -184,7 +200,7 @@ def search_datastores(body: SearchRequest):
             modified_time = "Recently synchronized"
             file_size = "N/A"
             
-            # Try to get more metadata if available
+            # Extract additional synchronized metadata
             if "owner" in derived_data:
                 owner = derived_data["owner"]
             if "ownerEmail" in derived_data:
@@ -198,7 +214,7 @@ def search_datastores(body: SearchRequest):
                 except Exception:
                     file_size = str(fs)
             
-            # GCS link conversion: gs:// to https://storage.cloud.google.com/
+            # Convert cloud storage bucket links into secure HTTPS console links
             if link.startswith("gs://"):
                 parts = link[5:].split("/", 1)
                 if len(parts) == 2:
@@ -215,12 +231,15 @@ def search_datastores(body: SearchRequest):
                 "modifiedTime": modified_time,
                 "link": link,
                 "fileSize": file_size,
-                "telemetrySummary": f"Aura Telemetry Loaded: Metadata successfully retrieved from active Google Drive Datastore sync.",
+                "telemetrySummary": "Aura Telemetry Loaded: Metadata successfully retrieved from active Google Drive Datastore sync.",
                 "snippet": snippet
             })
             
         return {"results": parsed_results}
         
+    except requests.exceptions.Timeout:
+        log.error("Outbound search request to Discovery Engine timed out after 10.0 seconds.")
+        return {"results": []}
     except Exception as e:
         log.exception("Error querying Discovery Engine Search API")
         return {"results": []}
@@ -247,7 +266,7 @@ def health():
 
 @app.post("/api/session")
 def create_session(body: ChatRequest):
-    """Create a new Agent Engine session or loads/configures an existing one."""
+    """Create a new Agent Engine session or load/configure an existing one."""
     engine = _engine()
     
     # Store access token in session state for Drive datastore auth
@@ -258,6 +277,9 @@ def create_session(body: ChatRequest):
     if body.thinking_level:
         state["thinking_level"] = body.thinking_level
         state["temp:thinking_level"] = body.thinking_level
+    if body.model:
+        state["model_name"] = body.model
+        state["temp:model_name"] = body.model
         
     session = engine.create_session(user_id=body.user_id, state=state)
     sid = session.get("id") if isinstance(session, dict) else getattr(session, "id", None)
@@ -372,7 +394,8 @@ async def chat(body: ChatRequest):
     if not body.session_id:
         raise HTTPException(400, "session_id is required")
         
-    log.info("Streaming query with thinking level %s and model %s for session=%s user=%s", body.thinking_level or "unspecified", body.model or "unspecified", body.session_id, body.user_id)
+    log.info("Streaming query with thinking level %s and model %s for session=%s user=%s", 
+             body.thinking_level or "unspecified", body.model or "unspecified", body.session_id, body.user_id)
     return StreamingResponse(
         _sse_stream(
             user_id=body.user_id,
@@ -385,5 +408,3 @@ async def chat(body: ChatRequest):
         media_type="text/event-stream",
         headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"},
     )
-
-
