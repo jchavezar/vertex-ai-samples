@@ -1,0 +1,21 @@
+.env
+.venv/
+__pycache__/
+*.pyc
+.adk/
+.next/
+node_modules/
+.DS_Store
+frontend/.env.local
+
+# Data & Secrets (MANDATORY)
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+client_secret*.json
+credentials.json
+*_token.json

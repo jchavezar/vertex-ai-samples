@@ -1,0 +1,14 @@
+{
+  "id": "Meta_Q1_2026_Report",
+  "aclInfo": {
+    "readers": [
+      {
+        "principals": [
+          {
+            "userId": "sockcop@jesusarguelles.altostrat.com"
+          }
+        ]
+      }
+    ]
+  }
+}

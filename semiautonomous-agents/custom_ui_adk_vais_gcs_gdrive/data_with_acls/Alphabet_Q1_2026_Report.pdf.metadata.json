@@ -1,0 +1,14 @@
+{
+  "id": "Alphabet_Q1_2026_Report",
+  "aclInfo": {
+    "readers": [
+      {
+        "principals": [
+          {
+            "userId": "admin@jesusarguelles.altostrat.com"
+          }
+        ]
+      }
+    ]
+  }
+}
