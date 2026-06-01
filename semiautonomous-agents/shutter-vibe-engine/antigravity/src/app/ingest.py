@@ -157,7 +157,7 @@ async def handle_event(request: Request) -> Response:
     # Download to a temp local path that pipeline_v2 expects under ROOT.
     sub = {"photo": "photos", "graphic": "graphics",
            "video": "videos", "audio": "audio"}[category]
-    local_dir = ROOT / "assets" / sub
+    local_dir = ROOT.parent / "pipeline" / "assets" / sub
     local_dir.mkdir(parents=True, exist_ok=True)
     local_path = local_dir / f"{asset_id}{ext}"
     src_blob.download_to_filename(str(local_path))
@@ -170,7 +170,7 @@ async def handle_event(request: Request) -> Response:
         "tags": [category, "user-upload"],
         "contributor": "user",
         "license": "user-supplied",
-        "local_path": str(local_path.relative_to(ROOT)),
+        "local_path": str(local_path.relative_to(ROOT.parent / "pipeline")),
     }
 
     fs = firestore.Client(project=os.environ.get("GOOGLE_CLOUD_PROJECT", "vtxdemos"))
