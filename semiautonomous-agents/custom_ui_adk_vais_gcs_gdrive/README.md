@@ -1,583 +1,330 @@
 <h1 align="center">adk-drive-ae</h1>
 
 <p align="center">
-  <strong>An ADK Drive agent on Vertex AI Agent Engine, with a custom Next.js OAuth UI that injects the user's Drive access token into the agent's session.</strong>
+  <strong>An ADK Google Drive agent deployed to Vertex AI Agent Runtime, featuring a custom Next.js OAuth UI that securely passes user-scoped access tokens into the agent's session.</strong>
 </p>
 
 <p align="center">
-  <img alt="Python 3.11+" src="https://img.shields.io/badge/Python-3.11%2B-3776AB?logo=python&logoColor=white">
+  <img alt="Python 3.12+" src="https://img.shields.io/badge/Python-3.12%2B-3776AB?logo=python&logoColor=white">
   <img alt="Node 20+" src="https://img.shields.io/badge/Node-20%2B-339933?logo=node.js&logoColor=white">
   <img alt="Next.js 15" src="https://img.shields.io/badge/Next.js-15-000000?logo=next.js&logoColor=white">
   <img alt="Tailwind CSS" src="https://img.shields.io/badge/Tailwind-3.4-06B6D4?logo=tailwindcss&logoColor=white">
-  <img alt="Vertex AI Agent Engine" src="https://img.shields.io/badge/Vertex%20AI-Agent%20Engine-4285F4?logo=googlecloud&logoColor=white">
+  <img alt="Vertex AI Agent Runtime" src="https://img.shields.io/badge/Vertex%20AI-Agent%20Runtime-4285F4?logo=googlecloud&logoColor=white">
   <img alt="Google ADK" src="https://img.shields.io/badge/Google-ADK-EA4335?logo=google&logoColor=white">
-  <img alt="Drive API v3" src="https://img.shields.io/badge/Drive%20API-v3-FFBA00?logo=googledrive&logoColor=white">
-</p>
-
-<p align="center">
-  <img src="docs/img/demo.gif" alt="adk-drive-ae demo" width="100%">
 </p>
 
 ---
 
-🔒 **Enterprise Security Guide:** To learn how this repository implements document-level Access Control Lists (ACLs) dynamically across GCS and Google Drive, please check our detailed [Enterprise Grounding Security Guide](GROUNDING_SECURITY_GUIDE.md).
+## 📖 Project Purpose & Summary
+
+A standard agent integration (like `adk-drive-via-appint`) uses local development UI popups for OAuth. While perfect for sandbox prototyping, production enterprise applications require a clear separation between **where the user signs in** and **where the agent runs**. 
+
+This repository demonstrates how to build a decoupled, secure, production-grade architecture:
+* 🌐 **The Browser (Next.js UI)** hosts the OAuth flow via Google Identity Services (GIS).
+* 🔒 **FastAPI Proxy** manages connections, sessions, and streams tokens safely to Vertex AI.
+* 🤖 **Agent (Google ADK)** runs inside Google's serverless **Agent Runtime** (Reasoning Engine), executing grounded queries using the user's secure credentials.
 
 ---
 
-## TL;DR
+## 📐 Architecture & Data Flow
 
-The sibling [`adk-drive-via-appint`](../adk-drive-via-appint/) uses ADK's built-in dev-UI OAuth popup. Fine for prototyping — but the popup is owned by the dev UI, the agent runs locally, and there is no separation between *where the user signs in* and *where the agent runs.* This project flips that:
-
-- 🌐 **Browser** owns the OAuth popup (Google Identity Services).
-- 🐍 **FastAPI** forwards the access token into Agent Engine's session state via `create_session(state={...})`.
-- 🤖 **Agent** — deployed to Vertex AI Agent Engine — calls Drive API v3 directly with that token. No Application Integration in the loop.
-
-Same architecture as [`sharepoint_wif_portal`](../sharepoint_wif_portal/), generalized for Google Drive.
-
-## Table of Contents
-
-- [Enterprise Grounding Security Guide (ACLs)](GROUNDING_SECURITY_GUIDE.md)
-- [Architecture](#architecture)
-- [End-to-end sequence](#end-to-end-sequence)
-- [Quickstart](#quickstart)
-- [Setup — once per project](#setup--once-per-project)
-- [Run](#run)
-- [Verify each layer](#verify-each-layer-independently)
-- [Troubleshooting](#troubleshooting)
-- [How the auth flow actually works](#how-the-auth-flow-actually-works)
-- [Adapting for production](#adapting-for-production)
-- [Project layout](#project-layout)
-- [Reference: similar projects](#reference-similar-projects)
-
-## Architecture
-
+### Systems Topology
 ```mermaid
 flowchart LR
-    subgraph Browser["🌐 Browser (your machine)"]
-        UI["Next.js<br/>+ Tailwind UI"]
+    subgraph Browser["🌐 Client Browser (User Machine)"]
+        UI["Next.js UI<br/>(localhost:3000)"]
         GIS["Google Identity<br/>Services popup"]
     end
 
-    subgraph LocalHost["💻 localhost"]
-        BE["FastAPI proxy<br/>:8088"]
+    subgraph LocalHost["💻 Secure Local Proxy"]
+        BE["FastAPI Proxy Gateway<br/>(localhost:8088)"]
     end
 
-    subgraph GCP["☁️ Google Cloud (vtxdemos)"]
-        AE["Vertex AI<br/>Agent Engine<br/>(deployed agent)"]
-        Drive["Drive API v3"]
+    subgraph GCP["☁️ Google Cloud Platform (vtxdemos)"]
+        AR["Vertex AI Agent Runtime<br/>(Deployed Agent Instance)"]
+        Drive["Google Drive API v3"]
     end
 
-    UI -- "1. Connect Google Drive" --> GIS
+    UI -- "1. Connect Drive" --> GIS
     GIS -- "2. access_token" --> UI
-    UI -- "3. POST /api/session<br/>{access_token}" --> BE
-    BE -- "4. create_session<br/>state={temp:drive_access_token: tok}" --> AE
-    AE -- "5. session_id" --> BE
-    BE -- "6. session_id" --> UI
-    UI -- "7. POST /api/chat<br/>{message, session_id}" --> BE
-    BE -- "8. stream_query" --> AE
-    AE -- "9. tool: drive_files_list(...)<br/>Authorization: Bearer access_token" --> Drive
-    Drive -- "10. files JSON" --> AE
-    AE -- "11. SSE events" --> BE
-    BE -- "12. SSE events" --> UI
+    UI -- "3. POST /api/session {access_token}" --> BE
+    BE -- "4. create_session state={drive_access_token}" --> AR
+    AR -- "5. returns session_id" --> BE
+    BE -- "6. forwards session_id" --> UI
+    UI -- "7. POST /api/chat {message, session_id}" --> BE
+    BE -- "8. stream_query + prefix token" --> AR
+    AR -- "9. tool: vertex_ai_search() Auth: Bearer access_token" --> Drive
+    Drive -- "10. raw files metadata" --> AR
+    AR -- "11. Streaming SSE Events" --> BE
+    BE -- "12. UI Rendered Event Stream" --> UI
 
-    style UI fill:#e8f0fe,color:#1a1a2e,stroke:#4285f4
-    style GIS fill:#fff3e0,color:#1a1a2e,stroke:#f9ab00
-    style AE fill:#e6f4ea,color:#1a1a2e,stroke:#34a853
-    style Drive fill:#fce8e6,color:#1a1a2e,stroke:#ea4335
-    style BE fill:#f3e8fd,color:#1a1a2e,stroke:#9334e6
+    style UI fill:#e8f0fe,color:#1a1a2e,stroke:#4285f4,stroke-width:2px
+    style GIS fill:#fff3e0,color:#1a1a2e,stroke:#f9ab00,stroke-width:2px
+    style AR fill:#e6f4ea,color:#1a1a2e,stroke:#34a853,stroke-width:2px
+    style Drive fill:#fce8e6,color:#1a1a2e,stroke:#ea4335,stroke-width:2px
+    style BE fill:#f3e8fd,color:#1a1a2e,stroke:#9334e6,stroke-width:2px
 ```
 
-## End-to-end sequence
+---
 
+## 🔒 Secure Token-Passing Sequence
+
+To pass a user's short-lived OAuth token securely to a deployed serverless agent without exposing parameters or triggering schema validation errors, this project uses a three-phase handshake pattern. 
+
+### Sequence Diagram
 ```mermaid
 sequenceDiagram
     autonumber
     actor User
     participant UI as Next.js UI<br/>(localhost:3000)
     participant GIS as Google Identity<br/>Services
-    participant Google as Google OAuth<br/>servers
-    participant BE as FastAPI<br/>(localhost:8088)
-    participant AE as Vertex AI<br/>Agent Engine
-    participant Tool as ADK Tool<br/>(inside Agent)
-    participant Drive as Drive API v3
+    participant Google as Google OAuth<br/>Servers
+    participant BE as FastAPI Proxy<br/>(localhost:8088)
+    participant AR as Agent Runtime<br/>(Reasoning Engine)
+    participant Tool as ADK Search Tool<br/>(vertex_ai_search)
+    participant Drive as Discovery Engine<br/>(Drive Data Sync)
 
-    User->>UI: open localhost:3000
+    User->>UI: Open localhost:3000
+    User->>UI: Click "Connect Google Drive"
+    UI->>GIS: Initialise Client with drive.readonly scope
+    UI->>GIS: Trigger Consent Flow popup
+    GIS->>Google: Authenticate & consent
+    Google-->>GIS: access_token (~1h TTL)
+    GIS-->>UI: Forwards access_token to callback
+    UI->>UI: Store access_token in React memory state
 
-    User->>UI: click "Connect Google Drive"
-    UI->>GIS: initTokenClient({client_id, scope: drive.readonly})
-    UI->>GIS: requestAccessToken({prompt: consent})
-    GIS->>Google: open popup, user signs in + consents
-    Google-->>GIS: access_token (~1h TTL, drive.readonly scope)
-    GIS-->>UI: callback({access_token})
-    UI->>UI: setAccessToken(token) — kept only in React state
+    User->>UI: Submit Search: "What is Alphabet's Q4 revenue?"
+    UI->>BE: POST /api/session {access_token, user_id}
+    Note over BE,AR: Create session & cache token in runtime state
+    BE->>AR: engine.create_session(<br/>  user_id=user_id,<br/>  state={"drive_access_token": access_token}<br/>)
+    AR-->>BE: Returns session_id
+    BE-->>UI: Forwards session_id
 
-    User->>UI: type "list 5 most recent files"
-    UI->>BE: POST /api/session<br/>{access_token, user_id}
-    BE->>AE: agent.create_session(<br/>  user_id,<br/>  state={"temp:drive_access_token": tok,<br/>          "drive_access_token": tok})
-    AE-->>BE: {session_id}
-    BE-->>UI: {session_id}
-    UI->>UI: cache session_id for the chat
-
-    UI->>BE: POST /api/chat<br/>{message, session_id, user_id, access_token}
-    BE->>AE: agent.stream_query(user_id, session_id, message)
-
-    activate AE
-    AE->>AE: model picks tool: drive_files_list(q, page_size)
-    AE-->>BE: SSE event: function_call
-    BE-->>UI: SSE event: tool_call
-
-    AE->>Tool: invoke drive_files_list(...)<br/>tool_context.state["temp:drive_access_token"]
-    Tool->>Tool: _get_token() — read from session state
-    Tool->>Drive: GET /drive/v3/files?q=...&pageSize=10<br/>Authorization: Bearer {access_token}
-    Drive-->>Tool: 200 {files: [...]}
-    Tool-->>AE: return {files: [...]}
-    AE-->>BE: SSE event: function_response
-    BE-->>UI: SSE event: tool_result
-
-    AE->>AE: model summarizes results
-    AE-->>BE: SSE event: text chunks
-    BE-->>UI: SSE event: text chunks
-    UI->>User: render answer + tool trace
-    deactivate AE
-
-    Note over UI,AE: Subsequent messages reuse the same session_id<br/>so the token does not get re-injected per turn.
+    UI->>BE: POST /api/chat {message, session_id, access_token}
+    Note over BE,AR: Stream query using prompt-prefix bypass
+    BE->>AR: engine.stream_query(message="[ACCESS_TOKEN:...] query")
+    activate AR
+    AR->>AR: before_agent_callback extracts & caches token in context
+    AR->>AR: LLM decides to call search tool
+    AR->>Tool: Execute vertex_ai_search(query)
+    Note over Tool,Drive: Authorize using user-scoped credentials
+    Tool->>Drive: GET /servingConfigs/default_search:search<br/>Authorization: Bearer <user_access_token>
+    Drive-->>Tool: Returns matched grounded documents & ACL info
+    Tool-->>AR: Forwards parsed files JSON
+    AR-->>BE: Model text chunks & thought stream (SSE)
+    BE-->>UI: Structured SSE events (thoughts + citations)
+    UI->>User: Render answers & clickable document links
+    deactivate AR
 ```
 
-## Quickstart
+---
 
-For someone who already has Python 3.11+, Node 20+, `uv`, `gcloud` set up against a GCP project, and an OAuth Web client (see [Setup](#setup--once-per-project) for details), the entire flow is **five commands** plus one OAuth Console step.
+## 💻 Code walkthrough: Dynamic Token Injection
 
+Here are the key snippets showing exactly how the GSuite / Google Drive access token is securely propagated from client connection to API invocation.
+
+### Step 1: Frontend Authenticates & Requests Session (Next.js)
+When the user connects their Google Drive, the React app sends the access token to the FastAPI proxy to establish a session with the Agent Runtime:
+```typescript
+// frontend/lib/api.ts
+export async function createSession(accessToken: string, userId: string): Promise<string> {
+  const res = await fetch(`${BACKEND_URL}/api/session`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ access_token: accessToken, user_id: userId, message: "" })
+  });
+  const data = await res.json();
+  return data.session_id; // Deployed Agent Runtime session identifier
+}
+```
+
+### Step 2: Session Setup & Token Persistence (FastAPI)
+The FastAPI backend creates a session in the deployed Reasoning Engine and caches the token in the session's active dictionary state:
+```python
+# backend/main.py
+@app.post("/api/session")
+def create_session(body: ChatRequest):
+    engine = _engine() # Retrieves reference to deployed Reasoning Engine
+    
+    # Store access token in session state for Drive datastore auth
+    state = {
+        "temp:drive_access_token": body.access_token, 
+        "drive_access_token": body.access_token
+    }
+    
+    # Creates session on Vertex AI with cached credentials
+    session = engine.create_session(user_id=body.user_id, state=state)
+    return {"session_id": session.get("id")}
+```
+
+### Step 3: Prompt-Prefix Token Refresh (FastAPI)
+For every chat message, the FastAPI server prepends the access token to the prompt before starting the stream. This ensures the credentials are always fresh:
+```python
+# backend/main.py
+async def _sse_stream(user_id, session_id, message, access_token):
+    # Prefix the message so the pre-agent callback can intercept it
+    msg_to_send = f"[ACCESS_TOKEN:{access_token}] {message}"
+    
+    for event in engine.stream_query(
+        user_id=user_id,
+        session_id=session_id,
+        message=msg_to_send,
+    ):
+        yield serialize(event)
+```
+
+### Step 4: Callback Interception & Strip (ADK Agent)
+On Google Cloud, the pre-agent callback intercepts the incoming message, extracts the token, cache-synchronizes it in the session state, and strips the prefix so the LLM never sees it:
+```python
+# agent/agent.py
+async def extract_token_callback(callback_context: CallbackContext) -> None:
+    text = ""
+    for part in callback_context.user_content.parts:
+        if part.text:
+            text += part.text
+            
+    # Extract access token prefix if present
+    m_token = re.match(r"^\[ACCESS_TOKEN:(.*?)\]\s*(.*)$", text, re.DOTALL)
+    if m_token:
+        token = m_token.group(1)
+        text = m_token.group(2) # Strip the prefix
+        
+        # Save token directly to active context session state
+        callback_context.state["drive_access_token"] = token
+        callback_context.state["temp:drive_access_token"] = token
+        
+    # Overwrite the user's prompt in-place to keep it clean for the LLM
+    for part in callback_context.user_content.parts:
+        if part.text:
+            part.text = text
+```
+
+### Step 5: Authorized Tool Execution (ADK Tool)
+When the LLM decides to search Google Drive/GCS, the tool retrieves the user's access token directly from `ToolContext` and queries Discovery Engine:
+```python
+# agent/agent.py
+@tool
+def vertex_ai_search(query: str, tool_context: ToolContext) -> dict:
+    # 1. Grab user OAuth token from session state (fallback to temp:)
+    token = tool_context.state.get("drive_access_token") or tool_context.state.get("temp:drive_access_token")
+    
+    # 2. Add as Bearer header
+    headers = {
+        "Authorization": f"Bearer {token}",
+        "Content-Type": "application/json",
+        "X-Goog-User-Project": GCP_PROJECT_NUMBER,
+    }
+    
+    # 3. Securely query Discovery Engine (with document-level ACL checks)
+    response = requests.post(api_url, headers=headers, json=request_body)
+    return response.json()
+```
+
+---
+
+## 🚀 Quickstart
+
+### 1. Requirements & Enabling APIs
+Enable target services in your GCP project and create a staging storage bucket for deployment:
 ```bash
-git clone https://github.com/jchavezar/vertex-ai-samples.git
-cd vertex-ai-samples/semiautonomous-agents/adk-drive-ae
+# Enable Vertex AI, Discovery Engine, and Drive APIs
+gcloud services enable aiplatform.googleapis.com discoveryengine.googleapis.com drive.googleapis.com --project=YOUR_PROJECT_ID
 
-# 1. install deps
+# Create GCS staging bucket (used to package python code)
+gcloud storage buckets create gs://YOUR_PROJECT_ID-agent-engine --location=us-central1 --project=YOUR_PROJECT_ID
+```
+
+### 2. Configure Environment Files
+Copy example configuration templates and populate your credentials:
+```bash
+# 1. Core project & deployed engine config
+cp .env.example .env
+# Edit inside .env:
+#   GOOGLE_CLOUD_PROJECT=your-project-id
+#   DEPLOY_STAGING_BUCKET=gs://your-project-id-agent-engine
+#   AGENT_ENGINE_RESOURCE=  (this will be filled after deployment)
+
+# 2. Frontend OAuth client config
+cp frontend/.env.local.example frontend/.env.local
+# Edit inside frontend/.env.local:
+#   NEXT_PUBLIC_GOOGLE_CLIENT_ID=your-google-oauth-web-client-id.apps.googleusercontent.com
+```
+> [!NOTE]
+> To create an OAuth Web Client ID, go to Google Cloud Console ➔ **APIs & Services** ➔ **Credentials** ➔ **Create Credentials** ➔ **OAuth client ID** (Application type: **Web application**). Add `http://localhost:3000` to the **Authorized JavaScript origins**.
+
+### 3. Deploy the Agent to Agent Runtime (Reasoning Engine)
+Run the deploy script inside `dev_testing/` to deploy the agent package to Vertex AI:
+```bash
+# Install local dependencies
 uv sync && (cd frontend && npm install)
 
-# 2. config
-cp .env.example .env                      # edit: GOOGLE_CLOUD_PROJECT, DEPLOY_STAGING_BUCKET
-cp frontend/.env.local.example frontend/.env.local   # edit: NEXT_PUBLIC_GOOGLE_CLIENT_ID
-
-# 3. deploy the agent (~3 min)
-uv run python scripts/deploy.py new       # paste resource_name into .env as AGENT_ENGINE_RESOURCE
-
-# 4. run backend (terminal 1)
-uv run uvicorn backend.main:app --port 8088 --reload
-
-# 5. run frontend (terminal 2)
-cd frontend && npm run dev
+# Package and deploy agent code to Google Cloud (takes ~3 minutes)
+uv run python dev_testing/deploy.py new
 ```
-
-Open <http://localhost:3000>, click **Connect Google Drive**, ask `whose Drive am I reading?`.
-
-## Setup — once per project
-
-### 1. Prerequisites
-
-```bash
-# Required APIs
-gcloud services enable aiplatform.googleapis.com drive.googleapis.com --project=YOUR_PROJECT
-
-# Staging bucket for Agent Engine deploy artifacts
-gcloud storage buckets create gs://YOUR_PROJECT-agent-engine \
-    --location=us-central1 --project=YOUR_PROJECT
+At the end of the deployment run, copy the printed resource name:
 ```
-
-### 2. Create the OAuth Web client (the only manual Console step)
-
-The browser-side popup uses a Web Application OAuth client. **One-time, manual.**
-
-1. Open **APIs & Services → Credentials**:
-   `https://console.cloud.google.com/apis/credentials?project=YOUR_PROJECT`
-
-2. **Configure OAuth consent screen** (skip if already done):
-   - User type: **Internal** if your org uses Workspace, **External** otherwise
-   - Add scope: `https://www.googleapis.com/auth/drive.readonly`
-   - For **External + Testing**: add your test user emails
-
-3. **+ CREATE CREDENTIALS → OAuth client ID**
-   - Application type: **Web application**
-   - Name: `adk-drive-ae`
-   - **Authorized JavaScript origins** → ADD URI: `http://localhost:3000`
-
-   > ⚠️ This is the **top** section *("For use with requests from a browser")*.
-   > **Not** "Authorized redirect URIs" — leave that empty. The popup token flow does not redirect.
-
-4. **CREATE** → copy the **Client ID** (the secret is unused).
-
-### 3. Configure environment files
-
-```bash
-cd vertex-ai-samples/semiautonomous-agents/adk-drive-ae
-
-cp .env.example .env
-# .env:
-#   GOOGLE_CLOUD_PROJECT=your-project
-#   DEPLOY_STAGING_BUCKET=gs://your-project-agent-engine
-#   AGENT_ENGINE_RESOURCE=                 (filled after step 5)
-
-cp frontend/.env.local.example frontend/.env.local
-# frontend/.env.local:
-#   NEXT_PUBLIC_GOOGLE_CLIENT_ID=...apps.googleusercontent.com
-#   NEXT_PUBLIC_BACKEND_URL=http://localhost:8088
+[deploy] resource_name = projects/123456789/locations/us-central1/reasoningEngines/5924444078119845888
 ```
-
-### 4. Install dependencies
-
-```bash
-uv sync                      # Python (agent + backend)
-cd frontend && npm install   # Frontend
-cd ..
-```
-
-### 5. Deploy the agent to Agent Engine
-
-```bash
-uv run python scripts/deploy.py new
-```
-
-~3-5 minutes. At the end you will see:
-
-```
-[deploy] resource_name = projects/.../reasoningEngines/...
-
-Add to .env:
-AGENT_ENGINE_RESOURCE="projects/.../reasoningEngines/..."
-```
-
-Paste that line into `.env`. From here on, `uv run python scripts/deploy.py update` (or just `deploy.py` with `AGENT_ENGINE_RESOURCE` already set) redeploys the same engine in place.
-
-## Run
-
-You need three things running: the deployed agent (already up after `deploy.py`), the FastAPI backend, and the Next.js frontend.
-
-| Terminal | Command | What it does |
-|---|---|---|
-| **1 — backend** | `uv run uvicorn backend.main:app --port 8088 --reload` | FastAPI proxy on :8088 |
-| **2 — frontend** | `cd frontend && npm run dev` | Next.js dev server on :3000 |
-
-If you are running on a remote VM, tunnel both ports from your laptop:
-
-```bash
-gcloud compute ssh YOUR_VM -- -L 3000:localhost:3000 -L 8088:localhost:8088
-```
-
-Then open <http://localhost:3000>.
-
-### What you'll see
-
-| 1. Landing | 2. Signed in |
-|---|---|
-| <img src="docs/img/screenshot-1-landing.png" alt="landing"> | <img src="docs/img/screenshot-2-connected.png" alt="connected"> |
-| **3. Tool call streaming** | **4. Final answer** |
-| <img src="docs/img/screenshot-3-streaming.png" alt="streaming"> | <img src="docs/img/screenshot-4-answer.png" alt="answer"> |
-
-Try one of these prompts:
-
-- `Show 5 of my most recently modified files`
-- `Search my Drive for documents about envato`
-- `Whose Drive am I reading right now?`
-
-## Verify each layer independently
-
-When something breaks, isolate which layer is at fault.
-
-```bash
-# 1. Backend health (should print agent_engine_configured: true)
-curl -s http://localhost:8088/api/health | jq
-
-# 2. Backend → Agent Engine plumbing test (uses a fake token; Drive returns 401, that's fine)
-SID=$(curl -s -X POST http://localhost:8088/api/session \
-  -H 'Content-Type: application/json' \
-  -d '{"access_token":"FAKE","user_id":"test","message":""}' | jq -r .session_id)
-
-curl -sN -X POST http://localhost:8088/api/chat \
-  -H 'Content-Type: application/json' \
-  -d "{\"access_token\":\"FAKE\",\"user_id\":\"test\",\"session_id\":\"$SID\",\"message\":\"call drive_about_get\"}"
-```
-
-Expect: `function_call` event → `function_response` with HTTP 401 from Drive → model text explaining the auth error. Three SSE events = pipeline OK end-to-end. Then check Cloud Logging for the agent itself.
-
-## 🎓 How to Fish: Local Running & Cloud Deployment Mechanics
-
-To replicate this architecture in your own environment, it is crucial to understand the distinction between running your agent **locally inside your Python process** (for testing/development) and **deploying it to Google Cloud's managed Agent Runtime** (for production).
-
-By seeing the exact API calls and mechanics, you can integrate this into any enterprise CI/CD workflow without needing automated scripts.
-
----
-
-### 💻 Mode A: Running Your Agent Locally (Development Sandbox)
-
-When you are developing, your agent runs directly inside your local Python interpreter. It connects to Gemini and Discovery Engine APIs over HTTPS, but the orchestration loop, tool callbacks, and function executions happen on your machine.
-
-This is powered by the Google ADK's **`InMemoryRunner`**.
-
-```python
-import asyncio
-from google.adk.runners import InMemoryRunner
-from google.genai.types import Content, Part
-from agent.agent import root_agent
-
-async def main():
-    # 1. Instantiate the in-memory runner pointing to your local agent definition
-    runner = InMemoryRunner(agent=root_agent, app_name="local-grounding-agent")
-    
-    # 2. Create a secure local session with an OAuth access token (simulating frontend login)
-    session = await runner.session_service.create_session(
-        app_name="local-grounding-agent",
-        user_id="test-developer@company.com",
-        state={
-            "drive_access_token": "YA29.your_gsuite_oauth_token",
-            "temp:drive_access_token": "YA29.your_gsuite_oauth_token"
-        },
-    )
-    
-    # 3. Stream a user message and capture text outputs, tool calls, and results
-    query = "What is our company's Q4 sales data?"
-    content = Content(parts=[Part(text=query)], role="user")
-    
-    print(f"User Prompt: {query}\n")
-    async for event in runner.run_async(
-        user_id="test-developer@company.com", 
-        session_id=session.id, 
-        new_message=content
-    ):
-        if event.content and event.content.parts:
-            for part in event.content.parts:
-                # Print Gemini's generated thoughts/text response chunks
-                if part.text:
-                    print(part.text, end="", flush=True)
-                    
-                # Print when the agent calls your custom search tool
-                if part.function_call:
-                    print(f"\n[Tool Invocated]: {part.function_call.name} with {part.function_call.args}")
-
-if __name__ == "__main__":
-    asyncio.run(main())
+Paste this into your `.env` as:
+```env
+AGENT_ENGINE_RESOURCE="projects/123456789/locations/us-central1/reasoningEngines/5924444078119845888"
 ```
 
 ---
 
-### ☁️ Mode B: Deploying Your Agent to the Cloud (Production Runtime)
+## 🏃 Running the Servers
 
-When you are ready to deploy, your Python code is serialized (pickled), containerized, and uploaded to Google Cloud's serverless **Vertex AI Reasoning Engine** (which serves as the server-side **Agent Runtime**).
+To test the application locally, you need the **FastAPI proxy** and the **Next.js frontend** running simultaneously:
 
-You deploy the agent programmatically using the official Google Cloud Vertex AI SDK:
+| Terminal Pane | Action | Command |
+| :--- | :--- | :--- |
+| **Terminal 1: Backend** | Start FastAPI gateway on port `8088` | `.venv/bin/uvicorn backend.main:app --port 8088 --reload` |
+| **Terminal 2: Frontend** | Start Next.js on port `3000` | `cd frontend && npm run dev` |
 
-```python
-import vertexai
-from vertexai import agent_engines
-from agent.agent import root_agent
+Once both are active, open **`http://localhost:3000`** in your browser, connect Google Drive, and ask questions!
 
-# 1. Initialize your Google Cloud environment context
-vertexai.init(project="your-gcp-project-id", location="us-central1")
+---
 
-# 2. Package and deploy your local agent to the serverless Reasoning Engine runtime
-deployed_engine = agent_engines.deploy(
-    root_agent,
-    requirements=[
-        "google-adk",
-        "google-genai",
-        "requests",
-        "urllib3"
-    ]
-)
+## 💻 Local Sandbox Testing (No Servers Needed)
 
-print(f"\nDeployment Succeeded!")
-print(f"Your Deployed Agent Resource Path: {deployed_engine.resource_name}")
-# Output format: projects/{project_number}/locations/us-central1/reasoningEngines/{engine_id}
+If you or your customers want to quickly test the agent logic entirely in-memory without running any servers, use the root-level local smoke-test runner:
+
+```bash
+# 1. Set your Drive Access Token
+export DRIVE_ACCESS_TOKEN="ya29.your_gsuite_oauth_access_token..."
+
+# 2. Run query
+python test_local.py "show 5 of my files"
 ```
 
 ---
 
-### 🌐 Mode C: Connecting the FastAPI Gateway to your Cloud Agent
+## 📂 Simplified Project Layout
 
-Once your agent is running in Google's cloud sandbox (Mode B), your FastAPI backend proxy (`backend/main.py`) does not need to run any local agent loops. Instead, it retrieves a remote reference to your deployed engine using its resource URI and streams user requests down to it:
-
-```python
-from fastapi import FastAPI
-from fastapi.responses import StreamingResponse
-from vertexai import agent_engines
-
-app = FastAPI()
-
-# 1. Retrieve the deployed engine instance directly from Vertex AI
-AGENT_ENGINE_RESOURCE = "projects/123456789/locations/us-central1/reasoningEngines/987654321"
-engine = agent_engines.get(AGENT_ENGINE_RESOURCE)
-
-@app.post("/api/chat")
-async def chat_proxy(body: ChatRequest):
-    # 2. Forward queries to the server-side Cloud Runtime and stream response events
-    return StreamingResponse(
-        engine.stream_query(
-            user_id=body.user_id,
-            session_id=body.session_id,
-            message=body.message
-        ),
-        media_type="text/event-stream"
-    )
-```
-
-Using this approach, you maintain a clean, performant, and securely decoupled client-server architecture.
-
-## Troubleshooting
-
-<details>
-<summary><strong><code>Access blocked: no registered origin</code> / <code>invalid_client</code></strong></summary>
-
-The OAuth client doesn't have `http://localhost:3000` under **Authorized JavaScript origins** (the *browser* section, not the *web server* "redirect URIs" section). Add it, save, wait ~30 seconds.
-
-</details>
-
-<details>
-<summary><strong>Popup never opens</strong></summary>
-
-Browser blocked it. Allow popups for `localhost:3000` and click again.
-
-</details>
-
-<details>
-<summary><strong><code>Access blocked: ... has not completed the Google verification process</code></strong></summary>
-
-OAuth consent screen is in **Testing** publishing status and the signing-in account isn't in the test users list. Console → APIs & Services → OAuth consent screen → Test users → Add user.
-
-</details>
-
-<details>
-<summary><strong>Stream returns one event then stops</strong></summary>
-
-A tool inside the agent is raising an unhandled exception, which silently kills `stream_query`. Every tool in `agent/agent.py` already wraps its body in `try/except` — if you add a new tool, do the same.
-
-</details>
-
-<details>
-<summary><strong><code>HTTP 401: Request had invalid authentication credentials</code> from a Drive tool</strong></summary>
-
-The token in session state is invalid or expired. Click **Disconnect Drive** in the UI and reconnect to get a fresh token (~1h TTL).
-
-</details>
-
-<details>
-<summary><strong><code>port 8080 already in use</code></strong></summary>
-
-On this VM port 8080 is taken by the ms365-mcp Cloud Run proxy. The backend uses **8088** — make sure your tunnel and `frontend/.env.local` both point at 8088.
-
-</details>
-
-<details>
-<summary><strong><code>404 Publisher Model ... was not found</code></strong></summary>
-
-The agent uses `gemini-3-flash-preview`, which only serves from the `global` model location. The deploy script sets `GOOGLE_CLOUD_LOCATION=global` as a runtime env var on the deployed agent. If you change the model, update that env var too.
-
-</details>
-
-<details>
-<summary><strong>Updates to <code>agent/agent.py</code> aren't reflected</strong></summary>
-
-Run `uv run python scripts/deploy.py update` and wait for the LRO to finish (~3-4 min). The backend will pick up the new code on its next session.
-
-</details>
-
-## How the auth flow actually works
-
-```mermaid
-sequenceDiagram
-    autonumber
-    participant Browser
-    participant GIS as Google Identity Services
-    participant Google
-    participant FastAPI
-    participant AE as Agent Engine
-    participant Tool as drive_files_list (tool)
-    participant Drive
-
-    Browser->>GIS: initTokenClient({client_id, scope: drive.readonly})
-    Browser->>GIS: requestAccessToken({prompt: consent})
-    GIS->>Google: open consent popup
-    Google-->>GIS: access_token (drive.readonly, ~1h)
-    GIS-->>Browser: callback({access_token})
-
-    Browser->>FastAPI: POST /api/session {access_token}
-    FastAPI->>AE: create_session(<br/>  user_id,<br/>  state={temp:drive_access_token: tok})
-    Note right of AE: token now lives in<br/>session state, not<br/>passed per turn
-    AE-->>FastAPI: session_id
-    FastAPI-->>Browser: session_id
-
-    Browser->>FastAPI: POST /api/chat {session_id, message}
-    FastAPI->>AE: stream_query(session_id, message)
-    AE->>Tool: invoke (tool_context contains state)
-    Tool->>Tool: tok = state["temp:drive_access_token"]
-    Tool->>Drive: GET /drive/v3/files?q=...<br/>Authorization: Bearer {tok}
-    Drive-->>Tool: files JSON
-    Tool-->>AE: function_response
-    AE-->>FastAPI: SSE stream
-    FastAPI-->>Browser: SSE stream
-```
-
-Two things make this work:
-
-1. **`create_session(state=...)` actually persists state into `tool_context.state` on the deployed agent.** This is the same mechanism Agentspace / Gemini Enterprise uses to pass per-user OAuth tokens to ADK tools (the `temp:` prefix is the runtime-only convention). Verified end-to-end in this project; also used in [`sharepoint_wif_portal/backend/agent_client.py:60`](../sharepoint_wif_portal/backend/agent_client.py).
-
-2. **The agent's tool reads from state, not from a request body.** That keeps the agent's API surface unchanged — the tool signature is just `drive_files_list(q, page_size, tool_context)` — and means the same agent code works under any caller that can populate session state (this UI, Agentspace, Gemini Enterprise, a different SDK).
-
-## Adapting for production
-
-This setup is local-first by design. To productionize:
-
-| Step | Change |
-|---|---|
-| **Host the backend** | Deploy `backend/` to **Cloud Run + IAP**. Stateless, ~150 lines. Update CORS allow-list to the production frontend origin. |
-| **Host the frontend** | Deploy `frontend/` to **Cloud Run** or **Firebase Hosting**. Update `NEXT_PUBLIC_BACKEND_URL` to the Cloud Run URL of the backend. |
-| **OAuth origins** | Add `https://yourdomain.com` to **Authorized JavaScript origins** on the same OAuth client. |
-| **Consent screen** | Move from **Testing** to **In Production** if you'll have external users (otherwise only test users can sign in). |
-| **Session pooling** | Currently each `/api/session` call creates a fresh Agent Engine session. For high-traffic apps, reuse sessions per `(user_id, day)` so token-injection state stays coherent across many turns. |
-
-## Project layout
+This repository has been strictly clean-refactored to ensure maximum ease of understanding for clients and developers:
 
 ```
-adk-drive-ae/
-├── README.md                 ← you are here
-├── pyproject.toml            ← Python deps for agent + backend
-├── .env / .env.example       ← project + Agent Engine resource
-├── .gitignore
+custom_ui_adk_vais_gcs_gdrive/
+├── agent/                ← Deployed ADK Agent codebase
+│   └── agent.py          ← Core agent definitions, tool schema, and callbacks
 │
-├── agent/                    ← ADK agent (deployed to Agent Engine)
-│   ├── __init__.py
-│   └── agent.py              ← root_agent + 4 FunctionTools (list/get/export/about)
+├── backend/              ← FastAPI Serving Gateway Proxy
+│   └── main.py           ← API streaming endpoints, session caching, and prompt prefixing
 │
-├── backend/                  ← FastAPI proxy
-│   └── main.py               ← /api/session, /api/chat (SSE), /api/health
+├── frontend/             ← Next.js 15 UI Web Panel
+│   ├── app/              ← Page views and styles loading GIS popup
+│   ├── components/       ← Chat panels, stream consumers, and Drive buttons
+│   └── lib/              ← Client-side API fetchers
 │
-├── scripts/
-│   ├── deploy.py             ← AdkApp + agent_engines.create()/update()
-│   └── test_local.py         ← InMemoryRunner sanity test (optional)
+├── test_local.py         ← Single-file, in-memory local runner for easy terminal testing
+├── pyproject.toml        ← Project dependencies
+├── README.md             ← This documentation
 │
-├── frontend/                 ← Next.js 15 + Tailwind
-│   ├── package.json
-│   ├── .env.local            ← OAuth client ID + backend URL
-│   ├── app/
-│   │   ├── layout.tsx        ← loads GIS script
-│   │   └── page.tsx          ← auth gate + chat panel
-│   ├── components/
-│   │   ├── DriveAuthButton.tsx   ← GIS popup
-│   │   └── ChatPanel.tsx         ← chat UI + SSE consumer
-│   └── lib/
-│       └── api.ts            ← createSession + streamChat helpers
-│
-└── docs/
-    └── img/                  ← README assets (GIF + screenshots)
+└── dev_testing/          ← [Developer Box] Houses staging tests, deployment scripts, & backups
 ```
-
-## Reference: similar projects
-
-| Project | What it does | Why look at it |
-|---|---|---|
-| [`adk-drive-via-appint`](../adk-drive-via-appint/) | Same Drive agent, but uses ADK dev UI's built-in OAuth popup | Compare against this project to see what changes when the UI owns auth |
-| [`sharepoint_wif_portal`](../sharepoint_wif_portal/) | Same architecture as this project, for SharePoint instead of Drive | Frontend uses MSAL/Entra; backend forwards JWT in `state["sharepointauth2"]` — confirms the pattern is reusable across any third-party identity |
-| [`gemini-enterprise-sharepoint-agent`](../gemini-enterprise-sharepoint-agent/) | Discovery Engine + WIF, runs under Gemini Enterprise | Source of the dual-key state lookup pattern (`temp:KEY` first, then `KEY`) used in `_get_token` here |
 
 ---
 
 <p align="center">
-  <em>Built by <a href="https://www.linkedin.com/in/jchavezar/">Jesús Chávez</a> · part of <a href="https://github.com/jchavezar/vertex-ai-samples">vertex-ai-samples</a></em>
+  <em>Built by Jesús Chávez · Part of the <a href="https://github.com/jchavezar/vertex-ai-samples">vertex-ai-samples</a> family.</em>
 </p>
