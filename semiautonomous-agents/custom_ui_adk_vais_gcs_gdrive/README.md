@@ -285,6 +285,16 @@ Once both are active, open **`http://localhost:3000`** in your browser, connect 
 
 ---
 
+## 📺 Active Browsing Demonstration
+
+Below is the verified active browsing execution showing the query *"what was the first quarter revenue for Alphabet?"* submitted to the Next.js UI on `localhost:3000`, which streams the answer securely from the Vertex AI agent:
+
+> [!TIP]
+> **Active Browsing Demo**:
+> ![Antigravity Active Browsing Demo](dev_testing/recordings/adk_drive_demo_walkthrough.gif)
+
+---
+
 ## 💻 Local Sandbox Testing (No Servers Needed)
 
 If you or your customers want to quickly test the agent logic entirely in-memory without running any servers, use the root-level local smoke-test runner:
