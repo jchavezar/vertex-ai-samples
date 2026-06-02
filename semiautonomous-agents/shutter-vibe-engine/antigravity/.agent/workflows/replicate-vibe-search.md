@@ -53,7 +53,7 @@ SEARCH_BACKEND=vector-search
 INDEX_DISPLAY_NAME=envato-vibe-multimodal
 ENDPOINT_DISPLAY_NAME=envato-vibe-endpoint
 DEPLOYED_INDEX_ID=envato_vibe_multimodal
-FIRESTORE_DATABASE_ID=(default)
+FIRESTORE_DATABASE_ID="(default)"
 EOF
 echo ".env file generated successfully. Please verify its values."
 ```
@@ -120,12 +120,15 @@ ROLES=(
   "roles/run.invoker"
   "roles/pubsub.publisher"
   "roles/eventarc.eventReceiver"
+  "roles/bigquery.dataViewer"
+  "roles/bigquery.jobUser"
 )
 
 for role in "\${ROLES[@]}"; do
   gcloud projects add-iam-policy-binding "\$GOOGLE_CLOUD_PROJECT" \
     --member="serviceAccount:\${SA_EMAIL}" \
     --role="\$role" \
+    --condition=None \
     --quiet >/dev/null
 done
 
@@ -135,6 +138,7 @@ GCS_AGENT="service-\${PROJECT_NUM}@gs-project-accounts.iam.gserviceaccount.com"
 gcloud projects add-iam-policy-binding "\$GOOGLE_CLOUD_PROJECT" \
   --member="serviceAccount:\${GCS_AGENT}" \
   --role="roles/pubsub.publisher" \
+  --condition=None \
   --quiet >/dev/null
 ```
 

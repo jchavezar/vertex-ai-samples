@@ -384,10 +384,13 @@ def signed_url(gs_uri: str | None, hours: int = 1) -> str | None:
     the corpus is public-domain Pexels/Pixabay/Internet-Archive material.
     Return the direct https URL — no signing needed, works locally and on
     Cloud Run identically."""
-    blob_path = gs_to_blob_path(gs_uri)
-    if not blob_path:
+    if not gs_uri or not gs_uri.startswith("gs://"):
         return None
-    return f"https://storage.googleapis.com/{GCS_BUCKET}/{blob_path}"
+    parts = gs_uri[5:].split("/", 1)
+    if len(parts) != 2:
+        return None
+    bucket_name, blob_path = parts
+    return f"https://storage.googleapis.com/{bucket_name}/{blob_path}"
 
 
 def slugify(name: str) -> str:

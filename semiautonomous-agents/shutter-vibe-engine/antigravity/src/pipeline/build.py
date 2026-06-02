@@ -431,10 +431,15 @@ class VS:
         idx = aiplatform.MatchingEngineIndex.list(
             filter=f'display_name="{INDEX_DISPLAY_NAME}"')
         if not idx:
-            raise RuntimeError(f"index '{INDEX_DISPLAY_NAME}' not found")
-        self.index = idx[0]
+            print(f"[WARNING] Matching Engine Index '{INDEX_DISPLAY_NAME}' not found. Upserts will be a no-op.")
+            self.index = None
+        else:
+            self.index = idx[0]
 
     def upsert(self, dp_id: str, vec: np.ndarray, restricts: dict[str, str]) -> None:
+        if not self.index:
+            log("vs", f"Skipping Vector Search upsert for {dp_id} (index not found)")
+            return
         DP = self.IndexDatapoint
         rs = [DP.Restriction(namespace=k, allow_list=[v])
               for k, v in restricts.items() if v]

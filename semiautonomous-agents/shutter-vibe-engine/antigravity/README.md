@@ -12,12 +12,14 @@ It contains the exact working frontend source code, backend python servers, cont
 antigravity/
 ├── README.md               # This master onboarding & bootstrap guide
 ├── WORKFLOW.md             # Declarative, sequential & parallel workflow for Antigravity
+├── CLEANUP_WORKFLOW.md     # Declarative workflow for tearing down environment
+├── cleanup.sh              # Automated GCP resource teardown script
 ├── verify_replication.py   # Automated frontend & server router integrity check
 ├── SKILLS.md               # Model selections, SDK requirements, and security guidelines
 ├── .agent/                 # Portable Antigravity rules, workflows, and skills folder
 │   ├── rules/              # Global agent guidelines (general-instructions.md)
 │   ├── skills/             # Custom agent capabilities (replicating-vibe-search/SKILL.md)
-│   └── workflows/          # Interactive deployment workflows (replicate-vibe-search.md)
+│   └── workflows/          # Interactive workflows (replicate-vibe-search.md, cleanup-vibe-search.md)
 ├── subagents/              # AI specialist instructions
 │   ├── ui_copier.md        # Specs for cloning and adapting index_v2.html, app_v2.js, etc.
 │   └── pipeline_builder.md # Specs for provisioning buckets and Cloud Run services
