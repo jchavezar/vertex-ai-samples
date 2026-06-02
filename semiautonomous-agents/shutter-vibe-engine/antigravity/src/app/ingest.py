@@ -173,7 +173,8 @@ async def handle_event(request: Request) -> Response:
         "local_path": str(local_path.relative_to(ROOT.parent / "pipeline")),
     }
 
-    fs = firestore.Client(project=os.environ.get("GOOGLE_CLOUD_PROJECT", "vtxdemos"))
+    db_id = os.environ.get("FIRESTORE_DATABASE_ID", "(default)")
+    fs = firestore.Client(project=os.environ.get("GOOGLE_CLOUD_PROJECT", "vtxdemos"), database=db_id)
     gcs = GCS()
     vs = VS()
 

@@ -39,6 +39,7 @@ The agent will prompt you for the following environment parameters and write the
 *   **INDEX_DISPLAY_NAME**: The display name of your Vertex AI Vector Search index (e.g., `envato-vibe-multimodal`).
 *   **ENDPOINT_DISPLAY_NAME**: The display name of your Vertex AI Vector Search index endpoint (e.g., `envato-vibe-endpoint`).
 *   **DEPLOYED_INDEX_ID**: The deployed index ID (e.g., `envato_vibe_multimodal`).
+*   **FIRESTORE_DATABASE_ID**: The target Firestore database ID (e.g., `(default)` or `vibe-search-clean`).
 
 If running manually, execute this command block to create a default `.env` file:
 
@@ -52,6 +53,7 @@ SEARCH_BACKEND=vector-search
 INDEX_DISPLAY_NAME=envato-vibe-multimodal
 ENDPOINT_DISPLAY_NAME=envato-vibe-endpoint
 DEPLOYED_INDEX_ID=envato_vibe_multimodal
+FIRESTORE_DATABASE_ID=(default)
 EOF
 echo ".env file generated successfully. Please verify its values."
 ```
@@ -72,6 +74,24 @@ gcloud services enable \\
   aiplatform.googleapis.com \
   cloudbuild.googleapis.com \
   --quiet
+```
+
+---
+
+## 3b. Create Clean, Named Firestore Database (Optional)
+If you configured a custom, non-default database to separate user uploads from any pre-seeded demo stock assets on a clean-slate setup, create the dedicated Firestore database:
+
+// turbo
+```bash
+set -a; [ -f .env ] && . .env; set +a
+if [ "\$FIRESTORE_DATABASE_ID" != "(default)" ]; then
+  gcloud alpha firestore databases create \
+    --database="\$FIRESTORE_DATABASE_ID" \
+    --location="\$GOOGLE_CLOUD_LOCATION" \
+    --type="firestore-native" \
+    --project="\$GOOGLE_CLOUD_PROJECT" \
+    --quiet || true
+fi
 ```
 
 ---
@@ -175,7 +195,7 @@ gcloud run deploy envato-vibe-app \
   --memory="2Gi" --cpu="2" --timeout="600" \
   --allow-unauthenticated \
   --ingress=all \
-  --set-env-vars="GOOGLE_GENAI_USE_VERTEXAI=True,GOOGLE_CLOUD_PROJECT=\${GOOGLE_CLOUD_PROJECT},GOOGLE_CLOUD_LOCATION=\${GOOGLE_CLOUD_LOCATION},ENVATO_GCS_BUCKET=\${ENVATO_GCS_BUCKET},SEARCH_BACKEND=\${SEARCH_BACKEND},INDEX_DISPLAY_NAME=\${INDEX_DISPLAY_NAME:-envato-vibe-multimodal},ENDPOINT_DISPLAY_NAME=\${ENDPOINT_DISPLAY_NAME:-envato-vibe-endpoint},DEPLOYED_INDEX_ID=\${DEPLOYED_INDEX_ID:-envato_vibe_multimodal}"
+  --set-env-vars="GOOGLE_GENAI_USE_VERTEXAI=True,GOOGLE_CLOUD_PROJECT=\${GOOGLE_CLOUD_PROJECT},GOOGLE_CLOUD_LOCATION=\${GOOGLE_CLOUD_LOCATION},ENVATO_GCS_BUCKET=\${ENVATO_GCS_BUCKET},SEARCH_BACKEND=\${SEARCH_BACKEND},INDEX_DISPLAY_NAME=\${INDEX_DISPLAY_NAME:-envato-vibe-multimodal},ENDPOINT_DISPLAY_NAME=\${ENDPOINT_DISPLAY_NAME:-envato-vibe-endpoint},DEPLOYED_INDEX_ID=\${DEPLOYED_INDEX_ID:-envato_vibe_multimodal},FIRESTORE_DATABASE_ID=\${FIRESTORE_DATABASE_ID:-(default)}"
 ```
 
 ---
@@ -209,7 +229,7 @@ gcloud run deploy envato-vibe-ingest \
   --service-account="\$SA_EMAIL" \
   --memory="2Gi" --cpu="2" --timeout="600" \
   --no-allow-unauthenticated \
-  --set-env-vars="GOOGLE_CLOUD_PROJECT=\${GOOGLE_CLOUD_PROJECT},GOOGLE_CLOUD_LOCATION=\${GOOGLE_CLOUD_LOCATION},ENVATO_GCS_BUCKET=\${ENVATO_GCS_BUCKET},GOOGLE_GENAI_USE_VERTEXAI=True,INDEX_DISPLAY_NAME=\${INDEX_DISPLAY_NAME:-envato-vibe-multimodal},ENDPOINT_DISPLAY_NAME=\${ENDPOINT_DISPLAY_NAME:-envato-vibe-endpoint},DEPLOYED_INDEX_ID=\${DEPLOYED_INDEX_ID:-envato_vibe_multimodal}"
+  --set-env-vars="GOOGLE_CLOUD_PROJECT=\${GOOGLE_CLOUD_PROJECT},GOOGLE_CLOUD_LOCATION=\${GOOGLE_CLOUD_LOCATION},ENVATO_GCS_BUCKET=\${ENVATO_GCS_BUCKET},GOOGLE_GENAI_USE_VERTEXAI=True,INDEX_DISPLAY_NAME=\${INDEX_DISPLAY_NAME:-envato-vibe-multimodal},ENDPOINT_DISPLAY_NAME=\${ENDPOINT_DISPLAY_NAME:-envato-vibe-endpoint},DEPLOYED_INDEX_ID=\${DEPLOYED_INDEX_ID:-envato_vibe_multimodal},FIRESTORE_DATABASE_ID=\${FIRESTORE_DATABASE_ID:-(default)}"
 
 # Configure Eventarc GCS Trigger by deleting first then creating (filters cannot be updated on existing trigger)
 TRIGGER_NAME="envato-vibe-ingest-trigger"

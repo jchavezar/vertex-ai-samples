@@ -87,6 +87,7 @@ DEPLOYED_INDEX_ID = os.environ.get("DEPLOYED_INDEX_ID", "envato_vibe_multimodal"
 
 FIRESTORE_SEGMENTS = "segments"
 FIRESTORE_UPLOADS = "uploads"
+DATABASE_ID = os.environ.get("FIRESTORE_DATABASE_ID", "(default)")
 
 EMBED_MODEL = "gemini-embedding-2-preview"
 RESCUE_MODEL = "gemini-3.1-flash-lite-preview"  # global region
@@ -170,7 +171,7 @@ def fs():
     global _FS
     if _FS is None:
         from google.cloud import firestore
-        _FS = firestore.Client(project=PROJECT)
+        _FS = firestore.Client(project=PROJECT, database=DATABASE_ID)
     return _FS
 
 

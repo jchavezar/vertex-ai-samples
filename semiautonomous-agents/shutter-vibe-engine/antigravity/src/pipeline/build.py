@@ -70,6 +70,7 @@ GCS_BUCKET = os.environ.get("ENVATO_GCS_BUCKET", "envato-vibe-demo")
 INDEX_DISPLAY_NAME = os.environ.get("INDEX_DISPLAY_NAME", "envato-vibe-multimodal")
 ENDPOINT_DISPLAY_NAME = os.environ.get("ENDPOINT_DISPLAY_NAME", "envato-vibe-endpoint")
 FIRESTORE_COLLECTION = "segments"
+DATABASE_ID = os.environ.get("FIRESTORE_DATABASE_ID", "(default)")
 
 EMBED_MODEL = "gemini-embedding-2-preview"
 VIDEO_CAPTIONER = "gemini-3-flash-preview"          # us-central1
@@ -581,7 +582,7 @@ def main() -> None:
     log("plan", f"{len(items)} assets to process")
 
     from google.cloud import firestore
-    fs = firestore.Client(project=PROJECT)
+    fs = firestore.Client(project=PROJECT, database=DATABASE_ID)
     gcs = GCS()
     vs = VS()
 
