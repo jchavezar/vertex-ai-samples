@@ -159,6 +159,13 @@ if ! gcloud storage buckets describe "gs://\${ENVATO_GCS_BUCKET}" --project="\$G
     --quiet
 fi
 
+# Make bucket objects publicly readable so browser client can render assets (thumbnails, clips) directly
+gcloud storage buckets add-iam-policy-binding "gs://\${ENVATO_GCS_BUCKET}" \
+  --member="allUsers" \
+  --role="roles/storage.objectViewer" \
+  --project="\$GOOGLE_CLOUD_PROJECT" \
+  --quiet
+
 # Generate folder structure schema
 echo -n "" > /tmp/vibe_placeholder
 gcloud storage cp /tmp/vibe_placeholder "gs://\${ENVATO_GCS_BUCKET}/ingest/.placeholder" --quiet
