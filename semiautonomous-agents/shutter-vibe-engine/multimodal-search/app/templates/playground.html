@@ -1,0 +1,918 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vertex AI Vector Search — Lab Playground</title>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Outfit:wght@500;600;700&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --bg-base: #0b0a12;
+      --bg-surface: #131220;
+      --bg-card: rgba(26, 25, 44, 0.65);
+      --border-color: rgba(110, 86, 207, 0.2);
+      --border-focus: rgba(110, 86, 207, 0.6);
+      --primary: #6e56cf;
+      --primary-hover: #7c66dc;
+      --secondary: #00c2a8;
+      --text-primary: #f3f3f7;
+      --text-muted: #908eae;
+      --text-green: #4ade80;
+      --code-bg: #08070d;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-base);
+      color: var(--text-primary);
+      font-family: 'Inter', sans-serif;
+      line-height: 1.6;
+      padding-bottom: 80px;
+      overflow-x: hidden;
+    }
+
+    /* Premium background decorations */
+    .decor-blob-1 {
+      position: absolute;
+      width: 600px;
+      height: 600px;
+      top: -300px;
+      right: -100px;
+      background: radial-gradient(circle, rgba(110, 86, 207, 0.15) 0%, rgba(0,0,0,0) 70%);
+      z-index: -1;
+      pointer-events: none;
+    }
+
+    .decor-blob-2 {
+      position: absolute;
+      width: 500px;
+      height: 500px;
+      bottom: 100px;
+      left: -200px;
+      background: radial-gradient(circle, rgba(0, 194, 168, 0.1) 0%, rgba(0,0,0,0) 70%);
+      z-index: -1;
+      pointer-events: none;
+    }
+
+    /* Header */
+    header {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 30px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .logo__icon {
+      font-size: 28px;
+      color: var(--secondary);
+      animation: pulse 2s infinite alternate;
+    }
+
+    .logo__text {
+      font-family: 'Outfit', sans-serif;
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      background: linear-gradient(90deg, var(--text-primary) 30%, #bcaeff 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .logo__badge {
+      background: rgba(0, 194, 168, 0.15);
+      color: var(--secondary);
+      border: 1px solid rgba(0, 194, 168, 0.3);
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 20px;
+      text-transform: uppercase;
+    }
+
+    .back-btn {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: color 0.2s;
+    }
+
+    .back-btn:hover {
+      color: var(--text-primary);
+    }
+
+    /* Main Layout */
+    main {
+      max-width: 1400px;
+      margin: 40px auto 0;
+      padding: 0 20px;
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 30px;
+    }
+
+    @media (max-width: 1024px) {
+      main {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Premium Cards */
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      backdrop-filter: blur(12px);
+      padding: 30px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+      margin-bottom: 30px;
+      position: relative;
+    }
+
+    .card__title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 20px;
+      font-weight: 600;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--text-primary);
+    }
+
+    .card__title-icon {
+      color: var(--primary);
+    }
+
+    /* Form elements */
+    .form-group {
+      margin-bottom: 24px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .input-text {
+      width: 100%;
+      background-color: var(--code-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      color: var(--text-primary);
+      padding: 12px 16px;
+      font-family: 'Inter', sans-serif;
+      font-size: 15px;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .input-text:focus {
+      border-color: var(--border-focus);
+      box-shadow: 0 0 8px rgba(110, 86, 207, 0.25);
+    }
+
+    /* Sliders */
+    .slider-container {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .input-range {
+      flex: 1;
+      accent-color: var(--primary);
+      height: 6px;
+      border-radius: 3px;
+    }
+
+    .range-val {
+      width: 45px;
+      text-align: right;
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--secondary);
+      font-weight: 600;
+      font-size: 15px;
+    }
+
+    /* Dropdowns */
+    .select-dropdown {
+      width: 100%;
+      background-color: var(--code-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      color: var(--text-primary);
+      padding: 12px 16px;
+      font-family: 'Inter', sans-serif;
+      font-size: 15px;
+      outline: none;
+      cursor: pointer;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%23908eae' viewBox='0 0 16 16'%3E%3Cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: calc(100% - 16px) center;
+    }
+
+    .select-dropdown:focus {
+      border-color: var(--border-focus);
+    }
+
+    /* Filter builder */
+    .filter-box {
+      background-color: var(--code-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 15px;
+      margin-top: 10px;
+    }
+
+    .filter-row {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 10px;
+      align-items: center;
+    }
+
+    .filter-chip {
+      background: rgba(110, 86, 207, 0.15);
+      border: 1px solid rgba(110, 86, 207, 0.3);
+      color: #c6bbff;
+      padding: 4px 10px;
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      margin-bottom: 8px;
+    }
+
+    .filter-chip button {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-weight: bold;
+      transition: color 0.2s;
+    }
+
+    .filter-chip button:hover {
+      color: #ff7b7b;
+    }
+
+    .filter-chips-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .add-filter-btn {
+      background-color: transparent;
+      border: 1px dashed var(--primary);
+      color: var(--text-primary);
+      padding: 6px 12px;
+      font-size: 13px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    .add-filter-btn:hover {
+      background-color: rgba(110, 86, 207, 0.1);
+    }
+
+    /* Search CTA */
+    .search-btn {
+      width: 100%;
+      background-color: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 14px;
+      font-family: 'Outfit', sans-serif;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 0.2s, transform 0.1s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .search-btn:hover {
+      background-color: var(--primary-hover);
+    }
+
+    .search-btn:active {
+      transform: scale(0.98);
+    }
+
+    /* Segment Cards Grid */
+    .results-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .results-count {
+      color: var(--text-muted);
+      font-size: 14px;
+    }
+
+    .segment-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+    }
+
+    @media (max-width: 640px) {
+      .segment-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .seg-card {
+      background: rgba(15, 14, 26, 0.7);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      overflow: hidden;
+      transition: border-color 0.2s, transform 0.2s;
+    }
+
+    .seg-card:hover {
+      border-color: var(--border-focus);
+      transform: translateY(-3px);
+    }
+
+    .seg-thumb {
+      width: 100%;
+      height: 130px;
+      background-size: cover;
+      background-position: center;
+      position: relative;
+    }
+
+    .seg-score {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background-color: rgba(0, 194, 168, 0.85);
+      backdrop-filter: blur(4px);
+      color: #0b0a12;
+      font-weight: 700;
+      font-size: 11px;
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+
+    .seg-duration {
+      position: absolute;
+      bottom: 10px;
+      right: 10px;
+      background-color: rgba(0, 0, 0, 0.6);
+      color: white;
+      font-size: 10px;
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+
+    .seg-content {
+      padding: 12px;
+    }
+
+    .seg-id {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--secondary);
+      margin-bottom: 6px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .seg-caption {
+      font-size: 12px;
+      color: var(--text-primary);
+      line-height: 1.4;
+      height: 3.4em;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+    }
+
+    /* Telemetry Panel */
+    .tel-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+
+    .tel-box {
+      background-color: var(--code-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 15px;
+      text-align: center;
+    }
+
+    .tel-box__title {
+      font-size: 11px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      margin-bottom: 5px;
+    }
+
+    .tel-box__val {
+      font-family: 'Outfit', sans-serif;
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--secondary);
+    }
+
+    /* Tabbed log viewer */
+    .tabs {
+      display: flex;
+      border-bottom: 1px solid var(--border-color);
+      margin-bottom: 15px;
+      gap: 10px;
+    }
+
+    .tab-btn {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      padding: 8px 16px;
+      font-family: 'Outfit', sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      position: relative;
+      transition: color 0.2s;
+    }
+
+    .tab-btn:hover {
+      color: var(--text-primary);
+    }
+
+    .tab-btn.active {
+      color: var(--primary-hover);
+    }
+
+    .tab-btn.active::after {
+      content: '';
+      position: absolute;
+      bottom: -1px;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background-color: var(--primary);
+    }
+
+    .code-panel {
+      background-color: var(--code-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 15px;
+      max-height: 500px;
+      overflow-y: auto;
+    }
+
+    .code-panel pre {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      color: #c6bbff;
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+
+    /* Concept Cards */
+    .concept-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 20px;
+    }
+
+    .concept-item {
+      border-left: 3px solid var(--primary);
+      padding-left: 15px;
+      margin-bottom: 10px;
+    }
+
+    .concept-item__title {
+      font-weight: 600;
+      font-size: 15px;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+    }
+
+    .concept-item__desc {
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    /* General classes */
+    .loader {
+      border: 3px solid var(--border-color);
+      border-top: 3px solid var(--secondary);
+      border-radius: 50%;
+      width: 20px;
+      height: 20px;
+      animation: spin 1s linear infinite;
+      display: none;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); opacity: 0.8; }
+      100% { transform: scale(1.08); opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="decor-blob-1"></div>
+  <div class="decor-blob-2"></div>
+
+  <header>
+    <div class="logo">
+      <span class="logo__icon">✦</span>
+      <span class="logo__text">Vertex AI Vector Search</span>
+      <span class="logo__badge">Playground Lab</span>
+    </div>
+    <a href="https://github.com/jchavezar/vertex-ai-samples" target="_blank" class="back-btn">
+      <span>View GitHub Repository</span> ➔
+    </a>
+  </header>
+
+  <main>
+    
+    <!-- LEFT COLUMN: Query Console + Results -->
+    <div class="left-column">
+      
+      <!-- CONFIGURATION & QUERY CARD -->
+      <div class="card">
+        <div class="card__title">
+          <span class="card__title-icon">⚙</span>
+          <span>Query Constructor & ScaNN Tuning</span>
+        </div>
+        
+        <div class="form-group">
+          <label for="qText">Semantic Query</label>
+          <input type="text" class="input-text" id="qText" value="runners sprinting towards victory" placeholder="Type what you want to search...">
+        </div>
+        
+        <div class="tel-grid">
+          <div class="form-group">
+            <label for="kRange">Max Neighbors (K)</label>
+            <div class="slider-container">
+              <input type="range" class="input-range" id="kRange" min="2" max="40" value="10">
+              <span class="range-val" id="kVal">10</span>
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label for="envSelect">Namespace Filter (env)</label>
+            <select class="select-dropdown" id="envSelect">
+              <option value="dev">dev (isolated sandboxing)</option>
+              <option value="">prod (all records)</option>
+            </select>
+          </div>
+        </div>
+        
+        <!-- Interactive gRPC Filter Builder -->
+        <div class="form-group">
+          <label>Advanced Restrictions (Metadata Filters)</label>
+          <div class="filter-box">
+            <div class="filter-row">
+              <select class="select-dropdown" id="filterNamespace" style="flex: 0.4;">
+                <option value="modality">modality</option>
+                <option value="tempo_bucket">tempo_bucket</option>
+                <option value="length_bucket">length_bucket</option>
+              </select>
+              <input type="text" class="input-text" id="filterToken" style="flex: 0.5;" placeholder="e.g. video, slow, mid">
+              <button type="button" class="add-filter-btn" id="addFilterBtn" style="flex: 0.1; min-width: 40px;">+</button>
+            </div>
+            
+            <div class="filter-chips-container" id="chipsContainer">
+              <!-- Dynamic chips injected here -->
+            </div>
+          </div>
+        </div>
+        
+        <button type="button" class="search-btn" id="searchBtn">
+          <span>Execute gRPC Query</span>
+          <div class="loader" id="searchLoader"></div>
+        </button>
+      </div>
+      
+      <!-- VISUAL SEARCH RESULT LIST -->
+      <div class="card" style="min-height: 350px;">
+        <div class="results-header">
+          <div class="card__title" style="margin-bottom: 0;">
+            <span class="card__title-icon">🗂</span>
+            <span>Nearest Neighbor Results</span>
+          </div>
+          <span class="results-count" id="resultsCount">0 items retrieved</span>
+        </div>
+        
+        <div class="segment-grid" id="resultsGrid">
+          <!-- Visual Cards will render here dynamically -->
+        </div>
+        
+        <div id="emptyState" style="text-align: center; padding: 60px 0; color: var(--text-muted);">
+          <span>No query run yet. Tune your settings above and click execute!</span>
+        </div>
+      </div>
+      
+    </div>
+
+    <!-- RIGHT COLUMN: Telemetry + Raw API Logs -->
+    <div class="right-column">
+      
+      <!-- TELEMETRY OVERVIEW -->
+      <div class="card">
+        <div class="card__title">
+          <span class="card__title-icon">📊</span>
+          <span>Real-Time API Telemetry</span>
+        </div>
+        
+        <div class="tel-grid">
+          <div class="tel-box">
+            <div class="tel-box__title">gRPC Latency</div>
+            <div class="tel-box__val" id="telemetryLatency">0 ms</div>
+          </div>
+          
+          <div class="tel-box">
+            <div class="tel-box__title">Vector Dimensions</div>
+            <div class="tel-box__val" id="telemetryDims">3072</div>
+          </div>
+        </div>
+        
+        <div class="tel-grid" style="margin-bottom: 0;">
+          <div class="tel-box">
+            <div class="tel-box__title">Embedding Norm</div>
+            <div class="tel-box__val" id="telemetryNorm">0.00</div>
+          </div>
+          
+          <div class="tel-box">
+            <div class="tel-box__title">Index Alg</div>
+            <div class="tel-box__val" style="font-size: 15px; line-height: 2.4;">TREE_AH (ScaNN)</div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- CODE LOGS VIEWER -->
+      <div class="card">
+        <div class="tabs">
+          <button class="tab-btn active" id="tabBtnRequest">gRPC Request Payload</button>
+          <button class="tab-btn" id="tabBtnResponse">Raw API Response</button>
+        </div>
+        
+        <div class="code-panel">
+          <pre id="logViewer">// Logs will print here once a query is executed</pre>
+        </div>
+      </div>
+      
+      <!-- EDUCATIONAL TOPICS -->
+      <div class="card">
+        <div class="card__title">
+          <span class="card__title-icon">📖</span>
+          <span>Vertex Vector Search Core Concepts</span>
+        </div>
+        
+        <div class="concept-grid">
+          <div class="concept-item">
+            <div class="concept-item__title">Approximate Nearest Neighbors (ANN) & ScaNN</div>
+            <div class="concept-item__desc">
+              Standard databases index exact keywords. Vector databases map conceptual distances. Using the **ScaNN (Sparsified Coordinate Anisotropic Nearest Neighbors)** tree-clustering algorithm, Google clusters vectors into hierarchies, scanning less than 1% of data to locate matches in under 10ms.
+            </div>
+          </div>
+          
+          <div class="concept-item">
+            <div class="concept-item__title">Cosine Distance Metric</div>
+            <div class="concept-item__desc">
+              The index calculates proximity using the angle between vectors: 
+              $$\text{similarity} = 1.0 - \text{distance}$$
+              A distance close to $0.0$ represents pointing in the same direction (strong conceptual match), whereas $2.0$ represents complete opposites.
+            </div>
+          </div>
+          
+          <div class="concept-item">
+            <div class="concept-item__title">Dynamic Namespace Restrictions</div>
+            <div class="concept-item__desc">
+              Rather than scanning all vectors and then filtering results afterward (which causes leakage and misses), Vertex AI executes **Boolean Filtering** during the ScaNN graph traversal itself. Matches must satisfy namespaces (`env`, `modality`) as they are calculated.
+            </div>
+          </div>
+        </div>
+      </div>
+      
+    </div>
+
+  </main>
+
+  <script>
+    // Slider bindings
+    const kRange = document.getElementById('kRange');
+    const kVal = document.getElementById('kVal');
+    kRange.addEventListener('input', () => { kVal.textContent = kRange.value; });
+
+    // Metadata filters array
+    const activeFilters = [];
+    
+    const addFilterBtn = document.getElementById('addFilterBtn');
+    const filterNamespace = document.getElementById('filterNamespace');
+    const filterToken = document.getElementById('filterToken');
+    const chipsContainer = document.getElementById('chipsContainer');
+
+    addFilterBtn.addEventListener('click', () => {
+      const ns = filterNamespace.value;
+      const tok = filterToken.value.trim().toLowerCase();
+      if (!tok) return;
+      
+      // Check duplicates
+      if (activeFilters.some(f => f.ns === ns && f.tok === tok)) return;
+
+      activeFilters.push({ ns, tok });
+      filterToken.value = '';
+      renderChips();
+    });
+
+    function renderChips() {
+      chipsContainer.innerHTML = '';
+      activeFilters.forEach((f, idx) => {
+        const chip = document.createElement('div');
+        chip.className = 'filter-chip';
+        chip.innerHTML = `
+          <span><strong>${f.ns}</strong>: ${f.tok}</span>
+          <button type="button" onclick="removeFilter(${idx})">×</button>
+        `;
+        chipsContainer.appendChild(chip);
+      });
+    }
+
+    window.removeFilter = function(idx) {
+      activeFilters.splice(idx, 1);
+      renderChips();
+    };
+
+    // Logging tabs
+    let currentTab = 'request';
+    let logPayloads = { request: {}, response: {} };
+
+    const tabBtnRequest = document.getElementById('tabBtnRequest');
+    const tabBtnResponse = document.getElementById('tabBtnResponse');
+    const logViewer = document.getElementById('logViewer');
+
+    tabBtnRequest.addEventListener('click', () => {
+      tabBtnRequest.classList.add('active');
+      tabBtnResponse.classList.remove('active');
+      currentTab = 'request';
+      renderLogs();
+    });
+
+    tabBtnResponse.addEventListener('click', () => {
+      tabBtnResponse.classList.add('active');
+      tabBtnRequest.classList.remove('active');
+      currentTab = 'response';
+      renderLogs();
+    });
+
+    function renderLogs() {
+      if (currentTab === 'request') {
+        logViewer.textContent = JSON.stringify(logPayloads.request, null, 2);
+      } else {
+        logViewer.textContent = JSON.stringify(logPayloads.response, null, 2);
+      }
+    }
+
+    // API Search invocation
+    const searchBtn = document.getElementById('searchBtn');
+    const searchLoader = document.getElementById('searchLoader');
+    const resultsGrid = document.getElementById('resultsGrid');
+    const emptyState = document.getElementById('emptyState');
+    const resultsCount = document.getElementById('resultsCount');
+
+    // Telemetry elements
+    const telemetryLatency = document.getElementById('telemetryLatency');
+    const telemetryDims = document.getElementById('telemetryDims');
+    const telemetryNorm = document.getElementById('telemetryNorm');
+
+    searchBtn.addEventListener('click', async () => {
+      const queryText = document.getElementById('qText').value.trim();
+      if (!queryText) return alert('Please enter a query string');
+      
+      searchLoader.style.display = 'block';
+      searchBtn.disabled = true;
+
+      // Formulate request payload
+      const payload = {
+        query_text: queryText,
+        k: parseInt(kRange.value),
+        env_restriction: document.getElementById('envSelect').value
+      };
+
+      // Apply active filters
+      activeFilters.forEach(f => {
+        if (f.ns === 'modality') payload.modality = f.tok;
+        if (f.ns === 'tempo_bucket') payload.tempo = f.tok;
+        if (f.ns === 'length_bucket') payload.length = f.tok;
+      });
+
+      try {
+        const response = await fetch('/api/playground/query', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        const data = await response.json();
+        
+        if (!data.ok) {
+          throw new Error(data.error || 'Failed execution');
+        }
+
+        // Save logged payloads
+        logPayloads.request = data.raw_grpc_request;
+        logPayloads.response = data.raw_grpc_response;
+        renderLogs();
+
+        // Update telemetry
+        telemetryLatency.textContent = `${data.latency_ms.vector_search} ms`;
+        telemetryDims.textContent = data.telemetry.embed_dim;
+        telemetryNorm.textContent = data.telemetry.embed_norm.toFixed(4);
+
+        // Render cards
+        resultsGrid.innerHTML = '';
+        const results = data.results || [];
+        resultsCount.textContent = `${results.length} items retrieved (Total latency: ${data.latency_ms.total}ms)`;
+
+        if (results.length === 0) {
+          emptyState.style.display = 'block';
+        } else {
+          emptyState.style.display = 'none';
+          results.forEach(res => {
+            const card = document.createElement('div');
+            card.className = 'seg-card';
+            
+            // Standard thumbnail fallback
+            const thumbUrl = res.thumbnail_url || '/static/placeholder.png';
+            
+            card.innerHTML = `
+              <div class="seg-thumb" style="background-image: url('${thumbUrl}')">
+                <span class="seg-score">similarity: ${(res.score * 100).toFixed(1)}%</span>
+                <span class="seg-duration">${res.start_s.toFixed(0)}s - ${res.end_s.toFixed(0)}s</span>
+              </div>
+              <div class="seg-content">
+                <div class="seg-id">${res.datapoint_id}</div>
+                <div class="seg-caption" title="${res.caption_text}">${res.caption_text}</div>
+              </div>
+            `;
+            resultsGrid.appendChild(card);
+          });
+        }
+
+      } catch (err) {
+        alert(`Error query: ${err.message}`);
+        console.error(err);
+      } finally {
+        searchLoader.style.display = 'none';
+        searchBtn.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>

@@ -99,6 +99,8 @@ SEARCH_BACKEND = os.environ.get("SEARCH_BACKEND", "vector-search").lower()
 if SEARCH_BACKEND not in ("vector-search", "bigquery"):
     raise ValueError(f"SEARCH_BACKEND must be 'vector-search' or 'bigquery', got {SEARCH_BACKEND!r}")
 
+PLAYGROUND_ONLY = os.environ.get("PLAYGROUND_ONLY", "False").lower() == "true"
+
 # "Talk to this Asset" — Gemini Live API + text fallback chat models.
 # Vertex AI uses the dash-suffixed preview model id; these can change with
 # the SDK / region — keep in sync with google-genai release notes.
@@ -902,6 +904,8 @@ def _do_search(q_text: str, q_vec: np.ndarray, modality: str, limit: int,
 # ---------------------------------------------------------------------------
 @app.get("/", response_class=HTMLResponse)
 def home(request: Request):
+    if PLAYGROUND_ONLY:
+        return templates.TemplateResponse(request, "playground.html", {})
     return templates.TemplateResponse(request, "index_v2.html", {})
 
 
@@ -1090,6 +1094,110 @@ def api_health():
     except Exception as exc:
         return {"ok": False, "error": str(exc), "stats": {"segments_indexed": 0}}
     return {"ok": True, "stats": {"segments_indexed": n}}
+
+
+class PlaygroundQueryRequest(BaseModel):
+    query_text: str
+    k: int = 10
+    modality: str | None = None
+    tempo: str | None = None
+    length: str | None = None
+    env_restriction: str | None = None
+
+
+@app.post("/api/playground/query")
+def api_playground_query(req: PlaygroundQueryRequest):
+    if not req.query_text or not req.query_text.strip():
+        raise HTTPException(400, "missing query_text")
+    
+    t0 = now_ms()
+    q_vec = embed_text(req.query_text)
+    t_embed_ms = ms_since(t0)
+    
+    # Formulate raw gRPC query structures for Vertex AI Vector Search using safe helper
+    
+    # Resolve index endpoint
+    try:
+        ep = endpoint()
+    except Exception as exc:
+        raise HTTPException(500, f"Could not load index endpoint: {exc}")
+        
+    restricts = []
+    env = req.env_restriction if req.env_restriction is not None else os.environ.get("ENV_RESTRICTION", "")
+    if env:
+        restricts.append(_restrict("env", [env]))
+    if req.modality and req.modality != "all":
+        if req.modality == "audio":
+            restricts.append(_restrict("modality", ["audio", "sfx"]))
+        else:
+            restricts.append(_restrict("modality", [req.modality]))
+    if req.tempo:
+        restricts.append(_restrict("tempo_bucket", [req.tempo]))
+    if req.length:
+        restricts.append(_restrict("length_bucket", [req.length]))
+        
+    # Construct the educational Raw Request payload representation
+    raw_grpc_request = {
+        "index_endpoint_name": ep.resource_name,
+        "deployed_index_id": DEPLOYED_INDEX_ID,
+        "queries": [
+            [round(float(x), 5) for x in q_vec[:32].tolist()] + ["... (3072 total dims)"]
+        ],
+        "num_neighbors": req.k,
+        "filter": [
+            {"namespace": ns.name, "allow_tokens": ns.allow_tokens}
+            for ns in restricts
+        ]
+    }
+    
+    t_vs = now_ms()
+    kwargs = {
+        "deployed_index_id": DEPLOYED_INDEX_ID,
+        "queries": [q_vec.tolist()],
+        "num_neighbors": req.k,
+    }
+    if restricts:
+        kwargs["filter"] = restricts
+        
+    try:
+        response = ep.find_neighbors(**kwargs)
+        vs_ms = ms_since(t_vs)
+        
+        # Construct raw gRPC response payload representation
+        raw_grpc_response = []
+        hits = []
+        if response and response[0]:
+            for n in response[0]:
+                raw_grpc_response.append({
+                    "id": n.id,
+                    "distance": round(float(n.distance), 6),
+                    "cosine_similarity": round(1.0 - float(n.distance), 6)
+                })
+                hits.append((n.id, 1.0 - float(n.distance)))
+        
+        # Hydrate segments from Firestore to display them on the left pane
+        t_hyd = now_ms()
+        results = hydrate_segments(hits)
+        hydrate_ms = ms_since(t_hyd)
+        
+        return {
+            "ok": True,
+            "latency_ms": {
+                "embed": round(t_embed_ms, 2),
+                "vector_search": round(vs_ms, 2),
+                "hydration": round(hydrate_ms, 2),
+                "total": round(ms_since(t0), 2)
+            },
+            "telemetry": {
+                "embed_dim": int(q_vec.shape[0]),
+                "embed_norm": round(float(np.linalg.norm(q_vec)), 6)
+            },
+            "raw_grpc_request": raw_grpc_request,
+            "raw_grpc_response": raw_grpc_response,
+            "results": results
+        }
+    except Exception as e:
+        raise HTTPException(500, f"Vector Search failed: {e}")
 
 
 @app.get("/api/search")

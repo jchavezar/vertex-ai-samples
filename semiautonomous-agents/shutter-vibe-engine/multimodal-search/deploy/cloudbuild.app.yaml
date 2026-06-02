@@ -1,0 +1,7 @@
+steps:
+- name: gcr.io/cloud-builders/docker
+  args: ['build', '-f', 'multimodal-search/deploy/Dockerfile.app', '-t', 'gcr.io/$PROJECT_ID/envato-vibe-app:latest', '.']
+images:
+- 'gcr.io/$PROJECT_ID/envato-vibe-app:latest'
+options:
+  logging: CLOUD_LOGGING_ONLY
