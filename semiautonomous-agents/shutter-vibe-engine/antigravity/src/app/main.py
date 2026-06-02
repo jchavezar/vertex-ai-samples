@@ -85,8 +85,8 @@ INDEX_DISPLAY_NAME = os.environ.get("INDEX_DISPLAY_NAME", "envato-vibe-multimoda
 ENDPOINT_DISPLAY_NAME = os.environ.get("ENDPOINT_DISPLAY_NAME", "envato-vibe-endpoint")
 DEPLOYED_INDEX_ID = os.environ.get("DEPLOYED_INDEX_ID", "envato_vibe_multimodal")
 
-FIRESTORE_SEGMENTS = "segments"
-FIRESTORE_UPLOADS = "uploads"
+FIRESTORE_SEGMENTS = os.environ.get("FIRESTORE_SEGMENTS_COLLECTION", "segments")
+FIRESTORE_UPLOADS = os.environ.get("FIRESTORE_UPLOADS_COLLECTION", "uploads")
 DATABASE_ID = os.environ.get("FIRESTORE_DATABASE_ID", "(default)")
 
 EMBED_MODEL = "gemini-embedding-2-preview"
@@ -445,6 +445,9 @@ def _vs_find_neighbors_native(q_vec: np.ndarray, *, k: int = 20,
     """Vertex AI Vector Search implementation."""
     ep = endpoint()
     restricts = []
+    env_restrict = os.environ.get("ENV_RESTRICTION", "")
+    if env_restrict:
+        restricts.append(_restrict("env", [env_restrict]))
     if modality and modality != "all":
         # Map UI modality → restrict tokens. SFX is its own modality bucket
         # in the index; users asking for "audio" want both music and sfx.

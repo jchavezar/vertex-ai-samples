@@ -192,7 +192,8 @@ async def handle_event(request: Request) -> Response:
     src_blob.delete()
 
     # Stamp a per-upload audit doc so the UI can show an "ingested" toast.
-    fs.collection("uploads").document(asset_id).set({
+    uploads_coll = os.environ.get("FIRESTORE_UPLOADS_COLLECTION", "uploads")
+    fs.collection(uploads_coll).document(asset_id).set({
         "asset_id": asset_id,
         "object_name": name,
         "segments_written": written,

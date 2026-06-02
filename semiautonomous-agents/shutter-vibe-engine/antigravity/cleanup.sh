@@ -53,6 +53,7 @@ ROLES=(
   "roles/eventarc.eventReceiver"
   "roles/bigquery.dataViewer"
   "roles/bigquery.jobUser"
+  "roles/bigquery.dataEditor"
 )
 
 for role in "${ROLES[@]}"; do

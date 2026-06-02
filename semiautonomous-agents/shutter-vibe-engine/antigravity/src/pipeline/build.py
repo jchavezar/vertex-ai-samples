@@ -69,7 +69,7 @@ LOCATION = os.environ.get("GOOGLE_CLOUD_LOCATION", "us-central1")
 GCS_BUCKET = os.environ.get("ENVATO_GCS_BUCKET", "envato-vibe-demo")
 INDEX_DISPLAY_NAME = os.environ.get("INDEX_DISPLAY_NAME", "envato-vibe-multimodal")
 ENDPOINT_DISPLAY_NAME = os.environ.get("ENDPOINT_DISPLAY_NAME", "envato-vibe-endpoint")
-FIRESTORE_COLLECTION = "segments"
+FIRESTORE_COLLECTION = os.environ.get("FIRESTORE_SEGMENTS_COLLECTION", "segments")
 DATABASE_ID = os.environ.get("FIRESTORE_DATABASE_ID", "(default)")
 
 EMBED_MODEL = "gemini-embedding-2-preview"
@@ -424,19 +424,42 @@ def embed_segment(clip: Path, thumb: Path, kind: str, cap: dict,
 # ---------------------------------------------------------------------------
 class VS:
     def __init__(self):
-        from google.cloud import aiplatform
-        from google.cloud.aiplatform_v1.types.index import IndexDatapoint
-        aiplatform.init(project=PROJECT, location=LOCATION)
-        self.IndexDatapoint = IndexDatapoint
-        idx = aiplatform.MatchingEngineIndex.list(
-            filter=f'display_name="{INDEX_DISPLAY_NAME}"')
-        if not idx:
-            print(f"[WARNING] Matching Engine Index '{INDEX_DISPLAY_NAME}' not found. Upserts will be a no-op.")
+        self.backend = os.environ.get("SEARCH_BACKEND", "vector-search").lower()
+        if self.backend == "bigquery":
+            from google.cloud import bigquery
+            self.bq_client = bigquery.Client(project=PROJECT)
+            self.bq_table = os.environ.get("BQ_TABLE", f"{PROJECT}.envato_vibe.segments")
             self.index = None
         else:
-            self.index = idx[0]
+            from google.cloud import aiplatform
+            from google.cloud.aiplatform_v1.types.index import IndexDatapoint
+            aiplatform.init(project=PROJECT, location=LOCATION)
+            self.IndexDatapoint = IndexDatapoint
+            idx = aiplatform.MatchingEngineIndex.list(
+                filter=f'display_name="{INDEX_DISPLAY_NAME}"')
+            if not idx:
+                print(f"[WARNING] Matching Engine Index '{INDEX_DISPLAY_NAME}' not found. Upserts will be a no-op.")
+                self.index = None
+            else:
+                self.index = idx[0]
 
     def upsert(self, dp_id: str, vec: np.ndarray, restricts: dict[str, str]) -> None:
+        if self.backend == "bigquery":
+            row = {
+                "datapoint_id": dp_id,
+                "modality": restricts.get("modality"),
+                "kind": restricts.get("kind"),
+                "tempo_bucket": restricts.get("tempo_bucket") or None,
+                "length_bucket": restricts.get("length_bucket"),
+                "embedding": vec.tolist(),
+            }
+            errors = self.bq_client.insert_rows_json(self.bq_table, [row])
+            if errors:
+                print(f"[ERROR] BigQuery insert failed for {dp_id}: {errors}")
+            else:
+                log("bq", f"✓ {dp_id} inserted into BigQuery {self.bq_table}")
+            return
+
         if not self.index:
             log("vs", f"Skipping Vector Search upsert for {dp_id} (index not found)")
             return
@@ -524,6 +547,7 @@ def process_asset(item: dict, gcs: GCS, fs, vs: VS, force: bool) -> int:
                               if seg["kind"] in ("video", "music", "sfx") else "image",
             "tempo_bucket": tempo_bucket(bpm) or "",
             "kind": seg["kind"],
+            "env": os.environ.get("ENV_RESTRICTION", ""),
         }
 
         # 6. Firestore doc

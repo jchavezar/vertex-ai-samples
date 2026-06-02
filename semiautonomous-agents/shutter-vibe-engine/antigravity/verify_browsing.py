@@ -31,7 +31,7 @@ location = env_vars.get("GOOGLE_CLOUD_LOCATION", "us-central1")
 search_backend = env_vars.get("SEARCH_BACKEND", "vector-search")
 
 # 2. Resolve Deployed URL
-url = env_vars.get("APP_URL", "")
+url = os.environ.get("APP_URL") or env_vars.get("APP_URL", "")
 if not url:
     print(f"[INFO] No APP_URL found in .env. Attempting to query Cloud Run in project '{project}'...")
     try:
