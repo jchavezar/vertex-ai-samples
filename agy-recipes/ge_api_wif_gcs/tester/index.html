@@ -1,0 +1,855 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Gemini Enterprise · GCS + WIF Grounding Tester</title>
+<script src="https://alcdn.msauth.net/browser/2.38.0/js/msal-browser.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg: #09090e;
+    --panel-bg: rgba(22, 22, 38, 0.7);
+    --panel-border: rgba(255, 255, 255, 0.08);
+    --accent: #00f2fe;
+    --accent-glow: rgba(0, 242, 254, 0.25);
+    --accent-purple: #9d4edd;
+    --text: #f1f3f9;
+    --muted: #8e9bb4;
+    --code-bg: #0c0c16;
+    --good: #38b000;
+    --good-glow: rgba(56, 176, 0, 0.2);
+    --error: #d90429;
+  }
+
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: radial-gradient(circle at 50% 0%, #1c1a35 0%, var(--bg) 75%);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 24px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .container {
+    max-width: 1400px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 480px 1fr;
+    gap: 24px;
+  }
+
+  header {
+    grid-column: 1 / -1;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--panel-border);
+  }
+
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .brand-logo {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), var(--accent-purple));
+    box-shadow: 0 0 12px var(--accent-glow);
+  }
+
+  .brand-title {
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    background: linear-gradient(90deg, #fff, var(--muted));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .brand-badge {
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 4px 8px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 4px;
+    color: var(--accent);
+  }
+
+  .sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .main-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .glass-card {
+    background: var(--panel-bg);
+    border: 1px solid var(--panel-border);
+    border-radius: 16px;
+    padding: 20px;
+    backdrop-filter: blur(16px);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .glass-card.active {
+    border-color: rgba(0, 242, 254, 0.4);
+    box-shadow: 0 0 30px -10px var(--accent-glow);
+  }
+
+  .glass-card.success {
+    border-color: rgba(56, 176, 0, 0.4);
+  }
+
+  h2 {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .step-num {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.05);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--muted);
+  }
+
+  .glass-card.active .step-num {
+    background: var(--accent);
+    color: var(--bg);
+  }
+
+  .glass-card.success .step-num {
+    background: var(--good);
+    color: var(--bg);
+  }
+
+  .form-group {
+    margin-bottom: 14px;
+  }
+
+  .form-group label {
+    display: block;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--muted);
+    margin-bottom: 6px;
+  }
+
+  .form-group input, .form-group select {
+    width: 100%;
+    padding: 10px 12px;
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid var(--panel-border);
+    border-radius: 8px;
+    color: #fff;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .form-group input:focus {
+    border-color: var(--accent);
+  }
+
+  .btn {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    background: linear-gradient(135deg, var(--accent), #4facfe);
+    color: var(--bg);
+    font-weight: 600;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .btn:hover:not(:disabled) {
+    opacity: 0.9;
+    transform: translateY(-1px);
+  }
+
+  .btn:disabled {
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--muted);
+    cursor: not-allowed;
+  }
+
+  .btn.done {
+    background: rgba(56, 176, 0, 0.15);
+    color: #4ade80;
+    border: 1px solid rgba(56, 176, 0, 0.3);
+  }
+
+  .status-badge {
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    margin-top: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .status-badge.info { background: rgba(0, 242, 254, 0.08); border: 1px solid rgba(0, 242, 254, 0.2); color: var(--accent); }
+  .status-badge.success { background: rgba(56, 176, 0, 0.08); border: 1px solid rgba(56, 176, 0, 0.2); color: #4ade80; }
+  .status-badge.error { background: rgba(217, 4, 41, 0.08); border: 1px solid rgba(217, 4, 41, 0.2); color: #ff4d6d; }
+
+  /* Flow Diagram */
+  .flow-container {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .flow-step {
+    padding: 10px 14px;
+    background: rgba(0, 0, 0, 0.15);
+    border-left: 3px solid var(--panel-border);
+    border-radius: 0 8px 8px 0;
+    font-size: 12px;
+  }
+
+  .flow-step.active {
+    border-left-color: var(--accent);
+    background: rgba(0, 242, 254, 0.04);
+  }
+
+  .flow-step.done {
+    border-left-color: var(--good);
+    background: rgba(56, 176, 0, 0.04);
+  }
+
+  .flow-title { font-weight: 600; margin-bottom: 2px; }
+  .flow-desc { color: var(--muted); font-size: 11px; }
+
+  /* Live Console */
+  .console {
+    background: var(--code-bg);
+    border: 1px solid var(--panel-border);
+    border-radius: 12px;
+    padding: 14px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: #a4b1cd;
+    max-height: 250px;
+    overflow-y: auto;
+    white-space: pre-wrap;
+    word-break: break-all;
+  }
+
+  .console::-webkit-scrollbar { width: 6px; }
+  .console::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.1); border-radius: 3px; }
+
+  .console-line { margin-bottom: 4px; }
+  .console-line.in { color: var(--accent); }
+  .console-line.out { color: #4ade80; }
+  .console-line.err { color: #f87171; }
+
+  /* Search area */
+  .search-box {
+    display: flex;
+    gap: 12px;
+    margin-top: 10px;
+  }
+
+  .search-box input {
+    flex: 1;
+    padding: 14px 18px;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--panel-border);
+    border-radius: 12px;
+    color: #fff;
+    font-size: 14px;
+    outline: none;
+    transition: all 0.3s;
+  }
+
+  .search-box input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 15px rgba(0, 242, 254, 0.1);
+  }
+
+  .search-box button {
+    width: auto;
+    padding: 0 24px;
+    border-radius: 12px;
+  }
+
+  /* Grounded Result Display */
+  .result-card {
+    background: linear-gradient(180deg, rgba(56, 176, 0, 0.05), transparent 150px), var(--panel-bg);
+    border-color: rgba(56, 176, 0, 0.3);
+    display: none;
+  }
+
+  .result-card.visible {
+    display: block;
+    animation: fadeIn 0.4s ease;
+  }
+
+  .result-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 14px;
+  }
+
+  .grounding-status {
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+  }
+
+  .grounding-status.yes {
+    background: rgba(56, 176, 0, 0.15);
+    color: #4ade80;
+    border: 1px solid rgba(56, 176, 0, 0.3);
+  }
+
+  .grounding-status.no {
+    background: rgba(217, 4, 41, 0.15);
+    color: #f87171;
+    border: 1px solid rgba(217, 4, 41, 0.3);
+  }
+
+  .result-text {
+    font-size: 14.5px;
+    line-height: 1.65;
+    color: #e2e8f0;
+    white-space: pre-wrap;
+  }
+
+  .citations {
+    margin-top: 20px;
+    padding-top: 16px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .citation-title {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--muted);
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .citation-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .citation-item {
+    padding: 10px 14px;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .citation-icon {
+    color: var(--accent);
+  }
+
+  .citation-link {
+    color: var(--accent);
+    text-decoration: none;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .citation-link:hover {
+    text-decoration: underline;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <div class="brand">
+      <span class="brand-logo"></span>
+      <h1 class="brand-title">streamAssist Grounding Prover</h1>
+      <span class="brand-badge">WIF + GCS</span>
+    </div>
+  </header>
+
+  <!-- LEFT: Configuration & Auth -->
+  <div class="sidebar">
+    <!-- Config Card -->
+    <div class="glass-card active" id="card-config">
+      <h2><span class="step-num">C</span>Configuration Dashboard</h2>
+      
+      <div class="form-group">
+        <label>GCP Project ID</label>
+        <input type="text" id="cfg-project-id" value="vtxdemos">
+      </div>
+      
+      <div class="form-group">
+        <label>GCP Project Number</label>
+        <input type="text" id="cfg-project-number" value="254356041555">
+      </div>
+
+      <div class="form-group">
+        <label>Engine ID</label>
+        <input type="text" id="cfg-engine-id" placeholder="Loading from setup...">
+      </div>
+
+      <div class="form-group">
+        <label>Data Store ID</label>
+        <input type="text" id="cfg-datastore-id" placeholder="Loading from setup...">
+      </div>
+
+      <div class="form-group">
+        <label>WIF Pool ID</label>
+        <input type="text" id="cfg-wif-pool" value="sp-wif-pool-v2">
+      </div>
+
+      <div class="form-group">
+        <label>WIF Provider ID</label>
+        <input type="text" id="cfg-wif-provider" value="entra-provider">
+      </div>
+    </div>
+
+    <!-- WIF STS Authentication Card -->
+    <div class="glass-card" id="card-auth">
+      <h2><span class="step-num">1</span>Identity Provider Token</h2>
+      <div class="form-group">
+        <label>Microsoft Entra ID token (JWT)</label>
+        <input type="text" id="auth-jwt" placeholder="Paste Microsoft id_token or run login...">
+      </div>
+      <button class="btn" id="btn-login" style="margin-bottom: 10px;">Login with Microsoft</button>
+      <button class="btn" id="btn-exchange" disabled>Exchange JWT for WIF Token</button>
+      
+      <div id="auth-status"></div>
+    </div>
+  </div>
+
+  <!-- RIGHT: Search & Pipeline Flow -->
+  <div class="main-panel">
+    <!-- Visual Flow Diagram -->
+    <div class="glass-card">
+      <h2>Pipeline Flow Tracker</h2>
+      <div class="flow-container">
+        <div class="flow-step" id="flow-step-1">
+          <div class="flow-title">1. Token Generation</div>
+          <div class="flow-desc">Retrieve Entra ID JWT from Microsoft Identity Provider.</div>
+        </div>
+        <div class="flow-step" id="flow-step-2">
+          <div class="flow-title">2. STS Token Exchange (WIF)</div>
+          <div class="flow-desc">Exchange Entra JWT for a Google WIF access token using Workforce Identity.</div>
+        </div>
+        <div class="flow-step" id="flow-step-3">
+          <div class="flow-title">3. streamAssist Grounded Query</div>
+          <div class="flow-desc">Post query to regional Discovery Engine with target GCS datastores.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Live Console -->
+    <div class="glass-card">
+      <h2>Live Telemetry Console</h2>
+      <div class="console" id="console">
+        <div class="console-line">[System] Ready. Loading resources file...</div>
+      </div>
+    </div>
+
+    <!-- Query Composer -->
+    <div class="glass-card" id="card-query">
+      <h2><span class="step-num">2</span>Search Composer</h2>
+      <div class="search-box">
+        <input type="text" id="search-query" placeholder="Ask about the Amazon 10-K document..." value="Summarize the key financial highlights from the document." disabled>
+        <button class="btn" id="btn-search" disabled>Search</button>
+      </div>
+    </div>
+
+    <!-- Result Display -->
+    <div class="glass-card result-card" id="result-card">
+      <div class="result-header">
+        <h2 style="margin-bottom: 0;">Synthesis Answer</h2>
+        <span class="grounding-status yes" id="result-badge">Grounded</span>
+      </div>
+      <div class="result-text" id="result-text"></div>
+      <div class="citations" id="result-citations">
+        <div class="citation-title">Grounded Sources</div>
+        <div class="citation-list" id="citation-list"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Log helper
+  function log(text, type = '') {
+    const con = document.getElementById('console');
+    const line = document.createElement('div');
+    line.className = 'console-line ' + type;
+    line.textContent = `[${new Date().toLocaleTimeString()}] ${text}`;
+    con.appendChild(line);
+    con.scrollTop = con.scrollHeight;
+  }
+
+  // State
+  let jwtToken = null;
+  let gcpToken = null;
+
+  // MSAL Configuration using active Entra ID credentials from the environment
+  const msalInstance = new msal.PublicClientApplication({
+    auth: {
+      clientId: "7868d053-cf9c-4848-be5a-f9bbf8279234",
+      authority: "https://login.microsoftonline.com/de46a3fd-0d68-4b25-8343-6eb5d71afce9",
+      redirectUri: window.location.origin,
+    },
+    cache: { cacheLocation: "sessionStorage" }
+  });
+
+  // Auto-load resources
+  async function loadResources() {
+    try {
+      const resp = await fetch('/last_setup_resources.json');
+      if (resp.ok) {
+        const data = await resp.json();
+        document.getElementById('cfg-engine-id').value = data.engine_id;
+        document.getElementById('cfg-datastore-id').value = data.datastore_id;
+        log(`Loaded resources from file: engine_id=${data.engine_id}`, 'out');
+        document.getElementById('search-query').disabled = false;
+        document.getElementById('btn-search').disabled = false;
+      } else {
+        log('No active setup resources file found (run setup.py first).');
+      }
+    } catch (e) {
+      log('Could not fetch resources file: ' + e.message);
+    }
+  }
+
+  // Check manual/login token availability
+  document.getElementById('auth-jwt').oninput = function() {
+    const val = this.value.trim();
+    if (val.length > 20) {
+      jwtToken = val;
+      document.getElementById('btn-exchange').disabled = false;
+      document.getElementById('card-auth').classList.add('active');
+      document.getElementById('flow-step-1').className = 'flow-step done';
+      log('Manual token supplied. Ready to exchange WIF.');
+    }
+  };
+
+  // Reusable WIF STS exchange handler
+  async function performStsExchange() {
+    if (!jwtToken) return;
+    
+    const wifPool = document.getElementById('cfg-wif-pool').value;
+    const wifProvider = document.getElementById('cfg-wif-provider').value;
+    const projectNum = document.getElementById('cfg-project-number').value;
+    const audience = `//iam.googleapis.com/locations/global/workforcePools/${wifPool}/providers/${wifProvider}`;
+
+    log(`Starting STS exchange against WIF audience: ${audience}...`, 'in');
+    document.getElementById('flow-step-2').className = 'flow-step active';
+    
+    try {
+      const proxyUrl = '/api/proxy/sts.googleapis.com/v1/token';
+      const bodyParams = new URLSearchParams({
+        grant_type: "urn:ietf:params:oauth:grant-type:token-exchange",
+        audience: audience,
+        scope: "https://www.googleapis.com/auth/cloud-platform",
+        requested_token_type: "urn:ietf:params:oauth:token-type:access_token",
+        subject_token_type: "urn:ietf:params:oauth:token-type:jwt",
+        subject_token: jwtToken
+      });
+
+      const resp = await fetch(proxyUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        body: bodyParams.toString()
+      });
+
+      const data = await resp.json();
+      if (!resp.ok) {
+        throw new Error(data.error_description || JSON.stringify(data));
+      }
+
+      gcpToken = data.access_token;
+      log('WIF Token exchanged successfully!', 'out');
+      
+      const badge = document.getElementById('auth-status');
+      badge.className = 'status-badge success';
+      badge.textContent = 'GCP Access Token obtained!';
+
+      document.getElementById('card-auth').className = 'glass-card success';
+      document.getElementById('flow-step-2').className = 'flow-step done';
+      
+      document.getElementById('search-query').disabled = false;
+      document.getElementById('btn-search').disabled = false;
+      return gcpToken;
+    } catch (e) {
+      log('STS exchange failed: ' + e.message, 'err');
+      const badge = document.getElementById('auth-status');
+      badge.className = 'status-badge error';
+      badge.textContent = 'Exchange failed: ' + e.message;
+      document.getElementById('flow-step-2').className = 'flow-step active';
+      throw e;
+    }
+  }
+
+  // Login handler using MSAL popup login
+  document.getElementById('btn-login').onclick = async () => {
+    log('Launching login popup...');
+    try {
+      const response = await msalInstance.loginPopup({
+        scopes: ["openid", "profile", "email", "api://7868d053-cf9c-4848-be5a-f9bbf8279234/user_impersonation"]
+      });
+      jwtToken = response.accessToken;
+      document.getElementById('auth-jwt').value = jwtToken;
+      document.getElementById('card-auth').classList.add('active');
+      document.getElementById('flow-step-1').className = 'flow-step done';
+      log(`Logged in successfully as: ${response.account.username}`, 'out');
+      
+      // Auto-trigger STS WIF token exchange immediately
+      await performStsExchange();
+    } catch (e) {
+      log('Login or Token Exchange failed: ' + e.message, 'err');
+      alert('Authentication failed: ' + e.message);
+    }
+  };
+
+  // Manual STS Exchange Button Handler
+  document.getElementById('btn-exchange').onclick = async () => {
+    await performStsExchange();
+  };
+
+
+  // Helper to ensure GCP WIF token is exchanged silently if logged in
+  async function ensureGcpToken() {
+    if (gcpToken) return gcpToken;
+    if (!jwtToken) return null;
+
+    const wifPool = document.getElementById('cfg-wif-pool').value;
+    const wifProvider = document.getElementById('cfg-wif-provider').value;
+    const projectNum = document.getElementById('cfg-project-number').value;
+    const audience = `//iam.googleapis.com/locations/global/workforcePools/${wifPool}/providers/${wifProvider}`;
+
+    log(`Exchanging Entra JWT for GCP WIF Token automatically...`, 'in');
+    document.getElementById('flow-step-2').className = 'flow-step active';
+
+    try {
+      const proxyUrl = '/api/proxy/sts.googleapis.com/v1/token';
+      const bodyParams = new URLSearchParams({
+        grant_type: "urn:ietf:params:oauth:grant-type:token-exchange",
+        audience: audience,
+        scope: "https://www.googleapis.com/auth/cloud-platform",
+        requested_token_type: "urn:ietf:params:oauth:token-type:access_token",
+        subject_token_type: "urn:ietf:params:oauth:token-type:jwt",
+        subject_token: jwtToken
+      });
+
+      const resp = await fetch(proxyUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: bodyParams.toString()
+      });
+
+      const data = await resp.json();
+      if (!resp.ok) {
+        throw new Error(data.error_description || JSON.stringify(data));
+      }
+
+      gcpToken = data.access_token;
+      log('WIF Token exchanged successfully (silent auto-flow).', 'out');
+      document.getElementById('flow-step-2').className = 'flow-step done';
+      return gcpToken;
+    } catch (e) {
+      log('Automatic WIF exchange failed: ' + e.message, 'err');
+      document.getElementById('flow-step-2').className = 'flow-step active';
+      throw e;
+    }
+  }
+
+  // Search Grounding Handler
+  document.getElementById('btn-search').onclick = async () => {
+    const query = document.getElementById('search-query').value.trim();
+    if (!query) return;
+
+    const projectId = document.getElementById('cfg-project-id').value;
+    const projectNum = document.getElementById('cfg-project-number').value;
+    const engineId = document.getElementById('cfg-engine-id').value;
+    const datastoreId = document.getElementById('cfg-datastore-id').value;
+
+    log(`Querying streamAssist: "${query}"...`, 'in');
+    document.getElementById('flow-step-3').className = 'flow-step active';
+    
+    // Select correct token to use. Try WIF token first (automatically exchanged if jwtToken exists)
+    let token = null;
+    try {
+      token = await ensureGcpToken();
+    } catch (e) {
+      log('WIF exchange failed, falling back to local credentials.');
+    }
+
+    let authHeaderValue = token ? `Bearer ${token}` : '';
+    
+    if (!authHeaderValue) {
+      log('No WIF token available. Proceeding using standard GCP Application Default Credentials...');
+      // Request local serve.py to fetch a token from ADC
+      try {
+        const tokenResp = await fetch('/api/adc-token');
+        if (tokenResp.ok) {
+          const tokenData = await tokenResp.json();
+          authHeaderValue = `Bearer ${tokenData.token}`;
+          log('Obtained GCP ADC token successfully from backend.');
+        }
+      } catch (e) {
+        log('Failed to fetch ADC token: ' + e.message, 'err');
+      }
+    }
+
+    if (!authHeaderValue) {
+      log('No authentication credentials available.', 'err');
+      alert('Authentication required: please run exchange or ensure your backend has Application Default Credentials configured.');
+      return;
+    }
+
+    // Prepare Discovery Engine URL (using proxy to bypass CORS)
+    const apiHost = 'discoveryengine.googleapis.com';
+    const targetPath = `v1alpha/projects/${projectNum}/locations/global/collections/default_collection/engines/${engineId}/assistants/default_assistant:streamAssist`;
+    const proxyUrl = `/api/proxy/${apiHost}/${targetPath}`;
+
+    const payload = {
+      query: { text: query },
+      toolsSpec: {
+        vertexAiSearchSpec: {
+          dataStoreSpecs: [{
+            dataStore: `projects/${projectNum}/locations/global/collections/default_collection/dataStores/${datastoreId}`
+          }]
+        }
+      }
+    };
+
+    try {
+      const resp = await fetch(proxyUrl, {
+        method: 'POST',
+        headers: {
+          'Authorization': authHeaderValue,
+          'Content-Type': 'application/json',
+          'X-Goog-User-Project': projectId
+        },
+        body: JSON.stringify(payload)
+      });
+
+      const data = await resp.json();
+      if (!resp.ok) {
+        throw new Error(data[0]?.error?.message || data.error?.message || JSON.stringify(data));
+      }
+
+      log(`Received response from streamAssist containing ${data.length} chunks.`, 'out');
+      document.getElementById('flow-step-3').className = 'flow-step done';
+
+      // Parse output
+      let answerText = '';
+      let references = [];
+      let grounded = false;
+
+      for (const chunk of data) {
+        const replies = chunk.answer?.replies || [];
+        for (const reply of replies) {
+          const content = reply.groundedContent?.content || {};
+          if (content.text && !content.thought) {
+            answerText += content.text;
+          }
+          const refs = reply.groundedContent?.textGroundingMetadata?.references || [];
+          for (const ref of refs) {
+            grounded = true;
+            references.push({
+              title: ref.documentMetadata?.title || 'GCS PDF Document',
+              uri: ref.documentMetadata?.uri || ''
+            });
+          }
+        }
+      }
+
+      // Render
+      document.getElementById('result-badge').className = grounded ? 'grounding-status yes' : 'grounding-status no';
+      document.getElementById('result-badge').textContent = grounded ? 'Grounded' : 'Not Grounded';
+      document.getElementById('result-text').textContent = answerText || 'No answer generated.';
+      
+      const citWrap = document.getElementById('citation-list');
+      citWrap.innerHTML = '';
+      
+      // Deduplicate references
+      const seen = new Set();
+      const uniqRefs = references.filter(r => {
+        const key = `${r.title}-${r.uri}`;
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
+      });
+
+      if (uniqRefs.length > 0) {
+        uniqRefs.forEach(ref => {
+          const div = document.createElement('div');
+          div.className = 'citation-item';
+          div.innerHTML = `
+            <span class="citation-icon">🗎</span>
+            <a class="citation-link" href="${ref.uri}" target="_blank">${ref.title} (${ref.uri})</a>
+          `;
+          citWrap.appendChild(div);
+        });
+        document.getElementById('result-citations').style.display = 'block';
+      } else {
+        document.getElementById('result-citations').style.display = 'none';
+      }
+
+      document.getElementById('result-card').className = 'glass-card result-card visible';
+
+    } catch (e) {
+      log('streamAssist query failed: ' + e.message, 'err');
+      alert('streamAssist query failed: ' + e.message);
+    }
+  };
+
+  // Load resources on start
+  loadResources();
+</script>
+
+</body>
+</html>

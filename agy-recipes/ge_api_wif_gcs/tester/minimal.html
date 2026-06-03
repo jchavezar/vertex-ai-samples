@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Minimal WIF + GCS Grounding Client</title>
+  <!-- 1. Include MSAL Browser SDK -->
+  <script src="https://alcdn.msauth.net/browser/2.38.0/js/msal-browser.min.js"></script>
+  <style>
+    body { font-family: monospace; padding: 20px; background: #0f0f16; color: #a4b1cd; }
+    h2 { color: #00f2fe; }
+    button { padding: 10px 20px; margin: 10px 0; background: #0066cc; color: white; border: none; cursor: pointer; border-radius: 4px; }
+    button:disabled { background: #333; color: #666; cursor: not-allowed; }
+    pre { background: #000; padding: 15px; border-radius: 6px; overflow: auto; border: 1px solid #333; }
+    .status { color: #38b000; }
+  </style>
+</head>
+<body>
+
+  <h2>Minimal WIF + GCS Grounding Client</h2>
+  <button id="btn-login">Login with Microsoft</button>
+
+  <p>Status: <span id="status-text" class="status">Click login to start...</span></p>
+  
+  <h3>WIF Token Payload</h3>
+  <pre id="wif-token-out">No token yet...</pre>
+
+  <h3>Discovery Engine Grounded Answer</h3>
+  <pre id="grounded-answer-out">Run a search to see the answer...</pre>
+
+  <script>
+    // 2. Active configuration values
+    const ENTRA_CLIENT_ID = "7868d053-cf9c-4848-be5a-f9bbf8279234";
+    const ENTRA_TENANT_ID = "de46a3fd-0d68-4b25-8343-6eb5d71afce9";
+    const WIF_POOL_ID = "sp-wif-pool-v2";
+    const WIF_PROVIDER_ID = "entra-provider";
+    const PROJECT_ID = "vtxdemos";
+    const PROJECT_NUMBER = "254356041555";
+    
+    // Dynamic values loaded from setup
+    let engineId = "";
+    let datastoreId = "";
+    let gcpToken = null;
+
+    // 3. Initialize MSAL Configuration
+    const msalInstance = new msal.PublicClientApplication({
+      auth: {
+        clientId: ENTRA_CLIENT_ID,
+        authority: `https://login.microsoftonline.com/${ENTRA_TENANT_ID}`,
+        redirectUri: window.location.origin
+      },
+      cache: { cacheLocation: "sessionStorage" }
+    });
+
+    // 4. Load Engine and Data Store IDs automatically
+    async function init() {
+      try {
+        const resp = await fetch('/last_setup_resources.json');
+        if (resp.ok) {
+          const data = await resp.json();
+          engineId = data.engine_id;
+          datastoreId = data.datastore_id;
+          console.log(`Loaded setup: Engine=${engineId}, DataStore=${datastoreId}`);
+        }
+      } catch (e) {
+        console.error('Failed loading resources configuration:', e);
+      }
+    }
+    init();
+
+    // 5. Handle Single Click Login & WIF STS Token Exchange
+    document.getElementById('btn-login').onclick = async () => {
+      const status = document.getElementById('status-text');
+      status.textContent = "Opening Microsoft Login Popup...";
+      
+      try {
+        // A. Login with Microsoft requesting the custom API Scope
+        const loginResponse = await msalInstance.loginPopup({
+          scopes: ["openid", "profile", "email", `api://${ENTRA_CLIENT_ID}/user_impersonation`]
+        });
+        
+        status.textContent = "MSAL login successful! Exchanging token with Google STS...";
+        const microsoftAccessToken = loginResponse.accessToken;
+
+        // B. WIF STS Exchange Request
+        const audience = `//iam.googleapis.com/locations/global/workforcePools/${WIF_POOL_ID}/providers/${WIF_PROVIDER_ID}`;
+        const bodyParams = new URLSearchParams({
+          grant_type: "urn:ietf:params:oauth:grant-type:token-exchange",
+          audience: audience,
+          scope: "https://www.googleapis.com/auth/cloud-platform",
+          requested_token_type: "urn:ietf:params:oauth:token-type:access_token",
+          subject_token_type: "urn:ietf:params:oauth:token-type:jwt",
+          subject_token: microsoftAccessToken
+        });
+
+        // Use Proxy endpoint to avoid localhost CORS limits
+        const stsResp = await fetch('/api/proxy/sts.googleapis.com/v1/token', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: bodyParams.toString()
+        });
+
+        const stsData = await stsResp.json();
+        if (!stsResp.ok) throw new Error(stsData.error_description || JSON.stringify(stsData));
+
+        gcpToken = stsData.access_token;
+        document.getElementById('wif-token-out').textContent = JSON.stringify(stsData, null, 2);
+        status.textContent = "GCP WIF Token exchanged successfully! Executing grounded query...";
+
+        // C. Call streamAssist with WIF token & dataStoreSpecs
+        await executeGroundedQuery(gcpToken);
+
+      } catch (e) {
+        status.textContent = "Error: " + e.message;
+        status.style.color = "#d90429";
+        console.error(e);
+      }
+    };
+
+    // 6. Discovery Engine Grounded Query Call
+    async function executeGroundedQuery(token) {
+      const answerOut = document.getElementById('grounded-answer-out');
+      const status = document.getElementById('status-text');
+      
+      const apiHost = 'discoveryengine.googleapis.com';
+      const targetPath = `v1alpha/projects/${PROJECT_NUMBER}/locations/global/collections/default_collection/engines/${engineId}/assistants/default_assistant:streamAssist`;
+      
+      const payload = {
+        query: { text: "Summarize the key financial highlights from the document." },
+        toolsSpec: {
+          vertexAiSearchSpec: {
+            dataStoreSpecs: [{
+              dataStore: `projects/${PROJECT_NUMBER}/locations/global/collections/default_collection/dataStores/${datastoreId}`
+            }]
+          }
+        }
+      };
+
+      try {
+        const resp = await fetch(`/api/proxy/${apiHost}/${targetPath}`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+            'X-Goog-User-Project': PROJECT_ID
+          },
+          body: JSON.stringify(payload)
+        });
+
+        const data = await resp.json();
+        if (!resp.ok) throw new Error(data[0]?.error?.message || data.error?.message || JSON.stringify(data));
+
+        answerOut.textContent = JSON.stringify(data, null, 2);
+        status.textContent = "Grounded query completed successfully!";
+      } catch (e) {
+        answerOut.textContent = "Failed query: " + e.message;
+      }
+    }
+  </script>
+</body>
+</html>
