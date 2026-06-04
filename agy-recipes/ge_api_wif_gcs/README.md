@@ -3,7 +3,30 @@
 > **Next-Generation API Integration Guide**  
 > Learn how to build single-click, zero-credential search interfaces using Microsoft Entra ID (Azure AD), Google Workforce Identity Federation (WIF), and Gemini Enterprise.
 
-![WIF GCS Grounding UI Demo](./tester/wif_gcs_ui_flow.webp)
+### Grounding Prover UI Dashboard
+
+Below is the step-by-step user interface walkthrough demonstrating Entra ID login, token exchange, and grounded Gemini Enterprise search results.
+
+<details>
+<summary><b>📷 Step 1: Initial Dashboard Layout (Expand)</b></summary>
+<p align="center">
+  <img src="./tester/screenshots/01_initial_state.png" width="100%" alt="Initial State">
+</p>
+</details>
+
+<details>
+<summary><b>📷 Step 2: Microsoft Login & WIF STS Token Exchange (Expand)</b></summary>
+<p align="center">
+  <img src="./tester/screenshots/02_authenticated.png" width="100%" alt="Authenticated Session">
+</p>
+</details>
+
+<details>
+<summary><b>📷 Step 3: Grounded streamAssist Search Answer (Expand)</b></summary>
+<p align="center">
+  <img src="./tester/screenshots/03_grounded_results.png" width="100%" alt="Grounded Results">
+</p>
+</details>
 
 ---
 
