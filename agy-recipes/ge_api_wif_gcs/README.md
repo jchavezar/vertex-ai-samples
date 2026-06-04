@@ -3,6 +3,8 @@
 > **Next-Generation API Integration Guide**  
 > Learn how to build single-click, zero-credential search interfaces using Microsoft Entra ID (Azure AD), Google Workforce Identity Federation (WIF), and Gemini Enterprise.
 
+![WIF GCS Grounding UI Demo](./tester/wif_gcs_ui_flow.webp)
+
 ---
 
 ## 1. The Token Exchange Protocol
@@ -114,9 +116,11 @@ Content-Type: application/json
 
 Below are complete snippets to orchestrate the entire flow (Token Exchange + Query) in Javascript and Python.
 
-```carousel
+### JavaScript / Node.js
+<details>
+<summary><b>Click to expand Node.js implementation</b></summary>
+
 ```javascript
-// JavaScript / Node.js
 async function runQuery(microsoftToken, queryText) {
   // A. STS Exchange
   const stsParams = new URLSearchParams({
@@ -158,9 +162,13 @@ async function runQuery(microsoftToken, queryText) {
   return await searchResp.json();
 }
 ```
-<!-- slide -->
+</details>
+
+### Python 3
+<details>
+<summary><b>Click to expand Python implementation</b></summary>
+
 ```python
-# Python 3
 import requests
 
 def run_query(microsoft_token: str, query_text: str):
@@ -201,7 +209,7 @@ def run_query(microsoft_token: str, query_text: str):
     resp = requests.post(search_url, headers=headers, json=payload)
     return resp.json()
 ```
-````
+</details>
 
 ---
 
