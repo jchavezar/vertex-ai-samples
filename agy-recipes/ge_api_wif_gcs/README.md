@@ -7,6 +7,46 @@
 
 ---
 
+## Directory Structure & Component Mapping
+
+Use this guide to locate files relevant to your scenario. The recipe is structured into decoupled components:
+
+```
+ge_api_wif_gcs/
+├── .env.example             <-- CONFIGURATION: Reference environment config template
+├── SKILL.md                 <-- METADATA: Antigravity AI Orchestrator definition
+├── README.md                <-- DOCUMENTATION: Integration and setup guide
+│
+├── scripts/                 <-- BACKEND & INFRASTRUCTURE AUTOMATION (GCP)
+│   ├── setup.py             <-- Auto-provisions GCP Bucket, imports documents & links search engine
+│   ├── test_search.py       <-- CLI Verification Tool: Query streamAssist from terminal
+│   └── teardown.py          <-- Teardown script: Destroys all created GCP test resources
+│
+└── tester/                  <-- FRONTEND / USER INTERFACE
+    ├── index.html           <-- Interactive Web Dashboard: Premium Dark Mode grounding prover UI
+    ├── serve.py             <-- Local Web Server & API proxy to bypass browser CORS constraints
+    ├── wif_gcs_ui_flow.webp <-- Demo animation showing the UI in action
+    └── minimal.html         <-- Minimal SPA Implementation: Copy-pasteable 130-line code base
+```
+
+---
+
+## Environment Configuration
+
+To adapt this recipe to your enterprise environment:
+
+1. Copy `.env.example` to `.env`:
+   ```bash
+   cp agy-recipes/ge_api_wif_gcs/.env.example agy-recipes/ge_api_wif_gcs/.env
+   ```
+2. Update the environment variables in `.env` with your organization's configuration:
+   * **`GCP_PROJECT` & `GCP_PROJECT_NUMBER`**: Your Google Cloud target environment details.
+   * **`ENTRA_CLIENT_ID` & `ENTRA_TENANT_ID`**: Your corporate Microsoft App registration credentials.
+   * **`WIF_POOL_ID` & `WIF_PROVIDER_ID`**: The Workforce Identity mapping definitions.
+3. The setup and CLI scripts automatically read these values at runtime. For the Frontend HTML pages (`index.html` and `minimal.html`), configure the JavaScript `CONFIG` object at the top of the script tag.
+
+---
+
 ## 1. The Token Exchange Protocol
 
 Instead of managing server-side API keys or database service account files, this architecture uses a **Federated Token Exchange**. The client browser obtains a temporary identity from Entra ID and exchanges it directly for Google Cloud access.

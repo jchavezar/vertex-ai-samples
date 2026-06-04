@@ -21,6 +21,16 @@ import google.auth
 import google.auth.transport.requests
 from google.cloud import storage
 
+# Load .env file dynamically if present
+_env_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), ".env")
+if os.path.exists(_env_path):
+    with open(_env_path) as _f:
+        for _line in _f:
+            _line = _line.strip()
+            if _line and not _line.startswith("#") and "=" in _line:
+                _k, _v = _line.split("=", 1)
+                os.environ[_k.strip()] = _v.strip().strip('"').strip("'")
+
 # Configurations
 PROJECT_ID = os.environ.get("GCP_PROJECT", "vtxdemos")
 PROJECT_NUMBER = os.environ.get("GCP_PROJECT_NUMBER", "254356041555")
