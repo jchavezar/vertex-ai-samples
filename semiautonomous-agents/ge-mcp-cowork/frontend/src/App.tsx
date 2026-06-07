@@ -1504,13 +1504,13 @@ function MainApp() {
             {connectors.sharepoint.connected && (
               <div className={`p-2.5 rounded-lg text-[11px] border ${isDarkMode ? "bg-[#1e1f20] text-[#c4c7c5] border-[#282a2d]" : "bg-gray-50 text-gray-500 border-gray-100"}`}>
                 <span className={`font-semibold block mb-1 ${isDarkMode ? "text-[#e3e3e3]" : "text-gray-600"}`}>Exposed Tools (6):</span>
-                <div className="grid grid-cols-2 gap-1 font-mono">
-                  <div>- search</div>
-                  <div>- fetch</div>
-                  <div>- list_sites</div>
-                  <div>- list_libraries</div>
-                  <div>- list_files</div>
-                  <div>- read_file</div>
+                <div className="space-y-1 font-mono text-[10px]">
+                  {["search", "fetch", "list_sites", "list_libraries", "list_files", "read_file"].map((tool) => (
+                    <div key={tool} className="flex items-center gap-1.5 py-0.5 px-1.5 rounded hover:bg-black/10 dark:hover:bg-white/5 transition-colors">
+                      <span className="w-1 h-1 rounded-full bg-cyan-400"></span>
+                      <span className="truncate">{tool}</span>
+                    </div>
+                  ))}
                 </div>
               </div>
             )}
@@ -1666,15 +1666,22 @@ function MainApp() {
                 {/* Jira Tools Preview */}
                 <div className={`p-2.5 rounded-lg text-[11px] border ${isDarkMode ? "bg-[#1e1f20] text-[#c4c7c5] border-[#282a2d]" : "bg-gray-50 text-gray-500 border-gray-100"}`}>
                   <span className={`font-semibold block mb-1 ${isDarkMode ? "text-[#e3e3e3]" : "text-gray-600"}`}>Exposed Tools (9):</span>
-                  <div className="grid grid-cols-2 gap-1 font-mono">
-                    <div>- search</div>
-                    <div>- fetch</div>
-                    <div>- searchJiraIssuesUsingJql</div>
-                    <div>- summarizeJiraIssues</div>
-                    <div>- getJiraIssuesReport</div>
-                    <div>- getIssueComments</div>
-                    <div>- getIssueWorklogs</div>
-                    <div>- getIssueLinks</div>
+                  <div className="space-y-1 font-mono text-[10px]">
+                    {[
+                      "search", 
+                      "fetch", 
+                      "searchJiraIssuesUsingJql", 
+                      "summarizeJiraIssues", 
+                      "getJiraIssuesReport", 
+                      "getIssueComments", 
+                      "getIssueWorklogs", 
+                      "getIssueLinks"
+                    ].map((tool) => (
+                      <div key={tool} className="flex items-center gap-1.5 py-0.5 px-1.5 rounded hover:bg-black/10 dark:hover:bg-white/5 transition-colors">
+                        <span className="w-1.5 h-1.5 rounded-full bg-blue-400"></span>
+                        <span className="truncate">{tool}</span>
+                      </div>
+                    ))}
                   </div>
                 </div>
               </div>
