@@ -207,10 +207,17 @@ async def chat_endpoint(payload: ChatPayload):
     
     # Build Gemini SDK tools configuration
     gemini_tools = []
-    if exposed_tools:
-        gemini_tools.append(types.Tool(function_declarations=exposed_tools))
     if google_search_enabled:
+        # Grounding with Google Search cannot be combined with function calling or code execution
         gemini_tools.append(types.Tool(google_search=types.GoogleSearch()))
+    else:
+        # Combine function declarations and code execution into a single Tool object
+        tool_kwargs = {}
+        if exposed_tools:
+            tool_kwargs["function_declarations"] = exposed_tools
+        # Enable built-in Python Code Execution for advanced scripting and math calculations
+        tool_kwargs["code_execution"] = types.ToolCodeExecution()
+        gemini_tools.append(types.Tool(**tool_kwargs))
         
     logger.info(f"Enabled connectors: {enabled_connectors}. Google Search: {google_search_enabled}")
     logger.info(f"Exposed tool count: {len(exposed_tools)}")
@@ -371,7 +378,15 @@ async def chat_endpoint(payload: ChatPayload):
                 "  {\"name\": \"Blocked Items\", \"value\": \"3\"}\n"
                 "]\n"
                 "</chart>\n\n"
-                "Keep names concise. The data inside <chart> must be a valid JSON array of objects with 'name' and 'value' fields. Do not output raw HTML tags other than <chart>."
+                 "Keep names concise. The data inside <chart> must be a valid JSON array of objects with 'name' and 'value' fields. Do not output raw HTML tags other than <chart>.\n\n"
+                "**CRITICAL FOLLOW-UP SUGGESTIONS RULES**:\n"
+                "At the very end of your response, after any charts, you MUST suggest 2 to 3 follow-up questions that are directly related to the user's question AND based ONLY on the actual data/context retrieved.\n"
+                "Ensure the suggested questions are answerable using the available tools and data in the workspace (for example, if you just retrieved a list of open bugs, suggest asking about the cycle time of those bugs, or who is assigned to them). Do not suggest questions that cannot be answered or are unrelated to the current context.\n"
+                "Format these suggestions inside a <suggestions> XML tag block, with each suggestion in a <suggestion> child tag, like this:\n"
+                "<suggestions>\n"
+                "  <suggestion>What is the average cycle time for the open bugs in PLAT?</suggestion>\n"
+                "  <suggestion>Show me who is assigned to the High priority issues.</suggestion>\n"
+                "</suggestions>"
             )
             
             # Track sources discovered during tool execution
@@ -411,6 +426,28 @@ async def chat_endpoint(payload: ChatPayload):
                     # we can just yield that text directly!
                     final_text = response.text or ""
                     if final_text:
+                        if "<suggestions>" not in final_text.lower():
+                            has_jira = any(t in final_text.lower() for t in ("jira", "project", "ticket", "bug", "smp", "bugs", "plat"))
+                            has_sharepoint = any(t in final_text.lower() for t in ("sharepoint", "document", "file", "folder", "entra", "site"))
+                            if has_jira:
+                                sugs = [
+                                    "Calculate cycle time for resolved tickets in SMP (excluding weekends)",
+                                    "Run a Monte Carlo simulation on remaining To Do tickets in SMP",
+                                    "What other high-priority issues are in the SMP project?"
+                                ]
+                            elif has_sharepoint:
+                                sugs = [
+                                    "Show me files modified in the last 7 days",
+                                    "List all document libraries in the root site",
+                                    "Summarize the recent uploaded PDF documents"
+                                ]
+                            else:
+                                sugs = [
+                                    "List all visible Jira projects",
+                                    "List document libraries in SharePoint"
+                                ]
+                            suggestions_xml = "\n\n<suggestions>\n" + "\n".join(f"  <suggestion>{s}</suggestion>" for s in sugs) + "\n</suggestions>"
+                            final_text += suggestions_xml
                         yield f"event: text\ndata: {json.dumps({'text': final_text})}\n\n"
                     break
                 

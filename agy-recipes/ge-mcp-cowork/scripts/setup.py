@@ -217,7 +217,7 @@ GOOGLE_CLOUD_LOCATION=us-central1
 GEMINI_MODEL=gemini-2.5-flash
 
 # Set to true to route chat queries to Vertex Reasoning Engine Agent ID
-USE_REASONING_ENGINE=True
+USE_REASONING_ENGINE=False
 REASONING_ENGINE_ID={engine_id}
 
 # Deployed MCP Server URLs

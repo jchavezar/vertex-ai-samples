@@ -368,6 +368,31 @@ const renderMessageContent = (content: string) => {
   );
 };
 
+// Helper to extract follow-up suggestions from XML-like tags in model output
+const parseSuggestionsAndContent = (content: string): { cleanContent: string; suggestions: string[] } => {
+  const suggestionsRegex = /<suggestions>([\s\S]*?)<\/suggestions>/i;
+  const match = suggestionsRegex.exec(content);
+  if (!match) {
+    // If suggestions tag is still incomplete during streaming, filter out the raw open tag
+    const openTagIndex = content.toLowerCase().indexOf("<suggestions>");
+    if (openTagIndex !== -1) {
+      return { cleanContent: content.substring(0, openTagIndex).trim(), suggestions: [] };
+    }
+    return { cleanContent: content, suggestions: [] };
+  }
+  
+  const cleanContent = content.replace(suggestionsRegex, "").trim();
+  const rawSuggestions = match[1];
+  const suggestionRegex = /<suggestion>([\s\S]*?)<\/suggestion>/gi;
+  const suggestions: string[] = [];
+  let sugMatch;
+  while ((sugMatch = suggestionRegex.exec(rawSuggestions)) !== null) {
+    suggestions.push(sugMatch[1].trim());
+  }
+  
+  return { cleanContent, suggestions };
+};
+
 // Custom Assistant Icon Resolver
 const AssistantIcon = ({ title }: { title: string }) => {
   if (title === "SharePoint Assistant") {
@@ -468,7 +493,7 @@ function MainApp() {
     {
       id: "welcome",
       role: "assistant",
-      content: "Hello! I am Gemini Enterprise. Connect your corporate tools like Jira and SharePoint using the database stack icon below to start querying your data."
+      content: "Hello! I am Gemini Enterprise. Connect your corporate tools like Jira and SharePoint using the database stack icon below to start querying your data.\n\n<suggestions>\n  <suggestion>Calculate cycle time for resolved tickets in SMP (excluding weekends)</suggestion>\n  <suggestion>Run a Monte Carlo simulation on remaining To Do tickets in SMP</suggestion>\n</suggestions>"
     }
   ]);
   const [inputText, setInputText] = useState("");
@@ -487,7 +512,7 @@ function MainApp() {
   const [liveLatency, setLiveLatency] = useState(0);
 
   useEffect(() => {
-    let interval: NodeJS.Timeout;
+    let interval: any;
     if (isStreaming) {
       const startTime = Date.now();
       setLiveLatency(0);
@@ -716,19 +741,22 @@ function MainApp() {
   };
 
   // Send message to Backend
-  const handleSend = async () => {
-    if (!inputText.trim() || isStreaming) return;
+  const handleSend = async (overrideText?: string) => {
+    const targetText = overrideText !== undefined ? overrideText : inputText;
+    if (!targetText.trim() || isStreaming) return;
 
     const startTime = Date.now();
 
     const userMessage: Message = {
       id: Date.now().toString(),
       role: "user",
-      content: inputText
+      content: targetText
     };
 
     setMessages(prev => [...prev, userMessage]);
-    setInputText("");
+    if (overrideText === undefined) {
+      setInputText("");
+    }
     setIsStreaming(true);
     setStreamingText("");
     setActiveToolCalls([]);
@@ -825,7 +853,7 @@ function MainApp() {
                 splitLlm = data.llm_latency;
                 splitTool = data.tool_latency;
               } else if (currentEvent === "error") {
-                accumulatedText += `\n\n**Error:** ${data.error}`;
+                accumulatedText += `\n\n**Error:** ${data.error}\n\n<suggestions>\n  <suggestion>List all visible Jira projects</suggestion>\n  <suggestion>List document libraries in SharePoint</suggestion>\n</suggestions>`;
                 setStreamingText(accumulatedText);
                 accumulatedLogs.push({
                   timestamp: new Date().toLocaleTimeString(),
@@ -866,7 +894,7 @@ function MainApp() {
         {
           id: (Date.now() + 1).toString(),
           role: "assistant",
-          content: `Error connecting to backend: ${error.message || error}`,
+          content: `Error connecting to backend: ${error.message || error}\n\n<suggestions>\n  <suggestion>List all visible Jira projects</suggestion>\n  <suggestion>List document libraries in SharePoint</suggestion>\n</suggestions>`,
           latency: latencySec
         }
       ]);
@@ -1120,7 +1148,31 @@ function MainApp() {
                   {msg.role === "user" ? (
                     msg.content
                   ) : (
-                    renderMessageContent(msg.content)
+                    (() => {
+                      const { cleanContent, suggestions } = parseSuggestionsAndContent(msg.content);
+                      return (
+                        <div className="space-y-3">
+                          {renderMessageContent(cleanContent)}
+                          {suggestions.length > 0 && (
+                            <div className="mt-4 flex flex-wrap gap-2 not-prose select-none">
+                              {suggestions.map((sug, sIdx) => (
+                                <button
+                                  key={sIdx}
+                                  onClick={() => handleSend(sug)}
+                                  className={`px-3 py-1.5 rounded-2xl text-[11px] font-semibold transition-all border shadow-sm ${
+                                    isDarkMode
+                                      ? "bg-[#202124] hover:bg-[#3c4043] text-[#e8eaed] border-[#3c4043] hover:border-[#8ab4f8]/50"
+                                      : "bg-white hover:bg-gray-50 text-gray-700 border-gray-200 hover:border-blue-500/50"
+                                  }`}
+                                >
+                                  {sug}
+                                </button>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })()
                   )}
                 </div>
  
@@ -1299,10 +1351,12 @@ function MainApp() {
                   </div>
                 )}
  
-                {/* Text body accumulating */}
                 {streamingText && (
                   <div className={isDarkMode ? "text-[#e3e3e3] leading-relaxed prose prose-invert prose-sm pl-1 pr-4 mt-2 w-full" : "text-gray-800 leading-relaxed prose prose-sm pl-8 pr-4 -mt-1 w-full"}>
-                    {renderMessageContent(streamingText)}
+                    {(() => {
+                      const { cleanContent } = parseSuggestionsAndContent(streamingText);
+                      return renderMessageContent(cleanContent);
+                    })()}
                   </div>
                 )}
  
@@ -1386,7 +1440,7 @@ function MainApp() {
 
                 {/* Right Side Send Button */}
                 <button 
-                  onClick={handleSend}
+                  onClick={() => handleSend()}
                   disabled={!inputText.trim() || isStreaming}
                   className={`p-1.5 transition-colors ${
                     inputText.trim() && !isStreaming

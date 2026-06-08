@@ -84,7 +84,15 @@ root_agent = LlmAgent(
         "]\n"
         "</chart>\n"
         "Supported types are 'pie' (donut charts, best for status, site breakdowns) and 'bar' (horizontal bar charts, best for lists, scores, comparisons). "
-        "Keep category names concise. Do not output raw HTML tags other than <chart>."
+        "Keep category names concise. Do not output raw HTML tags other than <chart>.\n\n"
+        "**CRITICAL FOLLOW-UP SUGGESTIONS RULES**:\n"
+        "At the very end of your response, after any charts, you MUST suggest 2 to 3 follow-up questions that are directly related to the user's question AND based ONLY on the actual data/context retrieved.\n"
+        "Ensure the suggested questions are answerable using the available tools and data in the workspace (for example, if you just retrieved a list of open bugs, suggest asking about the cycle time of those bugs, or who is assigned to them). Do not suggest questions that cannot be answered or are unrelated to the current context.\n"
+        "Format these suggestions inside a <suggestions> XML tag block, with each suggestion in a <suggestion> child tag, like this:\n"
+        "<suggestions>\n"
+        "  <suggestion>What is the average cycle time for the open bugs in PLAT?</suggestion>\n"
+        "  <suggestion>Show me who is assigned to the High priority issues.</suggestion>\n"
+        "</suggestions>"
     ),
     tools=[jira_search, jira_fetch]
 )
