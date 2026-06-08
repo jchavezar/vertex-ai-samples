@@ -48,14 +48,36 @@ def get_default_project_number(project_id):
         pass
     return "254356041555"
 
+def load_original_env():
+    # Attempt to resolve the original project .env path
+    original_env_path = os.path.abspath(
+        os.path.join(RECIPE_DIR, "..", "..", "semiautonomous-agents", "ge-mcp-cowork", ".env")
+    )
+    defaults = {}
+    if os.path.exists(original_env_path):
+        try:
+            with open(original_env_path) as f:
+                for line in f:
+                    line = line.strip()
+                    if line and not line.startswith("#") and "=" in line:
+                        k, v = line.split("=", 1)
+                        defaults[k.strip()] = v.strip().strip('"').strip("'")
+        except Exception:
+            pass
+    return defaults
+
 def parse_args():
     parser = argparse.ArgumentParser(description="Replicate and configure the GE MCP Co-work Portal.")
     parser.add_argument("--destination", help="Target path to replicate the application to.")
     parser.add_argument("--project-id", help="Google Cloud Project ID.")
     parser.add_argument("--project-number", help="Google Cloud Project Number.")
     parser.add_argument("--engine-id", help="Gemini Enterprise Engine ID.")
-    parser.add_argument("--jira-url", help="Jira Site URL (e.g., sockcop.atlassian.net).")
+    parser.add_argument("--jira-url", help="Jira Site URL (e.g., site.atlassian.net).")
     parser.add_argument("--sharepoint-url", help="SharePoint Site URL.")
+    parser.add_argument("--jira-mcp-url", help="Deployed Jira MCP Server URL.")
+    parser.add_argument("--sharepoint-mcp-url", help="Deployed SharePoint MCP Server URL.")
+    parser.add_argument("--atlassian-email", help="Atlassian admin email.")
+    parser.add_argument("--atlassian-api-token", help="Atlassian API basic auth token.")
     parser.add_argument("--non-interactive", action="store_true", help="Run without stdin prompts.")
     return parser.parse_args()
 
@@ -68,6 +90,9 @@ def main():
 
     # Determine interactive vs CLI mode
     is_interactive = not args.non_interactive
+
+    # Load defaults from original project .env if present
+    orig_defaults = load_original_env()
 
     # 1. Resolve Destination Path
     destination = args.destination
@@ -83,7 +108,7 @@ def main():
     # 2. Resolve Project ID
     project_id = args.project_id
     if not project_id:
-        default_proj = get_default_project_id()
+        default_proj = orig_defaults.get("GOOGLE_CLOUD_PROJECT") or get_default_project_id()
         if is_interactive:
             inp = input(f"Enter GCP Project ID [{default_proj}]: ").strip()
             project_id = inp if inp else default_proj
@@ -103,7 +128,7 @@ def main():
     # 4. Resolve Engine ID
     engine_id = args.engine_id
     if not engine_id:
-        default_eng = "jira-testing_1778158449701"
+        default_eng = orig_defaults.get("REASONING_ENGINE_ID") or "jira-testing_1778158449701"
         if is_interactive:
             inp = input(f"Enter Gemini Engine ID [{default_eng}]: ").strip()
             engine_id = inp if inp else default_eng
@@ -113,7 +138,9 @@ def main():
     # 5. Resolve Jira Site URL
     jira_url = args.jira_url
     if not jira_url:
-        default_jira = "sockcop.atlassian.net"
+        default_jira = orig_defaults.get("ATLASSIAN_SITE_URL") or "sockcop.atlassian.net"
+        if default_jira.startswith("https://"):
+            default_jira = default_jira.replace("https://", "")
         if is_interactive:
             inp = input(f"Enter Jira site URL [{default_jira}]: ").strip()
             jira_url = inp if inp else default_jira
@@ -123,12 +150,18 @@ def main():
     # 6. Resolve SharePoint Site URL
     sharepoint_url = args.sharepoint_url
     if not sharepoint_url:
-        default_sp = ""
+        default_sp = orig_defaults.get("SHAREPOINT_DEFAULT_SITE") or ""
         if is_interactive:
             inp = input("Enter SharePoint site URL (optional): ").strip()
             sharepoint_url = inp if inp else default_sp
         else:
             sharepoint_url = default_sp
+
+    # 6b. Resolve MCP URLs and Credentials
+    jira_mcp_url = args.jira_mcp_url or orig_defaults.get("JIRA_MCP_URL") or "https://jira-mcp-server-254356041555.us-central1.run.app/mcp"
+    sharepoint_mcp_url = args.sharepoint_mcp_url or orig_defaults.get("SHAREPOINT_MCP_URL") or "https://ge-custom-sharepoint-mcp-254356041555.us-central1.run.app/mcp"
+    atlassian_email = args.atlassian_email or orig_defaults.get("ATLASSIAN_EMAIL") or "admin@jesusarguelles.demo.altostrat.com"
+    atlassian_api_token = args.atlassian_api_token or orig_defaults.get("ATLASSIAN_API_TOKEN") or ""
 
     print("\n[*] Configuration Summary:")
     print(f"  - Target Folder:   {destination}")
@@ -137,6 +170,9 @@ def main():
     print(f"  - Engine ID:       {engine_id}")
     print(f"  - Jira Site URL:   {jira_url}")
     print(f"  - SharePoint URL:  {sharepoint_url if sharepoint_url else 'None'}")
+    print(f"  - Jira MCP URL:    {jira_mcp_url}")
+    print(f"  - SP MCP URL:      {sharepoint_mcp_url}")
+    print(f"  - Atlassian Email: {atlassian_email}")
 
     if is_interactive:
         confirm = input("\nDo you want to proceed with replication? [Y/n]: ").strip().lower()
@@ -172,7 +208,10 @@ def main():
 
     # 8. Create `.env` file in destination path
     print("[*] Creating .env file in target workspace...")
-    env_content = f"""# Core Gemini Enterprise Grounding configurations
+    env_content = f"""# Server Configuration
+PORT=8001
+
+# Core Gemini Enterprise Grounding configurations
 GOOGLE_CLOUD_PROJECT={project_id}
 GOOGLE_CLOUD_LOCATION=us-central1
 GEMINI_MODEL=gemini-2.5-flash
@@ -181,9 +220,14 @@ GEMINI_MODEL=gemini-2.5-flash
 USE_REASONING_ENGINE=True
 REASONING_ENGINE_ID={engine_id}
 
-# Connection defaults (Optional presets)
-JIRA_DEFAULT_SITE={jira_url}
-SHAREPOINT_DEFAULT_SITE={sharepoint_url}
+# Deployed MCP Server URLs
+JIRA_MCP_URL={jira_mcp_url}
+SHAREPOINT_MCP_URL={sharepoint_mcp_url}
+
+# Jira credentials
+ATLASSIAN_EMAIL={atlassian_email}
+ATLASSIAN_API_TOKEN={atlassian_api_token}
+ATLASSIAN_SITE_URL=https://{jira_url}
 """
     try:
         with open(os.path.join(destination, ".env"), "w") as f:
