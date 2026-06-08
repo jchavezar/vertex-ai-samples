@@ -26,3 +26,8 @@ Because you are in a ssh session (jetski is running locally on my macbook and th
 
 ## Clean is important
 After you do testings, creating new files, scripts etc and I ask for github pushes or "clean in general" besides the zero leak and other rules you already have I need you to keep the files and scripts in temporary folders out of the github (I dont need to backup unnecesary files).
+
+## Python Backend & Environment Handling
+- **Dotenv Overrides**: When loading `.env` files in Python servers/scripts, you MUST set `override=True` inside `load_dotenv(override=True)` to prevent system shell environment variables from hijacking your local configurations.
+- **Port Conflict Management**: Before starting any local server or static web server on ports like `8000`, `8001`, or `5173`, you MUST verify and terminate any active listeners on those ports using `kill -9 $(lsof -t -i:PORT)` to prevent port-shifting or bind failures.
+- **Explicit GenAI Target**: Initialize Google GenAI clients explicitly specifying `vertexai=True`, target project ID, and region (e.g., `us-central1` or `us-east4`) rather than relying on default credentials, avoiding project quota mismatches.
