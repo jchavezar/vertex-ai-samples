@@ -25,29 +25,51 @@ The agent will ask you for:
 ---
 
 ## 2. Execute Setup and Replication
-Once the variables are aligned, run the replication script using `uv` with non-interactive CLI parameters to clone the portal and configure it:
+Run the following commands to copy the application template files, register the Antigravity workflows/skills in the target workspace, and write the environment configuration:
 
 // turbo
 ```bash
-uv run agy-recipes/ge-mcp-cowork/scripts/setup.py \
-  --destination "<TARGET_DESTINATION>" \
-  --project-id "<PROJECT_ID>" \
-  --engine-id "<ENGINE_ID>" \
-  --jira-url "<JIRA_URL>" \
-  --sharepoint-url "<SHAREPOINT_URL>" \
-  --non-interactive
+# 1. Create target clone directory
+mkdir -p ./ge-mcp-cowork-portal
+
+# 2. Copy application files from vertex-ai-samples recipe folder
+cp -r /Users/jesusarguelles/IdeaProjects/vertex-ai-samples/agy-recipes/ge-mcp-cowork/app/* ./ge-mcp-cowork-portal/
+
+# 3. Copy the .agent skills and workflows into both the portal clone and the active workspace root
+mkdir -p ./ge-mcp-cowork-portal/.agent
+cp -r /Users/jesusarguelles/IdeaProjects/vertex-ai-samples/agy-recipes/ge-mcp-cowork/.agent/* ./ge-mcp-cowork-portal/.agent/
+mkdir -p ./.agent
+cp -r /Users/jesusarguelles/IdeaProjects/vertex-ai-samples/agy-recipes/ge-mcp-cowork/.agent/* ./.agent/
+
+# 4. Generate the local .env configuration file
+cat <<EOF > ./ge-mcp-cowork-portal/.env
+GOOGLE_CLOUD_PROJECT=<PROJECT_ID>
+GOOGLE_CLOUD_LOCATION=us-central1
+GEMINI_MODEL=gemini-2.5-flash
+USE_REASONING_ENGINE=True
+REASONING_ENGINE_ID=<ENGINE_ID>
+JIRA_DEFAULT_SITE=<JIRA_URL>
+SHAREPOINT_DEFAULT_SITE=<SHAREPOINT_URL>
+EOF
+
+# 5. Initialize env file in backend folder
+cp ./ge-mcp-cowork-portal/backend/.env.example ./ge-mcp-cowork-portal/backend/.env
 ```
 
 ---
 
-## 3. Run and Monitor
-To run the replicated portal:
-1. Navigate to the destination directory:
-   ```bash
-   cd <TARGET_DESTINATION>
-   ```
-2. Launch the server script:
-   ```bash
-   ./start.sh
-   ```
-3. Open **`http://localhost:5173/`** in your browser.
+## 3. Install and Run
+Install Node modules and start the local servers:
+
+// turbo
+```bash
+# 1. Install react frontend packages
+cd ./ge-mcp-cowork-portal/frontend
+npm install
+cd ../..
+
+# 2. Launch servers in the background
+cd ./ge-mcp-cowork-portal
+./start.sh
+```
+
