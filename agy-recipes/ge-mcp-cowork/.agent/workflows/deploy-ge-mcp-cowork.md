@@ -41,16 +41,20 @@ cp -r /Users/jesusarguelles/IdeaProjects/vertex-ai-samples/agy-recipes/ge-mcp-co
 mkdir -p ./.agent
 cp -r /Users/jesusarguelles/IdeaProjects/vertex-ai-samples/agy-recipes/ge-mcp-cowork/.agent/* ./.agent/
 
-# 4. Generate the local .env configuration file
-cat <<EOF > ./ge-mcp-cowork-portal/.env
+# 4. Load environment configurations by copying the original project's .env file, or fallback to generating one
+if [ -f /Users/jesusarguelles/IdeaProjects/vertex-ai-samples/semiautonomous-agents/ge-mcp-cowork/.env ]; then
+  cp /Users/jesusarguelles/IdeaProjects/vertex-ai-samples/semiautonomous-agents/ge-mcp-cowork/.env ./ge-mcp-cowork-portal/.env
+else
+  cat <<EOF > ./ge-mcp-cowork-portal/.env
 GOOGLE_CLOUD_PROJECT=<PROJECT_ID>
 GOOGLE_CLOUD_LOCATION=us-central1
 GEMINI_MODEL=gemini-2.5-flash
-USE_REASONING_ENGINE=True
+USE_REASONING_ENGINE=False
 REASONING_ENGINE_ID=<ENGINE_ID>
 JIRA_DEFAULT_SITE=<JIRA_URL>
 SHAREPOINT_DEFAULT_SITE=<SHAREPOINT_URL>
 EOF
+fi
 
 # 5. Initialize env file in backend folder
 cp ./ge-mcp-cowork-portal/backend/.env.example ./ge-mcp-cowork-portal/backend/.env
