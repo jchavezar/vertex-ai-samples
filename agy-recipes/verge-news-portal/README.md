@@ -4,6 +4,8 @@ This recipe provides the blueprints and detailed workflow to replicate a viewpor
 
 It integrates a local Express proxy backend, connects to Vertex AI using Google Application Default Credentials (ADC), and utilizes **Google Search Grounding** to provide real-time web citations.
 
+![Verge Clone with Google Search Grounding & Web Citations](images/world-cup-grounded-chat.png)
+
 ---
 
 ## 🏛️ Architecture
