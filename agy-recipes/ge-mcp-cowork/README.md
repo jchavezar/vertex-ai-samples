@@ -28,14 +28,26 @@ graph TD
 
 ## 🚀 Setup & Replication Sequence
 
-The setup script prompts you interactively for configuration values and copies the app codebase from the recipe template folder to a destination path of your choice.
+To clone and configure the portal in your active workspace:
 
-### 1. Run Setup Script (Interactive)
+### 1. Bootstrap Agent Workflows & Skills
+If deploying conversationally with Antigravity, copy the recipe's agent configuration files into your local `.agent` folder first:
+```bash
+# Create local agent directories
+mkdir -p ./.agent/skills/replicating-ge-mcp-cowork
+mkdir -p ./.agent/workflows
+
+# Copy workflow and skill instructions from the local repository
+cp -r ~/IdeaProjects/vertex-ai-samples/agy-recipes/ge-mcp-cowork/.agent/skills/replicating-ge-mcp-cowork/* ./.agent/skills/replicating-ge-mcp-cowork/
+cp -r ~/IdeaProjects/vertex-ai-samples/agy-recipes/ge-mcp-cowork/.agent/workflows/* ./.agent/workflows/
+```
+
+### 2. Execute Setup and Replication
+Run the setup script using `uv` to replicate the files and configure environment variables:
 ```bash
 uv run agy-recipes/ge-mcp-cowork/scripts/setup.py
 ```
-
-*Note: For fully automated, non-interactive execution (e.g. within an AI agent playbook), you can pass CLI parameters and use the `--non-interactive` flag:*
+*(Alternatively, for non-interactive agent execution, pass configuration parameters as arguments)*:
 ```bash
 uv run agy-recipes/ge-mcp-cowork/scripts/setup.py \
   --destination ./ge-mcp-cowork-portal \
@@ -45,6 +57,7 @@ uv run agy-recipes/ge-mcp-cowork/scripts/setup.py \
   --jira-url sockcop.atlassian.net \
   --non-interactive
 ```
+
 
 ### 2. Startup the Portal
 Once setup finishes:

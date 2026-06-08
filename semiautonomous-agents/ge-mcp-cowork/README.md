@@ -64,20 +64,27 @@ graph TD
 
 ### 📦 Replicating this Portal from Scratch (Recipe)
 
-This project has been packaged as a self-contained, reproducible recipe under `agy-recipes/ge-mcp-cowork`. You can recreate a fresh clone of this entire application in your workspace using one of two methods:
+This project has been packaged as a self-contained, reproducible recipe under `agy-recipes/ge-mcp-cowork`. To deploy it inside a clean target workspace:
 
-#### A. Conversationally via Antigravity Agent (Recommended)
-Simply trigger the automated workflow in your chat:
+#### 1. Bootstrap Agent Workflows & Skills
+First, ask Antigravity in your target workspace chat (or run in your terminal) to copy the recipe's agent configuration files into your local `.agent` folder:
+```bash
+# Create local agent directories
+mkdir -p ./.agent/skills/replicating-ge-mcp-cowork
+mkdir -p ./.agent/workflows
+
+# Copy workflow and skill instructions from the local repository
+cp -r ~/IdeaProjects/vertex-ai-samples/agy-recipes/ge-mcp-cowork/.agent/skills/replicating-ge-mcp-cowork/* ./.agent/skills/replicating-ge-mcp-cowork/
+cp -r ~/IdeaProjects/vertex-ai-samples/agy-recipes/ge-mcp-cowork/.agent/workflows/* ./.agent/workflows/
+```
+
+#### 2. Execute Deployment
+Once the agent has loaded the skills in your workspace, simply tell it:
 > *"Run the deploy-ge-mcp-cowork.md workflow to recreate the portal"*
 
-Antigravity will read the workflow, ask you for configuration variables in the chat, and automatically copy the files, setup configurations, and boot dependencies inside your target folder.
+Antigravity will guide you through the variable settings, copy the application template files, and boot the local servers.
 
-#### B. Manually via Terminal
-Execute the setup script from the root of the repository:
-```bash
-uv run agy-recipes/ge-mcp-cowork/scripts/setup.py
-```
-*(The script will run interactively and guide you through target folder selection, GCP Project variables, and default Atlassian URL settings).*
+*(Alternatively, you can manually run the setup script from the root of the repository: `uv run agy-recipes/ge-mcp-cowork/scripts/setup.py`)*
 
 ---
 
