@@ -1,0 +1,28 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+/* Markdown links styling inside assistant responses */
+.prose a {
+  color: #1a73e8;
+  text-decoration: underline;
+  font-weight: 500;
+  transition: color 0.15s ease-in-out;
+}
+.prose a:hover {
+  color: #1557b0;
+}
+
+/* Dark mode links override */
+.prose-invert a {
+  color: #8ab4f8 !important;
+}
+.prose-invert a:hover {
+  color: #aecbfa !important;
+}
