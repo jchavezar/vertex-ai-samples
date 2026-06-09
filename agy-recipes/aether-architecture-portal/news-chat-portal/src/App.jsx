@@ -101,11 +101,88 @@ function App() {
     }]);
   };
 
+  const handleQuickAsk = async (question) => {
+    const msgId = `quick-${Date.now()}`;
+
+    // Add user message + loading placeholder
+    setChatHistory(prev => [
+      ...prev,
+      {
+        role: 'user',
+        content: `/btw ${question}`,
+        isQuick: true
+      },
+      {
+        role: 'bot',
+        content: '',
+        isQuick: true,
+        isLoading: true,
+        tempId: msgId
+      }
+    ]);
+
+    const startTime = performance.now();
+
+    try {
+      const response = await fetch('http://localhost:8001/api/quick', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query: question })
+      });
+
+      if (!response.ok) {
+        const errJson = await response.json().catch(() => ({}));
+        throw new Error(errJson.error?.message || 'Quick response failed');
+      }
+
+      const result = await response.json();
+      const finalLatency = (performance.now() - startTime) / 1000;
+
+      setChatHistory(prev => prev.map(msg => 
+        msg.tempId === msgId
+          ? { 
+              role: 'bot', 
+              content: result.text,
+              groundingMetadata: result.groundingMetadata,
+              latency: finalLatency,
+              isQuick: true,
+              isLoading: false
+            }
+          : msg
+      ));
+    } catch (error) {
+      console.error(error);
+      setChatHistory(prev => prev.map(msg => 
+        msg.tempId === msgId
+          ? { 
+              role: 'bot', 
+              content: `Quick response failed: ${error.message || 'Server error.'}`,
+              isQuick: true,
+              isLoading: false,
+              isError: true
+            }
+          : msg
+      ));
+    }
+  };
+
   const handleSendMessage = async (e) => {
     if (e) e.preventDefault();
-    if (!chatInput.trim() || isGenerating) return;
+    
+    const rawInput = chatInput.trim();
+    if (!rawInput) return;
 
-    const userMessageText = chatInput.trim();
+    if (rawInput.startsWith('/btw ')) {
+      const question = rawInput.slice(5).trim();
+      if (!question) return;
+      setChatInput('');
+      handleQuickAsk(question);
+      return;
+    }
+
+    if (isGenerating) return;
+
+    const userMessageText = rawInput;
     const newUserMessage = { role: 'user', content: userMessageText };
     
     setChatHistory(prev => [...prev, newUserMessage]);
@@ -424,10 +501,27 @@ function App() {
                     );
                   }
                   
+                  const isUser = msg.role === 'user';
+                  const isQuick = msg.isQuick;
+                  const isLoading = msg.isLoading;
+
+                  if (isLoading) {
+                    return (
+                      <div key={index} className="message-wrapper bot quick">
+                        <span className="message-sender">
+                          AETHER AI <span className="quick-badge">/btw</span>
+                        </span>
+                        <div className="message-bubble quick-loading">
+                          <span className="yazdani-spinner" /> <span className="sweep-text">Retrieving quick reference...</span>
+                        </div>
+                      </div>
+                    );
+                  }
+                  
                   return (
-                    <div key={index} className={`message-wrapper ${msg.role === 'user' ? 'user' : 'bot'}`}>
+                    <div key={index} className={`message-wrapper ${isUser ? 'user' : 'bot'} ${isQuick ? 'quick' : ''}`}>
                       <span className="message-sender">
-                        {msg.role === 'user' ? 'USER' : 'AETHER AI'}
+                        {isUser ? 'USER' : 'AETHER AI'} {isQuick && <span className="quick-badge">/btw</span>}
                       </span>
                       <div className="message-bubble">
                         {msg.role === 'bot' ? formatMarkdown(msg.content) : msg.content}
@@ -464,7 +558,7 @@ function App() {
                         {msg.role === 'bot' && (
                           <div className="message-meta-footer">
                             <span>{msg.latency ? `[LATENCY: ${msg.latency.toFixed(2)}s]` : ''}</span>
-                            <span>[MODEL: GEMINI 2.5 FLASH]</span>
+                            <span>[MODEL: {isQuick ? 'GEMINI 3.1 FLASH LITE' : 'GEMINI 2.5 FLASH'}]</span>
                           </div>
                         )}
                       </div>
@@ -490,17 +584,37 @@ function App() {
             </div>
 
             <div className="chat-input-container">
+              {(chatInput === '/' || chatInput === '/b' || chatInput === '/bt' || chatInput === '/btw') && (
+                <div className="autocomplete-dropdown">
+                  <button 
+                    type="button" 
+                    onClick={() => setChatInput('/btw ')}
+                    className="autocomplete-item"
+                  >
+                    <span className="autocomplete-cmd">/btw</span>
+                    <span className="autocomplete-hint">Type <kbd>/btw</kbd> for instant web-grounded response</span>
+                  </button>
+                </div>
+              )}
+
               <form onSubmit={handleSendMessage} className="chat-input-form">
                 <input
                   type="text"
                   value={chatInput}
                   onChange={(e) => setChatInput(e.target.value)}
-                  placeholder={selectedArticle ? "Ask about this project..." : "Ask about architecture news..."}
-                  className="chat-input-field"
-                  disabled={isGenerating}
+                  placeholder={
+                    isGenerating 
+                      ? "Type /btw for quick answers while waiting..." 
+                      : (selectedArticle ? "Ask about this project..." : "Ask about architecture news...")
+                  }
+                  className={`chat-input-field ${chatInput.startsWith('/btw') ? 'has-command' : ''}`}
                 />
-                <button type="submit" className="chat-send-btn" disabled={!chatInput.trim() || isGenerating}>
-                  Send
+                <button 
+                  type="submit" 
+                  className={`chat-send-btn ${chatInput.startsWith('/btw') ? 'quick-send' : ''}`} 
+                  disabled={!chatInput.trim()}
+                >
+                  {chatInput.startsWith('/btw') ? '⚡ Send' : 'Send'}
                 </button>
               </form>
             </div>

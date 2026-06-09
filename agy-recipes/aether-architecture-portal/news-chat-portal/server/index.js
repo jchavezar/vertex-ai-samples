@@ -91,6 +91,83 @@ app.post('/api/chat', async (req, res) => {
   }
 });
 
+app.post('/api/quick', async (req, res) => {
+  try {
+    const { query } = req.body;
+
+    if (!query) {
+      return res.status(400).json({ error: { message: "Invalid request. 'query' parameter is required." } });
+    }
+
+    const client = await auth.getClient();
+    let projectId = await auth.getProjectId();
+
+    // FALLBACK: Override default sandbox project with the active user project 'vtxdemos'
+    if (!projectId || projectId === 'jesusarguelles-sandbox') {
+      projectId = 'vtxdemos';
+    }
+
+    const tokenResponse = await client.getAccessToken();
+    const accessToken = tokenResponse.token;
+
+    if (!projectId || !accessToken) {
+      throw new Error("Could not retrieve project credentials via ADC.");
+    }
+
+    const url = `https://aiplatform.googleapis.com/v1/projects/${projectId}/locations/global/publishers/google/models/gemini-3.1-flash-lite-preview:generateContent`;
+
+    console.log(`[Backend] Proxying quick request to Vertex AI (gemini-3.1-flash-lite-preview) project "${projectId}"...`);
+
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${accessToken}`
+      },
+      body: JSON.stringify({
+        contents: [
+          {
+            role: 'user',
+            parts: [{ text: `${query}\n\nGive a brief, helpful answer.` }]
+          }
+        ],
+        tools: [
+          {
+            googleSearch: {} // Enables Google Search grounding
+          }
+        ],
+        generationConfig: {
+          temperature: 1.0,
+          maxOutputTokens: 500
+        }
+      })
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      return res.status(response.status).json({
+        error: { message: errorText || `Vertex AI responded with status ${response.status}` }
+      });
+    }
+
+    const data = await response.json();
+    const replyText = data.candidates?.[0]?.content?.parts?.[0]?.text;
+    
+    if (!replyText) {
+      return res.status(500).json({ error: { message: "Empty response from Vertex AI model." } });
+    }
+
+    res.json({ 
+      text: replyText,
+      groundingMetadata: data.candidates?.[0]?.groundingMetadata
+    });
+
+  } catch (error) {
+    console.error("[Backend] Quick Error:", error);
+    res.status(500).json({ error: { message: error.message || "Internal server error." } });
+  }
+});
+
 app.listen(PORT, '127.0.0.1', () => {
   console.log(`[Backend] Server listening on port ${PORT}`);
 });

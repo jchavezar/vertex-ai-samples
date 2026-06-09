@@ -645,4 +645,158 @@ body {
   text-transform: uppercase;
 }
 
+/* ========== QUICK MESSAGE (/btw) ========== */
 
+.message-wrapper.quick {
+  opacity: 0.95;
+}
+
+.quick-badge {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.6rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  background: transparent;
+  border: 0.5px solid var(--border-color);
+  padding: 1px 4px;
+  margin-left: 0.5rem;
+  vertical-align: middle;
+}
+
+/* Claude Code Style Quick Loading */
+.quick-loading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  padding: 0.5rem 0;
+}
+
+/* Morphing asterisk spinner - Yazdani style */
+.yazdani-spinner {
+  display: inline-block;
+  font-size: 1rem;
+  color: var(--text-color);
+  animation: spinner-glow 0.6s ease-in-out infinite alternate;
+}
+
+.yazdani-spinner::before {
+  content: '✳';
+  animation: spinner-morph 0.9s steps(1) infinite;
+}
+
+@keyframes spinner-morph {
+  0%, 12% { content: '✳'; }
+  12.1%, 24% { content: '✻'; }
+  24.1%, 36% { content: '❋'; }
+  36.1%, 48% { content: '✽'; }
+  48.1%, 60% { content: '※'; }
+  60.1%, 72% { content: '✷'; }
+  72.1%, 84% { content: '✸'; }
+  84.1%, 100% { content: '✳'; }
+}
+
+@keyframes spinner-glow {
+  0% { opacity: 0.5; transform: scale(0.85); }
+  100% { opacity: 1; transform: scale(1.15); }
+}
+
+/* Sweep text - technical gray sweep */
+.sweep-text {
+  color: var(--text-color);
+  font-weight: 500;
+  position: relative;
+  display: inline-block;
+  background: linear-gradient(
+    90deg,
+    var(--text-color) 0%,
+    var(--text-color) 35%,
+    var(--text-muted) 50%,
+    var(--text-color) 65%,
+    var(--text-color) 100%
+  );
+  background-size: 300% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: text-sweep 1.8s ease-in-out infinite;
+}
+
+@keyframes text-sweep {
+  0% { background-position: 100% 0; }
+  100% { background-position: -100% 0; }
+}
+
+/* ========== AUTOCOMPLETE DROPDOWN ========== */
+
+.chat-input-container {
+  position: relative; /* Anchor autocomplete absolute positioning */
+}
+
+.autocomplete-dropdown {
+  position: absolute;
+  bottom: calc(100% - 0.5px); /* Pin directly on top of the input container border */
+  left: 1.5rem;
+  right: 1.5rem;
+  background-color: var(--bg-panel);
+  border: 0.5px solid var(--border-color);
+  border-bottom: none;
+  z-index: 100;
+  box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.03);
+}
+
+.autocomplete-item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.8rem 1rem;
+  background: transparent;
+  border: none;
+  text-align: left;
+  cursor: pointer;
+  font-family: var(--font-sans);
+  color: var(--text-color);
+  transition: background-color 0.15s;
+}
+
+.autocomplete-item:hover {
+  background-color: var(--bg-color);
+}
+
+.autocomplete-cmd {
+  font-family: var(--font-mono);
+  font-weight: 600;
+  font-size: 0.8rem;
+  color: var(--text-color);
+  background-color: var(--bg-color);
+  padding: 2px 6px;
+  border: 0.5px solid var(--border-color);
+}
+
+.autocomplete-hint {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.autocomplete-hint kbd {
+  font-family: var(--font-mono);
+  background: var(--bg-color);
+  border: 0.5px solid var(--border-color);
+  padding: 1px 4px;
+  font-size: 0.7rem;
+}
+
+/* Input modifiers */
+.chat-input-field.has-command {
+  font-family: var(--font-mono);
+  color: var(--text-color);
+}
+
+.chat-send-btn.quick-send {
+  background-color: var(--text-muted);
+}
