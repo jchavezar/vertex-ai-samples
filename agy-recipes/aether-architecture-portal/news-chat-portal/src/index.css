@@ -1,0 +1,648 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+:root {
+  /* Colors - Yazdani Inspired Warm Minimalist */
+  --bg-color: #faf9f6;      /* Off-white canvas */
+  --bg-panel: #f4f3ef;      /* Slightly darker warm gray for chat panels */
+  --text-color: #1a1a19;    /* Clean charcoal black */
+  --text-muted: #7c7a75;    /* Muted gray for meta information */
+  --border-color: #d8d6d0;  /* Very thin gray border */
+  --font-sans: 'Space Grotesk', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  border-radius: 0 !important; /* Force sharp architectural corners everywhere */
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  overflow: hidden;
+}
+
+body {
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* App Layout */
+.app-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* Header */
+.verge-header {
+  border-bottom: 0.5px solid var(--border-color);
+  background-color: var(--bg-color);
+  padding: 1.5rem 3rem 0 3rem; /* Spacious side padding */
+}
+
+.header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding-bottom: 1.5rem;
+}
+
+.verge-logo-container {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+}
+
+.logo-main {
+  font-family: var(--font-sans);
+  font-weight: 700;
+  font-size: 1.8rem;
+  letter-spacing: 0.05em;
+  color: var(--text-color);
+  text-transform: uppercase;
+  text-decoration: none;
+}
+
+.logo-sub {
+  font-family: var(--font-sans);
+  font-weight: 400;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.header-meta {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+}
+
+.chat-toggle-btn {
+  background: none;
+  border: none;
+  border-bottom: 1px solid var(--text-color);
+  color: var(--text-color);
+  padding: 0 0 2px 0;
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.chat-toggle-btn:hover {
+  opacity: 0.7;
+}
+
+/* Nav Bar */
+.nav-bar {
+  display: flex;
+  padding: 1rem 0;
+  border-top: 0.5px solid var(--border-color);
+}
+
+.nav-links {
+  display: flex;
+  gap: 2.5rem;
+  list-style: none;
+}
+
+.nav-link {
+  color: var(--text-muted);
+  text-decoration: none;
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  transition: color 0.2s;
+}
+
+.nav-link:hover, .nav-link.active {
+  color: var(--text-color);
+}
+
+.nav-link.active::after {
+  content: ' [•]';
+  font-size: 0.7rem;
+}
+
+/* Main Content split */
+.main-content {
+  display: flex;
+  flex-direction: row;
+  flex: 1;
+  min-height: 0; /* Enforces height boundary in flex layout */
+  overflow: hidden;
+}
+
+/* News Section */
+.news-section {
+  flex: 1;
+  padding: 3rem;
+  overflow-y: auto;
+  min-width: 0; /* Prevents text overflow breaking layout width */
+}
+
+.news-container {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* Grid Layout */
+.hero-grid {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr;
+  gap: 3rem;
+  border-bottom: 0.5px solid var(--border-color);
+  padding-bottom: 3rem;
+  margin-bottom: 3rem;
+}
+
+.hero-featured {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  cursor: pointer;
+}
+
+.hero-image-placeholder {
+  height: 480px;
+  background-color: var(--bg-panel);
+  border: 0.5px solid var(--border-color);
+  position: relative;
+}
+
+.card-image-gradient {
+  width: 100%;
+  height: 100%;
+  opacity: 0.9;
+  transition: opacity 0.2s;
+}
+
+.hero-featured:hover .card-image-gradient {
+  opacity: 1;
+}
+
+.category-tag {
+  position: absolute;
+  top: 1.5rem;
+  left: 1.5rem;
+  color: var(--text-color);
+  background-color: var(--bg-color);
+  border: 0.5px solid var(--border-color);
+  font-size: 0.65rem;
+  font-weight: 600;
+  padding: 0.25rem 0.5rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.hero-meta {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.hero-headline {
+  font-size: 2.2rem;
+  line-height: 1.15;
+  font-weight: 500; /* Cleaner medium weight */
+  letter-spacing: -0.02em;
+  color: var(--text-color);
+}
+
+.hero-subtitle {
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+/* Hero Side List */
+.hero-side-list {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  gap: 2rem;
+}
+
+.side-article-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding-bottom: 2rem;
+  border-bottom: 0.5px solid var(--border-color);
+  cursor: pointer;
+}
+
+.side-article-item:last-child {
+  border-bottom: none;
+}
+
+.side-item-category {
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.side-item-headline {
+  font-size: 1.3rem;
+  line-height: 1.3;
+  font-weight: 500;
+}
+
+.side-item-meta {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+
+/* Feed Grid */
+.news-feed-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 3rem;
+}
+
+.feed-card {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  cursor: pointer;
+}
+
+.feed-image {
+  height: 240px;
+  position: relative;
+  background-color: var(--bg-panel);
+  border: 0.5px solid var(--border-color);
+}
+
+.feed-category {
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.feed-headline {
+  font-size: 1.3rem;
+  line-height: 1.3;
+  font-weight: 500;
+}
+
+.feed-summary {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+
+.feed-meta {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  margin-top: auto;
+}
+
+/* Chat drawer panel */
+.chat-drawer {
+  background-color: var(--bg-panel);
+  border-left: 0.5px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0; /* Prevent compression of dynamic width */
+  height: 100%;
+  position: relative; /* For absolute positioned resize handle */
+}
+
+.resize-handle {
+  position: absolute;
+  top: 0;
+  left: -3px; /* Center it over the left border */
+  width: 6px;
+  height: 100%;
+  cursor: col-resize;
+  z-index: 1000;
+  transition: background-color 0.2s;
+}
+
+.resize-handle:hover,
+.resize-handle:active {
+  background-color: var(--text-muted);
+  opacity: 0.3;
+}
+
+.chat-header {
+  padding: 1.5rem;
+  border-bottom: 0.5px solid var(--border-color);
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  background-color: var(--bg-panel);
+}
+
+.chat-header-title {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+}
+
+.chat-header-title h3 {
+  font-weight: 700;
+  font-size: 0.9rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.chat-header-title .gemini-badge {
+  color: var(--text-muted);
+  font-size: 0.6rem;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.chat-close-btn {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 1.2rem;
+  cursor: pointer;
+}
+
+.active-context-panel {
+  background-color: var(--bg-color);
+  border-bottom: 0.5px solid var(--border-color);
+  padding: 0.75rem 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.7rem;
+}
+
+.context-info {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.context-title {
+  font-weight: 500;
+  color: var(--text-color);
+  letter-spacing: 0.02em;
+}
+
+.clear-context-btn {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+/* Chat Messages */
+.chat-messages-container {
+  flex: 1;
+  padding: 1.5rem;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  background-color: var(--bg-panel);
+  min-height: 0; /* Force it to shrink inside the chat-drawer panel */
+}
+
+.message-wrapper {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.message-sender {
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  margin-bottom: 0.4rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+
+.message-bubble {
+  font-size: 0.85rem;
+  line-height: 1.6;
+  color: var(--text-color);
+}
+
+/* No rounded bubbles, just simple grid blocks */
+.message-wrapper.user .message-bubble {
+  border-left: 2px solid var(--text-muted);
+  padding-left: 0.75rem;
+}
+
+.message-wrapper.bot .message-bubble {
+  border-left: 2px solid var(--text-color);
+  padding-left: 0.75rem;
+}
+
+/* Chat suggestions in empty state */
+.chat-empty-state {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  height: 100%;
+  gap: 2rem;
+}
+
+.chat-empty-icon {
+  font-size: 1.8rem;
+  font-weight: 400;
+}
+
+.chat-empty-text h4 {
+  font-size: 0.9rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.5rem;
+}
+
+.chat-empty-text p {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+.chat-suggestions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.suggestion-btn {
+  background-color: var(--bg-color);
+  border: 0.5px solid var(--border-color);
+  color: var(--text-color);
+  padding: 0.8rem 1rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+  line-height: 1.4;
+  transition: background-color 0.2s;
+}
+
+.suggestion-btn:hover {
+  background-color: var(--border-color);
+}
+
+/* Chat Input Bar */
+.chat-input-container {
+  padding: 1.5rem;
+  border-top: 0.5px solid var(--border-color);
+  background-color: var(--bg-panel);
+}
+
+.chat-input-form {
+  display: flex;
+  gap: 1rem;
+}
+
+.chat-input-field {
+  flex: 1;
+  background-color: var(--bg-color);
+  border: 0.5px solid var(--border-color);
+  color: var(--text-color);
+  padding: 0.75rem 1rem;
+  font-family: var(--font-sans);
+  font-size: 0.85rem;
+}
+
+.chat-input-field:focus {
+  outline: none;
+  border-color: var(--text-color);
+}
+
+.chat-send-btn {
+  background-color: var(--text-color);
+  color: var(--bg-color);
+  border: none;
+  padding: 0.75rem 1.5rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  cursor: pointer;
+  font-size: 0.75rem;
+}
+
+.chat-send-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.single-article-view {
+  border-bottom: none !important;
+}
+
+.article-header {
+  border-bottom: 0.5px solid var(--border-color) !important;
+}
+
+.active-context-panel {
+  background-color: var(--bg-color) !important;
+  border-bottom: 0.5px solid var(--border-color) !important;
+}
+
+/* Scrollbar styles to match minimalist theme */
+.news-section::-webkit-scrollbar,
+.chat-messages-container::-webkit-scrollbar {
+  width: 4px;
+}
+
+.news-section::-webkit-scrollbar-track,
+.chat-messages-container::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.news-section::-webkit-scrollbar-thumb,
+.chat-messages-container::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+}
+
+/* Image styles */
+.card-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1), filter 0.3s ease;
+  filter: grayscale(30%) contrast(105%); /* Architect desaturated portfolio aesthetic */
+}
+
+.hero-featured:hover .card-image,
+.feed-card:hover .card-image {
+  transform: scale(1.02);
+  filter: grayscale(0%) contrast(100%);
+}
+
+.card-image-fallback {
+  width: 100%;
+  height: 100%;
+  background-color: #111111; /* Clean black fallback container requested by user */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Thinking Console Animation */
+.thinking-console {
+  font-family: var(--font-mono);
+  font-size: 0.8rem !important;
+  color: var(--text-color);
+  border-left: 2px solid var(--text-color);
+  padding-left: 0.75rem;
+}
+
+.latency-timer {
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  margin-left: 0.5rem;
+}
+
+.blinking-cursor {
+  font-weight: bold;
+  animation: cursor-blink 1s infinite steps(2, start);
+}
+
+@keyframes cursor-blink {
+  to { visibility: hidden; }
+}
+
+/* Message Meta Footer */
+.message-meta-footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  font-size: 0.65rem;
+  font-family: var(--font-mono);
+  color: var(--text-muted);
+  margin-top: 0.5rem;
+  padding-top: 0.25rem;
+  border-top: 0.5px dotted var(--border-color);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+

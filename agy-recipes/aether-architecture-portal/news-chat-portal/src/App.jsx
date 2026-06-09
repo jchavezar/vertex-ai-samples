@@ -13,8 +13,35 @@ function App() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [liveTime, setLiveTime] = useState(new Date().toLocaleTimeString());
+  const [chatWidth, setChatWidth] = useState(400);
+  const [currentLatency, setCurrentLatency] = useState(0);
 
-  const chatBottomRef = useRef(null);
+  const chatMessagesContainerRef = useRef(null);
+  const isResizingRef = useRef(false);
+
+  const startResize = (e) => {
+    isResizingRef.current = true;
+    document.addEventListener('mousemove', resize);
+    document.addEventListener('mouseup', stopResize);
+    document.body.style.cursor = 'col-resize';
+    document.body.style.userSelect = 'none';
+  };
+
+  const resize = (e) => {
+    if (!isResizingRef.current) return;
+    const newWidth = window.innerWidth - e.clientX;
+    if (newWidth > 280 && newWidth < window.innerWidth * 0.6) {
+      setChatWidth(newWidth);
+    }
+  };
+
+  const stopResize = () => {
+    isResizingRef.current = false;
+    document.removeEventListener('mousemove', resize);
+    document.removeEventListener('mouseup', stopResize);
+    document.body.style.cursor = 'default';
+    document.body.style.userSelect = 'auto';
+  };
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -24,8 +51,18 @@ function App() {
   }, []);
 
   useEffect(() => {
-    if (chatBottomRef.current) {
-      chatBottomRef.current.scrollIntoView({ behavior: 'smooth' });
+    const container = chatMessagesContainerRef.current;
+    if (container) {
+      const handleScroll = () => {
+        container.scrollTo({
+          top: container.scrollHeight,
+          behavior: 'smooth'
+        });
+      };
+      // Scroll immediately and queue a retry after layout rendering completes
+      handleScroll();
+      const timer = setTimeout(handleScroll, 100);
+      return () => clearTimeout(timer);
     }
   }, [chatHistory, isGenerating]);
 
@@ -75,6 +112,12 @@ function App() {
     setChatInput('');
     setIsGenerating(true);
     setErrorMessage('');
+    setCurrentLatency(0);
+
+    const startTime = performance.now();
+    const latencyInterval = setInterval(() => {
+      setCurrentLatency((performance.now() - startTime) / 1000);
+    }, 100);
 
     try {
       const historyForApi = [...chatHistory, newUserMessage]
@@ -86,13 +129,21 @@ function App() {
         newsArticles
       );
 
+      const endTime = performance.now();
+      const finalLatency = (endTime - startTime) / 1000;
+      clearInterval(latencyInterval);
+      setCurrentLatency(0);
+
       setChatHistory(prev => [...prev, { 
         role: 'bot', 
         content: result.text,
-        groundingMetadata: result.groundingMetadata
+        groundingMetadata: result.groundingMetadata,
+        latency: finalLatency
       }]);
     } catch (error) {
       console.error(error);
+      clearInterval(latencyInterval);
+      setCurrentLatency(0);
       setErrorMessage(error.message || 'Something went wrong when connecting to Gemini.');
     } finally {
       setIsGenerating(false);
@@ -117,31 +168,24 @@ function App() {
         <div className="header-top">
           <div className="verge-logo-container">
             <a href="#" className="logo-main" onClick={() => setSelectedArticle(null)}>
-              THE VERGE<span>.</span>
+              AETHER
             </a>
-            <div className="logo-sub">Chat Portal</div>
+            <div className="logo-sub">/ JOURNAL</div>
           </div>
 
           <div className="header-meta">
-            <div className="meta-item">
-              <strong>EST. 2011</strong>
-            </div>
-            <div className="meta-item">
-              <span>⏰</span> {liveTime}
-            </div>
             <button 
               className="chat-toggle-btn" 
               onClick={() => setIsChatOpen(!isChatOpen)}
-              style={{ backgroundColor: isChatOpen ? '#222' : 'var(--accent-verge)' }}
             >
-              💬 {isChatOpen ? 'Close Chat' : 'Open Chat'}
+              CHAT {isChatOpen ? '[CLOSE]' : '[OPEN]'}
             </button>
           </div>
         </div>
 
         <nav className="nav-bar">
           <ul className="nav-links">
-            {['ALL', 'TECH', 'REVIEWS', 'SCIENCE', 'GAMING', 'DESIGN'].map(cat => (
+            {['ALL', 'MATERIALS', 'SUSTAINABILITY', 'RESIDENTIAL', 'URBANISM', 'DESIGN'].map(cat => (
               <li key={cat}>
                 <a 
                   href="#" 
@@ -164,28 +208,28 @@ function App() {
         <section className="news-section">
           <div className="news-container">
             {selectedArticle ? (
-              <article className="single-article-view" style={{ maxWidth: '800px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+              <article className="single-article-view" style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
                 <button 
-                  className="modal-btn-secondary" 
+                  className="chat-toggle-btn" 
                   onClick={() => setSelectedArticle(null)}
-                  style={{ alignSelf: 'flex-start', display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.5rem 1rem', cursor: 'pointer' }}
+                  style={{ alignSelf: 'flex-start', borderBottom: '1px solid var(--text-color)' }}
                 >
-                  ← Back to Homepage
+                  ← BACK TO HOMEPAGE
                 </button>
 
-                <header className="article-header" style={{ borderBottom: '1px solid var(--border-light)', paddingBottom: '1.5rem' }}>
-                  <div style={{ color: selectedArticle.accentColor, fontWeight: 800, fontSize: '0.8rem', letterSpacing: '2px', marginBottom: '0.5rem' }}>
+                <header className="article-header" style={{ paddingBottom: '1.5rem' }}>
+                  <div style={{ color: 'var(--text-muted)', fontWeight: 600, fontSize: '0.7rem', letterSpacing: '2px', marginBottom: '1rem', textTransform: 'uppercase' }}>
                     {selectedArticle.category}
                   </div>
-                  <h1 className="article-title" style={{ fontFamily: 'var(--font-serif)', fontSize: '3rem', fontWeight: 900, lineHeight: 1.1, margin: '0.5rem 0' }}>
+                  <h1 className="article-title" style={{ fontSize: '3rem', fontWeight: 500, lineHeight: 1.1, margin: '0.5rem 0' }}>
                     {selectedArticle.title}
                   </h1>
-                  <p className="article-subtitle" style={{ fontSize: '1.25rem', color: 'var(--text-sub)', lineHeight: 1.4, margin: '1rem 0' }}>
+                  <p className="article-subtitle" style={{ fontSize: '1.1rem', color: 'var(--text-muted)', lineHeight: 1.5, margin: '1.5rem 0 0 0' }}>
                     {selectedArticle.subtitle}
                   </p>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '1.5rem', fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '2rem', fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase' }}>
                     <div>
-                      By <strong style={{ color: 'var(--text-main)' }}>{selectedArticle.author}</strong> | {selectedArticle.date}
+                      By <strong style={{ color: 'var(--text-color)' }}>{selectedArticle.author}</strong> | {selectedArticle.date}
                     </div>
                     <div>{selectedArticle.readTime}</div>
                   </div>
@@ -193,9 +237,9 @@ function App() {
 
                 <div 
                   style={{ 
-                    background: `linear-gradient(90deg, ${selectedArticle.accentColor}22, rgba(0,0,0,0))`,
-                    borderLeft: `4px solid ${selectedArticle.accentColor}`,
-                    padding: '1.2rem', 
+                    backgroundColor: 'var(--bg-panel)',
+                    borderLeft: '2px solid var(--text-color)',
+                    padding: '1.5rem', 
                     display: 'flex', 
                     justifyContent: 'space-between', 
                     alignItems: 'center',
@@ -203,23 +247,26 @@ function App() {
                   }}
                 >
                   <div>
-                    <h4 style={{ fontSize: '0.95rem', fontWeight: 700, marginBottom: '0.2rem' }}>Want to interact with this article?</h4>
-                    <p style={{ fontSize: '0.8rem', color: 'var(--text-sub)' }}>Ask Verge AI to summarize, explain technical concepts, or critique the ideas.</p>
+                    <h4 style={{ fontSize: '0.9rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.2rem' }}>Interact with this article</h4>
+                    <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Ask Aether AI to summarize or critique this project.</p>
                   </div>
                   <button 
                     className="chat-toggle-btn"
-                    style={{ backgroundColor: selectedArticle.accentColor, whiteSpace: 'nowrap' }}
                     onClick={() => handleDiscussArticle(selectedArticle)}
                   >
-                    💬 Discuss Article
+                    DISCUSS PROJECT
                   </button>
                 </div>
 
-                <div className="hero-image-placeholder" style={{ height: '350px' }}>
-                  <div className="card-image-gradient" style={{ background: selectedArticle.imageGradient }}></div>
+                <div className="hero-image-placeholder" style={{ height: '450px' }}>
+                  {selectedArticle.imageUrl ? (
+                    <img src={selectedArticle.imageUrl} alt={selectedArticle.title} className="card-image" />
+                  ) : (
+                    <div className="card-image-fallback" style={{ background: selectedArticle.imageGradient }}></div>
+                  )}
                 </div>
 
-                <div className="article-body-content" style={{ fontFamily: 'var(--font-sans)', fontSize: '1.1rem', lineHeight: '1.7', color: 'var(--text-main)', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                <div className="article-body-content" style={{ fontSize: '1rem', lineHeight: '1.7', color: 'var(--text-color)', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
                   {selectedArticle.content.split('\n\n').map((paragraph, idx) => (
                     <p key={idx}>{paragraph}</p>
                   ))}
@@ -232,8 +279,12 @@ function App() {
                     <div className="hero-grid">
                       <div className="hero-featured" onClick={() => handleSelectArticle(featuredArticle)}>
                         <div className="hero-image-placeholder">
-                          <div className="card-image-gradient" style={{ background: featuredArticle.imageGradient }}></div>
-                          <span className="category-tag" style={{ backgroundColor: featuredArticle.accentColor }}>
+                          {featuredArticle.imageUrl ? (
+                            <img src={featuredArticle.imageUrl} alt={featuredArticle.title} className="card-image" />
+                          ) : (
+                            <div className="card-image-fallback" style={{ background: featuredArticle.imageGradient }}></div>
+                          )}
+                          <span className="category-tag">
                             {featuredArticle.category}
                           </span>
                         </div>
@@ -243,11 +294,11 @@ function App() {
                         <h2 className="hero-headline">{featuredArticle.title}</h2>
                         <p className="hero-subtitle">{featuredArticle.summary}</p>
                       </div>
-
+ 
                       <div className="hero-side-list">
                         {sideArticles.map(art => (
                           <div key={art.id} className="side-article-item" onClick={() => handleSelectArticle(art)}>
-                            <span className="side-item-category" style={{ color: art.accentColor }}>
+                            <span className="side-item-category">
                               {art.category}
                             </span>
                             <h3 className="side-item-headline">{art.title}</h3>
@@ -258,17 +309,21 @@ function App() {
                         ))}
                       </div>
                     </div>
-
+ 
                     <div className="news-feed-grid">
                       {remainingArticles.map(art => (
                         <div key={art.id} className="feed-card" onClick={() => handleSelectArticle(art)}>
                           <div className="feed-image">
-                            <div className="card-image-gradient" style={{ background: art.imageGradient }}></div>
-                            <span className="category-tag" style={{ backgroundColor: art.accentColor }}>
+                            {art.imageUrl ? (
+                              <img src={art.imageUrl} alt={art.title} className="card-image" />
+                            ) : (
+                              <div className="card-image-fallback" style={{ background: art.imageGradient }}></div>
+                            )}
+                            <span className="category-tag">
                               {art.category}
                             </span>
                           </div>
-                          <span className="feed-category" style={{ color: art.accentColor }}>
+                          <span className="feed-category">
                             {art.category}
                           </span>
                           <h3 className="feed-headline">{art.title}</h3>
@@ -285,12 +340,16 @@ function App() {
                     {filteredArticles.map(art => (
                       <div key={art.id} className="feed-card" onClick={() => handleSelectArticle(art)}>
                         <div className="feed-image">
-                          <div className="card-image-gradient" style={{ background: art.imageGradient }}></div>
-                          <span className="category-tag" style={{ backgroundColor: art.accentColor }}>
+                          {art.imageUrl ? (
+                            <img src={art.imageUrl} alt={art.title} className="card-image" />
+                          ) : (
+                            <div className="card-image-fallback" style={{ background: art.imageGradient }}></div>
+                          )}
+                          <span className="category-tag">
                             {art.category}
                           </span>
                         </div>
-                        <span className="feed-category" style={{ color: art.accentColor }}>
+                        <span className="feed-category">
                           {art.category}
                         </span>
                         <h3 className="feed-headline">{art.title}</h3>
@@ -308,10 +367,11 @@ function App() {
         </section>
 
         {isChatOpen && (
-          <aside className="chat-drawer">
+          <aside className="chat-drawer" style={{ width: `${chatWidth}px` }}>
+            <div className="resize-handle" onMouseDown={startResize} />
             <div className="chat-header">
               <div className="chat-header-title">
-                <h3>VERGE AI</h3>
+                <h3>AETHER AI</h3>
                 <span className="gemini-badge">GEMINI 2.5 FLASH</span>
               </div>
               <button className="chat-close-btn" onClick={() => setIsChatOpen(false)}>×</button>
@@ -333,24 +393,24 @@ function App() {
               )}
             </div>
 
-            <div className="chat-messages-container">
+            <div className="chat-messages-container" ref={chatMessagesContainerRef}>
               {chatHistory.length === 0 ? (
                 <div className="chat-empty-state">
                   <div className="chat-empty-icon">⌘</div>
                   <div className="chat-empty-text">
-                    <h4>Interact with the news</h4>
-                    <p>Select any article on the left or use the prompts below to chat about today's headlines.</p>
+                    <h4>Interact with the headlines</h4>
+                    <p>Select any project on the left or use the prompts below to chat about modern architecture.</p>
                   </div>
 
                   <div className="chat-suggestions">
-                    <button className="suggestion-btn" onClick={() => handleQuickPrompt("Summarize all the news articles on the homepage in 3 bullet points.")}>
-                      📝 Summarize today's headlines
+                    <button className="suggestion-btn" onClick={() => handleQuickPrompt("Summarize all the architecture articles on the homepage in 3 bullet points.")}>
+                      Summarize today's headlines
                     </button>
-                    <button className="suggestion-btn" onClick={() => handleQuickPrompt("What are the key details of Google's new Gemini 3 autonomous agents?")}>
-                      🤖 Tell me about Gemini 3 agents
+                    <button className="suggestion-btn" onClick={() => handleQuickPrompt("What are the main benefits and challenges of building skyscrapers with mass timber?")}>
+                      Tell me about mass timber high-rises
                     </button>
-                    <button className="suggestion-btn" onClick={() => handleQuickPrompt("Which article has the biggest impact on clean energy?")}>
-                      ⚡ Find articles on green tech
+                    <button className="suggestion-btn" onClick={() => handleQuickPrompt("How is 3D printing being used to build houses, and what are the benefits?")}>
+                      Find articles on 3D printed housing
                     </button>
                   </div>
                 </div>
@@ -358,7 +418,7 @@ function App() {
                 chatHistory.map((msg, index) => {
                   if (msg.role === 'system_notification') {
                     return (
-                      <div key={index} style={{ textAlign: 'center', margin: '0.5rem 0', fontSize: '0.7rem', color: 'var(--text-muted)', borderTop: '1px dotted var(--border-light)', paddingTop: '0.5rem' }}>
+                      <div key={index} style={{ textAlign: 'center', margin: '1rem 0', fontSize: '0.7rem', color: 'var(--text-muted)', borderTop: '0.5px solid var(--border-color)', paddingTop: '0.5rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                         {msg.content}
                       </div>
                     );
@@ -367,15 +427,15 @@ function App() {
                   return (
                     <div key={index} className={`message-wrapper ${msg.role === 'user' ? 'user' : 'bot'}`}>
                       <span className="message-sender">
-                        {msg.role === 'user' ? 'YOU' : 'VERGE AI'}
+                        {msg.role === 'user' ? 'USER' : 'AETHER AI'}
                       </span>
                       <div className="message-bubble">
                         {msg.role === 'bot' ? formatMarkdown(msg.content) : msg.content}
                         
                         {msg.role === 'bot' && msg.groundingMetadata && (
-                          <div className="grounding-info" style={{ marginTop: '0.75rem', paddingTop: '0.75rem', borderTop: '1px dotted var(--border-light)', fontSize: '0.75rem' }}>
+                          <div className="grounding-info" style={{ marginTop: '0.75rem', paddingTop: '0.75rem', borderTop: '0.5px solid var(--border-color)', fontSize: '0.75rem' }}>
                             {msg.groundingMetadata.webSearchQueries && msg.groundingMetadata.webSearchQueries.length > 0 && (
-                              <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: 'var(--text-sub)', marginBottom: '0.4rem' }}>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: 'var(--text-muted)', marginBottom: '0.4rem' }}>
                                 <span>🔍</span>
                                 <span>Searched: <em>"{msg.groundingMetadata.webSearchQueries.join(', ')}"</em></span>
                               </div>
@@ -390,7 +450,7 @@ function App() {
                                     )
                                     .map((chunk, cIdx) => (
                                       <li key={cIdx}>
-                                        <a href={chunk.web.uri} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--accent-purple)', textDecoration: 'underline', fontWeight: 500 }}>
+                                        <a href={chunk.web.uri} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--text-color)', textDecoration: 'underline', fontWeight: 500 }}>
                                           {chunk.web.title || "Source link"}
                                         </a>
                                       </li>
@@ -401,6 +461,12 @@ function App() {
                             )}
                           </div>
                         )}
+                        {msg.role === 'bot' && (
+                          <div className="message-meta-footer">
+                            <span>{msg.latency ? `[LATENCY: ${msg.latency.toFixed(2)}s]` : ''}</span>
+                            <span>[MODEL: GEMINI 2.5 FLASH]</span>
+                          </div>
+                        )}
                       </div>
                     </div>
                   );
@@ -409,21 +475,18 @@ function App() {
 
               {isGenerating && (
                 <div className="message-wrapper bot">
-                  <span className="message-sender">VERGE AI</span>
-                  <div className="loading-bubble">
-                    <span className="dot"></span>
-                    <span className="dot"></span>
-                    <span className="dot"></span>
+                  <span className="message-sender">AETHER AI</span>
+                  <div className="message-bubble thinking-console">
+                    Thinking... <span className="latency-timer">{currentLatency.toFixed(1)}s</span> <span className="blinking-cursor">█</span>
                   </div>
                 </div>
               )}
 
               {errorMessage && (
-                <div style={{ backgroundColor: 'rgba(255, 0, 91, 0.1)', color: 'var(--accent-verge)', padding: '0.8rem', borderRadius: '4px', fontSize: '0.8rem', border: '1px solid rgba(255, 0, 91, 0.3)' }}>
+                <div style={{ backgroundColor: 'var(--bg-color)', color: 'var(--text-color)', padding: '0.8rem', fontSize: '0.8rem', border: '0.5px solid var(--border-color)' }}>
                   <strong>Error:</strong> {errorMessage}
                 </div>
               )}
-              <div ref={chatBottomRef} />
             </div>
 
             <div className="chat-input-container">
@@ -432,7 +495,7 @@ function App() {
                   type="text"
                   value={chatInput}
                   onChange={(e) => setChatInput(e.target.value)}
-                  placeholder={selectedArticle ? "Ask about this article..." : "Ask about today's tech..."}
+                  placeholder={selectedArticle ? "Ask about this project..." : "Ask about architecture news..."}
                   className="chat-input-field"
                   disabled={isGenerating}
                 />
