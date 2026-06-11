@@ -22,7 +22,7 @@ logger = logging.getLogger("upload_pwc")
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 # Load environment variables before importing auth/graph
-os.environ["MS365_CLIENT_ID"] = "030b6aac-63d1-40e9-8d80-7ce928b839b8"
+os.environ["MS365_CLIENT_ID"] = "44260445-702b-4d0c-aa37-cbed79b50531"
 os.environ["MS365_TENANT_ID"] = "de46a3fd-0d68-4b25-8343-6eb5d71afce9"
 
 from tools.sharepoint import create_folder, upload_local_file
