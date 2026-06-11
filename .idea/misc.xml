@@ -3,5 +3,5 @@
   <component name="Black">
     <option name="sdkName" value="gen_ai" />
   </component>
-  <component name="ProjectRootManager" version="2" languageLevel="JDK_24" project-jdk-name="gen_ai" project-jdk-type="Python SDK" />
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_24" project-jdk-name="adk 3.13" project-jdk-type="Python SDK" />
 </project>

@@ -274,15 +274,13 @@
       <a href="../semiautonomous-agents/shutter-vibe-engine/antigravity/">ACCESS_TERMINAL &rarr;</a>
     </td>
     <td width="50%" valign="top">
-      <img src="assets/header_search.svg" width="100%" />
-      <br/><br/>
       <strong>RECIPE: SHAREPOINT DOCUMENT RESTRUCTURE</strong><br/>
       Throttling-resistant SharePoint document ingestion, Gemini metadata extraction, and access-aware retrieval.<br/>
       <br/>
       <a href="../agy-recipes/sharepoint-doc-restructure/">ACCESS_TERMINAL &rarr;</a>
     </td>
   </tr>
-  <!-- ROW 16: SHAREPOINT RESTRUCTURE PORTAL -->
+  <!-- ROW 16: SHAREPOINT RESTRUCTURE PORTAL & WIF -->
   <tr>
     <td width="50%" valign="top">
       <img src="assets/header_hub.svg" width="100%" />
@@ -301,6 +299,26 @@
       <a href="./sharepoint_doc_restructure_portal/">ACCESS_TERMINAL &rarr;</a>
     </td>
     <td width="50%" valign="top">
+      <img src="assets/header_search.svg" width="100%" />
+      <br/><br/>
+      <strong>RECIPE: WIF + GCS + GEMINI ENTERPRISE</strong><br/>
+      Reproducible deployment setup for indexing Google Cloud Storage documents dynamically, enabling search-grounding via streamAssist and Workforce Identity Federation.<br/>
+      <br/>
+      <a href="../agy-recipes/ge_api_wif_gcs/">ACCESS_TERMINAL &rarr;</a>
+    </td>
+  </tr>
+  <!-- ROW 17: JIRA MCP DIRECT RECIPE -->
+  <tr>
+    <td width="50%" valign="top">
+      <img src="assets/header_mcp.svg" width="100%" />
+      <br/><br/>
+      <strong>RECIPE: JIRA MCP DIRECT INTEGRATION</strong><br/>
+      Reproducible deployment setup for registering two direct Atlassian Jira MCP connectors in Gemini Enterprise (Hosted Rovo MCP + Custom Cloud Run MCP).<br/>
+      <br/>
+      <a href="../agy-recipes/jira-mcp-direct/">ACCESS_TERMINAL &rarr;</a>
+    </td>
+    <td width="50%" valign="top">
+      <!-- Empty slot -->
     </td>
   </tr>
 </table>

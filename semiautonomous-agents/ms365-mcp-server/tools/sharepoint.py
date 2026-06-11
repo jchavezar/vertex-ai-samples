@@ -442,3 +442,92 @@ def search_content(query: str, limit: int = 10) -> str:
     except Exception as e:
         logger.error(f"[SharePoint] Content search failed: {e}")
         return f"Error: {str(e)}"
+
+
+def upload_local_file(
+    drive_id: str,
+    folder_path: str,
+    file_name: str,
+    local_file_path: str
+) -> str:
+    """
+    Upload a local file to SharePoint or OneDrive, supporting files of any size via Upload Sessions.
+    """
+    try:
+        import os
+        import httpx
+        
+        if not os.path.exists(local_file_path):
+            return f"Error: Local file does not exist at {local_file_path}"
+            
+        file_size = os.path.getsize(local_file_path)
+        client = get_graph_client()
+        
+        import urllib.parse
+        
+        # Normalize and URL-encode path and file name
+        path = folder_path.strip("/")
+        encoded_path = "/".join(urllib.parse.quote(seg) for seg in path.split("/") if seg) if path else ""
+        encoded_file_name = urllib.parse.quote(file_name)
+        
+        if drive_id.lower() == "me":
+            base = "/me/drive"
+        else:
+            base = f"/drives/{drive_id}"
+            
+        # For files under 4 MB, we can do a simple PUT request
+        if file_size <= 4 * 1024 * 1024:
+            with open(local_file_path, "rb") as f:
+                file_bytes = f.read()
+            if encoded_path:
+                endpoint = f"{base}/root:/{encoded_path}/{encoded_file_name}:/content"
+            else:
+                endpoint = f"{base}/root:/{encoded_file_name}:/content"
+            result = client.put(endpoint, content=file_bytes)
+            return f"Uploaded successfully: {folder_path}/{file_name} ({file_size} bytes)"
+            
+        # For files larger than 4 MB, use Upload Session
+        if encoded_path:
+            endpoint = f"{base}/root:/{encoded_path}/{encoded_file_name}:/createUploadSession"
+        else:
+            endpoint = f"{base}/root:/{encoded_file_name}:/createUploadSession"
+            
+        # Create upload session
+        session_res = client.post(endpoint)
+        upload_url = session_res.get("uploadUrl")
+        if not upload_url:
+            return f"Error: Failed to create upload session: {session_res}"
+            
+        # Upload chunks
+        # Chunk size must be a multiple of 320 KB (327680 bytes)
+        chunk_size = 5 * 1024 * 1024  # 5 MB
+        chunk_size = (chunk_size // 327680) * 327680
+        
+        with open(local_file_path, "rb") as f:
+            start_byte = 0
+            while start_byte < file_size:
+                chunk_data = f.read(chunk_size)
+                if not chunk_data:
+                    break
+                chunk_len = len(chunk_data)
+                end_byte = start_byte + chunk_len - 1
+                
+                headers = {
+                    "Content-Length": str(chunk_len),
+                    "Content-Range": f"bytes {start_byte}-{end_byte}/{file_size}"
+                }
+                
+                # Make PUT request to upload URL
+                # Do NOT include Bearer Authorization header for upload session URLs
+                resp = httpx.put(upload_url, headers=headers, content=chunk_data, timeout=60.0)
+                if resp.status_code not in (200, 201, 202):
+                    return f"Error uploading chunk {start_byte}-{end_byte}: {resp.status_code} - {resp.text}"
+                    
+                start_byte += chunk_len
+                
+        return f"Uploaded successfully via session: {folder_path}/{file_name} ({file_size} bytes)"
+        
+    except Exception as e:
+        logger.error(f"[SharePoint] Local upload failed: {e}")
+        return f"Error: {str(e)}"
+

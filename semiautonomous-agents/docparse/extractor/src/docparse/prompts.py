@@ -42,7 +42,8 @@ Hard rules:
    - Tables in the body (NOT in the structured list) → standard markdown tables
 6. Drop running headers and footers (the running document title at the top, page numbers at the bottom).
 7. If the page is mostly a structured region with no separate body text, output only the placeholder line.
-8. Output Markdown only — no preamble, no commentary, no fences around the whole document."""
+8. Output Markdown only — no preamble, no commentary, no fences around the whole document.
+9. Extract the exact printed page number visible on the page (e.g. '1', 'ix', '9') into the `printed_page_number` field. If not visible (like cover page), use null. Do not include this page number in the `markdown` field."""
 
 
 CHART_SCHEMA_PROMPT = """You are reading a chart on a PDF page. The chart you must extract is in the bbox region {bbox} (fractional coordinates, top-left origin) on the page image attached.
@@ -59,7 +60,8 @@ Return JSON with:
 
 If `legend_visible` is false, set `series_names` to ["(legend not visible)"]. Do not invent legend text.
 If the chart has a single series and no legend, infer the name from the y-axis label or chart title.
-If x_categories appear cut off, only include the labels you can clearly read and set `legend_visible` accordingly."""
+If x_categories appear cut off, only include the labels you can clearly read and set `legend_visible` accordingly.
+For bubble charts: if the bubble sizes represent a metric (such as baseline spend or size, e.g. 'Baseline IT spending' or bubble scale), you MUST append a series named 'Baseline' or 'Bubble Size' (or the specific name of that metric if printed, e.g. 'Baseline Spend') to the end of the `series_names` list, so it can be extracted in the values pass."""
 
 
 CHART_VALUES_PROMPT = """You are reading values from a chart on a PDF page. The chart is in the bbox region {bbox} (fractional coordinates, top-left origin) on the page image attached.
@@ -81,6 +83,7 @@ Your job: read the numeric values for each series at each x_category. Return a C
 - Read EVERY data label visible. Cross-check against axis ticks for unlabelled bars.
 - Write a one-sentence `summary` of the headline insight.
 - Set `legend_visible` to the same value the schema pass returned ({legend_visible}).
+- For bubble charts: read the bubble size values (often printed inside/next to the bubbles or indicated by size labels, e.g., '$749B', '$81B') and populate them in the corresponding 'Baseline' or 'Bubble Size' series.
 
 CRITICAL — RANGES, UNITS, ANNOTATIONS:
 - If a chart shows a cell as a RANGE (e.g. "560-850", "$1,370-$1,700", "1.0-1.1%", "(0.6)-1.2%", "490 to 720"):

@@ -146,3 +146,12 @@ class ExtractedRegion(BaseModel):
     markdown: str
     confidence: float = 1.0
     raw: dict | None = None
+
+
+class PageTextOutput(BaseModel):
+    markdown: str = Field(description="Clean markdown representation of the page text with placeholders.")
+    printed_page_number: str | None = Field(
+        default=None,
+        description="The exact printed page number visible on the page (e.g. '1', 'ix', '9'). Use null if not visible/cover page."
+    )
+

@@ -34,10 +34,17 @@ class BearerCaptureMiddleware(BaseHTTPMiddleware):
         if request.url.path in _PUBLIC_PATHS:
             return await call_next(request)
 
+        # 1. Check for Entra user token in X-User-Token first (for ADK agent requests)
+        token = request.headers.get("X-User-Token")
+        if token and _looks_like_jwt(token):
+            _user_token.set(token)
+            return await call_next(request)
+
+        # 2. Fall back to Authorization header (for direct custom-MCP calls)
         auth = request.headers.get("Authorization") or ""
         if not auth.startswith("Bearer "):
             return JSONResponse(
-                {"error": "missing Authorization: Bearer <token>"},
+                {"error": "missing Authorization: Bearer <token> or X-User-Token header"},
                 status_code=401,
             )
         token = auth.split(" ", 1)[1].strip()

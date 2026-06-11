@@ -19,19 +19,20 @@ cleanup() {
 trap cleanup SIGINT SIGTERM EXIT
 
 # 1. Start Backend FastAPI
-echo "[*] Starting Backend (FastAPI) on port 8001..."
+echo "[*] Starting Backend (FastAPI) on port 8005..."
 cd "$DIR/backend"
-PYTHONUNBUFFERED=1 python3 -m uvicorn main:app --port 8001 &
+PYTHONUNBUFFERED=1 python3 -m uvicorn main:app --port 8005 &
 BACKEND_PID=$!
 
 # Wait a moment
 sleep 2
 
 # 2. Start Frontend Vite
-echo "[*] Starting Frontend (React/Vite) on port 5173..."
+echo "[*] Starting Frontend (React/Vite) on port 5175..."
 cd "$DIR/frontend"
-npm run dev -- --port 5173 &
+npm run dev -- --port 5175 &
 FRONTEND_PID=$!
+
 
 # Wait for background jobs
 wait $BACKEND_PID $FRONTEND_PID

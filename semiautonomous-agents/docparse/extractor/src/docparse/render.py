@@ -59,7 +59,7 @@ def normalize_bbox(bbox: list[float]) -> tuple[float, float, float, float]:
     return x1, y1, x2, y2
 
 
-def crop_region(image: Image.Image, bbox: list[float]) -> Image.Image:
+def crop_region(image: Image.Image, bbox: list[float], pad_pct: float = 0.02) -> Image.Image:
     """Crop a region given fractional bbox [x1,y1,x2,y2].
 
     Tolerant to model-returned bboxes that are inverted, out-of-range,
@@ -67,6 +67,10 @@ def crop_region(image: Image.Image, bbox: list[float]) -> Image.Image:
     """
     w, h = image.size
     x1, y1, x2, y2 = normalize_bbox(bbox)
+    x1 = max(0.0, x1 - pad_pct)
+    y1 = max(0.0, y1 - pad_pct)
+    x2 = min(1.0, x2 + pad_pct)
+    y2 = min(1.0, y2 + pad_pct)
     left = max(0, int(x1 * w))
     upper = max(0, int(y1 * h))
     right = max(left + 1, min(w, int(x2 * w)))

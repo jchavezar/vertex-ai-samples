@@ -22,6 +22,7 @@ from .schemas import (
     Region,
     RegionType,
     TableData,
+    PageTextOutput,
 )
 from .validators import validate as validate_chart
 
@@ -34,10 +35,10 @@ PAGE_OCR_MAX_DIM = 1280
 # Charts: send the FULL PAGE to pro (no crop). The bbox-too-tight failure
 # mode (legend cut off) is the single biggest source of silent chart errors.
 # Full-page costs ~10-15% more tokens but eliminates that failure entirely.
-CHART_PAGE_MAX_DIM = 1800
-TABLE_MAX_DIM = 1600
+CHART_PAGE_MAX_DIM = 2400
+TABLE_MAX_DIM = 2048
 # Diagrams: same reasoning as charts -- full page, no crop.
-DIAGRAM_PAGE_MAX_DIM = 1800
+DIAGRAM_PAGE_MAX_DIM = 2048
 # Photo captioning is the only structured type that still benefits from
 # focused cropping (alt-text generation, less context-sensitive).
 PHOTO_MAX_DIM = 1280
@@ -377,9 +378,9 @@ async def extract_structured(page: RenderedPage, region: Region) -> ExtractedReg
     )
 
 
-async def extract_page_text(page: RenderedPage, regions: list[Region]) -> str:
+async def extract_page_text(page: RenderedPage, regions: list[Region]) -> tuple[str, str | None]:
     """One-shot: convert the whole page to markdown with placeholders for
-    structured regions. Returns the page markdown string."""
+    structured regions. Returns a tuple of (page_markdown, printed_page_number)."""
     structured = [r for r in regions if r.type in STRUCTURED_TYPES]
     text_present = any(
         r.type
@@ -393,7 +394,7 @@ async def extract_page_text(page: RenderedPage, regions: list[Region]) -> str:
         for r in regions
     )
     if not structured and not text_present:
-        return ""
+        return "", None
 
     summary_lines = []
     for r in structured:
@@ -406,18 +407,18 @@ async def extract_page_text(page: RenderedPage, regions: list[Region]) -> str:
 
     img_bytes = image_to_png_bytes(page.image, max_dim=PAGE_OCR_MAX_DIM)
     try:
-        text = await call_vision(
+        output: PageTextOutput = await call_vision(
             model=FLASH_MODEL,
             prompt=prompt,
             image_bytes=img_bytes,
-            response_model=None,
+            response_model=PageTextOutput,
             timeout_s=75.0,
             max_retries=2,
             thinking_budget=0,  # text reflow with placeholders, no reasoning needed
         )
-        return (text or "").strip()
+        return (output.markdown or "").strip(), output.printed_page_number
     except Exception as e:  # noqa: BLE001
-        return f"> **[page OCR failed: {e}]**"
+        return f"> **[page OCR failed: {e}]**", None
 
 
 async def extract_page_raw_ocr(page: RenderedPage) -> str:

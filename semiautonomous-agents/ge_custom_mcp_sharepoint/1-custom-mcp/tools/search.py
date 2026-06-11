@@ -15,6 +15,7 @@ async def search(query: str, top: int = 20) -> dict:
     """Free-text SharePoint search. Returns {"results": [{id,title,url,snippet}]}."""
     if not query or not query.strip():
         return {"results": []}
+        
     bearer = get_current_user_token()
     client = make_client(bearer or "")
     try:

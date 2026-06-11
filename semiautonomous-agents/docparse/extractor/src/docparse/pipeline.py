@@ -73,6 +73,7 @@ class PageOutput:
     structured: list[ExtractedRegion] = field(default_factory=list)
     raw_ocr: str = ""  # safety-net full-page OCR
     text_layer: str = ""  # PDF text layer for the page (free dedup source)
+    printed_page: str | None = None
 
 
 @dataclass
@@ -101,12 +102,12 @@ async def _process_page(
     """Run page-level OCR + raw-OCR safety net + per-region structured
     extracts concurrently."""
 
-    async def _do_text() -> str:
+    async def _do_text() -> tuple[str, str | None]:
         async with text_sem:
             t0 = time.time()
-            md = await extract_page_text(page, regions)
+            md, printed_page = await extract_page_text(page, regions)
             console.log(f"  page {page.page_num:>2}: text OCR done in {time.time() - t0:.1f}s")
-            return md
+            return md, printed_page
 
     async def _do_raw_ocr() -> str:
         # Cheap full-page transcription. The dedup in stitch() only appends
@@ -134,7 +135,7 @@ async def _process_page(
         if r.type in STRUCTURED_TYPES
     ]
     results = await asyncio.gather(text_task, raw_task, *struct_tasks)
-    page_md = results[0]
+    page_md, printed_page = results[0]
     raw_ocr = results[1]
     structured = [t.result() for t in struct_tasks]
     return PageOutput(
@@ -143,6 +144,7 @@ async def _process_page(
         structured=structured,
         raw_ocr=raw_ocr,
         text_layer=page.text_layer or "",
+        printed_page=printed_page,
     )
 
 
@@ -192,7 +194,8 @@ async def parse_pdf_async(
 def stitch(pages: list[PageOutput], doc_title: str) -> str:
     lines: list[str] = [f"# {doc_title}", ""]
     for po in sorted(pages, key=lambda p: p.page_num):
-        lines.append(f"<!-- page: {po.page_num} -->")
+        printed_str = po.printed_page or ""
+        lines.append(f"<!-- page: {po.page_num} printed: {printed_str} -->")
         lines.append("")
         struct_by_order = {s.reading_order: s for s in po.structured}
         page_md = po.page_markdown
@@ -237,6 +240,7 @@ def write_outputs(result: PipelineResult, pdf_path: Path, out_dir: Path) -> Path
         "pages": [
             {
                 "page": p.page_num,
+                "printed_page": p.printed_page,
                 "page_markdown_chars": len(p.page_markdown),
                 "structured": [
                     {

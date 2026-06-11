@@ -629,7 +629,7 @@ function MainApp() {
   const connectJiraOAuth = async () => {
     setIsJiraOAuthConnecting(true);
     try {
-      const response = await fetch("http://localhost:8001/api/auth/jira/url");
+      const response = await fetch("http://localhost:8005/api/auth/jira/url");
       if (!response.ok) {
         throw new Error(`HTTP Error ${response.status}`);
       }
@@ -644,7 +644,7 @@ function MainApp() {
 
       const interval = setInterval(async () => {
         try {
-          const tResp = await fetch("http://localhost:8001/api/auth/jira/token");
+          const tResp = await fetch("http://localhost:8005/api/auth/jira/token");
           if (tResp.ok) {
             const tData = await tResp.json();
             if (tData.token) {
@@ -777,7 +777,7 @@ function MainApp() {
     let splitTool = 0.0;
 
     try {
-      const response = await fetch("http://localhost:8001/api/chat", {
+      const response = await fetch("http://localhost:8005/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

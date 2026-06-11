@@ -50,11 +50,11 @@ class MSALAuthManager:
         self.client_id = client_id
         self.tenant_id = tenant_id
         self.authority = authority or f"https://login.microsoftonline.com/{tenant_id}"
+        self.cache_path = "/Users/jesusarguelles/IdeaProjects/vertex-ai-samples/semiautonomous-agents/ms365-mcp-server/.ms365_auth.json"
 
         # Thread-safe token cache
         self._lock = threading.Lock()
-        self._auth_state = AuthState()
-
+        
         # Generate encryption key for token storage (per-instance)
         self._encryption_key = Fernet.generate_key()
         self._cipher = Fernet(self._encryption_key)
@@ -65,7 +65,48 @@ class MSALAuthManager:
             authority=self.authority,
         )
 
+        self._load_state()
         logger.info(f"[Auth] Initialized MSAL for tenant: {tenant_id}")
+
+    def _load_state(self) -> None:
+        """Load authentication state from local cache if available."""
+        with self._lock:
+            if os.path.exists(self.cache_path):
+                try:
+                    with open(self.cache_path, "r") as f:
+                        data = json.load(f)
+                    self._auth_state = AuthState(
+                        access_token=data.get("access_token"),
+                        refresh_token=data.get("refresh_token"),
+                        account=data.get("account"),
+                        expires_at=data.get("expires_at")
+                    )
+                    # Load accounts into MSAL's in-memory cache using our tokens
+                    if self._auth_state.refresh_token:
+                        # Feed the refresh token back into MSAL app
+                        self._app.acquire_token_by_refresh_token(
+                            self._auth_state.refresh_token,
+                            scopes=GRAPH_SCOPES
+                        )
+                    logger.info("[Auth] Successfully loaded active session from cache")
+                    return
+                except Exception as e:
+                    logger.error(f"[Auth] Failed to load cache: {e}")
+            self._auth_state = AuthState()
+
+    def _save_state(self) -> None:
+        """Save authentication state to local cache."""
+        try:
+            os.makedirs(os.path.dirname(self.cache_path), exist_ok=True)
+            with open(self.cache_path, "w") as f:
+                json.dump({
+                    "access_token": self._auth_state.access_token,
+                    "refresh_token": self._auth_state.refresh_token,
+                    "account": self._auth_state.account,
+                    "expires_at": self._auth_state.expires_at
+                }, f, indent=2)
+        except Exception as e:
+            logger.error(f"[Auth] Failed to save cache: {e}")
 
     def is_authenticated(self) -> bool:
         """Check if user is currently authenticated."""
@@ -109,6 +150,7 @@ class MSALAuthManager:
                 "name": result.get("id_token_claims", {}).get("name"),
                 "tenant_id": result.get("id_token_claims", {}).get("tid"),
             }
+            self._save_state()
 
         logger.info(f"[Auth] Authenticated as: {self._auth_state.account.get('username')}")
         return self._auth_state.account
@@ -131,6 +173,8 @@ class MSALAuthManager:
                 )
                 if result and "access_token" in result:
                     self._auth_state.access_token = result["access_token"]
+                    self._auth_state.refresh_token = result.get("refresh_token", self._auth_state.refresh_token)
+                    self._save_state()
                     return result["access_token"]
 
             return self._auth_state.access_token
@@ -139,6 +183,12 @@ class MSALAuthManager:
         """Clear all cached tokens and authentication state."""
         with self._lock:
             self._auth_state = AuthState()
+            # Clear cache file
+            if os.path.exists(self.cache_path):
+                try:
+                    os.remove(self.cache_path)
+                except Exception:
+                    pass
             # Clear MSAL cache
             for account in self._app.get_accounts():
                 self._app.remove_account(account)

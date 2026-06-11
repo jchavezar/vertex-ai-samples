@@ -32,17 +32,19 @@ mcp = FastMCP(
 
 
 @mcp.tool()
-def search_docs(query: str, top_k: int = 5) -> list[dict]:
-    """Semantic vector search over the docparse PDF knowledge base.
+def search_docs(query: str, page: str | None = None, pdf_name: str | None = None, top_k: int = 5) -> list[dict]:
+    """Semantic vector search over the docparse PDF knowledge base with optional page/document filtering.
 
     Args:
         query: Natural language question or search query.
+        page: Optional logical/printed page number filter (e.g. '1', 'ix', '9').
+        pdf_name: Optional document name substring filter (case-insensitive, e.g. 'accenture').
         top_k: Number of relevant chunks to retrieve (1-25, default 5).
 
     Returns:
         List of chunks with text, PDF name, page number, GCS URI, HTTPS grounding URL, and position indicators.
     """
-    return vector_search(query, top_k)
+    return vector_search(query=query, page=page, pdf_name=pdf_name, top_k=top_k)
 
 
 @mcp.tool()

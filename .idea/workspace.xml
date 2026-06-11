@@ -5,15 +5,56 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="3728e2f1-6a0c-4c56-b66a-e56c7a6c1811" name="Changes" comment="mcp local toolbox + bigquery Aug 1st 25">
-      <change afterPath="$PROJECT_DIR$/gen_ai/adk/custom_grounding_eval/readme.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/gen_ai/adk/custom_grounding_eval/Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/gen_ai/adk/custom_grounding_eval/Dockerfile" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/gen_ai/adk/custom_grounding_eval/frontend.py" beforeDir="false" afterPath="$PROJECT_DIR$/gen_ai/adk/custom_grounding_eval/main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/gen_ai/adk/custom_grounding_eval/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/gen_ai/adk/custom_grounding_eval/requirements.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/tmp/asdfds.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/tmp/testing.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/antigravity/diagrams-generator/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/antigravity/diagrams-generator/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/antigravity/diagrams-generator/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/antigravity/diagrams-generator/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/antigravity/diagrams-generator/src/app/api/generate/route.ts" beforeDir="false" afterPath="$PROJECT_DIR$/antigravity/diagrams-generator/src/app/api/generate/route.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/antigravity/diagrams-generator/src/app/globals.css" beforeDir="false" afterPath="$PROJECT_DIR$/antigravity/diagrams-generator/src/app/globals.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/antigravity/diagrams-generator/src/app/layout.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/antigravity/diagrams-generator/src/app/layout.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/antigravity/diagrams-generator/src/app/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/antigravity/diagrams-generator/src/app/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/antigravity/diagrams-generator/src/components/Diagram/FlowCanvas.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/antigravity/diagrams-generator/src/components/Diagram/FlowCanvas.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/antigravity/diagrams-generator/src/components/UI/AIChatOverlay.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/antigravity/diagrams-generator/src/components/UI/AIChatOverlay.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/antigravity/diagrams-generator/src/components/UI/ModelSelector.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/antigravity/diagrams-generator/src/components/UI/ModelSelector.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/antigravity/diagrams-generator/src/hooks/useDiagram.ts" beforeDir="false" afterPath="$PROJECT_DIR$/antigravity/diagrams-generator/src/hooks/useDiagram.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/antigravity/diagrams-generator/src/types/diagram.ts" beforeDir="false" afterPath="$PROJECT_DIR$/antigravity/diagrams-generator/src/types/diagram.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/antigravity/stock-terminal/google_search_mcp_server/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/antigravity/stock-terminal/google_search_mcp_server/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gen_ai/adk/pdf_chart_extractor_workflow/GUIDE_TO_ANTIGRAVITY.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/gen_ai/adk/pdf_chart_extractor_workflow/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/gen_ai/adk/pdf_chart_extractor_workflow/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gen_ai/adk/pdf_chart_extractor_workflow/backend/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/gen_ai/adk/pdf_chart_extractor_workflow/backend/main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gen_ai/adk/pdf_chart_extractor_workflow/backend/utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/gen_ai/adk/pdf_chart_extractor_workflow/backend/utils.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gen_ai/adk/pdf_chart_extractor_workflow/frontend/next.config.ts" beforeDir="false" afterPath="$PROJECT_DIR$/gen_ai/adk/pdf_chart_extractor_workflow/frontend/next.config.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/semiautonomous-agents/docparse-firestore-diagnostics/check_run_mcp_logs.py" beforeDir="false" afterPath="$PROJECT_DIR$/semiautonomous-agents/docparse-firestore-diagnostics/check_run_mcp_logs.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/semiautonomous-agents/docparse-firestore-diagnostics/test_stream_assist_real.py" beforeDir="false" afterPath="$PROJECT_DIR$/semiautonomous-agents/docparse-firestore-diagnostics/test_stream_assist_real.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/semiautonomous-agents/docparse-firestore-grounding/indexer/index_to_firestore.py" beforeDir="false" afterPath="$PROJECT_DIR$/semiautonomous-agents/docparse-firestore-grounding/indexer/index_to_firestore.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/semiautonomous-agents/docparse-firestore-mcp/mcp_server/firestore_search.py" beforeDir="false" afterPath="$PROJECT_DIR$/semiautonomous-agents/docparse-firestore-mcp/mcp_server/firestore_search.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/semiautonomous-agents/docparse-firestore-mcp/mcp_server/server.py" beforeDir="false" afterPath="$PROJECT_DIR$/semiautonomous-agents/docparse-firestore-mcp/mcp_server/server.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/semiautonomous-agents/docparse/extractor/src/docparse/extract.py" beforeDir="false" afterPath="$PROJECT_DIR$/semiautonomous-agents/docparse/extractor/src/docparse/extract.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/semiautonomous-agents/docparse/extractor/src/docparse/pipeline.py" beforeDir="false" afterPath="$PROJECT_DIR$/semiautonomous-agents/docparse/extractor/src/docparse/pipeline.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/semiautonomous-agents/docparse/extractor/src/docparse/prompts.py" beforeDir="false" afterPath="$PROJECT_DIR$/semiautonomous-agents/docparse/extractor/src/docparse/prompts.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/semiautonomous-agents/docparse/extractor/src/docparse/render.py" beforeDir="false" afterPath="$PROJECT_DIR$/semiautonomous-agents/docparse/extractor/src/docparse/render.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/semiautonomous-agents/docparse/extractor/src/docparse/schemas.py" beforeDir="false" afterPath="$PROJECT_DIR$/semiautonomous-agents/docparse/extractor/src/docparse/schemas.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/semiautonomous-agents/docparse/extractor/src/docparse/service.py" beforeDir="false" afterPath="$PROJECT_DIR$/semiautonomous-agents/docparse/extractor/src/docparse/service.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/semiautonomous-agents/ge_custom_mcp_sharepoint/1-custom-mcp/tools/fetch.py" beforeDir="false" afterPath="$PROJECT_DIR$/semiautonomous-agents/ge_custom_mcp_sharepoint/1-custom-mcp/tools/fetch.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/semiautonomous-agents/ge_custom_mcp_sharepoint/1-custom-mcp/tools/read_file.py" beforeDir="false" afterPath="$PROJECT_DIR$/semiautonomous-agents/ge_custom_mcp_sharepoint/1-custom-mcp/tools/read_file.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/semiautonomous-agents/ge_custom_mcp_sharepoint/1-custom-mcp/tools/search.py" beforeDir="false" afterPath="$PROJECT_DIR$/semiautonomous-agents/ge_custom_mcp_sharepoint/1-custom-mcp/tools/search.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/semiautonomous-agents/shutter-vibe-engine/antigravity/.agent/workflows/replicate-vibe-search.md" beforeDir="false" afterPath="$PROJECT_DIR$/semiautonomous-agents/shutter-vibe-engine/antigravity/.agent/workflows/replicate-vibe-search.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/semiautonomous-agents/shutter-vibe-engine/antigravity/WORKFLOW.md" beforeDir="false" afterPath="$PROJECT_DIR$/semiautonomous-agents/shutter-vibe-engine/antigravity/WORKFLOW.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/semiautonomous-agents/shutter-vibe-engine/antigravity/src/app/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/semiautonomous-agents/shutter-vibe-engine/antigravity/src/app/main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/semiautonomous-agents/shutter-vibe-engine/antigravity/src/pipeline/build.py" beforeDir="false" afterPath="$PROJECT_DIR$/semiautonomous-agents/shutter-vibe-engine/antigravity/src/pipeline/build.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="CopilotPersistence">
+    <persistenceIdMap>
+      <entry key="_/Users/jesusarguelles/IdeaProjects/vertex-ai-samples" value="30TG8DMycm7zOE5CZROLUo2LZ97" />
+    </persistenceIdMap>
   </component>
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
@@ -34,8 +75,8 @@
 }</component>
   <component name="GithubPullRequestsUISettings">{
   &quot;selectedUrlAndAccountId&quot;: {
-    &quot;url&quot;: &quot;https://github.com/jchavezar/vertex-ai-samples.git&quot;,
-    &quot;accountId&quot;: &quot;29c2a9c5-9328-47c8-ad4d-5b0b9e3f0647&quot;
+    &quot;url&quot;: &quot;git@github.com:jchavezar/vertex-ai-samples.git&quot;,
+    &quot;accountId&quot;: &quot;4b90ae45-509f-4d21-9ebc-c71a68233113&quot;
   }
 }</component>
   <component name="ProjectColorInfo">{
@@ -49,33 +90,34 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;ACTIVE_CLOUD_PROJECT_ACCOUNT&quot;: &quot;jesusarguelles@google.com&quot;,
-    &quot;ACTIVE_CLOUD_PROJECT_ID&quot;: &quot;jesusarguelles-sandbox&quot;,
-    &quot;ACTIVE_CLOUD_PROJECT_NAME&quot;: &quot;jesusarguelles-sandbox&quot;,
-    &quot;ACTIVE_CLOUD_PROJECT_NUMBER&quot;: &quot;390227712642&quot;,
-    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;com.google.cloudcode.ide_session_index&quot;: &quot;20250728_0001&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
-    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/gen_ai/search_solutions/multimodal_embeddings/video_search_app&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;project.structure.last.edited&quot;: &quot;SDKs&quot;,
-    &quot;project.structure.proportion&quot;: &quot;0.15&quot;,
-    &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;project.propVCSSupport.Mappings&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ACTIVE_CLOUD_PROJECT_ACCOUNT": "jesusarguelles@google.com",
+    "ACTIVE_CLOUD_PROJECT_ID": "jesusarguelles-sandbox",
+    "ACTIVE_CLOUD_PROJECT_NAME": "jesusarguelles-sandbox",
+    "ACTIVE_CLOUD_PROJECT_NUMBER": "390227712642",
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
+    "com.google.cloudcode.ide_session_index": "20250728_0001",
+    "git-widget-placeholder": "main",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "/usr/local/google/home/jesusarguelles/IdeaProjects/vertex-ai-samples/gen_ai/search_solutions/multimodal_embeddings/video_search_app",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "project.structure.last.edited": "SDKs",
+    "project.structure.proportion": "0.15",
+    "project.structure.side.proportion": "0.2",
+    "settings.editor.selected.configurable": "preferences.pluginManager",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
   <component name="PyConsoleOptionsProvider">
     <option name="myPythonConsoleState">
       <console-settings module-name="vertex-ai-samples" working-directory="$PROJECT_DIR$/gen_ai/search_solutions/multimodal_embeddings/video_search_app">
@@ -136,8 +178,8 @@
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-jdk-9823dce3aa75-bf35d07a577b-intellij.indexing.shared.core-IU-252.23892.360" />
-        <option value="bundled-js-predefined-d6986cc7102b-e03c56caf84a-JavaScript-IU-252.23892.360" />
+        <option value="bundled-jdk-30f59d01ecdd-2fc7cc6b9a17-intellij.indexing.shared.core-IU-253.33514.17" />
+        <option value="bundled-js-predefined-d6986cc7102b-9b0f141eb926-JavaScript-IU-253.33514.17" />
       </set>
     </attachedChunks>
   </component>
@@ -161,6 +203,8 @@
       <workItem from="1756915150974" duration="351000" />
       <workItem from="1756915530339" duration="140000" />
       <workItem from="1756915768933" duration="599000" />
+      <workItem from="1780415666849" duration="489000" />
+      <workItem from="1780416357336" duration="2541000" />
     </task>
     <task id="LOCAL-00001" summary="mcp local toolbox + bigquery Aug 1st 25">
       <option name="closed" value="true" />
@@ -194,5 +238,13 @@
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />
     <select />
+  </component>
+  <component name="github-copilot-workspace">
+    <instructionFileLocations>
+      <option value=".github/instructions" />
+    </instructionFileLocations>
+    <promptFileLocations>
+      <option value=".github/prompts" />
+    </promptFileLocations>
   </component>
 </project>

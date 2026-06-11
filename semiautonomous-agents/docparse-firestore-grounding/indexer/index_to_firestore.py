@@ -12,6 +12,7 @@ Usage:
 import argparse
 from pathlib import Path
 from google.cloud import firestore
+from google.cloud.firestore_v1.vector import Vector
 from google import genai
 from google.genai import types
 import re
@@ -25,13 +26,22 @@ def embed_text(client, text: str) -> list[float]:
 
 
 def extract_page_chunks(markdown_text: str, pdf_name: str) -> list[dict]:
-    """Split markdown by <!-- page: N --> markers, return chunks with metadata."""
-    parts = re.split(r"<!-- page: (\d+) -->", markdown_text)
+    """Split markdown by <!-- page: N [printed: M] --> markers, return chunks with metadata."""
+    pattern = re.compile(r"<!-- page: (\d+)(?:\s+printed:\s*(\w*))? -->")
+    matches = list(pattern.finditer(markdown_text))
     chunks = []
 
-    for i in range(1, len(parts), 2):
-        page_num = int(parts[i])
-        content = parts[i+1] if i+1 < len(parts) else ""
+    for i, match in enumerate(matches):
+        page_num = int(match.group(1))
+        printed_page = match.group(2)
+        if printed_page is not None:
+            printed_page = printed_page.strip()
+            if not printed_page:
+                printed_page = None
+
+        start_idx = match.end()
+        end_idx = matches[i+1].start() if i + 1 < len(matches) else len(markdown_text)
+        content = markdown_text[start_idx:end_idx]
         if not content.strip():
             continue
 
@@ -42,6 +52,7 @@ def extract_page_chunks(markdown_text: str, pdf_name: str) -> list[dict]:
             "id": f"{pdf_name.replace(' ', '_')}_p{page_num:03d}",
             "text": chunk_text,
             "page": page_num,
+            "printed_page": printed_page,
             "pdf_name": pdf_name,
         })
 
@@ -100,17 +111,42 @@ def main():
         chunks = extract_page_chunks(markdown, pdf_name)
         print(f"  {len(chunks)} page-level chunks")
 
+        total_pages = len(chunks)
         for chunk in chunks:
             # Embed
             embedding = embed_text(genai_client, chunk["text"])
 
+            # Reconstruct GCS and HTTPS PDF URIs
+            clean_bucket = args.pdf_bucket.replace("gs://", "").split("/")[0]
+            gcs_pdf_uri = f"gs://{clean_bucket}/{md_path.stem}.pdf"
+            https_pdf_url = f"https://storage.googleapis.com/{clean_bucket}/{md_path.stem}.pdf#page={chunk['page']}"
+            
+            # Reconstruct page position
+            page_pct = chunk["page"] / max(1, total_pages)
+            if page_pct <= 0.33:
+                pos_label = "beginning"
+            elif page_pct <= 0.66:
+                pos_label = "middle"
+            else:
+                pos_label = "end"
+                
+            page_position = {
+                "number": chunk["page"],
+                "label": pos_label,
+                "percentage": round(page_pct, 2)
+            }
+
             # Store in Firestore
             doc_data = {
                 "text": chunk["text"],
-                "embedding": embedding,
+                "embedding": Vector(embedding),
                 "page": chunk["page"],
+                "printed_page": chunk.get("printed_page"),
                 "pdf_name": chunk["pdf_name"],
                 "pdf_uri": f"{args.pdf_bucket}/{md_path.stem}.pdf",  # Reconstruct PDF URI
+                "gcs_pdf_uri": gcs_pdf_uri,
+                "https_pdf_url": https_pdf_url,
+                "page_position": page_position,
             }
 
             collection.document(chunk["id"]).set(doc_data)

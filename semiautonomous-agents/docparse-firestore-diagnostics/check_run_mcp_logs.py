@@ -43,26 +43,16 @@ def main():
     entries = r.json().get("entries", [])
     print(f"Found {len(entries)} log entries.")
     
-    # Look for search_docs tool execution, queries, or tool calls
-    calls = []
-    for entry in entries:
-        payload = entry.get("textPayload", "")
-        json_payload = entry.get("jsonPayload", {})
-        ts = entry.get("timestamp", "")
-        
-        # Merge payload
-        p_str = payload or json.dumps(json_payload)
-        
-        # Look for keywords
-        if any(kw in p_str.lower() for kw in ["search_docs", "calltoolrequest", "metaverse", "docparse_chunks", "query", "rewrite", "starlette", "get", "post", "404"]):
-            calls.append((ts, p_str))
-            
-    if calls:
-        print("\n--- Matching Log Details ---")
-        for ts, content in calls[:20]:
-            print(f"[{ts}] {content}")
+    if entries:
+        print("\n--- Verbatim Cloud Run Log Entries ---")
+        for entry in entries[:50]:
+            payload = entry.get("textPayload", "")
+            json_payload = entry.get("jsonPayload", {})
+            ts = entry.get("timestamp", "")
+            p_str = payload or json.dumps(json_payload)
+            print(f"[{ts}] {p_str}")
     else:
-        print("\nNo search_docs or metaverse-related tool calls found in the Cloud Run logs.")
+        print("\nNo log entries found in the Cloud Run logs.")
 
 if __name__ == "__main__":
     main()

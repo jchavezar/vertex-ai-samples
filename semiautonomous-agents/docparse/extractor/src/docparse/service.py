@@ -107,7 +107,12 @@ async def _process_pdf(bucket: str, name: str, generation: int, out_name: str) -
             return {"skipped": True, "reason": "object not found"}
 
         log.info("parsing %s (gen=%s)", local_pdf, generation)
-        result = await parse_pdf_async(local_pdf)
+        result = await parse_pdf_async(
+            local_pdf,
+            detect_concurrency=24,
+            text_concurrency=20,
+            struct_concurrency=20
+        )
 
         # Mirror folder structure from input to output (.pdf → .txt).
         # Discovery Engine / GE infer MIME from the FILE EXTENSION, not the
@@ -132,6 +137,7 @@ async def _process_pdf(bucket: str, name: str, generation: int, out_name: str) -
                 "pages": [
                     {
                         "page": p.page_num,
+                        "printed_page": p.printed_page,
                         "markdown_chars": len(p.page_markdown),
                         "structured": [
                             {

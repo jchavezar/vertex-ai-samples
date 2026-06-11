@@ -51,5 +51,5 @@ def test_stream_assist_real(query_text):
         print(r.text)
 
 if __name__ == "__main__":
-    test_stream_assist_real("what is the metaverse?")
-    test_stream_assist_real("what is the multiverse?")
+    test_stream_assist_real("Please call the list_documents tool to list all distinct documents in the database.")
+    test_stream_assist_real("Who is quoted on page 9 of the Accenture report representing Carrefour Group? You MUST call search_docs with page='9' and pdf_name='accenture'.")

@@ -71,6 +71,7 @@ from tools.sharepoint import (
     list_folder_files,
     list_onedrive_files,
     upload_file,
+    upload_local_file,
     download_file,
     create_folder,
     search_files,
@@ -144,6 +145,25 @@ def sp_upload_file(
         is_base64: Set to True if content is base64-encoded
     """
     return upload_file(drive_id, folder_path, file_name, content, is_base64)
+
+
+@mcp.tool()
+def sp_upload_local_file(
+    drive_id: str,
+    folder_path: str,
+    file_name: str,
+    local_file_path: str
+) -> str:
+    """
+    Upload a local file of any size to SharePoint or OneDrive using upload sessions.
+
+    Args:
+        drive_id: The drive ID or 'me' for OneDrive
+        folder_path: Destination folder path (e.g., '/Documents/Reports')
+        file_name: Name for the uploaded file
+        local_file_path: Absolute local path to the file to upload
+    """
+    return upload_local_file(drive_id, folder_path, file_name, local_file_path)
 
 
 @mcp.tool()
@@ -469,8 +489,11 @@ if __name__ == "__main__":
     logger.info(f"[MCP] Transport: {transport}")
     logger.info(f"[MCP] Port: {port}")
 
-    mcp.run(
-        transport=transport,
-        host="0.0.0.0",
-        port=port
-    )
+    if transport == "stdio":
+        mcp.run(transport=transport)
+    else:
+        mcp.run(
+            transport=transport,
+            host="0.0.0.0",
+            port=port
+        )
