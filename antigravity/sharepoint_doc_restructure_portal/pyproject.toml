@@ -1,0 +1,14 @@
+[project]
+name = "sharepoint-doc-restructure-portal"
+version = "0.1.0"
+description = "FastAPI backend for simulated SharePoint document extraction and governance"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi>=0.115.0",
+    "uvicorn>=0.30.0",
+    "pydantic>=2.0.0",
+]
+
+[tool.uv]
+dev-dependencies = []

@@ -1,0 +1,109 @@
+- slug: vibe-search
+  title: Vibe Search
+  url: https://envato-vibe-app-bq-254356041555.us-central1.run.app/
+  thumb: thumbs/vibe-search.png
+  tagline: Text/image/audio search over 2k Envato segments. BigQuery VECTOR_SEARCH backend, 3D PCA viz of the result cluster.
+  tags: [multimodal, vector-search, 3d]
+  demo_path:
+    - "Type: 'sunset over ocean' in the search bar"
+    - "Hit Search"
+    - "Click '3D similarity' in the results header"
+
+- slug: vibes-nyc
+  title: Vibes NYC
+  url: https://vibes-nyc-254356041555.us-central1.run.app/
+  thumb: thumbs/vibes-nyc.png
+  tagline: Find a NYC venue by mood — no ratings, no numbers, just sentiment clustering over real reviews.
+  tags: [mood-ux, recommendations]
+  demo_path:
+    - "Pick a mood chip (e.g. 'cozy rainy day')"
+    - "Scroll the venue list"
+    - "Click a venue card to see what people actually felt"
+
+- slug: docparse
+  title: DocParse
+  url: https://grounding-frontend-254356041555.us-central1.run.app/
+  thumb: thumbs/docparse.png
+  tagline: Drop a PDF, get cited extraction grounded in Firestore. Multimodal parsing with PDF page references.
+  tags: [multimodal, pdf, grounding]
+  demo_path:
+    - "Upload any PDF (sample provided)"
+    - "Watch fields stream in with page citations"
+    - "Click a citation to jump to the source page"
+
+- slug: ge-a2a-auth
+  title: GE → A2A → Drive (OAuth Bridge)
+  url: https://ge-a2a-auth-cr-254356041555.us-central1.run.app/
+  thumb: thumbs/ge-a2a-auth.png
+  tagline: Gemini Enterprise calls a Cloud Run A2A agent which calls Google Drive as the end user. Full user-delegated OAuth chain.
+  tags: [a2a, oauth, enterprise]
+  demo_path:
+    - "Ask 'what's in my Drive about Q2 planning?'"
+    - "Approve the OAuth scope prompt"
+    - "See the answer with Drive file citations"
+
+- slug: comparison-site
+  title: BYO-MCP vs ADK Comparison
+  url: https://comparison-site-254356041555.us-central1.run.app/
+  thumb: thumbs/comparison-site.png
+  tagline: "Side-by-side eval: Gemini Enterprise BYO-MCP vs Google ADK on a 500-question Jira-grounded benchmark."
+  tags: [eval, mcp]
+  demo_path:
+    - "Pick a question category from the sidebar"
+    - "Compare the two responses live"
+    - "Open the eval report for composite scores"
+
+- slug: andesia-demo
+  title: Caja Los Andes (Andesia)
+  url: https://caja-los-andes.sonrobots.net/
+  thumb: thumbs/andesia-demo.png
+  tagline: Multi-agent banking workflow built for a Caja Los Andes exec briefing. Always-warm, multi-turn.
+  tags: [agents, banking]
+  demo_path:
+    - "Pick a customer profile"
+    - "Ask the underwriting question"
+    - "Watch the agent route between tools"
+
+- slug: agent-gateway
+  title: Agent Gateway
+  url: https://agent-gateway-demo-ui-254356041555.us-central1.run.app/
+  thumb: thumbs/agent-gateway.png
+  tagline: Three-tier reference architecture for agentic apps — UI + backend + MCP — wired through the Agent Gateway.
+  tags: [agents, architecture]
+  demo_path:
+    - "Pick a task from the catalog"
+    - "Watch the routing trace stream in"
+    - "Inspect the MCP tool calls in the panel"
+
+- slug: quiniela
+  title: Quiniela Charales 2026
+  url: https://quiniela-charales-2026-254356041555.us-central1.run.app/
+  thumb: thumbs/quiniela.png
+  tagline: World Cup prediction app — Next.js + ADK chat agent. Real users, real predictions, real leaderboard.
+  tags: [nextjs, agents]
+  demo_path:
+    - "Open the bracket view"
+    - "Talk to the agent: 'who's most likely to make the semis?'"
+    - "Check the live leaderboard"
+
+- slug: ny-dmv-practice
+  title: NY DMV Practice
+  url: https://ny-dmv-practice-254356041555.us-central1.run.app/
+  thumb: thumbs/ny-dmv.png
+  tagline: Practice exam app actually used by real users prepping for the NY DMV written test.
+  tags: [practical, public]
+  demo_path:
+    - "Start a 20-question practice exam"
+    - "Answer a few"
+    - "Review your explanation per wrong answer"
+
+- slug: saju-crystal
+  title: Saju Crystal
+  url: https://saju-crystal-254356041555.us-central1.run.app/
+  thumb: thumbs/saju-crystal.png
+  tagline: Animated cosmic blueprint UI — pure visual showcase of HTML5 Canvas + Gemini-generated readings.
+  tags: [visual, canvas]
+  demo_path:
+    - "Enter birth date + place"
+    - "Let the cosmic chart render"
+    - "Read the AI interpretation panel"

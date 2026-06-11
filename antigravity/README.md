@@ -274,6 +274,33 @@
       <a href="../semiautonomous-agents/shutter-vibe-engine/antigravity/">ACCESS_TERMINAL &rarr;</a>
     </td>
     <td width="50%" valign="top">
+      <img src="assets/header_search.svg" width="100%" />
+      <br/><br/>
+      <strong>RECIPE: SHAREPOINT DOCUMENT RESTRUCTURE</strong><br/>
+      Throttling-resistant SharePoint document ingestion, Gemini metadata extraction, and access-aware retrieval.<br/>
+      <br/>
+      <a href="../agy-recipes/sharepoint-doc-restructure/">ACCESS_TERMINAL &rarr;</a>
+    </td>
+  </tr>
+  <!-- ROW 16: SHAREPOINT RESTRUCTURE PORTAL -->
+  <tr>
+    <td width="50%" valign="top">
+      <img src="assets/header_hub.svg" width="100%" />
+      <br/><br/>
+      <strong>PROJECT: SHAREPOINT DOC RESTRUCTURE PORTAL</strong><br/>
+      Interactive governance dashboard and console chat. Integrates human-in-the-loop workflows, access-aware search, and crawler pacing logs under a minimalistic light theme UI.<br/>
+      <br/>
+      📚 <strong>RESOURCES:</strong><br/>
+      • <a href="./sharepoint_doc_restructure_portal/GCP_ARCHITECTURE.md">GCP Architecture & Component Justifications</a><br/>
+      • <a href="./sharepoint_doc_restructure_portal/ACL_MAPPING.md">SharePoint to GCP ACL Inheritance Strategy</a><br/>
+      • <a href="./sharepoint_doc_restructure_portal/UI_SPECIFICATION.md">Visual Mockup & Layout Specification Guide</a><br/>
+      • <a href="./sharepoint_doc_restructure_portal/PERFORMANCE_AUDIT.md">Gemini 3.5 Flash Latency & Ingestion Performance Audit</a><br/>
+      • <a href="./sharepoint_doc_restructure_portal/LOW_LEVEL_DESIGN.md">Detailed Low-Level Infrastructure & Logic Design Document</a><br/>
+      • <a href="./sharepoint_doc_restructure_portal/scripts/pipeline_poc.py">Ingestion & Extraction Pipeline PoC Script</a><br/>
+      <br/>
+      <a href="./sharepoint_doc_restructure_portal/">ACCESS_TERMINAL &rarr;</a>
+    </td>
+    <td width="50%" valign="top">
     </td>
   </tr>
 </table>

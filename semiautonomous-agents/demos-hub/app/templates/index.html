@@ -1,0 +1,607 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>demos.sonrobots.net</title>
+  <meta name="description" content="A working portfolio. Every demo is live.">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=JetBrains+Mono:wght@400;500;600&display=swap">
+
+  <style>
+    :root {
+      --ink:        #0d0c0a;
+      --ink-2:      #14130f;
+      --ink-3:      #1c1b16;
+      --rule:       #2a2825;
+      --rule-soft:  #1f1d19;
+      --cream:      #f1ece0;
+      --cream-2:    #d8d3c5;
+      --muted:      #8b8576;
+      --muted-2:    #5d584d;
+      --accent:     #ff3b00;
+      --accent-2:   rgba(255, 59, 0, 0.12);
+      --accent-3:   rgba(255, 59, 0, 0.40);
+
+      --serif: "Fraunces", "Iowan Old Style", "Apple Garamond", "Baskerville",
+               "Times New Roman", serif;
+      --mono:  "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+      --sans:  -apple-system, BlinkMacSystemFont, "Helvetica Neue", "Segoe UI",
+               system-ui, sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+
+    body {
+      background: var(--ink);
+      color: var(--cream);
+      font-family: var(--sans);
+      font-size: 15px;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      text-rendering: optimizeLegibility;
+      background-image:
+        radial-gradient(ellipse 80% 60% at 50% -10%, rgba(255,59,0,0.06), transparent 70%),
+        repeating-linear-gradient(0deg, transparent 0 2px, rgba(255,255,255,0.012) 2px 3px);
+      background-attachment: fixed;
+    }
+
+    a { color: inherit; text-decoration: none; }
+
+    .wrap {
+      max-width: 1320px;
+      margin: 0 auto;
+      padding: 0 32px;
+    }
+
+    /* ─── HEADER ───────────────────────────────────────────────────── */
+    header.site {
+      padding: 56px 0 28px;
+      position: relative;
+    }
+    .topline {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 28px;
+    }
+    .topline .dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 0 4px var(--accent-2);
+    }
+    .topline .sep { color: var(--muted-2); }
+
+    .masthead {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 24px;
+      align-items: end;
+    }
+    h1.title {
+      font-family: var(--serif);
+      font-weight: 500;
+      font-size: clamp(40px, 6.4vw, 88px);
+      line-height: 0.95;
+      letter-spacing: -0.025em;
+      margin: 0;
+      font-variation-settings: "opsz" 144;
+      color: var(--cream);
+    }
+    h1.title .net-dot { color: var(--accent); }
+    h1.title em {
+      font-style: italic;
+      font-weight: 400;
+      color: var(--cream-2);
+    }
+
+    .subtitle {
+      font-family: var(--mono);
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      max-width: 280px;
+      text-align: right;
+      line-height: 1.6;
+    }
+    .subtitle b { color: var(--cream); font-weight: 500; }
+
+    .rule {
+      height: 1px;
+      background: var(--rule);
+      width: 100%;
+    }
+    .rule.soft { background: var(--rule-soft); }
+
+    /* ─── FILTER RAIL ─────────────────────────────────────────────── */
+    .filter-rail {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      padding: 22px 0;
+      flex-wrap: wrap;
+    }
+    .filter-label {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--muted-2);
+      padding-right: 4px;
+    }
+    .chips { display: flex; gap: 6px; flex-wrap: wrap; }
+    .chip {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 7px 12px;
+      border: 1px solid var(--rule);
+      background: transparent;
+      color: var(--cream-2);
+      cursor: pointer;
+      transition: transform 80ms ease, background 120ms, border-color 120ms, color 120ms;
+      user-select: none;
+    }
+    .chip:hover { border-color: var(--accent-3); color: var(--cream); }
+    .chip:active { transform: scale(0.96); }
+    .chip.active {
+      background: var(--cream);
+      color: var(--ink);
+      border-color: var(--cream);
+    }
+    .chip.all.active {
+      background: var(--accent);
+      color: var(--ink);
+      border-color: var(--accent);
+    }
+    .chip .count {
+      opacity: 0.5;
+      margin-left: 6px;
+      font-weight: 500;
+    }
+
+    .meta-count {
+      margin-left: auto;
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--muted);
+      letter-spacing: 0.08em;
+    }
+    .meta-count b { color: var(--cream); font-weight: 500; }
+
+    /* ─── GRID ────────────────────────────────────────────────────── */
+    main { padding: 36px 0 80px; }
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 56px 28px;
+    }
+    @media (min-width: 720px)  { .grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (min-width: 1080px) { .grid { grid-template-columns: repeat(3, 1fr); } }
+
+    .card {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      opacity: 0;
+      transform: translateY(14px);
+      animation: rise 600ms cubic-bezier(0.2, 0.7, 0.2, 1) forwards;
+    }
+    @keyframes rise { to { opacity: 1; transform: none; } }
+    .card.hide { display: none; }
+
+    .thumb-wrap {
+      position: relative;
+      aspect-ratio: 16 / 10;
+      overflow: hidden;
+      background:
+        linear-gradient(135deg, var(--ink-3) 0%, var(--ink-2) 100%);
+      border: 1px solid var(--rule);
+      transition: border-color 160ms ease;
+    }
+    .card:hover .thumb-wrap { border-color: var(--accent-3); }
+    .thumb-wrap img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform 600ms cubic-bezier(0.2, 0.7, 0.2, 1),
+                  filter 600ms ease;
+      filter: saturate(0.95) contrast(1.02);
+    }
+    .card:hover .thumb-wrap img {
+      transform: scale(1.025);
+      filter: saturate(1.05) contrast(1.05);
+    }
+
+    /* Placeholder when image fails or missing */
+    .thumb-placeholder {
+      position: absolute; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--serif);
+      font-size: 96px;
+      font-weight: 400;
+      color: var(--rule);
+      letter-spacing: -0.04em;
+      pointer-events: none;
+    }
+
+    .idx {
+      position: absolute;
+      top: 12px; left: 12px;
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.14em;
+      color: var(--cream);
+      background: rgba(13, 12, 10, 0.78);
+      backdrop-filter: blur(4px);
+      padding: 5px 8px;
+      border: 1px solid rgba(241, 236, 224, 0.08);
+    }
+    .live-pill {
+      position: absolute;
+      top: 12px; right: 12px;
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.16em;
+      color: var(--cream);
+      background: rgba(13, 12, 10, 0.78);
+      backdrop-filter: blur(4px);
+      padding: 5px 8px;
+      border: 1px solid rgba(241, 236, 224, 0.08);
+      display: flex; align-items: center; gap: 6px;
+    }
+    .live-pill .ld {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-2);
+      animation: pulse 2.4s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { box-shadow: 0 0 0 3px var(--accent-2); }
+      50%      { box-shadow: 0 0 0 6px rgba(255, 59, 0, 0.05); }
+    }
+
+    .card-body { padding-top: 20px; }
+    h2.card-title {
+      font-family: var(--serif);
+      font-weight: 500;
+      font-size: 26px;
+      line-height: 1.1;
+      letter-spacing: -0.018em;
+      margin: 0 0 8px;
+      color: var(--cream);
+      font-variation-settings: "opsz" 60;
+    }
+    .tagline {
+      font-size: 14px;
+      line-height: 1.55;
+      color: var(--cream-2);
+      margin: 0 0 16px;
+    }
+
+    .pill-row { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 18px; }
+    .pill {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--muted);
+      padding: 3px 7px;
+      border: 1px solid var(--rule);
+    }
+
+    .demo-path-toggle {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      width: 100%;
+      background: transparent;
+      border: 0;
+      border-top: 1px solid var(--rule-soft);
+      padding: 12px 0 10px;
+      cursor: pointer;
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--muted);
+      transition: color 120ms;
+    }
+    .demo-path-toggle:hover { color: var(--cream); }
+    .demo-path-toggle .chev {
+      transition: transform 200ms ease;
+      width: 8px; height: 8px;
+      border-right: 1.5px solid currentColor;
+      border-bottom: 1.5px solid currentColor;
+      transform: rotate(45deg) translate(-2px, -2px);
+    }
+    .demo-path[open] .demo-path-toggle .chev {
+      transform: rotate(225deg) translate(-2px, -2px);
+    }
+    .demo-path { margin-top: 4px; }
+    .demo-path > summary { list-style: none; }
+    .demo-path > summary::-webkit-details-marker { display: none; }
+    .steps {
+      list-style: none;
+      margin: 0;
+      padding: 0 0 16px;
+      counter-reset: step;
+    }
+    .steps li {
+      counter-increment: step;
+      display: grid;
+      grid-template-columns: 24px 1fr;
+      gap: 12px;
+      padding: 8px 0;
+      font-size: 13px;
+      color: var(--cream-2);
+      line-height: 1.5;
+      border-bottom: 1px dashed var(--rule-soft);
+    }
+    .steps li:last-child { border-bottom: 0; }
+    .steps li::before {
+      content: counter(step, decimal-leading-zero);
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--accent);
+      letter-spacing: 0.06em;
+      padding-top: 3px;
+    }
+
+    .open-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      width: 100%;
+      padding: 14px 16px;
+      background: var(--cream);
+      color: var(--ink);
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      font-weight: 600;
+      border: 1px solid var(--cream);
+      cursor: pointer;
+      transition: background 160ms, color 160ms, border-color 160ms, transform 80ms;
+      margin-top: 6px;
+    }
+    .open-btn:hover {
+      background: var(--accent);
+      color: var(--ink);
+      border-color: var(--accent);
+    }
+    .open-btn:active { transform: scale(0.99); }
+    .open-btn .arr {
+      display: inline-block;
+      transition: transform 200ms cubic-bezier(0.2, 0.7, 0.2, 1);
+    }
+    .open-btn:hover .arr { transform: translateX(4px); }
+
+    /* ─── EMPTY STATE ─────────────────────────────────────────────── */
+    .empty {
+      padding: 80px 0;
+      text-align: center;
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--muted);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      display: none;
+    }
+    .empty.show { display: block; }
+
+    /* ─── FOOTER ──────────────────────────────────────────────────── */
+    footer.site {
+      padding: 28px 0 40px;
+      border-top: 1px solid var(--rule-soft);
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      align-items: center;
+      justify-content: space-between;
+    }
+    footer.site .left { display: flex; gap: 14px; flex-wrap: wrap; align-items: center; }
+    footer.site .sep { color: var(--muted-2); }
+    footer.site a:hover { color: var(--cream); }
+    footer.site a.linkedin {
+      border: 1px solid var(--rule);
+      padding: 5px 9px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+    footer.site a.linkedin:hover { border-color: var(--accent-3); color: var(--accent); }
+
+    /* ─── RESPONSIVE TWEAKS ───────────────────────────────────────── */
+    @media (max-width: 720px) {
+      .wrap { padding: 0 20px; }
+      header.site { padding: 36px 0 22px; }
+      .masthead { grid-template-columns: 1fr; }
+      .subtitle { text-align: left; max-width: none; }
+      .meta-count { display: none; }
+    }
+
+    /* ─── PRINT (just in case someone PDFs it) ────────────────────── */
+    @media print {
+      body { background: white; color: black; }
+      .open-btn, .demo-path-toggle, .live-pill { display: none; }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="wrap">
+
+    <header class="site">
+      <div class="topline">
+        <span class="dot" aria-hidden="true"></span>
+        <span>Internal · IAP-protected</span>
+        <span class="sep">/</span>
+        <span>v1 · {{ demos|length }} demos</span>
+        <span class="sep">/</span>
+        <span>updated 2026-06</span>
+      </div>
+
+      <div class="masthead">
+        <h1 class="title">
+          demos<em>.</em>sonrobots<em>.</em>net<span class="net-dot">.</span>
+        </h1>
+        <div class="subtitle">
+          A working portfolio.<br>
+          Every demo is <b>live</b> — click to open.
+        </div>
+      </div>
+    </header>
+
+    <div class="rule"></div>
+
+    <nav class="filter-rail" aria-label="Filter demos by capability">
+      <span class="filter-label">Filter</span>
+      <div class="chips" id="chips">
+        <button class="chip all active" data-tag="__all__" type="button">
+          All<span class="count">{{ demos|length }}</span>
+        </button>
+        {% for t in all_tags %}
+          <button class="chip" data-tag="{{ t }}" type="button">
+            {{ t }}<span class="count">{{ tag_counts[t] }}</span>
+          </button>
+        {% endfor %}
+      </div>
+      <span class="meta-count" id="meta-count">
+        <b>{{ demos|length }}</b> / {{ demos|length }} shown
+      </span>
+    </nav>
+
+    <div class="rule soft"></div>
+
+    <main>
+      <div class="grid" id="grid">
+        {% for d in demos %}
+        <article class="card"
+                 data-tags="{{ d.tags|join(' ') }}"
+                 style="animation-delay: {{ loop.index0 * 60 }}ms">
+
+          <div class="thumb-wrap">
+            <span class="thumb-placeholder" aria-hidden="true">
+              {{ '%02d' % loop.index }}
+            </span>
+            <img src="{{ url_for('static', path=d.thumb) }}"
+                 alt="{{ d.title }} screenshot"
+                 loading="lazy"
+                 onload="this.previousElementSibling.style.display='none'"
+                 onerror="this.style.display='none'">
+            <span class="idx">{{ '%02d' % loop.index }} / {{ '%02d' % demos|length }}</span>
+            <span class="live-pill"><span class="ld"></span>live</span>
+          </div>
+
+          <div class="card-body">
+            <h2 class="card-title">{{ d.title }}</h2>
+            <p class="tagline">{{ d.tagline }}</p>
+
+            <div class="pill-row">
+              {% for t in d.tags %}
+                <span class="pill">{{ t }}</span>
+              {% endfor %}
+            </div>
+
+            <details class="demo-path">
+              <summary class="demo-path-toggle">
+                <span class="chev" aria-hidden="true"></span>
+                <span>30-second demo path</span>
+              </summary>
+              <ol class="steps">
+                {% for step in d.demo_path %}
+                  <li>{{ step }}</li>
+                {% endfor %}
+              </ol>
+            </details>
+
+            <a class="open-btn"
+               href="{{ d.url }}"
+               target="_blank"
+               rel="noopener noreferrer">
+              <span>Open demo</span>
+              <span class="arr">→</span>
+            </a>
+          </div>
+        </article>
+        {% endfor %}
+      </div>
+
+      <div class="empty" id="empty">
+        No demos match the selected filter.
+      </div>
+    </main>
+
+    <footer class="site">
+      <div class="left">
+        <span>Jesus Chavez</span>
+        <span class="sep">·</span>
+        <a href="mailto:jesusarguelles@google.com">jesusarguelles@google.com</a>
+        <span class="sep">·</span>
+        <a href="mailto:jchavezar@gmail.com">jchavezar@gmail.com</a>
+      </div>
+      <a class="linkedin"
+         href="https://www.linkedin.com/in/jchavezar/"
+         target="_blank"
+         rel="noopener noreferrer">LinkedIn ↗</a>
+    </footer>
+
+  </div>
+
+  <script>
+    (function () {
+      const chips    = document.querySelectorAll('#chips .chip');
+      const cards    = document.querySelectorAll('#grid .card');
+      const meta     = document.getElementById('meta-count');
+      const empty    = document.getElementById('empty');
+      const total    = cards.length;
+      let activeTag  = '__all__';
+
+      function applyFilter() {
+        let shown = 0;
+        cards.forEach(card => {
+          const tags = (card.dataset.tags || '').split(' ').filter(Boolean);
+          const match = activeTag === '__all__' || tags.includes(activeTag);
+          card.classList.toggle('hide', !match);
+          if (match) shown += 1;
+        });
+        meta.innerHTML = '<b>' + shown + '</b> / ' + total + ' shown';
+        empty.classList.toggle('show', shown === 0);
+      }
+
+      chips.forEach(chip => {
+        chip.addEventListener('click', () => {
+          const tag = chip.dataset.tag;
+          if (tag === activeTag && tag !== '__all__') {
+            activeTag = '__all__';
+          } else {
+            activeTag = tag;
+          }
+          chips.forEach(c => c.classList.toggle('active', c.dataset.tag === activeTag));
+          applyFilter();
+        });
+      });
+    })();
+  </script>
+
+</body>
+</html>

@@ -81,13 +81,12 @@ PROJECT = os.environ.get("GOOGLE_CLOUD_PROJECT", "vtxdemos")
 LOCATION = os.environ.get("GOOGLE_CLOUD_LOCATION", "us-central1")
 GCS_BUCKET = os.environ.get("ENVATO_GCS_BUCKET", "envato-vibe-demo")
 
-INDEX_DISPLAY_NAME = os.environ.get("INDEX_DISPLAY_NAME", "envato-vibe-multimodal")
-ENDPOINT_DISPLAY_NAME = os.environ.get("ENDPOINT_DISPLAY_NAME", "envato-vibe-endpoint")
-DEPLOYED_INDEX_ID = os.environ.get("DEPLOYED_INDEX_ID", "envato_vibe_multimodal")
+INDEX_DISPLAY_NAME = "envato-vibe-multimodal"
+ENDPOINT_DISPLAY_NAME = "envato-vibe-endpoint"
+DEPLOYED_INDEX_ID = "envato_vibe_multimodal"
 
-FIRESTORE_SEGMENTS = os.environ.get("FIRESTORE_SEGMENTS_COLLECTION", "segments")
-FIRESTORE_UPLOADS = os.environ.get("FIRESTORE_UPLOADS_COLLECTION", "uploads")
-DATABASE_ID = os.environ.get("FIRESTORE_DATABASE_ID", "(default)")
+FIRESTORE_SEGMENTS = "segments"
+FIRESTORE_UPLOADS = "uploads"
 
 EMBED_MODEL = "gemini-embedding-2-preview"
 RESCUE_MODEL = "gemini-3.1-flash-lite-preview"  # global region
@@ -98,8 +97,6 @@ RESCUE_MODEL = "gemini-3.1-flash-lite-preview"  # global region
 SEARCH_BACKEND = os.environ.get("SEARCH_BACKEND", "vector-search").lower()
 if SEARCH_BACKEND not in ("vector-search", "bigquery"):
     raise ValueError(f"SEARCH_BACKEND must be 'vector-search' or 'bigquery', got {SEARCH_BACKEND!r}")
-
-PLAYGROUND_ONLY = os.environ.get("PLAYGROUND_ONLY", "False").lower() == "true"
 
 # "Talk to this Asset" — Gemini Live API + text fallback chat models.
 # Vertex AI uses the dash-suffixed preview model id; these can change with
@@ -173,7 +170,7 @@ def fs():
     global _FS
     if _FS is None:
         from google.cloud import firestore
-        _FS = firestore.Client(project=PROJECT, database=DATABASE_ID)
+        _FS = firestore.Client(project=PROJECT)
     return _FS
 
 
@@ -354,7 +351,10 @@ def _warm_vector_search() -> None:
 
 @app.on_event("startup")
 def _warm_caches() -> None:
-    warm_recent_queries()
+    # Both warmers run off the critical path so the server can bind 8080
+    # immediately and pass Cloud Run's TCP startup probe. Firestore cold-start
+    # was occasionally taking >60s and timing out the probe.
+    threading.Thread(target=warm_recent_queries, daemon=True).start()
     threading.Thread(target=_warm_vector_search, daemon=True).start()
 
 
@@ -386,13 +386,10 @@ def signed_url(gs_uri: str | None, hours: int = 1) -> str | None:
     the corpus is public-domain Pexels/Pixabay/Internet-Archive material.
     Return the direct https URL — no signing needed, works locally and on
     Cloud Run identically."""
-    if not gs_uri or not gs_uri.startswith("gs://"):
+    blob_path = gs_to_blob_path(gs_uri)
+    if not blob_path:
         return None
-    parts = gs_uri[5:].split("/", 1)
-    if len(parts) != 2:
-        return None
-    bucket_name, blob_path = parts
-    return f"https://storage.googleapis.com/{bucket_name}/{blob_path}"
+    return f"https://storage.googleapis.com/{GCS_BUCKET}/{blob_path}"
 
 
 def slugify(name: str) -> str:
@@ -447,9 +444,6 @@ def _vs_find_neighbors_native(q_vec: np.ndarray, *, k: int = 20,
     """Vertex AI Vector Search implementation."""
     ep = endpoint()
     restricts = []
-    env_restrict = os.environ.get("ENV_RESTRICTION", "")
-    if env_restrict:
-        restricts.append(_restrict("env", [env_restrict]))
     if modality and modality != "all":
         # Map UI modality → restrict tokens. SFX is its own modality bucket
         # in the index; users asking for "audio" want both music and sfx.
@@ -904,8 +898,6 @@ def _do_search(q_text: str, q_vec: np.ndarray, modality: str, limit: int,
 # ---------------------------------------------------------------------------
 @app.get("/", response_class=HTMLResponse)
 def home(request: Request):
-    if PLAYGROUND_ONLY:
-        return templates.TemplateResponse(request, "playground.html", {})
     return templates.TemplateResponse(request, "index_v2.html", {})
 
 
@@ -1096,110 +1088,6 @@ def api_health():
     return {"ok": True, "stats": {"segments_indexed": n}}
 
 
-class PlaygroundQueryRequest(BaseModel):
-    query_text: str
-    k: int = 10
-    modality: str | None = None
-    tempo: str | None = None
-    length: str | None = None
-    env_restriction: str | None = None
-
-
-@app.post("/api/playground/query")
-def api_playground_query(req: PlaygroundQueryRequest):
-    if not req.query_text or not req.query_text.strip():
-        raise HTTPException(400, "missing query_text")
-    
-    t0 = now_ms()
-    q_vec = embed_text(req.query_text)
-    t_embed_ms = ms_since(t0)
-    
-    # Formulate raw gRPC query structures for Vertex AI Vector Search using safe helper
-    
-    # Resolve index endpoint
-    try:
-        ep = endpoint()
-    except Exception as exc:
-        raise HTTPException(500, f"Could not load index endpoint: {exc}")
-        
-    restricts = []
-    env = req.env_restriction if req.env_restriction is not None else os.environ.get("ENV_RESTRICTION", "")
-    if env:
-        restricts.append(_restrict("env", [env]))
-    if req.modality and req.modality != "all":
-        if req.modality == "audio":
-            restricts.append(_restrict("modality", ["audio", "sfx"]))
-        else:
-            restricts.append(_restrict("modality", [req.modality]))
-    if req.tempo:
-        restricts.append(_restrict("tempo_bucket", [req.tempo]))
-    if req.length:
-        restricts.append(_restrict("length_bucket", [req.length]))
-        
-    # Construct the educational Raw Request payload representation
-    raw_grpc_request = {
-        "index_endpoint_name": ep.resource_name,
-        "deployed_index_id": DEPLOYED_INDEX_ID,
-        "queries": [
-            [round(float(x), 5) for x in q_vec[:32].tolist()] + ["... (3072 total dims)"]
-        ],
-        "num_neighbors": req.k,
-        "filter": [
-            {"namespace": ns.name, "allow_tokens": ns.allow_tokens}
-            for ns in restricts
-        ]
-    }
-    
-    t_vs = now_ms()
-    kwargs = {
-        "deployed_index_id": DEPLOYED_INDEX_ID,
-        "queries": [q_vec.tolist()],
-        "num_neighbors": req.k,
-    }
-    if restricts:
-        kwargs["filter"] = restricts
-        
-    try:
-        response = ep.find_neighbors(**kwargs)
-        vs_ms = ms_since(t_vs)
-        
-        # Construct raw gRPC response payload representation
-        raw_grpc_response = []
-        hits = []
-        if response and response[0]:
-            for n in response[0]:
-                raw_grpc_response.append({
-                    "id": n.id,
-                    "distance": round(float(n.distance), 6),
-                    "cosine_similarity": round(1.0 - float(n.distance), 6)
-                })
-                hits.append((n.id, 1.0 - float(n.distance)))
-        
-        # Hydrate segments from Firestore to display them on the left pane
-        t_hyd = now_ms()
-        results = hydrate_segments(hits)
-        hydrate_ms = ms_since(t_hyd)
-        
-        return {
-            "ok": True,
-            "latency_ms": {
-                "embed": round(t_embed_ms, 2),
-                "vector_search": round(vs_ms, 2),
-                "hydration": round(hydrate_ms, 2),
-                "total": round(ms_since(t0), 2)
-            },
-            "telemetry": {
-                "embed_dim": int(q_vec.shape[0]),
-                "embed_norm": round(float(np.linalg.norm(q_vec)), 6)
-            },
-            "raw_grpc_request": raw_grpc_request,
-            "raw_grpc_response": raw_grpc_response,
-            "results": results
-        }
-    except Exception as e:
-        raise HTTPException(500, f"Vector Search failed: {e}")
-
-
 @app.get("/api/search")
 def api_search(q: str,
                modality: Literal["all", "photo", "video", "audio", "graphic"] = "all",
@@ -1334,26 +1222,39 @@ def api_visualize(q: str,
         return JSONResponse({"query": q, "points": [], "total_ms": ms_since(t0)})
 
     score_by_id = {dp_id: float(s) for dp_id, s in hits}
-    ep = endpoint()
-    try:
-        dps = ep.read_index_datapoints(
-            deployed_index_id=DEPLOYED_INDEX_ID,
-            ids=[dp_id for dp_id, _ in hits],
-        )
-    except Exception as exc:
-        raise HTTPException(502, f"read_index_datapoints failed: {exc}")
+    ids_in_order = [dp_id for dp_id, _ in hits]
 
     vecs: list[np.ndarray] = []
     ordered_ids: list[str] = []
-    for dp in dps:
-        fv = getattr(dp, "feature_vector", None)
-        if fv is None:
-            continue
-        v = np.asarray(fv, dtype=np.float32)
-        if v.shape[0] == 0:
-            continue
-        vecs.append(v)
-        ordered_ids.append(getattr(dp, "datapoint_id", "") or getattr(dp, "id", ""))
+    if SEARCH_BACKEND == "bigquery":
+        try:
+            emb_by_id = _bq_backend().fetch_embeddings(ids_in_order)
+        except Exception as exc:
+            raise HTTPException(502, f"bq fetch_embeddings failed: {exc}")
+        for dp_id in ids_in_order:
+            v = emb_by_id.get(dp_id)
+            if v is None or v.shape[0] == 0:
+                continue
+            vecs.append(v)
+            ordered_ids.append(dp_id)
+    else:
+        ep = endpoint()
+        try:
+            dps = ep.read_index_datapoints(
+                deployed_index_id=DEPLOYED_INDEX_ID,
+                ids=ids_in_order,
+            )
+        except Exception as exc:
+            raise HTTPException(502, f"read_index_datapoints failed: {exc}")
+        for dp in dps:
+            fv = getattr(dp, "feature_vector", None)
+            if fv is None:
+                continue
+            v = np.asarray(fv, dtype=np.float32)
+            if v.shape[0] == 0:
+                continue
+            vecs.append(v)
+            ordered_ids.append(getattr(dp, "datapoint_id", "") or getattr(dp, "id", ""))
     if not vecs:
         return JSONResponse({"query": q, "points": [], "total_ms": ms_since(t0)})
 

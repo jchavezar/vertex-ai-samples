@@ -7,13 +7,14 @@ dependencies = [
     "fastmcp>=0.1.0",
     "requests>=2.31.0",
     "uvicorn>=0.27.0",
-<<<<<<< Updated upstream
     "google-cloud-secret-manager>=2.27.0",
-=======
-    "google-cloud-secret-manager>=2.20.0",
->>>>>>> Stashed changes
 ]
 
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["tools"]
+include = ["server.py", "auth.py"]
+

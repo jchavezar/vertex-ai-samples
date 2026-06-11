@@ -98,6 +98,32 @@ def find_neighbors(q_vec: np.ndarray, *, k: int = 20,
     return [(r.id, 1.0 - float(r.distance)) for r in rows]
 
 
+def fetch_embeddings(ids: Iterable[str]) -> dict[str, np.ndarray]:
+    """Return raw 3072-d embeddings for the given datapoint IDs.
+
+    Mirrors IndexEndpoint.read_index_datapoints(...) for the BQ backend so
+    /api/visualize can compute PCA without a Vector Search endpoint.
+    """
+    id_list = [str(x) for x in ids]
+    if not id_list:
+        return {}
+    sql = f"""
+    SELECT datapoint_id, embedding
+    FROM `{BQ_TABLE}`
+    WHERE datapoint_id IN UNNEST(@ids)
+    """
+    params = [bigquery.ArrayQueryParameter("ids", "STRING", id_list)]
+    job = client().query(
+        sql, job_config=bigquery.QueryJobConfig(query_parameters=params))
+    out: dict[str, np.ndarray] = {}
+    for r in job.result():
+        emb = r.embedding
+        if emb is None:
+            continue
+        out[r.datapoint_id] = np.asarray(list(emb), dtype=np.float32)
+    return out
+
+
 def fanout_all(q_vec: np.ndarray, *, k: int,
                tempo: str | None, length: str | None,
                modalities: Iterable[str],
