@@ -30,7 +30,7 @@ from auth import get_auth_manager
 
 # Target SharePoint drive ID for CWP Documents
 DRIVE_ID = "b!xFcXid_TF062rl7B3zkH6TUM2tlkfTlJulj7lM9_273ba-ph-3SyQ4G-wGVnxfpz"
-LOCAL_DIR = "/Users/jesusarguelles/Downloads/pwc_unzipped"
+LOCAL_DIR = "/usr/local/google/home/jesusarguelles/Downloads/pwc_unzipped" if os.path.exists("/usr/local/google/home/jesusarguelles/Downloads/pwc_unzipped") else "/Users/jesusarguelles/Downloads/pwc_unzipped"
 
 
 def ensure_sharepoint_folder(drive_id: str, rel_path: str, created_set: set):
