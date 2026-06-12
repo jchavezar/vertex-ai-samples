@@ -1,0 +1,957 @@
+body {
+  margin: 0;
+  font-family:
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu',
+    'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+code {
+  font-family:
+    source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
+}
+
+:root {
+  --text: white;
+  --gray-200: #b4b8bb;
+  --gray-300: #80868b;
+  --gray-500: #5f6368;
+  --gray-600: #80868b;
+  --gray-700: #5f6368;
+  --gray-800: #3c4043;
+  --gray-900: #202124;
+  --gray-1000: #0a0a0a;
+  --border-stroke: #444444;
+  --accent-blue: rgb(161, 228, 242);
+  --accent-blue-active-bg: #001233;
+  --accent-blue-active: #98beff;
+  --accent-blue-headers: #448dff;
+  --accent-green: rgb(168, 218, 181);
+  --midnight-blue: rgb(0, 18, 51);
+  --blue-30: #99beff;
+  --accent-red: #ff4600;
+  --background: var(--gray-900);
+  --color: var(--text);
+  scrollbar-color: var(--gray-600) var(--gray-900);
+  scrollbar-width: thin;
+  --font-family: 'google sans' 'Space Mono', monospace;
+  /* Colors */
+  --Neutral-00: #000;
+  --Neutral-5: #181a1b;
+  --Neutral-10: #1c1f21;
+  --Neutral-15: #232729;
+  --Neutral-20: #2a2f31;
+  --Neutral-30: #404547;
+  --Neutral-50: #707577;
+  --Neutral-60: #888d8f;
+  --Neutral-80: #c3c6c7;
+  --Neutral-90: #e1e2e3;
+  --Green-500: #0d9c53;
+  --Green-700: #025022;
+  --Blue-400: #80c1ff;
+  --Blue-500: #1f94ff;
+  --Blue-800: #0f3557;
+  --Red-400: #ff9c7a;
+  --Red-500: #ff4600;
+  --Red-600: #e03c00;
+  --Red-700: #bd3000;
+  --card-header: #2e96ff;
+  --card-border: #217bfe;
+  --card-background: #13151a;
+  --card-border-radius: 16px;
+
+  --breakpoint-md: 768px;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Google Sans Display', sans-serif;
+  background: var(--Neutral-00);
+}
+
+:root {
+  background: var(--Neutral-00);
+  color: var(--text);
+  font-family: var(--font-family);
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-weight: normal;
+}
+
+li {
+  list-style: none;
+}
+
+input,
+textarea {
+  font-family: var(--font-family);
+  background: none;
+  color: white;
+  border: none;
+  outline: none;
+  font-size: 18px;
+  resize: none;
+  user-select: text;
+}
+
+input::placeholder,
+textarea::placeholder {
+  user-select: none;
+}
+
+select {
+  font-family: inherit;
+  padding: 10px;
+  border: 1px solid var(--gray-700);
+  background: var(--background);
+  color: #fff;
+  border-radius: 4px;
+  font-size: 16px;
+  cursor: pointer;
+  accent-color: var(--text);
+}
+
+select:focus-visible {
+  outline: none;
+}
+button {
+  font-family: var(--font-family);
+  background: none;
+  color: white;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+  user-select: none;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+
+  &.primary {
+    background: #4285f4;
+  }
+  &.icon {
+    font-size: 1.2em;
+  }
+}
+
+.button {
+  background: var(--Neutral-30);
+  display: inline-flex;
+  padding: 10px;
+  border-radius: 8px;
+  gap: 4px;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.button .icon {
+  font-size: 1.2em;
+}
+
+button:focus {
+  outline: none;
+}
+
+button[disabled] {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+button .icon {
+  display: block;
+}
+
+.icon {
+  font-family: 'Material Symbols Outlined';
+  font-weight: 300;
+  line-height: 1;
+}
+
+.space-mono-regular {
+  font-family: 'Space Mono', monospace;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.space-mono-bold {
+  font-family: 'Space Mono', monospace;
+  font-weight: 700;
+  font-style: normal;
+}
+
+.space-mono-regular-italic {
+  font-family: 'Space Mono', monospace;
+  font-weight: 400;
+  font-style: italic;
+}
+
+.space-mono-bold-italic {
+  font-family: 'Space Mono', monospace;
+  font-weight: 700;
+  font-style: italic;
+}
+
+.hidden {
+  display: none;
+}
+
+.flex {
+  display: flex;
+}
+
+.h-screen-full {
+  height: 100vh;
+}
+
+.w-screen-full {
+  width: 100vw;
+}
+
+.flex-col {
+  flex-direction: column;
+}
+
+header {
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: fixed;
+  width: 100%;
+  z-index: 999;
+}
+
+header > * {
+  pointer-events: auto;
+}
+
+header:hover h1,
+header:hover .roomDescription,
+header:hover .createButton {
+  opacity: 1;
+}
+
+.simpleMode header {
+  opacity: 0;
+  transition: all 0.3s;
+}
+
+.simpleMode header:hover {
+  opacity: 1;
+}
+
+.streaming-console {
+  background: var(--Neutral-10);
+  color: var(--gray-300);
+  display: flex;
+  height: 100vh;
+  width: 100vw;
+}
+.streaming-console a,
+.streaming-console a:visited,
+.streaming-console a:active {
+  color: var(--gray-300);
+}
+.streaming-console .disabled {
+  pointer-events: none;
+}
+.streaming-console .disabled > * {
+  pointer-events: none;
+}
+.streaming-console main {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex-grow: 1;
+  gap: 1rem;
+  max-width: 100%;
+  overflow: hidden;
+}
+.streaming-console .main-app-area {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  width: 100%;
+}
+.streaming-console .function-call {
+  position: absolute;
+  top: 0;
+  width: 100%;
+  height: 50%;
+  overflow-y: auto;
+}
+
+@keyframes hover {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(-3.5px);
+  }
+}
+@keyframes pulse {
+  from {
+    scale: 1 1;
+  }
+  to {
+    scale: 1.2 1.2;
+  }
+}
+
+.action-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--Neutral-20);
+  color: var(--Neutral-60);
+  font-size: 1.25rem;
+  line-height: 1.75rem;
+  text-transform: lowercase;
+  cursor: pointer;
+  animation: opacity-pulse 3s ease-in infinite;
+  transition: all 0.2s ease-in-out;
+  width: 48px;
+  height: 48px;
+  border-radius: 18px;
+  border: 1px solid rgba(0, 0, 0, 0);
+  user-select: none;
+  cursor: pointer;
+}
+.action-button:focus {
+  border: 2px solid var(--Neutral-20);
+  outline: 2px solid var(--Neutral-80);
+}
+.action-button.outlined {
+  background: var(--Neutral-2);
+  border: 1px solid var(--Neutral-20);
+}
+.action-button .no-action {
+  pointer-events: none;
+}
+.action-button:hover {
+  background: rgba(0, 0, 0, 0);
+  border: 1px solid var(--Neutral-20);
+}
+.action-button.connected {
+  background: var(--Blue-800);
+  color: var(--Blue-500);
+}
+.action-button.connected:hover {
+  border: 1px solid var(--Blue-500);
+}
+
+@property --volume {
+  syntax: 'length';
+  inherit: false;
+  initial-value: 0px;
+}
+.disabled .mic-button:before,
+.mic-button.disabled:before {
+  background: rgba(0, 0, 0, 0);
+}
+
+.mic-button {
+  position: relative;
+  background-color: var(--accent-red);
+  z-index: 1;
+  color: black;
+  transition: all 0.2s ease-in;
+}
+.mic-button:focus {
+  border: 2px solid var(--Neutral-20);
+  outline: 2px solid var(--Red-500);
+}
+.mic-button:hover {
+  background-color: var(--Red-400);
+}
+.mic-button:before {
+  position: absolute;
+  z-index: -1;
+  top: calc(var(--volume) * -1);
+  left: calc(var(--volume) * -1);
+  display: block;
+  content: '';
+  opacity: 0.35;
+  background-color: var(--Red-500);
+  width: calc(100% + var(--volume) * 2);
+  height: calc(100% + var(--volume) * 2);
+  border-radius: 24px;
+  transition: all 0.02s ease-in-out;
+}
+
+.connect-toggle:focus {
+  border: 2px solid var(--Neutral-20);
+  outline: 2px solid var(--Neutral-80);
+}
+.connect-toggle:not(.connected) {
+  background-color: var(--Blue-500);
+  color: var(--Neutral-5);
+}
+
+.control-tray {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translate(-50%, 0);
+  display: inline-flex;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 8px;
+  padding-bottom: 18px;
+  z-index: 12;
+}
+.control-tray .disabled .action-button,
+.control-tray .action-button.disabled {
+  background: rgba(0, 0, 0, 0);
+  border: 1px solid var(--Neutral-30, #404547);
+  color: var(--Neutral-30);
+}
+.control-tray .connection-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 4px;
+}
+.control-tray .connection-container .connection-button-container {
+  border-radius: 27px;
+  border: 1px solid var(--Neutral-30);
+  background: var(--Neutral-5);
+  padding: 10px;
+}
+.control-tray .connection-container .text-indicator {
+  font-size: 11px;
+  color: var(--Blue-500);
+  user-select: none;
+}
+.control-tray .connection-container:not(.connected) .text-indicator {
+  opacity: 0;
+}
+
+.actions-nav {
+  background: var(--Neutral-5);
+  border: 1px solid var(--Neutral-30);
+  border-radius: 27px;
+  display: inline-flex;
+  gap: 12px;
+  align-items: center;
+  overflow: clip;
+  padding: 10px;
+  transition: all 0.6s ease-in;
+}
+.actions-nav > * {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+@keyframes opacity-pulse {
+  0% {
+    opacity: 0.9;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.9;
+  }
+}
+
+.top {
+  width: 100%;
+  flex-grow: 0;
+  flex-shrink: 0;
+  height: 30px;
+  display: flex;
+  align-self: flex-end;
+  align-items: center;
+  transition: all 0.2s ease-in;
+}
+
+.top button {
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  font-size: 1.25rem;
+  line-height: 1.75rem;
+  padding: 4px;
+}
+
+.keynote-companion {
+  align-items: center;
+  display: flex;
+  height: 100%;
+  justify-content: center;
+  position: relative;
+  width: 100%;
+}
+
+.counter-container {
+  position: absolute;
+  right: 2rem;
+  top: 2rem;
+  z-index: 10;
+}
+
+/* Modal */
+.modalShroud {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.modalShroud .modal {
+  background: var(--gray-900);
+  border: 1px solid var(--gray-800);
+  border-radius: 10px;
+  padding: 40px;
+  position: relative;
+  width: 100%;
+  @media (min-width: 768px) {
+    max-width: 500px;
+  }
+  max-height: 80vh;
+  overflow: auto;
+  margin: 20px;
+}
+
+.modalShroud .modal h2 {
+  margin-bottom: 20px;
+}
+
+.modalClose {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  color: white;
+  font-size: 24px;
+}
+
+/* UserSettings */
+.userSettings {
+  max-width: 480px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.userSettings p {
+  font-size: 14px;
+
+  @media (min-width: 768px) {
+    font-size: 18px;
+  }
+  line-height: 1.5;
+}
+
+.userSettings form {
+  margin-top: 10px;
+  padding-top: 20px;
+  border-top: 1px solid var(--gray-800);
+}
+
+.userSettingsButton {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #555;
+  transition: all 0.3s;
+  font-size: 16px;
+  @media (min-width: 768px) {
+    font-size: 18px;
+  }
+}
+
+.userSettingsButton .user-name {
+  display: none;
+  @media (min-width: 768px) {
+    display: block;
+  }
+}
+
+.userSettingsButton .icon {
+  font-size: 30px;
+}
+
+.userSettingsButton:hover {
+  color: white;
+}
+
+/* Form */
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+form .largeInput {
+  font-size: 16px;
+  @media (min-width: 768px) {
+    font-size: 28px;
+  }
+  border-bottom: 1px solid var(--gray-700);
+}
+
+form > div,
+form label,
+form details div {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  user-select: none;
+}
+
+form details > div {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+form summary {
+  margin-bottom: 10px;
+  cursor: pointer;
+}
+
+form input,
+form textarea {
+  border: 1px solid var(--gray-700);
+  border-radius: 5px;
+  padding: 10px;
+  font-size: 14px;
+  @media (min-width: 768px) {
+    font-size: 18px;
+  }
+  resize: none;
+  line-height: 1.4;
+}
+
+form input:focus,
+form textarea:focus {
+  background: #111;
+}
+
+form textarea {
+  resize: none;
+}
+
+form hr {
+  margin: 20px 0;
+}
+
+form button:first-of-type {
+  margin-top: 30px;
+}
+
+input[type='range'] {
+  padding: 0;
+  accent-color: var(--text);
+  flex: 1;
+}
+
+.checkbox {
+  flex-direction: row;
+  color: var(--gray-600);
+}
+
+.temperature {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+}
+
+.temperature span {
+  font-family: monospace;
+  font-size: 14px;
+}
+
+.colorPicker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.colorPicker li {
+  width: 20px;
+  height: 20px;
+  @media (min-width: 768px) {
+    width: 35px;
+    height: 35px;
+  }
+  border-radius: 100%;
+}
+
+.colorPicker li.active {
+  outline: 4px solid var(--text);
+}
+
+.colorPicker li button {
+  width: 100%;
+  height: 100%;
+  border-radius: 100%;
+  border: none;
+  cursor: pointer;
+}
+
+/* edit agent */
+
+.editAgent {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+  @media (min-width: 768px) {
+    gap: 50px;
+  }
+}
+
+.editAgent > div:first-child {
+  max-width: 500px;
+}
+
+.editAgent > div:nth-child(2) {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 30px;
+}
+
+.agentPreview {
+  width: 280px;
+  height: 280px;
+  background: var(--Neutral-00);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  pointer-events: none;
+  position: relative;
+}
+
+.agentPreview .agent {
+  position: static;
+  left: unset;
+  top: unset;
+  translate: 0 0 !important;
+}
+
+.voicePicker {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: center;
+}
+
+.voicePicker select {
+  accent-color: var(--Neutral-00);
+  color: white;
+  padding: 5px;
+  font-size: 16px;
+  border-radius: 5px;
+}
+
+.voicePicker select:focus-visible {
+  outline: none;
+}
+
+.sleep label {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: center;
+}
+
+.sleep input {
+  accent-color: white;
+}
+
+/* agenst */
+
+.roomInfo {
+  position: relative;
+}
+
+.roomInfo h1 {
+  font-size: 16px;
+  @media (min-width: 768px) {
+    font-size: 28px;
+  }
+  font-weight: normal;
+  display: flex;
+  align-items: center;
+  opacity: 0.5;
+  transition: all 0.2s;
+  text-align: left;
+}
+
+.roomInfo h1:hover,
+.roomInfo h1.active {
+  opacity: 1;
+}
+
+.roomInfo h1.black-font {
+  color: black;
+  opacity: 1;
+}
+
+.roomInfo .edit {
+  font-size: 22px;
+}
+
+.roomInfo .createButton {
+  opacity: 1;
+  @media (min-width: 768px) {
+    opacity: 0;
+  }
+}
+
+.roomName {
+  display: flex;
+}
+
+.roomDescription {
+  font-size: 16px;
+  color: var(--gray-500);
+  margin-top: 10px;
+  width: max-content;
+  max-width: 380px;
+  line-height: 1.5;
+  position: absolute;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.createButton {
+  transition: opacity 0.3s;
+  /* margin-left: 10px; */
+  background: var(--Blue-500);
+}
+
+.hint .createButton {
+  margin-top: 10px;
+}
+
+.deleteRoomButton {
+  background: var(--Red-500);
+  font-size: 12px;
+  margin-top: 15px;
+}
+
+.roomList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  position: absolute;
+  background: var(--gray-900);
+  border: 1px solid var(--gray-800);
+  padding: 20px;
+  border-radius: 8px;
+  width: 300px;
+  margin-top: 10px;
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.1s;
+  user-select: none;
+  max-height: 70vh;
+  overflow: auto;
+}
+
+.roomList.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.roomList h3 {
+  font-size: 15px;
+  margin-bottom: 10px;
+  color: var(--gray-500);
+}
+
+.roomList ul {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  border-bottom: 1px solid var(--gray-800);
+  padding-bottom: 20px;
+  margin-bottom: 5px;
+}
+
+.roomList li {
+  font-size: 22px;
+}
+
+.roomList li button {
+  color: var(--gray-500);
+  transition: all 0.2s;
+  width: 100%;
+}
+
+.roomList li.active button,
+.roomList li:hover button {
+  color: white;
+}
+
+.roomList .newRoomButton {
+  margin-top: 15px;
+}
+
+.error-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100dvh;
+  width: 100%;
+  background: black;
+  color: white;
+  gap: 48px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 99991;
+}
+
+.error-screen .error-message-container,
+.error-screen .error-raw-message-container {
+  width: 100%;
+  text-align: center;
+  max-width: 650px;
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+}
+
+.error-screen .close-button {
+  color: white;
+  font-size: 24px;
+}
+
+@keyframes breathe {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.02); }
+}
+
+.avatar-breathing {
+  animation: breathe 4s ease-in-out infinite;
+}
