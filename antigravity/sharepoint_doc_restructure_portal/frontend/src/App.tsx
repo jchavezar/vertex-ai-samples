@@ -221,6 +221,8 @@ export default function App() {
   // MS365 Auth States
   const [auth, setAuth] = useState<AuthState>({ authenticated: false });
   const [isVerifyingAuth, setIsVerifyingAuth] = useState(false);
+  const [loginUrl, setLoginUrl] = useState<string | null>(null);
+  const [isRedirecting, setIsRedirecting] = useState(false);
 
   // Ingestion form state (Manual upload)
   const [showIngestForm, setShowIngestForm] = useState(false);
@@ -345,22 +347,28 @@ export default function App() {
   };
 
   const startLoginFlow = async () => {
+    setIsRedirecting(true);
     try {
       const redirectUri = window.location.origin;
       const response = await fetch(`${API_BASE}/auth/login-url?redirect_uri=${encodeURIComponent(redirectUri)}`);
       if (response.ok) {
         const data = await response.json();
         if (data.login_url) {
+          setLoginUrl(data.login_url);
+          // Redirect the current window
           window.location.href = data.login_url;
         } else {
           alert("Error: Login URL not returned from backend.");
+          setIsRedirecting(false);
         }
       } else {
         const err = await response.json();
         alert("Failed to start login: " + (err.detail || 'Unknown error'));
+        setIsRedirecting(false);
       }
     } catch (e) {
       alert("Failed to start login: " + e);
+      setIsRedirecting(false);
     }
   };
 
@@ -630,6 +638,22 @@ export default function App() {
               >
                 <LogOut className="h-3 w-3" /> Disconnect
               </button>
+            </div>
+          ) : isRedirecting ? (
+            <div className="flex items-center gap-3 text-xs">
+              <span className="text-[#1a1a19] font-medium flex items-center gap-1.5">
+                <RefreshCw className="h-3 w-3 animate-spin text-blue-700" /> Opening Microsoft login...
+              </span>
+              {loginUrl && (
+                <a 
+                  href={loginUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-blue-700 hover:text-blue-900 underline font-bold uppercase text-[10px] tracking-wider"
+                >
+                  Click here if not redirected
+                </a>
+              )}
             </div>
           ) : (
             <button 
