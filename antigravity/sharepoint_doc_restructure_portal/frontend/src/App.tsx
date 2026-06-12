@@ -1283,7 +1283,10 @@ export default function App() {
           
           <div className="flex items-baseline justify-between px-6 py-5 border-b border-[#d8d6d0] bg-[#f4f3ef] shrink-0">
             <h3 className="font-bold text-[#1a1a19] text-xs tracking-widest uppercase">AETHER AI CONSOLE</h3>
-            <span className="text-[10px] text-[#7c7a75] uppercase">Connected: SharePoint Index</span>
+            <span className={`text-[10px] uppercase font-bold flex items-center gap-1.5 ${auth.authenticated ? "text-green-700" : "text-[#7c7a75]"}`}>
+              <span className={`h-1.5 w-1.5 rounded-full ${auth.authenticated ? "bg-green-500 animate-pulse" : "bg-gray-400"}`}></span>
+              {auth.authenticated ? "Connected: SharePoint Index" : "SharePoint Index: Offline"}
+            </span>
           </div>
 
           {/* Messages Scroller */}

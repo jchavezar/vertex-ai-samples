@@ -158,37 +158,30 @@ class MSALAuthManager:
                 print(f"[AUTH MANAGER] Failed to load session from shared cache: {e}")
 
     def start_flow(self, redirect_uri: str) -> str:
-        import secrets
-        import base64
-        import hashlib
-        
-        # Generate PKCE verifier and challenge
-        self.code_verifier = secrets.token_urlsafe(64)
-        sha256_hash = hashlib.sha256(self.code_verifier.encode('utf-8')).digest()
-        code_challenge = base64.urlsafe_b64encode(sha256_hash).decode('utf-8').replace('=', '')
-        
-        # Generate request URL
-        auth_url = self.app.get_authorization_request_url(
+        # Use MSAL's native flow initiation to correctly generate and attach PKCE parameters
+        self.pending_flow = self.app.initiate_auth_code_flow(
             scopes=GRAPH_SCOPES,
-            redirect_uri=redirect_uri,
-            code_challenge=code_challenge,
-            code_challenge_method="S256"
+            redirect_uri=redirect_uri
         )
-        return auth_url
+        return self.pending_flow["auth_uri"]
 
     def complete_flow(self, code: str, redirect_uri: str) -> dict:
-        if not hasattr(self, "code_verifier") or not self.code_verifier:
-            raise ValueError("No active authentication flow started or code verifier missing.")
+        if not self.pending_flow:
+            raise ValueError("No active authentication flow found. Please restart sign-in.")
         
-        result = self.app.acquire_token_by_authorization_code(
-            code=code,
-            scopes=GRAPH_SCOPES,
-            redirect_uri=redirect_uri,
-            code_verifier=self.code_verifier
+        # Build standard auth response dict containing code and state
+        auth_response = {
+            "code": code,
+            "state": self.pending_flow.get("state")
+        }
+        
+        result = self.app.acquire_token_by_auth_code_flow(
+            auth_code_flow=self.pending_flow,
+            auth_response=auth_response
         )
         
-        # Clear code verifier
-        self.code_verifier = None
+        # Clear pending flow
+        self.pending_flow = None
         
         if "access_token" in result:
             self.token = result["access_token"]
