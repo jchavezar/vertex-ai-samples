@@ -16,6 +16,27 @@ from google import genai
 from google.genai import types
 from google.cloud import firestore
 from google.cloud import bigquery
+import zipfile
+import io
+import xml.etree.ElementTree as ET
+
+def extract_text_from_docx(file_bytes: bytes) -> str:
+    try:
+        with zipfile.ZipFile(io.BytesIO(file_bytes)) as z:
+            xml_content = z.read("word/document.xml")
+            root = ET.fromstring(xml_content)
+            paragraphs = []
+            for paragraph in root.iter('{http://schemas.openxmlformats.org/wordprocessingml/2006/main}p'):
+                texts = []
+                for text_node in paragraph.iter('{http://schemas.openxmlformats.org/wordprocessingml/2006/main}t'):
+                    if text_node.text:
+                        texts.append(text_node.text)
+                if texts:
+                    paragraphs.append("".join(texts))
+            return "\n".join(paragraphs)
+    except Exception as e:
+        print(f"Error parsing docx: {e}")
+        return file_bytes.decode("utf-8", errors="ignore")
 
 app = FastAPI(title="SharePoint Restructure Portal API")
 
@@ -51,16 +72,124 @@ class MSALAuthManager:
         self.token: Optional[str] = None
         self.account_info: Optional[dict] = None
         self.pending_flow: Optional[dict] = None
-
-    def start_flow(self) -> dict:
-        self.pending_flow = self.app.initiate_device_flow(scopes=GRAPH_SCOPES)
-        return self.pending_flow
-
-    def complete_flow(self) -> dict:
-        if not self.pending_flow:
-            raise ValueError("No active authentication flow started.")
+        self.code_verifier: Optional[str] = None
         
-        result = self.app.acquire_token_by_device_flow(self.pending_flow)
+        # Load cached session from shared ms365-mcp-server if available
+        self._load_cached_session()
+
+    def is_token_expired(self, token: str) -> bool:
+        try:
+            parts = token.split('.')
+            if len(parts) != 3:
+                return True
+            payload_b64 = parts[1]
+            payload_b64 += '=' * (4 - len(payload_b64) % 4)
+            import base64
+            import json
+            import time
+            payload = json.loads(base64.urlsafe_b64decode(payload_b64).decode('utf-8'))
+            exp = payload.get('exp')
+            # Check if it expires in less than 60 seconds
+            if exp and exp < (time.time() + 60):
+                return True
+            return False
+        except Exception:
+            return True
+
+    def _save_cached_session(self, refresh_token: str):
+        import os
+        import json
+        cache_file = os.path.expanduser("~/vertex-ai-samples/semiautonomous-agents/ms365-mcp-server/.ms365_auth.json")
+        try:
+            data = {
+                "access_token": self.token,
+                "refresh_token": refresh_token,
+                "account": self.account_info,
+                "expires_at": None
+            }
+            with open(cache_file, "w") as f:
+                json.dump(data, f, indent=2)
+            print("[AUTH MANAGER] Refreshed session saved to shared cache.")
+        except Exception as e:
+            print(f"[AUTH MANAGER] Failed to save refreshed session: {e}")
+
+    def _load_cached_session(self):
+        import os
+        import json
+        cache_file = os.path.expanduser("~/vertex-ai-samples/semiautonomous-agents/ms365-mcp-server/.ms365_auth.json")
+        if os.path.exists(cache_file):
+            try:
+                with open(cache_file, "r") as f:
+                    data = json.load(f)
+                
+                # Check for direct tokens first
+                self.token = data.get("access_token")
+                self.account_info = data.get("account")
+                
+                # If we have a token, check if it's expired
+                if self.token and self.is_token_expired(self.token):
+                    # It's expired, try to refresh it using the refresh token
+                    refresh_token = data.get("refresh_token")
+                    if refresh_token:
+                        # Feed the refresh token back into MSAL
+                        result = self.app.acquire_token_by_refresh_token(
+                            refresh_token,
+                            scopes=GRAPH_SCOPES
+                        )
+                        if "access_token" in result:
+                            self.token = result["access_token"]
+                            self.account_info = {
+                                "username": result.get("id_token_claims", {}).get("preferred_username") or data.get("account", {}).get("username"),
+                                "name": result.get("id_token_claims", {}).get("name") or data.get("account", {}).get("name"),
+                                "tenant_id": result.get("id_token_claims", {}).get("tid") or data.get("account", {}).get("tenant_id"),
+                            }
+                            # Save the newly refreshed token back to the shared cache
+                            self._save_cached_session(refresh_token)
+                        else:
+                            print(f"[AUTH MANAGER] Silent token refresh failed: {result}")
+                            self.token = None
+                            self.account_info = None
+                    else:
+                        print("[AUTH MANAGER] Cached token is expired and no refresh token is available.")
+                        self.token = None
+                        self.account_info = None
+                print(f"[AUTH MANAGER] Successfully auto-loaded session for {self.account_info}")
+            except Exception as e:
+                print(f"[AUTH MANAGER] Failed to load session from shared cache: {e}")
+
+    def start_flow(self, redirect_uri: str) -> str:
+        import secrets
+        import base64
+        import hashlib
+        
+        # Generate PKCE verifier and challenge
+        self.code_verifier = secrets.token_urlsafe(64)
+        sha256_hash = hashlib.sha256(self.code_verifier.encode('utf-8')).digest()
+        code_challenge = base64.urlsafe_b64encode(sha256_hash).decode('utf-8').replace('=', '')
+        
+        # Generate request URL
+        auth_url = self.app.get_authorization_request_url(
+            scopes=GRAPH_SCOPES,
+            redirect_uri=redirect_uri,
+            code_challenge=code_challenge,
+            code_challenge_method="S256"
+        )
+        return auth_url
+
+    def complete_flow(self, code: str, redirect_uri: str) -> dict:
+        if not hasattr(self, "code_verifier") or not self.code_verifier:
+            raise ValueError("No active authentication flow started or code verifier missing.")
+        
+        result = self.app.acquire_token_by_authorization_code(
+            code=code,
+            scopes=GRAPH_SCOPES,
+            redirect_uri=redirect_uri,
+            code_verifier=self.code_verifier
+        )
+        
+        # Clear code verifier
+        self.code_verifier = None
+        
         if "access_token" in result:
             self.token = result["access_token"]
             self.account_info = {
@@ -68,25 +197,59 @@ class MSALAuthManager:
                 "name": result.get("id_token_claims", {}).get("name"),
                 "tenant_id": result.get("id_token_claims", {}).get("tid"),
             }
-            self.pending_flow = None
+            # Save the newly acquired token to the shared cache
+            import os
+            import json
+            cache_file = os.path.expanduser("~/vertex-ai-samples/semiautonomous-agents/ms365-mcp-server/.ms365_auth.json")
+            try:
+                data = {
+                    "access_token": self.token,
+                    "refresh_token": result.get("refresh_token"),
+                    "account": self.account_info,
+                    "expires_at": None
+                }
+                with open(cache_file, "w") as f:
+                    json.dump(data, f, indent=2)
+                print("[AUTH MANAGER] Auth code flow login saved to shared cache.")
+            except Exception as e:
+                print(f"[AUTH MANAGER] Failed to save login to shared cache: {e}")
+                
             return self.account_info
         else:
             raise Exception(result.get("error_description", "Authentication failed."))
 
     def get_token(self) -> Optional[str]:
+        # Try in-memory MSAL accounts
         accounts = self.app.get_accounts()
         if accounts:
             result = self.app.acquire_token_silent(scopes=GRAPH_SCOPES, account=accounts[0])
             if result and "access_token" in result:
                 self.token = result["access_token"]
+                return self.token
+        
+        # If in-memory is empty, try loading from shared cache again just in case it was refreshed elsewhere
+        self._load_cached_session()
         return self.token
 
     def logout(self):
         self.token = None
         self.account_info = None
         self.pending_flow = None
+        self.code_verifier = None
         for account in self.app.get_accounts():
             self.app.remove_account(account)
+        
+        # Clear shared cache file
+        import os
+        import json
+        cache_file = os.path.expanduser("~/vertex-ai-samples/semiautonomous-agents/ms365-mcp-server/.ms365_auth.json")
+        if os.path.exists(cache_file):
+            try:
+                with open(cache_file, "w") as f:
+                    json.dump({}, f)
+                print("[AUTH MANAGER] Shared cache cleared on logout.")
+            except Exception as e:
+                print(f"[AUTH MANAGER] Failed to clear shared cache file: {e}")
 
 auth_manager = MSALAuthManager()
 
@@ -402,22 +565,24 @@ MOCK_ONTOLOGY = {
 
 # --- ENDPOINTS ---
 
+class CompleteLoginPayload(BaseModel):
+    code: str
+    redirect_uri: str
+
 @app.get("/api/auth/login-url")
-def get_login_url():
+def get_login_url(redirect_uri: str):
     try:
-        flow = auth_manager.start_flow()
+        login_url = auth_manager.start_flow(redirect_uri)
         return JSONResponse({
-            "user_code": flow.get("user_code"),
-            "verification_uri": flow.get("verification_uri"),
-            "message": flow.get("message")
+            "login_url": login_url
         })
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/api/auth/complete")
-def complete_login():
+def complete_login(payload: CompleteLoginPayload):
     try:
-        account = auth_manager.complete_flow()
+        account = auth_manager.complete_flow(payload.code, payload.redirect_uri)
         return JSONResponse({"status": "authenticated", "account": account})
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
@@ -447,6 +612,8 @@ def list_sharepoint_sites(search: Optional[str] = ""):
         if r.status_code != 200:
             raise HTTPException(status_code=r.status_code, detail=r.text)
         return JSONResponse(r.json().get("value", []))
+    except HTTPException as he:
+        raise he
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -462,6 +629,8 @@ def list_site_drives(site_id: str):
         if r.status_code != 200:
             raise HTTPException(status_code=r.status_code, detail=r.text)
         return JSONResponse(r.json().get("value", []))
+    except HTTPException as he:
+        raise he
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -505,7 +674,7 @@ def run_crawler_task(request: SharePointImportRequest, token: str):
             log_crawler(f"Downloading file content bytes: {filename}...")
             dl_url = f"https://graph.microsoft.com/v1.0/drives/{request.drive_id}/items/{item_id}/content"
             try:
-                dl_resp = httpx.get(dl_url, headers=headers, timeout=30)
+                dl_resp = httpx.get(dl_url, headers=headers, timeout=30, follow_redirects=True)
                 if dl_resp.status_code != 200:
                     log_crawler(f"Error: Failed to download content for {filename} (HTTP {dl_resp.status_code})")
                     continue
@@ -517,12 +686,19 @@ def run_crawler_task(request: SharePointImportRequest, token: str):
             # DLP Scan
             log_crawler(f"Checking for unredacted PII patterns on {filename} (SR02)...")
             pii_found = False
-            if mime_type.startswith("text/") or mime_type in ["application/pdf", "application/vnd.openxmlformats-officedocument.wordprocessingml.document"]:
-                # Simple extraction for text checks
-                text_content = file_bytes.decode("utf-8", errors="ignore")
-                if "SSN" in text_content or "000-12" in text_content:
-                    pii_found = True
-                    log_crawler(f"WARNING: Sensitive patterns detected. Content is safely retained for semantic training.")
+            
+            dlp_text_content = ""
+            if mime_type == "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
+                dlp_text_content = extract_text_from_docx(file_bytes)
+            elif mime_type.startswith("text/"):
+                dlp_text_content = file_bytes.decode("utf-8", errors="ignore")
+            else:
+                # PDF or other binary (we can fallback to basic decode, or just leave empty for simple pattern matching)
+                dlp_text_content = file_bytes.decode("utf-8", errors="ignore")
+
+            if "SSN" in dlp_text_content or "000-12" in dlp_text_content:
+                pii_found = True
+                log_crawler(f"WARNING: Sensitive patterns detected. Content is safely retained for semantic training.")
 
             # Gemini Taxonomy Classification
             log_crawler(f"Calling Gemini 3.5 Flash classifier to process taxonomy metadata for {filename} (FR01, FR10, FR37)...")
@@ -548,7 +724,18 @@ def run_crawler_task(request: SharePointImportRequest, token: str):
             """
 
             try:
-                if mime_type in ["application/pdf", "application/vnd.openxmlformats-officedocument.wordprocessingml.document"] or mime_type.startswith("text/"):
+                if mime_type == "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
+                    docx_text = extract_text_from_docx(file_bytes)
+                    resp = client.models.generate_content(
+                        model=ACTIVE_MODEL,
+                        contents=[f"Document Content:\n{docx_text}\n\n", prompt],
+                        config=types.GenerateContentConfig(
+                            response_mime_type="application/json",
+                            response_schema=ExtractedCorporateMetadata,
+                            temperature=0.0
+                        )
+                    )
+                elif mime_type == "application/pdf" or mime_type.startswith("text/"):
                     part = types.Part.from_bytes(data=file_bytes, mime_type=mime_type)
                     resp = client.models.generate_content(
                         model=ACTIVE_MODEL,

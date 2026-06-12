@@ -23,6 +23,8 @@ GRAPH_SCOPES = [
     "Team.ReadBasic.All",
     "Channel.ReadBasic.All",
     "Chat.ReadWrite",
+    "Application.ReadWrite.All",
+    "Directory.ReadWrite.All",
 ]
 
 
@@ -50,10 +52,12 @@ class MSALAuthManager:
         self.client_id = client_id
         self.tenant_id = tenant_id
         self.authority = authority or f"https://login.microsoftonline.com/{tenant_id}"
-        self.cache_path = "/Users/jesusarguelles/IdeaProjects/vertex-ai-samples/semiautonomous-agents/ms365-mcp-server/.ms365_auth.json"
-
         # Thread-safe token cache
         self._lock = threading.Lock()
+        
+        # Determine path relative to script directory
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        self.cache_path = os.path.join(current_dir, ".ms365_auth.json")
         
         # Generate encryption key for token storage (per-instance)
         self._encryption_key = Fernet.generate_key()

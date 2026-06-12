@@ -10,7 +10,7 @@ set -o pipefail
 
 # Resolve paths
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-VENV_PYTHON="/usr/local/google/home/jesusarguelles/vertex-ai-samples/antigravity/light_mcp_portal/.venv/bin/python"
+VENV_PYTHON="/usr/local/google/home/jesusarguelles/vertex-ai-samples/antigravity/sharepoint_doc_restructure_portal/.venv/bin/python"
 
 # PIDs list to kill on exit
 PIDS=()

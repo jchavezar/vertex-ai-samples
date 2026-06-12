@@ -26,7 +26,7 @@ import {
   HelpCircle
 } from 'lucide-react';
 
-const API_BASE = "http://localhost:8095/api";
+const API_BASE = "/api";
 
 interface Document {
   id: string;
@@ -220,8 +220,6 @@ export default function App() {
   
   // MS365 Auth States
   const [auth, setAuth] = useState<AuthState>({ authenticated: false });
-  const [showAuthModal, setShowAuthModal] = useState(false);
-  const [loginFlow, setLoginFlow] = useState<{ user_code: string; verification_uri: string } | null>(null);
   const [isVerifyingAuth, setIsVerifyingAuth] = useState(false);
 
   // Ingestion form state (Manual upload)
@@ -261,10 +259,46 @@ export default function App() {
 
   const chatEndRef = useRef<HTMLDivElement>(null);
 
+  const handleOAuthCallback = async (code: string) => {
+    setIsVerifyingAuth(true);
+    try {
+      const redirectUri = window.location.origin;
+      const response = await fetch(`${API_BASE}/auth/complete`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ code, redirect_uri: redirectUri }),
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setAuth({ authenticated: true, account: data.account });
+        alert("Login successful!");
+      } else {
+        const err = await response.json();
+        alert(`Authentication failed: ${err.detail || 'Unknown error'}`);
+      }
+    } catch (e) {
+      alert("Verification failed: " + e);
+    } finally {
+      setIsVerifyingAuth(false);
+      // Clean query parameter from address bar
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+  };
+
   useEffect(() => {
     fetchDocuments();
     fetchOntology();
-    checkAuthStatus();
+    
+    // Check if we are returning from Microsoft OAuth redirect with code parameter
+    const urlParams = new URLSearchParams(window.location.search);
+    const code = urlParams.get('code');
+    if (code) {
+      handleOAuthCallback(code);
+    } else {
+      checkAuthStatus();
+    }
   }, []);
 
   useEffect(() => {
@@ -305,9 +339,6 @@ export default function App() {
       const response = await fetch(`${API_BASE}/auth/status`);
       const data = await response.json();
       setAuth(data);
-      if (data.authenticated) {
-        // Auth session resolves automatically
-      }
     } catch (e) {
       console.error("Auth status check failed:", e);
     }
@@ -315,33 +346,21 @@ export default function App() {
 
   const startLoginFlow = async () => {
     try {
-      const response = await fetch(`${API_BASE}/auth/login-url`);
-      const data = await response.json();
-      setLoginFlow(data);
-      setShowAuthModal(true);
-    } catch (e) {
-      alert("Failed to start login: " + e);
-    }
-  };
-
-  const completeLoginFlow = async () => {
-    setIsVerifyingAuth(true);
-    try {
-      const response = await fetch(`${API_BASE}/auth/complete`, { method: 'POST' });
+      const redirectUri = window.location.origin;
+      const response = await fetch(`${API_BASE}/auth/login-url?redirect_uri=${encodeURIComponent(redirectUri)}`);
       if (response.ok) {
         const data = await response.json();
-        setAuth({ authenticated: true, account: data.account });
-        setShowAuthModal(false);
-        setLoginFlow(null);
-        alert("Login successful!");
+        if (data.login_url) {
+          window.location.href = data.login_url;
+        } else {
+          alert("Error: Login URL not returned from backend.");
+        }
       } else {
         const err = await response.json();
-        alert(`Verification rejected: ${err.detail}`);
+        alert("Failed to start login: " + (err.detail || 'Unknown error'));
       }
     } catch (e) {
-      alert("Verification failed: " + e);
-    } finally {
-      setIsVerifyingAuth(false);
+      alert("Failed to start login: " + e);
     }
   };
 
@@ -1357,57 +1376,19 @@ export default function App() {
         </div>
       </footer>
 
-      {/* 4. MSAL Authentication Flow Modal */}
-      {showAuthModal && loginFlow && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-[#faf9f6] border border-[#1a1a19] p-8 max-w-md w-full rounded-none">
-            <h3 className="font-bold text-sm tracking-wider uppercase mb-4 flex items-center gap-2 border-b border-[#d8d6d0] pb-2">
-              <Shield className="h-4 w-4 text-blue-700" /> Microsoft Enterprise Authenticator
+      {/* MSAL Authentication Verification Loading Overlay */}
+      {isVerifyingAuth && (
+        <div className="fixed inset-0 bg-black/45 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-[#faf9f6] border border-[#1a1a19] p-8 max-w-sm w-full rounded-none shadow-xl text-center">
+            <div className="flex justify-center mb-4">
+              <Shield className="h-8 w-8 text-blue-700 animate-pulse" />
+            </div>
+            <h3 className="font-bold text-sm tracking-wider uppercase mb-2 text-[#1a1a19]">
+              Authenticating Connection
             </h3>
-            
-            <div className="space-y-4 text-xs leading-relaxed">
-              <p>To access your live SharePoint files from <strong>sockcop.sharepoint.com</strong>, complete the delegated login sequence:</p>
-              
-              <div className="bg-[#f4f3ef] border border-[#d8d6d0] p-4 rounded-none">
-                <span className="font-bold uppercase text-[9px] text-[#7c7a75] block mb-2">Step 1: Open Device Login page</span>
-                <a 
-                  href={loginFlow.verification_uri} 
-                  target="_blank" 
-                  rel="noreferrer" 
-                  className="text-blue-700 underline font-mono block break-all font-semibold"
-                >
-                  {loginFlow.verification_uri}
-                </a>
-              </div>
-
-              <div className="bg-[#f4f3ef] border border-[#d8d6d0] p-4 rounded-none">
-                <span className="font-bold uppercase text-[9px] text-[#7c7a75] block mb-1">Step 2: Enter authentication code</span>
-                <div className="text-lg font-mono font-bold text-[#1a1a19] tracking-wider select-all">
-                  {loginFlow.user_code}
-                </div>
-              </div>
-
-              <p className="text-[10px] text-[#7c7a75]">Once logged in on your laptop browser, click the confirmation button below to finalize credentials exchange.</p>
-            </div>
-
-            <div className="flex gap-3 mt-6">
-              <button 
-                onClick={completeLoginFlow}
-                disabled={isVerifyingAuth}
-                className="flex-1 bg-[#1a1a19] text-[#faf9f6] text-xs font-semibold py-3 uppercase tracking-wider hover:opacity-90 rounded-none disabled:opacity-50"
-              >
-                {isVerifyingAuth ? "Verifying..." : "Complete Login"}
-              </button>
-              <button 
-                onClick={() => {
-                  setShowAuthModal(false);
-                  setLoginFlow(null);
-                }}
-                className="border border-[#d8d6d0] text-[#7c7a75] hover:bg-gray-50 text-xs font-semibold py-3 px-4 uppercase rounded-none"
-              >
-                Cancel
-              </button>
-            </div>
+            <p className="text-xs text-[#7c7a75] leading-relaxed">
+              Exchanging authorization parameters with Microsoft Enterprise services. Please wait...
+            </p>
           </div>
         </div>
       )}
