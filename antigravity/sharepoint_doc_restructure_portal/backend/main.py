@@ -65,9 +65,12 @@ bq_client = bigquery.Client(project=PROJECT_ID)
 # --- MSAL AUTHENTICATION MANAGER ---
 class MSALAuthManager:
     def __init__(self):
+        import requests
+        self.http_session = requests.Session()
         self.app = msal.PublicClientApplication(
             client_id=MS365_CLIENT_ID,
-            authority=f"https://login.microsoftonline.com/{MS365_TENANT_ID}"
+            authority=f"https://login.microsoftonline.com/{MS365_TENANT_ID}",
+            http_client=self.http_session
         )
         self.token: Optional[str] = None
         self.account_info: Optional[dict] = None
@@ -158,6 +161,12 @@ class MSALAuthManager:
                 print(f"[AUTH MANAGER] Failed to load session from shared cache: {e}")
 
     def start_flow(self, redirect_uri: str) -> str:
+        # Inject the correct Origin header matching the redirect URI origin to support SPA client configurations
+        from urllib.parse import urlparse
+        parsed = urlparse(redirect_uri)
+        origin = f"{parsed.scheme}://{parsed.netloc}"
+        self.http_session.headers["Origin"] = origin
+
         # Use MSAL's native flow initiation to correctly generate and attach PKCE parameters
         self.pending_flow = self.app.initiate_auth_code_flow(
             scopes=GRAPH_SCOPES,
@@ -169,6 +178,12 @@ class MSALAuthManager:
         if not self.pending_flow:
             raise ValueError("No active authentication flow found. Please restart sign-in.")
         
+        # Inject the correct Origin header matching the redirect URI origin to support SPA client configurations
+        from urllib.parse import urlparse
+        parsed = urlparse(redirect_uri)
+        origin = f"{parsed.scheme}://{parsed.netloc}"
+        self.http_session.headers["Origin"] = origin
+
         # Build standard auth response dict containing code and state
         auth_response = {
             "code": code,
