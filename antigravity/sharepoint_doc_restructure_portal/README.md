@@ -41,13 +41,83 @@ The **SharePoint Document Restructure & AI Governance Portal** solves this chall
 
 ---
 
-## 2. Zero-Leak Compliance Pipeline (Infographic)
+## 2. Secure Ingestion & Compliance Guardrail
 
-For business and compliance sponsors, this high-level pipeline infographic shows the end-to-end flow of raw corporate knowledge as it is synchronized, sanitized, classified, and made available for secure search—guaranteeing that role-based permissions are respected at every stage.
+For business and compliance sponsors, the following interactive diagram illustrates the end-to-end lifecycle of corporate knowledge as it is synchronized, sanitized, classified, and made available for secure search—guaranteeing that role-based permissions and sensitive data guards are respected at every stage.
 
-<div align="center">
-  <img src="./assets/zero_leak_compliance_infographic.png" alt="Zero-Leak AI Document Shield Infographic" width="800px" style="border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.3); margin: 20px 0;" />
-</div>
+```mermaid
+flowchart TD
+    %% Styling
+    classDef spool fill:#e1f5fe,stroke:#0288d1,stroke-width:1.5px,color:#01579b;
+    classDef crawler fill:#e8f5e9,stroke:#388e3c,stroke-width:1.5px,color:#1b5e20;
+    classDef security fill:#ffebee,stroke:#c62828,stroke-width:1.5px,color:#b71c1c;
+    classDef ai fill:#ede7f6,stroke:#5e35b1,stroke-width:1.5px,color:#311b92;
+    classDef storage fill:#fff3e0,stroke:#ef6c00,stroke-width:1.5px,color:#e65100;
+    classDef review fill:#fdfbf7,stroke:#fbc02d,stroke-width:1.5px,color:#f57f17;
+
+    subgraph SPO ["1. Microsoft 365 Tenant / Source"]
+        direction LR
+        Docs[SharePoint Document Libraries]:::spool
+    end
+
+    subgraph INGEST ["2. Ingestion Daemon (Cloud Run Backend)"]
+        direction TB
+        Poll[Incremental Crawler: Scan SharePoint]:::crawler
+        CheckDb{Is document already indexed?}:::crawler
+        Skip[Skip download & keep index]:::crawler
+        Fetch[Download File Stream]:::crawler
+    end
+
+    subgraph GOV ["3. Automated Security & DLP Guardrails"]
+        direction TB
+        DLP[Cloud DLP Scan: Pattern Matching]:::security
+        CheckPII{PII Detected?}:::security
+        Flag[Flag document for manual review]:::security
+    end
+
+    subgraph COG ["4. AI Processing & Document Understanding"]
+        direction TB
+        Gemini[Gemini 3.5 Flash: Taxonomy Classifier]:::ai
+        Extract[Extract 3-Level Taxonomy, Confidence & Rationale]:::ai
+        CheckConf{Confidence >= Threshold & No PII?}:::ai
+    end
+
+    subgraph HITL ["5. Human-in-the-Loop (QA Overrides)"]
+        direction TB
+        Queue[Compliance Review Queue]:::review
+        Admin[Manual Metadata Adjustment]:::review
+        Approve[Commit Override]:::review
+    end
+
+    subgraph DEST ["6. Storage, Audit, & Indexing Services"]
+        direction LR
+        Firestore[(Cloud Firestore: State Store)]:::storage
+        BQ[(BigQuery: Enterprise Ledger)]:::storage
+        Vector[(Vertex AI Search: Vector Index)]:::storage
+    end
+
+    %% Flow transitions
+    Docs -->|Secure Stream via Graph API| Poll
+    Poll --> CheckDb
+    CheckDb -->|Yes| Skip
+    CheckDb -->|No| Fetch
+    Fetch --> DLP
+    DLP --> CheckPII
+    CheckPII -->|Yes| Flag
+    CheckPII -->|No| Gemini
+    Flag --> Queue
+    Gemini --> Extract
+    Extract --> CheckConf
+    CheckConf -->|Yes| Firestore
+    CheckConf -->|Yes| Vector
+    CheckConf -->|No / Low Confidence| Queue
+    Queue --> Admin
+    Admin --> Approve
+    Approve --> Firestore
+    Approve --> Vector
+    Approve --> BQ
+    Firestore -.->|Audit Entry| BQ
+```
 
 ---
 
@@ -108,19 +178,9 @@ The portal provides an intuitive, streamlined workflow for both administrators (
 
 ---
 
-## 4. Google Cloud Target Architecture
+## 4. Google Cloud Target Architecture & Trust Boundaries
 
-For IT architects and technical managers, this architecture diagram maps the secure boundaries, compute nodes, and serverless APIs on Google Cloud Platform.
-
-<div align="center">
-  <img src="./assets/customer_architecture_infographic.png" alt="Google Cloud Target Architecture Diagram" width="800px" style="border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.3); margin: 20px 0;" />
-</div>
-
-> [!NOTE]
-> The diagram above represents our production deployment model. The system can also render as a live Mermaid flowchart by expanding the panel below.
-
-<details>
-<summary><b>📐 View Interactive Mermaid Flowchart</b></summary>
+For IT architects and technical managers, this architecture diagram maps the secure boundaries, compute nodes, and serverless APIs on Google Cloud Platform, highlighting the clean structural decoupling of services.
 
 ```mermaid
 graph TB
@@ -195,7 +255,41 @@ graph TB
     Crawler -->|Index Vectors & ACL Metadata| VectorSearch
     Backend -->|Permission-Aware Query| VectorSearch
 ```
-</details>
+
+### Zero-Leak Access-Aware RAG Flow
+
+The following sequence diagram details the runtime flow when a user queries the retrieval system. It highlights the strict access boundary where the user's active Microsoft Entra ID transitive groups are checked in real-time, and document results are mathematically pre-filtered at the database tier before reaching the Generative AI model.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor User as Corporate User
+    participant Frontend as Cloud Run Frontend
+    participant Backend as Cloud Run Backend
+    participant Entra as Microsoft Entra ID
+    participant Vector as Vertex AI Search (Vector DB)
+    participant Gemini as Vertex AI (Gemini LLM)
+
+    User->>Frontend: Enter search query / Chat message
+    Note over User,Frontend: Session is authenticated via OAuth JWT
+    Frontend->>Backend: Forward query + User JWT
+    Backend->>Entra: GET /me/transitiveMemberOf (M365 Graph)
+    Note over Backend,Entra: Fetches active Security Group IDs in real-time
+    Entra-->>Backend: Return Security Groups [Group_A, Group_B, ...]
+    
+    rect rgb(230, 245, 230)
+        Note over Backend,Vector: Zero-Leak Data Isolation boundary
+        Backend->>Vector: Query embeddings + pre-filter metadata
+        Note over Backend,Vector: Filter: "acl_groups OVERLAPS [Group_A, Group_B]"
+        Vector-->>Backend: Return matching document chunks
+        Note over Vector,Backend: No unauthorized document chunks are ever retrieved
+    end
+
+    Backend->>Gemini: Prompt + GROUNDING with authorized chunks only
+    Gemini-->>Backend: Return grounded conversational answer
+    Backend-->>Frontend: Stream answer with secure citation links
+    Frontend-->>User: Render styled answer & clickable citations
+```
 
 ### Architectural Component Mapping & Justifications
 
@@ -221,10 +315,6 @@ To help developers quickly navigate our codebase and understand where key operat
 
 ```
 sharepoint_doc_restructure_portal/
-├── assets/                           # High-fidelity marketing & architecture infographics
-│   ├── zero_leak_compliance_infographic.png  # Business-facing executive overview
-│   ├── customer_architecture_infographic.png  # GCP Infrastructure architecture diagram
-│   └── sharepoint_portal_mockup.png  # Screenshot of the live portal interface
 ├── backend/                          # FastAPI Backend Engine (Python 3.11+)
 │   ├── main.py                       # Core API orchestrator, Graph sync loop & Gemini extraction
 │   └── uvicorn.log                   # Service startup and execution logs
