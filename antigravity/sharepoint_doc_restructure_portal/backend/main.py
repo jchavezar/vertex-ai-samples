@@ -108,6 +108,7 @@ class MSALAuthManager:
                 "access_token": self.token,
                 "refresh_token": refresh_token,
                 "account": self.account_info,
+                "origin": getattr(self, "origin", "http://localhost:5185"),
                 "expires_at": None
             }
             with open(cache_file, "w") as f:
@@ -128,6 +129,8 @@ class MSALAuthManager:
                 # Check for direct tokens first
                 self.token = data.get("access_token")
                 self.account_info = data.get("account")
+                self.origin = data.get("origin") or "http://localhost:5185"
+                self.http_session.headers["Origin"] = self.origin
                 
                 # If we have a token, check if it's expired
                 if self.token and self.is_token_expired(self.token):
@@ -166,6 +169,7 @@ class MSALAuthManager:
         parsed = urlparse(redirect_uri)
         origin = f"{parsed.scheme}://{parsed.netloc}"
         self.http_session.headers["Origin"] = origin
+        self.origin = origin
 
         # Use MSAL's native flow initiation to correctly generate and attach PKCE parameters
         self.pending_flow = self.app.initiate_auth_code_flow(
@@ -183,6 +187,7 @@ class MSALAuthManager:
         parsed = urlparse(redirect_uri)
         origin = f"{parsed.scheme}://{parsed.netloc}"
         self.http_session.headers["Origin"] = origin
+        self.origin = origin
 
         # Build standard auth response dict containing code and state
         auth_response = {
@@ -214,6 +219,7 @@ class MSALAuthManager:
                     "access_token": self.token,
                     "refresh_token": result.get("refresh_token"),
                     "account": self.account_info,
+                    "origin": origin,
                     "expires_at": None
                 }
                 with open(cache_file, "w") as f:
