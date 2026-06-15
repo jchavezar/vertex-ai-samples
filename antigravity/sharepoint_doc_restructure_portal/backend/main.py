@@ -651,25 +651,42 @@ def run_crawler_task(request: SharePointImportRequest, token: str):
     try:
         log_crawler(f"Initializing SharePoint Sync for site_id={request.site_id}...")
         headers = {"Authorization": f"Bearer {token}"}
+        
+        all_files = []
+        
+        def fetch_all_files_recursively(url: str, current_path: str = ""):
+            log_crawler(f"Scanning Graph API directory path: {current_path or '/'}")
+            try:
+                r = httpx.get(url, headers=headers, timeout=15)
+                if r.status_code != 200:
+                    log_crawler(f"Error listing directory: {r.text}")
+                    return
+                items = r.json().get("value", [])
+                for item in items:
+                    if "folder" in item:
+                        folder_id = item.get("id")
+                        folder_name = item.get("name")
+                        sub_url = f"https://graph.microsoft.com/v1.0/drives/{request.drive_id}/items/{folder_id}/children"
+                        fetch_all_files_recursively(sub_url, current_path + "/" + folder_name)
+                    else:
+                        item["folder_path_display"] = current_path or "/"
+                        all_files.append(item)
+            except Exception as e:
+                log_crawler(f"Exception listing directory {url}: {e}")
+
         list_url = f"https://graph.microsoft.com/v1.0/drives/{request.drive_id}/root/children"
         if request.folder_path != "/":
             list_url = f"https://graph.microsoft.com/v1.0/drives/{request.drive_id}/root:{request.folder_path}:/children"
 
-        log_crawler("Fetching directory folders mapping from Microsoft Graph API...")
-        r = httpx.get(list_url, headers=headers, timeout=15)
-        if r.status_code != 200:
-             raise Exception(f"Graph API drive listing failed: {r.text}")
+        log_crawler("Fetching directory folders mapping recursively from Microsoft Graph API...")
+        fetch_all_files_recursively(list_url, request.folder_path if request.folder_path != "/" else "")
         
-        files = r.json().get("value", [])
-        log_crawler(f"Found {len(files)} files/folders in target directory.")
+        log_crawler(f"Recursive scan completed. Found a total of {len(all_files)} files across all nested directories.")
 
         current_docs = load_documents_from_store()
-        CRAWLER_STATUS["total_count"] = len([f for f in files if "folder" not in f])
+        CRAWLER_STATUS["total_count"] = len(all_files)
 
-        for file in files:
-            if "folder" in file:
-                continue
-            
+        for file in all_files:
             filename = file.get("name")
             item_id = file.get("id")
             web_url = file.get("webUrl")
@@ -677,6 +694,7 @@ def run_crawler_task(request: SharePointImportRequest, token: str):
 
             if any(d["filename"] == filename for d in current_docs):
                 log_crawler(f"Skipping already-indexed file: {filename} (FR04)")
+                CRAWLER_STATUS["total_count"] -= 1
                 continue
 
             log_crawler(f"Downloading file content bytes: {filename}...")
@@ -785,7 +803,7 @@ def run_crawler_task(request: SharePointImportRequest, token: str):
             new_doc = {
                 "id": doc_id,
                 "filename": filename,
-                "site": "SharePoint: " + request.folder_path,
+                "site": "SharePoint: " + file.get("folder_path_display", request.folder_path),
                 "type": extraction.get("document_type"),
                 "sub_type": extraction.get("document_sub_type"),
                 "confidentiality": extraction.get("confidentiality"),
