@@ -697,10 +697,14 @@ def run_crawler_task(request: SharePointImportRequest, token: str):
                 CRAWLER_STATUS["total_count"] -= 1
                 continue
 
+            # Ensure Microsoft Graph token is fresh and has not expired during long indexing run
+            active_token = auth_manager.get_token() or token
+            active_headers = {"Authorization": f"Bearer {active_token}"}
+
             log_crawler(f"Downloading file content bytes: {filename}...")
             dl_url = f"https://graph.microsoft.com/v1.0/drives/{request.drive_id}/items/{item_id}/content"
             try:
-                dl_resp = httpx.get(dl_url, headers=headers, timeout=30, follow_redirects=True)
+                dl_resp = httpx.get(dl_url, headers=active_headers, timeout=30, follow_redirects=True)
                 if dl_resp.status_code != 200:
                     log_crawler(f"Error: Failed to download content for {filename} (HTTP {dl_resp.status_code})")
                     continue
@@ -797,7 +801,7 @@ def run_crawler_task(request: SharePointImportRequest, token: str):
 
             # MS Graph permission mapping
             log_crawler(f"Mapping security ACL permissions (allowed groups) from MS Graph for {filename} (FR39)...")
-            file_allowed_groups = fetch_sharepoint_file_permissions(request.drive_id, item_id, token)
+            file_allowed_groups = fetch_sharepoint_file_permissions(request.drive_id, item_id, active_token)
 
             doc_id = f"doc_{uuid.uuid4().hex[:6]}"
             new_doc = {
