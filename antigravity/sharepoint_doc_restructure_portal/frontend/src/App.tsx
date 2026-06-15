@@ -293,6 +293,7 @@ export default function App() {
   useEffect(() => {
     fetchDocuments();
     fetchOntology();
+    fetchCrawlerStatus();
     
     // Check if we are returning from Microsoft OAuth redirect with code parameter
     const urlParams = new URLSearchParams(window.location.search);
@@ -341,6 +342,21 @@ export default function App() {
       if (intervalId) clearInterval(intervalId);
     };
   }, [isSyncingSp]);
+
+  const fetchCrawlerStatus = async () => {
+    try {
+      const response = await fetch(`${API_BASE}/sharepoint/crawler-logs`);
+      if (response.ok) {
+        const data = await response.json();
+        setSimulatorLogs(data.logs || []);
+        if (data.status === 'running') {
+          setIsSyncingSp(true);
+        }
+      }
+    } catch (e) {
+      console.error("Failed to fetch crawler status on mount:", e);
+    }
+  };
 
   const checkAuthStatus = async () => {
     try {
@@ -758,6 +774,12 @@ export default function App() {
                             type="text"
                             value={siteSearchQuery}
                             onChange={(e) => setSiteSearchQuery(e.target.value)}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') {
+                                e.preventDefault();
+                                fetchSpSites();
+                              }
+                            }}
                             placeholder="e.g. sockcop"
                             className="w-full text-xs bg-[#faf9f6] border border-blue-200 px-2 py-1 focus:outline-none rounded-none"
                           />
