@@ -223,6 +223,7 @@ export default function App() {
   const [isVerifyingAuth, setIsVerifyingAuth] = useState(false);
   const [loginUrl, setLoginUrl] = useState<string | null>(null);
   const [isRedirecting, setIsRedirecting] = useState(false);
+  const codeVerifyingRef = useRef(false);
 
   // Ingestion form state (Manual upload)
   const [showIngestForm, setShowIngestForm] = useState(false);
@@ -297,7 +298,12 @@ export default function App() {
     const urlParams = new URLSearchParams(window.location.search);
     const code = urlParams.get('code');
     if (code) {
-      handleOAuthCallback(code);
+      if (!codeVerifyingRef.current) {
+        codeVerifyingRef.current = true;
+        // Clean query parameter from address bar immediately to prevent double processing or reload issues
+        window.history.replaceState({}, document.title, window.location.pathname);
+        handleOAuthCallback(code);
+      }
     } else {
       checkAuthStatus();
     }
