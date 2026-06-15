@@ -38,6 +38,100 @@ def extract_text_from_docx(file_bytes: bytes) -> str:
         print(f"Error parsing docx: {e}")
         return file_bytes.decode("utf-8", errors="ignore")
 
+def extract_text_from_pptx(file_bytes: bytes) -> str:
+    try:
+        with zipfile.ZipFile(io.BytesIO(file_bytes)) as z:
+            slide_texts = []
+            slide_files = sorted([f for f in z.namelist() if f.startswith("ppt/slides/slide") and f.endswith(".xml")])
+            for slide_file in slide_files:
+                xml_content = z.read(slide_file)
+                root = ET.fromstring(xml_content)
+                texts = []
+                for node in root.iter('{http://schemas.openxmlformats.org/drawingml/2006/main}t'):
+                    if node.text:
+                        texts.append(node.text)
+                if texts:
+                    slide_texts.append(" ".join(texts))
+            return "\n\n--- Slide ---\n\n".join(slide_texts)
+    except Exception as e:
+        print(f"Error parsing pptx: {e}")
+        return file_bytes.decode("utf-8", errors="ignore")
+
+def extract_text_from_xlsx(file_bytes: bytes) -> str:
+    try:
+        with zipfile.ZipFile(io.BytesIO(file_bytes)) as z:
+            shared_strings = []
+            if "xl/sharedStrings.xml" in z.namelist():
+                xml_content = z.read("xl/sharedStrings.xml")
+                root = ET.fromstring(xml_content)
+                for node in root.iter('{http://schemas.openxmlformats.org/spreadsheetml/2006/main}t'):
+                    if node.text:
+                        shared_strings.append(node.text)
+            
+            sheet_texts = []
+            sheet_files = sorted([f for f in z.namelist() if f.startswith("xl/worksheets/sheet") and f.endswith(".xml")])
+            for sheet_file in sheet_files:
+                xml_content = z.read(sheet_file)
+                root = ET.fromstring(xml_content)
+                cell_values = []
+                for row in root.iter('{http://schemas.openxmlformats.org/spreadsheetml/2006/main}row'):
+                    row_vals = []
+                    for cell in row.iter('{http://schemas.openxmlformats.org/spreadsheetml/2006/main}c'):
+                        t_type = cell.get('t')
+                        v_node = cell.find('{http://schemas.openxmlformats.org/spreadsheetml/2006/main}v')
+                        if v_node is not None and v_node.text:
+                            val = v_node.text
+                            if t_type == 's':
+                                try:
+                                    idx = int(val)
+                                    if 0 <= idx < len(shared_strings):
+                                        val = shared_strings[idx]
+                                except:
+                                    pass
+                            row_vals.append(val)
+                    if row_vals:
+                        cell_values.append(" | ".join(row_vals))
+                if cell_values:
+                    sheet_texts.append("\n".join(cell_values))
+            
+            full_text = []
+            if shared_strings:
+                full_text.append("Shared Strings:\n" + "\n".join(shared_strings))
+            if sheet_texts:
+                full_text.append("\n\nSheets Data:\n" + "\n\n--- Sheet ---\n\n".join(sheet_texts))
+            return "\n\n".join(full_text) if full_text else "Empty Spreadsheet"
+    except Exception as e:
+        print(f"Error parsing xlsx: {e}")
+        return file_bytes.decode("utf-8", errors="ignore")
+
+def extract_text_from_eml(file_bytes: bytes) -> str:
+    try:
+        import email
+        from email.policy import default
+        msg = email.message_from_bytes(file_bytes, policy=default)
+        subject = msg.get('subject', '')
+        sender = msg.get('from', '')
+        to = msg.get('to', '')
+        date = msg.get('date', '')
+        
+        body_parts = []
+        body = msg.get_body(preferencelist=('plain', 'html'))
+        if body:
+            body_text = body.get_content()
+            body_parts.append(body_text)
+        else:
+            for part in msg.walk():
+                if part.get_content_type() == "text/plain":
+                    body_parts.append(part.get_payload(decode=True).decode(errors="ignore"))
+                elif part.get_content_type() == "text/html":
+                    body_parts.append(part.get_payload(decode=True).decode(errors="ignore"))
+        
+        email_content = f"Subject: {subject}\nFrom: {sender}\nTo: {to}\nDate: {date}\n\n" + "\n".join(body_parts)
+        return email_content
+    except Exception as e:
+        print(f"Error parsing eml: {e}")
+        return file_bytes.decode("utf-8", errors="ignore")
+
 app = FastAPI(title="SharePoint Restructure Portal API")
 
 app.add_middleware(
@@ -726,10 +820,16 @@ def run_crawler_task(request: SharePointImportRequest, token: str):
             dlp_text_content = ""
             if mime_type == "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
                 dlp_text_content = extract_text_from_docx(file_bytes)
+            elif mime_type == "application/vnd.openxmlformats-officedocument.presentationml.presentation":
+                dlp_text_content = extract_text_from_pptx(file_bytes)
+            elif mime_type == "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet":
+                dlp_text_content = extract_text_from_xlsx(file_bytes)
+            elif mime_type == "message/rfc822":
+                dlp_text_content = extract_text_from_eml(file_bytes)
             elif mime_type.startswith("text/"):
                 dlp_text_content = file_bytes.decode("utf-8", errors="ignore")
             else:
-                # PDF or other binary (we can fallback to basic decode, or just leave empty for simple pattern matching)
+                # PDF, image, or other binary
                 dlp_text_content = file_bytes.decode("utf-8", errors="ignore")
 
             if "SSN" in dlp_text_content or "000-12" in dlp_text_content:
@@ -771,7 +871,40 @@ def run_crawler_task(request: SharePointImportRequest, token: str):
                             temperature=0.0
                         )
                     )
-                elif mime_type == "application/pdf" or mime_type.startswith("text/"):
+                elif mime_type == "application/vnd.openxmlformats-officedocument.presentationml.presentation":
+                    pptx_text = extract_text_from_pptx(file_bytes)
+                    resp = client.models.generate_content(
+                        model=ACTIVE_MODEL,
+                        contents=[f"Document Content:\n{pptx_text}\n\n", prompt],
+                        config=types.GenerateContentConfig(
+                            response_mime_type="application/json",
+                            response_schema=ExtractedCorporateMetadata,
+                            temperature=0.0
+                        )
+                    )
+                elif mime_type == "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet":
+                    xlsx_text = extract_text_from_xlsx(file_bytes)
+                    resp = client.models.generate_content(
+                        model=ACTIVE_MODEL,
+                        contents=[f"Document Content:\n{xlsx_text}\n\n", prompt],
+                        config=types.GenerateContentConfig(
+                            response_mime_type="application/json",
+                            response_schema=ExtractedCorporateMetadata,
+                            temperature=0.0
+                        )
+                    )
+                elif mime_type == "message/rfc822":
+                    eml_text = extract_text_from_eml(file_bytes)
+                    resp = client.models.generate_content(
+                        model=ACTIVE_MODEL,
+                        contents=[f"Document Content:\n{eml_text}\n\n", prompt],
+                        config=types.GenerateContentConfig(
+                            response_mime_type="application/json",
+                            response_schema=ExtractedCorporateMetadata,
+                            temperature=0.0
+                        )
+                    )
+                elif mime_type == "application/pdf" or mime_type.startswith("text/") or mime_type.startswith("image/"):
                     part = types.Part.from_bytes(data=file_bytes, mime_type=mime_type)
                     resp = client.models.generate_content(
                         model=ACTIVE_MODEL,
