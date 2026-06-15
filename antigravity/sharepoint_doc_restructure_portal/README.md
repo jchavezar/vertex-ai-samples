@@ -1,6 +1,30 @@
 # SharePoint Restructure & AI Governance Portal
 
+<div align="center">
+
+![FastAPI](https://img.shields.io/badge/FastAPI-005571?style=for-the-badge&logo=fastapi&logoColor=white)
+![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
+![Vite](https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white)
+![Google Cloud](https://img.shields.io/badge/Google_Cloud-4285F4?style=for-the-badge&logo=google-cloud&logoColor=white)
+![Gemini AI](https://img.shields.io/badge/Gemini_3.5_Flash-8E75C2?style=for-the-badge&logo=google-gemini&logoColor=white)
+![Microsoft Graph](https://img.shields.io/badge/Microsoft_Graph-0078D4?style=for-the-badge&logo=microsoft&logoColor=white)
+![Security: Zero Leak](https://img.shields.io/badge/Security-Zero_Leak_Protocol-success?style=for-the-badge)
+
 An enterprise-grade, serverless platform for AI-native metadata extraction, document restructuring, and secure role-based semantic search. This solution bridges Microsoft SharePoint Online repositories with Google Cloud's advanced Generative AI and security ecosystem, transforming unstructured corporate knowledge into structured, protected, and searchable assets.
+
+</div>
+
+---
+
+## 📋 Table of Contents
+1. [Executive Summary](#1-executive-summary)
+2. [Zero-Leak Compliance Pipeline (Infographic)](#2-zero-leak-compliance-pipeline-infographic)
+3. [Customer Journey (Step-by-Step)](#3-customer-journey-step-by-step)
+4. [Google Cloud Target Architecture](#4-google-cloud-target-architecture)
+5. [Codebase Anatomy & Repository Map](#5-codebase-anatomy--repository-map)
+6. [Requirements Traceability Matrix (RTM)](#6-requirements-traceability-matrix-rtm)
+7. [Secure Development & Zero-Leak Protocol](#7-secure-development--zero-leak-protocol)
+8. [How to Run & Verify the Portal (Demo Environment)](#8-how-to-run--verify-the-portal-demo-environment)
 
 ---
 
@@ -17,7 +41,17 @@ The **SharePoint Document Restructure & AI Governance Portal** solves this chall
 
 ---
 
-## 2. Customer Journey (Step-by-Step)
+## 2. Zero-Leak Compliance Pipeline (Infographic)
+
+For business and compliance sponsors, this high-level pipeline infographic shows the end-to-end flow of raw corporate knowledge as it is synchronized, sanitized, classified, and made available for secure search—guaranteeing that role-based permissions are respected at every stage.
+
+<div align="center">
+  <img src="./assets/zero_leak_compliance_infographic.png" alt="Zero-Leak AI Document Shield Infographic" width="800px" style="border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.3); margin: 20px 0;" />
+</div>
+
+---
+
+## 3. Customer Journey (Step-by-Step)
 
 The portal provides an intuitive, streamlined workflow for both administrators (compliance/data managers) and corporate knowledge workers.
 
@@ -48,6 +82,7 @@ The portal provides an intuitive, streamlined workflow for both administrators (
 *   **Result:** The pipeline starts in a background thread.
     *   *Incremental Sync:* The crawler compares SharePoint files with documents already registered in Google Cloud Firestore. **Previously indexed files are skipped automatically**, preventing redundant downloads and unnecessary GenAI token usage.
     *   *Paced Downloading:* The crawler streams files safely, managing rate-limits and retries automatically if Microsoft Graph throttles the requests.
+    *   *Extensible Parsers:* Supports native, zero-dependency extraction of `.pdf`, `.docx`, `.pptx` (PowerPoint), `.xlsx` (Excel matrices), `.eml` (email headers/bodies), and raw image formats.
 
 ### Step 4: Real-time Live Log Monitoring
 *   **Action:** The administrator watches the **Live Ingestion Console** inside the UI.
@@ -56,7 +91,7 @@ The portal provides an intuitive, streamlined workflow for both administrators (
     *   `[10:20:39] Fetching directory folders mapping recursively...`
     *   `[10:21:07] Skipping already-indexed file: Annual Report 2025.pdf (FR04)`
     *   `[10:21:08] Checking for unredacted PII...`
-    *   `[10:21:17] Ontology extracted: type=PwC Operational File, subtype=PwC Legal Document...`
+    *   `[10:21:17] Ontology extracted: type=PwC Operational File, subtype=PwC Thought Leadership...`
     *   `[10:21:18] Writing metadata properties to Cloud Firestore catalog...`
 
 ### Step 5: Human-in-the-Loop (HITL) Taxonomy Validation
@@ -73,9 +108,19 @@ The portal provides an intuitive, streamlined workflow for both administrators (
 
 ---
 
-## 3. Google Cloud Target Architecture
+## 4. Google Cloud Target Architecture
 
-This enterprise production architecture utilizes a robust serverless stack to guarantee high availability, automatic scaling, and complete identity federation.
+For IT architects and technical managers, this architecture diagram maps the secure boundaries, compute nodes, and serverless APIs on Google Cloud Platform.
+
+<div align="center">
+  <img src="./assets/customer_architecture_infographic.png" alt="Google Cloud Target Architecture Diagram" width="800px" style="border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.3); margin: 20px 0;" />
+</div>
+
+> [!NOTE]
+> The diagram above represents our production deployment model. The system can also render as a live Mermaid flowchart by expanding the panel below.
+
+<details>
+<summary><b>📐 View Interactive Mermaid Flowchart</b></summary>
 
 ```mermaid
 graph TB
@@ -150,6 +195,7 @@ graph TB
     Crawler -->|Index Vectors & ACL Metadata| VectorSearch
     Backend -->|Permission-Aware Query| VectorSearch
 ```
+</details>
 
 ### Architectural Component Mapping & Justifications
 
@@ -169,7 +215,41 @@ graph TB
 
 ---
 
-## 4. Requirements Traceability Matrix (RTM)
+## 5. Codebase Anatomy & Repository Map
+
+To help developers quickly navigate our codebase and understand where key operations are implemented:
+
+```
+sharepoint_doc_restructure_portal/
+├── assets/                           # High-fidelity marketing & architecture infographics
+│   ├── zero_leak_compliance_infographic.png  # Business-facing executive overview
+│   ├── customer_architecture_infographic.png  # GCP Infrastructure architecture diagram
+│   └── sharepoint_portal_mockup.png  # Screenshot of the live portal interface
+├── backend/                          # FastAPI Backend Engine (Python 3.11+)
+│   ├── main.py                       # Core API orchestrator, Graph sync loop & Gemini extraction
+│   └── uvicorn.log                   # Service startup and execution logs
+├── frontend/                         # React Admin & Chat Dashboard (Vite + TypeScript)
+│   ├── src/
+│   │   ├── App.tsx                   # Main layout, router, and live log polling connections
+│   │   ├── main.tsx                  # React DOM entry point
+│   │   └── index.css                 # Clean CSS typography, console animations & layouts
+│   ├── package.json                  # Frontend dependencies
+│   └── vite.config.ts                # Vite execution config (Port 5185)
+├── scripts/                          # Administration and diagnostic scripts
+├── ACL_MAPPING.md                    # Technical guide on synchronizing and mapping SharePoint ACLs to GCP
+├── LOW_LEVEL_DESIGN.md               # Detailed logical data flows and service configurations
+├── PERFORMANCE_AUDIT.md              # Performance findings, API latency reviews and optimizations
+└── UI_SPECIFICATION.md               # User Interface structure, console and chat design guidelines
+```
+
+### Essential Technical References
+*   **Access Control Strategy:** Detail on Entra ID to GCP Group mapping can be found in [ACL_MAPPING.md](file:///Users/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/sharepoint_doc_restructure_portal/ACL_MAPPING.md).
+*   **Sub-system Architecture:** Deep logical data flows are specified in [LOW_LEVEL_DESIGN.md](file:///Users/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/sharepoint_doc_restructure_portal/LOW_LEVEL_DESIGN.md).
+*   **Frontend Design System:** Console layout guidelines are outlined in [UI_SPECIFICATION.md](file:///Users/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/sharepoint_doc_restructure_portal/UI_SPECIFICATION.md).
+
+---
+
+## 6. Requirements Traceability Matrix (RTM)
 
 This matrix maps how each of your functional, technical, and regulatory requirements is directly addressed by our implementation.
 
@@ -181,51 +261,34 @@ This matrix maps how each of your functional, technical, and regulatory requirem
 | **FR09** | Clickable Source Citations | Document chunks are indexed alongside their SharePoint `webUrl` in Vertex AI Search. The chat assistant returns these as active hyperlinked citations. | **Verified** |
 | **FR10** | Multimodal Document Extraction | PDFs and Word docs are fed directly to Gemini as raw bytes, bypassing local parsing errors on images, flowcharts, or complex tables. | **Verified** |
 | **FR37** | Rigorous Metadata Rationale | The Gemini Pydantic schema includes a `rationale` field. The model must write its analytical justification, which is visible in the audit logs. | **Verified** |
-| **FR39** | Real-Time Access Control | User's transitive group memberships are fetched via Entra ID at query time and applied as metadata pre-filters to the vector search index. | **Verified** |
+| **FR39** | Real-Time Access Control | User's transitive group memberships are fetched via Entra ID at query time and applied as pre-filters to the vector search index. | **Verified** |
 | **SR02** | Sensitive Data Protection (DLP) | Documents are scanned for unredacted PII patterns. Detections raise warning flags, block public viewing, and request compliance reviews. | **Verified** |
 | **SR45** | Human-in-the-Loop (HITL) Queue | Flagged or low-confidence documents are set to `PENDING_QA` in Firestore. Admins use a dedicated UI form to override metadata tags. | **Verified** |
 
 ---
 
-## 5. Secure Development & Zero-Leak Protocol
+## 7. Secure Development & Zero-Leak Protocol
 
 This project handles highly confidential corporate and legal files. Our secure development protocol guarantees that **no private or proprietary information is ever exposed or leaked into public repositories like GitHub.**
 
-### 1. Hardcoded Secret Protection
-*   No API keys, client secrets, or OAuth credentials are written in code.
-*   All dynamic configurations are loaded from system environment variables or GCP Secret Manager.
+> [!IMPORTANT]
+> **Strict Environment Separation:**
+> Credentials (tokens, secrets, and `.env` files) are never checked into git. If a credential is accidentally committed, it is considered compromised and must be revoked immediately.
 
-### 2. Ironclad Git Exclusion (`.gitignore`)
-The repository's active [.gitignore](file:///Users/jesusarguelles/IdeaProjects/vertex-ai-samples/.gitignore#L18-L31) strictly blocks the staging or committing of any local settings, secrets, or temporary state caches:
-```gitignore
-# Data & Secrets (MANDATORY)
-.env
-.env.*
-!.env.example
-*.pem
-*.key
-*.p12
-*.pfx
-client_secret*.json
-credentials.json
-*_token.json
-token.json
-```
-
-### 3. Isolated Local Authentication Caches
-Active session tokens and silent refresh states are stored in `.ms365_auth.json` within a local, un-tracked system folder. No credentials are pushed to remote Git targets, making code promotion entirely safe.
-
-### 4. Semantic Vectors, Not Raw Files
-*   Vertex AI Vector Search indexes high-level document summaries and mathematically generated semantic vectors (embeddings).
-*   The raw binaries (PDFs/Word documents) **remain securely stored in your Microsoft SharePoint Online tenant.**
-*   No raw files are copied or persisted inside the code repository.
+### 🛡️ Ironclad Security Safeguards
+1. **Dynamic Secret Sourcing:** No API keys, client secrets, or OAuth credentials are written in code. All configurations are loaded from system environment variables or GCP Secret Manager.
+2. **Explicit Git Exclusions:** The repository's active `.gitignore` strictly blocks the staging or committing of any local settings, secrets, or temporary state caches.
+3. **Isolated Session Cache:** Active session tokens and silent refresh states are stored in `.ms365_auth.json` within a local, un-tracked system folder. No credentials are pushed to remote Git targets, making code promotion entirely safe.
+4. **Vector Math Protection:** Vertex AI Vector Search indexes high-level document summaries and mathematically generated semantic vectors (embeddings). Raw files remain safely stored in your Microsoft SharePoint Online tenant.
 
 ---
 
-## 6. How to Run & Verify the Portal (Demo Environment)
+## 8. How to Run & Verify the Portal (Demo Environment)
+
+Follow these instructions to start the development servers and verify the end-to-end synchronization pipeline.
 
 ### Prerequisites
-*   A remote VM setup with GCP Access (using project `vtxdemos` in the `global` region).
+*   A Google Cloud Platform environment (using project `vtxdemos` in the `global` region).
 *   Active Microsoft SharePoint tenant credentials.
 
 ### Step 1: Run the Backend Portal
@@ -249,3 +312,23 @@ npm run dev -- --port 5185
 2. Click **"Connect SharePoint"** and sign in.
 3. Search for your site (e.g., `sockcop`), choose the library, and click **"Sync SharePoint Site"**.
 4. Observe the live console logs at the bottom of the screen. Watch as the incremental logic skips existing files and safely catalogs new documents, fully managing background session refreshes indefinitely!
+
+<details>
+<summary><b>🔑 View Microsoft Entra ID App Registration Guidelines</b></summary>
+
+To register the application in Microsoft Entra ID:
+1. Navigate to the **Microsoft Entra admin center**.
+2. Select **Applications** > **App registrations** > **New registration**.
+3. Set the name to `SharePoint Restructure AI Portal`.
+4. Set the **Supported account types** to *Accounts in this organizational directory only*.
+5. Under **Redirect URI**, select *Single-page application (SPA)* or *Web* as appropriate, and configure redirect URLs pointing to:
+   * `http://localhost:5185/`
+   * `http://localhost:8095/api/sharepoint/auth-callback`
+6. Under **API permissions**, click **Add a permission** and select **Microsoft Graph** with **Delegated permissions**:
+   * `User.Read`
+   * `Sites.Read.All`
+   * `Files.Read.All`
+   * `GroupMember.Read.All` (for transit group resolution)
+7. Grant Admin Consent for the configured tenant.
+8. Create a Client Secret under **Certificates & secrets** and record the Client ID and Tenant ID. Save these values inside your local parent directory `.env` file (which is safely excluded from Git).
+</details>
