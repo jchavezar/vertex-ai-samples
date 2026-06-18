@@ -172,3 +172,71 @@ When a user is added to or removed from an Entra ID security group:
 *   **On-the-Fly Token Claims:** When a user submits a search query, their active Microsoft bearer token is used to call the Graph API:
     `GET https://graph.microsoft.com/v1.0/me/transitiveMemberOf`
 *   **Real-time Revocation:** If a user is removed from a group, that group ID is immediately omitted from their query claims. The vector search restricts block access in real time, preventing data leaks.
+
+---
+
+## 6. End-to-End Flow: Handling User Deletion and Group Exits
+
+To guarantee absolute security and explain why having static Group ID tags mapped to chunks in the GCP database is **100% secure** when group memberships change, the diagram below outlines the runtime transaction loop.
+
+### Mermaid Sequence Diagram
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor User as Terminated or Exited User
+    participant Entra as Microsoft Entra ID
+    participant Web as Portal Frontend (React)
+    participant API as FastAPI Backend (Cloud Run)
+    participant MSGraph as Microsoft Graph API
+    participant AI as Vertex AI Search & Firestore
+
+    %% Event: Group Exit or User Deletion
+    Note over User, Entra: EVENT: User exits "Finance Group" OR Account is Disabled
+
+    %% Step 1: User makes a request
+    User->>Web: 1. Inputs Chat/Search Query: "Show me Finance projections"
+    
+    %% Step 2: Frontend forwards request with JWT Token
+    Web->>API: 2. POST /api/search with Bearer Token
+
+    %% Step 3: Backend Token Validation
+    rect rgb(240, 240, 255)
+        Note over API, Entra: Token Validation Loop
+        API->>Entra: 3. Verify Token Signature & Claims
+        alt Account Deleted / Disabled (CAE Triggered)
+            Entra-->>API: 4a. Token Invalidated / Access Denied
+            API-->>Web: 4b. Return HTTP 401 Unauthorized
+            Web-->>User: 4c. Redirect to Login (Access Blocked)
+        else Account Active but Group Membership Removed
+            Entra-->>API: 4d. Token Verified (Signature OK)
+        end
+    end
+
+    %% Step 4: Live Claims Query (Only if account is active)
+    rect rgb(255, 245, 240)
+        Note over API, MSGraph: Live Claims Resolution (Zero-Latency)
+        API->>MSGraph: 5. GET /v1.0/me/transitiveMemberOf
+        MSGraph-->>API: 6. Returns current Group Object IDs:<br/>[ "group::employees" ] (excluding "Finance Group" ID!)
+    end
+
+    %% Step 5: Pre-Filtered Semantic Query Execution
+    rect rgb(240, 255, 240)
+        Note over API, AI: Mathematical pre-filtering intersection
+        API->>AI: 7. Run Vector Search with Constraints:<br/>query="Finance Projections" & allow_list=["group::employees"]
+        Note over AI: Database Intersects:<br/>Chunk "finance_01" lock = [ "group::3f4db3b8-finance" ]<br/>User keys = [ "group::employees" ]<br/>Intersection is EMPTY!
+        AI-->>API: 8. Return ONLY matching results for "group::employees" (Chunk "finance_01" is mathematically blocked)
+    end
+
+    %% Step 6: Synthesis and Response
+    API->>API: 9. Synthesize response using strictly allowed contexts via Gemini
+    API-->>Web: 10. Return filtered answer & citations
+    Web-->>User: 11. Render safe answer (No Finance data leaked)
+```
+
+### Key Security Safeguards Demonstrated
+
+1. **Continuous Access Evaluation (CAE) (Steps 3-4):** If the user has been completely deleted or disabled in Microsoft Entra ID, Microsoft immediately flags their token as invalid. The request never makes it past the backend authentication barrier.
+2. **Dynamic Key Resolution (Steps 5-6):** The backend queries Microsoft Graph in real time on every user request. The list of resolved group IDs is completely transient—it lives only for the duration of that single API thread.
+3. **Pre-Filtering Constraints (Step 7-8):** Vertex AI performs metadata filtering at the hardware/database level **before** nearest-neighbor calculation. A chunk protected by a restricted group cannot be loaded into memory or returned to the application, rendering synchronization lag at the chunk level a non-issue.
+

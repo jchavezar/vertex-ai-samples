@@ -152,9 +152,40 @@ MS365_TENANT_ID = "de46a3fd-0d68-4b25-8343-6eb5d71afce9"
 GRAPH_SCOPES = ["User.Read", "Sites.Read.All", "Files.Read.All"]
 
 # Initialize live Gemini client
-client = genai.Client(vertexai=True, project=PROJECT_ID, location=ACTIVE_REGION)
-db_client = firestore.Client(project=PROJECT_ID)
-bq_client = bigquery.Client(project=PROJECT_ID)
+import threading
+
+_thread_local = threading.local()
+
+class GenAIClientProxy:
+    @property
+    def models(self):
+        if not hasattr(_thread_local, "genai_client") or _thread_local.genai_client is None:
+            _thread_local.genai_client = genai.Client(vertexai=True, project=PROJECT_ID, location=ACTIVE_REGION)
+        return _thread_local.genai_client.models
+
+client = GenAIClientProxy()
+
+class FirestoreClientProxy:
+    @property
+    def client(self):
+        if not hasattr(_thread_local, "firestore_client") or _thread_local.firestore_client is None:
+            _thread_local.firestore_client = firestore.Client(project=PROJECT_ID)
+        return _thread_local.firestore_client
+    def __getattr__(self, name):
+        return getattr(self.client, name)
+
+db_client = FirestoreClientProxy()
+
+class BigQueryClientProxy:
+    @property
+    def client(self):
+        if not hasattr(_thread_local, "bigquery_client") or _thread_local.bigquery_client is None:
+            _thread_local.bigquery_client = bigquery.Client(project=PROJECT_ID)
+        return _thread_local.bigquery_client
+    def __getattr__(self, name):
+        return getattr(self.client, name)
+
+bq_client = BigQueryClientProxy()
 
 # --- MSAL AUTHENTICATION MANAGER ---
 class MSALAuthManager:
@@ -444,7 +475,48 @@ def load_documents_from_store() -> List[Dict[str, Any]]:
     return docs
 
 def seed_documents_if_empty():
-    pass
+    print("[FIRESTORE] Checking if default documents need seeding...")
+    try:
+        docs_ref = db_client.collection("sharepoint_documents")
+        handbook_query = list(docs_ref.where("filename", "==", "US_Employee_Handbook_2025.pdf").stream())
+        if not handbook_query:
+            print("[FIRESTORE] Seeding US_Employee_Handbook_2025.pdf...")
+            doc_id = "doc_handbook_2025"
+            handbook_doc = {
+                "id": doc_id,
+                "filename": "US_Employee_Handbook_2025.pdf",
+                "site": "Human Resources",
+                "type": "PwC Internal Knowledge/ Policy",
+                "sub_type": "PwC Internal Knowledge/ Policy",
+                "confidentiality": "Internal",
+                "pwc_proprietary": "No",
+                "industry": "N/A",
+                "primary_topic": "Employee Benefits and 401k match policy.",
+                "allowed_groups": ["group::employees"],
+                "confidence": 0.95,
+                "pii_detected": False,
+                "state": "APPROVED",
+                "owner": "HR Benefits Team",
+                "rationale": "Default benefits policy document containing 401k and general policies.",
+                "elements": ["text"],
+                "content": "Aether Corp offers a matched 401k contribution of up to <redact>4%</redact> for US employees, subject to standard vesting schedules. Grounded citations and verification matches are processed against this master policy document. All employees under group::employees are entitled to participate in the 401k match program.",
+                "webUrl": "#",
+                "is_signed": "N/A",
+                "standard_terms": "N/A",
+                "permitted_use": "N/A",
+                "engagement_letter_link": "N/A",
+                "liability_cap": "N/A"
+            }
+            docs_ref.document(doc_id).set(handbook_doc)
+            try:
+                sync_document_to_bigquery(handbook_doc)
+                print("[BIGQUERY] Successfully synced seeded handbook.")
+            except Exception as e:
+                print(f"[BIGQUERY] Failed to sync handbook: {e}")
+        else:
+            print("[FIRESTORE] US_Employee_Handbook_2025.pdf is already seeded.")
+    except Exception as e:
+        print(f"[FIRESTORE] Error during seeding: {e}")
 
 def init_bigquery_schema():
     dataset_id = f"{PROJECT_ID}.sharepoint_portal_ds"
@@ -598,20 +670,37 @@ def fetch_user_entra_groups(token: str) -> List[str]:
 
 # Generate embeddings for base corpus at startup
 def generate_base_embeddings():
+    import concurrent.futures
     init_bigquery_schema()
     seed_documents_if_empty()
     firestore_docs = load_documents_from_store()
-    print(f"[SYSTEM] Loaded {len(firestore_docs)} documents from Firestore. Pre-generating embeddings using {EMBEDDING_MODEL}...")
-    for doc in firestore_docs:
+    print(f"[SYSTEM] Loaded {len(firestore_docs)} documents from Firestore. Pre-generating/Loading embeddings using {EMBEDDING_MODEL}...")
+    
+    def process_doc(doc):
         chunks = [doc["content"]]
+        results = []
         for text_chunk in chunks:
+            # Check if Firestore already has the cached vector for this document
+            cached_vector = doc.get("vector")
+            if cached_vector and isinstance(cached_vector, list) and len(cached_vector) > 0:
+                results.append({
+                    "doc_id": doc["id"],
+                    "filename": doc["filename"],
+                    "text": text_chunk,
+                    "vector": cached_vector,
+                    "allowed_groups": doc["allowed_groups"],
+                    "webUrl": doc["webUrl"]
+                })
+                continue
+
+            # Otherwise, generate embedding and cache it
             try:
                 resp = client.models.embed_content(
                     model=EMBEDDING_MODEL,
                     contents=f"title: {doc['filename']} | text: {text_chunk}"
                 )
                 vector = resp.embeddings[0].values
-                MOCK_CHUNKS.append({
+                results.append({
                     "doc_id": doc["id"],
                     "filename": doc["filename"],
                     "text": text_chunk,
@@ -619,8 +708,22 @@ def generate_base_embeddings():
                     "allowed_groups": doc["allowed_groups"],
                     "webUrl": doc["webUrl"]
                 })
+                # Cache the generated vector in Firestore so we never have to re-compute it
+                try:
+                    db_client.collection("sharepoint_documents").document(doc["id"]).update({"vector": vector})
+                except Exception as cache_err:
+                    print(f"Failed to cache vector in Firestore for {doc['id']}: {cache_err}")
             except Exception as e:
                 print(f"Failed to generate embedding for {doc['id']}: {e}")
+        return results
+
+    with concurrent.futures.ThreadPoolExecutor(max_workers=20) as executor:
+        futures = [executor.submit(process_doc, doc) for doc in firestore_docs]
+        for fut in concurrent.futures.as_completed(futures):
+            res = fut.result()
+            if res:
+                MOCK_CHUNKS.extend(res)
+
     print(f"[SYSTEM] Vector index warmed up with {len(MOCK_CHUNKS)} vectors.")
 
 generate_base_embeddings()
@@ -961,6 +1064,7 @@ def run_crawler_task(request: SharePointImportRequest, token: str):
                 "rationale": f"Ontology matched to corporate taxonomy class: {extraction.get('document_sub_type')}.",
                 "elements": ["text"] + (["signature_block"] if extraction.get("document_type") == "PwC CV" else []),
                 "content": embed_text,
+                "vector": vector,
                 "webUrl": web_url,
                 "is_signed": extraction.get("is_signed", "N/A"),
                 "standard_terms": extraction.get("standard_terms", "N/A"),
@@ -1097,7 +1201,8 @@ def ingest_document(request: IngestRequest):
         "standard_terms": extraction.get("standard_terms", "N/A"),
         "permitted_use": extraction.get("permitted_use"),
         "engagement_letter_link": extraction.get("engagement_letter_link"),
-        "liability_cap": extraction.get("liability_cap")
+        "liability_cap": extraction.get("liability_cap"),
+        "vector": vector
     }
     
     try:
@@ -1246,9 +1351,29 @@ def search(request: SearchRequest, req: Request, authorization: Optional[str] = 
         raise HTTPException(status_code=500, detail=f"Gemini content generation failed: {e}")
 
     duration = round(time.perf_counter() - start_time, 2)
+    
+    # Filter sources: do not show citations if the LLM states that the information is missing
+    lower_answer = answer.lower()
+    negative_indicators = [
+        "cannot answer", "do not contain", "no information", "not mentioned", 
+        "not found", "does not contain", "could not find", "no details",
+        "no data", "does not have any information"
+    ]
+    
+    sources = []
+    if not any(indicator in lower_answer for indicator in negative_indicators):
+        for match in top_matches:
+            filename_base = match["filename"].split(".")[0].lower()
+            # If the filename or key terms are in the answer, include it as an active citation
+            if filename_base in lower_answer or any(word in lower_answer for word in filename_base.split() if len(word) > 4):
+                sources.append({"title": match["filename"], "snippet": match["text"], "url": match.get("webUrl", "#")})
+        # If the answer is positive but didn't explicitly name the files, list the top matches
+        if not sources:
+            sources = [{"title": match["filename"], "snippet": match["text"], "url": match.get("webUrl", "#")} for match in top_matches]
+
     return JSONResponse({
         "answer": answer,
-        "sources": [{"title": match["filename"], "snippet": match["text"], "url": match.get("webUrl", "#")} for match in top_matches],
+        "sources": sources,
         "latency": f"{duration}s",
         "model": ACTIVE_MODEL,
         "region": ACTIVE_REGION

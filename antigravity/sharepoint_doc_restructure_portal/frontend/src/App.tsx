@@ -33,6 +33,11 @@ interface Document {
   filename: string;
   site: string;
   type: string;
+  sub_type: string;
+  confidentiality: string;
+  pwc_proprietary: any;
+  industry: string;
+  primary_topic: string;
   lifecycle: string;
   customer_scope: string;
   allowed_groups: string[];
@@ -45,6 +50,10 @@ interface Document {
   elements: string[];
   exception_reason?: string;
   webUrl?: string;
+  is_signed?: string;
+  standard_terms?: string;
+  permitted_use?: string;
+  engagement_letter_link?: string;
 }
 
 interface OntologyProperty {
@@ -532,6 +541,12 @@ export default function App() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ query })
       });
+      
+      if (!response.ok) {
+        const errData = await response.json().catch(() => ({}));
+        throw new Error(errData.detail || `Server error (status ${response.status})`);
+      }
+      
       const data = await response.json();
       
       setMessages(prev => {
@@ -545,10 +560,10 @@ export default function App() {
           region: data.region
         }];
       });
-    } catch (error) {
+    } catch (error: any) {
       setMessages(prev => {
         const filtered = prev.filter(m => !m.isThinking);
-        return [...filtered, { sender: 'bot', text: "Error calling search endpoint." }];
+        return [...filtered, { sender: 'bot', text: error.message || "Error calling search endpoint." }];
       });
     }
   };
@@ -593,6 +608,8 @@ export default function App() {
 
 
   const renderFlowDiagram = (text: string) => {
+    if (!text) return null;
+    if (typeof text !== "string") return <p className="whitespace-pre-line">{String(text)}</p>;
     if (!text.includes("```mermaid")) return <p className="whitespace-pre-line">{text}</p>;
 
     const parts = text.split("```mermaid");
@@ -1034,6 +1051,60 @@ export default function App() {
                         <div><span className="text-[#7c7a75] uppercase text-[9px] block">Primary Topic</span><strong>{selectedDoc.primary_topic}</strong></div>
                         <div><span className="text-[#7c7a75] uppercase text-[9px] block">PII Detected</span><strong>{selectedDoc.pii_detected ? "Yes (DLP Redacted)" : "No"}</strong></div>
                       </div>
+
+                      {/* FR10: Engagement Letter & Contract Validation Section */}
+                      {(selectedDoc.is_signed || selectedDoc.standard_terms || selectedDoc.permitted_use || selectedDoc.liability_cap || selectedDoc.engagement_letter_link) && (
+                        <div className="mt-4 pt-3 border-t border-[#d8d6d0]">
+                          <div className="flex items-center gap-1.5 mb-2 bg-[#f4f2ee] px-2 py-1 border-l-2 border-amber-600">
+                            <span className="text-[10px] font-bold text-amber-900 bg-amber-100 px-1 py-0.5 rounded">FR10</span>
+                            <span className="text-[10px] font-bold text-amber-900 uppercase tracking-wider">Contract / Engagement Validation</span>
+                          </div>
+                          <div className="grid grid-cols-2 gap-y-2 gap-x-4 text-xs">
+                            {selectedDoc.is_signed && (
+                              <div>
+                                <span className="text-[#7c7a75] uppercase text-[9px] block">Signed Status</span>
+                                <span className={`inline-block px-1.5 py-0.5 rounded text-[10px] font-bold mt-0.5 ${
+                                  selectedDoc.is_signed.toLowerCase() === 'yes' ? 'bg-green-100 text-green-800 border border-green-200' :
+                                  selectedDoc.is_signed.toLowerCase() === 'no' ? 'bg-red-100 text-red-800 border border-red-200' :
+                                  'bg-gray-100 text-gray-700'
+                                }`}>
+                                  {selectedDoc.is_signed}
+                                </span>
+                              </div>
+                            )}
+                            {selectedDoc.standard_terms && (
+                              <div>
+                                <span className="text-[#7c7a75] uppercase text-[9px] block">Standard Terms (PwC Template)</span>
+                                <span className={`inline-block px-1.5 py-0.5 rounded text-[10px] font-bold mt-0.5 ${
+                                  selectedDoc.standard_terms.toLowerCase() === 'yes' ? 'bg-blue-100 text-blue-800 border border-blue-200' :
+                                  selectedDoc.standard_terms.toLowerCase() === 'no' ? 'bg-orange-100 text-orange-800 border border-orange-200' :
+                                  'bg-gray-100 text-gray-700'
+                                }`}>
+                                  {selectedDoc.standard_terms}
+                                </span>
+                              </div>
+                            )}
+                            {selectedDoc.permitted_use && selectedDoc.permitted_use !== "N/A" && (
+                              <div className="col-span-2">
+                                <span className="text-[#7c7a75] uppercase text-[9px] block">Permitted Deliverable Use</span>
+                                <strong className="text-gray-900 block mt-0.5">{selectedDoc.permitted_use}</strong>
+                              </div>
+                            )}
+                            {selectedDoc.liability_cap && selectedDoc.liability_cap !== "N/A" && (
+                              <div>
+                                <span className="text-[#7c7a75] uppercase text-[9px] block">Extracted Liability Cap</span>
+                                <strong className="text-amber-900 font-mono block mt-0.5">{selectedDoc.liability_cap}</strong>
+                              </div>
+                            )}
+                            {selectedDoc.engagement_letter_link && selectedDoc.engagement_letter_link !== "N/A" && (
+                              <div className="col-span-2 mt-1 bg-amber-50/50 p-2 border border-amber-100/50">
+                                <span className="text-[#7c7a75] uppercase text-[9px] block">Linked Engagement Letter</span>
+                                <strong className="text-amber-800 block mt-0.5 font-mono text-[11px]">{selectedDoc.engagement_letter_link}</strong>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      )}
                     </div>
 
                     <div className="mt-4 pt-3 border-t border-dotted border-[#d8d6d0]">
@@ -1336,21 +1407,44 @@ export default function App() {
                     {msg.sources && msg.sources.length > 0 && (
                       <div className="mt-3 space-y-1.5 border-t border-dotted border-[#d8d6d0] pt-2">
                         <span className="text-[9px] uppercase text-[#7c7a75] font-bold block">Grounded Citations:</span>
-                        {msg.sources.map((src, sIdx) => (
-                          <div key={sIdx} className="text-xs text-[#7c7a75] flex items-baseline gap-1.5">
-                            <CornerDownRight className="h-3 w-3 shrink-0" />
-                            <div>
-                              {src.url && src.url !== "#" ? (
-                                <a href={src.url} target="_blank" rel="noreferrer" className="underline font-medium hover:text-[#1a1a19] text-blue-700 flex items-center gap-0.5">
-                                  {src.title} <Link2 className="h-3 w-3" />
-                                </a>
-                              ) : (
-                                <span className="font-medium text-[#1a1a19]">{src.title}</span>
-                              )}
-                              <span className="block text-[10px] italic font-serif">"{src.snippet}"</span>
+                        {msg.sources.map((src, sIdx) => {
+                          const cleanTitle = src.title.trim().toLowerCase();
+                          const foundDoc = documents.find(d => {
+                            const cleanDocName = d.filename.trim().toLowerCase();
+                            return cleanDocName === cleanTitle || cleanDocName.includes(cleanTitle) || cleanTitle.includes(cleanDocName);
+                          });
+                          return (
+                            <div key={sIdx} className="text-xs text-[#7c7a75] flex items-baseline gap-1.5">
+                              <CornerDownRight className="h-3 w-3 shrink-0 mt-0.5" />
+                              <div className="flex-1 min-w-0">
+                                <div className="flex flex-wrap items-center gap-2 mb-0.5">
+                                  {src.url && src.url !== "#" ? (
+                                    <a href={src.url} target="_blank" rel="noreferrer" className="underline font-medium hover:text-[#1a1a19] text-blue-700 flex items-center gap-0.5 shrink-0">
+                                      {src.title} <Link2 className="h-3 w-3" />
+                                    </a>
+                                  ) : (
+                                    <span className="font-medium text-[#1a1a19] shrink-0">{src.title}</span>
+                                  )}
+                                  {foundDoc && (
+                                    <button
+                                      type="button"
+                                      onClick={() => {
+                                        setSelectedDoc(foundDoc);
+                                        setEditType(foundDoc.sub_type || "");
+                                        setEditCap(foundDoc.confidentiality || "");
+                                        setActiveTab('queue');
+                                      }}
+                                      className="inline-flex items-center gap-1 text-[9px] uppercase font-bold tracking-widest px-1.5 py-0.5 bg-[#1a1a19] text-[#faf9f6] hover:bg-[#7c7a75] hover:text-[#faf9f6] transition-colors border-none cursor-pointer rounded-none shadow-[2px_2px_0px_0px_rgba(124,122,117,0.5)]"
+                                    >
+                                      View Metadata & Ontology 🔍
+                                    </button>
+                                  )}
+                                </div>
+                                <span className="block text-[10px] italic font-serif text-[#7c7a75] leading-relaxed">"{src.snippet}"</span>
+                              </div>
                             </div>
-                          </div>
-                        ))}
+                          );
+                        })}
                       </div>
                     )}
 

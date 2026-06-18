@@ -324,7 +324,7 @@ sharepoint_doc_restructure_portal/
 │   │   ├── main.tsx                  # React DOM entry point
 │   │   └── index.css                 # Clean CSS typography, console animations & layouts
 │   ├── package.json                  # Frontend dependencies
-│   └── vite.config.ts                # Vite execution config (Port 5185)
+│   └── vite.config.ts                # Vite execution config (Port 5190)
 ├── scripts/                          # Administration and diagnostic scripts
 ├── ACL_MAPPING.md                    # Technical guide on synchronizing and mapping SharePoint ACLs to GCP
 ├── LOW_LEVEL_DESIGN.md               # Detailed logical data flows and service configurations
@@ -387,15 +387,15 @@ Launch the FastAPI uvicorn server in a separate terminal:
 cd ~/IdeaProjects/vertex-ai-samples/antigravity/sharepoint_doc_restructure_portal
 ./start_portal.sh
 ```
-*The server will warm up the vector index with existing Firestore entries and listen on port `8095`.*
+*The server will warm up the vector index with existing Firestore entries and listen on port `8085`.*
 
 ### Step 2: Run the Frontend UI
 Start the Vite developer server:
 ```bash
 cd ~/IdeaProjects/vertex-ai-samples/antigravity/sharepoint_doc_restructure_portal/frontend
-npm run dev -- --port 5185
+npm run dev -- --port 5190
 ```
-*Open [http://localhost:5185](http://localhost:5185) in your web browser.*
+*Open [http://localhost:5190](http://localhost:5190) in your web browser.*
 
 ### Step 3: Trigger Sync & Review Logs
 1. Navigate to the portal UI.
@@ -412,8 +412,8 @@ To register the application in Microsoft Entra ID:
 3. Set the name to `SharePoint Restructure AI Portal`.
 4. Set the **Supported account types** to *Accounts in this organizational directory only*.
 5. Under **Redirect URI**, select *Single-page application (SPA)* or *Web* as appropriate, and configure redirect URLs pointing to:
-   * `http://localhost:5185/`
-   * `http://localhost:8095/api/sharepoint/auth-callback`
+   * `http://localhost:5190/`
+   * `http://localhost:8085/api/sharepoint/auth-callback`
 6. Under **API permissions**, click **Add a permission** and select **Microsoft Graph** with **Delegated permissions**:
    * `User.Read`
    * `Sites.Read.All`
