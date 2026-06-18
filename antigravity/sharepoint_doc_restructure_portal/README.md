@@ -347,9 +347,9 @@ sharepoint_doc_restructure_portal/
 ```
 
 ### Essential Technical References
-*   **Access Control Strategy:** Detail on Entra ID to GCP Group mapping can be found in [ACL_MAPPING.md](file:///Users/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/sharepoint_doc_restructure_portal/ACL_MAPPING.md).
-*   **Sub-system Architecture:** Deep logical data flows are specified in [LOW_LEVEL_DESIGN.md](file:///Users/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/sharepoint_doc_restructure_portal/LOW_LEVEL_DESIGN.md).
-*   **Frontend Design System:** Console layout guidelines are outlined in [UI_SPECIFICATION.md](file:///Users/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/sharepoint_doc_restructure_portal/UI_SPECIFICATION.md).
+*   **Access Control Strategy:** Detail on Entra ID to GCP Group mapping can be found in [ACL_MAPPING.md](./ACL_MAPPING.md).
+*   **Sub-system Architecture:** Deep logical data flows are specified in [LOW_LEVEL_DESIGN.md](./LOW_LEVEL_DESIGN.md).
+*   **Frontend Design System:** Console layout guidelines are outlined in [UI_SPECIFICATION.md](./UI_SPECIFICATION.md).
 
 ---
 
@@ -359,8 +359,8 @@ This matrix maps how each of your functional, technical, and regulatory requirem
 
 | Requirement ID | Description | Solution Implementation Details | Verification Status |
 | :--- | :--- | :--- | :--- |
-| **FR01** | Multi-level Taxonomy Classification | [main.py](file:///Users/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/sharepoint_doc_restructure_portal/backend/main.py#L740-L789) executes Gemini 3.5 Flash with a strictly typed Pydantic extraction schema, returning Level 1 Class, Level 2 Sub-Class, and relevant industry. | **Verified** |
-| **FR04** | Deduplication & Incremental Loading | [main.py](file:///Users/jesusarguelles/IdeaProjects/vertex-ai-samples/antigravity/sharepoint_doc_restructure_portal/backend/main.py#L701-L704) loads existing documents from Firestore on start and compares names, skipping previously successfully processed files. | **Verified** |
+| **FR01** | Multi-level Taxonomy Classification | [backend/main.py](./backend/main.py) executes Gemini 3.5 Flash with a strictly typed Pydantic extraction schema, returning Level 1 Class, Level 2 Sub-Class, and relevant industry. | **Verified** |
+| **FR04** | Deduplication & Incremental Loading | [backend/main.py](./backend/main.py) loads existing documents from Firestore on start and compares names, skipping previously successfully processed files. | **Verified** |
 | **FR06** | Real-Time Sync Logs | Ingest console polls the `/api/sharepoint/crawler-logs` endpoint, streaming granular steps and warnings to the Live Logs interface. | **Verified** |
 | **FR09** | Clickable Source Citations | Document chunks are indexed alongside their SharePoint `webUrl` in Vertex AI Search. The chat assistant returns these as active hyperlinked citations. | **Verified** |
 | **FR10** | Multimodal Document Extraction | PDFs and Word docs are fed directly to Gemini as raw bytes, bypassing local parsing errors on images, flowcharts, or complex tables. | **Verified** |
