@@ -28,6 +28,20 @@ An enterprise-grade, serverless platform for AI-native metadata extraction, docu
 
 ---
 
+## ⚡ Quick Shortcuts & Technical Documentation
+For quick access during presentations and code reviews, use these shortcuts:
+
+### 📖 System Documentation
+*   **Access Control Strategy & Group Mapping:** [ACL_MAPPING.md](./ACL_MAPPING.md)
+*   **System Logical Flows & Architecture:** [LOW_LEVEL_DESIGN.md](./LOW_LEVEL_DESIGN.md)
+*   **UI Console Guidelines & Styling Rules:** [UI_SPECIFICATION.md](./UI_SPECIFICATION.md)
+*   **Performance Metrics & Latency Audits:** [PERFORMANCE_AUDIT.md](./PERFORMANCE_AUDIT.md)
+
+### 💻 Core Code & Launch Scripts
+*   **FastAPI Backend Server Orchestrator:** [backend/main.py](./backend/main.py)
+*   **React + Vite Admin & Chat Dashboard:** [frontend/src/App.tsx](./frontend/src/App.tsx)
+*   **One-Click Local Portal Startup Script:** [start_portal.sh](./start_portal.sh)
+
 ## 1. Executive Summary
 
 Corporate document storage is notoriously disorganized, containing millions of unstructured files across disconnected directories, legacy shares, and SharePoint sites. This disorganization creates substantial compliance and security risks (unredacted PII, incorrect confidentiality tags, broken access boundaries) and makes knowledge retrieval incredibly difficult.

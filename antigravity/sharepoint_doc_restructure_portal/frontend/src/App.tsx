@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { 
   Shield, 
   FileText, 
@@ -23,7 +23,13 @@ import {
   Lock,
   LogOut,
   FolderOpen,
-  HelpCircle
+  HelpCircle,
+  Command,
+  Sun,
+  Moon,
+  X,
+  ChevronDown,
+  ChevronUp
 } from 'lucide-react';
 
 const API_BASE = "/api";
@@ -156,7 +162,7 @@ const pipelineSteps: ArchStep[] = [
     sub: "Step 03 / Extraction",
     desc: "Extracts 3-level PwC taxonomy attributes (Confidentiality, Industry, Doc Sub-Type) dynamically.",
     latency: "~3.50s",
-    target: "Gemini 3.5 Flash",
+    target: "Gemini 2.5 Flash",
     badgeColor: "bg-purple-50 text-purple-700",
     reqs: [
       { code: "FR01", name: "Document Classification", desc: "Assigns core Document Type and Sub-Type based on PwC tax classifications." },
@@ -224,6 +230,42 @@ export default function App() {
   const [documents, setDocuments] = useState<Document[]>([]);
   const [ontology, setOntology] = useState<Ontology | null>(null);
   const [selectedDoc, setSelectedDoc] = useState<Document | null>(null);
+  const [panelHeight, setPanelHeight] = useState(384);
+  const [isPanelMinimized, setIsPanelMinimized] = useState(false);
+  const isResizingRef = useRef(false);
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    e.preventDefault();
+    isResizingRef.current = true;
+    document.body.style.cursor = 'ns-resize';
+    document.body.style.userSelect = 'none';
+  };
+
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!isResizingRef.current) return;
+      const newHeight = window.innerHeight - e.clientY;
+      if (newHeight >= 60 && newHeight <= window.innerHeight - 100) {
+        setPanelHeight(newHeight);
+      }
+    };
+
+    const handleMouseUp = () => {
+      if (isResizingRef.current) {
+        isResizingRef.current = false;
+        document.body.style.cursor = '';
+        document.body.style.userSelect = '';
+      }
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mouseup', handleMouseUp);
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, []);
+
   const [activeTab, setActiveTab] = useState<'queue' | 'ontology' | 'architecture'>('queue');
   const [selectedArchStep, setSelectedArchStep] = useState<number | null>(null);
   
@@ -258,7 +300,7 @@ export default function App() {
   const [messages, setMessages] = useState<Message[]>([
     {
       sender: 'bot',
-      text: "Aether Governance Engine Online. Initialized using Gemini 3.5 Flash (Region: global). Ask me a question about documents or relationships."
+      text: "Aether Governance Engine Online. Initialized using Gemini 2.5 Flash (Region: global). Ask me a question about documents or relationships."
     }
   ]);
   
@@ -270,6 +312,134 @@ export default function App() {
   const [editCap, setEditCap] = useState('');
 
   const chatEndRef = useRef<HTMLDivElement>(null);
+  const chatTextAreaRef = useRef<HTMLTextAreaElement>(null);
+
+  // Auto-grow and shrink textarea based on chatInput state
+  useEffect(() => {
+    const textarea = chatTextAreaRef.current;
+    if (textarea) {
+      textarea.style.height = '38px';
+      if (chatInput.trim()) {
+        textarea.style.height = `${textarea.scrollHeight}px`;
+      }
+    }
+  }, [chatInput]);
+
+  // Next-Gen Spotlight / Command Palette State
+  const [isSpotlightOpen, setIsSpotlightOpen] = useState(false);
+  const [spotlightQuery, setSpotlightQuery] = useState('');
+  const [spotlightFilter, setSpotlightFilter] = useState<'all' | 'signed' | 'unsigned' | 'pwc' | 'confidential'>('all');
+  const [selectedSpotlightIndex, setSelectedSpotlightIndex] = useState(0);
+  const [isSpotlightSearchingRemote, setIsSpotlightSearchingRemote] = useState(false);
+  const [spotlightRemoteAnswer, setSpotlightRemoteAnswer] = useState<string | null>(null);
+  const [spotlightRemoteSources, setSpotlightRemoteSources] = useState<any[]>([]);
+
+  // Spotlight Light Theme state (persisted)
+  const [isSpotlightLightTheme, setIsSpotlightLightTheme] = useState<boolean>(() => {
+    return localStorage.getItem('spotlightTheme') === 'light';
+  });
+
+  const toggleSpotlightTheme = () => {
+    setIsSpotlightLightTheme(prev => {
+      const next = !prev;
+      localStorage.setItem('spotlightTheme', next ? 'light' : 'dark');
+      return next;
+    });
+  };
+
+  // Toggle Spotlight with Command+K or Ctrl+K
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        setIsSpotlightOpen(prev => !prev);
+      }
+      if (e.key === 'Escape') {
+        setIsSpotlightOpen(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
+  // Compute filtered results
+  const filteredSpotlightDocs = documents.filter(doc => {
+    // 1. Query filter
+    const trimmedQuery = spotlightQuery.trim().toLowerCase();
+    if (!trimmedQuery) return true;
+
+    // Check if this document is one of the matched sources from remote semantic search
+    const isSemanticMatch = spotlightRemoteSources.some(src => 
+      src.title.toLowerCase() === doc.filename.toLowerCase() ||
+      doc.filename.toLowerCase().includes(src.title.toLowerCase()) ||
+      src.title.toLowerCase().includes(doc.filename.toLowerCase())
+    );
+    if (isSemanticMatch) return true;
+
+    // Split query into keywords (e.g., words with length > 3) to allow natural language search
+    const keywords = trimmedQuery.split(/\s+/).filter(word => word.length > 3);
+    if (keywords.length > 0) {
+      // If we have keywords, check if any of the keywords match the document's metadata
+      const matchesKeywords = keywords.some(keyword => 
+        doc.filename.toLowerCase().includes(keyword) ||
+        doc.type.toLowerCase().includes(keyword) ||
+        doc.sub_type.toLowerCase().includes(keyword) ||
+        doc.primary_topic.toLowerCase().includes(keyword) ||
+        (doc.content && doc.content.toLowerCase().includes(keyword))
+      );
+      if (!matchesKeywords) return false;
+    } else {
+      // Substring matching fallback
+      const matchesQuery = 
+        doc.filename.toLowerCase().includes(trimmedQuery) ||
+        doc.type.toLowerCase().includes(trimmedQuery) ||
+        doc.sub_type.toLowerCase().includes(trimmedQuery) ||
+        doc.primary_topic.toLowerCase().includes(trimmedQuery) ||
+        (doc.content && doc.content.toLowerCase().includes(trimmedQuery));
+      if (!matchesQuery) return false;
+    }
+
+    // 2. Class/Badge filters
+    if (spotlightFilter === 'signed') return doc.is_signed?.toLowerCase() === 'yes';
+    if (spotlightFilter === 'unsigned') return doc.is_signed?.toLowerCase() === 'no';
+    if (spotlightFilter === 'pwc') return doc.type.toLowerCase().includes('pwc');
+    if (spotlightFilter === 'confidential') return doc.confidentiality?.toLowerCase().includes('confidential');
+
+    return true;
+  });
+
+  // Handle Spotlight remote deep search
+  const handleSpotlightRemoteSearch = async () => {
+    if (!spotlightQuery.trim()) return;
+    setIsSpotlightSearchingRemote(true);
+    setSpotlightRemoteAnswer(null);
+    setSpotlightRemoteSources([]);
+    try {
+      const response = await fetch(`${API_BASE}/search`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query: spotlightQuery })
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setSpotlightRemoteAnswer(data.answer);
+        setSpotlightRemoteSources(data.sources || []);
+      } else {
+        setSpotlightRemoteAnswer("Semantic search service temporarily unavailable.");
+      }
+    } catch (e) {
+      setSpotlightRemoteAnswer("Connection error. Ensure backend is running on 8085.");
+    } finally {
+      setIsSpotlightSearchingRemote(false);
+    }
+  };
+
+  // Reset selected index when query or filter changes
+  useEffect(() => {
+    setSelectedSpotlightIndex(0);
+    setSpotlightRemoteAnswer(null);
+    setSpotlightRemoteSources([]);
+  }, [spotlightQuery, spotlightFilter]);
 
   const handleOAuthCallback = async (code: string) => {
     setIsVerifyingAuth(true);
@@ -532,6 +702,9 @@ export default function App() {
 
     const query = chatInput;
     setChatInput('');
+    if (chatTextAreaRef.current) {
+      chatTextAreaRef.current.style.height = '38px';
+    }
     setMessages(prev => [...prev, { sender: 'user', text: query }]);
     setMessages(prev => [...prev, { sender: 'bot', text: 'Thinking...', isThinking: true }]);
 
@@ -659,10 +832,20 @@ export default function App() {
     <div className="flex flex-col h-screen bg-[#faf9f6] text-[#1a1a19] overflow-hidden rounded-none">
       
       {/* 1. Architectural Header */}
-      <header className="border-b border-[#d8d6d0] bg-[#faf9f6] px-8 py-5 rounded-none flex items-baseline justify-between shrink-0">
-        <div className="flex items-baseline gap-3">
+      <header className="border-b border-[#d8d6d0] bg-[#faf9f6] px-8 py-5 rounded-none flex items-center justify-between shrink-0">
+        <div className="flex items-center gap-3">
           <span className="font-bold text-xl tracking-[0.05em] uppercase">AETHER</span>
           <span className="text-xs text-[#7c7a75] tracking-widest uppercase">/ SharePoint Restructure Console</span>
+          
+          {/* Spotlight Trigger Pill */}
+          <button 
+            onClick={() => setIsSpotlightOpen(true)}
+            className="hidden md:flex items-center gap-2 px-3 py-1 bg-white border border-[#d8d6d0] hover:border-[#1a1a19] text-[#7c7a75] hover:text-[#1a1a19] text-xs font-medium rounded-none transition-all shadow-sm ml-6 cursor-pointer"
+          >
+            <Search className="h-3.5 w-3.5 text-blue-700" />
+            <span>Semantic Spotlight...</span>
+            <kbd className="bg-[#faf9f6] border border-[#d8d6d0] px-1 py-0.2 text-[9px] font-mono text-[#7c7a75] rounded">⌘K</kbd>
+          </button>
         </div>
         
         <div className="flex items-center gap-4">
@@ -1020,9 +1203,58 @@ export default function App() {
 
               {/* Selected Document Details Panel */}
               {selectedDoc && (
-                <div className="border-t border-[#d8d6d0] bg-[#f4f3ef] p-6 h-96 overflow-y-auto shrink-0 flex gap-6">
-                  
-                  <div className="flex-1 flex flex-col justify-between border-r border-[#d8d6d0] pr-6">
+                <div 
+                  style={{ height: isPanelMinimized ? '44px' : `${panelHeight}px` }}
+                  className="border-t border-[#d8d6d0] bg-[#f4f3ef] shrink-0 flex flex-col relative transition-all duration-150 ease-out"
+                >
+                  {/* Resize Handle (only active when not minimized) */}
+                  {!isPanelMinimized && (
+                    <div 
+                      onMouseDown={handleMouseDown}
+                      className="absolute top-0 left-0 right-0 h-1.5 cursor-ns-resize hover:bg-[#1a1a19]/10 transition-colors z-30"
+                      title="Drag to resize panel vertically"
+                    />
+                  )}
+
+                  {/* Header Bar */}
+                  <div className="h-11 border-b border-[#d8d6d0] px-6 flex items-center justify-between select-none bg-[#ecebe5] shrink-0 z-20">
+                    <div className="flex items-center gap-3">
+                      <span className="text-[10px] uppercase font-bold text-[#7c7a75] tracking-wider">Human-In-The-Loop QA</span>
+                      <span className="text-[12px] font-bold text-[#1a1a19] truncate max-w-xl">{selectedDoc.filename}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      {isPanelMinimized ? (
+                        <button 
+                          onClick={() => setIsPanelMinimized(false)}
+                          className="p-1 hover:bg-[#1a1a19]/10 text-[#1a1a19] transition-colors"
+                          title="Restore Panel"
+                        >
+                          <ChevronUp className="h-4 w-4" />
+                        </button>
+                      ) : (
+                        <button 
+                          onClick={() => setIsPanelMinimized(true)}
+                          className="p-1 hover:bg-[#1a1a19]/10 text-[#1a1a19] transition-colors"
+                          title="Minimize Panel"
+                        >
+                          <ChevronDown className="h-4 w-4" />
+                        </button>
+                      )}
+                      <button 
+                        onClick={() => setSelectedDoc(null)}
+                        className="p-1 hover:bg-red-100 hover:text-red-700 text-[#1a1a19] transition-colors"
+                        title="Close Panel"
+                      >
+                        <X className="h-4 w-4" />
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Scrollable Content (only fully visible when not minimized) */}
+                  {!isPanelMinimized && (
+                    <div className="flex-1 overflow-y-auto p-6 flex gap-6">
+                      
+                      <div className="flex-1 flex flex-col justify-between border-r border-[#d8d6d0] pr-6">
                     <div>
                       <div className="flex items-baseline gap-2 mb-2">
                         <h3 className="text-sm font-bold text-[#1a1a19] uppercase tracking-wider">{selectedDoc.filename}</h3>
@@ -1170,11 +1402,12 @@ export default function App() {
                       </button>
                     </div>
                   </div>
-
                 </div>
               )}
             </div>
           )}
+        </div>
+      )}
 
           {/* TAB 2: Dynamic Ontology View */}
           {activeTab === 'ontology' && ontology && (
@@ -1230,7 +1463,7 @@ export default function App() {
                 <span className="text-[10px] text-[#7c7a75] uppercase font-bold tracking-widest block mb-1">Architecture Overview</span>
                 <h2 className="text-sm font-bold uppercase text-[#1a1a19]">Aether Zero-Leak & Real-Time ACL Sync Ingestion Pipeline</h2>
                 <p className="text-xs text-[#7c7a75] mt-2 leading-relaxed">
-                  Below is the interactive visual diagram showing the live data orchestration, from Microsoft Graph crawlers to target analytical storage in Google Cloud. Latencies are benchmarked using <strong>gemini-embedding-2</strong> and <strong>gemini-3.5-flash</strong>.
+                  Below is the interactive visual diagram showing the live data orchestration, from Microsoft Graph crawlers to target analytical storage in Google Cloud. Latencies are benchmarked using <strong>gemini-embedding-2</strong> and <strong>gemini-2.5-flash</strong>.
                 </p>
               </div>
 
@@ -1414,16 +1647,51 @@ export default function App() {
                             return cleanDocName === cleanTitle || cleanDocName.includes(cleanTitle) || cleanTitle.includes(cleanDocName);
                           });
                           return (
-                            <div key={sIdx} className="text-xs text-[#7c7a75] flex items-baseline gap-1.5">
+                            <div key={sIdx} className="text-xs text-[#7c7a75] flex items-baseline gap-1.5 group relative">
                               <CornerDownRight className="h-3 w-3 shrink-0 mt-0.5" />
                               <div className="flex-1 min-w-0">
-                                <div className="flex flex-wrap items-center gap-2 mb-0.5">
+                                <div className="flex flex-wrap items-center gap-2 mb-0.5 relative">
                                   {src.url && src.url !== "#" ? (
                                     <a href={src.url} target="_blank" rel="noreferrer" className="underline font-medium hover:text-[#1a1a19] text-blue-700 flex items-center gap-0.5 shrink-0">
                                       {src.title} <Link2 className="h-3 w-3" />
                                     </a>
                                   ) : (
                                     <span className="font-medium text-[#1a1a19] shrink-0">{src.title}</span>
+                                  )}
+
+                                  {/* FLOATING HOVER CARD WINDOW */}
+                                  {foundDoc && (
+                                    <div className="absolute bottom-full left-0 mb-2 hidden group-hover:flex flex-col w-80 bg-[#faf9f6] border-2 border-[#1a1a19] p-4 shadow-[4px_4px_0px_0px_rgba(26,26,25,0.15)] z-50 pointer-events-none text-[#1a1a19] font-sans rounded-none transition-all">
+                                      <div className="border-b border-[#d8d6d0] pb-2 mb-2 flex items-center justify-between">
+                                        <span className="text-[9px] uppercase font-mono font-bold text-[#7c7a75]">Document Metadata Card</span>
+                                        <span className="text-[9px] font-mono bg-[#1a1a19] text-[#faf9f6] px-1.5 py-0.5 font-bold uppercase truncate">{foundDoc.state || "APPROVED"}</span>
+                                      </div>
+                                      <h4 className="font-bold text-xs text-[#1a1a19] truncate mb-3">{foundDoc.filename}</h4>
+                                      <div className="space-y-2 text-[11px]">
+                                        <div className="flex justify-between items-center border-b border-dotted border-[#d8d6d0] pb-1">
+                                          <span className="text-[#7c7a75] font-mono text-[9px] uppercase">Lifecycle:</span>
+                                          <span className="font-bold text-[#1a1a19]">{foundDoc.lifecycle || 'ACTIVE/PRODUCTION'}</span>
+                                        </div>
+                                        <div className="flex justify-between items-center border-b border-dotted border-[#d8d6d0] pb-1">
+                                          <span className="text-[#7c7a75] font-mono text-[9px] uppercase">Confidentiality:</span>
+                                          <span className="font-bold text-red-700 uppercase">{foundDoc.confidentiality || 'CONFIDENTIAL'}</span>
+                                        </div>
+                                        <div className="flex justify-between items-center border-b border-dotted border-[#d8d6d0] pb-1">
+                                          <span className="text-[#7c7a75] font-mono text-[9px] uppercase">Classification:</span>
+                                          <span className="font-bold">{foundDoc.sub_type || 'UNCLASSIFIED'}</span>
+                                        </div>
+                                        <div className="flex justify-between items-center border-b border-dotted border-[#d8d6d0] pb-1">
+                                          <span className="text-[#7c7a75] font-mono text-[9px] uppercase">Primary Topic:</span>
+                                          <span className="font-semibold truncate max-w-[150px] text-right">{foundDoc.primary_topic || 'GENERAL'}</span>
+                                        </div>
+                                        <div className="flex justify-between items-center">
+                                          <span className="text-[#7c7a75] font-mono text-[9px] uppercase">PII Status:</span>
+                                          <span className={`font-bold ${foundDoc.pii_detected ? 'text-red-600' : 'text-green-700'}`}>
+                                            {foundDoc.pii_detected ? '⚠️ DETECTED' : '✅ CLEAN'}
+                                          </span>
+                                        </div>
+                                      </div>
+                                    </div>
                                   )}
                                   {foundDoc && (
                                     <button
@@ -1463,17 +1731,25 @@ export default function App() {
 
           {/* Chat Form */}
           <div className="p-6 border-t border-[#d8d6d0] bg-[#f4f3ef] shrink-0">
-            <form onSubmit={handleSearchSubmit} className="flex gap-4">
-              <input 
-                type="text" 
+            <form onSubmit={handleSearchSubmit} className="flex gap-3 bg-[#faf9f6] border border-[#d8d6d0] focus-within:border-[#1a1a19] p-2 transition-all duration-200 items-center">
+              <textarea 
+                ref={chatTextAreaRef}
+                rows={1}
                 value={chatInput}
                 onChange={(e) => setChatInput(e.target.value)}
-                placeholder="Ask: 'show blueprint process map' or 'liability caps'..."
-                className="flex-1 text-xs bg-[#faf9f6] border border-[#d8d6d0] px-4 py-3 text-[#1a1a19] focus:outline-none focus:border-[#1a1a19] rounded-none"
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    handleSearchSubmit(e);
+                  }
+                }}
+                placeholder="Ask a question..."
+                className="flex-1 text-xs bg-transparent px-3 py-2 text-[#1a1a19] focus:outline-none resize-none min-h-[38px] max-h-[200px] overflow-y-auto leading-relaxed border-none outline-none"
+                style={{ height: '38px' }}
               />
               <button 
                 type="submit"
-                className="bg-[#1a1a19] text-[#faf9f6] px-5 py-3 text-xs font-semibold tracking-wider uppercase rounded-none hover:opacity-90 flex items-center gap-1.5"
+                className="bg-[#1a1a19] text-[#faf9f6] px-5 text-xs font-semibold tracking-wider uppercase rounded-none hover:bg-[#7c7a75] hover:text-[#faf9f6] transition-colors flex items-center justify-center gap-1.5 shrink-0 h-[38px]"
               >
                 <Send className="h-3.5 w-3.5" /> Send
               </button>
@@ -1541,6 +1817,536 @@ export default function App() {
           </div>
         </div>
       )}
+
+      {/* NEXT-GEN SEMANTIC SPOTLIGHT COMMAND PALETTE */}
+      {isSpotlightOpen && (() => {
+        const activeDoc = filteredSpotlightDocs[selectedSpotlightIndex];
+        // Helper to find and extract snippet of matching text in real-time
+        const getMatchSnippet = (doc: any, query: string) => {
+          if (!query.trim() || !doc || !doc.content) return null;
+          const contentStr = doc.content;
+          const index = contentStr.toLowerCase().indexOf(query.toLowerCase());
+          if (index === -1) {
+            // Check individual words if no direct substring
+            const words = query.toLowerCase().split(/\s+/).filter(w => w.length > 3);
+            for (const word of words) {
+              const wordIdx = contentStr.toLowerCase().indexOf(word);
+              if (wordIdx !== -1) {
+                const start = Math.max(0, wordIdx - 50);
+                const end = Math.min(contentStr.length, wordIdx + word.length + 80);
+                return {
+                  text: (start > 0 ? '...' : '') + contentStr.substring(start, end).replace(/\n+/g, ' ') + (end < contentStr.length ? '...' : ''),
+                  matchedWord: word
+                };
+              }
+            }
+            return null;
+          }
+          const start = Math.max(0, index - 50);
+          const end = Math.min(contentStr.length, index + query.length + 80);
+          return {
+            text: (start > 0 ? '...' : '') + contentStr.substring(start, end).replace(/\n+/g, ' ') + (end < contentStr.length ? '...' : ''),
+            matchedWord: query
+          };
+        };
+
+        const snippetInfo = getMatchSnippet(activeDoc, spotlightQuery);
+
+        return (
+          <div className={`fixed inset-0 backdrop-blur-xl flex items-start justify-center z-50 p-4 pt-[10vh] transition-all duration-300 ${
+            isSpotlightLightTheme ? 'bg-stone-900/50' : 'bg-neutral-950/80'
+          }`}>
+            <div className={`w-full max-w-4xl rounded-none flex flex-col max-h-[82vh] overflow-hidden transition-all duration-300 transform scale-100 font-sans relative border-2 ${
+              isSpotlightLightTheme 
+                ? 'bg-white border-cyan-600/40 shadow-[0_0_60px_rgba(8,145,178,0.15)]' 
+                : 'bg-neutral-950/95 border-cyan-500/40 shadow-[0_0_60px_rgba(6,182,212,0.25)]'
+            }`}>
+              
+              {/* Cyber Scanner Grid Background Overlay */}
+              <div className={`absolute inset-0 pointer-events-none opacity-[0.03] bg-[size:20px_20px] animate-[pulse_8s_infinite] ${
+                isSpotlightLightTheme
+                  ? 'bg-[linear-gradient(rgba(255,255,255,0)_95%,#0891b2_95%),linear-gradient(90deg,rgba(255,255,255,0)_95%,#0891b2_95%)]'
+                  : 'bg-[linear-gradient(rgba(18,18,18,0)_95%,#06b6d4_95%),linear-gradient(90deg,rgba(18,18,18,0)_95%,#06b6d4_95%)]'
+              }`}></div>
+              
+              {/* Top Cyan Glow Line */}
+              <div className={`h-[2px] w-full animate-[pulse_2s_infinite] bg-gradient-to-r from-transparent to-transparent ${
+                isSpotlightLightTheme ? 'via-cyan-600' : 'via-cyan-400'
+              }`}></div>
+
+              {/* Palette Search Input Bar */}
+              <div className={`flex items-center gap-4 px-6 py-4 border-b relative z-10 shrink-0 ${
+                isSpotlightLightTheme ? 'border-cyan-600/20 bg-stone-50' : 'border-cyan-500/20 bg-neutral-950/90'
+              }`}>
+                <div className="relative flex items-center justify-center">
+                  <Search className={`h-5 w-5 animate-[pulse_1.5s_infinite] ${isSpotlightLightTheme ? 'text-cyan-600' : 'text-cyan-400'}`} />
+                  <span className={`absolute h-6 w-6 rounded-full border animate-ping opacity-40 ${
+                    isSpotlightLightTheme ? 'border-cyan-600/40' : 'border-cyan-500/40'
+                  }`}></span>
+                </div>
+                <div className="flex-1 flex flex-col">
+                  <input 
+                    type="text" 
+                    placeholder="QUERY MATRIX DATABASE / SHIFT+ENTER FOR SEMANTIC DEEP AI..."
+                    className={`bg-transparent text-sm outline-none border-none font-mono tracking-wider w-full select-all font-bold uppercase ${
+                      isSpotlightLightTheme ? 'text-cyan-950 placeholder-cyan-800/40' : 'text-cyan-100 placeholder-cyan-800/60'
+                    }`}
+                    value={spotlightQuery}
+                    autoFocus
+                    onChange={(e) => setSpotlightQuery(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        if (e.shiftKey) {
+                          handleSpotlightRemoteSearch();
+                        } else if (filteredSpotlightDocs[selectedSpotlightIndex]) {
+                          setSelectedDoc(filteredSpotlightDocs[selectedSpotlightIndex]);
+                          setIsSpotlightOpen(false);
+                        }
+                      } else if (e.key === 'ArrowDown') {
+                        e.preventDefault();
+                        setSelectedSpotlightIndex(prev => Math.min(prev + 1, filteredSpotlightDocs.length - 1));
+                      } else if (e.key === 'ArrowUp') {
+                        e.preventDefault();
+                        setSelectedSpotlightIndex(prev => Math.max(prev - 1, 0));
+                      }
+                    }}
+                  />
+                </div>
+                
+                {/* Simulated Pulse Waveform to look alive */}
+                <div className="hidden sm:flex items-center gap-0.5 h-4 px-2 opacity-60">
+                  <span className={`w-[2px] h-2 animate-[pulse_0.4s_infinite] ${isSpotlightLightTheme ? 'bg-cyan-600' : 'bg-cyan-500'}`}></span>
+                  <span className={`w-[2px] h-3 animate-[pulse_0.6s_infinite] ${isSpotlightLightTheme ? 'bg-cyan-600' : 'bg-cyan-500'}`}></span>
+                  <span className={`w-[2px] h-1 animate-[pulse_0.3s_infinite] ${isSpotlightLightTheme ? 'bg-cyan-500' : 'bg-cyan-400'}`}></span>
+                  <span className={`w-[2px] h-4 animate-[pulse_0.5s_infinite] ${isSpotlightLightTheme ? 'bg-cyan-600' : 'bg-cyan-500'}`}></span>
+                  <span className={`w-[2px] h-2 animate-[pulse_0.7s_infinite] ${isSpotlightLightTheme ? 'bg-cyan-500' : 'bg-cyan-400'}`}></span>
+                </div>
+
+                {/* Theme Toggle Button */}
+                <button 
+                  onClick={toggleSpotlightTheme}
+                  title="Toggle Theme"
+                  className={`flex items-center gap-1 px-2 py-0.5 text-[9px] uppercase font-mono border rounded-none cursor-pointer transition-all ${
+                    isSpotlightLightTheme 
+                      ? 'text-cyan-850 bg-cyan-100 border-cyan-400 hover:bg-cyan-200' 
+                      : 'text-cyan-400 bg-cyan-950/40 border-cyan-500/30 hover:bg-cyan-950/80 shadow-[0_0_8px_rgba(6,182,212,0.1)]'
+                  }`}
+                >
+                  {isSpotlightLightTheme ? <Sun className="h-3 w-3 animate-[spin_4s_linear_infinite]" /> : <Moon className="h-3 w-3" />}
+                  <span>{isSpotlightLightTheme ? 'LIGHT' : 'DARK'}</span>
+                </button>
+
+                <div className={`flex items-center gap-1.5 text-[9px] uppercase font-mono px-2 py-0.5 border ${
+                  isSpotlightLightTheme 
+                    ? 'text-cyan-800 bg-cyan-100 border-cyan-300' 
+                    : 'text-cyan-400 bg-cyan-950/40 border-cyan-500/30 shadow-[0_0_8px_rgba(6,182,212,0.1)]'
+                }`}>
+                  <Command className="h-3 w-3" />
+                  <span>ESC</span>
+                </div>
+              </div>
+
+              {/* Quick Filters Row */}
+              <div className={`flex items-center gap-2 px-6 py-3 border-b overflow-x-auto shrink-0 z-10 relative ${
+                isSpotlightLightTheme ? 'bg-stone-100/60 border-cyan-600/10' : 'bg-neutral-900/60 border-cyan-500/10'
+              }`}>
+                <span className={`text-[9px] uppercase font-mono font-bold tracking-wider mr-2 shrink-0 ${
+                  isSpotlightLightTheme ? 'text-cyan-700' : 'text-cyan-600'
+                }`}>FILTER_SET //</span>
+                <button 
+                  onClick={() => setSpotlightFilter('all')}
+                  className={`px-3 py-1 text-[10px] font-mono font-bold rounded-none uppercase transition-all tracking-wider border ${
+                    spotlightFilter === 'all' 
+                      ? isSpotlightLightTheme
+                        ? 'bg-cyan-100 text-cyan-800 border-cyan-600 shadow-[0_0_8px_rgba(8,145,178,0.15)]'
+                        : 'bg-cyan-500/20 text-cyan-300 border-cyan-500 shadow-[0_0_8px_rgba(6,182,212,0.2)]'
+                      : isSpotlightLightTheme
+                        ? 'bg-transparent text-stone-500 border-stone-200 hover:text-cyan-700 hover:border-cyan-600/30'
+                        : 'bg-transparent text-neutral-400 border-neutral-800 hover:text-cyan-400 hover:border-cyan-500/30'
+                  }`}
+                >
+                  ALL [{documents.length}]
+                </button>
+                <button 
+                  onClick={() => setSpotlightFilter('signed')}
+                  className={`px-3 py-1 text-[10px] font-mono font-bold rounded-none uppercase transition-all tracking-wider border ${
+                    spotlightFilter === 'signed' 
+                      ? isSpotlightLightTheme
+                        ? 'bg-emerald-100 text-emerald-800 border-emerald-600 shadow-[0_0_8px_rgba(16,185,129,0.15)]'
+                        : 'bg-emerald-500/20 text-emerald-300 border-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.2)]'
+                      : isSpotlightLightTheme
+                        ? 'bg-transparent text-stone-500 border-stone-200 hover:text-emerald-700 hover:border-emerald-500/30'
+                        : 'bg-transparent text-neutral-400 border-neutral-800 hover:text-emerald-400 hover:border-emerald-500/30'
+                  }`}
+                >
+                  SIGNED
+                </button>
+                <button 
+                  onClick={() => setSpotlightFilter('unsigned')}
+                  className={`px-3 py-1 text-[10px] font-mono font-bold rounded-none uppercase transition-all tracking-wider border ${
+                    spotlightFilter === 'unsigned' 
+                      ? isSpotlightLightTheme
+                        ? 'bg-rose-100 text-rose-800 border-rose-600 shadow-[0_0_8px_rgba(244,63,94,0.15)]'
+                        : 'bg-rose-500/20 text-rose-300 border-rose-400 shadow-[0_0_8px_rgba(244,63,94,0.2)]'
+                      : isSpotlightLightTheme
+                        ? 'bg-transparent text-stone-500 border-stone-200 hover:text-rose-700 hover:border-rose-500/30'
+                        : 'bg-transparent text-neutral-400 border-neutral-800 hover:text-rose-400 hover:border-rose-500/30'
+                  }`}
+                >
+                  UNSIGNED
+                </button>
+                <button 
+                  onClick={() => setSpotlightFilter('pwc')}
+                  className={`px-3 py-1 text-[10px] font-mono font-bold rounded-none uppercase transition-all tracking-wider border ${
+                    spotlightFilter === 'pwc' 
+                      ? isSpotlightLightTheme
+                        ? 'bg-blue-100 text-blue-800 border-blue-600 shadow-[0_0_8px_rgba(59,130,246,0.15)]'
+                        : 'bg-blue-500/20 text-blue-300 border-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.2)]'
+                      : isSpotlightLightTheme
+                        ? 'bg-transparent text-stone-500 border-stone-200 hover:text-blue-700 hover:border-blue-500/30'
+                        : 'bg-transparent text-neutral-400 border-neutral-800 hover:text-blue-400 hover:border-blue-500/30'
+                  }`}
+                >
+                  PwC CORP
+                </button>
+                <button 
+                  onClick={() => setSpotlightFilter('confidential')}
+                  className={`px-3 py-1 text-[10px] font-mono font-bold rounded-none uppercase transition-all tracking-wider border ${
+                    spotlightFilter === 'confidential' 
+                      ? isSpotlightLightTheme
+                        ? 'bg-amber-100 text-amber-800 border-amber-600 shadow-[0_0_8px_rgba(245,158,11,0.15)]'
+                        : 'bg-amber-500/20 text-amber-300 border-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.2)]'
+                      : isSpotlightLightTheme
+                        ? 'bg-transparent text-stone-500 border-stone-200 hover:text-amber-700 hover:border-amber-500/30'
+                        : 'bg-transparent text-neutral-400 border-neutral-800 hover:text-amber-400 hover:border-amber-500/30'
+                  }`}
+                >
+                  CLASSIFIED
+                </button>
+              </div>
+
+              {/* Results Grid Container */}
+              <div className="flex-1 overflow-y-auto p-4 grid grid-cols-1 md:grid-cols-5 gap-4 min-h-[350px] z-10 relative">
+                
+                {/* Left Column: List of Results (Reactive to search) */}
+                <div className={`md:col-span-3 border-r pr-3 max-h-[52vh] overflow-y-auto space-y-1.5 scrollbar-thin scrollbar-track-transparent ${
+                  isSpotlightLightTheme 
+                    ? 'border-stone-200 scrollbar-thumb-stone-200' 
+                    : 'border-neutral-800/80 scrollbar-thumb-cyan-950'
+                }`}>
+                  <div className={`text-[10px] font-mono uppercase font-bold tracking-wider mb-2.5 px-2 flex justify-between ${
+                    isSpotlightLightTheme ? 'text-cyan-700' : 'text-cyan-600'
+                  }`}>
+                    <span>INDEXED_CORES ({filteredSpotlightDocs.length})</span>
+                    <span>NAV_KEYS [↑↓] // ENTER [↵]</span>
+                  </div>
+
+                  {filteredSpotlightDocs.length === 0 ? (
+                    <div className={`p-12 text-center text-xs font-mono border border-dashed ${
+                      isSpotlightLightTheme 
+                        ? 'text-cyan-800/60 border-cyan-300 bg-cyan-50' 
+                        : 'text-cyan-700/60 border-cyan-900/40 bg-cyan-950/5'
+                    }`}>
+                      NO CORES MATCHING TERM OR CONFIGURATION IN THE DIRECTORY.
+                    </div>
+                  ) : (
+                    filteredSpotlightDocs.map((doc, idx) => {
+                      const isSelected = idx === selectedSpotlightIndex;
+                      
+                      // Calculate simulated relevancy match percentage for futuristic vibe
+                      let relevancy = 0;
+                      if (!spotlightQuery.trim()) {
+                        relevancy = 100 - idx;
+                      } else {
+                        const scoreSeed = doc.id.split('').reduce((acc: number, char: string) => acc + char.charCodeAt(0), 0);
+                        relevancy = Math.floor(82 + (scoreSeed % 12) + (doc.filename.toLowerCase().includes(spotlightQuery.toLowerCase()) ? 6 : 0));
+                      }
+                      relevancy = Math.min(100, Math.max(50, relevancy));
+
+                      return (
+                        <div 
+                          key={doc.id}
+                          onClick={() => {
+                            setSelectedDoc(doc);
+                            setIsSpotlightOpen(false);
+                          }}
+                          onMouseEnter={() => setSelectedSpotlightIndex(idx)}
+                          className={`p-3 rounded-none flex flex-col justify-between transition-all cursor-pointer border ${
+                            isSelected 
+                              ? isSpotlightLightTheme
+                                ? 'bg-cyan-50 border-cyan-500 text-cyan-950 shadow-[0_0_12px_rgba(8,145,178,0.1)]'
+                                : 'bg-cyan-500/10 border-cyan-500/80 text-cyan-100 shadow-[0_0_12px_rgba(6,182,212,0.15)]' 
+                              : isSpotlightLightTheme
+                                ? 'bg-stone-50 border-stone-200 text-stone-600 hover:bg-stone-100 hover:border-stone-300'
+                                : 'bg-neutral-900/25 border-neutral-900/60 text-neutral-400 hover:bg-neutral-900/50 hover:border-neutral-800'
+                          }`}
+                        >
+                          <div className="flex items-center gap-2 justify-between">
+                            <span className={`font-mono text-xs truncate max-w-[340px] font-bold ${
+                              isSelected 
+                                ? isSpotlightLightTheme ? 'text-cyan-750' : 'text-cyan-300' 
+                                : isSpotlightLightTheme ? 'text-stone-800' : 'text-neutral-200'
+                            }`}>
+                              {doc.filename}
+                            </span>
+                            <span className={`text-[8px] px-1.5 py-0.2 font-mono font-bold border ${
+                              doc.confidentiality === 'Highly Confidential' 
+                                ? isSpotlightLightTheme
+                                  ? 'bg-rose-50 text-rose-750 border-rose-300'
+                                  : 'bg-rose-950/40 text-rose-400 border-rose-500/30' 
+                                : doc.confidentiality === 'Confidential' 
+                                  ? isSpotlightLightTheme
+                                    ? 'bg-amber-50 text-amber-750 border-amber-300'
+                                    : 'bg-amber-950/40 text-amber-400 border-amber-500/30' 
+                                  : isSpotlightLightTheme
+                                    ? 'bg-stone-100 text-stone-600 border-stone-300'
+                                    : 'bg-neutral-950/40 text-neutral-400 border-neutral-800'
+                            }`}>{doc.confidentiality}</span>
+                          </div>
+                          
+                          <div className="text-[9px] font-mono mt-2 flex items-center justify-between opacity-80">
+                            <span className={`${isSpotlightLightTheme ? 'text-cyan-600 font-bold' : 'text-cyan-700'} font-semibold`}>{doc.sub_type.toUpperCase()}</span>
+                            <div className="flex items-center gap-2">
+                              <span className={`${isSpotlightLightTheme ? 'text-stone-500' : 'text-neutral-500'} font-bold`}>{doc.site.toUpperCase()}</span>
+                              <span className={`px-1 rounded-sm font-bold text-[8px] ${
+                                isSelected 
+                                  ? isSpotlightLightTheme ? 'text-cyan-750 bg-cyan-100' : 'text-cyan-400 bg-cyan-950/50' 
+                                  : isSpotlightLightTheme ? 'text-stone-500 bg-stone-100' : 'text-neutral-500 bg-neutral-950/30'
+                              }`}>
+                                MATCH_RATIO: {relevancy}%
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })
+                  )}
+                </div>
+
+                {/* Right Column: Interactive Selected Preview / AI Retrieval */}
+                <div className="md:col-span-2 flex flex-col justify-between max-h-[52vh] overflow-y-auto pl-2 font-mono">
+                  
+                  {/* 1. Quick Info Card or Semantic Answer Preview */}
+                  <div className="flex-1 flex flex-col justify-between">
+                    {isSpotlightSearchingRemote ? (
+                      <div className={`flex-1 flex flex-col items-center justify-center p-8 text-center border ${
+                        isSpotlightLightTheme 
+                          ? 'bg-cyan-50/50 border-cyan-200 text-cyan-900' 
+                          : 'bg-cyan-950/5 border-cyan-500/20 text-cyan-300'
+                      }`}>
+                        <RefreshCw className={`h-8 w-8 animate-spin mb-3 ${isSpotlightLightTheme ? 'text-cyan-600' : 'text-cyan-400'}`} />
+                        <span className={`text-xs font-bold uppercase tracking-wider animate-[pulse_1s_infinite] ${
+                          isSpotlightLightTheme ? 'text-cyan-700' : 'text-cyan-300'
+                        }`}>Neural Extraction Active</span>
+                        <span className={`text-[10px] mt-2 leading-relaxed max-w-[220px] ${
+                          isSpotlightLightTheme ? 'text-cyan-800/80' : 'text-cyan-600'
+                        }`}>
+                          Traversing Firestore records, processing multi-document RAG context and synthesizing answers via Gemini-3-Flash...
+                        </span>
+                      </div>
+                    ) : spotlightRemoteAnswer ? (
+                      <div className={`border-2 p-4 flex flex-col justify-between h-full overflow-y-auto relative ${
+                        isSpotlightLightTheme 
+                          ? 'bg-cyan-50/50 border-cyan-500/30' 
+                          : 'bg-cyan-950/15 border-cyan-500/30'
+                      }`}>
+                        <div className={`absolute top-1 right-2 text-[8px] animate-pulse ${isSpotlightLightTheme ? 'text-cyan-600' : 'text-cyan-700'}`}>MATRIX_LIVE</div>
+                        <div>
+                          <div className={`flex items-center gap-1.5 border px-2 py-1 mb-3 text-[10px] font-bold ${
+                            isSpotlightLightTheme 
+                              ? 'bg-cyan-100 text-cyan-800 border-cyan-300' 
+                              : 'bg-cyan-950/50 text-cyan-300 border-cyan-500/20'
+                          }`}>
+                            <Activity className={`h-3.5 w-3.5 animate-pulse ${isSpotlightLightTheme ? 'text-cyan-600' : 'text-cyan-400'}`} />
+                            <span>CO-PILOT CONTEXT INTEGRATION</span>
+                          </div>
+                          
+                          {/* Answer Box */}
+                          <div className={`text-xs leading-relaxed font-mono p-3 border mb-3 select-all ${
+                            isSpotlightLightTheme 
+                              ? 'text-cyan-950 bg-white border-cyan-200' 
+                              : 'text-cyan-100 bg-neutral-950/50 border-cyan-500/10'
+                          }`}>
+                            {spotlightRemoteAnswer}
+                          </div>
+                        </div>
+                        
+                        {spotlightRemoteSources.length > 0 && (
+                          <div className={`border-t pt-3 ${isSpotlightLightTheme ? 'border-cyan-200' : 'border-cyan-500/20'}`}>
+                            <span className={`text-[9px] uppercase font-bold block mb-1.5 tracking-wider ${
+                              isSpotlightLightTheme ? 'text-cyan-700' : 'text-cyan-600'
+                            }`}>GROUNDED SOURCE CITATIONS //</span>
+                            <div className="space-y-1">
+                              {spotlightRemoteSources.map((src, sIdx) => (
+                                <div key={sIdx} className={`text-[10px] font-bold truncate flex items-center gap-1 ${
+                                  isSpotlightLightTheme ? 'text-cyan-700 hover:text-cyan-800' : 'text-cyan-400 hover:text-cyan-300'
+                                }`}>
+                                  <span className={isSpotlightLightTheme ? 'text-cyan-500' : 'text-cyan-600'}>⚡</span>
+                                  <a href={src.url || "#"} className="hover:underline">{src.title}</a>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    ) : activeDoc ? (
+                      <div className="flex flex-col h-full justify-between">
+                        <div className={`p-4 border ${
+                          isSpotlightLightTheme 
+                            ? 'bg-stone-50 border-stone-200' 
+                            : 'bg-neutral-900/40 border-cyan-500/20'
+                        }`}>
+                          <span className={`text-[9px] uppercase font-bold block mb-1 tracking-wider ${
+                            isSpotlightLightTheme ? 'text-cyan-700' : 'text-cyan-600'
+                          }`}>MATRIX RATIONALE //</span>
+                          <p className={`text-xs leading-relaxed font-mono p-2 border mb-4 italic ${
+                            isSpotlightLightTheme 
+                              ? 'text-stone-800 bg-white border-stone-200' 
+                              : 'text-cyan-100 bg-neutral-950/30 border-neutral-900'
+                          }`}>
+                            "{activeDoc.rationale}"
+                          </p>
+                          
+                          <span className={`text-[9px] uppercase font-bold block mb-1 tracking-wider ${
+                            isSpotlightLightTheme ? 'text-cyan-700' : 'text-cyan-600'
+                          }`}>TOPIC SCOPE //</span>
+                          <p className={`text-xs font-bold ${
+                            isSpotlightLightTheme ? 'text-cyan-800' : 'text-cyan-300'
+                          }`}>
+                            {activeDoc.primary_topic.toUpperCase()}
+                          </p>
+                          
+                          {/* Live Keyword Match Snippet Highlight Box */}
+                          {snippetInfo && (
+                            <div className={`mt-4 pt-3 border-t ${isSpotlightLightTheme ? 'border-stone-200' : 'border-cyan-500/10'}`}>
+                              <span className="text-[9px] uppercase font-bold text-rose-500 block mb-1 tracking-wider">DIRECT CLAUSE MATCH //</span>
+                              <div className={`text-[10px] font-mono leading-relaxed border p-2 ${
+                                isSpotlightLightTheme 
+                                  ? 'bg-rose-50 border-rose-200 text-rose-900' 
+                                  : 'bg-rose-950/15 border-rose-500/20 text-rose-200'
+                              }`}>
+                                {(() => {
+                                  const text = snippetInfo.text;
+                                  const term = snippetInfo.matchedWord;
+                                  const idx = text.toLowerCase().indexOf(term.toLowerCase());
+                                  if (idx === -1) return <span>{text}</span>;
+                                  return (
+                                    <span>
+                                      {text.substring(0, idx)}
+                                      <mark className={`px-0.5 font-bold ${
+                                        isSpotlightLightTheme ? 'bg-rose-200 text-rose-900' : 'bg-rose-500 text-neutral-950'
+                                      }`}>{text.substring(idx, idx + term.length)}</mark>
+                                      {text.substring(idx + term.length)}
+                                    </span>
+                                  );
+                                })()}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* FR10 Quick Pill */}
+                        {activeDoc.is_signed && activeDoc.is_signed !== "N/A" && (
+                          <div className={`mt-3.5 p-3.5 border flex flex-col relative ${
+                            isSpotlightLightTheme 
+                              ? 'bg-amber-50 border-amber-200' 
+                              : 'bg-amber-950/20 border-amber-500/20'
+                          }`}>
+                            <div className="absolute top-1 right-2 text-[7px] text-amber-500 animate-pulse">FR10 CODE</div>
+                            <div className="flex items-center gap-1.5 text-[9px] font-bold text-amber-500 mb-1.5 uppercase tracking-wider">
+                              <CheckCircle2 className="h-3.5 w-3.5 text-amber-500 animate-[pulse_1.5s_infinite]" />
+                              <span>CONTRACT RECORD ISOLATED</span>
+                            </div>
+                            <div className="grid grid-cols-2 gap-2 text-[10px] font-mono">
+                              <div><span className={isSpotlightLightTheme ? 'text-stone-500' : 'text-neutral-500'}>SIGNED:</span> <strong className="text-amber-800">{activeDoc.is_signed.toUpperCase()}</strong></div>
+                              <div><span className={isSpotlightLightTheme ? 'text-stone-500' : 'text-neutral-500'}>TERMS:</span> <strong className="text-amber-800">{activeDoc.standard_terms.toUpperCase()}</strong></div>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <div className={`flex-1 flex flex-col items-center justify-center p-8 text-center border border-dashed ${
+                        isSpotlightLightTheme 
+                          ? 'text-cyan-800/60 border-cyan-200 bg-cyan-50/50' 
+                          : 'text-cyan-700/60 border-cyan-900/20 bg-cyan-950/5'
+                      }`}>
+                        <Command className={`h-8 w-8 mb-3 animate-[bounce_2s_infinite] ${
+                          isSpotlightLightTheme ? 'text-cyan-400/60' : 'text-cyan-600/30'
+                        }`} />
+                        <span className="text-xs uppercase font-mono leading-relaxed">QUERY SYSTEM STANDBY // AWAKEN CO-PILOT WITH KEYWORD SPECTRUMS</span>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* 2. Deep Search Trigger Trigger Box */}
+                  {!isSpotlightSearchingRemote && !spotlightRemoteAnswer && spotlightQuery.trim() && (
+                    <button 
+                      onClick={handleSpotlightRemoteSearch}
+                      className={`mt-4 w-full text-xs font-bold py-2.5 px-3 rounded-none uppercase flex items-center justify-center gap-2 transition-all cursor-pointer shrink-0 font-mono tracking-wider ${
+                        isSpotlightLightTheme 
+                          ? 'bg-cyan-600 hover:bg-cyan-700 text-white shadow-[0_0_15px_rgba(8,145,178,0.2)]' 
+                          : 'bg-cyan-500 hover:bg-cyan-600 text-neutral-950 shadow-[0_0_15px_rgba(6,182,212,0.3)]'
+                      }`}
+                    >
+                      <Activity className={`h-4 w-4 animate-[pulse_0.5s_infinite] ${isSpotlightLightTheme ? 'text-white' : 'text-neutral-950'}`} />
+                      <span>INITIALIZE NEURAL DEEP SEARCH</span>
+                      <span className={`text-[9px] font-mono px-1.5 py-0.5 rounded-sm ml-auto font-bold ${
+                        isSpotlightLightTheme ? 'text-cyan-800 bg-cyan-100' : 'text-cyan-950 bg-cyan-300/60'
+                      }`}>SHIFT+ENTER</span>
+                    </button>
+                  )}
+
+                  {spotlightRemoteAnswer && (
+                    <button 
+                      onClick={() => {
+                        setSpotlightRemoteAnswer(null);
+                        setSpotlightRemoteSources([]);
+                      }}
+                      className={`mt-4 w-full border text-xs font-bold py-2.5 px-3 rounded-none uppercase transition-all cursor-pointer shrink-0 font-mono tracking-wider ${
+                        isSpotlightLightTheme 
+                          ? 'border-cyan-600/30 hover:border-cyan-600/50 hover:bg-cyan-50 text-cyan-800' 
+                          : 'border-cyan-500/30 hover:border-cyan-500/50 hover:bg-cyan-500/5 text-cyan-400'
+                      }`}
+                    >
+                      RETURN TO CORPUS PREVIEW
+                    </button>
+                  )}
+                </div>
+
+              </div>
+
+              {/* Command Palette Footer Instructions */}
+              <div className={`px-6 py-3 border-t flex items-center justify-between text-[10px] shrink-0 relative z-10 font-mono ${
+                isSpotlightLightTheme 
+                  ? 'border-stone-200 bg-stone-100 text-stone-600' 
+                  : 'border-cyan-500/20 bg-neutral-950 text-cyan-600/80'
+              }`}>
+                <div className="flex items-center gap-4">
+                  <span><kbd className={`px-1.5 py-0.2 rounded font-mono shadow-sm border ${
+                    isSpotlightLightTheme 
+                      ? 'bg-stone-200 border-stone-300 text-stone-700' 
+                      : 'bg-cyan-950 border-cyan-500/30 text-cyan-400'
+                  }`}>↑↓</kbd> TRAVERSE</span>
+                  <span><kbd className={`px-1.5 py-0.2 rounded font-mono shadow-sm border ${
+                    isSpotlightLightTheme 
+                      ? 'bg-stone-200 border-stone-300 text-stone-700' 
+                      : 'bg-cyan-950 border-cyan-500/30 text-cyan-400'
+                  }`}>↵</kbd> LOAD PORTAL</span>
+                  <span><kbd className={`px-2 py-0.2 rounded font-mono shadow-sm border ${
+                    isSpotlightLightTheme 
+                      ? 'bg-stone-200 border-stone-300 text-stone-700' 
+                      : 'bg-cyan-950 border-cyan-500/30 text-cyan-400'
+                  }`}>SHIFT+↵</kbd> AI CO-PILOT DEEP DEBATE</span>
+                </div>
+                <span className={`text-[9px] uppercase font-bold tracking-widest animate-pulse ${
+                  isSpotlightLightTheme ? 'text-cyan-700' : 'text-cyan-400'
+                }`}>AETHER SEMANTIC CO-PILOT v1.2</span>
+              </div>
+
+            </div>
+          </div>
+        );
+      })()}
 
     </div>
   );
