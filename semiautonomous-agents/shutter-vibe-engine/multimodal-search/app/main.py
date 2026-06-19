@@ -63,9 +63,9 @@ from pydantic import BaseModel
 
 ROOT = Path(__file__).resolve().parent
 # `_client.py` lives at <repo>/semiautonomous-agents/shutter-vibe-engine/demos/.
-# Locally that's `ROOT.parent.parent.parent / "demos"`; in the Docker image it
+# From app/main.py that's `ROOT.parent.parent / "demos"`; in the Docker image it
 # is COPYed to `/app/demos` (see deploy/Dockerfile.app).
-for _cand in (ROOT.parent.parent.parent / "demos", Path("/app/demos")):
+for _cand in (ROOT.parent.parent / "demos", Path("/app/demos")):
     if _cand.exists():
         sys.path.insert(0, str(_cand))
         break

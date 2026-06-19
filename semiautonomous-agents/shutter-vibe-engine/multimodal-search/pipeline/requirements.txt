@@ -1,0 +1,16 @@
+# Requirements for running the local ingestion pipeline:
+#   pipeline/pipeline.py       — Pexels/Pixabay/IA fetchers + downloader
+#   pipeline/backfill.py       — themed corpus harvester
+#   pipeline/backfill_sfx.py   — BBC Sound Effects harvester
+#   pipeline/build.py          — segment, caption, embed, index
+#   pipeline/enrich_audio_captions.py
+#   scripts/ingest_bmws.py
+#
+# Install:  pip install -r pipeline/requirements.txt
+google-genai==1.73.1
+google-cloud-storage==3.10.1
+google-cloud-firestore==2.27.0
+google-cloud-aiplatform==1.148.0
+numpy>=2.0
+Pillow>=11.0
+requests>=2.32

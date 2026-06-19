@@ -17,7 +17,7 @@ Usage:
     python pipeline/backfill_sfx.py --max-new 60     # hard cap
     python pipeline/backfill_sfx.py --no-download    # dry-run
 
-After this writes new rows, re-run pipeline_v2.py to segment + index:
+After this writes new rows, re-run build.py to segment + index:
 
     python pipeline/build.py --modality audio --workers 4
 """

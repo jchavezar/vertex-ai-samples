@@ -10,7 +10,7 @@ Run AFTER setting PEXELS_API_KEY / PIXABAY_API_KEY.
     python pipeline/backfill.py --mod photo      # one modality
     python pipeline/backfill.py --per-query 6    # tune fetch depth
 
-Then push the new assets through pipeline_v2.py:
+Then push the new assets through build.py:
 
     python pipeline/build.py --modality photo --workers 6
     python pipeline/build.py --modality video --workers 4
@@ -292,7 +292,7 @@ def main() -> None:
     items.extend(ok_items)
     save_manifest(items)
     log("manifest", f"appended {len(ok_items)} items, total now {len(items)}")
-    log("done", f"now run pipeline_v2.py per-modality to segment + index")
+    log("done", f"now run pipeline/build.py per-modality to segment + index")
 
 
 if __name__ == "__main__":

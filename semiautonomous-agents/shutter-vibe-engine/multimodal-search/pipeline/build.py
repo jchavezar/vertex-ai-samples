@@ -48,7 +48,13 @@ import numpy as np
 from PIL import Image
 
 ROOT = Path(__file__).resolve().parent
-sys.path.insert(0, str(ROOT.parent / "demos"))
+# `_client.py` lives at <repo>/semiautonomous-agents/shutter-vibe-engine/demos/.
+# From pipeline/build.py that's `ROOT.parent.parent / "demos"`; in the Docker
+# image it is COPYed to `/app/demos` (see deploy/Dockerfile.ingest).
+for _cand in (ROOT.parent.parent / "demos", Path("/app/demos")):
+    if _cand.exists():
+        sys.path.insert(0, str(_cand))
+        break
 from _client import CLIENT  # noqa: E402
 from google import genai  # noqa: E402
 from google.genai import types  # noqa: E402
@@ -564,7 +570,7 @@ def main() -> None:
     args = ap.parse_args()
 
     if not MANIFEST_PATH.exists():
-        log("env", f"missing {MANIFEST_PATH} — run pipeline.py first to harvest")
+        log("env", f"missing {MANIFEST_PATH} — run pipeline/backfill.py first to harvest")
         sys.exit(1)
 
     items = json.loads(MANIFEST_PATH.read_text())

@@ -35,7 +35,7 @@ import numpy as np
 ROOT = Path(__file__).resolve().parent
 sys.path.insert(0, str(ROOT))
 
-from pipeline_v2 import (  # noqa: E402
+from build import (  # noqa: E402  (legacy name: pipeline_v2)
     CLIENT,
     EMBED_MODEL,
     GLOBAL_CLIENT,
