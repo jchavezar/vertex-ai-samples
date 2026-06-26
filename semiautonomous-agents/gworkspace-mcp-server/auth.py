@@ -84,6 +84,18 @@ class GoogleAuthManager:
             except Exception as e:
                 logger.warning(f"Secret Manager unavailable: {e}")
 
+        # Check if tokens are passed via env vars directly (e.g. from sidecar)
+        env_access = os.getenv("GWORKSPACE_ACCESS_TOKEN")
+        env_refresh = os.getenv("GWORKSPACE_REFRESH_TOKEN")
+        if env_access:
+            self.state.access_token = env_access
+            self.state.refresh_token = env_refresh
+            self.state.expires_at = 1
+            try:
+                self._fetch_user_info()
+            except Exception as e:
+                logger.warning(f"Failed to fetch user info in init: {e}")
+
     def _secret_name(self) -> str:
         return f"projects/{self._secret_project}/secrets/{self._secret_id}"
 
@@ -207,6 +219,10 @@ class GoogleAuthManager:
 
             self.state.access_token = token_data["access_token"]
             self.state.expires_at = time.time() + token_data.get("expires_in", 3600)
+            try:
+                self._fetch_user_info()
+            except Exception as e:
+                logger.warning(f"Failed to fetch user info in refresh: {e}")
             self._save_to_secret()
             logger.info("Token refreshed successfully")
             return True

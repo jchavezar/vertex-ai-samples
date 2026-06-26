@@ -83,15 +83,18 @@ export default function PhotoAvatar() {
         video: { facingMode: 'user', width: { ideal: 640 }, height: { ideal: 640 } },
       });
       streamRef.current = stream;
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-        videoRef.current.play();
-      }
       setMode('capture');
     } catch {
       alert('Camera access required. Please allow camera access in your browser.');
     }
   }, []);
+
+  useEffect(() => {
+    if (mode === 'capture' && streamRef.current && videoRef.current) {
+      videoRef.current.srcObject = streamRef.current;
+      videoRef.current.play().catch(err => console.error("Error playing video:", err));
+    }
+  }, [mode]);
 
   // ── Capture snapshot ──────────────────────────────────────────────────────
   const takePhoto = useCallback(async () => {

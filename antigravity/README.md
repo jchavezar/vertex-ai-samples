@@ -241,7 +241,25 @@
       <strong>PROJECT: ADK SECRET MANAGER DEMO</strong><br/>
       Semiautonomous agent demo showcasing secure secret handling with Google ADK and Secret Manager. Light theme UI.<br/>
       <br/>
-      <a href="../semiautonomous-agents/adk-secret-manager-demo/">ACCESS_TERMINAL &rarr;</a>
+    </td>
+  </tr>
+  <!-- ROW 13b: PAYROLL TOPOLOGIES & OUTLOOK APPROVAL -->
+  <tr>
+    <td width="50%" valign="top">
+      <img src="assets/header_adk.svg" width="100%" />
+      <br/><br/>
+      <strong>PROJECT: PAYROLL AGENT TOPOLOGIES</strong><br/>
+      ADK 2.0 and MCP scalability evaluation. Compares a single monolithic agent vs. a workflow-routed specialized agent team for 148k concurrent request scenarios.<br/>
+      <br/>
+      <a href="../semiautonomous-agents/payroll_agent_topologies/">ACCESS_TERMINAL &rarr;</a>
+    </td>
+    <td width="50%" valign="top">
+      <img src="assets/header_search.svg" width="100%" />
+      <br/><br/>
+      <strong>PROJECT: OUTLOOK APPROVAL CHATBOT</strong><br/>
+      Executive Dashboard split-view. Semiautonomous chatbot powered by Gemini Enterprise streamAssist paired with a Microsoft Graph-integrated inbox. Scans emails and performs actual approvals via Graph API replies.<br/>
+      <br/>
+      <a href="../semiautonomous-agents/outlook-approval-chatbot/">ACCESS_TERMINAL &rarr;</a>
     </td>
   </tr>
   <!-- ROW 14: CREATIVE NEXUS -->
@@ -318,7 +336,12 @@
       <a href="../agy-recipes/jira-mcp-direct/">ACCESS_TERMINAL &rarr;</a>
     </td>
     <td width="50%" valign="top">
-      <!-- Empty slot -->
+      <img src="assets/header_finance.svg" width="100%" />
+      <br/><br/>
+      <strong>PROJECT: BAIN & COMPANY AGENT PLATFORM</strong><br/>
+      End-to-end showcase of Gemini Enterprise Agent Platform. Demonstrates Google ADK financial practice agents, Agent Gateway DLP governance, Agent Identity two-pillar auth over SharePoint, and Yazdani minimalist UI.<br/>
+      <br/>
+      <a href="./bain_ge_agent_platform/">ACCESS_TERMINAL &rarr;</a>
     </td>
   </tr>
 </table>

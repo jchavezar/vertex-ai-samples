@@ -4,7 +4,7 @@ description: Expert guide for building, deploying, and debugging Google ADK (Age
 ---
 
 # Building Google ADK Agents (Expert Mode)
-
+p
 ## When to use this skill
 - **New Agent Creation**: Scaffolding `Agent`, `SequentialAgent`, `ParallelAgent`, or `LoopAgent`.
 - **Tool Development**: Creating custom tools, `MCP` integrations, or `FunctionTool` wrappers.

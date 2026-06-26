@@ -74,16 +74,28 @@ def register_docs_tools(mcp, auth_manager):
             response.raise_for_status()
             doc = response.json()
 
-            # Extract text content
-            content = []
-            for element in doc.get("body", {}).get("content", []):
+            # Extract text content recursively (handling paragraphs, tables, etc.)
+            def extract_text(element) -> str:
+                text = ""
                 if "paragraph" in element:
-                    para_text = ""
                     for elem in element["paragraph"].get("elements", []):
                         if "textRun" in elem:
-                            para_text += elem["textRun"].get("content", "")
-                    if para_text.strip():
-                        content.append(para_text)
+                            text += elem["textRun"].get("content", "")
+                elif "table" in element:
+                    for row in element["table"].get("tableRows", []):
+                        for cell in row.get("tableCells", []):
+                            for cell_element in cell.get("content", []):
+                                text += extract_text(cell_element)
+                elif "tableOfContents" in element:
+                    for toc_element in element["tableOfContents"].get("content", []):
+                        text += extract_text(toc_element)
+                return text
+
+            content = []
+            for element in doc.get("body", {}).get("content", []):
+                text = extract_text(element)
+                if text.strip():
+                    content.append(text)
 
             text_content = "".join(content)
 

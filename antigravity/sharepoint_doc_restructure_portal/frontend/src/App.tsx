@@ -1704,7 +1704,7 @@ export default function App() {
                                       }}
                                       className="inline-flex items-center gap-1 text-[9px] uppercase font-bold tracking-widest px-1.5 py-0.5 bg-[#1a1a19] text-[#faf9f6] hover:bg-[#7c7a75] hover:text-[#faf9f6] transition-colors border-none cursor-pointer rounded-none shadow-[2px_2px_0px_0px_rgba(124,122,117,0.5)]"
                                     >
-                                      View Metadata & Ontology 🔍
+                                      Ver Metadatos & Ontología 🔍
                                     </button>
                                   )}
                                 </div>

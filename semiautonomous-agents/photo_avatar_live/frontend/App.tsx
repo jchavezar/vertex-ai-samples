@@ -6,7 +6,7 @@ import { useEffect } from 'react';
 import { Modality } from '@google/genai';
 import { LiveAPIProvider, useLiveAPIContext } from './contexts/LiveAPIContext';
 import ControlTray from './components/console/control-tray/ControlTray';
-import PhotoAvatar from './components/PhotoAvatar';
+import ThreeDAvatar from './components/ThreeDAvatar';
 
 const API_KEY = (process.env.GEMINI_API_KEY ?? process.env.API_KEY) as string;
 if (!API_KEY) {
@@ -39,7 +39,7 @@ function AvatarApp() {
     <div className="streaming-console">
       <main>
         <div className="main-app-area">
-          <PhotoAvatar />
+          <ThreeDAvatar />
         </div>
         <ControlTray />
       </main>
