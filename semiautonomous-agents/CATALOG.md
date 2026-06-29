@@ -40,6 +40,10 @@ When you start a new project, **add a row here first** — even before the READM
 - [`streamassist-oauth-flow-servicenow/`](./streamassist-oauth-flow-servicenow/) — Sister to the SharePoint streamassist projects: same WIF identity chain, **ServiceNow** as the federated source (incidents, KB articles, catalog) with native ServiceNow ACLs. Two frontends shipped (vanilla HTML tester + React/FastAPI). **Tags:** `streamassist` `servicenow` `wif` `discovery-engine` `gemini-enterprise` `oauth`
 - [`streamassist-oauth-flow-sharepoint-servicenow/`](./streamassist-oauth-flow-sharepoint-servicenow/) — **Combined portal** — SharePoint + ServiceNow + Google Search in a single Discovery Engine app. Three independent UI toggles (each connector and web grounding can be flipped per query), anti-hallucination guardrails, per-user ACLs honored on both connectors. **Tags:** `streamassist` `sharepoint` `servicenow` `google-search` `wif` `discovery-engine` `gemini-enterprise`
 - [`sharepoint-wif-portal/`](./sharepoint-wif-portal/) — Docs-only WIP variant of `sharepoint_wif_portal`. **Status:** docs only, no code yet.
+- [`ge_custom_mcp_sharepoint/`](./ge_custom_mcp_sharepoint/) — Double-alternative SharePoint connection to Gemini Enterprise (Custom MCP on Cloud Run vs Microsoft-hosted Work IQ SharePoint MCP). **Tags:** `mcp` `sharepoint` `gemini-enterprise`
+- [`ge_aruntime_adk_mcp_sharepoint/`](./ge_aruntime_adk_mcp_sharepoint/) — SharePoint Explorer Agent built with Google ADK, deployed on Vertex AI Agent Runtime, connected to custom SharePoint MCP. **Tags:** `adk` `agent-runtime` `sharepoint` `mcp`
+- [`adk-hosted-mcp-iq/`](./adk-hosted-mcp-iq/) — SharePoint Hosted Explorer Agent built with Google ADK, deployed on Vertex AI Agent Runtime, using Microsoft-hosted Work IQ SharePoint MCP server. **Tags:** `adk` `agent-runtime` `sharepoint` `mcp` `work-iq`
+
 
 **Reference doc:** [`GEMINI_ENTERPRISE_SHAREPOINT_FLOW.md`](./GEMINI_ENTERPRISE_SHAREPOINT_FLOW.md) — the four mandatory configurations + replication checklist + failure-mode lookup behind every GE + SharePoint federated portal in this section.
 
@@ -74,6 +78,7 @@ When you start a new project, **add a row here first** — even before the READM
 ### Testing & utilities
 - [`adk-script-runner/`](./adk-script-runner/) — Minimal ADK smoke test. **Tags:** `adk` `test`
 - [`discovery-engine-latency-probe/`](./discovery-engine-latency-probe/) — StreamAssist latency benchmarks. **Tags:** `latency` `discovery-engine`
+- [`gemini-2.5-flash-latency/`](./gemini-2.5-flash-latency/) — Measures latency and Time to First Chunk (TTFT) for Gemini 2.5 Flash on semi-autonomous agent tasks. **Tags:** `latency` `gemini-2.5-flash` `evaluation`
 - [`streamassist-wif-auth-tester/`](./streamassist-wif-auth-tester/) — Interactive Entra→WIF→DE auth chain tester. **Tags:** `wif` `auth` `test`
 - [`nextjs-test-harness/`](./nextjs-test-harness/) — Frontend experimentation scaffold. **Tags:** `nextjs` `frontend`
 - [`vector-search-canvas/`](./vector-search-canvas/) — Self-study sandbox: TREE_AH vs BRUTE_FORCE side-by-side, every Vector Search 2.0 knob exposed. **Customer / context:** Vector Search 2.0 talk 2026-04-20. **Tags:** `vertex-vector-search` `tree-ah` `brute-force` `algorithm-tuning` `fastapi`

@@ -262,6 +262,25 @@
       <a href="../semiautonomous-agents/outlook-approval-chatbot/">ACCESS_TERMINAL &rarr;</a>
     </td>
   </tr>
+  <!-- ROW 13c: SHAREPOINT EXPLORER AGENTS (ADK CUSTOM vs HOSTED) -->
+  <tr>
+    <td width="50%" valign="top">
+      <img src="assets/header_adk.svg" width="100%" />
+      <br/><br/>
+      <strong>PROJECT: SHAREPOINT EXPLORER AGENT</strong><br/>
+      SharePoint Explorer Agent built with Google ADK, deployed on Vertex AI Agent Runtime, connected to custom SharePoint MCP.<br/>
+      <br/>
+      <a href="../semiautonomous-agents/ge_aruntime_adk_mcp_sharepoint/">ACCESS_TERMINAL &rarr;</a>
+    </td>
+    <td width="50%" valign="top">
+      <img src="assets/header_adk.svg" width="100%" />
+      <br/><br/>
+      <strong>PROJECT: SHAREPOINT HOSTED EXPLORER AGENT</strong><br/>
+      SharePoint Hosted Explorer Agent built with Google ADK, deployed on Vertex AI Agent Runtime, using Microsoft-hosted Work IQ SharePoint MCP server.<br/>
+      <br/>
+      <a href="../semiautonomous-agents/adk-hosted-mcp-iq/">ACCESS_TERMINAL &rarr;</a>
+    </td>
+  </tr>
   <!-- ROW 14: CREATIVE NEXUS -->
   <tr>
     <td width="50%" valign="top">
@@ -342,6 +361,19 @@
       End-to-end showcase of Gemini Enterprise Agent Platform. Demonstrates Google ADK financial practice agents, Agent Gateway DLP governance, Agent Identity two-pillar auth over SharePoint, and Yazdani minimalist UI.<br/>
       <br/>
       <a href="./bain_ge_agent_platform/">ACCESS_TERMINAL &rarr;</a>
+    </td>
+  </tr>
+  <!-- ROW 18: LATENCY BENCHMARKS -->
+  <tr>
+    <td width="50%" valign="top">
+      <img src="assets/header_search.svg" width="100%" />
+      <br/><br/>
+      <strong>UTILITY: GEMINI 2.5 FLASH LATENCY PROBE</strong><br/>
+      Measures latency, Time to First Chunk (TTFT), and token generation speed for Gemini 2.5 Flash on semi-autonomous agent tasks.<br/>
+      <br/>
+      <a href="../semiautonomous-agents/gemini-2.5-flash-latency/">ACCESS_TERMINAL &rarr;</a>
+    </td>
+    <td width="50%" valign="top">
     </td>
   </tr>
 </table>

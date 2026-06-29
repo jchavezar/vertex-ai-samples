@@ -60,4 +60,8 @@ semiautonomous-agents/atlassian-jira-integration/eval/TEST_CARD.md
 
 # Customer Sensitive Data
 semiautonomous-agents/gemini_api_latency/
+**/*_auth.json
+**/.*_auth.json
 
+# Backup Files
+**/*.bak

@@ -1,0 +1,568 @@
+:root {
+  --bg: #faf9f6;
+  --bg-sand: #f4f3ef;
+  --text: #1a1a19;
+  --text-muted: #7c7a75;
+  --border: #d8d6d0;
+  --void: #111111;
+  --green: #2e7d32;
+  --red: #c62828;
+  --yellow: #f57f17;
+  --font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  border-radius: 0 !important; /* Strict Rectilinear Geometry */
+}
+
+html, body, #root {
+  height: 100%;
+  overflow: hidden;
+  font-family: var(--font-family);
+  background: var(--bg);
+  color: var(--text);
+}
+
+/* Layout Hierarchy */
+.app-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* Header */
+header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  padding: 20px 40px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg);
+  flex-shrink: 0;
+}
+
+header h1 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.subtitle {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-left: 10px;
+}
+
+.header-meta {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-size: 0.75rem;
+}
+
+.user-display {
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+
+.status-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 500;
+}
+
+.status-indicator.connected {
+  color: var(--green);
+}
+
+.status-indicator.disconnected {
+  color: var(--yellow);
+}
+
+/* Buttons */
+.btn-tech {
+  background: var(--text);
+  color: var(--bg);
+  border: 1px solid var(--text);
+  padding: 8px 16px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-tech:hover {
+  background: transparent;
+  color: var(--text);
+}
+
+.btn-tech:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.btn-tech-outline {
+  background: transparent;
+  color: var(--text);
+  border: 1px solid var(--border);
+  padding: 8px 16px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-tech-outline:hover {
+  border-color: var(--text);
+  background: var(--bg-sand);
+}
+
+.btn-small {
+  padding: 4px 8px;
+  font-size: 0.65rem;
+  letter-spacing: 0.05em;
+}
+
+/* Main Split Dashboard */
+.main-content {
+  display: flex;
+  flex-direction: row;
+  flex: 1;
+  min-height: 0; /* flex bounding chain constraint */
+  overflow: hidden;
+}
+
+/* Chat Section */
+.chat-section {
+  flex: 3;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  border-right: 1px solid var(--border);
+  background: var(--bg);
+  min-width: 0;
+}
+
+.chat-header {
+  padding: 15px 30px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+
+.chat-header h2 {
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.chat-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  min-height: 0;
+}
+
+.chat-messages::-webkit-scrollbar {
+  width: 4px;
+}
+.chat-messages::-webkit-scrollbar-track {
+  background: transparent;
+}
+.chat-messages::-webkit-scrollbar-thumb {
+  background: var(--border);
+}
+
+/* Flat Textual Console Message Blocks */
+.msg-block {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  animation: traceIn 0.25s ease-out;
+}
+
+@keyframes traceIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.msg-label {
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+}
+
+.msg-content {
+  font-size: 0.85rem;
+  line-height: 1.6;
+  padding-left: 12px;
+  border-left: 2px solid var(--text-muted);
+  color: var(--text);
+  white-space: pre-wrap;
+}
+
+.msg-block-user .msg-content {
+  border-left-color: var(--text-muted);
+}
+
+.msg-block-ai .msg-content {
+  border-left-color: var(--text);
+}
+
+.msg-content p + p {
+  margin-top: 8px;
+}
+
+.msg-content h3 {
+  font-size: 0.9rem;
+  margin: 14px 0 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.msg-content ul, .msg-content ol {
+  margin: 6px 0;
+  padding-left: 18px;
+}
+
+.msg-content li {
+  margin: 4px 0;
+}
+
+.msg-meta-footer {
+  margin-top: 10px;
+  display: flex;
+  justify-content: space-between;
+  border-top: 1px dotted var(--border);
+  padding-top: 4px;
+  font-size: 0.65rem;
+  font-family: monospace;
+  color: var(--text-muted);
+}
+
+.msg-thinking {
+  font-family: monospace;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  border-left: 2px solid var(--border);
+  padding-left: 12px;
+}
+
+.cursor-blink {
+  animation: blink 0.8s steps(2, start) infinite;
+}
+
+@keyframes blink {
+  to { visibility: hidden; }
+}
+
+/* Chat Input Bar */
+.chat-input-area {
+  padding: 20px 30px;
+  border-top: 1px solid var(--border);
+  background: var(--bg-sand);
+  flex-shrink: 0;
+}
+
+.chat-input-form {
+  display: flex;
+  gap: 12px;
+}
+
+.chat-input-form input {
+  flex: 1;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  padding: 12px 18px;
+  font-size: 0.85rem;
+  color: var(--text);
+}
+
+.chat-input-form input:focus {
+  outline: none;
+  border-color: var(--text);
+}
+
+/* Approvals/Inbox Panel */
+.approvals-section {
+  flex: 2;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: var(--bg-sand);
+  min-width: 0;
+}
+
+.approvals-header {
+  padding: 15px 24px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--bg);
+  flex-shrink: 0;
+}
+
+.approvals-header h2 {
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.approvals-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  min-height: 0;
+}
+
+.approvals-list::-webkit-scrollbar {
+  width: 4px;
+}
+.approvals-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+.approvals-list::-webkit-scrollbar-thumb {
+  background: var(--border);
+}
+
+/* Technical Drafting Card Style */
+.approval-card {
+  border: 1px solid var(--border);
+  background: var(--bg);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  position: relative;
+}
+
+.approval-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.card-category-tag {
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 2px 6px;
+  border: 1px solid var(--border);
+  background: var(--bg-sand);
+}
+
+.card-due-tag {
+  font-size: 0.65rem;
+  color: var(--red);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.approval-card h3 {
+  font-size: 0.95rem;
+  font-weight: 500;
+  line-height: 1.3;
+}
+
+.approval-card-meta {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  border-bottom: 1px dotted var(--border);
+  padding-bottom: 8px;
+}
+
+.approval-card-summary {
+  font-size: 0.8rem;
+  color: var(--text);
+  line-height: 1.5;
+}
+
+.approval-card-action-text {
+  font-size: 0.75rem;
+  color: var(--text);
+  padding: 6px 10px;
+  background: var(--bg-sand);
+  border-left: 2px solid var(--text);
+}
+
+.approval-card-link {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  text-decoration: underline;
+  align-self: flex-start;
+}
+
+.approval-card-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.btn-approve {
+  border-color: var(--green);
+  color: var(--green);
+}
+
+.btn-approve:hover {
+  background: var(--green);
+  color: var(--bg);
+}
+
+.btn-reject {
+  border-color: var(--red);
+  color: var(--red);
+}
+
+.btn-reject:hover {
+  background: var(--red);
+  color: var(--bg);
+}
+
+.card-status-overlay {
+  border: 1px solid var(--border);
+  padding: 8px 12px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  text-align: center;
+}
+
+.card-status-overlay.approved {
+  border-color: var(--green);
+  color: var(--green);
+  background: rgba(46, 125, 50, 0.05);
+}
+
+.card-status-overlay.rejected {
+  border-color: var(--red);
+  color: var(--red);
+  background: rgba(198, 40, 40, 0.05);
+}
+
+/* Empty or Auth state overlay/banner */
+.auth-banner {
+  padding: 24px;
+  background: rgba(245, 127, 23, 0.05);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.auth-banner-content {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 0.8rem;
+  line-height: 1.5;
+}
+
+.auth-status-log {
+  font-family: monospace;
+  font-size: 0.7rem;
+  color: var(--text-muted);
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  text-align: center;
+  color: var(--text-muted);
+  height: 100%;
+}
+
+.empty-state p {
+  font-size: 0.85rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 6px;
+  color: var(--text);
+}
+
+.empty-state span {
+  font-size: 0.75rem;
+  max-width: 240px;
+  line-height: 1.4;
+}
+
+/* Unified login page overlay */
+.login-screen {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-sand);
+}
+
+.login-card {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  padding: 40px;
+  max-width: 400px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.login-card h2 {
+  font-size: 1.1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 700;
+}
+
+.login-card p {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+.spinning-indicator {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border: 2px solid var(--text-muted);
+  border-top-color: transparent;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
