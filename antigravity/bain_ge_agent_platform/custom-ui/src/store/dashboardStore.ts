@@ -177,8 +177,10 @@ export const useDashboardStore = create<DashboardState>((set) => ({
   setEntraToken: (token) => set({ entraToken: token }),
   accountName: null,
   setAccountName: (name) => set({ accountName: name }),
-  // Set default Reasoning Engine ID to 8655608971282874368 so React UI hits populate the exact GCP Tracing dashboard
-  reasoningEngineId: '7757233204599193600',
+  // Default Reasoning Engine ID — bain-financial-secure-agent with real
+  // Agent Gateway policy guard wired through bain-ge-policy-svc.
+  // Deployed 2026-06-30. Override via the Settings drawer if needed.
+  reasoningEngineId: '5849699277663633408',
   setReasoningEngineId: (id) => set({ reasoningEngineId: id }),
   showAuthDrawer: false,
   setShowAuthDrawer: (show) => set({ showAuthDrawer: show }),

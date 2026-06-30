@@ -144,6 +144,24 @@ def evaluate(
             rule="R011.dlp-handshake-required",
         )
 
+    # R012 — default-deny on restricted-document filename markers, regardless
+    # of accompanying keywords. Without this, an LLM can bypass R010 by
+    # searching for the filename alone and getting the body back, then
+    # extracting MNPI client-side. Bain non-negotiable #3 (no MNPI exfiltration
+    # via cleverly-split queries).
+    if has_restricted_doc:
+        return Decision(
+            decision="DENY",
+            reason=(
+                "Tool call references a restricted document marker (e.g. "
+                "'02_Restricted_Privileged_DLP_Audit_Target_HoldCo.docx'). All "
+                "access to restricted documents requires an out-of-band MNPI "
+                "approval workflow — not a tool call from a consulting agent. "
+                "Default-deny under Bain non-negotiable #3."
+            ),
+            rule="R012.restricted-doc-default-deny",
+        )
+
     # R020 — canary observability marker (allow but flag in audit)
     if CANARY_FILE in args_blob:
         return Decision(
@@ -181,6 +199,10 @@ def describe_rules() -> list[dict[str, str]]:
         {
             "id": "R011.dlp-handshake-required",
             "summary": "Require X-Bain-DLP-Acknowledged: true header for bare price/comp extractions through search/doc tools.",
+        },
+        {
+            "id": "R012.restricted-doc-default-deny",
+            "summary": "Default-deny any tool call whose args reference a restricted-document filename marker (02_Restricted_*, HoldCo, dlp_audit, etc).",
         },
         {
             "id": "R020.canary-observability",
