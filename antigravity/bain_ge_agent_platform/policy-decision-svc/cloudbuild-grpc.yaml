@@ -1,0 +1,14 @@
+steps:
+  - name: gcr.io/cloud-builders/docker
+    args:
+      - build
+      - -f
+      - Dockerfile.grpc
+      - -t
+      - us-central1-docker.pkg.dev/vtxdemos/cloud-run-source-deploy/bain-ge-policy-grpc:latest
+      - .
+images:
+  - us-central1-docker.pkg.dev/vtxdemos/cloud-run-source-deploy/bain-ge-policy-grpc:latest
+options:
+  machineType: E2_HIGHCPU_8
+timeout: 1200s

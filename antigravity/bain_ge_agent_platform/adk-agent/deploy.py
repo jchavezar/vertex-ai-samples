@@ -12,6 +12,11 @@ import vertexai
 from vertexai.agent_engines import AdkApp
 from vertexai._genai import types as ge_types
 
+# NB: Agent Identity (preview) requires the v1beta1 API surface AND
+# IdentityType.AGENT_IDENTITY in the deploy config below. Without those,
+# the engine is assigned the default compute SA principal instead of a
+# per-agent SPIFFE identity (principal://agents.global.org-*.system.id.goog/...).
+
 # Load environment from parent directory
 load_dotenv(dotenv_path="../.env", override=True)
 
@@ -84,12 +89,15 @@ deploy_config = {
     "display_name": "bain-financial-secure-agent",
     "staging_bucket": STAGING_BUCKET,
     "requirements": "requirements.txt",
-    # "identity_type": ge_types.IdentityType.AGENT_IDENTITY,
-    # "agent_gateway_config": {
-    #     "agent_to_anywhere_config": {
-    #         "agent_gateway": f"projects/{project_number}/locations/{LOCATION}/agentGateways/reasoning-engine-gateway"
-    #     }
-    # },
+    # Agent Identity (preview): assign a per-agent SPIFFE principal so the
+    # runtime has a verifiable cryptographic identity at the network layer.
+    # Visible in Cloud Audit logs as
+    #   principal://agents.global.org-<ORG>.system.id.goog/resources/aiplatform/
+    #     projects/<PROJ>/locations/<LOC>/reasoningEngines/<ID>
+    "identity_type": ge_types.IdentityType.AGENT_IDENTITY,
+    # NOTE: `agent_gateway_config` is NOT a real SDK field. Gateway routing
+    # is wired at the network layer (networkservices+networksecurity APIs),
+    # not in the engine deploy spec. See ../PRODUCTION_GATEWAY_WIRING.md.
     # Ensure all ultra-low latency Graph client modules + real Agent Gateway
     # policy guard are bundled into the container.
     "extra_packages": [
@@ -118,6 +126,12 @@ deploy_config = {
         # graceful-degrade (logs a warning, then permits the call).
         "POLICY_FAIL_OPEN": os.getenv("POLICY_FAIL_OPEN", "0"),
         "GOOGLE_CLOUD_LOCATION_AE": LOCATION,
+        # OpenTelemetry / GenAI semantic conventions (preview): the runtime
+        # emits agent / model / tool spans to Cloud Trace under the
+        # ReasoningEngine resource. Visible at:
+        # https://console.cloud.google.com/traces/list?project=vtxdemos
+        "OTEL_SEMCONV_STABILITY_OPT_IN": "gen_ai_latest_experimental",
+        "OTEL_INSTRUMENTATION_GENAI_CAPTURE_MESSAGE_CONTENT": "EVENT_ONLY",
     },
 }
 

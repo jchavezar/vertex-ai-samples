@@ -1,0 +1,127 @@
+FROM python:3.12-slim AS proto-build
+
+WORKDIR /protos
+
+RUN apt-get update && apt-get install -y --no-install-recommends git ca-certificates \
+ && rm -rf /var/lib/apt/lists/*
+
+ARG ENVOY_REF=v1.32.2
+
+RUN git clone --depth 1 --branch ${ENVOY_REF} https://github.com/envoyproxy/envoy.git envoy \
+ && git clone --depth 1 https://github.com/cncf/xds.git xds \
+ && git clone --depth 1 https://github.com/envoyproxy/protoc-gen-validate.git pgv \
+ && git clone --depth 1 https://github.com/googleapis/googleapis.git googleapis
+
+RUN mkdir /out \
+ && cp -r envoy/api/envoy /out/envoy \
+ && cp -r xds/xds /out/xds \
+ && (cp -r xds/udpa /out/udpa 2>/dev/null || true) \
+ && cp -r pgv/validate /out/validate \
+ && mkdir -p /out/google/api /out/google/rpc \
+ && cp googleapis/google/api/annotations.proto /out/google/api/ \
+ && cp googleapis/google/api/http.proto /out/google/api/ \
+ && cp googleapis/google/api/field_behavior.proto /out/google/api/ \
+ && cp googleapis/google/api/visibility.proto /out/google/api/ \
+ && cp googleapis/google/rpc/status.proto /out/google/rpc/ \
+ && cp googleapis/google/rpc/code.proto /out/google/rpc/
+
+FROM python:3.12-slim
+
+WORKDIR /app
+
+ENV PYTHONUNBUFFERED=1 \
+    PIP_NO_CACHE_DIR=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1
+
+COPY requirements-grpc.txt .
+RUN pip install -r requirements-grpc.txt
+
+COPY --from=proto-build /out /protos
+
+# Compile the minimal set of protos transitively required by
+# envoy.service.auth.v3 (ext_authz). We list deps explicitly so
+# we don't accidentally pull in CEL (xds.type.v3.cel) or servicecontrol
+# (google.api.servicecontrol) which have missing upstream deps.
+RUN mkdir -p /app/generated && \
+    python -m grpc_tools.protoc \
+        -I/protos \
+        --python_out=/app/generated \
+        --grpc_python_out=/app/generated \
+        /protos/envoy/service/auth/v3/external_auth.proto \
+        /protos/envoy/service/auth/v3/attribute_context.proto && \
+    python -m grpc_tools.protoc \
+        -I/protos \
+        --python_out=/app/generated \
+        /protos/envoy/type/v3/http_status.proto \
+        /protos/envoy/type/v3/percent.proto \
+        /protos/envoy/type/v3/range.proto \
+        /protos/envoy/type/v3/semantic_version.proto \
+        /protos/envoy/type/v3/token_bucket.proto \
+        /protos/envoy/type/matcher/v3/string.proto \
+        /protos/envoy/type/matcher/v3/regex.proto \
+        /protos/envoy/type/matcher/v3/value.proto \
+        /protos/envoy/type/matcher/v3/number.proto \
+        /protos/envoy/type/matcher/v3/metadata.proto \
+        /protos/envoy/type/matcher/v3/struct.proto \
+        /protos/envoy/type/metadata/v3/metadata.proto \
+        /protos/envoy/type/tracing/v3/custom_tag.proto \
+        /protos/envoy/config/core/v3/address.proto \
+        /protos/envoy/config/core/v3/backoff.proto \
+        /protos/envoy/config/core/v3/base.proto \
+        /protos/envoy/config/core/v3/config_source.proto \
+        /protos/envoy/config/core/v3/event_service_config.proto \
+        /protos/envoy/config/core/v3/extension.proto \
+        /protos/envoy/config/core/v3/grpc_service.proto \
+        /protos/envoy/config/core/v3/grpc_method_list.proto \
+        /protos/envoy/config/core/v3/http_uri.proto \
+        /protos/envoy/config/core/v3/proxy_protocol.proto \
+        /protos/envoy/config/core/v3/resolver.proto \
+        /protos/envoy/config/core/v3/socket_option.proto \
+        /protos/envoy/config/core/v3/socket_cmsg_headers.proto \
+        /protos/envoy/config/core/v3/substitution_format_string.proto \
+        /protos/envoy/config/core/v3/udp_socket_config.proto \
+        /protos/envoy/config/core/v3/protocol.proto \
+        /protos/envoy/annotations/deprecation.proto \
+        /protos/envoy/annotations/resource.proto \
+        /protos/xds/annotations/v3/status.proto \
+        /protos/xds/annotations/v3/security.proto \
+        /protos/xds/annotations/v3/sensitive.proto \
+        /protos/xds/annotations/v3/versioning.proto \
+        /protos/xds/annotations/v3/migrate.proto \
+        /protos/xds/core/v3/context_params.proto \
+        /protos/xds/core/v3/authority.proto \
+        /protos/xds/core/v3/cidr.proto \
+        /protos/xds/core/v3/collection_entry.proto \
+        /protos/xds/core/v3/extension.proto \
+        /protos/xds/core/v3/resource.proto \
+        /protos/xds/core/v3/resource_locator.proto \
+        /protos/xds/core/v3/resource_name.proto \
+        /protos/udpa/annotations/migrate.proto \
+        /protos/udpa/annotations/sensitive.proto \
+        /protos/udpa/annotations/status.proto \
+        /protos/udpa/annotations/versioning.proto \
+        /protos/udpa/annotations/security.proto \
+        /protos/validate/validate.proto \
+        /protos/google/api/annotations.proto \
+        /protos/google/api/http.proto \
+        /protos/google/api/field_behavior.proto \
+        /protos/google/api/visibility.proto \
+        /protos/google/rpc/status.proto \
+        /protos/google/rpc/code.proto
+
+# Make generated package paths importable. CRITICAL: do NOT add __init__.py
+# under /app/generated/google — the real `google` package (from the protobuf
+# wheel) is a namespace package, and creating an __init__.py here would
+# shadow `google.protobuf`. Leave google/ as a namespace package; the
+# api/rpc subpackages get their own __init__.py.
+RUN find /app/generated -type d \
+        ! -path /app/generated \
+        ! -path /app/generated/google \
+        -exec touch {}/__init__.py \;
+
+ENV PYTHONPATH=/app/generated:/app
+
+COPY policy.py grpc_server.py ./
+
+ENV PORT=8080
+CMD exec python grpc_server.py
