@@ -14,7 +14,7 @@ load_dotenv(dotenv_path="../.env", override=True)
 # Configuration
 PROJECT_ID = "vtxdemos"
 LOCATION = "us-central1"
-STAGING_BUCKET = "gs://vtxdemos_staging"
+STAGING_BUCKET = "gs://vtxdemos-staging"
 AGENT_ENGINE_NAME = os.getenv("AGENT_ENGINE_NAME", "bain-financial-secure-agent")
 MCP_URL = os.getenv("SHAREPOINT_MCP_URL", "https://ge-custom-sharepoint-mcp-254356041555.us-central1.run.app/mcp")
 

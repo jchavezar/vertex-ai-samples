@@ -142,7 +142,7 @@ export const useDashboardStore = create<DashboardState>((set) => ({
   accountName: null,
   setAccountName: (name) => set({ accountName: name }),
   // Set default Reasoning Engine ID to 8655608971282874368 so React UI hits populate the exact GCP Tracing dashboard
-  reasoningEngineId: '4930445984191741952',
+  reasoningEngineId: '7757233204599193600',
   setReasoningEngineId: (id) => set({ reasoningEngineId: id }),
   showAuthDrawer: false,
   setShowAuthDrawer: (show) => set({ showAuthDrawer: show }),

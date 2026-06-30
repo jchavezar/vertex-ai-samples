@@ -86,6 +86,7 @@ export function FlatConsoleChat() {
       const response = await msalInstance.loginPopup(loginRequest);
       setEntraToken(response.accessToken || response.idToken);
       setAccountName(`${response.account?.name || response.account?.username || 'Bain Partner'}`);
+      setActiveSessionId(null);
       setMsalLog(`🟢 [MSAL Login Success] User authenticated: ${response.account?.name || response.account?.username}\n🟢 Active Token Scopes: ${response.scopes.join(', ')}\n🟢 Bound to session key: sharepointauth_new\n🚀 Ready for real-time secure SharePoint queries!`);
     } catch (err: any) {
       console.error("[MSAL Login Error]:", err);
@@ -154,8 +155,8 @@ export function FlatConsoleChat() {
 
     clearGatewayLogs();
     addGatewayLog({ type: 'ingress', text: `[GATEWAY-INGRESS] Intercepting request to projects/254356041555/locations/us-central1/reasoningEngines/${targetEngineId}` });
-    addGatewayLog({ type: 'auth', text: `[GATEWAY-AUTH] MSAL OIDC token validated. Identity: j.chavez@bain.com (Principal: jesusarguelles@google.com)` });
-    addGatewayLog({ type: 'auth', text: `[GATEWAY-IDENTITY-PROPAGATION] Propagating j.chavez@bain.com OAuth context to SharePoint Microsoft Graph client.` });
+    addGatewayLog({ type: 'auth', text: `[GATEWAY-AUTH] MSAL OIDC token validated. Identity: ${accountName || 'jesusarguelles@google.com'}` });
+    addGatewayLog({ type: 'auth', text: `[GATEWAY-IDENTITY-PROPAGATION] Propagating ${accountName || 'jesusarguelles@google.com'} OAuth context to SharePoint Microsoft Graph client.` });
     if (text.trim().startsWith('claude-code')) {
       targetEngineId = "4299946434406383616"; // Mandated A2A routing rule
     }
