@@ -25,16 +25,16 @@ export function FlatConsoleChat() {
   const [loading, setLoading] = useState(false);
   
   // Enterprise State pulled from global store (Shared with Header & App)
-  const { 
-    entraToken, 
-    setEntraToken, 
-    accountName, 
-    setAccountName, 
-    reasoningEngineId, 
-    setReasoningEngineId, 
-    showAuthDrawer, 
-    setShowAuthDrawer, 
-    msalLog, 
+  const {
+    entraToken,
+    setEntraToken,
+    accountName,
+    setAccountName,
+    reasoningEngineId,
+    setReasoningEngineId,
+    showAuthDrawer,
+    setShowAuthDrawer,
+    msalLog,
     setMsalLog,
     activeView: _activeView,
     setActiveView,
@@ -43,8 +43,8 @@ export function FlatConsoleChat() {
     selectedAgentId,
     setSelectedAgentId,
     addCanvasElement,
-    addGatewayLog,
-    clearGatewayLogs
+    mergeGatewayLogs,
+    clearGatewayLogs,
   } = useDashboardStore();
 
   const [activeSessionId, setActiveSessionId] = useState<string | null>(null);
@@ -74,6 +74,48 @@ export function FlatConsoleChat() {
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, loading]);
+
+  // Real Agent Gateway log feed.
+  //
+  // Polls /api/gateway-logs every 1.5s, which is proxied (via vite.config.ts)
+  // to `bain-ge-gateway-logs-svc` Cloud Run. That sidecar queries Cloud
+  // Logging for structured entries written by `bain-ge-policy-svc` and
+  // returns them shaped for the UI. Entries are deduped by correlation_id
+  // in `mergeGatewayLogs`, so the panel only ever shows REAL decisions made
+  // by the policy service — never the prior simulator strings.
+  useEffect(() => {
+    let cancelled = false;
+    const tick = async () => {
+      try {
+        const r = await fetch('/api/gateway-logs/api/gateway-logs?since_seconds=600&limit=200');
+        if (!r.ok) return;
+        const data = await r.json();
+        if (cancelled) return;
+        const entries = (data?.entries || []).map((e: any) => ({
+          correlationId: e.correlation_id,
+          ts: e.ts,
+          decision: e.decision,
+          rule: e.rule,
+          reason: e.reason,
+          tool: e.tool,
+          user: e.user,
+          sourceAgent: e.source_agent,
+          targetService: e.target_service,
+          latencyMs: e.latency_ms,
+          logUrl: undefined as string | undefined,
+        }));
+        if (entries.length) mergeGatewayLogs(entries);
+      } catch (e) {
+        // Network blip — silent; next tick will retry.
+      }
+    };
+    tick();
+    const iv = setInterval(tick, 1500);
+    return () => {
+      cancelled = true;
+      clearInterval(iv);
+    };
+  }, [mergeGatewayLogs]);
 
   const handleMsalLogin = async () => {
     setMsalLog("⚡ Initializing MSAL PublicClientApplication and triggering interactive Microsoft 365 OAuth 2.0 login popup...\n(Connecting to login.microsoftonline.com/de46a3fd-0d68-4b25-8343-6eb5d71afce9)");
@@ -153,10 +195,10 @@ export function FlatConsoleChat() {
       targetEngineId = targetEngineId.slice(0, 19); // Take the first 19 digits (A2A / standard ID length)
     }
 
+    // Clear stale gateway logs from previous turn. The real-log poller (above)
+    // will repopulate the panel with actual policy-decision entries as the
+    // agent's tool calls hit bain-ge-policy-svc and emit structured Cloud Logs.
     clearGatewayLogs();
-    addGatewayLog({ type: 'ingress', text: `[GATEWAY-INGRESS] Intercepting request to projects/254356041555/locations/us-central1/reasoningEngines/${targetEngineId}` });
-    addGatewayLog({ type: 'auth', text: `[GATEWAY-AUTH] MSAL OIDC token validated. Identity: ${accountName || 'jesusarguelles@google.com'}` });
-    addGatewayLog({ type: 'auth', text: `[GATEWAY-IDENTITY-PROPAGATION] Propagating ${accountName || 'jesusarguelles@google.com'} OAuth context to SharePoint Microsoft Graph client.` });
     if (text.trim().startsWith('claude-code')) {
       targetEngineId = "4299946434406383616"; // Mandated A2A routing rule
     }
@@ -196,19 +238,9 @@ export function FlatConsoleChat() {
 
       setMessages((prev) => prev.map(m => m.id === botMsgId ? { ...m, text: `⚡ [Pillar B] Session established (${currentSessionId}). Streaming query from Vertex AI Agent Runtime (${targetEngineId})...` } : m));
 
-      if (selectedAgentId === 'dlp-compliance') {
-        addGatewayLog({ type: 'engine', text: "LLM requested search_and_fetch_top on '02_Restricted_Privileged_DLP_Audit_Target_HoldCo.docx'" });
-        addGatewayLog({ type: 'auth', text: "[GATEWAY-ACCESS-CONTROL] Applying Microsoft Graph ACL: j.chavez@bain.com has access to target HoldCo folder. Allowed." });
-      } else if (selectedAgentId === 'observability-curator') {
-        addGatewayLog({ type: 'engine', text: "LLM requested search_and_fetch_top on '05_External_Research_Addendum_DO_NOT_PARSE.md'" });
-        addGatewayLog({ type: 'auth', text: "[GATEWAY-ACCESS-CONTROL] Applying Microsoft Graph ACL: j.chavez@bain.com has READ access to External Research directories." });
-      } else if (selectedAgentId === 'ma-analyst') {
-        addGatewayLog({ type: 'engine', text: `LLM requested search_and_fetch_top with query='${text.slice(0, 40)}...'` });
-        addGatewayLog({ type: 'auth', text: "[GATEWAY-ACCESS-CONTROL] Applying SharePoint site ACL context: j.chavez@bain.com has access to 01_Project_Starlight_Financial_Model_FY26-30.xlsx." });
-      } else if (selectedAgentId === 'market-quant') {
-        addGatewayLog({ type: 'engine', text: "LLM requested public_market_multiples / plot_financial_data tools" });
-        addGatewayLog({ type: 'auth', text: "[GATEWAY-EGRESS-SHIELD] Verifying outbound domain rules. Request to sec.gov allowed." });
-      }
+      // The gateway log panel populates from REAL Cloud Logging entries
+      // emitted by bain-ge-policy-svc as each tool call is decided. No
+      // per-persona simulator strings are written here.
 
       const streamUrl = `/api/v1beta1/projects/${PROJECT_NUMBER}/locations/${LOCATION}/reasoningEngines/${targetEngineId}:streamQuery?alt=sse`;
       const response = await fetch(streamUrl, {
@@ -340,28 +372,10 @@ export function FlatConsoleChat() {
         }
       }
 
-      // Live Egress DLP Scan / Observability Canary Check
-      addGatewayLog({ type: 'scan', text: selectedAgentId === 'dlp-compliance' ? '[GATEWAY-EGRESS-SHIELD] Scanning outbound payload to j.chavez@bain.com...' : (selectedAgentId === 'observability-curator' ? '[GATEWAY-EGRESS-SHIELD] Running security audit evaluation...' : '[GATEWAY-EGRESS-SHIELD] Scanning outbound payload to j.chavez@bain.com...') });
-
-      if (selectedAgentId === 'dlp-compliance') {
-        if (finalBotText.includes('Redacted') || finalBotText.includes('████████') || finalBotText.includes('DLP Policy')) {
-          addGatewayLog({ type: 'policy', text: "[GATEWAY-DLP-POLICY] MATCH FOUND: Strike price/Compensation pattern detected in 02_Restricted_Privileged_DLP_Audit_Target_HoldCo.docx" });
-          addGatewayLog({ type: 'policy', text: "[GATEWAY-DLP-POLICY] POLICY ENFORCED: Redacting strike price value. Replaced with [Redacted by Agent Gateway DLP Policy]" });
-        } else {
-          addGatewayLog({ type: 'policy', text: "[GATEWAY-DLP-POLICY] SCANNING COMPLETE: No confidential MNPI pattern matched in standard output." });
-        }
-      } else if (selectedAgentId === 'observability-curator') {
-        if (finalBotText.includes('canary detected') || finalBotText.includes('neutralized')) {
-          addGatewayLog({ type: 'policy', text: "[GATEWAY-OBSERVABILITY] ALERT: Prompt injection canary trigger detected ('IGNORE PREVIOUS INSTRUCTIONS...')" });
-          addGatewayLog({ type: 'policy', text: "[GATEWAY-OBSERVABILITY] STATUS: Malicious instruction neutralized. Forwarding alert to tracing backend." });
-        } else {
-          addGatewayLog({ type: 'policy', text: "[GATEWAY-OBSERVABILITY] CANARY EVALUATION: Safe token signature validated. No injection vector detected." });
-        }
-      } else {
-        addGatewayLog({ type: 'scan', text: "[GATEWAY-DLP-POLICY] SCANNING COMPLETE: Safe payload verified. Zero policy breaches detected." });
-      }
-
-      addGatewayLog({ type: 'outbound', text: "[GATEWAY-OUTBOUND] Stream payload delivered to client. Identity context closed." });
+      // Egress evaluation, DLP scan, canary check — all real now. Each
+      // tool call writes its decision to Cloud Logging from the policy
+      // service; the real-log poller pulls those entries into the panel.
+      // No post-hoc string fabrication here.
 
     } catch (err: any) {
       console.error("[Agent Runtime] True Live Connection Error:", err.message);

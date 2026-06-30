@@ -65,8 +65,44 @@ interface DashboardState {
   clearCanvasElements: () => void;
 
   // Agent Gateway Logging & Telemetry Traces
-  gatewayLogs: Array<{ id: string; timestamp: string; type: string; text: string }>;
+  //
+  // Entries are now sourced from REAL Cloud Logging by polling
+  // /api/gateway-logs (proxied to bain-ge-gateway-logs-svc), which queries
+  // structured entries written by bain-ge-policy-svc on Cloud Run. The
+  // previous hardcoded simulator strings have been removed.
+  gatewayLogs: Array<{
+    id: string;
+    timestamp: string;
+    type: string;
+    text: string;
+    decision?: 'ALLOW' | 'DENY';
+    rule?: string;
+    reason?: string;
+    tool?: string;
+    user?: string;
+    sourceAgent?: string;
+    targetService?: string;
+    correlationId?: string;
+    latencyMs?: number;
+    logUrl?: string;
+  }>;
   addGatewayLog: (log: { type: string; text: string }) => void;
+  mergeGatewayLogs: (
+    entries: Array<{
+      correlationId: string;
+      ts?: string;
+      decision?: 'ALLOW' | 'DENY';
+      rule?: string;
+      reason?: string;
+      tool?: string;
+      user?: string;
+      sourceAgent?: string;
+      targetService?: string;
+      latencyMs?: number;
+      logUrl?: string;
+      text?: string;
+    }>
+  ) => void;
   clearGatewayLogs: () => void;
 }
 
@@ -169,7 +205,7 @@ export const useDashboardStore = create<DashboardState>((set) => ({
   })),
   clearCanvasElements: () => set({ canvasElements: [] }),
 
-  // Agent Gateway Logging & Telemetry Traces
+  // Agent Gateway Logging & Telemetry Traces — real entries from Cloud Logging
   gatewayLogs: [],
   addGatewayLog: (log) => set((state) => ({
     gatewayLogs: [
@@ -182,5 +218,36 @@ export const useDashboardStore = create<DashboardState>((set) => ({
       }
     ]
   })),
+  mergeGatewayLogs: (entries) => set((state) => {
+    const seen = new Set(state.gatewayLogs.map((l) => l.correlationId).filter(Boolean));
+    const fresh = entries.filter((e) => e.correlationId && !seen.has(e.correlationId));
+    if (fresh.length === 0) return {} as any;
+    const mapped = fresh.map((e) => {
+      const decision = e.decision;
+      const type = decision === 'DENY' ? 'policy' : decision === 'ALLOW' ? 'auth' : 'engine';
+      const ts = e.ts ? new Date(e.ts).toLocaleTimeString() : new Date().toLocaleTimeString();
+      const text =
+        e.text ||
+        `[GATEWAY-${decision || 'EVENT'}] ${e.tool ?? '?'} → ${(e.targetService || '').split(':').pop()} ` +
+        `[${e.rule || '?'}] ${e.reason || ''}`;
+      return {
+        id: e.correlationId!,
+        timestamp: ts,
+        type,
+        text,
+        decision: decision as 'ALLOW' | 'DENY' | undefined,
+        rule: e.rule,
+        reason: e.reason,
+        tool: e.tool,
+        user: e.user || undefined,
+        sourceAgent: e.sourceAgent,
+        targetService: e.targetService,
+        correlationId: e.correlationId,
+        latencyMs: e.latencyMs,
+        logUrl: e.logUrl,
+      };
+    });
+    return { gatewayLogs: [...state.gatewayLogs, ...mapped] };
+  }),
   clearGatewayLogs: () => set({ gatewayLogs: [] }),
 }));

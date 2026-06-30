@@ -1,0 +1,6 @@
+
+# Local dev artifacts
+.venv/
+.venv-*/
+__pycache__/
+*.pyc

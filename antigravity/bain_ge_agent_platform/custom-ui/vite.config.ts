@@ -18,6 +18,16 @@ export default defineConfig({
     port: 5186, // Explicitly aligned with user's active browser tab (localhost:5186)
     host: true,
     proxy: {
+      // Real Agent Gateway log feed — proxies to bain-ge-gateway-logs-svc,
+      // which queries Cloud Logging for entries written by bain-ge-policy-svc.
+      // Replaces the hardcoded addGatewayLog(...) simulator strings.
+      // MUST be declared BEFORE '/api' so it wins the longest-prefix match.
+      '/api/gateway-logs': {
+        target: 'https://bain-ge-gateway-logs-svc-254356041555.us-central1.run.app',
+        changeOrigin: true,
+        secure: true,
+        // gateway-logs-svc is deployed with --allow-unauthenticated, no token needed.
+      },
       '/api': {
         target: 'https://us-central1-aiplatform.googleapis.com',
         changeOrigin: true,

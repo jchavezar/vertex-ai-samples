@@ -1,5 +1,11 @@
 import os
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "/usr/local/google/home/jesusarguelles/.config/gcloud/legacy_credentials/admin@jesusarguelles.altostrat.com/adc.json"
+# Honor an explicit GOOGLE_APPLICATION_CREDENTIALS first; otherwise fall back
+# to the user's workstation legacy creds if that file exists (it does on the
+# author's machine; it does NOT exist in CI / cloud workstations / new VMs).
+# Anywhere else, defer to ADC: `gcloud auth application-default login`.
+_DEFAULT_ADC = "/usr/local/google/home/jesusarguelles/.config/gcloud/legacy_credentials/admin@jesusarguelles.altostrat.com/adc.json"
+if not os.environ.get("GOOGLE_APPLICATION_CREDENTIALS") and os.path.exists(_DEFAULT_ADC):
+    os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = _DEFAULT_ADC
 import importlib
 from dotenv import load_dotenv
 import vertexai
@@ -84,8 +90,14 @@ deploy_config = {
     #         "agent_gateway": f"projects/{project_number}/locations/{LOCATION}/agentGateways/reasoning-engine-gateway"
     #     }
     # },
-    # Ensure all ultra-low latency Graph client modules are bundled into the container
-    "extra_packages": ["agent.py", "graph_client.py", "doc_reader.py"],
+    # Ensure all ultra-low latency Graph client modules + real Agent Gateway
+    # policy guard are bundled into the container.
+    "extra_packages": [
+        "agent.py",
+        "graph_client.py",
+        "doc_reader.py",
+        "policy_guard.py",
+    ],
     "env_vars": {
         "GOOGLE_CLOUD_LOCATION": "global",
         "GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY": "true",
@@ -95,7 +107,18 @@ deploy_config = {
         "CONNECTOR_RESOURCE": f"projects/{project_number}/locations/{LOCATION}/connectors/sharepoint-3lo",
         "USE_AGENT_IDENTITY": "0",
         "PYTHONUNBUFFERED": "1",
-    }
+        # Real Agent Gateway policy service — every tool call routes through this
+        # for an allow/deny decision before execution. Cloud Logging entries
+        # surface in the UI's gateway log panel via bain-ge-gateway-logs-svc.
+        "POLICY_SERVICE_URL": os.getenv(
+            "POLICY_SERVICE_URL",
+            "https://bain-ge-policy-svc-254356041555.us-central1.run.app",
+        ),
+        # Fail-closed by default. Set POLICY_FAIL_OPEN=1 only for emergency
+        # graceful-degrade (logs a warning, then permits the call).
+        "POLICY_FAIL_OPEN": os.getenv("POLICY_FAIL_OPEN", "0"),
+        "GOOGLE_CLOUD_LOCATION_AE": LOCATION,
+    },
 }
 
 if target_engine:
@@ -130,11 +153,29 @@ else:
 resource_name = remote_app.api_resource.name
 resource_id = resource_name.split("/")[-1]
 
+# Patch the deployed agent's env to embed its own engine ID so policy_guard.py
+# can build the correct source SPIFFE/URN at runtime. (We don't know the ID
+# until creation completes, so this is a two-phase update.)
+try:
+    print(f"Patching REASONING_ENGINE_ID env var to {resource_id}...")
+    final_env = dict(deploy_config["env_vars"])
+    final_env["REASONING_ENGINE_ID"] = resource_id
+    patched_config = {**deploy_config, "env_vars": final_env}
+    client.agent_engines.update(
+        name=resource_name,
+        agent=deployment_app,
+        config=patched_config,
+    )
+    print(f"REASONING_ENGINE_ID env patched.")
+except Exception as patch_e:
+    print(f"WARN: REASONING_ENGINE_ID patch failed (will fall back to default in policy_guard): {patch_e}")
+
 print(f"""
 ========================================
 Deployment Complete!
 ========================================
 Resource Name: {resource_name}
 Resource ID:   {resource_id}
+Policy Service: {deploy_config['env_vars']['POLICY_SERVICE_URL']}
 ========================================
 """)

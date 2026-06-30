@@ -257,38 +257,53 @@ export default function App() {
                     </div>
                   </div>
 
-                  {/* Right Column: Live Agent Gateway Console */}
+                  {/* Right Column: Live Agent Gateway Console — REAL Cloud Logging feed */}
                   <div className="bg-[#111111] text-[#faf9f6] p-6 font-mono text-[10px] flex flex-col shadow-lg border border-[#333333] rounded-none min-h-[420px]">
                     <div className="flex items-center justify-between border-b border-[#333333] pb-3 mb-4">
                       <div className="flex items-center gap-2">
                         <span className="w-2.5 h-2.5 bg-green-500 rounded-full animate-pulse" />
-                        <span className="font-bold text-xs uppercase tracking-wider text-green-500">Agent Gateway Compliance Monitor</span>
+                        <span className="font-bold text-xs uppercase tracking-wider text-green-500">Agent Gateway Policy Monitor</span>
                       </div>
-                      <span className="text-[#7c7a75] text-[9px] uppercase tracking-widest font-bold">SYSTEM LOGS // LIVE</span>
+                      <span className="text-[#7c7a75] text-[9px] uppercase tracking-widest font-bold">CLOUD LOGGING // LIVE</span>
                     </div>
 
-                    <div className="flex-1 overflow-y-auto space-y-2.5 leading-relaxed max-h-[380px] pr-2">
+                    <div className="flex-1 overflow-y-auto space-y-2 leading-relaxed max-h-[380px] pr-2">
                       {gatewayLogs.length === 0 ? (
                         <div className="flex flex-col items-center justify-center h-full text-center text-[#7c7a75] py-12">
                           <span className="text-xl mb-2">💤</span>
                           <p className="text-[10px] font-mono">Gateway Standby</p>
-                          <p className="text-[9px] text-[#5c5a55] mt-1 max-w-[200px] mx-auto">Logs populate dynamically when a query is executed from the Workstation panel on the right.</p>
+                          <p className="text-[9px] text-[#5c5a55] mt-1 max-w-[260px] mx-auto">
+                            Real policy decisions appear here as soon as the agent invokes a tool.
+                            Source: <code className="text-[#7c7a75]">bain-ge-policy-svc</code> &rarr; Cloud Logging.
+                          </p>
                         </div>
                       ) : (
                         gatewayLogs.map((log) => {
-                          let colorClass = "text-[#faf9f6]";
-                          if (log.type === 'ingress' || log.type === 'auth' || log.type === 'outbound') {
-                            colorClass = "text-green-400";
-                          } else if (log.type === 'scan') {
-                            colorClass = "text-yellow-400";
-                          } else if (log.type === 'policy') {
-                            colorClass = "text-red-400 font-bold";
-                          }
-                          
+                          const isDeny = log.decision === 'DENY';
+                          const isAllow = log.decision === 'ALLOW';
+                          const borderColor = isDeny ? 'border-red-500' : isAllow ? 'border-green-500' : 'border-[#333333]';
+                          const badgeColor = isDeny ? 'bg-red-500 text-white' : isAllow ? 'bg-green-500 text-black' : 'bg-[#333] text-[#faf9f6]';
+                          const titleColor = isDeny ? 'text-red-400' : isAllow ? 'text-green-400' : 'text-[#faf9f6]';
                           return (
-                            <p key={log.id} className={colorClass}>
-                              [{log.timestamp}] {log.text}
-                            </p>
+                            <div key={log.id} className={`border-l-2 ${borderColor} pl-2 py-1`}>
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <span className={`px-1.5 py-0.5 text-[9px] font-bold ${badgeColor}`}>{log.decision || 'EVENT'}</span>
+                                {log.rule && <span className="text-[#facc15] text-[9px]">[{log.rule}]</span>}
+                                {log.tool && <span className={`${titleColor} text-[10px]`}>{log.tool}</span>}
+                                <span className="text-[#7c7a75] text-[9px] ml-auto">{log.timestamp}</span>
+                              </div>
+                              {log.reason && <p className="text-[#cbd5e1] text-[9.5px] mt-1 leading-snug">{log.reason}</p>}
+                              <div className="flex items-center gap-2 mt-1 text-[8.5px] text-[#7c7a75]">
+                                {log.targetService && <span>→ {log.targetService.split(':').pop()}</span>}
+                                {typeof log.latencyMs === 'number' && <span>· {log.latencyMs.toFixed(1)}ms</span>}
+                                {log.user && <span>· {log.user}</span>}
+                                {log.logUrl && (
+                                  <a href={log.logUrl} target="_blank" rel="noreferrer" className="text-[#60a5fa] hover:underline ml-auto">
+                                    Cloud Logging ↗
+                                  </a>
+                                )}
+                              </div>
+                            </div>
                           );
                         })
                       )}
