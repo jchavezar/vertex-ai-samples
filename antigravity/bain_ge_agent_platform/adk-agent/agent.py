@@ -43,75 +43,94 @@ def decode_jwt_payload(token: str) -> dict:
         return {}
 
 def extract_user_token(ctx: CallbackContext) -> str | None:
-    """Extracts Microsoft Graph OAuth access token from session state."""
-    user_token = None
-    if hasattr(ctx, "session") and hasattr(ctx.session, "state"):
-        state_dict = dict(ctx.session.state)
-        logger.info(f"[Agent] Found {len(state_dict)} keys in session state: {list(state_dict.keys())}")
-        
-        candidates = []
-        for key, val in state_dict.items():
-            if isinstance(val, str) and val.startswith("eyJ") and len(val) > 100:
-                payload = decode_jwt_payload(val)
-                iss = str(payload.get("iss", "")).lower()
-                aud = str(payload.get("aud", "")).lower()
-                
-                is_ms_graph = (
-                    "microsoftonline" in iss or 
-                    "windows.net" in iss or 
-                    "graph.microsoft.com" in aud or 
-                    "00000003-0000-0000-c000-000000000000" in aud
-                )
-                if is_ms_graph:
-                    candidates.append((key, val, iss, aud))
-        
-        if candidates:
-            selected_key, selected_token, selected_iss, selected_aud = candidates[0]
-            user_token = selected_token
-            logger.info(f"[Agent] Successfully selected Microsoft Graph token from key='{selected_key}'")
-        else:
-            fallback_candidates = []
-            for key, val in state_dict.items():
-                if isinstance(val, str) and len(val) > 100:
-                    if val.startswith("eyJ"):
-                        payload = decode_jwt_payload(val)
-                        iss = str(payload.get("iss", "")).lower()
-                        aud = str(payload.get("aud", "")).lower()
-                        if not ("google" in iss or "google" in aud):
-                            fallback_candidates.append((key, val, iss, aud))
-                    elif "sharepoint" in key:
-                        fallback_candidates.append((key, val, "opaque", "opaque"))
-            
-            if fallback_candidates:
-                selected_key, selected_token, _, _ = fallback_candidates[0]
-                user_token = selected_token
-                logger.info(f"[Agent] No explicit Microsoft Graph token. Fallback selecting key='{selected_key}'")
-            else:
-                logger.warning("[Agent] No Microsoft Graph token or suitable fallback token found in session state.")
-    return user_token
+    """Extract a Microsoft Graph OAuth access token from session state.
+
+    Lookup order:
+      1. GE-injected keys — when the agent is invoked via Gemini Enterprise
+         (registered as `adkAgentDefinition` with `toolAuthorizations`), GE
+         obtains a delegated OAuth token from the referenced Authorization
+         resource and injects it under one of these session-state keys:
+           - `temp:<authorization_id>` (canonical, per GE runtime)
+           - `<authorization_id>`      (some GE versions drop the temp prefix)
+         The Authorization we bound is `sharepointauth-bain`; the legacy UI
+         also pushes `sharepointauth_new` from an MSAL popup fallback.
+      2. Any JWT that looks like a Microsoft Graph token (iss/aud sniff).
+      3. Any non-Google JWT or opaque-looking sharepoint-keyed value.
+
+    The first hit wins; we log which key we picked so audit trails know
+    whether the token came from GE-managed delegation (Pillar A production)
+    or the browser MSAL popup fallback.
+    """
+    if not (hasattr(ctx, "session") and hasattr(ctx.session, "state")):
+        return None
+    state_dict = dict(ctx.session.state)
+    logger.info(f"[Agent] session-state keys: {list(state_dict.keys())}")
+
+    # (1) GE-injected keys — highest priority; these are ALREADY MS Graph
+    # access tokens delegated for the caller via the Authorization resource.
+    for k in (
+        "temp:sharepointauth-bain",
+        "sharepointauth-bain",
+        "temp:sharepointauth_new",
+        "sharepointauth_new",
+    ):
+        v = state_dict.get(k)
+        if isinstance(v, str) and len(v) > 50:
+            logger.info(f"[Agent] Using GE-injected OAuth token from key='{k}' (Pillar A production path)")
+            return v
+
+    # (2) Sniff any JWT that looks like MS Graph.
+    ms_candidates = []
+    for key, val in state_dict.items():
+        if isinstance(val, str) and val.startswith("eyJ") and len(val) > 100:
+            payload = decode_jwt_payload(val)
+            iss = str(payload.get("iss", "")).lower()
+            aud = str(payload.get("aud", "")).lower()
+            if (
+                "microsoftonline" in iss
+                or "windows.net" in iss
+                or "graph.microsoft.com" in aud
+                or "00000003-0000-0000-c000-000000000000" in aud
+            ):
+                ms_candidates.append((key, val))
+    if ms_candidates:
+        k, v = ms_candidates[0]
+        logger.info(f"[Agent] Using MS Graph JWT from key='{k}' (sniffed)")
+        return v
+
+    # (3) Fallback: any non-Google JWT or opaque sharepoint-keyed value.
+    for key, val in state_dict.items():
+        if not isinstance(val, str) or len(val) <= 100:
+            continue
+        if val.startswith("eyJ"):
+            payload = decode_jwt_payload(val)
+            iss = str(payload.get("iss", "")).lower()
+            aud = str(payload.get("aud", "")).lower()
+            if not ("google" in iss or "google" in aud):
+                logger.info(f"[Agent] Fallback: using non-Google JWT from key='{key}'")
+                return val
+        if "sharepoint" in key.lower():
+            logger.info(f"[Agent] Fallback: using opaque sharepoint-keyed value from key='{key}'")
+            return val
+
+    logger.warning("[Agent] No OAuth token found in session state — GE Authorization may not be triggered yet")
+    return None
 
 async def get_user_token_via_gateway(ctx: CallbackContext) -> str | None:
-    """Retrieves MS Graph access token via GCP Agent Identity Auth provider."""
-    connector = os.getenv("CONNECTOR_RESOURCE")
-    if not connector:
-        logger.info("[Agent] CONNECTOR_RESOURCE not set. Engaging local session state parsing fallback.")
-        return extract_user_token(ctx)
-        
-    try:
-        provider = GcpAuthProvider()
-        scheme = GcpAuthProviderScheme(
-            name=connector,
-            scopes=["https://graph.microsoft.com/Files.Read", "offline_access", "openid", "profile"]
-        )
-        auth_config = AuthConfig(auth_scheme=scheme)
-        cred = await provider.get_auth_credential(auth_config, ctx)
-        if cred and cred.http and cred.http.credentials:
-            token = cred.http.credentials.token
-            logger.info("[Agent] Successfully retrieved token via GCP Agent Identity connector.")
-            return token
-    except Exception as e:
-        logger.error(f"[Agent] Failed to retrieve delegated identity token via Gateway: {e}")
-    return None
+    """Retrieve an MS Graph access token for the caller.
+
+    Production path (Pillar A, GE-managed 3LO): when this agent is invoked
+    via Gemini Enterprise as an `adkAgentDefinition` with `toolAuthorizations`
+    pointing at `projects/.../authorizations/sharepointauth-bain`, GE handles
+    the entire OAuth authorization-code flow with Microsoft on the user's
+    behalf, then injects the resulting access token into session state under
+    a `temp:sharepointauth-bain` (or similar) key. `extract_user_token()`
+    handles that path.
+
+    Legacy fallback: if the caller is the local Vite UI, an MSAL popup
+    pushes an equivalent token into `sharepointauth_new`. Same extractor.
+    """
+    return extract_user_token(ctx)
 
 def _split_id(compound: str) -> tuple[str, str]:
     if ":" not in compound:
