@@ -348,28 +348,31 @@ export function LiveEventOverlay() {
         if (!body.ok || !body.events?.length) return;
 
         if (seedOnly) {
-          // On the very first scoreboard tick we seed `seen` with historical
-          // goal signatures. The catch-up call should NOT enqueue events
-          // already in `seen`. enqueue() handles that, so just feed it.
+          // On mount: mark all historical events as SEEN so old goals don't pop up on page load
+          for (const ev of body.events) {
+            seenRef.current.add(ev.id);
+          }
+          writeSeen(seenRef.current);
+          return;
         }
 
+        const now = Date.now();
         const items = body.events
           .map(toQueueItem)
-          .filter((q): q is QueueItem => q !== null);
+          .filter((q): q is QueueItem => q !== null && (now - q.wallclock < 45_000));
         enqueue(items);
       } catch { /* network blip — next poll retries */ }
     }
 
-    // Mount: ten-minute catch-up.
+    // Mount: ten-minute catch-up (seed seen set only, no overlays on load).
     if (!mountedRef.current) {
       mountedRef.current = true;
-      fetchEvents(10 * 60_000);
+      fetchEvents(10 * 60_000, true);
     }
 
-    // Recurring poll.
+    // Recurring poll: only check recent events.
     const id = setInterval(() => {
-      // Use a slightly-wider window (POLL+8s) to tolerate clock skew.
-      fetchEvents(POLL_MS + 8_000);
+      fetchEvents(POLL_MS + 8_000, false);
     }, POLL_MS);
     return () => { cancelled = true; clearInterval(id); };
   }, [currentPlayer, enqueue]);
