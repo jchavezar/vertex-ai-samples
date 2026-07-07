@@ -1,14 +1,29 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { Header } from './components/Header';
 import { FlatConsoleChat } from './components/FlatConsoleChat';
 import { useDashboardStore } from './store/dashboardStore';
 
+/**
+ * Presenter-mode helper. Toggles the browser Fullscreen API on the passed
+ * element. Escape (or clicking the ✕ overlay) exits — no extra state needed.
+ * When fullscreened, we add a bit of scale so the panel visually fills the
+ * screen even though it was designed at a small size.
+ */
+function toggleFullscreen(el: HTMLElement | null) {
+  if (!el) return;
+  if (document.fullscreenElement) {
+    document.exitFullscreen().catch(() => {});
+  } else {
+    el.requestFullscreen().catch((e) => console.error('[fullscreen]', e));
+  }
+}
+
 export default function App() {
-  const { 
-    isNeuralLink, 
-    setIsNeuralLink, 
-    activeView, 
-    setActiveView, 
+  const {
+    isNeuralLink,
+    setIsNeuralLink,
+    activeView,
+    setActiveView,
     chatOpen,
     sidebarWidth,
     setSidebarWidth,
@@ -20,6 +35,12 @@ export default function App() {
     selectedModel,
     gatewayLogs
   } = useDashboardStore();
+
+  // Refs for presenter-mode fullscreen. Click ⛶ on a panel → it goes edge-to-edge
+  // on the big screen. Esc exits. Uses the browser Fullscreen API; no state,
+  // no modal component.
+  const monitorRef = useRef<HTMLDivElement>(null);
+  const canvasSectionRef = useRef<HTMLDivElement>(null);
 
   // Smooth drag-to-resize handler for left sidebar
   const handleSidebarResize = (e: React.MouseEvent) => {
@@ -258,13 +279,26 @@ export default function App() {
                   </div>
 
                   {/* Right Column: Live Agent Gateway Console — REAL Cloud Logging feed */}
-                  <div className="bg-[#111111] text-[#faf9f6] p-6 font-mono text-[10px] flex flex-col shadow-lg border border-[#333333] rounded-none min-h-[420px]">
+                  <div
+                    ref={monitorRef}
+                    className="bg-[#111111] text-[#faf9f6] p-6 font-mono text-[10px] flex flex-col shadow-lg border border-[#333333] rounded-none min-h-[420px] fs-monitor"
+                  >
                     <div className="flex items-center justify-between border-b border-[#333333] pb-3 mb-4">
                       <div className="flex items-center gap-2">
                         <span className="w-2.5 h-2.5 bg-green-500 rounded-full animate-pulse" />
                         <span className="font-bold text-xs uppercase tracking-wider text-green-500">Agent Gateway Policy Monitor</span>
                       </div>
-                      <span className="text-[#7c7a75] text-[9px] uppercase tracking-widest font-bold">CLOUD LOGGING // LIVE</span>
+                      <div className="flex items-center gap-3">
+                        <span className="text-[#7c7a75] text-[9px] uppercase tracking-widest font-bold">CLOUD LOGGING // LIVE</span>
+                        <button
+                          type="button"
+                          title="Presenter mode — fullscreen this panel (Esc to exit)"
+                          onClick={() => toggleFullscreen(monitorRef.current)}
+                          className="text-[#7c7a75] hover:text-green-400 text-sm leading-none cursor-pointer transition-colors"
+                        >
+                          ⛶
+                        </button>
+                      </div>
                     </div>
 
                     <div className="flex-1 overflow-y-auto space-y-2 leading-relaxed max-h-[380px] pr-2">

@@ -2,6 +2,50 @@
 @tailwind components;
 @tailwind utilities;
 
+/*
+ * Presenter mode — fullscreen zoom for demo panels.
+ *
+ * Panels tag themselves with .fs-monitor / .fs-chat / .fs-canvas. When the
+ * browser Fullscreen API activates on one, the :fullscreen pseudo-class
+ * matches and we boost the intrinsic type sizes so text reads from the back
+ * of the room on a projector. Esc key exits fullscreen natively.
+ */
+.fs-monitor:fullscreen,
+.fs-chat:fullscreen,
+.fs-canvas:fullscreen {
+  padding: 4rem !important;
+  overflow-y: auto !important;
+  max-width: none !important;
+  width: 100vw !important;
+  height: 100vh !important;
+}
+.fs-monitor:fullscreen {
+  font-size: 20px !important;
+  line-height: 1.5 !important;
+}
+.fs-monitor:fullscreen * {
+  font-size: inherit !important;
+}
+.fs-monitor:fullscreen .text-\[10px\],
+.fs-monitor:fullscreen .text-\[9px\],
+.fs-monitor:fullscreen .text-\[9\.5px\],
+.fs-monitor:fullscreen .text-\[8\.5px\] {
+  font-size: 18px !important;
+}
+.fs-monitor:fullscreen .text-xs { font-size: 22px !important; }
+.fs-monitor:fullscreen h3,
+.fs-monitor:fullscreen .font-bold {
+  font-weight: 700;
+}
+.fs-chat:fullscreen {
+  font-size: 18px !important;
+}
+.fs-chat:fullscreen .text-sm { font-size: 20px !important; }
+.fs-chat:fullscreen .text-xs { font-size: 16px !important; }
+.fs-chat:fullscreen .text-\[10px\],
+.fs-chat:fullscreen .text-\[11px\] { font-size: 14px !important; }
+
+
 @layer base {
   /* Strict Flexbox Height Bounding Chain */
   html, body, #root {

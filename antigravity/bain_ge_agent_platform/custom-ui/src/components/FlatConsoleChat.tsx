@@ -1,4 +1,15 @@
 import React, { useState, useEffect, useRef } from 'react';
+
+/** Toggle browser fullscreen on a DOM element (presenter mode). Esc exits. */
+function toggleFullscreen(el: HTMLElement | null) {
+  if (!el) return;
+  if (document.fullscreenElement) {
+    document.exitFullscreen().catch(() => {});
+  } else {
+    el.requestFullscreen().catch((e) => console.error('[fullscreen]', e));
+  }
+}
+
 import { PublicClientApplication } from "@azure/msal-browser";
 import { msalConfig, loginRequest } from "../authConfig";
 import { QuickBtwChat } from './QuickBtwChat';
@@ -49,6 +60,8 @@ export function FlatConsoleChat() {
 
   const [activeSessionId, setActiveSessionId] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  // Ref for the Workstation panel so the presenter ⛶ button can fullscreen it.
+  const workstationRef = useRef<HTMLDivElement>(null);
 
   const [messages, setMessages] = useState<Message[]>([
     {
@@ -398,9 +411,10 @@ export function FlatConsoleChat() {
   };
 
   return (
-    <div 
-      style={{ width: chatWidth }} 
-      className="chat-drawer font-sans flex flex-col h-full bg-[#f4f3ef] border-l border-[#d8d6d0] flex-shrink-0 transition-none"
+    <div
+      ref={workstationRef}
+      style={{ width: chatWidth }}
+      className="chat-drawer font-sans flex flex-col h-full bg-[#f4f3ef] border-l border-[#d8d6d0] flex-shrink-0 transition-none fs-chat"
     >
       {/* Bain Workstation Header Bar */}
       <div className="flex items-center justify-between px-6 py-3.5 border-b border-[#d8d6d0] bg-[#faf9f6] flex-shrink-0">
@@ -421,6 +435,14 @@ export function FlatConsoleChat() {
           </button>
           <button type="button" onClick={() => setMessages([])} className="p-1 hover:text-[#1a1a19] hover:bg-[#d8d6d0] transition-colors cursor-pointer" title="Clear Console History">
             🗑️
+          </button>
+          <button
+            type="button"
+            onClick={() => toggleFullscreen(workstationRef.current)}
+            className="p-1 hover:text-[#1a1a19] hover:bg-[#d8d6d0] transition-colors cursor-pointer"
+            title="Presenter mode — fullscreen this panel (Esc to exit)"
+          >
+            ⛶
           </button>
           <button type="button" onClick={() => setShowAuthDrawer(true)} className="p-1 hover:text-[#1a1a19] hover:bg-[#d8d6d0] transition-colors cursor-pointer" title="Technical Flow Settings">
             ⚙️
