@@ -327,7 +327,12 @@ export default function App() {
                                 <span className="text-[#7c7a75] text-[9px] ml-auto">{log.timestamp}</span>
                               </div>
                               {log.reason && <p className="text-[#cbd5e1] text-[9.5px] mt-1 leading-snug">{log.reason}</p>}
-                              <div className="flex items-center gap-2 mt-1 text-[8.5px] text-[#7c7a75]">
+                              {log.argsPreview && (
+                                <p className="text-[#9ca3af] text-[9px] mt-1 font-mono leading-snug truncate" title={log.argsPreview}>
+                                  <span className="text-[#facc15]">args:</span> {log.argsPreview}
+                                </p>
+                              )}
+                              <div className="flex items-center gap-2 mt-1 text-[8.5px] text-[#7c7a75] flex-wrap">
                                 {log.targetService && <span>→ {log.targetService.split(':').pop()}</span>}
                                 {typeof log.latencyMs === 'number' && <span>· {log.latencyMs.toFixed(1)}ms</span>}
                                 {log.user && <span>· {log.user}</span>}

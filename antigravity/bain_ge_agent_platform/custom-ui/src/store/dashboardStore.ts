@@ -85,6 +85,7 @@ interface DashboardState {
     correlationId?: string;
     latencyMs?: number;
     logUrl?: string;
+    argsPreview?: string;
   }>;
   addGatewayLog: (log: { type: string; text: string }) => void;
   mergeGatewayLogs: (
@@ -101,6 +102,7 @@ interface DashboardState {
       latencyMs?: number;
       logUrl?: string;
       text?: string;
+      argsPreview?: string;
     }>
   ) => void;
   clearGatewayLogs: () => void;
@@ -224,6 +226,13 @@ export const useDashboardStore = create<DashboardState>((set) => ({
     const seen = new Set(state.gatewayLogs.map((l) => l.correlationId).filter(Boolean));
     const fresh = entries.filter((e) => e.correlationId && !seen.has(e.correlationId));
     if (fresh.length === 0) return {} as any;
+    // Build a Cloud Logging deep-link from the correlation ID (the sidecar
+    // doesn't ship one — cheaper to construct it client-side than to plumb
+    // it end-to-end).
+    const buildLogUrl = (cid: string) =>
+      `https://console.cloud.google.com/logs/query;query=` +
+      encodeURIComponent(`jsonPayload.correlation_id="${cid}"`) +
+      `?project=vtxdemos`;
     const mapped = fresh.map((e) => {
       const decision = e.decision;
       const type = decision === 'DENY' ? 'policy' : decision === 'ALLOW' ? 'auth' : 'engine';
@@ -246,7 +255,8 @@ export const useDashboardStore = create<DashboardState>((set) => ({
         targetService: e.targetService,
         correlationId: e.correlationId,
         latencyMs: e.latencyMs,
-        logUrl: e.logUrl,
+        logUrl: e.logUrl || buildLogUrl(e.correlationId),
+        argsPreview: e.argsPreview,
       };
     });
     return { gatewayLogs: [...state.gatewayLogs, ...mapped] };

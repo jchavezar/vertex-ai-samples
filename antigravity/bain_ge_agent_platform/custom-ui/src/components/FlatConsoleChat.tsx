@@ -120,6 +120,10 @@ export function FlatConsoleChat() {
           targetService: e.target_service,
           latencyMs: e.latency_ms,
           logUrl: undefined as string | undefined,
+          // Pass through the sanitized args preview from the policy service so
+          // the Monitor panel can show WHAT was blocked/allowed (query text,
+          // ticker, tool params) — not just the tool name.
+          argsPreview: e.args_preview,
         }));
         if (entries.length) mergeGatewayLogs(entries);
       } catch (e) {
