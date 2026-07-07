@@ -74,6 +74,7 @@ When you start a new project, **add a row here first** — even before the READM
 - [`global-pulse/`](./global-pulse/) — International news intelligence with veracity scoring. **Tags:** `news` `gemini` `multi-source`
 - [`nexus-tax-intelligence/`](./nexus-tax-intelligence/) — AI tax advisory, Discovery Engine + PDF reports. **Tags:** `discovery-engine` `tax`
 - [`gemini-websocket-chat/`](./gemini-websocket-chat/) — Terminal-aesthetic mobile PWA, Gemini over WebSocket. **Tags:** `pwa` `websocket` `gemini`
+- [`quiniela-mundial-2026/`](./quiniela-mundial-2026/) — World Cup 2026 Quiniela Charales app: real-time predictions, FUT-style trading cards (Cromos), Gemini AI bot, Firestore sync, and Playwright test suite. **Tags:** `nextjs` `firestore` `gemini-3-flash` `adk` `lucha-libre` `world-cup`
 
 ### Testing & utilities
 - [`adk-script-runner/`](./adk-script-runner/) — Minimal ADK smoke test. **Tags:** `adk` `test`

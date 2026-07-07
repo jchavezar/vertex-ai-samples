@@ -1,0 +1,383 @@
+@import "tailwindcss";
+
+/* ---------- DESIGN TOKENS ---------- */
+:root {
+  --bg:            #FAFAF7;
+  --bg-elev:       #FFFFFF;
+  --bg-tint:       #F4F4EE;
+  --ink:           #0A0A0A;
+  --ink-soft:      #525252;
+  --ink-muted:     #A3A3A3;
+  --line:          #E6E6E0;
+  --line-strong:   #D4D4CE;
+
+  --grad-from:     #14F195;
+  --grad-via:      #5E5BFF;
+  --grad-to:       #FF3B82;
+  --accent-gold:   #D4AF37;
+  --accent-coral:  #FF6B5C;
+  --accent-mint:   #14F195;
+  --accent-violet: #5E5BFF;
+
+  --conf-conmebol: #FFD700;
+  --conf-uefa:     #3B82F6;
+  --conf-concacaf: #10B981;
+  --conf-afc:      #EF4444;
+  --conf-caf:      #F59E0B;
+  --conf-ofc:      #06B6D4;
+
+  --radius-sm: 10px;
+  --radius:    18px;
+  --radius-lg: 28px;
+  --radius-xl: 36px;
+  --shadow-glow: 0 30px 60px -30px rgba(94, 91, 255, 0.35), 0 10px 30px -20px rgba(20, 241, 149, 0.20);
+  --shadow-card: 0 1px 0 rgba(255,255,255,0.6) inset, 0 1px 2px rgba(0,0,0,0.04), 0 8px 30px -12px rgba(10,10,10,0.10);
+}
+
+@theme inline {
+  --color-background: var(--bg);
+  --color-foreground: var(--ink);
+  --font-sans: var(--font-grotesk);
+  --font-display: var(--font-chakra);
+}
+
+/* ---------- BASE ---------- */
+* { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+html, body { height: 100%; }
+html {
+  /* Momentum scroll on iOS (older WebKit) */
+  -webkit-overflow-scrolling: touch;
+}
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-grotesk), system-ui, -apple-system, sans-serif;
+  font-feature-settings: "ss01", "cv11";
+  overflow-x: hidden;
+  /* Prevent overscroll bounce from disrupting perceived frame-rate */
+  overscroll-behavior-y: none;
+}
+
+.tnum, .score, .countdown {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+}
+
+.font-display {
+  font-family: var(--font-chakra), var(--font-grotesk), sans-serif;
+  letter-spacing: -0.01em;
+}
+
+/* ---------- BACKGROUND CANVAS ---------- */
+html {
+  background:
+    radial-gradient(ellipse 1100px 700px at 50% 28%, #FFFDF6 0%, #FBFAF5 38%, #F4F4F0 78%, #EFEFEA 100%);
+  background-attachment: fixed;
+}
+.bg-canvas { background: transparent; }
+
+/* World Cup trophy watermark — sits behind body content via negative z-index.
+   Image lives in GCS so we can regenerate via /api/maint/asset without redeploy. */
+.q26-watermark {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: -1;
+  background-image: url("https://storage.googleapis.com/q26-cromo-portraits/site-assets/trophy-bg.png");
+  background-size: min(540px, 70vw) auto;
+  background-repeat: no-repeat;
+  background-position: center 30%;
+  opacity: 0.14;
+  mix-blend-mode: multiply;
+}
+
+.q26-watermark::after {
+  content: "FIFA WORLD CUP 26";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 18%;
+  text-align: center;
+  font-family: var(--font-chakra), var(--font-grotesk), sans-serif;
+  font-weight: 700;
+  letter-spacing: 0.46em;
+  font-size: 11px;
+  color: rgba(168, 132, 26, 0.32);
+}
+
+.bg-grid {
+  background-image:
+    linear-gradient(to right, rgba(10,10,10,0.035) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(10,10,10,0.035) 1px, transparent 1px);
+  background-size: 48px 48px;
+}
+
+/* ---------- GLASS ---------- */
+.glass {
+  background: linear-gradient(180deg, rgba(255,255,255,0.85), rgba(255,255,255,0.55));
+  backdrop-filter: blur(18px) saturate(160%);
+  -webkit-backdrop-filter: blur(18px) saturate(160%);
+  border: 1px solid rgba(230,230,224,0.9);
+  box-shadow: var(--shadow-card);
+}
+
+/* Use on fixed/sticky glass elements to promote to GPU layer and avoid
+   backdrop-blur repaint during scroll (the main cause of choppy scroll on mobile). */
+.glass-fixed {
+  will-change: transform;
+  transform: translateZ(0);
+}
+
+.glass-strong {
+  background: linear-gradient(180deg, rgba(255,255,255,0.96), rgba(255,255,255,0.86));
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid rgba(214,214,206,1);
+  box-shadow: var(--shadow-card);
+}
+
+/* ---------- GRADIENT TEXT ---------- */
+.grad-text {
+  background: linear-gradient(120deg, var(--grad-from) 0%, var(--grad-via) 50%, var(--grad-to) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.grad-text-static {
+  background: linear-gradient(90deg, #0A0A0A 0%, #5E5BFF 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* ---------- BUTTONS ---------- */
+.btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  height: 44px; padding: 0 22px;
+  border-radius: 999px;
+  font-weight: 600; font-size: 14px; letter-spacing: -0.01em;
+  transition: transform .15s ease, box-shadow .2s ease, background .2s;
+  cursor: pointer;
+  border: none;
+}
+.btn-primary {
+  background: var(--ink);
+  color: white;
+  box-shadow: 0 10px 30px -10px rgba(10,10,10,0.45);
+}
+.btn-primary:hover { transform: translateY(-1px); box-shadow: 0 18px 40px -15px rgba(10,10,10,0.55); }
+.btn-ghost {
+  background: rgba(255,255,255,0.7);
+  border: 1px solid var(--line-strong);
+  color: var(--ink);
+  backdrop-filter: blur(10px);
+}
+.btn-ghost:hover { background: white; }
+
+.chip {
+  display: inline-flex; align-items: center; gap: 6px;
+  height: 28px; padding: 0 12px;
+  border-radius: 999px;
+  font-size: 11px; font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  background: rgba(10,10,10,0.05);
+  color: var(--ink-soft);
+}
+.chip-live {
+  background: linear-gradient(90deg, #FF3B82, #FF6B5C);
+  color: white;
+}
+
+/* ---------- LIVE DOT ---------- */
+.live-dot {
+  position: relative;
+  width: 8px; height: 8px; border-radius: 999px;
+  background: #FF3B82;
+}
+.live-dot::after {
+  content: ""; position: absolute; inset: -6px; border-radius: 999px;
+  border: 2px solid #FF3B82; opacity: .35;
+  animation: ping 1.4s cubic-bezier(0,0,.2,1) infinite;
+}
+@keyframes ping { 75%,100% { transform: scale(2); opacity: 0; } }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+/* ---------- SCROLLBAR ---------- */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--line-strong); border-radius: 999px; border: 2px solid var(--bg); }
+::-webkit-scrollbar-thumb:hover { background: var(--ink-muted); }
+
+/* ---------- UTILITY ---------- */
+.hairline { border: 1px solid var(--line); }
+.hairline-strong { border: 1px solid var(--line-strong); }
+.divider-h { height: 1px; background: linear-gradient(90deg, transparent, var(--line-strong), transparent); }
+
+/* ---------- ANIMATIONS ---------- */
+@keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+.shimmer { background: linear-gradient(90deg, transparent, rgba(94,91,255,.12), transparent); background-size: 200% 100%; animation: shimmer 2.4s linear infinite; }
+
+/* Holo shine que recorre la carta FUT (oro raro + especial) */
+@keyframes cromoShine { 0% { background-position: -50% 0; } 100% { background-position: 150% 0; } }
+.cromo-shine { animation: cromoShine 4s linear infinite; }
+
+/* ESPECIAL · QUETZAL — ciclo iridiscente de matiz sobre el shine.
+   Convierte la pasada de luz blanca en una pasada de luz que muta
+   jade -> dorado -> magenta -> jade. Solo se aplica al shine, no al fondo. */
+@keyframes quetzalIridescence {
+  0%,100% { filter: hue-rotate(0deg)   saturate(1.1); }
+  25%     { filter: hue-rotate(-20deg) saturate(1.25); }
+  50%     { filter: hue-rotate(30deg)  saturate(1.4); }
+  75%     { filter: hue-rotate(-10deg) saturate(1.2); }
+}
+.cromo-iridescent { animation: quetzalIridescence 6s ease-in-out infinite; }
+
+/* ESPECIAL — aura solar que gira detrás del retrato, muy lento. */
+@keyframes cromoSunHalo {
+  from { transform: translate(-50%, -50%) rotate(0deg); }
+  to   { transform: translate(-50%, -50%) rotate(360deg); }
+}
+.cromo-sun-halo {
+  position: absolute;
+  left: 50%; top: 50%;
+  border-radius: 50%;
+  pointer-events: none;
+  mix-blend-mode: screen;
+  transform: translate(-50%, -50%);
+  animation: cromoSunHalo 40s linear infinite;
+}
+
+/* ORO RARO · TENOCHTITLAN — barrido de foil dorado/obsidiana,
+   más denso y lento que el shine estándar. */
+@keyframes cromoFoil { 0% { background-position: -40% 0; } 100% { background-position: 140% 0; } }
+.cromo-foil { animation: cromoFoil 6.5s ease-in-out infinite; }
+
+/* ESPECIAL — latido sutil del anillo iridiscente (no debe gritar). */
+@keyframes cromoEspecialPulse {
+  0%,100% { opacity: 0.22; }
+  50%     { opacity: 0.55; }
+}
+.cromo-especial-pulse { animation: cromoEspecialPulse 3.2s ease-in-out infinite; }
+
+/* Placeholder mientras el portrait AI carga. PROHIBIDO mostrar la foto cruda
+   dentro del cromo (causaba flicker a cocina); este shimmer es el fallback. */
+@keyframes cromoSkeleton { 0%,100% { opacity: 0.6; } 50% { opacity: 1; } }
+.cromo-portrait-skeleton { animation: cromoSkeleton 1.8s ease-in-out infinite; }
+
+/* Confetti drop para el pack opening */
+@keyframes cromoConfetti {
+  0% { transform: translate3d(0,-20vh,0) rotate(0deg); opacity: 0; }
+  10% { opacity: 1; }
+  100% { transform: translate3d(var(--cx,0),120vh,0) rotate(var(--cr,720deg)); opacity: 0.85; }
+}
+.cromo-confetti-piece { animation: cromoConfetti var(--cd, 2.4s) cubic-bezier(.45,.02,.7,1.05) forwards; }
+
+@keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+.float { animation: float 4s ease-in-out infinite; }
+
+@keyframes blob {
+  0%,100% { transform: translate(0,0) scale(1); }
+  33% { transform: translate(20px,-20px) scale(1.08); }
+  66% { transform: translate(-15px,15px) scale(0.95); }
+}
+.blob { animation: blob 12s ease-in-out infinite; }
+
+/* AI liquid border: thin conic-gradient ring rotating around the card edge */
+@property --ai-liquid-angle {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+@keyframes aiLiquidSpin {
+  to { --ai-liquid-angle: 360deg; }
+}
+.ai-liquid-border {
+  padding: 1.5px;
+  background: conic-gradient(
+    from var(--ai-liquid-angle, 0deg),
+    #5E5BFF 0%,
+    #14F195 25%,
+    #FFD500 50%,
+    #FF6B6B 75%,
+    #5E5BFF 100%
+  );
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+          mask-composite: exclude;
+  animation: aiLiquidSpin 4s linear infinite;
+}
+.ai-liquid-border--lg { padding: 2px; animation-duration: 5s; }
+/* Fallback for browsers without @property: rotate the whole layer */
+@supports not (background: conic-gradient(from var(--ai-liquid-angle), red, blue)) {
+  .ai-liquid-border { animation: spin 4s linear infinite; }
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Chat markdown: compact mobile-friendly tables */
+.chat-md-table-wrap { -webkit-overflow-scrolling: touch; scrollbar-width: thin; }
+.chat-md-table { min-width: 100%; }
+.chat-md-table th:first-child, .chat-md-table td:first-child {
+  position: sticky; left: 0; background: inherit;
+  box-shadow: 1px 0 0 var(--hairline);
+}
+.chat-md-table thead th:first-child {
+  background-image: linear-gradient(to right, rgba(94,91,255,0.12), rgba(255,255,255,1));
+}
+.chat-md-table tbody tr td:first-child { background: white; font-weight: 600; }
+.chat-md-table tbody tr:nth-child(even) td:first-child { background: #f9f9fb; }
+.chat-md-table tbody tr:hover td:first-child { background: #f5f3ff; }
+
+/* Kickoff countdown pulse — non-shifting, opacity-only so it doesn't jitter */
+@keyframes kickoffSoft { 0%,100% { opacity: 1; } 50% { opacity: 0.55; } }
+@keyframes kickoffUrgent {
+  0%,100% { box-shadow: 0 0 0 0 rgba(239,68,68,0.45); }
+  50%     { box-shadow: 0 0 0 6px rgba(239,68,68,0); }
+}
+.kickoff-soft { animation: kickoffSoft 1.8s ease-in-out infinite; }
+.kickoff-urgent { animation: kickoffUrgent 1.2s ease-out infinite; }
+
+:focus:not(:focus-visible) { outline: none; }
+:focus-visible { outline: 2px solid var(--accent-violet); outline-offset: 2px; }
+
+button, a, [role="button"] { -webkit-tap-highlight-color: transparent; }
+
+/* No image flicker */
+img { max-width: 100%; height: auto; }
+
+/* Container helper — widens past 1280px so desktop reads as a real web app
+   instead of a vertically-stretched mobile shell. */
+.container-app { width: 100%; max-width: 1280px; margin-inline: auto; padding-inline: 24px; }
+@media (min-width: 1280px) { .container-app { max-width: 1440px; } }
+@media (min-width: 1536px) { .container-app { max-width: 1600px; } }
+@media (max-width: 640px) { .container-app { padding-inline: 16px; } }
+
+/* Hide scrollbar but keep scroll */
+.no-scrollbar { scrollbar-width: none; -ms-overflow-style: none; }
+.no-scrollbar::-webkit-scrollbar { display: none; }
+
+/* Chat streaming: bouncing dots (waiting) + blinking cursor (streaming) */
+@keyframes chat-bounce {
+  0%, 80%, 100% { transform: translateY(0); opacity: 0.4; }
+  40%           { transform: translateY(-4px); opacity: 1; }
+}
+@keyframes chat-blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
+}
+.chat-dot {
+  display: inline-block; width: 6px; height: 6px; border-radius: 50%;
+  background: currentColor; opacity: 0.4;
+  animation: chat-bounce 1.2s infinite ease-in-out;
+}
+.chat-dot--2 { animation-delay: 0.18s; }
+.chat-dot--3 { animation-delay: 0.36s; }
+.chat-cursor {
+  display: inline-block; width: 2px; height: 0.85em;
+  background: currentColor; margin-left: 2px; border-radius: 1px;
+  vertical-align: middle;
+  animation: chat-blink 0.75s step-start infinite;
+}
