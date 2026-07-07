@@ -74,13 +74,6 @@ html {
     radial-gradient(ellipse 1100px 700px at 50% 28%, #FFFDF6 0%, #FBFAF5 38%, #F4F4F0 78%, #EFEFEA 100%);
   background-attachment: fixed;
 }
-html[data-theme="cyberpunk-emerald"],
-html[data-theme="dark"],
-body[data-theme="cyberpunk-emerald"],
-body[data-theme="dark"] {
-  background: radial-gradient(ellipse 1100px 700px at 50% 28%, #0A0B0E 0%, #0E1017 38%, #141722 78%, #0A0B0E 100%) !important;
-  background-attachment: fixed !important;
-}
 .bg-canvas { background: transparent; }
 
 /* World Cup trophy watermark — sits behind body content via negative z-index.
