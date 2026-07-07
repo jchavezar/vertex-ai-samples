@@ -77,6 +77,7 @@ When you start a new project, **add a row here first** — even before the READM
 
 ### Testing & utilities
 - [`adk-script-runner/`](./adk-script-runner/) — Minimal ADK smoke test. **Tags:** `adk` `test`
+- [`adk-ui-explorer/`](../adk-ui-explorer/) — Interactive Web Application showcasing Google ADK + Gemini 3.1 Flash Lite UI/UX Explorer. **Tags:** `adk` `fastapi` `gemini-3.1-flash-lite` `ui`
 - [`discovery-engine-latency-probe/`](./discovery-engine-latency-probe/) — StreamAssist latency benchmarks. **Tags:** `latency` `discovery-engine`
 - [`gemini-2.5-flash-latency/`](./gemini-2.5-flash-latency/) — Measures latency and Time to First Chunk (TTFT) for Gemini 2.5 Flash on semi-autonomous agent tasks. **Tags:** `latency` `gemini-2.5-flash` `evaluation`
 - [`streamassist-wif-auth-tester/`](./streamassist-wif-auth-tester/) — Interactive Entra→WIF→DE auth chain tester. **Tags:** `wif` `auth` `test`

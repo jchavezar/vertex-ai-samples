@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-slate-950 text-slate-100">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Google ADK Explorer | Gemini 3.1 Flash Lite</title>
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#f0f7ff',
+              100: '#e0effe',
+              500: '#3b82f6',
+              600: '#2563eb',
+              700: '#1d4ed8',
+              900: '#1e3a8a',
+            },
+            gemini: {
+              purple: '#7c3aed',
+              blue: '#2563eb',
+              cyan: '#06b6d4',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- FontAwesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  
+  <!-- Marked.js -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  
+  <!-- Highlight.js -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/atom-one-dark.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+
+  <!-- Mermaid.js -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+
+  <style>
+    /* Custom scrollbars */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #0f172a;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #334155;
+      border-radius: 3px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #475569;
+    }
+    .gradient-border {
+      background: linear-gradient(135deg, #3b82f6, #8b5cf6, #ec4899);
+    }
+    .glass-panel {
+      background: rgba(15, 23, 42, 0.75);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+  </style>
+</head>
+<body class="h-full flex flex-col font-sans antialiased bg-slate-950 text-slate-100 selection:bg-blue-500 selection:text-white">
+
+  <!-- SSH Tunnel Banner -->
+  <div class="bg-gradient-to-r from-blue-900 via-indigo-900 to-purple-900 border-b border-blue-700/50 px-4 py-2 text-xs font-mono text-blue-200 flex flex-wrap items-center justify-between gap-2 shadow-lg">
+    <div class="flex items-center space-x-2">
+      <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-blue-500/30 text-blue-300 border border-blue-400/30">
+        <i class="fa-solid font-mono fa-network-wired mr-1"></i> SSH TUNNEL REQUIRED
+      </span>
+      <span>To open this UI in your local browser from <b>jchavezar.c.googlers.com</b>, run on your laptop:</span>
+    </div>
+    <div class="flex items-center space-x-2 bg-slate-950/80 border border-blue-500/40 rounded px-2.5 py-1 text-emerald-400 select-all">
+      <code id="tunnelCmd">ssh -L 8000:localhost:8000 jesusarguelles@jchavezar.c.googlers.com</code>
+      <button onclick="copyTunnelCmd()" title="Copy SSH Command" class="hover:text-white text-slate-400 ml-1">
+        <i class="fa-regular fa-copy"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- Header -->
+  <header class="h-16 border-b border-slate-800/80 glass-panel px-6 flex items-center justify-between shrink-0">
+    <div class="flex items-center space-x-3">
+      <div class="h-10 w-10 rounded-xl gradient-border p-[1px] flex items-center justify-center shadow-lg shadow-blue-500/10">
+        <div class="h-full w-full bg-slate-950 rounded-[11px] flex items-center justify-center">
+          <i class="fa-solid fa-robot text-blue-400 text-lg"></i>
+        </div>
+      </div>
+      <div>
+        <div class="flex items-center space-x-2">
+          <h1 class="font-bold text-base tracking-tight text-white">Google ADK Explorer</h1>
+          <span class="text-[10px] uppercase font-semibold tracking-wider px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+            v2.3 ADK
+          </span>
+        </div>
+        <p class="text-xs text-slate-400 font-mono">Agent Development Kit &bull; jchavezar.c.googlers.com:8000</p>
+      </div>
+    </div>
+
+    <!-- Active Model & Region Badges -->
+    <div class="flex items-center space-x-3 text-xs">
+      <div class="hidden sm:flex items-center space-x-2 bg-slate-900 border border-slate-800 rounded-lg px-3 py-1.5 font-mono">
+        <span class="h-2 w-2 rounded-full bg-emerald-400 animate-pulse"></span>
+        <span class="text-slate-400">Model:</span>
+        <span class="text-blue-400 font-medium">gemini-3.1-flash-lite</span>
+      </div>
+      <div class="hidden sm:flex items-center space-x-2 bg-slate-900 border border-slate-800 rounded-lg px-3 py-1.5 font-mono">
+        <span class="text-slate-400">Region:</span>
+        <span class="text-purple-400 font-medium">global</span>
+      </div>
+      <button onclick="fetchSystemInfo()" title="Refresh System Status" class="h-9 w-9 rounded-lg bg-slate-900 border border-slate-800 hover:border-slate-700 flex items-center justify-center text-slate-400 hover:text-white transition">
+        <i class="fa-solid fa-rotate text-xs"></i>
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Body -->
+  <div class="flex-1 flex overflow-hidden">
+    
+    <!-- Sidebar -->
+    <aside class="w-80 border-r border-slate-800/80 bg-slate-950/60 flex flex-col shrink-0">
+      
+      <!-- New Session Button -->
+      <div class="p-4 border-b border-slate-800/60">
+        <button onclick="createNewSession()" class="w-full py-2.5 px-4 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-medium text-xs flex items-center justify-center space-x-2 transition shadow-lg shadow-blue-600/20 active:scale-[0.98]">
+          <i class="fa-solid fa-plus text-xs"></i>
+          <span>New ADK Session</span>
+        </button>
+      </div>
+
+      <!-- Sessions List -->
+      <div class="flex-1 overflow-y-auto p-3 space-y-1">
+        <div class="px-3 py-2 text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
+          Active Sessions
+        </div>
+        <div id="sessionList" class="space-y-1">
+          <!-- Populated dynamically -->
+        </div>
+      </div>
+
+      <!-- Presets / Quick Actions -->
+      <div class="p-4 border-t border-slate-800/80 bg-slate-900/40 space-y-3">
+        <div class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
+          Sample Prompts (ADK Tools)
+        </div>
+        <div class="grid grid-cols-1 gap-2 text-xs">
+          <button onclick="sendPresetPrompt('Check the system health of ADK and model execution details')" class="p-2.5 rounded-lg bg-slate-900 border border-slate-800 hover:border-blue-500/50 hover:bg-slate-800/60 text-left text-slate-300 transition group flex items-start space-x-2">
+            <i class="fa-solid fa-heart-pulse text-emerald-400 mt-0.5 group-hover:scale-110 transition"></i>
+            <div>
+              <div class="font-medium text-slate-200">System Health</div>
+              <div class="text-[10px] text-slate-400">Trigger check_system_health() tool</div>
+            </div>
+          </button>
+
+          <button onclick="sendPresetPrompt('Analyze dataset customer_latency with sample values [15.2, 18.4, 12.1, 9.8, 22.5, 14.3, 16.0]')" class="p-2.5 rounded-lg bg-slate-900 border border-slate-800 hover:border-blue-500/50 hover:bg-slate-800/60 text-left text-slate-300 transition group flex items-start space-x-2">
+            <i class="fa-solid fa-chart-line text-blue-400 mt-0.5 group-hover:scale-110 transition"></i>
+            <div>
+              <div class="font-medium text-slate-200">Data Analytics</div>
+              <div class="text-[10px] text-slate-400">Compute statistical summary & trends</div>
+            </div>
+          </button>
+
+          <button onclick="sendPresetPrompt('Generate a Mermaid sequence chart titled ADK Agent Execution Flow')" class="p-2.5 rounded-lg bg-slate-900 border border-slate-800 hover:border-blue-500/50 hover:bg-slate-800/60 text-left text-slate-300 transition group flex items-start space-x-2">
+            <i class="fa-solid fa-diagram-project text-purple-400 mt-0.5 group-hover:scale-110 transition"></i>
+            <div>
+              <div class="font-medium text-slate-200">Mermaid Diagram</div>
+              <div class="text-[10px] text-slate-400">Render interactive diagram via tool</div>
+            </div>
+          </button>
+
+          <button onclick="sendPresetPrompt('Explain how Google ADK handles Runner, Sessions, and Tool invocation')" class="p-2.5 rounded-lg bg-slate-900 border border-slate-800 hover:border-blue-500/50 hover:bg-slate-800/60 text-left text-slate-300 transition group flex items-start space-x-2">
+            <i class="fa-solid fa-book-open text-amber-400 mt-0.5 group-hover:scale-110 transition"></i>
+            <div>
+              <div class="font-medium text-slate-200">ADK Knowledge Base</div>
+              <div class="text-[10px] text-slate-400">Query internal ADK technical docs</div>
+            </div>
+          </button>
+        </div>
+      </div>
+
+    </aside>
+
+    <!-- Main Workspace (Chat Feed + Details) -->
+    <main class="flex-1 flex flex-col bg-slate-950 overflow-hidden relative">
+
+      <!-- Messages Feed -->
+      <div id="messageFeed" class="flex-1 overflow-y-auto p-6 space-y-6">
+        
+        <!-- Welcome Card -->
+        <div class="max-w-3xl mx-auto glass-panel rounded-2xl p-6 border border-slate-800/80 shadow-xl space-y-4">
+          <div class="flex items-center space-x-3">
+            <div class="h-10 w-10 rounded-xl bg-blue-600/20 border border-blue-500/30 flex items-center justify-center text-blue-400">
+              <i class="fa-solid fa-wand-magic-sparkles text-lg"></i>
+            </div>
+            <div>
+              <h2 class="text-base font-bold text-white">Welcome to Google ADK Explorer</h2>
+              <p class="text-xs text-slate-400">Powered by Gemini 3.1 Flash Lite in global region</p>
+            </div>
+          </div>
+          <p class="text-xs text-slate-300 leading-relaxed">
+            This interactive web workspace demonstrates <b>Google ADK (Agent Development Kit)</b> in action. The backend runs on VM <code class="text-blue-300 bg-slate-900 px-1 py-0.5 rounded">jchavezar.c.googlers.com:8000</code> with an active ADK <code class="text-blue-300 bg-slate-900 px-1 py-0.5 rounded">Runner</code>, <code class="text-blue-300 bg-slate-900 px-1 py-0.5 rounded">InMemorySessionService</code>, and custom Python tools.
+          </p>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs pt-2">
+            <div class="p-3 bg-slate-900/60 rounded-xl border border-slate-800/80">
+              <div class="font-semibold text-blue-400 mb-1"><i class="fa-solid fa-screwdriver-wrench mr-1"></i> ADK Tools</div>
+              <div class="text-[11px] text-slate-400">Automatic schema generation & invocation from python docstrings.</div>
+            </div>
+            <div class="p-3 bg-slate-900/60 rounded-xl border border-slate-800/80">
+              <div class="font-semibold text-purple-400 mb-1"><i class="fa-solid fa-globe mr-1"></i> Global Region</div>
+              <div class="text-[11px] text-slate-400">Explicitly set to <code class="text-purple-300">location='global'</code> for preview models.</div>
+            </div>
+            <div class="p-3 bg-slate-900/60 rounded-xl border border-slate-800/80">
+              <div class="font-semibold text-emerald-400 mb-1"><i class="fa-solid fa-stream mr-1"></i> Event Stream</div>
+              <div class="text-[11px] text-slate-400">Real-time SSE rendering of agent thoughts, tool calls, & outputs.</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Input Area -->
+      <div class="border-t border-slate-800/80 glass-panel p-4 shrink-0">
+        <div class="max-w-4xl mx-auto flex flex-col space-y-2">
+          
+          <!-- Thinking / Tool execution indicator -->
+          <div id="agentStatus" style="display: none;" class="items-center space-x-2 text-xs font-mono text-blue-400 px-1">
+            <i class="fa-solid fa-circle-notch fa-spin"></i>
+            <span id="statusText">ADK Agent is executing...</span>
+          </div>
+
+          <form id="chatForm" onsubmit="handleSend(event)" class="relative flex items-center">
+            <textarea
+              id="userInput"
+              rows="1"
+              placeholder="Ask the ADK agent, request data analysis, check system health, or generate diagrams..."
+              class="w-full bg-slate-900/90 border border-slate-700/80 focus:border-blue-500 rounded-xl py-3 pl-4 pr-12 text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-blue-500 resize-none font-sans transition shadow-inner"
+              onkeydown="handleKeyDown(event)"
+            ></textarea>
+            
+            <button
+              type="submit"
+              id="sendBtn"
+              class="absolute right-2 h-8 w-8 rounded-lg bg-blue-600 hover:bg-blue-500 disabled:opacity-50 disabled:hover:bg-blue-600 text-white flex items-center justify-center transition shadow-md"
+            >
+              <i class="fa-solid fa-paper-plane text-xs"></i>
+            </button>
+          </form>
+
+          <div class="flex items-center justify-between text-[10px] text-slate-500 font-mono px-1">
+            <span>Press Shift+Enter for new line &bull; Powered by Google ADK</span>
+            <span id="activeSessionBadge">Session: Loading...</span>
+          </div>
+        </div>
+      </div>
+
+    </main>
+
+  </div>
+
+  <script>
+    let currentSessionId = "";
+    let activeSessionsMap = {};
+
+    // Initialize mermaid safely
+    try {
+      mermaid.initialize({ startOnLoad: false, theme: 'dark' });
+    } catch(e) {}
+
+    window.addEventListener("DOMContentLoaded", async () => {
+      await fetchSystemInfo();
+      await loadSessions();
+    });
+
+    function copyTunnelCmd() {
+      const cmd = document.getElementById("tunnelCmd").innerText;
+      navigator.clipboard.writeText(cmd);
+      alert("SSH Tunnel command copied to clipboard!\nRun this command in your local laptop terminal.");
+    }
+
+    async function fetchSystemInfo() {
+      try {
+        const res = await fetch("/api/system/info");
+        const data = await res.json();
+      } catch (err) {
+        console.error("Failed to fetch system info", err);
+      }
+    }
+
+    async function loadSessions() {
+      try {
+        const res = await fetch("/api/sessions");
+        const sessions = await res.json();
+        
+        const list = document.getElementById("sessionList");
+        list.innerHTML = "";
+        
+        sessions.forEach(s => {
+          activeSessionsMap[s.session_id] = s;
+          
+          if (!currentSessionId) {
+            currentSessionId = s.session_id;
+            updateSessionBadge(s.session_id);
+          }
+
+          const btn = document.createElement("button");
+          btn.onclick = () => selectSession(s.session_id);
+          btn.className = `w-full text-left p-2.5 rounded-xl border transition flex items-center space-x-2 text-xs font-mono ${
+            s.session_id === currentSessionId
+              ? "bg-blue-600/20 border-blue-500/50 text-blue-300"
+              : "bg-slate-900/40 border-slate-800/80 hover:bg-slate-800/40 text-slate-400"
+          }`;
+          
+          btn.innerHTML = `
+            <i class="fa-regular fa-comments text-xs"></i>
+            <div class="truncate flex-1">
+              <div class="font-medium text-slate-200 truncate">${s.name || 'Session'}</div>
+              <div class="text-[9px] text-slate-400 truncate">${s.session_id.substring(0, 16)}...</div>
+            </div>
+          `;
+          list.appendChild(btn);
+        });
+
+      } catch (err) {
+        console.error("Failed to load sessions", err);
+      }
+    }
+
+    async function createNewSession() {
+      const name = prompt("Enter session name:", `ADK Session #${Object.keys(activeSessionsMap).length + 1}`);
+      if (!name) return;
+
+      try {
+        const res = await fetch("/api/sessions/create", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ session_name: name })
+        });
+        const data = await res.json();
+        currentSessionId = data.session_id;
+        await loadSessions();
+        clearChatFeed();
+      } catch (err) {
+        alert("Failed to create session");
+      }
+    }
+
+    function selectSession(id) {
+      currentSessionId = id;
+      updateSessionBadge(id);
+      loadSessions();
+    }
+
+    function updateSessionBadge(id) {
+      document.getElementById("activeSessionBadge").innerText = `Session: ${id.substring(0, 12)}...`;
+    }
+
+    function clearChatFeed() {
+      const feed = document.getElementById("messageFeed");
+      feed.innerHTML = `
+        <div class="text-center py-8 text-slate-500 text-xs font-mono">
+          New session initialized. Send a message to start interacting with the ADK agent.
+        </div>
+      `;
+    }
+
+    function sendPresetPrompt(promptText) {
+      document.getElementById("userInput").value = promptText;
+      handleSend(new Event("submit"));
+    }
+
+    function handleKeyDown(e) {
+      if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        handleSend(e);
+      }
+    }
+
+    async function handleSend(e) {
+      e.preventDefault();
+      const input = document.getElementById("userInput");
+      const text = input.value.trim();
+      if (!text || !currentSessionId) return;
+
+      input.value = "";
+      appendUserMessage(text);
+      
+      const sendBtn = document.getElementById("sendBtn");
+      sendBtn.disabled = true;
+      showStatus("ADK Agent is thinking...");
+
+      // Prepare agent response container
+      const agentMsgObj = createAgentMessageContainer();
+      let accumulatedText = "";
+
+      try {
+        const response = await fetch("/api/chat/stream", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            session_id: currentSessionId,
+            prompt: text
+          })
+        });
+
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = "";
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split("\n\n");
+          buffer = lines.pop() || "";
+
+          for (const line of lines) {
+            if (line.startsWith("data: ")) {
+              const payloadStr = line.replace("data: ", "");
+              try {
+                const payload = JSON.parse(payloadStr);
+
+                if (payload.type === "tool_call") {
+                  showStatus(`Executing tool: ${payload.name}...`);
+                  appendToolCallCard(agentMsgObj.toolFeed, payload.name, payload.args);
+                } else if (payload.type === "tool_response") {
+                  showStatus(`Received response from ${payload.name}`);
+                  updateToolResponseCard(agentMsgObj.toolFeed, payload.name, payload.response);
+                } else if (payload.type === "text_delta") {
+                  accumulatedText += payload.content;
+                  if (typeof marked !== "undefined") {
+                    agentMsgObj.contentDiv.innerHTML = marked.parse(accumulatedText);
+                  } else {
+                    agentMsgObj.contentDiv.innerText = accumulatedText;
+                  }
+                  if (typeof hljs !== "undefined") {
+                    try { hljs.highlightAll(); } catch(e) {}
+                  }
+                  
+                  // Render mermaid diagrams if present
+                  renderMermaidInContainer(agentMsgObj.contentDiv);
+                } else if (payload.type === "done") {
+                  hideStatus();
+                } else if (payload.type === "error") {
+                  agentMsgObj.contentDiv.innerHTML += `<div class="p-3 bg-red-950/60 border border-red-800 text-red-300 rounded-xl mt-2 text-xs font-mono">Error: ${payload.message}</div>`;
+                  hideStatus();
+                }
+
+              } catch (err) {
+                console.error("JSON parse error", err);
+              }
+            }
+          }
+        }
+
+      } catch (err) {
+        console.error("Fetch stream failed", err);
+        agentMsgObj.contentDiv.innerHTML += `<div class="p-3 bg-red-950/60 border border-red-800 text-red-300 rounded-xl mt-2 text-xs font-mono">Failed to communicate with ADK runner.</div>`;
+      } finally {
+        sendBtn.disabled = false;
+        hideStatus();
+        scrollToBottom();
+      }
+    }
+
+    function appendUserMessage(text) {
+      const feed = document.getElementById("messageFeed");
+      const wrapper = document.createElement("div");
+      wrapper.className = "flex justify-end max-w-4xl mx-auto";
+      wrapper.innerHTML = `
+        <div class="bg-blue-600/30 border border-blue-500/40 text-blue-100 px-4 py-3 rounded-2xl rounded-tr-none text-xs leading-relaxed max-w-2xl shadow-md font-sans">
+          ${escapeHtml(text)}
+        </div>
+      `;
+      feed.appendChild(wrapper);
+      scrollToBottom();
+    }
+
+    function createAgentMessageContainer() {
+      const feed = document.getElementById("messageFeed");
+      const wrapper = document.createElement("div");
+      wrapper.className = "flex items-start space-x-3 max-w-4xl mx-auto my-4";
+      
+      const avatar = document.createElement("div");
+      avatar.className = "h-8 w-8 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center text-blue-400 shrink-0 mt-1";
+      avatar.innerHTML = `<i class="fa-solid fa-robot text-xs"></i>`;
+
+      const card = document.createElement("div");
+      card.className = "flex-1 glass-panel border border-slate-800/80 rounded-2xl p-5 shadow-lg space-y-3 font-sans text-xs leading-relaxed";
+
+      const toolFeed = document.createElement("div");
+      toolFeed.className = "space-y-2";
+      
+      const contentDiv = document.createElement("div");
+      contentDiv.className = "prose prose-invert max-w-none text-xs leading-relaxed text-slate-200";
+
+      card.appendChild(toolFeed);
+      card.appendChild(contentDiv);
+
+      wrapper.appendChild(avatar);
+      wrapper.appendChild(card);
+
+      feed.appendChild(wrapper);
+      scrollToBottom();
+
+      return { toolFeed, contentDiv };
+    }
+
+    function appendToolCallCard(container, name, args) {
+      const card = document.createElement("div");
+      card.id = `tool-${name}-${Date.now()}`;
+      card.className = "p-3 bg-slate-900/80 border border-slate-800 rounded-xl space-y-2 text-xs font-mono transition shadow-sm";
+      card.innerHTML = `
+        <div class="flex items-center justify-between text-blue-400">
+          <div class="flex items-center space-x-2 font-semibold">
+            <i class="fa-solid fa-gear fa-spin text-[10px]"></i>
+            <span>Tool Invocation: ${name}</span>
+          </div>
+          <span class="text-[10px] text-amber-400 bg-amber-400/10 px-2 py-0.5 rounded-full border border-amber-400/20">Running</span>
+        </div>
+        <div class="text-[11px] text-slate-400 bg-slate-950 p-2 rounded-lg border border-slate-800 overflow-x-auto">
+          <code>${escapeHtml(JSON.stringify(args, null, 2))}</code>
+        </div>
+      `;
+      container.appendChild(card);
+    }
+
+    function updateToolResponseCard(container, name, response) {
+      const cards = container.querySelectorAll(`[id^="tool-${name}-"]`);
+      if (cards.length > 0) {
+        const lastCard = cards[cards.length - 1];
+        const statusSpan = lastCard.querySelector(".text-[10px]");
+        if (statusSpan) {
+          statusSpan.className = "text-[10px] text-emerald-400 bg-emerald-400/10 px-2 py-0.5 rounded-full border border-emerald-400/20";
+          statusSpan.innerText = "Completed";
+        }
+        const spinner = lastCard.querySelector(".fa-spin");
+        if (spinner) {
+          spinner.className = "fa-solid fa-check text-emerald-400 text-[10px]";
+        }
+
+        const respDiv = document.createElement("div");
+        respDiv.className = "text-[11px] text-emerald-300/90 bg-slate-950 p-2 rounded-lg border border-emerald-950 overflow-x-auto mt-1";
+        respDiv.innerHTML = `<div><b class="text-slate-400 text-[10px]">OUTPUT:</b></div><code>${escapeHtml(JSON.stringify(response, null, 2))}</code>`;
+        lastCard.appendChild(respDiv);
+      }
+    }
+
+    function renderMermaidInContainer(container) {
+      if (typeof mermaid === "undefined") return;
+      const codeBlocks = container.querySelectorAll("code.language-mermaid");
+      codeBlocks.forEach((block, idx) => {
+        const rawCode = block.innerText;
+        const parent = block.parentElement;
+        const mermaidId = `mermaid-${Date.now()}-${idx}`;
+        const wrapper = document.createElement("div");
+        wrapper.className = "mermaid bg-slate-900/90 p-4 rounded-xl border border-slate-800 my-3 flex justify-center";
+        wrapper.id = mermaidId;
+        wrapper.innerText = rawCode;
+        parent.replaceWith(wrapper);
+        try {
+          mermaid.run({ nodes: [wrapper] });
+        } catch (err) {
+          console.error("Mermaid error", err);
+        }
+      });
+    }
+
+    function showStatus(msg) {
+      const div = document.getElementById("agentStatus");
+      const txt = document.getElementById("statusText");
+      txt.innerText = msg;
+      div.style.display = "flex";
+    }
+
+    function hideStatus() {
+      const div = document.getElementById("agentStatus");
+      div.style.display = "none";
+    }
+
+    function scrollToBottom() {
+      const feed = document.getElementById("messageFeed");
+      feed.scrollTop = feed.scrollHeight;
+    }
+
+    function escapeHtml(str) {
+      if (typeof str !== "string") return str;
+      return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+    }
+  </script>
+
+</body>
+</html>

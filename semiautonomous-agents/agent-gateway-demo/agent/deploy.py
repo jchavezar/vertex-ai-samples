@@ -83,9 +83,9 @@ def _config() -> dict:
         if not GATEWAY_RESOURCE:
             sys.exit("USE_AGENT_IDENTITY=1 but GATEWAY_RESOURCE is empty.")
         cfg["identity_type"] = ge_types.IdentityType.AGENT_IDENTITY
-        cfg["agent_gateway_config"] = {
-            "agent_to_anywhere_config": {"agent_gateway": GATEWAY_RESOURCE}
-        }
+        # cfg["agent_gateway_config"] = {
+        #     "agent_to_anywhere_config": {"agent_gateway": GATEWAY_RESOURCE}
+        # }
         # service_account is intentionally omitted — mutually exclusive.
     return cfg
 

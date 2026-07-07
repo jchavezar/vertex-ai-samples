@@ -1,0 +1,18 @@
+[project]
+name = "adk-ui-explorer"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi>=0.139.0",
+    "google-adk>=2.3.0",
+    "google-genai>=2.10.0",
+    "pydantic>=2.13.4",
+    "python-dotenv>=1.2.2",
+    "uvicorn>=0.50.2",
+]
+
+[[tool.uv.index]]
+url = "https://pypi.org/simple"
+default = true
