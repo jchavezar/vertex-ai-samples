@@ -87,7 +87,11 @@ export function FlatConsoleChat() {
     let cancelled = false;
     const tick = async () => {
       try {
-        const r = await fetch('/api/gateway-logs/api/gateway-logs?since_seconds=600&limit=200');
+        // The vite proxy forwards `/api/gateway-logs*` -> `<sidecar>/api/gateway-logs*`
+        // (no rewrite), so a single `/api/gateway-logs?...` hits the sidecar's
+        // `/api/gateway-logs` handler. Previously this was `.../api/gateway-logs/api/gateway-logs?...`
+        // which produced a double-prefix 404 and left the Monitor panel silent.
+        const r = await fetch('/api/gateway-logs?since_seconds=600&limit=200');
         if (!r.ok) return;
         const data = await r.json();
         if (cancelled) return;
