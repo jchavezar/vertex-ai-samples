@@ -374,6 +374,12 @@
       <a href="../semiautonomous-agents/gemini-2.5-flash-latency/">ACCESS_TERMINAL &rarr;</a>
     </td>
     <td width="50%" valign="top">
+      <img src="assets/header_hub.svg" width="100%" />
+      <br/><br/>
+      <strong>PROJECT: QUINIELA CHARALES MUNDIAL 2026</strong><br/>
+      Next.js 15 + Firestore + Vertex AI (Gemini 2.5/3.0) World Cup 2026 pool app. Features real-time SSE pick sync, 16-bit Cromo trading cards, and "Echo of the Cave" AI predictions.<br/>
+      <br/>
+      <a href="../semiautonomous-agents/quiniela-mundial-2026/">ACCESS_TERMINAL &rarr;</a>
     </td>
   </tr>
 </table>
