@@ -9,7 +9,6 @@ import { Trophy, Calendar, BarChart3, Target, Users, Activity, Swords, Home, Che
 import { useEffect, useRef, useState } from "react";
 import { PlayerAvatar } from "@/components/PlayerAvatar";
 import { DailyStreakChip } from "@/components/DailyStreakChip";
-import { ThemeToggle } from "@/components/ThemeToggle";
 
 const OWNER_ID = "jesus";
 
