@@ -330,7 +330,7 @@ export function ChatBot() {
           right: "max(1rem, env(safe-area-inset-right))",
           touchAction: "manipulation",
         }}
-        className="group fixed z-40 bottom-24 md:bottom-5 h-14 pl-3 pr-4 rounded-full bg-[var(--ink)] text-white shadow-2xl flex items-center gap-2 md:hover:scale-105 md:active:scale-95 md:transition-transform select-none"
+        className="group fixed z-[45] bottom-[84px] md:bottom-6 h-14 pl-3 pr-4 rounded-full bg-[var(--ink)] text-white shadow-2xl flex items-center gap-2 md:hover:scale-105 md:active:scale-95 md:transition-transform select-none"
       >
         <span className="relative w-9 h-9 rounded-full bg-white/15 grid place-items-center">
           <Bot size={20} />

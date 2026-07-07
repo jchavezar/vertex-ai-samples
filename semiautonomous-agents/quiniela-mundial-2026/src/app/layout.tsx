@@ -56,7 +56,7 @@ export default function RootLayout({
             <ScrollRestoration />
             <NewsBanner />
             <Nav />
-            <main className="pb-32 md:pb-12">{children}</main>
+            <main className="pb-36 md:pb-12">{children}</main>
             <BottomNav />
             <ChatBot />
             <SwRegister />

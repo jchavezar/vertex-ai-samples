@@ -201,7 +201,7 @@ export default function AlbumPage() {
   }, [fetchAlbum]);
 
   return (
-    <main className="min-h-screen bg-[var(--bg)] pb-24">
+    <main className="min-h-screen bg-[var(--bg)] pb-36">
       {/* Cover header */}
       <section className="max-w-3xl mx-auto px-4 pt-6">
         <div
@@ -211,25 +211,27 @@ export default function AlbumPage() {
               "linear-gradient(135deg, #006847 0%, #006847 40%, #ffffff 40.5%, #ffffff 59.5%, #CE1126 60%, #CE1126 100%)",
           }}
         >
+          {/* Dark backdrop overlay for text contrast across flag stripes */}
+          <div className="absolute inset-0 bg-black/35 pointer-events-none" />
           {/* Pattern overlay */}
           <div className="absolute inset-0 pointer-events-none opacity-30" style={{ background: "radial-gradient(circle at 1.5px 1.5px, rgba(0,0,0,0.25) 1px, transparent 0) 0 0/12px 12px" }} />
           <div className="relative flex items-start justify-between gap-4">
             <div>
-              <div className="text-[10px] uppercase tracking-[0.25em] opacity-90 font-bold">{t("album.cover.kicker")}</div>
-              <h1 className="font-display text-3xl sm:text-4xl font-black leading-none mt-1 drop-shadow-md">
+              <div className="text-[10px] uppercase tracking-[0.25em] text-white/90 font-bold">{t("album.cover.kicker")}</div>
+              <h1 className="font-display text-3xl sm:text-4xl font-black leading-none mt-1 drop-shadow-md text-white">
                 {t("album.cover.title")}
               </h1>
-              <div className="text-sm mt-2 max-w-md opacity-95">
+              <div className="text-sm mt-2 max-w-md text-white/95 font-medium drop-shadow">
                 {t("album.cover.subtitle")}
               </div>
             </div>
-            <Album size={36} className="shrink-0 drop-shadow-md" />
+            <Album size={36} className="shrink-0 drop-shadow-md text-white" />
           </div>
           <div className="relative mt-5 flex items-end justify-between gap-4">
-            <div className="text-xs font-bold uppercase tracking-wider opacity-90">
+            <div className="text-xs font-bold uppercase tracking-wider text-white/90">
               {totalPages > 0 ? `${totalPages} ${totalPages === 1 ? t("album.cover.pages.one") : t("album.cover.pages.many")}` : t("album.cover.empty")}
             </div>
-            <Link href="/" className="text-xs font-semibold underline underline-offset-2 opacity-90 hover:opacity-100">
+            <Link href="/" className="text-xs font-semibold underline underline-offset-2 text-white/90 hover:text-white">
               {t("album.cover.home")}
             </Link>
           </div>
