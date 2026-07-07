@@ -727,6 +727,22 @@ export function FlatConsoleChat() {
                           }
 
                           // Handle standard tableData structure
+                          // Each row.source is the string produced by plot_financial_data():
+                          //   "LIVE — Yahoo Finance (yfinance)"  or  "SIMULATED — Bain SharePoint Diligence Docs (…)"
+                          // We classify to render a colored badge so the CxO audience sees at a glance
+                          // which quotes are real vs simulated diligence data.
+                          const classifySource = (s: string | undefined) => {
+                            if (!s) return { kind: 'unknown', color: 'bg-[#1a1a19] text-[#faf9f6]' };
+                            const up = s.toUpperCase();
+                            if (up.startsWith('LIVE')) return { kind: 'LIVE', color: 'bg-green-600 text-white' };
+                            if (up.startsWith('SIMULATED')) return { kind: 'SIMULATED', color: 'bg-amber-500 text-black' };
+                            if (up.startsWith('UNAVAILABLE')) return { kind: 'UNAVAIL', color: 'bg-red-500 text-white' };
+                            return { kind: 'DATA', color: 'bg-[#1a1a19] text-[#faf9f6]' };
+                          };
+                          const headerBadge = (() => {
+                            const asOf = chartData.as_of;
+                            return asOf ? `LIVE FEED · as of ${asOf}` : 'Public Market MCP Proxy';
+                          })();
                           return (
                             <div className="my-6 p-4 sm:p-6 border border-[#d8d6d0] bg-[#faf9f6] shadow-sm rounded-2xl font-sans min-w-0 max-w-full overflow-hidden">
                               <div className="flex flex-wrap items-center justify-between border-b border-[#d8d6d0] pb-3 mb-6 gap-2">
@@ -734,32 +750,38 @@ export function FlatConsoleChat() {
                                   <div className="w-2 h-2 bg-[#1a1a19] flex-shrink-0" />
                                   <h4 className="font-bold text-sm text-[#1a1a19] tracking-wide uppercase break-words whitespace-normal min-w-0">{chartData.title || "Interactive Bain Multi-Asset Comparison"}</h4>
                                 </div>
-                                <span className="text-[10px] font-mono bg-[#1a1a19] text-[#faf9f6] px-2.5 py-1 rounded-full whitespace-normal text-center flex-shrink-0">Public Market MCP Proxy</span>
+                                <span className="text-[10px] font-mono bg-[#1a1a19] text-[#faf9f6] px-2.5 py-1 rounded-full whitespace-normal text-center flex-shrink-0">{headerBadge}</span>
                               </div>
-                              
+
                               <div className="grid grid-cols-1 gap-4 mb-6">
-                                {chartData.tableData?.map((row: any, rIdx: number) => (
-                                  <div key={rIdx} className="border border-[#d8d6d0] bg-[#f4f3ef] p-4 flex flex-col justify-between shadow-sm rounded-xl">
-                                    <div>
-                                      <div className="flex items-center justify-between border-b border-[#d8d6d0] pb-2 mb-3">
-                                        <span className="font-bold text-xs text-[#1a1a19] truncate">{row.company}</span>
-                                        <span className="text-[10px] font-mono border border-[#d8d6d0] bg-[#faf9f6] px-1.5 py-0.5 text-[#1a1a19]">{row.ticker}</span>
-                                      </div>
-                                      <div className="flex flex-col gap-2 font-mono text-xs">
-                                        {chartData.metrics?.map((m: string, mIdx: number) => (
-                                          <div key={mIdx} className="flex items-center justify-between">
-                                            <span className="text-[#7c7a75] text-[10px] truncate pr-2">{m}:</span>
-                                            <span className="font-bold text-[#1a1a19]">{row.values[mIdx]}</span>
+                                {chartData.tableData?.map((row: any, rIdx: number) => {
+                                  const cls = classifySource(row.source);
+                                  return (
+                                    <div key={rIdx} className="border border-[#d8d6d0] bg-[#f4f3ef] p-4 flex flex-col justify-between shadow-sm rounded-xl">
+                                      <div>
+                                        <div className="flex items-center justify-between border-b border-[#d8d6d0] pb-2 mb-3 gap-2">
+                                          <span className="font-bold text-xs text-[#1a1a19] truncate">{row.company}</span>
+                                          <div className="flex items-center gap-1.5 flex-shrink-0">
+                                            <span className={`text-[9px] font-mono font-bold px-1.5 py-0.5 rounded ${cls.color}`}>{cls.kind}</span>
+                                            <span className="text-[10px] font-mono border border-[#d8d6d0] bg-[#faf9f6] px-1.5 py-0.5 text-[#1a1a19]">{row.ticker}</span>
                                           </div>
-                                        ))}
+                                        </div>
+                                        <div className="flex flex-col gap-2 font-mono text-xs">
+                                          {chartData.metrics?.map((m: string, mIdx: number) => (
+                                            <div key={mIdx} className="flex items-center justify-between">
+                                              <span className="text-[#7c7a75] text-[10px] truncate pr-2">{m}:</span>
+                                              <span className="font-bold text-[#1a1a19]">{row.values[mIdx]}</span>
+                                            </div>
+                                          ))}
+                                        </div>
+                                      </div>
+                                      <div className="mt-4 pt-3 border-t border-[#d8d6d0] flex items-center justify-between text-[10px] font-mono text-[#7c7a75] gap-2">
+                                        <span>Source:</span>
+                                        <span className="text-[#1a1a19] text-[9px] text-right truncate max-w-[70%]" title={row.source}>{row.source}</span>
                                       </div>
                                     </div>
-                                    <div className="mt-4 pt-3 border-t border-[#d8d6d0] flex items-center justify-between text-[10px] font-mono text-[#7c7a75]">
-                                      <span>Source:</span>
-                                      <span className="bg-[#1a1a19] text-[#faf9f6] px-2 py-0.5 font-bold">{row.source}</span>
-                                    </div>
-                                  </div>
-                                ))}
+                                  );
+                                })}
                               </div>
 
                               {/* Dynamic View Switching Pill Buttons */}

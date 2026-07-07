@@ -213,101 +213,236 @@ async def search_and_fetch_top(ctx: CallbackContext, query: str, top_files: int 
         logger.exception(f"[Composite Exception]: {e}")
         return {"error": f"Unexpected composite exception: {e}"}
 
-# Public Market Multiples MCP Replication Tools
+# Public Market Multiples — REAL market data via yfinance (Yahoo Finance).
+#
+# Public tickers hit Yahoo's live endpoints for last price / market cap /
+# trailing P/E / 10-day close history. Meridian (MRDN) is a fictional Bain
+# client and is explicitly returned as SIMULATED so the UI can badge it as
+# such on stage.
+
+# Fictional Bain diligence targets — no real ticker exists. Explicit sim data
+# with a data_source tag the UI/LLM can use to render an honest "simulated"
+# label instead of pretending it's live.
+_SIMULATED_TICKERS: dict[str, dict] = {
+    "MRDN": {
+        "company": "Meridian Technologies Corporation (MRDN)",
+        "ticker": "MRDN",
+        "current_price": 182.40,
+        "market_cap": 2_600_000_000,
+        "pe_ratio": 14.2,
+        "yoy_growth_pct": 24.5,
+        "ten_day_history": [175.00, 176.50, 177.00, 178.20, 179.50, 179.00, 180.50, 181.20, 182.00, 182.40],
+        "data_source": "SIMULATED — Bain SharePoint Diligence Docs (fictional target)",
+    },
+}
+
+
+def _humanize_market_cap(n: float | int | None) -> str:
+    if n is None or n <= 0:
+        return "—"
+    for unit, div in (("T", 1e12), ("B", 1e9), ("M", 1e6)):
+        if n >= div:
+            return f"${n / div:.2f}{unit}"
+    return f"${n:,.0f}"
+
+
+def _fetch_yfinance(ticker: str) -> dict | None:
+    """Blocking yfinance fetch; caller runs in a thread. Returns None on any error."""
+    try:
+        import yfinance as yf
+    except ImportError:
+        logger.warning("[Public Market MCP] yfinance not installed — falling back to simulated data.")
+        return None
+    try:
+        t = yf.Ticker(ticker.upper())
+        fast = t.fast_info
+        last = float(fast.last_price) if fast.last_price is not None else None
+        mcap = int(fast.market_cap) if fast.market_cap else None
+        hist = t.history(period="15d", interval="1d")
+        recent = hist.tail(10)
+        closes = [round(float(x), 2) for x in recent["Close"].tolist()]
+        dates = [str(d)[:10] for d in recent.index]
+        yoy_growth_pct: float | None = None
+        pe: float | None = None
+        try:
+            info = t.info
+            pe = info.get("trailingPE")
+            eps_growth = info.get("earningsQuarterlyGrowth")
+            if eps_growth is not None:
+                yoy_growth_pct = round(float(eps_growth) * 100, 1)
+        except Exception as e:
+            logger.info(f"[Public Market MCP] {ticker} .info fetch skipped: {e}")
+        # Fallback yoy from 10d history if earnings-growth not available.
+        if yoy_growth_pct is None and len(closes) >= 2 and closes[0] > 0:
+            yoy_growth_pct = round((closes[-1] / closes[0] - 1) * 100, 1)
+        long_name = None
+        try:
+            long_name = t.info.get("longName") or t.info.get("shortName")
+        except Exception:
+            pass
+        return {
+            "company": long_name or f"{ticker.upper()}",
+            "ticker": ticker.upper(),
+            "current_price": last,
+            "market_cap": mcap,
+            "pe_ratio": round(float(pe), 2) if pe else None,
+            "yoy_growth_pct": yoy_growth_pct,
+            "ten_day_history": closes,
+            "ten_day_dates": dates,
+            "as_of": dates[-1] if dates else None,
+            "data_source": "LIVE — Yahoo Finance (yfinance)",
+        }
+    except Exception as e:
+        logger.error(f"[Public Market MCP] yfinance fetch failed for {ticker}: {e}")
+        return None
+
+
+def _format_result(raw: dict) -> dict:
+    """Serialize numeric fields into the shape the UI + LLM expect."""
+    price = raw.get("current_price")
+    return {
+        **raw,
+        "current_price_display": f"${price:,.2f}" if isinstance(price, (int, float)) else str(price or "—"),
+        "market_cap_display": _humanize_market_cap(raw.get("market_cap")),
+        "pe_ratio_display": f"{raw['pe_ratio']:.1f}" if raw.get("pe_ratio") else "—",
+        "yoy_growth_display": (
+            f"{'+' if (raw.get('yoy_growth_pct') or 0) >= 0 else ''}{raw['yoy_growth_pct']:.1f}%"
+            if raw.get("yoy_growth_pct") is not None else "—"
+        ),
+    }
+
 
 async def public_market_multiples(ctx: CallbackContext, ticker: str) -> dict:
-    """Replicate Public Market Multiples API to retrieve real-time market intelligence, 10-day price history, and valuation metrics.
+    """Retrieve real-time market intelligence (last price, market cap, P/E, YoY growth, 10-day close history)
+    for a public equity ticker via Yahoo Finance. For fictional Bain diligence targets (e.g. MRDN Meridian
+    Technologies) returns explicitly SIMULATED data with a data_source label the UI renders honestly.
 
     Args:
-        ticker: Stock ticker symbol (e.g., 'GOOGL', 'GOOG', 'AMZN', 'MRDN').
+        ticker: Stock ticker symbol (e.g., 'GOOGL', 'GOOG', 'AMZN', 'MSFT', 'MRDN').
     """
     try:
         await policy_guard.check(tool="public_market_multiples", args={"ticker": ticker}, ctx=ctx)
     except PolicyDenied as denied:
         return _denied_payload("public_market_multiples", denied)
-    logger.info(f"[Public Market MCP] Executing public_market_multiples for ticker '{ticker}'...")
-    market_data = {
-        "GOOGL": {
-            "company": "Alphabet Inc. Class A (GOOGL)",
-            "ticker": "GOOGL",
-            "current_price": "$331.25",
-            "market_cap": "$2.05T",
-            "pe_ratio": 24.2,
-            "yoy_growth": "+15.2%",
-            "ten_day_history": [321.10, 324.50, 323.80, 326.40, 328.90, 325.40, 327.10, 329.80, 330.50, 331.25],
-            "source": "Public Market Multiples MCP",
-        },
-        "GOOG": {
-            "company": "Alphabet Inc. Class C (GOOG)",
-            "ticker": "GOOG",
-            "current_price": "$331.33",
-            "market_cap": "$2.05T",
-            "pe_ratio": 24.1,
-            "yoy_growth": "+15.1%",
-            "ten_day_history": [321.20, 324.60, 323.90, 326.50, 329.00, 325.50, 327.20, 329.90, 330.60, 331.33],
-            "source": "Public Market Multiples MCP",
-        },
-        "AMZN": {
-            "company": "Amazon.com, Inc. (AMZN)",
-            "ticker": "AMZN",
-            "current_price": "$222.69",
-            "market_cap": "$2.31T",
-            "pe_ratio": 38.5,
-            "yoy_growth": "+18.4%",
-            "ten_day_history": [215.40, 218.10, 217.50, 219.80, 221.30, 218.90, 220.40, 221.90, 222.10, 222.69],
-            "source": "Public Market Multiples MCP",
-        },
-        "MRDN": {
-            "company": "Meridian Technologies Corporation (MRDN)",
-            "ticker": "MRDN",
-            "current_price": "$182.40 (Implied)",
-            "market_cap": "$2.6B",
-            "pe_ratio": 14.2,
-            "yoy_growth": "+24.5%",
-            "ten_day_history": [175.00, 176.50, 177.00, 178.20, 179.50, 179.00, 180.50, 181.20, 182.00, 182.40],
-            "source": "SharePoint Diligence Index",
-        },
-    }
     t = ticker.upper()
-    if t in market_data:
-        return {"query": ticker, "result": market_data[t]}
-    return {"query": ticker, "result": {"ticker": ticker, "current_price": "$145.00", "note": "Real-time market estimates retrieved via Public Market MCP proxy."}}
+    logger.info(f"[Public Market MCP] Fetching {t}...")
+
+    if t in _SIMULATED_TICKERS:
+        return {"query": ticker, "result": _format_result(_SIMULATED_TICKERS[t])}
+
+    # Real fetch on a worker thread so we don't block the event loop.
+    raw = await asyncio.to_thread(_fetch_yfinance, t)
+    if raw is None:
+        return {
+            "query": ticker,
+            "result": {
+                "ticker": t,
+                "error": "Live market data unavailable (yfinance fetch failed).",
+                "data_source": "UNAVAILABLE",
+            },
+        }
+    return {"query": ticker, "result": _format_result(raw)}
+
 
 async def plot_financial_data(ctx: CallbackContext, tickers: list[str]) -> dict:
-    """Replicate Public Market PlotFinancialData API to generate dynamic Recharts JSON chart structures.
+    """Fetch real live 10-day close histories for a list of tickers and return a Recharts-friendly
+    JSON structure the Bain UI intercepts to render an interactive multi-asset plot. Simulated
+    tickers (e.g. Meridian MRDN) are included but tagged as SIMULATED in the tableData source column.
 
     Args:
-        tickers: List of stock ticker symbols to include in the visual plot (e.g., ['GOOGL', 'GOOG', 'AMZN']).
+        tickers: List of stock ticker symbols to include (e.g., ['GOOGL', 'AMZN']).
     """
     try:
         await policy_guard.check(tool="plot_financial_data", args={"tickers": tickers}, ctx=ctx)
     except PolicyDenied as denied:
         return _denied_payload("plot_financial_data", denied)
-    logger.info(f"[Public Market MCP] Executing plot_financial_data for tickers {tickers}...")
+
+    upper = [t.upper() for t in tickers]
+    logger.info(f"[Public Market MCP] plot_financial_data for {upper}")
+
+    # Parallel-fetch all real tickers; simulated served inline.
+    async def _one(t: str) -> tuple[str, dict]:
+        if t in _SIMULATED_TICKERS:
+            return t, _SIMULATED_TICKERS[t]
+        raw = await asyncio.to_thread(_fetch_yfinance, t)
+        return t, (raw or {"ticker": t, "error": "unavailable", "data_source": "UNAVAILABLE"})
+
+    fetched = dict(await asyncio.gather(*[_one(t) for t in upper]))
+
+    # Align on the intersection of trading dates across real tickers so
+    # the chart doesn't misalign holidays/half-days.
+    date_sets = [
+        set(fetched[t].get("ten_day_dates") or [])
+        for t in upper if fetched[t].get("ten_day_dates")
+    ]
+    common_dates = sorted(set.intersection(*date_sets)) if date_sets else []
+    if not common_dates and date_sets:
+        # Fallback: use the union, sorted; series data may not align perfectly but the chart still draws.
+        common_dates = sorted(set.union(*date_sets))
+    as_of = common_dates[-1] if common_dates else "n/a"
+
+    def _align_series(t: str) -> list[float]:
+        entry = fetched[t]
+        dates = entry.get("ten_day_dates") or []
+        closes = entry.get("ten_day_history") or []
+        if not dates:
+            return closes[-len(common_dates):] if closes else []
+        by_date = dict(zip(dates, closes))
+        return [by_date.get(d) for d in common_dates]
+
+    series = [
+        {
+            "ticker": t,
+            "name": fetched[t].get("company", t),
+            "data": _align_series(t),
+            "data_source": fetched[t].get("data_source"),
+        }
+        for t in upper
+    ]
+
+    def _row(t: str) -> dict:
+        e = fetched[t]
+        if "error" in e:
+            return {
+                "company": e.get("ticker", t),
+                "ticker": t,
+                "values": ["—", "—", "—", "—"],
+                "source": "UNAVAILABLE",
+            }
+        fmt = _format_result(e)
+        return {
+            "company": fmt["company"],
+            "ticker": t,
+            "values": [
+                fmt["current_price_display"],
+                fmt["market_cap_display"],
+                fmt["pe_ratio_display"],
+                fmt["yoy_growth_display"],
+            ],
+            "source": fmt["data_source"],
+        }
+
     chart_payload = {
         "chartType": "bainPriceLine",
-        "title": f"Bain Enterprise // Ten-Day Price History & Multi-Asset Comparison ({', '.join(tickers)})",
-        "dates": ["2026-01-26", "2026-01-27", "2026-01-28", "2026-01-29", "2026-01-30", "2026-02-02", "2026-02-03", "2026-02-04", "2026-02-05", "2026-02-06"],
-        "series": [
-            { "ticker": "GOOGL", "name": "Alphabet Inc. Class A", "data": [321.10, 324.50, 323.80, 326.40, 328.90, 325.40, 327.10, 329.80, 330.50, 331.25] },
-            { "ticker": "GOOG", "name": "Alphabet Inc. Class C", "data": [321.20, 324.60, 323.90, 326.50, 329.00, 325.50, 327.20, 329.90, 330.60, 331.33] },
-            { "ticker": "AMZN", "name": "Amazon.com, Inc.", "data": [215.40, 218.10, 217.50, 219.80, 221.30, 218.90, 220.40, 221.90, 222.10, 222.69] }
+        "title": f"Bain Enterprise // 10-Day Live Price History ({', '.join(upper)})",
+        "dates": common_dates,
+        "series": series,
+        "metrics": [
+            f"Closing Price (as of {as_of})",
+            "Market Cap",
+            "P/E Ratio (trailing)",
+            "YoY EPS Growth",
         ],
-        "metrics": ["Closing Price (Feb 6, 2026)", "Market Cap", "P/E Ratio", "YoY Growth"],
-        "tableData": [
-            { "company": "Alphabet Inc. Class A", "ticker": "GOOGL", "values": ["$331.25", "$2.05T", "24.2", "+15.2%"], "source": "Public Market Multiples MCP" },
-            { "company": "Alphabet Inc. Class C", "ticker": "GOOG", "values": ["$331.33", "$2.05T", "24.1", "+15.1%"], "source": "Public Market Multiples MCP" },
-            { "company": "Amazon.com, Inc.", "ticker": "AMZN", "values": ["$222.69", "$2.31T", "38.5", "+18.4%"], "source": "Public Market Multiples MCP" },
-            { "company": "Meridian Technologies", "ticker": "MRDN", "values": ["$182.40", "$2.60B", "14.2", "+24.5%"], "source": "SharePoint Diligence Docs" }
-        ],
+        "tableData": [_row(t) for t in upper],
         "topology": {
             "steps": [
-                { "name": "User", "type": "origin", "time": "0.00s" },
-                { "name": "Smart Agent (Gemini 3.5 Flash)", "type": "orchestrator", "time": "0.12s" },
-                { "name": "Public Market Multiples MCP", "type": "mcp_tool", "time": "0.48s" },
-                { "name": "plot_financial_data", "type": "mcp_tool", "time": "0.04s" }
+                {"name": "User", "type": "origin"},
+                {"name": "Bain Financial Secure Agent (Gemini)", "type": "orchestrator"},
+                {"name": "public_market_multiples (yfinance live feed)", "type": "mcp_tool"},
+                {"name": "plot_financial_data", "type": "mcp_tool"},
             ]
-        }
+        },
+        "as_of": as_of,
     }
     return {"query": tickers, "chart_json": chart_payload}
 
@@ -351,33 +486,15 @@ root_agent = LlmAgent(
         "2. ULTRA-LOW LATENCY MANDATE (`search_and_fetch_top`): To guarantee sub-10 second response latency for executive presentations, "
         "you are STRICTLY PROHIBITED from executing slow sequential multi-file fetch loops. When queried about a person, company, or topic (e.g. 'who is jennifer?'), "
         "you MUST call the composite tool `search_and_fetch_top(query='jennifer', top_files=3)`. This tool executes search and downloads the top matching files in PARALLEL instantly.\n"
-        "3. PUBLIC MARKET MCP BENCHMARKING (`public_market_multiples` & `plot_financial_data`): When asked to compare stock prices, analyze public peers (such as Alphabet GOOGL/GOOG or Amazon AMZN), "
-        "or create a table/graph, you MUST call `public_market_multiples` for each ticker and call `plot_financial_data` to generate the dynamic chart structure. "
-        "Synthesize the public numbers with the internal SharePoint figures in clean markdown tables.\n"
-        "4. DYNAMIC INTERACTIVE CHARTS UI (ZERO-PARSING): When asked to compare figures, create a dynamic chart, or build a visual comp table, "
-        "you MUST output a structured JSON code block tagged with `json_chart` containing the chart data returned by `plot_financial_data` so the Bain Workstation frontend can instantly intercept and render it as an interactive visual graph. "
-        "Format the JSON exactly as:\n"
-        "```json_chart\n"
-        "{\n"
-        "  \"chartType\": \"bainPriceLine\",\n"
-        "  \"title\": \"Bain Enterprise // Ten-Day Price History & Multi-Asset Comparison (GOOGL, GOOG, AMZN)\",\n"
-        "  \"metrics\": [\"Closing Price (Feb 6, 2026)\", \"Market Cap\", \"P/E Ratio\", \"YoY Growth\"],\n"
-        "  \"tableData\": [\n"
-        "    { \"company\": \"Alphabet Inc. Class A\", \"ticker\": \"GOOGL\", \"values\": [\"$331.25\", \"$2.05T\", \"24.2\", \"+15.2%\"], \"source\": \"Public Market Multiples MCP\" },\n"
-        "    { \"company\": \"Alphabet Inc. Class C\", \"ticker\": \"GOOG\", \"values\": [\"$331.33\", \"$2.05T\", \"24.1\", \"+15.1%\"], \"source\": \"Public Market Multiples MCP\" },\n"
-        "    { \"company\": \"Amazon.com, Inc.\", \"ticker\": \"AMZN\", \"values\": [\"$222.69\", \"$2.31T\", \"38.5\", \"+18.4%\"], \"source\": \"Public Market Multiples MCP\" },\n"
-        "    { \"company\": \"Meridian Technologies\", \"ticker\": \"MRDN\", \"values\": [\"$182.40\", \"$2.60B\", \"14.2\", \"+24.5%\"], \"source\": \"SharePoint Diligence Docs\" }\n"
-        "  ],\n"
-        "  \"topology\": {\n"
-        "    \"steps\": [\n"
-        "      { \"name\": \"User\", \"type\": \"origin\", \"time\": \"0.00s\" },\n"
-        "      { \"name\": \"Smart Agent (Gemini 3.5 Flash)\", \"type\": \"orchestrator\", \"time\": \"0.12s\" },\n"
-        "      { \"name\": \"Public Market Multiples MCP\", \"type\": \"mcp_tool\", \"time\": \"0.48s\" },\n"
-        "      { \"name\": \"plot_financial_data\", \"type\": \"mcp_tool\", \"time\": \"0.04s\" }\n"
-        "    ]\n"
-        "  }\n"
-        "}\n"
-        "```\n"
+        "3. LIVE PUBLIC MARKET DATA (`public_market_multiples` & `plot_financial_data`): When asked to compare stock prices, "
+        "analyze public peers (Alphabet GOOGL/GOOG, Amazon AMZN, Microsoft MSFT, Apple AAPL, NVIDIA NVDA, any real ticker), or create a table/graph, "
+        "you MUST call `public_market_multiples` for each ticker and `plot_financial_data` to generate the dynamic chart. "
+        "These tools return REAL LIVE data from Yahoo Finance (yfinance) — never invent prices, never quote stale numbers. "
+        "Use the exact `current_price_display`, `market_cap_display`, `pe_ratio_display`, `yoy_growth_display`, and `as_of` fields from the tool response. "
+        "For the fictional Bain diligence target MRDN (Meridian Technologies), the tool returns `data_source: SIMULATED — …` — surface that badge honestly in your reply (do NOT pretend it's a live public quote).\n"
+        "4. DYNAMIC INTERACTIVE CHARTS UI (ZERO-PARSING): When asked to compare figures or create a chart, "
+        "you MUST return the `chart_json` object from `plot_financial_data` VERBATIM inside a ```json_chart``` code fence so the Bain Workstation frontend can intercept and render it. "
+        "Do NOT hand-craft the JSON, do NOT substitute example numbers — pass through the tool output exactly. Include the `as_of` date + the `source` field on each `tableData` row so consultants can see when the quote was captured and whether it's LIVE or SIMULATED.\n"
         "5. REAL AGENT GATEWAY ENFORCEMENT (DO NOT SIMULATE): Every tool call you make is intercepted by the Agent Gateway policy service "
         "(`bain-ge-policy-svc` on Cloud Run, enforcing rules R000-R020 of policy `bain-ge-mnpi-shield`). When the policy returns DENY, the tool result "
         "you receive will be a JSON object of the shape `{\"blocked_by_agent_gateway\": true, \"decision\": \"DENY\", \"rule\": \"R0XX...\", \"reason\": \"...\", \"log_url\": \"...\"}`. "
