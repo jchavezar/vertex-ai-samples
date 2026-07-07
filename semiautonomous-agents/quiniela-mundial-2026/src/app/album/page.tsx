@@ -205,35 +205,44 @@ export default function AlbumPage() {
       {/* Cover header */}
       <section className="max-w-3xl mx-auto px-4 pt-6">
         <div
-          className="relative rounded-3xl overflow-hidden p-6 sm:p-8 text-white shadow-xl"
+          className="relative rounded-3xl overflow-hidden p-6 sm:p-8 text-white shadow-2xl border border-white/10"
           style={{
             background:
-              "linear-gradient(135deg, #006847 0%, #006847 40%, #ffffff 40.5%, #ffffff 59.5%, #CE1126 60%, #CE1126 100%)",
+              "linear-gradient(135deg, #004d33 0%, #0f172a 50%, #881337 100%)",
           }}
         >
-          {/* Dark backdrop overlay for text contrast across flag stripes */}
-          <div className="absolute inset-0 bg-black/35 pointer-events-none" />
-          {/* Pattern overlay */}
-          <div className="absolute inset-0 pointer-events-none opacity-30" style={{ background: "radial-gradient(circle at 1.5px 1.5px, rgba(0,0,0,0.25) 1px, transparent 0) 0 0/12px 12px" }} />
-          <div className="relative flex items-start justify-between gap-4">
-            <div>
-              <div className="text-[10px] uppercase tracking-[0.25em] text-white/90 font-bold">{t("album.cover.kicker")}</div>
-              <h1 className="font-display text-3xl sm:text-4xl font-black leading-none mt-1 drop-shadow-md text-white">
-                {t("album.cover.title")}
-              </h1>
-              <div className="text-sm mt-2 max-w-md text-white/95 font-medium drop-shadow">
-                {t("album.cover.subtitle")}
+          {/* Gold accent line & mesh pattern */}
+          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-emerald-400 via-amber-300 to-rose-500" />
+          <div className="absolute inset-0 pointer-events-none opacity-20" style={{ background: "radial-gradient(circle at 1.5px 1.5px, rgba(255,255,255,0.4) 1px, transparent 0) 0 0/14px 14px" }} />
+
+          {/* Frosted card container for 100% contrast */}
+          <div className="relative rounded-2xl bg-slate-950/50 backdrop-blur-md p-5 border border-white/10 shadow-inner">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <div className="text-[11px] uppercase tracking-[0.25em] text-amber-400 font-extrabold flex items-center gap-1.5">
+                  <Sparkles size={12} className="text-amber-400" />
+                  {t("album.cover.kicker")}
+                </div>
+                <h1 className="font-display text-3xl sm:text-4xl font-black leading-tight mt-1 text-white drop-shadow">
+                  {t("album.cover.title")}
+                </h1>
+                <p className="text-sm mt-2 max-w-md text-slate-200 font-medium leading-relaxed">
+                  {t("album.cover.subtitle")}
+                </p>
+              </div>
+              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-amber-400/20 to-emerald-400/20 border border-white/20 grid place-items-center shrink-0 shadow-lg">
+                <Album size={28} className="text-amber-300" />
               </div>
             </div>
-            <Album size={36} className="shrink-0 drop-shadow-md text-white" />
-          </div>
-          <div className="relative mt-5 flex items-end justify-between gap-4">
-            <div className="text-xs font-bold uppercase tracking-wider text-white/90">
-              {totalPages > 0 ? `${totalPages} ${totalPages === 1 ? t("album.cover.pages.one") : t("album.cover.pages.many")}` : t("album.cover.empty")}
+
+            <div className="mt-6 flex items-center justify-between gap-4 pt-4 border-t border-white/10">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 text-xs font-bold uppercase tracking-wider">
+                {totalPages > 0 ? `${totalPages} ${totalPages === 1 ? t("album.cover.pages.one") : t("album.cover.pages.many")}` : t("album.cover.empty")}
+              </span>
+              <Link href="/" className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white/10 hover:bg-white/20 text-white text-xs font-semibold transition-colors">
+                ← {t("album.cover.home")}
+              </Link>
             </div>
-            <Link href="/" className="text-xs font-semibold underline underline-offset-2 text-white/90 hover:text-white">
-              {t("album.cover.home")}
-            </Link>
           </div>
         </div>
       </section>
