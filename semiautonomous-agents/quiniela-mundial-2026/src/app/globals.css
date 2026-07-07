@@ -34,30 +34,6 @@
   --shadow-card: 0 1px 0 rgba(255,255,255,0.6) inset, 0 1px 2px rgba(0,0,0,0.04), 0 8px 30px -12px rgba(10,10,10,0.10);
 }
 
-/* ---------- CYBERPUNK EMERALD DARK THEME ---------- */
-[data-theme="cyberpunk-emerald"], [data-theme="dark"] {
-  --bg:            #0A0B0E;
-  --bg-elev:       #12141C;
-  --bg-tint:       #1A1D28;
-  --ink:           #F4F4F6;
-  --ink-soft:      #A0A5B5;
-  --ink-muted:     #62687A;
-  --line:          #262A38;
-  --line-strong:   #3A4054;
-
-  --grad-from:     #00F59B;
-  --grad-via:      #FFC837;
-  --grad-to:       #9D4EDD;
-
-  --accent-gold:   #FFC837;
-  --accent-coral:  #FF3B6B;
-  --accent-mint:   #00F59B;
-  --accent-violet: #9D4EDD;
-
-  --shadow-glow: 0 30px 60px -30px rgba(0, 245, 155, 0.4), 0 10px 30px -20px rgba(255, 200, 55, 0.25);
-  --shadow-card: 0 1px 0 rgba(255,255,255,0.08) inset, 0 8px 32px -12px rgba(0,0,0,0.6);
-}
-
 @theme inline {
   --color-background: var(--bg);
   --color-foreground: var(--ink);
@@ -120,11 +96,6 @@ body[data-theme="dark"] {
   background-position: center 30%;
   opacity: 0.14;
   mix-blend-mode: multiply;
-}
-[data-theme="cyberpunk-emerald"] .q26-watermark,
-[data-theme="dark"] .q26-watermark {
-  opacity: 0.08;
-  mix-blend-mode: screen;
 }
 
 .q26-watermark::after {
