@@ -360,8 +360,8 @@ export async function hydratePredictionsFromServer(playerId: string): Promise<vo
       (localBracket.FINAL && !remoteBracket.FINAL)
     );
 
-    if (unsyncedKeys.length > 0 || hasBracketDiff || hasSingleDiff) {
-      console.info(`[hydrate] unsynced picks detected (group=${unsyncedKeys.length} bracketDiff=${hasBracketDiff}), re-pushing`);
+    if (unsyncedKeys.length > 0 || hasBracketDiff || hasSingleDiff || isDirty(playerId)) {
+      console.info(`[hydrate] unsynced/dirty picks detected (dirty=${isDirty(playerId)} group=${unsyncedKeys.length} bracketDiff=${hasBracketDiff}), re-pushing`);
       pushToServer({ ...merged, updatedAt: Date.now() });
     }
   } catch {}
