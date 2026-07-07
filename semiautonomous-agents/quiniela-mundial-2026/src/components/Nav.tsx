@@ -9,6 +9,7 @@ import { Trophy, Calendar, BarChart3, Target, Users, Activity, Swords, Home, Che
 import { useEffect, useRef, useState } from "react";
 import { PlayerAvatar } from "@/components/PlayerAvatar";
 import { DailyStreakChip } from "@/components/DailyStreakChip";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 const OWNER_ID = "jesus";
 
@@ -250,6 +251,7 @@ export function Nav() {
           {/* Player badge + locale toggle (desktop) */}
           <div className="ml-auto hidden md:flex items-center gap-2">
             <DailyStreakChip />
+            <ThemeToggle />
             <LocaleToggle />
             <Link href="/jugadores" className="flex items-center gap-2 px-2 py-1.5 rounded-full hairline-strong bg-white">
               {currentPlayer ? (
@@ -263,9 +265,10 @@ export function Nav() {
             </Link>
           </div>
 
-          {/* Mobile: streak + locale only — navigation handled by BottomNav */}
+          {/* Mobile: streak + locale + theme toggle — navigation handled by BottomNav */}
           <div className="md:hidden ml-auto flex items-center gap-1.5">
             <DailyStreakChip />
+            <ThemeToggle />
             <LocaleToggle />
           </div>
         </nav>

@@ -70,24 +70,20 @@ function mergeWithServerLocks(existing: PicksPayload | null, incoming: PicksPayl
   const ROUND_SIZES: Record<string, number> = { R16: 8, QF: 4, SF: 2 };
   const arrayRounds: Array<keyof BracketPayload> = ["R16", "QF", "SF"];
   for (const r of arrayRounds) {
-    const lockKey = r;
-    const locked = isBracketRoundLocked(lockKey as "R16" | "QF" | "SF");
     const size = ROUND_SIZES[r] ?? 0;
     if (!size) continue;
-    if (locked) {
-      // Round locked: preserve whatever was saved before; ignore incoming.
-      const v = prevBracket[r] as string[] | undefined;
-      if (v && v.length > 0) (nextBracket[r] as string[]) = [...v];
-    } else {
-      // Round open: per-slot merge — incoming pick wins if non-empty, else keep prev.
-      const inc = (incomingBracket[r] as string[] | undefined) ?? [];
-      const prv = (prevBracket[r] as string[] | undefined) ?? [];
-      const merged_slots: string[] = Array(size).fill("");
-      for (let i = 0; i < size; i++) {
+    const inc = (incomingBracket[r] as string[] | undefined) ?? [];
+    const prv = (prevBracket[r] as string[] | undefined) ?? [];
+    const merged_slots: string[] = Array(size).fill("");
+    for (let i = 0; i < size; i++) {
+      const slotLocked = isKOSlotLocked(`${r}-${i + 1}`);
+      if (slotLocked) {
+        merged_slots[i] = prv[i] || inc[i] || "";
+      } else {
         merged_slots[i] = inc[i] || prv[i] || "";
       }
-      (nextBracket[r] as string[]) = merged_slots;
     }
+    (nextBracket[r] as string[]) = merged_slots;
   }
   // THIRD/FINAL: single string, round-level lock.
   for (const r of ["THIRD", "FINAL"] as const) {
