@@ -718,8 +718,8 @@ const R16_PAIRINGS: Array<[number, number]> = [
   [7, 8],    // R16-4: winner R32-7 vs winner R32-8  (MEX vs ENG)
   [11, 12],  // R16-5: winner R32-11 vs winner R32-12 (POR vs ESP)
   [9, 10],   // R16-6: winner R32-9 vs winner R32-10  (USA vs BEL)
-  [15, 16],  // R16-7: winner R32-15 vs winner R32-16 (ARG vs EGY)
-  [13, 14],  // R16-8: winner R32-13 vs winner R32-14 (SUI vs TBD)
+  [14, 16],  // R16-7: winner R32-14 vs winner R32-16 (ARG vs EGY)
+  [13, 15],  // R16-8: winner R32-13 vs winner R32-15 (SUI vs COL)
 ];
 
 function R16Section({

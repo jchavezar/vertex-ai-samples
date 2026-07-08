@@ -292,6 +292,14 @@ export async function hydratePredictionsFromServer(playerId: string): Promise<vo
     // and overwrites the just-made pick with server data.
     const local = loadPredictions(playerId);
     const localTs = local.updatedAt ?? 0;
+    console.log(`[hydrate] ${playerId} localTs=${localTs} remoteTs=${remoteTs} localR16=${JSON.stringify((local.bracket as BracketPick)?.R16)} remoteR16=${JSON.stringify((remote?.bracket as BracketPick)?.R16)}`);
+    // Only skip the merge if local is MORE THAN 100ms newer than remote.
+    // A smaller gap may be clock skew, not a genuine local-wins scenario.
+    if (localTs >= remoteTs + 100) {
+      console.log(`[hydrate] ${playerId} local wins → early return`);
+      if (localTs > 0) pushToServer(local);
+      return;
+    }
     if (!remote || remoteTs === 0) return;
     // Merge per-fixture, do NOT replace. Server is canonical for keys it has,
     // but any key only the client has stays and gets re-pushed.
@@ -352,8 +360,8 @@ export async function hydratePredictionsFromServer(playerId: string): Promise<vo
       (localBracket.FINAL && !remoteBracket.FINAL)
     );
 
-    if (unsyncedKeys.length > 0 || hasBracketDiff || hasSingleDiff || isDirty(playerId)) {
-      console.info(`[hydrate] unsynced/dirty picks detected (dirty=${isDirty(playerId)} group=${unsyncedKeys.length} bracketDiff=${hasBracketDiff}), re-pushing`);
+    if (unsyncedKeys.length > 0 || hasBracketDiff || hasSingleDiff) {
+      console.info(`[hydrate] unsynced picks detected (group=${unsyncedKeys.length} bracketDiff=${hasBracketDiff}), re-pushing`);
       pushToServer({ ...merged, updatedAt: Date.now() });
     }
   } catch {}

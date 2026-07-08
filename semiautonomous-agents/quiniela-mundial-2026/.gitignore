@@ -42,7 +42,3 @@ next-env.d.ts
 
 # HIL keeper cache for cromo-compare
 .cromo-keepers/
-
-# Imported Claude chat history
-claude_history/
-

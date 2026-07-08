@@ -345,10 +345,10 @@ function MundialQuinielaView() {
               <button
                 key={letter}
                 onClick={() => setActive(letter)}
-                className={`shrink-0 px-4 py-2 rounded-full text-base font-display font-bold transition-colors flex items-center justify-center gap-1.5 min-w-[44px] h-[44px] ${isActive ? "bg-[var(--ink)] text-white shadow-md" : "text-[var(--ink-soft)] hover:text-[var(--ink)] active:scale-95"}`}
+                className={`shrink-0 px-3.5 py-1.5 rounded-full text-sm font-display font-bold transition-colors flex items-center gap-1.5 ${isActive ? "bg-[var(--ink)] text-white" : "text-[var(--ink-soft)] hover:text-[var(--ink)]"}`}
               >
                 {letter}
-                {done && <CheckCircle2 size={12} className="text-[var(--accent-mint)] shrink-0" />}
+                {done && <CheckCircle2 size={11} className="text-[var(--accent-mint)]" />}
               </button>
             );
           })}

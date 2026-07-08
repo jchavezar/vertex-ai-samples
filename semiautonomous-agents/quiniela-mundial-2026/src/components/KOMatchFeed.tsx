@@ -664,19 +664,21 @@ function KOProbBar({ homeCode, awayCode }: { homeCode: string; awayCode: string 
 function PastMatchCard({ event }: { event: KOEventData }) {
   const homeTeam = TEAMS_BY_CODE[event.homeCode];
   const awayTeam = TEAMS_BY_CODE[event.awayCode];
-  const slotIdx = KO_SCHEDULE.findIndex(s => s.slot === event.slot);
   const { currentPlayer } = usePlayer();
   const [myPick, setMyPick] = useState<string | null>(null);
   const [allPicks, setAllPicks] = useState<Record<string, string | null> | null>(null);
+  const [slotWinner, setSlotWinner] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!currentPlayer || slotIdx < 0) return;
+    if (!currentPlayer) return;
+    const parsed = parseKOSlot(event.slot);
+    if (!parsed) return;
     import("@/lib/predictions").then(m => {
       const pred = m.loadPredictions(currentPlayer.id);
-      const p = pred.bracket?.R32?.[slotIdx] ?? "";
-      setMyPick(p || null);
+      const arr = pred.bracket?.[parsed.round] as string[] | undefined;
+      setMyPick(arr?.[parsed.idx] || null);
     });
-  }, [currentPlayer, slotIdx]);
+  }, [currentPlayer, event.slot]);
 
   useEffect(() => {
     if (!event.slot) return;
@@ -684,11 +686,19 @@ function PastMatchCard({ event }: { event: KOEventData }) {
       .then(r => r.json())
       .then(d => { if (d.ok) setAllPicks(d.picks as Record<string, string | null>); })
       .catch(() => {});
+    // Use ko-results for winner so penalty games (0-0 scoreline) are handled correctly
+    fetch("/api/bracket/ko-results", { cache: "no-store" })
+      .then(r => r.json())
+      .then((d: { ok: boolean; slotResults?: Record<string, string> }) => {
+        if (d.ok && d.slotResults?.[event.slot]) setSlotWinner(d.slotResults[event.slot]);
+      })
+      .catch(() => {});
   }, [event.slot]);
 
   const homeGoals = event.homeGoals ?? 0;
   const awayGoals = event.awayGoals ?? 0;
-  const winner = homeGoals > awayGoals ? event.homeCode : awayGoals > homeGoals ? event.awayCode : null;
+  // Prefer ko-results winner (handles penalties); fall back to goals for in-progress display
+  const winner = slotWinner ?? (homeGoals > awayGoals ? event.homeCode : awayGoals > homeGoals ? event.awayCode : null);
   const hit = myPick && winner && myPick === winner;
   const humanPlayers = PLAYERS.filter(p => !p.isBot);
 

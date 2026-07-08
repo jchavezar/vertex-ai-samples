@@ -1061,7 +1061,7 @@ function liveStatusFor(dateISO: string, now: number | null): LiveStatus {
 
 // Official FIFA 2026 R16 pairings: each entry is [R32-slotA, R32-slotB].
 const R16_PAIRINGS_BR: Array<[number, number]> = [
-  [1, 3], [2, 5], [4, 6], [7, 8], [11, 12], [9, 10], [15, 16], [13, 14],
+  [1, 3], [2, 5], [4, 6], [7, 8], [11, 12], [9, 10], [14, 16], [13, 15],
 ];
 
 function MobileBracket({ tree, real }: { tree: Record<RoundKey, Slot[]>; real: RealResults }) {

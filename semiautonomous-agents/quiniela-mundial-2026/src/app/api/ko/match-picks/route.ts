@@ -18,8 +18,8 @@ const R16_PAIRINGS: Array<[number, number]> = [
   [7, 8],    // R16-4
   [11, 12],  // R16-5
   [9, 10],   // R16-6
-  [15, 16],  // R16-7
-  [13, 14],  // R16-8
+  [14, 16],  // R16-7: ARG vs EGY
+  [13, 15],  // R16-8: SUI vs COL
 ];
 
 export async function GET(req: NextRequest) {
