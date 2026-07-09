@@ -477,18 +477,12 @@ function UpcomingMatchCard({ event }: { event: KOEventData }) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentPlayerId, event.slot]);
 
-  // Server events (SSE / hydrate) write to localStorage and fire
-  // q26:predictions-updated. We only accept that update when we have NO pick
-  // yet — so fresh picks from a previous session load correctly, but a server
-  // delivery never reverts a pick the user just made.
+  // Re-sync pick whenever localStorage changes (local save from bracket page OR
+  // server hydration). savePredictions fires this event on every write, so picks
+  // made on the bracket page show up here immediately without navigating away.
   useEffect(() => {
     if (!currentPlayerId) return;
-    const refresh = () => {
-      setMyLocalPick(prev => {
-        if (prev) return prev;                         // already have a pick → keep it
-        return readPickFromStorage(currentPlayerId);   // empty → restore from server
-      });
-    };
+    const refresh = () => setMyLocalPick(readPickFromStorage(currentPlayerId));
     window.addEventListener("q26:predictions-updated", refresh);
     return () => window.removeEventListener("q26:predictions-updated", refresh);
   // eslint-disable-next-line react-hooks/exhaustive-deps
