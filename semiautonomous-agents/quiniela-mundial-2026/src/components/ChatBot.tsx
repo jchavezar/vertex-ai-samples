@@ -327,14 +327,15 @@ export function ChatBot() {
         onClick={() => setOpen(true)}
         aria-label="Abrir Charal Bot"
         style={{
+          bottom: "max(5.5rem, calc(env(safe-area-inset-bottom) + 5.5rem))",
           right: "max(1rem, env(safe-area-inset-right))",
           touchAction: "manipulation",
         }}
-        className="group fixed z-[70] bottom-24 md:bottom-5 h-14 pl-3 pr-4 rounded-full bg-[var(--ink)] text-white shadow-2xl flex items-center gap-2 md:hover:scale-105 md:active:scale-95 md:transition-transform select-none border border-[var(--accent-mint)]/30"
+        className="group fixed z-[70] bottom-24 md:bottom-5 h-14 pl-3 pr-4 rounded-full glass-strong text-[var(--ink)] shadow-2xl flex items-center gap-2 md:hover:scale-105 md:active:scale-95 md:transition-transform select-none border border-[var(--accent-mint)]/40 hover:border-[var(--accent-mint)]"
       >
-        <span className="relative w-9 h-9 rounded-full bg-white/15 grid place-items-center">
+        <span className="relative w-9 h-9 rounded-full bg-[var(--accent-mint)]/20 grid place-items-center">
           <Bot size={20} className="text-[var(--accent-mint)]" />
-          <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-[var(--accent-mint)] ring-2 ring-[var(--ink)] animate-pulse" />
+          <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-[var(--accent-mint)] ring-2 ring-[var(--bg-elev)] animate-pulse" />
         </span>
         <span className="text-sm font-display font-semibold tracking-wide">Charal Bot</span>
       </button>
@@ -495,7 +496,7 @@ export function ChatBot() {
 
               {/* Composer (only on chat screen, hidden in maintenance mode) */}
               {screen === "chat" && !maintMode && (
-                <div className="p-3 border-t border-[var(--hairline)] bg-white">
+                <div className="p-3 border-t border-[var(--line)] bg-[var(--bg-elev)]">
                   <div className="flex items-end gap-2 rounded-3xl px-3 py-2 bg-[var(--bg-tint)] transition-shadow">
                     <textarea
                       ref={inputRef}
@@ -511,9 +512,9 @@ export function ChatBot() {
                       onClick={() => send()}
                       disabled={!input.trim() || busy}
                       aria-label="Enviar"
-                      className="w-9 h-9 rounded-full bg-[var(--ink)] text-white grid place-items-center disabled:opacity-30 disabled:cursor-not-allowed transition-opacity shrink-0"
+                      className="w-9 h-9 rounded-full bg-[var(--accent-mint)] text-[#07090E] grid place-items-center disabled:opacity-30 disabled:cursor-not-allowed transition-opacity shrink-0 shadow-[0_0_10px_rgba(0,245,155,0.3)] font-bold"
                     >
-                      {busy ? <Loader2 size={16} className="animate-spin" /> : <Send size={16} />}
+                      {busy ? <Loader2 size={16} className="animate-spin text-[#07090E]" /> : <Send size={16} className="text-[#07090E]" />}
                     </button>
                   </div>
                 </div>
@@ -542,7 +543,7 @@ function PickPlayer({ onPick }: { onPick: (p: Player) => void }) {
           <button
             key={p.id}
             onClick={() => onPick(p)}
-            className="flex flex-col items-center gap-1.5 p-2.5 rounded-2xl hairline-strong bg-white hover:bg-[var(--bg-tint)] transition-colors active:scale-95"
+            className="flex flex-col items-center gap-1.5 p-2.5 rounded-2xl border border-[var(--line)] bg-[var(--bg-tint)] hover:border-[var(--accent-mint)]/40 hover:bg-[var(--bg-elev)] transition-colors active:scale-95 text-[var(--ink)]"
           >
             <PlayerAvatar player={p} size={44} className="rounded-2xl" />
             <span className="text-[11px] font-semibold truncate w-full text-center">{p.name}</span>
@@ -585,10 +586,10 @@ function PinPad({
             key={i}
             className={`w-12 h-14 rounded-2xl border-2 grid place-items-center text-2xl font-display font-bold transition-all ${
               i < value.length
-                ? "border-[var(--ink)] bg-[var(--ink)] text-white"
+                ? "border-[var(--accent-mint)] bg-[var(--accent-mint)] text-[#07090E]"
                 : i === value.length
-                ? "border-[var(--ink)] bg-white text-[var(--ink)] animate-pulse"
-                : "border-[var(--hairline)] bg-white text-[var(--ink-muted)]"
+                ? "border-[var(--accent-mint)] bg-[var(--bg-tint)] text-[var(--accent-mint)] animate-pulse"
+                : "border-[var(--line)] bg-[var(--bg-elev)] text-[var(--ink-muted)]"
             }`}
           >
             {i < value.length ? "•" : ""}
@@ -777,7 +778,7 @@ function ChatView({
               <button
                 key={s}
                 onClick={() => onSuggestion(s)}
-                className="text-left text-xs px-3 py-2.5 rounded-2xl hairline-strong bg-white hover:bg-[var(--bg-tint)] transition-colors"
+                className="text-left text-xs px-3 py-2.5 rounded-2xl border border-[var(--line)] bg-[var(--bg-tint)] text-[var(--ink-soft)] hover:text-[var(--ink)] hover:border-[var(--accent-mint)]/40 transition-colors"
               >
                 {s}
               </button>
@@ -800,8 +801,8 @@ function ChatView({
           <div
             className={`px-3.5 py-2.5 rounded-2xl text-sm leading-relaxed break-words min-w-0 ${
               m.role === "user"
-                ? "max-w-[85%] whitespace-pre-wrap bg-[var(--ink)] text-white rounded-br-md"
-                : "max-w-[92%] bg-[var(--bg-tint)] text-[var(--ink)] rounded-bl-md"
+                ? "max-w-[85%] whitespace-pre-wrap bg-gradient-to-r from-[#00F59B] to-[#00C875] text-[#07090E] font-medium shadow-[0_2px_10px_rgba(0,245,155,0.2)] rounded-br-md"
+                : "max-w-[92%] bg-[var(--bg-tint)] text-[var(--ink)] border border-[var(--line)] rounded-bl-md"
             }`}
           >
             {m.role === "user" ? (
