@@ -343,27 +343,27 @@ function MundialHome() {
                     }
                     window.dispatchEvent(new CustomEvent("q26:open-chat", { detail: { seedMessage: "AI_FILL_START" } }));
                   }}
-                  className="btn btn-ghost border border-[var(--accent-violet)]/40 text-[var(--accent-violet)]"
+                  className="btn btn-ghost"
                 >
                   <Bot size={16} /> {t("home.cta.aiHelp")}
                 </button>
                 {currentPlayer && (
                   <Link
                     href="/perfil/foto"
-                    className="btn btn-ghost border border-[var(--accent-violet)]/40 text-[var(--accent-violet)] relative"
+                    className="btn btn-ghost relative"
                   >
                     <Sparkles size={16} /> {t("home.cta.photoStudio")}
-                    <span className="absolute -top-2 -right-2 text-[9px] font-extrabold tracking-wider px-1.5 py-0.5 rounded-full bg-gradient-to-r from-[#5E5BFF] to-[#14F195] text-white shadow ring-2 ring-white">
+                    <span className="absolute -top-2 -right-2 text-[9px] font-extrabold tracking-wider px-1.5 py-0.5 rounded-full bg-gradient-to-r from-[#5E5BFF] to-[#14F195] text-white shadow ring-2 ring-white/20">
                       {t("home.cta.new")}
                     </span>
                   </Link>
                 )}
                 <Link
                   href="/album"
-                  className="btn btn-ghost border border-[var(--accent-mint)]/40 text-[var(--ink)] relative"
+                  className="btn btn-ghost relative"
                 >
                   <BookImage size={16} /> {t("home.cta.album")}
-                  <span className="absolute -top-2 -right-2 text-[9px] font-extrabold tracking-wider px-1.5 py-0.5 rounded-full bg-gradient-to-r from-[#14F195] to-[#5E5BFF] text-white shadow ring-2 ring-white">
+                  <span className="absolute -top-2 -right-2 text-[9px] font-extrabold tracking-wider px-1.5 py-0.5 rounded-full bg-gradient-to-r from-[#14F195] to-[#5E5BFF] text-white shadow ring-2 ring-white/20">
                     {t("home.cta.new")}
                   </span>
                 </Link>

@@ -38,12 +38,12 @@
 [data-theme="cyberpunk-emerald"] {
   --bg:            #07090E;
   --bg-elev:       #0F1420;
-  --bg-tint:       #161D2E;
+  --bg-tint:       rgba(16, 23, 40, 0.85);
   --ink:           #F0F4F8;
   --ink-soft:      #94A3B8;
   --ink-muted:     #64748B;
-  --line:          #1E293B;
-  --line-strong:   rgba(0, 245, 155, 0.35);
+  --line:          rgba(0, 245, 155, 0.18);
+  --line-strong:   rgba(0, 245, 155, 0.45);
 
   --grad-from:     #00F59B;
   --grad-via:      #7000FF;
@@ -77,6 +77,39 @@
   -webkit-backdrop-filter: blur(24px) saturate(200%);
   border: 1px solid rgba(0, 245, 155, 0.4);
   box-shadow: 0 0 25px rgba(0, 245, 155, 0.15), 0 12px 36px rgba(0,0,0,0.8);
+}
+
+[data-theme="cyberpunk-emerald"] .btn-primary {
+  background: linear-gradient(135deg, #00F59B 0%, #00C875 100%);
+  color: #07090E;
+  font-weight: 700;
+  box-shadow: 0 0 20px rgba(0, 245, 155, 0.4);
+  border: none;
+}
+[data-theme="cyberpunk-emerald"] .btn-primary:hover {
+  background: linear-gradient(135deg, #26FFAC 0%, #00F59B 100%);
+  box-shadow: 0 0 30px rgba(0, 245, 155, 0.6);
+  transform: translateY(-1px);
+}
+
+[data-theme="cyberpunk-emerald"] .btn-ghost {
+  background: rgba(16, 23, 40, 0.8);
+  border: 1px solid rgba(0, 245, 155, 0.3);
+  color: #F0F4F8;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+[data-theme="cyberpunk-emerald"] .btn-ghost:hover {
+  background: rgba(0, 245, 155, 0.15);
+  border-color: rgba(0, 245, 155, 0.6);
+  color: #00F59B;
+  box-shadow: 0 0 18px rgba(0, 245, 155, 0.25);
+}
+
+[data-theme="cyberpunk-emerald"] .chip {
+  background: rgba(16, 23, 40, 0.85);
+  border: 1px solid rgba(0, 245, 155, 0.25);
+  color: #00F59B;
 }
 
 
