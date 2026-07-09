@@ -34,6 +34,52 @@
   --shadow-card: 0 1px 0 rgba(255,255,255,0.6) inset, 0 1px 2px rgba(0,0,0,0.04), 0 8px 30px -12px rgba(10,10,10,0.10);
 }
 
+/* ---------- CYBERPUNK EMERALD DARK THEME TOKENS ---------- */
+[data-theme="cyberpunk-emerald"] {
+  --bg:            #07090E;
+  --bg-elev:       #0F1420;
+  --bg-tint:       #161D2E;
+  --ink:           #F0F4F8;
+  --ink-soft:      #94A3B8;
+  --ink-muted:     #64748B;
+  --line:          #1E293B;
+  --line-strong:   rgba(0, 245, 155, 0.35);
+
+  --grad-from:     #00F59B;
+  --grad-via:      #7000FF;
+  --grad-to:       #FF0055;
+  --accent-gold:   #FFD700;
+  --accent-coral:  #FF0055;
+  --accent-mint:   #00F59B;
+  --accent-violet: #7000FF;
+
+  --shadow-glow: 0 0 35px rgba(0, 245, 155, 0.25), 0 0 70px rgba(112, 0, 255, 0.15);
+  --shadow-card: 0 0 0 1px rgba(0, 245, 155, 0.2), 0 12px 32px rgba(0,0,0,0.65);
+}
+
+[data-theme="cyberpunk-emerald"] html,
+[data-theme="cyberpunk-emerald"] body {
+  background-color: #07090E;
+  color: #F0F4F8;
+}
+
+[data-theme="cyberpunk-emerald"] .glass {
+  background: linear-gradient(180deg, rgba(15,20,32,0.92), rgba(10,13,22,0.85));
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(0, 245, 155, 0.25);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.7);
+}
+
+[data-theme="cyberpunk-emerald"] .glass-strong {
+  background: linear-gradient(180deg, rgba(22,29,46,0.95), rgba(15,20,32,0.90));
+  backdrop-filter: blur(24px) saturate(200%);
+  -webkit-backdrop-filter: blur(24px) saturate(200%);
+  border: 1px solid rgba(0, 245, 155, 0.4);
+  box-shadow: 0 0 25px rgba(0, 245, 155, 0.15), 0 12px 36px rgba(0,0,0,0.8);
+}
+
+
 @theme inline {
   --color-background: var(--bg);
   --color-foreground: var(--ink);

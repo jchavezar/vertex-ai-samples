@@ -46,7 +46,7 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="es" className={`${grotesk.variable} ${chakra.variable}`}>
+    <html lang="es" data-theme="cyberpunk-emerald" className={`${grotesk.variable} ${chakra.variable}`}>
       <body className="min-h-screen bg-canvas">
         <div aria-hidden className="q26-watermark" />
         <LocaleProvider>
@@ -56,7 +56,7 @@ export default function RootLayout({
             <ScrollRestoration />
             <NewsBanner />
             <Nav />
-            <main className="pb-32 md:pb-12">{children}</main>
+            <main className="pb-36 md:pb-16">{children}</main>
             <BottomNav />
             <ChatBot />
             <SwRegister />

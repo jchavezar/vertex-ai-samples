@@ -708,7 +708,7 @@ function SmallEvent({ item, team, timestampPill, t, locale }: {
         exit={{ x: 60, opacity: 0 }}
         transition={{ type: "spring", stiffness: 280, damping: 24 }}
         aria-hidden
-        className="pointer-events-none fixed bottom-6 right-4 z-[80] max-w-[18rem] rounded-2xl px-4 py-3 text-white shadow-2xl"
+        className="pointer-events-none fixed bottom-20 md:bottom-6 right-4 z-[75] max-w-[18rem] rounded-2xl px-4 py-3 text-white shadow-2xl"
         style={{
           background: "linear-gradient(135deg, rgba(15,18,30,0.96) 0%, rgba(20,24,42,0.96) 100%)",
           border: `1.5px solid ${teamColor}`,

@@ -330,11 +330,11 @@ export function ChatBot() {
           right: "max(1rem, env(safe-area-inset-right))",
           touchAction: "manipulation",
         }}
-        className="group fixed z-40 bottom-24 md:bottom-5 h-14 pl-3 pr-4 rounded-full bg-[var(--ink)] text-white shadow-2xl flex items-center gap-2 md:hover:scale-105 md:active:scale-95 md:transition-transform select-none"
+        className="group fixed z-[70] bottom-24 md:bottom-5 h-14 pl-3 pr-4 rounded-full bg-[var(--ink)] text-white shadow-2xl flex items-center gap-2 md:hover:scale-105 md:active:scale-95 md:transition-transform select-none border border-[var(--accent-mint)]/30"
       >
         <span className="relative w-9 h-9 rounded-full bg-white/15 grid place-items-center">
-          <Bot size={20} />
-          <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-[var(--accent-mint)] ring-2 ring-[var(--ink)]" />
+          <Bot size={20} className="text-[var(--accent-mint)]" />
+          <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-[var(--accent-mint)] ring-2 ring-[var(--ink)] animate-pulse" />
         </span>
         <span className="text-sm font-display font-semibold tracking-wide">Charal Bot</span>
       </button>
@@ -347,7 +347,7 @@ export function ChatBot() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setOpen(false)}
-              className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm"
+              className="fixed inset-0 z-[95] bg-black/60 backdrop-blur-md"
             />
 
             <motion.div
@@ -361,11 +361,11 @@ export function ChatBot() {
                 left: "max(env(safe-area-inset-left), 0.75rem)",
                 right: "max(env(safe-area-inset-right), 0.75rem)",
               }}
-              className="fixed z-50 bg-white shadow-2xl flex flex-col rounded-3xl overflow-hidden ring-1 ring-black/5
+              className="fixed z-[100] bg-[var(--bg-elev)] text-[var(--ink)] shadow-2xl flex flex-col rounded-3xl overflow-hidden ring-1 ring-[var(--accent-mint)]/30
                          md:!inset-auto md:!bottom-5 md:!right-5 md:!left-auto md:!top-auto md:w-[420px] md:h-[640px]"
             >
               {/* Header */}
-              <div className="flex items-center gap-3 px-4 py-3 border-b border-[var(--hairline)] bg-white">
+              <div className="flex items-center gap-3 px-4 py-3 border-b border-[var(--line)] bg-[var(--bg-elev)]">
                 {(screen === "enter-pin" || screen === "setup-pin") && (
                   <button
                     onClick={() => { setScreen("pick-player"); setPickedPlayer(null); setAuthErr(null); }}
@@ -375,7 +375,7 @@ export function ChatBot() {
                     <ChevronLeft size={18} />
                   </button>
                 )}
-                <div className="w-10 h-10 rounded-full bg-[var(--ink)] grid place-items-center text-white shrink-0">
+                <div className="w-10 h-10 rounded-full bg-[var(--ink)] grid place-items-center text-[var(--accent-mint)] shrink-0 border border-[var(--accent-mint)]/40 shadow-[0_0_12px_rgba(0,245,155,0.2)]">
                   <Sparkles size={18} />
                 </div>
                 <div className="flex-1 min-w-0">
