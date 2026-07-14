@@ -9,6 +9,7 @@ import { Trophy, Calendar, BarChart3, Target, Users, Activity, Swords, Home, Che
 import { useEffect, useRef, useState } from "react";
 import { PlayerAvatar } from "@/components/PlayerAvatar";
 import { DailyStreakChip } from "@/components/DailyStreakChip";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 const OWNER_ID = "jesus";
 
@@ -106,7 +107,7 @@ function LocaleToggle({ className }: { className?: string }) {
     <div
       role="group"
       aria-label={t("nav.locale.switchTo")}
-      className={`inline-flex items-center rounded-full hairline-strong bg-white p-0.5 ${className ?? ""}`}
+      className={`inline-flex items-center rounded-full border border-[var(--line)] bg-[var(--bg-elev)] p-0.5 ${className ?? ""}`}
     >
       {opts.map(opt => {
         const active = locale === opt;
@@ -116,10 +117,10 @@ function LocaleToggle({ className }: { className?: string }) {
             type="button"
             onClick={() => setLocale(opt)}
             aria-pressed={active}
-            className={`px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider transition-colors ${
+            className={`px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider transition-colors ${
               active
-                ? "bg-[var(--ink)] text-white"
-                : "text-[var(--ink-soft)] hover:text-[var(--ink)]"
+                ? "bg-[var(--accent-mint)] text-[#07090E] shadow-[0_0_12px_rgba(0,245,155,0.4)]"
+                : "text-slate-300 hover:text-white"
             }`}
           >
             {opt}
@@ -247,25 +248,27 @@ export function Nav() {
             </li>
           </ul>
 
-          {/* Player badge + locale toggle (desktop) */}
+          {/* Player badge + locale toggle + theme toggle (desktop) */}
           <div className="ml-auto hidden md:flex items-center gap-2">
             <DailyStreakChip />
+            <ThemeToggle />
             <LocaleToggle />
-            <Link href="/jugadores" className="flex items-center gap-2 px-2 py-1.5 rounded-full hairline-strong bg-white">
+            <Link href="/jugadores" className="flex items-center gap-2 px-2.5 py-1 rounded-full border border-[var(--line)] bg-[var(--bg-elev)] hover:border-[var(--line-strong)] transition-all">
               {currentPlayer ? (
                 <>
                   <PlayerAvatar player={currentPlayer} size={24} rounded="rounded-full" textClass="text-base" tint={0.2} enableLightbox />
-                  <span className="text-sm font-semibold pr-1">{currentPlayer.name}</span>
+                  <span className="text-sm font-semibold pr-1 text-white">{currentPlayer.name}</span>
                 </>
               ) : (
-                <span className="text-sm font-medium text-[var(--ink-soft)] px-2">{t("nav.session.choose")}</span>
+                <span className="text-sm font-medium text-slate-300 px-2">{t("nav.session.choose")}</span>
               )}
             </Link>
           </div>
 
-          {/* Mobile: streak + locale only — navigation handled by BottomNav */}
+          {/* Mobile: streak + theme toggle + locale — navigation handled by BottomNav */}
           <div className="md:hidden ml-auto flex items-center gap-1.5">
             <DailyStreakChip />
+            <ThemeToggle />
             <LocaleToggle />
           </div>
         </nav>

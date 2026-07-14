@@ -84,3 +84,7 @@ When you start a new project, **add a row here first** — even before the READM
 - [`streamassist-wif-auth-tester/`](./streamassist-wif-auth-tester/) — Interactive Entra→WIF→DE auth chain tester. **Tags:** `wif` `auth` `test`
 - [`nextjs-test-harness/`](./nextjs-test-harness/) — Frontend experimentation scaffold. **Tags:** `nextjs` `frontend`
 - [`vector-search-canvas/`](./vector-search-canvas/) — Self-study sandbox: TREE_AH vs BRUTE_FORCE side-by-side, every Vector Search 2.0 knob exposed. **Customer / context:** Vector Search 2.0 talk 2026-04-20. **Tags:** `vertex-vector-search` `tree-ah` `brute-force` `algorithm-tuning` `fastapi`
+
+### Observability & Agentic Remediation
+- [`cloud-assist-error-remediation-hub/`](./cloud-assist-error-remediation-hub/) — Agentic Cloud Error Detection & Proactive Remediation Platform integrating Cloud Logging, Gemini Cloud Assist REST API (`v1alpha`), 4-container diagnostic UI, and Google ADK Agent with built-in Google Search. **Tags:** `gemini-cloud-assist` `cloud-logging` `adk` `google-search` `react19` `fastapi` `proactive-remediation` `uv` `claude-ink-spinner`
+

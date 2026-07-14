@@ -210,7 +210,11 @@ export default function PlayerProfilePage({ params }: { params: Promise<{ id: st
                             style={{ background: v.bg, color: v.fg }}>
                             {verdictLabel}
                           </span>
-                          <span className="text-[9px] uppercase tracking-wider text-[var(--ink-muted)] tabular-nums leading-none">
+                          <span className={`text-[10px] uppercase tracking-wider tabular-nums leading-none ${
+                            r.verdict === "miss"
+                              ? "line-through decoration-red-500 decoration-2 text-red-400 font-bold opacity-85"
+                              : "text-slate-300 font-medium"
+                          }`}>
                             {myPickDisplay !== "—" ? `${t("profile.pick")} ${myPickDisplay}${r.myScore ? ` (${r.myScore})` : ""}` : "—"}
                           </span>
                         </div>

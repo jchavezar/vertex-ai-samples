@@ -48,17 +48,18 @@ export function ProbabilityBar({
   return (
     <div className="w-full space-y-1">
       {/* Labels row */}
+      {/* Labels row */}
       {!compact && (
-        <div className="flex items-center justify-between text-[9px] font-black uppercase tracking-[0.12em]">
-          <span style={{ color: dominant === "home" ? "#34d399" : "rgba(255,255,255,0.35)" }}>
+        <div className="flex items-center justify-between text-[10px] font-black uppercase tracking-[0.12em]">
+          <span style={{ color: dominant === "home" ? "#00F59B" : "rgba(255,255,255,0.8)" }}>
             {homeCode ?? "Local"} {pct(norm.H)}
           </span>
           {norm.D > 0.01 && (
-            <span style={{ color: dominant === "draw" ? "#a3a3a3" : "rgba(255,255,255,0.25)" }}>
+            <span style={{ color: dominant === "draw" ? "#FFD700" : "rgba(255,255,255,0.65)" }}>
               X {pct(norm.D)}
             </span>
           )}
-          <span style={{ color: dominant === "away" ? "#f87171" : "rgba(255,255,255,0.35)" }}>
+          <span style={{ color: dominant === "away" ? "#FF5277" : "rgba(255,255,255,0.8)" }}>
             {pct(norm.A)} {awayCode ?? "Visita"}
           </span>
         </div>
@@ -66,7 +67,7 @@ export function ProbabilityBar({
 
       {/* The bar */}
       <div
-        className="relative w-full overflow-hidden flex"
+        className="relative w-full overflow-hidden flex ring-1 ring-white/10"
         style={{ height: compact ? 6 : 10, borderRadius: 99 }}
         role="img"
         aria-label={`${homeCode ?? "Local"} ${pct(norm.H)}, empate ${pct(norm.D)}, ${awayCode ?? "Visita"} ${pct(norm.A)}`}
@@ -75,7 +76,7 @@ export function ProbabilityBar({
         <div
           style={{
             width: `${hW}%`,
-            background: "linear-gradient(90deg, #059669, #34d399)",
+            background: "linear-gradient(90deg, #00C875, #00F59B)",
             transition: "width 0.6s ease",
           }}
         />
@@ -84,7 +85,7 @@ export function ProbabilityBar({
           <div
             style={{
               width: `${dW}%`,
-              background: "linear-gradient(90deg, #525252, #737373)",
+              background: "linear-gradient(90deg, #64748B, #94A3B8)",
               transition: "width 0.6s ease",
             }}
           />
@@ -93,7 +94,7 @@ export function ProbabilityBar({
         <div
           style={{
             flex: 1,
-            background: "linear-gradient(90deg, #f87171, #dc2626)",
+            background: "linear-gradient(90deg, #FF5277, #FF0055)",
             transition: "width 0.6s ease",
           }}
         />
@@ -101,20 +102,20 @@ export function ProbabilityBar({
         {/* Dominant glow overlay */}
         {dominant === "home" && norm.H > 0.55 && (
           <div className="absolute inset-0 pointer-events-none"
-            style={{ background: "linear-gradient(90deg, rgba(52,211,153,0.25) 0%, transparent 60%)" }} />
+            style={{ background: "linear-gradient(90deg, rgba(0,245,155,0.25) 0%, transparent 60%)" }} />
         )}
         {dominant === "away" && norm.A > 0.55 && (
           <div className="absolute inset-0 pointer-events-none"
-            style={{ background: "linear-gradient(270deg, rgba(248,113,113,0.25) 0%, transparent 60%)" }} />
+            style={{ background: "linear-gradient(270deg, rgba(255,0,85,0.25) 0%, transparent 60%)" }} />
         )}
       </div>
 
       {/* Compact mode: inline pct labels below the bar */}
       {compact && (
-        <div className="flex justify-between text-[8px] font-black tabular-nums">
-          <span style={{ color: "#34d399", opacity: dominant === "home" ? 1 : 0.5 }}>{pct(norm.H)}</span>
-          {norm.D > 0.01 && <span style={{ color: "#a3a3a3", opacity: dominant === "draw" ? 1 : 0.4 }}>X {pct(norm.D)}</span>}
-          <span style={{ color: "#f87171", opacity: dominant === "away" ? 1 : 0.5 }}>{pct(norm.A)}</span>
+        <div className="flex justify-between text-[9px] font-black tabular-nums">
+          <span style={{ color: "#00F59B", opacity: dominant === "home" ? 1 : 0.8 }}>{pct(norm.H)}</span>
+          {norm.D > 0.01 && <span style={{ color: "#FFD700", opacity: dominant === "draw" ? 1 : 0.65 }}>X {pct(norm.D)}</span>}
+          <span style={{ color: "#FF5277", opacity: dominant === "away" ? 1 : 0.8 }}>{pct(norm.A)}</span>
         </div>
       )}
     </div>

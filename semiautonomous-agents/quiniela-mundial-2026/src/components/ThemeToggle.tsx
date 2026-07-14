@@ -37,10 +37,10 @@ export function ThemeToggle() {
     <button
       type="button"
       onClick={toggleTheme}
-      className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold transition-all ${
+      className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold transition-all cursor-pointer ${
         theme === "cyberpunk-emerald"
-          ? "bg-[#00F59B] text-[#0A0B0E] shadow-[0_0_12px_rgba(0,245,155,0.4)]"
-          : "bg-white hairline-strong text-[var(--ink-soft)] hover:text-[var(--ink)]"
+          ? "bg-[#00F59B] text-[#0A0B0E] shadow-[0_0_12px_rgba(0,245,155,0.4)] hover:bg-[#26FFAC]"
+          : "bg-slate-900 text-white shadow-sm hover:bg-slate-800"
       }`}
       title="Cambiar tema de la Quiniela"
     >
@@ -51,7 +51,7 @@ export function ThemeToggle() {
         </>
       ) : (
         <>
-          <Sun className="w-3.5 h-3.5 text-amber-500" />
+          <Sun className="w-3.5 h-3.5 text-amber-400" />
           <span>Modo Claro</span>
         </>
       )}

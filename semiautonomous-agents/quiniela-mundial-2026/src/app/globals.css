@@ -39,11 +39,11 @@
   --bg:            #07090E;
   --bg-elev:       #0F1420;
   --bg-tint:       rgba(16, 23, 40, 0.85);
-  --ink:           #F0F4F8;
-  --ink-soft:      #94A3B8;
-  --ink-muted:     #64748B;
-  --line:          rgba(0, 245, 155, 0.18);
-  --line-strong:   rgba(0, 245, 155, 0.45);
+  --ink:           #F8FAFC;
+  --ink-soft:      #CBD5E1;
+  --ink-muted:     #94A3B8;
+  --line:          rgba(0, 245, 155, 0.22);
+  --line-strong:   rgba(0, 245, 155, 0.55);
 
   --grad-from:     #00F59B;
   --grad-via:      #7000FF;
@@ -54,13 +54,24 @@
   --accent-violet: #7000FF;
 
   --shadow-glow: 0 0 35px rgba(0, 245, 155, 0.25), 0 0 70px rgba(112, 0, 255, 0.15);
-  --shadow-card: 0 0 0 1px rgba(0, 245, 155, 0.2), 0 12px 32px rgba(0,0,0,0.65);
+  --shadow-card: 0 0 0 1px rgba(0, 245, 155, 0.25), 0 16px 40px rgba(0,0,0,0.85);
 }
 
-[data-theme="cyberpunk-emerald"] html,
+html[data-theme="cyberpunk-emerald"],
+[data-theme="cyberpunk-emerald"] {
+  background: radial-gradient(ellipse 1200px 800px at 50% 20%, #0d121f 0%, #07090e 55%, #030407 100%) !important;
+  background-attachment: fixed !important;
+}
+
+html[data-theme="cyberpunk-emerald"] body,
 [data-theme="cyberpunk-emerald"] body {
-  background-color: #07090E;
-  color: #F0F4F8;
+  background-color: transparent;
+  color: #F8FAFC;
+}
+
+[data-theme="cyberpunk-emerald"] .q26-watermark {
+  mix-blend-mode: screen;
+  opacity: 0.08;
 }
 
 [data-theme="cyberpunk-emerald"] .glass {

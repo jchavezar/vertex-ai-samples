@@ -223,19 +223,19 @@ export function NewsBanner() {
     );
   }
 
-  // News fallback (unchanged from original)
+  // News fallback (high-contrast dark bar with neon mint accents)
   if (!currentNews) return null;
   return (
-    <div className="md:hidden w-full bg-[var(--ink)] text-white">
+    <div className="w-full bg-[#0A0D14] border-b border-[#00F59B]/20 text-white shadow-sm relative z-40">
       <a
         href={currentNews.link}
         target="_blank"
         rel="noopener noreferrer"
-        className="flex items-center gap-2 px-3 py-2 min-h-9"
+        className="flex items-center gap-2 px-3 py-2 min-h-9 max-w-7xl mx-auto"
       >
-        <span className="flex items-center gap-1 shrink-0 text-[10px] font-bold uppercase tracking-wider text-[var(--accent-mint)]">
-          <Newspaper size={12} />
-          <span>{newsIdx + 1}/{items.length}</span>
+        <span className="flex items-center gap-1 shrink-0 text-[10px] font-extrabold uppercase tracking-wider text-[#00F59B]">
+          <Newspaper size={12} className="text-[#00F59B]" />
+          <span>NEWS · {newsIdx + 1}/{items.length}</span>
         </span>
         <div className="relative flex-1 h-4 overflow-hidden">
           <AnimatePresence mode="wait">
@@ -245,16 +245,16 @@ export function NewsBanner() {
               animate={{ y: 0, opacity: 1 }}
               exit={{ y: -14, opacity: 0 }}
               transition={{ duration: 0.35, ease: "easeOut" }}
-              className="absolute inset-0 text-xs leading-4 truncate"
+              className="absolute inset-0 text-xs leading-4 truncate text-slate-100 font-medium"
             >
               {currentNews.title}
               {currentNews.source && (
-                <span className="text-white/50"> · {currentNews.source}</span>
+                <span className="text-[#00F59B]/90 font-semibold"> · {currentNews.source}</span>
               )}
             </motion.p>
           </AnimatePresence>
         </div>
-        <ChevronRight size={14} className="shrink-0 text-white/60" />
+        <ChevronRight size={14} className="shrink-0 text-slate-400" />
       </a>
     </div>
   );

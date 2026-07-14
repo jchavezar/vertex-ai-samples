@@ -243,8 +243,13 @@ function PlayedPill({
             const noPick = !pick;
             return (
               <div key={p.id} className="flex flex-col items-center gap-0.5" style={{ minWidth: 24 }}>
-                <div className="relative">
+                <div className={`relative ${wrong ? "opacity-50 grayscale" : ""}`}>
                   <PlayerAvatar player={p} size={22} rounded="rounded-full" tint={0.18} />
+                  {wrong && (
+                    <div className="absolute inset-0 grid place-items-center bg-red-950/60 rounded-full">
+                      <span className="text-red-500 font-black text-[10px] leading-none">✕</span>
+                    </div>
+                  )}
                   <span
                     className="absolute -bottom-0.5 -right-1 text-[9px] leading-none"
                     style={{ textShadow: "0 0 3px rgba(0,0,0,0.5)" }}
@@ -254,8 +259,10 @@ function PlayedPill({
                 </div>
                 {pick && (
                   <span
-                    className="font-display font-black tabular-nums text-center leading-none"
-                    style={{ fontSize: 7, color: correct ? "rgb(16,185,129)" : wrong ? "rgb(239,68,68)" : "var(--ink-muted)", opacity: noPick ? 0.4 : 0.85 }}
+                    className={`font-display font-black tabular-nums text-center leading-none ${
+                      wrong ? "line-through decoration-red-500 decoration-2 text-red-500 font-extrabold" : ""
+                    }`}
+                    style={{ fontSize: 7, color: correct ? "#00F59B" : wrong ? "#FF3B82" : "var(--ink-muted)", opacity: noPick ? 0.4 : 0.95 }}
                   >
                     {pick}
                   </span>
@@ -685,8 +692,13 @@ function R16PickCard({
             const wrong = pick && winner && pick !== winner;
             return (
               <div key={p.id} className="flex flex-col items-center gap-0.5" style={{ minWidth: 24 }}>
-                <div className="relative">
+                <div className={`relative ${wrong ? "opacity-50 grayscale" : ""}`}>
                   <PlayerAvatar player={p} size={22} rounded="rounded-full" tint={0.18} />
+                  {wrong && (
+                    <div className="absolute inset-0 grid place-items-center bg-red-950/60 rounded-full">
+                      <span className="text-red-500 font-black text-[10px] leading-none">✕</span>
+                    </div>
+                  )}
                   <span
                     className="absolute -bottom-0.5 -right-1 text-[9px] leading-none"
                     style={{ textShadow: "0 0 3px rgba(0,0,0,0.5)" }}
@@ -695,8 +707,10 @@ function R16PickCard({
                   </span>
                 </div>
                 <span
-                  className="font-display font-black tabular-nums text-center leading-none"
-                  style={{ fontSize: 7, color: correct ? "rgb(16,185,129)" : wrong ? "rgb(239,68,68)" : "var(--ink-muted)", opacity: pick ? 0.85 : 0.3 }}
+                  className={`font-display font-black tabular-nums text-center leading-none ${
+                    wrong ? "line-through decoration-red-500 decoration-2 text-red-500 font-extrabold" : ""
+                  }`}
+                  style={{ fontSize: 7, color: correct ? "#00F59B" : wrong ? "#FF3B82" : "var(--ink-muted)", opacity: pick ? 0.95 : 0.3 }}
                 >
                   {pick ?? "—"}
                 </span>

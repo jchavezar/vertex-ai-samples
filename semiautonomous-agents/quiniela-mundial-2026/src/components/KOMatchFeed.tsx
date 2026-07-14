@@ -229,13 +229,13 @@ function StatBar({ label, homeVal, awayVal }: { label: string; homeVal: number; 
 function TeamFlag({ code, align, dark }: { code: string; align: "left" | "right"; dark?: boolean }) {
   const team = TEAMS_BY_CODE[code];
   const textColor = dark ? "text-white" : "var(--ink)";
-  const mutedColor = dark ? "text-white/40" : "text-[var(--ink-muted)]";
+  const mutedColor = dark ? "text-slate-300 font-medium" : "text-slate-300 font-medium";
 
   if (!team || code === "???") {
     return (
       <div className={`flex items-center gap-2 min-w-0 ${align === "right" ? "flex-row-reverse" : ""}`}>
         <div className="w-10 h-10 rounded-xl bg-white/10 shrink-0" />
-        <span className={`font-display text-lg font-bold ${mutedColor}`}>TBD</span>
+        <span className={`font-display text-lg font-bold text-slate-400`}>TBD</span>
       </div>
     );
   }
@@ -246,7 +246,7 @@ function TeamFlag({ code, align, dark }: { code: string; align: "left" | "right"
       </div>
       <div className="min-w-0">
         <div className={`font-display text-lg font-bold leading-none truncate`} style={{ color: dark ? "white" : "var(--ink)" }}>{team.code}</div>
-        <div className={`text-[10px] truncate ${mutedColor}`}>{team.name}</div>
+        <div className={`text-[11px] truncate ${mutedColor}`}>{team.name}</div>
       </div>
     </div>
   );
@@ -255,15 +255,18 @@ function TeamFlag({ code, align, dark }: { code: string; align: "left" | "right"
 // ── PickersRow ─────────────────────────────────────────────────────────────
 
 function PickersRow({
-  picks, teamCode, alignRight,
+  picks, teamCode, alignRight, eliminated,
 }: {
   picks: { playerId: string; pick: string }[];
   teamCode: string;
   alignRight?: boolean;
+  eliminated?: boolean;
 }) {
   return (
     <div className={`flex flex-col gap-1.5 ${alignRight ? "items-end" : "items-start"}`}>
-      <span className="text-[9px] uppercase tracking-wider font-bold text-white/50">
+      <span className={`text-[9px] uppercase tracking-wider font-extrabold ${
+        eliminated ? "line-through decoration-red-500 decoration-2 text-red-400 opacity-90" : "text-white/60"
+      }`}>
         {teamCode} · {picks.length}
       </span>
       <div className="flex flex-wrap gap-1">
@@ -274,7 +277,14 @@ function PickersRow({
               if (!player) return null;
               return (
                 <CharalProfileTrigger key={p.playerId} player={player}>
-                  <PlayerAvatar player={player} size={22} rounded="rounded-full" textClass="text-[8px]" tint={0.2} />
+                  <div className={`relative ${eliminated ? "opacity-50 grayscale" : ""}`}>
+                    <PlayerAvatar player={player} size={22} rounded="rounded-full" textClass="text-[8px]" tint={0.2} />
+                    {eliminated && (
+                      <div className="absolute inset-0 grid place-items-center bg-red-950/50 rounded-full">
+                        <span className="text-red-500 font-extrabold text-[10px] leading-none">✕</span>
+                      </div>
+                    )}
+                  </div>
                 </CharalProfileTrigger>
               );
             })
@@ -543,13 +553,13 @@ function UpcomingMatchCard({ event }: { event: KOEventData }) {
             </div>
           ) : <div className="w-8 h-8 rounded-lg bg-[var(--bg-tint)] shrink-0" />}
           <div className={`min-w-0 ${align === "right" ? "text-right" : ""}`}>
-            <div className="font-display font-bold text-sm leading-none truncate">{code === "???" ? "TBD" : code}</div>
-            <div className="text-[10px] text-[var(--ink-muted)] truncate">{team?.name ?? ""}</div>
+            <div className="font-display font-bold text-sm leading-none truncate text-white">{code === "???" ? "TBD" : code}</div>
+            <div className="text-[11px] text-slate-300 font-medium truncate">{team?.name ?? ""}</div>
           </div>
         </div>
         {picked && (
           <span className="text-[8px] font-black px-1.5 py-0.5 rounded-full"
-            style={{ background: "rgba(94,91,255,0.15)", color: "rgb(94,91,255)" }}>
+            style={{ background: "rgba(94,91,255,0.25)", color: "#9E9BFF" }}>
             📌 tu pick
           </span>
         )}
@@ -592,12 +602,12 @@ function UpcomingMatchCard({ event }: { event: KOEventData }) {
       {/* Interactive team buttons */}
       <div className="grid grid-cols-[1fr_auto_1fr] items-start gap-2">
         <TeamButton code={event.homeCode} align="left" />
-        <div className="text-center text-[var(--ink-muted)] font-bold text-sm pt-3">vs</div>
+        <div className="text-center font-extrabold text-xs uppercase tracking-widest text-[#00F59B] pt-3">vs</div>
         <TeamButton code={event.awayCode} align="right" />
       </div>
 
       {!!slotParsed && !myLocalPick && !locked && event.homeCode !== "???" && (
-        <div className="mt-2 text-center text-[9px] font-semibold" style={{ color: "var(--ink-muted)", opacity: 0.5 }}>
+        <div className="mt-2 text-center text-[10px] font-semibold text-slate-300">
           👆 Toca un equipo para elegir tu pick
         </div>
       )}
@@ -613,8 +623,7 @@ function UpcomingMatchCard({ event }: { event: KOEventData }) {
           <button
             type="button"
             onClick={() => setShowStats(v => !v)}
-            className="w-full flex items-center justify-center gap-1.5 py-1 rounded-lg transition-colors text-[9px] font-bold uppercase tracking-widest"
-            style={{ color: "var(--ink-muted)", opacity: 0.55 }}
+            className="w-full flex items-center justify-center gap-1.5 py-1 rounded-lg transition-colors text-[10px] font-extrabold uppercase tracking-widest text-[#00F59B] hover:underline"
           >
             {showStats ? "▲ Ocultar stats" : "▼ Ver estadísticas"}
           </button>
@@ -734,8 +743,13 @@ function PastMatchCard({ event }: { event: KOEventData }) {
             const wrong = pick && winner && pick !== winner;
             return (
               <div key={p.id} className="flex flex-col items-center gap-0.5" style={{ minWidth: 24 }}>
-                <div className="relative">
+                <div className={`relative ${wrong ? "opacity-50 grayscale" : ""}`}>
                   <PlayerAvatar player={p} size={22} rounded="rounded-full" tint={0.18} />
+                  {wrong && (
+                    <div className="absolute inset-0 grid place-items-center bg-red-950/60 rounded-full">
+                      <span className="text-red-500 font-black text-[10px] leading-none">✕</span>
+                    </div>
+                  )}
                   <span
                     className="absolute -bottom-0.5 -right-1 text-[9px] leading-none"
                     style={{ textShadow: "0 0 3px rgba(0,0,0,0.5)" }}
@@ -744,8 +758,10 @@ function PastMatchCard({ event }: { event: KOEventData }) {
                   </span>
                 </div>
                 <span
-                  className="font-display font-black tabular-nums text-center leading-none"
-                  style={{ fontSize: 7, color: correct ? "rgb(16,185,129)" : wrong ? "rgb(239,68,68)" : "var(--ink-muted)", opacity: pick ? 0.85 : 0.3 }}
+                  className={`font-display font-black tabular-nums text-center leading-none ${
+                    wrong ? "line-through decoration-red-500 decoration-2 text-red-500 font-extrabold" : ""
+                  }`}
+                  style={{ fontSize: 7, color: correct ? "#00F59B" : wrong ? "#FF3B82" : "var(--ink-muted)", opacity: pick ? 0.95 : 0.3 }}
                 >
                   {pick ?? "—"}
                 </span>
