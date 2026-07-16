@@ -565,7 +565,20 @@ export default function App() {
                       <ul style={{ listStyle: 'none', paddingLeft: 0, marginTop: '4px' }}>
                         {msg.sources.map((src, sIdx) => (
                           <li key={sIdx} style={{ fontSize: '0.75rem', marginBottom: '4px' }}>
-                            <a href={src.url} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--text)', textDecoration: 'underline' }}>
+                            <a 
+                              href={src.url} 
+                              target="_blank" 
+                              rel="noopener noreferrer" 
+                              style={{ 
+                                color: '#3b82f6', 
+                                textDecoration: 'none', 
+                                fontWeight: 500,
+                                borderBottom: '1px dashed rgba(59, 130, 246, 0.4)',
+                                transition: 'color 0.2s ease'
+                              }}
+                              onMouseOver={(e) => (e.currentTarget.style.color = '#60a5fa')}
+                              onMouseOut={(e) => (e.currentTarget.style.color = '#3b82f6')}
+                            >
                               [{src.entity_type || 'Email'}] {src.title}
                             </a>
                             {src.description && <span style={{ color: 'var(--text-muted)' }}> - {src.description}</span>}
