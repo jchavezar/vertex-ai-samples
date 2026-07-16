@@ -60,7 +60,7 @@ function parseDraft(text: string) {
     if (idxLetMeKnow !== -1) {
       body = body.substring(0, idxLetMeKnow).trim();
     }
-    
+    return { to_address, subject, body };
   }
   return null;
 }
@@ -195,6 +195,7 @@ export default function App() {
   // Approvals states
   const [approvals, setApprovals] = useState<ApprovalItem[]>([]);
   const [loadingApprovals, setLoadingApprovals] = useState(false);
+  const [scanDuration, setScanDuration] = useState<number>(0);
   const [actioningIds, setActioningIds] = useState<Record<string, boolean>>({});
 
   // Chat email confirmation states
@@ -419,10 +420,16 @@ export default function App() {
     const token = await getToken();
     if (!token) return;
 
+    setScanDuration(0);
     setLoadingApprovals(true);
+    const startTime = Date.now();
+    const timerInterval = setInterval(() => {
+      setScanDuration((Date.now() - startTime) / 1000);
+    }, 100);
+
     try {
       // scan inbox items
-      const resp = await fetch('/api/approvals?lookback_hours=48', {
+      const resp = await fetch('/api/approvals?lookback_hours=720', {
         headers: { 'X-Entra-Id-Token': token }
       });
       const data = await resp.json();
@@ -435,6 +442,7 @@ export default function App() {
     } catch (err: any) {
       console.error("Scan network error:", err);
     } finally {
+      clearInterval(timerInterval);
       setLoadingApprovals(false);
     }
   };
@@ -665,7 +673,22 @@ export default function App() {
         {/* Inbox approvals action items */}
         <div className="approvals-section">
           <div className="approvals-header">
-            <h2>Executive Action Items</h2>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <h2>Executive Action Items</h2>
+              {approvals.length > 0 && (
+                <span className="count-badge" style={{
+                  background: 'rgba(59, 130, 246, 0.15)',
+                  color: '#3b82f6',
+                  fontSize: '0.8rem',
+                  fontWeight: 700,
+                  padding: '4px 10px',
+                  borderRadius: '12px',
+                  border: '1px solid rgba(59, 130, 246, 0.3)'
+                }}>
+                  {approvals.length}
+                </span>
+              )}
+            </div>
             <button className="btn-tech btn-small" onClick={scanApprovals} disabled={loadingApprovals || !olConnected}>
               {loadingApprovals ? 'SCANNING...' : 'SCAN INBOX'}
             </button>
@@ -675,7 +698,7 @@ export default function App() {
             {loadingApprovals && (
               <div className="empty-state">
                 <div className="spinning-indicator" />
-                <p style={{ marginTop: '8px' }}>Scanning Inbox...</p>
+                <p style={{ marginTop: '8px' }}>Scanning Inbox... ({scanDuration.toFixed(1)}s)</p>
                 <span>Analyzing recent emails for requested approvals and decisions.</span>
               </div>
             )}
