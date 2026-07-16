@@ -102,6 +102,11 @@ Create a Search App named `gemini-enterprise` in location `global` with Microsof
     - The backend calls Microsoft Graph's `/me/messages/{id}/reply` endpoint to send a reply ("Approved." or "Rejected.") to the email thread.
     - The card transitions to a success/actioned state.
 
+### Real-time Scanning & Execution Timing
+To provide maximum operational visibility, the scanning interface features a high-precision, real-time stopwatch displaying search elapsed duration with 100ms precision:
+
+![Real-time Inbox Scan Timer](images/scanning_timer_live.png)
+
 ---
 
 ## Interactive Chat Drafting & Send Approval Flow
