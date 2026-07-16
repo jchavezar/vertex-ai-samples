@@ -98,6 +98,25 @@ Create a Search App named `gemini-enterprise` in location `global` with Microsof
 2. The model returns a structured JSON payload representing the items requiring attention.
 3. The frontend renders these items as technical grid cards.
 4. When **Approve** or **Reject** is clicked:
-   - The backend requests a delegated Microsoft Graph access token using GCP's `dataConnector:acquireAccessToken` API.
-   - The backend calls Microsoft Graph's `/me/messages/{id}/reply` endpoint to send a reply ("Approved." or "Rejected.") to the email thread.
-   - The card transitions to a success/actioned state.
+    - The backend requests a delegated Microsoft Graph access token using GCP's `dataConnector:acquireAccessToken` API.
+    - The backend calls Microsoft Graph's `/me/messages/{id}/reply` endpoint to send a reply ("Approved." or "Rejected.") to the email thread.
+    - The card transitions to a success/actioned state.
+
+---
+
+## Interactive Chat Drafting & Send Approval Flow
+
+In addition to processing existing inbox action items, the **Gemini Chat Console** supports composing and sending newly drafted outbound emails using the same secure validation pipeline:
+
+1. **Request a Draft**: The user asks Gemini to compose a new message (e.g., *"Draft an email to jesusarguelles@google.com saying..."*).
+2. **AI Composition**: Gemini Enterprise queries your mailbox context, generates the appropriate draft body, and renders it inside the chat console.
+3. **Dynamic Interactive Card**: The frontend automatically parses the draft parameters (To, Subject, and Body) from Gemini's response and renders a beautiful, high-contrast, slate-themed **DRAFTED EMAIL ACTION REQUIRED** card directly under the message block:
+   
+   ![Interactive Draft Approval Card](images/custom_ui_readable_draft.png)
+   
+4. **One-Click Dispatch**: When the user clicks **APPROVE & SEND EMAIL**, the client issues a POST request to `/api/send-email`. The backend secures a delegated Microsoft Graph Access token and dispatches the email via `/v1.0/me/sendMail`.
+5. **Visual Confirmation**: Upon successful delivery, the card updates dynamically to show a green success state (`✓ EMAIL SENT`):
+
+   ![Successful Email Delivery State](images/custom_ui_dispatch_success_final.png)
+
+This ensures high-privilege operations remain secure, intuitive, and under direct user control with full visual alignment.

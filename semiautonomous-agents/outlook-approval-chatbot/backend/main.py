@@ -426,6 +426,69 @@ async def perform_approval_action(request: Request, message_id: str, body: Appro
     return {"success": True, "action": body.action, "comment": comment}
 
 
+class SendEmailBody(BaseModel):
+    to_address: str
+    subject: str
+    body: str
+
+
+@app.post("/api/send-email")
+async def send_custom_email(request: Request, body: SendEmailBody):
+    gcp_token = _get_gcp_token(request)
+    if not gcp_token:
+        raise HTTPException(status_code=401, detail="Authentication required")
+
+    # 1. Fetch MS Graph access token from DE
+    resp = requests.post(
+        f"{CONNECTOR_URL}/dataConnector:acquireAccessToken",
+        headers=_gcp_headers(gcp_token),
+        json={},
+        timeout=15,
+    )
+    if not resp.ok:
+        raise HTTPException(
+            status_code=502,
+            detail=f"Failed to acquire Microsoft Graph token from GCP: {resp.text[:300]}"
+        )
+
+    graph_token = resp.json().get("accessToken")
+    if not graph_token:
+        raise HTTPException(status_code=502, detail="No Microsoft Graph token returned by GCP")
+
+    # 2. Send the email in Outlook
+    send_url = "https://graph.microsoft.com/v1.0/me/sendMail"
+    send_headers = {
+        "Authorization": f"Bearer {graph_token}",
+        "Content-Type": "application/json"
+    }
+    send_body = {
+        "message": {
+            "subject": body.subject,
+            "body": {
+                "contentType": "HTML",
+                "content": body.body.replace("\n", "<br>")
+            },
+            "toRecipients": [
+                {
+                    "emailAddress": {
+                        "address": body.to_address
+                    }
+                }
+            ]
+        },
+        "saveToSentItems": "true"
+    }
+
+    send_resp = requests.post(send_url, headers=send_headers, json=send_body, timeout=15)
+    if not send_resp.ok:
+        raise HTTPException(
+            status_code=502,
+            detail=f"Failed to send email via Microsoft Graph API: {send_resp.text[:300]}"
+        )
+
+    return {"success": True}
+
+
 if __name__ == "__main__":
     import uvicorn
     # Determine port to run. We must check and run, port 8005 is default for Outlook projects

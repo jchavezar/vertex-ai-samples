@@ -26,9 +26,9 @@ trap cleanup SIGINT SIGTERM EXIT
 
 # 1. Port Conflict management
 echo "[SYSTEM] Checking ports..."
-if lsof -i :8085 -sTCP:LISTEN -t >/dev/null; then
-  echo "[SYSTEM] Port 8085 in use. Clearing listener..."
-  kill -9 $(lsof -t -i:8085) 2>/dev/null || true
+if lsof -i :8086 -sTCP:LISTEN -t >/dev/null; then
+  echo "[SYSTEM] Port 8086 in use. Clearing listener..."
+  kill -9 $(lsof -t -i:8086) 2>/dev/null || true
 fi
 if lsof -i :5190 -sTCP:LISTEN -t >/dev/null; then
   echo "[SYSTEM] Port 5190 in use. Clearing listener..."
@@ -36,9 +36,9 @@ if lsof -i :5190 -sTCP:LISTEN -t >/dev/null; then
 fi
 
 # 2. Start FastAPI Backend
-echo "[SYSTEM] Launching FastAPI Backend on http://localhost:8085..."
+echo "[SYSTEM] Launching FastAPI Backend on http://localhost:8086..."
 cd "$DIR"
-$VENV_PYTHON -m uvicorn backend.main:app --port 8085 --host 0.0.0.0 &
+$VENV_PYTHON -m uvicorn backend.main:app --port 8086 --host 0.0.0.0 &
 PIDS+=($!)
 
 # 3. Start React Frontend

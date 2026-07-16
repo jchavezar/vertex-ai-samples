@@ -72,3 +72,163 @@ html, body, #root {
   from, to { color: transparent }
   50% { color: #1a1a19 }
 }
+
+/* Claude Code style Shrinking & Shining Organic Ink Blob Loader */
+.shrinking-shining-ink {
+  width: 22px;
+  height: 22px;
+  display: inline-block;
+  background: radial-gradient(circle at 30% 30%, #4c4a45, #1a1a19, #0a0a09);
+  border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+  animation: 
+    ink-morph 6s ease-in-out infinite alternate,
+    ink-pulse 2s ease-in-out infinite,
+    ink-shine 4s linear infinite;
+  filter: drop-shadow(0 0 4px rgba(26, 26, 25, 0.25));
+}
+
+@keyframes ink-morph {
+  0% {
+    border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+    transform: rotate(0deg);
+  }
+  50% {
+    border-radius: 30% 60% 70% 30% / 50% 60% 30% 60%;
+    transform: rotate(180deg);
+  }
+  100% {
+    border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes ink-pulse {
+  0%, 100% {
+    transform: scale(0.85);
+    filter: drop-shadow(0 0 2px rgba(26, 26, 25, 0.15));
+  }
+  50% {
+    transform: scale(1.15);
+    filter: drop-shadow(0 0 8px rgba(26, 26, 25, 0.4));
+  }
+}
+
+@keyframes ink-shine {
+  0%, 100% {
+    background: radial-gradient(circle at 20% 20%, #7c7a75, #1a1a19, #0a0a09);
+  }
+  33% {
+    background: radial-gradient(circle at 80% 20%, #d8d6d0, #2c2a29, #050505);
+  }
+  66% {
+    background: radial-gradient(circle at 40% 80%, #b0aeaa, #1a1a19, #000000);
+  }
+}
+
+/* Polymorphic Google-style Rainbow Glow Border */
+.polymorphic-glow-border {
+  position: relative;
+  z-index: 10;
+}
+.polymorphic-glow-border::after {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  background: linear-gradient(90deg, #4285f4, #ea4335, #fbbc05, #34a853, #4285f4);
+  background-size: 300% 100%;
+  z-index: -1;
+  animation: rainbow-glow 6s linear infinite;
+  opacity: 0;
+  transition: opacity 0.3s ease-in-out, filter 0.3s ease-in-out;
+  border-radius: inherit;
+}
+.polymorphic-glow-border:focus-within::after {
+  opacity: 1;
+  filter: drop-shadow(0 0 8px rgba(66, 133, 244, 0.4));
+}
+.polymorphic-glow-border:hover::after {
+  opacity: 0.6;
+}
+
+@keyframes rainbow-glow {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 300% 50%; }
+}
+
+/* Premium Large Organic Ink Blob */
+.shrinking-shining-ink-lg {
+  width: 44px;
+  height: 44px;
+  display: inline-block;
+  background: radial-gradient(circle at 30% 30%, #4c4a45, #1a1a19, #0a0a09);
+  border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+  animation: 
+    ink-morph 6s ease-in-out infinite alternate,
+    ink-pulse-lg 2.2s ease-in-out infinite,
+    ink-shine 4s linear infinite;
+  filter: drop-shadow(0 0 8px rgba(26, 26, 25, 0.3));
+}
+
+@keyframes ink-pulse-lg {
+  0%, 100% {
+    transform: scale(0.9);
+    filter: drop-shadow(0 0 4px rgba(26, 26, 25, 0.2));
+  }
+  50% {
+    transform: scale(1.18);
+    filter: drop-shadow(0 0 14px rgba(26, 26, 25, 0.45));
+  }
+}
+
+/* DLP Cybernetic Scanning and Shield Mesh Effects */
+.dlp-shield-mesh {
+  background-image: radial-gradient(rgba(26, 26, 25, 0.08) 1px, transparent 1px);
+  background-size: 12px 12px;
+}
+
+.dlp-active-scan {
+  position: relative;
+  overflow: hidden;
+}
+
+.dlp-active-scan::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(239, 68, 68, 0.5), #ef4444, rgba(239, 68, 68, 0.5), transparent);
+  animation: dlp-sweep 3s ease-in-out infinite;
+  box-shadow: 0 0 8px rgba(239, 68, 68, 0.8);
+}
+
+@keyframes dlp-sweep {
+  0% {
+    top: 0%;
+  }
+  50% {
+    top: 100%;
+  }
+  100% {
+    top: 0%;
+  }
+}
+
+.dlp-glowing-pulse {
+  animation: dlp-pulse 1.8s ease-in-out infinite alternate;
+}
+
+@keyframes dlp-pulse {
+  0% {
+    box-shadow: 0 0 4px rgba(239, 68, 68, 0.2);
+    transform: scale(0.98);
+  }
+  100% {
+    box-shadow: 0 0 14px rgba(239, 68, 68, 0.7);
+    transform: scale(1.02);
+  }
+}
+
+
+

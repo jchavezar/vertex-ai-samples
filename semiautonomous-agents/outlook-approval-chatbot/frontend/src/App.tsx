@@ -35,6 +35,37 @@ interface ApprovalItem {
   status?: 'approved' | 'rejected'; // local state flag
 }
 
+function parseDraft(text: string) {
+  const toMatch = text.match(/\*\*To:\*\*\s*([^\n\r]+)/i);
+  const subjectMatch = text.match(/\*\*Subject:\*\*\s*([^\n\r]+)/i);
+  if (toMatch && subjectMatch) {
+    const to_address = toMatch[1].trim();
+    const subject = subjectMatch[1].trim();
+    
+    // Attempt to extract body (the block starting after Subject line, up to ***)
+    const idxSub = text.indexOf(subjectMatch[0]);
+    let body = text.substring(idxSub + subjectMatch[0].length).trim();
+    
+    // strip out leading asterisks or lines
+    if (body.startsWith('***')) {
+      body = body.substring(3).trim();
+    }
+    const idxEnd = body.indexOf('***');
+    if (idxEnd !== -1) {
+      body = body.substring(0, idxEnd).trim();
+    }
+    
+    // Also remove the footer message if any (like "Let me know if you'd like me to send this")
+    const idxLetMeKnow = body.toLowerCase().indexOf("let me know");
+    if (idxLetMeKnow !== -1) {
+      body = body.substring(0, idxLetMeKnow).trim();
+    }
+    
+    return { to_address, subject, body };
+  }
+  return null;
+}
+
 export default function App() {
   const { instance, accounts } = useMsal();
   const isAuthenticated = useIsAuthenticated();
@@ -57,6 +88,10 @@ export default function App() {
   const [approvals, setApprovals] = useState<ApprovalItem[]>([]);
   const [loadingApprovals, setLoadingApprovals] = useState(false);
   const [actioningIds, setActioningIds] = useState<Record<string, boolean>>({});
+
+  // Chat email confirmation states
+  const [sentEmailIndexes, setSentEmailIndexes] = useState<Record<number, boolean>>({});
+  const [sendingEmailIndexes, setSendingEmailIndexes] = useState<Record<number, boolean>>({});
 
   const consentPopupRef = useRef<Window | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -199,6 +234,33 @@ export default function App() {
     window.addEventListener('message', handler);
     return () => window.removeEventListener('message', handler);
   }, [getToken, olKey]);
+
+  const sendEmailFromChat = async (idx: number, to: string, subject: string, body: string) => {
+    const token = await getToken();
+    if (!token) return;
+
+    setSendingEmailIndexes(prev => ({ ...prev, [idx]: true }));
+    try {
+      const resp = await fetch('/api/send-email', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Entra-Id-Token': token,
+        },
+        body: JSON.stringify({ to_address: to, subject, body }),
+      });
+      const data = await resp.json();
+      if (data.success) {
+        setSentEmailIndexes(prev => ({ ...prev, [idx]: true }));
+      } else {
+        alert(`Failed to send email: ${data.error || 'Unknown error'}`);
+      }
+    } catch (err: any) {
+      alert(`Network error: ${err.message}`);
+    } finally {
+      setSendingEmailIndexes(prev => ({ ...prev, [idx]: false }));
+    }
+  };
 
   // Chat chatbot handler
   const handleSearch = async (e: React.FormEvent) => {
@@ -395,6 +457,64 @@ export default function App() {
                         ))}
                       </ul>
                     </div>
+                  )}
+
+                  {/* If this is an assistant response containing a drafted email template, render an interactive action confirmation card */}
+                  {msg.role === 'assistant' && parseDraft(msg.text) && (
+                    (() => {
+                      const d = parseDraft(msg.text)!;
+                      const isSent = sentEmailIndexes[idx];
+                      const isSending = sendingEmailIndexes[idx];
+                      return (
+                        <div className="draft-approval-card" style={{
+                          marginTop: '16px',
+                          background: 'rgba(52, 211, 153, 0.04)',
+                          border: '1px solid var(--border)',
+                          borderRadius: '8px',
+                          padding: '16px',
+                          boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
+                        }}>
+                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
+                            <span style={{ fontSize: '0.65rem', letterSpacing: '1px', fontWeight: 700, color: 'var(--text)', background: 'rgba(52, 211, 153, 0.15)', padding: '4px 8px', borderRadius: '4px' }}>
+                              DRAFTED EMAIL ACTION REQUIRED
+                            </span>
+                            {isSent && <span style={{ fontSize: '0.75rem', color: '#10b981', fontWeight: 700 }}>✓ SENT</span>}
+                          </div>
+                          <div style={{ fontSize: '0.8rem', marginBottom: '8px' }}>
+                            <strong>To:</strong> <span style={{ color: 'var(--text-muted)' }}>{d.to_address}</span>
+                          </div>
+                          <div style={{ fontSize: '0.8rem', marginBottom: '12px' }}>
+                            <strong>Subject:</strong> <span style={{ color: 'var(--text-muted)' }}>{d.subject}</span>
+                          </div>
+                          <div style={{
+                            background: 'var(--bg-card, #f8fafc)',
+                            padding: '14px',
+                            borderRadius: '6px',
+                            fontSize: '0.85rem',
+                            color: '#1e293b',
+                            lineHeight: '1.5',
+                            whiteSpace: 'pre-wrap',
+                            maxHeight: '200px',
+                            overflowY: 'auto',
+                            marginBottom: '16px',
+                            border: '1px solid var(--border)',
+                            boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.02)'
+                          }}>
+                            {d.body}
+                          </div>
+                          <div style={{ display: 'flex', gap: '12px' }}>
+                            <button
+                              className="btn-tech btn-small"
+                              style={{ background: isSent ? '#10b981' : '#10b981', color: '#fff', flex: 1 }}
+                              disabled={isSent || isSending}
+                              onClick={() => sendEmailFromChat(idx, d.to_address, d.subject, d.body)}
+                            >
+                              {isSending ? 'SENDING...' : isSent ? '✓ EMAIL SENT' : 'APPROVE & SEND EMAIL'}
+                            </button>
+                          </div>
+                        </div>
+                      );
+                    })()
                   )}
 
                   {msg.latency_ms && (

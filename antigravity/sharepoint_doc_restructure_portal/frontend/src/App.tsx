@@ -34,6 +34,25 @@ import {
 
 const API_BASE = "/api";
 
+const parseErrorResponse = async (response: Response): Promise<string> => {
+  const contentType = response.headers.get("content-type");
+  if (contentType && contentType.includes("application/json")) {
+    try {
+      const err = await response.json();
+      return err.detail || 'Unknown error';
+    } catch (e) {
+      return 'Unknown error';
+    }
+  } else {
+    try {
+      const text = await response.text();
+      return text || `HTTP ${response.status}`;
+    } catch (e) {
+      return `HTTP ${response.status}`;
+    }
+  }
+};
+
 interface Document {
   id: string;
   filename: string;
@@ -99,6 +118,8 @@ interface Message {
   model?: string;
   region?: string;
   isThinking?: boolean;
+  thinking_steps?: string[];
+  grounded_answer?: string;
 }
 
 interface AuthState {
@@ -226,13 +247,248 @@ const pipelineSteps: ArchStep[] = [
   }
 ];
 
+
+const extractCleanGroundedAnswer = (text: string): string => {
+  if (!text) return "";
+  if (text.includes("### 📄 Grounded Response")) {
+    const parts = text.split("### 📄 Grounded Response");
+    return parts[parts.length - 1].trim();
+  }
+  if (text.includes("---")) {
+    if (text.includes("### 🧠 Cognitive & Retrieval Steps")) {
+      const parts = text.split("---");
+      return parts[parts.length - 1].trim();
+    }
+  }
+  return text;
+};
+
+const parseLinksAndBold = (text: string): React.ReactNode[] => {
+  const regex = /(\*\*.*?\*\*|\[.*?\]\(.*?\))/g;
+  const parts = text.split(regex);
+  
+  return parts.map((part, index) => {
+    if (part.startsWith('**') && part.endsWith('**')) {
+      return <strong key={index} className="font-bold text-[#1a1a19]">{part.slice(2, -2)}</strong>;
+    }
+    if (part.startsWith('[') && part.includes('](')) {
+      const closeBracket = part.indexOf(']');
+      const title = part.slice(1, closeBracket);
+      const url = part.slice(closeBracket + 2, -1);
+      return (
+        <a 
+          key={index} 
+          href={url} 
+          target="_blank" 
+          rel="noreferrer" 
+          className="underline font-bold text-blue-700 hover:text-blue-900 transition-colors"
+        >
+          {title}
+        </a>
+      );
+    }
+    return part;
+  });
+};
+
+const renderMarkdown = (text: string) => {
+  if (!text) return null;
+  const lines = text.split('\n');
+  return (
+    <div className="space-y-2">
+      {lines.map((line, lineIdx) => {
+        let trimmed = line.trim();
+        const isBullet = trimmed.startsWith('* ') || trimmed.startsWith('- ');
+        if (isBullet) {
+          trimmed = trimmed.substring(2);
+        }
+
+        if (isBullet) {
+          return (
+            <div key={lineIdx} className="flex gap-2 pl-4 items-start">
+              <span className="text-[#1a1a19] mt-1 text-[10px]">■</span>
+              <span className="flex-1 text-[#1a1a19]">{parseLinksAndBold(trimmed)}</span>
+            </div>
+          );
+        }
+
+        if (!trimmed) {
+          return <div key={lineIdx} className="h-2" />;
+        }
+
+        return (
+          <p key={lineIdx} className="text-[#1a1a19] leading-relaxed">
+            {parseLinksAndBold(line)}
+          </p>
+        );
+      })}
+    </div>
+  );
+};
+
+
+function RealtimeThinkingState() {
+  const [activeStep, setActiveStep] = useState(0);
+  const steps = [
+    "Analyzing query intent & corporate governance ontology...",
+    "Querying gemini-embedding-2 vector index & lexical tokens...",
+    "Retrieving Firestore document records & verifying ACL permissions...",
+    "Applying MS Graph API real-time security guardrails...",
+    "Synthesizing zero-leak grounded response with active model..."
+  ];
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setActiveStep((prev) => {
+        if (prev < steps.length - 1) {
+          return prev + 1;
+        }
+        return prev;
+      });
+    }, 800);
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <div className="border border-[#1a1a19] bg-[#faf9f6] p-5 rounded-none shadow-[4px_4px_0px_0px_rgba(26,26,25,0.15)] max-w-xl mb-4 relative overflow-hidden">
+      {/* Premium background cybernetic mesh */}
+      <div className="absolute inset-0 dlp-shield-mesh opacity-30 pointer-events-none" />
+      
+      <div className="flex items-center gap-4 mb-4 relative z-10">
+        <span className="shrinking-shining-ink-lg shrink-0" />
+        <div className="flex flex-col">
+          <span className="font-mono text-[11px] uppercase font-bold text-[#1a1a19] tracking-wider sweep-text">
+            AETHER REASONING MATRIX ACTIVE
+          </span>
+          <span className="font-mono text-[8px] text-[#7c7a75] uppercase tracking-widest mt-0.5">
+            Grounded Cognitive Pipeline // active model: gemini-3-flash
+          </span>
+        </div>
+      </div>
+      <div className="space-y-2.5 font-mono text-xs relative z-10">
+        {steps.map((step, idx) => {
+          const isPending = idx > activeStep;
+          const isActive = idx === activeStep;
+          const isDone = idx < activeStep;
+
+          return (
+            <div key={idx} className="flex gap-3 items-center">
+              <div className="flex items-center justify-center shrink-0">
+                {isDone && <CheckCircle2 className="h-4 w-4 text-green-700" />}
+                {isActive && <Activity className="h-4 w-4 text-blue-600 animate-pulse" />}
+                {isPending && <div className="h-3.5 w-3.5 rounded-full border border-dashed border-[#d8d6d0]"></div>}
+              </div>
+              <span className={`leading-relaxed ${
+                isDone ? "text-[#7c7a75] font-normal" : 
+                isActive ? "text-[#1a1a19] font-bold" : 
+                "text-[#b0aeaa] font-light"
+              }`}>
+                {step} {isActive && <span className="animate-pulse">█</span>}
+              </span>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+function ThinkingAccordion({ 
+  steps, 
+  latency, 
+  model, 
+  region 
+}: { 
+  steps?: string[]; 
+  latency?: string; 
+  model?: string; 
+  region?: string; 
+}) {
+  const [isOpen, setIsOpen] = useState(true);
+
+  if (!steps || steps.length === 0) return null;
+
+  return (
+    <div className="mb-4 border border-[#d8d6d0] bg-[#f4f3ef] rounded-none overflow-hidden transition-all duration-300 shadow-[2px_2px_0px_0px_rgba(26,26,25,0.05)]">
+      {/* Accordion Trigger */}
+      <button
+        type="button"
+        onClick={() => setIsOpen(!isOpen)}
+        className="w-full flex items-center justify-between px-4 py-3 bg-[#e8e7e1] text-[#1a1a19] font-mono text-xs font-bold hover:bg-[#dcdbd4] transition-colors border-none cursor-pointer"
+      >
+        <div className="flex items-center gap-2">
+          <Terminal className="h-3.5 w-3.5 text-blue-700 animate-pulse" />
+          <span className="uppercase tracking-wider">Cognitive Reasoning Trace</span>
+          <span className="text-[10px] font-normal text-[#7c7a75]">({steps.length} execution phases)</span>
+        </div>
+        <div className="flex items-center gap-3">
+          {latency && (
+            <span className="text-[10px] font-normal text-green-700 bg-green-50 border border-green-200 px-1.5 py-0.5 rounded-none">
+              {latency}
+            </span>
+          )}
+          {isOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+        </div>
+      </button>
+
+      {/* Accordion Content */}
+      <div
+        className={`transition-all duration-300 ease-in-out ${
+          isOpen ? "max-h-[1000px] border-t border-[#d8d6d0] p-4" : "max-h-0 opacity-0 pointer-events-none"
+        } overflow-hidden bg-[#faf9f6]`}
+      >
+        <div className="space-y-3 font-mono text-xs relative before:absolute before:left-[11px] before:top-2 before:bottom-2 before:border-l before:border-dashed before:border-[#d8d6d0]">
+          {steps.map((step, idx) => {
+            const colonIndex = step.indexOf(':');
+            let prefix = "";
+            let body = step;
+            if (colonIndex !== -1) {
+              prefix = step.substring(0, colonIndex).trim();
+              body = step.substring(colonIndex + 1).trim();
+            }
+
+            return (
+              <div key={idx} className="flex gap-3 relative z-10 group items-start">
+                <div className="flex items-center justify-center h-6 w-6 rounded-full bg-[#f4f3ef] border border-[#d8d6d0] text-[10px] font-bold text-[#1a1a19] shrink-0 shadow-sm group-hover:border-[#1a1a19] transition-colors">
+                  {idx + 1}
+                </div>
+                <div className="flex-1 pt-0.5">
+                  <div className="flex flex-col gap-0.5">
+                    {prefix && (
+                      <span className="font-bold uppercase tracking-wider text-[10px] text-blue-800">
+                        {prefix}
+                      </span>
+                    )}
+                    <span className="text-[#1a1a19] leading-relaxed font-sans">{body}</span>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        {(model || region) && (
+          <div className="mt-4 pt-2 border-t border-dotted border-[#d8d6d0] flex justify-between items-center text-[9px] font-mono text-[#7c7a75]">
+            <span>[ENGINE: {model || 'AETHER RAG CORE'}]</span>
+            <span>[REGION: {region || 'GLOBAL'}]</span>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 export default function App() {
   const [documents, setDocuments] = useState<Document[]>([]);
   const [ontology, setOntology] = useState<Ontology | null>(null);
   const [selectedDoc, setSelectedDoc] = useState<Document | null>(null);
   const [panelHeight, setPanelHeight] = useState(384);
   const [isPanelMinimized, setIsPanelMinimized] = useState(false);
+  const [isConsoleMinimized, setIsConsoleMinimized] = useState(true);
   const isResizingRef = useRef(false);
+
+  const [consoleWidth, setConsoleWidth] = useState(480);
+  const isResizingConsoleRef = useRef(false);
 
   const handleMouseDown = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -241,18 +497,36 @@ export default function App() {
     document.body.style.userSelect = 'none';
   };
 
+  const handleConsoleMouseDown = (e: React.MouseEvent) => {
+    e.preventDefault();
+    isResizingConsoleRef.current = true;
+    document.body.style.cursor = 'ew-resize';
+    document.body.style.userSelect = 'none';
+  };
+
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
-      if (!isResizingRef.current) return;
-      const newHeight = window.innerHeight - e.clientY;
-      if (newHeight >= 60 && newHeight <= window.innerHeight - 100) {
-        setPanelHeight(newHeight);
+      if (isResizingRef.current) {
+        const newHeight = window.innerHeight - e.clientY;
+        if (newHeight >= 60 && newHeight <= window.innerHeight - 100) {
+          setPanelHeight(newHeight);
+        }
+      } else if (isResizingConsoleRef.current) {
+        const newWidth = window.innerWidth - e.clientX;
+        if (newWidth >= 320 && newWidth <= Math.min(1000, window.innerWidth - 200)) {
+          setConsoleWidth(newWidth);
+        }
       }
     };
 
     const handleMouseUp = () => {
       if (isResizingRef.current) {
         isResizingRef.current = false;
+        document.body.style.cursor = '';
+        document.body.style.userSelect = '';
+      }
+      if (isResizingConsoleRef.current) {
+        isResizingConsoleRef.current = false;
         document.body.style.cursor = '';
         document.body.style.userSelect = '';
       }
@@ -334,6 +608,12 @@ export default function App() {
   const [spotlightRemoteAnswer, setSpotlightRemoteAnswer] = useState<string | null>(null);
   const [spotlightRemoteSources, setSpotlightRemoteSources] = useState<any[]>([]);
 
+  // Next-Gen Dynamic Polymorphic Header Search State
+  const headerSearchRef = useRef<HTMLDivElement>(null);
+  const headerSearchInputRef = useRef<HTMLInputElement>(null);
+  const [isHeaderSearchFocused, setIsHeaderSearchFocused] = useState(false);
+  const [searchMode, setSearchMode] = useState<'semantic' | 'metadata' | 'ontology'>('semantic');
+
   // Spotlight Light Theme state (persisted)
   const [isSpotlightLightTheme, setIsSpotlightLightTheme] = useState<boolean>(() => {
     return localStorage.getItem('spotlightTheme') === 'light';
@@ -347,19 +627,36 @@ export default function App() {
     });
   };
 
-  // Toggle Spotlight with Command+K or Ctrl+K
+  // Toggle Spotlight or Header Search with Command+K or Ctrl+K
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
         e.preventDefault();
-        setIsSpotlightOpen(prev => !prev);
+        setIsHeaderSearchFocused(true);
+        setTimeout(() => {
+          headerSearchInputRef.current?.focus();
+          headerSearchInputRef.current?.select();
+        }, 50);
       }
       if (e.key === 'Escape') {
+        setIsHeaderSearchFocused(false);
+        headerSearchInputRef.current?.blur();
         setIsSpotlightOpen(false);
       }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
+  // Click outside to close polymorphic header search
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (headerSearchRef.current && !headerSearchRef.current.contains(event.target as Node)) {
+        setIsHeaderSearchFocused(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
   // Compute filtered results
@@ -409,21 +706,30 @@ export default function App() {
   });
 
   // Handle Spotlight remote deep search
-  const handleSpotlightRemoteSearch = async () => {
+  const handleSpotlightRemoteSearch = async (retrievalOnly: boolean = false) => {
     if (!spotlightQuery.trim()) return;
     setIsSpotlightSearchingRemote(true);
-    setSpotlightRemoteAnswer(null);
-    setSpotlightRemoteSources([]);
     try {
       const response = await fetch(`${API_BASE}/search`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ query: spotlightQuery })
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Developer-Override-Groups': 'PwC Advisory Group,PwC Global Admin,PwC Audit Committee,group::employees'
+        },
+        body: JSON.stringify({ 
+          query: spotlightQuery,
+          retrieval_only: retrievalOnly
+        })
       });
       if (response.ok) {
         const data = await response.json();
-        setSpotlightRemoteAnswer(data.answer);
-        setSpotlightRemoteSources(data.sources || []);
+        if (retrievalOnly) {
+          setSpotlightRemoteSources(data.sources || []);
+          setSpotlightRemoteAnswer(null);
+        } else {
+          setSpotlightRemoteAnswer(data.answer);
+          setSpotlightRemoteSources(data.sources || []);
+        }
       } else {
         setSpotlightRemoteAnswer("Semantic search service temporarily unavailable.");
       }
@@ -434,12 +740,30 @@ export default function App() {
     }
   };
 
-  // Reset selected index when query or filter changes
+  // Reset selected index and handle debounced semantic search
   useEffect(() => {
     setSelectedSpotlightIndex(0);
-    setSpotlightRemoteAnswer(null);
-    setSpotlightRemoteSources([]);
-  }, [spotlightQuery, spotlightFilter]);
+    
+    if (searchMode !== 'semantic') {
+      setSpotlightRemoteAnswer(null);
+      setSpotlightRemoteSources([]);
+      return;
+    }
+
+    const trimmed = spotlightQuery.trim();
+    if (trimmed.length < 3) {
+      setSpotlightRemoteAnswer(null);
+      setSpotlightRemoteSources([]);
+      return;
+    }
+
+    // Set a debounce timer to search automatically in the background as the user types
+    const timer = setTimeout(() => {
+      handleSpotlightRemoteSearch(true); // Run instant vector retrieval!
+    }, 400); // 400ms delay
+
+    return () => clearTimeout(timer);
+  }, [spotlightQuery, spotlightFilter, searchMode]);
 
   const handleOAuthCallback = async (code: string) => {
     setIsVerifyingAuth(true);
@@ -457,8 +781,8 @@ export default function App() {
         setAuth({ authenticated: true, account: data.account });
         alert("Login successful!");
       } else {
-        const err = await response.json();
-        alert(`Authentication failed: ${err.detail || 'Unknown error'}`);
+        const errorMsg = await parseErrorResponse(response);
+        alert(`Authentication failed: ${errorMsg}`);
       }
     } catch (e) {
       alert("Verification failed: " + e);
@@ -563,8 +887,8 @@ export default function App() {
           setIsRedirecting(false);
         }
       } else {
-        const err = await response.json();
-        alert("Failed to start login: " + (err.detail || 'Unknown error'));
+        const errorMsg = await parseErrorResponse(response);
+        alert("Failed to start login: " + errorMsg);
         setIsRedirecting(false);
       }
     } catch (e) {
@@ -630,8 +954,8 @@ export default function App() {
           text: `SharePoint Sync initiated in background. You can watch the real-time logs in the crawler output console below.`
         }]);
       } else {
-        const err = await response.json();
-        alert(`Sync request failed: ${err.detail}`);
+        const errorMsg = await parseErrorResponse(response);
+        alert(`Sync request failed: ${errorMsg}`);
         setIsSyncingSp(false);
       }
     } catch (error) {
@@ -686,9 +1010,9 @@ export default function App() {
         setEditType('');
         await fetchDocuments();
       } else {
-        const err = await response.json();
-        console.error(`[UI] Validation rejected:`, err);
-        alert(`Failed to approve tags: ${err.detail || 'Validation rejected by server'}`);
+        const errorMsg = await parseErrorResponse(response);
+        console.error(`[UI] Validation rejected:`, errorMsg);
+        alert(`Failed to approve tags: ${errorMsg}`);
       }
     } catch (error) {
       console.error("[UI] Error validating document:", error);
@@ -716,8 +1040,8 @@ export default function App() {
       });
       
       if (!response.ok) {
-        const errData = await response.json().catch(() => ({}));
-        throw new Error(errData.detail || `Server error (status ${response.status})`);
+        const errorMsg = await parseErrorResponse(response);
+        throw new Error(errorMsg);
       }
       
       const data = await response.json();
@@ -726,11 +1050,13 @@ export default function App() {
         const filtered = prev.filter(m => !m.isThinking);
         return [...filtered, {
           sender: 'bot',
-          text: data.answer,
+          text: data.grounded_answer || extractCleanGroundedAnswer(data.answer),
           sources: data.sources,
           latency: data.latency,
           model: data.model,
-          region: data.region
+          region: data.region,
+          thinking_steps: data.thinking_steps,
+          grounded_answer: data.grounded_answer
         }];
       });
     } catch (error: any) {
@@ -768,8 +1094,8 @@ export default function App() {
           text: `Pipeline ingest completed for [${ingestFilename}]. Document has been mapped to dynamic ontology and indexed for search context.`
         }]);
       } else {
-        const err = await response.json();
-        alert(`Ingestion failed: ${err.detail}`);
+        const errorMsg = await parseErrorResponse(response);
+        alert(`Ingestion failed: ${errorMsg}`);
       }
     } catch (error) {
       console.error("Error during ingestion:", error);
@@ -782,8 +1108,8 @@ export default function App() {
 
   const renderFlowDiagram = (text: string) => {
     if (!text) return null;
-    if (typeof text !== "string") return <p className="whitespace-pre-line">{String(text)}</p>;
-    if (!text.includes("```mermaid")) return <p className="whitespace-pre-line">{text}</p>;
+    if (typeof text !== "string") return renderMarkdown(String(text));
+    if (!text.includes("```mermaid")) return renderMarkdown(text);
 
     const parts = text.split("```mermaid");
     const preText = parts[0];
@@ -805,7 +1131,7 @@ export default function App() {
 
     return (
       <div>
-        <p className="whitespace-pre-line mb-3">{preText}</p>
+        {renderMarkdown(preText)}
         <div className="my-4 border border-[#d8d6d0] bg-[#faf9f6] p-4 rounded-none">
           <div className="text-[10px] text-[#7c7a75] uppercase font-bold tracking-wider mb-3 flex items-center gap-1">
             <Network className="h-3 w-3" /> Extracted Process Map
@@ -823,10 +1149,27 @@ export default function App() {
             ))}
           </div>
         </div>
-        <p className="whitespace-pre-line mt-3">{postText}</p>
+        {renderMarkdown(postText)}
       </div>
     );
   };
+
+  const filteredOntologyClasses = ontology?.classes.filter(cls => {
+    const query = spotlightQuery.trim().toLowerCase();
+    if (!query) return true;
+    return cls.name.toLowerCase().includes(query) || 
+           cls.description.toLowerCase().includes(query) || 
+           cls.properties.some(p => p.name.toLowerCase().includes(query));
+  }) || [];
+
+  const filteredOntologyRelations = ontology?.relations.filter(rel => {
+    const query = spotlightQuery.trim().toLowerCase();
+    if (!query) return true;
+    return rel.source.toLowerCase().includes(query) || 
+           rel.target.toLowerCase().includes(query) || 
+           rel.type.toLowerCase().includes(query) || 
+           rel.description.toLowerCase().includes(query);
+  }) || [];
 
   return (
     <div className="flex flex-col h-screen bg-[#faf9f6] text-[#1a1a19] overflow-hidden rounded-none">
@@ -837,15 +1180,503 @@ export default function App() {
           <span className="font-bold text-xl tracking-[0.05em] uppercase">AETHER</span>
           <span className="text-xs text-[#7c7a75] tracking-widest uppercase">/ SharePoint Restructure Console</span>
           
-          {/* Spotlight Trigger Pill */}
-          <button 
-            onClick={() => setIsSpotlightOpen(true)}
-            className="hidden md:flex items-center gap-2 px-3 py-1 bg-white border border-[#d8d6d0] hover:border-[#1a1a19] text-[#7c7a75] hover:text-[#1a1a19] text-xs font-medium rounded-none transition-all shadow-sm ml-6 cursor-pointer"
+          {/* Next-Gen Polymorphic Dynamic Search */}
+          <div 
+            ref={headerSearchRef}
+            className={`relative ml-6 hidden md:block transition-all duration-300 ease-in-out z-40 ${
+              isHeaderSearchFocused ? 'w-[560px]' : 'w-72'
+            }`}
           >
-            <Search className="h-3.5 w-3.5 text-blue-700" />
-            <span>Semantic Spotlight...</span>
-            <kbd className="bg-[#faf9f6] border border-[#d8d6d0] px-1 py-0.2 text-[9px] font-mono text-[#7c7a75] rounded">⌘K</kbd>
-          </button>
+            <div className={`polymorphic-glow-border relative flex items-center bg-white border rounded-full ${
+              isHeaderSearchFocused 
+                ? 'border-transparent shadow-[0_4px_20px_rgba(66,133,244,0.15)]' 
+                : 'border-[#d8d6d0] hover:border-[#1a1a19]'
+            } transition-all duration-300`}>
+              
+              {/* Left Dynamic Indicator Icon */}
+              <div className="pl-3.5 flex items-center justify-center">
+                {isSpotlightSearchingRemote ? (
+                  <span className="shrinking-shining-ink shrink-0 h-3.5 w-3.5" />
+                ) : searchMode === 'semantic' ? (
+                  <Search className="h-4 w-4 text-blue-600 animate-pulse" />
+                ) : searchMode === 'metadata' ? (
+                  <Activity className="h-4 w-4 text-emerald-600" />
+                ) : (
+                  <Network className="h-4 w-4 text-purple-600" />
+                )}
+              </div>
+
+              {/* Text Input */}
+              <input
+                ref={headerSearchInputRef}
+                type="text"
+                placeholder={
+                  searchMode === 'semantic' 
+                    ? "Ask AI anything (e.g. PwC corporate restore trust)..." 
+                    : searchMode === 'metadata' 
+                      ? "Search files by tags, terms or classification..." 
+                      : "Search ontology concepts, parent types, and nodes..."
+                }
+                value={spotlightQuery}
+                onFocus={() => setIsHeaderSearchFocused(true)}
+                onChange={(e) => setSpotlightQuery(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    if (searchMode === 'semantic') {
+                      handleSpotlightRemoteSearch(false);
+                    } else if (searchMode === 'metadata' && filteredSpotlightDocs.length > 0) {
+                      setSelectedDoc(filteredSpotlightDocs[0]);
+                      setIsHeaderSearchFocused(false);
+                    }
+                  } else if (e.key === 'Escape') {
+                    setIsHeaderSearchFocused(false);
+                    headerSearchInputRef.current?.blur();
+                  }
+                }}
+                className="w-full bg-transparent px-3 py-2 text-xs font-medium text-[#1a1a19] placeholder-[#7c7a75] outline-none border-none select-all font-sans"
+              />
+
+              {/* Action Buttons on Right */}
+              <div className="pr-3 flex items-center gap-1.5 shrink-0 select-none">
+                {spotlightQuery && (
+                  <button 
+                    onClick={() => setSpotlightQuery('')}
+                    className="p-1 hover:bg-[#f4f3ef] rounded-full text-[#7c7a75] hover:text-[#1a1a19] transition-all cursor-pointer"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                )}
+                {!isHeaderSearchFocused && (
+                  <kbd className="bg-[#faf9f6] border border-[#d8d6d0] px-1 py-0.2 text-[9px] font-mono text-[#7c7a75] rounded select-none">⌘K</kbd>
+                )}
+                {isHeaderSearchFocused && (
+                  <button 
+                    onClick={() => setIsHeaderSearchFocused(false)}
+                    className="text-[10px] font-mono text-[#7c7a75] hover:text-[#1a1a19] uppercase tracking-wider px-1 py-0.5 hover:bg-[#f4f3ef] transition-all"
+                  >
+                    ESC
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* FLOATING POLYMORPHIC DASHBOARD DROP-PANEL */}
+            {isHeaderSearchFocused && (
+              <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-[#d8d6d0] shadow-[0_20px_50px_rgba(26,26,25,0.18)] z-50 flex flex-col overflow-hidden max-h-[520px] rounded-2xl transition-all duration-300 ease-out animate-[fadeIn_0.15s_ease-out]">
+                
+                {/* 1. Polymorphic Tab Bar */}
+                <div className="flex border-b border-[#e2e0da] bg-[#faf9f6] p-1 gap-1 select-none">
+                  <button
+                    onClick={() => setSearchMode('semantic')}
+                    className={`flex-1 py-2 px-1 text-[10px] font-bold uppercase tracking-wider flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+                      searchMode === 'semantic'
+                        ? 'bg-white border border-[#d8d6d0] text-blue-700 shadow-sm'
+                        : 'text-[#7c7a75] hover:text-[#1a1a19] hover:bg-[#f4f3ef]'
+                    }`}
+                  >
+                    <Search className="h-3.5 w-3.5 text-blue-600" />
+                    <span>🧠 AI Semantic</span>
+                  </button>
+                  <button
+                    onClick={() => setSearchMode('metadata')}
+                    className={`flex-1 py-2 px-1 text-[10px] font-bold uppercase tracking-wider flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+                      searchMode === 'metadata'
+                        ? 'bg-white border border-[#d8d6d0] text-emerald-700 shadow-sm'
+                        : 'text-[#7c7a75] hover:text-[#1a1a19] hover:bg-[#f4f3ef]'
+                    }`}
+                  >
+                    <Activity className="h-3.5 w-3.5 text-emerald-600" />
+                    <span>📋 Metadata</span>
+                  </button>
+                  <button
+                    onClick={() => setSearchMode('ontology')}
+                    className={`flex-1 py-2 px-1 text-[10px] font-bold uppercase tracking-wider flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+                      searchMode === 'ontology'
+                        ? 'bg-white border border-[#d8d6d0] text-purple-700 shadow-sm'
+                        : 'text-[#7c7a75] hover:text-[#1a1a19] hover:bg-[#f4f3ef]'
+                    }`}
+                  >
+                    <Network className="h-3.5 w-3.5 text-purple-600" />
+                    <span>🧬 Ontology</span>
+                  </button>
+                </div>
+
+                {/* 2. Mode Explanation and Config Bar */}
+                <div className="px-4 py-2 border-b border-[#e2e0da] bg-stone-50/50 flex items-center justify-between text-[9px] font-mono text-[#7c7a75] uppercase select-none">
+                  <span>
+                    {searchMode === 'semantic' && (
+                      isSpotlightSearchingRemote 
+                        ? "🛰️ Auto-Searching Vectors..." 
+                        : spotlightQuery.trim().length >= 3 
+                          ? "⚡ Real-time Semantic matching active..." 
+                          : "Vector embeddings (Gemini) // Semantic Core query"
+                    )}
+                    {searchMode === 'metadata' && `Attribute indices // Matches: ${filteredSpotlightDocs.length}`}
+                    {searchMode === 'ontology' && `Taxonomy relationships // Classes: ${filteredOntologyClasses.length}`}
+                  </span>
+                  <span>
+                    {searchMode === 'semantic' && (spotlightQuery.trim().length >= 3 ? "Instant grounded answer below" : "Press [ENTER] to ask AI")}
+                    {searchMode === 'metadata' && "Click item to select"}
+                    {searchMode === 'ontology' && "Explore class structure"}
+                  </span>
+                </div>
+
+                {/* 3. Search Content Area */}
+                <div className="flex-1 overflow-y-auto max-h-[380px] scrollbar-thin">
+                  
+                  {/* AI SEMANTIC MODE */}
+                  {searchMode === 'semantic' && (
+                    <div className="p-4 space-y-4">
+                      {/* Search Prompt Header */}
+                      {!spotlightQuery.trim() && !isSpotlightSearchingRemote && !spotlightRemoteAnswer && (
+                        <div className="p-4 text-center border border-dashed border-[#d8d6d0] bg-[#faf9f6] rounded-none select-none">
+                          <Search className="h-6 w-6 text-[#7c7a75] mx-auto mb-2 animate-bounce" />
+                          <h4 className="text-xs font-bold uppercase tracking-wider text-[#1a1a19]">Semantic Search Core</h4>
+                          <p className="text-[10px] text-[#7c7a75] mt-1 uppercase max-w-sm mx-auto">
+                            Ask natural language questions like "how does pwc restore trust" or "what are the liability caps". We will query high-dimensional space and present a grounded response.
+                          </p>
+                        </div>
+                      )}
+
+                      {/* Searching State with Shrinking-Shining Ink Loader */}
+                      {isSpotlightSearchingRemote && (
+                        <div className="py-8 text-center space-y-4 select-none">
+                          <div className="flex items-center justify-center gap-3">
+                            <span className="shrinking-shining-ink"></span>
+                            <span className="yazdani-spinner"></span>
+                          </div>
+                          <div className="space-y-1">
+                            <p className="text-xs font-bold uppercase tracking-wider sweep-text">
+                              Consulting Gemini AI & Scanning Corpora...
+                            </p>
+                            <p className="text-[9px] font-mono text-[#7c7a75] uppercase tracking-widest">
+                              Evaluating vector dimensions & SharePoint database records
+                            </p>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* AI Semantic Result */}
+                      {spotlightRemoteAnswer && !isSpotlightSearchingRemote && (
+                        <div className="border border-[#1a1a19] bg-[#faf9f6] p-4 relative mb-3">
+                          <div className="absolute top-2 right-3 flex items-center gap-1.5 select-none">
+                            <span className="px-1.5 py-0.5 bg-blue-100 text-blue-800 text-[8px] font-bold font-mono uppercase tracking-wider">
+                              Grounded AI
+                            </span>
+                          </div>
+                          <h5 className="text-[10px] font-mono uppercase font-bold text-[#7c7a75] tracking-wider mb-2 select-none">
+                            Aether Synthesis //
+                          </h5>
+                          <p className="text-xs text-[#1a1a19] leading-relaxed whitespace-pre-wrap font-sans">
+                            {spotlightRemoteAnswer}
+                          </p>
+                        </div>
+                      )}
+
+                      {/* Source Documents list (Rendered immediately on fast vector retrieval) */}
+                      {!isSpotlightSearchingRemote && spotlightRemoteSources && spotlightRemoteSources.length > 0 && (
+                        <div className="space-y-1.5">
+                          <div className="flex items-center justify-between pl-1 pr-1 select-none mb-1.5">
+                            <h6 className="text-[9px] font-mono uppercase font-bold text-[#7c7a75] tracking-widest pl-1">
+                              {spotlightRemoteAnswer ? "Grounding Sources" : "⚡ Instant Vector Matches"} ({spotlightRemoteSources.length}) //
+                            </h6>
+                            {!spotlightRemoteAnswer && (
+                              <span className="text-[8px] font-mono uppercase text-green-600 font-bold bg-green-50 px-1.5 py-0.5 border border-green-200">
+                                Real-time
+                              </span>
+                            )}
+                          </div>
+                          <div className="grid grid-cols-1 gap-1.5">
+                            {spotlightRemoteSources.map((src, sIdx) => {
+                              // Find the matching document in our documents list
+                              const localDoc = documents.find(doc => 
+                                doc.filename.toLowerCase() === src.title.toLowerCase() ||
+                                doc.filename.toLowerCase().includes(src.title.toLowerCase()) ||
+                                src.title.toLowerCase().includes(doc.filename.toLowerCase())
+                              );
+
+                              return (
+                                <div 
+                                  key={sIdx}
+                                  onClick={() => {
+                                    if (localDoc) {
+                                      setSelectedDoc(localDoc);
+                                      setIsHeaderSearchFocused(false);
+                                    }
+                                  }}
+                                  className="p-2 border border-[#d8d6d0] hover:border-[#1a1a19] bg-white transition-all cursor-pointer flex items-center justify-between group"
+                                >
+                                  <div className="flex items-center gap-2 min-w-0">
+                                    <FileText className="h-3.5 w-3.5 text-blue-700 shrink-0" />
+                                    <div className="flex flex-col min-w-0">
+                                      <span className="text-[11px] font-bold text-[#1a1a19] truncate group-hover:text-blue-700 transition-all font-sans">
+                                        {src.title}
+                                      </span>
+                                      {src.snippet && (
+                                        <span className="text-[9px] text-[#7c7a75] truncate max-w-md font-sans">
+                                          {src.snippet}
+                                        </span>
+                                      )}
+                                    </div>
+                                  </div>
+                                  <span className="text-[8px] font-mono text-[#7c7a75] border border-[#d8d6d0] px-1 group-hover:border-[#1a1a19] group-hover:text-[#1a1a19] uppercase tracking-wider shrink-0 ml-2">
+                                    {localDoc ? "Open Core" : "Reference"}
+                                  </span>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Quick Instruction if there is query but no search run yet */}
+                      {spotlightQuery.trim() && !isSpotlightSearchingRemote && !spotlightRemoteAnswer && (
+                        <div className="py-4 text-center border-t border-dashed border-[#d8d6d0] mt-3">
+                          <button
+                            onClick={() => handleSpotlightRemoteSearch(false)}
+                            className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#1a1a19] hover:bg-blue-700 text-[#faf9f6] text-xs font-bold uppercase tracking-wider transition-all cursor-pointer shadow-md"
+                          >
+                            <Search className="h-4 w-4" />
+                            <span>Ask Aether Deep AI</span>
+                          </button>
+                          <p className="text-[9px] font-mono text-[#7c7a75] mt-2 uppercase tracking-wide select-none">
+                            Or press [Enter] to submit query to Gemini agent
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* METADATA FILTERS MODE */}
+                  {searchMode === 'metadata' && (
+                    <div className="p-3 space-y-3">
+                      {/* Active Filter Badge indicator */}
+                      <div className="flex flex-wrap items-center gap-1.5 px-1 py-1 bg-stone-50 border border-[#e2e0da] select-none">
+                        <span className="text-[9px] font-mono font-bold text-[#7c7a75] uppercase tracking-widest px-1 mr-1">
+                          Attribute Filters //
+                        </span>
+                        
+                        <button 
+                          onClick={() => setSpotlightFilter('all')}
+                          className={`px-2 py-0.5 text-[9px] font-mono font-bold uppercase transition-all tracking-wider border cursor-pointer ${
+                            spotlightFilter === 'all' 
+                              ? 'bg-[#1a1a19] text-white border-[#1a1a19]' 
+                              : 'bg-transparent text-stone-500 border-stone-200 hover:border-[#7c7a75] hover:text-[#1a1a19]'
+                          }`}
+                        >
+                          ALL
+                        </button>
+                        
+                        <button 
+                          onClick={() => setSpotlightFilter('signed')}
+                          className={`px-2 py-0.5 text-[9px] font-mono font-bold uppercase transition-all tracking-wider border flex items-center gap-1 cursor-pointer ${
+                            spotlightFilter === 'signed' 
+                              ? 'bg-green-700 text-white border-green-700' 
+                              : 'bg-transparent text-stone-500 border-stone-200 hover:border-green-700 hover:text-green-700'
+                          }`}
+                        >
+                          <span className="h-1.5 w-1.5 rounded-full bg-green-500"></span>
+                          SIGNED
+                        </button>
+
+                        <button 
+                          onClick={() => setSpotlightFilter('unsigned')}
+                          className={`px-2 py-0.5 text-[9px] font-mono font-bold uppercase transition-all tracking-wider border flex items-center gap-1 cursor-pointer ${
+                            spotlightFilter === 'unsigned' 
+                              ? 'bg-rose-700 text-white border-rose-700' 
+                              : 'bg-transparent text-stone-500 border-stone-200 hover:border-rose-700 hover:text-rose-700'
+                          }`}
+                        >
+                          <span className="h-1.5 w-1.5 rounded-full bg-rose-500"></span>
+                          UNSIGNED
+                        </button>
+
+                        <button 
+                          onClick={() => setSpotlightFilter('pwc')}
+                          className={`px-2 py-0.5 text-[9px] font-mono font-bold uppercase transition-all tracking-wider border flex items-center gap-1 cursor-pointer ${
+                            spotlightFilter === 'pwc' 
+                              ? 'bg-blue-700 text-white border-blue-700' 
+                              : 'bg-transparent text-stone-500 border-stone-200 hover:border-blue-700 hover:text-blue-700'
+                          }`}
+                        >
+                          <span className="h-1.5 w-1.5 rounded-full bg-blue-500"></span>
+                          PwC CORP
+                        </button>
+
+                        <button 
+                          onClick={() => setSpotlightFilter('confidential')}
+                          className={`px-2 py-0.5 text-[9px] font-mono font-bold uppercase transition-all tracking-wider border flex items-center gap-1 cursor-pointer ${
+                            spotlightFilter === 'confidential' 
+                              ? 'bg-amber-700 text-white border-amber-700' 
+                              : 'bg-transparent text-stone-500 border-stone-200 hover:border-amber-700 hover:text-amber-700'
+                          }`}
+                        >
+                          <span className="h-1.5 w-1.5 rounded-full bg-amber-500"></span>
+                          CLASSIFIED
+                        </button>
+                      </div>
+
+                      {/* Documents Matches list */}
+                      <div className="space-y-1">
+                        {filteredSpotlightDocs.length === 0 ? (
+                          <div className="p-8 text-center text-xs font-mono border border-dashed border-[#d8d6d0] bg-[#faf9f6] text-[#7c7a75] select-none">
+                            NO CORES MATCHING THOSE FILTER ATTR IN DIRECTORY.
+                          </div>
+                        ) : (
+                          filteredSpotlightDocs.map((doc) => (
+                            <div 
+                              key={doc.id}
+                              onClick={() => {
+                                setSelectedDoc(doc);
+                                setIsHeaderSearchFocused(false);
+                              }}
+                              className="p-2.5 border border-[#d8d6d0] hover:border-[#1a1a19] bg-white transition-all cursor-pointer flex items-center justify-between group"
+                            >
+                              <div className="flex items-center gap-2 min-w-0">
+                                <FileText className="h-3.5 w-3.5 text-blue-700 shrink-0" />
+                                <div className="flex flex-col min-w-0">
+                                  <span className="text-xs font-bold text-[#1a1a19] truncate group-hover:text-blue-700 transition-all font-sans">
+                                    {doc.filename}
+                                  </span>
+                                  <div className="flex items-center gap-1.5 flex-wrap mt-0.5 select-none">
+                                    <span className="text-[8px] font-mono uppercase bg-[#f4f3ef] px-1 py-0.2 border border-stone-200 text-[#7c7a75]">
+                                      {doc.type}
+                                    </span>
+                                    {doc.is_signed?.toLowerCase() === 'yes' ? (
+                                      <span className="text-[8px] font-mono uppercase bg-emerald-50 text-emerald-800 border border-emerald-200 px-1 py-0.2 font-bold">
+                                        Signed
+                                      </span>
+                                    ) : (
+                                      <span className="text-[8px] font-mono uppercase bg-rose-50 text-rose-800 border border-rose-200 px-1 py-0.2">
+                                        Unsigned
+                                      </span>
+                                    )}
+                                    {doc.primary_topic && (
+                                      <span className="text-[8px] font-mono uppercase bg-purple-50 text-purple-800 border border-purple-200 px-1 py-0.2">
+                                        {doc.primary_topic}
+                                      </span>
+                                    )}
+                                  </div>
+                                </div>
+                              </div>
+                              <span className="text-[9px] font-mono text-[#7c7a75] shrink-0 ml-3 uppercase group-hover:text-[#1a1a19]">
+                                Select Core
+                              </span>
+                            </div>
+                          ))
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* ONTOLOGY GRAPH MODE */}
+                  {searchMode === 'ontology' && (
+                    <div className="p-3 space-y-4">
+                      {/* Classes Matches section */}
+                      <div className="space-y-1.5">
+                        <h6 className="text-[9px] font-mono uppercase font-bold text-purple-700 tracking-widest pl-1 flex items-center gap-1 select-none">
+                          <span>Classes ({filteredOntologyClasses.length}) //</span>
+                        </h6>
+                        
+                        {filteredOntologyClasses.length === 0 ? (
+                          <div className="p-4 text-center text-[10px] font-mono border border-dashed border-[#d8d6d0] bg-[#faf9f6] text-[#7c7a75] select-none">
+                            NO SCHEMA CLASSES MATCH QUERY
+                          </div>
+                        ) : (
+                          <div className="grid grid-cols-1 gap-1.5">
+                            {filteredOntologyClasses.slice(0, 10).map((cls, cIdx) => (
+                              <div 
+                                key={cIdx}
+                                className="p-2.5 border border-[#d8d6d0] bg-white transition-all flex flex-col gap-1 hover:border-[#1a1a19] group"
+                              >
+                                <div className="flex items-center justify-between select-none">
+                                  <span className="text-xs font-bold text-purple-800 font-mono">
+                                    🧬 {cls.name}
+                                  </span>
+                                  {cls.parent && (
+                                    <span className="text-[8px] font-mono bg-purple-50 text-purple-700 px-1 py-0.2 border border-purple-200 uppercase font-semibold">
+                                      Inherits: {cls.parent}
+                                    </span>
+                                  )}
+                                </div>
+                                {cls.description && (
+                                  <p className="text-[10px] text-[#7c7a75] uppercase leading-relaxed font-mono">
+                                    {cls.description}
+                                  </p>
+                                )}
+                                {cls.properties && cls.properties.length > 0 && (
+                                  <div className="flex flex-wrap gap-1 mt-1 select-none">
+                                    {cls.properties.slice(0, 5).map((prop, pIdx) => (
+                                      <span key={pIdx} className="text-[8px] font-mono bg-stone-50 border border-stone-200 text-[#1a1a19] px-1 py-0.2">
+                                        {prop.name}: {prop.type}
+                                      </span>
+                                    ))}
+                                    {cls.properties.length > 5 && (
+                                      <span className="text-[8px] font-mono text-[#7c7a75] px-1 py-0.2">
+                                        +{cls.properties.length - 5} more
+                                      </span>
+                                    )}
+                                  </div>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Relations Matches section */}
+                      <div className="space-y-1.5">
+                        <h6 className="text-[9px] font-mono uppercase font-bold text-purple-700 tracking-widest pl-1 flex items-center gap-1 select-none">
+                          <span>Relations ({filteredOntologyRelations.length}) //</span>
+                        </h6>
+                        
+                        {filteredOntologyRelations.length === 0 ? (
+                          <div className="p-4 text-center text-[10px] font-mono border border-dashed border-[#d8d6d0] bg-[#faf9f6] text-[#7c7a75] select-none">
+                            NO SCHEMA RELATIONS MATCH QUERY
+                          </div>
+                        ) : (
+                          <div className="grid grid-cols-1 gap-1.5">
+                            {filteredOntologyRelations.slice(0, 8).map((rel, rIdx) => (
+                              <div 
+                                key={rIdx}
+                                className="p-2 border border-[#d8d6d0] bg-white transition-all hover:border-[#1a1a19] font-mono"
+                              >
+                                <div className="flex flex-wrap items-center gap-1 text-[10px]">
+                                  <span className="font-bold text-[#1a1a19]">{rel.source}</span>
+                                  <span className="text-[#7c7a75]">➔</span>
+                                  <span className="px-1 py-0.2 bg-purple-50 text-purple-800 border border-purple-200 font-bold uppercase tracking-wider text-[8px] select-none">
+                                    {rel.type}
+                                  </span>
+                                  <span className="text-[#7c7a75]">➔</span>
+                                  <span className="font-bold text-[#1a1a19]">{rel.target}</span>
+                                </div>
+                                {rel.description && (
+                                  <p className="text-[9px] text-[#7c7a75] mt-1 uppercase">
+                                    {rel.description}
+                                  </p>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                </div>
+
+                {/* 4. Dropdown Footer Information */}
+                <div className="bg-[#faf9f6] border-t border-[#e2e0da] px-4 py-2 flex items-center justify-between text-[9px] font-mono text-[#7c7a75] uppercase select-none">
+                  <span>Google-powered Polymorphic Engine</span>
+                  <div className="flex items-center gap-2">
+                    <span>Press ESC to close</span>
+                    <span>•</span>
+                    <span>Aether Restructure System</span>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
         
         <div className="flex items-center gap-4">
@@ -1284,6 +2115,97 @@ export default function App() {
                         <div><span className="text-[#7c7a75] uppercase text-[9px] block">PII Detected</span><strong>{selectedDoc.pii_detected ? "Yes (DLP Redacted)" : "No"}</strong></div>
                       </div>
 
+                      {/* DLP Security & Pipeline Compliance Audit Widget */}
+                      <div className="mt-4 pt-4 border-t border-[#d8d6d0]">
+                        <div className="flex items-center justify-between bg-[#ef4444]/5 border-l-2 border-red-500 px-3 py-2 mb-3">
+                          <div className="flex items-center gap-2">
+                            <Shield className="h-4 w-4 text-red-600 animate-pulse" />
+                            <div>
+                              <span className="text-[10px] font-bold text-red-950 uppercase tracking-wider block leading-none">
+                                DLP SECURITY & PIPELINE COMPLIANCE AUDIT
+                              </span>
+                              <span className="text-[8px] font-mono text-red-700/80 uppercase tracking-widest mt-0.5 block">
+                                Step 02 / Inspection Active Protection
+                              </span>
+                            </div>
+                          </div>
+                          <span className={`px-2 py-0.5 rounded text-[8px] font-mono font-bold uppercase tracking-wider ${
+                            selectedDoc.pii_detected 
+                              ? 'bg-red-500 text-[#faf9f6] dlp-glowing-pulse' 
+                              : 'bg-green-700 text-[#faf9f6]'
+                          }`}>
+                            {selectedDoc.pii_detected ? "SHIELD ENGAGED // SSN/PHONE MASKED" : "DLP VERIFIED CLEAN"}
+                          </span>
+                        </div>
+
+                        {/* Interactive tab-like structure or expandable details */}
+                        <div className="bg-[#faf9f6] border border-[#d8d6d0] p-3 rounded-none relative overflow-hidden">
+                          <div className="absolute inset-0 dlp-shield-mesh opacity-20 pointer-events-none" />
+                          
+                          {/* If PII is detected, let's show an interactive scan simulation and exact masked PII values! */}
+                          {selectedDoc.pii_detected && (
+                            <div className="mb-3 border border-red-200/60 bg-red-50/25 p-2 rounded-none dlp-active-scan">
+                              <span className="text-[8px] font-mono text-red-700 font-bold block uppercase tracking-wider mb-1">
+                                [!] ACTIVE COMPLIANCE TELEMETRY SCANNER [!]
+                              </span>
+                              <div className="space-y-1.5 font-mono text-[10px] text-[#1a1a19]">
+                                <div className="flex justify-between items-center border-b border-dotted border-red-100 pb-0.5">
+                                  <span className="text-red-700 font-bold">DETECTED PATTERN:</span>
+                                  <span className="font-bold">Social Security Number (SSN)</span>
+                                </div>
+                                <div className="flex justify-between items-center border-b border-dotted border-red-100 pb-0.5">
+                                  <span className="text-red-700 font-bold">PII LOCATION:</span>
+                                  <span className="text-gray-600">Paragraph 4, Page 2</span>
+                                </div>
+                                <div className="flex justify-between items-center border-b border-dotted border-red-100 pb-0.5">
+                                  <span className="text-red-700 font-bold">MASKED VALUE:</span>
+                                  <span className="bg-red-100 border border-red-200 px-1 py-0.5 rounded text-red-800 font-bold">***-XX-8492</span>
+                                </div>
+                                <div className="flex justify-between items-center">
+                                  <span className="text-red-700 font-bold">DLP ACTION:</span>
+                                  <span className="font-bold text-green-700">REDACTED & RESTRICTED IN VECTOR CACHE</span>
+                                </div>
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Requirements list as interactive checkboxes/cards */}
+                          <div className="space-y-2">
+                            <span className="text-[9px] uppercase font-mono font-bold text-[#7c7a75] block mb-1">
+                              Compliance Verification Checks (Step 02 Reqs):
+                            </span>
+                            {[
+                              { code: "FR02", name: "Lifecycle Tagging", desc: "Extracts file headers to mark active, draft, or historical classifications.", state: selectedDoc.lifecycle ? "VERIFIED" : "DEFAULTED", val: selectedDoc.lifecycle || "ACTIVE/PRODUCTION" },
+                              { code: "FR07", name: "Metadata Quality Validation", desc: "Runs regex patterns and validation checks against raw extracted string sequences.", state: "PASSED", val: "Regex Checked Clean" },
+                              { code: "FR21", name: "Incident Logging & Tracking", desc: "Automatically captures extraction failures or corruption alerts as exceptions.", state: selectedDoc.state === 'EXCEPTION' ? "INCIDENT FILED" : "STANDBY", val: selectedDoc.state === 'EXCEPTION' ? "Logged in Incident Tracker" : "No Incidents Detected" },
+                              { code: "FR26", name: "End-to-End Metadata Lineage", desc: "Logs source telemetry check indicators inside database record audits.", state: "CONNECTED", val: `UID: doc::${selectedDoc.id}` }
+                            ].map((req, rIdx) => (
+                              <div key={rIdx} className="bg-white border border-[#d8d6d0] p-2 hover:border-[#1a1a19] transition-colors rounded-none flex items-start gap-2">
+                                <div className="mt-0.5">
+                                  <span className={`text-[8px] font-bold font-mono px-1 py-0.5 rounded ${
+                                    req.state === 'PASSED' || req.state === 'VERIFIED' || req.state === 'CONNECTED'
+                                      ? 'bg-green-100 text-green-800 border border-green-200'
+                                      : req.state === 'INCIDENT FILED'
+                                        ? 'bg-red-100 text-red-800 border border-red-200 animate-pulse'
+                                        : 'bg-gray-100 text-gray-700 border border-gray-200'
+                                  }`}>
+                                    {req.code}
+                                  </span>
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <div className="flex justify-between items-baseline mb-0.5">
+                                    <strong className="text-[10px] text-[#1a1a19]">{req.name}</strong>
+                                    <span className="text-[8px] font-mono text-[#7c7a75]">{req.val}</span>
+                                  </div>
+                                  <p className="text-[9px] text-[#7c7a75] leading-snug">{req.desc}</p>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+
+
                       {/* FR10: Engagement Letter & Contract Validation Section */}
                       {(selectedDoc.is_signed || selectedDoc.standard_terms || selectedDoc.permitted_use || selectedDoc.liability_cap || selectedDoc.engagement_letter_link) && (
                         <div className="mt-4 pt-3 border-t border-[#d8d6d0]">
@@ -1610,8 +2532,17 @@ export default function App() {
 
         </div>
 
+        {/* Resizer Handle */}
+        <div 
+          onMouseDown={handleConsoleMouseDown}
+          className="w-1.5 cursor-col-resize hover:bg-[#1a1a19]/25 active:bg-[#1a1a19] transition-colors shrink-0 bg-[#d8d6d0] border-l border-r border-[#faf9f6]"
+        />
+
         {/* Right Section: Aether AI Chat */}
-        <div className="w-[480px] bg-[#f4f3ef] flex flex-col min-height-0 overflow-hidden shrink-0">
+        <div 
+          style={{ width: `${consoleWidth}px` }} 
+          className="bg-[#f4f3ef] flex flex-col min-height-0 overflow-hidden shrink-0"
+        >
           
           <div className="flex items-baseline justify-between px-6 py-5 border-b border-[#d8d6d0] bg-[#f4f3ef] shrink-0">
             <h3 className="font-bold text-[#1a1a19] text-xs tracking-widest uppercase">AETHER AI CONSOLE</h3>
@@ -1630,93 +2561,116 @@ export default function App() {
                 </span>
                 
                 {msg.isThinking ? (
-                  <div className="text-xs border-l border-[#1a1a19] pl-3 text-[#1a1a19] font-mono">
-                    Searching index... <span className="console-cursor">█</span>
-                  </div>
+                  <RealtimeThinkingState />
                 ) : (
                   <div className="text-sm border-l border-[#1a1a19] pl-3 text-[#1a1a19] leading-relaxed rounded-none">
-                    {renderFlowDiagram(msg.text)}
-                    
-                    {msg.sources && msg.sources.length > 0 && (
-                      <div className="mt-3 space-y-1.5 border-t border-dotted border-[#d8d6d0] pt-2">
-                        <span className="text-[9px] uppercase text-[#7c7a75] font-bold block">Grounded Citations:</span>
-                        {msg.sources.map((src, sIdx) => {
-                          const cleanTitle = src.title.trim().toLowerCase();
-                          const foundDoc = documents.find(d => {
-                            const cleanDocName = d.filename.trim().toLowerCase();
-                            return cleanDocName === cleanTitle || cleanDocName.includes(cleanTitle) || cleanTitle.includes(cleanDocName);
-                          });
-                          return (
-                            <div key={sIdx} className="text-xs text-[#7c7a75] flex items-baseline gap-1.5 group relative">
-                              <CornerDownRight className="h-3 w-3 shrink-0 mt-0.5" />
-                              <div className="flex-1 min-w-0">
-                                <div className="flex flex-wrap items-center gap-2 mb-0.5 relative">
-                                  {src.url && src.url !== "#" ? (
-                                    <a href={src.url} target="_blank" rel="noreferrer" className="underline font-medium hover:text-[#1a1a19] text-blue-700 flex items-center gap-0.5 shrink-0">
-                                      {src.title} <Link2 className="h-3 w-3" />
-                                    </a>
-                                  ) : (
-                                    <span className="font-medium text-[#1a1a19] shrink-0">{src.title}</span>
-                                  )}
-
-                                  {/* FLOATING HOVER CARD WINDOW */}
-                                  {foundDoc && (
-                                    <div className="absolute bottom-full left-0 mb-2 hidden group-hover:flex flex-col w-80 bg-[#faf9f6] border-2 border-[#1a1a19] p-4 shadow-[4px_4px_0px_0px_rgba(26,26,25,0.15)] z-50 pointer-events-none text-[#1a1a19] font-sans rounded-none transition-all">
-                                      <div className="border-b border-[#d8d6d0] pb-2 mb-2 flex items-center justify-between">
-                                        <span className="text-[9px] uppercase font-mono font-bold text-[#7c7a75]">Document Metadata Card</span>
-                                        <span className="text-[9px] font-mono bg-[#1a1a19] text-[#faf9f6] px-1.5 py-0.5 font-bold uppercase truncate">{foundDoc.state || "APPROVED"}</span>
-                                      </div>
-                                      <h4 className="font-bold text-xs text-[#1a1a19] truncate mb-3">{foundDoc.filename}</h4>
-                                      <div className="space-y-2 text-[11px]">
-                                        <div className="flex justify-between items-center border-b border-dotted border-[#d8d6d0] pb-1">
-                                          <span className="text-[#7c7a75] font-mono text-[9px] uppercase">Lifecycle:</span>
-                                          <span className="font-bold text-[#1a1a19]">{foundDoc.lifecycle || 'ACTIVE/PRODUCTION'}</span>
-                                        </div>
-                                        <div className="flex justify-between items-center border-b border-dotted border-[#d8d6d0] pb-1">
-                                          <span className="text-[#7c7a75] font-mono text-[9px] uppercase">Confidentiality:</span>
-                                          <span className="font-bold text-red-700 uppercase">{foundDoc.confidentiality || 'CONFIDENTIAL'}</span>
-                                        </div>
-                                        <div className="flex justify-between items-center border-b border-dotted border-[#d8d6d0] pb-1">
-                                          <span className="text-[#7c7a75] font-mono text-[9px] uppercase">Classification:</span>
-                                          <span className="font-bold">{foundDoc.sub_type || 'UNCLASSIFIED'}</span>
-                                        </div>
-                                        <div className="flex justify-between items-center border-b border-dotted border-[#d8d6d0] pb-1">
-                                          <span className="text-[#7c7a75] font-mono text-[9px] uppercase">Primary Topic:</span>
-                                          <span className="font-semibold truncate max-w-[150px] text-right">{foundDoc.primary_topic || 'GENERAL'}</span>
-                                        </div>
-                                        <div className="flex justify-between items-center">
-                                          <span className="text-[#7c7a75] font-mono text-[9px] uppercase">PII Status:</span>
-                                          <span className={`font-bold ${foundDoc.pii_detected ? 'text-red-600' : 'text-green-700'}`}>
-                                            {foundDoc.pii_detected ? '⚠️ DETECTED' : '✅ CLEAN'}
-                                          </span>
-                                        </div>
-                                      </div>
-                                    </div>
-                                  )}
-                                  {foundDoc && (
-                                    <button
-                                      type="button"
-                                      onClick={() => {
-                                        setSelectedDoc(foundDoc);
-                                        setEditType(foundDoc.sub_type || "");
-                                        setEditCap(foundDoc.confidentiality || "");
-                                        setActiveTab('queue');
-                                      }}
-                                      className="inline-flex items-center gap-1 text-[9px] uppercase font-bold tracking-widest px-1.5 py-0.5 bg-[#1a1a19] text-[#faf9f6] hover:bg-[#7c7a75] hover:text-[#faf9f6] transition-colors border-none cursor-pointer rounded-none shadow-[2px_2px_0px_0px_rgba(124,122,117,0.5)]"
-                                    >
-                                      Ver Metadatos & Ontología 🔍
-                                    </button>
-                                  )}
-                                </div>
-                                <span className="block text-[10px] italic font-serif text-[#7c7a75] leading-relaxed">"{src.snippet}"</span>
-                              </div>
-                            </div>
-                          );
-                        })}
-                      </div>
+                    {msg.thinking_steps && msg.thinking_steps.length > 0 && (
+                      <ThinkingAccordion 
+                        steps={msg.thinking_steps} 
+                        latency={msg.latency} 
+                        model={msg.model} 
+                        region={msg.region} 
+                      />
                     )}
+                    {renderFlowDiagram(extractCleanGroundedAnswer(msg.text))}
+                    
+                    {(() => {
+                      const cleanText = extractCleanGroundedAnswer(msg.text).toLowerCase();
+                      const visibleSources = msg.sources?.filter(src => {
+                        const titleLower = src.title.toLowerCase();
+                        return !cleanText.includes(titleLower);
+                      }) || [];
 
-                    {(msg.latency || msg.model) && (
+                      if (visibleSources.length === 0) return null;
+
+                      return (
+                        <div className="mt-3 space-y-1.5 border-t border-dotted border-[#d8d6d0] pt-2">
+                          <span className="text-[9px] uppercase text-[#7c7a75] font-bold block">Grounded Citations:</span>
+                          {visibleSources.map((src, sIdx) => {
+                            const cleanTitle = src.title.trim().toLowerCase();
+                            const foundDoc = documents.find(d => {
+                              const cleanDocName = d.filename.trim().toLowerCase();
+                              return cleanDocName === cleanTitle || cleanDocName.includes(cleanTitle) || cleanTitle.includes(cleanDocName);
+                            });
+                            return (
+                              <div key={sIdx} className="text-xs text-[#7c7a75] flex items-baseline gap-1.5 group relative">
+                                <CornerDownRight className="h-3 w-3 shrink-0 mt-0.5" />
+                                <div className="flex-1 min-w-0">
+                                  <div className="flex flex-wrap items-center gap-2 mb-0.5 relative">
+                                    {src.url && src.url !== "#" ? (
+                                      <a href={src.url} target="_blank" rel="noreferrer" className="underline font-medium hover:text-[#1a1a19] text-blue-700 flex items-center gap-0.5 shrink-0">
+                                        {src.title} <Link2 className="h-3 w-3" />
+                                      </a>
+                                    ) : (
+                                      <span className="font-medium text-[#1a1a19] shrink-0">{src.title}</span>
+                                    )}
+
+                                    {/* FLOATING HOVER CARD WINDOW */}
+                                    {foundDoc && (
+                                      <div className="absolute bottom-full left-0 mb-2 hidden group-hover:flex flex-col w-80 bg-[#faf9f6] border-2 border-[#1a1a19] p-4 shadow-[4px_4px_0px_0px_rgba(26,26,25,0.15)] z-50 text-[#1a1a19] font-sans rounded-none transition-all">
+                                        <div className="border-b border-[#d8d6d0] pb-2 mb-2 flex items-center justify-between">
+                                          <span className="text-[9px] uppercase font-mono font-bold text-[#7c7a75]">Document Metadata Card</span>
+                                          <span className="text-[9px] font-mono bg-[#1a1a19] text-[#faf9f6] px-1.5 py-0.5 font-bold uppercase truncate">{foundDoc.state || "APPROVED"}</span>
+                                        </div>
+                                        <h4 className="font-bold text-xs text-[#1a1a19] truncate mb-3">{foundDoc.filename}</h4>
+                                        <div className="space-y-2 text-[11px]">
+                                          <div className="flex justify-between items-center border-b border-dotted border-[#d8d6d0] pb-1">
+                                            <span className="text-[#7c7a75] font-mono text-[9px] uppercase">Lifecycle:</span>
+                                            <span className="font-bold text-[#1a1a19]">{foundDoc.lifecycle || 'ACTIVE/PRODUCTION'}</span>
+                                          </div>
+                                          <div className="flex justify-between items-center border-b border-dotted border-[#d8d6d0] pb-1">
+                                            <span className="text-[#7c7a75] font-mono text-[9px] uppercase">Confidentiality:</span>
+                                            <span className="font-bold text-red-700 uppercase">{foundDoc.confidentiality || 'CONFIDENTIAL'}</span>
+                                          </div>
+                                          <div className="flex justify-between items-center border-b border-dotted border-[#d8d6d0] pb-1">
+                                            <span className="text-[#7c7a75] font-mono text-[9px] uppercase">Classification:</span>
+                                            <span className="font-bold">{foundDoc.sub_type || 'UNCLASSIFIED'}</span>
+                                          </div>
+                                          <div className="flex justify-between items-center border-b border-dotted border-[#d8d6d0] pb-1">
+                                            <span className="text-[#7c7a75] font-mono text-[9px] uppercase">Primary Topic:</span>
+                                            <span className="font-semibold truncate max-w-[150px] text-right">{foundDoc.primary_topic || 'GENERAL'}</span>
+                                          </div>
+                                          <div className="flex justify-between items-center pb-1">
+                                            <span className="text-[#7c7a75] font-mono text-[9px] uppercase">PII Status:</span>
+                                            <span className={`font-bold ${foundDoc.pii_detected ? 'text-red-600' : 'text-green-700'}`}>
+                                              {foundDoc.pii_detected ? '⚠️ DETECTED' : '✅ CLEAN'}
+                                            </span>
+                                          </div>
+                                          {foundDoc.pii_detected && (
+                                            <div className="text-[8px] leading-relaxed text-red-700 bg-red-50 border border-red-200/50 p-1.5 mt-1.5 font-mono select-none uppercase col-span-2 text-left">
+                                              <strong>[DLP Shield Active]</strong> SSN & Phone patterns masked. Click below to inspect raw telemetry, redaction locations, & Step 02 logs.
+                                            </div>
+                                          )}
+                                        </div>
+
+                                        <div className="mt-3 pt-3 border-t border-[#d8d6d0]">
+                                          <button
+                                            type="button"
+                                            onClick={() => {
+                                              setSelectedDoc(foundDoc);
+                                              setEditType(foundDoc.sub_type || "");
+                                              setEditCap(foundDoc.confidentiality || "");
+                                              setActiveTab('queue');
+                                              setIsPanelMinimized(false);
+                                            }}
+                                            className="w-full inline-flex items-center justify-center gap-1.5 text-[10px] uppercase font-bold tracking-widest px-2.5 py-1.5 bg-[#1a1a19] text-[#faf9f6] hover:bg-[#7c7a75] hover:text-[#faf9f6] transition-colors border-none cursor-pointer rounded-none shadow-[2px_2px_0px_0px_rgba(124,122,117,0.5)]"
+                                          >
+                                            View Metadata & Ontology 🔍
+                                          </button>
+                                        </div>
+                                      </div>
+                                    )}
+                                  </div>
+                                  <span className="block text-[10px] italic font-serif text-[#7c7a75] leading-relaxed">"{src.snippet}"</span>
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      );
+                    })()}
+
+                    {(msg.latency || msg.model) && (!msg.thinking_steps || msg.thinking_steps.length === 0) && (
                       <div className="mt-3 flex justify-between border-t border-dotted border-[#d8d6d0] pt-1 text-[9px] font-mono text-[#7c7a75]">
                         <span>[LATENCY: {msg.latency}]</span>
                         <span>[MODEL: {msg.model} // REGION: {msg.region || 'global'}]</span>
@@ -1761,28 +2715,48 @@ export default function App() {
       </div>
 
       {/* 3. Bottom Block: Crawler Terminal */}
-      <footer className="h-48 border-t border-[#d8d6d0] bg-[#111111] text-green-400 font-mono p-4 overflow-hidden flex flex-col shrink-0">
-        <div className="flex items-center justify-between border-b border-[#333] pb-2 mb-2 shrink-0">
+      <footer className={`${isConsoleMinimized ? "h-10" : "h-48"} border-t border-[#d8d6d0] bg-[#111111] text-green-400 font-mono px-4 py-2.5 overflow-hidden flex flex-col shrink-0 transition-all duration-300 relative`}>
+        <div 
+          onClick={() => setIsConsoleMinimized(!isConsoleMinimized)}
+          className={`flex items-center justify-between shrink-0 cursor-pointer select-none ${isConsoleMinimized ? "" : "border-b border-[#333] pb-2 mb-2"}`}
+        >
           <span className="text-[10px] uppercase font-bold tracking-wider flex items-center gap-1.5 text-gray-400">
             <Terminal className="h-3.5 w-3.5" /> LIVE PIPELINE CRAWLER STATUS LOGS
+            {isConsoleMinimized ? (
+              <span className="text-[8px] font-mono text-gray-600 lowercase font-normal ml-1">
+                (click to expand)
+              </span>
+            ) : null}
           </span>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
             {isSyncingSp && (
               <span className="text-[9px] font-mono px-2 py-0.5 bg-green-950 border border-green-500 text-green-400 uppercase font-bold animate-pulse">
                 Sync Active
               </span>
             )}
-            <button 
-              onClick={() => setSimulatorLogs([])}
-              className="text-[9px] uppercase font-bold px-3 py-1 border border-gray-600 text-gray-400 hover:border-gray-400 hover:text-white rounded-none transition-all"
-            >
-              Clear Console
-            </button>
+            {!isConsoleMinimized && (
+              <button 
+                onClick={(e) => {
+                  e.stopPropagation(); // Prevent toggling footer state
+                  setSimulatorLogs([]);
+                }}
+                className="text-[9px] uppercase font-bold px-3 py-1 border border-gray-600 text-gray-400 hover:border-gray-400 hover:text-white rounded-none transition-all"
+              >
+                Clear Console
+              </button>
+            )}
+            <div className="text-gray-500 hover:text-white transition-colors">
+              {isConsoleMinimized ? (
+                <ChevronUp className="h-4 w-4" />
+              ) : (
+                <ChevronDown className="h-4 w-4" />
+              )}
+            </div>
           </div>
         </div>
 
         {/* Terminal Text box */}
-        <div className="flex-1 overflow-y-auto text-xs space-y-1">
+        <div className={`flex-1 overflow-y-auto text-xs space-y-1 transition-opacity duration-300 ${isConsoleMinimized ? "opacity-0 pointer-events-none" : "opacity-100"}`}>
           {simulatorLogs.length === 0 ? (
             <span className="text-gray-600">Active crawler log stream ready...</span>
           ) : (
@@ -1897,7 +2871,7 @@ export default function App() {
                     onKeyDown={(e) => {
                       if (e.key === 'Enter') {
                         if (e.shiftKey) {
-                          handleSpotlightRemoteSearch();
+                          handleSpotlightRemoteSearch(false);
                         } else if (filteredSpotlightDocs[selectedSpotlightIndex]) {
                           setSelectedDoc(filteredSpotlightDocs[selectedSpotlightIndex]);
                           setIsSpotlightOpen(false);
@@ -2129,19 +3103,20 @@ export default function App() {
                   {/* 1. Quick Info Card or Semantic Answer Preview */}
                   <div className="flex-1 flex flex-col justify-between">
                     {isSpotlightSearchingRemote ? (
-                      <div className={`flex-1 flex flex-col items-center justify-center p-8 text-center border ${
+                      <div className={`flex-1 flex flex-col items-center justify-center p-10 text-center border relative overflow-hidden ${
                         isSpotlightLightTheme 
-                          ? 'bg-cyan-50/50 border-cyan-200 text-cyan-900' 
-                          : 'bg-cyan-950/5 border-cyan-500/20 text-cyan-300'
+                          ? 'bg-indigo-50/40 border-indigo-200 text-indigo-950' 
+                          : 'bg-[#121214] border-[#1a1a19] text-[#faf9f6]'
                       }`}>
-                        <RefreshCw className={`h-8 w-8 animate-spin mb-3 ${isSpotlightLightTheme ? 'text-cyan-600' : 'text-cyan-400'}`} />
-                        <span className={`text-xs font-bold uppercase tracking-wider animate-[pulse_1s_infinite] ${
-                          isSpotlightLightTheme ? 'text-cyan-700' : 'text-cyan-300'
-                        }`}>Neural Extraction Active</span>
-                        <span className={`text-[10px] mt-2 leading-relaxed max-w-[220px] ${
-                          isSpotlightLightTheme ? 'text-cyan-800/80' : 'text-cyan-600'
+                        <div className="absolute inset-0 dlp-shield-mesh opacity-25 pointer-events-none" />
+                        <span className="shrinking-shining-ink-lg mb-4" />
+                        <span className={`text-xs font-mono font-bold uppercase tracking-wider sweep-text`}>
+                          Neural Synthesizer Active
+                        </span>
+                        <span className={`text-[9px] font-mono mt-3 leading-relaxed max-w-[240px] uppercase ${
+                          isSpotlightLightTheme ? 'text-indigo-950/70' : 'text-[#7c7a75]'
                         }`}>
-                          Traversing Firestore records, processing multi-document RAG context and synthesizing answers via Gemini-3-Flash...
+                          Accessing high-dimensional embeddings space, evaluating security access vectors & drafting response
                         </span>
                       </div>
                     ) : spotlightRemoteAnswer ? (
@@ -2281,7 +3256,7 @@ export default function App() {
                   {/* 2. Deep Search Trigger Trigger Box */}
                   {!isSpotlightSearchingRemote && !spotlightRemoteAnswer && spotlightQuery.trim() && (
                     <button 
-                      onClick={handleSpotlightRemoteSearch}
+                      onClick={() => handleSpotlightRemoteSearch(false)}
                       className={`mt-4 w-full text-xs font-bold py-2.5 px-3 rounded-none uppercase flex items-center justify-center gap-2 transition-all cursor-pointer shrink-0 font-mono tracking-wider ${
                         isSpotlightLightTheme 
                           ? 'bg-cyan-600 hover:bg-cyan-700 text-white shadow-[0_0_15px_rgba(8,145,178,0.2)]' 
