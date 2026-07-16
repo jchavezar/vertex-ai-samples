@@ -61,10 +61,118 @@ function parseDraft(text: string) {
       body = body.substring(0, idxLetMeKnow).trim();
     }
     
-    return { to_address, subject, body };
   }
   return null;
 }
+
+function renderMarkdown(text: string) {
+  if (!text) return null;
+
+  // Split into paragraphs or block items
+  const blocks = text.split('\n\n');
+
+  return blocks.map((block, blockIdx) => {
+    const trimmed = block.trim();
+    if (!trimmed) return null;
+
+    // Check if it's a list
+    if (trimmed.startsWith('- ') || trimmed.startsWith('* ') || trimmed.match(/^\d+\.\s/)) {
+      const items = block.split('\n');
+      return (
+        <ul key={blockIdx} style={{ paddingLeft: '1.25rem', margin: '8px 0', lineHeight: '1.5' }}>
+          {items.map((item, itemIdx) => {
+            const cleanItem = item.replace(/^[-*\d\.]+\s+/, '');
+            return (
+              <li key={itemIdx} style={{ marginBottom: '4px' }}>
+                {renderInlineMarkdown(cleanItem)}
+              </li>
+            );
+          })}
+        </ul>
+      );
+    }
+
+    // Default paragraph
+    return (
+      <p key={blockIdx} style={{ margin: '0 0 12px 0', lineHeight: '1.6' }}>
+        {renderInlineMarkdown(trimmed)}
+      </p>
+    );
+  });
+}
+
+function renderInlineMarkdown(text: string) {
+  const parts = [];
+  let remaining = text;
+  
+  while (remaining) {
+    const boldIdx = remaining.indexOf('**');
+    const italicIdx = remaining.indexOf('*');
+    const codeIdx = remaining.indexOf('`');
+    
+    const indices = [
+      { type: 'bold', index: boldIdx },
+      { type: 'italic', index: italicIdx },
+      { type: 'code', index: codeIdx }
+    ].filter(x => x.index !== -1).sort((a, b) => a.index - b.index);
+    
+    if (indices.length === 0) {
+      parts.push(remaining);
+      break;
+    }
+    
+    const nextToken = indices[0];
+    
+    if (nextToken.index > 0) {
+      parts.push(remaining.substring(0, nextToken.index));
+    }
+    
+    remaining = remaining.substring(nextToken.index);
+    
+    if (nextToken.type === 'bold') {
+      const closingIdx = remaining.indexOf('**', 2);
+      if (closingIdx !== -1) {
+        parts.push(<strong key={remaining + closingIdx} style={{ fontWeight: 600, color: 'var(--text)' }}>{remaining.substring(2, closingIdx)}</strong>);
+        remaining = remaining.substring(closingIdx + 2);
+      } else {
+        parts.push('**');
+        remaining = remaining.substring(2);
+      }
+    } else if (nextToken.type === 'italic') {
+      const closingIdx = remaining.indexOf('*', 1);
+      if (closingIdx !== -1) {
+        parts.push(<em key={remaining + closingIdx} style={{ fontStyle: 'italic' }}>{remaining.substring(1, closingIdx)}</em>);
+        remaining = remaining.substring(closingIdx + 1);
+      } else {
+        parts.push('*');
+        remaining = remaining.substring(1);
+      }
+    } else if (nextToken.type === 'code') {
+      const closingIdx = remaining.indexOf('`', 1);
+      if (closingIdx !== -1) {
+        parts.push(
+          <code key={remaining + closingIdx} style={{ 
+            fontFamily: 'monospace', 
+            background: 'var(--bg-card, #f1f5f9)', 
+            padding: '2px 6px', 
+            borderRadius: '4px',
+            fontSize: '0.85em',
+            border: '1px solid var(--border)'
+          }}>
+            {remaining.substring(1, closingIdx)}
+          </code>
+        );
+        remaining = remaining.substring(closingIdx + 1);
+      } else {
+        parts.push('`');
+        remaining = remaining.substring(1);
+      }
+    }
+  }
+  
+  return parts;
+}
+
 
 export default function App() {
   const { instance, accounts } = useMsal();
@@ -441,7 +549,7 @@ export default function App() {
               <div key={idx} className={`msg-block msg-block-${msg.role}`}>
                 <span className="msg-label">{msg.role === 'user' ? 'USER' : 'GEMINI ENTERPRISE'}</span>
                 <div className="msg-content">
-                  {msg.text}
+                  {renderMarkdown(msg.text)}
 
                   {msg.sources && msg.sources.length > 0 && (
                     <div style={{ marginTop: '12px', borderTop: '1px dotted var(--border)', paddingTop: '8px' }}>
