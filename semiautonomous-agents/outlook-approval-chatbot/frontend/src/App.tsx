@@ -210,6 +210,22 @@ export default function App() {
   const [chatInput, setChatInput] = useState('');
   const [loadingChat, setLoadingChat] = useState(false);
   const [sessionToken, setSessionToken] = useState<string | null>(null);
+  const [liveChatElapsed, setLiveChatElapsed] = useState<number>(0);
+
+  // Live timer for active chat stream
+  useEffect(() => {
+    let interval: any;
+    if (loadingChat) {
+      const start = Date.now();
+      setLiveChatElapsed(0);
+      interval = setInterval(() => {
+        setLiveChatElapsed((Date.now() - start) / 1000);
+      }, 100);
+    } else {
+      setLiveChatElapsed(0);
+    }
+    return () => clearInterval(interval);
+  }, [loadingChat]);
 
   // Approvals states
   const [approvals, setApprovals] = useState<ApprovalItem[]>([]);
@@ -695,18 +711,31 @@ export default function App() {
                     <div style={{
                       display: 'flex',
                       alignItems: 'center',
-                      gap: '8px',
-                      padding: '8px 12px',
+                      justifyContent: 'space-between',
+                      padding: '10px 14px',
                       background: 'rgba(245, 158, 11, 0.08)',
                       border: '1px solid rgba(245, 158, 11, 0.3)',
-                      borderRadius: '6px',
+                      borderRadius: '8px',
                       color: '#f59e0b',
-                      fontSize: '0.8rem',
+                      fontSize: '0.82rem',
                       fontFamily: 'monospace',
-                      marginBottom: '10px'
+                      marginBottom: '10px',
+                      boxShadow: '0 2px 8px rgba(245, 158, 11, 0.1)'
                     }}>
-                      <span className="spinner" style={{ animation: 'spin 1s linear infinite' }}>⚙</span>
-                      <span>{msg.thought ? `Reasoning: ${msg.thought}` : 'Analyzing query & searching connected data stores...'}</span>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <span style={{ animation: 'spin 1s linear infinite', display: 'inline-block' }}>⚙</span>
+                        <span>{msg.thought ? `Reasoning: ${msg.thought}` : 'Analyzing query & searching connected data stores...'}</span>
+                      </div>
+                      <span style={{
+                        fontSize: '0.72rem',
+                        background: 'rgba(245, 158, 11, 0.15)',
+                        padding: '2px 8px',
+                        borderRadius: '4px',
+                        border: '1px solid rgba(245, 158, 11, 0.3)',
+                        fontWeight: 600
+                      }}>
+                        ⏱ {liveChatElapsed.toFixed(1)}s
+                      </span>
                     </div>
                   )}
 
@@ -912,7 +941,7 @@ export default function App() {
                     })()
                   )}
 
-                  {msg.latency_ms && (
+                  {msg.latency_ms > 0 && (
                     <div className="msg-meta-footer">
                       <span>[LATENCY: {(msg.latency_ms / 1000).toFixed(2)}s]</span>
                       <span>[MODEL: GEMINI ENTERPRISE]</span>
