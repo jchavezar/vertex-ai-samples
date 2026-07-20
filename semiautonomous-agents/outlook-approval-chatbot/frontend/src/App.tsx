@@ -83,9 +83,15 @@ function parseDraft(text: string) {
 
 function renderMarkdown(text: string) {
   if (!text) return null;
+  let cleanText = text;
+  if (cleanText.trim() === '0') return null;
+  if (cleanText.startsWith('0\n')) {
+    cleanText = cleanText.substring(2).trimStart();
+  }
+  if (!cleanText) return null;
 
   // Split into paragraphs or block items
-  const blocks = text.split('\n\n');
+  const blocks = cleanText.split('\n\n');
 
   return blocks.map((block, blockIdx) => {
     const trimmed = block.trim();
