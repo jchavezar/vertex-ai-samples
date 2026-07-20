@@ -11,11 +11,26 @@ interface Source {
   entity_type: string;
 }
 
+interface StreamMetrics {
+  assistToken?: string;
+  session?: string;
+  queryId?: string;
+  turnId?: string;
+  uToken?: string;
+  replyId?: string;
+  createTime?: string;
+  state?: string;
+  adkAuthor?: string;
+}
+
 interface Message {
   role: 'user' | 'assistant';
   text: string;
   sources?: Source[];
   latency_ms?: number;
+  metrics?: StreamMetrics;
+  suggestions?: string[];
+  rawChunks?: any[];
 }
 
 interface ApprovalItem {
@@ -371,7 +386,7 @@ export default function App() {
     }
   };
 
-  // Chat chatbot handler
+  // Chat chatbot handler with live SSE event streaming
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
     const q = chatInput.trim();
@@ -385,6 +400,9 @@ export default function App() {
     setLoadingChat(true);
 
     const startTime = Date.now();
+    // Add placeholder message for incoming stream
+    setMessages(prev => [...prev, { role: 'assistant', text: '', sources: [], latency_ms: 0 }]);
+
     try {
       const resp = await fetch('/api/search', {
         method: 'POST',
@@ -394,22 +412,127 @@ export default function App() {
         },
         body: JSON.stringify({ query: q, session_token: sessionToken }),
       });
-      const data = await resp.json();
-      if (data.error) {
-        setMessages(prev => [...prev, { role: 'assistant', text: `Error: ${data.error}` }]);
-      } else {
-        setMessages(prev => [...prev, {
-          role: 'assistant',
-          text: data.answer || 'No answer returned.',
-          sources: data.sources,
-          latency_ms: Date.now() - startTime,
-        }]);
-        if (data.session_token) {
-          setSessionToken(data.session_token);
+
+      if (!resp.body) {
+        setMessages(prev => {
+          const updated = [...prev];
+          updated[updated.length - 1].text = 'Error: No response stream received from backend.';
+          return updated;
+        });
+        return;
+      }
+
+      const reader = resp.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = '';
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+
+        const lines = buffer.split('\n');
+        buffer = lines.pop() || '';
+
+        for (const line of lines) {
+          if (!line.startsWith('data: ')) continue;
+          const jsonStr = line.replace('data: ', '').trim();
+          if (!jsonStr) continue;
+
+          try {
+            const evt = JSON.parse(jsonStr);
+            if (evt.type === 'metrics') {
+              console.log('%c[StreamAssist Metrics & Tokens]', 'color: #38bdf8; font-weight: bold; font-size: 11px;', evt.metrics);
+              setMessages(prev => {
+                const updated = [...prev];
+                const last = updated[updated.length - 1];
+                if (last && last.role === 'assistant') {
+                  last.metrics = { ...(last.metrics || {}), ...evt.metrics };
+                }
+                return updated;
+              });
+            } else if (evt.type === 'chunk') {
+              console.log('%c[StreamAssist Raw Chunk]', 'color: #a78bfa; font-size: 10px;', evt.raw);
+              setMessages(prev => {
+                const updated = [...prev];
+                const last = updated[updated.length - 1];
+                if (last && last.role === 'assistant') {
+                  last.rawChunks = [...(last.rawChunks || []), evt.raw];
+                }
+                return updated;
+              });
+            } else if (evt.type === 'suggestions') {
+              setMessages(prev => {
+                const updated = [...prev];
+                const last = updated[updated.length - 1];
+                if (last && last.role === 'assistant') {
+                  last.suggestions = evt.questions;
+                }
+                return updated;
+              });
+            } else if (evt.type === 'thought') {
+              // Only log thoughts, do not set raw 'true' as message text
+              if (evt.thought && evt.thought.toString().toLowerCase() !== 'true') {
+                console.log('%c[StreamAssist Thought]', 'color: #f59e0b;', evt.thought);
+              }
+            } else if (evt.type === 'text') {
+              // Ignore standalone leading '0' token artifacts from streamAssist
+              if (evt.text.trim() === '0') return;
+
+              setMessages(prev => {
+                const updated = [...prev];
+                const last = updated[updated.length - 1];
+                if (last && last.role === 'assistant') {
+                  if (evt.is_cumulative) {
+                    last.text = evt.text;
+                  } else {
+                    if (last.text.startsWith('*[Thinking...') || last.text === '0' || last.text === '') {
+                      last.text = '';
+                    }
+                    last.text += evt.text;
+                  }
+                  last.latency_ms = Date.now() - startTime;
+                }
+                return updated;
+              });
+            } else if (evt.type === 'source') {
+              setMessages(prev => {
+                const updated = [...prev];
+                const last = updated[updated.length - 1];
+                if (last && last.role === 'assistant') {
+                  const existing = last.sources || [];
+                  if (!existing.some(s => s.url === evt.source.url)) {
+                    last.sources = [...existing, evt.source];
+                  }
+                }
+                return updated;
+              });
+            } else if (evt.type === 'done') {
+              if (evt.session_token) {
+                setSessionToken(evt.session_token);
+              }
+            } else if (evt.type === 'error') {
+              setMessages(prev => {
+                const updated = [...prev];
+                updated[updated.length - 1].text = `Error: ${evt.error}`;
+                return updated;
+              });
+            }
+          } catch (err) {
+            console.error("Failed to parse SSE line:", line, err);
+          }
         }
       }
     } catch (err: any) {
-      setMessages(prev => [...prev, { role: 'assistant', text: `Network Error: ${err.message}` }]);
+      setMessages(prev => {
+        const updated = [...prev];
+        if (updated.length > 0 && updated[updated.length - 1].role === 'assistant') {
+          updated[updated.length - 1].text = `Network Error: ${err.message}`;
+        } else {
+          updated.push({ role: 'assistant', text: `Network Error: ${err.message}` });
+        }
+        return updated;
+      });
     } finally {
       setLoadingChat(false);
     }
@@ -559,33 +682,126 @@ export default function App() {
                 <div className="msg-content">
                   {renderMarkdown(msg.text)}
 
+                  {/* StreamAssist Telemetry & Tokens Inspector */}
+                  {msg.metrics && (
+                    <details style={{
+                      marginTop: '10px',
+                      background: 'rgba(56, 189, 248, 0.04)',
+                      border: '1px dashed rgba(56, 189, 248, 0.3)',
+                      borderRadius: '6px',
+                      padding: '8px 12px',
+                      fontSize: '0.72rem',
+                      fontFamily: 'monospace',
+                      color: 'var(--text-muted)'
+                    }}>
+                      <summary style={{ cursor: 'pointer', fontWeight: 600, color: '#38bdf8', userSelect: 'none' }}>
+                        ⚙ STREAMASSIST METRICS & TOKENS (assistToken, queryId, turnId, uToken, replyId)
+                      </summary>
+                      <div style={{ marginTop: '8px', display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '6px', whiteSpace: 'pre-wrap', wordBreak: 'break-all' }}>
+                        {msg.metrics.assistToken && <div><strong>assistToken:</strong> {msg.metrics.assistToken}</div>}
+                        {msg.metrics.session && <div><strong>session:</strong> {msg.metrics.session}</div>}
+                        {msg.metrics.queryId && <div><strong>queryId:</strong> {msg.metrics.queryId}</div>}
+                        {msg.metrics.turnId && <div><strong>turnId:</strong> {msg.metrics.turnId}</div>}
+                        {msg.metrics.replyId && <div><strong>replyId:</strong> {msg.metrics.replyId}</div>}
+                        {msg.metrics.adkAuthor && <div><strong>adkAuthor:</strong> {msg.metrics.adkAuthor}</div>}
+                        {msg.metrics.state && <div><strong>state:</strong> {msg.metrics.state}</div>}
+                        {msg.metrics.createTime && <div><strong>createTime:</strong> {msg.metrics.createTime}</div>}
+                        {msg.metrics.uToken && <div style={{ gridColumn: 'span 2' }}><strong>uToken:</strong> {msg.metrics.uToken}</div>}
+                      </div>
+                    </details>
+                  )}
+
+                  {/* Grounding Citations */}
                   {msg.sources && msg.sources.length > 0 && (
                     <div style={{ marginTop: '12px', borderTop: '1px dotted var(--border)', paddingTop: '8px' }}>
-                      <span style={{ fontSize: '0.65rem', fontWeight: 600, color: 'var(--text-muted)' }}>SOURCES:</span>
-                      <ul style={{ listStyle: 'none', paddingLeft: 0, marginTop: '4px' }}>
+                      <span style={{ fontSize: '0.65rem', fontWeight: 700, color: '#10b981', letterSpacing: '0.5px' }}>🔗 GROUNDED SOURCES & CITATIONS:</span>
+                      <ul style={{ listStyle: 'none', paddingLeft: 0, marginTop: '6px' }}>
                         {msg.sources.map((src, sIdx) => (
-                          <li key={sIdx} style={{ fontSize: '0.75rem', marginBottom: '4px' }}>
-                            <a 
-                              href={src.url} 
-                              target="_blank" 
-                              rel="noopener noreferrer" 
-                              style={{ 
-                                color: '#3b82f6', 
-                                textDecoration: 'none', 
-                                fontWeight: 500,
-                                borderBottom: '1px dashed rgba(59, 130, 246, 0.4)',
-                                transition: 'color 0.2s ease'
-                              }}
-                              onMouseOver={(e) => (e.currentTarget.style.color = '#60a5fa')}
-                              onMouseOut={(e) => (e.currentTarget.style.color = '#3b82f6')}
-                            >
-                              [{src.entity_type || 'Email'}] {src.title}
-                            </a>
-                            {src.description && <span style={{ color: 'var(--text-muted)' }}> - {src.description}</span>}
+                          <li key={sIdx} style={{ fontSize: '0.78rem', marginBottom: '8px', background: 'rgba(16, 185, 129, 0.05)', padding: '8px 10px', borderRadius: '6px', border: '1px solid rgba(16, 185, 129, 0.2)' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '2px' }}>
+                              <span style={{ fontSize: '0.65rem', background: '#10b981', color: '#fff', padding: '2px 6px', borderRadius: '4px', fontWeight: 600 }}>
+                                {src.file_type ? src.file_type.toUpperCase() : 'DOC'}
+                              </span>
+                              <a 
+                                href={src.url} 
+                                target="_blank" 
+                                rel="noopener noreferrer" 
+                                style={{ 
+                                  color: '#3b82f6', 
+                                  textDecoration: 'underline', 
+                                  fontWeight: 600,
+                                  wordBreak: 'break-all'
+                                }}
+                              >
+                                {src.title || src.url}
+                              </a>
+                            </div>
+                            {src.description && <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: '4px', fontStyle: 'italic' }}>"{src.description}"</div>}
                           </li>
                         ))}
                       </ul>
                     </div>
+                  )}
+
+                  {/* Follow-up Question Chips */}
+                  {msg.suggestions && msg.suggestions.length > 0 && (
+                    <div style={{ marginTop: '12px', borderTop: '1px dashed var(--border)', paddingTop: '8px' }}>
+                      <span style={{ fontSize: '0.65rem', fontWeight: 700, color: '#a78bfa' }}>💡 RECOMMENDED FOLLOW-UP QUESTIONS:</span>
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginTop: '6px' }}>
+                        {msg.suggestions.map((q, qIdx) => (
+                          <button
+                            key={qIdx}
+                            onClick={() => {
+                              setQuery(q);
+                              setTimeout(() => handleSearch(), 50);
+                            }}
+                            style={{
+                              background: 'rgba(167, 139, 250, 0.1)',
+                              border: '1px solid rgba(167, 139, 250, 0.3)',
+                              color: '#c084fc',
+                              borderRadius: '16px',
+                              padding: '4px 12px',
+                              fontSize: '0.75rem',
+                              cursor: 'pointer',
+                              textAlign: 'left',
+                              transition: 'all 0.2s ease'
+                            }}
+                            onMouseOver={(e) => (e.currentTarget.style.background = 'rgba(167, 139, 250, 0.25)')}
+                            onMouseOut={(e) => (e.currentTarget.style.background = 'rgba(167, 139, 250, 0.1)')}
+                          >
+                            + {q}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Raw SSE Event Chunks Inspector */}
+                  {msg.rawChunks && msg.rawChunks.length > 0 && (
+                    <details style={{
+                      marginTop: '8px',
+                      background: 'rgba(167, 139, 250, 0.03)',
+                      border: '1px dashed rgba(167, 139, 250, 0.3)',
+                      borderRadius: '6px',
+                      padding: '6px 10px',
+                      fontSize: '0.7rem',
+                      fontFamily: 'monospace',
+                      color: 'var(--text-muted)'
+                    }}>
+                      <summary style={{ cursor: 'pointer', fontWeight: 600, color: '#a78bfa', userSelect: 'none' }}>
+                        📡 RAW SSE CHUNK STREAM LOG ({msg.rawChunks.length} dynamic chunks)
+                      </summary>
+                      <div style={{ marginTop: '8px', maxHeight: '200px', overflowY: 'auto', background: '#0f172a', padding: '8px', borderRadius: '4px', color: '#38bdf8', fontSize: '0.65rem' }}>
+                        {msg.rawChunks.map((chunk, cIdx) => (
+                          <div key={cIdx} style={{ marginBottom: '8px', borderBottom: '1px solid #1e293b', pb: '4px' }}>
+                            <span style={{ color: '#f59e0b', fontWeight: 700 }}>[Chunk #{cIdx + 1}]</span>
+                            <pre style={{ margin: '4px 0 0 0', whiteSpace: 'pre-wrap', wordBreak: 'break-all' }}>
+                              {JSON.stringify(chunk, null, 2)}
+                            </pre>
+                          </div>
+                        ))}
+                      </div>
+                    </details>
                   )}
 
                   {/* If this is an assistant response containing a drafted email template, render an interactive action confirmation card */}
@@ -656,14 +872,6 @@ export default function App() {
               </div>
             ))}
 
-            {loadingChat && (
-              <div className="msg-block msg-block-ai">
-                <span className="msg-label">GEMINI ENTERPRISE</span>
-                <div className="msg-thinking">
-                  Thinking... <span className="cursor-blink">█</span>
-                </div>
-              </div>
-            )}
             <div ref={messagesEndRef} />
           </div>
 
