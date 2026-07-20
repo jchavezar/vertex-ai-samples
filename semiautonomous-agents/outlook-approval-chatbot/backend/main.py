@@ -386,14 +386,14 @@ async def search(request: Request, body: SearchRequest):
 
                             text = content.get("text")
                             if text and (not thought or isinstance(thought, bool)):
-                                # Filter out standalone leading '0' token artifacts from streamAssist
-                                clean_text = text.strip()
-                                if clean_text == "0" or text.startswith("0\n"):
-                                    # Strip leading '0\n' or ignore if it's just '0'
-                                    text = text[2:].lstrip("\n") if text.startswith("0\n") else ""
+                                import re
+                                # Strip standalone 0s, leading 0s, and trailing 0s from streamAssist artifacts
+                                text = re.sub(r'^\s*0\s*$', '', text)
+                                text = re.sub(r'^\s*0\n+', '', text)
+                                text = re.sub(r'\n+0\s*$', '', text)
                                 
-                                if text:
-                                    evt = json.dumps({"type": "text", "text": text, "is_cumulative": True})
+                                if text.trim() if hasattr(text, 'trim') else text.strip():
+                                    evt = json.dumps({"type": "text", "text": text, "is_cumulative": False})
                                     yield f"data: {evt}\n\n"
 
                             # Handle inline follow-up suggestions

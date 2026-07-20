@@ -83,11 +83,8 @@ function parseDraft(text: string) {
 
 function renderMarkdown(text: string) {
   if (!text) return null;
-  let cleanText = text;
-  if (cleanText.trim() === '0') return null;
-  if (cleanText.startsWith('0\n')) {
-    cleanText = cleanText.substring(2).trimStart();
-  }
+  // Strip standalone 0s, leading 0s, and trailing 0s from streamAssist artifacts
+  let cleanText = text.replace(/^\s*0\s*$/, '').replace(/^\s*0\n+/, '').replace(/\n+0\s*$/, '').trim();
   if (!cleanText) return null;
 
   // Split into paragraphs or block items
@@ -491,12 +488,9 @@ export default function App() {
               }
             } else if (evt.type === 'text') {
               let textVal = evt.text || '';
-              // Ignore standalone leading '0' token artifacts from streamAssist
-              if (textVal.trim() === '0') return;
-              if (textVal.startsWith('0\n')) {
-                textVal = textVal.substring(2).trimStart();
-              }
-              if (!textVal) return;
+              // Strip standalone 0s, leading 0s, and trailing 0s from streamAssist artifacts
+              textVal = textVal.replace(/^\s*0\s*$/, '').replace(/^\s*0\n+/, '').replace(/\n+0\s*$/, '');
+              if (!textVal.trim()) return;
 
               setMessages(prev => {
                 const updated = [...prev];
