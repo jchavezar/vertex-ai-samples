@@ -26,6 +26,7 @@ interface StreamMetrics {
 interface Message {
   role: 'user' | 'assistant';
   text: string;
+  thought?: string;
   sources?: Source[];
   latency_ms?: number;
   metrics?: StreamMetrics;
@@ -471,13 +472,21 @@ export default function App() {
                 return updated;
               });
             } else if (evt.type === 'thought') {
-              // Only log thoughts, do not set raw 'true' as message text
               if (evt.thought && evt.thought.toString().toLowerCase() !== 'true') {
                 console.log('%c[StreamAssist Thought]', 'color: #f59e0b;', evt.thought);
+                setMessages(prev => {
+                  const updated = [...prev];
+                  const last = updated[updated.length - 1];
+                  if (last && last.role === 'assistant') {
+                    last.thought = evt.thought;
+                  }
+                  return updated;
+                });
               }
             } else if (evt.type === 'text') {
               // Ignore standalone leading '0' token artifacts from streamAssist
-              if (evt.text.trim() === '0') return;
+              const cleanText = evt.text.trim();
+              if (cleanText === '0' || cleanText === '') return;
 
               setMessages(prev => {
                 const updated = [...prev];
@@ -486,9 +495,6 @@ export default function App() {
                   if (evt.is_cumulative) {
                     last.text = evt.text;
                   } else {
-                    if (last.text.startsWith('*[Thinking...') || last.text === '0' || last.text === '') {
-                      last.text = '';
-                    }
                     last.text += evt.text;
                   }
                   last.latency_ms = Date.now() - startTime;
@@ -680,6 +686,46 @@ export default function App() {
               <div key={idx} className={`msg-block msg-block-${msg.role}`}>
                 <span className="msg-label">{msg.role === 'user' ? 'USER' : 'GEMINI ENTERPRISE'}</span>
                 <div className="msg-content">
+                  {/* Reasoning / Thinking Banner */}
+                  {msg.role === 'assistant' && !msg.text && (
+                    <div style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                      padding: '8px 12px',
+                      background: 'rgba(245, 158, 11, 0.08)',
+                      border: '1px solid rgba(245, 158, 11, 0.3)',
+                      borderRadius: '6px',
+                      color: '#f59e0b',
+                      fontSize: '0.8rem',
+                      fontFamily: 'monospace',
+                      marginBottom: '10px'
+                    }}>
+                      <span className="spinner" style={{ animation: 'spin 1s linear infinite' }}>⚙</span>
+                      <span>{msg.thought ? `Reasoning: ${msg.thought}` : 'Analyzing query & searching connected data stores...'}</span>
+                    </div>
+                  )}
+
+                  {msg.role === 'assistant' && msg.thought && msg.text && (
+                    <details style={{
+                      marginBottom: '10px',
+                      background: 'rgba(245, 158, 11, 0.05)',
+                      border: '1px dashed rgba(245, 158, 11, 0.3)',
+                      borderRadius: '6px',
+                      padding: '6px 10px',
+                      fontSize: '0.75rem',
+                      fontFamily: 'monospace',
+                      color: '#f59e0b'
+                    }}>
+                      <summary style={{ cursor: 'pointer', fontWeight: 600 }}>
+                        💭 MODEL REASONING & THOUGHT PROCESS
+                      </summary>
+                      <div style={{ marginTop: '6px', whiteSpace: 'pre-wrap', color: 'var(--text-muted)' }}>
+                        {msg.thought}
+                      </div>
+                    </details>
+                  )}
+
                   {renderMarkdown(msg.text)}
 
                   {/* StreamAssist Telemetry & Tokens Inspector */}

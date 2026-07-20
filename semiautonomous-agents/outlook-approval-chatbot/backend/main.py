@@ -378,14 +378,17 @@ async def search(request: Request, body: SearchRequest):
                             content = gc.get("content", {})
 
                             thought = content.get("thought")
-                            if thought and not isinstance(thought, bool):
-                                thought_str = str(thought)
-                                evt = json.dumps({"type": "thought", "thought": thought_str})
-                                yield f"data: {evt}\n\n"
+                            if thought:
+                                thought_str = str(thought) if not isinstance(thought, str) else thought
+                                if thought_str.strip().lower() != "true":
+                                    evt = json.dumps({"type": "thought", "thought": thought_str})
+                                    yield f"data: {evt}\n\n"
 
                             text = content.get("text")
                             if text and (not thought or isinstance(thought, bool)):
-                                if text.strip() != "0":
+                                # Filter out standalone leading '0' token artifacts
+                                clean_text = text.strip()
+                                if clean_text != "0" and clean_text != "":
                                     evt = json.dumps({"type": "text", "text": text, "is_cumulative": True})
                                     yield f"data: {evt}\n\n"
 
