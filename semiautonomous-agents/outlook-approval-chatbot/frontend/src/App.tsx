@@ -484,18 +484,22 @@ export default function App() {
                 });
               }
             } else if (evt.type === 'text') {
+              let textVal = evt.text || '';
               // Ignore standalone leading '0' token artifacts from streamAssist
-              const cleanText = evt.text.trim();
-              if (cleanText === '0' || cleanText === '') return;
+              if (textVal.trim() === '0') return;
+              if (textVal.startsWith('0\n')) {
+                textVal = textVal.substring(2).trimStart();
+              }
+              if (!textVal) return;
 
               setMessages(prev => {
                 const updated = [...prev];
                 const last = updated[updated.length - 1];
                 if (last && last.role === 'assistant') {
                   if (evt.is_cumulative) {
-                    last.text = evt.text;
+                    last.text = textVal;
                   } else {
-                    last.text += evt.text;
+                    last.text += textVal;
                   }
                   last.latency_ms = Date.now() - startTime;
                 }
