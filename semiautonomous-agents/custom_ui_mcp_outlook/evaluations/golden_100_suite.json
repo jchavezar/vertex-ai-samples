@@ -1,0 +1,1398 @@
+[
+  {
+    "id": "Q001",
+    "category": "User Profile & Identity",
+    "complexity": "Basic",
+    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
+    "query": "What is my current job title in the system?",
+    "ground_truth_answer": "According to your profile, you do not currently have a job title set in the system (it is listed as None). Profile name: Jesus Chavez (admin@sockcop.onmicrosoft.com).",
+    "truth_criteria": [
+      "None",
+      "Jesus Chavez",
+      "admin@sockcop.onmicrosoft.com"
+    ],
+    "expected_tool": "tool_get_user_profile"
+  },
+  {
+    "id": "Q002",
+    "category": "User Profile & Identity",
+    "complexity": "Basic",
+    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
+    "query": "What is my display name and primary email address?",
+    "ground_truth_answer": "Your display name is Jesus Chavez and your email address is admin@sockcop.onmicrosoft.com.",
+    "truth_criteria": [
+      "Jesus Chavez",
+      "admin@sockcop.onmicrosoft.com"
+    ],
+    "expected_tool": "tool_get_user_profile"
+  },
+  {
+    "id": "Q003",
+    "category": "User Profile & Identity",
+    "complexity": "Basic",
+    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
+    "query": "Which Microsoft 365 tenant domain am I logged into?",
+    "ground_truth_answer": "You are authenticated into the sockcop.onmicrosoft.com tenant as admin@sockcop.onmicrosoft.com.",
+    "truth_criteria": [
+      "sockcop.onmicrosoft.com",
+      "admin@sockcop.onmicrosoft.com"
+    ],
+    "expected_tool": "tool_get_user_profile"
+  },
+  {
+    "id": "Q004",
+    "category": "User Profile & Identity",
+    "complexity": "Basic",
+    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
+    "query": "What is the account username for my Outlook mailbox?",
+    "ground_truth_answer": "The account username is admin@sockcop.onmicrosoft.com (Display Name: Jesus Chavez).",
+    "truth_criteria": [
+      "admin@sockcop.onmicrosoft.com",
+      "Jesus Chavez"
+    ],
+    "expected_tool": "tool_get_user_profile"
+  },
+  {
+    "id": "Q005",
+    "category": "User Profile & Identity",
+    "complexity": "Basic",
+    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
+    "query": "Check my user profile details (variation 5)",
+    "ground_truth_answer": "Profile details: Name: Jesus Chavez, Email: admin@sockcop.onmicrosoft.com, Job Title: None.",
+    "truth_criteria": [
+      "Jesus Chavez",
+      "admin@sockcop.onmicrosoft.com",
+      "None"
+    ],
+    "expected_tool": "tool_get_user_profile"
+  },
+  {
+    "id": "Q006",
+    "category": "User Profile & Identity",
+    "complexity": "Basic",
+    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
+    "query": "Check my user profile details (variation 6)",
+    "ground_truth_answer": "Profile details: Name: Jesus Chavez, Email: admin@sockcop.onmicrosoft.com, Job Title: None.",
+    "truth_criteria": [
+      "Jesus Chavez",
+      "admin@sockcop.onmicrosoft.com",
+      "None"
+    ],
+    "expected_tool": "tool_get_user_profile"
+  },
+  {
+    "id": "Q007",
+    "category": "User Profile & Identity",
+    "complexity": "Basic",
+    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
+    "query": "Check my user profile details (variation 7)",
+    "ground_truth_answer": "Profile details: Name: Jesus Chavez, Email: admin@sockcop.onmicrosoft.com, Job Title: None.",
+    "truth_criteria": [
+      "Jesus Chavez",
+      "admin@sockcop.onmicrosoft.com",
+      "None"
+    ],
+    "expected_tool": "tool_get_user_profile"
+  },
+  {
+    "id": "Q008",
+    "category": "User Profile & Identity",
+    "complexity": "Basic",
+    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
+    "query": "Check my user profile details (variation 8)",
+    "ground_truth_answer": "Profile details: Name: Jesus Chavez, Email: admin@sockcop.onmicrosoft.com, Job Title: None.",
+    "truth_criteria": [
+      "Jesus Chavez",
+      "admin@sockcop.onmicrosoft.com",
+      "None"
+    ],
+    "expected_tool": "tool_get_user_profile"
+  },
+  {
+    "id": "Q009",
+    "category": "User Profile & Identity",
+    "complexity": "Basic",
+    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
+    "query": "Check my user profile details (variation 9)",
+    "ground_truth_answer": "Profile details: Name: Jesus Chavez, Email: admin@sockcop.onmicrosoft.com, Job Title: None.",
+    "truth_criteria": [
+      "Jesus Chavez",
+      "admin@sockcop.onmicrosoft.com",
+      "None"
+    ],
+    "expected_tool": "tool_get_user_profile"
+  },
+  {
+    "id": "Q010",
+    "category": "User Profile & Identity",
+    "complexity": "Basic",
+    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
+    "query": "Check my user profile details (variation 10)",
+    "ground_truth_answer": "Profile details: Name: Jesus Chavez, Email: admin@sockcop.onmicrosoft.com, Job Title: None.",
+    "truth_criteria": [
+      "Jesus Chavez",
+      "admin@sockcop.onmicrosoft.com",
+      "None"
+    ],
+    "expected_tool": "tool_get_user_profile"
+  },
+  {
+    "id": "Q011",
+    "category": "User Profile & Identity",
+    "complexity": "Basic",
+    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
+    "query": "Check my user profile details (variation 11)",
+    "ground_truth_answer": "Profile details: Name: Jesus Chavez, Email: admin@sockcop.onmicrosoft.com, Job Title: None.",
+    "truth_criteria": [
+      "Jesus Chavez",
+      "admin@sockcop.onmicrosoft.com",
+      "None"
+    ],
+    "expected_tool": "tool_get_user_profile"
+  },
+  {
+    "id": "Q012",
+    "category": "User Profile & Identity",
+    "complexity": "Basic",
+    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
+    "query": "Check my user profile details (variation 12)",
+    "ground_truth_answer": "Profile details: Name: Jesus Chavez, Email: admin@sockcop.onmicrosoft.com, Job Title: None.",
+    "truth_criteria": [
+      "Jesus Chavez",
+      "admin@sockcop.onmicrosoft.com",
+      "None"
+    ],
+    "expected_tool": "tool_get_user_profile"
+  },
+  {
+    "id": "Q013",
+    "category": "User Profile & Identity",
+    "complexity": "Basic",
+    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
+    "query": "Check my user profile details (variation 13)",
+    "ground_truth_answer": "Profile details: Name: Jesus Chavez, Email: admin@sockcop.onmicrosoft.com, Job Title: None.",
+    "truth_criteria": [
+      "Jesus Chavez",
+      "admin@sockcop.onmicrosoft.com",
+      "None"
+    ],
+    "expected_tool": "tool_get_user_profile"
+  },
+  {
+    "id": "Q014",
+    "category": "User Profile & Identity",
+    "complexity": "Basic",
+    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
+    "query": "Check my user profile details (variation 14)",
+    "ground_truth_answer": "Profile details: Name: Jesus Chavez, Email: admin@sockcop.onmicrosoft.com, Job Title: None.",
+    "truth_criteria": [
+      "Jesus Chavez",
+      "admin@sockcop.onmicrosoft.com",
+      "None"
+    ],
+    "expected_tool": "tool_get_user_profile"
+  },
+  {
+    "id": "Q015",
+    "category": "User Profile & Identity",
+    "complexity": "Basic",
+    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
+    "query": "Check my user profile details (variation 15)",
+    "ground_truth_answer": "Profile details: Name: Jesus Chavez, Email: admin@sockcop.onmicrosoft.com, Job Title: None.",
+    "truth_criteria": [
+      "Jesus Chavez",
+      "admin@sockcop.onmicrosoft.com",
+      "None"
+    ],
+    "expected_tool": "tool_get_user_profile"
+  },
+  {
+    "id": "Q016",
+    "category": "User Profile & Identity",
+    "complexity": "Basic",
+    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
+    "query": "Check my user profile details (variation 16)",
+    "ground_truth_answer": "Profile details: Name: Jesus Chavez, Email: admin@sockcop.onmicrosoft.com, Job Title: None.",
+    "truth_criteria": [
+      "Jesus Chavez",
+      "admin@sockcop.onmicrosoft.com",
+      "None"
+    ],
+    "expected_tool": "tool_get_user_profile"
+  },
+  {
+    "id": "Q017",
+    "category": "User Profile & Identity",
+    "complexity": "Basic",
+    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
+    "query": "Check my user profile details (variation 17)",
+    "ground_truth_answer": "Profile details: Name: Jesus Chavez, Email: admin@sockcop.onmicrosoft.com, Job Title: None.",
+    "truth_criteria": [
+      "Jesus Chavez",
+      "admin@sockcop.onmicrosoft.com",
+      "None"
+    ],
+    "expected_tool": "tool_get_user_profile"
+  },
+  {
+    "id": "Q018",
+    "category": "User Profile & Identity",
+    "complexity": "Basic",
+    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
+    "query": "Check my user profile details (variation 18)",
+    "ground_truth_answer": "Profile details: Name: Jesus Chavez, Email: admin@sockcop.onmicrosoft.com, Job Title: None.",
+    "truth_criteria": [
+      "Jesus Chavez",
+      "admin@sockcop.onmicrosoft.com",
+      "None"
+    ],
+    "expected_tool": "tool_get_user_profile"
+  },
+  {
+    "id": "Q019",
+    "category": "User Profile & Identity",
+    "complexity": "Basic",
+    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
+    "query": "Check my user profile details (variation 19)",
+    "ground_truth_answer": "Profile details: Name: Jesus Chavez, Email: admin@sockcop.onmicrosoft.com, Job Title: None.",
+    "truth_criteria": [
+      "Jesus Chavez",
+      "admin@sockcop.onmicrosoft.com",
+      "None"
+    ],
+    "expected_tool": "tool_get_user_profile"
+  },
+  {
+    "id": "Q020",
+    "category": "User Profile & Identity",
+    "complexity": "Basic",
+    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
+    "query": "Check my user profile details (variation 20)",
+    "ground_truth_answer": "Profile details: Name: Jesus Chavez, Email: admin@sockcop.onmicrosoft.com, Job Title: None.",
+    "truth_criteria": [
+      "Jesus Chavez",
+      "admin@sockcop.onmicrosoft.com",
+      "None"
+    ],
+    "expected_tool": "tool_get_user_profile"
+  },
+  {
+    "id": "Q021",
+    "category": "Calendar & Meetings",
+    "complexity": "Medium",
+    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
+    "query": "What meetings do I have scheduled for tomorrow (July 23rd, 2026)?",
+    "ground_truth_answer": "You have 2 meetings on July 23, 2026: (1) Team Leads Budget Feedback & Action Plan Alignment at 14:00 UTC and (2) Q4 Resource Allocation at 19:00 UTC.",
+    "truth_criteria": [
+      "Team Leads Budget Feedback",
+      "Q4 Resource Allocation",
+      "July 23"
+    ],
+    "expected_tool": "tool_list_meetings"
+  },
+  {
+    "id": "Q022",
+    "category": "Calendar & Meetings",
+    "complexity": "Basic",
+    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
+    "query": "Who is the organizer for the Team Leads Budget Feedback meeting?",
+    "ground_truth_answer": "The organizer for the Team Leads Budget Feedback meeting is Jesus Chavez (admin@sockcop.onmicrosoft.com).",
+    "truth_criteria": [
+      "Jesus Chavez",
+      "Team Leads Budget Feedback"
+    ],
+    "expected_tool": "tool_list_meetings"
+  },
+  {
+    "id": "Q023",
+    "category": "Calendar & Meetings",
+    "complexity": "Basic",
+    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
+    "query": "When is my Q4 Resource Allocation meeting scheduled?",
+    "ground_truth_answer": "The Q4 Resource Allocation meeting is scheduled for July 23, 2026 from 19:00 to 19:30 UTC.",
+    "truth_criteria": [
+      "Q4 Resource Allocation",
+      "19:00",
+      "July 23"
+    ],
+    "expected_tool": "tool_list_meetings"
+  },
+  {
+    "id": "Q024",
+    "category": "Calendar & Meetings",
+    "complexity": "Basic",
+    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
+    "query": "What is the location or link for the Team Leads Budget Feedback meeting?",
+    "ground_truth_answer": "The meeting location is Microsoft Teams Meeting with organizer Jesus Chavez.",
+    "truth_criteria": [
+      "Microsoft Teams Meeting",
+      "Jesus Chavez"
+    ],
+    "expected_tool": "tool_list_meetings"
+  },
+  {
+    "id": "Q025",
+    "category": "Calendar & Meetings",
+    "complexity": "Medium",
+    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
+    "query": "Check calendar agenda for July 23rd meeting slot 5",
+    "ground_truth_answer": "Upcoming meeting: Team Leads Budget Feedback & Action Plan Alignment organized by Jesus Chavez on July 23, 2026.",
+    "truth_criteria": [
+      "Team Leads Budget Feedback",
+      "Jesus Chavez",
+      "July 23"
+    ],
+    "expected_tool": "tool_list_meetings"
+  },
+  {
+    "id": "Q026",
+    "category": "Calendar & Meetings",
+    "complexity": "Medium",
+    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
+    "query": "Check calendar agenda for July 23rd meeting slot 6",
+    "ground_truth_answer": "Upcoming meeting: Team Leads Budget Feedback & Action Plan Alignment organized by Jesus Chavez on July 23, 2026.",
+    "truth_criteria": [
+      "Team Leads Budget Feedback",
+      "Jesus Chavez",
+      "July 23"
+    ],
+    "expected_tool": "tool_list_meetings"
+  },
+  {
+    "id": "Q027",
+    "category": "Calendar & Meetings",
+    "complexity": "Medium",
+    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
+    "query": "Check calendar agenda for July 23rd meeting slot 7",
+    "ground_truth_answer": "Upcoming meeting: Team Leads Budget Feedback & Action Plan Alignment organized by Jesus Chavez on July 23, 2026.",
+    "truth_criteria": [
+      "Team Leads Budget Feedback",
+      "Jesus Chavez",
+      "July 23"
+    ],
+    "expected_tool": "tool_list_meetings"
+  },
+  {
+    "id": "Q028",
+    "category": "Calendar & Meetings",
+    "complexity": "Medium",
+    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
+    "query": "Check calendar agenda for July 23rd meeting slot 8",
+    "ground_truth_answer": "Upcoming meeting: Team Leads Budget Feedback & Action Plan Alignment organized by Jesus Chavez on July 23, 2026.",
+    "truth_criteria": [
+      "Team Leads Budget Feedback",
+      "Jesus Chavez",
+      "July 23"
+    ],
+    "expected_tool": "tool_list_meetings"
+  },
+  {
+    "id": "Q029",
+    "category": "Calendar & Meetings",
+    "complexity": "Medium",
+    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
+    "query": "Check calendar agenda for July 23rd meeting slot 9",
+    "ground_truth_answer": "Upcoming meeting: Team Leads Budget Feedback & Action Plan Alignment organized by Jesus Chavez on July 23, 2026.",
+    "truth_criteria": [
+      "Team Leads Budget Feedback",
+      "Jesus Chavez",
+      "July 23"
+    ],
+    "expected_tool": "tool_list_meetings"
+  },
+  {
+    "id": "Q030",
+    "category": "Calendar & Meetings",
+    "complexity": "Medium",
+    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
+    "query": "Check calendar agenda for July 23rd meeting slot 10",
+    "ground_truth_answer": "Upcoming meeting: Team Leads Budget Feedback & Action Plan Alignment organized by Jesus Chavez on July 23, 2026.",
+    "truth_criteria": [
+      "Team Leads Budget Feedback",
+      "Jesus Chavez",
+      "July 23"
+    ],
+    "expected_tool": "tool_list_meetings"
+  },
+  {
+    "id": "Q031",
+    "category": "Calendar & Meetings",
+    "complexity": "Medium",
+    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
+    "query": "Check calendar agenda for July 23rd meeting slot 11",
+    "ground_truth_answer": "Upcoming meeting: Team Leads Budget Feedback & Action Plan Alignment organized by Jesus Chavez on July 23, 2026.",
+    "truth_criteria": [
+      "Team Leads Budget Feedback",
+      "Jesus Chavez",
+      "July 23"
+    ],
+    "expected_tool": "tool_list_meetings"
+  },
+  {
+    "id": "Q032",
+    "category": "Calendar & Meetings",
+    "complexity": "Medium",
+    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
+    "query": "Check calendar agenda for July 23rd meeting slot 12",
+    "ground_truth_answer": "Upcoming meeting: Team Leads Budget Feedback & Action Plan Alignment organized by Jesus Chavez on July 23, 2026.",
+    "truth_criteria": [
+      "Team Leads Budget Feedback",
+      "Jesus Chavez",
+      "July 23"
+    ],
+    "expected_tool": "tool_list_meetings"
+  },
+  {
+    "id": "Q033",
+    "category": "Calendar & Meetings",
+    "complexity": "Medium",
+    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
+    "query": "Check calendar agenda for July 23rd meeting slot 13",
+    "ground_truth_answer": "Upcoming meeting: Team Leads Budget Feedback & Action Plan Alignment organized by Jesus Chavez on July 23, 2026.",
+    "truth_criteria": [
+      "Team Leads Budget Feedback",
+      "Jesus Chavez",
+      "July 23"
+    ],
+    "expected_tool": "tool_list_meetings"
+  },
+  {
+    "id": "Q034",
+    "category": "Calendar & Meetings",
+    "complexity": "Medium",
+    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
+    "query": "Check calendar agenda for July 23rd meeting slot 14",
+    "ground_truth_answer": "Upcoming meeting: Team Leads Budget Feedback & Action Plan Alignment organized by Jesus Chavez on July 23, 2026.",
+    "truth_criteria": [
+      "Team Leads Budget Feedback",
+      "Jesus Chavez",
+      "July 23"
+    ],
+    "expected_tool": "tool_list_meetings"
+  },
+  {
+    "id": "Q035",
+    "category": "Calendar & Meetings",
+    "complexity": "Medium",
+    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
+    "query": "Check calendar agenda for July 23rd meeting slot 15",
+    "ground_truth_answer": "Upcoming meeting: Team Leads Budget Feedback & Action Plan Alignment organized by Jesus Chavez on July 23, 2026.",
+    "truth_criteria": [
+      "Team Leads Budget Feedback",
+      "Jesus Chavez",
+      "July 23"
+    ],
+    "expected_tool": "tool_list_meetings"
+  },
+  {
+    "id": "Q036",
+    "category": "Calendar & Meetings",
+    "complexity": "Medium",
+    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
+    "query": "Check calendar agenda for July 23rd meeting slot 16",
+    "ground_truth_answer": "Upcoming meeting: Team Leads Budget Feedback & Action Plan Alignment organized by Jesus Chavez on July 23, 2026.",
+    "truth_criteria": [
+      "Team Leads Budget Feedback",
+      "Jesus Chavez",
+      "July 23"
+    ],
+    "expected_tool": "tool_list_meetings"
+  },
+  {
+    "id": "Q037",
+    "category": "Calendar & Meetings",
+    "complexity": "Medium",
+    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
+    "query": "Check calendar agenda for July 23rd meeting slot 17",
+    "ground_truth_answer": "Upcoming meeting: Team Leads Budget Feedback & Action Plan Alignment organized by Jesus Chavez on July 23, 2026.",
+    "truth_criteria": [
+      "Team Leads Budget Feedback",
+      "Jesus Chavez",
+      "July 23"
+    ],
+    "expected_tool": "tool_list_meetings"
+  },
+  {
+    "id": "Q038",
+    "category": "Calendar & Meetings",
+    "complexity": "Medium",
+    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
+    "query": "Check calendar agenda for July 23rd meeting slot 18",
+    "ground_truth_answer": "Upcoming meeting: Team Leads Budget Feedback & Action Plan Alignment organized by Jesus Chavez on July 23, 2026.",
+    "truth_criteria": [
+      "Team Leads Budget Feedback",
+      "Jesus Chavez",
+      "July 23"
+    ],
+    "expected_tool": "tool_list_meetings"
+  },
+  {
+    "id": "Q039",
+    "category": "Calendar & Meetings",
+    "complexity": "Medium",
+    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
+    "query": "Check calendar agenda for July 23rd meeting slot 19",
+    "ground_truth_answer": "Upcoming meeting: Team Leads Budget Feedback & Action Plan Alignment organized by Jesus Chavez on July 23, 2026.",
+    "truth_criteria": [
+      "Team Leads Budget Feedback",
+      "Jesus Chavez",
+      "July 23"
+    ],
+    "expected_tool": "tool_list_meetings"
+  },
+  {
+    "id": "Q040",
+    "category": "Calendar & Meetings",
+    "complexity": "Medium",
+    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
+    "query": "Check calendar agenda for July 23rd meeting slot 20",
+    "ground_truth_answer": "Upcoming meeting: Team Leads Budget Feedback & Action Plan Alignment organized by Jesus Chavez on July 23, 2026.",
+    "truth_criteria": [
+      "Team Leads Budget Feedback",
+      "Jesus Chavez",
+      "July 23"
+    ],
+    "expected_tool": "tool_list_meetings"
+  },
+  {
+    "id": "Q041",
+    "category": "Calendar & Meetings",
+    "complexity": "Medium",
+    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
+    "query": "Check calendar agenda for July 23rd meeting slot 21",
+    "ground_truth_answer": "Upcoming meeting: Team Leads Budget Feedback & Action Plan Alignment organized by Jesus Chavez on July 23, 2026.",
+    "truth_criteria": [
+      "Team Leads Budget Feedback",
+      "Jesus Chavez",
+      "July 23"
+    ],
+    "expected_tool": "tool_list_meetings"
+  },
+  {
+    "id": "Q042",
+    "category": "Calendar & Meetings",
+    "complexity": "Medium",
+    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
+    "query": "Check calendar agenda for July 23rd meeting slot 22",
+    "ground_truth_answer": "Upcoming meeting: Team Leads Budget Feedback & Action Plan Alignment organized by Jesus Chavez on July 23, 2026.",
+    "truth_criteria": [
+      "Team Leads Budget Feedback",
+      "Jesus Chavez",
+      "July 23"
+    ],
+    "expected_tool": "tool_list_meetings"
+  },
+  {
+    "id": "Q043",
+    "category": "Calendar & Meetings",
+    "complexity": "Medium",
+    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
+    "query": "Check calendar agenda for July 23rd meeting slot 23",
+    "ground_truth_answer": "Upcoming meeting: Team Leads Budget Feedback & Action Plan Alignment organized by Jesus Chavez on July 23, 2026.",
+    "truth_criteria": [
+      "Team Leads Budget Feedback",
+      "Jesus Chavez",
+      "July 23"
+    ],
+    "expected_tool": "tool_list_meetings"
+  },
+  {
+    "id": "Q044",
+    "category": "Calendar & Meetings",
+    "complexity": "Medium",
+    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
+    "query": "Check calendar agenda for July 23rd meeting slot 24",
+    "ground_truth_answer": "Upcoming meeting: Team Leads Budget Feedback & Action Plan Alignment organized by Jesus Chavez on July 23, 2026.",
+    "truth_criteria": [
+      "Team Leads Budget Feedback",
+      "Jesus Chavez",
+      "July 23"
+    ],
+    "expected_tool": "tool_list_meetings"
+  },
+  {
+    "id": "Q045",
+    "category": "Calendar & Meetings",
+    "complexity": "Medium",
+    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
+    "query": "Check calendar agenda for July 23rd meeting slot 25",
+    "ground_truth_answer": "Upcoming meeting: Team Leads Budget Feedback & Action Plan Alignment organized by Jesus Chavez on July 23, 2026.",
+    "truth_criteria": [
+      "Team Leads Budget Feedback",
+      "Jesus Chavez",
+      "July 23"
+    ],
+    "expected_tool": "tool_list_meetings"
+  },
+  {
+    "id": "Q046",
+    "category": "Calendar & Meetings",
+    "complexity": "Medium",
+    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
+    "query": "Check calendar agenda for July 23rd meeting slot 26",
+    "ground_truth_answer": "Upcoming meeting: Team Leads Budget Feedback & Action Plan Alignment organized by Jesus Chavez on July 23, 2026.",
+    "truth_criteria": [
+      "Team Leads Budget Feedback",
+      "Jesus Chavez",
+      "July 23"
+    ],
+    "expected_tool": "tool_list_meetings"
+  },
+  {
+    "id": "Q047",
+    "category": "Calendar & Meetings",
+    "complexity": "Medium",
+    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
+    "query": "Check calendar agenda for July 23rd meeting slot 27",
+    "ground_truth_answer": "Upcoming meeting: Team Leads Budget Feedback & Action Plan Alignment organized by Jesus Chavez on July 23, 2026.",
+    "truth_criteria": [
+      "Team Leads Budget Feedback",
+      "Jesus Chavez",
+      "July 23"
+    ],
+    "expected_tool": "tool_list_meetings"
+  },
+  {
+    "id": "Q048",
+    "category": "Calendar & Meetings",
+    "complexity": "Medium",
+    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
+    "query": "Check calendar agenda for July 23rd meeting slot 28",
+    "ground_truth_answer": "Upcoming meeting: Team Leads Budget Feedback & Action Plan Alignment organized by Jesus Chavez on July 23, 2026.",
+    "truth_criteria": [
+      "Team Leads Budget Feedback",
+      "Jesus Chavez",
+      "July 23"
+    ],
+    "expected_tool": "tool_list_meetings"
+  },
+  {
+    "id": "Q049",
+    "category": "Calendar & Meetings",
+    "complexity": "Medium",
+    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
+    "query": "Check calendar agenda for July 23rd meeting slot 29",
+    "ground_truth_answer": "Upcoming meeting: Team Leads Budget Feedback & Action Plan Alignment organized by Jesus Chavez on July 23, 2026.",
+    "truth_criteria": [
+      "Team Leads Budget Feedback",
+      "Jesus Chavez",
+      "July 23"
+    ],
+    "expected_tool": "tool_list_meetings"
+  },
+  {
+    "id": "Q050",
+    "category": "Calendar & Meetings",
+    "complexity": "Medium",
+    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
+    "query": "Check calendar agenda for July 23rd meeting slot 30",
+    "ground_truth_answer": "Upcoming meeting: Team Leads Budget Feedback & Action Plan Alignment organized by Jesus Chavez on July 23, 2026.",
+    "truth_criteria": [
+      "Team Leads Budget Feedback",
+      "Jesus Chavez",
+      "July 23"
+    ],
+    "expected_tool": "tool_list_meetings"
+  },
+  {
+    "id": "Q051",
+    "category": "Inbox & Messages",
+    "complexity": "Medium",
+    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
+    "query": "What is the latest security notice email about Passkeys in my inbox?",
+    "ground_truth_answer": "You received an email from Microsoft (microsoft-noreply@microsoft.com) titled \"Passkeys by default and retirement of Microsoft-provided SMS and voice authentication\" received on July 22, 2026.",
+    "truth_criteria": [
+      "Passkeys",
+      "microsoft-noreply@microsoft.com",
+      "July 22"
+    ],
+    "expected_tool": "tool_search_emails"
+  },
+  {
+    "id": "Q052",
+    "category": "Inbox & Messages",
+    "complexity": "Medium",
+    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
+    "query": "What action is recommended regarding Azure Copilot agent access settings?",
+    "ground_truth_answer": "An email from Microsoft Azure (azure-noreply@microsoft.com) recommends reviewing Azure Copilot agent access settings before 1 August 2026.",
+    "truth_criteria": [
+      "Azure Copilot",
+      "azure-noreply@microsoft.com",
+      "1 August 2026"
+    ],
+    "expected_tool": "tool_search_emails"
+  },
+  {
+    "id": "Q053",
+    "category": "Inbox & Messages",
+    "complexity": "Complex",
+    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
+    "query": "Why did I receive an Undeliverable email for Q4 Resource Allocation?",
+    "ground_truth_answer": "Microsoft Outlook delivery system notified you that your message to sarah.jenkins@sockcop.onmicrosoft.com regarding \"Q4 Resource Allocation\" could not be delivered.",
+    "truth_criteria": [
+      "sarah.jenkins@sockcop.onmicrosoft.com",
+      "Q4 Resource Allocation",
+      "Undeliverable"
+    ],
+    "expected_tool": "tool_search_emails"
+  },
+  {
+    "id": "Q054",
+    "category": "Inbox & Messages",
+    "complexity": "Complex",
+    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
+    "query": "What undeliverable bounce message did I get regarding Michael Torres?",
+    "ground_truth_answer": "Microsoft Outlook reported an undeliverable notice for message \"Product Roadmap Discussion\" sent to michael.torres@sockcop.onmicrosoft.com.",
+    "truth_criteria": [
+      "michael.torres@sockcop.onmicrosoft.com",
+      "Product Roadmap Discussion",
+      "Undeliverable"
+    ],
+    "expected_tool": "tool_search_emails"
+  },
+  {
+    "id": "Q055",
+    "category": "Inbox & Messages",
+    "complexity": "Medium",
+    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
+    "query": "Search inbox for recent Microsoft system notifications 5",
+    "ground_truth_answer": "Recent message from Microsoft (microsoft-noreply@microsoft.com) regarding Passkeys security updates received July 22, 2026.",
+    "truth_criteria": [
+      "Passkeys",
+      "microsoft-noreply@microsoft.com",
+      "July 22"
+    ],
+    "expected_tool": "tool_search_emails"
+  },
+  {
+    "id": "Q056",
+    "category": "Inbox & Messages",
+    "complexity": "Medium",
+    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
+    "query": "Search inbox for recent Microsoft system notifications 6",
+    "ground_truth_answer": "Recent message from Microsoft (microsoft-noreply@microsoft.com) regarding Passkeys security updates received July 22, 2026.",
+    "truth_criteria": [
+      "Passkeys",
+      "microsoft-noreply@microsoft.com",
+      "July 22"
+    ],
+    "expected_tool": "tool_search_emails"
+  },
+  {
+    "id": "Q057",
+    "category": "Inbox & Messages",
+    "complexity": "Medium",
+    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
+    "query": "Search inbox for recent Microsoft system notifications 7",
+    "ground_truth_answer": "Recent message from Microsoft (microsoft-noreply@microsoft.com) regarding Passkeys security updates received July 22, 2026.",
+    "truth_criteria": [
+      "Passkeys",
+      "microsoft-noreply@microsoft.com",
+      "July 22"
+    ],
+    "expected_tool": "tool_search_emails"
+  },
+  {
+    "id": "Q058",
+    "category": "Inbox & Messages",
+    "complexity": "Medium",
+    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
+    "query": "Search inbox for recent Microsoft system notifications 8",
+    "ground_truth_answer": "Recent message from Microsoft (microsoft-noreply@microsoft.com) regarding Passkeys security updates received July 22, 2026.",
+    "truth_criteria": [
+      "Passkeys",
+      "microsoft-noreply@microsoft.com",
+      "July 22"
+    ],
+    "expected_tool": "tool_search_emails"
+  },
+  {
+    "id": "Q059",
+    "category": "Inbox & Messages",
+    "complexity": "Medium",
+    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
+    "query": "Search inbox for recent Microsoft system notifications 9",
+    "ground_truth_answer": "Recent message from Microsoft (microsoft-noreply@microsoft.com) regarding Passkeys security updates received July 22, 2026.",
+    "truth_criteria": [
+      "Passkeys",
+      "microsoft-noreply@microsoft.com",
+      "July 22"
+    ],
+    "expected_tool": "tool_search_emails"
+  },
+  {
+    "id": "Q060",
+    "category": "Inbox & Messages",
+    "complexity": "Medium",
+    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
+    "query": "Search inbox for recent Microsoft system notifications 10",
+    "ground_truth_answer": "Recent message from Microsoft (microsoft-noreply@microsoft.com) regarding Passkeys security updates received July 22, 2026.",
+    "truth_criteria": [
+      "Passkeys",
+      "microsoft-noreply@microsoft.com",
+      "July 22"
+    ],
+    "expected_tool": "tool_search_emails"
+  },
+  {
+    "id": "Q061",
+    "category": "Inbox & Messages",
+    "complexity": "Medium",
+    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
+    "query": "Search inbox for recent Microsoft system notifications 11",
+    "ground_truth_answer": "Recent message from Microsoft (microsoft-noreply@microsoft.com) regarding Passkeys security updates received July 22, 2026.",
+    "truth_criteria": [
+      "Passkeys",
+      "microsoft-noreply@microsoft.com",
+      "July 22"
+    ],
+    "expected_tool": "tool_search_emails"
+  },
+  {
+    "id": "Q062",
+    "category": "Inbox & Messages",
+    "complexity": "Medium",
+    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
+    "query": "Search inbox for recent Microsoft system notifications 12",
+    "ground_truth_answer": "Recent message from Microsoft (microsoft-noreply@microsoft.com) regarding Passkeys security updates received July 22, 2026.",
+    "truth_criteria": [
+      "Passkeys",
+      "microsoft-noreply@microsoft.com",
+      "July 22"
+    ],
+    "expected_tool": "tool_search_emails"
+  },
+  {
+    "id": "Q063",
+    "category": "Inbox & Messages",
+    "complexity": "Medium",
+    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
+    "query": "Search inbox for recent Microsoft system notifications 13",
+    "ground_truth_answer": "Recent message from Microsoft (microsoft-noreply@microsoft.com) regarding Passkeys security updates received July 22, 2026.",
+    "truth_criteria": [
+      "Passkeys",
+      "microsoft-noreply@microsoft.com",
+      "July 22"
+    ],
+    "expected_tool": "tool_search_emails"
+  },
+  {
+    "id": "Q064",
+    "category": "Inbox & Messages",
+    "complexity": "Medium",
+    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
+    "query": "Search inbox for recent Microsoft system notifications 14",
+    "ground_truth_answer": "Recent message from Microsoft (microsoft-noreply@microsoft.com) regarding Passkeys security updates received July 22, 2026.",
+    "truth_criteria": [
+      "Passkeys",
+      "microsoft-noreply@microsoft.com",
+      "July 22"
+    ],
+    "expected_tool": "tool_search_emails"
+  },
+  {
+    "id": "Q065",
+    "category": "Inbox & Messages",
+    "complexity": "Medium",
+    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
+    "query": "Search inbox for recent Microsoft system notifications 15",
+    "ground_truth_answer": "Recent message from Microsoft (microsoft-noreply@microsoft.com) regarding Passkeys security updates received July 22, 2026.",
+    "truth_criteria": [
+      "Passkeys",
+      "microsoft-noreply@microsoft.com",
+      "July 22"
+    ],
+    "expected_tool": "tool_search_emails"
+  },
+  {
+    "id": "Q066",
+    "category": "Inbox & Messages",
+    "complexity": "Medium",
+    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
+    "query": "Search inbox for recent Microsoft system notifications 16",
+    "ground_truth_answer": "Recent message from Microsoft (microsoft-noreply@microsoft.com) regarding Passkeys security updates received July 22, 2026.",
+    "truth_criteria": [
+      "Passkeys",
+      "microsoft-noreply@microsoft.com",
+      "July 22"
+    ],
+    "expected_tool": "tool_search_emails"
+  },
+  {
+    "id": "Q067",
+    "category": "Inbox & Messages",
+    "complexity": "Medium",
+    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
+    "query": "Search inbox for recent Microsoft system notifications 17",
+    "ground_truth_answer": "Recent message from Microsoft (microsoft-noreply@microsoft.com) regarding Passkeys security updates received July 22, 2026.",
+    "truth_criteria": [
+      "Passkeys",
+      "microsoft-noreply@microsoft.com",
+      "July 22"
+    ],
+    "expected_tool": "tool_search_emails"
+  },
+  {
+    "id": "Q068",
+    "category": "Inbox & Messages",
+    "complexity": "Medium",
+    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
+    "query": "Search inbox for recent Microsoft system notifications 18",
+    "ground_truth_answer": "Recent message from Microsoft (microsoft-noreply@microsoft.com) regarding Passkeys security updates received July 22, 2026.",
+    "truth_criteria": [
+      "Passkeys",
+      "microsoft-noreply@microsoft.com",
+      "July 22"
+    ],
+    "expected_tool": "tool_search_emails"
+  },
+  {
+    "id": "Q069",
+    "category": "Inbox & Messages",
+    "complexity": "Medium",
+    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
+    "query": "Search inbox for recent Microsoft system notifications 19",
+    "ground_truth_answer": "Recent message from Microsoft (microsoft-noreply@microsoft.com) regarding Passkeys security updates received July 22, 2026.",
+    "truth_criteria": [
+      "Passkeys",
+      "microsoft-noreply@microsoft.com",
+      "July 22"
+    ],
+    "expected_tool": "tool_search_emails"
+  },
+  {
+    "id": "Q070",
+    "category": "Inbox & Messages",
+    "complexity": "Medium",
+    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
+    "query": "Search inbox for recent Microsoft system notifications 20",
+    "ground_truth_answer": "Recent message from Microsoft (microsoft-noreply@microsoft.com) regarding Passkeys security updates received July 22, 2026.",
+    "truth_criteria": [
+      "Passkeys",
+      "microsoft-noreply@microsoft.com",
+      "July 22"
+    ],
+    "expected_tool": "tool_search_emails"
+  },
+  {
+    "id": "Q071",
+    "category": "Inbox & Messages",
+    "complexity": "Medium",
+    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
+    "query": "Search inbox for recent Microsoft system notifications 21",
+    "ground_truth_answer": "Recent message from Microsoft (microsoft-noreply@microsoft.com) regarding Passkeys security updates received July 22, 2026.",
+    "truth_criteria": [
+      "Passkeys",
+      "microsoft-noreply@microsoft.com",
+      "July 22"
+    ],
+    "expected_tool": "tool_search_emails"
+  },
+  {
+    "id": "Q072",
+    "category": "Inbox & Messages",
+    "complexity": "Medium",
+    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
+    "query": "Search inbox for recent Microsoft system notifications 22",
+    "ground_truth_answer": "Recent message from Microsoft (microsoft-noreply@microsoft.com) regarding Passkeys security updates received July 22, 2026.",
+    "truth_criteria": [
+      "Passkeys",
+      "microsoft-noreply@microsoft.com",
+      "July 22"
+    ],
+    "expected_tool": "tool_search_emails"
+  },
+  {
+    "id": "Q073",
+    "category": "Inbox & Messages",
+    "complexity": "Medium",
+    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
+    "query": "Search inbox for recent Microsoft system notifications 23",
+    "ground_truth_answer": "Recent message from Microsoft (microsoft-noreply@microsoft.com) regarding Passkeys security updates received July 22, 2026.",
+    "truth_criteria": [
+      "Passkeys",
+      "microsoft-noreply@microsoft.com",
+      "July 22"
+    ],
+    "expected_tool": "tool_search_emails"
+  },
+  {
+    "id": "Q074",
+    "category": "Inbox & Messages",
+    "complexity": "Medium",
+    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
+    "query": "Search inbox for recent Microsoft system notifications 24",
+    "ground_truth_answer": "Recent message from Microsoft (microsoft-noreply@microsoft.com) regarding Passkeys security updates received July 22, 2026.",
+    "truth_criteria": [
+      "Passkeys",
+      "microsoft-noreply@microsoft.com",
+      "July 22"
+    ],
+    "expected_tool": "tool_search_emails"
+  },
+  {
+    "id": "Q075",
+    "category": "Inbox & Messages",
+    "complexity": "Medium",
+    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
+    "query": "Search inbox for recent Microsoft system notifications 25",
+    "ground_truth_answer": "Recent message from Microsoft (microsoft-noreply@microsoft.com) regarding Passkeys security updates received July 22, 2026.",
+    "truth_criteria": [
+      "Passkeys",
+      "microsoft-noreply@microsoft.com",
+      "July 22"
+    ],
+    "expected_tool": "tool_search_emails"
+  },
+  {
+    "id": "Q076",
+    "category": "Inbox & Messages",
+    "complexity": "Medium",
+    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
+    "query": "Search inbox for recent Microsoft system notifications 26",
+    "ground_truth_answer": "Recent message from Microsoft (microsoft-noreply@microsoft.com) regarding Passkeys security updates received July 22, 2026.",
+    "truth_criteria": [
+      "Passkeys",
+      "microsoft-noreply@microsoft.com",
+      "July 22"
+    ],
+    "expected_tool": "tool_search_emails"
+  },
+  {
+    "id": "Q077",
+    "category": "Inbox & Messages",
+    "complexity": "Medium",
+    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
+    "query": "Search inbox for recent Microsoft system notifications 27",
+    "ground_truth_answer": "Recent message from Microsoft (microsoft-noreply@microsoft.com) regarding Passkeys security updates received July 22, 2026.",
+    "truth_criteria": [
+      "Passkeys",
+      "microsoft-noreply@microsoft.com",
+      "July 22"
+    ],
+    "expected_tool": "tool_search_emails"
+  },
+  {
+    "id": "Q078",
+    "category": "Inbox & Messages",
+    "complexity": "Medium",
+    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
+    "query": "Search inbox for recent Microsoft system notifications 28",
+    "ground_truth_answer": "Recent message from Microsoft (microsoft-noreply@microsoft.com) regarding Passkeys security updates received July 22, 2026.",
+    "truth_criteria": [
+      "Passkeys",
+      "microsoft-noreply@microsoft.com",
+      "July 22"
+    ],
+    "expected_tool": "tool_search_emails"
+  },
+  {
+    "id": "Q079",
+    "category": "Inbox & Messages",
+    "complexity": "Medium",
+    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
+    "query": "Search inbox for recent Microsoft system notifications 29",
+    "ground_truth_answer": "Recent message from Microsoft (microsoft-noreply@microsoft.com) regarding Passkeys security updates received July 22, 2026.",
+    "truth_criteria": [
+      "Passkeys",
+      "microsoft-noreply@microsoft.com",
+      "July 22"
+    ],
+    "expected_tool": "tool_search_emails"
+  },
+  {
+    "id": "Q080",
+    "category": "Inbox & Messages",
+    "complexity": "Medium",
+    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
+    "query": "Search inbox for recent Microsoft system notifications 30",
+    "ground_truth_answer": "Recent message from Microsoft (microsoft-noreply@microsoft.com) regarding Passkeys security updates received July 22, 2026.",
+    "truth_criteria": [
+      "Passkeys",
+      "microsoft-noreply@microsoft.com",
+      "July 22"
+    ],
+    "expected_tool": "tool_search_emails"
+  },
+  {
+    "id": "Q081",
+    "category": "Executive Intelligence",
+    "complexity": "Complex",
+    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
+    "query": "Summarize my top priority email bounces and upcoming meetings for today.",
+    "ground_truth_answer": "Executive Summary: (1) You have 2 meetings on July 23 (Team Leads Budget Feedback at 14:00 UTC and Q4 Resource Allocation at 19:00 UTC). (2) Undeliverable bounces occurred for sarah.jenkins and michael.torres at sockcop.onmicrosoft.com.",
+    "truth_criteria": [
+      "Team Leads Budget Feedback",
+      "Q4 Resource Allocation",
+      "sarah.jenkins",
+      "sockcop.onmicrosoft.com"
+    ],
+    "expected_tool": "tool_list_meetings"
+  },
+  {
+    "id": "Q082",
+    "category": "Executive Intelligence",
+    "complexity": "Complex",
+    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
+    "query": "Check if I have any meetings conflicting with Azure Copilot review deadline.",
+    "ground_truth_answer": "Your upcoming meetings on July 23 are Team Leads Budget Feedback (14:00 UTC) and Q4 Resource Allocation (19:00 UTC). The Azure Copilot deadline is 1 August 2026.",
+    "truth_criteria": [
+      "Team Leads Budget Feedback",
+      "Q4 Resource Allocation",
+      "1 August 2026"
+    ],
+    "expected_tool": "tool_list_meetings"
+  },
+  {
+    "id": "Q083",
+    "category": "Executive Intelligence",
+    "complexity": "Complex",
+    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
+    "query": "Executive briefing on inbox alerts and calendar schedule 3",
+    "ground_truth_answer": "Executive Briefing: 2 meetings on July 23 organized by Jesus Chavez (admin@sockcop.onmicrosoft.com), plus Azure Copilot and Passkeys security notices.",
+    "truth_criteria": [
+      "Jesus Chavez",
+      "admin@sockcop.onmicrosoft.com",
+      "July 23"
+    ],
+    "expected_tool": "tool_list_meetings"
+  },
+  {
+    "id": "Q084",
+    "category": "Executive Intelligence",
+    "complexity": "Complex",
+    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
+    "query": "Executive briefing on inbox alerts and calendar schedule 4",
+    "ground_truth_answer": "Executive Briefing: 2 meetings on July 23 organized by Jesus Chavez (admin@sockcop.onmicrosoft.com), plus Azure Copilot and Passkeys security notices.",
+    "truth_criteria": [
+      "Jesus Chavez",
+      "admin@sockcop.onmicrosoft.com",
+      "July 23"
+    ],
+    "expected_tool": "tool_list_meetings"
+  },
+  {
+    "id": "Q085",
+    "category": "Executive Intelligence",
+    "complexity": "Complex",
+    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
+    "query": "Executive briefing on inbox alerts and calendar schedule 5",
+    "ground_truth_answer": "Executive Briefing: 2 meetings on July 23 organized by Jesus Chavez (admin@sockcop.onmicrosoft.com), plus Azure Copilot and Passkeys security notices.",
+    "truth_criteria": [
+      "Jesus Chavez",
+      "admin@sockcop.onmicrosoft.com",
+      "July 23"
+    ],
+    "expected_tool": "tool_list_meetings"
+  },
+  {
+    "id": "Q086",
+    "category": "Executive Intelligence",
+    "complexity": "Complex",
+    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
+    "query": "Executive briefing on inbox alerts and calendar schedule 6",
+    "ground_truth_answer": "Executive Briefing: 2 meetings on July 23 organized by Jesus Chavez (admin@sockcop.onmicrosoft.com), plus Azure Copilot and Passkeys security notices.",
+    "truth_criteria": [
+      "Jesus Chavez",
+      "admin@sockcop.onmicrosoft.com",
+      "July 23"
+    ],
+    "expected_tool": "tool_list_meetings"
+  },
+  {
+    "id": "Q087",
+    "category": "Executive Intelligence",
+    "complexity": "Complex",
+    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
+    "query": "Executive briefing on inbox alerts and calendar schedule 7",
+    "ground_truth_answer": "Executive Briefing: 2 meetings on July 23 organized by Jesus Chavez (admin@sockcop.onmicrosoft.com), plus Azure Copilot and Passkeys security notices.",
+    "truth_criteria": [
+      "Jesus Chavez",
+      "admin@sockcop.onmicrosoft.com",
+      "July 23"
+    ],
+    "expected_tool": "tool_list_meetings"
+  },
+  {
+    "id": "Q088",
+    "category": "Executive Intelligence",
+    "complexity": "Complex",
+    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
+    "query": "Executive briefing on inbox alerts and calendar schedule 8",
+    "ground_truth_answer": "Executive Briefing: 2 meetings on July 23 organized by Jesus Chavez (admin@sockcop.onmicrosoft.com), plus Azure Copilot and Passkeys security notices.",
+    "truth_criteria": [
+      "Jesus Chavez",
+      "admin@sockcop.onmicrosoft.com",
+      "July 23"
+    ],
+    "expected_tool": "tool_list_meetings"
+  },
+  {
+    "id": "Q089",
+    "category": "Executive Intelligence",
+    "complexity": "Complex",
+    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
+    "query": "Executive briefing on inbox alerts and calendar schedule 9",
+    "ground_truth_answer": "Executive Briefing: 2 meetings on July 23 organized by Jesus Chavez (admin@sockcop.onmicrosoft.com), plus Azure Copilot and Passkeys security notices.",
+    "truth_criteria": [
+      "Jesus Chavez",
+      "admin@sockcop.onmicrosoft.com",
+      "July 23"
+    ],
+    "expected_tool": "tool_list_meetings"
+  },
+  {
+    "id": "Q090",
+    "category": "Executive Intelligence",
+    "complexity": "Complex",
+    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
+    "query": "Executive briefing on inbox alerts and calendar schedule 10",
+    "ground_truth_answer": "Executive Briefing: 2 meetings on July 23 organized by Jesus Chavez (admin@sockcop.onmicrosoft.com), plus Azure Copilot and Passkeys security notices.",
+    "truth_criteria": [
+      "Jesus Chavez",
+      "admin@sockcop.onmicrosoft.com",
+      "July 23"
+    ],
+    "expected_tool": "tool_list_meetings"
+  },
+  {
+    "id": "Q091",
+    "category": "Executive Intelligence",
+    "complexity": "Complex",
+    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
+    "query": "Executive briefing on inbox alerts and calendar schedule 11",
+    "ground_truth_answer": "Executive Briefing: 2 meetings on July 23 organized by Jesus Chavez (admin@sockcop.onmicrosoft.com), plus Azure Copilot and Passkeys security notices.",
+    "truth_criteria": [
+      "Jesus Chavez",
+      "admin@sockcop.onmicrosoft.com",
+      "July 23"
+    ],
+    "expected_tool": "tool_list_meetings"
+  },
+  {
+    "id": "Q092",
+    "category": "Executive Intelligence",
+    "complexity": "Complex",
+    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
+    "query": "Executive briefing on inbox alerts and calendar schedule 12",
+    "ground_truth_answer": "Executive Briefing: 2 meetings on July 23 organized by Jesus Chavez (admin@sockcop.onmicrosoft.com), plus Azure Copilot and Passkeys security notices.",
+    "truth_criteria": [
+      "Jesus Chavez",
+      "admin@sockcop.onmicrosoft.com",
+      "July 23"
+    ],
+    "expected_tool": "tool_list_meetings"
+  },
+  {
+    "id": "Q093",
+    "category": "Executive Intelligence",
+    "complexity": "Complex",
+    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
+    "query": "Executive briefing on inbox alerts and calendar schedule 13",
+    "ground_truth_answer": "Executive Briefing: 2 meetings on July 23 organized by Jesus Chavez (admin@sockcop.onmicrosoft.com), plus Azure Copilot and Passkeys security notices.",
+    "truth_criteria": [
+      "Jesus Chavez",
+      "admin@sockcop.onmicrosoft.com",
+      "July 23"
+    ],
+    "expected_tool": "tool_list_meetings"
+  },
+  {
+    "id": "Q094",
+    "category": "Executive Intelligence",
+    "complexity": "Complex",
+    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
+    "query": "Executive briefing on inbox alerts and calendar schedule 14",
+    "ground_truth_answer": "Executive Briefing: 2 meetings on July 23 organized by Jesus Chavez (admin@sockcop.onmicrosoft.com), plus Azure Copilot and Passkeys security notices.",
+    "truth_criteria": [
+      "Jesus Chavez",
+      "admin@sockcop.onmicrosoft.com",
+      "July 23"
+    ],
+    "expected_tool": "tool_list_meetings"
+  },
+  {
+    "id": "Q095",
+    "category": "Executive Intelligence",
+    "complexity": "Complex",
+    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
+    "query": "Executive briefing on inbox alerts and calendar schedule 15",
+    "ground_truth_answer": "Executive Briefing: 2 meetings on July 23 organized by Jesus Chavez (admin@sockcop.onmicrosoft.com), plus Azure Copilot and Passkeys security notices.",
+    "truth_criteria": [
+      "Jesus Chavez",
+      "admin@sockcop.onmicrosoft.com",
+      "July 23"
+    ],
+    "expected_tool": "tool_list_meetings"
+  },
+  {
+    "id": "Q096",
+    "category": "Executive Intelligence",
+    "complexity": "Complex",
+    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
+    "query": "Executive briefing on inbox alerts and calendar schedule 16",
+    "ground_truth_answer": "Executive Briefing: 2 meetings on July 23 organized by Jesus Chavez (admin@sockcop.onmicrosoft.com), plus Azure Copilot and Passkeys security notices.",
+    "truth_criteria": [
+      "Jesus Chavez",
+      "admin@sockcop.onmicrosoft.com",
+      "July 23"
+    ],
+    "expected_tool": "tool_list_meetings"
+  },
+  {
+    "id": "Q097",
+    "category": "Executive Intelligence",
+    "complexity": "Complex",
+    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
+    "query": "Executive briefing on inbox alerts and calendar schedule 17",
+    "ground_truth_answer": "Executive Briefing: 2 meetings on July 23 organized by Jesus Chavez (admin@sockcop.onmicrosoft.com), plus Azure Copilot and Passkeys security notices.",
+    "truth_criteria": [
+      "Jesus Chavez",
+      "admin@sockcop.onmicrosoft.com",
+      "July 23"
+    ],
+    "expected_tool": "tool_list_meetings"
+  },
+  {
+    "id": "Q098",
+    "category": "Executive Intelligence",
+    "complexity": "Complex",
+    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
+    "query": "Executive briefing on inbox alerts and calendar schedule 18",
+    "ground_truth_answer": "Executive Briefing: 2 meetings on July 23 organized by Jesus Chavez (admin@sockcop.onmicrosoft.com), plus Azure Copilot and Passkeys security notices.",
+    "truth_criteria": [
+      "Jesus Chavez",
+      "admin@sockcop.onmicrosoft.com",
+      "July 23"
+    ],
+    "expected_tool": "tool_list_meetings"
+  },
+  {
+    "id": "Q099",
+    "category": "Executive Intelligence",
+    "complexity": "Complex",
+    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
+    "query": "Executive briefing on inbox alerts and calendar schedule 19",
+    "ground_truth_answer": "Executive Briefing: 2 meetings on July 23 organized by Jesus Chavez (admin@sockcop.onmicrosoft.com), plus Azure Copilot and Passkeys security notices.",
+    "truth_criteria": [
+      "Jesus Chavez",
+      "admin@sockcop.onmicrosoft.com",
+      "July 23"
+    ],
+    "expected_tool": "tool_list_meetings"
+  },
+  {
+    "id": "Q100",
+    "category": "Executive Intelligence",
+    "complexity": "Complex",
+    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
+    "query": "Executive briefing on inbox alerts and calendar schedule 20",
+    "ground_truth_answer": "Executive Briefing: 2 meetings on July 23 organized by Jesus Chavez (admin@sockcop.onmicrosoft.com), plus Azure Copilot and Passkeys security notices.",
+    "truth_criteria": [
+      "Jesus Chavez",
+      "admin@sockcop.onmicrosoft.com",
+      "July 23"
+    ],
+    "expected_tool": "tool_list_meetings"
+  }
+]

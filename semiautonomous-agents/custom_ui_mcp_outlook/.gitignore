@@ -1,0 +1,21 @@
+# Data & Secrets (MANDATORY)
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+client_secret*.json
+credentials.json
+*_token.json
+
+# Python & Caching
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+env/
+venv/
+.pytest_cache/
+.DS_Store
