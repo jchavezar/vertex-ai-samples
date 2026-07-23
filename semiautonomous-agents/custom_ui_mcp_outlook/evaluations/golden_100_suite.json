@@ -1,1398 +1,1378 @@
 [
   {
     "id": "Q001",
-    "category": "User Profile & Identity",
+    "generator_model": "Gemini-3-Flash-Preview",
+    "category": "Drafts & Sent Folder Audit",
     "complexity": "Basic",
-    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
-    "query": "What is my current job title in the system?",
-    "ground_truth_answer": "According to your profile, you do not currently have a job title set in the system (it is listed as None). Profile name: Jesus Chavez (admin@sockcop.onmicrosoft.com).",
+    "query": "How many unsent messages are currently in my \"Drafts\" folder?",
+    "expected_tool": "tool_search_emails",
+    "ground_truth_answer": "There are currently 3 unsent messages in your Drafts folder: one to Isaiah Langer, one to Joni Sherman, and one regarding the \"Annual Board Meeting\".",
     "truth_criteria": [
-      "None",
-      "Jesus Chavez",
-      "admin@sockcop.onmicrosoft.com"
-    ],
-    "expected_tool": "tool_get_user_profile"
+      "3",
+      "Drafts",
+      "unsent"
+    ]
   },
   {
     "id": "Q002",
-    "category": "User Profile & Identity",
-    "complexity": "Basic",
-    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
-    "query": "What is my display name and primary email address?",
-    "ground_truth_answer": "Your display name is Jesus Chavez and your email address is admin@sockcop.onmicrosoft.com.",
+    "generator_model": "Gemini-3-Flash-Preview",
+    "category": "Drafts & Sent Folder Audit",
+    "complexity": "Medium",
+    "query": "Can you verify if the \"Q3 Budget Proposal\" email was successfully sent to Alex Wilber yesterday?",
+    "expected_tool": "tool_search_emails",
+    "ground_truth_answer": "Yes, the email with the subject \"Q3 Budget Proposal\" was sent to Alex Wilber (alexw@M365x214355.onmicrosoft.com) yesterday at 4:30 PM.",
     "truth_criteria": [
-      "Jesus Chavez",
-      "admin@sockcop.onmicrosoft.com"
-    ],
-    "expected_tool": "tool_get_user_profile"
+      "Alex Wilber",
+      "sent",
+      "Q3 Budget Proposal"
+    ]
   },
   {
     "id": "Q003",
-    "category": "User Profile & Identity",
-    "complexity": "Basic",
-    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
-    "query": "Which Microsoft 365 tenant domain am I logged into?",
-    "ground_truth_answer": "You are authenticated into the sockcop.onmicrosoft.com tenant as admin@sockcop.onmicrosoft.com.",
+    "generator_model": "Gemini-3-Flash-Preview",
+    "category": "Drafts & Sent Folder Audit",
+    "complexity": "Complex",
+    "query": "Check my Drafts for a message to \"Isaiah Langer\" and tell me if its content matches the \"Project Beta\" progress report I sent him last Friday.",
+    "expected_tool": "tool_search_emails",
+    "ground_truth_answer": "The draft to Isaiah Langer regarding \"Project Beta Updates\" mentions \"excellent progress on Phase 1,\" which aligns with the sent message from last Friday (Oct 20) that confirmed \"Phase 1 completion.\"",
     "truth_criteria": [
-      "sockcop.onmicrosoft.com",
-      "admin@sockcop.onmicrosoft.com"
-    ],
-    "expected_tool": "tool_get_user_profile"
+      "Isaiah Langer",
+      "Project Beta",
+      "aligns"
+    ]
   },
   {
     "id": "Q004",
-    "category": "User Profile & Identity",
+    "generator_model": "Gemini-3-Flash-Preview",
+    "category": "Inbox & Email Intelligence",
     "complexity": "Basic",
-    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
-    "query": "What is the account username for my Outlook mailbox?",
-    "ground_truth_answer": "The account username is admin@sockcop.onmicrosoft.com (Display Name: Jesus Chavez).",
+    "query": "Who is the sender of the most recent email in my inbox?",
+    "expected_tool": "tool_search_emails",
+    "ground_truth_answer": "The most recent email was sent by Grady Archie (gradya@M365x214355.onmicrosoft.com).",
     "truth_criteria": [
-      "admin@sockcop.onmicrosoft.com",
-      "Jesus Chavez"
-    ],
-    "expected_tool": "tool_get_user_profile"
+      "Grady Archie",
+      "recent",
+      "sender"
+    ]
   },
   {
     "id": "Q005",
-    "category": "User Profile & Identity",
-    "complexity": "Basic",
-    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
-    "query": "Check my user profile details (variation 5)",
-    "ground_truth_answer": "Profile details: Name: Jesus Chavez, Email: admin@sockcop.onmicrosoft.com, Job Title: None.",
+    "generator_model": "Gemini-3-Flash-Preview",
+    "category": "Inbox & Email Intelligence",
+    "complexity": "Medium",
+    "query": "Search my inbox for any emails mentioning \"Project Alpha\" and list their subject lines.",
+    "expected_tool": "tool_search_emails",
+    "ground_truth_answer": "There are two emails mentioning \"Project Alpha\": \"Project Alpha Kickoff\" and \"Project Alpha Phase 2 Status Update\".",
     "truth_criteria": [
-      "Jesus Chavez",
-      "admin@sockcop.onmicrosoft.com",
-      "None"
-    ],
-    "expected_tool": "tool_get_user_profile"
+      "Project Alpha",
+      "Kickoff",
+      "Phase 2"
+    ]
   },
   {
     "id": "Q006",
-    "category": "User Profile & Identity",
-    "complexity": "Basic",
-    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
-    "query": "Check my user profile details (variation 6)",
-    "ground_truth_answer": "Profile details: Name: Jesus Chavez, Email: admin@sockcop.onmicrosoft.com, Job Title: None.",
+    "generator_model": "Gemini-3-Flash-Preview",
+    "category": "Inbox & Email Intelligence",
+    "complexity": "Complex",
+    "query": "Analyze the latest email from Grady Archie regarding \"Project Alpha\" and summarize the three action items he requested.",
+    "expected_tool": "tool_get_email_details",
+    "ground_truth_answer": "In the email from Grady Archie, the three action items are: 1) Review the project slides, 2) Update the internal budget spreadsheet, and 3) Send the signed NDA to the client.",
     "truth_criteria": [
-      "Jesus Chavez",
-      "admin@sockcop.onmicrosoft.com",
-      "None"
-    ],
-    "expected_tool": "tool_get_user_profile"
+      "slides",
+      "budget",
+      "NDA"
+    ]
   },
   {
     "id": "Q007",
-    "category": "User Profile & Identity",
+    "generator_model": "Gemini-3-Flash-Preview",
+    "category": "Calendar & Meeting Operations",
     "complexity": "Basic",
-    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
-    "query": "Check my user profile details (variation 7)",
-    "ground_truth_answer": "Profile details: Name: Jesus Chavez, Email: admin@sockcop.onmicrosoft.com, Job Title: None.",
+    "query": "What is my first meeting scheduled for tomorrow?",
+    "expected_tool": "tool_list_meetings",
+    "ground_truth_answer": "Your first meeting tomorrow is \"Marketing Sync\" at 9:00 AM.",
     "truth_criteria": [
-      "Jesus Chavez",
-      "admin@sockcop.onmicrosoft.com",
-      "None"
-    ],
-    "expected_tool": "tool_get_user_profile"
+      "Marketing Sync",
+      "9:00 AM",
+      "tomorrow"
+    ]
   },
   {
     "id": "Q008",
-    "category": "User Profile & Identity",
-    "complexity": "Basic",
-    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
-    "query": "Check my user profile details (variation 8)",
-    "ground_truth_answer": "Profile details: Name: Jesus Chavez, Email: admin@sockcop.onmicrosoft.com, Job Title: None.",
+    "generator_model": "Gemini-3-Flash-Preview",
+    "category": "Calendar & Meeting Operations",
+    "complexity": "Medium",
+    "query": "Find the Microsoft Teams meeting link for the \"Product Review\" session happening today.",
+    "expected_tool": "tool_list_meetings",
+    "ground_truth_answer": "The Teams link for the \"Product Review\" session is: https://teams.microsoft.com/l/meetup-join/19%3ameeting_MjA3ZmRi/",
     "truth_criteria": [
-      "Jesus Chavez",
-      "admin@sockcop.onmicrosoft.com",
-      "None"
-    ],
-    "expected_tool": "tool_get_user_profile"
+      "teams.microsoft.com",
+      "Product Review",
+      "link"
+    ]
   },
   {
     "id": "Q009",
-    "category": "User Profile & Identity",
-    "complexity": "Basic",
-    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
-    "query": "Check my user profile details (variation 9)",
-    "ground_truth_answer": "Profile details: Name: Jesus Chavez, Email: admin@sockcop.onmicrosoft.com, Job Title: None.",
+    "generator_model": "Gemini-3-Flash-Preview",
+    "category": "Calendar & Meeting Operations",
+    "complexity": "Complex",
+    "query": "I need to schedule a 1-hour follow-up next Wednesday. Identify any gaps between 10:00 AM and 3:00 PM where I am currently free.",
+    "expected_tool": "tool_list_meetings",
+    "ground_truth_answer": "On Wednesday, Oct 25, you are free between 11:30 AM and 1:00 PM, and again from 2:00 PM to 3:00 PM.",
     "truth_criteria": [
-      "Jesus Chavez",
-      "admin@sockcop.onmicrosoft.com",
-      "None"
-    ],
-    "expected_tool": "tool_get_user_profile"
+      "Wednesday",
+      "11:30 AM",
+      "2:00 PM"
+    ]
   },
   {
     "id": "Q010",
-    "category": "User Profile & Identity",
+    "generator_model": "Gemini-3-Flash-Preview",
+    "category": "Temporal Math & Relative Dates",
     "complexity": "Basic",
-    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
-    "query": "Check my user profile details (variation 10)",
-    "ground_truth_answer": "Profile details: Name: Jesus Chavez, Email: admin@sockcop.onmicrosoft.com, Job Title: None.",
+    "query": "Compare the number of meetings I have today versus how many I have tomorrow.",
+    "expected_tool": "tool_list_meetings",
+    "ground_truth_answer": "You have 4 meetings scheduled for today and 2 meetings scheduled for tomorrow.",
     "truth_criteria": [
-      "Jesus Chavez",
-      "admin@sockcop.onmicrosoft.com",
-      "None"
-    ],
-    "expected_tool": "tool_get_user_profile"
+      "4 meetings",
+      "2 meetings",
+      "today",
+      "tomorrow"
+    ]
   },
   {
     "id": "Q011",
-    "category": "User Profile & Identity",
-    "complexity": "Basic",
-    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
-    "query": "Check my user profile details (variation 11)",
-    "ground_truth_answer": "Profile details: Name: Jesus Chavez, Email: admin@sockcop.onmicrosoft.com, Job Title: None.",
+    "generator_model": "Gemini-3-Flash-Preview",
+    "category": "Temporal Math & Relative Dates",
+    "complexity": "Medium",
+    "query": "List all emails I received from \"Patti Fernandez\" exactly 7 days ago.",
+    "expected_tool": "tool_search_emails",
+    "ground_truth_answer": "Seven days ago, you received one email from Patti Fernandez with the subject \"Dinner Plans for the Team\".",
     "truth_criteria": [
-      "Jesus Chavez",
-      "admin@sockcop.onmicrosoft.com",
-      "None"
-    ],
-    "expected_tool": "tool_get_user_profile"
+      "Patti Fernandez",
+      "7 days ago",
+      "Dinner Plans"
+    ]
   },
   {
     "id": "Q012",
-    "category": "User Profile & Identity",
-    "complexity": "Basic",
-    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
-    "query": "Check my user profile details (variation 12)",
-    "ground_truth_answer": "Profile details: Name: Jesus Chavez, Email: admin@sockcop.onmicrosoft.com, Job Title: None.",
+    "generator_model": "Gemini-3-Flash-Preview",
+    "category": "Temporal Math & Relative Dates",
+    "complexity": "Complex",
+    "query": "Review all calendar events from the last 14 days and identify which ones were labeled as \"Critical\".",
+    "expected_tool": "tool_list_meetings",
+    "ground_truth_answer": "In the last 14 days, the only event labeled as \"Critical\" was the \"Project Alpha Critical Review\" on Oct 12.",
     "truth_criteria": [
-      "Jesus Chavez",
-      "admin@sockcop.onmicrosoft.com",
-      "None"
-    ],
-    "expected_tool": "tool_get_user_profile"
+      "Critical",
+      "Project Alpha",
+      "Oct 12"
+    ]
   },
   {
     "id": "Q013",
-    "category": "User Profile & Identity",
+    "generator_model": "Gemini-3-Flash-Preview",
+    "category": "Executive Synthesis & Actions",
     "complexity": "Basic",
-    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
-    "query": "Check my user profile details (variation 13)",
-    "ground_truth_answer": "Profile details: Name: Jesus Chavez, Email: admin@sockcop.onmicrosoft.com, Job Title: None.",
+    "query": "Send a reply to Patti Fernandez's last email saying \"Confirmed, see you there!\"",
+    "expected_tool": "tool_reply_email",
+    "ground_truth_answer": "I have sent a reply to Patti Fernandez confirming your attendance with the message: \"Confirmed, see you there!\"",
     "truth_criteria": [
-      "Jesus Chavez",
-      "admin@sockcop.onmicrosoft.com",
-      "None"
-    ],
-    "expected_tool": "tool_get_user_profile"
+      "Patti Fernandez",
+      "reply",
+      "Confirmed"
+    ]
   },
   {
     "id": "Q014",
-    "category": "User Profile & Identity",
-    "complexity": "Basic",
-    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
-    "query": "Check my user profile details (variation 14)",
-    "ground_truth_answer": "Profile details: Name: Jesus Chavez, Email: admin@sockcop.onmicrosoft.com, Job Title: None.",
+    "generator_model": "Gemini-3-Flash-Preview",
+    "category": "Executive Synthesis & Actions",
+    "complexity": "Medium",
+    "query": "Create a 30-minute meeting invitation for Grady Archie tomorrow at 2:00 PM titled \"Alpha Sync\".",
+    "expected_tool": "tool_create_meeting",
+    "ground_truth_answer": "A new meeting \"Alpha Sync\" has been scheduled with Grady Archie for tomorrow at 2:00 PM - 2:30 PM.",
     "truth_criteria": [
-      "Jesus Chavez",
-      "admin@sockcop.onmicrosoft.com",
-      "None"
-    ],
-    "expected_tool": "tool_get_user_profile"
+      "Grady Archie",
+      "Alpha Sync",
+      "2:00 PM"
+    ]
   },
   {
     "id": "Q015",
-    "category": "User Profile & Identity",
-    "complexity": "Basic",
-    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
-    "query": "Check my user profile details (variation 15)",
-    "ground_truth_answer": "Profile details: Name: Jesus Chavez, Email: admin@sockcop.onmicrosoft.com, Job Title: None.",
+    "generator_model": "Gemini-3-Flash-Preview",
+    "category": "Executive Synthesis & Actions",
+    "complexity": "Complex",
+    "query": "Identify any tasks assigned by my manager in the last 24 hours of emails and draft a summary email to Alex Wilber about them.",
+    "expected_tool": "tool_send_email",
+    "ground_truth_answer": "Your manager assigned two tasks in the last 24 hours: 1) \"Update the client deck\" and 2) \"Call the primary vendor.\" I have drafted and sent this summary to Alex Wilber.",
     "truth_criteria": [
-      "Jesus Chavez",
-      "admin@sockcop.onmicrosoft.com",
-      "None"
-    ],
-    "expected_tool": "tool_get_user_profile"
+      "Alex Wilber",
+      "tasks",
+      "summary"
+    ]
   },
   {
     "id": "Q016",
-    "category": "User Profile & Identity",
-    "complexity": "Basic",
-    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
-    "query": "Check my user profile details (variation 16)",
-    "ground_truth_answer": "Profile details: Name: Jesus Chavez, Email: admin@sockcop.onmicrosoft.com, Job Title: None.",
+    "generator_model": "Gemini-3-Flash-Preview",
+    "category": "Drafts & Sent Folder Audit",
+    "complexity": "Medium",
+    "query": "Find the sent email to \"Joni Sherman\" regarding the \"Hiring Plan\" and provide the exact timestamp.",
+    "expected_tool": "tool_search_emails",
+    "ground_truth_answer": "The email to Joni Sherman about the \"Hiring Plan\" was sent on October 14, 2023, at 10:15 AM.",
     "truth_criteria": [
-      "Jesus Chavez",
-      "admin@sockcop.onmicrosoft.com",
-      "None"
-    ],
-    "expected_tool": "tool_get_user_profile"
+      "Joni Sherman",
+      "10:15 AM",
+      "Oct 14"
+    ]
   },
   {
     "id": "Q017",
-    "category": "User Profile & Identity",
+    "generator_model": "Gemini-3-Flash-Preview",
+    "category": "Inbox & Email Intelligence",
     "complexity": "Basic",
-    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
-    "query": "Check my user profile details (variation 17)",
-    "ground_truth_answer": "Profile details: Name: Jesus Chavez, Email: admin@sockcop.onmicrosoft.com, Job Title: None.",
+    "query": "What is the subject line of the unread email from \"Pradeep Gupta\"?",
+    "expected_tool": "tool_search_emails",
+    "ground_truth_answer": "The unread email from Pradeep Gupta has the subject line: \"Budget Spreadsheet for Q4\".",
     "truth_criteria": [
-      "Jesus Chavez",
-      "admin@sockcop.onmicrosoft.com",
-      "None"
-    ],
-    "expected_tool": "tool_get_user_profile"
+      "Pradeep Gupta",
+      "Budget Spreadsheet",
+      "unread"
+    ]
   },
   {
     "id": "Q018",
-    "category": "User Profile & Identity",
+    "generator_model": "Gemini-3-Flash-Preview",
+    "category": "Calendar & Meeting Operations",
     "complexity": "Basic",
-    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
-    "query": "Check my user profile details (variation 18)",
-    "ground_truth_answer": "Profile details: Name: Jesus Chavez, Email: admin@sockcop.onmicrosoft.com, Job Title: None.",
+    "query": "How many minutes long is the \"Daily Standup\" meeting scheduled for today?",
+    "expected_tool": "tool_list_meetings",
+    "ground_truth_answer": "The \"Daily Standup\" meeting today is scheduled for 45 minutes, from 10:00 AM to 10:45 AM.",
     "truth_criteria": [
-      "Jesus Chavez",
-      "admin@sockcop.onmicrosoft.com",
-      "None"
-    ],
-    "expected_tool": "tool_get_user_profile"
+      "45 minutes",
+      "Standup",
+      "10:00 AM"
+    ]
   },
   {
     "id": "Q019",
-    "category": "User Profile & Identity",
-    "complexity": "Basic",
-    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
-    "query": "Check my user profile details (variation 19)",
-    "ground_truth_answer": "Profile details: Name: Jesus Chavez, Email: admin@sockcop.onmicrosoft.com, Job Title: None.",
+    "generator_model": "Gemini-3-Flash-Preview",
+    "category": "Inbox & Email Intelligence",
+    "complexity": "Medium",
+    "query": "Search for emails with the word \"Invoice\" and state the total amount mentioned in the most recent one.",
+    "expected_tool": "tool_get_email_details",
+    "ground_truth_answer": "The most recent email with \"Invoice\" in the subject mentions a total amount due of $1,200.00.",
     "truth_criteria": [
-      "Jesus Chavez",
-      "admin@sockcop.onmicrosoft.com",
-      "None"
-    ],
-    "expected_tool": "tool_get_user_profile"
+      "Invoice",
+      "$1,200.00",
+      "recent"
+    ]
   },
   {
     "id": "Q020",
-    "category": "User Profile & Identity",
+    "generator_model": "Gemini-3-Flash-Preview",
+    "category": "Temporal Math & Relative Dates",
     "complexity": "Basic",
-    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
-    "query": "Check my user profile details (variation 20)",
-    "ground_truth_answer": "Profile details: Name: Jesus Chavez, Email: admin@sockcop.onmicrosoft.com, Job Title: None.",
+    "query": "How many emails did I receive in total yesterday?",
+    "expected_tool": "tool_search_emails",
+    "ground_truth_answer": "You received a total of 12 emails yesterday.",
     "truth_criteria": [
-      "Jesus Chavez",
-      "admin@sockcop.onmicrosoft.com",
-      "None"
-    ],
-    "expected_tool": "tool_get_user_profile"
+      "12",
+      "emails",
+      "yesterday"
+    ]
   },
   {
     "id": "Q021",
-    "category": "Calendar & Meetings",
+    "generator_model": "Gemini-3-Flash-Preview",
+    "category": "Executive Synthesis & Actions",
     "complexity": "Medium",
-    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
-    "query": "What meetings do I have scheduled for tomorrow (July 23rd, 2026)?",
-    "ground_truth_answer": "You have 2 meetings on July 23, 2026: (1) Team Leads Budget Feedback & Action Plan Alignment at 14:00 UTC and (2) Q4 Resource Allocation at 19:00 UTC.",
+    "query": "Forward the latest email about \"Security Updates\" to the \"IT Support\" alias.",
+    "expected_tool": "tool_send_email",
+    "ground_truth_answer": "The email \"Urgent: Security Updates\" from Microsoft Security has been forwarded to it-support@M365x214355.onmicrosoft.com.",
     "truth_criteria": [
-      "Team Leads Budget Feedback",
-      "Q4 Resource Allocation",
-      "July 23"
-    ],
-    "expected_tool": "tool_list_meetings"
+      "Security Updates",
+      "IT Support",
+      "forwarded"
+    ]
   },
   {
     "id": "Q022",
-    "category": "Calendar & Meetings",
-    "complexity": "Basic",
-    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
-    "query": "Who is the organizer for the Team Leads Budget Feedback meeting?",
-    "ground_truth_answer": "The organizer for the Team Leads Budget Feedback meeting is Jesus Chavez (admin@sockcop.onmicrosoft.com).",
+    "generator_model": "Gemini-3-Flash-Preview",
+    "category": "Calendar & Meeting Operations",
+    "complexity": "Medium",
+    "query": "Who are the required attendees for the \"Board Meeting\" scheduled for next Friday?",
+    "expected_tool": "tool_list_meetings",
+    "ground_truth_answer": "The required attendees for the \"Board Meeting\" next Friday are Adele Vance, Alex Wilber, and Joni Sherman.",
     "truth_criteria": [
-      "Jesus Chavez",
-      "Team Leads Budget Feedback"
-    ],
-    "expected_tool": "tool_list_meetings"
+      "Adele Vance",
+      "Alex Wilber",
+      "Joni Sherman"
+    ]
   },
   {
     "id": "Q023",
-    "category": "Calendar & Meetings",
-    "complexity": "Basic",
-    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
-    "query": "When is my Q4 Resource Allocation meeting scheduled?",
-    "ground_truth_answer": "The Q4 Resource Allocation meeting is scheduled for July 23, 2026 from 19:00 to 19:30 UTC.",
+    "generator_model": "Gemini-3-Flash-Preview",
+    "category": "Drafts & Sent Folder Audit",
+    "complexity": "Complex",
+    "query": "Verify if the draft titled \"Performance Review\" contains mentions of \"Q4 goals\" and if these goals were previously discussed in any sent emails to the recipient.",
+    "expected_tool": "tool_search_emails",
+    "ground_truth_answer": "The draft \"Performance Review\" does mention \"Q4 goals.\" These goals were previously discussed in a sent email to Isaiah Langer on October 2nd regarding \"2023 Planning.\"",
     "truth_criteria": [
-      "Q4 Resource Allocation",
-      "19:00",
-      "July 23"
-    ],
-    "expected_tool": "tool_list_meetings"
+      "Q4 goals",
+      "Isaiah Langer",
+      "October 2nd"
+    ]
   },
   {
     "id": "Q024",
-    "category": "Calendar & Meetings",
-    "complexity": "Basic",
-    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
-    "query": "What is the location or link for the Team Leads Budget Feedback meeting?",
-    "ground_truth_answer": "The meeting location is Microsoft Teams Meeting with organizer Jesus Chavez.",
+    "generator_model": "Gemini-3-Flash-Preview",
+    "category": "Executive Synthesis & Actions",
+    "complexity": "Complex",
+    "query": "Generate an executive briefing based on today's meetings and the three most important emails received since 9:00 AM.",
+    "expected_tool": "tool_get_user_profile",
+    "ground_truth_answer": "Executive Briefing for Megan Bowen: Today includes 4 meetings, notably the 'Product Review'. Key emails since 9 AM include a 'Project Alpha' update from Grady and a budget request from Pradeep. Action items are summarized in the tasks folder.",
     "truth_criteria": [
-      "Microsoft Teams Meeting",
-      "Jesus Chavez"
-    ],
-    "expected_tool": "tool_list_meetings"
+      "Briefing",
+      "Megan Bowen",
+      "Product Review"
+    ]
   },
   {
     "id": "Q025",
-    "category": "Calendar & Meetings",
-    "complexity": "Medium",
-    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
-    "query": "Check calendar agenda for July 23rd meeting slot 5",
-    "ground_truth_answer": "Upcoming meeting: Team Leads Budget Feedback & Action Plan Alignment organized by Jesus Chavez on July 23, 2026.",
+    "generator_model": "Gemini-3-Flash-Preview",
+    "category": "Inbox & Email Intelligence",
+    "complexity": "Complex",
+    "query": "Review the email thread \"Office Relocation\" and explain the conflicting dates mentioned by different participants.",
+    "expected_tool": "tool_get_email_details",
+    "ground_truth_answer": "In the \"Office Relocation\" thread, Patti Fernandez suggests a move date of Oct 12, while Alex Wilber notes the lease isn't signed until Oct 15, creating a 3-day conflict.",
     "truth_criteria": [
-      "Team Leads Budget Feedback",
-      "Jesus Chavez",
-      "July 23"
-    ],
-    "expected_tool": "tool_list_meetings"
+      "Oct 12",
+      "Oct 15",
+      "conflict"
+    ]
   },
   {
     "id": "Q026",
-    "category": "Calendar & Meetings",
-    "complexity": "Medium",
-    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
-    "query": "Check calendar agenda for July 23rd meeting slot 6",
-    "ground_truth_answer": "Upcoming meeting: Team Leads Budget Feedback & Action Plan Alignment organized by Jesus Chavez on July 23, 2026.",
+    "generator_model": "Gemini-3-Flash-Preview",
+    "category": "Drafts & Sent Folder Audit",
+    "complexity": "Basic",
+    "query": "How many unsent messages are currently in my Drafts folder?",
+    "expected_tool": "tool_search_emails",
+    "ground_truth_answer": "There is currently 1 draft message in your Drafts folder regarding the 'Q4 Budget Review'.",
     "truth_criteria": [
-      "Team Leads Budget Feedback",
-      "Jesus Chavez",
-      "July 23"
-    ],
-    "expected_tool": "tool_list_meetings"
+      "1 draft",
+      "Drafts folder",
+      "Q4 Budget Review"
+    ]
   },
   {
     "id": "Q027",
-    "category": "Calendar & Meetings",
+    "generator_model": "Gemini-3-Flash-Preview",
+    "category": "Drafts & Sent Folder Audit",
     "complexity": "Medium",
-    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
-    "query": "Check calendar agenda for July 23rd meeting slot 7",
-    "ground_truth_answer": "Upcoming meeting: Team Leads Budget Feedback & Action Plan Alignment organized by Jesus Chavez on July 23, 2026.",
+    "query": "Find the most recent email I sent to Alex Wilber regarding the 'Project Alpha' update.",
+    "expected_tool": "tool_search_emails",
+    "ground_truth_answer": "The most recent email sent to Alex Wilber was on 2023-10-25 with the subject 'Project Alpha Status Update' stating that the roadmap is on track.",
     "truth_criteria": [
-      "Team Leads Budget Feedback",
-      "Jesus Chavez",
-      "July 23"
-    ],
-    "expected_tool": "tool_list_meetings"
+      "Alex Wilber",
+      "Project Alpha Status Update",
+      "2023-10-25"
+    ]
   },
   {
     "id": "Q028",
-    "category": "Calendar & Meetings",
-    "complexity": "Medium",
-    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
-    "query": "Check calendar agenda for July 23rd meeting slot 8",
-    "ground_truth_answer": "Upcoming meeting: Team Leads Budget Feedback & Action Plan Alignment organized by Jesus Chavez on July 23, 2026.",
+    "generator_model": "Gemini-3-Flash-Preview",
+    "category": "Drafts & Sent Folder Audit",
+    "complexity": "Complex",
+    "query": "I have a draft about 'Investor Relations'. Is there a sent email with the same subject to the same recipient, or is this draft unique?",
+    "expected_tool": "tool_search_emails",
+    "ground_truth_answer": "The draft 'Investor Relations' for recipient 'ir@contoso.com' is unique; no sent emails with that subject were found in your Sent Items folder for that recipient.",
     "truth_criteria": [
-      "Team Leads Budget Feedback",
-      "Jesus Chavez",
-      "July 23"
-    ],
-    "expected_tool": "tool_list_meetings"
+      "unique",
+      "Investor Relations",
+      "Sent Items"
+    ]
   },
   {
     "id": "Q029",
-    "category": "Calendar & Meetings",
-    "complexity": "Medium",
-    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
-    "query": "Check calendar agenda for July 23rd meeting slot 9",
-    "ground_truth_answer": "Upcoming meeting: Team Leads Budget Feedback & Action Plan Alignment organized by Jesus Chavez on July 23, 2026.",
+    "generator_model": "Gemini-3-Flash-Preview",
+    "category": "Inbox & Email Intelligence",
+    "complexity": "Basic",
+    "query": "Who sent the most recent email in my inbox and what is the subject?",
+    "expected_tool": "tool_search_emails",
+    "ground_truth_answer": "The most recent email was sent by Alex Wilber with the subject 'Urgent: Feedback needed on Project Alpha'.",
     "truth_criteria": [
-      "Team Leads Budget Feedback",
-      "Jesus Chavez",
-      "July 23"
-    ],
-    "expected_tool": "tool_list_meetings"
+      "Alex Wilber",
+      "Project Alpha",
+      "Feedback"
+    ]
   },
   {
     "id": "Q030",
-    "category": "Calendar & Meetings",
+    "generator_model": "Gemini-3-Flash-Preview",
+    "category": "Inbox & Email Intelligence",
     "complexity": "Medium",
-    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
-    "query": "Check calendar agenda for July 23rd meeting slot 10",
-    "ground_truth_answer": "Upcoming meeting: Team Leads Budget Feedback & Action Plan Alignment organized by Jesus Chavez on July 23, 2026.",
+    "query": "Search my inbox for any emails mentioning the word 'reimbursement' and tell me the total amount requested.",
+    "expected_tool": "tool_search_emails",
+    "ground_truth_answer": "There is one email from 'Finance Dept' mentioning a reimbursement for a total amount of $1,250.50.",
     "truth_criteria": [
-      "Team Leads Budget Feedback",
-      "Jesus Chavez",
-      "July 23"
-    ],
-    "expected_tool": "tool_list_meetings"
+      "Finance Dept",
+      "reimbursement",
+      "$1,250.50"
+    ]
   },
   {
     "id": "Q031",
-    "category": "Calendar & Meetings",
-    "complexity": "Medium",
-    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
-    "query": "Check calendar agenda for July 23rd meeting slot 11",
-    "ground_truth_answer": "Upcoming meeting: Team Leads Budget Feedback & Action Plan Alignment organized by Jesus Chavez on July 23, 2026.",
+    "generator_model": "Gemini-3-Flash-Preview",
+    "category": "Inbox & Email Intelligence",
+    "complexity": "Complex",
+    "query": "Based on the emails from Alex and Lynne, what are the three conflicting deadlines mentioned for the 'Alpha Launch'?",
+    "expected_tool": "tool_get_email_details",
+    "ground_truth_answer": "Alex mentions a deadline of November 1st, while Lynne's email specifies November 15th for the beta and December 1st for the final launch.",
     "truth_criteria": [
-      "Team Leads Budget Feedback",
-      "Jesus Chavez",
-      "July 23"
-    ],
-    "expected_tool": "tool_list_meetings"
+      "November 1st",
+      "November 15th",
+      "December 1st"
+    ]
   },
   {
     "id": "Q032",
-    "category": "Calendar & Meetings",
-    "complexity": "Medium",
-    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
-    "query": "Check calendar agenda for July 23rd meeting slot 12",
-    "ground_truth_answer": "Upcoming meeting: Team Leads Budget Feedback & Action Plan Alignment organized by Jesus Chavez on July 23, 2026.",
+    "generator_model": "Gemini-3-Flash-Preview",
+    "category": "Calendar & Meeting Operations",
+    "complexity": "Basic",
+    "query": "What does my schedule look like for tomorrow?",
+    "expected_tool": "tool_list_meetings",
+    "ground_truth_answer": "Tomorrow you have two meetings: 'Daily Standup' at 9:00 AM and 'Client Presentation' at 1:30 PM.",
     "truth_criteria": [
-      "Team Leads Budget Feedback",
-      "Jesus Chavez",
-      "July 23"
-    ],
-    "expected_tool": "tool_list_meetings"
+      "Daily Standup",
+      "Client Presentation",
+      "9:00 AM"
+    ]
   },
   {
     "id": "Q033",
-    "category": "Calendar & Meetings",
+    "generator_model": "Gemini-3-Flash-Preview",
+    "category": "Calendar & Meeting Operations",
     "complexity": "Medium",
-    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
-    "query": "Check calendar agenda for July 23rd meeting slot 13",
-    "ground_truth_answer": "Upcoming meeting: Team Leads Budget Feedback & Action Plan Alignment organized by Jesus Chavez on July 23, 2026.",
+    "query": "Find the Microsoft Teams join link and the duration for the 'Product Roadmap' meeting scheduled for this Friday.",
+    "expected_tool": "tool_list_meetings",
+    "ground_truth_answer": "The 'Product Roadmap' meeting on Friday lasts 60 minutes. The Teams link is https://teams.microsoft.com/l/meetup-join/example-link.",
     "truth_criteria": [
-      "Team Leads Budget Feedback",
-      "Jesus Chavez",
-      "July 23"
-    ],
-    "expected_tool": "tool_list_meetings"
+      "60 minutes",
+      "teams.microsoft.com",
+      "Product Roadmap"
+    ]
   },
   {
     "id": "Q034",
-    "category": "Calendar & Meetings",
-    "complexity": "Medium",
-    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
-    "query": "Check calendar agenda for July 23rd meeting slot 14",
-    "ground_truth_answer": "Upcoming meeting: Team Leads Budget Feedback & Action Plan Alignment organized by Jesus Chavez on July 23, 2026.",
+    "generator_model": "Gemini-3-Flash-Preview",
+    "category": "Calendar & Meeting Operations",
+    "complexity": "Complex",
+    "query": "I need to schedule a recurring series. Looking at the next two weeks, find a 90-minute slot on a Tuesday afternoon where both I and Alex Wilber (alexw@M365x214355.onmicrosoft.com) are free.",
+    "expected_tool": "tool_list_meetings",
+    "ground_truth_answer": "Based on both calendars, next Tuesday from 2:00 PM to 3:30 PM is the only 90-minute afternoon slot available.",
     "truth_criteria": [
-      "Team Leads Budget Feedback",
-      "Jesus Chavez",
-      "July 23"
-    ],
-    "expected_tool": "tool_list_meetings"
+      "Tuesday",
+      "2:00 PM",
+      "3:30 PM"
+    ]
   },
   {
     "id": "Q035",
-    "category": "Calendar & Meetings",
-    "complexity": "Medium",
-    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
-    "query": "Check calendar agenda for July 23rd meeting slot 15",
-    "ground_truth_answer": "Upcoming meeting: Team Leads Budget Feedback & Action Plan Alignment organized by Jesus Chavez on July 23, 2026.",
+    "generator_model": "Gemini-3-Flash-Preview",
+    "category": "Temporal Math & Relative Dates",
+    "complexity": "Basic",
+    "query": "Do I have more meetings today or tomorrow?",
+    "expected_tool": "tool_list_meetings",
+    "ground_truth_answer": "You have 3 meetings today and 2 meetings tomorrow, so you have more meetings today.",
     "truth_criteria": [
-      "Team Leads Budget Feedback",
-      "Jesus Chavez",
-      "July 23"
-    ],
-    "expected_tool": "tool_list_meetings"
+      "3 meetings",
+      "2 meetings",
+      "more meetings today"
+    ]
   },
   {
     "id": "Q036",
-    "category": "Calendar & Meetings",
+    "generator_model": "Gemini-3-Flash-Preview",
+    "category": "Temporal Math & Relative Dates",
     "complexity": "Medium",
-    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
-    "query": "Check calendar agenda for July 23rd meeting slot 16",
-    "ground_truth_answer": "Upcoming meeting: Team Leads Budget Feedback & Action Plan Alignment organized by Jesus Chavez on July 23, 2026.",
+    "query": "Were there any emails sent to me exactly 7 days ago regarding the 'Budget'?",
+    "expected_tool": "tool_search_emails",
+    "ground_truth_answer": "Yes, on 2023-10-20 (7 days ago), you received an email from Lynne Robbins with the subject 'Q4 Budget Finalization'.",
     "truth_criteria": [
-      "Team Leads Budget Feedback",
-      "Jesus Chavez",
-      "July 23"
-    ],
-    "expected_tool": "tool_list_meetings"
+      "2023-10-20",
+      "Lynne Robbins",
+      "Budget"
+    ]
   },
   {
     "id": "Q037",
-    "category": "Calendar & Meetings",
-    "complexity": "Medium",
-    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
-    "query": "Check calendar agenda for July 23rd meeting slot 17",
-    "ground_truth_answer": "Upcoming meeting: Team Leads Budget Feedback & Action Plan Alignment organized by Jesus Chavez on July 23, 2026.",
+    "generator_model": "Gemini-3-Flash-Preview",
+    "category": "Temporal Math & Relative Dates",
+    "complexity": "Complex",
+    "query": "Calculate the total hours I spent in 'Project Alpha' related meetings over the last 14 days.",
+    "expected_tool": "tool_list_meetings",
+    "ground_truth_answer": "In the last 14 days, you attended 4 meetings related to 'Project Alpha', totaling 5.5 hours.",
     "truth_criteria": [
-      "Team Leads Budget Feedback",
-      "Jesus Chavez",
-      "July 23"
-    ],
-    "expected_tool": "tool_list_meetings"
+      "4 meetings",
+      "5.5 hours",
+      "Project Alpha"
+    ]
   },
   {
     "id": "Q038",
-    "category": "Calendar & Meetings",
-    "complexity": "Medium",
-    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
-    "query": "Check calendar agenda for July 23rd meeting slot 18",
-    "ground_truth_answer": "Upcoming meeting: Team Leads Budget Feedback & Action Plan Alignment organized by Jesus Chavez on July 23, 2026.",
+    "generator_model": "Gemini-3-Flash-Preview",
+    "category": "Executive Synthesis & Actions",
+    "complexity": "Basic",
+    "query": "Reply to Alex Wilber's last email about the roadmap saying 'I have received the files and will review them by EOD'.",
+    "expected_tool": "tool_reply_email",
+    "ground_truth_answer": "Successfully replied to Alex Wilber regarding 'Project Alpha Roadmap' with the confirmation of receipt and review by EOD.",
     "truth_criteria": [
-      "Team Leads Budget Feedback",
-      "Jesus Chavez",
-      "July 23"
-    ],
-    "expected_tool": "tool_list_meetings"
+      "Alex Wilber",
+      "received the files",
+      "review them by EOD"
+    ]
   },
   {
     "id": "Q039",
-    "category": "Calendar & Meetings",
+    "generator_model": "Gemini-3-Flash-Preview",
+    "category": "Executive Synthesis & Actions",
     "complexity": "Medium",
-    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
-    "query": "Check calendar agenda for July 23rd meeting slot 19",
-    "ground_truth_answer": "Upcoming meeting: Team Leads Budget Feedback & Action Plan Alignment organized by Jesus Chavez on July 23, 2026.",
+    "query": "Based on the request in Lynne's last email, create a 30-minute meeting with her tomorrow at 10 AM.",
+    "expected_tool": "tool_create_meeting",
+    "ground_truth_answer": "I have scheduled a 30-minute meeting with Lynne Robbins for tomorrow at 10:00 AM titled 'Follow-up on Lynne\\'s Request'.",
     "truth_criteria": [
-      "Team Leads Budget Feedback",
-      "Jesus Chavez",
-      "July 23"
-    ],
-    "expected_tool": "tool_list_meetings"
+      "Lynne Robbins",
+      "10:00 AM",
+      "30-minute"
+    ]
   },
   {
     "id": "Q040",
-    "category": "Calendar & Meetings",
-    "complexity": "Medium",
-    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
-    "query": "Check calendar agenda for July 23rd meeting slot 20",
-    "ground_truth_answer": "Upcoming meeting: Team Leads Budget Feedback & Action Plan Alignment organized by Jesus Chavez on July 23, 2026.",
+    "generator_model": "Gemini-3-Flash-Preview",
+    "category": "Executive Synthesis & Actions",
+    "complexity": "Complex",
+    "query": "Provide an executive briefing for 'Project Alpha' including the last status update from Alex, the current budget status from Lynne, and the next scheduled milestone meeting.",
+    "expected_tool": "tool_get_email_details",
+    "ground_truth_answer": "Project Alpha Briefing: Alex reported the roadmap is on track as of Oct 25. Lynne confirmed the $50k budget is approved. The next milestone is the 'Alpha Beta Review' meeting this Friday at 2 PM.",
     "truth_criteria": [
-      "Team Leads Budget Feedback",
-      "Jesus Chavez",
-      "July 23"
-    ],
-    "expected_tool": "tool_list_meetings"
+      "roadmap is on track",
+      "$50k budget",
+      "Alpha Beta Review"
+    ]
   },
   {
     "id": "Q041",
-    "category": "Calendar & Meetings",
+    "generator_model": "Gemini-3-Flash-Preview",
+    "category": "Drafts & Sent Folder Audit",
     "complexity": "Medium",
-    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
-    "query": "Check calendar agenda for July 23rd meeting slot 21",
-    "ground_truth_answer": "Upcoming meeting: Team Leads Budget Feedback & Action Plan Alignment organized by Jesus Chavez on July 23, 2026.",
+    "query": "List all subjects of emails I sent yesterday.",
+    "expected_tool": "tool_search_emails",
+    "ground_truth_answer": "Yesterday, you sent emails with the following subjects: 'Client Invoice #402', 'Project Alpha Update', and 'Re: Weekend Plans'.",
     "truth_criteria": [
-      "Team Leads Budget Feedback",
-      "Jesus Chavez",
-      "July 23"
-    ],
-    "expected_tool": "tool_list_meetings"
+      "Client Invoice",
+      "Project Alpha Update",
+      "Weekend Plans"
+    ]
   },
   {
     "id": "Q042",
-    "category": "Calendar & Meetings",
+    "generator_model": "Gemini-3-Flash-Preview",
+    "category": "Inbox & Email Intelligence",
     "complexity": "Medium",
-    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
-    "query": "Check calendar agenda for July 23rd meeting slot 22",
-    "ground_truth_answer": "Upcoming meeting: Team Leads Budget Feedback & Action Plan Alignment organized by Jesus Chavez on July 23, 2026.",
+    "query": "Who is the sender of the unread email regarding 'Security Protocol'?",
+    "expected_tool": "tool_search_emails",
+    "ground_truth_answer": "The unread email regarding 'Security Protocol' was sent by 'IT Support (security@contoso.com)'.",
     "truth_criteria": [
-      "Team Leads Budget Feedback",
-      "Jesus Chavez",
-      "July 23"
-    ],
-    "expected_tool": "tool_list_meetings"
+      "IT Support",
+      "Security Protocol",
+      "security@contoso.com"
+    ]
   },
   {
     "id": "Q043",
-    "category": "Calendar & Meetings",
-    "complexity": "Medium",
-    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
-    "query": "Check calendar agenda for July 23rd meeting slot 23",
-    "ground_truth_answer": "Upcoming meeting: Team Leads Budget Feedback & Action Plan Alignment organized by Jesus Chavez on July 23, 2026.",
+    "generator_model": "Gemini-3-Flash-Preview",
+    "category": "Calendar & Meeting Operations",
+    "complexity": "Basic",
+    "query": "What time is my first meeting today?",
+    "expected_tool": "tool_list_meetings",
+    "ground_truth_answer": "Your first meeting today is 'Morning Sync' starting at 8:30 AM.",
     "truth_criteria": [
-      "Team Leads Budget Feedback",
-      "Jesus Chavez",
-      "July 23"
-    ],
-    "expected_tool": "tool_list_meetings"
+      "8:30 AM",
+      "Morning Sync"
+    ]
   },
   {
     "id": "Q044",
-    "category": "Calendar & Meetings",
+    "generator_model": "Gemini-3-Flash-Preview",
+    "category": "Temporal Math & Relative Dates",
     "complexity": "Medium",
-    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
-    "query": "Check calendar agenda for July 23rd meeting slot 24",
-    "ground_truth_answer": "Upcoming meeting: Team Leads Budget Feedback & Action Plan Alignment organized by Jesus Chavez on July 23, 2026.",
+    "query": "How many emails did I receive from Lynne Robbins last week (Monday to Friday)?",
+    "expected_tool": "tool_search_emails",
+    "ground_truth_answer": "You received 4 emails from Lynne Robbins between last Monday and Friday.",
     "truth_criteria": [
-      "Team Leads Budget Feedback",
-      "Jesus Chavez",
-      "July 23"
-    ],
-    "expected_tool": "tool_list_meetings"
+      "4 emails",
+      "Lynne Robbins",
+      "last week"
+    ]
   },
   {
     "id": "Q045",
-    "category": "Calendar & Meetings",
-    "complexity": "Medium",
-    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
-    "query": "Check calendar agenda for July 23rd meeting slot 25",
-    "ground_truth_answer": "Upcoming meeting: Team Leads Budget Feedback & Action Plan Alignment organized by Jesus Chavez on July 23, 2026.",
+    "generator_model": "Gemini-3-Flash-Preview",
+    "category": "Executive Synthesis & Actions",
+    "complexity": "Basic",
+    "query": "Create a calendar reminder for 'Submit Expense Report' this Friday at 4 PM for 15 minutes.",
+    "expected_tool": "tool_create_meeting",
+    "ground_truth_answer": "I've created a 15-minute event 'Submit Expense Report' for this Friday at 4:00 PM.",
     "truth_criteria": [
-      "Team Leads Budget Feedback",
-      "Jesus Chavez",
-      "July 23"
-    ],
-    "expected_tool": "tool_list_meetings"
+      "Submit Expense Report",
+      "4:00 PM",
+      "15 minutes"
+    ]
   },
   {
     "id": "Q046",
-    "category": "Calendar & Meetings",
-    "complexity": "Medium",
-    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
-    "query": "Check calendar agenda for July 23rd meeting slot 26",
-    "ground_truth_answer": "Upcoming meeting: Team Leads Budget Feedback & Action Plan Alignment organized by Jesus Chavez on July 23, 2026.",
+    "generator_model": "Gemini-3-Flash-Preview",
+    "category": "Drafts & Sent Folder Audit",
+    "complexity": "Complex",
+    "query": "I am looking for a draft I started for 'Joni Sherman' about the 'Hiring Plan'. Check if I actually sent it or if it's still in Drafts.",
+    "expected_tool": "tool_search_emails",
+    "ground_truth_answer": "The 'Hiring Plan' message to Joni Sherman is still in your Drafts folder; no corresponding sent message was found in your Sent Items.",
     "truth_criteria": [
-      "Team Leads Budget Feedback",
-      "Jesus Chavez",
-      "July 23"
-    ],
-    "expected_tool": "tool_list_meetings"
+      "Drafts folder",
+      "Joni Sherman",
+      "Hiring Plan"
+    ]
   },
   {
     "id": "Q047",
-    "category": "Calendar & Meetings",
-    "complexity": "Medium",
-    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
-    "query": "Check calendar agenda for July 23rd meeting slot 27",
-    "ground_truth_answer": "Upcoming meeting: Team Leads Budget Feedback & Action Plan Alignment organized by Jesus Chavez on July 23, 2026.",
+    "generator_model": "Gemini-3-Flash-Preview",
+    "category": "Inbox & Email Intelligence",
+    "complexity": "Complex",
+    "query": "Alex sent an email about 'Phase 1' and 'Phase 2'. Summarize the key differences in the deliverables mentioned.",
+    "expected_tool": "tool_get_email_details",
+    "ground_truth_answer": "Phase 1 focuses on 'Market Analysis' and 'Initial Design' (due Oct 30), while Phase 2 deliverables are 'Prototype Development' and 'User Testing' (due Dec 15).",
     "truth_criteria": [
-      "Team Leads Budget Feedback",
-      "Jesus Chavez",
-      "July 23"
-    ],
-    "expected_tool": "tool_list_meetings"
+      "Market Analysis",
+      "Prototype Development",
+      "Phase 1",
+      "Phase 2"
+    ]
   },
   {
     "id": "Q048",
-    "category": "Calendar & Meetings",
+    "generator_model": "Gemini-3-Flash-Preview",
+    "category": "Calendar & Meeting Operations",
     "complexity": "Medium",
-    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
-    "query": "Check calendar agenda for July 23rd meeting slot 28",
-    "ground_truth_answer": "Upcoming meeting: Team Leads Budget Feedback & Action Plan Alignment organized by Jesus Chavez on July 23, 2026.",
+    "query": "What is the duration and location of the 'Executive Board Meeting' on my calendar?",
+    "expected_tool": "tool_list_meetings",
+    "ground_truth_answer": "The 'Executive Board Meeting' is 2 hours long and is located in 'Conference Room A'.",
     "truth_criteria": [
-      "Team Leads Budget Feedback",
-      "Jesus Chavez",
-      "July 23"
-    ],
-    "expected_tool": "tool_list_meetings"
+      "2 hours",
+      "Conference Room A"
+    ]
   },
   {
     "id": "Q049",
-    "category": "Calendar & Meetings",
-    "complexity": "Medium",
-    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
-    "query": "Check calendar agenda for July 23rd meeting slot 29",
-    "ground_truth_answer": "Upcoming meeting: Team Leads Budget Feedback & Action Plan Alignment organized by Jesus Chavez on July 23, 2026.",
+    "generator_model": "Gemini-3-Flash-Preview",
+    "category": "Temporal Math & Relative Dates",
+    "complexity": "Complex",
+    "query": "Comparing this work week to last work week, was I busier in terms of meeting count?",
+    "expected_tool": "tool_list_meetings",
+    "ground_truth_answer": "Last week you had 12 meetings, and this week you have 15 meetings, so you are busier this week.",
     "truth_criteria": [
-      "Team Leads Budget Feedback",
-      "Jesus Chavez",
-      "July 23"
-    ],
-    "expected_tool": "tool_list_meetings"
+      "12 meetings",
+      "15 meetings",
+      "busier this week"
+    ]
   },
   {
     "id": "Q050",
-    "category": "Calendar & Meetings",
-    "complexity": "Medium",
-    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
-    "query": "Check calendar agenda for July 23rd meeting slot 30",
-    "ground_truth_answer": "Upcoming meeting: Team Leads Budget Feedback & Action Plan Alignment organized by Jesus Chavez on July 23, 2026.",
+    "generator_model": "Gemini-3-Flash-Preview",
+    "category": "Executive Synthesis & Actions",
+    "complexity": "Complex",
+    "query": "Find the last email from Alex Wilber about 'Budget' and create a meeting with him on the first available slot tomorrow to discuss it.",
+    "expected_tool": "tool_create_meeting",
+    "ground_truth_answer": "The last budget email from Alex was 'Budget Proposal v2'. Your first available slot tomorrow is 11:00 AM, so I have scheduled 'Discussion: Budget Proposal v2' then.",
     "truth_criteria": [
-      "Team Leads Budget Feedback",
-      "Jesus Chavez",
-      "July 23"
-    ],
-    "expected_tool": "tool_list_meetings"
+      "Budget Proposal v2",
+      "11:00 AM",
+      "Alex Wilber"
+    ]
   },
   {
     "id": "Q051",
-    "category": "Inbox & Messages",
-    "complexity": "Medium",
-    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
-    "query": "What is the latest security notice email about Passkeys in my inbox?",
-    "ground_truth_answer": "You received an email from Microsoft (microsoft-noreply@microsoft.com) titled \"Passkeys by default and retirement of Microsoft-provided SMS and voice authentication\" received on July 22, 2026.",
+    "generator_model": "Claude-Sonnet-5",
+    "category": "Drafts & Sent Folder Audit",
+    "complexity": "Basic",
+    "query": "How many draft emails do I currently have saved?",
+    "expected_tool": "tool_search_emails",
+    "ground_truth_answer": "You have 2 draft emails saved: \"RE: Client Escalation - Acme Corp\" to David Kim and \"Follow-up: Project Phoenix Resources\" to Michael Torres.",
     "truth_criteria": [
-      "Passkeys",
-      "microsoft-noreply@microsoft.com",
-      "July 22"
-    ],
-    "expected_tool": "tool_search_emails"
+      "2",
+      "Client Escalation",
+      "Project Phoenix Resources"
+    ]
   },
   {
     "id": "Q052",
-    "category": "Inbox & Messages",
-    "complexity": "Medium",
-    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
-    "query": "What action is recommended regarding Azure Copilot agent access settings?",
-    "ground_truth_answer": "An email from Microsoft Azure (azure-noreply@microsoft.com) recommends reviewing Azure Copilot agent access settings before 1 August 2026.",
+    "generator_model": "Claude-Sonnet-5",
+    "category": "Drafts & Sent Folder Audit",
+    "complexity": "Basic",
+    "query": "What is the subject of the draft email addressed to Michael Torres?",
+    "expected_tool": "tool_search_emails",
+    "ground_truth_answer": "The draft email to Michael Torres is titled \"Follow-up: Project Phoenix Resources\".",
     "truth_criteria": [
-      "Azure Copilot",
-      "azure-noreply@microsoft.com",
-      "1 August 2026"
-    ],
-    "expected_tool": "tool_search_emails"
+      "Follow-up",
+      "Project Phoenix Resources"
+    ]
   },
   {
     "id": "Q053",
-    "category": "Inbox & Messages",
-    "complexity": "Complex",
-    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
-    "query": "Why did I receive an Undeliverable email for Q4 Resource Allocation?",
-    "ground_truth_answer": "Microsoft Outlook delivery system notified you that your message to sarah.jenkins@sockcop.onmicrosoft.com regarding \"Q4 Resource Allocation\" could not be delivered.",
+    "generator_model": "Claude-Sonnet-5",
+    "category": "Drafts & Sent Folder Audit",
+    "complexity": "Medium",
+    "query": "What was the subject line of the email I sent to lisa.park@fabrikam.com?",
+    "expected_tool": "tool_search_emails",
+    "ground_truth_answer": "The email sent to lisa.park@fabrikam.com was titled \"Partnership Agreement Draft - Comments\", sent on June 8, 2024.",
     "truth_criteria": [
-      "sarah.jenkins@sockcop.onmicrosoft.com",
-      "Q4 Resource Allocation",
-      "Undeliverable"
-    ],
-    "expected_tool": "tool_search_emails"
+      "Partnership Agreement Draft - Comments",
+      "June 8, 2024"
+    ]
   },
   {
     "id": "Q054",
-    "category": "Inbox & Messages",
-    "complexity": "Complex",
-    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
-    "query": "What undeliverable bounce message did I get regarding Michael Torres?",
-    "ground_truth_answer": "Microsoft Outlook reported an undeliverable notice for message \"Product Roadmap Discussion\" sent to michael.torres@sockcop.onmicrosoft.com.",
+    "generator_model": "Claude-Sonnet-5",
+    "category": "Drafts & Sent Folder Audit",
+    "complexity": "Medium",
+    "query": "On what date did I send the Project Phoenix timeline update to the team?",
+    "expected_tool": "tool_search_emails",
+    "ground_truth_answer": "The \"Project Phoenix - Timeline Update\" email was sent to team-phoenix@contoso.com on June 4, 2024.",
     "truth_criteria": [
-      "michael.torres@sockcop.onmicrosoft.com",
-      "Product Roadmap Discussion",
-      "Undeliverable"
-    ],
-    "expected_tool": "tool_search_emails"
+      "June 4, 2024",
+      "Project Phoenix - Timeline Update"
+    ]
   },
   {
     "id": "Q055",
-    "category": "Inbox & Messages",
-    "complexity": "Medium",
-    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
-    "query": "Search inbox for recent Microsoft system notifications 5",
-    "ground_truth_answer": "Recent message from Microsoft (microsoft-noreply@microsoft.com) regarding Passkeys security updates received July 22, 2026.",
+    "generator_model": "Claude-Sonnet-5",
+    "category": "Drafts & Sent Folder Audit",
+    "complexity": "Complex",
+    "query": "Did I ever actually send my drafted reply to David Kim about the Acme Corp escalation, or is it still sitting unsent as a draft?",
+    "expected_tool": "tool_search_emails",
+    "ground_truth_answer": "The reply \"RE: Client Escalation - Acme Corp\" to David Kim, created on June 3, 2024, is still saved as an unsent draft and does not appear in the Sent folder.",
     "truth_criteria": [
-      "Passkeys",
-      "microsoft-noreply@microsoft.com",
-      "July 22"
-    ],
-    "expected_tool": "tool_search_emails"
+      "draft",
+      "David Kim",
+      "Acme Corp"
+    ]
   },
   {
     "id": "Q056",
-    "category": "Inbox & Messages",
-    "complexity": "Medium",
-    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
-    "query": "Search inbox for recent Microsoft system notifications 6",
-    "ground_truth_answer": "Recent message from Microsoft (microsoft-noreply@microsoft.com) regarding Passkeys security updates received July 22, 2026.",
+    "generator_model": "Claude-Sonnet-5",
+    "category": "Inbox & Email Intelligence",
+    "complexity": "Basic",
+    "query": "What is the subject of the most recent email in my inbox?",
+    "expected_tool": "tool_search_emails",
+    "ground_truth_answer": "The most recent inbox email is \"Q3 Budget Review - Action Required\", received on June 10, 2024.",
     "truth_criteria": [
-      "Passkeys",
-      "microsoft-noreply@microsoft.com",
-      "July 22"
-    ],
-    "expected_tool": "tool_search_emails"
+      "Q3 Budget Review - Action Required",
+      "June 10, 2024"
+    ]
   },
   {
     "id": "Q057",
-    "category": "Inbox & Messages",
-    "complexity": "Medium",
-    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
-    "query": "Search inbox for recent Microsoft system notifications 7",
-    "ground_truth_answer": "Recent message from Microsoft (microsoft-noreply@microsoft.com) regarding Passkeys security updates received July 22, 2026.",
+    "generator_model": "Claude-Sonnet-5",
+    "category": "Inbox & Email Intelligence",
+    "complexity": "Basic",
+    "query": "Who sent me the most recent email in my inbox?",
+    "expected_tool": "tool_search_emails",
+    "ground_truth_answer": "The most recent email was sent by James Wright (james.wright@contoso.com).",
     "truth_criteria": [
-      "Passkeys",
-      "microsoft-noreply@microsoft.com",
-      "July 22"
-    ],
-    "expected_tool": "tool_search_emails"
+      "James Wright",
+      "james.wright@contoso.com"
+    ]
   },
   {
     "id": "Q058",
-    "category": "Inbox & Messages",
+    "generator_model": "Claude-Sonnet-5",
+    "category": "Inbox & Email Intelligence",
     "complexity": "Medium",
-    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
-    "query": "Search inbox for recent Microsoft system notifications 8",
-    "ground_truth_answer": "Recent message from Microsoft (microsoft-noreply@microsoft.com) regarding Passkeys security updates received July 22, 2026.",
+    "query": "Do I have any emails in my inbox with \"Budget\" in the subject line?",
+    "expected_tool": "tool_search_emails",
+    "ground_truth_answer": "Yes, there is one email with \"Budget\" in the subject: \"Q3 Budget Review - Action Required\" from James Wright, received June 10, 2024.",
     "truth_criteria": [
-      "Passkeys",
-      "microsoft-noreply@microsoft.com",
-      "July 22"
-    ],
-    "expected_tool": "tool_search_emails"
+      "Q3 Budget Review - Action Required",
+      "James Wright"
+    ]
   },
   {
     "id": "Q059",
-    "category": "Inbox & Messages",
+    "generator_model": "Claude-Sonnet-5",
+    "category": "Inbox & Email Intelligence",
     "complexity": "Medium",
-    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
-    "query": "Search inbox for recent Microsoft system notifications 9",
-    "ground_truth_answer": "Recent message from Microsoft (microsoft-noreply@microsoft.com) regarding Passkeys security updates received July 22, 2026.",
+    "query": "Is there an email from IT Support in my inbox, and what is it about?",
+    "expected_tool": "tool_search_emails",
+    "ground_truth_answer": "Yes, IT Support sent \"Scheduled Maintenance Notice\" on June 9, 2024, stating systems will undergo maintenance from 10 PM to 2 AM over the weekend.",
     "truth_criteria": [
-      "Passkeys",
-      "microsoft-noreply@microsoft.com",
-      "July 22"
-    ],
-    "expected_tool": "tool_search_emails"
+      "Scheduled Maintenance Notice",
+      "IT Support",
+      "maintenance"
+    ]
   },
   {
     "id": "Q060",
-    "category": "Inbox & Messages",
-    "complexity": "Medium",
-    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
-    "query": "Search inbox for recent Microsoft system notifications 10",
-    "ground_truth_answer": "Recent message from Microsoft (microsoft-noreply@microsoft.com) regarding Passkeys security updates received July 22, 2026.",
+    "generator_model": "Claude-Sonnet-5",
+    "category": "Inbox & Email Intelligence",
+    "complexity": "Complex",
+    "query": "What does the body of the email from David Kim about the Acme Corp client escalation say, and how urgent is it?",
+    "expected_tool": "tool_get_email_details",
+    "ground_truth_answer": "David Kim's email \"Client Escalation - Acme Corp\" states that Acme Corp is threatening to cancel their contract due to delayed delivery and needs immediate attention before end of week, indicating a high-urgency issue.",
     "truth_criteria": [
-      "Passkeys",
-      "microsoft-noreply@microsoft.com",
-      "July 22"
-    ],
-    "expected_tool": "tool_search_emails"
+      "Acme Corp",
+      "cancel their contract",
+      "immediate attention"
+    ]
   },
   {
     "id": "Q061",
-    "category": "Inbox & Messages",
-    "complexity": "Medium",
-    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
-    "query": "Search inbox for recent Microsoft system notifications 11",
-    "ground_truth_answer": "Recent message from Microsoft (microsoft-noreply@microsoft.com) regarding Passkeys security updates received July 22, 2026.",
+    "generator_model": "Claude-Sonnet-5",
+    "category": "Calendar & Meeting Operations",
+    "complexity": "Basic",
+    "query": "What meetings do I have scheduled for tomorrow, June 11?",
+    "expected_tool": "tool_list_meetings",
+    "ground_truth_answer": "On June 11, 2024, you have the \"Project Phoenix Weekly Sync\" meeting from 10:00 to 10:30 AM.",
     "truth_criteria": [
-      "Passkeys",
-      "microsoft-noreply@microsoft.com",
-      "July 22"
-    ],
-    "expected_tool": "tool_search_emails"
+      "Project Phoenix Weekly Sync",
+      "June 11",
+      "10:00"
+    ]
   },
   {
     "id": "Q062",
-    "category": "Inbox & Messages",
+    "generator_model": "Claude-Sonnet-5",
+    "category": "Calendar & Meeting Operations",
     "complexity": "Medium",
-    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
-    "query": "Search inbox for recent Microsoft system notifications 12",
-    "ground_truth_answer": "Recent message from Microsoft (microsoft-noreply@microsoft.com) regarding Passkeys security updates received July 22, 2026.",
+    "query": "Does my Project Phoenix Weekly Sync meeting have a Teams link, and how long does it last?",
+    "expected_tool": "tool_list_meetings",
+    "ground_truth_answer": "Yes, the Project Phoenix Weekly Sync includes a Teams link (https://teams.microsoft.com/l/meetup-join/phoenix-sync) and lasts 30 minutes, from 10:00 to 10:30 AM.",
     "truth_criteria": [
-      "Passkeys",
-      "microsoft-noreply@microsoft.com",
-      "July 22"
-    ],
-    "expected_tool": "tool_search_emails"
+      "teams.microsoft.com",
+      "30 minutes",
+      "Phoenix"
+    ]
   },
   {
     "id": "Q063",
-    "category": "Inbox & Messages",
+    "generator_model": "Claude-Sonnet-5",
+    "category": "Calendar & Meeting Operations",
     "complexity": "Medium",
-    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
-    "query": "Search inbox for recent Microsoft system notifications 13",
-    "ground_truth_answer": "Recent message from Microsoft (microsoft-noreply@microsoft.com) regarding Passkeys security updates received July 22, 2026.",
+    "query": "What time does my Client Call with Acme Corp start and end on June 12?",
+    "expected_tool": "tool_list_meetings",
+    "ground_truth_answer": "The Client Call - Acme Corp on June 12, 2024 starts at 9:00 AM and ends at 10:00 AM.",
     "truth_criteria": [
-      "Passkeys",
-      "microsoft-noreply@microsoft.com",
-      "July 22"
-    ],
-    "expected_tool": "tool_search_emails"
+      "9:00",
+      "10:00",
+      "June 12"
+    ]
   },
   {
     "id": "Q064",
-    "category": "Inbox & Messages",
-    "complexity": "Medium",
-    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
-    "query": "Search inbox for recent Microsoft system notifications 14",
-    "ground_truth_answer": "Recent message from Microsoft (microsoft-noreply@microsoft.com) regarding Passkeys security updates received July 22, 2026.",
+    "generator_model": "Claude-Sonnet-5",
+    "category": "Calendar & Meeting Operations",
+    "complexity": "Complex",
+    "query": "What meetings do I have scheduled between June 10 and June 20, and which ones include Teams links?",
+    "expected_tool": "tool_list_meetings",
+    "ground_truth_answer": "Between June 10-20, 2024, you have: 1:1 with Manager (June 10, no Teams link), Project Phoenix Weekly Sync (June 11, Teams link), Client Call - Acme Corp (June 12, Teams link), Q3 Budget Review Meeting (June 13, Teams link), Team Offsite Planning (June 17, no Teams link), and Performance Review - Q2 (June 20, Teams link).",
     "truth_criteria": [
-      "Passkeys",
-      "microsoft-noreply@microsoft.com",
-      "July 22"
-    ],
-    "expected_tool": "tool_search_emails"
+      "Q3 Budget Review Meeting",
+      "Team Offsite Planning",
+      "Teams link"
+    ]
   },
   {
     "id": "Q065",
-    "category": "Inbox & Messages",
-    "complexity": "Medium",
-    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
-    "query": "Search inbox for recent Microsoft system notifications 15",
-    "ground_truth_answer": "Recent message from Microsoft (microsoft-noreply@microsoft.com) regarding Passkeys security updates received July 22, 2026.",
+    "generator_model": "Claude-Sonnet-5",
+    "category": "Calendar & Meeting Operations",
+    "complexity": "Complex",
+    "query": "Who is the organizer of my Q3 Budget Review Meeting, and how many days from today is it scheduled?",
+    "expected_tool": "tool_list_meetings",
+    "ground_truth_answer": "James Wright organizes the Q3 Budget Review Meeting, scheduled for June 13, 2024, which is 3 days from today (June 10, 2024).",
     "truth_criteria": [
-      "Passkeys",
-      "microsoft-noreply@microsoft.com",
-      "July 22"
-    ],
-    "expected_tool": "tool_search_emails"
+      "James Wright",
+      "June 13",
+      "3 days"
+    ]
   },
   {
     "id": "Q066",
-    "category": "Inbox & Messages",
-    "complexity": "Medium",
-    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
-    "query": "Search inbox for recent Microsoft system notifications 16",
-    "ground_truth_answer": "Recent message from Microsoft (microsoft-noreply@microsoft.com) regarding Passkeys security updates received July 22, 2026.",
+    "generator_model": "Claude-Sonnet-5",
+    "category": "Temporal Math & Relative Dates",
+    "complexity": "Basic",
+    "query": "What is today's date, and what date is tomorrow?",
+    "expected_tool": "tool_get_user_profile",
+    "ground_truth_answer": "Today is June 10, 2024, and tomorrow is June 11, 2024.",
     "truth_criteria": [
-      "Passkeys",
-      "microsoft-noreply@microsoft.com",
-      "July 22"
-    ],
-    "expected_tool": "tool_search_emails"
+      "June 10, 2024",
+      "June 11, 2024"
+    ]
   },
   {
     "id": "Q067",
-    "category": "Inbox & Messages",
+    "generator_model": "Claude-Sonnet-5",
+    "category": "Temporal Math & Relative Dates",
     "complexity": "Medium",
-    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
-    "query": "Search inbox for recent Microsoft system notifications 17",
-    "ground_truth_answer": "Recent message from Microsoft (microsoft-noreply@microsoft.com) regarding Passkeys security updates received July 22, 2026.",
+    "query": "What email(s) did I receive exactly 7 days ago from today?",
+    "expected_tool": "tool_search_emails",
+    "ground_truth_answer": "Exactly 7 days ago, on June 3, 2024, you received \"Client Escalation - Acme Corp\" from David Kim and \"Weekly Tech Digest\" from the newsletter.",
     "truth_criteria": [
-      "Passkeys",
-      "microsoft-noreply@microsoft.com",
-      "July 22"
-    ],
-    "expected_tool": "tool_search_emails"
+      "June 3, 2024",
+      "Client Escalation - Acme Corp"
+    ]
   },
   {
     "id": "Q068",
-    "category": "Inbox & Messages",
+    "generator_model": "Claude-Sonnet-5",
+    "category": "Temporal Math & Relative Dates",
     "complexity": "Medium",
-    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
-    "query": "Search inbox for recent Microsoft system notifications 18",
-    "ground_truth_answer": "Recent message from Microsoft (microsoft-noreply@microsoft.com) regarding Passkeys security updates received July 22, 2026.",
+    "query": "How many days ago did I receive the Performance Review Schedule email from Emma Watson?",
+    "expected_tool": "tool_search_emails",
+    "ground_truth_answer": "The Performance Review Schedule email was received on May 28, 2024, which is 13 days ago from today, June 10, 2024.",
     "truth_criteria": [
-      "Passkeys",
-      "microsoft-noreply@microsoft.com",
-      "July 22"
-    ],
-    "expected_tool": "tool_search_emails"
+      "May 28, 2024",
+      "13 days"
+    ]
   },
   {
     "id": "Q069",
-    "category": "Inbox & Messages",
-    "complexity": "Medium",
-    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
-    "query": "Search inbox for recent Microsoft system notifications 19",
-    "ground_truth_answer": "Recent message from Microsoft (microsoft-noreply@microsoft.com) regarding Passkeys security updates received July 22, 2026.",
+    "generator_model": "Claude-Sonnet-5",
+    "category": "Temporal Math & Relative Dates",
+    "complexity": "Complex",
+    "query": "What emails did I receive in the past 7 days compared to the past 14 days from today?",
+    "expected_tool": "tool_search_emails",
+    "ground_truth_answer": "In the past 7 days (June 4-10), you received 4 emails: Q3 Budget Review - Action Required, RE: Partnership Agreement Draft, Scheduled Maintenance Notice, and Project Phoenix Kickoff Notes. In the past 14 days (May 28-June 10), you received all 8 inbox emails, adding Benefits Enrollment Deadline, Client Escalation - Acme Corp, Weekly Tech Digest, and Performance Review Schedule.",
     "truth_criteria": [
-      "Passkeys",
-      "microsoft-noreply@microsoft.com",
-      "July 22"
-    ],
-    "expected_tool": "tool_search_emails"
+      "4 emails",
+      "8 inbox emails",
+      "Performance Review Schedule"
+    ]
   },
   {
     "id": "Q070",
-    "category": "Inbox & Messages",
-    "complexity": "Medium",
-    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
-    "query": "Search inbox for recent Microsoft system notifications 20",
-    "ground_truth_answer": "Recent message from Microsoft (microsoft-noreply@microsoft.com) regarding Passkeys security updates received July 22, 2026.",
+    "generator_model": "Claude-Sonnet-5",
+    "category": "Temporal Math & Relative Dates",
+    "complexity": "Complex",
+    "query": "How many days from today is my Team Offsite Planning meeting, and how many days after that is my Performance Review - Q2?",
+    "expected_tool": "tool_list_meetings",
+    "ground_truth_answer": "The Team Offsite Planning meeting on June 17, 2024 is 7 days from today (June 10, 2024), and the Performance Review - Q2 on June 20, 2024 falls 3 days after that.",
     "truth_criteria": [
-      "Passkeys",
-      "microsoft-noreply@microsoft.com",
-      "July 22"
-    ],
-    "expected_tool": "tool_search_emails"
+      "7 days",
+      "June 17",
+      "3 days"
+    ]
   },
   {
     "id": "Q071",
-    "category": "Inbox & Messages",
-    "complexity": "Medium",
-    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
-    "query": "Search inbox for recent Microsoft system notifications 21",
-    "ground_truth_answer": "Recent message from Microsoft (microsoft-noreply@microsoft.com) regarding Passkeys security updates received July 22, 2026.",
+    "generator_model": "Claude-Sonnet-5",
+    "category": "Executive Synthesis & Actions",
+    "complexity": "Basic",
+    "query": "Can you reply to James Wright's Q3 Budget Review email confirming I will attend Thursday's meeting?",
+    "expected_tool": "tool_reply_email",
+    "ground_truth_answer": "A reply was sent to James Wright confirming attendance at Thursday's Q3 Budget Review Meeting on June 13, 2024.",
     "truth_criteria": [
-      "Passkeys",
-      "microsoft-noreply@microsoft.com",
-      "July 22"
-    ],
-    "expected_tool": "tool_search_emails"
+      "James Wright",
+      "Q3 Budget Review",
+      "confirm"
+    ]
   },
   {
     "id": "Q072",
-    "category": "Inbox & Messages",
+    "generator_model": "Claude-Sonnet-5",
+    "category": "Executive Synthesis & Actions",
     "complexity": "Medium",
-    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
-    "query": "Search inbox for recent Microsoft system notifications 22",
-    "ground_truth_answer": "Recent message from Microsoft (microsoft-noreply@microsoft.com) regarding Passkeys security updates received July 22, 2026.",
+    "query": "Can you create a follow-up meeting with Michael Torres to discuss Project Phoenix resources next week?",
+    "expected_tool": "tool_create_meeting",
+    "ground_truth_answer": "A follow-up meeting titled \"Follow-up: Project Phoenix Resources\" was created with Michael Torres for next week to discuss project resource needs.",
     "truth_criteria": [
-      "Passkeys",
-      "microsoft-noreply@microsoft.com",
-      "July 22"
-    ],
-    "expected_tool": "tool_search_emails"
+      "Michael Torres",
+      "Project Phoenix Resources",
+      "meeting"
+    ]
   },
   {
     "id": "Q073",
-    "category": "Inbox & Messages",
-    "complexity": "Medium",
-    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
-    "query": "Search inbox for recent Microsoft system notifications 23",
-    "ground_truth_answer": "Recent message from Microsoft (microsoft-noreply@microsoft.com) regarding Passkeys security updates received July 22, 2026.",
+    "generator_model": "Claude-Sonnet-5",
+    "category": "Executive Synthesis & Actions",
+    "complexity": "Complex",
+    "query": "Can you summarize my key action items from this week's inbox, including the budget review and client escalation?",
+    "expected_tool": "tool_search_emails",
+    "ground_truth_answer": "Key action items: 1) Review Q3 budget numbers from James Wright before Thursday's meeting; 2) Address the Acme Corp escalation from David Kim regarding delayed delivery threatening contract cancellation; 3) Follow up on the Partnership Agreement Draft with Lisa Park.",
     "truth_criteria": [
-      "Passkeys",
-      "microsoft-noreply@microsoft.com",
-      "July 22"
-    ],
-    "expected_tool": "tool_search_emails"
+      "Q3 budget",
+      "Acme Corp",
+      "Partnership Agreement"
+    ]
   },
   {
     "id": "Q074",
-    "category": "Inbox & Messages",
-    "complexity": "Medium",
-    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
-    "query": "Search inbox for recent Microsoft system notifications 24",
-    "ground_truth_answer": "Recent message from Microsoft (microsoft-noreply@microsoft.com) regarding Passkeys security updates received July 22, 2026.",
+    "generator_model": "Claude-Sonnet-5",
+    "category": "Executive Synthesis & Actions",
+    "complexity": "Complex",
+    "query": "Based on my calendar and inbox, what should be my top three priorities for this week?",
+    "expected_tool": "tool_search_emails",
+    "ground_truth_answer": "Top priorities: 1) Prepare for the Q3 Budget Review Meeting with James Wright on June 13; 2) Resolve the urgent Acme Corp client escalation raised by David Kim; 3) Attend the Client Call - Acme Corp on June 12 and the Project Phoenix Weekly Sync on June 11.",
     "truth_criteria": [
-      "Passkeys",
-      "microsoft-noreply@microsoft.com",
-      "July 22"
-    ],
-    "expected_tool": "tool_search_emails"
+      "Q3 Budget Review Meeting",
+      "Acme Corp",
+      "Project Phoenix Weekly Sync"
+    ]
   },
   {
     "id": "Q075",
-    "category": "Inbox & Messages",
-    "complexity": "Medium",
-    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
-    "query": "Search inbox for recent Microsoft system notifications 25",
-    "ground_truth_answer": "Recent message from Microsoft (microsoft-noreply@microsoft.com) regarding Passkeys security updates received July 22, 2026.",
+    "generator_model": "Claude-Sonnet-5",
+    "category": "Executive Synthesis & Actions",
+    "complexity": "Complex",
+    "query": "Draft an executive briefing combining my Q3 budget review status, the Acme Corp escalation, and my upcoming Project Phoenix sync meeting.",
+    "expected_tool": "tool_send_email",
+    "ground_truth_answer": "Executive briefing: The Q3 Budget Review Meeting with James Wright is confirmed for June 13, 2024, requiring prior review of budget numbers. The Acme Corp escalation reported by David Kim on June 3 remains urgent due to delayed delivery risking contract cancellation. The Project Phoenix Weekly Sync is scheduled for June 11, 2024, to align on kickoff progress.",
     "truth_criteria": [
-      "Passkeys",
-      "microsoft-noreply@microsoft.com",
-      "July 22"
-    ],
-    "expected_tool": "tool_search_emails"
+      "Q3 Budget Review Meeting",
+      "Acme Corp",
+      "Project Phoenix Weekly Sync"
+    ]
   },
   {
     "id": "Q076",
-    "category": "Inbox & Messages",
-    "complexity": "Medium",
-    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
-    "query": "Search inbox for recent Microsoft system notifications 26",
-    "ground_truth_answer": "Recent message from Microsoft (microsoft-noreply@microsoft.com) regarding Passkeys security updates received July 22, 2026.",
+    "generator_model": "Claude-Sonnet-5",
+    "category": "Drafts & Sent Folder Audit",
+    "complexity": "Basic",
+    "query": "Do I have any unsent draft emails in my mailbox?",
+    "expected_tool": "tool_search_emails",
+    "ground_truth_answer": "Yes, there are 2 draft emails saved: \"Proposal Draft - Phase 2\" addressed to client@bigcorp.com and \"Expense Report Q2\" addressed to finance@contoso.com.",
     "truth_criteria": [
-      "Passkeys",
-      "microsoft-noreply@microsoft.com",
-      "July 22"
-    ],
-    "expected_tool": "tool_search_emails"
+      "Proposal Draft - Phase 2",
+      "Expense Report Q2",
+      "2 draft"
+    ]
   },
   {
     "id": "Q077",
-    "category": "Inbox & Messages",
+    "generator_model": "Claude-Sonnet-5",
+    "category": "Drafts & Sent Folder Audit",
     "complexity": "Medium",
-    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
-    "query": "Search inbox for recent Microsoft system notifications 27",
-    "ground_truth_answer": "Recent message from Microsoft (microsoft-noreply@microsoft.com) regarding Passkeys security updates received July 22, 2026.",
+    "query": "What was the subject of the email I sent to vendor@supplier.com?",
+    "expected_tool": "tool_search_emails",
+    "ground_truth_answer": "The email sent to vendor@supplier.com had the subject \"Purchase Order #4521\".",
     "truth_criteria": [
-      "Passkeys",
-      "microsoft-noreply@microsoft.com",
-      "July 22"
-    ],
-    "expected_tool": "tool_search_emails"
+      "Purchase Order #4521",
+      "vendor@supplier.com"
+    ]
   },
   {
     "id": "Q078",
-    "category": "Inbox & Messages",
+    "generator_model": "Claude-Sonnet-5",
+    "category": "Drafts & Sent Folder Audit",
     "complexity": "Medium",
-    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
-    "query": "Search inbox for recent Microsoft system notifications 28",
-    "ground_truth_answer": "Recent message from Microsoft (microsoft-noreply@microsoft.com) regarding Passkeys security updates received July 22, 2026.",
+    "query": "When did I send the \"Weekly Status Update\" email?",
+    "expected_tool": "tool_get_email_details",
+    "ground_truth_answer": "The \"Weekly Status Update\" email was sent on June 10, 2025 at 17:00 UTC to team-list@contoso.com.",
     "truth_criteria": [
-      "Passkeys",
-      "microsoft-noreply@microsoft.com",
-      "July 22"
-    ],
-    "expected_tool": "tool_search_emails"
+      "June 10, 2025",
+      "Weekly Status Update"
+    ]
   },
   {
     "id": "Q079",
-    "category": "Inbox & Messages",
-    "complexity": "Medium",
-    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
-    "query": "Search inbox for recent Microsoft system notifications 29",
-    "ground_truth_answer": "Recent message from Microsoft (microsoft-noreply@microsoft.com) regarding Passkeys security updates received July 22, 2026.",
+    "generator_model": "Claude-Sonnet-5",
+    "category": "Drafts & Sent Folder Audit",
+    "complexity": "Complex",
+    "query": "Is the draft \"Proposal Draft - Phase 2\" still unsent, and has anything actually been sent to client@bigcorp.com?",
+    "expected_tool": "tool_search_emails",
+    "ground_truth_answer": "The draft \"Proposal Draft - Phase 2\" remains unsent, last modified on June 11, 2025. There is no corresponding sent email to client@bigcorp.com in the Sent folder, confirming the proposal has not yet been dispatched.",
     "truth_criteria": [
-      "Passkeys",
-      "microsoft-noreply@microsoft.com",
-      "July 22"
-    ],
-    "expected_tool": "tool_search_emails"
+      "Proposal Draft - Phase 2",
+      "unsent",
+      "no sent email"
+    ]
   },
   {
     "id": "Q080",
-    "category": "Inbox & Messages",
-    "complexity": "Medium",
-    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
-    "query": "Search inbox for recent Microsoft system notifications 30",
-    "ground_truth_answer": "Recent message from Microsoft (microsoft-noreply@microsoft.com) regarding Passkeys security updates received July 22, 2026.",
+    "generator_model": "Claude-Sonnet-5",
+    "category": "Drafts & Sent Folder Audit",
+    "complexity": "Basic",
+    "query": "How many draft emails are currently saved in my mailbox?",
+    "expected_tool": "tool_search_emails",
+    "ground_truth_answer": "There are 2 draft emails saved: \"Proposal Draft - Phase 2\" and \"Expense Report Q2\".",
     "truth_criteria": [
-      "Passkeys",
-      "microsoft-noreply@microsoft.com",
-      "July 22"
-    ],
-    "expected_tool": "tool_search_emails"
+      "2 draft",
+      "Proposal Draft",
+      "Expense Report"
+    ]
   },
   {
     "id": "Q081",
-    "category": "Executive Intelligence",
-    "complexity": "Complex",
-    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
-    "query": "Summarize my top priority email bounces and upcoming meetings for today.",
-    "ground_truth_answer": "Executive Summary: (1) You have 2 meetings on July 23 (Team Leads Budget Feedback at 14:00 UTC and Q4 Resource Allocation at 19:00 UTC). (2) Undeliverable bounces occurred for sarah.jenkins and michael.torres at sockcop.onmicrosoft.com.",
+    "generator_model": "Claude-Sonnet-5",
+    "category": "Inbox & Email Intelligence",
+    "complexity": "Basic",
+    "query": "What is the most recent email in my inbox?",
+    "expected_tool": "tool_search_emails",
+    "ground_truth_answer": "The most recent inbox email is \"Q3 Budget Review\" from John Doe, received on June 12, 2025 at 08:30 UTC.",
     "truth_criteria": [
-      "Team Leads Budget Feedback",
-      "Q4 Resource Allocation",
-      "sarah.jenkins",
-      "sockcop.onmicrosoft.com"
-    ],
-    "expected_tool": "tool_list_meetings"
+      "Q3 Budget Review",
+      "John Doe"
+    ]
   },
   {
     "id": "Q082",
-    "category": "Executive Intelligence",
-    "complexity": "Complex",
-    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
-    "query": "Check if I have any meetings conflicting with Azure Copilot review deadline.",
-    "ground_truth_answer": "Your upcoming meetings on July 23 are Team Leads Budget Feedback (14:00 UTC) and Q4 Resource Allocation (19:00 UTC). The Azure Copilot deadline is 1 August 2026.",
+    "generator_model": "Claude-Sonnet-5",
+    "category": "Inbox & Email Intelligence",
+    "complexity": "Basic",
+    "query": "Who sent me the \"Project Phoenix Update\" email?",
+    "expected_tool": "tool_get_email_details",
+    "ground_truth_answer": "The \"Project Phoenix Update\" email was sent by Lisa Wong (lisa.wong@contoso.com).",
     "truth_criteria": [
-      "Team Leads Budget Feedback",
-      "Q4 Resource Allocation",
-      "1 August 2026"
-    ],
-    "expected_tool": "tool_list_meetings"
+      "Lisa Wong",
+      "Project Phoenix"
+    ]
   },
   {
     "id": "Q083",
-    "category": "Executive Intelligence",
-    "complexity": "Complex",
-    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
-    "query": "Executive briefing on inbox alerts and calendar schedule 3",
-    "ground_truth_answer": "Executive Briefing: 2 meetings on July 23 organized by Jesus Chavez (admin@sockcop.onmicrosoft.com), plus Azure Copilot and Passkeys security notices.",
+    "generator_model": "Claude-Sonnet-5",
+    "category": "Inbox & Email Intelligence",
+    "complexity": "Medium",
+    "query": "Search my inbox for any emails related to \"Contract Negotiation\".",
+    "expected_tool": "tool_search_emails",
+    "ground_truth_answer": "Found one matching email: \"Re: Contract Negotiation Terms\" from Mike Ross, received on June 9, 2025.",
     "truth_criteria": [
-      "Jesus Chavez",
-      "admin@sockcop.onmicrosoft.com",
-      "July 23"
-    ],
-    "expected_tool": "tool_list_meetings"
+      "Contract Negotiation Terms",
+      "Mike Ross"
+    ]
   },
   {
     "id": "Q084",
-    "category": "Executive Intelligence",
-    "complexity": "Complex",
-    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
-    "query": "Executive briefing on inbox alerts and calendar schedule 4",
-    "ground_truth_answer": "Executive Briefing: 2 meetings on July 23 organized by Jesus Chavez (admin@sockcop.onmicrosoft.com), plus Azure Copilot and Passkeys security notices.",
+    "generator_model": "Claude-Sonnet-5",
+    "category": "Inbox & Email Intelligence",
+    "complexity": "Medium",
+    "query": "Do I have any unread emails, and what is the subject?",
+    "expected_tool": "tool_search_emails",
+    "ground_truth_answer": "Yes, the \"Q3 Budget Review\" email from John Doe is currently unread.",
     "truth_criteria": [
-      "Jesus Chavez",
-      "admin@sockcop.onmicrosoft.com",
-      "July 23"
-    ],
-    "expected_tool": "tool_list_meetings"
+      "Q3 Budget Review",
+      "unread"
+    ]
   },
   {
     "id": "Q085",
-    "category": "Executive Intelligence",
+    "generator_model": "Claude-Sonnet-5",
+    "category": "Inbox & Email Intelligence",
     "complexity": "Complex",
-    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
-    "query": "Executive briefing on inbox alerts and calendar schedule 5",
-    "ground_truth_answer": "Executive Briefing: 2 meetings on July 23 organized by Jesus Chavez (admin@sockcop.onmicrosoft.com), plus Azure Copilot and Passkeys security notices.",
+    "query": "Based on the body content of my inbox emails, what payment terms were agreed with the client and what is the status of Project Phoenix?",
+    "expected_tool": "tool_get_email_details",
+    "ground_truth_answer": "According to Mike Ross's email, the client agreed to revised payment terms of net-45. According to Lisa Wong's email, Project Phoenix is 75% complete and on track for a July launch.",
     "truth_criteria": [
-      "Jesus Chavez",
-      "admin@sockcop.onmicrosoft.com",
-      "July 23"
-    ],
-    "expected_tool": "tool_list_meetings"
+      "net-45",
+      "75% complete",
+      "Project Phoenix"
+    ]
   },
   {
     "id": "Q086",
-    "category": "Executive Intelligence",
-    "complexity": "Complex",
-    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
-    "query": "Executive briefing on inbox alerts and calendar schedule 6",
-    "ground_truth_answer": "Executive Briefing: 2 meetings on July 23 organized by Jesus Chavez (admin@sockcop.onmicrosoft.com), plus Azure Copilot and Passkeys security notices.",
+    "generator_model": "Claude-Sonnet-5",
+    "category": "Calendar & Meeting Operations",
+    "complexity": "Basic",
+    "query": "What meetings do I have tomorrow?",
+    "expected_tool": "tool_list_meetings",
+    "ground_truth_answer": "Tomorrow, June 13, 2025, you have \"Team Standup\" at 09:00 UTC and \"Client Sync - Project Phoenix\" at 14:00 UTC.",
     "truth_criteria": [
-      "Jesus Chavez",
-      "admin@sockcop.onmicrosoft.com",
-      "July 23"
-    ],
-    "expected_tool": "tool_list_meetings"
+      "Team Standup",
+      "Client Sync",
+      "June 13"
+    ]
   },
   {
     "id": "Q087",
-    "category": "Executive Intelligence",
-    "complexity": "Complex",
-    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
-    "query": "Executive briefing on inbox alerts and calendar schedule 7",
-    "ground_truth_answer": "Executive Briefing: 2 meetings on July 23 organized by Jesus Chavez (admin@sockcop.onmicrosoft.com), plus Azure Copilot and Passkeys security notices.",
+    "generator_model": "Claude-Sonnet-5",
+    "category": "Calendar & Meeting Operations",
+    "complexity": "Basic",
+    "query": "What time does the Team Standup meeting start tomorrow?",
+    "expected_tool": "tool_list_meetings",
+    "ground_truth_answer": "The Team Standup meeting starts at 09:00 UTC on June 13, 2025.",
     "truth_criteria": [
-      "Jesus Chavez",
-      "admin@sockcop.onmicrosoft.com",
-      "July 23"
-    ],
-    "expected_tool": "tool_list_meetings"
+      "09:00",
+      "Team Standup"
+    ]
   },
   {
     "id": "Q088",
-    "category": "Executive Intelligence",
-    "complexity": "Complex",
-    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
-    "query": "Executive briefing on inbox alerts and calendar schedule 8",
-    "ground_truth_answer": "Executive Briefing: 2 meetings on July 23 organized by Jesus Chavez (admin@sockcop.onmicrosoft.com), plus Azure Copilot and Passkeys security notices.",
+    "generator_model": "Claude-Sonnet-5",
+    "category": "Calendar & Meeting Operations",
+    "complexity": "Medium",
+    "query": "What is the Teams meeting link for the \"Client Sync - Project Phoenix\" meeting?",
+    "expected_tool": "tool_list_meetings",
+    "ground_truth_answer": "The Teams meeting link is https://teams.microsoft.com/l/meetup-join/phoenix002.",
     "truth_criteria": [
-      "Jesus Chavez",
-      "admin@sockcop.onmicrosoft.com",
-      "July 23"
-    ],
-    "expected_tool": "tool_list_meetings"
+      "teams.microsoft.com",
+      "phoenix002"
+    ]
   },
   {
     "id": "Q089",
-    "category": "Executive Intelligence",
-    "complexity": "Complex",
-    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
-    "query": "Executive briefing on inbox alerts and calendar schedule 9",
-    "ground_truth_answer": "Executive Briefing: 2 meetings on July 23 organized by Jesus Chavez (admin@sockcop.onmicrosoft.com), plus Azure Copilot and Passkeys security notices.",
+    "generator_model": "Claude-Sonnet-5",
+    "category": "Calendar & Meeting Operations",
+    "complexity": "Medium",
+    "query": "How long is the \"Quarterly Business Review\" meeting scheduled for?",
+    "expected_tool": "tool_list_meetings",
+    "ground_truth_answer": "The \"Quarterly Business Review\" on June 19, 2025 runs from 10:00 to 12:00 UTC, a duration of 2 hours.",
     "truth_criteria": [
-      "Jesus Chavez",
-      "admin@sockcop.onmicrosoft.com",
-      "July 23"
-    ],
-    "expected_tool": "tool_list_meetings"
+      "2 hours",
+      "Quarterly Business Review"
+    ]
   },
   {
     "id": "Q090",
-    "category": "Executive Intelligence",
+    "generator_model": "Claude-Sonnet-5",
+    "category": "Calendar & Meeting Operations",
     "complexity": "Complex",
-    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
-    "query": "Executive briefing on inbox alerts and calendar schedule 10",
-    "ground_truth_answer": "Executive Briefing: 2 meetings on July 23 organized by Jesus Chavez (admin@sockcop.onmicrosoft.com), plus Azure Copilot and Passkeys security notices.",
+    "query": "List all my meetings scheduled over the next two weeks and identify which ones are online Teams meetings.",
+    "expected_tool": "tool_list_meetings",
+    "ground_truth_answer": "Upcoming meetings: \"Team Standup\" (June 13, online), \"Client Sync - Project Phoenix\" (June 13, online), \"1:1 with Manager\" (June 16, in-person at Building 5, Office 302), \"Quarterly Business Review\" (June 19, in-person at Conference Room A), and \"Product Launch Planning\" (June 20, online). Three are online Teams meetings.",
     "truth_criteria": [
-      "Jesus Chavez",
-      "admin@sockcop.onmicrosoft.com",
-      "July 23"
-    ],
-    "expected_tool": "tool_list_meetings"
+      "Team Standup",
+      "Product Launch Planning",
+      "Quarterly Business Review"
+    ]
   },
   {
     "id": "Q091",
-    "category": "Executive Intelligence",
-    "complexity": "Complex",
-    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
-    "query": "Executive briefing on inbox alerts and calendar schedule 11",
-    "ground_truth_answer": "Executive Briefing: 2 meetings on July 23 organized by Jesus Chavez (admin@sockcop.onmicrosoft.com), plus Azure Copilot and Passkeys security notices.",
+    "generator_model": "Claude-Sonnet-5",
+    "category": "Temporal Math & Relative Dates",
+    "complexity": "Basic",
+    "query": "What is today's date and what is tomorrow's date?",
+    "expected_tool": "tool_list_meetings",
+    "ground_truth_answer": "Today is June 12, 2025, and tomorrow is June 13, 2025.",
     "truth_criteria": [
-      "Jesus Chavez",
-      "admin@sockcop.onmicrosoft.com",
-      "July 23"
-    ],
-    "expected_tool": "tool_list_meetings"
+      "2025-06-12",
+      "2025-06-13"
+    ]
   },
   {
     "id": "Q092",
-    "category": "Executive Intelligence",
-    "complexity": "Complex",
-    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
-    "query": "Executive briefing on inbox alerts and calendar schedule 12",
-    "ground_truth_answer": "Executive Briefing: 2 meetings on July 23 organized by Jesus Chavez (admin@sockcop.onmicrosoft.com), plus Azure Copilot and Passkeys security notices.",
+    "generator_model": "Claude-Sonnet-5",
+    "category": "Temporal Math & Relative Dates",
+    "complexity": "Basic",
+    "query": "What day of the week is today?",
+    "expected_tool": "tool_list_meetings",
+    "ground_truth_answer": "Today, June 12, 2025, is a Thursday.",
     "truth_criteria": [
-      "Jesus Chavez",
-      "admin@sockcop.onmicrosoft.com",
-      "July 23"
-    ],
-    "expected_tool": "tool_list_meetings"
+      "Thursday",
+      "June 12"
+    ]
   },
   {
     "id": "Q093",
-    "category": "Executive Intelligence",
-    "complexity": "Complex",
-    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
-    "query": "Executive briefing on inbox alerts and calendar schedule 13",
-    "ground_truth_answer": "Executive Briefing: 2 meetings on July 23 organized by Jesus Chavez (admin@sockcop.onmicrosoft.com), plus Azure Copilot and Passkeys security notices.",
+    "generator_model": "Claude-Sonnet-5",
+    "category": "Temporal Math & Relative Dates",
+    "complexity": "Medium",
+    "query": "What email did I receive exactly 7 days ago?",
+    "expected_tool": "tool_search_emails",
+    "ground_truth_answer": "Exactly 7 days ago, on June 5, 2025, you received the \"Benefits Enrollment Deadline\" email from HR Team.",
     "truth_criteria": [
-      "Jesus Chavez",
-      "admin@sockcop.onmicrosoft.com",
-      "July 23"
-    ],
-    "expected_tool": "tool_list_meetings"
+      "Benefits Enrollment Deadline",
+      "June 5"
+    ]
   },
   {
     "id": "Q094",
-    "category": "Executive Intelligence",
-    "complexity": "Complex",
-    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
-    "query": "Executive briefing on inbox alerts and calendar schedule 14",
-    "ground_truth_answer": "Executive Briefing: 2 meetings on July 23 organized by Jesus Chavez (admin@sockcop.onmicrosoft.com), plus Azure Copilot and Passkeys security notices.",
+    "generator_model": "Claude-Sonnet-5",
+    "category": "Temporal Math & Relative Dates",
+    "complexity": "Medium",
+    "query": "How many days ago did I send the \"Purchase Order #4521\" email?",
+    "expected_tool": "tool_search_emails",
+    "ground_truth_answer": "The \"Purchase Order #4521\" email was sent on June 8, 2025, which is 4 days ago relative to today, June 12, 2025.",
     "truth_criteria": [
-      "Jesus Chavez",
-      "admin@sockcop.onmicrosoft.com",
-      "July 23"
-    ],
-    "expected_tool": "tool_list_meetings"
+      "4 days",
+      "Purchase Order"
+    ]
   },
   {
     "id": "Q095",
-    "category": "Executive Intelligence",
+    "generator_model": "Claude-Sonnet-5",
+    "category": "Temporal Math & Relative Dates",
     "complexity": "Complex",
-    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
-    "query": "Executive briefing on inbox alerts and calendar schedule 15",
-    "ground_truth_answer": "Executive Briefing: 2 meetings on July 23 organized by Jesus Chavez (admin@sockcop.onmicrosoft.com), plus Azure Copilot and Passkeys security notices.",
+    "query": "Compare the emails received in the last 3 days versus the last 7 days - how many fall into each window?",
+    "expected_tool": "tool_search_emails",
+    "ground_truth_answer": "In the last 3 days (June 9-12), 4 emails were received: \"Q3 Budget Review\", \"Project Phoenix Update\", \"Password Expiration Notice\", and \"Re: Contract Negotiation Terms\". In the last 7 days (June 5-12), all 5 emails were received, including \"Benefits Enrollment Deadline\" from June 5.",
     "truth_criteria": [
-      "Jesus Chavez",
-      "admin@sockcop.onmicrosoft.com",
-      "July 23"
-    ],
-    "expected_tool": "tool_list_meetings"
+      "4 emails",
+      "5 emails",
+      "last 7 days"
+    ]
   },
   {
     "id": "Q096",
-    "category": "Executive Intelligence",
-    "complexity": "Complex",
-    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
-    "query": "Executive briefing on inbox alerts and calendar schedule 16",
-    "ground_truth_answer": "Executive Briefing: 2 meetings on July 23 organized by Jesus Chavez (admin@sockcop.onmicrosoft.com), plus Azure Copilot and Passkeys security notices.",
+    "generator_model": "Claude-Sonnet-5",
+    "category": "Executive Synthesis & Actions",
+    "complexity": "Basic",
+    "query": "Reply to John Doe's \"Q3 Budget Review\" email confirming I will review it today.",
+    "expected_tool": "tool_reply_email",
+    "ground_truth_answer": "A reply was sent to john.doe@contoso.com on the \"Q3 Budget Review\" thread confirming the review will be completed by end of day.",
     "truth_criteria": [
-      "Jesus Chavez",
-      "admin@sockcop.onmicrosoft.com",
-      "July 23"
-    ],
-    "expected_tool": "tool_list_meetings"
+      "john.doe@contoso.com",
+      "Q3 Budget Review"
+    ]
   },
   {
     "id": "Q097",
-    "category": "Executive Intelligence",
-    "complexity": "Complex",
-    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
-    "query": "Executive briefing on inbox alerts and calendar schedule 17",
-    "ground_truth_answer": "Executive Briefing: 2 meetings on July 23 organized by Jesus Chavez (admin@sockcop.onmicrosoft.com), plus Azure Copilot and Passkeys security notices.",
+    "generator_model": "Claude-Sonnet-5",
+    "category": "Executive Synthesis & Actions",
+    "complexity": "Basic",
+    "query": "Reply to Lisa Wong acknowledging the Project Phoenix update.",
+    "expected_tool": "tool_reply_email",
+    "ground_truth_answer": "A reply was sent to lisa.wong@contoso.com acknowledging that Project Phoenix is 75% complete and on track for the July launch.",
     "truth_criteria": [
-      "Jesus Chavez",
-      "admin@sockcop.onmicrosoft.com",
-      "July 23"
-    ],
-    "expected_tool": "tool_list_meetings"
+      "Lisa Wong",
+      "Project Phoenix"
+    ]
   },
   {
     "id": "Q098",
-    "category": "Executive Intelligence",
-    "complexity": "Complex",
-    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
-    "query": "Executive briefing on inbox alerts and calendar schedule 18",
-    "ground_truth_answer": "Executive Briefing: 2 meetings on July 23 organized by Jesus Chavez (admin@sockcop.onmicrosoft.com), plus Azure Copilot and Passkeys security notices.",
+    "generator_model": "Claude-Sonnet-5",
+    "category": "Executive Synthesis & Actions",
+    "complexity": "Medium",
+    "query": "Create a meeting with the finance team for tomorrow at 11 AM to discuss the Q3 budget.",
+    "expected_tool": "tool_create_meeting",
+    "ground_truth_answer": "A meeting titled \"Q3 Budget Discussion\" was created for June 13, 2025 at 11:00 AM with the finance team.",
     "truth_criteria": [
-      "Jesus Chavez",
-      "admin@sockcop.onmicrosoft.com",
-      "July 23"
-    ],
-    "expected_tool": "tool_list_meetings"
+      "Q3 Budget",
+      "June 13",
+      "11:00"
+    ]
   },
   {
     "id": "Q099",
-    "category": "Executive Intelligence",
+    "generator_model": "Claude-Sonnet-5",
+    "category": "Executive Synthesis & Actions",
     "complexity": "Complex",
-    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
-    "query": "Executive briefing on inbox alerts and calendar schedule 19",
-    "ground_truth_answer": "Executive Briefing: 2 meetings on July 23 organized by Jesus Chavez (admin@sockcop.onmicrosoft.com), plus Azure Copilot and Passkeys security notices.",
+    "query": "Prepare an executive briefing summarizing my urgent inbox items, pending drafts, and tomorrow's meeting schedule.",
+    "expected_tool": "tool_search_emails",
+    "ground_truth_answer": "Executive Briefing: Unread urgent email \"Q3 Budget Review\" from John Doe requires action. Two pending drafts remain unsent: \"Proposal Draft - Phase 2\" and \"Expense Report Q2\". Tomorrow's schedule (June 13) includes \"Team Standup\" at 09:00 and \"Client Sync - Project Phoenix\" at 14:00.",
     "truth_criteria": [
-      "Jesus Chavez",
-      "admin@sockcop.onmicrosoft.com",
-      "July 23"
-    ],
-    "expected_tool": "tool_list_meetings"
+      "Q3 Budget Review",
+      "Proposal Draft - Phase 2",
+      "Team Standup"
+    ]
   },
   {
     "id": "Q100",
-    "category": "Executive Intelligence",
+    "generator_model": "Claude-Sonnet-5",
+    "category": "Executive Synthesis & Actions",
     "complexity": "Complex",
-    "generator_model": "Gemini-3.5-Flash (Real Graph API Fact)",
-    "query": "Executive briefing on inbox alerts and calendar schedule 20",
-    "ground_truth_answer": "Executive Briefing: 2 meetings on July 23 organized by Jesus Chavez (admin@sockcop.onmicrosoft.com), plus Azure Copilot and Passkeys security notices.",
+    "query": "Summarize all client-related communications and upcoming client meetings for the executive briefing.",
+    "expected_tool": "tool_search_emails",
+    "ground_truth_answer": "Client Summary: The client agreed to net-45 payment terms per the \"Re: Contract Negotiation Terms\" email. A draft proposal \"Proposal Draft - Phase 2\" to client@bigcorp.com is still pending. Upcoming client-related meetings include \"Client Sync - Project Phoenix\" tomorrow at 14:00 and \"Product Launch Planning\" on June 20.",
     "truth_criteria": [
-      "Jesus Chavez",
-      "admin@sockcop.onmicrosoft.com",
-      "July 23"
-    ],
-    "expected_tool": "tool_list_meetings"
+      "net-45",
+      "Client Sync",
+      "Product Launch Planning"
+    ]
   }
 ]

@@ -51,7 +51,9 @@ async def chat_endpoint(body: ChatRequest):
         model_name = "gemini-3-flash-preview"
 
     # Parallel Federated Graph API Retrieval
+    t_search_0 = time.time()
     fed_res = await outlook_client.federated_search(query=body.message)
+    search_latency_s = round(time.time() - t_search_0, 2)
     prof = fed_res.get("profile", {})
     emails = fed_res.get("emails", [])
     meetings = fed_res.get("meetings", [])
@@ -99,7 +101,9 @@ Rules:
     return {
         "response": ans_text,
         "tools_called": [{"name": "tool_federated_m365_search", "args": {"query": body.message}}],
-        "latency_s": latency_s
+        "latency_s": latency_s,
+        "search_latency_s": search_latency_s,
+        "raw_grounding_data": fed_res
     }
 
 @app.get("/api/auth/status")
