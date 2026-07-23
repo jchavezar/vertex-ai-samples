@@ -26,6 +26,109 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("outlook-executive-app")
 
 app = FastAPI(title="Outlook AI Executive Assistant")
+import msal
+
+@app.get("/login")
+async def login_route():
+    client_id = os.getenv("CLIENT_ID")
+    tenant_id = os.getenv("TENANT_ID")
+    client_secret = os.getenv("CLIENT_SECRET")
+    authority = f"https://login.microsoftonline.com/{tenant_id}"
+    msal_app = msal.ConfidentialClientApplication(
+        client_id,
+        authority=authority,
+        client_credential=client_secret
+    )
+    scopes = [
+        "https://graph.microsoft.com/User.Read",
+        "https://graph.microsoft.com/Mail.Read",
+        "https://graph.microsoft.com/Calendars.Read"
+    ]
+    auth_url = msal_app.get_authorization_request_url(
+        scopes,
+        redirect_uri="http://localhost:8001/callback"
+    )
+    return RedirectResponse(auth_url)
+
+@app.get("/callback")
+async def callback_route(code: Optional[str] = None, error: Optional[str] = None):
+    if error:
+        return HTMLResponse(f"<h3>Authentication Error</h3><p>{error}</p>")
+    if not code:
+        return HTMLResponse("<h3>Error: No authorization code received.</h3>")
+        
+    client_id = os.getenv("CLIENT_ID")
+    tenant_id = os.getenv("TENANT_ID")
+    client_secret = os.getenv("CLIENT_SECRET")
+    authority = f"https://login.microsoftonline.com/{tenant_id}"
+    msal_app = msal.ConfidentialClientApplication(
+        client_id,
+        authority=authority,
+        client_credential=client_secret
+    )
+    scopes = [
+        "https://graph.microsoft.com/User.Read",
+        "https://graph.microsoft.com/Mail.Read",
+        "https://graph.microsoft.com/Calendars.Read"
+    ]
+    result = msal_app.acquire_token_by_authorization_code(
+        code,
+        scopes=scopes,
+        redirect_uri="http://localhost:8001/callback"
+    )
+    if "error" in result:
+        return HTMLResponse(f"<h3>Token Exchange Error</h3><p>{result.get('error_description')}</p>")
+        
+    refresh_token = result.get("refresh_token")
+    if not refresh_token:
+        return HTMLResponse("<h3>Warning: No refresh token returned.</h3>")
+        
+    env_path = "../.env"
+    if not os.path.exists(env_path):
+        env_path = ".env"
+        
+    lines = []
+    updated = False
+    if os.path.exists(env_path):
+        with open(env_path, "r") as f:
+            for line in f:
+                if line.startswith("MS_GRAPH_REFRESH_TOKEN="):
+                    lines.append(f"MS_GRAPH_REFRESH_TOKEN={refresh_token}\n")
+                    updated = True
+                else:
+                    lines.append(line)
+    if not updated:
+        lines.append(f"MS_GRAPH_REFRESH_TOKEN={refresh_token}\n")
+        
+    with open(env_path, "w") as f:
+        f.writelines(lines)
+        
+    load_dotenv(dotenv_path=env_path)
+    os.environ["MS_GRAPH_REFRESH_TOKEN"] = refresh_token
+    if result.get("access_token"):
+        os.environ["MS_GRAPH_TOKEN"] = result.get("access_token")
+        
+    return HTMLResponse("""
+    <html>
+    <head>
+        <title>Auth Success</title>
+        <style>
+            body { font-family: -apple-system, sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; background-color: #0b0f19; color: #e2e8f0; margin: 0; }
+            .card { background: #151c2c; padding: 2.5rem; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06); text-align: center; }
+            h2 { color: #10b981; margin-top: 0; }
+            p { margin-bottom: 0; color: #94a3b8; }
+        </style>
+    </head>
+    <body>
+        <div class="card">
+            <h2>🚀 Authentication Successful!</h2>
+            <p>Delegated access token and refresh token successfully saved.</p>
+            <p>You can close this window now and return to the chat.</p>
+        </div>
+    </body>
+    </html>
+    """)
+
 outlook_client = OutlookClient()
 genai_client = genai.Client(vertexai=True, project="254356041555", location="global")
 

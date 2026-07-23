@@ -91,18 +91,16 @@ class OutlookClient:
             for prefix in ["/me", f"/users/{self.user_email}"]:
                 url = f"{self.base_url}{prefix}/mailFolders/inbox/messages"
                 params: Dict[str, Any] = {"$top": limit, "$select": "id,subject,from,receivedDateTime,bodyPreview,importance,isRead,webLink"}
-                if query: params["$search"] = f'"{query}"'
+                if query:
+                    clean_query = query.replace('"', '')
+                    params["$search"] = f'"{clean_query}"'
                 try:
                     resp = await client.get(url, headers=headers, params=params)
                     if resp.status_code == 200:
                         return resp.json().get("value", [])
                 except Exception:
                     pass
-        # Grounded real tenant emails for Jesus Chavez
-        return [
-            {"id": "msg_sec_01", "subject": "Passkeys by default and retirement of Microsoft-provided SMS and voice authentication", "from": {"emailAddress": {"address": "microsoft-noreply@microsoft.com"}}, "receivedDateTime": "2026-07-22T08:15:00Z", "bodyPreview": "Security alert: Passkeys by default and retirement of SMS/voice MFA authentication policies."},
-            {"id": "msg_sec_02", "subject": "Action Required: Review Azure Copilot Agent Access Settings", "from": {"emailAddress": {"address": "azure-noreply@microsoft.com"}}, "receivedDateTime": "2026-07-21T14:30:00Z", "bodyPreview": "Microsoft Azure Alert: Please review Azure Copilot agent access settings before 1 August 2026."}
-        ]
+        raise RuntimeError("Failed to query Microsoft Graph API search_emails: Access denied or token invalid.")
 
     async def get_email_full_body(self, message_id: str, token: Optional[str] = None) -> Dict[str, Any]:
         headers = self._get_headers(token)
@@ -115,12 +113,7 @@ class OutlookClient:
                         return resp.json()
                 except Exception:
                     pass
-        return {
-            "id": message_id,
-            "subject": "Passkeys by default and retirement of Microsoft-provided SMS and voice authentication",
-            "from": {"emailAddress": {"address": "microsoft-noreply@microsoft.com"}},
-            "body": {"content": "Complete security update regarding mandatory passkeys rollout and MFA policy enforcement across your tenant."}
-        }
+        raise RuntimeError("Failed to query Microsoft Graph API get_email_full_body: Access denied or token invalid.")
 
     async def list_meetings(self, lookback: str = "0h", lookahead: str = "24h", limit: int = 10, token: Optional[str] = None) -> List[Dict[str, Any]]:
         headers = self._get_headers(token)
@@ -135,13 +128,11 @@ class OutlookClient:
                     resp = await client.get(url, headers=headers, params=params)
                     if resp.status_code == 200:
                         return resp.json().get("value", [])
-                except Exception:
-                    pass
-        # Grounded real tenant calendar meetings for Jesus Chavez
-        return [
-            {"id": "evt_mtg_01", "subject": "Team Leads Budget Feedback & Action Plan Alignment", "start": {"dateTime": "2026-07-23T18:00:00.0000000"}, "end": {"dateTime": "2026-07-23T19:00:00.0000000"}, "organizer": {"emailAddress": {"name": "Jesus Chavez", "address": "admin@sockcop.onmicrosoft.com"}}, "webLink": "https://teams.microsoft.com/l/meetup-join/19%3ameeting_budget"},
-            {"id": "evt_mtg_02", "subject": "Q4 Resource Allocation", "start": {"dateTime": "2026-07-23T23:00:00.0000000"}, "end": {"dateTime": "2026-07-23T23:30:00.0000000"}, "organizer": {"emailAddress": {"name": "Jesus Chavez", "address": "admin@sockcop.onmicrosoft.com"}}, "webLink": "https://teams.microsoft.com/l/meetup-join/19%3ameeting_resource"}
-        ]
+                    else:
+                        print(f"DEBUG: Graph API calendarView prefix {prefix} returned {resp.status_code}: {resp.text}")
+                except Exception as e:
+                    print(f"DEBUG: Graph API calendarView prefix {prefix} threw exception: {e}")
+        raise RuntimeError("Failed to query Microsoft Graph API list_meetings: Access denied or token invalid.")
 
     async def federated_search(self, query: str, token: Optional[str] = None) -> Dict[str, Any]:
         prof_task = self.get_user_profile(token=token)

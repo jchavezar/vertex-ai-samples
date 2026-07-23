@@ -24,8 +24,8 @@ async def eval_single_query(sem, client, idx, test_case):
             latency_36 = round(time.time() - t0, 2)
             if resp36.status_code == 200:
                 d36 = resp36.json()
-                ans_36 = d36.get("response", "")
-                tools_36 = [tc.get("name") for tc in d36.get("tool_calls", [])]
+                ans_36 = d36.get("response") or ""
+                tools_36 = [tc.get("name") for tc in d36.get("tool_calls", [])] if d36.get("tool_calls") else []
                 search_latency = d36.get("search_latency_s", 0.8)
                 raw_grounding = d36.get("raw_grounding_data", {})
             else:
@@ -52,7 +52,7 @@ async def eval_single_query(sem, client, idx, test_case):
             latency_35 = round(time.time() - t0, 2)
             if resp35.status_code == 200:
                 d35 = resp35.json()
-                ans_35 = d35.get("response", "")
+                ans_35 = d35.get("response") or ""
             else:
                 ans_35 = f"Error {resp35.status_code}"
         except Exception as e:
@@ -71,7 +71,7 @@ async def eval_single_query(sem, client, idx, test_case):
             latency_lite = round(time.time() - t0, 2)
             if resplite.status_code == 200:
                 dlite = resplite.json()
-                ans_lite = dlite.get("response", "")
+                ans_lite = dlite.get("response") or ""
             else:
                 ans_lite = f"Error {resplite.status_code}"
         except Exception as e:
@@ -120,7 +120,7 @@ async def run_parallel_eval():
         suite = json.load(f)
 
     print(f"Running concurrent real live evaluation for {len(suite)} cases against live ADK server...")
-    sem = asyncio.Semaphore(5)  # Semaphore to limit parallel requests to live Graph API
+    sem = asyncio.Semaphore(1)  # Semaphore to limit parallel requests to live Graph API
     
     async with httpx.AsyncClient(timeout=180.0) as client:
         tasks = [eval_single_query(sem, client, idx, tc) for idx, tc in enumerate(suite)]
