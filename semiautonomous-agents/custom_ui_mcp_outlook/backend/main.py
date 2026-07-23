@@ -20,7 +20,7 @@ load_dotenv()
 load_dotenv("../.env")
 
 from google import genai
-from outlook_client import OutlookClient
+from backend.outlook_client import OutlookClient
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("outlook-executive-app")

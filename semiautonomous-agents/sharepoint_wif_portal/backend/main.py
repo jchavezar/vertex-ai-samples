@@ -4,13 +4,16 @@ Uses Discovery Engine sessions for conversation continuity.
 """
 import os
 import requests
+import httpx
+import json
 from fastapi import FastAPI, Request
+from fastapi.responses import StreamingResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import Optional, List
 from dotenv import load_dotenv
 
-load_dotenv()
+load_dotenv(override=True)
 
 app = FastAPI()
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
@@ -491,6 +494,123 @@ async def agent_query(request: Request, body: AgentRequest):
         import traceback
         traceback.print_exc()
         return {"error": str(e), "agent": True}
+
+
+@app.post("/api/chat-stream")
+async def chat_stream(request: Request, body: ChatRequest):
+    """Send a message in a conversation and stream response events character-by-character."""
+    token = request.headers.get("X-Entra-Id-Token")
+    gcp_token = exchange_token(token) if token else None
+
+    if not gcp_token:
+        async def err_generator():
+            yield "data: " + json.dumps({"type": "error", "text": "Please login with Microsoft to chat."}) + "\n\n"
+        return StreamingResponse(err_generator(), media_type="text/event-stream")
+
+    # Resolve or create session ID
+    session_id = body.session_id
+    if not session_id:
+        try:
+            async with httpx.AsyncClient() as client:
+                create_resp = await client.post(
+                    f"{BASE_URL}/sessions",
+                    headers={"Authorization": f"Bearer {gcp_token}", "Content-Type": "application/json"},
+                    json={"displayName": body.query[:30]},
+                    timeout=10
+                )
+                if create_resp.is_success:
+                    session_id = create_resp.json().get("name")
+        except Exception as e:
+            print(f"[STREAM] Failed to create session: {e}")
+
+    # Build payload
+    payload = {"query": {"text": body.query}}
+    if session_id:
+        payload["session"] = session_id
+
+    if body.sharepoint_only:
+        payload["toolsSpec"] = {
+            "vertexAiSearchSpec": {
+                "dataStoreSpecs": [{
+                    "dataStore": f"projects/{PROJECT_NUMBER}/locations/global/collections/default_collection/dataStores/{DATA_STORE_ID}"
+                }]
+            }
+        }
+
+    # Now we stream the response using httpx.AsyncClient
+    async def stream_generator():
+        # First send the resolved session ID so the frontend can store it
+        if session_id:
+            yield "data: " + json.dumps({"type": "session_id", "session_id": session_id}) + "\n\n"
+
+        url = f"{BASE_URL}/assistants/default_assistant:streamAssist"
+        headers = {
+            "Authorization": f"Bearer {gcp_token}",
+            "Content-Type": "application/json"
+        }
+
+        try:
+            async with httpx.AsyncClient() as client:
+                async with client.stream("POST", url, headers=headers, json=payload, timeout=90) as r:
+                    if not r.is_success:
+                        err_text = await r.aread()
+                        yield "data: " + json.dumps({"type": "error", "text": f"Upstream API Error: {r.status_code} - {err_text.decode('utf-8')[:200]}"}) + "\n\n"
+                        return
+
+                    # Buffer for incomplete SSE lines
+                    buffer = ""
+                    async for chunk in r.iter_text():
+                        buffer += chunk
+                        while "\n" in buffer:
+                            line, buffer = buffer.split("\n", 1)
+                            line_text = line.strip()
+                            if not line_text:
+                                continue
+
+                            # streamAssist returns SSE lines prefixed by 'data: '
+                            if line_text.startswith("data: "):
+                                payload_str = line_text[6:].strip()
+                                if payload_str == "[DONE]":
+                                    continue
+                                
+                                try:
+                                    chunk_data = json.loads(payload_str)
+                                    answer_obj = chunk_data.get("answer", {})
+                                    replies = answer_obj.get("replies", [])
+                                    
+                                    # Extract sources
+                                    sources = []
+                                    references = answer_obj.get("references", [])
+                                    for ref in references:
+                                        chunk_ref = ref.get("chunk", {})
+                                        doc_metadata = chunk_ref.get("documentMetadata", {})
+                                        title = doc_metadata.get("title", "Document")
+                                        url_path = doc_metadata.get("uri", "#")
+                                        snippet = chunk_ref.get("content", "")
+                                        sources.append({
+                                            "title": title,
+                                            "url": url_path,
+                                            "snippet": snippet[:400] + "..." if len(snippet) > 400 else snippet
+                                        })
+
+                                    for reply in replies:
+                                        content = reply.get("groundedContent", {}).get("content", {})
+                                        text = content.get("text", "")
+                                        is_thought = content.get("thought", False)
+                                        if text:
+                                            event_type = "thought" if is_thought else "answer"
+                                            yield "data: " + json.dumps({"type": event_type, "text": text}) + "\n\n"
+
+                                    for src in sources:
+                                        yield "data: " + json.dumps({"type": "source", "source": src}) + "\n\n"
+
+                                except Exception as e:
+                                    print(f"[STREAM] Failed to parse SSE chunk: {e}")
+
+        except Exception as e:
+            yield "data: " + json.dumps({"type": "error", "text": f"Streaming internal error: {str(e)}"}) + "\n\n"
+
+    return StreamingResponse(stream_generator(), media_type="text/event-stream")
 
 
 if __name__ == "__main__":

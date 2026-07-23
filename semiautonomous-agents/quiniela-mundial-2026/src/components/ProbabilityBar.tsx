@@ -51,15 +51,15 @@ export function ProbabilityBar({
       {/* Labels row */}
       {!compact && (
         <div className="flex items-center justify-between text-[10px] font-black uppercase tracking-[0.12em]">
-          <span style={{ color: dominant === "home" ? "#00F59B" : "rgba(255,255,255,0.8)" }}>
+          <span style={{ color: dominant === "home" ? "#00F59B" : "var(--ink-soft)" }}>
             {homeCode ?? "Local"} {pct(norm.H)}
           </span>
           {norm.D > 0.01 && (
-            <span style={{ color: dominant === "draw" ? "#FFD700" : "rgba(255,255,255,0.65)" }}>
+            <span style={{ color: dominant === "draw" ? "#FFD700" : "var(--ink-muted)" }}>
               X {pct(norm.D)}
             </span>
           )}
-          <span style={{ color: dominant === "away" ? "#FF5277" : "rgba(255,255,255,0.8)" }}>
+          <span style={{ color: dominant === "away" ? "#FF5277" : "var(--ink-soft)" }}>
             {pct(norm.A)} {awayCode ?? "Visita"}
           </span>
         </div>

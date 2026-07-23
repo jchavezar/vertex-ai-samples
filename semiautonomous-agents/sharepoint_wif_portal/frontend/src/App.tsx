@@ -25,6 +25,7 @@ interface Message {
   timestamp: Date;
   isQuick?: boolean;  // /btw quick response
   isLoading?: boolean;
+  thoughts?: string;  // Captured reasoning/thoughts
 }
 
 interface Conversation {
@@ -314,7 +315,7 @@ function App() {
     startTimeRef.current = performance.now();
 
     try {
-      const response = await fetch('/api/chat', {
+      const response = await fetch('/api/chat-stream', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -327,26 +328,116 @@ function App() {
         })
       });
 
-      const elapsed = Math.round(performance.now() - startTimeRef.current);
-      const data = await response.json();
+      if (!response.body) {
+        throw new Error('ReadableStream not supported in response.');
+      }
 
-      // Replace loading message with actual response (preserve /btw quick messages)
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder('utf-8');
+      let done = false;
+      let buffer = '';
+
+      let finalAnswer = '';
+      let thoughts = '';
+      const sources: Source[] = [];
+      let resolvedSessionId: string | null = null;
+
+      const assistantMessageId = (Date.now() + 2).toString();
+
+      // Remove loading state placeholder immediately when we start streaming
       setConversations(prev => prev.map(conv => {
         if (conv.id === activeConversationId) {
-          // Only remove the main loading message, keep /btw quick loading messages
-          const messages = conv.messages.filter(m => !m.isLoading || m.isQuick);
-          const assistantMessage: Message = {
-            id: (Date.now() + 2).toString(),
+          const messages = conv.messages.filter(m => m.id !== loadingMessage.id);
+          const initialAssistantMessage: Message = {
+            id: assistantMessageId,
             role: 'assistant',
-            content: data.answer || 'No response received.',
-            sources: data.sources || [],
-            latencyMs: elapsed,
-            timestamp: new Date()
+            content: '',
+            sources: [],
+            timestamp: new Date(),
+            isLoading: true
           };
           return {
             ...conv,
-            messages: [...messages, assistantMessage],
-            sessionId: data.session_id || conv.sessionId
+            messages: [...messages, initialAssistantMessage]
+          };
+        }
+        return conv;
+      }));
+
+      while (!done) {
+        const { value, done: readerDone } = await reader.read();
+        done = readerDone;
+        if (value) {
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split('\n');
+          buffer = lines.pop() || '';
+
+          for (const line of lines) {
+            const trimmed = line.trim();
+            if (!trimmed || !trimmed.startsWith('data: ')) continue;
+            const dataStr = trimmed.slice(6).trim();
+            if (dataStr === '[DONE]') continue;
+
+            try {
+              const event = JSON.parse(dataStr);
+              if (event.type === 'session_id') {
+                resolvedSessionId = event.session_id;
+              } else if (event.type === 'thought') {
+                thoughts += event.text;
+              } else if (event.type === 'answer') {
+                finalAnswer += event.text;
+              } else if (event.type === 'source') {
+                if (!sources.some(s => s.url === event.source.url)) {
+                  sources.push(event.source);
+                }
+              } else if (event.type === 'error') {
+                finalAnswer = `Error: ${event.text}`;
+              }
+
+              // Update the assistant message in state in real-time
+              setConversations(prev => prev.map(conv => {
+                if (conv.id === activeConversationId) {
+                  return {
+                    ...conv,
+                    sessionId: resolvedSessionId || conv.sessionId,
+                    messages: conv.messages.map(m => {
+                      if (m.id === assistantMessageId) {
+                        return {
+                          ...m,
+                          content: finalAnswer,
+                          thoughts: thoughts || undefined,
+                          sources: [...sources]
+                        };
+                      }
+                      return m;
+                    })
+                  };
+                }
+                return conv;
+              }));
+            } catch (err) {
+              console.warn('[SSE] Failed to parse SSE event:', trimmed, err);
+            }
+          }
+        }
+      }
+
+      // Mark streaming complete
+      const elapsed = Math.round(performance.now() - startTimeRef.current);
+      setConversations(prev => prev.map(conv => {
+        if (conv.id === activeConversationId) {
+          return {
+            ...conv,
+            messages: conv.messages.map(m => {
+              if (m.id === assistantMessageId) {
+                return {
+                  ...m,
+                  isLoading: false,
+                  latencyMs: elapsed
+                };
+              }
+              return m;
+            })
           };
         }
         return conv;

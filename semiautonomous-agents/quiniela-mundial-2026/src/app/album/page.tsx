@@ -341,7 +341,7 @@ function Spread({
         {/* Header */}
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
-            <div className="flex items-center gap-2 text-[10px] uppercase tracking-[0.2em] text-[var(--ink-muted)] font-bold flex-wrap">
+            <div className="flex items-center gap-2 text-[10px] uppercase tracking-[0.2em] text-slate-600 font-bold flex-wrap">
               <span>{t("album.spread.page")} {String(pageNumber).padStart(2, "0")}</span>
               {isToday && (
                 <span className="px-2 py-0.5 rounded-full text-white font-black tracking-wider" style={{ background: theme.accent }}>

@@ -179,7 +179,7 @@ const MESSAGES: Record<Locale, Record<string, string>> = {
     "leaderboard.chip": "Ranking en vivo · Mundial 2026",
     "leaderboard.title.a": "¿Quién va",
     "leaderboard.title.b": "a ganar la lana?",
-    "leaderboard.subtitle.pre": "Aún sin partidos finalizados. Los puntos arrancan el 11 de junio.",
+    "leaderboard.subtitle.pre": "Puntos y clasificación en tiempo real durante la Copa Mundial.",
     "leaderboard.subtitle.live.suffix": "partidos contabilizados de ESPN.",
     "leaderboard.recalc": "Recalcular",
     "leaderboard.pot.title": "Bolsa:",

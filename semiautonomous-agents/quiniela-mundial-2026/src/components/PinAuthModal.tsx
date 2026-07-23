@@ -57,24 +57,24 @@ export function PinAuthModal({
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: 24, opacity: 0 }}
             transition={{ type: "spring", damping: 28, stiffness: 280 }}
-            className="fixed z-50 bg-white shadow-2xl rounded-3xl overflow-hidden ring-1 ring-black/5
+            className="fixed z-50 bg-[var(--bg-elev)] text-[var(--ink)] shadow-2xl rounded-3xl overflow-hidden border border-[var(--line)]
                        left-3 right-3 bottom-3 top-auto max-h-[92vh]
                        md:left-1/2 md:right-auto md:-translate-x-1/2 md:bottom-auto md:top-1/2 md:-translate-y-1/2 md:w-[400px]"
           >
-            <div className="flex items-center gap-3 px-4 py-3 border-b border-[var(--hairline)] bg-white">
-              <div className="w-10 h-10 rounded-full bg-[var(--ink)] grid place-items-center text-white shrink-0">
+            <div className="flex items-center gap-3 px-4 py-3 border-b border-[var(--line)] bg-[var(--bg-tint)]">
+              <div className="w-10 h-10 rounded-full bg-[var(--ink)] grid place-items-center text-[var(--bg)] shrink-0">
                 <KeyRound size={18} />
               </div>
               <div className="flex-1 min-w-0">
-                <div className="font-display font-bold text-sm">Cambiar de jugador</div>
-                <div className="text-[11px] text-[var(--ink-muted)] truncate">
+                <div className="font-display font-bold text-sm text-[var(--ink)]">Cambiar de jugador</div>
+                <div className="text-[11px] text-[var(--ink-soft)] truncate">
                   {screen === "setup" ? "Primera vez · crea tu PIN" : "Ingresa tu PIN"}
                 </div>
               </div>
               <button
                 onClick={onClose}
                 aria-label="Cerrar"
-                className="w-9 h-9 rounded-full grid place-items-center hover:bg-[var(--bg-tint)] shrink-0"
+                className="w-9 h-9 rounded-full grid place-items-center hover:bg-[var(--bg-elev)] text-[var(--ink-soft)] hover:text-[var(--ink)] shrink-0"
               >
                 <X size={18} />
               </button>
@@ -173,10 +173,10 @@ function PinPad({
             key={i}
             className={`w-12 h-14 rounded-2xl border-2 grid place-items-center text-2xl font-display font-bold transition-all ${
               i < value.length
-                ? "border-[var(--ink)] bg-[var(--ink)] text-white"
+                ? "border-[var(--ink)] bg-[var(--ink)] text-[var(--bg)]"
                 : i === value.length
-                ? "border-[var(--ink)] bg-white text-[var(--ink)] animate-pulse"
-                : "border-[var(--hairline)] bg-white text-[var(--ink-muted)]"
+                ? "border-[var(--accent-mint)] bg-[var(--bg-tint)] text-[var(--ink)] animate-pulse"
+                : "border-[var(--line)] bg-[var(--bg-tint)] text-[var(--ink-soft)]"
             }`}
           >
             {i < value.length ? "•" : ""}
@@ -216,8 +216,8 @@ function EnterPin({
   return (
     <div className="flex-1 overflow-y-auto p-6 flex flex-col items-center text-center">
       <PlayerAvatar player={player} size={64} rounded="rounded-3xl" />
-      <div className="mt-3 font-display font-bold text-lg">Hola, {player.name}</div>
-      <div className="mt-1 text-xs text-[var(--ink-muted)]">Ingresa tu PIN de 4 dígitos</div>
+      <div className="mt-3 font-display font-bold text-lg text-[var(--ink)]">Hola, {player.name}</div>
+      <div className="mt-1 text-xs text-[var(--ink-soft)]">Ingresa tu PIN de 4 dígitos</div>
 
       <div className="mt-6">
         <PinPad value={pin} onChange={setPin} autoFocus />
@@ -225,15 +225,15 @@ function EnterPin({
 
       <div className="mt-4 h-5 text-xs">
         {busy ? (
-          <span className="text-[var(--ink-muted)] inline-flex items-center gap-1"><Loader2 size={12} className="animate-spin" /> Verificando…</span>
+          <span className="text-[var(--ink-soft)] inline-flex items-center gap-1"><Loader2 size={12} className="animate-spin" /> Verificando…</span>
         ) : error ? (
-          <span className="text-red-600">{error}</span>
+          <span className="text-red-500 font-semibold">{error}</span>
         ) : null}
       </div>
 
       <button
         onClick={onCancel}
-        className="mt-6 text-xs text-[var(--ink-muted)] underline-offset-2 hover:underline"
+        className="mt-6 text-xs text-[var(--ink-soft)] hover:text-[var(--ink)] underline-offset-2 hover:underline"
       >
         Cancelar
       </button>
@@ -291,14 +291,14 @@ function SetupPin({
       <div className="flex items-center gap-3">
         <PlayerAvatar player={player} size={48} rounded="rounded-2xl" />
         <div className="text-left">
-          <div className="font-display font-bold text-base">Bienvenido, {player.name}</div>
-          <div className="text-[11px] text-[var(--ink-muted)] flex items-center gap-1">
+          <div className="font-display font-bold text-base text-[var(--ink)]">Bienvenido, {player.name}</div>
+          <div className="text-[11px] text-[var(--ink-soft)] flex items-center gap-1">
             <KeyRound size={11} /> Primera vez — crea tu PIN
           </div>
         </div>
       </div>
 
-      <div className="mt-5 text-xs text-[var(--ink-soft)] max-w-xs">{headerText}</div>
+      <div className="mt-5 text-xs text-[var(--ink-soft)] font-medium max-w-xs">{headerText}</div>
 
       <div className="mt-4 flex gap-1.5">
         <Dot active={step === "default"} done={defaultPin.length === 4} />
@@ -312,15 +312,15 @@ function SetupPin({
 
       <div className="mt-4 h-5 text-xs">
         {busy ? (
-          <span className="text-[var(--ink-muted)] inline-flex items-center gap-1"><Loader2 size={12} className="animate-spin" /> Guardando…</span>
+          <span className="text-[var(--ink-soft)] inline-flex items-center gap-1"><Loader2 size={12} className="animate-spin" /> Guardando…</span>
         ) : error ? (
-          <span className="text-red-600">{error}</span>
+          <span className="text-red-500 font-semibold">{error}</span>
         ) : null}
       </div>
 
       <button
         onClick={onBack}
-        className="mt-6 text-xs text-[var(--ink-muted)] inline-flex items-center gap-1 underline-offset-2 hover:underline"
+        className="mt-6 text-xs text-[var(--ink-soft)] hover:text-[var(--ink)] inline-flex items-center gap-1 underline-offset-2 hover:underline"
       >
         <ChevronLeft size={12} /> Ya tengo PIN
       </button>

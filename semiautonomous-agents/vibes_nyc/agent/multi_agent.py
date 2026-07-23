@@ -63,7 +63,7 @@ async def search_venues_tool(query: str, location: str) -> dict:
 
 venue_search_agent = LlmAgent(
     name="VenueSearchAgent",
-    model="gemini-3.1-flash-lite-preview",
+    model="gemini-3-flash-preview",
     description="Finds venue candidates from Foursquare",
     instruction="""You search for venues and return basic info.
     Call search_venues_tool with the user's query and location.
@@ -105,7 +105,7 @@ Return a JSON object for each venue:
 
 web_signals_agent = LlmAgent(
     name="WebSignalsAgent",
-    model="gemini-3.1-flash-lite-preview",  # Latest fast model
+    model="gemini-3-flash-preview",  # Latest fast model
     description="Searches web for Reddit/blog mentions of venues",
     instruction=WEB_SIGNALS_INSTRUCTION,
     tools=[google_search]
@@ -265,7 +265,7 @@ async def run_multi_agent_search(
 
     results["agents_used"].append({
         "name": "VenueSearchAgent",
-        "model": "gemini-3.1-flash-lite-preview",
+        "model": "gemini-3-flash-preview",
         "task": "Foursquare venue search"
     })
     results["venues"] = venues
@@ -288,7 +288,7 @@ async def run_multi_agent_search(
 
         results["agents_used"].append({
             "name": "WebSignalsAgent",
-            "model": "gemini-3.1-flash-lite-preview",
+            "model": "gemini-3-flash-preview",
             "task": "Google Search for Reddit/blog signals"
         })
         print("[Orchestrator] Web signals gathered")

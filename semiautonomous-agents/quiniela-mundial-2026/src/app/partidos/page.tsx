@@ -5,8 +5,10 @@ import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
-  Activity, CalendarDays, MapPin, Radio, RefreshCw, Tv2, AlertCircle, Sparkles,
+  Activity, CalendarDays, MapPin, Radio, RefreshCw, Tv2, AlertCircle, Sparkles, Swords, Trophy,
 } from "lucide-react";
+import { getTournamentPhase } from "@/lib/tournament-phase";
+import { getKnockoutEspnEvents } from "@/lib/espn-knockout-adapter";
 import { normalizeAbbr, type EspnEvent } from "@/lib/espn";
 import { TEAMS, flagUrl } from "@/data/teams";
 import { KickoffCountdown } from "@/components/KickoffCountdown";
@@ -66,7 +68,6 @@ export default function PartidosPage() {
   }
 
   const buckets = useMemo(() => {
-    if (!data?.events) return { live: [], today: [], upcoming: [], results: [] };
     const now = Date.now();
     const startOfToday = new Date(); startOfToday.setHours(0, 0, 0, 0);
     const endOfToday = new Date(startOfToday); endOfToday.setDate(endOfToday.getDate() + 1);
@@ -76,13 +77,28 @@ export default function PartidosPage() {
     const upcoming: EspnEvent[] = [];
     const results: EspnEvent[] = [];
 
-    for (const e of data.events) {
+    const existingIds = new Set<string>();
+    const allEvents: EspnEvent[] = [...(data?.events || [])];
+    for (const e of allEvents) existingIds.add(e.id);
+
+    const syntheticKnockouts = getKnockoutEspnEvents(existingIds, now);
+    allEvents.push(...syntheticKnockouts);
+
+    for (const e of allEvents) {
       const t = new Date(e.date).getTime();
       const state = e.status.type.state;
-      if (state === "in") live.push(e);
-      else if (state === "post") results.push(e);
-      else if (t >= startOfToday.getTime() && t < endOfToday.getTime()) today.push(e);
-      else if (t > now) upcoming.push(e);
+      if (state === "in") {
+        live.push(e);
+      } else if (state === "post") {
+        results.push(e);
+      } else {
+        if (t >= startOfToday.getTime() && t < endOfToday.getTime()) {
+          today.push(e);
+        }
+        if (t > now) {
+          upcoming.push(e);
+        }
+      }
     }
     upcoming.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
     results.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
@@ -175,10 +191,10 @@ function Tab({ active, onClick, label, count, icon }: {
   id: string; active: boolean; onClick: () => void; label: string; count: number; icon: React.ReactNode;
 }) {
   return (
-    <button onClick={onClick} className={`shrink-0 whitespace-nowrap px-2.5 sm:px-3 py-1.5 rounded-full text-xs sm:text-sm font-semibold transition-colors flex items-center gap-1 sm:gap-1.5 ${active ? "bg-[var(--ink)] text-white" : "text-[var(--ink-soft)] hover:text-[var(--ink)]"}`}>
+    <button onClick={onClick} className={`shrink-0 whitespace-nowrap px-2.5 sm:px-3 py-1.5 rounded-full text-xs sm:text-sm font-semibold transition-colors flex items-center gap-1 sm:gap-1.5 ${active ? "bg-[var(--ink)] text-[var(--bg)] shadow-sm font-bold" : "text-[var(--ink-soft)] hover:text-[var(--ink)]"}`}>
       <span className="hidden sm:inline-flex">{icon}</span> {label}
       {count > 0 && (
-        <span className={`hidden sm:inline-flex text-[10px] tabular-nums rounded-full px-1.5 py-0.5 ${active ? "bg-white text-[var(--ink)]" : "bg-[var(--bg-tint)] text-[var(--ink)]"}`}>
+        <span className={`hidden sm:inline-flex text-[10px] tabular-nums rounded-full px-1.5 py-0.5 ${active ? "bg-[var(--bg)] text-[var(--ink)]" : "bg-[var(--bg-tint)] text-[var(--ink)]"}`}>
           {count}
         </span>
       )}
@@ -219,7 +235,7 @@ function MatchCard({ event, delay, probs, probsLoading, fixtureId }: {
         <div className="absolute -top-px left-4 right-4 h-0.5 bg-gradient-to-r from-transparent via-[#FF3B82] to-transparent" />
       )}
 
-      <div className="flex items-center justify-between text-xs text-[var(--ink-muted)] mb-3">
+      <div className="flex items-center justify-between text-xs text-[var(--ink-soft)] mb-3">
         <div className="flex items-center gap-2 flex-wrap">
           {live && (
             <span className="chip chip-live tabular-nums">
@@ -257,7 +273,7 @@ function MatchCard({ event, delay, probs, probsLoading, fixtureId }: {
         <TeamSide competitor={away} fallback={aTeam} side="away" winner={!!away.winner} />
       </div>
 
-      <div className="mt-3 pt-3 border-t border-[var(--line)] flex items-center justify-between text-[11px] text-[var(--ink-muted)]">
+      <div className="mt-3 pt-3 border-t border-[var(--line)] flex items-center justify-between text-[11px] text-[var(--ink-soft)]">
         <span>{event.status.type.detail}</span>
         {broadcast && (
           <span className="flex items-center gap-1"><Tv2 size={10} />{broadcast}</span>
@@ -294,8 +310,8 @@ function ScoreBox({ value, winner, live }: { value: string; winner: boolean; liv
       initial={{ scale: 1.2, opacity: 0.6 }}
       animate={{ scale: 1, opacity: 1 }}
       transition={{ duration: 0.25 }}
-      className={`w-12 h-12 rounded-2xl grid place-items-center font-display font-bold text-2xl tabular-nums ${
-        winner ? "bg-[var(--ink)] text-white" : "bg-[var(--bg-tint)] text-[var(--ink)]"
+      className={`w-12 h-12 rounded-2xl grid place-items-center font-display font-extrabold text-2xl tabular-nums ${
+        winner ? "bg-[var(--ink)] text-[var(--bg)] shadow-md" : "bg-[var(--bg-tint)] text-[var(--ink)]"
       } ${live ? "ring-1 ring-[#FF3B82]/40" : ""}`}
     >
       {value}
@@ -322,8 +338,8 @@ function TeamSide({ competitor, fallback, side, winner }: {
         )}
       </div>
       <div className={`min-w-0 flex flex-col ${align}`}>
-        <div className={`font-display font-bold leading-none ${winner ? "" : "opacity-90"}`}>{competitor.team.abbreviation}</div>
-        <div className="text-[11px] text-[var(--ink-muted)] truncate max-w-[140px]">{competitor.team.shortDisplayName}</div>
+        <div className={`font-display font-bold leading-none ${winner ? "text-[var(--ink)]" : "text-[var(--ink-soft)]"}`}>{competitor.team.abbreviation}</div>
+        <div className="text-[11px] text-[var(--ink-soft)] truncate max-w-[140px]">{competitor.team.shortDisplayName}</div>
       </div>
     </>
   );
@@ -335,13 +351,24 @@ function TeamSide({ competitor, fallback, side, winner }: {
 }
 
 function EmptyState({ section, hint }: { section: Section; hint?: string }) {
+  const phaseMeta = getTournamentPhase();
   const map: Record<Section, { title: string; sub: string }> = {
     live: { title: "Nada en juego ahora mismo", sub: "Cuando comience un partido aparecerá aquí en tiempo real." },
-    today: { title: "Hoy no hay partidos", sub: "Cambia a Próximos para ver el calendario completo." },
-    upcoming: { title: "Sin partidos próximos", sub: "Pronto se publicará el calendario completo." },
-    results: { title: "Aún no hay resultados", sub: "El torneo arranca el 11 de junio en el Azteca." },
+    today: { title: "Hoy no hay partidos", sub: "Cambia a Próximos o Resultados para ver el calendario." },
+    upcoming: {
+      title: "Sin partidos próximos en esta sección",
+      sub: phaseMeta.phase === "FINAL_STAGE" || phaseMeta.phase === "KNOCKOUTS"
+        ? "El torneo está en su fase eliminatoria/final. Revisa el bracket y los marcadores."
+        : "Sigue el calendario del torneo en tiempo real."
+    },
+    results: { title: "Resultados del torneo", sub: "Partidos disputados y marcadores finales de la Copa Mundial." },
   };
   const m = map[section];
+
+  const ctaHref = phaseMeta.isGroupPredictionsOpen ? "/quiniela" : phaseMeta.primaryCtaHref;
+  const ctaText = phaseMeta.isGroupPredictionsOpen ? "Mientras tanto, llena tu quiniela" : phaseMeta.primaryCtaText;
+  const CtaIcon = phaseMeta.isGroupPredictionsOpen ? Sparkles : phaseMeta.phase === "ENDED" ? Trophy : Swords;
+
   return (
     <div className="glass-strong rounded-3xl p-10 md:p-14 text-center max-w-xl mx-auto">
       <div className="w-14 h-14 rounded-2xl bg-[var(--bg-tint)] grid place-items-center mx-auto mb-4">
@@ -350,7 +377,9 @@ function EmptyState({ section, hint }: { section: Section; hint?: string }) {
       <div className="font-display text-2xl font-bold mb-1">{m.title}</div>
       <p className="text-[var(--ink-soft)]">{m.sub}</p>
       {hint && <div className="mt-4 text-xs text-[var(--ink-muted)]">Última actualización · {hint}</div>}
-      <Link href="/quiniela" className="mt-6 btn btn-primary">Mientras tanto, llena tu quiniela</Link>
+      <Link href={ctaHref} className="mt-6 btn btn-primary flex items-center justify-center gap-2 mx-auto">
+        <CtaIcon size={16} /> {ctaText}
+      </Link>
     </div>
   );
 }
@@ -415,7 +444,7 @@ function QuickPicker({
             type="button"
             onClick={e => commit(e, k)}
             className={`flex-1 relative py-2.5 rounded-xl text-[11px] font-extrabold uppercase tracking-wider overflow-hidden transition-all active:scale-95 ${
-              active ? "text-white shadow-md" : "text-[var(--ink-soft)] hover:text-[var(--ink)]"
+              active ? "text-[var(--bg)] font-extrabold shadow-md" : "text-[var(--ink-soft)] hover:text-[var(--ink)]"
             } ${isFlashing ? "ring-2 ring-[var(--accent-mint)]" : ""}`}
             style={{
               background: active ? "var(--ink)" : "var(--bg-tint)",
@@ -430,7 +459,7 @@ function QuickPicker({
             )}
             <span className="relative z-10 block text-center leading-none">{labelFor(k)}</span>
             {prob !== null && (
-              <span className="relative z-10 block text-center text-[9px] opacity-60 leading-none mt-0.5">{Math.round(prob * 100)}%</span>
+              <span className="relative z-10 block text-center text-[9px] opacity-75 leading-none mt-0.5">{Math.round(prob * 100)}%</span>
             )}
           </button>
         );
@@ -443,7 +472,7 @@ function SkeletonGrid() {
   return (
     <div className="grid lg:grid-cols-2 gap-3">
       {Array.from({ length: 6 }).map((_, i) => (
-        <div key={i} className="glass rounded-3xl p-4 h-32 shimmer" />
+        <div key={i} className="glass cyber-skeleton rounded-3xl p-4 h-36" />
       ))}
     </div>
   );

@@ -113,7 +113,7 @@ export default function PlayersPage() {
               <div
                 className={`relative overflow-hidden glass rounded-3xl p-5 transition-shadow ${isMe ? "ring-2 ring-[var(--ink)]" : "hover:shadow-lg"}`}
                 style={{
-                  background: `linear-gradient(135deg, ${p.accent}10, white 60%)`,
+                  background: `linear-gradient(135deg, ${p.accent}15, var(--bg-elev) 60%)`,
                 }}
               >
               <div

@@ -104,7 +104,7 @@ Return ONLY a JSON array (no markdown, no explanation) of venue objects with the
 
 root_agent = LlmAgent(
     name="VenueResearchAgent",
-    model="gemini-3.1-flash-lite-preview",  # Fast lite model
+    model="gemini-3-flash-preview",  # Fast lite model
     description="NYC underground venue expert that matches mood to place",
     instruction=AGENT_INSTRUCTION,
     tools=[search_venues]

@@ -274,8 +274,8 @@ export default function LeaderboardPage() {
                     <div className="w-10 shrink-0 text-center">
                       {idx < 3 && hasAnyScore ? (
                         <div className={`w-8 h-8 mx-auto rounded-full grid place-items-center font-display font-bold ${
-                          idx === 0 ? "bg-[#D4AF37] text-white" :
-                          idx === 1 ? "bg-[#C0C0C0] text-white" :
+                          idx === 0 ? "bg-[#D4AF37] text-[#07090E]" :
+                          idx === 1 ? "bg-[#94A3B8] text-[#07090E]" :
                           "bg-[#CD7F32] text-white"
                         }`}>
                           {idx + 1}

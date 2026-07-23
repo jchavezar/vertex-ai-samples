@@ -15,6 +15,7 @@ import { POT_TOTAL_MXN, PER_PLAYER_MXN } from "@/data/players";
 import { TEAMS, flagUrl } from "@/data/teams";
 import { allGroupFixtures, type GroupFixture } from "@/data/groups";
 import { fixtureKickoffMs, isFixtureLocked } from "@/lib/fixture-time";
+import { getTournamentPhase } from "@/lib/tournament-phase";
 import { ViewerKickoffTime, ViewerKickoffDate } from "@/components/ViewerKickoff";
 import { usePlayer } from "@/lib/player-context";
 import {
@@ -333,7 +334,17 @@ function MundialHome() {
               </p>
 
               <div className="mt-8 flex flex-wrap items-center gap-3">
-                <Link href="/quiniela" className="btn btn-primary"><Target size={16} /> {t("home.cta.fill")}</Link>
+                {(() => {
+                  const phaseMeta = getTournamentPhase();
+                  const href = phaseMeta.isGroupPredictionsOpen ? "/quiniela" : phaseMeta.primaryCtaHref;
+                  const text = phaseMeta.isGroupPredictionsOpen ? t("home.cta.fill") : phaseMeta.primaryCtaText;
+                  const Icon = phaseMeta.isGroupPredictionsOpen ? Target : phaseMeta.phase === "ENDED" ? Trophy : Swords;
+                  return (
+                    <Link href={href} className="btn btn-primary">
+                      <Icon size={16} /> {text}
+                    </Link>
+                  );
+                })()}
                 <button
                   type="button"
                   onClick={() => {
@@ -1883,8 +1894,8 @@ function PunterosTop5({ rows, currentPlayerId }: { rows: PunteroRow[]; currentPl
           const showCrown = place === 1 && !tiedAtTop;
           const rowClassName = `flex items-center gap-3 px-3 py-2.5 rounded-2xl border transition ${
             isMe
-              ? "bg-[var(--accent-violet)]/10 border-[var(--accent-violet)]/40"
-              : "bg-white/60 border-[var(--hairline)] hover:bg-white"
+              ? "bg-[var(--accent-violet)]/15 border-[var(--accent-violet)]/50 text-[var(--ink)]"
+              : "bg-[var(--bg-tint)] border-[var(--line)] hover:bg-[var(--bg-elev)] text-[var(--ink)]"
           }`;
           const rowInner = (
             <>
