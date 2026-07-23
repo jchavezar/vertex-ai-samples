@@ -170,24 +170,24 @@ async def chat_endpoint(body: ChatRequest):
         for m in meetings:
             context_lines.append(f"  * {m.get('subject')} (Time: {(m.get('start') or {}).get('dateTime')} to {(m.get('end') or {}).get('dateTime')}) | Organizer: {(m.get('organizer') or {}).get('emailAddress', {}).get('name')}")
     if emails:
-        context_lines.append(f"- Inbox Emails & Alerts ({len(emails)}):")
+        context_lines.append(f"- Mailbox Emails & Alerts ({len(emails)}):")
         for em in emails:
-            context_lines.append(f"  * {em.get('subject')} (From: {(em.get('from') or {}).get('emailAddress', {}).get('address')}) - Preview: {em.get('bodyPreview')}")
+            body_obj = em.get('body') or {}
+            body_content = body_obj.get('content') or em.get('bodyPreview') or ""
+            body_clean = " ".join(body_content.split())[:600]
+            context_lines.append(f"  * [Folder: {em.get('folderName')}] {em.get('subject')} (From: {(em.get('from') or {}).get('emailAddress', {}).get('address')} | Received: {em.get('receivedDateTime')}) - Body: {body_clean}")
 
     grounding_text = "\n".join(context_lines)
 
-    prompt = f"""You are the official Microsoft 365 Outlook AI Executive Assistant for Jesus Chavez (admin@sockcop.onmicrosoft.com) powered by Google ADK on Project 254356041555.
+    prompt = f"""You are an AI assistant.
 User Query: {body.message}
 
 {grounding_text}
 
 Rules:
-1. Provide a crisp, structured response grounded in the live data above.
-2. For calendar queries (e.g. 'July 23rd meeting slot 5'), detail the scheduled meetings:
-   - Meeting 1: Team Leads Budget Feedback & Action Plan Alignment (2:00 PM – 3:00 PM EDT) organized by Jesus Chavez.
-   - Meeting 2: Q4 Resource Allocation (7:00 PM – 7:30 PM EDT).
-3. For briefing queries (inbox alerts and calendar), list BOTH the 2 Teams meetings AND the security inbox alerts (Passkeys & Azure Copilot).
-4. Use clean Markdown formatting.
+1. Provide a crisp, structured response grounded in the provided tenant data.
+2. Use Markdown formatting.
+3. If the answer is not in the data, state that no matching record was found.
 """
 
     try:
