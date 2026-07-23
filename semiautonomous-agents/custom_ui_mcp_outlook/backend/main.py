@@ -174,7 +174,7 @@ async def chat_endpoint(body: ChatRequest):
         for em in emails:
             body_obj = em.get('body') or {}
             body_content = body_obj.get('content') or em.get('bodyPreview') or ""
-            body_clean = " ".join(body_content.split())[:600]
+            body_clean = " ".join(body_content.split())[:4000]
             context_lines.append(f"  * [Folder: {em.get('folderName')}] {em.get('subject')} (From: {(em.get('from') or {}).get('emailAddress', {}).get('address')} | Received: {em.get('receivedDateTime')}) - Body: {body_clean}")
 
     grounding_text = "\n".join(context_lines)
