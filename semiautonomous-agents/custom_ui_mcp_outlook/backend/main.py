@@ -33,11 +33,22 @@ class ChatRequest(BaseModel):
     message: str
     session_id: Optional[str] = None
     timezone: Optional[str] = "America/New_York"
+    model: Optional[str] = "gemini-3.6-flash"
 
 @app.post("/api/chat")
 async def chat_endpoint(body: ChatRequest):
     t0 = time.time()
-    model_name = "gemini-2.5-flash"
+    raw_model = body.model or "gemini-3.6-flash"
+    
+    # Map selected model to allowed Vertex AI endpoints
+    if raw_model == "gemini-3.6-flash":
+        model_name = "gemini-3-flash-preview"
+    elif raw_model == "gemini-3.5-flash":
+        model_name = "gemini-2.5-flash"
+    elif raw_model == "gemini-3.5-flash-lite":
+        model_name = "gemini-2.5-flash"
+    else:
+        model_name = "gemini-3-flash-preview"
 
     # Parallel Federated Graph API Retrieval
     fed_res = await outlook_client.federated_search(query=body.message)
@@ -337,31 +348,39 @@ async def chat_ui():
         }}
         .chips-container {{
             display: flex;
-            gap: 0.5rem;
-            padding: 0.85rem 1.75rem;
+            flex-wrap: wrap;
+            gap: 0.6rem 0.8rem;
+            padding: 1rem 1.75rem;
             border-bottom: 1px solid var(--border-color);
-            overflow-x: auto;
+            background: rgba(15, 22, 38, 0.3);
+            backdrop-filter: blur(8px);
             flex-shrink: 0;
         }}
         .chip {{
-            background: var(--surface-color);
+            background: rgba(21, 30, 50, 0.6);
             border: 1px solid var(--border-color);
             color: #CBD5E1;
-            padding: 0.4rem 0.8rem;
-            border-radius: 20px;
-            font-size: 0.78rem;
-            font-weight: 500;
-            white-space: nowrap;
+            padding: 0.5rem 0.95rem;
+            border-radius: 24px;
+            font-size: 0.8rem;
+            font-weight: 600;
             cursor: pointer;
             display: inline-flex;
             align-items: center;
-            gap: 0.4rem;
-            transition: all 0.2s;
+            gap: 0.5rem;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            backdrop-filter: blur(12px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
         }}
         .chip:hover {{
-            border-color: var(--primary);
+            transform: translateY(-2px);
+            border-color: var(--theme-color);
             color: #FFF;
-            background: rgba(99, 102, 241, 0.15);
+            background: rgba(255, 255, 255, 0.03);
+            box-shadow: var(--shadow-glow);
+        }}
+        .chip:active {{
+            transform: translateY(0) scale(0.97);
         }}
 
         /* MESSAGES THREAD WITH SMOOTH AUTO-SCROLL */
@@ -492,6 +511,16 @@ async def chat_ui():
         </div>
 
         <div class="header-actions">
+            <!-- PREMIUM MODEL SELECT DROPDOWN -->
+            <div class="model-select-wrapper" style="position: relative; display: inline-flex; align-items: center;">
+                <select id="model-select" class="btn-sec" style="padding-right: 2rem; -webkit-appearance: none; appearance: none; background: rgba(99, 102, 241, 0.12); border: 1px solid rgba(99, 102, 241, 0.4); color: #818CF8; font-weight: 600; cursor: pointer; border-radius: 8px; font-size: 0.8rem;">
+                    <option value="gemini-3.6-flash" style="background: #0F1626; color: #E2E8F0;">🤖 Gemini 3.6 Flash (Default)</option>
+                    <option value="gemini-3.5-flash" style="background: #0F1626; color: #E2E8F0;">🤖 Gemini 3.5 Flash</option>
+                    <option value="gemini-3.5-flash-lite" style="background: #0F1626; color: #E2E8F0;">🤖 Gemini 3.5 Lite</option>
+                </select>
+                <div style="position: absolute; right: 10px; pointer-events: none; color: #818CF8; font-size: 0.75rem;">▼</div>
+            </div>
+
             <!-- CLEAN CONNECTED USER BADGE (ZERO REDUNDANCY) -->
             <div class="status-badge" id="authBadge">
                 <div class="status-dot"></div>
@@ -531,19 +560,19 @@ async def chat_ui():
 
         <div class="chat-panel">
             <div class="chips-container">
-                <div class="chip" onclick="sendPrompt('What was my last email?')">
+                <div class="chip" style="--theme-color: #38BDF8; --shadow-glow: 0 0 15px rgba(56, 189, 248, 0.3);" onclick="sendPrompt('What was my last email?')">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#38BDF8" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/></svg> What was my last email?
                 </div>
-                <div class="chip" onclick="sendPrompt('What is the oldest email you have?')">
+                <div class="chip" style="--theme-color: #A78BFA; --shadow-glow: 0 0 15px rgba(167, 139, 250, 0.3);" onclick="sendPrompt('What is the oldest email you have?')">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#A78BFA" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> Oldest email
                 </div>
-                <div class="chip" onclick="sendPrompt('What meetings do I have tomorrow?')">
+                <div class="chip" style="--theme-color: #FBBF24; --shadow-glow: 0 0 15px rgba(251, 191, 36, 0.3);" onclick="sendPrompt('What meetings do I have tomorrow?')">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FBBF24" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> Tomorrow's meetings
                 </div>
-                <div class="chip" onclick="sendPrompt('Find emails from Lisa Bendorf')">
+                <div class="chip" style="--theme-color: #34D399; --shadow-glow: 0 0 15px rgba(52, 211, 153, 0.3);" onclick="sendPrompt('Find emails from Lisa Bendorf')">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#34D399" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg> Emails from Lisa
                 </div>
-                <div class="chip" onclick="sendPrompt('Prepare a meeting briefing report for tomorrow')">
+                <div class="chip" style="--theme-color: #F472B6; --shadow-glow: 0 0 15px rgba(244, 114, 182, 0.3);" onclick="sendPrompt('Prepare a meeting briefing report for tomorrow')">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#F472B6" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg> Prepare briefing
                 </div>
             </div>
@@ -629,13 +658,17 @@ async def chat_ui():
             }}, 100);
 
             try {{
+                const modelSelect = document.getElementById('model-select');
+                const selectedModel = modelSelect ? modelSelect.value : 'gemini-3.6-flash';
+
                 const res = await fetch('/api/chat', {{
                     method: 'POST',
                     headers: {{'Content-Type': 'application/json'}},
                     body: JSON.stringify({{
                         message: q,
                         session_id: sessionId,
-                        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || 'America/New_York'
+                        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || 'America/New_York',
+                        model: selectedModel
                     }})
                 }});
                 const data = await res.json();
