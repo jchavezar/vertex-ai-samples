@@ -35,15 +35,15 @@ for item in results:
         <tr onclick="openModal({item_json})">
             <td><b>{item['id']}</b></td>
             <td><span class="badge {compClass}">{item['complexity']}</span></td>
-            <td style="font-weight: 600;">{item['query']}</td>
-            <td style="color: #10B981; font-family: monospace;">📌 {item['ground_truth_answer']}</td>
-            <td style="color: #F8FAFC;">⚡ {item['app_answer']}</td>
-            <td style="color: #CBD5E1;">🌐 {item['streamassist_answer']}</td>
+            <td class="truncate-cell" style="font-weight: 600;" title="{item['query'].replace('"', '&quot;')}">{item['query']}</td>
+            <td class="truncate-cell" style="color: #10B981; font-family: monospace;" title="{item['ground_truth_answer'].replace('"', '&quot;')}">📌 {item['ground_truth_answer']}</td>
+            <td class="truncate-cell" style="color: #F8FAFC;" title="{item['app_answer'].replace('"', '&quot;')}">⚡ {item['app_answer']}</td>
+            <td class="truncate-cell" style="color: #CBD5E1;" title="{item['streamassist_answer'].replace('"', '&quot;')}">🌐 {item['streamassist_answer']}</td>
             <td style="text-align: center; color: {g36_prec_color}; font-weight: 700;">{item['precision_score_36']}%</td>
             <td style="text-align: center; color: #10B981; font-weight: 700;">{item['streamassist_precision']}%</td>
             <td style="text-align: center; color: #10B981; font-weight: 700;">⚡ {item['latency_36']}s</td>
             <td style="text-align: center; color: #EF4444;">⏱️ {item['streamassist_latency_s']}s</td>
-            <td style="text-align: center;"><button class="badge badge-basic" style="cursor:pointer; border:none;">🔍 Inspect Diff</button></td>
+            <td style="text-align: center;"><button class="badge badge-basic" style="cursor:pointer; border:none;">🔍 Inspect</button></td>
         </tr>
     """
 
@@ -82,14 +82,20 @@ full_html = f"""<!DOCTYPE html>
         .kpi-val {{ font-size: 1.7rem; font-weight: 800; margin: 0.3rem 0; color: var(--success); }}
         .kpi-label {{ color: var(--text-muted); font-size: 0.72rem; text-transform: uppercase; font-weight: 700; }}
         .table-wrapper {{ background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow-x: auto; width: 100%; }}
-        table {{ width: 100%; min-width: 1800px; border-collapse: collapse; font-size: 0.8rem; }}
+        table {{ width: 100%; min-width: 1200px; border-collapse: collapse; font-size: 0.8rem; }}
         th {{ background: #0F172A; padding: 0.75rem 0.5rem; color: var(--text-muted); font-weight: 600; border-bottom: 1px solid var(--border); white-space: nowrap; }}
-        td {{ padding: 0.75rem 0.5rem; border-bottom: 1px solid rgba(51, 65, 85, 0.3); vertical-align: top; }}
+        td {{ padding: 0.75rem 0.5rem; border-bottom: 1px solid rgba(51, 65, 85, 0.3); vertical-align: middle; }}
         tr:hover {{ background: rgba(30, 41, 59, 0.5); cursor: pointer; }}
         .badge {{ display: inline-block; padding: 0.2rem 0.4rem; border-radius: 6px; font-size: 0.68rem; font-weight: 700; }}
         .badge-basic {{ background: rgba(16, 185, 129, 0.15); color: #10B981; }}
         .badge-medium {{ background: rgba(245, 158, 11, 0.15); color: #F59E0B; }}
         .badge-complex {{ background: rgba(239, 68, 68, 0.15); color: #EF4444; }}
+        .truncate-cell {{
+            max-width: 260px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }}
 
         .modal-overlay {{ display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(8px); z-index: 1000; align-items: center; justify-content: center; padding: 2rem; }}
         .modal-card {{ background: var(--surface); border: 1px solid var(--border); border-radius: 16px; max-width: 1200px; width: 100%; max-height: 90vh; overflow-y: auto; padding: 2rem; position: relative; box-shadow: 0 20px 50px rgba(0,0,0,0.5); }}
