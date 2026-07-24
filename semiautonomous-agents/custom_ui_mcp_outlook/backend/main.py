@@ -787,6 +787,22 @@ async def chat_ui():
                     toolPills = data.tools_called.map(t => `<span style="background: rgba(99,102,241,0.2); padding: 2px 6px; border-radius: 4px;">🛠️ ${{t.name}}</span>`).join(' ');
                 }}
 
+                let groundingHtml = '';
+                if (data.raw_grounding_data) {{
+                    const emailsCount = (data.raw_grounding_data.emails || []).length;
+                    const meetingsCount = (data.raw_grounding_data.meetings || []).length;
+                    const formattedJSON = JSON.stringify(data.raw_grounding_data, null, 2);
+                    
+                    groundingHtml = `
+                        <details style="margin-top: 10px; background: rgba(16, 185, 129, 0.05); border: 1px solid rgba(16, 185, 129, 0.15); border-radius: 8px; padding: 6px 10px;">
+                            <summary style="font-size: 0.78rem; font-weight: 700; color: #10B981; cursor: pointer; user-select: none; display: flex; align-items: center; gap: 6px;">
+                                🔌 Live Graph API Grounding (Retrieved \${emailsCount} Emails, \${meetingsCount} Meetings)
+                            </summary>
+                            <pre style="margin-top: 8px; font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; max-height: 250px; overflow-y: auto; text-align: left; white-space: pre-wrap; word-break: break-all; color: #38BDF8; background: #070A10; padding: 8px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.05);">\${formattedJSON}</pre>
+                        </details>
+                    `;
+                }}
+
                 thread.innerHTML += `
                     <div class="msg-row ai">
                         <div class="avatar ai">
@@ -794,6 +810,7 @@ async def chat_ui():
                         </div>
                         <div class="msg-bubble">
                             <div>${{marked.parse(data.response || 'No response')}}</div>
+                            ${{groundingHtml}}
                             <div style="margin-top: 8px; font-size: 0.72rem; color: #38BDF8; display: flex; gap: 10px; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 4px;">
                                 <span>⚡ Latency: <b>${{data.latency_s}}s</b></span>
                                 ${{toolPills}}
