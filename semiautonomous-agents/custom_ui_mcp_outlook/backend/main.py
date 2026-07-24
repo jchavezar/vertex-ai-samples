@@ -185,9 +185,10 @@ User Query: {body.message}
 {grounding_text}
 
 Rules:
-1. Provide a crisp, structured response grounded in the provided tenant data.
-2. Use Markdown formatting.
-3. If the answer is not in the data, state that no matching record was found.
+1. Provide the direct answer first in 1-2 clear sentences (Bottom Line Up Front), followed by a structured breakdown or explanation if details are present.
+2. Provide a crisp response grounded in the provided tenant data.
+3. Use Markdown formatting.
+4. If the answer is not in the data, state that no matching record was found.
 """
 
     try:
@@ -201,6 +202,8 @@ Rules:
         ans_text = f"### ⚡ Microsoft 365 Grounded Result\n\n* **User Profile**: Jesus Chavez (`admin@sockcop.onmicrosoft.com`)\n* **Upcoming Meetings**:\n  - **Team Leads Budget Feedback & Action Plan Alignment** (2:00 PM – 3:00 PM EDT)\n  - **Q4 Resource Allocation** (7:00 PM – 7:30 PM EDT)\n* **Inbox Alerts**:\n  - **Passkeys Authentication Notice** (Security Policy Rollout)\n  - **Azure Copilot Security Notice** (Access Review)"
 
     latency_s = round(time.time() - t0, 2)
+    llm_latency_s = round(latency_s - search_latency_s, 2)
+    logger.info(f"### [LATENCY BREAKDOWN] total={latency_s}s | m365_search={search_latency_s}s | gemini_generation={llm_latency_s}s")
     return {
         "response": ans_text,
         "tools_called": [{"name": "tool_federated_m365_search", "args": {"query": body.message}}],
@@ -789,16 +792,81 @@ async def chat_ui():
 
                 let groundingHtml = '';
                 if (data.raw_grounding_data) {{
-                    const emailsCount = (data.raw_grounding_data.emails || []).length;
-                    const meetingsCount = (data.raw_grounding_data.meetings || []).length;
+                    const emails = data.raw_grounding_data.emails || [];
+                    const meetings = data.raw_grounding_data.meetings || [];
                     const formattedJSON = JSON.stringify(data.raw_grounding_data, null, 2);
                     
+                    let emailsListHtml = '';
+                    if (emails.length > 0) {{
+                        emailsListHtml = '<div style="margin-top: 8px; display: flex; flex-direction: column; gap: 8px;">';
+                        emails.forEach(em => {{
+                            const link = em.webLink || '#';
+                            const folder = em.folderName || 'Mailbox';
+                            const from = (em.from || {{}}).emailAddress || {{}};
+                            const fromName = from.name || from.address || 'Unknown';
+                            const date = new Date(em.receivedDateTime).toLocaleString();
+                            const preview = em.bodyPreview || '';
+                            
+                            emailsListHtml += `
+                                <div style="background: #0B0F19; border: 1px solid var(--border); border-radius: 8px; padding: 10px; text-align: left;">
+                                    <div style="display: flex; justify-content: space-between; align-items: start; gap: 8px;">
+                                        <a href="${{link}}" target="_blank" style="color: #38BDF8; font-weight: 600; text-decoration: none; font-size: 0.85rem;" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">
+                                            ✉️ ${{em.subject || '(No Subject)'}}
+                                        </a>
+                                        <span class="badge" style="font-size: 0.65rem; background: rgba(99,102,241,0.15); color: #818CF8; border: 1px solid rgba(99,102,241,0.3); padding: 0.15rem 0.35rem; border-radius: 4px;">${{folder}}</span>
+                                    </div>
+                                    <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 4px;">
+                                        From: <b>${{fromName}}</b> | Received: ${{date}}
+                                    </div>
+                                    <div style="font-size: 0.72rem; color: #E2E8F0; margin-top: 6px; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis;">
+                                        ${{preview}}
+                                    </div>
+                                </div>
+                            `;
+                        }});
+                        emailsListHtml += '</div>';
+                    }}
+                    
+                    let meetingsListHtml = '';
+                    if (meetings.length > 0) {{
+                        meetingsListHtml = '<div style="margin-top: 8px; display: flex; flex-direction: column; gap: 8px;">';
+                        meetings.forEach(m => {{
+                            const link = m.webLink || '#';
+                            const start = new Date((m.start || {{}}).dateTime).toLocaleString();
+                            const organizer = (m.organizer || {{}}).emailAddress || {{}};
+                            const organizerName = organizer.name || organizer.address || 'Unknown';
+                            
+                            meetingsListHtml += `
+                                <div style="background: #0B0F19; border: 1px solid var(--border); border-radius: 8px; padding: 10px; text-align: left;">
+                                    <div style="display: flex; justify-content: space-between; align-items: start; gap: 8px;">
+                                        <a href="${{link}}" target="_blank" style="color: #F59E0B; font-weight: 600; text-decoration: none; font-size: 0.85rem;" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">
+                                            📅 ${{m.subject || '(No Subject)'}}
+                                        </a>
+                                        <span class="badge" style="font-size: 0.65rem; background: rgba(245,158,11,0.15); color: #F59E0B; border: 1px solid rgba(245,158,11,0.3); padding: 0.15rem 0.35rem; border-radius: 4px;">Calendar</span>
+                                    </div>
+                                    <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 4px;">
+                                        Organizer: <b>${{organizerName}}</b> | Time: ${{start}}
+                                    </div>
+                                </div>
+                            `;
+                        }});
+                        meetingsListHtml += '</div>';
+                    }}
+                    
                     groundingHtml = `
-                        <details style="margin-top: 10px; background: rgba(16, 185, 129, 0.05); border: 1px solid rgba(16, 185, 129, 0.15); border-radius: 8px; padding: 6px 10px;">
-                            <summary style="font-size: 0.78rem; font-weight: 700; color: #10B981; cursor: pointer; user-select: none; display: flex; align-items: center; gap: 6px;">
-                                🔌 Live Graph API Grounding (Retrieved \${emailsCount} Emails, \${meetingsCount} Meetings)
+                        <details style="margin-top: 10px; background: rgba(16, 185, 129, 0.03); border: 1px solid rgba(16, 185, 129, 0.15); border-radius: 8px; padding: 10px;">
+                            <summary style="font-size: 0.78rem; font-weight: 700; color: #10B981; cursor: pointer; user-select: none; display: flex; align-items: center; justify-content: space-between; gap: 6px;">
+                                <span>🔌 Grounded Sources (Clickable Link to Outlook)</span>
+                                <span class="badge" style="font-size: 0.65rem; background: rgba(16, 185, 129, 0.15); color: #10B981; border: 1px solid rgba(16, 185, 129, 0.3); padding: 0.15rem 0.35rem; border-radius: 4px;">Retrieved: ${{emails.length}} Mails | ${{meetings.length}} Events</span>
                             </summary>
-                            <pre style="margin-top: 8px; font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; max-height: 250px; overflow-y: auto; text-align: left; white-space: pre-wrap; word-break: break-all; color: #38BDF8; background: #070A10; padding: 8px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.05);">\${formattedJSON}</pre>
+                            <div style="margin-top: 8px; display: flex; flex-direction: column; gap: 10px;">
+                                ${{emailsListHtml}}
+                                ${{meetingsListHtml}}
+                                <details style="margin-top: 8px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 8px;">
+                                    <summary style="font-size: 0.7rem; color: var(--text-muted); cursor: pointer; user-select: none;">🔍 View Raw JSON Response</summary>
+                                    <pre style="margin-top: 6px; font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; max-height: 200px; overflow-y: auto; text-align: left; white-space: pre-wrap; word-break: break-all; color: #38BDF8; background: #070A10; padding: 8px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.05);">${{formattedJSON}}</pre>
+                                </details>
+                            </div>
                         </details>
                     `;
                 }}
