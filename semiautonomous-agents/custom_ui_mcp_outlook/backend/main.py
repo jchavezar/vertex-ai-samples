@@ -185,7 +185,7 @@ User Query: {body.message}
 {grounding_text}
 
 Rules:
-1. Provide the direct answer first in 1-2 clear sentences (Bottom Line Up Front), followed by a structured breakdown or explanation if details are present.
+1. Provide the direct answer first in 1-2 clear, natural sentences (do NOT prefix this with labels like "Bottom Line Up Front", "Direct Answer", or similar tags), followed by a structured breakdown or explanation if details are present.
 2. Provide a crisp response grounded in the provided tenant data.
 3. Use Markdown formatting.
 4. If the answer is not in the data, state that no matching record was found.
