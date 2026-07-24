@@ -20,6 +20,29 @@ mcp = FastMCP(
 # ---------------------------------------------------------------------------
 # Embedded Self-Contained Microsoft Graph Engine
 # ---------------------------------------------------------------------------
+def save_token_to_env(key: str, value: str):
+    # Locate and update the .env file to persist rotated tokens
+    for path in [".env", "../.env", "../../.env"]:
+        if os.path.exists(path):
+            try:
+                with open(path, "r") as f:
+                    lines = f.readlines()
+                updated = False
+                for idx, line in enumerate(lines):
+                    if line.strip().startswith(f"{key}="):
+                        lines[idx] = f"{key}={value}\n"
+                        updated = True
+                        break
+                if not updated:
+                    lines.append(f"{key}={value}\n")
+                with open(path, "w") as f:
+                    f.writelines(lines)
+                os.environ[key] = value
+                logger.info(f"Persisted updated env variable {key} to {path}")
+            except Exception as e:
+                logger.warning(f"Failed to persist env variable {key} to {path}: {e}")
+            break
+
 class MicrosoftGraphEngine:
     """Self-contained Graph API Engine with MSAL Token Auto-Refresh & Federated Search."""
 
@@ -56,9 +79,9 @@ class MicrosoftGraphEngine:
                 new_token = res.get("access_token")
                 if new_token:
                     token = new_token
-                    os.environ["MS_GRAPH_TOKEN"] = new_token
+                    save_token_to_env("MS_GRAPH_TOKEN", new_token)
                     if res.get("refresh_token"):
-                        os.environ["MS_GRAPH_REFRESH_TOKEN"] = res.get("refresh_token")
+                        save_token_to_env("MS_GRAPH_REFRESH_TOKEN", res.get("refresh_token"))
                     logger.info("Auto-refreshed MS_GRAPH_TOKEN successfully.")
             except Exception as ex:
                 logger.warning(f"Token refresh attempt failed: {ex}")
@@ -100,7 +123,7 @@ async def federated_m365_search(query: str, token: Optional[str] = None) -> str:
 
         async def fetch_mails(client):
             params = {"$top": 5, "$select": "id,subject,from,receivedDateTime,bodyPreview"}
-            r = await client.get(f"{engine.base_url}/me/mailFolders/inbox/messages", headers=headers, params=params)
+            r = await client.get(f"{engine.base_url}/me/messages", headers=headers, params=params)
             return r.json().get("value", []) if r.status_code == 200 else []
 
         async def fetch_cal(client):
@@ -138,13 +161,13 @@ async def search_emails(
     sender: Optional[str] = None,
     hours_back: Optional[str] = "24h",
     unread_only: bool = False,
-    limit: int = 10,
+    limit: int = 25,
     token: Optional[str] = None
 ) -> str:
     """Search Outlook inbox emails with keyword query expansion and date filtering."""
     try:
         headers = engine.get_headers(token)
-        url = f"{engine.base_url}/me/mailFolders/inbox/messages"
+        url = f"{engine.base_url}/me/messages"
         params: Dict[str, Any] = {"$top": limit, "$select": "id,subject,from,receivedDateTime,bodyPreview,isRead"}
 
         filters = []
@@ -195,7 +218,7 @@ async def get_email_full_body(message_id: str, token: Optional[str] = None) -> s
         return f"Error: {str(e)}"
 
 @mcp.tool()
-async def list_meetings(lookback: str = "0h", lookahead: str = "24h", limit: int = 10, token: Optional[str] = None) -> str:
+async def list_meetings(lookback: str = "0h", lookahead: str = "24h", limit: int = 25, token: Optional[str] = None) -> str:
     """List calendar meetings from Microsoft Outlook."""
     try:
         headers = engine.get_headers(token)

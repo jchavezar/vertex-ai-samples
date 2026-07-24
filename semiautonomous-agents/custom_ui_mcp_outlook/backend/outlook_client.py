@@ -11,6 +11,29 @@ load_dotenv("../.env")
 
 logger = logging.getLogger(__name__)
 
+def save_token_to_env(key: str, value: str):
+    # Locate and update the .env file to persist rotated tokens
+    for path in [".env", "../.env", "../../.env"]:
+        if os.path.exists(path):
+            try:
+                with open(path, "r") as f:
+                    lines = f.readlines()
+                updated = False
+                for idx, line in enumerate(lines):
+                    if line.strip().startswith(f"{key}="):
+                        lines[idx] = f"{key}={value}\n"
+                        updated = True
+                        break
+                if not updated:
+                    lines.append(f"{key}={value}\n")
+                with open(path, "w") as f:
+                    f.writelines(lines)
+                os.environ[key] = value
+                logger.info(f"Persisted updated env variable {key} to {path}")
+            except Exception as e:
+                logger.warning(f"Failed to persist env variable {key} to {path}: {e}")
+            break
+
 class OutlookClient:
     """Production-Ready Client for interacting with Microsoft Graph API with Federated Search & Auto-Refresh."""
 
@@ -20,8 +43,9 @@ class OutlookClient:
 
     def _get_headers(self, token: Optional[str] = None) -> Dict[str, str]:
         load_dotenv(override=True)
-        # Force refresh/cache check via MSAL instead of relying on stale environment variable
-        token = None
+        # Use valid active/cached token first
+        if not token:
+            token = os.getenv("MS_GRAPH_TOKEN")
 
         refresh_token = os.getenv("MS_GRAPH_REFRESH_TOKEN")
         client_id = os.getenv("CLIENT_ID") or os.getenv("CONNECTOR_CLIENT_ID")
@@ -42,7 +66,9 @@ class OutlookClient:
                 )
                 if res.get("access_token"):
                     token = res["access_token"]
-                    os.environ["MS_GRAPH_TOKEN"] = token
+                    save_token_to_env("MS_GRAPH_TOKEN", token)
+                    if res.get("refresh_token"):
+                        save_token_to_env("MS_GRAPH_REFRESH_TOKEN", res["refresh_token"])
             except Exception as ex:
                 logger.warning(f"Auto-refresh failed: {ex}")
 
