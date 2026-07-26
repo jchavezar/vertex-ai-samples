@@ -82,3 +82,68 @@ Start the wrapper node server to host the custom React/HTML interface locally.
    ```
 3. Open `http://localhost:8001/` in your browser.
 4. Interact with the chat UI. You should see streaming answers, with collapsible tools trace details showing exactly which MCP tools were triggered.
+
+---
+
+## 6. Troubleshooting & Enterprise Setup Pitfalls
+
+Enterprise setups integrating Microsoft Entra ID and Google Cloud WIF are susceptible to token exchange and delegation failures. Use the following specifications to verify and troubleshoot your deployment:
+
+### A. Microsoft Entra ID App Manifest Properties
+If MSAL returns authorization code exchange errors or rejects token swaps, verify that both the **ID Token** and **Access Token** implicit flows are enabled in the App Manifest:
+
+1. Open **Microsoft Entra ID admin center** > **App registrations** > select your Portal App.
+2. Select **Manifest** on the sidebar.
+3. Verify or edit the following JSON properties to match:
+   ```json
+   {
+     "oauth2AllowIdTokenImplicitFlow": true,
+     "oauth2AllowImplicitFlow": true
+   }
+   ```
+4. Click **Save**.
+
+---
+
+### B. Google Cloud Workforce Identity Federation (WIF) Attribute Mappings
+If WIF authentication returns `400 Bad Request` during federated credential swaps, ensure the pool provider maps the OpenID Connect (OIDC) assertions to Google IAM identifiers.
+
+Configure using `gcloud` or verify in the GCP Console under **IAM & Admin** > **Workforce Identity Federation**:
+```bash
+gcloud iam workforce-pools providers update-oidc entra-provider \
+  --workforce-pool="sp-wif-pool-v2" \
+  --location="global" \
+  --issuer-uri="https://login.microsoftonline.com/de46a3fd-0d68-4b25-8343-6eb5d71afce9/v2.0" \
+  --client-id="api://b2d25471-834f-4ac9-9ba9-c05c06b42003" \
+  --attribute-mapping="google.subject=assertion.sub,attribute.email=assertion.email,attribute.display_name=assertion.name"
+```
+
+---
+
+### C. GCP IAM Permissions & Service Account Token Creation
+The Reasoning Engine service account requires permission to invoke the Cloud Run FastMCP Gateway tool endpoint. Additionally, the Vertex platform service account must be trusted to act on behalf of the runtime account.
+
+1. Ensure the **Reasoning Engine Service Account** (e.g. `agent-runner-sa`) has:
+   - `roles/aiplatform.user`
+   - `roles/logging.logWriter`
+2. Grant the Vertex AI platform service agent token creator permissions on the runner service account:
+   ```bash
+   gcloud iam service-accounts add-iam-policy-binding \
+     agent-runner-sa@vtxdemos.iam.gserviceaccount.com \
+     --role="roles/iam.serviceAccountTokenCreator" \
+     --member="serviceAccount:service-254356041555@gcp-sa-aiplatform.iam.gserviceaccount.com"
+   ```
+
+---
+
+### D. Vertex AI Reasoning Engine Trace Logs
+To verify that the agent is executing tool calls correctly, query the Vertex Reasoning Engine logs in Google Cloud Console **Log Explorer**:
+
+1. Open the GCP Logs Explorer.
+2. Run the following query filter to view execution traces:
+   ```text
+   resource.type="aiplatform.googleapis.com/ReasoningEngine"
+   severity>=INFO
+   ```
+3. Expand the JSON payload to trace individual Model Context Protocol (MCP) dispatches (e.g., tracking `tool_search_emails` execution times and returned email arrays).
+

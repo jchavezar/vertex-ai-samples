@@ -77,4 +77,41 @@ INFO:     Uvicorn running on http://0.0.0.0:8005 (Press CTRL+C to quit)
 
 * **Chat Interface**: Open `http://localhost:8005/` in your browser. Type a search query, like `"what is my latest unread message?"`.
 * **Visual Evaluation**: Open `http://localhost:8005/eval` to inspect the 100-case comparative visual report.
-* **Inspect Redundant Auth Requests**: If latency is high, check `backend.log`. You should see `OutlookClient cache cleared` but token refresh statements should **not** log consecutively during search queries, confirming in-memory token reuse is functioning.
+
+---
+
+### Local Authentication & Handshake Troubleshooting
+
+#### 1. MSAL Loop & High Latency Diagnostic
+If the local server takes longer than **10 seconds** to respond to simple Graph search queries, check the backend console log:
+* **Symptom**: You see consecutive log statements showing:
+  `[MSAL] Requesting fresh access token from Entra...`
+  on every single search query.
+* **Root Cause**: The client is bypassing the local environment token and querying MSAL on every execution.
+* **Fix**: Verify your `.env` contains `MS_GRAPH_TOKEN` or that the environment has captured the token. The `outlook_client.py` will reuse the token in-memory and bypass the MSAL exchange block:
+  ```python
+  if os.getenv("MS_GRAPH_TOKEN"):
+      return {"Authorization": f"Bearer {os.getenv('MS_GRAPH_TOKEN')}"}
+  ```
+
+#### 2. Entra Consent Error (AADSTS65001)
+If the console logs throw a `Microsoft Graph API returned 403 / 400 (Consent Required)`:
+* **Symptom**: User actions fail and terminal shows the AADSTS exception.
+* **Fix**: The user account must consent to the newly added permissions. Direct the user's browser to the authentication trigger route:
+  `http://localhost:8005/api/auth/login`
+  This will redirect to Microsoft's secure login screen where the user must check the **"Consent on behalf of your organization"** box and complete the MFA login flow.
+* **Screenshots**:
+  ![Entra Consent Verification](../../screenshots/oauth_consent.png)
+
+#### 3. Health & Auth Status Check
+You can verify the connection status and access token validity directly by calling the API status route in your browser:
+* **Endpoint**: `http://localhost:8005/api/auth/status`
+* **Expected Output**:
+  ```json
+  {
+    "authenticated": true,
+    "user_email": "admin@sockcop.onmicrosoft.com",
+    "token_expires_in": 3599
+  }
+  ```
+

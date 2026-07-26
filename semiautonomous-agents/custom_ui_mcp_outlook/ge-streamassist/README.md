@@ -29,43 +29,28 @@ This project implements a split-pane executive workspace:
 
 ---
 
-## Quick Start
+## 📖 Documentation Index
 
-### 1. Configure Sibling Credentials
-Create your `.env` files for both backend and frontend.
+* 🛠️ **[Getting Started Guide](docs/getting_started.md)**: Details of App registration, dotenv configurations, and screenshots.
+* 📐 **[Low-Level Design (LLD)](docs/low_level_design.md)**: Component split-pane layout, Workforce token swap sequence, and API schemas.
 
-**Backend (`backend/.env`):**
-```env
-PROJECT_NUMBER=YOUR_GCP_PROJECT_NUMBER
-ENGINE_ID=gemini-enterprise
-CONNECTOR_ID=YOUR_OUTLOOK_CONNECTOR_ID
-WIF_POOL_ID=YOUR_WORKFORCE_POOL_ID
-WIF_PROVIDER_ID=YOUR_WORKFORCE_PROVIDER_ID
-CONNECTOR_CLIENT_ID=YOUR_MS_CONNECTOR_APP_CLIENT_ID
-TENANT_ID=YOUR_MS_TENANT_ID
-REDIRECT_URI=https://vertexaisearch.cloud.google.com/oauth-redirect
-```
+---
 
-**Frontend (`frontend/.env`):**
-```env
-VITE_CLIENT_ID=YOUR_MS_PORTAL_APP_CLIENT_ID
-VITE_TENANT_ID=YOUR_MS_TENANT_ID
-```
+## 🛠️ Quick Start
 
-### 2. Run the App
-Always use `uv` for backend python tasks.
-
-```bash
-# Terminal 1: Backend
-cd backend
-uv sync
-uv run python main.py # Runs on port 8005
-
-# Terminal 2: Frontend
-cd frontend
-npm install
-npm run dev # Runs on port 5173 (proxies /api to 8005)
-```
+1. **Configure credentials**: Set up `.env` files inside both `backend/` and `frontend/` folders using the examples in the getting started guide.
+2. **Start Backend**:
+   ```bash
+   cd ge-streamassist/backend
+   python3 main.py # Runs on port 8005
+   ```
+3. **Start Frontend**:
+   ```bash
+   cd ge-streamassist/frontend
+   npm run dev # Runs on port 5173
+   ```
+4. **Access Evaluation**:
+   * 📊 **[Live HTML Evaluation Preview (No-Download Static)](https://htmlpreview.github.io/?https://github.com/jesusarguelles/vertex-ai-samples/blob/main/semiautonomous-agents/custom_ui_mcp_outlook/eval_dashboard_static.html)**
 
 ---
 

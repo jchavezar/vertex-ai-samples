@@ -129,3 +129,26 @@ graph TD
     I --> J[Filter out matches where isDraft=true]
     J --> K[Return Sorted Top N Messages]
 ```
+
+---
+
+## 5. Bound Python Tool Specifications
+
+In the local ADK environment, Python function tools are bound directly to the Gemini agent instance:
+
+### A. `search_emails` (Read-Only)
+* **Function Signature**: `search_emails(query: str = None, sender: str = None, hours_back: str = "24h", unread_only: bool = False, limit: int = 25) -> list[dict]`
+* **Description**: Queries Microsoft Graph API `/me/messages` filter parameters to identify matching messages. Automatically executes folder-union scans (Inbox + Sent + Drafts) if real-time unread state is requested.
+
+### B. `get_email_full_body` (Read-Only)
+* **Function Signature**: `get_email_full_body(message_id: str) -> dict`
+* **Description**: Fetches the complete body content or attachments structure of a specific message node.
+
+### C. `list_meetings` (Read-Only)
+* **Function Signature**: `list_meetings(lookback: str = "24h", lookahead: str = "48h", limit: int = 25) -> list[dict]`
+* **Description**: Dispatches a GET request to the Graph API `/me/calendarview` endpoint with dynamic ISO 8601 timestamps to fetch agenda details.
+
+### D. `send_email_v2` (Mutation)
+* **Function Signature**: `send_email_v2(subject: str, body: str, to_recipients: list[str], importance: str = "normal", attachment_filename: str = None) -> dict`
+* **Description**: Packages message headers and payload, and calls `/me/sendMail` to deliver an outbound email.
+

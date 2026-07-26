@@ -82,4 +82,109 @@ The Reasoning Engine runtime enforces a strict separation between dialogue histo
 
 ```text
 7. REAL-TIME FRESHNESS: If the user asks a real-time state query (e.g., "what is my latest unread message?", "current calendar events", "show my latest email"), you MUST execute a fresh tool call to retrieve the current state, even if a similar query was already answered in the conversation history. Do NOT recycle or assume the state from previous turns.
+
+---
+
+## 5. Model Context Protocol (MCP) Tool Specifications
+
+The Cloud Run FastMCP gateway exposes the following tools to the Vertex AI Reasoning Engine:
+
+### A. `search_emails` (Read-Only)
+* **Description**: Search mailbox emails with keyword query expansion and date filtering.
+* **Input Schema**:
+  ```json
+  {
+    "type": "object",
+    "properties": {
+      "query": { "type": "string", "description": "Free-text keyword" },
+      "sender": { "type": "string", "description": "Sender email address" },
+      "hours_back": { "type": "string", "default": "24h", "description": "Lookback window e.g. 24h, 7d" },
+      "unread_only": { "type": "boolean", "default": false, "description": "Filter unread only" },
+      "limit": { "type": "integer", "default": 25 }
+    }
+  }
+  ```
+
+### B. `get_email_full_body` (Read-Only)
+* **Description**: Fetch the complete body/payload for a specific email message ID.
+* **Input Schema**:
+  ```json
+  {
+    "type": "object",
+    "properties": {
+      "message_id": { "type": "string", "description": "The email message ID" }
+    },
+    "required": ["message_id"]
+  }
+  ```
+
+### C. `list_meetings` (Read-Only)
+* **Description**: List calendar meetings and schedule details within a time window.
+* **Input Schema**:
+  ```json
+  {
+    "type": "object",
+    "properties": {
+      "lookback": { "type": "string", "default": "24h" },
+      "lookahead": { "type": "string", "default": "48h" },
+      "limit": { "type": "integer", "default": 25 }
+    }
+  }
+  ```
+
+### D. `send_email` (Mutation)
+* **Description**: Send an outgoing email message, optionally with attachment or priority.
+* **Input Schema**:
+  ```json
+  {
+    "type": "object",
+    "properties": {
+      "subject": { "type": "string" },
+      "body": { "type": "string" },
+      "to_recipients": {
+        "type": "array",
+        "items": { "type": "string" },
+        "description": "List of recipient email addresses"
+      },
+      "importance": { "type": "string", "default": "normal", "description": "high, normal, low" },
+      "attachment_filename": { "type": "string", "description": "Optional name of file to attach" }
+    },
+    "required": ["subject", "body", "to_recipients"]
+  }
+  ```
+
+### E. `reply_email` (Mutation)
+* **Description**: Reply to an existing email thread using the message ID and comments.
+* **Input Schema**:
+  ```json
+  {
+    "type": "object",
+    "properties": {
+      "message_id": { "type": "string" },
+      "comment": { "type": "string" }
+    },
+    "required": ["message_id", "comment"]
+  }
+  ```
+
+### F. `create_meeting` (Mutation)
+* **Description**: Create/schedule a new calendar meeting.
+* **Input Schema**:
+  ```json
+  {
+    "type": "object",
+    "properties": {
+      "subject": { "type": "string" },
+      "start_time": { "type": "string", "description": "ISO 8601 UTC format e.g. 2026-07-25T14:00:00Z" },
+      "end_time": { "type": "string", "description": "ISO 8601 UTC format" },
+      "attendees": {
+        "type": "array",
+        "items": { "type": "string" },
+        "description": "List of invitee emails"
+      }
+    },
+    "required": ["subject", "start_time", "end_time"]
+  }
+  ```
+
 ```
