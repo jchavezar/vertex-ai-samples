@@ -1,21 +1,16 @@
 import json
 import os
 
-with open('multi_model_evaluated_suite.json', 'r') as f:
+with open('multi_model_llm_judged_suite.json', 'r') as f:
     eval_data = json.load(f)
 
 summary = eval_data['summary']
 results = eval_data['results']
 
 for r in results:
-    if 'briefing' in r['query'].lower() or 'inbox alerts and calendar' in r['query'].lower():
-        r['precision_score_36'] = 50.0
-        r['precision_score_35'] = 50.0
-        r['precision_score_lite'] = 45.0
-        r['streamassist_precision'] = 100.0
-        r['missing_entities'] = ['Passkeys Notice', 'Azure Copilot Alert']
-    else:
-        r['missing_entities'] = []
+    r['precision_score_36'] = r['app_judgment']['precision_score']
+    r['streamassist_precision'] = r['streamassist_judgment']['precision_score']
+    r['missing_entities'] = []
 
 g36 = summary['gemini_36_flash']
 g35 = summary['gemini_35_flash']
@@ -105,6 +100,35 @@ full_html = f"""<!DOCTYPE html>
         .tri-col.gemini {{ border-top: 4px solid #6366F1; }}
         .tri-col.sa {{ border-top: 4px solid #38BDF8; }}
         .close-btn {{ position: absolute; top: 1.25rem; right: 1.5rem; background: #1E293B; border: 1px solid var(--border); color: #FFF; padding: 0.4rem 0.8rem; border-radius: 8px; cursor: pointer; }}
+        
+        /* Responsive styles */
+        @media (max-width: 1024px) {{
+            .kpi-grid {{
+                grid-template-columns: repeat(2, 1fr);
+            }}
+            .tri-grid {{
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }}
+        }}
+        @media (max-width: 768px) {{
+            .header {{
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }}
+            body {{
+                padding: 1rem;
+            }}
+        }}
+        @media (max-width: 600px) {{
+            .kpi-grid {{
+                grid-template-columns: 1fr;
+            }}
+            .title-box h1 {{
+                font-size: 1.3rem;
+            }}
+        }}
     </style>
 </head>
 <body>
@@ -128,23 +152,23 @@ full_html = f"""<!DOCTYPE html>
         <div class="kpi-grid">
             <div class="kpi-card highlight">
                 <div class="cost-label">⚡ Gemini 3.6 Flash (MCP)</div>
-                <div class="kpi-val">{g36['avg_precision']}% Prec</div>
-                <div style="font-size: 0.75rem; color: #10B981">⏱️ 4.96s | $0.075 / 1M Input Tokens</div>
+                <div class="kpi-val">{g36['llm_precision']}% Prec</div>
+                <div style="font-size: 0.75rem; color: #10B981">⏱️ {g36['avg_latency_s']}s | {g36['cost_per_1m_input']} / 1M Input Tokens</div>
             </div>
             <div class="kpi-card">
                 <div class="cost-label">🧠 Gemini 3.5 Flash</div>
                 <div class="kpi-val" style="color: #818CF8">{g35['avg_precision']}% Prec</div>
-                <div style="font-size: 0.75rem; color: var(--text-muted)">⏱️ 7.10s | $0.150 / 1M Input Tokens</div>
+                <div style="font-size: 0.75rem; color: var(--text-muted)">⏱️ {g35['avg_latency_s']}s | {g35['cost_per_1m_input']} / 1M Input Tokens</div>
             </div>
             <div class="kpi-card">
                 <div class="cost-label">💨 Gemini 3.5 Flash Lite</div>
                 <div class="kpi-val" style="color: #38BDF8">{glite['avg_precision']}% Prec</div>
-                <div style="font-size: 0.75rem; color: var(--text-muted)">⏱️ 3.38s | $0.0375 / 1M Input Tokens</div>
+                <div style="font-size: 0.75rem; color: var(--text-muted)">⏱️ {glite['avg_latency_s']}s | {glite['cost_per_1m_input']} / 1M Input Tokens</div>
             </div>
             <div class="kpi-card">
                 <div class="cost-label">🌐 StreamAssist Federated</div>
-                <div class="kpi-val" style="color: #F59E0B">99.7% Prec</div>
-                <div style="font-size: 0.75rem; color: #EF4444">⏱️ 26.23s (Multi-Connector Broadcast)</div>
+                <div class="kpi-val" style="color: #F59E0B">{sa['llm_precision']}% Prec</div>
+                <div style="font-size: 0.75rem; color: #EF4444">⏱️ {sa['avg_latency_s']}s (Multi-Connector Broadcast)</div>
             </div>
         </div>
 
@@ -307,7 +331,14 @@ full_html = f"""<!DOCTYPE html>
 </body>
 </html>"""
 
-for path in ['eval_dashboard_static.html', 'frontend/eval_dashboard.html', '/Users/jesusarguelles/IdeaProjects/vertex-ai-samples/semiautonomous-agents/custom_ui_mcp_outlook/frontend/eval_dashboard.html']:
-    with open(path, 'w') as f:
-        f.write(full_html)
+for path in ['eval_dashboard_static.html', 'local-adk-mcp/eval_dashboard_static.html', 'frontend/eval_dashboard.html', '/Users/jesusarguelles/IdeaProjects/vertex-ai-samples/semiautonomous-agents/custom_ui_mcp_outlook/frontend/eval_dashboard.html']:
+    try:
+        dir_name = os.path.dirname(path)
+        if dir_name and not os.path.exists(dir_name):
+            os.makedirs(dir_name, exist_ok=True)
+        with open(path, 'w', encoding='utf-8') as f:
+            f.write(full_html)
+        print(f"Saved: {path}")
+    except Exception as e:
+        print(f"Skipped {path}: {e}")
 print('Successfully generated and updated Tri-Answer visual inspector!')

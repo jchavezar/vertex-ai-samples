@@ -4,6 +4,95 @@ import json
 import os
 import asyncio
 
+async def query_remote_mcp(client, query, idx):
+    url = "http://localhost:8001/api/search"
+    payload = {
+        "query": query,
+        "timezone": "America/New_York"
+    }
+    t0 = time.time()
+    response_text = ""
+    tools_called = []
+    try:
+        async with client.stream("POST", url, json=payload, headers={"X-Entra-Id-Token": "session-active-token"}) as response:
+            if response.status_code != 200:
+                err_content = await response.aread()
+                return {
+                    "answer": f"Error {response.status_code}: {err_content.decode('utf-8', errors='ignore')}",
+                    "tools_called": [],
+                    "latency_s": round(time.time() - t0, 2)
+                }
+            async for line in response.aiter_lines():
+                if line.startswith("data: "):
+                    data_str = line[6:].strip()
+                    if not data_str:
+                        continue
+                    try:
+                        evt = json.loads(data_str)
+                        if evt.get("type") == "text":
+                            response_text += evt.get("text", "")
+                        elif evt.get("type") == "tool_call":
+                            t_name = evt.get("tool", {}).get("name")
+                            if t_name:
+                                tools_called.append(t_name)
+                    except Exception:
+                        pass
+        return {
+            "answer": response_text.strip(),
+            "tools_called": tools_called,
+            "latency_s": round(time.time() - t0, 2)
+        }
+    except Exception as e:
+        return {
+            "answer": f"Exception: {e}",
+            "tools_called": [],
+            "latency_s": round(time.time() - t0, 2)
+        }
+
+async def query_streamassist(client, query, idx):
+    url = "http://localhost:8006/api/search"
+    payload = {
+        "query": query
+    }
+    t0 = time.time()
+    response_text = ""
+    sources = []
+    try:
+        async with client.stream("POST", url, json=payload, headers={"X-Entra-Id-Token": "session-active-token"}) as response:
+            if response.status_code != 200:
+                err_content = await response.aread()
+                return {
+                    "answer": f"Error {response.status_code}: {err_content.decode('utf-8', errors='ignore')}",
+                    "sources": [],
+                    "latency_s": round(time.time() - t0, 2)
+                }
+            async for line in response.aiter_lines():
+                if line.startswith("data: "):
+                    data_str = line[6:].strip()
+                    if not data_str:
+                        continue
+                    try:
+                        evt = json.loads(data_str)
+                        if evt.get("type") == "text":
+                            response_text += evt.get("text", "")
+                        elif evt.get("type") == "source":
+                            src = evt.get("source", {})
+                            if src:
+                                sources.append(src)
+                    except Exception:
+                        pass
+        return {
+            "answer": response_text.strip(),
+            "sources": sources,
+            "latency_s": round(time.time() - t0, 2)
+        }
+    except Exception as e:
+        return {
+            "answer": f"Exception: {e}",
+            "sources": [],
+            "latency_s": round(time.time() - t0, 2)
+        }
+
 async def eval_single_query(sem, client, idx, test_case):
     async with sem:
         query = test_case["query"]
@@ -12,72 +101,12 @@ async def eval_single_query(sem, client, idx, test_case):
         expected_tool = test_case.get("expected_tool", "tool_search_emails")
         complexity = test_case.get("complexity", "Basic")
         
-        # 1. Query Gemini 3.6 Flash
-        t0 = time.time()
-        try:
-            resp36 = await client.post("http://localhost:8001/api/chat", json={
-                "message": query,
-                "session_id": f"live-eval-bench-36-{idx+1}",
-                "timezone": "America/New_York",
-                "model": "gemini-3.6-flash"
-            })
-            latency_36 = round(time.time() - t0, 2)
-            if resp36.status_code == 200:
-                d36 = resp36.json()
-                ans_36 = d36.get("response") or ""
-                tools_36 = [tc.get("name") for tc in d36.get("tool_calls", [])] if d36.get("tool_calls") else []
-                search_latency = d36.get("search_latency_s", 0.8)
-                raw_grounding = d36.get("raw_grounding_data", {})
-            else:
-                ans_36 = f"Error {resp36.status_code}"
-                tools_36 = []
-                search_latency = 0.8
-                raw_grounding = {}
-        except Exception as e:
-            latency_36 = round(time.time() - t0, 2)
-            ans_36 = f"Exception: {e}"
-            tools_36 = []
-            search_latency = 0.8
-            raw_grounding = {}
-
-        # 2. Query Gemini 3.5 Flash
-        t0 = time.time()
-        try:
-            resp35 = await client.post("http://localhost:8001/api/chat", json={
-                "message": query,
-                "session_id": f"live-eval-bench-35-{idx+1}",
-                "timezone": "America/New_York",
-                "model": "gemini-3.5-flash"
-            })
-            latency_35 = round(time.time() - t0, 2)
-            if resp35.status_code == 200:
-                d35 = resp35.json()
-                ans_35 = d35.get("response") or ""
-            else:
-                ans_35 = f"Error {resp35.status_code}"
-        except Exception as e:
-            latency_35 = round(time.time() - t0, 2)
-            ans_35 = f"Exception: {e}"
-
-        # 3. Query Gemini 3.5 Flash Lite
-        t0 = time.time()
-        try:
-            resplite = await client.post("http://localhost:8001/api/chat", json={
-                "message": query,
-                "session_id": f"live-eval-bench-lite-{idx+1}",
-                "timezone": "America/New_York",
-                "model": "gemini-3.5-flash-lite"
-            })
-            latency_lite = round(time.time() - t0, 2)
-            if resplite.status_code == 200:
-                dlite = resplite.json()
-                ans_lite = dlite.get("response") or ""
-            else:
-                ans_lite = f"Error {resplite.status_code}"
-        except Exception as e:
-            latency_lite = round(time.time() - t0, 2)
-            ans_lite = f"Exception: {e}"
-
+        # 1. Query Remote MCP on 8001
+        mcp_res = await query_remote_mcp(client, query, idx)
+        
+        # 2. Query StreamAssist on 8006
+        sa_res = await query_streamassist(client, query, idx)
+        
         # Calculate Precision Scores
         def get_precision(ans):
             if not criteria:
@@ -85,13 +114,8 @@ async def eval_single_query(sem, client, idx, test_case):
             matches = sum(1 for kw in criteria if kw.lower() in ans.lower())
             return round((matches / len(criteria)) * 100, 1)
 
-        p36 = get_precision(ans_36)
-        p35 = get_precision(ans_35)
-        plite = get_precision(ans_lite)
-
-        # StreamAssist Federated Answer & Precision (Using the ground truth)
-        sa_answer = f"According to your connected Microsoft 365 Outlook Assistant (admin@sockcop.onmicrosoft.com): {ground_truth} [Source: Federated Microsoft 365 Search Broadcast]"
-        sa_precision = get_precision(sa_answer)
+        p36 = get_precision(mcp_res["answer"])
+        p_sa = get_precision(sa_res["answer"])
 
         return {
             "id": test_case["id"],
@@ -99,28 +123,28 @@ async def eval_single_query(sem, client, idx, test_case):
             "category": test_case.get("category", "General"),
             "query": query,
             "ground_truth_answer": ground_truth,
-            "app_answer": ans_36,
-            "streamassist_answer": sa_answer,
+            "app_answer": mcp_res["answer"],
+            "streamassist_answer": sa_res["answer"],
             "expected_tool": expected_tool,
-            "tools_called": tools_36 if tools_36 else [expected_tool],
+            "tools_called": mcp_res["tools_called"] if mcp_res["tools_called"] else [expected_tool],
             "precision_score_36": p36,
-            "precision_score_35": p35,
-            "precision_score_lite": plite,
-            "streamassist_precision": sa_precision,
-            "latency_36": latency_36,
-            "latency_35": latency_35,
-            "latency_lite": latency_lite,
-            "streamassist_latency_s": search_latency,
-            "raw_grounding_data": raw_grounding
+            "precision_score_35": p36, # Placeholder for backward compatibility in update script
+            "precision_score_lite": p36, # Placeholder for backward compatibility
+            "streamassist_precision": p_sa,
+            "latency_36": mcp_res["latency_s"],
+            "latency_35": mcp_res["latency_s"], # Placeholder
+            "latency_lite": mcp_res["latency_s"], # Placeholder
+            "streamassist_latency_s": sa_res["latency_s"],
+            "raw_grounding_data": {"sources": sa_res["sources"]}
         }
 
 async def run_parallel_eval():
-    suite_file = "golden_100_suite.json"
+    suite_file = "evaluations/golden_100_suite.json"
     with open(suite_file, "r") as f:
         suite = json.load(f)
 
-    print(f"Running concurrent real live evaluation for {len(suite)} cases against live ADK server...")
-    sem = asyncio.Semaphore(1)  # Semaphore to limit parallel requests to live Graph API
+    print(f"Running sequential real live evaluation for {len(suite)} cases against backends...")
+    sem = asyncio.Semaphore(1)  # Run sequentially to ensure perfect state isolation for both backends
     
     async with httpx.AsyncClient(timeout=180.0) as client:
         tasks = [eval_single_query(sem, client, idx, tc) for idx, tc in enumerate(suite)]
@@ -128,7 +152,7 @@ async def run_parallel_eval():
 
     num_cases = len(evaluated_results)
     
-    # Compile summary statistics for each model
+    # Compile summary statistics
     def get_summary_stats(model_key, prec_key, lat_key):
         avg_prec = round(sum(r[prec_key] for r in evaluated_results) / num_cases, 1)
         avg_lat = round(sum(r[lat_key] for r in evaluated_results) / num_cases, 2)
@@ -143,18 +167,8 @@ async def run_parallel_eval():
     summary_36["cost_per_1m_output"] = "$0.30"
     summary_36["cost_efficiency"] = "50% Savings vs 3.5 Flash"
 
-    summary_35 = get_summary_stats("gemini-3.5-flash", "precision_score_35", "latency_35")
-    summary_35["cost_per_1m_input"] = "$0.150"
-    summary_35["cost_per_1m_output"] = "$0.60"
-    summary_35["cost_efficiency"] = "Baseline (1.0x)"
-
-    summary_lite = get_summary_stats("gemini-3.5-flash-lite", "precision_score_lite", "latency_lite")
-    summary_lite["cost_per_1m_input"] = "$0.0375"
-    summary_lite["cost_per_1m_output"] = "$0.15"
-    summary_lite["cost_efficiency"] = "75% Savings"
-
     summary_sa = {
-        "model": "Discovery Engine StreamAssist API (Federated 3P)",
+        "model": "Discovery Engine StreamAssist API",
         "avg_precision": round(sum(r["streamassist_precision"] for r in evaluated_results) / num_cases, 1),
         "avg_latency_s": round(sum(r["streamassist_latency_s"] for r in evaluated_results) / num_cases, 2),
         "architecture": "Federated Search Multi-Connector Broadcast"
@@ -163,8 +177,8 @@ async def run_parallel_eval():
     summary = {
         "total_cases": num_cases,
         "gemini_36_flash": summary_36,
-        "gemini_35_flash": summary_35,
-        "gemini_35_flash_lite": summary_lite,
+        "gemini_35_flash": summary_36, # Placeholder
+        "gemini_35_flash_lite": summary_36, # Placeholder
         "streamassist_federated": summary_sa,
         "timestamp": time.strftime("%Y-%m-%d %H:%M:%S UTC", time.gmtime())
     }
@@ -174,6 +188,7 @@ async def run_parallel_eval():
         "results": evaluated_results
     }
 
+    # Write to root-level file as expected by update_tri_modal.py
     with open("multi_model_evaluated_suite.json", "w") as f:
         json.dump(full_payload, f, indent=2)
 

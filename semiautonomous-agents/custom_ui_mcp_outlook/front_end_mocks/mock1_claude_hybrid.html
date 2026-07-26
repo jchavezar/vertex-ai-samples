@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Mock 1: Claude Desktop Pro (StitchMCP Sentient Shell)</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "secondary-fixed-dim": "#bdc2ff",
+                        "on-primary": "#1d00a5",
+                        "inverse-surface": "#e4e1ee",
+                        "surface-tint": "#c3c0ff",
+                        "surface": "#13121b",
+                        "surface-container-low": "#1b1b24",
+                        "on-tertiary": "#571f00",
+                        "background": "#13121b",
+                        "tertiary-container": "#a44100",
+                        "outline-variant": "#464555",
+                        "on-secondary-fixed": "#000767",
+                        "primary-fixed-dim": "#c3c0ff",
+                        "surface-container-highest": "#35343e",
+                        "surface-container": "#1f1f28",
+                        "on-secondary": "#131e8c",
+                        "surface-container-high": "#2a2933",
+                        "primary": "#c3c0ff",
+                        "surface-variant": "#35343e",
+                        "error-container": "#93000a",
+                        "on-surface-variant": "#c7c4d8",
+                        "inverse-primary": "#4d44e3",
+                        "secondary": "#bdc2ff",
+                        "primary-container": "#4f46e5",
+                        "tertiary-fixed": "#ffdbcc",
+                        "on-primary-fixed": "#0f0069",
+                        "primary-fixed": "#e2dfff",
+                        "on-tertiary-container": "#ffd2be",
+                        "on-error-container": "#ffdad6",
+                        "tertiary": "#ffb695",
+                        "on-tertiary-fixed": "#351000",
+                        "secondary-fixed": "#e0e0ff",
+                        "on-secondary-container": "#a8afff",
+                        "on-error": "#690005",
+                        "surface-bright": "#393842",
+                        "surface-container-lowest": "#0e0d16",
+                        "on-primary-container": "#dad7ff",
+                        "surface-dim": "#13121b",
+                        "inverse-on-surface": "#302f39",
+                        "on-primary-fixed-variant": "#3323cc",
+                        "secondary-container": "#2f3aa3",
+                        "on-secondary-fixed-variant": "#2f3aa3",
+                        "error": "#ffb4ab",
+                        "on-surface": "#e4e1ee",
+                        "on-tertiary-fixed-variant": "#7b2f00",
+                        "outline": "#918fa1",
+                        "tertiary-fixed-dim": "#ffb695",
+                        "on-background": "#e4e1ee"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "margin-desktop": "24px",
+                        "panel-split": "1px",
+                        "gutter": "16px",
+                        "container-max": "1440px",
+                        "base": "4px"
+                    },
+                    "fontFamily": {
+                        "body-sm": ["Inter"],
+                        "body-base": ["Inter"],
+                        "label-caps": ["Inter"],
+                        "display-lg": ["Inter"],
+                        "code-block": ["JetBrains Mono"],
+                        "title-sm": ["Inter"],
+                        "headline-md": ["Inter"]
+                    },
+                    "fontSize": {
+                        "body-sm": ["13px", { "lineHeight": "1.5", "fontWeight": "400" }],
+                        "body-base": ["15px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "label-caps": ["11px", { "lineHeight": "1", "letterSpacing": "0.05em", "fontWeight": "700" }],
+                        "display-lg": ["32px", { "lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "600" }],
+                        "code-block": ["14px", { "lineHeight": "1.7", "fontWeight": "400" }],
+                        "title-sm": ["18px", { "lineHeight": "1.4", "fontWeight": "500" }],
+                        "headline-md": ["24px", { "lineHeight": "1.3", "letterSpacing": "-0.01em", "fontWeight": "600" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body { background-color: #07090E; color: theme('colors.on-background'); }
+        .pane-divider { width: 1px; background-color: #1E222C; }
+        .pane-divider:hover { background-color: #4F46E5; cursor: col-resize; }
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
+        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="h-screen w-full overflow-hidden flex flex-col font-body-base text-body-base bg-background">
+<!-- TopNavBar -->
+<header class="bg-surface dark:bg-surface h-14 w-full border-b border-outline-variant dark:border-outline-variant flex items-center justify-between px-gutter sticky top-0 z-50 flex-shrink-0">
+<div class="flex items-center gap-4">
+<span class="font-headline-md text-headline-md font-black text-on-surface dark:text-on-surface">Claude Desktop Pro</span>
+<nav class="hidden md:flex gap-6 ml-8">
+<a class="font-title-sm text-title-sm text-on-surface-variant dark:text-on-surface-variant hover:text-primary dark:hover:text-primary transition-opacity duration-200 ease-in-out" href="#">Models</a>
+<a class="font-title-sm text-title-sm text-on-surface-variant dark:text-on-surface-variant hover:text-primary dark:hover:text-primary transition-opacity duration-200 ease-in-out" href="#">Datasets</a>
+<a class="font-title-sm text-title-sm text-primary dark:text-primary border-b-2 border-primary duration-200 ease-in-out h-14 flex items-center" href="#">Artifacts</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<div class="relative hidden lg:block">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-[18px]">search</span>
+<input class="bg-[#07090E] border border-[#1E222C] rounded text-on-surface pl-10 pr-4 py-1.5 font-body-sm text-body-sm focus:outline-none focus:border-primary-container focus:ring-1 focus:ring-primary-container w-64 transition-colors" placeholder="Search..." type="text"/>
+</div>
+<button class="font-title-sm text-title-sm border border-[#1E222C] text-on-surface hover:bg-surface-container-high px-4 py-1.5 rounded transition-colors duration-200 ease-in-out">Share</button>
+<button class="font-title-sm text-title-sm bg-primary-container text-on-primary-container px-4 py-1.5 rounded hover:bg-primary-container/90 transition-colors duration-200 ease-in-out">Deploy</button>
+</div>
+</header>
+<!-- Main Workspace -->
+<div class="flex flex-1 overflow-hidden">
+<!-- Left Sidebar (SideNavBar) -->
+<aside class="bg-surface dark:bg-surface h-full w-[280px] flex-shrink-0 border-r border-outline-variant dark:border-outline-variant flex flex-col py-margin-desktop overflow-y-auto z-10">
+<div class="px-6 mb-6">
+<button class="w-full bg-primary-container text-on-primary-container font-title-sm text-title-sm py-2 rounded hover:bg-primary-container/90 transition-colors flex items-center justify-center gap-2 cursor-pointer active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-[18px]">add</span>
+                    New Session
+                </button>
+</div>
+<!-- Navigation Tabs -->
+<nav class="flex-1 flex flex-col gap-1 px-3">
+<div class="font-label-caps text-label-caps text-on-surface-variant uppercase px-3 py-2 mt-2 mb-1">Navigation</div>
+<a class="flex items-center gap-3 px-3 py-2 rounded font-body-sm text-body-sm text-primary dark:text-primary border-l-2 border-primary bg-primary-container/10 hover:bg-surface-container-high dark:hover:bg-surface-container-high transition-colors cursor-pointer active:scale-95 transition-transform" href="#">
+<span class="material-symbols-outlined text-[18px]">dns</span>
+                    MCP Servers
+                </a>
+<a class="flex items-center gap-3 px-3 py-2 rounded font-body-sm text-body-sm text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-high dark:hover:bg-surface-container-high transition-colors cursor-pointer active:scale-95 transition-transform border-l-2 border-transparent" href="#">
+<span class="material-symbols-outlined text-[18px]">chat_bubble</span>
+                    Chat History
+                </a>
+<!-- Connected Servers -->
+<div class="font-label-caps text-label-caps text-on-surface-variant uppercase px-3 pt-6 pb-2">Connected Servers</div>
+<div class="flex flex-col gap-2 px-3">
+<!-- Outlook -->
+<div class="flex items-center justify-between py-2 group">
+<div class="flex items-center gap-3">
+<span class="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]"></span>
+<span class="font-body-sm text-body-sm text-on-surface">Outlook</span>
+</div>
+<div class="relative inline-block w-8 h-4 cursor-pointer rounded-full bg-[#0F1219] border border-[#1E222C]">
+<div class="absolute w-3 h-3 bg-[#4F46E5] rounded-full top-0.5 right-0.5 transition-transform"></div>
+</div>
+</div>
+<!-- Jira -->
+<div class="flex items-center justify-between py-2 group">
+<div class="flex items-center gap-3">
+<span class="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]"></span>
+<span class="font-body-sm text-body-sm text-on-surface">Jira</span>
+</div>
+<div class="relative inline-block w-8 h-4 cursor-pointer rounded-full bg-[#0F1219] border border-[#1E222C]">
+<div class="absolute w-3 h-3 bg-[#4F46E5] rounded-full top-0.5 right-0.5 transition-transform"></div>
+</div>
+</div>
+<!-- Google Workspace -->
+<div class="flex items-center justify-between py-2 group">
+<div class="flex items-center gap-3">
+<span class="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]"></span>
+<span class="font-body-sm text-body-sm text-on-surface">Workspace</span>
+</div>
+<div class="relative inline-block w-8 h-4 cursor-pointer rounded-full bg-[#0F1219] border border-[#1E222C]">
+<div class="absolute w-3 h-3 bg-[#4F46E5] rounded-full top-0.5 right-0.5 transition-transform"></div>
+</div>
+</div>
+</div>
+</nav>
+</aside>
+<!-- Divider -->
+<div class="pane-divider"></div>
+<!-- Center Main Chat -->
+<main class="flex-1 flex flex-col bg-[#07090E] relative">
+<!-- Message Feed -->
+<div class="flex-1 overflow-y-auto px-margin-desktop py-8 flex flex-col gap-8 scrollbar-hide">
+<!-- User Message -->
+<div class="flex gap-4 max-w-4xl mx-auto w-full">
+<div class="w-8 h-8 rounded-full bg-surface-container border border-outline-variant flex-shrink-0 flex items-center justify-center">
+<span class="material-symbols-outlined text-on-surface text-[16px]">person</span>
+</div>
+<div class="flex-1 bg-surface-container-low rounded-lg p-4 border border-[#1E222C] text-on-surface font-body-base text-body-base leading-relaxed">
+                        Draft an email to the engineering team summarizing the recent Jira ticket resolutions for the Q3 release, and prepare the JSON payload to update the epic status.
+                    </div>
+</div>
+<!-- Claude Thinking -->
+<div class="flex gap-4 max-w-4xl mx-auto w-full">
+<div class="w-8 h-8 rounded-full bg-primary-container/20 border border-primary-container flex-shrink-0 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary-container text-[16px]">auto_awesome</span>
+</div>
+<div class="flex-1 flex flex-col gap-3">
+<div class="font-body-sm text-body-sm text-primary animate-pulse flex items-center gap-2">
+                            Claude is thinking...
+                        </div>
+<div class="h-24 w-full max-w-md rounded-lg border border-[#1E222C] bg-[#0F1219] overflow-hidden relative flex items-center justify-center">
+<div class="w-full h-full opacity-70" style="display:block;">
+<canvas id="shader-canvas-ANIMATION_1" style="display:block;width:100%;height:100%"></canvas>
+<script>
+(function() {
+  const canvas = document.getElementById('shader-canvas-ANIMATION_1');
+  function syncSize() {
+    const w = canvas.clientWidth  || 1280;
+    const h = canvas.clientHeight || 720;
+    if (canvas.width !== w || canvas.height !== h) {
+      canvas.width  = w;
+      canvas.height = h;
+    }
+  }
+  if (typeof ResizeObserver !== 'undefined') {
+    new ResizeObserver(syncSize).observe(canvas);
+  }
+  syncSize();
+  const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+  if (!gl) return;
+  const vs = `attribute vec2 a_position;
+varying vec2 v_texCoord;
+void main() {
+  v_texCoord = a_position * 0.5 + 0.5;
+  gl_Position = vec4(a_position, 0.0, 1.0);
+}`;
+  const fs = `precision highp float;
+varying vec2 v_texCoord;
+uniform float u_time;
+uniform vec2 u_resolution;
+
+float noise(vec2 p) {
+    return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453);
+}
+
+void main() {
+    vec2 uv = v_texCoord;
+    vec2 center = vec2(0.5, 0.5);
+    float d = distance(uv, center);
+    float angle = atan(uv.y - center.y, uv.x - center.x);
+    d += 0.05 * sin(10.0 * d - u_time * 2.0);
+    d += 0.02 * sin(20.0 * angle + u_time);
+    float ink = smoothstep(0.15, 0.12, d);
+    float glow = smoothstep(0.2, 0.0, d) * 0.5;
+    vec3 colorA = vec3(0.31, 0.27, 0.90);
+    vec3 colorB = vec3(0.54, 0.35, 1.0);
+    vec3 finalColor = mix(colorA, colorB, sin(u_time) * 0.5 + 0.5);
+    finalColor *= (ink + glow);
+    finalColor += noise(uv + u_time) * 0.03;
+    gl_FragColor = vec4(finalColor, finalColor.r > 0.01 ? 1.0 : 0.0);
+}`;
+  function cs(type, src) {
+    const s = gl.createShader(type);
+    gl.shaderSource(s, src);
+    gl.compileShader(s);
+    return s;
+  }
+  const prog = gl.createProgram();
+  gl.attachShader(prog, cs(gl.VERTEX_SHADER, vs));
+  gl.attachShader(prog, cs(gl.FRAGMENT_SHADER, fs));
+  gl.linkProgram(prog);
+  gl.useProgram(prog);
+  const buf = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, 1,1]), gl.STATIC_DRAW);
+  const pos = gl.getAttribLocation(prog, 'a_position');
+  gl.enableVertexAttribArray(pos);
+  gl.vertexAttribPointer(pos, 2, gl.FLOAT, false, 0, 0);
+  const uTime = gl.getUniformLocation(prog, 'u_time');
+  function render(t) {
+    if (typeof ResizeObserver === 'undefined') syncSize();
+    gl.viewport(0, 0, canvas.width, canvas.height);
+    if (uTime) gl.uniform1f(uTime, t * 0.001);
+    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+    requestAnimationFrame(render);
+  }
+  render(0);
+})();
+</script>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Prompt Bar -->
+<div class="p-margin-desktop pb-8 max-w-4xl mx-auto w-full relative">
+<div class="relative flex items-center">
+<input class="w-full bg-[#0F1219] border border-[#1E222C] rounded-full pl-6 pr-16 py-4 font-body-base text-body-base text-on-surface focus:outline-none focus:border-primary-container focus:ring-1 focus:ring-primary-container transition-all shadow-lg" placeholder="Message Claude or type '/' for commands..." type="text" value="/"/>
+<button class="absolute right-2 bg-primary-container text-on-primary-container w-10 h-10 rounded-full flex items-center justify-center hover:bg-primary-container/90 transition-colors cursor-pointer">
+<span class="material-symbols-outlined text-[20px]">arrow_upward</span>
+</button>
+</div>
+</div>
+</main>
+<!-- Divider -->
+<div class="pane-divider"></div>
+<!-- Right Sidebar (Artifact Canvas) -->
+<aside class="bg-surface dark:bg-surface h-full w-[320px] flex-shrink-0 flex flex-col overflow-hidden border-l border-outline-variant">
+<div class="h-12 border-b border-[#1E222C] flex items-center justify-between px-4 bg-[#0F1219]">
+<span class="font-title-sm text-title-sm font-medium text-on-surface flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px] text-primary">space_dashboard</span>
+                    Artifact Canvas
+                </span>
+</div>
+<div class="flex-1 flex flex-col overflow-hidden">
+<!-- Top Split: Email Draft -->
+<div class="flex-1 border-b border-[#1E222C] flex flex-col relative group overflow-hidden">
+<div class="px-4 py-2 bg-[#13121b] border-b border-[#1E222C] flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px] text-blue-400">mail</span>
+<span class="font-label-caps text-label-caps text-on-surface-variant">Outlook Draft</span>
+<span class="ml-auto px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 font-label-caps text-[9px] border border-emerald-500/20">Ready</span>
+</div>
+<div class="p-4 flex-1 overflow-y-auto scrollbar-hide bg-[#0F1219] font-body-sm text-body-sm text-on-surface">
+<div class="mb-4 pb-2 border-b border-[#1E222C]">
+<div class="grid grid-cols-[40px_1fr] gap-2 mb-1">
+<span class="text-on-surface-variant">To:</span>
+<span>eng-team@company.com</span>
+</div>
+<div class="grid grid-cols-[40px_1fr] gap-2">
+<span class="text-on-surface-variant">Subj:</span>
+<span class="font-medium text-white">Q3 Release: Jira Resolutions Summary</span>
+</div>
+</div>
+<div class="leading-relaxed text-on-surface-variant">
+                            Team,<br/><br/>
+                            Here is the summary of critical Jira tickets resolved for the Q3 release:<br/>
+                            - PROJ-842: Auth token timeout fix<br/>
+                            - PROJ-891: Database migration scripts<br/>
+                            - PROJ-905: UI render loop optimization<br/><br/>
+                            Best,<br/>AI Assistant
+                        </div>
+</div>
+</div>
+<!-- Bottom Split: JSON Payload -->
+<div class="flex-1 flex flex-col relative group overflow-hidden">
+<div class="px-4 py-2 bg-[#13121b] border-b border-[#1E222C] flex items-center gap-2 border-t border-primary/30">
+<span class="material-symbols-outlined text-[16px] text-emerald-400">data_object</span>
+<span class="font-label-caps text-label-caps text-on-surface-variant">Jira Payload</span>
+</div>
+<div class="p-4 flex-1 overflow-y-auto scrollbar-hide bg-[#0F1219] font-code-block text-code-block text-on-surface-variant">
+<pre class="text-[12px] leading-relaxed"><code>{
+  "update": {
+    "comment": [
+      {
+        "add": {
+          "body": "Q3 Release finalized. All blocker issues resolved."
+        }
+      }
+    ]
+  },
+  "transition": {
+    "id": "31"
+  }
+}</code></pre>
+</div>
+</div>
+</div>
+</aside>
+</div>
+</body></html>

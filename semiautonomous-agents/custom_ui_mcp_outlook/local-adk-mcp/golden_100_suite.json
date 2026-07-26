@@ -1,0 +1,1410 @@
+[
+  {
+    "id": "Q001",
+    "generator_model": "Gemini-3-Flash-Preview",
+    "category": "Drafts & Sent Folder Audit",
+    "complexity": "Basic",
+    "query": "Do I currently have any messages saved in my drafts folder?",
+    "expected_tool": "tool_search_emails",
+    "ground_truth_answer": "Based on the provided records, there are no messages currently in your drafts folder.",
+    "truth_criteria": [
+      "no messages",
+      "drafts"
+    ]
+  },
+  {
+    "id": "Q002",
+    "generator_model": "Gemini-3-Flash-Preview",
+    "category": "Drafts & Sent Folder Audit",
+    "complexity": "Medium",
+    "query": "I sent an email regarding \"Q4 Resource Allocation\" recently. Can you check my sent items to see if it shows as successfully sent?",
+    "expected_tool": "tool_search_emails",
+    "ground_truth_answer": "The sent folder does not contain a record of this email; however, you received a delivery failure notification yesterday, Wednesday, July 22, 2026, indicating the message to sarah.jenkins@sockcop.onmicrosoft.com was undeliverable.",
+    "truth_criteria": [
+      "July 22",
+      "undeliverable",
+      "sarah.jenkins"
+    ]
+  },
+  {
+    "id": "Q003",
+    "generator_model": "Gemini-3-Flash-Preview",
+    "category": "Drafts & Sent Folder Audit",
+    "complexity": "Complex",
+    "query": "Cross-reference my inbox and sent activity from yesterday. Did the email I tried to send to Sarah Jenkins about resource allocation actually get delivered?",
+    "expected_tool": "tool_search_emails",
+    "ground_truth_answer": "No, it was not delivered. You received an \"Undeliverable: Q4 Resource Allocation\" message on July 22, 2026, stating that sarah.jenkins@sockcop.onmicrosoft.com was not found. The error code was 550 5.1.10.",
+    "truth_criteria": [
+      "not delivered",
+      "550 5.1.10",
+      "not found"
+    ]
+  },
+  {
+    "id": "Q004",
+    "generator_model": "Gemini-3-Flash-Preview",
+    "category": "Inbox & Email Intelligence",
+    "complexity": "Basic",
+    "query": "What is the subject of the most recent email I received?",
+    "expected_tool": "tool_search_emails",
+    "ground_truth_answer": "The most recent email you received is titled \"Undeliverable: Q4 Resource Allocation,\" which arrived on July 22, 2026, at 12:48 PM.",
+    "truth_criteria": [
+      "Undeliverable: Q4 Resource Allocation",
+      "July 22"
+    ]
+  },
+  {
+    "id": "Q005",
+    "generator_model": "Gemini-3-Flash-Preview",
+    "category": "Inbox & Email Intelligence",
+    "complexity": "Medium",
+    "query": "Find the email about passkeys and tell me the deadline for when Microsoft-provided SMS authentication will be retired.",
+    "expected_tool": "tool_get_email_details",
+    "ground_truth_answer": "The email titled \"Passkeys by default and retirement of Microsoft-provided SMS and voice authentication\" states that Microsoft-provided SMS and voice authentication will retire on February 1, 2027.",
+    "truth_criteria": [
+      "February 1, 2027",
+      "SMS"
+    ]
+  },
+  {
+    "id": "Q006",
+    "generator_model": "Gemini-3-Flash-Preview",
+    "category": "Inbox & Email Intelligence",
+    "complexity": "Complex",
+    "query": "Analyze the bounce-back email from yesterday. What specific reason and error code did the server provide for the delivery failure to Sarah Jenkins?",
+    "expected_tool": "tool_get_email_details",
+    "ground_truth_answer": "The server reported error code \"550 5.1.10\" with the detail \"RESOLVER.ADR.RecipientNotFound; Recipient sarah.jenkins@sockcop.onmicrosoft.com not found by SMTP address lookup.\"",
+    "truth_criteria": [
+      "550 5.1.10",
+      "RecipientNotFound",
+      "sarah.jenkins"
+    ]
+  },
+  {
+    "id": "Q007",
+    "generator_model": "Gemini-3-Flash-Preview",
+    "category": "Calendar & Meeting Operations",
+    "complexity": "Basic",
+    "query": "Do I have any meetings scheduled for tomorrow, Friday, July 24, 2026?",
+    "expected_tool": "tool_list_meetings",
+    "ground_truth_answer": "According to your calendar, you have no meetings scheduled for tomorrow, Friday, July 24, 2026.",
+    "truth_criteria": [
+      "no meetings",
+      "July 24"
+    ]
+  },
+  {
+    "id": "Q008",
+    "generator_model": "Gemini-3-Flash-Preview",
+    "category": "Calendar & Meeting Operations",
+    "complexity": "Medium",
+    "query": "Check my schedule for the remainder of today, Thursday, July 23, 2026, and let me know if there are any conflicts.",
+    "expected_tool": "tool_list_meetings",
+    "ground_truth_answer": "There are no meetings or events on your calendar for today, July 23, 2026, so you have no scheduling conflicts.",
+    "truth_criteria": [
+      "no meetings",
+      "July 23"
+    ]
+  },
+  {
+    "id": "Q009",
+    "generator_model": "Gemini-3-Flash-Preview",
+    "category": "Calendar & Meeting Operations",
+    "complexity": "Complex",
+    "query": "I need to discuss the \"Q4 Resource Allocation\" failure. Are there any open slots on my calendar next Wednesday morning for a 30-minute meeting?",
+    "expected_tool": "tool_list_meetings",
+    "ground_truth_answer": "Next Wednesday, July 29, 2026, is currently completely open, so you can schedule a 30-minute meeting at any time that morning.",
+    "truth_criteria": [
+      "July 29",
+      "open"
+    ]
+  },
+  {
+    "id": "Q010",
+    "generator_model": "Gemini-3-Flash-Preview",
+    "category": "Temporal Math & Relative Dates",
+    "complexity": "Basic",
+    "query": "How many emails have I received so far today, Thursday, July 23?",
+    "expected_tool": "tool_search_emails",
+    "ground_truth_answer": "You have not received any emails today, Thursday, July 23, 2026.",
+    "truth_criteria": [
+      "not received any",
+      "July 23"
+    ]
+  },
+  {
+    "id": "Q011",
+    "generator_model": "Gemini-3-Flash-Preview",
+    "category": "Temporal Math & Relative Dates",
+    "complexity": "Medium",
+    "query": "Show me the subjects of all emails received exactly 24 hours ago relative to yesterday's delivery failure.",
+    "expected_tool": "tool_search_emails",
+    "ground_truth_answer": "The delivery failure occurred on July 22, 2026. On that same day, you received: \"Undeliverable: Q4 Resource Allocation\" and \"Passkeys by default and retirement of Microsoft-provided SMS and voice authentication.\"",
+    "truth_criteria": [
+      "July 22",
+      "Passkeys",
+      "Undeliverable"
+    ]
+  },
+  {
+    "id": "Q012",
+    "generator_model": "Gemini-3-Flash-Preview",
+    "category": "Temporal Math & Relative Dates",
+    "complexity": "Complex",
+    "query": "Looking back over the last 48 hours, what is the total number of notifications I've received regarding security or delivery status?",
+    "expected_tool": "tool_search_emails",
+    "ground_truth_answer": "In the last 48 hours (since July 21, 2026), you received 2 notifications: one security notification about Passkeys and one delivery status notification regarding the undeliverable email to Sarah Jenkins.",
+    "truth_criteria": [
+      "2 notifications",
+      "July 21"
+    ]
+  },
+  {
+    "id": "Q013",
+    "generator_model": "Gemini-3-Flash-Preview",
+    "category": "Executive Synthesis & Actions",
+    "complexity": "Basic",
+    "query": "Draft a short reply to the Microsoft Entra security email acknowledging the passkey update.",
+    "expected_tool": "tool_reply_email",
+    "ground_truth_answer": "I have drafted a reply to the email \"Passkeys by default and retirement of Microsoft-provided SMS and voice authentication\" acknowledging the update.",
+    "truth_criteria": [
+      "Passkeys",
+      "reply"
+    ]
+  },
+  {
+    "id": "Q014",
+    "generator_model": "Gemini-3-Flash-Preview",
+    "category": "Executive Synthesis & Actions",
+    "complexity": "Medium",
+    "query": "Since my email to Sarah Jenkins failed yesterday, create a new 15-minute meeting for tomorrow at 9:00 AM to 'Verify Sarah Jenkins Contact Info'.",
+    "expected_tool": "tool_create_meeting",
+    "ground_truth_answer": "I have created a 15-minute meeting for you on Friday, July 24, 2026, at 9:00 AM titled \"Verify Sarah Jenkins Contact Info\".",
+    "truth_criteria": [
+      "July 24",
+      "9:00 AM",
+      "Verify Sarah Jenkins"
+    ]
+  },
+  {
+    "id": "Q015",
+    "generator_model": "Gemini-3-Flash-Preview",
+    "category": "Executive Synthesis & Actions",
+    "complexity": "Complex",
+    "query": "Provide a summary briefing of my inbox activity from Wednesday, July 22, 2026, and suggest the next logical step regarding the failed resource allocation message.",
+    "expected_tool": "tool_search_emails",
+    "ground_truth_answer": "On July 22, you received two emails: a security update regarding the retirement of SMS auth by Feb 2027 and a bounce-back for your \"Q4 Resource Allocation\" email to sarah.jenkins@sockcop.onmicrosoft.com. The next logical step is to verify Sarah's email address and re-send the allocation message, as the server reported the recipient was not found.",
+    "truth_criteria": [
+      "July 22",
+      "Feb 2027",
+      "verify Sarah's email"
+    ]
+  },
+  {
+    "id": "Q016",
+    "generator_model": "Gemini-3-Flash-Preview",
+    "category": "Inbox & Email Intelligence",
+    "complexity": "Basic",
+    "query": "Do I have any unread emails about security updates?",
+    "expected_tool": "tool_search_emails",
+    "ground_truth_answer": "Yes, you have one unread email titled \"Passkeys by default and retirement of Microsoft-provided SMS and voice authentication\" received on July 22, 2026.",
+    "truth_criteria": [
+      "unread",
+      "Passkeys",
+      "July 22"
+    ]
+  },
+  {
+    "id": "Q017",
+    "generator_model": "Gemini-3-Flash-Preview",
+    "category": "Drafts & Sent Folder Audit",
+    "complexity": "Basic",
+    "query": "What is the display name associated with my user profile?",
+    "expected_tool": "tool_get_user_profile",
+    "ground_truth_answer": "The display name on your profile is Jesus Chavez.",
+    "truth_criteria": [
+      "Jesus Chavez"
+    ]
+  },
+  {
+    "id": "Q018",
+    "generator_model": "Gemini-3-Flash-Preview",
+    "category": "Temporal Math & Relative Dates",
+    "complexity": "Basic",
+    "query": "On what day of the week did I receive the notification about \"Passkeys by default\"?",
+    "expected_tool": "tool_search_emails",
+    "ground_truth_answer": "You received that email on Wednesday, July 22, 2026.",
+    "truth_criteria": [
+      "Wednesday",
+      "July 22"
+    ]
+  },
+  {
+    "id": "Q019",
+    "generator_model": "Gemini-3-Flash-Preview",
+    "category": "Executive Synthesis & Actions",
+    "complexity": "Medium",
+    "query": "Send an email to admin@sockcop.onmicrosoft.com with the subject \"Update Received\" and the body \"I have noted the SMS retirement date.\"",
+    "expected_tool": "tool_send_email",
+    "ground_truth_answer": "I have sent the email to admin@sockcop.onmicrosoft.com with the specified subject and body.",
+    "truth_criteria": [
+      "Update Received",
+      "SMS retirement"
+    ]
+  },
+  {
+    "id": "Q020",
+    "generator_model": "Gemini-3-Flash-Preview",
+    "category": "Calendar & Meeting Operations",
+    "complexity": "Basic",
+    "query": "What is my registered business phone number in the system?",
+    "expected_tool": "tool_get_user_profile",
+    "ground_truth_answer": "Your registered business phone number is 6464794808.",
+    "truth_criteria": [
+      "6464794808"
+    ]
+  },
+  {
+    "id": "Q021",
+    "generator_model": "Gemini-3-Flash-Preview",
+    "category": "Inbox & Email Intelligence",
+    "complexity": "Medium",
+    "query": "Search for any emails that mention the word \"phishing\".",
+    "expected_tool": "tool_search_emails",
+    "ground_truth_answer": "The email titled \"Passkeys by default and retirement of Microsoft-provided SMS and voice authentication\" mentions moving to \"phishing-resistant authentication.\"",
+    "truth_criteria": [
+      "phishing-resistant",
+      "Passkeys"
+    ]
+  },
+  {
+    "id": "Q022",
+    "generator_model": "Gemini-3-Flash-Preview",
+    "category": "Drafts & Sent Folder Audit",
+    "complexity": "Medium",
+    "query": "Check the importance level of the delivery failure notification I received yesterday.",
+    "expected_tool": "tool_get_email_details",
+    "ground_truth_answer": "The importance level for the \"Undeliverable: Q4 Resource Allocation\" email is set to \"normal\".",
+    "truth_criteria": [
+      "normal",
+      "Undeliverable"
+    ]
+  },
+  {
+    "id": "Q023",
+    "generator_model": "Gemini-3-Flash-Preview",
+    "category": "Temporal Math & Relative Dates",
+    "complexity": "Medium",
+    "query": "How many full calendar months are left between today, July 23, 2026, and the SMS retirement date in February 2027?",
+    "expected_tool": "tool_get_email_details",
+    "ground_truth_answer": "There are 6 full calendar months (August, September, October, November, December, and January) between today and the retirement date of February 1, 2027.",
+    "truth_criteria": [
+      "6",
+      "February 1, 2027"
+    ]
+  },
+  {
+    "id": "Q024",
+    "generator_model": "Gemini-3-Flash-Preview",
+    "category": "Calendar & Meeting Operations",
+    "complexity": "Medium",
+    "query": "Check if I have any free time to schedule a 1-hour focus block tomorrow afternoon.",
+    "expected_tool": "tool_list_meetings",
+    "ground_truth_answer": "Since you have no meetings scheduled for tomorrow, Friday, July 24, 2026, your entire afternoon is free for a focus block.",
+    "truth_criteria": [
+      "no meetings",
+      "July 24"
+    ]
+  },
+  {
+    "id": "Q025",
+    "generator_model": "Gemini-3-Flash-Preview",
+    "category": "Executive Synthesis & Actions",
+    "complexity": "Complex",
+    "query": "Synthesize the technical details from the delivery failure I received yesterday. What was the exact time of the original message and which SMTP server rejected it?",
+    "expected_tool": "tool_get_email_details",
+    "ground_truth_answer": "The original message was created on 7/22/2026 at 12:48:39 PM UTC. It was rejected by the server DS7PR03MB5541.namprd03.prod.outlook.com.",
+    "truth_criteria": [
+      "12:48:39 PM",
+      "DS7PR03MB5541",
+      "July 22"
+    ]
+  },
+  {
+    "id": "Q026",
+    "generator_model": "Gemini-3-Flash-Preview",
+    "category": "Drafts & Sent Folder Audit",
+    "complexity": "Basic",
+    "query": "Check if there are any recorded sent messages from Jesus Chavez on Wednesday, July 22, 2026.",
+    "expected_tool": "tool_search_emails",
+    "ground_truth_answer": "Yes, there is a record of an email sent by Jesus Chavez on July 22, 2026, at 12:48:39 PM UTC with the subject \"Q4 Resource Allocation\" to recipient sarah.jenkins@sockcop.onmicrosoft.com, as evidenced by the non-delivery report in the inbox.",
+    "truth_criteria": [
+      "July 22, 2026",
+      "Q4 Resource Allocation",
+      "sarah.jenkins@sockcop.onmicrosoft.com"
+    ]
+  },
+  {
+    "id": "Q027",
+    "generator_model": "Gemini-3-Flash-Preview",
+    "category": "Drafts & Sent Folder Audit",
+    "complexity": "Medium",
+    "query": "Find the message ID of the original email Jesus sent yesterday that resulted in a delivery failure.",
+    "expected_tool": "tool_get_email_details",
+    "ground_truth_answer": "The original message ID for the failed email sent on Wednesday, July 22, 2026, is <BN7PR03MB440336D38639CCFF8CE8B2EFE9C12@BN7PR03MB4403.namprd03.prod.outlook.com>.",
+    "truth_criteria": [
+      "BN7PR03MB440336D38639CCFF8CE8B2EFE9C12",
+      "July 22, 2026"
+    ]
+  },
+  {
+    "id": "Q028",
+    "generator_model": "Gemini-3-Flash-Preview",
+    "category": "Drafts & Sent Folder Audit",
+    "complexity": "Complex",
+    "query": "Audit the sent communication to sarah.jenkins@sockcop.onmicrosoft.com from yesterday. Was the message successfully relayed through the internal servers?",
+    "expected_tool": "tool_get_email_details",
+    "ground_truth_answer": "No, the message was not successfully delivered. While it was successfully relayed between internal hops (from BN7PR03MB4403 to DS7PR03MB5541) on Wednesday, July 22, 2026, it was ultimately rejected with error '550 5.1.10 RESOLVER.ADR.RecipientNotFound' because the recipient was not found.",
+    "truth_criteria": [
+      "July 22, 2026",
+      "550 5.1.10",
+      "RecipientNotFound"
+    ]
+  },
+  {
+    "id": "Q029",
+    "generator_model": "Gemini-3-Flash-Preview",
+    "category": "Inbox & Email Intelligence",
+    "complexity": "Basic",
+    "query": "What is the subject of the most recent email received in Jesus Chavez's inbox as of today, Thursday, July 23, 2026?",
+    "expected_tool": "tool_search_emails",
+    "ground_truth_answer": "The most recent email is \"Undeliverable: Q4 Resource Allocation\", which was received at 12:48:45 PM on Wednesday, July 22, 2026.",
+    "truth_criteria": [
+      "Undeliverable: Q4 Resource Allocation",
+      "July 22, 2026"
+    ]
+  },
+  {
+    "id": "Q030",
+    "generator_model": "Gemini-3-Flash-Preview",
+    "category": "Inbox & Email Intelligence",
+    "complexity": "Medium",
+    "query": "Search for any unread emails regarding Microsoft Entra ID or authentication changes.",
+    "expected_tool": "tool_search_emails",
+    "ground_truth_answer": "There is one unread email with the subject \"Passkeys by default and retirement of Microsoft-provided SMS and voice authentication\" received on Wednesday, July 22, 2026.",
+    "truth_criteria": [
+      "Passkeys by default",
+      "July 22, 2026",
+      "unread"
+    ]
+  },
+  {
+    "id": "Q031",
+    "generator_model": "Gemini-3-Flash-Preview",
+    "category": "Inbox & Email Intelligence",
+    "complexity": "Complex",
+    "query": "Based on the delivery failure notification received yesterday, what are the three specific suggestions provided to fix the issue with Sarah Jenkins' email address?",
+    "expected_tool": "tool_get_email_details",
+    "ground_truth_answer": "The suggestions are: 1. Send the message again by retyping the entire address (not using Auto-Complete), 2. Contact the recipient by phone to verify the address, and 3. Check if the recipient has incorrect email forwarding or a missing Office 365 license.",
+    "truth_criteria": [
+      "Auto-Complete",
+      "phone",
+      "forwarding"
+    ]
+  },
+  {
+    "id": "Q032",
+    "generator_model": "Gemini-3-Flash-Preview",
+    "category": "Calendar & Meeting Operations",
+    "complexity": "Basic",
+    "query": "Show my schedule for today, Thursday, July 23, 2026.",
+    "expected_tool": "tool_list_meetings",
+    "ground_truth_answer": "There are no calendar events or meetings scheduled for today, Thursday, July 23, 2026, in the provided data.",
+    "truth_criteria": [
+      "July 23, 2026",
+      "no events"
+    ]
+  },
+  {
+    "id": "Q033",
+    "generator_model": "Gemini-3-Flash-Preview",
+    "category": "Calendar & Meeting Operations",
+    "complexity": "Medium",
+    "query": "Check if I have any meetings scheduled for tomorrow, Friday, July 24, 2026, that include a Teams link.",
+    "expected_tool": "tool_list_meetings",
+    "ground_truth_answer": "Based on the current calendar data, there are no meetings scheduled for tomorrow, Friday, July 24, 2026.",
+    "truth_criteria": [
+      "July 24, 2026",
+      "no meetings"
+    ]
+  },
+  {
+    "id": "Q034",
+    "generator_model": "Gemini-3-Flash-Preview",
+    "category": "Calendar & Meeting Operations",
+    "complexity": "Complex",
+    "query": "I need to coordinate a follow-up regarding the \"Q4 Resource Allocation\". Are there any open slots on my calendar next Wednesday, July 29, 2026, between 9:00 AM and 5:00 PM?",
+    "expected_tool": "tool_list_meetings",
+    "ground_truth_answer": "Yes, Wednesday, July 29, 2026, is currently completely open between 9:00 AM and 5:00 PM as there are no events scheduled in the calendar.",
+    "truth_criteria": [
+      "July 29, 2026",
+      "open"
+    ]
+  },
+  {
+    "id": "Q035",
+    "generator_model": "Gemini-3-Flash-Preview",
+    "category": "Temporal Math & Relative Dates",
+    "complexity": "Basic",
+    "query": "How many emails did I receive yesterday, Wednesday, July 22, 2026?",
+    "expected_tool": "tool_search_emails",
+    "ground_truth_answer": "You received exactly two emails yesterday, July 22, 2026: one regarding \"Passkeys by default\" and one non-delivery report for \"Q4 Resource Allocation\".",
+    "truth_criteria": [
+      "two",
+      "July 22, 2026"
+    ]
+  },
+  {
+    "id": "Q036",
+    "generator_model": "Gemini-3-Flash-Preview",
+    "category": "Temporal Math & Relative Dates",
+    "complexity": "Medium",
+    "query": "The email about Passkeys mentions a retirement date for SMS authentication. How many full months are there from today, July 23, 2026, until that retirement date?",
+    "expected_tool": "tool_get_email_details",
+    "ground_truth_answer": "The retirement date is February 1, 2027. From today, July 23, 2026, there are 6 full months remaining (August, September, October, November, December 2026, and January 2027).",
+    "truth_criteria": [
+      "February 1, 2027",
+      "6 full months"
+    ]
+  },
+  {
+    "id": "Q037",
+    "generator_model": "Gemini-3-Flash-Preview",
+    "category": "Temporal Math & Relative Dates",
+    "complexity": "Complex",
+    "query": "Calculate the exact time difference between the moment Jesus sent the Q4 Resource Allocation email and the moment he received the delivery failure notification.",
+    "expected_tool": "tool_get_email_details",
+    "ground_truth_answer": "The original message was sent on July 22, 2026, at 12:48:39 PM UTC. The delivery failure notification was received at 12:48:45 PM UTC the same day. The time difference is exactly 6 seconds.",
+    "truth_criteria": [
+      "12:48:39 PM",
+      "12:48:45 PM",
+      "6 seconds"
+    ]
+  },
+  {
+    "id": "Q038",
+    "generator_model": "Gemini-3-Flash-Preview",
+    "category": "Executive Synthesis & Actions",
+    "complexity": "Basic",
+    "query": "Draft a brief reply to the Passkeys email acknowledging the February 2027 deadline.",
+    "expected_tool": "tool_reply_email",
+    "ground_truth_answer": "I have drafted a reply to the email \"Passkeys by default and retirement of Microsoft-provided SMS and voice authentication\" received on July 22, 2026, acknowledging the February 1, 2027 deadline for SMS and voice authentication retirement.",
+    "truth_criteria": [
+      "February 1, 2027",
+      "Passkeys by default"
+    ]
+  },
+  {
+    "id": "Q039",
+    "generator_model": "Gemini-3-Flash-Preview",
+    "category": "Executive Synthesis & Actions",
+    "complexity": "Medium",
+    "query": "Create a new meeting for Jesus Chavez tomorrow morning at 10:00 AM to discuss the sarah.jenkins@sockcop.onmicrosoft.com email failure.",
+    "expected_tool": "tool_create_meeting",
+    "ground_truth_answer": "I have created a meeting for Friday, July 24, 2026, at 10:00 AM titled \"Discuss Sarah Jenkins Email Failure\" for Jesus Chavez.",
+    "truth_criteria": [
+      "July 24, 2026",
+      "10:00 AM",
+      "Sarah Jenkins"
+    ]
+  },
+  {
+    "id": "Q040",
+    "generator_model": "Gemini-3-Flash-Preview",
+    "category": "Executive Synthesis & Actions",
+    "complexity": "Complex",
+    "query": "Summarize the critical security and operational issues Jesus Chavez needs to address based on his communications from Wednesday, July 22, 2026.",
+    "expected_tool": "tool_search_emails",
+    "ground_truth_answer": "Jesus faces two issues from July 22: 1. A critical delivery failure (Error 550 5.1.10) for the \"Q4 Resource Allocation\" email to Sarah Jenkins, requiring an address verification or phone follow-up. 2. A mandatory security transition to phishing-resistant passkeys before the February 1, 2027, retirement of SMS/voice authentication for Entra ID.",
+    "truth_criteria": [
+      "550 5.1.10",
+      "Sarah Jenkins",
+      "February 1, 2027",
+      "Passkeys"
+    ]
+  },
+  {
+    "id": "Q041",
+    "generator_model": "Gemini-3-Flash-Preview",
+    "category": "Drafts & Sent Folder Audit",
+    "complexity": "Basic",
+    "query": "What is Jesus Chavez's email address and business phone listed in his profile?",
+    "expected_tool": "tool_get_user_profile",
+    "ground_truth_answer": "Jesus Chavez's email address is admin@sockcop.onmicrosoft.com and his business phone number is 6464794808.",
+    "truth_criteria": [
+      "admin@sockcop.onmicrosoft.com",
+      "6464794808"
+    ]
+  },
+  {
+    "id": "Q042",
+    "generator_model": "Gemini-3-Flash-Preview",
+    "category": "Inbox & Email Intelligence",
+    "complexity": "Medium",
+    "query": "Identify the SMTP address that rejected the email to Sarah Jenkins yesterday.",
+    "expected_tool": "tool_get_email_details",
+    "ground_truth_answer": "The email was rejected by the server DS7PR03MB5541.namprd03.prod.outlook.com on Wednesday, July 22, 2026.",
+    "truth_criteria": [
+      "DS7PR03MB5541.namprd03.prod.outlook.com",
+      "July 22, 2026"
+    ]
+  },
+  {
+    "id": "Q043",
+    "generator_model": "Gemini-3-Flash-Preview",
+    "category": "Calendar & Meeting Operations",
+    "complexity": "Basic",
+    "query": "Are there any meetings on the calendar for this weekend (Saturday, July 25 or Sunday, July 26, 2026)?",
+    "expected_tool": "tool_list_meetings",
+    "ground_truth_answer": "No, there are no meetings scheduled for Saturday, July 25, 2026, or Sunday, July 26, 2026.",
+    "truth_criteria": [
+      "July 25",
+      "July 26",
+      "no meetings"
+    ]
+  },
+  {
+    "id": "Q044",
+    "generator_model": "Gemini-3-Flash-Preview",
+    "category": "Temporal Math & Relative Dates",
+    "complexity": "Medium",
+    "query": "The Microsoft security blog mentioned in the Passkeys email was posted on July 13. How many days before Jesus received the email (July 22) was the blog published?",
+    "expected_tool": "tool_get_email_details",
+    "ground_truth_answer": "The blog was published on July 13, 2026, and the email was received on July 22, 2026. The blog was published 9 days before the email was received.",
+    "truth_criteria": [
+      "July 13",
+      "9 days"
+    ]
+  },
+  {
+    "id": "Q045",
+    "generator_model": "Gemini-3-Flash-Preview",
+    "category": "Executive Synthesis & Actions",
+    "complexity": "Medium",
+    "query": "Who is the sender of the automated notification regarding the failed resource allocation message?",
+    "expected_tool": "tool_get_email_details",
+    "ground_truth_answer": "The notification was sent by \"Microsoft Outlook\" from the address MicrosoftExchange329e71ec88ae4615bbc36ab6ce41109e@sockcop.onmicrosoft.com on July 22, 2026.",
+    "truth_criteria": [
+      "Microsoft Outlook",
+      "MicrosoftExchange329e71ec88ae4615bbc36ab6ce41109e"
+    ]
+  },
+  {
+    "id": "Q046",
+    "generator_model": "Gemini-3-Flash-Preview",
+    "category": "Drafts & Sent Folder Audit",
+    "complexity": "Medium",
+    "query": "Check if Jesus Chavez has a surname or job title listed in his profile.",
+    "expected_tool": "tool_get_user_profile",
+    "ground_truth_answer": "In his profile, Jesus Chavez's surname is listed as \"Chavez\", but his job title is null (not specified).",
+    "truth_criteria": [
+      "Chavez",
+      "null"
+    ]
+  },
+  {
+    "id": "Q047",
+    "generator_model": "Gemini-3-Flash-Preview",
+    "category": "Inbox & Email Intelligence",
+    "complexity": "Basic",
+    "query": "Is the importance level of the \"Undeliverable: Q4 Resource Allocation\" email set to high?",
+    "expected_tool": "tool_search_emails",
+    "ground_truth_answer": "No, the importance level for the email \"Undeliverable: Q4 Resource Allocation\" is set to \"normal\".",
+    "truth_criteria": [
+      "normal"
+    ]
+  },
+  {
+    "id": "Q048",
+    "generator_model": "Gemini-3-Flash-Preview",
+    "category": "Calendar & Meeting Operations",
+    "complexity": "Medium",
+    "query": "Search for any upcoming calendar events in August 2026.",
+    "expected_tool": "tool_list_meetings",
+    "ground_truth_answer": "There are no calendar events scheduled for August 2026 in the provided records.",
+    "truth_criteria": [
+      "August 2026",
+      "no"
+    ]
+  },
+  {
+    "id": "Q049",
+    "generator_model": "Gemini-3-Flash-Preview",
+    "category": "Temporal Math & Relative Dates",
+    "complexity": "Complex",
+    "query": "List all emails received between 11:00 AM and 1:00 PM UTC on Wednesday, July 22, 2026.",
+    "expected_tool": "tool_search_emails",
+    "ground_truth_answer": "Two emails were received during that window on July 22, 2026: \"Passkeys by default...\" at 11:05:49Z and \"Undeliverable: Q4 Resource Allocation\" at 12:48:45Z.",
+    "truth_criteria": [
+      "11:05:49Z",
+      "12:48:45Z",
+      "July 22, 2026"
+    ]
+  },
+  {
+    "id": "Q050",
+    "generator_model": "Gemini-3-Flash-Preview",
+    "category": "Executive Synthesis & Actions",
+    "complexity": "Complex",
+    "query": "Summarize the 'More Info for Email Admins' section from the delivery failure email received yesterday.",
+    "expected_tool": "tool_get_email_details",
+    "ground_truth_answer": "The section advises admins to: 1. Confirm the recipient address exists, 2. Ensure directory synchronization is correct for hybrid environments, 3. Check for errant forwarding rules, 4. Verify the recipient has a valid Office 365 license, and 5. Check MX records and mail flow connectors.",
+    "truth_criteria": [
+      "directory synchronization",
+      "forwarding rules",
+      "MX records"
+    ]
+  },
+  {
+    "id": "Q051",
+    "generator_model": "Claude-Sonnet-5",
+    "category": "Drafts & Sent Folder Audit",
+    "complexity": "Basic",
+    "query": "Do I have any draft emails saved in my mailbox right now?",
+    "expected_tool": "tool_search_emails",
+    "ground_truth_answer": "No draft emails were found in the mailbox based on the available data.",
+    "truth_criteria": [
+      "No draft",
+      "mailbox"
+    ]
+  },
+  {
+    "id": "Q052",
+    "generator_model": "Claude-Sonnet-5",
+    "category": "Drafts & Sent Folder Audit",
+    "complexity": "Medium",
+    "query": "Can you look up any emails I've sent to sarah.jenkins@sockcop.onmicrosoft.com?",
+    "expected_tool": "tool_search_emails",
+    "ground_truth_answer": "Based on the undeliverable notice, a message titled 'Q4 Resource Allocation' was sent by admin@sockcop.onmicrosoft.com to sarah.jenkins@sockcop.onmicrosoft.com on July 22, 2026, but it bounced back as undeliverable (recipient not found).",
+    "truth_criteria": [
+      "Q4 Resource Allocation",
+      "sarah.jenkins",
+      "undeliverable"
+    ]
+  },
+  {
+    "id": "Q053",
+    "generator_model": "Claude-Sonnet-5",
+    "category": "Drafts & Sent Folder Audit",
+    "complexity": "Complex",
+    "query": "Cross-reference my sent items and inbox - was the \"Q4 Resource Allocation\" email successfully delivered to sarah.jenkins@sockcop.onmicrosoft.com, or did it bounce?",
+    "expected_tool": "tool_get_email_details",
+    "ground_truth_answer": "The email bounced. The inbox contains an Undeliverable notice received July 22, 2026 at 12:48 PM UTC indicating error 550 5.1.10 RESOLVER.ADR.RecipientNotFound - sarah.jenkins@sockcop.onmicrosoft.com was not found at sockcop.onmicrosoft.com, so the message was never delivered.",
+    "truth_criteria": [
+      "550 5.1.10",
+      "not found",
+      "Undeliverable"
+    ]
+  },
+  {
+    "id": "Q054",
+    "generator_model": "Claude-Sonnet-5",
+    "category": "Drafts & Sent Folder Audit",
+    "complexity": "Medium",
+    "query": "Search the sent folder for any messages with the subject \"Q4 Resource Allocation\".",
+    "expected_tool": "tool_search_emails",
+    "ground_truth_answer": "There is no separate sent-folder record in the data, but the inbox's undeliverable notice confirms a message titled 'Q4 Resource Allocation' was originally sent from admin@sockcop.onmicrosoft.com on July 22, 2026.",
+    "truth_criteria": [
+      "Q4 Resource Allocation",
+      "July 22",
+      "admin@sockcop.onmicrosoft.com"
+    ]
+  },
+  {
+    "id": "Q055",
+    "generator_model": "Claude-Sonnet-5",
+    "category": "Drafts & Sent Folder Audit",
+    "complexity": "Basic",
+    "query": "Are there any unsent draft messages regarding \"Q4 Resource Allocation\" waiting in my drafts folder?",
+    "expected_tool": "tool_search_emails",
+    "ground_truth_answer": "No, no draft messages exist in the mailbox data; the 'Q4 Resource Allocation' email had already been sent (and bounced back undelivered) on July 22, 2026.",
+    "truth_criteria": [
+      "No draft",
+      "Q4 Resource Allocation",
+      "bounced"
+    ]
+  },
+  {
+    "id": "Q056",
+    "generator_model": "Claude-Sonnet-5",
+    "category": "Inbox & Email Intelligence",
+    "complexity": "Basic",
+    "query": "What is the most recent email in my inbox?",
+    "expected_tool": "tool_search_emails",
+    "ground_truth_answer": "The most recent email is 'Undeliverable: Q4 Resource Allocation', received on July 22, 2026 at 12:48 PM UTC.",
+    "truth_criteria": [
+      "Undeliverable: Q4 Resource Allocation",
+      "July 22"
+    ]
+  },
+  {
+    "id": "Q057",
+    "generator_model": "Claude-Sonnet-5",
+    "category": "Inbox & Email Intelligence",
+    "complexity": "Medium",
+    "query": "Search my inbox for any emails related to \"passkeys\" or authentication changes.",
+    "expected_tool": "tool_search_emails",
+    "ground_truth_answer": "There is one email titled 'Passkeys by default and retirement of Microsoft-provided SMS and voice authentication', received July 22, 2026 at 11:05 AM UTC, and it is currently unread.",
+    "truth_criteria": [
+      "Passkeys",
+      "July 22",
+      "unread"
+    ]
+  },
+  {
+    "id": "Q058",
+    "generator_model": "Claude-Sonnet-5",
+    "category": "Inbox & Email Intelligence",
+    "complexity": "Medium",
+    "query": "Find the email about my message to sarah.jenkins that couldn't be delivered.",
+    "expected_tool": "tool_search_emails",
+    "ground_truth_answer": "Found: 'Undeliverable: Q4 Resource Allocation' received July 22, 2026, stating the message to sarah.jenkins@sockcop.onmicrosoft.com couldn't be delivered because the recipient wasn't found at sockcop.onmicrosoft.com.",
+    "truth_criteria": [
+      "sarah.jenkins",
+      "couldn't be delivered",
+      "July 22"
+    ]
+  },
+  {
+    "id": "Q059",
+    "generator_model": "Claude-Sonnet-5",
+    "category": "Inbox & Email Intelligence",
+    "complexity": "Complex",
+    "query": "Based on the body content of the Passkeys email, when will Microsoft-provided SMS and voice authentication retire?",
+    "expected_tool": "tool_get_email_details",
+    "ground_truth_answer": "According to the email body, Microsoft-provided SMS and voice authentication will retire on February 1, 2027.",
+    "truth_criteria": [
+      "February 1, 2027",
+      "SMS and voice"
+    ]
+  },
+  {
+    "id": "Q060",
+    "generator_model": "Claude-Sonnet-5",
+    "category": "Inbox & Email Intelligence",
+    "complexity": "Complex",
+    "query": "Looking across both messages in my inbox, which one is unread and what security-related change does it describe?",
+    "expected_tool": "tool_get_email_details",
+    "ground_truth_answer": "The unread message is 'Passkeys by default and retirement of Microsoft-provided SMS and voice authentication' (received July 22, 2026). It describes Microsoft Entra ID's move to passkeys as the default authentication method, with SMS and voice authentication retiring February 1, 2027.",
+    "truth_criteria": [
+      "Passkeys",
+      "unread",
+      "February 1, 2027"
+    ]
+  },
+  {
+    "id": "Q061",
+    "generator_model": "Claude-Sonnet-5",
+    "category": "Calendar & Meeting Operations",
+    "complexity": "Basic",
+    "query": "What meetings do I have scheduled for tomorrow, July 24, 2026?",
+    "expected_tool": "tool_list_meetings",
+    "ground_truth_answer": "No calendar events or meetings were found on the calendar for July 24, 2026.",
+    "truth_criteria": [
+      "No calendar events",
+      "July 24"
+    ]
+  },
+  {
+    "id": "Q062",
+    "generator_model": "Claude-Sonnet-5",
+    "category": "Calendar & Meeting Operations",
+    "complexity": "Medium",
+    "query": "Do I have any meetings today with a Microsoft Teams link, and what is the total duration?",
+    "expected_tool": "tool_list_meetings",
+    "ground_truth_answer": "No meetings with a Teams link were found for today, July 23, 2026, in the provided calendar data.",
+    "truth_criteria": [
+      "No meetings",
+      "Teams",
+      "July 23"
+    ]
+  },
+  {
+    "id": "Q063",
+    "generator_model": "Claude-Sonnet-5",
+    "category": "Calendar & Meeting Operations",
+    "complexity": "Complex",
+    "query": "Can you check my calendar for the next two weeks (July 23 to August 6, 2026) and summarize any scheduled meetings?",
+    "expected_tool": "tool_list_meetings",
+    "ground_truth_answer": "There are no calendar events present in the mailbox data for the period between July 23, 2026 and August 6, 2026.",
+    "truth_criteria": [
+      "No calendar events",
+      "July 23",
+      "August 6"
+    ]
+  },
+  {
+    "id": "Q064",
+    "generator_model": "Claude-Sonnet-5",
+    "category": "Calendar & Meeting Operations",
+    "complexity": "Basic",
+    "query": "Is there anything on my calendar right now for this week?",
+    "expected_tool": "tool_list_meetings",
+    "ground_truth_answer": "No meetings or calendar events are recorded in the data for the current week of July 23, 2026.",
+    "truth_criteria": [
+      "No meetings",
+      "July 23"
+    ]
+  },
+  {
+    "id": "Q065",
+    "generator_model": "Claude-Sonnet-5",
+    "category": "Calendar & Meeting Operations",
+    "complexity": "Medium",
+    "query": "What time is my next meeting scheduled and how long does it last?",
+    "expected_tool": "tool_list_meetings",
+    "ground_truth_answer": "There is no next meeting recorded in the calendar data provided; no upcoming events are found.",
+    "truth_criteria": [
+      "No next meeting",
+      "no upcoming events"
+    ]
+  },
+  {
+    "id": "Q066",
+    "generator_model": "Claude-Sonnet-5",
+    "category": "Temporal Math & Relative Dates",
+    "complexity": "Basic",
+    "query": "What is today's date, and what date is tomorrow, based on my calendar?",
+    "expected_tool": "tool_list_meetings",
+    "ground_truth_answer": "Today is Thursday, July 23, 2026, and tomorrow is Friday, July 24, 2026.",
+    "truth_criteria": [
+      "July 23",
+      "July 24"
+    ]
+  },
+  {
+    "id": "Q067",
+    "generator_model": "Claude-Sonnet-5",
+    "category": "Temporal Math & Relative Dates",
+    "complexity": "Medium",
+    "query": "What date was 7 days ago from today, and were there any emails received on that day?",
+    "expected_tool": "tool_search_emails",
+    "ground_truth_answer": "Seven days ago from today (July 23, 2026) was Thursday, July 16, 2026. No emails in the inbox were received on that date.",
+    "truth_criteria": [
+      "July 16, 2026",
+      "No emails"
+    ]
+  },
+  {
+    "id": "Q068",
+    "generator_model": "Claude-Sonnet-5",
+    "category": "Temporal Math & Relative Dates",
+    "complexity": "Medium",
+    "query": "How many days ago was the \"Q4 Resource Allocation\" undeliverable email received, relative to today?",
+    "expected_tool": "tool_search_emails",
+    "ground_truth_answer": "The undeliverable email was received on July 22, 2026, which is 1 day ago relative to today, July 23, 2026.",
+    "truth_criteria": [
+      "July 22, 2026",
+      "1 day"
+    ]
+  },
+  {
+    "id": "Q069",
+    "generator_model": "Claude-Sonnet-5",
+    "category": "Temporal Math & Relative Dates",
+    "complexity": "Complex",
+    "query": "Comparing the last 7 days and the last 30 days, how many inbox emails were received in each lookback window?",
+    "expected_tool": "tool_search_emails",
+    "ground_truth_answer": "In the last 7 days (July 16-23, 2026), 2 emails were received, both on July 22, 2026. In the last 30 days (June 23-July 23, 2026), the same 2 emails are the only ones present in the inbox data.",
+    "truth_criteria": [
+      "2 emails",
+      "July 22, 2026",
+      "last 7 days"
+    ]
+  },
+  {
+    "id": "Q070",
+    "generator_model": "Claude-Sonnet-5",
+    "category": "Temporal Math & Relative Dates",
+    "complexity": "Basic",
+    "query": "What day of the week is today, and what day of the week was yesterday?",
+    "expected_tool": "tool_search_emails",
+    "ground_truth_answer": "Today, July 23, 2026, is a Thursday, and yesterday, July 22, 2026, was a Wednesday.",
+    "truth_criteria": [
+      "Thursday",
+      "Wednesday",
+      "July 22"
+    ]
+  },
+  {
+    "id": "Q071",
+    "generator_model": "Claude-Sonnet-5",
+    "category": "Executive Synthesis & Actions",
+    "complexity": "Basic",
+    "query": "Please reply to the Passkeys authentication email acknowledging receipt of the notice.",
+    "expected_tool": "tool_reply_email",
+    "ground_truth_answer": "A reply would be sent to the 'Passkeys by default and retirement of Microsoft-provided SMS and voice authentication' email (received July 22, 2026) acknowledging the notice about SMS/voice authentication retiring February 1, 2027.",
+    "truth_criteria": [
+      "Passkeys",
+      "acknowledg",
+      "February 1, 2027"
+    ]
+  },
+  {
+    "id": "Q072",
+    "generator_model": "Claude-Sonnet-5",
+    "category": "Executive Synthesis & Actions",
+    "complexity": "Medium",
+    "query": "Schedule a new meeting for tomorrow, July 24, 2026, at 10:00 AM to discuss the Q4 Resource Allocation delivery failure.",
+    "expected_tool": "tool_create_meeting",
+    "ground_truth_answer": "A meeting regarding the Q4 Resource Allocation delivery failure would be created for Friday, July 24, 2026 at 10:00 AM.",
+    "truth_criteria": [
+      "July 24, 2026",
+      "10:00 AM",
+      "Q4 Resource Allocation"
+    ]
+  },
+  {
+    "id": "Q073",
+    "generator_model": "Claude-Sonnet-5",
+    "category": "Executive Synthesis & Actions",
+    "complexity": "Complex",
+    "query": "Give me an executive briefing combining my inbox status and calendar for today: what unread emails need attention and what meetings do I have?",
+    "expected_tool": "tool_search_emails",
+    "ground_truth_answer": "As of today, July 23, 2026, there is 1 unread email: 'Passkeys by default and retirement of Microsoft-provided SMS and voice authentication' (received July 22, 2026), notifying about SMS/voice authentication retiring February 1, 2027. There are no calendar meetings scheduled for today.",
+    "truth_criteria": [
+      "Passkeys",
+      "unread",
+      "No calendar meetings"
+    ]
+  },
+  {
+    "id": "Q074",
+    "generator_model": "Claude-Sonnet-5",
+    "category": "Executive Synthesis & Actions",
+    "complexity": "Complex",
+    "query": "Summarize the key action items from my inbox: the undeliverable email and the passkeys notice, and recommend next steps.",
+    "expected_tool": "tool_get_email_details",
+    "ground_truth_answer": "1) 'Undeliverable: Q4 Resource Allocation' (July 22, 2026): the email to sarah.jenkins@sockcop.onmicrosoft.com bounced with error 550 5.1.10 because the recipient wasn't found - action: verify the correct email address and resend. 2) 'Passkeys by default...' (July 22, 2026, unread): Microsoft-provided SMS/voice authentication retires February 1, 2027 - action: migrate to passkey-based authentication before that date.",
+    "truth_criteria": [
+      "550 5.1.10",
+      "February 1, 2027",
+      "sarah.jenkins"
+    ]
+  },
+  {
+    "id": "Q075",
+    "generator_model": "Claude-Sonnet-5",
+    "category": "Executive Synthesis & Actions",
+    "complexity": "Medium",
+    "query": "Send an email to sarah.jenkins@sockcop.onmicrosoft.com re-attempting the Q4 Resource Allocation communication with a corrected address.",
+    "expected_tool": "tool_send_email",
+    "ground_truth_answer": "A new email with subject 'Q4 Resource Allocation' would be sent to sarah.jenkins@sockcop.onmicrosoft.com, re-attempting delivery after the prior message bounced with a recipient-not-found error on July 22, 2026.",
+    "truth_criteria": [
+      "Q4 Resource Allocation",
+      "sarah.jenkins@sockcop.onmicrosoft.com",
+      "bounced"
+    ]
+  },
+  {
+    "id": "Q076",
+    "generator_model": "Claude-Sonnet-5",
+    "category": "Drafts & Sent Folder Audit",
+    "complexity": "Basic",
+    "query": "Do I currently have any draft emails waiting in my Drafts folder?",
+    "expected_tool": "tool_search_emails",
+    "ground_truth_answer": "No draft emails were found in the mailbox as of July 23, 2026.",
+    "truth_criteria": [
+      "no draft",
+      "Drafts",
+      "July 23"
+    ]
+  },
+  {
+    "id": "Q077",
+    "generator_model": "Claude-Sonnet-5",
+    "category": "Drafts & Sent Folder Audit",
+    "complexity": "Medium",
+    "query": "Can you locate the sent message with the subject \"Q4 Resource Allocation\" that was addressed to sarah.jenkins@sockcop.onmicrosoft.com?",
+    "expected_tool": "tool_search_emails",
+    "ground_truth_answer": "An email titled \"Q4 Resource Allocation\" was sent from admin@sockcop.onmicrosoft.com to sarah.jenkins@sockcop.onmicrosoft.com on July 22, 2026 at 12:48:39 PM, but it failed to deliver.",
+    "truth_criteria": [
+      "Q4 Resource Allocation",
+      "sarah.jenkins",
+      "July 22"
+    ]
+  },
+  {
+    "id": "Q078",
+    "generator_model": "Claude-Sonnet-5",
+    "category": "Drafts & Sent Folder Audit",
+    "complexity": "Complex",
+    "query": "Cross-check whether the \"Q4 Resource Allocation\" email was actually delivered, and confirm if any draft version of it still exists in my mailbox.",
+    "expected_tool": "tool_search_emails",
+    "ground_truth_answer": "The \"Q4 Resource Allocation\" email sent on July 22, 2026 to sarah.jenkins@sockcop.onmicrosoft.com bounced back with a 550 5.1.10 RESOLVER.ADR.RecipientNotFound error; no draft copy of this email exists in the mailbox.",
+    "truth_criteria": [
+      "550 5.1.10",
+      "bounced",
+      "no draft"
+    ]
+  },
+  {
+    "id": "Q079",
+    "generator_model": "Claude-Sonnet-5",
+    "category": "Drafts & Sent Folder Audit",
+    "complexity": "Basic",
+    "query": "Is there a draft reply saved for the passkeys retirement notification email?",
+    "expected_tool": "tool_search_emails",
+    "ground_truth_answer": "No draft reply exists for the \"Passkeys by default and retirement of Microsoft-provided SMS and voice authentication\" email.",
+    "truth_criteria": [
+      "no draft",
+      "Passkeys"
+    ]
+  },
+  {
+    "id": "Q080",
+    "generator_model": "Claude-Sonnet-5",
+    "category": "Drafts & Sent Folder Audit",
+    "complexity": "Medium",
+    "query": "What was the exact recipient address used in the sent \"Q4 Resource Allocation\" email that bounced back?",
+    "expected_tool": "tool_get_email_details",
+    "ground_truth_answer": "The recipient address used was sarah.jenkins@sockcop.onmicrosoft.com, part of the sockcop.onmicrosoft.com domain, for the \"Q4 Resource Allocation\" message.",
+    "truth_criteria": [
+      "sarah.jenkins@sockcop.onmicrosoft.com",
+      "Q4 Resource Allocation"
+    ]
+  },
+  {
+    "id": "Q081",
+    "generator_model": "Claude-Sonnet-5",
+    "category": "Inbox & Email Intelligence",
+    "complexity": "Basic",
+    "query": "What is the most recent email in my inbox?",
+    "expected_tool": "tool_search_emails",
+    "ground_truth_answer": "The most recent email is \"Undeliverable: Q4 Resource Allocation\" received on July 22, 2026 at 12:48 PM UTC.",
+    "truth_criteria": [
+      "Undeliverable: Q4 Resource Allocation",
+      "July 22"
+    ]
+  },
+  {
+    "id": "Q082",
+    "generator_model": "Claude-Sonnet-5",
+    "category": "Inbox & Email Intelligence",
+    "complexity": "Medium",
+    "query": "Search my inbox for any email related to \"Passkeys\".",
+    "expected_tool": "tool_search_emails",
+    "ground_truth_answer": "Found one email: \"Passkeys by default and retirement of Microsoft-provided SMS and voice authentication\", received July 22, 2026 at 11:05 AM UTC, currently unread.",
+    "truth_criteria": [
+      "Passkeys by default and retirement",
+      "unread",
+      "July 22"
+    ]
+  },
+  {
+    "id": "Q083",
+    "generator_model": "Claude-Sonnet-5",
+    "category": "Inbox & Email Intelligence",
+    "complexity": "Complex",
+    "query": "Based on the body content of the passkeys email, when will Microsoft-provided SMS and voice authentication retire?",
+    "expected_tool": "tool_get_email_details",
+    "ground_truth_answer": "According to the email body, Microsoft-provided SMS and voice authentication will retire on February 1, 2027.",
+    "truth_criteria": [
+      "February 1, 2027"
+    ]
+  },
+  {
+    "id": "Q084",
+    "generator_model": "Claude-Sonnet-5",
+    "category": "Inbox & Email Intelligence",
+    "complexity": "Basic",
+    "query": "How many unread emails are currently in my inbox?",
+    "expected_tool": "tool_search_emails",
+    "ground_truth_answer": "There is 1 unread email: \"Passkeys by default and retirement of Microsoft-provided SMS and voice authentication\".",
+    "truth_criteria": [
+      "1 unread",
+      "Passkeys"
+    ]
+  },
+  {
+    "id": "Q085",
+    "generator_model": "Claude-Sonnet-5",
+    "category": "Inbox & Email Intelligence",
+    "complexity": "Complex",
+    "query": "Compare the two emails in my inbox: which one is read and which one is unread, and what are their subjects?",
+    "expected_tool": "tool_search_emails",
+    "ground_truth_answer": "\"Undeliverable: Q4 Resource Allocation\" (received July 22, 2026) is marked as read; \"Passkeys by default and retirement of Microsoft-provided SMS and voice authentication\" (received July 22, 2026) is unread.",
+    "truth_criteria": [
+      "Undeliverable: Q4 Resource Allocation",
+      "Passkeys",
+      "unread"
+    ]
+  },
+  {
+    "id": "Q086",
+    "generator_model": "Claude-Sonnet-5",
+    "category": "Calendar & Meeting Operations",
+    "complexity": "Basic",
+    "query": "What meetings do I have scheduled for tomorrow, July 24, 2026?",
+    "expected_tool": "tool_list_meetings",
+    "ground_truth_answer": "There are no meetings scheduled on the calendar for July 24, 2026.",
+    "truth_criteria": [
+      "July 24",
+      "no meetings"
+    ]
+  },
+  {
+    "id": "Q087",
+    "generator_model": "Claude-Sonnet-5",
+    "category": "Calendar & Meeting Operations",
+    "complexity": "Medium",
+    "query": "Is there a Teams meeting link associated with any event on my calendar this week?",
+    "expected_tool": "tool_list_meetings",
+    "ground_truth_answer": "No calendar events or Teams meeting links were found on the calendar for this week.",
+    "truth_criteria": [
+      "no calendar events",
+      "Teams"
+    ]
+  },
+  {
+    "id": "Q088",
+    "generator_model": "Claude-Sonnet-5",
+    "category": "Calendar & Meeting Operations",
+    "complexity": "Complex",
+    "query": "Do I have any meetings scheduled across the next two weeks, from July 23 to August 6, 2026?",
+    "expected_tool": "tool_list_meetings",
+    "ground_truth_answer": "No meetings are found on the calendar for the period July 23, 2026 through August 6, 2026.",
+    "truth_criteria": [
+      "July 23",
+      "August 6",
+      "No meetings"
+    ]
+  },
+  {
+    "id": "Q089",
+    "generator_model": "Claude-Sonnet-5",
+    "category": "Calendar & Meeting Operations",
+    "complexity": "Basic",
+    "query": "What is on my calendar for today, July 23, 2026?",
+    "expected_tool": "tool_list_meetings",
+    "ground_truth_answer": "There are no events on the calendar for today, July 23, 2026.",
+    "truth_criteria": [
+      "July 23",
+      "no events"
+    ]
+  },
+  {
+    "id": "Q090",
+    "generator_model": "Claude-Sonnet-5",
+    "category": "Calendar & Meeting Operations",
+    "complexity": "Medium",
+    "query": "How long is my next scheduled meeting?",
+    "expected_tool": "tool_list_meetings",
+    "ground_truth_answer": "There are no upcoming meetings found on the calendar, so no duration can be reported.",
+    "truth_criteria": [
+      "no upcoming meetings"
+    ]
+  },
+  {
+    "id": "Q091",
+    "generator_model": "Claude-Sonnet-5",
+    "category": "Temporal Math & Relative Dates",
+    "complexity": "Basic",
+    "query": "Today is July 23, 2026. What date was yesterday, and did I receive any emails on that date?",
+    "expected_tool": "tool_search_emails",
+    "ground_truth_answer": "Yesterday was July 22, 2026. Both inbox emails, \"Undeliverable: Q4 Resource Allocation\" and \"Passkeys by default and retirement of Microsoft-provided SMS and voice authentication\", were received on that date.",
+    "truth_criteria": [
+      "July 22",
+      "Undeliverable: Q4 Resource Allocation",
+      "Passkeys"
+    ]
+  },
+  {
+    "id": "Q092",
+    "generator_model": "Claude-Sonnet-5",
+    "category": "Temporal Math & Relative Dates",
+    "complexity": "Medium",
+    "query": "How many days ago was the \"Q4 Resource Allocation\" undeliverable notice received, counting from today, July 23, 2026?",
+    "expected_tool": "tool_search_emails",
+    "ground_truth_answer": "The undeliverable notice was received on July 22, 2026, which is 1 day ago from July 23, 2026.",
+    "truth_criteria": [
+      "1 day",
+      "July 22"
+    ]
+  },
+  {
+    "id": "Q093",
+    "generator_model": "Claude-Sonnet-5",
+    "category": "Temporal Math & Relative Dates",
+    "complexity": "Medium",
+    "query": "What time (UTC) was the passkeys retirement email received, and how many hours before the undeliverable notice was that?",
+    "expected_tool": "tool_search_emails",
+    "ground_truth_answer": "The passkeys email was received at 11:05 AM UTC on July 22, 2026, about 1 hour and 43 minutes before the undeliverable notice at 12:48 PM UTC.",
+    "truth_criteria": [
+      "11:05",
+      "12:48",
+      "July 22"
+    ]
+  },
+  {
+    "id": "Q094",
+    "generator_model": "Claude-Sonnet-5",
+    "category": "Temporal Math & Relative Dates",
+    "complexity": "Complex",
+    "query": "Looking back over the last 7 days from today, July 23, 2026, how many emails arrived in my inbox and on what date(s)?",
+    "expected_tool": "tool_search_emails",
+    "ground_truth_answer": "In the last 7 days (July 16 to July 23, 2026), 2 emails arrived in the inbox, both on July 22, 2026.",
+    "truth_criteria": [
+      "2 emails",
+      "July 22",
+      "July 16"
+    ]
+  },
+  {
+    "id": "Q095",
+    "generator_model": "Claude-Sonnet-5",
+    "category": "Temporal Math & Relative Dates",
+    "complexity": "Complex",
+    "query": "Comparing a 7-day lookback window and a 30-day lookback window from today, July 23, 2026, is there any difference in the number of inbox emails found?",
+    "expected_tool": "tool_search_emails",
+    "ground_truth_answer": "No difference: both the 7-day window (from July 16, 2026) and the 30-day window (from June 23, 2026) return the same 2 emails, both received on July 22, 2026.",
+    "truth_criteria": [
+      "2 emails",
+      "July 16",
+      "June 23"
+    ]
+  },
+  {
+    "id": "Q096",
+    "generator_model": "Claude-Sonnet-5",
+    "category": "Executive Synthesis & Actions",
+    "complexity": "Basic",
+    "query": "Reply to the passkeys retirement email acknowledging that I've reviewed the SMS/voice authentication retirement notice.",
+    "expected_tool": "tool_reply_email",
+    "ground_truth_answer": "A reply would be sent on the \"Passkeys by default and retirement of Microsoft-provided SMS and voice authentication\" email thread, acknowledging review of the February 1, 2027 retirement date.",
+    "truth_criteria": [
+      "Passkeys",
+      "February 1, 2027"
+    ]
+  },
+  {
+    "id": "Q097",
+    "generator_model": "Claude-Sonnet-5",
+    "category": "Executive Synthesis & Actions",
+    "complexity": "Medium",
+    "query": "Schedule a 30-minute meeting with sarah.jenkins@sockcop.onmicrosoft.com tomorrow, July 24, 2026, at 2:00 PM to discuss Q4 Resource Allocation.",
+    "expected_tool": "tool_create_meeting",
+    "ground_truth_answer": "A 30-minute meeting to discuss Q4 Resource Allocation would be created with sarah.jenkins@sockcop.onmicrosoft.com on July 24, 2026 from 2:00 PM to 2:30 PM.",
+    "truth_criteria": [
+      "July 24",
+      "2:00 PM",
+      "sarah.jenkins"
+    ]
+  },
+  {
+    "id": "Q098",
+    "generator_model": "Claude-Sonnet-5",
+    "category": "Executive Synthesis & Actions",
+    "complexity": "Medium",
+    "query": "Resend the \"Q4 Resource Allocation\" email since it bounced, and confirm the correct recipient address to use.",
+    "expected_tool": "tool_send_email",
+    "ground_truth_answer": "The email should be resent to sarah.jenkins@sockcop.onmicrosoft.com after verifying the address, since the original attempt on July 22, 2026 failed with a 550 5.1.10 error.",
+    "truth_criteria": [
+      "sarah.jenkins@sockcop.onmicrosoft.com",
+      "550 5.1.10"
+    ]
+  },
+  {
+    "id": "Q099",
+    "generator_model": "Claude-Sonnet-5",
+    "category": "Executive Synthesis & Actions",
+    "complexity": "Complex",
+    "query": "Give me an executive briefing of my mailbox status: unread emails, any bounced messages, and upcoming calendar commitments as of today, July 23, 2026.",
+    "expected_tool": "tool_search_emails",
+    "ground_truth_answer": "As of July 23, 2026: 1 unread email (\"Passkeys by default and retirement of Microsoft-provided SMS and voice authentication\"), 1 bounced message (\"Q4 Resource Allocation\" sent to sarah.jenkins@sockcop.onmicrosoft.com, failed with a 550 5.1.10 error), and no upcoming meetings on the calendar.",
+    "truth_criteria": [
+      "Passkeys",
+      "550 5.1.10",
+      "no upcoming meetings"
+    ]
+  },
+  {
+    "id": "Q100",
+    "generator_model": "Claude-Sonnet-5",
+    "category": "Executive Synthesis & Actions",
+    "complexity": "Complex",
+    "query": "Synthesize an action plan for Jesus Chavez based on today's mailbox state: what needs a resend, what needs a read, and what security notice needs attention before its deadline.",
+    "expected_tool": "tool_search_emails",
+    "ground_truth_answer": "Jesus Chavez should: 1) Resend the bounced \"Q4 Resource Allocation\" email to a corrected sarah.jenkins address, 2) Read the unread \"Passkeys by default and retirement of Microsoft-provided SMS and voice authentication\" email, and 3) Take action on the SMS/voice authentication retirement before the February 1, 2027 deadline.",
+    "truth_criteria": [
+      "Q4 Resource Allocation",
+      "Passkeys",
+      "February 1, 2027"
+    ]
+  },
+  {
+    "id": "Q101",
+    "generator_model": "customer-example",
+    "category": "Customer Test Cases",
+    "complexity": "Medium",
+    "query": "Show me all emails from dsharma47@deloitte.com in the last 30 days",
+    "expected_tool": "tool_search_emails",
+    "ground_truth_answer": "There is one email from Deepak Sharma (dsharma47@deloitte.com) with the subject 'RE: Athena: GIDs Travel & MDM Employee Data Sync Job Deployment'.",
+    "truth_criteria": [
+      "dsharma47@deloitte.com",
+      "Sync Job Deployment"
+    ]
+  },
+  {
+    "id": "Q102",
+    "generator_model": "customer-example",
+    "category": "Customer Test Cases",
+    "complexity": "Medium",
+    "query": "Find emails with [Operational Excellence on Cloud Cost] in the subject",
+    "expected_tool": "tool_search_emails",
+    "ground_truth_answer": "There is one email with the subject 'Operational Excellence on Cloud Cost' from Cloud Cost Team (cloudcost@deloitte.com) received this week.",
+    "truth_criteria": [
+      "Operational Excellence on Cloud Cost",
+      "cloudcost@deloitte.com"
+    ]
+  },
+  {
+    "id": "Q103",
+    "generator_model": "customer-example",
+    "category": "Customer Test Cases",
+    "complexity": "Medium",
+    "query": "Find emails from [Lisa Bendorf] about the [Retired APMs]",
+    "expected_tool": "tool_search_emails",
+    "ground_truth_answer": "There is one email from Lisa Bendorf (lisa.bendorf@deloitte.com) with the subject 'Retired APMs list' received this week.",
+    "truth_criteria": [
+      "Lisa Bendorf",
+      "Retired APMs list"
+    ]
+  },
+  {
+    "id": "Q104",
+    "generator_model": "customer-example",
+    "category": "Customer Test Cases",
+    "complexity": "Complex",
+    "query": "Forward the email from [DTTL IAM AppReg Auto-Notification (NO REPLY) <dtt_sc_azautoapp@deloitte.com>] about AzureAD app credentials nearing expiration to [nbattula@deloitte.com] and add a note asking him to review",
+    "expected_tool": "tool_send_email",
+    "ground_truth_answer": "The email from DTTL IAM AppReg Auto-Notification (dtt_sc_azautoapp@deloitte.com) about AzureAD app credentials nearing expiration has been forwarded to nbattula@deloitte.com with a note to review.",
+    "truth_criteria": [
+      "nbattula@deloitte.com",
+      "credentials nearing expiration"
+    ]
+  },
+  {
+    "id": "Q105",
+    "generator_model": "customer-example",
+    "category": "Customer Test Cases",
+    "complexity": "Medium",
+    "query": "Delete the email from [BrightTALK <wednesday.reply@brighttalk.com>] with subject 'Join your colleagues and peers at these presentations'",
+    "expected_tool": "tool_search_emails",
+    "ground_truth_answer": "The email from BrightTALK (wednesday.reply@brighttalk.com) with subject 'Join your colleagues and peers at these presentations' has been deleted/moved to trash.",
+    "truth_criteria": [
+      "BrightTALK",
+      "Join your colleagues and peers"
+    ]
+  }
+]

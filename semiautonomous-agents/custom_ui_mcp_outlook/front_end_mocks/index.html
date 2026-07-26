@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Next-Gen Universal Chat Window - StitchMCP Powered Showcase</title>
+  <link rel="stylesheet" href="css/design_system.css">
+  <link rel="stylesheet" href="css/components.css">
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      background-color: #07090e;
+    }
+
+    #preview-frame {
+      width: 100%;
+      height: calc(100vh - 55px);
+      border: none;
+      background: #07090e;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- MASTER SHOWCASE TOP NAVIGATION BAR -->
+  <header class="top-showcase-bar">
+    <div class="brand-badge">
+      <div class="brand-icon-stack">
+        <span class="icon-claude">S</span>
+        <span class="icon-gemini">T</span>
+        <span class="icon-chatgpt">⚡</span>
+      </div>
+      <div>
+        <h1 class="brand-title">Next-Gen Universal Chat Window</h1>
+        <p style="font-size: 0.7rem; color: var(--accent-cyan);">Powered by StitchMCP (Project #9390392209573972575)</p>
+      </div>
+    </div>
+
+    <!-- MOCK OPTION SWITCHER TABS -->
+    <div class="mock-tab-nav">
+      <button id="btn-mock1" class="mock-nav-btn active" onclick="switchMock('mock1_claude_hybrid.html', 'btn-mock1')">
+        <span>🎨 Option 1: Sentient Shell (Claude Desktop)</span>
+      </button>
+      <button id="btn-mock2" class="mock-nav-btn" onclick="switchMock('mock2_gemini_hud.html', 'btn-mock2')">
+        <span>✨ Option 2: Aether HUD (Gemini Quantum)</span>
+      </button>
+      <button id="btn-mock3" class="mock-nav-btn" onclick="switchMock('mock3_studio_canvas.html', 'btn-mock3')">
+        <span>🎙️ Option 3: Warm Obsidian (ChatGPT Studio)</span>
+      </button>
+    </div>
+
+    <!-- STITCHMCP BADGE -->
+    <div style="display: flex; align-items: center; gap: 12px;">
+      <div style="display: flex; align-items: center; gap: 8px; font-size: 0.75rem; color: #a5b4fc; background: rgba(99,102,241,0.15); padding: 4px 12px; border-radius: 20px; border: 1px solid rgba(99,102,241,0.4);">
+        <span class="status-dot" style="background: #10b981; box-shadow: 0 0 8px #10b981;"></span>
+        <span>StitchMCP Project Active</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- IFRAME PREVIEW CONTAINER -->
+  <iframe id="preview-frame" src="mock1_claude_hybrid.html"></iframe>
+
+  <script>
+    function switchMock(pageUrl, btnId) {
+      document.getElementById('preview-frame').src = pageUrl;
+      
+      document.querySelectorAll('.mock-nav-btn').forEach(btn => {
+        btn.classList.remove('active', 'gemini-theme', 'studio-theme');
+      });
+
+      const activeBtn = document.getElementById(btnId);
+      activeBtn.classList.add('active');
+      
+      if (btnId === 'btn-mock2') {
+        activeBtn.classList.add('gemini-theme');
+      } else if (btnId === 'btn-mock3') {
+        activeBtn.classList.add('studio-theme');
+      }
+    }
+  </script>
+</body>
+</html>

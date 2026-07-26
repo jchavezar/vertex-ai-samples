@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Gemini Enterprise Quantum HUD — ADK + MCP Integration</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet"/>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "surface": "#11131e",
+                        "surface-container": "#1d1f2b",
+                        "surface-container-low": "#191b27",
+                        "surface-container-lowest": "#0c0d19",
+                        "primary": "#e1fdff",
+                        "primary-container": "#00f2ff",
+                        "secondary": "#ecb1ff",
+                        "secondary-container": "#d05bff",
+                        "on-surface": "#e2e1f2",
+                        "on-surface-variant": "#b9cacb",
+                        "outline": "#849495",
+                        "outline-variant": "#3a494b"
+                    },
+                    fontFamily: {
+                        "body-base": ["Inter", "sans-serif"],
+                        "data-label": ["JetBrains Mono", "monospace"]
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background-color: #050505; color: #e2e1f2; font-family: 'Inter', sans-serif; }
+        .ambient-glow-cyan {
+            background: radial-gradient(circle at 20% 30%, rgba(0,242,255,0.15) 0%, transparent 55%);
+        }
+        .ambient-glow-amethyst {
+            background: radial-gradient(circle at 80% 70%, rgba(208,91,255,0.15) 0%, transparent 55%);
+        }
+        .glass-panel {
+            background: rgba(17, 19, 30, 0.65);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(132, 148, 149, 0.3);
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+        .glass-panel:hover {
+            border-color: rgba(0, 242, 255, 0.4);
+            box-shadow: 0 0 15px rgba(0, 242, 255, 0.15);
+        }
+        .pulse-active { animation: pulse-ring 2s infinite; }
+        @keyframes pulse-ring {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0, 242, 255, 0.7); }
+            70% { transform: scale(1.05); box-shadow: 0 0 0 8px rgba(0, 242, 255, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0, 242, 255, 0); }
+        }
+
+        .yazdani-spinner {
+            display: inline-block;
+            font-size: 1.2rem;
+            color: #00f2ff;
+            font-family: 'JetBrains Mono', monospace;
+            animation: yazdani-glow 0.6s ease-in-out infinite alternate;
+        }
+        .yazdani-spinner::before {
+            content: '✳';
+            animation: yazdani-morph 0.9s steps(1) infinite;
+        }
+        @keyframes yazdani-morph {
+            0%, 12% { content: '✳'; }
+            12.1%, 24% { content: '✻'; }
+            24.1%, 36% { content: '❋'; }
+            36.1%, 48% { content: '✽'; }
+            48.1%, 60% { content: '※'; }
+            60.1%, 72% { content: '✷'; }
+            72.1%, 84% { content: '✸'; }
+            84.1%, 100% { content: '✳'; }
+        }
+        @keyframes yazdani-glow {
+            0% { opacity: 0.6; transform: scale(0.95); filter: drop-shadow(0 0 2px #00f2ff); }
+            100% { opacity: 1; transform: scale(1.15); filter: drop-shadow(0 0 10px #00f2ff); }
+        }
+
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
+        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+
+        .prose-dark p { margin-bottom: 0.75rem; line-height: 1.6; }
+        .prose-dark ul { list-style-type: disc; padding-left: 1.25rem; margin-bottom: 0.75rem; }
+        .prose-dark code { background: rgba(0,0,0,0.5); padding: 2px 6px; border-radius: 4px; font-family: 'JetBrains Mono', monospace; color: #00f2ff; font-size: 0.85em; }
+
+        /* Prominent Floating Prompt Bar Styling */
+        .terminal-input-dock {
+            background: rgba(12, 13, 25, 0.95);
+            border: 2px solid #00f2ff;
+            box-shadow: 0 0 25px rgba(0, 242, 255, 0.35);
+        }
+        .terminal-input-dock:focus-within {
+            border-color: #00f2ff;
+            box-shadow: 0 0 35px rgba(0, 242, 255, 0.6);
+        }
+    </style>
+</head>
+<body class="h-screen overflow-hidden flex flex-col relative">
+
+<!-- Background Glow FX -->
+<div class="fixed inset-0 ambient-glow-cyan pointer-events-none z-0"></div>
+<div class="fixed inset-0 ambient-glow-amethyst pointer-events-none z-0"></div>
+
+<!-- Top Navigation Bar -->
+<header class="h-16 w-full bg-[#0c0d19]/90 backdrop-blur-xl border-b border-[#00f2ff]/30 px-6 flex items-center justify-between z-30 relative shrink-0">
+    <div class="flex items-center gap-4">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-[#00f2ff] via-[#3b82f6] to-[#d05bff] flex items-center justify-center text-black font-extrabold text-lg shadow-[0_0_15px_rgba(0,242,255,0.4)]">
+            ✨
+        </div>
+        <div>
+            <h1 class="text-base font-extrabold text-white tracking-wide flex items-center gap-3">
+                GEMINI ENTERPRISE QUANTUM HUD
+                <span class="text-xs px-2.5 py-0.5 rounded-full bg-[#00f2ff]/10 text-[#00f2ff] border border-[#00f2ff]/40 font-mono">
+                    ADK + MCP INTEGRATED
+                </span>
+            </h1>
+            <p class="text-xs text-gray-400 font-mono">M365 Tenant: admin@sockcop.onmicrosoft.com • Vertex AI Grounding Mesh</p>
+        </div>
+    </div>
+
+    <!-- Right Controls -->
+    <div class="flex items-center gap-4">
+        <div class="glass-panel px-3.5 py-1.5 rounded-full flex items-center gap-2 border-[#00f2ff]/40">
+            <span class="text-xs font-mono text-gray-400">MODEL:</span>
+            <select id="model-select" class="bg-transparent text-xs font-mono font-bold text-[#00f2ff] focus:outline-none cursor-pointer">
+                <option value="gemini-3.6-flash" selected class="bg-[#11131e] text-white">gemini-3.6-flash</option>
+                <option value="gemini-3.5-flash" class="bg-[#11131e] text-white">gemini-3.5-flash</option>
+                <option value="gemini-3.5-flash-lite" class="bg-[#11131e] text-white">gemini-3.5-flash-lite</option>
+            </select>
+        </div>
+
+        <div class="glass-panel px-3.5 py-1.5 rounded-full flex items-center gap-2 border-emerald-500/40">
+            <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 pulse-active"></span>
+            <span class="text-xs font-mono font-semibold text-emerald-300">M365 Graph Connected</span>
+        </div>
+    </div>
+</header>
+
+<!-- Main Workspace Layout Grid -->
+<div class="flex-1 grid grid-cols-12 gap-5 p-5 overflow-hidden relative z-10">
+    
+    <!-- LEFT & CENTER: CHAT WORKSPACE & SUBAGENT TOPOLOGY -->
+    <section class="col-span-8 flex flex-col gap-4 h-full overflow-hidden">
+        
+        <!-- CHAT FEED CONTAINER -->
+        <div class="glass-panel rounded-2xl p-5 flex-1 flex flex-col border-t-2 border-t-[#00f2ff] overflow-hidden relative">
+            <div class="text-[10px] font-mono text-gray-500 absolute top-3 right-4 tracking-widest uppercase">PANEL: 001-CHAT-HUD</div>
+            
+            <div id="chat-thread" class="flex-1 overflow-y-auto space-y-5 pr-2 scrollbar-hide">
+                <div class="flex gap-4">
+                    <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-[#00f2ff] to-[#3b82f6] text-black font-bold flex items-center justify-center text-sm shrink-0 shadow-[0_0_10px_rgba(0,242,255,0.4)]">
+                        ✨
+                    </div>
+                    <div class="flex-1 bg-[#151c27]/90 border border-[#00f2ff]/30 rounded-xl p-4 text-sm text-gray-200 prose-dark">
+                        <div class="font-mono text-xs font-bold text-[#00f2ff] mb-2 uppercase tracking-wider">Gemini Enterprise Quantum Agent Ready</div>
+                        I am fully connected to your <strong>Microsoft 365 Tenant</strong> via ADK and MCP connectors. Ask me to search emails, summarize calendar meetings, or prepare meeting briefings.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Loader Indicator -->
+            <div id="thinking-indicator" class="hidden my-3 p-3 bg-[#00f2ff]/10 border border-[#00f2ff]/40 rounded-xl flex items-center gap-3">
+                <span class="yazdani-spinner"></span>
+                <span id="thinking-text" class="font-mono text-xs font-semibold text-[#00f2ff] tracking-wide uppercase">
+                    Synthesizing Multi-Agent Grounding Mesh...
+                </span>
+            </div>
+
+            <!-- HIGH-VISIBILITY CHATBOT TERMINAL INPUT DOCK -->
+            <div class="mt-4 pt-3 border-t border-white/10 relative">
+                <!-- Sample Workflow Quick Action Chips -->
+                <div class="flex items-center gap-2 mb-3 overflow-x-auto pb-1 scrollbar-hide">
+                    <button class="px-3.5 py-1.5 rounded-full bg-[#1d1f2b] border border-[#00f2ff]/40 text-xs text-cyan-200 font-mono font-medium hover:border-[#00f2ff] hover:bg-[#00f2ff]/10 transition-all whitespace-nowrap shadow-sm" onclick="sendPrompt('Prepare a meeting briefing report for tomorrow')">
+                        📅 Tomorrow's Meeting Briefing
+                    </button>
+                    <button class="px-3.5 py-1.5 rounded-full bg-[#1d1f2b] border border-[#00f2ff]/40 text-xs text-cyan-200 font-mono font-medium hover:border-[#00f2ff] hover:bg-[#00f2ff]/10 transition-all whitespace-nowrap shadow-sm" onclick="sendPrompt('What is the oldest email in my mailbox?')">
+                        📧 Oldest Email Search
+                    </button>
+                    <button class="px-3.5 py-1.5 rounded-full bg-[#1d1f2b] border border-[#00f2ff]/40 text-xs text-cyan-200 font-mono font-medium hover:border-[#00f2ff] hover:bg-[#00f2ff]/10 transition-all whitespace-nowrap shadow-sm" onclick="sendPrompt('Check passkeys and security policy notices in inbox')">
+                        🔒 Security Alerts
+                    </button>
+                </div>
+
+                <!-- Glowing Cyan Input Line Box -->
+                <div class="terminal-input-dock rounded-2xl px-5 py-3 flex items-center gap-3 transition-all">
+                    <span class="material-symbols-outlined text-[#00f2ff] text-2xl animate-pulse">terminal</span>
+                    <input id="user-input" class="flex-1 bg-transparent border-none text-white font-mono text-base focus:outline-none placeholder-gray-400" placeholder="Type prompt or /command for M365 Assistant..." onkeydown="if(event.key === 'Enter') handleSend()"/>
+                    <button onclick="handleSend()" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#00f2ff] to-[#3b82f6] hover:from-cyan-300 hover:to-blue-400 text-black font-extrabold text-sm flex items-center gap-2 transition-all shadow-[0_0_15px_rgba(0,242,255,0.4)]">
+                        <span>SEND</span>
+                        <span class="material-symbols-outlined text-lg">send</span>
+                    </button>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- COMPACT SUBAGENT TOPOLOGY GRAPH PANEL -->
+        <div class="glass-panel rounded-xl p-3.5 h-36 border-t-2 border-t-[#d05bff] relative overflow-hidden flex flex-col justify-between shrink-0">
+            <div class="flex items-center justify-between">
+                <span class="font-mono text-xs font-bold text-[#d05bff] uppercase tracking-wider flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-[#d05bff] pulse-active"></span>
+                    Subagent Topology Network
+                </span>
+                <span id="topology-status" class="font-mono text-xs text-gray-400">STATUS: STANDBY</span>
+            </div>
+
+            <div class="relative w-full h-20 flex items-center justify-around">
+                <svg class="absolute inset-0 w-full h-full pointer-events-none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M 180,40 C 320,40 320,40 450,40" fill="none" stroke="rgba(0, 242, 255, 0.4)" stroke-width="2" stroke-dasharray="4"/>
+                    <path d="M 450,40 C 580,40 580,40 720,40" fill="none" stroke="rgba(208, 91, 255, 0.4)" stroke-width="2" stroke-dasharray="4"/>
+                </svg>
+
+                <div id="node-owl" class="flex flex-col items-center z-10 transition-transform duration-300">
+                    <div class="w-9 h-9 bg-[#0c0d19] border-2 border-[#00f2ff] rounded-xl flex items-center justify-center text-[#00f2ff] shadow-[0_0_10px_rgba(0,242,255,0.4)]">
+                        <span class="material-symbols-outlined text-lg">psychology</span>
+                    </div>
+                    <span class="font-mono text-[10px] text-[#00f2ff] mt-1 font-bold">Owl Orchestrator</span>
+                </div>
+
+                <div id="node-outlook" class="flex flex-col items-center z-10 transition-transform duration-300">
+                    <div class="w-9 h-9 bg-[#0c0d19] border border-blue-400 rounded-xl flex items-center justify-center text-blue-400">
+                        <span class="material-symbols-outlined text-lg">mail</span>
+                    </div>
+                    <span class="font-mono text-[10px] text-gray-300 mt-1">Outlook MCP Agent</span>
+                </div>
+
+                <div id="node-research" class="flex flex-col items-center z-10 transition-transform duration-300">
+                    <div class="w-9 h-9 bg-[#0c0d19] border border-[#d05bff] rounded-xl flex items-center justify-center text-[#d05bff]">
+                        <span class="material-symbols-outlined text-lg">hub</span>
+                    </div>
+                    <span class="font-mono text-[10px] text-[#d05bff] mt-1">Research Agent</span>
+                </div>
+            </div>
+        </div>
+
+    </section>
+
+    <!-- RIGHT SIDEBAR: GROUNDED SOURCE MESH CARDS -->
+    <aside class="col-span-4 glass-panel rounded-2xl p-5 border-t-2 border-t-[#d05bff] flex flex-col h-full overflow-hidden">
+        <div class="flex items-center justify-between mb-4 pb-3 border-b border-white/10">
+            <span class="font-mono text-xs font-bold text-[#d05bff] uppercase tracking-wider flex items-center gap-2">
+                <span class="material-symbols-outlined text-base">dataset</span>
+                Grounded Source Mesh
+            </span>
+            <span id="source-count" class="font-mono text-[10px] bg-[#d05bff]/20 text-[#d05bff] px-2 py-0.5 rounded border border-[#d05bff]/30">
+                0 Active Citations
+            </span>
+        </div>
+
+        <div id="grounding-mesh-feed" class="flex-1 overflow-y-auto space-y-3.5 pr-1 scrollbar-hide">
+            <div class="text-center py-12 text-gray-500 font-mono text-xs">
+                No active query executed.<br/>Submit a prompt to retrieve live M365 grounding cards.
+            </div>
+        </div>
+
+        <div class="mt-4 pt-3 border-t border-white/10 flex flex-col gap-1 font-mono text-[11px] text-gray-400">
+            <div class="flex justify-between">
+                <span>TOTAL LATENCY:</span>
+                <span id="telemetry-total" class="text-[#00f2ff] font-bold">0.00s</span>
+            </div>
+            <div class="flex justify-between text-[10px] text-gray-500">
+                <span>M365 SEARCH: <span id="telemetry-search">0.00s</span></span>
+                <span>STATUS: <span class="text-emerald-400">200 OK</span></span>
+            </div>
+        </div>
+    </aside>
+
+</div>
+
+<script>
+    let queryTimer = null;
+
+    function handleSend() {
+        const input = document.getElementById('user-input');
+        const text = input.value.trim();
+        if (!text) return;
+        input.value = '';
+        sendPrompt(text);
+    }
+
+    async function sendPrompt(promptText) {
+        const thread = document.getElementById('chat-thread');
+        const indicator = document.getElementById('thinking-indicator');
+        const thinkingText = document.getElementById('thinking-text');
+        const topoStatus = document.getElementById('topology-status');
+        const modelSelect = document.getElementById('model-select');
+        const telemetryTotal = document.getElementById('telemetry-total');
+        const nodeOwl = document.getElementById('node-owl');
+        const nodeOutlook = document.getElementById('node-outlook');
+        const nodeResearch = document.getElementById('node-research');
+
+        if (queryTimer) clearInterval(queryTimer);
+
+        const userMsg = document.createElement('div');
+        userMsg.className = 'flex gap-4 justify-end';
+        userMsg.innerHTML = `
+            <div class="bg-[#1d1f2b] border border-cyan-500/50 rounded-xl p-4 text-sm text-white max-w-[80%] shadow-lg">
+                ${promptText}
+            </div>
+            <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-600 text-black font-bold flex items-center justify-center text-xs shrink-0">
+                JA
+            </div>
+        `;
+        thread.appendChild(userMsg);
+        thread.scrollTop = thread.scrollHeight;
+
+        indicator.classList.remove('hidden');
+        topoStatus.innerText = 'STATUS: FEDERATING M365 DATA';
+        topoStatus.className = 'font-mono text-xs text-[#00f2ff] animate-pulse';
+        nodeOwl.style.transform = 'scale(1.15)';
+        nodeOutlook.style.transform = 'scale(1.15)';
+
+        const t0 = performance.now();
+        thinkingText.innerHTML = `Synthesizing Multi-Agent Grounding Mesh... <span class="ml-2 font-mono text-cyan-300 bg-[#00f2ff]/20 px-2 py-0.5 rounded border border-[#00f2ff]/40">⏱️ 0.0s</span>`;
+
+        queryTimer = setInterval(() => {
+            const liveSecs = ((performance.now() - t0) / 1000).toFixed(1);
+            thinkingText.innerHTML = `Synthesizing Multi-Agent Grounding Mesh... <span class="ml-2 font-mono text-cyan-300 bg-[#00f2ff]/20 px-2 py-0.5 rounded border border-[#00f2ff]/40">⏱️ ${liveSecs}s</span>`;
+            telemetryTotal.innerText = `${liveSecs}s`;
+        }, 100);
+
+        try {
+            const res = await fetch('/api/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: promptText, model: modelSelect.value })
+            });
+            const data = await res.json();
+            clearInterval(queryTimer);
+
+            const finalSecs = (data.latency_s || ((performance.now() - t0) / 1000)).toFixed(2);
+
+            renderGroundingMesh(data.raw_grounding_data || {});
+
+            telemetryTotal.innerText = finalSecs + 's';
+            document.getElementById('telemetry-search').innerText = (data.search_latency_s || 0.25) + 's';
+
+            nodeOutlook.style.transform = 'scale(1)';
+            nodeResearch.style.transform = 'scale(1.15)';
+            topoStatus.innerText = 'STATUS: SYNTHESIZING GEMINI LLM';
+
+            await new Promise(r => setTimeout(r, 400));
+
+            indicator.classList.add('hidden');
+            nodeOwl.style.transform = 'scale(1)';
+            nodeResearch.style.transform = 'scale(1)';
+            topoStatus.innerText = 'STATUS: OPTIMAL / STANDBY';
+            topoStatus.className = 'font-mono text-xs text-gray-400';
+
+            const assistantMsg = document.createElement('div');
+            assistantMsg.className = 'flex gap-4';
+            assistantMsg.innerHTML = `
+                <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-[#00f2ff] to-[#3b82f6] text-black font-bold flex items-center justify-center text-sm shrink-0 shadow-[0_0_10px_rgba(0,242,255,0.4)]">
+                    ✨
+                </div>
+                <div class="flex-1 bg-[#151c27]/90 border border-[#00f2ff]/30 rounded-xl p-4 text-sm text-gray-200 prose-dark relative">
+                    <div class="flex items-center justify-between border-b border-white/10 pb-2 mb-3">
+                        <span class="font-mono text-xs font-bold text-[#00f2ff] uppercase tracking-wider">${modelSelect.value} Response</span>
+                        <span class="font-mono text-[11px] text-cyan-300 bg-[#00f2ff]/10 px-2 py-0.5 rounded border border-[#00f2ff]/30 flex items-center gap-1 shadow-sm">
+                            <span>⏱️</span>
+                            <span>${finalSecs}s</span>
+                        </span>
+                    </div>
+                    ${marked.parse(data.response || "No response received.")}
+                </div>
+            `;
+            thread.appendChild(assistantMsg);
+            thread.scrollTop = thread.scrollHeight;
+
+        } catch(e) {
+            if (queryTimer) clearInterval(queryTimer);
+            indicator.classList.add('hidden');
+            topoStatus.innerText = 'STATUS: ERROR';
+            const errorMsg = document.createElement('div');
+            errorMsg.className = 'flex gap-4';
+            errorMsg.innerHTML = `
+                <div class="w-9 h-9 rounded-xl bg-red-500 text-white font-bold flex items-center justify-center text-sm shrink-0">⚠️</div>
+                <div class="flex-1 bg-red-950/40 border border-red-500/40 rounded-xl p-4 text-sm text-red-300">
+                    Failed to communicate with local-adk-mcp backend: ${e.message}
+                </div>
+            `;
+            thread.appendChild(errorMsg);
+            thread.scrollTop = thread.scrollHeight;
+        }
+    }
+
+    function renderGroundingMesh(raw) {
+        const feed = document.getElementById('grounding-mesh-feed');
+        const countBadge = document.getElementById('source-count');
+        feed.innerHTML = '';
+
+        const emails = raw.emails || [];
+        const meetings = raw.meetings || [];
+        const profile = raw.profile || {};
+
+        let totalSources = emails.length + meetings.length + (profile.displayName ? 1 : 0);
+        countBadge.innerText = `${totalSources} Active Citations`;
+
+        if (profile.displayName) {
+            feed.innerHTML += `
+                <div class="p-3 bg-[#11131e] border border-[#00f2ff]/40 rounded-xl font-mono text-xs space-y-1">
+                    <div class="flex items-center gap-2 text-[#00f2ff] font-bold">
+                        <span class="material-symbols-outlined text-sm">badge</span>
+                        M365 USER PROFILE
+                    </div>
+                    <div class="text-white">${profile.displayName}</div>
+                    <div class="text-gray-400 text-[11px]">${profile.mail || profile.userPrincipalName} • ${profile.jobTitle || 'Executive'}</div>
+                </div>
+            `;
+        }
+
+        meetings.forEach(m => {
+            const startStr = m.start?.dateTime ? new Date(m.start.dateTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : 'Today';
+            feed.innerHTML += `
+                <div class="p-3 bg-[#11131e] border border-[#d05bff]/40 rounded-xl font-mono text-xs space-y-1 hover:border-[#d05bff] transition-colors">
+                    <div class="flex items-center justify-between text-[#d05bff] font-bold">
+                        <span class="flex items-center gap-1.5">
+                            <span class="material-symbols-outlined text-sm">event</span>
+                            CALENDAR MEETING
+                        </span>
+                        <span class="text-[10px] text-gray-400">${startStr}</span>
+                    </div>
+                    <div class="text-white font-sans font-medium">${m.subject}</div>
+                    <div class="text-gray-400 text-[10px]">Organizer: ${m.organizer?.emailAddress?.name || 'M365 User'}</div>
+                </div>
+            `;
+        });
+
+        emails.forEach(em => {
+            const recvStr = em.receivedDateTime ? new Date(em.receivedDateTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : '';
+            feed.innerHTML += `
+                <div class="p-3 bg-[#11131e] border border-blue-500/40 rounded-xl font-mono text-xs space-y-1 hover:border-blue-400 transition-colors">
+                    <div class="flex items-center justify-between text-blue-400 font-bold">
+                        <span class="flex items-center gap-1.5">
+                            <span class="material-symbols-outlined text-sm">mail</span>
+                            OUTLOOK EMAIL
+                        </span>
+                        <span class="text-[10px] text-gray-400">${recvStr}</span>
+                    </div>
+                    <div class="text-white font-sans font-medium line-clamp-1">${em.subject}</div>
+                    <div class="text-gray-400 text-[10px] line-clamp-2">${em.bodyPreview || ''}</div>
+                </div>
+            `;
+        });
+    }
+</script>
+</body>
+</html>

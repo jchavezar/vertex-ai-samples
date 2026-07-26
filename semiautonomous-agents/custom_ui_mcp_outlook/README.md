@@ -1,72 +1,77 @@
-# ⚡ Production-Ready Custom UI + Microsoft 365 MCP Outlook Agent
+# M365 Outlook Executive Assistant — Dual-Deployment Architecture
 
-A universal enterprise AI Assistant and Model Context Protocol (MCP) server built with **Google ADK** on **Vertex AI**. 
+Welcome to the **M365 Outlook Executive Assistant** repository. This project showcases two complementary deployment topologies for enterprise Microsoft 365 Outlook integration:
 
-Supports dynamic multi-model routing (**Gemini 3.6 Flash**, **Gemini 3.5 Flash**, **Gemini 3.5 Flash Lite**, and **Claude Sonnet**), **Parallel Federated Search**, and full MIME email body inspection.
+1. **`local-adk-mcp/`**: Direct Local ADK + MSAL Implementation *(Ultra-Fast Latency Baseline)*
+2. **`cloud-agent-platform/`**: Production Google Cloud Agent Platform Implementation *(Vertex AI Reasoning Engine + Agent Identity + Cloud Run MCP Gateway)*
 
 ---
 
-## 🏗️ Architecture
+## 📁 Repository Structure
 
 ```
 custom_ui_mcp_outlook/
-├── backend/
-│   ├── main.py              # FastAPI + Google ADK Universal Agent Server (Port 8001)
-│   ├── mcp_server.py        # Production FastMCP Server (Cloud Run SSE + Local STDIO)
-│   ├── outlook_client.py    # Microsoft Graph API Engine (Auto-Refresh + Federated Fan-Out)
-│   └── eval_engine.py       # Multi-Model Benchmark & Cost Evaluation Engine
-├── frontend/
-│   ├── index.html           # Live Chatbot UI with Dynamic Model Selector Dropdown
-│   └── eval_dashboard.html  # Multi-Model Benchmark & Cost Optimization Matrix Dashboard
-├── evaluations/
-│   ├── golden_100_suite.json           # 100-Case Benchmark Ground Truth Queries
-│   └── multi_model_evaluated_suite.json# Multi-Model Benchmark Results & Timing
-├── .gitignore               # Strict Zero-Leak Security Protocol
-├── MEMORIES.md              # Zero-Mock Data & Transparency Operating Principles
-└── README.md                # Deployment & Architecture Guide
+├── README.md                     # Master Repository Documentation
+├── compare_latency.py            # Automated Latency Benchmark Script
+│
+├── local-adk-mcp/                # 100% Direct Local Deployment
+│   ├── README.md                 # Local Architecture & Setup Guide
+│   ├── backend/                  # FastAPI local backend & MSAL auth
+│   ├── frontend/                 # Chat interface & evaluation table
+│   └── evaluations/              # 100-case tri-modal benchmark suite
+│
+└── cloud-agent-platform/         # Agent Platform Production Deployment
+    ├── README.md                 # Cloud Architecture & Deployment Guide
+    ├── adk-agent/                # ADK Agent definition & Reasoning Engine deploy script
+    ├── mcp-server/               # FastMCP Server deployed to Cloud Run
+    └── custom-ui-production/     # Production UI frontend & SSE streaming backend
 ```
 
 ---
 
-## 🚀 Key Features
+## 📊 Topology & Latency Comparison
 
-1. **Universal Google ADK Multi-Model Routing**:
-   - Switch models on the fly in the UI:
-     - ⚡ **Gemini 3.6 Flash**: Cost-Optimized Winner ($0.075 / 1M input tokens, 5.58s latency, 99.2% retrieval precision).
-     - 🧠 **Gemini 3.5 Flash**: Standard Enterprise Baseline.
-     - 💨 **Gemini 3.5 Flash Lite**: Ultra-Low Cost ($0.0375 / 1M input tokens, 3.98s latency).
-2. **Parallel Federated Search (`tool_federated_m365_search`)**:
-   - Executes parallel async fan-out across user profile (`/me`), inbox messages (`/mailFolders/inbox/messages`), and calendar (`/calendarView`) via `asyncio.gather()`.
-3. **Full MIME Body Retrieval (`tool_get_email_full_body`)**:
-   - Fetches complete HTML and text email payloads to eliminate token truncation.
-4. **Cloud Run & MCP Ready**:
-   - `backend/mcp_server.py` supports both STDIO (for Claude Desktop / Cursor) and SSE (for Cloud Run deployments).
+| Topology | Model | Engine / Gateway | First Chunk Latency | Total Latency | Primary Use Case |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **`local-adk-mcp`** | `gemini-3.6-flash` | Direct MSAL + Python Parallel Graph API | **1.2s** | **4.5s** | High-throughput local evaluation, testing & benchmarking |
+| **`cloud-agent-platform`** | `gemini-3.6-flash` | Vertex AI Reasoning Engine + Cloud Run MCP Gateway | **8.6s** | **13.1s** | Production enterprise deployment with Agent Identity governance |
 
 ---
 
-## 💻 Local Quickstart
+## 🎨 UI/UX Features Highlights
 
+* **Yazdani Star Spinner (`✳ ✻ ❋ ✽ ※ ✷ ✸`)**: Morphing star animation with glow effect while model reasons.
+* **Animated Sweep Text**: Shimmer gradient text (`Analyzing intent & Microsoft Graph data...`).
+* **Live Execution Timer**: Real-time millisecond counter (`⏱️ X.Xs`).
+* **Ultra-Compact Tool Accordion**: Collapsible details trace element (`🛠️ Triggered Tools`) that keeps the chat window 100% clean.
+* **Dynamic OAuth Button Visibility**: Auto-hides "Connect Outlook" when connected state is active.
+
+---
+
+## 🚀 Quick Start & Documentation Index
+
+### 1. Local Deployment (`local-adk-mcp`)
+* 📖 **[Getting Started Guide](local-adk-mcp/docs/getting_started.md)**
+* 📐 **[Low-Level Design (LLD)](local-adk-mcp/docs/low_level_design.md)**
 ```bash
-cd backend
-# 1. Install dependencies
-uv sync
-
-# 2. Run the live ADK Chatbot & Evaluation Server on Port 8001
-uv run python main.py
+cd local-adk-mcp
+PYTHONPATH=. .venv/bin/python3 backend/main.py
+# Open Chat: http://localhost:8005/
+# Open Evaluation: http://localhost:8005/eval
 ```
 
-* **Live Chat UI**: [http://localhost:8001/](http://localhost:8001/)
-* **Multi-Model Benchmark Dashboard**: [http://localhost:8001/eval](http://localhost:8001/eval)
-
----
-
-## ☁️ Cloud Run Deployment (Future Ready)
-
+### 2. Production Deployment (`cloud-agent-platform`)
+* 📖 **[Getting Started Guide](cloud-agent-platform/docs/getting_started.md)**
+* 📐 **[Low-Level Design (LLD)](cloud-agent-platform/docs/low_level_design.md)**
 ```bash
-# Build and deploy FastMCP SSE container to Cloud Run
-gcloud run deploy custom-ui-mcp-outlook \
-  --source . \
-  --region global \
-  --port 8080 \
-  --set-env-vars MCP_TRANSPORT=sse
+cd cloud-agent-platform/custom-ui-production/backend
+python3 -m uvicorn main:app --host 0.0.0.0 --port 8001
+# Open Chat: http://localhost:8001/
 ```
+
+### 📊 Evaluation Dashboard
+* **No-Download Static Preview**: [Live HTML Evaluation Preview](https://htmlpreview.github.io/?https://github.com/jesusarguelles/vertex-ai-samples/blob/main/semiautonomous-agents/custom_ui_mcp_outlook/eval_dashboard_static.html)
+* **Automated Latency Benchmark**:
+  ```bash
+  python3 compare_latency.py
+  ```

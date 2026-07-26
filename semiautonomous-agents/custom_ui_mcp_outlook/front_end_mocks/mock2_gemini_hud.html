@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Mock 2: Gemini Enterprise Quantum HUD (StitchMCP Aether HUD)</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&amp;family=JetBrains+Mono:wght@500;700&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "on-surface-variant": "#b9cacb",
+                      "secondary-container": "#d05bff",
+                      "primary-container": "#00f2ff",
+                      "inverse-surface": "#e2e1f2",
+                      "on-tertiary-fixed-variant": "#474646",
+                      "tertiary-fixed": "#e5e2e1",
+                      "primary-fixed-dim": "#00dbe7",
+                      "background": "#11131e",
+                      "on-secondary-fixed": "#320046",
+                      "on-tertiary": "#313030",
+                      "on-secondary-container": "#480063",
+                      "surface-container-lowest": "#0c0d19",
+                      "surface-bright": "#373845",
+                      "on-primary-fixed-variant": "#004f54",
+                      "on-tertiary-container": "#615f5f",
+                      "surface-container": "#1d1f2b",
+                      "outline": "#849495",
+                      "on-surface": "#e2e1f2",
+                      "tertiary": "#faf6f6",
+                      "primary-fixed": "#74f5ff",
+                      "outline-variant": "#3a494b",
+                      "primary": "#e1fdff",
+                      "tertiary-fixed-dim": "#c9c6c5",
+                      "surface-container-highest": "#333441",
+                      "error-container": "#93000a",
+                      "error": "#ffb4ab",
+                      "surface-container-low": "#191b27",
+                      "on-primary-fixed": "#002022",
+                      "surface": "#11131e",
+                      "on-tertiary-fixed": "#1c1b1b",
+                      "on-secondary": "#520070",
+                      "on-error": "#690005",
+                      "surface-container-high": "#282936",
+                      "on-background": "#e2e1f2",
+                      "surface-dim": "#11131e",
+                      "on-secondary-fixed-variant": "#75009e",
+                      "on-error-container": "#ffdad6",
+                      "surface-variant": "#333441",
+                      "secondary-fixed": "#f9d8ff",
+                      "on-primary": "#00363a",
+                      "secondary-fixed-dim": "#ecb1ff",
+                      "inverse-primary": "#00696f",
+                      "secondary": "#ecb1ff",
+                      "surface-tint": "#00dbe7",
+                      "inverse-on-surface": "#2e2f3c",
+                      "tertiary-container": "#dddad9",
+                      "on-primary-container": "#006a71"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "container-max": "1440px",
+                      "margin-safe": "32px",
+                      "gutter": "16px",
+                      "unit": "4px",
+                      "glass-padding": "24px"
+              },
+              "fontFamily": {
+                      "headline-md": ["Inter"],
+                      "data-label": ["JetBrains Mono"],
+                      "display-lg-mobile": ["Inter"],
+                      "body-base": ["Inter"],
+                      "display-lg": ["Inter"],
+                      "data-value": ["JetBrains Mono"],
+                      "caption-caps": ["JetBrains Mono"]
+              }
+            }
+          }
+        }
+      </script>
+<style>
+        .ambient-void { background-color: #050505; }
+        .ambient-glow-cyan {
+            background: radial-gradient(circle at 20% 30%, rgba(0,219,231,0.15) 0%, transparent 50%);
+        }
+        .ambient-glow-amethyst {
+            background: radial-gradient(circle at 80% 70%, rgba(208,91,255,0.15) 0%, transparent 50%);
+        }
+        .glass-panel {
+            background: rgba(17, 19, 30, 0.4);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(132, 148, 149, 0.2);
+        }
+        .neon-border-cyan { border: 1px solid #00f2ff; box-shadow: 0 0 4px rgba(0, 242, 255, 0.3); }
+        .neon-border-amethyst { border: 1px solid #d05bff; box-shadow: 0 0 4px rgba(208, 91, 255, 0.3); }
+        .neon-text-cyan { color: #00f2ff; text-shadow: 0 0 8px rgba(0, 242, 255, 0.5); }
+        @keyframes pulse-ring {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0, 242, 255, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(0, 242, 255, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0, 242, 255, 0); }
+        }
+        .pulse-active { animation: pulse-ring 2s infinite; }
+      </style>
+</head>
+<body class="ambient-void text-on-surface font-body-base min-h-screen overflow-hidden flex">
+<!-- Atmospheric Underlays -->
+<div class="fixed inset-0 ambient-glow-cyan pointer-events-none z-0"></div>
+<div class="fixed inset-0 ambient-glow-amethyst pointer-events-none z-0"></div>
+<!-- SideNavBar -->
+<nav class="fixed left-0 top-0 h-full w-20 hover:w-64 transition-all duration-500 overflow-hidden z-50 bg-surface-container-lowest/30 backdrop-blur-[30px] border-r border-primary/10 flex flex-col py-8 group">
+<div class="px-6 mb-12 flex items-center gap-4 whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+<div>
+<div class="text-headline-md font-headline-md text-secondary-fixed">QUANTUM HUD</div>
+<div class="font-data-label text-data-label text-primary-fixed-dim">V3.0 PREVIEW</div>
+</div>
+</div>
+<!-- Main Navigation -->
+<div class="flex-1 flex flex-col gap-2 w-full">
+<a class="flex items-center px-6 py-4 w-full text-on-surface-variant hover:text-primary-fixed hover:bg-white/5 transition-colors" href="#">
+<span class="material-symbols-outlined shrink-0">hub</span>
+<span class="ml-6 font-data-label text-data-label opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">Orchestrator</span>
+</a>
+<a class="flex items-center px-6 py-4 w-full bg-primary-container/20 text-primary-fixed-dim border-l-4 border-primary-fixed-dim hover:bg-white/5 transition-colors" href="#">
+<span class="material-symbols-outlined shrink-0">psychology</span>
+<span class="ml-6 font-data-label text-data-label opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">Reasoning</span>
+</a>
+<a class="flex items-center px-6 py-4 w-full text-on-surface-variant hover:text-primary-fixed hover:bg-white/5 transition-colors" href="#">
+<span class="material-symbols-outlined shrink-0">downloading</span>
+<span class="ml-6 font-data-label text-data-label opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">Sources</span>
+</a>
+</div>
+</nav>
+<!-- Main Content Canvas -->
+<main class="flex-1 ml-20 relative z-10 flex flex-col h-screen">
+<header class="flex justify-between items-center w-full px-margin-safe py-4 max-w-container-max mx-auto bg-surface/10 backdrop-blur-[20px] border-b border-primary/20 z-20 shrink-0">
+<div class="flex items-center gap-6">
+<div class="font-display-lg text-display-lg-mobile md:text-display-lg text-primary-fixed drop-shadow-[0_0_8px_rgba(0,219,231,0.4)]">GEMINI ENTERPRISE</div>
+<div class="glass-panel rounded-full px-4 py-1.5 flex items-center gap-2 border-primary/30">
+<div class="w-2 h-2 rounded-full bg-primary-fixed pulse-active"></div>
+<span class="font-data-label text-data-label text-primary-fixed uppercase tracking-wider">gemini-3-pro-preview</span>
+</div>
+</div>
+</header>
+<!-- Dashboard Layout -->
+<div class="flex-1 p-margin-safe grid grid-cols-12 gap-gutter overflow-hidden max-w-container-max mx-auto w-full">
+<section class="col-span-8 flex flex-col gap-gutter h-full">
+<div class="glass-panel rounded-lg p-glass-padding flex-1 border-t-2 border-t-primary-fixed flex flex-col relative overflow-hidden">
+<div class="flex-1 overflow-y-auto pr-4 space-y-6">
+<div class="flex gap-4">
+<div class="w-8 h-8 rounded border border-primary/30 shrink-0 flex items-center justify-center bg-surface-container">
+<span class="material-symbols-outlined text-sm text-primary">person</span>
+</div>
+<div class="bg-surface-container/50 border border-outline-variant rounded p-4 max-w-[80%] font-body-base text-on-surface">
+                                Analyze the latest Outlook threads regarding Project Aether and cross-reference with Jira Epics for Q3 deliverables. Identify critical path blockers.
+                            </div>
+</div>
+<div class="flex gap-4 items-start">
+<!-- Yazdani Morphing Glyph Spinner -->
+<div class="w-12 h-12 rounded-full border border-primary/20 shrink-0 flex items-center justify-center bg-surface-container relative">
+<div class="absolute inset-0 rounded-full border-2 border-primary-fixed pulse-active opacity-50"></div>
+<span class="material-symbols-outlined text-primary-fixed animate-spin" style="animation-duration: 4s;">all_inclusive</span>
+</div>
+<div class="flex-1 pt-2">
+<div class="font-data-label text-data-label text-primary-fixed neon-text-cyan uppercase mb-2">Engaging Quantum Reasoning...</div>
+<div class="space-y-2">
+<div class="flex items-center gap-2 border-b border-white/5 pb-1">
+<span class="font-data-label text-caption-caps text-outline">01</span>
+<span class="font-data-label text-data-label text-on-surface-variant">Initializing Owl Orchestrator</span>
+<span class="material-symbols-outlined text-sm text-secondary-fixed ml-auto">check_circle</span>
+</div>
+<div class="flex items-center gap-2 border-b border-white/5 pb-1">
+<span class="font-data-label text-caption-caps text-outline">02</span>
+<span class="font-data-label text-data-label text-on-surface-variant">Connecting Outlook Agent</span>
+<span class="material-symbols-outlined text-sm text-secondary-fixed ml-auto">check_circle</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Subagent Topology -->
+<div class="glass-panel rounded-lg p-glass-padding h-64 border-t-2 border-t-secondary-fixed relative overflow-hidden flex items-center justify-center">
+<div class="font-data-label text-data-label text-secondary-fixed uppercase absolute top-4 left-4">Live Topology</div>
+<div class="relative w-full max-w-md h-full mt-8">
+<svg class="absolute inset-0 w-full h-full pointer-events-none" xmlns="http://www.w3.org/2000/svg">
+<path d="M 50%,20% C 20%,50% 20%,80% 20%,80%" fill="none" stroke="rgba(0, 242, 255, 0.4)" stroke-width="2"></path>
+<path d="M 50%,20% C 80%,50% 80%,80% 80%,80%" fill="none" stroke="rgba(208, 91, 255, 0.4)" stroke-width="2"></path>
+</svg>
+<div class="absolute top-[20%] left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center">
+<div class="w-12 h-12 bg-surface-container-lowest border-2 border-primary-fixed rounded-lg flex items-center justify-center neon-border-cyan mb-2">
+<span class="material-symbols-outlined text-primary-fixed">psychology</span>
+</div>
+<span class="font-data-label text-caption-caps text-primary-fixed">Owl Orchestrator</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Right Panel: Grounded Source Mesh -->
+<aside class="col-span-4 flex flex-col gap-gutter h-full">
+<div class="glass-panel rounded-lg p-glass-padding flex-1 border-t-2 border-t-secondary-fixed flex flex-col">
+<div class="flex justify-between items-center mb-6">
+<div class="font-data-label text-data-label text-secondary-fixed uppercase">Grounded Source Mesh</div>
+</div>
+<div class="flex-1 overflow-y-auto space-y-4">
+<div class="border border-outline-variant bg-surface-container-lowest/50 p-4 rounded hover:border-primary/50 transition-colors group cursor-pointer">
+<div class="flex items-center gap-2 mb-2">
+<span class="material-symbols-outlined text-primary text-sm">mail</span>
+<span class="font-data-label text-caption-caps text-primary">OUTLOOK THREAD</span>
+</div>
+<div class="font-body-base text-sm text-on-surface line-clamp-2 mb-2">
+                                RE: Project Aether Q3 Deliverables - Blocking issue on API Gateway integration...
+                            </div>
+</div>
+</div>
+</div>
+</aside>
+</div>
+</main>
+</body></html>

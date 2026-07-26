@@ -1,0 +1,951 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>GRID — Next-Gen AI Assistant</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet"/>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <style>
+        :root {
+            --color-bg: #f8fafc;
+            --color-surface: #ffffff;
+            --color-text: #0f172a;
+            --color-neutral-800: #e2e8f0;
+            --color-neutral-900: #cbd5e1;
+            --color-neutral-400: #64748b;
+            --color-accent: #0284c7;
+            --color-accent-100: rgba(2, 132, 199, 0.08);
+            --color-accent-200: rgba(99, 102, 241, 0.1);
+            --color-accent-700: #0369a1;
+            --color-accent-600: #0284c7;
+            --color-divider: rgba(0, 0, 0, 0.06);
+            --font-body: 'Inter', sans-serif;
+            --font-heading: 'Inter', sans-serif;
+            --space-2: 8px;
+            --space-3: 12px;
+            --space-4: 16px;
+            --space-5: 20px;
+            --space-6: 24px;
+            --space-8: 32px;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.05);
+            --shadow-md: 0 4px 12px rgba(2,132,199,0.05);
+        }
+
+        body {
+            background-color: var(--color-bg);
+            color: var(--color-text);
+            font-family: var(--font-body);
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes pulse-dot { 0%, 80%, 100% { opacity: 0.25; } 40% { opacity: 1; } }
+
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
+        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+
+        .nav-brand {
+            font-family: var(--font-heading);
+            font-weight: 800;
+            letter-spacing: 0.05em;
+            color: #0f172a;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--color-accent) 0%, #3b82f6 100%);
+            color: white;
+            font-weight: 700;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 14px rgba(2, 132, 199, 0.2);
+        }
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(2, 132, 199, 0.3);
+        }
+
+        .card {
+            background: var(--color-surface);
+            border: 1px solid var(--color-divider);
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow-sm);
+        }
+        .card:hover {
+            border-color: rgba(2, 132, 199, 0.3);
+            box-shadow: 0 10px 25px rgba(2, 132, 199, 0.08);
+        }
+
+        .card-kicker {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--color-accent);
+            margin-bottom: var(--space-2);
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: var(--space-2);
+        }
+
+        .card-body {
+            font-size: 14px;
+            color: #475569;
+            line-height: 1.5;
+        }
+
+        .tag {
+            font-size: 11px;
+            font-weight: 600;
+            padding: 2px 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .tag-accent {
+            background: var(--color-accent-100);
+            color: var(--color-accent);
+            border: 1px solid rgba(2, 132, 199, 0.2);
+        }
+        .tag-accent-2 {
+            background: var(--color-accent-200);
+            color: #4f46e5;
+            border: 1px solid rgba(99, 102, 241, 0.2);
+        }
+        .tag-neutral {
+            background: rgba(0,0,0,0.03);
+            color: #334155;
+            border: 1px solid rgba(0,0,0,0.06);
+        }
+        .tag-outline {
+            border: 1px solid var(--color-neutral-400);
+            color: #475569;
+        }
+
+        /* Segment Radio Control */
+        .seg-control {
+            display: flex;
+            background: var(--color-surface);
+            border-radius: 999px;
+            padding: 4px;
+            border: 1px solid var(--color-divider);
+            box-shadow: var(--shadow-sm);
+        }
+        .seg-btn {
+            font-size: 12px;
+            font-weight: 600;
+            color: #64748b;
+            padding: 6px 16px;
+            border-radius: 999px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .seg-btn:hover {
+            color: #0f172a;
+        }
+        .seg-btn.active {
+            background: rgba(0, 0, 0, 0.05);
+            color: #0f172a;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .prose-dark p { margin-bottom: 0.75rem; line-height: 1.6; color: #1e293b; }
+        .prose-dark ul { list-style-type: disc; padding-left: 1.25rem; margin-bottom: 0.75rem; color: #1e293b; }
+        .prose-dark code { background: rgba(0,0,0,0.04); padding: 2px 6px; border-radius: 4px; font-family: 'JetBrains Mono', monospace; color: #0284c7; font-size: 0.85em; }
+        .prose-dark table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin: 0.85rem 0;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid rgba(0,0,0,0.08);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+            font-size: 13px;
+        }
+        .prose-dark th {
+            background-color: #f1f5f9;
+            color: #475569;
+            font-weight: 700;
+            text-align: left;
+            padding: 9px 14px;
+            border-bottom: 2px solid #e2e8f0;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .prose-dark td {
+            padding: 9px 14px;
+            border-bottom: 1px solid #f1f5f9;
+            color: #1e293b;
+            background-color: #ffffff;
+            transition: background 0.15s ease;
+        }
+        .prose-dark tr:last-child td { border-bottom: none; }
+        .prose-dark tr:hover td { background-color: #f0f9ff; }
+        .email-clickable {
+            cursor: pointer;
+            color: #0284c7;
+            font-weight: 600;
+            text-decoration: underline;
+            text-decoration-style: dotted;
+            text-underline-offset: 3px;
+            transition: color 0.15s ease;
+        }
+        .email-clickable:hover {
+            color: #0369a1;
+            text-decoration-style: solid;
+        }
+
+        /* Ambient background glow elements */
+        .glow-cyan {
+            background: radial-gradient(circle at 10% 20%, rgba(14, 165, 233, 0.08) 0%, transparent 60%);
+        }
+        .glow-purple {
+            background: radial-gradient(circle at 90% 80%, rgba(99, 102, 241, 0.08) 0%, transparent 60%);
+        }
+    </style>
+</head>
+<body class="flex flex-col relative select-none">
+
+<div class="fixed inset-0 glow-cyan pointer-events-none z-0"></div>
+<div class="fixed inset-0 glow-purple pointer-events-none z-0"></div>
+
+<!-- Slide-over Full Email Reader Modal -->
+<div id="email-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
+    <div class="bg-white rounded-3xl shadow-2xl max-w-2xl w-full border border-black/10 overflow-hidden flex flex-col max-h-[85vh] animate-in fade-in zoom-in-95 duration-200">
+        <div class="px-6 py-4 bg-slate-50 border-b border-black/5 flex items-center justify-between">
+            <div class="flex items-center gap-2.5">
+                <span class="w-8 h-8 rounded-full bg-sky-100 text-sky-700 flex items-center justify-center font-bold text-sm">📧</span>
+                <div>
+                    <h4 id="modal-email-subject" class="font-bold text-slate-800 text-base leading-tight">Email Details</h4>
+                    <span id="modal-email-folder" class="tag tag-accent rounded-full text-[9px] px-2 py-0.5">Inbox</span>
+                </div>
+            </div>
+            <button onclick="closeEmailModal()" class="w-8 h-8 rounded-full hover:bg-slate-200 text-slate-500 flex items-center justify-center transition-colors">✕</button>
+        </div>
+        <div class="p-6 overflow-y-auto space-y-4 text-sm flex-1">
+            <div class="grid grid-cols-2 gap-3 p-3 bg-slate-50 rounded-2xl border border-black/5 text-xs font-mono">
+                <div><span class="text-slate-400">FROM:</span> <strong id="modal-email-from" class="text-slate-800">---</strong></div>
+                <div><span class="text-slate-400">DATE:</span> <span id="modal-email-date" class="text-slate-700">---</span></div>
+            </div>
+            <div class="border-t border-black/5 pt-3">
+                <h6 class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 font-mono">Message Content</h6>
+                <div id="modal-email-body" class="p-4 bg-slate-50/70 rounded-2xl border border-slate-100 text-slate-700 leading-relaxed font-sans text-sm whitespace-pre-wrap"></div>
+            </div>
+        </div>
+        <div class="px-6 py-3.5 bg-slate-50 border-t border-black/5 flex items-center justify-between">
+            <span class="text-xs text-slate-400 font-mono">Verified Graph Mail Record</span>
+            <div class="flex items-center gap-2">
+                <a id="modal-email-weblink" href="https://outlook.office.com/mail/" target="_blank" rel="noopener" class="px-4 py-1.5 rounded-full text-xs font-semibold bg-sky-50 hover:bg-sky-100 text-sky-700 border border-sky-200/80 flex items-center gap-1.5 transition-colors">
+                    <span>↗️</span>
+                    <span>Open in Outlook Web</span>
+                </a>
+                <button onclick="closeEmailModal()" class="btn-primary px-5 py-1.5 rounded-full text-xs">Close preview</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- AuthN/AuthZ Identity & Session Telemetry Modal -->
+<div id="auth-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
+    <div class="bg-white rounded-3xl shadow-2xl max-w-xl w-full border border-black/10 overflow-hidden flex flex-col animate-in fade-in zoom-in-95 duration-200">
+        <div class="px-6 py-4 bg-slate-50 border-b border-black/5 flex items-center justify-between">
+            <div class="flex items-center gap-2.5">
+                <span id="auth-modal-icon" class="w-9 h-9 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold text-base">🛡️</span>
+                <div>
+                    <h4 class="font-bold text-slate-800 text-base leading-tight">Microsoft 365 AuthN / AuthZ Control</h4>
+                    <span id="auth-modal-subtitle" class="text-xs text-slate-500 font-mono">Azure AD OAuth 2.0 Bearer Token</span>
+                </div>
+            </div>
+            <button onclick="closeAuthModal()" class="w-8 h-8 rounded-full hover:bg-slate-200 text-slate-500 flex items-center justify-center transition-colors">✕</button>
+        </div>
+        <div class="p-6 space-y-4 text-xs font-mono">
+            <div class="p-4 rounded-2xl bg-slate-50 border border-black/5 space-y-2.5">
+                <div class="flex justify-between items-center"><span class="text-slate-400">AUTH STATUS:</span><span id="auth-modal-status" class="tag tag-accent rounded-full text-[10px]">Connected (Active)</span></div>
+                <div class="flex justify-between items-center"><span class="text-slate-400">IDENTITY (UPN):</span><strong id="auth-modal-upn" class="text-slate-800">admin@sockcop.onmicrosoft.com</strong></div>
+                <div class="flex justify-between items-center"><span class="text-slate-400">TENANT ID:</span><span class="text-slate-600">de46a3fd-0d68-4b25-8343-6eb5d71afce9</span></div>
+                <div class="flex justify-between items-center"><span class="text-slate-400">TOKEN EXPIRES:</span><span id="auth-modal-expiry" class="text-emerald-600">Active (3,240s remaining)</span></div>
+            </div>
+
+            <div>
+                <h6 class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Authorized OAuth Scopes (AuthZ)</h6>
+                <div class="flex flex-wrap gap-1.5">
+                    <span class="tag tag-neutral rounded-full text-[9px]">Mail.Read</span>
+                    <span class="tag tag-neutral rounded-full text-[9px]">Calendars.Read</span>
+                    <span class="tag tag-neutral rounded-full text-[9px]">User.Read</span>
+                    <span class="tag tag-neutral rounded-full text-[9px]">Directory.Read.All</span>
+                    <span class="tag tag-neutral rounded-full text-[9px]">offline_access</span>
+                </div>
+            </div>
+
+            <div class="p-3.5 rounded-2xl bg-sky-50/70 border border-sky-100 space-y-1.5">
+                <div class="flex items-center justify-between">
+                    <span class="text-slate-500 font-bold">🤖 ACTIVE ADK SESSION:</span>
+                    <span id="auth-modal-session-id" class="text-sky-700 font-bold">default_session</span>
+                </div>
+                <p class="text-[10px] text-slate-500 font-sans">ADK Session Service maintains full function-calling execution events & dynamic model context under this session handle.</p>
+            </div>
+        </div>
+        <div class="px-6 py-4 bg-slate-50 border-t border-black/5 flex items-center justify-between gap-3">
+            <button id="auth-toggle-btn" onclick="toggleAuthConnection()" class="px-4 py-2 rounded-full text-xs font-bold border border-red-200 text-red-600 hover:bg-red-50 transition-colors">
+                🔌 Disconnect Auth (Test outage)
+            </button>
+            <button onclick="closeAuthModal()" class="btn-primary px-5 py-2 rounded-full text-xs">Done</button>
+        </div>
+    </div>
+</div>
+
+<!-- WORKSPACE CHAT SCREEN (Direct main chatbot workspace) -->
+<div id="chat-screen" class="h-screen max-h-screen w-full grid grid-cols-12 z-10 relative overflow-hidden">
+    
+    <!-- LEFT SIDEBAR -->
+    <aside class="col-span-2 h-full bg-white border-r border-black/5 flex flex-col p-4 overflow-y-auto justify-between shadow-sm">
+        <div class="space-y-6">
+            <div class="nav-brand flex items-center gap-2">
+                <span class="w-5.5 h-5.5 rounded-full bg-gradient-to-tr from-sky-400 to-blue-500"></span>
+                GRID
+            </div>
+            <button onclick="newConversation()" class="w-full py-2.5 rounded-xl border border-black/10 hover:border-sky-400/50 hover:bg-slate-50 text-sm font-semibold flex items-center justify-center gap-2 transition-all">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"></path><path d="M5 12h14"></path></svg>
+                New conversation
+            </button>
+
+            <!-- Recents -->
+            <div>
+                <h6 class="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-3">Recent</h6>
+                <div class="space-y-1 text-sm">
+                    <div class="text-sky-600 font-medium px-3 py-2 rounded-xl bg-sky-50 border border-sky-100 cursor-pointer">
+                        M365 Active Sync Summary
+                    </div>
+                    <div class="text-slate-500 px-3 py-2 rounded-xl hover:bg-slate-50 cursor-pointer hover:text-slate-800 transition-colors">
+                        Q3 roadmap brainstorm
+                    </div>
+                </div>
+            </div>
+
+            <!-- Memory tags -->
+            <div>
+                <h6 class="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-3">Memory</h6>
+                <div id="memory-tags" class="flex flex-wrap gap-2">
+                    <span class="tag tag-neutral rounded-full text-[10px]">Concise summaries</span>
+                    <span class="tag tag-neutral rounded-full text-[10px]">Timezone: PT</span>
+                    <span class="tag tag-neutral rounded-full text-[10px]">Product Manager</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="pt-4 border-t border-black/5 space-y-4">
+            <div>
+                <h6 class="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-2">Model routing</h6>
+                <div class="flex flex-col gap-2 font-mono text-[10px] text-slate-500">
+                    <div class="flex items-center gap-2"><span class="tag tag-accent rounded-full text-[8px] px-1.5 py-0.5">DEEP</span><span>gemini-3.1-pro</span></div>
+                    <div class="flex items-center gap-2"><span class="tag tag-neutral rounded-full text-[8px] px-1.5 py-0.5">ACCURATE</span><span>gemini-3.6-flash</span></div>
+                    <div class="flex items-center gap-2"><span class="tag tag-outline rounded-full text-[8px] px-1.5 py-0.5 font-bold text-sky-600 border-sky-600/30">SPEED</span><span>gemini-3.5-flash</span></div>
+                </div>
+            </div>
+
+            <div class="flex items-center justify-between text-[11px] text-slate-400 font-mono">
+                <span class="flex items-center gap-1.5">
+                    <span id="connection-dot" class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                    M365 Graph Sync
+                </span>
+                <span id="telemetry-total" class="text-sky-600">0.00s</span>
+            </div>
+        </div>
+    </aside>
+
+    <!-- CENTER CHAT AREA (Wide col-span-10 across full workspace) -->
+    <section class="col-span-10 h-full flex flex-col min-w-0 relative overflow-hidden">
+        <!-- Top Title Bar -->
+        <header class="h-16 px-8 border-b border-black/5 flex items-center justify-between shrink-0 bg-white/80 backdrop-blur-md">
+            <div class="flex items-center gap-3">
+                <div class="font-bold text-slate-800 tracking-wide text-base">M365 Executive Workspace</div>
+                <span class="text-xs text-slate-400 font-mono">| Graph API</span>
+            </div>
+            <div class="flex items-center gap-2">
+                <button onclick="openAuthModal()" id="session-badge" class="tag tag-neutral rounded-full text-[10px] font-mono cursor-pointer hover:bg-slate-200 transition-colors" title="View ADK session metadata">
+                    🆔 Session: default_session
+                </button>
+                <button onclick="openAuthModal()" id="auth-status-btn" class="tag tag-accent rounded-full text-[10px] flex items-center gap-1.5 cursor-pointer hover:opacity-90 transition-all">
+                    <span id="auth-dot" class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                    <span id="auth-btn-text">AuthN/AuthZ: Connected</span>
+                </button>
+                <span id="model-badge" class="tag tag-accent rounded-full text-[10px]">Auto-routed</span>
+            </div>
+        </header>
+
+        <!-- Message Feed (With locked scrollable boundary) -->
+        <div id="chat-thread" class="flex-1 overflow-y-auto px-12 py-6 space-y-6 pb-44 scroll-smooth">
+            <div class="flex gap-3">
+                <span class="w-8 h-8 rounded-full bg-gradient-to-tr from-sky-400 to-blue-500 text-white font-extrabold flex items-center justify-center text-xs shrink-0 shadow-sm">
+                    ✨
+                </span>
+                <div class="flex-1 bg-white border border-black/5 rounded-2xl p-4 text-[14px] text-slate-700 max-w-[85%] relative shadow-sm">
+                    <div class="flex items-center justify-between border-b border-black/5 pb-2 mb-3">
+                        <span class="font-mono text-xs font-bold text-sky-600 uppercase tracking-wider">Assistant</span>
+                        <span class="font-mono text-[10px] text-sky-600 bg-sky-50 px-2 py-0.5 rounded border border-sky-100">System Ready</span>
+                    </div>
+                    I am connected to your <strong>Microsoft 365 Tenant</strong> via ADK and MCP connectors. Ask me to search emails, summarize calendar meetings, or prepare meeting briefings. Click any email title in my response to preview full content inline.
+                </div>
+            </div>
+        </div>
+
+        <!-- Fixed Prompt Dock Bottom -->
+        <div class="absolute left-0 right-0 bottom-0 p-6 bg-gradient-to-t from-[#f8fafc] via-[#f8fafc] to-transparent shrink-0">
+            <div class="max-w-[880px] mx-auto space-y-3">
+                <!-- Segment Model Control -->
+                <div class="seg-control max-w-fit mx-auto">
+                    <div id="seg-auto" onclick="setRoute('auto')" class="seg-btn active">Auto</div>
+                    <div id="seg-deep" onclick="setRoute('deep')" class="seg-btn">Deep (3.1-pro)</div>
+                    <div id="seg-accurate" onclick="setRoute('accurate')" class="seg-btn">Accurate (3.6-flash)</div>
+                    <div id="seg-speed" onclick="setRoute('speed')" class="seg-btn">Speed (3.5-flash)</div>
+                </div>
+
+                <!-- Input area -->
+                <form onsubmit="event.preventDefault(); handleSend();" class="flex items-center gap-3 bg-white border border-slate-200 rounded-3xl p-3 pl-6 shadow-lg focus-within:border-sky-400 transition-all">
+                    <textarea id="user-input" rows="1" class="flex-1 bg-transparent border-none text-slate-800 text-sm focus:outline-none placeholder-slate-400 resize-none py-2" placeholder="Ask GRID to check, draft, search, or inspect your Microsoft 365 emails..." onkeydown="if(event.key==='Enter' && !event.shiftKey) { event.preventDefault(); handleSend(); }"></textarea>
+                    <button type="submit" class="w-10 h-10 rounded-full btn-primary flex items-center justify-center shrink-0 hover:scale-105 transition-transform cursor-pointer" title="Send message (Enter)">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13"></path><path d="M22 2 15 22 11 13 2 9z"></path></svg>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+</div>
+
+<script>
+    let queryTimer = null;
+    let routeMode = 'auto';
+    let chatHistory = [];
+    let activeEmailCache = [];
+
+    function openEmailModal(index) {
+        const email = activeEmailCache[index];
+        if (!email) return;
+        
+        document.getElementById('modal-email-subject').innerText = email.subject || 'No Subject';
+        document.getElementById('modal-email-folder').innerText = email.folderName || 'Inbox';
+        const fromAddr = (email.from && email.from.emailAddress) ? `${email.from.emailAddress.name || ''} <${email.from.emailAddress.address}>` : (email.from || 'Unknown');
+        document.getElementById('modal-email-from').innerText = fromAddr;
+        document.getElementById('modal-email-date').innerText = email.receivedDateTime || email.date || 'Recent';
+        
+        const bodyObj = email.body || {};
+        const fullContent = bodyObj.content || email.bodyPreview || 'No content preview available.';
+        // Clean basic html entity or text tags if html snippet
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = fullContent;
+        const textClean = tempDiv.innerText || tempDiv.textContent || fullContent;
+        document.getElementById('modal-email-body').innerText = textClean;
+        
+        const webLinkBtn = document.getElementById('modal-email-weblink');
+        if (webLinkBtn) {
+            webLinkBtn.href = email.webLink || 'https://outlook.office.com/mail/';
+        }
+        
+        document.getElementById('email-modal').classList.remove('hidden');
+    }
+
+    function closeEmailModal() {
+        document.getElementById('email-modal').classList.add('hidden');
+    }
+
+    function linkifyEmails(htmlStr, emailsList) {
+        if (!emailsList || emailsList.length === 0) return htmlStr;
+        let output = htmlStr;
+        emailsList.forEach((em, idx) => {
+            const subj = em.subject;
+            if (subj && subj.length > 2) {
+                // Escape subject for regex matching inside html
+                const escaped = subj.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                const regex = new RegExp(`(${escaped})`, 'gi');
+                output = output.replace(regex, `<span class="email-clickable" onclick="openEmailModal(${idx})" title="Click to view full email preview">📧 $1</span>`);
+            }
+        });
+        return output;
+    }
+
+    let isAuthConnected = true;
+    let activeSessionId = "default_session";
+
+    function parseDraft(text) {
+        if (!text) return null;
+        const toMatch = text.match(/\*\*To:\*\*\s*([^\n\r]+)/i);
+        const subjectMatch = text.match(/\*\*Subject:\*\*\s*([^\n\r]+)/i);
+        if (toMatch && subjectMatch) {
+            const to_address = toMatch[1].trim();
+            const subject = subjectMatch[1].trim();
+            const idxSub = text.indexOf(subjectMatch[0]);
+            let body = text.substring(idxSub + subjectMatch[0].length).trim();
+            if (body.startsWith('***')) {
+                body = body.substring(3).trim();
+            }
+            const idxEnd = body.indexOf('***');
+            if (idxEnd !== -1) {
+                body = body.substring(0, idxEnd).trim();
+            }
+            const idxLetMeKnow = body.toLowerCase().indexOf("let me know");
+            if (idxLetMeKnow !== -1) {
+                body = body.substring(0, idxLetMeKnow).trim();
+            }
+            return { to_address, subject, body };
+        }
+        return null;
+    }
+
+    async function sendEmailFromChat(msgId, toAddress, subject, body, btnId) {
+        const btn = document.getElementById(btnId);
+        if (btn) {
+            btn.disabled = true;
+            btn.innerText = "SENDING...";
+        }
+        try {
+            const resp = await fetch('/api/send-email', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ to_address: toAddress, subject, body })
+            });
+            const data = await resp.json();
+            if (data.success) {
+                if (btn) {
+                    btn.className = "bg-emerald-600 text-white font-semibold text-xs px-4 py-2 rounded-xl cursor-default";
+                    btn.innerText = "✓ EMAIL SENT";
+                }
+            } else {
+                alert("Failed to send email: " + (data.error || "Unknown error"));
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerText = "APPROVE & SEND EMAIL";
+                }
+            }
+        } catch(e) {
+            alert("Network error: " + e.message);
+            if (btn) {
+                btn.disabled = false;
+                btn.innerText = "APPROVE & SEND EMAIL";
+            }
+        }
+    }
+
+    function openAuthModal() {
+        document.getElementById('auth-modal').classList.remove('hidden');
+    }
+
+    function closeAuthModal() {
+        document.getElementById('auth-modal').classList.add('hidden');
+    }
+
+    async function toggleAuthConnection() {
+        const endpoint = isAuthConnected ? '/api/auth/logout' : '/api/auth/login';
+        try {
+            const res = await fetch(endpoint, { method: 'POST' });
+            const data = await res.json();
+            await checkAuthStatus();
+            closeAuthModal();
+        } catch(e) {
+            alert('Failed to update auth state: ' + e.message);
+        }
+    }
+
+    async function checkAuthStatus() {
+        try {
+            const res = await fetch('/api/auth/status');
+            const data = await res.json();
+            isAuthConnected = data.authenticated;
+            
+            const dot = document.getElementById('connection-dot');
+            const topDot = document.getElementById('auth-dot');
+            const topBtnText = document.getElementById('auth-btn-text');
+            const modalStatus = document.getElementById('auth-modal-status');
+            const modalExpiry = document.getElementById('auth-modal-expiry');
+            const toggleBtn = document.getElementById('auth-toggle-btn');
+            
+            if (data.authenticated) {
+                dot.className = 'w-2 h-2 rounded-full bg-emerald-500 animate-pulse';
+                topDot.className = 'w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse';
+                topBtnText.innerText = 'AuthN/AuthZ: Connected';
+                modalStatus.innerText = 'Connected (Active)';
+                modalStatus.className = 'tag tag-accent rounded-full text-[10px]';
+                modalExpiry.innerText = `Active (${data.expires_in_secs || 3240}s remaining)`;
+                modalExpiry.className = 'text-emerald-600';
+                toggleBtn.innerText = '🔌 Disconnect Auth (Test outage)';
+                toggleBtn.className = 'px-4 py-2 rounded-full text-xs font-bold border border-red-200 text-red-600 hover:bg-red-50 transition-colors';
+            } else {
+                dot.className = 'w-2 h-2 rounded-full bg-red-500';
+                topDot.className = 'w-1.5 h-1.5 rounded-full bg-red-500';
+                topBtnText.innerText = 'AuthN/AuthZ: DISCONNECTED';
+                modalStatus.innerText = 'Revoked / Expired (401)';
+                modalStatus.className = 'tag tag-outline rounded-full text-[10px] border-red-400 text-red-600 font-bold';
+                modalExpiry.innerText = 'Token Revoked / Expired';
+                modalExpiry.className = 'text-red-600 font-bold';
+                toggleBtn.innerText = '🔑 Reconnect Microsoft 365 OAuth';
+                toggleBtn.className = 'btn-primary px-5 py-2 rounded-full text-xs font-bold';
+            }
+        } catch (e) {
+            console.error('Failed to check auth status:', e);
+        }
+    }
+
+    // Verify authentication status & attach direct Enter event listener on load
+    window.addEventListener('load', () => {
+        checkAuthStatus();
+        const input = document.getElementById('user-input');
+        if (input) {
+            input.focus();
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    handleSend();
+                }
+            });
+        }
+    });
+
+    function scrollToBottom() {
+        const thread = document.getElementById('chat-thread');
+        setTimeout(() => {
+            thread.scrollTo({
+                top: thread.scrollHeight,
+                behavior: 'smooth'
+            });
+        }, 80);
+    }
+
+    function newConversation() {
+        chatHistory = [];
+        activeEmailCache = [];
+        document.getElementById('chat-thread').innerHTML = `
+            <div class="flex gap-3">
+                <span class="w-8 h-8 rounded-full bg-gradient-to-tr from-sky-400 to-blue-500 text-white font-extrabold flex items-center justify-center text-xs shrink-0 shadow-sm">
+                    ✨
+                </span>
+                <div class="flex-1 bg-white border border-black/5 rounded-2xl p-4 text-[14px] text-slate-700 max-w-[85%] relative shadow-sm">
+                    <div class="flex items-center justify-between border-b border-black/5 pb-2 mb-3">
+                        <span class="font-mono text-xs font-bold text-sky-600 uppercase tracking-wider">Assistant</span>
+                        <span class="font-mono text-[10px] text-sky-600 bg-sky-50 px-2 py-0.5 rounded border border-sky-100">System Ready</span>
+                    </div>
+                    New conversation initialized. Ask me to search emails, summarize calendar meetings, or prepare meeting briefings.
+                </div>
+            </div>
+        `;
+        scrollToBottom();
+    }
+
+    function setRoute(mode) {
+        routeMode = mode;
+        const btns = ['auto', 'deep', 'accurate', 'speed'];
+        btns.forEach(b => {
+            const element = document.getElementById(`seg-${b}`);
+            if (element) {
+                if (b === mode) element.classList.add('active');
+                else element.classList.remove('active');
+            }
+        });
+        
+        const badge = document.getElementById('model-badge');
+        if (mode === 'auto') {
+            badge.innerText = 'Auto-routed';
+            badge.className = 'tag tag-accent rounded-full text-[10px]';
+        } else if (mode === 'deep') {
+            badge.innerText = 'DEEP (gemini-3.1-pro)';
+            badge.className = 'tag tag-outline rounded-full text-[10px] border-sky-600/30 text-sky-600';
+        } else if (mode === 'accurate') {
+            badge.innerText = 'ACCURATE (gemini-3.6-flash)';
+            badge.className = 'tag tag-outline rounded-full text-[10px] border-indigo-600/30 text-indigo-600';
+        } else if (mode === 'speed') {
+            badge.innerText = 'SPEED (gemini-3.5-flash)';
+            badge.className = 'tag tag-outline rounded-full text-[10px] border-emerald-600/30 text-emerald-600';
+        }
+    }
+
+    function handleSend() {
+        const input = document.getElementById('user-input');
+        const text = input.value.trim();
+        if (!text) return;
+        input.value = '';
+        sendPrompt(text);
+    }
+
+    async function sendPrompt(promptText) {
+        const thread = document.getElementById('chat-thread');
+        const telemetryTotal = document.getElementById('telemetry-total');
+
+        if (queryTimer) clearInterval(queryTimer);
+
+        // Render User message
+        const userMsg = document.createElement('div');
+        userMsg.className = 'flex gap-3 justify-end';
+        userMsg.innerHTML = `
+            <div class="bg-slate-100 border border-slate-200 rounded-2xl p-4 text-[14px] text-slate-800 max-w-[80%] shadow-sm">
+                ${promptText}
+            </div>
+            <span class="w-8 h-8 rounded-full bg-slate-200 text-slate-700 font-extrabold flex items-center justify-center text-xs shrink-0 border border-black/5">
+                JA
+            </span>
+        `;
+        thread.appendChild(userMsg);
+        scrollToBottom();
+
+        // Render Assistant inline loader indicator with tool steps
+        const asstMsgId = 'asst-' + Date.now();
+        const asstMsg = document.createElement('div');
+        asstMsg.className = 'flex gap-3';
+        asstMsg.id = asstMsgId;
+        asstMsg.innerHTML = `
+            <span class="w-8 h-8 rounded-full bg-gradient-to-tr from-sky-400 to-blue-500 text-white font-extrabold flex items-center justify-center text-xs shrink-0 shadow-sm">
+                ✨
+            </span>
+            <div class="flex-1 bg-white border border-black/5 rounded-2xl p-4 text-[14px] text-slate-700 max-w-[85%] space-y-4 shadow-sm">
+                
+                <!-- Live Tool Tracing Card -->
+                <div class="border border-slate-150 bg-slate-50 rounded-xl p-4 space-y-3">
+                    <div class="flex items-center gap-2">
+                        <span class="w-4 h-4 rounded-full bg-sky-50 border border-sky-200 flex items-center justify-center">
+                            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#0284c7" stroke-width="2.5"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"></path></svg>
+                        </span>
+                        <span class="font-mono text-[10px] font-bold text-sky-600 uppercase tracking-wider">MCP · m365.outlook_federated_search</span>
+                    </div>
+
+                    <!-- Steps Trace -->
+                    <div id="${asstMsgId}-steps" class="flex flex-col gap-2 text-xs font-mono">
+                        <div class="flex items-center gap-2 text-slate-500" id="${asstMsgId}-step1">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="animate-spin text-sky-600"><circle cx="12" cy="12" r="10" style="opacity:0.25;"></circle><path d="M12 2a10 10 0 0 1 10 10"></path></svg>
+                            <span>Initiating Owl orchestrator tool sequence...</span>
+                        </div>
+                        <div class="flex items-center gap-2 text-slate-300" id="${asstMsgId}-step2">
+                            <span class="w-3 h-3 border border-slate-200 rounded-full inline-block"></span>
+                            <span>Federating emails and calendar meetings from Microsoft Graph API...</span>
+                        </div>
+                        <div class="flex items-center gap-2 text-slate-300" id="${asstMsgId}-step3">
+                            <span class="w-3 h-3 border border-slate-200 rounded-full inline-block"></span>
+                            <span>Synthesizing model response...</span>
+                        </div>
+                    </div>
+
+                    <!-- Progress line -->
+                    <div class="h-1 bg-slate-200 rounded-full overflow-hidden mt-3">
+                        <div id="${asstMsgId}-progress" class="h-full bg-sky-500" style="width: 10%; transition: width 0.4s ease;"></div>
+                    </div>
+                </div>
+
+                <!-- Shimmer text loader -->
+                <div class="space-y-2 animate-pulse" id="${asstMsgId}-shimmer">
+                    <div class="h-3 bg-slate-100 rounded w-5/6"></div>
+                    <div class="h-3 bg-slate-100 rounded w-4/6"></div>
+                </div>
+            </div>
+        `;
+        thread.appendChild(asstMsg);
+        scrollToBottom();
+
+        const t0 = performance.now();
+        queryTimer = setInterval(() => {
+            const liveSecs = ((performance.now() - t0) / 1000).toFixed(1);
+            telemetryTotal.innerText = `${liveSecs}s`;
+        }, 100);
+
+        // Tool tracing step animations
+        setTimeout(() => {
+            const step1 = document.getElementById(`${asstMsgId}-step1`);
+            if(step1) {
+                step1.innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#0284c7" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg> <span class="text-sky-600">Initiated Owl orchestrator tool sequence</span>`;
+            }
+            const step2 = document.getElementById(`${asstMsgId}-step2`);
+            if(step2) {
+                step2.className = "flex items-center gap-2 text-slate-500";
+                step2.innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="animate-spin text-sky-600"><circle cx="12" cy="12" r="10" style="opacity:0.25;"></circle><path d="M12 2a10 10 0 0 1 10 10"></path></svg> <span>Federating emails and calendar meetings...</span>`;
+            }
+            const progress = document.getElementById(`${asstMsgId}-progress`);
+            if(progress) progress.style.width = "45%";
+            scrollToBottom();
+        }, 800);
+
+        try {
+            // Pick target model for backend based on routeMode selection
+            let modelToUse = "gemini-3.6-flash"; // Default Accurate
+            let modelDisplayName = "GEMINI-3.6-FLASH";
+            if (routeMode === 'deep') {
+                modelToUse = "gemini-3.1-pro";
+                modelDisplayName = "GEMINI-3.1-PRO (DEEP)";
+            } else if (routeMode === 'accurate') {
+                modelToUse = "gemini-3.6-flash";
+                modelDisplayName = "GEMINI-3.6-FLASH (ACCURATE)";
+            } else if (routeMode === 'speed') {
+                modelToUse = "gemini-3.5-flash";
+                modelDisplayName = "GEMINI-3.5-FLASH (SPEED)";
+            }
+            
+            // Push user prompt to history prior to fetch
+            chatHistory.push({ role: "user", content: promptText });
+
+            const res = await fetch('/api/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: promptText, model: modelToUse, history: chatHistory })
+            });
+            const data = await res.json();
+            clearInterval(queryTimer);
+
+            // Push assistant response content to history
+            chatHistory.push({ role: "model", content: data.response || "" });
+
+            const finalSecs = (data.latency_s || ((performance.now() - t0) / 1000)).toFixed(2);
+            telemetryTotal.innerText = finalSecs + 's';
+
+            // Complete tracing step animations
+            const step2 = document.getElementById(`${asstMsgId}-step2`);
+            if(step2) {
+                step2.innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#0284c7" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg> <span class="text-sky-600">Federated emails and calendar meetings from Microsoft Graph API</span>`;
+            }
+            const step3 = document.getElementById(`${asstMsgId}-step3`);
+            if(step3) {
+                step3.className = "flex items-center gap-2 text-slate-500";
+                step3.innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="animate-spin text-sky-600"><circle cx="12" cy="12" r="10" style="opacity:0.25;"></circle><path d="M12 2a10 10 0 0 1 10 10"></path></svg> <span>Synthesizing model response...</span>`;
+            }
+            const progress = document.getElementById(`${asstMsgId}-progress`);
+            if(progress) progress.style.width = "90%";
+            scrollToBottom();
+
+            await new Promise(r => setTimeout(r, 450));
+            if(progress) progress.style.width = "100%";
+            if(step3) {
+                step3.innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#0284c7" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg> <span class="text-sky-600">Synthesized model response</span>`;
+            }
+
+            await new Promise(r => setTimeout(r, 200));
+
+            // Extract returned emails and cache them for modal inspection
+            const returnedEmails = (data.raw_grounding_data && data.raw_grounding_data.emails) ? data.raw_grounding_data.emails : [];
+            const baseEmailIndex = activeEmailCache.length;
+            returnedEmails.forEach(e => activeEmailCache.push(e));
+            
+            // Map returned email slice for linkifying
+            const emailSlice = activeEmailCache.slice(baseEmailIndex);
+            
+            let parsedHtml = marked.parse(data.response || "No response received.");
+            parsedHtml = linkifyEmails(parsedHtml, emailSlice);
+
+            // Generate compact inline collapsible drawer for sources & tools invoked
+            const toolsInvoked = data.tools_called || [];
+            let inlineSourcesHtml = '';
+            if (toolsInvoked.length > 0 || returnedEmails.length > 0) {
+                const totalItems = returnedEmails.length;
+                const srcAccordionId = 'src-' + Date.now();
+                
+                let cardsHtml = '';
+                returnedEmails.forEach((em, relativeIdx) => {
+                    const cacheIdx = baseEmailIndex + relativeIdx;
+                    const fromAddr = (em.from && em.from.emailAddress) ? em.from.emailAddress.address : (em.from || '');
+                    cardsHtml += `
+                        <div onclick="openEmailModal(${cacheIdx})" class="p-2.5 rounded-xl bg-white border border-black/5 hover:border-sky-400 hover:shadow-sm cursor-pointer transition-all flex items-center justify-between group">
+                            <div class="min-w-0 pr-2">
+                                <div class="text-xs font-bold text-slate-800 truncate group-hover:text-sky-600">📧 ${em.subject || 'Untitled Email'}</div>
+                                <div class="text-[10px] text-slate-400 font-mono truncate">From: ${fromAddr} · ${em.receivedDateTime || ''}</div>
+                            </div>
+                            <span class="text-[10px] tag tag-accent rounded-full shrink-0 px-2 py-0.5">Click to read</span>
+                        </div>
+                    `;
+                });
+
+                let queriesHtml = toolsInvoked.map(t => `<span class="tag tag-neutral rounded-full text-[9px] font-mono">search_m365("${(t.args || {}).query || ''}")</span>`).join(' ');
+
+                inlineSourcesHtml = `
+                    <div class="border-t border-black/5 pt-2.5 mt-3">
+                        <button onclick="document.getElementById('${srcAccordionId}').classList.toggle('hidden')" class="text-xs font-mono font-semibold text-slate-500 hover:text-sky-600 flex items-center gap-1.5 transition-colors">
+                            <span>📎</span>
+                            <span>Grounded MCP Sources (${totalItems} ${totalItems === 1 ? 'email' : 'emails'} retrieved)</span>
+                            <span class="text-[10px] bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded ml-1">Toggle view</span>
+                        </button>
+                        <div id="${srcAccordionId}" class="hidden mt-2 space-y-2 p-3 bg-slate-50/80 rounded-2xl border border-black/5">
+                            <div class="text-[10px] font-mono text-slate-400">MCP QUERIES: ${queriesHtml || 'None'}</div>
+                            ${cardsHtml ? `<div class="grid grid-cols-2 gap-2 mt-2">${cardsHtml}</div>` : ''}
+                        </div>
+                    </div>
+                `;
+            }
+
+            // Update bubble content with final response markdown & metadata badge
+            let draftCardHtml = '';
+            const draftInfo = parseDraft(data.response);
+            if (draftInfo) {
+                const btnId = 'btn-' + Date.now();
+                const escMsgId = JSON.stringify(asstMsgId);
+                const escTo = JSON.stringify(draftInfo.to_address);
+                const escSub = JSON.stringify(draftInfo.subject);
+                const escBody = JSON.stringify(draftInfo.body);
+                const escBtnId = JSON.stringify(btnId);
+                draftCardHtml = `
+                    <div class="mt-4 p-4 rounded-xl border border-emerald-100 bg-emerald-500/5 space-y-3 shadow-sm">
+                        <div class="flex items-center justify-between">
+                            <span class="text-[9px] font-bold text-emerald-800 bg-emerald-100 px-2.5 py-1 rounded-full uppercase tracking-wider">
+                                DRAFTED EMAIL ACTION REQUIRED
+                            </span>
+                        </div>
+                        <div class="text-xs">
+                            <strong>To:</strong> <span class="text-slate-500">${draftInfo.to_address}</span>
+                        </div>
+                        <div class="text-xs">
+                            <strong>Subject:</strong> <span class="text-slate-500">${draftInfo.subject}</span>
+                        </div>
+                        <div class="bg-white border border-slate-150 p-3 rounded-lg text-xs text-slate-700 whitespace-pre-wrap max-h-48 overflow-y-auto font-mono">
+                            ${draftInfo.body}
+                        </div>
+                        <div>
+                            <button id="${btnId}" onclick='sendEmailFromChat(${escMsgId}, ${escTo}, ${escSub}, ${escBody}, ${escBtnId})' class="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs px-4 py-2.5 rounded-xl cursor-pointer hover:scale-[1.01] transition-all">
+                                APPROVE & SEND EMAIL
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }
+
+            const targetContainer = document.getElementById(asstMsgId);
+            if (targetContainer) {
+                targetContainer.innerHTML = `
+                    <span class="w-8 h-8 rounded-full bg-gradient-to-tr from-sky-400 to-blue-500 text-white font-extrabold flex items-center justify-center text-xs shrink-0 shadow-sm">
+                        ✨
+                    </span>
+                    <div class="flex-1 bg-white border border-black/5 rounded-2xl p-4 text-[14px] text-slate-700 max-w-[88%] relative space-y-3 shadow-sm">
+                        <div class="flex items-center justify-between border-b border-black/5 pb-2 mb-3">
+                            <span class="font-mono text-xs font-bold text-sky-600 uppercase tracking-wider">${modelDisplayName}</span>
+                            <span class="font-mono text-[10px] text-sky-600 bg-sky-50 px-2 py-0.5 rounded border border-sky-100 flex items-center gap-1 shadow-sm">
+                                <span>⏱️</span>
+                                <span>${finalSecs}s</span>
+                            </span>
+                        </div>
+                        <div class="prose-dark">${parsedHtml}</div>
+                        ${draftCardHtml}
+                        ${inlineSourcesHtml}
+                    </div>
+                `;
+            }
+            scrollToBottom();
+
+        } catch(e) {
+            if (queryTimer) clearInterval(queryTimer);
+            const targetContainer = document.getElementById(asstMsgId);
+            if (targetContainer) {
+                targetContainer.innerHTML = `
+                    <span class="w-8 h-8 rounded-full bg-red-500 text-white font-bold flex items-center justify-center text-xs shrink-0">⚠️</span>
+                    <div class="flex-1 bg-red-50 border border-red-200 rounded-2xl p-4 text-sm text-red-700">
+                        Failed to communicate with local-adk-mcp backend: ${e.message}
+                    </div>
+                `;
+            }
+            scrollToBottom();
+        }
+    }
+</script>
+</body>
+</html>

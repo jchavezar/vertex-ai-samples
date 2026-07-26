@@ -18,6 +18,8 @@ LOCATION = "global"
 
 async def fetch_real_graph_payloads() -> dict:
     """Fetch raw real payloads directly from Microsoft Graph REST API."""
+    import sys
+    sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(__file__)), "local-adk-mcp", "backend"))
     from outlook_client import OutlookClient
     oc = OutlookClient()
     headers = oc._get_headers(None)

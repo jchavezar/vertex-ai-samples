@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Mock 3: ChatGPT NextGen Dynamic Command Studio (StitchMCP Warm Obsidian)</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                "background": "#131313",
+                "surface": "#131313",
+                "surface-container": "#201f1f",
+                "surface-container-high": "#2a2a2a",
+                "primary": "#fff0d5",
+                "primary-container": "#f5d17e",
+                "secondary": "#ffb95f",
+                "secondary-container": "#f59e0b",
+                "on-surface": "#e5e2e1",
+                "on-surface-variant": "#d0c5b3",
+                "outline": "#99907f"
+              },
+              "borderRadius": {
+                "DEFAULT": "0.25rem",
+                "lg": "0.5rem"
+              }
+            }
+          }
+        }
+      </script>
+<style>
+        body { background-color: #0d0d0d; color: #e5e2e1; }
+        .amber-glow { box-shadow: 0 0 15px rgba(245, 158, 11, 0.25); }
+        .gold-glow { box-shadow: 0 0 20px rgba(245, 209, 126, 0.3); }
+        
+        .voice-bar {
+          width: 3.5px;
+          height: 100%;
+          background: #f59e0b;
+          border-radius: 4px;
+          animation: wave 1.2s ease-in-out infinite alternate;
+        }
+        .voice-bar:nth-child(1) { animation-delay: 0.1s; height: 40%; }
+        .voice-bar:nth-child(2) { animation-delay: 0.25s; height: 80%; }
+        .voice-bar:nth-child(3) { animation-delay: 0.4s; height: 100%; }
+        .voice-bar:nth-child(4) { animation-delay: 0.2s; height: 60%; }
+        .voice-bar:nth-child(5) { animation-delay: 0.35s; height: 90%; }
+        @keyframes wave {
+          0% { transform: scaleY(0.3); opacity: 0.5; }
+          100% { transform: scaleY(1.1); opacity: 1; filter: drop-shadow(0 0 6px #f59e0b); }
+        }
+      </style>
+</head>
+<body class="h-screen w-full overflow-hidden flex flex-col font-sans bg-[#0d0d0d]">
+
+<!-- Top Header with Live Voice Wave Equalizer -->
+<header class="bg-[#141210] h-16 w-full border-b border-[#262626] flex items-center justify-between px-8 sticky top-0 z-50">
+  <div class="flex items-center gap-4">
+    <div class="w-9 h-9 rounded-lg bg-gradient-to-r from-amber-500 to-yellow-400 flex items-center justify-center font-bold text-black gold-glow">
+      🎙️
+    </div>
+    <div>
+      <h1 class="text-base font-bold text-white tracking-tight">ChatGPT NextGen Command Studio</h1>
+      <p class="text-xs text-amber-500/80 font-mono">StitchMCP Warm Obsidian Design System</p>
+    </div>
+  </div>
+
+  <div class="flex items-center gap-6 bg-[#1a1a1a] px-4 py-2 rounded-full border border-amber-500/30 amber-glow">
+    <div class="flex items-center gap-1 h-5">
+      <div class="voice-bar"></div>
+      <div class="voice-bar"></div>
+      <div class="voice-bar"></div>
+      <div class="voice-bar"></div>
+      <div class="voice-bar"></div>
+    </div>
+    <span class="text-xs font-semibold text-amber-400 uppercase tracking-wider">Voice Equalizer Active</span>
+  </div>
+</header>
+
+<!-- Main Workspace Layout -->
+<div class="flex flex-1 overflow-hidden">
+  
+  <!-- Left Main Studio Feed -->
+  <main class="flex-1 flex flex-col bg-[#0d0d0d] relative p-6">
+    <div class="flex-1 overflow-y-auto space-y-6 max-w-4xl mx-auto w-full">
+      <!-- User Query -->
+      <div class="flex gap-4">
+        <div class="w-8 h-8 rounded-full bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400 font-bold text-sm">JA</div>
+        <div class="flex-1 bg-[#181818] border border-[#262626] rounded-lg p-4 text-white text-sm leading-relaxed">
+          "Check morning calendar availability for tomorrow, draft an email update via Outlook MCP, and list active Jira tickets for mobile release."
+        </div>
+      </div>
+
+      <!-- Studio Assistant Response -->
+      <div class="flex gap-4">
+        <div class="w-8 h-8 rounded-full bg-gradient-to-r from-amber-500 to-yellow-300 flex items-center justify-center text-black font-bold text-sm">⚡</div>
+        <div class="flex-1 bg-[#141210] border border-amber-500/30 rounded-lg p-5 text-gray-200 text-sm leading-relaxed amber-glow space-y-3">
+          <p class="text-amber-300 font-semibold">Processed Studio Commands across 4 MCP Connectors:</p>
+          <div class="bg-black/50 p-3 rounded border border-white/10 font-mono text-xs text-amber-400">
+            • /calendar: 09:00 AM - 10:00 AM is OPEN.<br/>
+            • /outlook: Draft prepared to engineering leads.<br/>
+            • /jira: 3 active sprint tickets synchronized.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Floating Omni-Command Prompt Dock -->
+    <div class="max-w-4xl mx-auto w-full mt-4">
+      <!-- Slash Command Popover Menu -->
+      <div class="mb-3 bg-[#1a1a1a] border border-amber-500/40 rounded-xl p-3 shadow-2xl amber-glow">
+        <div class="text-[11px] font-bold uppercase tracking-wider text-amber-500 mb-2">Available MCP Commands (Type /)</div>
+        <div class="flex gap-2 flex-wrap">
+          <span class="bg-amber-500/20 text-amber-300 border border-amber-500/40 px-3 py-1 rounded-full text-xs font-mono cursor-pointer hover:bg-amber-500/30">/outlook-search</span>
+          <span class="bg-amber-500/20 text-amber-300 border border-amber-500/40 px-3 py-1 rounded-full text-xs font-mono cursor-pointer hover:bg-amber-500/30">/jira-create-ticket</span>
+          <span class="bg-amber-500/20 text-amber-300 border border-amber-500/40 px-3 py-1 rounded-full text-xs font-mono cursor-pointer hover:bg-amber-500/30">/workspace-docs</span>
+          <span class="bg-amber-500/20 text-amber-300 border border-amber-500/40 px-3 py-1 rounded-full text-xs font-mono cursor-pointer hover:bg-amber-500/30">/github-pr-list</span>
+        </div>
+      </div>
+
+      <div class="relative flex items-center">
+        <input class="w-full bg-[#181818] border border-amber-500/50 rounded-full pl-6 pr-16 py-4 text-white placeholder-gray-500 focus:outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400 transition-all gold-glow" placeholder="Type / for MCP commands, or speak into voice link..." type="text" value="/"/>
+        <button class="absolute right-2 bg-amber-500 hover:bg-amber-400 text-black font-bold w-10 h-10 rounded-full flex items-center justify-center transition-colors">
+          ➔
+        </button>
+      </div>
+    </div>
+  </main>
+
+  <!-- Right Sidebar Modular Dashboard Tiles -->
+  <aside class="w-80 bg-[#141210] border-l border-[#262626] p-5 flex flex-col gap-5 overflow-y-auto">
+    <h3 class="text-xs font-bold uppercase tracking-wider text-amber-500">Studio Dashboard Tiles</h3>
+
+    <div class="bg-[#1c1b1b] border border-amber-500/30 rounded-xl p-4 space-y-2">
+      <div class="text-sm font-semibold text-amber-400">✉️ Outlook Email Quick-Draft</div>
+      <p class="text-xs text-gray-400">Recipients: dev-team@enterprise.com</p>
+      <button class="w-full bg-amber-500 hover:bg-amber-400 text-black font-bold py-2 rounded text-xs transition-colors mt-2">Send via Outlook MCP</button>
+    </div>
+
+    <div class="bg-[#1c1b1b] border border-emerald-500/30 rounded-xl p-4 space-y-2">
+      <div class="text-sm font-semibold text-emerald-400">📅 Availability Matrix</div>
+      <div class="text-xs text-gray-300 space-y-1 font-mono">
+        <div>• 09:00 AM - Open</div>
+        <div>• 10:30 AM - Architecture Sync</div>
+        <div>• 02:00 PM - ADK Demo</div>
+      </div>
+    </div>
+
+    <div class="bg-[#1c1b1b] border border-blue-500/30 rounded-xl p-4 space-y-2">
+      <div class="text-sm font-semibold text-blue-400">💻 Code Sandbox</div>
+      <pre class="bg-black p-3 rounded text-[11px] text-gray-300 font-mono overflow-x-auto">from google.genai import types
+client = genai.Client(vertexai=True)</pre>
+    </div>
+  </aside>
+
+</div>
+</body></html>

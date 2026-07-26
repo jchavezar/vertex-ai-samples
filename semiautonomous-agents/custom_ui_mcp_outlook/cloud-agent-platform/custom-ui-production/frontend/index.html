@@ -1,0 +1,1180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>M365 Outlook Assistant — ADK + Agent Identity + MCP</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <style>
+        :root {
+            --bg-color: #090D16;
+            --sidebar-bg: #0F1626;
+            --surface-color: #151E32;
+            --border-color: #28354E;
+            --primary: #6366F1;
+            --primary-grad: linear-gradient(135deg, #6366F1 0%, #A855F7 100%);
+            --text-primary: #F8FAFC;
+            --text-muted: #94A3B8;
+            --success: #10B981;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(9, 13, 22, 0.7);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(99, 102, 241, 0.4);
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(99, 102, 241, 0.75);
+        }
+        * {
+            scrollbar-width: thin;
+            scrollbar-color: rgba(99, 102, 241, 0.4) transparent;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-color);
+            color: var(--text-primary);
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+        }
+        
+        header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.85rem 1.75rem;
+            background: rgba(9, 13, 22, 0.95);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border-color);
+            flex-shrink: 0;
+        }
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 0.85rem;
+        }
+        .brand-icon {
+            background: linear-gradient(135deg, #0078D4, #4F46E5);
+            border-radius: 12px;
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 20px rgba(79, 70, 229, 0.5);
+        }
+        .brand-title {
+            font-size: 1.15rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #FFFFFF, #93C5FD);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .status-badge {
+            background: rgba(16, 185, 129, 0.12);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            color: var(--success);
+            padding: 0.45rem 1rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--success);
+            border-radius: 50%;
+            box-shadow: 0 0 8px var(--success);
+        }
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        .btn-sec {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #F1F5F9;
+            border-radius: 8px;
+            padding: 0.5rem 0.9rem;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+            transition: all 0.2s;
+        }
+        .btn-sec:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        /* NAKED TRANSPARENT YAZDANI STAR SPINNER */
+        .yazdani-spinner {
+            display: inline-block;
+            font-size: 1.25rem;
+            color: #818CF8;
+            background: transparent !important;
+            border: none !important;
+            box-shadow: none !important;
+            animation: yazdani-glow 0.6s ease-in-out infinite alternate;
+        }
+        .yazdani-spinner::before {
+            content: '✳';
+            animation: yazdani-morph 0.9s steps(1) infinite;
+        }
+        @keyframes yazdani-morph {
+            0%, 12%   { content: '✳'; }
+            12.1%, 24% { content: '✻'; }
+            24.1%, 36% { content: '❋'; }
+            36.1%, 48% { content: '✽'; }
+            48.1%, 60% { content: '※'; }
+            60.1%, 72% { content: '✷'; }
+            72.1%, 84% { content: '✸'; }
+            84.1%, 100%{ content: '✳'; }
+        }
+        @keyframes yazdani-glow {
+            0% { opacity: 0.6; transform: scale(0.95); }
+            100% { opacity: 1; transform: scale(1.15); filter: drop-shadow(0 0 8px rgba(129, 140, 248, 0.8)); }
+        }
+        .sweep-text {
+            background: linear-gradient(90deg, #94A3B8 0%, #FFFFFF 50%, #94A3B8 100%);
+            background-size: 200% 100%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: text-sweep 2s ease-in-out infinite;
+            font-weight: 600;
+            font-size: 0.85rem;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        @keyframes text-sweep {
+            0% { background-position: 100% 0; }
+            100% { background-position: -100% 0; }
+        }
+
+        .main-layout {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+        .sidebar {
+            width: 320px;
+            min-width: 0;
+            background: var(--sidebar-bg);
+            border-right: 1px solid var(--border-color);
+            padding: 1.25rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+            overflow-y: auto;
+            transition: width 0.25s cubic-bezier(0.4, 0, 0.2, 1), padding 0.25s, opacity 0.25s;
+            position: relative;
+            flex-shrink: 0;
+        }
+        .sidebar.collapsed {
+            width: 0 !important;
+            min-width: 0 !important;
+            padding: 0 !important;
+            overflow: hidden !important;
+            border-right: none !important;
+            opacity: 0 !important;
+        }
+        .sidebar-resizer {
+            width: 6px;
+            background: transparent;
+            cursor: col-resize;
+            transition: background 0.2s;
+            flex-shrink: 0;
+            z-index: 10;
+        }
+        .sidebar-resizer:hover, .sidebar-resizer.dragging {
+            background: rgba(99, 102, 241, 0.5);
+        }
+        .section-title {
+            font-size: 0.82rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+        .sidebar-card {
+            background: var(--surface-color);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 0.85rem;
+            font-size: 0.82rem;
+            line-height: 1.5;
+        }
+
+        .chat-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            background: var(--bg-color);
+            overflow: hidden;
+        }
+        .chips-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.6rem 0.8rem;
+            padding: 1rem 1.75rem;
+            border-bottom: 1px solid var(--border-color);
+            background: rgba(15, 22, 38, 0.3);
+            backdrop-filter: blur(8px);
+            flex-shrink: 0;
+        }
+        .chip {
+            background: rgba(21, 30, 50, 0.6);
+            border: 1px solid var(--border-color);
+            color: #CBD5E1;
+            padding: 0.5rem 0.95rem;
+            border-radius: 24px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            backdrop-filter: blur(12px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        }
+        .chip:hover {
+            transform: translateY(-2px);
+            border-color: var(--theme-color);
+            color: #FFF;
+            background: rgba(255, 255, 255, 0.03);
+            box-shadow: var(--shadow-glow);
+        }
+
+        .messages-thread {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1.75rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+        }
+        .msg-row {
+            display: flex;
+            gap: 0.85rem;
+            max-width: 85%;
+        }
+        .msg-row.user {
+            align-self: flex-end;
+            flex-direction: row-reverse;
+        }
+        .msg-row.ai {
+            align-self: flex-start;
+        }
+        .avatar {
+            width: 34px;
+            height: 34px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+        .avatar.user { background: linear-gradient(135deg, #6366F1, #4F46E5); }
+        .avatar.ai { background: linear-gradient(135deg, #0284C7, #0369A1); }
+        
+        .msg-bubble {
+            background: var(--surface-color);
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            padding: 0.95rem 1.25rem;
+            font-size: 0.92rem;
+            line-height: 1.6;
+            color: #E2E8F0;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
+            min-width: 260px;
+        }
+        .msg-row.user .msg-bubble {
+            background: linear-gradient(135deg, #4F46E5, #4338CA);
+            border-color: rgba(255, 255, 255, 0.1);
+            color: #FFF;
+        }
+
+        .typing-indicator {
+            display: none;
+            align-items: center;
+            gap: 0.6rem;
+            padding: 0.6rem 1.75rem;
+            background: rgba(15, 22, 38, 0.5);
+            border-top: 1px solid var(--border-color);
+            font-size: 0.82rem;
+            color: #A78BFA;
+        }
+
+        .input-bar {
+            padding: 1.25rem 1.75rem;
+            background: rgba(15, 22, 38, 0.6);
+            border-top: 1px solid var(--border-color);
+            backdrop-filter: blur(12px);
+            display: flex;
+            gap: 0.75rem;
+        }
+        .input-box {
+            flex: 1;
+            background: var(--surface-color);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 0.75rem 1rem;
+            color: #FFF;
+            font-size: 0.92rem;
+            outline: none;
+            transition: all 0.2s;
+        }
+        .input-box:focus {
+            border-color: var(--theme-color);
+            box-shadow: var(--shadow-glow);
+        }
+        .send-btn {
+            background: linear-gradient(135deg, #6366F1, #4F46E5);
+            border: none;
+            color: #FFF;
+            border-radius: 10px;
+            padding: 0 1.25rem;
+            cursor: pointer;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        .send-btn:hover { opacity: 0.9; transform: translateY(-1px); }
+
+        .right-sidebar {
+            width: 320px;
+            min-width: 0;
+            background: var(--sidebar-bg);
+            border-left: 1px solid var(--border-color);
+            padding: 1.25rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+            overflow-y: auto;
+            flex-shrink: 0;
+            transition: width 0.25s cubic-bezier(0.4, 0, 0.2, 1), padding 0.25s, opacity 0.25s;
+        }
+        .right-sidebar-feed {
+            display: flex;
+            flex-direction: column;
+            gap: 0.85rem;
+            overflow-y: auto;
+            flex: 1;
+        }
+        .source-card {
+            background: var(--surface-color);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 0.75rem;
+            font-size: 0.75rem;
+            font-family: monospace;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            color: inherit;
+            display: flex;
+            flex-direction: column;
+            gap: 0.35rem;
+        }
+        .source-card:hover {
+            border-color: var(--theme-color);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.15);
+        }
+        .source-title {
+            font-weight: 700;
+            font-size: 0.76rem;
+            color: #E2E8F0;
+            line-clamp: 1;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .source-meta {
+            font-size: 0.65rem;
+            color: var(--text-muted);
+        }
+        .source-preview {
+            font-size: 0.7rem;
+            color: #94A3B8;
+            line-clamp: 2;
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+        }
+        .email-clickable {
+            color: #38BDF8 !important;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: underline;
+            text-decoration-style: dotted;
+            padding: 0.05rem 0.2rem;
+            border-radius: 4px;
+            background: rgba(56, 189, 248, 0.08);
+            transition: all 0.2s;
+        }
+        .email-clickable:hover {
+            color: #7DD3FC !important;
+            background: rgba(56, 189, 248, 0.16);
+            text-decoration-style: solid;
+        }
+    </style>
+
+</head>
+<body>
+    <header>
+        <div class="brand">
+            <div class="brand-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FFF" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+            </div>
+            <div>
+                <div class="brand-title">M365 Outlook Assistant — ADK + Agent Identity + MCP</div>
+                <div style="font-size: 0.75rem; color: var(--text-muted);">Vertex AI Reasoning Engine <code>gemini-3.6-flash</code></div>
+            </div>
+        </div>
+        <div class="header-actions">
+            <button id="sidebar-toggle-btn" class="btn-sec" style="background: rgba(255,255,255,0.06); color: #CBD5E1; border: 1px solid var(--border-color); cursor: pointer; padding: 0.4rem 0.75rem; border-radius: 6px; font-size: 0.78rem; font-weight: 600; display: inline-flex; align-items: center; gap: 0.4rem;" onclick="toggleSidebar()">
+                <span id="sidebar-toggle-icon">◀</span> <span id="sidebar-toggle-text">Hide Sidebar</span>
+            </button>
+            <div id="status-badge-el" class="status-badge"><span class="status-dot"></span> Microsoft: Connected</div>
+            <a id="connect-btn-el" href="/login" target="_blank" class="btn-sec" style="background: linear-gradient(135deg, #0078D4, #005A9E); color: #FFF; border: none; display: none;">Connect Outlook</a>
+        </div>
+    </header>
+
+    <div class="main-layout">
+        <div class="sidebar">
+            <div>
+                <div class="section-title">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#818CF8" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+                    <span>User Profile</span>
+                </div>
+                <div class="sidebar-card">
+                    <b>Jesus Chavez</b><br>
+                    <span style="color: var(--text-muted);">admin@sockcop.onmicrosoft.com</span>
+                </div>
+            </div>
+
+            <div>
+                <div class="section-title">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#60A5FA" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                    <span>Tomorrow's Invites</span>
+                </div>
+                <div class="sidebar-card">
+                    • <b>Team Leads Budget Alignment</b> (2:00 PM EDT)<br>
+                    • <b>Q4 Resource Allocation</b> (7:00 PM EDT)
+                </div>
+            </div>
+
+            <div>
+                <div class="section-title">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#34D399" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                    <span>Recent Inbox</span>
+                </div>
+                <div class="sidebar-card">
+                    • <b>Passkeys MFA Notice</b> (Microsoft Security)<br>
+                    • <b>Azure Copilot Access</b> (Azure Notice)
+                </div>
+            </div>
+        </div>
+
+        <div class="sidebar-resizer" id="sidebar-resizer"></div>
+
+        <div class="chat-panel">
+            <div class="chips-container">
+                <div class="chip" onclick="sendChip(this)">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#38BDF8" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18"/></svg>
+                    What was my last email?
+                </div>
+                <div class="chip" onclick="sendChip(this)">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#A78BFA" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg>
+                    Oldest email
+                </div>
+                <div class="chip" onclick="sendChip(this)">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#F59E0B" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/></svg>
+                    Tomorrow's meetings
+                </div>
+                <div class="chip" onclick="sendChip(this)">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#34D399" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    Emails from Lisa
+                </div>
+            </div>
+
+            <div class="messages-thread" id="messages-thread">
+                <div class="msg-row ai">
+                    <div class="avatar ai">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z" fill="#FFF"/></svg>
+                    </div>
+                    <div class="msg-bubble">
+                        Hello Jesus! I am your <b>Outlook AI Executive Assistant</b> connected to <code>admin@sockcop.onmicrosoft.com</code> via ADK Agent Runtime & Microsoft Graph API. Ask me anything about your inbox or calendar.
+                    </div>
+                </div>
+            </div>
+
+            <div class="typing-indicator" id="typing-indicator">
+                <span class="yazdani-spinner" style="font-size: 1.05rem;"></span>
+                <span class="sweep-text" style="font-weight: 600;" id="typing-status-text">Analyzing intent & Microsoft Graph data...</span>
+                <span style="margin-left: auto; color: var(--text-muted); font-size: 0.75rem;" id="typing-timer">⏱️ 0.0s</span>
+            </div>
+
+            <div class="input-bar">
+                <input type="text" id="chat-input" class="input-box" placeholder="Ask your Outlook assistant (e.g. What was my last email?)..." onkeydown="if(event.key==='Enter') submitMessage()">
+                <button class="send-btn" onclick="submitMessage()">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FFF" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                </button>
+            </div>
+
+        </div>
+
+        <div class="sidebar-resizer" id="right-sidebar-resizer"></div>
+        <div class="right-sidebar" id="right-sidebar">
+            <div class="section-title" style="margin-bottom: 0.85rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem; justify-content: space-between;">
+                <span style="display: inline-flex; align-items: center; gap: 0.4rem;">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#818CF8" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+                    <span>Grounded Source Mesh</span>
+                </span>
+                <span class="badge" id="source-count-badge" style="background: rgba(129, 140, 248, 0.15); color: #818CF8; font-size: 0.65rem; border: 1px solid rgba(129, 140, 248, 0.3); border-radius: 4px; padding: 0.1rem 0.35rem;">0 Sources</span>
+            </div>
+            <div class="right-sidebar-feed" id="right-sidebar-feed">
+                <div style="text-align: center; color: var(--text-muted); font-size: 0.75rem; font-family: monospace; padding-top: 2rem;">
+                    No active citations retrieved.
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Slide-over Full Email Reader Modal -->
+    <div id="email-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
+        <div class="bg-white rounded-3xl shadow-2xl max-w-2xl w-full border border-black/10 overflow-hidden flex flex-col max-h-[85vh] animate-in fade-in zoom-in-95 duration-200" style="background: white; border-radius: 1.5rem; border: 1px solid rgba(0,0,0,0.1); overflow: hidden; display: flex; flex-direction: column; max-height: 85vh;">
+            <div class="px-6 py-4 bg-slate-50 border-b border-black/5 flex items-center justify-between" style="padding: 1rem 1.5rem; background: #f8fafc; border-bottom: 1px solid rgba(0,0,0,0.05); display: flex; align-items: center; justify-content: space-between;">
+                <div class="flex items-center gap-2.5" style="display: flex; align-items: center; gap: 0.65rem;">
+                    <span class="w-8 h-8 rounded-full bg-sky-100 text-sky-700 flex items-center justify-center font-bold text-sm" style="width: 2rem; height: 2rem; border-radius: 9999px; background: #e0f2fe; color: #0369a1; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.875rem;">📧</span>
+                    <div>
+                        <h4 id="modal-email-subject" class="font-bold text-slate-800 text-base leading-tight" style="font-weight: bold; color: #1e293b; font-size: 1rem; margin: 0; line-height: 1.25;">Email Details</h4>
+                        <span id="modal-email-folder" class="tag tag-accent rounded-full text-[9px] px-2 py-0.5" style="font-size: 0.55rem; background: rgba(99, 102, 241, 0.15); color: #818CF8; border: 1px solid rgba(99, 102, 241, 0.3); border-radius: 9999px; padding: 0.05rem 0.4rem; font-family: monospace;">Inbox</span>
+                    </div>
+                </div>
+                <button onclick="closeEmailModal()" class="w-8 h-8 rounded-full hover:bg-slate-200 text-slate-500 flex items-center justify-center transition-colors" style="width: 2rem; height: 2rem; border-radius: 9999px; border: none; background: transparent; cursor: pointer; color: #64748b; font-size: 1rem; display: flex; align-items: center; justify-content: center; transition: background-color 0.2s;">✕</button>
+            </div>
+            <div class="p-6 overflow-y-auto space-y-4 text-sm flex-1" style="padding: 1.5rem; overflow-y: auto; display: flex; flex-direction: column; gap: 1rem; font-size: 0.875rem; color: #334155; flex: 1;">
+                <div class="grid grid-cols-2 gap-3 p-3 bg-slate-50 rounded-2xl border border-black/5 text-xs font-mono" style="display: grid; grid-template-cols: 1fr 1fr; gap: 0.75rem; padding: 0.75rem; background: #f8fafc; border-radius: 1rem; border: 1px solid rgba(0,0,0,0.05); font-family: monospace; font-size: 0.75rem;">
+                    <div><span class="text-slate-400" style="color: #94a3b8;">FROM:</span> <strong id="modal-email-from" class="text-slate-800" style="color: #1e293b; font-weight: bold;">---</strong></div>
+                    <div><span class="text-slate-400" style="color: #94a3b8;">DATE:</span> <span id="modal-email-date" class="text-slate-700" style="color: #334155;">---</span></div>
+                </div>
+                <div class="border-t border-black/5 pt-3" style="border-top: 1px solid rgba(0,0,0,0.05); padding-top: 0.75rem;">
+                    <h6 class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 font-mono" style="font-size: 0.65rem; font-weight: bold; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.5rem; font-family: monospace;">Message Content</h6>
+                    <div id="modal-email-body" class="p-4 bg-slate-50/70 rounded-2xl border border-slate-100 text-slate-700 leading-relaxed font-sans text-sm whitespace-pre-wrap" style="padding: 1rem; background: rgba(248, 250, 252, 0.7); border-radius: 1rem; border: 1px solid #f1f5f9; color: #334155; line-height: 1.625; font-family: sans-serif; font-size: 0.875rem; white-space: pre-wrap; word-break: break-word;"></div>
+                </div>
+            </div>
+            <div class="px-6 py-3.5 bg-slate-50 border-t border-black/5 flex items-center justify-between" style="padding: 0.875rem 1.5rem; background: #f8fafc; border-top: 1px solid rgba(0,0,0,0.05); display: flex; align-items: center; justify-content: space-between;">
+                <span class="text-xs text-slate-400 font-mono" style="font-size: 0.75rem; color: #94a3b8; font-family: monospace;">Verified Graph Mail Record</span>
+                <div class="flex items-center gap-2" style="display: flex; align-items: center; gap: 0.5rem;">
+                    <a id="modal-email-weblink" href="https://outlook.office.com/mail/" target="_blank" rel="noopener" class="px-4 py-1.5 rounded-full text-xs font-semibold bg-sky-50 hover:bg-sky-100 text-sky-700 border border-sky-200/80 flex items-center gap-1.5 transition-colors" style="padding: 0.375rem 1rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; background: #f0f9ff; color: #0369a1; border: 1px solid rgba(2, 132, 199, 0.2); text-decoration: none; display: flex; align-items: center; gap: 0.375rem; transition: background-color 0.2s;">
+                        <span>↗️</span>
+                        <span>Open in Outlook Web</span>
+                    </a>
+                    <button onclick="closeEmailModal()" class="btn-primary px-5 py-1.5 rounded-full text-xs" style="padding: 0.375rem 1.25rem; border-radius: 9999px; font-size: 0.75rem; font-weight: bold; background: #0f172a; color: white; border: none; cursor: pointer; transition: opacity 0.2s;">Close preview</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let activeEmailCache = [];
+
+        function openEmailModal(index) {
+            const email = activeEmailCache[index];
+            if (!email) return;
+            
+            document.getElementById('modal-email-subject').innerText = email.subject || 'No Subject';
+            document.getElementById('modal-email-folder').innerText = email.folderName || 'Inbox';
+            const fromAddr = (email.from && email.from.emailAddress) ? `${email.from.emailAddress.name || ''} <${email.from.emailAddress.address}>` : (email.from || 'Unknown');
+            document.getElementById('modal-email-from').innerText = fromAddr;
+            document.getElementById('modal-email-date').innerText = email.receivedDateTime || email.date || 'Recent';
+            
+            const bodyObj = email.body || {};
+            const fullContent = bodyObj.content || email.bodyPreview || 'No content preview available.';
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = fullContent;
+            const textClean = tempDiv.innerText || tempDiv.textContent || fullContent;
+            document.getElementById('modal-email-body').innerText = textClean;
+            
+            const webLinkBtn = document.getElementById('modal-email-weblink');
+            if (webLinkBtn) {
+                webLinkBtn.href = email.webLink || 'https://outlook.office.com/mail/';
+            }
+            
+            document.getElementById('email-modal').classList.remove('hidden');
+        }
+
+        function closeEmailModal() {
+            document.getElementById('email-modal').classList.add('hidden');
+        }
+
+        function linkifyEmails(htmlStr, emailsList) {
+            if (!emailsList || emailsList.length === 0) return htmlStr;
+            let output = htmlStr;
+            emailsList.forEach((em, idx) => {
+                const subj = em.subject;
+                if (subj && subj.length > 2) {
+                    const escaped = subj.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                    const regex = new RegExp(`(${escaped})`, 'gi');
+                    output = output.replace(regex, `<span class="email-clickable" onclick="openEmailModal(${idx})" title="Click to view full email preview">📧 $1</span>`);
+                }
+            });
+            return output;
+        }
+
+        function parseDraft(text) {
+            if (!text) return null;
+            const toMatch = text.match(/\*\*To:\*\*\s*([^\n\r]+)/i);
+            const subjectMatch = text.match(/\*\*Subject:\*\*\s*([^\n\r]+)/i);
+            if (toMatch && subjectMatch) {
+                const to_address = toMatch[1].trim();
+                const subject = subjectMatch[1].trim();
+                const idxSub = text.indexOf(subjectMatch[0]);
+                let body = text.substring(idxSub + subjectMatch[0].length).trim();
+                if (body.startsWith('***')) {
+                    body = body.substring(3).trim();
+                }
+                const idxEnd = body.indexOf('***');
+                if (idxEnd !== -1) {
+                    body = body.substring(0, idxEnd).trim();
+                }
+                const idxLetMeKnow = body.toLowerCase().indexOf("let me know");
+                if (idxLetMeKnow !== -1) {
+                    body = body.substring(0, idxLetMeKnow).trim();
+                }
+                return { to_address, subject, body };
+            }
+            return null;
+        }
+
+        async function sendEmailFromChat(msgId, toAddress, subject, body, btnId) {
+            const btn = document.getElementById(btnId);
+            if (btn) {
+                btn.disabled = true;
+                btn.innerText = "SENDING...";
+            }
+            try {
+                const resp = await fetch('/api/send-email', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ to_address: toAddress, subject, body })
+                });
+                const data = await resp.json();
+                if (data.success) {
+                    if (btn) {
+                        btn.className = "bg-emerald-600 text-white font-semibold text-xs px-4 py-2 rounded-xl cursor-default";
+                        btn.innerText = "✓ EMAIL SENT";
+                    }
+                } else {
+                    alert("Failed to send email: " + (data.error || "Unknown error"));
+                    if (btn) {
+                        btn.disabled = false;
+                        btn.innerText = "APPROVE & SEND EMAIL";
+                    }
+                }
+            } catch(e) {
+                alert("Network error: " + e.message);
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerText = "APPROVE & SEND EMAIL";
+                }
+            }
+        }
+
+        let timerInterval = null;
+        let chatHistory = [];
+        let sessionId = localStorage.getItem("outlook_session_id");
+
+        async function initSession() {
+            if (!sessionId) {
+                try {
+                    const r = await fetch('/api/session/create');
+                    const d = await r.json();
+                    if (d.session_id) {
+                        sessionId = d.session_id;
+                        localStorage.setItem("outlook_session_id", sessionId);
+                        console.log("Initialized new ADK Session:", sessionId);
+                    }
+                } catch(e) {
+                    console.error("Failed to initialize session:", e);
+                }
+            } else {
+                console.log("Reusing existing ADK Session:", sessionId);
+            }
+        }
+        document.addEventListener('DOMContentLoaded', initSession);
+
+
+        function toggleSidebar() {
+            const sidebar = document.querySelector('.sidebar');
+            const toggleIcon = document.getElementById('sidebar-toggle-icon');
+            const toggleText = document.getElementById('sidebar-toggle-text');
+            if (sidebar.classList.contains('collapsed')) {
+                sidebar.classList.remove('collapsed');
+                toggleIcon.innerText = '◀';
+                toggleText.innerText = 'Hide Sidebar';
+            } else {
+                sidebar.classList.add('collapsed');
+                toggleIcon.innerText = '▶';
+                toggleText.innerText = 'Show Sidebar';
+            }
+        }
+
+        const resizer = document.getElementById('sidebar-resizer');
+        const sidebarEl = document.querySelector('.sidebar');
+        let isResizing = false;
+
+        if (resizer && sidebarEl) {
+            resizer.addEventListener('mousedown', (e) => {
+                isResizing = true;
+                resizer.classList.add('dragging');
+                document.body.style.cursor = 'col-resize';
+                document.body.style.userSelect = 'none';
+            });
+
+            document.addEventListener('mousemove', (e) => {
+                if (!isResizing) return;
+                const newWidth = e.clientX - sidebarEl.getBoundingClientRect().left;
+                if (newWidth > 180 && newWidth < 550) {
+                    sidebarEl.style.width = newWidth + 'px';
+                }
+            });
+
+            document.addEventListener('mouseup', () => {
+                if (isResizing) {
+                    isResizing = false;
+                    resizer.classList.remove('dragging');
+                    document.body.style.cursor = '';
+                    document.body.style.userSelect = '';
+                }
+            });
+        }
+
+        function scrollToBottom() {
+            const thread = document.getElementById('messages-thread');
+            thread.scrollTop = thread.scrollHeight;
+        }
+
+        function sendChip(el) {
+            const input = document.getElementById('chat-input');
+            input.value = el.innerText.trim();
+            submitMessage();
+        }
+
+        async function submitMessage() {
+            const input = document.getElementById('chat-input');
+            const q = input.value.trim();
+            if (!q) return;
+
+            chatHistory.push({ role: 'user', content: q });
+            if (chatHistory.length > 10) chatHistory.shift();
+
+            const thread = document.getElementById('messages-thread');
+            const userRow = document.createElement('div');
+            userRow.className = 'msg-row user';
+            userRow.innerHTML = `
+                <div class="avatar user">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FFF" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                </div>
+                <div class="msg-bubble">${q}</div>
+            `;
+            thread.appendChild(userRow);
+            input.value = '';
+            scrollToBottom();
+
+
+            const indicator = document.getElementById('typing-indicator');
+
+            const timerEl = document.getElementById('typing-timer');
+            const statusText = document.getElementById('typing-status-text');
+            statusText.textContent = 'Reasoning & checking Microsoft 365...';
+            
+            indicator.style.display = 'flex';
+            scrollToBottom();
+
+            const t0 = performance.now();
+            if (timerInterval) clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                const elapsed = ((performance.now() - t0)/1000).toFixed(1);
+                timerEl.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#A78BFA" stroke-width="2" style="vertical-align: middle; margin-right: 0.25rem;"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>' + elapsed + 's';
+            }, 100);
+
+            let aiRow = null;
+            let aiBubble = null;
+            let responseText = "";
+            let triggeredToolsCount = 0;
+            let toolsAccordion = null;
+            let toolsTraceList = null;
+            let contentTextContainer = document.createElement('div');
+
+            function ensureAiBubble() {
+                if (!aiRow) {
+                    aiRow = document.createElement('div');
+                    aiRow.className = 'msg-row ai';
+                    aiRow.innerHTML = `
+                        <div class="avatar ai">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z" fill="#FFF"/></svg>
+                        </div>
+                        <div class="msg-bubble" id="latest-ai-bubble"></div>
+                    `;
+                    thread.appendChild(aiRow);
+                    aiBubble = aiRow.querySelector('#latest-ai-bubble');
+                }
+                return aiBubble;
+            }
+
+            try {
+                const resp = await fetch('/api/search', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-Entra-Id-Token': 'session-active-token' },
+                    body: JSON.stringify({ query: q, history: chatHistory, session_id: sessionId, timezone: Intl.DateTimeFormat().resolvedOptions().timeZone })
+                });
+
+
+
+                const reader = resp.body.getReader();
+                const decoder = new TextDecoder();
+                let buffer = "";
+
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+                    buffer += decoder.decode(value, { stream: true });
+                    const lines = buffer.split("\n");
+                    buffer = lines.pop() || "";
+                    for (const line of lines) {
+                        if (!line.startsWith("data: ")) continue;
+                        const jsonStr = line.replace("data: ", "").trim();
+                        if (!jsonStr) continue;
+
+                        try {
+                            const evt = JSON.parse(jsonStr);
+                            if (evt.type === "tool_call") {
+                                const bubble = ensureAiBubble();
+                                statusText.textContent = `Executing MCP Tool: ${evt.tool.name}...`;
+                                triggeredToolsCount++;
+                                if (!toolsAccordion) {
+                                    toolsAccordion = document.createElement('details');
+                                    toolsAccordion.className = 'tools-accordion';
+                                    toolsAccordion.style.marginBottom = '0.6rem';
+                                    toolsAccordion.style.background = 'rgba(99, 102, 241, 0.06)';
+                                    toolsAccordion.style.border = '1px solid rgba(99, 102, 241, 0.2)';
+                                    toolsAccordion.style.borderRadius = '6px';
+                                    toolsAccordion.style.padding = '0.35rem 0.65rem';
+                                    toolsAccordion.innerHTML = `
+                                        <summary style="font-size: 0.75rem; color: #A78BFA; cursor: pointer; user-select: none; font-weight: 600; display: flex; align-items: center; justify-content: space-between;">
+                                            <span class="tools-summary-title" style="display: inline-flex; align-items: center; gap: 0.35rem;">
+                                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#A78BFA" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                                                Triggered MCP Tools (1 step)
+                                            </span>
+                                            <span style="font-size: 0.65rem; background: rgba(167, 139, 250, 0.18); color: #A78BFA; border: 1px solid rgba(167, 139, 250, 0.3); padding: 0.1rem 0.4rem; border-radius: 4px; font-weight: 600;">Click to view trace</span>
+                                        </summary>
+                                        <div class="tools-trace-list" style="margin-top: 0.4rem; font-size: 0.72rem; color: #CBD5E1; font-family: 'JetBrains Mono', monospace; display: flex; flex-direction: column; gap: 0.3rem; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 0.4rem;"></div>
+                                    `;
+                                    bubble.appendChild(toolsAccordion);
+                                    toolsTraceList = toolsAccordion.querySelector('.tools-trace-list');
+                                } else {
+                                    const titleEl = toolsAccordion.querySelector('.tools-summary-title');
+                                    if (titleEl) {
+                                        titleEl.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#A78BFA" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg> Triggered MCP Tools (${triggeredToolsCount} steps)`;
+                                    }
+                                }
+                                const traceItem = document.createElement('div');
+                                traceItem.style.background = 'rgba(15, 23, 42, 0.4)';
+                                traceItem.style.border = '1px solid rgba(255,255,255,0.05)';
+                                traceItem.style.borderRadius = '6px';
+                                traceItem.style.padding = '0.35rem 0.5rem';
+                                traceItem.style.display = 'flex';
+                                traceItem.style.flexDirection = 'column';
+                                traceItem.style.gap = '0.2rem';
+                                
+                                const rawArgsStr = JSON.stringify(evt.tool.args || {}, null, 2);
+                                traceItem.innerHTML = `
+                                    <div style="display: flex; align-items: center; justify-content: space-between;">
+                                        <div style="display: flex; align-items: center; gap: 0.35rem;">
+                                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#60A5FA" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><line x1="9" y1="1" x2="9" y2="4"/><line x1="15" y1="1" x2="15" y2="4"/><line x1="9" y1="20" x2="9" y2="23"/><line x1="15" y1="20" x2="15" y2="23"/><line x1="20" y1="9" x2="23" y2="9"/><line x1="20" y1="15" x2="23" y2="15"/><line x1="1" y1="9" x2="4" y2="9"/><line x1="1" y1="15" x2="4" y2="15"/></svg>
+                                            <code style="color: #93C5FD; font-weight: 600;">${evt.tool.name}</code>
+                                        </div>
+                                        <span style="font-size: 0.62rem; color: #64748B;">MCP Tool Call</span>
+                                    </div>
+                                    <details style="margin-top: 0.2rem;">
+                                        <summary style="font-size: 0.65rem; color: #94A3B8; cursor: pointer; user-select: none;">🔍 View Raw Payload & Parameters</summary>
+                                        <pre style="margin-top: 0.25rem; font-size: 0.64rem; background: #090D16; color: #A7F3D0; padding: 0.4rem; border-radius: 4px; overflow-x: auto; white-space: pre-wrap;">${rawArgsStr}</pre>
+                                    </details>
+                                `;
+                                toolsTraceList.appendChild(traceItem);
+                                scrollToBottom();
+                            } else if (evt.type === "tool_response") {
+                                statusText.textContent = `Processing Microsoft Graph API data...`;
+                                if (toolsTraceList) {
+                                    const doneItem = document.createElement('div');
+                                    doneItem.style.color = '#34D399';
+                                    doneItem.style.fontSize = '0.68rem';
+                                    doneItem.style.background = 'rgba(16, 185, 129, 0.08)';
+                                    doneItem.style.border = '1px solid rgba(16, 185, 129, 0.2)';
+                                    doneItem.style.borderRadius = '4px';
+                                    doneItem.style.padding = '0.25rem 0.45rem';
+                                    doneItem.style.display = 'flex';
+                                    doneItem.style.flexDirection = 'column';
+                                    doneItem.style.gap = '0.2rem';
+                                    
+                                    const respDetails = evt.response || {};
+                                    const itemsCount = respDetails.items_count !== undefined ? respDetails.items_count : 'OK';
+                                    doneItem.innerHTML = `
+                                        <div style="display: flex; align-items: center; gap: 0.3rem;">
+                                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#34D399" stroke-width="2.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                                            <span style="font-weight: 600;">Microsoft Graph Payload Received</span>
+                                            <span style="margin-left: auto; font-size: 0.62rem; color: #6EE7B7;">Items: ${itemsCount}</span>
+                                        </div>
+                                        <details style="margin-top: 0.15rem;">
+                                            <summary style="font-size: 0.63rem; color: #6EE7B7; cursor: pointer; user-select: none;">📄 View Grounded Payload Citation</summary>
+                                            <pre style="margin-top: 0.2rem; font-size: 0.62rem; background: #064E3B; color: #ECFDF5; padding: 0.35rem; border-radius: 4px; overflow-x: auto; white-space: pre-wrap;">${JSON.stringify(respDetails, null, 2)}</pre>
+                                        </details>
+                                    `;
+                                    toolsTraceList.appendChild(doneItem);
+                                }
+                                scrollToBottom();
+                            } else if (evt.type === "grounding_mesh") {
+                                renderGroundingMesh(evt);
+                            } else if (evt.type === "text") {
+
+                                const bubble = ensureAiBubble();
+                                responseText += evt.text || "";
+                                let parsed = marked.parse(responseText);
+                                parsed = linkifyEmails(parsed, activeEmailCache);
+                                contentTextContainer.innerHTML = parsed;
+                                if (!bubble.contains(contentTextContainer)) bubble.appendChild(contentTextContainer);
+                                scrollToBottom();
+                            }
+                        } catch (e) {}
+                    }
+                }
+
+                chatHistory.push({ role: 'model', content: responseText });
+                if (chatHistory.length > 10) chatHistory.shift();
+
+                clearInterval(timerInterval);
+                indicator.style.display = 'none';
+
+                // Final linkification sweep
+                if (contentTextContainer) {
+                    let finalParsed = marked.parse(responseText);
+                    finalParsed = linkifyEmails(finalParsed, activeEmailCache);
+                    contentTextContainer.innerHTML = finalParsed;
+                }
+
+                // Render draft approval card if applicable
+                const draftInfo = parseDraft(responseText);
+                if (draftInfo && aiBubble) {
+                    const btnId = 'btn-' + Date.now();
+                    const escMsgId = JSON.stringify("latest-ai-bubble");
+                    const escTo = JSON.stringify(draftInfo.to_address);
+                    const escSub = JSON.stringify(draftInfo.subject);
+                    const escBody = JSON.stringify(draftInfo.body);
+                    const escBtnId = JSON.stringify(btnId);
+
+                    const draftCard = document.createElement('div');
+                    draftCard.className = "mt-4 p-4 rounded-xl border border-emerald-100 bg-emerald-500/5 space-y-3 shadow-sm";
+                    draftCard.innerHTML = `
+                        <div class="flex items-center justify-between">
+                            <span class="text-[9px] font-bold text-emerald-800 bg-emerald-100 px-2.5 py-1 rounded-full uppercase tracking-wider">
+                                DRAFTED EMAIL ACTION REQUIRED
+                            </span>
+                        </div>
+                        <div class="text-xs" style="font-size: 0.75rem; margin-bottom: 0.25rem;">
+                            <strong>To:</strong> <span class="text-slate-400">${draftInfo.to_address}</span>
+                        </div>
+                        <div class="text-xs" style="font-size: 0.75rem; margin-bottom: 0.5rem;">
+                            <strong>Subject:</strong> <span class="text-slate-400">${draftInfo.subject}</span>
+                        </div>
+                        <div class="bg-slate-900 border border-slate-800 p-3 rounded-lg text-xs text-slate-300 whitespace-pre-wrap max-h-48 overflow-y-auto font-mono mb-3">
+                            ${draftInfo.body}
+                        </div>
+                        <div>
+                            <button id="${btnId}" onclick='sendEmailFromChat(${escMsgId}, ${escTo}, ${escSub}, ${escBody}, ${escBtnId})' class="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs px-4 py-2.5 rounded-xl cursor-pointer hover:scale-[1.01] transition-all">
+                                APPROVE & SEND EMAIL
+                            </button>
+                        </div>
+                    `;
+                    aiBubble.appendChild(draftCard);
+                }
+                
+                // Render permanent latency badge
+                const latencyVal = ((performance.now() - t0)/1000).toFixed(1);
+                const latencyBadge = document.createElement('div');
+                latencyBadge.style.display = 'flex';
+                latencyBadge.style.alignItems = 'center';
+                latencyBadge.style.justifyContent = 'flex-end';
+                latencyBadge.style.marginTop = '0.45rem';
+                latencyBadge.innerHTML = `
+                    <span style="font-size: 0.65rem; color: #64748B; background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.08); padding: 0.15rem 0.35rem; border-radius: 9999px; display: flex; align-items: center; gap: 0.2rem;">
+                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#64748B" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                        ${latencyVal}s
+                    </span>
+                `;
+                if (aiBubble) aiBubble.appendChild(latencyBadge);
+                scrollToBottom();
+
+            } catch (e) {
+                clearInterval(timerInterval);
+                indicator.style.display = 'none';
+                const bubble = ensureAiBubble();
+                bubble.innerHTML = `<span style="color: #EF4444;">Error: ${e}</span>`;
+                
+                const latencyVal = ((performance.now() - t0)/1000).toFixed(1);
+                const latencyBadge = document.createElement('div');
+                latencyBadge.style.display = 'flex';
+                latencyBadge.style.alignItems = 'center';
+                latencyBadge.style.justifyContent = 'flex-end';
+                latencyBadge.style.marginTop = '0.45rem';
+                latencyBadge.innerHTML = `
+                    <span style="font-size: 0.65rem; color: #EF4444; background: rgba(239, 68, 68, 0.05); border: 1px solid rgba(239, 68, 68, 0.15); padding: 0.15rem 0.35rem; border-radius: 9999px; display: flex; align-items: center; gap: 0.2rem;">
+                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#EF4444" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                        ${latencyVal}s
+                    </span>
+                `;
+                bubble.appendChild(latencyBadge);
+                scrollToBottom();
+            }
+
+        }
+
+        function renderGroundingMesh(evt) {
+            const feed = document.getElementById('right-sidebar-feed');
+            const countBadge = document.getElementById('source-count-badge');
+            feed.innerHTML = '';
+
+            const emails = evt.emails || [];
+            const meetings = evt.meetings || [];
+            const total = emails.length + meetings.length;
+
+            countBadge.innerText = `${total} Sources`;
+
+            // Reset and populate cache
+            activeEmailCache = [];
+            emails.forEach(e => activeEmailCache.push(e));
+
+            if (total === 0) {
+                feed.innerHTML = `
+                    <div style="text-align: center; color: var(--text-muted); font-size: 0.75rem; font-family: monospace; padding-top: 2rem;">
+                        No active citations retrieved.
+                    </div>
+                `;
+                return;
+            }
+
+            emails.forEach((em, idx) => {
+                const dateStr = em.receivedDateTime ? new Date(em.receivedDateTime).toLocaleDateString([], {month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'}) : 'Unknown Date';
+                const card = document.createElement('div');
+                card.className = 'source-card';
+                card.style.cursor = 'pointer';
+                card.onclick = () => openEmailModal(idx);
+                card.innerHTML = `
+                    <div class="source-title" style="color: #60A5FA;">✉️ ${em.subject}</div>
+                    <div class="source-meta">From: ${em.from?.emailAddress?.name || em.from?.emailAddress?.address || 'Unknown'} • ${dateStr}</div>
+                    <div class="source-preview">${em.bodyPreview || ''}</div>
+                `;
+                feed.appendChild(card);
+            });
+
+            meetings.forEach(mtg => {
+                const startStr = mtg.start?.dateTime ? new Date(mtg.start.dateTime).toLocaleDateString([], {month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'}) : 'Unknown Time';
+                const card = document.createElement('a');
+                card.className = 'source-card';
+                card.href = mtg.webLink || '#';
+                card.target = '_blank';
+                card.innerHTML = `
+                    <div class="source-title" style="color: #818CF8;">📅 ${mtg.subject}</div>
+                    <div class="source-meta">Organizer: ${mtg.organizer?.emailAddress?.name || 'M365 User'} • Start: ${startStr}</div>
+                    <div class="source-preview">Location: ${mtg.location?.displayName || 'Virtual Teams Meeting'}</div>
+                `;
+                feed.appendChild(card);
+            });
+        }
+
+        // Right sidebar resizer logic
+        const rightResizer = document.getElementById('right-sidebar-resizer');
+        const rightSidebarEl = document.getElementById('right-sidebar');
+        let isRightResizing = false;
+
+        if (rightResizer && rightSidebarEl) {
+            rightResizer.addEventListener('mousedown', (e) => {
+                isRightResizing = true;
+                rightResizer.classList.add('dragging');
+                document.body.style.cursor = 'col-resize';
+                document.body.style.userSelect = 'none';
+            });
+
+            document.addEventListener('mousemove', (e) => {
+                if (!isRightResizing) return;
+                const newWidth = document.body.clientWidth - e.clientX;
+                if (newWidth > 180 && newWidth < 550) {
+                    rightSidebarEl.style.width = newWidth + 'px';
+                }
+            });
+
+            document.addEventListener('mouseup', () => {
+                if (isRightResizing) {
+                    isRightResizing = false;
+                    rightResizer.classList.remove('dragging');
+                    document.body.style.cursor = '';
+                    document.body.style.userSelect = '';
+                }
+            });
+        }
+
+        async function updateAuthUI() {
+
+
+            try {
+                const res = await fetch('/api/outlook/check-connection');
+                const data = await res.json();
+                const statusBadge = document.getElementById('status-badge-el');
+                const connectBtn = document.getElementById('connect-btn-el');
+                if (data.connected) {
+                    statusBadge.innerHTML = '<span class="status-dot"></span> Microsoft: Connected';
+                    connectBtn.style.display = 'none';
+                } else {
+                    statusBadge.innerHTML = '<span class="status-dot" style="background: #F59E0B; box-shadow: 0 0 8px #F59E0B;"></span> Microsoft: Disconnected';
+                    connectBtn.style.display = 'inline-flex';
+                }
+            } catch (e) {}
+        }
+        window.addEventListener('DOMContentLoaded', updateAuthUI);
+    </script>
+</body>
+</html>
