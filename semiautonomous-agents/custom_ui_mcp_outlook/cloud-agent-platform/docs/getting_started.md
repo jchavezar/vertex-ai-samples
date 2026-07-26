@@ -14,6 +14,11 @@ gcloud auth configure-docker
 gcloud config set project vtxdemos
 ```
 
+### GCP Data Store & Outlook Connector Setup
+To ground Gemini Enterprise answers with Outlook calendar and mailbox datasets, you must create a Search App linking a Microsoft Outlook Data Source in location `global`. Ensure your connector status in the GCP Console matches the following configuration:
+
+![GCP Outlook Data Source Connector Settings](../../screenshots/outlook_connector.png)
+
 ---
 
 ## 2. Step 1: Deploy FastMCP Gateway to Cloud Run
@@ -66,6 +71,9 @@ Because the Reasoning Engine agent acts on behalf of the user, Entra ID requires
    `https://us-central1-aiplatform.googleapis.com/v1beta1/projects/254356041555/locations/us-central1/reasoningEngines/3073250998110650368:authenticate`
 3. Add this URI to the Redirect URIs list of your Microsoft App Registration in Microsoft Entra Admin Center.
 
+#### Entra ID Portal App Registrations Settings:
+![Entra App Registrations Redirect Configuration](../../screenshots/entra_app_reg.png)
+
 ---
 
 ## 5. Step 4: Run the Production Frontend UI
@@ -117,6 +125,9 @@ gcloud iam workforce-pools providers update-oidc entra-provider \
   --client-id="api://b2d25471-834f-4ac9-9ba9-c05c06b42003" \
   --attribute-mapping="google.subject=assertion.sub,attribute.email=assertion.email,attribute.display_name=assertion.name"
 ```
+
+#### WIF Pool & Provider Attribute Configuration:
+![Google Cloud Workforce Identity Federation Settings](../../screenshots/gcp_wif_dash.png)
 
 ---
 
