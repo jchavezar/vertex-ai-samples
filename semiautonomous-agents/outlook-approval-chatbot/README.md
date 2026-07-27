@@ -29,6 +29,18 @@ This project implements a split-pane executive workspace:
 
 ---
 
+## 💡 How it Works (The 3-Minute Executive Explanation)
+
+Need to explain this solution to a non-technical stakeholder or client? Use the **Passport & Safe Analogy**:
+
+1. **The Passport (Signing In)**: When you click *Sign in with Microsoft*, Microsoft issues a digital passport proving your corporate identity.
+2. **The Visa Office (Workforce Identity Federation - WIF)**: Google Cloud acts like an embassy. It checks your Microsoft passport and hands you a temporary Google pass. **No passwords or service account keys are ever stored in the application code.**
+3. **The Safe (Token Vaulting)**: When you grant permission to access your Outlook, Google Cloud stores your access key inside a secure Google vault linked strictly to your identity.
+4. **The Smart Assistant (Gemini StreamAssist)**: When you type a search prompt or click *Scan Inbox*, Gemini accesses your vault key, searches your Outlook emails and SharePoint documents in real-time, and streams back accurate, cited answers.
+5. **The Executive Pen (One-Click Actions)**: When you click **Approve** or **Approve & Send Email**, the app uses your vault key to sign and dispatch an actual reply on your Outlook thread.
+
+---
+
 ## Quick Start
 
 ### 1. Configure Sibling Credentials
