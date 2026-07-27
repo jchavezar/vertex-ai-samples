@@ -17,6 +17,7 @@ import asyncio
 import datetime
 from typing import List, Dict, Any
 from app.models.schemas import GcpErrorItem, HypothesisItem
+from app.config import GCP_PROJECT_ID
 
 class HarnessAttempt:
     def __init__(self, attempt_num: int, command: str, exit_code: int, stdout: str, stderr: str, duration_ms: int):
@@ -96,56 +97,101 @@ async def run_subagent_in_sandbox(
     logs.append(f"[{start_dt.strftime('%H:%M:%S.%f')[:-3]}] [SANDBOX {sandbox_id}] Initializing Antigravity Linux Sandbox container...")
     logs.append(f"[{start_dt.strftime('%H:%M:%S.%f')[:-3]}] [SANDBOX {sandbox_id}] Target: {error_item.serviceName} | Hypothesis: {hypothesis.title}")
 
-    # Run command with Self-Healing Harness simulation (Demonstrating Auto-Correction on Error)
-    for idx, cmd in enumerate(initial_commands):
-        # On first attempt for demo purposes, if command has extreme syntax or let's simulate an auto-recovery harness trace
+    # Run command with Self-Healing Harness
+    for idx, original_cmd in enumerate(initial_commands):
+        cmd = original_cmd.strip()
+        if cmd.startswith("gcloud") and "--project" not in cmd:
+            cmd = f"{cmd} --project={GCP_PROJECT_ID}"
+            
         t0 = datetime.datetime.now()
-        await asyncio.sleep(0.12)
+        logs.append(f"[HARNESS ATTEMPT 1] Executing: $ {cmd}")
+        
+        try:
+            process = await asyncio.create_subprocess_shell(
+                cmd,
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.PIPE
+            )
+            stdout_b, stderr_b = await asyncio.wait_for(process.communicate(), timeout=30.0)
+            exit_code = process.returncode
+            stdout = stdout_b.decode("utf-8", errors="ignore")
+            stderr = stderr_b.decode("utf-8", errors="ignore")
+        except Exception as e:
+            exit_code = 1
+            stdout = ""
+            stderr = f"Execution error: {str(e)}"
+            
         duration_1 = int((datetime.datetime.now() - t0).total_seconds() * 1000)
         
-        # Simulate an initial flag validation or rate-limit retry that the Harness automatically self-heals
-        if idx == 0 and "memory" in cmd.lower():
-            # Attempt 1: Pre-flight check / test fails -> Harness intercepts and self-corrects
-            logs.append(f"[HARNESS ATTEMPT 1] Executing initial command: $ {cmd}")
-            logs.append(f"[HARNESS ATTEMPT 1] Intercepted non-fatal validation warning: memory envelope requires concurrent connection drain check.")
+        if exit_code != 0:
+            logs.append(f"[HARNESS ATTEMPT 1] FAILED (Exit Code: {exit_code}) | Error: {stderr.strip()}")
             attempts.append(
                 HarnessAttempt(
                     attempt_num=1,
                     command=cmd,
-                    exit_code=1,
-                    stdout="",
-                    stderr="WARNING: Concurrent drain required before scaling memory envelope.",
+                    exit_code=exit_code,
+                    stdout=stdout,
+                    stderr=stderr,
                     duration_ms=duration_1
                 )
             )
-            recovered_from_error = True
             
-            # Attempt 2: Self-Corrected Harness execution
-            t1 = datetime.datetime.now()
-            await asyncio.sleep(0.10)
-            duration_2 = int((datetime.datetime.now() - t1).total_seconds() * 1000)
-            corrected_cmd = f"{cmd} --async --quiet"
-            logs.append(f"[HARNESS AUTO-RECOVERY] Synthesized self-healing fallback: $ {corrected_cmd}")
-            logs.append(f"[HARNESS ATTEMPT 2] SUCCESS (Exit Code: 0) — Memory scaled & verified in Antigravity Sandbox.")
-            attempts.append(
-                HarnessAttempt(
-                    attempt_num=2,
-                    command=corrected_cmd,
-                    exit_code=0,
-                    stdout="Revision updated cleanly. ZERO OOM events detected post-recovery.",
-                    stderr="",
-                    duration_ms=duration_2
+            # Formulate corrected command
+            corrected_cmd = cmd
+            if "warning" in stderr.lower() or "prompt" in stderr.lower() or "confirm" in stderr.lower() or "interactive" in stderr.lower():
+                if "--quiet" not in corrected_cmd:
+                    corrected_cmd = f"{corrected_cmd} --quiet"
+                if "--async" not in corrected_cmd and "run services update" in corrected_cmd:
+                    corrected_cmd = f"{corrected_cmd} --async"
+                    
+            if corrected_cmd != cmd:
+                recovered_from_error = True
+                t1 = datetime.datetime.now()
+                logs.append(f"[HARNESS AUTO-RECOVERY] Synthesized self-healing fallback: $ {corrected_cmd}")
+                
+                try:
+                    process = await asyncio.create_subprocess_shell(
+                        corrected_cmd,
+                        stdout=asyncio.subprocess.PIPE,
+                        stderr=asyncio.subprocess.PIPE
+                    )
+                    stdout_b, stderr_b = await asyncio.wait_for(process.communicate(), timeout=30.0)
+                    exit_code_2 = process.returncode
+                    stdout_2 = stdout_b.decode("utf-8", errors="ignore")
+                    stderr_2 = stderr_b.decode("utf-8", errors="ignore")
+                except Exception as e:
+                    exit_code_2 = 1
+                    stdout_2 = ""
+                    stderr_2 = f"Execution error: {str(e)}"
+                    
+                duration_2 = int((datetime.datetime.now() - t1).total_seconds() * 1000)
+                
+                if exit_code_2 == 0:
+                    logs.append(f"[HARNESS ATTEMPT 2] SUCCESS (Exit Code: 0) — Auto-recovered cleanly.")
+                else:
+                    logs.append(f"[HARNESS ATTEMPT 2] FAILED (Exit Code: {exit_code_2}) | Error: {stderr_2.strip()}")
+                    
+                attempts.append(
+                    HarnessAttempt(
+                        attempt_num=2,
+                        command=corrected_cmd,
+                        exit_code=exit_code_2,
+                        stdout=stdout_2,
+                        stderr=stderr_2,
+                        duration_ms=duration_2
+                    )
                 )
-            )
+            else:
+                # No self-healing correction possible, report the original failure
+                pass
         else:
-            logs.append(f"[HARNESS ATTEMPT 1] Executing: $ {cmd}")
             logs.append(f"[HARNESS ATTEMPT 1] SUCCESS (Exit Code: 0) — Configuration applied cleanly.")
             attempts.append(
                 HarnessAttempt(
                     attempt_num=1,
                     command=cmd,
                     exit_code=0,
-                    stdout="Successfully validated and applied configuration on GCP sandbox.",
+                    stdout=stdout or "Command completed successfully.",
                     stderr="",
                     duration_ms=duration_1
                 )
@@ -154,10 +200,12 @@ async def run_subagent_in_sandbox(
     end_dt = datetime.datetime.now()
     total_duration = int((end_dt - start_dt).total_seconds() * 1000)
     
+    final_success = (attempts[-1].exit_code == 0) if attempts else False
+    
     return SandboxTaskResult(
         task_id=task_id,
         sandbox_id=sandbox_id,
-        success=True,
+        success=final_success,
         recovered_from_error=recovered_from_error,
         started_at=start_dt.isoformat(),
         completed_at=end_dt.isoformat(),

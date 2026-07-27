@@ -26,3 +26,45 @@ def test_fallback_diagnostic_oom():
     hyp = diag.hypotheses[0]
     assert hyp.relevanceScore is not None
     assert len(hyp.remediationCommands) > 0
+
+def test_execute_remediation_real_command():
+    from main import execute_remediation, ExecuteCommandRequest
+    
+    req = ExecuteCommandRequest(command="gcloud version")
+    res = execute_remediation(req)
+    assert res.exitCode == 0
+    assert "Google Cloud SDK" in res.stdout
+    assert "--project=" in res.command
+
+@pytest.mark.anyio
+async def test_run_subagent_in_sandbox_real_command():
+    from app.services.sandbox_parallel_orchestrator import run_subagent_in_sandbox
+    from app.models.schemas import HypothesisItem, GcpErrorItem
+    
+    dummy_err = GcpErrorItem(
+        id="test-err",
+        timestamp="2026-07-27T18:00:00Z",
+        severity="ERROR",
+        serviceName="Cloud Run",
+        resourceType="cloud_run_revision",
+        summary="Test error",
+        fullText="Test",
+        logPayload={},
+        labels={}
+    )
+    dummy_hyp = HypothesisItem(
+        id="test-hyp",
+        title="Test Hypothesis",
+        relevanceScore=1.0,
+        overviewText="Test",
+        rootCauseText="Test",
+        remediationCommands=["gcloud version"],
+        recommendationText="Test",
+        relevantResources=[]
+    )
+    
+    res = await run_subagent_in_sandbox("test-agent", dummy_hyp, dummy_err)
+    assert res.success is True
+    assert len(res.attempts) > 0
+    assert "gcloud version" in res.final_command
+    assert "--project=" in res.final_command

@@ -78,13 +78,9 @@ def execute_remediation(req: ExecuteCommandRequest):
     # or execute directly if it's a safe query command
     try:
         if cmd.startswith("gcloud"):
-            # Execute gcloud --help or validation check, fallback to structured sandbox confirmation
-            result = subprocess.run(
-                ["bash", "-c", f"echo '[SANDBOX_EXECUTION_ENGINE] Initializing secure Linux sandbox...' && echo '$ {cmd}' && echo 'Successfully validated and applied configuration on GCP project {GCP_PROJECT_ID}.'"],
-                capture_output=True,
-                text=True,
-                timeout=15
-            )
+            if "--project" not in cmd:
+                cmd = f"{cmd} --project={GCP_PROJECT_ID}"
+            result = subprocess.run(["bash", "-c", cmd], capture_output=True, text=True, timeout=30)
             return ExecuteCommandResponse(
                 command=cmd,
                 exitCode=result.returncode,
@@ -94,7 +90,7 @@ def execute_remediation(req: ExecuteCommandRequest):
                 sandboxId=f"sandbox-gcp-{GCP_PROJECT_ID}"
             )
         else:
-            result = subprocess.run(["bash", "-c", cmd], capture_output=True, text=True, timeout=15)
+            result = subprocess.run(["bash", "-c", cmd], capture_output=True, text=True, timeout=30)
             return ExecuteCommandResponse(
                 command=cmd,
                 exitCode=result.returncode,
