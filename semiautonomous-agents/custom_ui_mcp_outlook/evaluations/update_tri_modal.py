@@ -331,7 +331,11 @@ full_html = f"""<!DOCTYPE html>
 </body>
 </html>"""
 
-for path in ['eval_dashboard_static.html', 'local-adk-mcp/eval_dashboard_static.html', 'frontend/eval_dashboard.html', '/Users/jesusarguelles/IdeaProjects/vertex-ai-samples/semiautonomous-agents/custom_ui_mcp_outlook/frontend/eval_dashboard.html']:
+for path in [
+    'eval_dashboard_static.html', 
+    '../local-adk-mcp/eval_dashboard_static.html', 
+    '../remote-agentruntime-mcp/custom-ui-production/frontend/eval_dashboard.html'
+]:
     try:
         dir_name = os.path.dirname(path)
         if dir_name and not os.path.exists(dir_name):

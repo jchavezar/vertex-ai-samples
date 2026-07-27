@@ -126,7 +126,7 @@ async def run_judge_pipeline():
 
 if __name__ == "__main__":
     # Inject criteria map from golden_100_suite.json
-    golden_suite_file = "evaluations/golden_100_suite.json"
+    golden_suite_file = "golden_100_suite.json" if os.path.exists("golden_100_suite.json") else "evaluations/golden_100_suite.json"
     if os.path.exists(golden_suite_file):
         with open(golden_suite_file, "r") as f:
             suite = json.load(f)

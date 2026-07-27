@@ -139,7 +139,7 @@ async def eval_single_query(sem, client, idx, test_case):
         }
 
 async def run_parallel_eval():
-    suite_file = "evaluations/golden_100_suite.json"
+    suite_file = "golden_100_suite.json" if os.path.exists("golden_100_suite.json") else "evaluations/golden_100_suite.json"
     with open(suite_file, "r") as f:
         suite = json.load(f)
 

@@ -50,7 +50,7 @@ This project implements a split-pane executive workspace:
    npm run dev # Runs on port 5173
    ```
 4. **Access Evaluation**:
-   * 📊 **[Live HTML Evaluation Preview (No-Download Static)](https://htmlpreview.github.io/?https://github.com/jesusarguelles/vertex-ai-samples/blob/main/semiautonomous-agents/custom_ui_mcp_outlook/eval_dashboard_static.html)**
+   * 📊 **[Live HTML Evaluation Preview (No-Download Static)](https://htmlpreview.github.io/?https://github.com/jesusarguelles/vertex-ai-samples/blob/main/semiautonomous-agents/custom_ui_mcp_outlook/evaluations/eval_dashboard_static.html)**
 
 ---
 
@@ -87,10 +87,10 @@ Create a Search App named `gemini-enterprise` in location `global` with Microsof
     - The backend calls Microsoft Graph's `/me/messages/{id}/reply` endpoint to send a reply ("Approved." or "Rejected.") to the email thread.
     - The card transitions to a success/actioned state.
 
-### Real-time Scanning & Execution Timing
-To provide maximum operational visibility, the scanning interface features a high-precision, real-time stopwatch displaying search elapsed duration with 100ms precision:
+### Real-time Scanning & Execution Interface
+To provide maximum operational visibility, the scanning interface features the split-pane dashboard with active grounded sources and action cards:
 
-![Real-time Inbox Scan Timer](images/scanning_timer_live.png)
+![StreamAssist Split-Pane Executive Workspace](../screenshots/streamassist_assistant_ui.png)
 
 ---
 
@@ -102,11 +102,11 @@ In addition to processing existing inbox action items, the **Gemini Chat Console
 2. **AI Composition**: Gemini Enterprise queries your mailbox context, generates the appropriate draft body, and renders it inside the chat console.
 3. **Dynamic Interactive Card**: The frontend automatically parses the draft parameters (To, Subject, and Body) from Gemini's response and renders a beautiful, high-contrast, slate-themed **DRAFTED EMAIL ACTION REQUIRED** card directly under the message block:
    
-   ![Interactive Draft Approval Card](images/custom_ui_readable_draft.png)
+   ![Interactive Draft Approval Card](../screenshots/draft_action_card.png)
    
 4. **One-Click Dispatch**: When the user clicks **APPROVE & SEND EMAIL**, the client issues a POST request to `/api/send-email`. The backend secures a delegated Microsoft Graph Access token and dispatches the email via `/v1.0/me/sendMail`.
 5. **Visual Confirmation**: Upon successful delivery, the card updates dynamically to show a green success state (`✓ EMAIL SENT`):
 
-   ![Successful Email Delivery State](images/custom_ui_dispatch_success_final.png)
+   ![Successful Email Delivery State](../screenshots/action_card_sent.png)
 
 This ensures high-privilege operations remain secure, intuitive, and under direct user control with full visual alignment.

@@ -137,7 +137,7 @@ Return only the complete updated instructions text block.
 
 def redeploy_agent():
     print("Redeploying updated agent engine to Vertex AI...")
-    cwd = "/Users/jesusarguelles/IdeaProjects/vertex-ai-samples/semiautonomous-agents/custom_ui_mcp_outlook/cloud-agent-platform/adk-agent"
+    cwd = "/Users/jesusarguelles/IdeaProjects/vertex-ai-samples/semiautonomous-agents/custom_ui_mcp_outlook/remote-agentruntime-mcp/adk-agent"
     res = subprocess.run(["python3", "deploy.py"], cwd=cwd, capture_output=True, text=True)
     if res.returncode == 0:
         print("Agent deployment successful.")
@@ -147,8 +147,8 @@ def redeploy_agent():
         return False
 
 async def run_autofix_for_cases(case_ids: List[str]):
-    suite_file = "evaluations/golden_100_suite.json"
-    instructions_file = "cloud-agent-platform/adk-agent/system_instructions.txt"
+    suite_file = "golden_100_suite.json" if os.path.exists("golden_100_suite.json") else "evaluations/golden_100_suite.json"
+    instructions_file = "remote-agentruntime-mcp/adk-agent/system_instructions.txt" if os.path.exists("remote-agentruntime-mcp/adk-agent/system_instructions.txt") else "../remote-agentruntime-mcp/adk-agent/system_instructions.txt"
     
     with open(suite_file, "r") as f:
         suite = json.load(f)

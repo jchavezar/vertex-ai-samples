@@ -19,7 +19,10 @@ pip install -r requirements.txt
 
 ## 2. Microsoft Entra ID Application Registration
 
-To query your Outlook mailbox via Graph API, register an application in the [Microsoft Entra admin center](https://entra.microsoft.com/):
+To query your Outlook mailbox via Graph API, register an application in the Microsoft Entra Portal.
+
+> [!IMPORTANT]
+> For step-by-step instructions on configuring the Entra ID application registration, enabling Implicit Grant flow manifest flags, and mapping permissions, refer to the global [Unified Security & Identity Configuration Guide](../../docs/security_and_identity.md).
 
 1. Navigate to **App registrations** > **New registration**.
 2. **Name**: `Outlook Executive Assistant (Local Dev)`.

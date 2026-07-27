@@ -28,7 +28,7 @@ This directory contains the **100% direct local development environment** for th
 ---
 
 ## ⚡ Interactive Chat & Yazdani Auto-Scroll UI
-![Interactive Chat Assistant](../screenshots/assistant_verify.webp)
+![Interactive Chat Assistant](../screenshots/local_assistant_ui.png)
 
 ---
 
@@ -43,4 +43,4 @@ This directory contains the **100% direct local development environment** for th
    ```
 3. **Inspect Evaluation**:
    Open `http://localhost:8005/eval` in your browser.
-   * 📊 **[Live HTML Evaluation Preview (No-Download Static)](https://htmlpreview.github.io/?https://github.com/jesusarguelles/vertex-ai-samples/blob/main/semiautonomous-agents/custom_ui_mcp_outlook/eval_dashboard_static.html)**
+   * 📊 **[Live HTML Evaluation Preview (No-Download Static)](https://htmlpreview.github.io/?https://github.com/jesusarguelles/vertex-ai-samples/blob/main/semiautonomous-agents/custom_ui_mcp_outlook/evaluations/eval_dashboard_static.html)**

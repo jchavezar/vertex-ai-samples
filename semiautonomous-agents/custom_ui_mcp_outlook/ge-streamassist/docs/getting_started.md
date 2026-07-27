@@ -6,7 +6,10 @@ This guide walks you through registering the Portal and Connector apps in Micros
 
 ## 1. Microsoft Entra ID Registrations
 
-To enable authentication and secure Graph API operations, you must register two apps:
+To enable authentication and secure Graph API operations, you must register two apps in the Microsoft Entra Portal.
+
+> [!IMPORTANT]
+> Detailed blueprints for multi-tenant app registration, manifest implicit grant settings, and redirect mapping configurations are detailed in the global [Unified Security & Identity Configuration Guide](../../docs/security_and_identity.md).
 
 ### A. Connector App (Outlook Datastore Link)
 1. Go to **Entra ID Portal** > **App registrations** > **New registration**.
@@ -35,6 +38,9 @@ To enable authentication and secure Graph API operations, you must register two 
 2. **Workforce Provider**: Add an OpenID Connect (OIDC) provider pointing to Azure Entra ID Issuer URI, mapping Entra assertions to Google credentials.
 3. **GCP Data Connector**: Create a federated connector using your **Connector App** credentials (Client ID + Client Secret) to sync the M365 Outlook Mailbox.
 4. **Grant Roles**: Ensure your Google workforce members are granted the `roles/discoveryengine.editor` role.
+
+> [!TIP]
+> Refer to the global [Unified Security & Identity Guide](../../docs/security_and_identity.md) for terminal gcloud commands and console settings for WIF provider creation and service account trust policy bindings.
 
 ---
 
@@ -88,12 +94,12 @@ npm run dev
 
 ## 5. Visual Configurations & Screenshots
 
+### StreamAssist Split-Pane Executive Workspace UI
+The interface features a left pane for user profile, upcoming invites, and recent inbox alerts, alongside the center console and right-hand source mesh:
+
+![StreamAssist Split-Pane Workspace](../../screenshots/streamassist_assistant_ui.png)
+
 ### Azure Consent Prompts
-When a user connects Outlook for the first time, Microsoft Entra will show a delegated consent screen matching the configured permissions:
+When a user connects Outlook for the first time, Microsoft Entra ID will prompt the delegated consent screen matching the configured mailbox scopes:
 
-![Entra Consent Prompt](../../screenshots/entra_consent_verify.png)
-
-### Real-Time Stopwatch Verification
-Click **Scan Inbox** in the split-pane UI. The system will start a stopwatch to measure latency during the multi-connector broadcast search, displaying elapsed time dynamically:
-
-![Real-time Inbox Scan Timer](../images/scanning_timer_live.png)
+![Entra Consent Prompt](../../screenshots/oauth_consent.png)

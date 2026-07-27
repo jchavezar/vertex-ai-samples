@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import json
 
-with open('/Users/jesusarguelles/IdeaProjects/vertex-ai-samples/semiautonomous-agents/custom_ui_mcp_outlook/golden_100_suite.json', 'r') as f:
+with open('golden_100_suite.json', 'r') as f:
     suite = json.load(f)
 
 print(f"Total test suite questions: {len(suite)}")

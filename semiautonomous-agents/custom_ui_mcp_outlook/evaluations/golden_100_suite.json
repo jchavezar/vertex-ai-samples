@@ -1,1400 +1,1386 @@
 [
   {
     "id": "Q001",
-    "generator_model": "Gemini-2.5-Pro",
+    "generator_model": "Gemini-3-Flash-Preview",
     "category": "Drafts & Sent Folder Audit",
     "complexity": "Basic",
-    "query": "Do I have an unsent email drafted for the Falcon Project Team?",
+    "query": "How many unsent drafts are currently in my Drafts folder?",
     "expected_tool": "tool_search_emails",
-    "ground_truth_answer": "Yes, you have one draft email for the 'Falcon Project Team' with the subject 'Project Falcon Status Update'. The body starts with 'Team, Quick milestone update on Project Falcon.'",
+    "ground_truth_answer": "There is currently 1 unsent draft in your folder titled \"Q3 Strategy Planning\" which was last modified on July 22, 2026.",
     "truth_criteria": [
-      "Project Falcon Status Update",
-      "Falcon Project Team",
-      "draft"
+      "1 unsent draft",
+      "Q3 Strategy Planning"
     ]
   },
   {
     "id": "Q002",
-    "generator_model": "Gemini-2.5-Pro",
+    "generator_model": "Gemini-3-Flash-Preview",
     "category": "Drafts & Sent Folder Audit",
-    "complexity": "Basic",
-    "query": "Check if I have a draft email for 'Q3 Strategy Planning'.",
+    "complexity": "Medium",
+    "query": "Who was the recipient of the \"Project Phoenix Launch Plan\" email I sent earlier this week?",
     "expected_tool": "tool_search_emails",
-    "ground_truth_answer": "Yes, you have a draft with the subject 'Q3 Strategy Planning' addressed to yourself, Jesus Chavez. The content mentions expanding Graph API evaluation capabilities and deploying tri-modal ADK agents.",
+    "ground_truth_answer": "The \"Project Phoenix Launch Plan\" email was sent to Sarah Chen (sarah.c@contoso.com) on Tuesday, July 21, 2026.",
     "truth_criteria": [
-      "Q3 Strategy Planning",
-      "draft",
-      "tri-modal ADK agents"
+      "Sarah Chen",
+      "sarah.c@contoso.com",
+      "July 21"
     ]
   },
   {
     "id": "Q003",
-    "generator_model": "Gemini-2.5-Pro",
+    "generator_model": "Gemini-3-Flash-Preview",
     "category": "Drafts & Sent Folder Audit",
-    "complexity": "Medium",
-    "query": "Find the email I sent to support@M365x214355.onmicrosoft.com and tell me its subject and content.",
+    "complexity": "Complex",
+    "query": "I have a draft titled \"Q3 Strategy Planning\". Has a version of this already been sent to Sarah Chen, or is this draft completely new?",
     "expected_tool": "tool_search_emails",
-    "ground_truth_answer": "You sent an email with the subject 'Authorized Login Confirmation - Linux/Chrome Dublin'. The body states: 'Hello IT Support, I am writing to confirm that the recent login attempt from a Linux/Chrome device located in Dublin was authorized by me. Best regards, Jesus Chavez'.",
+    "ground_truth_answer": "The draft \"Q3 Strategy Planning\" is distinct. While you sent Sarah Chen a \"Project Phoenix Launch Plan\" on July 21, 2026, no emails with the subject \"Q3 Strategy Planning\" appear in your Sent Items folder.",
     "truth_criteria": [
-      "Authorized Login Confirmation",
-      "Linux/Chrome device",
-      "Dublin was authorized"
+      "distinct",
+      "no emails",
+      "Sent Items"
     ]
   },
   {
     "id": "Q004",
-    "generator_model": "Gemini-2.5-Pro",
-    "category": "Drafts & Sent Folder Audit",
-    "complexity": "Medium",
-    "query": "What did I write in the email I sent to james.wu@contoso.com about the Q3 budget?",
+    "generator_model": "Gemini-3-Flash-Preview",
+    "category": "Inbox & Email Intelligence",
+    "complexity": "Basic",
+    "query": "What is the subject line of the most recent email I received?",
     "expected_tool": "tool_search_emails",
-    "ground_truth_answer": "You sent three emails to james.wu@contoso.com with the subject 'RE: Q3 Budget Review - Action Required'. The most detailed one says: 'Hi James, I confirm that I will review the Q3 Budget allocation before Friday. Best regards, Jesus'.",
+    "ground_truth_answer": "The most recent email is from Jordan Smith with the subject \"Urgent: Feedback Needed\", received on Wednesday, July 22, 2026, at 4:15 PM.",
     "truth_criteria": [
-      "james.wu@contoso.com",
-      "review the Q3 Budget allocation",
-      "before Friday"
+      "Urgent: Feedback Needed",
+      "Jordan Smith",
+      "July 22"
     ]
   },
   {
     "id": "Q005",
-    "generator_model": "Gemini-2.5-Pro",
-    "category": "Drafts & Sent Folder Audit",
-    "complexity": "Complex",
-    "query": "I see an undeliverable notice for an email to james.wilson@sockcop.onmicrosoft.com. Cross-reference this with my sent items to find the subject of the original email that failed to deliver.",
+    "generator_model": "Gemini-3-Flash-Preview",
+    "category": "Inbox & Email Intelligence",
+    "complexity": "Medium",
+    "query": "Search my inbox for any emails mentioning \"Campaign\" and tell me who sent them.",
     "expected_tool": "tool_search_emails",
-    "ground_truth_answer": "The undeliverable notice in your inbox corresponds to sent emails with the subject 'Q3 Budget Follow-Up Discussion' which were addressed to james.wilson@sockcop.onmicrosoft.com. The delivery failed because the recipient was not found.",
+    "ground_truth_answer": "There is one email mentioning \"Campaign\" titled \"Feedback Needed\" sent by Jordan Smith on July 22, 2026.",
     "truth_criteria": [
-      "james.wilson@sockcop.onmicrosoft.com",
-      "Q3 Budget Follow-Up Discussion",
-      "recipient was not found"
+      "Jordan Smith",
+      "Feedback Needed"
     ]
   },
   {
     "id": "Q006",
-    "generator_model": "Gemini-2.5-Pro",
+    "generator_model": "Gemini-3-Flash-Preview",
     "category": "Inbox & Email Intelligence",
-    "complexity": "Basic",
-    "query": "What is my most recent unread email?",
-    "expected_tool": "tool_search_emails",
-    "ground_truth_answer": "Your most recent unread email is from Microsoft Outlook, received on July 26, 2026, at 00:58:22Z. The subject is 'Undeliverable: Q3 Budget Follow-Up Discussion'.",
+    "complexity": "Complex",
+    "query": "Based on the emails from HR, what are the specific deadlines mentioned for the 2026 Open Enrollment?",
+    "expected_tool": "tool_get_email_details",
+    "ground_truth_answer": "According to the \"Open Enrollment Reminder\" email from HR received on July 21, 2026, the deadline to submit all benefit elections is Friday, July 31, 2026.",
     "truth_criteria": [
-      "Undeliverable: Q3 Budget Follow-Up Discussion",
-      "2026-07-26T00:58:22Z",
-      "Microsoft Outlook"
+      "July 31, 2026",
+      "benefit elections"
     ]
   },
   {
     "id": "Q007",
-    "generator_model": "Gemini-2.5-Pro",
-    "category": "Inbox & Email Intelligence",
-    "complexity": "Medium",
-    "query": "Find emails with 'Project Phoenix' in the subject line and summarize the discussion.",
-    "expected_tool": "tool_search_emails",
-    "ground_truth_answer": "I found two emails about 'Project Phoenix'. First, Alex Wilber stated the launch date is set for October 12th. Then, Megan Bowen replied that the launch has been pushed to October 19th due to testing delays.",
-    "truth_criteria": [
-      "Project Phoenix",
-      "October 12th",
-      "pushed to October 19th"
-    ]
-  },
-  {
-    "id": "Q008",
-    "generator_model": "Gemini-2.5-Pro",
-    "category": "Inbox & Email Intelligence",
-    "complexity": "Medium",
-    "query": "Did I get any emails from HR Operations?",
-    "expected_tool": "tool_search_emails",
-    "ground_truth_answer": "Yes, you have two emails from HR Operations. One from hr@contoso.com with the subject 'Benefits Enrollment Deadline - July 31' and one from hr@sockcop.onmicrosoft.com with the subject 'Action Required: Benefits Enrollment'. Both mention the deadline is July 31, 2026.",
-    "truth_criteria": [
-      "HR Operations",
-      "Benefits Enrollment",
-      "July 31, 2026"
-    ]
-  },
-  {
-    "id": "Q009",
-    "generator_model": "Gemini-2.5-Pro",
-    "category": "Inbox & Email Intelligence",
-    "complexity": "Complex",
-    "query": "What are the action items from the 'Quarterly Review' email from Joni Sherman?",
-    "expected_tool": "tool_search_emails",
-    "ground_truth_answer": "In the 'Quarterly Review' email, Joni Sherman asked you to perform three tasks: 1. Update the Excel charts, 2. Confirm the guest list for the keynote, and 3. Finalize the slide deck by Friday.",
-    "truth_criteria": [
-      "Joni Sherman",
-      "Update the Excel charts",
-      "Finalize the slide deck by Friday"
-    ]
-  },
-  {
-    "id": "Q010",
-    "generator_model": "Gemini-2.5-Pro",
-    "category": "Inbox & Email Intelligence",
-    "complexity": "Complex",
-    "query": "Explain the error I'm getting in the undeliverable notices for emails to lidia.holloway@sockcop.onmicrosoft.com.",
-    "expected_tool": "tool_get_email_details",
-    "ground_truth_answer": "You received undeliverable notices for emails to lidia.holloway@sockcop.onmicrosoft.com with the subject 'Budget Alignment'. The error is '550 5.1.10 RESOLVER.ADR.RecipientNotFound', which means the recipient address was not found by the server.",
-    "truth_criteria": [
-      "lidia.holloway@sockcop.onmicrosoft.com",
-      "550 5.1.10",
-      "RecipientNotFound"
-    ]
-  },
-  {
-    "id": "Q011",
-    "generator_model": "Gemini-2.5-Pro",
+    "generator_model": "Gemini-3-Flash-Preview",
     "category": "Calendar & Meeting Operations",
     "complexity": "Basic",
-    "query": "What's on my calendar for the afternoon of July 25, 2026?",
+    "query": "What is the first meeting on my calendar for tomorrow, Friday, July 24?",
     "expected_tool": "tool_list_meetings",
-    "ground_truth_answer": "You have three events on the afternoon of July 25, 2026: 'Client Lunch: Globex' from 12:30 PM to 1:30 PM, 'Engineering Accelerators-Infrastructure Build -Biweekly Retrospective' from 3:00 PM to 4:00 PM, and 'Focus Block: Review & Sign-off SOW for Custom Outlook MCP Onboarding' from 5:00 PM to 6:00 PM.",
+    "ground_truth_answer": "Your first meeting tomorrow, Friday, July 24, 2026, is \"Team Retro\" starting at 3:00 PM.",
     "truth_criteria": [
-      "Client Lunch: Globex",
-      "Engineering Accelerators",
-      "Focus Block: Review & Sign-off SOW"
-    ]
-  },
-  {
-    "id": "Q012",
-    "generator_model": "Gemini-2.5-Pro",
-    "category": "Calendar & Meeting Operations",
-    "complexity": "Medium",
-    "query": "What is the location for my '1:1 with Manager' meeting on July 24th?",
-    "expected_tool": "tool_list_meetings",
-    "ground_truth_answer": "Your '1:1 with Manager' meeting on July 24th, 2026 from 3:00 PM to 3:30 PM is located at 'Manager Office'.",
-    "truth_criteria": [
-      "1:1 with Manager",
-      "July 24th",
-      "Manager Office"
-    ]
-  },
-  {
-    "id": "Q013",
-    "generator_model": "Gemini-2.5-Pro",
-    "category": "Calendar & Meeting Operations",
-    "complexity": "Medium",
-    "query": "What is the meeting ID and passcode for the 'Athena Architecture Review'?",
-    "expected_tool": "tool_list_meetings",
-    "ground_truth_answer": "For the 'Athena Architecture Review' meeting, the Meeting ID is '275 240 794 319 34' and the Passcode is 'pX3oz9UV'.",
-    "truth_criteria": [
-      "Athena Architecture Review",
-      "275 240 794 319 34",
-      "pX3oz9UV"
-    ]
-  },
-  {
-    "id": "Q014",
-    "generator_model": "Gemini-2.5-Pro",
-    "category": "Calendar & Meeting Operations",
-    "complexity": "Complex",
-    "query": "List all my meetings on July 23rd and July 24th with 'Sync' or 'Standup' in the title.",
-    "expected_tool": "tool_list_meetings",
-    "ground_truth_answer": "I found the following meetings: On July 23rd, you have 'Daily Standup' from 10:00 AM to 10:30 AM and 'Legal Team Sync' from 2:00 PM to 3:00 PM. On July 24th, you have 'Weekly Team Sync' from 10:00 AM to 10:30 AM and 'Deloitte Q3 Budget Sync' from 12:00 PM to 1:00 PM.",
-    "truth_criteria": [
-      "Daily Standup",
-      "Legal Team Sync",
-      "Weekly Team Sync",
-      "Deloitte Q3 Budget Sync"
-    ]
-  },
-  {
-    "id": "Q015",
-    "generator_model": "Gemini-2.5-Pro",
-    "category": "Calendar & Meeting Operations",
-    "complexity": "Complex",
-    "query": "Create a 60-minute meeting with nbattula@deloitte.com for tomorrow at 2PM titled 'Infrastructure Retrospective Follow-up'.",
-    "expected_tool": "tool_create_meeting",
-    "ground_truth_answer": "I have created a 60-minute meeting titled 'Infrastructure Retrospective Follow-up' with nbattula@deloitte.com for tomorrow at 2:00 PM.",
-    "truth_criteria": [
-      "nbattula@deloitte.com",
-      "Infrastructure Retrospective Follow-up",
-      "2:00 PM"
-    ]
-  },
-  {
-    "id": "Q016",
-    "generator_model": "Gemini-2.5-Pro",
-    "category": "Temporal Math & Relative Dates",
-    "complexity": "Basic",
-    "query": "What's my first meeting on July 23, 2026?",
-    "expected_tool": "tool_list_meetings",
-    "ground_truth_answer": "Your first meeting on July 23, 2026 is 'Daily Standup' from 10:00 AM to 10:30 AM America/New_York time.",
-    "truth_criteria": [
-      "Daily Standup",
-      "July 23, 2026",
-      "10:00 AM"
-    ]
-  },
-  {
-    "id": "Q017",
-    "generator_model": "Gemini-2.5-Pro",
-    "category": "Temporal Math & Relative Dates",
-    "complexity": "Medium",
-    "query": "Summarize my meetings from July 22, 2026.",
-    "expected_tool": "tool_list_meetings",
-    "ground_truth_answer": "On July 22, 2026, you have three meetings: 'Q3 Financial Audit & Strategy Review' from 10:00 AM to 11:00 AM, 'Project Deep Dive' from 1:00 PM to 2:30 PM, and 'Work IQ MCP Architecture & Tooling Briefing' from 2:30 PM to 3:30 PM.",
-    "truth_criteria": [
-      "Q3 Financial Audit & Strategy Review",
-      "Project Deep Dive",
-      "Work IQ MCP Architecture & Tooling Briefing"
-    ]
-  },
-  {
-    "id": "Q018",
-    "generator_model": "Gemini-2.5-Pro",
-    "category": "Temporal Math & Relative Dates",
-    "complexity": "Medium",
-    "query": "Find the email about the server migration and tell me the date and downtime window.",
-    "expected_tool": "tool_search_emails",
-    "ground_truth_answer": "The email from Alex Wright with the subject 'Server Migration Schedule' states that the migration is scheduled for Saturday, July 25, 2026 at 12:00 AM with a 4-hour downtime window.",
-    "truth_criteria": [
-      "Server Migration Schedule",
-      "Saturday, July 25, 2026",
-      "4-hour downtime"
-    ]
-  },
-  {
-    "id": "Q019",
-    "generator_model": "Gemini-2.5-Pro",
-    "category": "Temporal Math & Relative Dates",
-    "complexity": "Complex",
-    "query": "What urgent deadlines did I receive in emails from July 23rd onwards?",
-    "expected_tool": "tool_search_emails",
-    "ground_truth_answer": "Based on emails received on or after July 23rd, you have two urgent deadlines. From HR Operations, the benefits enrollment deadline is Friday, July 31, 2026. From James Wu, the Q3 Budget approval is required by July 25, 2026.",
-    "truth_criteria": [
-      "July 31, 2026",
-      "July 25, 2026",
-      "benefits enrollment"
-    ]
-  },
-  {
-    "id": "Q020",
-    "generator_model": "Gemini-2.5-Pro",
-    "category": "Temporal Math & Relative Dates",
-    "complexity": "Complex",
-    "query": "What is happening with Project Falcon? Summarize any emails or drafts about it from July 25th.",
-    "expected_tool": "tool_search_emails",
-    "ground_truth_answer": "On July 25th, you have a draft email with the subject 'Project Falcon Status Update' with a body that starts 'Team, Quick milestone update on Project Falcon.'. You also have a read email from Michael Torres with the subject 'RE: Project Falcon Kickoff Notes' which mentions notes from a session earlier that day.",
-    "truth_criteria": [
-      "Project Falcon Status Update",
-      "Project Falcon Kickoff Notes",
-      "Michael Torres"
-    ]
-  },
-  {
-    "id": "Q021",
-    "generator_model": "Gemini-2.5-Pro",
-    "category": "Executive Synthesis & Actions",
-    "complexity": "Basic",
-    "query": "Reply to the email from Adele Vance about 'Project Updates' and just say 'Thanks, Adele!'",
-    "expected_tool": "tool_reply_email",
-    "ground_truth_answer": "I will reply to the email from Adele Vance with the subject 'Project Updates' with the message 'Thanks, Adele!'.",
-    "truth_criteria": [
-      "Adele Vance",
-      "Project Updates",
-      "Thanks, Adele!"
-    ]
-  },
-  {
-    "id": "Q022",
-    "generator_model": "Gemini-2.5-Pro",
-    "category": "Executive Synthesis & Actions",
-    "complexity": "Medium",
-    "query": "Send an email to the Board Members at board@M365x214355.onmicrosoft.com using the content from my draft with the subject 'Annual Board Meeting'.",
-    "expected_tool": "tool_send_email",
-    "ground_truth_answer": "I will send an email to 'Board Members' at board@M365x214355.onmicrosoft.com with the subject 'Annual Board Meeting' and the body 'draft content for Annual Board Meeting'.",
-    "truth_criteria": [
-      "board@M365x214355.onmicrosoft.com",
-      "Annual Board Meeting",
-      "draft content for Annual Board Meeting"
-    ]
-  },
-  {
-    "id": "Q023",
-    "generator_model": "Gemini-2.5-Pro",
-    "category": "Executive Synthesis & Actions",
-    "complexity": "Medium",
-    "query": "Create a meeting for my '1:1 with Manager' for July 24 at 3pm for 30 minutes in the Manager Office.",
-    "expected_tool": "tool_create_meeting",
-    "ground_truth_answer": "I have scheduled the '1:1 with Manager' meeting for July 24th from 3:00 PM to 3:30 PM in the 'Manager Office'.",
-    "truth_criteria": [
-      "1:1 with Manager",
-      "July 24",
-      "Manager Office"
-    ]
-  },
-  {
-    "id": "Q024",
-    "generator_model": "Gemini-2.5-Pro",
-    "category": "Executive Synthesis & Actions",
-    "complexity": "Complex",
-    "query": "Prepare a briefing for my 'Q3 Budget Review Meeting'. I need a summary of related emails about budget, specifically mentioning the reduction from Deloitte and the approval deadline from James Wu.",
-    "expected_tool": "tool_search_emails",
-    "ground_truth_answer": "For your 'Q3 Budget Review Meeting', here is a summary of relevant emails: Deloitte Finance sent an urgent email requesting a '15% budget reduction in travel allocations'. Separately, James Wu sent an email titled 'Q3 Budget Review - Action Required' stating that budget approval is required by July 25, 2026.",
-    "truth_criteria": [
-      "15% budget reduction",
-      "Deloitte Finance",
-      "approval is required by July 25, 2026"
-    ]
-  },
-  {
-    "id": "Q025",
-    "generator_model": "Gemini-2.5-Pro",
-    "category": "Executive Synthesis & Actions",
-    "complexity": "Complex",
-    "query": "Summarize my day on July 24, 2026, by listing my meetings in chronological order and mentioning the topic of the '1:1 with Manager' meeting.",
-    "expected_tool": "tool_list_meetings",
-    "ground_truth_answer": "On July 24, 2026, your day is as follows: 'Product Roadmap Workshop' from 9:00 AM to 10:30 AM, 'Weekly Team Sync' from 10:00 AM to 10:30 AM, 'Deloitte Q3 Budget Sync' from 12:00 PM to 1:00 PM, and a '1:1 with Manager' from 3:00 PM to 3:30 PM for your bi-weekly check-in.",
-    "truth_criteria": [
-      "Product Roadmap Workshop",
-      "Weekly Team Sync",
-      "bi-weekly 1:1 check-in"
-    ]
-  },
-  {
-    "id": "Q026",
-    "generator_model": "Gemini-2.5-Pro",
-    "category": "Drafts & Sent Folder Audit",
-    "complexity": "Basic",
-    "query": "Do I have a draft email for Isaiah Langer and what is its subject?",
-    "expected_tool": "tool_search_emails",
-    "ground_truth_answer": "Yes, you have one draft addressed to Isaiah Langer with the subject \"Project Beta Updates\".",
-    "truth_criteria": [
-      "Isaiah Langer",
-      "Project Beta Updates",
-      "draft"
-    ]
-  },
-  {
-    "id": "Q027",
-    "generator_model": "Gemini-2.5-Pro",
-    "category": "Inbox & Email Intelligence",
-    "complexity": "Basic",
-    "query": "What is the subject of my most recent email in the inbox?",
-    "expected_tool": "tool_search_emails",
-    "ground_truth_answer": "Your most recent inbox email, received at 00:58:22Z on July 26, 2026, has the subject \"Undeliverable: Q3 Budget Follow-Up Discussion\".",
-    "truth_criteria": [
-      "Undeliverable: Q3 Budget Follow-Up Discussion",
-      "most recent"
-    ]
-  },
-  {
-    "id": "Q028",
-    "generator_model": "Gemini-2.5-Pro",
-    "category": "Calendar & Meeting Operations",
-    "complexity": "Basic",
-    "query": "What is my first meeting on July 23rd, 2026?",
-    "expected_tool": "tool_list_meetings",
-    "ground_truth_answer": "Your first meeting on July 23, 2026, is the 'Daily Standup' scheduled for 10:00 AM.",
-    "truth_criteria": [
-      "Daily Standup",
-      "10:00",
-      "July 23"
-    ]
-  },
-  {
-    "id": "Q029",
-    "generator_model": "Gemini-2.5-Pro",
-    "category": "Temporal Math & Relative Dates",
-    "complexity": "Basic",
-    "query": "Find the email from TechCorp Sales and tell me what the contract renewal deadline is.",
-    "expected_tool": "tool_search_emails",
-    "ground_truth_answer": "The email from TechCorp Sales indicates that the contract renewal deadline is August 5, 2026.",
-    "truth_criteria": [
-      "TechCorp Sales",
-      "August 5, 2026",
-      "deadline"
-    ]
-  },
-  {
-    "id": "Q030",
-    "generator_model": "Gemini-2.5-Pro",
-    "category": "Executive Synthesis & Actions",
-    "complexity": "Basic",
-    "query": "Reply to Michael Torres and confirm that I have received the Project Falcon Kickoff Notes.",
-    "expected_tool": "tool_reply_email",
-    "ground_truth_answer": "I have sent a reply to Michael Torres at michael.t@contoso.com to confirm receipt of the Project Falcon Kickoff Notes.",
-    "truth_criteria": [
-      "replied",
-      "Michael Torres",
-      "confirm receipt"
-    ]
-  },
-  {
-    "id": "Q031",
-    "generator_model": "Gemini-2.5-Pro",
-    "category": "Drafts & Sent Folder Audit",
-    "complexity": "Medium",
-    "query": "Check my sent items. Did I send a confirmation about the suspicious login from Dublin?",
-    "expected_tool": "tool_search_emails",
-    "ground_truth_answer": "Yes, on July 26, 2026, you sent an email to support@M365x214355.onmicrosoft.com with the subject \"Authorized Login Confirmation - Linux/Chrome Dublin\".",
-    "truth_criteria": [
-      "sent",
-      "Authorized Login Confirmation",
-      "Dublin"
-    ]
-  },
-  {
-    "id": "Q032",
-    "generator_model": "Gemini-2.5-Pro",
-    "category": "Inbox & Email Intelligence",
-    "complexity": "Medium",
-    "query": "I received an email about a security alert. What device and location was the login attempt from?",
-    "expected_tool": "tool_search_emails",
-    "ground_truth_answer": "The security alert from IT Support detected a suspicious login attempt from a Linux/Chrome device located in Dublin.",
-    "truth_criteria": [
-      "Linux/Chrome",
-      "Dublin",
-      "IT Support"
-    ]
-  },
-  {
-    "id": "Q033",
-    "generator_model": "Gemini-2.5-Pro",
-    "category": "Calendar & Meeting Operations",
-    "complexity": "Medium",
-    "query": "What is the join link for the 'Weekly Leadership Sync' meeting?",
-    "expected_tool": "tool_list_meetings",
-    "ground_truth_answer": "The meeting body for the 'Weekly Leadership Sync' contains the join link: https://teams.microsoft.com/l/meetup-join/weekly-sync-123.",
-    "truth_criteria": [
-      "Weekly Leadership Sync",
-      "https://teams.microsoft.com/l/meetup-join/weekly-sync-123"
-    ]
-  },
-  {
-    "id": "Q034",
-    "generator_model": "Gemini-2.5-Pro",
-    "category": "Temporal Math & Relative Dates",
-    "complexity": "Medium",
-    "query": "Based on the emails from Alex Wilber and Megan Bowen, what is the new launch date for Project Phoenix and how many days was it delayed?",
-    "expected_tool": "tool_search_emails",
-    "ground_truth_answer": "The original date was October 12th, but the follow-up email from Megan Bowen states the launch was pushed to October 19th, which is a delay of 7 days.",
-    "truth_criteria": [
-      "October 19th",
-      "7 days",
-      "pushed"
-    ]
-  },
-  {
-    "id": "Q035",
-    "generator_model": "Gemini-2.5-Pro",
-    "category": "Executive Synthesis & Actions",
-    "complexity": "Medium",
-    "query": "Based on the email from David Kim, what do I need to do before my meeting tomorrow?",
-    "expected_tool": "tool_search_emails",
-    "ground_truth_answer": "The email from David Kim on July 23rd with the subject \"Roadmap deck review request\" asks you to review the roadmap deck before the meeting.",
-    "truth_criteria": [
-      "David Kim",
-      "review the roadmap deck"
-    ]
-  },
-  {
-    "id": "Q036",
-    "generator_model": "Gemini-2.5-Pro",
-    "category": "Drafts & Sent Folder Audit",
-    "complexity": "Complex",
-    "query": "I have a draft email in response to James Wu about the Q3 Budget Review. Check my sent folder to see if I already sent a reply on this topic.",
-    "expected_tool": "tool_search_emails",
-    "ground_truth_answer": "Yes, you have a draft reply to James Wu. You also sent three emails to him on July 26, 2026, with the subject \"RE: Q3 Budget Review - Action Required\", confirming you would review the budget allocation.",
-    "truth_criteria": [
-      "draft reply",
-      "sent three emails",
-      "james.wu@contoso.com"
-    ]
-  },
-  {
-    "id": "Q037",
-    "generator_model": "Gemini-2.5-Pro",
-    "category": "Inbox & Email Intelligence",
-    "complexity": "Complex",
-    "query": "Find the email from Joni Sherman about the Quarterly Review and list the three tasks she requested.",
-    "expected_tool": "tool_get_email_details",
-    "ground_truth_answer": "In the email from Joni Sherman, she asked you to perform three tasks: 1. Update the Excel charts, 2. Confirm the guest list for the keynote, and 3. Finalize the slide deck by Friday.",
-    "truth_criteria": [
-      "Update the Excel charts",
-      "Confirm the guest list for the keynote",
-      "Finalize the slide deck by Friday"
-    ]
-  },
-  {
-    "id": "Q038",
-    "generator_model": "Gemini-2.5-Pro",
-    "category": "Calendar & Meeting Operations",
-    "complexity": "Complex",
-    "query": "I see I have conflicting meetings on July 24th at 10 AM. Can you list all the meetings scheduled for that time slot?",
-    "expected_tool": "tool_list_meetings",
-    "ground_truth_answer": "Yes, you have a conflict. At 10:00 AM on July 24, 2026, you have four meetings scheduled: 'Weekly Team Sync', 'Project Athena Spec Sync', 'Q3 Budget Review Meeting', and 'Q3 Roadmap Review Meeting'.",
-    "truth_criteria": [
-      "Weekly Team Sync",
-      "Project Athena Spec Sync",
-      "Q3 Budget Review Meeting",
-      "Q3 Roadmap Review Meeting"
-    ]
-  },
-  {
-    "id": "Q039",
-    "generator_model": "Gemini-2.5-Pro",
-    "category": "Temporal Math & Relative Dates",
-    "complexity": "Complex",
-    "query": "How many total hours of meetings do I have scheduled on July 23rd, 2026?",
-    "expected_tool": "tool_list_meetings",
-    "ground_truth_answer": "You have a total of 7 hours of meetings scheduled on July 23, 2026, across nine different events.",
-    "truth_criteria": [
-      "7 hours",
-      "July 23, 2026"
-    ]
-  },
-  {
-    "id": "Q040",
-    "generator_model": "Gemini-2.5-Pro",
-    "category": "Executive Synthesis & Actions",
-    "complexity": "Complex",
-    "query": "I've received multiple undeliverable notifications for emails to james.wilson and emily.rodriguez. What is the common reason for the delivery failure?",
-    "expected_tool": "tool_search_emails",
-    "ground_truth_answer": "The emails failed to deliver because the recipients, such as james.wilson and emily.rodriguez, were not found at the sockcop.onmicrosoft.com domain. The error code was '550 5.1.10 RESOLVER.ADR.RecipientNotFound'.",
-    "truth_criteria": [
-      "not found",
-      "sockcop.onmicrosoft.com",
-      "RecipientNotFound"
-    ]
-  },
-  {
-    "id": "Q041",
-    "generator_model": "Gemini-2.5-Pro",
-    "category": "Drafts & Sent Folder Audit",
-    "complexity": "Medium",
-    "query": "Find the sent email where I confirmed I would review the Q3 Budget allocation for James Wu, and tell me what I signed off with.",
-    "expected_tool": "tool_search_emails",
-    "ground_truth_answer": "I found a sent email to james.wu@contoso.com on July 26 at 00:55:17Z where you confirmed you will review the Q3 budget allocation. You signed off with \"Best regards, Jesus\".",
-    "truth_criteria": [
-      "james.wu@contoso.com",
-      "sent email",
-      "Best regards, Jesus"
-    ]
-  },
-  {
-    "id": "Q042",
-    "generator_model": "Gemini-2.5-Pro",
-    "category": "Inbox & Email Intelligence",
-    "complexity": "Complex",
-    "query": "What is the urgent request from Deloitte Finance in the email I received on July 23rd?",
-    "expected_tool": "tool_get_email_details",
-    "ground_truth_answer": "The email from Deloitte Finance with the subject \"Urgent: Q3 Budget Correction Needed\" states that a 15% budget reduction is needed in travel allocations.",
-    "truth_criteria": [
-      "Deloitte Finance",
-      "15% budget reduction",
-      "travel allocations"
-    ]
-  },
-  {
-    "id": "Q043",
-    "generator_model": "Gemini-2.5-Pro",
-    "category": "Calendar & Meeting Operations",
-    "complexity": "Medium",
-    "query": "Find the 'Athena Architecture Review' meeting and tell me the meeting ID and passcode from the body.",
-    "expected_tool": "tool_list_meetings",
-    "ground_truth_answer": "For the 'Athena Architecture Review' meeting, the Meeting ID is 275 240 794 319 34 and the Passcode is pX3oz9UV.",
-    "truth_criteria": [
-      "275 240 794 319 34",
-      "pX3oz9UV",
-      "Athena Architecture Review"
-    ]
-  },
-  {
-    "id": "Q044",
-    "generator_model": "Gemini-2.5-Pro",
-    "category": "Temporal Math & Relative Dates",
-    "complexity": "Medium",
-    "query": "An email from Alex Wright mentions a server migration. How many days after that email was sent is the migration scheduled to occur?",
-    "expected_tool": "tool_search_emails",
-    "ground_truth_answer": "The email from Alex Wright was received on July 23, 2026, and the server migration is scheduled for July 25, 2026, which is 2 days later.",
-    "truth_criteria": [
-      "July 23",
-      "July 25",
-      "2 days"
-    ]
-  },
-  {
-    "id": "Q045",
-    "generator_model": "Gemini-2.5-Pro",
-    "category": "Executive Synthesis & Actions",
-    "complexity": "Complex",
-    "query": "Summarize my key priorities for July 25th, 2026, by checking my emails for deadlines and cross-referencing my calendar for relevant meetings.",
-    "expected_tool": "tool_search_emails",
-    "ground_truth_answer": "Your key priority for July 25, 2026, is the budget approval required by that day, as mentioned in an email from James Wu. Your calendar includes several relevant meetings, including the 'Engineering Accelerators-Infrastructure Build -Biweekly Retrospective' at 3:00 PM and two focus blocks for 'SOW Review & Sign-off' at 5:00 PM and 7:45 PM.",
-    "truth_criteria": [
-      "budget approval",
-      "James Wu",
-      "SOW Review & Sign-off"
-    ]
-  },
-  {
-    "id": "Q046",
-    "generator_model": "Gemini-2.5-Pro",
-    "category": "Drafts & Sent Folder Audit",
-    "complexity": "Complex",
-    "query": "I have a draft to Isaiah Langer about 'Project Beta Updates' and a draft reply to Lee Gu about 'Project Code Update'. What is the content of each draft?",
-    "expected_tool": "tool_search_emails",
-    "ground_truth_answer": "The draft to Isaiah Langer regarding 'Project Beta Updates' has the content \"excellent progress on Phase 1\". The draft reply to Lee Gu about 'Project Code Update' says \"The new code has been updated to PX-205.\"",
-    "truth_criteria": [
-      "excellent progress on Phase 1",
-      "PX-205",
-      "Isaiah Langer"
-    ]
-  },
-  {
-    "id": "Q047",
-    "generator_model": "Gemini-2.5-Pro",
-    "category": "Inbox & Email Intelligence",
-    "complexity": "Medium",
-    "query": "Did I receive a payment confirmation for Invoice #4521?",
-    "expected_tool": "tool_search_emails",
-    "ground_truth_answer": "Yes, you received an email from Linda Park with the subject \"Invoice #4521 Payment Confirmation\", stating that the funds have been transferred and cleared.",
-    "truth_criteria": [
-      "Linda Park",
-      "Invoice #4521",
-      "Payment Confirmation"
-    ]
-  },
-  {
-    "id": "Q048",
-    "generator_model": "Gemini-2.5-Pro",
-    "category": "Calendar & Meeting Operations",
-    "complexity": "Complex",
-    "query": "I have a meeting with Narahari Battula. What is the subject and what does the body say attendees need to do?",
-    "expected_tool": "tool_list_meetings",
-    "ground_truth_answer": "The meeting with Narahari Battula is titled 'Engineering Accelerators-Infrastructure Build -Biweekly Retrospective'. The body states: \"Attendees must prepare updates.\"",
-    "truth_criteria": [
-      "Narahari Battula",
-      "Biweekly Retrospective",
-      "Attendees must prepare updates"
-    ]
-  },
-  {
-    "id": "Q049",
-    "generator_model": "Gemini-2.5-Pro",
-    "category": "Temporal Math & Relative Dates",
-    "complexity": "Complex",
-    "query": "Find the undeliverable notices for emails to james.wilson about the 'Q3 Budget Follow-Up Discussion'. What was the time difference between the most recent and the oldest failure notification for this subject?",
-    "expected_tool": "tool_search_emails",
-    "ground_truth_answer": "You received three undeliverable notices for this subject. The most recent was at 00:58:22Z and the oldest was at 00:57:09Z on July 26, 2026. The time difference between them is 1 minute and 13 seconds.",
-    "truth_criteria": [
-      "00:58:22Z",
-      "00:57:09Z",
-      "1 minute and 13 seconds"
-    ]
-  },
-  {
-    "id": "Q050",
-    "generator_model": "Gemini-2.5-Pro",
-    "category": "Executive Synthesis & Actions",
-    "complexity": "Medium",
-    "query": "Send an email to the 'Falcon Project Team' with the subject 'Project Falcon Status Update' using the content from my draft.",
-    "expected_tool": "tool_send_email",
-    "ground_truth_answer": "I have sent an email to team-falcon@contoso.com with the subject 'Project Falcon Status Update'. The body of the email is: \"Team, Quick milestone update on Project Falcon.\"",
-    "truth_criteria": [
-      "team-falcon@contoso.com",
-      "Project Falcon Status Update",
-      "milestone update"
-    ]
-  },
-  {
-    "id": "Q051",
-    "generator_model": "Gemini-2.5-Pro",
-    "category": "Drafts & Sent Folder Audit",
-    "complexity": "Basic",
-    "query": "Do I have an unsent draft email for Isaiah Langer?",
-    "expected_tool": "tool_search_emails",
-    "ground_truth_answer": "Yes, you have one draft for Isaiah Langer with the subject 'Project Beta Updates'. The content mentions 'excellent progress on Phase 1'.",
-    "truth_criteria": [
-      "Isaiah Langer",
-      "Project Beta Updates",
-      "excellent progress"
-    ]
-  },
-  {
-    "id": "Q052",
-    "generator_model": "Gemini-2.5-Pro",
-    "category": "Inbox & Email Intelligence",
-    "complexity": "Basic",
-    "query": "What is the subject of the most recent email I received in my inbox?",
-    "expected_tool": "tool_search_emails",
-    "ground_truth_answer": "The subject of your most recent email is 'Undeliverable: Q3 Budget Follow-Up Discussion', received on July 26, 2026.",
-    "truth_criteria": [
-      "Undeliverable",
-      "Q3 Budget Follow-Up Discussion",
-      "July 26, 2026"
-    ]
-  },
-  {
-    "id": "Q053",
-    "generator_model": "Gemini-2.5-Pro",
-    "category": "Calendar & Meeting Operations",
-    "complexity": "Basic",
-    "query": "What is my first meeting on July 23rd, 2026?",
-    "expected_tool": "tool_list_meetings",
-    "ground_truth_answer": "Your first meeting on July 23rd, 2026, is 'Daily Standup' at 10:00 AM America/New_York time.",
-    "truth_criteria": [
-      "Daily Standup",
-      "10:00",
-      "July 23"
-    ]
-  },
-  {
-    "id": "Q054",
-    "generator_model": "Gemini-2.5-Pro",
-    "category": "Temporal Math & Relative Dates",
-    "complexity": "Basic",
-    "query": "When did I receive the email about the 'TechCorp Contract Renewal'?",
-    "expected_tool": "tool_search_emails",
-    "ground_truth_answer": "You received the email about 'TechCorp Contract Renewal' on July 23, 2026.",
-    "truth_criteria": [
-      "July 23, 2026",
-      "TechCorp Contract Renewal"
-    ]
-  },
-  {
-    "id": "Q055",
-    "generator_model": "Gemini-2.5-Pro",
-    "category": "Executive Synthesis & Actions",
-    "complexity": "Basic",
-    "query": "Find the email from Michael Torres about 'Project Falcon Kickoff Notes' and draft a reply confirming I have received it.",
-    "expected_tool": "tool_reply_email",
-    "ground_truth_answer": "I have drafted a reply to Michael Torres for the email 'RE: Project Falcon Kickoff Notes' stating that you have received the notes. Ready to send?",
-    "truth_criteria": [
-      "Michael Torres",
-      "Project Falcon Kickoff Notes",
-      "received"
-    ]
-  },
-  {
-    "id": "Q056",
-    "generator_model": "Gemini-2.5-Pro",
-    "category": "Drafts & Sent Folder Audit",
-    "complexity": "Medium",
-    "query": "Find the latest email I sent to `james.wu@contoso.com`.",
-    "expected_tool": "tool_search_emails",
-    "ground_truth_answer": "You sent an email to james.wu@contoso.com on July 26, 2026, with the subject 'RE: Q3 Budget Review - Action Required'. The body says: 'Hi James, I confirm that I will review the Q3 Budget allocation before Friday. Best regards, Jesus'.",
-    "truth_criteria": [
-      "james.wu@contoso.com",
-      "Q3 Budget allocation before Friday",
-      "Jesus"
-    ]
-  },
-  {
-    "id": "Q057",
-    "generator_model": "Gemini-2.5-Pro",
-    "category": "Inbox & Email Intelligence",
-    "complexity": "Medium",
-    "query": "Find all emails I have received regarding a 'Partnership Proposal'.",
-    "expected_tool": "tool_search_emails",
-    "ground_truth_answer": "I found several undeliverable notifications for emails with the subject 'Partnership Proposal Follow-up' that you tried to send to david.kim@sockcop.onmicrosoft.com.",
-    "truth_criteria": [
-      "Undeliverable",
-      "Partnership Proposal Follow-up",
-      "david.kim"
-    ]
-  },
-  {
-    "id": "Q058",
-    "generator_model": "Gemini-2.5-Pro",
-    "category": "Calendar & Meeting Operations",
-    "complexity": "Medium",
-    "query": "How long is the 'Project Deep Dive' meeting scheduled for on July 22nd?",
-    "expected_tool": "tool_list_meetings",
-    "ground_truth_answer": "The 'Project Deep Dive' meeting on July 22nd is scheduled for 90 minutes, from 1:00 PM to 2:30 PM America/New_York time.",
-    "truth_criteria": [
-      "90 minutes",
-      "1:00 PM",
-      "2:30 PM"
-    ]
-  },
-  {
-    "id": "Q059",
-    "generator_model": "Gemini-2.5-Pro",
-    "category": "Temporal Math & Relative Dates",
-    "complexity": "Medium",
-    "query": "What action was required in the email from James Wu, and by when?",
-    "expected_tool": "tool_search_emails",
-    "ground_truth_answer": "The email from James Wu with the subject 'Q3 Budget Review - Action Required' states that budget approval is required by July 25, 2026.",
-    "truth_criteria": [
-      "budget approval",
-      "James Wu",
-      "July 25, 2026"
-    ]
-  },
-  {
-    "id": "Q060",
-    "generator_model": "Gemini-2.5-Pro",
-    "category": "Executive Synthesis & Actions",
-    "complexity": "Medium",
-    "query": "Schedule a 30-minute meeting with 'nbattula@deloitte.com' titled 'IAM AppReg Credentials' for next Tuesday at 3 PM.",
-    "expected_tool": "tool_create_meeting",
-    "ground_truth_answer": "I have created a 30-minute meeting with nbattula@deloitte.com titled 'IAM AppReg Credentials' for next Tuesday at 3:00 PM. Shall I send the invitation?",
-    "truth_criteria": [
-      "nbattula@deloitte.com",
-      "IAM AppReg Credentials",
-      "next Tuesday at 3:00 PM"
-    ]
-  },
-  {
-    "id": "Q061",
-    "generator_model": "Gemini-2.5-Pro",
-    "category": "Drafts & Sent Folder Audit",
-    "complexity": "Complex",
-    "query": "I have a draft about 'Q3 Strategy Planning'. Did I already send an email with this subject?",
-    "expected_tool": "tool_search_emails",
-    "ground_truth_answer": "You have a draft with the subject 'Q3 Strategy Planning'. I checked your sent items and found no record of an email with this subject being sent.",
-    "truth_criteria": [
-      "have a draft",
-      "Q3 Strategy Planning",
-      "no record of an email"
-    ]
-  },
-  {
-    "id": "Q062",
-    "generator_model": "Gemini-2.5-Pro",
-    "category": "Inbox & Email Intelligence",
-    "complexity": "Complex",
-    "query": "According to the email from Joni Sherman about the 'Quarterly Review', what are my tasks and when are they due?",
-    "expected_tool": "tool_get_email_details",
-    "ground_truth_answer": "Based on the email from Joni Sherman, your tasks are: 1. Update the Excel charts, 2. Confirm the guest list for the keynote, and 3. Finalize the slide deck by Friday.",
-    "truth_criteria": [
-      "Update the Excel charts",
-      "Confirm the guest list",
-      "Finalize the slide deck by Friday"
-    ]
-  },
-  {
-    "id": "Q063",
-    "generator_model": "Gemini-2.5-Pro",
-    "category": "Calendar & Meeting Operations",
-    "complexity": "Complex",
-    "query": "My calendar on July 23rd shows several meetings scheduled from 2:00 PM to 3:00 PM. Can you list them and confirm if there's a conflict?",
-    "expected_tool": "tool_list_meetings",
-    "ground_truth_answer": "Yes, there is a conflict. You have four meetings scheduled for the same time slot on July 23rd from 2:00 PM to 3:00 PM: 'Team Leads Budget Feedback & Action Plan Alignment', 'One-on-One with Marcus', 'Legal Team Sync', and 'Product Roadmap Sync'.",
-    "truth_criteria": [
-      "conflict",
-      "Team Leads Budget Feedback",
-      "Product Roadmap Sync"
-    ]
-  },
-  {
-    "id": "Q064",
-    "generator_model": "Gemini-2.5-Pro",
-    "category": "Temporal Math & Relative Dates",
-    "complexity": "Complex",
-    "query": "The email from Alex Wright mentions a 'Server migration' for July 25, 2026 at 12:00 AM. How many hours passed between you receiving that email and the start of the migration?",
-    "expected_tool": "tool_search_emails",
-    "ground_truth_answer": "The email was received on July 23, 2026, at 16:00 UTC. The migration is scheduled for July 25, 2026, at 00:00 AM. There are 32 hours between receiving the email and the start of the migration.",
-    "truth_criteria": [
-      "32 hours",
-      "July 23, 2026",
-      "July 25, 2026"
-    ]
-  },
-  {
-    "id": "Q065",
-    "generator_model": "Gemini-2.5-Pro",
-    "category": "Executive Synthesis & Actions",
-    "complexity": "Complex",
-    "query": "Prepare a briefing for my '1:1 with Manager' on July 24th. Summarize my other meetings on that day and mention any emails about contract renewals I received the day before.",
-    "expected_tool": "tool_list_meetings",
-    "ground_truth_answer": "For your 1:1 on July 24th: Your meetings for the day include 'Product Roadmap Workshop' (9:00 AM), 'Weekly Team Sync' (10:00 AM), 'Deloitte Q3 Budget Sync' (12:00 PM), and 'Engineering Accelerators-Infrastructure Build -Biweekly Retrospective' (3:00 PM). On July 23rd, you received an email about 'TechCorp Contract Renewal' with a deadline of August 5, 2026.",
-    "truth_criteria": [
-      "Product Roadmap Workshop",
-      "Deloitte Q3 Budget Sync",
-      "TechCorp Contract Renewal"
-    ]
-  },
-  {
-    "id": "Q066",
-    "generator_model": "Gemini-2.5-Pro",
-    "category": "Drafts & Sent Folder Audit",
-    "complexity": "Basic",
-    "query": "Is there a draft related to the 'Annual Board Meeting'?",
-    "expected_tool": "tool_search_emails",
-    "ground_truth_answer": "Yes, there is a draft to 'Board Members' with the subject 'Annual Board Meeting'. The body contains 'draft content for Annual Board Meeting'.",
-    "truth_criteria": [
-      "draft",
-      "Annual Board Meeting",
-      "Board Members"
-    ]
-  },
-  {
-    "id": "Q067",
-    "generator_model": "Gemini-2.5-Pro",
-    "category": "Inbox & Email Intelligence",
-    "complexity": "Medium",
-    "query": "What is the invoice number mentioned in the email from Northwind Traders?",
-    "expected_tool": "tool_get_email_details",
-    "ground_truth_answer": "The email from Northwind Traders mentions 'Invoice #98765'.",
-    "truth_criteria": [
-      "Invoice #98765",
-      "Northwind Traders"
-    ]
-  },
-  {
-    "id": "Q068",
-    "generator_model": "Gemini-2.5-Pro",
-    "category": "Calendar & Meeting Operations",
-    "complexity": "Medium",
-    "query": "What are the meeting ID and passcode for the 'Athena Architecture Review' meeting on July 25th?",
-    "expected_tool": "tool_list_meetings",
-    "ground_truth_answer": "For the 'Athena Architecture Review' meeting, the Meeting ID is '275 240 794 319 34' and the Passcode is 'pX3oz9UV'.",
-    "truth_criteria": [
-      "275 240 794 319 34",
-      "pX3oz9UV",
-      "Athena Architecture Review"
-    ]
-  },
-  {
-    "id": "Q069",
-    "generator_model": "Gemini-2.5-Pro",
-    "category": "Temporal Math & Relative Dates",
-    "complexity": "Medium",
-    "query": "According to the email I received on July 23rd, what is the deadline for the TechCorp contract renewal?",
-    "expected_tool": "tool_search_emails",
-    "ground_truth_answer": "The email 'TechCorp Contract Renewal' states that the contract renewal deadline is August 5, 2026.",
-    "truth_criteria": [
-      "August 5, 2026",
-      "TechCorp"
-    ]
-  },
-  {
-    "id": "Q070",
-    "generator_model": "Gemini-2.5-Pro",
-    "category": "Executive Synthesis & Actions",
-    "complexity": "Basic",
-    "query": "Reply to the 'Project Updates' email from Adele Vance and ask her to 'please include the weekly burn down chart going forward'.",
-    "expected_tool": "tool_reply_email",
-    "ground_truth_answer": "I have drafted a reply to Adele Vance's 'Project Updates' email with your request to include the weekly burn down chart. Shall I send it?",
-    "truth_criteria": [
-      "Adele Vance",
-      "burn down chart",
-      "drafted a reply"
-    ]
-  },
-  {
-    "id": "Q071",
-    "generator_model": "Gemini-2.5-Pro",
-    "category": "Drafts & Sent Folder Audit",
-    "complexity": "Complex",
-    "query": "I see I sent an email to 'james.wilson@sockcop.onmicrosoft.com' about the 'Q3 Budget'. Check my inbox to see if it was delivered successfully.",
-    "expected_tool": "tool_search_emails",
-    "ground_truth_answer": "No, it appears the email was not delivered. I found multiple 'Undeliverable' notifications in your inbox for messages sent to james.wilson@sockcop.onmicrosoft.com with the subject 'Q3 Budget Follow-Up Discussion'. The error indicates the recipient was not found.",
-    "truth_criteria": [
-      "not delivered",
-      "Undeliverable",
-      "recipient not found"
-    ]
-  },
-  {
-    "id": "Q072",
-    "generator_model": "Gemini-2.5-Pro",
-    "category": "Inbox & Email Intelligence",
-    "complexity": "Complex",
-    "query": "Summarize the emails about the Project Phoenix launch date. What was the original date and what is the new date?",
-    "expected_tool": "tool_search_emails",
-    "ground_truth_answer": "I found two emails about the Project Phoenix launch. An email from Alex Wilber set the launch date for October 12th. A later reply from Megan Bowen states the launch has been pushed to October 19th due to testing delays.",
-    "truth_criteria": [
-      "Alex Wilber",
-      "October 12th",
-      "October 19th"
-    ]
-  },
-  {
-    "id": "Q073",
-    "generator_model": "Gemini-2.5-Pro",
-    "category": "Calendar & Meeting Operations",
-    "complexity": "Complex",
-    "query": "List my meetings on July 25th that are explicitly marked as online Teams meetings and provide their join links.",
-    "expected_tool": "tool_list_meetings",
-    "ground_truth_answer": "On July 25th, you have one meeting marked as a Teams online meeting: 'Athena Architecture Review'. The join link is: https://teams.microsoft.com/l/meetup-join/19%3ameeting_Y2MzZDBmY2QtOGU3YS00NWJmLTk0OTEtYjllYzEwZjQ4YzZj%40thread.v2/0?context=%7b%22Tid%22%3a%22de46a3fd-0d68-4b25-8343-6eb5d71afce9%22%2c%22Oid%22%3a%227b94d7a1-6118-4210-9309-a002881af6b8%22%7d",
-    "truth_criteria": [
-      "Athena Architecture Review",
-      "https://teams.microsoft.com/l/meetup-join",
-      "July 25th"
-    ]
-  },
-  {
-    "id": "Q074",
-    "generator_model": "Gemini-2.5-Pro",
-    "category": "Temporal Math & Relative Dates",
-    "complexity": "Complex",
-    "query": "How many days are there between when I received the 'TechCorp Contract Renewal' email and the renewal deadline mentioned inside it?",
-    "expected_tool": "tool_search_emails",
-    "ground_truth_answer": "You received the email on July 23, 2026, and the deadline mentioned is August 5, 2026. There are 13 days between these two dates.",
-    "truth_criteria": [
-      "13 days",
-      "July 23, 2026",
-      "August 5, 2026"
-    ]
-  },
-  {
-    "id": "Q075",
-    "generator_model": "Gemini-2.5-Pro",
-    "category": "Executive Synthesis & Actions",
-    "complexity": "Complex",
-    "query": "Review my calendar and emails to find any connections or related topics between my activities on July 22nd and emails from Deloitte.",
-    "expected_tool": "tool_search_emails",
-    "ground_truth_answer": "Yes, there is a connection. On July 22nd, you had a 'Q3 Financial Audit & Strategy Review' meeting. On July 23rd, you received an email from 'Deloitte Finance' titled 'Urgent: Q3 Budget Correction Needed'. Additionally, you have a meeting on July 24th called 'Deloitte Q3 Budget Sync'. The common themes are Q3 budgets, strategy, and Deloitte.",
-    "truth_criteria": [
-      "Q3 Financial Audit & Strategy Review",
-      "Deloitte Finance",
-      "Deloitte Q3 Budget Sync"
-    ]
-  },
-  {
-    "id": "Q076",
-    "generator_model": "Gemini-2.5-Pro",
-    "category": "Drafts & Sent Folder Audit",
-    "complexity": "Basic",
-    "query": "Do I have a draft email for the 'Annual Board Meeting'?",
-    "expected_tool": "tool_search_emails",
-    "ground_truth_answer": "Yes, you have one draft email with the subject \"Annual Board Meeting\" addressed to Board Members.",
-    "truth_criteria": [
-      "Annual Board Meeting",
-      "Board Members",
-      "draft"
-    ]
-  },
-  {
-    "id": "Q077",
-    "generator_model": "Gemini-2.5-Pro",
-    "category": "Inbox & Email Intelligence",
-    "complexity": "Basic",
-    "query": "What is the subject of my most recent unread email?",
-    "expected_tool": "tool_search_emails",
-    "ground_truth_answer": "The most recent unread email has the subject: \"Undeliverable: Q3 Budget Follow-Up Discussion\".",
-    "truth_criteria": [
-      "Undeliverable",
-      "Q3 Budget Follow-Up Discussion",
-      "2026-07-26T00:58:22Z"
-    ]
-  },
-  {
-    "id": "Q078",
-    "generator_model": "Gemini-2.5-Pro",
-    "category": "Calendar & Meeting Operations",
-    "complexity": "Basic",
-    "query": "What's the first meeting on my calendar for July 24th, 2026?",
-    "expected_tool": "tool_list_meetings",
-    "ground_truth_answer": "Your first meeting on July 24, 2026, is the \"Product Roadmap Workshop\" at 9:00 AM.",
-    "truth_criteria": [
-      "Product Roadmap Workshop",
-      "9:00",
+      "Team Retro",
+      "3:00 PM",
       "July 24"
     ]
   },
   {
-    "id": "Q079",
-    "generator_model": "Gemini-2.5-Pro",
+    "id": "Q008",
+    "generator_model": "Gemini-3-Flash-Preview",
+    "category": "Calendar & Meeting Operations",
+    "complexity": "Medium",
+    "query": "Find the \"Weekly Leadership Sync\" happening today and provide the Teams join link.",
+    "expected_tool": "tool_list_meetings",
+    "ground_truth_answer": "The \"Weekly Leadership Sync\" is scheduled for today, Thursday, July 23, 2026, from 10:00 AM to 11:00 AM. The Teams link is https://teams.microsoft.com/l/meetup-join/weekly-sync-123.",
+    "truth_criteria": [
+      "10:00 AM",
+      "weekly-sync-123"
+    ]
+  },
+  {
+    "id": "Q009",
+    "generator_model": "Gemini-3-Flash-Preview",
+    "category": "Calendar & Meeting Operations",
+    "complexity": "Complex",
+    "query": "I need to schedule a 1-hour follow-up next Wednesday afternoon. What are my available slots after 1:00 PM?",
+    "expected_tool": "tool_list_meetings",
+    "ground_truth_answer": "On Wednesday, July 29, 2026, you have a \"Product Demo\" from 2:00 PM to 3:00 PM. Your available 1-hour slots after 1:00 PM are from 1:00 PM to 2:00 PM and from 3:00 PM onwards.",
+    "truth_criteria": [
+      "July 29",
+      "1:00 PM to 2:00 PM",
+      "3:00 PM"
+    ]
+  },
+  {
+    "id": "Q010",
+    "generator_model": "Gemini-3-Flash-Preview",
     "category": "Temporal Math & Relative Dates",
     "complexity": "Basic",
-    "query": "Do I have a client lunch scheduled on July 25, 2026?",
+    "query": "List all my appointments for today.",
     "expected_tool": "tool_list_meetings",
-    "ground_truth_answer": "Yes, you have a \"Client Lunch: Globex\" scheduled from 12:30 PM to 1:30 PM at Globex Cafe on July 25, 2026.",
+    "ground_truth_answer": "Today, Thursday, July 23, 2026, you have two appointments: \"Weekly Leadership Sync\" at 10:00 AM and \"Client Lunch: Globex\" at 12:30 PM.",
     "truth_criteria": [
-      "Client Lunch: Globex",
-      "12:30 PM",
-      "Globex Cafe"
-    ]
-  },
-  {
-    "id": "Q080",
-    "generator_model": "Gemini-2.5-Pro",
-    "category": "Executive Synthesis & Actions",
-    "complexity": "Basic",
-    "query": "Reply to Michael Torres's email about the Project Falcon Kickoff notes and confirm I have received them.",
-    "expected_tool": "tool_reply_email",
-    "ground_truth_answer": "A reply should be generated to michael.t@contoso.com with content confirming receipt of the Project Falcon Kickoff notes.",
-    "truth_criteria": [
-      "michael.t@contoso.com",
-      "confirm",
-      "Project Falcon"
-    ]
-  },
-  {
-    "id": "Q081",
-    "generator_model": "Gemini-2.5-Pro",
-    "category": "Drafts & Sent Folder Audit",
-    "complexity": "Medium",
-    "query": "Find the email I sent to `james.wu@contoso.com` where I confirmed I would review the Q3 budget.",
-    "expected_tool": "tool_search_emails",
-    "ground_truth_answer": "I found a sent email to james.wu@contoso.com with the subject \"RE: Q3 Budget Review - Action Required\" and the body \"Hi James, I confirm that I will review the Q3 Budget allocation before Friday. Best regards, Jesus\". It was sent on July 26, 2026.",
-    "truth_criteria": [
-      "james.wu@contoso.com",
-      "confirm",
-      "review the Q3 Budget"
-    ]
-  },
-  {
-    "id": "Q082",
-    "generator_model": "Gemini-2.5-Pro",
-    "category": "Inbox & Email Intelligence",
-    "complexity": "Medium",
-    "query": "What is the deadline for the TechCorp contract renewal?",
-    "expected_tool": "tool_get_email_details",
-    "ground_truth_answer": "According to an email from TechCorp Sales, the contract renewal deadline is August 5, 2026.",
-    "truth_criteria": [
-      "TechCorp",
-      "deadline",
-      "August 5, 2026"
-    ]
-  },
-  {
-    "id": "Q083",
-    "generator_model": "Gemini-2.5-Pro",
-    "category": "Calendar & Meeting Operations",
-    "complexity": "Medium",
-    "query": "How long is the 'Project Deep Dive' meeting scheduled on July 22nd?",
-    "expected_tool": "tool_list_meetings",
-    "ground_truth_answer": "The \"Project Deep Dive\" meeting on July 22, 2026, is scheduled for 90 minutes, from 1:00 PM to 2:30 PM America/New_York time.",
-    "truth_criteria": [
-      "Project Deep Dive",
-      "90 minutes",
-      "1:00 PM to 2:30 PM"
-    ]
-  },
-  {
-    "id": "Q084",
-    "generator_model": "Gemini-2.5-Pro",
-    "category": "Temporal Math & Relative Dates",
-    "complexity": "Medium",
-    "query": "What meetings do I have on my calendar for July 22, 2026?",
-    "expected_tool": "tool_list_meetings",
-    "ground_truth_answer": "On July 22, 2026, you have three meetings: 'Q3 Financial Audit & Strategy Review' from 10:00 AM to 11:00 AM, 'Project Deep Dive' from 1:00 PM to 2:30 PM, and 'Work IQ MCP Architecture & Tooling Briefing' from 2:30 PM to 3:30 PM.",
-    "truth_criteria": [
-      "Q3 Financial Audit",
-      "Project Deep Dive",
-      "Work IQ MCP Architecture"
-    ]
-  },
-  {
-    "id": "Q085",
-    "generator_model": "Gemini-2.5-Pro",
-    "category": "Executive Synthesis & Actions",
-    "complexity": "Medium",
-    "query": "Based on the email from David Kim about the roadmap deck, schedule a meeting for the review.",
-    "expected_tool": "tool_create_meeting",
-    "ground_truth_answer": "A meeting should be created with the subject 'Roadmap deck review' with David Kim invited, based on his email.",
-    "truth_criteria": [
-      "Roadmap deck review",
-      "David Kim",
-      "create_meeting"
-    ]
-  },
-  {
-    "id": "Q086",
-    "generator_model": "Gemini-2.5-Pro",
-    "category": "Drafts & Sent Folder Audit",
-    "complexity": "Complex",
-    "query": "I tried to invite `emily.rodriguez@sockcop.onmicrosoft.com` to a meeting about 'Project Falcon - Follow-up Meeting'. Did the invitation get delivered?",
-    "expected_tool": "tool_search_emails",
-    "ground_truth_answer": "No, the meeting invitation was not delivered. I found an undeliverable notice in your inbox stating that the recipient emily.rodriguez@sockcop.onmicrosoft.com was not found by SMTP address lookup.",
-    "truth_criteria": [
-      "not delivered",
-      "emily.rodriguez",
-      "RecipientNotFound"
-    ]
-  },
-  {
-    "id": "Q087",
-    "generator_model": "Gemini-2.5-Pro",
-    "category": "Inbox & Email Intelligence",
-    "complexity": "Complex",
-    "query": "Summarize the action items from Joni Sherman's email about the Quarterly Review.",
-    "expected_tool": "tool_get_email_details",
-    "ground_truth_answer": "Joni Sherman's email lists three tasks: 1. Update the Excel charts, 2. Confirm the guest list for the keynote, and 3. Finalize the slide deck by Friday.",
-    "truth_criteria": [
-      "Update the Excel charts",
-      "Confirm the guest list",
-      "Finalize the slide deck"
-    ]
-  },
-  {
-    "id": "Q088",
-    "generator_model": "Gemini-2.5-Pro",
-    "category": "Calendar & Meeting Operations",
-    "complexity": "Complex",
-    "query": "Find a one hour free slot on my calendar for July 25th, 2026, to follow up on the engineering retrospective.",
-    "expected_tool": "tool_list_meetings",
-    "ground_truth_answer": "You have a one-hour free slot from 1:30 PM to 2:30 PM on July 25, 2026. Other slots are also available.",
-    "truth_criteria": [
-      "1:30 PM",
-      "2:30 PM",
-      "July 25, 2026"
-    ]
-  },
-  {
-    "id": "Q089",
-    "generator_model": "Gemini-2.5-Pro",
-    "category": "Temporal Math & Relative Dates",
-    "complexity": "Complex",
-    "query": "List all the undeliverable email notifications I received between 00:57:40Z and 00:58:30Z on July 26, 2026.",
-    "expected_tool": "tool_search_emails",
-    "ground_truth_answer": "You received two undeliverable notifications in that time frame. One for 'Q3 Budget Follow-Up Discussion' at 2026-07-26T00:58:22Z, and one for 'Q3 Budget Follow-Up Discussion' at 2026-07-26T00:57:41Z.",
-    "truth_criteria": [
-      "2026-07-26T00:58:22Z",
-      "2026-07-26T00:57:41Z",
-      "undeliverable"
-    ]
-  },
-  {
-    "id": "Q090",
-    "generator_model": "Gemini-2.5-Pro",
-    "category": "Executive Synthesis & Actions",
-    "complexity": "Complex",
-    "query": "Prepare a summary of my day on July 23rd, 2026. Include all my meetings and any urgent emails I received that day.",
-    "expected_tool": "tool_search_emails",
-    "ground_truth_answer": "On July 23, 2026, you have several meetings: 'Daily Standup' (10:00-10:30), 'Customer Escalation Call' (11:00-11:30), 'Team Leads Budget Feedback & Action Plan Alignment' (14:00-15:00), 'One-on-One with Marcus' (14:00-15:00), 'Legal Team Sync' (14:00-15:00), 'Product Roadmap Sync' (14:00-15:00), 'Marketing Sync' (16:00-17:00), '1:1 with David Park' (16:00-16:30), and 'Q4 Resource Allocation' (19:00-19:30). You also received an urgent email about a 'Q3 Budget Correction Needed' from Deloitte Finance.",
-    "truth_criteria": [
-      "Daily Standup",
-      "Customer Escalation Call",
-      "Q3 Budget Correction Needed"
-    ]
-  },
-  {
-    "id": "Q091",
-    "generator_model": "Gemini-2.5-Pro",
-    "category": "Drafts & Sent Folder Audit",
-    "complexity": "Medium",
-    "query": "What's the content of my draft to Isaiah Langer about Project Beta Updates?",
-    "expected_tool": "tool_search_emails",
-    "ground_truth_answer": "The draft email to Isaiah Langer regarding 'Project Beta Updates' contains the text: \"excellent progress on Phase 1\".",
-    "truth_criteria": [
-      "Isaiah Langer",
-      "Project Beta Updates",
-      "excellent progress on Phase 1"
-    ]
-  },
-  {
-    "id": "Q092",
-    "generator_model": "Gemini-2.5-Pro",
-    "category": "Inbox & Email Intelligence",
-    "complexity": "Complex",
-    "query": "I received a security alert about a login from Dublin. What were the device details and did I respond to IT about it?",
-    "expected_tool": "tool_search_emails",
-    "ground_truth_answer": "Yes, you received a security alert for a suspicious login from a Linux/Chrome device in Dublin. You later responded to IT Support, confirming that the login attempt was authorized by you.",
-    "truth_criteria": [
-      "Linux/Chrome",
-      "Dublin",
-      "authorized by me"
-    ]
-  },
-  {
-    "id": "Q093",
-    "generator_model": "Gemini-2.5-Pro",
-    "category": "Calendar & Meeting Operations",
-    "complexity": "Medium",
-    "query": "What is the Teams meeting join link and passcode for the 'Athena Architecture Review'?",
-    "expected_tool": "tool_list_meetings",
-    "ground_truth_answer": "The join link is https://teams.microsoft.com/meet/27524079431934?p=bHTxNGZrXjEDHcSw7C and the passcode is pX3oz9UV.",
-    "truth_criteria": [
-      "https://teams.microsoft.com/meet/27524079431934",
-      "pX3oz9UV",
-      "Athena Architecture Review"
-    ]
-  },
-  {
-    "id": "Q094",
-    "generator_model": "Gemini-2.5-Pro",
-    "category": "Drafts & Sent Folder Audit",
-    "complexity": "Basic",
-    "query": "What's the subject of the draft email I'm composing for myself?",
-    "expected_tool": "tool_search_emails",
-    "ground_truth_answer": "You have a draft email addressed to yourself (Jesus Chavez) with the subject \"Q3 Strategy Planning\".",
-    "truth_criteria": [
-      "Q3 Strategy Planning",
-      "draft",
-      "Jesus Chavez"
-    ]
-  },
-  {
-    "id": "Q095",
-    "generator_model": "Gemini-2.5-Pro",
-    "category": "Inbox & Email Intelligence",
-    "complexity": "Medium",
-    "query": "What did Alex Wright say about the server migration schedule?",
-    "expected_tool": "tool_get_email_details",
-    "ground_truth_answer": "In an email with the subject \"Server Migration Schedule\", Alex Wright stated: \"Server migration is scheduled for Saturday, July 25, 2026 at 12:00 AM with a 4-hour downtime window.\"",
-    "truth_criteria": [
-      "Alex Wright",
-      "July 25, 2026",
-      "4-hour downtime"
-    ]
-  },
-  {
-    "id": "Q096",
-    "generator_model": "Gemini-2.5-Pro",
-    "category": "Calendar & Meeting Operations",
-    "complexity": "Complex",
-    "query": "I seem to be double-booked on July 23rd at 2:00 PM. What are the conflicting meetings?",
-    "expected_tool": "tool_list_meetings",
-    "ground_truth_answer": "You have four conflicting meetings at 2:00 PM on July 23rd: \"Team Leads Budget Feedback & Action Plan Alignment\", \"One-on-One with Marcus\", \"Legal Team Sync\", and \"Product Roadmap Sync\". They all run from 2:00 PM to 3:00 PM.",
-    "truth_criteria": [
-      "Team Leads Budget Feedback",
-      "One-on-One with Marcus",
-      "Legal Team Sync",
-      "Product Roadmap Sync"
-    ]
-  },
-  {
-    "id": "Q097",
-    "generator_model": "Gemini-2.5-Pro",
-    "category": "Temporal Math & Relative Dates",
-    "complexity": "Medium",
-    "query": "What is happening on my calendar on July 25, 2026, at 10:00 AM?",
-    "expected_tool": "tool_list_meetings",
-    "ground_truth_answer": "At 10:00 AM on July 25, 2026, you have two meetings scheduled: \"Athena Architecture Review\" and \"Weekly Leadership Sync\".",
-    "truth_criteria": [
-      "Athena Architecture Review",
+      "Thursday, July 23",
       "Weekly Leadership Sync",
+      "Client Lunch"
+    ]
+  },
+  {
+    "id": "Q011",
+    "generator_model": "Gemini-3-Flash-Preview",
+    "category": "Temporal Math & Relative Dates",
+    "complexity": "Medium",
+    "query": "Did I have any meetings exactly one week ago?",
+    "expected_tool": "tool_list_meetings",
+    "ground_truth_answer": "Yes, on Thursday, July 16, 2026, you had one meeting: \"Q3 Planning Kickoff\" at 2:00 PM.",
+    "truth_criteria": [
+      "July 16",
+      "Q3 Planning Kickoff"
+    ]
+  },
+  {
+    "id": "Q012",
+    "generator_model": "Gemini-3-Flash-Preview",
+    "category": "Temporal Math & Relative Dates",
+    "complexity": "Complex",
+    "query": "Compare my meeting load for this week (July 20-24) versus next week (July 27-31). Which week is busier?",
+    "expected_tool": "tool_list_meetings",
+    "ground_truth_answer": "This week (July 20-24) you have 3 meetings (July 23: Sync and Lunch; July 24: Retro). Next week (July 27-31) you have 2 meetings (July 27: Budget; July 29: Demo). This week is busier.",
+    "truth_criteria": [
+      "3 meetings",
+      "2 meetings",
+      "This week is busier"
+    ]
+  },
+  {
+    "id": "Q013",
+    "generator_model": "Gemini-3-Flash-Preview",
+    "category": "Executive Synthesis & Actions",
+    "complexity": "Basic",
+    "query": "Send a quick reply to Jordan Smith saying \"I'll review the campaign feedback by EOD today.\"",
+    "expected_tool": "tool_reply_email",
+    "ground_truth_answer": "I have successfully drafted a reply to Jordan Smith's email \"Urgent: Feedback Needed\" stating: \"I'll review the campaign feedback by EOD today.\"",
+    "truth_criteria": [
+      "Jordan Smith",
+      "EOD today"
+    ]
+  },
+  {
+    "id": "Q014",
+    "generator_model": "Gemini-3-Flash-Preview",
+    "category": "Executive Synthesis & Actions",
+    "complexity": "Medium",
+    "query": "Create a new meeting for tomorrow at 2:00 PM titled \"Campaign Review\" with Jordan Smith.",
+    "expected_tool": "tool_create_meeting",
+    "ground_truth_answer": "I have scheduled the \"Campaign Review\" meeting with Jordan Smith for tomorrow, Friday, July 24, 2026, from 2:00 PM to 3:00 PM.",
+    "truth_criteria": [
+      "July 24",
+      "2:00 PM",
+      "Campaign Review"
+    ]
+  },
+  {
+    "id": "Q015",
+    "generator_model": "Gemini-3-Flash-Preview",
+    "category": "Executive Synthesis & Actions",
+    "complexity": "Complex",
+    "query": "Provide a briefing on all my interactions with Sarah Chen this week, including sent emails and upcoming meetings.",
+    "expected_tool": "tool_search_emails",
+    "ground_truth_answer": "This week, you sent Sarah Chen the \"Project Phoenix Launch Plan\" on July 21, 2026. You do not have any upcoming meetings scheduled with Sarah Chen on your calendar for the remainder of July 2026.",
+    "truth_criteria": [
+      "Project Phoenix",
+      "July 21",
+      "no upcoming meetings"
+    ]
+  },
+  {
+    "id": "Q016",
+    "generator_model": "Gemini-3-Flash-Preview",
+    "category": "Drafts & Sent Folder Audit",
+    "complexity": "Basic",
+    "query": "Are there any drafts mentioning the word \"Budget\"?",
+    "expected_tool": "tool_search_emails",
+    "ground_truth_answer": "No, there are no drafts in your folder containing the word \"Budget\". The only current draft is \"Q3 Strategy Planning\".",
+    "truth_criteria": [
+      "no drafts",
+      "Budget"
+    ]
+  },
+  {
+    "id": "Q017",
+    "generator_model": "Gemini-3-Flash-Preview",
+    "category": "Inbox & Email Intelligence",
+    "complexity": "Medium",
+    "query": "When did Sarah Chen last email me and what was the subject?",
+    "expected_tool": "tool_search_emails",
+    "ground_truth_answer": "Sarah Chen last emailed you on Monday, July 20, 2026, with the subject \"Re: Q4 Forecast\".",
+    "truth_criteria": [
+      "July 20",
+      "Q4 Forecast"
+    ]
+  },
+  {
+    "id": "Q018",
+    "generator_model": "Gemini-3-Flash-Preview",
+    "category": "Calendar & Meeting Operations",
+    "complexity": "Medium",
+    "query": "How long is the \"Budget Approval Meeting\" scheduled for next Monday?",
+    "expected_tool": "tool_list_meetings",
+    "ground_truth_answer": "The \"Budget Approval Meeting\" on Monday, July 27, 2026, is scheduled for 1 hour, from 9:00 AM to 10:00 AM.",
+    "truth_criteria": [
+      "July 27",
+      "1 hour",
+      "9:00 AM"
+    ]
+  },
+  {
+    "id": "Q019",
+    "generator_model": "Gemini-3-Flash-Preview",
+    "category": "Temporal Math & Relative Dates",
+    "complexity": "Basic",
+    "query": "What did my schedule look like yesterday?",
+    "expected_tool": "tool_list_meetings",
+    "ground_truth_answer": "Yesterday, Wednesday, July 22, 2026, you had no meetings scheduled on your calendar.",
+    "truth_criteria": [
+      "July 22",
+      "no meetings"
+    ]
+  },
+  {
+    "id": "Q020",
+    "generator_model": "Gemini-3-Flash-Preview",
+    "category": "Executive Synthesis & Actions",
+    "complexity": "Medium",
+    "query": "I need to prepare for my 12:30 PM lunch. Who is it with and what is the location?",
+    "expected_tool": "tool_list_meetings",
+    "ground_truth_answer": "Your 12:30 PM lunch today, July 23, is with \"Client: Globex\" and the location is listed as \"The Grillhouse\".",
+    "truth_criteria": [
+      "Globex",
+      "The Grillhouse"
+    ]
+  },
+  {
+    "id": "Q021",
+    "generator_model": "Gemini-3-Flash-Preview",
+    "category": "Drafts & Sent Folder Audit",
+    "complexity": "Medium",
+    "query": "Check if I successfully sent the \"Quarterly Report\" to the Board last Friday.",
+    "expected_tool": "tool_search_emails",
+    "ground_truth_answer": "No, there is no record in your Sent Items of an email titled \"Quarterly Report\" being sent on Friday, July 17, 2026.",
+    "truth_criteria": [
+      "no record",
+      "July 17"
+    ]
+  },
+  {
+    "id": "Q022",
+    "generator_model": "Gemini-3-Flash-Preview",
+    "category": "Inbox & Email Intelligence",
+    "complexity": "Medium",
+    "query": "What are the main points Jordan Smith raised in the email from yesterday?",
+    "expected_tool": "tool_get_email_details",
+    "ground_truth_answer": "In the email \"Urgent: Feedback Needed\" from July 22, Jordan Smith asked for your approval on the social media assets and a confirmation of the influencer list for the upcoming campaign.",
+    "truth_criteria": [
+      "social media assets",
+      "influencer list"
+    ]
+  },
+  {
+    "id": "Q023",
+    "generator_model": "Gemini-3-Flash-Preview",
+    "category": "Calendar & Meeting Operations",
+    "complexity": "Medium",
+    "query": "Who is the organizer of the \"Product Demo\" scheduled for July 29?",
+    "expected_tool": "tool_list_meetings",
+    "ground_truth_answer": "The organizer for the \"Product Demo\" on Wednesday, July 29, 2026, is Jamie Vance.",
+    "truth_criteria": [
+      "Jamie Vance",
+      "July 29"
+    ]
+  },
+  {
+    "id": "Q024",
+    "generator_model": "Gemini-3-Flash-Preview",
+    "category": "Temporal Math & Relative Dates",
+    "complexity": "Complex",
+    "query": "Are there any recurring meetings on Thursdays I should be aware of for the rest of July 2026?",
+    "expected_tool": "tool_list_meetings",
+    "ground_truth_answer": "Yes, you have the \"Weekly Leadership Sync\" occurring every Thursday (July 23 and July 30) from 10:00 AM to 11:00 AM.",
+    "truth_criteria": [
+      "Weekly Leadership Sync",
+      "July 30"
+    ]
+  },
+  {
+    "id": "Q025",
+    "generator_model": "Gemini-3-Flash-Preview",
+    "category": "Executive Synthesis & Actions",
+    "complexity": "Complex",
+    "query": "Summarize all tasks I need to complete by the end of next week based on my inbox and calendar.",
+    "expected_tool": "tool_list_meetings",
+    "ground_truth_answer": "By the end of next week (Friday, July 31), you must: 1) Submit benefit elections for HR (due July 31), 2) Review Jordan's campaign feedback, 3) Attend the Budget Approval meeting (July 27), and 4) Lead the Product Demo (July 29).",
+    "truth_criteria": [
+      "July 31",
+      "benefit elections",
+      "Budget Approval",
+      "Product Demo"
+    ]
+  },
+  {
+    "id": "Q026",
+    "generator_model": "Gemini-3-Flash-Preview",
+    "category": "Drafts & Sent Folder Audit",
+    "complexity": "Basic",
+    "query": "Do I have any unsent drafts in my mailbox addressed to Jordan regarding the roadmap?",
+    "expected_tool": "tool_search_emails",
+    "ground_truth_answer": "Yes, you have one draft in your drafts folder titled \"Reply to Jordan\" with a body mentioning checking the roadmap later today, Thursday, July 23, 2026.",
+    "truth_criteria": [
+      "Reply to Jordan",
+      "drafts",
+      "July 23"
+    ]
+  },
+  {
+    "id": "Q027",
+    "generator_model": "Gemini-3-Flash-Preview",
+    "category": "Drafts & Sent Folder Audit",
+    "complexity": "Medium",
+    "query": "Check my sent folder for any messages I sent to Jordan Smith earlier today.",
+    "expected_tool": "tool_search_emails",
+    "ground_truth_answer": "You sent an email to Jordan Smith today, Thursday, July 23, 2026, at 10:15 AM with the subject \"Re: Project Alpha Update\".",
+    "truth_criteria": [
+      "Jordan Smith",
+      "10:15 AM",
+      "July 23, 2026"
+    ]
+  },
+  {
+    "id": "Q028",
+    "generator_model": "Gemini-3-Flash-Preview",
+    "category": "Drafts & Sent Folder Audit",
+    "complexity": "Complex",
+    "query": "Verify if the draft response for Jordan's \"Project Alpha\" email was actually sent or if it is still pending in my drafts folder.",
+    "expected_tool": "tool_search_emails",
+    "ground_truth_answer": "You have a sent email to Jordan Smith from 10:15 AM today (July 23) regarding \"Project Alpha Update\". However, there is still a draft titled \"Reply to Jordan\" in your drafts folder that has not been sent.",
+    "truth_criteria": [
+      "10:15 AM",
+      "draft",
+      "still pending"
+    ]
+  },
+  {
+    "id": "Q029",
+    "generator_model": "Gemini-3-Flash-Preview",
+    "category": "Inbox & Email Intelligence",
+    "complexity": "Basic",
+    "query": "Who sent me the most recent email today?",
+    "expected_tool": "tool_search_emails",
+    "ground_truth_answer": "The most recent email today, Thursday, July 23, 2026, was sent by Sarah Chen at 9:00 AM regarding \"Budget Approval\".",
+    "truth_criteria": [
+      "Sarah Chen",
+      "9:00 AM",
+      "July 23"
+    ]
+  },
+  {
+    "id": "Q030",
+    "generator_model": "Gemini-3-Flash-Preview",
+    "category": "Inbox & Email Intelligence",
+    "complexity": "Medium",
+    "query": "Search my inbox for any emails containing the keyword \"budget\" received this week.",
+    "expected_tool": "tool_search_emails",
+    "ground_truth_answer": "You received one email regarding the budget this week from Sarah Chen on Thursday, July 23, 2026, at 9:00 AM, with the subject \"Budget Approval\".",
+    "truth_criteria": [
+      "Sarah Chen",
+      "July 23",
+      "Budget Approval"
+    ]
+  },
+  {
+    "id": "Q031",
+    "generator_model": "Gemini-3-Flash-Preview",
+    "category": "Inbox & Email Intelligence",
+    "complexity": "Complex",
+    "query": "Looking at my emails from the last 48 hours, what is the status of the Project Alpha roadmap and has anyone approved the budget?",
+    "expected_tool": "tool_search_emails",
+    "ground_truth_answer": "Jordan Smith requested feedback on the Project Alpha roadmap yesterday, Wednesday, July 22, 2026, at 4:00 PM. Sarah Chen sent an email today, Thursday, July 23, 2026, at 9:00 AM confirming that the Q3 budget is approved.",
+    "truth_criteria": [
+      "July 22",
+      "July 23",
+      "budget is approved"
+    ]
+  },
+  {
+    "id": "Q032",
+    "generator_model": "Gemini-3-Flash-Preview",
+    "category": "Calendar & Meeting Operations",
+    "complexity": "Basic",
+    "query": "What do I have scheduled for tomorrow?",
+    "expected_tool": "tool_list_meetings",
+    "ground_truth_answer": "Tomorrow, Friday, July 24, 2026, you have one meeting: \"One-on-One with Sarah\" from 2:00 PM to 3:00 PM.",
+    "truth_criteria": [
+      "Friday, July 24",
+      "2:00 PM",
+      "One-on-One with Sarah"
+    ]
+  },
+  {
+    "id": "Q033",
+    "generator_model": "Gemini-3-Flash-Preview",
+    "category": "Calendar & Meeting Operations",
+    "complexity": "Medium",
+    "query": "Retrieve the Microsoft Teams join link for my \"Weekly Sync\" meeting happening today.",
+    "expected_tool": "tool_list_meetings",
+    "ground_truth_answer": "The Teams link for the \"Weekly Sync\" today, Thursday, July 23, 2026, at 10:00 AM is teams.microsoft.com/l/meetup-join/123.",
+    "truth_criteria": [
+      "teams.microsoft.com/l/meetup-join/123",
+      "10:00 AM",
+      "July 23"
+    ]
+  },
+  {
+    "id": "Q034",
+    "generator_model": "Gemini-3-Flash-Preview",
+    "category": "Calendar & Meeting Operations",
+    "complexity": "Complex",
+    "query": "I need to plan my next two weeks. List all my appointments from today through next Friday, August 7th.",
+    "expected_tool": "tool_list_meetings",
+    "ground_truth_answer": "Your schedule includes: Weekly Sync (July 23), One-on-One with Sarah (July 24), Board Meeting Prep (Monday, July 27), and Design Review (Wednesday, July 29). No other events are listed through August 7, 2026.",
+    "truth_criteria": [
+      "July 23",
+      "July 27",
+      "July 29"
+    ]
+  },
+  {
+    "id": "Q035",
+    "generator_model": "Gemini-3-Flash-Preview",
+    "category": "Temporal Math & Relative Dates",
+    "complexity": "Basic",
+    "query": "Is my meeting with Sarah today or tomorrow?",
+    "expected_tool": "tool_list_meetings",
+    "ground_truth_answer": "Your meeting \"One-on-One with Sarah\" is tomorrow, Friday, July 24, 2026, at 2:00 PM.",
+    "truth_criteria": [
+      "tomorrow",
+      "July 24",
+      "2:00 PM"
+    ]
+  },
+  {
+    "id": "Q036",
+    "generator_model": "Gemini-3-Flash-Preview",
+    "category": "Temporal Math & Relative Dates",
+    "complexity": "Medium",
+    "query": "What were my activities exactly 24 hours ago?",
+    "expected_tool": "tool_search_emails",
+    "ground_truth_answer": "Exactly 24 hours ago (relative to your current time on Thursday afternoon, July 23, 2026), you had just received an email from Jordan Smith at 4:00 PM on Wednesday, July 22, 2026, regarding the \"Project Alpha Update\".",
+    "truth_criteria": [
+      "Wednesday, July 22",
+      "4:00 PM",
+      "Jordan Smith"
+    ]
+  },
+  {
+    "id": "Q037",
+    "generator_model": "Gemini-3-Flash-Preview",
+    "category": "Temporal Math & Relative Dates",
+    "complexity": "Complex",
+    "query": "List all emails and meetings that occurred between last Monday, July 20th, and today.",
+    "expected_tool": "tool_list_meetings",
+    "ground_truth_answer": "Between Monday, July 20 and Thursday, July 23: You had a Client Presentation on Wednesday (July 22) and a Weekly Sync today (July 23). Emails include HR (July 21), Jordan Smith (July 22), and Sarah Chen (July 23).",
+    "truth_criteria": [
+      "July 21",
+      "July 22",
+      "July 23"
+    ]
+  },
+  {
+    "id": "Q038",
+    "generator_model": "Gemini-3-Flash-Preview",
+    "category": "Executive Synthesis & Actions",
+    "complexity": "Basic",
+    "query": "Reply to Sarah Chen's budget email from this morning saying \"Great news, thanks for the update.\"",
+    "expected_tool": "tool_reply_email",
+    "ground_truth_answer": "I will send a reply to Sarah Chen's email (sent today, July 23, 2026, at 9:00 AM) with the message: \"Great news, thanks for the update.\"",
+    "truth_criteria": [
+      "Sarah Chen",
+      "July 23",
+      "Great news"
+    ]
+  },
+  {
+    "id": "Q039",
+    "generator_model": "Gemini-3-Flash-Preview",
+    "category": "Executive Synthesis & Actions",
+    "complexity": "Medium",
+    "query": "Based on my calendar today, schedule a 30-minute follow-up meeting with Jordan Smith for tomorrow morning at 9:00 AM.",
+    "expected_tool": "tool_create_meeting",
+    "ground_truth_answer": "I have scheduled a \"Follow-up with Jordan Smith\" for tomorrow, Friday, July 24, 2026, from 9:00 AM to 9:30 AM.",
+    "truth_criteria": [
+      "Friday, July 24",
+      "9:00 AM",
+      "Jordan Smith"
+    ]
+  },
+  {
+    "id": "Q040",
+    "generator_model": "Gemini-3-Flash-Preview",
+    "category": "Executive Synthesis & Actions",
+    "complexity": "Complex",
+    "query": "Prepare a summary for my Board Prep meeting next Monday. Include details on the Project Alpha roadmap request from yesterday and the budget status from this morning.",
+    "expected_tool": "tool_get_email_details",
+    "ground_truth_answer": "Summary for Monday, July 27: 1. Project Alpha: Jordan Smith requested roadmap feedback yesterday (July 22). 2. Budget: Sarah Chen confirmed the Q3 budget is approved as of 9:00 AM today (July 23).",
+    "truth_criteria": [
+      "Monday, July 27",
+      "July 22",
+      "July 23"
+    ]
+  },
+  {
+    "id": "Q041",
+    "generator_model": "Gemini-3-Flash-Preview",
+    "category": "Drafts & Sent Folder Audit",
+    "complexity": "Basic",
+    "query": "Show me the last email I sent today.",
+    "expected_tool": "tool_search_emails",
+    "ground_truth_answer": "The last email you sent today, Thursday, July 23, 2026, was to Jordan Smith at 10:15 AM regarding \"Re: Project Alpha Update\".",
+    "truth_criteria": [
+      "Jordan Smith",
+      "10:15 AM",
+      "July 23"
+    ]
+  },
+  {
+    "id": "Q042",
+    "generator_model": "Gemini-3-Flash-Preview",
+    "category": "Inbox & Email Intelligence",
+    "complexity": "Medium",
+    "query": "Did I get any emails from HR earlier this week?",
+    "expected_tool": "tool_search_emails",
+    "ground_truth_answer": "Yes, you received an email from HR on Tuesday, July 21, 2026, at 11:00 AM with the subject \"Policy Change\".",
+    "truth_criteria": [
+      "HR",
+      "Tuesday, July 21",
+      "Policy Change"
+    ]
+  },
+  {
+    "id": "Q043",
+    "generator_model": "Gemini-3-Flash-Preview",
+    "category": "Calendar & Meeting Operations",
+    "complexity": "Basic",
+    "query": "What time is my sync meeting today?",
+    "expected_tool": "tool_list_meetings",
+    "ground_truth_answer": "Your \"Weekly Sync\" meeting today, Thursday, July 23, 2026, is at 10:00 AM.",
+    "truth_criteria": [
+      "10:00 AM",
+      "Weekly Sync",
+      "July 23"
+    ]
+  },
+  {
+    "id": "Q044",
+    "generator_model": "Gemini-3-Flash-Preview",
+    "category": "Temporal Math & Relative Dates",
+    "complexity": "Medium",
+    "query": "How many days until my \"Design Review\" meeting?",
+    "expected_tool": "tool_list_meetings",
+    "ground_truth_answer": "Your \"Design Review\" is on Wednesday, July 29, 2026. Since today is Thursday, July 23, 2026, there are 6 days until the meeting.",
+    "truth_criteria": [
+      "July 29",
+      "6 days",
+      "July 23"
+    ]
+  },
+  {
+    "id": "Q045",
+    "generator_model": "Gemini-3-Flash-Preview",
+    "category": "Executive Synthesis & Actions",
+    "complexity": "Medium",
+    "query": "Email Jordan Smith and ask him if we can move the roadmap discussion to my Board Meeting Prep slot next Monday.",
+    "expected_tool": "tool_send_email",
+    "ground_truth_answer": "I will send an email to Jordan Smith regarding the roadmap discussion and moving it to the Board Meeting Prep slot on Monday, July 27, 2026.",
+    "truth_criteria": [
+      "Jordan Smith",
+      "Monday, July 27",
+      "roadmap"
+    ]
+  },
+  {
+    "id": "Q046",
+    "generator_model": "Gemini-3-Flash-Preview",
+    "category": "Calendar & Meeting Operations",
+    "complexity": "Medium",
+    "query": "Find the duration of my meeting with Sarah tomorrow.",
+    "expected_tool": "tool_list_meetings",
+    "ground_truth_answer": "The \"One-on-One with Sarah\" on Friday, July 24, 2026, is scheduled from 2:00 PM to 3:00 PM, which is a duration of 1 hour.",
+    "truth_criteria": [
+      "1 hour",
+      "July 24",
+      "2:00 PM"
+    ]
+  },
+  {
+    "id": "Q047",
+    "generator_model": "Gemini-3-Flash-Preview",
+    "category": "Inbox & Email Intelligence",
+    "complexity": "Basic",
+    "query": "What was the subject of the email Jordan sent yesterday?",
+    "expected_tool": "tool_get_email_details",
+    "ground_truth_answer": "The subject of the email Jordan Smith sent yesterday, Wednesday, July 22, 2026, was \"Project Alpha Update\".",
+    "truth_criteria": [
+      "Project Alpha Update",
+      "July 22"
+    ]
+  },
+  {
+    "id": "Q048",
+    "generator_model": "Gemini-3-Flash-Preview",
+    "category": "Temporal Math & Relative Dates",
+    "complexity": "Basic",
+    "query": "What day of the week is it today and what is the date?",
+    "expected_tool": "tool_get_user_profile",
+    "ground_truth_answer": "Today is Thursday, July 23, 2026.",
+    "truth_criteria": [
+      "Thursday",
+      "July 23, 2026"
+    ]
+  },
+  {
+    "id": "Q049",
+    "generator_model": "Gemini-3-Flash-Preview",
+    "category": "Drafts & Sent Folder Audit",
+    "complexity": "Medium",
+    "query": "I remember writing a draft for Jordan. Can you read the content of it to me?",
+    "expected_tool": "tool_get_email_details",
+    "ground_truth_answer": "The draft titled \"Reply to Jordan\" says: \"I will check the roadmap later today.\"",
+    "truth_criteria": [
+      "Reply to Jordan",
+      "check the roadmap",
+      "later today"
+    ]
+  },
+  {
+    "id": "Q050",
+    "generator_model": "Gemini-3-Flash-Preview",
+    "category": "Executive Synthesis & Actions",
+    "complexity": "Complex",
+    "query": "Provide a full briefing for today, July 23rd. Include all emails received since 8 AM and my afternoon calendar.",
+    "expected_tool": "tool_list_meetings",
+    "ground_truth_answer": "Briefing for Thursday, July 23, 2026: 1. Emails: Sarah Chen (9:00 AM) regarding Budget Approval. 2. Calendar: You had a Weekly Sync at 10:00 AM; no other afternoon meetings are scheduled for today.",
+    "truth_criteria": [
+      "July 23",
+      "Sarah Chen",
+      "Weekly Sync"
+    ]
+  },
+  {
+    "id": "Q051",
+    "generator_model": "Claude-Sonnet-5",
+    "category": "Drafts & Sent Folder Audit",
+    "complexity": "Basic",
+    "query": "Do I have any draft emails saved right now?",
+    "expected_tool": "tool_search_emails",
+    "ground_truth_answer": "Yes, you have 2 draft emails saved: one titled 'Q3 Strategy Proposal' addressed to the Executive Team, and one unsent reply to Lisa Wong titled 'Re: Product Demo Feedback'.",
+    "truth_criteria": [
+      "2 draft",
+      "Q3 Strategy Proposal",
+      "Lisa Wong"
+    ]
+  },
+  {
+    "id": "Q052",
+    "generator_model": "Claude-Sonnet-5",
+    "category": "Drafts & Sent Folder Audit",
+    "complexity": "Medium",
+    "query": "What was the subject and recipient of the last email I sent?",
+    "expected_tool": "tool_search_emails",
+    "ground_truth_answer": "The last email you sent was 'Re: Contract Renewal - Fabrikam Partnership' to Priya Patel on July 22, 2026 at 5:00 PM.",
+    "truth_criteria": [
+      "Contract Renewal",
+      "Priya Patel",
+      "July 22"
+    ]
+  },
+  {
+    "id": "Q053",
+    "generator_model": "Claude-Sonnet-5",
+    "category": "Drafts & Sent Folder Audit",
+    "complexity": "Medium",
+    "query": "When did I send my reply to Michael Chen about the budget approval?",
+    "expected_tool": "tool_search_emails",
+    "ground_truth_answer": "You sent your reply 'Re: Budget Approval Needed - Marketing Campaign' to Michael Chen on July 17, 2026 at 9:00 AM.",
+    "truth_criteria": [
+      "July 17",
+      "Michael Chen",
+      "9:00 AM"
+    ]
+  },
+  {
+    "id": "Q054",
+    "generator_model": "Claude-Sonnet-5",
+    "category": "Drafts & Sent Folder Audit",
+    "complexity": "Complex",
+    "query": "Has my draft reply to Lisa Wong's product demo feedback email actually been sent yet, and if not, when was her original email received?",
+    "expected_tool": "tool_search_emails",
+    "ground_truth_answer": "No, the reply to Lisa Wong remains unsent in your Drafts folder. Her original email 'Re: Product Demo Feedback' was received on July 20, 2026 at 10:30 AM.",
+    "truth_criteria": [
+      "Drafts",
+      "not been sent",
+      "July 20"
+    ]
+  },
+  {
+    "id": "Q055",
+    "generator_model": "Claude-Sonnet-5",
+    "category": "Drafts & Sent Folder Audit",
+    "complexity": "Complex",
+    "query": "Cross-reference my sent folder with my drafts folder - is the Q3 Strategy Proposal still pending, and how does that compare to the Fabrikam reply which was already sent?",
+    "expected_tool": "tool_search_emails",
+    "ground_truth_answer": "The 'Q3 Strategy Proposal' email to the Executive Team is still sitting in Drafts, created July 21, 2026, and has not been sent, whereas the Fabrikam reply 'Re: Contract Renewal - Fabrikam Partnership' was already sent to Priya Patel on July 22, 2026 at 5:00 PM.",
+    "truth_criteria": [
+      "Q3 Strategy Proposal",
+      "Drafts",
+      "July 22"
+    ]
+  },
+  {
+    "id": "Q056",
+    "generator_model": "Claude-Sonnet-5",
+    "category": "Inbox & Email Intelligence",
+    "complexity": "Basic",
+    "query": "What is the most recent email in my inbox?",
+    "expected_tool": "tool_search_emails",
+    "ground_truth_answer": "The most recent email in your inbox is 'Q3 Roadmap Review - Action Items' from David Kim, received today, July 23, 2026 at 9:15 AM.",
+    "truth_criteria": [
+      "Q3 Roadmap Review",
+      "David Kim",
+      "July 23"
+    ]
+  },
+  {
+    "id": "Q057",
+    "generator_model": "Claude-Sonnet-5",
+    "category": "Inbox & Email Intelligence",
+    "complexity": "Medium",
+    "query": "Search my inbox for any email mentioning 'contract renewal'.",
+    "expected_tool": "tool_search_emails",
+    "ground_truth_answer": "Found one match: 'Contract Renewal - Fabrikam Partnership' from Priya Patel (priya.patel@fabrikam.com), received July 22, 2026 at 3:40 PM.",
+    "truth_criteria": [
+      "Contract Renewal",
+      "Priya Patel",
+      "July 22"
+    ]
+  },
+  {
+    "id": "Q058",
+    "generator_model": "Claude-Sonnet-5",
+    "category": "Inbox & Email Intelligence",
+    "complexity": "Medium",
+    "query": "Do I have any email from IT Support about maintenance?",
+    "expected_tool": "tool_search_emails",
+    "ground_truth_answer": "Yes, IT Support sent 'Scheduled Maintenance This Weekend' on July 21, 2026 at 11:00 AM.",
+    "truth_criteria": [
+      "Scheduled Maintenance",
+      "IT Support",
+      "July 21"
+    ]
+  },
+  {
+    "id": "Q059",
+    "generator_model": "Claude-Sonnet-5",
+    "category": "Inbox & Email Intelligence",
+    "complexity": "Complex",
+    "query": "What budget amount did Michael Chen request approval for in his email, and did I respond to it?",
+    "expected_tool": "tool_get_email_details",
+    "ground_truth_answer": "Michael Chen requested approval for a $50,000 marketing campaign budget in his email received July 16, 2026 at 2:00 PM. You responded on July 17, 2026 at 9:00 AM confirming approval.",
+    "truth_criteria": [
+      "$50,000",
+      "July 16",
+      "July 17"
+    ]
+  },
+  {
+    "id": "Q060",
+    "generator_model": "Claude-Sonnet-5",
+    "category": "Inbox & Email Intelligence",
+    "complexity": "Complex",
+    "query": "Looking across my recent inbox messages, which senders are external to Contoso, and what are their emails about?",
+    "expected_tool": "tool_search_emails",
+    "ground_truth_answer": "Two external senders appear in your inbox: Priya Patel (priya.patel@fabrikam.com) regarding 'Contract Renewal - Fabrikam Partnership', and Lisa Wong (lisa.wong@northwind.com) regarding 'Re: Product Demo Feedback'.",
+    "truth_criteria": [
+      "Priya Patel",
+      "Lisa Wong",
+      "fabrikam.com"
+    ]
+  },
+  {
+    "id": "Q061",
+    "generator_model": "Claude-Sonnet-5",
+    "category": "Calendar & Meeting Operations",
+    "complexity": "Basic",
+    "query": "What meetings do I have tomorrow?",
+    "expected_tool": "tool_list_meetings",
+    "ground_truth_answer": "Tomorrow, Friday, July 24, 2026, you have two meetings: 'Team Standup' from 9:00-9:30 AM and 'Fabrikam Partnership Sync' from 2:00-3:00 PM.",
+    "truth_criteria": [
+      "July 24",
+      "Team Standup",
+      "Fabrikam Partnership Sync"
+    ]
+  },
+  {
+    "id": "Q062",
+    "generator_model": "Claude-Sonnet-5",
+    "category": "Calendar & Meeting Operations",
+    "complexity": "Medium",
+    "query": "How long is my Q3 Roadmap Review meeting today, and does it have a Teams link?",
+    "expected_tool": "tool_list_meetings",
+    "ground_truth_answer": "Your 'Q3 Roadmap Review' meeting today, July 23, 2026, runs from 1:00-2:00 PM (1 hour) and is held in a conference room, not a Teams meeting.",
+    "truth_criteria": [
+      "1:00",
+      "2:00 PM",
+      "1 hour"
+    ]
+  },
+  {
+    "id": "Q063",
+    "generator_model": "Claude-Sonnet-5",
+    "category": "Calendar & Meeting Operations",
+    "complexity": "Medium",
+    "query": "What time does the Product Demo with Northwind start and how long does it run on Teams?",
+    "expected_tool": "tool_list_meetings",
+    "ground_truth_answer": "The 'Product Demo - Northwind' meeting on Wednesday, July 29, 2026 runs from 11:00 AM to 12:00 PM (1 hour) via Microsoft Teams.",
+    "truth_criteria": [
+      "July 29",
+      "11:00 AM",
+      "1 hour"
+    ]
+  },
+  {
+    "id": "Q064",
+    "generator_model": "Claude-Sonnet-5",
+    "category": "Calendar & Meeting Operations",
+    "complexity": "Complex",
+    "query": "Across the next two weeks, what meetings do I have scheduled related to Fabrikam or contract topics?",
+    "expected_tool": "tool_list_meetings",
+    "ground_truth_answer": "You have two Fabrikam-related meetings: 'Fabrikam Partnership Sync' on July 24, 2026 from 2:00-3:00 PM, and 'Fabrikam Contract Finalization' on Monday, August 3, 2026 from 9:00-10:00 AM.",
+    "truth_criteria": [
+      "Fabrikam Partnership Sync",
+      "July 24",
+      "August 3"
+    ]
+  },
+  {
+    "id": "Q065",
+    "generator_model": "Claude-Sonnet-5",
+    "category": "Calendar & Meeting Operations",
+    "complexity": "Complex",
+    "query": "Give me a full rundown of my meetings scheduled between today and the end of the month, including dates and times.",
+    "expected_tool": "tool_list_meetings",
+    "ground_truth_answer": "Between July 23 and July 31, 2026, you have: 'Q3 Roadmap Review' (Jul 23, 1:00-2:00 PM), 'Team Standup' (Jul 24, 9:00-9:30 AM), 'Fabrikam Partnership Sync' (Jul 24, 2:00-3:00 PM), '1:1 with Manager' (Jul 27, 10:00-10:30 AM), 'Product Demo - Northwind' (Jul 29, 11:00 AM-12:00 PM), and 'Marketing Campaign Kickoff' (Jul 30, 3:00-4:00 PM).",
+    "truth_criteria": [
+      "Q3 Roadmap Review",
+      "Product Demo",
+      "Marketing Campaign Kickoff"
+    ]
+  },
+  {
+    "id": "Q066",
+    "generator_model": "Claude-Sonnet-5",
+    "category": "Temporal Math & Relative Dates",
+    "complexity": "Basic",
+    "query": "How many meetings do I have today versus tomorrow?",
+    "expected_tool": "tool_list_meetings",
+    "ground_truth_answer": "Today, July 23, 2026, you have 1 meeting. Tomorrow, July 24, 2026, you have 2 meetings.",
+    "truth_criteria": [
+      "July 23",
+      "1 meeting",
+      "July 24"
+    ]
+  },
+  {
+    "id": "Q067",
+    "generator_model": "Claude-Sonnet-5",
+    "category": "Temporal Math & Relative Dates",
+    "complexity": "Medium",
+    "query": "What email did I receive exactly 7 days ago from today?",
+    "expected_tool": "tool_search_emails",
+    "ground_truth_answer": "Exactly 7 days ago, on July 16, 2026, you received the email 'Budget Approval Needed - Marketing Campaign' from Michael Chen.",
+    "truth_criteria": [
+      "July 16",
+      "Budget Approval Needed",
+      "Michael Chen"
+    ]
+  },
+  {
+    "id": "Q068",
+    "generator_model": "Claude-Sonnet-5",
+    "category": "Temporal Math & Relative Dates",
+    "complexity": "Medium",
+    "query": "What is the date exactly one week from today, and do I have any meetings scheduled that day?",
+    "expected_tool": "tool_list_meetings",
+    "ground_truth_answer": "One week from today is Thursday, July 30, 2026, and you have the 'Marketing Campaign Kickoff' meeting scheduled from 3:00-4:00 PM that day.",
+    "truth_criteria": [
+      "July 30",
+      "Marketing Campaign Kickoff",
+      "3:00-4:00 PM"
+    ]
+  },
+  {
+    "id": "Q069",
+    "generator_model": "Claude-Sonnet-5",
+    "category": "Temporal Math & Relative Dates",
+    "complexity": "Complex",
+    "query": "Looking back over the last 7 days and forward over the next 7 days, summarize my email and meeting activity.",
+    "expected_tool": "tool_search_emails",
+    "ground_truth_answer": "In the past 7 days (July 16-22, 2026), you received 4 emails including from Michael Chen, IT Support, Lisa Wong, and Priya Patel, and sent 2 emails. In the next 7 days (July 24-30, 2026), you have 5 meetings scheduled, including Team Standup, Fabrikam Partnership Sync, 1:1 with Manager, Product Demo - Northwind, and Marketing Campaign Kickoff.",
+    "truth_criteria": [
+      "July 16",
+      "July 30",
+      "5 meetings"
+    ]
+  },
+  {
+    "id": "Q070",
+    "generator_model": "Claude-Sonnet-5",
+    "category": "Temporal Math & Relative Dates",
+    "complexity": "Complex",
+    "query": "Compare the email volume from two weeks ago (the week of July 13-17) versus this week (July 20-24) - which week had more inbox activity?",
+    "expected_tool": "tool_search_emails",
+    "ground_truth_answer": "The week of July 13-17, 2026 had 2 inbox emails (HR Team on July 15 and Michael Chen on July 16), while the week of July 20-24, 2026 had 4 inbox emails so far (Lisa Wong, IT Support, Priya Patel, and David Kim). This week has more activity.",
+    "truth_criteria": [
+      "2 emails",
+      "4 emails",
+      "July 20"
+    ]
+  },
+  {
+    "id": "Q071",
+    "generator_model": "Claude-Sonnet-5",
+    "category": "Executive Synthesis & Actions",
+    "complexity": "Basic",
+    "query": "Reply to David Kim's Q3 Roadmap Review email confirming I've reviewed the action items.",
+    "expected_tool": "tool_reply_email",
+    "ground_truth_answer": "A reply would be sent to David Kim (david.kim@contoso.com) confirming review of the action items outlined in 'Q3 Roadmap Review - Action Items', referencing the original email received July 23, 2026 at 9:15 AM.",
+    "truth_criteria": [
+      "David Kim",
+      "Q3 Roadmap Review",
+      "July 23"
+    ]
+  },
+  {
+    "id": "Q072",
+    "generator_model": "Claude-Sonnet-5",
+    "category": "Executive Synthesis & Actions",
+    "complexity": "Medium",
+    "query": "Schedule a 30-minute follow-up meeting with Priya Patel next Wednesday at 10 AM about the Fabrikam contract.",
+    "expected_tool": "tool_create_meeting",
+    "ground_truth_answer": "A meeting titled 'Fabrikam Contract Follow-up' would be created with Priya Patel on Wednesday, July 29, 2026 from 10:00-10:30 AM.",
+    "truth_criteria": [
+      "July 29",
+      "10:00",
+      "Priya Patel"
+    ]
+  },
+  {
+    "id": "Q073",
+    "generator_model": "Claude-Sonnet-5",
+    "category": "Executive Synthesis & Actions",
+    "complexity": "Medium",
+    "query": "Send an email to Michael Chen confirming the $50,000 marketing budget approval is finalized.",
+    "expected_tool": "tool_send_email",
+    "ground_truth_answer": "An email would be sent to Michael Chen (michael.chen@contoso.com) confirming the $50,000 marketing campaign budget approval is finalized, referencing his original request from July 16, 2026.",
+    "truth_criteria": [
+      "Michael Chen",
+      "$50,000",
+      "July 16"
+    ]
+  },
+  {
+    "id": "Q074",
+    "generator_model": "Claude-Sonnet-5",
+    "category": "Executive Synthesis & Actions",
+    "complexity": "Complex",
+    "query": "Prepare an executive briefing summarizing my pending action items, upcoming key meetings, and unresolved emails as of today.",
+    "expected_tool": "tool_search_emails",
+    "ground_truth_answer": "As of today, July 23, 2026: Pending action items include the Fabrikam contract renewal (due August 1, 2026) and 2 unsent drafts ('Q3 Strategy Proposal' and the reply to Lisa Wong). Upcoming key meetings include Team Standup and Fabrikam Partnership Sync tomorrow (July 24), 1:1 with Manager on July 27, and Product Demo - Northwind on July 29. Unresolved inbox items include the IT maintenance notice and the HR performance review reminder.",
+    "truth_criteria": [
+      "Fabrikam contract renewal",
+      "July 24",
+      "Q3 Strategy Proposal"
+    ]
+  },
+  {
+    "id": "Q075",
+    "generator_model": "Claude-Sonnet-5",
+    "category": "Executive Synthesis & Actions",
+    "complexity": "Complex",
+    "query": "Based on my inbox, drafts, and calendar, what should be my top 3 priorities for the rest of this week?",
+    "expected_tool": "tool_search_emails",
+    "ground_truth_answer": "Top 3 priorities for the rest of this week (July 23-24, 2026): 1) Finalize and send the 'Q3 Strategy Proposal' draft following today's Q3 Roadmap Review, 2) Prepare for tomorrow's 'Fabrikam Partnership Sync' meeting on July 24 given the pending contract renewal deadline of August 1, 2026, and 3) Respond to Lisa Wong's product demo feedback which is still sitting unsent in Drafts.",
+    "truth_criteria": [
+      "Q3 Strategy Proposal",
+      "Fabrikam Partnership Sync",
+      "Lisa Wong"
+    ]
+  },
+  {
+    "id": "Q076",
+    "generator_model": "Claude-Sonnet-5",
+    "category": "Drafts & Sent Folder Audit",
+    "complexity": "Basic",
+    "query": "Do I have any unsent drafts in my mailbox right now?",
+    "expected_tool": "tool_search_emails",
+    "ground_truth_answer": "Yes, there are 2 unsent drafts: \"RE: Q3 Budget Review\" addressed to James Wu, and \"Project Falcon Status Update\" addressed to team-falcon@contoso.com.",
+    "truth_criteria": [
+      "2 unsent drafts",
+      "RE: Q3 Budget Review",
+      "Project Falcon Status Update"
+    ]
+  },
+  {
+    "id": "Q077",
+    "generator_model": "Claude-Sonnet-5",
+    "category": "Drafts & Sent Folder Audit",
+    "complexity": "Basic",
+    "query": "What is the subject of my most recent draft email?",
+    "expected_tool": "tool_search_emails",
+    "ground_truth_answer": "The most recent draft is titled \"Project Falcon Status Update\", addressed to team-falcon@contoso.com.",
+    "truth_criteria": [
+      "Project Falcon Status Update",
+      "team-falcon@contoso.com"
+    ]
+  },
+  {
+    "id": "Q078",
+    "generator_model": "Claude-Sonnet-5",
+    "category": "Drafts & Sent Folder Audit",
+    "complexity": "Medium",
+    "query": "What email did I send to Michael Torres, and when was it sent?",
+    "expected_tool": "tool_search_emails",
+    "ground_truth_answer": "You sent \"Project Falcon Kickoff Notes\" to Michael Torres on Wednesday, July 22, 2026 at 10:00 AM.",
+    "truth_criteria": [
+      "Project Falcon Kickoff Notes",
+      "July 22, 2026",
       "10:00 AM"
     ]
   },
   {
-    "id": "Q098",
-    "generator_model": "Gemini-2.5-Pro",
-    "category": "Executive Synthesis & Actions",
-    "complexity": "Complex",
-    "query": "Summarize all communications related to Project Falcon. Include kickoff notes, status updates, and any meeting invites.",
+    "id": "Q079",
+    "generator_model": "Claude-Sonnet-5",
+    "category": "Drafts & Sent Folder Audit",
+    "complexity": "Medium",
+    "query": "List all messages I have sent from my mailbox this week.",
     "expected_tool": "tool_search_emails",
-    "ground_truth_answer": "For Project Falcon, I found the following: an email from Michael Torres with notes from the kickoff session, a draft email you started with a status update, and a sent meeting invitation to emily.rodriguez for a follow-up which was returned as undeliverable.",
+    "ground_truth_answer": "You sent 2 messages this week: \"Proposal Follow-up\" to client@acmecorp.com on July 21, 2026 at 4:00 PM, and \"Project Falcon Kickoff Notes\" to Michael Torres on July 22, 2026 at 10:00 AM.",
+    "truth_criteria": [
+      "Proposal Follow-up",
+      "Project Falcon Kickoff Notes",
+      "July 21, 2026"
+    ]
+  },
+  {
+    "id": "Q080",
+    "generator_model": "Claude-Sonnet-5",
+    "category": "Drafts & Sent Folder Audit",
+    "complexity": "Complex",
+    "query": "Cross-reference my drafts and sent folder \u2014 did I ever actually send the \"Q3 Budget Review\" reply to James Wu?",
+    "expected_tool": "tool_search_emails",
+    "ground_truth_answer": "No. \"RE: Q3 Budget Review\" remains an unsent draft addressed to James Wu. The only sent messages on record are \"Proposal Follow-up\" to client@acmecorp.com and \"Project Falcon Kickoff Notes\" to Michael Torres, neither of which went to James Wu.",
+    "truth_criteria": [
+      "No",
+      "unsent draft",
+      "James Wu"
+    ]
+  },
+  {
+    "id": "Q081",
+    "generator_model": "Claude-Sonnet-5",
+    "category": "Inbox & Email Intelligence",
+    "complexity": "Basic",
+    "query": "What is the most recent email in my inbox?",
+    "expected_tool": "tool_search_emails",
+    "ground_truth_answer": "The most recent email is \"RE: Project Falcon Kickoff Notes\" from Michael Torres, received on Thursday, July 23, 2026 at 8:45 AM.",
+    "truth_criteria": [
+      "RE: Project Falcon Kickoff Notes",
+      "Michael Torres",
+      "July 23, 2026"
+    ]
+  },
+  {
+    "id": "Q082",
+    "generator_model": "Claude-Sonnet-5",
+    "category": "Inbox & Email Intelligence",
+    "complexity": "Basic",
+    "query": "Who sent me an email about a payment confirmation?",
+    "expected_tool": "tool_search_emails",
+    "ground_truth_answer": "Linda Park sent an email titled \"Invoice #4521 Payment Confirmation\" on July 21, 2026 at 9:30 AM.",
+    "truth_criteria": [
+      "Linda Park",
+      "Invoice #4521",
+      "July 21, 2026"
+    ]
+  },
+  {
+    "id": "Q083",
+    "generator_model": "Claude-Sonnet-5",
+    "category": "Inbox & Email Intelligence",
+    "complexity": "Medium",
+    "query": "Search my inbox for any emails with \"Budget\" in the subject line.",
+    "expected_tool": "tool_search_emails",
+    "ground_truth_answer": "One matching email was found: \"Q3 Budget Review - Action Required\" from James Wu, received on July 22, 2026 at 3:15 PM.",
+    "truth_criteria": [
+      "Q3 Budget Review - Action Required",
+      "James Wu",
+      "July 22, 2026"
+    ]
+  },
+  {
+    "id": "Q084",
+    "generator_model": "Claude-Sonnet-5",
+    "category": "Inbox & Email Intelligence",
+    "complexity": "Medium",
+    "query": "Is there an email in my inbox about scheduled system maintenance?",
+    "expected_tool": "tool_search_emails",
+    "ground_truth_answer": "Yes, IT Support sent \"Scheduled Maintenance This Weekend\" on July 20, 2026 at 11:00 AM.",
+    "truth_criteria": [
+      "Scheduled Maintenance This Weekend",
+      "IT Support",
+      "July 20, 2026"
+    ]
+  },
+  {
+    "id": "Q085",
+    "generator_model": "Claude-Sonnet-5",
+    "category": "Inbox & Email Intelligence",
+    "complexity": "Complex",
+    "query": "Based on the body content of the Q3 Budget Review email, what deadline was mentioned and who sent it?",
+    "expected_tool": "tool_get_email_details",
+    "ground_truth_answer": "The email \"Q3 Budget Review - Action Required\" was sent by James Wu on July 22, 2026, and its body states that budget approval is required by July 25, 2026.",
+    "truth_criteria": [
+      "James Wu",
+      "July 25, 2026",
+      "budget approval"
+    ]
+  },
+  {
+    "id": "Q086",
+    "generator_model": "Claude-Sonnet-5",
+    "category": "Calendar & Meeting Operations",
+    "complexity": "Basic",
+    "query": "What meetings do I have tomorrow?",
+    "expected_tool": "tool_list_meetings",
+    "ground_truth_answer": "On Friday, July 24, 2026, you have 2 meetings: \"Weekly Team Sync\" from 10:00 AM to 10:30 AM, and \"1:1 with Manager\" from 3:00 PM to 3:30 PM.",
+    "truth_criteria": [
+      "July 24, 2026",
+      "Weekly Team Sync",
+      "1:1 with Manager"
+    ]
+  },
+  {
+    "id": "Q087",
+    "generator_model": "Claude-Sonnet-5",
+    "category": "Calendar & Meeting Operations",
+    "complexity": "Basic",
+    "query": "What time does my Weekly Team Sync start tomorrow?",
+    "expected_tool": "tool_list_meetings",
+    "ground_truth_answer": "The Weekly Team Sync on Friday, July 24, 2026 starts at 10:00 AM.",
+    "truth_criteria": [
+      "10:00 AM",
+      "July 24, 2026",
+      "Weekly Team Sync"
+    ]
+  },
+  {
+    "id": "Q088",
+    "generator_model": "Claude-Sonnet-5",
+    "category": "Calendar & Meeting Operations",
+    "complexity": "Medium",
+    "query": "Does the Project Falcon Kickoff meeting have a Teams link, and how long is it scheduled for?",
+    "expected_tool": "tool_list_meetings",
+    "ground_truth_answer": "Yes, the Project Falcon Kickoff meeting on Wednesday, July 29, 2026 includes a Teams link and runs for 1.5 hours, from 9:00 AM to 10:30 AM.",
+    "truth_criteria": [
+      "Teams link",
+      "July 29, 2026",
+      "1.5 hours"
+    ]
+  },
+  {
+    "id": "Q089",
+    "generator_model": "Claude-Sonnet-5",
+    "category": "Calendar & Meeting Operations",
+    "complexity": "Medium",
+    "query": "How long is my Client Presentation with Acme Corp scheduled to last?",
+    "expected_tool": "tool_list_meetings",
+    "ground_truth_answer": "The Client Presentation - Acme Corp on Thursday, July 30, 2026 is scheduled for 1 hour, from 1:00 PM to 2:00 PM.",
+    "truth_criteria": [
+      "1 hour",
+      "July 30, 2026",
+      "1:00 PM"
+    ]
+  },
+  {
+    "id": "Q090",
+    "generator_model": "Claude-Sonnet-5",
+    "category": "Calendar & Meeting Operations",
+    "complexity": "Complex",
+    "query": "Looking across the next two weeks, list all my meetings from July 24 to August 3, 2026 in chronological order.",
+    "expected_tool": "tool_list_meetings",
+    "ground_truth_answer": "1) Weekly Team Sync - Jul 24, 2026, 10:00-10:30 AM; 2) 1:1 with Manager - Jul 24, 2026, 3:00-3:30 PM; 3) Q3 Budget Review Meeting - Jul 27, 2026, 2:00-3:00 PM; 4) Project Falcon Kickoff - Jul 29, 2026, 9:00-10:30 AM; 5) Client Presentation - Acme Corp - Jul 30, 2026, 1:00-2:00 PM; 6) All Hands Meeting - Aug 3, 2026, 11:00 AM-12:00 PM.",
+    "truth_criteria": [
+      "Weekly Team Sync",
+      "Q3 Budget Review Meeting",
+      "All Hands Meeting"
+    ]
+  },
+  {
+    "id": "Q091",
+    "generator_model": "Claude-Sonnet-5",
+    "category": "Temporal Math & Relative Dates",
+    "complexity": "Basic",
+    "query": "What is today's date and tomorrow's date, and do I have any meetings scheduled today?",
+    "expected_tool": "tool_list_meetings",
+    "ground_truth_answer": "Today is Thursday, July 23, 2026, and tomorrow is Friday, July 24, 2026. You have no meetings scheduled today.",
+    "truth_criteria": [
+      "July 23, 2026",
+      "July 24, 2026",
+      "no meetings"
+    ]
+  },
+  {
+    "id": "Q092",
+    "generator_model": "Claude-Sonnet-5",
+    "category": "Temporal Math & Relative Dates",
+    "complexity": "Basic",
+    "query": "What date was yesterday, and did I receive any emails on that date?",
+    "expected_tool": "tool_search_emails",
+    "ground_truth_answer": "Yesterday was Wednesday, July 22, 2026. Yes, you received \"Q3 Budget Review - Action Required\" from James Wu on that date at 3:15 PM.",
+    "truth_criteria": [
+      "July 22, 2026",
+      "Q3 Budget Review - Action Required",
+      "James Wu"
+    ]
+  },
+  {
+    "id": "Q093",
+    "generator_model": "Claude-Sonnet-5",
+    "category": "Temporal Math & Relative Dates",
+    "complexity": "Medium",
+    "query": "What email arrived exactly 7 days ago from today?",
+    "expected_tool": "tool_search_emails",
+    "ground_truth_answer": "Exactly 7 days ago, on Thursday, July 16, 2026, you received \"Benefits Enrollment Deadline - July 31\" from HR.",
+    "truth_criteria": [
+      "July 16, 2026",
+      "Benefits Enrollment Deadline",
+      "HR"
+    ]
+  },
+  {
+    "id": "Q094",
+    "generator_model": "Claude-Sonnet-5",
+    "category": "Temporal Math & Relative Dates",
+    "complexity": "Medium",
+    "query": "What date is next Wednesday from today, and do I have a meeting scheduled that day?",
+    "expected_tool": "tool_list_meetings",
+    "ground_truth_answer": "Next Wednesday is July 29, 2026. Yes, you have the Project Falcon Kickoff meeting scheduled from 9:00 AM to 10:30 AM that day.",
+    "truth_criteria": [
+      "July 29, 2026",
+      "Project Falcon Kickoff",
+      "9:00 AM"
+    ]
+  },
+  {
+    "id": "Q095",
+    "generator_model": "Claude-Sonnet-5",
+    "category": "Temporal Math & Relative Dates",
+    "complexity": "Complex",
+    "query": "Compare emails received in the last 3 days versus the last 7 days \u2014 how many additional emails fall into the 7-day window?",
+    "expected_tool": "tool_search_emails",
+    "ground_truth_answer": "In the last 3 days (July 21-23, 2026) there were 3 emails: from Linda Park, James Wu, and Michael Torres. In the last 7 days (July 16-23, 2026) there were 5 emails total, adding the IT Support (July 20) and HR (July 16) messages \u2014 that is 2 additional emails in the 7-day window.",
+    "truth_criteria": [
+      "3 emails",
+      "5 emails",
+      "2 additional"
+    ]
+  },
+  {
+    "id": "Q096",
+    "generator_model": "Claude-Sonnet-5",
+    "category": "Executive Synthesis & Actions",
+    "complexity": "Basic",
+    "query": "Reply to Michael Torres's email confirming that I received the Project Falcon kickoff notes.",
+    "expected_tool": "tool_reply_email",
+    "ground_truth_answer": "A reply should be sent to Michael Torres on the \"RE: Project Falcon Kickoff Notes\" thread confirming receipt of the kickoff notes he sent on July 23, 2026.",
     "truth_criteria": [
       "Michael Torres",
-      "kickoff session",
-      "undeliverable"
+      "Project Falcon Kickoff Notes",
+      "confirm"
+    ]
+  },
+  {
+    "id": "Q097",
+    "generator_model": "Claude-Sonnet-5",
+    "category": "Executive Synthesis & Actions",
+    "complexity": "Basic",
+    "query": "Reply to James Wu acknowledging his Q3 Budget Review action required email.",
+    "expected_tool": "tool_reply_email",
+    "ground_truth_answer": "A reply should be sent to James Wu on the \"Q3 Budget Review - Action Required\" thread acknowledging his July 22, 2026 request and the July 25, 2026 deadline.",
+    "truth_criteria": [
+      "James Wu",
+      "Q3 Budget Review",
+      "July 25, 2026"
+    ]
+  },
+  {
+    "id": "Q098",
+    "generator_model": "Claude-Sonnet-5",
+    "category": "Executive Synthesis & Actions",
+    "complexity": "Medium",
+    "query": "Create a meeting for a Project Falcon status review next Monday at 2 PM for 30 minutes.",
+    "expected_tool": "tool_create_meeting",
+    "ground_truth_answer": "A meeting titled \"Project Falcon Status Review\" should be created for Monday, July 27, 2026, from 2:00 PM to 2:30 PM.",
+    "truth_criteria": [
+      "July 27, 2026",
+      "2:00 PM",
+      "30 minutes"
     ]
   },
   {
     "id": "Q099",
-    "generator_model": "Gemini-2.5-Pro",
-    "category": "Inbox & Email Intelligence",
-    "complexity": "Complex",
-    "query": "There are conflicting launch dates mentioned for 'Project Phoenix'. What are the two dates I've received and who sent them?",
-    "expected_tool": "tool_get_email_details",
-    "ground_truth_answer": "There are two different dates for the Project Phoenix launch. Alex Wilber sent an email stating the launch is set for October 12th. Megan Bowen sent a follow-up stating the launch has been pushed to October 19th due to testing delays.",
+    "generator_model": "Claude-Sonnet-5",
+    "category": "Executive Synthesis & Actions",
+    "complexity": "Medium",
+    "query": "Schedule a follow-up call with the Acme Corp client for the Friday after the presentation, at 3 PM for 30 minutes.",
+    "expected_tool": "tool_create_meeting",
+    "ground_truth_answer": "A follow-up call with Acme Corp should be scheduled for Friday, July 31, 2026, from 3:00 PM to 3:30 PM, following the July 30, 2026 presentation.",
     "truth_criteria": [
-      "Alex Wilber",
-      "October 12th",
-      "Megan Bowen",
-      "October 19th"
+      "July 31, 2026",
+      "3:00 PM",
+      "Acme Corp"
     ]
   },
   {
     "id": "Q100",
-    "generator_model": "Gemini-2.5-Pro",
-    "category": "Drafts & Sent Folder Audit",
+    "generator_model": "Claude-Sonnet-5",
+    "category": "Executive Synthesis & Actions",
     "complexity": "Complex",
-    "query": "I've received multiple 'Undeliverable' notifications for 'Q3 Budget Follow-Up Discussion' to james.wilson. How many are there and what were the original creation times of the failed messages?",
-    "expected_tool": "tool_get_email_details",
-    "ground_truth_answer": "You have received 3 undeliverable notifications for that subject and recipient. The original failed messages were created at 7/26/2026 12:58:21 AM, 7/26/2026 12:57:39 AM, and 7/26/2026 12:57:08 AM.",
+    "query": "Prepare an executive briefing summarizing my pending drafts, tomorrow's meeting schedule, and any urgent deadline emails.",
+    "expected_tool": "tool_search_emails",
+    "ground_truth_answer": "Pending drafts: \"RE: Q3 Budget Review\" (to James Wu) and \"Project Falcon Status Update\" (to team-falcon@contoso.com), both unsent. Tomorrow, Friday July 24, 2026, you have \"Weekly Team Sync\" (10:00-10:30 AM) and \"1:1 with Manager\" (3:00-3:30 PM). Urgent deadline: James Wu's \"Q3 Budget Review - Action Required\" email requires budget approval by July 25, 2026.",
     "truth_criteria": [
-      "3 undeliverable",
-      "12:58:21 AM",
-      "12:57:39 AM",
-      "12:57:08 AM"
+      "RE: Q3 Budget Review",
+      "July 24, 2026",
+      "July 25, 2026"
     ]
   }
 ]

@@ -1,4 +1,4 @@
-# Getting Started — Production Agent Platform (`cloud-agent-platform`)
+# Getting Started — Production Agent Platform (`remote-agentruntime-mcp`)
 
 This guide walks you through deploying the Model Context Protocol (MCP) server to Cloud Run, packaging and deploying the ADK Reasoning Engine Agent to Vertex AI, and starting the streaming custom UI.
 
@@ -27,7 +27,7 @@ The Cloud Run service serves as the secure tool executor boundary between Vertex
 
 1. Navigate to the `mcp-server` subdirectory:
    ```bash
-   cd cloud-agent-platform/mcp-server
+   cd remote-agentruntime-mcp/mcp-server
    ```
 2. Build and deploy the container source to Cloud Run:
    ```bash
@@ -93,51 +93,16 @@ Start the wrapper node server to host the custom React/HTML interface locally.
 
 ---
 
-## 6. Troubleshooting & Enterprise Setup Pitfalls
+## 6. Enterprise Security & Identity Setup
 
-Enterprise setups integrating Microsoft Entra ID and Google Cloud WIF are susceptible to token exchange and delegation failures. Use the following specifications to verify and troubleshoot your deployment:
+Enterprise setups integrating Microsoft Entra ID and Google Cloud WIF are susceptible to token delegation failures. 
 
-### A. Microsoft Entra ID App Manifest Properties
-If MSAL returns authorization code exchange errors or rejects token swaps, verify that both the **ID Token** and **Access Token** implicit flows are enabled in the App Manifest:
+> [!IMPORTANT]
+> Detailed instructions for Entra ID app manifests, Workload Identity Federation (WIF) provider setups, service account trust bindings, and Microsoft Graph admin consent steps are documented in the global [Unified Security & Identity Configuration Guide](../../docs/security_and_identity.md).
 
-1. Open **Microsoft Entra ID admin center** > **App registrations** > select your Portal App.
-2. Select **Manifest** on the sidebar.
-3. Verify or edit the following JSON properties to match:
-   ```json
-   {
-     "oauth2AllowIdTokenImplicitFlow": true,
-     "oauth2AllowImplicitFlow": true
-   }
-   ```
-4. Click **Save**.
-
----
-
-### B. Google Cloud Workforce Identity Federation (WIF) Attribute Mappings
-If WIF authentication returns `400 Bad Request` during federated credential swaps, ensure the pool provider maps the OpenID Connect (OIDC) assertions to Google IAM identifiers.
-
-Configure using `gcloud` or verify in the GCP Console under **IAM & Admin** > **Workforce Identity Federation**:
-```bash
-gcloud iam workforce-pools providers update-oidc entra-provider \
-  --workforce-pool="sp-wif-pool-v2" \
-  --location="global" \
-  --issuer-uri="https://login.microsoftonline.com/de46a3fd-0d68-4b25-8343-6eb5d71afce9/v2.0" \
-  --client-id="api://b2d25471-834f-4ac9-9ba9-c05c06b42003" \
-  --attribute-mapping="google.subject=assertion.sub,attribute.email=assertion.email,attribute.display_name=assertion.name"
-```
-
-#### WIF Pool & Provider Attribute Configuration:
-![Google Cloud Workforce Identity Federation Settings](../../screenshots/gcp_wif_dash.png)
-
----
-
-### C. GCP IAM Permissions & Service Account Token Creation
-The Reasoning Engine service account requires permission to invoke the Cloud Run FastMCP Gateway tool endpoint. Additionally, the Vertex platform service account must be trusted to act on behalf of the runtime account.
-
-1. Ensure the **Reasoning Engine Service Account** (e.g. `agent-runner-sa`) has:
-   - `roles/aiplatform.user`
-   - `roles/logging.logWriter`
-2. Grant the Vertex AI platform service agent token creator permissions on the runner service account:
+### Quick Verification Steps
+1. **Runner Service Account Permissions**: Ensure the runner service account (e.g. `agent-runner-sa`) has `roles/aiplatform.user` and `roles/logging.logWriter`.
+2. **Service Agent Impersonation Binding**: Grant the Vertex AI platform service agent token creator permissions on the runner service account:
    ```bash
    gcloud iam service-accounts add-iam-policy-binding \
      agent-runner-sa@vtxdemos.iam.gserviceaccount.com \
