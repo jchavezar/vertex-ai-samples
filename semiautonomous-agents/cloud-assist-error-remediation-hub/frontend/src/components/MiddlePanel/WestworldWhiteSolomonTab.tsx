@@ -90,13 +90,13 @@ export const WestworldWhiteSolomonTab: React.FC = () => {
             04.17.39 SYSTEM INITIATED • 'SOLOMON' BUILD 0.06
           </div>
           <h1 className="text-2xl font-black tracking-tight text-slate-950 uppercase font-mono flex items-center gap-3">
-            <span>SOLOMON / REHOBOAM WHITE EDITION</span>
+            <span>SOLOMON WHITE EDITION</span>
             <span className="text-xs font-mono font-bold px-3 py-1 bg-slate-900 text-white rounded-full">
               PROBABILISTIC SYSTEMIC DIVERGENCE ENGINE
             </span>
           </h1>
           <p className="text-xs text-slate-600 font-mono">
-            Omniscient Westworld Telemetry Monitor • Pure Alabaster & Ink Particle Matrix
+            Omniscient Telemetry Monitor • Pure Alabaster & Ink Particle Matrix
           </p>
         </div>
 

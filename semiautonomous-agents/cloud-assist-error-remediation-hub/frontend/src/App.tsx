@@ -198,7 +198,7 @@ export function App() {
             }`}
           >
             <Eye className="w-3.5 h-3.5 text-slate-300" />
-            <span>⚪ Westworld Solomon White</span>
+            <span>⚪ Solomon White Edition</span>
           </button>
         </div>
 

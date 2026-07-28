@@ -116,7 +116,7 @@ export const ObservabilityDashboardTab: React.FC = () => {
           </div>
           <div>
             <h2 className="text-sm font-bold text-white tracking-tight flex flex-wrap items-center gap-2">
-              <span>WESTWORLD "REHOBOAM" OMNISCIENT ANOMALY CORE</span>
+              <span>"REHOBOAM" OMNISCIENT ANOMALY CORE</span>
               <span className="text-[10px] uppercase font-mono px-2.5 py-0.5 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/40 font-semibold">
                 Big Brother GCP Anomaly Radar
               </span>
