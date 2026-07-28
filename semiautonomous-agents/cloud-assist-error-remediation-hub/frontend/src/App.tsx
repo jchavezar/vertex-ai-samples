@@ -5,11 +5,12 @@ import { ErrorList } from './components/LeftPanel/ErrorList';
 import { DiagnosticContainer } from './components/MiddlePanel/DiagnosticContainer';
 import { ObservabilityDashboardTab } from './components/MiddlePanel/ObservabilityDashboardTab';
 import { WestworldWhiteSolomonTab } from './components/MiddlePanel/WestworldWhiteSolomonTab';
+import { RemediationBitacoraTab } from './components/MiddlePanel/RemediationBitacoraTab';
 import { ChaosStressTestModal } from './components/MiddlePanel/ChaosStressTestModal';
 import { PostMortemReportModal } from './components/MiddlePanel/PostMortemReportModal';
 import { ChatbotDrawer } from './components/RightPanel/ChatbotDrawer';
 import { GcpErrorItem, CloudAssistDiagnostic, ChatMessage } from './types';
-import { Layers, Radio, Sparkles, Activity, Eye, Flame, FileText } from 'lucide-react';
+import { Layers, Radio, Sparkles, Activity, Eye, Flame, FileText, RotateCcw } from 'lucide-react';
 
 const API_BASE = 'http://127.0.0.1:8088/api';
 
@@ -18,7 +19,7 @@ export function App() {
   const [selectedRange, setSelectedRange] = useState<string>('1h');
   const [selectedError, setSelectedError] = useState<GcpErrorItem | null>(null);
   const [diagnostic, setDiagnostic] = useState<CloudAssistDiagnostic | null>(null);
-  const [activeMainTab, setActiveMainTab] = useState<'remediation' | 'observability' | 'solomon'>('remediation');
+  const [activeMainTab, setActiveMainTab] = useState<'remediation' | 'observability' | 'solomon' | 'bitacora'>('remediation');
   const [themeMode, setThemeMode] = useState<'light' | 'dark'>('light');
   
   const [isChaosOpen, setIsChaosOpen] = useState<boolean>(false);
@@ -182,6 +183,19 @@ export function App() {
             <span>🌌 Observability & Constellation Analytics</span>
           </button>
           <button
+            onClick={() => setActiveMainTab('bitacora')}
+            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
+              activeMainTab === 'bitacora'
+                ? 'bg-emerald-950/60 text-emerald-300 border border-emerald-500/40 shadow-lg'
+                : isLight
+                  ? 'text-slate-600 hover:text-slate-950 hover:bg-slate-100 font-bold'
+                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
+            }`}
+          >
+            <RotateCcw className="w-3.5 h-3.5 text-emerald-400" />
+            <span>📜 Remediation Bitácora & Rollback</span>
+          </button>
+          <button
             onClick={() => setActiveMainTab('solomon')}
             className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
               activeMainTab === 'solomon'
@@ -254,6 +268,8 @@ export function App() {
             />
           ) : activeMainTab === 'observability' ? (
             <ObservabilityDashboardTab />
+          ) : activeMainTab === 'bitacora' ? (
+            <RemediationBitacoraTab isLightMode={isLight} />
           ) : (
             <WestworldWhiteSolomonTab />
           )}

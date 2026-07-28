@@ -319,5 +319,30 @@ def synthesize_audio(req: AudioSynthesisRequest):
             try: os.remove(tmp_wav)
             except: pass
 
+@app.get("/api/bitacora")
+def get_bitacora():
+    """
+    Returns full audit trail bitácora of resolved, pending, and reverted fixes.
+    """
+    from app.services.bitacora_service import get_bitacora_data
+    try:
+        return get_bitacora_data()
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+class RollbackRequest(BaseModel):
+    incidentId: str
+
+@app.post("/api/bitacora/rollback")
+def rollback_incident(req: RollbackRequest):
+    """
+    Executes one-click rollback for a remediated incident, restoring service to broken revision state.
+    """
+    from app.services.bitacora_service import execute_rollback
+    try:
+        return execute_rollback(req.incidentId)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 if __name__ == "__main__":
     uvicorn.run("main:app", host="127.0.0.1", port=PORT, reload=False)
