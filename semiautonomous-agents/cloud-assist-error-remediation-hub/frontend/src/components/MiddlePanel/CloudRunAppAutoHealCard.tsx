@@ -14,7 +14,10 @@ import {
   ShoppingBag,
   Shield,
   Activity,
-  Truck
+  Truck,
+  Maximize2,
+  Minimize2,
+  X
 } from 'lucide-react';
 
 interface CloudRunAppAutoHealCardProps {
@@ -85,6 +88,7 @@ export const CloudRunAppAutoHealCard: React.FC<CloudRunAppAutoHealCardProps> = (
   const [healResult, setHealResult] = useState<AutoHealResult | null>(null);
   const [activeTab, setActiveTab] = useState<'preview' | 'diff' | 'stack' | 'build'>('preview');
   const [iframeKey, setIframeKey] = useState<number>(0);
+  const [isFullscreenView, setIsFullscreenView] = useState<boolean>(false);
 
   const activeService = SERVICES_LIST.find(s => s.id === activeAppId) || SERVICES_LIST[0];
 
@@ -231,50 +235,62 @@ export const CloudRunAppAutoHealCard: React.FC<CloudRunAppAutoHealCardProps> = (
       {/* Live Auto-Healing Interactive Workstation */}
       <div className="rounded-xl bg-slate-950 border border-slate-800 overflow-hidden space-y-0 shadow-inner">
         {/* Navigation Tabs */}
-        <div className="flex border-b border-slate-800 bg-slate-900/80 px-3 overflow-x-auto">
+        <div className="flex border-b border-slate-800 bg-slate-900/80 px-3 overflow-x-auto justify-between items-center">
+          <div className="flex">
+            <button
+              onClick={() => setActiveTab('preview')}
+              className={`py-2.5 px-4 text-xs font-bold border-b-2 flex items-center gap-1.5 transition-all whitespace-nowrap ${
+                activeTab === 'preview'
+                  ? 'border-emerald-400 text-emerald-300 bg-emerald-950/30'
+                  : 'border-transparent text-slate-400 hover:text-slate-200'
+              }`}
+            >
+              <Globe className="w-3.5 h-3.5 text-emerald-400" />
+              <span>Live Web Frame ({activeService.name})</span>
+            </button>
+            <button
+              onClick={() => setActiveTab('build')}
+              className={`py-2.5 px-4 text-xs font-bold border-b-2 flex items-center gap-1.5 transition-all whitespace-nowrap ${
+                activeTab === 'build'
+                  ? 'border-purple-400 text-purple-300 bg-purple-950/30'
+                  : 'border-transparent text-slate-400 hover:text-slate-200'
+              }`}
+            >
+              <Boxes className="w-3.5 h-3.5 text-purple-400" />
+              <span>☁️ Cloud Build & LLM Fix Stream</span>
+            </button>
+            <button
+              onClick={() => setActiveTab('diff')}
+              className={`py-2.5 px-4 text-xs font-bold border-b-2 flex items-center gap-1.5 transition-all whitespace-nowrap ${
+                activeTab === 'diff'
+                  ? 'border-cyan-400 text-cyan-300 bg-cyan-950/30'
+                  : 'border-transparent text-slate-400 hover:text-slate-200'
+              }`}
+            >
+              <Code className="w-3.5 h-3.5 text-cyan-400" />
+              <span>Applied Patch (Diff)</span>
+            </button>
+            <button
+              onClick={() => setActiveTab('stack')}
+              className={`py-2.5 px-4 text-xs font-bold border-b-2 flex items-center gap-1.5 transition-all whitespace-nowrap ${
+                activeTab === 'stack'
+                  ? 'border-rose-400 text-rose-300 bg-rose-950/30'
+                  : 'border-transparent text-slate-400 hover:text-slate-200'
+              }`}
+            >
+              <Terminal className="w-3.5 h-3.5 text-rose-400" />
+              <span>Container Log Stream</span>
+            </button>
+          </div>
+
+          {/* Full Screen Toggle Button */}
           <button
-            onClick={() => setActiveTab('preview')}
-            className={`py-2.5 px-4 text-xs font-bold border-b-2 flex items-center gap-1.5 transition-all whitespace-nowrap ${
-              activeTab === 'preview'
-                ? 'border-emerald-400 text-emerald-300 bg-emerald-950/30'
-                : 'border-transparent text-slate-400 hover:text-slate-200'
-            }`}
+            onClick={() => setIsFullscreenView(true)}
+            className="px-3 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-cyan-300 text-xs font-bold flex items-center gap-1.5 border border-slate-700 transition-all shadow-md cursor-pointer"
+            title="Expand live Cloud Run web app to full screen"
           >
-            <Globe className="w-3.5 h-3.5 text-emerald-400" />
-            <span>Live Web Frame ({activeService.name})</span>
-          </button>
-          <button
-            onClick={() => setActiveTab('build')}
-            className={`py-2.5 px-4 text-xs font-bold border-b-2 flex items-center gap-1.5 transition-all whitespace-nowrap ${
-              activeTab === 'build'
-                ? 'border-purple-400 text-purple-300 bg-purple-950/30'
-                : 'border-transparent text-slate-400 hover:text-slate-200'
-            }`}
-          >
-            <Boxes className="w-3.5 h-3.5 text-purple-400" />
-            <span>☁️ Cloud Build & LLM Fix Stream</span>
-          </button>
-          <button
-            onClick={() => setActiveTab('diff')}
-            className={`py-2.5 px-4 text-xs font-bold border-b-2 flex items-center gap-1.5 transition-all whitespace-nowrap ${
-              activeTab === 'diff'
-                ? 'border-cyan-400 text-cyan-300 bg-cyan-950/30'
-                : 'border-transparent text-slate-400 hover:text-slate-200'
-            }`}
-          >
-            <Code className="w-3.5 h-3.5 text-cyan-400" />
-            <span>Applied Patch (Diff)</span>
-          </button>
-          <button
-            onClick={() => setActiveTab('stack')}
-            className={`py-2.5 px-4 text-xs font-bold border-b-2 flex items-center gap-1.5 transition-all whitespace-nowrap ${
-              activeTab === 'stack'
-                ? 'border-rose-400 text-rose-300 bg-rose-950/30'
-                : 'border-transparent text-slate-400 hover:text-slate-200'
-            }`}
-          >
-            <Terminal className="w-3.5 h-3.5 text-rose-400" />
-            <span>Container Log Stream</span>
+            <Maximize2 className="w-3.5 h-3.5 text-cyan-400" />
+            <span>🗖 Full Screen UI</span>
           </button>
         </div>
 
@@ -292,16 +308,22 @@ export const CloudRunAppAutoHealCard: React.FC<CloudRunAppAutoHealCardProps> = (
                   >
                     <span>🔄 Refresh App Frame</span>
                   </button>
+                  <button
+                    onClick={() => setIsFullscreenView(true)}
+                    className="px-2 py-0.5 rounded bg-purple-950/80 hover:bg-purple-900 text-purple-300 text-[10px] font-semibold flex items-center gap-1 border border-purple-500/40 transition-colors"
+                  >
+                    <span>🗖 Expand Fullscreen</span>
+                  </button>
                 </div>
-                <a href={activeService.url} target="_blank" rel="noreferrer" className="text-emerald-400 font-mono flex items-center gap-1 hover:underline">
+                <a href={liveUrl} target="_blank" rel="noreferrer" className="text-emerald-400 font-mono flex items-center gap-1 hover:underline">
                   <span>{activeService.url}</span>
                   <ExternalLink className="w-3 h-3" />
                 </a>
               </div>
 
-              {/* REAL LIVE GCP CLOUD RUN IFRAME CONTAINER (GPU Hardware Accelerated + Deterministic State Sync) */}
+              {/* REAL LIVE GCP CLOUD RUN IFRAME CONTAINER (Clickable + Fullscreen Trigger) */}
               <div 
-                className="rounded-2xl overflow-hidden border border-slate-700 shadow-2xl bg-white h-[340px] w-full relative"
+                className="rounded-2xl overflow-hidden border border-slate-700 shadow-2xl bg-white h-[360px] w-full relative group cursor-pointer"
                 style={{ transform: 'translateZ(0)', willChange: 'transform' }}
               >
                 <iframe
@@ -389,6 +411,58 @@ ${activeService.errorSummary}
           )}
         </div>
       </div>
+
+      {/* FULL SCREEN INTERACTIVE CLOUD RUN WEB APPLICATION MODAL */}
+      {isFullscreenView && (
+        <div className="fixed inset-0 z-50 flex flex-col bg-slate-950/95 backdrop-blur-md p-6 space-y-4">
+          <div className="flex justify-between items-center border-b border-slate-800 pb-4">
+            <div className="flex items-center space-x-3">
+              <div className={`w-9 h-9 rounded-xl bg-gradient-to-br ${activeService.color} border flex items-center justify-center`}>
+                <Globe className="w-5 h-5" />
+              </div>
+              <div>
+                <h2 className="text-sm font-bold text-white flex items-center gap-2">
+                  <span>{activeService.name} (Full-Screen Live Cloud Run Web Frame)</span>
+                  <span className="text-[10px] uppercase font-mono px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
+                    GCP Live Revision
+                  </span>
+                </h2>
+                <a href={liveUrl} target="_blank" rel="noreferrer" className="text-xs text-cyan-300 font-mono underline hover:text-cyan-200 flex items-center gap-1">
+                  <span>{liveUrl}</span>
+                  <ExternalLink className="w-3 h-3" />
+                </a>
+              </div>
+            </div>
+
+            <div className="flex items-center space-x-3">
+              <a
+                href={liveUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="px-4 py-2 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 text-white font-bold text-xs flex items-center gap-1.5 shadow-lg shadow-cyan-500/20"
+              >
+                <span>↗ Open in New Browser Tab</span>
+              </a>
+              <button
+                onClick={() => setIsFullscreenView(false)}
+                className="p-2 rounded-xl bg-slate-900 border border-slate-700 text-slate-300 hover:text-white hover:border-slate-500 transition-all cursor-pointer"
+                title="Exit Full Screen"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+          </div>
+
+          <div className="flex-1 w-full h-full rounded-2xl overflow-hidden border border-slate-700 bg-white shadow-2xl">
+            <iframe
+              key={`fs-${iframeKey}`}
+              src={liveUrl}
+              title={`${activeService.name} Fullscreen`}
+              className="w-full h-full border-0 rounded-2xl"
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 };
