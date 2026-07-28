@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   Eye,
   Activity,
@@ -38,28 +38,28 @@ export const WestworldWhiteSolomonTab: React.FC = () => {
 
   const callouts: AnomalyCallout[] = [
     {
-      date: "10.09.25",
-      divergenceType: "DIVERGENCE : STOREFRONT",
-      location: "US-CENTRAL1",
-      incidentName: "ZeroDivisionError in /api/cart/checkout",
-      service: "envato-vibe-storefront",
-      status: "REMEDIATED",
-      riskScore: 0.88
-    },
-    {
       date: "04.17.39",
       divergenceType: "DIVERGENCE : FINTECH LEDGER",
       location: "SECRET MANAGER",
-      incidentName: "KeyError: 'JWT_SECRET_KEY' in /api/auth/token",
+      incidentName: "KEYERROR: 'JWT_SECRET_KEY' IN /API/AUTH/TOKEN",
       service: "cyberpunk-ledger-dashboard",
       status: "HEALED",
       riskScore: 0.76
     },
     {
+      date: "10.09.25",
+      divergenceType: "DIVERGENCE : STOREFRONT",
+      location: "US-CENTRAL1",
+      incidentName: "ZERODIVISIONERROR IN /API/CART/CHECKOUT",
+      service: "envato-vibe-storefront",
+      status: "REMEDIATED",
+      riskScore: 0.88
+    },
+    {
       date: "08.12.44",
       divergenceType: "DIVERGENCE : MEDICAL PORTAL",
       location: "CONTAINER HEAP",
-      incidentName: "MemoryError: OOMKilled 512MB limit exceeded",
+      incidentName: "MEMORYERROR: OOMKILLED 512MB LIMIT EXCEEDED",
       service: "healthcare-patient-portal",
       status: "STABILIZED",
       riskScore: 0.94
@@ -68,7 +68,7 @@ export const WestworldWhiteSolomonTab: React.FC = () => {
       date: "12.01.02",
       divergenceType: "DIVERGENCE : FLEET TRACKER",
       location: "POSTGRES POOL",
-      incidentName: "ConnectionRefusedError in Cloud SQL pool",
+      incidentName: "CONNECTIONREFUSEDERROR IN CLOUD SQL POOL",
       service: "realtime-logistics-tracker",
       status: "ACTIVE",
       riskScore: 0.65
@@ -120,7 +120,7 @@ export const WestworldWhiteSolomonTab: React.FC = () => {
         </div>
       </div>
 
-      {/* IMAGE 2 HOMAGE: THE REHOBOAM BLACK INK ANOMALY CIRCLE WITH CALLOUT POINTERS */}
+      {/* IMAGE 2 HOMAGE: UNCLUTTERED REHOBOAM BLACK INK ANOMALY CIRCLE WITH NON-OVERLAPPING CORNER CALLOUTS */}
       <div className="bg-white rounded-3xl border border-slate-300 p-8 shadow-xl relative overflow-hidden space-y-6">
         <div className="flex justify-between items-center border-b border-slate-200 pb-3">
           <span className="text-xs font-mono font-bold tracking-widest text-slate-900 uppercase">
@@ -129,83 +129,107 @@ export const WestworldWhiteSolomonTab: React.FC = () => {
           <span className="text-[10px] font-mono text-slate-500">PROJECT VTXDEMOS</span>
         </div>
 
-        {/* 2D Interactive SVG Ink Particle Circle Canvas */}
-        <div className="relative w-full h-[420px] flex items-center justify-center bg-[#fdfdfd] rounded-2xl border border-slate-200">
-          <svg className="w-full h-full absolute inset-0 pointer-events-none">
-            {/* Hairline Callout Pointer Lines */}
-            {callouts.map((item, idx) => {
-              const angles = [45, 135, 225, 315];
-              const angle = angles[idx % 4];
-              const rad = (angle * Math.PI) / 180;
-              const cx = 50; // percentage
-              const cy = 50; // percentage
-              const r = 32;  // percentage radius
-              const x1 = cx + r * Math.cos(rad);
-              const y1 = cy + r * Math.sin(rad);
-              const x2 = cx + (r + 12) * Math.cos(rad);
-              const y2 = cy + (r + 12) * Math.sin(rad);
+        {/* 2D Interactive SVG Canvas with 520px Height for Zero Overlapping */}
+        <div className="relative w-full h-[520px] flex items-center justify-center bg-[#fdfdfd] rounded-2xl border border-slate-200 overflow-hidden">
+          {/* Hairline Callout Leader Lines pointing to Central Ring */}
+          <svg className="w-full h-full absolute inset-0 pointer-events-none z-10">
+            {/* Top-Left Line */}
+            <line x1="26%" y1="20%" x2="42%" y2="40%" stroke="#0f172a" strokeWidth="1.5" strokeDasharray="4 4" />
+            <circle cx="42%" cy="40%" r="4" fill="#0f172a" />
 
-              return (
-                <g key={idx}>
-                  <line
-                    x1={`${x1}%`}
-                    y1={`${y1}%`}
-                    x2={`${x2}%`}
-                    y2={`${y2}%`}
-                    stroke="#0f172a"
-                    strokeWidth="1.5"
-                  />
-                  <circle cx={`${x2}%`} cy={`${y2}%`} r="3" fill="#0f172a" />
-                </g>
-              );
-            })}
+            {/* Top-Right Line */}
+            <line x1="74%" y1="20%" x2="58%" y2="40%" stroke="#0f172a" strokeWidth="1.5" strokeDasharray="4 4" />
+            <circle cx="58%" cy="40%" r="4" fill="#0f172a" />
+
+            {/* Bottom-Left Line */}
+            <line x1="26%" y1="80%" x2="42%" y2="60%" stroke="#0f172a" strokeWidth="1.5" strokeDasharray="4 4" />
+            <circle cx="42%" cy="60%" r="4" fill="#0f172a" />
+
+            {/* Bottom-Right Line */}
+            <line x1="74%" y1="80%" x2="58%" y2="60%" stroke="#0f172a" strokeWidth="1.5" strokeDasharray="4 4" />
+            <circle cx="58%" cy="60%" r="4" fill="#0f172a" />
           </svg>
 
-          {/* Central Concentric Ink Ring */}
-          <div className="relative w-72 h-72 rounded-full border-4 border-slate-900 flex items-center justify-center shadow-[0_0_50px_rgba(0,0,0,0.1)]">
+          {/* Central Concentric Ink Ring (Clean & Unobstructed) */}
+          <div className="relative w-64 h-64 rounded-full border-4 border-slate-900 flex items-center justify-center shadow-[0_0_50px_rgba(0,0,0,0.12)] z-0 bg-white">
             <div className={`absolute inset-0 rounded-full border-2 border-dashed ${divergenceActive ? 'border-red-600 animate-[spin_6s_linear_infinite]' : 'border-slate-400 animate-[spin_20s_linear_infinite]'}`}></div>
-            <div className={`absolute inset-4 rounded-full border ${divergenceActive ? 'border-red-500 animate-ping' : 'border-slate-300'}`}></div>
+            <div className={`absolute inset-3 rounded-full border ${divergenceActive ? 'border-red-500 animate-ping' : 'border-slate-300'}`}></div>
             
             {/* Center Westworld Solomon Inscription */}
-            <div className="text-center font-mono space-y-1 p-4 bg-white/90 rounded-full shadow-inner border border-slate-200 z-10">
+            <div className="text-center font-mono space-y-1 p-3 bg-white/95 rounded-full shadow-inner border border-slate-300 z-10">
               <div className="text-[10px] text-slate-500 tracking-widest uppercase font-bold">04.17.39</div>
-              <div className="text-sm font-black tracking-tight text-slate-950">SYSTEM INITIATED</div>
-              <div className="text-[10px] text-slate-600 uppercase font-semibold">UNDISCLOSED LOCATION</div>
-              <div className="text-[10px] font-bold text-slate-900 bg-slate-100 px-2 py-0.5 rounded border border-slate-300">
+              <div className="text-xs font-black tracking-tight text-slate-950">SYSTEM INITIATED</div>
+              <div className="text-[9px] text-slate-600 uppercase font-semibold">UNDISCLOSED LOCATION</div>
+              <div className="text-[9px] font-bold text-slate-900 bg-slate-100 px-2 py-0.5 rounded border border-slate-300">
                 'SOLOMON' BUILD 0.06
               </div>
             </div>
           </div>
 
-          {/* 4 Interactive Anomaly Callouts (Matching Westworld Image Callout Style) */}
-          {callouts.map((callout, idx) => {
-            const positions = [
-              { top: '12%', left: '70%' },
-              { top: '15%', left: '8%' },
-              { top: '72%', left: '10%' },
-              { top: '70%', left: '68%' }
-            ];
-            const pos = positions[idx];
-
-            return (
-              <div
-                key={idx}
-                onClick={() => setActiveCallout(callout)}
-                style={pos}
-                className="absolute z-20 font-mono text-left cursor-pointer transition-all hover:scale-105"
-              >
-                <div className="bg-white/95 border-2 border-slate-900 p-3 rounded-lg shadow-xl space-y-1 max-w-xs backdrop-blur-sm">
-                  <div className="text-[10px] font-black text-slate-400">{callout.date}</div>
-                  <div className="text-xs font-black tracking-tight text-slate-950 uppercase">{callout.divergenceType}</div>
-                  <div className="text-[10px] font-bold text-red-600 uppercase">{callout.incidentName}</div>
-                  <div className="flex justify-between items-center text-[9px] text-slate-500 pt-1 border-t border-slate-200">
-                    <span>{callout.service}</span>
-                    <span className="font-bold text-slate-900">RISK: {callout.riskScore}</span>
-                  </div>
-                </div>
+          {/* 4 NON-OVERLAPPING CORNER CALLOUT CARDS */}
+          {/* Top-Left Card */}
+          <div
+            onClick={() => setActiveCallout(callouts[0])}
+            className="absolute top-4 left-4 z-20 font-mono text-left cursor-pointer transition-all hover:scale-105"
+          >
+            <div className="bg-white border-2 border-slate-900 p-3.5 rounded-xl shadow-xl space-y-1.5 w-64 backdrop-blur-sm">
+              <div className="text-[10px] font-black text-slate-500">{callouts[0].date}</div>
+              <div className="text-xs font-black tracking-tight text-slate-950 uppercase">{callouts[0].divergenceType}</div>
+              <div className="text-[10px] font-bold text-red-600 uppercase">{callouts[0].incidentName}</div>
+              <div className="flex justify-between items-center text-[9px] text-slate-600 pt-1.5 border-t border-slate-200">
+                <span>{callouts[0].service}</span>
+                <span className="font-bold text-slate-950">RISK: {callouts[0].riskScore}</span>
               </div>
-            );
-          })}
+            </div>
+          </div>
+
+          {/* Top-Right Card */}
+          <div
+            onClick={() => setActiveCallout(callouts[1])}
+            className="absolute top-4 right-4 z-20 font-mono text-left cursor-pointer transition-all hover:scale-105"
+          >
+            <div className="bg-white border-2 border-slate-900 p-3.5 rounded-xl shadow-xl space-y-1.5 w-64 backdrop-blur-sm">
+              <div className="text-[10px] font-black text-slate-500">{callouts[1].date}</div>
+              <div className="text-xs font-black tracking-tight text-slate-950 uppercase">{callouts[1].divergenceType}</div>
+              <div className="text-[10px] font-bold text-red-600 uppercase">{callouts[1].incidentName}</div>
+              <div className="flex justify-between items-center text-[9px] text-slate-600 pt-1.5 border-t border-slate-200">
+                <span>{callouts[1].service}</span>
+                <span className="font-bold text-slate-950">RISK: {callouts[1].riskScore}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Bottom-Left Card */}
+          <div
+            onClick={() => setActiveCallout(callouts[2])}
+            className="absolute bottom-4 left-4 z-20 font-mono text-left cursor-pointer transition-all hover:scale-105"
+          >
+            <div className="bg-white border-2 border-slate-900 p-3.5 rounded-xl shadow-xl space-y-1.5 w-64 backdrop-blur-sm">
+              <div className="text-[10px] font-black text-slate-500">{callouts[2].date}</div>
+              <div className="text-xs font-black tracking-tight text-slate-950 uppercase">{callouts[2].divergenceType}</div>
+              <div className="text-[10px] font-bold text-red-600 uppercase">{callouts[2].incidentName}</div>
+              <div className="flex justify-between items-center text-[9px] text-slate-600 pt-1.5 border-t border-slate-200">
+                <span>{callouts[2].service}</span>
+                <span className="font-bold text-slate-950">RISK: {callouts[2].riskScore}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Bottom-Right Card */}
+          <div
+            onClick={() => setActiveCallout(callouts[3])}
+            className="absolute bottom-4 right-4 z-20 font-mono text-left cursor-pointer transition-all hover:scale-105"
+          >
+            <div className="bg-white border-2 border-slate-900 p-3.5 rounded-xl shadow-xl space-y-1.5 w-64 backdrop-blur-sm">
+              <div className="text-[10px] font-black text-slate-500">{callouts[3].date}</div>
+              <div className="text-xs font-black tracking-tight text-slate-950 uppercase">{callouts[3].divergenceType}</div>
+              <div className="text-[10px] font-bold text-red-600 uppercase">{callouts[3].incidentName}</div>
+              <div className="flex justify-between items-center text-[9px] text-slate-600 pt-1.5 border-t border-slate-200">
+                <span>{callouts[3].service}</span>
+                <span className="font-bold text-slate-950">RISK: {callouts[3].riskScore}</span>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -279,7 +303,7 @@ export const WestworldWhiteSolomonTab: React.FC = () => {
               </div>
               <button
                 onClick={() => setActiveCallout(null)}
-                className="p-1 rounded bg-slate-100 hover:bg-slate-200 text-slate-900"
+                className="p-1 rounded bg-slate-100 hover:bg-slate-200 text-slate-900 cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -295,7 +319,7 @@ export const WestworldWhiteSolomonTab: React.FC = () => {
             <div className="flex justify-end pt-2">
               <button
                 onClick={() => setActiveCallout(null)}
-                className="px-5 py-2.5 rounded-full bg-slate-950 hover:bg-slate-800 text-white font-bold text-xs shadow-lg"
+                className="px-5 py-2.5 rounded-full bg-slate-950 hover:bg-slate-800 text-white font-bold text-xs shadow-lg cursor-pointer"
               >
                 Close Inspector
               </button>
