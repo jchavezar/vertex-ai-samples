@@ -4,7 +4,9 @@ import { Header } from './components/Header';
 import { TimeFilterBar } from './components/LeftPanel/TimeFilterBar';
 import { ErrorList } from './components/LeftPanel/ErrorList';
 import { DiagnosticContainer } from './components/MiddlePanel/DiagnosticContainer';
+import { ObservabilityDashboardTab } from './components/MiddlePanel/ObservabilityDashboardTab';
 import { ChatbotDrawer } from './components/RightPanel/ChatbotDrawer';
+import { Layers, Radio, Sparkles, Activity } from 'lucide-react';
 
 const API_BASE = 'http://127.0.0.1:8088/api';
 
@@ -13,6 +15,7 @@ export function App() {
   const [selectedRange, setSelectedRange] = useState<string>('1h');
   const [selectedError, setSelectedError] = useState<GcpErrorItem | null>(null);
   const [diagnostic, setDiagnostic] = useState<CloudAssistDiagnostic | null>(null);
+  const [activeMainTab, setActiveMainTab] = useState<'remediation' | 'observability'>('remediation');
   
   const [isErrorsLoading, setIsErrorsLoading] = useState<boolean>(true);
   const [isDiagnosing, setIsDiagnosing] = useState<boolean>(false);
@@ -27,7 +30,6 @@ export function App() {
     }
   ]);
 
-  // Fetch Errors when range changes or on refresh
   const fetchErrors = useCallback(async (range: string) => {
     setIsErrorsLoading(true);
     try {
@@ -48,32 +50,30 @@ export function App() {
 
   useEffect(() => {
     fetchErrors(selectedRange);
-  }, [selectedRange]);
+  }, [selectedRange, fetchErrors]);
 
-  // Handle Error Selection & Cloud Assist Diagnostic trigger
-  const handleSelectError = async (err: GcpErrorItem) => {
-    setSelectedError(err);
-    setDiagnostic(null);
+  const handleSelectError = async (errItem: GcpErrorItem) => {
+    setSelectedError(errItem);
     setIsDiagnosing(true);
+    setDiagnostic(null);
 
     try {
       const res = await fetch(`${API_BASE}/diagnose`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ errorItem: err })
+        body: JSON.stringify({ errorItem: errItem })
       });
       if (res.ok) {
-        const diag: CloudAssistDiagnostic = await res.json();
-        setDiagnostic(diag);
+        const data: CloudAssistDiagnostic = await res.json();
+        setDiagnostic(data);
       }
-    } catch (e) {
-      console.error("Diagnosis request failed:", e);
+    } catch (err) {
+      console.error("Diagnosis request failed:", err);
     } finally {
       setIsDiagnosing(false);
     }
   };
 
-  // Handle Chatbot Query
   const handleSendMessage = async (text: string) => {
     const userMsg: ChatMessage = {
       id: `usr-${Date.now()}`,
@@ -90,8 +90,8 @@ export function App() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           message: text,
-          contextError: selectedError,
-          contextDiagnostic: diagnostic
+          selectedError,
+          diagnostic
         })
       });
 
@@ -132,6 +132,38 @@ export function App() {
         isLoading={isErrorsLoading}
       />
 
+      {/* Main Navigation Tab Bar */}
+      <div className="flex items-center justify-between bg-slate-950 border-b border-slate-800 px-6 py-2">
+        <div className="flex items-center space-x-2">
+          <button
+            onClick={() => setActiveMainTab('remediation')}
+            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
+              activeMainTab === 'remediation'
+                ? 'bg-cyan-950/60 text-cyan-300 border border-cyan-500/40 shadow-lg shadow-cyan-500/10'
+                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
+            }`}
+          >
+            <Activity className="w-3.5 h-3.5 text-cyan-400" />
+            <span>📡 Incident Remediation Hub</span>
+          </button>
+          <button
+            onClick={() => setActiveMainTab('observability')}
+            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
+              activeMainTab === 'observability'
+                ? 'bg-purple-950/60 text-purple-300 border border-purple-500/40 shadow-lg shadow-purple-500/10'
+                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
+            }`}
+          >
+            <Radio className="w-3.5 h-3.5 text-purple-400" />
+            <span>🌌 Observability & Constellation Analytics</span>
+          </button>
+        </div>
+
+        <div className="text-[11px] text-slate-400 font-mono">
+          Antigravity Multi-Agent Orchestrator • Vertex AI
+        </div>
+      </div>
+
       {/* Main Multi-Panel Layout */}
       <div className="flex-1 flex overflow-hidden">
         {/* Left Sidebar: Time Filter + GCP Errors List */}
@@ -149,16 +181,20 @@ export function App() {
           />
         </aside>
 
-        {/* Center Main: Cloud Assist 4-Container Diagnostic Engine */}
-        <main className="flex-1 flex flex-col overflow-hidden bg-[#0a0d14] relative">
-          <DiagnosticContainer
-            selectedError={selectedError}
-            diagnostic={diagnostic}
-            isLoading={isDiagnosing}
-          />
+        {/* Center Main Tab View */}
+        <main className="flex-1 flex flex-col overflow-y-auto bg-[#0a0d14] relative p-4">
+          {activeMainTab === 'remediation' ? (
+            <DiagnosticContainer
+              selectedError={selectedError}
+              diagnostic={diagnostic}
+              isLoading={isDiagnosing}
+            />
+          ) : (
+            <ObservabilityDashboardTab />
+          )}
         </main>
 
-        {/* Way Right: Google ADK Chatbot + Google Search + Claude Ink Animation */}
+        {/* Right Panel: ADK Chatbot */}
         <ChatbotDrawer
           selectedError={selectedError}
           diagnostic={diagnostic}

@@ -238,14 +238,28 @@ def chat_with_agent(req: ChatMessageRequest):
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/api/cloud-run-autoheal")
-def cloud_run_autoheal():
+def cloud_run_autoheal(payload: Dict[str, Any] = None):
     """
     Triggers real-time application-level debugging and code patch synthesis
     for Cloud Run web applications.
     """
     from app.services.cloud_run_app_autoheal_service import execute_cloud_run_app_autoheal
+    action = "heal"
+    if payload and "action" in payload:
+        action = payload["action"]
     try:
-        return execute_cloud_run_app_autoheal()
+        return execute_cloud_run_app_autoheal(action=action)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/telemetry-dashboard")
+def get_telemetry_dashboard():
+    """
+    Returns real GCP signal indicators and inter-service constellation topology.
+    """
+    from app.services.gcp_telemetry_constellation_service import get_telemetry_constellation_analytics
+    try:
+        return get_telemetry_constellation_analytics()
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
