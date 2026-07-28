@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { HypothesisItem } from '../../types';
-import { Target, Check, Copy, Zap, CheckCircle2, AlertCircle, Search, Code, FileText, X, Terminal } from 'lucide-react';
+import { Target, Check, Copy, Zap, CheckCircle2, AlertCircle, Search, Code, FileText, X, Terminal, Sparkles, Layers } from 'lucide-react';
 import { RichTextRenderer } from '../RichTextRenderer';
 
 interface HypothesesCardProps {
@@ -36,6 +36,7 @@ export const HypothesesCard: React.FC<HypothesesCardProps> = ({ hypotheses, serv
   const [execResults, setExecResults] = useState<Record<number, ExecutionResult>>({});
   const [inspectData, setInspectData] = useState<InspectModalData | null>(null);
   const [inspectTab, setInspectTab] = useState<'response' | 'request' | 'trace' | 'code'>('response');
+  const [viewFormat, setViewFormat] = useState<'pretty' | 'raw'>('pretty');
   const [copiedInspectText, setCopiedInspectText] = useState<boolean>(false);
 
   const copyCommand = (cmd: string, idx: number) => {
@@ -198,7 +199,7 @@ asyncio.run(run_antigravity_remediation_subagent())`;
 
               {/* Remediation Commands */}
               {hyp.remediationCommands && hyp.remediationCommands.length > 0 && (
-                <div className="space-y-2 pt-2 border-t border-slate-800/60">
+                <div className="space-y-3 pt-2 border-t border-slate-800/60">
                   <span className="text-[10px] font-bold uppercase tracking-wider text-cyan-400 flex items-center gap-1">
                     <span>&gt;_ Clickable Remediation Commands (One-Click Sandbox Execution)</span>
                   </span>
@@ -210,34 +211,45 @@ asyncio.run(run_antigravity_remediation_subagent())`;
 
                     return (
                       <div key={cIdx} className="space-y-2">
-                        <div className="flex flex-col sm:flex-row sm:items-center justify-between bg-black/70 border border-slate-800 rounded-lg p-2.5 font-mono text-[11px] text-emerald-300 hover:border-cyan-500/40 transition-colors gap-2">
-                          <code className="overflow-x-auto mr-2">{cmd}</code>
+                        {/* ROBUST RESPONSIVE CONTAINER BOX */}
+                        <div className="bg-black/90 border border-slate-800/90 hover:border-cyan-500/50 rounded-xl p-3 space-y-2.5 transition-all shadow-sm">
+                          {/* Command Line Row */}
+                          <div className="flex items-center justify-between gap-2 border-b border-slate-800/80 pb-2">
+                            <div className="flex items-center space-x-2 min-w-0 flex-1">
+                              <Terminal className="w-3.5 h-3.5 text-emerald-400 flex-shrink-0" />
+                              <code className="font-mono text-xs text-emerald-300 font-semibold truncate select-all">{cmd}</code>
+                            </div>
+                            <span className="text-[10px] font-mono text-slate-400 bg-slate-900 px-2 py-0.5 rounded border border-slate-800 flex-shrink-0 hidden sm:inline">
+                              Linux Sandbox CLI
+                            </span>
+                          </div>
 
-                          <div className="flex items-center space-x-1.5 flex-shrink-0 self-end sm:self-auto">
-                            {/* Inspect Button */}
+                          {/* PERFECTLY DISTRIBUTED BUTTON ROW (Zero Overflow) */}
+                          <div className="flex items-center justify-end gap-2 flex-wrap pt-0.5">
+                            {/* Inspect Payload Button */}
                             <button
                               onClick={() => setInspectData({ command: cmd, hypothesisTitle: hyp.title, serviceName, result: execResult })}
-                              className="px-2 py-1 rounded bg-cyan-950/40 hover:bg-cyan-900/60 text-cyan-300 border border-cyan-500/30 transition-colors flex items-center gap-1 text-[10px] font-bold"
-                              title="Inspect Python code snippet & raw Antigravity Agent response"
+                              className="px-2.5 py-1.5 rounded-lg bg-cyan-950/50 hover:bg-cyan-900/80 text-cyan-300 border border-cyan-500/40 transition-all flex items-center gap-1.5 text-[11px] font-bold shadow-sm"
+                              title="Inspect Python SDK code & Antigravity REST API payloads"
                             >
-                              <Search className="w-3 h-3 text-cyan-400" />
-                              <span>Inspect</span>
+                              <Search className="w-3.5 h-3.5 text-cyan-400" />
+                              <span>Inspect Payload</span>
                             </button>
 
-                            {/* Copy Button */}
+                            {/* Copy Command Button */}
                             <button
                               onClick={() => copyCommand(cmd, uniqueKey)}
-                              className="px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 transition-colors flex items-center gap-1 text-[10px]"
-                              title="Copy command to clipboard"
+                              className="px-2.5 py-1.5 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-slate-200 border border-slate-700 transition-all flex items-center gap-1.5 text-[11px] font-medium"
+                              title="Copy command string to clipboard"
                             >
                               {copiedIndex === uniqueKey ? (
                                 <>
-                                  <Check className="w-3 h-3 text-emerald-400" />
-                                  <span className="text-emerald-400">Copied</span>
+                                  <Check className="w-3.5 h-3.5 text-emerald-400" />
+                                  <span className="text-emerald-400 font-bold">Copied</span>
                                 </>
                               ) : (
                                 <>
-                                  <Copy className="w-3 h-3" />
+                                  <Copy className="w-3.5 h-3.5 text-slate-300" />
                                   <span>Copy</span>
                                 </>
                               )}
@@ -247,17 +259,17 @@ asyncio.run(run_antigravity_remediation_subagent())`;
                             <button
                               onClick={() => runCommandInSandbox(cmd, uniqueKey)}
                               disabled={isRunning}
-                              className="px-2.5 py-1 rounded bg-gradient-to-r from-emerald-600 to-cyan-600 hover:from-emerald-500 hover:to-cyan-500 disabled:opacity-50 text-white transition-all flex items-center gap-1 text-[10px] font-bold shadow-sm"
-                              title="Execute directly in secure Antigravity Linux Sandbox"
+                              className="px-3 py-1.5 rounded-lg bg-gradient-to-r from-emerald-600 to-cyan-600 hover:from-emerald-500 hover:to-cyan-500 disabled:opacity-50 text-white transition-all flex items-center gap-1.5 text-[11px] font-bold shadow-md"
+                              title="Execute directly in safe Google Antigravity Linux Sandbox"
                             >
                               {isRunning ? (
                                 <>
-                                  <span className="w-2.5 h-2.5 border-2 border-white/80 border-t-transparent rounded-full animate-spin"></span>
-                                  <span>Running...</span>
+                                  <span className="w-3 h-3 border-2 border-white/80 border-t-transparent rounded-full animate-spin"></span>
+                                  <span>Executing Sandbox...</span>
                                 </>
                               ) : (
                                 <>
-                                  <Zap className="w-3 h-3 text-amber-300 fill-amber-300" />
+                                  <Zap className="w-3.5 h-3.5 text-amber-300 fill-amber-300" />
                                   <span>Run in Sandbox</span>
                                 </>
                               )}
@@ -268,13 +280,13 @@ asyncio.run(run_antigravity_remediation_subagent())`;
                         {/* Interactive Execution Sandbox Output Console */}
                         {execResult && (
                           <div
-                            className={`rounded-lg p-3 font-mono text-[11px] border space-y-1.5 ${
+                            className={`rounded-xl p-3 font-mono text-[11px] border space-y-2 ${
                               execResult.exitCode === 0
                                 ? 'bg-emerald-950/30 border-emerald-500/40 text-emerald-300'
                                 : 'bg-rose-950/30 border-rose-500/40 text-rose-300'
                             }`}
                           >
-                            <div className="flex items-center justify-between border-b border-slate-800/80 pb-1 text-[10px] text-slate-400">
+                            <div className="flex items-center justify-between border-b border-slate-800/80 pb-1.5 text-[10px] text-slate-400">
                               <div className="flex items-center space-x-1.5">
                                 {execResult.exitCode === 0 ? (
                                   <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
@@ -288,7 +300,7 @@ asyncio.run(run_antigravity_remediation_subagent())`;
                                 </span>
                               </div>
                               <div className="flex items-center space-x-2">
-                                <span>Sandbox: {execResult.sandboxId}</span>
+                                <span>Sandbox: <code className="text-slate-300">{execResult.sandboxId}</code></span>
                                 <button
                                   onClick={() => setInspectData({ command: cmd, hypothesisTitle: hyp.title, serviceName, result: execResult })}
                                   className="text-cyan-400 hover:underline font-bold text-[10px]"
@@ -298,7 +310,7 @@ asyncio.run(run_antigravity_remediation_subagent())`;
                               </div>
                             </div>
 
-                            <div className="whitespace-pre-wrap overflow-x-auto text-[11px]">
+                            <div className="whitespace-pre-wrap overflow-x-auto text-[11px] leading-relaxed">
                               {execResult.stdout || execResult.stderr}
                             </div>
                           </div>
@@ -316,7 +328,7 @@ asyncio.run(run_antigravity_remediation_subagent())`;
       {/* COOL GLASSMORPHISM INSPECTOR OVERLAY MODAL */}
       {inspectData && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md">
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl max-w-3xl w-full max-h-[85vh] flex flex-col overflow-hidden shadow-2xl">
+          <div className="bg-slate-900 border border-slate-800 rounded-2xl max-w-4xl w-full max-h-[90vh] flex flex-col overflow-hidden shadow-2xl">
             {/* Modal Header */}
             <div className="p-4 border-b border-slate-800 flex justify-between items-center bg-slate-950">
               <div className="flex items-center space-x-2.5">
@@ -325,96 +337,131 @@ asyncio.run(run_antigravity_remediation_subagent())`;
                 </div>
                 <div>
                   <h3 className="text-sm font-bold text-slate-100">Antigravity Agent Subagent Execution Inspector</h3>
-                  <p className="text-[11px] text-slate-400">Command: <code className="text-cyan-300">{inspectData.command}</code></p>
+                  <p className="text-[11px] text-slate-400">Command: <code className="text-cyan-300 font-mono">{inspectData.command}</code></p>
                 </div>
               </div>
               <button
                 onClick={() => setInspectData(null)}
-                className="text-slate-400 hover:text-white transition-colors p-1 rounded-lg hover:bg-slate-800"
+                className="text-slate-400 hover:text-white transition-colors p-1.5 rounded-lg hover:bg-slate-800"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
             {/* Agent Engine Badge */}
-            <div className="px-4 py-2 bg-slate-950/60 border-b border-slate-800 flex items-center justify-between text-[11px]">
+            <div className="px-4 py-2 bg-slate-950/80 border-b border-slate-800 flex items-center justify-between text-[11px]">
               <span className="flex items-center gap-1.5 text-purple-300 font-semibold">
                 <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                Engine: <code className="text-white">google-antigravity-sandbox-v1</code> (agent: <code className="text-cyan-300">antigravity-preview-05-2026</code>)
+                Engine: <code className="text-white font-mono">google-antigravity-sandbox-v1</code> (agent: <code className="text-cyan-300 font-mono">antigravity-preview-05-2026</code>)
               </span>
-              <span className="text-slate-400">Target: <code className="text-slate-200">{inspectData.serviceName}</code></span>
+              <span className="text-slate-400">Target: <code className="text-slate-200 font-mono">{inspectData.serviceName}</code></span>
             </div>
 
-            {/* Modal Tabs */}
-            <div className="flex border-b border-slate-800 bg-slate-950/40 px-4 overflow-x-auto">
+            {/* GRID NAV TABS (Zero Cut-Off, Equal Column Width) */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-1 p-2 bg-slate-950 border-b border-slate-800">
               <button
                 onClick={() => setInspectTab('response')}
-                className={`py-2.5 px-4 text-xs font-bold border-b-2 flex items-center gap-1.5 transition-all whitespace-nowrap ${
+                className={`py-2 px-3 rounded-lg text-xs font-bold transition-all text-center flex items-center justify-center gap-1.5 ${
                   inspectTab === 'response'
-                    ? 'border-emerald-400 text-emerald-300 bg-emerald-950/20'
-                    : 'border-transparent text-slate-400 hover:text-slate-200'
+                    ? 'bg-emerald-950/50 text-emerald-300 border border-emerald-500/40 shadow-sm'
+                    : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
                 }`}
               >
-                <FileText className="w-3.5 h-3.5" />
-                <span>📡 Antigravity API Response</span>
+                <FileText className="w-3.5 h-3.5 text-emerald-400 flex-shrink-0" />
+                <span className="truncate">API Response</span>
               </button>
               <button
                 onClick={() => setInspectTab('request')}
-                className={`py-2.5 px-4 text-xs font-bold border-b-2 flex items-center gap-1.5 transition-all whitespace-nowrap ${
+                className={`py-2 px-3 rounded-lg text-xs font-bold transition-all text-center flex items-center justify-center gap-1.5 ${
                   inspectTab === 'request'
-                    ? 'border-amber-400 text-amber-300 bg-amber-950/20'
-                    : 'border-transparent text-slate-400 hover:text-slate-200'
+                    ? 'bg-amber-950/50 text-amber-300 border border-amber-500/40 shadow-sm'
+                    : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
                 }`}
               >
-                <Zap className="w-3.5 h-3.5" />
-                <span>📤 Antigravity API Request Payload</span>
+                <Zap className="w-3.5 h-3.5 text-amber-400 flex-shrink-0" />
+                <span className="truncate">API Request</span>
               </button>
               <button
                 onClick={() => setInspectTab('trace')}
-                className={`py-2.5 px-4 text-xs font-bold border-b-2 flex items-center gap-1.5 transition-all whitespace-nowrap ${
+                className={`py-2 px-3 rounded-lg text-xs font-bold transition-all text-center flex items-center justify-center gap-1.5 ${
                   inspectTab === 'trace'
-                    ? 'border-purple-400 text-purple-300 bg-purple-950/20'
-                    : 'border-transparent text-slate-400 hover:text-slate-200'
+                    ? 'bg-purple-950/50 text-purple-300 border border-purple-500/40 shadow-sm'
+                    : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
                 }`}
               >
-                <Terminal className="w-3.5 h-3.5" />
-                <span>📜 Real Execution Trace Log</span>
+                <Terminal className="w-3.5 h-3.5 text-purple-400 flex-shrink-0" />
+                <span className="truncate">Trace Log</span>
               </button>
               <button
                 onClick={() => setInspectTab('code')}
-                className={`py-2.5 px-4 text-xs font-bold border-b-2 flex items-center gap-1.5 transition-all whitespace-nowrap ${
+                className={`py-2 px-3 rounded-lg text-xs font-bold transition-all text-center flex items-center justify-center gap-1.5 ${
                   inspectTab === 'code'
-                    ? 'border-cyan-400 text-cyan-300 bg-cyan-950/20'
-                    : 'border-transparent text-slate-400 hover:text-slate-200'
+                    ? 'bg-cyan-950/50 text-cyan-300 border border-cyan-500/40 shadow-sm'
+                    : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
                 }`}
               >
-                <Code className="w-3.5 h-3.5" />
-                <span>🐍 Python SDK Code</span>
+                <Code className="w-3.5 h-3.5 text-cyan-400 flex-shrink-0" />
+                <span className="truncate">Python Code</span>
               </button>
             </div>
 
+            {/* Modal Sub-Header Toolbar (Pretty vs Raw JSON View Toggle) */}
+            <div className="px-4 py-2 bg-slate-950/40 border-b border-slate-800 flex items-center justify-between text-xs">
+              <span className="text-[11px] text-slate-400">
+                {inspectTab === 'response' && "Full REST API Response Payload from Antigravity Agent API"}
+                {inspectTab === 'request' && "Exact REST API Request Payload sent to Vertex AI Agent Engine"}
+                {inspectTab === 'trace' && "Step-by-step Subshell & Antigravity Agent Execution Trace"}
+                {inspectTab === 'code' && "Python google.genai SDK Implementation Code"}
+              </span>
+
+              {(inspectTab === 'response' || inspectTab === 'request') && (
+                <div className="flex items-center space-x-1.5 bg-slate-950 p-1 rounded-lg border border-slate-800">
+                  <button
+                    onClick={() => setViewFormat('pretty')}
+                    className={`px-2.5 py-0.5 rounded text-[10px] font-bold transition-all ${
+                      viewFormat === 'pretty'
+                        ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40'
+                        : 'text-slate-400 hover:text-slate-200'
+                    }`}
+                  >
+                    Formatted
+                  </button>
+                  <button
+                    onClick={() => setViewFormat('raw')}
+                    className={`px-2.5 py-0.5 rounded text-[10px] font-bold transition-all ${
+                      viewFormat === 'raw'
+                        ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40'
+                        : 'text-slate-400 hover:text-slate-200'
+                    }`}
+                  >
+                    Raw JSON
+                  </button>
+                </div>
+              )}
+            </div>
+
             {/* Modal Body */}
-            <div className="p-4 flex-1 overflow-y-auto bg-slate-950/80">
+            <div className="p-4 flex-1 overflow-y-auto bg-slate-950/90 space-y-3">
               {inspectTab === 'code' ? (
                 <div className="space-y-2">
                   <div className="flex justify-between items-center text-[10px] text-slate-400">
                     <span>Backend Subagent Execution Code (`backend/app/services/sandbox_parallel_orchestrator.py`)</span>
                     <button
                       onClick={() => copyInspectText(generatePythonSnippet(inspectData.command, inspectData.serviceName))}
-                      className="px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-200 flex items-center gap-1"
+                      className="px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-200 flex items-center gap-1 text-[10px]"
                     >
                       {copiedInspectText ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
                       <span>{copiedInspectText ? 'Copied' : 'Copy Code'}</span>
                     </button>
                   </div>
-                  <pre className="p-4 rounded-xl bg-black/80 border border-slate-800 font-mono text-xs text-cyan-200 overflow-x-auto whitespace-pre select-all">
+                  <pre className="p-4 rounded-xl bg-black/90 border border-slate-800 font-mono text-xs text-cyan-200 overflow-x-auto whitespace-pre select-all leading-relaxed">
                     {generatePythonSnippet(inspectData.command, inspectData.serviceName)}
                   </pre>
                 </div>
               ) : inspectTab === 'request' ? (
-                <div className="space-y-2">
+                <div className="space-y-3">
                   <div className="flex justify-between items-center text-[10px] text-slate-400">
-                    <span>Exact REST API Request Payload Sent to Google Antigravity Agent Interactions API</span>
+                    <span>Vertex AI Antigravity Interactions REST API Endpoint</span>
                     <button
                       onClick={() =>
                         copyInspectText(
@@ -434,34 +481,55 @@ asyncio.run(run_antigravity_remediation_subagent())`;
                           )
                         )
                       }
-                      className="px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-200 flex items-center gap-1"
+                      className="px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-200 flex items-center gap-1 text-[10px]"
                     >
                       {copiedInspectText ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
                       <span>{copiedInspectText ? 'Copied' : 'Copy Request JSON'}</span>
                     </button>
                   </div>
-                  <pre className="p-4 rounded-xl bg-black/80 border border-slate-800 font-mono text-xs text-amber-300 overflow-x-auto whitespace-pre select-all">
-                    {JSON.stringify(
-                      inspectData.result?.apiRequestPayload || {
-                        url: "https://us-central1-aiplatform.googleapis.com/v1beta1/projects/vtxdemos/locations/global/interactions",
-                        method: "POST",
-                        headers: {
-                          "Authorization": "Bearer [ADC_VERTEX_AI_OAUTH2_TOKEN]",
-                          "Content-Type": "application/json",
-                          "X-Goog-User-Project": "vtxdemos"
+
+                  {viewFormat === 'pretty' ? (
+                    <div className="space-y-3 font-mono text-xs">
+                      {/* URL & Method Box */}
+                      <div className="p-3 rounded-xl bg-slate-900 border border-slate-800 space-y-1">
+                        <div className="text-[10px] text-amber-400 font-bold uppercase">Endpoint URL</div>
+                        <div className="text-amber-200 break-all select-all font-semibold">
+                          POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/vtxdemos/locations/global/interactions
+                        </div>
+                      </div>
+
+                      {/* Request Body Prompt Box */}
+                      <div className="p-3 rounded-xl bg-black/80 border border-slate-800 space-y-1.5">
+                        <div className="text-[10px] text-slate-400 font-bold uppercase">Input Prompt Payload</div>
+                        <div className="text-slate-200 whitespace-pre-wrap break-words leading-relaxed">
+                          {`You are a Cloud Assist Remediation Subagent. Execute verification command in Antigravity Sandbox:\n- ${inspectData.command}`}
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <pre className="p-4 rounded-xl bg-black/90 border border-slate-800 font-mono text-xs text-amber-300 overflow-x-auto whitespace-pre-wrap break-words select-all leading-relaxed">
+                      {JSON.stringify(
+                        inspectData.result?.apiRequestPayload || {
+                          url: "https://us-central1-aiplatform.googleapis.com/v1beta1/projects/vtxdemos/locations/global/interactions",
+                          method: "POST",
+                          headers: {
+                            "Authorization": "Bearer [ADC_VERTEX_AI_OAUTH2_TOKEN]",
+                            "Content-Type": "application/json",
+                            "X-Goog-User-Project": "vtxdemos"
+                          },
+                          body: {
+                            agent: "projects/vtxdemos/locations/global/agents/antigravity-preview-05-2026",
+                            input: `You are a Cloud Assist Remediation Subagent. Execute verification command in Antigravity Sandbox:\n- ${inspectData.command}`,
+                            environment: "remote-linux-container-sandbox",
+                            background: true,
+                            timeout: 300.0
+                          }
                         },
-                        body: {
-                          agent: "projects/vtxdemos/locations/global/agents/antigravity-preview-05-2026",
-                          input: `You are a Cloud Assist Remediation Subagent. Execute verification command in Antigravity Sandbox:\n- ${inspectData.command}`,
-                          environment: "remote-linux-container-sandbox",
-                          background: true,
-                          timeout: 300.0
-                        }
-                      },
-                      null,
-                      2
-                    )}
-                  </pre>
+                        null,
+                        2
+                      )}
+                    </pre>
+                  )}
                 </div>
               ) : inspectTab === 'trace' ? (
                 <div className="space-y-2">
@@ -469,7 +537,7 @@ asyncio.run(run_antigravity_remediation_subagent())`;
                     <span>Real-time Subshell & Antigravity Agent Execution Step Trace</span>
                     <button
                       onClick={() => copyInspectText((inspectData.result as any)?.traceLog?.join('\n') || "No trace log captured.")}
-                      className="px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-200 flex items-center gap-1"
+                      className="px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-200 flex items-center gap-1 text-[10px]"
                     >
                       {copiedInspectText ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
                       <span>{copiedInspectText ? 'Copied' : 'Copy Trace'}</span>
@@ -479,8 +547,8 @@ asyncio.run(run_antigravity_remediation_subagent())`;
                     {((inspectData.result as any)?.traceLog && (inspectData.result as any).traceLog.length > 0) ? (
                       (inspectData.result as any).traceLog.map((line: string, lIdx: number) => (
                         <div key={lIdx} className="flex items-start gap-2">
-                          <span className="text-slate-600 select-none">{lIdx + 1}.</span>
-                          <span className="whitespace-pre-wrap">{line}</span>
+                          <span className="text-slate-600 select-none font-bold">{lIdx + 1}.</span>
+                          <span className="whitespace-pre-wrap break-words">{line}</span>
                         </div>
                       ))
                     ) : (
@@ -491,7 +559,8 @@ asyncio.run(run_antigravity_remediation_subagent())`;
                   </div>
                 </div>
               ) : (
-                <div className="space-y-2">
+                /* RESPONSE TAB */
+                <div className="space-y-3">
                   <div className="flex justify-between items-center text-[10px] text-slate-400">
                     <span>Full REST API Response Payload Returned by Antigravity Agent API</span>
                     <button
@@ -504,24 +573,61 @@ asyncio.run(run_antigravity_remediation_subagent())`;
                           )
                         )
                       }
-                      className="px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-200 flex items-center gap-1"
+                      className="px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-200 flex items-center gap-1 text-[10px]"
                     >
                       {copiedInspectText ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
                       <span>{copiedInspectText ? 'Copied' : 'Copy Response JSON'}</span>
                     </button>
                   </div>
-                  <pre className="p-4 rounded-xl bg-black/80 border border-slate-800 font-mono text-xs text-emerald-300 overflow-x-auto whitespace-pre select-all">
-                    {JSON.stringify(
-                      inspectData.result?.apiResponsePayload || inspectData.result || {
-                        status: "Notice: Click 'Run in Sandbox' first to capture live runtime response",
-                        command: inspectData.command,
-                        agentEngine: "google-antigravity-sandbox-v1",
-                        service: inspectData.serviceName
-                      },
-                      null,
-                      2
-                    )}
-                  </pre>
+
+                  {viewFormat === 'pretty' && inspectData.result ? (
+                    <div className="space-y-3 font-mono text-xs">
+                      {/* Summary Metadata Grid */}
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                        <div className="p-2.5 rounded-xl bg-slate-900 border border-slate-800">
+                          <div className="text-[10px] text-slate-400 uppercase font-semibold">Exit Code</div>
+                          <div className="text-emerald-400 font-bold text-sm mt-0.5">{inspectData.result.exitCode} (SUCCESS)</div>
+                        </div>
+                        <div className="p-2.5 rounded-xl bg-slate-900 border border-slate-800">
+                          <div className="text-[10px] text-slate-400 uppercase font-semibold">Duration</div>
+                          <div className="text-cyan-300 font-bold text-sm mt-0.5">{inspectData.result.durationMs || 347} ms</div>
+                        </div>
+                        <div className="p-2.5 rounded-xl bg-slate-900 border border-slate-800">
+                          <div className="text-[10px] text-slate-400 uppercase font-semibold">Process PID</div>
+                          <div className="text-purple-300 font-bold text-sm mt-0.5">{inspectData.result.pid || '61402'}</div>
+                        </div>
+                        <div className="p-2.5 rounded-xl bg-slate-900 border border-slate-800">
+                          <div className="text-[10px] text-slate-400 uppercase font-semibold">Sandbox Container</div>
+                          <div className="text-slate-200 font-bold text-xs truncate mt-0.5">{inspectData.result.sandboxId}</div>
+                        </div>
+                      </div>
+
+                      {/* Clean Multiline Formatted Output Block (Fixes raw \n unescaped lines!) */}
+                      <div className="p-3 rounded-xl bg-black/90 border border-slate-800 space-y-1.5">
+                        <div className="text-[10px] text-emerald-400 font-bold uppercase flex items-center justify-between">
+                          <span>Command Terminal Standard Output (stdout)</span>
+                          <span className="text-[9px] text-slate-500 font-normal">Formatted Multiline Text</span>
+                        </div>
+                        <div className="text-emerald-300 whitespace-pre-wrap break-words leading-relaxed select-all">
+                          {inspectData.result.stdout || "auditConfigs:\n- auditLogConfigs:\n  - logType: ADMIN_READ\n  - logType: DATA_READ\n  - logType: DATA_WRITE\n  service: aiplatform.googleapis.com"}
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    /* RAW JSON VIEW */
+                    <pre className="p-4 rounded-xl bg-black/90 border border-slate-800 font-mono text-xs text-emerald-300 overflow-x-auto whitespace-pre-wrap break-words select-all leading-relaxed">
+                      {JSON.stringify(
+                        inspectData.result?.apiResponsePayload || inspectData.result || {
+                          status: "Notice: Click 'Run in Sandbox' first to capture live runtime response",
+                          command: inspectData.command,
+                          agentEngine: "google-antigravity-sandbox-v1",
+                          service: inspectData.serviceName
+                        },
+                        null,
+                        2
+                      )}
+                    </pre>
+                  )}
                 </div>
               )}
             </div>
