@@ -15,9 +15,9 @@ def fetch_gcp_errors(time_range: str = "1h") -> List[GcpErrorItem]:
     simulated = [
         GcpErrorItem(
             id="err-cloud-run-checkout-500",
-            timestamp=(now - timedelta(minutes=2)).isoformat(),
+            timestamp=(now - timedelta(minutes=1)).isoformat(),
             severity="CRITICAL",
-            serviceName="Cloud Run Application",
+            serviceName="Cloud Run (Storefront)",
             resourceType="cloud_run_revision",
             summary="ZeroDivisionError: division by zero in POST /api/cart/checkout",
             fullText="[CRITICAL] HTTP 500 Internal Server Error returned on POST /api/cart/checkout. Traceback: File '/app/routes/checkout.py', line 42, in process_cart_checkout discount_ratio = total_discount / itemCount ZeroDivisionError: division by zero",
@@ -30,20 +30,52 @@ def fetch_gcp_errors(time_range: str = "1h") -> List[GcpErrorItem]:
             labels={"region": "us-central1", "service_name": "envato-vibe-storefront"}
         ),
         GcpErrorItem(
-            id="err-run-oom-503",
-            timestamp=(now - timedelta(minutes=6)).isoformat(),
+            id="err-cloud-run-keyerror-500",
+            timestamp=(now - timedelta(minutes=3)).isoformat(),
             severity="CRITICAL",
-            serviceName="Cloud Run",
+            serviceName="Cloud Run (Cyberpunk Ledger)",
             resourceType="cloud_run_revision",
-            summary="HTTP 503 Service Unavailable (OOMKilled)",
-            fullText="Memory limit of 512M exceeded with 534M used. Container terminated (OOMKilled) on Cloud Run service 'api-gateway'.",
+            summary="KeyError: 'JWT_SECRET_KEY' in POST /api/auth/token",
+            fullText="[CRITICAL] HTTP 500 Internal Server Error returned on POST /api/auth/token. Traceback: File '/app/services/auth.py', line 18, in generate_jwt_token secret = os.environ['JWT_SECRET_KEY'] KeyError: 'JWT_SECRET_KEY'",
             logPayload={
-                "message": "Container failed to start. Exceeded memory limit 512M.",
-                "service": "api-gateway",
-                "revision": "api-gateway-00042-xar",
-                "status": 503
+                "message": "KeyError: 'JWT_SECRET_KEY' missing in environment",
+                "service": "cyberpunk-ledger-dashboard",
+                "revision": "cyberpunk-ledger-dashboard-00001-a1",
+                "status": 500
             },
-            labels={"region": "us-central1", "service_name": "api-gateway"}
+            labels={"region": "us-central1", "service_name": "cyberpunk-ledger-dashboard"}
+        ),
+        GcpErrorItem(
+            id="err-cloud-run-oom-500",
+            timestamp=(now - timedelta(minutes=5)).isoformat(),
+            severity="CRITICAL",
+            serviceName="Cloud Run (Healthcare Portal)",
+            resourceType="cloud_run_revision",
+            summary="MemoryError: Heap allocation limit 512MB exceeded (OOMKilled)",
+            fullText="[CRITICAL] Memory limit of 512M exceeded with 534M used. Container terminated (OOMKilled) on Cloud Run service 'healthcare-patient-portal'. Traceback: File '/app/reports/mri.py', line 88 MemoryError",
+            logPayload={
+                "message": "MemoryError: Heap memory limit exceeded",
+                "service": "healthcare-patient-portal",
+                "revision": "healthcare-patient-portal-00001-m2",
+                "status": 500
+            },
+            labels={"region": "us-central1", "service_name": "healthcare-patient-portal"}
+        ),
+        GcpErrorItem(
+            id="err-cloud-run-conn-500",
+            timestamp=(now - timedelta(minutes=8)).isoformat(),
+            severity="ERROR",
+            serviceName="Cloud Run (Logistics Tracker)",
+            resourceType="cloud_run_revision",
+            summary="ConnectionRefusedError: Postgres connection pool exhausted",
+            fullText="[ERROR] HTTP 500 Internal Server Error returned on GET /api/fleet/status. Traceback: File '/app/db/postgres.py', line 34 ConnectionRefusedError: Could not acquire connection from Postgres pool",
+            logPayload={
+                "message": "ConnectionRefusedError: Postgres connection pool exhausted",
+                "service": "realtime-logistics-tracker",
+                "revision": "realtime-logistics-tracker-00001-l4",
+                "status": 500
+            },
+            labels={"region": "us-central1", "service_name": "realtime-logistics-tracker"}
         ),
         GcpErrorItem(
             id="err-sql-maint-stall",
