@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { EvidenceItem } from '../../types';
-import { Terminal, CheckCircle2, XCircle, Activity, Lightbulb, Wrench, Check } from 'lucide-react';
+import { Terminal, CheckCircle2, XCircle, Activity, Lightbulb, Wrench, Check, ArrowRight } from 'lucide-react';
 
 interface ReActEvidenceCardProps {
   evidence: EvidenceItem[];
@@ -18,21 +18,25 @@ export const ReActEvidenceCard: React.FC<ReActEvidenceCardProps> = ({ evidence, 
 
     if (title.includes('memory') || text.includes('oomkilled') || text.includes('512m')) {
       return {
+        shortAction: "Expand Container RAM to 1024MB",
         recommendation: "Increase Cloud Run container memory allocation from 512MiB to 1024MiB, or inject stream chunking buffer patch in app/reports/mri.py.",
         actionCommand: "gcloud run services update healthcare-patient-portal --memory=1024MiB --region=us-central1"
       };
     } else if (title.includes('secret') || text.includes('keyerror') || text.includes('jwt')) {
       return {
+        shortAction: "Bind JWT_SECRET_KEY Secret",
         recommendation: "Bind missing Secret Manager secret 'JWT_SECRET_KEY' to Cloud Run service revision, or apply os.environ.get fallback patch.",
         actionCommand: "gcloud run services update cyberpunk-ledger-dashboard --update-secrets=JWT_SECRET_KEY=jwt-secret:latest --region=us-central1"
       };
     } else if (title.includes('connection') || text.includes('postgres') || text.includes('pool')) {
       return {
+        shortAction: "Expand Connection Pool to 100",
         recommendation: "Increase Cloud SQL max_connections from 20 to 100 and apply exponential backoff retry logic in postgres.py pool getter.",
         actionCommand: "gcloud sql instances patch vtxdemos-postgres --database-flags=max_connections=100"
       };
     } else {
       return {
+        shortAction: "Inject Safe Item Count Guard",
         recommendation: "Inject ZeroDivisionGuard safe item count validation before computing discount_ratio in checkout.py.",
         actionCommand: "gcloud run deploy envato-vibe-storefront --image=gcr.io/vtxdemos/storefront:healed --region=us-central1"
       };
@@ -136,30 +140,30 @@ export const ReActEvidenceCard: React.FC<ReActEvidenceCardProps> = ({ evidence, 
               </p>
 
               {/* INLINE GEMINI RECOMMENDATION & REMEDIATION BOX */}
-              <div className={`mt-3 p-3 rounded-xl border space-y-2 font-mono ${
+              <div className={`mt-3 p-3.5 rounded-xl border space-y-2.5 font-mono ${
                 isLightMode
                   ? isAnomaly
                     ? 'bg-amber-50/80 border-amber-300 text-amber-950'
                     : 'bg-white border-slate-300 text-slate-900 shadow-sm'
                   : 'bg-black/50 border-amber-500/30 text-amber-200'
               }`}>
-                <div className="flex items-center space-x-2 text-xs font-bold text-amber-800">
+                <div className="flex items-center space-x-2 text-xs font-bold text-amber-900">
                   <Lightbulb className="w-4 h-4 text-amber-600 flex-shrink-0" />
-                  <span>Gemini Proactive Recommendation & Remediation Plan:</span>
+                  <span>Gemini Recommended Remediation:</span>
                 </div>
-                <p className="text-[11px] leading-relaxed text-slate-800">
+                <p className="text-xs leading-relaxed text-slate-800 font-medium">
                   {rec.recommendation}
                 </p>
 
-                <div className="pt-1.5 flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-t border-amber-200/60">
-                  <code className="text-[10px] text-slate-700 truncate max-w-md">
+                <div className="pt-2 flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-t border-amber-200/80">
+                  <code className="text-[10px] text-slate-700 truncate max-w-xs font-bold">
                     $ {rec.actionCommand}
                   </code>
 
                   <button
                     onClick={() => handleApplyFix(itemKey)}
                     disabled={isFixApplied}
-                    className={`px-3 py-1.5 rounded-lg text-[11px] font-bold flex items-center gap-1.5 transition-all cursor-pointer shadow-sm ${
+                    className={`px-4 py-2 rounded-xl text-xs font-black flex items-center gap-2 transition-all cursor-pointer shadow-md ${
                       isFixApplied
                         ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
                         : isLightMode
@@ -169,13 +173,13 @@ export const ReActEvidenceCard: React.FC<ReActEvidenceCardProps> = ({ evidence, 
                   >
                     {isFixApplied ? (
                       <>
-                        <Check className="w-3.5 h-3.5 text-emerald-600" />
-                        <span>Remediation Applied</span>
+                        <Check className="w-4 h-4 text-emerald-600" />
+                        <span>Fix Applied ({rec.shortAction})</span>
                       </>
                     ) : (
                       <>
-                        <Wrench className="w-3.5 h-3.5" />
-                        <span>Execute Recommended Fix</span>
+                        <Wrench className="w-4 h-4 text-amber-400" />
+                        <span>⚡ Fix: {rec.shortAction} &rarr; Apply</span>
                       </>
                     )}
                   </button>
