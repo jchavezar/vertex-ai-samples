@@ -1,14 +1,21 @@
 import React from 'react';
 import { ChatMessage } from '../../types';
 import { RichTextRenderer } from '../RichTextRenderer';
-import { Bot, User, ExternalLink, Globe, Zap } from 'lucide-react';
+import { Bot, User, ExternalLink, Globe, Zap, Network, FileText } from 'lucide-react';
 
 interface ChatMessageItemProps {
   message: ChatMessage;
   onRunSandboxCommand?: (cmd: string) => void;
+  onOpenAnalyticalOverlay?: () => void;
+  onQuickQuery?: (query: string) => void;
 }
 
-export const ChatMessageItem: React.FC<ChatMessageItemProps> = ({ message, onRunSandboxCommand }) => {
+export const ChatMessageItem: React.FC<ChatMessageItemProps> = ({
+  message,
+  onRunSandboxCommand,
+  onOpenAnalyticalOverlay,
+  onQuickQuery
+}) => {
   const isAgent = message.sender === 'agent';
 
   return (
@@ -26,10 +33,10 @@ export const ChatMessageItem: React.FC<ChatMessageItemProps> = ({ message, onRun
 
       {/* Bubble */}
       <div
-        className={`rounded-xl p-4 max-w-[92%] text-xs leading-relaxed transition-all ${
+        className={`rounded-2xl p-4 max-w-[92%] text-xs leading-relaxed transition-all ${
           isAgent
             ? 'bg-slate-900/95 border border-slate-800/90 text-slate-200 shadow-xl'
-            : 'bg-blue-600/90 text-white shadow-md'
+            : 'bg-blue-600 text-white shadow-md'
         }`}
       >
         {isAgent ? (
@@ -38,9 +45,34 @@ export const ChatMessageItem: React.FC<ChatMessageItemProps> = ({ message, onRun
           <div className="whitespace-pre-line break-words">{message.text}</div>
         )}
 
+        {/* Dynamic Inline Action Buttons */}
+        {isAgent && (
+          <div className="mt-3 pt-2.5 border-t border-slate-800/80 flex flex-wrap gap-1.5">
+            <button
+              onClick={() => onQuickQuery && onQuickQuery('Search Reddit & Google for this error')}
+              className="px-2 py-1 rounded-md bg-cyan-950/40 hover:bg-cyan-900/70 border border-cyan-500/30 text-cyan-300 text-[10px] font-mono font-bold flex items-center gap-1 cursor-pointer transition-all"
+              title="Search Google & Reddit for error solutions"
+            >
+              <Globe className="w-3 h-3 text-cyan-400" />
+              <span>🌐 Deep Search</span>
+            </button>
+
+            {onOpenAnalyticalOverlay && (
+              <button
+                onClick={onOpenAnalyticalOverlay}
+                className="px-2 py-1 rounded-md bg-purple-950/40 hover:bg-purple-900/70 border border-purple-500/30 text-purple-300 text-[10px] font-mono font-bold flex items-center gap-1 cursor-pointer transition-all"
+                title="Open Interactive Mindmap & Analytical Workspace"
+              >
+                <Network className="w-3 h-3 text-purple-400" />
+                <span>🧠 Mindmap Engine</span>
+              </button>
+            )}
+          </div>
+        )}
+
         {/* Cited Web / Doc Sources */}
         {isAgent && message.sourcesCited && message.sourcesCited.length > 0 && (
-          <div className="mt-3.5 pt-3 border-t border-slate-800/80 space-y-1.5">
+          <div className="mt-3 pt-2.5 border-t border-slate-800/80 space-y-1.5">
             <div className="flex items-center space-x-1 text-[10px] font-semibold text-cyan-400 uppercase">
               <Globe className="w-3 h-3" />
               <span>Google Search & Official Sources</span>
