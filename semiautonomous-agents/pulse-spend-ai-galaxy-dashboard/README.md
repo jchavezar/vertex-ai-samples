@@ -55,6 +55,28 @@ The script will automatically:
 
 ---
 
+## 🛠️ Reproduction Skill & Blueprint Instructions
+
+This repository contains a dedicated **AI Agent Skill** specifying the complete design system, physics engine, classification taxonomy, and component wireframes required to reproduce the UI/UX from scratch without copying raw source files.
+
+### Skill Location
+```
+skills/pulse-spend-ai-dashboard/SKILL.md
+```
+
+### How to Use the Skill with an AI Assistant
+1. **Instruct your AI Agent**:
+   > *"Read `skills/pulse-spend-ai-dashboard/SKILL.md` in this repository and implement the PulseSpend AI Spending Analytics Platform and Spend Galaxy Physics Engine following the exact visual tokens, physics formulas, and API endpoints specified."*
+
+2. **Manual Development Reference**:
+   Consult `skills/pulse-spend-ai-dashboard/SKILL.md` for:
+   - Golden Ratio spiral coordinate formulas ($r = 70 + \sqrt{i+1} \cdot 62$)
+   - Node scale formulas ($D = \max(20, \min(56, \sqrt{|\text{amt}|} \cdot 1.9 + 14))$)
+   - Amex CSV cleaning regex patterns
+   - Tailwind slate cosmic color tokens & glassmorphism utilities
+
+---
+
 ## 🏗️ Architecture & Project Structure
 
 ```
@@ -83,6 +105,9 @@ pulse-spend-ai-galaxy-dashboard/
 ├── data/
 │   ├── enriched_dataset.json       # Anonymized sample enriched dataset
 │   └── sample_amex_activity.csv    # Anonymized sample Amex CSV statement
+├── skills/
+│   └── pulse-spend-ai-dashboard/
+│       └── SKILL.md                # Detailed blueprint skill to reproduce UI/UX
 ├── screenshots/                    # Dashboard & Spend Galaxy UI screenshots
 ├── start.sh                        # One-command quickstart script
 └── README.md
