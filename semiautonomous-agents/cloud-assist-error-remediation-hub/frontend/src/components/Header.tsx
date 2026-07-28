@@ -1,13 +1,21 @@
 import React from 'react';
-import { ShieldAlert, Sparkles, Activity, Cloud, RefreshCw } from 'lucide-react';
+import { ShieldAlert, Sparkles, Activity, Cloud, RefreshCw, Zap } from 'lucide-react';
 
 interface HeaderProps {
   totalErrors: number;
   onRefreshAll: () => void;
   isLoading: boolean;
+  activeRemediationMessage?: string | null;
+  onSelectActiveRemediation?: () => void;
 }
 
-export const Header: React.FC<HeaderProps> = ({ totalErrors, onRefreshAll, isLoading }) => {
+export const Header: React.FC<HeaderProps> = ({
+  totalErrors,
+  onRefreshAll,
+  isLoading,
+  activeRemediationMessage,
+  onSelectActiveRemediation
+}) => {
   return (
     <header className="h-16 border-b border-slate-800/80 bg-[#0a0d14]/90 backdrop-blur-md sticky top-0 z-50 px-6 flex items-center justify-between">
       {/* Left Branding */}
@@ -28,7 +36,7 @@ export const Header: React.FC<HeaderProps> = ({ totalErrors, onRefreshAll, isLoa
       </div>
 
       {/* Center Status Banner */}
-      <div className="hidden md:flex items-center space-x-4 bg-slate-900/80 border border-slate-800 px-4 py-1.5 rounded-full shadow-inner">
+      <div className="hidden lg:flex items-center space-x-4 bg-slate-900/80 border border-slate-800 px-4 py-1.5 rounded-full shadow-inner">
         <div className="flex items-center space-x-2">
           <span className="relative flex h-2.5 w-2.5">
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
@@ -45,8 +53,19 @@ export const Header: React.FC<HeaderProps> = ({ totalErrors, onRefreshAll, isLoa
         </div>
       </div>
 
-      {/* Right Controls */}
+      {/* Right Controls + Active Remediation Badge */}
       <div className="flex items-center space-x-3">
+        {activeRemediationMessage && (
+          <button
+            onClick={onSelectActiveRemediation}
+            className="px-3.5 py-1.5 rounded-full bg-gradient-to-r from-amber-500/20 to-emerald-500/20 border border-emerald-500/50 text-emerald-300 text-xs font-bold flex items-center gap-2 animate-pulse shadow-lg shadow-emerald-500/10 cursor-pointer hover:border-emerald-400 transition-all"
+            title="Click to view live background auto-healing progress"
+          >
+            <Zap className="w-3.5 h-3.5 fill-amber-300 text-amber-300" />
+            <span>{activeRemediationMessage}</span>
+          </button>
+        )}
+
         <button
           onClick={onRefreshAll}
           disabled={isLoading}

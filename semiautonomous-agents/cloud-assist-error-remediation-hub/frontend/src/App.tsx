@@ -133,6 +133,8 @@ export function App() {
     }
   };
 
+  const [activeRemediationMessage, setActiveRemediationMessage] = useState<string | null>(null);
+
   return (
     <div className="h-screen w-screen flex flex-col overflow-hidden bg-[#0a0d14]">
       {/* Top Glassmorphic Header */}
@@ -140,6 +142,14 @@ export function App() {
         totalErrors={errors.length}
         onRefreshAll={() => fetchErrors(selectedRange)}
         isLoading={isErrorsLoading}
+        activeRemediationMessage={activeRemediationMessage}
+        onSelectActiveRemediation={() => {
+          setActiveMainTab('remediation');
+          const cloudRunErr = errors.find(e => e.resourceType === 'cloud_run_revision');
+          if (cloudRunErr) {
+            handleSelectError(cloudRunErr);
+          }
+        }}
       />
 
       {/* Main Navigation Tab Bar */}
