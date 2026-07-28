@@ -344,5 +344,21 @@ def rollback_incident(req: RollbackRequest):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+class RealGcpFixRequest(BaseModel):
+    command: str
+    serviceName: str
+
+@app.post("/api/execute-real-gcp-fix")
+def execute_real_gcp_fix(req: RealGcpFixRequest):
+    """
+    Executes authentic gcloud CLI subprocess commands against GCP project vtxdemos,
+    streaming actual console output and verifying Cloud Audit Logs in real time.
+    """
+    from app.services.gcp_real_executor_service import execute_real_gcp_command
+    try:
+        return execute_real_gcp_command(req.command, req.serviceName)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 if __name__ == "__main__":
     uvicorn.run("main:app", host="127.0.0.1", port=PORT, reload=False)
