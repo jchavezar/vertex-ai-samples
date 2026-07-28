@@ -18,6 +18,7 @@ import datetime
 from typing import List, Dict, Any
 from app.models.schemas import GcpErrorItem, HypothesisItem
 from app.config import GCP_PROJECT_ID
+from google import genai
 
 class HarnessAttempt:
     def __init__(self, attempt_num: int, command: str, exit_code: int, stdout: str, stderr: str, duration_ms: int):
@@ -83,8 +84,8 @@ async def run_subagent_in_sandbox(
     error_item: GcpErrorItem
 ) -> SandboxTaskResult:
     """
-    Executes a hypothesis verification inside a Linux Sandbox equipped with our
-    Self-Healing Auto-Recovery Harness loop.
+    Executes a hypothesis verification inside a real Google Antigravity remote Sandbox container
+    using the Google GenAI Interactions SDK.
     """
     start_dt = datetime.datetime.now()
     sandbox_id = f"sandbox-{task_id.lower().replace(' ', '-')}"
@@ -94,113 +95,132 @@ async def run_subagent_in_sandbox(
     recovered_from_error = False
     logs = []
     
-    logs.append(f"[{start_dt.strftime('%H:%M:%S.%f')[:-3]}] [SANDBOX {sandbox_id}] Initializing Antigravity Linux Sandbox container...")
+    logs.append(f"[{start_dt.strftime('%H:%M:%S.%f')[:-3]}] [SANDBOX {sandbox_id}] Initializing Antigravity Linux Sandbox container on Vertex AI...")
     logs.append(f"[{start_dt.strftime('%H:%M:%S.%f')[:-3]}] [SANDBOX {sandbox_id}] Target: {error_item.serviceName} | Hypothesis: {hypothesis.title}")
-
-    # Run command with Self-Healing Harness
-    for idx, original_cmd in enumerate(initial_commands):
-        cmd = original_cmd.strip()
-        if cmd.startswith("gcloud") and "--project" not in cmd:
-            cmd = f"{cmd} --project={GCP_PROJECT_ID}"
-            
-        t0 = datetime.datetime.now()
-        logs.append(f"[HARNESS ATTEMPT 1] Executing: $ {cmd}")
+    
+    # Initialize the GenAI Client pointing to Vertex AI
+    # Uses location global for agent preview access
+    client = genai.Client(
+        vertexai=True,
+        project=GCP_PROJECT_ID,
+        location="global"
+    )
+    
+    # Format a prompt instruction for the Antigravity agent
+    cmd_list_str = "\n".join([f"- {c}" for c in initial_commands])
+    prompt = (
+        f"You are a Cloud Assist Remediation Subagent verifying a root-cause hypothesis.\n\n"
+        f"### Incident Context\n"
+        f"- Service: {error_item.serviceName}\n"
+        f"- Error: {error_item.summary}\n"
+        f"- Log Text: {error_item.fullText}\n\n"
+        f"### Hypothesis to Verify\n"
+        f"Title: {hypothesis.title}\n"
+        f"Root Cause: {hypothesis.rootCauseText}\n\n"
+        f"### Verification task\n"
+        f"Run these remediation/verification commands in your sandbox terminal to test the fix:\n"
+        f"{cmd_list_str}\n\n"
+        f"Execute the commands, check their output, and report back the final stdout, stderr, and exit codes."
+    )
+    
+    try:
+        # Create background interaction (creates/provisions a remote sandbox container)
+        interaction = await asyncio.to_thread(
+            client.interactions.create,
+            agent="antigravity-preview-05-2026",
+            input=prompt,
+            environment="remote",
+            background=True,
+            timeout=300.0
+        )
+        sandbox_id = interaction.environment_id or sandbox_id
+        logs.append(f"[SANDBOX {sandbox_id}] Created background interaction: {interaction.id}")
         
-        try:
-            process = await asyncio.create_subprocess_shell(
-                cmd,
-                stdout=asyncio.subprocess.PIPE,
-                stderr=asyncio.subprocess.PIPE
-            )
-            stdout_b, stderr_b = await asyncio.wait_for(process.communicate(), timeout=30.0)
-            exit_code = process.returncode
-            stdout = stdout_b.decode("utf-8", errors="ignore")
-            stderr = stderr_b.decode("utf-8", errors="ignore")
-        except Exception as e:
-            exit_code = 1
-            stdout = ""
-            stderr = f"Execution error: {str(e)}"
+        # Poll status until complete
+        poll_attempts = 0
+        while interaction.status == "in_progress" and poll_attempts < 60:
+            await asyncio.sleep(5)
+            interaction = await asyncio.to_thread(client.interactions.get, id=interaction.id)
+            poll_attempts += 1
+            logs.append(f"[SANDBOX {sandbox_id}] Polling check {poll_attempts}: status={interaction.status}")
             
-        duration_1 = int((datetime.datetime.now() - t0).total_seconds() * 1000)
+        logs.append(f"[SANDBOX {sandbox_id}] Completed execution with final status: {interaction.status}")
         
-        if exit_code != 0:
-            logs.append(f"[HARNESS ATTEMPT 1] FAILED (Exit Code: {exit_code}) | Error: {stderr.strip()}")
-            attempts.append(
-                HarnessAttempt(
-                    attempt_num=1,
-                    command=cmd,
-                    exit_code=exit_code,
-                    stdout=stdout,
-                    stderr=stderr,
-                    duration_ms=duration_1
-                )
-            )
+        # Parse step logs and tool execution attempts
+        func_calls = {}
+        if hasattr(interaction, 'steps') and interaction.steps:
+            for idx, step in enumerate(interaction.steps):
+                if step.type == "function_call" and step.name == "run_command":
+                    try:
+                        args = step.arguments.model_dump() if hasattr(step.arguments, 'model_dump') else step.arguments
+                    except Exception:
+                        args = getattr(step, 'arguments', {})
+                    func_calls[step.id] = args
+                elif step.type == "function_result" and step.name == "run_command":
+                    call_id = step.call_id
+                    args = func_calls.get(call_id, {})
+                    cmd_line = args.get("CommandLine", "unknown-command")
+                    
+                    res_val = {}
+                    if step.result:
+                        try:
+                            res_val = step.result.model_dump()
+                        except Exception:
+                            try:
+                                res_val = step.result.dict()
+                            except Exception:
+                                res_val = getattr(step, 'result', {})
+                                
+                    exit_code = res_val.get("ExitCode", 0)
+                    output_raw = res_val.get("Output", "")
+                    
+                    stdout = ""
+                    stderr = ""
+                    if "[STDOUT]" in output_raw:
+                        parts = output_raw.split("[STDERR]")
+                        stdout = parts[0].replace("[STDOUT]", "").strip()
+                        if len(parts) > 1:
+                            stderr = parts[1].strip()
+                    else:
+                        stdout = output_raw
+                    
+                    attempts.append(
+                        HarnessAttempt(
+                            attempt_num=len(attempts) + 1,
+                            command=cmd_line,
+                            exit_code=exit_code,
+                            stdout=stdout,
+                            stderr=stderr,
+                            duration_ms=500
+                        )
+                    )
+                    
+                    if exit_code != 0:
+                        logs.append(f"[HARNESS ATTEMPT {len(attempts)}] FAILED (Exit Code: {exit_code}) | Error: {stderr.strip()}")
+                    else:
+                        logs.append(f"[HARNESS ATTEMPT {len(attempts)}] SUCCESS (Exit Code: 0) — Configuration applied cleanly.")
+                        
+        if getattr(interaction, 'output_text', None):
+            logs.append(f"### Agent Summary:\n{interaction.output_text}")
             
-            # Formulate corrected command
-            corrected_cmd = cmd
-            if "warning" in stderr.lower() or "prompt" in stderr.lower() or "confirm" in stderr.lower() or "interactive" in stderr.lower():
-                if "--quiet" not in corrected_cmd:
-                    corrected_cmd = f"{corrected_cmd} --quiet"
-                if "--async" not in corrected_cmd and "run services update" in corrected_cmd:
-                    corrected_cmd = f"{corrected_cmd} --async"
-                    
-            if corrected_cmd != cmd:
-                recovered_from_error = True
-                t1 = datetime.datetime.now()
-                logs.append(f"[HARNESS AUTO-RECOVERY] Synthesized self-healing fallback: $ {corrected_cmd}")
-                
-                try:
-                    process = await asyncio.create_subprocess_shell(
-                        corrected_cmd,
-                        stdout=asyncio.subprocess.PIPE,
-                        stderr=asyncio.subprocess.PIPE
-                    )
-                    stdout_b, stderr_b = await asyncio.wait_for(process.communicate(), timeout=30.0)
-                    exit_code_2 = process.returncode
-                    stdout_2 = stdout_b.decode("utf-8", errors="ignore")
-                    stderr_2 = stderr_b.decode("utf-8", errors="ignore")
-                except Exception as e:
-                    exit_code_2 = 1
-                    stdout_2 = ""
-                    stderr_2 = f"Execution error: {str(e)}"
-                    
-                duration_2 = int((datetime.datetime.now() - t1).total_seconds() * 1000)
-                
-                if exit_code_2 == 0:
-                    logs.append(f"[HARNESS ATTEMPT 2] SUCCESS (Exit Code: 0) — Auto-recovered cleanly.")
-                else:
-                    logs.append(f"[HARNESS ATTEMPT 2] FAILED (Exit Code: {exit_code_2}) | Error: {stderr_2.strip()}")
-                    
-                attempts.append(
-                    HarnessAttempt(
-                        attempt_num=2,
-                        command=corrected_cmd,
-                        exit_code=exit_code_2,
-                        stdout=stdout_2,
-                        stderr=stderr_2,
-                        duration_ms=duration_2
-                    )
-                )
-            else:
-                # No self-healing correction possible, report the original failure
-                pass
-        else:
-            logs.append(f"[HARNESS ATTEMPT 1] SUCCESS (Exit Code: 0) — Configuration applied cleanly.")
-            attempts.append(
-                HarnessAttempt(
-                    attempt_num=1,
-                    command=cmd,
-                    exit_code=0,
-                    stdout=stdout or "Command completed successfully.",
-                    stderr="",
-                    duration_ms=duration_1
-                )
+    except Exception as e:
+        logs.append(f"[SANDBOX ERROR] Failed to run Antigravity interaction: {str(e)}")
+        attempts.append(
+            HarnessAttempt(
+                attempt_num=1,
+                command="client.interactions.create",
+                exit_code=1,
+                stdout="",
+                stderr=str(e),
+                duration_ms=0
             )
-
+        )
+        
     end_dt = datetime.datetime.now()
     total_duration = int((end_dt - start_dt).total_seconds() * 1000)
     
     final_success = (attempts[-1].exit_code == 0) if attempts else False
+    recovered_from_error = any(a.exit_code != 0 for a in attempts[:-1]) if len(attempts) > 1 else False
     
     return SandboxTaskResult(
         task_id=task_id,

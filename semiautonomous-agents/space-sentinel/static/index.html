@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SpaceSentinel 360 // Autonomous Disk Reclamation & Analytics</title>
+  <meta name="description" content="Cyberpunk high-density storage management dashboard with non-destructive quarantine staging and live telemetry.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body class="cyber-theme">
+  <div class="hologram-grid-bg" aria-hidden="true"></div>
+
+  <!-- Top Navigation Header -->
+  <header class="app-header" id="main-header">
+    <div class="header-brand">
+      <div class="reactor-pulse-dot" aria-hidden="true"></div>
+      <div class="brand-titles">
+        <h1 class="app-title" id="app-heading">SPACESENTINEL <span class="glow-accent">360</span></h1>
+        <p class="app-subtitle">SYSTEM DISK TELEMETRY &amp; RECLAMATION ENGINE // APFS VOLUME SENSOR</p>
+      </div>
+    </div>
+    <div class="header-status-pill" id="header-connection-pill">
+      <span class="status-indicator-dot"></span>
+      <span id="status-text-span">CONNECTING TELEMETRY...</span>
+    </div>
+  </header>
+
+  <main class="dashboard-viewport" id="dashboard-main">
+    <!-- HERO TELEMETRY CARDS -->
+    <section class="telemetry-hero-grid" aria-label="System Storage Overview">
+      <!-- Card 1: Drive Meter -->
+      <article class="glass-card drive-holo-card" id="card-drive-meter">
+        <div class="card-corner-tl"></div>
+        <div class="card-header-row">
+          <span class="card-label">PRIMARY DISK VOLUME (/)</span>
+          <span class="badge-cyan" id="badge-total-capacity">-- GiB TOTAL</span>
+        </div>
+        <div class="gauge-display-wrapper">
+          <svg class="circular-gauge" viewBox="0 0 120 120" id="svg-disk-gauge">
+            <circle class="gauge-bg" cx="60" cy="60" r="50"></circle>
+            <circle class="gauge-progress" cx="60" cy="60" r="50" id="gauge-circle-progress" stroke-dasharray="314.15" stroke-dashoffset="314.15"></circle>
+          </svg>
+          <div class="gauge-center-text">
+            <span class="gauge-percent-val" id="val-free-percent">--%</span>
+            <span class="gauge-percent-sub">AVAILABLE</span>
+          </div>
+        </div>
+        <div class="drive-stats-breakdown" id="drive-stats-container">
+          <div class="stat-row">
+            <span class="stat-name">Free Capacity:</span>
+            <span class="stat-num glow-green" id="stat-free-bytes">-- GB</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-name">Used Capacity:</span>
+            <span class="stat-num glow-magenta" id="stat-used-bytes">-- GB</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-name">Home User Space:</span>
+            <span class="stat-num glow-cyan" id="stat-home-bytes">339.0 GB</span>
+          </div>
+        </div>
+      </article>
+
+      <!-- Card 2: Quick Reclaim Engine -->
+      <article class="glass-card opportunity-card" id="card-opportunity">
+        <div class="card-corner-tl"></div>
+        <div class="card-header-row">
+          <span class="card-label">INSTANT SAFE RECLAMATION OPPORTUNITY</span>
+          <span class="badge-pulse-green">ZERO-RISK CACHES</span>
+        </div>
+        <div class="opportunity-big-number">
+          <span class="reclaim-amount-val" id="val-reclaimable-total">~97.8 GB</span>
+          <span class="reclaim-unit">RECLAIMABLE NOW</span>
+        </div>
+        <p class="opportunity-desc">
+          System caches (Python UV build cache, NPM registry wheels, and IDE updater artifacts) can be safely purged without touching personal projects or OS stability.
+        </p>
+        <button class="btn-cyan-glow full-width-btn" id="btn-purge-all-caches" type="button">
+          ⚡ ONE-CLICK SWEEP ALL SAFE CACHES (97.8 GB)
+        </button>
+      </article>
+
+      <!-- Card 3: Quarantine Basket Dock Counter -->
+      <article class="glass-card quarantine-card" id="card-quarantine">
+        <div class="card-corner-tl"></div>
+        <div class="card-header-row">
+          <span class="card-label">SAFETY STAGING BUFFER (QUARANTINE)</span>
+          <span class="badge-amber" id="badge-quarantine-count">0 ITEMS</span>
+        </div>
+        <div class="quarantine-gauge-box">
+          <div class="staged-bytes-counter" id="val-staged-bytes">0.0 MB</div>
+          <div class="staged-subtitle">STAGED FOR DESTRUCTION / COMPRESSION</div>
+        </div>
+        <p class="quarantine-help">
+          Files moved to Quarantine are held reversibly in <code class="mono-code">~/.space_sentinel_quarantine</code> before final erasure.
+        </p>
+        <div class="card-dual-actions">
+          <button class="btn-secondary-cyber" id="btn-view-quarantine" type="button">VIEW BUFFER</button>
+          <button class="btn-danger-cyber" id="btn-commit-empty-quarantine" type="button">COMMIT PERMANENT ERASE</button>
+        </div>
+      </article>
+    </section>
+
+    <!-- SECTION 2: ONE-CLICK QUICK CACHE SWEEPER CARDS -->
+    <section class="preset-sweeper-section" aria-label="Quick Sweeper Presets">
+      <div class="section-title-bar">
+        <h2 class="section-h2" id="h2-quick-sweeper">QUICK CACHE &amp; PRESET RECLAMATION DECKS</h2>
+        <span class="title-sub-info">NON-DESTRUCTIVE CACHE WIPERS &amp; AI MODEL INVENTORIES</span>
+      </div>
+      <div class="preset-cards-grid" id="preset-cards-container">
+        <!-- Dynamic cards populated via JS safely -->
+      </div>
+    </section>
+
+    <!-- SECTION 3: HEAVY FILE DISCOVERY & INTERACTIVE GALAXY DOCK -->
+    <section class="file-galaxy-section" aria-label="Heavy Files Discovery">
+      <div class="section-title-bar">
+        <div class="title-left-group">
+          <h2 class="section-h2" id="h2-file-galaxy">TOP STORAGE CONSUMERS &amp; HEAVY FILES</h2>
+          <span class="file-count-tag" id="tag-file-count">SCANNING FILES...</span>
+        </div>
+        <div class="toolbar-controls-group">
+          <!-- Minimum Size Select -->
+          <div class="control-pair">
+            <label for="select-min-size" class="control-label">MIN SIZE:</label>
+            <select id="select-min-size" class="cyber-select">
+              <option value="50">&gt; 50 MB</option>
+              <option value="100" selected>&gt; 100 MB</option>
+              <option value="500">&gt; 500 MB</option>
+              <option value="1000">&gt; 1.0 GB</option>
+            </select>
+          </div>
+          <!-- Filter Search -->
+          <input type="search" id="input-search-filter" class="cyber-search-input" placeholder="Filter by name or extension (.gguf, .zip, .iso)..." aria-label="Search files by name">
+          <button class="btn-icon-cyber" id="btn-refresh-scan" title="Rescan disk items" type="button">
+            ↻ RESCAN
+          </button>
+        </div>
+      </div>
+
+      <!-- Category Filter Tabs -->
+      <nav class="category-filter-tabs" id="category-tabs-bar" aria-label="Filter by File Category">
+        <button class="filter-tab active" data-cat="ALL" id="tab-cat-all" type="button">ALL CATEGORIES</button>
+        <button class="filter-tab" data-cat="AI &amp; ML Weights" id="tab-cat-ai" type="button">🤖 AI &amp; ML WEIGHTS</button>
+        <button class="filter-tab" data-cat="Archives &amp; Disk Images" id="tab-cat-archives" type="button">📦 ARCHIVES &amp; ISOS</button>
+        <button class="filter-tab" data-cat="Media &amp; Video" id="tab-cat-media" type="button">🎬 MEDIA &amp; RECORDINGS</button>
+        <button class="filter-tab" data-cat="Cache File" id="tab-cat-caches" type="button">⚡ CACHES &amp; LOGS</button>
+      </nav>
+
+      <!-- TREEMAP PROPORTIONAL FILE BAR -->
+      <div class="visual-treemap-strip" id="visual-treemap-container" aria-label="Visual Storage Proportion Chart">
+        <!-- Visual bars generated here -->
+      </div>
+
+      <!-- FILE TILES CARDS GRID -->
+      <div class="file-tiles-grid" id="file-tiles-container">
+        <!-- Dynamic safe file tiles -->
+      </div>
+    </section>
+  </main>
+
+  <!-- MODAL DRAWER: QUARANTINE BUFFER VIEW -->
+  <dialog class="cyber-modal" id="modal-quarantine-drawer">
+    <div class="modal-content-glass">
+      <div class="modal-header">
+        <h3 class="modal-title-h3" id="h3-modal-quarantine">🛡️ QUARANTINE STAGING BUFFER (<span id="modal-quarantine-count-span">0</span>)</h3>
+        <button class="btn-close-modal" id="btn-close-quarantine-modal" type="button">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p class="modal-note">
+          These items were staged away from your main directories. Nothing is deleted until you confirm permanent erasure below.
+        </p>
+        <div class="quarantine-items-list" id="modal-quarantine-list">
+          <!-- Quarantined items -->
+        </div>
+      </div>
+      <div class="modal-footer-toolbar">
+        <button class="btn-secondary-cyber" id="btn-restore-all-modal" type="button">↩️ RESTORE ALL TO ORIGIN</button>
+        <button class="btn-danger-cyber" id="btn-commit-erase-modal" type="button">🔥 CONFIRM PERMANENT ERASE</button>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- CONFIRMATION DIALOG FOR DANGEROUS PERMANENT DELETE -->
+  <dialog class="cyber-modal" id="modal-confirm-delete">
+    <div class="modal-content-glass modal-danger-glow">
+      <div class="modal-header">
+        <h3 class="modal-title-h3 warning-red">⚠️ CONFIRM PERMANENT DELETION</h3>
+        <button class="btn-close-modal" id="btn-close-confirm-modal" type="button">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p class="warning-alert-text">
+          You are about to PERMANENTLY ERASE the following file from your drive. This action bypasses macOS Trash and cannot be undone!
+        </p>
+        <div class="target-file-banner" id="confirm-target-filepath">--</div>
+        <div class="target-file-size" id="confirm-target-filesize">--</div>
+      </div>
+      <div class="modal-footer-toolbar">
+        <button class="btn-secondary-cyber" id="btn-cancel-confirm-delete" type="button">CANCEL (KEEP SAFE)</button>
+        <button class="btn-danger-cyber" id="btn-execute-permanent-delete" type="button">YES, DELETE PERMANENTLY</button>
+      </div>
+    </div>
+  </dialog>
+
+  <footer class="app-footer">
+    <div class="footer-inner">
+      <span>SPACESENTINEL 360 v2.5 // LOCALHOST ZERO-LEAK PROTECTED // APFS RECLAMATION SUITE</span>
+      <span class="footer-path">REPOSITORY: <code class="mono-code">~/IdeaProjects/vertex-ai-samples/semiautonomous-agents/space-sentinel</code></span>
+    </div>
+  </footer>
+
+  <script src="/app.js"></script>
+</body>
+</html>

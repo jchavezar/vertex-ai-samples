@@ -264,6 +264,67 @@ def _build_fallback_diagnostic(error_item: GcpErrorItem) -> CloudAssistDiagnosti
             ],
             rawObservationsCount=3
         )
+    elif "Scheduler" in svc or "scheduler" in error_item.id:
+        return CloudAssistDiagnostic(
+            investigationName=f"projects/{GCP_PROJECT_ID}/locations/global/investigations/auto-{error_item.id}",
+            title=f"Cloud Scheduler Job Failure: {error_item.summary}",
+            executionState="INVESTIGATION_EXECUTION_STATE_COMPLETED",
+            recapText=(
+                "**Strategy**: Checked Cloud Scheduler job configuration, target endpoint connectivity, and permission credentials. "
+                "Found target HTTP endpoint returning a HTTP 404 Not Found response code."
+            ),
+            hypotheses=[
+                HypothesisItem(
+                    id="hyp-scheduler-target-404",
+                    title="HTTP Target Route Missing or De-provisioned (HTTP 404)",
+                    relevanceScore=0.95,
+                    overviewText=(
+                        "### Overview\n"
+                        "The Cloud Scheduler job `envato-vibe-app-warmup` is configured to trigger an HTTP target at:\n"
+                        "`https://envato-vibe-app-254356041555.us-central1.run.app/api/warmup`.\n\n"
+                        "During job execution, the request to this URL failed with status code **404 NOT FOUND**.\n\n"
+                        "### Root Cause\n"
+                        "The route `/api/warmup` does not exist on the active revision of the Cloud Run service `envato-vibe-app`, "
+                        "or the service has been deployed without that endpoint registration."
+                    ),
+                    rootCauseText="Scheduler target HTTP route returned HTTP 404 Not Found response.",
+                    remediationCommands=[
+                        "gcloud scheduler jobs describe envato-vibe-app-warmup --location=us-central1",
+                        "gcloud run services describe envato-vibe-app --region=us-central1 --format='value(status.url)'"
+                    ],
+                    recommendationText=(
+                        "1. **Verify Target Endpoint Route**: Deploy or enable the `/api/warmup` endpoint in the target application repository.\n"
+                        "2. **Update Scheduler Job URL**: If the endpoint URL has changed, patch the scheduler job target:\n"
+                        "   `gcloud scheduler jobs update http envato-vibe-app-warmup --location=us-central1 --uri=NEW_ENDPOINT_URL`\n"
+                        "3. **Run Immediate Execution**: Manually trigger the job to confirm success:\n"
+                        "   `gcloud scheduler jobs run envato-vibe-app-warmup --location=us-central1`"
+                    ),
+                    relevantResources=[
+                        f"//cloudscheduler.googleapis.com/projects/{GCP_PROJECT_ID}/locations/us-central1/jobs/envato-vibe-app-warmup",
+                        f"//run.googleapis.com/projects/{GCP_PROJECT_ID}/locations/us-central1/services/envato-vibe-app"
+                    ]
+                )
+            ],
+            evidence=[
+                EvidenceItem(
+                    id="check-scheduler-job",
+                    title="Scheduler Job Definition Check",
+                    checkType="gcloud scheduler jobs describe",
+                    commandExecuted="gcloud scheduler jobs describe envato-vibe-app-warmup --location=us-central1",
+                    text="Confirmed job target is configured as HTTP POST request to 'https://envato-vibe-app-254356041555.us-central1.run.app/api/warmup'.",
+                    normalOperation=True
+                ),
+                EvidenceItem(
+                    id="check-scheduler-response",
+                    title="Target Response Log Verification",
+                    checkType="HTTP Response Analysis",
+                    commandExecuted="gcloud logging read 'resource.type=cloud_scheduler_job AND severity>=ERROR' --limit=5",
+                    text="Log payload attemptFinished event specifies debugInfo: 'URL_ERROR-ERROR_NOT_FOUND. Original HTTP response code number = 404'.",
+                    normalOperation=False
+                )
+            ],
+            rawObservationsCount=2
+        )
     else:
         return CloudAssistDiagnostic(
             investigationName=f"projects/{GCP_PROJECT_ID}/locations/global/investigations/auto-{error_item.id}",

@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aura — Minimalist Agent</title>
+  
+  <!-- Premium Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  
+  <!-- CSS Variables and Reset -->
+  <link rel="stylesheet" href="/src/style.css">
+</head>
+<body>
+  <div id="app" class="app-container">
+    <!-- Main Window Chat Interface -->
+    <main class="chat-window">
+      <!-- App Header -->
+      <header class="chat-header">
+        <div class="logo-area">
+          <span class="logo-pulse"></span>
+          <h1>Aura</h1>
+          <span class="badge">agent-7437</span>
+        </div>
+        <div class="status-area">
+          <span class="status-dot healthy"></span>
+          <span class="status-text" id="backend-status">Connecting...</span>
+        </div>
+      </header>
+
+      <!-- Message History Container -->
+      <section class="messages-container" id="messages-container">
+        <!-- Start of Chat Welcome Screen -->
+        <div class="welcome-screen" id="welcome-screen">
+          <div class="welcome-icon">✧</div>
+          <h2>How can I help you today?</h2>
+          <p>I am connected to your orchestrator agent, equipped with a Google News specialist and a financial service specialist grounded in 2024 10-K files.</p>
+          
+          <div class="suggested-prompts">
+            <button class="prompt-card" data-prompt="What are the latest news updates regarding Google's AI developments?">
+              <span class="card-icon">📰</span>
+              <span class="card-text">Latest AI News</span>
+            </button>
+            <button class="prompt-card" data-prompt="Can you analyze the 2024 10-K financial performance and highlights?">
+              <span class="card-icon">📈</span>
+              <span class="card-text">Analyze 2024 10-K</span>
+            </button>
+            <button class="prompt-card" data-prompt="Are there any recent news events affecting the financial services industry?">
+              <span class="card-icon">⚡</span>
+              <span class="card-text">Financial Industry News</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Active Tool Traces Banner (Highly Premium UX) -->
+      <div class="tool-activity-banner hidden" id="tool-activity-banner">
+        <span class="activity-spinner"></span>
+        <span class="activity-text" id="tool-activity-text">Agent executing tool...</span>
+      </div>
+
+      <!-- Input Form Dock -->
+      <footer class="input-dock">
+        <form id="chat-form" class="chat-form">
+          <div class="input-wrapper">
+            <textarea 
+              id="chat-input" 
+              placeholder="Message Aura..." 
+              rows="1" 
+              autocomplete="off"
+              autofocus
+            ></textarea>
+            <button type="submit" id="send-button" disabled aria-label="Send message">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M1 8L14 8M14 8L8 2M14 8L8 14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </button>
+          </div>
+        </form>
+        <div class="footer-meta">
+          <span>Connected via Agent Engine Runtime</span>
+        </div>
+      </footer>
+    </main>
+  </div>
+
+  <script type="module" src="/src/main.ts"></script>
+</body>
+</html>

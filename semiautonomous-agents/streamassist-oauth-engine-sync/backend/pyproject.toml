@@ -1,0 +1,17 @@
+[project]
+name = "streamassist-oauth-engine-sync"
+version = "0.1.0"
+description = "StreamAssist Federated Search with full Engine User Data Synchronization"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "fastapi>=0.110.0",
+    "uvicorn>=0.28.0",
+    "requests>=2.31.0",
+    "python-dotenv>=1.0.1",
+    "pydantic>=2.6.4",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

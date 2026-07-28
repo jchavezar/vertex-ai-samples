@@ -67,4 +67,23 @@ async def test_run_subagent_in_sandbox_real_command():
     assert res.success is True
     assert len(res.attempts) > 0
     assert "gcloud version" in res.final_command
-    assert "--project=" in res.final_command
+
+def test_fallback_diagnostic_scheduler():
+    from app.models.schemas import GcpErrorItem
+    dummy_err = GcpErrorItem(
+        id="test-scheduler-err",
+        timestamp="2026-07-27T18:00:00Z",
+        severity="ERROR",
+        serviceName="Cloud Scheduler",
+        resourceType="cloud_scheduler_job",
+        summary="Target endpoint returned 404",
+        fullText="AttemptFinished event: debugInfo = 404 Not Found",
+        logPayload={},
+        labels={}
+    )
+    diag = _build_fallback_diagnostic(dummy_err)
+    assert "Cloud Scheduler Job Failure" in diag.title
+    assert len(diag.hypotheses) > 0
+    hyp = diag.hypotheses[0]
+    assert hyp.id == "hyp-scheduler-target-404"
+    assert "gcloud scheduler jobs describe" in hyp.remediationCommands[0]

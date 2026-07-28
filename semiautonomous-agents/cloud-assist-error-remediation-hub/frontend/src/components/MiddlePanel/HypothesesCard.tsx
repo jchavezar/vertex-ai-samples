@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { HypothesisItem } from '../../types';
-import { Target, Check, Copy, Zap, CheckCircle2, AlertCircle, Search, Code, FileText, X } from 'lucide-react';
+import { Target, Check, Copy, Zap, CheckCircle2, AlertCircle, Search, Code, FileText, X, Terminal } from 'lucide-react';
 import { RichTextRenderer } from '../RichTextRenderer';
 
 interface HypothesesCardProps {
@@ -16,6 +16,9 @@ interface ExecutionResult {
   executedAt: string;
   sandboxId: string;
   durationMs?: number;
+  pid?: number;
+  agentEngine?: string;
+  traceLog?: string[];
 }
 
 interface InspectModalData {
@@ -30,7 +33,7 @@ export const HypothesesCard: React.FC<HypothesesCardProps> = ({ hypotheses, serv
   const [runningIndex, setRunningIndex] = useState<number | null>(null);
   const [execResults, setExecResults] = useState<Record<number, ExecutionResult>>({});
   const [inspectData, setInspectData] = useState<InspectModalData | null>(null);
-  const [inspectTab, setInspectTab] = useState<'code' | 'response'>('code');
+  const [inspectTab, setInspectTab] = useState<'code' | 'response' | 'trace'>('response');
   const [copiedInspectText, setCopiedInspectText] = useState<boolean>(false);
 
   const copyCommand = (cmd: string, idx: number) => {
@@ -343,6 +346,28 @@ asyncio.run(run_antigravity_remediation_subagent())`;
             {/* Modal Tabs */}
             <div className="flex border-b border-slate-800 bg-slate-950/40 px-4">
               <button
+                onClick={() => setInspectTab('response')}
+                className={`py-2.5 px-4 text-xs font-bold border-b-2 flex items-center gap-1.5 transition-all ${
+                  inspectTab === 'response'
+                    ? 'border-emerald-400 text-emerald-300 bg-emerald-950/20'
+                    : 'border-transparent text-slate-400 hover:text-slate-200'
+                }`}
+              >
+                <FileText className="w-3.5 h-3.5" />
+                <span>📡 Live Sandbox Output & Telemetry</span>
+              </button>
+              <button
+                onClick={() => setInspectTab('trace')}
+                className={`py-2.5 px-4 text-xs font-bold border-b-2 flex items-center gap-1.5 transition-all ${
+                  inspectTab === 'trace'
+                    ? 'border-purple-400 text-purple-300 bg-purple-950/20'
+                    : 'border-transparent text-slate-400 hover:text-slate-200'
+                }`}
+              >
+                <Terminal className="w-3.5 h-3.5" />
+                <span>📜 Real Execution Trace Log</span>
+              </button>
+              <button
                 onClick={() => setInspectTab('code')}
                 className={`py-2.5 px-4 text-xs font-bold border-b-2 flex items-center gap-1.5 transition-all ${
                   inspectTab === 'code'
@@ -352,17 +377,6 @@ asyncio.run(run_antigravity_remediation_subagent())`;
               >
                 <Code className="w-3.5 h-3.5" />
                 <span>🐍 Python Code Snippet</span>
-              </button>
-              <button
-                onClick={() => setInspectTab('response')}
-                className={`py-2.5 px-4 text-xs font-bold border-b-2 flex items-center gap-1.5 transition-all ${
-                  inspectTab === 'response'
-                    ? 'border-cyan-400 text-cyan-300 bg-cyan-950/20'
-                    : 'border-transparent text-slate-400 hover:text-slate-200'
-                }`}
-              >
-                <FileText className="w-3.5 h-3.5" />
-                <span>📡 Raw Response & Telemetry</span>
               </button>
             </div>
 
@@ -384,10 +398,37 @@ asyncio.run(run_antigravity_remediation_subagent())`;
                     {generatePythonSnippet(inspectData.command, inspectData.serviceName)}
                   </pre>
                 </div>
+              ) : inspectTab === 'trace' ? (
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center text-[10px] text-slate-400">
+                    <span>Real-time Subshell & Antigravity Agent Execution Step Trace</span>
+                    <button
+                      onClick={() => copyInspectText((inspectData.result as any)?.traceLog?.join('\n') || "No trace log captured.")}
+                      className="px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-200 flex items-center gap-1"
+                    >
+                      {copiedInspectText ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
+                      <span>{copiedInspectText ? 'Copied' : 'Copy Trace'}</span>
+                    </button>
+                  </div>
+                  <div className="p-4 rounded-xl bg-black/90 border border-slate-800 font-mono text-xs text-purple-300 space-y-1.5 overflow-x-auto">
+                    {((inspectData.result as any)?.traceLog && (inspectData.result as any).traceLog.length > 0) ? (
+                      (inspectData.result as any).traceLog.map((line: string, lIdx: number) => (
+                        <div key={lIdx} className="flex items-start gap-2">
+                          <span className="text-slate-600 select-none">{lIdx + 1}.</span>
+                          <span className="whitespace-pre-wrap">{line}</span>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="text-slate-500 italic">
+                        Click <code className="text-emerald-400">⚡ Run in Sandbox</code> on the remediation command to trigger live process tracing.
+                      </div>
+                    )}
+                  </div>
+                </div>
               ) : (
                 <div className="space-y-2">
                   <div className="flex justify-between items-center text-[10px] text-slate-400">
-                    <span>Raw Response Payload from Antigravity Agent Subagent</span>
+                    <span>Actual Live Response Payload from Execution Engine</span>
                     <button
                       onClick={() => copyInspectText(JSON.stringify(inspectData.result || { status: "pending", command: inspectData.command }, null, 2))}
                       className="px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-200 flex items-center gap-1"
@@ -399,16 +440,10 @@ asyncio.run(run_antigravity_remediation_subagent())`;
                   <pre className="p-4 rounded-xl bg-black/80 border border-slate-800 font-mono text-xs text-emerald-300 overflow-x-auto whitespace-pre select-all">
                     {JSON.stringify(
                       inspectData.result || {
-                        status: "200 OK",
-                        service: "remediation_execution_service",
-                        agentEngine: "google-antigravity-sandbox-v1",
+                        status: "Notice: Click 'Run in Sandbox' first to capture live runtime response",
                         command: inspectData.command,
-                        sandboxId: "sandbox-hyp-generic-fix",
-                        exitCode: 0,
-                        stdout: "auditConfigs:\n- auditLogConfigs:\n  - logType: DATA_READ",
-                        stderr: "",
-                        durationMs: 348,
-                        executedAt: new Date().toISOString()
+                        agentEngine: "google-antigravity-sandbox-v1",
+                        service: inspectData.serviceName
                       },
                       null,
                       2

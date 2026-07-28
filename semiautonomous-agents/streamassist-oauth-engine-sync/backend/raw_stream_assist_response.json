@@ -1,0 +1,286 @@
+[
+  {
+    "answer": {
+      "state": "IN_PROGRESS",
+      "replies": [
+        {
+          "groundedContent": {
+            "content": {
+              "role": "model",
+              "text": "The internal corporate directory"
+            }
+          },
+          "createTime": "2026-07-14T13:42:13.859193840Z"
+        }
+      ]
+    },
+    "sessionInfo": {
+      "session": "projects/545964020693/locations/global/collections/default_collection/engines/gemini-enterprise/sessions/4336542799120532611"
+    },
+    "assistToken": "M8gKCwio-djSBhDb6cN2EiQ2YTU2Mzc3ZC0wMDAwLTIwYTktYjRhMy01YzMzN2JjODM3NGI"
+  },
+  {
+    "answer": {
+      "state": "IN_PROGRESS",
+      "replies": [
+        {
+          "groundedContent": {
+            "content": {
+              "role": "model",
+              "text": " contains records for two employees named Jennifer:\n\n### 1. Jennifer Anne Walsh ("
+            }
+          },
+          "createTime": "2026-07-14T13:42:13.977518111Z"
+        }
+      ]
+    },
+    "sessionInfo": {
+      "session": "projects/545964020693/locations/global/collections/default_collection/engines/gemini-enterprise/sessions/4336542799120532611"
+    },
+    "assistToken": "M8gKCwio-djSBhDb6cN2EiQ2YTU2Mzc3ZC0wMDAwLTIwYTktYjRhMy01YzMzN2JjODM3NGI"
+  },
+  {
+    "answer": {
+      "state": "IN_PROGRESS",
+      "replies": [
+        {
+          "groundedContent": {
+            "content": {
+              "role": "model",
+              "text": "Chief Financial Officer)\n* **Title:** Chief Financial Officer (CFO)\n* **Employee ID:** MTC-0"
+            }
+          },
+          "createTime": "2026-07-14T13:42:14.100580667Z"
+        }
+      ]
+    },
+    "sessionInfo": {
+      "session": "projects/545964020693/locations/global/collections/default_collection/engines/gemini-enterprise/sessions/4336542799120532611"
+    },
+    "assistToken": "M8gKCwio-djSBhDb6cN2EiQ2YTU2Mzc3ZC0wMDAwLTIwYTktYjRhMy01YzMzN2JjODM3NGI"
+  },
+  {
+    "answer": {
+      "state": "IN_PROGRESS",
+      "replies": [
+        {
+          "groundedContent": {
+            "content": {
+              "role": "model",
+              "text": "012\n* **Department:** Finance\n* **Reports To:** Chief Executive Officer (CEO)"
+            }
+          },
+          "createTime": "2026-07-14T13:42:14.199949283Z"
+        }
+      ]
+    },
+    "sessionInfo": {
+      "session": "projects/545964020693/locations/global/collections/default_collection/engines/gemini-enterprise/sessions/4336542799120532611"
+    },
+    "assistToken": "M8gKCwio-djSBhDb6cN2EiQ2YTU2Mzc3ZC0wMDAwLTIwYTktYjRhMy01YzMzN2JjODM3NGI"
+  },
+  {
+    "answer": {
+      "state": "IN_PROGRESS",
+      "replies": [
+        {
+          "groundedContent": {
+            "content": {
+              "role": "model",
+              "text": "\n* **Employment Date:** Start date September 15, 2017\n\n### "
+            }
+          },
+          "createTime": "2026-07-14T13:42:14.312488882Z"
+        }
+      ]
+    },
+    "sessionInfo": {
+      "session": "projects/545964020693/locations/global/collections/default_collection/engines/gemini-enterprise/sessions/4336542799120532611"
+    },
+    "assistToken": "M8gKCwio-djSBhDb6cN2EiQ2YTU2Mzc3ZC0wMDAwLTIwYTktYjRhMy01YzMzN2JjODM3NGI"
+  },
+  {
+    "answer": {
+      "state": "IN_PROGRESS",
+      "replies": [
+        {
+          "groundedContent": {
+            "content": {
+              "role": "model",
+              "text": "2. JenniferLopez(Staff Engineer)\n* **Title:** Staff Engineer\n* **Department:** Engineering"
+            }
+          },
+          "createTime": "2026-07-14T13:42:14.381351949Z"
+        }
+      ]
+    },
+    "sessionInfo": {
+      "session": "projects/545964020693/locations/global/collections/default_collection/engines/gemini-enterprise/sessions/4336542799120532611"
+    },
+    "assistToken": "M8gKCwio-djSBhDb6cN2EiQ2YTU2Mzc3ZC0wMDAwLTIwYTktYjRhMy01YzMzN2JjODM3NGI"
+  },
+  {
+    "answer": {
+      "state": "IN_PROGRESS",
+      "replies": [
+        {
+          "groundedContent": {
+            "content": {
+              "role": "model",
+              "text": "\n\n---\n\n###\ud83d\udcccRecommended Actions & Next Steps\nIf you need specific information, such as contact details, reporting"
+            }
+          },
+          "createTime": "2026-07-14T13:42:14.607686726Z"
+        }
+      ]
+    },
+    "sessionInfo": {
+      "session": "projects/545964020693/locations/global/collections/default_collection/engines/gemini-enterprise/sessions/4336542799120532611"
+    },
+    "assistToken": "M8gKCwio-djSBhDb6cN2EiQ2YTU2Mzc3ZC0wMDAwLTIwYTktYjRhMy01YzMzN2JjODM3NGI"
+  },
+  {
+    "answer": {
+      "state": "IN_PROGRESS",
+      "replies": [
+        {
+          "groundedContent": {
+            "content": {
+              "role": "model",
+              "text": " structures, or compensation verification for either executive leadership or the engineering department, please specify which Jennifer you are referring to.\n\n"
+            }
+          },
+          "createTime": "2026-07-14T13:42:14.790013909Z"
+        }
+      ]
+    },
+    "sessionInfo": {
+      "session": "projects/545964020693/locations/global/collections/default_collection/engines/gemini-enterprise/sessions/4336542799120532611"
+    },
+    "assistToken": "M8gKCwio-djSBhDb6cN2EiQ2YTU2Mzc3ZC0wMDAwLTIwYTktYjRhMy01YzMzN2JjODM3NGI"
+  },
+  {
+    "answer": {
+      "state": "IN_PROGRESS",
+      "replies": [
+        {
+          "groundedContent": {
+            "content": {
+              "role": "model",
+              "inlineData": {
+                "mimeType": "application/json+suggestions",
+                "data": "eyJyZWNvbW1lbmRlZFF1ZXN0aW9uc1Jlc3BvbnNlIjp7InF1ZXN0aW9ucyI6WyJXaGF0IGFyZSB0aGUgZGV0YWlscyBmb3IgSmVubmlmZXIgV2Fsc2ggKENGTyk/IiwiV2hhdCBhcmUgdGhlIGRldGFpbHMgZm9yIEplbm5pZmVyIExvcGV6IChTdGFmZiBFbmdpbmVlcik/Il19fQ=="
+              }
+            }
+          },
+          "createTime": "2026-07-14T13:42:15.150849513Z"
+        }
+      ]
+    },
+    "sessionInfo": {
+      "session": "projects/545964020693/locations/global/collections/default_collection/engines/gemini-enterprise/sessions/4336542799120532611"
+    },
+    "assistToken": "M8gKCwio-djSBhDb6cN2EiQ2YTU2Mzc3ZC0wMDAwLTIwYTktYjRhMy01YzMzN2JjODM3NGI"
+  },
+  {
+    "answer": {
+      "name": "projects/545964020693/locations/global/collections/default_collection/engines/gemini-enterprise/sessions/4336542799120532611/assistAnswers/2620201647045142479",
+      "state": "SUCCEEDED",
+      "replies": [
+        {
+          "groundedContent": {},
+          "replyId": "5679091018148229180",
+          "createTime": "2026-07-14T13:42:14.790013909Z"
+        },
+        {
+          "groundedContent": {},
+          "replyId": "5679091018148229180",
+          "createTime": "2026-07-14T13:42:15.150849513Z"
+        },
+        {
+          "groundedContent": {
+            "textGroundingMetadata": {
+              "references": [
+                {
+                  "content": "CONFIDENTIAL - FOR INTERNAL USE ONLY EMPLOYEE RECORDS Human Resources Division Meridian Technologies Corporation STRICTLY CONFIDENTIAL - AUTHORIZED PERSONNEL ONLY Generated: ",
+                  "documentMetadata": {
+                    "document": "projects/545964020693/locations/global/collections/default_collection/dataStores/sharepoint-data-def-connector_page/branches/0/documents/1",
+                    "uri": "https://sockcop.sharepoint.com/sites/FinancialDocument/Shared%20Documents/Restricted%20Vault/02_HR_Employee_Records_2025.pdf?web=1",
+                    "title": "02_HR_Employee_Records_2025 ",
+                    "pageIdentifier": "",
+                    "domain": "sockcop.sharepoint.com",
+                    "mimeType": ""
+                  }
+                }
+              ],
+              "segments": [
+                {
+                  "startIndex": "92",
+                  "endIndex": "180",
+                  "referenceIndices": [
+                    0
+                  ],
+                  "text": "Jennifer Anne Walsh (Chief Financial Officer)\n* **Title:** Chief Financial Officer (CFO)"
+                },
+                {
+                  "startIndex": "92",
+                  "endIndex": "208",
+                  "referenceIndices": [
+                    0
+                  ],
+                  "text": "Jennifer Anne Walsh (Chief Financial Officer)\n* **Title:** Chief Financial Officer (CFO)\n* **Employee ID:** MTC-0012"
+                },
+                {
+                  "startIndex": "92",
+                  "endIndex": "234",
+                  "referenceIndices": [
+                    0
+                  ],
+                  "text": "Jennifer Anne Walsh (Chief Financial Officer)\n* **Title:** Chief Financial Officer (CFO)\n* **Employee ID:** MTC-0012\n* **Department:** Finance"
+                },
+                {
+                  "startIndex": "92",
+                  "endIndex": "282",
+                  "referenceIndices": [
+                    0
+                  ],
+                  "text": "Jennifer Anne Walsh (Chief Financial Officer)\n* **Title:** Chief Financial Officer (CFO)\n* **Employee ID:** MTC-0012\n* **Department:** Finance\n* **Reports To:** Chief Executive Officer (CEO)"
+                },
+                {
+                  "startIndex": "92",
+                  "endIndex": "335",
+                  "referenceIndices": [
+                    0
+                  ],
+                  "text": "Jennifer Anne Walsh (Chief Financial Officer)\n* **Title:** Chief Financial Officer (CFO)\n* **Employee ID:** MTC-0012\n* **Department:** Finance\n* **Reports To:** Chief Executive Officer (CEO)\n* **Employment Date:** Start date September 15, 2017"
+                },
+                {
+                  "startIndex": "344",
+                  "endIndex": "403",
+                  "referenceIndices": [
+                    0
+                  ],
+                  "text": "Jennifer Lopez (Staff Engineer)\n* **Title:** Staff Engineer"
+                },
+                {
+                  "startIndex": "344",
+                  "endIndex": "433",
+                  "referenceIndices": [
+                    0
+                  ],
+                  "text": "Jennifer Lopez (Staff Engineer)\n* **Title:** Staff Engineer\n* **Department:** Engineering"
+                }
+              ]
+            }
+          },
+          "replyId": "5679091018148229180",
+          "createTime": "2026-07-14T13:42:15.358423405Z"
+        }
+      ]
+    },
+    "sessionInfo": {
+      "session": "projects/545964020693/locations/global/collections/default_collection/engines/gemini-enterprise/sessions/4336542799120532611"
+    },
+    "assistToken": "M8gKCwio-djSBhDb6cN2EiQ2YTU2Mzc3ZC0wMDAwLTIwYTktYjRhMy01YzMzN2JjODM3NGI"
+  }
+]

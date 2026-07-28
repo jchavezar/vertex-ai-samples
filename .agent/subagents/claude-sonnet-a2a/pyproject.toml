@@ -1,0 +1,15 @@
+[project]
+name = "claude-sonnet-a2a"
+version = "0.1.0"
+description = "Claude 3.5 Sonnet A2A Agent with dynamic local MCP filesystem bridge"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "google-adk[a2a]",
+    "google-cloud-aiplatform[agent_engines]",
+    "cloudpickle",
+    "anthropic[vertex]",
+    "fastmcp",
+    "uvicorn",
+    "google-auth"
+]

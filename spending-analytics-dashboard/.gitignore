@@ -1,0 +1,26 @@
+# Data & Secrets (MANDATORY)
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+client_secret*.json
+credentials.json
+*_token.json
+
+# Node & Build artifacts
+node_modules/
+dist/
+build/
+
+# Python artifacts
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# System files
+.DS_Store
+*.log

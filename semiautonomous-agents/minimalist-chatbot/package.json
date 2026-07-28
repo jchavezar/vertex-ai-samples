@@ -1,0 +1,28 @@
+{
+  "name": "minimalist-chatbot",
+  "version": "1.0.0",
+  "private": true,
+  "description": "A premium, minimalist full-window chatbot connected to Vertex AI Agent Runtime.",
+  "type": "module",
+  "scripts": {
+    "dev:backend": "tsx watch backend/server.ts",
+    "dev:frontend": "vite",
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "build": "vite build && tsc -p backend/tsconfig.json",
+    "start": "node dist/backend/server.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.17",
+    "@types/express": "^4.17.21",
+    "@types/node": "^20.12.7",
+    "concurrently": "^8.2.2",
+    "tsx": "^4.7.2",
+    "typescript": "^5.4.5",
+    "vite": "^5.2.10"
+  }
+}

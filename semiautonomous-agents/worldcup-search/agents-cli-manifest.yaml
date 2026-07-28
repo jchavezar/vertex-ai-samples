@@ -1,0 +1,13 @@
+name: worldcup-search
+acli_version: 0.2.1
+agent_directory: app
+region: us-east1
+base_template: adk
+generated_at: '2026-07-06T17:19:47.939784+00:00'
+language: python
+create_params:
+  deployment_target: agent_runtime
+  cicd_runner: skip
+  include_data_ingestion: false
+  datastore: none
+  agent_guidance_filename: GEMINI.md

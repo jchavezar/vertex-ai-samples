@@ -104,6 +104,8 @@ def fetch_gcp_errors(time_range: str = "1h") -> List[GcpErrorItem]:
                     svc_name = "Google Kubernetes Engine"
                 elif "gcs" in res_type or "bucket" in res_type:
                     svc_name = "Cloud Storage"
+                elif "scheduler" in res_type:
+                    svc_name = "Cloud Scheduler"
                 
                 text_payload = entry.get("textPayload") or str(entry.get("jsonPayload", {}))
                 summary = text_payload[:80] + ("..." if len(text_payload) > 80 else "")

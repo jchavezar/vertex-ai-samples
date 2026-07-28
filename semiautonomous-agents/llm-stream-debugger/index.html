@@ -1,0 +1,2274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LLM Stream Inspector & Debugger</title>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Marked.js for markdown parsing -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  
+  <style>
+    :root {
+      --bg-base: #0B0F19;
+      --bg-surface: #151D30;
+      --bg-surface-alt: #1E2942;
+      --border-color: #263554;
+      --border-glow: rgba(0, 242, 254, 0.15);
+      
+      --text-primary: #F3F4F6;
+      --text-secondary: #9CA3AF;
+      --text-muted: #6B7280;
+      
+      --accent-cyan: #00F2FE;
+      --accent-violet: #4FACFE;
+      --accent-violet-glow: rgba(79, 172, 254, 0.3);
+      --accent-purple: #9D4EDD;
+      
+      --color-success: #10B981;
+      --color-success-bg: rgba(16, 185, 129, 0.1);
+      --color-warning: #F59E0B;
+      --color-warning-bg: rgba(245, 158, 11, 0.1);
+      --color-error: #EF4444;
+      --color-error-bg: rgba(239, 68, 68, 0.1);
+      
+      --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+      
+      --transition-fast: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      --transition-normal: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-base);
+      color: var(--text-primary);
+      font-family: var(--font-sans);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+      line-height: 1.5;
+    }
+
+    /* Scrollbar Styling */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: var(--bg-base);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: var(--border-color);
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--accent-violet);
+    }
+
+    /* Premium Header */
+    header {
+      background: linear-gradient(180deg, rgba(21, 29, 48, 0.8) 0%, rgba(11, 15, 25, 0.8) 100%);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border-color);
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .brand-logo {
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, var(--accent-cyan) 0%, var(--accent-violet) 100%);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 15px rgba(0, 242, 254, 0.4);
+    }
+
+    .brand-logo i {
+      color: #000;
+      stroke-width: 2.5;
+    }
+
+    .brand-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      letter-spacing: -0.025em;
+      background: linear-gradient(135deg, #FFF 30%, #A5B4FC 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .brand-tag {
+      font-size: 0.75rem;
+      background: var(--border-color);
+      color: var(--accent-cyan);
+      padding: 0.15rem 0.5rem;
+      border-radius: 9999px;
+      font-family: var(--font-mono);
+      border: 1px solid rgba(0, 242, 254, 0.3);
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 0.75rem;
+    }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: var(--bg-surface-alt);
+      color: var(--text-primary);
+      border: 1px solid var(--border-color);
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      font-size: 0.875rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: var(--transition-fast);
+      user-select: none;
+    }
+
+    .btn:hover {
+      background: var(--border-color);
+      border-color: var(--accent-cyan);
+      box-shadow: 0 0 10px var(--border-glow);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent-cyan) 0%, var(--accent-violet) 100%);
+      color: #020617;
+      border: none;
+      font-weight: 600;
+    }
+
+    .btn-primary:hover {
+      opacity: 0.9;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px var(--accent-violet-glow);
+    }
+
+    .btn-danger {
+      background: var(--color-error-bg);
+      border-color: var(--color-error);
+      color: var(--color-error);
+    }
+
+    .btn-danger:hover {
+      background: var(--color-error);
+      color: #fff;
+    }
+
+    /* Main Container Grid */
+    .dashboard-container {
+      display: grid;
+      grid-template-columns: 420px 1fr;
+      flex: 1;
+      height: calc(100vh - 69px);
+      overflow: hidden;
+    }
+
+    /* Left Sidebar: Inputs & Validation Log */
+    .sidebar {
+      background: var(--bg-surface);
+      border-right: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+      padding: 1.5rem;
+      gap: 1.5rem;
+    }
+
+    .section-title {
+      font-size: 0.875rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-secondary);
+      margin-bottom: 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-weight: 600;
+    }
+
+    .json-input-wrapper {
+      position: relative;
+      flex: 1;
+      min-height: 250px;
+      display: flex;
+      flex-direction: column;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+      transition: var(--transition-fast);
+    }
+
+    .json-input-wrapper.dragover {
+      border-color: var(--accent-cyan) !important;
+      box-shadow: 0 0 15px var(--border-glow);
+      background: rgba(0, 242, 254, 0.05);
+    }
+
+    textarea.json-input {
+      width: 100%;
+      flex: 1;
+      background: var(--bg-base);
+      border: none;
+      border-radius: 8px;
+      color: #38BDF8;
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      padding: 1rem;
+      resize: none;
+      line-height: 1.4;
+      outline: none;
+      transition: var(--transition-fast);
+    }
+
+    .json-status {
+      position: absolute;
+      bottom: 0.75rem;
+      right: 0.75rem;
+      font-size: 0.75rem;
+      font-family: var(--font-mono);
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+      background: rgba(0, 0, 0, 0.6);
+      border: 1px solid var(--border-color);
+    }
+
+    .status-valid {
+      color: var(--color-success);
+      border-color: var(--color-success);
+    }
+
+    .status-invalid {
+      color: var(--color-error);
+      border-color: var(--color-error);
+    }
+
+    /* Diagnostics Log Console */
+    .console-card {
+      background: var(--bg-base);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 220px;
+      overflow: hidden;
+    }
+
+    .console-header {
+      background: var(--bg-surface-alt);
+      border-bottom: 1px solid var(--border-color);
+      padding: 0.5rem 0.75rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+    }
+
+    .console-logs {
+      padding: 0.75rem;
+      overflow-y: auto;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      flex: 1;
+    }
+
+    .log-entry {
+      display: flex;
+      gap: 0.5rem;
+      padding: 0.4rem;
+      border-radius: 4px;
+      align-items: flex-start;
+      line-height: 1.4;
+      animation: logFadeIn 0.3s ease-out forwards;
+    }
+
+    @keyframes logFadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .log-entry.error {
+      background: var(--color-error-bg);
+      border-left: 3px solid var(--color-error);
+      color: #FDA4AF;
+    }
+
+    .log-entry.warn {
+      background: var(--color-warning-bg);
+      border-left: 3px solid var(--color-warning);
+      color: #FDE047;
+    }
+
+    .log-entry.info {
+      background: rgba(56, 189, 248, 0.1);
+      border-left: 3px solid #38BDF8;
+      color: #BAE6FD;
+    }
+
+    .log-time {
+      color: var(--text-muted);
+      flex-shrink: 0;
+    }
+
+    /* Right Main Panel: Dashboard Content */
+    .main-workspace {
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+      padding: 1.5rem;
+      gap: 1.5rem;
+      background: radial-gradient(circle at top right, rgba(15, 23, 42, 0.8), var(--bg-base));
+    }
+
+    /* Metrics Summary Cards */
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+    }
+
+    .metric-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 1rem;
+      position: relative;
+      overflow: hidden;
+      transition: var(--transition-normal);
+      animation: cardEntrance 0.5s ease-out;
+    }
+
+    @keyframes cardEntrance {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    .metric-card:hover {
+      transform: translateY(-2px);
+      border-color: var(--accent-violet);
+    }
+
+    .metric-title {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+      letter-spacing: 0.05em;
+      margin-bottom: 0.5rem;
+    }
+
+    .metric-value {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      font-family: var(--font-mono);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .metric-badge {
+      position: absolute;
+      top: 0.75rem;
+      right: 0.75rem;
+      font-size: 0.75rem;
+      padding: 0.15rem 0.5rem;
+      border-radius: 9999px;
+      font-weight: 600;
+    }
+
+    /* Stream Player / Simulation Control Panel */
+    .simulation-panel {
+      background: linear-gradient(135deg, var(--bg-surface) 0%, rgba(21, 29, 48, 0.5) 100%);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    .player-controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .player-buttons {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .timeline-scrubber-container {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      width: 100%;
+    }
+
+    .timeline-scrubber {
+      flex: 1;
+      -webkit-appearance: none;
+      appearance: none;
+      height: 6px;
+      border-radius: 3px;
+      background: var(--border-color);
+      outline: none;
+      cursor: pointer;
+    }
+
+    .timeline-scrubber::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: var(--accent-cyan);
+      box-shadow: 0 0 10px var(--accent-cyan);
+      transition: var(--transition-fast);
+    }
+
+    .timeline-scrubber::-webkit-slider-thumb:hover {
+      transform: scale(1.2);
+    }
+
+    .playback-speed {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+    }
+
+    /* Visual Chat Stream Rendering Screen */
+    .render-screen {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      display: flex;
+      flex-direction: column;
+      height: 420px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .screen-header {
+      background: var(--bg-surface-alt);
+      border-bottom: 1px solid var(--border-color);
+      padding: 0.75rem 1.25rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .screen-status-dot {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background-color: var(--color-warning);
+      box-shadow: 0 0 8px var(--color-warning);
+      margin-right: 0.5rem;
+    }
+
+    .screen-status-dot.active {
+      background-color: var(--color-success);
+      box-shadow: 0 0 8px var(--color-success);
+    }
+
+    .screen-body {
+      flex: 1;
+      padding: 1.5rem;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      background: radial-gradient(circle at bottom left, rgba(30, 41, 59, 0.3), transparent);
+    }
+
+    .chat-bubble {
+      max-width: 85%;
+      padding: 1rem 1.25rem;
+      border-radius: 12px;
+      font-size: 0.95rem;
+      line-height: 1.6;
+      position: relative;
+    }
+
+    .chat-bubble.user {
+      align-self: flex-end;
+      background: var(--bg-surface-alt);
+      border: 1px solid var(--border-color);
+      color: var(--text-primary);
+    }
+
+    .chat-bubble.assistant {
+      align-self: flex-start;
+      background: rgba(30, 41, 59, 0.5);
+      border: 1px solid rgba(79, 172, 254, 0.2);
+      color: var(--text-primary);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Markdown styling inside bubble */
+    .markdown-content p {
+      margin-bottom: 0.75rem;
+    }
+    .markdown-content p:last-child {
+      margin-bottom: 0;
+    }
+    .markdown-content ul, .markdown-content ol {
+      margin-left: 1.5rem;
+      margin-bottom: 0.75rem;
+    }
+    .markdown-content strong {
+      color: var(--accent-cyan);
+    }
+
+    /* Visual highlight for the newest stream additions */
+    .stream-highlight {
+      background-color: rgba(0, 242, 254, 0.25);
+      border-bottom: 2px solid var(--accent-cyan);
+      animation: pulseHighlight 1.5s infinite alternate;
+      border-radius: 2px;
+      padding: 0 2px;
+    }
+
+    @keyframes pulseHighlight {
+      0% { background-color: rgba(0, 242, 254, 0.15); }
+      100% { background-color: rgba(0, 242, 254, 0.35); }
+    }
+
+    /* Datastores Visited section */
+    .datastore-section {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 1.25rem;
+    }
+
+    .datastore-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      margin-top: 0.75rem;
+    }
+
+    .datastore-tag {
+      background: var(--bg-base);
+      border: 1px solid var(--border-color);
+      padding: 0.5rem 0.75rem;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      transition: var(--transition-fast);
+    }
+
+    .datastore-tag:hover {
+      border-color: var(--accent-cyan);
+      color: var(--text-primary);
+      transform: translateY(-1px);
+    }
+
+    .datastore-tag i {
+      color: var(--accent-violet);
+    }
+
+    /* Waterfall Chronology List of Chunks */
+    .waterfall-section {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .chunk-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .chunk-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      overflow: hidden;
+      transition: var(--transition-fast);
+    }
+
+    .chunk-card:hover {
+      border-color: var(--border-color);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+
+    .chunk-card.active-step {
+      border-color: var(--accent-cyan);
+      box-shadow: 0 0 10px rgba(0, 242, 254, 0.2);
+    }
+
+    /* Red highlight style if state or reply has an issue */
+    .chunk-card.has-error {
+      border-color: var(--color-error) !important;
+      background: linear-gradient(135deg, var(--bg-surface) 0%, rgba(239, 68, 68, 0.05) 100%);
+    }
+
+    .chunk-card.has-warning {
+      border-color: var(--color-warning) !important;
+      background: linear-gradient(135deg, var(--bg-surface) 0%, rgba(245, 158, 11, 0.05) 100%);
+    }
+
+    .chunk-header {
+      padding: 0.75rem 1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      user-select: none;
+      background: rgba(255, 255, 255, 0.01);
+    }
+
+    .chunk-meta-left {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .chunk-index {
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      font-weight: 700;
+      width: 24px;
+      height: 24px;
+      background: var(--bg-surface-alt);
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid var(--border-color);
+      color: var(--text-secondary);
+    }
+
+    .active-step .chunk-index {
+      background: var(--accent-cyan);
+      color: #000;
+      border-color: var(--accent-cyan);
+    }
+
+    .chunk-title {
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+
+    .chunk-badge-group {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .chunk-badge {
+      font-size: 0.7rem;
+      padding: 0.15rem 0.4rem;
+      border-radius: 4px;
+      font-family: var(--font-mono);
+      font-weight: 600;
+    }
+
+    .chunk-badge.badge-success {
+      background: var(--color-success-bg);
+      color: var(--color-success);
+    }
+
+    .chunk-badge.badge-progress {
+      background: var(--color-warning-bg);
+      color: var(--color-warning);
+    }
+
+    .chunk-badge.badge-latency {
+      background: var(--bg-surface-alt);
+      border: 1px solid var(--border-color);
+      color: var(--text-secondary);
+    }
+
+    .chunk-badge.badge-latency.high-latency {
+      background: var(--color-warning-bg);
+      color: var(--color-warning);
+      border-color: var(--color-warning);
+    }
+
+    .chunk-body {
+      padding: 1rem;
+      background: var(--bg-base);
+      border-top: 1px solid var(--border-color);
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      display: none;
+    }
+
+    .chunk-card.expanded .chunk-body {
+      display: block;
+    }
+
+    .chunk-text-preview {
+      background: var(--bg-surface-alt);
+      padding: 0.75rem;
+      border-radius: 6px;
+      color: #A5B4FC;
+      border: 1px solid var(--border-color);
+      margin-bottom: 0.5rem;
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+
+    .chunk-details-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.5rem;
+      color: var(--text-secondary);
+    }
+
+    .chunk-detail-item span {
+      color: var(--text-primary);
+    }
+
+    /* Modal or overlay styles */
+    .empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      color: var(--text-muted);
+      gap: 1rem;
+    }
+
+    .empty-state i {
+      font-size: 3rem;
+      color: var(--border-color);
+    }
+
+    /* Footer diagnostics stats */
+    .footer-diagnostics {
+      margin-top: auto;
+      border-top: 1px solid var(--border-color);
+      padding: 1rem 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+    }
+
+    .error-count-tag {
+      background: var(--color-error-bg);
+      color: var(--color-error);
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+      font-weight: 600;
+    }
+
+    .warning-count-tag {
+      background: var(--color-warning-bg);
+      color: var(--color-warning);
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Premium Header -->
+  <header>
+    <div class="brand">
+      <div class="brand-logo">
+        <i data-lucide="terminal"></i>
+      </div>
+      <div>
+        <div class="brand-title">AG StreamAssist Debugger</div>
+      </div>
+      <span class="brand-tag">v2.5 PRO</span>
+    </div>
+    <div class="header-actions">
+      <button class="btn" id="btn-load-sample">
+        <i data-lucide="file-json-2"></i> Load Sample
+      </button>
+      <button class="btn btn-danger" id="btn-clear">
+        <i data-lucide="trash-2"></i> Clear
+      </button>
+      <button class="btn btn-primary" id="btn-export">
+        <i data-lucide="download"></i> Export Report
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Grid Dashboard -->
+  <div class="dashboard-container">
+    
+    <!-- Left Sidebar: Code Editor & Validations -->
+    <div class="sidebar">
+      <div>
+        <div class="section-title" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+          <span><i data-lucide="code-2"></i> Input LLM JSON Stream</span>
+          <button class="btn" id="btn-paste-clipboard" style="padding: 0.2rem 0.5rem; font-size: 0.75rem; gap: 0.25rem;">
+            <i data-lucide="clipboard" style="width: 12px; height: 12px;"></i> Paste
+          </button>
+        </div>
+        <div class="json-input-wrapper">
+          <textarea class="json-input" id="json-input-field" placeholder="Paste JSON or drag-and-drop a .json file here..."></textarea>
+          <div class="json-status status-invalid" id="json-validation-badge">
+            <i data-lucide="alert-circle" style="width:12px; height:12px; display:inline;"></i> Empty
+          </div>
+        </div>
+      </div>
+
+      <!-- Live Diagnostics Console -->
+      <div style="flex: 1; display: flex; flex-direction: column;">
+        <div class="section-title">
+          <i data-lucide="activity"></i> Diagnostics Engine
+        </div>
+        <div class="console-card">
+          <div class="console-header">
+            <span>VALIDATION LOGS</span>
+            <span style="color: var(--accent-cyan);" id="console-status">IDLE</span>
+          </div>
+          <div class="console-logs" id="console-logs-container">
+            <div class="log-entry info">
+              <span class="log-time">00:00:00</span>
+              <span>Ready. Paste or load a streaming payload to initiate structural parsing.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Dashboard Area: Visualized Output -->
+    <div class="main-workspace" id="workspace-area">
+      
+      <!-- Empty State Workspace -->
+      <div id="workspace-empty-state" class="empty-state">
+        <i data-lucide="database-backup"></i>
+        <h3>No parsed workspace active</h3>
+        <p>Please load or paste your JSON response in the left sidebar to visualize analytics.</p>
+        <button class="btn btn-primary" id="btn-load-sample-empty" style="margin-top: 1rem;">
+          <i data-lucide="file-json-2"></i> Load Sample Payload
+        </button>
+      </div>
+
+      <!-- Active Workspace Dashboard (Hidden until populated) -->
+      <div id="workspace-active-dashboard" style="display: none; flex-direction: column; gap: 1.5rem;">
+        
+        <!-- Summary metrics cards -->
+        <div class="metrics-grid">
+          <div class="metric-card">
+            <div class="metric-title">Overall Status</div>
+            <div class="metric-value" id="metric-overall-status">SUCCEEDED</div>
+            <span class="metric-badge" id="metric-status-badge" style="background: var(--color-success-bg); color: var(--color-success);">PASS</span>
+          </div>
+          <div class="metric-card">
+            <div class="metric-title">Total Chunks</div>
+            <div class="metric-value" id="metric-total-chunks">8</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-title">Request Latency</div>
+            <div class="metric-value" id="metric-total-latency">20.6s</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-title">Datastores Searched</div>
+            <div class="metric-value" id="metric-datastores-count">4</div>
+          </div>
+        </div>
+
+        <!-- Simulation Player Panel -->
+        <div class="simulation-panel">
+          <div class="player-controls">
+            <div class="player-buttons">
+              <button class="btn" id="sim-btn-prev" title="Previous Chunk">
+                <i data-lucide="skip-back"></i>
+              </button>
+              <button class="btn btn-primary" id="sim-btn-play" title="Play Stream">
+                <i data-lucide="play" id="play-icon"></i> <span id="play-text">Play</span>
+              </button>
+              <button class="btn" id="sim-btn-next" title="Next Chunk">
+                <i data-lucide="skip-forward"></i>
+              </button>
+              <button class="btn" id="sim-btn-reset" title="Reset Simulation">
+                <i data-lucide="rotate-ccw"></i>
+              </button>
+            </div>
+            
+            <div class="playback-speed">
+              <span>Speed:</span>
+              <select class="btn" id="playback-speed-select" style="padding: 0.25rem 0.5rem;">
+                <option value="500">1.0x (Normal)</option>
+                <option value="250">2.0x (Fast)</option>
+                <option value="100">5.0x (Hyper)</option>
+                <option value="1000">0.5x (Slow)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="timeline-scrubber-container">
+            <span class="font-mono" style="font-size: 0.8rem; width: 60px;" id="sim-progress-text">0 / 8</span>
+            <input type="range" class="timeline-scrubber" id="sim-scrubber" min="0" max="8" value="0">
+            <span class="font-mono" style="font-size: 0.8rem;" id="sim-timestamp">00:00:00</span>
+          </div>
+        </div>
+
+        <!-- Rendered Screen (Chat View) -->
+        <div class="render-screen">
+          <div class="screen-header">
+            <div style="display: flex; align-items: center;">
+              <span class="screen-status-dot" id="sim-status-dot"></span>
+              <span class="font-mono" style="font-size: 0.8rem; font-weight: 600;" id="sim-screen-title">STREAM SIMULATOR</span>
+            </div>
+            <div style="color: var(--text-muted); font-size: 0.75rem; font-family: var(--font-mono);" id="sim-assistant-author">
+              Author: root_agent
+            </div>
+          </div>
+          <div class="screen-body" id="rendered-chat-container">
+            <!-- User prompt bubble -->
+            <div class="chat-bubble user">
+              <div style="font-size: 0.75rem; color: var(--accent-cyan); font-family: var(--font-mono); margin-bottom: 0.25rem;">USER QUERY</div>
+              <p id="user-query-text">Summarize my inbox</p>
+            </div>
+
+            <!-- Assistant output bubble -->
+            <div class="chat-bubble assistant" id="assistant-bubble" style="display: none;">
+              <div style="font-size: 0.75rem; color: var(--accent-violet); font-family: var(--font-mono); margin-bottom: 0.25rem; display: flex; justify-content: space-between;">
+                <span>ASSISTANT RESPONSE</span>
+                <span id="bubble-cumulative-chars" style="color: var(--text-muted)">0 chars</span>
+              </div>
+              <div class="markdown-content" id="assistant-bubble-content"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Datastores specs discovered -->
+        <div class="datastore-section">
+          <div class="section-title" style="margin-bottom: 0;">
+            <i data-lucide="database"></i> Grounding Datastores Inspected (vertexAiSearchSpec)
+          </div>
+          <div class="datastore-list" id="datastore-list-container">
+            <!-- Datastore cards added via script -->
+          </div>
+        </div>
+
+        <!-- Grounding Source Citations & Retrieved Document Snippets -->
+        <div class="datastore-section" id="grounding-sources-section">
+          <div class="section-title" style="margin-bottom: 0; display: flex; justify-content: space-between; align-items: center; width: 100%;">
+            <span><i data-lucide="book-open"></i> Grounding Source Citations & Snippets</span>
+            <span class="brand-tag" id="citations-count-badge">0 Citations</span>
+          </div>
+          <div class="datastore-list" id="grounding-sources-container" style="display: flex; flex-direction: column; gap: 0.75rem; margin-top: 0.75rem; width: 100%;">
+            <!-- Grounding source cards added via script -->
+          </div>
+        </div>
+
+        <!-- Waterfall chronology timelines -->
+        <div class="waterfall-section">
+          <div class="section-title">
+            <i data-lucide="git-commit"></i> Waterfall Stream Chronology
+          </div>
+          <div class="chunk-list" id="chunk-list-container">
+            <!-- Chunk list populated programmatically -->
+          </div>
+        </div>
+
+        <!-- Footer diagnostic count -->
+        <div class="footer-diagnostics">
+          <div>
+            Session: <span class="font-mono" style="color: var(--accent-cyan); cursor: pointer;" id="diag-session-id" title="Copy to clipboard">3917641548474043043</span>
+          </div>
+          <div style="display: flex; gap: 1rem;">
+            <span>Errors: <strong class="error-count-tag" id="diag-error-count">0</strong></span>
+            <span>Warnings: <strong class="warning-count-tag" id="diag-warning-count">0</strong></span>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <script>
+    // Global State
+    let parsedData = null;
+    let requestObj = null;
+    let responsesList = [];
+    let currentStep = 0; // index in responsesList
+    let playInterval = null;
+    let errors = [];
+    let warnings = [];
+
+    // Preloaded Example Payload from USER_REQUEST
+    const samplePayload = {
+      "assistToken": "M8gKCwjthOXRBhDW0oQoEiQ2YTM0MDA4NS0wMDAwLTJlZDUtYjdmNC1jODJhZGQ3OTQ1MjQ",
+      "streamingCall": {
+        "request": {
+          "name": "projects/744983026323/locations/global/collections/default_collection/engines/global-outlook-appengine_1779348513680/assistants/default_assistant",
+          "query": {
+            "parts": [
+              {
+                "text": "Summarize my inbox"
+              }
+            ]
+          },
+          "session": "projects/744983026323/locations/global/collections/default_collection/engines/global-outlook-appengine_1779348513680/sessions/3917641548474043043",
+          "assistSkippingMode": "REQUEST_ASSIST",
+          "userMetadata": {
+            "timeZone": "America/New_York"
+          },
+          "languageCode": "en-US",
+          "answerGenerationMode": "NORMAL",
+          "toolsSpec": {
+            "vertexAiSearchSpec": {
+              "dataStoreSpecs": [
+                {
+                  "dataStore": "projects/744983026323/locations/global/collections/default_collection/dataStores/global-athena-outlook_1776920299644_mail"
+                },
+                {
+                  "dataStore": "projects/744983026323/locations/global/collections/default_collection/dataStores/global-athena-outlook_1776920299644_mail-attachment"
+                },
+                {
+                  "dataStore": "projects/744983026323/locations/global/collections/default_collection/dataStores/global-athena-outlook_1776920299644_calendar"
+                },
+                {
+                  "dataStore": "projects/744983026323/locations/global/collections/default_collection/dataStores/global-athena-outlook_1776920299644_contact"
+                }
+              ]
+            },
+            "toolRegistry": "default_tool_registry"
+          },
+          "agentsSpec": {}
+        },
+        "responses": [
+          {
+            "answer": {
+              "state": "IN_PROGRESS",
+              "replies": [
+                {
+                  "groundedContent": {
+                    "content": {
+                      "role": "model",
+                      "text": "I"
+                    }
+                  },
+                  "replyId": "15993692549625632980",
+                  "createTime": "2026-06-22T14:11:12.930681131Z"
+                }
+              ],
+              "adkAuthor": "root_agent"
+            },
+            "sessionInfo": {
+              "session": "projects/744983026323/locations/global/collections/default_collection/engines/global-outlook-appengine_1779348513680/sessions/3917641548474043043",
+              "queryId": "16360638216001517819",
+              "turnId": "3917641548474043043_16360638216001518184"
+            },
+            "assistToken": "M8gKCwjthOXRBhDW0oQoEiQ2YTM0MDA4NS0wMDAwLTJlZDUtYjdmNC1jODJhZGQ3OTQ1MjQ"
+          },
+          {
+            "answer": {
+              "state": "IN_PROGRESS",
+              "replies": [
+                {
+                  "groundedContent": {
+                    "content": {
+                      "role": "model",
+                      "text": " searched your Outlook inbox for recent emails but did not find any messages to summarize. \n\nHowever,"
+                    }
+                  },
+                  "replyId": "15993692549625632980",
+                  "createTime": "2026-06-22T14:11:13.102568766Z"
+                }
+              ],
+              "adkAuthor": "root_agent"
+            },
+            "sessionInfo": {
+              "session": "projects/744983026323/locations/global/collections/default_collection/engines/global-outlook-appengine_1779348513680/sessions/3917641548474043043",
+              "queryId": "16360638216001517819",
+              "turnId": "3917641548474043043_16360638216001518184"
+            },
+            "assistToken": "M8gKCwjthOXRBhDW0oQoEiQ2YTM0MDA4NS0wMDAwLTJlZDUtYjdmNC1jODJhZGQ3OTQ1MjQ"
+          },
+          {
+            "answer": {
+              "state": "IN_PROGRESS",
+              "replies": [
+                {
+                  "groundedContent": {
+                    "content": {
+                      "role": "model",
+                      "text": " I did locate an upcoming calendar event:\n* **Event**: [You're Invited!] Purpose Ambassador Network (PAN"
+                    }
+                  },
+                  "replyId": "15993692549625632980",
+                  "createTime": "2026-06-22T14:11:13.227660530Z"
+                }
+              ],
+              "adkAuthor": "root_agent"
+            },
+            "sessionInfo": {
+              "session": "projects/744983026323/locations/global/collections/default_collection/engines/global-outlook-appengine_1779348513680/sessions/3917641548474043043",
+              "queryId": "16360638216001517819",
+              "turnId": "3917641548474043043_16360638216001518184"
+            },
+            "assistToken": "M8gKCwjthOXRBhDW0oQoEiQ2YTM0MDA4NS0wMDAwLTJlZDUtYjdmNC1jODJhZGQ3OTQ1MjQ"
+          },
+          {
+            "answer": {
+              "state": "IN_PROGRESS",
+              "replies": [
+                {
+                  "groundedContent": {
+                    "content": {
+                      "role": "model",
+                      "text": ") Town Hall [1]\n* **Date & Time**: July 10, 2025, from "
+                    }
+                  },
+                  "replyId": "15993692549625632980",
+                  "createTime": "2026-06-22T14:11:13.361947006Z"
+                }
+              ],
+              "adkAuthor": "root_agent"
+            },
+            "sessionInfo": {
+              "session": "projects/744983026323/locations/global/collections/default_collection/engines/global-outlook-appengine_1779348513680/sessions/3917641548474043043",
+              "queryId": "16360638216001517819",
+              "turnId": "3917641548474043043_16360638216001518184"
+            },
+            "assistToken": "M8gKCwjthOXRBhDW0oQoEiQ2YTM0MDA4NS0wMDAwLTJlZDUtYjdmNC1jODJhZGQ3OTQ1MjQ"
+          },
+          {
+            "answer": {
+              "state": "IN_PROGRESS",
+              "replies": [
+                {
+                  "groundedContent": {
+                    "content": {
+                      "role": "model",
+                      "text": "11:00 AM to 11:30 AM EDT (3:00 PM to 3:30 PM"
+                    }
+                  },
+                  "replyId": "15993692549625632980",
+                  "createTime": "2026-06-22T14:11:13.532841406Z"
+                }
+              ],
+              "adkAuthor": "root_agent"
+            },
+            "sessionInfo": {
+              "session": "projects/744983026323/locations/global/collections/default_collection/engines/global-outlook-appengine_1779348513680/sessions/3917641548474043043",
+              "queryId": "16360638216001517819",
+              "turnId": "3917641548474043043_16360638216001518184"
+            },
+            "assistToken": "M8gKCwjthOXRBhDW0oQoEiQ2YTM0MDA4NS0wMDAwLTJlZDUtYjdmNC1jODJhZGQ3OTQ1MjQ"
+          },
+          {
+            "answer": {
+              "state": "IN_PROGRESS",
+              "replies": [
+                {
+                  "groundedContent": {
+                    "content": {
+                      "role": "model",
+                      "text": " UTC) [1]\n\nIf you recently received emails that aren't showing up, please let me know, and I"
+                    }
+                  },
+                  "replyId": "15993692549625632980",
+                  "createTime": "2026-06-22T14:11:13.657121504Z"
+                }
+              ],
+              "adkAuthor": "root_agent"
+            },
+            "sessionInfo": {
+              "session": "projects/744983026323/locations/global/collections/default_collection/engines/global-outlook-appengine_1779348513680/sessions/3917641548474043043",
+              "queryId": "16360638216001517819",
+              "turnId": "3917641548474043043_16360638216001518184"
+            },
+            "assistToken": "M8gKCwjthOXRBhDW0oQoEiQ2YTM0MDA4NS0wMDAwLTJlZDUtYjdmNC1jODJhZGQ3OTQ1MjQ"
+          },
+          {
+            "answer": {
+              "state": "IN_PROGRESS",
+              "replies": [
+                {
+                  "groundedContent": {
+                    "content": {
+                      "role": "model",
+                      "text": " can try searching for specific keywords or senders!"
+                    }
+                  },
+                  "replyId": "15993692549625632980",
+                  "createTime": "2026-06-22T14:11:13.718175407Z"
+                }
+              ],
+              "adkAuthor": "root_agent"
+            },
+            "sessionInfo": {
+              "session": "projects/744983026323/locations/global/collections/default_collection/engines/global-outlook-appengine_1779348513680/sessions/3917641548474043043",
+              "queryId": "16360638216001517819",
+              "turnId": "3917641548474043043_16360638216001518184"
+            },
+            "assistToken": "M8gKCwjthOXRBhDW0oQoEiQ2YTM0MDA4NS0wMDAwLTJlZDUtYjdmNC1jODJhZGQ3OTQ1MjQ"
+          },
+          {
+            "answer": {
+              "name": "projects/744983026323/locations/global/collections/default_collection/engines/global-outlook-appengine_1779348513680/sessions/3917641548474043043/assistAnswers/16360638216001519279",
+              "state": "SUCCEEDED",
+              "replies": [
+                {
+                  "groundedContent": {},
+                  "replyId": "15993692549625632980",
+                  "createTime": "2026-06-22T14:11:13.718175407Z"
+                }
+              ]
+            },
+            "sessionInfo": {
+              "session": "projects/744983026323/locations/global/collections/default_collection/engines/global-outlook-appengine_1779348513680/sessions/3917641548474043043",
+              "queryId": "16360638216001517819",
+              "turnId": "3917641548474043043_16360638216001518184"
+            },
+            "assistToken": "M8gKCwjthOXRBhDW0oQoEiQ2YTM0MDA4NS0wMDAwLTJlZDUtYjdmNC1jODJhZGQ3OTQ1MjQ"
+          }
+        ]
+      },
+      "metadata": {
+        "requestTime": "2026-06-22T14:10:53.083962198Z",
+        "uuid": "6a340085-0000-2ed5-b7f4-c82add794524"
+      }
+    };
+
+    // DOM Selection
+    const jsonInputField = document.getElementById('json-input-field');
+    const jsonValidationBadge = document.getElementById('json-validation-badge');
+    const consoleLogsContainer = document.getElementById('console-logs-container');
+    const consoleStatus = document.getElementById('console-status');
+    const workspaceEmptyState = document.getElementById('workspace-empty-state');
+    const workspaceActiveDashboard = document.getElementById('workspace-active-dashboard');
+
+    // UI Buttons
+    const btnLoadSample = document.getElementById('btn-load-sample');
+    const btnLoadSampleEmpty = document.getElementById('btn-load-sample-empty');
+    const btnClear = document.getElementById('btn-clear');
+    const btnExport = document.getElementById('btn-export');
+
+    // Stats
+    const metricOverallStatus = document.getElementById('metric-overall-status');
+    const metricStatusBadge = document.getElementById('metric-status-badge');
+    const metricTotalChunks = document.getElementById('metric-total-chunks');
+    const metricTotalLatency = document.getElementById('metric-total-latency');
+    const metricDatastoresCount = document.getElementById('metric-datastores-count');
+
+    // Player Elements
+    const simBtnPrev = document.getElementById('sim-btn-prev');
+    const simBtnPlay = document.getElementById('sim-btn-play');
+    const simBtnNext = document.getElementById('sim-btn-next');
+    const simBtnReset = document.getElementById('sim-btn-reset');
+    const playbackSpeedSelect = document.getElementById('playback-speed-select');
+    const simProgressText = document.getElementById('sim-progress-text');
+    const simScrubber = document.getElementById('sim-scrubber');
+    const simTimestamp = document.getElementById('sim-timestamp');
+    const playIcon = document.getElementById('play-icon');
+    const playText = document.getElementById('play-text');
+
+    // Chat Preview
+    const userQueryText = document.getElementById('user-query-text');
+    const assistantBubble = document.getElementById('assistant-bubble');
+    const assistantBubbleContent = document.getElementById('assistant-bubble-content');
+    const bubbleCumulativeChars = document.getElementById('bubble-cumulative-chars');
+    const simStatusDot = document.getElementById('sim-status-dot');
+    const simScreenTitle = document.getElementById('sim-screen-title');
+    const simAssistantAuthor = document.getElementById('sim-assistant-author');
+
+    // Containers
+    const datastoreListContainer = document.getElementById('datastore-list-container');
+    const groundingSourcesContainer = document.getElementById('grounding-sources-container');
+    const citationsCountBadge = document.getElementById('citations-count-badge');
+    const chunkListContainer = document.getElementById('chunk-list-container');
+
+    // Diag details
+    const diagSessionId = document.getElementById('diag-session-id');
+    const diagErrorCount = document.getElementById('diag-error-count');
+    const diagWarningCount = document.getElementById('diag-warning-count');
+
+    // Event Listeners
+    btnLoadSample.addEventListener('click', loadSampleData);
+    btnLoadSampleEmpty.addEventListener('click', loadSampleData);
+    btnClear.addEventListener('click', clearWorkspace);
+    btnExport.addEventListener('click', exportDiagnosticReport);
+    jsonInputField.addEventListener('input', handleJsonInput);
+
+    simBtnPlay.addEventListener('click', togglePlayback);
+    simBtnPrev.addEventListener('click', stepBackward);
+    simBtnNext.addEventListener('click', stepForward);
+    simBtnReset.addEventListener('click', resetSimulation);
+    simScrubber.addEventListener('input', handleScrubberChange);
+
+    // Clipboard Paste and Drag & Drop Listeners
+    const btnPasteClipboard = document.getElementById('btn-paste-clipboard');
+    const jsonInputWrapper = document.querySelector('.json-input-wrapper');
+
+    btnPasteClipboard.addEventListener('click', async () => {
+      try {
+        const text = await navigator.clipboard.readText();
+        if (text) {
+          jsonInputField.value = text;
+          handleJsonInput();
+          logToConsole('Successfully pasted and parsed clipboard payload.', 'info');
+        } else {
+          logToConsole('Clipboard is empty.', 'warn');
+        }
+      } catch (err) {
+        logToConsole('Unable to access clipboard. Please paste manually into the editor.', 'warn');
+      }
+    });
+
+    jsonInputWrapper.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      jsonInputWrapper.classList.add('dragover');
+    });
+
+    jsonInputWrapper.addEventListener('dragleave', () => {
+      jsonInputWrapper.classList.remove('dragover');
+    });
+
+    jsonInputWrapper.addEventListener('drop', (e) => {
+      e.preventDefault();
+      jsonInputWrapper.classList.remove('dragover');
+      const file = e.dataTransfer.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (evt) => {
+          jsonInputField.value = evt.target.result;
+          handleJsonInput();
+          logToConsole(`Loaded and parsed file: ${file.name}`, 'info');
+        };
+        reader.readAsText(file);
+      }
+    });
+
+    // Initial load
+    lucide.createIcons();
+
+    function logToConsole(message, type = 'info') {
+      const now = new Date();
+      const timeStr = now.toTimeString().split(' ')[0];
+      const entry = document.createElement('div');
+      entry.className = `log-entry ${type}`;
+      entry.innerHTML = `
+        <span class="log-time">${timeStr}</span>
+        <span>${message}</span>
+      `;
+      consoleLogsContainer.appendChild(entry);
+      consoleLogsContainer.scrollTop = consoleLogsContainer.scrollHeight;
+    }
+
+    function loadSampleData() {
+      jsonInputField.value = JSON.stringify(samplePayload, null, 2);
+      handleJsonInput();
+      logToConsole('Prepopulated system-validated outlook summary payload.', 'info');
+    }
+
+    function clearWorkspace() {
+      jsonInputField.value = '';
+      parsedData = null;
+      requestObj = null;
+      responsesList = [];
+      currentStep = 0;
+      errors = [];
+      warnings = [];
+      stopPlayback();
+      
+      jsonValidationBadge.className = 'json-status status-invalid';
+      jsonValidationBadge.innerHTML = '<i data-lucide="alert-circle" style="width:12px; height:12px; display:inline;"></i> Empty';
+      
+      workspaceEmptyState.style.display = 'flex';
+      workspaceActiveDashboard.style.display = 'none';
+      
+      consoleLogsContainer.innerHTML = '';
+      logToConsole('Workspace cleared. Input payload is empty.', 'info');
+      lucide.createIcons();
+    }
+
+    function handleJsonInput() {
+      const value = jsonInputField.value.trim();
+      if (!value) {
+        jsonValidationBadge.className = 'json-status status-invalid';
+        jsonValidationBadge.innerHTML = '<i data-lucide="alert-circle" style="width:12px; height:12px; display:inline;"></i> Empty';
+        return;
+      }
+
+      try {
+        const parsed = JSON.parse(value);
+        jsonValidationBadge.className = 'json-status status-valid';
+        jsonValidationBadge.innerHTML = '<i data-lucide="check-circle-2" style="width:12px; height:12px; display:inline;"></i> JSON Valid';
+        
+        parsePayload(parsed);
+      } catch (err) {
+        jsonValidationBadge.className = 'json-status status-invalid';
+        jsonValidationBadge.innerHTML = '<i data-lucide="x-circle" style="width:12px; height:12px; display:inline;"></i> Syntax Error';
+        consoleStatus.textContent = 'ERROR';
+        consoleStatus.style.color = 'var(--color-error)';
+      }
+      lucide.createIcons();
+    }
+
+    function parsePayload(json) {
+      errors = [];
+      warnings = [];
+      consoleLogsContainer.innerHTML = '';
+      logToConsole('Parsing payload and aligning layout dynamically...', 'info');
+
+      parsedData = json;
+      
+      // Dynamic Heuristics: Safely detect standard or non-standard payload wrappers
+      requestObj = {};
+      responsesList = [];
+
+      if (json.streamingCall) {
+        requestObj = json.streamingCall.request || {};
+        responsesList = json.streamingCall.responses || [];
+        logToConsole("Detected full standard streamingCall schema wrapper.", "info");
+      } else if (Array.isArray(json)) {
+        responsesList = json;
+        logToConsole("Detected direct array list of stream chunks. Fabricating mock request shell...", "info");
+      } else if (json.responses && Array.isArray(json.responses)) {
+        responsesList = json.responses;
+        requestObj = json.request || {};
+        logToConsole("Detected raw request/responses block configuration.", "info");
+      } else if (json.answer) {
+        responsesList = [json];
+        logToConsole("Detected a singular standalone stream response block.", "info");
+      } else {
+        errors.push("Payload structure unrecognized. Ensure the JSON contains at least a responses list or a stream answer block.");
+      }
+
+      if (responsesList.length === 0 && errors.length === 0) {
+        warnings.push("Response stream list is empty. No blocks to play.");
+      }
+
+      if (errors.length > 0) {
+        errors.forEach(err => logToConsole(err, 'error'));
+        consoleStatus.textContent = 'FAILED';
+        consoleStatus.style.color = 'var(--color-error)';
+        return;
+      }
+
+      logToConsole(`Workspace populated with ${responsesList.length} stream segments.`, 'info');
+
+      // Analyze datastore references recursively or optionally
+      let datastores = [];
+      try {
+        datastores = requestObj.toolsSpec?.vertexAiSearchSpec?.dataStoreSpecs || [];
+        if (datastores.length === 0) {
+          warnings.push("No grounding datastores specified in this payload's request.");
+        }
+      } catch (e) {
+        // Safe to ignore or skip
+      }
+
+      // Check for common anomalies in LLM chunks
+      let lastTimestamp = null;
+      let latencySpikes = 0;
+
+      responsesList.forEach((resp, idx) => {
+        const ans = resp.answer;
+        if (!ans) {
+          warnings.push(`Chunk [${idx}] lacks an answer structure node. Fabricating default state.`);
+          resp.answer = { state: 'UNKNOWN', replies: [] };
+          return;
+        }
+
+        // State Check
+        if (ans.state !== 'IN_PROGRESS' && ans.state !== 'SUCCEEDED') {
+          warnings.push(`Chunk [${idx}] state indicates a termination value: "${ans.state}"`);
+        }
+
+        // Empty response detection
+        const replies = ans.replies || [];
+        if (replies.length === 0) {
+          if (ans.state === 'IN_PROGRESS') {
+            warnings.push(`Chunk [${idx}] is IN_PROGRESS but has empty replies.`);
+          }
+        } else {
+          const text = replies[0]?.groundedContent?.content?.text;
+          if (ans.state === 'IN_PROGRESS' && (!text || text.trim() === '')) {
+            warnings.push(`Chunk [${idx}] returned empty grounding content.`);
+          }
+        }
+
+        // Time check (latency analysis)
+        const createTimeStr = replies[0]?.createTime;
+        if (createTimeStr) {
+          const currentTime = new Date(createTimeStr);
+          if (lastTimestamp) {
+            const diffMs = currentTime - lastTimestamp;
+            if (diffMs > 1500) {
+              latencySpikes++;
+              warnings.push(`Latency Spike: Segment [${idx}] transfer gap took ${(diffMs/1000).toFixed(2)}s.`);
+            }
+          }
+          lastTimestamp = currentTime;
+        }
+      });
+
+      // Output diagnostics
+      if (errors.length > 0) {
+        errors.forEach(err => logToConsole(err, 'error'));
+        consoleStatus.textContent = 'FAILED';
+        consoleStatus.style.color = 'var(--color-error)';
+      } else if (warnings.length > 0) {
+        warnings.forEach(warn => logToConsole(warn, 'warn'));
+        consoleStatus.textContent = 'STABLE (W/ WARNINGS)';
+        consoleStatus.style.color = 'var(--color-warning)';
+      } else {
+        logToConsole('All structures verified clean. Standard streaming schemas verified.', 'info');
+        consoleStatus.textContent = 'HEALTHY';
+        consoleStatus.style.color = 'var(--color-success)';
+      }
+
+      // Populate Visual elements
+      renderDashboard();
+    }
+
+    function findGroundingSources(obj, found = []) {
+      if (!obj || typeof obj !== 'object') return found;
+      
+      // Explicitly handle Arrays and recurse on their items
+      if (Array.isArray(obj)) {
+        obj.forEach(item => {
+          findGroundingSources(item, found);
+        });
+        return found;
+      }
+      
+      // Check direct groundingSources
+      if (Array.isArray(obj.groundingSources)) {
+        obj.groundingSources.forEach(src => {
+          found.push({
+            type: 'source',
+            title: src.title || src.name || '',
+            uri: src.uri || src.url || src.sourceUri || '',
+            content: src.content?.text || src.content || src.snippet || src.text || '',
+            raw: src
+          });
+        });
+      }
+      
+      // Check direct groundingChunks
+      if (Array.isArray(obj.groundingChunks)) {
+        obj.groundingChunks.forEach((chunk, idx) => {
+          found.push({
+            type: 'chunk',
+            title: chunk.web?.title || chunk.title || '',
+            uri: chunk.web?.uri || chunk.uri || '',
+            content: chunk.content || chunk.web?.snippet || chunk.text || '',
+            raw: chunk
+          });
+        });
+      }
+
+      // Check direct citations
+      if (Array.isArray(obj.citations)) {
+        obj.citations.forEach((cit, idx) => {
+          found.push({
+            type: 'citation',
+            title: cit.title || '',
+            uri: cit.uri || cit.url || '',
+            content: cit.text || cit.snippet || '',
+            raw: cit
+          });
+        });
+      }
+
+      // Check textGroundingMetadata
+      if (obj.textGroundingMetadata && Array.isArray(obj.textGroundingMetadata.references)) {
+        obj.textGroundingMetadata.references.forEach((ref, idx) => {
+          found.push({
+            type: 'reference',
+            title: ref.title || `Grounding Reference ${idx + 1}`,
+            uri: ref.uri || ref.url || '',
+            content: ref.content || ref.text || '',
+            raw: ref
+          });
+        });
+      }
+
+      // Check standard groundingMetadata structures
+      const groundingMetadata = obj.groundingMetadata;
+      if (groundingMetadata && typeof groundingMetadata === 'object') {
+        if (Array.isArray(groundingMetadata.groundingChunks)) {
+          groundingMetadata.groundingChunks.forEach((chunk, idx) => {
+            found.push({
+              type: 'chunk',
+              title: chunk.web?.title || chunk.title || '',
+              uri: chunk.web?.uri || chunk.uri || '',
+              content: chunk.content || chunk.web?.snippet || chunk.text || '',
+              raw: chunk
+            });
+          });
+        }
+        if (Array.isArray(groundingMetadata.groundingSources)) {
+          groundingMetadata.groundingSources.forEach(src => {
+            found.push({
+              type: 'source',
+              title: src.title || src.name || '',
+              uri: src.uri || src.url || src.sourceUri || '',
+              content: src.content?.text || src.content || src.snippet || src.text || '',
+              raw: src
+            });
+          });
+        }
+        if (Array.isArray(groundingMetadata.references)) {
+          groundingMetadata.references.forEach((ref, idx) => {
+            found.push({
+              type: 'reference',
+              title: ref.title || `Grounding Reference ${idx + 1}`,
+              uri: ref.uri || ref.url || '',
+              content: ref.content || ref.text || '',
+              raw: ref
+            });
+          });
+        }
+      }
+
+      // Check direct references array
+      if (Array.isArray(obj.references)) {
+        obj.references.forEach((ref, idx) => {
+          found.push({
+            type: 'reference',
+            title: ref.title || `Grounding Reference ${idx + 1}`,
+            uri: ref.uri || ref.url || '',
+            content: ref.content || ref.text || '',
+            raw: ref
+          });
+        });
+      }
+
+      // Recurse into all keys
+      for (const key in obj) {
+        if (Object.prototype.hasOwnProperty.call(obj, key) && typeof obj[key] === 'object') {
+          findGroundingSources(obj[key], found);
+        }
+      }
+      
+      return found;
+    }
+
+    function extractUniqueGrounding(data) {
+      const allRaw = findGroundingSources(data);
+      const seen = new Set();
+      const unique = [];
+      allRaw.forEach((item, idx) => {
+        // Skip completely empty items
+        if (!item.uri && !item.content && !item.title) return;
+        
+        const key = `${item.uri || ''}||${item.content || ''}||${item.title || ''}`;
+        if (!seen.has(key)) {
+          seen.add(key);
+          unique.push(item);
+        }
+      });
+      return unique;
+    }
+
+    function renderDashboard() {
+      // Transition from empty state
+      workspaceEmptyState.style.display = 'none';
+      workspaceActiveDashboard.style.display = 'flex';
+
+      // 1. Overall Status badge
+      const lastResp = responsesList[responsesList.length - 1];
+      const finalState = lastResp?.answer?.state || 'UNKNOWN';
+      metricOverallStatus.textContent = finalState;
+      if (finalState === 'SUCCEEDED') {
+        metricStatusBadge.textContent = 'PASS';
+        metricStatusBadge.style.background = 'var(--color-success-bg)';
+        metricStatusBadge.style.color = 'var(--color-success)';
+      } else {
+        metricStatusBadge.textContent = 'ISSUES';
+        metricStatusBadge.style.background = 'var(--color-error-bg)';
+        metricStatusBadge.style.color = 'var(--color-error)';
+      }
+
+      // 2. Total chunks
+      metricTotalChunks.textContent = responsesList.length;
+
+      // 3. Request Latency estimation
+      try {
+        const startStr = parsedData.metadata?.requestTime;
+        const endStr = responsesList[responsesList.length - 1]?.answer?.replies?.[0]?.createTime;
+        if (startStr && endStr) {
+          const delta = (new Date(endStr) - new Date(startStr)) / 1000;
+          metricTotalLatency.textContent = `${delta.toFixed(1)}s`;
+        } else {
+          metricTotalLatency.textContent = 'N/A';
+        }
+      } catch (e) {
+        metricTotalLatency.textContent = 'N/A';
+      }
+
+      // 4. Grounding Datastores counts
+      const specs = requestObj.toolsSpec?.vertexAiSearchSpec?.dataStoreSpecs || [];
+      metricDatastoresCount.textContent = specs.length;
+
+      // Populate datastore tags
+      datastoreListContainer.innerHTML = '';
+      specs.forEach(spec => {
+        const path = spec.dataStore || '';
+        const parts = path.split('/');
+        const storeName = parts[parts.length - 1] || 'Unknown Datastore';
+        
+        let icon = 'database';
+        if (storeName.includes('mail')) icon = 'mail';
+        if (storeName.includes('calendar')) icon = 'calendar';
+        if (storeName.includes('contact')) icon = 'users';
+        if (storeName.includes('attachment')) icon = 'paperclip';
+
+        const tag = document.createElement('div');
+        tag.className = 'datastore-tag';
+        tag.innerHTML = `
+          <i data-lucide="${icon}"></i>
+          <span>${storeName}</span>
+        `;
+        datastoreListContainer.appendChild(tag);
+      });
+
+      // Show other active tools capabilities
+      const toolsSpec = requestObj.toolsSpec || {};
+      if (toolsSpec.webGroundingSpec) {
+        const tag = document.createElement('div');
+        tag.className = 'datastore-tag';
+        tag.style.borderColor = 'var(--accent-cyan)';
+        tag.innerHTML = `
+          <i data-lucide="globe" style="color: var(--accent-cyan);"></i>
+          <span>Web Grounding Enabled</span>
+        `;
+        datastoreListContainer.appendChild(tag);
+      }
+      if (toolsSpec.imageGenerationSpec) {
+        const tag = document.createElement('div');
+        tag.className = 'datastore-tag';
+        tag.style.borderColor = 'var(--accent-purple)';
+        tag.innerHTML = `
+          <i data-lucide="image" style="color: var(--accent-purple);"></i>
+          <span>Image Gen Enabled</span>
+        `;
+        datastoreListContainer.appendChild(tag);
+      }
+      if (toolsSpec.videoGenerationSpec) {
+        const tag = document.createElement('div');
+        tag.className = 'datastore-tag';
+        tag.style.borderColor = 'var(--accent-purple)';
+        tag.innerHTML = `
+          <i data-lucide="video" style="color: var(--accent-purple);"></i>
+          <span>Video Gen Enabled</span>
+        `;
+        datastoreListContainer.appendChild(tag);
+      }
+
+      // Populate Grounding source citations & snippets
+      groundingSourcesContainer.innerHTML = '';
+      const citations = extractUniqueGrounding(parsedData);
+      citationsCountBadge.textContent = `${citations.length} Citations`;
+
+      if (citations.length === 0) {
+        groundingSourcesContainer.innerHTML = `
+          <div style="border: 1px dashed var(--color-warning); background: var(--color-warning-bg); border-radius: 8px; padding: 1.25rem; display: flex; align-items: flex-start; gap: 0.75rem; width: 100%;">
+            <i data-lucide="alert-triangle" style="color: var(--color-warning); flex-shrink: 0; margin-top: 0.15rem;"></i>
+            <div style="display: flex; flex-direction: column; gap: 0.25rem;">
+              <div style="font-weight: 600; font-size: 0.85rem; color: #FFF;">No Grounding Source Citations Returned</div>
+              <div style="font-size: 0.75rem; color: var(--text-secondary); line-height: 1.4;">
+                This streaming session returned <strong>0 active citations</strong> or <strong>grounding metadata chunks</strong>. 
+                This indicates the assistant either generated the response directly from parameters, bypassed retrieval, or the datastore query returned empty index hits.
+              </div>
+            </div>
+          </div>
+        `;
+      } else {
+        citations.forEach((cit, idx) => {
+          const card = document.createElement('div');
+          card.style.cssText = `
+            background: var(--bg-surface-alt);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1rem;
+            width: 100%;
+            transition: var(--transition-fast);
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+          `;
+          
+          card.addEventListener('mouseenter', () => {
+            card.style.borderColor = 'var(--accent-violet)';
+            card.style.boxShadow = '0 0 10px rgba(79, 172, 254, 0.15)';
+          });
+          card.addEventListener('mouseleave', () => {
+            card.style.borderColor = 'var(--border-color)';
+            card.style.boxShadow = 'none';
+          });
+
+          const title = cit.title || `Source Citation ${idx + 1}`;
+          const uriText = cit.uri ? `<a href="${cit.uri}" target="_blank" style="color: var(--accent-cyan); text-decoration: none; font-size: 0.75rem; font-family: var(--font-mono); display: inline-flex; align-items: center; gap: 0.25rem;"><i data-lucide="external-link" style="width: 12px; height: 12px;"></i> ${cit.uri}</a>` : '<span style="color: var(--text-muted); font-size: 0.75rem; font-family: var(--font-mono);">No URI path metadata</span>';
+          
+          let escapedContent = cit.content || '<i>No text snippet retrieved</i>';
+          if (cit.content) {
+            escapedContent = cit.content
+              .replace(/&/g, "&amp;")
+              .replace(/</g, "&lt;")
+              .replace(/>/g, "&gt;")
+              .replace(/"/g, "&quot;")
+              .replace(/'/g, "&#039;");
+          }
+
+          // HTML Detection Heuristics
+          const hasHtml = cit.content && (
+            cit.content.includes('<html') || 
+            cit.content.includes('<div') || 
+            cit.content.includes('<table') || 
+            cit.content.includes('<body') || 
+            /<[a-z][\s\S]*>/i.test(cit.content)
+          );
+
+          let paneContent = '';
+          if (hasHtml) {
+            paneContent = `
+              <div class="citation-card-body" style="display: flex; flex-direction: column; gap: 0.5rem; width: 100%;">
+                <div class="citation-tabs" style="display: flex; gap: 0.5rem; margin-top: 0.25rem; margin-bottom: 0.25rem;">
+                  <button class="citation-tab active" onclick="switchCitationView(this, 'render')" style="background: var(--bg-surface); border: 1px solid var(--border-color); color: var(--accent-cyan); font-size: 0.7rem; padding: 0.25rem 0.6rem; border-radius: 4px; cursor: pointer; font-family: var(--font-sans); font-weight: 600; transition: var(--transition-fast);">Rendered Document</button>
+                  <button class="citation-tab" onclick="switchCitationView(this, 'raw')" style="background: transparent; border: 1px solid transparent; color: var(--text-muted); font-size: 0.7rem; padding: 0.25rem 0.6rem; border-radius: 4px; cursor: pointer; font-family: var(--font-sans); font-weight: 500; transition: var(--transition-fast);">Raw HTML Source</button>
+                </div>
+                <div class="citation-render-pane" style="width: 100%;">
+                  <!-- iframe will be appended dynamically -->
+                </div>
+                <div class="citation-raw-pane" style="display: none; background: var(--bg-base); border: 1px solid rgba(255,255,255,0.02); border-radius: 6px; padding: 0.75rem; font-family: var(--font-mono); font-size: 0.75rem; color: #A5B4FC; max-height: 250px; overflow-y: auto; white-space: pre-wrap; line-height: 1.4; word-break: break-all;">${escapedContent}</div>
+              </div>
+            `;
+          } else {
+            paneContent = `
+              <div style="background: var(--bg-base); border: 1px solid rgba(255,255,255,0.02); border-radius: 6px; padding: 0.75rem; font-family: var(--font-mono); font-size: 0.75rem; color: #A5B4FC; max-height: 150px; overflow-y: auto; white-space: pre-wrap; line-height: 1.4;">${escapedContent}</div>
+            `;
+          }
+
+          card.innerHTML = `
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 0.5rem;">
+              <div style="font-weight: 600; font-size: 0.85rem; color: #FFF; display: flex; align-items: center; gap: 0.5rem;">
+                <span style="font-family: var(--font-mono); font-size: 0.75rem; background: var(--bg-base); padding: 0.15rem 0.4rem; border-radius: 4px; border: 1px solid var(--border-color); color: var(--accent-violet);">[${idx + 1}]</span>
+                ${title}
+              </div>
+              ${uriText}
+            </div>
+            ${paneContent}
+          `;
+          
+          groundingSourcesContainer.appendChild(card);
+
+          // Render safe sandboxed Document preview inside an iframe
+          if (hasHtml) {
+            const iframe = document.createElement('iframe');
+            iframe.sandbox = "allow-same-origin";
+            iframe.style.cssText = `
+              width: 100%;
+              height: 220px;
+              border: 1px solid var(--border-color);
+              border-radius: 6px;
+              background: #FFFFFF;
+              color: #1E293B;
+              display: block;
+            `;
+            
+            const renderPane = card.querySelector('.citation-render-pane');
+            renderPane.appendChild(iframe);
+
+            const safeHtmlDoc = `
+              <!DOCTYPE html>
+              <html>
+                <head>
+                  <meta charset="utf-8">
+                  <style>
+                    body {
+                      background-color: #FFFFFF !important;
+                      color: #1E293B !important;
+                      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
+                      font-size: 13px !important;
+                      line-height: 1.5 !important;
+                      padding: 12px !important;
+                      margin: 0 !important;
+                    }
+                    /* Ensure emails & tables look crisp and premium */
+                    table {
+                      border-collapse: collapse !important;
+                      max-width: 100% !important;
+                      width: 100% !important;
+                      margin-bottom: 1rem !important;
+                      background-color: transparent !important;
+                    }
+                    td, th {
+                      padding: 6px 8px !important;
+                      border: 1px solid #CBD5E1 !important;
+                      font-size: 12px !important;
+                      color: #334155 !important;
+                    }
+                    p, div, span {
+                      font-family: inherit !important;
+                    }
+                    p {
+                      margin-top: 0 !important;
+                      margin-bottom: 0.5rem !important;
+                    }
+                    img {
+                      max-width: 100% !important;
+                      height: auto !important;
+                    }
+                  </style>
+                </head>
+                <body>
+                  ${cit.content}
+                </body>
+              </html>
+            `;
+            
+            iframe.srcdoc = safeHtmlDoc;
+          }
+        });
+      }
+
+      // Engine/Assistant name UI
+      let engineName = 'Default Engine';
+      if (requestObj.name) {
+        const parts = requestObj.name.split('/');
+        const engineIdx = parts.indexOf('engines');
+        if (engineIdx !== -1 && parts[engineIdx + 1]) {
+          engineName = parts[engineIdx + 1];
+        }
+      }
+      simScreenTitle.textContent = `STREAM SIMULATOR [Engine: ${engineName}]`;
+
+      // Session UI
+      diagSessionId.textContent = requestObj.session ? requestObj.session.split('/').pop() : 'N/A';
+
+      // Set up timeline scrubber bounds
+      simScrubber.max = responsesList.length;
+      simScrubber.value = 0;
+      currentStep = 0;
+      updateSimulationUI();
+
+      // Render waterfall steps
+      renderWaterfall();
+
+      // Set user query
+      userQueryText.textContent = requestObj.query?.parts?.[0]?.text || "No Query Detected";
+
+      // Finalize error tallies
+      diagErrorCount.textContent = errors.length;
+      diagWarningCount.textContent = warnings.length;
+
+      lucide.createIcons();
+    }
+
+    function renderWaterfall() {
+      chunkListContainer.innerHTML = '';
+
+      let accumText = "";
+      let lastTime = null;
+
+      responsesList.forEach((resp, idx) => {
+        const ans = resp.answer || {};
+        const replies = ans.replies || [];
+        const reply = replies[0] || {};
+        const state = ans.state || 'UNKNOWN';
+        const rawText = reply.groundedContent?.content?.text || '';
+        const createTime = reply.createTime ? new Date(reply.createTime) : null;
+        const replyId = reply.replyId || 'N/A';
+        
+        // Calculate step latency
+        let stepLatency = "";
+        let isHighLatency = false;
+        if (createTime) {
+          if (lastTime) {
+            const diff = createTime - lastTime;
+            stepLatency = `+${diff}ms`;
+            if (diff > 1500) isHighLatency = true;
+          } else {
+            stepLatency = "Stream Start";
+          }
+          lastTime = createTime;
+        }
+
+        const chunkTextLength = rawText.length;
+        accumText += rawText;
+
+        // Determine if chunk has error/warning flags
+        let hasErr = false;
+        let hasWarn = false;
+        if (state !== 'IN_PROGRESS' && state !== 'SUCCEEDED') hasErr = true;
+        if (chunkTextLength === 0 && state === 'IN_PROGRESS') hasWarn = true;
+
+        const card = document.createElement('div');
+        card.id = `chunk-card-${idx}`;
+        card.className = `chunk-card ${hasErr ? 'has-error' : ''} ${hasWarn ? 'has-warning' : ''}`;
+        card.innerHTML = `
+          <div class="chunk-header" onclick="toggleChunkExpand(${idx})">
+            <div class="chunk-meta-left">
+              <div class="chunk-index">${idx + 1}</div>
+              <div class="chunk-title">Chunk ${idx + 1} (State: ${state})</div>
+            </div>
+            <div class="chunk-badge-group">
+              <span class="chunk-badge ${state === 'SUCCEEDED' ? 'badge-success' : 'badge-progress'}">${state}</span>
+              <span class="chunk-badge badge-latency ${isHighLatency ? 'high-latency' : ''}">${stepLatency}</span>
+              <i data-lucide="chevron-down" style="width: 14px; height: 14px;"></i>
+            </div>
+          </div>
+          <div class="chunk-body" id="chunk-body-${idx}">
+            <div class="chunk-text-preview">${rawText ? rawText : '<i>[No payload text returned]</i>'}</div>
+            <div class="chunk-details-grid">
+              <div class="chunk-detail-item">Reply ID: <span>${replyId}</span></div>
+              <div class="chunk-detail-item">Timestamp: <span>${reply.createTime || 'N/A'}</span></div>
+              <div class="chunk-detail-item">Characters added: <span>${chunkTextLength}</span></div>
+              <div class="chunk-detail-item">ADK Author: <span>${ans.adkAuthor || 'N/A'}</span></div>
+            </div>
+          </div>
+        `;
+        chunkListContainer.appendChild(card);
+      });
+      lucide.createIcons();
+    }
+
+    window.toggleChunkExpand = function(idx) {
+      const card = document.getElementById(`chunk-card-${idx}`);
+      if (card) {
+        card.classList.toggle('expanded');
+      }
+    };
+
+    window.switchCitationView = function(btn, mode) {
+      const body = btn.closest('.citation-card-body');
+      const renderPane = body.querySelector('.citation-render-pane');
+      const rawPane = body.querySelector('.citation-raw-pane');
+      const tabs = body.querySelectorAll('.citation-tab');
+      
+      tabs.forEach(t => {
+        t.classList.remove('active');
+        t.style.background = 'transparent';
+        t.style.borderColor = 'transparent';
+        t.style.color = 'var(--text-muted)';
+        t.style.fontWeight = '500';
+      });
+      
+      btn.classList.add('active');
+      btn.style.background = 'var(--bg-surface)';
+      btn.style.borderColor = 'var(--border-color)';
+      btn.style.color = 'var(--accent-cyan)';
+      btn.style.fontWeight = '600';
+      
+      if (mode === 'render') {
+        renderPane.style.display = 'block';
+        rawPane.style.display = 'none';
+      } else {
+        renderPane.style.display = 'none';
+        rawPane.style.display = 'block';
+      }
+    };
+
+    function updateSimulationUI() {
+      simProgressText.textContent = `${currentStep} / ${responsesList.length}`;
+      simScrubber.value = currentStep;
+
+      // Update Active waterfall cards styling
+      for (let i = 0; i < responsesList.length; i++) {
+        const card = document.getElementById(`chunk-card-${i}`);
+        if (card) {
+          if (i === currentStep - 1) {
+            card.classList.add('active-step');
+          } else {
+            card.classList.remove('active-step');
+          }
+        }
+      }
+
+      if (currentStep === 0) {
+        assistantBubble.style.display = 'none';
+        simStatusDot.className = 'screen-status-dot';
+        simTimestamp.textContent = '00:00:00';
+        simAssistantAuthor.textContent = 'Author: Idle';
+        return;
+      }
+
+      // Compile current aggregate text response
+      assistantBubble.style.display = 'block';
+      simStatusDot.className = 'screen-status-dot active';
+
+      let textAccum = '';
+      let highlightText = '';
+      let activeAuthor = 'root_agent';
+      let activeTime = '';
+
+      for (let i = 0; i < currentStep; i++) {
+        const chunk = responsesList[i];
+        const rawText = chunk.answer?.replies?.[0]?.groundedContent?.content?.text || '';
+        activeAuthor = chunk.answer?.adkAuthor || activeAuthor;
+        activeTime = chunk.answer?.replies?.[0]?.createTime || activeTime;
+
+        if (i === currentStep - 1 && rawText) {
+          // Highlight newest chunk
+          highlightText = rawText;
+        } else {
+          textAccum += rawText;
+        }
+      }
+
+      simAssistantAuthor.textContent = `Author: ${activeAuthor}`;
+      simTimestamp.textContent = activeTime ? activeTime.split('T')[1].replace('Z', '') : '00:00:00';
+
+      // Assemble content with highlight
+      let finalHtml = '';
+      if (textAccum) {
+        finalHtml += marked.parse(textAccum);
+      }
+      if (highlightText) {
+        finalHtml += `<span class="stream-highlight">${marked.parse(highlightText)}</span>`;
+      }
+
+      assistantBubbleContent.innerHTML = finalHtml || '<i>[Processing State Output...]</i>';
+      bubbleCumulativeChars.textContent = `${(textAccum + highlightText).length} chars cumulative`;
+    }
+
+    function togglePlayback() {
+      if (playInterval) {
+        stopPlayback();
+      } else {
+        startPlayback();
+      }
+    }
+
+    function startPlayback() {
+      if (currentStep >= responsesList.length) {
+        currentStep = 0;
+      }
+      
+      playIcon.setAttribute('data-lucide', 'pause');
+      playText.textContent = 'Pause';
+      lucide.createIcons();
+
+      const speed = parseInt(playbackSpeedSelect.value) || 500;
+      playInterval = setInterval(() => {
+        if (currentStep < responsesList.length) {
+          currentStep++;
+          updateSimulationUI();
+        } else {
+          stopPlayback();
+        }
+      }, speed);
+    }
+
+    function stopPlayback() {
+      if (playInterval) {
+        clearInterval(playInterval);
+        playInterval = null;
+      }
+      playIcon.setAttribute('data-lucide', 'play');
+      playText.textContent = 'Play';
+      lucide.createIcons();
+    }
+
+    function stepForward() {
+      stopPlayback();
+      if (currentStep < responsesList.length) {
+        currentStep++;
+        updateSimulationUI();
+      }
+    }
+
+    function stepBackward() {
+      stopPlayback();
+      if (currentStep > 0) {
+        currentStep--;
+        updateSimulationUI();
+      }
+    }
+
+    function resetSimulation() {
+      stopPlayback();
+      currentStep = 0;
+      updateSimulationUI();
+    }
+
+    function handleScrubberChange(e) {
+      stopPlayback();
+      currentStep = parseInt(e.target.value) || 0;
+      updateSimulationUI();
+    }
+
+    function exportDiagnosticReport() {
+      if (!parsedData) return;
+      
+      const report = {
+        inspectionTimestamp: new Date().toISOString(),
+        requestUuid: parsedData.metadata?.uuid || 'N/A',
+        overallStatus: metricOverallStatus.textContent,
+        sessionToken: parsedData.assistToken,
+        totalChunksAnalyzed: responsesList.length,
+        anomaliesDetected: {
+          errorsCount: errors.length,
+          warningsCount: warnings.length,
+          errorsList: errors,
+          warningsList: warnings
+        }
+      };
+
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(report, null, 2));
+      const downloadAnchor = document.createElement('a');
+      downloadAnchor.setAttribute("href", dataStr);
+      downloadAnchor.setAttribute("download", `stream_diagnostic_${parsedData.metadata?.uuid || 'report'}.json`);
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
+      logToConsole('Exported system diagnostic report JSON successfully.', 'info');
+    }
+
+    // Auto load sample on boot to provide stunning immediate visuals
+    setTimeout(() => {
+      loadSampleData();
+    }, 400);
+
+  </script>
+</body>
+</html>

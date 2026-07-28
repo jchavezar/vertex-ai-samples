@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ADK Drive Agent Engine (adk-drive-ae) - System Overview</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0b0f19;
+            --card-bg: rgba(17, 24, 39, 0.7);
+            --card-border: rgba(255, 255, 255, 0.08);
+            --accent-blue: #3b82f6;
+            --accent-purple: #8b5cf6;
+            --accent-green: #10b981;
+            --accent-yellow: #f59e0b;
+            --text-primary: #f3f4f6;
+            --text-secondary: #9ca3af;
+            --glow-shadow: 0 0 20px rgba(59, 130, 246, 0.15);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(59, 130, 246, 0.05) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(139, 92, 246, 0.05) 0%, transparent 40%);
+        }
+
+        header {
+            max-width: 1200px;
+            margin: 40px auto 20px auto;
+            padding: 0 24px;
+            text-align: center;
+        }
+
+        h1 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 3rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #60a5fa 0%, #a78bfa 50%, #f472b6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 12px;
+            letter-spacing: -0.02em;
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 1.15rem;
+            max-width: 650px;
+            margin: 0 auto;
+            line-height: 1.6;
+            font-weight: 300;
+        }
+
+        main {
+            max-width: 1200px;
+            margin: 0 auto 60px auto;
+            padding: 0 24px;
+        }
+
+        /* Interactive Flowchart Diagram */
+        .diagram-container {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 24px;
+            padding: 40px;
+            margin-bottom: 40px;
+            backdrop-filter: blur(12px);
+            box-shadow: var(--glow-shadow);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .diagram-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, var(--accent-blue), var(--accent-purple), var(--accent-green));
+        }
+
+        .diagram-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .diagram-title::before {
+            content: '';
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            background-color: var(--accent-blue);
+            border-radius: 50%;
+            box-shadow: 0 0 10px var(--accent-blue);
+        }
+
+        .flow-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 24px;
+            position: relative;
+        }
+
+        .flow-node {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            padding: 24px;
+            text-align: center;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            cursor: pointer;
+        }
+
+        .flow-node:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+        }
+
+        .flow-node.active-blue { border-color: var(--accent-blue); box-shadow: 0 0 15px rgba(59, 130, 246, 0.15); }
+        .flow-node.active-purple { border-color: var(--accent-purple); box-shadow: 0 0 15px rgba(139, 92, 246, 0.15); }
+        .flow-node.active-green { border-color: var(--accent-green); box-shadow: 0 0 15px rgba(16, 185, 129, 0.15); }
+        .flow-node.active-yellow { border-color: var(--accent-yellow); box-shadow: 0 0 15px rgba(245, 158, 11, 0.15); }
+
+        .node-icon {
+            font-size: 2.2rem;
+            margin-bottom: 12px;
+            display: inline-block;
+        }
+
+        .node-title {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 600;
+            font-size: 1.1rem;
+            margin-bottom: 8px;
+        }
+
+        .node-desc {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            line-height: 1.4;
+        }
+
+        .flow-arrow {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.5rem;
+            color: var(--text-secondary);
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
+        /* System Components Grid */
+        .components-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 24px;
+        }
+
+        .component-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 20px;
+            padding: 32px;
+            backdrop-filter: blur(12px);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .component-card:hover {
+            transform: translateY(-8px);
+            border-color: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .badge {
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            padding: 4px 10px;
+            border-radius: 9999px;
+            letter-spacing: 0.05em;
+        }
+
+        .badge-blue { background: rgba(59, 130, 246, 0.15); color: #93c5fd; border: 1px solid rgba(59, 130, 246, 0.3); }
+        .badge-purple { background: rgba(139, 92, 246, 0.15); color: #c084fc; border: 1px solid rgba(139, 92, 246, 0.3); }
+        .badge-green { background: rgba(16, 185, 129, 0.15); color: #6ee7b7; border: 1px solid rgba(16, 185, 129, 0.3); }
+
+        .card-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .card-tech {
+            font-size: 0.8rem;
+            color: var(--accent-blue);
+            font-family: monospace;
+            background: rgba(59, 130, 246, 0.06);
+            padding: 2px 8px;
+            border-radius: 4px;
+            align-self: flex-start;
+        }
+
+        .card-desc {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .feature-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: auto;
+            border-top: 1px solid rgba(255,255,255,0.05);
+            padding-top: 16px;
+        }
+
+        .feature-item {
+            font-size: 0.88rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-primary);
+        }
+
+        .feature-item::before {
+            content: '✓';
+            color: var(--accent-green);
+            font-weight: bold;
+        }
+
+        /* Decorative Background Highlights */
+        .decor {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.2rem;
+            }
+            .diagram-container {
+                padding: 24px;
+            }
+            .flow-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>adk-drive-ae</h1>
+        <p class="subtitle">An architecture decoupled with a Next.js front-end and a secure proxy backend delivering user credentials directly into Vertex AI Agent Engine session states.</p>
+    </header>
+
+    <main>
+        <!-- System Data Flow Architecture -->
+        <section class="diagram-container">
+            <h2 class="diagram-title">System Sequence & Architecture</h2>
+            <div class="flow-grid">
+                <!-- Node 1 -->
+                <div class="flow-node active-blue">
+                    <div class="node-icon">🌐</div>
+                    <div class="node-title">1. Next.js App</div>
+                    <div class="node-desc">Runs locally. Requests OAuth scope for Google Drive via Identity Services popup.</div>
+                </div>
+                
+                <!-- Node 2 -->
+                <div class="flow-node active-purple">
+                    <div class="node-icon">🔒</div>
+                    <div class="node-title">2. FastAPI Backend</div>
+                    <div class="node-desc">Accepts access token and creates the session context on Vertex Agent Engine.</div>
+                </div>
+
+                <!-- Node 3 -->
+                <div class="flow-node active-green">
+                    <div class="node-icon">🤖</div>
+                    <div class="node-title">3. Vertex Agent Engine</div>
+                    <div class="node-desc">Hosts the ADK Agent, dynamically binding the credentials context.</div>
+                </div>
+
+                <!-- Node 4 -->
+                <div class="flow-node active-yellow">
+                    <div class="node-icon">📂</div>
+                    <div class="node-title">4. Drive API v3</div>
+                    <div class="node-desc">Invoked securely directly by ADK tools with no intermediary integration layers.</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Components Breakdown -->
+        <section class="components-grid">
+            <!-- Component 1 -->
+            <div class="component-card">
+                <div class="card-header">
+                    <span class="badge badge-blue">Frontend UI</span>
+                    <span class="card-tech">Next.js 15 / Tailwind</span>
+                </div>
+                <h3 class="card-title">Dynamic Interactive Portal</h3>
+                <p class="card-desc">An elegant and premium browser-side portal delivering Google Identity Services integration. It triggers safe, standard user authentication popups, fetches authentication tokens, and opens interactive real-time chat sockets with the system.</p>
+                <ul class="feature-list">
+                    <li class="feature-item">OAuth Token Acquisition via GIS Popup</li>
+                    <li class="feature-item">SSE Streaming Chat Interface</li>
+                    <li class="feature-item">Dynamic UI with Interactive Feedback</li>
+                </ul>
+            </div>
+
+            <!-- Component 2 -->
+            <div class="component-card">
+                <div class="card-header">
+                    <span class="badge badge-purple">Secure Proxy</span>
+                    <span class="card-tech">FastAPI / Uvicorn</span>
+                </div>
+                <h3 class="card-title">Backend Orchestrator</h3>
+                <p class="card-desc">Acts as a decoupled integration layer running locally. It intercept access tokens, makes call-to-creates sessions on Vertex AI, binds the context state securely, and maps streaming outputs back to the client.</p>
+                <ul class="feature-list">
+                    <li class="feature-item">Saves credentials safely in memory/sessions</li>
+                    <li class="feature-item">Proxies chat streams (Server-Sent Events)</li>
+                    <li class="feature-item">Maintains clean environment secrets</li>
+                </ul>
+            </div>
+
+            <!-- Component 3 -->
+            <div class="component-card">
+                <div class="card-header">
+                    <span class="badge badge-green">ADK AI Agent</span>
+                    <span class="card-tech">Google ADK / Vertex Engine</span>
+                </div>
+                <h3 class="card-title">Vertex AI Agent Service</h3>
+                <p class="card-desc">A highly specialized Google Agent Development Kit instance deployed directly onto Google Cloud's Vertex AI Agent Engine. It relies on standard system prompts and tool integrations to perform automated Google Drive searches.</p>
+                <ul class="feature-list">
+                    <li class="feature-item">Injected Google Drive Tools</li>
+                    <li class="feature-item">OAuth Bearer Token injection on execution</li>
+                    <li class="feature-item">Secure Sandbox execution in Agent Engine</li>
+                </ul>
+            </div>
+        </section>
+    </main>
+
+</body>
+</html>
