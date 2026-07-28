@@ -388,7 +388,7 @@ export const DiagnosticContainer: React.FC<DiagnosticContainerProps> = ({
         defaultCollapsed={globalState !== null ? globalState : false}
         isLightMode={isLightMode}
       >
-        <ReActEvidenceCard evidence={diagnostic.evidence} />
+        <ReActEvidenceCard evidence={diagnostic.evidence} isLightMode={isLightMode} />
       </CollapsibleCard>
     </div>
   );
