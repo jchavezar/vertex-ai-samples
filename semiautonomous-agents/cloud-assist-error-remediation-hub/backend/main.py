@@ -1,4 +1,5 @@
 import uvicorn
+import time, subprocess
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from typing import List, Optional, Dict, Any
@@ -308,53 +309,71 @@ def convert_to_wav(audio_data: bytes, mime_type: str = "audio/L16;rate=24000") -
     )
     return header + audio_data
 
+CACHED_GCP_TOKEN = {"token": None, "fetched_at": 0}
+
+def get_cached_gcp_token():
+    now = time.time()
+    if CACHED_GCP_TOKEN["token"] and (now - CACHED_GCP_TOKEN["fetched_at"] < 1800):
+        return CACHED_GCP_TOKEN["token"]
+    try:
+        token = subprocess.check_output(['gcloud', 'auth', 'print-access-token'], timeout=5).decode('utf-8').strip()
+        CACHED_GCP_TOKEN["token"] = token
+        CACHED_GCP_TOKEN["fetched_at"] = now
+        return token
+    except Exception as e:
+        print("Failed to fetch gcloud token:", e)
+        return None
+
 @app.post("/api/synthesize-audio")
 def synthesize_audio(req: AudioSynthesisRequest):
     """
     Generates ultra-realistic human voice audio synthesis for executive incident briefings
     using Google Cloud Journey-F or Gemini Aoede prebuilt voice rendering engine.
     """
-    import os, urllib.request, json, subprocess, ssl, base64
+    import os, urllib.request, json, subprocess, ssl, base64, time
 
+    t0 = time.time()
     clean_text = req.text.replace('"', '').replace("'", "")
     
     # 1. Primary Engine: Google Cloud Text-to-Speech API with Ultra-Realistic Journey-F Voice
-    try:
-        token = subprocess.check_output(['gcloud', 'auth', 'print-access-token']).decode('utf-8').strip()
-        ctx = ssl._create_unverified_context()
-
-        url = 'https://texttospeech.googleapis.com/v1/text:synthesize'
-        payload = {
-            'input': {'text': clean_text},
-            'voice': {
-                'languageCode': 'en-US',
-                'name': 'en-US-Journey-F'  # Google's premier ultra-realistic natural human voice
-            },
-            'audioConfig': {
-                'audioEncoding': 'MP3',
-                'speakingRate': 1.02
+    token = get_cached_gcp_token()
+    if token:
+        try:
+            ctx = ssl._create_unverified_context()
+            url = 'https://texttospeech.googleapis.com/v1/text:synthesize'
+            payload = {
+                'input': {'text': clean_text},
+                'voice': {
+                    'languageCode': 'en-US',
+                    'name': 'en-US-Journey-F'
+                },
+                'audioConfig': {
+                    'audioEncoding': 'MP3',
+                    'speakingRate': 1.02
+                }
             }
-        }
 
-        g_req = urllib.request.Request(url, data=json.dumps(payload).encode('utf-8'), headers={
-            'Authorization': f'Bearer {token}',
-            'X-Goog-User-Project': 'vtxdemos',
-            'Content-Type': 'application/json'
-        })
+            g_req = urllib.request.Request(url, data=json.dumps(payload).encode('utf-8'), headers={
+                'Authorization': f'Bearer {token}',
+                'X-Goog-User-Project': 'vtxdemos',
+                'Content-Type': 'application/json'
+            })
 
-        res = urllib.request.urlopen(g_req, context=ctx)
-        data = json.loads(res.read().decode('utf-8'))
-        audio_content = data.get('audioContent', '')
+            res = urllib.request.urlopen(g_req, context=ctx, timeout=3.0)
+            data = json.loads(res.read().decode('utf-8'))
+            audio_content = data.get('audioContent', '')
+            latency_ms = int((time.time() - t0) * 1000)
 
-        if audio_content:
-            return {
-                "status": "SUCCESS",
-                "audioBase64": audio_content,
-                "mimeType": "audio/mp3",
-                "voiceUsed": "Aoede / Journey-F Ultra-Realistic Human Voice"
-            }
-    except Exception as e:
-        print("GCP Journey-F TTS failed, falling back to GenAI SDK:", e)
+            if audio_content:
+                return {
+                    "status": "SUCCESS",
+                    "audioBase64": audio_content,
+                    "mimeType": "audio/mp3",
+                    "latencyMs": latency_ms,
+                    "voiceUsed": "Aoede / Journey-F Ultra-Realistic Human Voice"
+                }
+        except Exception as e:
+            print("GCP Journey-F TTS failed or timed out:", e)
 
     # 2. Secondary Engine: Google GenAI SDK with Aoede Voice & WAV Conversion
     try:
