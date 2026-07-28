@@ -7,16 +7,35 @@ from jetski_indexer import generate_index, INDEX_OUTPUT, scan_projects
 
 PORT = int(os.environ.get("ANTIGRAVITY_SIDECAR_WEB_PORT", 8099))
 
-HTML_TEMPLATE = """<!DOCTYPE html>
+FAVICON_SVG = """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#8b5cf6"/>
+      <stop offset="50%" stop-color="#6366f1"/>
+      <stop offset="100%" stop-color="#06b6d4"/>
+    </linearGradient>
+  </defs>
+  <rect width="100" height="100" rx="26" fill="url(#bg)"/>
+  <circle cx="50" cy="50" r="32" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="4" stroke-dasharray="10 5"/>
+  <polygon points="50,18 62,44 50,82 38,44" fill="#ffffff"/>
+  <polygon points="50,18 62,44 50,50" fill="#e0e7ff"/>
+  <polygon points="50,82 38,44 50,50" fill="#a5b4fc"/>
+  <circle cx="50" cy="50" r="7" fill="#020617"/>
+  <circle cx="50" cy="50" r="3" fill="#ffffff"/>
+</svg>"""
+
+HTML_TEMPLATE = f"""<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Jetski Nav: Deployments & Context Hub</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="alternate icon" type="image/svg+xml" href="/favicon.ico">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body { background-color: #020617; color: #f8fafc; font-family: ui-sans-serif, system-ui, sans-serif; }
-        .glass { background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(16px); border: 1px solid rgba(30, 41, 59, 0.8); }
+        body {{ background-color: #020617; color: #f8fafc; font-family: ui-sans-serif, system-ui, sans-serif; }}
+        .glass {{ background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(16px); border: 1px solid rgba(30, 41, 59, 0.8); }}
     </style>
 </head>
 <body class="p-6 min-h-screen">
@@ -28,7 +47,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
                     🧭
                 </div>
                 <div>
-                    <h1 className="text-xl font-bold bg-gradient-to-r from-white via-slate-100 to-slate-400 bg-clip-text text-transparent">
+                    <h1 class="text-xl font-bold bg-gradient-to-r from-white via-slate-100 to-slate-400 bg-clip-text text-transparent">
                         Jetski Nav: Deployment & Session Context Hub
                     </h1>
                     <p class="text-xs text-slate-400">Indexed Autonomous Deployments, Active Ports & Session History</p>
@@ -96,27 +115,27 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     <script>
         let globalData = null;
 
-        async function loadIndexData() {
-            try {
+        async function loadIndexData() {{
+            try {{
                 const res = await fetch('/api/index');
                 globalData = await res.json();
                 renderDashboard(globalData);
-            } catch (err) {
+            }} catch (err) {{
                 console.error("Failed to load index:", err);
-            }
-        }
+            }}
+        }}
 
-        async function refreshIndex() {
-            try {
-                const res = await fetch('/api/refresh', { method: 'POST' });
+        async function refreshIndex() {{
+            try {{
+                const res = await fetch('/api/refresh', {{ method: 'POST' }});
                 globalData = await res.json();
                 renderDashboard(globalData);
-            } catch (err) {
+            }} catch (err) {{
                 console.error("Failed to refresh index:", err);
-            }
-        }
+            }}
+        }}
 
-        function renderDashboard(data) {
+        function renderDashboard(data) {{
             document.getElementById('totalCount').innerText = data.total_projects;
             document.getElementById('runningCount').innerText = data.running_projects;
             
@@ -126,72 +145,72 @@ HTML_TEMPLATE = """<!DOCTYPE html>
             const grid = document.getElementById('projectsGrid');
             grid.innerHTML = '';
 
-            data.projects.forEach(p => {
+            data.projects.forEach(p => {{
                 const isRunning = p.is_running;
                 const card = document.createElement('div');
-                card.className = `p-4 rounded-2xl glass space-y-3 project-card hover:border-indigo-500/40 transition-all ${isRunning ? 'border-emerald-500/40 bg-slate-900/90' : ''}`;
-                card.setAttribute('data-search', `${p.id} ${p.title} ${p.description}`.toLowerCase());
+                card.className = `p-4 rounded-2xl glass space-y-3 project-card hover:border-indigo-500/40 transition-all ${{isRunning ? 'border-emerald-500/40 bg-slate-900/90' : ''}}`;
+                card.setAttribute('data-search', `${{p.id}} ${{p.title}} ${{p.description}}`.toLowerCase());
 
                 const portsBadge = isRunning 
-                    ? Object.keys(p.running_ports).map(port => `<span class="px-2 py-0.5 text-[10px] font-bold rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">🟢 ${port}</span>`).join(' ')
+                    ? Object.keys(p.running_ports).map(port => `<span class="px-2 py-0.5 text-[10px] font-bold rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">🟢 ${{port}}</span>`).join(' ')
                     : `<span class="px-2 py-0.5 text-[10px] text-slate-500 bg-slate-950 rounded">Idle</span>`;
 
                 card.innerHTML = `
                     <div class="flex justify-between items-start">
-                        <span class="text-xs font-bold font-mono text-indigo-300 truncate max-w-[180px]">${p.id}</span>
-                        <div>${portsBadge}</div>
+                        <span class="text-xs font-bold font-mono text-indigo-300 truncate max-w-[180px]">${{p.id}}</span>
+                        <div>${{portsBadge}}</div>
                     </div>
                     <div>
-                        <h4 class="text-sm font-bold text-white line-clamp-1">${p.title}</h4>
-                        <p class="text-xs text-slate-400 line-clamp-2 mt-1">${p.description}</p>
+                        <h4 class="text-sm font-bold text-white line-clamp-1">${{p.title}}</h4>
+                        <p class="text-xs text-slate-400 line-clamp-2 mt-1">${{p.description}}</p>
                     </div>
                     <div class="flex flex-wrap gap-1 text-[10px]">
-                        ${p.has_skill ? '<span class="px-1.5 py-0.5 rounded bg-cyan-500/10 text-cyan-300 border border-cyan-500/20">🛠️ SKILL</span>' : ''}
-                        ${p.has_start_script ? '<span class="px-1.5 py-0.5 rounded bg-violet-500/10 text-violet-300 border border-violet-500/20">🚀 ./start.sh</span>' : ''}
+                        ${{p.has_skill ? '<span class="px-1.5 py-0.5 rounded bg-cyan-500/10 text-cyan-300 border border-cyan-500/20">🛠️ SKILL</span>' : ''}}
+                        ${{p.has_start_script ? '<span class="px-1.5 py-0.5 rounded bg-violet-500/10 text-violet-300 border border-violet-500/20">🚀 ./start.sh</span>' : ''}}
                     </div>
                     <div class="pt-2 border-t border-slate-800/80 flex items-center justify-between text-xs">
-                        <a href="${p.github_url}" target="_blank" class="text-slate-400 hover:text-white transition-colors">GitHub ↗</a>
-                        <button onclick="fetchContextBundle('${p.id}')" class="px-3 py-1 rounded-lg bg-indigo-600/20 hover:bg-indigo-600/40 text-indigo-300 border border-indigo-500/30 text-[11px] font-bold transition-all">
+                        <a href="${{p.github_url}}" target="_blank" class="text-slate-400 hover:text-white transition-colors">GitHub ↗</a>
+                        <button onclick="fetchContextBundle('${{p.id}}')" class="px-3 py-1 rounded-lg bg-indigo-600/20 hover:bg-indigo-600/40 text-indigo-300 border border-indigo-500/30 text-[11px] font-bold transition-all">
                             📋 Load Context
                         </button>
                     </div>
                 `;
                 grid.appendChild(card);
-            });
-        }
+            }});
+        }}
 
-        function filterProjects() {
+        function filterProjects() {{
             const query = document.getElementById('searchInput').value.toLowerCase();
             const cards = document.querySelectorAll('.project-card');
-            cards.forEach(card => {
+            cards.forEach(card => {{
                 const text = card.getAttribute('data-search');
                 card.style.display = text.includes(query) ? 'block' : 'none';
-            });
-        }
+            }});
+        }}
 
-        async function fetchContextBundle(projectId) {
-            try {
-                const res = await fetch(`/api/context?id=${encodeURIComponent(projectId)}`);
+        async function fetchContextBundle(projectId) {{
+            try {{
+                const res = await fetch(`/api/context?id=${{encodeURIComponent(projectId)}}`);
                 const bundleText = await res.text();
-                document.getElementById('modalTitle').innerText = `Loaded Context Bundle: ${projectId}`;
+                document.getElementById('modalTitle').innerText = `Loaded Context Bundle: ${{projectId}}`;
                 document.getElementById('modalContent').innerText = bundleText;
                 document.getElementById('contextModal').classList.remove('hidden');
                 document.getElementById('contextModal').classList.add('flex');
-            } catch (err) {
+            }} catch (err) {{
                 alert("Failed to fetch context bundle");
-            }
-        }
+            }}
+        }}
 
-        function closeModal() {
+        function closeModal() {{
             document.getElementById('contextModal').classList.add('hidden');
             document.getElementById('contextModal').classList.remove('flex');
-        }
+        }}
 
-        function copyModalContent() {
+        function copyModalContent() {{
             const text = document.getElementById('modalContent').innerText;
             navigator.clipboard.writeText(text);
             alert("✅ Copied project context bundle to clipboard!");
-        }
+        }}
 
         loadIndexData();
     </script>
@@ -209,6 +228,12 @@ class NavRequestHandler(SimpleHTTPRequestHandler):
             self.send_header("Content-Type", "text/html")
             self.end_headers()
             self.wfile.write(HTML_TEMPLATE.encode("utf-8"))
+        elif path in ["/favicon.ico", "/favicon.svg"]:
+            self.send_response(200)
+            self.send_header("Content-Type", "image/svg+xml")
+            self.send_header("Cache-Control", "public, max-age=86400")
+            self.end_headers()
+            self.wfile.write(FAVICON_SVG.encode("utf-8"))
         elif path == "/api/index":
             if not os.path.exists(INDEX_OUTPUT):
                 data = generate_index()
