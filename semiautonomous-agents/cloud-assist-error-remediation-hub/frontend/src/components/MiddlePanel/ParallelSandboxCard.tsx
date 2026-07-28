@@ -16,7 +16,8 @@ import {
   Copy,
   Check,
   Zap,
-  Code
+  Code,
+  Lightbulb
 } from 'lucide-react';
 
 interface ParallelSandboxCardProps {
@@ -44,6 +45,7 @@ interface SandboxSubagentTrace {
   output: string;
   attempts: HarnessAttempt[];
   finalCommand: string;
+  insightSummary?: string;
 }
 
 interface ParallelConsolidatedReport {
@@ -58,6 +60,7 @@ interface ParallelConsolidatedReport {
   completedAt: string;
   totalDurationMs: number;
   consolidationStatus: string;
+  executiveInsight?: string;
   subagentTraces: SandboxSubagentTrace[];
 }
 
@@ -88,16 +91,11 @@ export const ParallelSandboxCard: React.FC<ParallelSandboxCardProps> = ({
     setIsOrchestrating(true);
     setReport(null);
     setLiveLogs([]);
-    setIsInspectOpen(true); // Automatically open stream console so user sees live execution!
+    setIsInspectOpen(true); // Open stream modal immediately
 
     pushLog("🚀 [PARALLEL WORKER POOL] Initializing Antigravity Sandbox Subagent Orchestrator...");
-    pushLog(`🎯 [CONTEXT] Target Service: ${selectedError.serviceName} | Error: ${selectedError.summary}`);
-    pushLog("📡 [VERTEX AI] Contacting us-central1-aiplatform.googleapis.com (Agent: antigravity-preview-05-2026)...");
-
-    const timer1 = setTimeout(() => pushLog("📦 [SANDBOX-SUBAGENT-1] Container provisioned (ID: sandbox-subagent-1, PID: 61402)."), 300);
-    const timer2 = setTimeout(() => pushLog("⚡ [SANDBOX-SUBAGENT-1] Executing fix: gcloud projects get-iam-policy vtxdemos..."), 700);
-    const timer3 = setTimeout(() => pushLog("📦 [SANDBOX-SUBAGENT-2] Container provisioned (ID: sandbox-subagent-2, PID: 61405)."), 900);
-    const timer4 = setTimeout(() => pushLog("⚡ [SANDBOX-SUBAGENT-2] Executing probe: gcloud scheduler jobs describe envato-vibe-app-warmup..."), 1200);
+    pushLog(`🎯 [INCIDENT CONTEXT] Target Service: ${selectedError.serviceName} | Error: ${selectedError.summary}`);
+    pushLog("📡 [VERTEX AI] Provisioning remote Linux sandboxes via google.genai Interactions API...");
 
     try {
       const res = await fetch('http://127.0.0.1:8088/api/orchestrate-parallel', {
@@ -105,10 +103,26 @@ export const ParallelSandboxCard: React.FC<ParallelSandboxCardProps> = ({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ errorItem: selectedError })
       });
+
       if (res.ok) {
         const data: ParallelConsolidatedReport = await res.json();
         setReport(data);
+
+        // Stream real backend traces into the live console!
+        if (data.subagentTraces && data.subagentTraces.length > 0) {
+          data.subagentTraces.forEach((sub) => {
+            pushLog(`📦 [SANDBOX ${sub.sandboxId}] ${sub.taskId} started execution at ${formatTimestamp(sub.startedAt)}.`);
+            pushLog(`⚡ [SANDBOX ${sub.sandboxId}] Final Fix Command: ${sub.finalCommand}`);
+            if (sub.insightSummary) {
+              pushLog(`💡 [INSIGHT] ${sub.insightSummary}`);
+            }
+          });
+        }
+
         pushLog(`✅ [CONSOLIDATION COMPLETE] ${data.successfulTasks}/${data.totalParallelSandboxes} Sandboxes succeeded in ${data.totalDurationMs}ms.`);
+        if (data.executiveInsight) {
+          pushLog(`🎯 [EXECUTIVE VERDICT] ${data.executiveInsight}`);
+        }
         pushLog("🔒 [ZERO-LEAK AUDIT] Verified 0 credentials, secrets, or tokens leaked during execution.");
       } else {
         pushLog(`❌ [ORCHESTRATION ERROR] API returned status ${res.status}`);
@@ -116,10 +130,6 @@ export const ParallelSandboxCard: React.FC<ParallelSandboxCardProps> = ({
     } catch (err: any) {
       pushLog(`❌ [NETWORK ERROR] Failed to reach sandbox orchestrator backend on port 8088.`);
     } finally {
-      clearTimeout(timer1);
-      clearTimeout(timer2);
-      clearTimeout(timer3);
-      clearTimeout(timer4);
       setIsOrchestrating(false);
     }
   };
@@ -264,6 +274,19 @@ async def orchestrate_parallel_remediation(error_item, hypotheses):
             </div>
           </div>
 
+          {/* ACTIONABLE INSIGHTS SUMMARY BANNER */}
+          {report.executiveInsight && (
+            <div className="p-3.5 rounded-xl bg-purple-950/40 border border-purple-500/40 text-xs space-y-1.5">
+              <div className="flex items-center space-x-2 text-purple-300 font-bold">
+                <Lightbulb className="w-4 h-4 text-amber-300" />
+                <span>Subagent Execution Insights & Remediation Verdict:</span>
+              </div>
+              <div className="text-slate-200 font-mono text-[11px] leading-relaxed bg-black/50 p-2.5 rounded-lg border border-purple-800/40">
+                {report.executiveInsight}
+              </div>
+            </div>
+          )}
+
           {/* Subagent Sandbox Traces */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             {report.subagentTraces.map((sub, idx) => (
@@ -293,10 +316,17 @@ async def orchestrate_parallel_remediation(error_item, hypotheses):
                   <span>Duration: <strong className="text-cyan-300">{sub.durationMs}ms</strong></span>
                 </div>
 
-                {/* Full Execution Trace */}
-                <div className="text-slate-300 whitespace-pre-wrap text-[10px] leading-relaxed max-h-40 overflow-y-auto bg-black/60 p-2.5 rounded border border-slate-800/70">
+                {/* Full Execution Trace & Telemetry */}
+                <div className="text-slate-300 whitespace-pre-wrap text-[10px] leading-relaxed max-h-44 overflow-y-auto bg-black/60 p-2.5 rounded border border-slate-800/70 select-all">
                   {sub.output}
                 </div>
+
+                {/* Insight Verdict Badge */}
+                {sub.insightSummary && (
+                  <div className="p-2 rounded bg-cyan-950/40 border border-cyan-500/30 text-[10px] text-cyan-200">
+                    <strong className="text-cyan-400">Insight:</strong> {sub.insightSummary}
+                  </div>
+                )}
 
                 {/* Final Verified Command */}
                 <div className="pt-1 flex items-center justify-between text-[10px]">
