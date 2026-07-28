@@ -15,7 +15,10 @@ def build_context_bundle(p):
         lines.append(f"- **Detected Ports**: {p.get('detected_ports', [])}")
         
     if p.get("conversation_id"):
-        lines.append(f"- **Previous Session Conversation ID**: `{p['conversation_id']}`")
+        cid = p['conversation_id']
+        lines.append(f"- **Previous Session Conversation ID**: `{cid}`")
+        lines.append(f"- **Brain Transcript History Path**: `~/.gemini/jetski/brain/{cid}/.system_generated/logs/transcript.jsonl`")
+        lines.append(f"- **Agent Instruction**: *If you need step-by-step history from previous sessions, read the transcript log path above.*")
 
     lines.append("\n---\n")
 
