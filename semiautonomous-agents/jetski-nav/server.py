@@ -248,7 +248,7 @@ class NavRequestHandler(SimpleHTTPRequestHandler):
             params = urllib.parse.parse_qs(parsed.query)
             pid = params.get("id", [""])[0]
             from jetski_indexer import scan_projects
-            from jetski_nav import build_context_bundle
+            from context_builder import build_context_bundle
             
             projects = scan_projects()
             matched = next((p for p in projects if p["id"].lower() == pid.lower()), None)
