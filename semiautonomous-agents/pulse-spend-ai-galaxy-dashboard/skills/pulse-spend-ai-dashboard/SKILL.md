@@ -1,11 +1,11 @@
 ---
 name: pulse-spend-ai-dashboard
-description: Complete blueprint & functional instructions to build the PulseSpend AI Spending Analytics Platform and Spend Galaxy Constellation Explorer from scratch using FastAPI, React, Tailwind CSS, Chart.js, and Vertex AI (Gemini 2.5 Flash).
+description: Complete blueprint & functional instructions to build the PulseSpend AI Spending Analytics Platform and Spend Galaxy Constellation Explorer from scratch using FastAPI, React, Tailwind CSS, Chart.js, and Vertex AI (Gemini 3.5 Flash).
 ---
 
 # 🌌 PulseSpend AI: Blueprint & Skill Instructions
 
-This skill provides a comprehensive design, architecture, and functional specification to reproduce **PulseSpend AI** — an executive spending intelligence platform featuring an interactive **Spend Galaxy Constellation Explorer**, automated **Amex CSV Statement Importer**, **Cardholder Household Comparison**, and **Gemini 2.5 Flash Financial Audit Agent**.
+This skill provides a comprehensive design, architecture, and functional specification to reproduce **PulseSpend AI** — an executive spending intelligence platform featuring an interactive **Spend Galaxy Constellation Explorer**, automated **Amex CSV Statement Importer**, **Cardholder Household Comparison**, and **Gemini 3.5 Flash Financial Audit Agent**.
 
 ---
 
@@ -147,8 +147,8 @@ The Spend Galaxy renders category transactions as an interactive 2D orbital plan
 | `/api/analytics/timeline` | `GET` | None | List of daily timeline points `{"date": str, "gross": float, "refunds": float, "net": float}` |
 | `/api/analytics/tags` | `GET` | None | Tag frequency cloud distribution `{"tag": str, "count": int, "total_spent": float}` |
 | `/api/transactions` | `GET` | `card_member`, `category`, `expense_type`, `search` | Filtered list of enriched transaction records |
-| `/api/ai/audit-report` | `GET` | `force_refresh: bool` | Gemini 2.5 Flash narrative audit report object |
-| `/api/ai/chat` | `POST` | `{"query": str}` | `{"reply": str}` powered by Gemini 2.5 Flash |
+| `/api/ai/audit-report` | `GET` | `force_refresh: bool` | Gemini 3.5 Flash narrative audit report object |
+| `/api/ai/chat` | `POST` | `{"query": str}` | `{"reply": str}` powered by Gemini 3.5 Flash |
 
 ---
 

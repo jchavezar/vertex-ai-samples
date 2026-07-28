@@ -1,6 +1,6 @@
 # 🌌 PulseSpend AI: Expense Intelligence & Spend Galaxy Constellations
 
-An intelligent financial analytics platform powered by **Gemini 2.5 Flash** on Vertex AI. PulseSpend AI ingests raw credit card statements (e.g. Amex CSV exports), enriches transactions with clean merchant brands, behavioral intent labels, necessity scores, micro-tags, and renders expenses as an interactive **Cosmic Spend Galaxy Constellation** with Pan, Zoom, Subcategory Solar System Clusters, and live AI Chat Q&A.
+An intelligent financial analytics platform powered by **Gemini 3.5 Flash** on Vertex AI. PulseSpend AI ingests raw credit card statements (e.g. Amex CSV exports), enriches transactions with clean merchant brands, behavioral intent labels, necessity scores, micro-tags, and renders expenses as an interactive **Cosmic Spend Galaxy Constellation** with Pan, Zoom, Subcategory Solar System Clusters, and live AI Chat Q&A.
 
 ![Spend Galaxy Universe](screenshots/spend_galaxy_universe.png)
 
@@ -18,7 +18,7 @@ An intelligent financial analytics platform powered by **Gemini 2.5 Flash** on V
   - **🔎 Live Planet Search**: Type any merchant to locate and illuminate matching star nodes instantly.
   - **🖥️ Fullscreen Mode**: Expand the galaxy map to fill widescreen monitor space.
 
-- **🤖 Gemini 2.5 Flash AI Engine**:
+- **🤖 Gemini 3.5 Flash AI Engine**:
   - **Clean Merchant Normalization**: Strips statement junk (`AplPay`, `TST*`, `SP*`) to clean brand names (*Sephora*, *Grubhub*, *Delta*, *Whole Foods*, *Nordstrom*).
   - **Behavioral Intent Classification**: Categories into *Essential*, *Lifestyle & Luxury*, *Food & Dining*, *Subscriptions*, *Travel & Transit*, *Healthcare*, and *Pet Care*.
   - **Necessity Rating Scale (1-5 Stars)**: AI evaluates expense necessity (1 = impulse luxury, 5 = essential grocery/medical).
@@ -85,7 +85,7 @@ pulse-spend-ai-galaxy-dashboard/
 │   ├── main.py                     # FastAPI API entrypoint & endpoints
 │   ├── requirements.txt            # Python dependencies (fastapi, google-genai, pandas)
 │   └── services/
-│       ├── ai_service.py           # Gemini 2.5 Flash Vertex AI client integration
+│       ├── ai_service.py           # Gemini 3.5 Flash Vertex AI client integration
 │       ├── analytics_service.py    # Statistical KPI & category aggregation service
 │       └── enrichment_service.py   # Amex CSV cleaning & AI labeling engine
 ├── frontend/
@@ -129,7 +129,7 @@ pulse-spend-ai-galaxy-dashboard/
 | `GET` | `/api/analytics/timeline` | Daily spending vs refund timeline data |
 | `GET` | `/api/analytics/tags` | Intelligent micro-tag cloud frequency & totals |
 | `GET` | `/api/transactions` | Filterable enriched transaction ledger |
-| `GET` | `/api/ai/audit-report` | Gemini 2.5 Flash executive spending audit report |
+| `GET` | `/api/ai/audit-report` | Gemini 3.5 Flash executive spending audit report |
 | `POST` | `/api/ai/chat` | Ask AI natural language Q&A query endpoint |
 
 ---

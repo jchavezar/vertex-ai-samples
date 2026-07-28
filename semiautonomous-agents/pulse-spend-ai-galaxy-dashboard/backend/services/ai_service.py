@@ -9,7 +9,7 @@ class AIService:
         os.environ['GOOGLE_CLOUD_PROJECT'] = 'vtxdemos'
         os.environ['GOOGLE_CLOUD_LOCATION'] = 'us-central1'
         os.environ['GOOGLE_GENAI_USE_VERTEXAI'] = 'True'
-        self.model_name = 'gemini-2.5-flash'
+        self.model_name = 'gemini-3.5-flash'
         self.client = genai.Client(location='us-central1')
 
     def generate_spending_audit_report(self, kpis: Dict[str, Any], categories: List[Dict[str, Any]], cardholders: Dict[str, Any], top_merchants: List[Dict[str, Any]]) -> Dict[str, Any]:
