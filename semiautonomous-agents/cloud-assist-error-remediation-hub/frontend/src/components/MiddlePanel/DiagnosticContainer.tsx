@@ -10,6 +10,7 @@ import { CloudRunAppAutoHealCard } from './CloudRunAppAutoHealCard';
 import { BlastRadiusMapCard } from './BlastRadiusMapCard';
 import { ProofOfFixCard } from './ProofOfFixCard';
 import { ExecutiveVoiceBriefing } from './ExecutiveVoiceBriefing';
+import { DynamicLogDependencyFlow } from './DynamicLogDependencyFlow';
 import { CollapsibleCard } from './CollapsibleCard';
 import { Sparkles, Activity, FileText, Target, Cpu, Wrench, ShieldCheck, Maximize2, Minimize2, Layers, ShieldAlert, CheckCircle2 } from 'lucide-react';
 
@@ -162,6 +163,9 @@ export const DiagnosticContainer: React.FC<DiagnosticContainerProps> = ({
         }`}>
           {selectedError.fullText}
         </div>
+
+        {/* Real-time Dynamic Log Dependency Flow Chart */}
+        <DynamicLogDependencyFlow selectedError={selectedError} isLightMode={isLightMode} />
       </div>
 
       {/* Flexible Section Accordion Controls Toolbar */}

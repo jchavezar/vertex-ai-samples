@@ -262,5 +262,22 @@ def get_telemetry_dashboard():
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+class LogDependencyRequest(BaseModel):
+    serviceName: str
+    resourceType: str
+    summary: str
+    fullText: str
+
+@app.post("/api/log-dependency-flow")
+def get_log_dependency_flow(req: LogDependencyRequest):
+    """
+    Dynamically extracts real-time inter-service dependency topology flow graph from log payloads.
+    """
+    from app.services.log_dependency_agent_service import extract_dynamic_log_dependency_flow
+    try:
+        return extract_dynamic_log_dependency_flow(req.serviceName, req.resourceType, req.summary, req.fullText)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 if __name__ == "__main__":
     uvicorn.run("main:app", host="127.0.0.1", port=PORT, reload=False)
