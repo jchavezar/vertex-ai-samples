@@ -207,21 +207,30 @@ export const CloudRunAppAutoHealCard: React.FC<CloudRunAppAutoHealCardProps> = (
           {activeTab === 'preview' ? (
             <div className="space-y-3">
               <div className="flex justify-between items-center text-[11px] text-slate-400">
-                <span className="font-semibold text-slate-300">Live Embedded GCP Iframe Window</span>
+                <div className="flex items-center gap-2">
+                  <span className="font-semibold text-slate-300">Live Embedded GCP Iframe Window</span>
+                  <button
+                    onClick={() => setIframeKey((prev) => prev + 1)}
+                    className="px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-cyan-300 text-[10px] font-semibold flex items-center gap-1 border border-slate-700 transition-colors"
+                    title="Force refresh live Cloud Run app frame"
+                  >
+                    <span>🔄 Refresh App Frame</span>
+                  </button>
+                </div>
                 <a href={REAL_CLOUD_RUN_URL} target="_blank" rel="noreferrer" className="text-emerald-400 font-mono flex items-center gap-1 hover:underline">
                   <span>{REAL_CLOUD_RUN_URL}</span>
                   <ExternalLink className="w-3 h-3" />
                 </a>
               </div>
 
-              {/* REAL LIVE GCP CLOUD RUN IFRAME CONTAINER (GPU Hardware Accelerated) */}
+              {/* REAL LIVE GCP CLOUD RUN IFRAME CONTAINER (GPU Hardware Accelerated + Cache Buster) */}
               <div 
                 className="rounded-2xl overflow-hidden border border-slate-700 shadow-2xl bg-white h-[340px] w-full relative"
                 style={{ transform: 'translateZ(0)', willChange: 'transform' }}
               >
                 <iframe
                   key={iframeKey}
-                  src={REAL_CLOUD_RUN_URL}
+                  src={`${REAL_CLOUD_RUN_URL}?cacheBuster=${iframeKey}`}
                   title="Real GCP Cloud Run Service"
                   loading="lazy"
                   className="w-full h-full border-0 rounded-2xl"
