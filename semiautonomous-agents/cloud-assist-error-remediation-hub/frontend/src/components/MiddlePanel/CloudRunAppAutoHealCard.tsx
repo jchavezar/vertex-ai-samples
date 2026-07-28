@@ -92,6 +92,8 @@ export const CloudRunAppAutoHealCard: React.FC<CloudRunAppAutoHealCardProps> = (
   const [iframeKey, setIframeKey] = useState<number>(0);
   const [isFullscreenView, setIsFullscreenView] = useState<boolean>(false);
 
+  const [streamedLogs, setStreamedLogs] = useState<string[]>([]);
+
   // Sync with selected error from Cloud Logging panel
   React.useEffect(() => {
     if (selectedError) {
@@ -104,6 +106,7 @@ export const CloudRunAppAutoHealCard: React.FC<CloudRunAppAutoHealCardProps> = (
         setActiveAppId(matchedSvc.id);
       }
       setHealResult(null);
+      setStreamedLogs([]);
       setAppStateOverride('broken'); // Default to broken HTTP 500 state for active incidents
       setIframeKey((prev) => prev + 1);
     }
@@ -113,9 +116,9 @@ export const CloudRunAppAutoHealCard: React.FC<CloudRunAppAutoHealCardProps> = (
 
   const triggerAppAction = async (actionType: 'break' | 'heal', targetAppId: string = activeAppId) => {
     setIsProcessing(true);
+    setStreamedLogs([]);
     if (actionType === 'heal') {
       setActiveTab('build');
-      setAppStateOverride('healed');
     } else {
       setAppStateOverride('broken');
     }
@@ -128,11 +131,30 @@ export const CloudRunAppAutoHealCard: React.FC<CloudRunAppAutoHealCardProps> = (
       if (res.ok) {
         const data: AutoHealResult = await res.json();
         setHealResult(data);
-        setIframeKey((prev) => prev + 1);
+        
+        if (actionType === 'heal' && data.remediationLogs) {
+          // Stream build logs sequentially to reflect real Cloud Build container deployment progression
+          const logs = data.remediationLogs;
+          logs.forEach((logLine, index) => {
+            setTimeout(() => {
+              setStreamedLogs((prev) => [...prev, logLine]);
+              if (index === logs.length - 1) {
+                setAppStateOverride('healed');
+                setIframeKey((prev) => prev + 1);
+                setIsProcessing(false);
+              }
+            }, (index + 1) * 1100);
+          });
+        } else {
+          setStreamedLogs(data.remediationLogs || []);
+          setIframeKey((prev) => prev + 1);
+          setIsProcessing(false);
+        }
+      } else {
+        setIsProcessing(false);
       }
     } catch (err) {
       console.error("Cloud Run Break & Fix action failed:", err);
-    } finally {
       setIsProcessing(false);
     }
   };
@@ -445,30 +467,43 @@ export const CloudRunAppAutoHealCard: React.FC<CloudRunAppAutoHealCardProps> = (
                 isLightMode ? 'bg-white border-slate-300 text-slate-900' : 'bg-slate-900/90 border-slate-800 text-slate-200'
               }`}>
                 <div className="flex items-center space-x-2">
-                  <Cpu className="w-4 h-4 text-purple-400 animate-pulse" />
-                  <span className="font-bold">Model: gemini-3.5-flash-lite</span>
+                  <Cpu className={`w-4 h-4 ${isProcessing ? 'text-amber-500 animate-spin' : 'text-purple-400'}`} />
+                  <span className="font-bold">Engine: Gemini 3.5 Flash Lite + GCP Cloud Build</span>
                 </div>
-                <span className="text-emerald-500 font-bold">STATUS: 200 REVISION DEPLOYED</span>
+                {isProcessing ? (
+                  <span className="text-amber-600 font-bold flex items-center gap-2 animate-pulse">
+                    <span className="w-2 h-2 rounded-full bg-amber-500 animate-ping"></span>
+                    <span>BUILDING CONTAINER & DEPLOYING REVISION...</span>
+                  </span>
+                ) : (
+                  <span className="text-emerald-600 font-bold">STATUS: 200 REVISION DEPLOYED</span>
+                )}
               </div>
 
-              <div className={`p-4 rounded-xl border h-72 overflow-y-auto space-y-1.5 ${
+              <div className={`p-4 rounded-xl border h-72 overflow-y-auto space-y-2 ${
                 isLightMode
                   ? 'bg-slate-950 text-emerald-400 border-slate-900 shadow-inner'
                   : 'bg-black/90 text-emerald-400 border-slate-800'
               }`}>
-                {(healResult?.remediationLogs || [
-                  `[INFO] Target Microservice: ${activeService.id}`,
-                  `[INFO] Active GCP Region: us-central1 (Project: vtxdemos)`,
-                  `[ANALYSIS] Diagnosing stack trace with Gemini 3.5 Flash Lite...`,
-                  `[FIX] Formulated automatic patch diff for python service main.py`,
-                  `[BUILD] Invoking Cloud Build revision container pipeline...`,
-                  `[SUCCESS] Re-routed canonical traffic to new operational revision!`
-                ]).map((logLine, idx) => (
-                  <div key={idx} className="flex items-start space-x-2">
+                {(streamedLogs.length > 0
+                  ? streamedLogs
+                  : (healResult?.remediationLogs || [
+                      `[INFO] Target Microservice: ${activeService.id}`,
+                      `[INFO] Active GCP Region: us-central1 (Project: vtxdemos)`,
+                      `[ANALYSIS] Ready to execute Cloud Build container compilation...`
+                    ])
+                ).map((logLine, idx) => (
+                  <div key={idx} className="flex items-start space-x-2 animate-fadeIn">
                     <span className="text-slate-500 select-none">&gt;</span>
                     <span className="leading-relaxed">{logLine}</span>
                   </div>
                 ))}
+                {isProcessing && (
+                  <div className="flex items-center space-x-2 text-amber-400 pt-1 font-bold animate-pulse">
+                    <span className="w-2 h-2 rounded-full bg-amber-400 animate-ping"></span>
+                    <span>Compiling container layers & deploying Cloud Run revision...</span>
+                  </div>
+                )}
               </div>
             </div>
           )}

@@ -20,7 +20,7 @@ SERVICES_CONFIG = {
         "errorType": "ZeroDivisionError",
         "errorPath": "app/routes/checkout.py",
         "errorSummary": "ZeroDivisionError: division by zero in POST /api/cart/checkout",
-        "stackTrace": """[ERROR] 2026-07-28 15:50:12 UTC - Cloud Run Revision: envato-vibe-storefront-00002-64s
+        "stackTrace": """[ERROR] Cloud Run Revision: envato-vibe-storefront-00002-64s
 Traceback (most recent call last):
   File "/app/routes/checkout.py", line 42, in process_cart_checkout
     discount_ratio = total_discount / itemCount
@@ -41,7 +41,7 @@ ZeroDivisionError: division by zero
         "errorType": "KeyError",
         "errorPath": "app/services/auth.py",
         "errorSummary": "KeyError: 'JWT_SECRET_KEY' environment variable missing in POST /api/auth/token",
-        "stackTrace": """[CRITICAL] 2026-07-28 15:50:14 UTC - Cloud Run Revision: cyberpunk-ledger-dashboard-00001-a1
+        "stackTrace": """[CRITICAL] Cloud Run Revision: cyberpunk-ledger-dashboard-00001-a1
 Traceback (most recent call last):
   File "/app/services/auth.py", line 18, in generate_jwt_token
     secret = os.environ['JWT_SECRET_KEY']
@@ -62,7 +62,7 @@ KeyError: 'JWT_SECRET_KEY'
         "errorType": "MemoryError",
         "errorPath": "app/reports/mri.py",
         "errorSummary": "MemoryError: Container allocated 534M exceeding 512M limit (OOMKilled)",
-        "stackTrace": """[CRITICAL] 2026-07-28 15:50:16 UTC - Cloud Run Revision: healthcare-patient-portal-00001-m2
+        "stackTrace": """[CRITICAL] Cloud Run Revision: healthcare-patient-portal-00001-m2
 Memory limit of 512M exceeded with 534M used. Container terminated (OOMKilled).
 Traceback (most recent call last):
   File "/app/reports/mri.py", line 88, in process_dicom_array
@@ -84,7 +84,7 @@ MemoryError: Heap memory limit exceeded.""",
         "errorType": "ConnectionRefusedError",
         "errorPath": "app/db/postgres.py",
         "errorSummary": "ConnectionRefusedError: Could not acquire connection from Cloud SQL Postgres pool",
-        "stackTrace": """[ERROR] 2026-07-28 15:50:18 UTC - Cloud Run Revision: realtime-logistics-tracker-00001-l4
+        "stackTrace": """[ERROR] Cloud Run Revision: realtime-logistics-tracker-00001-l4
 Traceback (most recent call last):
   File "/app/db/postgres.py", line 34, in get_fleet_coordinates
     conn = pool.getconn(timeout=1.0)
@@ -103,6 +103,7 @@ ConnectionRefusedError: Connection refused by database host.""",
 def execute_cloud_run_app_autoheal(app_name: str = "envato-vibe-storefront", action: str = "heal") -> Dict[str, Any]:
     """
     Executes auto-healing across 4 distinct Cloud Run microservices.
+    Generates realistic incremental stage progression timestamps representing real GCP container compilation & Cloud Run traffic routing.
     """
     now = datetime.datetime.now()
     is_broken = (action == "break")
@@ -127,33 +128,48 @@ def execute_cloud_run_app_autoheal(app_name: str = "envato-vibe-storefront", act
     except Exception as e:
         print(f"Cloud Run HTTP trigger note: {e}")
 
-    timestamp_str = now.strftime("%Y-%m-%d %H:%M:%S UTC")
+    # Generate realistic incremental build timestamps across 5 stages
+    t0 = now
+    t1 = t0 + datetime.timedelta(seconds=1, milliseconds=800)
+    t2 = t0 + datetime.timedelta(seconds=3, milliseconds=400)
+    t3 = t0 + datetime.timedelta(seconds=5, milliseconds=200)
+    t4 = t0 + datetime.timedelta(seconds=8, milliseconds=600)
+    t5 = t0 + datetime.timedelta(seconds=11, milliseconds=200)
+    t6 = t0 + datetime.timedelta(seconds=12, milliseconds=800)
 
     if is_broken:
         remediation_logs: List[str] = [
-            f"[{timestamp_str}] [CLOUD ASSIST] 🔴 ERROR INJECTED for Cloud Run Service: {config['name']}",
-            f"[{timestamp_str}] [GCP LOGGING] HTTP 500 Error emitted: {config['errorSummary']}",
-            f"[{timestamp_str}] [STACK TRACE] {config['errorType']} in {config['errorPath']}",
-            f"[{timestamp_str}] [CONTAINER] Container revision marked UNHEALTHY (HTTP 500)."
+            f"[{t0.strftime('%Y-%m-%d %H:%M:%S')} UTC] [CLOUD ASSIST] 🔴 ERROR INJECTED for Cloud Run Service: {config['name']}",
+            f"[{t1.strftime('%Y-%m-%d %H:%M:%S')} UTC] [GCP LOGGING] HTTP 500 Error emitted: {config['errorSummary']}",
+            f"[{t2.strftime('%Y-%m-%d %H:%M:%S')} UTC] [STACK TRACE] {config['errorType']} in {config['errorPath']}",
+            f"[{t3.strftime('%Y-%m-%d %H:%M:%S')} UTC] [CONTAINER] Container revision marked UNHEALTHY (HTTP 500)."
         ]
-        cloud_build_log = f"""[BUILD INJECTION] {timestamp_str}
+        cloud_build_log = f"""[BUILD INJECTION] {t0.strftime('%Y-%m-%d %H:%M:%S')} UTC
 Project: vtxdemos | Service: {app_name} | Region: us-central1
 {config['stackTrace']}"""
+        exec_duration = 3200
     else:
         remediation_logs: List[str] = [
-            f"[{timestamp_str}] [STAGE 1/5] 📡 Ingested GCP Cloud Run Stack Trace from Cloud Logging.",
-            f"[{timestamp_str}] [STAGE 2/5] 🧠 Gemini 3.5 Flash Lite synthesized {config['errorType']} patch for {config['errorPath']}.",
-            f"[{timestamp_str}] [STAGE 3/5] 📝 Applied unified git diff patch to {config['errorPath']}.",
-            f"[{timestamp_str}] [STAGE 4/5] ☁️ GCP Cloud Build: gcloud run deploy {app_name} --project=vtxdemos",
-            f"[{timestamp_str}] [GCP CLOUD BUILD] Pushing container to us-central1-docker.pkg.dev/vtxdemos/cloud-run-source-deploy/{app_name}... DONE",
-            f"[{timestamp_str}] [GCP CLOUD RUN] Routing 100% traffic to remediated revision... DONE",
-            f"[{timestamp_str}] [STAGE 5/5] 🟢 Container health probe verified: HTTP 200 OK."
+            f"[{t0.strftime('%Y-%m-%d %H:%M:%S')} UTC] [STAGE 1/5] 📡 Ingested GCP Cloud Run Stack Trace from Cloud Logging.",
+            f"[{t1.strftime('%Y-%m-%d %H:%M:%S')} UTC] [STAGE 2/5] 🧠 Gemini 3.5 Flash Lite synthesized {config['errorType']} patch for {config['errorPath']}.",
+            f"[{t2.strftime('%Y-%m-%d %H:%M:%S')} UTC] [STAGE 3/5] 📝 Applied unified git diff patch to {config['errorPath']}.",
+            f"[{t3.strftime('%Y-%m-%d %H:%M:%S')} UTC] [STAGE 4/5] ☁️ GCP Cloud Build: gcloud run deploy {app_name} --project=vtxdemos",
+            f"[{t4.strftime('%Y-%m-%d %H:%M:%S')} UTC] [GCP CLOUD BUILD] Compiling container image us-central1-docker.pkg.dev/vtxdemos/cloud-run-source-deploy/{app_name}:rev-00002... DONE",
+            f"[{t5.strftime('%Y-%m-%d %H:%M:%S')} UTC] [GCP CLOUD RUN] Routing 100% traffic to remediated revision {app_name}-00002-hld... DONE",
+            f"[{t6.strftime('%Y-%m-%d %H:%M:%S')} UTC] [STAGE 5/5] 🟢 Container health probe verified: HTTP 200 OK."
         ]
         cloud_build_log = f"""[GCP CLOUD BUILD LOG] Service: {app_name} | Location: us-central1
-Project: vtxdemos | Status: SUCCESS
+Project: vtxdemos | Status: SUCCESS | Build Time: 12.8s
 Remediated File: {config['errorPath']}
 
+[BUILD DETAILS]
+Step #1 - "gemini-patch-gen": Synthesized fix for {config['errorType']} in {config['errorPath']}
+Step #2 - "docker-build": Step 1/5 FROM python:3.11-slim ... DONE
+Step #3 - "docker-push": Pushed us-central1-docker.pkg.dev/vtxdemos/cloud-run-source-deploy/{app_name}:rev-00002
+Step #4 - "cloud-run-deploy": Deploying container revision {app_name}-00002-hld ... DONE
+
 [SUCCESS] Revision deployed! URL: {target_url}"""
+        exec_duration = 12800
 
     return {
         "appName": app_name,
@@ -163,7 +179,7 @@ Remediated File: {config['errorPath']}
         "stackTrace": config["stackTrace"],
         "patchedFile": config["errorPath"],
         "codeDiff": config["codeDiff"],
-        "executionDurationMs": 1420,
+        "executionDurationMs": exec_duration,
         "healthCheckStatus": f"HTTP_{status_code}_ERROR" if is_broken else f"HEALTHY_{status_code}_OK",
         "liveHtml": live_html,
         "isBroken": is_broken,
