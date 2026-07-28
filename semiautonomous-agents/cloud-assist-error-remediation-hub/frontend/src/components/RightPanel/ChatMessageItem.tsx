@@ -1,7 +1,19 @@
 import React from 'react';
 import { ChatMessage } from '../../types';
 import { RichTextRenderer } from '../RichTextRenderer';
-import { Bot, User, ExternalLink, Globe, Zap, Network, FileText } from 'lucide-react';
+import {
+  Bot,
+  User,
+  ExternalLink,
+  Globe,
+  Zap,
+  Network,
+  Key,
+  TrendingUp,
+  Database,
+  HelpCircle,
+  Sparkles
+} from 'lucide-react';
 
 interface ChatMessageItemProps {
   message: ChatMessage;
@@ -19,6 +31,102 @@ export const ChatMessageItem: React.FC<ChatMessageItemProps> = ({
   isLightMode = false
 }) => {
   const isAgent = message.sender === 'agent';
+
+  // Smart Content-Aware Action Button Generator
+  const generateSmartButtons = () => {
+    const text = message.text || '';
+    const lower = text.toLowerCase();
+    const buttons: { label: string; icon: React.ReactNode; action: () => void; bgStyle: string }[] = [];
+
+    // 1. Extract gcloud command if present in code block
+    const gcloudMatch = text.match(/gcloud\s+[\w\s\-\=\/\:\.\@\_]+/i);
+    if (gcloudMatch && onRunSandboxCommand) {
+      const cmd = gcloudMatch[0].trim();
+      buttons.push({
+        label: `⚡ Run: ${cmd.length > 25 ? cmd.substring(0, 25) + '...' : cmd}`,
+        icon: <Zap className="w-3 h-3 text-amber-300 fill-amber-300" />,
+        action: () => onRunSandboxCommand(cmd),
+        bgStyle: isLightMode
+          ? 'bg-emerald-700 hover:bg-emerald-800 text-white border-emerald-800 shadow-sm'
+          : 'bg-emerald-950/60 hover:bg-emerald-900/80 border-emerald-500/40 text-emerald-300'
+      });
+    }
+
+    // 2. Secret Manager / IAM / Credentials context
+    if (lower.includes('secret') || lower.includes('iam') || lower.includes('jwt') || lower.includes('key')) {
+      if (onQuickQuery) {
+        buttons.push({
+          label: '🔑 Audit Secret & IAM Bindings',
+          icon: <Key className="w-3 h-3 text-amber-400" />,
+          action: () => onQuickQuery('Show step-by-step gcloud commands to grant Secret Accessor role to service account'),
+          bgStyle: isLightMode
+            ? 'bg-slate-950 hover:bg-slate-800 text-white border-slate-900 shadow-sm'
+            : 'bg-amber-950/40 hover:bg-amber-900/60 border-amber-500/30 text-amber-300'
+        });
+      }
+    }
+
+    // 3. Memory / OOM / Heap Limit context
+    if (lower.includes('memory') || lower.includes('oom') || lower.includes('heap') || lower.includes('512')) {
+      if (onQuickQuery) {
+        buttons.push({
+          label: '📈 Scale Memory Ceiling to 1024MB',
+          icon: <TrendingUp className="w-3 h-3 text-cyan-400" />,
+          action: () => onQuickQuery('Provide gcloud command to scale Cloud Run memory limit to 1024MiB'),
+          bgStyle: isLightMode
+            ? 'bg-slate-950 hover:bg-slate-800 text-white border-slate-900 shadow-sm'
+            : 'bg-cyan-950/40 hover:bg-cyan-900/60 border-cyan-500/30 text-cyan-300'
+        });
+      }
+    }
+
+    // 4. Cloud SQL / Database context
+    if (lower.includes('sql') || lower.includes('database') || lower.includes('postgres') || lower.includes('pool')) {
+      if (onQuickQuery) {
+        buttons.push({
+          label: '🗄️ Inspect DB Pool & Maintenance',
+          icon: <Database className="w-3 h-3 text-purple-400" />,
+          action: () => onQuickQuery('How do I check Cloud SQL maintenance status and expand connection pool capacity?'),
+          bgStyle: isLightMode
+            ? 'bg-purple-900 hover:bg-purple-950 text-white border-purple-950 shadow-sm'
+            : 'bg-purple-950/40 hover:bg-purple-900/60 border-purple-500/30 text-purple-300'
+        });
+      }
+    }
+
+    // 5. Tailored Deep Search Button
+    if (onQuickQuery) {
+      const topic = lower.includes('jwt') ? 'JWT_SECRET_KEY'
+        : lower.includes('zerodivision') ? 'ZeroDivisionError'
+        : lower.includes('oom') ? 'OOMKilled'
+        : 'Cloud Run Error';
+
+      buttons.push({
+        label: `🌐 Deep Search: ${topic}`,
+        icon: <Globe className="w-3 h-3 text-cyan-400" />,
+        action: () => onQuickQuery(`Search Google and Reddit for: ${topic} fix`),
+        bgStyle: isLightMode
+          ? 'bg-slate-900 hover:bg-slate-800 text-white border-slate-900 shadow-sm'
+          : 'bg-slate-800 hover:bg-slate-700 border-slate-700 text-cyan-300'
+      });
+    }
+
+    // 6. Interactive Mindmap Engine Button
+    if (onOpenAnalyticalOverlay) {
+      buttons.push({
+        label: '🧠 Root Cause Mindmap',
+        icon: <Network className="w-3 h-3 text-purple-300" />,
+        action: onOpenAnalyticalOverlay,
+        bgStyle: isLightMode
+          ? 'bg-slate-950 hover:bg-slate-800 text-white border-slate-900 shadow-sm'
+          : 'bg-purple-950/50 hover:bg-purple-900/80 border-purple-500/40 text-purple-300'
+      });
+    }
+
+    return buttons.slice(0, 3); // Top 3 most relevant buttons per bubble
+  };
+
+  const smartButtons = isAgent ? generateSmartButtons() : [];
 
   return (
     <div className={`flex items-start space-x-3 ${isAgent ? '' : 'flex-row-reverse space-x-reverse'}`}>
@@ -55,38 +163,21 @@ export const ChatMessageItem: React.FC<ChatMessageItemProps> = ({
           <div className="whitespace-pre-line break-words">{message.text}</div>
         )}
 
-        {/* Dynamic Inline Action Buttons */}
-        {isAgent && (
+        {/* Intelligent Content-Aware Action Buttons */}
+        {isAgent && smartButtons.length > 0 && (
           <div className={`mt-3 pt-2.5 border-t flex flex-wrap gap-1.5 ${
             isLightMode ? 'border-slate-200' : 'border-slate-800/80'
           }`}>
-            <button
-              onClick={() => onQuickQuery && onQuickQuery('Search Reddit & Google for this error')}
-              className={`px-2 py-1 rounded-md border text-[10px] font-mono font-bold flex items-center gap-1 cursor-pointer transition-all ${
-                isLightMode
-                  ? 'bg-slate-950 text-white border-slate-900 hover:bg-slate-800 shadow-sm'
-                  : 'bg-cyan-950/40 hover:bg-cyan-900/70 border-cyan-500/30 text-cyan-300'
-              }`}
-              title="Search Google & Reddit for error solutions"
-            >
-              <Globe className="w-3 h-3 text-cyan-400" />
-              <span>🌐 Deep Search</span>
-            </button>
-
-            {onOpenAnalyticalOverlay && (
+            {smartButtons.map((btn, idx) => (
               <button
-                onClick={onOpenAnalyticalOverlay}
-                className={`px-2 py-1 rounded-md border text-[10px] font-mono font-bold flex items-center gap-1 cursor-pointer transition-all ${
-                  isLightMode
-                    ? 'bg-purple-900 text-white border-purple-950 hover:bg-purple-800 shadow-sm'
-                    : 'bg-purple-950/40 hover:bg-purple-900/70 border-purple-500/30 text-purple-300'
-                }`}
-                title="Open Interactive Mindmap & Analytical Workspace"
+                key={idx}
+                onClick={btn.action}
+                className={`px-2.5 py-1 rounded-lg border text-[10px] font-mono font-bold flex items-center gap-1.5 cursor-pointer transition-all ${btn.bgStyle}`}
               >
-                <Network className="w-3 h-3 text-purple-300" />
-                <span>🧠 Mindmap Engine</span>
+                {btn.icon}
+                <span>{btn.label}</span>
               </button>
-            )}
+            ))}
           </div>
         )}
 
