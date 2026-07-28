@@ -136,14 +136,19 @@ export function App() {
 
   const [activeRemediationMessage, setActiveRemediationMessage] = useState<string | null>(null);
 
+  const isLight = activeMainTab === 'solomon';
+
   return (
-    <div className="h-screen w-screen flex flex-col overflow-hidden bg-[#0a0d14]">
+    <div className={`h-screen w-screen flex flex-col overflow-hidden transition-colors duration-300 ${
+      isLight ? 'bg-slate-100 text-slate-900' : 'bg-[#0a0d14] text-white'
+    }`}>
       {/* Top Glassmorphic Header */}
       <Header
         totalErrors={errors.length}
         onRefreshAll={() => fetchErrors(selectedRange)}
         isLoading={isErrorsLoading}
         activeRemediationMessage={activeRemediationMessage}
+        isLightMode={isLight}
         onSelectActiveRemediation={() => {
           setActiveMainTab('remediation');
           const cloudRunErr = errors.find(e => e.resourceType === 'cloud_run_revision');
@@ -154,14 +159,18 @@ export function App() {
       />
 
       {/* Main Navigation Tab Bar */}
-      <div className="flex items-center justify-between bg-slate-950 border-b border-slate-800 px-6 py-2">
+      <div className={`flex items-center justify-between border-b px-6 py-2 transition-colors duration-300 ${
+        isLight ? 'bg-white border-slate-200' : 'bg-slate-950 border-slate-800'
+      }`}>
         <div className="flex items-center space-x-2">
           <button
             onClick={() => setActiveMainTab('remediation')}
-            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
+            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
               activeMainTab === 'remediation'
                 ? 'bg-cyan-950/60 text-cyan-300 border border-cyan-500/40 shadow-lg shadow-cyan-500/10'
-                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
+                : isLight
+                  ? 'text-slate-600 hover:text-slate-950 hover:bg-slate-100'
+                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
             }`}
           >
             <Activity className="w-3.5 h-3.5 text-cyan-400" />
@@ -169,10 +178,12 @@ export function App() {
           </button>
           <button
             onClick={() => setActiveMainTab('observability')}
-            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
+            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
               activeMainTab === 'observability'
                 ? 'bg-purple-950/60 text-purple-300 border border-purple-500/40 shadow-lg shadow-purple-500/10'
-                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
+                : isLight
+                  ? 'text-slate-600 hover:text-slate-950 hover:bg-slate-100'
+                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
             }`}
           >
             <Radio className="w-3.5 h-3.5 text-purple-400" />
@@ -180,9 +191,9 @@ export function App() {
           </button>
           <button
             onClick={() => setActiveMainTab('solomon')}
-            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
+            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
               activeMainTab === 'solomon'
-                ? 'bg-slate-100 text-slate-950 font-black border border-slate-300 shadow-lg'
+                ? 'bg-slate-950 text-white font-mono font-bold border border-slate-950 shadow-lg'
                 : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
             }`}
           >
@@ -191,7 +202,7 @@ export function App() {
           </button>
         </div>
 
-        <div className="text-[11px] text-slate-400 font-mono">
+        <div className={`text-[11px] font-mono ${isLight ? 'text-slate-600 font-bold' : 'text-slate-400'}`}>
           Antigravity Multi-Agent Orchestrator • Vertex AI
         </div>
       </div>
@@ -199,22 +210,28 @@ export function App() {
       {/* Main Multi-Panel Layout */}
       <div className="flex-1 flex overflow-hidden">
         {/* Left Sidebar: Time Filter + GCP Errors List */}
-        <aside className="w-80 border-r border-slate-800/80 bg-[#0c101a]/90 flex flex-col z-20">
+        <aside className={`w-80 border-r flex flex-col z-20 transition-colors duration-300 ${
+          isLight ? 'bg-white border-slate-200' : 'bg-[#0c101a]/90 border-slate-800/80'
+        }`}>
           <TimeFilterBar
             selectedRange={selectedRange}
             onSelectRange={setSelectedRange}
             isLoading={isErrorsLoading}
+            isLightMode={isLight}
           />
           <ErrorList
             errors={errors}
             selectedErrorId={selectedError?.id || null}
             onSelectError={handleSelectError}
             isLoading={isErrorsLoading}
+            isLightMode={isLight}
           />
         </aside>
 
         {/* Center Main Tab View */}
-        <main className="flex-1 flex flex-col overflow-y-auto bg-[#0a0d14] relative p-4">
+        <main className={`flex-1 flex flex-col overflow-y-auto relative p-4 transition-colors duration-300 ${
+          isLight ? 'bg-slate-100' : 'bg-[#0a0d14]'
+        }`}>
           {activeMainTab === 'remediation' ? (
             <DiagnosticContainer
               selectedError={selectedError}
@@ -235,6 +252,7 @@ export function App() {
           messages={chatMessages}
           onSendMessage={handleSendMessage}
           isSending={isChatSending}
+          isLightMode={isLight}
         />
       </div>
     </div>
