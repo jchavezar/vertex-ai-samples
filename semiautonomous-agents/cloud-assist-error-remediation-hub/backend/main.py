@@ -281,43 +281,113 @@ def get_log_dependency_flow(req: LogDependencyRequest):
 
 class AudioSynthesisRequest(BaseModel):
     text: str
-    voice: Optional[str] = "Zephyr"
+    voice: Optional[str] = "Aoede"
+
+def convert_to_wav(audio_data: bytes, mime_type: str = "audio/L16;rate=24000") -> bytes:
+    """Generates a WAV file header for raw PCM audio data."""
+    import struct
+    rate = 24000
+    bits_per_sample = 16
+    for param in mime_type.split(";"):
+        param = param.strip()
+        if param.lower().startswith("rate="):
+            try: rate = int(param.split("=", 1)[1])
+            except: pass
+    num_channels = 1
+    data_size = len(audio_data)
+    bytes_per_sample = bits_per_sample // 8
+    block_align = num_channels * bytes_per_sample
+    sample_rate = rate
+    byte_rate = sample_rate * block_align
+    chunk_size = 36 + data_size
+    header = struct.pack(
+        "<4sI4s4sIHHIIHH4sI",
+        b"RIFF", chunk_size, b"WAVE", b"fmt ", 16, 1,
+        num_channels, sample_rate, byte_rate, block_align,
+        bits_per_sample, b"data", data_size
+    )
+    return header + audio_data
 
 @app.post("/api/synthesize-audio")
 def synthesize_audio(req: AudioSynthesisRequest):
     """
-    Generates studio HD audio synthesis for executive incident briefings using
-    Google GenAI SDK or Neural Studio voice rendering engine.
+    Generates ultra-realistic human voice audio synthesis for executive incident briefings
+    using Google Cloud Journey-F or Gemini Aoede prebuilt voice rendering engine.
     """
-    import os, tempfile, subprocess, base64
-    
+    import os, urllib.request, json, subprocess, ssl, base64
+
     clean_text = req.text.replace('"', '').replace("'", "")
-    tmp_aiff = tempfile.NamedTemporaryFile(suffix='.aiff', delete=False).name
-    tmp_wav = tempfile.NamedTemporaryFile(suffix='.wav', delete=False).name
-
+    
+    # 1. Primary Engine: Google Cloud Text-to-Speech API with Ultra-Realistic Journey-F Voice
     try:
-        # High quality studio voice synthesis
-        subprocess.run(["say", "-v", "Ava", "-o", tmp_aiff, clean_text], check=True)
-        subprocess.run(["afconvert", "-f", "WAVE", "-d", "LEI16", tmp_aiff, tmp_wav], check=True)
+        token = subprocess.check_output(['gcloud', 'auth', 'print-access-token']).decode('utf-8').strip()
+        ctx = ssl._create_unverified_context()
 
-        with open(tmp_wav, "rb") as f:
-            audio_bytes = f.read()
-
-        return {
-            "status": "SUCCESS",
-            "audioBase64": base64.b64encode(audio_bytes).decode('utf-8'),
-            "mimeType": "audio/wav",
-            "voiceUsed": "Zephyr / Ava Neural Studio HD"
+        url = 'https://texttospeech.googleapis.com/v1/text:synthesize'
+        payload = {
+            'input': {'text': clean_text},
+            'voice': {
+                'languageCode': 'en-US',
+                'name': 'en-US-Journey-F'  # Google's premier ultra-realistic natural human voice
+            },
+            'audioConfig': {
+                'audioEncoding': 'MP3',
+                'speakingRate': 1.02
+            }
         }
+
+        g_req = urllib.request.Request(url, data=json.dumps(payload).encode('utf-8'), headers={
+            'Authorization': f'Bearer {token}',
+            'X-Goog-User-Project': 'vtxdemos',
+            'Content-Type': 'application/json'
+        })
+
+        res = urllib.request.urlopen(g_req, context=ctx)
+        data = json.loads(res.read().decode('utf-8'))
+        audio_content = data.get('audioContent', '')
+
+        if audio_content:
+            return {
+                "status": "SUCCESS",
+                "audioBase64": audio_content,
+                "mimeType": "audio/mp3",
+                "voiceUsed": "Aoede / Journey-F Ultra-Realistic Human Voice"
+            }
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-    finally:
-        if os.path.exists(tmp_aiff):
-            try: os.remove(tmp_aiff)
-            except: pass
-        if os.path.exists(tmp_wav):
-            try: os.remove(tmp_wav)
-            except: pass
+        print("GCP Journey-F TTS failed, falling back to GenAI SDK:", e)
+
+    # 2. Secondary Engine: Google GenAI SDK with Aoede Voice & WAV Conversion
+    try:
+        from google import genai
+        from google.genai import types
+
+        client = genai.Client(api_key=os.environ.get("GEMINI_API_KEY"))
+        response = client.models.generate_content(
+            model="gemini-2.5-flash",
+            contents=clean_text,
+            config=types.GenerateContentConfig(
+                response_modalities=["audio"],
+                speech_config=types.SpeechConfig(
+                    voice_config=types.VoiceConfig(
+                        prebuilt_voice_config=types.PrebuiltVoiceConfig(voice_name="Aoede")
+                    )
+                )
+            )
+        )
+
+        for part in response.candidates[0].content.parts:
+            if part.inline_data and part.inline_data.data:
+                wav_bytes = convert_to_wav(part.inline_data.data, part.inline_data.mime_type or "audio/L16;rate=24000")
+                return {
+                    "status": "SUCCESS",
+                    "audioBase64": base64.b64encode(wav_bytes).decode('utf-8'),
+                    "mimeType": "audio/wav",
+                    "voiceUsed": "Gemini 2.5 Flash (Aoede Voice)"
+                }
+    except Exception as ex:
+        print("GenAI SDK TTS failed:", ex)
+
+    raise HTTPException(status_code=500, detail="Voice synthesis failed across all natural voice engines.")
 
 @app.get("/api/bitacora")
 def get_bitacora():
