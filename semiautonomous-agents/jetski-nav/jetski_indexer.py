@@ -5,7 +5,13 @@ import subprocess
 from datetime import datetime
 
 REPO_BASE = os.path.expanduser("~/IdeaProjects/vertex-ai-samples/semiautonomous-agents")
-BRAIN_BASE = os.path.expanduser("~/.gemini/jetski/brain")
+BRAIN_BASES = [
+    ("jetski", os.path.expanduser("~/.gemini/jetski/brain")),
+    ("antigravity-cli", os.path.expanduser("~/.gemini/antigravity-cli/brain")),
+    ("antigravity-ide", os.path.expanduser("~/.gemini/antigravity-ide/brain")),
+    ("antigravity", os.path.expanduser("~/.gemini/antigravity/brain")),
+    ("antigravity-backup", os.path.expanduser("~/.gemini/antigravity-backup/brain")),
+]
 INDEX_OUTPUT = os.path.join(REPO_BASE, "jetski-nav", "PROJECT_INDEX.json")
 CATALOG_OUTPUT = os.path.join(REPO_BASE, "CATALOG.md")
 
@@ -30,46 +36,61 @@ def get_active_ports():
     return active_ports
 
 def scan_conversation_brains():
-    """Scans Jetski brain directories using Tier 1 file audit & Tier 2 Gemini Flash intent classification."""
+    """Scans ALL 5 brain directories across jetski, antigravity-cli, antigravity-ide, antigravity, and backup."""
     brain_map = {}
-    if not os.path.exists(BRAIN_BASE):
-        return brain_map
 
-    for conv_id in os.listdir(BRAIN_BASE):
-        conv_dir = os.path.join(BRAIN_BASE, conv_id)
-        if not os.path.isdir(conv_dir) or conv_id.startswith('.'):
+    for engine_name, brain_base in BRAIN_BASES:
+        if not os.path.exists(brain_base):
             continue
 
-        summaries = []
-        project_hints = set()
-        confidence = 0.85
-
-        for fname in os.listdir(conv_dir):
-            fpath = os.path.join(conv_dir, fname)
-            if fname.endswith(".md"):
-                summaries.append(fpath)
-            elif fname == "scratch":
+        for conv_id in os.listdir(brain_base):
+            conv_dir = os.path.join(brain_base, conv_id)
+            if not os.path.isdir(conv_dir) or conv_id.startswith('.'):
                 continue
 
-            # Read file to extract project path references
-            if os.path.isfile(fpath) and fname.endswith((".md", ".json", ".py")):
+            summaries = []
+            project_hints = set()
+            confidence = 0.85
+
+            transcript_log = os.path.join(conv_dir, ".system_generated", "logs", "transcript.jsonl")
+            if os.path.exists(transcript_log):
                 try:
-                    with open(fpath, "r", errors="ignore") as f:
-                        content = f.read(8192)
-                        matches = re.findall(r"semiautonomous-agents/([a-zA-Z0-9_-]+)", content)
+                    with open(transcript_log, "r", errors="ignore") as f:
+                        content = f.read(65536)
+                        matches = re.findall(r"semiautonomous-agents/([a-zA-Z0-9_\-]+)", content)
                         for m in matches:
                             project_hints.add(m)
-                            confidence = 1.0  # Tier 1 direct file touch = 100% confidence
+                            confidence = 1.0
                 except Exception:
                     pass
 
-        brain_map[conv_id] = {
-            "conversation_id": conv_id,
-            "summaries": summaries,
-            "project_hints": list(project_hints),
-            "confidence_score": confidence,
-            "last_modified": datetime.fromtimestamp(os.path.getmtime(conv_dir)).isoformat()
-        }
+            for fname in os.listdir(conv_dir):
+                fpath = os.path.join(conv_dir, fname)
+                if fname.endswith(".md"):
+                    summaries.append(fpath)
+                elif fname == "scratch":
+                    continue
+
+                if os.path.isfile(fpath) and fname.endswith((".md", ".json", ".py")):
+                    try:
+                        with open(fpath, "r", errors="ignore") as f:
+                            content = f.read(16384)
+                            matches = re.findall(r"semiautonomous-agents/([a-zA-Z0-9_\-]+)", content)
+                            for m in matches:
+                                project_hints.add(m)
+                                confidence = 1.0
+                    except Exception:
+                        pass
+
+            brain_map[conv_id] = {
+                "conversation_id": conv_id,
+                "engine_name": engine_name,
+                "transcript_log_path": transcript_log if os.path.exists(transcript_log) else None,
+                "summaries": summaries,
+                "project_hints": list(project_hints),
+                "confidence_score": confidence,
+                "last_modified": datetime.fromtimestamp(os.path.getmtime(conv_dir)).isoformat()
+            }
 
     return brain_map
 
@@ -91,7 +112,6 @@ def scan_projects():
         readme_path = os.path.join(folder_path, "README.md")
         start_script = os.path.join(folder_path, "start.sh")
         
-        # Search for SKILL.md inside skills/ subdirectory
         skill_file = None
         skills_dir = os.path.join(folder_path, "skills")
         if os.path.exists(skills_dir):
@@ -138,11 +158,15 @@ def scan_projects():
 
         matched_conv = None
         matched_summary = None
+        matched_engine = "jetski"
+        matched_tlog = None
         match_confidence = 0.0
 
         for cid, binfo in brain_map.items():
             if folder in binfo["project_hints"]:
                 matched_conv = cid
+                matched_engine = binfo["engine_name"]
+                matched_tlog = binfo["transcript_log_path"]
                 match_confidence = binfo["confidence_score"]
                 if binfo["summaries"]:
                     matched_summary = binfo["summaries"][0]
@@ -163,6 +187,8 @@ def scan_projects():
             "running_ports": running_ports,
             "is_running": len(running_ports) > 0,
             "conversation_id": matched_conv,
+            "brain_engine": matched_engine,
+            "transcript_log_path": matched_tlog,
             "confidence_score": match_confidence,
             "summary_file": matched_summary,
             "github_url": f"https://github.com/jchavezar/vertex-ai-samples/tree/main/{rel_path}"
