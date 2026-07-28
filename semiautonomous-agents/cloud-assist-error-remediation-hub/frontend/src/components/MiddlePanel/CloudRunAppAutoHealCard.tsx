@@ -87,9 +87,27 @@ export const CloudRunAppAutoHealCard: React.FC<CloudRunAppAutoHealCardProps> = (
   const [activeAppId, setActiveAppId] = useState<string>("envato-vibe-storefront");
   const [isProcessing, setIsProcessing] = useState(false);
   const [healResult, setHealResult] = useState<AutoHealResult | null>(null);
+  const [appStateOverride, setAppStateOverride] = useState<'broken' | 'healed' | null>('broken');
   const [activeTab, setActiveTab] = useState<'preview' | 'diff' | 'stack' | 'build'>('preview');
   const [iframeKey, setIframeKey] = useState<number>(0);
   const [isFullscreenView, setIsFullscreenView] = useState<boolean>(false);
+
+  // Sync with selected error from Cloud Logging panel
+  React.useEffect(() => {
+    if (selectedError) {
+      const matchedSvc = SERVICES_LIST.find(s =>
+        selectedError.serviceName.toLowerCase().includes(s.id) ||
+        selectedError.summary.toLowerCase().includes(s.id) ||
+        s.id.includes(selectedError.serviceName.toLowerCase().replace(/\s+/g, '-'))
+      );
+      if (matchedSvc) {
+        setActiveAppId(matchedSvc.id);
+      }
+      setHealResult(null);
+      setAppStateOverride('broken'); // Default to broken HTTP 500 state for active incidents
+      setIframeKey((prev) => prev + 1);
+    }
+  }, [selectedError]);
 
   const activeService = SERVICES_LIST.find(s => s.id === activeAppId) || SERVICES_LIST[0];
 
@@ -97,6 +115,9 @@ export const CloudRunAppAutoHealCard: React.FC<CloudRunAppAutoHealCardProps> = (
     setIsProcessing(true);
     if (actionType === 'heal') {
       setActiveTab('build');
+      setAppStateOverride('healed');
+    } else {
+      setAppStateOverride('broken');
     }
     try {
       const res = await fetch('http://127.0.0.1:8088/api/cloud-run-autoheal', {
@@ -116,7 +137,7 @@ export const CloudRunAppAutoHealCard: React.FC<CloudRunAppAutoHealCardProps> = (
     }
   };
 
-  const isBroken = healResult ? healResult.isBroken : false;
+  const isBroken = healResult ? healResult.isBroken : (appStateOverride ? appStateOverride === 'broken' : true);
   const liveUrl = `${activeService.url}/?state=${isBroken ? 'broken' : 'healed'}&t=${iframeKey}`;
 
   return (
