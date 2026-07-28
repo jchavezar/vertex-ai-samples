@@ -237,5 +237,17 @@ def chat_with_agent(req: ChatMessageRequest):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+@app.post("/api/cloud-run-autoheal")
+def cloud_run_autoheal():
+    """
+    Triggers real-time application-level debugging and code patch synthesis
+    for Cloud Run web applications.
+    """
+    from app.services.cloud_run_app_autoheal_service import execute_cloud_run_app_autoheal
+    try:
+        return execute_cloud_run_app_autoheal()
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 if __name__ == "__main__":
     uvicorn.run("main:app", host="127.0.0.1", port=PORT, reload=False)

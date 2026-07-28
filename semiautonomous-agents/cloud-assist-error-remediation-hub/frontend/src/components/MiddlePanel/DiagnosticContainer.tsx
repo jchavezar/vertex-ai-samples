@@ -6,6 +6,7 @@ import { RemediationStepsCard } from './RemediationStepsCard';
 import { ReActEvidenceCard } from './ReActEvidenceCard';
 import { ParallelSandboxCard } from './ParallelSandboxCard';
 import { HybridAgentFlowCard } from './HybridAgentFlowCard';
+import { CloudRunAppAutoHealCard } from './CloudRunAppAutoHealCard';
 import { CollapsibleCard } from './CollapsibleCard';
 import { Sparkles, Activity, FileText, Target, Cpu, Wrench, ShieldCheck, Maximize2, Minimize2, Layers } from 'lucide-react';
 
@@ -201,6 +202,17 @@ export const DiagnosticContainer: React.FC<DiagnosticContainerProps> = ({
         defaultCollapsed={globalState !== null ? globalState : false}
       >
         <ParallelSandboxCard selectedError={selectedError} diagnostic={diagnostic} />
+      </CollapsibleCard>
+
+      {/* Container 2.8: Cloud Run Application Auto-Healing & Live Visual Preview */}
+      <CollapsibleCard
+        key={`autoheal-${globalCollapseKey}`}
+        title="Cloud Run Application-Level Auto-Healing & Live Visual Preview"
+        icon={<Sparkles className="w-4 h-4 text-cyan-400" />}
+        badge={<span className="text-[10px] font-bold px-2 py-0.5 rounded bg-purple-500/20 text-purple-300 border border-purple-500/30">Gemini 3.5 Flash Lite Powered</span>}
+        defaultCollapsed={globalState !== null ? globalState : false}
+      >
+        <CloudRunAppAutoHealCard selectedError={selectedError} />
       </CollapsibleCard>
 
       {/* Container 3: Structured Interactive Remediation Roadmap */}
