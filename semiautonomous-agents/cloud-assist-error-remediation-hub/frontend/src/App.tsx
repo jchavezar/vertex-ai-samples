@@ -5,8 +5,9 @@ import { TimeFilterBar } from './components/LeftPanel/TimeFilterBar';
 import { ErrorList } from './components/LeftPanel/ErrorList';
 import { DiagnosticContainer } from './components/MiddlePanel/DiagnosticContainer';
 import { ObservabilityDashboardTab } from './components/MiddlePanel/ObservabilityDashboardTab';
+import { WestworldWhiteSolomonTab } from './components/MiddlePanel/WestworldWhiteSolomonTab';
 import { ChatbotDrawer } from './components/RightPanel/ChatbotDrawer';
-import { Layers, Radio, Sparkles, Activity } from 'lucide-react';
+import { Layers, Radio, Sparkles, Activity, Eye } from 'lucide-react';
 
 const API_BASE = 'http://127.0.0.1:8088/api';
 
@@ -15,7 +16,7 @@ export function App() {
   const [selectedRange, setSelectedRange] = useState<string>('1h');
   const [selectedError, setSelectedError] = useState<GcpErrorItem | null>(null);
   const [diagnostic, setDiagnostic] = useState<CloudAssistDiagnostic | null>(null);
-  const [activeMainTab, setActiveMainTab] = useState<'remediation' | 'observability'>('remediation');
+  const [activeMainTab, setActiveMainTab] = useState<'remediation' | 'observability' | 'solomon'>('remediation');
   
   const [isErrorsLoading, setIsErrorsLoading] = useState<boolean>(true);
   const [isDiagnosing, setIsDiagnosing] = useState<boolean>(false);
@@ -177,6 +178,17 @@ export function App() {
             <Radio className="w-3.5 h-3.5 text-purple-400" />
             <span>🌌 Observability & Constellation Analytics</span>
           </button>
+          <button
+            onClick={() => setActiveMainTab('solomon')}
+            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
+              activeMainTab === 'solomon'
+                ? 'bg-slate-100 text-slate-950 font-black border border-slate-300 shadow-lg'
+                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
+            }`}
+          >
+            <Eye className="w-3.5 h-3.5 text-slate-300" />
+            <span>⚪ Westworld Solomon White</span>
+          </button>
         </div>
 
         <div className="text-[11px] text-slate-400 font-mono">
@@ -209,8 +221,10 @@ export function App() {
               diagnostic={diagnostic}
               isLoading={isDiagnosing}
             />
-          ) : (
+          ) : activeMainTab === 'observability' ? (
             <ObservabilityDashboardTab />
+          ) : (
+            <WestworldWhiteSolomonTab />
           )}
         </main>
 
