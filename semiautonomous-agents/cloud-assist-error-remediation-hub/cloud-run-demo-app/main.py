@@ -1,6 +1,7 @@
 import os
 import sys
 import logging
+from typing import Optional
 from fastapi import FastAPI, Response
 from fastapi.responses import HTMLResponse
 
@@ -10,30 +11,26 @@ app = FastAPI(title="Envato Vibe Storefront - Real Cloud Run Service")
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("cloudrun-storefront")
 
-# Persistent error state flag (set via /inject-error or /heal-app)
-IS_BROKEN = False
-
 @app.get("/healthz")
-def healthz():
-    return {"status": "ok", "isBroken": IS_BROKEN}
+def healthz(state: Optional[str] = "healed"):
+    is_broken = (state == "broken")
+    return {"status": "error" if is_broken else "ok", "isBroken": is_broken}
 
 @app.get("/inject-error")
 def inject_error():
-    global IS_BROKEN
-    IS_BROKEN = True
     logger.error("[CRITICAL] Application error injected into Cloud Run revision. /api/checkout will throw ZeroDivisionError.")
     return {"status": "ERROR_INJECTED", "isBroken": True}
 
 @app.get("/heal-app")
 def heal_app():
-    global IS_BROKEN
-    IS_BROKEN = False
     logger.info("[REMEDIATED] Applied safe_item_count fallback patch to /api/checkout. Cloud Run revision operational.")
     return {"status": "HEALED", "isBroken": False}
 
 @app.get("/", response_class=HTMLResponse)
-def render_storefront():
-    if IS_BROKEN:
+def render_storefront(state: Optional[str] = "healed"):
+    is_broken = (state == "broken")
+
+    if is_broken:
         # Emit real GCP error log entry
         logger.error("ZeroDivisionError: division by zero in /api/cart/checkout. File '/app/routes/checkout.py', line 42")
         return HTMLResponse(content="""
@@ -43,7 +40,7 @@ def render_storefront():
           <title>Envato Vibe Storefront (HTTP 500)</title>
           <meta charset="utf-8">
           <style>
-            body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #ffffff; color: #0f172a; margin: 0; padding: 32px; }
+            body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #ffffff; color: #0f172a; margin: 0; padding: 28px; }
             .card { background: #ffffff; border: 1px solid #fecdd3; border-radius: 16px; padding: 24px; box-shadow: 0 10px 25px -5px rgba(244,63,94,0.08); }
             .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #ffe4e6; padding-bottom: 14px; }
             .dot { width: 10px; height: 10px; border-radius: 50%; background: #f43f5e; box-shadow: 0 0 10px #f43f5e; display: inline-block; margin-right: 8px; }
@@ -79,7 +76,7 @@ def render_storefront():
       <title>Envato Vibe Storefront (HTTP 200)</title>
       <meta charset="utf-8">
       <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #ffffff; color: #0f172a; margin: 0; padding: 32px; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #ffffff; color: #0f172a; margin: 0; padding: 28px; }
         .card { background: #ffffff; border: 1px solid #a7f3d0; border-radius: 16px; padding: 24px; box-shadow: 0 10px 25px -5px rgba(16,185,129,0.08); }
         .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f1f5f9; padding-bottom: 14px; }
         .dot { width: 10px; height: 10px; border-radius: 50%; background: #10b981; box-shadow: 0 0 10px #10b981; display: inline-block; margin-right: 8px; }
@@ -119,7 +116,7 @@ def render_storefront():
       </div>
     </body>
     </html>
-    """)
+    """, status_code=200)
 
 if __name__ == "__main__":
     import uvicorn

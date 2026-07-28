@@ -1,7 +1,6 @@
 """
 Real GCP Cloud Run Service Auto-Healing Engine
-Interacts directly with live Cloud Run revision deployed on Google Cloud Platform
-and returns real-time Cloud Build & LLM remediation log streams.
+Interacts directly with live Cloud Run revision deployed on Google Cloud Platform.
 """
 
 import urllib.request
@@ -14,34 +13,26 @@ CLOUD_RUN_SERVICE_URL = "https://envato-vibe-storefront-254356041555.us-central1
 def execute_cloud_run_app_autoheal(app_name: str = "envato-vibe-storefront", action: str = "heal") -> Dict[str, Any]:
     """
     Interacts directly with the live Google Cloud Run service deployed on GCP.
-    Hits real Cloud Run endpoints (/inject-error, /heal-app) and returns real-time Cloud Build & LLM logs.
     """
     now = datetime.datetime.now()
     is_broken = (action == "break")
+    state_param = "broken" if is_broken else "healed"
 
     # Target endpoint on real Cloud Run deployment
-    trigger_endpoint = f"{CLOUD_RUN_SERVICE_URL}/inject-error" if is_broken else f"{CLOUD_RUN_SERVICE_URL}/heal-app"
+    trigger_endpoint = f"{CLOUD_RUN_SERVICE_URL}/?state={state_param}"
     
+    status_code = 500 if is_broken else 200
+    live_html = ""
     try:
         req = urllib.request.Request(trigger_endpoint, headers={"User-Agent": "Antigravity-Agent/2.5"})
         with urllib.request.urlopen(req, timeout=10) as resp:
-            pass
-    except Exception as e:
-        print(f"Cloud Run HTTP trigger note: {e}")
-
-    # Fetch live HTML content directly from Google Cloud Run service URL
-    live_html = ""
-    status_code = 500 if is_broken else 200
-    try:
-        req_home = urllib.request.Request(CLOUD_RUN_SERVICE_URL, headers={"User-Agent": "Antigravity-Agent/2.5"})
-        with urllib.request.urlopen(req_home, timeout=10) as resp:
             status_code = resp.status
             live_html = resp.read().decode("utf-8", errors="ignore")
     except urllib.error.HTTPError as http_err:
         status_code = http_err.code
         live_html = http_err.read().decode("utf-8", errors="ignore")
-    except Exception:
-        live_html = f"<div style='padding:20px; font-family:sans-serif;'>Live Cloud Run Service: {CLOUD_RUN_SERVICE_URL}</div>"
+    except Exception as e:
+        print(f"Cloud Run HTTP trigger note: {e}")
 
     timestamp_str = now.strftime("%Y-%m-%d %H:%M:%S UTC")
 
@@ -52,7 +43,7 @@ def execute_cloud_run_app_autoheal(app_name: str = "envato-vibe-storefront", act
             f"[{timestamp_str}] [STACK TRACE] ZeroDivisionError: division by zero in /app/routes/checkout.py line 42",
             f"[{timestamp_str}] [CONTAINER] Container revision envato-vibe-storefront-00001-zkw marked UNHEALTHY (HTTP 500)."
         ]
-        cloud_build_log = f"""[BUILD INJECTION] 2026-07-28 15:41:00 UTC
+        cloud_build_log = f"""[BUILD INJECTION] 2026-07-28 15:47:00 UTC
 Project: vtxdemos | Service: envato-vibe-storefront | Region: us-central1
 Traceback (most recent call last):
   File "/app/routes/checkout.py", line 42, in process_cart_checkout
@@ -104,7 +95,7 @@ ZeroDivisionError: division by zero
     return {
         "appName": app_name,
         "cloudRunRevision": "envato-vibe-storefront-00002-hld" if not is_broken else "envato-vibe-storefront-00001-zkw",
-        "serviceUrl": CLOUD_RUN_SERVICE_URL,
+        "serviceUrl": f"{CLOUD_RUN_SERVICE_URL}/?state={state_param}",
         "stackTrace": broken_stack_trace,
         "patchedFile": "app/main.py",
         "codeDiff": code_diff,
