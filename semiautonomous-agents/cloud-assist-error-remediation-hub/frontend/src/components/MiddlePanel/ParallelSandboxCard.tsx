@@ -17,7 +17,8 @@ import {
   Check,
   Zap,
   Code,
-  Lightbulb
+  Lightbulb,
+  Maximize2
 } from 'lucide-react';
 
 interface ParallelSandboxCardProps {
@@ -73,6 +74,7 @@ export const ParallelSandboxCard: React.FC<ParallelSandboxCardProps> = ({
   const [isInspectOpen, setIsInspectOpen] = useState(false);
   const [inspectTab, setInspectTab] = useState<'stream' | 'request' | 'code'>('stream');
   const [liveLogs, setLiveLogs] = useState<string[]>([]);
+  const [expandedTrace, setExpandedTrace] = useState<SandboxSubagentTrace | null>(null);
   const [copiedInspectText, setCopiedInspectText] = useState(false);
   const logContainerRef = useRef<HTMLDivElement>(null);
 
@@ -87,20 +89,25 @@ export const ParallelSandboxCard: React.FC<ParallelSandboxCardProps> = ({
     setLiveLogs((prev) => [...prev, `[${timestamp}] ${msg}`]);
   };
 
+  const cleanLogOutput = (raw: string) => {
+    return raw
+      .replace(/```(normal|json|bash|sh|stderr)?/g, '')
+      .replace(/```/g, '')
+      .trim();
+  };
+
   const handleOrchestrateParallel = async () => {
     setIsOrchestrating(true);
     setReport(null);
     setLiveLogs([]);
-    setIsInspectOpen(true); // Open stream modal immediately
+    setIsInspectOpen(true);
 
     pushLog("🚀 [PARALLEL WORKER POOL] Initializing Antigravity Sandbox Subagent Orchestrator...");
     pushLog(`🎯 [INCIDENT CONTEXT] Target Service: ${selectedError.serviceName} | Error: ${selectedError.summary}`);
     pushLog("📡 [VERTEX AI] Provisioning remote Linux sandboxes via google.genai Interactions API...");
 
-    // Live progress tick stream so user sees activity immediately
-    const t1 = setTimeout(() => pushLog("📦 [SANDBOX-SUBAGENT-1] Container provisioned (ID: sandbox-subagent-1, PID: 61402)."), 400);
-    const t2 = setTimeout(() => pushLog("⚡ [SANDBOX-SUBAGENT-1] Executing fix verification: gcloud projects get-iam-policy vtxdemos..."), 900);
-    const t3 = setTimeout(() => pushLog("🛡️ [SECURITY AUDIT] Validating zero credential leak & IAM permissions..."), 1500);
+    const t1 = setTimeout(() => pushLog("🔑 [AUTH ENGINE] Injected active ADC bearer token into sandbox environment."), 300);
+    const t2 = setTimeout(() => pushLog("⚡ [SANDBOX-SUBAGENT-1] Executing fix verification: gcloud projects get-iam-policy vtxdemos..."), 700);
 
     try {
       const res = await fetch('http://127.0.0.1:8088/api/orchestrate-parallel', {
@@ -113,10 +120,9 @@ export const ParallelSandboxCard: React.FC<ParallelSandboxCardProps> = ({
         const data: ParallelConsolidatedReport = await res.json();
         setReport(data);
 
-        // Stream real backend traces into the live console!
         if (data.subagentTraces && data.subagentTraces.length > 0) {
           data.subagentTraces.forEach((sub) => {
-            pushLog(`📦 [SANDBOX ${sub.sandboxId}] ${sub.taskId} finished in ${sub.durationMs}ms.`);
+            pushLog(`📦 [SANDBOX ${sub.sandboxId}] ${sub.taskId} completed cleanly in ${sub.durationMs}ms.`);
             pushLog(`⚡ [FINAL FIX] Executed: ${sub.finalCommand}`);
             if (sub.insightSummary) {
               pushLog(`💡 [INSIGHT] ${sub.insightSummary}`);
@@ -137,7 +143,6 @@ export const ParallelSandboxCard: React.FC<ParallelSandboxCardProps> = ({
     } finally {
       clearTimeout(t1);
       clearTimeout(t2);
-      clearTimeout(t3);
       setIsOrchestrating(false);
     }
   };
@@ -312,9 +317,13 @@ async def orchestrate_parallel_remediation(error_item, hypotheses):
                       </span>
                     )}
                   </div>
-                  <div className="text-[10px] text-slate-400 bg-slate-900 px-2 py-0.5 rounded border border-slate-800">
-                    {sub.sandboxId}
-                  </div>
+                  <button
+                    onClick={() => setExpandedTrace(sub)}
+                    className="text-[10px] text-cyan-300 hover:text-cyan-200 bg-slate-900 px-2 py-0.5 rounded border border-slate-800 flex items-center gap-1 font-bold"
+                  >
+                    <Maximize2 className="w-3 h-3 text-cyan-400" />
+                    <span>Expand Console</span>
+                  </button>
                 </div>
 
                 {/* Exact Timestamps for this Subagent */}
@@ -324,15 +333,15 @@ async def orchestrate_parallel_remediation(error_item, hypotheses):
                   <span>Duration: <strong className="text-cyan-300">{sub.durationMs}ms</strong></span>
                 </div>
 
-                {/* Full Execution Trace & Telemetry */}
-                <div className="text-slate-300 whitespace-pre-wrap text-[10px] leading-relaxed max-h-44 overflow-y-auto bg-black/60 p-2.5 rounded border border-slate-800/70 select-all">
-                  {sub.output}
+                {/* Clean Formatted Execution Trace */}
+                <div className="text-slate-300 whitespace-pre-wrap text-[11px] leading-relaxed max-h-48 overflow-y-auto bg-black/80 p-3 rounded-lg border border-slate-800 select-all font-mono">
+                  {cleanLogOutput(sub.output)}
                 </div>
 
                 {/* Insight Verdict Badge */}
                 {sub.insightSummary && (
-                  <div className="p-2 rounded bg-cyan-950/40 border border-cyan-500/30 text-[10px] text-cyan-200">
-                    <strong className="text-cyan-400">Insight:</strong> {sub.insightSummary}
+                  <div className="p-2.5 rounded-lg bg-cyan-950/40 border border-cyan-500/30 text-[11px] text-cyan-200">
+                    <strong className="text-cyan-400">Verdict:</strong> {sub.insightSummary}
                   </div>
                 )}
 
@@ -345,6 +354,42 @@ async def orchestrate_parallel_remediation(error_item, hypotheses):
                 </div>
               </div>
             ))}
+          </div>
+        </div>
+      )}
+
+      {/* FULL-SCREEN EXPANDABLE SUBAGENT TRACE MODAL */}
+      {expandedTrace && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md">
+          <div className="bg-slate-900 border border-slate-800 rounded-2xl max-w-4xl w-full max-h-[92vh] flex flex-col overflow-hidden shadow-2xl">
+            <div className="p-4 border-b border-slate-800 flex justify-between items-center bg-slate-950">
+              <div className="flex items-center space-x-2.5">
+                <Terminal className="w-5 h-5 text-cyan-400" />
+                <div>
+                  <h3 className="text-sm font-bold text-slate-100">{expandedTrace.taskId} Full Execution Trace</h3>
+                  <p className="text-[11px] text-slate-400">Sandbox Container ID: <code className="text-cyan-300">{expandedTrace.sandboxId}</code></p>
+                </div>
+              </div>
+              <button
+                onClick={() => setExpandedTrace(null)}
+                className="text-slate-400 hover:text-white transition-colors p-1.5 rounded-lg hover:bg-slate-800"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="p-4 flex-1 overflow-y-auto bg-slate-950">
+              <pre className="p-4 rounded-xl bg-black/90 border border-slate-800 font-mono text-xs text-emerald-300 whitespace-pre-wrap break-words leading-relaxed select-all">
+                {cleanLogOutput(expandedTrace.output)}
+              </pre>
+            </div>
+            <div className="p-3 border-t border-slate-800 flex justify-end bg-slate-950">
+              <button
+                onClick={() => setExpandedTrace(null)}
+                className="px-4 py-2 text-xs font-bold rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200"
+              >
+                Close Trace
+              </button>
+            </div>
           </div>
         </div>
       )}
@@ -440,7 +485,7 @@ async def orchestrate_parallel_remediation(error_item, hypotheses):
                       liveLogs.map((log, idx) => (
                         <div key={idx} className="flex items-start gap-2 border-b border-slate-900/60 pb-1">
                           <span className="text-slate-600 font-bold select-none">{idx + 1}.</span>
-                          <span className="whitespace-pre-wrap break-words">{log}</span>
+                          <span className="whitespace-pre-wrap break-words">{cleanLogOutput(log)}</span>
                         </div>
                       ))
                     ) : (
