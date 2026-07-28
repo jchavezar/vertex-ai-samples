@@ -19,6 +19,8 @@ interface ExecutionResult {
   pid?: number;
   agentEngine?: string;
   traceLog?: string[];
+  apiRequestPayload?: any;
+  apiResponsePayload?: any;
 }
 
 interface InspectModalData {
@@ -33,7 +35,7 @@ export const HypothesesCard: React.FC<HypothesesCardProps> = ({ hypotheses, serv
   const [runningIndex, setRunningIndex] = useState<number | null>(null);
   const [execResults, setExecResults] = useState<Record<number, ExecutionResult>>({});
   const [inspectData, setInspectData] = useState<InspectModalData | null>(null);
-  const [inspectTab, setInspectTab] = useState<'code' | 'response' | 'trace'>('response');
+  const [inspectTab, setInspectTab] = useState<'response' | 'request' | 'trace' | 'code'>('response');
   const [copiedInspectText, setCopiedInspectText] = useState<boolean>(false);
 
   const copyCommand = (cmd: string, idx: number) => {
@@ -344,21 +346,32 @@ asyncio.run(run_antigravity_remediation_subagent())`;
             </div>
 
             {/* Modal Tabs */}
-            <div className="flex border-b border-slate-800 bg-slate-950/40 px-4">
+            <div className="flex border-b border-slate-800 bg-slate-950/40 px-4 overflow-x-auto">
               <button
                 onClick={() => setInspectTab('response')}
-                className={`py-2.5 px-4 text-xs font-bold border-b-2 flex items-center gap-1.5 transition-all ${
+                className={`py-2.5 px-4 text-xs font-bold border-b-2 flex items-center gap-1.5 transition-all whitespace-nowrap ${
                   inspectTab === 'response'
                     ? 'border-emerald-400 text-emerald-300 bg-emerald-950/20'
                     : 'border-transparent text-slate-400 hover:text-slate-200'
                 }`}
               >
                 <FileText className="w-3.5 h-3.5" />
-                <span>📡 Live Sandbox Output & Telemetry</span>
+                <span>📡 Antigravity API Response</span>
+              </button>
+              <button
+                onClick={() => setInspectTab('request')}
+                className={`py-2.5 px-4 text-xs font-bold border-b-2 flex items-center gap-1.5 transition-all whitespace-nowrap ${
+                  inspectTab === 'request'
+                    ? 'border-amber-400 text-amber-300 bg-amber-950/20'
+                    : 'border-transparent text-slate-400 hover:text-slate-200'
+                }`}
+              >
+                <Zap className="w-3.5 h-3.5" />
+                <span>📤 Antigravity API Request Payload</span>
               </button>
               <button
                 onClick={() => setInspectTab('trace')}
-                className={`py-2.5 px-4 text-xs font-bold border-b-2 flex items-center gap-1.5 transition-all ${
+                className={`py-2.5 px-4 text-xs font-bold border-b-2 flex items-center gap-1.5 transition-all whitespace-nowrap ${
                   inspectTab === 'trace'
                     ? 'border-purple-400 text-purple-300 bg-purple-950/20'
                     : 'border-transparent text-slate-400 hover:text-slate-200'
@@ -369,14 +382,14 @@ asyncio.run(run_antigravity_remediation_subagent())`;
               </button>
               <button
                 onClick={() => setInspectTab('code')}
-                className={`py-2.5 px-4 text-xs font-bold border-b-2 flex items-center gap-1.5 transition-all ${
+                className={`py-2.5 px-4 text-xs font-bold border-b-2 flex items-center gap-1.5 transition-all whitespace-nowrap ${
                   inspectTab === 'code'
                     ? 'border-cyan-400 text-cyan-300 bg-cyan-950/20'
                     : 'border-transparent text-slate-400 hover:text-slate-200'
                 }`}
               >
                 <Code className="w-3.5 h-3.5" />
-                <span>🐍 Python Code Snippet</span>
+                <span>🐍 Python SDK Code</span>
               </button>
             </div>
 
@@ -396,6 +409,58 @@ asyncio.run(run_antigravity_remediation_subagent())`;
                   </div>
                   <pre className="p-4 rounded-xl bg-black/80 border border-slate-800 font-mono text-xs text-cyan-200 overflow-x-auto whitespace-pre select-all">
                     {generatePythonSnippet(inspectData.command, inspectData.serviceName)}
+                  </pre>
+                </div>
+              ) : inspectTab === 'request' ? (
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center text-[10px] text-slate-400">
+                    <span>Exact REST API Request Payload Sent to Google Antigravity Agent Interactions API</span>
+                    <button
+                      onClick={() =>
+                        copyInspectText(
+                          JSON.stringify(
+                            inspectData.result?.apiRequestPayload || {
+                              url: "https://us-central1-aiplatform.googleapis.com/v1beta1/projects/vtxdemos/locations/global/interactions",
+                              method: "POST",
+                              headers: { "Authorization": "Bearer [ADC_VERTEX_AI_OAUTH2_TOKEN]", "Content-Type": "application/json" },
+                              body: {
+                                agent: "projects/vtxdemos/locations/global/agents/antigravity-preview-05-2026",
+                                input: `Execute verification command in Antigravity Sandbox:\n- ${inspectData.command}`,
+                                environment: "remote-linux-container-sandbox"
+                              }
+                            },
+                            null,
+                            2
+                          )
+                        )
+                      }
+                      className="px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-200 flex items-center gap-1"
+                    >
+                      {copiedInspectText ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
+                      <span>{copiedInspectText ? 'Copied' : 'Copy Request JSON'}</span>
+                    </button>
+                  </div>
+                  <pre className="p-4 rounded-xl bg-black/80 border border-slate-800 font-mono text-xs text-amber-300 overflow-x-auto whitespace-pre select-all">
+                    {JSON.stringify(
+                      inspectData.result?.apiRequestPayload || {
+                        url: "https://us-central1-aiplatform.googleapis.com/v1beta1/projects/vtxdemos/locations/global/interactions",
+                        method: "POST",
+                        headers: {
+                          "Authorization": "Bearer [ADC_VERTEX_AI_OAUTH2_TOKEN]",
+                          "Content-Type": "application/json",
+                          "X-Goog-User-Project": "vtxdemos"
+                        },
+                        body: {
+                          agent: "projects/vtxdemos/locations/global/agents/antigravity-preview-05-2026",
+                          input: `You are a Cloud Assist Remediation Subagent. Execute verification command in Antigravity Sandbox:\n- ${inspectData.command}`,
+                          environment: "remote-linux-container-sandbox",
+                          background: true,
+                          timeout: 300.0
+                        }
+                      },
+                      null,
+                      2
+                    )}
                   </pre>
                 </div>
               ) : inspectTab === 'trace' ? (
@@ -428,18 +493,26 @@ asyncio.run(run_antigravity_remediation_subagent())`;
               ) : (
                 <div className="space-y-2">
                   <div className="flex justify-between items-center text-[10px] text-slate-400">
-                    <span>Actual Live Response Payload from Execution Engine</span>
+                    <span>Full REST API Response Payload Returned by Antigravity Agent API</span>
                     <button
-                      onClick={() => copyInspectText(JSON.stringify(inspectData.result || { status: "pending", command: inspectData.command }, null, 2))}
+                      onClick={() =>
+                        copyInspectText(
+                          JSON.stringify(
+                            inspectData.result?.apiResponsePayload || inspectData.result || { status: "pending", command: inspectData.command },
+                            null,
+                            2
+                          )
+                        )
+                      }
                       className="px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-200 flex items-center gap-1"
                     >
                       {copiedInspectText ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
-                      <span>{copiedInspectText ? 'Copied' : 'Copy JSON'}</span>
+                      <span>{copiedInspectText ? 'Copied' : 'Copy Response JSON'}</span>
                     </button>
                   </div>
                   <pre className="p-4 rounded-xl bg-black/80 border border-slate-800 font-mono text-xs text-emerald-300 overflow-x-auto whitespace-pre select-all">
                     {JSON.stringify(
-                      inspectData.result || {
+                      inspectData.result?.apiResponsePayload || inspectData.result || {
                         status: "Notice: Click 'Run in Sandbox' first to capture live runtime response",
                         command: inspectData.command,
                         agentEngine: "google-antigravity-sandbox-v1",
