@@ -63,7 +63,7 @@ export const RemediationStepsCard: React.FC<RemediationStepsCardProps> = ({ reco
 
   return (
     <div className="rounded-xl bg-[#111622]/90 border border-slate-800/80 p-5 shadow-lg space-y-4">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex items-center space-x-2.5">
           <div className="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center">
             <Wrench className="w-4 h-4 text-emerald-400" />
@@ -73,7 +73,7 @@ export const RemediationStepsCard: React.FC<RemediationStepsCardProps> = ({ reco
             <p className="text-[11px] text-slate-400">Structured execution steps verified by Gemini Cloud Assist</p>
           </div>
         </div>
-        <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
+        <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 self-start sm:self-auto">
           {steps.length} {steps.length === 1 ? 'Action Step' : 'Action Steps'}
         </span>
       </div>

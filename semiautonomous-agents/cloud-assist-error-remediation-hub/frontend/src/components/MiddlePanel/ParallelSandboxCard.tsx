@@ -94,13 +94,13 @@ export const ParallelSandboxCard: React.FC<ParallelSandboxCardProps> = ({
 
   return (
     <div className="rounded-xl bg-gradient-to-br from-slate-900/95 via-[#111728]/95 to-slate-900/95 border border-cyan-500/40 p-5 shadow-xl space-y-4">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex items-center space-x-2.5">
           <div className="w-9 h-9 rounded-lg bg-cyan-500/20 border border-cyan-500/40 flex items-center justify-center shadow-md shadow-cyan-500/10">
             <Layers className="w-4.5 h-4.5 text-cyan-300" />
           </div>
           <div>
-            <h2 className="text-sm font-bold text-white tracking-tight flex items-center gap-2">
+            <h2 className="text-sm font-bold text-white tracking-tight flex flex-wrap items-center gap-2">
               <span>Autonomous Parallel Sandbox Subagents</span>
               <span className="text-[10px] uppercase font-mono px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-300 border border-cyan-500/40">
                 Self-Healing Harness Loop

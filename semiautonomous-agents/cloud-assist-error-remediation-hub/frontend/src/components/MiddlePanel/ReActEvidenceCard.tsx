@@ -11,7 +11,7 @@ export const ReActEvidenceCard: React.FC<ReActEvidenceCardProps> = ({ evidence }
 
   return (
     <div className="rounded-xl bg-[#111622]/90 border border-slate-800/80 p-5 shadow-lg space-y-3">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex items-center space-x-2.5">
           <div className="w-8 h-8 rounded-lg bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center">
             <Activity className="w-4 h-4 text-cyan-400" />
@@ -21,7 +21,7 @@ export const ReActEvidenceCard: React.FC<ReActEvidenceCardProps> = ({ evidence }
             <p className="text-[11px] text-slate-400">Live checks & gcloud queries executed by Cloud Assist</p>
           </div>
         </div>
-        <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-cyan-500/10 text-cyan-300 border border-cyan-500/30">
+        <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-cyan-500/10 text-cyan-300 border border-cyan-500/30 self-start sm:self-auto">
           {evidence.length} Checks Executed
         </span>
       </div>
