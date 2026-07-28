@@ -14,6 +14,22 @@ def fetch_gcp_errors(time_range: str = "1h") -> List[GcpErrorItem]:
     
     simulated = [
         GcpErrorItem(
+            id="err-cloud-run-checkout-500",
+            timestamp=(now - timedelta(minutes=2)).isoformat(),
+            severity="CRITICAL",
+            serviceName="Cloud Run Application",
+            resourceType="cloud_run_revision",
+            summary="ZeroDivisionError: division by zero in POST /api/cart/checkout",
+            fullText="[CRITICAL] HTTP 500 Internal Server Error returned on POST /api/cart/checkout. Traceback: File '/app/routes/checkout.py', line 42, in process_cart_checkout discount_ratio = total_discount / itemCount ZeroDivisionError: division by zero",
+            logPayload={
+                "message": "ZeroDivisionError: division by zero in /api/cart/checkout",
+                "service": "envato-vibe-storefront",
+                "revision": "envato-vibe-storefront-00042-v3x",
+                "status": 500
+            },
+            labels={"region": "us-central1", "service_name": "envato-vibe-storefront"}
+        ),
+        GcpErrorItem(
             id="err-run-oom-503",
             timestamp=(now - timedelta(minutes=6)).isoformat(),
             severity="CRITICAL",
