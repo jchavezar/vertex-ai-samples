@@ -298,7 +298,7 @@ export const DiagnosticContainer: React.FC<DiagnosticContainerProps> = ({
         defaultCollapsed={globalState !== null ? globalState : false}
         isLightMode={isLightMode}
       >
-        <CloudRunAppAutoHealCard selectedError={selectedError} />
+        <CloudRunAppAutoHealCard selectedError={selectedError} isLightMode={isLightMode} />
       </CollapsibleCard>
 
       {/* Container 3: Structured Interactive Remediation Roadmap */}

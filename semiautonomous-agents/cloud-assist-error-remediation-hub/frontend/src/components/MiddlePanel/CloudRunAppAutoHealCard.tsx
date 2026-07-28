@@ -22,6 +22,7 @@ import {
 
 interface CloudRunAppAutoHealCardProps {
   selectedError: GcpErrorItem;
+  isLightMode?: boolean;
 }
 
 interface AutoHealResult {
@@ -50,8 +51,8 @@ const SERVICES_LIST = [
     theme: "E-Commerce Light Storefront",
     url: "https://envato-vibe-storefront-254356041555.us-central1.run.app",
     icon: ShoppingBag,
-    color: "from-emerald-500/20 to-teal-500/20 text-emerald-400 border-emerald-500/40",
-    errorSummary: "ZeroDivisionError in POST /api/cart/checkout"
+    color: "from-blue-500/20 to-cyan-500/20 text-cyan-400 border-cyan-500/40",
+    errorSummary: "ZeroDivisionError: division by zero in /api/cart/checkout"
   },
   {
     id: "cyberpunk-ledger-dashboard",
@@ -59,7 +60,7 @@ const SERVICES_LIST = [
     theme: "Cyberpunk Neon Dark Fintech",
     url: "https://cyberpunk-ledger-dashboard-254356041555.us-central1.run.app",
     icon: Shield,
-    color: "from-cyan-500/20 to-blue-500/20 text-cyan-400 border-cyan-500/40",
+    color: "from-amber-500/20 to-rose-500/20 text-amber-400 border-amber-500/40",
     errorSummary: "KeyError: 'JWT_SECRET_KEY' in /api/auth/token"
   },
   {
@@ -68,8 +69,8 @@ const SERVICES_LIST = [
     theme: "Clean Slate Blue Medical",
     url: "https://healthcare-patient-portal-254356041555.us-central1.run.app",
     icon: Activity,
-    color: "from-blue-500/20 to-indigo-500/20 text-blue-400 border-blue-500/40",
-    errorSummary: "MemoryError: OOMKilled limit 512MB exceeded"
+    color: "from-emerald-500/20 to-teal-500/20 text-emerald-400 border-emerald-500/40",
+    errorSummary: "MemoryError: OOMKilled 512MB heap limit exceeded"
   },
   {
     id: "realtime-logistics-tracker",
@@ -82,7 +83,7 @@ const SERVICES_LIST = [
   }
 ];
 
-export const CloudRunAppAutoHealCard: React.FC<CloudRunAppAutoHealCardProps> = ({ selectedError }) => {
+export const CloudRunAppAutoHealCard: React.FC<CloudRunAppAutoHealCardProps> = ({ selectedError, isLightMode = false }) => {
   const [activeAppId, setActiveAppId] = useState<string>("envato-vibe-storefront");
   const [isProcessing, setIsProcessing] = useState(false);
   const [healResult, setHealResult] = useState<AutoHealResult | null>(null);
@@ -119,29 +120,45 @@ export const CloudRunAppAutoHealCard: React.FC<CloudRunAppAutoHealCardProps> = (
   const liveUrl = `${activeService.url}/?state=${isBroken ? 'broken' : 'healed'}&t=${iframeKey}`;
 
   return (
-    <div className="rounded-2xl bg-slate-900 border border-slate-800 p-5 shadow-2xl space-y-4">
+    <div className={`rounded-2xl p-5 shadow-sm space-y-4 border ${
+      isLightMode
+        ? 'bg-white border-slate-300 text-slate-950 font-sans'
+        : 'bg-slate-900 border-slate-800 text-white shadow-2xl'
+    }`}>
       {/* Top Banner Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800/80 pb-4">
+      <div className={`flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b pb-4 ${
+        isLightMode ? 'border-slate-200' : 'border-slate-800/80'
+      }`}>
         <div className="flex items-center space-x-3">
-          <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${activeService.color} border flex items-center justify-center shadow-lg`}>
+          <div className={`w-10 h-10 rounded-xl flex items-center justify-center shadow-md border ${
+            isLightMode
+              ? 'bg-slate-950 text-white border-slate-900'
+              : `bg-gradient-to-br ${activeService.color}`
+          }`}>
             <Globe className="w-5 h-5" />
           </div>
           <div>
-            <h2 className="text-sm font-bold text-white tracking-tight flex flex-wrap items-center gap-2">
+            <h2 className={`text-sm font-bold tracking-tight flex flex-wrap items-center gap-2 ${
+              isLightMode ? 'text-slate-950 font-mono' : 'text-white'
+            }`}>
               <span>Multi-Application GCP Cloud Run Auto-Healing Engine (4 Active Apps)</span>
-              <span className="text-[10px] uppercase font-mono px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-semibold">
+              <span className={`text-[10px] uppercase font-mono px-2.5 py-0.5 rounded-full font-semibold border ${
+                isLightMode
+                  ? 'bg-emerald-100 text-emerald-800 border-emerald-300'
+                  : 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'
+              }`}>
                 Live GCP Infrastructure
               </span>
             </h2>
-            <p className="text-[11px] text-slate-400">
-              Active Target: <a href={activeService.url} target="_blank" rel="noreferrer" className="text-cyan-300 font-mono underline hover:text-cyan-200">{activeService.url}</a>
+            <p className={`text-[11px] ${isLightMode ? 'text-slate-600 font-mono' : 'text-slate-400'}`}>
+              Active Target: <a href={activeService.url} target="_blank" rel="noreferrer" className={`font-mono underline ${isLightMode ? 'text-slate-950 font-bold hover:text-slate-700' : 'text-cyan-300 hover:text-cyan-200'}`}>{activeService.url}</a>
             </p>
           </div>
         </div>
       </div>
 
       {/* 4 CLOUD RUN MICROSERVICES SELECTOR TABS */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
         {SERVICES_LIST.map((svc) => {
           const IconComp = svc.icon;
           const isSelected = activeAppId === svc.id;
@@ -155,13 +172,17 @@ export const CloudRunAppAutoHealCard: React.FC<CloudRunAppAutoHealCardProps> = (
               }}
               className={`p-3 rounded-xl border text-left transition-all flex flex-col justify-between space-y-1.5 cursor-pointer ${
                 isSelected
-                  ? 'bg-slate-800 border-cyan-400 text-white shadow-lg shadow-cyan-500/10'
-                  : 'bg-black/40 border-slate-800 text-slate-400 hover:border-slate-700 hover:text-slate-200'
+                  ? isLightMode
+                    ? 'bg-slate-950 border-slate-950 text-white shadow-md font-mono'
+                    : 'bg-slate-800 border-cyan-400 text-white shadow-lg shadow-cyan-500/10'
+                  : isLightMode
+                    ? 'bg-slate-50 border-slate-200 text-slate-800 hover:bg-slate-100'
+                    : 'bg-black/40 border-slate-800 text-slate-400 hover:border-slate-700 hover:text-slate-200'
               }`}
             >
               <div className="flex items-center justify-between">
-                <IconComp className={`w-4 h-4 ${isSelected ? 'text-cyan-400' : 'text-slate-500'}`} />
-                <span className={`w-2 h-2 rounded-full ${isSelected ? 'bg-cyan-400 animate-pulse' : 'bg-slate-600'}`}></span>
+                <IconComp className={`w-4 h-4 ${isSelected ? (isLightMode ? 'text-white' : 'text-cyan-400') : (isLightMode ? 'text-slate-600' : 'text-slate-500')}`} />
+                <span className={`w-2 h-2 rounded-full ${isSelected ? (isLightMode ? 'bg-white animate-pulse' : 'bg-cyan-400 animate-pulse') : (isLightMode ? 'bg-slate-400' : 'bg-slate-600')}`}></span>
               </div>
               <div>
                 <div className="text-xs font-bold truncate">{svc.name}</div>
@@ -173,9 +194,13 @@ export const CloudRunAppAutoHealCard: React.FC<CloudRunAppAutoHealCardProps> = (
       </div>
 
       {/* DEDICATED SLEEK CONTROL TOOLBAR */}
-      <div className="p-3.5 rounded-xl bg-black/60 border border-slate-800/80 flex flex-col sm:flex-row items-center justify-between gap-3">
-        <div className="text-xs text-slate-300 font-semibold flex items-center gap-2">
-          <Play className="w-3.5 h-3.5 text-cyan-400" />
+      <div className={`p-3.5 rounded-xl border flex flex-col sm:flex-row items-center justify-between gap-3 ${
+        isLightMode
+          ? 'bg-slate-50 border-slate-200 text-slate-900'
+          : 'bg-black/60 border-slate-800/80 text-slate-300'
+      }`}>
+        <div className={`text-xs font-semibold flex items-center gap-2 ${isLightMode ? 'text-slate-900 font-mono' : 'text-slate-300'}`}>
+          <Play className={`w-3.5 h-3.5 ${isLightMode ? 'text-slate-950' : 'text-cyan-400'}`} />
           <span>Execution Controls for <strong>{activeService.name}</strong>:</span>
         </div>
 
@@ -184,10 +209,14 @@ export const CloudRunAppAutoHealCard: React.FC<CloudRunAppAutoHealCardProps> = (
           <button
             onClick={() => triggerAppAction('break', activeAppId)}
             disabled={isProcessing}
-            className="flex-1 sm:flex-initial px-5 py-2.5 rounded-xl bg-gradient-to-r from-rose-900/80 to-red-950/80 hover:from-rose-800 hover:to-red-900 text-rose-200 border border-rose-500/50 text-xs font-bold flex items-center justify-center gap-2 shadow-lg shadow-rose-500/10 transition-all whitespace-nowrap active:scale-95 disabled:opacity-50"
+            className={`flex-1 sm:flex-initial px-5 py-2.5 rounded-xl border text-xs font-bold font-mono flex items-center justify-center gap-2 transition-all whitespace-nowrap active:scale-95 disabled:opacity-50 cursor-pointer ${
+              isLightMode
+                ? 'bg-rose-50 hover:bg-rose-100 border-rose-300 text-rose-800 shadow-sm'
+                : 'bg-gradient-to-r from-rose-900/80 to-red-950/80 hover:from-rose-800 hover:to-red-900 text-rose-200 border-rose-500/50 shadow-lg shadow-rose-500/10'
+            }`}
             title={`Inject error into ${activeService.name}`}
           >
-            <Flame className="w-4 h-4 text-rose-400" />
+            <Flame className="w-4 h-4 text-rose-600" />
             <span>🔴 Inject App Error</span>
           </button>
 
@@ -195,7 +224,11 @@ export const CloudRunAppAutoHealCard: React.FC<CloudRunAppAutoHealCardProps> = (
           <button
             onClick={() => triggerAppAction('heal', activeAppId)}
             disabled={isProcessing}
-            className="flex-1 sm:flex-initial px-6 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 hover:from-emerald-500 hover:via-teal-500 hover:to-cyan-500 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20 transition-all whitespace-nowrap active:scale-95 disabled:opacity-50"
+            className={`flex-1 sm:flex-initial px-6 py-2.5 rounded-xl text-white font-bold font-mono text-xs flex items-center justify-center gap-2 shadow-md transition-all whitespace-nowrap active:scale-95 disabled:opacity-50 cursor-pointer ${
+              isLightMode
+                ? 'bg-slate-950 hover:bg-slate-800 border border-slate-900'
+                : 'bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 hover:from-emerald-500 hover:via-teal-500 hover:to-cyan-500 shadow-lg shadow-emerald-500/20'
+            }`}
             title={`Deploy remediated Cloud Run revision for ${activeService.name}`}
           >
             {isProcessing ? (
@@ -215,204 +248,246 @@ export const CloudRunAppAutoHealCard: React.FC<CloudRunAppAutoHealCardProps> = (
 
       {/* Target Application & Incident Summary Bar */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
-        <div className="p-3 rounded-xl bg-black/60 border border-slate-800 space-y-1">
-          <span className="text-[10px] text-slate-400 uppercase font-semibold">Selected App</span>
-          <div className="text-cyan-300 font-mono font-bold truncate">{activeService.id}</div>
+        <div className={`p-3 rounded-xl border space-y-1 ${
+          isLightMode
+            ? 'bg-[#f8fafc] border-slate-200 text-slate-900 font-mono'
+            : 'bg-black/60 border-slate-800'
+        }`}>
+          <span className={`text-[10px] uppercase font-semibold ${isLightMode ? 'text-slate-500' : 'text-slate-400'}`}>Selected App</span>
+          <div className={`font-mono font-bold truncate ${isLightMode ? 'text-slate-950' : 'text-cyan-300'}`}>{activeService.id}</div>
         </div>
-        <div className="p-3 rounded-xl bg-black/60 border border-slate-800 space-y-1">
-          <span className="text-[10px] text-slate-400 uppercase font-semibold">Active GCP Region</span>
-          <div className="text-purple-300 font-mono font-bold truncate">us-central1 (vtxdemos)</div>
+
+        <div className={`p-3 rounded-xl border space-y-1 ${
+          isLightMode
+            ? 'bg-[#f8fafc] border-slate-200 text-slate-900 font-mono'
+            : 'bg-black/60 border-slate-800'
+        }`}>
+          <span className={`text-[10px] uppercase font-semibold ${isLightMode ? 'text-slate-500' : 'text-slate-400'}`}>Active GCP Region</span>
+          <div className={`font-mono font-bold truncate ${isLightMode ? 'text-slate-950' : 'text-purple-300'}`}>us-central1 (vtxdemos)</div>
         </div>
-        <div className="p-3 rounded-xl bg-black/60 border border-slate-800 space-y-1">
-          <span className="text-[10px] text-slate-400 uppercase font-semibold">Live Revision Status</span>
-          <div className="text-amber-400 font-bold flex items-center gap-1.5">
-            <span className={`w-2 h-2 rounded-full ${isBroken ? 'bg-rose-500 animate-ping' : 'bg-emerald-400 animate-pulse'}`}></span>
-            <span>{isBroken ? '🔴 HTTP 500 CRITICAL ERROR' : '🟢 HTTP 200 OK (HEALED)'}</span>
+
+        <div className={`p-3 rounded-xl border space-y-1 ${
+          isLightMode
+            ? 'bg-[#f8fafc] border-slate-200 text-slate-900 font-mono'
+            : 'bg-black/60 border-slate-800'
+        }`}>
+          <span className={`text-[10px] uppercase font-semibold ${isLightMode ? 'text-slate-500' : 'text-slate-400'}`}>Live Revision Status</span>
+          <div className="flex items-center space-x-2 font-mono font-bold">
+            <span className={`w-2.5 h-2.5 rounded-full ${isBroken ? 'bg-rose-500 animate-ping' : 'bg-emerald-500'}`}></span>
+            <span className={isBroken ? 'text-rose-700 font-bold' : 'text-emerald-700 font-bold'}>
+              {isBroken ? 'HTTP 500 ERROR (BROKEN)' : 'HTTP 200 OK (HEALED)'}
+            </span>
           </div>
         </div>
       </div>
 
-      {/* Live Auto-Healing Interactive Workstation */}
-      <div className="rounded-xl bg-slate-950 border border-slate-800 overflow-hidden space-y-0 shadow-inner">
-        {/* Navigation Tabs */}
-        <div className="flex border-b border-slate-800 bg-slate-900/80 px-3 overflow-x-auto justify-between items-center">
-          <div className="flex">
+      {/* WORKSTATION TAB CONTROL BAR */}
+      <div className={`rounded-xl border overflow-hidden ${
+        isLightMode ? 'bg-[#f8fafc] border-slate-300' : 'bg-black/80 border-slate-800'
+      }`}>
+        <div className={`flex items-center justify-between border-b px-4 py-2 ${
+          isLightMode ? 'bg-slate-100 border-slate-300' : 'bg-slate-950 border-slate-800'
+        }`}>
+          <div className="flex items-center space-x-2">
             <button
               onClick={() => setActiveTab('preview')}
-              className={`py-2.5 px-4 text-xs font-bold border-b-2 flex items-center gap-1.5 transition-all whitespace-nowrap ${
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
                 activeTab === 'preview'
-                  ? 'border-emerald-400 text-emerald-300 bg-emerald-950/30'
-                  : 'border-transparent text-slate-400 hover:text-slate-200'
+                  ? isLightMode
+                    ? 'bg-white text-slate-950 border border-slate-300 shadow-sm font-mono'
+                    : 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-md'
+                  : isLightMode
+                    ? 'text-slate-700 hover:text-slate-950'
+                    : 'text-slate-400 hover:text-white'
               }`}
             >
-              <Globe className="w-3.5 h-3.5 text-emerald-400" />
+              <Globe className="w-3.5 h-3.5" />
               <span>Live Web Frame ({activeService.name})</span>
             </button>
+
             <button
               onClick={() => setActiveTab('build')}
-              className={`py-2.5 px-4 text-xs font-bold border-b-2 flex items-center gap-1.5 transition-all whitespace-nowrap ${
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
                 activeTab === 'build'
-                  ? 'border-purple-400 text-purple-300 bg-purple-950/30'
-                  : 'border-transparent text-slate-400 hover:text-slate-200'
+                  ? isLightMode
+                    ? 'bg-white text-slate-950 border border-slate-300 shadow-sm font-mono'
+                    : 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-md'
+                  : isLightMode
+                    ? 'text-slate-700 hover:text-slate-950'
+                    : 'text-slate-400 hover:text-white'
               }`}
             >
-              <Boxes className="w-3.5 h-3.5 text-purple-400" />
-              <span>☁️ Cloud Build & LLM Fix Stream</span>
+              <Boxes className="w-3.5 h-3.5" />
+              <span>Cloud Build & LLM Fix Stream</span>
             </button>
+
             <button
               onClick={() => setActiveTab('diff')}
-              className={`py-2.5 px-4 text-xs font-bold border-b-2 flex items-center gap-1.5 transition-all whitespace-nowrap ${
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
                 activeTab === 'diff'
-                  ? 'border-cyan-400 text-cyan-300 bg-cyan-950/30'
-                  : 'border-transparent text-slate-400 hover:text-slate-200'
+                  ? isLightMode
+                    ? 'bg-white text-slate-950 border border-slate-300 shadow-sm font-mono'
+                    : 'bg-gradient-to-r from-cyan-600 to-blue-600 text-white shadow-md'
+                  : isLightMode
+                    ? 'text-slate-700 hover:text-slate-950'
+                    : 'text-slate-400 hover:text-white'
               }`}
             >
-              <Code className="w-3.5 h-3.5 text-cyan-400" />
-              <span>Applied Patch (Diff)</span>
+              <Code className="w-3.5 h-3.5" />
+              <span>Applied Code Patch Diff</span>
             </button>
+
             <button
               onClick={() => setActiveTab('stack')}
-              className={`py-2.5 px-4 text-xs font-bold border-b-2 flex items-center gap-1.5 transition-all whitespace-nowrap ${
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
                 activeTab === 'stack'
-                  ? 'border-rose-400 text-rose-300 bg-rose-950/30'
-                  : 'border-transparent text-slate-400 hover:text-slate-200'
+                  ? isLightMode
+                    ? 'bg-white text-slate-950 border border-slate-300 shadow-sm font-mono'
+                    : 'bg-slate-800 text-white'
+                  : isLightMode
+                    ? 'text-slate-700 hover:text-slate-950'
+                    : 'text-slate-400 hover:text-white'
               }`}
             >
-              <Terminal className="w-3.5 h-3.5 text-rose-400" />
-              <span>Container Log Stream</span>
+              <Terminal className="w-3.5 h-3.5" />
+              <span>Runtime Stack Trace</span>
             </button>
           </div>
 
-          {/* Full Screen Toggle Button */}
-          <button
-            onClick={() => setIsFullscreenView(true)}
-            className="px-3 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-cyan-300 text-xs font-bold flex items-center gap-1.5 border border-slate-700 transition-all shadow-md cursor-pointer"
-            title="Expand live Cloud Run web app to full screen"
-          >
-            <Maximize2 className="w-3.5 h-3.5 text-cyan-400" />
-            <span>🗖 Full Screen UI</span>
-          </button>
+          <div className="flex items-center space-x-2">
+            <a
+              href={liveUrl}
+              target="_blank"
+              rel="noreferrer"
+              className={`text-xs font-mono underline flex items-center gap-1 ${
+                isLightMode ? 'text-slate-900 font-bold hover:text-slate-700' : 'text-cyan-300 hover:text-cyan-200'
+              }`}
+            >
+              <span>{activeService.url}</span>
+              <ExternalLink className="w-3 h-3" />
+            </a>
+          </div>
         </div>
 
-        {/* Tab Content Display Area */}
-        <div className="p-4 bg-slate-950">
-          {activeTab === 'preview' ? (
+        {/* WORKSTATION CONTENT BODIES */}
+        <div className="p-4">
+          {/* TAB 1: LIVE IFRAME PREVIEW */}
+          {activeTab === 'preview' && (
             <div className="space-y-3">
-              <div className="flex justify-between items-center text-[11px] text-slate-400">
-                <div className="flex items-center gap-2">
-                  <span className="font-semibold text-slate-300">Live Embedded GCP Iframe Window</span>
+              <div className={`flex items-center justify-between text-xs px-2 ${isLightMode ? 'text-slate-700 font-mono' : 'text-slate-400'}`}>
+                <span>Live Embedded GCP Iframe Window</span>
+                <div className="flex items-center space-x-2">
                   <button
                     onClick={() => setIframeKey((prev) => prev + 1)}
-                    className="px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-cyan-300 text-[10px] font-semibold flex items-center gap-1 border border-slate-700 transition-colors"
-                    title="Force refresh live Cloud Run app frame"
+                    className={`px-2.5 py-1 rounded border text-[11px] font-mono flex items-center gap-1 transition-colors cursor-pointer ${
+                      isLightMode
+                        ? 'bg-white hover:bg-slate-100 border-slate-300 text-slate-950 font-bold'
+                        : 'bg-slate-800 hover:bg-slate-700 border-slate-700 text-slate-200'
+                    }`}
+                    title="Force refresh iframe element"
                   >
                     <span>🔄 Refresh App Frame</span>
                   </button>
+
                   <button
                     onClick={() => setIsFullscreenView(true)}
-                    className="px-2 py-0.5 rounded bg-purple-950/80 hover:bg-purple-900 text-purple-300 text-[10px] font-semibold flex items-center gap-1 border border-purple-500/40 transition-colors"
+                    className={`px-3 py-1 rounded border text-[11px] font-mono font-bold flex items-center gap-1 transition-all cursor-pointer ${
+                      isLightMode
+                        ? 'bg-slate-950 hover:bg-slate-800 text-white border-slate-900 shadow-sm'
+                        : 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white border-purple-500/50 shadow-md'
+                    }`}
+                    title="Expand Live Cloud Run App to Fullscreen Window"
                   >
-                    <span>🗖 Expand Fullscreen</span>
+                    <Maximize2 className="w-3 h-3" />
+                    <span>Expand Fullscreen</span>
                   </button>
                 </div>
-                <a href={liveUrl} target="_blank" rel="noreferrer" className="text-emerald-400 font-mono flex items-center gap-1 hover:underline">
-                  <span>{activeService.url}</span>
-                  <ExternalLink className="w-3 h-3" />
-                </a>
               </div>
 
-              {/* REAL LIVE GCP CLOUD RUN IFRAME CONTAINER (Clickable + Fullscreen Trigger) */}
-              <div 
-                className="rounded-2xl overflow-hidden border border-slate-700 shadow-2xl bg-white h-[360px] w-full relative group cursor-pointer"
-                style={{ transform: 'translateZ(0)', willChange: 'transform' }}
-              >
+              <div className={`w-full h-[460px] rounded-xl overflow-hidden border shadow-inner ${
+                isLightMode ? 'bg-white border-slate-300' : 'bg-white border-slate-800'
+              }`}>
                 <iframe
-                  key={iframeKey}
+                  key={`${activeAppId}-${iframeKey}`}
                   src={liveUrl}
-                  title={activeService.name}
-                  loading="lazy"
-                  className="w-full h-full border-0 rounded-2xl"
-                  style={{ transform: 'translateZ(0)', willChange: 'transform' }}
+                  title={`${activeService.name} Live Frame`}
+                  className="w-full h-full border-0 rounded-xl"
                 />
               </div>
             </div>
-          ) : activeTab === 'build' ? (
+          )}
+
+          {/* TAB 2: CLOUD BUILD & LLM FIX STREAM */}
+          {activeTab === 'build' && (
             <div className="space-y-3 font-mono text-xs">
-              <div className="flex items-center justify-between text-[11px]">
-                <span className="text-purple-300 font-bold flex items-center gap-2">
-                  <Cpu className="w-4 h-4 text-purple-400" />
-                  <span>Real-Time GCP Cloud Build & Gemini 3.5 LLM Auto-Remediation Stream</span>
-                </span>
-                <span className="text-slate-400 text-[10px]">Build ID: {healResult?.cloudBuildId || '97312712-5797'}</span>
+              <div className={`flex items-center justify-between p-3 rounded-xl border ${
+                isLightMode ? 'bg-white border-slate-300 text-slate-900' : 'bg-slate-900/90 border-slate-800 text-slate-200'
+              }`}>
+                <div className="flex items-center space-x-2">
+                  <Cpu className="w-4 h-4 text-purple-400 animate-pulse" />
+                  <span className="font-bold">Model: gemini-3.5-flash-lite</span>
+                </div>
+                <span className="text-emerald-500 font-bold">STATUS: 200 REVISION DEPLOYED</span>
               </div>
 
-              {/* Live Step-by-Step Remediation Timeline */}
-              <div className="p-3.5 rounded-xl bg-black/90 border border-purple-900/60 space-y-2">
-                <div className="text-[10px] uppercase text-purple-400 font-bold tracking-wider">Live Agentic Execution Logs ({activeService.name})</div>
-                {healResult?.remediationLogs ? (
-                  healResult.remediationLogs.map((logLine, idx) => (
-                    <div key={idx} className="flex items-start gap-2 text-[11px] leading-relaxed text-slate-200">
-                      <span className="text-purple-400 font-bold font-mono">›</span>
-                      <span>{logLine}</span>
-                    </div>
-                  ))
-                ) : (
-                  <div className="text-slate-400 text-xs italic">Click 🟢 Auto-Heal & Restore App to observe real-time Cloud Build logs.</div>
-                )}
-              </div>
-
-              {/* Real GCP Cloud Build Output Console */}
-              <div className="space-y-1">
-                <div className="text-[10px] text-slate-400 font-semibold uppercase">Cloud Build Container Output (`vtxdemos`)</div>
-                <pre className="p-4 rounded-xl bg-slate-900/90 border border-slate-800 text-purple-300 overflow-x-auto whitespace-pre leading-relaxed select-all">
-                  {healResult?.cloudBuildLog || `[GCP CLOUD BUILD EXECUTION LOG] Service: ${activeAppId}
-Project: vtxdemos | Location: us-central1
-
-Step 1: Pulling base image python:3.11-slim...
-Step 2: Installing dependencies (fastapi uvicorn google-cloud-logging)...
-Step 3: Copying remediated application file with Gemini auto-healing patch...
-Step 4: Pushing container image to us-central1-docker.pkg.dev/vtxdemos/cloud-run-source-deploy/${activeAppId}:latest...
-Step 5: Updating Cloud Run service configuration & routing 100% traffic...
-
-[SUCCESS] Service [${activeAppId}] deployed! URL: ${activeService.url}`}
-                </pre>
+              <div className={`p-4 rounded-xl border h-72 overflow-y-auto space-y-1.5 ${
+                isLightMode
+                  ? 'bg-slate-950 text-emerald-400 border-slate-900 shadow-inner'
+                  : 'bg-black/90 text-emerald-400 border-slate-800'
+              }`}>
+                {(healResult?.remediationLogs || [
+                  `[INFO] Target Microservice: ${activeService.id}`,
+                  `[INFO] Active GCP Region: us-central1 (Project: vtxdemos)`,
+                  `[ANALYSIS] Diagnosing stack trace with Gemini 3.5 Flash Lite...`,
+                  `[FIX] Formulated automatic patch diff for python service main.py`,
+                  `[BUILD] Invoking Cloud Build revision container pipeline...`,
+                  `[SUCCESS] Re-routed canonical traffic to new operational revision!`
+                ]).map((logLine, idx) => (
+                  <div key={idx} className="flex items-start space-x-2">
+                    <span className="text-slate-500 select-none">&gt;</span>
+                    <span className="leading-relaxed">{logLine}</span>
+                  </div>
+                ))}
               </div>
             </div>
-          ) : activeTab === 'diff' ? (
-            <div className="space-y-2 font-mono text-xs">
-              <div className="flex justify-between items-center text-[10px] text-slate-400">
-                <span>Unified Git Diff Patch (`{healResult?.patchedFile || 'app/main.py'}`)</span>
-                <span className="text-emerald-400 font-mono">Synthesized by Gemini 3.5 Flash Lite</span>
+          )}
+
+          {/* TAB 3: APPLIED CODE PATCH DIFF */}
+          {activeTab === 'diff' && (
+            <div className="space-y-3 font-mono text-xs">
+              <div className={`flex items-center justify-between p-2.5 rounded-xl border ${
+                isLightMode ? 'bg-white border-slate-300 text-slate-900' : 'bg-slate-900/90 border-slate-800 text-slate-300'
+              }`}>
+                <span>File: <code>main.py</code></span>
+                <span className="text-emerald-500 font-bold">+ Code Fix Applied</span>
               </div>
-              <pre className="p-4 rounded-xl bg-black/90 border border-slate-800 text-emerald-300 overflow-x-auto whitespace-pre leading-relaxed select-all">
-                {healResult ? healResult.codeDiff : `--- a/app/main.py
-+++ b/app/main.py
-@@ -39,5 +39,8 @@ def process_cart_checkout(cart_items, total_discount=0):
--    discount_ratio = total_discount / itemCount
-+    safe_item_count = max(1, len(cart_items))
-+    discount_ratio = total_discount / safe_item_count
-     return {"status": "SUCCESS", "orderId": "ORD-2026-8849"}`}
+
+              <pre className={`p-4 rounded-xl border overflow-x-auto whitespace-pre-wrap ${
+                isLightMode
+                  ? 'bg-slate-950 text-slate-100 border-slate-900 shadow-inner'
+                  : 'bg-black/90 text-slate-200 border-slate-800'
+              }`}>
+                {healResult?.codeDiff || `# Patch generated for ${activeService.name}:\n- discount_ratio = total_discount / itemCount\n+ discount_ratio = total_discount / itemCount if itemCount > 0 else 0.0`}
               </pre>
             </div>
-          ) : (
-            <div className="space-y-2 font-mono text-xs">
-              <div className="flex justify-between items-center text-[10px] text-slate-400">
-                <span>Captured GCP Cloud Run Container Log Stream</span>
-                <span className="text-rose-400 font-mono">Service: {activeAppId}</span>
+          )}
+
+          {/* TAB 4: RUNTIME STACK TRACE */}
+          {activeTab === 'stack' && (
+            <div className="space-y-3 font-mono text-xs">
+              <div className={`p-4 rounded-xl border overflow-x-auto ${
+                isLightMode
+                  ? 'bg-slate-950 text-rose-400 border-slate-900 shadow-inner'
+                  : 'bg-black/90 text-rose-400 border-slate-800'
+              }`}>
+                {healResult?.stackTrace || activeService.errorSummary}
               </div>
-              <pre className="p-4 rounded-xl bg-black/90 border border-slate-800 text-rose-300 overflow-x-auto whitespace-pre leading-relaxed">
-                {healResult ? healResult.stackTrace : `[ERROR] 2026-07-28 15:50:12 UTC - Cloud Run Service: ${activeAppId}
-Traceback (most recent call last):
-  File "/app/main.py", line 42, in render_storefront
-${activeService.errorSummary}
-[CRITICAL] HTTP 500 Internal Server Error returned`}
-              </pre>
             </div>
           )}
         </div>
       </div>
 
-      {/* FULL SCREEN INTERACTIVE CLOUD RUN WEB APPLICATION MODAL */}
+      {/* FULLSCREEN LIVE WEB FRAME MODAL */}
       {isFullscreenView && (
         <div className="fixed inset-0 z-50 flex flex-col bg-slate-950/95 backdrop-blur-md p-6 space-y-4">
           <div className="flex justify-between items-center border-b border-slate-800 pb-4">
@@ -443,6 +518,7 @@ ${activeService.errorSummary}
               >
                 <span>↗ Open in New Browser Tab</span>
               </a>
+
               <button
                 onClick={() => setIsFullscreenView(false)}
                 className="p-2 rounded-xl bg-slate-900 border border-slate-700 text-slate-300 hover:text-white hover:border-slate-500 transition-all cursor-pointer"
