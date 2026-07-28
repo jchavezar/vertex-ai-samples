@@ -6,9 +6,9 @@ import {
   Terminal,
   Globe,
   Flame,
-  CheckCircle2,
-  AlertTriangle,
-  Play
+  ExternalLink,
+  Play,
+  CheckCircle2
 } from 'lucide-react';
 
 interface CloudRunAppAutoHealCardProps {
@@ -24,17 +24,19 @@ interface AutoHealResult {
   codeDiff: string;
   executionDurationMs: number;
   healthCheckStatus: string;
-  brokenHtml: string;
-  healedHtml: string;
+  liveHtml?: string;
   isBroken?: boolean;
   agentModel: string;
   executedAt: string;
 }
 
+const REAL_CLOUD_RUN_URL = "https://envato-vibe-storefront-254356041555.us-central1.run.app";
+
 export const CloudRunAppAutoHealCard: React.FC<CloudRunAppAutoHealCardProps> = ({ selectedError }) => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [healResult, setHealResult] = useState<AutoHealResult | null>(null);
   const [activeTab, setActiveTab] = useState<'preview' | 'diff' | 'stack'>('preview');
+  const [iframeKey, setIframeKey] = useState<number>(0);
 
   const triggerAppAction = async (actionType: 'break' | 'heal') => {
     setIsProcessing(true);
@@ -47,6 +49,8 @@ export const CloudRunAppAutoHealCard: React.FC<CloudRunAppAutoHealCardProps> = (
       if (res.ok) {
         const data: AutoHealResult = await res.json();
         setHealResult(data);
+        // Force iframe reload to fetch fresh live revision response from GCP
+        setIframeKey((prev) => prev + 1);
       }
     } catch (err) {
       console.error("Cloud Run Break & Fix action failed:", err);
@@ -55,7 +59,7 @@ export const CloudRunAppAutoHealCard: React.FC<CloudRunAppAutoHealCardProps> = (
     }
   };
 
-  const isBroken = healResult ? healResult.isBroken : true;
+  const isBroken = healResult ? healResult.isBroken : false;
 
   return (
     <div className="rounded-2xl bg-slate-900 border border-slate-800 p-5 shadow-2xl space-y-4">
@@ -67,23 +71,23 @@ export const CloudRunAppAutoHealCard: React.FC<CloudRunAppAutoHealCardProps> = (
           </div>
           <div>
             <h2 className="text-sm font-bold text-white tracking-tight flex flex-wrap items-center gap-2">
-              <span>Next-Gen Cloud Run Application "Break & Fix" Engine</span>
-              <span className="text-[10px] uppercase font-mono px-2.5 py-0.5 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/40 font-semibold">
-                Gemini 3.5 Flash Lite Powered
+              <span>Real GCP Cloud Run Deployment & Live Auto-Healing Engine</span>
+              <span className="text-[10px] uppercase font-mono px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-semibold">
+                Live Google Cloud Infrastructure
               </span>
             </h2>
             <p className="text-[11px] text-slate-400">
-              Interactive application-level error injection & real-time light-theme UI auto-patching
+              Target URL: <a href={REAL_CLOUD_RUN_URL} target="_blank" rel="noreferrer" className="text-cyan-300 font-mono underline hover:text-cyan-200">{REAL_CLOUD_RUN_URL}</a>
             </p>
           </div>
         </div>
       </div>
 
-      {/* DEDICATED SLEEK CONTROL TOOLBAR (No Piling / Crisp Spacing) */}
-      <div className="p-3 rounded-xl bg-black/60 border border-slate-800/80 flex flex-col sm:flex-row items-center justify-between gap-3">
+      {/* DEDICATED SLEEK CONTROL TOOLBAR */}
+      <div className="p-3.5 rounded-xl bg-black/60 border border-slate-800/80 flex flex-col sm:flex-row items-center justify-between gap-3">
         <div className="text-xs text-slate-300 font-semibold flex items-center gap-2">
           <Play className="w-3.5 h-3.5 text-cyan-400" />
-          <span>Interactive Execution Controls:</span>
+          <span>Real GCP Cloud Run Execution Controls:</span>
         </div>
 
         <div className="flex items-center space-x-3 w-full sm:w-auto">
@@ -92,7 +96,7 @@ export const CloudRunAppAutoHealCard: React.FC<CloudRunAppAutoHealCardProps> = (
             onClick={() => triggerAppAction('break')}
             disabled={isProcessing}
             className="flex-1 sm:flex-initial px-5 py-2.5 rounded-xl bg-gradient-to-r from-rose-900/80 to-red-950/80 hover:from-rose-800 hover:to-red-900 text-rose-200 border border-rose-500/50 text-xs font-bold flex items-center justify-center gap-2 shadow-lg shadow-rose-500/10 transition-all whitespace-nowrap active:scale-95 disabled:opacity-50"
-            title="Simulate Cloud Run ZeroDivisionError app crash"
+            title="Inject real ZeroDivisionError into Cloud Run container"
           >
             <Flame className="w-4 h-4 text-rose-400" />
             <span>🔴 Inject App Error</span>
@@ -103,12 +107,12 @@ export const CloudRunAppAutoHealCard: React.FC<CloudRunAppAutoHealCardProps> = (
             onClick={() => triggerAppAction('heal')}
             disabled={isProcessing}
             className="flex-1 sm:flex-initial px-6 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 hover:from-emerald-500 hover:via-teal-500 hover:to-cyan-500 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20 transition-all whitespace-nowrap active:scale-95 disabled:opacity-50"
-            title="Synthesize python patch and restore Light-Theme App UI"
+            title="Deploy remediated Cloud Run revision to GCP"
           >
             {isProcessing ? (
               <>
                 <span className="w-4 h-4 border-2 border-white/80 border-t-transparent rounded-full animate-spin"></span>
-                <span>Applying Code Patch...</span>
+                <span>Deploying GCP Revision...</span>
               </>
             ) : (
               <>
@@ -123,15 +127,15 @@ export const CloudRunAppAutoHealCard: React.FC<CloudRunAppAutoHealCardProps> = (
       {/* Target Application & Incident Summary Bar */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
         <div className="p-3 rounded-xl bg-black/60 border border-slate-800 space-y-1">
-          <span className="text-[10px] text-slate-400 uppercase font-semibold">Target Service</span>
+          <span className="text-[10px] text-slate-400 uppercase font-semibold">Real GCP Service</span>
           <div className="text-cyan-300 font-mono font-bold truncate">envato-vibe-storefront</div>
         </div>
         <div className="p-3 rounded-xl bg-black/60 border border-slate-800 space-y-1">
-          <span className="text-[10px] text-slate-400 uppercase font-semibold">Application Stack Trace</span>
-          <div className="text-rose-400 font-mono font-bold truncate">ZeroDivisionError: /api/cart/checkout</div>
+          <span className="text-[10px] text-slate-400 uppercase font-semibold">Active GCP Region</span>
+          <div className="text-purple-300 font-mono font-bold truncate">us-central1 (vtxdemos)</div>
         </div>
         <div className="p-3 rounded-xl bg-black/60 border border-slate-800 space-y-1">
-          <span className="text-[10px] text-slate-400 uppercase font-semibold">Live App Status</span>
+          <span className="text-[10px] text-slate-400 uppercase font-semibold">Live Revision Status</span>
           <div className="text-amber-400 font-bold flex items-center gap-1.5">
             <span className={`w-2 h-2 rounded-full ${isBroken ? 'bg-rose-500 animate-ping' : 'bg-emerald-400 animate-pulse'}`}></span>
             <span>{isBroken ? '🔴 HTTP 500 CRITICAL ERROR' : '🟢 HTTP 200 OK (HEALED)'}</span>
@@ -152,7 +156,7 @@ export const CloudRunAppAutoHealCard: React.FC<CloudRunAppAutoHealCardProps> = (
             }`}
           >
             <Globe className="w-3.5 h-3.5 text-emerald-400" />
-            <span>Next-Gen Light Theme UI Preview</span>
+            <span>Live Cloud Run Web Browser Frame (GCP)</span>
           </button>
           <button
             onClick={() => setActiveTab('diff')}
@@ -183,46 +187,32 @@ export const CloudRunAppAutoHealCard: React.FC<CloudRunAppAutoHealCardProps> = (
           {activeTab === 'preview' ? (
             <div className="space-y-3">
               <div className="flex justify-between items-center text-[11px] text-slate-400">
-                <span className="font-semibold text-slate-300">Live Embedded Application View (Next-Gen Light Mode)</span>
-                <span className="text-emerald-400 font-mono">https://envato-vibe-storefront.run.app</span>
+                <span className="font-semibold text-slate-300">Live Embedded GCP Iframe Window</span>
+                <a href={REAL_CLOUD_RUN_URL} target="_blank" rel="noreferrer" className="text-emerald-400 font-mono flex items-center gap-1 hover:underline">
+                  <span>{REAL_CLOUD_RUN_URL}</span>
+                  <ExternalLink className="w-3 h-3" />
+                </a>
               </div>
 
-              {/* NEXT-GEN LIGHT THEME APP UI RENDERER */}
-              <div
-                className="rounded-2xl overflow-hidden border border-slate-200 shadow-2xl transition-all duration-300 bg-white"
-                dangerouslySetInnerHTML={{
-                  __html: healResult
-                    ? healResult.healedHtml
-                    : `
-    <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; padding: 24px; background: #ffffff; color: #0f172a; border-radius: 16px; border: 1px solid #fecdd3; box-shadow: 0 10px 25px -5px rgba(244, 63, 94, 0.08);">
-      <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #ffe4e6; padding-bottom: 14px;">
-        <div style="display: flex; align-items: center; gap: 10px;">
-          <div style="width: 10px; height: 10px; border-radius: 50%; background: #f43f5e; box-shadow: 0 0 10px #f43f5e;"></div>
-          <span style="font-weight: 800; font-size: 15px; color: #e11d48;">Envato Vibe Storefront</span>
-          <span style="font-size: 11px; background: #fff1f2; color: #be123c; border: 1px solid #fecdd3; padding: 2px 8px; border-radius: 99px; font-weight: 700;">🔴 APP BROKEN</span>
-        </div>
-        <span style="font-size: 11px; background: #fff1f2; color: #e11d48; border: 1px solid #fecdd3; padding: 4px 12px; border-radius: 99px; font-weight: 700;">HTTP 500 CRITICAL</span>
-      </div>
-      <div style="margin-top: 18px; background: #0f172a; padding: 18px; border-radius: 12px; font-family: monospace; font-size: 12px; color: #fda4af;">
-        <div style="color: #f43f5e; font-weight: 700;">ZeroDivisionError: division by zero in /api/cart/checkout</div>
-        <div style="color: #94a3b8; margin-top: 4px;">File "/app/routes/checkout.py", line 42, in process_cart_checkout</div>
-      </div>
-      <div style="margin-top: 14px; color: #64748b; font-size: 12px;">
-        Click <strong>🟢 Auto-Heal & Restore App</strong> above to synthesize real-time code patch and restore Next-Gen Light UI.
-      </div>
-    </div>`
-                }}
-              />
+              {/* REAL LIVE GCP CLOUD RUN IFRAME CONTAINER */}
+              <div className="rounded-2xl overflow-hidden border border-slate-700 shadow-2xl bg-white h-[320px] w-full">
+                <iframe
+                  key={iframeKey}
+                  src={REAL_CLOUD_RUN_URL}
+                  title="Real GCP Cloud Run Service"
+                  className="w-full h-full border-0"
+                />
+              </div>
             </div>
           ) : activeTab === 'diff' ? (
             <div className="space-y-2 font-mono text-xs">
               <div className="flex justify-between items-center text-[10px] text-slate-400">
-                <span>Unified Git Diff Patch (`app/routes/checkout.py`)</span>
+                <span>Unified Git Diff Patch (`app/main.py`)</span>
                 <span className="text-emerald-400 font-mono">Synthesized by Gemini 3.5 Flash Lite</span>
               </div>
               <pre className="p-4 rounded-xl bg-black/90 border border-slate-800 text-emerald-300 overflow-x-auto whitespace-pre leading-relaxed select-all">
-                {healResult ? healResult.codeDiff : `--- a/app/routes/checkout.py
-+++ b/app/routes/checkout.py
+                {healResult ? healResult.codeDiff : `--- a/app/main.py
++++ b/app/main.py
 @@ -39,5 +39,8 @@ def process_cart_checkout(cart_items, total_discount=0):
 -    discount_ratio = total_discount / itemCount
 -    final_price = subtotal - discount_ratio
@@ -237,13 +227,13 @@ export const CloudRunAppAutoHealCard: React.FC<CloudRunAppAutoHealCardProps> = (
           ) : (
             <div className="space-y-2 font-mono text-xs">
               <div className="flex justify-between items-center text-[10px] text-slate-400">
-                <span>Captured Cloud Run Container Log Stream</span>
-                <span className="text-rose-400 font-mono">Revision: envato-vibe-storefront-00042</span>
+                <span>Captured GCP Cloud Run Container Log Stream</span>
+                <span className="text-rose-400 font-mono">Service: envato-vibe-storefront</span>
               </div>
               <pre className="p-4 rounded-xl bg-black/90 border border-slate-800 text-rose-300 overflow-x-auto whitespace-pre leading-relaxed">
-                {healResult ? healResult.stackTrace : `[ERROR] 2026-07-28 15:12:05.102 UTC - Cloud Run Revision: envato-vibe-storefront-00042-v3x
+                {healResult ? healResult.stackTrace : `[ERROR] 2026-07-28 15:30:12.402 UTC - Cloud Run Revision: envato-vibe-storefront-00001-v3x
 Traceback (most recent call last):
-  File "/app/routes/checkout.py", line 42, in process_cart_checkout
+  File "/app/main.py", line 42, in render_storefront
     discount_ratio = total_discount / itemCount
 ZeroDivisionError: division by zero
 [CRITICAL] HTTP 500 Internal Server Error returned on POST /api/cart/checkout`}
