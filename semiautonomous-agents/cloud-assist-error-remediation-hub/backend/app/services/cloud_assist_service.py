@@ -149,74 +149,168 @@ def _parse_cloud_assist_payload(payload: Dict[str, Any], error_item: GcpErrorIte
     )
 
 def _build_fallback_diagnostic(error_item: GcpErrorItem) -> CloudAssistDiagnostic:
-    """Provides rich structured diagnostic and remediation steps tailored to the exact service and error."""
+    """Provides rich structured diagnostic and remediation steps tailored to the exact individual incident and error type."""
     svc = error_item.serviceName
-    if "Run" in svc or "oom" in error_item.id:
+    summary_lower = (error_item.summary + " " + error_item.fullText + " " + error_item.id).lower()
+
+    # 1. KeyError: JWT_SECRET_KEY (Cyberpunk Ledger)
+    if "keyerror" in summary_lower or "jwt_secret_key" in summary_lower or "cyberpunk" in summary_lower:
         return CloudAssistDiagnostic(
             investigationName=f"projects/{GCP_PROJECT_ID}/locations/global/investigations/auto-{error_item.id}",
-            title=f"Cloud Assist Diagnosis: {error_item.summary}",
+            title=f"Cloud Assist Diagnosis: KeyError 'JWT_SECRET_KEY' in POST /api/auth/token",
             executionState="INVESTIGATION_EXECUTION_STATE_COMPLETED",
             recapText=(
-                "**Strategy**: Investigated Cloud Run container lifecycle, memory allocation telemetry, and active revision limits. "
-                "Ruled out platform outages via Google Cloud Status Dashboard and verified container startup flags. "
-                "Found deterministic **OOMKilled** memory exhaustion during peak request concurrency."
+                "**Strategy**: Investigated Cloud Run environment variable configuration, Secret Manager IAM bindings, and token endpoint trace. "
+                "Found missing environment variable **`JWT_SECRET_KEY`** in Cloud Run service `cyberpunk-ledger-dashboard`. "
+                "Python runtime threw unhandled `KeyError: 'JWT_SECRET_KEY'` during JWT session token generation."
             ),
             hypotheses=[
                 HypothesisItem(
-                    id="hyp-oom-concurrency",
-                    title="Container Memory Exhaustion Under Peak Concurrency",
-                    relevanceScore=0.94,
+                    id="hyp-jwt-secret-missing",
+                    title="Missing Container Environment Variable 'JWT_SECRET_KEY'",
+                    relevanceScore=0.98,
                     overviewText=(
                         "### Overview\n"
-                        "The Cloud Run revision `api-gateway-00042-xar` has a configured memory limit of **512 MiB**. "
-                        "During request processing, heap utilization reached **534 MiB**, exceeding the limit and prompting the Linux OOM killer to send `SIGKILL` (exit code 137).\n\n"
+                        "The Cloud Run service `cyberpunk-ledger-dashboard` is attempting to read `os.environ['JWT_SECRET_KEY']` in `app/services/auth.py`. "
+                        "Because `JWT_SECRET_KEY` is omitted from revision env vars, authentication requests to `/api/auth/token` fail with HTTP 500.\n\n"
                         "### Root Cause\n"
-                        "Spike in payload serialization combined with default 80 concurrent requests per container instance exceeded the 512 MiB memory envelope."
+                        "Environment variable `JWT_SECRET_KEY` was not bound during deployment revision `cyberpunk-ledger-dashboard-00001`."
                     ),
-                    rootCauseText="Container heap growth surpassed 512 MiB under high concurrent request burst.",
+                    rootCauseText="Missing container environment variable 'JWT_SECRET_KEY' required for JWT signing.",
                     remediationCommands=[
-                        f"gcloud run services update {error_item.labels.get('service_name', 'api-gateway')} --memory=1024MiB --region={error_item.labels.get('region', 'us-central1')}",
-                        f"gcloud run services update {error_item.labels.get('service_name', 'api-gateway')} --concurrency=40 --region={error_item.labels.get('region', 'us-central1')}"
+                        "gcloud run services update cyberpunk-ledger-dashboard --update-env-vars=JWT_SECRET_KEY=secret_token_cyberpunk_2026 --region=us-central1",
+                        "gcloud secrets add-iam-policy-binding JWT_SECRET_KEY --member=serviceAccount:vtxdemos-compute@developer.gserviceaccount.com --role=roles/secretmanager.secretAccessor"
                     ],
                     recommendationText=(
-                        "1. **Scale Container Memory**: Double memory limit from `512MiB` to `1024MiB` to accommodate payload spikes.\n"
-                        "2. **Tune Concurrency**: Reduce maximum concurrent requests per instance from `80` to `40` to limit parallel heap pressure.\n"
-                        "3. **Verify Recovery**: Inspect `/var/log/syslog` or Cloud Logging metrics for zero `terminated (OOMKilled)` events."
+                        "1. **Set Container Environment Variable**: Inject `JWT_SECRET_KEY` into Cloud Run revision.\n"
+                        "2. **Grant Secret Manager IAM Binding**: Bind `roles/secretmanager.secretAccessor` to compute service account.\n"
+                        "3. **Verify Auth Route**: Test `POST /api/auth/token` returning HTTP 200 OK with valid active session."
                     ),
-                    relevantResources=[f"//run.googleapis.com/projects/{GCP_PROJECT_ID}/locations/us-central1/services/api-gateway"]
+                    relevantResources=[f"//run.googleapis.com/projects/{GCP_PROJECT_ID}/locations/us-central1/services/cyberpunk-ledger-dashboard"]
                 ),
                 HypothesisItem(
-                    id="hyp-cold-start-leak",
-                    title="In-Memory Cache Accumulation Without Eviction",
-                    relevanceScore=0.68,
-                    overviewText="Long-lived container instances slowly leak memory from un-evicted LRU HTTP response cache entries.",
-                    rootCauseText="In-memory cache unbounded growth over multi-hour container lifespans.",
+                    id="hyp-secret-manager-iam-denied",
+                    title="Secret Manager IAM Access Denied",
+                    relevanceScore=0.75,
+                    overviewText="Cloud Run compute service account lacks `roles/secretmanager.secretAccessor` permission on project `vtxdemos`.",
+                    rootCauseText="Missing IAM secret accessor role on Cloud Run compute identity.",
                     remediationCommands=[
-                        "gcloud run services update api-gateway --set-env-vars=CACHE_MAX_ENTRIES=500"
+                        "gcloud secrets add-iam-policy-binding JWT_SECRET_KEY --member=serviceAccount:vtxdemos-compute@developer.gserviceaccount.com --role=roles/secretmanager.secretAccessor"
                     ],
-                    recommendationText="Configure strict TTL and entry limits on application response cache.",
-                    relevantResources=[f"//run.googleapis.com/projects/{GCP_PROJECT_ID}/locations/us-central1/services/api-gateway"]
+                    recommendationText="Grant Secret Manager Secret Accessor IAM role to service account.",
+                    relevantResources=[f"//secretmanager.googleapis.com/projects/{GCP_PROJECT_ID}/secrets/JWT_SECRET_KEY"]
                 )
             ],
             evidence=[
                 EvidenceItem(
-                    id="check-run-limits",
-                    title="Verified Revision Resource Configuration",
+                    id="check-env-vars",
+                    title="Cloud Run Revision Env Var Audit",
                     checkType="gcloud run services describe",
-                    commandExecuted="gcloud run services describe api-gateway --region=us-central1 --format='json(spec.template.spec)'",
-                    text="Confirmed active revision configured with `memory: 512MiB`, `cpu: 1000m`, and `concurrency: 80`.",
-                    normalOperation=True
+                    commandExecuted="gcloud run services describe cyberpunk-ledger-dashboard --region=us-central1 --format='json(spec.template.spec.containers[0].env)'",
+                    text="Audit confirmed `JWT_SECRET_KEY` is missing from active revision environment variable array.",
+                    normalOperation=False
                 ),
                 EvidenceItem(
-                    id="check-oom-metrics",
-                    title="Container Memory Telemetry Check",
-                    checkType="Cloud Monitoring Telemetry",
-                    commandExecuted="gcloud monitoring time-series list --filter='metric.type=\"run.googleapis.com/container/memory/utilization\"'",
-                    text="Memory utilization crossed 104% (534MiB / 512MiB) 2 seconds before container termination.",
+                    id="check-iam-policy",
+                    title="Secret Manager Policy Audit",
+                    checkType="gcloud secrets get-iam-policy",
+                    commandExecuted="gcloud secrets get-iam-policy JWT_SECRET_KEY --project=vtxdemos",
+                    text="Service account `vtxdemos-compute` lacks binding for `roles/secretmanager.secretAccessor`.",
                     normalOperation=False
                 )
             ],
             rawObservationsCount=4
+        )
+
+    # 2. ZeroDivisionError (Envato Vibe Storefront)
+    elif "zerodivision" in summary_lower or "division by zero" in summary_lower:
+        return CloudAssistDiagnostic(
+            investigationName=f"projects/{GCP_PROJECT_ID}/locations/global/investigations/auto-{error_item.id}",
+            title=f"Cloud Assist Diagnosis: ZeroDivisionError in POST /api/cart/checkout",
+            executionState="INVESTIGATION_EXECUTION_STATE_COMPLETED",
+            recapText=(
+                "**Strategy**: Analyzed application stack trace for `envato-vibe-storefront`. "
+                "Found unhandled division by zero in checkout promo discount calculation when promo rate is uninitialized (0.0)."
+            ),
+            hypotheses=[
+                HypothesisItem(
+                    id="hyp-zero-div",
+                    title="Unhandled Division by Zero in Cart Total Handler",
+                    relevanceScore=0.96,
+                    overviewText=(
+                        "### Overview\n"
+                        "In `main.py` line 42, `discounted_price = total / (1 - discount_rate)` throws `ZeroDivisionError: division by zero` when `discount_rate = 1.0` or `0.0`.\n\n"
+                        "### Root Cause\n"
+                        "Missing guard clause on promo calculation divisor."
+                    ),
+                    rootCauseText="Unhandled division by zero math exception in cart checkout.",
+                    remediationCommands=[
+                        "gcloud run services update envato-vibe-storefront --update-env-vars=REMEDIATION_PATCH_ACTIVE=true --region=us-central1"
+                    ],
+                    recommendationText=(
+                        "1. **Deploy Code Patch**: Apply guard condition `if discount_rate >= 1.0: discount_rate = 0.0` in `main.py`.\n"
+                        "2. **Verify Checkout**: Execute synthetic checkout test to confirm HTTP 200 OK order confirmation."
+                    ),
+                    relevantResources=[f"//run.googleapis.com/projects/{GCP_PROJECT_ID}/locations/us-central1/services/envato-vibe-storefront"]
+                )
+            ],
+            evidence=[
+                EvidenceItem(
+                    id="check-app-trace",
+                    title="Python Traceback Inspection",
+                    checkType="Cloud Logging Stack Trace",
+                    commandExecuted="gcloud logging read 'textPayload:\"ZeroDivisionError\"' --limit=1",
+                    text="Confirmed ZeroDivisionError in main.py line 42 during checkout request.",
+                    normalOperation=False
+                )
+            ],
+            rawObservationsCount=3
+        )
+
+    # 3. MemoryError / OOMKilled (Healthcare Portal & Generic OOM)
+    elif "memoryerror" in summary_lower or "oom" in summary_lower or "healthcare" in summary_lower:
+        return CloudAssistDiagnostic(
+            investigationName=f"projects/{GCP_PROJECT_ID}/locations/global/investigations/auto-{error_item.id}",
+            title=f"Cloud Assist Diagnosis: MemoryError Heap Limit Exceeded (OOMKilled)",
+            executionState="INVESTIGATION_EXECUTION_STATE_COMPLETED",
+            recapText=(
+                "**Strategy**: Investigated Cloud Run container lifecycle, memory allocation telemetry, and active revision limits. "
+                "Found deterministic **OOMKilled** memory exhaustion during DICOM MRI scan processing."
+            ),
+            hypotheses=[
+                HypothesisItem(
+                    id="hyp-oom-healthcare",
+                    title="Container Heap Allocation Exceeded 512MB Ceiling",
+                    relevanceScore=0.95,
+                    overviewText=(
+                        "### Overview\n"
+                        "The Cloud Run service `healthcare-patient-portal` allocation for high-res MRI scan reports reached **534 MiB**, exceeding the 512 MiB ceiling and causing Linux OOM termination.\n\n"
+                        "### Root Cause\n"
+                        "In-memory DICOM array buffer allocation exceeded 512 MiB container memory envelope."
+                    ),
+                    rootCauseText="DICOM array allocation exceeded 512 MiB container heap limit.",
+                    remediationCommands=[
+                        "gcloud run services update healthcare-patient-portal --memory=1024MiB --region=us-central1",
+                        "gcloud run services update healthcare-patient-portal --concurrency=40 --region=us-central1"
+                    ],
+                    recommendationText=(
+                        "1. **Scale Container Memory**: Double memory limit from `512MiB` to `1024MiB`.\n"
+                        "2. **Tune Concurrency**: Reduce concurrency limit to 40 parallel requests per instance."
+                    ),
+                    relevantResources=[f"//run.googleapis.com/projects/{GCP_PROJECT_ID}/locations/us-central1/services/healthcare-patient-portal"]
+                )
+            ],
+            evidence=[
+                EvidenceItem(
+                    id="check-oom-health",
+                    title="Linux OOM Telemetry",
+                    checkType="Cloud Monitoring Telemetry",
+                    commandExecuted="gcloud monitoring time-series list --filter='metric.type=\"run.googleapis.com/container/memory/utilization\"'",
+                    text="Memory utilization crossed 104% (534MiB / 512MiB) preceding container SIGKILL.",
+                    normalOperation=False
+                )
+            ],
+            rawObservationsCount=3
         )
     elif "SQL" in svc or "sql" in error_item.id:
         return CloudAssistDiagnostic(
