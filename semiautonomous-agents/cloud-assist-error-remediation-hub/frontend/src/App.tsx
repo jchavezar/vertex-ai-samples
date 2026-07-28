@@ -57,6 +57,16 @@ export function App() {
     setIsDiagnosing(true);
     setDiagnostic(null);
 
+    // Dynamic Agent Context Switch: Reset chat messages with proactive incident notification
+    setChatMessages([
+      {
+        id: `sys-${Date.now()}`,
+        sender: 'agent',
+        text: `📡 **Active Incident Context Loaded**: \`${errItem.serviceName}\` — **${errItem.summary}**\n\nI have ingested the log traces, service metadata, and Cloud Assist findings into my prompt context. Ask me anything about this issue (e.g., *"What is causing this error?"*, *"Provide step-by-step gcloud fix commands"*).`,
+        timestamp: new Date().toISOString()
+      }
+    ]);
+
     try {
       const res = await fetch(`${API_BASE}/diagnose`, {
         method: 'POST',
@@ -90,8 +100,8 @@ export function App() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           message: text,
-          selectedError,
-          diagnostic
+          contextError: selectedError,
+          contextDiagnostic: diagnostic
         })
       });
 
