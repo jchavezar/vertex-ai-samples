@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { GcpErrorItem, CloudAssistDiagnostic, ChatMessage } from '../../types';
 import { ChatMessageItem } from './ChatMessageItem';
 import { ClaudeInkSpinner } from './ClaudeInkSpinner';
-import { Bot, Send, Sparkles, HelpCircle, ChevronRight, ChevronLeft, Globe } from 'lucide-react';
+import { Bot, Send, Sparkles, ChevronRight, ChevronLeft, Globe } from 'lucide-react';
 
 interface ChatbotDrawerProps {
   selectedError: GcpErrorItem | null;
@@ -29,17 +29,79 @@ export const ChatbotDrawer: React.FC<ChatbotDrawerProps> = ({
 }) => {
   const [isOpen, setIsOpen] = useState(true);
   const [input, setInput] = useState('');
+  const [promptHistory, setPromptHistory] = useState<string[]>([]);
+  const [historyIndex, setHistoryIndex] = useState<number>(-1);
+  const [tempInput, setTempInput] = useState('');
+
   const bottomRef = useRef<HTMLDivElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, isSending]);
 
+  // Auto-grow textarea height naturally like Gemini / ChatGPT / Claude
+  useEffect(() => {
+    if (textareaRef.current) {
+      textareaRef.current.style.height = 'auto';
+      textareaRef.current.style.height = `${Math.min(textareaRef.current.scrollHeight, 180)}px`;
+    }
+  }, [input]);
+
   const handleSend = (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     if (!input.trim() || isSending) return;
-    onSendMessage(input);
+
+    const trimmed = input.trim();
+    onSendMessage(trimmed);
+
+    // Append to prompt history (avoiding consecutive duplicates)
+    setPromptHistory((prev) => (prev[prev.length - 1] !== trimmed ? [...prev, trimmed] : prev));
+    setHistoryIndex(-1);
+    setTempInput('');
     setInput('');
+
+    if (textareaRef.current) {
+      textareaRef.current.style.height = 'auto';
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSend();
+      return;
+    }
+
+    // Terminal-style prompt history navigation via Arrow Up / Arrow Down
+    if (e.key === 'ArrowUp') {
+      const isCursorAtStart = textareaRef.current ? textareaRef.current.selectionStart === 0 : true;
+      if (isCursorAtStart && promptHistory.length > 0) {
+        e.preventDefault();
+        if (historyIndex === -1) {
+          setTempInput(input);
+          const newIdx = promptHistory.length - 1;
+          setHistoryIndex(newIdx);
+          setInput(promptHistory[newIdx]);
+        } else if (historyIndex > 0) {
+          const newIdx = historyIndex - 1;
+          setHistoryIndex(newIdx);
+          setInput(promptHistory[newIdx]);
+        }
+      }
+    } else if (e.key === 'ArrowDown') {
+      if (historyIndex !== -1) {
+        e.preventDefault();
+        if (historyIndex < promptHistory.length - 1) {
+          const newIdx = historyIndex + 1;
+          setHistoryIndex(newIdx);
+          setInput(promptHistory[newIdx]);
+        } else {
+          setHistoryIndex(-1);
+          setInput(tempInput);
+        }
+      }
+    }
   };
 
   const handleSuggestionClick = (text: string) => {
@@ -170,20 +232,22 @@ export const ChatbotDrawer: React.FC<ChatbotDrawerProps> = ({
             </div>
           </div>
 
-          {/* Input Bar */}
+          {/* Natural Auto-Expanding Input Bar & Terminal History */}
           <form onSubmit={handleSend} className={`p-3.5 border-t ${
             isLightMode
               ? 'bg-white border-slate-200'
               : 'bg-[#0e131d] border-slate-800/80'
           }`}>
-            <div className="relative flex items-center">
-              <input
-                type="text"
+            <div className="relative flex items-end">
+              <textarea
+                ref={textareaRef}
+                rows={1}
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
-                placeholder="Ask ADK Agent for fixes or Reddit search..."
+                onKeyDown={handleKeyDown}
+                placeholder="Ask ADK Agent for fixes or Reddit search... (↑ for history, Shift+Enter for new line)"
                 disabled={isSending}
-                className={`w-full border rounded-xl py-2.5 pl-3.5 pr-10 text-xs focus:outline-none transition-all ${
+                className={`w-full border rounded-2xl py-2.5 pl-3.5 pr-11 text-xs focus:outline-none transition-all resize-none max-h-44 overflow-y-auto leading-relaxed ${
                   isLightMode
                     ? 'bg-slate-50 border-slate-300 text-slate-950 placeholder-slate-500 focus:border-slate-950 font-medium'
                     : 'bg-slate-950/90 border-slate-800 text-slate-100 placeholder-slate-500 focus:border-cyan-500/70'
@@ -192,11 +256,12 @@ export const ChatbotDrawer: React.FC<ChatbotDrawerProps> = ({
               <button
                 type="submit"
                 disabled={!input.trim() || isSending}
-                className={`absolute right-1.5 p-1.5 rounded-lg text-white transition-all shadow-sm cursor-pointer ${
+                className={`absolute right-2 bottom-2 p-2 rounded-xl text-white transition-all shadow-sm cursor-pointer ${
                   isLightMode
                     ? 'bg-slate-950 hover:bg-slate-800 disabled:opacity-40'
                     : 'bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 disabled:opacity-40'
                 }`}
+                title="Send message (Enter)"
               >
                 <Send className="w-3.5 h-3.5" />
               </button>
