@@ -29,14 +29,24 @@ export const ExecutiveVoiceBriefing: React.FC<ExecutiveVoiceBriefingProps> = ({
     ? diagnostic.hypotheses[0]
     : null;
 
-  const incidentSummary = selectedError.summary;
-  const serviceName = selectedError.serviceName;
-  const rootCause = topHypothesis?.rootCauseText || diagnostic?.recapText || selectedError.fullText;
-  const remediation = topHypothesis?.recommendationText || "Expand container memory allocation to 1024 MiB.";
+  const cleanSummary = (selectedError.summary && selectedError.summary.trim() !== '{}')
+    ? selectedError.summary
+    : "Service Authorization Audit Check";
 
-  const briefingTranscript = `Gemini Executive Briefing for ${serviceName}: ` +
-    `Incident: ${incidentSummary}. ` +
-    `Root Cause: ${rootCause.length > 180 ? rootCause.substring(0, 180) + '...' : rootCause}. ` +
+  const rawRootCause = topHypothesis?.rootCauseText || diagnostic?.recapText || selectedError.fullText;
+  const cleanRootCause = (rawRootCause && rawRootCause.trim() !== '{}')
+    ? rawRootCause
+    : `Runtime IAM policy binding or endpoint configuration check on ${selectedError.serviceName}.`;
+
+  const cleanServiceName = (selectedError.serviceName && selectedError.serviceName !== 'Google Cloud Service')
+    ? selectedError.serviceName
+    : 'Cloud Run / GCP Resource';
+
+  const remediation = topHypothesis?.recommendationText || "Audit IAM policy bindings and verify service endpoint readiness probes.";
+
+  const briefingTranscript = `Gemini Executive Briefing for ${cleanServiceName}: ` +
+    `Incident: ${cleanSummary}. ` +
+    `Root Cause: ${cleanRootCause.length > 180 ? cleanRootCause.substring(0, 180) + '...' : cleanRootCause}. ` +
     `Recommended Resolution: ${remediation} Click Execute on GCP in the Middle Panel to apply this fix with real-time audit verification.`;
 
   // Pre-buffer audio in background as soon as an incident is selected for instant 0ms playback!

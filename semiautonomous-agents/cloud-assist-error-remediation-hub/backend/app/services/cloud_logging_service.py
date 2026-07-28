@@ -142,6 +142,8 @@ def fetch_gcp_errors(time_range: str = "1h") -> List[GcpErrorItem]:
                 res_info = entry.get("resource", {})
                 res_type = res_info.get("type", "gcp_resource")
                 labels = res_info.get("labels", {})
+                proto_payload = entry.get("protoPayload", {})
+                json_payload = entry.get("jsonPayload", {})
                 
                 svc_name = "Google Cloud Service"
                 if "cloud_run" in res_type:
@@ -154,8 +156,26 @@ def fetch_gcp_errors(time_range: str = "1h") -> List[GcpErrorItem]:
                     svc_name = "Cloud Storage"
                 elif "scheduler" in res_type:
                     svc_name = "Cloud Scheduler"
+
+                # Extract rich text payload or protoPayload audit metadata
+                text_payload = entry.get("textPayload")
+                if not text_payload and isinstance(json_payload, dict) and json_payload:
+                    text_payload = json_payload.get("message") or json_payload.get("error") or json_payload.get("detail")
                 
-                text_payload = entry.get("textPayload") or str(entry.get("jsonPayload", {}))
+                if not text_payload and isinstance(proto_payload, dict) and proto_payload:
+                    method_name = proto_payload.get("methodName", "")
+                    status_msg = proto_payload.get("status", {}).get("message", "")
+                    principal = proto_payload.get("authenticationInfo", {}).get("principalEmail", "")
+                    text_payload = f"Audit Method: {method_name} - Status: {status_msg or 'Executed'} (Principal: {principal})"
+
+                if not text_payload or text_payload.strip() in ["{}", ""]:
+                    if "cloud_run" in res_type:
+                        text_payload = "Cloud Run Container Lifecycle Event / Revision Status Update"
+                    elif "audited_resource" in res_type or "iam" in res_type:
+                        text_payload = "IAM Security Audit Event: Service Account Permission Verification"
+                    else:
+                        text_payload = f"GCP Resource Error Event ({res_type})"
+
                 summary = text_payload[:80] + ("..." if len(text_payload) > 80 else "")
                 
                 err = GcpErrorItem(
@@ -166,7 +186,7 @@ def fetch_gcp_errors(time_range: str = "1h") -> List[GcpErrorItem]:
                     resourceType=res_type,
                     summary=summary,
                     fullText=text_payload,
-                    logPayload=entry.get("jsonPayload", {}) if isinstance(entry.get("jsonPayload"), dict) else {"raw": text_payload},
+                    logPayload=json_payload if isinstance(json_payload, dict) else {"raw": text_payload},
                     labels=labels
                 )
                 errors.append(err)

@@ -394,7 +394,7 @@ def synthesize_audio_stream(req: AudioSynthesisRequest):
     Streams audio WAV chunks in real-time as they arrive from Gemini 3.1 Flash TTS.
     Allows frontend to play chunk 1 immediately (<800ms) while remaining chunks stream.
     """
-    import os, time
+    import os, time, struct
     from google import genai
     from google.genai import types
 

@@ -420,9 +420,12 @@ def _build_fallback_diagnostic(error_item: GcpErrorItem) -> CloudAssistDiagnosti
             rawObservationsCount=2
         )
     else:
+        clean_summary = error_item.summary if (error_item.summary and error_item.summary.strip() not in ["{}", ""]) else f"{error_item.serviceName} Incident Event"
+        clean_root_cause = error_item.fullText if (error_item.fullText and error_item.fullText.strip() not in ["{}", ""]) else f"Runtime resource access or configuration policy mismatch in {error_item.serviceName}."
+
         return CloudAssistDiagnostic(
             investigationName=f"projects/{GCP_PROJECT_ID}/locations/global/investigations/auto-{error_item.id}",
-            title=f"Cloud Assist Diagnosis: {error_item.summary}",
+            title=f"Cloud Assist Diagnosis: {clean_summary}",
             executionState="INVESTIGATION_EXECUTION_STATE_COMPLETED",
             recapText=(
                 f"**Strategy**: Evaluated **{error_item.serviceName}** resource configuration, IAM policy bindings, and runtime logs. "
@@ -435,10 +438,10 @@ def _build_fallback_diagnostic(error_item: GcpErrorItem) -> CloudAssistDiagnosti
                     relevanceScore=0.88,
                     overviewText=(
                         "### Overview\n"
-                        f"The service **{error_item.serviceName}** encountered a failure: `{error_item.summary}`. "
+                        f"The service **{error_item.serviceName}** encountered a failure: `{clean_summary}`. "
                         "Detailed inspection shows policy or configuration mismatch in project runtime resources."
                     ),
-                    rootCauseText=error_item.fullText,
+                    rootCauseText=clean_root_cause,
                     remediationCommands=[
                         f"gcloud projects get-iam-policy {GCP_PROJECT_ID}",
                         "gcloud services list --enabled"
