@@ -1,5 +1,5 @@
 import React from 'react';
-import { ShieldAlert, Sparkles, Activity, Cloud, RefreshCw, Zap } from 'lucide-react';
+import { ShieldAlert, Sparkles, Activity, Cloud, RefreshCw, Zap, Sun, Moon } from 'lucide-react';
 
 interface HeaderProps {
   totalErrors: number;
@@ -7,7 +7,8 @@ interface HeaderProps {
   isLoading: boolean;
   activeRemediationMessage?: string | null;
   onSelectActiveRemediation?: () => void;
-  isLightMode?: boolean;
+  themeMode: 'light' | 'dark';
+  onToggleTheme: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -16,8 +17,11 @@ export const Header: React.FC<HeaderProps> = ({
   isLoading,
   activeRemediationMessage,
   onSelectActiveRemediation,
-  isLightMode = false
+  themeMode,
+  onToggleTheme
 }) => {
+  const isLightMode = themeMode === 'light';
+
   return (
     <header className={`h-16 border-b sticky top-0 z-50 px-6 flex items-center justify-between transition-colors duration-300 ${
       isLightMode
@@ -77,7 +81,7 @@ export const Header: React.FC<HeaderProps> = ({
         </div>
       </div>
 
-      {/* Right Controls + Active Remediation Badge */}
+      {/* Right Controls + Global Theme Toggle Button */}
       <div className="flex items-center space-x-3">
         {activeRemediationMessage && (
           <button
@@ -89,6 +93,29 @@ export const Header: React.FC<HeaderProps> = ({
             <span>{activeRemediationMessage}</span>
           </button>
         )}
+
+        {/* Global Theme Toggle Button */}
+        <button
+          onClick={onToggleTheme}
+          className={`px-3.5 py-2 rounded-lg border text-xs font-bold font-mono flex items-center gap-2 transition-all duration-200 shadow-sm cursor-pointer ${
+            isLightMode
+              ? 'bg-slate-100 hover:bg-slate-200 border-slate-300 text-slate-950'
+              : 'bg-slate-900 hover:bg-slate-800 border-slate-700 text-cyan-300'
+          }`}
+          title="Toggle between Solomon Light Edition and Cyberpunk Dark Edition across the entire application"
+        >
+          {isLightMode ? (
+            <>
+              <Sun className="w-4 h-4 text-amber-600" />
+              <span>☀️ Solomon Light Mode</span>
+            </>
+          ) : (
+            <>
+              <Moon className="w-4 h-4 text-cyan-400" />
+              <span>🌙 Cyberpunk Dark Mode</span>
+            </>
+          )}
+        </button>
 
         <button
           onClick={onRefreshAll}

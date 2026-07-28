@@ -17,10 +17,15 @@ export function App() {
   const [selectedError, setSelectedError] = useState<GcpErrorItem | null>(null);
   const [diagnostic, setDiagnostic] = useState<CloudAssistDiagnostic | null>(null);
   const [activeMainTab, setActiveMainTab] = useState<'remediation' | 'observability' | 'solomon'>('remediation');
+  const [themeMode, setThemeMode] = useState<'light' | 'dark'>('light');
   
   const [isErrorsLoading, setIsErrorsLoading] = useState<boolean>(true);
   const [isDiagnosing, setIsDiagnosing] = useState<boolean>(false);
   const [isChatSending, setIsChatSending] = useState<boolean>(false);
+
+  const handleToggleTheme = () => {
+    setThemeMode((prev) => (prev === 'light' ? 'dark' : 'light'));
+  };
 
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([
     {
@@ -136,11 +141,11 @@ export function App() {
 
   const [activeRemediationMessage, setActiveRemediationMessage] = useState<string | null>(null);
 
-  const isLight = activeMainTab === 'solomon';
+  const isLight = themeMode === 'light';
 
   return (
     <div className={`h-screen w-screen flex flex-col overflow-hidden transition-colors duration-300 ${
-      isLight ? 'bg-slate-100 text-slate-900' : 'bg-[#0a0d14] text-white'
+      isLight ? 'bg-[#fafafa] text-slate-900' : 'bg-[#0a0d14] text-white'
     }`}>
       {/* Top Glassmorphic Header */}
       <Header
@@ -148,7 +153,8 @@ export function App() {
         onRefreshAll={() => fetchErrors(selectedRange)}
         isLoading={isErrorsLoading}
         activeRemediationMessage={activeRemediationMessage}
-        isLightMode={isLight}
+        themeMode={themeMode}
+        onToggleTheme={handleToggleTheme}
         onSelectActiveRemediation={() => {
           setActiveMainTab('remediation');
           const cloudRunErr = errors.find(e => e.resourceType === 'cloud_run_revision');
