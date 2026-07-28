@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Volume2, VolumeX, RefreshCw, FileText, ChevronDown, ChevronUp, Copy, Check } from 'lucide-react';
 import { GcpErrorItem, CloudAssistDiagnostic } from '../../types';
 
@@ -8,7 +8,7 @@ interface ExecutiveVoiceBriefingProps {
   isLightMode?: boolean;
 }
 
-const AUDIO_CACHE: Record<string, { audioBase64: string; mimeType: string; latencyMs: number }> = {};
+const AUDIO_CACHE: Record<string, { audioBase64: string; mimeType: string; latencyMs: number; firstChunkMs?: number; voiceUsed?: string }> = {};
 
 export const ExecutiveVoiceBriefing: React.FC<ExecutiveVoiceBriefingProps> = ({
   selectedError,
@@ -20,7 +20,7 @@ export const ExecutiveVoiceBriefing: React.FC<ExecutiveVoiceBriefingProps> = ({
   const [showTranscript, setShowTranscript] = useState(false);
   const [copied, setCopied] = useState(false);
   const [latencyText, setLatencyText] = useState<string | null>(
-    AUDIO_CACHE[selectedError.id] ? `${AUDIO_CACHE[selectedError.id].latencyMs}ms (Cached)` : null
+    AUDIO_CACHE[selectedError.id] ? `${AUDIO_CACHE[selectedError.id].latencyMs}ms (0ms Cache)` : null
   );
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
@@ -37,6 +37,35 @@ export const ExecutiveVoiceBriefing: React.FC<ExecutiveVoiceBriefingProps> = ({
     `Incident: ${incidentSummary}. ` +
     `Root Cause: ${rootCause.length > 180 ? rootCause.substring(0, 180) + '...' : rootCause}. ` +
     `Recommended Resolution: ${remediation} Click Execute on GCP in the Middle Panel to apply this fix with real-time audit verification.`;
+
+  // Pre-buffer audio in background as soon as an incident is selected for instant 0ms playback!
+  useEffect(() => {
+    if (!AUDIO_CACHE[selectedError.id]) {
+      const t0 = performance.now();
+      fetch('http://127.0.0.1:8088/api/synthesize-audio', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: briefingTranscript, voice: 'Aoede' })
+      })
+        .then(res => res.json())
+        .then(data => {
+          if (data.audioBase64) {
+            const elapsed = Math.round(performance.now() - t0);
+            AUDIO_CACHE[selectedError.id] = {
+              audioBase64: data.audioBase64,
+              mimeType: data.mimeType || 'audio/wav',
+              latencyMs: elapsed,
+              firstChunkMs: data.firstChunkMs,
+              voiceUsed: data.voiceUsed
+            };
+            setLatencyText(`${elapsed}ms (0ms Cache)`);
+          }
+        })
+        .catch(err => console.error("Background audio pre-buffer error:", err));
+    } else {
+      setLatencyText(`${AUDIO_CACHE[selectedError.id].latencyMs}ms (0ms Cache)`);
+    }
+  }, [selectedError.id, briefingTranscript]);
 
   const copyTranscript = () => {
     navigator.clipboard.writeText(briefingTranscript);
@@ -73,7 +102,7 @@ export const ExecutiveVoiceBriefing: React.FC<ExecutiveVoiceBriefingProps> = ({
       const res = await fetch('http://127.0.0.1:8088/api/synthesize-audio', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text: briefingTranscript, voice: 'Achernar' })
+        body: JSON.stringify({ text: briefingTranscript, voice: 'Aoede' })
       });
 
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -86,7 +115,9 @@ export const ExecutiveVoiceBriefing: React.FC<ExecutiveVoiceBriefingProps> = ({
         AUDIO_CACHE[selectedError.id] = {
           audioBase64: data.audioBase64,
           mimeType: data.mimeType || 'audio/wav',
-          latencyMs: elapsed
+          latencyMs: elapsed,
+          firstChunkMs: data.firstChunkMs,
+          voiceUsed: data.voiceUsed
         };
 
         const audioSrc = `data:${data.mimeType || 'audio/wav'};base64,${data.audioBase64}`;
@@ -120,12 +151,12 @@ export const ExecutiveVoiceBriefing: React.FC<ExecutiveVoiceBriefingProps> = ({
                 ? 'bg-rose-950 border-rose-500 text-rose-300 animate-pulse'
                 : 'bg-slate-900 hover:bg-slate-800 border-slate-700 text-cyan-300'
           }`}
-          title="Listen to Gemini 3.1 Flash Executive Incident & Remediation Briefing (Achernar Female Voice)"
+          title="Listen to Gemini TTS Executive Briefing (Aoede Voice)"
         >
           {isLoading ? (
             <>
               <RefreshCw className="w-3.5 h-3.5 animate-spin text-amber-500" />
-              <span>Synthesizing Gemini 3.1 Audio...</span>
+              <span>Streaming Gemini Audio...</span>
             </>
           ) : isPlaying ? (
             <>
