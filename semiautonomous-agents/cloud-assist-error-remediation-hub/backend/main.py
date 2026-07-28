@@ -5,7 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from typing import List, Optional, Dict, Any
 from pydantic import BaseModel, Field
 
-from app.config import GCP_PROJECT_ID, PORT
+from app.config import GCP_PROJECT_ID, GCP_REGION, PORT
 from app.models.schemas import (
     GcpErrorItem,
     CloudAssistDiagnostic,
@@ -327,68 +327,27 @@ def get_cached_gcp_token():
 @app.post("/api/synthesize-audio")
 def synthesize_audio(req: AudioSynthesisRequest):
     """
-    Generates ultra-realistic human voice audio synthesis for executive incident briefings
-    using Google Cloud Journey-F or Gemini Aoede prebuilt voice rendering engine.
+    Generates studio HD audio synthesis for executive incident briefings using
+    Google GenAI SDK model 'gemini-3.1-flash-tts-preview' with Aoede voice.
     """
-    import os, urllib.request, json, subprocess, ssl, base64, time
+    import os, time, base64
+    from google import genai
+    from google.genai import types
 
     t0 = time.time()
     clean_text = req.text.replace('"', '').replace("'", "")
     
-    # 1. Primary Engine: Google Cloud Text-to-Speech API with Ultra-Realistic Journey-F Voice
-    token = get_cached_gcp_token()
-    if token:
-        try:
-            ctx = ssl._create_unverified_context()
-            url = 'https://texttospeech.googleapis.com/v1/text:synthesize'
-            payload = {
-                'input': {'text': clean_text},
-                'voice': {
-                    'languageCode': 'en-US',
-                    'name': 'en-US-Journey-F'
-                },
-                'audioConfig': {
-                    'audioEncoding': 'MP3',
-                    'speakingRate': 1.02
-                }
-            }
-
-            g_req = urllib.request.Request(url, data=json.dumps(payload).encode('utf-8'), headers={
-                'Authorization': f'Bearer {token}',
-                'X-Goog-User-Project': 'vtxdemos',
-                'Content-Type': 'application/json'
-            })
-
-            res = urllib.request.urlopen(g_req, context=ctx, timeout=3.0)
-            data = json.loads(res.read().decode('utf-8'))
-            audio_content = data.get('audioContent', '')
-            latency_ms = int((time.time() - t0) * 1000)
-
-            if audio_content:
-                return {
-                    "status": "SUCCESS",
-                    "audioBase64": audio_content,
-                    "mimeType": "audio/mp3",
-                    "latencyMs": latency_ms,
-                    "voiceUsed": "Aoede / Journey-F Ultra-Realistic Human Voice"
-                }
-        except Exception as e:
-            print("GCP Journey-F TTS failed or timed out:", e)
-
-    # 2. Secondary Engine: Google GenAI SDK with Aoede Voice & WAV Conversion
+    # Primary Engine: Google GenAI Client using model 'gemini-3.1-flash-tts-preview'
     try:
-        from google import genai
-        from google.genai import types
-
-        client = genai.Client(api_key=os.environ.get("GEMINI_API_KEY"))
+        client = genai.Client(vertexai=True, project=GCP_PROJECT_ID, location=GCP_REGION)
         response = client.models.generate_content(
-            model="gemini-2.5-flash",
+            model="gemini-3.1-flash-tts-preview",
             contents=clean_text,
             config=types.GenerateContentConfig(
                 response_modalities=["audio"],
                 speech_config=types.SpeechConfig(
                     voice_config=types.VoiceConfig(
-                        prebuilt_voice_config=types.PrebuiltVoiceConfig(voice_name="Aoede")
+                        prebuilt_voice_config=types.PrebuiltVoiceConfig(voice_name=req.voice or "Aoede")
                     )
                 )
             )
@@ -397,16 +356,18 @@ def synthesize_audio(req: AudioSynthesisRequest):
         for part in response.candidates[0].content.parts:
             if part.inline_data and part.inline_data.data:
                 wav_bytes = convert_to_wav(part.inline_data.data, part.inline_data.mime_type or "audio/L16;rate=24000")
+                latency_ms = int((time.time() - t0) * 1000)
                 return {
                     "status": "SUCCESS",
                     "audioBase64": base64.b64encode(wav_bytes).decode('utf-8'),
                     "mimeType": "audio/wav",
-                    "voiceUsed": "Gemini 2.5 Flash (Aoede Voice)"
+                    "latencyMs": latency_ms,
+                    "voiceUsed": "gemini-3.1-flash-tts-preview (Aoede Voice)"
                 }
-    except Exception as ex:
-        print("GenAI SDK TTS failed:", ex)
+    except Exception as e:
+        print("Gemini 3.1 Flash TTS Preview generation error:", e)
 
-    raise HTTPException(status_code=500, detail="Voice synthesis failed across all natural voice engines.")
+    raise HTTPException(status_code=500, detail="Voice synthesis failed with gemini-3.1-flash-tts-preview.")
 
 @app.get("/api/bitacora")
 def get_bitacora():
