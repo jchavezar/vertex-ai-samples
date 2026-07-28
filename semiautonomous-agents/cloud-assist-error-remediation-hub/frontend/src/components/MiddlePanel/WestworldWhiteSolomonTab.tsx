@@ -237,13 +237,14 @@ export const WestworldWhiteSolomonTab: React.FC = () => {
       <div className="bg-white rounded-3xl border border-slate-300 p-6 shadow-xl space-y-4">
         <div className="flex justify-between items-center border-b border-slate-200 pb-3">
           <div className="space-y-0.5">
-            <div className="text-xs font-mono font-bold text-slate-950 uppercase tracking-wider">
-              10.09.25 DIVERGENCE : PARIS / THERMONUCLEAR & GCP CLOUD RUN WAVEFORM HORIZON
+            <div className="text-xs font-mono font-bold text-slate-950 uppercase tracking-wider flex items-center gap-2">
+              <span>GCP CLOUD LOGGING ERROR FREQUENCY WAVEFORM HORIZON</span>
+              <span className="text-[10px] bg-slate-200 text-slate-800 px-2 py-0.5 rounded font-mono">Real-Time GCP Log Volume</span>
             </div>
-            <div className="text-[11px] text-slate-500 font-mono">Particle Noise Horizon Waveform Analysis</div>
+            <div className="text-[11px] text-slate-500 font-mono">Distribution of GCP Cloud Logging Error & Warning Signals Across Active Microservices</div>
           </div>
           <span className="text-xs font-mono font-bold px-3 py-1 bg-slate-900 text-white rounded">
-            PARTICLE HORIZON SCANNER
+            LOG SIGNAL HORIZON
           </span>
         </div>
 
