@@ -1,8 +1,8 @@
 import uvicorn
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
-from typing import List
-from pydantic import BaseModel
+from typing import List, Optional, Dict, Any
+from pydantic import BaseModel, Field
 
 from app.config import GCP_PROJECT_ID, PORT
 from app.models.schemas import (
@@ -10,7 +10,8 @@ from app.models.schemas import (
     CloudAssistDiagnostic,
     DiagnoseRequest,
     ChatMessageRequest,
-    ChatMessageResponse
+    ChatMessageResponse,
+    AutoHealRequest
 )
 from app.services.cloud_logging_service import fetch_gcp_errors
 from app.services.cloud_assist_service import diagnose_gcp_error
@@ -238,15 +239,13 @@ def chat_with_agent(req: ChatMessageRequest):
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/api/cloud-run-autoheal")
-def cloud_run_autoheal(payload: Dict[str, Any] = None):
+def cloud_run_autoheal(req: Optional[AutoHealRequest] = None):
     """
     Triggers real-time application-level debugging and code patch synthesis
     for Cloud Run web applications.
     """
     from app.services.cloud_run_app_autoheal_service import execute_cloud_run_app_autoheal
-    action = "heal"
-    if payload and "action" in payload:
-        action = payload["action"]
+    action = req.action if (req and req.action) else "heal"
     try:
         return execute_cloud_run_app_autoheal(action=action)
     except Exception as e:

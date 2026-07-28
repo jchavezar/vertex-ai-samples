@@ -52,3 +52,6 @@ class ChatMessageRequest(BaseModel):
 class ChatMessageResponse(BaseModel):
     reply: str
     sourcesCited: List[str] = Field(default_factory=list)
+
+class AutoHealRequest(BaseModel):
+    action: Optional[str] = "heal"

@@ -1,21 +1,14 @@
 import React, { useState } from 'react';
 import { GcpErrorItem } from '../../types';
 import {
-  Sparkles,
   Zap,
-  CheckCircle2,
-  AlertTriangle,
   Code,
   Terminal,
   Globe,
-  RefreshCw,
-  MessageSquare,
-  Bot,
-  Layers,
-  ArrowRight,
-  ExternalLink,
   Flame,
-  ShieldCheck
+  CheckCircle2,
+  AlertTriangle,
+  Play
 } from 'lucide-react';
 
 interface CloudRunAppAutoHealCardProps {
@@ -84,35 +77,42 @@ export const CloudRunAppAutoHealCard: React.FC<CloudRunAppAutoHealCardProps> = (
             </p>
           </div>
         </div>
+      </div>
 
-        {/* Dual Interactive Controls (Break vs Fix) */}
-        <div className="flex items-center space-x-2">
+      {/* DEDICATED SLEEK CONTROL TOOLBAR (No Piling / Crisp Spacing) */}
+      <div className="p-3 rounded-xl bg-black/60 border border-slate-800/80 flex flex-col sm:flex-row items-center justify-between gap-3">
+        <div className="text-xs text-slate-300 font-semibold flex items-center gap-2">
+          <Play className="w-3.5 h-3.5 text-cyan-400" />
+          <span>Interactive Execution Controls:</span>
+        </div>
+
+        <div className="flex items-center space-x-3 w-full sm:w-auto">
           {/* Inject / Break App Button */}
           <button
             onClick={() => triggerAppAction('break')}
             disabled={isProcessing}
-            className="px-3.5 py-2 rounded-xl bg-rose-950/60 hover:bg-rose-900/80 text-rose-300 border border-rose-500/40 text-xs font-bold flex items-center gap-1.5 transition-all shadow-sm"
+            className="flex-1 sm:flex-initial px-5 py-2.5 rounded-xl bg-gradient-to-r from-rose-900/80 to-red-950/80 hover:from-rose-800 hover:to-red-900 text-rose-200 border border-rose-500/50 text-xs font-bold flex items-center justify-center gap-2 shadow-lg shadow-rose-500/10 transition-all whitespace-nowrap active:scale-95 disabled:opacity-50"
             title="Simulate Cloud Run ZeroDivisionError app crash"
           >
-            <Flame className="w-3.5 h-3.5 text-rose-400" />
+            <Flame className="w-4 h-4 text-rose-400" />
             <span>🔴 Inject App Error</span>
           </button>
 
-          {/* Auto-Heal App Button */}
+          {/* Auto-Heal & Restore App Button */}
           <button
             onClick={() => triggerAppAction('heal')}
             disabled={isProcessing}
-            className="px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-600 via-cyan-600 to-blue-600 hover:from-emerald-500 hover:via-cyan-500 hover:to-blue-500 disabled:opacity-50 text-white font-bold text-xs flex items-center gap-2 shadow-lg shadow-emerald-500/20 transition-all"
+            className="flex-1 sm:flex-initial px-6 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 hover:from-emerald-500 hover:via-teal-500 hover:to-cyan-500 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20 transition-all whitespace-nowrap active:scale-95 disabled:opacity-50"
             title="Synthesize python patch and restore Light-Theme App UI"
           >
             {isProcessing ? (
               <>
-                <span className="w-3.5 h-3.5 border-2 border-white/80 border-t-transparent rounded-full animate-spin"></span>
+                <span className="w-4 h-4 border-2 border-white/80 border-t-transparent rounded-full animate-spin"></span>
                 <span>Applying Code Patch...</span>
               </>
             ) : (
               <>
-                <Zap className="w-3.5 h-3.5 fill-amber-300 text-amber-300" />
+                <Zap className="w-4 h-4 fill-amber-300 text-amber-300" />
                 <span>🟢 Auto-Heal & Restore App</span>
               </>
             )}
@@ -198,7 +198,8 @@ export const CloudRunAppAutoHealCard: React.FC<CloudRunAppAutoHealCardProps> = (
       <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #ffe4e6; padding-bottom: 14px;">
         <div style="display: flex; align-items: center; gap: 10px;">
           <div style="width: 10px; height: 10px; border-radius: 50%; background: #f43f5e; box-shadow: 0 0 10px #f43f5e;"></div>
-          <span style="font-weight: 700; font-size: 15px; color: #e11d48;">Envato Vibe Storefront</span>
+          <span style="font-weight: 800; font-size: 15px; color: #e11d48;">Envato Vibe Storefront</span>
+          <span style="font-size: 11px; background: #fff1f2; color: #be123c; border: 1px solid #fecdd3; padding: 2px 8px; border-radius: 99px; font-weight: 700;">🔴 APP BROKEN</span>
         </div>
         <span style="font-size: 11px; background: #fff1f2; color: #e11d48; border: 1px solid #fecdd3; padding: 4px 12px; border-radius: 99px; font-weight: 700;">HTTP 500 CRITICAL</span>
       </div>
