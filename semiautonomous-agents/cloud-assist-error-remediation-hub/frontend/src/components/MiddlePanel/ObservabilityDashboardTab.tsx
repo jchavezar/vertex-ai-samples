@@ -94,7 +94,7 @@ export const ObservabilityDashboardTab: React.FC = () => {
           <div>
             <h2 className="text-sm font-bold text-white tracking-tight flex flex-wrap items-center gap-2">
               <span>GCP Observability Signals & Inter-Service Constellation Topology</span>
-              <span className="text-[10px] uppercase font-mono px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
+              <span className="text-[10px] uppercase font-mono px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-semibold">
                 Live Cloud Logging & Trace Correlation
               </span>
             </h2>
@@ -110,11 +110,14 @@ export const ObservabilityDashboardTab: React.FC = () => {
         </div>
       </div>
 
-      {/* 4 Real-Time Signal Metric Cards */}
+      {/* 4 Real-Time Signal Metric Cards (Interactive) */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
         {/* Active Incidents */}
-        <div className="p-4 rounded-xl bg-slate-900 border border-rose-500/40 shadow-xl space-y-2">
-          <div className="flex justify-between items-center text-xs text-slate-400">
+        <div
+          onClick={() => setSelectedNode(nodes[1] || nodes[0])}
+          className="p-4 rounded-xl bg-slate-900 border border-rose-500/40 hover:border-rose-400 transition-all cursor-pointer shadow-xl space-y-2 group"
+        >
+          <div className="flex justify-between items-center text-xs text-slate-400 group-hover:text-slate-200">
             <span>Active Signals & Incidents</span>
             <AlertTriangle className="w-4 h-4 text-rose-400" />
           </div>
@@ -124,12 +127,18 @@ export const ObservabilityDashboardTab: React.FC = () => {
               {signals.criticalBlockers} Critical
             </span>
           </div>
-          <p className="text-[10px] text-slate-400">Captured in Cloud Logging error stream</p>
+          <p className="text-[10px] text-slate-400 flex items-center justify-between">
+            <span>Captured in Cloud Logging stream</span>
+            <span className="text-cyan-400 font-bold group-hover:underline">Inspect Node →</span>
+          </p>
         </div>
 
         {/* MTTR */}
-        <div className="p-4 rounded-xl bg-slate-900 border border-emerald-500/40 shadow-xl space-y-2">
-          <div className="flex justify-between items-center text-xs text-slate-400">
+        <div
+          onClick={() => setSelectedNode(nodes[0])}
+          className="p-4 rounded-xl bg-slate-900 border border-emerald-500/40 hover:border-emerald-400 transition-all cursor-pointer shadow-xl space-y-2 group"
+        >
+          <div className="flex justify-between items-center text-xs text-slate-400 group-hover:text-slate-200">
             <span>MTTR (Mean Time to Remediate)</span>
             <Clock className="w-4 h-4 text-emerald-400" />
           </div>
@@ -139,12 +148,18 @@ export const ObservabilityDashboardTab: React.FC = () => {
               Fast Sub-Second
             </span>
           </div>
-          <p className="text-[10px] text-slate-400">Parallel sandbox worker pool latency</p>
+          <p className="text-[10px] text-slate-400 flex items-center justify-between">
+            <span>Parallel sandbox worker pool latency</span>
+            <span className="text-cyan-400 font-bold group-hover:underline">Inspect Node →</span>
+          </p>
         </div>
 
         {/* Auto-Healed Recovery Rate */}
-        <div className="p-4 rounded-xl bg-slate-900 border border-cyan-500/40 shadow-xl space-y-2">
-          <div className="flex justify-between items-center text-xs text-slate-400">
+        <div
+          onClick={() => setSelectedNode(nodes[1])}
+          className="p-4 rounded-xl bg-slate-900 border border-cyan-500/40 hover:border-cyan-400 transition-all cursor-pointer shadow-xl space-y-2 group"
+        >
+          <div className="flex justify-between items-center text-xs text-slate-400 group-hover:text-slate-200">
             <span>Auto-Healing Recovery Rate</span>
             <Zap className="w-4 h-4 text-cyan-400" />
           </div>
@@ -154,12 +169,18 @@ export const ObservabilityDashboardTab: React.FC = () => {
               Zero Downtime
             </span>
           </div>
-          <p className="text-[10px] text-slate-400">Automatic code diff & recovery harness</p>
+          <p className="text-[10px] text-slate-400 flex items-center justify-between">
+            <span>Automatic code diff & recovery harness</span>
+            <span className="text-cyan-400 font-bold group-hover:underline">Inspect Node →</span>
+          </p>
         </div>
 
         {/* Cloud Run Service Health */}
-        <div className="p-4 rounded-xl bg-slate-900 border border-purple-500/40 shadow-xl space-y-2">
-          <div className="flex justify-between items-center text-xs text-slate-400">
+        <div
+          onClick={() => setSelectedNode(nodes[1])}
+          className="p-4 rounded-xl bg-slate-900 border border-purple-500/40 hover:border-purple-400 transition-all cursor-pointer shadow-xl space-y-2 group"
+        >
+          <div className="flex justify-between items-center text-xs text-slate-400 group-hover:text-slate-200">
             <span>Cloud Run Health Index</span>
             <Server className="w-4 h-4 text-purple-400" />
           </div>
@@ -169,7 +190,10 @@ export const ObservabilityDashboardTab: React.FC = () => {
               98.4% Up
             </span>
           </div>
-          <p className="text-[10px] text-slate-400">Evaluated across container revisions</p>
+          <p className="text-[10px] text-slate-400 flex items-center justify-between">
+            <span>Evaluated across container revisions</span>
+            <span className="text-cyan-400 font-bold group-hover:underline">Inspect Node →</span>
+          </p>
         </div>
       </div>
 
@@ -181,7 +205,7 @@ export const ObservabilityDashboardTab: React.FC = () => {
             <h3 className="text-sm font-bold text-white tracking-tight">Inter-Service Dependency Constellation Map</h3>
           </div>
           <span className="text-[10px] text-slate-400 font-mono bg-black/60 px-2.5 py-1 rounded border border-slate-800">
-            Click any node below to inspect Cloud Trace correlation
+            Click any node or element below to inspect Cloud Trace correlation
           </span>
         </div>
 
@@ -193,7 +217,7 @@ export const ObservabilityDashboardTab: React.FC = () => {
               <button
                 key={node.id}
                 onClick={() => setSelectedNode(node)}
-                className={`p-3.5 rounded-xl border text-left transition-all flex flex-col justify-between space-y-3 ${
+                className={`p-3.5 rounded-xl border text-left transition-all flex flex-col justify-between space-y-3 cursor-pointer ${
                   isDegraded
                     ? 'bg-rose-950/40 border-rose-500/60 hover:bg-rose-900/60 shadow-lg shadow-rose-500/10'
                     : 'bg-slate-900/80 border-cyan-500/40 hover:bg-slate-800 hover:border-cyan-400 shadow-md'
@@ -217,13 +241,15 @@ export const ObservabilityDashboardTab: React.FC = () => {
         </div>
       </div>
 
-      {/* NODE DETAILS DRAWER MODAL */}
+      {/* NODE DETAILS DRAWER MODAL OVERLAY */}
       {selectedNode && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md">
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl max-w-2xl w-full p-5 space-y-4 shadow-2xl">
+          <div className="bg-slate-900 border border-cyan-500/50 rounded-2xl max-w-2xl w-full p-6 space-y-4 shadow-2xl">
             <div className="flex justify-between items-center border-b border-slate-800 pb-3">
-              <div className="flex items-center space-x-2">
-                <Radio className="w-5 h-5 text-cyan-400" />
+              <div className="flex items-center space-x-3">
+                <div className="w-9 h-9 rounded-xl bg-cyan-500/20 border border-cyan-500/40 flex items-center justify-center">
+                  <Radio className="w-5 h-5 text-cyan-400" />
+                </div>
                 <div>
                   <h3 className="text-sm font-bold text-white">{selectedNode.label}</h3>
                   <p className="text-[11px] text-slate-400 font-mono">{selectedNode.serviceType}</p>
@@ -231,20 +257,20 @@ export const ObservabilityDashboardTab: React.FC = () => {
               </div>
               <button
                 onClick={() => setSelectedNode(null)}
-                className="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800"
+                className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
             <div className="space-y-3 text-xs font-mono">
-              <div className="p-3 rounded-xl bg-black/60 border border-slate-800 space-y-1">
-                <span className="text-[10px] text-slate-400 uppercase">Distributed Trace Correlation Link</span>
+              <div className="p-3.5 rounded-xl bg-black/60 border border-slate-800 space-y-1">
+                <span className="text-[10px] text-slate-400 uppercase font-semibold">Distributed Trace Correlation Link</span>
                 <div className="text-cyan-300 font-bold select-all">{selectedNode.traceId}</div>
               </div>
 
-              <div className="p-3 rounded-xl bg-black/60 border border-slate-800 space-y-1">
-                <span className="text-[10px] text-slate-400 uppercase">Service Telemetry Details</span>
+              <div className="p-3.5 rounded-xl bg-black/60 border border-slate-800 space-y-1">
+                <span className="text-[10px] text-slate-400 uppercase font-semibold">Service Telemetry Details</span>
                 <div className="text-slate-200 leading-relaxed">{selectedNode.details}</div>
               </div>
             </div>
@@ -252,9 +278,9 @@ export const ObservabilityDashboardTab: React.FC = () => {
             <div className="flex justify-end pt-2">
               <button
                 onClick={() => setSelectedNode(null)}
-                className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs"
+                className="px-5 py-2.5 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white font-bold text-xs shadow-lg shadow-cyan-500/20 transition-all cursor-pointer"
               >
-                Close Drawer
+                Close Trace Inspector
               </button>
             </div>
           </div>
