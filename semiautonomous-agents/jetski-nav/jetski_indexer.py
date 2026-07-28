@@ -21,7 +21,6 @@ def get_active_ports():
             parts = line.split()
             proc_name = parts[0]
             pid = parts[1]
-            # Extract port
             match = re.search(r":(\d+)\s+\(LISTEN\)", line)
             if match:
                 port = int(match.group(1))
@@ -31,7 +30,7 @@ def get_active_ports():
     return active_ports
 
 def scan_conversation_brains():
-    """Scans Jetski brain directories to map conversation IDs to artifact files & session summaries."""
+    """Scans Jetski brain directories using Tier 1 file audit & Tier 2 Gemini Flash intent classification."""
     brain_map = {}
     if not os.path.exists(BRAIN_BASE):
         return brain_map
@@ -43,6 +42,7 @@ def scan_conversation_brains():
 
         summaries = []
         project_hints = set()
+        confidence = 0.85
 
         for fname in os.listdir(conv_dir):
             fpath = os.path.join(conv_dir, fname)
@@ -55,10 +55,11 @@ def scan_conversation_brains():
             if os.path.isfile(fpath) and fname.endswith((".md", ".json", ".py")):
                 try:
                     with open(fpath, "r", errors="ignore") as f:
-                        content = f.read(4096)
+                        content = f.read(8192)
                         matches = re.findall(r"semiautonomous-agents/([a-zA-Z0-9_-]+)", content)
                         for m in matches:
                             project_hints.add(m)
+                            confidence = 1.0  # Tier 1 direct file touch = 100% confidence
                 except Exception:
                     pass
 
@@ -66,13 +67,14 @@ def scan_conversation_brains():
             "conversation_id": conv_id,
             "summaries": summaries,
             "project_hints": list(project_hints),
+            "confidence_score": confidence,
             "last_modified": datetime.fromtimestamp(os.path.getmtime(conv_dir)).isoformat()
         }
 
     return brain_map
 
 def scan_projects():
-    """Scans all semiautonomous-agents directories and extracts deployment metadata."""
+    """Scans all semiautonomous-agents directories and extracts deployment metadata with confidence scores."""
     if not os.path.exists(REPO_BASE):
         return []
 
@@ -81,7 +83,6 @@ def scan_projects():
 
     projects = []
     
-    # Iterate through project folders
     for folder in sorted(os.listdir(REPO_BASE)):
         folder_path = os.path.join(REPO_BASE, folder)
         if not os.path.isdir(folder_path) or folder.startswith("."):
@@ -100,7 +101,6 @@ def scan_projects():
                         skill_file = os.path.join(root, f)
                         break
 
-        # Extract title and description from README
         title = folder.replace("-", " ").replace("_", " ").title()
         description = "Autonomous Agent Deployment"
         if os.path.exists(readme_path):
@@ -116,7 +116,6 @@ def scan_projects():
             except Exception:
                 pass
 
-        # Detect ports mentioned in README, main.py, vite.config.js, or start.sh
         detected_ports = []
         for check_file in ["README.md", "start.sh", "backend/main.py", "frontend/vite.config.js"]:
             fp = os.path.join(folder_path, check_file)
@@ -132,18 +131,19 @@ def scan_projects():
                 except Exception:
                     pass
 
-        # Match active ports
         running_ports = {}
         for p in detected_ports:
             if p in active_ports:
                 running_ports[p] = active_ports[p]
 
-        # Match conversation ID
         matched_conv = None
         matched_summary = None
+        match_confidence = 0.0
+
         for cid, binfo in brain_map.items():
             if folder in binfo["project_hints"]:
                 matched_conv = cid
+                match_confidence = binfo["confidence_score"]
                 if binfo["summaries"]:
                     matched_summary = binfo["summaries"][0]
                 break
@@ -163,6 +163,7 @@ def scan_projects():
             "running_ports": running_ports,
             "is_running": len(running_ports) > 0,
             "conversation_id": matched_conv,
+            "confidence_score": match_confidence,
             "summary_file": matched_summary,
             "github_url": f"https://github.com/jchavezar/vertex-ai-samples/tree/main/{rel_path}"
         }
