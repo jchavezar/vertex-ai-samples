@@ -1,0 +1,1574 @@
+{
+  "generated_at": "2026-07-28T10:52:19.919051",
+  "total_projects": 81,
+  "running_projects": 20,
+  "projects": [
+    {
+      "id": "a2a",
+      "title": "A2A",
+      "description": "Autonomous Agent Deployment",
+      "path": "semiautonomous-agents/a2a",
+      "abs_path": "/Users/jesusarguelles/IdeaProjects/vertex-ai-samples/semiautonomous-agents/a2a",
+      "has_start_script": false,
+      "has_skill": false,
+      "skill_path": null,
+      "detected_ports": [],
+      "running_ports": {},
+      "is_running": false,
+      "conversation_id": null,
+      "summary_file": null,
+      "github_url": "https://github.com/jchavezar/vertex-ai-samples/tree/main/semiautonomous-agents/a2a"
+    },
+    {
+      "id": "a2a-protocol-dojo",
+      "title": "A2A Protocol Dojo",
+      "description": "> Interactive tutorial for learning Google's Agent-to-Agent (A2A) protocol \u2014 the open standard for agent interoperability.",
+      "path": "semiautonomous-agents/a2a-protocol-dojo",
+      "abs_path": "/Users/jesusarguelles/IdeaProjects/vertex-ai-samples/semiautonomous-agents/a2a-protocol-dojo",
+      "has_start_script": false,
+      "has_skill": false,
+      "skill_path": null,
+      "detected_ports": [
+        5173,
+        8001,
+        8002,
+        8000
+      ],
+      "running_ports": {
+        "5173": {
+          "process": "node",
+          "pid": "59391"
+        },
+        "8001": {
+          "process": "Python",
+          "pid": "76080"
+        }
+      },
+      "is_running": true,
+      "conversation_id": null,
+      "summary_file": null,
+      "github_url": "https://github.com/jchavezar/vertex-ai-samples/tree/main/semiautonomous-agents/a2a-protocol-dojo"
+    },
+    {
+      "id": "adk-drive-ae",
+      "title": "Adk Drive Ae",
+      "description": "<p align=\"center\">",
+      "path": "semiautonomous-agents/adk-drive-ae",
+      "abs_path": "/Users/jesusarguelles/IdeaProjects/vertex-ai-samples/semiautonomous-agents/adk-drive-ae",
+      "has_start_script": false,
+      "has_skill": false,
+      "skill_path": null,
+      "detected_ports": [
+        3000,
+        8088,
+        8080
+      ],
+      "running_ports": {
+        "8088": {
+          "process": "python3.1",
+          "pid": "24800"
+        }
+      },
+      "is_running": true,
+      "conversation_id": null,
+      "summary_file": null,
+      "github_url": "https://github.com/jchavezar/vertex-ai-samples/tree/main/semiautonomous-agents/adk-drive-ae"
+    },
+    {
+      "id": "adk-drive-via-appint",
+      "title": "ADK Drive Agent (User OAuth)",
+      "description": "A Google ADK agent that searches and reads the user's Google Drive. The first time the agent calls a Drive tool, the ADK dev UI opens a Google sign-in popup; once the user authorizes, the access token is cached in session state and the agent answers using only retrieved file content.",
+      "path": "semiautonomous-agents/adk-drive-via-appint",
+      "abs_path": "/Users/jesusarguelles/IdeaProjects/vertex-ai-samples/semiautonomous-agents/adk-drive-via-appint",
+      "has_start_script": false,
+      "has_skill": false,
+      "skill_path": null,
+      "detected_ports": [
+        8000,
+        9000
+      ],
+      "running_ports": {},
+      "is_running": false,
+      "conversation_id": null,
+      "summary_file": null,
+      "github_url": "https://github.com/jchavezar/vertex-ai-samples/tree/main/semiautonomous-agents/adk-drive-via-appint"
+    },
+    {
+      "id": "adk-hosted-mcp-iq",
+      "title": "SharePoint Hosted Explorer Agent (Google ADK & Microsoft-hosted Work IQ MCP)",
+      "description": "The **SharePoint Hosted Explorer Agent** is a secure, enterprise-grade virtual assistant grounded in Gemini Enterprise (GE). Built with the **Google Agent Development Kit (ADK)** and running on **Vertex AI Agent Runtime**, this agent leverages Microsoft's hosted **Work IQ SharePoint MCP server** (`agent365.svc.cloud.microsoft`) to dynamically search, retrieve, and inspect corporate documents directly inside your Microsoft 365 tenant, returning clickable citations to users with zero pretrained hallucinations.",
+      "path": "semiautonomous-agents/adk-hosted-mcp-iq",
+      "abs_path": "/Users/jesusarguelles/IdeaProjects/vertex-ai-samples/semiautonomous-agents/adk-hosted-mcp-iq",
+      "has_start_script": false,
+      "has_skill": false,
+      "skill_path": null,
+      "detected_ports": [],
+      "running_ports": {},
+      "is_running": false,
+      "conversation_id": null,
+      "summary_file": null,
+      "github_url": "https://github.com/jchavezar/vertex-ai-samples/tree/main/semiautonomous-agents/adk-hosted-mcp-iq"
+    },
+    {
+      "id": "adk-script-runner",
+      "title": "adk-script-test",
+      "description": "A minimal test to verify [Google ADK](https://google.github.io/adk-docs/) works end-to-end \u2014 an `LlmAgent` generates a bash script at runtime, saves it, and executes it.",
+      "path": "semiautonomous-agents/adk-script-runner",
+      "abs_path": "/Users/jesusarguelles/IdeaProjects/vertex-ai-samples/semiautonomous-agents/adk-script-runner",
+      "has_start_script": false,
+      "has_skill": false,
+      "skill_path": null,
+      "detected_ports": [],
+      "running_ports": {},
+      "is_running": false,
+      "conversation_id": null,
+      "summary_file": null,
+      "github_url": "https://github.com/jchavezar/vertex-ai-samples/tree/main/semiautonomous-agents/adk-script-runner"
+    },
+    {
+      "id": "adk-secret-manager-demo",
+      "title": "ADK Secret Manager Demo",
+      "description": "This project demonstrates a **Semiautonomous Agent** architecture using the Google Agent Development Kit (ADK), showcasing secure secret handling with Google Secret Manager and Vertex AI.",
+      "path": "semiautonomous-agents/adk-secret-manager-demo",
+      "abs_path": "/Users/jesusarguelles/IdeaProjects/vertex-ai-samples/semiautonomous-agents/adk-secret-manager-demo",
+      "has_start_script": false,
+      "has_skill": false,
+      "skill_path": null,
+      "detected_ports": [],
+      "running_ports": {},
+      "is_running": false,
+      "conversation_id": null,
+      "summary_file": null,
+      "github_url": "https://github.com/jchavezar/vertex-ai-samples/tree/main/semiautonomous-agents/adk-secret-manager-demo"
+    },
+    {
+      "id": "adk-secret-snow-demo",
+      "title": "SecretOps \u2014 ADK + Secret Manager + ServiceNow MCP",
+      "description": "> Semiautonomous IT operations agent that securely loads credentials from Google Secret Manager, connects to ServiceNow via MCP, and searches the web with Google Search grounding.",
+      "path": "semiautonomous-agents/adk-secret-snow-demo",
+      "abs_path": "/Users/jesusarguelles/IdeaProjects/vertex-ai-samples/semiautonomous-agents/adk-secret-snow-demo",
+      "has_start_script": false,
+      "has_skill": false,
+      "skill_path": null,
+      "detected_ports": [
+        9090,
+        5185
+      ],
+      "running_ports": {},
+      "is_running": false,
+      "conversation_id": null,
+      "summary_file": null,
+      "github_url": "https://github.com/jchavezar/vertex-ai-samples/tree/main/semiautonomous-agents/adk-secret-snow-demo"
+    },
+    {
+      "id": "agent-gateway-demo",
+      "title": "agent-gateway-demo",
+      "description": "End-to-end interactive demo of Google's **Agent Gateway + Agent Identity +",
+      "path": "semiautonomous-agents/agent-gateway-demo",
+      "abs_path": "/Users/jesusarguelles/IdeaProjects/vertex-ai-samples/semiautonomous-agents/agent-gateway-demo",
+      "has_start_script": false,
+      "has_skill": false,
+      "skill_path": null,
+      "detected_ports": [
+        3000
+      ],
+      "running_ports": {},
+      "is_running": false,
+      "conversation_id": null,
+      "summary_file": null,
+      "github_url": "https://github.com/jchavezar/vertex-ai-samples/tree/main/semiautonomous-agents/agent-gateway-demo"
+    },
+    {
+      "id": "agent-gateway-handson",
+      "title": "agent-gateway-handson",
+      "description": "**A console-first walkthrough that builds the public `agent-gateway` demo by hand \u2014 no Terraform, no helper scripts.** Every step is either a Cloud Console click path or a single `gcloud`/`curl` command. The only \"magic\" is the one-time IAP IAM binding, which we do with raw `curl` so you can see exactly what the docs are asking for.",
+      "path": "semiautonomous-agents/agent-gateway-handson",
+      "abs_path": "/Users/jesusarguelles/IdeaProjects/vertex-ai-samples/semiautonomous-agents/agent-gateway-handson",
+      "has_start_script": false,
+      "has_skill": false,
+      "skill_path": null,
+      "detected_ports": [
+        8080,
+        2048
+      ],
+      "running_ports": {},
+      "is_running": false,
+      "conversation_id": null,
+      "summary_file": null,
+      "github_url": "https://github.com/jchavezar/vertex-ai-samples/tree/main/semiautonomous-agents/agent-gateway-handson"
+    },
+    {
+      "id": "amex-mcp",
+      "title": "Amex MCP \u2014 Hybrid Search over Financial Transactions",
+      "description": "Automated Amex statement ingestion + Gemini enrichment pipeline + hybrid search (semantic + structured + compute) exposed as MCP tools.",
+      "path": "semiautonomous-agents/amex-mcp",
+      "abs_path": "/Users/jesusarguelles/IdeaProjects/vertex-ai-samples/semiautonomous-agents/amex-mcp",
+      "has_start_script": false,
+      "has_skill": false,
+      "skill_path": null,
+      "detected_ports": [],
+      "running_ports": {},
+      "is_running": false,
+      "conversation_id": null,
+      "summary_file": null,
+      "github_url": "https://github.com/jchavezar/vertex-ai-samples/tree/main/semiautonomous-agents/amex-mcp"
+    },
+    {
+      "id": "antigravity-docs",
+      "title": "Antigravity Docs",
+      "description": "Autonomous Agent Deployment",
+      "path": "semiautonomous-agents/antigravity-docs",
+      "abs_path": "/Users/jesusarguelles/IdeaProjects/vertex-ai-samples/semiautonomous-agents/antigravity-docs",
+      "has_start_script": false,
+      "has_skill": false,
+      "skill_path": null,
+      "detected_ports": [],
+      "running_ports": {},
+      "is_running": false,
+      "conversation_id": null,
+      "summary_file": null,
+      "github_url": "https://github.com/jchavezar/vertex-ai-samples/tree/main/semiautonomous-agents/antigravity-docs"
+    },
+    {
+      "id": "atlassian-jira-integration",
+      "title": "Atlassian Jira + Gemini Enterprise",
+      "description": "*Numbers as of 2026-05-27, judge_v6 (gemini-3-flash-preview + Haiku 4.5 escalation), n=172 v2 corpus.*",
+      "path": "semiautonomous-agents/atlassian-jira-integration",
+      "abs_path": "/Users/jesusarguelles/IdeaProjects/vertex-ai-samples/semiautonomous-agents/atlassian-jira-integration",
+      "has_start_script": false,
+      "has_skill": false,
+      "skill_path": null,
+      "detected_ports": [],
+      "running_ports": {},
+      "is_running": false,
+      "conversation_id": null,
+      "summary_file": null,
+      "github_url": "https://github.com/jchavezar/vertex-ai-samples/tree/main/semiautonomous-agents/atlassian-jira-integration"
+    },
+    {
+      "id": "claude-helper",
+      "title": "claude-helper",
+      "description": "Simple ReAct agent",
+      "path": "semiautonomous-agents/claude-helper",
+      "abs_path": "/Users/jesusarguelles/IdeaProjects/vertex-ai-samples/semiautonomous-agents/claude-helper",
+      "has_start_script": false,
+      "has_skill": false,
+      "skill_path": null,
+      "detected_ports": [],
+      "running_ports": {},
+      "is_running": false,
+      "conversation_id": null,
+      "summary_file": null,
+      "github_url": "https://github.com/jchavezar/vertex-ai-samples/tree/main/semiautonomous-agents/claude-helper"
+    },
+    {
+      "id": "cloud-assist-error-remediation-hub",
+      "title": "Google Cloud \u2022 Agentic Cloud Assist Error Remediation Hub",
+      "description": "An autonomous, next-generation agentic error detection and proactive remediation platform on Google Cloud that integrates **Cloud Logging**, the **Gemini Cloud Assist REST API (`geminicloudassist.googleapis.com/v1alpha`)**, and a **Google ADK Agent with built-in Google Search**.",
+      "path": "semiautonomous-agents/cloud-assist-error-remediation-hub",
+      "abs_path": "/Users/jesusarguelles/IdeaProjects/vertex-ai-samples/semiautonomous-agents/cloud-assist-error-remediation-hub",
+      "has_start_script": false,
+      "has_skill": false,
+      "skill_path": null,
+      "detected_ports": [
+        8088,
+        5173,
+        5180
+      ],
+      "running_ports": {
+        "8088": {
+          "process": "python3.1",
+          "pid": "24800"
+        },
+        "5173": {
+          "process": "node",
+          "pid": "59391"
+        },
+        "5180": {
+          "process": "node",
+          "pid": "24957"
+        }
+      },
+      "is_running": true,
+      "conversation_id": null,
+      "summary_file": null,
+      "github_url": "https://github.com/jchavezar/vertex-ai-samples/tree/main/semiautonomous-agents/cloud-assist-error-remediation-hub"
+    },
+    {
+      "id": "cortex-retriever",
+      "title": "Cortex Retriever",
+      "description": "> Agent-only ADK project \u2014 no UI, no backend. Deploys to Agent Engine, registers to Gemini Enterprise.",
+      "path": "semiautonomous-agents/cortex-retriever",
+      "abs_path": "/Users/jesusarguelles/IdeaProjects/vertex-ai-samples/semiautonomous-agents/cortex-retriever",
+      "has_start_script": false,
+      "has_skill": false,
+      "skill_path": null,
+      "detected_ports": [],
+      "running_ports": {},
+      "is_running": false,
+      "conversation_id": null,
+      "summary_file": null,
+      "github_url": "https://github.com/jchavezar/vertex-ai-samples/tree/main/semiautonomous-agents/cortex-retriever"
+    },
+    {
+      "id": "cross-project-adk-agent",
+      "title": "Cross-Project ADK Agent",
+      "description": "> Deploy an ADK agent in one GCP project, register it in another project's Gemini Enterprise.",
+      "path": "semiautonomous-agents/cross-project-adk-agent",
+      "abs_path": "/Users/jesusarguelles/IdeaProjects/vertex-ai-samples/semiautonomous-agents/cross-project-adk-agent",
+      "has_start_script": false,
+      "has_skill": false,
+      "skill_path": null,
+      "detected_ports": [],
+      "running_ports": {},
+      "is_running": false,
+      "conversation_id": null,
+      "summary_file": null,
+      "github_url": "https://github.com/jchavezar/vertex-ai-samples/tree/main/semiautonomous-agents/cross-project-adk-agent"
+    },
+    {
+      "id": "custom_app_search_gdrive",
+      "title": "Paramount Drive Search \u2014 Vertex AI",
+      "description": "AI-powered semantic search across Google Drive, secured by Google OAuth 2.0 and enforced by Drive ACL. Built with FastAPI + Vertex AI Search (Discovery Engine) and deployed to Cloud Run.",
+      "path": "semiautonomous-agents/custom_app_search_gdrive",
+      "abs_path": "/Users/jesusarguelles/IdeaProjects/vertex-ai-samples/semiautonomous-agents/custom_app_search_gdrive",
+      "has_start_script": false,
+      "has_skill": false,
+      "skill_path": null,
+      "detected_ports": [
+        8080
+      ],
+      "running_ports": {},
+      "is_running": false,
+      "conversation_id": null,
+      "summary_file": null,
+      "github_url": "https://github.com/jchavezar/vertex-ai-samples/tree/main/semiautonomous-agents/custom_app_search_gdrive"
+    },
+    {
+      "id": "custom_ui_adk_vais_gcs_gdrive",
+      "title": "Custom Ui Adk Vais Gcs Gdrive",
+      "description": "<p align=\"center\">",
+      "path": "semiautonomous-agents/custom_ui_adk_vais_gcs_gdrive",
+      "abs_path": "/Users/jesusarguelles/IdeaProjects/vertex-ai-samples/semiautonomous-agents/custom_ui_adk_vais_gcs_gdrive",
+      "has_start_script": false,
+      "has_skill": false,
+      "skill_path": null,
+      "detected_ports": [
+        3000,
+        8088
+      ],
+      "running_ports": {
+        "8088": {
+          "process": "python3.1",
+          "pid": "24800"
+        }
+      },
+      "is_running": true,
+      "conversation_id": null,
+      "summary_file": null,
+      "github_url": "https://github.com/jchavezar/vertex-ai-samples/tree/main/semiautonomous-agents/custom_ui_adk_vais_gcs_gdrive"
+    },
+    {
+      "id": "custom_ui_mcp_outlook",
+      "title": "M365 Outlook Executive Assistant \u2014 Dual-Deployment Architecture",
+      "description": "Welcome to the **M365 Outlook Executive Assistant** repository. This project showcases three complementary deployment topologies and integrations for enterprise Microsoft 365 Outlook:",
+      "path": "semiautonomous-agents/custom_ui_mcp_outlook",
+      "abs_path": "/Users/jesusarguelles/IdeaProjects/vertex-ai-samples/semiautonomous-agents/custom_ui_mcp_outlook",
+      "has_start_script": false,
+      "has_skill": false,
+      "skill_path": null,
+      "detected_ports": [
+        8005,
+        8001
+      ],
+      "running_ports": {
+        "8005": {
+          "process": "python3.1",
+          "pid": "90443"
+        },
+        "8001": {
+          "process": "Python",
+          "pid": "76080"
+        }
+      },
+      "is_running": true,
+      "conversation_id": "0603c274-f3c2-4d01-b948-9cd747b6dba2",
+      "summary_file": "/Users/jesusarguelles/.gemini/jetski/brain/0603c274-f3c2-4d01-b948-9cd747b6dba2/llm_eval_report.md",
+      "github_url": "https://github.com/jchavezar/vertex-ai-samples/tree/main/semiautonomous-agents/custom_ui_mcp_outlook"
+    },
+    {
+      "id": "demos-hub",
+      "title": "Demos Hub",
+      "description": "Autonomous Agent Deployment",
+      "path": "semiautonomous-agents/demos-hub",
+      "abs_path": "/Users/jesusarguelles/IdeaProjects/vertex-ai-samples/semiautonomous-agents/demos-hub",
+      "has_start_script": false,
+      "has_skill": false,
+      "skill_path": null,
+      "detected_ports": [],
+      "running_ports": {},
+      "is_running": false,
+      "conversation_id": null,
+      "summary_file": null,
+      "github_url": "https://github.com/jchavezar/vertex-ai-samples/tree/main/semiautonomous-agents/demos-hub"
+    },
+    {
+      "id": "discovery-engine-latency-probe",
+      "title": "Discovery Engine Latency Probe",
+      "description": "Autonomous Agent Deployment",
+      "path": "semiautonomous-agents/discovery-engine-latency-probe",
+      "abs_path": "/Users/jesusarguelles/IdeaProjects/vertex-ai-samples/semiautonomous-agents/discovery-engine-latency-probe",
+      "has_start_script": false,
+      "has_skill": false,
+      "skill_path": null,
+      "detected_ports": [],
+      "running_ports": {},
+      "is_running": false,
+      "conversation_id": null,
+      "summary_file": null,
+      "github_url": "https://github.com/jchavezar/vertex-ai-samples/tree/main/semiautonomous-agents/discovery-engine-latency-probe"
+    },
+    {
+      "id": "docgen-agent",
+      "title": "docgen-agent",
+      "description": "A small Google ADK agent that:",
+      "path": "semiautonomous-agents/docgen-agent",
+      "abs_path": "/Users/jesusarguelles/IdeaProjects/vertex-ai-samples/semiautonomous-agents/docgen-agent",
+      "has_start_script": false,
+      "has_skill": false,
+      "skill_path": null,
+      "detected_ports": [],
+      "running_ports": {},
+      "is_running": false,
+      "conversation_id": null,
+      "summary_file": null,
+      "github_url": "https://github.com/jchavezar/vertex-ai-samples/tree/main/semiautonomous-agents/docgen-agent"
+    },
+    {
+      "id": "docparse",
+      "title": "Docparse",
+      "description": "**Chart-aware PDF \u2192 Markdown \u2192 RAG agent inside Gemini Enterprise.**",
+      "path": "semiautonomous-agents/docparse",
+      "abs_path": "/Users/jesusarguelles/IdeaProjects/vertex-ai-samples/semiautonomous-agents/docparse",
+      "has_start_script": false,
+      "has_skill": false,
+      "skill_path": null,
+      "detected_ports": [],
+      "running_ports": {},
+      "is_running": false,
+      "conversation_id": null,
+      "summary_file": null,
+      "github_url": "https://github.com/jchavezar/vertex-ai-samples/tree/main/semiautonomous-agents/docparse"
+    },
+    {
+      "id": "docparse-firestore-diagnostics",
+      "title": "Docparse Firestore Diagnostics",
+      "description": "Autonomous Agent Deployment",
+      "path": "semiautonomous-agents/docparse-firestore-diagnostics",
+      "abs_path": "/Users/jesusarguelles/IdeaProjects/vertex-ai-samples/semiautonomous-agents/docparse-firestore-diagnostics",
+      "has_start_script": false,
+      "has_skill": false,
+      "skill_path": null,
+      "detected_ports": [],
+      "running_ports": {},
+      "is_running": false,
+      "conversation_id": null,
+      "summary_file": null,
+      "github_url": "https://github.com/jchavezar/vertex-ai-samples/tree/main/semiautonomous-agents/docparse-firestore-diagnostics"
+    },
+    {
+      "id": "docparse-firestore-grounding",
+      "title": "docparse-firestore-grounding",
+      "description": "**Production agents with PDF-level citations in Gemini Enterprise**",
+      "path": "semiautonomous-agents/docparse-firestore-grounding",
+      "abs_path": "/Users/jesusarguelles/IdeaProjects/vertex-ai-samples/semiautonomous-agents/docparse-firestore-grounding",
+      "has_start_script": false,
+      "has_skill": false,
+      "skill_path": null,
+      "detected_ports": [],
+      "running_ports": {},
+      "is_running": false,
+      "conversation_id": null,
+      "summary_file": null,
+      "github_url": "https://github.com/jchavezar/vertex-ai-samples/tree/main/semiautonomous-agents/docparse-firestore-grounding"
+    },
+    {
+      "id": "docparse-firestore-mcp",
+      "title": "Docparse Firestore RAG & MCP Server for Gemini Enterprise",
+      "description": "A state-of-the-art solution to ingest PDF-derived Markdowns into **Cloud Firestore** and expose them as a secure **Model Context Protocol (MCP) server** on Cloud Run.",
+      "path": "semiautonomous-agents/docparse-firestore-mcp",
+      "abs_path": "/Users/jesusarguelles/IdeaProjects/vertex-ai-samples/semiautonomous-agents/docparse-firestore-mcp",
+      "has_start_script": false,
+      "has_skill": false,
+      "skill_path": null,
+      "detected_ports": [],
+      "running_ports": {},
+      "is_running": false,
+      "conversation_id": null,
+      "summary_file": null,
+      "github_url": "https://github.com/jchavezar/vertex-ai-samples/tree/main/semiautonomous-agents/docparse-firestore-mcp"
+    },
+    {
+      "id": "firestore-rag-mcp",
+      "title": "firestore-rag-mcp",
+      "description": "A custom MCP server for Gemini Enterprise that grounds answers on a Firestore-backed",
+      "path": "semiautonomous-agents/firestore-rag-mcp",
+      "abs_path": "/Users/jesusarguelles/IdeaProjects/vertex-ai-samples/semiautonomous-agents/firestore-rag-mcp",
+      "has_start_script": false,
+      "has_skill": false,
+      "skill_path": null,
+      "detected_ports": [],
+      "running_ports": {},
+      "is_running": false,
+      "conversation_id": null,
+      "summary_file": null,
+      "github_url": "https://github.com/jchavezar/vertex-ai-samples/tree/main/semiautonomous-agents/firestore-rag-mcp"
+    },
+    {
+      "id": "ge-mcp-cowork",
+      "title": "Gemini Enterprise MCP Co-work Portal",
+      "description": "This project replicates the visual layout and dynamics of the **Gemini Enterprise** UI, but swaps out the standard GCP-managed 1P/3P connectors for an **Anthropic Claude Cowork/Projects-style** local MCP harness.",
+      "path": "semiautonomous-agents/ge-mcp-cowork",
+      "abs_path": "/Users/jesusarguelles/IdeaProjects/vertex-ai-samples/semiautonomous-agents/ge-mcp-cowork",
+      "has_start_script": true,
+      "has_skill": false,
+      "skill_path": null,
+      "detected_ports": [
+        8001,
+        5173,
+        8005,
+        5175,
+        8765
+      ],
+      "running_ports": {
+        "8001": {
+          "process": "Python",
+          "pid": "76080"
+        },
+        "5173": {
+          "process": "node",
+          "pid": "59391"
+        },
+        "8005": {
+          "process": "python3.1",
+          "pid": "90443"
+        }
+      },
+      "is_running": true,
+      "conversation_id": null,
+      "summary_file": null,
+      "github_url": "https://github.com/jchavezar/vertex-ai-samples/tree/main/semiautonomous-agents/ge-mcp-cowork"
+    },
+    {
+      "id": "ge-sharepoint-cloudid",
+      "title": "SharePoint Portal \u2014 Google Cloud Identity",
+      "description": "> *Federated SharePoint search via Gemini Enterprise StreamAssist \u2014 using native Google Cloud Identity. No WIF, no STS, no MSAL.*",
+      "path": "semiautonomous-agents/ge-sharepoint-cloudid",
+      "abs_path": "/Users/jesusarguelles/IdeaProjects/vertex-ai-samples/semiautonomous-agents/ge-sharepoint-cloudid",
+      "has_start_script": false,
+      "has_skill": false,
+      "skill_path": null,
+      "detected_ports": [
+        8003,
+        5175
+      ],
+      "running_ports": {},
+      "is_running": false,
+      "conversation_id": null,
+      "summary_file": null,
+      "github_url": "https://github.com/jchavezar/vertex-ai-samples/tree/main/semiautonomous-agents/ge-sharepoint-cloudid"
+    },
+    {
+      "id": "ge_a2a_agent_adk_gdrive",
+      "title": "ge_a2a_agent_adk_gdrive",
+      "description": "End-to-end user OAuth delegation through Gemini Enterprise Custom-A2A: a",
+      "path": "semiautonomous-agents/ge_a2a_agent_adk_gdrive",
+      "abs_path": "/Users/jesusarguelles/IdeaProjects/vertex-ai-samples/semiautonomous-agents/ge_a2a_agent_adk_gdrive",
+      "has_start_script": false,
+      "has_skill": false,
+      "skill_path": null,
+      "detected_ports": [],
+      "running_ports": {},
+      "is_running": false,
+      "conversation_id": null,
+      "summary_file": null,
+      "github_url": "https://github.com/jchavezar/vertex-ai-samples/tree/main/semiautonomous-agents/ge_a2a_agent_adk_gdrive"
+    },
+    {
+      "id": "ge_aruntime_adk_mcp_sharepoint",
+      "title": "SharePoint Explorer Agent (Google ADK & Vertex AI Agent Runtime)",
+      "description": "The **SharePoint Explorer Agent** is a secure, enterprise-grade virtual assistant grounded in Gemini Enterprise (GE). Built with the **Google Agent Development Kit (ADK)** and running on **Vertex AI Agent Runtime**, the agent leverages a secure Model Context Protocol (MCP) server to dynamically search, retrieve, and inspect corporate documents in Microsoft SharePoint, returning direct clickable citations to users with zero pretrained hallucinations.",
+      "path": "semiautonomous-agents/ge_aruntime_adk_mcp_sharepoint",
+      "abs_path": "/Users/jesusarguelles/IdeaProjects/vertex-ai-samples/semiautonomous-agents/ge_aruntime_adk_mcp_sharepoint",
+      "has_start_script": false,
+      "has_skill": false,
+      "skill_path": null,
+      "detected_ports": [],
+      "running_ports": {},
+      "is_running": false,
+      "conversation_id": null,
+      "summary_file": null,
+      "github_url": "https://github.com/jchavezar/vertex-ai-samples/tree/main/semiautonomous-agents/ge_aruntime_adk_mcp_sharepoint"
+    },
+    {
+      "id": "ge_custom_mcp_sharepoint",
+      "title": "SharePoint + Gemini Enterprise",
+      "description": "Two working ways to connect SharePoint Online to Gemini Enterprise. Pick the option that matches your priorities (control vs zero-infra), then follow that option's walkthrough.",
+      "path": "semiautonomous-agents/ge_custom_mcp_sharepoint",
+      "abs_path": "/Users/jesusarguelles/IdeaProjects/vertex-ai-samples/semiautonomous-agents/ge_custom_mcp_sharepoint",
+      "has_start_script": false,
+      "has_skill": false,
+      "skill_path": null,
+      "detected_ports": [],
+      "running_ports": {},
+      "is_running": false,
+      "conversation_id": null,
+      "summary_file": null,
+      "github_url": "https://github.com/jchavezar/vertex-ai-samples/tree/main/semiautonomous-agents/ge_custom_mcp_sharepoint"
+    },
+    {
+      "id": "gemini-2.5-flash-latency",
+      "title": "Gemini 2.5 Flash Latency",
+      "description": "Autonomous Agent Deployment",
+      "path": "semiautonomous-agents/gemini-2.5-flash-latency",
+      "abs_path": "/Users/jesusarguelles/IdeaProjects/vertex-ai-samples/semiautonomous-agents/gemini-2.5-flash-latency",
+      "has_start_script": false,
+      "has_skill": false,
+      "skill_path": null,
+      "detected_ports": [],
+      "running_ports": {},
+      "is_running": false,
+      "conversation_id": null,
+      "summary_file": null,
+      "github_url": "https://github.com/jchavezar/vertex-ai-samples/tree/main/semiautonomous-agents/gemini-2.5-flash-latency"
+    },
+    {
+      "id": "gemini-enterprise-sharepoint-agent",
+      "title": "GE ADK SharePoint WIF",
+      "description": "ADK Agent for **Gemini Enterprise** that searches SharePoint documents via Discovery Engine with **Workforce Identity Federation (WIF)** authentication.",
+      "path": "semiautonomous-agents/gemini-enterprise-sharepoint-agent",
+      "abs_path": "/Users/jesusarguelles/IdeaProjects/vertex-ai-samples/semiautonomous-agents/gemini-enterprise-sharepoint-agent",
+      "has_start_script": false,
+      "has_skill": false,
+      "skill_path": null,
+      "detected_ports": [],
+      "running_ports": {},
+      "is_running": false,
+      "conversation_id": null,
+      "summary_file": null,
+      "github_url": "https://github.com/jchavezar/vertex-ai-samples/tree/main/semiautonomous-agents/gemini-enterprise-sharepoint-agent"
+    },
+    {
+      "id": "gemini-websocket-chat",
+      "title": "sockagent",
+      "description": "Terminal-aesthetic mobile PWA for chatting with Vertex AI Gemini.",
+      "path": "semiautonomous-agents/gemini-websocket-chat",
+      "abs_path": "/Users/jesusarguelles/IdeaProjects/vertex-ai-samples/semiautonomous-agents/gemini-websocket-chat",
+      "has_start_script": false,
+      "has_skill": false,
+      "skill_path": null,
+      "detected_ports": [
+        8080,
+        5173
+      ],
+      "running_ports": {
+        "5173": {
+          "process": "node",
+          "pid": "59391"
+        }
+      },
+      "is_running": true,
+      "conversation_id": null,
+      "summary_file": null,
+      "github_url": "https://github.com/jchavezar/vertex-ai-samples/tree/main/semiautonomous-agents/gemini-websocket-chat"
+    },
+    {
+      "id": "gemini_api_latency",
+      "title": "Gemini Api Latency",
+      "description": "Autonomous Agent Deployment",
+      "path": "semiautonomous-agents/gemini_api_latency",
+      "abs_path": "/Users/jesusarguelles/IdeaProjects/vertex-ai-samples/semiautonomous-agents/gemini_api_latency",
+      "has_start_script": false,
+      "has_skill": false,
+      "skill_path": null,
+      "detected_ports": [],
+      "running_ports": {},
+      "is_running": false,
+      "conversation_id": null,
+      "summary_file": null,
+      "github_url": "https://github.com/jchavezar/vertex-ai-samples/tree/main/semiautonomous-agents/gemini_api_latency"
+    },
+    {
+      "id": "global-pulse",
+      "title": "Global Pulse \u2014 International News Intelligence",
+      "description": "An agentic news research platform that searches 15+ international sources across multiple languages, computes veracity scores, detects signals, and generates intelligence reports.",
+      "path": "semiautonomous-agents/global-pulse",
+      "abs_path": "/Users/jesusarguelles/IdeaProjects/vertex-ai-samples/semiautonomous-agents/global-pulse",
+      "has_start_script": false,
+      "has_skill": false,
+      "skill_path": null,
+      "detected_ports": [
+        5173
+      ],
+      "running_ports": {
+        "5173": {
+          "process": "node",
+          "pid": "59391"
+        }
+      },
+      "is_running": true,
+      "conversation_id": null,
+      "summary_file": null,
+      "github_url": "https://github.com/jchavezar/vertex-ai-samples/tree/main/semiautonomous-agents/global-pulse"
+    },
+    {
+      "id": "gworkspace-mcp-server",
+      "title": "Google Workspace MCP Server",
+      "description": "MCP server providing access to Google Workspace APIs: Gmail, Drive, Calendar, Docs, and Sheets.",
+      "path": "semiautonomous-agents/gworkspace-mcp-server",
+      "abs_path": "/Users/jesusarguelles/IdeaProjects/vertex-ai-samples/semiautonomous-agents/gworkspace-mcp-server",
+      "has_start_script": false,
+      "has_skill": false,
+      "skill_path": null,
+      "detected_ports": [
+        8081
+      ],
+      "running_ports": {},
+      "is_running": false,
+      "conversation_id": null,
+      "summary_file": null,
+      "github_url": "https://github.com/jchavezar/vertex-ai-samples/tree/main/semiautonomous-agents/gworkspace-mcp-server"
+    },
+    {
+      "id": "hierarchical-rag-pgvector",
+      "title": "Hierarchical RAG Nexus",
+      "description": "Parent-Child RAG implementation with Cloud SQL pgvector for precision retrieval with full context.",
+      "path": "semiautonomous-agents/hierarchical-rag-pgvector",
+      "abs_path": "/Users/jesusarguelles/IdeaProjects/vertex-ai-samples/semiautonomous-agents/hierarchical-rag-pgvector",
+      "has_start_script": false,
+      "has_skill": false,
+      "skill_path": null,
+      "detected_ports": [
+        8003,
+        5174
+      ],
+      "running_ports": {},
+      "is_running": false,
+      "conversation_id": null,
+      "summary_file": null,
+      "github_url": "https://github.com/jchavezar/vertex-ai-samples/tree/main/semiautonomous-agents/hierarchical-rag-pgvector"
+    },
+    {
+      "id": "jetski-nav",
+      "title": "Jetski Nav",
+      "description": "Autonomous Agent Deployment",
+      "path": "semiautonomous-agents/jetski-nav",
+      "abs_path": "/Users/jesusarguelles/IdeaProjects/vertex-ai-samples/semiautonomous-agents/jetski-nav",
+      "has_start_script": false,
+      "has_skill": false,
+      "skill_path": null,
+      "detected_ports": [],
+      "running_ports": {},
+      "is_running": false,
+      "conversation_id": null,
+      "summary_file": null,
+      "github_url": "https://github.com/jchavezar/vertex-ai-samples/tree/main/semiautonomous-agents/jetski-nav"
+    },
+    {
+      "id": "knowledge-base-mcp",
+      "title": "Knowledge Base MCP Server",
+      "description": "Semantic search over Claude Code conversation transcripts. Extracts problem-solution patterns from JSONL history files, stores them in Firestore with vector embeddings, and serves them via MCP.",
+      "path": "semiautonomous-agents/knowledge-base-mcp",
+      "abs_path": "/Users/jesusarguelles/IdeaProjects/vertex-ai-samples/semiautonomous-agents/knowledge-base-mcp",
+      "has_start_script": false,
+      "has_skill": false,
+      "skill_path": null,
+      "detected_ports": [
+        8080,
+        8082
+      ],
+      "running_ports": {},
+      "is_running": false,
+      "conversation_id": null,
+      "summary_file": null,
+      "github_url": "https://github.com/jchavezar/vertex-ai-samples/tree/main/semiautonomous-agents/knowledge-base-mcp"
+    },
+    {
+      "id": "light_mcp_cloud_portal",
+      "title": "Light Mcp Cloud Portal",
+      "description": "Autonomous Agent Deployment",
+      "path": "semiautonomous-agents/light_mcp_cloud_portal",
+      "abs_path": "/Users/jesusarguelles/IdeaProjects/vertex-ai-samples/semiautonomous-agents/light_mcp_cloud_portal",
+      "has_start_script": false,
+      "has_skill": false,
+      "skill_path": null,
+      "detected_ports": [],
+      "running_ports": {},
+      "is_running": false,
+      "conversation_id": null,
+      "summary_file": null,
+      "github_url": "https://github.com/jchavezar/vertex-ai-samples/tree/main/semiautonomous-agents/light_mcp_cloud_portal"
+    },
+    {
+      "id": "llm-stream-debugger",
+      "title": "Llm Stream Debugger",
+      "description": "Autonomous Agent Deployment",
+      "path": "semiautonomous-agents/llm-stream-debugger",
+      "abs_path": "/Users/jesusarguelles/IdeaProjects/vertex-ai-samples/semiautonomous-agents/llm-stream-debugger",
+      "has_start_script": false,
+      "has_skill": false,
+      "skill_path": null,
+      "detected_ports": [],
+      "running_ports": {},
+      "is_running": false,
+      "conversation_id": null,
+      "summary_file": null,
+      "github_url": "https://github.com/jchavezar/vertex-ai-samples/tree/main/semiautonomous-agents/llm-stream-debugger"
+    },
+    {
+      "id": "minimalist-chatbot",
+      "title": "Minimalist Chatbot",
+      "description": "Autonomous Agent Deployment",
+      "path": "semiautonomous-agents/minimalist-chatbot",
+      "abs_path": "/Users/jesusarguelles/IdeaProjects/vertex-ai-samples/semiautonomous-agents/minimalist-chatbot",
+      "has_start_script": true,
+      "has_skill": false,
+      "skill_path": null,
+      "detected_ports": [
+        5173,
+        8001
+      ],
+      "running_ports": {
+        "5173": {
+          "process": "node",
+          "pid": "59391"
+        },
+        "8001": {
+          "process": "Python",
+          "pid": "76080"
+        }
+      },
+      "is_running": true,
+      "conversation_id": null,
+      "summary_file": null,
+      "github_url": "https://github.com/jchavezar/vertex-ai-samples/tree/main/semiautonomous-agents/minimalist-chatbot"
+    },
+    {
+      "id": "ms365-mcp-server",
+      "title": "Microsoft 365 MCP Server",
+      "description": "MCP server providing access to Microsoft 365 services: Outlook Mail, SharePoint, OneDrive, Teams, and Calendar.",
+      "path": "semiautonomous-agents/ms365-mcp-server",
+      "abs_path": "/Users/jesusarguelles/IdeaProjects/vertex-ai-samples/semiautonomous-agents/ms365-mcp-server",
+      "has_start_script": false,
+      "has_skill": false,
+      "skill_path": null,
+      "detected_ports": [
+        8083
+      ],
+      "running_ports": {},
+      "is_running": false,
+      "conversation_id": null,
+      "summary_file": null,
+      "github_url": "https://github.com/jchavezar/vertex-ai-samples/tree/main/semiautonomous-agents/ms365-mcp-server"
+    },
+    {
+      "id": "multimodal-doc-search",
+      "title": "PGVector Document Nexus",
+      "description": "> **Multimodal document intelligence platform using Cloud SQL with pgvector for semantic search and grounded chat.**",
+      "path": "semiautonomous-agents/multimodal-doc-search",
+      "abs_path": "/Users/jesusarguelles/IdeaProjects/vertex-ai-samples/semiautonomous-agents/multimodal-doc-search",
+      "has_start_script": false,
+      "has_skill": false,
+      "skill_path": null,
+      "detected_ports": [
+        8002,
+        5173
+      ],
+      "running_ports": {
+        "5173": {
+          "process": "node",
+          "pid": "59391"
+        }
+      },
+      "is_running": true,
+      "conversation_id": null,
+      "summary_file": null,
+      "github_url": "https://github.com/jchavezar/vertex-ai-samples/tree/main/semiautonomous-agents/multimodal-doc-search"
+    },
+    {
+      "id": "nextjs-test-harness",
+      "title": "Nextjs Test Harness",
+      "description": "First, run the development server:",
+      "path": "semiautonomous-agents/nextjs-test-harness",
+      "abs_path": "/Users/jesusarguelles/IdeaProjects/vertex-ai-samples/semiautonomous-agents/nextjs-test-harness",
+      "has_start_script": false,
+      "has_skill": false,
+      "skill_path": null,
+      "detected_ports": [
+        3000
+      ],
+      "running_ports": {},
+      "is_running": false,
+      "conversation_id": null,
+      "summary_file": null,
+      "github_url": "https://github.com/jchavezar/vertex-ai-samples/tree/main/semiautonomous-agents/nextjs-test-harness"
+    },
+    {
+      "id": "nexus-tax-intelligence",
+      "title": "Nexus Tax Intelligence",
+      "description": "Autonomous Agent Deployment",
+      "path": "semiautonomous-agents/nexus-tax-intelligence",
+      "abs_path": "/Users/jesusarguelles/IdeaProjects/vertex-ai-samples/semiautonomous-agents/nexus-tax-intelligence",
+      "has_start_script": false,
+      "has_skill": false,
+      "skill_path": null,
+      "detected_ports": [
+        5182,
+        8010
+      ],
+      "running_ports": {},
+      "is_running": false,
+      "conversation_id": null,
+      "summary_file": null,
+      "github_url": "https://github.com/jchavezar/vertex-ai-samples/tree/main/semiautonomous-agents/nexus-tax-intelligence"
+    },
+    {
+      "id": "observability-orchestra",
+      "title": "Observability Orchestra",
+      "description": "Multi-model Agent Engine for testing observability features with Cloud Trace and Cloud Logging.",
+      "path": "semiautonomous-agents/observability-orchestra",
+      "abs_path": "/Users/jesusarguelles/IdeaProjects/vertex-ai-samples/semiautonomous-agents/observability-orchestra",
+      "has_start_script": false,
+      "has_skill": false,
+      "skill_path": null,
+      "detected_ports": [],
+      "running_ports": {},
+      "is_running": false,
+      "conversation_id": null,
+      "summary_file": null,
+      "github_url": "https://github.com/jchavezar/vertex-ai-samples/tree/main/semiautonomous-agents/observability-orchestra"
+    },
+    {
+      "id": "outlook-approval-chatbot",
+      "title": "Outlook Approval Chatbot & Executive Dashboard",
+      "description": "> *A custom dashboard featuring a Gemini Enterprise chatbot and a real-time Action Items/Approvals inbox, powered by WIF and Microsoft Graph.*",
+      "path": "semiautonomous-agents/outlook-approval-chatbot",
+      "abs_path": "/Users/jesusarguelles/IdeaProjects/vertex-ai-samples/semiautonomous-agents/outlook-approval-chatbot",
+      "has_start_script": false,
+      "has_skill": false,
+      "skill_path": null,
+      "detected_ports": [
+        8005,
+        5173
+      ],
+      "running_ports": {
+        "8005": {
+          "process": "python3.1",
+          "pid": "90443"
+        },
+        "5173": {
+          "process": "node",
+          "pid": "59391"
+        }
+      },
+      "is_running": true,
+      "conversation_id": null,
+      "summary_file": null,
+      "github_url": "https://github.com/jchavezar/vertex-ai-samples/tree/main/semiautonomous-agents/outlook-approval-chatbot"
+    },
+    {
+      "id": "outlook-approval-chatbot-mcp",
+      "title": "Outlook Approval Chatbot & Executive Dashboard (Option 2: Google ADK + Local MCP Outlook Tools)",
+      "description": "> *A custom dashboard powered by the **Google ADK Agent Runtime** and direct Microsoft Graph local tool bindings acting as an Outlook MCP server, seamlessly integrated with the same premium WIF and React frontend.*",
+      "path": "semiautonomous-agents/outlook-approval-chatbot-mcp",
+      "abs_path": "/Users/jesusarguelles/IdeaProjects/vertex-ai-samples/semiautonomous-agents/outlook-approval-chatbot-mcp",
+      "has_start_script": false,
+      "has_skill": false,
+      "skill_path": null,
+      "detected_ports": [
+        8005,
+        5173
+      ],
+      "running_ports": {
+        "8005": {
+          "process": "python3.1",
+          "pid": "90443"
+        },
+        "5173": {
+          "process": "node",
+          "pid": "59391"
+        }
+      },
+      "is_running": true,
+      "conversation_id": null,
+      "summary_file": null,
+      "github_url": "https://github.com/jchavezar/vertex-ai-samples/tree/main/semiautonomous-agents/outlook-approval-chatbot-mcp"
+    },
+    {
+      "id": "outlook-streamassist-oauth-flow",
+      "title": "Outlook StreamAssist OAuth Flow",
+      "description": "> *Custom Outlook Portal \u2014 Gemini Enterprise StreamAssist with per-user OAuth, zero credential storage.*",
+      "path": "semiautonomous-agents/outlook-streamassist-oauth-flow",
+      "abs_path": "/Users/jesusarguelles/IdeaProjects/vertex-ai-samples/semiautonomous-agents/outlook-streamassist-oauth-flow",
+      "has_start_script": false,
+      "has_skill": false,
+      "skill_path": null,
+      "detected_ports": [
+        8005,
+        5175
+      ],
+      "running_ports": {
+        "8005": {
+          "process": "python3.1",
+          "pid": "90443"
+        }
+      },
+      "is_running": true,
+      "conversation_id": null,
+      "summary_file": null,
+      "github_url": "https://github.com/jchavezar/vertex-ai-samples/tree/main/semiautonomous-agents/outlook-streamassist-oauth-flow"
+    },
+    {
+      "id": "payroll_agent_topologies",
+      "title": "Payroll API Agent Topologies: Accuracy, Latency & Scale Analysis",
+      "description": "This folder contains a fully functional prototype comparing different agent topologies using the **Google Agent Development Kit (ADK) 2.0** and **Model Context Protocol (MCP)** to handle high-frequency, concurrent payroll inquiries.",
+      "path": "semiautonomous-agents/payroll_agent_topologies",
+      "abs_path": "/Users/jesusarguelles/IdeaProjects/vertex-ai-samples/semiautonomous-agents/payroll_agent_topologies",
+      "has_start_script": false,
+      "has_skill": false,
+      "skill_path": null,
+      "detected_ports": [],
+      "running_ports": {},
+      "is_running": false,
+      "conversation_id": null,
+      "summary_file": null,
+      "github_url": "https://github.com/jchavezar/vertex-ai-samples/tree/main/semiautonomous-agents/payroll_agent_topologies"
+    },
+    {
+      "id": "photo_avatar_live",
+      "title": "Photo Avatar Live",
+      "description": "<img width=\"100%\" alt=\"Header\" src=\"https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6\" />",
+      "path": "semiautonomous-agents/photo_avatar_live",
+      "abs_path": "/Users/jesusarguelles/IdeaProjects/vertex-ai-samples/semiautonomous-agents/photo_avatar_live",
+      "has_start_script": false,
+      "has_skill": false,
+      "skill_path": null,
+      "detected_ports": [
+        8001
+      ],
+      "running_ports": {
+        "8001": {
+          "process": "Python",
+          "pid": "76080"
+        }
+      },
+      "is_running": true,
+      "conversation_id": null,
+      "summary_file": null,
+      "github_url": "https://github.com/jchavezar/vertex-ai-samples/tree/main/semiautonomous-agents/photo_avatar_live"
+    },
+    {
+      "id": "plaid-mcp-server",
+      "title": "Plaid Mcp Server",
+      "description": "Autonomous Agent Deployment",
+      "path": "semiautonomous-agents/plaid-mcp-server",
+      "abs_path": "/Users/jesusarguelles/IdeaProjects/vertex-ai-samples/semiautonomous-agents/plaid-mcp-server",
+      "has_start_script": false,
+      "has_skill": false,
+      "skill_path": null,
+      "detected_ports": [],
+      "running_ports": {},
+      "is_running": false,
+      "conversation_id": null,
+      "summary_file": null,
+      "github_url": "https://github.com/jchavezar/vertex-ai-samples/tree/main/semiautonomous-agents/plaid-mcp-server"
+    },
+    {
+      "id": "pulse-spend-ai-galaxy-dashboard",
+      "title": "\ud83c\udf0c PulseSpend AI: Expense Intelligence & Spend Galaxy Constellations",
+      "description": "An intelligent financial analytics platform powered by **Gemini 2.5 Flash** on Vertex AI. PulseSpend AI ingests raw credit card statements (e.g. Amex CSV exports), enriches transactions with clean merchant brands, behavioral intent labels, necessity scores, micro-tags, and renders expenses as an interactive **Cosmic Spend Galaxy Constellation** with Pan, Zoom, Subcategory Solar System Clusters, and live AI Chat Q&A.",
+      "path": "semiautonomous-agents/pulse-spend-ai-galaxy-dashboard",
+      "abs_path": "/Users/jesusarguelles/IdeaProjects/vertex-ai-samples/semiautonomous-agents/pulse-spend-ai-galaxy-dashboard",
+      "has_start_script": true,
+      "has_skill": true,
+      "skill_path": "/Users/jesusarguelles/IdeaProjects/vertex-ai-samples/semiautonomous-agents/pulse-spend-ai-galaxy-dashboard/skills/pulse-spend-ai-dashboard/SKILL.md",
+      "detected_ports": [
+        8001,
+        5173
+      ],
+      "running_ports": {
+        "8001": {
+          "process": "Python",
+          "pid": "76080"
+        },
+        "5173": {
+          "process": "node",
+          "pid": "59391"
+        }
+      },
+      "is_running": true,
+      "conversation_id": null,
+      "summary_file": null,
+      "github_url": "https://github.com/jchavezar/vertex-ai-samples/tree/main/semiautonomous-agents/pulse-spend-ai-galaxy-dashboard"
+    },
+    {
+      "id": "quiniela-mundial-2026",
+      "title": "Quiniela Mundial 2026",
+      "description": "First, run the development server:",
+      "path": "semiautonomous-agents/quiniela-mundial-2026",
+      "abs_path": "/Users/jesusarguelles/IdeaProjects/vertex-ai-samples/semiautonomous-agents/quiniela-mundial-2026",
+      "has_start_script": false,
+      "has_skill": false,
+      "skill_path": null,
+      "detected_ports": [
+        3000
+      ],
+      "running_ports": {},
+      "is_running": false,
+      "conversation_id": null,
+      "summary_file": null,
+      "github_url": "https://github.com/jchavezar/vertex-ai-samples/tree/main/semiautonomous-agents/quiniela-mundial-2026"
+    },
+    {
+      "id": "quiniela-mundial-2026-tests",
+      "title": "Quiniela Mundial 2026 Tests",
+      "description": "Autonomous Agent Deployment",
+      "path": "semiautonomous-agents/quiniela-mundial-2026-tests",
+      "abs_path": "/Users/jesusarguelles/IdeaProjects/vertex-ai-samples/semiautonomous-agents/quiniela-mundial-2026-tests",
+      "has_start_script": false,
+      "has_skill": false,
+      "skill_path": null,
+      "detected_ports": [],
+      "running_ports": {},
+      "is_running": false,
+      "conversation_id": null,
+      "summary_file": null,
+      "github_url": "https://github.com/jchavezar/vertex-ai-samples/tree/main/semiautonomous-agents/quiniela-mundial-2026-tests"
+    },
+    {
+      "id": "report-generator",
+      "title": "report-generator",
+      "description": "Multi-agent **research \u2192 write \u2192 render** pipeline that turns a topic into a",
+      "path": "semiautonomous-agents/report-generator",
+      "abs_path": "/Users/jesusarguelles/IdeaProjects/vertex-ai-samples/semiautonomous-agents/report-generator",
+      "has_start_script": false,
+      "has_skill": false,
+      "skill_path": null,
+      "detected_ports": [
+        8000,
+        8775,
+        8080
+      ],
+      "running_ports": {},
+      "is_running": false,
+      "conversation_id": null,
+      "summary_file": null,
+      "github_url": "https://github.com/jchavezar/vertex-ai-samples/tree/main/semiautonomous-agents/report-generator"
+    },
+    {
+      "id": "restaurant-finder-cloudrun",
+      "title": "Restaurant Finder Cloud Run deployment",
+      "description": "This directory contains the complete Restaurant Finder deployment. It includes the compiled Lit frontend, the Python A2A agent, the A2UI Python SDK code used by the agent, and the Cloud Run build files. Building and deploying do not read files outside this directory.",
+      "path": "semiautonomous-agents/restaurant-finder-cloudrun",
+      "abs_path": "/Users/jesusarguelles/IdeaProjects/vertex-ai-samples/semiautonomous-agents/restaurant-finder-cloudrun",
+      "has_start_script": false,
+      "has_skill": false,
+      "skill_path": null,
+      "detected_ports": [],
+      "running_ports": {},
+      "is_running": false,
+      "conversation_id": null,
+      "summary_file": null,
+      "github_url": "https://github.com/jchavezar/vertex-ai-samples/tree/main/semiautonomous-agents/restaurant-finder-cloudrun"
+    },
+    {
+      "id": "science-search-portal",
+      "title": "Amgen Science Search Portal",
+      "description": "[![Amgen](https://img.shields.io/badge/Amgen-Science_Search-0063C3?style=flat-square)](docs/SECURITY_FLOW.md)",
+      "path": "semiautonomous-agents/science-search-portal",
+      "abs_path": "/Users/jesusarguelles/IdeaProjects/vertex-ai-samples/semiautonomous-agents/science-search-portal",
+      "has_start_script": false,
+      "has_skill": false,
+      "skill_path": null,
+      "detected_ports": [
+        8001,
+        5173,
+        8000
+      ],
+      "running_ports": {
+        "8001": {
+          "process": "Python",
+          "pid": "76080"
+        },
+        "5173": {
+          "process": "node",
+          "pid": "59391"
+        }
+      },
+      "is_running": true,
+      "conversation_id": null,
+      "summary_file": null,
+      "github_url": "https://github.com/jchavezar/vertex-ai-samples/tree/main/semiautonomous-agents/science-search-portal"
+    },
+    {
+      "id": "servicedesk-sharepoint-portal",
+      "title": "Light GE + MCP Cloud Portal",
+      "description": "> **Enterprise AI Assistant combining Google Discovery Engine (Gemini Enterprise) with ServiceNow MCP**",
+      "path": "semiautonomous-agents/servicedesk-sharepoint-portal",
+      "abs_path": "/Users/jesusarguelles/IdeaProjects/vertex-ai-samples/semiautonomous-agents/servicedesk-sharepoint-portal",
+      "has_start_script": false,
+      "has_skill": false,
+      "skill_path": null,
+      "detected_ports": [
+        5173
+      ],
+      "running_ports": {
+        "5173": {
+          "process": "node",
+          "pid": "59391"
+        }
+      },
+      "is_running": true,
+      "conversation_id": null,
+      "summary_file": null,
+      "github_url": "https://github.com/jchavezar/vertex-ai-samples/tree/main/semiautonomous-agents/servicedesk-sharepoint-portal"
+    },
+    {
+      "id": "servicenow-mcp-portal",
+      "title": "ServiceNow Agent Portal",
+      "description": "Production-ready architecture connecting a React frontend to Google Agent Engine with ServiceNow via MCP.",
+      "path": "semiautonomous-agents/servicenow-mcp-portal",
+      "abs_path": "/Users/jesusarguelles/IdeaProjects/vertex-ai-samples/semiautonomous-agents/servicenow-mcp-portal",
+      "has_start_script": false,
+      "has_skill": false,
+      "skill_path": null,
+      "detected_ports": [
+        3000
+      ],
+      "running_ports": {},
+      "is_running": false,
+      "conversation_id": null,
+      "summary_file": null,
+      "github_url": "https://github.com/jchavezar/vertex-ai-samples/tree/main/semiautonomous-agents/servicenow-mcp-portal"
+    },
+    {
+      "id": "sharepoint-wif-portal",
+      "title": "Sharepoint Wif Portal",
+      "description": "Autonomous Agent Deployment",
+      "path": "semiautonomous-agents/sharepoint-wif-portal",
+      "abs_path": "/Users/jesusarguelles/IdeaProjects/vertex-ai-samples/semiautonomous-agents/sharepoint-wif-portal",
+      "has_start_script": false,
+      "has_skill": false,
+      "skill_path": null,
+      "detected_ports": [],
+      "running_ports": {},
+      "is_running": false,
+      "conversation_id": null,
+      "summary_file": null,
+      "github_url": "https://github.com/jchavezar/vertex-ai-samples/tree/main/semiautonomous-agents/sharepoint-wif-portal"
+    },
+    {
+      "id": "sharepoint_wif_portal",
+      "title": "SharePoint WIF Portal",
+      "description": "> *Zero credential storage. Per-user SharePoint ACLs. One auth chain nobody documented.*",
+      "path": "semiautonomous-agents/sharepoint_wif_portal",
+      "abs_path": "/Users/jesusarguelles/IdeaProjects/vertex-ai-samples/semiautonomous-agents/sharepoint_wif_portal",
+      "has_start_script": false,
+      "has_skill": false,
+      "skill_path": null,
+      "detected_ports": [
+        5173,
+        8000
+      ],
+      "running_ports": {
+        "5173": {
+          "process": "node",
+          "pid": "59391"
+        }
+      },
+      "is_running": true,
+      "conversation_id": null,
+      "summary_file": null,
+      "github_url": "https://github.com/jchavezar/vertex-ai-samples/tree/main/semiautonomous-agents/sharepoint_wif_portal"
+    },
+    {
+      "id": "shutter-vibe-engine",
+      "title": "Shutter Vibe Engine",
+      "description": "A working customer-demo prototype that re-imagines Shutterstock's discovery",
+      "path": "semiautonomous-agents/shutter-vibe-engine",
+      "abs_path": "/Users/jesusarguelles/IdeaProjects/vertex-ai-samples/semiautonomous-agents/shutter-vibe-engine",
+      "has_start_script": false,
+      "has_skill": false,
+      "skill_path": null,
+      "detected_ports": [],
+      "running_ports": {},
+      "is_running": false,
+      "conversation_id": null,
+      "summary_file": null,
+      "github_url": "https://github.com/jchavezar/vertex-ai-samples/tree/main/semiautonomous-agents/shutter-vibe-engine"
+    },
+    {
+      "id": "space-sentinel",
+      "title": "Space Sentinel",
+      "description": "Autonomous Agent Deployment",
+      "path": "semiautonomous-agents/space-sentinel",
+      "abs_path": "/Users/jesusarguelles/IdeaProjects/vertex-ai-samples/semiautonomous-agents/space-sentinel",
+      "has_start_script": false,
+      "has_skill": false,
+      "skill_path": null,
+      "detected_ports": [],
+      "running_ports": {},
+      "is_running": false,
+      "conversation_id": null,
+      "summary_file": null,
+      "github_url": "https://github.com/jchavezar/vertex-ai-samples/tree/main/semiautonomous-agents/space-sentinel"
+    },
+    {
+      "id": "spatial_on_ge",
+      "title": "spatial_on_ge \u2014 Spatial Understanding agent for Gemini Enterprise",
+      "description": "ADK agent that detects objects in user-attached images and renders an",
+      "path": "semiautonomous-agents/spatial_on_ge",
+      "abs_path": "/Users/jesusarguelles/IdeaProjects/vertex-ai-samples/semiautonomous-agents/spatial_on_ge",
+      "has_start_script": false,
+      "has_skill": false,
+      "skill_path": null,
+      "detected_ports": [],
+      "running_ports": {},
+      "is_running": false,
+      "conversation_id": null,
+      "summary_file": null,
+      "github_url": "https://github.com/jchavezar/vertex-ai-samples/tree/main/semiautonomous-agents/spatial_on_ge"
+    },
+    {
+      "id": "streamanswer-oauth-flow",
+      "title": "Streamanswer Oauth Flow",
+      "description": "Autonomous Agent Deployment",
+      "path": "semiautonomous-agents/streamanswer-oauth-flow",
+      "abs_path": "/Users/jesusarguelles/IdeaProjects/vertex-ai-samples/semiautonomous-agents/streamanswer-oauth-flow",
+      "has_start_script": false,
+      "has_skill": false,
+      "skill_path": null,
+      "detected_ports": [
+        5176,
+        8004
+      ],
+      "running_ports": {},
+      "is_running": false,
+      "conversation_id": null,
+      "summary_file": null,
+      "github_url": "https://github.com/jchavezar/vertex-ai-samples/tree/main/semiautonomous-agents/streamanswer-oauth-flow"
+    },
+    {
+      "id": "streamassist-oauth-engine-sync",
+      "title": "StreamAssist Federated Sync Portal \ud83d\ude80",
+      "description": "This is a premium, fully-synchronized custom integration for **Vertex AI Search (Discovery Engine)** and **SharePoint Federated Search Connectors**.",
+      "path": "semiautonomous-agents/streamassist-oauth-engine-sync",
+      "abs_path": "/Users/jesusarguelles/IdeaProjects/vertex-ai-samples/semiautonomous-agents/streamassist-oauth-engine-sync",
+      "has_start_script": false,
+      "has_skill": false,
+      "skill_path": null,
+      "detected_ports": [
+        8003,
+        5174
+      ],
+      "running_ports": {},
+      "is_running": false,
+      "conversation_id": null,
+      "summary_file": null,
+      "github_url": "https://github.com/jchavezar/vertex-ai-samples/tree/main/semiautonomous-agents/streamassist-oauth-engine-sync"
+    },
+    {
+      "id": "streamassist-oauth-flow-servicenow",
+      "title": "StreamAssist \u00b7 ServiceNow \u00b7 WIF",
+      "description": "> *Gemini Enterprise streamAssist + **ServiceNow federated connector** + per-user ACLs, with Entra WIF identity (raw `client_id` audience).*",
+      "path": "semiautonomous-agents/streamassist-oauth-flow-servicenow",
+      "abs_path": "/Users/jesusarguelles/IdeaProjects/vertex-ai-samples/semiautonomous-agents/streamassist-oauth-flow-servicenow",
+      "has_start_script": false,
+      "has_skill": false,
+      "skill_path": null,
+      "detected_ports": [
+        5177,
+        5176,
+        8003,
+        5174
+      ],
+      "running_ports": {},
+      "is_running": false,
+      "conversation_id": null,
+      "summary_file": null,
+      "github_url": "https://github.com/jchavezar/vertex-ai-samples/tree/main/semiautonomous-agents/streamassist-oauth-flow-servicenow"
+    },
+    {
+      "id": "streamassist-oauth-flow-sharepoint",
+      "title": "StreamAssist OAuth Flow",
+      "description": "> *Custom SharePoint Portal \u2014 Gemini Enterprise StreamAssist with per-user OAuth, zero credential storage.*",
+      "path": "semiautonomous-agents/streamassist-oauth-flow-sharepoint",
+      "abs_path": "/Users/jesusarguelles/IdeaProjects/vertex-ai-samples/semiautonomous-agents/streamassist-oauth-flow-sharepoint",
+      "has_start_script": false,
+      "has_skill": false,
+      "skill_path": null,
+      "detected_ports": [
+        8003,
+        5174
+      ],
+      "running_ports": {},
+      "is_running": false,
+      "conversation_id": null,
+      "summary_file": null,
+      "github_url": "https://github.com/jchavezar/vertex-ai-samples/tree/main/semiautonomous-agents/streamassist-oauth-flow-sharepoint"
+    },
+    {
+      "id": "streamassist-oauth-flow-sharepoint-servicenow",
+      "title": "StreamAssist OAuth Flow \u2014 SharePoint + ServiceNow + Google Search",
+      "description": "Combined Gemini Enterprise StreamAssist demo with **per-user OAuth** for both",
+      "path": "semiautonomous-agents/streamassist-oauth-flow-sharepoint-servicenow",
+      "abs_path": "/Users/jesusarguelles/IdeaProjects/vertex-ai-samples/semiautonomous-agents/streamassist-oauth-flow-sharepoint-servicenow",
+      "has_start_script": false,
+      "has_skill": false,
+      "skill_path": null,
+      "detected_ports": [
+        5177,
+        5174
+      ],
+      "running_ports": {},
+      "is_running": false,
+      "conversation_id": null,
+      "summary_file": null,
+      "github_url": "https://github.com/jchavezar/vertex-ai-samples/tree/main/semiautonomous-agents/streamassist-oauth-flow-sharepoint-servicenow"
+    },
+    {
+      "id": "streamassist-oauth-flow-us",
+      "title": "StreamAssist \u00b7 US",
+      "description": "> *Gemini Enterprise streamAssist + SharePoint federated connector + per-user ACLs running in **us** regional location, with raw client_id WIF audience.*",
+      "path": "semiautonomous-agents/streamassist-oauth-flow-us",
+      "abs_path": "/Users/jesusarguelles/IdeaProjects/vertex-ai-samples/semiautonomous-agents/streamassist-oauth-flow-us",
+      "has_start_script": false,
+      "has_skill": false,
+      "skill_path": null,
+      "detected_ports": [
+        8003,
+        5174,
+        5175
+      ],
+      "running_ports": {},
+      "is_running": false,
+      "conversation_id": null,
+      "summary_file": null,
+      "github_url": "https://github.com/jchavezar/vertex-ai-samples/tree/main/semiautonomous-agents/streamassist-oauth-flow-us"
+    },
+    {
+      "id": "streamassist-wif-auth-tester",
+      "title": "Discovery Engine SharePoint Test",
+      "description": "Interactive tool to test the full authentication flow:",
+      "path": "semiautonomous-agents/streamassist-wif-auth-tester",
+      "abs_path": "/Users/jesusarguelles/IdeaProjects/vertex-ai-samples/semiautonomous-agents/streamassist-wif-auth-tester",
+      "has_start_script": false,
+      "has_skill": false,
+      "skill_path": null,
+      "detected_ports": [
+        5000
+      ],
+      "running_ports": {
+        "5000": {
+          "process": "ControlCe",
+          "pid": "985"
+        }
+      },
+      "is_running": true,
+      "conversation_id": null,
+      "summary_file": null,
+      "github_url": "https://github.com/jchavezar/vertex-ai-samples/tree/main/semiautonomous-agents/streamassist-wif-auth-tester"
+    },
+    {
+      "id": "the-paperclip-detective",
+      "title": "The Paperclip Detective",
+      "description": "Autonomous Agent Deployment",
+      "path": "semiautonomous-agents/the-paperclip-detective",
+      "abs_path": "/Users/jesusarguelles/IdeaProjects/vertex-ai-samples/semiautonomous-agents/the-paperclip-detective",
+      "has_start_script": false,
+      "has_skill": false,
+      "skill_path": null,
+      "detected_ports": [],
+      "running_ports": {},
+      "is_running": false,
+      "conversation_id": null,
+      "summary_file": null,
+      "github_url": "https://github.com/jchavezar/vertex-ai-samples/tree/main/semiautonomous-agents/the-paperclip-detective"
+    },
+    {
+      "id": "vector-search-canvas",
+      "title": "Vector Search Canvas",
+      "description": "Autonomous Agent Deployment",
+      "path": "semiautonomous-agents/vector-search-canvas",
+      "abs_path": "/Users/jesusarguelles/IdeaProjects/vertex-ai-samples/semiautonomous-agents/vector-search-canvas",
+      "has_start_script": false,
+      "has_skill": false,
+      "skill_path": null,
+      "detected_ports": [],
+      "running_ports": {},
+      "is_running": false,
+      "conversation_id": null,
+      "summary_file": null,
+      "github_url": "https://github.com/jchavezar/vertex-ai-samples/tree/main/semiautonomous-agents/vector-search-canvas"
+    },
+    {
+      "id": "vertex-multi-agent-workbench",
+      "title": "Vertex Cowork",
+      "description": "Enterprise Agent Platform with Multi-Model Support, MCP Connectivity, and Framework Flexibility (ADK + LangGraph)",
+      "path": "semiautonomous-agents/vertex-multi-agent-workbench",
+      "abs_path": "/Users/jesusarguelles/IdeaProjects/vertex-ai-samples/semiautonomous-agents/vertex-multi-agent-workbench",
+      "has_start_script": false,
+      "has_skill": false,
+      "skill_path": null,
+      "detected_ports": [
+        3000,
+        8080
+      ],
+      "running_ports": {},
+      "is_running": false,
+      "conversation_id": null,
+      "summary_file": null,
+      "github_url": "https://github.com/jchavezar/vertex-ai-samples/tree/main/semiautonomous-agents/vertex-multi-agent-workbench"
+    },
+    {
+      "id": "vibes_nyc",
+      "title": "Vibes NYC",
+      "description": "**No star ratings. No tourist traps. Just the right place for how you feel.**",
+      "path": "semiautonomous-agents/vibes_nyc",
+      "abs_path": "/Users/jesusarguelles/IdeaProjects/vertex-ai-samples/semiautonomous-agents/vibes_nyc",
+      "has_start_script": false,
+      "has_skill": false,
+      "skill_path": null,
+      "detected_ports": [
+        8888,
+        5173
+      ],
+      "running_ports": {
+        "5173": {
+          "process": "node",
+          "pid": "59391"
+        }
+      },
+      "is_running": true,
+      "conversation_id": null,
+      "summary_file": null,
+      "github_url": "https://github.com/jchavezar/vertex-ai-samples/tree/main/semiautonomous-agents/vibes_nyc"
+    },
+    {
+      "id": "worldcup-search",
+      "title": "worldcup-search",
+      "description": "Simple ReAct agent",
+      "path": "semiautonomous-agents/worldcup-search",
+      "abs_path": "/Users/jesusarguelles/IdeaProjects/vertex-ai-samples/semiautonomous-agents/worldcup-search",
+      "has_start_script": false,
+      "has_skill": false,
+      "skill_path": null,
+      "detected_ports": [],
+      "running_ports": {},
+      "is_running": false,
+      "conversation_id": null,
+      "summary_file": null,
+      "github_url": "https://github.com/jchavezar/vertex-ai-samples/tree/main/semiautonomous-agents/worldcup-search"
+    }
+  ]
+}

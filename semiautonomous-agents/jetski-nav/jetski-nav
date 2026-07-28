@@ -1,0 +1,137 @@
+#!/usr/bin/env python3
+import os
+import sys
+import json
+import subprocess
+from jetski_indexer import generate_index, INDEX_OUTPUT
+
+def load_index():
+    if not os.path.exists(INDEX_OUTPUT):
+        return generate_index()
+    with open(INDEX_OUTPUT, "r") as f:
+        return json.load(f)
+
+def print_header():
+    print("\033[1;35m=========================================================\033[0m")
+    print("\033[1;36m🧭 Jetski Nav: Deployment Indexer & Context Loader\033[0m")
+    print("\033[1;35m=========================================================\033[0m")
+
+def cmd_list(data):
+    print_header()
+    projects = data.get("projects", [])
+    print(f"Total Deployments: \033[1;33m{len(projects)}\033[0m | Running Daemons: \033[1;32m{data.get('running_projects')}\033[0m\n")
+    
+    print(f"{'ID / FOLDER':<42} | {'PORTS':<16} | {'SKILL':<6} | {'TITLE'}")
+    print("-" * 95)
+    for p in projects:
+        status_color = "\033[1;32m" if p["is_running"] else "\033[0;37m"
+        ports_str = ", ".join([str(port) for port in p["running_ports"].keys()]) if p["is_running"] else "-"
+        skill_str = "✅ Yes" if p["has_skill"] else "❌ No"
+        print(f"{status_color}{p['id']:<42}\033[0m | {ports_str:<16} | {skill_str:<6} | {p['title'][:30]}")
+
+def build_context_bundle(p):
+    """Builds a rich context prompt for an AI agent turn."""
+    lines = []
+    lines.append(f"# 🚀 Project Context: {p['title']}")
+    lines.append(f"- **Project Folder**: `{p['abs_path']}`")
+    lines.append(f"- **GitHub URL**: {p['github_url']}")
+    lines.append(f"- **Start Script**: `{'./start.sh' if p['has_start_script'] else 'N/A'}`")
+    
+    if p["is_running"]:
+        lines.append(f"- **Active Server Ports**: {json.dumps(p['running_ports'])}")
+    else:
+        lines.append(f"- **Detected Ports**: {p['detected_ports']}")
+        
+    if p.get("conversation_id"):
+        lines.append(f"- **Previous Session Conversation ID**: `{p['conversation_id']}`")
+
+    lines.append("\n---\n")
+
+    # Read SKILL.md if present
+    if p.get("skill_path") and os.path.exists(p["skill_path"]):
+        lines.append("## 🛠️ SKILL Blueprint & Specifications")
+        try:
+            with open(p["skill_path"], "r") as f:
+                lines.append(f.read())
+        except Exception as e:
+            lines.append(f"Error reading SKILL file: {e}")
+        lines.append("\n---\n")
+
+    # Read summary report if present
+    if p.get("summary_file") and os.path.exists(p["summary_file"]):
+        lines.append("## 📄 Session Executive Summary Report")
+        try:
+            with open(p["summary_file"], "r") as f:
+                lines.append(f.read())
+        except Exception as e:
+            lines.append(f"Error reading summary file: {e}")
+
+    return "\n".join(lines)
+
+def cmd_load(data, project_id):
+    projects = data.get("projects", [])
+    matched = next((p for p in projects if p["id"].lower() == project_id.lower()), None)
+    if not matched:
+        print(f"\033[1;31mError: Project '{project_id}' not found in index.\033[0m")
+        return
+
+    bundle = build_context_bundle(matched)
+    print_header()
+    print(f"\033[1;32mLoaded Context Bundle for {matched['id']}:\033[0m\n")
+    print(bundle)
+
+def interactive_menu(data):
+    print_header()
+    projects = data.get("projects", [])
+    
+    # Filter running or recent projects
+    running = [p for p in projects if p["is_running"]]
+    others = [p for p in projects if not p["is_running"]]
+    display_list = running + others[:15]
+
+    print(f"\033[1;33mTop Active & Recent Deployments:\033[0m\n")
+    for idx, p in enumerate(display_list, 1):
+        status_tag = "\033[1;32m[RUNNING]\033[0m" if p["is_running"] else "\033[0;37m[IDLE]\033[0m"
+        ports = f"(Ports: {list(p['running_ports'].keys())})" if p["is_running"] else ""
+        print(f" \033[1;36m[{idx:2d}]\033[0m {status_tag} \033[1m{p['id']}\033[0m {ports}")
+        print(f"      └─ {p['title']}")
+
+    print("\n\033[1;35mActions:\033[0m")
+    print(" - Type number (1-20) to view & copy full session context bundle")
+    print(" - Type 'r' to refresh index")
+    print(" - Type 'q' to exit")
+
+    try:
+        choice = input("\n👉 Select option: ").strip()
+        if choice.lower() == 'r':
+            print("Refreshing index...")
+            new_data = generate_index()
+            interactive_menu(new_data)
+        elif choice.lower() == 'q':
+            sys.exit(0)
+        elif choice.isdigit() and 1 <= int(choice) <= len(display_list):
+            selected = display_list[int(choice) - 1]
+            cmd_load(data, selected["id"])
+    except (KeyboardInterrupt, EOFError):
+        sys.exit(0)
+
+def main():
+    if len(sys.argv) > 1:
+        arg = sys.argv[1].lower()
+        if arg in ["--refresh", "-r", "refresh"]:
+            data = generate_index()
+        else:
+            data = load_index()
+
+        if arg in ["list", "ls"]:
+            cmd_list(data)
+        elif arg == "load" and len(sys.argv) > 2:
+            cmd_load(data, sys.argv[2])
+        else:
+            cmd_load(data, sys.argv[1])
+    else:
+        data = load_index()
+        interactive_menu(data)
+
+if __name__ == "__main__":
+    main()
