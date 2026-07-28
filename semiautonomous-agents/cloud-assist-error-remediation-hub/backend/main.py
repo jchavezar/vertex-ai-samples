@@ -282,18 +282,18 @@ def get_log_dependency_flow(req: LogDependencyRequest):
 
 class AudioSynthesisRequest(BaseModel):
     text: str
-    voice: Optional[str] = "Aoede"
+    voice: Optional[str] = "Achernar"
 
-def convert_to_wav(audio_data: bytes, mime_type: str = "audio/L16;rate=24000") -> bytes:
-    """Generates a WAV file header for raw PCM audio data."""
+def convert_to_wav(audio_data: bytes, mime_type: str = "audio/l16; rate=24000; channels=1") -> bytes:
+    """Generates a strict 24kHz LEI16 WAV file header for raw Gemini 3.1 PCM audio data."""
     import struct
     rate = 24000
+    if "rate=" in mime_type.lower():
+        try:
+            rate = int(mime_type.lower().split("rate=")[1].split(";")[0].strip())
+        except:
+            rate = 24000
     bits_per_sample = 16
-    for param in mime_type.split(";"):
-        param = param.strip()
-        if param.lower().startswith("rate="):
-            try: rate = int(param.split("=", 1)[1])
-            except: pass
     num_channels = 1
     data_size = len(audio_data)
     bytes_per_sample = bits_per_sample // 8
@@ -309,26 +309,11 @@ def convert_to_wav(audio_data: bytes, mime_type: str = "audio/L16;rate=24000") -
     )
     return header + audio_data
 
-CACHED_GCP_TOKEN = {"token": None, "fetched_at": 0}
-
-def get_cached_gcp_token():
-    now = time.time()
-    if CACHED_GCP_TOKEN["token"] and (now - CACHED_GCP_TOKEN["fetched_at"] < 1800):
-        return CACHED_GCP_TOKEN["token"]
-    try:
-        token = subprocess.check_output(['gcloud', 'auth', 'print-access-token'], timeout=5).decode('utf-8').strip()
-        CACHED_GCP_TOKEN["token"] = token
-        CACHED_GCP_TOKEN["fetched_at"] = now
-        return token
-    except Exception as e:
-        print("Failed to fetch gcloud token:", e)
-        return None
-
 @app.post("/api/synthesize-audio")
 def synthesize_audio(req: AudioSynthesisRequest):
     """
     Generates studio HD audio synthesis for executive incident briefings using
-    Google GenAI SDK model 'gemini-3.1-flash-tts-preview' with Aoede voice.
+    Google GenAI SDK model 'gemini-3.1-flash-tts-preview' with Achernar voice.
     """
     import os, time, base64
     from google import genai
@@ -336,18 +321,20 @@ def synthesize_audio(req: AudioSynthesisRequest):
 
     t0 = time.time()
     clean_text = req.text.replace('"', '').replace("'", "")
+    styled_prompt = f"Read the following executive incident briefing aloud in a warm, welcoming, natural human tone:\n\n{clean_text}"
+    voice_choice = req.voice or "Achernar"
     
     # Primary Engine: Google GenAI Client using model 'gemini-3.1-flash-tts-preview'
     try:
         client = genai.Client(vertexai=True, project=GCP_PROJECT_ID, location=GCP_REGION)
         response = client.models.generate_content(
             model="gemini-3.1-flash-tts-preview",
-            contents=clean_text,
+            contents=styled_prompt,
             config=types.GenerateContentConfig(
                 response_modalities=["audio"],
                 speech_config=types.SpeechConfig(
                     voice_config=types.VoiceConfig(
-                        prebuilt_voice_config=types.PrebuiltVoiceConfig(voice_name=req.voice or "Aoede")
+                        prebuilt_voice_config=types.PrebuiltVoiceConfig(voice_name=voice_choice)
                     )
                 )
             )
@@ -355,14 +342,14 @@ def synthesize_audio(req: AudioSynthesisRequest):
 
         for part in response.candidates[0].content.parts:
             if part.inline_data and part.inline_data.data:
-                wav_bytes = convert_to_wav(part.inline_data.data, part.inline_data.mime_type or "audio/L16;rate=24000")
+                wav_bytes = convert_to_wav(part.inline_data.data, part.inline_data.mime_type or "audio/l16; rate=24000; channels=1")
                 latency_ms = int((time.time() - t0) * 1000)
                 return {
                     "status": "SUCCESS",
                     "audioBase64": base64.b64encode(wav_bytes).decode('utf-8'),
                     "mimeType": "audio/wav",
                     "latencyMs": latency_ms,
-                    "voiceUsed": "gemini-3.1-flash-tts-preview (Aoede Voice)"
+                    "voiceUsed": f"gemini-3.1-flash-tts-preview ({voice_choice} Voice)"
                 }
     except Exception as e:
         print("Gemini 3.1 Flash TTS Preview generation error:", e)

@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { Volume2, VolumeX, RefreshCw, Zap } from 'lucide-react';
+import { Volume2, VolumeX, RefreshCw } from 'lucide-react';
 import { GcpErrorItem, CloudAssistDiagnostic } from '../../types';
 
 interface ExecutiveVoiceBriefingProps {
@@ -31,19 +31,13 @@ export const ExecutiveVoiceBriefing: React.FC<ExecutiveVoiceBriefingProps> = ({
     const t0 = performance.now();
     const text = `Gemini Cloud Assist Executive Briefing. Critical incident on ${selectedError.serviceName}. ${selectedError.summary}. Diagnostic recap: ${diagnostic?.recapText || "Root cause identified and remediation patch generated."} Container status verified at HTTP 200 OK.`;
 
-    // 2.5-second AbortController timeout to guarantee instant response
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 2500);
-
     try {
       const res = await fetch('http://127.0.0.1:8088/api/synthesize-audio', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text, voice: 'Aoede' }),
-        signal: controller.signal
+        body: JSON.stringify({ text, voice: 'Achernar' })
       });
 
-      clearTimeout(timeoutId);
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
 
@@ -51,7 +45,7 @@ export const ExecutiveVoiceBriefing: React.FC<ExecutiveVoiceBriefingProps> = ({
       setLatencyText(`${elapsed}ms`);
 
       if (data.audioBase64) {
-        const audioSrc = `data:${data.mimeType || 'audio/mp3'};base64,${data.audioBase64}`;
+        const audioSrc = `data:${data.mimeType || 'audio/wav'};base64,${data.audioBase64}`;
         const audio = new Audio(audioSrc);
         audioRef.current = audio;
         audio.onended = () => setIsPlaying(false);
@@ -60,21 +54,8 @@ export const ExecutiveVoiceBriefing: React.FC<ExecutiveVoiceBriefingProps> = ({
         setIsPlaying(true);
       }
     } catch (err) {
-      clearTimeout(timeoutId);
-      console.warn("Audio synthesis timeout or network fallback:", err);
-      const elapsed = Math.round(performance.now() - t0);
-      setLatencyText(`${elapsed}ms`);
-
-      // Immediate browser speech fallback
-      if ('speechSynthesis' in window) {
-        window.speechSynthesis.cancel();
-        const utterance = new SpeechSynthesisUtterance(text);
-        utterance.rate = 1.05;
-        utterance.onend = () => setIsPlaying(false);
-        utterance.onerror = () => setIsPlaying(false);
-        window.speechSynthesis.speak(utterance);
-        setIsPlaying(true);
-      }
+      console.error("Audio synthesis error:", err);
+      setIsPlaying(false);
     } finally {
       setIsLoading(false);
     }
@@ -93,12 +74,12 @@ export const ExecutiveVoiceBriefing: React.FC<ExecutiveVoiceBriefingProps> = ({
             ? 'bg-rose-950 border-rose-500 text-rose-300 animate-pulse'
             : 'bg-slate-900 hover:bg-slate-800 border-slate-700 text-cyan-300'
       }`}
-      title="Listen to Studio Executive Incident Voice Briefing with Latency Indicator"
+      title="Listen to Gemini 3.1 Flash TTS Executive Voice Briefing (Achernar Female Voice)"
     >
       {isLoading ? (
         <>
           <RefreshCw className="w-3.5 h-3.5 animate-spin text-amber-600" />
-          <span>Synthesizing Studio Audio...</span>
+          <span>Synthesizing Gemini 3.1 Flash Audio...</span>
         </>
       ) : isPlaying ? (
         <>
