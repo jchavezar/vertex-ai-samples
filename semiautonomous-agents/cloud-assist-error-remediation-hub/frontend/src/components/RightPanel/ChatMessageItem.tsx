@@ -75,7 +75,7 @@ export const ChatMessageItem: React.FC<ChatMessageItemProps> = ({ message, onRun
         {/* Agent Metadata Footer */}
         {isAgent && (
           <div className="mt-2.5 pt-2 border-t border-slate-800/60 flex items-center justify-between text-[9px] font-mono text-slate-500">
-            <span>Model: gemini-3.1-flash-lite (GA • global)</span>
+            <span>Model: gemini-2.5-flash (GA • global)</span>
             <span className="text-emerald-400">⚡ 2.7s Execution (6.6X Faster)</span>
           </div>
         )}

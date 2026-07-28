@@ -101,15 +101,22 @@ export function App() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           message: text,
-          selectedError: selectedError,
-          diagnostic: diagnostic,
-          conversationHistory: chatMessages
+          contextError: selectedError,
+          contextDiagnostic: diagnostic,
+          conversationHistory: chatMessages.map(m => ({ sender: m.sender, text: m.text }))
         })
       });
 
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const data: ChatMessage = await res.json();
-      setChatMessages((prev) => [...prev, data]);
+      const data = await res.json();
+      const agentMsg: ChatMessage = {
+        id: `agent-${Date.now()}`,
+        sender: 'agent',
+        text: data.reply || "No response generated.",
+        sourcesCited: data.sourcesCited || [],
+        timestamp: new Date().toISOString()
+      };
+      setChatMessages((prev) => [...prev, agentMsg]);
     } catch (err) {
       console.error("Failed to process chatbot query:", err);
       setChatMessages((prev) => [

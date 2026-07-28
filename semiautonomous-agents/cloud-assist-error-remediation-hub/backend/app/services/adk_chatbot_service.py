@@ -55,9 +55,9 @@ def handle_chatbot_query(req: ChatMessageRequest) -> ChatMessageResponse:
             f"{req.message}"
         )
         
-        # Configure model with google_search tool using GA gemini-3.1-flash-lite (global) — 2.7s latency!
+        # Configure model with google_search tool using GA gemini-2.5-flash (global)
         response = client.models.generate_content(
-            model="gemini-3.1-flash-lite",
+            model="gemini-2.5-flash",
             contents=full_prompt,
             config=types.GenerateContentConfig(
                 system_instruction=system_instruction,
