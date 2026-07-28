@@ -90,13 +90,13 @@ export const DynamicLogDependencyFlow: React.FC<DynamicLogDependencyFlowProps> =
         </div>
       </div>
 
-      {/* Visual Flow Nodes */}
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-2 relative">
+      {/* Visual Flow Nodes Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3 overflow-hidden">
         {flow.nodes.map((node, idx) => {
           const NodeIcon = node.icon;
           return (
-            <React.Fragment key={idx}>
-              <div className={`flex-1 w-full p-3 rounded-xl border flex items-center space-x-3 transition-all ${
+            <div key={idx} className="relative flex items-center space-x-2">
+              <div className={`flex-1 p-3 rounded-xl border flex items-center space-x-2.5 transition-all overflow-hidden ${
                 isLightMode
                   ? node.isError
                     ? 'bg-rose-50 border-rose-300 text-slate-950 shadow-sm'
@@ -105,12 +105,12 @@ export const DynamicLogDependencyFlow: React.FC<DynamicLogDependencyFlowProps> =
                     ? 'bg-rose-950/60 border-rose-500/60 text-rose-200'
                     : 'bg-slate-900 border-slate-800 text-white'
               }`}>
-                <div className={`w-8 h-8 rounded-lg flex items-center justify-center border flex-shrink-0 ${
+                <div className={`w-7 h-7 rounded-lg flex items-center justify-center border flex-shrink-0 ${
                   node.isError
                     ? 'bg-rose-100 text-rose-800 border-rose-300'
                     : 'bg-slate-100 text-slate-900 border-slate-300'
                 }`}>
-                  <NodeIcon className="w-4 h-4" />
+                  <NodeIcon className="w-3.5 h-3.5" />
                 </div>
                 <div className="min-w-0 flex-1">
                   <div className="text-xs font-extrabold truncate">{node.label}</div>
@@ -121,12 +121,11 @@ export const DynamicLogDependencyFlow: React.FC<DynamicLogDependencyFlowProps> =
               </div>
 
               {idx < flow.nodes.length - 1 && (
-                <div className="flex items-center justify-center px-1 text-slate-400">
-                  <ArrowRight className="w-4 h-4 text-cyan-600 animate-pulse hidden sm:block" />
-                  <span className="text-xs font-bold sm:hidden">↓</span>
+                <div className="hidden md:flex items-center justify-center text-slate-400 flex-shrink-0">
+                  <ArrowRight className="w-3.5 h-3.5 text-cyan-600 animate-pulse" />
                 </div>
               )}
-            </React.Fragment>
+            </div>
           );
         })}
       </div>

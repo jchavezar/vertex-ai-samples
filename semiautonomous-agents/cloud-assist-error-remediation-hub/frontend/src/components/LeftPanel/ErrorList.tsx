@@ -118,19 +118,21 @@ export const ErrorList: React.FC<ErrorListProps> = ({
               />
             </div>
 
-            {/* Bottom Row: Resource Badge */}
-            <div className="mt-2 flex items-center justify-between">
-              <span className={`text-[10px] font-mono px-1.5 py-0.5 rounded border ${
+            {/* Bottom Row: Resource Badge & Action */}
+            <div className="mt-2.5 pt-2 border-t border-slate-100/60 flex items-center justify-between gap-2 overflow-hidden">
+              <span className={`text-[10px] font-mono px-1.5 py-0.5 rounded border truncate max-w-[130px] ${
                 isLightMode
-                  ? 'bg-slate-100 text-slate-700 border-slate-300'
+                  ? 'bg-slate-100 text-slate-700 border-slate-300 font-bold'
                   : 'bg-slate-950/60 text-slate-400 border-slate-800/80'
               }`}>
                 {err.resourceType}
               </span>
-              <span className={`text-[10px] font-medium opacity-0 group-hover:opacity-100 transition-opacity ${
-                isLightMode ? 'text-slate-950 font-mono font-bold' : 'text-cyan-400/80'
+              <span className={`text-[10px] font-mono font-bold whitespace-nowrap flex-shrink-0 transition-opacity ${
+                isSelected
+                  ? 'opacity-100 text-slate-950'
+                  : 'opacity-0 group-hover:opacity-100 text-slate-700'
               }`}>
-                Diagnose with Cloud Assist &rarr;
+                Diagnose &rarr;
               </span>
             </div>
           </div>

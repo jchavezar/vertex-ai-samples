@@ -121,7 +121,7 @@ export const DiagnosticContainer: React.FC<DiagnosticContainerProps> = ({
       }`}>
         <div className="flex items-start justify-between gap-4">
           <div>
-            <div className="flex items-center space-x-2 mb-1.5">
+            <div className="flex flex-wrap items-center gap-2 mb-1.5">
               <span
                 className={`text-[10px] font-bold tracking-wider px-2.5 py-0.5 rounded-full uppercase ${
                   selectedError.severity === 'CRITICAL'
