@@ -386,6 +386,70 @@ Style: Empathetic. Pace: Natural. Accent: American (Gen).
 
     raise HTTPException(status_code=500, detail="Voice synthesis failed with gemini-3.1-flash-tts-preview.")
 
+from fastapi.responses import StreamingResponse
+
+@app.post("/api/synthesize-audio-stream")
+def synthesize_audio_stream(req: AudioSynthesisRequest):
+    """
+    Streams audio WAV chunks in real-time as they arrive from Gemini 3.1 Flash TTS.
+    Allows frontend to play chunk 1 immediately (<800ms) while remaining chunks stream.
+    """
+    import os, time
+    from google import genai
+    from google.genai import types
+
+    clean_text = req.text.replace('"', '').replace("'", "")
+    voice_choice = req.voice or "Aoede"
+    
+    contents = [
+        types.Content(
+            role="user",
+            parts=[
+                types.Part.from_text(text=f"""Read the following transcript based on the audio profile and director's note.
+
+# Audio Profile
+A helpful and professional executive assistant.
+
+# Director's note
+Style: Empathetic. Pace: Natural. Accent: American (Gen).
+
+## Transcript:
+{clean_text}"""),
+            ],
+        ),
+    ]
+
+    generate_content_config = types.GenerateContentConfig(
+        temperature=1,
+        response_modalities=["audio"],
+        speech_config=types.SpeechConfig(
+            voice_config=types.VoiceConfig(
+                prebuilt_voice_config=types.PrebuiltVoiceConfig(voice_name=voice_choice)
+            )
+        ),
+    )
+
+    client = genai.Client(vertexai=True, project=GCP_PROJECT_ID, location=GCP_REGION)
+
+    def audio_chunk_generator():
+        try:
+            stream = client.models.generate_content_stream(
+                model="gemini-3.1-flash-tts-preview",
+                contents=contents,
+                config=generate_content_config,
+            )
+            for chunk in stream:
+                if chunk.parts and chunk.parts[0].inline_data and chunk.parts[0].inline_data.data:
+                    raw_pcm = chunk.parts[0].inline_data.data
+                    wav_chunk = convert_to_wav(raw_pcm, "audio/l16; rate=24000; channels=1")
+                    # Send chunk length prefix (4 bytes) + chunk bytes for easy binary streaming
+                    chunk_len = len(wav_chunk)
+                    yield struct.pack(">I", chunk_len) + wav_chunk
+        except Exception as e:
+            print("Audio stream generator error:", e)
+
+    return StreamingResponse(audio_chunk_generator(), media_type="application/octet-stream")
+
 @app.get("/api/bitacora")
 def get_bitacora():
     """

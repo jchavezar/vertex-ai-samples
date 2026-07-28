@@ -8,7 +8,7 @@ interface ExecutiveVoiceBriefingProps {
   isLightMode?: boolean;
 }
 
-const AUDIO_CACHE: Record<string, { audioBase64: string; mimeType: string; latencyMs: number; firstChunkMs?: number; voiceUsed?: string }> = {};
+const AUDIO_CACHE: Record<string, { audioBase64: string; mimeType: string; latencyMs: number }> = {};
 
 export const ExecutiveVoiceBriefing: React.FC<ExecutiveVoiceBriefingProps> = ({
   selectedError,
@@ -23,6 +23,7 @@ export const ExecutiveVoiceBriefing: React.FC<ExecutiveVoiceBriefingProps> = ({
     AUDIO_CACHE[selectedError.id] ? `${AUDIO_CACHE[selectedError.id].latencyMs}ms (0ms Cache)` : null
   );
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const audioCtxRef = useRef<AudioContext | null>(null);
 
   const topHypothesis = diagnostic?.hypotheses && diagnostic.hypotheses.length > 0
     ? diagnostic.hypotheses[0]
@@ -54,9 +55,7 @@ export const ExecutiveVoiceBriefing: React.FC<ExecutiveVoiceBriefingProps> = ({
             AUDIO_CACHE[selectedError.id] = {
               audioBase64: data.audioBase64,
               mimeType: data.mimeType || 'audio/wav',
-              latencyMs: elapsed,
-              firstChunkMs: data.firstChunkMs,
-              voiceUsed: data.voiceUsed
+              latencyMs: elapsed
             };
             setLatencyText(`${elapsed}ms (0ms Cache)`);
           }
@@ -74,13 +73,20 @@ export const ExecutiveVoiceBriefing: React.FC<ExecutiveVoiceBriefingProps> = ({
   };
 
   const speakBriefing = async () => {
-    if (isPlaying && audioRef.current) {
-      audioRef.current.pause();
-      audioRef.current = null;
+    if (isPlaying) {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current = null;
+      }
+      if (audioCtxRef.current) {
+        audioCtxRef.current.close();
+        audioCtxRef.current = null;
+      }
       setIsPlaying(false);
       return;
     }
 
+    // 1. Instant 0ms Replay if Cached
     const cached = AUDIO_CACHE[selectedError.id];
     if (cached) {
       setLatencyText(`${cached.latencyMs}ms (0ms Cache)`);
@@ -94,44 +100,87 @@ export const ExecutiveVoiceBriefing: React.FC<ExecutiveVoiceBriefingProps> = ({
       return;
     }
 
+    // 2. Real-Time Streaming Audio (Starts Listening on First Chunk in <800ms)
     setIsLoading(true);
     setLatencyText(null);
     const t0 = performance.now();
 
     try {
-      const res = await fetch('http://127.0.0.1:8088/api/synthesize-audio', {
+      const response = await fetch('http://127.0.0.1:8088/api/synthesize-audio-stream', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ text: briefingTranscript, voice: 'Aoede' })
       });
 
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const data = await res.json();
+      if (!response.ok || !response.body) throw new Error(`HTTP ${response.status}`);
 
-      const elapsed = Math.round(performance.now() - t0);
-      setLatencyText(`${elapsed}ms`);
+      const audioCtx = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
+      audioCtxRef.current = audioCtx;
 
-      if (data.audioBase64) {
-        AUDIO_CACHE[selectedError.id] = {
-          audioBase64: data.audioBase64,
-          mimeType: data.mimeType || 'audio/wav',
-          latencyMs: elapsed,
-          firstChunkMs: data.firstChunkMs,
-          voiceUsed: data.voiceUsed
-        };
+      const reader = response.body.getReader();
+      let nextStartTime = audioCtx.currentTime;
+      let firstChunkPlayed = false;
+      let bufferAccumulator = new Uint8Array(0);
 
-        const audioSrc = `data:${data.mimeType || 'audio/wav'};base64,${data.audioBase64}`;
-        const audio = new Audio(audioSrc);
-        audioRef.current = audio;
-        audio.onended = () => setIsPlaying(false);
-        audio.onerror = () => setIsPlaying(false);
-        await audio.play();
-        setIsPlaying(true);
+      const appendBuffer = (a: Uint8Array, b: Uint8Array) => {
+        const c = new Uint8Array(a.length + b.length);
+        c.set(a, 0);
+        c.set(b, a.length);
+        return c;
+      };
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        if (!value) continue;
+
+        bufferAccumulator = appendBuffer(bufferAccumulator, value);
+
+        // Read binary length prefix (4 bytes big-endian)
+        while (bufferAccumulator.length >= 4) {
+          const view = new DataView(bufferAccumulator.buffer, bufferAccumulator.byteOffset, bufferAccumulator.byteLength);
+          const chunkLen = view.getUint32(0, false);
+
+          if (bufferAccumulator.length >= 4 + chunkLen) {
+            const wavChunkBytes = bufferAccumulator.slice(4, 4 + chunkLen);
+            bufferAccumulator = bufferAccumulator.slice(4 + chunkLen);
+
+            try {
+              // Decode WAV chunk and queue for continuous playback
+              const audioBuffer = await audioCtx.decodeAudioData(wavChunkBytes.buffer.slice(wavChunkBytes.byteOffset, wavChunkBytes.byteOffset + wavChunkBytes.byteLength));
+              const source = audioCtx.createBufferSource();
+              source.buffer = audioBuffer;
+              source.connect(audioCtx.destination);
+
+              if (!firstChunkPlayed) {
+                firstChunkPlayed = true;
+                setIsLoading(false);
+                setIsPlaying(true);
+                const chunkLatency = Math.round(performance.now() - t0);
+                setLatencyText(`Stream Chunk 1: ${chunkLatency}ms`);
+              }
+
+              const startTime = Math.max(audioCtx.currentTime, nextStartTime);
+              source.start(startTime);
+              nextStartTime = startTime + audioBuffer.duration;
+            } catch (decodeErr) {
+              console.warn("WAV Chunk decode warning:", decodeErr);
+            }
+          } else {
+            break; // Wait for full chunk payload to accumulate
+          }
+        }
       }
+
+      // Schedule final completion handler
+      const totalDuration = (nextStartTime - audioCtx.currentTime) * 1000;
+      setTimeout(() => {
+        setIsPlaying(false);
+      }, Math.max(100, totalDuration));
+
     } catch (err) {
-      console.error("Audio synthesis error:", err);
+      console.error("Streaming synthesis error:", err);
       setIsPlaying(false);
-    } finally {
       setIsLoading(false);
     }
   };
@@ -151,12 +200,12 @@ export const ExecutiveVoiceBriefing: React.FC<ExecutiveVoiceBriefingProps> = ({
                 ? 'bg-rose-950 border-rose-500 text-rose-300 animate-pulse'
                 : 'bg-slate-900 hover:bg-slate-800 border-slate-700 text-cyan-300'
           }`}
-          title="Listen to Gemini TTS Executive Briefing (Aoede Voice)"
+          title="Listen to Gemini Streaming Executive Briefing (Aoede Voice)"
         >
           {isLoading ? (
             <>
               <RefreshCw className="w-3.5 h-3.5 animate-spin text-amber-500" />
-              <span>Streaming Gemini Audio...</span>
+              <span>Receiving Stream Chunk 1...</span>
             </>
           ) : isPlaying ? (
             <>
