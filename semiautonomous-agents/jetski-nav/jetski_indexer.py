@@ -95,7 +95,7 @@ def scan_conversation_brains():
     return brain_map
 
 def scan_projects():
-    """Scans all semiautonomous-agents directories and extracts deployment metadata with confidence scores."""
+    """Scans all semiautonomous-agents directories and maps ALL related conversation sessions across engines."""
     if not os.path.exists(REPO_BASE):
         return []
 
@@ -156,21 +156,27 @@ def scan_projects():
             if p in active_ports:
                 running_ports[p] = active_ports[p]
 
-        matched_conv = None
-        matched_summary = None
-        matched_engine = "jetski"
-        matched_tlog = None
-        match_confidence = 0.0
-
+        # Multi-Session Collection (All matching conversations across engines)
+        matched_sessions = []
         for cid, binfo in brain_map.items():
             if folder in binfo["project_hints"]:
-                matched_conv = cid
-                matched_engine = binfo["engine_name"]
-                matched_tlog = binfo["transcript_log_path"]
-                match_confidence = binfo["confidence_score"]
-                if binfo["summaries"]:
-                    matched_summary = binfo["summaries"][0]
-                break
+                matched_sessions.append({
+                    "conversation_id": cid,
+                    "engine_name": binfo["engine_name"],
+                    "transcript_log_path": binfo["transcript_log_path"],
+                    "summaries": binfo["summaries"],
+                    "last_modified": binfo["last_modified"],
+                    "confidence_score": binfo["confidence_score"]
+                })
+
+        # Sort sessions by last_modified descending (newest first)
+        matched_sessions.sort(key=lambda x: x["last_modified"], reverse=True)
+
+        primary_conv = matched_sessions[0]["conversation_id"] if matched_sessions else None
+        primary_summary = matched_sessions[0]["summaries"][0] if (matched_sessions and matched_sessions[0]["summaries"]) else None
+        primary_engine = matched_sessions[0]["engine_name"] if matched_sessions else "jetski"
+        primary_tlog = matched_sessions[0]["transcript_log_path"] if matched_sessions else None
+        confidence = matched_sessions[0]["confidence_score"] if matched_sessions else 0.0
 
         rel_path = os.path.relpath(folder_path, os.path.dirname(REPO_BASE))
 
@@ -186,11 +192,12 @@ def scan_projects():
             "detected_ports": detected_ports,
             "running_ports": running_ports,
             "is_running": len(running_ports) > 0,
-            "conversation_id": matched_conv,
-            "brain_engine": matched_engine,
-            "transcript_log_path": matched_tlog,
-            "confidence_score": match_confidence,
-            "summary_file": matched_summary,
+            "conversation_id": primary_conv,
+            "brain_engine": primary_engine,
+            "transcript_log_path": primary_tlog,
+            "all_sessions": matched_sessions,
+            "confidence_score": confidence,
+            "summary_file": primary_summary,
             "github_url": f"https://github.com/jchavezar/vertex-ai-samples/tree/main/{rel_path}"
         }
         projects.append(project_meta)
