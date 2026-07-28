@@ -312,8 +312,8 @@ def convert_to_wav(audio_data: bytes, mime_type: str = "audio/l16; rate=24000; c
 @app.post("/api/synthesize-audio")
 def synthesize_audio(req: AudioSynthesisRequest):
     """
-    Generates studio HD audio synthesis for executive incident briefings using
-    Google GenAI SDK model 'gemini-3.1-flash-tts-preview' with Achernar voice.
+    Generates ultra-fast studio HD audio synthesis for executive incident briefings using
+    streaming generate_content_stream with gemini-3.1-flash-tts-preview and Aoede / Achernar voice.
     """
     import os, time, base64
     from google import genai
@@ -321,40 +321,67 @@ def synthesize_audio(req: AudioSynthesisRequest):
 
     t0 = time.time()
     clean_text = req.text.replace('"', '').replace("'", "")
-    styled_prompt = f"Read the following executive incident briefing aloud in a warm, welcoming, natural human tone:\n\n{clean_text}"
-    voice_choice = req.voice or "Achernar"
+    voice_choice = req.voice or "Aoede"
     
-    # Primary Engine: Google GenAI Client using model 'gemini-3.1-flash-tts-preview'
+    contents = [
+        types.Content(
+            role="user",
+            parts=[
+                types.Part.from_text(text=f"""Read the following transcript based on the audio profile and director's note.
+
+# Audio Profile
+A helpful and professional executive assistant.
+
+# Director's note
+Style: Empathetic. Pace: Natural. Accent: American (Gen).
+
+## Transcript:
+{clean_text}"""),
+            ],
+        ),
+    ]
+
+    generate_content_config = types.GenerateContentConfig(
+        temperature=1,
+        response_modalities=["audio"],
+        speech_config=types.SpeechConfig(
+            voice_config=types.VoiceConfig(
+                prebuilt_voice_config=types.PrebuiltVoiceConfig(voice_name=voice_choice)
+            )
+        ),
+    )
+
     try:
         client = genai.Client(vertexai=True, project=GCP_PROJECT_ID, location=GCP_REGION)
-        response = client.models.generate_content(
+        audio_chunks = []
+        first_chunk_ms = None
+
+        for chunk in client.models.generate_content_stream(
             model="gemini-3.1-flash-tts-preview",
-            contents=styled_prompt,
-            config=types.GenerateContentConfig(
-                response_modalities=["audio"],
-                speech_config=types.SpeechConfig(
-                    voice_config=types.VoiceConfig(
-                        prebuilt_voice_config=types.PrebuiltVoiceConfig(voice_name=voice_choice)
-                    )
-                )
-            )
-        )
+            contents=contents,
+            config=generate_content_config,
+        ):
+            if chunk.parts and chunk.parts[0].inline_data and chunk.parts[0].inline_data.data:
+                if first_chunk_ms is None:
+                    first_chunk_ms = int((time.time() - t0) * 1000)
+                audio_chunks.append(chunk.parts[0].inline_data.data)
 
-        for part in response.candidates[0].content.parts:
-            if part.inline_data and part.inline_data.data:
-                wav_bytes = convert_to_wav(part.inline_data.data, part.inline_data.mime_type or "audio/l16; rate=24000; channels=1")
-                latency_ms = int((time.time() - t0) * 1000)
-                return {
-                    "status": "SUCCESS",
-                    "audioBase64": base64.b64encode(wav_bytes).decode('utf-8'),
-                    "mimeType": "audio/wav",
-                    "latencyMs": latency_ms,
-                    "voiceUsed": f"gemini-3.1-flash-tts-preview ({voice_choice} Voice)"
-                }
+        if audio_chunks:
+            full_raw = b"".join(audio_chunks)
+            wav_bytes = convert_to_wav(full_raw, "audio/l16; rate=24000; channels=1")
+            total_latency_ms = int((time.time() - t0) * 1000)
+            return {
+                "status": "SUCCESS",
+                "audioBase64": base64.b64encode(wav_bytes).decode('utf-8'),
+                "mimeType": "audio/wav",
+                "firstChunkMs": first_chunk_ms,
+                "latencyMs": total_latency_ms,
+                "voiceUsed": f"gemini-3.1-flash-tts-preview ({voice_choice} Voice)"
+            }
     except Exception as e:
-        print("Gemini 3.1 Flash TTS Preview generation error:", e)
+        print("Gemini 3.1 Flash TTS Preview streaming error:", e)
 
-    raise HTTPException(status_code=500, detail="Voice synthesis failed with gemini-3.1-flash-tts-preview.")
+    raise HTTPException(status_code=500, detail="Voice synthesis failed with gemini-3.1-flash-tts-preview streaming.")
 
 @app.get("/api/bitacora")
 def get_bitacora():
