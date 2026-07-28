@@ -194,13 +194,18 @@ export const CloudRunAppAutoHealCard: React.FC<CloudRunAppAutoHealCardProps> = (
                 </a>
               </div>
 
-              {/* REAL LIVE GCP CLOUD RUN IFRAME CONTAINER */}
-              <div className="rounded-2xl overflow-hidden border border-slate-700 shadow-2xl bg-white h-[320px] w-full">
+              {/* REAL LIVE GCP CLOUD RUN IFRAME CONTAINER (GPU Hardware Accelerated) */}
+              <div 
+                className="rounded-2xl overflow-hidden border border-slate-700 shadow-2xl bg-white h-[340px] w-full relative"
+                style={{ transform: 'translateZ(0)', willChange: 'transform' }}
+              >
                 <iframe
                   key={iframeKey}
                   src={REAL_CLOUD_RUN_URL}
                   title="Real GCP Cloud Run Service"
-                  className="w-full h-full border-0"
+                  loading="lazy"
+                  className="w-full h-full border-0 rounded-2xl"
+                  style={{ transform: 'translateZ(0)', willChange: 'transform' }}
                 />
               </div>
             </div>
