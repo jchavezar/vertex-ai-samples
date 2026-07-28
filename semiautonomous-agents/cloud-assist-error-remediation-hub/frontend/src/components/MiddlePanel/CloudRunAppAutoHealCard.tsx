@@ -97,11 +97,16 @@ export const CloudRunAppAutoHealCard: React.FC<CloudRunAppAutoHealCardProps> = (
   // Sync with selected error from Cloud Logging panel
   React.useEffect(() => {
     if (selectedError) {
-      const matchedSvc = SERVICES_LIST.find(s =>
-        selectedError.serviceName.toLowerCase().includes(s.id) ||
-        selectedError.summary.toLowerCase().includes(s.id) ||
-        s.id.includes(selectedError.serviceName.toLowerCase().replace(/\s+/g, '-'))
-      );
+      const summaryText = (selectedError.serviceName + " " + selectedError.summary + " " + selectedError.fullText + " " + selectedError.id).toLowerCase();
+
+      let matchedSvc = SERVICES_LIST.find(s => {
+        if (s.id === "cyberpunk-ledger-dashboard" && (summaryText.includes("cyberpunk") || summaryText.includes("keyerror") || summaryText.includes("jwt"))) return true;
+        if (s.id === "healthcare-patient-portal" && (summaryText.includes("healthcare") || summaryText.includes("memoryerror") || summaryText.includes("oom"))) return true;
+        if (s.id === "envato-vibe-storefront" && (summaryText.includes("storefront") || summaryText.includes("envato") || summaryText.includes("zerodivision"))) return true;
+        if (s.id === "realtime-logistics-tracker" && (summaryText.includes("logistics") || summaryText.includes("postgres") || summaryText.includes("conn"))) return true;
+        return summaryText.includes(s.id);
+      });
+
       if (matchedSvc) {
         setActiveAppId(matchedSvc.id);
       }
