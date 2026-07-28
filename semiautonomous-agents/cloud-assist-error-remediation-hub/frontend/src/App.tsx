@@ -236,13 +236,14 @@ export function App() {
 
         {/* Center Main Tab View */}
         <main className={`flex-1 flex flex-col overflow-y-auto relative p-4 transition-colors duration-300 ${
-          isLight ? 'bg-slate-100' : 'bg-[#0a0d14]'
+          isLight ? 'bg-[#fafafa]' : 'bg-[#0a0d14]'
         }`}>
           {activeMainTab === 'remediation' ? (
             <DiagnosticContainer
               selectedError={selectedError}
               diagnostic={diagnostic}
               isLoading={isDiagnosing}
+              isLightMode={isLight}
             />
           ) : activeMainTab === 'observability' ? (
             <ObservabilityDashboardTab />
