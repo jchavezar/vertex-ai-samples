@@ -15,11 +15,13 @@ import {
 interface RichTextRendererProps {
   text: string;
   onRunSandboxCommand?: (cmd: string) => void;
+  isLightMode?: boolean;
 }
 
 export const RichTextRenderer: React.FC<RichTextRendererProps> = ({
   text,
-  onRunSandboxCommand
+  onRunSandboxCommand,
+  isLightMode = false
 }) => {
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
 
