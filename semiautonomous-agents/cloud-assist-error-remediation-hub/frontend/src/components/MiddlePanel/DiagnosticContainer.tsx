@@ -7,8 +7,11 @@ import { ReActEvidenceCard } from './ReActEvidenceCard';
 import { ParallelSandboxCard } from './ParallelSandboxCard';
 import { HybridAgentFlowCard } from './HybridAgentFlowCard';
 import { CloudRunAppAutoHealCard } from './CloudRunAppAutoHealCard';
+import { BlastRadiusMapCard } from './BlastRadiusMapCard';
+import { ProofOfFixCard } from './ProofOfFixCard';
+import { ExecutiveVoiceBriefing } from './ExecutiveVoiceBriefing';
 import { CollapsibleCard } from './CollapsibleCard';
-import { Sparkles, Activity, FileText, Target, Cpu, Wrench, ShieldCheck, Maximize2, Minimize2, Layers } from 'lucide-react';
+import { Sparkles, Activity, FileText, Target, Cpu, Wrench, ShieldCheck, Maximize2, Minimize2, Layers, ShieldAlert, CheckCircle2 } from 'lucide-react';
 
 interface DiagnosticContainerProps {
   selectedError: GcpErrorItem | null;
@@ -221,11 +224,12 @@ export const DiagnosticContainer: React.FC<DiagnosticContainerProps> = ({
         <HybridAgentFlowCard selectedError={selectedError} diagnostic={diagnostic} />
       </CollapsibleCard>
 
-      {/* Container 1: Executive Recap */}
+      {/* Container 1: Executive Recap & Voice Briefing */}
       <CollapsibleCard
         key={`recap-${globalCollapseKey}`}
         title="Executive Investigation Recap"
         icon={<FileText className={`w-4 h-4 ${isLightMode ? 'text-slate-900' : 'text-blue-400'}`} />}
+        headerRightContent={<ExecutiveVoiceBriefing selectedError={selectedError} diagnostic={diagnostic} isLightMode={isLightMode} />}
         badge={
           <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full border ${
             isLightMode
@@ -239,6 +243,26 @@ export const DiagnosticContainer: React.FC<DiagnosticContainerProps> = ({
         isLightMode={isLightMode}
       >
         <ExecutiveRecapCard recapText={diagnostic.recapText} executionState={diagnostic.executionState} />
+      </CollapsibleCard>
+
+      {/* Container 1.5: Visual Blast Radius & Systemic Dependency Map */}
+      <CollapsibleCard
+        key={`blast-${globalCollapseKey}`}
+        title="Visual Incident Blast Radius & Systemic Dependency Map"
+        icon={<ShieldAlert className={`w-4 h-4 ${isLightMode ? 'text-rose-700' : 'text-rose-400'}`} />}
+        badge={
+          <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full border ${
+            isLightMode
+              ? 'bg-rose-100 text-rose-800 border-rose-300 font-mono'
+              : 'bg-rose-500/20 text-rose-300 border-rose-500/40'
+          }`}>
+            Topology Impact
+          </span>
+        }
+        defaultCollapsed={globalState !== null ? globalState : false}
+        isLightMode={isLightMode}
+      >
+        <BlastRadiusMapCard selectedError={selectedError} isLightMode={isLightMode} />
       </CollapsibleCard>
 
       {/* Container 2: Ranked Root-Cause Hypotheses & Clickable Remediation */}
@@ -299,6 +323,26 @@ export const DiagnosticContainer: React.FC<DiagnosticContainerProps> = ({
         isLightMode={isLightMode}
       >
         <CloudRunAppAutoHealCard selectedError={selectedError} isLightMode={isLightMode} />
+      </CollapsibleCard>
+
+      {/* Container 2.9: Live "Proof-of-Fix" Verification Payload Test Suite */}
+      <CollapsibleCard
+        key={`proof-${globalCollapseKey}`}
+        title="Live Proof-of-Fix Synthetic Probe & Verification Test Suite"
+        icon={<CheckCircle2 className={`w-4 h-4 ${isLightMode ? 'text-emerald-700' : 'text-emerald-400'}`} />}
+        badge={
+          <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full border ${
+            isLightMode
+              ? 'bg-emerald-100 text-emerald-800 border-emerald-300 font-mono'
+              : 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'
+          }`}>
+            Synthetic Probe Active
+          </span>
+        }
+        defaultCollapsed={globalState !== null ? globalState : false}
+        isLightMode={isLightMode}
+      >
+        <ProofOfFixCard selectedError={selectedError} isLightMode={isLightMode} />
       </CollapsibleCard>
 
       {/* Container 3: Structured Interactive Remediation Roadmap */}

@@ -1,13 +1,15 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { GcpErrorItem, CloudAssistDiagnostic, ChatMessage } from './types';
+import React, { useState, useEffect } from 'react';
 import { Header } from './components/Header';
 import { TimeFilterBar } from './components/LeftPanel/TimeFilterBar';
 import { ErrorList } from './components/LeftPanel/ErrorList';
 import { DiagnosticContainer } from './components/MiddlePanel/DiagnosticContainer';
 import { ObservabilityDashboardTab } from './components/MiddlePanel/ObservabilityDashboardTab';
 import { WestworldWhiteSolomonTab } from './components/MiddlePanel/WestworldWhiteSolomonTab';
+import { ChaosStressTestModal } from './components/MiddlePanel/ChaosStressTestModal';
+import { PostMortemReportModal } from './components/MiddlePanel/PostMortemReportModal';
 import { ChatbotDrawer } from './components/RightPanel/ChatbotDrawer';
-import { Layers, Radio, Sparkles, Activity, Eye } from 'lucide-react';
+import { GcpErrorItem, CloudAssistDiagnostic, ChatMessage } from './types';
+import { Layers, Radio, Sparkles, Activity, Eye, Flame, FileText } from 'lucide-react';
 
 const API_BASE = 'http://127.0.0.1:8088/api';
 
@@ -19,6 +21,9 @@ export function App() {
   const [activeMainTab, setActiveMainTab] = useState<'remediation' | 'observability' | 'solomon'>('remediation');
   const [themeMode, setThemeMode] = useState<'light' | 'dark'>('light');
   
+  const [isChaosOpen, setIsChaosOpen] = useState<boolean>(false);
+  const [isReportOpen, setIsReportOpen] = useState<boolean>(false);
+
   const [isErrorsLoading, setIsErrorsLoading] = useState<boolean>(true);
   const [isDiagnosing, setIsDiagnosing] = useState<boolean>(false);
   const [isChatSending, setIsChatSending] = useState<boolean>(false);
@@ -36,67 +41,56 @@ export function App() {
     }
   ]);
 
-  const fetchErrors = useCallback(async (range: string) => {
+  const fetchErrors = async (timeRange: string) => {
     setIsErrorsLoading(true);
     try {
-      const res = await fetch(`${API_BASE}/errors?time_range=${range}`);
-      if (res.ok) {
-        const data: GcpErrorItem[] = await res.json();
-        setErrors(data);
-        if (data.length > 0 && !selectedError) {
-          handleSelectError(data[0]);
-        }
+      const res = await fetch(`${API_BASE}/errors?time_range=${timeRange}`);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data: GcpErrorItem[] = await res.json();
+      setErrors(data);
+      if (data.length > 0 && !selectedError) {
+        handleSelectError(data[0]);
       }
     } catch (err) {
       console.error("Failed to fetch GCP errors:", err);
     } finally {
       setIsErrorsLoading(false);
     }
-  }, [selectedError]);
+  };
 
   useEffect(() => {
     fetchErrors(selectedRange);
-  }, [selectedRange, fetchErrors]);
+  }, [selectedRange]);
 
-  const handleSelectError = async (errItem: GcpErrorItem) => {
-    setSelectedError(errItem);
+  const handleSelectError = async (item: GcpErrorItem) => {
+    setSelectedError(item);
     setIsDiagnosing(true);
-    setDiagnostic(null);
-
-    // Dynamic Agent Context Switch: Reset chat messages with proactive incident notification
-    setChatMessages([
-      {
-        id: `sys-${Date.now()}`,
-        sender: 'agent',
-        text: `📡 **Active Incident Context Loaded**: \`${errItem.serviceName}\` — **${errItem.summary}**\n\nI have ingested the log traces, service metadata, and Cloud Assist findings into my prompt context. Ask me anything about this issue (e.g., *"What is causing this error?"*, *"Provide step-by-step gcloud fix commands"*).`,
-        timestamp: new Date().toISOString()
-      }
-    ]);
-
     try {
       const res = await fetch(`${API_BASE}/diagnose`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ errorItem: errItem })
+        body: JSON.stringify({ errorItem: item })
       });
-      if (res.ok) {
-        const data: CloudAssistDiagnostic = await res.json();
-        setDiagnostic(data);
-      }
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data: CloudAssistDiagnostic = await res.json();
+      setDiagnostic(data);
     } catch (err) {
-      console.error("Diagnosis request failed:", err);
+      console.error("Failed to diagnose GCP error:", err);
     } finally {
       setIsDiagnosing(false);
     }
   };
 
   const handleSendMessage = async (text: string) => {
+    if (!text.trim()) return;
+
     const userMsg: ChatMessage = {
-      id: `usr-${Date.now()}`,
+      id: `user-${Date.now()}`,
       sender: 'user',
       text,
       timestamp: new Date().toISOString()
     };
+
     setChatMessages((prev) => [...prev, userMsg]);
     setIsChatSending(true);
 
@@ -106,31 +100,23 @@ export function App() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           message: text,
-          contextError: selectedError,
-          contextDiagnostic: diagnostic
+          selectedError: selectedError,
+          diagnostic: diagnostic,
+          conversationHistory: chatMessages
         })
       });
 
-      if (res.ok) {
-        const data = await res.json();
-        const agentMsg: ChatMessage = {
-          id: `agt-${Date.now()}`,
-          sender: 'agent',
-          text: data.reply,
-          timestamp: new Date().toISOString(),
-          sourcesCited: data.sourcesCited
-        };
-        setChatMessages((prev) => [...prev, agentMsg]);
-      } else {
-        throw new Error(`Chat API status ${res.status}`);
-      }
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data: ChatMessage = await res.json();
+      setChatMessages((prev) => [...prev, data]);
     } catch (err) {
+      console.error("Failed to process chatbot query:", err);
       setChatMessages((prev) => [
         ...prev,
         {
           id: `err-${Date.now()}`,
           sender: 'agent',
-          text: "Could not connect to ADK backend or search service. Ensure local FastAPI server is active on port 8088.",
+          text: "I encountered an error connecting to the ADK agent. Please verify backend service on port 8088.",
           timestamp: new Date().toISOString()
         }
       ]);
@@ -208,8 +194,29 @@ export function App() {
           </button>
         </div>
 
-        <div className={`text-[11px] font-mono ${isLight ? 'text-slate-600 font-bold' : 'text-slate-400'}`}>
-          Antigravity Multi-Agent Orchestrator • Vertex AI
+        {/* Right Feature Controls */}
+        <div className="flex items-center space-x-3">
+          <button
+            onClick={() => setIsChaosOpen(true)}
+            className="px-3.5 py-1.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold font-mono flex items-center gap-1.5 shadow-md cursor-pointer"
+            title="Launch Automated Chaos Stress Test across all 4 Cloud Run microservices"
+          >
+            <Flame className="w-3.5 h-3.5 fill-current" />
+            <span>🚀 Chaos Stress Test</span>
+          </button>
+
+          <button
+            onClick={() => setIsReportOpen(true)}
+            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold font-mono flex items-center gap-1.5 shadow-sm cursor-pointer border ${
+              isLight
+                ? 'bg-white hover:bg-slate-100 border-slate-300 text-slate-950 font-bold'
+                : 'bg-slate-900 hover:bg-slate-800 border-slate-700 text-slate-200'
+            }`}
+            title="Export Executive Incident Post-Mortem Report"
+          >
+            <FileText className="w-3.5 h-3.5 text-blue-500" />
+            <span>📄 Post-Mortem Report</span>
+          </button>
         </div>
       </div>
 
@@ -252,7 +259,7 @@ export function App() {
           )}
         </main>
 
-        {/* Right Panel: ADK Chatbot */}
+        {/* Right Drawer: ADK Chatbot Agent */}
         <ChatbotDrawer
           selectedError={selectedError}
           diagnostic={diagnostic}
@@ -262,6 +269,10 @@ export function App() {
           isLightMode={isLight}
         />
       </div>
+
+      {/* Modals */}
+      <ChaosStressTestModal isOpen={isChaosOpen} onClose={() => setIsChaosOpen(false)} isLightMode={isLight} />
+      <PostMortemReportModal isOpen={isReportOpen} onClose={() => setIsReportOpen(false)} selectedError={selectedError} diagnostic={diagnostic} isLightMode={isLight} />
     </div>
   );
 }
