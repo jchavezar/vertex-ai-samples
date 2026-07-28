@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { ChatMessage, GcpErrorItem, CloudAssistDiagnostic } from '../../types';
 import { RichTextRenderer } from '../RichTextRenderer';
 import {
@@ -19,7 +19,8 @@ import {
   FileText,
   Terminal,
   Cpu,
-  ArrowRight
+  ArrowRight,
+  Send
 } from 'lucide-react';
 
 interface AnalyticalChatOverlayProps {
@@ -45,6 +46,14 @@ export const AnalyticalChatOverlay: React.FC<AnalyticalChatOverlayProps> = ({
 }) => {
   const [filterQuery, setFilterQuery] = useState('');
   const [activeMindmapNode, setActiveMindmapNode] = useState<string>('root-cause');
+  const [overlayInput, setOverlayInput] = useState('');
+  const bottomRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (isOpen) {
+      bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [isOpen, messages]);
 
   if (!isOpen) return null;
 
@@ -58,6 +67,13 @@ export const AnalyticalChatOverlay: React.FC<AnalyticalChatOverlayProps> = ({
   const summary = selectedError?.summary || 'IAM Policy / Resource Allocation Failure';
   const rootCause = topHypothesis?.rootCauseText || 'Runtime environment variable missing or heap limit exceeded.';
   const remediation = topHypothesis?.recommendationText || 'Run automated gcloud service update to apply missing credentials.';
+
+  const handleOverlaySend = (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    if (!overlayInput.trim()) return;
+    onSendMessage(overlayInput.trim());
+    setOverlayInput('');
+  };
 
   const mindmapNodes = [
     {
@@ -174,8 +190,8 @@ export const AnalyticalChatOverlay: React.FC<AnalyticalChatOverlayProps> = ({
 
         {/* Split Container */}
         <div className="flex-1 flex overflow-hidden">
-          {/* Left Panel: High-Contrast Conversation Stream */}
-          <div className={`w-1/2 border-r flex flex-col p-6 space-y-4 overflow-y-auto ${
+          {/* Left Panel: High-Contrast Conversation Stream + Input Bar */}
+          <div className={`w-1/2 border-r flex flex-col p-6 space-y-4 overflow-hidden ${
             isLightMode ? 'bg-slate-50 border-slate-200' : 'bg-[#0c101a] border-slate-800'
           }`}>
             <div className="flex items-center justify-between border-b pb-2 border-slate-300/60 dark:border-slate-800">
@@ -251,7 +267,42 @@ export const AnalyticalChatOverlay: React.FC<AnalyticalChatOverlayProps> = ({
                   )}
                 </div>
               ))}
+              <div ref={bottomRef} />
             </div>
+
+            {/* Input Bar in Maximized Overlay */}
+            <form onSubmit={handleOverlaySend} className="pt-3 border-t border-slate-200 dark:border-slate-800">
+              <div className="relative flex items-end">
+                <textarea
+                  rows={1}
+                  value={overlayInput}
+                  onChange={(e) => setOverlayInput(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                      e.preventDefault();
+                      handleOverlaySend(e);
+                    }
+                  }}
+                  placeholder="Type message directly in maximized workspace..."
+                  className={`w-full border rounded-2xl py-2.5 pl-3.5 pr-11 text-xs focus:outline-none transition-all resize-none max-h-32 overflow-y-auto leading-relaxed [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden ${
+                    isLightMode
+                      ? 'bg-white border-slate-400 text-slate-950 placeholder-slate-600 font-bold'
+                      : 'bg-slate-950 border-slate-800 text-slate-100 placeholder-slate-500'
+                  }`}
+                />
+                <button
+                  type="submit"
+                  disabled={!overlayInput.trim()}
+                  className={`absolute right-2 bottom-2 p-2 rounded-xl text-white transition-all shadow-sm cursor-pointer ${
+                    isLightMode
+                      ? 'bg-slate-950 hover:bg-slate-800 disabled:opacity-40'
+                      : 'bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 disabled:opacity-40'
+                  }`}
+                >
+                  <Send className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            </form>
           </div>
 
           {/* Right Panel: Interactive Root Cause Mindmap & Executive Takeaways */}
