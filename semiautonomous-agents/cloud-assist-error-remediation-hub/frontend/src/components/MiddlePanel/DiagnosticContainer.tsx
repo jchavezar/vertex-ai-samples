@@ -233,7 +233,6 @@ export const DiagnosticContainer: React.FC<DiagnosticContainerProps> = ({
         key={`recap-${globalCollapseKey}`}
         title="Executive Investigation Recap"
         icon={<FileText className={`w-4 h-4 ${isLightMode ? 'text-slate-900' : 'text-blue-400'}`} />}
-        headerRightContent={<ExecutiveVoiceBriefing selectedError={selectedError} diagnostic={diagnostic} isLightMode={isLightMode} />}
         badge={
           <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full border ${
             isLightMode
@@ -246,7 +245,12 @@ export const DiagnosticContainer: React.FC<DiagnosticContainerProps> = ({
         defaultCollapsed={globalState !== null ? globalState : false}
         isLightMode={isLightMode}
       >
-        <ExecutiveRecapCard recapText={diagnostic.recapText} executionState={diagnostic.executionState} />
+        <div className="space-y-4">
+          <div className="flex items-center justify-between border-b pb-3 border-slate-200 dark:border-slate-800/80">
+            <ExecutiveVoiceBriefing selectedError={selectedError} diagnostic={diagnostic} isLightMode={isLightMode} />
+          </div>
+          <ExecutiveRecapCard recapText={diagnostic.recapText} executionState={diagnostic.executionState} />
+        </div>
       </CollapsibleCard>
 
       {/* Container 1.5: Visual Blast Radius & Systemic Dependency Map */}
