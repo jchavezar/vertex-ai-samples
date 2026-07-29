@@ -49,29 +49,33 @@ ADK_TOOLS = [
 
 GREETING_WORDS = {"hi", "hello", "hey", "hola", "sup", "goodmorning", "goodafternoon", "thanks", "thank", "whoareyou", "whatcanyoudo", "help"}
 
+INCIDENT_KEYWORDS = {
+    "error", "fix", "issue", "incident", "gcloud", "log", "logs", "trace", "stack",
+    "service", "why", "how", "recommendation", "remediation", "bug", "failure",
+    "500", "503", "oom", "jwt", "sql", "db", "database", "crash", "diagnose", "check"
+}
+
 def handle_chatbot_query(req: ChatMessageRequest) -> ChatMessageResponse:
     """
     Google ADK Agent powered by gemini-3.5-flash with Python Function Tools.
-    Guarantees <10ms instant response for greetings & simple queries with 0 tools called.
+    - Greetings: Returns a simple, clean, friendly greeting with 0 incident context or clutter.
+    - Incident Queries: Injects context only when user asks about the incident/error.
+    - Unlimited Tokens: No artificial max_output_tokens cap!
     """
     start_time = time.time()
     clean_msg = req.message.strip().lower()
     words = set(re.findall(r'\w+', clean_msg))
 
-    # ⚡ 1. GUARANTEED INSTANT ROUTER FOR GREETINGS (< 10ms, 1-Line Response)
+    # ⚡ 1. CLEAN PROPER GREETING RESPONSE (< 5ms, 0 Tools, 0 Context Clutter)
     if words.intersection(GREETING_WORDS) or len(clean_msg) <= 4:
-        service_name = req.contextError.serviceName if req.contextError else "GCP Cloud Service"
-        
-        reply_text = f"Hello! How can I assist you with **{service_name}** today?"
         latency_ms = int((time.time() - start_time) * 1000)
-        
         return ChatMessageResponse(
-            reply=reply_text,
+            reply="Hello! How can I help you today?",
             sourcesCited=[],
-            sourceTag=f"ADK Agent (gemini-3.5-flash • 0 Tools • {latency_ms}ms)"
+            sourceTag=f"ADK Agent (gemini-3.5-flash • Direct Route)"
         )
 
-    # 🧠 2. GOOGLE ADK AGENT WITH GEMINI 3.5 FLASH & ADK FUNCTION TOOLS
+    # 🧠 2. GOOGLE ADK AGENT WITH GEMINI 3.5 FLASH
     try:
         client = genai.Client(
             vertexai=True,
@@ -79,35 +83,42 @@ def handle_chatbot_query(req: ChatMessageRequest) -> ChatMessageResponse:
             location="global"
         )
         
+        # Inject context ONLY if inquiry is related to the incident / error
+        is_incident_query = bool(words.intersection(INCIDENT_KEYWORDS))
+        
         context_block = ""
-        if req.contextError:
+        if is_incident_query and req.contextError:
             context_block += (
                 f"### ACTIVE INCIDENT CONTEXT\n"
                 f"- **Service**: {req.contextError.serviceName}\n"
-                f"- **Summary**: {req.contextError.summary}\n\n"
+                f"- **Summary**: {req.contextError.summary}\n"
+                f"- **Payload**: {req.contextError.fullText[:400]}\n\n"
             )
-        
+            if req.contextDiagnostic and req.contextDiagnostic.hypotheses:
+                top_hyp = req.contextDiagnostic.hypotheses[0]
+                context_block += (
+                    f"### CLOUD ASSIST DIAGNOSIS\n"
+                    f"- **Root Cause**: {top_hyp.rootCauseText}\n"
+                    f"- **Remediation**: {top_hyp.recommendationText}\n\n"
+                )
+
         system_instruction = (
             "You are the Google ADK Remediation Specialist Agent. "
-            "STRICT RULES: Be extremely short, concise, and direct (MAX 2-3 BULLET POINTS). "
-            "Do NOT include conversational preamble, meta-disclaimers, or multi-page breakdowns. "
-            "Provide exact step-by-step guidance and single gcloud CLI code block."
+            "Be clear, concise, and specific. When discussing technical issues or gcloud CLI commands, "
+            "use bullet points, bold key terms, and provide copyable code blocks. "
+            "Do NOT add conversational preamble or unnecessary fluff."
         )
         
-        full_prompt = (
-            f"{context_block}"
-            f"### USER INQUIRY\n"
-            f"{req.message}"
-        )
+        full_prompt = f"{context_block}### USER INQUIRY\n{req.message}" if context_block else req.message
         
+        # Call gemini-3.5-flash WITHOUT max_output_tokens restriction!
         response = client.models.generate_content(
             model="gemini-3.5-flash",
             contents=full_prompt,
             config=types.GenerateContentConfig(
                 system_instruction=system_instruction,
                 tools=[{"google_search": {}}] + ADK_TOOLS,
-                temperature=0.2,
-                max_output_tokens=250
+                temperature=0.2
             )
         )
         
@@ -135,7 +146,7 @@ def handle_chatbot_query(req: ChatMessageRequest) -> ChatMessageResponse:
             pass
             
         latency_ms = int((time.time() - start_time) * 1000)
-        tool_tag_suffix = f" • Tool: {tools_called[0]}" if tools_called else f" • Direct ({latency_ms}ms)"
+        tool_tag_suffix = f" • Tool: {tools_called[0]}" if tools_called else " • Direct Route"
             
         return ChatMessageResponse(
             reply=reply_text,
@@ -148,16 +159,17 @@ def handle_chatbot_query(req: ChatMessageRequest) -> ChatMessageResponse:
         return ChatMessageResponse(
             reply=fallback_reply,
             sourcesCited=[],
-            sourceTag=f"ADK Agent (gemini-3.5-flash • Direct {latency_ms}ms)"
+            sourceTag="ADK Agent (gemini-3.5-flash • Direct Route)"
         )
 
 def _fallback_chat_reply(req: ChatMessageRequest, err_msg: str) -> str:
-    err = req.contextError
     clean_msg = req.message.strip().lower()
+    words = set(re.findall(r'\w+', clean_msg))
     
-    if "hi" in clean_msg or "hello" in clean_msg or len(clean_msg) <= 4:
-        return f"Hello! How can I assist you with **{err.serviceName if err else 'GCP Cloud Run'}** today?"
+    if words.intersection(GREETING_WORDS) or len(clean_msg) <= 4:
+        return "Hello! How can I help you today?"
         
+    err = req.contextError
     if err and ("oom" in err.id.lower() or "503" in err.summary):
         return (
             f"### Cloud Run OOMKilled Fix\n\n"
