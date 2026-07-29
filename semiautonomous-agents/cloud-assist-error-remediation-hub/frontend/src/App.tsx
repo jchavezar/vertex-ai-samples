@@ -120,6 +120,7 @@ export function App() {
     setIsChatSending(true);
 
     try {
+      const startMs = Date.now();
       const res = await fetch(`${API_BASE}/chat`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -130,6 +131,7 @@ export function App() {
           conversationHistory: chatMessages.map(m => ({ sender: m.sender, text: m.text }))
         })
       });
+      const endMs = Date.now();
 
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
@@ -138,6 +140,8 @@ export function App() {
         sender: 'agent',
         text: data.reply || "No response generated.",
         sourcesCited: data.sourcesCited || [],
+        sourceTag: data.sourceTag || "ADK Remediation Agent (gemini-3.5-flash)",
+        latencyMs: endMs - startMs,
         timestamp: new Date().toISOString()
       };
       setChatMessages((prev) => [...prev, agentMsg]);

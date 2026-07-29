@@ -225,7 +225,7 @@ export const ChatMessageItem: React.FC<ChatMessageItemProps> = ({
           </div>
         )}
 
-        {/* Agent Metadata Footer with Source Origin Tag */}
+        {/* Agent Metadata Footer with Source Origin Tag & Dynamic Latency Counter */}
         {isAgent && (
           <div className={`mt-2.5 pt-2 border-t flex flex-wrap items-center justify-between gap-2 text-[9px] font-mono ${
             isLightMode ? 'border-slate-200 text-slate-700 font-bold' : 'border-slate-800/60 text-slate-500'
@@ -235,9 +235,15 @@ export const ChatMessageItem: React.FC<ChatMessageItemProps> = ({
                 ? 'bg-purple-100 text-purple-950 border-purple-300'
                 : 'bg-purple-500/20 text-purple-300 border-purple-500/40'
             }`}>
-              🏷️ Source: ADK Remediation Agent (gemini-3.5-flash)
+              🏷️ {message.sourceTag || "ADK Agent (gemini-3.5-flash)"}
             </span>
-            <span className={isLightMode ? 'text-emerald-700 font-extrabold' : 'text-emerald-400'}>⚡ 2.7s Execution (6.6X Faster)</span>
+            <span className={`px-2 py-0.5 rounded font-mono font-extrabold border ${
+              isLightMode
+                ? 'bg-emerald-100 text-emerald-950 border-emerald-300'
+                : 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'
+            }`}>
+              ⚡ {message.latencyMs !== undefined ? `${message.latencyMs}ms Execution` : 'Fast Direct Route'}
+            </span>
           </div>
         )}
       </div>

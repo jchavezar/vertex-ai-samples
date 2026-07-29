@@ -49,4 +49,5 @@ export interface ChatMessage {
   timestamp: string;
   sourcesCited?: string[];
   sourceTag?: string;
+  latencyMs?: number;
 }

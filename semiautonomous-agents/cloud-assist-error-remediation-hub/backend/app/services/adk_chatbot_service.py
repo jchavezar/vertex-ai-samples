@@ -1,5 +1,6 @@
 import os
 import re
+import time
 from typing import List, Dict, Any, Optional
 from app.config import GCP_PROJECT_ID, GCP_REGION
 from app.models.schemas import ChatMessageRequest, ChatMessageResponse
@@ -52,24 +53,22 @@ def handle_chatbot_query(req: ChatMessageRequest) -> ChatMessageResponse:
     """
     Google ADK Agent powered by gemini-3.5-flash with Python Function Tools.
     Guarantees <10ms instant response for greetings & simple queries with 0 tools called.
-    Enforces strict max output length for all complex inquiries.
     """
+    start_time = time.time()
     clean_msg = req.message.strip().lower()
     words = set(re.findall(r'\w+', clean_msg))
 
-    # ⚡ 1. GUARANTEED INSTANT ROUTER FOR GREETINGS / SIMPLE QUERIES (<10ms, 0 Tools Called)
+    # ⚡ 1. GUARANTEED INSTANT ROUTER FOR GREETINGS (< 10ms, 1-Line Response)
     if words.intersection(GREETING_WORDS) or len(clean_msg) <= 4:
         service_name = req.contextError.serviceName if req.contextError else "GCP Cloud Service"
         
-        reply_text = (
-            f"Hello! I am your **Google ADK Remediation Assistant** powered by **gemini-3.5-flash**.\n\n"
-            f"- **Active Context**: **{service_name}**\n"
-            f"- **Ready to help**: Ask me for gcloud fix commands, stack trace analysis, or community solutions!"
-        )
+        reply_text = f"Hello! How can I assist you with **{service_name}** today?"
+        latency_ms = int((time.time() - start_time) * 1000)
+        
         return ChatMessageResponse(
             reply=reply_text,
             sourcesCited=[],
-            sourceTag="ADK Agent (gemini-3.5-flash • 0 Tools Called)"
+            sourceTag=f"ADK Agent (gemini-3.5-flash • 0 Tools • {latency_ms}ms)"
         )
 
     # 🧠 2. GOOGLE ADK AGENT WITH GEMINI 3.5 FLASH & ADK FUNCTION TOOLS
@@ -90,7 +89,7 @@ def handle_chatbot_query(req: ChatMessageRequest) -> ChatMessageResponse:
         
         system_instruction = (
             "You are the Google ADK Remediation Specialist Agent. "
-            "STRICT RULES: Be extremely short, concise, and direct (MAX 3 BULLET POINTS). "
+            "STRICT RULES: Be extremely short, concise, and direct (MAX 2-3 BULLET POINTS). "
             "Do NOT include conversational preamble, meta-disclaimers, or multi-page breakdowns. "
             "Provide exact step-by-step guidance and single gcloud CLI code block."
         )
@@ -101,7 +100,6 @@ def handle_chatbot_query(req: ChatMessageRequest) -> ChatMessageResponse:
             f"{req.message}"
         )
         
-        # Call gemini-3.5-flash with ADK Python Function Tools + Google Search & max_output_tokens=300
         response = client.models.generate_content(
             model="gemini-3.5-flash",
             contents=full_prompt,
@@ -109,7 +107,7 @@ def handle_chatbot_query(req: ChatMessageRequest) -> ChatMessageResponse:
                 system_instruction=system_instruction,
                 tools=[{"google_search": {}}] + ADK_TOOLS,
                 temperature=0.2,
-                max_output_tokens=300
+                max_output_tokens=250
             )
         )
         
@@ -136,7 +134,8 @@ def handle_chatbot_query(req: ChatMessageRequest) -> ChatMessageResponse:
         except Exception:
             pass
             
-        tool_tag_suffix = f" • Tool: {tools_called[0]}" if tools_called else " • Direct Route (0 Tools)"
+        latency_ms = int((time.time() - start_time) * 1000)
+        tool_tag_suffix = f" • Tool: {tools_called[0]}" if tools_called else f" • Direct ({latency_ms}ms)"
             
         return ChatMessageResponse(
             reply=reply_text,
@@ -144,24 +143,20 @@ def handle_chatbot_query(req: ChatMessageRequest) -> ChatMessageResponse:
             sourceTag=f"ADK Agent (gemini-3.5-flash{tool_tag_suffix})"
         )
     except Exception as e:
+        latency_ms = int((time.time() - start_time) * 1000)
         fallback_reply = _fallback_chat_reply(req, str(e))
         return ChatMessageResponse(
             reply=fallback_reply,
             sourcesCited=[],
-            sourceTag="ADK Agent (gemini-3.5-flash • Direct Route)"
+            sourceTag=f"ADK Agent (gemini-3.5-flash • Direct {latency_ms}ms)"
         )
 
 def _fallback_chat_reply(req: ChatMessageRequest, err_msg: str) -> str:
     err = req.contextError
     clean_msg = req.message.strip().lower()
     
-    # Guarantee short response for fallback
     if "hi" in clean_msg or "hello" in clean_msg or len(clean_msg) <= 4:
-        return (
-            f"Hello! I am your **Google ADK Remediation Assistant**.\n\n"
-            f"- **Active Context**: **{err.serviceName if err else 'GCP Service'}**\n"
-            f"- **Ready to help**: Ask me for gcloud fix commands or error analysis!"
-        )
+        return f"Hello! How can I assist you with **{err.serviceName if err else 'GCP Cloud Run'}** today?"
         
     if err and ("oom" in err.id.lower() or "503" in err.summary):
         return (
