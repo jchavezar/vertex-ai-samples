@@ -107,3 +107,14 @@
     - "Enter birth date + place"
     - "Let the cosmic chart render"
     - "Read the AI interpretation panel"
+
+- slug: error-remediation-hub
+  title: Cloud Assist Error Remediation Hub
+  url: https://cloud-assist-error-remediation-hub-254356041555.us-central1.run.app/
+  thumb: thumbs/error-remediation-hub.png
+  tagline: Autonomous GCP error remediation platform with Gemini Cloud Assist, ADK function tools, 1-click Linux sandbox CLI execution, and Cloud Run auto-healing.
+  tags: [agents, cloud-assist, adk, autohealing, devops]
+  demo_path:
+    - "Select a Cloud Run error from the left Cloud Logging panel"
+    - "Click '🟢 Auto-Heal & Restore App' to patch and restore the microservice"
+    - "Click '⚡ Run in Sandbox' inside the chatbot to execute live gcloud CLI checks with Exit Code 0"
