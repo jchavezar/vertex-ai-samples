@@ -37,7 +37,7 @@ export function App() {
     {
       id: 'welcome-1',
       sender: 'agent',
-      text: "Hello! I am your Google ADK Error Remediation Assistant equipped with Google Search. Select any Google Cloud platform error on the left to inspect its autonomous Gemini Cloud Assist diagnosis and ask me anything!",
+      text: "Hello! I am your Google ADK Error Remediation Assistant equipped with Google Search. How can I help you today?",
       timestamp: new Date().toISOString()
     }
   ]);
@@ -72,7 +72,7 @@ export function App() {
       {
         id: `welcome-${item.id}`,
         sender: 'agent',
-        text: `Context updated to **${item.serviceName}**: *"${item.summary}"*. I am ready to investigate or execute gcloud fixes for this incident!`,
+        text: `Active context set to **${item.serviceName}**. Ask me a question about this incident or request gcloud fix commands!`,
         timestamp: new Date().toISOString()
       }
     ]);
@@ -98,9 +98,7 @@ export function App() {
       {
         id: `welcome-clear-${Date.now()}`,
         sender: 'agent',
-        text: selectedError
-          ? `Chat conversation reset for **${selectedError.serviceName}**. Ask me for gcloud fixes or Reddit searches!`
-          : "Chat conversation reset. Select any Google Cloud platform error on the left to inspect its autonomous diagnosis!",
+        text: "Chat reset. How can I help you today?",
         timestamp: new Date().toISOString()
       }
     ]);
