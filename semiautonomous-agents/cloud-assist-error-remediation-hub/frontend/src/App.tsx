@@ -66,6 +66,17 @@ export function App() {
   const handleSelectError = async (item: GcpErrorItem) => {
     setSelectedError(item);
     setIsDiagnosing(true);
+
+    // Automatically reset/clear chat history when switching between incidents on the left panel
+    setChatMessages([
+      {
+        id: `welcome-${item.id}`,
+        sender: 'agent',
+        text: `Context updated to **${item.serviceName}**: *"${item.summary}"*. I am ready to investigate or execute gcloud fixes for this incident!`,
+        timestamp: new Date().toISOString()
+      }
+    ]);
+
     try {
       const res = await fetch(`${API_BASE}/diagnose`, {
         method: 'POST',
@@ -80,6 +91,19 @@ export function App() {
     } finally {
       setIsDiagnosing(false);
     }
+  };
+
+  const handleClearChat = () => {
+    setChatMessages([
+      {
+        id: `welcome-clear-${Date.now()}`,
+        sender: 'agent',
+        text: selectedError
+          ? `Chat conversation reset for **${selectedError.serviceName}**. Ask me for gcloud fixes or Reddit searches!`
+          : "Chat conversation reset. Select any Google Cloud platform error on the left to inspect its autonomous diagnosis!",
+        timestamp: new Date().toISOString()
+      }
+    ]);
   };
 
   const handleSendMessage = async (text: string) => {
@@ -288,6 +312,7 @@ export function App() {
           diagnostic={diagnostic}
           messages={chatMessages}
           onSendMessage={handleSendMessage}
+          onClearChat={handleClearChat}
           isSending={isChatSending}
           isLightMode={isLight}
         />

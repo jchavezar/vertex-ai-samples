@@ -3,13 +3,14 @@ import { GcpErrorItem, CloudAssistDiagnostic, ChatMessage } from '../../types';
 import { ChatMessageItem } from './ChatMessageItem';
 import { ClaudeInkSpinner } from './ClaudeInkSpinner';
 import { AnalyticalChatOverlay } from './AnalyticalChatOverlay';
-import { Bot, Send, Sparkles, ChevronRight, ChevronLeft, Globe, Maximize2 } from 'lucide-react';
+import { Bot, Send, Sparkles, ChevronRight, ChevronLeft, Globe, Maximize2, Trash2 } from 'lucide-react';
 
 interface ChatbotDrawerProps {
   selectedError: GcpErrorItem | null;
   diagnostic: CloudAssistDiagnostic | null;
   messages: ChatMessage[];
   onSendMessage: (text: string) => void;
+  onClearChat?: () => void;
   onRunSandboxCommand?: (cmd: string) => void;
   isSending: boolean;
   isLightMode?: boolean;
@@ -26,6 +27,7 @@ export const ChatbotDrawer: React.FC<ChatbotDrawerProps> = ({
   diagnostic,
   messages,
   onSendMessage,
+  onClearChat,
   onRunSandboxCommand,
   isSending,
   isLightMode = false
@@ -175,6 +177,20 @@ export const ChatbotDrawer: React.FC<ChatbotDrawerProps> = ({
               </div>
 
               <div className="flex items-center space-x-1.5">
+                {onClearChat && (
+                  <button
+                    onClick={onClearChat}
+                    className={`p-1.5 rounded-lg border text-xs font-mono font-bold flex items-center gap-1 transition-all cursor-pointer ${
+                      isLightMode
+                        ? 'bg-rose-50 hover:bg-rose-100 border-rose-300 text-rose-800'
+                        : 'bg-slate-900 hover:bg-slate-800 border-slate-700 text-rose-400'
+                    }`}
+                    title="Clear chat conversation & reset context"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
+                )}
+
                 <button
                   onClick={() => setIsAnalyticalOverlayOpen(true)}
                   className={`p-1.5 rounded-lg border text-xs font-mono font-bold flex items-center gap-1 transition-all cursor-pointer ${
@@ -305,6 +321,7 @@ export const ChatbotDrawer: React.FC<ChatbotDrawerProps> = ({
         selectedError={selectedError}
         diagnostic={diagnostic}
         onSendMessage={onSendMessage}
+        onClearChat={onClearChat}
         onRunSandboxCommand={onRunSandboxCommand}
         isLightMode={isLightMode}
       />

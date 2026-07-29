@@ -20,7 +20,8 @@ import {
   Terminal,
   Cpu,
   ArrowRight,
-  Send
+  Send,
+  Trash2
 } from 'lucide-react';
 
 interface AnalyticalChatOverlayProps {
@@ -30,6 +31,7 @@ interface AnalyticalChatOverlayProps {
   selectedError: GcpErrorItem | null;
   diagnostic: CloudAssistDiagnostic | null;
   onSendMessage: (text: string) => void;
+  onClearChat?: () => void;
   onRunSandboxCommand?: (cmd: string) => void;
   isLightMode?: boolean;
 }
@@ -41,6 +43,7 @@ export const AnalyticalChatOverlay: React.FC<AnalyticalChatOverlayProps> = ({
   selectedError,
   diagnostic,
   onSendMessage,
+  onClearChat,
   onRunSandboxCommand,
   isLightMode = false
 }) => {
@@ -173,6 +176,20 @@ export const AnalyticalChatOverlay: React.FC<AnalyticalChatOverlayProps> = ({
                 }`}
               />
             </div>
+
+            {onClearChat && (
+              <button
+                onClick={onClearChat}
+                className={`p-2 rounded-xl border transition-colors cursor-pointer ${
+                  isLightMode
+                    ? 'bg-rose-50 hover:bg-rose-100 border-rose-300 text-rose-800 font-bold'
+                    : 'bg-slate-900 hover:bg-slate-800 border-slate-700 text-rose-400'
+                }`}
+                title="Clear chat conversation"
+              >
+                <Trash2 className="w-4 h-4" />
+              </button>
+            )}
 
             <button
               onClick={onClose}
