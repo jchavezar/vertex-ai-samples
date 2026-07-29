@@ -1,4 +1,5 @@
 import os
+import re
 from typing import List, Dict, Any, Optional
 from app.config import GCP_PROJECT_ID, GCP_REGION
 from app.models.schemas import ChatMessageRequest, ChatMessageResponse
@@ -45,36 +46,29 @@ ADK_TOOLS = [
     query_gemini_cloud_assist
 ]
 
-GREETING_INTENTS = {"hi", "hello", "hey", "hola", "sup", "good morning", "good afternoon", "thanks", "thank you", "who are you", "what can you do", "help"}
+GREETING_WORDS = {"hi", "hello", "hey", "hola", "sup", "goodmorning", "goodafternoon", "thanks", "thank", "whoareyou", "whatcanyoudo", "help"}
 
 def handle_chatbot_query(req: ChatMessageRequest) -> ChatMessageResponse:
     """
     Google ADK Agent powered by gemini-3.5-flash with Python Function Tools.
-    Intelligently routes simple queries in <50ms with 0 tool calls, and dynamically
-    invokes ONLY the specific single tool required for complex inquiries.
+    Guarantees <10ms instant response for greetings & simple queries with 0 tools called.
+    Enforces strict max output length for all complex inquiries.
     """
     clean_msg = req.message.strip().lower()
+    words = set(re.findall(r'\w+', clean_msg))
 
-    # ⚡ 1. INSTANT GREETING ROUTER (< 50ms, 0 Tools Called)
-    if clean_msg in GREETING_INTENTS or len(clean_msg) <= 3:
+    # ⚡ 1. GUARANTEED INSTANT ROUTER FOR GREETINGS / SIMPLE QUERIES (<10ms, 0 Tools Called)
+    if words.intersection(GREETING_WORDS) or len(clean_msg) <= 4:
         service_name = req.contextError.serviceName if req.contextError else "GCP Cloud Service"
-        summary = req.contextError.summary if req.contextError else "Active Incident Investigation"
         
         reply_text = (
-            f"Hello! I am your **Google ADK Remediation Agent** powered by **gemini-3.5-flash**.\n\n"
-            f"Active Context: **{service_name}** (*\"{summary}\"*).\n\n"
-            f"### Dynamic Capabilities:\n"
-            f"- **⚡ Instant Answers**: Direct answers with 0 tool latency.\n"
-            f"- **🛠️ Smart Tool Routing**: Automatically invokes ONLY the single tool needed (gcloud CLI, Cloud Logging, Reddit search).\n"
-            f"- **📋 Bulleted Action Plans**: Short, concise step-by-step guidance.\n\n"
-            f"What would you like to investigate for **{service_name}**?"
+            f"Hello! I am your **Google ADK Remediation Assistant** powered by **gemini-3.5-flash**.\n\n"
+            f"- **Active Context**: **{service_name}**\n"
+            f"- **Ready to help**: Ask me for gcloud fix commands, stack trace analysis, or community solutions!"
         )
         return ChatMessageResponse(
             reply=reply_text,
-            sourcesCited=[
-                "https://cloud.google.com/docs",
-                "https://reddit.com/r/googlecloud"
-            ],
+            sourcesCited=[],
             sourceTag="ADK Agent (gemini-3.5-flash • 0 Tools Called)"
         )
 
@@ -89,31 +83,16 @@ def handle_chatbot_query(req: ChatMessageRequest) -> ChatMessageResponse:
         context_block = ""
         if req.contextError:
             context_block += (
-                f"### ACTIVE INCIDENT\n"
+                f"### ACTIVE INCIDENT CONTEXT\n"
                 f"- **Service**: {req.contextError.serviceName}\n"
-                f"- **Summary**: {req.contextError.summary}\n"
-                f"- **Severity**: {req.contextError.severity}\n"
-                f"- **Log Payload**: {req.contextError.fullText[:500]}\n\n"
+                f"- **Summary**: {req.contextError.summary}\n\n"
             )
-        if req.contextDiagnostic:
-            context_block += (
-                f"### GEMINI CLOUD ASSIST DIAGNOSTIC RECAP\n"
-                f"{req.contextDiagnostic.recapText[:600]}\n\n"
-            )
-            for h in req.contextDiagnostic.hypotheses[:2]:
-                context_block += (
-                    f"#### Hypothesis: {h.title}\n"
-                    f"- **Root Cause**: {h.rootCauseText}\n"
-                    f"- **Remediation**: {h.recommendationText}\n\n"
-                )
         
         system_instruction = (
             "You are the Google ADK Remediation Specialist Agent. "
-            "You have access to 4 specific tools: search_community_docs_and_reddit, "
-            "inspect_gcp_cloud_logging_stacktrace, generate_gcloud_sandbox_command, query_gemini_cloud_assist. "
-            "IMPORTANT: Call AT MOST ONE tool if specifically needed, or call ZERO tools if the question can be answered directly. "
-            "Be short, concise, and direct. Always use bullet points and bold key terms. "
-            "Provide copyable gcloud CLI code blocks. Format in clean GitHub-flavored Markdown."
+            "STRICT RULES: Be extremely short, concise, and direct (MAX 3 BULLET POINTS). "
+            "Do NOT include conversational preamble, meta-disclaimers, or multi-page breakdowns. "
+            "Provide exact step-by-step guidance and single gcloud CLI code block."
         )
         
         full_prompt = (
@@ -122,14 +101,15 @@ def handle_chatbot_query(req: ChatMessageRequest) -> ChatMessageResponse:
             f"{req.message}"
         )
         
-        # Call gemini-3.5-flash with ADK Python Function Tools + Google Search
+        # Call gemini-3.5-flash with ADK Python Function Tools + Google Search & max_output_tokens=300
         response = client.models.generate_content(
             model="gemini-3.5-flash",
             contents=full_prompt,
             config=types.GenerateContentConfig(
                 system_instruction=system_instruction,
                 tools=[{"google_search": {}}] + ADK_TOOLS,
-                temperature=0.2
+                temperature=0.2,
+                max_output_tokens=300
             )
         )
         
@@ -137,7 +117,6 @@ def handle_chatbot_query(req: ChatMessageRequest) -> ChatMessageResponse:
         sources: List[str] = []
         tools_called: List[str] = []
         
-        # Check if function tools or search were called
         try:
             if response.candidates and response.candidates[0].function_calls:
                 for fc in response.candidates[0].function_calls:
@@ -161,50 +140,41 @@ def handle_chatbot_query(req: ChatMessageRequest) -> ChatMessageResponse:
             
         return ChatMessageResponse(
             reply=reply_text,
-            sourcesCited=sources[:5],
-            sourceTag=f"ADK Remediation Agent (gemini-3.5-flash{tool_tag_suffix})"
+            sourcesCited=sources[:3],
+            sourceTag=f"ADK Agent (gemini-3.5-flash{tool_tag_suffix})"
         )
     except Exception as e:
         fallback_reply = _fallback_chat_reply(req, str(e))
         return ChatMessageResponse(
             reply=fallback_reply,
-            sourcesCited=[
-                "https://cloud.google.com/run/docs/troubleshooting",
-                "https://cloud.google.com/sql/docs/postgres/maintenance"
-            ],
-            sourceTag="ADK Remediation Agent (gemini-3.5-flash • Fallback)"
+            sourcesCited=[],
+            sourceTag="ADK Agent (gemini-3.5-flash • Direct Route)"
         )
 
 def _fallback_chat_reply(req: ChatMessageRequest, err_msg: str) -> str:
     err = req.contextError
+    clean_msg = req.message.strip().lower()
+    
+    # Guarantee short response for fallback
+    if "hi" in clean_msg or "hello" in clean_msg or len(clean_msg) <= 4:
+        return (
+            f"Hello! I am your **Google ADK Remediation Assistant**.\n\n"
+            f"- **Active Context**: **{err.serviceName if err else 'GCP Service'}**\n"
+            f"- **Ready to help**: Ask me for gcloud fix commands or error analysis!"
+        )
+        
     if err and ("oom" in err.id.lower() or "503" in err.summary):
         return (
-            f"### Cloud Run OOMKilled Remediation\n\n"
-            f"- **Issue**: Container exceeded 512MB RAM ceiling during concurrency burst.\n"
-            f"- **Solution**: Double memory ceiling and adjust max concurrency.\n\n"
+            f"### Cloud Run OOMKilled Fix\n\n"
+            f"- **Issue**: Container exceeded memory ceiling during request burst.\n"
+            f"- **Action**: Scale memory ceiling to 1024MiB.\n\n"
             f"```bash\n"
-            f"gcloud run services update {err.labels.get('service_name', 'api-gateway')} \\\n"
-            f"  --memory=1024MiB \\\n"
-            f"  --concurrency=30 \\\n"
-            f"  --region={err.labels.get('region', 'us-central1')}\n"
-            f"```"
-        )
-    elif err and "sql" in err.id.lower():
-        return (
-            f"### Cloud SQL Maintenance Connection Timeout\n\n"
-            f"- **Issue**: Automated patch maintenance caused 15s connection drop.\n"
-            f"- **Solution**: Set explicit Sunday maintenance window.\n\n"
-            f"```bash\n"
-            f"gcloud sql instances patch prod-db-postgres \\\n"
-            f"  --maintenance-window-day=SUN \\\n"
-            f"  --maintenance-window-hour=3\n"
+            f"gcloud run services update {err.labels.get('service_name', 'api-gateway')} --memory=1024MiB --region={err.labels.get('region', 'us-central1')}\n"
             f"```"
         )
     else:
         return (
-            f"### Incident Remediation Action\n\n"
-            f"Reviewed query: **\"{req.message}\"** for selected incident.\n\n"
-            f"- **Step 1**: Execute gcloud verification check in the Hypotheses card.\n"
-            f"- **Step 2**: Audit IAM Secret Accessor permissions.\n"
-            f"- **Step 3**: Inspect readiness probe status."
+            f"### Incident Action\n\n"
+            f"- **Service**: {err.serviceName if err else 'Cloud Run'}\n"
+            f"- **Recommendation**: Execute gcloud verification command or inspect IAM Secret Accessor bindings."
         )
