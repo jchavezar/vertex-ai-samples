@@ -3,6 +3,7 @@ import { GcpErrorItem, CloudAssistDiagnostic, ChatMessage } from '../../types';
 import { ChatMessageItem } from './ChatMessageItem';
 import { ClaudeInkSpinner } from './ClaudeInkSpinner';
 import { AnalyticalChatOverlay } from './AnalyticalChatOverlay';
+import { CommandExecutionModal } from './CommandExecutionModal';
 import { Bot, Send, Sparkles, ChevronRight, ChevronLeft, Globe, Maximize2, Trash2 } from 'lucide-react';
 
 interface ChatbotDrawerProps {
@@ -34,6 +35,7 @@ export const ChatbotDrawer: React.FC<ChatbotDrawerProps> = ({
 }) => {
   const [isOpen, setIsOpen] = useState(true);
   const [isAnalyticalOverlayOpen, setIsAnalyticalOverlayOpen] = useState(false);
+  const [executionModalCmd, setExecutionModalCmd] = useState<string | null>(null);
   const [input, setInput] = useState('');
   const [promptHistory, setPromptHistory] = useState<string[]>([]);
   const [historyIndex, setHistoryIndex] = useState<number>(-1);
@@ -233,7 +235,10 @@ export const ChatbotDrawer: React.FC<ChatbotDrawerProps> = ({
                 <ChatMessageItem
                   key={msg.id}
                   message={msg}
-                  onRunSandboxCommand={onRunSandboxCommand}
+                  onRunSandboxCommand={(cmd) => {
+                    setExecutionModalCmd(cmd);
+                    if (onRunSandboxCommand) onRunSandboxCommand(cmd);
+                  }}
                   onOpenAnalyticalOverlay={() => setIsAnalyticalOverlayOpen(true)}
                   onQuickQuery={onSendMessage}
                 />
@@ -322,7 +327,18 @@ export const ChatbotDrawer: React.FC<ChatbotDrawerProps> = ({
         diagnostic={diagnostic}
         onSendMessage={onSendMessage}
         onClearChat={onClearChat}
-        onRunSandboxCommand={onRunSandboxCommand}
+        onRunSandboxCommand={(cmd) => {
+          setExecutionModalCmd(cmd);
+          if (onRunSandboxCommand) onRunSandboxCommand(cmd);
+        }}
+        isLightMode={isLightMode}
+      />
+
+      {/* Live Sandbox Execution Pop-Up Temporary Overlay Bubble */}
+      <CommandExecutionModal
+        isOpen={!!executionModalCmd}
+        command={executionModalCmd}
+        onClose={() => setExecutionModalCmd(null)}
         isLightMode={isLightMode}
       />
     </>
