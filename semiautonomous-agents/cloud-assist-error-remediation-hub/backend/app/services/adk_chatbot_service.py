@@ -5,71 +5,96 @@ from app.models.schemas import ChatMessageRequest, ChatMessageResponse
 from google import genai
 from google.genai import types
 
+# Lightweight intent router dictionary
+GREETING_INTENTS = {"hi", "hello", "hey", "hola", "sup", "good morning", "good afternoon", "thanks", "thank you", "who are you", "what can you do", "help"}
+
 def handle_chatbot_query(req: ChatMessageRequest) -> ChatMessageResponse:
     """
-    Orchestrates Google GenAI client (vertexai=True per rules) with Google Search built-in tool
-    using gemini-3-flash-preview in region global (over 3x faster!).
+    Intelligent Intent Router + Google GenAI Client with Google Search grounding.
+    Routes simple greetings in <50ms without invoking heavy LLM search loops.
     """
+    clean_msg = req.message.strip().lower()
+
+    # ⚡ INSTANT INTENT ROUTER FOR GREETINGS & SIMPLE QUERIES (<50ms)
+    if clean_msg in GREETING_INTENTS or len(clean_msg) <= 3:
+        service_name = req.contextError.serviceName if req.contextError else "GCP Cloud Service"
+        summary = req.contextError.summary if req.contextError else "Active Incident Investigation"
+        
+        reply_text = (
+            f"Hello! I am your **Google ADK Error Remediation Specialist**.\n\n"
+            f"Active Incident Context: **{service_name}** (*\"{summary}\"*).\n\n"
+            f"### How I Can Help:\n"
+            f"- **⚡ Instant Diagnosis**: Analyze root cause stack traces and telemetry logs.\n"
+            f"- **🛠️ gcloud Fixes**: Generate non-destructive gcloud CLI commands to fix secrets, IAM, memory, and concurrency.\n"
+            f"- **🌐 Community Grounding**: Search official Google Cloud Docs and Reddit for verified solutions.\n\n"
+            f"Ask me a specific question about **{service_name}** or click one of the dynamic action buttons below!"
+        )
+        return ChatMessageResponse(
+            reply=reply_text,
+            sourcesCited=[
+                "https://cloud.google.com/docs",
+                "https://reddit.com/r/googlecloud"
+            ],
+            sourceTag="ADK Remediation Agent (Instant Router)"
+        )
+
+    # 🧠 DEEP ADK DIAGNOSTIC ENGINE WITH GOOGLE SEARCH GROUNDING
     try:
-        # Explicit GenAI Target per user rule (region MUST be global for preview models)
         client = genai.Client(
             vertexai=True,
             project=GCP_PROJECT_ID,
             location="global"
         )
         
-        # Build context prompt
+        # Build concise context block
         context_block = ""
         if req.contextError:
             context_block += (
-                f"### CURRENTLY SELECTED GCP ERROR\n"
+                f"### ACTIVE INCIDENT\n"
                 f"- **Service**: {req.contextError.serviceName}\n"
                 f"- **Summary**: {req.contextError.summary}\n"
                 f"- **Severity**: {req.contextError.severity}\n"
-                f"- **Full Log Text**: {req.contextError.fullText}\n\n"
+                f"- **Log Payload**: {req.contextError.fullText[:500]}\n\n"
             )
         if req.contextDiagnostic:
             context_block += (
                 f"### GEMINI CLOUD ASSIST DIAGNOSTIC RECAP\n"
-                f"{req.contextDiagnostic.recapText}\n\n"
+                f"{req.contextDiagnostic.recapText[:600]}\n\n"
             )
-            for h in req.contextDiagnostic.hypotheses:
+            for h in req.contextDiagnostic.hypotheses[:2]:
                 context_block += (
-                    f"#### Hypothesis: {h.title} (Relevance: {h.relevanceScore})\n"
+                    f"#### Hypothesis: {h.title}\n"
                     f"- **Root Cause**: {h.rootCauseText}\n"
                     f"- **Remediation**: {h.recommendationText}\n\n"
                 )
         
         system_instruction = (
             "You are the Cloud Assist Error Remediation Specialist Agent. "
-            "You help users diagnose and proactively fix Google Cloud errors. "
-            "When answering, use Google Search to find best practices from official Google Cloud docs, "
-            "Reddit threads, and community forums for the specific error. "
-            "Format your responses in clean, structured GitHub-flavored Markdown with clear headings, "
-            "code blocks for terminal/gcloud commands, and bullet points."
+            "Be extremely short, concise, and direct. Always use bullet points and bold key terms. "
+            "Do NOT include conversational filler, meta-disclaimers, or introductory fluff. "
+            "Provide exact step-by-step guidance and copyable gcloud CLI code blocks. "
+            "Format in clean GitHub-flavored Markdown."
         )
         
         full_prompt = (
             f"{context_block}"
-            f"### USER MESSAGE\n"
+            f"### USER INQUIRY\n"
             f"{req.message}"
         )
         
-        # Configure model with google_search tool using GA gemini-2.5-flash (global)
         response = client.models.generate_content(
             model="gemini-2.5-flash",
             contents=full_prompt,
             config=types.GenerateContentConfig(
                 system_instruction=system_instruction,
                 tools=[{"google_search": {}}],
-                temperature=0.3
+                temperature=0.2
             )
         )
         
         reply_text = response.text or "No response generated."
         sources: List[str] = []
         
-        # Extract grounding sources if cited
         try:
             if response.candidates and response.candidates[0].grounding_metadata:
                 gm = response.candidates[0].grounding_metadata
@@ -84,53 +109,39 @@ def handle_chatbot_query(req: ChatMessageRequest) -> ChatMessageResponse:
             
         return ChatMessageResponse(
             reply=reply_text,
-            sourcesCited=sources[:5]
+            sourcesCited=sources[:5],
+            sourceTag="ADK Remediation Agent (gemini-2.5-flash)"
         )
     except Exception as e:
-        # Fallback intelligent response if GenAI client is unauthenticated or offline locally
         fallback_reply = _fallback_chat_reply(req, str(e))
         return ChatMessageResponse(
             reply=fallback_reply,
             sourcesCited=[
-                "https://cloud.google.com/run/docs/troubleshooting#oom",
-                "https://cloud.google.com/sql/docs/postgres/maintenance",
-                "https://cloud.google.com/stackdriver/docs/solutions/agents"
-            ]
+                "https://cloud.google.com/run/docs/troubleshooting",
+                "https://cloud.google.com/sql/docs/postgres/maintenance"
+            ],
+            sourceTag="ADK Remediation Agent (Fallback)"
         )
 
 def _fallback_chat_reply(req: ChatMessageRequest, err_msg: str) -> str:
     err = req.contextError
-    if err and "oom" in err.id.lower() or (err and "503" in err.summary):
+    if err and ("oom" in err.id.lower() or "503" in err.summary):
         return (
-            f"### Cloud Run 503 (OOMKilled) Community & Best Practice Solutions\n\n"
-            f"Based on recent discussions on **r/googlecloud** and official **Cloud Run documentation**, when a container hits `Memory limit exceeded (OOMKilled)`:\n\n"
-            f"#### 1. Immediate Action (Scale Memory)\n"
-            f"Run the following command to double the container memory envelope immediately:\n"
+            f"### Cloud Run OOMKilled Remediation\n\n"
+            f"- **Issue**: Container exceeded 512MB RAM ceiling during concurrency burst.\n"
+            f"- **Solution**: Double memory ceiling and adjust max concurrency.\n\n"
             f"```bash\n"
             f"gcloud run services update {err.labels.get('service_name', 'api-gateway')} \\\n"
             f"  --memory=1024MiB \\\n"
-            f"  --region={err.labels.get('region', 'us-central1')}\n"
-            f"```\n\n"
-            f"#### 2. Community Insights (Why did it spike?)\n"
-            f"- **High Concurrency Burst**: By default, Cloud Run sends up to 80 concurrent requests per instance. If each request buffers large JSON payloads, 80 * 10MB = 800MB heap pressure.\n"
-            f"- **Recommended Concurrency Fix**:\n"
-            f"```bash\n"
-            f"gcloud run services update {err.labels.get('service_name', 'api-gateway')} \\\n"
             f"  --concurrency=30 \\\n"
             f"  --region={err.labels.get('region', 'us-central1')}\n"
-            f"```\n\n"
-            f"#### 3. Verification Check\n"
-            f"Inspect Cloud Logging for the next 15 minutes to confirm zero exit code 137 terminations."
+            f"```"
         )
     elif err and "sql" in err.id.lower():
         return (
-            f"### Cloud SQL Maintenance Connection Timeout Remediation\n\n"
-            f"Based on **Google Cloud SQL best practices** and DevOps forum discussions regarding instances stuck in `MAINTENANCE` state:\n\n"
-            f"#### 1. Why Connection Timeouts Occur During Maintenance\n"
-            f"During automated OS patch updates, Cloud SQL performs a failover that interrupts active connections for **15–45 seconds**. Client pools with strict timeouts (`<10s`) will throw `Connection acquire timeout`.\n\n"
-            f"#### 2. Actionable Fix\n"
-            f"- **Update Client Connection Pool**: Set `connectionTimeoutMillis: 30000` and enable automatic retry with exponential backoff.\n"
-            f"- **Set Explicit Maintenance Window**:\n"
+            f"### Cloud SQL Maintenance Timeout\n\n"
+            f"- **Issue**: Automated patch maintenance caused 15s connection drop.\n"
+            f"- **Solution**: Set explicit Sunday maintenance window.\n\n"
             f"```bash\n"
             f"gcloud sql instances patch prod-db-postgres \\\n"
             f"  --maintenance-window-day=SUN \\\n"
@@ -139,10 +150,9 @@ def _fallback_chat_reply(req: ChatMessageRequest, err_msg: str) -> str:
         )
     else:
         return (
-            f"### Proactive Remediation Advice\n\n"
-            f"I have reviewed your message: **\"{req.message}\"** along with the selected error context.\n\n"
-            f"#### Recommended Next Steps:\n"
-            f"1. **Execute Verification Command**: Run the recommended `gcloud` check from the Middle Panel Hypotheses container.\n"
-            f"2. **Check IAM Role Grants**: Ensure your service principal has least-privilege access for the failing operation.\n"
-            f"3. **Validate Recovery**: Re-run the error query in the Left Panel time filter (`Last 15m`) after applying the patch."
+            f"### Incident Remediation Action\n\n"
+            f"Reviewed query: **\"{req.message}\"** for selected incident.\n\n"
+            f"- **Step 1**: Execute gcloud verification check in the Hypotheses card.\n"
+            f"- **Step 2**: Audit IAM Secret Accessor permissions.\n"
+            f"- **Step 3**: Inspect readiness probe status."
         )
