@@ -156,7 +156,12 @@ asyncio.run(run_antigravity_remediation_subagent())`;
             <Target className="w-4 h-4 text-purple-400" />
           </div>
           <div>
-            <h2 className="text-sm font-bold text-white tracking-tight">Ranked Root-Cause Hypotheses</h2>
+            <div className="flex items-center space-x-2">
+              <h2 className="text-sm font-bold text-white tracking-tight">Ranked Root-Cause Hypotheses</h2>
+              <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-300 border border-cyan-500/40">
+                🏷️ Source: Gemini Cloud Assist API
+              </span>
+            </div>
             <p className="text-[11px] text-slate-400">AI confidence ranking [-1.0 to 1.0] with One-Click Sandbox Execution</p>
           </div>
         </div>

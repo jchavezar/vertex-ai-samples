@@ -255,9 +255,31 @@ export const HybridAgentFlowCard: React.FC<HybridAgentFlowCardProps> = ({
                         </div>
                       </div>
 
-                      <div className="text-[10px] font-semibold text-cyan-300 mb-1">
-                        {step.agentPlane}
+                      <div className="text-[10px] font-semibold text-cyan-300 mb-1 flex items-center justify-between">
+                        <span>{step.agentPlane}</span>
                       </div>
+
+                      {/* Source Origin Tag Badge */}
+                      <div className="mb-2">
+                        <span className={`inline-block text-[9px] font-mono font-bold px-2 py-0.5 rounded border ${
+                          step.stepId === 1
+                            ? 'bg-blue-500/20 text-blue-300 border-blue-500/40'
+                            : step.stepId === 2
+                              ? 'bg-cyan-500/20 text-cyan-300 border-cyan-500/40'
+                              : step.stepId === 3
+                                ? 'bg-purple-500/20 text-purple-300 border-purple-500/40'
+                                : step.stepId === 4
+                                  ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'
+                                  : 'bg-amber-500/20 text-amber-300 border-amber-500/40'
+                        }`}>
+                          {step.stepId === 1 && '🏷️ Source: Cloud Logging Telemetry'}
+                          {step.stepId === 2 && '🏷️ Source: Gemini Cloud Assist API'}
+                          {step.stepId === 3 && '🏷️ Source: ADK Remediation Agent'}
+                          {step.stepId === 4 && '🏷️ Source: Subagent Sandbox Harness'}
+                          {step.stepId === 5 && '🏷️ Source: Policy Enforcement Gate'}
+                        </span>
+                      </div>
+
                       <h4 className="text-xs font-bold text-white mb-1">
                         {step.title}
                       </h4>
@@ -295,7 +317,7 @@ export const HybridAgentFlowCard: React.FC<HybridAgentFlowCardProps> = ({
                     }`}
                   >
                     <div className="space-y-1">
-                      <div className="flex items-center space-x-2">
+                      <div className="flex flex-wrap items-center gap-2">
                         <span
                           className={`text-[9px] font-bold uppercase px-2 py-0.5 rounded ${
                             cmdItem.requiresHumanApproval
@@ -305,6 +327,11 @@ export const HybridAgentFlowCard: React.FC<HybridAgentFlowCardProps> = ({
                         >
                           {cmdItem.policyLevel} (RISK: {cmdItem.riskTier})
                         </span>
+
+                        <span className="text-[9px] font-mono font-bold px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
+                          🏷️ Source: Subagent Sandbox Harness (Antigravity Orchestrator)
+                        </span>
+
                         <code className="text-white font-bold">{cmdItem.command}</code>
                       </div>
                       <p className="text-[11px] text-slate-300 font-sans pl-1">

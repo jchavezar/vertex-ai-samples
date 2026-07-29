@@ -21,6 +21,7 @@ class HypothesisItem(BaseModel):
     remediationCommands: List[str] = Field(default_factory=list)
     recommendationText: str
     relevantResources: List[str] = Field(default_factory=list)
+    sourceTag: str = Field("Gemini Cloud Assist API", description="Origin of diagnosis & recommendation")
 
 class EvidenceItem(BaseModel):
     id: str
@@ -29,6 +30,7 @@ class EvidenceItem(BaseModel):
     commandExecuted: Optional[str] = None
     text: str
     normalOperation: Optional[bool] = None
+    sourceTag: str = Field("Cloud Logging Telemetry", description="Origin of evidence data")
 
 class CloudAssistDiagnostic(BaseModel):
     investigationName: str
@@ -52,6 +54,7 @@ class ChatMessageRequest(BaseModel):
 class ChatMessageResponse(BaseModel):
     reply: str
     sourcesCited: List[str] = Field(default_factory=list)
+    sourceTag: str = Field("ADK Remediation Agent (gemini-3.5-flash)", description="Origin of agent response")
 
 class AutoHealRequest(BaseModel):
     action: Optional[str] = "heal"

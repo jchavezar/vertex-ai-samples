@@ -19,6 +19,7 @@ export interface HypothesisItem {
   remediationCommands: string[];
   recommendationText: string;
   relevantResources: string[];
+  sourceTag?: string;
 }
 
 export interface EvidenceItem {
@@ -28,6 +29,7 @@ export interface EvidenceItem {
   commandExecuted?: string | null;
   text: string;
   normalOperation?: boolean | null;
+  sourceTag?: string;
 }
 
 export interface CloudAssistDiagnostic {
@@ -46,4 +48,5 @@ export interface ChatMessage {
   text: string;
   timestamp: string;
   sourcesCited?: string[];
+  sourceTag?: string;
 }

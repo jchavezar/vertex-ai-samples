@@ -197,6 +197,9 @@ export const CloudRunAppAutoHealCard: React.FC<CloudRunAppAutoHealCardProps> = (
               }`}>
                 Live GCP Infrastructure
               </span>
+              <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
+                🏷️ Source: Subagent Sandbox Harness
+              </span>
             </h2>
             <p className={`text-[11px] ${isLightMode ? 'text-slate-600 font-mono' : 'text-slate-400'}`}>
               Active Target: <a href={activeService.url} target="_blank" rel="noreferrer" className={`font-mono underline ${isLightMode ? 'text-slate-950 font-bold hover:text-slate-700' : 'text-cyan-300 hover:text-cyan-200'}`}>{activeService.url}</a>

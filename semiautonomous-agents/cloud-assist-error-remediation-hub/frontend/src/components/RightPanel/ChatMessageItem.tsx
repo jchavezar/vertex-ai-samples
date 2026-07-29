@@ -225,12 +225,18 @@ export const ChatMessageItem: React.FC<ChatMessageItemProps> = ({
           </div>
         )}
 
-        {/* Agent Metadata Footer */}
+        {/* Agent Metadata Footer with Source Origin Tag */}
         {isAgent && (
-          <div className={`mt-2.5 pt-2 border-t flex items-center justify-between text-[9px] font-mono ${
+          <div className={`mt-2.5 pt-2 border-t flex flex-wrap items-center justify-between gap-2 text-[9px] font-mono ${
             isLightMode ? 'border-slate-200 text-slate-700 font-bold' : 'border-slate-800/60 text-slate-500'
           }`}>
-            <span>Model: gemini-2.5-flash (GA • global)</span>
+            <span className={`px-2 py-0.5 rounded border font-bold ${
+              isLightMode
+                ? 'bg-purple-100 text-purple-950 border-purple-300'
+                : 'bg-purple-500/20 text-purple-300 border-purple-500/40'
+            }`}>
+              🏷️ Source: ADK Remediation Agent (gemini-3.5-flash)
+            </span>
             <span className={isLightMode ? 'text-emerald-700 font-extrabold' : 'text-emerald-400'}>⚡ 2.7s Execution (6.6X Faster)</span>
           </div>
         )}
