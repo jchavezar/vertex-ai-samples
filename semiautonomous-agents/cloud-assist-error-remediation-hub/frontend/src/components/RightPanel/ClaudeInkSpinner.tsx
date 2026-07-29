@@ -1,42 +1,26 @@
-import React, { useState, useEffect } from 'react';
-import { Sparkles } from 'lucide-react';
-
-const THINKING_PHRASES = [
-  "Analyzing Cloud Logging stack trace...",
-  "Consulting Gemini Cloud Assist diagnostic tree...",
-  "Searching Google Cloud docs & community solutions...",
-  "Formulating verified remediation plan..."
-];
+import React from 'react';
+import { Sparkles, Cpu } from 'lucide-react';
 
 export const ClaudeInkSpinner: React.FC = () => {
-  const [phraseIdx, setPhraseIdx] = useState(0);
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setPhraseIdx((prev) => (prev + 1) % THINKING_PHRASES.length);
-    }, 2400);
-    return () => clearInterval(timer);
-  }, []);
-
   return (
-    <div className="flex flex-col items-start p-4 rounded-xl bg-slate-900/80 border border-cyan-500/30 shadow-lg shadow-cyan-500/10 space-y-3 max-w-[280px]">
+    <div className="flex flex-col items-start p-3.5 rounded-2xl bg-slate-950/90 border border-purple-500/40 shadow-xl shadow-purple-500/10 space-y-2.5 max-w-[290px]">
       {/* Claude Code "Ink" Wave Bar Graphic */}
-      <div className="flex items-center space-x-1.5 h-6">
+      <div className="flex items-center space-x-1.5 h-5">
         {[0, 1, 2, 3, 4, 5, 6, 7].map((bar) => (
           <div
             key={bar}
-            className="w-1 bg-gradient-to-t from-blue-600 via-cyan-400 to-purple-400 rounded-full animate-ink-wave shadow-sm shadow-cyan-400/40"
+            className="w-1 bg-gradient-to-t from-purple-600 via-cyan-400 to-emerald-400 rounded-full animate-ink-wave shadow-sm shadow-cyan-400/40"
             style={{
               animationDelay: `${bar * 0.12}s`,
-              height: '20px'
+              height: '18px'
             }}
           ></div>
         ))}
       </div>
 
-      <div className="flex items-center space-x-2 text-xs font-medium text-cyan-300">
-        <Sparkles className="w-3.5 h-3.5 text-cyan-400 animate-spin" />
-        <span className="animate-pulse">{THINKING_PHRASES[phraseIdx]}</span>
+      <div className="flex items-center space-x-2 text-[11px] font-mono font-bold text-cyan-300">
+        <Sparkles className="w-3.5 h-3.5 text-cyan-400 animate-spin flex-shrink-0" />
+        <span className="animate-pulse">gemini-3.5-flash ADK Tool Router...</span>
       </div>
     </div>
   );
