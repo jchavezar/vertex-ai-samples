@@ -18,6 +18,8 @@ interface DiagnosticContainerProps {
   selectedError: GcpErrorItem | null;
   diagnostic: CloudAssistDiagnostic | null;
   isLoading: boolean;
+  isFixed?: boolean;
+  onMarkAsFixed?: () => void;
   isLightMode?: boolean;
 }
 
@@ -25,10 +27,33 @@ export const DiagnosticContainer: React.FC<DiagnosticContainerProps> = ({
   selectedError,
   diagnostic,
   isLoading,
+  isFixed = false,
+  onMarkAsFixed,
   isLightMode = false
 }) => {
   const [globalCollapseKey, setGlobalCollapseKey] = useState<number>(0);
   const [globalState, setGlobalState] = useState<boolean | null>(null);
+
+  const isAppError = (err: GcpErrorItem) => {
+    const text = (err.serviceName + " " + err.summary + " " + err.fullText + " " + err.id).toLowerCase();
+    if (text.includes('lifecycle') || text.includes('revision status update')) return false;
+    if (text.includes('k8s') || text.includes('gke') || text.includes('crashloop')) return false;
+    if (text.includes('storage') || text.includes('gcs') || text.includes('bucket')) return false;
+    if (text.includes('cloudsql') || text.includes('maintenance')) return false;
+    if (text.includes('iam') || text.includes('security audit')) return false;
+    return (
+      text.includes('zerodivision') ||
+      text.includes('keyerror') ||
+      text.includes('memoryerror') ||
+      text.includes('connectionrefusederror') ||
+      text.includes('scheduler') ||
+      text.includes('warmup') ||
+      text.includes('checkout') ||
+      text.includes('jwt') ||
+      text.includes('mri') ||
+      text.includes('fleet')
+    );
+  };
 
   const handleExpandAll = () => {
     setGlobalState(false);
@@ -122,19 +147,29 @@ export const DiagnosticContainer: React.FC<DiagnosticContainerProps> = ({
         <div className="flex items-start justify-between gap-4">
           <div>
             <div className="flex flex-wrap items-center gap-2 mb-1.5">
-              <span
-                className={`text-[10px] font-bold tracking-wider px-2.5 py-0.5 rounded-full uppercase ${
-                  selectedError.severity === 'CRITICAL'
-                    ? isLightMode
-                      ? 'bg-rose-100 text-rose-800 border border-rose-300 font-mono'
-                      : 'bg-rose-500/20 text-rose-400 border border-rose-500/30'
-                    : isLightMode
-                      ? 'bg-amber-100 text-amber-800 border border-amber-300 font-mono'
-                      : 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
-                }`}
-              >
-                {selectedError.severity}
-              </span>
+              {isFixed ? (
+                <span className={`text-[10px] font-bold tracking-wider px-3 py-0.5 rounded-full uppercase font-mono ${
+                  isLightMode
+                    ? 'bg-emerald-100 text-emerald-800 border border-emerald-400 font-extrabold'
+                    : 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40'
+                }`}>
+                  🟢 INSTANCE RECOVERED (PROD-FIXED)
+                </span>
+              ) : (
+                <span
+                  className={`text-[10px] font-bold tracking-wider px-2.5 py-0.5 rounded-full uppercase ${
+                    selectedError.severity === 'CRITICAL'
+                      ? isLightMode
+                        ? 'bg-rose-100 text-rose-800 border border-rose-300 font-mono'
+                        : 'bg-rose-500/20 text-rose-400 border border-rose-500/30'
+                      : isLightMode
+                        ? 'bg-amber-100 text-amber-800 border border-amber-300 font-mono'
+                        : 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
+                  }`}
+                >
+                  {selectedError.severity}
+                </span>
+              )}
               <span className="text-xs opacity-50">&bull;</span>
               <span className={`text-xs font-bold font-mono ${isLightMode ? 'text-slate-900' : 'text-cyan-400'}`}>
                 {selectedError.serviceName}
@@ -177,7 +212,7 @@ export const DiagnosticContainer: React.FC<DiagnosticContainerProps> = ({
         <div className="flex items-center space-x-2">
           <Layers className={`w-4 h-4 ${isLightMode ? 'text-slate-900' : 'text-cyan-400'}`} />
           <span className={`font-bold ${isLightMode ? 'text-slate-950 font-mono' : 'text-slate-200'}`}>Diagnostic Pipeline Views</span>
-          <span className={`text-[11px] ${isLightMode ? 'text-slate-500 font-mono' : 'text-slate-500'}`}>(6 Collapsible Sections)</span>
+          <span className={`text-[11px] ${isLightMode ? 'text-slate-500 font-mono' : 'text-slate-500'}`}>(Collapsible Sections)</span>
         </div>
 
         <div className="flex items-center space-x-2">
@@ -290,7 +325,7 @@ export const DiagnosticContainer: React.FC<DiagnosticContainerProps> = ({
         defaultCollapsed={globalState !== null ? globalState : false}
         isLightMode={isLightMode}
       >
-        <HypothesesCard hypotheses={diagnostic.hypotheses} serviceName={selectedError.serviceName} />
+        <HypothesesCard hypotheses={diagnostic.hypotheses} serviceName={selectedError.serviceName} onMarkAsFixed={onMarkAsFixed} />
       </CollapsibleCard>
 
       {/* Container 2.5: Autonomous Parallel Sandbox Subagents */}
@@ -313,25 +348,27 @@ export const DiagnosticContainer: React.FC<DiagnosticContainerProps> = ({
         <ParallelSandboxCard selectedError={selectedError} diagnostic={diagnostic} />
       </CollapsibleCard>
 
-      {/* Container 2.8: Cloud Run Application Auto-Healing & Live Visual Preview */}
-      <CollapsibleCard
-        key={`autoheal-${globalCollapseKey}`}
-        title="Cloud Run Application-Level Auto-Healing & Live Visual Preview"
-        icon={<Sparkles className={`w-4 h-4 ${isLightMode ? 'text-slate-900' : 'text-cyan-400'}`} />}
-        badge={
-          <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full border ${
-            isLightMode
-              ? 'bg-purple-100 text-purple-800 border-purple-300 font-mono'
-              : 'bg-purple-500/20 text-purple-300 border-purple-500/30'
-          }`}>
-            Gemini 3.5 Flash Lite Powered
-          </span>
-        }
-        defaultCollapsed={globalState !== null ? globalState : false}
-        isLightMode={isLightMode}
-      >
-        <CloudRunAppAutoHealCard selectedError={selectedError} isLightMode={isLightMode} />
-      </CollapsibleCard>
+      {/* Container 2.8: Cloud Run Application Auto-Healing & Live Visual Preview - RENDER ONLY FOR APPLICATION ERRORS */}
+      {isAppError(selectedError) && (
+        <CollapsibleCard
+          key={`autoheal-${globalCollapseKey}`}
+          title="Cloud Run Application-Level Auto-Healing & Live Visual Preview"
+          icon={<Sparkles className={`w-4 h-4 ${isLightMode ? 'text-slate-900' : 'text-cyan-400'}`} />}
+          badge={
+            <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full border ${
+              isLightMode
+                ? 'bg-purple-100 text-purple-800 border-purple-300 font-mono'
+                : 'bg-purple-500/20 text-purple-300 border-purple-500/30'
+            }`}>
+              Gemini 3.5 Flash Lite Powered
+            </span>
+          }
+          defaultCollapsed={globalState !== null ? globalState : false}
+          isLightMode={isLightMode}
+        >
+          <CloudRunAppAutoHealCard selectedError={selectedError} isLightMode={isLightMode} />
+        </CollapsibleCard>
+      )}
 
       {/* Container 2.9: Live "Proof-of-Fix" Verification Payload Test Suite */}
       <CollapsibleCard

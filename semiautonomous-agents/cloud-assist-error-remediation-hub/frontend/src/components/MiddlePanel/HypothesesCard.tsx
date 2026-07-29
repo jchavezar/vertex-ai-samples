@@ -6,6 +6,7 @@ import { RichTextRenderer } from '../RichTextRenderer';
 interface HypothesesCardProps {
   hypotheses: HypothesisItem[];
   serviceName?: string;
+  onMarkAsFixed?: () => void;
 }
 
 interface ExecutionResult {
@@ -30,7 +31,7 @@ interface InspectModalData {
   result?: ExecutionResult;
 }
 
-export const HypothesesCard: React.FC<HypothesesCardProps> = ({ hypotheses, serviceName = "GCP Service" }) => {
+export const HypothesesCard: React.FC<HypothesesCardProps> = ({ hypotheses, serviceName = "GCP Service", onMarkAsFixed }) => {
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
   const [runningIndex, setRunningIndex] = useState<number | null>(null);
   const [execResults, setExecResults] = useState<Record<number, ExecutionResult>>({});
@@ -58,6 +59,7 @@ export const HypothesesCard: React.FC<HypothesesCardProps> = ({ hypotheses, serv
         const data: ExecutionResult = await res.json();
         data.durationMs = endMs - startMs;
         setExecResults((prev) => ({ ...prev, [idx]: data }));
+        if (onMarkAsFixed) onMarkAsFixed();
       } else {
         setExecResults((prev) => ({
           ...prev,

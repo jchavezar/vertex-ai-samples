@@ -23,7 +23,7 @@ export const TimeFilterBar: React.FC<TimeFilterBarProps> = ({
   isLightMode = false
 }) => {
   return (
-    <div className={`p-3 border-b flex items-center justify-between gap-2 transition-colors duration-300 ${
+    <div className={`p-2.5 border-b flex flex-col gap-2 w-full overflow-hidden transition-colors duration-300 ${
       isLightMode
         ? 'bg-white border-slate-200 text-slate-900'
         : 'bg-[#0e131d]/90 border-slate-800/80 text-slate-400'
@@ -32,7 +32,7 @@ export const TimeFilterBar: React.FC<TimeFilterBarProps> = ({
         <Clock className={`w-3.5 h-3.5 ${isLightMode ? 'text-slate-900' : 'text-cyan-400'}`} />
         <span>Cloud Logging Window:</span>
       </div>
-      <div className={`flex items-center p-0.5 rounded-lg border ${
+      <div className={`grid grid-cols-5 gap-0.5 p-0.5 rounded-lg border w-full ${
         isLightMode
           ? 'bg-slate-100 border-slate-300'
           : 'bg-slate-950/70 border-slate-800/80'
@@ -44,7 +44,7 @@ export const TimeFilterBar: React.FC<TimeFilterBarProps> = ({
               key={opt.id}
               onClick={() => onSelectRange(opt.id)}
               disabled={isLoading}
-              className={`px-2.5 py-1 text-xs font-medium rounded-md transition-all duration-150 cursor-pointer ${
+              className={`w-full py-1 text-[11px] font-medium rounded-md transition-all duration-150 cursor-pointer text-center truncate ${
                 isActive
                   ? isLightMode
                     ? 'bg-slate-950 text-white font-mono font-bold shadow-sm'
@@ -53,6 +53,7 @@ export const TimeFilterBar: React.FC<TimeFilterBarProps> = ({
                     ? 'text-slate-600 hover:text-slate-950 hover:bg-slate-200'
                     : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900/60'
               }`}
+              title={opt.label}
             >
               {opt.label}
             </button>
@@ -62,3 +63,4 @@ export const TimeFilterBar: React.FC<TimeFilterBarProps> = ({
     </div>
   );
 };
+

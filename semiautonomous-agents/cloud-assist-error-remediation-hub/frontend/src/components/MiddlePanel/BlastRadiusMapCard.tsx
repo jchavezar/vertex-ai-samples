@@ -9,8 +9,45 @@ interface BlastRadiusMapCardProps {
 
 export const BlastRadiusMapCard: React.FC<BlastRadiusMapCardProps> = ({ selectedError, isLightMode = false }) => {
   const getBlastNodes = () => {
-    const service = selectedError.serviceName.toLowerCase();
-    if (service.includes('storefront') || service.includes('envato')) {
+    const text = (selectedError.serviceName + " " + selectedError.summary + " " + selectedError.fullText + " " + selectedError.id).toLowerCase();
+    
+    if (text.includes('lifecycle') || text.includes('revision status update')) {
+      return {
+        primary: "cloud-run-container-engine (Cloud Run System)",
+        path: "/sys/revision/rollout",
+        impacted: [
+          { name: "Revision Ingress Router", type: "Traffic Splitter", status: "SYNCING (100% Green)", icon: Server },
+          { name: "Container Auto-Scaler", type: "Instance Pool Engine", status: "SCALING EVENT", icon: Cpu },
+          { name: "Revision Health Monitor", type: "Startup Probe", status: "VERIFYING (HTTP 200)", icon: Layers }
+        ],
+        riskScore: "LOW (2.1/10)",
+        userImpact: "Container Instance Scaling & Traffic Rollout Event"
+      };
+    } else if (text.includes('k8s') || text.includes('gke') || text.includes('crashloop')) {
+      return {
+        primary: "payment-service-pod-x78z (GKE Pod)",
+        path: "/healthz",
+        impacted: [
+          { name: "Kubelet Readiness Probe", type: "K8s Ingress Controller", status: "FAILED (HTTP 500)", icon: Server },
+          { name: "Payment Container Engine", type: "Pod Instance", status: "CRASHLOOPBACKOFF", icon: Cpu },
+          { name: "Service Mesh Proxy", type: "Envoy Sidecar", status: "DEGRADED", icon: Layers }
+        ],
+        riskScore: "HIGH (8.7/10)",
+        userImpact: "Payment Processing Pod Restart Loop"
+      };
+    } else if (text.includes('storage') || text.includes('gcs') || text.includes('bucket')) {
+      return {
+        primary: "prod-customer-invoice-exports (Cloud Storage Bucket)",
+        path: "gs://prod-customer-invoice-exports",
+        impacted: [
+          { name: "GCS Objects API", type: "Storage Engine", status: "403 PERMISSION DENIED", icon: Key },
+          { name: "Invoice Export Pipeline", type: "Batch Subsystem", status: "BLOCKED", icon: Server },
+          { name: "Billing Manager UI", type: "Admin Portal", status: "EXPORT FAILURES", icon: Layers }
+        ],
+        riskScore: "HIGH (7.8/10)",
+        userImpact: "Customer Invoice PDF Downloads Failing"
+      };
+    } else if (text.includes('storefront') || text.includes('envato') || text.includes('zerodivision')) {
       return {
         primary: "envato-vibe-storefront (Cloud Run)",
         path: "/api/cart/checkout",
@@ -22,7 +59,7 @@ export const BlastRadiusMapCard: React.FC<BlastRadiusMapCardProps> = ({ selected
         riskScore: "HIGH (8.4/10)",
         userImpact: "~1,420 Active Cart Sessions Blocked"
       };
-    } else if (service.includes('ledger') || service.includes('cyberpunk')) {
+    } else if (text.includes('ledger') || text.includes('cyberpunk') || text.includes('jwt')) {
       return {
         primary: "cyberpunk-ledger-dashboard (Cloud Run)",
         path: "/api/auth/token",
@@ -34,7 +71,7 @@ export const BlastRadiusMapCard: React.FC<BlastRadiusMapCardProps> = ({ selected
         riskScore: "CRITICAL (9.1/10)",
         userImpact: "All Authentication & Token Verification Requests Failing"
       };
-    } else if (service.includes('healthcare') || service.includes('medical')) {
+    } else if (text.includes('healthcare') || text.includes('medical') || text.includes('oom')) {
       return {
         primary: "healthcare-patient-portal (Cloud Run)",
         path: "/api/reports/mri-scan",
@@ -45,6 +82,18 @@ export const BlastRadiusMapCard: React.FC<BlastRadiusMapCardProps> = ({ selected
         ],
         riskScore: "CRITICAL (9.5/10)",
         userImpact: "Radiology Scan Reports Unreachable"
+      };
+    } else if (text.includes('scheduler') || text.includes('warmup')) {
+      return {
+        primary: "envato-vibe-app-warmup (Cloud Scheduler Job)",
+        path: "/api/warmup",
+        impacted: [
+          { name: "Cloud Scheduler Cron", type: "GCP Scheduler Job", status: "FAILED (HTTP 404)", icon: Server },
+          { name: "Cloud Run Revision Endpoint", type: "Microservice Ingress", status: "ROUTE MISSING", icon: Cpu },
+          { name: "Warmup Cache Subsystem", type: "Application Cache", status: "COLD START DELAY", icon: Layers }
+        ],
+        riskScore: "MEDIUM (6.5/10)",
+        userImpact: "Automated Warmup Cron Job Failing on Target Route /api/warmup"
       };
     } else {
       return {

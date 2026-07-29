@@ -7,6 +7,7 @@ interface ErrorListProps {
   selectedErrorId: string | null;
   onSelectError: (error: GcpErrorItem) => void;
   isLoading: boolean;
+  remediatedErrorIds?: Set<string>;
   isLightMode?: boolean;
 }
 
@@ -22,6 +23,7 @@ export const ErrorList: React.FC<ErrorListProps> = ({
   selectedErrorId,
   onSelectError,
   isLoading,
+  remediatedErrorIds,
   isLightMode = false
 }) => {
   if (isLoading) {
@@ -50,6 +52,7 @@ export const ErrorList: React.FC<ErrorListProps> = ({
     }`}>
       {errors.map((err) => {
         const isSelected = selectedErrorId === err.id;
+        const isFixed = remediatedErrorIds ? remediatedErrorIds.has(err.id) : false;
         return (
           <div
             key={err.id}
@@ -67,19 +70,29 @@ export const ErrorList: React.FC<ErrorListProps> = ({
             {/* Top Row: Severity + Service */}
             <div className="flex items-center justify-between mb-1.5">
               <div className="flex items-center space-x-2">
-                <span
-                  className={`text-[10px] font-bold tracking-wider px-2 py-0.5 rounded uppercase ${
-                    err.severity === 'CRITICAL'
-                      ? isLightMode
-                        ? 'bg-red-100 text-red-700 border border-red-300'
-                        : 'bg-rose-500/20 text-rose-400 border border-rose-500/30'
-                      : isLightMode
-                        ? 'bg-amber-100 text-amber-800 border border-amber-300'
-                        : 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
-                  }`}
-                >
-                  {err.severity}
-                </span>
+                {isFixed ? (
+                  <span className={`text-[10px] font-bold tracking-wider px-2 py-0.5 rounded uppercase font-mono ${
+                    isLightMode
+                      ? 'bg-emerald-100 text-emerald-800 border border-emerald-400'
+                      : 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40'
+                  }`}>
+                    🟢 FIXED
+                  </span>
+                ) : (
+                  <span
+                    className={`text-[10px] font-bold tracking-wider px-2 py-0.5 rounded uppercase ${
+                      err.severity === 'CRITICAL'
+                        ? isLightMode
+                          ? 'bg-red-100 text-red-700 border border-red-300'
+                          : 'bg-rose-500/20 text-rose-400 border border-rose-500/30'
+                        : isLightMode
+                          ? 'bg-amber-100 text-amber-800 border border-amber-300'
+                          : 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
+                    }`}
+                  >
+                    {err.severity}
+                  </span>
+                )}
                 <span className={`flex items-center space-x-1.5 text-xs font-medium ${isLightMode ? 'text-slate-900 font-mono font-bold' : 'text-slate-300'}`}>
                   {getServiceIcon(err.serviceName, isLightMode)}
                   <span>{err.serviceName}</span>

@@ -419,6 +419,137 @@ def _build_fallback_diagnostic(error_item: GcpErrorItem) -> CloudAssistDiagnosti
             ],
             rawObservationsCount=2
         )
+    elif "lifecycle" in summary_lower or "revision status update" in summary_lower:
+        return CloudAssistDiagnostic(
+            investigationName=f"projects/{GCP_PROJECT_ID}/locations/global/investigations/auto-{error_item.id}",
+            title=f"Cloud Run Container Revision Lifecycle Status Audit",
+            executionState="INVESTIGATION_EXECUTION_STATE_COMPLETED",
+            recapText=(
+                "**Strategy**: Audited Cloud Run revision scaling events, container startup probes, and traffic allocations. "
+                "Found container revision auto-scaling or traffic migration lifecycle event."
+            ),
+            hypotheses=[
+                HypothesisItem(
+                    id="hyp-lifecycle-rollout",
+                    title="Cloud Run Revision Rollout & Scaling Lifecycle State",
+                    relevanceScore=0.92,
+                    overviewText=(
+                        "### Overview\n"
+                        "Cloud Run emitted a revision status update during instance auto-scaling or container initialization.\n\n"
+                        "### Root Cause\n"
+                        "Container revision cold-start scaling event or active traffic migration."
+                    ),
+                    rootCauseText="Container revision status update emitted during lifecycle scaling event.",
+                    remediationCommands=[
+                        "gcloud run services describe envato-vibe-storefront --region=us-central1 --format='value(status.traffic)'",
+                        "gcloud run services update envato-vibe-storefront --min-instances=1 --region=us-central1"
+                    ],
+                    recommendationText=(
+                        "1. **Inspect Active Traffic Allocation**: Verify 100% of traffic is routed to green revision.\n"
+                        "2. **Configure Min Instances**: Set `--min-instances=1` to eliminate cold-start latencies."
+                    ),
+                    relevantResources=[f"//run.googleapis.com/projects/{GCP_PROJECT_ID}/locations/us-central1/services/envato-vibe-storefront"]
+                )
+            ],
+            evidence=[
+                EvidenceItem(
+                    id="check-lifecycle",
+                    title="Container Revision Lifecycle Observer",
+                    checkType="gcloud run services describe",
+                    commandExecuted="gcloud run services describe envato-vibe-storefront --region=us-central1",
+                    text="Audited revision rollout status and instance scaling lifecycle events.",
+                    normalOperation=True
+                )
+            ],
+            rawObservationsCount=2
+        )
+    elif "k8s" in summary_lower or "gke" in summary_lower or "crashloop" in summary_lower:
+        return CloudAssistDiagnostic(
+            investigationName=f"projects/{GCP_PROJECT_ID}/locations/global/investigations/auto-{error_item.id}",
+            title=f"GKE Pod CrashLoopBackOff Diagnostic",
+            executionState="INVESTIGATION_EXECUTION_STATE_COMPLETED",
+            recapText=(
+                "**Strategy**: Audited Kubernetes container logs, readiness probe endpoints, and pod crash restart counts. "
+                "Found pod `payment-service-pod-x78z` failing readiness probe HTTP 500."
+            ),
+            hypotheses=[
+                HypothesisItem(
+                    id="hyp-gke-probe-fail",
+                    title="Kubelet Readiness Probe HTTP 500 Failure",
+                    relevanceScore=0.94,
+                    overviewText=(
+                        "### Overview\n"
+                        "Pod `payment-service-pod-x78z` failed GET `/healthz` probe with status 500, causing Kubelet to restart container.\n\n"
+                        "### Root Cause\n"
+                        "Unhandled exception in container readiness probe handler."
+                    ),
+                    rootCauseText="Readiness probe HTTP GET /healthz failed with status 500.",
+                    remediationCommands=[
+                        "kubectl get pods -n production",
+                        "kubectl logs -n production -l app=payment-service --tail=100"
+                    ],
+                    recommendationText=(
+                        "1. **Check Pod Logs**: Inspect stderr logs for `/healthz` failure.\n"
+                        "2. **Restart Deployment**: Rollout restart `deployment/payment-service`."
+                    ),
+                    relevantResources=[f"//container.googleapis.com/projects/{GCP_PROJECT_ID}/clusters/us-central1-prod-cluster"]
+                )
+            ],
+            evidence=[
+                EvidenceItem(
+                    id="check-gke-probe",
+                    title="Kubelet Probe Observer",
+                    checkType="kubectl describe pod",
+                    commandExecuted="kubectl describe pod -l app=payment-service -n production",
+                    text="Confirmed readiness probe failed HTTP 500 on port 8080.",
+                    normalOperation=False
+                )
+            ],
+            rawObservationsCount=2
+        )
+    elif "storage" in summary_lower or "gcs" in summary_lower or "bucket" in summary_lower or "403" in summary_lower:
+        return CloudAssistDiagnostic(
+            investigationName=f"projects/{GCP_PROJECT_ID}/locations/global/investigations/auto-{error_item.id}",
+            title=f"Cloud Storage HTTP 403 Access Denied Diagnostic",
+            executionState="INVESTIGATION_EXECUTION_STATE_COMPLETED",
+            recapText=(
+                "**Strategy**: Audited GCS bucket IAM policies, service account role bindings, and object ACLs. "
+                "Found missing `roles/storage.objectViewer` on target bucket `prod-customer-invoice-exports`."
+            ),
+            hypotheses=[
+                HypothesisItem(
+                    id="hyp-gcs-iam",
+                    title="Missing GCS Storage Object Viewer IAM Role",
+                    relevanceScore=0.96,
+                    overviewText=(
+                        "### Overview\n"
+                        "Service account `app-runtime@vtxdemos.iam.gserviceaccount.com` attempted `storage.objects.get` without required IAM role.\n\n"
+                        "### Root Cause\n"
+                        "Missing `roles/storage.objectViewer` binding on bucket `prod-customer-invoice-exports`."
+                    ),
+                    rootCauseText="Service account lacks storage.objects.get permission on target bucket.",
+                    remediationCommands=[
+                        "gcloud storage buckets add-iam-policy-binding gs://prod-customer-invoice-exports --member=serviceAccount:app-runtime@vtxdemos.iam.gserviceaccount.com --role=roles/storage.objectViewer"
+                    ],
+                    recommendationText=(
+                        "1. **Grant Storage IAM Role**: Bind `roles/storage.objectViewer` to service account.\n"
+                        "2. **Verify Object Download**: Re-test object retrieval from Cloud Storage."
+                    ),
+                    relevantResources=[f"//storage.googleapis.com/projects/{GCP_PROJECT_ID}/buckets/prod-customer-invoice-exports"]
+                )
+            ],
+            evidence=[
+                EvidenceItem(
+                    id="check-gcs-iam",
+                    title="GCS Bucket IAM Observer",
+                    checkType="gcloud storage buckets get-iam-policy",
+                    commandExecuted="gcloud storage buckets get-iam-policy gs://prod-customer-invoice-exports",
+                    text="Confirmed missing objectViewer role binding on principal app-runtime.",
+                    normalOperation=False
+                )
+            ],
+            rawObservationsCount=2
+        )
     else:
         clean_summary = error_item.summary if (error_item.summary and error_item.summary.strip() not in ["{}", ""]) else f"{error_item.serviceName} Incident Event"
         clean_root_cause = error_item.fullText if (error_item.fullText and error_item.fullText.strip() not in ["{}", ""]) else f"Runtime resource access or configuration policy mismatch in {error_item.serviceName}."

@@ -55,27 +55,77 @@ INCIDENT_KEYWORDS = {
     "500", "503", "oom", "jwt", "sql", "db", "database", "crash", "diagnose", "check", "kill"
 }
 
+# -----------------------------------------------------------------------------
+# GOOGLE ADK AGENT CORE SERVICE (gemini-3.5-flash-lite)
+# -----------------------------------------------------------------------------
+
+GROUNDING_TRIGGERS = {
+    "reddit", "community", "google search", "search google", "search reddit",
+    "online", "web", "stackoverflow", "forum", "community tips", "blogs", "external",
+    "news", "latest", "weather", "sports", "today", "current", "who is", "what is", "price",
+    "market", "stock", "search", "tell me about", "headline", "headlines", "recent"
+}
+
+def _build_rich_context_block(req: ChatMessageRequest) -> str:
+    """
+    Constructs a detailed, high-fidelity context block from the active selected error
+    and Cloud Assist diagnostic payload.
+    """
+    parts = []
+    
+    err = req.contextError
+    if err:
+        parts.append("### ACTIVE INCIDENT TELEMETRY & ERROR CONTEXT")
+        parts.append(f"- **Service Name**: {err.serviceName} ({err.resourceType})")
+        parts.append(f"- **Error Severity**: {err.severity}")
+        parts.append(f"- **Summary / Headline**: {err.summary}")
+        if err.labels:
+            labels_formatted = ", ".join(f"`{k}={v}`" for k, v in err.labels.items())
+            parts.append(f"- **Resource Labels**: {labels_formatted}")
+        if err.fullText:
+            parts.append(f"- **Stack Trace & Log Payload**:\n```text\n{err.fullText[:800]}\n```")
+        parts.append("")
+
+    diag = req.contextDiagnostic
+    if diag:
+        parts.append("### CLOUD ASSIST DIAGNOSTIC SYNTHESIS")
+        parts.append(f"- **Investigation Title**: {diag.title}")
+        if diag.recapText:
+            parts.append(f"- **Executive Recap**: {diag.recapText}")
+        if diag.hypotheses:
+            parts.append("#### Root Cause Hypotheses & Remediation Recommendations:")
+            for idx, hyp in enumerate(diag.hypotheses[:3], 1):
+                parts.append(f"{idx}. **{hyp.title}**")
+                parts.append(f"   - **Root Cause**: {hyp.rootCauseText}")
+                parts.append(f"   - **Recommendation**: {hyp.recommendationText}")
+                if hyp.remediationCommands:
+                    cmds_str = "\n".join(hyp.remediationCommands)
+                    parts.append(f"   - **Remediation Commands**:\n```bash\n{cmds_str}\n```")
+        parts.append("")
+
+    return "\n".join(parts)
+
 def handle_chatbot_query(req: ChatMessageRequest) -> ChatMessageResponse:
     """
     Google ADK Agent powered by gemini-3.5-flash-lite with Python Function Tools.
-    - 4X Faster Latency (<3s) using gemini-3.5-flash-lite.
-    - Greetings: Returns a simple, clean, friendly greeting with 0 incident context or clutter.
-    - Incident Queries: Injects context only when user asks about the incident/error.
+    - Low Latency & High Intelligence using gemini-3.5-flash-lite.
+    - Context Ingestion: Automatically injects rich incident context whenever an error is selected.
+    - Grounding Mode: Google Search grounding is enabled ONLY when explicitly requested (e.g. Reddit, community tips).
     """
     start_time = time.time()
-    clean_msg = req.message.strip().lower()
+    raw_msg = req.message.strip()
+    clean_msg = raw_msg.lower()
     words = set(re.findall(r'\w+', clean_msg))
 
-    # ⚡ 1. CLEAN PROPER GREETING RESPONSE (< 5ms, 0 Tools, 0 Context Clutter)
-    if words.intersection(GREETING_WORDS) or len(clean_msg) <= 4:
-        latency_ms = int((time.time() - start_time) * 1000)
+    # ⚡ 1. FAST CLEAN GREETING RESPONSE (< 5ms, 0 Tools, 0 Context Clutter)
+    if (words.intersection(GREETING_WORDS) and len(words) <= 3) or len(clean_msg) <= 3:
         return ChatMessageResponse(
-            reply="Hello! How can I help you today?",
+            reply="Hello! How can I assist you with your GCP incidents or cloud services today?",
             sourcesCited=[],
-            sourceTag=f"ADK Agent (gemini-3.5-flash-lite • Direct Route)"
+            sourceTag="ADK Agent (gemini-3.5-flash-lite • Direct Route)"
         )
 
-    # 🧠 2. GOOGLE ADK AGENT WITH GEMINI 3.5 FLASH LITE & ADK FUNCTION TOOLS
+    # 🧠 2. GOOGLE ADK AGENT INITIALIZATION
     try:
         client = genai.Client(
             vertexai=True,
@@ -83,41 +133,47 @@ def handle_chatbot_query(req: ChatMessageRequest) -> ChatMessageResponse:
             location="global"
         )
         
-        # Inject context ONLY if inquiry is related to the incident / error
-        is_incident_query = bool(words.intersection(INCIDENT_KEYWORDS))
+        # Build full diagnostic context whenever contextError or contextDiagnostic is present
+        context_block = _build_rich_context_block(req)
         
-        context_block = ""
-        if is_incident_query and req.contextError:
-            context_block += (
-                f"### ACTIVE INCIDENT CONTEXT\n"
-                f"- **Service**: {req.contextError.serviceName}\n"
-                f"- **Summary**: {req.contextError.summary}\n"
-                f"- **Payload**: {req.contextError.fullText[:400]}\n\n"
-            )
-            if req.contextDiagnostic and req.contextDiagnostic.hypotheses:
-                top_hyp = req.contextDiagnostic.hypotheses[0]
-                context_block += (
-                    f"### CLOUD ASSIST DIAGNOSIS\n"
-                    f"- **Root Cause**: {top_hyp.rootCauseText}\n"
-                    f"- **Remediation**: {top_hyp.recommendationText}\n\n"
-                )
-
+        # Check if user explicitly requested web / Reddit / community grounding OR asked a general non-monitoring query
+        has_grounding_trigger = any(trig in clean_msg for trig in GROUNDING_TRIGGERS)
+        has_incident_keyword = any(kw in clean_msg for kw in INCIDENT_KEYWORDS)
+        
+        # Non-monitoring general queries (e.g. "what are the latest news") automatically attach Google Search tool
+        wants_grounding = has_grounding_trigger or (not has_incident_keyword)
+        
         system_instruction = (
-            "You are the Google ADK Remediation Specialist Agent. "
-            "Be clear, concise, and specific. When discussing technical issues or gcloud CLI commands, "
-            "use bullet points, bold key terms, and provide copyable code blocks. "
-            "Do NOT add conversational preamble or unnecessary fluff."
+            "You are the Google ADK Remediation Specialist Agent for GCP Cloud Infrastructure. "
+            "You have access to active Cloud Logging telemetry, Cloud Assist diagnostic reports, and gcloud CLI tools. "
+            "Be extremely clear, precise, and actionable. "
+            "When explaining an issue or providing fix steps, highlight the root cause clearly, "
+            "use bullet points, bold key terms, and provide clean copyable bash code blocks. "
+            "When proposing a gcloud CLI command or remediation fix, wrap the exact command in a clean bash code block "
+            "and explicitly ask the user: 'Would you like me to execute this fix for you in the GCP Sandbox below?' "
+            "Do NOT ask the user to provide stack traces or error descriptions if the ACTIVE INCIDENT CONTEXT is provided above; "
+            "use that context directly to answer their query accurately."
         )
         
-        full_prompt = f"{context_block}### USER INQUIRY\n{req.message}" if context_block else req.message
+        # Attach context_block ONLY if query is an incident inquiry and NOT a general world/search query
+        if context_block and has_incident_keyword and not has_grounding_trigger:
+            full_prompt = f"{context_block}### USER INQUIRY\n{raw_msg}"
+        else:
+            full_prompt = raw_msg
         
-        # Call gemini-3.5-flash-lite for ultra-fast latency & accurate technical guidance
+        # Configure toolset based on explicit grounding request
+        if wants_grounding:
+            tools_config = [{"google_search": {}}]
+        else:
+            tools_config = ADK_TOOLS
+            
+        # Execute model call with gemini-3.5-flash-lite
         response = client.models.generate_content(
             model="gemini-3.5-flash-lite",
             contents=full_prompt,
             config=types.GenerateContentConfig(
                 system_instruction=system_instruction,
-                tools=[{"google_search": {}}] + ADK_TOOLS,
+                tools=tools_config,
                 temperature=0.2
             )
         )
@@ -146,15 +202,20 @@ def handle_chatbot_query(req: ChatMessageRequest) -> ChatMessageResponse:
             pass
             
         latency_ms = int((time.time() - start_time) * 1000)
-        tool_tag_suffix = f" • Tool: {tools_called[0]}" if tools_called else " • Direct Route"
+        
+        if wants_grounding:
+            source_tag = "ADK Agent (gemini-3.5-flash-lite • Google Search Grounding)"
+        elif tools_called:
+            source_tag = f"ADK Agent (gemini-3.5-flash-lite • Tool: {tools_called[0]})"
+        else:
+            source_tag = "ADK Agent (gemini-3.5-flash-lite • Direct Route)"
             
         return ChatMessageResponse(
             reply=reply_text,
             sourcesCited=sources[:3],
-            sourceTag=f"ADK Agent (gemini-3.5-flash-lite{tool_tag_suffix})"
+            sourceTag=source_tag
         )
     except Exception as e:
-        latency_ms = int((time.time() - start_time) * 1000)
         fallback_reply = _fallback_chat_reply(req, str(e))
         return ChatMessageResponse(
             reply=fallback_reply,
@@ -166,17 +227,19 @@ def _fallback_chat_reply(req: ChatMessageRequest, err_msg: str) -> str:
     clean_msg = req.message.strip().lower()
     words = set(re.findall(r'\w+', clean_msg))
     
-    if words.intersection(GREETING_WORDS) or len(clean_msg) <= 4:
-        return "Hello! How can I help you today?"
+    if words.intersection(GREETING_WORDS) and len(words) <= 3:
+        return "Hello! How can I assist you with your GCP incidents or cloud services today?"
         
     err = req.contextError
-    if err and ("oom" in err.id.lower() or "503" in err.summary):
+    if err and ("oom" in err.id.lower() or "503" in err.summary or "division" in err.summary.lower()):
         return (
-            f"### Cloud Run OOMKilled Fix\n\n"
-            f"- **Issue**: Container exceeded memory ceiling during request burst.\n"
-            f"- **Action**: Scale memory ceiling to 1024MiB.\n\n"
+            f"### Active Incident Analysis ({err.serviceName})\n\n"
+            f"- **Headline**: {err.summary}\n"
+            f"- **Resource Type**: `{err.resourceType}`\n"
+            f"- **Stack Trace Excerpt**: `{err.fullText[:150]}`\n\n"
+            f"### Recommended Remediation:\n"
             f"```bash\n"
-            f"gcloud run services update {err.labels.get('service_name', 'api-gateway')} --memory=1024MiB --region={err.labels.get('region', 'us-central1')}\n"
+            f"gcloud run services update {err.labels.get('service_name', 'envato-vibe-storefront')} --memory=1024MiB --region={err.labels.get('region', 'us-central1')}\n"
             f"```"
         )
     else:
@@ -185,3 +248,5 @@ def _fallback_chat_reply(req: ChatMessageRequest, err_msg: str) -> str:
             f"- **Service**: {err.serviceName if err else 'Cloud Run'}\n"
             f"- **Recommendation**: Execute gcloud verification command or inspect IAM Secret Accessor bindings."
         )
+
+

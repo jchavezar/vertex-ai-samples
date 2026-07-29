@@ -38,6 +38,34 @@ export const ReActEvidenceCard: React.FC<ReActEvidenceCardProps> = ({ evidence, 
         recommendation: "Increase Cloud SQL max_connections from 20 to 100 and apply exponential backoff retry logic in postgres.py pool getter.",
         actionCommand: "gcloud run services update realtime-logistics-tracker --update-env-vars=DB_MAX_CONNECTIONS=100 --region=us-central1"
       };
+    } else if (title.includes('lifecycle') || text.includes('revision status update') || text.includes('scaling')) {
+      return {
+        serviceName: "envato-vibe-storefront",
+        shortAction: "Configure Min-Instances = 1",
+        recommendation: "Set Cloud Run minimum instances to 1 to eliminate cold-start latencies during revision rollout lifecycle events.",
+        actionCommand: "gcloud run services update envato-vibe-storefront --min-instances=1 --region=us-central1"
+      };
+    } else if (title.includes('k8s') || text.includes('gke') || text.includes('probe') || text.includes('crashloop')) {
+      return {
+        serviceName: "payment-service",
+        shortAction: "Restart GKE Deployment",
+        recommendation: "Execute rollout restart on GKE deployment 'payment-service' to reset crashed container instances.",
+        actionCommand: "kubectl rollout restart deployment/payment-service -n production"
+      };
+    } else if (title.includes('storage') || text.includes('gcs') || text.includes('bucket') || text.includes('403')) {
+      return {
+        serviceName: "prod-customer-invoice-exports",
+        shortAction: "Grant Storage Object Viewer Role",
+        recommendation: "Grant 'roles/storage.objectViewer' IAM role binding to service account 'app-runtime@vtxdemos.iam.gserviceaccount.com'.",
+        actionCommand: "gcloud storage buckets add-iam-policy-binding gs://prod-customer-invoice-exports --member=serviceAccount:app-runtime@vtxdemos.iam.gserviceaccount.com --role=roles/storage.objectViewer"
+      };
+    } else if (title.includes('scheduler') || text.includes('warmup') || text.includes('404') || text.includes('not found')) {
+      return {
+        serviceName: "envato-vibe-app-warmup",
+        shortAction: "Deploy /api/warmup Endpoint",
+        recommendation: "Deploy endpoint '/api/warmup' on target Cloud Run service, or update Cloud Scheduler job URI to a valid registered route.",
+        actionCommand: "gcloud scheduler jobs update http envato-vibe-app-warmup --uri=https://envato-vibe-storefront-254356041555.us-central1.run.app/api/cart/checkout --location=us-central1"
+      };
     } else {
       return {
         serviceName: "envato-vibe-storefront",

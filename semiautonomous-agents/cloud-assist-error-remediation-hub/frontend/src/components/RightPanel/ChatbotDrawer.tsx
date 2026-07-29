@@ -210,7 +210,7 @@ export const ChatbotDrawer: React.FC<ChatbotDrawerProps> = ({
                     ? 'bg-slate-200 text-slate-900 border-slate-400 font-bold'
                     : 'bg-cyan-500/10 text-cyan-300 border-cyan-500/30'
                 }`}>
-                  gemini-3.5-flash
+                  gemini-3.5-flash-lite
                 </span>
               </div>
             </div>

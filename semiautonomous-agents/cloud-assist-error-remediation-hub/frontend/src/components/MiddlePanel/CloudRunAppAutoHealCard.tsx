@@ -22,6 +22,7 @@ import {
 
 interface CloudRunAppAutoHealCardProps {
   selectedError: GcpErrorItem;
+  onMarkAsFixed?: () => void;
   isLightMode?: boolean;
 }
 
@@ -83,7 +84,7 @@ const SERVICES_LIST = [
   }
 ];
 
-export const CloudRunAppAutoHealCard: React.FC<CloudRunAppAutoHealCardProps> = ({ selectedError, isLightMode = false }) => {
+export const CloudRunAppAutoHealCard: React.FC<CloudRunAppAutoHealCardProps> = ({ selectedError, onMarkAsFixed, isLightMode = false }) => {
   const [activeAppId, setActiveAppId] = useState<string>("envato-vibe-storefront");
   const [isProcessing, setIsProcessing] = useState(false);
   const [healResult, setHealResult] = useState<AutoHealResult | null>(null);
@@ -100,10 +101,10 @@ export const CloudRunAppAutoHealCard: React.FC<CloudRunAppAutoHealCardProps> = (
       const summaryText = (selectedError.serviceName + " " + selectedError.summary + " " + selectedError.fullText + " " + selectedError.id).toLowerCase();
 
       let matchedSvc = SERVICES_LIST.find(s => {
-        if (s.id === "cyberpunk-ledger-dashboard" && (summaryText.includes("cyberpunk") || summaryText.includes("keyerror") || summaryText.includes("jwt"))) return true;
-        if (s.id === "healthcare-patient-portal" && (summaryText.includes("healthcare") || summaryText.includes("memoryerror") || summaryText.includes("oom"))) return true;
-        if (s.id === "envato-vibe-storefront" && (summaryText.includes("storefront") || summaryText.includes("envato") || summaryText.includes("zerodivision"))) return true;
-        if (s.id === "realtime-logistics-tracker" && (summaryText.includes("logistics") || summaryText.includes("postgres") || summaryText.includes("conn"))) return true;
+        if (s.id === "cyberpunk-ledger-dashboard" && (summaryText.includes("cyberpunk") || summaryText.includes("keyerror") || summaryText.includes("jwt") || summaryText.includes("k8s") || summaryText.includes("gke"))) return true;
+        if (s.id === "healthcare-patient-portal" && (summaryText.includes("healthcare") || summaryText.includes("memoryerror") || summaryText.includes("oom") || summaryText.includes("storage") || summaryText.includes("gcs"))) return true;
+        if (s.id === "envato-vibe-storefront" && (summaryText.includes("storefront") || summaryText.includes("envato") || summaryText.includes("zerodivision") || summaryText.includes("scheduler") || summaryText.includes("warmup") || summaryText.includes("lifecycle") || summaryText.includes("revision status update"))) return true;
+        if (s.id === "realtime-logistics-tracker" && (summaryText.includes("logistics") || summaryText.includes("postgres") || summaryText.includes("conn") || summaryText.includes("sql"))) return true;
         return summaryText.includes(s.id);
       });
 
@@ -112,7 +113,11 @@ export const CloudRunAppAutoHealCard: React.FC<CloudRunAppAutoHealCardProps> = (
       }
       setHealResult(null);
       setStreamedLogs([]);
-      setAppStateOverride('broken'); // Default to broken HTTP 500 state for active incidents
+      if (summaryText.includes("lifecycle") || summaryText.includes("revision status update")) {
+        setAppStateOverride('healed');
+      } else {
+        setAppStateOverride('broken');
+      }
       setIframeKey((prev) => prev + 1);
     }
   }, [selectedError]);
@@ -147,6 +152,7 @@ export const CloudRunAppAutoHealCard: React.FC<CloudRunAppAutoHealCardProps> = (
                 setAppStateOverride('healed');
                 setIframeKey((prev) => prev + 1);
                 setIsProcessing(false);
+                if (onMarkAsFixed) onMarkAsFixed();
               }
             }, (index + 1) * 1100);
           });
@@ -154,6 +160,7 @@ export const CloudRunAppAutoHealCard: React.FC<CloudRunAppAutoHealCardProps> = (
           setStreamedLogs(data.remediationLogs || []);
           setIframeKey((prev) => prev + 1);
           setIsProcessing(false);
+          if (actionType === 'heal' && onMarkAsFixed) onMarkAsFixed();
         }
       } else {
         setIsProcessing(false);
@@ -189,7 +196,7 @@ export const CloudRunAppAutoHealCard: React.FC<CloudRunAppAutoHealCardProps> = (
             <h2 className={`text-sm font-bold tracking-tight flex flex-wrap items-center gap-2 ${
               isLightMode ? 'text-slate-950 font-mono' : 'text-white'
             }`}>
-              <span>Multi-Application GCP Cloud Run Auto-Healing Engine (4 Active Apps)</span>
+              <span>Cloud Run Application-Level Auto-Healing Engine: {activeService.name}</span>
               <span className={`text-[10px] uppercase font-mono px-2.5 py-0.5 rounded-full font-semibold border ${
                 isLightMode
                   ? 'bg-emerald-100 text-emerald-800 border-emerald-300'
@@ -208,38 +215,30 @@ export const CloudRunAppAutoHealCard: React.FC<CloudRunAppAutoHealCardProps> = (
         </div>
       </div>
 
-      {/* 4 CLOUD RUN MICROSERVICES SELECTOR TABS */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-        {SERVICES_LIST.map((svc) => {
+      {/* ISOLATED INCIDENT TARGET MICROSERVICE BANNER */}
+      <div className="grid grid-cols-1 gap-2.5">
+        {[activeService].map((svc) => {
           const IconComp = svc.icon;
-          const isSelected = activeAppId === svc.id;
           return (
-            <button
+            <div
               key={svc.id}
-              onClick={() => {
-                setActiveAppId(svc.id);
-                setHealResult(null);
-                setIframeKey((prev) => prev + 1);
-              }}
-              className={`p-3 rounded-xl border text-left transition-all flex flex-col justify-between space-y-1.5 cursor-pointer ${
-                isSelected
-                  ? isLightMode
-                    ? 'bg-slate-950 border-slate-950 text-white shadow-md font-mono'
-                    : 'bg-slate-800 border-cyan-400 text-white shadow-lg shadow-cyan-500/10'
-                  : isLightMode
-                    ? 'bg-slate-50 border-slate-200 text-slate-800 hover:bg-slate-100'
-                    : 'bg-black/40 border-slate-800 text-slate-400 hover:border-slate-700 hover:text-slate-200'
+              className={`p-3 rounded-xl border text-left flex items-center justify-between ${
+                isLightMode
+                  ? 'bg-slate-950 border-slate-950 text-white shadow-md font-mono'
+                  : 'bg-slate-800 border-cyan-400 text-white shadow-lg shadow-cyan-500/10'
               }`}
             >
-              <div className="flex items-center justify-between">
-                <IconComp className={`w-4 h-4 ${isSelected ? (isLightMode ? 'text-white' : 'text-cyan-400') : (isLightMode ? 'text-slate-600' : 'text-slate-500')}`} />
-                <span className={`w-2 h-2 rounded-full ${isSelected ? (isLightMode ? 'bg-white animate-pulse' : 'bg-cyan-400 animate-pulse') : (isLightMode ? 'bg-slate-400' : 'bg-slate-600')}`}></span>
+              <div className="flex items-center space-x-3">
+                <IconComp className="w-5 h-5 text-cyan-400" />
+                <div>
+                  <div className="text-sm font-bold">{svc.name} (Isolated Target Service)</div>
+                  <div className="text-xs opacity-75">{svc.theme} &bull; Route: {activeAppId === 'envato-vibe-storefront' ? '/api/cart/checkout' : activeAppId === 'cyberpunk-ledger-dashboard' ? '/api/auth/token' : activeAppId === 'healthcare-patient-portal' ? '/api/reports/mri-scan' : '/api/fleet/status'}</div>
+                </div>
               </div>
-              <div>
-                <div className="text-xs font-bold truncate">{svc.name}</div>
-                <div className="text-[10px] opacity-75 truncate">{svc.theme}</div>
-              </div>
-            </button>
+              <span className="text-xs font-mono font-bold px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
+                ACTIVE INCIDENT TARGET
+              </span>
+            </div>
           );
         })}
       </div>
@@ -425,8 +424,22 @@ export const CloudRunAppAutoHealCard: React.FC<CloudRunAppAutoHealCardProps> = (
           {/* TAB 1: LIVE IFRAME PREVIEW */}
           {activeTab === 'preview' && (
             <div className="space-y-3">
-              <div className={`flex items-center justify-between text-xs px-2 ${isLightMode ? 'text-slate-700 font-mono' : 'text-slate-400'}`}>
-                <span>Live Embedded GCP Iframe Window</span>
+              {activeAppId === "envato-vibe-storefront" && (selectedError?.id.includes('scheduler') || selectedError?.serviceName.toLowerCase().includes('scheduler')) && (
+                <div className={`p-2.5 rounded-xl border text-xs font-mono flex items-center justify-between ${
+                  isLightMode ? 'bg-amber-50 border-amber-300 text-amber-950 font-medium' : 'bg-amber-950/40 border-amber-500/30 text-amber-300'
+                }`}>
+                  <span>ℹ️ <strong>Target Microservice Relationship:</strong> Cloud Scheduler job <code>envato-vibe-app-warmup</code> targets HTTP endpoint <code>/api/warmup</code> hosted on <strong>Envato Vibe Storefront</strong>.</span>
+                </div>
+              )}
+              <div className={`flex flex-col sm:flex-row sm:items-center justify-between text-xs px-2 gap-2 ${isLightMode ? 'text-slate-700 font-mono' : 'text-slate-400'}`}>
+                <div>
+                  <span className="font-bold">Live Embedded GCP Iframe Window</span>
+                  {isBroken && (
+                    <p className="text-[11px] opacity-85 mt-0.5">
+                      ℹ️ <strong>Why HTTP 500?</strong> Unhandled server exception (<code>{selectedError?.summary.split(':')[0] || 'RuntimeError'}</code>) causes Cloud Run WSGI/ASGI server to return HTTP 500 to clients.
+                    </p>
+                  )}
+                </div>
                 <div className="flex items-center space-x-2">
                   <button
                     onClick={() => setIframeKey((prev) => prev + 1)}

@@ -16,6 +16,7 @@ const API_BASE = 'http://127.0.0.1:8088/api';
 
 export function App() {
   const [errors, setErrors] = useState<GcpErrorItem[]>([]);
+  const [remediatedErrorIds, setRemediatedErrorIds] = useState<Set<string>>(new Set());
   const [selectedRange, setSelectedRange] = useState<string>('1h');
   const [selectedError, setSelectedError] = useState<GcpErrorItem | null>(null);
   const [diagnostic, setDiagnostic] = useState<CloudAssistDiagnostic | null>(null);
@@ -28,6 +29,10 @@ export function App() {
   const [isErrorsLoading, setIsErrorsLoading] = useState<boolean>(true);
   const [isDiagnosing, setIsDiagnosing] = useState<boolean>(false);
   const [isChatSending, setIsChatSending] = useState<boolean>(false);
+
+  const handleMarkAsFixed = (errorId: string) => {
+    setRemediatedErrorIds((prev) => new Set(prev).add(errorId));
+  };
 
   const handleToggleTheme = () => {
     setThemeMode((prev) => (prev === 'light' ? 'dark' : 'light'));
@@ -282,6 +287,7 @@ export function App() {
           <ErrorList
             errors={errors}
             selectedErrorId={selectedError?.id || null}
+            remediatedErrorIds={remediatedErrorIds}
             onSelectError={handleSelectError}
             isLoading={isErrorsLoading}
             isLightMode={isLight}
@@ -297,6 +303,8 @@ export function App() {
               selectedError={selectedError}
               diagnostic={diagnostic}
               isLoading={isDiagnosing}
+              isFixed={selectedError ? remediatedErrorIds.has(selectedError.id) : false}
+              onMarkAsFixed={() => selectedError && handleMarkAsFixed(selectedError.id)}
               isLightMode={isLight}
             />
           ) : activeMainTab === 'observability' ? (
@@ -315,6 +323,9 @@ export function App() {
           messages={chatMessages}
           onSendMessage={handleSendMessage}
           onClearChat={handleClearChat}
+          onRunSandboxCommand={(cmd) => {
+            if (selectedError) handleMarkAsFixed(selectedError.id);
+          }}
           isSending={isChatSending}
           isLightMode={isLight}
         />

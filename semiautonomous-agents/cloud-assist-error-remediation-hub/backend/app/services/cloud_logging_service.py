@@ -135,7 +135,7 @@ def fetch_gcp_errors(time_range: str = "1h") -> List[GcpErrorItem]:
             "--limit=15",
             "--format=json"
         ]
-        res = subprocess.run(cmd, capture_output=True, text=True, check=False)
+        res = subprocess.run(cmd, capture_output=True, text=True, check=False, timeout=4)
         if res.returncode == 0 and res.stdout.strip():
             live_entries = json.loads(res.stdout)
             for idx, entry in enumerate(live_entries):
