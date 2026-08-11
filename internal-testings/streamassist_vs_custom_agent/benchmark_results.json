@@ -1,0 +1,334 @@
+[
+  {
+    "id": "TC-01",
+    "category": "Factual Extraction",
+    "marker": "STANDARD_RETRIEVAL",
+    "query": "Who is Jennifer Walsh, what is her role, base salary, and emergency contact?",
+    "ground_truth": "Jennifer Walsh is the Chief Financial Officer (CFO) of Meridian Technologies Corporation. Base salary is $625,000. Emergency contact is Robert Walsh (Spouse).",
+    "streamassist": {
+      "latency_ms": 11671,
+      "accuracy": 50.0,
+      "answer": "**Jennifer Anne Walsh** is the **Chief Financial Officer (CFO)** of Meridian Technologies Corporation. \n\nHere are her compensation and emergency contact details:\n\n*   **Role:** Chief Financial Officer (CFO)\n*   **Base Salary:** \\$625,000\n*   **Emergency Contact:** Robert Walsh (Spouse) \u2014 (415) 555-7183\n\n---\n### \ud83d\udccc Key Employment Details\n*   **Employee ID:** MTC-0012\n*   **Start Date:** September 15, 2017\n*   **Department:** Finance\n*   **Reports To:** CEO (Michael James Thornton)\n*   **Annual Bonus Target:** 125% of base salary\n\n"
+    },
+    "adk_agent": {
+      "latency_ms": 24561,
+      "accuracy": 50.0,
+      "sub_queries": [
+        {
+          "query": "Jennifer Walsh",
+          "target_entities": [
+            "file",
+            "page"
+          ],
+          "reasoning": "To identify the individual Jennifer Walsh and retrieve general information."
+        },
+        {
+          "query": "Jennifer Walsh role",
+          "target_entities": [
+            "file",
+            "page"
+          ],
+          "reasoning": "To find the specific job role or position held by Jennifer Walsh."
+        },
+        {
+          "query": "Jennifer Walsh base salary",
+          "target_entities": [
+            "file"
+          ],
+          "reasoning": "To retrieve the base salary information for Jennifer Walsh, likely found in HR files."
+        },
+        {
+          "query": "Jennifer Walsh emergency contact",
+          "target_entities": [
+            "file",
+            "page"
+          ],
+          "reasoning": "To locate the emergency contact details associated with Jennifer Walsh."
+        },
+        {
+          "query": "Who is Jennifer Walsh, what is her role, base salary, and emergency contact?",
+          "target_entities": [
+            "file",
+            "page"
+          ],
+          "reasoning": "Original query anchor"
+        }
+      ],
+      "answer": "Jennifer Anne Walsh is the Chief Financial Officer (CFO) at Meridian Technologies Corporation. Her base salary is $625,000, and her emergency contact is Robert Walsh (Spouse) at (415) 555-7183 [02_HR_Employee_Records_2025](https://sockcop.sharepoint.com/sites/FinancialDocument/Shared%20Documents/Restricted%20Vault/02_HR_Employee_Records_2025.pdf?web=1).\n\nAdditional details about Jennifer Walsh:\n*   **Employee ID:** MTC-0012\n*   **Date of Birth:** August 22, 1978\n*   **Home Address:** 1592 Marina Boulevard, Apt 4A, San Francisco, CA 94123\n*   **Personal Phone:** (415) 555-7182\n*   **Personal Email:** jennwalshhome@yahoo.com\n*   **Start Date:** September 15, 2017\n*   **Department:** Finance\n*   **Reports To:** CEO\n*   **Direct Deposit Bank:** Wells Fargo, Routing: 121000248, Account: 4829173650\n*   **Company Email:** jwalsh@meridiantech.com\n*   **Company Phone:** (415) 555-8200 [03_Client_Contract_Apex_Financial](https://sockcop.sharepoint.com/sites/FinancialDocument/Shared%20Documents/03_Client_Contract_Apex_Financial.pdf?web=1)"
+    }
+  },
+  {
+    "id": "TC-02",
+    "category": "Tabular & Financial Data",
+    "marker": "STANDARD_RETRIEVAL",
+    "query": "In Project Starlight (NovaTech acquisition), what is the proposed purchase price, who is the founder with 42% ownership, and what is the adjusted EBITDA?",
+    "ground_truth": "Proposed purchase price: $285,000,000. Founder: Alexander Volkov (42% ownership). Adjusted EBITDA: $15,050,000 (after -$850k founder comp, -$420k lease, -$680k credits, +$1.2M legal).",
+    "streamassist": {
+      "latency_ms": 11337,
+      "accuracy": 100.0,
+      "answer": "For the proposed acquisition of **NovaTech Solutions, Inc.** under **Project Starlight**, here are the key financial and ownership details:\n\n*   **Proposed Purchase Price:** The proposed purchase price is **\\$285,000,000**. *(Note: Sterling Advisory Group recommended an adjusted purchase price range of \\$267,500,000 \u2013 \\$275,000,000).*\n*   **Founder with 42% Ownership:** **Alexander Volkov** (CEO and Founder) is listed with **42% ownership**. *(Note: On a fully diluted Cap Table basis, his holding is listed as 35.3%).*\n*   **Adjusted EBITDA:** The FY2024E adjusted EBITDA is **\\$15,050,000** (normalized from a reported EBITDA of \\$15,800,000 after adjusting for legal costs, founder compensation, related party leases, and customer credits).\n\n---\n\n"
+    },
+    "adk_agent": {
+      "latency_ms": 66077,
+      "accuracy": 75.0,
+      "sub_queries": [
+        {
+          "query": "Project Starlight",
+          "target_entities": [
+            "file",
+            "page",
+            "comment",
+            "event",
+            "attachment"
+          ],
+          "reasoning": "Extracts the exact proper noun for the project context."
+        },
+        {
+          "query": "NovaTech acquisition",
+          "target_entities": [
+            "file",
+            "page",
+            "comment",
+            "event",
+            "attachment"
+          ],
+          "reasoning": "Extracts the exact proper noun for the company and acquisition context."
+        },
+        {
+          "query": "purchase price",
+          "target_entities": [
+            "file",
+            "page",
+            "attachment"
+          ],
+          "reasoning": "Identifies the specific financial detail requested."
+        },
+        {
+          "query": "founder 42% ownership",
+          "target_entities": [
+            "file",
+            "page",
+            "comment"
+          ],
+          "reasoning": "Targets the specific individual and their ownership stake."
+        },
+        {
+          "query": "adjusted EBITDA",
+          "target_entities": [
+            "file",
+            "page",
+            "attachment"
+          ],
+          "reasoning": "Extracts the specific financial metric requested."
+        },
+        {
+          "query": "In Project Starlight (NovaTech acquisition), what is the proposed purchase price, who is the founder with 42% ownership, and what is the adjusted EBITDA?",
+          "target_entities": [
+            "file",
+            "page"
+          ],
+          "reasoning": "Original query anchor"
+        }
+      ],
+      "answer": "Based on the provided SharePoint context:\n\n*   **Proposed Purchase Price:** The proposed purchase price for NovaTech Solutions, Inc. is **$285,000,000**. The recommended adjusted purchase price range is $267,500,000 - $275,000,000, with a recommended offer price of $272,000,000.\n    [05_MA_Due_Diligence_Project_Starlight](https://sockcop.sharepoint.com/sites/FinancialDocument/Shared%20Documents/05_MA_Due_Diligence_Project_Starlight.pdf?web=1)\n*   **Founder with 42% ownership:** The founder with 42% ownership is **Alexander Volkov**, who is also the CEO.\n    [05_MA_Due_Diligence_Project_Starlight](https://sockcop.sharepoint.com/sites/FinancialDocument/Shared%20Documents/05_MA_Due_Diligence_Project_Starlight.pdf?web=1)\n    *(Note: The Cap Table Summary on page 3 lists Alexander Volkov with 35.3% ownership.)*\n*   **Adjusted EBITDA:** The adjusted EBITDA is **$15,050,000**.\n    [05_MA_Due_Diligence_Project_Starlight](https://sockcop.sharepoint.com/sites/FinancialDocument/Shared%20Documents/05_MA_Due_Diligence_Project_Starlight.pdf?web=1)"
+    }
+  },
+  {
+    "id": "TC-03",
+    "category": "Multi-Hop Comparative Reasoning",
+    "marker": "STANDARD_RETRIEVAL",
+    "query": "Compare the annual contract value of Apex Financial with the proposed acquisition price of NovaTech Solutions. What are the key termination fees or deal structure terms for both?",
+    "ground_truth": "Apex Financial annual contract value is $4,850,000 (with Year 1 termination fee of $2,425,000 / 50%). NovaTech Solutions proposed acquisition price is $285,000,000 (structured as 70% cash / 30% stock).",
+    "streamassist": {
+      "latency_ms": 35650,
+      "accuracy": 100.0,
+      "answer": "**Analyzing Financial Metrics**\n**Gathering Deal Specifics**\n**Confirming Document Contents**\n**Analyzing Deal Terms**\n**Calculating Termination Exposure**\nThe annual contract value for Apex Financial is **$4.85 million**, while the proposed acquisition price for NovaTech Solutions is **$285 million** (with a recommended adjusted offer of $272 million). \n\nHere is a detailed comparison of their deal structures and termination terms:\n\n### **Apex Financial (Master Services Agreement)**\n*   **Contract Value:** $4,850,000 annually.\n*   **Deal Structure:** The contract has a 3-year initial term (January 2025 \u2013 December 2027) with automatic 1-year renewals unless a 90-day notice is provided. Payments are made in quarterly installments of $1,212,500.\n*   **Termination Fees:** \n    *   Early termination for convenience requires 6 months' notice plus 50% of the remaining contract value. \n    *   Specific termination fees are **$2,425,000** in Year 1, **$1,940,000** in Year 2, and **$970,000** in Year 3.\n    *   Termination for material breach requires a 30-day cure period, and insolvency allows for immediate termination.\n\n### **NovaTech Solutions (Proposed M&A Acquisition)**\n*   **Acquisition Price:** Initially proposed at $285,000,000, though the advisory group recommends proceeding with an adjusted offer of $272,000,000 due to valuation comparables and concentration risks.\n*   **Deal Structure:** The proposed acquisition is structured as **70% cash and 30% stock**, with an expected closing in Q1 2025.\n*   **Termination Terms:** While the due diligence report does not specify a buyer/seller breakup fee for the acquisition itself, it highlights a commercial risk: **34% of NovaTech's customer contracts contain termination for convenience clauses**, which is notable given their high customer concentration.\n\n"
+    },
+    "adk_agent": {
+      "latency_ms": 36273,
+      "accuracy": 100.0,
+      "sub_queries": [
+        {
+          "query": "Apex Financial contract value",
+          "target_entities": [
+            "file",
+            "page",
+            "attachment"
+          ],
+          "reasoning": "To find documents detailing the annual contract value for Apex Financial."
+        },
+        {
+          "query": "NovaTech Solutions acquisition price",
+          "target_entities": [
+            "file",
+            "page",
+            "attachment"
+          ],
+          "reasoning": "To find documents detailing the proposed acquisition price for NovaTech Solutions."
+        },
+        {
+          "query": "Apex Financial deal terms",
+          "target_entities": [
+            "file",
+            "page",
+            "attachment"
+          ],
+          "reasoning": "To find documents outlining termination fees and general deal structure terms for Apex Financial."
+        },
+        {
+          "query": "NovaTech Solutions deal terms",
+          "target_entities": [
+            "file",
+            "page",
+            "attachment"
+          ],
+          "reasoning": "To find documents outlining termination fees and general deal structure terms for NovaTech Solutions."
+        },
+        {
+          "query": "Compare the annual contract value of Apex Financial with the proposed acquisition price of NovaTech Solutions. What are the key termination fees or deal structure terms for both?",
+          "target_entities": [
+            "file",
+            "page"
+          ],
+          "reasoning": "Original query anchor"
+        }
+      ],
+      "answer": "Based on the provided SharePoint context:\n\n**Annual Contract Value vs. Proposed Acquisition Price:**\n*   The annual contract value for Apex Financial is **$4,850,000** [03_Client_Contract_Apex_Financial].\n*   The proposed acquisition price for NovaTech Solutions is **$285,000,000**. The recommended adjusted purchase price is between $267,500,000 and $275,000,000, with a recommended offer price of **$272,000,000** [05_MA_Due_Diligence_Project_Starlight].\n\n**Key Termination Fees or Deal Structure Terms:**\n\n**For Apex Financial (Master Services Agreement):**\n*   **Initial Term:** 3 years (January 1, 2025 - December 31, 2027) [03_Client_Contract_Apex_Financial].\n*   **Renewal:** Automatic 1-year renewals unless terminated with 90 days notice [03_Client_Contract_Apex_Financial].\n*   **Early Termination by Client for convenience:** Requires 6 months notice plus 50% of the remaining contract value [03_Client_Contract_Apex_Financial].\n*   **Specific Termination Fees:**\n    *   Year 1 termination: $2,425,000 (50% of annual value) [03_Client_Contract_Apex_Financial].\n    *   Year 2 termination: $1,940,000 (40% of annual value) [03_Client_Contract_Apex_Financial].\n    *   Year 3 termination: $970,000 (20% of annual value) [03_Client_Contract_Apex_Financial].\n*   **Termination for material breach:** Requires a 30-day cure period [03_Client_Contract_Apex_Financial].\n*   **Termination for insolvency:** Immediate upon filing [03_Client_Contract_Apex_Financial].\n*   **Data Return:** Upon termination, the Provider must return or destroy all Client Data within 30 days, with export options in JSON, CSV, or SQL format [03_Client_Contract_Apex_Financial].\n\n**For NovaTech Solutions (Proposed Acquisition):**\n*   **Deal Structure:** 70% cash / 30% stock [05_MA_Due_Diligence_Project_Starlight].\n*   **Expected Closing:** Q1 2025 [05_MA_Due_Diligence_Project_Starlight].\n*   **Potential Earnout Adjustments:** Identified $12.4M in potential earnout adjustments [05_MA_Due_Diligence_Project_Starlight].\n*   **Valuation Metrics (at $285M proposed price):**\n    *   4.7x FY2024E Revenue ($60.6M) [05_MA_Due_Diligence_Project_Starlight].\n    *   18.9x FY2024E Adjusted EBITDA ($15.05M) [05_MA_Due_Diligence_Project_Starlight].\n    *   4.9x ARR ($58.2M) [05_MA_Due_Diligence_Project_Starlight]."
+    }
+  },
+  {
+    "id": "TC-04",
+    "category": "Slide Deck / List Extraction (PPTX)",
+    "marker": "STANDARD_RETRIEVAL",
+    "query": "What is CFE Smart Pipes in the Data Science presentation, who is the director of the distribution area, and what analytical products are listed?",
+    "ground_truth": "CFE Smart Pipes is a telemeasurement initiative for power consumption and fraud detection. Director of distribution is Guillermo Nev\u00e1rez Elizondo. Analytical products include heatmaps (mapas de calor), real-time data, anomaly detection, fraud scoring, and route optimization.",
+    "streamassist": {
+      "latency_ms": 40542,
+      "accuracy": 65.0,
+      "answer": "**Exploring CFE Smart Pipes**\n**Searching for CFE Smart Pipes**\n**Investigating CFE Smart Pipes**\n**Downloading Presentation File**\n**Refining Download Parameters**\n**Extracting CFE Smart Pipes Data**\n**Answering CFE Smart Pipes Queries**\n**Synthesizing Smart Pipes Insights**\nBased on the \"Data Science CFE Smart Pipes\" presentation, here is the information you requested:\n\n*   **CFE Smart Pipes:** This is described as an analytical event engine. It processes various types of data (structured, semi-structured, and unstructured) through cleaning, integration, enrichment, and modeling to generate actionable insights and analytical products.\n\n*   **Director of the Distribution Area:** The director of the CFE's distribution area is Guillermo Nev\u00e1rez Elizondo.\n\n*   **Analytical Products:** The presentation lists the following analytical products:\n    *   Heat maps\n    *   Real-time information availability\n    *   Anomaly detection\n    *   Fraud scoring\n    *   Optimization of collection routes\n\nIs there anything else I can help you with regarding this presentation?"
+    },
+    "adk_agent": {
+      "latency_ms": 35522,
+      "accuracy": 100.0,
+      "sub_queries": [
+        {
+          "query": "CFE Smart Pipes",
+          "target_entities": [
+            "file",
+            "page",
+            "attachment"
+          ],
+          "reasoning": "Extracts the exact proper noun/acronym for targeted search."
+        },
+        {
+          "query": "Data Science presentation",
+          "target_entities": [
+            "file",
+            "page",
+            "attachment"
+          ],
+          "reasoning": "Identifies the specific document type or context mentioned."
+        },
+        {
+          "query": "director distribution area",
+          "target_entities": [
+            "page",
+            "file",
+            "comment"
+          ],
+          "reasoning": "Extracts the specific role and department for personnel search."
+        },
+        {
+          "query": "analytical products",
+          "target_entities": [
+            "file",
+            "page",
+            "comment"
+          ],
+          "reasoning": "Identifies the specific type of products being inquired about."
+        },
+        {
+          "query": "What is CFE Smart Pipes in the Data Science presentation, who is the director of the distribution area, and what analytical products are listed?",
+          "target_entities": [
+            "file",
+            "page"
+          ],
+          "reasoning": "Original query anchor"
+        }
+      ],
+      "answer": "Based on the provided SharePoint context:\n\n1.  **CFE Smart Pipes** refers to a recently acquired telemeasurement device that functions connected to electricity meters. It collects user consumption data, automatically cuts off electricity supply if a customer has not paid, and detects illegal connections (\"diablitos\") by emitting an alert when consumption increases. Approximately 15% of these devices are currently installed. [Data Science](https://sockcop.sharepoint.com/Shared%20Documents/Propuesta%20SP_CFE.pptx?web=1)\n2.  The director of the distribution area is **Guillermo Nev\u00e1rez Elizondo**. [Data Science](https://sockcop.sharepoint.com/Shared%20Documents/Propuesta%20SP_CFE.pptx?web=1)\n3.  The analytical products listed are:\n    *   Mapas de calor (Heat maps)\n    *   Disponibilizar la informaci\u00f3n en tiempo real (Making information available in real-time)\n    *   Detecci\u00f3n de anomal\u00edas (Anomaly detection)\n    *   Scoring de fraude (Fraud scoring)\n    *   Optimizacion de rutas de cobranza (Optimization of collection routes)\n    [Data Science](https://sockcop.sharepoint.com/Shared%20Documents/Propuesta%20SP_CFE.pptx?web=1)"
+    }
+  },
+  {
+    "id": "TC-05",
+    "category": "Complex Visual / Diagram Layout [NEGATIVE CASE]",
+    "marker": "[COMPLEX_UNEXTRACTABLE_MARKER]",
+    "query": "What is the exact color hex code, visual node coordinate layout, and vector graphic structure in the architecture diagram in Diagrama.pptx?",
+    "ground_truth": "[COMPLEX_UNEXTRACTABLE_MARKER] The system should explicitly acknowledge that raw visual coordinates, vector diagram geometry, and exact color hex codes are unextractable from the text index and not invent hallucinated hex codes.",
+    "streamassist": {
+      "latency_ms": 54532,
+      "accuracy": 0.0,
+      "answer": "**Analyzing Diagram File**\n**Searching for File**\n**Analyzing PPTX Components**\n**Extracting PPTX Data**\n**Processing PPTX Files**\n**Analyzing DrawingML Structure**\nThe analysis of the **Diagrama.pptx** file reveals the specific internal vector and layout information of the architecture diagram:\n\n*   **Color Hex Code:** The primary custom color defined in the diagram's vector shapes is **#6E747A** (a dark grayish-blue).\n*   **Vector Graphic Structure:** The diagram is built using the standard **Office Open XML (OOXML) DrawingML** standard. The shapes, connections, and layout are defined via XML elements within the `http://schemas.openxmlformats.org/drawingml/2006/main` namespace, specifically utilizing `<a:off>` for position offsets and `<a:ext>` for dimensional extents, alongside `<a:srgbClr>` for shape coloring.\n*   **Visual Node Coordinate Layout:** The shapes and nodes are positioned using English Metric Units (EMUs). Some of the key spatial coordinates (offset `x`, `y` and extent `cx`, `cy`) for the nodes include:\n    *   `x='2986391', y='2363821'` (size `cx='3531141', cy='379379'`)\n    *   `x='1235413', y='608013'` (size `cx='6313417', cy='4049045'`)\n    *   `x='7684497', y='2450812'` (size `cx='1459503', cy='584775'`)\n    *   Additional structural elements are placed along `x='0', y='733223'` and `x='7292439', y='797668'`.\n\n"
+    },
+    "adk_agent": {
+      "latency_ms": 37887,
+      "accuracy": 100.0,
+      "sub_queries": [
+        {
+          "query": "Diagrama.pptx",
+          "target_entities": [
+            "file",
+            "attachment"
+          ],
+          "reasoning": "To locate the specific presentation file mentioned by name."
+        },
+        {
+          "query": "architecture diagram",
+          "target_entities": [
+            "file",
+            "page",
+            "attachment"
+          ],
+          "reasoning": "To identify content related to architecture diagrams, potentially within the specified file or related documents."
+        },
+        {
+          "query": "color hex code",
+          "target_entities": [
+            "file",
+            "page",
+            "comment",
+            "attachment"
+          ],
+          "reasoning": "To find specific information about color specifications within the diagram or related documentation."
+        },
+        {
+          "query": "node coordinate layout",
+          "target_entities": [
+            "file",
+            "page",
+            "attachment"
+          ],
+          "reasoning": "To find details regarding the positioning and arrangement of visual nodes in the diagram."
+        },
+        {
+          "query": "vector graphic structure",
+          "target_entities": [
+            "file",
+            "page",
+            "attachment"
+          ],
+          "reasoning": "To retrieve information about the underlying vector graphic composition and format of the diagram."
+        },
+        {
+          "query": "What is the exact color hex code, visual node coordinate layout, and vector graphic structure in the architecture diagram in Diagrama.pptx?",
+          "target_entities": [
+            "file",
+            "page"
+          ],
+          "reasoning": "Original query anchor"
+        }
+      ],
+      "answer": "Based on the provided SharePoint context, the raw visual diagram layouts, including exact color hex codes, visual node coordinate layouts, and vector graphic structures, are not extractable via text indexing. The content from [Diagrama.pptx](https://sockcop.sharepoint.com/Shared%20Documents/Diagrama.pptx?web=1) describes the components of an architecture (e.g., \"2 switches 24ptos HP 10GB a reemplazar 10 equipos HP con conexiones a 10GB\") but does not contain any visual metadata."
+    }
+  }
+]
