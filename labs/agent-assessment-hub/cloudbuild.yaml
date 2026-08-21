@@ -1,0 +1,49 @@
+steps:
+  # 1. Run Unit Tests
+  - name: 'python:3.11-slim'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        pip install -r requirements.txt
+        pytest tests/
+
+  # 2. Build Docker Container Image
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'build'
+      - '-t'
+      - 'gcr.io/$PROJECT_ID/agent-assessment-hub:$COMMIT_SHA'
+      - '-t'
+      - 'gcr.io/$PROJECT_ID/agent-assessment-hub:latest'
+      - '.'
+
+  # 3. Push Container Image to Artifact / Container Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'push'
+      - 'gcr.io/$PROJECT_ID/agent-assessment-hub:$COMMIT_SHA'
+
+  # 4. Deploy to Cloud Run
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: gcloud
+    args:
+      - 'run'
+      - 'deploy'
+      - 'agent-assessment-hub'
+      - '--image'
+      - 'gcr.io/$PROJECT_ID/agent-assessment-hub:$COMMIT_SHA'
+      - '--region'
+      - 'us-central1'
+      - '--platform'
+      - 'managed'
+      - '--allow-unauthenticated'
+      - '--set-env-vars'
+      - 'GEMINI_MODEL=gemini-2.5-flash'
+
+images:
+  - 'gcr.io/$PROJECT_ID/agent-assessment-hub:$COMMIT_SHA'
+  - 'gcr.io/$PROJECT_ID/agent-assessment-hub:latest'
+
+options:
+  logging: CLOUD_LOGGING_ONLY
