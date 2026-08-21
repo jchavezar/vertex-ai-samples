@@ -12,8 +12,10 @@ name = "agent-assessment-hub"
 version = "0.1.0"
 source = { editable = "." }
 dependencies = [
+    { name = "aiosqlite" },
     { name = "fastapi" },
     { name = "google-adk" },
+    { name = "google-cloud-secret-manager" },
     { name = "google-cloud-trace" },
     { name = "google-genai" },
     { name = "opentelemetry-api" },
@@ -28,12 +30,15 @@ dev = [
     { name = "httpx" },
     { name = "pytest" },
     { name = "pytest-asyncio" },
+    { name = "ruff" },
 ]
 
 [package.metadata]
 requires-dist = [
+    { name = "aiosqlite", specifier = ">=0.20.0" },
     { name = "fastapi", specifier = ">=0.110.0" },
     { name = "google-adk", specifier = ">=0.1.0" },
+    { name = "google-cloud-secret-manager", specifier = ">=2.18.0" },
     { name = "google-cloud-trace", specifier = ">=1.11.0" },
     { name = "google-genai", specifier = ">=0.1.0" },
     { name = "httpx", marker = "extra == 'dev'", specifier = ">=0.27.0" },
@@ -43,6 +48,7 @@ requires-dist = [
     { name = "pytest", marker = "extra == 'dev'", specifier = ">=8.0.0" },
     { name = "pytest-asyncio", marker = "extra == 'dev'", specifier = ">=0.23.0" },
     { name = "python-dotenv", specifier = ">=1.0.1" },
+    { name = "ruff", marker = "extra == 'dev'", specifier = ">=0.3.0" },
     { name = "uvicorn", specifier = ">=0.28.0" },
 ]
 provides-extras = ["dev"]
@@ -790,6 +796,23 @@ requests = [
 ]
 
 [[package]]
+name = "google-cloud-secret-manager"
+version = "2.30.0"
+source = { registry = "http://airlock-proxy.uplink.goog:999/python/artifact-foundry-prod/ah-3p-staging-python/simple/" }
+dependencies = [
+    { name = "google-api-core", extra = ["grpc"] },
+    { name = "google-auth" },
+    { name = "grpc-google-iam-v1" },
+    { name = "grpcio" },
+    { name = "proto-plus" },
+    { name = "protobuf" },
+]
+sdist = { url = "http://airlock-proxy.uplink.goog:999/python/artifact-foundry-prod/ah-3p-staging-python/google-cloud-secret-manager/google_cloud_secret_manager-2.30.0.tar.gz", hash = "sha256:26ec87737731b483f7f95c26a8c7ab79e22cb66317c95006e7f6985dbc43c8a2" }
+wheels = [
+    { url = "http://airlock-proxy.uplink.goog:999/python/artifact-foundry-prod/ah-3p-staging-python/google-cloud-secret-manager/google_cloud_secret_manager-2.30.0-py3-none-any.whl", hash = "sha256:0f285e77d09a73700e3fca9abbc77f844a50276989bf76d64a76b6e2b871e396" },
+]
+
+[[package]]
 name = "google-cloud-trace"
 version = "1.20.0"
 source = { registry = "http://airlock-proxy.uplink.goog:999/python/artifact-foundry-prod/ah-3p-staging-python/simple/" }
@@ -838,6 +861,11 @@ wheels = [
     { url = "http://airlock-proxy.uplink.goog:999/python/artifact-foundry-prod/ah-3p-staging-python/googleapis-common-protos/googleapis_common_protos-1.75.1-py3-none-any.whl", hash = "sha256:28a1934bcd33b9c9da66ac301a0a4227e3367f095a17d0375cb98f0a09d93b79" },
 ]
 
+[package.optional-dependencies]
+grpc = [
+    { name = "grpcio" },
+]
+
 [[package]]
 name = "graphviz"
 version = "0.21"
@@ -845,6 +873,20 @@ source = { registry = "http://airlock-proxy.uplink.goog:999/python/artifact-foun
 sdist = { url = "http://airlock-proxy.uplink.goog:999/python/artifact-foundry-prod/ah-3p-staging-python/graphviz/graphviz-0.21.tar.gz", hash = "sha256:20743e7183be82aaaa8ad6c93f8893c923bd6658a04c32ee115edb3c8a835f78" }
 wheels = [
     { url = "http://airlock-proxy.uplink.goog:999/python/artifact-foundry-prod/ah-3p-staging-python/graphviz/graphviz-0.21-py3-none-any.whl", hash = "sha256:54f33de9f4f911d7e84e4191749cac8cc5653f815b06738c54db9a15ab8b1e42" },
+]
+
+[[package]]
+name = "grpc-google-iam-v1"
+version = "0.14.5"
+source = { registry = "http://airlock-proxy.uplink.goog:999/python/artifact-foundry-prod/ah-3p-staging-python/simple/" }
+dependencies = [
+    { name = "googleapis-common-protos", extra = ["grpc"] },
+    { name = "grpcio" },
+    { name = "protobuf" },
+]
+sdist = { url = "http://airlock-proxy.uplink.goog:999/python/artifact-foundry-prod/ah-3p-staging-python/grpc-google-iam-v1/grpc_google_iam_v1-0.14.5.tar.gz", hash = "sha256:07fd3a9fafb586588e771831fbfc8f6597050181d0c3b45e039d18b8fdc1aab5" }
+wheels = [
+    { url = "http://airlock-proxy.uplink.goog:999/python/artifact-foundry-prod/ah-3p-staging-python/grpc-google-iam-v1/grpc_google_iam_v1-0.14.5-py3-none-any.whl", hash = "sha256:0f5e680b20aa0a9441e68c769da04d94d70fca4e43751a82d8abb8aa6a7181ca" },
 ]
 
 [[package]]
@@ -1726,6 +1768,31 @@ wheels = [
     { url = "http://airlock-proxy.uplink.goog:999/python/artifact-foundry-prod/ah-3p-staging-python/rpds-py/rpds_py-2026.6.3-pp311-pypy311_pp73-musllinux_1_2_aarch64.whl", hash = "sha256:2bfd04c19ddbd6640de0b51894d764bd2758854d5b75bd102d2ef10cb9c293a9" },
     { url = "http://airlock-proxy.uplink.goog:999/python/artifact-foundry-prod/ah-3p-staging-python/rpds-py/rpds_py-2026.6.3-pp311-pypy311_pp73-musllinux_1_2_i686.whl", hash = "sha256:ca6546b66be9dc4738b1b043d5ebd5488c66c578c5ff0fd0e8065313fe3afb76" },
     { url = "http://airlock-proxy.uplink.goog:999/python/artifact-foundry-prod/ah-3p-staging-python/rpds-py/rpds_py-2026.6.3-pp311-pypy311_pp73-musllinux_1_2_x86_64.whl", hash = "sha256:8e65860d238379ed982fd9ba690579b5e95af2f4840f99c772816dbe573cb826" },
+]
+
+[[package]]
+name = "ruff"
+version = "0.16.4"
+source = { registry = "http://airlock-proxy.uplink.goog:999/python/artifact-foundry-prod/ah-3p-staging-python/simple/" }
+sdist = { url = "http://airlock-proxy.uplink.goog:999/python/artifact-foundry-prod/ah-3p-staging-python/ruff/ruff-0.16.4.tar.gz", hash = "sha256:13171aa9d9af2240ee3504e639de73122c67e74036de5ba2e1d01422cd17e3dc" }
+wheels = [
+    { url = "http://airlock-proxy.uplink.goog:999/python/artifact-foundry-prod/ah-3p-staging-python/ruff/ruff-0.16.4-py3-none-linux_armv6l.whl", hash = "sha256:df4075f71ddac40b9934af60c3ec8a53047dd5a5fdc43224e6e4e8e9a27cb6f7" },
+    { url = "http://airlock-proxy.uplink.goog:999/python/artifact-foundry-prod/ah-3p-staging-python/ruff/ruff-0.16.4-py3-none-macosx_10_12_x86_64.whl", hash = "sha256:0c95538517af68004306b0fb3214ff2f2af67a65092aee77cd9eb86db6656604" },
+    { url = "http://airlock-proxy.uplink.goog:999/python/artifact-foundry-prod/ah-3p-staging-python/ruff/ruff-0.16.4-py3-none-macosx_11_0_arm64.whl", hash = "sha256:963f83df8e69e575b64d67dd447ebbc917db41a14bf38d4593a4183e7aaa8255" },
+    { url = "http://airlock-proxy.uplink.goog:999/python/artifact-foundry-prod/ah-3p-staging-python/ruff/ruff-0.16.4-py3-none-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:32a5057c7ff3f6e6480a48fccfb3a412a690f48a3d03ac5cf08177d6c2da3ade" },
+    { url = "http://airlock-proxy.uplink.goog:999/python/artifact-foundry-prod/ah-3p-staging-python/ruff/ruff-0.16.4-py3-none-manylinux_2_17_armv7l.manylinux2014_armv7l.whl", hash = "sha256:b3dce8d9b0c57c265b91885a66a567d8ea1372e8eb4e250fa8e5e3f579e99cff" },
+    { url = "http://airlock-proxy.uplink.goog:999/python/artifact-foundry-prod/ah-3p-staging-python/ruff/ruff-0.16.4-py3-none-manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:7dc651db49283c69f8e72c834eec4fe5573e4c646856aebece0ce385dceb2a80" },
+    { url = "http://airlock-proxy.uplink.goog:999/python/artifact-foundry-prod/ah-3p-staging-python/ruff/ruff-0.16.4-py3-none-manylinux_2_17_ppc64le.manylinux2014_ppc64le.whl", hash = "sha256:3817b87dbcabc92f13b05019257c5b89b5b4d51b5fb20f56fb5235ceb723cd07" },
+    { url = "http://airlock-proxy.uplink.goog:999/python/artifact-foundry-prod/ah-3p-staging-python/ruff/ruff-0.16.4-py3-none-manylinux_2_17_s390x.manylinux2014_s390x.whl", hash = "sha256:e9fce1499134b2c8c68e5166f95705a5812062bb93aacc5f9873bb1a27084bc7" },
+    { url = "http://airlock-proxy.uplink.goog:999/python/artifact-foundry-prod/ah-3p-staging-python/ruff/ruff-0.16.4-py3-none-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:f2d812e482f5a7e02eee26cd73d2a37ebbdf47d795ea63ba1b89110ae93e9fb3" },
+    { url = "http://airlock-proxy.uplink.goog:999/python/artifact-foundry-prod/ah-3p-staging-python/ruff/ruff-0.16.4-py3-none-manylinux_2_31_riscv64.whl", hash = "sha256:6baaf984aa7976edf93d3b627fe2d1d22ee94bbca05fa6f90fc76d73924e3454" },
+    { url = "http://airlock-proxy.uplink.goog:999/python/artifact-foundry-prod/ah-3p-staging-python/ruff/ruff-0.16.4-py3-none-musllinux_1_2_aarch64.whl", hash = "sha256:bdfcf0b28662eb890372d50f92c283bb94e67e7635ed93c7fd533970acff7b2b" },
+    { url = "http://airlock-proxy.uplink.goog:999/python/artifact-foundry-prod/ah-3p-staging-python/ruff/ruff-0.16.4-py3-none-musllinux_1_2_armv7l.whl", hash = "sha256:b66b02cb9b04f537643cadf5768e5f98dc461890d530cb67113d71c8c76e605d" },
+    { url = "http://airlock-proxy.uplink.goog:999/python/artifact-foundry-prod/ah-3p-staging-python/ruff/ruff-0.16.4-py3-none-musllinux_1_2_i686.whl", hash = "sha256:8528bf9a4b291a60bf02ea453511e8ce6215bd2b982ee80405b66b008b6c30a0" },
+    { url = "http://airlock-proxy.uplink.goog:999/python/artifact-foundry-prod/ah-3p-staging-python/ruff/ruff-0.16.4-py3-none-musllinux_1_2_x86_64.whl", hash = "sha256:fbd85d2875fdd67e833213a651f613bbf25303abf6aa822a5121f4531195678d" },
+    { url = "http://airlock-proxy.uplink.goog:999/python/artifact-foundry-prod/ah-3p-staging-python/ruff/ruff-0.16.4-py3-none-win32.whl", hash = "sha256:312769988007aaeb8e189b443ccdd03c0e6374489e053467be6d96518ebff76e" },
+    { url = "http://airlock-proxy.uplink.goog:999/python/artifact-foundry-prod/ah-3p-staging-python/ruff/ruff-0.16.4-py3-none-win_amd64.whl", hash = "sha256:05d9d27a18c4bcbefada602480ec9e01e0bc949d432e0ced5df77edac195919c" },
+    { url = "http://airlock-proxy.uplink.goog:999/python/artifact-foundry-prod/ah-3p-staging-python/ruff/ruff-0.16.4-py3-none-win_arm64.whl", hash = "sha256:a3a61621c9b6f6a89573e938a080e648f1695baa3f58570a3a707bc51ff65a21" },
 ]
 
 [[package]]

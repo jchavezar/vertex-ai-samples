@@ -1,7 +1,7 @@
 """Interface and Application Server for Agent Assessment Hub.
 
-Provides FastAPI REST endpoints, health probes, OpenTelemetry telemetry middleware,
-and a CLI runner for interactive local testing.
+Provides FastAPI REST endpoints with Human-in-the-Loop approval workflows,
+OpenTelemetry instrumentation, persistent session state queries, and interactive CLI.
 """
 
 import sys
@@ -13,19 +13,25 @@ from typing import Dict, Any, Optional
 from src.config import settings
 from src.agent import orchestrator
 from src.memory import memory_store
-from src.tools import available_tools, query_cloud_run_logs, analyze_service_metrics, apply_service_remediation
-from src.observability import logger, trace_span
+from src.tools import available_tools
+from src.observability import logger
 
 app = FastAPI(
     title="Autonomous SRE Assessment Agent",
-    description="Production-ready Agent built with Google ADK, Gemini 2.5 Flash, and Cloud Observability",
+    description="Enterprise Multi-Agent Platform with Google ADK, Gemini 2.5 Flash/Pro, OpenTelemetry, and HITL",
     version="0.1.0",
 )
 
 
 class ChatRequest(BaseModel):
     session_id: str = Field(default="default-session", description="Session identifier for multi-turn context")
-    message: str = Field(..., description="User message or incident description")
+    message: str = Field(..., description="User message or incident report")
+    approval_token: Optional[str] = Field(None, description="Human approval token for destructive actions")
+
+
+class ApprovalRequest(BaseModel):
+    session_id: str = Field(..., description="Active session requiring confirmation")
+    approval_token: str = Field(..., description="Security approval token")
 
 
 class ChatResponse(BaseModel):
@@ -33,7 +39,8 @@ class ChatResponse(BaseModel):
     status: str
     model: str
     response: str
-    history_turns: int
+    requires_approval: bool = False
+    approval_token: Optional[str] = None
 
 
 @app.get("/healthz")
@@ -56,11 +63,12 @@ def list_tools() -> Dict[str, Any]:
 
 @app.get("/api/v1/session/{session_id}")
 def get_session_history(session_id: str) -> Dict[str, Any]:
-    """Retrieves context memory and message history for a given session."""
+    """Retrieves persistent database context memory and message history for a given session."""
     session = memory_store.get_or_create_session(session_id)
     return {
         "session_id": session.session_id,
         "turns": len(session.history),
+        "summary": session.summary,
         "history": [msg.model_dump() for msg in session.history],
         "variables": session.variables,
     }
@@ -68,11 +76,12 @@ def get_session_history(session_id: str) -> Dict[str, Any]:
 
 @app.post("/api/v1/chat", response_model=ChatResponse)
 async def chat(request: ChatRequest) -> ChatResponse:
-    """Main Agent Chat interface handling multi-turn orchestration."""
+    """Main Agent Chat interface handling multi-agent orchestration and HITL routing."""
     try:
         result = await orchestrator.process_user_query(
             session_id=request.session_id,
             query=request.message,
+            approval_token=request.approval_token,
         )
         return ChatResponse(**result)
     except Exception as e:
@@ -80,16 +89,31 @@ async def chat(request: ChatRequest) -> ChatResponse:
         raise HTTPException(status_code=500, detail=str(e))
 
 
+@app.post("/api/v1/remediation/approve", response_model=ChatResponse)
+async def approve_remediation(request: ApprovalRequest) -> ChatResponse:
+    """Human-in-the-Loop (HITL) approval endpoint to confirm pending remediation actions."""
+    try:
+        result = await orchestrator.process_user_query(
+            session_id=request.session_id,
+            query="Confirm and apply remediation",
+            approval_token=request.approval_token,
+        )
+        return ChatResponse(**result)
+    except Exception as e:
+        logger.error(f"Approval failed: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 def run_cli():
     """Interactive command-line interface for running the agent directly."""
     import asyncio
     print(f"==================================================")
-    print(f"   Autonomous SRE Agent CLI (Model: {settings.model})")
+    print(f"   Autonomous SRE Multi-Agent CLI (Model: {settings.model})")
     print(f"==================================================")
-    
+
     session_id = "cli-interactive-session"
     print("Agent initialized. Type 'exit' to quit.\n")
-    
+
     while True:
         try:
             user_input = input("User> ")
@@ -97,7 +121,7 @@ def run_cli():
                 break
             if not user_input.strip():
                 continue
-            
+
             result = asyncio.run(orchestrator.process_user_query(session_id, user_input))
             print(f"\nAgent>\n{result['response']}\n")
         except (KeyboardInterrupt, EOFError):
