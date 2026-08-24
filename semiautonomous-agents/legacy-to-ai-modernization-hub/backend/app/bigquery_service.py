@@ -74,9 +74,10 @@ def execute_chain_step_bigquery(step_id: int) -> Dict[str, Any]:
             i.stoppage_risk,
             p.delivery_deadline
         FROM `{DATASET_ID}.procurement_po_commitments` p
-        JOIN `{DATASET_ID}.inventory_positions` i ON p.part_code = i.part_sku
+        JOIN `{DATASET_ID}.inventory_positions` i ON p.part_code = i.base_part_code
         WHERE p.supplier_country = 'TW'
-        ORDER BY p.notional_usd DESC;
+        ORDER BY p.notional_usd DESC
+        LIMIT 50;
         """
         title = "Consolidado Multi-Departamento (Compras + Almacén + Tesorería)"
         csv_name = "Consolidated_Taiwan_Risk_Analysis.csv"
