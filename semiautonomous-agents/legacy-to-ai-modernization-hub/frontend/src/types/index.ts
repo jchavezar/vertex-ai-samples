@@ -117,6 +117,14 @@ export interface ShockImpactData {
   suggested_hedging_actions: HedgingAction[];
 }
 
+export interface GroundedTableData {
+  title: string;
+  dataset: string;
+  total_rows: number;
+  headers: string[];
+  rows: any[];
+}
+
 export interface AgentQueryResponse {
   query: string;
   intent_detected: string;
@@ -127,13 +135,7 @@ export interface AgentQueryResponse {
   shock_impact: ShockImpactData;
   latency_ms: number;
   model_used: string;
-  grounded_data_table?: {
-    title: string;
-    dataset: string;
-    total_rows: number;
-    headers: string[];
-    rows: any[];
-  };
+  grounded_data_table?: GroundedTableData;
   dynamic_kpis?: Array<{
     label: string;
     value: string;
