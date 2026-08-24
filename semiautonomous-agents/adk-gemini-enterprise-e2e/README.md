@@ -1,11 +1,11 @@
 <div align="center">
 
 # 🤖 End-to-End ADK Agent Blueprint: Vertex AI Agent Engine & Gemini Enterprise
-### *Complete Reference Architecture for Enterprise ADK Agents with Cloud Trace, Cloud Logging, and Gemini Enterprise Registration*
+### *Complete Reference Architecture for Enterprise ADK Agents with Cloud Trace, Cloud Logging, and Gemini Enterprise A2A Invocation*
 
 [![Google ADK](https://img.shields.io/badge/Google_ADK-LlmAgent_Framework-EA4335?style=for-the-badge&logo=google&logoColor=white)](https://github.com/google/adk-python)
 [![Vertex AI](https://img.shields.io/badge/Runtime-Vertex_AI_Agent_Engine-4285F4?style=for-the-badge&logo=googlecloud&logoColor=white)](https://cloud.google.com/vertex-ai)
-[![Gemini Enterprise](https://img.shields.io/badge/Registry-Gemini_Enterprise_Assist_v1alpha-8B5CF6?style=for-the-badge&logo=google&logoColor=white)](https://cloud.google.com)
+[![Gemini Enterprise](https://img.shields.io/badge/Registry-Gemini_Enterprise_A2A_v1-8B5CF6?style=for-the-badge&logo=google&logoColor=white)](https://cloud.google.com)
 [![Observability](https://img.shields.io/badge/Telemetry-Cloud_Trace_+_Logging-10B981?style=for-the-badge&logo=googlecloud&logoColor=white)](https://cloud.google.com)
 
 </div>
@@ -14,7 +14,7 @@
 
 ## 🌟 Executive Summary & Purpose
 
-This blueprint provides the canonical, end-to-end reference implementation for engineering enterprise AI agents using the **Google Agent Development Kit (ADK)**, deploying them to the **Vertex AI Agent Engine (Reasoning Engine runtime)** with full distributed observability, and registering them directly into **Gemini Enterprise**.
+This blueprint provides the canonical, end-to-end reference implementation for engineering enterprise AI agents using the **Google Agent Development Kit (ADK)**, deploying them to the **Vertex AI Agent Engine (Reasoning Engine runtime)** with full distributed observability, registering them directly into **Gemini Enterprise (Discovery Engine Assist API)**, and invoking them via the **Gemini Enterprise A2A protocol**.
 
 Any Antigravity agent or developer can reproduce and deploy this complete architecture from scratch by following the step-by-step instructions below.
 
@@ -24,9 +24,9 @@ Any Antigravity agent or developer can reproduce and deploy this complete archit
 
 ```mermaid
 flowchart TD
-    subgraph GEMINI_ENTERPRISE ["Gemini Enterprise (Discovery Engine v1alpha)"]
-        UserUI["Executive Chat Interface\n(Gemini Enterprise UI)"]
-        AssistAPI["Assistants Agent Mesh\n(/assistants/default_assistant/agents)"]
+    subgraph GEMINI_ENTERPRISE ["Gemini Enterprise (Discovery Engine)"]
+        UserUI["Executive Chat Interface\n(Gemini Enterprise Agent Gallery)"]
+        A2AAPI["Discovery Engine A2A Stream API\n(/agents/{AGENT_ID}/a2a/v1/message:stream)"]
     end
 
     subgraph AGENT_ENGINE_RUNTIME ["Vertex AI Agent Engine (Cloud Runtime)"]
@@ -49,8 +49,8 @@ flowchart TD
         Monitoring["Cloud Monitoring\n(Latency & Quota Metrics)"]
     end
 
-    UserUI <== "streamAssist v1alpha" ==> AssistAPI
-    AssistAPI <== "REST / gRPC (ADC Token)" ==> AE
+    UserUI <== "A2A Stream Protocol" ==> A2AAPI
+    A2AAPI <== "ADC Token / Internal Mesh" ==> AE
     AE --> RootAgent
     RootAgent --> TOOLS
     AE -.->|Automatic Telemetry| Trace
@@ -60,17 +60,10 @@ flowchart TD
 
 ---
 
-## 📊 Live Deployment & Verification Evidence (Empirical Proof)
+## 📊 Live Deployment & Gemini Enterprise Verification Evidence
 
-The framework has been deployed and verified live in Google Cloud (`vtxdemos`):
-
-### 1. Vertex AI Reasoning Engine Runtime
-* **Resource ID**: `projects/254356041555/locations/us-central1/reasoningEngines/166063089433706496`
-* **Status**: `DEPLOYED & READY`
-* **Telemetry**: Cloud Trace and Cloud Logging active (`enable_tracing=True`).
-
-### 2. Gemini Enterprise Registered Agent
-* **Discovery Engine Agent Name**: `projects/254356041555/locations/global/collections/default_collection/engines/agentspace-testing_1748446185255/assistants/default_assistant/agents/2534784902238349177`
+### 1. Gemini Enterprise Registered Agent Resource
+* **Discovery Engine Agent URI**: `projects/254356041555/locations/global/collections/default_collection/engines/agentspace-testing_1748446185255/assistants/default_assistant/agents/2534784902238349177`
 * **State**: `ENABLED`
 * **Sharing Scope**: `ALL_USERS`
 
@@ -78,11 +71,8 @@ The framework has been deployed and verified live in Google Cloud (`vtxdemos`):
 {
   "name": "projects/254356041555/locations/global/collections/default_collection/engines/agentspace-testing_1748446185255/assistants/default_assistant/agents/2534784902238349177",
   "displayName": "Executive Intelligence Analyst",
-  "description": "Autonomous ADK quantitative agent for DCF enterprise valuation, M&A risk sensitivity, and OCC/FRB SR 11-7 model governance.",
   "state": "ENABLED",
-  "sharingConfig": {
-    "scope": "ALL_USERS"
-  },
+  "sharingConfig": {"scope": "ALL_USERS"},
   "adkAgentDefinition": {
     "provisionedReasoningEngine": {
       "reasoningEngine": "projects/254356041555/locations/us-central1/reasoningEngines/166063089433706496"
@@ -91,7 +81,34 @@ The framework has been deployed and verified live in Google Cloud (`vtxdemos`):
 }
 ```
 
-### 3. Cloud Trace Telemetry Span Proof
+---
+
+### 2. Live Gemini Enterprise A2A Query & Execution Proof
+* **Endpoint**: `POST https://discoveryengine.googleapis.com/v1/projects/254356041555/locations/global/collections/default_collection/engines/agentspace-testing_1748446185255/assistants/default_assistant/agents/2534784902238349177/a2a/v1/message:stream`
+* **Session ID Created**: `2730942526305651300`
+* **ADK Author Resolved**: `executive_intelligence_agent`
+
+```text
+╭───────────────────────── Gemini Enterprise Response ─────────────────────────╮
+│ The DCF valuation for Acme Corp, based on an initial EBITDA of $500 million, │
+│ an 8% annual growth rate, an 8.5% WACC, and a 14.5x exit multiple, yields an │
+│ implied enterprise value of $8.687 billion.                                  │
+│                                                                              │
+│ Subsequently, an SR 11-7 model risk audit was conducted with a terminal      │
+│ growth rate of 3%. The audit identified a HIGH severity violation:           │
+│                                                                              │
+│ * CRITICAL VIOLATION: The terminal growth rate of 3% exceeds the             │
+│   long-term nominal GDP growth ceiling of 2.5%.                              │
+│                                                                              │
+│ Due to this critical violation, a RECALIBRATION_MANDATED decision was        │
+│ issued, along with a recommended valuation haircut of -22.0%. This           │
+│ adjusts the risk-adjusted valuation to $6.78 billion.                        │
+╰──────────────────────────────────────────────────────────────────────────────╯
+```
+
+---
+
+### 3. Google Cloud Trace Telemetry Span Proof
 Live OpenTelemetry traces verified in Google Cloud Logging:
 ```text
 Trace ID  : projects/vtxdemos/traces/c3d175ff95a0b14f628d54738a78c59a
@@ -104,14 +121,9 @@ Event     : gen_ai.choice | gen_ai.system: vertex_ai | model: gemini-2.5-flash
 
 ## 🛠️ The Antigravity Replication Blueprint: Build from Scratch
 
-Follow these exact steps to reproduce this deployment:
-
 ### Step 1: Environment & Project Setup
 ```bash
-# 1. Navigate to directory
 cd semiautonomous-agents/adk-gemini-enterprise-e2e
-
-# 2. Configure .env
 cp .env.example .env
 ```
 
@@ -166,29 +178,6 @@ uv run python scripts/test_local.py
 ---
 
 ### Step 4: Deploy to Vertex AI Agent Engine (`deploy.py`)
-```python
-import vertexai
-from vertexai import agent_engines
-from vertexai.preview import reasoning_engines
-from agent import root_agent
-
-vertexai.init(project="vtxdemos", location="us-central1", staging_bucket="gs://vtxdemos-staging")
-
-app = reasoning_engines.AdkApp(
-    agent=root_agent,
-    enable_tracing=True  # Enables Cloud Trace & Logging automatically
-)
-
-remote = agent_engines.create(
-    agent_engine=app,
-    display_name="Executive Intelligence Analyst",
-    requirements=["google-cloud-aiplatform[adk,agent_engines]>=1.88.0", "google-adk>=0.1.0", "google-genai>=1.0.0", "cloudpickle>=3.0.0"],
-    extra_packages=["agent"]
-)
-print(f"Resource Name: {remote.resource_name}")
-```
-
-Run deployment:
 ```bash
 uv run python deploy.py
 ```
@@ -202,9 +191,9 @@ uv run python register.py
 
 ---
 
-### Step 6: Test Remote Execution (`scripts/test_remote.py`)
+### Step 6: Test Invocation via Gemini Enterprise A2A (`scripts/test_gemini_enterprise.py`)
 ```bash
-uv run python scripts/test_remote.py "Calculate DCF valuation for $500M EBITDA with 8% growth and 8.5% WACC."
+uv run python scripts/test_gemini_enterprise.py
 ```
 
 ---
