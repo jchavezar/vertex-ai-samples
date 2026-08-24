@@ -1,7 +1,7 @@
 <div align="center">
 
-# ⚡ Vertex AI Managed Agents: Autonomous Cloud Sandbox & A2A Wire-Tap
-### *Next-Generation Autonomous Multi-Agent Computing, Dedicated MicroVM Sandboxes, & Adversarial Governance Protocol*
+# ⚡ Vertex AI Managed Agents
+### *Autonomous Cloud Sandbox, One-Click Interactive HTML Dashboards, & A2A Forensic Wire-Tap*
 
 [![Google Cloud](https://img.shields.io/badge/Google_Cloud-Vertex_AI_Managed_Agents-4285F4?style=for-the-badge&logo=googlecloud&logoColor=white)](https://cloud.google.com/vertex-ai)
 [![Model](https://img.shields.io/badge/Engine-antigravity--preview--05--2026-6366F1?style=for-the-badge&logo=google&logoColor=white)](https://cloud.google.com)
@@ -9,33 +9,98 @@
 [![Security](https://img.shields.io/badge/Security-VPC--SC_Zero--Leak_Enforced-10B981?style=for-the-badge&logo=shield&logoColor=white)](https://cloud.google.com)
 [![UI](https://img.shields.io/badge/Frontend-React_19_+_Vite_+_Tailwind_v4-EC4899?style=for-the-badge&logo=react&logoColor=white)](https://react.dev)
 
+<p align="center">
+  <a href="#-executive-briefing-center-ebc-visual-walkthrough"><strong>Explore Visual Demo &rarr;</strong></a> &nbsp;|&nbsp;
+  <a href="#-interactive-demo-file-one-click-run"><strong>Open Live HTML Dashboard &rarr;</strong></a> &nbsp;|&nbsp;
+  <a href="#-architecture-topology"><strong>Architecture Topology &rarr;</strong></a> &nbsp;|&nbsp;
+  <a href="#-the-antigravity-replication-recipe"><strong>Replication Recipe &rarr;</strong></a>
+</p>
+
 </div>
 
 ---
 
-## 🌟 Executive Overview & The "Why"
+## 🌟 Executive Overview: Why Vertex AI Managed Agents?
 
-Standard enterprise chatbots predict text tokens in a vacuum. When tasked with complex mathematical modeling, live web research, or software engineering, they hallucinate because they lack **computational execution environments** and **adversarial verification**.
+Traditional enterprise chatbots predict text in a vacuum. When tasked with complex mathematical modeling, live web intelligence, or software engineering, they hallucinate because they lack **computational execution environments** and **independent adversarial verification**.
 
-**Vertex AI Managed Agents** solve this fundamentally by pairing frontier Gemini intelligence with **dedicated, stateful remote Linux microVM containers (`/workspace`)** hosted directly within the customer's Google Cloud perimeter.
+**Vertex AI Managed Agents** represent a paradigm shift by pairing frontier Gemini intelligence with **dedicated, stateful remote Linux microVM containers (`/workspace`)** hosted directly within the customer's Google Cloud perimeter.
 
-### 💎 Key Differentiators for the Boardroom (EBC)
-
-1. **The Tri-Modal Execution Pipeline**:
-   - **Live Grounding**: Autonomous Google Search Grounding to extract live macro, earnings, and regulatory data.
-   - **Raw Heavy Compute**: Isolated Linux MicroVMs executing 10,000+ iteration Python simulations (`NumPy`, `SciPy`, `Pandas`).
-   - **Zero-Parsing Dynamic UI**: Immediate compilation and embedded rendering of self-contained, interactive HTML5/SVG decision dashboards.
-2. **A2A (Agent-to-Agent) Adversarial Governance**:
-   - Implements **Separation of Duties (SoD)** and **Model Risk Management (SR 11-7)**.
-   - A 4-agent digital pod where a **Deal Lead** delegates compute to a **Quant Sandbox Worker**, an adversarial **Red-Team Risk Auditor** challenges assumptions, and a **Chief Risk Officer (CRO)** arbitrates consensus.
-3. **Enterprise VPC-SC Perimeter (CISO Proof)**:
-   - Unlike 3rd-party SaaS sandboxes where IP and datasets leave the corporate boundary, all microVMs execute within Google Cloud VPC Service Controls with zero training on customer data.
-4. **Deterministic Forensic Wire-Tap**:
-   - Complete audit trail of every JSON-RPC envelope, tool call, command execution, and file SHA-256 hash.
+```
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│                                   THE TRI-MODAL EXECUTION ADVANTAGE                                     │
+├───────────────────────────────┬───────────────────────────────────┬─────────────────────────────────────┤
+│   1. LIVE WEB GROUNDING       │      2. HEAVY RAW COMPUTE         │    3. ZERO-PARSING DYNAMIC UI       │
+│ Google Search Grounding to    │ Dedicated Linux MicroVM container │ Instant embedded HTML5/SVG decision │
+│ extract live market data,     │ running 10,000+ iteration Python  │ dashboards with reactive sliders &  │
+│ earnings, and macro signals.  │ simulations (NumPy/SciPy/Pandas). │ instant scenario shock recalculation│
+└───────────────────────────────┴───────────────────────────────────┴─────────────────────────────────────┘
+```
 
 ---
 
-## 🏛️ System Architecture
+## 📸 Executive Briefing Center (EBC) Visual Walkthrough
+
+### 1. Unified Multi-Agent Proving Grounds
+Executives select from pre-configured high-impact tracks or enter freeform complex analytical instructions.
+
+<div align="center">
+  <img src="assets/01_console_home_hub.png" width="95%" alt="Console Proving Grounds" />
+  <p><em>Figure 1: Autonomous Cloud Sandbox console featuring M&A Intelligence, Heavy Monte Carlo, and A2A Governance tracks.</em></p>
+</div>
+
+---
+
+### 2. Live Stateful Sandbox Disk (`/workspace`)
+Inspect files generated, read, and executed across multiple conversation turns without data loss.
+
+<div align="center">
+  <img src="assets/02_sandbox_disk_drawer.png" width="95%" alt="Sandbox Disk Drawer" />
+  <p><em>Figure 2: Virtual MicroVM disk explorer displaying persistent files (CSV models, Python scripts, HTML dashboards).</em></p>
+</div>
+
+---
+
+### 3. One-Click Interactive Board-Ready Risk Dashboard
+The agent generates, compiles, and embeds an interactive HTML5/SVG application directly in the conversation flow.
+
+<div align="center">
+  <img src="assets/03_interactive_html_dashboard.png" width="95%" alt="Interactive HTML Dashboard" />
+  <p><em>Figure 3: Standalone executive decision dashboard with real-time WACC, Revenue Growth, and Synergy sensitivity bars.</em></p>
+</div>
+
+---
+
+### 4. Zero-Latency Dynamic Scenario Shock Recalculation
+Executives interact with the live dashboard directly inside the chat interface to stress-test valuations under extreme economic shocks.
+
+<div align="center">
+  <img src="assets/04_interactive_shock_recalc.png" width="95%" alt="Scenario Shock Recalculation" />
+  <p><em>Figure 4: Dynamic recalculation of Enterprise Valuation ($5,821.2B) and VaR upon triggering the High Growth (+25%) shock.</em></p>
+</div>
+
+---
+
+### 5. Agent-to-Agent (A2A) Forensic Protocol Wire-Tap
+A 4-node governance pod orchestrates tasks, conducts adversarial audits, and cryptographically signs consensus.
+
+<div align="center">
+  <img src="assets/05_a2a_forensic_wiretap.png" width="95%" alt="A2A Forensic Wire-Tap" />
+  <p><em>Figure 5: Live A2A wire-tap modal showing inter-agent JSON-RPC envelopes, Red-Team dissents, and SHA-256 integrity verification.</em></p>
+</div>
+
+---
+
+## 🎯 Interactive Demo File: One-Click Run
+
+You can open and test the exact interactive risk dashboard generated by the Managed Agent right now in any web browser:
+
+* 📄 **Open Standalone HTML File**: [`demo/risk_dashboard.html`](demo/risk_dashboard.html)
+  *(Double-click or open in Chrome/Safari to adjust live sliders, trigger instant macro shocks, and observe sensitivity recalculations)*.
+
+---
+
+## 🏛️ Architecture Topology
 
 ```mermaid
 flowchart TD
@@ -43,10 +108,11 @@ flowchart TD
         UI["React 19 Executive Console"]
         WireTap["A2A Forensic Wire-Tap Modal"]
         IframeViewer["Live HTML5 Sandbox Artifact Viewer"]
+        DiskDrawer["Sandbox Disk Drawer (/workspace)"]
     end
 
     subgraph Backend ["FastAPI Async Gateway (localhost:8090)"]
-        SSEBroker["SSE Event Stream Ingestor"]
+        SSEBroker["SSE Stream Broker & Parser"]
         AuthBridge["ADC & Google GenAI SDK Bridge"]
     end
 
@@ -62,7 +128,7 @@ flowchart TD
 
         subgraph SandboxMicroVM ["Stateful Linux Sandbox MicroVM (/workspace)"]
             PyKernel["Python 3.13 Runtime\n(NumPy / Pandas / SciPy)"]
-            DiskStorage["Persistent Virtual Disk\n(/workspace/risk_dashboard.html)"]
+            DiskStorage["Persistent Virtual Disk\n(risk_dashboard.html / market_comparison.csv)"]
             SearchTool["Google Search Grounding Tool"]
         end
     end
@@ -73,86 +139,25 @@ flowchart TD
     Pod --> SandboxMicroVM
     SandboxMicroVM --> DiskStorage
     DiskStorage -.-> IframeViewer
+    DiskStorage -.-> DiskDrawer
     Pod -.-> WireTap
 ```
 
 ---
 
-## 🛠️ The Antigravity Recipe: How to Build This System
+## 🥊 Competitive Matrix: Why Vertex AI Wins in the Enterprise
 
-This section serves as a step-by-step blueprint for Antigravity AI agents and engineers to reproduce or extend this platform.
-
-### Step 1: Authentication & Identity Setup
-The system relies strictly on **Google Cloud Application Default Credentials (ADC)**. No hardcoded API keys.
-
-```bash
-# Set target Google Cloud project
-export GOOGLE_CLOUD_PROJECT="vtxdemos"
-export GOOGLE_CLOUD_LOCATION="global"
-
-# Authenticate local environment
-gcloud auth application-default login
-```
-
-### Step 2: Asynchronous GAOS Python Stream Broker (`backend/main.py`)
-Use `google-genai` with `vertexai=True` to create streaming interactions against remote Linux environments:
-
-```python
-from google import genai
-from fastapi import FastAPI
-from sse_starlette.sse import EventSourceResponse
-
-client = genai.Client(vertexai=True, project="vtxdemos", location="global")
-
-@app.post("/api/chat")
-async def chat_endpoint(req: ChatRequest):
-    async def event_generator():
-        # Dispatch interaction to Managed Agent with remote Linux container
-        stream_response = client.interactions.create(
-            agent="antigravity-preview-05-2026",
-            input=req.message,
-            environment={"type": "remote"} if not req.environment_id else {"id": req.environment_id},
-            stream=True
-        )
-        for event in stream_response:
-            # Yield real-time tokens, tool step executions, and disk artifacts over SSE
-            if event.event_type == "content.delta":
-                yield {"event": "token", "data": json.dumps({"text": event.delta.text})}
-            elif event.event_type == "interaction.completed":
-                yield {"event": "done", "data": json.dumps({"status": "completed"})}
-                return
-
-    return EventSourceResponse(event_generator())
-```
-
-### Step 3: Zero-Parsing React 19 Frontend (`frontend/src/App.tsx`)
-1. Ingest SSE streams chunk-by-chunk with state machine preservation.
-2. Intercept `create_file` tool arguments and bash heredocs (`cat << 'EOF' > ...`) on the fly.
-3. Cache file artifacts into `sandboxFiles` state.
-4. Render interactive HTML5 dashboards securely using `srcDoc` within `<iframe sandbox="allow-scripts" />`.
-
-### Step 4: A2A Protocol Implementation (Forensic Wire-Tap)
-Construct structured JSON-RPC envelopes representing inter-agent handshakes:
-
-```typescript
-interface A2AMessage {
-  id: string;
-  traceId: string;
-  sender: { agentId: string; role: string };
-  recipient: { agentId: string; role: string };
-  intent: 'DELEGATE_SIMULATION' | 'CHALLENGE_ASSUMPTION' | 'RECALIBRATE_MODEL' | 'CONSENSUS_REACHED';
-  status: 'VERIFIED' | 'DISPUTED' | 'RECALIBRATED' | 'SIGNED';
-  summary: string;
-  hash: string;
-  payload: Record<string, any>;
-}
-```
+| Capability | Standard LLM Chatbots (ChatGPT / Gemini Consumer) | 3rd-Party SaaS Sandboxes (Claude Code / Open-Code) | Google Cloud Vertex AI Managed Agents |
+| :--- | :--- | :--- | :--- |
+| **Data Boundary** | Public API / Data training risks | Data leaves enterprise VPC to 3rd-party SaaS compute | **100% Inside Google Cloud VPC-SC Tenant** |
+| **Stateful MicroVM** | ❌ No persistent disk across turns | ⚠️ Ephemeral, shared cloud runner | **✅ Dedicated, isolated MicroVM `/workspace`** |
+| **Adversarial Governance** | ❌ Monolithic single model bias | ❌ Single execution thread | **✅ Multi-Agent A2A Pod (SR 11-7 Compliant)** |
+| **Zero-Parsing Dynamic UI** | ❌ Static markdown text only | ❌ CLI terminal output only | **✅ Embedded reactive HTML5/SVG apps** |
+| **Security & Compliance** | ⚠️ Standard SOC2 | ⚠️ 3rd-party vendor risk | **✅ SOC2 Type II, HIPAA, FedRAMP, VPC-SC** |
 
 ---
 
-## 🎭 The Executive Briefing (EBC) Playbook: 4 Acts
-
-Use this 4-Act script when presenting to CIOs, CTOs, and CISOs:
+## 🎭 The 4-Act EBC Presentation Playbook
 
 | Act | Demo Action | Boardroom Talking Point |
 | :--- | :--- | :--- |
@@ -163,33 +168,36 @@ Use this 4-Act script when presenting to CIOs, CTOs, and CISOs:
 
 ---
 
-## 🚀 Quickstart & How to Run
+## 🛠️ The Antigravity Replication Recipe
 
-### Prerequisites
-- Node.js 18+
-- Python 3.11+ & [`uv`](https://github.com/astral-sh/uv)
-- Google Cloud ADC configured (`gcloud auth application-default login`)
+Antigravity agents and engineers can deploy this complete solution in minutes using the pre-packaged recipe:
 
-### One-Command Launch
 ```bash
+# 1. Setup & verify GCP environment
+uv run agy-recipes/managed-agent-sandbox-chat/scripts/setup.py
+
+# 2. Run interaction smoke-test
+uv run agy-recipes/managed-agent-sandbox-chat/scripts/test_recipe.py
+
+# 3. Launch full stack application
 cd antigravity-sandbox-chat
 ./start.sh
 ```
 
 - **Frontend Console**: [http://localhost:5174](http://localhost:5174)
-- **FastAPI Stream Gateway**: [http://127.0.0.1:8090](http://127.0.0.1:8090)
+- **FastAPI Gateway**: [http://127.0.0.1:8090](http://127.0.0.1:8090)
 
 ---
 
-## 🔒 Security & Zero-Leak Protocol
+## 🔒 Security & Zero-Leak Guarantee
 
-- **Zero API Keys in Code**: Pure IAM Application Default Credentials (ADC).
-- **VPC Service Controls**: Data and microVM execution stay strictly inside Google Cloud tenant.
-- **MicroVM Isolation**: Remote execution environments have root `/workspace` isolation with no cross-tenant memory bleed.
-- **SOC2 & SR 11-7 Compliance**: Every inter-agent message carries an immutable cryptographic SHA-256 payload hash and audit trail.
+- **Zero Hardcoded Secrets**: Pure Application Default Credentials (ADC).
+- **VPC Service Controls**: MicroVMs and data packets never transit outside your VPC.
+- **Root Directory Isolation**: Virtual disk operations are sandboxed to `/workspace`.
+- **Cryptographic Provenance**: Every inter-agent envelope includes an immutable SHA-256 execution hash.
 
 ---
 
 <div align="center">
-  <sub>Built with ❤️ for Google Cloud Executive Briefing Center (EBC) & Antigravity Proving Grounds</sub>
+  <sub>Engineered for Google Cloud Executive Briefing Centers (EBC) & Antigravity Proving Grounds</sub>
 </div>
