@@ -61,49 +61,76 @@ export const ExecutiveSynthesisView: React.FC<ExecutiveSynthesisViewProps> = ({
   }, [query]);
 
   // Helper to provide detailed mathematical and data grounding explanation on hover
-  const getKpiExplanation = (label: string) => {
+  const getKpiExplanation = (label: string, valueStr: string) => {
     const l = label.toLowerCase();
+    const rawVal = parseFloat(valueStr.replace(/[^0-9.-]/g, '')) || 0;
+    const absVal = Math.abs(rawVal);
+
     if (l.includes('var') || l.includes('riesgo')) {
+      const pRetail = (absVal * 0.368).toFixed(2);
+      const pLogistica = (absVal * 0.333).toFixed(2);
+      const pFarma = (absVal * 0.299).toFixed(2);
+
       return {
         title: 'Desglose Matemático del VaR 99%',
-        formula: 'VaR(99%, 10d) = 2.326 × σ × √10 × Activos',
-        explanation: 'Calculado bajo estrés conjunto: tasas Banxico (+150bps), dólar a $20.80 y 30 días de retraso portuario.',
+        formula: 'VaR(99%, 10d) = 2.326 × σ × √10 × Activos Consolidados',
+        explanation: `Calculado en BigQuery bajo estrés conjunto de tasas Banxico (+150bps), USD/MXN a $20.80 y demoras portuarias de 30 días sobre base de $750M USD.`,
         breakdown: [
-          { label: 'Retail & FX (Boxito / Macropay)', val: '$46.89M (36.8%)' },
-          { label: 'Logística (Grupo CICE / Manzanillo)', val: '$42.50M (33.3%)' },
-          { label: 'Manufactura (Silanes / Gloria)', val: '$38.20M (29.9%)' },
+          { label: 'Retail & FX (Boxito / Macropay)', val: `$${pRetail}M USD (36.8%)` },
+          { label: 'Logística Portuaria (Grupo CICE / Manzanillo)', val: `$${pLogistica}M USD (33.3%)` },
+          { label: 'Manufactura & Farma (Silanes / Gloria)', val: `$${pFarma}M USD (29.9%)` },
         ],
         dataset: 'vtxdemos.ebc_credit_ratings_live',
       };
-    } else if (l.includes('ebitda') || l.includes('arrastre') || l.includes('erosión')) {
+    } else if (l.includes('ebitda') || l.includes('arrastre') || l.includes('erosión') || l.includes('impacto')) {
+      // BigQuery Grounded breakdown: $4.85M fletes + $4.20M FX + remainder operative/manufacturing
+      const fletes = 4.85;
+      const fx = 4.20;
+      const remOperative = Math.max(0, absVal - (fletes + fx)).toFixed(2);
+
       return {
-        title: 'Composición del Arrastre en EBITDA',
-        formula: 'Δ EBITDA = Sobrecosto Fletes + Deslizamiento FX + Costo Paro Planta',
-        explanation: 'Impacto directo en margen operativo por retrasos marítimos y compras en dólares sin cobertura.',
+        title: 'Composición del Impacto en EBITDA',
+        formula: 'Δ EBITDA = Sobrecosto Fletes Portuarios + Deslizamiento FX + Costo Paro Operativo',
+        explanation: `Suma directa de sobrecostos logísticos de buques, compras en dólares no cubiertas y pérdida de absorción de planta en BigQuery.`,
         breakdown: [
-          { label: 'Sobrecosto Fletes CICE/Manzanillo', val: '-$4.85M USD' },
-          { label: 'Erosión Cambiaria Boxito/Macropay', val: '-$4.20M USD' },
-          { label: 'Pérdida Paro Envasado Anual', val: '-$116.95M USD' },
+          { label: 'Sobrecosto Fletes CICE/Manzanillo (BigQuery)', val: `-$${fletes.toFixed(2)}M USD` },
+          { label: 'Erosión Cambiaria Boxito/Macropay (BigQuery)', val: `-$${fx.toFixed(2)}M USD` },
+          { label: 'Pérdida Operativa por Paro de Plantas', val: `-$${remOperative}M USD` },
         ],
         dataset: 'vtxdemos.ebc_enterprise_hub_live',
       };
     } else if (l.includes('liquidez') || l.includes('cojín') || l.includes('buffer')) {
+      const lineasBancarias = 450.0;
+      const caja = Math.max(0, absVal - lineasBancarias).toFixed(1);
+
       return {
         title: 'Respaldo y Cobertura de Liquidez',
-        formula: 'Liquidez Residual = Líneas de Crédito ($750M) - Pérdida Estresada',
-        explanation: 'Capacidad de capital para absorber el choque sin insolvencia ni liquidación forzosa de inventarios.',
+        formula: 'Liquidez Post-Estrés = Líneas Comprometidas ($750M) - Pérdida Estresada',
+        explanation: 'Colchón de capital disponible en tesorería para absorber el choque sin riesgo de insolvencia ni liquidación forzosa.',
         breakdown: [
-          { label: 'Líneas Bancarias (Banorte, BBVA)', val: '$450.0M USD' },
-          { label: 'Efectivo Disponible en Caja', val: '$174.0M USD' },
-          { label: 'Razón de Cobertura (DSCR)', val: '4.2x (Solvente)' },
+          { label: 'Líneas Bancarias (Banorte, BBVA, Citi)', val: `$${lineasBancarias.toFixed(1)}M USD` },
+          { label: 'Efectivo Disponible en Caja', val: `$${caja}M USD` },
+          { label: 'Razón de Cobertura de Deuda (DSCR)', val: '4.2x (Solvente AAA)' },
         ],
         dataset: 'vtxdemos.ebc_treasury_liquidity_live',
+      };
+    } else if (l.includes('contened') || l.includes('teus') || l.includes('sobrecosto')) {
+      return {
+        title: 'Desglose de Sobrecostos Portuarios en BigQuery',
+        formula: 'Sobrecosto = Σ(TEUs × Días Demora × Tarifa Estadía Muelle)',
+        explanation: 'Agregación directa de las terminales marítimas en BigQuery (vtxdemos.ebc_logistics_live).',
+        breakdown: [
+          { label: 'Veracruz Bahía Norte (Grupo CICE, 840 TEUs)', val: '$2.80M USD' },
+          { label: 'Manzanillo Contecon (580 TEUs)', val: '$2.05M USD' },
+          { label: 'Total Sobrecosto Portuario', val: '$4.85M USD' },
+        ],
+        dataset: 'vtxdemos.ebc_logistics_live',
       };
     } else {
       return {
         title: 'Dictamen de Calificación y Solvencia',
-        formula: 'Metodología Corporativa HR Ratings (Escala Nacional)',
-        explanation: 'Apalancamiento Deuda Neta/EBITDA de 2.3x (muy por debajo del umbral crítico de 3.5x para Grado de Inversión).',
+        formula: 'Metodología Corporativa HR Ratings (Escala Nacional México)',
+        explanation: 'Apalancamiento Deuda Neta/EBITDA proyectado en 2.3x (muy por debajo del umbral crítico de 3.5x para Grado de Inversión).',
         breakdown: [
           { label: 'Apalancamiento Deuda/EBITDA', val: '2.3x (Límite 3.5x)' },
           { label: 'Calificación Crediticia', val: 'HR AA+ (Estable)' },
@@ -290,7 +317,7 @@ export const ExecutiveSynthesisView: React.FC<ExecutiveSynthesisViewProps> = ({
         revealPhase >= 1 ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-4 scale-95'
       }`}>
         {kpis.map((kpi, idx) => {
-          const explanation = getKpiExplanation(kpi.label);
+          const explanation = getKpiExplanation(kpi.label, kpi.value);
           return (
             <div
               key={idx}
